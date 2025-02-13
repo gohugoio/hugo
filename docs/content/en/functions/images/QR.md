@@ -6,12 +6,12 @@ action:
   aliases: []
   related: []
   returnType: images.ImageResource
-  signatures: ['images.QR TEXT OPTIONS']
+  signatures: ['images.QR TEXT [OPTIONS]']
 toc: true
 math: true
 ---
 
-{{< new-in 0.141.0 >}}
+{{< new-in 0.141.0 />}}
 
 The `images.QR` function encodes the given text into a [QR code] using the specified options, returning an image resource. The size of the generated image depends on three factors:
 
@@ -54,7 +54,7 @@ To create a QR code using the default values for `level` and `scale`:
 {{ end }}
 ```
 
-{{< qr text="https://gohugo.io" class="qrcode" />}}
+{{< qr text="https://gohugo.io" class="qrcode" targetDir="images/qr" />}}
 
 Specify `level`, `scale`, and `targetDir` as needed to achieve the desired result:
 
@@ -63,14 +63,45 @@ Specify `level`, `scale`, and `targetDir` as needed to achieve the desired resul
 {{ $opts := dict 
   "level" "high" 
   "scale" 3
-  "targetDir" "codes"
+  "targetDir" "images/qr"
 }}
 {{ with images.QR $text $opts }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
 {{ end }}
 ```
 
-{{< qr text="https://gohugo.io" level="high" scale=3 targetDir="codes" class="qrcode" />}}
+{{< qr text="https://gohugo.io" level="high" scale=3 targetDir="codes" class="qrcode" targetDir="images/qr" />}}
+
+To include a QR code that points to the `Permalink` of the current page:
+
+{{< code file=layouts/_default/single.html >}}
+{{ with images.QR .Permalink }}
+  <img
+    src="{{ .RelPermalink }}"
+    width="{{ .Width }}"
+    height="{{ .Height }}"
+    alt="QR code linking to {{ $.Permalink }}"
+    class="qr-code"
+    loading="lazy"
+  >
+{{ end }}
+{{< /code >}}
+
+Then hide the QR code with CSS unless printing the page:
+
+```css
+/* Hide QR code by default */
+.qr-code {
+  display: none;
+}
+
+/* Show QR code when printing */
+@media print {
+  .qr-code {
+    display: block; 
+  }
+}
+```
 
 ## Scale
 

@@ -1,0 +1,3 @@
+{{ with resources.Get "js/body-start.js" | js.Build (dict "minify" true) }}
+  {{ partial "helpers/linkjs.html" (dict "r" . "attributes" (dict "" "")) }}
+{{ end }}

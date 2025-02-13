@@ -13,13 +13,12 @@ shortcode.
 
 @example {{% glossary %}}
 */}}
-{{- $path := "/getting-started/glossary" }}
+{{- $path := "/quick-reference/glossary" }}
 {{- with site.GetPage $path }}
-  {{- with $p := .Pages.ByTitle }}
 
     {{- /* Build and render alphabetical index. */}}
     {{- $m := dict }}
-    {{- range $p }}
+    {{- range $p := .Pages.ByTitle }}
       {{- $k := substr .Title 0 1 | strings.ToUpper }}
       {{- if index $m $k }}
         {{- continue }}
@@ -32,12 +31,26 @@ shortcode.
     {{- end }}
 
     {{- /* Render glossary terms. */}}
-    {{- range $p }}
+    {{- range $p := .Pages.ByTitle }}
 ###### {{ .Title }}{{/* Do not indent. */}}
 {{ .RenderShortcodes }}{{/* Do not indent. */}}
+      {{- with .Params.reference }}
+        {{- $destination := "" }}
+        {{- with $u := urls.Parse . }}
+          {{- if $u.IsAbs }}
+            {{- $destination = $u.String }}
+          {{- else }}
+            {{- with site.GetPage $u.Path -}}
+              {{- $destination = .RelPermalink }}
+            {{- else }}
+              {{- errorf "The %q shortcode was unable to find the reference link %s: see %s" $.Name . $p.String }}
+            {{- end }}
+          {{- end }}
+        {{- end -}}
+&#32;See&nbsp;[details]({{ $destination }}).{{/* Do not indent. */}}
+      {{- end }}
     {{- end }}
 
-  {{- end }}
 {{- else }}
   {{- errorf "The %q shortcode was unable to get %s: see %s" .Name $path .Position}}
 {{- end }}

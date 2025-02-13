@@ -18,7 +18,7 @@ toc: true
 Although none of the options are required, at a minimum you will want to set the `size` to be some reasonable percentage of the image height.
 
 alignx
- {{< new-in 0.141.0 >}}
+ {{< new-in 0.141.0 />}}
 : (`string`) The horizontal alignment of the text relative to the horizontal offset, one of `left`, `center`, or `right`. Default is `left`.
 
 color

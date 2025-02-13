@@ -1,0 +1,28 @@
+{{ $r := .r }}
+{{ $attr := .attributes | default dict }}
+
+{{ if hugo.IsDevelopment }}
+  <link
+    rel="stylesheet"
+    href="{{ $r.RelPermalink }}"
+    {{ template `render-attributes` $attr }} />
+{{ else }}
+  {{ with $r | minify | fingerprint }}
+    <link
+      rel="stylesheet"
+      href="{{ .RelPermalink }}"
+      integrity="{{ .Data.Integrity }}"
+      crossorigin="anonymous"
+      {{ template `render-attributes` $attr }} />
+  {{ end }}
+{{ end }}
+
+{{ define "render-attributes" }}
+  {{- range $k, $v := . -}}
+    {{- if $v -}}
+      {{- printf ` %s=%q` $k $v | safeHTMLAttr -}}
+    {{- else -}}
+      {{- printf ` %s` $k | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}
+{{ end }}

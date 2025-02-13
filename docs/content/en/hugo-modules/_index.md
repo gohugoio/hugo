@@ -1,7 +1,7 @@
 ---
 title: Hugo Modules
-linkTitle: In this section
-description: How to use Hugo Modules.
+
+description: Use Hugo Modules to manage the content, presentation, and behavior of your site.
 categories: []
 keywords: []
 menu:

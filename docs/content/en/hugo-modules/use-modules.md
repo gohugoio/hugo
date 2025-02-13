@@ -148,7 +148,7 @@ use .
 use ../gohugoioTheme
 ```
 
-Using the `use` directive, list all the modules you want to work on, pointing to its relative location. As in the example above, it's recommended to always include the main project (the ".") in the list.
+Using the `use` directive, list all the modules you want to work on, pointing to its relative location. As in the example above, it's recommended to always include the main project (the `.`) in the list.
 
 With that you can start the Hugo server with that workspace enabled:
 

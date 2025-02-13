@@ -17,7 +17,7 @@ action:
   signatures: [math.Pi]
 ---
 
-{{< new-in 0.130.0 >}}
+{{< new-in 0.130.0 />}}
 
 ```go-html-template
 {{ math.Pi }} → 3.141592653589793

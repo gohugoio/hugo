@@ -17,7 +17,7 @@ action:
   signatures: [math.Tan VALUE]
 ---
 
-{{< new-in 0.130.0 >}}
+{{< new-in 0.130.0 />}}
 
 ```go-html-template
 {{ math.Tan 1 }} → 1.557407724654902

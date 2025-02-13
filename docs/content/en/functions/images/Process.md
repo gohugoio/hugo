@@ -14,7 +14,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.119.0 >}}
+{{< new-in 0.119.0 />}}
 
 This filter has the same options as the [`Process`] method on a `Resource` object, but using it as a filter may be more effective if you need to apply multiple filters to an image.
 

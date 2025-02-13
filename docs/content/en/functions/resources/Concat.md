@@ -12,7 +12,7 @@ action:
 
 The `resources.Concat` function returns a concatenated slice of resources, caching the result using the target path as its cache key. Each resource must have the same [media type].
 
-Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] method. 
+Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] method.
 
 [media type]: https://en.wikipedia.org/wiki/Media_type
 [`publish`]: /methods/resource/publish/

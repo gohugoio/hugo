@@ -1,6 +1,6 @@
 ---
 title: Hugo Pipes
-linkTitle: In this section
+description: Use asset pipelines to transform and optimize images, stylesheets, and JavaScript.
 categories: []
 keywords: []
 menu:

@@ -14,28 +14,116 @@ action:
 toc: true
 ---
 
-{{< new-in 0.128.0 >}}
+{{< new-in 0.128.0 />}}
 
-{{% todo %}}remove this admonition when feature is stable.{{% /todo %}}
+Use the `css.TailwindCSS` function to process your Tailwind CSS files.  This function uses the Tailwind CSS CLI to:
 
-{{% note %}}
-This is an experimental feature pending the release of TailwindCSS v4.0.
+1. Scan your templates for Tailwind CSS utility class usage.
+1. Compile those utility classes into standard CSS.
+1. Generate an optimized CSS output file.
 
-The functionality, configuration requirements, and documentation are subject to change at any time and may be not compatible with prior releases.
-{{% /note %}}
+## Setup
 
-## Prerequisites
+###### Step 1
 
-To use this function you must install the Tailwind CSS CLI v4.0 or later. You may install the CLI as an npm package or as a standalone executable. See the [Tailwind CSS documentation] for details.
+Install the Tailwind CSS CLI v4.0 or later:
 
-[Tailwind CSS documentation]: https://tailwindcss.com/docs/installation
+```sh
+npm install --save-dev tailwindcss @tailwindcss/cli
+```
 
-{{% note %}}
-Prior to the release of Tailwind CSS v4.0 you must install [v4.0.0-alpha.26](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.0.0-alpha.26) or later.
+The TailwindCSS CLI is also available as a [standalone executable] if you want to use it without installing Node.js.
 
-`npm install --save-dev tailwindcss@next @tailwindcss/cli@next`
+[standalone executable]: https://github.com/tailwindlabs/tailwindcss/releases/latest
 
-{{% /note %}}
+###### Step 2
+
+Add this to your site configuration:
+
+{{< code-toggle file=hugo copy=true >}}
+[[module.mounts]]
+source = "assets"
+target = "assets"
+[[module.mounts]]
+source = "hugo_stats.json"
+target = "assets/notwatching/hugo_stats.json"
+disableWatch = true
+[build.buildStats]
+enable = true
+[[build.cachebusters]]
+source = "assets/notwatching/hugo_stats\\.json"
+target = "css"
+[[build.cachebusters]]
+source = "(postcss|tailwind)\\.config\\.js"
+target = "css"
+{{< /code-toggle >}}
+
+
+###### Step 3
+
+Create a CSS entry file:
+
+{{< code file=assets/css/main.css copy=true >}}
+@import "tailwindcss";
+@source "hugo_stats.json";
+{{< /code >}}
+
+Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` is listed in your `.gitignore` file, Tailwind CSS will ignore it. To make `hugo_stats.json` available to Tailwind CSS you must explicitly source it as shown in the example above.
+
+###### Step 4
+
+Create a partial template to process the CSS with the Tailwind CSS CLI:
+
+{{< code file=layouts/partials/css.html copy=true >}}
+{{ with (templates.Defer (dict "key" "global")) }}
+  {{ with resources.Get "css/main.css" }}
+    {{ $opts := dict
+      "minify" hugo.IsProduction
+      "inlineImports" true
+    }}
+    {{ with . | css.TailwindCSS $opts }}
+      {{ if hugo.IsProduction }}
+        {{ with . | fingerprint }}
+          <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+        {{ end }}
+      {{ else }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{< /code >}}
+
+###### Step 5
+
+Call the partial template from your base template:
+
+{{< code file=layouts/default/baseof.html >}}
+<head>
+  ...
+  {{ partialCached "css.html" . }}
+  ...
+<head>
+{{< /code >}}
+
+###### Step 6
+
+Optionally create a `tailwind.config.js` file in the root of your project as shown below. This is necessary if you use the [Tailwind CSS IntelliSense
+extension] for Visual Studio Code.
+
+[Tailwind CSS IntelliSense
+extension]: https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
+
+{{< code file=tailwind.config.js copy=true >}}
+/*
+This file is present to satisfy a requirement of the Tailwind CSS IntelliSense
+extension for Visual Studio Code.
+
+https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
+
+The rest of this file is intentionally empty.
+*/
+{{< /code >}}
 
 ## Options
 
@@ -50,38 +138,3 @@ inlineImports
 
 skipInlineImportsNotFound
 : (`bool`) When `inlineImports` is enabled, we fail the build if an import cannot be resolved. Enable this option to allow the build to continue and leave the import statement in place. Note that the inline importer does not process URL location or imports with media queries, so those will be left as-is even without enabling this option. Default is `false`.
-
-## Example
-
-Define a [cache buster] in your site configuration:
-
-[cache buster]: /getting-started/configuration-build/#configure-cache-busters
-
-{{< code-toggle file=hugo >}}
-[[build.cachebusters]]
-source = 'layouts/.*'
-target = 'css'
-{{< /code-toggle >}}
-
-Process the resource:
-
-```go-html-template
-{{ with resources.Get "css/main.css" }}
-  {{ $opts := dict "minify" true }}
-  {{ with . | css.TailwindCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | fingerprint }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
-      {{ end }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-```
-
-The example above publishes the minified CSS file to `public/css/main.css`.
-
-See [this repository] for more information about the integration with Tailwind CSS v4.0.
-
-[this repository]: https://github.com/bep/hugo-testing-tailwindcss-v4

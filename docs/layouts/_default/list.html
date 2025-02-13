@@ -1,0 +1,67 @@
+{{ define "main" }}
+  {{ $pages := "" }}
+  {{ $showDate := false }}
+  {{ if .IsPage }}
+    {{/* We currently have a slightly odd content structure with no top level /docs section. */}}
+    {{ $pages = .CurrentSection.Pages }}
+  {{ else }}
+    {{ if eq .Section "news" }}
+      {{ $pages = partial "news/get-news-items.html" . }}
+      {{ $showDate = true }}
+    {{ else }}
+      {{ $pages = .Pages }}
+    {{ end }}
+  {{ end }}
+
+
+  <article class="">
+    {{ partial "layouts/docsheader.html" . }}
+    <div class="mt-6 sm:mt-8 grid grid-cols-2 xl:grid-cols-3 gap-4 min-h-40">
+      {{ range $pages }}
+        {{ if eq . $ }}
+          {{ continue }}
+        {{ end }}
+        <a
+          class="flex col-span-1 a--block cursor-pointer flex-col group border p-3 sm:p-4 hover:shadow-md dark:shadow-slate-800 border-gray-300 dark:border-gray-800 m-0"
+          href="{{ .RelPermalink }}">
+          {{ if $showDate }}
+            <p
+              class="text-gray-500 dark:text-gray-400 text-sm/5 md:text-base/2 mb-2 sm:mb-4">
+              {{ .Date.Format "January 2, 2006" }}
+            </p>
+          {{ end }}
+          <h3
+            class="text-lg/6 md:text-2xl tracking-tight p-0 -mt-1 sm:mt-0 mb-1 sm:mb-2 text-primary group-hover:text-primary/70 overflow-hidden">
+            {{ .LinkTitle }}
+          </h3>
+
+          {{ with .Params.action.signatures }}
+            {{/* Set in functions and methods pages. */}}
+            {{ with $signature := index . 0 }}
+              {{ if $.Params.action.returnType }}
+                {{ $signature = printf "%s ⟼ %s" $signature $.context.Params.action.returnType }}
+              {{ end }}
+              <div
+                class="font-mono font-light text-sm whitespace-nowrap mb-2 sm:mb-4 p-2 bg-slate-50 dark:bg-slate-700 border-0 mr-8 overflow-x-auto">
+                {{- $signature -}}
+              </div>
+            {{ end }}
+          {{ end }}
+          <p
+            class="text-black dark:text-gray-100 leading-6 text-sm md:text-base three-lines-ellipsis">
+            {{ if and (eq .Section "commands") .IsPage }}
+              {{ $simpleCobraCommandShort := .RawContent | strings.ReplaceRE `(?s)^##\s.+?\n\n(.+?)\n\n.*` "$1" }}
+              {{ printf "%s." $simpleCobraCommandShort }}
+            {{ else }}
+              {{ (or .Params.description .Summary) | plainify | safeHTML }}
+            {{ end }}
+          </p>
+        </a>
+      {{ end }}
+    </div>
+  </article>
+{{ end }}
+
+{{ define "rightsidebar" }}
+  {{ printf "%c" '\u00A0' }}
+{{ end }}

@@ -15,10 +15,10 @@ aliases: [/content/sections/]
 
 ## Overview
 
-A section is a top-level content directory, or any content directory with an&nbsp;`_index.md` file. A content directory with an `_index.md` file is also known as a [branch bundle](g). Section templates receive one or more page [collections](g) in [context](g).
+A section is a top-level content directory, or any content directory with an&nbsp;`_index.md`&nbsp;file. A content directory with an&nbsp;`_index.md`&nbsp;file is also known as a [branch bundle](g). Section templates receive one or more page [collections](g) in [context](g).
 
 {{% note %}}
-Although top-level directories without `_index.md` files are sections, we recommend creating `_index.md` files in _all_ sections.
+Although top-level directories without `_index.md`&nbsp;files are sections, we recommend creating `_index.md`&nbsp;files in _all_ sections.
 {{% /note %}}
 
 A typical site consists of one or more sections. For example:

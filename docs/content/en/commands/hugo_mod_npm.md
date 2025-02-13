@@ -5,7 +5,7 @@ url: /commands/hugo_mod_npm/
 ---
 ## hugo mod npm
 
-Various npm helpers.
+Various npm helpers
 
 ### Synopsis
 
@@ -41,5 +41,5 @@ hugo mod npm [command] [flags]
 ### SEE ALSO
 
 * [hugo mod](/commands/hugo_mod/)	 - Manage modules
-* [hugo mod npm pack](/commands/hugo_mod_npm_pack/)	 - Experimental: Prepares and writes a composite package.json file for your project.
+* [hugo mod npm pack](/commands/hugo_mod_npm_pack/)	 - Experimental: Prepares and writes a composite package.json file for your project
 

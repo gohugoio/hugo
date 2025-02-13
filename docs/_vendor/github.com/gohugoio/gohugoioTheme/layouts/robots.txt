@@ -1,8 +1,0 @@
-User-agent: *
-# robotstxt.org - if ENV production variable is false robots will be disallowed.
-{{ if eq (getenv "HUGO_ENV") "production" }}
-  Disallow: admin/
-  Disallow:
-{{ else }}
-  Disallow: /
-{{ end }}

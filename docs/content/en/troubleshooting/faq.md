@@ -51,11 +51,11 @@ If the answer to any of these questions is yes, either change the field values, 
 
 ###### Why can't I see any of a page's descendants?
 
-You may have an `index.md` file instead of an `_index.md` file. See&nbsp;[details](/content-management/page-bundles/).
+You may have an&nbsp;`index.md`&nbsp;file instead of an&nbsp;`_index.md`&nbsp;file. See&nbsp;[details](/content-management/page-bundles/).
 
-###### What is the difference between an index.md file and an _index.md file?
+###### What is the difference between an&nbsp;`index.md`&nbsp;file and an&nbsp;`_index.md`&nbsp;file?
 
-A directory with an `index.md file` is a [leaf bundle](g). A directory with an `_index.md` file is a [branch bundle](g). See&nbsp;[details](/content-management/page-bundles/).
+A directory with an `index.md file` is a [leaf bundle](g). A directory with an&nbsp;`_index.md`&nbsp;file is a [branch bundle](g). See&nbsp;[details](/content-management/page-bundles/).
 
 ###### Why is my partial template not rendered as expected?
 

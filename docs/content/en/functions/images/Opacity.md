@@ -13,7 +13,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.119.0 >}}
+{{< new-in 0.119.0 />}}
 
 The opacity value must be in the range [0, 1]. A value of `0` produces a transparent image, and a value of `1` produces an opaque image (no transparency).
 

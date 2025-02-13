@@ -41,38 +41,38 @@ id
 : (`string`) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.
 
 allowFullScreen
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`bool`) Whether the `iframe` element can activate full screen mode. Default is `true`.
 
 autoplay
- {{< new-in 0.125.0 >}}
+ {{< new-in 0.125.0 />}}
 : (`bool`) Whether to automatically play the video. Forces `mute` to `true`. Default is `false`.
 
 class
 : (`string`) The `class` attribute of the wrapping `div` element. When specified, removes the `style` attributes from the `iframe` element and its wrapping `div` element.
 
 controls
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`bool`) Whether to display the video controls. Default is `true`.
 
 end
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`int`) The time, measured in seconds from the start of the video, when the player should stop playing the video.
 
 loading
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`string`) The loading attribute of the `iframe` element, either `eager` or `lazy`. Default is `eager`.
 
 loop
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`bool`) Whether to indefinitely repeat the video. Ignores the `start` and `end` arguments after the first play.  Default is `false`.
 
 mute
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`bool`) Whether to mute the video. Always `true` when `autoplay` is `true`. Default is `false`.
 
 start
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 : (`int`) The time, measured in seconds from the start of the video, when the player should start playing the video.
 
 title

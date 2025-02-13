@@ -9,7 +9,7 @@ action:
   signatures: [SITE.Lastmod]
 ---
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 The `Lastmod` method on a `Site` object returns a [`time.Time`] value. Use this with time [functions] and [methods]. For example:
 

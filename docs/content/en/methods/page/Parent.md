@@ -16,7 +16,7 @@ action:
   signatures: [PAGE.Parent]
 ---
 
-{{% include "methods/page/_common/definition-of-section.md" %}}
+{{% glossary-term section %}}
 
 {{% note %}}
 The parent section of a regular page is the [current section].

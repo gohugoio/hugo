@@ -71,7 +71,7 @@ When working with global resources instead of page resources, use the [`resource
 
 ###### Mount
 
-{{< new-in "0.140.0" >}}
+{{< new-in 0.140.0 />}}
 
 (`ResourceGetter`) Mounts the given resources from the two arguments base (`string`) to the given target path (`string`) and returns an object that implements [Get](#get). Note that leading slashes in target marks an absolute path. Relative target paths allows you to mount resources relative to another set, e.g. a [Page bundle](/content-management/page-bundles/):
 

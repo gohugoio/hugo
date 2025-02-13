@@ -1,0 +1,25 @@
+{{ $image := .image }}
+{{ $width := .width | default 1000 }}
+{{ $width1x := div $width 2 }}
+{{ $imageWebp := $image.Resize (printf "%dx webp" $width) }}
+{{ $image1x := $image.Resize (printf "%dx" $width1x) }}
+{{ $image1xWebp := $image.Resize (printf "%dx webp" $width1x) }}
+{{ $class := .class | default "h-64 tablet:h-96 lg:h-full w-full object-cover lg:absolute" }}
+<picture>
+  <source
+    srcset="{{ $imageWebp.RelPermalink }}"
+    type="image/webp"
+    media="(min-width: 1200px)" />
+  <source
+    srcset="{{ $image.RelPermalink }}"
+    type="image/jpeg"
+    media="(min-width: 1200px)" />
+  <source srcset="{{ $image1xWebp.RelPermalink }}" type="image/webp" />
+  <source srcset="{{ $image1x.RelPermalink }}" type="image/jpeg" />
+  <img
+    class="{{ $class }}"
+    src="{{ $image1x.RelPermalink }}"
+    alt=""
+    width="{{ $image1x.Width }}"
+    height="{{ $image1x.Height }}" />
+</picture>

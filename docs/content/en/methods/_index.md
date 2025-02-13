@@ -1,7 +1,7 @@
 ---
 title: Methods
-linkTitle: In this section
-description: A list of Hugo template methods including examples.
+
+description: Use these methods within your templates.
 categories: []
 keywords: []
 menu:

@@ -55,6 +55,12 @@ scoop install hugo-extended
 winget install Hugo.Hugo.Extended
 ```
 
+To uninstall the extended edition of Hugo:
+
+```sh
+winget uninstall --name "Hugo (Extended)"
+```
+
 [Winget]: https://learn.microsoft.com/en-us/windows/package-manager/
 
 {{% include "installation/_common/04-build-from-source.md" %}}

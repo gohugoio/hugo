@@ -1,0 +1,110 @@
+{{ $githubInfo := partialCached "helpers/funcs/get-github-info.html" . "-" }}
+<div class="mx-auto max-w-7xl px-6 lg:px-8">
+  <div
+    class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-10 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+    <div class="lg:pr-8">
+      <div class="lg:max-w-lg">
+        <p
+          class="text-4xl font-bold tracking-tight text-pretty text-gray-900 dark:text-gray-300 sm:text-5xl">
+          Open source
+        </p>
+        <p class="mt-6 text-lg/8 text-gray-600 dark:text-gray-400">
+          Hugo is open source and free to use. It is distributed under the
+          Apache 2.0 License.
+        </p>
+        <dl
+          class="mt-10 max-w-xl space-y-8 text-base/7 text-gray-600 dark:text-gray-300 lg:max-w-none">
+          <div class="relative pl-9">
+            <dt class="inline font-bold text-gray-900 dark:text-gray-300">
+              <svg
+                class="absolute top-1 left-1 size-5 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125Z" />
+              </svg>
+              Popular.
+            </dt>
+            <dd class="inline ml-1">
+              As of writing this, Hugo has
+              {{ $githubInfo.stargazers_count }}
+              stars on GitHub. Join the crowd and hit the
+              <a
+                class="text-blue-600 hover:text-blue-700 font-semibold"
+                href="https://github.com/gohugoio/hugo"
+                >Star button</a
+              >.
+            </dd>
+          </div>
+          <div class="relative pl-9">
+            <dt class="inline font-bold text-gray-900 dark:text-gray-300">
+              <svg
+                class="absolute top-1 left-1 size-5 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m20.893 13.393-1.135-1.135a2.252 2.252 0 0 1-.421-.585l-1.08-2.16a.414.414 0 0 0-.663-.107.827.827 0 0 1-.812.21l-1.273-.363a.89.89 0 0 0-.738 1.595l.587.39c.59.395.674 1.23.172 1.732l-.2.2c-.212.212-.33.498-.33.796v.41c0 .409-.11.809-.32 1.158l-1.315 2.191a2.11 2.11 0 0 1-1.81 1.025 1.055 1.055 0 0 1-1.055-1.055v-1.172c0-.92-.56-1.747-1.414-2.089l-.655-.261a2.25 2.25 0 0 1-1.383-2.46l.007-.042a2.25 2.25 0 0 1 .29-.787l.09-.15a2.25 2.25 0 0 1 2.37-1.048l1.178.236a1.125 1.125 0 0 0 1.302-.795l.208-.73a1.125 1.125 0 0 0-.578-1.315l-.665-.332-.091.091a2.25 2.25 0 0 1-1.591.659h-.18c-.249 0-.487.1-.662.274a.931.931 0 0 1-1.458-1.137l1.411-2.353a2.25 2.25 0 0 0 .286-.76m11.928 9.869A9 9 0 0 0 8.965 3.525m11.928 9.868A9 9 0 1 1 8.965 3.525" />
+              </svg>
+              Active.
+            </dt>
+            <dd class="inline ml-1">
+              Hugo has a large and active community. If you have questions or
+              need help, you can ask in the
+              <a
+                class="text-blue-600 hover:text-blue-700 font-semibold"
+                href="https://discourse.gohugo.io"
+                >Hugo forums</a
+              >.
+            </dd>
+          </div>
+          <div class="relative pl-9">
+            <dt class="inline font-bold text-gray-900 dark:text-gray-300">
+              <svg
+                class="absolute top-1 left-1 size-5 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0 1 18 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0 1 18 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 0 1 6 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5" />
+              </svg>
+              Frequent releases.
+            </dt>
+            <dd class="inline ml-1">
+              Hugo has a fast
+              <a
+                class="text-blue-600 hover:text-blue-700 font-semibold"
+                href="https://github.com/gohugoio/hugo/releases"
+                >release</a
+              >
+              cycle. The project is actively maintained and new features are
+              added regularly.
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+    {{ partial "helpers/picture.html" (dict
+      "image" (resources.Get "images/hugo-github-screenshot.png")
+      "alt" "Hugo GitHub Repository"
+      "width" 640
+      "class" "w-full max-w-[38rem] ring-1 shadow-xl dark:shadow-gray-500 ring-gray-400/10")
+    }}
+  </div>
+</div>

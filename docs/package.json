@@ -1,0 +1,22 @@
+{
+  "name": "hugoDocs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "@tailwindcss/typography": "^0.5.15",
+    "tailwindcss": "^4.0.0"
+  },
+  "dependencies": {
+    "@alpinejs/focus": "^3.14.8",
+    "@alpinejs/persist": "^3.14.8",
+    "@hotwired/turbo": "^8.0.12",
+    "alpinejs": "^3.14.8"
+  }
+}

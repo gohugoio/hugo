@@ -5,7 +5,7 @@ url: /commands/hugo_server_trust/
 ---
 ## hugo server trust
 
-Install the local CA in the system trust store.
+Install the local CA in the system trust store
 
 ```
 hugo server trust [flags] [args]

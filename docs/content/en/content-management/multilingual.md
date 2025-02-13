@@ -140,7 +140,7 @@ When building the English site:
 {{ site.Params.subtitle }} --> Reference, Tutorials, and Explanations
 ```
 
-When building the English site:
+When building the German site:
 
 ```go-html-template
 {{ site.Params.color }} --> blue

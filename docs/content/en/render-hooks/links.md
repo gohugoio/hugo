@@ -38,7 +38,7 @@ Link render hook templates receive the following context:
 
 ###### PageInner
 
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 
 (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
@@ -90,7 +90,7 @@ To include a `rel` attribute set to `external` for external links:
 
 ## Default
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 Hugo includes an [embedded link render hook] to resolve Markdown link destinations. Disabled by default, you can enable it in your site configuration:
 

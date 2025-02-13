@@ -188,7 +188,7 @@ The example workflow above includes this step, which typically takes 10&#8209;15
 
 You may remove this step if your site, themes, and modules do not transpile Sass to CSS using the [Dart Sass] transpiler.
 
-[Dart Sass]: /hugo-pipes/transpile-sass-to-css/#dart-sass
+[Dart Sass]: /functions/css/sass/#dart-sass
 
 ## Other resources
 

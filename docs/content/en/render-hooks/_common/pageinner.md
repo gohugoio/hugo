@@ -4,7 +4,7 @@ _comment: Do not remove front matter.
 
 ## PageInner details
 
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 
 The primary use case for `PageInner` is to resolve links and [page resources](g) relative to an included `Page`. For example, create an "include" shortcode to compose a page from multiple content files, while preserving a global context for footnotes and the table of contents:
 

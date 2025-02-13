@@ -1,0 +1,12 @@
+{{ $text := `
+  Most of the commands for **Hugo Modules** require a newer version (>= 1.18) of Go installed (see https://golang.org/dl/) and the relevant VCS client (e.g. Git, see https://git-scm.com/downloads/ ).
+  If you have an "older" site running on Netlify, you may have to set GO_VERSION to 1.19 or newer in your Environment settings.
+
+  For more information about Go Modules, see:
+
+  * https://go.dev/wiki/Modules
+  * https://blog.golang.org/using-go-modules
+  `
+}}
+
+{{ partial "layouts/blocks/alert.html" (dict "title" "Go Modules" "text" ($text | markdownify) "color" "orange" "icon" "exclamation") }}

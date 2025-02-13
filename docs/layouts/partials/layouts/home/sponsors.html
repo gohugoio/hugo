@@ -1,0 +1,43 @@
+{{ $gtag := .gtag | default "unknown" }}
+{{ $gtag := .gtag | default "unknown" }}
+{{ $isFooter := (eq $gtag "footer") }}
+{{ $utmSource := cond $isFooter "hugofooter" "hugohome" }}
+{{ $containerClass := .containerClass | default "mx-auto max-w-7xl px-6 lg:px-8" }}
+{{/* TODO1 prod: onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});"
+*/}}
+{{ with .ctx.Site.Data.sponsors }}
+  <div class="{{ $containerClass }}">
+    <h2 class="font-bold text-2xl mb-6 tracking-tighter">Hugo Sponsors</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
+      {{ range .banners }}
+        <div class="max-w-64" style="background-color: {{ .bgcolor }};">
+          {{ $query_params := .query_params | default "" }}
+          {{ $url := .link }}
+          {{ if not .no_query_params }}
+            {{ $url = printf "%s?%s%s" .link $query_params (querify "utm_source" (.utm_source | default $utmSource ) "utm_medium" (.utm_medium | default "banner") "utm_campaign" (.utm_campaign | default "hugosponsor") "utm_content" (.utm_content | default "gohugoio")) | safeURL }}
+          {{ end }}
+          {{ $logo := resources.Get .logo }}
+          {{ $gtagID := printf "Sponsor %s %s" .name $gtag | title }}
+          <a
+            href="{{ $url }}"
+            title="{{ .title | default .name }}"
+            class="group inline-block w-full h-full shadow-md dark:shadow-gray-600"
+            {{ with .link_attr }}{{ . | safeHTMLAttr }}{{ end }}>
+            <div
+              class="flex w-full h-full p-8 items-center justify-center content-center transition duration-500 hover:scale-105 {{ if .show_on_hover }}
+                invisible group-hover:visible
+              {{ end }}">
+              {{ with $logo }}
+                {{ .Content | safeHTML }}
+              {{ else }}
+                <span class="text-4xl font-bold text-white">
+                  {{ .name }}
+                </span>
+              {{ end }}
+            </div>
+          </a>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}

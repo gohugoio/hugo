@@ -94,5 +94,5 @@ hugo server [command] [flags]
 ### SEE ALSO
 
 * [hugo](/commands/hugo/)	 - Build your site
-* [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store.
+* [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store
 

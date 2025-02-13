@@ -34,7 +34,7 @@ To include the embedded template:
 {{ template "_internal/disqus.html" . }}
 ```
 
-### Configure Disqus
+### Configuration {#configuration-disqus}
 
 To use Hugo's Disqus template, first set up a single configuration value:
 
@@ -54,6 +54,15 @@ You can also set the following in the front matter for a given piece of content:
 - `disqus_identifier`
 - `disqus_title`
 - `disqus_url`
+
+### Privacy {#privacy-disqus}
+
+Adjust the relevant privacy settings in your site configuration.
+
+{{< code-toggle config=privacy.disqus />}}
+
+disable
+: (`bool`) Whether to disable the template. Default is `false`.
 
 ## Google Analytics
 
@@ -76,7 +85,7 @@ To include the embedded template:
 {{ template "_internal/google_analytics.html" . }}
 ```
 
-### Configure Google Analytics
+### Configuration {#configuration-google-analytics}
 
 Provide your tracking ID in your configuration file:
 
@@ -86,6 +95,18 @@ id = "G-MEASUREMENT_ID"
 {{</ code-toggle >}}
 
 To use this value in your own template, access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
+
+### Privacy {#privacy-google-analytics}
+
+Adjust the relevant privacy settings in your site configuration.
+
+{{< code-toggle config=privacy.googleAnalytics />}}
+
+disable
+: (`bool`) Whether to disable the template. Default is `false`.
+
+respectDoNotTrack
+: (`bool`) Whether to respect the browser's "do not track" setting. Default is `false`.
 
 ## Open Graph
 
@@ -107,7 +128,7 @@ To include the embedded template:
 {{ template "_internal/opengraph.html" . }}
 ```
 
-### Configure Open Graph
+### Configuration {#configuration-open-graph}
 
 Hugo's Open Graph template is configured using a mix of configuration settings and [front matter](/content-management/front-matter/) on individual pages.
 
@@ -187,7 +208,7 @@ To include the embedded template:
 {{ template "_internal/twitter_cards.html" . }}
 ```
 
-### Configure X (Twitter) Cards
+### Configuration {#configuration-x-cards}
 
 Hugo's X (Twitter) Card template is configured using a mix of configuration settings and [front-matter](/content-management/front-matter/) values on individual pages.
 

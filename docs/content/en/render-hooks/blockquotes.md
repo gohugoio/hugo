@@ -12,7 +12,7 @@ weight: 30
 toc: true
 ---
 
-{{< new-in 0.132.0 >}}
+{{< new-in 0.132.0 />}}
 
 ## Context
 
@@ -24,13 +24,13 @@ Blockquote render hook templates receive the following [context](g):
 
 ###### AlertTitle
 
-{{< new-in 0.134.0 >}}
+{{< new-in 0.134.0 />}}
 
 (`template.HTML`) Applicable when [`Type`](#type) is `alert`, this is the alert title. See the [alerts](#alerts) section below.
 
 ###### AlertSign
 
-{{< new-in 0.134.0 >}}
+{{< new-in 0.134.0 />}}
 
 (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert sign. Typically used to indicate whether an alert is graphically foldable, this is one of&nbsp;`+`,&nbsp;`-`,&nbsp;or an empty string. See the [alerts](#alerts) section below.
 
