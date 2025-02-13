@@ -216,3 +216,42 @@ func TestGetModlineSplitter(t *testing.T) {
 	gosumSplitter := getModlineSplitter(false)
 	c.Assert(gosumSplitter("github.com/BurntSushi/toml v0.3.1"), qt.DeepEquals, []string{"github.com/BurntSushi/toml", "v0.3.1"})
 }
+
+func TestClientConfigToEnv(t *testing.T) {
+	c := qt.New(t)
+
+	ccfg := ClientConfig{
+		WorkingDir: "/mywork",
+		CacheDir:   "/mycache",
+	}
+
+	env := ccfg.toEnv()
+
+	c.Assert(env, qt.DeepEquals, []string{"PWD=/mywork", "GO111MODULE=on", "GOPATH=/mycache", "GOWORK=", filepath.FromSlash("GOCACHE=/mycache/pkg/mod")})
+
+	ccfg = ClientConfig{
+		WorkingDir: "/mywork",
+		CacheDir:   "/mycache",
+		ModuleConfig: Config{
+			Proxy:     "https://proxy.example.org",
+			Private:   "myprivate",
+			NoProxy:   "mynoproxy",
+			Workspace: "myworkspace",
+			Auth:      "myauth",
+		},
+	}
+
+	env = ccfg.toEnv()
+
+	c.Assert(env, qt.DeepEquals, []string{
+		"PWD=/mywork",
+		"GO111MODULE=on",
+		"GOPATH=/mycache",
+		"GOWORK=myworkspace",
+		filepath.FromSlash("GOCACHE=/mycache/pkg/mod"),
+		"GOPROXY=https://proxy.example.org",
+		"GOPRIVATE=myprivate",
+		"GONOPROXY=mynoproxy",
+		"GOAUTH=myauth",
+	})
+}

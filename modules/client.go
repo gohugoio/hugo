@@ -32,6 +32,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config"
 
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
 
@@ -40,8 +41,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/hugofs/files"
-
-	"github.com/gohugoio/hugo/config"
 
 	"golang.org/x/mod/module"
 
@@ -79,21 +78,6 @@ func NewClient(cfg ClientConfig) *Client {
 		goModFilename = n
 	}
 
-	var env []string
-	mcfg := cfg.ModuleConfig
-
-	config.SetEnvVars(&env,
-		"PWD", cfg.WorkingDir,
-		"GO111MODULE", "on",
-		"GOPROXY", mcfg.Proxy,
-		"GOPRIVATE", mcfg.Private,
-		"GONOPROXY", mcfg.NoProxy,
-		"GOPATH", cfg.CacheDir,
-		"GOWORK", mcfg.Workspace, // Requires Go 1.18, see https://tip.golang.org/doc/go1.18
-		// GOCACHE was introduced in Go 1.15. This matches the location derived from GOPATH above.
-		"GOCACHE", filepath.Join(cfg.CacheDir, "pkg", "mod"),
-	)
-
 	logger := cfg.Logger
 	if logger == nil {
 		logger = loggers.NewDefault()
@@ -109,8 +93,8 @@ func NewClient(cfg ClientConfig) *Client {
 		ccfg:              cfg,
 		logger:            logger,
 		noVendor:          noVendor,
-		moduleConfig:      mcfg,
-		environ:           env,
+		moduleConfig:      cfg.ModuleConfig,
+		environ:           cfg.toEnv(),
 		GoModulesFilename: goModFilename,
 	}
 }
@@ -783,6 +767,37 @@ type ClientConfig struct {
 
 func (c ClientConfig) shouldIgnoreVendor(path string) bool {
 	return c.IgnoreVendor != nil && c.IgnoreVendor.Match(path)
+}
+
+func (cfg ClientConfig) toEnv() []string {
+	mcfg := cfg.ModuleConfig
+	var env []string
+	keyVals := []string{
+		"PWD", cfg.WorkingDir,
+		"GO111MODULE", "on",
+		"GOPATH", cfg.CacheDir,
+		"GOWORK", mcfg.Workspace, // Requires Go 1.18, see https://tip.golang.org/doc/go1.18
+		// GOCACHE was introduced in Go 1.15. This matches the location derived from GOPATH above.
+		"GOCACHE", filepath.Join(cfg.CacheDir, "pkg", "mod"),
+	}
+
+	if mcfg.Proxy != "" {
+		keyVals = append(keyVals, "GOPROXY", mcfg.Proxy)
+	}
+	if mcfg.Private != "" {
+		keyVals = append(keyVals, "GOPRIVATE", mcfg.Private)
+	}
+	if mcfg.NoProxy != "" {
+		keyVals = append(keyVals, "GONOPROXY", mcfg.NoProxy)
+	}
+	if mcfg.Auth != "" {
+		// GOAUTH was introduced in Go 1.24, see https://tip.golang.org/doc/go1.24.
+		keyVals = append(keyVals, "GOAUTH", mcfg.Auth)
+	}
+
+	config.SetEnvVars(&env, keyVals...)
+
+	return env
 }
 
 type goBinaryStatus int
