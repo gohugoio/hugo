@@ -34,6 +34,10 @@
       {{ end }}
       {{ $t.Stop }}
     {{ end }}
+    {{ $noop := .WordCount }}
+    {{ if .Page.Store.Get "hasMath" }}
+      <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
+    {{ end }}
     {{ partial "layouts/head/head.html" . }}
   </head>
   <body class="flex flex-col min-h-full bg-white dark:bg-blue-950">
