@@ -653,6 +653,34 @@ Footer: {{ range index site.Menus.footer }}{{ .Name }}|{{ end }}|
 	)
 }
 
+// Issue 13384.
+func TestPagesFromGoTmplMenusMap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+-- content/_content.gotmpl --
+{{ $menu1 := dict 
+    "parent" "main-page"
+    "identifier" "id1"
+}}
+{{ $menu2 := dict 
+    "parent" "main-page"
+    "identifier" "id2"
+}}
+{{ $menus := dict "m1" $menu1 "m2" $menu2 }}
+{{ .AddPage (dict "path" "p1" "title" "p1" "menus" $menus ) }}
+
+-- layouts/index.html --
+Menus: {{ range $k, $v := site.Menus }}{{ $k }}|{{ end }}
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Menus: m1|m2|")
+}
+
 func TestPagesFromGoTmplMore(t *testing.T) {
 	t.Parallel()
 
