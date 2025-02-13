@@ -9,6 +9,6 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "katex": "^0.16.11"
+    "katex": "^0.16.21"
   }
 }
