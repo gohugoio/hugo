@@ -7,7 +7,7 @@ _comment: Do not remove front matter.
 To build the extended or extended/deploy edition from source you must:
 
 1. Install [Git]
-1. Install [Go] version 1.20 or later
+1. Install [Go] version 1.23.0 or later
 1. Install a C compiler, either [GCC] or [Clang]
 1. Update your `PATH` environment variable as described in the [Go documentation]
 
