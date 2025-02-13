@@ -17,6 +17,7 @@ package cast
 import (
 	"html/template"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	_cast "github.com/spf13/cast"
 )
 
@@ -43,6 +44,23 @@ func (ns *Namespace) ToString(v any) (string, error) {
 func (ns *Namespace) ToFloat(v any) (float64, error) {
 	v = convertTemplateToString(v)
 	return _cast.ToFloat64E(v)
+}
+
+// ToBool converts v to a boolean.
+func (ns *Namespace) ToBool(v any) (bool, error) {
+	v = convertTemplateToString(v)
+	result, err := _cast.ToBoolE(v)
+	if err != nil {
+		return false, nil
+	}
+	return result, nil
+}
+
+// ToTruth yields the same behavior as ToBool when possible.
+// If the cast is unsuccessful, ToTruth converts v to a boolean using the JavaScript [definition of truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).
+// Accordingly, it never yields an error, but maintains the signature of other cast methods for consistency.
+func (ns *Namespace) ToTruth(v any) (bool, error) {
+	return hreflect.IsTruthful(v), nil
 }
 
 func convertTemplateToString(v any) any {
