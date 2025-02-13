@@ -41,6 +41,8 @@
 
 /* This will not match highlighting inside e.g. the code-toggle shortcode. */
 /* For more fine grained control of this, see components/shortcodes.css. */
-.content > .highlight {
+.content > .highlight,
+.content dd > .highlight,
+.content li > .highlight {
   @apply border-1 border-gray-200 dark:border-slate-600 mt-6 mb-8;
 }
