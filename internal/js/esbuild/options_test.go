@@ -177,6 +177,28 @@ func TestToBuildOptions(t *testing.T) {
 		JSX:             api.JSXAutomatic,
 		JSXImportSource: "preact",
 	})
+
+	opts = Options{
+		ExternalOptions: ExternalOptions{
+			Drop: "console",
+		},
+	}
+	c.Assert(opts.compile(), qt.IsNil)
+	c.Assert(opts.compiled.Drop, qt.Equals, api.DropConsole)
+	opts = Options{
+		ExternalOptions: ExternalOptions{
+			Drop: "debugger",
+		},
+	}
+	c.Assert(opts.compile(), qt.IsNil)
+	c.Assert(opts.compiled.Drop, qt.Equals, api.DropDebugger)
+
+	opts = Options{
+		ExternalOptions: ExternalOptions{
+			Drop: "adsfadsf",
+		},
+	}
+	c.Assert(opts.compile(), qt.ErrorMatches, `unsupported drop type: "adsfadsf"`)
 }
 
 func TestToBuildOptionsTarget(t *testing.T) {

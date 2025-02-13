@@ -138,6 +138,10 @@ type ExternalOptions struct {
 	// User defined symbols.
 	Defines map[string]any
 
+	// This tells esbuild to edit your source code before building to drop certain constructs.
+	// See https://esbuild.github.io/api/#drop
+	Drop string
+
 	// Maps a component import to another.
 	Shims map[string]string
 
@@ -298,6 +302,17 @@ func (opts *Options) compile() (err error) {
 		defines = maps.ToStringMapString(opts.Defines)
 	}
 
+	var drop api.Drop
+	switch opts.Drop {
+	case "":
+	case "console":
+		drop = api.DropConsole
+	case "debugger":
+		drop = api.DropDebugger
+	default:
+		err = fmt.Errorf("unsupported drop type: %q", opts.Drop)
+	}
+
 	// By default we only need to specify outDir and no outFile
 	outDir := opts.OutDir
 	outFile := ""
@@ -344,6 +359,7 @@ func (opts *Options) compile() (err error) {
 
 		Define:   defines,
 		External: opts.Externals,
+		Drop:     drop,
 
 		JSXFactory:  opts.JSXFactory,
 		JSXFragment: opts.JSXFragment,
