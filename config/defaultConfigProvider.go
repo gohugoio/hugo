@@ -15,7 +15,6 @@ package config
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 	"sync"
 
@@ -25,42 +24,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 )
-
-var (
-
-	// ConfigRootKeysSet contains all of the config map root keys.
-	ConfigRootKeysSet = map[string]bool{
-		"build":         true,
-		"caches":        true,
-		"cascade":       true,
-		"frontmatter":   true,
-		"languages":     true,
-		"imaging":       true,
-		"markup":        true,
-		"mediatypes":    true,
-		"menus":         true,
-		"minify":        true,
-		"module":        true,
-		"outputformats": true,
-		"params":        true,
-		"permalinks":    true,
-		"related":       true,
-		"sitemap":       true,
-		"privacy":       true,
-		"security":      true,
-		"taxonomies":    true,
-	}
-
-	// ConfigRootKeys is a sorted version of ConfigRootKeysSet.
-	ConfigRootKeys []string
-)
-
-func init() {
-	for k := range ConfigRootKeysSet {
-		ConfigRootKeys = append(ConfigRootKeys, k)
-	}
-	sort.Strings(ConfigRootKeys)
-}
 
 // New creates a Provider backed by an empty maps.Params.
 func New() Provider {
