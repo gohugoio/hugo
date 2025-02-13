@@ -1,5 +1,6 @@
 import { readInput, writeOutput } from './common';
 import katex from 'katex';
+import 'katex/contrib/mhchem/mhchem.js';
 
 const render = function (input) {
 	const data = input.data;
