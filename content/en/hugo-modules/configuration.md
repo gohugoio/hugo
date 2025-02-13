@@ -22,6 +22,7 @@ proxy = 'direct'
 replacements = ''
 vendorClosest = false
 workspace = 'off'
+auth = ''
 {{< /code-toggle >}}
 
 noProxy
@@ -35,6 +36,9 @@ private
 
 proxy
 : (`string`) Defines the proxy server to use to download remote modules. Default is `direct`, which means "git clone" and similar.
+
+auth
+: (`string`)  {{< new-in 0.144.0 >}} Configures `GOAUTH` when running the Go command for module operations. This is a semicolon-separated list of authentication commands for go-import and HTTPS module mirror interactions. This is useful for private repositories. See `go help goauth` for more information.
 
 vendorClosest
 : (`bool`) When enabled, we will pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined. Default is `false`.
