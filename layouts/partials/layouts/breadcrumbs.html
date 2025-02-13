@@ -15,7 +15,7 @@
         {{ $isLast := eq $i (sub (len $ancestors) 1) }}
         <a
           href="{{ $p.RelPermalink }}"
-          class="truncate text-blue-600 hover:text-blue-500 {{ if $isCurrentSection }}
+          class="truncate text-blue-600 hover:text-blue-500 dark:text-blue-500 dark:hover:text-blue-400 {{ if $isCurrentSection }}
             current-section
           {{ end }}"
           >{{ $p.LinkTitle }}</a

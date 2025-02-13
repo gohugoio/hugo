@@ -22,8 +22,8 @@
   /* lead */
   @apply prose-lead:text-slate-500 prose-lead:text-xl prose-lead:mt-2 sm:prose-lead:mt-4 prose-lead:leading-relaxed dark:prose-lead:text-slate-400;
   /* links */
-  @apply prose-a:text-primary prose-a:hover:text-primary/70 prose-a:underline;
-  @apply prose-a:prose-code:underline prose-a:prose-code:hover:text-primary/70 prose-a:prose-code:hover:underline;
+  @apply prose-a:text-primary dark:prose-a:text-blue-500 prose-a:hover:text-blue-500 dark:prose-a:hover:text-blue-400 prose-a:underline;
+  @apply prose-a:prose-code:underline prose-a:prose-code:hover:text-blue-500 prose-a:prose-code:hover:underline;
   /* pre */
   @apply prose-pre:text-gray-800 prose-pre:border-1 prose-pre:border-gray-100 prose-pre:bg-light dark:prose-pre:bg-dark dark:prose-pre:ring-1 dark:prose-pre:ring-slate-300/10;
   /* code */

@@ -23,7 +23,7 @@
           href="#{{ .ID }}"
           x-ref="{{ .ID }}"
           @click.stop="setActive('{{ .ID }}')"
-          class="block pb-1 text-blue-600 hover:text-blue-500{{ if gt .Level 2 }}
+          class="block pb-1 text-blue-600 hover:text-blue-500 dark:text-blue-500 dark:hover:text-blue-400{{ if gt .Level 2 }}
             ml-2 lg:ml-3 text-sm
           {{ else }}
             text-sm
