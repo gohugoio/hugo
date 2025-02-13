@@ -27,6 +27,8 @@ Set `N` to zero to return an empty collection.
 
 Use `last` and [`where`] together.
 
+[`where`]: /functions/collections/where/
+
 ```go-html-template
 {{ range where .Pages "Section" "articles" | last 5 }}
   {{ .Render "summary" }}

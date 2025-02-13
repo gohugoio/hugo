@@ -1,0 +1,48 @@
+@import "./chroma_dark.css";
+@import "./chroma.css";
+@import "./highlight.css";
+
+/* Some contrast ratio fixes as reported by Google Page Speed.  */
+.chroma .c1 {
+  @apply text-gray-500;
+}
+
+.dark .chroma .c1 {
+  @apply text-gray-400;
+}
+
+.highlight code {
+  @apply text-sm;
+}
+
+.content {
+  @apply prose prose-sm sm:prose-base prose-stone max-w-none dark:prose-invert dark:text-slate-200;
+  /* headings */
+  @apply prose-h4:font-bold prose-h5:font-bold prose-h6:font-bold;
+  /* lead */
+  @apply prose-lead:text-slate-500 prose-lead:text-xl prose-lead:mt-2 sm:prose-lead:mt-4 prose-lead:leading-relaxed dark:prose-lead:text-slate-400;
+  /* links */
+  @apply prose-a:text-primary prose-a:hover:text-primary/70 prose-a:underline;
+  @apply prose-a:prose-code:underline prose-a:prose-code:hover:text-primary/70 prose-a:prose-code:hover:underline;
+  /* pre */
+  @apply prose-pre:text-gray-800 prose-pre:border-1 prose-pre:border-gray-100 prose-pre:bg-light dark:prose-pre:bg-dark dark:prose-pre:ring-1 dark:prose-pre:ring-slate-300/10;
+  /* code */
+  @apply prose-code:px-0.5 prose-code:text-gray-500 prose-code:dark:text-gray-300 border-none;
+  @apply prose-code:before:hidden prose-code:after:hidden prose-code:font-mono;
+  /* tables */
+  @apply prose-table:border-2 prose-table:border-gray-100  prose-table:dark:border-gray-800 prose-table:relative prose-table:overflow-scroll prose-table:prose-th:font-bold prose-table:prose-th:bg-blue-500 dark:prose-table:prose-th:bg-blue-500/50 prose-table:prose-th:p-2 prose-table:prose-td:p-2 prose-table:prose-th:text-white;
+  /* hr */
+  @apply dark:prose-hr:border-slate-800;
+
+  h6 + * {
+    @apply mt-2;
+  }
+}
+
+/* This will not match highlighting inside e.g. the code-toggle shortcode. */
+/* For more fine grained control of this, see components/shortcodes.css. */
+.content > .highlight,
+.content dd > .highlight,
+.content li > .highlight {
+  @apply border-1 border-gray-200 dark:border-slate-600 mt-6 mb-8;
+}

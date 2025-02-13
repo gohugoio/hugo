@@ -1,7 +1,6 @@
 ---
 title: Store
-linktitle: site.Store
-description: Returns a persistent "scratch pad" on the given site to store and manipulate data.
+description: Returns a "scratch pad" to store and manipulate data, scoped to the current site.
 categories: []
 keywords: []
 action:
@@ -14,12 +13,9 @@ action:
 toc: true
 ---
 
-{{< new-in 0.139.0 >}}
+{{< new-in 0.139.0 />}}
 
-The `Store` method on a `Site` object creates a persistent [scratch pad](g) to store and manipulate data. To create a locally scoped scratch pad that is not attached to a `Site` object, use the [`newScratch`] function.
-
-[`Scratch`]: /methods/site/scratch/
-[`newScratch`]: /functions/collections/newscratch/
+Use the `Store` method on a `Site` object to create a [scratch pad](g) to store and manipulate data, scoped to the current site. To create a scratch pad with a different [scope](g), refer to the [scope](#scope) section below.
 
 ## Methods
 
@@ -103,6 +99,8 @@ Removes the given key.
 {{ site.Store.Set "greeting" "Hello" }}
 {{ site.Store.Delete "greeting" }}
 ```
+
+{{% include "_common/scratch-pad-scope.md" %}}
 
 ## Determinate values
 

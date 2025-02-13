@@ -5,15 +5,15 @@ url: /commands/hugo_mod_init/
 ---
 ## hugo mod init
 
-Initialize this project as a Hugo Module.
+Initialize this project as a Hugo Module
 
 ### Synopsis
 
 Initialize this project as a Hugo Module.
 	It will try to guess the module path, but you may help by passing it as an argument, e.g:
-	
+
 		hugo mod init github.com/gohugoio/testshortcodes
-	
+
 	Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
 	inside a subfolder on GitHub, as one example.
 	

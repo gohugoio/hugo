@@ -1,9 +1,7 @@
-# This his the main configuration file. There are also environment specific configuration stored in the /config directory.
-
 baseURL                = "https://gohugo.io/"
 defaultContentLanguage = "en"
 enableEmoji            = true
-ignoreErrors           = ["error-remote-getjson", "error-missing-instagram-accesstoken"]
+ignoreLogs             = ["error-missing-instagram-accesstoken"]
 languageCode           = "en-us"
 pluralizeListTitles    = false
 timeZone               = "Europe/Oslo"
@@ -13,90 +11,164 @@ title                  = "Hugo"
 disableAliases = true
 
 [pagination]
-pagerSize = 100
+    pagerSize = 100
 
 [services.googleAnalytics]
-ID = 'G-MBZGKNMDWC'
-
-[minify]
-  [minify.tdewolff]
-    [minify.tdewolff.html]
-      keepWhitespace = true
-
-[module]
-  [module.hugoVersion]
-    min = "0.56.0"
-  [[module.imports]]
-    path = "github.com/gohugoio/gohugoioTheme"
+    ID = 'G-MBZGKNMDWC'
 
 [outputs]
-  home    = ["HTML", "RSS", "REDIR", "HEADERS"]
-  section = ["HTML"]
+    home     = ["html", "rss", "redir", "headers"]
+    section  = ["html"]
+    page     = ["html"]
+    taxonomy = ["html"]
+    term     = ["html"]
 
-[mediaTypes]
-  [mediaTypes."text/netlify"]
-    delimiter = ""
+[params]
+    description = "The world’s fastest framework for building websites"
+    ghrepo      = "https://github.com/gohugoio/hugoDocs/"
+
+    [params.render_hooks.link]
+        errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
+
+[languages]
+    [languages.en]
+        languageName = "English"
+        weight       = 1
+
+[security]
+    enableInlineShortcodes = false
+    [security.funcs]
+        getenv = ['^HUGO_', '^REPOSITORY_URL$', '^BRANCH$']
+    [security.http]
+        methods = ['(?i)GET|POST']
+        urls    = ['.*']
 
 [outputFormats]
-  [outputFormats.REDIR]
-    mediatype      = "text/netlify"
-    baseName       = "_redirects"
-    isPlainText    = true
-    notAlternative = true
-  [outputFormats.HEADERS]
-    mediatype      = "text/netlify"
-    baseName       = "_headers"
-    isPlainText    = true
-    notAlternative = true
+    [outputFormats.redir]
+        mediatype   = "text/netlify"
+        baseName    = "_redirects"
+        isPlainText = true
+    [outputFormats.headers]
+        mediatype      = "text/netlify"
+        baseName       = "_headers"
+        isPlainText    = true
+        notAlternative = true
 
-[caches]
-  [caches.getjson]
-    dir    = ":cacheDir/:project"
-    maxAge = -1
-  [caches.getcsv]
-    dir    = ":cacheDir/:project"
-    maxAge = -1
-  [caches.images]
-    dir    = ":cacheDir/images"
-    maxAge = "1440h"
-  [caches.assets]
-    dir    = ":resourceDir/_gen"
-    maxAge = -1
-  [caches.getresource]
-    dir = ":cacheDir/:project"
-    maxage = '1h'
+[markup]
+    [markup.highlight]
+        style              = 'solarized-dark'
+        lineNumbersInTable = true
+        noClasses          = false
+        wrapperClass       = 'highlight not-prose'
 
-[related]
-  threshold    = 80
-  includeNewer = true
-  toLower      = false
-  [[related.indices]]
-    name   = "keywords"
-    weight = 60
-  [[related.indices]]
-    # Can be used as a front matter slice to link to other page fragments (headings) using their ID.
-    # This isn't particular useful in the current docs, but we're planning on getting a auto generated
-    # reference section with a better ID setup.
-    # For now, we just use it to give pages with same headings some similarity score.
-    name                 = "fragmentrefs"
-    type                 = "fragments"
-    applyFilter          = false
-    weight               = 60
-    cardinalityThreshold = 50
+    [markup.goldmark.renderer]
+        hardWraps = false
+        unsafe    = false
+        xhtml     = false
 
-[imaging]
-  # See https://github.com/disintegration/imaging
-  # CatmullRom is a sharp bicubic filter which should fit the docs site well with its many screenshots.
-  # Note that you can also set this per image processing.
-  resampleFilter = "CatmullRom"
-  # Default JPEG quality setting. Default is 75.
-  quality = 75
-  anchor  = "smart"
+    [markup.goldmark.extensions]
+        definitionList = true
+        footnote       = true
+        linkify        = true
+        strikethrough  = true
+        table          = true
+        taskList       = true
+        typographer    = true
 
-[taxonomies]
-  category = "categories"
+        [markup.goldmark.extensions.passthrough]
+            enable = true
 
-[[cascade]]
-categories = ['commands']
-[cascade._target]
-path = '/commands/**'
+            [markup.goldmark.extensions.passthrough.delimiters]
+                block  = [['\[', '\]'], ['$$', '$$']]
+                inline = [['\(', '\)']]
+
+    [markup.goldmark.parser]
+        autoHeadingID     = true
+        autoHeadingIDType = "github"
+
+        [markup.goldmark.parser.attribute]
+            block = true
+            title = true
+
+[mediaTypes]
+    [mediaTypes."text/netlify"]
+        delimiter = ""
+
+[module]
+    [module.hugoVersion]
+        min = "0.141.0"
+    [[module.mounts]]
+        source = "assets"
+        target = "assets"
+    [[module.mounts]]
+        lang   = 'en'
+        source = 'content/en'
+        target = 'content'
+    [[module.mounts]]
+        source       = "hugo_stats.json"
+        target       = "assets/notwatching/hugo_stats.json"
+        disableWatch = true
+
+[build]
+    [build.buildStats]
+        disableIDs = true
+        enable     = true
+    [[build.cachebusters]]
+        source = "assets/notwatching/hugo_stats\\.json"
+        target = "css"
+    [[build.cachebusters]]
+        source = "(postcss|tailwind)\\.config\\.js"
+        target = "css"
+
+[server]
+    [[server.headers]]
+        for = "/*"
+
+        [server.headers.values]
+            X-Frame-Options        = "DENY"
+            X-XSS-Protection       = "1; mode=block"
+            X-Content-Type-Options = "nosniff"
+            Referrer-Policy        = "no-referrer"
+
+    [[server.headers]]
+        for = "/**.{css,js}"
+
+[minify]
+    [minify.tdewolff]
+        [minify.tdewolff.html]
+            keepSpecialComments = true
+            keepWhitespace      = false
+
+######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES ########
+[menus]
+    [[menus.global]]
+        name       = 'News'
+        weight     = 1
+        identifier = 'news'
+        pageRef    = '/news/'
+
+    [[menus.global]]
+        name       = 'Docs'
+        weight     = 5
+        identifier = 'docs'
+        url        = '/documentation/'
+
+    [[menus.global]]
+        name       = 'Themes'
+        weight     = 10
+        identifier = 'themes'
+        url        = 'https://themes.gohugo.io/'
+
+    [[menus.global]]
+        name       = 'Community'
+        weight     = 150
+        identifier = 'community'
+        post       = 'external'
+        url        = 'https://discourse.gohugo.io/'
+
+    [[menus.global]]
+        name       = 'GitHub'
+        weight     = 200
+        identifier = 'github'
+        post       = 'external'
+        url        = 'https://github.com/gohugoio/hugo'

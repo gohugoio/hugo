@@ -6,23 +6,22 @@ keywords: []
 action:
   aliases: [newScratch]
   related:
-    - methods/page/scratch
-    - methods/page/store
-    - methods/shortcode/scratch
+    - methods/page/Store
+    - methods/site/Store
+    - methods/shortcode/Store
+    - functions/hugo/Store
   returnType: maps.Scratch
   signatures: [collections.NewScratch ]
+toc: true
 ---
 
-The `collections.NewScratch` function creates a locally scoped [scratch pad](g) to store and manipulate data. To create a scratch pad that is attached to a `Page` object, use the [`Scratch`] or [`Store`] method.
-
-[`Scratch`]: /methods/page/scratch/
-[`Store`]: /methods/page/store/
+Use the `collections.NewScratch` function to create a locally scoped [scratch pad](g) to store and manipulate data. To create a scratch pad with a different [scope](g), refer to the [scope](#scope) section below.
 
 ## Methods
 
 ###### Set
 
-Sets the value of a given key.
+Sets the value of the given key.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -31,7 +30,7 @@ Sets the value of a given key.
 
 ###### Get
 
-Gets the value of a given key.
+Gets the value of the given key.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -41,7 +40,7 @@ Gets the value of a given key.
 
 ###### Add
 
-Adds a given value to existing value(s) of the given key.
+Adds the given value to existing value(s) of the given key.
 
 For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
@@ -121,3 +120,5 @@ Returns the raw backing map. Do not use with `Scratch` or `Store` methods on a `
 
 {{ $map := $s.Values }}
 ```
+
+{{% include "_common/scratch-pad-scope.md" %}}

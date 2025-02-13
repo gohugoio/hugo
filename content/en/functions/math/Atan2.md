@@ -17,7 +17,7 @@ action:
   signatures: [math.Atan2 VALUE VALUE]
 ---
 
-{{< new-in 0.130.0 >}}
+{{< new-in 0.130.0 />}}
 
 ```go-html-template
 {{ math.Atan2 1 2 }} → 0.4636476090008061

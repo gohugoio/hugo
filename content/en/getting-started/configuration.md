@@ -228,13 +228,13 @@ See [Configure File Caches](#configure-file-caches).
 
 ###### canonifyURLs
 
-(`bool`) See [details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
+(`bool`) See&nbsp;[details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
 
 ###### capitalizeListTitles
 
-{{< new-in 0.123.3 >}}
+{{< new-in 0.123.3 />}}
 
-(`bool`) Whether to capitalize automatic list titles. Applicable to section, taxonomy, and term pages. Default is `true`. You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. See [details].
+(`bool`) Whether to capitalize automatic list titles. Applicable to section, taxonomy, and term pages. Default is `true`. You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. See&nbsp;[details].
 
 [details]: /getting-started/configuration/#configure-title-case
 
@@ -281,7 +281,7 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 ###### disableDefaultLanguageRedirect
 
-{{< new-in 0.140.0 >}}
+{{< new-in 0.140.0 />}}
 
 (`bool`) Disables generation of redirect to the default language when DefaultContentLanguageInSubdir is `true`. Default is `false`.
 
@@ -291,7 +291,7 @@ To remain consistent and prevent unexpected behavior, do not mix these strategie
 
 ###### disableKinds
 
-(`string slice`) Disable rendering of the specified page [kinds](g), any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
+(`[]string`) Disable rendering of the specified page [kinds](g), any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
 
 ###### disableLanguages
 
@@ -337,7 +337,7 @@ See [Front matter Configuration](#configure-front-matter).
 (`bool`) Ignore the cache directory. Default is `false`.
 
 ###### ignoreLogs
-(`string slice`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`] and [`warnidf`].
+(`[]string`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`] and [`warnidf`].
 
 [`erroridf`]: /functions/fmt/erroridf/
 [`warnidf`]: /functions/fmt/warnidf/
@@ -460,7 +460,7 @@ See [Related Content](/content-management/related/#configure-related-content).
 
 ###### relativeURLs
 
-(`bool`) See [details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
+(`bool`) See&nbsp;[details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
 
 ###### removePathAccents
 
@@ -472,9 +472,9 @@ content/post/hügó.md → https://example.org/post/hugo/
 
 ###### renderSegments
 
-{{< new-in 0.124.0 >}}
+{{< new-in 0.124.0 />}}
 
-(`string slice`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
+(`[]string`) A list of segments to render. If not set, everything will be rendered. This is more commonly set in a CLI flag, e.g. `hugo --renderSegments segment1,segment2`. The segment names must match the names in the [segments](#configure-segments) configuration.
 
 ###### sectionPagesMenu
 
@@ -541,7 +541,7 @@ See [module configuration](/hugo-modules/configuration/#module-configuration-imp
 
 ###### uglyURLs
 
-(`bool` or `map`) Whether to generate uglyURLs. Default is `false`. See [details](/content-management/urls/#appearance).
+(`bool` or `map`) Whether to generate uglyURLs. Default is `false`. See&nbsp;[details](/content-management/urls/#appearance).
 
 ###### watch
 
@@ -563,7 +563,7 @@ enableemoji: true
 
 ## Configure page
 
-{{< new-in 0.133.0 >}}
+{{< new-in 0.133.0 />}}
 
 These methods on a `Page` object navigate to the next or previous page within a page collection, relative to the current page:
 
@@ -734,7 +734,7 @@ HUGO_ENVIRONMENT
 HUGO_FILE_LOG_FORMAT
 : (`string`) A format string for the file path, line number, and column number displayed when reporting errors, or when calling the `Position` method from a shortcode or Markdown render hook. Valid tokens are `:file`, `:line`, and `:col`. Default is `:file::line::col`.
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 HUGO_MEMORYLIMIT
 : (`int`) The maximum amount of system memory, in gigabytes, that Hugo can use while rendering your site. Default is 25% of total system memory.
@@ -876,7 +876,7 @@ This can be set using the `cacheDir` config option or via the OS environment var
 If this is not set, Hugo will use, in order of preference:
 
 1. If running on Netlify: `/opt/build/cache/hugo_cache/`. This means that if you run your builds on Netlify, all caches configured with `:cacheDir` will be saved and restored on the next build. For other CI vendors, please read their documentation. For an CircleCI example, see [this configuration](https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml).
-1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CACHE_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`. {{< new-in 0.116.0 >}}
+1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir](https://pkg.go.dev/os#UserCacheDir). On Unix systems, this is `$XDG_CACHE_HOME` as specified by [basedir-spec-latest](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`. {{< new-in 0.116.0 />}}
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 If you want to know the current value of `cacheDir`, you can run `hugo config`, e.g: `hugo config | grep cachedir`.
@@ -890,7 +890,7 @@ If you want to know the current value of `cacheDir`, you can run `hugo config`, 
 
 ## Configure HTTP cache
 
-{{< new-in 0.127.0 >}}
+{{< new-in 0.127.0 />}}
 
 Note that this configuration is currently only relevant when using the [resources.GetRemote] function.
 
@@ -936,7 +936,7 @@ polling
 
 ## Configure segments
 
-{{< new-in 0.124.0 >}}
+{{< new-in 0.124.0 />}}
 
 {{% note %}}
 The `segments` configuration is currently only used to configure partitioned rendering.

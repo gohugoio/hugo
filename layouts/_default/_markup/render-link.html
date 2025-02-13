@@ -185,7 +185,7 @@ either of these shortcodes in conjunction with this render hook.
 {{- end }}
 
 {{- /* Render anchor element. */ -}}
-<a
+<a aria-label="{{ .PlainText }}"
   {{- with .Title }} title="{{ . }}" {{- end }}
   {{- range $k, $v := $attrs }}
     {{- if $v }}
@@ -271,7 +271,7 @@ either of these shortcodes in conjunction with this render hook.
   {{- $text := .text | transform.Plainify | strings.ToLower }}
 
   {{- /* Initialize. */}}
-  {{- $glossaryPath := "/getting-started/glossary" }}
+  {{- $glossaryPath := "/quick-reference/glossary" }}
   {{- $termGiven := $text }}
   {{- $termActual := "" }}
   {{- $termSingular := inflect.Singularize $termGiven }}
@@ -282,7 +282,7 @@ either of these shortcodes in conjunction with this render hook.
     {{- errorf "The %q render hook was unable to find %s: see %s" $renderHookName $glossaryPath $contentPath }}
   {{- end }}
 
-  {{- /* Theres a better way to handle this, but it works for now. */}}
+  {{- /* There's a better way to handle this, but it works for now. */}}
   {{- $cheating := dict
     "chaining" "chain"
     "localize" "localization"

@@ -41,7 +41,7 @@ title = true
 
 ###### PageInner
 
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 
 (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 

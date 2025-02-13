@@ -17,7 +17,7 @@ action:
   signatures: [math.Asin VALUE]
 ---
 
-{{< new-in 0.130.0 >}}
+{{< new-in 0.130.0 />}}
 
 ```go-html-template
 {{ math.Asin 1 }} → 1.5707963267948966

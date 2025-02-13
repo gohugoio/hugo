@@ -1,0 +1,44 @@
+{{ $documentation := site.GetPage "/documentation" }}
+
+
+<nav aria-label="breadcrumb" class="flex breadcrumbs">
+  <ol class="inline-flex items-center flex-wrap tracking-tight">
+    {{ $currentSection := .CurrentSection }}
+    {{ $ancestors := .Ancestors.Reverse }}
+    {{ range $i, $p := $ancestors }}
+      {{ $isCurrentSection := eq $p $currentSection }}
+      {{/* We currently have a slightly odd structure. */}}
+      {{ if eq $p site.Home }}
+        {{ $p = $documentation }}
+      {{ end }}
+      <li class="flex items-center">
+        {{ $isLast := eq $i (sub (len $ancestors) 1) }}
+        <a
+          href="{{ $p.RelPermalink }}"
+          class="truncate text-blue-600 hover:text-blue-500 {{ if $isCurrentSection }}
+            current-section
+          {{ end }}"
+          >{{ $p.LinkTitle }}</a
+        >
+        {{ if ne $ $documentation }}
+          {{ template "breadcrumbs-arrow" . }}
+        {{ end }}
+      </li>
+    {{ end }}
+    {{ if ne $ $documentation }}
+      {{ $isCurrentSection := eq $ $currentSection }}
+      <li
+        class="truncate text-gray-700 dark:text-gray-300 {{ if $isCurrentSection }}
+          current-section
+        {{ end }}">
+        {{ $.LinkTitle }}
+      </li>
+    {{ end }}
+  </ol>
+</nav>
+
+{{ define "breadcrumbs-arrow" }}
+  <svg class="fill-gray-500 dark:fill-gray-100 w-3 h-3 mx-2">
+    <use href="#icon--chevron-right"></use>
+  </svg>
+{{ end }}

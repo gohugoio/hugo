@@ -5,7 +5,7 @@ url: /commands/hugo_mod_clean/
 ---
 ## hugo mod clean
 
-Delete the Hugo Module cache for the current project.
+Delete the Hugo Module cache for the current project
 
 ### Synopsis
 

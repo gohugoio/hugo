@@ -1,0 +1,42 @@
+{{ with .Fragments.Headings }}
+  {{ $.Store.Set "hasToc" true }}
+  <div
+    x-data="toc"
+    class="sticky top-[8rem] h-screen overflow-y-auto overflow-x-hidden">
+    <h2
+      class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
+      On this page
+    </h2>
+    <nav class="w-56 mt-2">
+      <ul>
+        {{ template "render-toc-level" . }}
+      </ul>
+    </nav>
+  </div>
+{{ end }}
+
+{{ define "render-toc-level" }}
+  {{ range . }}
+    {{ if and .ID (or (ge .Level 2) (lt .Level 4)) }}
+      <li>
+        <a
+          href="#{{ .ID }}"
+          x-ref="{{ .ID }}"
+          @click.stop="setActive('{{ .ID }}')"
+          class="block pb-1 text-blue-600 hover:text-blue-500{{ if gt .Level 2 }}
+            ml-2 lg:ml-3 text-sm
+          {{ else }}
+            text-sm
+          {{ end }}"
+          :class="{'font-bold dark:text-blue-200 dark:hover:text-blue-300' : activeHeading === '{{ .ID }}'}">
+          {{ .Title | safeHTML }}
+        </a>
+      </li>
+    {{ end }}
+    {{ with .Headings }}
+      <ul>
+        {{ template "render-toc-level" . }}
+      </ul>
+    {{ end }}
+  {{ end }}
+{{ end }}

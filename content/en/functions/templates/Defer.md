@@ -12,7 +12,7 @@ action:
 aliases: [/functions/templates.defer]
 ---
 
-{{< new-in "0.128.0" >}}
+{{< new-in 0.128.0 />}}
 
 In some rare use cases, you may need to defer the execution of a template until after all sites and output formats have been rendered. One such example could be [TailwindCSS](/functions/css/tailwindcss/) using the output of [hugo_stats.json](/getting-started/configuration/#configure-build) to determine which classes and other HTML identifiers are being used in the final output:
 

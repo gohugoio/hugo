@@ -11,7 +11,7 @@ weight:
 toc: true
 ---
 
-{{< new-in 0.141.0 >}}
+{{< new-in 0.141.0 />}}
 
 {{% note %}}
 To override Hugo's embedded `x` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.

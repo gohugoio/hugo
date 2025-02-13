@@ -1,0 +1,32 @@
+{{- with .CurrentSection.RegularPages }}
+  {{ $hasTocOrRelated := or  ($.Store.Get "hasToc") ($.Store.Get "hasRelated") }}
+  <div
+    class="overflow-y-auto {{ if $hasTocOrRelated }}
+      max-h-96
+    {{ else }}
+      sticky top-[8rem] max-h-[70vh]
+    {{ end }} relative mt-2 mb-8"
+    data-turbo-preserve-scroll-container="in-this-section">
+    <h2
+      class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
+      In this section
+    </h2>
+
+    <ul id="in-sthis-section" class="mt-2">
+      {{- range . }}
+        <li>
+          <a
+            class="text-sm {{ if eq . $ }}
+              font-bold text-blue-600 focus:font-bold dark:text-blue-200
+              hover:text-blue-600 scroll-active
+            {{ else }}
+              text-blue-600 hover:text-blue-500
+            {{ end }}"
+            href="{{ .RelPermalink }}"
+            >{{ .LinkTitle }}</a
+          >
+        </li>
+      {{- end }}
+    </ul>
+  </div>
+{{- end }}

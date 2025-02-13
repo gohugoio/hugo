@@ -16,3 +16,12 @@ Please see the [contributing] section for guidelines, examples, and process.
 [friends]: https://github.com/gohugoio/hugo/graphs/contributors
 [go]: https://go.dev/
 [contributing]: https://gohugo.io/contribute/documentation
+
+# Install
+
+```bash
+npm i
+hugo server
+```
+
+**Note:** We're working on removing the need to run `npm i` for local development. Stay tuned.

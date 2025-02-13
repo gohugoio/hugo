@@ -12,7 +12,7 @@ action:
   signatures: [hugo.IsDevelopment]
 ---
 
-{{< new-in 0.120.0 >}}
+{{< new-in 0.120.0 />}}
 
 ```go-html-template
 {{ hugo.IsDevelopment }} → true/false

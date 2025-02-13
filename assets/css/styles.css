@@ -1,0 +1,123 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@variant dark (&:where(.dark, .dark *));
+
+@import "components/all.css";
+
+/* TailwindCSS ignores files in .gitignore, so make it explicit. */
+@source "hugo_stats.json";
+
+@theme {
+  /* Breakpoints. */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 68rem; /* Default 64rem; */
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
+  /* Colors. */
+  --color-primary: var(--color-blue-600);
+  --color-dark: #000;
+  --color-light: var(--color-gray-50);
+  --color-accent: var(--color-orange-500);
+  --color-accent-light: var(--color-pink-500);
+  --color-accent-dark: var(--color-green-500);
+
+  /* https://www.tints.dev/blue/0594CB */
+  --color-blue-50: #e1f6fe;
+  --color-blue-100: #c3edfe;
+  --color-blue-200: #88dbfc;
+  --color-blue-300: #4cc9fb;
+  --color-blue-400: #15b9f9;
+  --color-blue-500: #0594cb;
+  --color-blue-600: #0477a4;
+  --color-blue-700: #035677;
+  --color-blue-800: #023a50;
+  --color-blue-900: #011d28;
+  --color-blue-950: #000e14;
+
+  /* https://www.tints.dev/orange/EBB951 */
+  --color-orange-50: #fdf8ed;
+  --color-orange-100: #fbf1da;
+  --color-orange-200: #f7e4ba;
+  --color-orange-300: #f3d596;
+  --color-orange-400: #efc976;
+  --color-orange-500: #ebb951;
+  --color-orange-600: #e5a51a;
+  --color-orange-700: #a97a13;
+  --color-orange-800: #72520d;
+  --color-orange-900: #372806;
+  --color-orange-950: #1b1403;
+
+  /* https://www.tints.dev/pink/FF4088 */
+  --color-pink-50: #ffebf2;
+  --color-pink-100: #ffdbe9;
+  --color-pink-200: #ffb3d0;
+  --color-pink-300: #ff8fba;
+  --color-pink-400: #ff66a1;
+  --color-pink-500: #ff4088;
+  --color-pink-600: #ff0062;
+  --color-pink-700: #c2004a;
+  --color-pink-800: #800031;
+  --color-pink-900: #420019;
+  --color-pink-950: #1f000c;
+
+  /* https://www.tints.dev/green/33BA91 */
+  --color-green-50: #ebfaf5;
+  --color-green-100: #d3f3e9;
+  --color-green-200: #abe8d6;
+  --color-green-300: #7fdcc0;
+  --color-green-400: #53d0aa;
+  --color-green-500: #33ba91;
+  --color-green-600: #299474;
+  --color-green-700: #1f7058;
+  --color-green-800: #154c3b;
+  --color-green-900: #0a241c;
+  --color-green-950: #051410;
+
+  /* Fonts. */
+  --font-sans: "Mulish", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+html {
+  scroll-padding-top: 100px;
+}
+
+body {
+  @apply antialiased font-sans text-black dark:text-gray-100;
+}
+
+.p-safe-area-x {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.p-safe-area-y {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.px-main {
+  padding-left: max(env(safe-area-inset-left), 1rem);
+  padding-right: max(env(safe-area-inset-right), 1rem);
+}
+
+@media screen(md) {
+  .px-main {
+    padding-left: max(env(safe-area-inset-left), 2rem);
+    padding-right: max(env(safe-area-inset-right), 2rem);
+  }
+}
+
+@media screen(lg) {
+  .px-main {
+    padding-left: max(env(safe-area-inset-left), 3rem);
+    padding-right: max(env(safe-area-inset-right), 3rem);
+  }
+}
+
+/* Algolia DocSearch */
+.algolia-docsearch-suggestion--highlight {
+  color: var(--color-primary);
+}

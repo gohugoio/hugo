@@ -17,7 +17,7 @@ To process an image you must access the file as a page resource, global resource
 
 ### Page resource
 
-A page resource is a file within a [page bundle]. A page bundle is a directory with an `index.md` or `_index.md` file at its root.
+A page resource is a file within a [page bundle]. A page bundle is a directory with an `index.md` or `_index.md`&nbsp;file at its root.
 
 ```text
 content/
@@ -110,7 +110,7 @@ Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. U
 
 ### Process
 
-{{< new-in 0.119.0 >}}
+{{< new-in 0.119.0 />}}
 
 {{% note %}}
 The `Process` method is also available as a filter, which is more effective if you need to apply multiple filters to an image. See [Process filter](/functions/images/process).

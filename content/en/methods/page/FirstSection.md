@@ -16,7 +16,7 @@ action:
   signatures: [PAGE.FirstSection]
 ---
 
-{{% include "methods/page/_common/definition-of-section.md" %}}
+{{% glossary-term section %}}
 
 {{% note %}}
 When called on the home page, the `FirstSection` method returns the `Page` object of the home page itself.

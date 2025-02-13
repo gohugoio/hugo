@@ -11,7 +11,7 @@ weight:
 toc: true
 ---
 
-{{< new-in 0.141.0 >}}
+{{< new-in 0.141.0 />}}
 
 {{% note %}}
 To override Hugo's embedded `qr` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
@@ -44,7 +44,7 @@ https://gohugo.io
 
 Both of the above produce this image:
 
-{{< qr text="https://gohugo.io" class="qrcode" />}}
+{{< qr text="https://gohugo.io" class="qrcode" targetDir="images/qr" />}}
 
 To create a QR code for a phone number:
 
@@ -52,7 +52,7 @@ To create a QR code for a phone number:
 {{</* qr text="tel:+12065550101" /*/>}}
 ```
 
-{{< qr text="tel:+12065550101" class="qrcode" />}}
+{{< qr text="tel:+12065550101" class="qrcode" targetDir="images/qr" />}}
 
 To create a QR code containing contact information in the [vCard] format:
 
@@ -72,7 +72,7 @@ END:VCARD
 {{</* /qr */>}}
 ```
 
-{{< qr level="low" scale=2 alt="QR code of vCard for John Smith" class="qrcode" >}}
+{{< qr level="low" scale=2 alt="QR code of vCard for John Smith" class="qrcode" targetDir="images/qr" >}}
 BEGIN:VCARD
 VERSION:2.1
 N;CHARSET=UTF-8:Smith;John;R.;Dr.;PhD

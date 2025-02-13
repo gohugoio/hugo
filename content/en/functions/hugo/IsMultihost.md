@@ -11,7 +11,7 @@ action:
   signatures: [hugo.IsMultihost]
 ---
 
-{{< new-in v0.124.0 >}}
+{{< new-in 0.124.0 />}}
 
 Site configuration:
 

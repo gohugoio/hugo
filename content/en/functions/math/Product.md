@@ -15,7 +15,7 @@ action:
   signatures: [math.Product VALUE...]
 ---
 
-{{< new-in 0.114.0 >}}
+{{< new-in 0.114.0 />}}
 
 ```go-html-template
 {{ math.Product 1 (slice 2 3) 4 }} → 24

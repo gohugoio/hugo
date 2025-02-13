@@ -41,9 +41,11 @@ Please follow these guidelines:
 - Remove consecutive blank lines (maximum of two)
 - Remove trailing spaces
 
-### Glossary of terms
+### Glossary
 
-Each term in the glossary has its own dedicated page located within the `content/en/getting-started/glossary` directory. While these individual glossary pages are not published as standalone web pages during the build process, their content is included in other pages as needed.
+Glossary terms are maintained on individual pages. While not directly accessible to site visitors, these pages act as a central repository for term definitions.
+
+Definitions must be presented in complete sentences, with the first sentence always introducing the term being defined. To enhance readability and consistency, the first occurrence of the term and any other referenced glossary terms should be italicized.
 
 To link to a term definition on the glossary page, use this custom link syntax:
 
@@ -51,7 +53,7 @@ To link to a term definition on the glossary page, use this custom link syntax:
 [term](g)
 ```
 
-Lookups are case-insensitive, ignore formatting, and support both singular and plural forms. For example, all of these variations will link to the same glossary entry:
+Lookups are case-insensitive, ignore formatting, and support both singular and plural forms. For example, all of these variations will link to the same glossary term:
 
 ```text
 [global resource](g)
@@ -66,12 +68,9 @@ To insert a term definition, use the [`glossary-term`] shortcode:
 {{%/* glossary-term "global resource" */%}}
 ```
 
-[glossary of terms]: /getting-started/glossary/
-[`glossary-term`]: #glossary-term
-
 ### Terminology
 
-Please link to the [glossary of terms] when necessary, and use the terms consistently throughout the documentation. Of special note:
+Please link to the glossary (see above) when necessary, and use the terms consistently throughout the documentation. Of special note:
 
 - The term "front matter" is two words unless you are referring to the configuration key
 - The term "home page" is two words
@@ -79,10 +78,9 @@ Please link to the [glossary of terms] when necessary, and use the terms consist
 - The term "standalone" is one word, not hyphenated
 - Use the word "map" instead of "dictionary"
 - Use the word "flag" instead of "option" when referring to a command line flag
+- Use "client side" as a noun, and "client-side" as an adjective
 - Capitalize the word "Markdown"
 - Hyphenate the term "open-source" when used an adjective.
-
-Use the [glossary link] (`gl`) shortcode to insert a link to the glossary entry for the given term, and use the [glossary term] (`gt`) shortcode to insert the definition of the given term.
 
 ### Page titles and headings
 
@@ -120,8 +118,6 @@ Yes → Hugo is fast.
 ### Level 6 headings
 
 Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
-
-[glossary]: /getting-started/glossary/
 
 ### Function and method descriptions
 
@@ -362,7 +358,7 @@ Use the `new-in` shortcode to indicate a new feature:
 {{</* new-in 0.127.0 */>}}
 ```
 
-{{< new-in 0.127.0 >}}
+{{< new-in 0.127.0 />}}
 
 ### note
 
@@ -404,13 +400,13 @@ Use [`hugo.IsServer`] instead.
 {{%/* /deprecated-in */%}}
 {{< /code >}}
 
-When deprecating a function or method, add this to front matter:
+When deprecating a function or method, add something like this to front matter:
 
 {{< code-toggle file=content/something/foo.md fm=true >}}
-expiryDate: 2024-10-30
+expiryDate: 2024-10-30 # deprecated 2022-10-30 in v0.123.0
 {{< /code-toggle >}}
 
-Set the `expiryDate` to one year from the date of deprecation, and add a brief front matter comment to explain the setting.
+Set the `expiryDate` to two years from the date of deprecation, and add a brief front matter comment to explain the setting.
 
 ## GitHub workflow
 
@@ -469,13 +465,14 @@ Step 9
 
 [ATX]: https://spec.commonmark.org/0.30/#atx-headings
 [Microsoft Writing Style Guide]: https://learn.microsoft.com/en-us/style-guide/welcome/
+[`glossary-term`]: #glossary-term
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [code examples]: #code-examples
 [code shortcode]: #code
 [code-toggle shortcode]: #code-toggle
 [documentation repository]: https://github.com/gohugoio/hugoDocs/
 [fenced code blocks]: https://spec.commonmark.org/0.30/#fenced-code-blocks
-[glossary of terms]: /getting-started/glossary/
+[glossary]: /quick-reference/glossary/
 [indented code blocks]: https://spec.commonmark.org/0.30/#indented-code-blocks
 [issues]: https://github.com/gohugoio/hugoDocs/issues
 [list items]: https://spec.commonmark.org/0.30/#list-items

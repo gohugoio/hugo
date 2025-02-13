@@ -1,0 +1,109 @@
+{{- /*
+  Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
+
+  @param {string} [config] The section of site.Data.docs.config to render.
+  @param {bool} [copy=false] If true, display a copy to clipboard button.
+  @param {string} [file] The file name to display above the rendered code.
+  @param {bool} [fm=false] If true, render the code as front matter.
+  @param {bool} [skipHeader=false] If false, omit top level key(s) when rendering a section of site.Data.docs.config.
+
+  @returns {template.HTML}
+*/}}
+
+{{- /* Initialize. */}}
+{{- $config := "" }}
+{{- $dataKey := "" }}
+{{- $copy := false }}
+{{- $file := "" }}
+{{- $fm := false }}
+{{- $skipHeader := false }}
+
+{{- /* Get parameters. */}}
+{{- $config = .Get "config" }}
+{{- $dataKey = .Get "dataKey" }}
+{{- $file = .Get "file" }}
+{{- if in (slice "false" false 0) (.Get "copy") }}
+  {{- $copy = false }}
+{{- else if in (slice "true" true 1) (.Get "copy") }}
+  {{- $copy = true }}
+{{- end }}
+{{- if in (slice "false" false 0) (.Get "fm") }}
+  {{- $fm = false }}
+{{- else if in (slice "true" true 1) (.Get "fm") }}
+  {{- $fm = true }}
+{{- end }}
+{{- if in (slice "false" false 0) (.Get "skipHeader") }}
+  {{- $skipHeader = false }}
+{{- else if in (slice "true" true 1) (.Get "skipHeader") }}
+  {{- $skipHeader = true }}
+{{- end }}
+
+{{- /* Define constants. */}}
+{{- $delimiters := dict "toml" "+++" "yaml" "---" }}
+{{- $langs := slice "yaml" "toml" "json" }}
+{{- $placeHolder := "#-hugo-placeholder-#" }}
+
+{{- /* Render. */}}
+{{- $code := "" }}
+{{- if $config }}
+  {{- $file = $file | default "hugo" }}
+  {{- $sections := (split $config ".") }}
+  {{- $configSection := index $.Site.Data.docs.config $sections }}
+  {{- $code = dict $sections $configSection }}
+  {{- if $skipHeader }}
+    {{- $code = $configSection }}
+  {{- end }}
+{{- else if $dataKey }}
+  {{- $file = $file | default $dataKey }}
+  {{- $sections := (split $dataKey ".") }}
+  {{- $code = index $.Site.Data.docs $sections }}
+{{- else }}
+  {{- $code = $.Inner }}
+{{- end }}
+<div x-data class="shortcode-code not-prose relative p-0 mt-2 mb-4 sm:mb-8">
+  <svg
+    class="absolute right-2 top-0 z-30 text-blue-600 hover:text-blue-500 cursor-pointer w-8"
+    @click="$copy($refs[$store.nav.userSettings.settings.configFileType])">
+    <use href="#icon--copy"></use>
+  </svg>
+  <nav class="relative flex" aria-label="Tabs">
+    {{ with $file }}
+      <div
+        class="flex-none text-sm px-2 content-center border-b-1 border-gray-300 dark:border-gray-700"
+        aria-lbabel="Filename">
+        {{ . }}{{ if not $fm }}.{{ end }}
+      </div>
+    {{ end }}
+    {{ range $i, $lang := $langs }}
+      {{ $isLast := eq (add $i 1) (len $langs) }}
+      <button
+        x-on:click="$store.nav.userSettings.settings.configFileType = '{{ index $langs $i }}'"
+        aria-label="{{ printf `Toggle %s` . }}"
+        class="px-3 py-2 font-semibold text-black dark:text-slate-200 border-l-1 border-t-1 {{ if $isLast }}
+          border-r-1
+        {{ end }} border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700 cursor-pointer relative min-w-0 flex-1 overflow-hidden text-sm no-underline text-center focus:z-10 overflow-x-auto"
+        :class="$store.nav.userSettings.settings.configFileType === '{{ index $langs $i }}' ? 'border-b-0 bg-light dark:bg-dark' : 'border-b-1'">
+        <span>
+          {{ . }}
+        </span>
+      </button>
+    {{ end }}
+  </nav>
+  {{ if $code }}
+    {{ range $i, $lang := $langs }}
+      <div
+        class="max-h-96 overflow-y-auto border-l-1 border-b-1 border-r-1 border-gray-300 dark:border-gray-700"
+        x-ref="{{ $lang }}"
+        x-cloak
+        x-transition:enter.opacity.duration.300ms
+        x-show="$store.nav.userSettings.settings.configFileType === '{{ index $langs $i }}'">
+        {{- $hCode := $code | transform.Remarshal . }}
+        {{- if and $fm (in (slice "toml" "yaml") .) }}
+          {{- $hCode = printf "%s\n%s\n%s" $placeHolder $hCode $placeHolder }}
+        {{- end }}
+        {{- $hCode = $hCode | replaceRE `\n+` "\n" }}
+        {{ highlight $hCode . "" | replaceRE $placeHolder (index $delimiters .) | safeHTML }}
+      </div>
+    {{ end }}
+  {{ end }}
+</div>

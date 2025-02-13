@@ -1,0 +1,44 @@
+<header
+  x-data="navbar"
+  class="print:hidden sticky top-0 z-50 bg-blue-950 flex flex-none flex-wrap items-center justify-between px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 sm:px-6 lg:px-8 dark:shadow-none"
+  :class="$store.nav.scroll.atTop ? '': 'bg-blue-950/80'">
+  <div class="relative flex basis-0 items-cente mr-2 lg:mr-8">
+    {{ with site.Home }}
+      <a
+        class="text-white text-xl font-bold upper"
+        href="{{ .RelPermalink }}"
+        aria-label="{{ .LinkTitle }}"
+        >HUGO</a
+      >
+    {{ end }}
+  </div>
+  <div
+    class=" relative flex flex-grow basis-0 items-center min-w-24 max-w-3xl overflow-x-auto">
+    {{ range .Site.Menus.global }}
+      <a
+        href="{{ .URL }}"
+        class="font-semibold text-gray-300 hover:text-gray-400 ml-4"
+        >{{ .Name }}</a
+      >
+    {{ end }}
+
+  </div>
+
+  <div class="-my-5 pl-2 grow-0">
+    {{/* Search. */}}
+    {{ partial "layouts/search/input.html" . }}
+  </div>
+  <div
+    class="relative ml-0 md:ml-8 flex basis-0 justify-end gap-0 sm:gap-1 xl:grow-1">
+    {{/* QR code. */}}
+    {{ partial "layouts/header/qr.html" . }}
+    {{/* Theme selector. */}}
+    {{ partial "layouts/header/theme.html" . }}
+
+    {{/* Social. */}}
+    <div
+      class="hidden sm:block ml-2 sm:ml-6 h-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300">
+      {{ partial "layouts/header/githubstars.html" . }}
+    </div>
+  </div>
+</header>

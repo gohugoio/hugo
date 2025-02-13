@@ -75,7 +75,7 @@ max
 : (`string`) The maximum Hugo version supported, e.g. `0.55.0`
 
 extended
-: (`bool`) Whether the extended version of Hugo is required.
+: (`bool`) Whether the extended edition of Hugo is required, satisfied by installing either the extended or extended/deploy edition.
 
 ## Module configuration: imports
 
@@ -154,21 +154,21 @@ target
 : (`string`) Where it should be mounted into Hugo's virtual filesystem. It must start with one of Hugo's component directories: `static`, `content`, `layouts`, `data`, `assets`, `i18n`, or `archetypes`. E.g. `content/blog`.
 
 disableWatch
-{{< new-in 0.128.0 >}}
+{{< new-in 0.128.0 />}}
 : (`bool`) Whether to disable watching in watch mode for this mount. Default is `false`.
 
 lang
 : (`string`) The language code, e.g. "en". Only relevant for `content` mounts, and `static` mounts when in multihost mode.
 
 includeFiles
-: (`string` or `string slice`) One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted.
+: (`string` or `[]string`) One or more [glob](https://github.com/gobwas/glob) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted.
 
 The glob patterns are matched to the file names starting from the `source` root, they should have Unix styled slashes even on Windows, `/` matches the mount root and `**` can be used as a  super-asterisk to match recursively down all directories, e.g `/posts/**.jpg`.
 
 The search is case-insensitive.
 
 excludeFiles
-: (`string` or `string slice`) One or more glob patterns matching files to exclude.
+: (`string` or `[]string`) One or more glob patterns matching files to exclude.
 
 ### Example
 

@@ -11,7 +11,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.141.0 >}}
+{{< new-in 0.141.0 />}}
 
 The `try` statement is a non-standard extension to Go's [text/template] package. It introduces a mechanism for handling errors within templates, mimicking the `try-catch` constructs found in other programming languages.
 
