@@ -79,19 +79,21 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 	}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
-		"year":           p.pageToPermalinkDate,
-		"month":          p.pageToPermalinkDate,
-		"monthname":      p.pageToPermalinkDate,
-		"day":            p.pageToPermalinkDate,
-		"weekday":        p.pageToPermalinkDate,
-		"weekdayname":    p.pageToPermalinkDate,
-		"yearday":        p.pageToPermalinkDate,
-		"section":        p.pageToPermalinkSection,
-		"sections":       p.pageToPermalinkSections,
-		"title":          p.pageToPermalinkTitle,
-		"slug":           p.pageToPermalinkSlugElseTitle,
-		"slugorfilename": p.pageToPermalinkSlugElseFilename,
-		"filename":       p.pageToPermalinkFilename,
+		"year":                  p.pageToPermalinkDate,
+		"month":                 p.pageToPermalinkDate,
+		"monthname":             p.pageToPermalinkDate,
+		"day":                   p.pageToPermalinkDate,
+		"weekday":               p.pageToPermalinkDate,
+		"weekdayname":           p.pageToPermalinkDate,
+		"yearday":               p.pageToPermalinkDate,
+		"section":               p.pageToPermalinkSection,
+		"sections":              p.pageToPermalinkSections,
+		"title":                 p.pageToPermalinkTitle,
+		"slug":                  p.pageToPermalinkSlugElseTitle,
+		"slugorfilename":        p.pageToPermalinkSlugElseFilename,
+		"filename":              p.pageToPermalinkFilename,
+		"contentbasename":       p.pageToPermalinkContentBaseName,
+		"contentbasenameorslug": p.pageToPermalinkContentBaseNameOrSlug,
 	}
 
 	p.expanders = make(map[string]map[string]func(Page) (string, error))
@@ -305,6 +307,26 @@ func (l PermalinkExpander) pageToPermalinkSection(p Page, _ string) (string, err
 
 func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, error) {
 	return p.CurrentSection().SectionsPath(), nil
+}
+
+// pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
+func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (string, error) {
+	if p.File() == nil {
+		return "", nil
+	}
+	return l.urlize(p.File().ContentBaseName()), nil
+}
+
+// pageToPermalinkContentBaseNameOrSlug returns the URL-safe form of the content base name, or the slug.
+func (l PermalinkExpander) pageToPermalinkContentBaseNameOrSlug(p Page, a string) (string, error) {
+	name, err := l.pageToPermalinkContentBaseName(p, a)
+	if err != nil {
+		return "", nil
+	}
+	if name != "" {
+		return name, nil
+	}
+	return l.pageToPermalinkSlugElseTitle(p, a)
 }
 
 func (l PermalinkExpander) translationBaseName(p Page) string {
