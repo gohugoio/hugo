@@ -14,7 +14,7 @@ action:
   signatures: [math.Sum VALUE...]
 ---
 
-{{< new-in 0.114.0 >}}
+{{< new-in 0.114.0 />}}
 
 ```go-html-template
 {{ math.Sum 1 (slice 2 3) 4 }} → 10

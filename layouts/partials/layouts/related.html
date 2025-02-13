@@ -1,0 +1,37 @@
+{{- $heading := "See also" }}
+{{- $related := slice }}
+
+{{- if .Params.action.related }}
+  {{- $related = slice }}
+  {{- range .Params.action.related }}
+    {{- $path := . | lower }}
+    {{- with or (site.GetPage $path) ($.GetPage $path) }}
+      {{- $related = $related | append . }}
+    {{- else }}
+      {{/* TODO1 make error */}}
+      {{- warnf "The 'related' partial was unable to get page %s" . }}
+    {{- end }}
+  {{- end }}
+{{- else }}
+  {{- $related = site.RegularPages.Related . }}
+{{- end }}
+{{/* Avoid repeating pages that's listed in In this section. */}}
+{{- $related = $related | complement .CurrentSection.RegularPages | first 7 }}
+{{- with $related }}
+  {{ $.Store.Set "hasRelated" true }}
+  <h2
+    class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
+    {{ $heading }}
+  </h2>
+  <ul class="mt-2 mb-8">
+    {{- range . }}
+      <li>
+        <a
+          class="text-sm text-blue-600 hover:text-blue-500"
+          href="{{ .RelPermalink }}"
+          >{{ .LinkTitle }}</a
+        >
+      </li>
+    {{- end }}
+  </ul>
+{{- end }}

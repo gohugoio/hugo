@@ -1,0 +1,28 @@
+{{ $url := "https://api.github.com/repos/gohugoio/hugo" }}
+{{ $cacheKey := print $url (now.Format "2006-01-02") }}
+{{ $headers := dict }}
+{{ with os.Getenv "HUGO_GH_TOKEN" }}
+  {{ $headers = dict "Authorization" (printf "Bearer %s" .) }}
+{{ end }}
+{{ $opts := dict "headers" $headers "key" $cacheKey }}
+{{ $githubRepoInfo := dict }}
+{{ with try (resources.GetRemote $url $opts) }}
+  {{ with .Err }}
+    {{ warnf "Failed to get GitHub repo info: %s" . }}
+  {{ else with (.Value | transform.Unmarshal) }}
+    {{ $githubRepoInfo = dict
+      "html_url"  .html_url
+      "stargazers_url" .stargazers_url
+      "watchers_count" .watchers_count
+      "stargazers_count" .stargazers_count
+      "forks_count" .forks_count
+      "contributors_url" .contributors_url
+      "releases_url" .releases_url
+      "forks_count" .forks_count
+      }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource %q" $url }}
+  {{ end }}
+{{ end }}
+
+{{ return $githubRepoInfo }}

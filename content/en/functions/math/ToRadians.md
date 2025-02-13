@@ -12,7 +12,7 @@ action:
   signatures: [math.ToRadians VALUE]
 ---
 
-{{< new-in 0.130.0 >}}
+{{< new-in 0.130.0 />}}
 
 ```go-html-template
 {{ math.ToRadians 90 }} → 1.5707963267948966

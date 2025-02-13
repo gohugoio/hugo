@@ -59,7 +59,7 @@ block = true
 
 ###### PageInner
 
-{{< new-in 0.125.0 >}}
+{{< new-in 0.125.0 />}}
 
 (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
@@ -122,7 +122,7 @@ wrapStandAloneImageWithinParagraph = false
 
 ## Default
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 Hugo includes an [embedded image render hook] to resolve Markdown image destinations. Disabled by default, you can enable it in your site configuration:
 

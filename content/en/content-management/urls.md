@@ -56,7 +56,7 @@ If you set both `slug` and `url` in front matter, the `url` value takes preceden
 
 #### Include a colon
 
-{{< new-in 0.136.0 >}}
+{{< new-in 0.136.0 />}}
 
 If you need to include a colon in the  `url` front matter field, escape it with backslash characters. Use one backslash if you wrap the string within single quotes, or use two backslashes if you wrap the string within double quotes. With YAML front matter, use a single backslash if you omit quotation marks.
 
@@ -118,7 +118,7 @@ multilingual|`about`|`https://example.org/de/about/`
 
 #### Permalinks tokens in front matter
 
-{{< new-in "0.131.0" >}}
+{{< new-in 0.131.0 />}}
 
 You can also use [tokens](#tokens) when setting the `url` value. This is typically used in `cascade` sections:
 

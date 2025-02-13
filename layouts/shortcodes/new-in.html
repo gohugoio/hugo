@@ -1,0 +1,66 @@
+{{- /*
+  Renders a "new in" button indicating the version in which a feature was added.
+
+  When comparing the current version to the specified version, the "new in"
+  button will be hidden if any of the following conditions is true:
+
+  - The major version difference exceeds the majorVersionDiffThreshold
+  - The minor version difference exceeds the minorVersionDiffThreshold
+
+  @param {string} version The semantic version string, with or without a leading v.
+  @returns {template.HTML}
+
+  @examples {{< new-in 0.100.0 /
+>}}
+
+{{< new-in 0.100.0 >}}
+Some descriptive text here.
+{{< /new-in >}}
+*/}}
+{{ $_hugo_config := `{ "version": 1 }` }}
+
+{{- /* Set defaults. */}}
+{{- $majorVersionDiffThreshold := 0 }}
+{{- $minorVersionDiffThreshold := 30 }}
+{{- $displayExpirationWarning := true }}
+
+{{- /* Render. */}}
+{{- with $version := .Get 0 | strings.TrimPrefix "v" }}
+  {{- $majorVersionDiff := sub (index (split hugo.Version ".") 0 | int) (index (split $version ".") 0 | int) }}
+  {{- $minorVersionDiff := sub (index (split hugo.Version ".") 1 | int) (index (split $version ".") 1 | int) }}
+  {{- if or (gt $majorVersionDiff $majorVersionDiffThreshold) (gt $minorVersionDiff $minorVersionDiffThreshold) }}
+    {{- if $displayExpirationWarning }}
+      {{- warnf "This call to the %q shortcode should be removed: %s. The button is now hidden because the specified version (%s) is older than the display threshold." $.Name $.Position $version }}
+    {{- end }}
+  {{- else }}
+    {{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}
+    {{- with $.Inner }}
+      {{ $text := printf `<p class="fon-semibold">New in <a href=%q>v%s</a>.</p>%s`
+        $href $version (. | $.Page.RenderString (dict "display" "block"))
+      }}
+
+      {{ partial "layouts/blocks/alert.html" (dict
+        "text" ($text | safeHTML)
+        "color" "green"
+        "icon" "exclamation"
+        )
+      }}
+    {{- else }}
+      <span
+        class="not-prose inline-flex items-center px-2 mr-1 rounded text-sm font-medium bg-green-200 dark:bg-green-400 fill-green-600">
+        <svg class="mr-1.5 h-2 w-2" viewBox="0 0 8 8">
+          <circle cx="4" cy="4" r="3" />
+        </svg>
+        <a
+          class="text-green-800 dark:text-black hover:text-green-600 no-underline"
+          href="{{ $href }}"
+          target="_blank">
+          New in
+          v{{ $version }}
+        </a>
+      </span>
+    {{- end }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a positional parameter (version). See %s" .Name .Position }}
+{{- end -}}

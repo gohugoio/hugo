@@ -1,7 +1,7 @@
 ---
 title: Developer tools
-linkTitle: In this section
-description: In addition to Hugo's powerful CLI, there is a large number of community-developed tool chains for Hugo developers.
+
+description: Third-party tools to help you create and manage sites.
 categories: []
 keywords: []
 menu:

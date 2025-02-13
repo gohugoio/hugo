@@ -1,32 +1,35 @@
 ---
 title: js.Babel
-description: Compiles the given JavaScript resource with Babel.
+description: Compile the given JavaScript resource with Babel.
 categories: []
 keywords: []
-weight: 100
 action:
-  aliases: [babel,/hugo-pipes/babel/]
+  aliases: [babel]
   related:
+    - functions/js/Batch
     - functions/js/Build
     - functions/resources/Fingerprint
     - functions/resources/Minify
   returnType: resource.Resource
   signatures: ['js.Babel [OPTIONS] RESOURCE']
+weight: 30
 toc: true
 ---
 
-{{< new-in 0.128.0 >}}
-
 ```go-html-template
 {{ with resources.Get "js/main.js" }}
-  {{ if hugo.IsDevelopment }}
-    {{ with . | babel }}
+  {{ $opts := dict
+    "minified" hugo.IsProduction
+    "noComments" hugo.IsProduction
+    "sourceMap" (cond hugo.IsProduction "none" "external")
+  }}
+  {{ with . | js.Babel $opts }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
+        <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+      {{ end }}
+    {{ else }}
       <script src="{{ .RelPermalink }}"></script>
-    {{ end }}
-  {{ else }}
-    {{ $opts := dict "minified" true }}
-    {{ with . | babel $opts | fingerprint }}
-      <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
     {{ end }}
   {{ end }}
 {{ end }}
@@ -72,20 +75,32 @@ module.exports = {
 
 ## Options
 
-config
-: (`string`) Path to the Babel configuration file. Hugo will, by default, look for a `babel.config.js` in your project. More information on these configuration files can be found here: [babel configuration](https://babeljs.io/docs/en/configuration).
+###### compact
 
-minified
-: (`bool`) Save as many bytes as possible when printing
+(`bool`) Whether to remove optional newlines and whitespace. Enabled when `minified` is `true`. Default is `false`
 
-noComments
-: (`bool`) Write comments to generated output (true by default)
+###### config
 
-compact
-: (`bool`) Do not include superfluous whitespace characters and line terminators. Defaults to `auto` if not set.
+(`string`) Path to the Babel configuration file. Hugo will, by default, look for a `babel.config.js` file in the root of your project. See [details](https://babeljs.io/docs/en/configuration).
 
-verbose
-: (`bool`) Log everything
+###### minified
 
-sourceMap
-: (`string`) Output `inline` or `external` sourcemap from the babel compile. External sourcemaps will be written to the target with the output file name + ".map". Input sourcemaps can be read from js.Build and node modules and combined into the output sourcemaps.
+(`bool`) Whether to minify the compiled code. Enables the `compact` option. Default is `false`.
+
+###### noBabelrc
+
+(`string`) Whether to ignore `.babelrc` and `.babelignore` files. Default is `false`.
+
+###### noComments
+
+(`bool`) Whether to remove comments. Default is `false`.
+
+###### sourceMap
+
+(`string`) Whether to generate source maps, one of `external`, `inline`, or `none`. Default is `none`.
+
+<!-- In the above, technically "none" is not one of the enumerated values, but it has the same effect and is easier to document than an empty string. -->
+
+###### verbose
+
+(`bool`) Whether to enable verbose logging. Default is `false`

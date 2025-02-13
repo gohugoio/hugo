@@ -11,7 +11,7 @@ weight: 290
 toc: true
 ---
 
-{{< new-in 0.126.0 >}}
+{{< new-in 0.126.0 />}}
 
 ## Overview
 

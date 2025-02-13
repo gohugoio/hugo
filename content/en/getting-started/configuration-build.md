@@ -16,21 +16,21 @@ The `build` configuration section contains global build-related configuration op
 
 {{< code-toggle config=build />}}
 
-#### buildStats
+###### buildStats
 
 See [Configure buildStats](#configure-build-stats).
 
-#### cachebusters
+###### cachebusters
 
 See [Configure Cache Busters](#configure-cache-busters).
 
-#### noJSConfigInAssets
+###### noJSConfigInAssets
 
 (`bool`) If `true`, turns off writing a `jsconfig.json` into your `assets` directory with mapping of imports from running [js.Build](/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
 
-#### useResourceCacheWhen
+###### useResourceCacheWhen
 
-(`string`) When to use the cached resources in `/resources/_gen` for PostCSS and ToCSS. Valid values are `never`, `always` and `fallback`. The last value means that the cache will be tried if PostCSS/extended version is not available.
+(`string`) When to use the resource file cache, one of `never`, `fallback`, or `always`. Applicable when transpiling Sass to CSS. Default is `fallback`.
 
 ## Configure cache busters
 
@@ -54,7 +54,7 @@ The `build.cachebusters` configuration option was added to support development u
     target = "$1"
 {{< /code-toggle >}}
 
-When `buildStats` {{< new-in 0.115.1 >}} is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
+When `buildStats` {{< new-in 0.115.1 />}} is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
 
 source
 : A regexp matching file(s) relative to one of the virtual component directories in Hugo, typically `assets/...`.
@@ -66,11 +66,11 @@ target
 
 {{< code-toggle config=build.buildStats />}}
 
-{{< new-in 0.115.1 >}}
+{{< new-in 0.115.1 />}}
 
 If `enable` is set to `true`, creates a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking.
 
-[removing unused CSS]: /hugo-pipes/postprocess/#css-purging-with-postcss
+[removing unused CSS]: /functions/resources/postprocess/
 
 Exclude `class` attributes, `id` attributes, or tags from `hugo_stats.json` with the `disableClasses`, `disableIDs`, and `disableTags` keys.
 

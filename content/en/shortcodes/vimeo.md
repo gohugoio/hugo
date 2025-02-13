@@ -46,7 +46,7 @@ id
 title
 : (`string`) The `title` attribute of the `iframe` element.
 
-If you proivde a `class` or `title` you must use a named parameter for the `id`.
+If you provide a `class` or `title` you must use a named parameter for the `id`.
 
 ```text
 {{</* vimeo id=55073825 class="foo bar" title="My Video" */>}}

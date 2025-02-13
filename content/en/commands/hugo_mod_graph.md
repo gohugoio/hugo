@@ -5,7 +5,7 @@ url: /commands/hugo_mod_graph/
 ---
 ## hugo mod graph
 
-Print a module dependency graph.
+Print a module dependency graph
 
 ### Synopsis
 

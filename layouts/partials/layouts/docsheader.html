@@ -1,0 +1,9 @@
+<header>
+  {{ partial "layouts/breadcrumbs.html" . }}
+  {{ if and .IsPage (not (eq .Layout "list")) }}
+    <h1
+      class="font-display mt-6 sm:mt-8 text-3xl tracking-tight text-slate-900 dark:text-white">
+      {{ .Title }}
+    </h1>
+  {{ end }}
+</header>

@@ -48,9 +48,7 @@ Hugo's [template lookup order] determines the template path, allowing you to cre
 [template lookup order]: /templates/lookup-order/
 
 {{% note %}}
-You must have thorough understanding of the [template lookup order] when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
-
-[template lookup order]: /templates/lookup-order/
+You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
 {{% /note %}}
 
 The purpose of each template type is described below.
@@ -88,9 +86,7 @@ Learn more about [base templates](/templates/base/).
 
 ## Home
 
-A home template renders your site's home page. For a single page site this is the only required template.
-
-For example, the home template below inherits the site's shell from the base template, and renders the home page content with a list of pages.
+A home page template is used to render your site's home page, and is the only template required for a single-page website.  For example, the home page template below inherits the site's shell from the base template and renders the home page content, such as a list of other pages.
 
 {{< code file=layouts/_default/home.html >}}
 {{ define "main" }}
@@ -103,7 +99,7 @@ For example, the home template below inherits the site's shell from the base tem
 
 {{% include "templates/_common/filter-sort-group.md" %}}
 
-Learn more about [home templates](/templates/home/).
+Learn more about [home page templates](/templates/home/).
 
 ## Single
 
@@ -241,7 +237,7 @@ For example, the render hook template below adds a `rel` attribute to external l
   {{- with .Title }} title="{{ . }}"{{ end -}}
   {{- if $u.IsAbs }} rel="external"{{ end -}}
 >
-  {{- with .Text | safeHTML }}{{ . }}{{ end -}}
+  {{- with .Text }}{{ . }}{{ end -}}
 </a>
 {{- /* chomp trailing newline */ -}}
 {{< /code >}}
@@ -260,10 +256,10 @@ For example, the shortcode template below renders an audio element from a [globa
 {{ end }}
 {{< /code >}}
 
-Call the shortcode from your content page:
+Then call the shortcode from within markup:
 
 {{< code file=content/example.md >}}
-{{</* audio src="audio/test.mp3" */>}}
+{{</* audio src=/audio/test.mp3 */>}}
 {{< /code >}}
 
 Learn more about [shortcode templates](/templates/shortcode/).

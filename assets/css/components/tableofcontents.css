@@ -1,0 +1,14 @@
+.tableofcontents {
+  ul {
+    @apply list-none;
+    li {
+      @apply mb-2;
+      a {
+        @apply text-primary;
+        &:hover {
+          @apply text-primary/60;
+        }
+      }
+    }
+  }
+}

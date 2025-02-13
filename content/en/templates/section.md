@@ -1,6 +1,6 @@
 ---
 title: Section templates
-description: Use section templates to list members of a section.
+description: Create a section template to list its members.
 categories: [templates]
 keywords: []
 menu:

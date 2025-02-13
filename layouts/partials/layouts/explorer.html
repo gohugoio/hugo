@@ -1,0 +1,47 @@
+{{/* This is currently not in use, but kept in case I change my mind. */}}
+<nav
+  role="navigation"
+  id="explorer"
+  class="overflow-x-hidden w-54"
+  x-data="explorer"
+  data-turbo-permanent
+  @turbo:load.window="onLoad()"
+  @turbo:before-render.window="onBeforeRender()"
+  x-cloak>
+  <ul class="w-full">
+    {{ $root := site.GetPage "/" }}
+    {{ template "docs-explorer-section" (dict "p" $root "level" 0 ) }}
+  </ul>
+</nav>
+
+{{ define "docs-explorer-section" }}
+  {{ $p := .p }}
+  {{ $level := .level }}
+  {{ $pleft := $level }}
+  {{ if gt $level 0 }}
+    {{ $pleft = add $level 1 }}
+  {{ end }}
+  {{ $pl := printf "pl-%d" $pleft }}
+  {{ $pages := $p.Sections }}
+
+  {{ range $pages }}
+    {{ $hasChildren := gt (len .Pages) 0 }}
+    {{ $class := cond (eq $level 0) "text-primary hover:text-primary/70" "text-gray-900 dark:text-gray-400 hover:dark:text-gray-300" }}
+    <li class="w-full">
+      <a
+        @click="toggleNode('{{ .RelPermalink }}')"
+        href="{{ .RelPermalink }}"
+        x-ref="{{ .RelPermalink }}"
+        :class="isCurrent('{{ .RelPermalink }}') ? 'font-bold underline': 'font-normal'"
+        class="block cursor-pointer {{ $pl }} {{ $class }} focus:font-bold hover:underline focus:underline tracking-tight leading-7">
+        {{ .LinkTitle }}
+      </a>
+      {{ if $hasChildren }}
+        <ul class="w-full" x-show="isOpen('{{ .RelPermalink }}')">
+          {{ template "docs-explorer-section" (dict "p" . "level" (add $level 1)) }}
+        </ul>
+      {{ end }}
+    </li>
+  {{ end }}
+
+{{ end }}

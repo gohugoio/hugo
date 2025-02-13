@@ -1,0 +1,52 @@
+<meta charset="utf-8" />
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+{{ hugo.Generator }}
+
+{{ if hugo.IsProduction }}
+  <meta name="robots" content="index, follow" />
+{{ else }}
+  <meta name="robots" content="noindex, nofollow" />
+{{ end }}
+
+<title>
+  {{ with .Title }}{{ . }} |{{ end }}
+  {{ .Site.Title }}
+</title>
+
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png href=/favicon-32x32.png sizes=32x32>
+<link rel=icon type=image/png href=/favicon-16x16.png sizes=16x16>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#0594cb>
+
+<meta name="turbo-prefetch" content="true">
+<meta name="view-transition" content="same-origin">
+
+{{ range .AlternativeOutputFormats -}}
+  <link
+    rel="{{ .Rel }}"
+    type="{{ .MediaType.Type }}"
+    href="{{ .RelPermalink | safeURL }}" />
+{{ end -}}
+
+
+<meta
+  name="description"
+  content="{{ with .Description }}
+    {{ . }}
+  {{ else }}
+    {{ with .Site.Params.description }}{{ . }}{{ end }}
+  {{ end }}
+    " />
+
+
+
+{{ partial "opengraph/opengraph.html" . }}
+{{- template "_internal/schema.html" . -}}
+{{- template "_internal/twitter_cards.html" . -}}
+
+{{ if hugo.IsProduction }}
+  {{ partial "helpers/gtag.html" . }}
+{{ end }}

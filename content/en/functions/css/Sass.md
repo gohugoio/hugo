@@ -15,18 +15,23 @@ action:
 toc: true
 ---
 
-{{< new-in 0.128.0 >}}
+{{< new-in 0.128.0 />}}
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
-  {{ $opts := dict "transpiler" "libsass" "targetPath" "css/style.css" }}
+  {{ $opts := dict
+    "enableSourceMap" (not hugo.IsProduction)
+    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "targetPath" "css/main.css"
+    "transpiler" "libsass"
+  }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | minify | fingerprint }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
+    {{ else }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}
@@ -87,11 +92,11 @@ includePaths
 ```
 
 silenceDeprecations
-: (`slice`) {{< new-in 0.139.0 >}} A slice of deprecation IDs to silence. The deprecation IDs are printed to in the warning message, e.g "import" in `WARN  Dart Sass: DEPRECATED [import] ...`. This is for Dart Sass only.
+: (`slice`) {{< new-in 0.139.0 />}} A slice of deprecation IDs to silence. The deprecation IDs are printed to in the warning message, e.g "import" in `WARN  Dart Sass: DEPRECATED [import] ...`. This is for Dart Sass only.
 
 ## Dart Sass
 
-The extended version of Hugo includes [LibSass] to transpile Sass to CSS. In 2020, the Sass team deprecated LibSass in favor of [Dart Sass].
+Hugo's extended and extended/deploy editions include [LibSass] to transpile Sass to CSS. In 2020, the Sass team deprecated LibSass in favor of [Dart Sass].
 
 Use the latest features of the Sass language by installing Dart Sass in your development and production environments.
 
@@ -200,14 +205,19 @@ To transpile with Dart Sass, set `transpiler` to `dartsass` in the options map p
 
 ```go-html-template
 {{ with resources.Get "sass/main.scss" }}
-  {{ $opts := dict "transpiler" "dartsass" "targetPath" "css/style.css" }}
+  {{ $opts := dict
+    "enableSourceMap" (not hugo.IsProduction)
+    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "targetPath" "css/main.css"
+    "transpiler" "dartsass"
+  }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | minify | fingerprint }}
+    {{ if hugo.IsProduction }}
+      {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
+    {{ else }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}

@@ -13,7 +13,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.141.0 >}}
+{{< new-in 0.141.0 />}}
 
 The `images.Mask` filter applies a mask to an image. Black pixels in the mask make the corresponding areas of the base image transparent, while white pixels keep them opaque. Color images are converted to grayscale for masking purposes. The mask is automatically resized to match the dimensions of the base image.
 

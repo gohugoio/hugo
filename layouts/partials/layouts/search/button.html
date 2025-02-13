@@ -1,0 +1,19 @@
+<button
+  {{ if .standalone }}
+    x-data @click="$dispatch('search-toggle')"
+  {{ end }}
+  type="button"
+  class="grid cursor-pointer w-full text-gray-500 lg:w-56 grid-cols-[auto_1fr_auto] items-center rounded-md px-2 sm:px-4 py-2 text-left text-xs/6 lg:text-sm/6 outline-0 sm:outline-1 -outline-offset-1 outline-gray-600">
+  <svg
+    class="pointer-events-none -ml-0.5 mr-2 size-5 sm:size-4 fill-slate-400 dark:fill-slate-500">
+    <use href="#icon--search"></use>
+  </svg>
+  <span class="hidden lg:inline">Search docs</span
+  ><kbd
+    class="hidden font-sans text-xs/4 text-gray-400 dark:text-gray-400 sm:[.os-macos_&amp;]:block"
+    ><span class="text-gray-400/70 ">⌘</span>K</kbd
+  ><kbd
+    class="hidden font-sans text-xs/4 text-gray-400 sm:not-[.os-macos_&amp;]:block dark:text-gray-400"
+    ><span class="text-gray-400/70">Ctrl</span>&nbsp;K</kbd
+  >
+</button>

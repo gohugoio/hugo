@@ -1,0 +1,22 @@
+{{ define "main" }}
+  <main class="grid min-h-full place-items-center px-6 py-24 sm:py-32 lg:px-8">
+    <div class="text-center">
+      <h1
+        class="mt-4 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl dark:text-gray-300">
+        Page not found
+        <img
+          src="{{ `images/gopher-side_color.svg` | relURL }}"
+          alt="gopher"
+          class="w-32 ml-12 float-right" />
+      </h1>
+
+      <div class="mt-10 flex items-center justify-center gap-x-6">
+        <a
+          href="{{ site.Home.RelPermalink }}"
+          class="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          >Go back home</a
+        >
+      </div>
+    </div>
+  </main>
+{{ end }}

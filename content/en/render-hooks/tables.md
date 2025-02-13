@@ -12,7 +12,7 @@ weight: 90
 toc: true
 ---
 
-{{< new-in 0.134.0 >}}
+{{< new-in 0.134.0 />}}
 
 ## Context
 

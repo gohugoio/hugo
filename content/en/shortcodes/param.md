@@ -27,7 +27,7 @@ params:
   size: medium
 ---
 
-We found a {{</* param "color" */>}} shirt.
+We found a {{%/* param "color" */%}} shirt.
 {{< /code >}}
 
 Hugo renders this to:
@@ -39,5 +39,5 @@ Hugo renders this to:
 Access nested values by [chaining](g) the [identifiers](g):
 
 ```text
-{{</* param my.nested.param */>}}
+{{%/* param my.nested.param */%}}
 ```

@@ -161,7 +161,7 @@ Step 10
 
 ## Building from source
 
-You can build, install, and test Hugo at any point in its development history. The examples below build and install the extended version of Hugo.
+You can build, install, and test Hugo at any point in its development history. The examples below build and install the extended edition of Hugo.
 
 To build and install the latest release:
 

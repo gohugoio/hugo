@@ -3,7 +3,7 @@
   command = "hugo --gc --minify"
 
   [build.environment]
-    HUGO_VERSION = "0.142.0"
+    HUGO_VERSION = "0.143.1"
 
 [context.production.environment]
   HUGO_ENV           = "production"
@@ -16,7 +16,7 @@
     HUGO_ENV = "production"
 
 [context.deploy-preview]
-  command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL"
+  command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL --enableGitInfo"
 
 [context.branch-deploy]
   command = "hugo --gc --minify -b $DEPLOY_PRIME_URL"
@@ -24,7 +24,32 @@
 [context.next.environment]
   HUGO_ENABLEGITINFO = "true"
 
-[[redirects]]
-  from   = "/npmjs/*"
-  to     = "/npmjs/"
-  status = 200
+[[headers]]
+  for = "/*.jpg"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.png"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.css"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.js"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.ttf"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"

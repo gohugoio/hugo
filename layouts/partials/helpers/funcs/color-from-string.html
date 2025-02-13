@@ -1,0 +1,25 @@
+{{ $colors := slice  "slate" "green" "cyan" "blue" }}
+{{ with .single }}
+  {{ $colors = slice . }}
+{{ end }}
+
+{{ $shades := slice 300 400 500 }}
+{{ if not .dark }}
+  {{ $shades = slice 700 800 }}
+{{ end }}
+{{ $hash := (hash.FNV32a .text) }}
+{{ $i := mod $hash (len $colors) }}
+{{ $j := mod $hash (len $shades) }}
+{{ $color := index $colors $i }}
+{{ $shade1 := index $shades $j }}
+{{ $shade2 := 0 }}
+{{ $shade3 := 0 }}
+{{ if gt $shade1 500 }}
+  {{ $shade2 =  math.Min (sub $shade1 500) 100 | int }}
+  {{ $shade3 =  sub $shade1 100 }}
+{{ else }}
+  {{ $shade2 = math.Max (add $shade1 500) 700 | int }}
+  {{ $shade3 = add $shade1 200 }}
+{{ end }}
+{{ $res := dict  "color" $color "shade1" $shade1  "shade2" $shade2 "shade3" $shade3 }}
+{{ return $res }}

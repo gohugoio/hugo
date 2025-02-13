@@ -15,7 +15,7 @@ action:
 toc: true
 ---
 
-{{< new-in 0.123.0 >}}
+{{< new-in 0.123.0 />}}
 
 ## Options
 

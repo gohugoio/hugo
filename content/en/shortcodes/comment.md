@@ -9,7 +9,7 @@ menu:
     parent: shortcodes
     weight:
 weight:
-expiryDate: 2025-01-22 # with v0.142.0 and later use HTML comments instead
+expiryDate: 2025-01-22 # deprecated 2025-02-01 in v0.143.0 and immediately removed from the documentation
 ---
 
 {{% note %}}
@@ -18,7 +18,7 @@ To override Hugo's embedded `comment` shortcode, copy the [source code] to a fil
 [source code]: {{% eturl comment %}}
 {{% /note %}}
 
-{{< new-in "0.137.1" >}}
+{{< new-in 0.137.1 />}}
 
 Use the `comment` shortcode to include comments in your content. Hugo will ignore the text within these comments when rendering your site.
 

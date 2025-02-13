@@ -17,7 +17,7 @@ action:
   signatures: [math.Sin VALUE]
 ---
 
-{{< new-in 0.130.0 >}}
+{{< new-in 0.130.0 />}}
 
 ```go-html-template
 {{ math.Sin 1 }} → 0.8414709848078965

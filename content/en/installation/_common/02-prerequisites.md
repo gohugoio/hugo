@@ -29,7 +29,7 @@ Please refer to the relevant documentation for installation instructions:
 
 [cloudcannon]: https://cloudcannon.com/
 [cloudflare pages]: https://pages.cloudflare.com/
-[dart sass install]: /hugo-pipes/transpile-sass-to-css/#dart-sass
+[dart sass install]: /functions/css/sass/#dart-sass
 [dart sass]: https://sass-lang.com/dart-sass
 [git install]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 [git]: https://git-scm.com/

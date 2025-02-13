@@ -1,0 +1,4 @@
+<div x-data="search" class="flex w-full">
+  {{ partial "layouts/search/button.html" (dict "page" . "standalone" false) }}
+  {{ partial "layouts/search/results.html" . }}
+</div>

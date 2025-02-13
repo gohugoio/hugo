@@ -7,7 +7,6 @@ action:
   related:
     - methods/page/Kind
     - methods/page/Layout
-    - methods/page/Type
   returnType: string
   signatures: [PAGE.Type]
 ---
