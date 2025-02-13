@@ -77,6 +77,13 @@ func TestKatex(t *testing.T) {
 		c.Assert(result.GetID(), qt.Equals, id)
 	})
 
+	c.Run("Chemistry", func(c *qt.C) {
+		id := uint32(32)
+		result, err := runExpression(c, id, "C_p[\\ce{H2O(l)}] = \\pu{75.3 J // mol K}")
+		c.Assert(err, qt.IsNil)
+		c.Assert(result.GetID(), qt.Equals, id)
+	})
+
 	c.Run("Invalid expression", func(c *qt.C) {
 		id := uint32(32)
 		result, err := runExpression(c, id, "c & \\foo\\")
