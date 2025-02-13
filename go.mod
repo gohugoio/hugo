@@ -80,7 +80,7 @@ require (
 	golang.org/x/net v0.35.0
 	golang.org/x/sync v0.11.0
 	golang.org/x/text v0.22.0
-	golang.org/x/tools v0.29.0
+	golang.org/x/tools v0.30.0
 	google.golang.org/api v0.221.0
 	gopkg.in/yaml.v2 v2.4.0
 	rsc.io/qr v0.2.0
