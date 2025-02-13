@@ -1,0 +1,4 @@
+# Ignore all SVG icons.
+**/icons.html
+# These are whitespace sensitive.
+layouts/_default/_markup/render-code*

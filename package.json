@@ -11,6 +11,8 @@
   "devDependencies": {
     "@tailwindcss/cli": "^4.0.0",
     "@tailwindcss/typography": "^0.5.15",
+    "prettier": "^3.5.0",
+    "prettier-plugin-go-template": "^0.0.15",
     "tailwindcss": "^4.0.0"
   },
   "dependencies": {
