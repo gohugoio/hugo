@@ -61,13 +61,13 @@ The following example demonstrates an inline shortcode, `date.inline`, that acce
 
 [layout string]: /functions/time/format/#layout-string
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=go >}}
 Today is
 {{</* date.inline ":date_medium" */>}}
   {{- now | time.Format (.Get 0) -}}
 {{</* /date.inline */>}}.
 
-Today is {{</* date.inline ":date_full" */>}}.
+Today is {{</* date.inline ":date_full" /*/>}}.
 {{< /code >}}
 
 In the example above, the inline shortcode is executed twice: once upon definition and again when subsequently called. Hugo renders this to:
