@@ -159,3 +159,17 @@ These are block equations:
 
 $$a^*=x-b^*$$
 {{< /code >}}
+
+## Chemistry
+
+{{< new-in 0.144.0 />}}
+
+You can also use the `transform.ToMath` function to render chemical equations, leveraging the `\ce` and `\pu` functions from the [mhchem] package.
+
+[mhchem]: https://mhchem.github.io/MathJax-mhchem/
+
+```text
+$$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
+```
+
+$$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$

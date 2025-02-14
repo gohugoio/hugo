@@ -230,8 +230,6 @@ To use KaTeX instead of MathJax, replace the partial template from [Step 2] with
 
 The delimiters above must match the delimiters in your site configuration.
 
-<!--
-
 ## Chemistry
 
 Both MathJax and KaTeX provide support for chemical equations. For example:
@@ -243,8 +241,6 @@ $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 
 As shown in [Step 2] above, MathJax supports chemical equations without additional configuration. To add chemistry support to KaTeX, enable the mhchem extension as described in the KaTeX [documentation](https://katex.org/docs/libs).
-
--->
 
 [KaTeX]: https://katex.org/
 [LaTeX]: https://www.latex-project.org/

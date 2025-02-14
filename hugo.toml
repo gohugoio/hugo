@@ -59,16 +59,6 @@ disableAliases = true
         notAlternative = true
 
 [markup]
-    [markup.highlight]
-        style              = 'solarized-dark'
-        lineNumbersInTable = true
-        noClasses          = false
-        wrapperClass       = 'highlight not-prose'
-
-    [markup.goldmark.renderer]
-        hardWraps = false
-        unsafe    = false
-        xhtml     = false
 
     [markup.goldmark.extensions]
         definitionList = true
@@ -94,6 +84,17 @@ disableAliases = true
         [markup.goldmark.parser.attribute]
             block = true
             title = true
+
+    [markup.goldmark.renderer]
+        hardWraps = false
+        unsafe    = false
+        xhtml     = false
+
+    [markup.highlight]
+        style              = 'solarized-dark'
+        lineNumbersInTable = true
+        noClasses          = false
+        wrapperClass       = 'highlight not-prose'
 
 [mediaTypes]
     [mediaTypes."text/netlify"]

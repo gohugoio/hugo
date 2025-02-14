@@ -172,9 +172,17 @@ With multilingual single-host sites, setting this parameter to `false` will enab
 
 [image render hook]: /render-hooks/images/
 
-###### parser.autoHeadingIDType
+###### parser.autoDefinitionTermID
 
-(`string`) The strategy used to automatically generate heading `id` attributes, one of `github`, `github-ascii` or `blackfriday`.
+(`bool`) Whether to automatically add `id` attributes to description list terms (i.e., `dt` elements).
+
+###### parser.autoHeadingID
+
+(`bool`) Whether to automatically add `id` attributes to headings (i.e., `h1`, `h2`, `h3`, `h4`, `h5`, and `h6` elements).
+
+###### parser.autoIDType
+
+(`string`) The strategy used to automatically generate `id` attributes, one of `github`, `github-ascii` or `blackfriday`.
 
 - `github` produces GitHub-compatible `id` attributes
 - `github-ascii` drops any non-ASCII characters after accent normalization

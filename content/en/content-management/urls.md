@@ -306,16 +306,34 @@ Use these tokens when defining the URL pattern. You can also use these tokens wh
 : The content's sections hierarchy. You can use a selection of the sections using _slice syntax_: `:sections[1:]` includes all but the first, `:sections[:last]` includes all but the last, `:sections[last]` includes only the last, `:sections[1:2]` includes section 2 and 3. Note that this slice access will not throw any out-of-bounds errors, so you don't have to be exact.
 
 `:title`
-: The title as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
+: The `title` as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
 
 `:slug`
-: The slug as defined in front matter, else the title as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
+: The `slug` as defined in front matter, else the `title` as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
 
 `:filename`
 : The content's file name without extension, applicable to the `page` page kind.
 
+  {{< deprecated-in v0.144.0 >}}
+  The `:filename` token has been  deprecated. Use `:contentbasename` instead.
+  {{< /deprecated-in >}}
+
 `:slugorfilename`
-: The slug as defined in front matter, else the content's file name without extension, applicable to the `page` page kind.
+: The `slug` as defined in front matter, else the content's file name without extension, applicable to the `page` page kind.
+
+  {{< deprecated-in v0.144.0 >}}
+  The `:slugorfilename` token has been deprecated. Use `:slugorcontentbasename` instead.
+  {{< /deprecated-in >}}
+
+`:contentbasename`
+: {{< new-in 0.144.0 />}}
+: The [content base name].
+
+[content base name]: /methods/page/file/#contentbasename
+
+`:slugorcontentbasename`
+: {{< new-in 0.144.0 />}}
+: The `slug` as defined in front matter, else the [content base name].
 
 For time-related values, you can also use the layout string components defined in Go's [time package]. For example:
 
