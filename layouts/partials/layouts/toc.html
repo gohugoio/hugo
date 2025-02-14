@@ -1,5 +1,4 @@
 {{ with .Fragments.Headings }}
-  {{ $.Store.Set "hasToc" true }}
   <div
     x-data="toc"
     class="sticky top-[8rem] h-screen overflow-y-auto overflow-x-hidden">
@@ -9,15 +8,16 @@
     </h2>
     <nav class="w-56 mt-2">
       <ul>
-        {{ template "render-toc-level" . }}
+        {{ template "render-toc-level" (dict "h" . "p" $) }}
       </ul>
     </nav>
   </div>
 {{ end }}
 
 {{ define "render-toc-level" }}
-  {{ range . }}
-    {{ if and .ID (or (ge .Level 2) (lt .Level 4)) }}
+  {{ range .h }}
+    {{ if and .ID (and (ge .Level 2) (le .Level 4)) }}
+      {{ $.p.Store.Set "hasToc" true }}
       <li>
         <a
           href="#{{ .ID }}"
@@ -35,7 +35,7 @@
     {{ end }}
     {{ with .Headings }}
       <ul>
-        {{ template "render-toc-level" . }}
+        {{ template "render-toc-level"  (dict "h" . "p" $.p) }}
       </ul>
     {{ end }}
   {{ end }}

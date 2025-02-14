@@ -67,5 +67,7 @@
     {{ partial "layouts/in-this-section.html" . }}
   {{ end }}
   {{ $related }}
-  {{ $toc }}
+  {{ if $.Store.Get "hasToc" }}
+    {{ $toc }}
+  {{ end }}
 {{ end }}
