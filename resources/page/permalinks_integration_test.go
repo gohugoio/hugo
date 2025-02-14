@@ -277,3 +277,25 @@ title: p2
 	// We strip colons from paths constructed by Hugo (they are not supported on Windows).
 	b.AssertFileExists("public/cd/p2/index.html", true)
 }
+
+func TestPermalinksPagesFromData(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[permalinks]
+[permalinks.page]
+a = "/:slugorcontentbasename/"
+b = "/:sections/:contentbasename/"
+-- content/_content.gotmpl --
+{{ $.AddPage  (dict "kind" "page" "path" "a/b/contentbasename1" "title" "My A Page No Slug")  }}
+{{ $.AddPage (dict "kind" "page" "path" "a/b/contentbasename2" "slug" "myslug"  "title" "My A Page With Slug")  }}
+ {{ $.AddPage  (dict "kind" "section" "path" "b/c" "title" "My B Section")  }}
+{{ $.AddPage  (dict "kind" "page" "path" "b/c/contentbasename3" "title" "My B Page No Slug")  }}
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .RelPermalink }}|
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertPublishDir("asdf")
+}

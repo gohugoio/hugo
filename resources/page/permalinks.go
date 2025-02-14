@@ -314,7 +314,7 @@ func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (str
 	if p.File() == nil {
 		return "", nil
 	}
-	return l.urlize(p.File().ContentBaseName()), nil
+	return l.urlize(p.PathInfo().BaseNameNoIdentifier()), nil
 }
 
 // pageToPermalinkContentBaseNameOrSlugOrTitle returns the URL-safe form of the content base name, slug, or the title.
