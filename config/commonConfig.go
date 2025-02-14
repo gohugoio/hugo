@@ -450,7 +450,7 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 }
 
 func (r Redirect) IsZero() bool {
-	return r.From == ""
+	return r.From == "" && r.FromRe == ""
 }
 
 const (
