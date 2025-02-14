@@ -146,7 +146,7 @@ In your base template, conditionally include the KaTeX CSS within the head eleme
 
 In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
-#### Step 4
+###### Step 4
 
 Add some mathematical markup to your content, then test.
 
