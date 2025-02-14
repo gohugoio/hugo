@@ -401,31 +401,17 @@ See [github.com/disintegration/imaging] for the complete list of resampling filt
 
 _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
 
-{{< imgproc "sunset.jpg" "resize 300x" />}}
+{{< imgproc path="sunset.jpg" spec="resize 480x" alt="A sunset" />}}
 
-{{< imgproc "sunset.jpg" "fill 90x120 left" />}}
+{{< imgproc path="sunset.jpg" spec="fill 120x150 left" alt="A sunset" />}}
 
-{{< imgproc "sunset.jpg" "fill 90x120 right" />}}
+{{< imgproc path="sunset.jpg" spec="fill 120x150 right" alt="A sunset" />}}
 
-{{< imgproc "sunset.jpg" "fit 90x90" />}}
+{{< imgproc path="sunset.jpg" spec="fit 120x120" alt="A sunset" />}}
 
-{{< imgproc "sunset.jpg" "crop 250x250 center" />}}
+{{< imgproc path="sunset.jpg" spec="crop 240x240 center" alt="A sunset" />}}
 
-{{< imgproc "sunset.jpg" "resize 300x q10" />}}
-
-This is the shortcode used to generate the examples above:
-
-{{< readfile file=layouts/shortcodes/imgproc.html highlight=go-html-template >}}
-
-Call the shortcode from your Markdown like this:
-
-```go-html-template
-{{</* imgproc "sunset.jpg" "resize 300x" /*/>}}
-```
-
-{{% note %}}
-Note the self-closing shortcode syntax above. You may call the `imgproc` shortcode with or without **inner content**.
-{{% /note %}}
+{{< imgproc path="sunset.jpg" spec="resize 360x q10" alt="A sunset" />}}
 
 ## Imaging configuration
 
@@ -474,11 +460,11 @@ excludeFields
 includeFields
 : Regular expression matching the EXIF tags to include in the `.Tags` collection. Default is&nbsp;`""`. To include all available tags, set this value to&nbsp;`".*"`.
 
-{{% note %}}
-To improve performance and decrease cache size, Hugo excludes the following tags: `ColorSpace`, `Contrast`, `Exif`, `Exposure[M|P|B]`, `Flash`, `GPS`, `JPEG`, `Metering`, `Resolution`, `Saturation`, `Sensing`, `Sharp`, and `WhiteBalance`.
+  {{% note %}}
+  To improve performance and decrease cache size, Hugo excludes the following tags: `ColorSpace`, `Contrast`, `Exif`, `Exposure[M|P|B]`, `Flash`, `GPS`, `JPEG`, `Metering`, `Resolution`, `Saturation`, `Sensing`, `Sharp`, and `WhiteBalance`.
 
-To control tag availability, change the `excludeFields` or `includeFields` settings as described above.
-{{% /note %}}
+  To control tag availability, change the `excludeFields` or `includeFields` settings as described above.
+  {{% /note %}}
 
 ## Smart cropping of images
 
@@ -486,9 +472,9 @@ By default, Hugo uses the [Smartcrop] library when cropping images with the `Cro
 
 Examples using the sunset image from above:
 
-{{< imgproc "sunset.jpg" "fill 200x200 smart" />}}
+{{< imgproc path="sunset.jpg" spec="fill 200x200 smart" alt="A sunset" />}}
 
-{{< imgproc "sunset.jpg" "crop 200x200 smart" />}}
+{{< imgproc path="sunset.jpg" spec="crop 200x200 smart" alt="A sunset" />}}
 
 ## Image processing performance consideration
 
