@@ -9,6 +9,7 @@
   "author": "",
   "license": "",
   "devDependencies": {
+    "@awmottaz/prettier-plugin-void-html": "^1.8.0",
     "@tailwindcss/cli": "^4.0.0",
     "@tailwindcss/typography": "^0.5.15",
     "prettier": "^3.5.0",
