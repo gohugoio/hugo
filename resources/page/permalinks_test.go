@@ -22,6 +22,7 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/source"
 )
 
 // testdataPermalinks is used by a couple of tests; the expandsTo content is
@@ -29,32 +30,53 @@ import (
 var testdataPermalinks = []struct {
 	spec      string
 	valid     bool
+	withPage  func(p *testPage)
 	expandsTo string
 }{
-	{":title", true, "spf13-vim-3.0-release-and-new-website"},
-	{"/:year-:month-:title", true, "/2012-04-spf13-vim-3.0-release-and-new-website"},
-	{"/:year/:yearday/:month/:monthname/:day/:weekday/:weekdayname/", true, "/2012/97/04/April/06/5/Friday/"}, // Dates
-	{"/:section/", true, "/blue/"},                                  // Section
-	{"/:title/", true, "/spf13-vim-3.0-release-and-new-website/"},   // Title
-	{"/:slug/", true, "/the-slug/"},                                 // Slug
-	{"/:slugorfilename/", true, "/the-slug/"},                       // Slug or filename
-	{"/:filename/", true, "/test-page/"},                            // Filename
-	{"/:06-:1-:2-:Monday", true, "/12-4-6-Friday"},                  // Dates with Go formatting
-	{"/:2006_01_02_15_04_05.000", true, "/2012_04_06_03_01_59.000"}, // Complicated custom date format
-	{"/:sections/", true, "/a/b/c/"},                                // Sections
-	{"/:sections[last]/", true, "/c/"},                              // Sections
-	{"/:sections[0]/:sections[last]/", true, "/a/c/"},               // Sections
-	{"/\\:filename", true, "/:filename"},                            // Escape sequence
-	{"/special\\::slug/", true, "/special:the-slug/"},               // Escape sequence
-	{"/:contentbasename/", true, "/test-page/"},                     // Content base name
-	{"/:contentbasenameorslug/", true, "/test-page/"},               // Content base name or slug
-
+	{":title", true, nil, "spf13-vim-3.0-release-and-new-website"},
+	{"/:year-:month-:title", true, nil, "/2012-04-spf13-vim-3.0-release-and-new-website"},
+	{"/:year/:yearday/:month/:monthname/:day/:weekday/:weekdayname/", true, nil, "/2012/97/04/April/06/5/Friday/"}, // Dates
+	{"/:section/", true, nil, "/blue/"},                                                                            // Section
+	{"/:title/", true, nil, "/spf13-vim-3.0-release-and-new-website/"},                                             // Title
+	{"/:slug/", true, nil, "/the-slug/"},                                                                           // Slug
+	{"/:slugorfilename/", true, nil, "/the-slug/"},                                                                 // Slug or filename
+	{"/:filename/", true, nil, "/test-page/"},                                                                      // Filename
+	{"/:06-:1-:2-:Monday", true, nil, "/12-4-6-Friday"},                                                            // Dates with Go formatting
+	{"/:2006_01_02_15_04_05.000", true, nil, "/2012_04_06_03_01_59.000"},                                           // Complicated custom date format
+	{"/:sections/", true, nil, "/a/b/c/"},                                                                          // Sections
+	{"/:sections[last]/", true, nil, "/c/"},                                                                        // Sections
+	{"/:sections[0]/:sections[last]/", true, nil, "/a/c/"},                                                         // Sections
+	{"/\\:filename", true, nil, "/:filename"},                                                                      // Escape sequence
+	{"/special\\::slug/", true, nil, "/special:the-slug/"},
+	// contentbasename, slug or title.                                                       // Escape sequence
+	{"/:contentbasename/", true, nil, "/test-page/"},
+	{"/:contentbasename/", true, func(p *testPage) {
+		p.slug = "myslug"
+		p.file = source.NewContentFileInfoFrom("/", "_index.md")
+	}, "/myslug/"},
+	{"/:contentbasename/", true, func(p *testPage) {
+		p.slug = ""
+		p.title = "mytitle"
+		p.file = source.NewContentFileInfoFrom("/", "_index.md")
+	}, "/mytitle/"},
+	// slug, contentbasename or title                                                        // Content base name
+	{"/:slugorcontentbasename/", true, func(p *testPage) {
+		p.slug = ""
+	}, "/test-page/"},
+	{"/:slugorcontentbasename/", true, func(p *testPage) {
+		p.slug = "myslug"
+	}, "/myslug/"},
+	{"/:slugorcontentbasename/", true, func(p *testPage) {
+		p.slug = ""
+		p.title = "mytitle"
+		p.file = source.NewContentFileInfoFrom("/", "_index.md")
+	}, "/mytitle/"},
 	// Failures
-	{"/blog/:fred", false, ""},
-	{"/:year//:title", false, ""},
-	{"/:TITLE", false, ""},      // case is not normalized
-	{"/:2017", false, ""},       // invalid date format
-	{"/:2006-01-02", false, ""}, // valid date format but invalid attribute name
+	{"/blog/:fred", false, nil, ""},
+	{"/:year//:title", false, nil, ""},
+	{"/:TITLE", false, nil, ""},      // case is not normalized
+	{"/:2017", false, nil, ""},       // invalid date format
+	{"/:2006-01-02", false, nil, ""}, // valid date format but invalid attribute name
 }
 
 func urlize(uri string) string {
@@ -67,21 +89,29 @@ func TestPermalinkExpansion(t *testing.T) {
 
 	c := qt.New(t)
 
-	page := newTestPageWithFile("/test-page/index.md")
-	page.title = "Spf13 Vim 3.0 Release and new website"
-	d, _ := time.Parse("2006-01-02 15:04:05", "2012-04-06 03:01:59")
-	page.date = d
-	page.section = "blue"
-	page.slug = "The Slug"
-	page.kind = "page"
+	newPage := func() *testPage {
+		page := newTestPageWithFile("/test-page/index.md")
+		page.title = "Spf13 Vim 3.0 Release and new website"
+		d, _ := time.Parse("2006-01-02 15:04:05", "2012-04-06 03:01:59")
+		page.date = d
+		page.section = "blue"
+		page.slug = "The Slug"
+		page.kind = "page"
+		return page
+	}
 
-	for _, item := range testdataPermalinks {
+	for i, item := range testdataPermalinks {
 		if !item.valid {
 			continue
 		}
 
+		page := newPage()
+		if item.withPage != nil {
+			item.withPage(page)
+		}
+
 		specNameCleaner := regexp.MustCompile(`[\:\/\[\]]`)
-		name := specNameCleaner.ReplaceAllString(item.spec, "")
+		name := fmt.Sprintf("[%d] %s", i, specNameCleaner.ReplaceAllString(item.spec, "_"))
 
 		c.Run(name, func(c *qt.C) {
 			patterns := map[string]map[string]string{

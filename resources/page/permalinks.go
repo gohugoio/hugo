@@ -92,8 +92,8 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 		"slug":                  p.pageToPermalinkSlugElseTitle,
 		"slugorfilename":        p.pageToPermalinkSlugElseFilename,
 		"filename":              p.pageToPermalinkFilename,
-		"contentbasename":       p.pageToPermalinkContentBaseName,
-		"contentbasenameorslug": p.pageToPermalinkContentBaseNameOrSlug,
+		"contentbasename":       p.pageToPermalinkContentBaseNameOrSlugOrTitle,
+		"slugorcontentbasename": p.pageToPermalinkSlugOrContentBaseNameOrTitle,
 	}
 
 	p.expanders = make(map[string]map[string]func(Page) (string, error))
@@ -317,8 +317,23 @@ func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (str
 	return l.urlize(p.File().ContentBaseName()), nil
 }
 
-// pageToPermalinkContentBaseNameOrSlug returns the URL-safe form of the content base name, or the slug.
-func (l PermalinkExpander) pageToPermalinkContentBaseNameOrSlug(p Page, a string) (string, error) {
+// pageToPermalinkContentBaseNameOrSlugOrTitle returns the URL-safe form of the content base name, slug, or the title.
+func (l PermalinkExpander) pageToPermalinkContentBaseNameOrSlugOrTitle(p Page, _ string) (string, error) {
+	s, err := l.pageToPermalinkContentBaseName(p, "")
+	if err != nil {
+		return "", err
+	}
+	if s != "" {
+		return s, nil
+	}
+	return l.pageToPermalinkSlugElseTitle(p, "")
+}
+
+// pageToPermalinkSlugOrContentBaseNameOrTitle returns the URL-safe form of the slug, content base name, or the title.
+func (l PermalinkExpander) pageToPermalinkSlugOrContentBaseNameOrTitle(p Page, a string) (string, error) {
+	if p.Slug() != "" {
+		return l.urlize(p.Slug()), nil
+	}
 	name, err := l.pageToPermalinkContentBaseName(p, a)
 	if err != nil {
 		return "", nil
@@ -326,7 +341,7 @@ func (l PermalinkExpander) pageToPermalinkContentBaseNameOrSlug(p Page, a string
 	if name != "" {
 		return name, nil
 	}
-	return l.pageToPermalinkSlugElseTitle(p, a)
+	return l.pageToPermalinkTitle(p, a)
 }
 
 func (l PermalinkExpander) translationBaseName(p Page) string {
