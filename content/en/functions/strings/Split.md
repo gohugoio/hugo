@@ -7,7 +7,7 @@ action:
   aliases: [split]
   related:
     - functions/collections/Delimit
-  returnType: string
+  returnType: '[]string'
   signatures: [strings.Split STRING DELIM]
 aliases: [/functions/split]
 ---
