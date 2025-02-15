@@ -15,9 +15,9 @@
 package goldmark_config
 
 const (
-	AutoHeadingIDTypeGitHub      = "github"
-	AutoHeadingIDTypeGitHubAscii = "github-ascii"
-	AutoHeadingIDTypeBlackfriday = "blackfriday"
+	AutoIDTypeGitHub      = "github"
+	AutoIDTypeGitHubAscii = "github-ascii"
+	AutoIDTypeBlackfriday = "blackfriday"
 )
 
 // Default holds the default Goldmark configuration.
@@ -79,7 +79,8 @@ var Default = Config{
 	},
 	Parser: Parser{
 		AutoHeadingID:                      true,
-		AutoHeadingIDType:                  AutoHeadingIDTypeGitHub,
+		AutoDefinitionTermID:               false,
+		AutoIDType:                         AutoIDTypeGitHub,
 		WrapStandAloneImageWithinParagraph: true,
 		Attribute: ParserAttribute{
 			Title: true,
@@ -95,6 +96,16 @@ type Config struct {
 	Extensions             Extensions
 	DuplicateResourceFiles bool
 	RenderHooks            RenderHooks
+}
+
+func (c *Config) Init() error {
+	if err := c.Parser.Init(); err != nil {
+		return err
+	}
+	if c.Parser.AutoDefinitionTermID && !c.Extensions.DefinitionList {
+		c.Parser.AutoDefinitionTermID = false
+	}
+	return nil
 }
 
 // RenderHooks contains configuration for Goldmark render hooks.
@@ -250,16 +261,30 @@ type Parser struct {
 	// auto generated heading ids.
 	AutoHeadingID bool
 
-	// The strategy to use when generating heading IDs.
-	// Available options are "github", "github-ascii".
+	// Enables auto definition term ids.
+	AutoDefinitionTermID bool
+
+	// The strategy to use when generating IDs.
+	// Available options are "github", "github-ascii", and "blackfriday".
 	// Default is "github", which will create GitHub-compatible anchor names.
-	AutoHeadingIDType string
+	AutoIDType string
 
 	// Enables custom attributes.
 	Attribute ParserAttribute
 
 	// Whether to wrap stand-alone images within a paragraph or not.
 	WrapStandAloneImageWithinParagraph bool
+
+	// Renamed to AutoIDType in 0.144.0.
+	AutoHeadingIDType string `json:"-"`
+}
+
+func (p *Parser) Init() error {
+	// Renamed from AutoHeadingIDType to AutoIDType in 0.144.0.
+	if p.AutoHeadingIDType != "" {
+		p.AutoIDType = p.AutoHeadingIDType
+	}
+	return nil
 }
 
 type ParserAttribute struct {

@@ -61,7 +61,7 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 			cfg: cfg,
 			md:  md,
 			sanitizeAnchorName: func(s string) string {
-				return sanitizeAnchorNameString(s, cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)
+				return sanitizeAnchorNameString(s, cfg.MarkupConfig().Goldmark.Parser.AutoIDType)
 			},
 		}, nil
 	}), nil
@@ -188,16 +188,12 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, emoji.Emoji)
 	}
 
-	if cfg.Parser.AutoHeadingID {
-		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
-	}
-
 	if cfg.Parser.Attribute.Title {
 		parserOptions = append(parserOptions, parser.WithAttribute())
 	}
 
-	if cfg.Parser.Attribute.Block {
-		extensions = append(extensions, attributes.New())
+	if cfg.Parser.Attribute.Block || cfg.Parser.AutoHeadingID || cfg.Parser.AutoDefinitionTermID {
+		extensions = append(extensions, attributes.New(cfg.Parser))
 	}
 
 	md := goldmark.New(
@@ -295,7 +291,7 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (converter.Resu
 }
 
 func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {
-	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig().Goldmark.Parser.AutoHeadingIDType)))
+	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig().Goldmark.Parser.AutoIDType)))
 	ctx.Set(tocEnableKey, rctx.RenderTOC)
 	return &parserContext{
 		Context: ctx,
