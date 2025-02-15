@@ -32,68 +32,68 @@ This procedure will enable continuous deployment from a GitHub repository. The p
 
 Step 1
 : Log in to your Netlify account, navigate to the Sites page, press the **Add new site** button, and choose "Import an existing project" from the dropdown menu.
+{#step-1}
 
 Step 2
 : Select your deployment method.
-
-  ![screen capture](netlify-step-02.png)
+![screen capture](netlify-step-02.png)
+{#step-2}
 
 Step 3
 : Authorize Netlify to connect with your GitHub account by pressing the **Authorize Netlify** button.
-
-  ![screen capture](netlify-step-03.png)
+![screen capture](netlify-step-03.png)
+{#step-3}
 
 Step 4
 : Press the **Configure Netlify on GitHub** button.
-
-  ![screen capture](netlify-step-04.png)
+![screen capture](netlify-step-04.png)
+{#step-4}
 
 Step 5
 : Install the Netlify app by selecting your GitHub account.
-
-  ![screen capture](netlify-step-05.png)
+![screen capture](netlify-step-05.png)
+{#step-5}
 
 Step 6
 : Press the **Install** button.
-
-  ![screen capture](netlify-step-06.png)
+![screen capture](netlify-step-06.png)
+{#step-6}
 
 Step 7
 : Click on the site's repository from the list.
-
-  ![screen capture](netlify-step-07.png)
+![screen capture](netlify-step-07.png)
+{#step-7}
 
 Step 8
 : Set the site name and branch from which to deploy.
-
-  ![screen capture](netlify-step-08.png)
+![screen capture](netlify-step-08.png)
+{#step-8}
 
 Step 9
 : Define the build settings, press the **Add environment variables** button, then press the **New variable** button.
-
-  ![screen capture](netlify-step-09.png)
+![screen capture](netlify-step-09.png)
+{#step-9}
 
 Step 10
 : Create a new environment variable named `HUGO_VERSION` and set the value to the [latest version].
-
 [latest version]: https://github.com/gohugoio/hugo/releases/latest
-
-  ![screen capture](netlify-step-10.png)
+![screen capture](netlify-step-10.png)
+{#step-10}
 
 Step 11
 : Press the "Deploy my new site" button at the bottom of the page.
-
-  ![screen capture](netlify-step-11.png)
+![screen capture](netlify-step-11.png)
+{#step-11}
 
 Step 12
 : At the bottom of the screen, wait for the deploy to complete, then click on the deploy log entry.
-
-  ![screen capture](netlify-step-12.png)
+![screen capture](netlify-step-12.png)
+{#step-12}
 
 Step 13
 : Press the **Open production deploy** button to view the live site.
-
-  ![screen capture](netlify-step-13.png)
+![screen capture](netlify-step-13.png)
+{#step-13}
 
 ## Configuration file
 
