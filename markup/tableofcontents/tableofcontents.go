@@ -31,7 +31,8 @@ var Empty = &Fragments{
 
 // Builder is used to build the ToC data structure.
 type Builder struct {
-	toc *Fragments
+	identifiersSet bool
+	toc            *Fragments
 }
 
 // AddAt adds the heading to the ToC.
@@ -40,6 +41,16 @@ func (b *Builder) AddAt(h *Heading, row, level int) {
 		b.toc = &Fragments{}
 	}
 	b.toc.addAt(h, row, level)
+}
+
+// SetIdentifiers sets the identifiers in the ToC.
+func (b *Builder) SetIdentifiers(ids []string) {
+	if b.toc == nil {
+		b.toc = &Fragments{}
+	}
+	b.identifiersSet = true
+	sort.Strings(ids)
+	b.toc.Identifiers = ids
 }
 
 // Build returns the ToC.
@@ -51,7 +62,9 @@ func (b Builder) Build() *Fragments {
 	b.toc.walk(func(h *Heading) {
 		if h.ID != "" {
 			b.toc.HeadingsMap[h.ID] = h
-			b.toc.Identifiers = append(b.toc.Identifiers, h.ID)
+			if !b.identifiersSet {
+				b.toc.Identifiers = append(b.toc.Identifiers, h.ID)
+			}
 		}
 	})
 	sort.Strings(b.toc.Identifiers)
