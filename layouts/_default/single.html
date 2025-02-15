@@ -1,8 +1,8 @@
 {{ define "main" }}
   {{ $ttop := debug.Timer "single" }}
-  <article class="max-w-5xl lg:max-w-3xl">
+  <article class="max-w-5xl lg:max-w-3xl" id="article">
     {{ partial "layouts/docsheader.html" . }}
-    <div class="content" id="content">
+    <div class="content">
       {{ with .Params.description }}
         <div class="lead">
           {{ . | markdownify }}
