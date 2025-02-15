@@ -82,5 +82,5 @@ When rendering lesson-2, the `RegularPagesRecursive` method returns:
     lessons/lesson-2/resources/worksheet.md
 
 {{% note %}}
-The `RegularPagesRecursive` method in not available on a `Site` object.
+The `RegularPagesRecursive` method is not available on a `Site` object.
 {{% /note %}}
