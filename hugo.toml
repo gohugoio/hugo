@@ -88,7 +88,8 @@ disableAliases = true
 
     [markup.goldmark.parser]
         autoHeadingID     = true
-        autoHeadingIDType = "github"
+        autoDefinitionTermID = true
+        autoIDType = "github"
 
         [markup.goldmark.parser.attribute]
             block = true
