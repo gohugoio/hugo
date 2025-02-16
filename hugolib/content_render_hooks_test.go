@@ -350,3 +350,31 @@ Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
 		})
 	}
 }
+
+// Issue 13410.
+func TestRenderHooksMultilineTitlePlainText(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+
+First line.
+Second line.
+----------------
+-- layouts/_default/_markup/render-heading.html --
+Plain text: {{ .PlainText }}|Text: {{ .Text }}|
+-- layouts/_default/single.html --
+Content: {{ .Content}}|
+}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"Content: Plain text: First line.\nSecond line.|",
+		"|Text: First line.\nSecond line.||\n",
+	)
+}

@@ -47,9 +47,11 @@ foo [something](/a/b/) bar
 Ā ā Ă ă Ą ą Ć ć Ĉ ĉ Ċ ċ Č č Ď
 : Testing accents.
 
-Mutiline set text header
+Multiline set text header
 Second line
 ---------------
+
+## Example [hyperlink](https://example.com/) in a header
 
 -- layouts/_default/single.html --
 {{ .Content }}|Identifiers: {{ .Fragments.Identifiers }}|
@@ -68,7 +70,8 @@ Second line
 		`<dt id="my-title-1">My Title</dt>`,
 		`<dt id="term">良善天父</dt>`,
 		`<dt id="a-a-a-a-a-a-c-c-c-c-c-c-c-c-d">Ā ā Ă ă Ą ą Ć ć Ĉ ĉ Ċ ċ Č č Ď</dt>`,
-		`<h2 id="second-line">Mutiline set text header`,
-		"|Identifiers: [a-a-a-a-a-a-c-c-c-c-c-c-c-c-d base-name base-name-1 foo-something-bar foobar my-title my-title-1 second-line term title-with-id title-with-id]|",
+		`<h2 id="second-line">`,
+		`<h2 id="example-hyperlink-in-a-header">`,
+		"|Identifiers: [a-a-a-a-a-a-c-c-c-c-c-c-c-c-d base-name base-name-1 example-hyperlink-in-a-header foo-something-bar foobar my-title my-title-1 second-line term title-with-id title-with-id]|",
 	)
 }

@@ -157,7 +157,7 @@ title: "p1"
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
-		"<h2 id=\"hello-testhttpsexamplecom\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-testhttpsexamplecom\">#</a>\n</h2>",
+		"<h2 id=\"hello-test\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-test\">#</a>\n</h2>",
 	)
 }
 

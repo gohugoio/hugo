@@ -1,6 +1,8 @@
 package attributes
 
 import (
+	"strings"
+
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/yuin/goldmark"
@@ -181,12 +183,17 @@ func (a *transformer) generateAutoID(n ast.Node, reader text.Reader, pc parser.C
 }
 
 // Markdown settext headers can have multiple lines, use the last line for the ID.
-func textHeadingID(node *ast.Heading, reader text.Reader) []byte {
-	var line []byte
-	lastIndex := node.Lines().Len() - 1
-	if lastIndex > -1 {
-		lastLine := node.Lines().At(lastIndex)
-		line = lastLine.Value(reader.Source())
+func textHeadingID(n *ast.Heading, reader text.Reader) []byte {
+	text := render.TextPlain(n, reader.Source())
+	if n.Lines().Len() > 1 {
+
+		// For multiline headings, Goldmark's extension for headings returns the last line.
+		// We have a slightly different approach, but in most cases the end result should be the same.
+		// Instead of looking at the text segments in Lines (see #13405 for issues with that),
+		// we split the text above and use the last line.
+		parts := strings.Split(text, "\n")
+		text = parts[len(parts)-1]
 	}
-	return line
+
+	return []byte(text)
 }
