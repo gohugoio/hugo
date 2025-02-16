@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
+	east "github.com/yuin/goldmark-emoji/ast"
 
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/tpl"
@@ -282,6 +283,7 @@ func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
 	if c == nil {
 		return
 	}
+
 	switch c := c.(type) {
 	case *ast.RawHTML:
 		s := strings.TrimSpace(tpl.StripHTML(string(c.Segments.Value(source))))
@@ -290,6 +292,11 @@ func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
 		buf.Write(c.Value)
 	case *ast.Text:
 		buf.Write(c.Segment.Value(source))
+		if c.HardLineBreak() || c.SoftLineBreak() {
+			buf.WriteByte('\n')
+		}
+	case *east.Emoji:
+		buf.WriteString(string(c.ShortName))
 	default:
 		textPlainTo(c.FirstChild(), source, buf)
 	}

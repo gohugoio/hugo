@@ -239,12 +239,12 @@ title: p7 (emoji)
 
 	// image
 	b.AssertFileContent("public/p3/index.html", `
-<li><a href="#an-image-kittenajpg">An image <img src="a.jpg" alt="kitten" /></a></li>
+<li><a href="#an-image-kitten">An image <img src="a.jpg" alt="kitten" /></a></li>
 `)
 
 	// raw html
 	b.AssertFileContent("public/p4/index.html", `
-<li><a href="#some-spanrawspan-html">Some <span>raw</span> HTML</a></li>
+<li><a href="#some-raw-html">Some <span>raw</span> HTML</a></li>
 `)
 
 	// typographer
