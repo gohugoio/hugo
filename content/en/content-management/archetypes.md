@@ -7,7 +7,6 @@ menu:
   docs:
     parent: content-management
     weight: 140
-  quicklinks:
 weight: 140
 toc: true
 aliases: [/content/archetypes/]

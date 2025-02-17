@@ -47,14 +47,12 @@ The `js.Build` function uses the [evanw/esbuild] package to:
 
 ## Options
 
-###### targetPath
-
-(`string`) If not set, the source path will be used as the base target path.
+targetPath
+: (`string`) If not set, the source path will be used as the base target path.
 Note that the target path's extension may change if the target MIME type is different, e.g. when the source is TypeScript.
 
-###### format
-
-(`string`) The output format. One of: `iife`, `cjs`, `esm`. Default is `iife`, a self-executing function, suitable for inclusion as a `<script>` tag.
+format
+: (`string`) The output format. One of: `iife`, `cjs`, `esm`. Default is `iife`, a self-executing function, suitable for inclusion as a `<script>` tag.
 
 {{% include "./_common/options.md" %}}
 
