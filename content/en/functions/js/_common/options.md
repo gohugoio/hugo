@@ -81,6 +81,14 @@ import * as ReactDOM from 'react-dom/client';
 {{ $defines := dict "process.env.NODE_ENV" `"development"` }}
 ```
 
+##### drop
+
+Edit your source code before building to drop certain constructs: One of `debugger` or `console`.
+
+{{< new-in 0.144.0 />}}
+
+See https://esbuild.github.io/api/#drop
+
 ###### sourceMap
 
 (`string`) Whether to generate `inline`, `linked` or `external` source maps from esbuild. Linked and external source maps will be written to the target with the output file name + ".map". When `linked` a `sourceMappingURL` will also be written to the output file. By default, source maps are not created. Note that the `linked` option was added in Hugo 0.140.0.

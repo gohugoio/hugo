@@ -958,6 +958,73 @@ chroma:
   - Aliases:
     - zig
     Name: Zig
+  styles:
+  - abap
+  - algol
+  - algol_nu
+  - arduino
+  - autumn
+  - average
+  - base16-snazzy
+  - borland
+  - bw
+  - catppuccin-frappe
+  - catppuccin-latte
+  - catppuccin-macchiato
+  - catppuccin-mocha
+  - colorful
+  - doom-one
+  - doom-one2
+  - dracula
+  - emacs
+  - evergarden
+  - friendly
+  - fruity
+  - github
+  - github-dark
+  - gruvbox
+  - gruvbox-light
+  - hr_high_contrast
+  - hrdark
+  - igor
+  - lovelace
+  - manni
+  - modus-operandi
+  - modus-vivendi
+  - monokai
+  - monokailight
+  - murphy
+  - native
+  - nord
+  - nordic
+  - onedark
+  - onesenterprise
+  - paraiso-dark
+  - paraiso-light
+  - pastie
+  - perldoc
+  - pygments
+  - rainbow_dash
+  - rose-pine
+  - rose-pine-dawn
+  - rose-pine-moon
+  - rrt
+  - solarized-dark
+  - solarized-dark256
+  - solarized-light
+  - swapoff
+  - tango
+  - tokyonight-day
+  - tokyonight-moon
+  - tokyonight-night
+  - tokyonight-storm
+  - trac
+  - vim
+  - vs
+  - vulcan
+  - witchhazel
+  - xcode
+  - xcode-dark
 config:
   HTTPCache:
     cache:
@@ -1737,7 +1804,9 @@ config:
     headers: null
     redirects:
     - force: false
-      from: '**'
+      from: /**
+      fromHeaders: null
+      fromRe: ""
       status: 404
       to: /404.html
   services:
