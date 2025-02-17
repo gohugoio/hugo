@@ -75,3 +75,36 @@ Second line
 		"|Identifiers: [a-a-a-a-a-a-c-c-c-c-c-c-c-c-d base-name base-name-1 example-hyperlink-in-a-header foo-something-bar foobar my-title my-title-1 second-line term title-with-id title-with-id]|",
 	)
 }
+
+func TestSolitaryAttributesCrash(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[markup.goldmark.parser.attribute]
+block = true
+-- layouts/_default/single.html --
+Content: {{ .Content }}
+-- content/p1.md --
+---
+title: "Title"
+---
+
+1. a
+
+{.x}
+
+1. b
+
+{.x}
+
+
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		` <li>a</li>`,
+	)
+}

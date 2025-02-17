@@ -117,8 +117,9 @@ func (a *transformer) isFragmentNode(n ast.Node) bool {
 
 func (a *transformer) Transform(node *ast.Document, reader text.Reader, pc parser.Context) {
 	var attributes []ast.Node
+	var solitaryAttributeNodes []ast.Node
 	if a.cfg.Attribute.Block {
-		attributes = make([]ast.Node, 0, 500)
+		attributes = make([]ast.Node, 0, 100)
 	}
 	ast.Walk(node, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
@@ -141,8 +142,7 @@ func (a *transformer) Transform(node *ast.Document, reader text.Reader, pc parse
 				attributes = append(attributes, node)
 				return ast.WalkSkipChildren, nil
 			} else {
-				// remove attributes node
-				node.Parent().RemoveChild(node.Parent(), node)
+				solitaryAttributeNodes = append(solitaryAttributeNodes, node)
 			}
 		}
 
@@ -160,6 +160,11 @@ func (a *transformer) Transform(node *ast.Document, reader text.Reader, pc parse
 		}
 		// remove attributes node
 		attr.Parent().RemoveChild(attr.Parent(), attr)
+	}
+
+	// Remove any solitary attribute nodes.
+	for _, n := range solitaryAttributeNodes {
+		n.Parent().RemoveChild(n.Parent(), n)
 	}
 }
 
