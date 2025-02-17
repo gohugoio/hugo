@@ -2,7 +2,6 @@ baseURL                = "https://gohugo.io/"
 defaultContentLanguage = "en"
 enableEmoji            = true
 ignoreLogs             = ["error-missing-instagram-accesstoken"]
-languageCode           = "en-us"
 pluralizeListTitles    = false
 timeZone               = "Europe/Oslo"
 title                  = "Hugo"
@@ -37,6 +36,7 @@ disableAliases = true
 [languages]
     [languages.en]
         languageName = "English"
+        languageCode = "en-US"
         weight       = 1
 
 [security]
