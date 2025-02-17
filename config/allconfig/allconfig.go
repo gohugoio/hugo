@@ -427,6 +427,15 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		c.Services.X.DisableInlineCSS = c.Services.Twitter.DisableInlineCSS
 	}
 
+	// Legacy permalink tokens
+	vs := fmt.Sprintf("%v", c.Permalinks)
+	if strings.Contains(vs, ":filename") {
+		hugo.Deprecate("the \":filename\" permalink token", "Use \":contentbasename\" instead.", "0.144.0")
+	}
+	if strings.Contains(vs, ":slugorfilename") {
+		hugo.Deprecate("the \":slugorfilename\" permalink token", "Use \":slugorcontentbasename\" instead.", "0.144.0")
+	}
+
 	c.C = &ConfigCompiled{
 		Timeout:             timeout,
 		BaseURL:             baseURL,
