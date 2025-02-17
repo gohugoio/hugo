@@ -19,6 +19,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	east "github.com/yuin/goldmark-emoji/ast"
 
@@ -163,21 +164,44 @@ func (ctx *RenderContextDataHolder) DocumentContext() converter.DocumentContext 
 // Note that this is not a copy of the source, but a slice of it,
 // so it assumes that the source is not mutated.
 func extractSourceSample(n ast.Node, src []byte) []byte {
+	if n.Type() == ast.TypeInline {
+		switch n := n.(type) {
+		case *passthrough.PassthroughInline:
+			return n.Segment.Value(src)
+		}
+
+		return nil
+	}
+
 	var sample []byte
 
-	// Extract a source sample to use for position information.
-	if nn := n.FirstChild(); nn != nil {
+	getStartStop := func(n ast.Node) (int, int) {
+		if n == nil {
+			return 0, 0
+		}
+
 		var start, stop int
-		for i := 0; i < nn.Lines().Len() && i < 2; i++ {
-			line := nn.Lines().At(i)
+		for i := 0; i < n.Lines().Len() && i < 2; i++ {
+			line := n.Lines().At(i)
 			if i == 0 {
 				start = line.Start
 			}
 			stop = line.Stop
 		}
+		return start, stop
+	}
+
+	start, stop := getStartStop(n)
+	if stop == 0 {
+		// Try first child.
+		start, stop = getStartStop(n.FirstChild())
+	}
+
+	if stop > 0 {
 		// We do not mutate the source, so this is safe.
 		sample = src[start:stop]
 	}
+
 	return sample
 }
 

@@ -263,6 +263,56 @@ $$%s$$
 	})
 }
 
+// Issue #13406.
+func TestToMathRenderHookPosition(t *testing.T) {
+	filesTemplate := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+block  = [['\[', '\]'], ['$$', '$$']]
+inline = [['\(', '\)'], ['$', '$']]
+-- content/p1.md --
+---
+title: p1
+---
+
+Block:
+
+$$1+2$$
+
+Some inline $1+3$ math.
+
+-- layouts/index.html --
+Home.
+-- layouts/_default/single.html --
+Content: {{ .Content }}|
+-- layouts/_default/_markup/render-passthrough.html --
+{{ $opts := dict "throwOnError" true "displayMode" true }}
+{{- with try (transform.ToMath .Inner $opts ) }}
+  {{- with .Err }}
+    {{ errorf "KaTeX: %s: see %s." . $.Position }}
+  {{- else }}
+    {{- .Value }}
+  {{- end }}
+{{- end -}}
+
+`
+
+	// Block math.
+	files := strings.Replace(filesTemplate, "$$1+2$$", "$$\\foo1+2$$", 1)
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogContains("p1.md:6:1")
+
+	// Inline math.
+	files = strings.Replace(filesTemplate, "$1+3$", "$\\foo1+3$", 1)
+	b, err = hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogContains("p1.md:8:13")
+}
+
 func TestToMathMacros(t *testing.T) {
 	files := `
 -- hugo.toml --
