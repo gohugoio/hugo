@@ -23,7 +23,7 @@ export const toc = (Alpine) => ({
 		});
 
 		return this.$nextTick(() => {
-			let contentEl = document.getElementById('content');
+			let contentEl = document.getElementById('article');
 			if (contentEl) {
 				const handleIntersect = (entries) => {
 					if (this.justClicked) {
