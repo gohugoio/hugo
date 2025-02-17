@@ -16,7 +16,5 @@
 
 /* Turbo styles */
 .turbo-progress-bar {
-  @apply bg-blue-500;
-  opacity: 0.35;
-  height: 3px;
+  visibility: hidden;
 }
