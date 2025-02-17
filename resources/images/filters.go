@@ -79,6 +79,7 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 		x:           10,
 		y:           10,
 		alignx:      "left",
+		aligny:      "top",
 		linespacing: 2,
 	}
 
@@ -101,6 +102,11 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 				tf.alignx = cast.ToString(v)
 				if tf.alignx != "left" && tf.alignx != "center" && tf.alignx != "right" {
 					panic("alignx must be one of left, center, right")
+				}
+			case "aligny":
+				tf.aligny = cast.ToString(v)
+				if tf.aligny != "top" && tf.aligny != "center" && tf.aligny != "bottom" {
+					panic("aligny must be one of top, center, bottom")
 				}
 
 			case "linespacing":
