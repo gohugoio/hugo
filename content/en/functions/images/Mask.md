@@ -17,9 +17,9 @@ toc: true
 
 The `images.Mask` filter applies a mask to an image. Black pixels in the mask make the corresponding areas of the base image transparent, while white pixels keep them opaque. Color images are converted to grayscale for masking purposes. The mask is automatically resized to match the dimensions of the base image.
 
-{{% note %}}
+{{< note >}}
 Of the formats supported by Hugo's imaging pipelie, only PNG and WebP have an alpha channel to support transparency. If your source image has a different format and you require transparent masked areas, convert it to either PNG or WebP as shown in the example below.
-{{% /note %}}
+{{< /note >}}
 
 When applying a mask to a non-transparent image format such as JPEG, the masked areas will be filled with the color specified by the `bgColor` parameter in your [site configuration]. You can override that color with a `Process` image filter:
 

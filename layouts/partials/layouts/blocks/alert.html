@@ -1,8 +1,8 @@
-{{ $title := .title | default "" }}
-{{ $color := .color | default "yellow" }}
-{{ $icon := .icon | default "exclamation" }}
-{{ $text := .text | default "" }}
-{{ $class := .class | default "mt-6 mb-8" }}
+{{- $title := .title | default "" }}
+{{- $color := .color | default "yellow" }}
+{{- $icon := .icon | default "exclamation" }}
+{{- $text := .text | default "" }}
+{{- $class := .class | default "mt-6 mb-8" }}
 <div
   class="border-l-4 overflow-x-auto border-{{ $color }}-400 bg-{{ $color }}-50 dark:bg-{{ $color }}-950 border-1 border-{{ $color }}-100 dark:border-{{ $color }}-900 p-4 {{ $class }}">
   <div class="flex">
@@ -12,15 +12,13 @@
       </svg>
     </div>
     <div class="ml-3">
-      {{ with $title }}
+      {{- with $title }}
         <h3 class="text-{{ $color }}-800">
           {{ . }}
         </h3>
-      {{ end }}
+      {{- end }}
       <div class="mt-2">
-        <p>
-          {{ $text }}
-        </p>
+        {{ $text }}
       </div>
     </div>
   </div>

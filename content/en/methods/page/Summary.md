@@ -45,6 +45,6 @@ Depending on content length and how you define the summary, the summary may be e
 {{ end }}
 ```
 
-{{% note %}}
+{{< note >}}
 The `Truncated` method returns `false` if you define the summary in front matter.
-{{% /note %}}
+{{< /note >}}

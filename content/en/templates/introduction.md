@@ -19,7 +19,7 @@ A template is a file in the `layouts` directory of a project, theme, or module. 
 [methods]: /methods/
 [variables]: #variables
 
-{{% note %}}
+{{< note >}}
 Hugo uses Go's [text/template] and [html/template] packages.
 
 The text/template package implements data-driven templates for generating textual output, while the html/template package implements data-driven templates for generating HTML output safe against code injection.
@@ -28,7 +28,7 @@ By default, Hugo uses the html/template package when rendering HTML files.
 
 [text/template]: https://pkg.go.dev/text/template
 [html/template]: https://pkg.go.dev/html/template
-{{% /note %}}
+{{< /note >}}
 
 For example, this HTML template initializes the `$v1` and `$v2` variables, then displays them and their product within an HTML paragraph.
 
@@ -103,9 +103,9 @@ Hugo renders this to:
 <p>My Page Title - foo</p>
 ```
 
-{{% note %}}
+{{< note >}}
 Make sure that you thoroughly understand the concept of _context_ before you continue reading. The most common templating errors made by new users relate to context.
-{{% /note %}}
+{{< /note >}}
 
 ## Actions
 
@@ -178,9 +178,9 @@ These are also equivalent:
 {{ 5 | add 2 | mul 6 }} → 42
 ```
 
-{{% note %}}
+{{< note >}}
 Remember that the piped value becomes the final argument to the function or method to which you are piping.
-{{% /note %}}
+{{< /note >}}
 
 ### Line splitting
 
@@ -235,9 +235,9 @@ With variables that represent a slice or map, use the [`index`] function to retu
 {{ index $map "c" }} → baz
 ```
 
-{{% note %}}
+{{< note >}}
 Slices and arrays are zero-based; element 0 is the first element.
-{{% /note %}}
+{{< /note >}}
 
 With variables that represent a map or object, [chain](g) identifiers to return the desired value or to access the desired method.
 
@@ -249,9 +249,9 @@ With variables that represent a map or object, [chain](g) identifiers to return 
 {{ $homePage.Title }} → My Homepage
 ```
 
-{{% note %}}
+{{< note >}}
 As seen above, object and method names are capitalized. Although not required, to avoid confusion we recommend beginning variable and map key names with a lowercase letter or underscore.
-{{% /note %}}
+{{< /note >}}
 
 ## Functions
 
@@ -323,11 +323,11 @@ Some methods take an argument. Separate the argument from the method with a spac
 
 ## Comments
 
-{{% note %}}
+{{< note >}}
 Do not attempt to use HTML comment delimiters to comment out template code.
 
 Hugo strips HTML comments when rendering a page, but first evaluates any template code within the HTML comment delimiters. Depending on the template code within the HTML comment delimiters, this could cause unexpected results or fail the build.
-{{% /note %}}
+{{< /note >}}
 
 Template comments are similar to template actions. Paired opening and closing braces represent the beginning and end of a comment. For example:
 
@@ -389,9 +389,9 @@ Use the [`partial`] or [`partialCached`] function to include one or more [partia
 
 Create your partial templates in the layouts/partials directory.
 
-{{% note %}}
+{{< note >}}
 In the examples above, note that we are passing the current context (the dot) to each of the templates.
-{{% /note %}}
+{{< /note >}}
 
 ## Examples
 

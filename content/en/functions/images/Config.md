@@ -24,10 +24,10 @@ See [image processing] for an overview of Hugo's image pipeline.
 
 Supported image formats include GIF, JPEG, PNG, TIFF, and WebP.
 
-{{% note %}}
+{{< note >}}
 This is a legacy function, superseded by the [`Width`] and [`Height`] methods for [global resources](g), [page resources](g), and [remote resources](g). See the [image processing] section for details.
 
 [`Width`]: /methods/resource/width/
 [`Height`]: /methods/resource/height/
 [image processing]: /content-management/image-processing/
-{{% /note %}}
+{{< /note >}}

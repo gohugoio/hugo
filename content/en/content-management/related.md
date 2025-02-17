@@ -58,9 +58,9 @@ A fictional example using all of the above options:
 }}
 ```
 
-{{% note %}}
+{{< note >}}
 We improved and simplified this feature in Hugo 0.111.0. Before this we had 3 different methods: `Related`, `RelatedTo` and `RelatedIndices`. Now we have only one method: `Related`. The old methods are still available but deprecated. Also see [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
-{{% /note %}}
+{{< /note >}}
 
 ## Index content headings in related content
 
@@ -117,9 +117,9 @@ Without any `related` configuration set on the project, Hugo's Related Content m
 
 Custom configuration should be set using the same syntax.
 
-{{% note %}}
+{{< note >}}
 If you add a `related` configuration section, you need to add a complete configuration. It is not possible to just set, say, `includeNewer` and use the rest  from the Hugo defaults.
-{{% /note %}}
+{{< /note >}}
 
 ### Top level configuration options
 

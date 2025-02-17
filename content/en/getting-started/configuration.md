@@ -22,9 +22,9 @@ my-project/
 └── hugo.toml
 ```
 
-{{% note %}}
+{{< note >}}
 With v0.109.0 and earlier the basename of the site configuration file was `config` instead of `hugo`. You can use either, but should transition to the new naming convention when practical.
-{{% /note %}}
+{{< /note >}}
 
 A simple example:
 
@@ -51,13 +51,13 @@ Combine two or more configuration files, with left-to-right precedence:
 hugo --config a.toml,b.yaml,c.json
 ```
 
-{{% note %}}
+{{< note >}}
 See the specifications for each file format: [TOML], [YAML], and [JSON].
 
 [TOML]: https://toml.io/en/latest
 [YAML]: https://yaml.org/spec/
 [JSON]: https://datatracker.ietf.org/doc/html/rfc7159
-{{% /note %}}
+{{< /note >}}
 
 ## Configuration directory
 
@@ -242,11 +242,11 @@ See [Configure File Caches](#configure-file-caches).
 
 Pass down default configuration values (front matter) to pages in the content tree. The options in site config is the same as in page front matter, see [Front Matter Cascade](/content-management/front-matter#cascade).
 
-{{% note %}}
+{{< note >}}
 For a website in a single language, define the `[[cascade]]` in [Front Matter](/content-management/front-matter#cascade). For a multilingual website, define the `[[cascade]]` in [Site Config](/getting-started/configuration/#cascade).
 
 To remain consistent and prevent unexpected behavior, do not mix these strategies.
-{{% /note %}}
+{{< /note >}}
 
 ###### cleanDestinationDir
 
@@ -547,7 +547,7 @@ See [module configuration](/hugo-modules/configuration/#module-configuration-imp
 
 (`bool`) Watch filesystem for changes and recreate as needed. Default is `false`.
 
-{{% note %}}
+{{< note >}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
 ```txt
 cd ~/sites/yourhugosite
@@ -559,7 +559,7 @@ which shows output like
 ```txt
 enableemoji: true
 ```
-{{% /note %}}
+{{< /note >}}
 
 ## Configure page
 
@@ -598,12 +598,12 @@ To sort all fields in ascending order:
   nextPrevSortOrder = 'asc'
 {{< /code-toggle >}}
 
-{{% note %}}
+{{< note >}}
 These settings do not apply to the [`Next`] or [`Prev`] methods on a `Pages` object.
 
 [`Next`]: /methods/pages/next
 [`Prev`]: /methods/pages/next
-{{% /note %}}
+{{< /note >}}
 
 ## Configure build
 
@@ -754,19 +754,19 @@ $ env HUGO_TITLE="Some Title" hugo
 
 This is really useful if you use a service such as Netlify to deploy your site. Look at the Hugo docs [Netlify configuration file](https://github.com/gohugoio/hugoDocs/blob/master/netlify.toml) for an example.
 
-{{% note %}}
+{{< note >}}
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
 
 To set configuration parameters, prefix the name with `HUGO_PARAMS_`
-{{% /note %}}
+{{< /note >}}
 
 If you are using snake_cased variable names, the above will not work. Hugo determines the delimiter to use by the first character after `HUGO`. This allows you to define environment variables on the form `HUGOxPARAMSxAPI_KEY=abcdefgh`, using any [allowed](https://stackoverflow.com/questions/2821043/allowed-characters-in-linux-environment-variable-names#:~:text=So%20names%20may%20contain%20any,not%20begin%20with%20a%20digit.) delimiter.
 
 ## Ignore content and data files when rendering
 
-{{% note %}}
+{{< note >}}
 This works, but we recommend you use the newer and more powerful [includeFiles and excludeFiles](/hugo-modules/configuration/#module-configuration-mounts) mount options.
-{{% /note %}}
+{{< /note >}}
 
 To exclude specific files from the `content`, `data`, and `i18n` directories when rendering your site, set `ignoreFiles` to one or more regular expressions to match against the absolute file path.
 
@@ -938,11 +938,11 @@ polling
 
 {{< new-in 0.124.0 />}}
 
-{{% note %}}
+{{< note >}}
 The `segments` configuration is currently only used to configure partitioned rendering.
 This feature is only about what gets rendered when, Hugo's entire object graph (sites and pages) is
 always available.
-{{% /note %}}
+{{< /note >}}
 
 * Each segment consists of zero or more `exclude` filters and zero or more `include` filters.
 * Each filter consists of one or more field Glob matchers.

@@ -104,17 +104,17 @@ Example 4: Skips rendering if there's problem accessing a remote resource.
 
 The `image` resource implements the  [`Process`],  [`Resize`], [`Fit`], [`Fill`], [`Crop`], [`Filter`], [`Colors`] and [`Exif`] methods.
 
-{{% note %}}
+{{< note >}}
 Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the `Exif` method with the _original_ image to extract EXIF metadata from JPEG, PNG, TIFF, and WebP images.
-{{% /note %}}
+{{< /note >}}
 
 ### Process
 
 {{< new-in 0.119.0 />}}
 
-{{% note %}}
+{{< note >}}
 The `Process` method is also available as a filter, which is more effective if you need to apply multiple filters to an image. See [Process filter](/functions/images/process).
-{{% /note %}}
+{{< /note >}}
 
 Process processes the image with the given specification. The specification can contain an optional action, one of `resize`, `crop`, `fit` or `fill`. This means that you can use this method instead of [`Resize`], [`Fit`], [`Fill`], or [`Crop`].
 
@@ -460,11 +460,11 @@ excludeFields
 includeFields
 : Regular expression matching the EXIF tags to include in the `.Tags` collection. Default is&nbsp;`""`. To include all available tags, set this value to&nbsp;`".*"`.
 
-  {{% note %}}
+  {{< note >}}
   To improve performance and decrease cache size, Hugo excludes the following tags: `ColorSpace`, `Contrast`, `Exif`, `Exposure[M|P|B]`, `Flash`, `GPS`, `JPEG`, `Metering`, `Resolution`, `Saturation`, `Sensing`, `Sharp`, and `WhiteBalance`.
 
   To control tag availability, change the `excludeFields` or `includeFields` settings as described above.
-  {{% /note %}}
+  {{< /note >}}
 
 ## Smart cropping of images
 

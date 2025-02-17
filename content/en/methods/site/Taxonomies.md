@@ -89,13 +89,13 @@ Hugo renders this to:
 </ul>
 ```
 
-{{% note %}}
+{{< note >}}
 Hugo's taxonomy system is powerful, allowing you to classify content and create relationships between pages.
 
 Please see the [taxonomies] section for a complete explanation and examples.
 
 [taxonomies]: /content-management/taxonomies/
-{{% /note %}}
+{{< /note >}}
 
 ## Examples
 

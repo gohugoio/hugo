@@ -65,9 +65,9 @@ firstName = "Jean"
 lastName  = "Valjean"
 {{< /code-toggle >}}
 
-{{% note %}}
+{{< note >}}
 When sorting maps, the `KEY` argument must be lowercase.
-{{% /note %}}
+{{< /note >}}
 
 ### Ascending order {#map-ascending-order}
 
@@ -141,11 +141,11 @@ After sorting:
 
 ## Sort a page collection
 
-{{% note %}}
+{{< note >}}
 Although you can use the `sort` function to sort a page collection, Hugo provides [sorting and grouping methods] as well.
 
 [sorting and grouping methods]: /methods/pages/
-{{% /note %}}
+{{< /note >}}
 
 In this contrived example, sort the site's regular pages by `.Type` in descending order:
 

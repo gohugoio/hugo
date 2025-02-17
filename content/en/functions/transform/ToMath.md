@@ -23,14 +23,14 @@ Hugo uses an embedded instance of the [KaTeX] display engine to render mathemati
 {{ transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
 ```
 
-{{% note %}}
+{{< note >}}
 By default, Hugo renders mathematical markup to [MathML], and does not require any CSS to display the result.
 
 [MathML]: https://developer.mozilla.org/en-US/docs/Web/MathML
 
 To optimize rendering quality and accessibility, use the `htmlAndMathml` output option as described below. This approach requires an external stylesheet.
 
-{{% /note %}}
+{{< /note >}}
 
 ```go-html-template
 {{ $opts := dict "output" "htmlAndMathml" }}
@@ -109,9 +109,9 @@ block = [['\[', '\]'], ['$$', '$$']]
 inline = [['\(', '\)']]
 {{< /code-toggle >}}
 
-{{% note %}}
+{{< note >}}
 The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
-{{% /note %}}
+{{< /note >}}
 
 ###### Step 2
 

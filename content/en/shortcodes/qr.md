@@ -13,11 +13,11 @@ toc: true
 
 {{< new-in 0.141.0 />}}
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded `qr` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 [source code]: {{% eturl qr %}}
-{{% /note %}}
+{{< /note >}}
 
 The `qr` shortcode encodes the given text into a [QR code] using the specified options and renders the resulting image.
 

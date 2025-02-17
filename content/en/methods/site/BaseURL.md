@@ -25,7 +25,7 @@ Template:
 {{ .Site.BaseURL }} → https://example.org/docs/
 ```
 
-{{% note %}}
+{{< note >}}
 There is almost never a good reason to use this method in your templates. Its usage tends to be fragile due to misconfiguration.
 
 Use the [`absURL`], [`absLangURL`], [`relURL`], or [`relLangURL`] functions instead.
@@ -34,4 +34,4 @@ Use the [`absURL`], [`absLangURL`], [`relURL`], or [`relLangURL`] functions inst
 [`absLangURL`]: /functions/urls/absLangURL/
 [`relURL`]: /functions/urls/relURL/
 [`relLangURL`]: /functions/urls/relLangURL/
-{{% /note %}}
+{{< /note >}}

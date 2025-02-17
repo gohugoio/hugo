@@ -58,15 +58,15 @@ To build the extended or extended/deploy edition from source you must:
 [Go documentation]: https://go.dev/doc/code#Command
 [Go]: https://go.dev/doc/install
 
-{{% note %}}
+{{< note >}}
 See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
-{{% /note %}}
+{{< /note >}}
 
 ## GitHub workflow
 
-{{% note %}}
+{{< note >}}
 This section assumes that you have a working knowledge of Go, Git and GitHub, and are comfortable working on the command line.
-{{% /note %}}
+{{< /note >}}
 
 Use this workflow to create and submit pull requests.
 

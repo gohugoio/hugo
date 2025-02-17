@@ -11,11 +11,11 @@ weight:
 toc: true
 ---
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded `figure` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 [source code]: {{% eturl figure %}}
-{{% /note %}}
+{{< /note >}}
 
 ## Example
 

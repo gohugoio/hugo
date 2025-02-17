@@ -11,8 +11,8 @@ action:
 expiryDate: 2026-07-31 # deprecated 2024-07-31 in v0.129.0
 ---
 
-{{% deprecated-in 0.129.0 %}}
+{{< deprecated-in 0.129.0 >}}
 Use [`hash.FNV32a`] instead.
 
 [`hash.FNV32a`]: /functions/hash/FNV32a/
-{{% /deprecated-in %}}
+{{< /deprecated-in >}}

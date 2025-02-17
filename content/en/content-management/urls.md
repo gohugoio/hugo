@@ -43,14 +43,14 @@ https://example.org/posts/my-first-post/
 
 Set the `url` in front matter to override the entire path. Use this with either regular pages or section pages.
 
-{{% note %}}
+{{< note >}}
 Hugo does not sanitize the `url` front matter field, allowing you to generate:
 
 - File paths that contain characters reserved by the operating system. For example, file paths on Windows may not contain any of these [reserved characters]. Hugo throws an error if a file path includes a character reserved by the current operating system.
 - URLs that contain disallowed characters. For example, the less than sign (`<`) is not allowed in a URL.
 
 [reserved characters]: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
-{{% /note %}}
+{{< /note >}}
 
 If you set both `slug` and `url` in front matter, the `url` value takes precedence.
 
@@ -355,11 +355,11 @@ Hugo provides two mutually exclusive configuration options to alter URLs _after_
 
 #### Canonical URLs
 
-{{% note %}}
+{{< note >}}
 This is a legacy configuration option, superseded by template functions and Markdown render hooks, and will likely be [removed in a future release].
 
 [removed in a future release]: https://github.com/gohugoio/hugo/issues/4733
-{{% /note %}}
+{{< /note >}}
 
 If enabled, Hugo performs a search and replace _after_ it renders the page. It searches for site-relative URLs (those with a leading slash) associated with `action`, `href`, `src`, `srcset`, and `url` attributes. It then prepends the `baseURL` to create absolute URLs.
 
@@ -378,9 +378,9 @@ canonifyURLs = true
 
 #### Relative URLs
 
-{{% note %}}
+{{< note >}}
 Do not enable this option unless you are creating a serverless site, navigable via the file system.
-{{% /note %}}
+{{< /note >}}
 
 If enabled, Hugo performs a search and replace _after_ it renders the page. It searches for site-relative URLs (those with a leading slash) associated with `action`, `href`, `src`, `srcset`, and `url` attributes. It then transforms the URL to be relative to the current page.
 

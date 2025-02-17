@@ -30,9 +30,9 @@ Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7] 
 
 - `hugolang`
 
-{{% note %}}
+{{< note >}}
 Private use subtags must not exceed 8 alphanumeric characters.
-{{% /note %}}
+{{< /note >}}
 
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
@@ -174,9 +174,9 @@ Note that you cannot disable the default content language.
 
 Hugo supports multiple languages in a multihost configuration. This means you can configure a `baseURL` per `language`.
 
-{{% note %}}
+{{< note >}}
 If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
-{{% /note %}}
+{{< /note >}}
 
 Example:
 
@@ -232,9 +232,9 @@ Their language is __assigned__ according to the language code added as a __suffi
 
 By having the same **path and base file name**, the content pieces are __linked__ together as translated pages.
 
-{{% note %}}
+{{< note >}}
 If a file has no language code, it will be assigned the default language.
-{{% /note %}}
+{{< /note >}}
 
 ### Translation by content directory
 
@@ -314,9 +314,9 @@ If, across the linked bundles, two or more files share the same basename, only o
 * File from current language bundle, if present.
 * First file found across bundles by order of language `Weight`.
 
-{{% note %}}
+{{< note >}}
 Page Bundle resources follow the same language assignment logic as content files, both by file name (`image.jpg`, `image.fr.jpg`) and by directory (`english/about/header.jpg`, `french/about/header.jpg`).
-{{%/ note %}}
+{{< /note >}}
 
 ## Reference translated content
 
@@ -588,9 +588,9 @@ If a string does not have a translation for the current language, Hugo will use 
 
 While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`enableMissingTranslationPlaceholders` configuration option][config] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
 
-{{% note %}}
+{{< note >}}
 Hugo will generate your website with these missing translation placeholders. It might not be suitable for production environments.
-{{% /note %}}
+{{< /note >}}
 
 For merging of content from other languages (i.e. missing content translations), see [lang.Merge].
 

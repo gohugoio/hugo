@@ -12,11 +12,11 @@ weight:
 expiryDate: 2025-01-22 # deprecated 2025-02-01 in v0.143.0 and immediately removed from the documentation
 ---
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded `comment` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 [source code]: {{% eturl comment %}}
-{{% /note %}}
+{{< /note >}}
 
 {{< new-in 0.137.1 />}}
 

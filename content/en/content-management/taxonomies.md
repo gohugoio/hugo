@@ -104,9 +104,9 @@ Custom taxonomies other than the [defaults](#default-taxonomies) must be defined
 
 ### Example: adding a custom taxonomy named "series"
 
-{{% note %}}
+{{< note >}}
 While adding custom taxonomies, you need to put in the default taxonomies too, _if you want to keep them_.
-{{% /note %}}
+{{< /note >}}
 
 {{< code-toggle file=hugo >}}
 [taxonomies]
@@ -126,9 +126,9 @@ If you want to have just the default `tags` taxonomy, and remove the `categories
 
 If you want to disable all taxonomies altogether, see the use of `disableKinds` in [Hugo Taxonomy Defaults](#default-taxonomies).
 
-{{% note %}}
+{{< note >}}
 You can add content and front matter to your taxonomy list and taxonomy terms pages. See [Content Organization](/content-management/organization/) for more information on how to add an `_index.md` for this purpose.
-{{% /note %}}
+{{< /note >}}
 
 ## Assign terms to content
 

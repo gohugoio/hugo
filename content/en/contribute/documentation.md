@@ -111,9 +111,9 @@ Best → Be cautious when deleting files.
 No → Hugo is extremely fast.\
 Yes → Hugo is fast.
 
-{{% note %}}
+{{< note >}}
 "It's an adverb, Sam. It's a lazy tool of a weak mind." (Outbreak, 1995).
-{{% /note %}}
+{{< /note >}}
 
 ### Level 6 headings
 
@@ -305,18 +305,18 @@ draft: false
 Use the `deprecated-in` shortcode to indicate that a feature is deprecated:
 
 ```text
-{{%/* deprecated-in 0.127.0 */%}}
+{{</* deprecated-in 0.144.0 */>}}
 Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
-{{%/* /deprecated-in */%}}
+{{</* /deprecated-in */>}}
 ```
 
-{{% deprecated-in 0.127.0 %}}
+{{< deprecated-in 0.144.0 >}}
 Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
-{{% /deprecated-in %}}
+{{< /deprecated-in >}}
 
 ### eturl
 
@@ -362,21 +362,21 @@ Use the `new-in` shortcode to indicate a new feature:
 
 ### note
 
-Use the `note` shortcode with `{{%/* */%}}` delimiters to call attention to important content:
+Use the `note` shortcode to call attention to important content:
 
 ```text
-{{%/* note */%}}
+{{</* note */>}}
 Use the [`math.Mod`] function to control...
 
 [`math.Mod`]: /functions/math/mod/
-{{%/* /note */%}}
+{{</* /note */>}}
 ```
 
-{{% note %}}
+{{< note >}}
 Use the [`math.Mod`] function to control...
 
 [`math.Mod`]: /functions/math/mod/
-{{% /note %}}
+{{< /note >}}
 
 ## New features
 
@@ -393,11 +393,11 @@ The "new in" label will be hidden if the specified version is older than a prede
 Use the "deprecated-in" shortcode to indicate that a feature is deprecated:
 
 {{< code file=content/something/foo.md >}}
-{{%/* deprecated-in 0.120.0 */%}}
+{{</* deprecated-in 0.144.0 */>}}
 Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
-{{%/* /deprecated-in */%}}
+{{</* /deprecated-in */>}}
 {{< /code >}}
 
 When deprecating a function or method, add something like this to front matter:
@@ -410,9 +410,9 @@ Set the `expiryDate` to two years from the date of deprecation, and add a brief 
 
 ## GitHub workflow
 
-{{% note %}}
+{{< note >}}
 This section assumes that you have a working knowledge of Git and GitHub, and are comfortable working on the command line.
-{{% /note %}}
+{{< /note >}}
 
 Use this workflow to create and submit pull requests.
 

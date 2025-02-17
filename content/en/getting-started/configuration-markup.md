@@ -35,12 +35,12 @@ defaultMarkdownHandler|Description
 
 To use AsciiDoc, Pandoc, or reStructuredText you must install the relevant renderer and update your [security policy].
 
-{{% note %}}
+{{< note >}}
 Unless you need a unique capability provided by one of the alternative Markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
 
 [commonmark]: https://spec.commonmark.org/0.30/
 [github flavored markdown]: https://github.github.com/gfm/
-{{% /note %}}
+{{< /note >}}
 
 [asciidoc]: https://asciidoc.org/
 [content format]: /content-management/formats/#formats
@@ -159,12 +159,12 @@ Most of the Goldmark settings above are self-explanatory, but some require expla
 
 [multilingual page resources]: /content-management/page-resources/#multilingual
 
-{{% note %}}
+{{< note >}}
 With multilingual single-host sites, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host sites.
 
 [embedded image render hook]: /render-hooks/images/#default
 [embedded link render hook]: /render-hooks/links/#default
-{{% /note %}}
+{{< /note >}}
 
 ###### parser.wrapStandAloneImageWithinParagraph
 
@@ -200,11 +200,11 @@ This is also the strategy used by the [anchorize](/functions/urls/anchorize) tem
 
 [embedded image render hook]: /render-hooks/images/#default
 
-{{% note %}}
+{{< note >}}
 The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
 [duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
-{{% /note %}}
+{{< /note >}}
 
 ###### renderHooks.link.enableDefault
 
@@ -214,11 +214,11 @@ The embedded image render hook is automatically enabled for multilingual single-
 
 [embedded link render hook]: /render-hooks/links/#default
 
-{{% note %}}
+{{< note >}}
 The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
 [duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
-{{% /note %}}
+{{< /note >}}
 
 ###### renderer.hardWraps
 
@@ -250,9 +250,9 @@ This is the default configuration for the AsciiDoc renderer:
 
 (`string array`) An array of enabled extensions, one or more of `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`, `asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, or `asciidoctor-question`.
 
-{{% note %}}
+{{< note >}}
 To mitigate security risks, entries in the extension array may not contain forward slashes (`/`), backslashes (`\`), or periods. Due to this restriction, extensions must be in Ruby's `$LOAD_PATH`.
-{{% /note %}}
+{{< /note >}}
 
 ###### failureLevel
 

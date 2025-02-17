@@ -12,9 +12,9 @@ aliases: [/themes/customize/,/themes/customizing/]
 toc: true
 ---
 
-{{% note %}}
+{{< note >}}
 This section contain information that may be outdated and is in the process of being rewritten.
-{{% /note %}}
+{{< /note >}}
 Since Hugo `0.42` a project can configure a theme as a composite of as many theme components you need:
 
 {{< code-toggle file=hugo >}}

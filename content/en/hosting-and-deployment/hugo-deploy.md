@@ -13,11 +13,11 @@ toc: true
 
 Use the `hugo deploy` command to deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container
 
-{{% note %}}
+{{< note >}}
 This feature requires the Hugo extended/deploy edition. See the [installation] section for details.
 
 [installation]: /installation/
-{{% /note %}}
+{{< /note >}}
 
 ## Assumptions
 
@@ -93,7 +93,7 @@ the [deployment target's configuration][config] --
 * If the configuration specifies an `exclude` pattern, files matching the
   pattern are skipped.
 
-{{% note %}}
+{{< note >}}
 When creating the local file list, a few additional skips apply: first, Hugo always
 skips files named `.DS_Store`. 
 
@@ -102,7 +102,7 @@ Second, Hugo always skips local hidden directories
 traverse into them, except for the special [hidden directory named
 `.well-known`](https://en.wikipedia.org/wiki/Well-known_URI), which is
 traversed if it exists.
-{{% /note %}}
+{{< /note >}}
 
 ### How the local and remote file lists are compared
 
@@ -117,11 +117,11 @@ if Hugo cannot detect any differences between local and remote.
 Files are deleted from the remote bucket if they are not present in the local
 file list.
 
-{{% note %}}
+{{< note >}}
 If a remote file is excluded from the file list generation using the
 exclude/include configs, then the comparison step will not know to delete the
 file -- so it will remain on the remote even if it isn't present locally.
-{{% /note %}}
+{{< /note >}}
 
 If the [`--confirm` or `--dryRun` flags][commandline] are given, Hugo displays 
 what differences it has found and either pauses or stops here.
@@ -133,11 +133,11 @@ changed files are uploaded, and files missing locally but present remotely are
 deleted. As files are uploaded, their headers are also configured on the remote
 according to the matchers configuration.
 
-{{% note %}}
+{{< note >}}
 As a safety measure to help prevent accidents, if there are more than 256 files
 to delete, Hugo won't delete any files from the remote. Use the `--maxDeletes`
 command line flag to override this.
-{{% /note %}}
+{{< /note >}}
 
 ## Advanced configuration
 

@@ -26,11 +26,11 @@ Please complete the following tasks before continuing:
 
 There are three types of GitHub Pages sites: project, user, and organization. Project sites are connected to a specific project hosted on GitHub. User and organization sites are connected to a specific account on GitHub.com.
 
-{{% note %}}
+{{< note >}}
 See the [GitHub Pages documentation] to understand the requirements for repository ownership and naming.
 
 [GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
-{{% /note %}}
+{{< /note >}}
 
 [GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
 

@@ -37,8 +37,8 @@ This example uses the `Identifier` method when querying the translation table on
 </ul>
 ```
 
-{{% note %}}
+{{< note >}}
 In the menu definition above, note that the `identifier` property is only required when two or more menu entries have the same name, or when localizing the name using translation tables.
 
 [details]: /content-management/menus/#properties-front-matter
-{{% /note %}}
+{{< /note >}}

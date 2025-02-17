@@ -47,9 +47,9 @@ Hugo's [template lookup order] determines the template path, allowing you to cre
 
 [template lookup order]: /templates/lookup-order/
 
-{{% note %}}
+{{< note >}}
 You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
-{{% /note %}}
+{{< /note >}}
 
 The purpose of each template type is described below.
 
@@ -180,11 +180,11 @@ Learn more about [term templates](/templates/term/).
 
 A partial template is typically used to render a component of your site, though you may also create partial templates that return values.
 
-{{% note %}}
+{{< note >}}
 Unlike other template types, you cannot create partial templates to target a particular page kind, content type, section, language, or output format. Partial templates do not follow Hugo's [template lookup order].
 
 [template lookup order]: /templates/lookup-order/
-{{% /note %}}
+{{< /note >}}
 
 For example, the partial template below renders copyright information.
 

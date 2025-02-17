@@ -31,11 +31,11 @@ If a matching page is not found:
 - The [`Page`] method returns nil
 - The [`HasMenuCurrent`] and [`IsMenuCurrent`] methods on a `Page` object return `false`
 
-{{% note %}}
+{{< note >}}
 In almost also scenarios you should use the [`URL`] method instead.
 
 [`URL`]: /methods/menu-entry/url/
-{{% /note %}}
+{{< /note >}}
 
 [defining a menu entry]: /content-management/menus/#define-in-site-configuration
 [`Page`]: /methods/menu-entry/page/
@@ -48,11 +48,11 @@ In almost also scenarios you should use the [`URL`] method instead.
 
 This example is contrived.
 
-{{% note %}}
+{{< note >}}
 In almost also scenarios you should use the [`URL`] method instead.
 
 [`URL`]: /methods/menu-entry/url/
-{{% /note %}}
+{{< /note >}}
 
 Consider this content structure:
 

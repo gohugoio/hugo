@@ -69,11 +69,11 @@ When rendering lesson-2, the `RegularPages` method returns:
 
 In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section](g)---it does not contain an&nbsp;`_index.md`&nbsp;file. Its contents are part of the lesson-2 section.
 
-{{% note %}}
+{{< note >}}
 When used with the `Site` object, the `RegularPages` method recursively returns all regular pages within the site. See&nbsp;[details].
 
 [details]: /methods/site/regularpages/
-{{% /note %}}
+{{< /note >}}
 
 ```go-html-template
 {{ range .Site.RegularPages.ByTitle }}

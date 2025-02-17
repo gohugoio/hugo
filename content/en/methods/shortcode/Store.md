@@ -18,12 +18,12 @@ toc: true
 
 Use the `Store` method to create a [scratch pad](g) to store and manipulate data, scoped to the current shortcode. To create a scratch pad with a different [scope](g), refer to the [scope](#scope) section below.
 
-{{% note %}}
+{{< note >}}
 With the introduction of the [`newScratch`] function, and the ability to [assign values to template variables] after initialization, the `Store` method within a shortcode is mostly obsolete.
 
 [assign values to template variables]: https://go.dev/doc/go1.11#text/template
 [`newScratch`]: /functions/collections/newScratch/
-{{% /note %}}
+{{< /note >}}
 
 {{% include "_common/store-methods.md" %}}
 

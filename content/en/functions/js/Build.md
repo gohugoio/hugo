@@ -109,9 +109,9 @@ Any imports in a file outside `assets` or that does not resolve to a component i
 
 The start directory for resolving npm packages (aka. packages that live inside a `node_modules` directory) is always the main project directory.
 
-{{% note %}}
+{{< note >}}
 If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the npm dependencies in a project.
-{{% /note %}}
+{{< /note >}}
 
 ## Examples
 

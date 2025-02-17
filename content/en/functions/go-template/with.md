@@ -78,9 +78,9 @@ Hugo will throw an error:
 
 The error occurs because we are trying to use the `.Title` method on an integer instead of a `Page` object. Inside of the `with` block, if we want to render the page title, we need to get the context passed into the template.
 
-{{% note %}}
+{{< note >}}
 Use the `$` to get the context passed into the template.
-{{% /note %}}
+{{< /note >}}
 
 This template will render the page title as desired:
 
@@ -90,9 +90,9 @@ This template will render the page title as desired:
 {{ end }}
 ```
 
-{{% note %}}
+{{< note >}}
 Gaining a thorough understanding of context is critical for anyone writing template code.
-{{% /note %}}
+{{< /note >}}
 
 {{% include "functions/go-template/_common/text-template.md" %}}
 

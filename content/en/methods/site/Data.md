@@ -17,11 +17,11 @@ Use the `Data` method on a `Site` object to access data within the `data` direct
 
 [mounted]: /hugo-modules/configuration/#module-configuration-mounts
 
-{{% note %}}
+{{< note >}}
 Although Hugo can unmarshal CSV files with the [`transform.Unmarshal`] function, do not place CSV files in the `data` directory. You cannot access data within CSV files using this method.
 
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
-{{% /note %}}
+{{< /note >}}
 
 Consider this `data` directory:
 

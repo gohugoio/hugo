@@ -59,9 +59,9 @@ Hugo will throw an error:
 
 The error occurs because we are trying to use the `.Title` method on an integer instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
 
-{{% note %}}
+{{< note >}}
 Use the `$` to get the context passed into the template.
-{{% /note %}}
+{{< /note >}}
 
 This template will render the page title three times:
 
@@ -71,9 +71,9 @@ This template will render the page title three times:
 {{ end }}
 ```
 
-{{% note %}}
+{{< note >}}
 Gaining a thorough understanding of context is critical for anyone writing template code.
-{{% /note %}}
+{{< /note >}}
 
 [`seq`]: /functions/collections/seq/
 

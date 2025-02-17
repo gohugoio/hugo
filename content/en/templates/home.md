@@ -33,9 +33,9 @@ Hugo's [template lookup order] determines the template path, allowing you to cre
 
 [template lookup order]: /templates/lookup-order/#home-templates
 
-{{% note %}}
+{{< note >}}
 You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
-{{% /note %}}
+{{< /note >}}
 
 ## Content and front matter
 

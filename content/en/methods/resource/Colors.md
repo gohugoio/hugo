@@ -27,7 +27,7 @@ Luminance
 {{< new-in 0.125.0 />}}
 : (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
-{{% note %}}
+{{< note >}}
 Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.
 
 Hugo renders an `images.Color` object as a hexadecimal color value.
@@ -35,7 +35,7 @@ Hugo renders an `images.Color` object as a hexadecimal color value.
 [`images.Dither`]: /functions/images/dither/
 [`images.Padding`]: /functions/images/padding/
 [`images.Text`]: /functions/images/text/
-{{% /note %}}
+{{< /note >}}
 
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 [relative luminance]: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance

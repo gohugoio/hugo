@@ -53,9 +53,9 @@ These media types are configured for your output formats. If you want to redefin
     mediaType = "text/html"
 {{</ code-toggle >}}
 
-{{% note %}}
+{{< note >}}
 For the above to work, you also need to add an `outputs` definition in your site configuration.
-{{% /note %}}
+{{< /note >}}
 
 ## Output format definitions
 

@@ -18,9 +18,9 @@ action:
 
 {{% glossary-term section %}}
 
-{{% note %}}
+{{< note >}}
 The current section of a [section page](g), [taxonomy page](g), [term page](g), or the home page, is itself.
-{{% /note %}}
+{{< /note >}}
 
 Consider this content structure:
 

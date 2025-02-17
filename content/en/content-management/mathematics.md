@@ -43,13 +43,13 @@ Equations and expressions can be displayed inline with other text, or as standal
 
 Whether an equation or expression appears inline, or as a block, depends on the delimiters that surround the mathematical markup. Delimiters are defined in pairs, where each pair consists of an opening and closing delimiter. The opening and closing delimiters may be the same, or different.
 
-{{% note %}}
+{{< note >}}
 You can configure Hugo to render mathematical markup on the client side using the MathJax or KaTeX display engine, or you can render the markup with the [`transform.ToMath`] function while building your site.
 
 The first approach is described below.
 
 [`transform.ToMath`]: /functions/transform/tomath/
-{{% /note %}}
+{{< /note >}}
 
 ## Setup
 
@@ -73,11 +73,11 @@ math = true
 
 The configuration above enables mathematical rendering on every page unless you set the `math` parameter to `false` in front matter. To enable mathematical rendering as needed, set the `math` parameter to `false` in your site configuration, and set the `math` parameter to `true` in front matter. Use this parameter in your base template as shown in [Step 3].
 
-{{% note %}}
+{{< note >}}
 The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration and JavaScript, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 
 See the [inline delimiters](#inline-delimiters) section for details.
-{{% /note %}}
+{{< /note >}}
 
 To disable passthrough of inline snippets, omit the `inline` key from the configuration:
 
@@ -178,19 +178,19 @@ If you add the `$...$` delimiter pair to your configuration and JavaScript, you 
 A \\$5 bill _saved_ is a \\$5 bill _earned_.
 ```
 
-{{% note %}}
+{{< note >}}
 If you use the `$...$` delimiter pair for inline equations, and occasionally use the&nbsp;`$`&nbsp;symbol outside of math contexts, you must use MathJax instead of KaTeX to avoid unintended formatting caused by [this KaTeX limitation](https://github.com/KaTeX/KaTeX/issues/437).
-{{% /note %}}
+{{< /note >}}
 
 ## Engines
 
 MathJax and KaTeX are open-source JavaScript display engines. Both engines are fast, but at the time of this writing MathJax v3.2.2 is slightly faster than KaTeX v0.16.11.
 
-{{% note %}}
+{{< note >}}
 If you use the `$...$` delimiter pair for inline equations, and occasionally use the&nbsp;`$`&nbsp;symbol outside of math contexts, you must use MathJax instead of KaTeX to avoid unintended formatting caused by [this KaTeX limitation](https://github.com/KaTeX/KaTeX/issues/437).
 
 See the [inline delimiters](#inline-delimiters) section for details.
-{{% /note %}}
+{{< /note >}}
 
 To use KaTeX instead of MathJax, replace the partial template from [Step 2] with this:
 

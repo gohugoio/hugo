@@ -81,9 +81,9 @@ Inside of the `with` block, the [context](g) (the dot) is the section `Page` obj
 
 The result would be wrong when rendering the "auction-1" page because we are comparing the section page to itself.
 
-{{% note %}}
+{{< note >}}
 Use the `$` to get the context passed into the template.
-{{% /note %}}
+{{< /note >}}
 
 ```go-html-template
 {{ with .Site.GetPage "/auctions" }}
@@ -91,9 +91,9 @@ Use the `$` to get the context passed into the template.
 {{ end }}
 ```
 
-{{% note %}}
+{{< note >}}
 Gaining a thorough understanding of context is critical for anyone writing template code.
-{{% /note %}}
+{{< /note >}}
 
 [`with`]: /functions/go-template/with/
 [`else`]: /functions/go-template/else/

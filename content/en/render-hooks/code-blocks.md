@@ -48,9 +48,9 @@ In the example above, the _highlighting options_ are `lineNos` and `tabWidth`. H
 [Chroma]: https://github.com/alecthomas/chroma/
 [highlighting options]: /functions/transform/highlight/#options
 
-{{% note %}}
+{{< note >}}
 Although `style` is a global HTML attribute, when used in an info string it is a highlighting option.
-{{% /note %}}
+{{< /note >}}
 
 ## Context
 

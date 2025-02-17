@@ -22,9 +22,9 @@ Delimit a slice:
 
 Delimit a map:
 
-{{% note %}}
+{{< note >}}
 The `delimit` function sorts maps by key, returning the values.
-{{% /note %}}
+{{< /note >}}
 
 ```go-html-template
 {{ $m := dict "b" 2 "a" 1 "c" 3 }}

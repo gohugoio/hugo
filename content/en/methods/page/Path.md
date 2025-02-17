@@ -22,14 +22,14 @@ The `Path` method on a `Page` object returns the [logical path](g) of the given 
 
 This value is neither a file path nor a relative URL. It is a logical identifier for each page, independent of content format, language, and URL modifiers.
 
-{{% note %}}
+{{< note >}}
 Beginning with the release of [v0.92.0] in January 2022, Hugo emitted a warning whenever calling the `Path` method. The warning indicated that this method would change in a future release.
 
 The meaning of, and value returned by, the `Path` method on a `Page` object changed with the release of [v0.123.0] in February 2024.
 
 [v0.92.0]: https://github.com/gohugoio/hugo/releases/tag/v0.92.0
 [v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0
-{{% /note %}}
+{{< /note >}}
 
 To determine the logical path for pages backed by a file, Hugo starts with the file path, relative to the `content` directory, and then:
 
@@ -117,9 +117,9 @@ Methods|Functions|Shortcodes
 [`Shortcode.Ref`]: /methods/shortcode/ref
 [`Shortcode.RelRef`]: /methods/shortcode/relref
 
-{{% note %}}
+{{< note >}}
 Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
-{{% /note %}}
+{{< /note >}}
 
 ## Logical tree
 
@@ -149,6 +149,6 @@ A key difference between these trees is the relative path from p1 to p2:
 - In the file tree, the relative path from p1 to p2 is `../p2.md`
 - In the logical tree, the relative path is `p2`
 
-{{% note %}}
+{{< note >}}
 Remember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
-{{% /note %}}
+{{< /note >}}

@@ -14,14 +14,14 @@ aliases: [/templates/internal]
 
 ## Disqus
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded Disqus template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "disqus.html" . }}`
 
 [`partial`]: /functions/partials/include/
 [source code]: {{% eturl disqus %}}
-{{% /note %}}
+{{< /note >}}
 
 Hugo includes an embedded template for [Disqus], a popular commenting system for both static and dynamic websites. To effectively use Disqus, secure a Disqus "shortname" by [signing up] for the free service.
 
@@ -66,14 +66,14 @@ disable
 
 ## Google Analytics
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded Google Analytics template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "google_analytics.html" . }}`
 
 [`partial`]: /functions/partials/include/
 [source code]: {{% eturl google_analytics %}}
-{{% /note %}}
+{{< /note >}}
 
 Hugo includes an embedded template supporting [Google Analytics 4].
 
@@ -110,14 +110,14 @@ respectDoNotTrack
 
 ## Open Graph
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded Open Graph template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "opengraph.html" . }}`
 
 [`partial`]: /functions/partials/include/
 [source code]: {{% eturl opengraph %}}
-{{% /note %}}
+{{< /note >}}
 
 Hugo includes an embedded template for the [Open Graph protocol](https://ogp.me/), metadata that enables a page to become a rich object in a social graph.
 This format is used for Facebook and some other sites.
@@ -169,14 +169,14 @@ If using YouTube this will produce a og:video tag like `<meta property="og:video
 
 ## Schema
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded Schema template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "schema.html" . }}`
 
 [`partial`]: /functions/partials/include/
 [source code]: {{% eturl schema %}}
-{{% /note %}}
+{{< /note >}}
 
 Hugo includes an embedded template to render [microdata] `meta` elements within the `head` element of your templates.
 
@@ -190,14 +190,14 @@ To include the embedded template:
 
 ## X (Twitter) Cards
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded Twitter Cards template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
 
 `{{ partial "twitter_cards.html" . }}`
 
 [`partial`]: /functions/partials/include/
 [source code]: {{% eturl twitter_cards %}}
-{{% /note %}}
+{{< /note >}}
 
 Hugo includes an embedded template for [X (Twitter) Cards](https://developer.x.com/en/docs/twitter-for-websites/cards/overview/abouts-cards),
 metadata used to attach rich media to Tweets linking to your site.

@@ -18,9 +18,9 @@ action:
 
 {{% glossary-term section %}}
 
-{{% note %}}
+{{< note >}}
 When called on the home page, the `FirstSection` method returns the `Page` object of the home page itself.
-{{% /note %}}
+{{< /note >}}
 
 Consider this content structure:
 

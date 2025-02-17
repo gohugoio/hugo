@@ -21,13 +21,13 @@ When rendering Markdown to HTML, render hooks override the conversion. Each rend
 - [Passthrough elements](/render-hooks/passthrough)
 - [Tables](/render-hooks/tables)
 
-{{% note %}}
+{{< note >}}
 Hugo supports multiple [content formats] including Markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, and reStructuredText.
 
 The render hook capability is limited to Markdown. You cannot create render hooks for the other content formats.
 
 [content formats]: /content-management/formats/
-{{% /note %}}
+{{< /note >}}
 
 For example, consider this Markdown:
 

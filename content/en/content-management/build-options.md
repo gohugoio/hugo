@@ -60,12 +60,12 @@ render
 [`RelPermalink`]: /methods/resource/relpermalink/
 [`Publish`]: /methods/resource/publish/
 
-{{% note %}}
+{{< note >}}
 Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`] or [`.Site.GetPage`] method.
 
 [`.Page.GetPage`]: /methods/page/getpage/
 [`.Site.GetPage`]: /methods/site/getpage/
-{{% /note %}}
+{{< /note >}}
 
 ## Example -- headless page
 

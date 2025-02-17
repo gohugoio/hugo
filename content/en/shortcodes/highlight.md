@@ -11,19 +11,19 @@ weight:
 toc: true
 ---
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded `highlight` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 [source code]: {{% eturl highlight %}}
-{{% /note %}}
+{{< /note >}}
 
-{{% note %}}
+{{< note >}}
 With the Markdown [content format], the `highlight` shortcode is rarely needed because, by default, Hugo automatically applies syntax highlighting to fenced code blocks.
 
 The primary use case for the `highlight` shortcode in Markdown is to apply syntax highlighting to inline code snippets.
 
 [content format]: /content-management/formats/
-{{% /note %}}
+{{< /note >}}
 
 The `highlight` shortcode calls the [`transform.Highlight`] function which uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 [available styles].
 

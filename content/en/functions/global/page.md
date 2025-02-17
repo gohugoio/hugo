@@ -27,9 +27,9 @@ When a `Page` object is not in context, you can use the global `page` function:
 {{ page.Params.foo }}
 ```
 
-{{% note %}}
+{{< note >}}
 Do not use the global `page` function in shortcodes, partials called by shortcodes, or cached partials. See [warnings](#warnings) below.
-{{% /note %}}
+{{< /note >}}
 
 ## Explanation
 

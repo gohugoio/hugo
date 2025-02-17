@@ -28,9 +28,9 @@ There are three ways to define menu entries:
 1. In front matter
 1. In site configuration
 
-{{% note %}}
+{{< note >}}
 Although you can use these methods in combination when defining a menu, the menu will be easier to conceptualize and maintain if you use one method throughout the site.
-{{% /note %}}
+{{< /note >}}
 
 ## Define automatically
 
@@ -62,9 +62,9 @@ menus = ['main','footer']
 
 Access the entry with `site.Menus.main` and `site.Menus.footer` in your templates. See [menu templates] for details.
 
-{{% note %}}
+{{< note >}}
 The configuration key in the examples above is `menus`. The `menu` (singular) configuration key is an alias for `menus`.
-{{% /note %}}
+{{< /note >}}
 
 ### Properties {#properties-front-matter}
 
@@ -149,17 +149,17 @@ weight = 20
 
 This creates a menu structure that you can access with `site.Menus.footer` in your templates. See [menu templates] for details.
 
-{{% note %}}
+{{< note >}}
 The configuration key in the examples above is `menus`. The `menu` (singular) configuration key is an alias for `menus`.
-{{% /note %}}
+{{< /note >}}
 
 ### Properties {#properties-site-configuration}
 
-{{% note %}}
+{{< note >}}
 The [properties available to entries defined in front matter] are also available to entries defined in site configuration.
 
 [properties available to entries defined in front matter]: /content-management/menus/#properties-front-matter
-{{% /note %}}
+{{< /note >}}
 
 Each menu entry defined in site configuration requires two or more properties:
 

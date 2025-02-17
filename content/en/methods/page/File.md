@@ -22,15 +22,15 @@ content/
     └── book-2.md
 ```
 
-{{% note %}}
+{{< note >}}
 Code defensively by verifying file existence as shown in the examples below.
-{{% /note %}}
+{{< /note >}}
 
 ## Methods
 
-{{% note %}}
+{{< note >}}
 The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend on the operating system.
-{{% /note %}}
+{{< /note >}}
 
 ###### BaseFileName
 

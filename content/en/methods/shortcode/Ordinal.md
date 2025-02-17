@@ -11,9 +11,9 @@ action:
 
 The `Ordinal` method returns the zero-based ordinal of the shortcode in relation to its parent. If the parent is the page itself, the ordinal represents the position of this shortcode in the page content.
 
-{{% note %}}
+{{< note >}}
 Hugo  increments the ordinal with each shortcode call, regardless of the specific shortcode type. This means that the ordinal value is tracked sequentially across all shortcodes within a given page.
-{{% /note %}}
+{{< /note >}}
 
 This method is useful for, among other things, assigning unique element IDs when a shortcode is called two or more times from the same page. For example:
 
@@ -47,8 +47,8 @@ Hugo renders the page to:
 <img id="img-001" src="/images/b.jpg" width="600" height="400" alt="">
 ```
 
-{{% note %}}
+{{< note >}}
 In the shortcode template above, the [`with`] statement is used to create conditional blocks. Remember that the `with` statement binds context (the dot) to its expression. Inside of a `with` block, preface shortcode method calls with a `$` to access the top level context passed into the template.
 
 [`with`]: /functions/go-template/with/
-{{% /note %}}
+{{< /note >}}

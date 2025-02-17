@@ -20,14 +20,14 @@ If the key is not found in the translation table for the current language, the `
 
 If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
 
-{{% note %}}
+{{< note >}}
 To list missing and fallback translations, use the `--printI18nWarnings` flag when building your site.
 
 To render placeholders for missing and fallback translations, set 
 [`enableMissingTranslationPlaceholders`] to `true` in your site configuration.
 
 [`enableMissingTranslationPlaceholders`]: /getting-started/configuration/#enablemissingtranslationplaceholders
-{{% /note %}}
+{{< /note >}}
 
 ## Translation tables
 
@@ -76,9 +76,9 @@ privacy = 'prywatność'
 security = 'bezpieczeństwo'
 {{< /code-toggle >}}
 
-{{% note %}}
+{{< note >}}
 The examples below use the `T` alias for brevity.
-{{% /note %}}
+{{< /note >}}
 
 When viewing the English language site:
 
@@ -136,9 +136,9 @@ many = '{{ . }} miesięcy'
 other = '{{ . }} miesiąca'
 {{< /code-toggle >}}
 
-{{% note %}}
+{{< note >}}
 The examples below use the `T` alias for brevity.
-{{% /note %}}
+{{< /note >}}
 
 When viewing the English language site:
 
@@ -185,9 +185,9 @@ Template code:
 {{ T "age" (dict "name" "John" "count" 3) }} → John is 3 years old.
 ```
 
-{{% note %}}
+{{< note >}}
 Translation tables may contain both simple translations and translations with pluralization.
-{{% /note %}}
+{{< /note >}}
 
 ## Reserved keys
 

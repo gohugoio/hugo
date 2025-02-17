@@ -10,8 +10,8 @@ action:
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0
 ---
 
-{{% deprecated-in 0.123.0 %}}
+{{< deprecated-in 0.123.0 >}}
 Use [`.Site.Lastmod`] instead.
 
 [`.Site.Lastmod`]: /methods/site/lastmod/
-{{% /deprecated-in %}}
+{{< /deprecated-in >}}

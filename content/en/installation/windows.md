@@ -11,9 +11,9 @@ weight: 40
 toc: true
 ---
 
-{{% note %}}
+{{< note >}}
 Hugo v0.121.1 and later require at least Windows 10 or Windows Server 2016.
-{{% /note %}}
+{{< /note >}}
 
 ## Editions
 
@@ -65,9 +65,9 @@ winget uninstall --name "Hugo (Extended)"
 
 {{% include "installation/_common/04-build-from-source.md" %}}
 
-{{% note %}}
+{{< note >}}
 See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
-{{% /note %}}
+{{< /note >}}
 
 ## Comparison
 

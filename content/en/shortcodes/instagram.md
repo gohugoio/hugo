@@ -11,11 +11,11 @@ weight:
 toc: true
 ---
 
-{{% note %}}
+{{< note >}}
 To override Hugo's embedded `instagram` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 [source code]: {{% eturl instagram %}}
-{{% /note %}}
+{{< /note >}}
 
 ## Example
 

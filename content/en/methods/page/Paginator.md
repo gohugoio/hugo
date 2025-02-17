@@ -32,14 +32,14 @@ You can invoke pagination on the [home template], [section templates], [taxonomy
 
 In the example above, the embedded pagination template creates navigation links between pagers.
 
-{{% note %}}
+{{< note >}}
 Although simple to invoke, with the `Paginator` method you can neither filter nor sort the page collection. It acts upon the page collection received in context.
 
 The [`Paginate`] method is more flexible, and strongly recommended.
 
 [`paginate`]: /methods/page/paginate/
-{{% /note %}}
+{{< /note >}}
 
-{{% note %}}
+{{< note >}}
 Please note that the results of pagination are cached. Once you have invoked either the `Paginator` or `Paginate` method, the paginated collection is immutable. Additional invocations of these methods will have no effect.
-{{% /note %}}
+{{< /note >}}

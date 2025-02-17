@@ -29,6 +29,6 @@ action:
 ]
 ```
 
-{{% note %}}
+{{< note >}}
 Output from this function may change from one release to the next. Use for debugging only.
-{{% /note %}}
+{{< /note >}}

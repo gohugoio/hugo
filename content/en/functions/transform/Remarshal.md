@@ -15,11 +15,11 @@ aliases: [/functions/transform.remarshal]
 
 The format must be one of `json`, `toml`, `yaml`, or `xml`. If the input is a string of serialized data, it must be valid JSON, TOML, YAML, or XML.
 
-{{% note %}}
+{{< note >}}
 This function is primarily a helper for Hugo's documentation, used to convert configuration and front matter examples to JSON, TOML, and YAML.
 
 This is not a general purpose converter, and may change without notice if required for Hugo's documentation site.
-{{% /note %}}
+{{< /note >}}
 
 Example 1
 : Convert a string of TOML to JSON.

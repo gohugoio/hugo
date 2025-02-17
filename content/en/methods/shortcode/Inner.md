@@ -46,15 +46,15 @@ Is rendered to:
 </div>
 ```
 
-{{% note %}}
-Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`strings.TrimSpace`] function as shown above to remove both carriage returns and newlines.
+{{< note >}}
+Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`strings.TrimSpace`] function as shown above to remove carriage returns and newlines.
 
 [`strings.TrimSpace`]: /functions/strings/trimspace/
-{{% /note %}}
+{{< /note >}}
 
-{{% note %}}
+{{< note >}}
 In the example above, the value returned by `Inner` is Markdown, but it was rendered as plain text. Use either of the following approaches to render Markdown to HTML.
-{{% /note %}}
+{{< /note >}}
 
 ## Use RenderString
 
@@ -143,9 +143,11 @@ The difference between this and the previous example is subtle but required. Not
  </div>
 ```
 
-{{% note %}}
-When using the `{{%/* */%}}` notation, do not pass the value returned by `Inner` through the `RenderString` method or  the `markdownify` function.
-{{% /note %}}
+{{< note >}}
+Don't process the `Inner` value with `RenderString` or `markdownify` when using [Markdown notation] to call the shortcode.
+
+[Markdown notation]: /content-management/shortcodes/#notation
+{{< /note >}}
 
 [commonmark]: https://commonmark.org/
 [indentation]: https://spec.commonmark.org/0.30/#indented-code-blocks

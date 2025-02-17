@@ -12,11 +12,11 @@ action:
 expiryDate: 2027-01-16 # deprecated 2025-01-16 in v0.141.0
 ---
 
-{{% deprecated-in 0.141.0 %}}
+{{< deprecated-in 0.141.0 >}}
 Use the `try` statement instead. See [example].
 
 [example]: /functions/go-template/try/#example
-{{% /deprecated-in %}}
+{{< /deprecated-in >}}
 
 The `Err` method on a resource returned by the [`resources.GetRemote`] function returns an error message if the HTTP request fails, else nil. If you do not handle the error yourself, Hugo will fail the build.
 
@@ -58,6 +58,6 @@ To log an error as a warning instead of an error:
 {{ end }}
 ```
 
-{{% note %}}
+{{< note >}}
 An HTTP response with a 404 status code is not an HTTP request error. To handle 404 status codes, code defensively using the nested `with-else-end` construct as shown above.
-{{% /note %}}
+{{< /note >}}

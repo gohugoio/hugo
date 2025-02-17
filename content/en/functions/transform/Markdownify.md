@@ -23,9 +23,9 @@ To keep the wrapping `p` tags for a single paragraph, use the [`RenderString`] m
 
 [`RenderString`]: /methods/page/renderstring/
 
-{{% note %}}
+{{< note >}}
 Although the `markdownify` function honors [Markdown render hooks] when rendering Markdown to HTML, use the `RenderString` method instead of `markdownify` if a render hook accesses `.Page` context. See issue [#9692] for details.
 
 [Markdown render hooks]: /render-hooks/
 [#9692]: https://github.com/gohugoio/hugo/issues/9692
-{{% /note %}}
+{{< /note >}}

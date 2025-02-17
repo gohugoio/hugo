@@ -79,9 +79,9 @@ block = true
 
 ## Examples
 
-{{% note %}}
+{{< note >}}
 With inline elements such as images and links, remove leading and trailing whitespace using the `{{‑ ‑}}` delimiter notation to prevent whitespace between adjacent inline elements and text.
-{{% /note %}}
+{{< /note >}}
 
 In its default configuration, Hugo renders Markdown images according to the [CommonMark specification]. To create a render hook that does the same thing:
 
@@ -135,11 +135,11 @@ enableDefault = true
 
 A custom render hook, even when provided by a theme or module, will override the embedded render hook regardless of the configuration setting above.
 
-{{% note %}}
+{{< note >}}
 The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
 [duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
-{{% /note %}}
+{{< /note >}}
 
 The embedded image render hook resolves internal Markdown destinations by looking for a matching [page resource](g), falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 

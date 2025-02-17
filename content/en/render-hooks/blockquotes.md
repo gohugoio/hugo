@@ -146,9 +146,9 @@ With the extended Markdown syntax, you may optionally include an alert sign and/
 
 The extended syntax is compatible with [Obsidian].
 
-{{% note %}}
+{{< note >}}
 The extended syntax is not compatible with GitHub or Typora. If you include an alert sign or an alert title, these applications render the Markdown as a blockquote.
-{{% /note %}}
+{{< /note >}}
 
 ### Example
 

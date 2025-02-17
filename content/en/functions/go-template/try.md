@@ -108,6 +108,6 @@ In the above, note that the [context](g) within the last conditional block is th
 
 [template context]: /templates/introduction/#template-context
 
-{{% note %}}
+{{< note >}}
 Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
-{{% /note %}}
+{{< /note >}}

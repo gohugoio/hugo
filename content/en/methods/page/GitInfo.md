@@ -13,9 +13,9 @@ toc: true
 
 The `GitInfo` method on a `Page` object returns an object with additional methods.
 
-{{% note %}}
+{{< note >}}
 Hugo's Git integration is performant, but may increase build times on large sites.
-{{% /note %}}
+{{< /note >}}
 
 ## Prerequisites
 
@@ -33,13 +33,13 @@ Alternatively, use the command line flag when building your site:
 hugo --enableGitInfo
 ```
 
-{{% note %}}
+{{< note >}}
 When you set `enableGitInfo` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
 
 This is configurable. See&nbsp;[details].
 
 [details]: /getting-started/configuration/#configure-dates
-{{% /note %}}
+{{< /note >}}
 
 ## Methods
 

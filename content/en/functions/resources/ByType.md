@@ -23,12 +23,12 @@ The [media type] is typically one of `image`, `text`, `audio`, `video`, or `appl
 {{ end }}
 ```
 
-{{% note %}}
+{{< note >}}
 This function operates on global resources. A global resource is a file within the `assets` directory, or within any directory mounted to the `assets` directory.
 
 For page resources, use the [`Resources.ByType`] method on a `Page` object.
 
 [`Resources.ByType`]: /methods/page/resources/
-{{% /note %}}
+{{< /note >}}
 
 [media type]: https://en.wikipedia.org/wiki/Media_type

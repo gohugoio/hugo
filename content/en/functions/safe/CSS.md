@@ -51,9 +51,9 @@ Hugo renders the above to:
 <p style="ZgotmplZ">foo</p>
 ```
 
-{{% note %}}
+{{< note >}}
 `ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
-{{% /note %}}
+{{< /note >}}
 
 To declare the string as safe:
 

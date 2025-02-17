@@ -85,6 +85,6 @@ https://example.org
 https://gohugo.io
 ```
 
-{{% note %}}
+{{< note >}}
 You can write and test your regular expression using [regex101.com](https://regex101.com/). Be sure to select the Go flavor before you begin.
-{{% /note %}}
+{{< /note >}}

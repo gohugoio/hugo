@@ -50,9 +50,9 @@ module.exports = {
 };
 {{< /code >}}
 
-{{% note %}}
+{{< note >}}
 {{% include "functions/resources/_common/postcss-windows-warning.md" %}}
-{{% /note %}}
+{{< /note >}}
 
 Step 4
 : Place your CSS file within the `assets/css` directory.

@@ -1,7 +1,18 @@
-{{ $_hugo_config := `{ "version": 1 }` }}
-{{ partial "layouts/blocks/alert.html" (dict
-  "text" .Inner
+{{- /*
+  Renders a callout.
+
+  @returns {template.HTML}
+
+  @examples
+
+      {{< note >}}
+      Some descriptive text here.
+      {{< /note >}}
+*/}}
+{{- $text := .Inner | strings.TrimSpace | .Page.RenderString (dict "display" "block") }}
+{{- partial "layouts/blocks/alert.html" (dict
   "color" "blue"
   "icon" "exclamation"
+  "text" $text
   )
 }}

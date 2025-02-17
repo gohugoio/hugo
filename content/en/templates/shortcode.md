@@ -12,12 +12,12 @@ aliases: [/templates/shortcode-templates/]
 toc: true
 ---
 
-{{% note %}}
+{{< note >}}
 Before creating custom shortcodes, please review the [shortcodes] page in the [content management] section. Understanding the usage details will help you design and create better templates.
 
 [shortcodes]: /content-management/shortcodes/
 [content management]: /content-management/shortcodes/
-{{% /note %}}
+{{< /note >}}
 
 ## Introduction
 
@@ -142,13 +142,13 @@ The example above uses:
 [`get`]: /methods/shortcode/get/
 [`with`]: /functions/go-template/with/
 
-{{% note %}}
+{{< note >}}
 Make sure that you thoroughly understand the concept of context. The most common templating errors made by new users relate to context.
 
 Read more about context in the [introduction to templating].
 
 [introduction to templating]: /templates/introduction/
-{{% /note %}}
+{{< /note >}}
 
 ### Insert image with error handling
 
@@ -208,9 +208,9 @@ Using the `Get` method with zero-indexed keys, we'll initialize variables with d
 {{- $alt := .Get 2 }}
 {{< /code >}}
 
-{{% note %}}
+{{< note >}}
 Positional arguments work well for frequently used shortcodes with one or two arguments. Since you'll use them often, the argument order will be easy to remember. For less frequently used shortcodes, or those with more than two arguments, named arguments improve readability and reduce the chance of errors.
-{{% /note %}}
+{{< /note >}}
 
 ### Named and positional arguments
 

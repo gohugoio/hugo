@@ -73,9 +73,9 @@ The following demonstrates the relationships between your content organization a
 
 `_index.md` has a special role in Hugo. It allows you to add front matter and content to `home`, `section`, `taxonomy`, and `term` pages. 
 
-{{% note %}}
+{{< note >}}
 **Tip:** You can get a reference to the content and metadata in `_index.md` using the [`.Site.GetPage` function](/methods/page/getpage).
-{{% /note %}}
+{{< /note >}}
 
 You can create one `_index.md` for your home page and one in each of your content sections, taxonomies, and terms. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
 

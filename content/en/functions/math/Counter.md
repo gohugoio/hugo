@@ -30,6 +30,6 @@ Use this function to:
 [`warnf`]: /functions/fmt/warnf/
 [`resources.FromString`]: /functions/resources/fromstring/
 
-{{% note %}}
+{{< note >}}
 Due to concurrency, the value returned in a given template for a given page will vary from one build to the next. You cannot use this function to assign a static id to each page.
-{{% /note %}}
+{{< /note >}}

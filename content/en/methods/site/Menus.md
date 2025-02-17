@@ -13,11 +13,11 @@ action:
 
 The `Menus` method on a `Site` object returns a collection of menus, where each menu contains one or more entries, either flat or nested. Each entry points to a page within the site, or to an external resource.
 
-{{% note %}}
+{{< note >}}
 Menus can be defined and localized in several ways. Please see the [menus] section for a complete explanation and examples.
 
 [menus]: /content-management/menus/
-{{% /note %}}
+{{< /note >}}
 
 A site can have multiple menus. For example, a main menu and a footer menu:
 

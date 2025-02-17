@@ -12,14 +12,14 @@ toc: true
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0
 ---
 
-{{% deprecated-in 0.123.0 %}}
+{{< deprecated-in 0.123.0 >}}
 Instead, use [`transform.Unmarshal`] with a [global resource](g), [page resource](g), or [remote resource](g).
 
 See the [remote data example].
 
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
 [remote data example]: /functions/resources/getremote/#remote-data
-{{% /deprecated-in %}}
+{{< /deprecated-in >}}
 
 Given the following directory structure:
 
@@ -36,9 +36,9 @@ Access the data with either of the following:
 {{ $data := getJSON "other-files/" "books.json" }}
 ```
 
-{{% note %}}
+{{< note >}}
 When working with local data, the file path is relative to the working directory.
-{{% /note %}}
+{{< /note >}}
 
 Access remote data with either of the following:
 

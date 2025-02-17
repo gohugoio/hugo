@@ -81,9 +81,9 @@ Inline shortcodes process their inner content within the same context as regular
 
 [shortcode method]: /templates/shortcode/#methods
 
-{{% note %}}
+{{< note >}}
 You cannot [nest](#nesting) inline shortcodes.
-{{% /note %}}
+{{< /note >}}
 
 Learn more about creating shortcodes in the [shortcode templates] section.
 

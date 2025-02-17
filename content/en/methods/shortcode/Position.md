@@ -28,6 +28,6 @@ In the absence of a "greeting" argument, Hugo will throw an error message and fa
 ERROR The "myshortcode" shortcode requires a 'greeting' argument. See "/home/user/project/content/about.md:11:1"
 ```
 
-{{% note %}}
+{{< note >}}
 The position can be expensive to calculate. Limit its use to error reporting.
-{{% /note %}}
+{{< /note >}}

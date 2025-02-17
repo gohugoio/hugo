@@ -33,11 +33,12 @@ Any render hook triggered while rendering `/posts/p2` will get:
 
 `PageInner` falls back to the value of `Page` if not relevant, and always returns a value.
 
-{{% note %}}
-The `PageInner` method is only relevant for shortcodes that invoke the [`RenderShortcodes`] method, and you must call the shortcode using the `{{%/*..*/%}}` notation.
+{{< note >}}
+The `PageInner` method is only relevant for shortcodes that invoke the [`RenderShortcodes`] method, and you must call the shortcode using [Markdown notation].
 
+[Markdown notation]: /content-management/shortcodes/#notation
 [`RenderShortcodes`]: /methods/page/rendershortcodes/
-{{% /note %}}
+{{< /note >}}
 
 As a practical example, Hugo's embedded link and image render hooks use the `PageInner` method to resolve markdown link and image destinations. See the source code for each:
 

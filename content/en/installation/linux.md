@@ -59,13 +59,13 @@ sudo snap disconnect hugo:ssh-keys
 
 Most Linux distributions maintain a repository for commonly installed applications.
 
-{{% note %}}
+{{< note >}}
 The Hugo version available in package repositories varies based on Linux distribution and release, and in some cases will not be the [latest version].
 
 Use one of the other installation methods if your package repository does not provide the desired version.
 
 [latest version]: https://github.com/gohugoio/hugo/releases/latest
-{{% /note %}}
+{{< /note >}}
 
 ### Alpine Linux
 

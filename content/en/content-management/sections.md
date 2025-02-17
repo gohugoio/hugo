@@ -17,9 +17,9 @@ aliases: [/content/sections/]
 
 A section is a top-level content directory, or any content directory with an&nbsp;`_index.md`&nbsp;file. A content directory with an&nbsp;`_index.md`&nbsp;file is also known as a [branch bundle](g). Section templates receive one or more page [collections](g) in [context](g).
 
-{{% note %}}
+{{< note >}}
 Although top-level directories without `_index.md`&nbsp;files are sections, we recommend creating `_index.md`&nbsp;files in _all_ sections.
-{{% /note %}}
+{{< /note >}}
 
 A typical site consists of one or more sections. For example:
 

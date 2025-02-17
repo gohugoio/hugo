@@ -14,7 +14,7 @@ aliases: [/functions/default]
 
 The `default` function returns the second argument if set, else the first argument.
 
-{{% note %}}
+{{< note >}}
 When the second argument is the boolean `false` value, the `default` function returns `false`. All _other_ falsy values are considered unset.
 
 {{% include "functions/go-template/_common/truthy-falsy.md" %}}
@@ -22,7 +22,7 @@ When the second argument is the boolean `false` value, the `default` function re
 To set a default value based on truthiness, use the [`or`] operator instead.
 
 [`or`]: /functions/go-template/or/
-{{% /note %}}
+{{< /note >}}
 
 The `default` function returns the second argument if set:
 

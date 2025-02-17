@@ -26,6 +26,6 @@ The `Truncated` method returns `true` if the content length exceeds the summary 
 {{ end }}
 ```
 
-{{% note %}}
+{{< note >}}
 The `Truncated` method returns `false` if you define the summary in front matter.
-{{% /note %}}
+{{< /note >}}

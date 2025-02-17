@@ -120,16 +120,16 @@ List the titles in the data file, and throw an error if the file does not exist.
 
 The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 
-{{% note %}}
+{{< note >}}
 Resources of type `page` get `Title` etc. from their own front matter.
-{{% /note %}}
+{{< /note >}}
 
 name
 : (`string`) Sets the value returned in `Name`.
 
-{{% note %}}
+{{< note >}}
 The methods `Match`, `Get` and `GetMatch` use `Name` to match the resources.
-{{% /note %}}
+{{< /note >}}
 
 title
 : (`string`) Sets the value returned in `Title`
@@ -173,9 +173,9 @@ From the example above:
 - All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder-in-name-and-title), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - Every docx in the bundle will receive the `word` icon.
 
-{{% note %}}
+{{< note >}}
 The order matters; only the first set values of the `title`, `name` and `params` keys will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
-{{% /note %}}
+{{< /note >}}
 
 ### The `:counter` placeholder in `name` and `title`
 
@@ -210,11 +210,11 @@ the `Name` and `Title` will be assigned to the resource files as follows:
 
 By default, with a multilingual single-host site, Hugo does not duplicate shared page resources when building the site.
 
-{{% note %}}
+{{< note >}}
 This behavior is limited to Markdown content. Shared page resources for other [content formats] are copied into each language bundle.
 
 [content formats]: /content-management/formats/
-{{% /note %}}
+{{< /note >}}
 
 Consider this site configuration:
 
@@ -289,7 +289,7 @@ public/
 
 This approach reduces build times, storage requirements, bandwidth consumption, and deployment times, ultimately reducing cost.
 
-{{% note %}}
+{{< note >}}
 To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
 
 By default, with multilingual single-host sites, Hugo enables its [embedded link render hook] and [embedded image render hook] to resolve Markdown link and image destinations.
@@ -300,7 +300,7 @@ You may override the embedded render hooks as needed, provided they capture the 
 [embedded image render hook]: /render-hooks/images/#default
 [`Resources.Get`]: /methods/page/resources/#get
 [`RelPermalink`]: /methods/resource/relpermalink/
-{{% /note %}}
+{{< /note >}}
 
 Although duplicating shared page resources is inefficient, you can enable this feature in your site configuration if desired:
 
