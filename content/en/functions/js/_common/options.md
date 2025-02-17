@@ -81,7 +81,7 @@ import * as ReactDOM from 'react-dom/client';
 {{ $defines := dict "process.env.NODE_ENV" `"development"` }}
 ```
 
-##### drop
+###### drop
 
 Edit your source code before building to drop certain constructs: One of `debugger` or `console`.
 

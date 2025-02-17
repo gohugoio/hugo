@@ -26,7 +26,7 @@
 {{- $minorVersionDiffThreshold := 30 }}
 {{- $displayExpirationWarning := true }}
 
-{{- with $version := .Get 0 | strings.TrimPrefix "vV" }}
+{{- with $version := .Get 0 | strings.TrimLeft "vV" }}
   {{- $majorVersionDiff := sub (index (split hugo.Version ".") 0 | int) (index (split $version ".") 0 | int) }}
   {{- $minorVersionDiff := sub (index (split hugo.Version ".") 1 | int) (index (split $version ".") 1 | int) }}
   {{- if or (gt $majorVersionDiff $majorVersionDiffThreshold) (gt $minorVersionDiff $minorVersionDiffThreshold) }}
