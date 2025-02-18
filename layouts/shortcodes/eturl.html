@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
 Renders an absolute URL to the source code for an embedded template.
 
@@ -11,13 +12,13 @@ embedded_templates.toml file in the data directory.
 @example {{% et robots.txt %}}
 @example {{% et filename=robots.txt %}}
 */}}
-
+{{/* prettier-ignore-end */ -}}
 {{- /* Get parameters. */}}
 {{- $filename := "" -}}
 {{- if .IsNamedParams -}}
- {{- $filename = .Get "filename" -}}
+  {{- $filename = .Get "filename" -}}
 {{- else -}}
- {{- $filename = .Get 0 -}}
+  {{- $filename = .Get 0 -}}
 {{- end -}}
 
 {{- /* Render. */}}
@@ -32,5 +33,5 @@ embedded_templates.toml file in the data directory.
     {{- errorf "The %q shortcode was unable to find the embedded_template_urls data file in the site's data directory. See %s" $.Name $.Position -}}
   {{- end -}}
 {{- else -}}
- {{- errorf "The %q shortcodes requires a named or positional parameter, the file name of the embedded template, excluding its extension. See %s" .Name .Position -}}
+  {{- errorf "The %q shortcodes requires a named or positional parameter, the file name of the embedded template, excluding its extension. See %s" .Name .Position -}}
 {{- end -}}

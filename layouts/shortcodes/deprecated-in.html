@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
   Renders a callout indicating the version in which a feature was deprecated.
 
@@ -16,6 +17,7 @@
       {{< /new-in >}}
 
 */}}
+{{/* prettier-ignore-end */ -}}
 {{- with $version := .Get 0 | strings.TrimLeft "vV" }}
   {{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}
   {{- $inner := strings.TrimSpace $.Inner }}

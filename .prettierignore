@@ -2,7 +2,6 @@
 **/icons.html
 # These are whitespace sensitive.
 layouts/_default/_markup/render-code*
-layouts/shortcodes/glossary.html
 
 # Odd template syntax.
 layouts/_default/_markup/render-heading*
@@ -13,3 +12,4 @@ layouts/partials/layouts/head/head.html
 # Auto generated.
 assets/css/components/chroma*.css
 assets/jsconfig.json
+

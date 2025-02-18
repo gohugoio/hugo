@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
 Renders a description list of the pages in the given section.
 
@@ -30,9 +31,9 @@ omitElementIDs to true for the subset.
 @example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo >}}
 @example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo omitElementIDs=true >}}
 */}}
-
+{{/* prettier-ignore-end */ -}}
 {{- /* Initialize. */}}
-{{- $filter := or "" (.Get "filter" | lower)}}
+{{- $filter := or "" (.Get "filter" | lower) }}
 {{- $filterType := or (.Get "filterType") "none" | lower }}
 {{- $filteredPages := slice }}
 {{- $titlePrefix := or (.Get "titlePrefix") "" }}
@@ -41,7 +42,7 @@ omitElementIDs to true for the subset.
 {{- /* Get boolean parameters. */}}
 {{- if in (slice "false" false 0) (.Get "omitElementIDs") }}
   {{- $omitElementIDs = false }}
-{{- else if in (slice "true" true 1) (.Get "omitElementIDs")}}
+{{- else if in (slice "true" true 1) (.Get "omitElementIDs") }}
   {{- $omitElementIDs = true }}
 {{- end }}
 
@@ -73,14 +74,16 @@ omitElementIDs to true for the subset.
           }}
             {{- $linkTitle := .LinkTitle }}
             {{- with $titlePrefix }}
-            {{- $linkTitle = printf "%s%s" . $linkTitle }}
+              {{- $linkTitle = printf "%s%s" . $linkTitle }}
             {{- end }}
             {{- $idAttribute := "" }}
             {{- if not $omitElementIDs }}
               {{- $id := path.Join .File.Dir .File.ContentBaseName | replaceRE `[\|/]` ":" | lower }}
               {{- $idAttribute = printf " id=%q" $id }}
             {{- end }}
-            <dt {{- $idAttribute | safeHTMLAttr }}><a href="{{ $page.RelPermalink }}">{{ $linkTitle }}</a></dt>
+            <dt {{- $idAttribute | safeHTMLAttr }}>
+              <a href="{{ $page.RelPermalink }}">{{ $linkTitle }}</a>
+            </dt>
             <dd>{{- $page.Description | $page.RenderString }}</dd>
           {{- end }}
         {{- end }}

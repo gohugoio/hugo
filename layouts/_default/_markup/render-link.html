@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{- /* Last modified: 2025-01-19T14:44:56-08:00 */}}
 
 {{- /*
@@ -76,7 +77,7 @@ either of these shortcodes in conjunction with this render hook.
 
 @returns {template.html}
 */}}
-
+{{/* prettier-ignore-end */ -}}
 {{- /* Initialize. */}}
 {{- $renderHookName := "link" }}
 
@@ -185,24 +186,26 @@ either of these shortcodes in conjunction with this render hook.
 {{- end }}
 
 {{- /* Render anchor element. */ -}}
-<a aria-label="{{ .PlainText }}"
-  {{- with .Title }} title="{{ . }}" {{- end }}
+<a
+  aria-label="{{ .PlainText }}"
+  {{- with .Title }}title="{{ . }}"{{- end }}
   {{- range $k, $v := $attrs }}
     {{- if $v }}
       {{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr }}
     {{- end }}
   {{- end -}}
->{{ .Text }}</a>
+  >{{ .Text }}</a
+>
 
 {{- define "partials/inline/h-rh-l/validate-fragment.html" }}
   {{- /*
-  Validates the fragment portion of a link destination.
+    Validates the fragment portion of a link destination.
 
-  @context {string} contentPath The page containing the link.
-  @context {string} errorLevel The error level when unable to resolve destination; ignore (default), warning, or error.
-  @context {page} page The page corresponding to the link destination
-  @context {struct} parsedURL The link destination parsed by urls.Parse.
-  @context {string} renderHookName The name of the render hook.
+    @context {string} contentPath The page containing the link.
+    @context {string} errorLevel The error level when unable to resolve destination; ignore (default), warning, or error.
+    @context {page} page The page corresponding to the link destination
+    @context {struct} parsedURL The link destination parsed by urls.Parse.
+    @context {string} renderHookName The name of the render hook.
   */}}
 
   {{- /* Initialize. */}}
@@ -248,20 +251,20 @@ either of these shortcodes in conjunction with this render hook.
 
 {{- define "partials/inline/h-rh-l/get-glossary-link-attributes.html" }}
   {{- /*
-  Returns the anchor element attributes for a link to the given glossary term.
+    Returns the anchor element attributes for a link to the given glossary term.
 
-  It first checks for the existence of a glossary page for the given term. If
-  no page is found, it then checks for a glossary page for the singular form of
-  the term. If neither page exists it throws a warning or error dependent on
-  the errorLevel setting
+    It first checks for the existence of a glossary page for the given term. If
+    no page is found, it then checks for a glossary page for the singular form of
+    the term. If neither page exists it throws a warning or error dependent on
+    the errorLevel setting
 
-  The returned href attribute does not point to the glossary term page.
-  Instead, via its fragment, it points to an entry on the glossary page.
+    The returned href attribute does not point to the glossary term page.
+    Instead, via its fragment, it points to an entry on the glossary page.
 
-  @context {string} contentPath The page containing the link.
-  @context {string} errorLevel The error level when unable to resolve destination; ignore (default), warning, or error.
-  @context {string} renderHookName The name of the render hook.
-  @context {string} text The link text.
+    @context {string} contentPath The page containing the link.
+    @context {string} errorLevel The error level when unable to resolve destination; ignore (default), warning, or error.
+    @context {string} renderHookName The name of the render hook.
+    @context {string} text The link text.
   */}}
 
   {{- /* Get context.. */}}
@@ -308,7 +311,7 @@ either of these shortcodes in conjunction with this render hook.
   {{- end }}
 
   {{- /* Create the href attribute. */}}
-  {{- $href := ""}}
+  {{- $href := "" }}
   {{- if $termActual }}
     {{- $href = fmt.Printf "%s#%s" $glossaryPage.RelPermalink (anchorize $termActual) }}
   {{- end }}

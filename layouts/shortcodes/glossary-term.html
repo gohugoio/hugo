@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
 Renders the definition of the given glossary term.
 
@@ -7,11 +8,13 @@ Renders the definition of the given glossary term.
 @example {{% glossary-term float %}}
 @example {{% glossary-term "floating point" %}}
 */}}
-
+{{/* prettier-ignore-end */ -}}
 {{- with .Get 0 }}
   {{- $path := printf "/quick-reference/glossary/%s" (urlize .) }}
   {{- with site.GetPage $path }}
+    {{/* prettier-ignore-start */ -}}
 {{ .RenderShortcodes }}&nbsp;{{/* Do not indent. Do not remove non-breaking space. */}}
+    {{/* prettier-ignore-end */ -}}
   {{- else }}
     {{- errorf "The glossary term (%s) shortcode was unable to find %s: see %s" $.Name $path $.Position }}
   {{- end }}

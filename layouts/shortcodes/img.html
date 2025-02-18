@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
 Renders the given image using the given filter, if any.
 
@@ -84,7 +85,7 @@ Renders the given image using the given filter, if any.
   >}}
 
 */}}
-
+{{/* prettier-ignore-end */ -}}
 {{- /* Initialize. */}}
 {{- $alt := "" }}
 {{- $src := "" }}
@@ -105,7 +106,7 @@ Renders the given image using the given filter, if any.
 
 {{- /* Get and validate parameters. */}}
 {{- with .Get "alt" }}
-  {{- $alt = .}}
+  {{- $alt = . }}
 {{- end }}
 
 {{- with .Get "src" }}
@@ -138,7 +139,7 @@ Renders the given image using the given filter, if any.
 
 {{- if in (slice "false" false 0) (.Get "example") }}
   {{- $example = false }}
-{{- else if in (slice "true" true 1) (.Get "example")}}
+{{- else if in (slice "true" true 1) (.Get "example") }}
   {{- $example = true }}
 {{- end }}
 
@@ -334,11 +335,23 @@ Renders the given image using the given filter, if any.
 {{- end }}
 {{- if $example }}
   <p>Original</p>
-  <img class="{{ $class}}" style="width: initial;" src="{{ $i.RelPermalink }}" alt="{{ $alt }}">
+  <img
+    class="{{ $class }}"
+    style="width: initial;"
+    src="{{ $i.RelPermalink }}"
+    alt="{{ $alt }}">
   <p>Processed</p>
-  <img class="{{ $class }}" style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
+  <img
+    class="{{ $class }}"
+    style="width: initial;"
+    src="{{ $fi.RelPermalink }}"
+    alt="{{ $alt }}">
 {{- else -}}
-  <img class='di' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
+  <img
+    class="di"
+    style="width: initial;"
+    src="{{ $fi.RelPermalink }}"
+    alt="{{ $alt }}">
 {{- end }}
 
 {{- define "validate-arg-count" }}
@@ -387,5 +400,5 @@ Renders the given image using the given filter, if any.
       {{- end }}
     {{- end }}
   {{- end }}
-  {{- return $r}}
+  {{- return $r }}
 {{- end -}}

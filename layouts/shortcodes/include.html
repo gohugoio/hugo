@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
 Renders the page using the RenderShortcode method on the Page object.
 
@@ -8,7 +9,7 @@ You must call this shortcode using the {{% %}} notation.
 
 @example {{% include "functions/_common/glob-patterns" %}}
 */}}
-
+{{/* prettier-ignore-end */ -}}
 {{- with .Get 0 }}
   {{- with or ($.Page.GetPage .) (site.GetPage .) }}
     {{- .RenderShortcodes }}
