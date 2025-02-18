@@ -499,10 +499,10 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 
 	text := ctx.PopRenderedString()
 
-	// All ast.Heading nodes are guaranteed to have an attribute called "id"
-	// that is an array of bytes that encode a valid string.
-	anchori, _ := n.AttributeString("id")
-	anchor := anchori.([]byte)
+	var anchor []byte
+	if anchori, ok := n.AttributeString("id"); ok {
+		anchor, _ = anchori.([]byte)
+	}
 
 	page, pageInner := render.GetPageAndPageInner(ctx)
 
