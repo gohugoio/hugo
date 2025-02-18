@@ -258,7 +258,29 @@ title: p7 (emoji)
 `)
 
 	// emoji
+
 	b.AssertFileContent("public/p7/index.html", `
 <li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>
 `)
+}
+
+func TestIssue13416(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+Content:{{ .Content }}|
+-- layouts/_default/_markup/render-heading.html --
+-- content/_index.md --
+---
+title: home
+---
+#
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
 }
