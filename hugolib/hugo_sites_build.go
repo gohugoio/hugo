@@ -176,12 +176,18 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			return err
 		}
 
+		// We need to do this before render deferred.
+		if err := h.printPathWarningsOnce(); err != nil {
+			h.SendError(fmt.Errorf("printPathWarnings: %w", err))
+		}
+
 		if err := h.renderDeferred(infol); err != nil {
 			h.SendError(fmt.Errorf("renderDeferred: %w", err))
 		}
 
-		if err := h.postRenderOnce(); err != nil {
-			h.SendError(fmt.Errorf("postRenderOnce: %w", err))
+		// This needs to be done after the deferred rendering to get complete template usage coverage.
+		if err := h.printUnusedTemplatesOnce(); err != nil {
+			h.SendError(fmt.Errorf("printPathWarnings: %w", err))
 		}
 
 		if err := h.postProcess(infol); err != nil {
@@ -545,9 +551,9 @@ func (s *Site) executeDeferredTemplates(de *deps.DeferredExecutions) error {
 	return g.Wait()
 }
 
-// / postRenderOnce runs some post processing that only needs to be done once, e.g. printing of unused templates.
-func (h *HugoSites) postRenderOnce() error {
-	h.postRenderInit.Do(func() {
+// printPathWarningsOnce prints path warnings if enabled.
+func (h *HugoSites) printPathWarningsOnce() error {
+	h.printPathWarningsInit.Do(func() {
 		conf := h.Configs.Base
 		if conf.PrintPathWarnings {
 			// We need to do this before any post processing, as that may write to the same files twice
@@ -562,7 +568,14 @@ func (h *HugoSites) postRenderOnce() error {
 				return false
 			})
 		}
+	})
+	return nil
+}
 
+// / printUnusedTemplatesOnce prints unused templates if enabled.
+func (h *HugoSites) printUnusedTemplatesOnce() error {
+	h.printUnusedTemplatesInit.Do(func() {
+		conf := h.Configs.Base
 		if conf.PrintUnusedTemplates {
 			unusedTemplates := h.Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
 			for _, unusedTemplate := range unusedTemplates {

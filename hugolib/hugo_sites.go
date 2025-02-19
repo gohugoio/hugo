@@ -85,7 +85,8 @@ type HugoSites struct {
 
 	pageTrees *pageTrees
 
-	postRenderInit sync.Once
+	printUnusedTemplatesInit sync.Once
+	printPathWarningsInit    sync.Once
 
 	// File change events with filename stored in this map will be skipped.
 	skipRebuildForFilenamesMu sync.Mutex
