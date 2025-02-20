@@ -963,7 +963,11 @@ func (c *serverCommand) serve() error {
 			mu.HandleFunc(baseURL.Path()+"livereload.js", livereload.ServeJS)
 			mu.HandleFunc(baseURL.Path()+"livereload", livereload.Handler)
 		}
-		c.r.Printf("Web Server is available at %s (bind address %s) %s\n", serverURL, c.serverInterface, roots[i])
+		url := serverURL
+		if !strings.HasPrefix(url, "http") {
+			url = "http:" + url
+		}
+		c.r.Printf("Web Server is available at %s (bind address %s) %s\n", url, c.serverInterface, roots[i])
 		wg1.Go(func() error {
 			if c.tlsCertFile != "" && c.tlsKeyFile != "" {
 				err = srv.ServeTLS(listener, c.tlsCertFile, c.tlsKeyFile)
@@ -1008,7 +1012,11 @@ func (c *serverCommand) serve() error {
 
 	if c.openBrowser {
 		// There may be more than one baseURL in multihost mode, open the first.
-		if err := browser.OpenURL(baseURLs[0].String()); err != nil {
+		url := baseURLs[0].String()
+		if !strings.HasPrefix(url, "http") {
+			url = "http:" + url
+		}
+		if err := browser.OpenURL(url); err != nil {
 			c.r.logger.Warnf("Failed to open browser: %s", err)
 		}
 	}

@@ -1130,11 +1130,19 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 func (h *HugoSites) LogServerAddresses() {
 	if h.hugoInfo.IsMultihost() {
 		for _, s := range h.Sites {
-			h.Log.Printf("Web Server is available at %s (bind address %s) %s\n", s.conf.C.BaseURL, s.conf.C.ServerInterface, s.Language().Lang)
+			url := s.conf.C.BaseURL.String()
+			if !strings.HasPrefix(url, "http") {
+				url = "http:" + url
+			}
+			h.Log.Printf("Web Server is available at %s (bind address %s) %s\n", url, s.conf.C.ServerInterface, s.Language().Lang)
 		}
 	} else {
 		s := h.Sites[0]
-		h.Log.Printf("Web Server is available at %s (bind address %s)\n", s.conf.C.BaseURL, s.conf.C.ServerInterface)
+		url := s.conf.C.BaseURL.String()
+		if !strings.HasPrefix(url, "http") {
+			url = "http:" + url
+		}
+		h.Log.Printf("Web Server is available at %s (bind address %s)\n", url, s.conf.C.ServerInterface)
 	}
 }
 
