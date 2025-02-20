@@ -172,7 +172,7 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			}
 			m.singular = tc.singular
 			if m.pageConfig.Kind == kinds.KindTerm {
-				m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
+				m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), "/"+tc.plural))
 			}
 		}
 
