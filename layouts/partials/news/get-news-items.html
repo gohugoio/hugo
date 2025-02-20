@@ -15,31 +15,33 @@
 
   {{ $ctx := dict
     "Date" $publishDate
-    "Title" (printf "Release %s" .name)
     "LinkTitle" (printf "Release %s" .name)
     "Permalink" .html_url
-    "RelPermalink" .html_url
+    "PublishDate" $publishDate
+    "Permalink" .html_url
     "Section" "news"
     "Summary" ""
+    "Title" (printf "Release %s" .name)
   }}
   {{ $news_items = $news_items | append $ctx }}
 {{ end }}
 
 {{/* Get content pages from news section. */}}
-{{ range .Pages }}
+{{ range where site.RegularPages "Section" "news" }}
   {{ $ctx := dict
     "Date" .Date
-    "Title" .Title
     "LinkTitle" .Title
-    "RelPermalink" .RelPermalink
+    "Params" (dict "description" .Description)
+    "PublishDate" .PublishDate
+    "Permalink" .Permalink
     "Section" "news"
     "Summary" .Summary
-    "Params" (dict "description" .Description)
+    "Title" .Title
   }}
   {{ $news_items = $news_items | append $ctx }}
 {{ end }}
 
-{{/* Sort by date (descending) and render. */}}
+{{/* Sort by date in descending order. */}}
 {{ $news_items = sort $news_items "Date" "desc" }}
 
 {{ return $news_items }}
