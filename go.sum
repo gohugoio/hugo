@@ -133,6 +133,10 @@ github.com/bep/godartsass/v2 v2.3.2 h1:meuc76J1C1soSCAnlnJRdGqJ5S4m6/GW+8hmOe9tO
 github.com/bep/godartsass/v2 v2.3.2/go.mod h1:Qe5WOS9nVJy7G0jHssXPd3c+Pqk/f7+Tm6k/vahbVgs=
 github.com/bep/golibsass v1.2.0 h1:nyZUkKP/0psr8nT6GR2cnmt99xS93Ji82ZD9AgOK6VI=
 github.com/bep/golibsass v1.2.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
+github.com/bep/goportabletext v0.0.0-20250221112731-f6649075d83e h1:/c5YZQ/ReukFqyQAoYUGJFhoOHlZHTzmWOD1ulSVt9Q=
+github.com/bep/goportabletext v0.0.0-20250221112731-f6649075d83e/go.mod h1:j36GW23CSinwzB2G/pmX2Ba+tnBxnqeUXFO08KA8MAY=
+github.com/bep/goportabletext v0.0.0-20250221151821-dc3ea2a8e2dd h1:sg1wiJY5iHlIZ5vEZ2IFtqume4zKGvbKqFVQlnhBTBA=
+github.com/bep/goportabletext v0.0.0-20250221151821-dc3ea2a8e2dd/go.mod h1:Tnl1T8psK7gs0YCJPkJFmrU6YHkTv8mdcD3G/QsAQcY=
 github.com/bep/gowebp v0.3.0 h1:MhmMrcf88pUY7/PsEhMgEP0T6fDUnRTMpN8OclDrbrY=
 github.com/bep/gowebp v0.3.0/go.mod h1:ZhFodwdiFp8ehGJpF4LdPl6unxZm9lLFjxD3z2h2AgI=
 github.com/bep/helpers v0.5.0 h1:rneezhnG7GzLFlsEWO/EnleaBRuluBDGFimalO6Y50o=
