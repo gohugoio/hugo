@@ -29,13 +29,6 @@ license: "Apache-2.0"
 source-code: https://github.com/gohugoio/hugo.git
 website: https://gohugo.io/
 
-package-repositories:
-  - type: apt
-    components: [main]
-    suites: [focal]
-    key-id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
-    url: https://deb.nodesource.com/node_16.x
-
 plugs:
   etc-gitconfig:
     interface: system-files
@@ -88,6 +81,7 @@ environment:
   #   rst2html:     PYTHONHOME and SNAP
   #   asciidoctor:  RUBYLIB
   HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
+
 apps:
   hugo:
     command: bin/hugo
@@ -145,7 +139,7 @@ parts:
 
       HUGO_BUILD_TAGS="extended"
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
-      go build -v -ldflags "-X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
+      go build -v -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
       ./hugo version
       ldd hugo || :
 
@@ -199,8 +193,11 @@ parts:
 
   node:
     plugin: nil
-    stage-packages:
-      - nodejs
+    stage-snaps:
+      - node/22/stable
+    organize:
+      "LICENSE": "LICENSE_NODE"     # rename to prevent conflict with Go snap
+      "README.md": "README_NODE.md" # rename to prevent conflict with Go snap
 
   pandoc:
     plugin: nil
