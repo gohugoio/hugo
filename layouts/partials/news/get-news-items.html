@@ -18,7 +18,7 @@
     "LinkTitle" (printf "Release %s" .name)
     "Permalink" .html_url
     "PublishDate" $publishDate
-    "Permalink" .html_url
+    "RelPermalink" .html_url
     "Section" "news"
     "Summary" ""
     "Title" (printf "Release %s" .name)
@@ -32,8 +32,9 @@
     "Date" .Date
     "LinkTitle" .Title
     "Params" (dict "description" .Description)
-    "PublishDate" .PublishDate
     "Permalink" .Permalink
+    "PublishDate" .PublishDate
+    "RelPermalink" .RelPermalink
     "Section" "news"
     "Summary" .Summary
     "Title" .Title
