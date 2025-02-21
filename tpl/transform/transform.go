@@ -25,6 +25,10 @@ import (
 	"strings"
 	"sync/atomic"
 
+	bp "github.com/gohugoio/hugo/bufferpool"
+
+	"github.com/bep/goportabletext"
+
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugio"
@@ -195,6 +199,21 @@ func (ns *Namespace) Plainify(s any) (template.HTML, error) {
 	}
 
 	return template.HTML(tpl.StripHTML(ss)), nil
+}
+
+// PortableText converts the portable text in v to Markdown.
+// We may add more options in the future.
+func (ns *Namespace) PortableText(v any) (string, error) {
+	buf := bp.GetBuffer()
+	defer bp.PutBuffer(buf)
+	opts := goportabletext.ToMarkdownOptions{
+		Dst: buf,
+		Src: v,
+	}
+	if err := goportabletext.ToMarkdown(opts); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 // ToMath converts a LaTeX string to math in the given format, default MathML.
