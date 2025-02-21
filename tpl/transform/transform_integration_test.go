@@ -349,3 +349,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b.AssertFileExists("public/index.html", true)
 	b.AssertFileContent("public/index.html", `{"a":{"b":1},"c":{"d":2}}`)
 }
+
+func TestPortableText(t *testing.T) {
+	t.Parallel()
+}
