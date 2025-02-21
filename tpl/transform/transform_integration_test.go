@@ -349,3 +349,33 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b.AssertFileExists("public/index.html", true)
 	b.AssertFileContent("public/index.html", `{"a":{"b":1},"c":{"d":2}}`)
 }
+
+func TestPortableText(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- assets/sample.json --
+[
+  {
+    "_key": "a",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "b",
+        "_type": "span",
+        "marks": [],
+        "text": "Heading 2"
+      }
+    ],
+    "markDefs": [],
+    "style": "h2"
+  }
+]
+-- layouts/index.html --
+{{ $markdown := resources.Get "sample.json" | transform.Unmarshal | transform.PortableText }}
+Markdown: {{ $markdown }}|
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Markdown: ## Heading 2\n|")
+}
