@@ -119,6 +119,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
+	github.com/bep/goportabletext v0.0.0-20250222104602-c0ecbe179b7e // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -172,3 +173,5 @@ require (
 )
 
 go 1.23
+
+replace github.com/bep/goportabletext => /Users/bep/dev/go/bep/goportabletext
