@@ -80,10 +80,10 @@ Encode to the WebP format when [processing images]. You can decode WebP images w
 [Transpile Sass to CSS] using the embedded LibSass transpiler. You can use the [Dart Sass] transpiler with any edition.|:heavy_check_mark:|:heavy_check_mark:
 Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details].|:x:|:heavy_check_mark:
 
-[dart sass]: /functions/css/sass/#dart-sass
-[processing images]: /content-management/image-processing/
-[transpile sass to css]: /functions/css/sass/
-[details]: /hosting-and-deployment/hugo-deploy/
+[dart sass]: https://gohugo.io/functions/css/sass/#dart-sass
+[processing images]: https://gohugo.io/content-management/image-processing/
+[transpile sass to css]: https://gohugo.io/functions/css/sass/
+[details]: https://gohugo.io/hosting-and-deployment/hugo-deploy/
 
 Unless your specific deployment needs require the extended/deploy edition, we recommend the extended edition.
 
