@@ -34,8 +34,8 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	// Import webp codec
-	_ "golang.org/x/image/webp"
+	// Import webp codec. This package implements encoding, but also imports the decoder from golang.org/x/image/webp.
+	_ "github.com/HugoSmits86/nativewebp"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"

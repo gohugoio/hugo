@@ -357,9 +357,6 @@ func (v HugoVersion) String() string {
 // Hugo binary.
 func (v HugoVersion) IsValid() bool {
 	current := hugo.CurrentVersion.Version()
-	if v.Extended && !hugo.IsExtended {
-		return false
-	}
 
 	isValid := true
 

@@ -106,7 +106,7 @@ func (i HugoInfo) IsServer() bool {
 
 // IsExtended reports whether the Hugo binary is the extended version.
 func (i HugoInfo) IsExtended() bool {
-	return IsExtended
+	return false
 }
 
 // WorkingDir returns the project working directory.
@@ -305,14 +305,6 @@ func GetDependencyList() []string {
 // GetDependencyListNonGo returns a list of non-Go dependencies.
 func GetDependencyListNonGo() []string {
 	var deps []string
-
-	if IsExtended {
-		deps = append(
-			deps,
-			formatDep("github.com/sass/libsass", "3.6.6"),
-			formatDep("github.com/webmproject/libwebp", "v1.3.2"),
-		)
-	}
 
 	if dartSass := dartSassVersion(); dartSass.ProtocolVersion != "" {
 		dartSassPath := "github.com/sass/dart-sass-embedded"

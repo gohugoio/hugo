@@ -96,6 +96,7 @@ var anchorPositions = map[string]gift.Anchor{
 }
 
 // These encoding hints are currently only relevant for Webp.
+// TODO1 remove.
 var hints = map[string]webpoptions.EncodingPreset{
 	"picture": webpoptions.EncodingPresetPicture,
 	"photo":   webpoptions.EncodingPresetPhoto,
