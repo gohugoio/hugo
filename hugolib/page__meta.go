@@ -430,6 +430,7 @@ func (p *pageState) setMetaPostParams() error {
 	var buildConfig any
 	var isNewBuildKeyword bool
 	if v, ok := pm.pageConfig.Params["_build"]; ok {
+		hugo.Deprecate("The \"_build\" front matter key", "Use \"build\" instead. See https://gohugo.io/content-management/build-options.", "0.145.0")
 		buildConfig = v
 	} else {
 		buildConfig = pm.pageConfig.Params["build"]
