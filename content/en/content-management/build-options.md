@@ -12,7 +12,7 @@ toc: true
 aliases: [/content/build-options/]
 ---
 
-Build options are stored in a reserved front matter object named `build` with these defaults:
+Build options are stored in a reserved front matter object named `build`[^1] with these defaults:
 
 {{< code-toggle file=content/example/index.md fm=true >}}
 [build]
@@ -23,7 +23,7 @@ render = 'always'
 
 list
 : When to include the page within page collections. Specify one of:
-  
+
   - `always`
     : Include the page in _all_ page collections. For example, `site.RegularPages`, `.Pages`, etc. This is the default value.
 
@@ -318,3 +318,5 @@ public/
 │   └── index.html
 └── index.html
 ```
+
+[^1]: For historical reasons, `_build` is an alias for `build`.
