@@ -122,6 +122,10 @@ type GlobMatcher struct {
 	Includes []string
 }
 
+func (gm GlobMatcher) IsZero() bool {
+	return len(gm.Includes) == 0 && len(gm.Excludes) == 0
+}
+
 type ConfigCompiled struct {
 	For         predicate.P[string]
 	PollConfigs []PollConfigCompiled
@@ -155,6 +159,9 @@ func (p PollConfigCompiled) IsZero() bool {
 }
 
 func (gm *GlobMatcher) CompilePredicate() (func(string) bool, error) {
+	if gm.IsZero() {
+		panic("no includes or excludes")
+	}
 	var p predicate.P[string]
 	for _, include := range gm.Includes {
 		g, err := glob.Compile(include, '/')
@@ -201,6 +208,10 @@ func DecodeConfig(bcfg config.BaseConfig, m map[string]any) (Config, error) {
 
 	if err := decoder.Decode(m); err != nil {
 		return c, err
+	}
+
+	if c.Cache.For.IsZero() {
+		c.Cache.For = DefaultConfig.Cache.For
 	}
 
 	return c, nil
