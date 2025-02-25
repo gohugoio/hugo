@@ -59,7 +59,7 @@ Step 5
 
 ```text
 mkdir -p .github/workflows
-touch hugo.yaml
+touch .gihub/workflows/hugo.yaml
 ```
 
 Step 6
