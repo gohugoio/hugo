@@ -27,8 +27,6 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 	xmaps "golang.org/x/exp/maps"
 
-	"github.com/gohugoio/hugo/related"
-
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/common/constants"
@@ -213,16 +211,6 @@ func (p *pageMeta) Path() string {
 
 func (p *pageMeta) PathInfo() *paths.Path {
 	return p.pathInfo
-}
-
-// RelatedKeywords implements the related.Document interface needed for fast page searches.
-func (p *pageMeta) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
-	v, err := p.Param(cfg.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	return cfg.ToKeywords(v)
 }
 
 func (p *pageMeta) IsSection() bool {

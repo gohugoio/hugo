@@ -21,6 +21,7 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 )
 
 type testDoc struct {
@@ -247,6 +248,50 @@ func TestToKeywordsToLower(t *testing.T) {
 		StringKeyword("b"),
 		StringKeyword("c"),
 	})
+}
+
+func TestDecodeConfig(t *testing.T) {
+	c := qt.New(t)
+
+	configToml := `
+[related]
+  includeNewer = true
+  threshold = 32
+  toLower = false
+  [[related.indices]]
+    applyFilter = false
+    cardinalityThreshold = 0
+    name = 'KeyworDs'
+    pattern = ''
+    toLower = false
+    type = 'basic'
+    weight = 100
+  [[related.indices]]
+    applyFilter = true
+    cardinalityThreshold = 32
+    name = 'date'
+    pattern = ''
+    toLower = false
+    type = 'basic'
+    weight = 10
+  [[related.indices]]
+    applyFilter = false
+    cardinalityThreshold = 0
+    name = 'tags'
+    pattern = ''
+    toLower = false
+    type = 'fragments'
+    weight = 80
+`
+
+	m, err := config.FromConfigString(configToml, "toml")
+	c.Assert(err, qt.IsNil)
+	conf, err := DecodeConfig(m.GetParams("related"))
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(conf.IncludeNewer, qt.IsTrue)
+	first := conf.Indices[0]
+	c.Assert(first.Name, qt.Equals, "keywords")
 }
 
 func TestToKeywordsAnySlice(t *testing.T) {

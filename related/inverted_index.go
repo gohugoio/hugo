@@ -582,6 +582,9 @@ func DecodeConfig(m maps.Params) (Config, error) {
 		}
 	}
 	for i := range c.Indices {
+		// Lower case name.
+		c.Indices[i].Name = strings.ToLower(c.Indices[i].Name)
+
 		icfg := c.Indices[i]
 		if icfg.Type == "" {
 			c.Indices[i].Type = TypeBasic

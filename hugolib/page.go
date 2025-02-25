@@ -151,6 +151,20 @@ func (p *pageState) Key() string {
 	return "page-" + strconv.FormatUint(p.pid, 10)
 }
 
+// RelatedKeywords implements the related.Document interface needed for fast page searches.
+func (p *pageState) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
+	v, found, err := page.NamedPageMetaValue(p, cfg.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	if !found {
+		return nil, nil
+	}
+
+	return cfg.ToKeywords(v)
+}
+
 func (p *pageState) resetBuildState() {
 	// Nothing to do for now.
 }
