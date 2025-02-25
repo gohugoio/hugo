@@ -180,6 +180,11 @@ type PageFragment interface {
 	resource.ResourceNameTitleProvider
 }
 
+type PageMetaResource interface {
+	PageMetaProvider
+	resource.Resource
+}
+
 // PageMetaProvider provides page metadata, typically provided via front matter.
 type PageMetaProvider interface {
 	// The 4 page dates
@@ -249,6 +254,68 @@ type PageMetaProvider interface {
 	// The configured weight, used as the first sort value in the default
 	// page sort if non-zero.
 	Weight() int
+}
+
+// NamedPageMetaValue returns a named metadata value from a PageMetaResource.
+// This is currently only used to generate keywords for related content.
+// If nameLower is not one of the metadata interface methods, we
+// look in Params.
+func NamedPageMetaValue(p PageMetaResource, nameLower string) (any, bool, error) {
+	var (
+		v   any
+		err error
+	)
+
+	switch nameLower {
+	case "kind":
+		v = p.Kind()
+	case "bundletype":
+		v = p.BundleType()
+	case "mediatype":
+		v = p.MediaType()
+	case "section":
+		v = p.Section()
+	case "lang":
+		v = p.Lang()
+	case "aliases":
+		v = p.Aliases()
+	case "name":
+		v = p.Name()
+	case "keywords":
+		v = p.Keywords()
+	case "description":
+		v = p.Description()
+	case "title":
+		v = p.Title()
+	case "linktitle":
+		v = p.LinkTitle()
+	case "slug":
+		v = p.Slug()
+	case "date":
+		v = p.Date()
+	case "publishdate":
+		v = p.PublishDate()
+	case "expirydate":
+		v = p.ExpiryDate()
+	case "lastmod":
+		v = p.Lastmod()
+	case "draft":
+		v = p.Draft()
+	case "type":
+		v = p.Type()
+	case "layout":
+		v = p.Layout()
+	case "weight":
+		v = p.Weight()
+	default:
+		// Try params.
+		v, err = resource.Param(p, nil, nameLower)
+		if v == nil {
+			return nil, false, nil
+		}
+	}
+
+	return v, err == nil, err
 }
 
 // PageMetaInternalProvider provides internal page metadata.

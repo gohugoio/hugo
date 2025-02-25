@@ -68,7 +68,6 @@ type pageCommon struct {
 	page.PageMetaInternalProvider
 	page.Positioner
 	page.RawContentProvider
-	page.RelatedKeywordsProvider
 	page.RefProvider
 	page.ShortcodeInfoProvider
 	page.SitesProvider
