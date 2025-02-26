@@ -634,7 +634,7 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 
 	mounts := make([]mountsDescriptor, len(mods))
 
-	for i := 0; i < len(mods); i++ {
+	for i := range mods {
 		mod := mods[i]
 		dir := mod.Dir()
 

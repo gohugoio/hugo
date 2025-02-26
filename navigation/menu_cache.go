@@ -14,6 +14,7 @@
 package navigation
 
 import (
+	"slices"
 	"sync"
 )
 
@@ -84,7 +85,7 @@ func (c *menuCache) getP(key string, apply func(m *Menu), menuLists ...Menu) (Me
 	}
 
 	m := menuLists[0]
-	menuCopy := append(Menu(nil), m...)
+	menuCopy := slices.Clone(m)
 
 	if apply != nil {
 		apply(&menuCopy)

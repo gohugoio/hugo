@@ -51,7 +51,7 @@ func Run[T any](ctx context.Context, cfg Config[T]) Group[T] {
 	// Buffered for performance.
 	ch := make(chan T, cfg.NumWorkers)
 
-	for i := 0; i < cfg.NumWorkers; i++ {
+	for range cfg.NumWorkers {
 		g.Go(func() error {
 			for {
 				select {

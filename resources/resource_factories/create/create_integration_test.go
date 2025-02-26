@@ -136,7 +136,7 @@ mediaTypes = ['text/plain']
 {{ end }}
 `
 
-	for i := 0; i < numPages; i++ {
+	for i := range numPages {
 		filesTemplate += fmt.Sprintf("-- content/post/p%d.md --\n", i)
 	}
 
@@ -153,7 +153,7 @@ mediaTypes = ['text/plain']
 
 		b.Build()
 
-		for i := 0; i < numPages; i++ {
+		for i := range numPages {
 			b.AssertFileContent(fmt.Sprintf("public/post/p%d/index.html", i), fmt.Sprintf("Content: Response for /post/p%d/.", i))
 		}
 	})

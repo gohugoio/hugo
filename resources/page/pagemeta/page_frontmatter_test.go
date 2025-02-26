@@ -31,7 +31,7 @@ import (
 func newTestFd() *pagemeta.FrontMatterDescriptor {
 	return &pagemeta.FrontMatterDescriptor{
 		PageConfig: &pagemeta.PageConfig{
-			Params: make(map[string]interface{}),
+			Params: make(map[string]any),
 		},
 		Location: time.UTC,
 	}

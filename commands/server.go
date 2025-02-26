@@ -65,6 +65,7 @@ import (
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
+	"maps"
 )
 
 var (
@@ -195,9 +196,7 @@ func (f *fileChangeDetector) PrepareNew() {
 	}
 
 	f.prev = make(map[string]uint64)
-	for k, v := range f.current {
-		f.prev[k] = v
-	}
+	maps.Copy(f.prev, f.current)
 	f.current = make(map[string]uint64)
 }
 
@@ -759,7 +758,7 @@ func (c *serverCommand) createServerPorts(cd *simplecobra.Commandeer) error {
 			c.serverPorts = make([]serverPortListener, len(conf.configs.Languages))
 		}
 		currentServerPort := c.serverPort
-		for i := 0; i < len(c.serverPorts); i++ {
+		for i := range c.serverPorts {
 			l, err := net.Listen("tcp", net.JoinHostPort(c.serverInterface, strconv.Itoa(currentServerPort)))
 			if err == nil {
 				c.serverPorts[i] = serverPortListener{ln: l, p: currentServerPort}

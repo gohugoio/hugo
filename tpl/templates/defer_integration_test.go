@@ -87,7 +87,7 @@ func TestDeferRepeatedBuildsEditOutside(t *testing.T) {
 
 	b := hugolib.TestRunning(t, deferFilesCommon)
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		old := fmt.Sprintf("EDIT_COUNTER_OUTSIDE_%d", i)
 		new := fmt.Sprintf("EDIT_COUNTER_OUTSIDE_%d", i+1)
 		b.EditFileReplaceAll("layouts/index.html", old, new).Build()
@@ -100,7 +100,7 @@ func TestDeferRepeatedBuildsEditDefer(t *testing.T) {
 
 	b := hugolib.TestRunning(t, deferFilesCommon)
 
-	for i := 0; i < 8; i++ {
+	for i := range 8 {
 		old := fmt.Sprintf("EDIT_COUNTER_DEFER_%d", i)
 		new := fmt.Sprintf("EDIT_COUNTER_DEFER_%d", i+1)
 		b.EditFileReplaceAll("layouts/index.html", old, new).Build()

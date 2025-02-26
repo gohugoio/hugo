@@ -311,7 +311,7 @@ func (h *HugoSites) NumLogErrors() int {
 
 func (h *HugoSites) PrintProcessingStats(w io.Writer) {
 	stats := make([]*helpers.ProcessingStats, len(h.Sites))
-	for i := 0; i < len(h.Sites); i++ {
+	for i := range h.Sites {
 		stats[i] = h.Sites[i].PathSpec.ProcessingStats
 	}
 	helpers.ProcessingStatsTable(w, stats...)

@@ -345,7 +345,7 @@ func (c *defaultConfigProvider) getNestedKeyAndMap(key string, create bool) (str
 		c.keyCache.Store(key, parts)
 	}
 	current := c.root
-	for i := 0; i < len(parts)-1; i++ {
+	for i := range len(parts) - 1 {
 		next, found := current[parts[i]]
 		if !found {
 			if create {

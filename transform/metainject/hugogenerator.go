@@ -39,12 +39,12 @@ func HugoGenerator(ft transform.FromTo) error {
 	}
 
 	head := "<head>"
-	replace := []byte(fmt.Sprintf("%s\n\t%s", head, hugoGeneratorTag))
+	replace := fmt.Appendf(nil, "%s\n\t%s", head, hugoGeneratorTag)
 	newcontent := bytes.Replace(b, []byte(head), replace, 1)
 
 	if len(newcontent) == len(b) {
 		head := "<HEAD>"
-		replace := []byte(fmt.Sprintf("%s\n\t%s", head, hugoGeneratorTag))
+		replace := fmt.Appendf(nil, "%s\n\t%s", head, hugoGeneratorTag)
 		newcontent = bytes.Replace(b, []byte(head), replace, 1)
 	}
 

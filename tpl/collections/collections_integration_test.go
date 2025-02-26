@@ -52,7 +52,7 @@ Desc: {{ sort (sort $values "b" "desc") "a" "desc" }}
 
   `
 
-	for i := 0; i < 4; i++ {
+	for range 4 {
 
 		b := hugolib.NewIntegrationTestBuilder(
 			hugolib.IntegrationTestConfig{
@@ -122,7 +122,7 @@ func TestAppendNilsToSliceWithNils(t *testing.T) {
 
   `
 
-	for i := 0; i < 4; i++ {
+	for range 4 {
 
 		b := hugolib.NewIntegrationTestBuilder(
 			hugolib.IntegrationTestConfig{

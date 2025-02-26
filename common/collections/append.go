@@ -117,7 +117,7 @@ func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]any, erro
 			tos = append(tos, nil)
 			continue
 		}
-		for i := 0; i < slice.Len(); i++ {
+		for i := range slice.Len() {
 			tos = append(tos, slice.Index(i).Interface())
 		}
 	}
@@ -128,7 +128,7 @@ func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]any, erro
 func appendToInterfaceSlice(tov reflect.Value, from ...any) ([]any, error) {
 	var tos []any
 
-	for i := 0; i < tov.Len(); i++ {
+	for i := range tov.Len() {
 		tos = append(tos, tov.Index(i).Interface())
 	}
 

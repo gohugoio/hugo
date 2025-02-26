@@ -245,7 +245,7 @@ func ToSliceAny(v any) ([]any, bool) {
 		vvv := reflect.ValueOf(v)
 		if vvv.Kind() == reflect.Slice {
 			out := make([]any, vvv.Len())
-			for i := 0; i < vvv.Len(); i++ {
+			for i := range vvv.Len() {
 				out[i] = vvv.Index(i).Interface()
 			}
 			return out, true

@@ -292,7 +292,7 @@ func (r *rank) addWeight(w int) {
 }
 
 var rankPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &rank{}
 	},
 }
@@ -433,7 +433,7 @@ func (cfg IndexConfig) ToKeywords(v any) ([]Keyword, error) {
 		keywords = append(keywords, cfg.stringToKeyword(vv))
 	case []string:
 		vvv := make([]Keyword, len(vv))
-		for i := 0; i < len(vvv); i++ {
+		for i := range vvv {
 			vvv[i] = cfg.stringToKeyword(vv[i])
 		}
 		keywords = append(keywords, vvv...)
@@ -623,7 +623,7 @@ type Keyword interface {
 func (cfg IndexConfig) StringsToKeywords(s ...string) []Keyword {
 	kw := make([]Keyword, len(s))
 
-	for i := 0; i < len(s); i++ {
+	for i := range s {
 		kw[i] = cfg.stringToKeyword(s[i])
 	}
 

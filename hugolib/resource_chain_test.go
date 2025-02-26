@@ -99,7 +99,7 @@ FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg }}{{ with .Err }}{{ with
 
 	b.Running()
 
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		b.Logf("Test run %d", i)
 		b.Build(BuildCfg{})
 
@@ -200,7 +200,7 @@ func BenchmarkResourceChainPostProcess(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 		s := newTestSitesBuilder(b)
-		for i := 0; i < 300; i++ {
+		for i := range 300 {
 			s.WithContent(fmt.Sprintf("page%d.md", i+1), "---\ntitle: Page\n---")
 		}
 		s.WithTemplates("_default/single.html", `Start.

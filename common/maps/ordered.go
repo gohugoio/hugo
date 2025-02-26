@@ -15,6 +15,7 @@ package maps
 
 import (
 	"github.com/gohugoio/hugo/common/hashing"
+	"slices"
 )
 
 // Ordered is a map that can be iterated in the order of insertion.
@@ -64,7 +65,7 @@ func (m *Ordered[K, T]) Delete(key K) {
 	delete(m.values, key)
 	for i, k := range m.keys {
 		if k == key {
-			m.keys = append(m.keys[:i], m.keys[i+1:]...)
+			m.keys = slices.Delete(m.keys, i, i+1)
 			break
 		}
 	}

@@ -321,7 +321,7 @@ func uniqueStringsReuse(s []string) []string {
 	for i, val := range s {
 		var seen bool
 
-		for j := 0; j < i; j++ {
+		for j := range i {
 			if s[j] == val {
 				seen = true
 				break

@@ -587,7 +587,7 @@ func (p *testPage) WordCount(context.Context) int {
 func createTestPages(num int) Pages {
 	pages := make(Pages, num)
 
-	for i := 0; i < num; i++ {
+	for i := range num {
 		m := &testPage{
 			path:           fmt.Sprintf("/x/y/z/p%d.md", i),
 			weight:         5,

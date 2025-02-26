@@ -47,8 +47,8 @@ func BenchmarkGetPage(b *testing.B) {
 		b.Fatal(err)
 	}
 
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 100; j++ {
+	for i := range 10 {
+		for j := range 100 {
 			writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), "CONTENT")
 		}
 	}
@@ -91,8 +91,8 @@ func createGetPageRegularBenchmarkSite(t testing.TB) *Site {
 		return fmt.Sprintf(pageCollectionsPageTemplate, title)
 	}
 
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 100; j++ {
+	for i := range 10 {
+		for j := range 100 {
 			content := pc(fmt.Sprintf("Title%d_%d", i, j))
 			writeSource(c, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), content)
 		}
@@ -105,7 +105,7 @@ func TestBenchmarkGetPageRegular(t *testing.T) {
 	c := qt.New(t)
 	s := createGetPageRegularBenchmarkSite(t)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		pp := path.Join("/", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i))
 		page, _ := s.getPage(nil, pp)
 		c.Assert(page, qt.Not(qt.IsNil), qt.Commentf(pp))
@@ -192,8 +192,8 @@ func TestGetPage(t *testing.T) {
 		return fmt.Sprintf(pageCollectionsPageTemplate, title)
 	}
 
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 10; j++ {
+	for i := range 10 {
+		for j := range 10 {
 			content := pc(fmt.Sprintf("Title%d_%d", i, j))
 			writeSource(t, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), content)
 		}

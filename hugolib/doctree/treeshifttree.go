@@ -34,7 +34,7 @@ func NewTreeShiftTree[T comparable](d, length int) *TreeShiftTree[T] {
 		panic("length must be > 0")
 	}
 	trees := make([]*SimpleTree[T], length)
-	for i := 0; i < length; i++ {
+	for i := range length {
 		trees[i] = NewSimpleTree[T]()
 	}
 	return &TreeShiftTree[T]{d: d, trees: trees}

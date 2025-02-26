@@ -90,7 +90,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 		os.Stdout.Write(buf.Bytes())
 	default:
 		// Decode the JSON to a map[string]interface{} and then unmarshal it again to the correct format.
-		var m map[string]interface{}
+		var m map[string]any
 		if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
 			return err
 		}

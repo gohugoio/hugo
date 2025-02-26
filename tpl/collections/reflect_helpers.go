@@ -74,7 +74,7 @@ func collectIdentities(seqs ...any) (map[any]bool, error) {
 		v := reflect.ValueOf(seq)
 		switch v.Kind() {
 		case reflect.Array, reflect.Slice:
-			for i := 0; i < v.Len(); i++ {
+			for i := range v.Len() {
 				ev, _ := indirectInterface(v.Index(i))
 
 				if !ev.Type().Comparable() {

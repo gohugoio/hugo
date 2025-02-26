@@ -28,7 +28,7 @@ func TestSplitPages(t *testing.T) {
 	chunks := splitPages(pages, 5)
 	c.Assert(len(chunks), qt.Equals, 5)
 
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		c.Assert(chunks[i].Len(), qt.Equals, 5)
 	}
 

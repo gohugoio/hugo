@@ -363,7 +363,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 	main := r.Tree
 
 	var err error
-	fnMain := func(s string, v interface{}) bool {
+	fnMain := func(s string, v any) bool {
 		if r.ShouldSkip(s) {
 			return false
 		}

@@ -793,7 +793,7 @@ Single.
 		files := strings.ReplaceAll(filesTemplate, "WEIGHT_EN", "2")
 		files = strings.ReplaceAll(files, "WEIGHT_SV", "1")
 
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			cfg := config.New()
 			b, err := NewIntegrationTestBuilder(
 				IntegrationTestConfig{

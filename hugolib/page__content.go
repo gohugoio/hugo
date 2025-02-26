@@ -45,6 +45,7 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
+	maps0 "maps"
 )
 
 const (
@@ -696,9 +697,7 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 			cp.otherOutputs.Set(cp2.po.p.pid, cp2)
 
 			// Merge content placeholders
-			for k, v := range ct2.contentPlaceholders {
-				ct.contentPlaceholders[k] = v
-			}
+			maps0.Copy(ct.contentPlaceholders, ct2.contentPlaceholders)
 
 			if p.s.conf.Internal.Watch {
 				for _, s := range cp2.po.p.m.content.shortcodeState.shortcodes {

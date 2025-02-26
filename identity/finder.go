@@ -27,7 +27,7 @@ func NewFinder(cfg FinderConfig) *Finder {
 }
 
 var searchIDPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &searchID{seen: make(map[Manager]bool)}
 	},
 }

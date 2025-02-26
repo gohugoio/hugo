@@ -13,6 +13,8 @@
 
 package collections
 
+import "slices"
+
 import "sync"
 
 // Stack is a simple LIFO stack that is safe for concurrent use.
@@ -73,7 +75,7 @@ func (s *Stack[T]) DrainMatching(predicate func(T) bool) []T {
 	for i := len(s.items) - 1; i >= 0; i-- {
 		if predicate(s.items[i]) {
 			items = append(items, s.items[i])
-			s.items = append(s.items[:i], s.items[i+1:]...)
+			s.items = slices.Delete(s.items, i, i+1)
 		}
 	}
 	return items

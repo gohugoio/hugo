@@ -193,7 +193,7 @@ func TestTreePara(t *testing.T) {
 		},
 	)
 
-	for i := 0; i < 8; i++ {
+	for i := range 8 {
 		i := i
 		r.Run(func() error {
 			a := &testValue{ID: "/a"}
@@ -289,7 +289,7 @@ func BenchmarkTreeInsert(b *testing.B) {
 				},
 			)
 
-			for i := 0; i < numElements; i++ {
+			for i := range numElements {
 				lang := rand.Intn(2)
 				tree.InsertIntoValuesDimension(fmt.Sprintf("/%d", i), &testValue{ID: fmt.Sprintf("/%d", i), Lang: lang, Weight: i, NoCopy: true})
 			}
@@ -323,7 +323,7 @@ func BenchmarkWalk(b *testing.B) {
 			},
 		)
 
-		for i := 0; i < numElements; i++ {
+		for i := range numElements {
 			lang := rand.Intn(2)
 			tree.InsertIntoValuesDimension(fmt.Sprintf("/%d", i), &testValue{ID: fmt.Sprintf("/%d", i), Lang: lang, Weight: i, NoCopy: true})
 		}
@@ -355,8 +355,8 @@ func BenchmarkWalk(b *testing.B) {
 			base := createTree()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				for d1 := 0; d1 < 1; d1++ {
-					for d2 := 0; d2 < 2; d2++ {
+				for d1 := range 1 {
+					for d2 := range 2 {
 						tree := base.Shape(d1, d2)
 						w := &doctree.NodeShiftTreeWalker[*testValue]{
 							Tree:   tree,

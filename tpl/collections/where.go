@@ -148,7 +148,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			iv := v.Int()
 			ivp = &iv
-			for i := 0; i < mv.Len(); i++ {
+			for i := range mv.Len() {
 				if anInt, err := toInt(mv.Index(i)); err == nil {
 					ima = append(ima, anInt)
 				}
@@ -156,7 +156,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 		case reflect.String:
 			sv := v.String()
 			svp = &sv
-			for i := 0; i < mv.Len(); i++ {
+			for i := range mv.Len() {
 				if aString, err := toString(mv.Index(i)); err == nil {
 					sma = append(sma, aString)
 				}
@@ -164,7 +164,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 		case reflect.Float64:
 			fv := v.Float()
 			fvp = &fv
-			for i := 0; i < mv.Len(); i++ {
+			for i := range mv.Len() {
 				if aFloat, err := toFloat(mv.Index(i)); err == nil {
 					fma = append(fma, aFloat)
 				}
@@ -173,7 +173,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			if hreflect.IsTime(v.Type()) {
 				iv := ns.toTimeUnix(v)
 				ivp = &iv
-				for i := 0; i < mv.Len(); i++ {
+				for i := range mv.Len() {
 					ima = append(ima, ns.toTimeUnix(mv.Index(i)))
 				}
 			}
@@ -397,7 +397,7 @@ func parseWhereArgs(args ...any) (mv reflect.Value, op string, err error) {
 func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeSlice(seqv.Type(), 0, 0)
 
-	for i := 0; i < seqv.Len(); i++ {
+	for i := range seqv.Len() {
 		var vvv reflect.Value
 		rvv := seqv.Index(i)
 

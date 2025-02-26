@@ -314,7 +314,7 @@ func TestTaxonomiesNextGenLoops(t *testing.T) {
 </ul>
 `)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		b.WithContent(fmt.Sprintf("page%d.md", i+1), `
 ---
 Title: "Taxonomy!"

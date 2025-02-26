@@ -209,7 +209,7 @@ func goldenEqual(img1, img2 *image.NRGBA) bool {
 	if len(img1.Pix) != len(img2.Pix) {
 		return false
 	}
-	for i := 0; i < len(img1.Pix); i++ {
+	for i := range img1.Pix {
 		diff := int(img1.Pix[i]) - int(img2.Pix[i])
 		if diff < 0 {
 			diff = -diff

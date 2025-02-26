@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	maps0 "maps"
 )
 
 var (
@@ -85,11 +86,9 @@ func (r *metaResource) setName(name string) {
 
 func (r *metaResource) updateParams(params map[string]any) {
 	if r.params == nil {
-		r.params = make(map[string]interface{})
+		r.params = make(map[string]any)
 	}
-	for k, v := range params {
-		r.params[k] = v
-	}
+	maps0.Copy(r.params, params)
 	r.changed = true
 }
 

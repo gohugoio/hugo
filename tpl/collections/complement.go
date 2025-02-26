@@ -44,7 +44,7 @@ func (ns *Namespace) Complement(ls ...any) (any, error) {
 	switch v.Kind() {
 	case reflect.Array, reflect.Slice:
 		sl := reflect.MakeSlice(v.Type(), 0, 0)
-		for i := 0; i < v.Len(); i++ {
+		for i := range v.Len() {
 			ev, _ := indirectInterface(v.Index(i))
 			if _, found := aset[normalize(ev)]; !found {
 				sl = reflect.Append(sl, ev)

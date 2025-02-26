@@ -25,6 +25,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/spf13/cast"
+	"slices"
 )
 
 var smc = newMenuCache()
@@ -267,7 +268,7 @@ func (m Menu) Reverse() Menu {
 // Clone clones the menu entries.
 // This is for internal use only.
 func (m Menu) Clone() Menu {
-	return append(Menu(nil), m...)
+	return slices.Clone(m)
 }
 
 func DecodeConfig(in any) (*config.ConfigNamespace[map[string]MenuConfig, Menus], error) {

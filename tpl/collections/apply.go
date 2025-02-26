@@ -48,7 +48,7 @@ func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
 		r := make([]any, seqv.Len())
-		for i := 0; i < seqv.Len(); i++ {
+		for i := range seqv.Len() {
 			vv := seqv.Index(i)
 
 			vvv, err := applyFnToThis(ctx, fnv, vv, args...)
@@ -91,7 +91,7 @@ func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (re
 		return reflect.ValueOf(nil), errors.New("Too many arguments")
 	}*/
 
-	for i := 0; i < num; i++ {
+	for i := range num {
 		// AssignableTo reports whether xt is assignable to type targ.
 		if xt, targ := n[i].Type(), fn.Type().In(i); !xt.AssignableTo(targ) {
 			return reflect.ValueOf(nil), errors.New("called apply using " + xt.String() + " as type " + targ.String())

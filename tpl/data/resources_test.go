@@ -155,11 +155,11 @@ func TestScpGetRemoteParallel(t *testing.T) {
 
 		var wg sync.WaitGroup
 
-		for i := 0; i < 1; i++ {
+		for i := range 1 {
 			wg.Add(1)
 			go func(gor int) {
 				defer wg.Done()
-				for j := 0; j < 10; j++ {
+				for range 10 {
 					var cb []byte
 					f := func(b []byte) (bool, error) {
 						cb = b

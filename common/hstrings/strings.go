@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	"github.com/gohugoio/hugo/compare"
+	"slices"
 )
 
 var _ compare.Eqer = StringEqualFold("")
@@ -50,12 +51,7 @@ func (s StringEqualFold) Eq(s2 any) bool {
 
 // EqualAny returns whether a string is equal to any of the given strings.
 func EqualAny(a string, b ...string) bool {
-	for _, s := range b {
-		if a == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(b, a)
 }
 
 // regexpCache represents a cache of regexp objects protected by a mutex.
@@ -103,12 +99,7 @@ func GetOrCompileRegexp(pattern string) (re *regexp.Regexp, err error) {
 // InSlice checks if a string is an element of a slice of strings
 // and returns a boolean value.
 func InSlice(arr []string, el string) bool {
-	for _, v := range arr {
-		if v == el {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(arr, el)
 }
 
 // InSlicEqualFold checks if a string is an element of a slice of strings

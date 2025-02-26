@@ -73,7 +73,7 @@ func NewWhitelist(patterns ...string) (Whitelist, error) {
 
 	var patternsr []*regexp.Regexp
 
-	for i := 0; i < len(patterns); i++ {
+	for i := range patterns {
 		p := strings.TrimSpace(patterns[i])
 		if p == "" {
 			continue

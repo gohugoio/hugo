@@ -220,11 +220,11 @@ func prepareTestDirWithSomeFiles(c *qt.C, id string) string {
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir1), 0o777), qt.IsNil)
 	c.Assert(os.MkdirAll(filepath.Join(dir, subdir2), 0o777), qt.IsNil)
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		c.Assert(os.WriteFile(filepath.Join(dir, subdir1, fmt.Sprintf("file%d", i)), []byte("hello1"), 0o600), qt.IsNil)
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		c.Assert(os.WriteFile(filepath.Join(dir, subdir2, fmt.Sprintf("file%d", i)), []byte("hello2"), 0o600), qt.IsNil)
 	}
 

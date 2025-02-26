@@ -372,14 +372,14 @@ func TestMainSections(t *testing.T) {
 
 			b := newTestSitesBuilder(c).WithViper(v)
 
-			for i := 0; i < 20; i++ {
+			for i := range 20 {
 				b.WithContent(fmt.Sprintf("page%d.md", i), `---
 title: "Page"
 ---
 `)
 			}
 
-			for i := 0; i < 5; i++ {
+			for i := range 5 {
 				b.WithContent(fmt.Sprintf("blog/page%d.md", i), `---
 title: "Page"
 tags: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
@@ -387,7 +387,7 @@ tags: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 `)
 			}
 
-			for i := 0; i < 3; i++ {
+			for i := range 3 {
 				b.WithContent(fmt.Sprintf("docs/page%d.md", i), `---
 title: "Page"
 ---

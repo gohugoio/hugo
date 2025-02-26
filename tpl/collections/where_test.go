@@ -865,10 +865,10 @@ func BenchmarkWhereOps(b *testing.B) {
 	ns := newNs()
 	var seq []map[string]string
 	ctx := context.Background()
-	for i := 0; i < 500; i++ {
+	for range 500 {
 		seq = append(seq, map[string]string{"foo": "bar"})
 	}
-	for i := 0; i < 500; i++ {
+	for range 500 {
 		seq = append(seq, map[string]string{"foo": "baz"})
 	}
 	// Shuffle the sequence.
@@ -907,7 +907,7 @@ func BenchmarkWhereMap(b *testing.B) {
 	ns := newNs()
 	seq := map[string]string{}
 
-	for i := 0; i < 1000; i++ {
+	for i := range 1000 {
 		seq[fmt.Sprintf("key%d", i)] = "value"
 	}
 

@@ -78,7 +78,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	wg := &sync.WaitGroup{}
 
-	for i := 0; i < numWorkers; i++ {
+	for range numWorkers {
 		wg.Add(1)
 		go pageRenderer(ctx, s, pages, results, wg)
 	}

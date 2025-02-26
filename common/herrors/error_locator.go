@@ -152,10 +152,7 @@ func locateError(r io.Reader, le FileError, matches LineMatcherFn) *ErrorContext
 	}
 
 	if ectx.Position.LineNumber > 0 {
-		low := ectx.Position.LineNumber - 3
-		if low < 0 {
-			low = 0
-		}
+		low := max(ectx.Position.LineNumber-3, 0)
 
 		if ectx.Position.LineNumber > 2 {
 			ectx.LinesPos = 2
@@ -163,10 +160,7 @@ func locateError(r io.Reader, le FileError, matches LineMatcherFn) *ErrorContext
 			ectx.LinesPos = ectx.Position.LineNumber - 1
 		}
 
-		high := ectx.Position.LineNumber + 2
-		if high > len(lines) {
-			high = len(lines)
-		}
+		high := min(ectx.Position.LineNumber+2, len(lines))
 
 		ectx.Lines = lines[low:high]
 

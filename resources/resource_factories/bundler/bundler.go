@@ -141,7 +141,7 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 			if resolvedm.MainType == media.Builtin.JavascriptType.MainType && resolvedm.SubType == media.Builtin.JavascriptType.SubType {
 				readers := make([]hugio.ReadSeekCloser, 2*len(rcsources)-1)
 				j := 0
-				for i := 0; i < len(rcsources); i++ {
+				for i := range rcsources {
 					if i > 0 {
 						readers[j] = hugio.NewReadSeekerNoOpCloserFromString("\n;\n")
 						j++

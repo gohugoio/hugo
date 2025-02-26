@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/mitchellh/mapstructure"
+	"slices"
 )
 
 // A PageMatcher can be used to match a Page with Glob patterns.
@@ -208,13 +209,7 @@ func decodePageMatcher(m any, v *PageMatcher) error {
 	v.Kind = strings.ToLower(v.Kind)
 	if v.Kind != "" {
 		g, _ := glob.GetGlob(v.Kind)
-		found := false
-		for _, k := range kinds.AllKindsInPages {
-			if g.Match(k) {
-				found = true
-				break
-			}
-		}
+		found := slices.ContainsFunc(kinds.AllKindsInPages, g.Match)
 		if !found {
 			return fmt.Errorf("%q did not match a valid Page Kind", v.Kind)
 		}

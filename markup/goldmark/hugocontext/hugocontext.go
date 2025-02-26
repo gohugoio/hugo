@@ -182,7 +182,7 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 	if entering {
 		if r.Unsafe {
 			l := n.Lines().Len()
-			for i := 0; i < l; i++ {
+			for i := range l {
 				line := n.Lines().At(i)
 				linev := line.Value(source)
 				var stripped bool
@@ -226,7 +226,7 @@ func (r *hugoContextRenderer) renderRawHTML(
 	n := node.(*ast.RawHTML)
 	l := n.Segments.Len()
 	if r.Unsafe {
-		for i := 0; i < l; i++ {
+		for i := range l {
 			segment := n.Segments.At(i)
 			_, _ = w.Write(segment.Value(source))
 		}

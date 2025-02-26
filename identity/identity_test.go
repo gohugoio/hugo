@@ -25,7 +25,7 @@ import (
 func BenchmarkIdentityManager(b *testing.B) {
 	createIds := func(num int) []identity.Identity {
 		ids := make([]identity.Identity, num)
-		for i := 0; i < num; i++ {
+		for i := range num {
 			name := fmt.Sprintf("id%d", i)
 			ids[i] = &testIdentity{base: name, name: name}
 		}
@@ -108,10 +108,10 @@ func BenchmarkIsNotDependent(b *testing.B) {
 
 	newNestedManager := func(depth, count int) identity.Manager {
 		m1 := identity.NewManager("")
-		for i := 0; i < depth; i++ {
+		for range depth {
 			m2 := identity.NewManager("")
 			m1.AddIdentity(m2)
-			for j := 0; j < count; j++ {
+			for j := range count {
 				id := fmt.Sprintf("id%d", j)
 				m2.AddIdentity(&testIdentity{id, id, "", ""})
 			}

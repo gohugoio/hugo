@@ -348,13 +348,13 @@ func TestImageTransformConcurrent(t *testing.T) {
 
 	image := fetchImageForSpec(spec, c, "sunset.jpg")
 
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			for j := 0; j < 5; j++ {
+			for j := range 5 {
 				img := image
-				for k := 0; k < 2; k++ {
+				for k := range 2 {
 					r1, err := img.Resize(fmt.Sprintf("%dx", id-k))
 					if err != nil {
 						t.Error(err)
@@ -499,7 +499,7 @@ func BenchmarkImageExif(b *testing.B) {
 
 		b.StartTimer()
 		for i := 0; i < b.N; i++ {
-			for j := 0; j < 10; j++ {
+			for range 10 {
 				getAndCheckExif(c, images[i])
 			}
 		}

@@ -314,7 +314,7 @@ func (ns *Namespace) toFloatsE(v any) ([]float64, bool, error) {
 	switch vv.Kind() {
 	case reflect.Slice, reflect.Array:
 		var floats []float64
-		for i := 0; i < vv.Len(); i++ {
+		for i := range vv.Len() {
 			f, err := cast.ToFloat64E(vv.Index(i).Interface())
 			if err != nil {
 				return nil, true, err
