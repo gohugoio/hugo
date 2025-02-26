@@ -256,7 +256,7 @@ Content: {{ .Content }}
 
 	// Regular mode
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "a7937c49665872d3")
+	b.AssertFileContent("public/index.html", "6e93404b93277876")
 
 	// Simple mode
 	files = strings.ReplaceAll(files, "privacy.instagram.simple = false", "privacy.instagram.simple = true")
