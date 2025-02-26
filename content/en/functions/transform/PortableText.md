@@ -29,7 +29,7 @@ Since the Portable Text gets converted to Markdown before it gets passed to Hugo
 
 ### Content Adapter
 
-{{< code file=content/_content.gotmpl >}}
+{{< code file=content/_content.gotmpl copy=true >}}
 {{ $projectID := "mysanityprojectid" }}
 {{ $useCached := true }}
 {{ $api := "api" }}
@@ -100,7 +100,7 @@ Since the Portable Text gets converted to Markdown before it gets passed to Hugo
 
 Below outlines a suitable Sanity studio setup for the above example.
 
-{{< code file=sanity.config.ts >}}
+{{< code file=sanity.config.ts copy=true >}}
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
@@ -190,7 +190,7 @@ Note that the above requires some additional plugins to be installed:
 npm i sanity-plugin-media @sanity/code-input
 ```
 
-{{< code file=schemaTypes/index.ts >}}
+{{< code file=schemaTypes/index.ts copy=true >}}
 import {postType} from './postType'
 
 export const schemaTypes = [postType]
