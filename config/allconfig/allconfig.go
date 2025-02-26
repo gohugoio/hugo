@@ -82,7 +82,7 @@ func init() {
 	}
 	configLanguageKeys = make(map[string]bool)
 	addKeys := func(v reflect.Value) {
-		for i := 0; i < v.NumField(); i++ {
+		for i := range v.NumField() {
 			name := strings.ToLower(v.Type().Field(i).Name)
 			if skip[name] {
 				continue

@@ -330,10 +330,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []*Site) (*HugoSites, error) {
 	numWorkers := config.GetNumWorkerMultiplier()
-	numWorkersSite := numWorkers
-	if numWorkersSite > len(sites) {
-		numWorkersSite = len(sites)
-	}
+	numWorkersSite := min(numWorkers, len(sites))
 	workersSite := para.New(numWorkersSite)
 
 	h := &HugoSites{

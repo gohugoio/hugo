@@ -56,7 +56,7 @@ func New(baseURL *url.URL) transform.Transformer {
 		src += "&port=" + baseURL.Port()
 		src += "&path=" + strings.TrimPrefix(path+"/livereload", "/")
 
-		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, html.EscapeString(src)))
+		script := fmt.Appendf(nil, `<script src="%s" data-no-instant defer></script>`, html.EscapeString(src))
 
 		c := make([]byte, len(b)+len(script))
 		copy(c, b[:idx])

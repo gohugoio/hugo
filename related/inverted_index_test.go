@@ -65,7 +65,7 @@ func (d *testDoc) addKeywords(name string, keywords ...string) *testDoc {
 
 	for k, v := range keywordm {
 		keywords := make([]Keyword, len(v))
-		for i := 0; i < len(v); i++ {
+		for i := range v {
 			keywords[i] = StringKeyword(v[i])
 		}
 		d.keywords[k] = keywords
@@ -221,7 +221,7 @@ func TestSearch(t *testing.T) {
 		doc := newTestDocWithDate("keywords", date, "a", "b")
 		doc.name = "thedoc"
 
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			docc := *doc
 			docc.name = fmt.Sprintf("doc%d", i)
 			idx.Add(context.Background(), &docc)
@@ -230,7 +230,7 @@ func TestSearch(t *testing.T) {
 		m, err := idx.Search(context.Background(), SearchOpts{Document: doc, Indices: []string{"keywords"}})
 		c.Assert(err, qt.IsNil)
 		c.Assert(len(m), qt.Equals, 10)
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			c.Assert(m[i].Name(), qt.Equals, fmt.Sprintf("doc%d", i))
 		}
 	})
@@ -311,11 +311,11 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 	pages := make([]*testDoc, 100)
 	numkeywords := 30
 	allKeywords := make([]string, numkeywords)
-	for i := 0; i < numkeywords; i++ {
+	for i := range numkeywords {
 		allKeywords[i] = fmt.Sprintf("keyword%d", i+1)
 	}
 
-	for i := 0; i < len(pages); i++ {
+	for i := range pages {
 		start := rand.Intn(len(allKeywords))
 		end := start + 3
 		if end >= len(allKeywords) {
@@ -356,7 +356,7 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			idx := NewInvertedIndex(cfg)
 			docs := make([]Document, len(pages))
-			for i := 0; i < len(pages); i++ {
+			for i := range pages {
 				docs[i] = pages[i]
 			}
 			idx.Add(context.Background(), docs...)
@@ -372,7 +372,7 @@ func BenchmarkRelatedMatchesIn(b *testing.B) {
 	docs := make([]*testDoc, 1000)
 	numkeywords := 20
 	allKeywords := make([]string, numkeywords)
-	for i := 0; i < numkeywords; i++ {
+	for i := range numkeywords {
 		allKeywords[i] = fmt.Sprintf("keyword%d", i+1)
 	}
 
@@ -386,7 +386,7 @@ func BenchmarkRelatedMatchesIn(b *testing.B) {
 
 	idx := NewInvertedIndex(cfg)
 
-	for i := 0; i < len(docs); i++ {
+	for i := range docs {
 		start := rand.Intn(len(allKeywords))
 		end := start + 3
 		if end >= len(allKeywords) {

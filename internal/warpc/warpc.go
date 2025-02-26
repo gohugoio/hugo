@@ -384,7 +384,7 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	}
 
 	inOuts := make([]*inOut, opts.PoolSize)
-	for i := 0; i < opts.PoolSize; i++ {
+	for i := range opts.PoolSize {
 		var stdin, stdout hugio.ReadWriteCloser
 
 		stdin = hugio.NewPipeReadWriteCloser()
@@ -478,7 +478,7 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 		close(dp.donec)
 	}()
 
-	for i := 0; i < len(inOuts); i++ {
+	for i := range inOuts {
 		d := &dispatcher[Q, R]{
 			pending: make(map[uint32]*call[Q, R]),
 			inOut:   inOuts[i],

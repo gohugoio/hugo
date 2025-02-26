@@ -101,7 +101,7 @@ func TestGreet(t *testing.T) {
 		Infof:    t.Logf,
 	}
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		func() {
 			d, err := Start[person, greeting](opts)
 			if err != nil {
@@ -123,7 +123,7 @@ func TestGreet(t *testing.T) {
 				},
 			}
 
-			for j := 0; j < 20; j++ {
+			for j := range 20 {
 				inputMessage.Header.ID = uint32(j + 1)
 				g, err := d.Execute(ctx, inputMessage)
 				if err != nil {
@@ -163,7 +163,7 @@ func TestGreetParallel(t *testing.T) {
 
 			ctx := context.Background()
 
-			for j := 0; j < 5; j++ {
+			for j := range 5 {
 				base := i * 100
 				id := uint32(base + j)
 
@@ -217,7 +217,7 @@ func TestKatexParallel(t *testing.T) {
 
 			ctx := context.Background()
 
-			for j := 0; j < 1; j++ {
+			for j := range 1 {
 				base := i * 100
 				id := uint32(base + j)
 

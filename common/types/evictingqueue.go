@@ -15,6 +15,7 @@
 package types
 
 import (
+	"slices"
 	"sync"
 )
 
@@ -45,7 +46,7 @@ func (q *EvictingQueue[T]) Add(v T) *EvictingQueue[T] {
 	if len(q.set) == q.size {
 		// Full
 		delete(q.set, q.vals[0])
-		q.vals = append(q.vals[:0], q.vals[1:]...)
+		q.vals = slices.Delete(q.vals, 0, 1)
 	}
 	q.set[v] = true
 	q.vals = append(q.vals, v)

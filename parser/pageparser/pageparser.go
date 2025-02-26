@@ -192,7 +192,7 @@ func (t *Iterator) PeekWalk(walkFn func(item Item) bool) {
 // Consume is a convenience method to consume the next n tokens,
 // but back off Errors and EOF.
 func (t *Iterator) Consume(cnt int) {
-	for i := 0; i < cnt; i++ {
+	for range cnt {
 		token := t.Next()
 		if token.Type == tError || token.Type == tEOF {
 			t.Backup()

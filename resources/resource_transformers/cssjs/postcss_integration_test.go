@@ -239,7 +239,7 @@ func TestTransformPostCSSResourceCacheWithPathInBaseURL(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Cleanup(clean)
 
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		files := postCSSIntegrationTestFiles
 
 		if i == 1 {

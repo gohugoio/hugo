@@ -105,7 +105,7 @@ type Site interface {
 	Config() SiteConfig
 
 	// Deprecated: Use taxonomies instead.
-	Author() map[string]interface{}
+	Author() map[string]any
 
 	// Deprecated: Use taxonomies instead.
 	Authors() AuthorList
@@ -173,7 +173,7 @@ func (s *siteWrapper) Social() map[string]string {
 }
 
 // Deprecated: Use taxonomies instead.
-func (s *siteWrapper) Author() map[string]interface{} {
+func (s *siteWrapper) Author() map[string]any {
 	return s.s.Author()
 }
 
@@ -316,7 +316,7 @@ type testSite struct {
 }
 
 // Deprecated: Use taxonomies instead.
-func (s testSite) Author() map[string]interface{} {
+func (s testSite) Author() map[string]any {
 	return nil
 }
 

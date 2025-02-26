@@ -332,7 +332,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 			return nil
 		}
 
-		for i := 0; i < 20; i++ {
+		for i := range 20 {
 			i := i
 			r.Run(func() error {
 				const v = 42

@@ -124,7 +124,7 @@ func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 
 func TestRebuildEditTextFileInShortcode(t *testing.T) {
 	t.Parallel()
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		b := TestRunning(t, rebuildFilesSimple)
 		b.AssertFileContent("public/mythirdsection/mythirdsectionpage/index.html",
 			"Text: Assets My Shortcode Text.")
@@ -138,7 +138,7 @@ func TestRebuildEditTextFileInShortcode(t *testing.T) {
 
 func TestRebuildEditTextFileInHook(t *testing.T) {
 	t.Parallel()
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		b := TestRunning(t, rebuildFilesSimple)
 		b.AssertFileContent("public/mythirdsection/mythirdsectionpage/index.html",
 			"Text: Assets My Other Text.")
@@ -1545,7 +1545,7 @@ title: "P%d"
 P%d Content.
 `
 
-	for i := 0; i < count; i++ {
+	for i := range count {
 		files += fmt.Sprintf("-- content/mysect/p%d/index.md --\n%s", i, fmt.Sprintf(contentTemplate, i, i))
 	}
 

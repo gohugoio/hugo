@@ -40,7 +40,7 @@ contentDir = "content/nn"
 `
 	b := newTestSitesBuilder(t).WithConfigFile("toml", configFile)
 	var content []string
-	for i := 0; i < 9; i++ {
+	for i := range 9 {
 		for _, contentDir := range []string{"content/en", "content/nn"} {
 			content = append(content, fmt.Sprintf(contentDir+"/blog/page%d.md", i), fmt.Sprintf(`---
 title: Page %d
@@ -118,7 +118,7 @@ cascade:
     - JSON
 ---`)
 
-	for i := 0; i < 22; i++ {
+	for i := range 22 {
 		b.WithContent(fmt.Sprintf("p%d.md", i+1), fmt.Sprintf(`---
 title: "Page"
 weight: %d

@@ -52,7 +52,7 @@ func (ns *Namespace) doIndex(item any, args ...any) (any, error) {
 	if len(args) == 1 {
 		v := reflect.ValueOf(args[0])
 		if v.Kind() == reflect.Slice {
-			for i := 0; i < v.Len(); i++ {
+			for i := range v.Len() {
 				indices = append(indices, v.Index(i).Interface())
 			}
 		} else {

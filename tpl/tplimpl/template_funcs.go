@@ -64,6 +64,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/time"
 	_ "github.com/gohugoio/hugo/tpl/transform"
 	_ "github.com/gohugoio/hugo/tpl/urls"
+	maps0 "maps"
 )
 
 var (
@@ -290,9 +291,7 @@ func createFuncMap(d *deps.Deps) map[string]any {
 	}
 
 	if d.OverloadedTemplateFuncs != nil {
-		for k, v := range d.OverloadedTemplateFuncs {
-			funcMap[k] = v
-		}
+		maps0.Copy(funcMap, d.OverloadedTemplateFuncs)
 	}
 
 	d.TmplFuncMap = funcMap

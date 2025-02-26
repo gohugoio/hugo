@@ -41,11 +41,11 @@ func TestPageCache(t *testing.T) {
 
 	var testPageSets []Pages
 
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		testPageSets = append(testPageSets, createSortTestPages(i+1))
 	}
 
-	for j := 0; j < 100; j++ {
+	for range 100 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -75,7 +75,7 @@ func TestPageCache(t *testing.T) {
 func BenchmarkPageCache(b *testing.B) {
 	cache := newPageCache()
 	pages := make(Pages, 30)
-	for i := 0; i < 30; i++ {
+	for i := range 30 {
 		pages[i] = &testPage{title: "p" + strconv.Itoa(i)}
 	}
 	key := "key"

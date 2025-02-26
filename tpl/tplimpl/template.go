@@ -431,7 +431,7 @@ func (t *templateHandler) LookupVariants(name string) []tpl.Template {
 	}
 
 	variants := make([]tpl.Template, len(s.variants))
-	for i := 0; i < len(variants); i++ {
+	for i := range variants {
 		variants[i] = s.variants[i].ts
 	}
 
@@ -599,7 +599,7 @@ func (t *templateHandler) addFileContext(templ tpl.Template, inerr error) error 
 func (t *templateHandler) extractIdentifiers(line string) []string {
 	m := identifiersRe.FindAllStringSubmatch(line, -1)
 	identifiers := make([]string, len(m))
-	for i := 0; i < len(m); i++ {
+	for i := range m {
 		identifiers[i] = m[i][1]
 	}
 	return identifiers

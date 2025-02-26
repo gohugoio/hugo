@@ -110,7 +110,7 @@ func (r *htmlRenderer) renderPassthroughBlock(w util.BufWriter, src []byte, node
 	case (*passthrough.PassthroughBlock):
 		l := nn.Lines().Len()
 		var buff bytes.Buffer
-		for i := 0; i < l; i++ {
+		for i := range l {
 			line := nn.Lines().At(i)
 			buff.Write(line.Value(src))
 		}

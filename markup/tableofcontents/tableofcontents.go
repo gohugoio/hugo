@@ -250,7 +250,7 @@ func (b *tocBuilder) writeHeading(level, indent int, h *Heading) {
 }
 
 func (b *tocBuilder) indent(n int) {
-	for i := 0; i < n; i++ {
+	for range n {
 		b.s.WriteString("  ")
 	}
 }

@@ -37,7 +37,7 @@ func TestLogDistinct(t *testing.T) {
 
 	l := loggers.New(opts)
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		l.Errorln("error 1")
 		l.Errorln("error 2")
 		l.Warnln("warn 1")
@@ -137,7 +137,7 @@ func TestReset(t *testing.T) {
 
 	l := loggers.New(opts)
 
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		l.Errorln("error 1")
 		l.Errorln("error 2")
 		l.Errorln("error 1")

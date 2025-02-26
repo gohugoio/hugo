@@ -140,7 +140,7 @@ func TestScratchInParallel(t *testing.T) {
 	for i := 1; i <= 10; i++ {
 		wg.Add(1)
 		go func(j int) {
-			for k := 0; k < 10; k++ {
+			for k := range 10 {
 				newVal := int64(k + j)
 
 				_, err := scratch.Add(key, newVal)

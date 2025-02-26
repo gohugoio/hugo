@@ -192,7 +192,7 @@ func BenchmarkUnmarshalString(b *testing.B) {
 	const numJsons = 100
 
 	var jsons [numJsons]string
-	for i := 0; i < numJsons; i++ {
+	for i := range numJsons {
 		jsons[i] = strings.Replace(testJSON, "ROOT_KEY", fmt.Sprintf("root%d", i), 1)
 	}
 
@@ -220,7 +220,7 @@ func BenchmarkUnmarshalResource(b *testing.B) {
 	const numJsons = 100
 
 	var jsons [numJsons]testContentResource
-	for i := 0; i < numJsons; i++ {
+	for i := range numJsons {
 		key := fmt.Sprintf("root%d", i)
 		jsons[i] = testContentResource{key: key, content: strings.Replace(testJSON, "ROOT_KEY", key, 1), mime: media.Builtin.JSONType}
 	}

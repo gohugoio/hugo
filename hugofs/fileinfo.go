@@ -93,7 +93,7 @@ func (m *FileMeta) Merge(from *FileMeta) {
 	dstv := reflect.Indirect(reflect.ValueOf(m))
 	srcv := reflect.Indirect(reflect.ValueOf(from))
 
-	for i := 0; i < dstv.NumField(); i++ {
+	for i := range dstv.NumField() {
 		v := dstv.Field(i)
 		if !v.CanSet() {
 			continue

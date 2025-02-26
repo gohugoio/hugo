@@ -160,7 +160,7 @@ keywords: ['k%d']
 ---
 `
 
-		for i := 0; i < 32; i++ {
+		for range 32 {
 			base += fmt.Sprintf("\n## Title %d", rand.Intn(100))
 		}
 

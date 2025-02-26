@@ -539,7 +539,7 @@ func expandDefaultValues(values []string, defaults []string) []string {
 
 func toLowerSlice(in any) []string {
 	out := cast.ToStringSlice(in)
-	for i := 0; i < len(out); i++ {
+	for i := range out {
 		out[i] = strings.ToLower(out[i])
 	}
 

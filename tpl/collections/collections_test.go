@@ -856,7 +856,7 @@ func ToTstXIs(slice any) []TstXI {
 	}
 	tis := make([]TstXI, s.Len())
 
-	for i := 0; i < s.Len(); i++ {
+	for i := range s.Len() {
 		tsti, ok := s.Index(i).Interface().(TstXI)
 		if !ok {
 			return nil

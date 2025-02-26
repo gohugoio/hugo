@@ -42,7 +42,7 @@ func TestPara(t *testing.T) {
 	c.Run("Order", func(c *qt.C) {
 		n := 500
 		ints := make([]int, n)
-		for i := 0; i < n; i++ {
+		for i := range n {
 			ints[i] = i
 		}
 
@@ -51,7 +51,7 @@ func TestPara(t *testing.T) {
 
 		var result []int
 		var mu sync.Mutex
-		for i := 0; i < n; i++ {
+		for i := range n {
 			i := i
 			r.Run(func() error {
 				mu.Lock()
@@ -78,7 +78,7 @@ func TestPara(t *testing.T) {
 
 		var counter int64
 
-		for i := 0; i < n; i++ {
+		for range n {
 			r.Run(func() error {
 				atomic.AddInt64(&counter, 1)
 				time.Sleep(1 * time.Millisecond)

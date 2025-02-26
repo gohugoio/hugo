@@ -77,7 +77,7 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 	var buff bytes.Buffer
 
 	l := n.Lines().Len()
-	for i := 0; i < l; i++ {
+	for i := range l {
 		line := n.Lines().At(i)
 		buff.Write(line.Value(src))
 	}

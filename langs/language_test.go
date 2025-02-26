@@ -29,13 +29,13 @@ func TestCollator(t *testing.T) {
 
 	coll := &Collator{c: collate.New(language.English, collate.Loose)}
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		wg.Add(1)
 		go func() {
 			coll.Lock()
 			defer coll.Unlock()
 			defer wg.Done()
-			for j := 0; j < 10; j++ {
+			for range 10 {
 				k := coll.CompareStrings("abc", "def")
 				c.Assert(k, qt.Equals, -1)
 			}
@@ -48,7 +48,7 @@ func BenchmarkCollator(b *testing.B) {
 	s := []string{"foo", "bar", "éntre", "baz", "qux", "quux", "corge", "grault", "garply", "waldo", "fred", "plugh", "xyzzy", "thud"}
 
 	doWork := func(coll *Collator) {
-		for i := 0; i < len(s); i++ {
+		for i := range s {
 			for j := i + 1; j < len(s); j++ {
 				_ = coll.CompareStrings(s[i], s[j])
 			}

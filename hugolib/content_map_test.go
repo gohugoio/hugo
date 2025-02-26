@@ -323,7 +323,7 @@ R: {{ with $r }}{{ .Content }}{{ end }}|Len: {{ len $bundle.Resources }}|$
 
 `
 
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		b := Test(t, files)
 		b.AssertFileContent("public/index.html", "R: Data 1.txt|", "Len: 1|")
 	}
@@ -435,14 +435,14 @@ func TestContentTreeReverseIndex(t *testing.T) {
 
 	pageReverseIndex := newContentTreeTreverseIndex(
 		func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) {
-			for i := 0; i < 10; i++ {
+			for i := range 10 {
 				key := fmt.Sprint(i)
 				set(key, &testContentNode{key: key})
 			}
 		},
 	)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		key := fmt.Sprint(i)
 		v := pageReverseIndex.Get(key)
 		c.Assert(v, qt.Not(qt.IsNil))
@@ -456,17 +456,17 @@ func TestContentTreeReverseIndexPara(t *testing.T) {
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		pageReverseIndex := newContentTreeTreverseIndex(
 			func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) {
-				for i := 0; i < 10; i++ {
+				for i := range 10 {
 					key := fmt.Sprint(i)
 					set(key, &testContentNode{key: key})
 				}
 			},
 		)
 
-		for j := 0; j < 10; j++ {
+		for j := range 10 {
 			wg.Add(1)
 			go func(i int) {
 				defer wg.Done()

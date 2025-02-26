@@ -871,7 +871,7 @@ Background: {{ .Params.background }}|
 {{ .Title }}|
   `
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		b := Test(t, files)
 		b.AssertFileContent("public/p1/index.html", "Background: yosemite.jpg")
 	}

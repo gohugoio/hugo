@@ -151,7 +151,7 @@ func structTypes(v reflect.Value, m map[reflect.Type]struct{}) {
 			structTypes(v.Elem(), m)
 		}
 	case reflect.Slice, reflect.Array:
-		for i := 0; i < v.Len(); i++ {
+		for i := range v.Len() {
 			structTypes(v.Index(i), m)
 		}
 	case reflect.Map:
@@ -160,7 +160,7 @@ func structTypes(v reflect.Value, m map[reflect.Type]struct{}) {
 		}
 	case reflect.Struct:
 		m[v.Type()] = struct{}{}
-		for i := 0; i < v.NumField(); i++ {
+		for i := range v.NumField() {
 			structTypes(v.Field(i), m)
 		}
 	}

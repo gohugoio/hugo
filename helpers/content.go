@@ -109,10 +109,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 
 	startOfTOC := bytes.Index(content, first)
 
-	peekEnd := len(content)
-	if peekEnd > 70+startOfTOC {
-		peekEnd = 70 + startOfTOC
-	}
+	peekEnd := min(len(content), 70+startOfTOC)
 
 	if startOfTOC < 0 {
 		return stripEmptyNav(content), toc

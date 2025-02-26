@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
+	"slices"
 )
 
 type templateType int
@@ -187,7 +188,7 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 		for i, cmd := range x.Cmds {
 			keep, _ := c.applyTransformations(cmd)
 			if !keep {
-				x.Cmds = append(x.Cmds[:i], x.Cmds[i+1:]...)
+				x.Cmds = slices.Delete(x.Cmds, i, i+1)
 			}
 		}
 
@@ -271,12 +272,7 @@ func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {
 }
 
 func (c *templateContext) hasIdent(idents []string, ident string) bool {
-	for _, id := range idents {
-		if id == ident {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(idents, ident)
 }
 
 // collectConfig collects and parses any leading template config variable declaration.

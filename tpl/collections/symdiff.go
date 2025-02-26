@@ -44,7 +44,7 @@ func (ns *Namespace) SymDiff(s2, s1 any) (any, error) {
 				slice = reflect.MakeSlice(sliceType, 0, 0)
 			}
 
-			for i := 0; i < v.Len(); i++ {
+			for i := range v.Len() {
 				ev, _ := indirectInterface(v.Index(i))
 				key := normalize(ev)
 

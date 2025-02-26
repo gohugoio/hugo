@@ -89,7 +89,7 @@ func ProcessingStatsTable(w io.Writer, stats ...*ProcessingStats) {
 
 	var data [][]string
 
-	for i := 0; i < len(stats); i++ {
+	for i := range stats {
 		stat := stats[i]
 		names[i+1] = stat.Name
 

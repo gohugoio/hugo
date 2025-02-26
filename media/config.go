@@ -26,6 +26,7 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
+	"slices"
 )
 
 // DefaultTypes is the default media types supported by Hugo.
@@ -46,7 +47,7 @@ func init() {
 	// Initialize the Builtin types with values from DefaultTypes.
 	v := reflect.ValueOf(&Builtin).Elem()
 
-	for i := 0; i < v.NumField(); i++ {
+	for i := range v.NumField() {
 		f := v.Field(i)
 		fieldName := v.Type().Field(i).Name
 		builtinType := f.Interface().(Type)
@@ -149,12 +150,7 @@ func (t ContentTypes) IsIndexContentFile(filename string) bool {
 
 // IsHTMLSuffix returns whether the given suffix is a HTML media type.
 func (t ContentTypes) IsHTMLSuffix(suffix string) bool {
-	for _, s := range t.HTML.Suffixes() {
-		if s == suffix {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(t.HTML.Suffixes(), suffix)
 }
 
 // Types is a slice of media types.

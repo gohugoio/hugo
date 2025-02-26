@@ -196,7 +196,7 @@ func TestTocMisc(t *testing.T) {
 func BenchmarkToc(b *testing.B) {
 	newTocs := func(n int) []*Fragments {
 		var tocs []*Fragments
-		for i := 0; i < n; i++ {
+		for range n {
 			tocs = append(tocs, newTestToc())
 		}
 		return tocs

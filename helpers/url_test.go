@@ -101,10 +101,10 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 			v := config.New()
 			if multilingual {
 				v.Set("languages", map[string]any{
-					"fr": map[string]interface{}{
+					"fr": map[string]any{
 						"weight": 20,
 					},
-					"en": map[string]interface{}{
+					"en": map[string]any{
 						"weight": 10,
 					},
 				})
@@ -112,7 +112,7 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 			} else {
 				v.Set("defaultContentLanguage", lang)
 				v.Set("languages", map[string]any{
-					lang: map[string]interface{}{
+					lang: map[string]any{
 						"weight": 10,
 					},
 				})
@@ -167,10 +167,10 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 	v := config.New()
 	if multilingual {
 		v.Set("languages", map[string]any{
-			"fr": map[string]interface{}{
+			"fr": map[string]any{
 				"weight": 20,
 			},
-			"en": map[string]interface{}{
+			"en": map[string]any{
 				"weight": 10,
 			},
 		})
@@ -178,7 +178,7 @@ func doTestRelURL(t testing.TB, defaultInSubDir, addLanguage, multilingual bool,
 	} else {
 		v.Set("defaultContentLanguage", lang)
 		v.Set("languages", map[string]any{
-			lang: map[string]interface{}{
+			lang: map[string]any{
 				"weight": 10,
 			},
 		})

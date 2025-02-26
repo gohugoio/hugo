@@ -73,7 +73,7 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
-		for i := 0; i < seqv.Len(); i++ {
+		for i := range seqv.Len() {
 			p.Pairs[i].Value = seqv.Index(i)
 			if sortByField == "" || sortByField == "value" {
 				p.Pairs[i].Key = p.Pairs[i].Value

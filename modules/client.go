@@ -380,14 +380,12 @@ func (c *Client) Verify(clean bool) error {
 	if err != nil {
 		if clean {
 			m := verifyErrorDirRe.FindAllStringSubmatch(err.Error(), -1)
-			if m != nil {
-				for i := 0; i < len(m); i++ {
-					c, err := hugofs.MakeReadableAndRemoveAllModulePkgDir(c.fs, m[i][1])
-					if err != nil {
-						return err
-					}
-					fmt.Println("Cleaned", c)
+			for i := range m {
+				c, err := hugofs.MakeReadableAndRemoveAllModulePkgDir(c.fs, m[i][1])
+				if err != nil {
+					return err
 				}
+				fmt.Println("Cleaned", c)
 			}
 			// Try to verify it again.
 			err = c.runVerify()

@@ -46,7 +46,7 @@ func TestHasBytesWriter(t *testing.T) {
 		return strings.Repeat("ab cfo", r.Intn(33))
 	}
 
-	for i := 0; i < 22; i++ {
+	for range 22 {
 		h, w := neww()
 		fmt.Fprint(w, rndStr()+"abc __foobar"+rndStr())
 		c.Assert(h.Patterns[0].Match, qt.Equals, true)

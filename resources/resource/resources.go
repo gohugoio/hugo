@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/spf13/cast"
+	"slices"
 )
 
 var _ ResourceFinder = (*Resources)(nil)
@@ -222,7 +223,7 @@ type translatedResource interface {
 
 // MergeByLanguage adds missing translations in r1 from r2.
 func (r Resources) MergeByLanguage(r2 Resources) Resources {
-	result := append(Resources(nil), r...)
+	result := slices.Clone(r)
 	m := make(map[string]bool)
 	for _, rr := range r {
 		if translated, ok := rr.(translatedResource); ok {

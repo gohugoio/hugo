@@ -865,13 +865,13 @@ Content: {{ .Content }}|
 func TestShortcodeStableOutputFormatTemplates(t *testing.T) {
 	t.Parallel()
 
-	for i := 0; i < 5; i++ {
+	for range 5 {
 
 		b := newTestSitesBuilder(t)
 
 		const numPages = 10
 
-		for i := 0; i < numPages; i++ {
+		for i := range numPages {
 			b.WithContent(fmt.Sprintf("page%d.md", i), `---
 title: "Page"
 outputs: ["html", "css", "csv", "json"]
@@ -894,14 +894,14 @@ outputs: ["html", "css", "csv", "json"]
 
 		// helpers.PrintFs(b.Fs.Destination, "public", os.Stdout)
 
-		for i := 0; i < numPages; i++ {
+		for i := range numPages {
 			b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", i), "Short-HTML")
 			b.AssertFileContent(fmt.Sprintf("public/page%d/index.csv", i), "Short-CSV")
 			b.AssertFileContent(fmt.Sprintf("public/page%d/index.json", i), "Short-HTML")
 
 		}
 
-		for i := 0; i < numPages; i++ {
+		for i := range numPages {
 			b.AssertFileContent(fmt.Sprintf("public/page%d/styles.css", i), "Short-HTML")
 		}
 

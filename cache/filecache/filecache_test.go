@@ -105,7 +105,7 @@ dir = ":cacheDir/c"
 		}
 
 		for _, ca := range []*filecache.Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
-			for i := 0; i < 2; i++ {
+			for range 2 {
 				info, r, err := ca.GetOrCreate("a", rf("abc"))
 				c.Assert(err, qt.IsNil)
 				c.Assert(r, qt.Not(qt.IsNil))
@@ -193,11 +193,11 @@ dir = "/cache/c"
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			for j := 0; j < 20; j++ {
+			for range 20 {
 				ca := caches.Get(cacheName)
 				c.Assert(ca, qt.Not(qt.IsNil))
 				filename, data := filenameData(i)

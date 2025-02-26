@@ -125,7 +125,7 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (stri
 		lv = reflect.ValueOf(sortSeq)
 		fallthrough
 	case reflect.Array, reflect.Slice, reflect.String:
-		for i := 0; i < lv.Len(); i++ {
+		for i := range lv.Len() {
 			val := lv.Index(i).Interface()
 			valStr, err := cast.ToStringE(val)
 			if err != nil {
@@ -165,7 +165,7 @@ func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
 		case string:
 			key = v
 		case []string:
-			for i := 0; i < len(v)-1; i++ {
+			for i := range len(v) - 1 {
 				key = v[i]
 				var m map[string]any
 				v, found := dict[key]
@@ -235,7 +235,7 @@ func (ns *Namespace) In(l any, v any) (bool, error) {
 
 	switch lv.Kind() {
 	case reflect.Array, reflect.Slice:
-		for i := 0; i < lv.Len(); i++ {
+		for i := range lv.Len() {
 			lvv, isNil := indirectInterface(lv.Index(i))
 			if isNil {
 				continue
@@ -277,13 +277,13 @@ func (ns *Namespace) Intersect(l1, l2 any) (any, error) {
 		ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[any]bool)}
 		switch l2v.Kind() {
 		case reflect.Array, reflect.Slice:
-			for i := 0; i < l1v.Len(); i++ {
+			for i := range l1v.Len() {
 				l1vv := l1v.Index(i)
 				if !l1vv.Type().Comparable() {
 					return make([]any, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
 				}
 
-				for j := 0; j < l2v.Len(); j++ {
+				for j := range l2v.Len() {
 					l2vv := l2v.Index(j)
 					if !l2vv.Type().Comparable() {
 						return make([]any, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
@@ -590,7 +590,7 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 				isNil bool
 			)
 
-			for i := 0; i < l1v.Len(); i++ {
+			for i := range l1v.Len() {
 				l1vv, isNil = indirectInterface(l1v.Index(i))
 
 				if !l1vv.Type().Comparable() {
@@ -610,7 +610,7 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 				}
 			}
 
-			for j := 0; j < l2v.Len(); j++ {
+			for j := range l2v.Len() {
 				l2vv := l2v.Index(j)
 
 				switch kind := l1vv.Kind(); {
@@ -661,7 +661,7 @@ func (ns *Namespace) Uniq(l any) (any, error) {
 
 	seen := make(map[any]bool)
 
-	for i := 0; i < v.Len(); i++ {
+	for i := range v.Len() {
 		ev, _ := indirectInterface(v.Index(i))
 
 		key := normalize(ev)

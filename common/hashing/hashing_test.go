@@ -37,12 +37,12 @@ func TestXxHashFromReaderPara(t *testing.T) {
 	c := qt.New(t)
 
 	var wg sync.WaitGroup
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		i := i
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for j := 0; j < 100; j++ {
+			for j := range 100 {
 				s := strings.Repeat("Hello ", i+j+1*42)
 				r := strings.NewReader(s)
 				got, size, err := XXHashFromReader(r)
@@ -144,8 +144,8 @@ func BenchmarkHashString(b *testing.B) {
 }
 
 func BenchmarkHashMap(b *testing.B) {
-	m := map[string]interface{}{}
-	for i := 0; i < 1000; i++ {
+	m := map[string]any{}
+	for i := range 1000 {
 		m[fmt.Sprintf("key%d", i)] = i
 	}
 

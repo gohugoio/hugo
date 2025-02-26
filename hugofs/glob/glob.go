@@ -166,7 +166,7 @@ func FilterGlobParts(a []string) []string {
 
 // HasGlobChar returns whether s contains any glob wildcards.
 func HasGlobChar(s string) bool {
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		if syntax.Special(s[i]) {
 			return true
 		}

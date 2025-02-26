@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
+	"slices"
 )
 
 type BaseConfig struct {
@@ -128,7 +129,7 @@ func (w BuildStats) Enabled() bool {
 }
 
 func (b BuildConfig) clone() BuildConfig {
-	b.CacheBusters = append([]CacheBuster{}, b.CacheBusters...)
+	b.CacheBusters = slices.Clone(b.CacheBusters)
 	return b
 }
 
