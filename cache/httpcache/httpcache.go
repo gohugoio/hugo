@@ -42,7 +42,7 @@ var DefaultConfig = Config{
 
 // Config holds the configuration for the HTTP cache.
 type Config struct {
-	// Configures the HTTP cache behaviour (RFC 9111).
+	// Configures the HTTP cache behavior (RFC 9111).
 	// When this is not enabled for a resource, Hugo will go straight to the file cache.
 	Cache Cache
 
@@ -52,7 +52,7 @@ type Config struct {
 }
 
 type Cache struct {
-	// Enable HTTP cache behaviour (RFC 9111) for these rsources.
+	// Enable HTTP cache behavior (RFC 9111) for these resources.
 	For GlobMatcher
 }
 

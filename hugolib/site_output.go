@@ -80,7 +80,7 @@ func createSiteOutputFormats(allFormats output.Formats, outputs map[string]any, 
 			f, found := allFormats.GetByName(format)
 			if !found {
 				if rssDisabled && strings.EqualFold(format, "RSS") {
-					// This is legacy behaviour. We used to have both
+					// This is legacy behavior. We used to have both
 					// a RSS page kind and output format.
 					continue
 				}
