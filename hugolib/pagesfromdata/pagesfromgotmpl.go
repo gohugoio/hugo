@@ -270,7 +270,7 @@ type sourceInfo struct {
 }
 
 func (p PagesFromTemplate) CloneForSite(s page.Site) *PagesFromTemplate {
-	// We deliberately make them share the same DepenencyManager and Store.
+	// We deliberately make them share the same DependencyManager and Store.
 	p.PagesFromTemplateOptions.Site = s
 	p.PagesFromTemplateDeps = p.PagesFromTemplateOptions.DepsFromSite(s)
 	p.buildState = &BuildState{

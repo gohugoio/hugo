@@ -1,4 +1,4 @@
->**Note:** We would apprecitate if you hold on with any big refactorings (like renaming deprecated Go packages), mainly because of potential for extra merge work for future coming in in the near future.
+>**Note:** We would appreciate if you hold on with any big refactoring (like renaming deprecated Go packages), mainly because of potential for extra merge work for future coming in in the near future.
 
 # Contributing to Hugo
 
