@@ -231,4 +231,5 @@ var UsesFMA = runtime.GOARCH == "s390x" ||
 	runtime.GOARCH == "ppc64" ||
 	runtime.GOARCH == "ppc64le" ||
 	runtime.GOARCH == "arm64" ||
-	runtime.GOARCH == "riscv64"
+	runtime.GOARCH == "riscv64" ||
+	runtime.GOARCH == "loong64"
