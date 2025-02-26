@@ -127,7 +127,7 @@ export default defineConfig({
 
 Type/schema definition:
 
-{{< code file=schemaTypes/postType.ts >}}
+{{< code file=schemaTypes/postType.ts copy=true >}}
 import {defineField, defineType} from 'sanity'
 
 export const postType = defineType({
