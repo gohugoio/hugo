@@ -13,7 +13,7 @@ action:
 
 {{< new-in "0.145.0" />}}
 
-[Portable Text](https://www.portabletext.org/) is a JSON structure that can represent rich text content used by the [Sanity](https://www.sanity.io/) CMS. In Hugo, this function is typically used in a [Content Adapter](https://gohugo.io/content-management/content-adapters/) that creates pages from Sanity data.
+[Portable Text](https://www.portabletext.org/) is a JSON structure that represent rich text content in the [Sanity](https://www.sanity.io/) CMS. In Hugo, this function is typically used in a [Content Adapter](https://gohugo.io/content-management/content-adapters/) that creates pages from Sanity data.
 
 ## Types supported
 
@@ -198,7 +198,7 @@ export const schemaTypes = [postType]
 
 ## Server setup
 
-Unfortunately, Sanity's API does not support [RFC 7234](https://tools.ietf.org/html/rfc7234) and their output changes even if the data has not. The recommended setup is therefore to use their cached `apicdn` endpoint (see above) and then set up a reasonable polling and file cache strategy in your Hugo configuration, e.g:
+Unfortunately, Sanity's API does not support [RFC 7234](https://tools.ietf.org/html/rfc7234) and their output changes even if the data has not. A recommended setup is therefore to use their cached `apicdn` endpoint (see above) and then set up a reasonable polling and file cache strategy in your Hugo configuration, e.g:
 
 {{< code-toggle file=hugo >}}
 [HTTPCache]
