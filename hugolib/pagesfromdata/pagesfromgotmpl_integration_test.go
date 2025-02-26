@@ -382,6 +382,28 @@ Single: {{ .Title }}|{{ .Content }}|
 	}
 }
 
+func TestPagesFromGoTmplDefaultPageSort(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+-- layouts/index.html --
+{{ range site.RegularPages }}{{ .RelPermalink }}|{{ end}}
+-- content/_content.gotmpl --
+{{ $.AddPage  (dict "kind" "page" "path" "docs/_p22" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "docs/p12" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "docs/_p12" "title" "A" ) }}
+-- content/docs/_content.gotmpl --
+{{ $.AddPage  (dict "kind" "page" "path" "_p21" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "p11" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "_p11" "title" "A" ) }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "/docs/_p11/|/docs/_p12/|/docs/_p21/|/docs/_p22/|/docs/p11/|/docs/p12/|")
+}
+
 func TestPagesFromGoTmplEnableAllLanguages(t *testing.T) {
 	t.Parallel()
 

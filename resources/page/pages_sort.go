@@ -90,14 +90,14 @@ var (
 		if w01 != w02 && w01 != -1 && w02 != -1 {
 			return w01 < w02
 		}
+
 		if p1.Weight() == p2.Weight() {
 			if p1.Date().Unix() == p2.Date().Unix() {
 				c := collatorStringCompare(func(p Page) string { return p.LinkTitle() }, p1, p2)
 				if c == 0 {
-					if p1.File() == nil || p2.File() == nil {
-						return p1.File() == nil
-					}
-					return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
+					// This is the full normalized path, which will contain extension and any language code preserved,
+					// which is what we want for sorting.
+					return compare.LessStrings(p1.PathInfo().Path(), p2.PathInfo().Path())
 				}
 				return c < 0
 			}
