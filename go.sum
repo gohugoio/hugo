@@ -149,8 +149,8 @@ github.com/bep/mclib v1.20400.20402 h1:olpCE2WSPpOAbFE1R4hnftSEmQ34+xzy2HRzd0m69
 github.com/bep/mclib v1.20400.20402/go.mod h1:pkrk9Kyfqg34Uj6XlDq9tdEFJBiL1FvCoCgVKRzw1EY=
 github.com/bep/overlayfs v0.9.2 h1:qJEmFInsW12L7WW7dOTUhnMfyk/fN9OCDEO5Gr8HSDs=
 github.com/bep/overlayfs v0.9.2/go.mod h1:aYY9W7aXQsGcA7V9x/pzeR8LjEgIxbtisZm8Q7zPz40=
-github.com/bep/simplecobra v0.5.0 h1:b6rElBI1mtSrhhIvk/5KrAddKwiNXjxhChs9W1zRep4=
-github.com/bep/simplecobra v0.5.0/go.mod h1:QdxH1jmpb2DB+rkDYbuk7EM7XiluIt9+ACJmoY92igg=
+github.com/bep/simplecobra v0.6.0 h1:PpY/0PvYp6jt4OC/9SGoNPi6HzvpYzu8IPogVV6Xk90=
+github.com/bep/simplecobra v0.6.0/go.mod h1:q0ecBAefJZYpzgkbPbQ901hzA98g3ZvCZWZRhzNtB5o=
 github.com/bep/tmc v0.5.1 h1:CsQnSC6MsomH64gw0cT5f+EwQDcvZz4AazKunFwTpuI=
 github.com/bep/tmc v0.5.1/go.mod h1:tGYHN8fS85aJPhDLgXETVKp+PR382OvFi2+q2GkGsq0=
 github.com/bep/workers v1.0.0 h1:U+H8YmEaBCEaFZBst7GcRVEoqeRC9dzH2dWOwGmOchg=
@@ -418,8 +418,6 @@ github.com/prashantv/gostub v1.1.0/go.mod h1:A5zLQHz7ieHGG7is6LLXLz7I8+3LZzsrV0P
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
-github.com/rogpeppe/go-internal v1.13.1 h1:KvO1DLK/DRN07sQ1LQKScxyZJuNnedQ5/wKSR38lUII=
-github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWNMNyH2VO9fmH0o=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/russross/blackfriday/v2 v2.1.0 h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
