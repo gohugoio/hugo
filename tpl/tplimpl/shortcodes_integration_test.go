@@ -478,12 +478,12 @@ Content: {{ .Content }}
 
 	// Regular mode
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "d5b2a079cc37d0ed")
+	b.AssertFileContent("public/index.html", "d1f592d2256ac3ff")
 
 	// Simple mode
 	files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "73b8767ce8bdf694")
+	b.AssertFileContent("public/index.html", "c5bf16d87e2a370b")
 
 	// Simple mode with non-existent id
 	files = strings.ReplaceAll(files, "{{< vimeo 55073825 >}}", "{{< vimeo __id_does_not_exist__ >}}")
