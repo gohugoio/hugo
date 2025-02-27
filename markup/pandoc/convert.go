@@ -15,10 +15,14 @@
 package pandoc
 
 import (
+	"bytes"
+	"strconv"
+	"strings"
+	"sync"
+
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/identity"
-
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/internal"
 )
@@ -64,6 +68,9 @@ func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentCon
 		return src, nil
 	}
 	args := []string{"--mathjax"}
+	if supportsCitations(c.cfg) {
+		args = append(args[:], "--citeproc")
+	}
 	return internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
 }
 
@@ -74,6 +81,69 @@ func getPandocBinaryName() string {
 		return pandocBinary
 	}
 	return ""
+}
+
+type pandocVersion struct {
+	major, minor int64
+}
+
+func (left pandocVersion) greaterThanOrEqual(right pandocVersion) bool {
+	return left.major > right.major || (left.major == right.major && left.minor >= right.minor)
+}
+
+var versionOnce sync.Once
+var foundPandocVersion pandocVersion
+
+// getPandocVersion parses the pandoc version output
+func getPandocVersion(cfg converter.ProviderConfig) (pandocVersion, error) {
+	var err error
+
+	versionOnce.Do(func() {
+		argsv := []any{"--version"}
+
+		var out bytes.Buffer
+		argsv = append(argsv, hexec.WithStdout(&out))
+
+		cmd, err := cfg.Exec.New(pandocBinary, argsv...)
+		if err != nil {
+			cfg.Logger.Errorf("Could not call pandoc: %v", err)
+			foundPandocVersion = pandocVersion{0, 0}
+			return
+		}
+
+		err = cmd.Run()
+		if err != nil {
+			cfg.Logger.Errorf("%s --version: %v", pandocBinary, err)
+			foundPandocVersion = pandocVersion{0, 0}
+			return
+		}
+
+		outbytes := bytes.Replace(out.Bytes(), []byte("\r"), []byte(""), -1)
+		output := strings.Split(string(outbytes), "\n")[0]
+		// Split, e.g., "pandoc 2.5" into 2 and 5 and convert them to integers
+		versionStrings := strings.Split(strings.Split(output, " ")[1], ".")
+		majorVersion, err := strconv.ParseInt(versionStrings[0], 10, 64)
+		if err != nil {
+			println(err)
+		}
+		minorVersion, err := strconv.ParseInt(versionStrings[1], 10, 64)
+		if err != nil {
+			println(err)
+		}
+		foundPandocVersion = pandocVersion{majorVersion, minorVersion}
+	})
+
+	return foundPandocVersion, err
+}
+
+// SupportsCitations returns true for pandoc versions >= 2.11, which include citeproc
+func supportsCitations(cfg converter.ProviderConfig) bool {
+	if Supports() {
+		foundPandocVersion, err := getPandocVersion(cfg)
+		supportsCitations := foundPandocVersion.greaterThanOrEqual(pandocVersion{2, 11}) && err == nil
+		return supportsCitations
+	}
+	return false
 }
 
 // Supports returns whether Pandoc is installed on this computer.
