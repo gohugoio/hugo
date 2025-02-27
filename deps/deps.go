@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/postpub"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/resources"
@@ -45,12 +46,6 @@ type Deps struct {
 	Log loggers.Logger `json:"-"`
 
 	ExecHelper *hexec.Exec
-
-	// The templates to use. This will usually implement the full tpl.TemplateManager.
-	tmplHandlers *tpl.TemplateHandlers
-
-	// The template funcs.
-	TmplFuncMap map[string]any
 
 	// The file systems to use.
 	Fs *hugofs.Fs `json:"-"`
@@ -79,7 +74,8 @@ type Deps struct {
 	// The site building.
 	Site page.Site
 
-	TemplateProvider ResourceProvider
+	TemplateStore *tplimpl.TemplateStore
+
 	// Used in tests
 	OverloadedTemplateFuncs map[string]any
 
@@ -102,15 +98,15 @@ type Deps struct {
 	// This is common/global for all sites.
 	BuildState *BuildState
 
+	// Misc counters.
+	Counters *Counters
+
 	// Holds RPC dispatchers for Katex etc.
 	// TODO(bep) rethink this re. a plugin setup, but this will have to do for now.
 	WasmDispatchers *warpc.Dispatchers
 
 	// The JS batcher client.
 	JSBatcherClient js.BatcherClient
-
-	// The JS batcher client.
-	// JSBatcherClient *esbuild.BatcherClient
 
 	isClosed bool
 
@@ -130,8 +126,8 @@ func (d Deps) Clone(s page.Site, conf config.AllProvider) (*Deps, error) {
 	return &d, nil
 }
 
-func (d *Deps) SetTempl(t *tpl.TemplateHandlers) {
-	d.tmplHandlers = t
+func (d *Deps) GetTemplateStore() *tplimpl.TemplateStore {
+	return d.TemplateStore
 }
 
 func (d *Deps) Init() error {
@@ -153,9 +149,11 @@ func (d *Deps) Init() error {
 			logger: d.Log,
 		}
 	}
-
 	if d.BuildState == nil {
 		d.BuildState = &BuildState{}
+	}
+	if d.Counters == nil {
+		d.Counters = &Counters{}
 	}
 	if d.BuildState.DeferredExecutions == nil {
 		if d.BuildState.DeferredExecutionsGroupedByRenderingContext == nil {
@@ -263,20 +261,15 @@ func (d *Deps) Init() error {
 	return nil
 }
 
+// TODO(bep) rework this to get it in line with how we manage templates.
 func (d *Deps) Compile(prototype *Deps) error {
 	var err error
 	if prototype == nil {
-		if err = d.TemplateProvider.NewResource(d); err != nil {
-			return err
-		}
+
 		if err = d.TranslationProvider.NewResource(d); err != nil {
 			return err
 		}
 		return nil
-	}
-
-	if err = d.TemplateProvider.CloneResource(d, prototype); err != nil {
-		return err
 	}
 
 	if err = d.TranslationProvider.CloneResource(d, prototype); err != nil {
@@ -378,14 +371,6 @@ type ResourceProvider interface {
 	CloneResource(dst, src *Deps) error
 }
 
-func (d *Deps) Tmpl() tpl.TemplateHandler {
-	return d.tmplHandlers.Tmpl
-}
-
-func (d *Deps) TextTmpl() tpl.TemplateParseFinder {
-	return d.tmplHandlers.TxtTmpl
-}
-
 func (d *Deps) Close() error {
 	if d.isClosed {
 		return nil
@@ -452,6 +437,12 @@ type BuildState struct {
 
 	// Deferred executions grouped by rendering context.
 	DeferredExecutionsGroupedByRenderingContext map[tpl.RenderingContext]*DeferredExecutions
+}
+
+// Misc counters.
+type Counters struct {
+	// Counter for the math.Counter function.
+	MathCounter atomic.Uint64
 }
 
 type DeferredExecutions struct {

@@ -301,7 +301,7 @@ func (b *contentBuilder) mapArcheTypeDir() error {
 		pi := fim.Meta().PathInfo
 
 		if pi.IsContent() {
-			pathLang := hstrings.Tuple{First: pi.PathNoIdentifier(), Second: fim.Meta().Lang}
+			pathLang := hstrings.Tuple{First: pi.PathBeforeLangAndOutputFormatAndExt(), Second: fim.Meta().Lang}
 			if seen[pathLang] {
 				// Duplicate content file, e.g. page.md and page.html.
 				// In the regular build, we will filter out the duplicates, but

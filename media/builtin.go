@@ -5,6 +5,7 @@ type BuiltinTypes struct {
 	CSSType        Type
 	SCSSType       Type
 	SASSType       Type
+	GotmplType     Type
 	CSVType        Type
 	HTMLType       Type
 	JavascriptType Type
@@ -60,6 +61,7 @@ var Builtin = BuiltinTypes{
 	CSSType:        Type{Type: "text/css"},
 	SCSSType:       Type{Type: "text/x-scss"},
 	SASSType:       Type{Type: "text/x-sass"},
+	GotmplType:     Type{Type: "text/x-gotmpl"},
 	CSVType:        Type{Type: "text/csv"},
 	HTMLType:       Type{Type: "text/html"},
 	JavascriptType: Type{Type: "text/javascript"},
@@ -121,6 +123,7 @@ var defaultMediaTypesConfig = map[string]any{
 	"text/typescript": map[string]any{"suffixes": []string{"ts"}},
 	"text/tsx":        map[string]any{"suffixes": []string{"tsx"}},
 	"text/jsx":        map[string]any{"suffixes": []string{"jsx"}},
+	"text/x-gotmpl":   map[string]any{"suffixes": []string{"gotmpl"}},
 
 	"application/json":          map[string]any{"suffixes": []string{"json"}},
 	"application/manifest+json": map[string]any{"suffixes": []string{"webmanifest"}},

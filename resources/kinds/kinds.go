@@ -34,6 +34,7 @@ const (
 
 	// The following are (currently) temporary nodes,
 	// i.e. nodes we create just to render in isolation.
+	KindTemporary    = "temporary"
 	KindRSS          = "rss"
 	KindSitemap      = "sitemap"
 	KindSitemapIndex = "sitemapindex"

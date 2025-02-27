@@ -264,8 +264,8 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 	meta := fi.Meta()
 	pi := meta.PathInfo
 
-	switch pi.BundleType() {
-	case paths.PathTypeFile, paths.PathTypeContentResource:
+	switch pi.Type() {
+	case paths.TypeFile, paths.TypeContentResource:
 		m.s.Log.Trace(logg.StringFunc(
 			func() string {
 				return fmt.Sprintf("insert resource: %q", fi.Meta().Filename)
@@ -275,7 +275,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			addErr = err
 			return
 		}
-	case paths.PathTypeContentData:
+	case paths.TypeContentData:
 		pc, rc, err := m.addPagesFromGoTmplFi(fi, buildConfig)
 		pageCount += pc
 		resourceCount += rc
@@ -349,8 +349,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 				DepsFromSite: func(s page.Site) pagesfromdata.PagesFromTemplateDeps {
 					ss := s.(*Site)
 					return pagesfromdata.PagesFromTemplateDeps{
-						TmplFinder: ss.TextTmpl(),
-						TmplExec:   ss.Tmpl(),
+						TemplateStore: ss.GetTemplateStore(),
 					}
 				},
 				DependencyManager: s.Conf.NewIdentityManager("pagesfromdata"),

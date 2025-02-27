@@ -17,6 +17,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 func TestRenderHooksRSS(t *testing.T) {
@@ -129,6 +131,7 @@ P1: <p>P1. <a href="https://www.gohugo.io">I&rsquo;m an inline-style link</a></p
 <h1 id="heading-in-p1">Heading in p1</h1>
 <h1 id="heading-in-p2">Heading in p2</h1>
 `)
+
 	b.AssertFileContent("public/index.xml", `
 P2: <p>P2. xml-link: https://www.bep.is|</p>
 P3: <p>P3. xml-link: https://www.example.org|</p>
@@ -377,4 +380,94 @@ Content: {{ .Content}}|
 		"Content: Plain text: First line.\nSecond line.|",
 		"|Text: First line.\nSecond line.||\n",
 	)
+}
+
+func TestContentOutputReuseRenderHooksAndShortcodesHTMLOnly(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- layouts/index.html --
+HTML: {{ .Title }}|{{ .Content }}|
+-- layouts/index.xml --
+XML: {{ .Title }}|{{ .Content }}|
+-- layouts/_markup/render-heading.html --
+Render heading.
+-- layouts/shortcodes/myshortcode.html --
+My shortcode.
+-- content/_index.md --
+---
+title: "Home"
+---
+## Heading
+
+{{< myshortcode >}}
+`
+	b := Test(t, files)
+
+	s := b.H.Sites[0]
+	b.Assert(s.home.pageOutputTemplateVariationsState.Load(), qt.Equals, uint32(1))
+	b.AssertFileContent("public/index.html", "HTML: Home|Render heading.\nMy shortcode.\n|")
+	b.AssertFileContent("public/index.xml", "XML: Home|Render heading.\nMy shortcode.\n|")
+}
+
+func TestContentOutputNoReuseRenderHooksInBothHTMLAnXML(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+-- layouts/index.html --
+HTML: {{ .Title }}|{{ .Content }}|
+-- layouts/index.xml --
+XML: {{ .Title }}|{{ .Content }}|
+-- layouts/_markup/render-heading.html --
+Render heading.
+-- layouts/_markup/render-heading.xml --
+Render heading XML.
+-- content/_index.md --
+---
+title: "Home"
+---
+## Heading
+
+
+`
+	b := Test(t, files)
+
+	s := b.H.Sites[0]
+	b.Assert(s.home.pageOutputTemplateVariationsState.Load() > 1, qt.IsTrue)
+	b.AssertFileContentExact("public/index.xml", "XML: Home|Render heading XML.|")
+	b.AssertFileContentExact("public/index.html", "HTML: Home|Render heading.|")
+}
+
+func TestContentOutputNoReuseShortcodesInBothHTMLAnXML(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+-- layouts/index.html --
+HTML: {{ .Title }}|{{ .Content }}|
+-- layouts/index.xml --
+XML: {{ .Title }}|{{ .Content }}|
+-- layouts/_markup/render-heading.html --
+Render heading.
+
+-- layouts/shortcodes/myshortcode.html --
+My shortcode HTML.
+-- layouts/shortcodes/myshortcode.xml --
+My shortcode XML.
+-- content/_index.md --
+---
+title: "Home"
+---
+## Heading
+
+{{< myshortcode >}}
+
+
+`
+	b := Test(t, files)
+
+	// b.DebugPrint("", tplimpl.CategoryShortcode)
+
+	b.AssertFileContentExact("public/index.xml", "My shortcode XML.")
+	b.AssertFileContentExact("public/index.html", "My shortcode HTML.")
+	s := b.H.Sites[0]
+	b.Assert(s.home.pageOutputTemplateVariationsState.Load() > 1, qt.IsTrue)
 }
