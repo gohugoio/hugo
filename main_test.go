@@ -56,16 +56,19 @@ func TestUnfinished(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	testscript.Main(m, map[string]func(){
-		// The main program.
-		"hugo": func() {
-			err := commands.Execute(os.Args[1:])
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-		},
-	})
+	os.Exit(
+		testscript.RunMain(m, map[string]func() int{
+			// The main program.
+			"hugo": func() int {
+				err := commands.Execute(os.Args[1:])
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					return 1
+				}
+				return 0
+			},
+		}),
+	)
 }
 
 var commonTestScriptsParam = testscript.Params{
