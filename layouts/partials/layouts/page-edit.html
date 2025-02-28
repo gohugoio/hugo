@@ -14,11 +14,13 @@
   </div>
 
   {{ with .File }}
-    {{ $href := printf "%sedit/master/content/%s/%s" site.Params.ghrepo $.Lang .Path }}
-    <a
-      href="{{ $href }}"
-      class="mt-4 inline-block not-prose bg-blue-600 hover:bg-blue-800 text-white hover:text-white font-bold py-2 px-4 rounded">
-      Improve this page
-    </a>
+    {{ if not .IsContentAdapter }}
+      {{ $href := printf "%sedit/master/content/%s/%s" site.Params.ghrepo $.Lang .Path }}
+      <a
+        href="{{ $href }}"
+        class="mt-4 inline-block not-prose bg-blue-600 hover:bg-blue-800 text-white hover:text-white font-bold py-2 px-4 rounded">
+        Improve this page
+      </a>
+    {{ end }}
   {{ end }}
 </div>

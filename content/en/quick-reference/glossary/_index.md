@@ -3,7 +3,8 @@ title: Glossary
 description: Terms commonly used throughout the documentation.
 categories: [quick-reference]
 keywords: [glossary]
-hide_in_this_section: true
+params:
+  hide_in_this_section: true
 menu:
   docs:
     parent: quick-reference

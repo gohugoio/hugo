@@ -8,7 +8,14 @@
           {{ . | markdownify }}
         </div>
       {{ end }}
-
+      {{ if .Params.show_publish_date }}
+        {{ with .PublishDate }}
+          <p
+            class="text-gray-500 dark:text-gray-400 text-sm/5 md:text-base/2 mb-2 sm:mb-4">
+            {{ partial "layouts/date.html" . }}
+          </p>
+        {{ end }}
+      {{ end }}
       {{ $t := debug.Timer "single.categories" }}
       {{ $categories := .GetTerms "categories" }}
       {{ with $categories }}
