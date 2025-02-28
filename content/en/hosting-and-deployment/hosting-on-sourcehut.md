@@ -71,7 +71,7 @@ echo "/public" >> .gitignore
 # commit and push code to main branch
 git add .
 git commit -m "Initial commit"
-git remote add origin https://git.sr.ht/~<YourUsername>/<YourUsername>.srht.site.git
+git remote add origin https://git.sr.ht/~<YourUsername>/<YourUsername>.srht.site
 git push -u origin main
 ```
 
