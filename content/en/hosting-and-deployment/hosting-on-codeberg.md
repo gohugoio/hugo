@@ -1,6 +1,6 @@
 ---
 title: Host on Codeberg Pages
-description: Codeberg Pages is a hosting service available to Codeberg users which allows you to publish your Hugo website, as well as websites managed by other static site generators.
+description: Codeberg Pages is a hosting service available to Codeberg users which allows you to publish your Hugo website.
 categories: [hosting and deployment]
 keywords: [hosting,codeberg]
 menu:
