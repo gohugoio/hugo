@@ -1,5 +1,8 @@
 # Test mod npm.
 
+# See https://github.com/gohugoio/hugo/issues/13465
+[windows] skip
+
 dostounix golden/package.json
 
 hugo mod npm pack
