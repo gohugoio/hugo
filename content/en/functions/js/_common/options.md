@@ -54,7 +54,7 @@ shims
   ```
 
 target
-: (`string`) The language target. One of: `es5`, `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020`, `es2021`, `es2022`,`es2023`, or `esnext`. Default is `esnext`.
+: (`string`) The language target. One of: `es5`, `es2015`, `es2016`, `es2017`, `es2018`, `es2019`, `es2020`, `es2021`, `es2022`, `es2023`, `es2024`, or `esnext`. Default is `esnext`.
 
 platform
 : {{< new-in 0.140.0 />}}
