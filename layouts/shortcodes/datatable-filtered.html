@@ -10,32 +10,38 @@
 {{ $list := where $list $filter1 $filter2 $filter3 }}
 
 
-<table class="table table-bordered">
-  <tr>
-    {{ range $fields }}
-      <th>{{ . }}</th>
-    {{ end }}
-  </tr>
-  {{ range $list }}
-    <tr>
-      {{ range $k, $v := . }}
-        {{ $.Scratch.Set $k $v }}
-      {{ end }}
-      {{ range $k, $v := $fields }}
-        <td>
-          {{ $tdContent := $.Scratch.Get . }}
-          {{ if eq $k 3 }}
-            {{ printf "%v" $tdContent |
-              strings.ReplaceRE `\[` "<ol><li>" |
-              strings.ReplaceRE `\s` "</li><li>" |
-              strings.ReplaceRE `\]` "</li></ol>" |
-              safeHTML
-            }}
-          {{ else }}
-            {{ $tdContent }}
+<div class="overflow-x-auto">
+  <table>
+    <thead>
+      <tr>
+        {{ range $fields }}
+          <th>{{ . }}</th>
+        {{ end }}
+      </tr>
+    </thead>
+    <tbody>
+      {{ range $list }}
+        <tr>
+          {{ range $k, $v := . }}
+            {{ $.Scratch.Set $k $v }}
           {{ end }}
-        </td>
+          {{ range $k, $v := $fields }}
+            <td>
+              {{ $tdContent := $.Scratch.Get . }}
+              {{ if eq $k 3 }}
+                {{ printf "%v" $tdContent |
+                  strings.ReplaceRE `\[` "<ol><li>" |
+                  strings.ReplaceRE `\s` "</li><li>" |
+                  strings.ReplaceRE `\]` "</li></ol>" |
+                  safeHTML
+                }}
+              {{ else }}
+                {{ $tdContent }}
+              {{ end }}
+            </td>
+          {{ end }}
+        </tr>
       {{ end }}
-    </tr>
-  {{ end }}
-</table>
+    </tbody>
+  </table>
+</div>

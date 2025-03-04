@@ -30,7 +30,7 @@
   @apply prose-code:px-0.5 prose-code:text-gray-500 prose-code:dark:text-gray-300 border-none;
   @apply prose-code:before:hidden prose-code:after:hidden prose-code:font-mono;
   /* tables */
-  @apply prose-table:border-2 prose-table:border-gray-100  prose-table:dark:border-gray-800 prose-table:relative prose-table:overflow-scroll prose-table:prose-th:font-bold prose-table:prose-th:bg-blue-500 dark:prose-table:prose-th:bg-blue-500/50 prose-table:prose-th:p-2 prose-table:prose-td:p-2 prose-table:prose-th:text-white;
+  @apply prose-table:w-auto prose-table:border-2 prose-table:border-gray-100 prose-table:dark:border-gray-800 prose-table:prose-th:font-bold prose-table:prose-th:bg-blue-500 dark:prose-table:prose-th:bg-blue-500/50 prose-table:prose-th:p-2 prose-table:prose-td:p-2 prose-table:prose-th:text-white;
   /* hr */
   @apply dark:prose-hr:border-slate-800;
 
