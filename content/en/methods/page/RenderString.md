@@ -3,12 +3,13 @@ title: RenderString
 description: Renders markup to HTML.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/RenderShortcodes
-    - functions/transform/Markdownify
-  returnType: template.HTML
-  signatures: ['PAGE.RenderString [OPTIONS] MARKUP']
+params:
+  functions_and_methods:
+    related:
+      - methods/page/RenderShortcodes
+      - functions/transform/Markdownify
+    returnType: template.HTML
+    signatures: ['PAGE.RenderString [OPTIONS] MARKUP']
 aliases: [/functions/renderstring]
 ---
 

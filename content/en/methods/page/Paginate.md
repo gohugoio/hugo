@@ -3,18 +3,19 @@ title: Paginate
 description: Paginates a collection of pages.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Paginator
-  returnType: page.Pager
-  signatures: ['PAGE.Paginate COLLECTION [N]']
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Paginator
+    returnType: page.Pager
+    signatures: ['PAGE.Paginate COLLECTION [N]']
 ---
 
 Pagination is the process of splitting a list page into two or more pagers, where each pager contains a subset of the page collection and navigation links to other pagers.
 
 By default, the number of elements on each pager is determined by your [site configuration]. The default is `10`. Override that value by providing a second argument, an integer, when calling the `Paginate` method.
 
-[site configuration]: /getting-started/configuration/#pagination
+[site configuration]: /configuration/pagination/
 
 {{< note >}}
 There is also a `Paginator` method on `Page` objects, but it can neither filter nor sort the page collection.

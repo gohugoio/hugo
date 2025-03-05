@@ -1,19 +1,15 @@
 ---
 title: Introduction to templating
 linkTitle: Introduction
-description: Create templates to render your content, resources, and data.
-categories: [templates,fundamentals]
+description: An introduction to Hugo's templating syntax.
+categories: []
 keywords: []
-menu:
-  docs:
-    identifier: templates-introduction
-    parent: templates
-    weight: 20
-weight: 20
-toc: true
+weight: 10
 ---
 
-A template is a file in the `layouts` directory of a project, theme, or module. Templates use [variables] , [functions], and [methods] to transform your content, resources, and data into a published page.
+{{% glossary-term template %}}
+
+Templates use [variables], [functions], and [methods] to transform your content, resources, and data into a published page.
 
 [functions]: /functions/
 [methods]: /methods/
@@ -38,9 +34,7 @@ For example, this HTML template initializes the `$v1` and `$v2` variables, then 
 <p>The product of {{ $v1 }} and {{ $v2 }} is {{ mul $v1 $v2 }}.</p>
 ```
 
-While HTML templates are the most common, you can create templates for any [output format] including CSV, JSON, RSS, and plain text.
-
-[output format]: /templates/output-formats/
+While HTML templates are the most common, you can create templates for any [output format](g) including CSV, JSON, RSS, and plain text.
 
 ## Context
 

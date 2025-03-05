@@ -3,11 +3,12 @@ title: templates.Exists
 description: Reports whether a template file exists under the given path relative to the layouts directory.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: bool
-  signatures: [templates.Exists PATH]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: bool
+    signatures: [templates.Exists PATH]
 aliases: [/functions/templates.exists]
 ---
 

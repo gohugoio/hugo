@@ -3,11 +3,12 @@ title: IsDST
 description: Reports whether the given time.Time value is in Daylight Savings Time.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-  returnType: bool
-  signatures: [TIME.IsDST]
+params:
+  functions_and_methods:
+    related:
+      - functions/time/AsTime
+    returnType: bool
+    signatures: [TIME.IsDST]
 ---
 
 ```go-html-template

@@ -3,13 +3,14 @@ title: Equal
 description: Reports whether TIME1 is equal to TIME2.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/After
-    - methods/time/Before
-    - functions/time/AsTime
-  returnType: bool
-  signatures: [TIME1.Equal TIME2]
+params:
+  functions_and_methods:
+    related:
+      - methods/time/After
+      - methods/time/Before
+      - functions/time/AsTime
+    returnType: bool
+    signatures: [TIME1.Equal TIME2]
 ---
 
 ```go-html-template

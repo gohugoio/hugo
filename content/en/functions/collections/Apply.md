@@ -3,11 +3,12 @@ title: collections.Apply
 description: Returns a new collection with each element transformed by the given function.
 categories: []
 keywords: []
-action:
-  aliases: [apply]
-  related: []
-  returnType: '[]any'
-  signatures: [collections.Apply COLLECTION FUNCTION PARAM...]
+params:
+  functions_and_methods:
+    aliases: [apply]
+    related: []
+    returnType: '[]any'
+    signatures: [collections.Apply COLLECTION FUNCTION PARAM...]
 aliases: [/functions/apply]
 ---
 

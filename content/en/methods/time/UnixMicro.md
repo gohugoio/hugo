@@ -1,16 +1,17 @@
 ---
 title: UnixMicro
-description: Returns the given time.Time value expressed as the number of microseconds elapsed since January 1, 1970 UTC. 
+description: Returns the given time.Time value expressed as the number of microseconds elapsed since January 1, 1970 UTC.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Unix
-    - methods/time/UnixMilli
-    - methods/time/UnixNano
-    - functions/time/AsTime
-  returnType: int64
-  signatures: [TIME.UnixMicro]
+params:
+  functions_and_methods:
+    related:
+      - methods/time/Unix
+      - methods/time/UnixMilli
+      - methods/time/UnixNano
+      - functions/time/AsTime
+    returnType: int64
+    signatures: [TIME.UnixMicro]
 ---
 
 See [Unix epoch](https://en.wikipedia.org/wiki/Unix_time).

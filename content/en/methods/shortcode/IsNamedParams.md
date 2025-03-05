@@ -3,18 +3,19 @@ title: IsNamedParams
 description: Reports whether the shortcode call uses named arguments.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/shortcode/Get
-  returnType: bool
-  signatures: [SHORTCODE.IsNamedParams]
+params:
+  functions_and_methods:
+    related:
+      - methods/shortcode/Get
+    returnType: bool
+    signatures: [SHORTCODE.IsNamedParams]
 ---
 
 To support both positional and named arguments when calling a shortcode, use the `IsNamedParams` method to determine how the shortcode was called.
 
 With this shortcode template:
 
-{{< code file=layouts/shortcodes/myshortcode.html  >}}
+{{< code file=layouts/shortcodes/myshortcode.html >}}
 {{ if .IsNamedParams }}
   {{ printf "%s %s." (.Get "greeting") (.Get "firstName") }}
 {{ else }}
@@ -24,7 +25,7 @@ With this shortcode template:
 
 Both of these calls return the same value:
 
-{{< code file=content/about.md lang=md >}}
+{{< code file=content/about.md lang=text >}}
 {{</* myshortcode greeting="Hello" firstName="world" */>}}
 {{</* myshortcode "Hello" "world" */>}}
 {{< /code >}}

@@ -3,12 +3,12 @@ title: data.GetCSV
 description: Returns an array of arrays from a local or remote CSV file, or an error if the file does not exist.
 categories: []
 keywords: []
-action:
-  aliases: [getCSV]
-  related: []
-  returnType: '[][]string'
-  signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [getCSV]
+    related: []
+    returnType: '[][]string'
+    signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0
 ---
 

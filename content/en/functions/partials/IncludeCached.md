@@ -3,18 +3,16 @@ title: partials.IncludeCached
 description: Executes the given template and caches the result, optionally passing context. If the partial template contains a return statement, returns the given value, else returns the rendered output.
 categories: []
 keywords: []
-action:
-  aliases: [partialCached]
-  related:
-    - functions/go-template/return
-    - functions/partials/Include
-    - functions/go-template/template
-    - methods/page/Render
-  returnType: any
-  signatures: ['partials.IncludeCached LAYOUT CONTEXT [VARIANT...]']
-signatures: 
-  - partials.IncludeCached NAME CONTEXT [VARIANT...]
-  - partialCached NAME CONTEXT [VARIANT...]
+params:
+  functions_and_methods:
+    aliases: [partialCached]
+    related:
+      - functions/go-template/return
+      - functions/partials/Include
+      - functions/go-template/template
+      - methods/page/Render
+    returnType: any
+    signatures: ['partials.IncludeCached LAYOUT CONTEXT [VARIANT...]']
 aliases: [/functions/partialcached]
 ---
 
@@ -46,7 +44,7 @@ Pass additional arguments, of any data type, as needed to create unique variants
 {{ partialCached "footer.html" . .Params.country .Params.province }}
 ```
 
-The variant arguments are not available to the underlying partial template; they are only used to create unique cache keys. 
+The variant arguments are not available to the underlying partial template; they are only used to create unique cache keys.
 
 To return a value from a partial template, it must contain only one `return` statement, placed at the end of the template:
 

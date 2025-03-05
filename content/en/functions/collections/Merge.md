@@ -3,12 +3,13 @@ title: collections.Merge
 description: Returns the result of merging two or more maps.
 categories: []
 keywords: []
-action:
-  aliases: [merge]
-  related:
-    - functions/collections/Append
-  returnType: any
-  signatures: [collections.Merge MAP MAP...]
+params:
+  functions_and_methods:
+    aliases: [merge]
+    related:
+      - functions/collections/Append
+    returnType: any
+    signatures: [collections.Merge MAP MAP...]
 aliases: [/functions/merge]
 ---
 

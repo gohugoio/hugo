@@ -1,14 +1,8 @@
 ---
 title: Performance
 description: Tools and suggestions for evaluating and improving performance.
-categories: [troubleshooting]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: troubleshooting
-    weight: 60
-weight: 60
-toc: true
 aliases: [/troubleshooting/build-performance/]
 ---
 

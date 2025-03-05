@@ -3,17 +3,18 @@ title: HasShortcode
 description: Reports whether the given shortcode is called by the given page.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: bool
-  signatures: [PAGE.HasShortcode NAME]
+params:
+  functions_and_methods:
+    related: []
+    returnType: bool
+    signatures: [PAGE.HasShortcode NAME]
 ---
 
 By example, let's use [Plotly] to render a chart:
 
 [Plotly]: https://plotly.com/javascript/
 
-{{< code file=contents/example.md lang=markdown >}}
+{{< code file=contents/example.md lang=text >}}
 {{</* plotly */>}}
 {
   "data": [
@@ -29,7 +30,7 @@ By example, let's use [Plotly] to render a chart:
 
 The shortcode is simple:
 
-{{< code file=layouts/shortcodes/plotly.html  >}}
+{{< code file=layouts/shortcodes/plotly.html >}}
 {{ $id := printf "plotly-%02d" .Ordinal }}
 <div id="{{ $id }}"></div>
 <script>
@@ -39,7 +40,7 @@ The shortcode is simple:
 
 Now we can selectively load the required JavaScript on pages that call the "plotly" shortcode:
 
-{{< code file=layouts/baseof.html  >}}
+{{< code file=layouts/baseof.html >}}
 <head>
   ...
   {{ if .HasShortcode "plotly" }}

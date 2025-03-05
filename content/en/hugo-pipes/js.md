@@ -2,13 +2,8 @@
 title: JavaScript
 linkTitle: JavaScript building
 description: Bundle, transpile, tree shake, code split, and minify JavaScript resources.
-categories: [asset management]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: hugo-pipes
-    weight: 60
-weight: 60
 ---
 
 See [JS functions](/functions/js/).

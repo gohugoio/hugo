@@ -15,7 +15,6 @@ action:
     - methods/page/Resources
   returnType: resource.Resource
   signatures: ['resources.GetRemote URL [OPTIONS]']
-toc: true
 ---
 
 {{< new-in 0.141.0 >}}
@@ -206,9 +205,7 @@ The [`Data`] method on a resource returned by the `resources.GetRemote` function
 
 Resources returned from `resources.GetRemote` are cached to disk. See [configure file caches] for details.
 
-By default, Hugo derives the cache key from the arguments passed to the function, the URL and the options map, if any.
-
-Override the cache key by setting a `key` in the options map. Use this approach to have more control over how often Hugo fetches a remote resource.
+By default, Hugo derives the cache key from the arguments passed to the function. Override the cache key by setting a `key` in the options map. Use this approach to have more control over how often Hugo fetches a remote resource.
 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
@@ -217,7 +214,7 @@ Override the cache key by setting a `key` in the options map. Use this approach 
 {{ $resource := resources.GetRemote $url $opts }}
 ```
 
-[configure file caches]: /getting-started/configuration/#configure-file-caches
+[configure file caches]: /configuration/caches/
 
 ## Security
 

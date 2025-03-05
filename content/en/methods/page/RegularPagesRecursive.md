@@ -3,15 +3,16 @@ title: RegularPagesRecursive
 description: Returns a collection of regular pages within the current section, and regular pages within all descendant sections.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Pages
-    - methods/page/RegularPages
-  returnType: page.Pages
-  signatures: [PAGE.RegularPagesRecursive]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Pages
+      - methods/page/RegularPages
+    returnType: page.Pages
+    signatures: [PAGE.RegularPagesRecursive]
 ---
 
-The `RegularPagesRecursive` method on a `Page` object is available to these [page kinds](g): `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection](g) in [context](g).
+The `RegularPagesRecursive` method on a `Page` object is available to these [page kinds](g): `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection](g) in [context](g), in the [default sort order](g).
 
 Range through the page collection in your template:
 

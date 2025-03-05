@@ -3,14 +3,15 @@ title: Summary
 description: Returns the summary of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Truncated
-    - methods/page/Content
-    - methods/page/ContentWithoutSummary
-    - methods/page/Description
-  returnType: template.HTML
-  signatures: [PAGE.Summary]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Truncated
+      - methods/page/Content
+      - methods/page/ContentWithoutSummary
+      - methods/page/Description
+    returnType: template.HTML
+    signatures: [PAGE.Summary]
 ---
 
 <!-- Do not remove the manual summary divider below. -->

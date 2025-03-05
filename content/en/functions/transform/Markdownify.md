@@ -3,13 +3,14 @@ title: transform.Markdownify
 description: Renders Markdown to HTML.
 categories: []
 keywords: []
-action:
-  aliases: [markdownify]
-  related:
-    - methods/page/RenderString
-    - methods/page/RenderShortcodes
-  returnType: template.HTML
-  signatures: [transform.Markdownify INPUT]
+params:
+  functions_and_methods:
+    aliases: [markdownify]
+    related:
+      - methods/page/RenderString
+      - methods/page/RenderShortcodes
+    returnType: template.HTML
+    signatures: [transform.Markdownify INPUT]
 aliases: [/functions/markdownify]
 ---
 

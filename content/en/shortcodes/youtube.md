@@ -1,14 +1,8 @@
 ---
 title: YouTube
 description: Embed a YouTube video in your content using the youtube shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< note >}}
@@ -27,7 +21,7 @@ https://www.youtube.com/watch?v=0RKpf3rK57I
 
 Include this in your Markdown:
 
-```text
+```texts
 {{</* youtube 0RKpf3rK57I */>}}
 ```
 
@@ -35,7 +29,7 @@ Hugo renders this to:
 
 {{< youtube 0RKpf3rK57I >}}
 
-## Parameters
+## Arguments
 
 id
 : (`string`) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.
@@ -65,7 +59,7 @@ loading
 
 loop
 {{< new-in 0.125.0 />}}
-: (`bool`) Whether to indefinitely repeat the video. Ignores the `start` and `end` arguments after the first play.  Default is `false`.
+: (`bool`) Whether to indefinitely repeat the video. Ignores the `start` and `end` arguments after the first play. Default is `false`.
 
 mute
 {{< new-in 0.125.0 />}}

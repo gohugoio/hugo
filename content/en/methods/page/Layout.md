@@ -3,11 +3,12 @@ title: Layout
 description: Returns the layout for the given page as defined in front matter.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Type
-  returnType: string
-  signatures: [PAGE.Layout]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Type
+    returnType: string
+    signatures: [PAGE.Layout]
 ---
 
 Specify the `layout` field in front matter to target a particular template. See&nbsp;[details].

@@ -2,14 +2,8 @@
 title: Code block render hooks
 linkTitle: Code blocks
 description: Create a code block render hook to override the rendering of Markdown code blocks to HTML.
-categories: [render hooks]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: render-hooks
-    weight: 40
-weight: 40
-toc: true
 ---
 
 ## Markdown
@@ -56,41 +50,32 @@ Although `style` is a global HTML attribute, when used in an info string it is a
 
 Code block render hook templates receive the following [context](g):
 
-###### Attributes
+Attributes
+: (`map`) The generic attributes from the info string.
 
-(`map`) The generic attributes from the info string.
+Inner
+: (`string`) The content between the leading and trailing code fences, excluding the info string.
 
-###### Inner
+Options
+: (`map`) The highlighting options from the info string.
 
-(`string`) The content between the leading and trailing code fences, excluding the info string.
+Ordinal
+: (`int`) The zero-based ordinal of the code block on the page.
 
-###### Options
+Page
+: (`page`) A reference to the current page.
 
-(`map`) The highlighting options from the info string.
+PageInner
+: {{< new-in 0.125.0 />}}
+: (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
-###### Ordinal
+Position
+: (`text.Position`) The position of the code block within the page content.
 
-(`int`) The zero-based ordinal of the code block on the page.
-
-###### Page
-
-(`page`) A reference to the current page.
-
-###### PageInner
-
-{{< new-in 0.125.0 />}}
-
-(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
+Type
+: (`string`) The first word of the info string, typically the code language.
 
 [`RenderShortcodes`]: /methods/page/rendershortcodes
-
-###### Position
-
-(`text.Position`) The position of the code block within the page content.
-
-###### Type
-
-(`string`) The first word of the info string, typically the code language.
 
 ## Examples
 
@@ -147,4 +132,4 @@ Hugo includes an [embedded code block render hook] to render [GoAT diagrams].
 [embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 [GoAT diagrams]: /content-management/diagrams/#goat-diagrams-ascii
 
-{{% include "/render-hooks/_common/pageinner.md" %}}
+{{% include "/_common/render-hooks/pageinner.md" %}}

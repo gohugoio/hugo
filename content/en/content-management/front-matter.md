@@ -1,14 +1,8 @@
 ---
 title: Front matter
 description: Use front matter to add metadata to your content.
-categories: [content management]
-keywords: [front matter,yaml,toml,json,metadata,archetypes]
-menu:
-  docs:
-    parent: content-management
-    weight: 60
-weight: 60
-toc: true
+categories: []
+keywords: []
 aliases: [/content/front-matter/]
 ---
 
@@ -51,210 +45,135 @@ The field names below are reserved. For example, you cannot create a custom fiel
 [parameters]: #parameters
 {{< /note >}}
 
-###### aliases
+aliases
+: (`string array`) An array of one or more aliases, where each alias is a relative URL that will redirect the browser to the current location. Access these values from a template using the [`Aliases`] method on a `Page` object. See the [aliases] section for details.
 
-(`string array`) An array of one or more aliases, where each alias is a relative URL that will redirect the browser to the current location. Access these values from a template using the [`Aliases`] method on a `Page` object. See the [aliases] section for details.
+build
+: (`map`) A map of [build options].
 
-[`aliases`]: /methods/page/aliases/
-[aliases]: /content-management/urls/#aliases
+cascade
+: (`map`) A map of front matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See the [cascade] section for details.
 
-###### build
+date
+: (`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Date`] method on a `Page` object.
 
-(`map`) A map of [build options].
+description
+: (`string`) Conceptually different than the page `summary`, the description is typically rendered within a `meta` element within the `head` element of the published HTML file. Access this value from a template using the [`Description`] method on a `Page` object.
 
-[build options]: /content-management/build-options/
+draft
+: (`bool`) Whether to disable rendering unless you pass the `--buildDrafts` flag to the `hugo` command. Access this value from a template using the [`Draft`] method on a `Page` object.
 
-###### cascade {#cascade-field}
+expiryDate
+: (`string`) The page expiration date. On or after the expiration date, the page will not be rendered unless you pass the `--buildExpired` flag to the `hugo` command. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`ExpiryDate`] method on a `Page` object.
 
-(`map`) A map of front matter keys whose values are passed down to the page’s descendants unless overwritten by self or a closer ancestor’s cascade. See the [cascade] section for details.
+headless
+: (`bool`) Applicable to [leaf bundles], whether to set the `render` and `list` [build options] to `never`, creating a headless bundle of [page resources].
 
-[cascade]: #cascade
+isCJKLanguage
+: (`bool`) Whether the content language is in the [CJK](g) family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], [`ReadingTime`], and [`Summary`] methods on a `Page` object.
 
-###### date
+keywords
+: (`string array`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy](g) to classify content. Access these values from a template using the [`Keywords`] method on a `Page` object.
 
-(`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Date`] method on a `Page` object.
+lastmod
+: (`string`) The date that the page was last modified. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Lastmod`] method on a `Page` object.
 
-[`date`]: /methods/page/date/
+layout
+: (`string`) Provide a template name to [target a specific template],  overriding the default [template lookup order]. Set the value to the base file name of the template, excluding its extension. Access this value from a template using the [`Layout`] method on a `Page` object.
 
-###### description
+linkTitle
+: (`string`) Typically a shorter version of the `title`. Access this value from a template using the [`LinkTitle`] method on a `Page` object.
 
-(`string`) Conceptually different than the page `summary`, the description is typically rendered within a `meta` element within the `head` element of the published HTML file. Access this value from a template using the [`Description`] method on a `Page` object.
+markup
+: (`string`) An identifier corresponding to one of the supported [content formats]. If not provided, Hugo determines the content renderer based on the file extension.
 
-[`description`]: /methods/page/description/
+menus
+: (`string`, `string array`, or `map`) If set, Hugo adds the page to the given menu or menus. See the [menus] page for details.
 
-###### draft
+modified
+: Alias to [lastmod](#lastmod).
 
-(`bool`)
-If `true`, the page will not be rendered unless you pass the `--buildDrafts` flag to the `hugo` command. Access this value from a template using the [`Draft`] method on a `Page` object.
+outputs
+: (`string array`) The [output formats] to render. See [configure outputs] for more information.
 
-[`draft`]: /methods/page/draft/
+params
+: {{< new-in 0.123.0 />}}
+: (`map`) A map of custom [page parameters].
 
-###### expiryDate
+pubdate
+: Alias to [publishDate](#publishdate).
 
-(`string`) The page expiration date. On or after the expiration date, the page will not be rendered unless you pass the `--buildExpired` flag to the `hugo` command. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`ExpiryDate`] method on a `Page` object.
+publishDate
+: (`string`) The page publication date. Before the publication date, the page will not be rendered unless you pass the `--buildFuture` flag to the `hugo` command. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`PublishDate`] method on a `Page` object.
 
-[`expirydate`]: /methods/page/expirydate/
+published
+: Alias to [publishDate](#publishdate).
 
-###### headless
+resources
+: (`map array`) An array of maps to provide metadata for [page resources].
 
-(`bool`) Applicable to [leaf bundles], if `true` this value sets the `render` and `list` [build options] to `never`, creating a headless bundle of [page resources].
+sitemap
+: (`map`) A map of sitemap options. See the [sitemap templates] page for details. Access these values from a template using the [`Sitemap`] method on a `Page` object.
 
-[leaf bundles]: /content-management/page-bundles/#leaf-bundles
-[page resources]: /content-management/page-resources/
+slug
+: (`string`) Overrides the last segment of the URL path. Not applicable to section pages. See the [URL management] page for details. Access this value from a template using the [`Slug`] method on a `Page` object.
 
-###### isCJKLanguage
+summary
+: (`string`) Conceptually different than the page `description`, the summary either summarizes the content or serves as a teaser to encourage readers to visit the page. Access this value from a template using the [`Summary`] method on a `Page` object.
 
-(`bool`) Set to `true` if the content language is in the [CJK](g) family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], [`ReadingTime`], and [`Summary`] methods on a `Page` object.
+title
+: (`string`) The page title. Access this value from a template using the [`Title`] method on a `Page` object.
 
-[`fuzzywordcount`]: /methods/page/wordcount/
-[`readingtime`]: /methods/page/readingtime/
-[`summary`]: /methods/page/summary/
-[`wordcount`]: /methods/page/wordcount/
+translationKey
+: (`string`) An arbitrary value used to relate two or more translations of the same page, useful when the translated pages do not share a common path. Access this value from a template using the [`TranslationKey`] method on a `Page` object.
 
-###### keywords
+type
+: (`string`) The [content type](g), overriding the value derived from the top-level section in which the page resides. Access this value from a template using the [`Type`] method on a `Page` object.
 
-(`string array`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy](g) to classify content. Access these values from a template using the [`Keywords`] method on a `Page` object.
+unpublishdate
+: Alias to [expirydate](#expirydate).
 
-[`keywords`]: /methods/page/keywords/
+url
+: (`string`) Overrides the entire URL path. Applicable to regular pages and section pages. See the [URL management] page for details.
 
-<!-- Added in v0.123.0 but purposefully omitted from documentation. -->
-<!--
-kind
-: The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
--->
+weight
+: (`int`) The page [weight](g), used to order the page within a [page collection](g). Access this value from a template using the [`Weight`] method on a `Page` object.
 
-<!-- Added in v0.123.0 but purposefully omitted from documentation. -->
-<!--
-lang
-: The language code for this page. This is usually derived from the module mount or filename.
--->
-
-###### lastmod
-
-(`string`) The date that the page was last modified. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Lastmod`] method on a `Page` object.
-
-[`lastmod`]: /methods/page/date/
-
-###### layout
-
-(`string`) Provide a template name to [target a specific template],  overriding the default [template lookup order]. Set the value to the base file name of the template, excluding its extension. Access this value from a template using the [`Layout`] method on a `Page` object.
-
-[`layout`]: /methods/page/layout/
-[template lookup order]: /templates/lookup-order/
-[target a specific template]: /templates/lookup-order/#target-a-template
-
-###### linkTitle
-
-(`string`) Typically a shorter version of the `title`. Access this value from a template using the [`LinkTitle`] method on a `Page` object.
-
-[`linktitle`]: /methods/page/linktitle/
-
-###### markup
-
-(`string`) An identifier corresponding to one of the supported [content formats]. If not provided, Hugo determines the content renderer based on the file extension.
-
-[content formats]: /content-management/formats/#classification
-
-###### menus
-
-(`string`, `string array`, or `map`) If set, Hugo adds the page to the given menu or menus. See the [menus] page for details.
-
-[menus]: /content-management/menus/#define-in-front-matter
-
-###### modified
-
-Alias to [lastmod](#lastmod).
-
-###### outputs
-
-(`string array`) The [output formats] to render.
-
-[output formats]: /templates/output-formats/
-
-<!-- Added in v0.123.0 but purposefully omitted from documentation. -->
-<!--
-path
-: The canonical page path.
--->
-
-###### params
-
-{{< new-in 0.123.0 />}}
-
-(`map`) A map of custom [page parameters].
-
-[page parameters]: #parameters
-
-###### pubdate
-
-Alias to [publishDate](#publishdate).
-
-###### publishDate
-
-(`string`) The page publication date. Before the publication date, the page will not be rendered unless you pass the `--buildFuture` flag to the `hugo` command. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`PublishDate`] method on a `Page` object.
-
-[`publishdate`]: /methods/page/publishdate/
-
-###### published
-
-Alias to [publishDate](#publishdate).
-
-###### resources
-
-(`map array`) An array of maps to provide metadata for [page resources].
-
-[page-resources]: /content-management/page-resources/#page-resources-metadata
-
-###### sitemap
-
-(`map`) A map of sitemap options. See the [sitemap templates] page for details. Access these values from a template using the [`Sitemap`] method on a `Page` object.
-
-[sitemap templates]: /templates/sitemap/
-[`sitemap`]: /methods/page/sitemap/
-
-###### slug
-
-(`string`) Overrides the last segment of the URL path. Not applicable to section pages. See the [URL management] page for details. Access this value from a template using the [`Slug`] method on a `Page` object.
-
-[`slug`]: /methods/page/slug/
 [URL management]: /content-management/urls/#slug
-
-###### summary
-
-(`string`) Conceptually different than the page `description`, the summary either summarizes the content or serves as a teaser to encourage readers to visit the page. Access this value from a template using the [`Summary`] method on a `Page` object.
-
 [`Summary`]: /methods/page/summary/
-
-###### title
-
-(`string`) The page title. Access this value from a template using the [`Title`] method on a `Page` object.
-
+[`aliases`]: /methods/page/aliases/
+[`date`]: /methods/page/date/
+[`description`]: /methods/page/description/
+[`draft`]: /methods/page/draft/
+[`expirydate`]: /methods/page/expirydate/
+[`fuzzywordcount`]: /methods/page/wordcount/
+[`keywords`]: /methods/page/keywords/
+[`lastmod`]: /methods/page/date/
+[`layout`]: /methods/page/layout/
+[`linktitle`]: /methods/page/linktitle/
+[`publishdate`]: /methods/page/publishdate/
+[`readingtime`]: /methods/page/readingtime/
+[`sitemap`]: /methods/page/sitemap/
+[`slug`]: /methods/page/slug/
+[`summary`]: /methods/page/summary/
 [`title`]: /methods/page/title/
-
-###### translationKey
-
-(`string`) An arbitrary value used to relate two or more translations of the same page, useful when the translated pages do not share a common path. Access this value from a template using the [`TranslationKey`] method on a `Page` object.
-
 [`translationkey`]: /methods/page/translationkey/
-
-###### type
-
-(`string`) The [content type](g), overriding the value derived from the top level section in which the page resides. Access this value from a template using the [`Type`] method on a `Page` object.
-
 [`type`]: /methods/page/type/
-
-###### unpublishdate
-
-Alias to [expirydate](#expirydate).
-
-###### url
-
-(`string`) Overrides the entire URL path. Applicable to regular pages and section pages. See the [URL management] page for details.
-
-###### weight
-(`int`) The page [weight](g), used to order the page within a [page collection](g). Access this value from a template using the [`Weight`] method on a `Page` object.
-
 [`weight`]: /methods/page/weight/
+[`wordcount`]: /methods/page/wordcount/
+[aliases]: /content-management/urls/#aliases
+[build options]: /content-management/build-options/
+[cascade]: #cascade-1
+[configure outputs]: /configuration/outputs/#outputs-per-page
+[content formats]: /content-management/formats/#classification
+[leaf bundles]: /content-management/page-bundles/#leaf-bundles
+[menus]: /content-management/menus/#define-in-front-matter
+[output formats]: /configuration/output-formats/
+[page parameters]: #parameters
+[page resources]: /content-management/page-resources/#metadata
+[sitemap templates]: /templates/sitemap/
+[target a specific template]: /templates/lookup-order/#target-a-template
+[template lookup order]: /templates/lookup-order/
 
 ## Parameters
 
@@ -340,68 +259,72 @@ Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] metho
 
 ## Cascade
 
-Any [node](g) can pass down to its descendants a set of front matter values.
+A [node](g) can cascade front matter values to its descendants. However, this cascading will be prevented if the descendant already defines the field, or if a closer ancestor node has already cascaded a value for that same field.
 
-### Target specific pages
-
-The `cascade` block can be an array with an optional `_target` keyword, allowing you to target different page sets while cascading values.
+For example, to cascade a "color" parameter from the home page to all its descendants:
 
 {{< code-toggle file=content/_index.md fm=true >}}
-title ="Home"
+title = 'Home'
+[cascade.params]
+color = 'red'
+{{< /code-toggle >}}
+
+### Target
+
+<!-- TODO
+Update the <version> and <date> below when we actually get around to deprecating _target.
+
+We deprecated the `_target` front matter key in favor of `target` in <version> on <date>. Remove footnote #1 on or after 2026-03-10 (15 months after deprecation).
+-->
+
+The `target`[^1] keyword allows you to target specific pages or [environments](g). For example, to cascade a "color" parameter from the home page only to pages within the "articles" section, including the "articles" section page itself:
+
+[^1]: The `_target` alias for `target` is deprecated and will be removed in a future release.
+
+{{< code-toggle file=content/_index.md fm=true >}}
+title = 'Home'
+[cascade.params]
+color = 'red'
+[cascade.target]
+path = '{/articles,/articles/**}'
+{{< /code-toggle >}}
+
+Use any combination of these keywords to target pages and/or environments:
+
+environment
+: (`string`) A [glob](g) pattern matching the build [environment](g). For example: `{staging,production}`.
+
+kind
+: (`string`) A [glob](g) pattern matching the [page kind](g). For example: ` {taxonomy,term}`.
+
+path
+: (`string`) A [glob](g) pattern matching the page's [logical path](g). For example: `{/books,/books/**}`.
+
+### Array
+
+Define an array of cascade parameters to apply different values to different targets. For example:
+
+{{< code-toggle file=content/_index.md fm=true >}}
+title = 'Home'
 [[cascade]]
 [cascade.params]
-background = "yosemite.jpg"
-[cascade._target]
-path="/articles/**"
-lang="en"
-kind="page"
+color = 'red'
+[cascade.target]
+path = '{/books/**}'
+kind = 'page'
 [[cascade]]
 [cascade.params]
-background = "goldenbridge.jpg"
-[cascade._target]
-kind="section"
-{{</ code-toggle >}}
-
-Use any combination of these keywords to target a set of pages:
-
-###### path {#cascade-path}
-
-(`string`) A [Glob](https://github.com/gobwas/glob) pattern matching the content path below /content. Expects Unix-styled slashes. Note that this is the virtual path, so it starts at the mount root. The matching supports double-asterisks so you can match for patterns like `/blog/*/**` to match anything from the third level and down.
-
-###### kind {#cascade-kind}
-
-(`string`) A Glob pattern matching the Page's Kind(s), e.g. "{home,section}".
-
-###### lang {#cascade-lang}
-
-(`string`) A Glob pattern matching the Page's language, e.g. "{en,sv}".
-
-###### environment {#cascade-environment}
-
-(`string`) A Glob pattern matching the build environment, e.g. "{production,development}"
-
-Any of the above can be omitted.
+color = 'blue'
+[cascade.target]
+path = '{/films/**}'
+kind = 'page'
+{{< /code-toggle >}}
 
 {{< note >}}
-With a multilingual site it may be more efficient to define the `cascade` values in your site configuration to avoid duplicating the `cascade` values on the section, taxonomy, or term page for each language.
+For multilingual sites, defining cascade values in your site configuration is often more efficient. This avoids repeating the same cascade values on the home, section, taxonomy, or term page for each language. See&nbsp;[details](/configuration/cascade/).
 
-With a multilingual site, if you choose to define the `cascade` values in front matter, you must create a section, taxonomy, or term page for each language; the `lang` keyword is ignored.
+If you choose to define cascade values in front matter for a multilingual site, you must create a corresponding home, section, taxonomy, or term page for every language.
 {{< /note >}}
-
-### Example
-
-{{< code-toggle file=content/posts/_index.md fm=true >}}
-date = 2024-02-01T21:25:36-08:00
-title = 'Posts'
-[cascade]
-  [cascade.params]
-    banner = 'images/typewriter.jpg'
-{{</ code-toggle >}}
-
-With the above example the posts section page and its descendants will return `images/typewriter.jpg` when `.Params.banner` is invoked unless:
-
-- Said descendant has its own `banner` value set
-- Or a closer ancestor node has its own `cascade.banner` value set.
 
 ## Emacs Org Mode
 
@@ -432,9 +355,9 @@ Note that you can also specify array elements on a single line:
 
 When populating a date field, whether a [custom page parameter](#parameters) or one of the four predefined fields ([`date`](#date), [`expiryDate`](#expirydate), [`lastmod`](#lastmod), [`publishDate`](#publishdate)), use one of these parsable formats:
 
-{{% include "functions/time/_common/parsable-date-time-strings.md" %}}
+{{% include "/_common/parsable-date-time-strings.md" %}}
 
-To override the default time zone, set the [`timeZone`](https://gohugo.io/getting-started/configuration/#timezone) in your site configuration. The order of precedence for determining the time zone is:
+To override the default time zone, set the [`timeZone`](/configuration/all/#timezone) in your site configuration. The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
 1. The time zone specified in your site configuration

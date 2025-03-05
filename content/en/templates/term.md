@@ -1,14 +1,9 @@
 ---
 title: Term templates
 description: Create a term template to render a list of pages associated with the current term.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 100
-weight: 100
-toc: true
+weight: 90
 ---
 
 The [term](g) template below inherits the site's shell from the [base template], and renders a list of pages associated with the current term.

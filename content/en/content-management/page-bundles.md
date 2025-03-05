@@ -1,14 +1,8 @@
 ---
 title: Page bundles
 description: Use page bundles to logically associate one or more resources with content.
-categories: [content management]
-keywords: [page,bundle,leaf,branch]
-menu :
-  docs:
-    parent: content-management
-    weight: 30
-weight: 30
-toc: true
+categories: []
+keywords: []
 ---
 
 ## Introduction
@@ -33,7 +27,7 @@ leaf bundle
 : A _leaf bundle_ is a directory that contains an&nbsp;`index.md`&nbsp;file and zero or more resources. Analogous to a physical leaf, a leaf bundle is at the end of a branch. It has no descendants.
 
 branch bundle
-: A _branch bundle_ is a directory that contains an&nbsp;`_index.md`&nbsp;file and zero or more resources. Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without `_index.md`&nbsp;files are also branch bundles. This includes the home page.
+: A _branch bundle_ is a directory that contains an&nbsp;`_index.md`&nbsp;file and zero or more resources. Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top-level directories with or without `_index.md`&nbsp;files are also branch bundles. This includes the home page.
 
 {{< note >}}
 In the definitions above and the examples below, the extension of the index file depends on the [content format](g). For example, use `index.md` for Markdown content, `index.html` for HTML content, `index.adoc` for AsciiDoc content, etc.
@@ -94,13 +88,13 @@ about
 my-post
 : This leaf bundle contains an index file, two resources of [resource type](g) `page`, and two resources of resource type `image`.
 
-- content-1, content-2
+  - content-1, content-2
 
-  These are resources of resource type `page`, accessible via the [`Resources`] method on the `Page` object. Hugo will not render these as individual pages.
+    These are resources of resource type `page`, accessible via the [`Resources`] method on the `Page` object. Hugo will not render these as individual pages.
 
-- image-1, image-2
+  - image-1, image-2
 
-  These are resources of resource type `image`, accessible via the `Resources` method on the `Page` object
+    These are resources of resource type `image`, accessible via the `Resources` method on the `Page` object
 
 my-other-post
 : This leaf bundle does not contain any page resources.
@@ -114,7 +108,7 @@ Create leaf bundles at any depth within the `content` directory, but a leaf bund
 
 ## Branch bundles
 
-A _branch bundle_ is a directory that contains an&nbsp;`_index.md`&nbsp;file and zero or more resources. Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top level directories with or without `_index.md`&nbsp;files are also branch bundles. This includes the home page.
+A _branch bundle_ is a directory that contains an&nbsp;`_index.md`&nbsp;file and zero or more resources. Analogous to a physical branch, a branch bundle may have descendants including leaf bundles and other branch bundles. Top-level directories with or without `_index.md`&nbsp;files are also branch bundles. This includes the home page.
 
 ```text
 content/

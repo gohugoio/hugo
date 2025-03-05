@@ -1,14 +1,8 @@
 ---
 title: Logging
 description: Enable logging to inspect events while building your site.
-categories: [troubleshooting]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: troubleshooting
-    weight: 30
-weight: 30
-toc: true
 ---
 
 ## Command line

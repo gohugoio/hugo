@@ -48,7 +48,7 @@
       {{ end }}
       {{ $t.Stop }}
 
-      {{ if .Params.action.signatures }}
+      {{ if .Params.functions_and_methods.signatures }}
         <div class="mb-4 not-prose">
           {{- partial "docs/functions-signatures.html" . -}}
           {{- partial "docs/functions-return-type.html" . -}}

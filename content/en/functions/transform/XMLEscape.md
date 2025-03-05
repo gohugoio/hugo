@@ -3,11 +3,12 @@ title: transform.XMLEscape
 description: Returns the given string, removing disallowed characters then escaping the result to its XML equivalent.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [transform.XMLEscape INPUT]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: string
+    signatures: [transform.XMLEscape INPUT]
 ---
 
 {{< new-in 0.121.0 />}}

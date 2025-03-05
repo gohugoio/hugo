@@ -3,12 +3,13 @@ title: NumberOfElements
 description: Returns the number of pages in the current pager.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/TotalNumberOfElements
-    - methods/page/Paginate
-  returnType: int
-  signatures: [PAGER.NumberOfElements]
+params:
+  functions_and_methods:
+    related:
+      - methods/pager/TotalNumberOfElements
+      - methods/page/Paginate
+    returnType: int
+    signatures: [PAGER.NumberOfElements]
 ---
 
 ```go-html-template

@@ -2,15 +2,8 @@
 title: Mathematics in Markdown
 linkTitle: Mathematics
 description: Include mathematical equations and expressions in Markdown using LaTeX markup.
-categories: [content management]
-keywords: [katex,latex,math,mathjax,typesetting]
-menu:
-  docs:
-    parent: content-management
-    weight: 270
-weight: 270
-toc: true
-math: true
+categories: []
+keywords: []
 ---
 
 {{< new-in 0.122.0 />}}
@@ -55,7 +48,7 @@ The first approach is described below.
 
 Follow these instructions to include mathematical equations and expressions in your Markdown using LaTeX markup.
 
-###### Step 1
+### Step 1
 
 Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
@@ -94,7 +87,7 @@ block = [['@@', '@@']]
 inline = [['@', '@']]
 {{< /code-toggle >}}
 
-###### Step 2
+### Step 2
 
 Create a partial template to load MathJax or KaTeX. The example below loads MathJax, or you can use KaTeX as described in the [engines](#engines) section.
 
@@ -115,7 +108,7 @@ Create a partial template to load MathJax or KaTeX. The example below loads Math
 
 The delimiters above must match the delimiters in your site configuration.
 
-###### Step 3
+### Step 3
 
 Conditionally call the partial template from the base template.
 
@@ -131,7 +124,7 @@ Conditionally call the partial template from the base template.
 
 The example above loads the partial template if you have set the `math` parameter in front matter to `true`. If you have not set the `math` parameter in front matter, the conditional statement falls back to the `math` parameter in your site configuration.
 
-###### Step 4
+### Step 4
 
 Include mathematical equations and expressions in Markdown using LaTeX markup.
 
@@ -248,4 +241,4 @@ As shown in [Step 2] above, MathJax supports chemical equations without addition
 [Step 1]: #step-1
 [Step 2]: #step-2
 [Step 3]: #step-3
-[passthrough extension]: /getting-started/configuration-markup/#passthrough
+[passthrough extension]: /configuration/markup/#passthrough

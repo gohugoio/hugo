@@ -2,13 +2,14 @@
 title: cast.ToInt
 description: Converts a value to a decimal integer (base 10).
 keywords: []
-action:
-  aliases: [int]
-  related:
-    - functions/cast/ToFloat
-    - functions/cast/ToString
-  returnType: int
-  signatures: [cast.ToInt INPUT]
+params:
+  functions_and_methods:
+    aliases: [int]
+    related:
+      - functions/cast/ToFloat
+      - functions/cast/ToString
+    returnType: int
+    signatures: [cast.ToInt INPUT]
 aliases: [/functions/int]
 ---
 

@@ -1,14 +1,8 @@
 ---
 title: Emojis
 description: Include emoji shortcodes in your Markdown or templates.
-categories: [quick reference]
-keywords: [emoji]
-menu:
-  docs:
-    parent: quick-reference
-    weight: 20
-weight: 20
-toc: true
+categories: []
+keywords: []
 ---
 
 ## Attribution

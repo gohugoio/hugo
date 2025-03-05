@@ -3,23 +3,23 @@ title: safe.URL
 description: Declares the given string as a safe URL or URL substring.
 categories: []
 keywords: []
-action:
-  aliases: [safeURL]
-  related:
-    - functions/safe/CSS
-    - functions/safe/HTML
-    - functions/safe/HTMLAttr
-    - functions/safe/JS
-    - functions/safe/JSStr
-  returnType: template.URL
-  signatures: [safe.URL INPUT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: [safeURL]
+    related:
+      - functions/safe/CSS
+      - functions/safe/HTML
+      - functions/safe/HTMLAttr
+      - functions/safe/JS
+      - functions/safe/JSStr
+    returnType: template.URL
+    signatures: [safe.URL INPUT]
 aliases: [/functions/safeurl]
 ---
 
 ## Introduction
 
-{{% include "functions/_common/go-html-template-package.md" %}}
+{{% include "/_common/functions/go-html-template-package.md" %}}
 
 ## Usage
 

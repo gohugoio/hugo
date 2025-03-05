@@ -3,12 +3,12 @@ title: Name
 description: Returns the name of the given resource as optionally defined in front matter, falling back to its file path.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Title
-  returnType: string
-  signatures: [RESOURCE.Name]
-toc: true
+params:
+  functions_and_methods:
+    related:
+      - methods/resource/Title
+    returnType: string
+    signatures: [RESOURCE.Name]
 ---
 
 The value returned by the `Name` method on a `Resource` object depends on the resource type.

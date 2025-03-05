@@ -3,11 +3,12 @@ title: math.Abs
 description: Returns the absolute value of the given number.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: float64
-  signatures: [math.Abs VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: float64
+    signatures: [math.Abs VALUE]
 ---
 
 ```go-html-template

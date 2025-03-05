@@ -1,16 +1,12 @@
 ---
 title: Quick start
-description: Learn to create a Hugo site in minutes.
-categories: [getting started]
-keywords: [quick start,usage]
-menu:
-  docs:
-    parent: getting-started
-    weight: 20
-weight: 20
-toc: true
+description: Create a Hugo site in minutes.
+categories: []
+keywords: []
+params:
+  minVersion: v0.128.0
+weight: 10
 aliases: [/quickstart/,/overview/quickstart/]
-minVersion: v0.128.0
 ---
 
 In this tutorial you will:
@@ -142,7 +138,7 @@ This is **bold** text, and this is *emphasized* text.
 Visit the [Hugo](https://gohugo.io) website!
 ```
 
-Save the file, then start Hugo’s development server to view the site. You can run either of the following commands to include draft content.
+Save the file, then start Hugo's development server to view the site. You can run either of the following commands to include draft content.
 
 ```text
 hugo server --buildDrafts
@@ -205,7 +201,7 @@ When you publish your site, you typically do _not_ want to include [draft, futur
 hugo
 ```
 
-To learn how to _deploy_ your site, see the [hosting and deployment] section.
+To learn how to _deploy_ your site, see the [host and deploy] section.
 
 ## Ask for help
 
@@ -224,9 +220,9 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [forum]: https://discourse.gohugo.io/
 [front matter]: /content-management/front-matter/
 [Git submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
-[hosting and deployment]: /hosting-and-deployment/
+[host and deploy]: /host-and-deploy/
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 [Install Hugo]: /installation/
 [Requesting Help]: https://discourse.gohugo.io/t/requesting-help/9132
 [Requesting Help]: https://discourse.gohugo.io/t/requesting-help/9132
-[site configuration]: /getting-started/configuration/
+[site configuration]: /configuration/

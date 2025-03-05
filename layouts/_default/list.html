@@ -34,11 +34,11 @@
             {{ .LinkTitle }}
           </h3>
 
-          {{ with .Params.action.signatures }}
+          {{ with .Params.functions_and_methods.signatures }}
             {{/* Set in functions and methods pages. */}}
             {{ with $signature := index . 0 }}
-              {{ if $.Params.action.returnType }}
-                {{ $signature = printf "%s ⟼ %s" $signature $.context.Params.action.returnType }}
+              {{ if $.Params.functions_and_methods.returnType }}
+                {{ $signature = printf "%s ⟼ %s" $signature $.context.Params.functions_and_methods.returnType }}
               {{ end }}
               <div
                 class="font-mono font-light text-sm whitespace-nowrap mb-2 sm:mb-4 p-2 bg-slate-50 dark:bg-slate-700 border-0 mr-8 overflow-x-auto">
@@ -55,6 +55,9 @@
               {{ (or .Params.description .Summary) | plainify | safeHTML }}
             {{ end }}
           </p>
+          {{ if and hugo.IsDevelopment site.Params.debug.display_page_metadata }}
+            {{ partial "helpers/debug/list-item-metadata.html" . }}
+          {{ end }}
         </a>
       {{ end }}
     </div>

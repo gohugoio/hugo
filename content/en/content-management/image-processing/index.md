@@ -1,14 +1,8 @@
 ---
 title: Image processing
 description: Resize, crop, rotate, filter, and convert images.
-categories: [content management,fundamentals]
-keywords: [resources,images]
-menu:
-  docs:
-    parent: content-management
-    weight: 90
-toc: true
-weight: 90
+categories: []
+keywords: []
 ---
 
 ## Image resources
@@ -17,7 +11,7 @@ To process an image you must access the file as a page resource, global resource
 
 ### Page resource
 
-A page resource is a file within a [page bundle]. A page bundle is a directory with an `index.md` or `_index.md`&nbsp;file at its root.
+{{% glossary-term "page resource" %}}
 
 ```text
 content/
@@ -35,7 +29,7 @@ To access an image as a page resource:
 
 ### Global resource
 
-A global resource is a file within the `assets` directory, or within any directory [mounted] to the `assets` directory.
+{{% glossary-term "global resource" %}}
 
 ```text
 assets/
@@ -51,7 +45,9 @@ To access an image as a global resource:
 
 ### Remote resource
 
-A remote resource is a file on a remote server, accessible via HTTP or HTTPS. To access an image as a remote resource:
+{{% glossary-term "remote resource" %}}
+
+To access an image as a remote resource:
 
 ```go-html-template
 {{ $image := resources.GetRemote "https://gohugo.io/img/hugo-logo.png" }}
@@ -413,58 +409,9 @@ _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pe
 
 {{< imgproc path="sunset.jpg" spec="resize 360x q10" alt="A sunset" />}}
 
-## Imaging configuration
+## Configuration
 
-### Processing options
-
-Define an `imaging` section in your site configuration to set the default [image processing options](#image-processing-options).
-
-{{< code-toggle config=imaging />}}
-
-anchor
-: See image processing options: [anchor](#anchor).
-
-bgColor
-: See image processing options: [background color](#background-color).
-
-hint
-: See image processing options: [hint](#hint).
-
-quality
-: See image processing options: [quality](#quality).
-
-resampleFilter
-: See image processing options: [resampling filter](#resampling-filter).
-
-### EXIF data
-
-Define an `imaging.exif` section in your site configuration to control the availability of EXIF data.
-
-{{< code-toggle file=hugo >}}
-[imaging.exif]
-includeFields = ""
-excludeFields = ""
-disableDate = false
-disableLatLong = false
-{{< /code-toggle >}}
-
-disableDate
-: Hugo extracts the image creation date/time into `.Date`. Set this to `true` to disable. Default is `false`.
-
-disableLatLong
-: Hugo extracts the GPS latitude and longitude into `.Lat` and `.Long`. Set this to `true` to disable. Default is `false`.
-
-excludeFields
-: Regular expression matching the EXIF tags to exclude from the `.Tags` collection. Default is&nbsp;`""`.
-
-includeFields
-: Regular expression matching the EXIF tags to include in the `.Tags` collection. Default is&nbsp;`""`. To include all available tags, set this value to&nbsp;`".*"`.
-
-  {{< note >}}
-  To improve performance and decrease cache size, Hugo excludes the following tags: `ColorSpace`, `Contrast`, `Exif`, `Exposure[M|P|B]`, `Flash`, `GPS`, `JPEG`, `Metering`, `Resolution`, `Saturation`, `Sensing`, `Sharp`, and `WhiteBalance`.
-
-  To control tag availability, change the `excludeFields` or `includeFields` settings as described above.
-  {{< /note >}}
+See [configure imaging](/configuration/imaging).
 
 ## Smart cropping of images
 
@@ -487,7 +434,7 @@ hugo --gc
 ```
 
 [`anchor`]: /content-management/image-processing#anchor
-[mounted]: /hugo-modules/configuration#module-configuration-mounts
+[mounted]: /configuration/module/#mounts
 [page bundle]: /content-management/page-bundles/
 [`lang.FormatNumber`]: /functions/lang/formatnumber/
 [filters]: /functions/images/filter/#image-filters
@@ -502,5 +449,5 @@ hugo --gc
 [`Filter`]: #filter
 [`Fit`]: #fit
 [`Resize`]: #resize
-[site configuration]: #processing-options
+[site configuration]: /configuration/imaging/
 [`with`]: /functions/go-template/with/

@@ -31,6 +31,6 @@ For page resources, use the [`Resources.Match`] method on a `Page` object.
 
 Hugo determines a match using a case-insensitive [glob pattern].
 
-{{% include "functions/_common/glob-patterns.md" %}}
+{{% include "/_common/glob-patterns.md" %}}
 
 [glob pattern]: https://github.com/gobwas/glob#example

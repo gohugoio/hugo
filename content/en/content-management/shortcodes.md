@@ -1,15 +1,9 @@
 ---
 title: Shortcodes
 description: Use embedded, custom, or inline shortcodes to insert elements such as videos, images, and social media embeds into your content.
-categories: [content management]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: content-management
-    weight: 100
-weight: 100
 aliases: [/extras/shortcodes/]
-toc: true
 ---
 
 ## Introduction
@@ -20,7 +14,7 @@ There are three types of shortcodes: embedded, custom, and inline.
 
 ## Embedded
 
-Hugo's embedded shortcodes are pre-defined templates within the application.  Refer to each shortcode's documentation for specific usage instructions and available arguments.
+Hugo's embedded shortcodes are pre-defined templates within the application. Refer to each shortcode's documentation for specific usage instructions and available arguments.
 
 {{< list-pages-in-section path=/shortcodes >}}
 
@@ -36,7 +30,7 @@ Create custom shortcodes to simplify and standardize content creation. For examp
 
 Then call the shortcode from within markup:
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=text >}}
 {{</* audio src=/audio/test.mp3 */>}}
 {{< /code >}}
 
@@ -50,18 +44,20 @@ An inline shortcode is a shortcode template defined within content.
 
 Hugo's security model is based on the premise that template and configuration authors are trusted, but content authors are not. This model enables generation of HTML output safe against code injection.
 
-To conform with this security model, creating shortcode templates within content is disabled by default.  If you trust your content authors, you can enable this functionality in your site's configuration:
+To conform with this security model, creating shortcode templates within content is disabled by default. If you trust your content authors, you can enable this functionality in your site's configuration:
 
 {{< code-toggle file=hugo >}}
 [security]
 enableInlineShortcodes = true
 {{< /code-toggle >}}
 
+For more information see [configure security](/configuration/security).
+
 The following example demonstrates an inline shortcode, `date.inline`, that accepts a single positional argument: a date/time [layout string].
 
 [layout string]: /functions/time/format/#layout-string
 
-{{< code file=content/example.md lang=go >}}
+{{< code file=content/example.md lang=text >}}
 Today is
 {{</* date.inline ":date_medium" */>}}
   {{- now | time.Format (.Get 0) -}}
@@ -131,7 +127,7 @@ Refer to each shortcode's documentation for specific usage instructions and avai
 
 Shortcode arguments can be either _named_ or _positional_.
 
-Named arguments are passed as case-sensitive key-value pairs, as seen in this example with the embedded [`figure`] shortcode.  The `src` argument, for instance, is required.
+Named arguments are passed as case-sensitive key-value pairs, as seen in this example with the embedded [`figure`] shortcode. The `src` argument, for instance, is required.
 
 [`figure`]: /shortcodes/figure
 
@@ -139,7 +135,7 @@ Named arguments are passed as case-sensitive key-value pairs, as seen in this ex
 {{</* figure src=/images/kitten.jpg */>}}
 ```
 
-Positional arguments, on the other hand, are determined by their position.  The embedded `instagram` shortcode, for example, expects the first argument to be the Instagram post ID.
+Positional arguments, on the other hand, are determined by their position. The embedded `instagram` shortcode, for example, expects the first argument to be the Instagram post ID.
 
 ```text
 {{</* instagram CxOWiQNP2MO */>}}
@@ -171,7 +167,7 @@ You can optionally use multiple lines when providing several arguments to a shor
 Use a [raw string literal](g) if you need to pass a multiline string:
 
 ```text
-{{</*  myshortcode `This is some <b>HTML</b>,
+{{</* myshortcode `This is some <b>HTML</b>,
 and a new line with a "quoted string".` */>}}
 ```
 
@@ -188,13 +184,13 @@ Notation|Example
 Markdown|`{{%/* foo */%}} ## Section 1 {{%/* /foo */%}}`
 Standard|`{{</* foo */>}} ## Section 2 {{</* /foo */>}}`
 
-###### Markdown notation
+#### Markdown notation
 
 Hugo processes the shortcode before the page content is rendered by the Markdown renderer. This means, for instance, that Markdown headings inside a Markdown-notation shortcode will be included when invoking the [`TableOfContents`] method on the `Page` object.
 
 [`TableOfContents`]: /methods/page/tableofcontents/
 
-###### Standard notation
+#### Standard notation
 
 With standard notation, Hugo processes the shortcode separately, merging the output into the page content after Markdown rendering. This means, for instance, that Markdown headings inside a standard-notation shortcode will be excluded when invoking the `TableOfContents` method on the `Page` object.
 
@@ -206,7 +202,7 @@ By way of example, with this shortcode template:
 
 And this markdown:
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=text >}}
 {{%/* foo */%}} ## Section 1 {{%/* /foo */%}}
 
 {{</* foo */>}} ## Section 2 {{</* /foo */>}}
@@ -222,13 +218,13 @@ Hugo renders this HTML:
 
 In the above, "Section 1" will be included when invoking the `TableOfContents` method, while "Section 2" will not.
 
-The shortcode author determines which notation to use.  Consult each shortcode's documentation for specific usage instructions and available arguments.
+The shortcode author determines which notation to use. Consult each shortcode's documentation for specific usage instructions and available arguments.
 
 ## Nesting
 
 Shortcodes (excluding [inline](#inline) shortcodes) can be nested, creating parent-child relationships. For example, a gallery shortcode might contain several image shortcodes:
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=text >}}
 {{</* gallery class="content-gallery" */>}}
   {{</* image src="/images/a.jpg" */>}}
   {{</* image src="/images/b.jpg" */>}}

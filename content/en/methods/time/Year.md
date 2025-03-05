@@ -3,16 +3,17 @@ title: Year
 description: Returns the year of the given time.Time value.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Month
-    - methods/time/Day
-    - methods/time/Hour
-    - methods/time/Minute
-    - methods/time/Second
-    - functions/time/AsTime
-  returnType: int
-  signatures: [TIME.Year]
+params:
+  functions_and_methods:
+    related:
+      - methods/time/Month
+      - methods/time/Day
+      - methods/time/Hour
+      - methods/time/Minute
+      - methods/time/Second
+      - functions/time/AsTime
+    returnType: int
+    signatures: [TIME.Year]
 ---
 
 ```go-html-template

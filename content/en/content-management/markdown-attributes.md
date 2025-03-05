@@ -1,14 +1,8 @@
 ---
 title: Markdown attributes
 description: Use Markdown attributes to add HTML attributes when rendering Markdown to HTML.
-categories: [content management]
-keywords: [goldmark,markdown]
-menu:
-  docs:
-    parent: content-management
-    weight: 240
-weight: 240
-toc: true
+categories: []
+keywords: []
 ---
 
 ## Overview

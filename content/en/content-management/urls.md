@@ -1,14 +1,8 @@
 ---
 title: URL management
 description: Control the structure and appearance of URLs through front matter entries and settings in your site configuration.
-categories: [content management]
-keywords: [aliases,redirects,permalinks,urls]
-menu:
-  docs:
-    parent: content-management
-    weight: 180
-weight: 180
-toc: true
+categories: []
+keywords: []
 aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 ---
 
@@ -107,7 +101,7 @@ https://example.org/articles/my-first-article.html
 
 With monolingual sites, `url` values with or without a leading slash are relative to the [`baseURL`]. With multilingual sites, `url` values with a leading slash are relative to the `baseURL`, and  `url` values without a leading slash are relative to the `baseURL` plus the language prefix.
 
-[`baseURL`]: /getting-started/configuration/#baseurl
+[`baseURL`]: /configuration/all/#baseurl
 
 Site type|Front matter `url`|Resulting URL
 :--|:--|:--
@@ -120,7 +114,7 @@ multilingual|`about`|`https://example.org/de/about/`
 
 {{< new-in 0.131.0 />}}
 
-You can also use [tokens](#tokens) when setting the `url` value. This is typically used in `cascade` sections:
+You can also usetokens when setting the `url` value. This is typically used in `cascade` sections:
 
 {{< code-toggle file=content/foo/bar/_index.md fm=true >}}
 title ="Bar"
@@ -128,244 +122,19 @@ title ="Bar"
   url = "/:sections[last]/:slug"
 {{< /code-toggle >}}
 
+Use any of these tokens:
+
+{{% include "/_common/permalink-tokens.md" %}}
+
 ## Site configuration
 
 ### Permalinks
 
-In your site configuration, define a URL pattern for each top-level section. Each URL pattern can target a given language and/or page kind.
-
-Front matter `url` values override the URL patterns defined in the `permalinks` section of your site configuration.
-
-#### Monolingual examples {#permalinks-monolingual-examples}
-
-With this content structure:
-
-```text
-content/
-├── posts/
-│   ├── bash-in-slow-motion.md
-│   └── tls-in-a-nutshell.md
-├── tutorials/
-│   ├── git-for-beginners.md
-│   └── javascript-bundling-with-hugo.md
-└── _index.md
-```
-
-Render tutorials under "training", and render the posts under "articles" with a date-base hierarchy:
-
-{{< code-toggle file=hugo >}}
-[permalinks.page]
-posts = '/articles/:year/:month/:slug/'
-tutorials = '/training/:slug/'
-[permalinks.section]
-posts = '/articles/'
-tutorials = '/training/'
-{{< /code-toggle >}}
-
-The structure of the published site will be:
-
-```text
-public/
-├── articles/
-│   ├── 2023/
-│   │   ├── 04/
-│   │   │   └── bash-in-slow-motion/
-│   │   │       └── index.html
-│   │   └── 06/
-│   │       └── tls-in-a-nutshell/
-│   │           └── index.html
-│   └── index.html
-├── training/
-│   ├── git-for-beginners/
-│   │   └── index.html
-│   ├── javascript-bundling-with-hugo/
-│   │   └── index.html
-│   └── index.html
-└── index.html
-```
-
-To create a date-based hierarchy for regular pages in the content root:
-
-{{< code-toggle file=hugo >}}
-[permalinks.page]
-"/" = "/:year/:month/:slug/"
-{{< /code-toggle >}}
-
-Use the same approach with taxonomy terms. For example, to omit the taxonomy segment of the URL:
-
-{{< code-toggle file=hugo >}}
-[permalinks.term]
-'tags' = '/:slug/'
-{{< /code-toggle >}}
-
-#### Multilingual example {#permalinks-multilingual-example}
-
-Use the `permalinks` configuration as a component of your localization strategy.
-
-With this content structure:
-
-```text
-content/
-├── en/
-│   ├── books/
-│   │   ├── les-miserables.md
-│   │   └── the-hunchback-of-notre-dame.md
-│   └── _index.md
-└── es/
-    ├── books/
-    │   ├── les-miserables.md
-    │   └── the-hunchback-of-notre-dame.md
-    └── _index.md
-```
-
-And this site configuration:
-
-{{< code-toggle file=hugo >}}
-defaultContentLanguage = 'en'
-defaultContentLanguageInSubdir = true
-
-[languages.en]
-contentDir = 'content/en'
-languageCode = 'en-US'
-languageDirection = 'ltr'
-languageName = 'English'
-weight = 1
-
-[languages.en.permalinks.page]
-books = "/books/:slug/"
-
-[languages.en.permalinks.section]
-books = "/books/"
-
-[languages.es]
-contentDir = 'content/es'
-languageCode = 'es-ES'
-languageDirection = 'ltr'
-languageName = 'Español'
-weight = 2
-
-[languages.es.permalinks.page]
-books = "/libros/:slug/"
-
-[languages.es.permalinks.section]
-books = "/libros/"
-{{< /code-toggle >}}
-
-The structure of the published site will be:
-
-```text
-public/
-├── en/
-│   ├── books/
-│   │   ├── les-miserables/
-│   │   │   └── index.html
-│   │   ├── the-hunchback-of-notre-dame/
-│   │   │   └── index.html
-│   │   └── index.html
-│   └── index.html
-├── es/
-│   ├── libros/
-│   │   ├── les-miserables/
-│   │   │   └── index.html
-│   │   ├── the-hunchback-of-notre-dame/
-│   │   │   └── index.html
-│   │   └── index.html
-│   └── index.html
-└── index.html
-````
-
-#### Tokens
-
-Use these tokens when defining the URL pattern. You can also use these tokens when setting the [`url`](#permalinks-tokens-in-front-matter) value in front matter.
-
-`:year`
-: The 4-digit year as defined in the front matter `date` field.
-
-`:month`
-: The 2-digit month as defined in the front matter `date` field.
-
-`:monthname`
-: The name of the month as defined in the front matter `date` field.
-
-`:day`
-: The 2-digit day as defined in the front matter `date` field.
-
-`:weekday`
-: The 1-digit day of the week as defined in the front matter `date` field  (Sunday = 0).
-
-`:weekdayname`
-: The name of the day of the week as defined in the front matter `date` field.
-
-`:yearday`
-: The 1- to 3-digit day of the year as defined in the front matter `date` field.
-
-`:section`
-: The content's section.
-
-`:sections`
-: The content's sections hierarchy. You can use a selection of the sections using _slice syntax_: `:sections[1:]` includes all but the first, `:sections[:last]` includes all but the last, `:sections[last]` includes only the last, `:sections[1:2]` includes section 2 and 3. Note that this slice access will not throw any out-of-bounds errors, so you don't have to be exact.
-
-`:title`
-: The `title` as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
-
-`:slug`
-: The `slug` as defined in front matter, else the `title` as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
-
-`:filename`
-: The content's file name without extension, applicable to the `page` page kind.
-
-  {{< deprecated-in v0.144.0 >}}
-  The `:filename` token has been  deprecated. Use `:contentbasename` instead.
-  {{< /deprecated-in >}}
-
-`:slugorfilename`
-: The `slug` as defined in front matter, else the content's file name without extension, applicable to the `page` page kind.
-
-  {{< deprecated-in v0.144.0 >}}
-  The `:slugorfilename` token has been deprecated. Use `:slugorcontentbasename` instead.
-  {{< /deprecated-in >}}
-
-`:contentbasename`
-: {{< new-in 0.144.0 />}}
-: The [content base name].
-
-[content base name]: /methods/page/file/#contentbasename
-
-`:slugorcontentbasename`
-: {{< new-in 0.144.0 />}}
-: The `slug` as defined in front matter, else the [content base name].
-
-For time-related values, you can also use the layout string components defined in Go's [time package]. For example:
-
-[time package]: https://pkg.go.dev/time#pkg-constants
-
-{{< code-toggle file=hugo >}}
-permalinks:
-  posts: /:06/:1/:2/:title/
-{{< /code-toggle >}}
+See [configure permalinks](/configuration/permalinks).
 
 ### Appearance
 
-The appearance of a URL is either ugly or pretty.
-
-Type|Path|URL
-:--|:--|:--
-ugly|content/about.md|`https://example.org/about.html`
-pretty|content/about.md|`https://example.org/about/`
-
-By default, Hugo produces pretty URLs. To generate ugly URLs, change your site configuration:
-
-{{< code-toggle file=hugo >}}
-uglyURLs = true
-{{< /code-toggle >}}
-
-You can also enable uglyURLs by section. For example, with a site that contains sections for books and films:
-
-{{< code-toggle file=hugo >}}
-[uglyURLs]
-books = true
-films = false
-{{< /code-toggle >}}
+See [configure ugly URLs](/configuration/ugly-urls/).
 
 ### Post-processing
 

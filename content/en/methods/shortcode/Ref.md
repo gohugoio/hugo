@@ -3,27 +3,28 @@ title: Ref
 description: Returns the absolute URL of the page with the given path, language, and output format.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/shortcode/RelRef
-    - functions/urls/RelRef
-    - functions/urls/Ref
-  returnType: string
-  signatures: [SHORTCODE.Ref OPTIONS]
+params:
+  functions_and_methods:
+    related:
+      - methods/shortcode/RelRef
+      - functions/urls/RelRef
+      - functions/urls/Ref
+    returnType: string
+    signatures: [SHORTCODE.Ref OPTIONS]
 ---
 
-The map of option contains:
 
-path
-: (`string`) The path to the page, relative to the `content` directory. Required.
+## Usage
 
-lang
-: (`string`) The language (site) to search for the page. Default is the current language. Optional.
+The `Ref` method accepts a single argument: an options map.
 
-outputFormat
-: (`string`) The output format to search for the page. Default is the current output format. Optional.
+## Options
 
-The examples below show the rendered output when visiting a page on the English language version of the site:
+{{% include "_common/ref-and-relref-options.md" %}}
+
+## Examples
+
+The following examples show the rendered output for a page on the English version of the site:
 
 ```go-html-template
 {{ $opts := dict "path" "/books/book-1" }}
@@ -36,9 +37,6 @@ The examples below show the rendered output when visiting a page on the English 
 {{ .Ref $opts }} → https://example.org/de/books/book-1/index.json
 ```
 
-By default, Hugo will throw an error and fail the build if it cannot resolve the path. You can change this to a warning in your site configuration, and specify a URL to return when the path cannot be resolved.
+## Error handling
 
-{{< code-toggle file=hugo >}}
-refLinksErrorLevel = 'warning'
-refLinksNotFoundURL = '/some/other/url'
-{{< /code-toggle >}}
+{{% include "_common/ref-and-relref-error-handling.md" %}}

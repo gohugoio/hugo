@@ -1,29 +1,24 @@
 ---
 title: macOS
 description: Install Hugo on macOS.
-categories: [installation]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: installation
-    weight: 20
-weight: 20
-toc: true
+weight: 10
 ---
 
 ## Editions
 
-{{% include "installation/_common/01-editions.md" %}}
+{{% include "/_common/installation/01-editions.md" %}}
 
 Unless your specific deployment needs require the extended/deploy edition, we recommend the extended edition.
 
-{{% include "installation/_common/02-prerequisites.md" %}}
+{{% include "/_common/installation/02-prerequisites.md" %}}
 
-{{% include "installation/_common/03-prebuilt-binaries.md" %}}
+{{% include "/_common/installation/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
-{{% include "installation/_common/homebrew.md" %}}
+{{% include "/_common/installation/homebrew.md" %}}
 
 ### MacPorts
 
@@ -35,7 +30,7 @@ sudo port install hugo
 
 [MacPorts]: https://www.macports.org/
 
-{{% include "installation/_common/04-build-from-source.md" %}}
+{{% include "/_common/installation/04-build-from-source.md" %}}
 
 ## Comparison
 

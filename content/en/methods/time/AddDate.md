@@ -3,11 +3,11 @@ title: AddDate
 description: Returns the time corresponding to adding the given number of years, months, and days to the given time.Time value.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: time.Time
-  signatures: [TIME.AddDate YEARS MONTHS DAYS]
+params:
+  functions_and_methods:
+    related: []
+    returnType: time.Time
+    signatures: [TIME.AddDate YEARS MONTHS DAYS]
 aliases: [/functions/adddate]
 ---
 

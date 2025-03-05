@@ -3,15 +3,15 @@ title: hugo.Store
 description: Returns a globally scoped "scratch pad" to store and manipulate data.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Store
-    - methods/site/Store
-    - methods/shortcode/Store
-    - functions/collections/NewScratch
-  returnType: maps.Scratch
-  signatures: [hugo.Store]
-toc: true
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Store
+      - methods/site/Store
+      - methods/shortcode/Store
+      - functions/collections/NewScratch
+    returnType: maps.Scratch
+    signatures: [hugo.Store]
 ---
 
 {{< new-in 0.139.0 />}}
@@ -20,7 +20,7 @@ Use the `hugo.Store` function to create a globally scoped [scratch pad](g) to st
 
 ## Methods
 
-###### Set
+### Set
 
 Sets the value of the given key.
 
@@ -28,7 +28,7 @@ Sets the value of the given key.
 {{ hugo.Store.Set "greeting" "Hello" }}
 ```
 
-###### Get
+### Get
 
 Gets the value of the given key.
 
@@ -37,7 +37,7 @@ Gets the value of the given key.
 {{ hugo.Store.Get "greeting" }} → Hello
 ```
 
-###### Add
+### Add
 
 Adds the given value to the existing value(s) of the given key.
 
@@ -61,7 +61,7 @@ For single values, `Add` accepts values that support Go's `+` operator. If the f
 {{ hugo.Store.Get "greetings" }} → [Hello Welcome Cheers]
 ```
 
-###### SetInMap
+### SetInMap
 
 Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
 
@@ -71,7 +71,7 @@ Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to th
 {{ hugo.Store.Get "greetings" }} → map[english:Hello french:Bonjour]
 ```
 
-###### DeleteInMap
+### DeleteInMap
 
 Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 
@@ -80,9 +80,9 @@ Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 {{ hugo.Store.SetInMap "greetings" "french" "Bonjour" }}
 {{ hugo.Store.DeleteInMap "greetings" "english" }}
 {{ hugo.Store.Get "greetings" }} → map[french:Bonjour]
-```
+  ```
 
-###### GetSortedMapValues
+### GetSortedMapValues
 
 Returns an array of values from `key` sorted by `mapKey`.
 
@@ -92,7 +92,7 @@ Returns an array of values from `key` sorted by `mapKey`.
 {{ hugo.Store.GetSortedMapValues "greetings" }} → [Hello Bonjour]
 ```
 
-###### Delete
+### Delete
 
 Removes the given key.
 

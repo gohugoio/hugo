@@ -3,14 +3,15 @@ title: collections.Seq
 description: Returns a slice of integers.
 categories: []
 keywords: []
-action:
-  aliases: [seq]
-  related: []
-  returnType: '[]int'
-  signatures:
-    - collections.Seq LAST
-    - collections.Seq FIRST LAST
-    - collections.Seq FIRST INCREMENT LAST
+params:
+  functions_and_methods:
+    aliases: [seq]
+    related: []
+    returnType: '[]int'
+    signatures:
+      - collections.Seq LAST
+      - collections.Seq FIRST LAST
+      - collections.Seq FIRST INCREMENT LAST
 aliases: [/functions/seq]
 ---
 

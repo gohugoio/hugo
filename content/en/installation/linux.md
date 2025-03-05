@@ -1,25 +1,20 @@
 ---
 title: Linux
 description: Install Hugo on Linux.
-categories: [installation]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: installation
-    weight: 30
-weight: 30
-toc: true
+weight: 20
 ---
 
 ## Editions
 
-{{% include "installation/_common/01-editions.md" %}}
+{{% include "/_common/installation/01-editions.md" %}}
 
 Unless your specific deployment needs require the extended/deploy edition, we recommend the extended edition.
 
-{{% include "installation/_common/02-prerequisites.md" %}}
+{{% include "/_common/installation/02-prerequisites.md" %}}
 
-{{% include "installation/_common/03-prebuilt-binaries.md" %}}
+{{% include "/_common/installation/03-prebuilt-binaries.md" %}}
 
 ## Package managers
 
@@ -27,7 +22,7 @@ Unless your specific deployment needs require the extended/deploy edition, we re
 
 [Snap] is a free and open-source package manager for Linux. Available for [most distributions], snap packages are simple to install and are automatically updated.
 
-The Hugo snap package is [strictly confined]. Strictly confined snaps run in complete isolation, up to a minimal access level that’s deemed always safe. The sites you create and build must be located within your home directory, or on removable media.
+The Hugo snap package is [strictly confined]. Strictly confined snaps run in complete isolation, up to a minimal access level that's deemed always safe. The sites you create and build must be located within your home directory, or on removable media.
 
 To install the extended edition of Hugo:
 
@@ -53,7 +48,7 @@ sudo snap disconnect hugo:ssh-keys
 [strictly confined]: https://snapcraft.io/docs/snap-confinement
 [Snap]: https://snapcraft.io/
 
-{{% include "installation/_common/homebrew.md" %}}
+{{% include "/_common/installation/homebrew.md" %}}
 
 ## Repository packages
 
@@ -117,16 +112,16 @@ To install the extended edition of Hugo on [Exherbo]:
 
 1. Add this line to /etc/paludis/options.conf:
 
-   ```text
-   www-apps/hugo extended
-   ```
+    ```text
+    www-apps/hugo extended
+    ```
 
 1. Install using the Paludis package manager:
 
-   ```sh
-   cave resolve -x repository/heirecka
-   cave resolve -x hugo
-   ```
+    ```sh
+    cave resolve -x repository/heirecka
+    cave resolve -x hugo
+    ```
 
 ### Fedora
 
@@ -201,7 +196,7 @@ sudo xbps-install -S hugo
 
 [Void Linux]: https://voidlinux.org/
 
-{{% include "installation/_common/04-build-from-source.md" %}}
+{{% include "/_common/installation/04-build-from-source.md" %}}
 
 ## Comparison
 

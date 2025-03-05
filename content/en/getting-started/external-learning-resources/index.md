@@ -2,14 +2,9 @@
 title: External learning resources
 linkTitle: External resources
 description: Use these third-party resources to learn Hugo.
-categories: [getting started]
-keywords: [books, tutorials, learning, usage]
-menu:
-  docs:
-    parent: getting-started
-    weight: 90
-weight: 90
-toc: true
+categories: []
+keywords: []
+weight: 40
 ---
 
 ## Books
@@ -42,7 +37,7 @@ ISBN: 9781680507263
 
 ### Hugo Beginner Tutorial Series
 
-Welcome to this introduction to Hugo tutorial. The goal of this series is to take you from a lion cub with basic web design knowledge to creating your first Hugo website. In this series you’ll learn how to set up a Hugo site, the basics of usingHugo layouts, partials, and templating, set up a blog, and finally use data files. By the end of this series you’ll have the foundational knowledge to build your own Hugo sites.
+Welcome to this introduction to Hugo tutorial. The goal of this series is to take you from a lion cub with basic web design knowledge to creating your first Hugo website. In this series you'll learn how to set up a Hugo site, the basics of usingHugo layouts, partials, and templating, set up a blog, and finally use data files. By the end of this series you'll have the foundational knowledge to build your own Hugo sites.
 
 1. [Getting set up in Hugo](https://cloudcannon.com/tutorials/hugo-beginner-tutorial/)
 1. [Layouts in Hugo](https://cloudcannon.com/tutorials/hugo-beginner-tutorial/layouts-in-hugo/)

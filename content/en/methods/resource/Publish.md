@@ -3,13 +3,16 @@ title: Publish
 description: Publishes the given resource.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Permalink
-    - methods/resource/RelPermalink
-  returnType: nil
-  signatures: [RESOURCE.Publish]
+params:
+  functions_and_methods:
+    related:
+      - methods/resource/Permalink
+      - methods/resource/RelPermalink
+    returnType: nil
+    signatures: [RESOURCE.Publish]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 The `Publish` method on a `Resource` object writes the resource to the publish directory, typically `public`.
 
@@ -30,5 +33,3 @@ Instead of this:
 ```go-html-template
 {{ $noop := $resource.Permalink }}
 ```
-
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}

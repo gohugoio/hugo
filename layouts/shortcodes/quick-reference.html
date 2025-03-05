@@ -1,13 +1,13 @@
 {{/* prettier-ignore-start */ -}}
-{{/*
-Renders the child sections of the given top-level section, listing each child's immediate descendants.
+{{- /*
+Renders the child sections of the given top-level section, listing each child's
+immediate descendants.
 
 @param {string} section The top-level section to render.
-@returns template.HTML
 
-@example {{% quick-reference section="functions" %}}
-*/}}
-
+@example {{< quick-reference section="functions" >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
 {{ $section := "" }}
 {{ with .Get "section" }}
   {{ $section = . }}
@@ -15,27 +15,28 @@ Renders the child sections of the given top-level section, listing each child's 
   {{ errorf "The %q shortcodes requires a 'section' parameter. See %s" .Name .Position }}
 {{ end }}
 
-{{/* Do not change the markdown indentation, and do not remove blank lines. */}}
 {{ with site.GetPage $section }}
   {{ range .Sections }}
-
-## {{ .LinkTitle }}
-{{ .RawContent }}
-
-    {{ range .Pages }}
-      {{ $aliases := "" }}
-      {{ if eq .Section "functions" }}
-        {{ with .Params.action.aliases }}
-          {{ $aliases = delimit . " or " }}
+    <h2>{{ .LinkTitle }}</h2>
+    {{ .Content }}
+    {{ with .Pages }}
+      <dl>
+        {{ range . }}
+          {{ $aliases := "" }}
+          {{ if eq .Section "functions" }}
+            {{ with .Params.functions_and_methods.aliases }}
+              {{ $aliases = delimit . " or " }}
+            {{ end }}
+          {{ end }}
+          <dt>
+            <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+            {{ with $aliases }}<span class="font-normal text-stone-700">({{ . }})</span>{{ end }}
+          </dt>
+          <dd>{{ .Description }}</dd>
         {{ end }}
-      {{ end }}
-
-[{{ .LinkTitle }}]({{ .RelPermalink }}) {{ with $aliases }}({{ . }}){{ end }}
-: {{ .Description }}
-
+      </dl>
     {{ end }}
   {{ end }}
 {{ else }}
   {{ errorf "The %q shortcodes was unable to find the %q section. See %s" .Name $section .Position }}
 {{ end }}
-{{/* prettier-ignore-end */ -}}

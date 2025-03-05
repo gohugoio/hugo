@@ -1,14 +1,8 @@
 ---
 title: Page resources
 description: Use page resources to logically associate assets with a page.
-categories: [content management]
-keywords: [bundle,content,resources]
-menu:
-  docs:
-    parent: content-management
-    weight: 80
-weight: 80
-toc: true
+categories: []
+keywords: []
 ---
 
 Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
@@ -46,7 +40,7 @@ Use any of these methods on a `Page` object to capture page resources:
  - [`Resources.GetMatch`]
  - [`Resources.Match`]
 
- Once you have captured a resource, use any of the applicable [`Resource`] methods to return a value or perform an action. 
+ Once you have captured a resource, use any of the applicable [`Resource`] methods to return a value or perform an action.
 
 [`Resource`]: /methods/resource
 [`Resources.ByType`]: /methods/page/resources#bytype

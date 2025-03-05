@@ -3,14 +3,14 @@ title: images.Text
 description: Returns an image filter that adds text to an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: ['images.Text TEXT [OPTIONS]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/images/Filter
+      - methods/resource/Filter
+    returnType: images.filter
+    signatures: ['images.Text TEXT [OPTIONS]']
 ---
 
 ## Options

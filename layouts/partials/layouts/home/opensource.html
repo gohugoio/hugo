@@ -32,9 +32,10 @@
               Popular.
             </dt>
             <dd class="inline ml-1">
-              As of writing this, Hugo has
-              {{ $githubInfo.stargazers_count }}
-              stars on GitHub. Join the crowd and hit the
+              Hugo has
+              {{ $githubInfo.stargazers_count | lang.FormatNumber 0 }}
+              stars on GitHub as of {{ now.Format "January 2, 2006" }}.
+              Join the crowd and hit the
               <a
                 class="text-blue-500 hover:text-blue-500 font-semibold"
                 href="https://github.com/gohugoio/hugo"

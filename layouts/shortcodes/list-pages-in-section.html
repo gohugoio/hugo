@@ -21,23 +21,21 @@ omitElementIDs to true for the subset.
 @param {string} path The path to the section.
 @param {string} [filter=""] The name of filter list.
 @param {string} [filterType=""] The type of filter, either include or exclude.
-@param {string} [omitElementIDs=false] Whether to omit dt element ids.
+@param {string} [omitElementIDs=true] Whether to omit dt element ids.
 @param {string} [titlePrefix=""] The string to prepend to the link title.
-
-@returns template.HTML
 
 @example {{< list-pages-in-section path=/methods/resources >}}
 @example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude >}}
 @example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo >}}
 @example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo omitElementIDs=true >}}
-*/}}
+*/ -}}
 {{/* prettier-ignore-end */ -}}
 {{- /* Initialize. */}}
 {{- $filter := or "" (.Get "filter" | lower) }}
 {{- $filterType := or (.Get "filterType") "none" | lower }}
 {{- $filteredPages := slice }}
 {{- $titlePrefix := or (.Get "titlePrefix") "" }}
-{{- $omitElementIDs := false }}
+{{- $omitElementIDs := true }}
 
 {{- /* Get boolean parameters. */}}
 {{- if in (slice "false" false 0) (.Get "omitElementIDs") }}

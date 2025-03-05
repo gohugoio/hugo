@@ -3,15 +3,16 @@ title: partials.Include
 description: Executes the given partial template, optionally passing context. If the partial template contains a return statement, returns the given value, else returns the rendered output.
 categories: []
 keywords: []
-action:
-  aliases: [partial]
-  related:
-    - functions/go-template/return
-    - functions/partials/IncludeCached
-    - functions/go-template/template
-    - methods/page/Render
-  returnType: any
-  signatures: ['partials.Include NAME [CONTEXT]']
+params:
+  functions_and_methods:
+    aliases: [partial]
+    related:
+      - functions/go-template/return
+      - functions/partials/IncludeCached
+      - functions/go-template/template
+      - methods/page/Render
+    returnType: any
+    signatures: ['partials.Include NAME [CONTEXT]']
 aliases: [/functions/partial]
 ---
 

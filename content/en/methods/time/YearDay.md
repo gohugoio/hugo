@@ -3,10 +3,11 @@ title: YearDay
 description: Returns the day of the year of the given time.Time value, in the range [1, 365] for non-leap years, and [1, 366] in leap years.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: int
-  signatures: [TIME.YearDay]
+params:
+  functions_and_methods:
+    related: []
+    returnType: int
+    signatures: [TIME.YearDay]
 ---
 
 ```go-html-template

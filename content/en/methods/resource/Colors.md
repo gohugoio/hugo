@@ -3,29 +3,32 @@ title: Colors
 description: Applicable to images, returns a slice of the most dominant colors using a simple histogram method.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: '[]images.Color'
-  signatures: [RESOURCE.Colors]
-toc: true
-math: true
+params:
+  functions_and_methods:
+    related: []
+    returnType: '[]images.Color'
+    signatures: [RESOURCE.Colors]
 ---
 
-The `Resources.Colors` method returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
+The `Resources.Colors` method returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
 
 ## Methods
 
 Each color is an object with the following methods:
 
-ColorHex
-{{< new-in 0.125.0 />}}
-: (`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
+### ColorHex
 
-Luminance
 {{< new-in 0.125.0 />}}
-: (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
+
+(`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
+
+### Luminance
+
+{{< new-in 0.125.0 />}}
+
+(`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
 {{< note >}}
 Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.

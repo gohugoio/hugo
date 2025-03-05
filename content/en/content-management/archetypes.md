@@ -1,14 +1,8 @@
 ---
 title: Archetypes
 description: An archetype is a template for new content.
-categories: [content management]
-keywords: [archetypes,generators,metadata,front matter]
-menu:
-  docs:
-    parent: content-management
-    weight: 140
-weight: 140
-toc: true
+categories: []
+keywords: []
 aliases: [/content/archetypes/]
 ---
 

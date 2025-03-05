@@ -3,18 +3,19 @@ title: math.Sin
 description: Returns the sine of the given radian number.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/math/Pi
-    - functions/math/Cos
-    - functions/math/Tan
-    - functions/math/Asin
-    - functions/math/Acos
-    - functions/math/Atan
-    - functions/math/Atan2
-  returnType: float64
-  signatures: [math.Sin VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/math/Pi
+      - functions/math/Cos
+      - functions/math/Tan
+      - functions/math/Asin
+      - functions/math/Acos
+      - functions/math/Atan
+      - functions/math/Atan2
+    returnType: float64
+    signatures: [math.Sin VALUE]
 ---
 
 {{< new-in 0.130.0 />}}

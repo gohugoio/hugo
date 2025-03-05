@@ -3,12 +3,13 @@ title: Menu
 description: Returns the identifier of the menu that contains the given menu entry.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/IsMenuCurrent
-    - methods/page/HasMenuCurrent
-  returnType: string
-  signatures: [MENUENTRY.Menu]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/IsMenuCurrent
+      - methods/page/HasMenuCurrent
+    returnType: string
+    signatures: [MENUENTRY.Menu]
 ---
 
 ```go-html-template

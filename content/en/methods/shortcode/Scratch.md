@@ -3,10 +3,11 @@ title: Scratch
 description: Returns a "scratch pad" to store and manipulate data, scoped to the current shortcode.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: maps.Scratch
-  signatures: [SHORTCODE.Scratch]
+params:
+  functions_and_methods:
+    related: []
+    returnType: maps.Scratch
+    signatures: [SHORTCODE.Scratch]
 expiryDate: 2026-11-18 # deprecated 2024-11-18 (soft)
 ---
 

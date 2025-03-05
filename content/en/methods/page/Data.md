@@ -3,11 +3,11 @@ title: Data
 description: Returns a unique data object for each page kind.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Data
-  signatures: [PAGE.Data]
-toc: true
+params:
+  functions_and_methods:
+    related: []
+    returnType: page.Data
+    signatures: [PAGE.Data]
 ---
 
 The `Data` method on a `Page` object returns a unique data object for each [page kind](g).

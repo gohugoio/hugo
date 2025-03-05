@@ -11,7 +11,7 @@
         {{ range $fields }}
           {{ $s := . }}
           {{ if eq $s "_key" }}
-            {{ $s = "Type" }}
+            {{ $s = "type" }}
           {{ end }}
           <th>{{ $s }}</th>
         {{ end }}

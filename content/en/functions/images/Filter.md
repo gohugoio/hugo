@@ -3,13 +3,13 @@ title: images.Filter
 description: Applies one or more image filters to the given image resource.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - methods/resource/Filter
-  returnType: images.ImageResource
-  signatures: [images.Filter FILTERS... IMAGE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - methods/resource/Filter
+    returnType: images.ImageResource
+    signatures: [images.Filter FILTERS... IMAGE]
 ---
 
 Apply one or more [image filters](#image-filters) to the given image.

@@ -3,20 +3,20 @@ title: css.TailwindCSS
 description: Processes the given resource with the Tailwind CSS CLI.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
-    - functions/css/PostCSS
-  returnType: resource.Resource
-  signatures: ['css.TailwindCSS [OPTIONS] RESOURCE']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/resources/Fingerprint
+      - functions/resources/Minify
+      - functions/css/PostCSS
+    returnType: resource.Resource
+    signatures: ['css.TailwindCSS [OPTIONS] RESOURCE']
 ---
 
 {{< new-in 0.128.0 />}}
 
-Use the `css.TailwindCSS` function to process your Tailwind CSS files.  This function uses the Tailwind CSS CLI to:
+Use the `css.TailwindCSS` function to process your Tailwind CSS files. This function uses the Tailwind CSS CLI to:
 
 1. Scan your templates for Tailwind CSS utility class usage.
 1. Compile those utility classes into standard CSS.
@@ -24,7 +24,7 @@ Use the `css.TailwindCSS` function to process your Tailwind CSS files.  This fun
 
 ## Setup
 
-###### Step 1
+### Step 1
 
 Install the Tailwind CSS CLI v4.0 or later:
 
@@ -36,7 +36,7 @@ The TailwindCSS CLI is also available as a [standalone executable] if you want t
 
 [standalone executable]: https://github.com/tailwindlabs/tailwindcss/releases/latest
 
-###### Step 2
+### Step 2
 
 Add this to your site configuration:
 
@@ -58,8 +58,7 @@ source = "(postcss|tailwind)\\.config\\.js"
 target = "css"
 {{< /code-toggle >}}
 
-
-###### Step 3
+### Step 3
 
 Create a CSS entry file:
 
@@ -70,7 +69,7 @@ Create a CSS entry file:
 
 Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` is listed in your `.gitignore` file, Tailwind CSS will ignore it. To make `hugo_stats.json` available to Tailwind CSS you must explicitly source it as shown in the example above.
 
-###### Step 4
+### Step 4
 
 Create a partial template to process the CSS with the Tailwind CSS CLI:
 
@@ -94,7 +93,7 @@ Create a partial template to process the CSS with the Tailwind CSS CLI:
 {{ end }}
 {{< /code >}}
 
-###### Step 5
+### Step 5
 
 Call the partial template from your base template:
 
@@ -106,7 +105,7 @@ Call the partial template from your base template:
 <head>
 {{< /code >}}
 
-###### Step 6
+### Step 6
 
 Optionally create a `tailwind.config.js` file in the root of your project as shown below. This is necessary if you use the [Tailwind CSS IntelliSense
 extension] for Visual Studio Code.
@@ -137,4 +136,4 @@ inlineImports
 : (`bool`) Whether to enable inlining of `@import` statements. Inlining is performed recursively, but currently once only per file. It is not possible to import the same file in different scopes (root, media query, etc.). Note that this import routine does not care about the CSS specification, so you can have `@import` statements anywhere in the file. Default is `false`.
 
 skipInlineImportsNotFound
-: (`bool`) When `inlineImports` is enabled, we fail the build if an import cannot be resolved. Enable this option to allow the build to continue and leave the import statement in place. Note that the inline importer does not process URL location or imports with media queries, so those will be left as-is even without enabling this option. Default is `false`.
+: (`bool`) Whether to allow the build process to continue despite unresolved import statements, preserving the original import declarations. It is important to note that the inline importer does not process URL-based imports or those with media queries, and these will remain unaltered even when this option is disabled. Default is `false`.

@@ -3,12 +3,12 @@ title: PageRef
 description: Returns the `pageRef` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related:
-    - /methods/menu-entry/URL
-  returnType: string
-  signatures: [MENUENTRY.PageRef]
-toc: true
+params:
+  functions_and_methods:
+    related:
+      - /methods/menu-entry/URL
+    returnType: string
+    signatures: [MENUENTRY.PageRef]
 ---
 
 The use case for this method is rare.

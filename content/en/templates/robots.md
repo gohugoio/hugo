@@ -2,13 +2,9 @@
 title: robots.txt template
 linkTitle: robots.txt templates
 description: Hugo can generate a customized robots.txt in the same way as any other template.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 170
-weight: 170
+weight: 180
 aliases: [/extras/robots-txt/]
 ---
 
@@ -57,4 +53,4 @@ Remember that Hugo copies everything in the [`static` directory][static] to the 
 [static]: /getting-started/directory-structure/
 {{< /note >}}
 
-[site configuration]: /getting-started/configuration/
+[site configuration]: /configuration/

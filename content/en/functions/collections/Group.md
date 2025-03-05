@@ -3,11 +3,12 @@ title: collections.Group
 description: Groups the given page collection by the given key.
 categories: []
 keywords: []
-action:
-  aliases: [group]
-  related: []
-  returnType: any
-  signatures: [collections.Group KEY PAGES]
+params:
+  functions_and_methods:
+    aliases: [group]
+    related: []
+    returnType: any
+    signatures: [collections.Group KEY PAGES]
 aliases: [/functions/group]
 ---
 

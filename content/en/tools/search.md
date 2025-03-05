@@ -2,14 +2,9 @@
 title: Search tools
 linkTitle: Search
 description: See some of the open-source and commercial search options for your newly created Hugo website.
-categories: [developer tools]
-keywords: [search]
-menu:
-  docs:
-    parent: developer-tools
-    weight: 40
-weight: 40
-toc: true
+categories: []
+keywords: []
+weight: 30
 ---
 
 A static website with a dynamic search function? Yes, Hugo provides an alternative to embeddable scripts from Google or other search engines for static websites. Hugo allows you to provide your visitors with a custom search function by indexing your content files directly.

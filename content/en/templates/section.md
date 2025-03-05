@@ -1,14 +1,9 @@
 ---
 title: Section templates
 description: Create a section template to list its members.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 80
-weight: 80
-toc: true
+weight: 70
 aliases: [/templates/sections/,/templates/section-templates/]
 ---
 

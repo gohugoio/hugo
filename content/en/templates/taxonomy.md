@@ -1,14 +1,9 @@
 ---
 title: Taxonomy templates
 description: Create a taxonomy template to render a list of terms.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 90
-weight: 90
-toc: true
+weight: 80
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy-templates/]
 ---
 

@@ -3,12 +3,13 @@ title: WordCount
 description: Returns the number of words in the content of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/FuzzyWordCount
-    - methods/page/ReadingTime
-  returnType: int
-  signatures: [PAGE.WordCount]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/FuzzyWordCount
+      - methods/page/ReadingTime
+    returnType: int
+    signatures: [PAGE.WordCount]
 ---
 
 ```go-html-template

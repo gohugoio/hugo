@@ -3,14 +3,15 @@ title: collections.Shuffle
 description: Returns a random permutation of a given array or slice.
 categories: []
 keywords: []
-action:
-  aliases: [shuffle]
-  related:
-    - functions/collections/Reverse
-    - functions/collections/Sort
-    - functions/collections/Uniq
-  returnType: any
-  signatures: [collections.Shuffle COLLECTION]
+params:
+  functions_and_methods:
+    aliases: [shuffle]
+    related:
+      - functions/collections/Reverse
+      - functions/collections/Sort
+      - functions/collections/Uniq
+    returnType: any
+    signatures: [collections.Shuffle COLLECTION]
 aliases: [/functions/shuffle]
 ---
 

@@ -1,28 +1,25 @@
 {{/* prettier-ignore-start */ -}}
 {{- /*
-  Renders a callout or badge indicating the version in which a feature was added.
+Renders a callout or badge indicating the version in which a feature was added.
 
-  To render a callout, include descriptive text between the opening and closing
-  tags. To render a badge,omit the descriptive text and call the shortcode with
-  a self-closing tag.
+To render a callout, include descriptive text between the opening and closing
+tags. To render a badge,omit the descriptive text and call the shortcode with a
+self-closing tag.
 
-  When comparing the current version to the specified version, the "new in"
-  button will be hidden if any of the following conditions is true:
+When comparing the current version to the specified version, the "new in"
+button will be hidden if any of the following conditions is true:
 
-  - The major version difference exceeds the majorVersionDiffThreshold
-  - The minor version difference exceeds the minorVersionDiffThreshold
+- The major version difference exceeds the majorVersionDiffThreshold
+- The minor version difference exceeds the minorVersionDiffThreshold
 
-  @param {string} 0 The semantic version string, with or without a leading v.
-  @returns {template.HTML}
+@param {string} 0 The semantic version string, with or without a leading v.
 
-  @examples
+@example  {{< new-in 0.100.0 />}}
 
-      {{< new-in 0.100.0 />}}
-
-      {{< new-in 0.100.0 >}}
-      Some descriptive text here.
-      {{< /new-in >}}
-*/}}
+@example  {{{< new-in 0.100.0 >}}
+          Some descriptive text here.
+          {{< /new-in >}}
+*/ -}}
 {{/* prettier-ignore-end */ -}}
 {{- $majorVersionDiffThreshold := 0 }}
 {{- $minorVersionDiffThreshold := 30 }}

@@ -2,13 +2,8 @@
 title: Site audit
 linkTitle: Audit
 description: Run this audit before deploying your production site.
-categories: [troubleshooting]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: troubleshooting
-    weight: 20
-weight: 20
 ---
 
 There are several conditions that can produce errors in your published site which are not detected during the build. Run this audit before your final build.

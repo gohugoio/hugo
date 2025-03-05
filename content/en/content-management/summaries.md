@@ -2,14 +2,8 @@
 title: Content summaries
 linkTitle: Summaries
 description: Create and render content summaries.
-categories: [content management]
-keywords: [summaries,abstracts,read more]
-menu:
-  docs:
-    parent: content-management
-    weight: 160
-weight: 160
-toc: true
+categories: []
+keywords: []
 aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 
@@ -63,7 +57,7 @@ This is the second paragraph.
 
 If you do not define the summary manually or in front matter, Hugo automatically defines the summary based on the [`summaryLength`] in your site configuration.
 
-[`summaryLength`]: /getting-started/configuration/#summarylength
+[`summaryLength`]: /configuration/all/#summarylength
 
 {{< code file=content/example.md >}}
 +++

@@ -3,11 +3,12 @@ title: IsMenuCurrent
 description: Reports whether the given Page object matches the Page object associated with the given menu entry in the given menu.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/HasMenuCurrent
-  returnType: bool
-  signatures: [PAGE.IsMenuCurrent MENU MENUENTRY]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/HasMenuCurrent
+    returnType: bool
+    signatures: [PAGE.IsMenuCurrent MENU MENUENTRY]
 aliases: [/functions/ismenucurrent]
 ---
 

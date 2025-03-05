@@ -3,20 +3,20 @@ title: range
 description: Iterates over a non-empty collection, binds context (the dot) to successive elements, and executes the block.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/break
-    - functions/go-template/continue
-    - functions/go-template/else
-    - functions/go-template/end
-  returnType: 
-  signatures: [range COLLECTION]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/go-template/break
+      - functions/go-template/continue
+      - functions/go-template/else
+      - functions/go-template/end
+    returnType: 
+    signatures: [range COLLECTION]
 aliases: [/functions/range]
-toc: true
 ---
 
-{{% include "functions/go-template/_common/truthy-falsy.md" %}}
+{{% include "/_common/functions/truthy-falsy.md" %}}
 
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
@@ -191,7 +191,7 @@ Is rendered to:
 
 Unlike ranging over an array or slice, Hugo sorts by key when ranging over a map.
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`else`]: /functions/go-template/else/
 [`break`]: /functions/go-template/break/

@@ -3,13 +3,14 @@ title: transform.Remarshal
 description: Marshals a string of serialized data, or a map, into a string of serialized data in the specified format.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/encoding/Jsonify
-    - functions/transform/Unmarshal
-  returnType: string
-  signatures: [transform.Remarshal FORMAT INPUT]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/encoding/Jsonify
+      - functions/transform/Unmarshal
+    returnType: string
+    signatures: [transform.Remarshal FORMAT INPUT]
 aliases: [/functions/transform.remarshal]
 ---
 

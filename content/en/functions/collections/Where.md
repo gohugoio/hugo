@@ -3,12 +3,12 @@ title: collections.Where
 description: Returns the given collection, removing elements that do not satisfy the comparison condition.
 categories: []
 keywords: []
-action:
-  aliases: [where]
-  related: []
-  returnType: any
-  signatures: ['collections.Where COLLECTION KEY [OPERATOR] VALUE']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [where]
+    related: []
+    returnType: any
+    signatures: ['collections.Where COLLECTION KEY [OPERATOR] VALUE']
 aliases: [/functions/where]
 ---
 
@@ -176,7 +176,7 @@ To return a collection of pages where the "author" page parameter begins with ei
 {{ $pages := where .Site.RegularPages "Params.author" "like" `(?i)^victor` }}
 ```
 
-{{% include "functions/_common/regular-expressions.md" %}}
+{{% include "/_common/functions/regular-expressions.md" %}}
 
 {{< note >}}
 Use the `like` operator to compare string values. Comparing other data types will result in an empty collection.
@@ -281,11 +281,10 @@ Useful for theme authors, avoid hardcoding section names by using the `where` fu
 With this construct, a theme author can instruct users to specify their main sections in the site configuration:
 
 {{< code-toggle file=hugo >}}
-[params]
 mainSections = ['blog','galleries']
 {{< /code-toggle >}}
 
-If `params.mainSections` is not defined in the site configuration, the `MainSections` method returns a slice with one element---the top level section with the most pages.
+If `mainSections` is not defined in the site configuration, the `MainSections` method returns a slice with one element---the top-level section with the most pages.
 
 ## Boolean/undefined comparison
 
@@ -393,7 +392,7 @@ This template:
 
 ```go-html-template
 {{ $p1 := where .Site.RegularPages "Params.exclude" "ne" true }}
-{{ $p2 := where .Site.RegularPages "Params.exclude" "eq" nil  }}
+{{ $p2 := where .Site.RegularPages "Params.exclude" "eq" nil }}
 <ul>
   {{ range $p1 | complement $p2 }}
     <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
@@ -413,7 +412,7 @@ This template:
 
 ```go-html-template
 {{ $p1 := where .Site.RegularPages "Params.exclude" "ne" false }}
-{{ $p2 := where .Site.RegularPages "Params.exclude" "eq" nil  }}
+{{ $p2 := where .Site.RegularPages "Params.exclude" "eq" nil }}
 <ul>
   {{ range $p1 | complement $p2 }}
     <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>

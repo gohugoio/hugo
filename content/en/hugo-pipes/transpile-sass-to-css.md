@@ -2,13 +2,8 @@
 title: ToCSS
 linkTitle: Transpile Sass to CSS
 description: Transpile Sass to CSS.
-categories: [asset management]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: hugo-pipes
-    weight: 30
-weight: 30
 aliases: [/hugo-pipes/transform-to-css/]
 ---
 

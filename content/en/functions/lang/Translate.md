@@ -3,30 +3,29 @@ title: lang.Translate
 description: Translates a string using the translation tables in the i18n directory.
 categories: []
 keywords: []
-action:
-  aliases: [T, i18n]
-  related: []
-  returnType: string
-  signatures: ['lang.Translate KEY [CONTEXT]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [T, i18n]
+    related: []
+    returnType: string
+    signatures: ['lang.Translate KEY [CONTEXT]']
 aliases: [/functions/i18n]
 ---
 
-The `lang.Translate` function returns the value associated with given key as defined in the translation table for the current language. 
+The `lang.Translate` function returns the value associated with given key as defined in the translation table for the current language.
 
 If the key is not found in the translation table for the current language, the `lang.Translate` function falls back to the translation table for the [`defaultContentLanguage`].
 
-[`defaultContentLanguage`]: /getting-started/configuration/#defaultcontentlanguage
+[`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
 
 If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
 
 {{< note >}}
 To list missing and fallback translations, use the `--printI18nWarnings` flag when building your site.
 
-To render placeholders for missing and fallback translations, set 
-[`enableMissingTranslationPlaceholders`] to `true` in your site configuration.
+To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`] to `true` in your site configuration.
 
-[`enableMissingTranslationPlaceholders`]: /getting-started/configuration/#enablemissingtranslationplaceholders
+[`enableMissingTranslationPlaceholders`]: /configuration/all/#enablemissingtranslationplaceholders
 {{< /note >}}
 
 ## Translation tables
@@ -38,7 +37,7 @@ i18n/en.toml
 i18n/en-US.toml
 ```
 
-The base name must match the language key as defined in your site configuration.
+The base name must match the [language key] as defined in your site configuration.
 
 Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7] are also supported. You may omit the `art-x-` prefix for brevity. For example:
 
@@ -47,8 +46,11 @@ i18n/art-x-hugolang.toml
 i18n/hugolang.toml
 ```
 
+{{< note >}}
 Private use subtags must not exceed 8 alphanumeric characters.
+{{< /note >}}
 
+[language key]: /configuration/languages/#language-keys
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
 [RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
 

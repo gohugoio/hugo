@@ -1,14 +1,8 @@
 ---
 title: Data sources
 description: Use local and remote data sources to augment or create content.
-categories: [content management]
-keywords: [data,json,toml,yaml,xml]
-menu:
-  docs:
-    parent: content-management
-    weight: 280
-weight: 280
-toc: true
+categories: []
+keywords: []
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/,/templates/data-templates/]
 ---
 

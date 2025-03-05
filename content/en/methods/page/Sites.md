@@ -3,11 +3,12 @@ title: Sites
 description: Returns a collection of all Site objects, one for each language, ordered by language weight.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Site
-  returnType: page.Sites
-  signatures: [PAGE.Sites]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Site
+    returnType: page.Sites
+    signatures: [PAGE.Sites]
 ---
 
 This is a convenience method to access `.Site.Sites`.

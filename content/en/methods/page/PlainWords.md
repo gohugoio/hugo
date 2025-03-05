@@ -3,16 +3,17 @@ title: PlainWords
 description: Calls the Plain method, splits the result into a slice of words, and returns the slice.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Content
-    - methods/page/Summary
-    - methods/page/ContentWithoutSummary
-    - methods/page/RawContent
-    - methods/page/Plain
-    - methods/page/RenderShortcodes
-  returnType: '[]string'
-  signatures: [PAGE.PlainWords]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Content
+      - methods/page/Summary
+      - methods/page/ContentWithoutSummary
+      - methods/page/RawContent
+      - methods/page/Plain
+      - methods/page/RenderShortcodes
+    returnType: '[]string'
+    signatures: [PAGE.PlainWords]
 ---
 
 The `PlainWords` method on a `Page` object calls the [`Plain`] method, then uses Go's [`strings.Fields`] function to split the result into words.

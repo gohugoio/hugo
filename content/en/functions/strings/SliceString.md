@@ -3,12 +3,13 @@ title: strings.SliceString
 description: Returns a substring of the given string, beginning with the start position and ending before the end position.
 categories: []
 keywords: []
-action:
-  aliases: [slicestr]
-  related:
-    - functions/strings/Substr
-  returnType: string
-  signatures: ['strings.SliceString STRING [START] [END]']
+params:
+  functions_and_methods:
+    aliases: [slicestr]
+    related:
+      - functions/strings/Substr
+    returnType: string
+    signatures: ['strings.SliceString STRING [START] [END]']
 aliases: [/functions/slicestr]
 ---
 

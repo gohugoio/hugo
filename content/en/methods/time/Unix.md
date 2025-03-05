@@ -1,15 +1,16 @@
 ---
 title: Unix
-description: Returns the given time.Time value expressed as the number of seconds elapsed since January 1, 1970 UTC. 
+description: Returns the given time.Time value expressed as the number of seconds elapsed since January 1, 1970 UTC.
 categories: []
-action:
-  related:
-    - methods/time/UnixMilli
-    - methods/time/UnixMicro
-    - methods/time/UnixNano
-    - functions/time/AsTime
-  returnType: int64
-  signatures: [TIME.Unix]
+params:
+  functions_and_methods:
+    related:
+      - methods/time/UnixMilli
+      - methods/time/UnixMicro
+      - methods/time/UnixNano
+      - functions/time/AsTime
+    returnType: int64
+    signatures: [TIME.Unix]
 aliases: [/functions/unix]
 ---
 

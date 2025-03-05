@@ -3,11 +3,12 @@ title: lang.Merge
 description: Merge missing translations from other languages.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: any
-  signatures: [lang.Merge FROM TO]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: any
+    signatures: [lang.Merge FROM TO]
 aliases: [/functions/lang.merge]
 ---
 

@@ -3,10 +3,11 @@ title: ByLength
 description: Returns the given page collection sorted by content length in ascending order.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Pages
-  signatures: [PAGES.ByLength]
+params:
+  functions_and_methods:
+    related: []
+    returnType: page.Pages
+    signatures: [PAGES.ByLength]
 ---
 
 ```go-html-template

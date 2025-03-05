@@ -2,15 +2,15 @@
 title: transform.ToMath
 description: Renders mathematical equations and expressions written in the LaTeX markup language.
 categories: []
-keywords: [katex,latex,math,typesetting]
-action:
-  aliases: []
-  related:
-    - content-management/mathematics
-  returnType: types.Result[template.HTML]
-  signatures: ['transform.ToMath INPUT [OPTIONS]']
+keywords: []
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - content-management/mathematics
+    returnType: types.Result[template.HTML]
+    signatures: ['transform.ToMath INPUT [OPTIONS]']
 aliases: [/functions/tomath]
-toc: true
 ---
 
 {{< new-in 0.132.0 />}}
@@ -44,7 +44,7 @@ Pass a map of options as the second argument to the `transform.ToMath` function.
 [rendering options]: https://katex.org/docs/options.html
 
 displayMode
-: (`bool`) If `true` render in display mode, else render in inline mode. Default is `false`.
+: (`bool`) Whether to render in display mode instead of inline mode. Default is `false`.
 
 errorColor
 : (`string`) The color of the error messages expressed as an RGB [hexadecimal color]. Default is `#cc0000`.
@@ -52,7 +52,7 @@ errorColor
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 
 fleqn
-: (`bool`) If `true` render flush left with a 2em left margin. Default is `false`.
+: (`bool`) Whether to render flush left with a 2em left margin. Default is `false`.
 
 macros
 : (`map`) A map of macros to be used in the math expression. Default is `{}`.
@@ -78,7 +78,7 @@ output
     <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
 
 throwOnError
-: (`bool`) If `true` throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
+: (`bool`) Whether to throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
 
 ## Error handling
 
@@ -94,11 +94,11 @@ The example below demonstrates error handing within a template.
 
 Instead of client-side JavaScript rendering of mathematical markup using MathJax or KaTeX, create a passthrough render hook which calls the `transform.ToMath` function.
 
-###### Step 1
+### Step 1
 
 Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
-[passthrough extension]: /getting-started/configuration-markup/#passthrough
+[passthrough extension]: /configuration/markup/#passthrough
 
 {{< code-toggle file=hugo copy=true >}}
 [markup.goldmark.extensions.passthrough]
@@ -113,7 +113,7 @@ inline = [['\(', '\)']]
 The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 {{< /note >}}
 
-###### Step 2
+### Step 2
 
 Create a [passthrough render hook] to capture and render the LaTeX markup.
 
@@ -131,7 +131,7 @@ Create a [passthrough render hook] to capture and render the LaTeX markup.
 {{- end -}}
 {{< /code >}}
 
-###### Step 3
+### Step 3
 
 In your base template, conditionally include the KaTeX CSS within the head element.
 
@@ -146,7 +146,7 @@ In your base template, conditionally include the KaTeX CSS within the head eleme
 
 In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
-###### Step 4
+### Step 4
 
 Add some mathematical markup to your content, then test.
 

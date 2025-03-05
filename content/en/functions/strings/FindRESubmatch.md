@@ -3,20 +3,21 @@ title: strings.FindRESubmatch
 description: Returns a slice of all successive matches of the regular expression. Each element is a slice of strings holding the text of the leftmost match of the regular expression and the matches, if any, of its subexpressions.
 categories: []
 keywords: []
-action:
-  aliases: [findRESubmatch]
-  related:
-    - functions/strings/FindRE
-    - functions/strings/Replace
-    - functions/strings/ReplaceRE
-  returnType: '[][]string'
-  signatures: ['strings.FindRESubmatch PATTERN INPUT [LIMIT]']
+params:
+  functions_and_methods:
+    aliases: [findRESubmatch]
+    related:
+      - functions/strings/FindRE
+      - functions/strings/Replace
+      - functions/strings/ReplaceRE
+    returnType: '[][]string'
+    signatures: ['strings.FindRESubmatch PATTERN INPUT [LIMIT]']
 aliases: [/functions/findresubmatch]
 ---
 
 By default, `findRESubmatch` finds all matches. You can limit the number of matches with an optional LIMIT argument. A return value of nil indicates no match.
 
-{{% include "functions/_common/regular-expressions.md" %}}
+{{% include "/_common/functions/regular-expressions.md" %}}
 
 ## Demonstrative examples
 

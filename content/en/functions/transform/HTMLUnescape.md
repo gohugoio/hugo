@@ -3,12 +3,13 @@ title: transform.HTMLUnescape
 description: Returns the given string, replacing each HTML entity with its corresponding character.
 categories: []
 keywords: []
-action:
-  aliases: [htmlUnescape]
-  related:
-    - functions/transform/HTMLEscape
-  returnType: string
-  signatures: [transform.HTMLUnescape INPUT]
+params:
+  functions_and_methods:
+    aliases: [htmlUnescape]
+    related:
+      - functions/transform/HTMLEscape
+    returnType: string
+    signatures: [transform.HTMLUnescape INPUT]
 aliases: [/functions/htmlunescape]
 ---
 

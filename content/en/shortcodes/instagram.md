@@ -1,14 +1,8 @@
 ---
 title: Instagram
 description: Embed an Instagram post in your content using the instagram shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< note >}}

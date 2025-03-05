@@ -3,12 +3,12 @@ title: GetPage
 description: Returns a Page object from the given path.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/GetPage
-  returnType: page.Page
-  signatures: [SITE.GetPage PATH]
-toc: true
+params:
+  functions_and_methods:
+    related:
+      - methods/page/GetPage
+    returnType: page.Page
+    signatures: [SITE.GetPage PATH]
 ---
 
 The `GetPage` method is also available on `Page` objects, allowing you to specify a path relative to the current page. See&nbsp;[details].

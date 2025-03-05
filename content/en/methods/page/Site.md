@@ -3,11 +3,12 @@ title: Site
 description: Returns the Site object.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Sites
-  returnType: page.siteWrapper
-  signatures: [PAGE.Site]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Sites
+    returnType: page.siteWrapper
+    signatures: [PAGE.Site]
 ---
 
 See [Site methods].

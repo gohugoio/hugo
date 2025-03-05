@@ -3,12 +3,12 @@ title: diagrams.Goat
 description: Converts ASCII art to an SVG diagram, returning a GoAT diagram object.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: diagrams.goatDiagram
-  signatures: ['diagrams.Goat INPUT']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: diagrams.goatDiagram
+    signatures: ['diagrams.Goat INPUT']
 ---
 
 Useful in a [code block render hook], the `diagram.Goat` function converts ASCII art to an SVG diagram, returning a [GoAT] diagram object with the following methods:

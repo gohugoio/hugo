@@ -1,14 +1,9 @@
 ---
 title: Embedded templates
 description: Hugo provides embedded templates for common use cases.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 200
-weight: 200
-toc: true
+weight: 170
 aliases: [/templates/internal]
 ---
 
@@ -225,14 +220,14 @@ images = ["post-cover.png"]
 {{</ code-toggle >}}
 
 If [page bundles](/content-management/page-bundles/) are used and the `images` array is empty or undefined, images with file names matching `*feature*`, `*cover*`, or `*thumbnail*` are used for image metadata.
-If no image resources with those names are found, the images defined in the [site config](/getting-started/configuration/) are used instead.
+If no image resources with those names are found, the images defined in the [site config](/configuration/) are used instead.
 If no images are found at all, then an image-less Twitter `summary` card is used instead of `summary_large_image`.
 
 Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.
 
 Set the value of `twitter:site` in your site configuration:
 
-{{< code-toggle file="hugo" copy=false >}}
+{{< code-toggle file="hugo" >}}
 [params.social]
 twitter = "GoHugoIO"
 {{</ code-toggle >}}

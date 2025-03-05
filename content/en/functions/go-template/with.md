@@ -3,20 +3,20 @@ title: with
 description: Binds context (the dot) to the expression and executes the block if expression is truthy.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/if
-    - functions/go-template/else
-    - functions/go-template/end
-    - functions/collections/IsSet
-  returnType:
-  signatures: [with EXPR]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/go-template/if
+      - functions/go-template/else
+      - functions/go-template/end
+      - functions/collections/IsSet
+    returnType:
+    signatures: [with EXPR]
 aliases: [/functions/with]
-toc: true
 ---
 
-{{% include "functions/go-template/_common/truthy-falsy.md" %}}
+{{% include "/_common/functions/truthy-falsy.md" %}}
 
 ```go-html-template
 {{ $var := "foo" }}
@@ -94,6 +94,6 @@ This template will render the page title as desired:
 Gaining a thorough understanding of context is critical for anyone writing template code.
 {{< /note >}}
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`else`]: /functions/go-template/else/

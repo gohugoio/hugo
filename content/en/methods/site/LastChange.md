@@ -3,10 +3,11 @@ title: LastChange
 description: Returns the last modification date of site content.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: time.Time
-  signatures: [SITE.LastChange]
+params:
+  functions_and_methods:
+    related: []
+    returnType: time.Time
+    signatures: [SITE.LastChange]
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0
 ---
 

@@ -3,17 +3,18 @@ title: Name
 description: Returns the shortcode file name, excluding the file extension.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/shortcode/Position
-    - functions/fmt/Errorf
-  returnType: string
-  signatures: [SHORTCODE.Name]
+params:
+  functions_and_methods:
+    related:
+      - methods/shortcode/Position
+      - functions/fmt/Errorf
+    returnType: string
+    signatures: [SHORTCODE.Name]
 ---
 
 The `Name` method is useful for error reporting. For example, if your shortcode requires a "greeting" argument:
 
-{{< code file=layouts/shortcodes/myshortcode.html  >}}
+{{< code file=layouts/shortcodes/myshortcode.html >}}
 {{ $greeting := "" }}
 {{ with .Get "greeting" }}
   {{ $greeting = . }}

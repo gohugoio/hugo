@@ -1,14 +1,9 @@
 ---
 title: Basic usage
-description: Hugo's command line interface (CLI) is fully featured but simple to use, even for those with limited experience working from the command line.
-categories: [getting started]
-keywords: [usage,livereload,command,flags]
-menu:
-  docs:
-    parent: getting-started
-    weight: 30
-weight: 30
-toc: true
+description: Use the command-line interface (CLI) to perform basic tasks.
+categories: []
+keywords: []
+weight: 20
 aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 ---
 
@@ -71,7 +66,7 @@ Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [
 Hugo publishes descendants of draft, future, and expired [node](g) pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.
 
 [build options]: /content-management/build-options/
-[`cascade`]: /content-management/front-matter/#cascade-field
+[`cascade`]: /content-management/front-matter/#cascade
 {{< /note >}}
 
 You can override the default behavior when running `hugo` or `hugo server` with command line flags:
@@ -156,23 +151,21 @@ In a simple hosting environment, where you typically `ftp`, `rsync`, or `scp` yo
 
 Most of our users deploy their sites using a CI/CD workflow, where a push[^1] to their GitHub or GitLab repository triggers a build and deployment. Popular providers include [AWS Amplify], [CloudCannon], [Cloudflare Pages], [GitHub Pages], [GitLab Pages], and [Netlify].
 
-Learn more in the [hosting and deployment] section.
+Learn more in the [host and deploy] section.
 
 [^1]: The Git repository contains the entire project directory, typically excluding the `public` directory because the site is built _after_ the push.
 
 [`--destination`]: /commands/hugo/#options
 [`hugo server`]: /commands/hugo_server/
 [`hugo`]: /commands/hugo/
-[`publishDir`]: /getting-started/configuration/#publishdir
+[`publishDir`]: /configuration/all/#publishdir
 [AWS Amplify]: https://aws.amazon.com/amplify/
 [CloudCannon]: https://cloudcannon.com/
 [Cloudflare Pages]: https://pages.cloudflare.com/
-[commands]: /commands/
 [front matter]: /content-management/front-matter/
 [GitHub Pages]: https://pages.github.com/
 [GitLab Pages]: https://docs.gitlab.com/ee/user/project/pages/
-[hosting and deployment]: /hosting-and-deployment/
-[hosting]: /hosting-and-deployment/
+[host and deploy]: /host-and-deploy/
 [installing]: /installation/
 [LiveReload]: https://github.com/livereload/livereload-js
 [Netlify]: https://www.netlify.com/

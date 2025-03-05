@@ -3,15 +3,15 @@ title: collections.Sort
 description: Sorts slices, maps, and page collections.
 categories: []
 keywords: []
-action:
-  aliases: [sort]
-  related:
-    - functions/collections/Reverse
-    - functions/collections/Shuffle
-    - functions/collections/Uniq
-  returnType: any
-  signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [sort]
+    related:
+      - functions/collections/Reverse
+      - functions/collections/Shuffle
+      - functions/collections/Uniq
+    returnType: any
+    signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
 aliases: [/functions/sort]
 ---
 

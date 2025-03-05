@@ -3,13 +3,14 @@ title: collections.IsSet
 description: Reports whether the key exists within the collection.
 categories: []
 keywords: []
-action:
-  aliases: [isset]
-  related:
-    - functions/go-template/if
-    - functions/go-template/with
-  returnType: bool
-  signatures: [collections.IsSet COLLECTION KEY]
+params:
+  functions_and_methods:
+    aliases: [isset]
+    related:
+      - functions/go-template/if
+      - functions/go-template/with
+    returnType: bool
+    signatures: [collections.IsSet COLLECTION KEY]
 aliases: [/functions/isset]
 ---
 

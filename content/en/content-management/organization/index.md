@@ -2,14 +2,8 @@
 title: Content organization
 linkTitle: Organization
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
-categories: [content management,fundamentals]
-keywords: [sections,content,organization,bundle,resources]
-menu:
-  docs:
-    parent: content-management
-    weight: 20
-weight: 20
-toc: true
+categories: []
+keywords: []
 aliases: [/content/sections/]
 ---
 
@@ -71,7 +65,7 @@ The following demonstrates the relationships between your content organization a
 
 ### Index pages: `_index.md`
 
-`_index.md` has a special role in Hugo. It allows you to add front matter and content to `home`, `section`, `taxonomy`, and `term` pages. 
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to `home`, `section`, `taxonomy`, and `term` pages.
 
 {{< note >}}
 **Tip:** You can get a reference to the content and metadata in `_index.md` using the [`.Site.GetPage` function](/methods/page/getpage).
@@ -143,16 +137,16 @@ The `slug` is the last segment of the URL path, defined by the file name and opt
 
 ### `path`
 
-A content's `path` is determined by the section's path to the file. The file `path`
+A content's `path` is determined by the section's path to the file. The file `path`:
 
-* is based on the path to the content's location AND
-* does not include the slug
+- Is based on the path to the content's location AND
+- Does not include the slug
 
 ### `url`
 
 The `url` is the entire URL path, defined by the file path and optionally overridden by a `url` value in front matter. See [URL Management](/content-management/urls/#slug) for details.
 
-[config]: /getting-started/configuration/
+[config]: /configuration/
 [formats]: /content-management/formats/
 [front matter]: /content-management/front-matter/
 [getpage]: /methods/page/getpage/

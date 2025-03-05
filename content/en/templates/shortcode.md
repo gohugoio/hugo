@@ -1,15 +1,10 @@
 ---
 title: Shortcode templates
-description: Create custom shortcodes to simplify and standardize content creation. 
-categories: [templates]
+description: Create custom shortcodes to simplify and standardize content creation.
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 130
-weight: 130
+weight: 120
 aliases: [/templates/shortcode-templates/]
-toc: true
 ---
 
 {{< note >}}
@@ -97,7 +92,7 @@ Create a shortcode to insert the current year:
 
 Then call the shortcode from within your markup:
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=text >}}
 This is {{</* year */>}}, and look at how far we've come.
 {{< /code >}}
 
@@ -129,7 +124,7 @@ Create a shortcode to capture an image as a page resource, resize it to the give
 
 Then call the shortcode from within your markup:
 
-{{< code file=content/example/index.md >}}
+{{< code file=content/example/index.md lang=text >}}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
 {{< /code >}}
 
@@ -190,13 +185,13 @@ Shortcode arguments can be [named or positional]. We used named arguments previo
 
 [named or positional]: /content-management/shortcodes/#arguments
 
-{{< code file=content/example/index.md >}}
+{{< code file=content/example/index.md lang=text >}}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
 {{< /code >}}
 
 Here's how to call it with positional arguments:
 
-{{< code file=content/example/index.md >}}
+{{< code file=content/example/index.md lang=text >}}
 {{</* image a.jpg 300 "A white kitten" */>}}
 {{< /code >}}
 
@@ -235,7 +230,7 @@ Use the [`Params`] method to access the arguments as a collection.
 
 When using named arguments, the `Params` method returns a map:
 
-{{< code file=content/example/index.md >}}
+{{< code file=content/example/index.md lang=text >}}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
 {{< /code >}}
 
@@ -247,7 +242,7 @@ When using named arguments, the `Params` method returns a map:
 
  When using positional arguments, the `Params` method returns a slice:
 
-{{< code file=content/example/index.md >}}
+{{< code file=content/example/index.md lang=text >}}
 {{</* image a.jpg 300 "A white kitten" */>}}
 {{< /code >}}
 
@@ -263,11 +258,11 @@ Combine the `Params` method with the [`collections.IsSet`] function to determine
 
 ### Inner content
 
-Extract the content enclosed within shortcode tags using the [`Inner`] method.  This example demonstrates how to pass both content and a title to a shortcode. The shortcode then generates a `div` element containing an `h2` element (displaying the title) and the provided content.
+Extract the content enclosed within shortcode tags using the [`Inner`] method. This example demonstrates how to pass both content and a title to a shortcode. The shortcode then generates a `div` element containing an `h2` element (displaying the title) and the provided content.
 
 [`Inner`]: /methods/shortcode/inner/
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=text >}}
 {{</* contrived title="A Contrived Example" */>}}
 This is a **bold** word, and this is an _emphasized_ word.
 {{</* /contrived  */>}}
@@ -313,7 +308,7 @@ You also have an `img` shortcode with a single named `src` argument that you wan
 
 You can then call your shortcode in your content as follows:
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=text >}}
 {{</* gallery class="content-gallery" */>}}
   {{</* img src="/images/one.jpg" */>}}
   {{</* img src="/images/two.jpg" */>}}
@@ -326,15 +321,15 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 ```html
 <div class="content-gallery">
-    <img src="/images/one.jpg" class="content-gallery-image">
-    <img src="/images/two.jpg" class="content-gallery-image">
+  <img src="/images/one.jpg" class="content-gallery-image">
+  <img src="/images/two.jpg" class="content-gallery-image">
 </div>
 <img src="/images/three.jpg">
 ```
 
 ### Other examples
 
-For guidance, consider examining Hugo's embedded shortcodes.  The source code, available on [GitHub], can provide a useful model.
+For guidance, consider examining Hugo's embedded shortcodes. The source code, available on [GitHub], can provide a useful model.
 
 [GitHub]: https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates/shortcodes
 
@@ -342,7 +337,7 @@ For guidance, consider examining Hugo's embedded shortcodes.  The source code, a
 
 The [`HasShortcode`] method allows you to check if a specific shortcode has been called on a page. For example, consider a custom audio shortcode:
 
-{{< code file=content/example.md >}}
+{{< code file=content/example.md lang=text >}}
 {{</* audio src=/audio/test.mp3 */>}}
 {{< /code >}}
 

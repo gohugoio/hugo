@@ -3,20 +3,19 @@ title: IsDescendant
 description: Reports whether PAGE1 is a descendant of PAGE2.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/CurrentSection
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/Parent
-    - methods/page/Sections
-  returnType: bool
-  signatures: [PAGE1.IsDescendant PAGE2]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Ancestors
+      - methods/page/CurrentSection
+      - methods/page/FirstSection
+      - methods/page/InSection
+      - methods/page/IsAncestor
+      - methods/page/Parent
+      - methods/page/Sections
+    returnType: bool
+    signatures: [PAGE1.IsDescendant PAGE2]
 ---
-
-{{% glossary-term section %}}
 
 With this content structure:
 

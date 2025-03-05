@@ -2,14 +2,8 @@
 title: Image render hooks
 linkTitle: Images
 description: Create an image render to hook override the rendering of Markdown images to HTML.
-categories: [render hooks]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: render-hooks
-    weight: 60
-weight: 60
-toc: true
 ---
 
 ## Markdown
@@ -28,54 +22,43 @@ These components are passed into the render hook [context](g) as shown below.
 
 Image render hook templates receive the following context:
 
-###### Attributes
+Attributes
+: (`map`) The [Markdown attributes], available if you configure your site as follows:
 
-(`map`) The [Markdown attributes], available if you configure your site as follows:
+  {{< code-toggle file=hugo >}}
+  [markup.goldmark.parser]
+  wrapStandAloneImageWithinParagraph = false
+  [markup.goldmark.parser.attribute]
+  block = true
+  {{< /code-toggle >}}
+
+Destination
+: (`string`) The image destination.
+
+IsBlock
+: (`bool`) Reports whether a standalone image is not wrapped within a paragraph element.
+
+Ordinal
+: (`int`) The zero-based ordinal of the image on the page.
+
+Page
+: (`page`) A reference to the current page.
+
+PageInner
+: {{< new-in 0.125.0 />}}
+: (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
+
+PlainText
+: (`string`) The image description as plain text.
+
+Text
+: (`template.HTML`) The image description.
+
+Title
+: (`string`) The image title.
 
 [Markdown attributes]: /content-management/markdown-attributes/
-
-{{< code-toggle file=hugo >}}
-[markup.goldmark.parser]
-wrapStandAloneImageWithinParagraph = false
-[markup.goldmark.parser.attribute]
-block = true
-{{< /code-toggle >}}
-
-###### Destination
-
-(`string`) The image destination.
-
-###### IsBlock
-
-(`bool`) Returns true if a standalone image is not wrapped within a paragraph element.
-
-###### Ordinal
-
-(`int`) The zero-based ordinal of the image on the page.
-
-###### Page
-
-(`page`) A reference to the current page.
-
-###### PageInner
-
-{{< new-in 0.125.0 />}}
-
-(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
-
 [`RenderShortcodes`]: /methods/page/rendershortcodes
-
-###### PlainText
-
-(`string`) The image description as plain text.
-
-###### Text
-
-(`template.HTML`) The image description.
-
-###### Title
-
-(`string`) The image title.
 
 ## Examples
 
@@ -138,7 +121,7 @@ A custom render hook, even when provided by a theme or module, will override the
 {{< note >}}
 The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
-[duplication of shared page resources]: /getting-started/configuration-markup/#duplicateresourcefiles
+[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
 {{< /note >}}
 
 The embedded image render hook resolves internal Markdown destinations by looking for a matching [page resource](g), falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
@@ -157,4 +140,4 @@ target = 'assets'
 
 Note that the embedded image render hook does not perform image processing. Its sole purpose is to resolve Markdown image destinations.
 
-{{% include "/render-hooks/_common/pageinner.md" %}}
+{{% include "/_common/render-hooks/pageinner.md" %}}

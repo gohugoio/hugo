@@ -1,14 +1,8 @@
 ---
 title: X
 description: Embed an X post in your content using the x shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< new-in 0.141.0 />}}

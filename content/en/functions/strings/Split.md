@@ -3,12 +3,13 @@ title: strings.Split
 description: Returns a slice of strings by splitting the given string by a delimiter.
 categories: []
 keywords: []
-action:
-  aliases: [split]
-  related:
-    - functions/collections/Delimit
-  returnType: '[]string'
-  signatures: [strings.Split STRING DELIM]
+params:
+  functions_and_methods:
+    aliases: [split]
+    related:
+      - functions/collections/Delimit
+    returnType: '[]string'
+    signatures: [strings.Split STRING DELIM]
 aliases: [/functions/split]
 ---
 

@@ -3,11 +3,12 @@ title: Truncated
 description: Reports whether the content length exceeds the summary length.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Summary
-  returnType: bool
-  signatures: [PAGE.Truncated]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/Summary
+    returnType: bool
+    signatures: [PAGE.Truncated]
 ---
 
 You can define a [summary] manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.

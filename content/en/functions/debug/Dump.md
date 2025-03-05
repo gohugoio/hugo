@@ -3,11 +3,12 @@ title: debug.Dump
 description: Returns an object dump as a string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [debug.Dump VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: string
+    signatures: [debug.Dump VALUE]
 ---
 
 ```go-html-template

@@ -1,14 +1,8 @@
 ---
 title: Vimeo
 description: Embed a Vimeo video in your content using the vimeo shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< note >}}
@@ -35,7 +29,7 @@ Hugo renders this to:
 
 {{< vimeo 55073825 >}}
 
-## Parameters
+## Arguments
 
 class
 : (`string`) The `class` attribute of the wrapping `div` element. Adding one or more CSS classes disables inline styling.

@@ -3,14 +3,14 @@ title: return
 description: Used within partial templates, terminates template execution and returns the given value, if any.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/partials/Include
-    - functions/partials/IncludeCached
-  returnType: any
-  signatures: ['return [VALUE]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/partials/Include
+      - functions/partials/IncludeCached
+    returnType: any
+    signatures: ['return [VALUE]']
 ---
 
 The `return` statement is a non-standard extension to Go's [text/template package]. Used within partial templates, the `return` statement terminates template execution and returns the given value, if any.

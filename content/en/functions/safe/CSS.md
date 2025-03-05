@@ -3,23 +3,23 @@ title: safe.CSS
 description: Declares the given string as a safe CSS string.
 categories: []
 keywords: []
-action:
-  aliases: [safeCSS]
-  related:
-    - functions/safe/HTML
-    - functions/safe/HTMLAttr
-    - functions/safe/JS
-    - functions/safe/JSStr
-    - functions/safe/URL
-  returnType: template.CSS
-  signatures: [safe.CSS INPUT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: [safeCSS]
+    related:
+      - functions/safe/HTML
+      - functions/safe/HTMLAttr
+      - functions/safe/JS
+      - functions/safe/JSStr
+      - functions/safe/URL
+    returnType: template.CSS
+    signatures: [safe.CSS INPUT]
 aliases: [/functions/safecss]
 ---
 
 ## Introduction
 
-{{% include "functions/_common/go-html-template-package.md" %}}
+{{% include "/_common/functions/go-html-template-package.md" %}}
 
 ## Usage
 

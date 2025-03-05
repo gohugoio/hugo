@@ -1,11 +1,12 @@
 # Ignore all SVG icons.
 **/icons.html
+
 # These are whitespace sensitive.
 layouts/_default/_markup/render-code*
 layouts/_default/_markup/render-table*
-
-# Odd template syntax.
-layouts/_default/_markup/render-heading*
+layouts/shortcodes/glossary-term.html
+layouts/shortcodes/glossary.html
+layouts/shortcodes/highlighting-styles.html
 
 # No root node.
 layouts/partials/layouts/head/head.html

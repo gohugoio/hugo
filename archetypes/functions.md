@@ -3,9 +3,10 @@ title: {{ replace .File.ContentBaseName "-" " " | title }}
 description:
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType:
-  signatures: []
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType:
+    signatures: []
 ---

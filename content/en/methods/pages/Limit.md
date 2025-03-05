@@ -3,10 +3,11 @@ title: Limit
 description: Returns the first N pages from the given page collection.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Pages
-  signatures: [PAGES.Limit NUMBER]
+params:
+  functions_and_methods:
+    related: []
+    returnType: page.Pages
+    signatures: [PAGES.Limit NUMBER]
 ---
 
 ```go-html-template

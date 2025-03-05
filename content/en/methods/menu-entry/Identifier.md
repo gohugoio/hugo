@@ -1,12 +1,13 @@
 ---
 title: Identifier
-description: Returns the `identifier` property of the given menu entry. 
+description: Returns the `identifier` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [MENUENTRY.Identifier]
+params:
+  functions_and_methods:
+    related: []
+    returnType: string
+    signatures: [MENUENTRY.Identifier]
 ---
 
 The `Identifier` method returns the `identifier` property of the menu entry. If you define the menu entry [automatically], it returns the page's section.

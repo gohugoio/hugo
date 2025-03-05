@@ -3,19 +3,20 @@ title: strings.FindRE
 description: Returns a slice of strings that match the regular expression.
 categories: []
 keywords: []
-action:
-  aliases: [findRE]
-  related:
-    - functions/strings/FindRESubmatch
-    - functions/strings/Replace
-    - functions/strings/ReplaceRE
-  returnType: '[]string'
-  signatures: ['strings.FindRE PATTERN INPUT [LIMIT]']
+params:
+  functions_and_methods:
+    aliases: [findRE]
+    related:
+      - functions/strings/FindRESubmatch
+      - functions/strings/Replace
+      - functions/strings/ReplaceRE
+    returnType: '[]string'
+    signatures: ['strings.FindRE PATTERN INPUT [LIMIT]']
 aliases: [/functions/findre]
 ---
 By default, `findRE` finds all matches. You can limit the number of matches with an optional LIMIT argument.
 
-{{% include "functions/_common/regular-expressions.md" %}}
+{{% include "/_common/functions/regular-expressions.md" %}}
 
 This example returns a slice of all second level headings (`h2` elements) within the rendered `.Content`:
 

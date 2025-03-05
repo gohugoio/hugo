@@ -3,13 +3,14 @@ title: Params
 description: Returns a map of custom parameters as defined in the front matter of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/collections/IndexFunction
-    - methods/site/Params
-    - methods/page/Param
-  returnType: maps.Params
-  signatures: [PAGE.Params]
+params:
+  functions_and_methods:
+    related:
+      - functions/collections/IndexFunction
+      - methods/site/Params
+      - methods/page/Param
+    returnType: maps.Params
+    signatures: [PAGE.Params]
 ---
 
 With this front matter:

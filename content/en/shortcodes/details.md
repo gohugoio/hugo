@@ -1,14 +1,8 @@
 ---
 title: Details
 description: Insert an HTML details element into your content using the details shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< new-in 0.140.0 />}}
@@ -44,7 +38,7 @@ Which looks like this in your browser:
 This is a **bold** word.
 {{< /details >}}
 
-## Parameters
+## Arguments
 
 summary
 : (`string`) The content of the child `summary` element rendered from Markdown to HTML. Default is `Details`.

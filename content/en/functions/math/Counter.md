@@ -3,11 +3,12 @@ title: math.Counter
 description: Increments and returns a global counter.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: uint64
-  signatures: [math.Counter]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: uint64
+    signatures: [math.Counter]
 ---
 
 The counter is global for both monolingual and multilingual sites, and its initial value for each build is&nbsp;1.

@@ -2,14 +2,8 @@
 title: Blockquote render hooks
 linkTitle: Blockquotes
 description: Create a blockquote render hook to override the rendering of Markdown blockquotes to HTML.
-categories: [render hooks]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: render-hooks
-    weight: 30
-weight: 30
-toc: true
 ---
 
 {{< new-in 0.132.0 />}}
@@ -18,57 +12,45 @@ toc: true
 
 Blockquote render hook templates receive the following [context](g):
 
-###### AlertType
+AlertType
+: (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert type converted to lowercase. See the [alerts](#alerts) section below.
 
-(`string`) Applicable when [`Type`](#type) is `alert`, this is the alert type converted to lowercase. See the [alerts](#alerts) section below.
+AlertTitle
+: {{< new-in 0.134.0 />}}
+: (`template.HTML`) Applicable when [`Type`](#type) is `alert`, this is the alert title. See the [alerts](#alerts) section below.
 
-###### AlertTitle
+AlertSign
+: {{< new-in 0.134.0 />}}
+: (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert sign. Typically used to indicate whether an alert is graphically foldable, this is one of&nbsp;`+`,&nbsp;`-`,&nbsp;or an empty string. See the [alerts](#alerts) section below.
 
-{{< new-in 0.134.0 />}}
+Attributes
+: (`map`) The [Markdown attributes], available if you configure your site as follows:
 
-(`template.HTML`) Applicable when [`Type`](#type) is `alert`, this is the alert title. See the [alerts](#alerts) section below.
+  {{< code-toggle file=hugo >}}
+  [markup.goldmark.parser.attribute]
+  block = true
+  {{< /code-toggle >}}
 
-###### AlertSign
+Ordinal
+: (`int`) The zero-based ordinal of the blockquote on the page.
 
-{{< new-in 0.134.0 />}}
+Page
+: (`page`) A reference to the current page.
 
-(`string`) Applicable when [`Type`](#type) is `alert`, this is the alert sign. Typically used to indicate whether an alert is graphically foldable, this is one of&nbsp;`+`,&nbsp;`-`,&nbsp;or an empty string. See the [alerts](#alerts) section below.
+PageInner
+: (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
-###### Attributes
+Position
+: (`string`) The position of the blockquote within the page content.
 
-(`map`) The [Markdown attributes], available if you configure your site as follows:
+Text
+: (`template.HTML`) The blockquote text, excluding the first line if [`Type`](#type) is `alert`. See the [alerts](#alerts) section below.
+
+Type
+: (`string`) The blockquote type. Returns `alert` if the blockquote has an alert designator, else `regular`. See the [alerts](#alerts) section below.
 
 [Markdown attributes]: /content-management/markdown-attributes/
-
-{{< code-toggle file=hugo >}}
-[markup.goldmark.parser.attribute]
-block = true
-{{< /code-toggle >}}
-
-###### Ordinal
-
-(`int`) The zero-based ordinal of the blockquote on the page.
-
-###### Page
-
-(`page`) A reference to the current page.
-
-###### PageInner
-
-(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
-
 [`RenderShortcodes`]: /methods/page/rendershortcodes
-
-###### Position
-
-(`string`) The position of the blockquote within the page content.
-
-###### Text
-(`template.HTML`) The blockquote text, excluding the first line if [`Type`](#type) is `alert`. See the [alerts](#alerts) section below.
-
-###### Type
-
-(`bool`) The blockquote type. Returns `alert` if the blockquote has an alert designator, else `regular`. See the [alerts](#alerts) section below.
 
 ## Examples
 
@@ -202,4 +184,4 @@ layouts/
         └── render-blockquote-regular.html
 ```
 
-{{% include "/render-hooks/_common/pageinner.md" %}}
+{{% include "/_common/render-hooks/pageinner.md" %}}

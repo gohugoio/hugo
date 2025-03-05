@@ -3,13 +3,14 @@ title: continue
 description: Used with the range statement, stops the innermost iteration and continues to the next iteration.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/break
-    - functions/go-template/range
-  returnType:
-  signatures: [continue]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/go-template/break
+      - functions/go-template/range
+    returnType:
+    signatures: [continue]
 ---
 
 This template code:
@@ -31,4 +32,4 @@ Is rendered to:
 <p>baz</p>
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

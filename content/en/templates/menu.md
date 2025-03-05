@@ -1,15 +1,9 @@
 ---
-title: Menus
+title: Menu templates
 description: Create templates to render one or more menus.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    identifier: templates-menu
-    parent: templates
-    weight: 180
-weight: 180
-toc: true
+weight: 150
 aliases: [/templates/menus/,/templates/menu-templates/]
 ---
 
@@ -127,7 +121,7 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 [in front matter]: /content-management/menus/#define-in-front-matter
 [in site configuration]: /content-management/menus/#define-in-site-configuration
 [localize the menu entries]: /content-management/multilingual/#menus
-[menu entry defined in front matter]: /content-management/menus/#example-front-matter
-[menu entry defined in site configuration]: /content-management/menus/#example-site-configuration
+[menu entry defined in front matter]: /content-management/menus/#example
+[menu entry defined in site configuration]: /configuration/menus
 [menu methods]: /methods/menu/
 [multilingual]: /content-management/multilingual/#menus

@@ -3,10 +3,11 @@ title: GetTerms
 description: Returns a collection of term pages for terms defined on the given page in the given taxonomy, ordered according to the sequence in which they appear in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Pages
-  signatures: [PAGE.GetTerms TAXONOMY]
+params:
+  functions_and_methods:
+    related: []
+    returnType: page.Pages
+    signatures: [PAGE.GetTerms TAXONOMY]
 ---
 
 Given this front matter:

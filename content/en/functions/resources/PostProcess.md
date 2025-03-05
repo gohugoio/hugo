@@ -10,7 +10,6 @@ action:
     - functions/css/Sass
   returnType: postpub.PostPublishedResource
   signatures: [resources.PostProcess RESOURCE]
-toc: true
 ---
 
 The `resources.PostProcess` function delays resource transformation steps until the build is complete, primarily for tasks like removing unused CSS rules.
@@ -22,7 +21,7 @@ In this example, after the build is complete, Hugo will:
 1. Purge unused CSS using the [PurgeCSS] plugin for [PostCSS]
 2. Add vendor prefixes to CSS rules using the [Autoprefixer] plugin for PostCSS
 3. [Minify] the CSS
-4. [Fingerprint] the CSS 
+4. [Fingerprint] the CSS
 
 [autoprefixer]: https://github.com/postcss/autoprefixer
 [fingerprint]: /functions/resources/fingerprint/
@@ -45,7 +44,7 @@ npm i -D postcss postcss-cli autoprefixer @fullhuman/postcss-purgecss
 Step 3
 : Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [`config/production`].
 
-[`config/production`]: /getting-started/configuration/#configuration-directory
+[`config/production`]: /configuration/introduction/#configuration-directory
 
 {{< code-toggle file=hugo >}}
 [build.buildStats]
@@ -54,7 +53,7 @@ enable = true
 
 See the [configure build] documentation for details and options.
 
-[configure build]: /getting-started/configuration/#configure-build
+[configure build]: /configuration/build/
 
 Step 4
 : Create a PostCSS configuration file in the root of your project.
@@ -86,7 +85,7 @@ module.exports = {
 {{< /code >}}
 
 {{< note >}}
-{{% include "functions/resources/_common/postcss-windows-warning.md" %}}
+{{% include "/_common/functions/postcss-windows-warning.md" %}}
 {{< /note >}}
 
 Step 5
@@ -132,7 +131,7 @@ HUGO_FILE_X
 - `postcss.config.js`
 - `tailwind.config.js`
 
-For each file, Hugo creates a corresponding environment variable named `HUGO_FILE_:filename:`, where `:filename:` is the uppercase version of the filename with periods replaced by underscores.  This allows you to access these files within your JavaScript, for example:
+For each file, Hugo creates a corresponding environment variable named `HUGO_FILE_:filename:`, where `:filename:` is the uppercase version of the filename with periods replaced by underscores. This allows you to access these files within your JavaScript, for example:
 
 ```js
 let tailwindConfig = process.env.HUGO_FILE_TAILWIND_CONFIG_JS || './tailwind.config.js';
@@ -144,7 +143,7 @@ Do not use `resources.PostProcess` when running Hugo's built-in development serv
 
 The `resources.PostProcess` function only works within templates that produce HTML files.
 
-You cannot manipulate the values returned from the resource’s methods. For example, the `strings.ToUpper` function in this example will not work as expected:
+You cannot manipulate the values returned from the resource's methods. For example, the `strings.ToUpper` function in this example will not work as expected:
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}

@@ -3,12 +3,13 @@ title: Nanoseconds
 description: Returns the time.Duration value as an integer nanosecond count.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/Duration
-    - functions/time/ParseDuration
-  returnType: int64
-  signatures: [DURATION.Nanoseconds]
+params:
+  functions_and_methods:
+    related:
+      - functions/time/Duration
+      - functions/time/ParseDuration
+    returnType: int64
+    signatures: [DURATION.Nanoseconds]
 ---
 
 ```go-html-template

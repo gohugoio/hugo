@@ -1,59 +1,48 @@
 ---
 title: Documentation
 description: Help us to improve the documentation by identifying issues and suggesting changes.
-categories: [contribute]
-keywords: [documentation]
-menu:
-  docs:
-    parent: contribute
-    weight: 30
-weight: 30
-toc: true
+categories: []
+keywords: []
 aliases: [/contribute/docs/]
 ---
 
 ## Introduction
 
-We welcome corrections and improvements to the documentation. Please note that the documentation resides in its own repository, separate from the project repository.
+We welcome corrections and improvements to the documentation. The documentation lives in a separate repository from the main project. To contribute:
 
-For corrections and improvements to the current documentation, please submit issues and pull requests to the [documentation repository].
-
-For documentation related to a new feature, please include the documentation changes when you submit a pull request to the [project repository].
+- For corrections and improvements to existing documentation, submit issues and pull requests to the [documentation repository].
+- For documentation of new features, include the documentation changes in your pull request to the [project repository].
 
 ## Guidelines
 
 ### Style
 
-Please adhere to Google's [developer documentation style guide].
+Follow Google's [developer documentation style guide].
 
 [developer documentation style guide]: https://developers.google.com/style
 
 ### Markdown
 
-Please follow these guidelines:
+Adhere to these Markdown conventions:
 
-- Use [ATX] headings, not [setext] headings, levels 2 through 4
-- Use [fenced code blocks], not [indented code blocks]
-- Use hyphens, not asterisks, with unordered [list items]
-- Use the [note shortcode] instead of blockquotes or bold text
-- Do not mix [raw HTML] within Markdown
-- Do not use bold text instead of a heading or description term (`dt`)
-- Remove consecutive blank lines (maximum of two)
-- Remove trailing spaces
+- Use [ATX] headings (levels 2-4), not [setext] headings.
+- Use [fenced code blocks], not [indented code blocks].
+- Use hyphens, not asterisks, for unordered [list items].
+- Use the [note shortcode] instead of blockquotes or bold text for emphasis.
+- Do not mix [raw HTML] within Markdown.
+- Do not use bold text in place of a heading or description term (`dt`).
+- Remove consecutive blank lines (limit to two).
+- Remove trailing spaces.
 
 ### Glossary
 
-Glossary terms are maintained on individual pages. While not directly accessible to site visitors, these pages act as a central repository for term definitions.
+[Glossary] terms are defined on individual pages, providing a central repository for definitions, though these pages are not directly linked from the site.
 
-Definitions must be presented in complete sentences, with the first sentence always introducing the term being defined. To enhance readability and consistency, the first occurrence of the term and any other referenced glossary terms should be italicized.
+Definitions must be complete sentences, with the first sentence defining the term. Italicize the first occurrence of the term and any referenced glossary terms for consistency.
 
-To link to a term definition on the glossary page, use this custom link syntax:
+Link to glossary terms using this syntax: `[term](g)`
 
-```text
-[term](g)
-```
-
-Lookups are case-insensitive, ignore formatting, and support both singular and plural forms. For example, all of these variations will link to the same glossary term:
+Term lookups are case-insensitive, ignore formatting, and support singular and plural forms. For example, all of these variations will link to the same glossary term:
 
 ```text
 [global resource](g)
@@ -62,7 +51,7 @@ Lookups are case-insensitive, ignore formatting, and support both singular and p
 [`Global Resources`](g)
 ```
 
-To insert a term definition, use the [`glossary-term`] shortcode:
+Use the glossary-term shortcode to insert a term definition:
 
 ```text
 {{%/* glossary-term "global resource" */%}}
@@ -70,29 +59,27 @@ To insert a term definition, use the [`glossary-term`] shortcode:
 
 ### Terminology
 
-Please link to the glossary (see above) when necessary, and use the terms consistently throughout the documentation. Of special note:
+Link to the [glossary] as needed and use terms consistently. Pay particular attention to:
 
-- The term "front matter" is two words unless you are referring to the configuration key
-- The term "home page" is two words
-- The term "website" is one word
-- The term "standalone" is one word, not hyphenated
-- Use the word "map" instead of "dictionary"
-- Use the word "flag" instead of "option" when referring to a command line flag
-- Use "client side" as a noun, and "client-side" as an adjective
-- Capitalize the word "Markdown"
-- Hyphenate the term "open-source" when used an adjective.
+- "front matter" (two words, except when referring to the configuration key)
+- "home page" (two words)
+- "website" (one word)
+- "standalone" (one word, no hyphen)
+- "map" (instead of "dictionary")
+- "flag" (instead of "option" for command-line flags)
+- "client side" (noun), "client-side" (adjective)
+- "Markdown" (capitalized)
+- "open-source" (hyphenated adjective)
 
-### Page titles and headings
+### Titles and headings
 
-Please follow these guidelines for page titles and headings:
+- Use sentence-style capitalization.
+- Avoid formatted strings.
+- Keep them concise.
 
-- Use sentence-style capitalization
-- Avoid formatted strings in headings and page titles
-- Shorter is better
+### Writing style
 
-### Use active voice with present tense
-
-In software documentation, passive voice is unavoidable in some cases. Please use active voice when possible.
+Use active voice and present tense wherever possible.
 
 No → With Hugo you can build a static site.\
 Yes → Build a static site with Hugo.
@@ -100,13 +87,13 @@ Yes → Build a static site with Hugo.
 No → This will cause Hugo to generate HTML files in the `public` directory.\
 Yes → Hugo generates HTML files in the `public` directory.
 
-### Use second person instead of third person
+Use second person instead of third person.
 
 No → Users should exercise caution when deleting files.\
 Better → You must be cautious when deleting files.\
 Best → Be cautious when deleting files.
 
-### Avoid adverbs when possible
+Minimize adverbs.
 
 No → Hugo is extremely fast.\
 Yes → Hugo is fast.
@@ -115,50 +102,49 @@ Yes → Hugo is fast.
 "It's an adverb, Sam. It's a lazy tool of a weak mind." (Outbreak, 1995).
 {{< /note >}}
 
-### Level 6 headings
-
-Level 6 headings are styled as `dt` elements. This was implemented to support a [glossary] with linkable terms.
-
 ### Function and method descriptions
 
-When adding a page to the [functions] or [methods] section, begin the description with the word "Returns". With functions and methods that return a boolean value, begin the description with the phrase "Reports whether".
-
-For example:
-
-- `Returns the URL aliases as defined in front matter.`
-- `Reports whether the given page is in the given section.`
+Start descriptions in the functions and methods sections with "Returns" or "Reports whether" (for boolean values).
 
 [functions]: /functions
 [methods]: /methods
 
-### Directory names, file names, and file paths
+### File paths and names
 
-Enclose directory names, file names, and file paths within backticks, with the following exceptions:
+Enclose directory names, file names, and file paths in backticks, except when used in:
 
 - Page titles
 - Section headings (h1-h6)
 - Definition list terms
-- The description field in front matter
+- The `description` field in front matter
 
 ### Miscellaneous
 
-Other guidelines to consider:
+Other best practices:
 
-- Do not place list items directly under a heading; include an introductory sentence or phrase before the list.
-- Avoid use of **bold** text. Use the [note shortcode] to draw attention to important content.
-- Do not place description terms (`dt`) within backticks unless required for syntactic clarity.
-- Do not use Hugo's `ref` or `relref` shortcodes. We use a link render hook to resolve and validate link destinations, including fragments.
-- Shorter is better. If there is more than one way to do something, describe the current best practice. For example, avoid phrases such as "you can also do..." and "in older versions you had to..."
-- When including code samples, use short snippets that demonstrate the concept.
-- The Hugo user community is global; use  [basic english](https://simple.wikipedia.org/wiki/Basic_English) when possible.
+- Introduce lists with a sentence or phrase, not directly under a heading.
+- Avoid bold text; use the note shortcode for emphasis.
+- Do not put description terms (`dt`) in backticks unless syntactically necessary.
+- Do not use Hugo's `ref` or `relref` shortcodes.
+- Prioritize current best practices over multiple options or historical - information.
+- Use short, focused code examples.
+- Use [basic english] where possible for a global audience.
+
+[basic english]: https://simple.wikipedia.org/wiki/Basic_English
 
 ## Code examples
 
-Indent code by two spaces. With examples of template code, include a space after opening action delimiters, and include a space before closing action delimiters.
+Indent code by two spaces. With examples of template code, ddd spaces around template code action delimiters:
+
+```go-html-template
+{{ if eq $foo $bar }}
+  {{ fmt.Printf "%s is %s" $foo $bar }}
+{{ end }}
+```
 
 ### Fenced code blocks
 
-Always include the language code when using a fenced code block:
+Always specify the language:
 
 ````text
 ```go-html-template
@@ -168,25 +154,16 @@ Always include the language code when using a fenced code block:
 ```
 ````
 
-```go-html-template
-{{ if eq $foo "bar" }}
-  {{ print "foo is bar" }}
-{{ end }}
-```
-
 ### Shortcode calls
 
-Use this syntax to include shortcodes calls within your code examples:
+Use this syntax :
 
+````text
 ```text
 {{</*/* foo */*/>}}
 {{%/*/* foo */*/%}}
 ```
-
-```text
-{{</* foo */>}}
-{{%/* foo */%}}
-```
+````
 
 ### Site configuration
 
@@ -200,12 +177,6 @@ title = 'My Site'
 {{</* /code-toggle */>}}
 ```
 
-{{< code-toggle file=hugo >}}
-baseURL = 'https://example.org/'
-languageCode = 'en-US'
-title = 'My Site'
-{{< /code-toggle >}}
-
 ### Front matter
 
 Use the [code-toggle shortcode] to include front matter examples:
@@ -218,15 +189,9 @@ draft = false
 {{</* /code-toggle */>}}
 ```
 
-{{< code-toggle file=content/posts/my-first-post.md fm=true >}}
-title = 'My first post'
-date = 2023-11-09T12:56:07-08:00
-draft = false
-{{< /code-toggle >}}
-
 ### Other code examples
 
-Use the [code shortcode] for other code examples that require a file name:
+Use the [code shortcode] for code examples that require a file name:
 
 ```text
 {{</* code file=layouts/_default/single.html */>}}
@@ -236,19 +201,13 @@ Use the [code shortcode] for other code examples that require a file name:
 {{</* /code */>}}
 ```
 
-{{< code file=layouts/_default/single.html >}}
-{{ range .Site.RegularPages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-{{ end }}
-{{< /code >}}
-
 ## Shortcodes
 
 These shortcodes are commonly used throughout the documentation. Other shortcodes are available for specialized use.
 
 ### code
 
-Use the `code` shortcode for other code examples that require a file name. See the [code examples] above. This shortcode takes these arguments:
+Use the `code` shortcode for code examples that require a file name. This shortcode takes these arguments:
 
 copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
@@ -264,14 +223,9 @@ lang
 Some code here
 {{</* /code */>}}
 ```
-
-{{< code file=content/something/foo.md lang=text copy=true >}}
-Some code here
-{{< /code >}}
-
 ### code-toggle
 
-Use the `code-toggle` shortcode to display examples of site configuration, front matter, or data files. See the [code examples] above. This shortcode takes these arguments:
+Use the `code-toggle` shortcode to display examples of site configuration, front matter, or data files. This shortcode takes these arguments:
 
 config
 : (`string`) The section of `site.Data.docs.config` to render.
@@ -280,25 +234,21 @@ copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
 
 file
-: (`string`) The file name to display. Omit the file extension for site configuration examples. Default is `hugo`
+: (`string`) The file name to display. Omit the file extension for site configuration examples.
 
 fm
 : (`bool`) Whether the example is front matter. Default is `false`.
 
 skipHeader
-: (`bool`) Whether to omit top level key(s) when rendering a section of `site.Data.docs.config`.
+: (`bool`) Whether to omit top-level key(s) when rendering a section of `site.Data.docs.config`.
 
 ```text
-{{</* code-toggle */>}}
-title: Example
-draft: false
+{{</* code-toggle file=hugo copy=true */>}}
+baseURL = 'https://example.org/'
+languageCode = 'en-US'
+title = 'My Site'
 {{</* /code-toggle */>}}
 ```
-
-{{< code-toggle >}}
-title: Example
-draft: false
-{{< /code-toggle >}}
 
 ### deprecated-in
 
@@ -306,17 +256,12 @@ Use the `deprecated-in` shortcode to indicate that a feature is deprecated:
 
 ```text
 {{</* deprecated-in 0.144.0 */>}}
+
 Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
 {{</* /deprecated-in */>}}
 ```
-
-{{< deprecated-in 0.144.0 >}}
-Use [`hugo.IsServer`] instead.
-
-[`hugo.IsServer`]: /functions/hugo/isserver/
-{{< /deprecated-in >}}
 
 ### eturl
 
@@ -328,10 +273,6 @@ This is a link to the [embedded alias template].
 [embedded alias template]: {{%/* eturl alias */%}}
 ```
 
-This is a link to the [embedded alias template].
-
-[embedded alias template]: {{% eturl alias %}}
-
 ### glossary-term
 
 Use the `glossary-term` shortcode to insert the definition of the given glossary term.
@@ -340,14 +281,12 @@ Use the `glossary-term` shortcode to insert the definition of the given glossary
 {{%/* glossary-term scalar */%}}
 ```
 
-{{% glossary-term scalar %}}
-
 ### include
 
 Use the `include` shortcode to include content from another page.
 
 ```text
-{{%/* include "functions/_common/glob-patterns" */%}}
+{{%/* include "_common/glob-patterns.md" */%}}
 ```
 
 ### new-in
@@ -355,10 +294,16 @@ Use the `include` shortcode to include content from another page.
 Use the `new-in` shortcode to indicate a new feature:
 
 ```text
-{{</* new-in 0.127.0 */>}}
+{{</* new-in 0.144.0 /*/>}}
 ```
 
-{{< new-in 0.127.0 />}}
+You can also include details:
+
+```text
+{{</* new-in 0.144.0 */>}}
+This is a new feature.
+{{</* /new-in */>}}
+```
 
 ### note
 
@@ -372,38 +317,32 @@ Use the [`math.Mod`] function to control...
 {{</* /note */>}}
 ```
 
-{{< note >}}
-Use the [`math.Mod`] function to control...
-
-[`math.Mod`]: /functions/math/mod/
-{{< /note >}}
-
 ## New features
 
-Use the "new-in" shortcode to indicate a new feature:
+Use the [`new-in`](#new-in) shortcode to indicate a new feature:
 
-{{< code file=content/something/foo.md lang=text >}}
-{{</* new-in 0.120.0 */>}}
-{{< /code >}}
+```text
+{{</* new-in 0.144.0 */>}}
+```
 
 The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/shortcodes/new-in.html).
 
 ## Deprecated features
 
-Use the "deprecated-in" shortcode to indicate that a feature is deprecated:
+Use the [`deprecated-in`](#deprecated-in) shortcode to indicate that a feature is deprecated:
 
-{{< code file=content/something/foo.md >}}
+```text
 {{</* deprecated-in 0.144.0 */>}}
 Use [`hugo.IsServer`] instead.
 
 [`hugo.IsServer`]: /functions/hugo/isserver/
 {{</* /deprecated-in */>}}
-{{< /code >}}
+```
 
 When deprecating a function or method, add something like this to front matter:
 
 {{< code-toggle file=content/something/foo.md fm=true >}}
-expiryDate: 2024-10-30 # deprecated 2022-10-30 in v0.123.0
+expiryDate: 2027-02-17 # deprecated 2025-02-17 in v0.144.0
 {{< /code-toggle >}}
 
 Set the `expiryDate` to two years from the date of deprecation, and add a brief front matter comment to explain the setting.
@@ -416,27 +355,33 @@ This section assumes that you have a working knowledge of Git and GitHub, and ar
 
 Use this workflow to create and submit pull requests.
 
-Step 1
-: Fork the [documentation repository].
+### Step 1
 
-Step 2
-: Clone your fork.
+Fork the [documentation repository].
 
-Step 3
-: Create a new branch with a descriptive name that includes the corresponding issue number, if any:
+### Step 2
+
+Clone your fork.
+
+### Step 3
+
+Create a new branch with a descriptive name that includes the corresponding issue number, if any:
 
 ```sh
 git checkout -b restructure-foo-page-99999
 ```
 
-Step 4
-: Make changes.
+### Step 4
 
-Step 5
-: Build the site locally to preview your changes.
+Make changes.
 
-Step 6
-: Commit your changes with a descriptive commit message:
+### Step 5
+
+Build the site locally to preview your changes.
+
+### Step 6
+
+Commit your changes with a descriptive commit message:
 
 - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
 - Optionally, provide a detailed description where each line is 80 characters or less, followed by a blank line.
@@ -444,7 +389,7 @@ Step 6
 
 For example:
 
-```sh
+```text
 git commit -m "Restructure the taxonomy page
 
 This restructures the taxonomy page by splitting topics into logical
@@ -454,14 +399,17 @@ Fixes #9999
 Closes #9998"
 ```
 
-Step 7
-: Push the new branch to your fork of the documentation repository.
+### Step 7
 
-Step 8
-: Visit the [documentation repository] and create a pull request (PR).
+Push the new branch to your fork of the documentation repository.
 
-Step 9
-: A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
+### Step 8
+
+Visit the [documentation repository] and create a pull request (PR).
+
+### Step 9
+
+A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
 [ATX]: https://spec.commonmark.org/0.30/#atx-headings
 [Microsoft Writing Style Guide]: https://learn.microsoft.com/en-us/style-guide/welcome/

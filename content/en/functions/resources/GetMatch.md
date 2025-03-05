@@ -29,8 +29,6 @@ For page resources, use the [`Resources.GetMatch`] method on a `Page` object.
 [`Resources.GetMatch`]: /methods/page/resources/
 {{< /note >}}
 
-Hugo determines a match using a case-insensitive [glob pattern].
+Hugo determines a match using a case-insensitive [glob](g) pattern.
 
-{{% include "functions/_common/glob-patterns.md" %}}
-
-[glob pattern]: https://github.com/gobwas/glob#example
+{{% include "/_common/glob-patterns.md" %}}

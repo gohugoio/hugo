@@ -3,17 +3,16 @@ title: js.Batch
 description: Build JavaScript bundle groups with global code splitting and flexible hooks/runners setup.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/js/Build
-    - functions/js/Babel
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
-  returnType: js.Batcher
-  signatures: ['js.Batch [ID]']
-weight: 20
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/js/Build
+      - functions/js/Babel
+      - functions/resources/Fingerprint
+      - functions/resources/Minify
+    returnType: js.Batcher
+    signatures: ['js.Batch [ID]']
 ---
 
 {{< note >}}
@@ -22,21 +21,21 @@ For a runnable example of this feature, see [this test and demo repo](https://gi
 
 The Batch `ID` is used to create the base directory for this batch. Forward slashes are allowed. `js.Batch` returns an object with an API with this structure:
 
-* [Group]
-  * [Script]
-    * [SetOptions]
-  * [Instance]
-    * [SetOptions]
-  * [Runner]
-    * [SetOptions]
-  * [Config]
-    * [SetOptions]
+- [Group]
+  - [Script]
+    - [SetOptions]
+  - [Instance]
+    - [SetOptions]
+  - [Runner]
+    - [SetOptions]
+  - [Config]
+    - [SetOptions]
 
 ## Group
 
 The `Group` method take an `ID` (`string`) as argument. No slashes. It returns an object with these methods:
 
-#### Script
+### Script
 
 The `Script` method takes an `ID` (`string`) as argument. No slashes. It returns an [OptionsSetter] that can be used to set [script options] for this script.
 
@@ -50,9 +49,9 @@ The `Script` method takes an `ID` (`string`) as argument. No slashes. It returns
 {{ end }}
 ```
 
-`SetOptions` takes a [script options] map. Note that if you want the  script to be handled by a [runner], you need to set the `export` option to match what you want to pass on to the runner (default is `*`).
+`SetOptions` takes a [script options] map. Note that if you want the script to be handled by a [runner], you need to set the `export` option to match what you want to pass on to the runner (default is `*`).
 
-#### Instance
+### Instance
 
 The `Instance` method takes two `string` arguments `SCRIPT_ID` and `INSTANCE_ID`. No slashes. It returns an [OptionsSetter] that can be used to set [params options] for this instance.
 
@@ -68,7 +67,7 @@ The `Instance` method takes two `string` arguments `SCRIPT_ID` and `INSTANCE_ID`
 
 `SetOptions` takes a [params options] map. The instance options will be passed to any [runner] script in the same group, as JSON.
 
-#### Runner
+### Runner
 
 The `Runner` method takes an `ID` (`string`) as argument. No slashes. It returns an [OptionsSetter] that can be used to set [script options] for this runner.
 
@@ -131,34 +130,34 @@ import * as ReactDOM from 'react-dom/client';
 import * as React from 'react';
 
 export default function Run(group) {
-	console.log('Running react-create-elements.js', group);
-	const scripts = group.scripts;
-	for (const script of scripts) {
-		for (const instance of script.instances) {
-			/* This is a convention in this project. */
-			let elId = `${script.id}-${instance.id}`;
-			let el = document.getElementById(elId);
-			if (!el) {
-				console.warn(`Element with id ${elId} not found`);
-				continue;
-			}
-			const root = ReactDOM.createRoot(el);
-			const reactEl = React.createElement(script.binding, instance.params);
-			root.render(reactEl);
-		}
-	}
+  console.log('Running react-create-elements.js', group);
+  const scripts = group.scripts;
+  for (const script of scripts) {
+    for (const instance of script.instances) {
+      /* This is a convention in this project. */
+      let elId = `${script.id}-${instance.id}`;
+      let el = document.getElementById(elId);
+      if (!el) {
+        console.warn(`Element with id ${elId} not found`);
+        continue;
+      }
+      const root = ReactDOM.createRoot(el);
+      const reactEl = React.createElement(script.binding, instance.params);
+      root.render(reactEl);
+    }
+  }
 }
 ```
 
-#### Config
+### Config
 
 Returns an [OptionsSetter] that can be used to set [build options] for the batch.
 
 These are mostly the same as for `js.Build`, but note that:
 
-* `targetPath` is set automatically (there may be multiple outputs).
-* `format` must be `esm`, currently the only format supporting [code splitting].
-* `params` will be available in the `@params/config` namespace in the scripts. This way you can import both the [script] or [runner] params and the [config] params with:
+- `targetPath` is set automatically (there may be multiple outputs).
+- ``format` must be `esm`, currently the only format supporting [code splitting].
+- ``params` will be available in the `@params/config` namespace in the scripts. This way you can import both the [script] or [runner] params and the [config] params with:
 
 ```js
 import * as params from "@params";
@@ -185,14 +184,14 @@ Setting the `Config` for a batch can be done from any template (including shortc
 
 ## Options
 
-### Build Options
+### Build options
 
 format
 : (`string`) Currently only `esm` is supported in [ESBuild's code splitting].
 
-{{% include "./_common/options.md" %}}
+{{% include "/_common/functions/js/options.md" %}}
 
-### Script Options
+### Script options
 
 resource
 : The resource to build. This can be a file resource or a virtual resource.
@@ -205,18 +204,17 @@ importContext
 
 params
 : A map of parameters that will be passed to the script as JSON. These gets bound to the `@params` namespace:
-```js
-import * as params from '@params';
-```
 
-### Script Options
+  ```js
+  import * as params from '@params';
+  ```
 
-### Params Options
+### Params options
 
 params
-: A map of parameters that will be passed to the script as JSON. 
+: A map of parameters that will be passed to the script as JSON.
 
-### Import Context
+### Import context
 
 Hugo will, by default, first try to resolve any import in [assets](/hugo-pipes/introduction/#asset-directory) and, if not found, let [ESBuild] resolve it (e.g. from `node_modules`). The  `importContext` option can be used to set the first context for resolving imports. A common use of this is to resolve imports inside a [page bundle](/content-management/page-bundles/).
 
@@ -243,12 +241,12 @@ An `OptionsSetter` is a special object that is returned once only. This means th
 
 The `Build` method returns an object with the following structure:
 
-* Groups (map)
-  * [`Resources`]
+- Groups (map)
+  - [`Resources`]
 
-Eeach [`Resource`] will be of media type `application/javascript` or `text/css`.
+Each [`Resource`] will be of media type `application/javascript` or `text/css`.
 
- In a template you would typically handle one group with a given `ID` (e.g. scripts for the current section). Because of the concurrent build, this needs to be done in a [`templates.Defer`] block:
+In a template you would typically handle one group with a given `ID` (e.g. scripts for the current section). Because of the concurrent build, this needs to be done in a [`templates.Defer`] block:
 
 {{< note >}}
 The [`templates.Defer`] acts as a synchronisation point to handle scripts added concurrently by different templates. If you have a setup with where the batch is created in one go (in one template), you don't need it.
@@ -281,8 +279,8 @@ See [this discussion](https://discourse.gohugo.io/t/js-batch-with-simple-global-
 
 In the official documentation for [ESBuild's code splitting], there's a warning note in the header. The two issues are:
 
-* `esm` is currently the only implemented output format. This means that it will not work for very old browsers. See [caniuse](https://caniuse.com/?search=ESM).
-* There's a known import ordering issue.
+  - `esm` is currently the only implemented output format. This means that it will not work for very old browsers. See [caniuse](https://caniuse.com/?search=ESM).
+  - There's a known import ordering issue.
 
 We have not seen the ordering issue as a problem during our [extensive testing](https://github.com/bep/hugojsbatchdemo) of this new feature with different libraries. There are two main cases:
 

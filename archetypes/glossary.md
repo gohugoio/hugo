@@ -1,6 +1,7 @@
 ---
 title: {{ replace .File.ContentBaseName "-" " " }}
-reference: 
+params:
+  reference: 
 ---
 
 <!--

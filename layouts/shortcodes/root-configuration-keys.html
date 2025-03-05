@@ -1,0 +1,25 @@
+{{/* prettier-ignore-start */ -}}
+{{/*
+Renders a comma-separated list of links to the root key configuration pages.
+
+@example {{< root-configuration-keys >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
+{{- $keys := slice }}
+{{- range $k, $_ := site.Data.docs.config }}
+  {{- if or (reflect.IsMap .) (reflect.IsSlice .) }}
+    {{- $keys = $keys | append $k }}
+  {{- end }}
+{{- end }}
+{{- $keys = $keys | append "uglyURLs" }}
+{{- $keys = $keys | complement (slice "author" "ignoreFiles" "staticDir") }}
+{{- $keys = apply $keys "strings.ToLower" "." | sort }}
+
+{{- $links := slice }}
+{{- range $key := $keys }}
+  {{- with site.GetPage (printf "/configuration/%s" .) }}
+    {{- $links = $links | append (printf "<a href=%q><code>%s</code></a>" .RelPermalink $key) }}
+  {{- end }}
+{{- end }}
+
+{{- delimit $links ", " ", and " | safeHTML -}}

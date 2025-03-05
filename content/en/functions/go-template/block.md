@@ -3,13 +3,14 @@ title: block
 description: Defines a template and executes it in place.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/define
-    - functions/go-template/end
-  returnType:
-  signatures: [block NAME CONTEXT]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/go-template/define
+      - functions/go-template/end
+    returnType:
+    signatures: [block NAME CONTEXT]
 ---
 
 A block is shorthand for defining a template:
@@ -52,4 +53,4 @@ The typical use is to define a set of root templates that are then customized by
 {{ end }}
 {{< /code >}}
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

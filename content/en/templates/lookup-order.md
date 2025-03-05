@@ -2,14 +2,9 @@
 title: Template lookup order
 linkTitle: Lookup order
 description: Hugo uses the rules below to select a template for a given page, starting from the most specific.
-categories: [templates,fundamentals]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 40
-weight: 40
-toc: true
+weight: 20
 ---
 
 ## Lookup rules
@@ -23,7 +18,7 @@ Layout
 : Can be set in front matter.
 
 Output Format
-: See [Custom Output Formats](/templates/output-formats). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`), but look for less specific templates.
+: See [configure output formats](/configuration/output-formats/). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`), but look for less specific templates.
 
 Note that if the output format's Media Type has more than one suffix defined, only the first is considered.
 

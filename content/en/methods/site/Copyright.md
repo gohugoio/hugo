@@ -1,12 +1,13 @@
 ---
 title: Copyright
-description:  Returns the copyright notice as defined in the site configuration.
+description: Returns the copyright notice as defined in the site configuration.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [SITE.Copyright]
+params:
+  functions_and_methods:
+    related: []
+    returnType: string
+    signatures: [SITE.Copyright]
 ---
 
 Site configuration:

@@ -3,12 +3,13 @@ title: hugo.IsMultihost
 description: Reports whether each configured language has a unique base URL.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - /functions/hugo/IsMultilingual
-  returnType: bool
-  signatures: [hugo.IsMultihost]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - /functions/hugo/IsMultilingual
+    returnType: bool
+    signatures: [hugo.IsMultihost]
 ---
 
 {{< new-in 0.124.0 />}}

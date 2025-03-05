@@ -1,14 +1,8 @@
 ---
 title: Figure
 description: Insert an HTML figure element into your content using the figure shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< note >}}
@@ -57,7 +51,7 @@ Which looks like this in your browser:
   class="ma0 w-75"
 >}}
 
-## Parameters
+## Arguments
 
 src
 : (`string`) The `src` attribute of the `img` element. Typically this is a [page resource](g) or a [global resource](g).

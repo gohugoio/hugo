@@ -1,20 +1,15 @@
 ---
 title: Home page templates
 description: The home page of a website is often formatted differently than the other pages. For this reason, Hugo makes it easy for you to define your new site's home page as a unique template.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 60
-weight: 60
-toc: true
+weight: 50
 aliases: [/layout/homepage/,/templates/homepage-template/,/templates/homepage/]
 ---
 
 ## Introduction
 
-A home page template is used to render your site's home page, and is the only template required for a single-page website.  For example, the home page template below inherits the site's shell from the base template and renders the home page content, such as a list of other pages.
+A home page template is used to render your site's home page, and is the only template required for a single-page website. For example, the home page template below inherits the site's shell from the base template and renders the home page content, such as a list of other pages.
 
 {{< code file=layouts/_default/home.html >}}
 {{ define "main" }}
@@ -25,7 +20,7 @@ A home page template is used to render your site's home page, and is the only te
 {{ end }}
 {{< /code >}}
 
-{{% include "templates/_common/filter-sort-group.md" %}}
+{{% include "/_common/filter-sort-group.md" %}}
 
 ## Lookup order
 

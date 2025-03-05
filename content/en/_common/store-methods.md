@@ -4,7 +4,7 @@
 
 ## Methods
 
-###### Set
+### Set
 
 Sets the value of the given key.
 
@@ -12,7 +12,7 @@ Sets the value of the given key.
 {{ .Store.Set "greeting" "Hello" }}
 ```
 
-###### Get
+### Get
 
 Gets the value of the given key.
 
@@ -21,7 +21,7 @@ Gets the value of the given key.
 {{ .Store.Get "greeting" }} → Hello
 ```
 
-###### Add
+### Add
 
 Adds the given value to the existing value(s) of the given key.
 
@@ -45,7 +45,7 @@ For single values, `Add` accepts values that support Go's `+` operator. If the f
 {{ .Store.Get "greetings" }} → [Hello Welcome Cheers]
 ```
 
-###### SetInMap
+### SetInMap
 
 Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
 
@@ -53,9 +53,9 @@ Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to th
 {{ .Store.SetInMap "greetings" "english" "Hello" }}
 {{ .Store.SetInMap "greetings" "french" "Bonjour" }}
 {{ .Store.Get "greetings" }} → map[english:Hello french:Bonjour]
-```
+  ```
 
-###### DeleteInMap
+### DeleteInMap
 
 Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 
@@ -66,7 +66,7 @@ Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 {{ .Store.Get "greetings" }} → map[french:Bonjour]
 ```
 
-###### GetSortedMapValues
+### GetSortedMapValues
 
 Returns an array of values from `key` sorted by `mapKey`.
 
@@ -76,7 +76,7 @@ Returns an array of values from `key` sorted by `mapKey`.
 {{ .Store.GetSortedMapValues "greetings" }} → [Hello Bonjour]
 ```
 
-###### Delete
+### Delete
 
 Removes the given key.
 

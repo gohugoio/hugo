@@ -1,13 +1,14 @@
 ---
 title: GetPage
-description: Returns a Page object from the given path. 
+description: Returns a Page object from the given path.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/site/GetPage
-  returnType: page.Page
-  signatures: [PAGE.GetPage PATH]
+params:
+  functions_and_methods:
+    related:
+      - methods/site/GetPage
+    returnType: page.Page
+    signatures: [PAGE.GetPage PATH]
 aliases: [/functions/getpage]
 ---
 

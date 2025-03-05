@@ -3,15 +3,16 @@ title: lang.FormatNumberCustom
 description: Returns a numeric representation of a number with the given precision using negative, decimal, and grouping options.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/lang/FormatAccounting
-    - functions/lang/FormatCurrency
-    - functions/lang/FormatNumber
-    - functions/lang/FormatPercent
-  returnType: string
-  signatures: ['lang.FormatNumberCustom PRECISION NUMBER [OPTIONS...]']
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/lang/FormatAccounting
+      - functions/lang/FormatCurrency
+      - functions/lang/FormatNumber
+      - functions/lang/FormatPercent
+    returnType: string
+    signatures: ['lang.FormatNumberCustom PRECISION NUMBER [OPTIONS...]']
 aliases: ['/functions/numfmt/']
 ---
 
@@ -29,6 +30,6 @@ For a simpler function that adapts to the current language, see [`lang.FormatNum
 {{ lang.FormatNumberCustom 0 -12345.6789 "-|.| " "|" }} → -12 346
 ```
 
-{{% include "functions/_common/locales.md" %}}
+{{% include "/_common/functions/locales.md" %}}
 
 [`lang.FormatNumber`]: /functions/lang/formatnumber/

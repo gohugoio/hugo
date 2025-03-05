@@ -3,14 +3,15 @@ title: collections.Complement
 description: Returns the elements of the last collection that are not in any of the others.
 categories: []
 keywords: []
-action:
-  aliases: [complement]
-  related:
-    - functions/collections/Intersect
-    - functions/collections/SymDiff
-    - functions/collections/Union
-  returnType: any
-  signatures: ['collections.Complement COLLECTION [COLLECTION...]']
+params:
+  functions_and_methods:
+    aliases: [complement]
+    related:
+      - functions/collections/Intersect
+      - functions/collections/SymDiff
+      - functions/collections/Union
+    returnType: any
+    signatures: ['collections.Complement COLLECTION [COLLECTION...]']
 aliases: [/functions/complement]
 ---
 

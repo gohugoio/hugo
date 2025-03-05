@@ -1,14 +1,9 @@
 ---
 title: Single templates
 description: Create a single template to render a single page.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 70
-weight: 70
-toc: true
+weight: 60
 aliases: [/layout/content/,/templates/single-page-templates/]
 ---
 

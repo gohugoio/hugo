@@ -1,15 +1,14 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
-  Renders the given image using the given process specification.
+Renders the given image using the given process specification.
 
-  @param {string} path The path to the image, either a page resource or a global resource.
-  @param {string} spec The image processing specification.
-  @param {string} alt The alt attribute of the img element.
+@param {string} path The path to the image, either a page resource or a global resource.
+@param {string} spec The image processing specification.
+@param {string} alt The alt attribute of the img element.
 
-  @returns template.HTML
-
-  @example {{< imgproc path="sunset.jpg" spec="resize 300x" alt="A sunset" /
->}}
-*/}}
+@example {{< imgproc path="sunset.jpg" spec="resize 300x" alt="A sunset" >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
 {{- with $.Get "path" }}
   {{- with $i := or ($.Page.Resources.Get .) (resources.Get .) }}
     {{- with $spec := $.Get "spec" }}

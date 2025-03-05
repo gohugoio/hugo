@@ -3,11 +3,12 @@ title: hugo.WorkingDir
 description: Returns the project working directory.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [hugo.WorkingDir]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: string
+    signatures: [hugo.WorkingDir]
 ---
 
 ```go-html-template

@@ -3,11 +3,12 @@ title: hugo.BuildDate
 description: Returns the compile date of the Hugo binary.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [hugo.BuildDate]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: string
+    signatures: [hugo.BuildDate]
 ---
 
 The `hugo.BuildDate` function returns the compile date of the Hugo binary, formatted per [RFC 3339].

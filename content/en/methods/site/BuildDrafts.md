@@ -3,10 +3,11 @@ title: BuildDrafts
 description: Reports whether the current build includes draft pages.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: bool
-  signatures: [SITE.BuildDrafts]
+params:
+  functions_and_methods:
+    related: []
+    returnType: bool
+    signatures: [SITE.BuildDrafts]
 ---
 
 By default, draft pages are not published when building a site. You can change this behavior with a command line flag:

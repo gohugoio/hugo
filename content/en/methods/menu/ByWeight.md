@@ -3,10 +3,11 @@ title: ByWeight
 description: Returns the given menu with its entries sorted by weight, then by name, then by identifier.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: navigation.Menu
-  signatures: [MENU.ByWeight]
+params:
+  functions_and_methods:
+    related: []
+    returnType: navigation.Menu
+    signatures: [MENU.ByWeight]
 ---
 
 The `ByWeight` method returns the given menu with its entries sorted by [`weight`](g), then by `name`, then by `identifier`. This is the default sort order.

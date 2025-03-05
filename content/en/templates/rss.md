@@ -1,14 +1,9 @@
 ---
 title: RSS templates
 description: Use the embedded RSS template, or create your own.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 150
-weight: 150
-toc: true
+weight: 140
 ---
 
 ## Configuration

@@ -3,10 +3,11 @@ title: Name
 description: Returns the `name` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [MENUENTRY.Name]
+params:
+  functions_and_methods:
+    related: []
+    returnType: string
+    signatures: [MENUENTRY.Name]
 ---
 
 If you define the menu entry [automatically], the `Name` method returns the page's [`LinkTitle`], falling back to its [`Title`].

@@ -1,31 +1,32 @@
 ---
 title: Parent
-description:  Returns the parent shortcode context in nested shortcodes.
+description: Returns the parent shortcode context in nested shortcodes.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: hugolib.ShortcodeWithPage
-  signatures: [SHORTCODE.Parent]
+params:
+  functions_and_methods:
+    related: []
+    returnType: hugolib.ShortcodeWithPage
+    signatures: [SHORTCODE.Parent]
 ---
 
 This is useful for inheritance of common shortcode arguments from the root.
 
 In this contrived example, the "greeting" shortcode is the parent, and the "now" shortcode is child.
 
-{{< code file=content/welcome.md lang=md >}}
+{{< code file=content/welcome.md lang=text >}}
 {{</* greeting dateFormat="Jan 2, 2006" */>}}
 Welcome. Today is {{</* now */>}}.
 {{</* /greeting */>}}
 {{< /code >}}
 
-{{< code file=layouts/shortcodes/greeting.html  >}}
+{{< code file=layouts/shortcodes/greeting.html >}}
 <div class="greeting">
   {{ .Inner | strings.TrimSpace | .Page.RenderString }}
 </div>
 {{< /code >}}
 
-{{< code file=layouts/shortcodes/now.html  >}}
+{{< code file=layouts/shortcodes/now.html >}}
 {{- $dateFormat := "January 2, 2006 15:04:05" }}
 
 {{- with .Params }}

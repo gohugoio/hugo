@@ -1,22 +1,18 @@
 {{/* prettier-ignore-start */ -}}
 {{- /*
-  Renders a callout indicating the version in which a feature was deprecated.
+Renders a callout indicating the version in which a feature was deprecated.
 
-  Include descriptive text between the opening and closing tags, or omit the
-  descriptive text and call the shortcode with a self-closing tag.
+Include descriptive text between the opening and closing tags, or omit the
+descriptive text and call the shortcode with a self-closing tag.
 
-  @param {string} 0 The semantic version string, with or without a leading v.
-  @returns {template.HTML}
+@param {string} 0 The semantic version string, with or without a leading v.
 
-  @examples
+@example  {{< deprecated-in 0.144.0 />}}
 
-      {{< deprecated-in 0.144.0 />}}
-
-      {{< deprecated-in 0.144.0 >}}
-      Some descriptive text here.
-      {{< /new-in >}}
-
-*/}}
+@example  {{< deprecated-in 0.144.0 >}}
+          Some descriptive text here.
+          {{< /deprecated-in >}}
+*/ -}}
 {{/* prettier-ignore-end */ -}}
 {{- with $version := .Get 0 | strings.TrimLeft "vV" }}
   {{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}

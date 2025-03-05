@@ -3,24 +3,24 @@ title: Path
 description: Returns the logical path of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/File
-    - methods/page/RelPermalink
-  returnType: string
-  signatures: [PAGE.Path]
-toc: true
+params:
+  functions_and_methods:
+    related:
+      - methods/page/File
+      - methods/page/RelPermalink
+    returnType: string
+    signatures: [PAGE.Path]
 ---
 
 {{< new-in 0.123.0 />}}
 
-The `Path` method on a `Page` object returns the [logical path](g) of the given page, regardless of whether the page is backed by a file.
+The `Path` method on a `Page` object returns the logical path of the given page, regardless of whether the page is backed by a file.
+
+{{% glossary-term "logical path" %}}
 
 ```go-html-template
 {{ .Path }} → /posts/post-1
 ```
-
-This value is neither a file path nor a relative URL. It is a logical identifier for each page, independent of content format, language, and URL modifiers.
 
 {{< note >}}
 Beginning with the release of [v0.92.0] in January 2022, Hugo emitted a warning whenever calling the `Path` method. The warning indicated that this method would change in a future release.
@@ -30,13 +30,6 @@ The meaning of, and value returned by, the `Path` method on a `Page` object chan
 [v0.92.0]: https://github.com/gohugoio/hugo/releases/tag/v0.92.0
 [v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0
 {{< /note >}}
-
-To determine the logical path for pages backed by a file, Hugo starts with the file path, relative to the `content` directory, and then:
-
-1. Strips the file extension
-1. Strips the language identifier
-1. Converts the result to lower case
-1. Replaces spaces with hyphens
 
 The value returned by the `Path` method on a `Page` object is independent of content format, language, and URL modifiers such as the `slug` and `url` front matter fields.
 
@@ -101,10 +94,10 @@ Methods|Functions|Shortcodes
 :--|:--|:--
 [`Site.GetPage`]|[`urls.Ref`]|[`ref`]
 [`Page.GetPage`]|[`urls.RelRef`]|[`relref`]
-[`Page.Ref`]||
-[`Page.RelRef`]||
-[`Shortcode.Ref`]||
-[`Shortcode.RelRef`]||
+[`Page.Ref`]|||
+[`Page.RelRef`]|||
+[`Shortcode.Ref`]|||
+[`Shortcode.RelRef`]|||
 
 [`urls.Ref`]: /functions/urls/ref/
 [`urls.RelRef`]: /functions/urls/relref/

@@ -3,11 +3,12 @@ title: images.Config
 description: Returns an image.Config structure from the image at the specified path, relative to the working directory.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: image.Config
-  signatures: [images.Config PATH]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: image.Config
+    signatures: [images.Config PATH]
 aliases: [/functions/imageconfig]
 ---
 

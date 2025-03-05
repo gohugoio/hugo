@@ -3,10 +3,11 @@ title: Title
 description: Returns the title as defined in the site configuration.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [SITE.Title]
+params:
+  functions_and_methods:
+    related: []
+    returnType: string
+    signatures: [SITE.Title]
 ---
 
 Site configuration:

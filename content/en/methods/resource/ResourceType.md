@@ -3,11 +3,14 @@ title: ResourceType
 description: Returns the main type of the given resource's media type.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [RESOURCE.ResourceType]
+params:
+  functions_and_methods:
+    related: []
+    returnType: string
+    signatures: [RESOURCE.ResourceType]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 Common resource types include `audio`, `image`, `text`, and `video`.
 
@@ -34,10 +37,8 @@ content/
 
 With the structure above, we can range through page resources of type `page` to build content:
 
-{{< code file=layouts/lessons/single.html  >}}
+{{< code file=layouts/lessons/single.html >}}
 {{ range .Resources.ByType "page" }}
   {{ .Content }}
 {{ end }}
 {{< /code >}}
-
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}

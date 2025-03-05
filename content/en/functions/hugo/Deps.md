@@ -3,11 +3,12 @@ title: hugo.Deps
 description: Returns a slice of project dependencies, either Hugo Modules or local theme components.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: '[]hugo.Dependency'
-  signatures: [hugo.Deps]
+params:
+  functions_and_methods:
+    aliases: []
+    related: []
+    returnType: '[]hugo.Dependency'
+    signatures: [hugo.Deps]
 ---
 
 The `hugo.Deps` function returns a slice of project dependencies, either Hugo Modules or local theme components. Each dependency contains:

@@ -3,12 +3,12 @@ title: data.GetJSON
 description: Returns a JSON object from a local or remote JSON file, or an error if the file does not exist.
 categories: []
 keywords: []
-action:
-  aliases: [getJSON]
-  related: []
-  returnType: any
-  signatures: ['data.GetJSON INPUT... [OPTIONS]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [getJSON]
+    related: []
+    returnType: any
+    signatures: ['data.GetJSON INPUT... [OPTIONS]']
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0
 ---
 

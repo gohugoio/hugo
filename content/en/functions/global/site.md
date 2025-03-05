@@ -3,12 +3,13 @@ title: site
 description: Provides global access to the current Site object.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/global/page
-  returnType: 
-  signatures: [site]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/global/page
+    returnType: 
+    signatures: [site]
 aliases: [/functions/site]
 ---
 

@@ -3,16 +3,17 @@ title: define
 description: Defines a template.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/block
-    - functions/go-template/end
-    - functions/go-template/template
-    - functions/partials/Include
-    - functions/partials/IncludeCached
-  returnType:
-  signatures: [define NAME]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/go-template/block
+      - functions/go-template/end
+      - functions/go-template/template
+      - functions/partials/Include
+      - functions/partials/IncludeCached
+    returnType:
+    signatures: [define NAME]
 ---
 
 Use with the [`block`] statement:
@@ -52,4 +53,4 @@ Use with the [`template`] function:
 [`template`]: /functions/go-template/block/
 [`partial`]: /functions/partials/include/
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

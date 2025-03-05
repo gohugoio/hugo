@@ -1,15 +1,11 @@
 {{/* prettier-ignore-start */ -}}
 {{- /*
-  Renders a callout.
+Renders a callout.
 
-  @returns {template.HTML}
-
-  @examples
-
-      {{< note >}}
-      Some descriptive text here.
-      {{< /note >}}
-*/}}
+@example  {{< note >}}
+          Some descriptive text here.
+          {{< /note >}}
+*/ -}}
 {{/* prettier-ignore-end */ -}}
 {{- $text := .Inner | strings.TrimSpace | .Page.RenderString (dict "display" "block") }}
 {{- partial "layouts/blocks/alert.html" (dict

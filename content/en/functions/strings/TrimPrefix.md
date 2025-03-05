@@ -3,17 +3,18 @@ title: strings.TrimPrefix
 description: Returns the given string, removing the prefix from the beginning of the string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/strings/Chomp
-    - functions/strings/Trim
-    - functions/strings/TrimSpace
-    - functions/strings/TrimLeft
-    - functions/strings/TrimRight
-    - functions/strings/TrimSuffix
-  returnType: string
-  signatures: [strings.TrimPrefix PREFIX STRING]
+params:
+  functions_and_methods:
+    aliases: []
+    related:
+      - functions/strings/Chomp
+      - functions/strings/Trim
+      - functions/strings/TrimSpace
+      - functions/strings/TrimLeft
+      - functions/strings/TrimRight
+      - functions/strings/TrimSuffix
+    returnType: string
+    signatures: [strings.TrimPrefix PREFIX STRING]
 aliases: [/functions/strings.trimprefix]
 ---
 

@@ -3,18 +3,19 @@ title: strings.ReplaceRE
 description: Returns a copy of INPUT, replacing all occurrences of a regular expression with a replacement pattern.
 categories: []
 keywords: []
-action:
-  aliases: [replaceRE]
-  related:
-    - functions/strings/FindRE
-    - functions/strings/FindRESubmatch
-    - functions/strings/Replace
-  returnType: string
-  signatures: ['strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]']
+params:
+  functions_and_methods:
+    aliases: [replaceRE]
+    related:
+      - functions/strings/FindRE
+      - functions/strings/FindRESubmatch
+      - functions/strings/Replace
+    returnType: string
+    signatures: ['strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]']
 aliases: [/functions/replacere]
 ---
 
-{{% include "functions/_common/regular-expressions.md" %}}
+{{% include "/_common/functions/regular-expressions.md" %}}
 
 ```go-html-template
 {{ $s := "a-b--c---d" }}

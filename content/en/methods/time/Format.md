@@ -3,15 +3,14 @@ title: Format
 description: Returns a textual representation of the time.Time value formatted according to the layout string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/time/AsTime
-    - methods/time/UTC
-    - methods/time/Local
-  returnType: string
-  signatures: [TIME.Format LAYOUT]
-toc: true
+params:
+  functions_and_methods:
+    related:
+      - functions/time/AsTime
+      - methods/time/UTC
+      - methods/time/Local
+    returnType: string
+    signatures: [TIME.Format LAYOUT]
 aliases: [/methods/time/format]
 ---
 
@@ -48,7 +47,7 @@ Use the [`time.Format`] function to format string representations of dates, and 
 
 ## Layout string
 
-{{% include "functions/_common/time-layout-string.md" %}}
+{{% include "/_common/time-layout-string.md" %}}
 
 ## Examples
 

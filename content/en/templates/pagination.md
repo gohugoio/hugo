@@ -1,14 +1,9 @@
 ---
 title: Pagination
 description: Split a list page into two or more subsets.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 190
-weight: 190
-toc: true
+weight: 160
 aliases: [/extras/pagination,/doc/pagination/]
 ---
 
@@ -40,43 +35,7 @@ paginator
 
 ## Configuration
 
-Control pagination behavior in your site configuration. These are the default settings:
-
-{{< code-toggle file=hugo config=pagination />}}
-
-disableAliases
-: (`bool`) Whether to disable alias generation for the first pager. Default is `false`.
-
-pagerSize
-: (`int`) The number of pages per pager. Default is `10`.
-
-path
-: (`string`) The segment of each pager URL indicating that the target page is a pager. Default is `page`.
-
-With multilingual sites you can define the pagination behavior for each language:
-
-{{< code-toggle file=hugo >}}
-[languages.en]
-contentDir = 'content/en'
-languageCode = 'en-US'
-languageDirection = 'ltr'
-languageName = 'English'
-weight = 1
-[languages.en.pagination]
-disableAliases = true
-pagerSize = 10
-path = 'page'
-[languages.de]
-contentDir = 'content/de'
-languageCode = 'de-DE'
-languageDirection = 'ltr'
-languageName = 'Deutsch'
-weight = 2
-[languages.de.pagination]
-disableAliases = true
-pagerSize = 20
-path = 'blatt'
-{{< /code-toggle >}}
+See [configure pagination](/configuration/pagination).
 
 ## Methods
 

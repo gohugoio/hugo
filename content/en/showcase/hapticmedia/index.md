@@ -1,7 +1,7 @@
 ---
 title: Hapticmedia Blog
 date: 2019-10-01
-description: "Showcase: \"A simple, but powerful, multilingual blog.\""
+description: 'Showcase: "A simple, but powerful, multilingual blog."'
 siteURL: https://hapticmedia.fr/blog/en/
 byline: "[Cyril Bonnet](https://github.com/monsieurnebo), Web Developer"
 ---

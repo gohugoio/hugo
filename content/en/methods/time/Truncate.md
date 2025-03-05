@@ -3,13 +3,14 @@ title: Truncate
 description: Returns the result of rounding TIME down to a multiple of DURATION since January 1, 0001, 00:00:00 UTC.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-    - functions/time/ParseDuration
-    - methods/time/Round
-  returnType: time.Time
-  signatures: [TIME.Truncate DURATION]
+params:
+  functions_and_methods:
+    related:
+      - functions/time/AsTime
+      - functions/time/ParseDuration
+      - methods/time/Round
+    returnType: time.Time
+    signatures: [TIME.Truncate DURATION]
 ---
 
 The `Truncate` method operates on TIME as an absolute duration since the [zero time](g); it does not operate on the presentation form of the time. If DURATION is a multiple of one hour, `Truncate` may return a time with a non-zero minute, depending on the time zone.

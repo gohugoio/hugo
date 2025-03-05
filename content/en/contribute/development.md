@@ -1,14 +1,8 @@
 ---
 title: Development
 description: Contribute to the development of Hugo.
-categories: [contribute]
-keywords: [development]
-menu:
-  docs:
-    parent: contribute
-    weight: 20
-weight: 20
-toc: true
+categories: []
+keywords: []
 ---
 
 ## Introduction
@@ -70,16 +64,17 @@ This section assumes that you have a working knowledge of Go, Git and GitHub, an
 
 Use this workflow to create and submit pull requests.
 
-Step 1
-: Fork the [project repository].
+### Step 1
 
-[project repository]: https://github.com/gohugoio/hugo/
+Fork the [project repository].
 
-Step 2
-: Clone your fork.
+### Step 2
 
-Step 3
-: Create a new branch with a descriptive name that includes the corresponding issue number.
+Clone your fork.
+
+### Step 3
+
+Create a new branch with a descriptive name that includes the corresponding issue number.
 
 For a new feature:
 
@@ -93,11 +88,13 @@ For a bug fix:
 git checkout -b fix/fix-some-bug-99999
 ```
 
-Step 4
-: Make changes.
+### Step 4
 
-Step 5
-: Compile and install.
+Make changes.
+
+### Step 5
+
+Compile and install.
 
 To compile and install the standard edition:
 
@@ -117,21 +114,21 @@ To compile and install the extended/deploy edition:
 CGO_ENABLED=1 go install -tags extended,withdeploy
 ```
 
-Step 6
-: Test your changes:
+### Step 6
+
+Test your changes:
 
 ```text
 go test ./...
 ```
 
-Step 7
-: Commit your changes with a descriptive commit message:
+### Step 7
+
+Commit your changes with a descriptive commit message:
 
 - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
 - Optionally, provide a detailed description where each line is 80 characters or less, followed by a blank line.
 - Add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
-
-[issues]: https://github.com/gohugoio/hugo/issues
 
 For example:
 
@@ -148,16 +145,21 @@ Closes #99999"
 
 See the [commit message guidelines] for details.
 
+### Step 8
+
+Push the new branch to your fork of the documentation repository.
+
+### Step 9
+
+Visit the [project repository] and create a pull request (PR).
+
+### Step 10
+
+A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
+
 [commit message guidelines]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md#git-commit-message-guidelines
-
-Step 8
-: Push the new branch to your fork of the documentation repository.
-
-Step 9
-: Visit the [project repository] and create a pull request (PR).
-
-Step 10
-: A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
+[issues]: https://github.com/gohugoio/hugo/issues
+[project repository]: https://github.com/gohugoio/hugo/
 
 ## Building from source
 
@@ -172,7 +174,7 @@ CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 To build and install a specific release:
 
 ```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.141.0
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.144.2
 ```
 
 To build and install at the latest commit on the master branch:

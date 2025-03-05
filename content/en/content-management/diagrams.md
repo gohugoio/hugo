@@ -1,14 +1,8 @@
 ---
 title: Diagrams
 description: Use fenced code blocks and Markdown render hooks to include diagrams in your content.
-categories: [content management]
-keywords: [diagrams,drawing]
-menu:
-  docs:
-    parent: content-management
-    weight: 260
-weight: 260
-toc: true
+categories: []
+keywords: []
 ---
 
 ## GoAT diagrams (ASCII)
@@ -57,7 +51,7 @@ Hugo does not provide a built-in template for Mermaid diagrams. Create your own 
 {{ .Page.Store.Set "hasMermaid" true }}
 {{< /code >}}
 
-And then include this snippet at the bottom of the content template:
+And then include this snippet at the _bottom_ of the content template, before the closing `body` tag:
 
 ```go-html-template
 {{ if .Store.Get "hasMermaid" }}
@@ -158,7 +152,7 @@ sequenceDiagram
 
 Created from <https://arthursonzogni.com/Diagon/#Tree>
 
-```goat  { width=300  color="orange" }
+```goat  {width=300 color="orange"}
 ───Linux─┬─Android
          ├─Debian─┬─Ubuntu─┬─Lubuntu
          │        │        ├─Kubuntu
@@ -173,7 +167,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 
 <https://arthursonzogni.com/Diagon/#Sequence>
 
-```goat { class="w-40" }
+```goat {class="w-40"}
 ┌─────┐       ┌───┐
 │Alice│       │Bob│
 └──┬──┘       └─┬─┘
@@ -238,7 +232,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 
 <https://arthursonzogni.com/Diagon/#Table>
 
-```goat { class="w-80 dark-blue" }
+```goat {class="w-80 dark-blue"}
 ┌────────────────────────────────────────────────┐
 │                                                │
 ├────────────────────────────────────────────────┤

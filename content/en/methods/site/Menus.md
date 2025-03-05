@@ -3,12 +3,13 @@ title: Menus
 description: Returns a collection of menu objects for the given site.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/IsMenuCurrent
-    - methods/page/HasMenuCurrent
-  returnType: navigation.Menus
-  signatures: [SITE.Menus]
+params:
+  functions_and_methods:
+    related:
+      - methods/page/IsMenuCurrent
+      - methods/page/HasMenuCurrent
+    returnType: navigation.Menus
+    signatures: [SITE.Menus]
 ---
 
 The `Menus` method on a `Site` object returns a collection of menus, where each menu contains one or more entries, either flat or nested. Each entry points to a page within the site, or to an external resource.
