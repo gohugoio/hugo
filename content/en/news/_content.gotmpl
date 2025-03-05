@@ -5,7 +5,7 @@
 {{ $releases = where $releases "prerelease" false }}
 
 {{/* Add pages. */}}
-{{ range $releases | first 20 }}
+{{ range $releases | first 24 }}
   {{ $publishDate := .published_at | time.AsTime }}
 
   {{/* Correct the v0.138.0 release date. See https://github.com/gohugoio/hugo/issues/13066. */}}
