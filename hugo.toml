@@ -62,9 +62,10 @@ disableAliases = true
             [markup.goldmark.parser.attribute]
                 block = true
     [markup.highlight]
-        noClasses    = false
-        style        = 'solarized-dark'
-        wrapperClass = 'highlight not-prose'
+        lineNumbersInTable = false
+        noClasses          = false
+        style              = 'solarized-dark'
+        wrapperClass       = 'highlight not-prose'
 
 [mediaTypes]
     [mediaTypes."text/netlify"]
