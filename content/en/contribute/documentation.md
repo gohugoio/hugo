@@ -213,7 +213,7 @@ copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
 
 file
-: (`string`) The file name to display.
+: (`string`) The file name to display above the rendered code.
 
 lang
 : (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is `html`, sets the code language to `go-html-template`. Default is `text`.
@@ -233,11 +233,14 @@ config
 copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
 
+datakey:
+: (`string`) The section of `site.Data.docs` to render.
+
 file
-: (`string`) The file name to display. Omit the file extension for site configuration examples.
+: (`string`) The file name to display above the rendered code. Omit the file extension for site configuration examples.
 
 fm
-: (`bool`) Whether the example is front matter. Default is `false`.
+: (`bool`) Whether to render the code as front matter. Default is `false`.
 
 skipHeader
 : (`bool`) Whether to omit top-level key(s) when rendering a section of `site.Data.docs.config`.
