@@ -54,14 +54,14 @@ string = 'foo'
 {{- with site.Data.docs.chroma.styles }}
   {{- range $style := . }}
 
-### {{ $style }} {class="!mt-7 !mb-1"}{{/* Do not indent. */}}
+### {{ $style }} {class="!mt-7 !mb-6"}{{/* Do not indent. */}}
 
     {{- range $examples }}
 
 {{ .lang }}{{/* Do not indent. */}}
-{class="text-sm !mt-5 !mb-1"}{{/* Do not indent. */}}
+{class="text-sm !-mt-3 !-mb-5"}{{/* Do not indent. */}}
 
-```{{ .lang }} {class="!my-0" noClasses=true style="{{ $style }}"}{{/* Do not indent. */}}
+```{{ .lang }} {noClasses=true style="{{ $style }}"}{{/* Do not indent. */}}
 {{- .code | safeHTML -}}{{/* Do not indent. */}}
 ```{{/* Do not indent. */}}
 
