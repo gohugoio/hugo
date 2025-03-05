@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pager/TotalPages
-      - methods/page/Paginate
     returnType: int
     signatures: [PAGER.PageNumber]
 ---

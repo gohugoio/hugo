@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Paginate
     returnType: string
     signatures: [PAGER.URL]
 ---

@@ -5,11 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/site/Store
-      - methods/shortcode/Store
-      - functions/hugo/Store
-      - functions/collections/NewScratch
     returnType: maps.Scratch
     signatures: [PAGE.Store]
 aliases: [/functions/store/,/extras/scratch/,/doc/scratch/,/functions/scratch]

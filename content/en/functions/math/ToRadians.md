@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/math/ToDegrees
-      - functions/math/Pi
     returnType: float64
     signatures: [math.ToRadians VALUE]
 ---

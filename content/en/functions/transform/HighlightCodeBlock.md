@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/transform/CanHighlight
-      - functions/transform/Highlight
     returnType: highlight.HighlightResult 
     signatures: ['transform.HighlightCodeBlock CONTEXT [OPTIONS]']
 ---

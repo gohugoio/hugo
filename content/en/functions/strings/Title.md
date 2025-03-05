@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [title]
-    related:
-      - functions/strings/FirstUpper
-      - functions/strings/ToLower
-      - functions/strings/ToUpper
     returnType: string
     signatures: [strings.Title STRING]
 aliases: [/functions/title]

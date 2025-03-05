@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/FuzzyWordCount
-      - methods/page/ReadingTime
     returnType: int
     signatures: [PAGE.WordCount]
 ---

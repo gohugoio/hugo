@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/time/Local
-      - functions/time/AsTime
     returnType: time.Time
     signatures: [TIME.UTC]
 ---

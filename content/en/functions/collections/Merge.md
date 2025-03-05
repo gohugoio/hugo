@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [merge]
-    related:
-      - functions/collections/Append
     returnType: any
     signatures: [collections.Merge MAP MAP...]
 aliases: [/functions/merge]

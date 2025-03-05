@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Summary
     returnType: string
     signatures: [PAGE.Description]
 ---

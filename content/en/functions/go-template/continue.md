@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/break
-      - functions/go-template/range
     returnType:
     signatures: [continue]
 ---

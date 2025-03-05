@@ -5,11 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/urls/AbsURL
-      - functions/urls/AbsLangURL
-      - functions/urls/RelURL
-      - functions/urls/RelLangURL
     returnType: string
     signatures: [SITE.BaseURL]
 ---

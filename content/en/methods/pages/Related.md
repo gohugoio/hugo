@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/HeadingsFiltered
-      - functions/collections/KeyVals
     returnType: page.Pages
     signatures:
       - PAGES.Related PAGE

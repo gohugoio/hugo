@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [unmarshal]
-    related:
-      - functions/transform/Remarshal
-      - functions/resources/Get
-      - functions/resources/GetRemote
-      - functions/encoding/Jsonify
     returnType: any
     signatures: ['transform.Unmarshal [OPTIONS] INPUT']
 aliases: [/functions/transform.unmarshal]

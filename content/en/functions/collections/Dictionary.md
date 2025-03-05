@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [dict]
-    related:
-      - functions/collections/Slice
     returnType: map[string]any
     signatures: ['collections.Dictionary [VALUE...]']
 aliases: [/functions/dict]

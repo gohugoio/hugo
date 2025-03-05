@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/collections/Querify
     returnType: string
     signatures: ['urlquery VALUE [VALUE...]']
 aliases: [/functions/urlquery]

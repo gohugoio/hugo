@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [pluralize]
-    related:
-      - functions/inflect/Humanize
-      - functions/inflect/Singularize
     returnType: string
     signatures: [inflect.Pluralize INPUT]
 aliases: [/functions/pluralize]

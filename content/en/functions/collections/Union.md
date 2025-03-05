@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [union]
-    related:
-      - functions/collections/Complement
-      - functions/collections/Intersect
-      - functions/collections/SymDiff
-      - functions/collections/Union
     returnType: any
     signatures: [collections.Union SET1 SET2]
 aliases: [/functions/union] 

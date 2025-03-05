@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [symdiff]
-    related:
-      - functions/collections/Complement
-      - functions/collections/Intersect
-      - functions/collections/SymDiff
-      - functions/collections/Union
     returnType: any
     signatures: [COLLECTION | collections.SymDiff COLLECTION]
 aliases: [/functions/symdiff]

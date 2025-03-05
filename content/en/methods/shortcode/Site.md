@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Sites
     returnType: page.siteWrapper
     signatures: [SHORTCODE.Site]
 ---

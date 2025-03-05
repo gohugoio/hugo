@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/path/Join
     returnType: string
     signatures: [urls.JoinPath ELEMENT...]
 aliases: [/functions/urls.joinpath]

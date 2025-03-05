@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [pow]
-    related:
-      - functions/math/Sqrt
     returnType: float64
     signatures: [math.Pow VALUE1 VALUE2]
 ---

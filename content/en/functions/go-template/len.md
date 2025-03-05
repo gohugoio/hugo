@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/strings/Count
-      - functions/strings/CountRunes
-      - functions/strings/CountWords
-      - functions/strings/RuneCount
     returnType: int
     signatures: [len VALUE]
 aliases: [/functions/len]

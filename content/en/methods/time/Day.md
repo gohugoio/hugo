@@ -5,13 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/time/Year
-      - methods/time/Month
-      - methods/time/Hour
-      - methods/time/Minute
-      - methods/time/Second
-      - functions/time/AsTime
     returnType: int
     signatures: [TIME.Day]
 ---

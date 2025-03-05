@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/define
-      - functions/go-template/end
     returnType:
     signatures: [block NAME CONTEXT]
 ---

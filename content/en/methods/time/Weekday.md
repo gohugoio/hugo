@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/time/AsTime
     returnType: time.Weekday
     signatures: [TIME.Weekday]
 ---

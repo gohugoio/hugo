@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/shortcode/Inner
     returnType: template.HTML
     signatures: [SHORTCODE.InnerDeindent]
 ---

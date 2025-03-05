@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/site/AllPages
-      - methods/site/RegularPages
-      - methods/site/Sections
     returnType: page.Pages
     signatures: [SITE.Pages]
 ---

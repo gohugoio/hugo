@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/resource/Permalink
-      - methods/resource/RelPermalink
     returnType: nil
     signatures: [RESOURCE.Publish]
 ---

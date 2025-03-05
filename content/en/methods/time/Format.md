@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/time/AsTime
-      - methods/time/UTC
-      - methods/time/Local
     returnType: string
     signatures: [TIME.Format LAYOUT]
 aliases: [/methods/time/format]

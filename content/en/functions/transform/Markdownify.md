@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [markdownify]
-    related:
-      - methods/page/RenderString
-      - methods/page/RenderShortcodes
     returnType: template.HTML
     signatures: [transform.Markdownify INPUT]
 aliases: [/functions/markdownify]

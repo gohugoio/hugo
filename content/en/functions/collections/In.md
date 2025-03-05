@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [in]
-    related:
-      - functions/strings/Contains
-      - functions/strings/ContainsAny
-      - functions/strings/ContainsNonSpace
-      - functions/strings/HasPrefix
-      - functions/strings/HasSuffix
     returnType: bool
     signatures: [collections.In SET VALUE]
 aliases: [/functions/in]

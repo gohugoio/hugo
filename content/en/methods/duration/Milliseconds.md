@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/time/Duration
-      - functions/time/ParseDuration
     returnType: int64
     signatures: [DURATION.Milliseconds]
 ---

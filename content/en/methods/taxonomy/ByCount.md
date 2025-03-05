@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/taxonomy/Alphabetical
     returnType: page.OrderedTaxonomy
     signatures: [TAXONOMY.ByCount]
 ---

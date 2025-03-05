@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/time/After
-      - methods/time/Equal
-      - functions/time/AsTime
     returnType: bool
     signatures: [TIME1.Before TIME2]
 ---

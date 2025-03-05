@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Permalink
     returnType: string
     signatures: [PAGE.RelPermalink]
 ---

@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pages/ByDate
-      - methods/pages/ByExpiryDate
-      - methods/pages/ByPublishDate
     returnType: page.Pages
     signatures: [PAGES.ByLastmod]
 ---

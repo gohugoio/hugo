@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [getenv]
-    related:
-      - functions/os/FileExists
-      - functions/os/ReadDir
-      - functions/os/ReadFile
-      - functions/os/Stat
     returnType: string
     signatures: [os.Getenv VARIABLE]
 aliases: [/functions/getenv]

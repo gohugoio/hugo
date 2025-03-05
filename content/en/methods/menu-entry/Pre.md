@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/menu-entry/Post
     returnType: template.HTML
     signatures: [MENUENTRY.Pre]
 ---

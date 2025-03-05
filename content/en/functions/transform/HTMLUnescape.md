@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [htmlUnescape]
-    related:
-      - functions/transform/HTMLEscape
     returnType: string
     signatures: [transform.HTMLUnescape INPUT]
 aliases: [/functions/htmlunescape]

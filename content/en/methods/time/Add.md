@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/time/AsTime
-      - functions/time/Duration
-      - functions/time/ParseDuration
     returnType: time.Time
     signatures: [TIME.Add DURATION]
 ---

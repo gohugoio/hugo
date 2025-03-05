@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [dateFormat]
-    related:
-      - functions/time/AsTime
-      - functions/time/Duration
-      - functions/time/Now
-      - functions/time/ParseDuration
     returnType: string
     signatures: [time.Format LAYOUT INPUT]
 aliases: [/functions/dateformat]

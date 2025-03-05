@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/time/AsTime
-      - functions/time/Duration
-      - functions/time/Format
-      - functions/time/Now
     returnType: time.Duration
     signatures: [time.ParseDuration DURATION]
 aliases: [/functions/time.parseduration]

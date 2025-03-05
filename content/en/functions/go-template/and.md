@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/not
-      - functions/go-template/or
     returnType: any
     signatures: [and VALUE...]
 ---

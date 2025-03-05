@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [hmac]
-    related:
-      - functions/crypto/FNV32a
-      - functions/crypto/MD5
-      - functions/crypto/SHA1
-      - functions/crypto/SHA256
     returnType: string
     signatures: ['crypto.HMAC HASH_TYPE KEY MESSAGE [ENCODING]']
 aliases: [/functions/hmac]

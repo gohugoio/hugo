@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pages/ByTitle
-      - methods/pages/ByParam
     returnType: page.Pages
     signatures: [PAGES.ByLinkTitle]
 ---

@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/File
-      - methods/page/RelPermalink
     returnType: string
     signatures: [PAGE.Path]
 ---

@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [countwords]
-    related:
-      - functions/go-template/len
-      - functions/strings/Count
-      - functions/strings/CountRunes
-      - functions/strings/RuneCount
     returnType: int
     signatures: [strings.CountWords INPUT]
 aliases: [/functions/countwords]

@@ -5,11 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Date
-      - methods/page/ExpiryDate
-      - methods/page/PublishDate
-      - methods/page/GitInfo
     returnType: time.Time
     signatures: [PAGE.Lastmod]
 ---

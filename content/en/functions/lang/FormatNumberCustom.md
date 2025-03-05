@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/lang/FormatAccounting
-      - functions/lang/FormatCurrency
-      - functions/lang/FormatNumber
-      - functions/lang/FormatPercent
     returnType: string
     signatures: ['lang.FormatNumberCustom PRECISION NUMBER [OPTIONS...]']
 aliases: ['/functions/numfmt/']

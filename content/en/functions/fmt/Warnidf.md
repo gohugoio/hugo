@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [warnidf]
-    related:
-      - functions/fmt/Errorf
-      - functions/fmt/Erroridf
-      - functions/fmt/Warnf
     returnType: string
     signatures: ['fmt.Warnidf ID FORMAT [INPUT]']
 aliases: [/functions/warnidf]

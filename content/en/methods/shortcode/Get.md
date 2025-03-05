@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/shortcode/IsNamedParams
-      - methods/shortcode/Params
     returnType: any
     signatures: [SHORTCODE.Get ARG]
 ---

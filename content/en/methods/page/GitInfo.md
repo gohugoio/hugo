@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/CodeOwners
     returnType: source.GitInfo
     signatures: [PAGE.GitInfo]
 ---

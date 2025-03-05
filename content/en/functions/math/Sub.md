@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [sub]
-    related:
-      - functions/math/Add
-      - functions/math/Div
-      - functions/math/Mul
-      - functions/math/Product
-      - functions/math/Sum
     returnType: any
     signatures: [math.Sub VALUE VALUE...]
 ---

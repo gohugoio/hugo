@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/os/FileExists
-      - functions/os/Getenv
-      - functions/os/ReadDir
-      - functions/os/ReadFile
     returnType: os.FileInfo
     signatures: [os.Stat PATH]
 aliases: [/functions/os.stat]

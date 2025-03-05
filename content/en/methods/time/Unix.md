@@ -4,11 +4,6 @@ description: Returns the given time.Time value expressed as the number of second
 categories: []
 params:
   functions_and_methods:
-    related:
-      - methods/time/UnixMilli
-      - methods/time/UnixMicro
-      - methods/time/UnixNano
-      - functions/time/AsTime
     returnType: int64
     signatures: [TIME.Unix]
 aliases: [/functions/unix]

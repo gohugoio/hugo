@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/math/Max
     returnType: float64
     signatures: [math.Min VALUE...]
 ---

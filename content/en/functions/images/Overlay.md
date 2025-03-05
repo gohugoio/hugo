@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/images/Filter
-      - methods/resource/Filter
     returnType: images.filter
     signatures: [images.Overlay RESOURCE X Y]
 ---

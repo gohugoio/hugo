@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/resources/GetRemote
-      - methods/resource/Data
     returnType: resource.resourceError
     signatures: [RESOURCE.Err]
 expiryDate: 2027-01-16 # deprecated 2025-01-16 in v0.141.0

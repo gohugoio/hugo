@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [isset]
-    related:
-      - functions/go-template/if
-      - functions/go-template/with
     returnType: bool
     signatures: [collections.IsSet COLLECTION KEY]
 aliases: [/functions/isset]

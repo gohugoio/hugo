@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [partial]
-    related:
-      - functions/go-template/return
-      - functions/partials/IncludeCached
-      - functions/go-template/template
-      - methods/page/Render
     returnType: any
     signatures: ['partials.Include NAME [CONTEXT]']
 aliases: [/functions/partial]

@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [newScratch]
-    related:
-      - methods/page/Store
-      - methods/site/Store
-      - methods/shortcode/Store
-      - functions/hugo/Store
     returnType: maps.Scratch
   signatures: [collections.NewScratch ]
 ---

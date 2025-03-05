@@ -5,13 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pager/HasPrev
-      - methods/pager/Prev
-      - methods/pager/Next
-      - methods/pager/First
-      - methods/pager/Last
-      - methods/page/Paginate
     returnType: bool
     signatures: [PAGER.HasNext]
 ---

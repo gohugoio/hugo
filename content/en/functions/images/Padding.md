@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/images/Filter
-      - methods/resource/Filter
     returnType: images.filter
     signatures: ['images.Padding V1 [V2] [V3] [V4] [COLOR]']
 ---

@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [querify]
-    related:
-      - functions/go-template/urlquery.md
     returnType: string
     signatures: ['collections.Querify [VALUE...]']
 aliases: [/functions/querify]

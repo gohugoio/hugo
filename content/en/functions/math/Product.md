@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/math/Add
-      - functions/math/Div
-      - functions/math/Mul
-      - functions/math/Sub
-      - functions/math/Sum
     returnType: float64
     signatures: [math.Product VALUE...]
 ---

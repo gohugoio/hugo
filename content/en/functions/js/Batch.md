@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/js/Build
-      - functions/js/Babel
-      - functions/resources/Fingerprint
-      - functions/resources/Minify
     returnType: js.Batcher
     signatures: ['js.Batch [ID]']
 ---

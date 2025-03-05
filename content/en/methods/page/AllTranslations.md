@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Translations
-      - methods/page/IsTranslated
-      - methods/page/TranslationKey
     returnType: page.Pages
     signatures: [PAGE.AllTranslations]
 ---

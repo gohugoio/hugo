@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/images/Filter
-      - functions/images/Process
-      - methods/resource/Colors
-      - methods/resource/Filter
     returnType: images.filter
     signatures: ['images.Dither [OPTIONS]']
 ---

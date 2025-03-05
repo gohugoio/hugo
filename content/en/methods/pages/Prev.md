@@ -5,12 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pages/Next
-      - methods/page/Next
-      - methods/page/Prev
-      - methods/page/NextInSection
-      - methods/page/PrevInSection
     returnType: page.Pages
     signatures: [PAGES.Prev PAGE]
 ---

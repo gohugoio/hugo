@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/time/AsTime
     returnType: bool
     signatures: [TIME.IsDST]
 ---

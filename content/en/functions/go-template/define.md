@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/block
-      - functions/go-template/end
-      - functions/go-template/template
-      - functions/partials/Include
-      - functions/partials/IncludeCached
     returnType:
     signatures: [define NAME]
 ---

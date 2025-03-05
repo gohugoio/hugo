@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/shortcode/Position
-      - functions/fmt/Errorf
     returnType: string
     signatures: [SHORTCODE.Name]
 ---

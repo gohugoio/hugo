@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/GetPage
     returnType: page.Page
     signatures: [SITE.GetPage PATH]
 ---

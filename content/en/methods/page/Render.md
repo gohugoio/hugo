@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/partials/Include
-      - functions/partials/IncludeCached
     returnType: template.HTML
     signatures: [PAGE.Render NAME]
 aliases: [/functions/render]

@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [first]
-    related:
-      - functions/collections/After
-      - functions/collections/Last
-      - methods/pages/Limit
     returnType: any
     signatures: [collections.First N COLLECTION]
 aliases: [/functions/first]

@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/break
-      - functions/go-template/continue
-      - functions/go-template/else
-      - functions/go-template/end
     returnType: 
     signatures: [range COLLECTION]
 aliases: [/functions/range]

@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [sha1]
-    related:
-      - functions/crypto/FNV32a
-      - functions/crypto/HMAC
-      - functions/crypto/MD5
-      - functions/crypto/SHA256
     returnType: string
     signatures: [crypto.SHA1 INPUT]
 aliases: [/functions/sha,/functions/sha1]

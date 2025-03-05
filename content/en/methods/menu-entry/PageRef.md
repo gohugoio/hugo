@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - /methods/menu-entry/URL
     returnType: string
     signatures: [MENUENTRY.PageRef]
 ---

@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [split]
-    related:
-      - functions/collections/Delimit
     returnType: '[]string'
     signatures: [strings.Split STRING DELIM]
 aliases: [/functions/split]

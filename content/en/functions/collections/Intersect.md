@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [intersect]
-    related:
-      - functions/collections/Complement
-      - functions/collections/SymDiff
-      - functions/collections/Union
     returnType: any
     signatures: [collections.Intersect SET1 SET2]
 aliases: [/functions/intersect]

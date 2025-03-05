@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [ge]
-    related:
-      - functions/compare/Eq
-      - functions/compare/Gt
-      - functions/compare/Le
-      - functions/compare/Lt
-      - functions/compare/Ne
     returnType: bool
     signatures: ['compare.Ge ARG1 ARG2 [ARG...]']
 aliases: [/functions/ge]

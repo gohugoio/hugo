@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [highlight]
-    related:
-      - functions/transform/CanHighlight
-      - functions/transform/HighlightCodeBlock
     returnType: template.HTML
     signatures: ['transform.Highlight CODE LANG [OPTIONS]']
 aliases: [/functions/highlight]

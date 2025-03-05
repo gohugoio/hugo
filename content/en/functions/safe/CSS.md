@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [safeCSS]
-    related:
-      - functions/safe/HTML
-      - functions/safe/HTMLAttr
-      - functions/safe/JS
-      - functions/safe/JSStr
-      - functions/safe/URL
     returnType: template.CSS
     signatures: [safe.CSS INPUT]
 aliases: [/functions/safecss]

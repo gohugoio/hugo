@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [relLangURL]
-    related:
-      - functions/urls/AbsLangURL
-      - functions/urls/AbsURL 
-      - functions/urls/RelURL
     returnType: string
     signatures: [urls.RelLangURL INPUT]
 aliases: [/functions/rellangurl]

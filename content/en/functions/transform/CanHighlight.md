@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/transform/Highlight
-      - functions/transform/HighlightCodeBlock
     returnType: bool
     signatures: [transform.CanHighlight LANGUAGE]
 ---

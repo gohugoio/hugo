@@ -5,12 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/resources/ByType
-      - functions/resources/Get
-      - functions/resources/GetMatch
-      - functions/resources/GetRemote
-      - functions/resources/Match
     returnType: resource.Resources
     signatures: [PAGE.Resources]
 ---

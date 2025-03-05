@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/menu-entry/Children
     returnType: bool
     signatures: [MENUENTRY.HasChildren]
 ---

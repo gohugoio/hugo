@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/resource/Height
     returnType: int
     signatures: [RESOURCE.Width]
 ---

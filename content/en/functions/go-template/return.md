@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/partials/Include
-      - functions/partials/IncludeCached
     returnType: any
     signatures: ['return [VALUE]']
 ---

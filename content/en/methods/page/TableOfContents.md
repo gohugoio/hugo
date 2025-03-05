@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Fragments
     returnType: template.HTML
     signatures: [PAGE.TableOfContents]
 aliases: [/content-management/toc/]

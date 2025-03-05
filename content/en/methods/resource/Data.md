@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/resources/GetRemote
-      - methods/resource/Err
     returnType: map
     signatures: [RESOURCE.Data]
 ---

@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [toCSS]
-    related:
-      - functions/resources/Fingerprint
-      - functions/resources/Minify
-      - functions/css/PostCSS
-      - functions/resources/PostProcess
     returnType: resource.Resource
     signatures: ['css.Sass [OPTIONS] RESOURCE']
 ---

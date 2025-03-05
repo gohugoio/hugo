@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Paginate
     returnType: page.Pager
     signatures: [PAGE.Paginator]
 ---

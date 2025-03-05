@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - content-management/mathematics
     returnType: types.Result[template.HTML]
     signatures: ['transform.ToMath INPUT [OPTIONS]']
 aliases: [/functions/tomath]

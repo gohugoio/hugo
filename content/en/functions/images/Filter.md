@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - methods/resource/Filter
     returnType: images.ImageResource
     signatures: [images.Filter FILTERS... IMAGE]
 ---

@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/collections/Sort
-      - functions/collections/Shuffle
-      - functions/collections/Uniq
     returnType: any
     signatures: [collections.Reverse COLLECTION]
 aliases: [/functions/collections.reverse]

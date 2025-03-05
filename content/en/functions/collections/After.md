@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [after]
-    related:
-      - functions/collections/First
-      - functions/collections/Last
     returnType: any
     signatures: [collections.After INDEX COLLECTION]
 aliases: [/functions/after]

@@ -5,12 +5,6 @@ categories: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/math/Add
-      - functions/math/Div
-      - functions/math/Mul
-      - functions/math/Product
-      - functions/math/Sub
     returnType: float64
     signatures: [math.Sum VALUE...]
 ---

@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/global/site
     returnType: 
     signatures: [page]
 aliases: [/functions/page]

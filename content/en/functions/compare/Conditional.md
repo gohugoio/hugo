@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [cond]
-    related:
-      - functions/compare/Default
     returnType: any
     signatures: [compare.Conditional CONTROL ARG1 ARG2]
 aliases: [/functions/cond]

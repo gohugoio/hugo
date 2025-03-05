@@ -5,12 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/resource/Crop
-      - methods/resource/Fit
-      - methods/resource/Fill
-      - methods/resource/Process
-      - functions/images/Process
     returnType: images.ImageResource
     signatures: [RESOURCE.Resize SPEC]
 ---

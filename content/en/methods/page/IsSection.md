@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/IsHome
-      - methods/page/IsNode
-      - methods/page/IsPage
     returnType: bool
     signatures: [PAGE.IsSection]
 ---

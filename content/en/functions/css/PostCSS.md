@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [postCSS]
-    related:
-      - functions/css/Sass
-      - functions/css/TailwindCSS
     returnType: resource.Resource
     signatures: ['css.PostCSS [OPTIONS] RESOURCE']
 ---

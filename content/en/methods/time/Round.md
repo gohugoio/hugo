@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/time/AsTime
-      - functions/time/ParseDuration
-      - methods/time/Truncate
     returnType: time.Time
     signatures: [TIME.Round DURATION]
 ---

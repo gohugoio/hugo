@@ -6,13 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [trim]
-    related:
-      - functions/strings/Chomp
-      - functions/strings/TrimSpace
-      - functions/strings/TrimLeft
-      - functions/strings/TrimPrefix
-      - functions/strings/TrimRight
-      - functions/strings/TrimSuffix
     returnType: string
     signatures: [strings.Trim INPUT CUTSET]
 aliases: [/functions/trim]

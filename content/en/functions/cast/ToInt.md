@@ -5,9 +5,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [int]
-    related:
-      - functions/cast/ToFloat
-      - functions/cast/ToString
     returnType: int
     signatures: [cast.ToInt INPUT]
 aliases: [/functions/int]

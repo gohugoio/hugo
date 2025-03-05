@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [modBool]
-    related:
-      - functions/math/Mod
     returnType: bool
     signatures: [math.ModBool VALUE1 VALUE2]
 ---

@@ -5,13 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Summary
-      - methods/page/ContentWithoutSummary
-      - methods/page/RawContent
-      - methods/page/Plain
-      - methods/page/PlainWords
-      - methods/page/RenderShortcodes
     returnType: template.HTML
     signatures: [PAGE.Content]
 ---

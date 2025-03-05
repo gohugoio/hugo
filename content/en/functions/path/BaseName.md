@@ -6,13 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/path/Base
-      - functions/path/Clean
-      - functions/path/Dir
-      - functions/path/Ext
-      - functions/path/Join
-      - functions/path/Split
     returnType: string
     signatures: [path.BaseName PATH]
 aliases: [/functions/path.basename]

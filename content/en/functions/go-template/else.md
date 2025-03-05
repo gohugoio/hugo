@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/if
-      - functions/go-template/range
-      - functions/go-template/with
-      - functions/go-template/end
     returnType:
     signatures: [else VALUE]
 ---

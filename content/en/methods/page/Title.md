@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/LinkTitle
     returnType: string
     signatures: [PAGE.Title]
 ---

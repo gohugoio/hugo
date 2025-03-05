@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [anchorize]
-    related:
-      - functions/urls/URLize
     returnType: string
     signatures: [urls.Anchorize INPUT]
 aliases: [/functions/anchorize]

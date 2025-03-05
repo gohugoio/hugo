@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/shortcode/Get
     returnType: any
     signatures: [SHORTCODE.Params]
 ---

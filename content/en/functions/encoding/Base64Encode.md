@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [base64Encode]
-    related:
-      - functions/encoding/Base64Decode
     returnType: string
     signatures: [encoding.Base64Encode INPUT]
 aliases: [/functions/base64, /functions/base64Encode]

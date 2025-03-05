@@ -5,11 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Truncated
-      - methods/page/Content
-      - methods/page/ContentWithoutSummary
-      - methods/page/Description
     returnType: template.HTML
     signatures: [PAGE.Summary]
 ---

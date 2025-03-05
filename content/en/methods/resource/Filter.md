@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/images/Filter
     returnType: images.ImageResource
     signatures: [RESOURCE.Filter FILTER...]
 ---

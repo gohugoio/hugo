@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/strings/Contains
-      - functions/strings/ContainsNonSpace
-      - functions/strings/HasPrefix
-      - functions/strings/HasSuffix
-      - functions/collections/In
     returnType: bool
     signatures: [strings.ContainsAny STRING SET]
 aliases: [/functions/strings.containsany]

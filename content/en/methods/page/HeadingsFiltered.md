@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pages/Related
-      - methods/page/Fragments
     returnType: tableofcontents.Headings
     signatures: [PAGE.HeadingsFiltered]
 ---

@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/resource/Title
     returnType: string
     signatures: [RESOURCE.Name]
 ---

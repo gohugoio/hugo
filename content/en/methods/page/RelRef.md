@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Ref
-      - functions/urls/Ref
-      - functions/urls/RelRef
     returnType: string
     signatures: [PAGE.RelRef OPTIONS]
 ---

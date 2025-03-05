@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/RegularPages
-      - methods/page/RegularPagesRecursive
     returnType: page.Pages
     signatures: [PAGE.Pages]
 ---

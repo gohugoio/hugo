@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/define
-      - functions/partials/Include
-      - functions/partials/IncludeCached
     returnType: 
     signatures: ['template NAME [CONTEXT]']
 ---

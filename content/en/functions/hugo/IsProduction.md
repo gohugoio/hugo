@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/hugo/IsDevelopment
-      - functions/hugo/Environment
     returnType: bool
     signatures: [hugo.IsProduction]
 ---

@@ -5,11 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pages/GroupByDate
-      - methods/pages/GroupByExpiryDate
-      - methods/pages/GroupByParamDate
-      - methods/pages/GroupByPublishDate
     returnType: page.PagesGroup
     signatures: ['PAGES.GroupByLastmod LAYOUT [SORT]']
 ---

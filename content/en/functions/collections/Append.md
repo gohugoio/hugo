@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [append]
-    related:
-      - functions/collections/Merge
     returnType: any
     signatures:
       - collections.Append ELEMENT [ELEMENT...] COLLECTION

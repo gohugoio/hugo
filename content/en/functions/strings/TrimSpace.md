@@ -5,13 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/strings/Chomp
-      - functions/strings/Trim
-      - functions/strings/TrimLeft
-      - functions/strings/TrimPrefix
-      - functions/strings/TrimRight
-      - functions/strings/TrimSuffix
     returnType: string
     signatures: [strings.TrimSpace INPUT]
 ---

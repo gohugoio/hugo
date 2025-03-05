@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [findRE]
-    related:
-      - functions/strings/FindRESubmatch
-      - functions/strings/Replace
-      - functions/strings/ReplaceRE
     returnType: '[]string'
     signatures: ['strings.FindRE PATTERN INPUT [LIMIT]']
 aliases: [/functions/findre]

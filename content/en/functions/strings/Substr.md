@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [substr]
-    related:
-      - functions/strings/SliceString
     returnType: string
     signatures: ['strings.Substr STRING [START] [LENGTH]']
 aliases: [/functions/substr]

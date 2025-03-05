@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/collections/IndexFunction
-      - methods/site/Params
-      - methods/page/Param
     returnType: maps.Params
     signatures: [PAGE.Params]
 ---

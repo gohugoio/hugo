@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [keyVals]
-    related:
-      - methods/pages/Related
     returnType: types.KeyValues
     signatures: [collections.KeyVals KEY VALUE...]
 aliases: [/functions/keyvals]

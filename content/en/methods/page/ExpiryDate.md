@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Date
-      - methods/page/LastMod
-      - methods/page/PublishDate
     returnType: time.Time
     signatures: [PAGE.ExpiryDate]
 ---

@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pager/NumberOfElements
-      - methods/page/Paginate
     returnType: int
     signatures: [PAGER.TotalNumberOfElements]
 ---

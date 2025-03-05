@@ -6,12 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [hasPrefix]
-    related:
-      - functions/strings/Contains
-      - functions/strings/ContainsAny
-      - functions/strings/ContainsNonSpace
-      - functions/strings/HasSuffix
-      - functions/collections/In
     returnType: bool
     signatures: [strings.HasPrefix STRING PREFIX]
 aliases: [/functions/hasprefix,/functions/strings.hasprefix]

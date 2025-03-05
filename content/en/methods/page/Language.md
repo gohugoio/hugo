@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/site/Language
     returnType: langs.Language
     signatures: [PAGE.Language]
 ---

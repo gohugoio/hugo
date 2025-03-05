@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/images/Filter
-      - methods/resource/Filter
-      - methods/resource/Process
     returnType: images.filter
     signatures: [images.Process SPEC]
 ---

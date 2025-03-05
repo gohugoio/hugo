@@ -5,9 +5,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [default]
-    related:
-      - functions/compare/Conditional
-      - functions/go-template/Or
     returnType: any
     signatures: [compare.Default DEFAULT INPUT]
 aliases: [/functions/default]

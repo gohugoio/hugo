@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [println]
-    related:
-      - functions/fmt/Print
-      - functions/fmt/Printf
     returnType: string
     signatures: [fmt.Println INPUT]
 aliases: [/functions/println]

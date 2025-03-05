@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [fileExists]
-    related:
-      - functions/os/Getenv
-      - functions/os/ReadDir
-      - functions/os/ReadFile
-      - functions/os/Stat
     returnType: bool
     signatures: [os.FileExists PATH]
 aliases: [/functions/fileexists]

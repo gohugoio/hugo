@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Kind
-      - methods/page/Layout
     returnType: string
     signatures: [PAGE.Type]
 ---

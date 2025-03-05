@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/HasMenuCurrent
     returnType: bool
     signatures: [PAGE.IsMenuCurrent MENU MENUENTRY]
 aliases: [/functions/ismenucurrent]

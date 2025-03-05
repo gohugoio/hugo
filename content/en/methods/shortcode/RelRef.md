@@ -5,10 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/shortcode/Ref
-      - functions/urls/Ref
-      - functions/urls/RelRef
     returnType: string
     signatures: [SHORTCODE.RelRef OPTIONS]
 ---

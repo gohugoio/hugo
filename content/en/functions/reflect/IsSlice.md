@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/reflect/IsMap
     returnType: bool
     signatures: [reflect.IsSlice INPUT]
 aliases: [/functions/reflect.isslice]

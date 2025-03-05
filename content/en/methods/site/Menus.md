@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/IsMenuCurrent
-      - methods/page/HasMenuCurrent
     returnType: navigation.Menus
     signatures: [SITE.Menus]
 ---

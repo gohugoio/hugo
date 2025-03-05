@@ -5,13 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/pager/First
-      - methods/pager/Prev
-      - methods/pager/Next
-      - methods/pager/HasPrev
-      - methods/pager/HasNext
-      - methods/page/Paginate
     returnType: page.Pager
     signatures: [PAGER.Last]
 ---

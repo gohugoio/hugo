@@ -6,10 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [relref]
-    related:
-      - functions/urls/Ref
-      - methods/page/Ref
-      - methods/page/RelRef
     returnType: string
     signatures:
       - urls.RelRef PAGE PATH

@@ -5,11 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/time/Unix
-      - methods/time/UnixMilli
-      - methods/time/UnixMicro
-      - functions/time/AsTime
     returnType: int64
     signatures: [TIME.UnixNano]
 ---

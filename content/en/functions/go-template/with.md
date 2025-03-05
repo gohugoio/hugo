@@ -6,11 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/go-template/if
-      - functions/go-template/else
-      - functions/go-template/end
-      - functions/collections/IsSet
     returnType:
     signatures: [with EXPR]
 aliases: [/functions/with]

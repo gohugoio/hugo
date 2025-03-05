@@ -6,9 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/math/Ceil
-      - functions/math/Round
     returnType: float64
     signatures: [math.Floor VALUE]
 ---

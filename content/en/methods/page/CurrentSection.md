@@ -5,14 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/Ancestors
-      - methods/page/FirstSection
-      - methods/page/InSection
-      - methods/page/IsAncestor
-      - methods/page/IsDescendant
-      - methods/page/Parent
-      - methods/page/Sections
     returnType: page.Page
     signatures: [PAGE.CurrentSection]
 ---

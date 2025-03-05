@@ -7,9 +7,6 @@ params:
   functions_and_methods:
     aliases: [jsonify]
     returnType: template.HTML
-    related:
-      - functions/transform/Remarshal
-      - functions/transform/Unmarshal
     signatures: ['encoding.Jsonify [OPTIONS] INPUT']
 aliases: [/functions/jsonify]
 ---

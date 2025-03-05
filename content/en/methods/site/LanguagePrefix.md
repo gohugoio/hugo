@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/urls/AbsLangURL
-      - functions/urls/RelLangURL
     returnType: string
     signatures: [SITE.LanguagePrefix]
 ---

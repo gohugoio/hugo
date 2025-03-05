@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/page/RenderString
-      - methods/page/RenderShortcodes
     returnType: string
     signatures: [transform.PortableText MAP]
 ---

@@ -5,11 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/strings/Trim
-      - methods/page/RenderString
-      - functions/transform/Markdownify
-      - methods/shortcode/InnerDeindent
     returnType: template.HTML
     signatures: [SHORTCODE.Inner]
 ---

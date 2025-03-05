@@ -5,9 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - functions/time/Duration
-      - functions/time/ParseDuration
     returnType: time.Duration
     signatures: [DURATION1.Truncate DURATION2]
 ---

@@ -5,8 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related:
-      - methods/menu-entry/HasChildren
     returnType: navigation.Menu
     signatures: [MENUENTRY.Children]
 ---

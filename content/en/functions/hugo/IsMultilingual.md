@@ -6,8 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [] 
-    related:
-      - /functions/hugo/IsMultihost
     returnType: bool
     signatures: [hugo.IsMultilingual]
 ---

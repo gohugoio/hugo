@@ -6,14 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related:
-      - functions/math/Acos
-      - functions/math/Atan
-      - functions/math/Atan2
-      - functions/math/Pi
-      - functions/math/Sin
-      - functions/math/Cos
-      - functions/math/Tan
     returnType: float64
     signatures: [math.Asin VALUE]
 ---
