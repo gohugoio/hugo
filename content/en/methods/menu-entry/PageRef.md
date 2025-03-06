@@ -75,13 +75,13 @@ weight = 20
 
 With this template code:
 
-{{< code file=layouts/partials/menu.html >}}
+```go-html-template {file="layouts/partials/menu.html"}
 <ul>
   {{ range .Site.Menus.main }}
     <li><a href="{{ .URL }}">{{ .Name }}</a></li>
   {{ end }}
 </ul>
-{{< /code >}}
+```
 
 Hugo render this HTML:
 
@@ -96,13 +96,13 @@ In the above note that the `href` attribute of the second `anchor` element is bl
 
 With this template code:
 
-{{< code file=layouts/partials/menu.html >}}
+```go-html-template {file="layouts/partials/menu.html"}
 <ul>
   {{ range .Site.Menus.main }}
     <li><a href="{{ or .URL .PageRef }}">{{ .Name }}</a></li>
   {{ end }}
 </ul>
-{{< /code >}}
+```
 
 Hugo renders this HTML:
 

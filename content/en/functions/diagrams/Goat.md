@@ -36,7 +36,7 @@ Hugo natively supports [GoAT](https://github.com/bep/goat) diagrams with an [emb
 
 This Markdown:
 
-````
+````text
 ```goat
 .---.     .-.       .-.       .-.     .---.
 | A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
@@ -68,7 +68,7 @@ To customize rendering, override Hugo's [embedded code block render hook] for Go
 
 By way of example, let's create a code block render hook to render GoAT diagrams as `figure` elements with an optional caption.
 
-{{< code file=layouts/_default/_markup/render-codeblock-goat.html >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock-goat.html"}
 {{ $caption := or .Attributes.caption "" }}
 {{ $class := or .Attributes.class "diagram" }}
 {{ $id := or .Attributes.id (printf "diagram-%d" (add 1 .Ordinal)) }}
@@ -81,17 +81,17 @@ By way of example, let's create a code block render hook to render GoAT diagrams
   {{ end }}
   <figcaption>{{ $caption }}</figcaption>
 </figure>
-{{< /code >}}
+```
 
 This Markdown:
 
-{{< code file=content/example.md lang=text >}}
+````text {file="content/example.md" }
 ```goat {class="foo" caption="Diagram 1: Example"}
 .---.     .-.       .-.       .-.     .---.
 | A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
 '---'     '-'       '+'       '+'     '---'
 ```
-{{< /code >}}
+````
 
 Is rendered to:
 

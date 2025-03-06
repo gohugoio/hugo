@@ -15,7 +15,7 @@ Use this method in shortcode templates to compose a page from multiple content f
 
 For example:
 
-{{< code file=layouts/shortcodes/include.html >}}
+```go-html-template {file="layouts/shortcodes/include.html" copy=true}
 {{ with .Get 0 }}
   {{ with $.Page.GetPage . }}
     {{- .RenderShortcodes }}
@@ -25,15 +25,15 @@ For example:
 {{ else }}
   {{ errorf "The %q shortcode requires a positional parameter indicating the logical path of the file to include. See %s" .Name .Position }}
 {{ end }}
-{{< /code >}}
+```
 
 Then call the shortcode in your Markdown:
 
-{{< code file=content/about.md lang=text >}}
+```text {file="content/about.md"}
 {{%/* include "/snippets/services" */%}}
 {{%/* include "/snippets/values" */%}}
 {{%/* include "/snippets/leadership" */%}}
-{{< /code >}}
+```
 
 Each of the included Markdown files can contain calls to other shortcodes.
 
@@ -50,7 +50,7 @@ Use the latter for the "include" shortcode described above.
 
 To understand what is returned by the `RenderShortcodes` method, consider this content file
 
-{{< code file=content/about.md lang=text >}}
+```text {file="content/about.md"}
 +++
 title = 'About'
 date = 2023-10-07T12:28:33-07:00
@@ -59,7 +59,7 @@ date = 2023-10-07T12:28:33-07:00
 {{</* ref "privacy" */>}}
 
 An *emphasized* word.
-{{< /code >}}
+```
 
 With this template code:
 

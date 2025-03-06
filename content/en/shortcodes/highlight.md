@@ -89,12 +89,12 @@ This is some {{< highlight go "hl_inline=true, noClasses=true" >}}fmt.Println("i
 
 Given the verbosity of the example above, if you need to frequently highlight inline code snippets, create your own shortcode using a shorter name with preset options.
 
-{{< code file=layouts/shortcodes/hl.html >}}
+```go-html-template {file="layouts/shortcodes/hl.html"}
 {{ $code := .Inner | strings.TrimSpace }}
 {{ $lang := or (.Get 0) "go" }}
 {{ $opts := dict "hl_inline" true "noClasses" true }}
 {{ transform.Highlight $code $lang $opts }}
-{{< /code >}}
+```
 
 ```text
 This is some {{</* hl */>}}fmt.Println("inline"){{</* /hl */>}} code.

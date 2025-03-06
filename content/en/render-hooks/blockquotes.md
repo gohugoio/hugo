@@ -58,15 +58,15 @@ In its default configuration, Hugo renders Markdown blockquotes according to the
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 
-{{< code file=layouts/_default/_markup/render-blockquote.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-blockquote.html" copy=true}
 <blockquote>
   {{ .Text }}
 </blockquote>
-{{< /code >}}
+```
 
 To render a blockquote as an HTML `figure` element with an optional citation and caption:
 
-{{< code file=layouts/_default/_markup/render-blockquote.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-blockquote.html" copy=true}
 <figure>
   <blockquote {{ with .Attributes.cite }}cite="{{ . }}"{{ end }}>
     {{ .Text }}
@@ -77,7 +77,7 @@ To render a blockquote as an HTML `figure` element with an optional citation and
     </figcaption>
   {{ end }}
 </figure>
-{{< /code >}}
+```
 
 Then in your markdown:
 
@@ -94,7 +94,7 @@ Also known as _callouts_ or _admonitions_, alerts are blockquotes used to emphas
 
 With the basic Markdown syntax, the first line of each alert is an alert designator consisting of an exclamation point followed by the alert type, wrapped within brackets. For example:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 > [!NOTE]
 > Useful information that users should know, even when skimming content.
 
@@ -109,7 +109,7 @@ With the basic Markdown syntax, the first line of each alert is an alert designa
 
 > [!CAUTION]
 > Advises about risks or negative outcomes of certain actions.
-{{< /code >}}
+```
 
 The basic syntax is compatible with [GitHub], [Obsidian], and [Typora].
 
@@ -121,10 +121,10 @@ The basic syntax is compatible with [GitHub], [Obsidian], and [Typora].
 
 With the extended Markdown syntax, you may optionally include an alert sign and/or an alert title. The alert sign is one of&nbsp;`+`&nbsp;or&nbsp;`-`, typically used to indicate whether an alert is graphically foldable. For example:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 > [!WARNING]+ Radiation hazard
 > Do not approach or handle without protective gear.
-{{< /code >}}
+```
 
 The extended syntax is compatible with [Obsidian].
 
@@ -136,7 +136,7 @@ The extended syntax is not compatible with GitHub or Typora. If you include an a
 
 This blockquote render hook renders a multilingual alert if an alert designator is present, otherwise it renders a blockquote according to the CommonMark specification.
 
-{{< code file=layouts/_default/_markup/render-blockquote.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-blockquote.html" copy=true}
 {{ $emojis := dict
   "caution" ":exclamation:"
   "important" ":information_source:"
@@ -162,7 +162,7 @@ This blockquote render hook renders a multilingual alert if an alert designator 
     {{ .Text }}
   </blockquote>
 {{ end }}
-{{< /code >}}
+```
 
 To override the label, create these entries in your i18n files:
 

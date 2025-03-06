@@ -119,7 +119,7 @@ Page Bundle resources follow the same language assignment logic as content files
 
 To create a list of links to translated content, use a template similar to the following:
 
-{{< code file=layouts/partials/i18nlist.html >}}
+```go-html-template {file="layouts/partials/i18nlist.html"}
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
 <ul>
@@ -130,7 +130,7 @@ To create a list of links to translated content, use a template similar to the f
   {{ end }}
 </ul>
 {{ end }}
-{{< /code >}}
+```
 
 The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template. It will not print anything if there are no translations for a given page.
 
@@ -140,13 +140,13 @@ The above also uses the [`i18n` function][i18func] described in the next section
 
 `.AllTranslations` on a `Page` can be used to list all translations, including the page itself. On the home page it can be used to build a language navigator:
 
-{{< code file=layouts/partials/allLanguages.html >}}
+```go-html-template {file="layouts/partials/allLanguages.html"}
 <ul>
 {{ range $.Site.Home.AllTranslations }}
 <li><a href="{{ .RelPermalink }}">{{ .Language.LanguageName }}</a></li>
 {{ end }}
 </ul>
-{{< /code >}}
+```
 
 ## Translation of strings
 

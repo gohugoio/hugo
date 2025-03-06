@@ -32,13 +32,13 @@ content/
 
 And these templates:
 
-{{< code file=layouts/_default/list.html >}}
+```go-html-template {file="layouts/_default/list.html"}
 {{ range .Pages.ByWeight }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
-{{< /code >}}
+```
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ $pages := .CurrentSection.Pages.ByWeight }}
 
 {{ with $pages.Prev . }}
@@ -48,7 +48,7 @@ And these templates:
 {{ with $pages.Next . }}
   <a href="{{ .RelPermalink }}">Next</a>
 {{ end }}
-{{< /code >}}
+```
 
 When you visit page-2:
 
@@ -57,7 +57,7 @@ When you visit page-2:
 
 To reverse the meaning of _next_ and _previous_ you can chain the [`Reverse`] method to the page collection definition:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ $pages := .CurrentSection.Pages.ByWeight.Reverse }}
 
 {{ with $pages.Prev . }}
@@ -67,6 +67,6 @@ To reverse the meaning of _next_ and _previous_ you can chain the [`Reverse`] me
 {{ with $pages.Next . }}
   <a href="{{ .RelPermalink }}">Next</a>
 {{ end }}
-{{< /code >}}
+```
 
 [`Reverse`]: /methods/pages/reverse/

@@ -99,7 +99,6 @@ polls.for.excludes
 polls.for.includes
 : (`string`) A list of [glob](g) patterns to include in polling for this configuration.
 
-
 ## Behavior
 
 Polling and HTTP caching interact as follows:

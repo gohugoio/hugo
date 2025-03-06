@@ -126,15 +126,21 @@ Other best practices:
 - Avoid bold text; use the note shortcode for emphasis.
 - Do not put description terms (`dt`) in backticks unless syntactically necessary.
 - Do not use Hugo's `ref` or `relref` shortcodes.
-- Prioritize current best practices over multiple options or historical - information.
+- Prioritize current best practices over multiple options or historical information.
 - Use short, focused code examples.
 - Use [basic english] where possible for a global audience.
 
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 
+## Related content
+
+When available, the "See also" sidebar on this site displays related pages using Hugo's [related content] feature, based on front matter keywords. We ensure keyword accuracy by validating them against `data/keywords.yaml` during the build process. If a keyword is not found, you'll be alerted and must either modify the keyword or update the data file. This validation process helps to refine the related content for better results.
+
+[related content]: /content-management/related-content/
+
 ## Code examples
 
-Indent code by two spaces. With examples of template code, ddd spaces around template code action delimiters:
+Indent code by two spaces. With examples of template code, add spaces around the action delimiters:
 
 ```go-html-template
 {{ if eq $foo $bar }}
@@ -148,6 +154,16 @@ Always specify the language:
 
 ````text
 ```go-html-template
+{{ if eq $foo "bar" }}
+  {{ print "foo is bar" }}
+{{ end }}
+```
+````
+
+To include a filename header and copy-to-clipboard button:
+
+````text
+```go-html-template {file="layouts/partials/foo.html" copy=true}
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
 {{ end }}
@@ -189,40 +205,10 @@ draft = false
 {{</* /code-toggle */>}}
 ```
 
-### Other code examples
-
-Use the [code shortcode] for code examples that require a file name:
-
-```text
-{{</* code file=layouts/_default/single.html */>}}
-{{ range .Site.RegularPages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-{{ end }}
-{{</* /code */>}}
-```
-
 ## Shortcodes
 
 These shortcodes are commonly used throughout the documentation. Other shortcodes are available for specialized use.
 
-### code
-
-Use the `code` shortcode for code examples that require a file name. This shortcode takes these arguments:
-
-copy
-: (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
-
-file
-: (`string`) The file name to display above the rendered code.
-
-lang
-: (`string`) The code language. If you do not provide a `lang` argument, the code language is determined by the file extension. If the file extension is `html`, sets the code language to `go-html-template`. Default is `text`.
-
-```text
-{{</* code file=content/something/foo.md lang=text copy=true */>}}
-Some code here
-{{</* /code */>}}
-```
 ### code-toggle
 
 Use the `code-toggle` shortcode to display examples of site configuration, front matter, or data files. This shortcode takes these arguments:
@@ -419,7 +405,6 @@ A project maintainer will review your PR and may request changes. You may delete
 [`glossary-term`]: #glossary-term
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [code examples]: #code-examples
-[code shortcode]: #code
 [code-toggle shortcode]: #code-toggle
 [documentation repository]: https://github.com/gohugoio/hugoDocs/
 [fenced code blocks]: https://spec.commonmark.org/0.30/#fenced-code-blocks

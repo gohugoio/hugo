@@ -48,6 +48,5 @@ x.disableInlineCSS
   ```go-html-template
   {{ .Site.Config.Services.X.DisableInlineCSS }}
 
-
 [v0.141.0]: https://github.com/gohugoio/hugo/releases/tag/v0.141.0
 [v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0

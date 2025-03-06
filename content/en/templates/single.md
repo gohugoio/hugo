@@ -11,12 +11,12 @@ The single template below inherits the site's shell from the [base template].
 
 [base template]: /templates/types/
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
 {{ end }}
-{{< /code >}}
+```
 
 Review the [template lookup order] to select a template path that provides the desired level of specificity.
 
@@ -24,7 +24,7 @@ Review the [template lookup order] to select a template path that provides the d
 
 The single template below inherits the site's shell from the base template, and renders the page title, creation date, content, and a list of associated terms in the "tags" taxonomy.
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ define "main" }}
   <section>
     <h1>{{ .Title }}</h1>
@@ -48,4 +48,4 @@ The single template below inherits the site's shell from the base template, and 
     </aside>
   </section>
 {{ end }}
-{{< /code >}}
+```

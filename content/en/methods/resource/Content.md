@@ -16,9 +16,9 @@ The `Content` method on a `Resource` object returns `template.HTML` when the res
 
 [resource type]: /methods/resource/resourcetype/
 
-{{< code file=assets/quotations/kipling.txt >}}
+```text {file="assets/quotations/kipling.txt"}
 He travels the fastest who travels alone.
-{{< /code >}}
+```
 
 To get the content:
 

@@ -11,15 +11,15 @@ params:
 
 This content:
 
-{{< code file=content/services.md lang=text >}}
+```text {file="content/services.md"}
 {{</* card title="Product Design" */>}}
 We design the **best** widgets in the world.
 {{</* /card */>}}
-{{< /code >}}
+```
 
 With this shortcode:
 
-{{< code file=layouts/shortcodes/card.html >}}
+```go-html-template {file="layouts/shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -28,7 +28,7 @@ With this shortcode:
     {{ .Inner | strings.TrimSpace }}
   </div>
 </div>
-{{< /code >}}
+```
 
 Is rendered to:
 
@@ -57,7 +57,7 @@ Let's modify the example above to pass the value returned by `Inner` through the
 
 [`RenderString`]: /methods/page/renderstring/
 
-{{< code file=layouts/shortcodes/card.html >}}
+```go-html-template {file="layouts/shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -66,7 +66,7 @@ Let's modify the example above to pass the value returned by `Inner` through the
     {{ .Inner | strings.TrimSpace | .Page.RenderString }}
   </div>
 </div>
-{{< /code >}}
+```
 
 Hugo renders this to:
 
@@ -88,11 +88,11 @@ You can use the [`markdownify`] function instead of the `RenderString` method, b
 
 Instead of calling the shortcode with the `{{</* */>}}` notation, use the `{{%/* */%}}` notation:
 
-{{< code file=content/services.md lang=text >}}
+```text {file="content/services.md"}
 {{%/* card title="Product Design" */%}}
 We design the **best** widgets in the world.
 {{%/* /card */%}}
-{{< /code >}}
+```
 
 When you use the `{{%/* */%}}` notation, Hugo renders the entire shortcode as Markdown, requiring the following changes.
 
@@ -107,7 +107,7 @@ This configuration is not unsafe if _you_ control the content. Read more about H
 
 Second, because we are rendering the entire shortcode as Markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
 
-{{< code file=layouts/shortcodes/card.html >}}
+```go-html-template {file="layouts/shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
   <div class="card-title">{{ . }}</div>
@@ -117,7 +117,7 @@ Second, because we are rendering the entire shortcode as Markdown, we must adher
   {{ .Inner | strings.TrimSpace }}
   </div>
 </div>
-{{< /code >}}
+```
 
 The difference between this and the previous example is subtle but required. Note the change in indentation, the addition of a blank line, and removal of the `RenderString` method.
 

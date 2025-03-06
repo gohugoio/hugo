@@ -17,7 +17,7 @@ Hugo uses [Goldmark] to render Markdown to HTML. Goldmark supports custom extens
 
 Depending on your choice of delimiters, Hugo will classify a passthrough element as either _block_ or _inline_. Consider this contrived example:
 
-{{< code file=content/sample.md >}}
+```text {file="content/example.md"}
 This is a
 
 \[block\]
@@ -25,7 +25,7 @@ This is a
 passthrough element with opening and closing block delimiters.
 
 This is an \(inline\) passthrough element with opening and closing inline delimiters.
-{{< /code >}}
+```
 
 Update your site configuration to enable the Passthrough extension and define opening and closing delimiters for each passthrough element type, either `block` or `inline`. For example:
 
@@ -86,7 +86,7 @@ Instead of client-side JavaScript rendering of mathematical markup using MathJax
 
 [`transform.ToMath`]: /functions/transform/tomath/
 
-{{< code file=layouts/_default/_markup/render-passthrough.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-passthrough.html" copy=true}
 {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
 {{- with try (transform.ToMath .Inner $opts) }}
   {{- with .Err }}
@@ -96,18 +96,18 @@ Instead of client-side JavaScript rendering of mathematical markup using MathJax
     {{- $.Page.Store.Set "hasMath" true }}
   {{- end }}
 {{- end -}}
-{{< /code >}}
+```
 
 Then, in your base template, conditionally include the KaTeX CSS within the head element:
 
-{{< code file=layouts/_default/baseof.html copy=true >}}
+```go-html-template {file="layouts/_default/baseof.html" copy=true}
 <head>
   {{ $noop := .WordCount }}
   {{ if .Page.Store.Get "hasMath" }}
     <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
   {{ end }}
 </head>
-{{< /code >}}
+```
 
 In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 

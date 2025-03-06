@@ -44,12 +44,12 @@ Hugo does not provide a built-in template for Mermaid diagrams. Create your own 
 
 [code block render hook]: /render-hooks/code-blocks/
 
-{{< code file=layouts/_default/_markup/render-codeblock-mermaid.html >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html"}
 <pre class="mermaid">
   {{- .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
-{{< /code >}}
+```
 
 And then include this snippet at the _bottom_ of the content template, before the closing `body` tag:
 

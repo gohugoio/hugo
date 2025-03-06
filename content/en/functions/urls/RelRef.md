@@ -13,7 +13,6 @@ params:
 aliases: [/functions/relref]
 ---
 
-
 ## Usage
 
 The `relref` function takes two arguments:

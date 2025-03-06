@@ -67,7 +67,7 @@ touch .github/workflows/hugo.yaml
 
 Copy and paste the YAML below into the file you created. Change the branch name and Hugo version as needed.
 
-{{< code file=.github/workflows/hugo.yaml copy=true >}}
+```yaml {file=".github/workflows/hugo.yaml" copy=true}
 # Sample workflow for building and deploying a Hugo site to GitHub Pages
 name: Deploy Hugo site to Pages
 
@@ -146,7 +146,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-{{< /code >}}
+```
 
 ### Step 7
 

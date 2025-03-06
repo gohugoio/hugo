@@ -97,7 +97,6 @@ pageRef
   taxonomy|`/tags`
   term|`/tags/foo`
 
-
 url
 : (`string`) The destination URL. Use this for external destinations only.
 

@@ -140,7 +140,6 @@ layouts/_default/list.atom.atom
 
 We leave writing the template code as an exercise for you. Aim for a result similar to the [embedded RSS template].
 
-
 ## List output formats
 
 To access output formats, each `Page` object provides two methods: [`OutputFormats`] (for all formats, including the current one) and [`AlternativeOutputFormats`]. Use `AlternativeOutputFormats` to create a link `rel` list within your site's `head` element, as shown below:

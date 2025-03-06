@@ -51,7 +51,7 @@ First, define your [build manifest] by creating a `.build.yml` file in the root 
 
 [build manifest]: https://man.sr.ht/builds.sr.ht/#build-manifests
 
-{{< code file=.build.yml copy=true >}}
+```yaml {file=".build.yml" copy=true}
 image: alpine/edge
 packages:
   - hugo
@@ -66,7 +66,7 @@ tasks:
     tar -C public -cvz . > ../site.tar.gz
 - upload: |
     hut pages publish -d $site site.tar.gz
-{{% /code %}}
+```
 
 Now what's left is creating a repository titled `<YourUsername>.srht.site` (or your custom domain, if applicable) and pushing your local project. Here's an example using Git:
 

@@ -73,7 +73,7 @@ Specify `level`, `scale`, and `targetDir` as needed to achieve the desired resul
 
 To include a QR code that points to the `Permalink` of the current page:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ with images.QR .Permalink }}
   <img
     src="{{ .RelPermalink }}"
@@ -84,7 +84,7 @@ To include a QR code that points to the `Permalink` of the current page:
     loading="lazy"
   >
 {{ end }}
-{{< /code >}}
+```
 
 Then hide the QR code with CSS unless printing the page:
 

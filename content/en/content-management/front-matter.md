@@ -243,7 +243,7 @@ You can add taxonomy terms to the front matter of any these [page kinds](g):
 
 Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] method on a `Page` object. For example:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ with .GetTerms "tags" }}
   <p>Tags</p>
   <ul>
@@ -252,7 +252,7 @@ Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] metho
     {{ end }}
   </ul>
 {{ end }}
-{{< /code >}}
+```
 
 [`Params`]: /methods/page/params/
 [`GetTerms`]: /methods/page/getterms/
@@ -330,7 +330,7 @@ If you choose to define cascade values in front matter for a multilingual site, 
 
 If your [content format] is [Emacs Org Mode], you may provide front matter using Org Mode keywords. For example:
 
-{{< code file=content/example.org lang=text >}}
+```text {file="content/example.org"}
 #+TITLE: Example
 #+DATE: 2024-02-02T04:14:54-08:00
 #+DRAFT: false
@@ -340,13 +340,13 @@ If your [content format] is [Emacs Org Mode], you may provide front matter using
 #+TAGS: red
 #+TAGS: blue
 #+WEIGHT: 10
-{{< /code >}}
+```
 
 Note that you can also specify array elements on a single line:
 
-{{< code file=content/example.org lang=text >}}
+```text {file="content/example.org"}
 #+TAGS[]: red blue
-{{< /code >}}
+```
 
 [content format]: /content-management/formats/
 [emacs org mode]: https://orgmode.org/

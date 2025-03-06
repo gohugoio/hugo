@@ -60,9 +60,6 @@ Rendered:
 <a href="https://example.org/de/books/book-1/index.json">Link D</a>
 ```
 
-
-
-
 ## Error handling
 
 {{% include "_common/ref-and-relref-error-handling.md" %}}

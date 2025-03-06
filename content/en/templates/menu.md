@@ -23,7 +23,7 @@ The example below handles every combination.
 
 This partial template recursively "walks" a menu structure, rendering a localized, accessible nested list.
 
-{{< code file=layouts/partials/menu.html copy=true >}}
+```go-html-template {file="layouts/partials/menu.html" copy=true}
 {{- $page := .page }}
 {{- $menuID := .menuID }}
 
@@ -66,14 +66,14 @@ This partial template recursively "walks" a menu structure, rendering a localize
     </li>
   {{- end }}
 {{- end }}
-{{< /code >}}
+```
 
 Call the partial above, passing a menu ID and the current page in context.
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ partial "menu.html" (dict "menuID" "main" "page" .) }}
 {{ partial "menu.html" (dict "menuID" "footer" "page" .) }}
-{{< /code >}}
+```
 
 ## Page references
 
@@ -81,7 +81,7 @@ Regardless of how you [define menu entries], an entry associated with a page has
 
 This simplistic example renders a page parameter named `version` next to each entry's `name`. Code defensively using `with` or `if` to handle entries where (a) the entry points to an external resource, or (b) the `version` parameter is not defined.
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{- range site.Menus.main }}
   <a href="{{ .URL }}">
     {{ .Name }}
@@ -92,7 +92,7 @@ This simplistic example renders a page parameter named `version` next to each en
     {{- end }}
   </a>
 {{- end }}
-{{< /code >}}
+```
 
 ## Menu entry parameters
 
@@ -103,13 +103,13 @@ When you define menu entries [in site configuration] or [in front matter], you c
 
 This simplistic example renders a `class` attribute for each anchor element. Code defensively using `with` or `if` to handle entries where `params.class` is not defined.
 
-{{< code file=layouts/partials/menu.html >}}
+```go-html-template {file="layouts/partials/menu.html"}
 {{- range site.Menus.main }}
   <a {{ with .Params.class -}} class="{{ . }}" {{ end -}} href="{{ .URL }}">
     {{ .Name }}
   </a>
 {{- end }}
-{{< /code >}}
+```
 
 ## Localize
 

@@ -19,7 +19,7 @@ Please see the [contributing] section for guidelines, examples, and process.
 
 # Install
 
-```bash
+```sh
 npm i
 hugo server
 ```

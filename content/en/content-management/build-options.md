@@ -79,14 +79,14 @@ title = 'Headless page'
 
 To include the content and images on the home page:
 
-{{< code file=layouts/_default/home.html >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ with .Site.GetPage "/headless" }}
   {{ .Content }}
   {{ range .Resources.ByType "image" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 The published site will have this structure:
 
@@ -139,7 +139,7 @@ In the front matter above, note that we have set `list` to `local` to include th
 
 To include the content and images on the home page:
 
-{{< code file=layouts/_default/home.html >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ with .Site.GetPage "/headless" }}
   {{ range .Pages }}
     {{ .Content }}
@@ -148,7 +148,7 @@ To include the content and images on the home page:
     {{ end }}
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 The published site will have this structure:
 
@@ -198,14 +198,14 @@ render = 'always'
 
 To render the glossary:
 
-{{< code file=layouts/glossary/list.html >}}
+```go-html-template {file="layouts/glossary/list.html"}
 <dl>
   {{ range .Pages }}
     <dt>{{ .Title }}</dt>
     <dd>{{ .Content }}</dd>
   {{ end }}
 </dl>
-{{< /code >}}
+```
 
 The published site will have this structure:
 
@@ -240,7 +240,7 @@ list = 'never'
 
 The published site will have this structure:
 
-```html
+```text
 public/
 ├── books/
 │   ├── book-1/
@@ -289,7 +289,7 @@ environment = 'production'
 
 The production site will have this structure:
 
-```html
+```text
 public/
 ├── reference/
 │   ├── reference-1/

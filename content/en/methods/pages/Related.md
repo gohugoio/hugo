@@ -15,7 +15,7 @@ Based on front matter, Hugo uses several factors to identify content related to 
 
 The argument passed to the `Related` method may be a `Page` or an options map. For example, to pass the current page:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ with .Site.RegularPages.Related . | first 5 }}
   <p>Related pages:</p>
   <ul>
@@ -24,11 +24,11 @@ The argument passed to the `Related` method may be a `Page` or an options map. F
     {{ end }}
   </ul>
 {{ end }}
-{{< /code >}}
+```
 
 To pass an options map:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ $opts := dict
   "document" .
   "indices" (slice "tags" "keywords")
@@ -41,7 +41,7 @@ To pass an options map:
     {{ end }}
   </ul>
 {{ end }}
-{{< /code >}}
+```
 
 ## Options
 

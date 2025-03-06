@@ -24,13 +24,13 @@ Unlike `return` statements in other languages, Hugo executes the first occurrenc
 
 By way of example, let's create a partial template that _renders_ HTML, describing whether the given number is odd or even:
 
-{{< code file=layouts/partials/odd-or-even.html >}}
+```go-html-template {file="layouts/partials/odd-or-even.html"}
 {{ if math.ModBool . 2 }}
   <p>{{ . }} is even</p>
 {{ else }}
   <p>{{ . }} is odd</p>
 {{ end }}
-{{< /code >}}
+```
 
 When called, the partial renders HTML:
 
@@ -40,9 +40,9 @@ When called, the partial renders HTML:
 
 Instead of rendering HTML, let's create a partial that _returns_ a boolean value, reporting whether the given number is even:
 
-{{< code file=layouts/partials/is-even.html >}}
+```go-html-template {file="layouts/partials/is-even.html"}
 {{ return math.ModBool . 2 }}
-{{< /code >}}
+```
 
 With this template:
 
@@ -75,7 +75,7 @@ A partial that returns a value must contain only one `return` statement, placed 
 
 For example:
 
-{{< code file=layouts/partials/is-even.html >}}
+```go-html-template {file="layouts/partials/is-even.html"}
 {{ $result := false }}
 {{ if math.ModBool . 2 }}
   {{ $result = "even" }}
@@ -83,16 +83,16 @@ For example:
   {{ $result = "odd" }}
 {{ end }}
 {{ return $result }}
-{{< /code >}}
+```
 
 {{< note >}}
 The construct below is incorrect; it contains more than one `return` statement.
 {{< /note >}}
 
-{{< code file=layouts/partials/do-not-do-this.html >}}
+```go-html-template {file="layouts/partials/do-not-do-this.html"}
 {{ if math.ModBool . 2 }}
   {{ return "even" }}
 {{ else }}
   {{ return "odd" }}
 {{ end }}
-{{< /code >}}
+```

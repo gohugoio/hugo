@@ -21,12 +21,13 @@ Hugo publishes the resource to the target path when you call its [`Publish`], [`
 
 Let's say you have a CSS file that you wish to populate with values from your site configuration:
 
-{{< code file=assets/css/template.css lang=go-html-template >}}
+
+```go-html-template {file="assets/css/template.css"}
 body {
   background-color: {{ site.Params.style.bg_color }};
   color: {{ site.Params.style.text_color }};
 }
-{{< /code >}}
+```
 
 And your site configuration contains:
 
@@ -54,9 +55,10 @@ The example above:
 
 The result is:
 
-{{< code file=public/css/main.css >}}
+
+```css {file="public/css/main.css"}
 body {
   background-color: #fefefe;
   color: #222;
 }
-{{< /code >}}
+```

@@ -117,7 +117,7 @@ Create a [passthrough render hook] to capture and render the LaTeX markup.
 
 [passthrough render hook]: /render-hooks/passthrough/
 
-{{< code file=layouts/_default/_markup/render-passthrough.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-passthrough.html" copy=true}
 {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
 {{- with try (transform.ToMath .Inner $opts) }}
   {{- with .Err }}
@@ -127,20 +127,20 @@ Create a [passthrough render hook] to capture and render the LaTeX markup.
     {{- $.Page.Store.Set "hasMath" true }}
   {{- end }}
 {{- end -}}
-{{< /code >}}
+```
 
 ### Step 3
 
 In your base template, conditionally include the KaTeX CSS within the head element.
 
-{{< code file=layouts/_default/baseof.html copy=true >}}
+```go-html-template {file="layouts/_default/baseof.html" copy=true}
 <head>
   {{ $noop := .WordCount }}
   {{ if .Page.Store.Get "hasMath" }}
     <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
   {{ end }}
 </head>
-{{< /code >}}
+```
 
 In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
@@ -148,7 +148,7 @@ In the above, note the use of a [noop](g) statement to force content rendering b
 
 Add some mathematical markup to your content, then test.
 
-{{< code file=content/example.md >}}
+```text {file="content/example.md"}
 This is an inline \(a^*=x-b^*\) equation.
 
 These are block equations:
@@ -156,7 +156,7 @@ These are block equations:
 \[a^*=x-b^*\]
 
 $$a^*=x-b^*$$
-{{< /code >}}
+```
 
 ## Chemistry
 

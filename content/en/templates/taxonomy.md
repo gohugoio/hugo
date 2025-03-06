@@ -11,7 +11,7 @@ The [taxonomy](g) template below inherits the site's shell from the [base templa
 
 [base template]: /templates/types/
 
-{{< code file=layouts/_default/taxonomy.html >}}
+```go-html-template {file="layouts/_default/taxonomy.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -19,7 +19,7 @@ The [taxonomy](g) template below inherits the site's shell from the [base templa
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 Review the [template lookup order] to select a template path that provides the desired level of specificity.
 
@@ -64,7 +64,7 @@ Once we have the `Taxonomy` object, we can call any of its [methods], allowing u
 
 The taxonomy template below inherits the site's shell from the base template, and renders a list of terms in the current taxonomy. Hugo sorts the list alphabetically by term, and displays the number of pages associated with each term.
 
-{{< code file=layouts/_default/taxonomy.html >}}
+```go-html-template {file="layouts/_default/taxonomy.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -72,13 +72,13 @@ The taxonomy template below inherits the site's shell from the base template, an
     <h2><a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a> ({{ .Count }})</h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 ## Sort by term count
 
 The taxonomy template below inherits the site's shell from the base template, and renders a list of terms in the current taxonomy. Hugo sorts the list by the number of pages associated with each term, and displays the number of pages associated with each term.
 
-{{< code file=layouts/_default/taxonomy.html >}}
+```go-html-template {file="layouts/_default/taxonomy.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -86,7 +86,7 @@ The taxonomy template below inherits the site's shell from the base template, an
     <h2><a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a> ({{ .Count }})</h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 ## Include content links
 
@@ -97,7 +97,7 @@ The [`Alphabetical`] and [`ByCount`] methods used in the previous examples retur
 
 The taxonomy template below inherits the site's shell from the base template, and renders a list of terms in the current taxonomy. Hugo sorts the list by the number of pages associated with each term, displays the number of pages associated with each term, then lists the content to which each term is assigned.
 
-{{< code file=layouts/_default/taxonomy.html >}}
+```go-html-template {file="layouts/_default/taxonomy.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -110,7 +110,7 @@ The taxonomy template below inherits the site's shell from the base template, an
     </ul>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 ## Display metadata
 
@@ -145,7 +145,7 @@ affiliation = "University of Chicago"
 
 Then create a taxonomy template specific to the "authors" taxonomy:
 
-{{< code file=layouts/authors/taxonomy.html >}}
+```go-html-template {file="layouts/authors/taxonomy.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -159,6 +159,6 @@ Then create a taxonomy template specific to the "authors" taxonomy:
     {{ end }}
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 In the example above we list each author including their affiliation and portrait.

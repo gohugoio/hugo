@@ -33,12 +33,12 @@ You may overwrite the internal template with a custom template. Hugo selects the
 
 ## robots.txt template example
 
-{{< code file=layouts/robots.txt >}}
+```text {file="cayouts/robots.txt"}
 User-agent: *
 {{ range .Pages }}
 Disallow: {{ .RelPermalink }}
 {{ end }}
-{{< /code >}}
+```
 
 This template creates a robots.txt file with a `Disallow` directive for each page on the site. Search engines that honor the Robots Exclusion Protocol will not crawl any page on the site.
 

@@ -39,7 +39,6 @@ For example, you can do either of these:
 
 But you cannot do this:
 
-
 ```go-html-template
 {{ .Site.params.kebab-case.foo }}
 ```

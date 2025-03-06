@@ -55,7 +55,6 @@ lang
 path
 : (`string`) A [glob](g) pattern matching the page's [logical path](g). For example: `{/books,/books/**}`.
 
-
 [page language]: /methods/page/language/
 
 ## Array

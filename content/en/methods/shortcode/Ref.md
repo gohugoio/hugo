@@ -9,7 +9,6 @@ params:
     signatures: [SHORTCODE.Ref OPTIONS]
 ---
 
-
 ## Usage
 
 The `Ref` method accepts a single argument: an options map.

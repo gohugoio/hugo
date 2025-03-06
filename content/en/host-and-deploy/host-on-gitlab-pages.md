@@ -21,7 +21,7 @@ The `baseURL` in your [site configuration](/configuration/) must reflect the ful
 
 Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating a `.gitlab-ci.yml` file in the root of your project.
 
-{{< code file=.gitlab-ci.yml copy=true >}}
+```yaml {file=".gitlab-ci.yml" copy=true}
 variables:
   DART_SASS_VERSION: 1.85.0
   GIT_DEPTH: 0
@@ -63,7 +63,7 @@ pages:
       - public
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-{{% /code %}}
+```
 
 ## Push your Hugo website to GitLab
 

@@ -10,13 +10,13 @@ keywords: []
 
 This Markdown example contains a fenced code block:
 
-{{< code file=content/example.md lang=text >}}
+````text {file="content/example.md"}
 ```bash {class="my-class" id="my-codeblock" lineNos=inline tabWidth=2}
 declare a=1
 echo "$a"
 exit
 ```
-{{< /code >}}
+````
 
 A fenced code block consists of:
 
@@ -83,10 +83,10 @@ In its default configuration, Hugo renders fenced code blocks by passing the cod
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 
-{{< code file=layouts/_default/_markup/render-codeblock.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock.html" copy=true}
 {{ $result := transform.HighlightCodeBlock . }}
 {{ $result.Wrapped }}
-{{< /code >}}
+```
 
 Although you can use one template with conditional logic to control the behavior on a per-language basis, you can also create language-specific templates.
 
@@ -103,23 +103,23 @@ For example, to create a code block render hook to render [Mermaid] diagrams:
 
 [Mermaid]: https://mermaid.js.org/
 
-{{< code file=layouts/_default/_markup/render-codeblock-mermaid.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
   {{- .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
-{{< /code >}}
+```
 
 Then include this snippet at the bottom of the your base template:
 
-{{< code file=layouts/_default/baseof.html copy=true >}}
+```go-html-template {file="layouts/_default/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
   </script>
 {{ end }}
-{{< /code >}}
+```
 
 See the [diagrams] page for details.
 

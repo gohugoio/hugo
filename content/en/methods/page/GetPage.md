@@ -37,7 +37,7 @@ content/
 
 The examples below depict the result of rendering works/paintings/the-mona-lisa.md:
 
-{{< code file=layouts/works/single.html >}}
+```go-html-template {file="layouts/works/single.html"}
 {{ with .GetPage "starry-night" }}
   {{ .Title }} → Starry Night
 {{ end }}
@@ -61,4 +61,4 @@ The examples below depict the result of rendering works/paintings/the-mona-lisa.
 {{ with .GetPage "/works/sculptures/david" }}
   {{ .Title }} → David
 {{ end }}
-{{< /code >}}
+```

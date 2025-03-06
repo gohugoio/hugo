@@ -82,7 +82,6 @@ min
 
 [`themesDir`]: /configuration/all/#themesdir
 
-
 ## Imports
 
 {{< code-toggle file=hugo >}}
@@ -121,7 +120,6 @@ path
 
 Before Hugo v0.56.0, custom component paths could only be configured by setting [`archetypeDir`], [`assetDir`], [`contentDir`], [`dataDir`], [`i18nDir`], [`layoutDi`], or [`staticDir`] in the site configuration. Module mounts offer greater flexibility than these legacy settings, but
 you cannot use both.
-
 
 [`archetypeDir`]: /configuration/all/
 [`assetDir`]: /configuration/all/

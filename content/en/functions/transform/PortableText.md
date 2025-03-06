@@ -27,7 +27,7 @@ Since the Portable Text gets converted to Markdown before it gets passed to Hugo
 
 ### Content Adapter
 
-{{< code file=content/_content.gotmpl copy=true >}}
+```go-html-template {file="content/_content.gotmpl" copy=true}
 {{ $projectID := "mysanityprojectid" }}
 {{ $useCached := true }}
 {{ $api := "api" }}
@@ -91,21 +91,19 @@ Since the Portable Text gets converted to Markdown before it gets passed to Hugo
   }}
   {{ $.AddPage $page }}
 {{ end }}
-{{< /code >}}
-
+```
 
 ### Sanity setup
 
 Below outlines a suitable Sanity studio setup for the above example.
 
-{{< code file=sanity.config.ts copy=true >}}
+```ts {file="sanity.config.ts" copy=true}
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 import {media} from 'sanity-plugin-media'
 import {codeInput} from '@sanity/code-input'
-
 
 export default defineConfig({
   name: 'default',
@@ -120,12 +118,11 @@ export default defineConfig({
     types: schemaTypes,
   },
 })
-
-{{< /code >}}
+```
 
 Type/schema definition:
 
-{{< code file=schemaTypes/postType.ts copy=true >}}
+```ts {file="schemaTypes/postType.ts" copy=true}
 import {defineField, defineType} from 'sanity'
 
 export const postType = defineType({
@@ -180,7 +177,7 @@ export const postType = defineType({
     }),
   ],
 })
-{{< /code >}}
+```
 
 Note that the above requires some additional plugins to be installed:
 
@@ -188,11 +185,11 @@ Note that the above requires some additional plugins to be installed:
 npm i sanity-plugin-media @sanity/code-input
 ```
 
-{{< code file=schemaTypes/index.ts copy=true >}}
+```ts {file="schemaTypes/index.ts" copy=true}
 import {postType} from './postType'
 
 export const schemaTypes = [postType]
-{{< /code >}}
+```
 
 ## Server setup
 

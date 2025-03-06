@@ -214,12 +214,12 @@ With TOML, date values are first-class citizens. TOML has a date data type while
 
 In the TOML example below, note that the event date is not quoted.
 
-{{< code file=content/events/2024-user-conference.md >}}
+```text {file="content/events/2024-user-conference.md"}
 +++
 title = '2024 User Conference"
 eventDate = 2024-04-01
 +++
-{{< /code >}}
+```
 
 To return a collection of future events:
 

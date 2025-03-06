@@ -13,17 +13,17 @@ To support both positional and named arguments when calling a shortcode, use the
 
 With this shortcode template:
 
-{{< code file=layouts/shortcodes/myshortcode.html >}}
+```go-html-template {file="layouts/shortcodes/myshortcode.html"}
 {{ if .IsNamedParams }}
   {{ printf "%s %s." (.Get "greeting") (.Get "firstName") }}
 {{ else }}
   {{ printf "%s %s." (.Get 0) (.Get 1) }}
 {{ end }}
-{{< /code >}}
+```
 
 Both of these calls return the same value:
 
-{{< code file=content/about.md lang=text >}}
+```text {file="content/about.md"}
 {{</* myshortcode greeting="Hello" firstName="world" */>}}
 {{</* myshortcode "Hello" "world" */>}}
-{{< /code >}}
+```

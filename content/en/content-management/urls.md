@@ -236,7 +236,7 @@ public/
 
 The alias from the previous URL to the new URL is a client-side redirect:
 
-{{< code file=posts/previous-file-name/index.html >}}
+```html {file="posts/previous-file-name/index.html"}
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
@@ -247,7 +247,7 @@ The alias from the previous URL to the new URL is a client-side redirect:
     <meta http-equiv="refresh" content="0; url=https://example.org/posts/new-file-name/">
   </head>
 </html>
-{{< /code >}}
+```
 
 Collectively, the elements in the `head` section:
 

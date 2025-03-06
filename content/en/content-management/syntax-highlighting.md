@@ -19,11 +19,11 @@ Hugo provides several methods to add syntax highlighting to code examples:
 
 In its default configuration, Hugo highlights code examples within fenced code blocks, following this form:
 
-{{< code file=content/example.md lang=text >}}
+````text {file="content/example.md"}
 ```LANG [OPTIONS]
 CODE
 ```
-{{< /code >}}
+````
 
 CODE
 : The code to highlight.
@@ -39,7 +39,7 @@ OPTIONS
 
 For example, with this Markdown:
 
-{{< code file=content/example.md lang=text >}}
+````text {file="content/example.md"}
 ```go {linenos=inline hl_lines=[3,"6-8"] style=emacs}
 package main
 
@@ -51,7 +51,7 @@ func main() {
     }
 }
 ```
-{{< /code >}}
+````
 
 Hugo renders this:
 
@@ -75,13 +75,13 @@ func main() {
 
 When documenting shortcode usage, escape the tag delimiters:
 
-{{< code file=content/example.md lang=text >}}
+````text {file="content/example.md"}
 ```text {linenos=inline}
 {{</*/* shortcode-1 */*/>}}
 
 {{%/*/* shortcode-2 */*/%}}
 ```
-{{< /code >}}
+````
 
 Hugo renders this to:
 

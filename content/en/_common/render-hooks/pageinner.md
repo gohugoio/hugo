@@ -8,7 +8,7 @@ _comment: Do not remove front matter.
 
 The primary use case for `PageInner` is to resolve links and [page resources](g) relative to an included `Page`. For example, create an "include" shortcode to compose a page from multiple content files, while preserving a global context for footnotes and the table of contents:
 
-{{< code file=layouts/shortcodes/include.html >}}
+```go-html-template {file="layouts/shortcodes/include.html" copy=true}
 {{ with .Get 0 }}
   {{ with $.Page.GetPage . }}
     {{- .RenderShortcodes }}
@@ -18,13 +18,13 @@ The primary use case for `PageInner` is to resolve links and [page resources](g)
 {{ else }}
   {{ errorf "The %q shortcode requires a positional parameter indicating the logical path of the file to include. See %s" .Name .Position }}
 {{ end }}
-{{< /code >}}
+```
 
 Then call the shortcode in your Markdown:
 
-{{< code file=content/posts/p1.md lang=text >}}
+```text {file="content/posts/p1.md"}
 {{%/* include "/posts/p2" */%}}
-{{< /code >}}
+```
 
 Any render hook triggered while rendering `/posts/p2` will get:
 

@@ -39,7 +39,7 @@ touch amplify.yml
 
 Copy and paste the YAML below into the file you created. Change the application versions and time zone as needed.
 
-{{< code file=amplify.yml copy=true >}}
+```yaml {file="amplify.yml" copy=true}
 version: 1
 env:
   variables:
@@ -97,7 +97,7 @@ frontend:
     paths:
       - ${HUGO_CACHEDIR}/**/*
       - ${NPM_CONFIG_CACHE}/**/*
-{{< /code >}}
+```
 
 ### Step 3
 

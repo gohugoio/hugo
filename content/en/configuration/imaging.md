@@ -19,7 +19,6 @@ quality = 75
 resampleFilter = 'box'
 {{< /code-toggle >}}
 
-
 anchor
 : (`string`) When using the Crop or Fill method, the anchor determines the placement of the crop box. One of `TopLeft`, `Top`, `TopRight`, `Left`, `Center`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`, or `Smart`. Default is `Smart`.
 

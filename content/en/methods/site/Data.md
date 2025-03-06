@@ -33,23 +33,23 @@ data/
 
 And these data files:
 
-{{< code file=data/books/fiction.yaml lang=yaml >}}
+```yaml {file="data/books/fiction.yaml"}
 - title: The Hunchback of Notre Dame
   author: Victor Hugo
   isbn: 978-0140443530
 - title: Les Misérables
   author: Victor Hugo
   isbn: 978-0451419439
-{{< /code >}}
+```
 
-{{< code file=data/books/nonfiction.yaml lang=yaml >}}
+```yaml {file="data/books/nonfiction.yaml"}
 - title: The Ancien Régime and the Revolution
   author: Alexis de Tocqueville
   isbn: 978-0141441641
 - title: Interpreting the French Revolution
   author: François Furet
   isbn: 978-0521280495
-{{< /code >}}
+```
 
 Access the data by [chaining](g) the [identifiers](g):
 

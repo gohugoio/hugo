@@ -121,7 +121,7 @@ The `partialCached` template function provides significant performance gains for
 
 The following `header.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file=layouts/partials/header.html >}}
+```go-html-template {file="layouts/partials/header.html"}
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
@@ -136,7 +136,7 @@ The following `header.html` partial template is used for [spf13.com](https://spf
 
     {{ partial "head_includes.html" . }}
 </head>
-{{< /code >}}
+```
 
 {{< note >}}
 The `header.html` example partial was built before the introduction of block templates to Hugo. Read more on [base templates and blocks](/templates/base/) for defining the outer chrome or shell of your master templates (i.e., your site's head, header, and footer). You can even combine blocks and partials for added flexibility.
@@ -146,7 +146,7 @@ The `header.html` example partial was built before the introduction of block tem
 
 The following `footer.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file=layouts/partials/footer.html >}}
+```go-html-template {file="layouts/partials/footer.html"}
 <footer>
   <div>
     <p>
@@ -156,7 +156,7 @@ The following `footer.html` partial template is used for [spf13.com](https://spf
     </p>
   </div>
 </footer>
-{{< /code >}}
+```
 
 [context]: /templates/introduction/
 [customize]: /hugo-modules/theme-components/

@@ -16,7 +16,7 @@ may also specify the following parameters:
     fmt.Println("Hello world!")
     ```
 
-    ```go {linenos=true copy=true file="layouts/index.html"}
+    ```go {linenos=true file="layouts/index.html" copy=true}
     fmt.Println("Hello world!")
     ```
 */}}
@@ -26,8 +26,11 @@ may also specify the following parameters:
 {{- $file := or .Attributes.file "" }}
 {{- $ext := strings.TrimPrefix "." (path.Ext $file) }}
 {{- $lang := or .Type $ext "text" }}
-{{- if eq $lang "html" }}
+{{- if in (slice "html" "gotmpl") $lang }}
   {{- $lang = "go-html-template" }}
+{{- end }}
+{{- if eq $lang "md" }}
+  {{- $lang = "text" }}
 {{- end }}
 
 {{- with .Attributes.copy }}
@@ -46,7 +49,7 @@ may also specify the following parameters:
   {{- if $copy }}
     {{- $fileSelectClass = "select-text" }}
     <svg
-      class="absolute right-3 top-2 z-30 text-blue-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer w-6 h-6"
+      class="absolute right-4 top-2 z-30 text-blue-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer w-6 h-6"
       @click="$copy($refs.code)">
       <use href="#icon--copy"></use>
     </svg>

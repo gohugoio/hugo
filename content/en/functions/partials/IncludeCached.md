@@ -29,9 +29,9 @@ Here is the simplest usage:
 
 Pass additional arguments to `partialCached` to create variants of the cached partial. For example, if you have a complex partial that should be identical when rendered for pages within the same section, use a variant based on section so that the partial is only rendered once per section:
 
-{{< code file=partial-cached-example.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 {{ partialCached "footer.html" . .Section }}
-{{< /code >}}
+```
 
 Pass additional arguments, of any data type, as needed to create unique variants:
 

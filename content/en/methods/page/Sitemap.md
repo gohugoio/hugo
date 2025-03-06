@@ -59,7 +59,7 @@ changeFreq = 'hourly'
 
 And this simplistic sitemap template:
 
-{{< code file=layouts/_default/sitemap.xml >}}
+```xml {file="layouts/_default/sitemap.xml"}
 {{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -75,7 +75,7 @@ And this simplistic sitemap template:
     </url>
   {{ end }}
 </urlset>
-{{< /code >}}
+```
 
 The change frequency will be `hourly` for the news page, and `monthly` for other pages.
 

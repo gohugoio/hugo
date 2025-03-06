@@ -154,7 +154,7 @@ public/
 │   │   └── index.html
 │   └── index.html
 └── index.html
-````
+```
 
 ## Tokens
 

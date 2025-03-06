@@ -58,10 +58,10 @@ target = "css"
 
 Create a CSS entry file:
 
-{{< code file=assets/css/main.css copy=true >}}
+```css {file="assets/css/main.css" copy=true}
 @import "tailwindcss";
 @source "hugo_stats.json";
-{{< /code >}}
+```
 
 Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` is listed in your `.gitignore` file, Tailwind CSS will ignore it. To make `hugo_stats.json` available to Tailwind CSS you must explicitly source it as shown in the example above.
 
@@ -69,7 +69,7 @@ Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` i
 
 Create a partial template to process the CSS with the Tailwind CSS CLI:
 
-{{< code file=layouts/partials/css.html copy=true >}}
+```go-html-template {file="layouts/partials/css.html" copy=true}
 {{ with (templates.Defer (dict "key" "global")) }}
   {{ with resources.Get "css/main.css" }}
     {{ $opts := dict
@@ -87,19 +87,19 @@ Create a partial template to process the CSS with the Tailwind CSS CLI:
     {{ end }}
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 ### Step 5
 
 Call the partial template from your base template:
 
-{{< code file=layouts/default/baseof.html >}}
+```go-html-template {file="layouts/default/baseof.html"}
 <head>
   ...
   {{ partialCached "css.html" . }}
   ...
 <head>
-{{< /code >}}
+```
 
 ### Step 6
 
@@ -109,7 +109,7 @@ extension] for Visual Studio Code.
 [Tailwind CSS IntelliSense
 extension]: https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
 
-{{< code file=tailwind.config.js copy=true >}}
+```js {file="tailwind.config.js" copy=true}
 /*
 This file is present to satisfy a requirement of the Tailwind CSS IntelliSense
 extension for Visual Studio Code.
@@ -118,7 +118,7 @@ https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
 
 The rest of this file is intentionally empty.
 */
-{{< /code >}}
+```
 
 ## Options
 

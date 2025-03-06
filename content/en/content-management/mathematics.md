@@ -91,7 +91,7 @@ inline = [['@', '@']]
 
 Create a partial template to load MathJax or KaTeX. The example below loads MathJax, or you can use KaTeX as described in the [engines](#engines) section.
 
-{{< code file=layouts/partials/math.html copy=true >}}
+```go-html-template {file="layouts/partials/math.html" copy=true}
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <script>
   MathJax = {
@@ -104,7 +104,7 @@ Create a partial template to load MathJax or KaTeX. The example below loads Math
     },
   };
 </script>
-{{< /code >}}
+```
 
 The delimiters above must match the delimiters in your site configuration.
 
@@ -112,7 +112,7 @@ The delimiters above must match the delimiters in your site configuration.
 
 Conditionally call the partial template from the base template.
 
-{{< code file=layouts/_default/baseof.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 <head>
   ...
   {{ if .Param "math" }}
@@ -120,7 +120,7 @@ Conditionally call the partial template from the base template.
   {{ end }}
   ...
 </head>
-{{< /code >}}
+```
 
 The example above loads the partial template if you have set the `math` parameter in front matter to `true`. If you have not set the `math` parameter in front matter, the conditional statement falls back to the `math` parameter in your site configuration.
 
@@ -128,7 +128,7 @@ The example above loads the partial template if you have set the `math` paramete
 
 Include mathematical equations and expressions in Markdown using LaTeX markup.
 
-{{< code file=content/math-examples.md copy=true >}}
+```text {file="content/math-examples.md" copy=true}
 This is an inline \(a^*=x-b^*\) equation.
 
 These are block equations:
@@ -150,7 +150,7 @@ $$ a^*=x-b^* $$
 $$
 a^*=x-b^*
 $$
-{{< /code >}}
+```
 
 If you set the `math` parameter to `false` in your site configuration, you must set the `math` parameter to `true` in front matter. For example:
 
@@ -187,7 +187,7 @@ See the [inline delimiters](#inline-delimiters) section for details.
 
 To use KaTeX instead of MathJax, replace the partial template from [Step 2] with this:
 
-{{< code file=layouts/partials/math.html copy=true >}}
+```go-html-template {file="layouts/partials/math.html" copy=true}
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
@@ -219,7 +219,7 @@ To use KaTeX instead of MathJax, replace the partial template from [Step 2] with
     });
   });
 </script>
-{{< /code >}}
+```
 
 The delimiters above must match the delimiters in your site configuration.
 

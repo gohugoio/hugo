@@ -19,29 +19,29 @@ Some shortcodes support positional arguments, some support named arguments, and 
 
 This shortcode call uses positional arguments:
 
-{{< code file=content/about.md lang=text >}}
+```text {file="content/about.md"}
 {{</* myshortcode "Hello" "world" */>}}
-{{< /code >}}
+```
 
 To retrieve arguments by position:
 
-{{< code file=layouts/shortcodes/myshortcode.html >}}
+```go-html-template {file="layouts/shortcodes/myshortcode.html"}
 {{ printf "%s %s." (.Get 0) (.Get 1) }} → Hello world.
-{{< /code >}}
+```
 
 ## Named arguments
 
 This shortcode call uses named arguments:
 
-{{< code file=content/about.md lang=text >}}
+```text {file="content/about.md"}
 {{</* myshortcode greeting="Hello" firstName="world" */>}}
-{{< /code >}}
+```
 
 To retrieve arguments by name:
 
-{{< code file=layouts/shortcodes/myshortcode.html >}}
+```go-html-template {file="layouts/shortcodes/myshortcode.html"}
 {{ printf "%s %s." (.Get "greeting") (.Get "firstName") }} → Hello world.
-{{< /code >}}
+```
 
 {{< note >}}
 Argument names are case-sensitive.

@@ -32,13 +32,13 @@ content/
 
 And these templates:
 
-{{< code file=layouts/_default/list.html >}}
+```go-html-template {file="layouts/_default/list.html"}
 {{ range .Pages.ByWeight }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
-{{< /code >}}
+```
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ with .Prev }}
   <a href="{{ .RelPermalink }}">Previous</a>
 {{ end }}
@@ -46,7 +46,7 @@ And these templates:
 {{ with .Next }}
   <a href="{{ .RelPermalink }}">Next</a>
 {{ end }}
-{{< /code >}}
+```
 
 When you visit page-2:
 

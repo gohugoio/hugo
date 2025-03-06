@@ -20,7 +20,6 @@ Create the filter:
 {{ $filter := images.AutoOrient }}
 ```
 
-
 {{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 {{< note >}}

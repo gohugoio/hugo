@@ -13,8 +13,6 @@ params:
 
 The `InSection` method on a `Page` object reports whether the given page is in the given section. Note that the method returns `true` when comparing a page to a sibling.
 
-
-
 With this content structure:
 
 ```text

@@ -22,12 +22,12 @@ You can invoke pagination on the [home template], [section templates], [taxonomy
 [taxonomy templates]: /templates/types/#taxonomy
 [term templates]: /templates/types/#term
 
-{{< code file=layouts/_default/list.html >}}
+```go-html-template {file="layouts/_default/list.html"}
 {{ range .Paginator.Pages }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 {{ template "_internal/pagination.html" . }}
-{{< /code >}}
+```
 
 In the example above, the embedded pagination template creates navigation links between pagers.
 

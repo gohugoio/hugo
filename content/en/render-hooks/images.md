@@ -70,17 +70,17 @@ In its default configuration, Hugo renders Markdown images according to the [Com
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 
-{{< code file=layouts/_default/_markup/render-image.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-image.html" copy=true}
 <img src="{{ .Destination | safeURL }}"
   {{- with .PlainText }} alt="{{ . }}"{{ end -}}
   {{- with .Title }} title="{{ . }}"{{ end -}}
 >
 {{- /* chomp trailing newline */ -}}
-{{< /code >}}
+```
 
 To render standalone images within `figure` elements:
 
-{{< code file=layouts/_default/_markup/render-image.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-image.html" copy=true}
 {{- if .IsBlock -}}
   <figure>
     <img src="{{ .Destination | safeURL }}"
@@ -94,7 +94,7 @@ To render standalone images within `figure` elements:
     {{- with .Title }} title="{{ . }}"{{ end -}}
   >
 {{- end -}}
-{{< /code >}}
+```
 
 Note that the above requires the following site configuration:
 

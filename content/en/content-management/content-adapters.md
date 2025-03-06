@@ -37,7 +37,7 @@ Use these methods within a content adapter.
 
 Adds a page to the site.
 
-{{< code file=content/books/_content.gotmpl >}}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ $content := dict
   "mediaType" "text/markdown"
   "value" "The _Hunchback of Notre Dame_ was written by Victor Hugo."
@@ -49,13 +49,13 @@ Adds a page to the site.
   "title" "The Hunchback of Notre Dame"
 }}
 {{ .AddPage $page }}
-{{< /code >}}
+```
 
 ### AddResource
 
 Adds a page resource to the site.
 
-{{< code file=content/books/_content.gotmpl >}}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ with resources.Get "images/a.jpg" }}
   {{ $content := dict
     "mediaType" .MediaType.Type
@@ -67,23 +67,23 @@ Adds a page resource to the site.
   }}
   {{ $.AddResource $resource }}
 {{ end }}
-{{< /code >}}
+```
 
 Then retrieve the new page resource with something like:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ with .Resources.Get "cover.jpg" }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
 {{ end }}
-{{< /code >}}
+```
 
 ### Site
 
 Returns the `Site` to which the pages will be added.
 
-{{< code file=content/books/_content.gotmpl >}}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ .Site.Title }}
-{{< /code >}}
+```
 
 {{< note >}}
 Note that the `Site` returned isn't fully built when invoked from the content adapters; if you try to call methods that depends on pages, e.g. `.Site.Pages`, you will get an error saying "this method cannot be called before the site is fully initialized".
@@ -93,16 +93,16 @@ Note that the `Site` returned isn't fully built when invoked from the content ad
 
 Returns a persistent “scratch pad” to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
 
-{{< code file=content/books/_content.gotmpl >}}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ .Store.Set "key" "value" }}
 {{ .Store.Get "key" }}
-{{< /code >}}
+```
 
 ### EnableAllLanguages
 
 By default, Hugo executes the content adapter for the language defined by the _content.gotmpl file . Use this method to activate the content adapter for all languages.
 
-{{< code file=content/books/_content.gotmpl >}}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ .EnableAllLanguages }}
 {{ $content := dict
   "mediaType" "text/markdown"
@@ -115,7 +115,7 @@ By default, Hugo executes the content adapter for the language defined by the _c
   "title" "The Hunchback of Notre Dame"
 }}
 {{ .AddPage $page }}
-{{< /code >}}
+```
 
 ## Page map
 
@@ -183,7 +183,7 @@ Inspect the remote data to determine how to map key-value pairs to front matter 
 
 Create the content adapter.
 
-{{< code file=content/books/_content.gotmpl copy=true >}}
+```go-html-template {file="content/books/_content.gotmpl" copy=true}
 {{/* Get remote data. */}}
 {{ $data := dict }}
 {{ $url := "https://gohugo.io/shared/examples/data/books.json" }}
@@ -236,13 +236,13 @@ Create the content adapter.
   {{ end }}
 
 {{ end }}
-{{< /code >}}
+```
 
 ### Step 4
 
 Create a single template to render each book review.
 
-{{< code file=layouts/books/single.html copy=true >}}
+```go-html-template {file="layouts/books/single.html" copy=true}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
 
@@ -269,7 +269,7 @@ Create a single template to render each book review.
 
   {{ .Content }}
 {{ end }}
-{{< /code >}}
+```
 
 ## Multilingual sites
 

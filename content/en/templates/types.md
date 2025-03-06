@@ -54,7 +54,7 @@ For example, the base template below calls the [partial] function to include par
 [block]: /functions/go-template/block/
 [partial]: /functions/partials/include/
 
-{{< code file=layouts/_default/baseof.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 <!DOCTYPE html>
 <html lang="{{ or site.Language.LanguageCode }}" dir="{{ or site.Language.LanguageDirection `ltr` }}">
 <head>
@@ -72,7 +72,7 @@ For example, the base template below calls the [partial] function to include par
   </footer>
 </body>
 </html>
-{{< /code >}}
+```
 
 Learn more about [base templates](/templates/base/).
 
@@ -80,14 +80,14 @@ Learn more about [base templates](/templates/base/).
 
 A home page template is used to render your site's home page, and is the only template required for a single-page website. For example, the home page template below inherits the site's shell from the base template and renders the home page content, such as a list of other pages.
 
-{{< code file=layouts/_default/home.html >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ define "main" }}
   {{ .Content }}
   {{ range site.RegularPages }}
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 {{% include "/_common/filter-sort-group.md" %}}
 
@@ -99,12 +99,12 @@ A single template renders a single page.
 
 For example, the single template below inherits the site's shell from the base template, and renders the title and content of each page.
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
 {{ end }}
-{{< /code >}}
+```
 
 Learn more about [single templates](/templates/single/).
 
@@ -114,7 +114,7 @@ A section template typically renders a list of pages within a section.
 
 For example, the section template below inherits the site's shell from the base template, and renders a list of pages in the current section.
 
-{{< code file=layouts/_default/section.html >}}
+```go-html-template {file="layouts/_default/section.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -122,7 +122,7 @@ For example, the section template below inherits the site's shell from the base 
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 {{% include "/_common/filter-sort-group.md" %}}
 
@@ -134,7 +134,7 @@ A taxonomy template renders a list of terms in a [taxonomy](g).
 
 For example, the taxonomy template below inherits the site's shell from the base template, and renders a list of terms in the current taxonomy.
 
-{{< code file=layouts/_default/taxonomy.html >}}
+```go-html-template {file="layouts/_default/taxonomy.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -142,7 +142,7 @@ For example, the taxonomy template below inherits the site's shell from the base
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 {{% include "/_common/filter-sort-group.md" %}}
 
@@ -154,7 +154,7 @@ A term template renders a list of pages associated with a [term](g).
 
 For example, the term template below inherits the site's shell from the base template, and renders a list of pages associated with the current term.
 
-{{< code file=layouts/_default/term.html >}}
+```go-html-template {file="layouts/_default/term.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -162,7 +162,7 @@ For example, the term template below inherits the site's shell from the base tem
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 {{% include "/_common/filter-sort-group.md" %}}
 
@@ -180,9 +180,9 @@ Unlike other template types, you cannot create partial templates to target a par
 
 For example, the partial template below renders copyright information.
 
-{{< code file=layouts/partials/footer.html >}}
+```go-html-template {file="layouts/partials/footer.html"}
 <p>Copyright {{ now.Year }}. All rights reserved.</p>
-{{< /code >}}
+```
 
 Learn more about [partial templates](/templates/partial/).
 
@@ -197,7 +197,7 @@ A content view template is similar to a partial template, invoked by calling the
 
 For example, the home template below inherits the site's shell from the base template, and renders a card component for each page within the "articles" section of your site.
 
-{{< code file=layouts/_default/home.html >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ define "main" }}
   {{ .Content }}
   <ul>
@@ -206,14 +206,14 @@ For example, the home template below inherits the site's shell from the base tem
     {{ end }}
   </ul>
 {{ end }}
-{{< /code >}}
+```
 
-{{< code file=layouts/articles/card.html >}}
+```go-html-template {file="layouts/articles/card.html"}
 <div class="card">
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ .Summary }}
 </div>
-{{< /code >}}
+```
 
 Learn more about [content view templates](/templates/content-view/).
 
@@ -223,7 +223,7 @@ A render hook template overrides the conversion of Markdown to HTML.
 
 For example, the render hook template below adds a `rel` attribute to external links.
 
-{{< code file=layouts/_default/_markup/render-link.html >}}
+```go-html-template {file="layouts/_default/_markup/render-link.html"}
 {{- $u := urls.Parse .Destination -}}
 <a href="{{ .Destination | safeURL }}"
   {{- with .Title }} title="{{ . }}"{{ end -}}
@@ -232,7 +232,7 @@ For example, the render hook template below adds a `rel` attribute to external l
   {{- with .Text }}{{ . }}{{ end -}}
 </a>
 {{- /* chomp trailing newline */ -}}
-{{< /code >}}
+```
 
 Learn more about [render hook templates](/render-hooks/).
 
@@ -242,17 +242,17 @@ A shortcode template is used to render a component of your site. Unlike partial 
 
 For example, the shortcode template below renders an audio element from a [global resource](g).
 
-{{< code file=layouts/shortcodes/audio.html >}}
+```go-html-template {file="layouts/shortcodes/audio.html"}
 {{ with resources.Get (.Get "src") }}
   <audio controls preload="auto" src="{{ .RelPermalink }}"></audio>
 {{ end }}
-{{< /code >}}
+```
 
 Then call the shortcode from within markup:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* audio src=/audio/test.mp3 */>}}
-{{< /code >}}
+```
 
 Learn more about [shortcode templates](/templates/shortcode/).
 

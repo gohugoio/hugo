@@ -111,7 +111,7 @@ In the procedure above we configured our site using the Netlify user interface. 
 
 Create a new file named netlify.toml in the root of your project directory. In its simplest form, the configuration file might look like this:
 
-{{< code file=netlify.toml >}}
+```toml {file="netlify.toml"}
 [build.environment]
 HUGO_VERSION = "0.144.2"
 NODE_VERSION = "22"
@@ -120,11 +120,11 @@ TZ = "America/Los_Angeles"
 [build]
 publish = "public"
 command = "hugo --gc --minify"
-{{< /code >}}
+```
 
 If your site requires Dart Sass to transpile Sass to CSS, the configuration file should look something like this:
 
-{{< code file=netlify.toml >}}
+```toml {file="netlify.toml"}
 [build.environment]
 HUGO_VERSION = "0.144.2"
 DART_SASS_VERSION = "1.85.0"
@@ -140,4 +140,4 @@ command = """\
   export PATH=/opt/build/repo/dart-sass:$PATH && \
   hugo --gc --minify \
   """
-{{< /code >}}
+```

@@ -58,7 +58,7 @@ See the [configure build] documentation for details and options.
 Step 4
 : Create a PostCSS configuration file in the root of your project.
 
-{{< code file="postcss.config.js" copy=true >}}
+```js {file="postcss.config.js" copy=true}
 const autoprefixer = require('autoprefixer');
 const purgeCSSPlugin = require('@fullhuman/postcss-purgecss').default;
 
@@ -82,7 +82,7 @@ module.exports = {
     autoprefixer,
   ]
 };
-{{< /code >}}
+```
 
 {{< note >}}
 {{% include "/_common/functions/postcss-windows-warning.md" %}}

@@ -59,17 +59,17 @@ See the [`transform.Unmarshal`](/functions/transform/unmarshal/#remote-resource)
 
 Use data sources to augment existing content. For example, create a shortcode to render an HTML table from a global CSV resource.
 
-{{< code file=assets/pets.csv >}}
+```csv {file="assets/pets.csv"}
 "name","type","breed","age"
 "Spot","dog","Collie","3"
 "Felix","cat","Malicious","7"
-{{< /code >}}
+```
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* csv-to-table "pets.csv" */>}}
-{{< /code >}}
+```
 
-{{< code file=layouts/shortcodes/csv-to-table.html >}}
+```go-html-template {file="layouts/shortcodes/csv-to-table.html"}
 {{ with $file := .Get 0 }}
   {{ with resources.Get $file }}
     {{ with . | transform.Unmarshal }}
@@ -98,7 +98,7 @@ Use data sources to augment existing content. For example, create a shortcode to
 {{ else }}
   {{ errorf "The %q shortcode requires one positional argument, the path to the CSV file relative to the assets directory. See %s" .Name .Position }}
 {{ end }}
-{{< /code >}}
+```
 
 Hugo renders this to:
 

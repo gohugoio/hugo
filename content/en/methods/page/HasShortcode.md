@@ -14,7 +14,7 @@ By example, let's use [Plotly] to render a chart:
 
 [Plotly]: https://plotly.com/javascript/
 
-{{< code file=contents/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* plotly */>}}
 {
   "data": [
@@ -26,21 +26,21 @@ By example, let's use [Plotly] to render a chart:
   ],
 }
 {{</* /plotly */>}}
-{{< /code >}}
+```
 
 The shortcode is simple:
 
-{{< code file=layouts/shortcodes/plotly.html >}}
+```go-html-template {file="layouts/shortcodes/plotly.html"}
 {{ $id := printf "plotly-%02d" .Ordinal }}
 <div id="{{ $id }}"></div>
 <script>
   Plotly.newPlot(document.getElementById({{ $id }}), {{ .Inner | safeJS }});
 </script>
-{{< /code >}}
+```
 
 Now we can selectively load the required JavaScript on pages that call the "plotly" shortcode:
 
-{{< code file=layouts/baseof.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 <head>
   ...
   {{ if .HasShortcode "plotly" }}
@@ -48,4 +48,4 @@ Now we can selectively load the required JavaScript on pages that call the "plot
   {{ end }}
   ...
 </head>
-{{< /code >}}
+```

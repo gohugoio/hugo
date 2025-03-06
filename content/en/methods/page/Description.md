@@ -16,12 +16,12 @@ title = 'How to make spicy tuna hand rolls'
 description = 'Instructions for making spicy tuna hand rolls.'
 {{< /code-toggle >}}
 
-{{< code file=layouts/baseof.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 <head>
   ...
   <meta name="description" content="{{ .Description }}">
   ...
 </head>
-{{< /code >}}
+```
 
 [content summary]: /content-management/summaries/

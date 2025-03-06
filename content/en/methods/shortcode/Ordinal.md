@@ -18,15 +18,15 @@ Hugo increments the ordinal with each shortcode call, regardless of the specific
 
 This method is useful for, among other things, assigning unique element IDs when a shortcode is called two or more times from the same page. For example:
 
-{{< code file=content/about.md lang=text >}}
+```text {file="content/about.md"}
 {{</* img src="images/a.jpg" */>}}
 
 {{</* img src="images/b.jpg" */>}}
-{{< /code >}}
+```
 
 This shortcode performs error checking, then renders an HTML `img` element with a unique `id` attribute:
 
-{{< code file=layouts/shortcodes/img.html >}}
+```go-html-template {file="layouts/shortcodes/img.html"}
 {{ $src := "" }}
 {{ with .Get "src" }}
   {{ $src = . }}
@@ -39,7 +39,7 @@ This shortcode performs error checking, then renders an HTML `img` element with 
 {{ else }}
   {{ errorf "The %q shortcode requires a 'src' argument. See %s" .Name .Position }}
 {{ end }}
-{{< /code >}}
+```
 
 Hugo renders the page to:
 

@@ -86,15 +86,15 @@ These examples range in complexity from simple to moderately advanced, with some
 
 Create a shortcode to insert the current year:
 
-{{< code file=layouts/shortcodes/year.html >}}
+```go-html-template {file="layouts/shortcodes/year.html"}
 {{- now.Format "2006" -}}
-{{< /code >}}
+```
 
 Then call the shortcode from within your markup:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 This is {{</* year */>}}, and look at how far we've come.
-{{< /code >}}
+```
 
 This shortcode can be used inline or as a block on its own line. If a shortcode might be used inline, remove the surrounding [whitespace] by using [template action](g) delimiters with hyphens.
 
@@ -114,19 +114,19 @@ content/
 
 Create a shortcode to capture an image as a page resource, resize it to the given width, convert it to the WebP format, and add an `alt` attribute:
 
-{{< code file=layouts/shortcodes/image.html >}}
+```go-html-template {file="layouts/shortcodes/image.html"}
 {{- with .Page.Resources.Get (.Get "path") }}
   {{- with .Process (printf "resize %dx wepb" ($.Get "width")) }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="{{ $.Get "alt" }}">
   {{- end }}
 {{- end -}}
-{{< /code >}}
+```
 
 Then call the shortcode from within your markup:
 
-{{< code file=content/example/index.md lang=text >}}
+```text {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
-{{< /code >}}
+```
 
 The example above uses:
 
@@ -149,7 +149,7 @@ Read more about context in the [introduction to templating].
 
 The previous example, while functional, silently fails if the image is missing, and does not gracefully exit if a required argument is missing. We'll add error handling to address these issues:
 
-{{< code file=layouts/shortcodes/image.html >}}
+```go-html-template {file="layouts/shortcodes/image.html"}
 {{ with .Get "path" }}
   {{- with $r := $.Page.Resources.Get ($.Get "path") }}
     {{- with $.Get "width" }}
@@ -166,7 +166,7 @@ The previous example, while functional, silently fails if the image is missing, 
 {{- else }}
   {{ errorf "The %q shortcode requires a 'path' argument: see %s" .Name .Position }}
 {{- end -}}
-{{< /code >}}
+```
 
 This template throws an error and gracefully fails the build if the author neglected to provide a `path` or `width` argument, and it emits a warning if it cannot find the image at the specified path. If the author does not provide an `alt` argument, the `alt` attribute is set to an empty string.
 
@@ -185,23 +185,23 @@ Shortcode arguments can be [named or positional]. We used named arguments previo
 
 [named or positional]: /content-management/shortcodes/#arguments
 
-{{< code file=content/example/index.md lang=text >}}
+```text {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
-{{< /code >}}
+```
 
 Here's how to call it with positional arguments:
 
-{{< code file=content/example/index.md lang=text >}}
+```text {file="content/example/index.md"}
 {{</* image a.jpg 300 "A white kitten" */>}}
-{{< /code >}}
+```
 
 Using the `Get` method with zero-indexed keys, we'll initialize variables with descriptive names in our template:
 
-{{< code file=layouts/shortcodes/image.html >}}
+```go-html-template {file="layouts/shortcodes/image.html"}
 {{- $path := .Get 0 }}
 {{- $width := .Get 1 }}
 {{- $alt := .Get 2 }}
-{{< /code >}}
+```
 
 {{< note >}}
 Positional arguments work well for frequently used shortcodes with one or two arguments. Since you'll use them often, the argument order will be easy to remember. For less frequently used shortcodes, or those with more than two arguments, named arguments improve readability and reduce the chance of errors.
@@ -211,11 +211,11 @@ Positional arguments work well for frequently used shortcodes with one or two ar
 
 You can create a shortcode that will accept both named and positional arguments, but not at the same time. Use the [`IsNamedParams`] method to determine whether the shortcode call used named or positional arguments:
 
-{{< code file=layouts/shortcodes/image.html >}}
+```go-html-template {file="layouts/shortcodes/image.html"}
 {{- $path := cond (.IsNamedParams) (.Get "path") (.Get 0) }}
 {{- $width := cond (.IsNamedParams) (.Get "width") (.Get 1) }}
 {{- $alt := cond (.IsNamedParams) (.Get "alt") (.Get 2) }}
-{{< /code >}}
+```
 
 This example uses the `cond` alias for the [`compare.Conditional`] function to get the argument by name if `IsNamedParams` returns `true`, otherwise get the argument by position.
 
@@ -230,27 +230,27 @@ Use the [`Params`] method to access the arguments as a collection.
 
 When using named arguments, the `Params` method returns a map:
 
-{{< code file=content/example/index.md lang=text >}}
+```text {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
-{{< /code >}}
+```
 
-{{< code file=layouts/shortcodes/image.html >}}
+```go-html-template {file="layouts/shortcodes/image.html"}
 {{- .Params.path }} → a.jpg
 {{- .Params.width }} → 300
 {{- .Params.alt }} → A white kitten
-{{< /code >}}
+```
 
  When using positional arguments, the `Params` method returns a slice:
 
-{{< code file=content/example/index.md lang=text >}}
+```text {file="content/example/index.md"}
 {{</* image a.jpg 300 "A white kitten" */>}}
-{{< /code >}}
+```
 
-{{< code file=layouts/shortcodes/image.html >}}
+```go-html-template {file="layouts/shortcodes/image.html"}
 {{- index .Params 0 }} → a.jpg
 {{- index .Params 1 }} → 300
 {{- index .Params 1 }} → A white kitten
-{{< /code >}}
+```
 
 Combine the `Params` method with the [`collections.IsSet`] function to determine if a parameter is set, even if its value is falsy.
 
@@ -262,18 +262,18 @@ Extract the content enclosed within shortcode tags using the [`Inner`] method. T
 
 [`Inner`]: /methods/shortcode/inner/
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* contrived title="A Contrived Example" */>}}
 This is a **bold** word, and this is an _emphasized_ word.
 {{</* /contrived  */>}}
-{{< /code >}}
+```
 
-{{< code file=layouts/shortcodes/contrived.html >}}
+```go-html-template {file="layouts/shortcodes/contrived.html"}
 <div class="contrived">
   <h2>{{ .Get "title" }}</h2>
   {{ .Inner | .Page.RenderString }}
 </div>
-{{< /code >}}
+```
 
 The preceding example called the shortcode using [standard notation], requiring us to process the inner content with the [`RenderString`] method to convert the Markdown to HTML. This conversion is unnecessary when calling a shortcode using [Markdown notation].
 
@@ -289,33 +289,32 @@ The  [`Parent`] method provides access to the parent shortcode context when the 
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` argument:
 
-{{< code file=layouts/shortcodes/gallery.html >}}
+```go-html-template {file="layouts/shortcodes/gallery.html"}
 <div class="{{ .Get "class" }}">
   {{ .Inner }}
 </div>
-{{< /code >}}
+```
 
 You also have an `img` shortcode with a single named `src` argument that you want to call inside of `gallery` and other shortcodes, so that the parent defines the context of each `img`:
 
-{{< code file=layouts/shortcodes/img.html >}}
+```go-html-template {file="layouts/shortcodes/img.html"}
 {{ $src := .Get "src" }}
 {{ with .Parent }}
   <img src="{{ $src }}" class="{{ .Get "class" }}-image">
 {{ else }}
   <img src="{{ $src }}">
 {{ end }}
-{{< /code >}}
+```
 
 You can then call your shortcode in your content as follows:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* gallery class="content-gallery" */>}}
   {{</* img src="/images/one.jpg" */>}}
   {{</* img src="/images/two.jpg" */>}}
 {{</* /gallery */>}}
 {{</* img src="/images/three.jpg" */>}}
-{{< /code >}}
-
+```
 
 This will output the following HTML. Note how the first two `img` shortcodes inherit the `class` value of `content-gallery` set with the call to the parent `gallery`, whereas the third `img` only uses `src`:
 
@@ -337,13 +336,13 @@ For guidance, consider examining Hugo's embedded shortcodes. The source code, av
 
 The [`HasShortcode`] method allows you to check if a specific shortcode has been called on a page. For example, consider a custom audio shortcode:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* audio src=/audio/test.mp3 */>}}
-{{< /code >}}
+```
 
 You can use the `HasShortcode` method in your base template to conditionally load CSS if the audio shortcode was used on the page:
 
-{{< code file=layouts/_default/baseof.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 <head>
   ...
   {{ if .HasShortcode "audio" }}
@@ -351,6 +350,6 @@ You can use the `HasShortcode` method in your base template to conditionally loa
   {{ end }}
   ...
 </head>
-{{< /code >}}
+```
 
 [`HasShortcode`]: /methods/page/hasshortcode/

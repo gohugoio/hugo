@@ -90,7 +90,6 @@ noComments
 sourceMap
 : (`string`) Whether to generate source maps, one of `external`, `inline`, or `none`. Default is `none`.
 
-
 verbose
 : (`bool`) Whether to enable verbose logging. Default is `false`
 

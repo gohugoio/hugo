@@ -22,17 +22,17 @@ Hugo's embedded shortcodes are pre-defined templates within the application. Ref
 
 Create custom shortcodes to simplify and standardize content creation. For example, the following shortcode template generates an audio player using a [global resource](g):
 
-{{< code file=layouts/shortcodes/audio.html >}}
+```go-html-template {file="layouts/shortcodes/audio.html"}
 {{ with resources.Get (.Get "src") }}
   <audio controls preload="auto" src="{{ .RelPermalink }}"></audio>
 {{ end }}
-{{< /code >}}
+```
 
 Then call the shortcode from within markup:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* audio src=/audio/test.mp3 */>}}
-{{< /code >}}
+```
 
 Learn more about creating shortcodes in the [shortcode templates] section.
 
@@ -57,14 +57,14 @@ The following example demonstrates an inline shortcode, `date.inline`, that acce
 
 [layout string]: /functions/time/format/#layout-string
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 Today is
 {{</* date.inline ":date_medium" */>}}
   {{- now | time.Format (.Get 0) -}}
 {{</* /date.inline */>}}.
 
 Today is {{</* date.inline ":date_full" /*/>}}.
-{{< /code >}}
+```
 
 In the example above, the inline shortcode is executed twice: once upon definition and again when subsequently called. Hugo renders this to:
 
@@ -196,17 +196,17 @@ With standard notation, Hugo processes the shortcode separately, merging the out
 
 By way of example, with this shortcode template:
 
-{{< code file=layouts/shortcodes/foo.html >}}
+```go-html-template {file="layouts/shortcodes/foo.html"}
 {{ .Inner }}
-{{< /code >}}
+```
 
 And this markdown:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{%/* foo */%}} ## Section 1 {{%/* /foo */%}}
 
 {{</* foo */>}} ## Section 2 {{</* /foo */>}}
-{{< /code >}}
+```
 
 Hugo renders this HTML:
 
@@ -224,13 +224,13 @@ The shortcode author determines which notation to use. Consult each shortcode's 
 
 Shortcodes (excluding [inline](#inline) shortcodes) can be nested, creating parent-child relationships. For example, a gallery shortcode might contain several image shortcodes:
 
-{{< code file=content/example.md lang=text >}}
+```text {file="content/example.md"}
 {{</* gallery class="content-gallery" */>}}
   {{</* image src="/images/a.jpg" */>}}
   {{</* image src="/images/b.jpg" */>}}
   {{</* image src="/images/c.jpg" */>}}
 {{</* /gallery */>}}
-{{< /code >}}
+```
 
 The [shortcode templates][nesting] section provides a detailed explanation and examples.
 

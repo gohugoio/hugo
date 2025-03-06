@@ -21,7 +21,7 @@ See [Template Lookup Order](/templates/lookup-order/) for details and examples.
 
 The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order.
 
-{{< code file=layouts/_default/baseof.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 <!DOCTYPE html>
 <html>
   <head>
@@ -41,13 +41,13 @@ The following defines a simple base template at `_default/baseof.html`. As a def
     {{ end }}
   </body>
 </html>
-{{< /code >}}
+```
 
 ## Override the base template
 
 The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 
-{{< code file=layouts/_default/list.html >}}
+```go-html-template {file="layouts/_default/list.html"}
 {{ define "main" }}
   <h1>Posts</h1>
   {{ range .Pages }}
@@ -57,7 +57,7 @@ The default list template will inherit all of the code defined above and can the
     </article>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"` block, so the contents from our base template remain unchanged in lists.
 
@@ -75,7 +75,7 @@ Code that you put outside the block definitions *can* break your layout. This ev
 
 The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your default [single template]:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ define "title" }}
   <!-- This will override the default value set in baseof.html; i.e., "{{ .Site.Title }}" in the original example-->
   {{ .Title }} &ndash; {{ .Site.Title }}
@@ -84,6 +84,6 @@ The following shows how you can override both the `"main"` and `"title"` block a
   <h1>{{ .Title }}</h1>
   {{ .Content }}
 {{ end }}
-{{< /code >}}
+```
 
 [single template]: /templates/types/#single

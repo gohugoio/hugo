@@ -300,7 +300,7 @@ rougify style monokai.sublime > assets/css/syntax.css
 
 In your base template add a link to the CSS file:
 
-{{< code file=layouts/_default/baseof.html >}}
+```go-html-template {file="layouts/_default/baseof.html"}
 <head>
   ...
   {{ with resources.Get "css/syntax.css" }}
@@ -308,7 +308,7 @@ In your base template add a link to the CSS file:
   {{ end }}
   ...
 </head>
-{{< /code >}}
+```
 
 Then add the code to be highlighted to your markup:
 

@@ -42,13 +42,13 @@ npm i -D postcss postcss-cli autoprefixer
 
 Create a PostCSS configuration file in the root of your project.
 
-{{< code file=postcss.config.js >}}
+```js {file="postcss.config.js"}
 module.exports = {
   plugins: [
     require('autoprefixer')
   ]
 };
-{{< /code >}}
+```
 
 {{< note >}}
 {{% include "/_common/functions/postcss-windows-warning.md" %}}
