@@ -141,7 +141,7 @@ Positional arguments, on the other hand, are determined by their position. The e
 {{</* instagram CxOWiQNP2MO */>}}
 ```
 
-Shortcode arguments are space delimited, and arguments with internal spaces must be quoted.
+Shortcode arguments are space-delimited, and arguments with internal spaces must be quoted.
 
 ```text
 {{</* figure src=/images/kitten.jpg alt="A white kitten" */>}}
