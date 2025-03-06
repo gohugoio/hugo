@@ -2,7 +2,7 @@
 title: math.Pi
 description: Returns the mathematical constant pi.
 categories: []
-keywords: []
+keywords: [trigonometry]
 params:
   functions_and_methods:
     aliases: []

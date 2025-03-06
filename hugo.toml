@@ -36,7 +36,7 @@ disableAliases = true
         path = '{/news/**}'
 
 [frontmatter]
-    date        = ['date'] # do not add publishdate; it will affect page sorting
+    date        = ['date']                                   # do not add publishdate; it will affect page sorting
     expiryDate  = ['expirydate']
     lastmod     = [':git', 'lastmod', 'publishdate', 'date']
     publishDate = ['publishdate', 'date']
@@ -109,6 +109,14 @@ disableAliases = true
     ghrepo      = "https://github.com/gohugoio/hugoDocs/"
     [params.render_hooks.link]
         errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
+
+[related]
+    includeNewer = true
+    threshold    = 80
+    toLower      = true
+    [[related.indices]]
+        name = 'keywords'
+        weight = 1
 
 [security]
     [security.funcs]

@@ -2,7 +2,7 @@
 title: math.Atan
 description: Returns the arctangent, in radians, of the given number.
 categories: []
-keywords: []
+keywords: [trigonometry]
 params:
   functions_and_methods:
     aliases: []

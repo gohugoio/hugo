@@ -2,7 +2,7 @@
 title: math.Tan
 description: Returns the tangent of the given radian number.
 categories: []
-keywords: []
+keywords: [trigonometry]
 params:
   functions_and_methods:
     aliases: []
