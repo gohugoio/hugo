@@ -1,5 +1,6 @@
 ---
-title: Relref
+title: Relref shortcode
+linkTitle: Relref
 description: Insert a relative permalink to the given page reference using the relref shortcode.
 categories: []
 keywords: []

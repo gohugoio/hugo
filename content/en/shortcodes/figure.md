@@ -1,5 +1,6 @@
 ---
-title: Figure
+title: Figure shortcode
+linkTitle: Figure
 description: Insert an HTML figure element into your content using the figure shortcode.
 categories: []
 keywords: []

@@ -1,5 +1,6 @@
 ---
-title: Gist
+title: Gist shortcode
+linkTitle: Gist
 description: Embed a GitHub Gist in your content using the gist shortcode.
 categories: []
 keywords: []

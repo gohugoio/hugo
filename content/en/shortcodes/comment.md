@@ -1,5 +1,6 @@
 ---
-title: Comment
+title: Comment shortcode
+linkTitle: Comment
 description: Include hidden comments in your content with the comment shortcode.
 categories: []
 keywords: []

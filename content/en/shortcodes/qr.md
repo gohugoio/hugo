@@ -1,5 +1,6 @@
 ---
-title: QR
+title: QR shortcode
+linkTitle: QR
 description: Insert a QR code into your content using the qr shortcode.
 categories: []
 keywords: []

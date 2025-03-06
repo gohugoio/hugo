@@ -1,5 +1,6 @@
 ---
-title: Ref
+title: Ref shortcode
+linkTitle: Ref
 description: Insert a permalink to the given page reference using the ref shortcode.
 categories: []
 keywords: []
