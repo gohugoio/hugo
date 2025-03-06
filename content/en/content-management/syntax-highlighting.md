@@ -2,7 +2,7 @@
 title: Syntax highlighting
 description: Add syntax highlighting to code examples.
 categories: []
-keywords: []
+keywords: [highlight]
 aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 ---
 

@@ -2,7 +2,7 @@
 title: transform.Highlight
 description: Renders code with a syntax highlighter.
 categories: []
-keywords: []
+keywords: [highlight]
 params:
   functions_and_methods:
     aliases: [highlight]

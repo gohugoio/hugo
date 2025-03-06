@@ -2,7 +2,7 @@
 title: math.Atan2
 description: Returns the arctangent, in radians, of the given number pair, determining the correct quadrant from their signs.
 categories: []
-keywords: [trigonometry]
+keywords: []
 params:
   functions_and_methods:
     aliases: []

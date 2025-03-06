@@ -2,7 +2,7 @@
 title: Highlight
 description: Insert syntax-highlighted code into your content using the highlight shortcode.
 categories: []
-keywords: []
+keywords: [highlight]
 ---
 
 {{< note >}}

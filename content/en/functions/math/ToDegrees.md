@@ -2,7 +2,7 @@
 title: math.ToDegrees
 description: ToDegrees converts radians into degrees.
 categories: []
-keywords: [trigonometry]
+keywords: []
 params:
   functions_and_methods:
     aliases: []

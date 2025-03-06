@@ -2,7 +2,7 @@
 title: math.Cos
 description: Returns the cosine of the given radian number.
 categories: []
-keywords: [trigonometry]
+keywords: []
 params:
   functions_and_methods:
     aliases: []

@@ -1,5 +1,8 @@
 {{- $heading := "See also" }}
-{{- with site.RegularPages.Related . | first 7 }}
+{{- $related := site.RegularPages.Related . }}
+{{- $related = $related | complement .CurrentSection.RegularPages | first 7 }}
+
+{{- with $related }}
   {{ $.Store.Set "hasRelated" true }}
   <h2
     class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">

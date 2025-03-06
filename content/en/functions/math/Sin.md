@@ -2,7 +2,7 @@
 title: math.Sin
 description: Returns the sine of the given radian number.
 categories: []
-keywords: [trigonometry]
+keywords: []
 params:
   functions_and_methods:
     aliases: []

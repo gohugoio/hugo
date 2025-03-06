@@ -2,7 +2,7 @@
 title: Syntax highlighting styles
 description: Highlight code examples using one of these styles.
 categories: []
-keywords: []
+keywords: [highlight]
 ---
 
 ## Overview
