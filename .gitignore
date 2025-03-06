@@ -4,10 +4,9 @@
 /.vscode
 /dist
 /public
+/resources
 hugo_stats.json
 node_modules/
 nohup.out
 package-lock.json
-public/
-resources/
 trace.out
