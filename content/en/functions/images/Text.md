@@ -15,7 +15,7 @@ params:
 Although none of the options are required, at a minimum you will want to set the `size` to be some reasonable percentage of the image height.
 
 alignx
- {{< new-in 0.141.0 />}}
+: {{< new-in 0.141.0 />}}
 : (`string`) The horizontal alignment of the text relative to the horizontal offset, one of `left`, `center`, or `right`. Default is `left`.
 
 color
@@ -23,8 +23,6 @@ color
 
 font
 : (`resource.Resource`) The font can be a [global resource](g), a [page resource](g), or a [remote resource](g). Default is [Go Regular], a proportional sans-serif TrueType font.
-
-[Go Regular]: https://go.dev/blog/go-fonts#sans-serif
 
 linespacing
 : (`int`) The number of pixels between each line. For a line height of 1.4, set the `linespacing` to 0.4 multiplied by the `size`. Default is `2`.
@@ -37,6 +35,8 @@ x
 
 y
 : (`int`) The vertical offset, in pixels, relative to the top of the image. Default is `10`.
+
+[Go Regular]: https://go.dev/blog/go-fonts#sans-serif
 
 ## Usage
 
