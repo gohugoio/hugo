@@ -3,16 +3,11 @@ title: resources.Match
 description: Returns a collection of global resources from paths matching the given glob pattern, or nil if none found.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/resources/ByType
-    - functions/resources/Get
-    - functions/resources/GetMatch
-    - functions/resources/GetRemote
-    - methods/page/Resources
-  returnType: resource.Resources
-  signatures: [resources.Match PATTERN]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resources
+    signatures: [resources.Match PATTERN]
 ---
 
 ```go-html-template

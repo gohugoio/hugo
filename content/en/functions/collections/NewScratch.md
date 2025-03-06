@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [newScratch]
     returnType: maps.Scratch
-  signatures: [collections.NewScratch ]
+    signatures: [collections.NewScratch ]
 ---
 
 Use the `collections.NewScratch` function to create a locally scoped [scratch pad](g) to store and manipulate data. To create a scratch pad with a different [scope](g), refer to the [scope](#scope) section below.

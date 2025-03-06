@@ -3,16 +3,11 @@ title: resources.Get
 description: Returns a global resource from the given path, or nil if none found.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/resources/ByType
-    - functions/resources/GetMatch
-    - functions/resources/GetRemote
-    - functions/resources/Match
-    - methods/page/Resources
-  returnType: resource.Resource
-  signatures: [resources.Get PATH]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: [resources.Get PATH]
 ---
 
 ```go-html-template

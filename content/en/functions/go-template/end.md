@@ -6,8 +6,8 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-  returnType:
-  signatures: [end]
+    returnType:
+    signatures: [end]
 ---
 
 Use with the [`if`] statement:

@@ -3,13 +3,11 @@ title: resources.PostProcess
 description: Processes the given resource after the build.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/css/PostCSS
-    - functions/css/Sass
-  returnType: postpub.PostPublishedResource
-  signatures: [resources.PostProcess RESOURCE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: postpub.PostPublishedResource
+    signatures: [resources.PostProcess RESOURCE]
 ---
 
 The `resources.PostProcess` function delays resource transformation steps until the build is complete, primarily for tasks like removing unused CSS rules.

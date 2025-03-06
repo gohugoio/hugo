@@ -3,16 +3,11 @@ title: resources.Fingerprint
 description: Cryptographically hashes the content of the given resource.
 categories: []
 keywords: []
-action:
-  aliases: [fingerprint]
-  related:
-    - functions/resources/Minify
-    - functions/css/Sass
-    - functions/css/TailwindCSS
-    - functions/js/Build
-    - functions/js/Babel
-  returnType: resource.Resource
-  signatures: ['resources.Fingerprint [ALGORITHM] RESOURCE']
+params:
+  functions_and_methods:
+    aliases: [fingerprint]
+    returnType: resource.Resource
+    signatures: ['resources.Fingerprint [ALGORITHM] RESOURCE']
 ---
 
 ```go-html-template

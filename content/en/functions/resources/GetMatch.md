@@ -3,16 +3,11 @@ title: resources.GetMatch
 description: Returns the first global resource from paths matching the given glob pattern, or nil if none found.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/resources/ByType
-    - functions/resources/Get
-    - functions/resources/GetRemote
-    - functions/resources/Match
-    - methods/page/Resources
-  returnType: resource.Resource
-  signatures: [resources.GetMatch PATTERN]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: [resources.GetMatch PATTERN]
 ---
 
 ```go-html-template

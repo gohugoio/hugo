@@ -3,18 +3,11 @@ title: resources.GetRemote
 description: Returns a remote resource from the given URL, or nil if none found.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/data/GetCSV
-    - functions/data/GetJSON
-    - functions/resources/ByType
-    - functions/resources/Get
-    - functions/resources/GetMatch
-    - functions/resources/Match
-    - methods/page/Resources
-  returnType: resource.Resource
-  signatures: ['resources.GetRemote URL [OPTIONS]']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: ['resources.GetRemote URL [OPTIONS]']
 ---
 
 {{< new-in 0.141.0 >}}

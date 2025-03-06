@@ -3,12 +3,11 @@ title: resources.ExecuteAsTemplate
 description: Returns a resource created from a Go template, parsed and executed with the given context.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/resources/FromString
-  returnType: resource.Resource
-  signatures: [resources.ExecuteAsTemplate TARGETPATH CONTEXT RESOURCE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: [resources.ExecuteAsTemplate TARGETPATH CONTEXT RESOURCE]
 ---
 
 The `resources.ExecuteAsTemplate` function returns a resource created from a Go template, parsed and executed with the given context, caching the result using the target path as its cache key.
