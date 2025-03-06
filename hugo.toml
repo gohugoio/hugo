@@ -137,6 +137,9 @@ disableAliases = true
     [services.googleAnalytics]
         ID = 'G-MBZGKNMDWC'
 
+[taxonomies]
+category = 'categories'
+
 ######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES ########
 [menus]
     [[menus.global]]
