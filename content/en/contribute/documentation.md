@@ -31,7 +31,7 @@ Adhere to these Markdown conventions:
 - Use the [note shortcode] instead of blockquotes or bold text for emphasis.
 - Do not mix [raw HTML] within Markdown.
 - Do not use bold text in place of a heading or description term (`dt`).
-- Remove consecutive blank lines (limit to two).
+- Remove consecutive blank lines.
 - Remove trailing spaces.
 
 ### Glossary
@@ -68,6 +68,7 @@ Link to the [glossary] as needed and use terms consistently. Pay particular atte
 - "map" (instead of "dictionary")
 - "flag" (instead of "option" for command-line flags)
 - "client side" (noun), "client-side" (adjective)
+- "server side" (noun), "server-side" (adjective)
 - "Markdown" (capitalized)
 - "open-source" (hyphenated adjective)
 
@@ -132,15 +133,60 @@ Other best practices:
 
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 
+## Front matter fields
+
+This site uses the front matter fields listed in the table below.
+
+Of the four required fields, only `title` and `description` require data.
+
+```text
+title: The title
+description: The description
+categories: []
+keywords: []
+```
+
+This example demonstrates the minimum required front matter fields.
+
+If quotation marks are required, prefer single quotes to double quotes when possible.
+
+Seq|Field|Description|Required
+--:|:--|:--|:--
+1|`title`|The page title|:heavy_check_mark:|
+2|`linkTitle`|A short version of the page title||
+3|`description`|A complete sentence describing the page|:heavy_check_mark:|
+4|`categories`|An array of terms in the categories taxonomy|:heavy_check_mark: [^1]|
+5|`keywords`|An array of keywords used to identify related content|:heavy_check_mark: [^1]|
+6|`publishDate`|Applicable to news items: the publication date||
+7|`params.altTitle`|An alternate title: used in the "see also" panel if provided||
+8|`params.functions_and_methods.aliases`|Applicable to function and method pages: an array of alias names||
+9|`params.functions_and_methods.returnType`|Applicable to function and method pages: the data type returned||
+10|`params.functions_and_methods.signatures`|Applicable to function and method pages: an array of signatures||
+11|`params.hide_in_this_section`|Whether to hide the "in this section" panel||
+12|`params.minversion`|Applicable to the quick start page: the minimum Hugo version required||
+13|`params.permalink`|Reserved for use by the news content adapter||
+14|`params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information||
+15|`params.show_publish_date`|Whether to show the `publishDate` when rendering the page||
+16|`weight`|The page weight||
+17|`aliases`|Previous URLs used to access this page||
+18|`expirydate`|The expiration date||
+
+[^1]: The field is required, but its data is not.
+
 ## Related content
 
-When available, the "See also" sidebar on this site displays related pages using Hugo's [related content] feature, based on front matter keywords. We ensure keyword accuracy by validating them against `data/keywords.yaml` during the build process. If a keyword is not found, you'll be alerted and must either modify the keyword or update the data file. This validation process helps to refine the related content for better results.
+When available, the "See also" sidebar displays related pages using Hugo's [related content] feature, based on front matter keywords. We ensure consistent keyword usage by validating them against `data/keywords.yaml` during the build process. If a keyword is not found, you'll be alerted and must either modify the keyword or update the data file. This validation process helps to refine the related content for better results.
 
 [related content]: /content-management/related-content/
 
 ## Code examples
 
-Indent code by two spaces. With examples of template code, add spaces around the action delimiters:
+With examples of template code:
+
+- Indent with two spaces.
+- Insert a space after an opening action delimiter.
+- Insert a space before a closing action delimiter.
+- Do add white space removal syntax to action delimiters unless required.
 
 ```go-html-template
 {{ if eq $foo $bar }}
@@ -169,6 +215,9 @@ To include a filename header and copy-to-clipboard button:
 {{ end }}
 ```
 ````
+
+When providing a Mardown example, set the code language to "text" to prevent
+erroneous lexing/highlighting of shortcode calls.
 
 ### Shortcode calls
 
@@ -373,13 +422,15 @@ Build the site locally to preview your changes.
 Commit your changes with a descriptive commit message:
 
 - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
-- Optionally, provide a detailed description where each line is 80 characters or less, followed by a blank line.
-- Optionally, add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
+  - Begin the summary with one of `content`, `theme`, `config`, `all`, or `misc`, followed by a colon, a space, and a brief description of the change beginning with a capital letter
+  - Use imperative present tense
+- Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
+- Optionally, add one or more "Fixes" (for bugs) or "Closes" (for enhancements) keywords, each on its own line, referencing the [issues] addressed by this change.
 
 For example:
 
 ```text
-git commit -m "Restructure the taxonomy page
+git commit -m "content: Restructure the taxonomy page
 
 This restructures the taxonomy page by splitting topics into logical
 sections, each with one or more examples.
