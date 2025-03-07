@@ -50,6 +50,7 @@ func newGenCommand() *genCommand {
 		highlightStyle         string
 		lineNumbersInlineStyle string
 		lineNumbersTableStyle  string
+		omitEmpty              bool
 	)
 
 	newChromaStyles := func() simplecobra.Commander {
@@ -79,7 +80,14 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				if err != nil {
 					return err
 				}
-				formatter := html.New(html.WithAllClasses(true))
+
+				var formatter *html.Formatter
+				if omitEmpty {
+					formatter = html.New(html.WithClasses(true))
+				} else {
+					formatter = html.New(html.WithAllClasses(true))
+				}
+
 				w := os.Stdout
 				fmt.Fprintf(w, "/* Generated using: hugo %s */\n\n", strings.Join(os.Args[1:], " "))
 				formatter.WriteCSS(w, style)
@@ -95,6 +103,8 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				_ = cmd.RegisterFlagCompletionFunc("lineNumbersInlineStyle", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&lineNumbersTableStyle, "lineNumbersTableStyle", "", `foreground and background colors for table line numbers, e.g. --lineNumbersTableStyle "#fff000 bg:#000fff"`)
 				_ = cmd.RegisterFlagCompletionFunc("lineNumbersTableStyle", cobra.NoFileCompletions)
+				cmd.PersistentFlags().BoolVar(&omitEmpty, "omitEmpty", false, `omit empty CSS rules`)
+				_ = cmd.RegisterFlagCompletionFunc("omitEmpty", cobra.NoFileCompletions)
 			},
 		}
 	}
