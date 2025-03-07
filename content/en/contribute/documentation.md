@@ -28,7 +28,7 @@ Adhere to these Markdown conventions:
 - Use [ATX] headings (levels 2-4), not [setext] headings.
 - Use [fenced code blocks], not [indented code blocks].
 - Use hyphens, not asterisks, for unordered [list items].
-- Use the [note shortcode] instead of blockquotes or bold text for emphasis.
+- Use the [note shortcode](#note) instead of blockquotes or bold text for emphasis.
 - Do not mix [raw HTML] within Markdown.
 - Do not use bold text in place of a heading or description term (`dt`).
 - Remove consecutive blank lines.
@@ -51,7 +51,7 @@ Term lookups are case-insensitive, ignore formatting, and support singular and p
 [`Global Resources`](g)
 ```
 
-Use the glossary-term shortcode to insert a term definition:
+Use the [glossary-term shortcode](#glossary-term) to insert a term definition:
 
 ```text
 {{%/* glossary-term "global resource" */%}}
@@ -105,7 +105,7 @@ Yes → Hugo is fast.
 
 ### Function and method descriptions
 
-Start descriptions in the functions and methods sections with "Returns" or "Reports whether" (for boolean values).
+Start descriptions in the functions and methods sections with "Returns" or "Reports whether" for boolean values.
 
 [functions]: /functions
 [methods]: /methods
@@ -124,7 +124,7 @@ Enclose directory names, file names, and file paths in backticks, except when us
 Other best practices:
 
 - Introduce lists with a sentence or phrase, not directly under a heading.
-- Avoid bold text; use the note shortcode for emphasis.
+- Avoid bold text; use the [note shortcode](#note) for emphasis.
 - Do not put description terms (`dt`) in backticks unless syntactically necessary.
 - Do not use Hugo's `ref` or `relref` shortcodes.
 - Prioritize current best practices over multiple options or historical information.
@@ -179,6 +179,21 @@ When available, the "See also" sidebar displays related pages using Hugo's [rela
 
 [related content]: /content-management/related-content/
 
+If the title in the "See also" sidebar is ambiguous or the same as another page, you can define an alternate title in the front matter:
+
+{{< code-toggle file=hugo >}}
+title = "Long descriptive title"
+linkTitle = "Short title"
+[params]
+altTitle = "Whatever you want"
+{{< /code-toggle >}}
+
+Use of the alternate title is limited to the "See also" sidebar.
+{{< note >}}
+Think carefully before setting the `altTitle`. Use it only when absolutely necessary.
+{{< /note >}}
+
+
 ## Code examples
 
 With examples of template code:
@@ -186,7 +201,7 @@ With examples of template code:
 - Indent with two spaces.
 - Insert a space after an opening action delimiter.
 - Insert a space before a closing action delimiter.
-- Do add white space removal syntax to action delimiters unless required.
+- Do not add white space removal syntax to action delimiters unless required. For example, inline elements like `img` and `a` require whitespace removal on both sides.
 
 ```go-html-template
 {{ if eq $foo $bar }}
@@ -232,7 +247,7 @@ Use this syntax :
 
 ### Site configuration
 
-Use the [code-toggle shortcode] to include site configuration examples:
+Use the [code-toggle shortcode](#code-toggle) to include site configuration examples:
 
 ```text
 {{</* code-toggle file=hugo */>}}
@@ -244,7 +259,7 @@ title = 'My Site'
 
 ### Front matter
 
-Use the [code-toggle shortcode] to include front matter examples:
+Use the [code-toggle shortcode](#code-toggle) to include front matter examples:
 
 ```text
 {{</* code-toggle file=content/posts/my-first-post.md fm=true */>}}
@@ -357,7 +372,7 @@ Use the [`math.Mod`] function to control...
 
 ## New features
 
-Use the [`new-in`](#new-in) shortcode to indicate a new feature:
+Use the [new-in shortcode](#new-in) to indicate a new feature:
 
 ```text
 {{</* new-in 0.144.0 */>}}
@@ -367,7 +382,7 @@ The "new in" label will be hidden if the specified version is older than a prede
 
 ## Deprecated features
 
-Use the [`deprecated-in`](#deprecated-in) shortcode to indicate that a feature is deprecated:
+Use the [deprecated-in shorcode](#deprecated-in) shortcode to indicate that a feature is deprecated:
 
 ```text
 {{</* deprecated-in 0.144.0 */>}}
@@ -453,17 +468,14 @@ A project maintainer will review your PR and may request changes. You may delete
 
 [ATX]: https://spec.commonmark.org/0.30/#atx-headings
 [Microsoft Writing Style Guide]: https://learn.microsoft.com/en-us/style-guide/welcome/
-[`glossary-term`]: #glossary-term
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [code examples]: #code-examples
-[code-toggle shortcode]: #code-toggle
 [documentation repository]: https://github.com/gohugoio/hugoDocs/
 [fenced code blocks]: https://spec.commonmark.org/0.30/#fenced-code-blocks
 [glossary]: /quick-reference/glossary/
 [indented code blocks]: https://spec.commonmark.org/0.30/#indented-code-blocks
 [issues]: https://github.com/gohugoio/hugoDocs/issues
 [list items]: https://spec.commonmark.org/0.30/#list-items
-[note shortcode]: #note
 [project repository]: https://github.com/gohugoio/hugo
 [raw HTML]: https://spec.commonmark.org/0.30/#raw-html
 [setext]: https://spec.commonmark.org/0.30/#setext-heading
