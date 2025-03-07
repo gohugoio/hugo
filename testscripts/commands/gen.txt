@@ -14,3 +14,9 @@ hugo gen chromastyles --style monokai
 stdout 'Generated using: hugo gen chromastyles --style monokai'
 ! hugo gen chromastyles --style __invalid_style__
 stderr 'invalid style: __invalid_style__'
+
+# Issue 13475
+hugo gen chromastyles --style monokai
+stdout '{  }'
+hugo gen chromastyles --omitEmpty --style monokai
+! stdout '\{  \}'
