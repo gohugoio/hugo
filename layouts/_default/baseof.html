@@ -48,7 +48,8 @@
     {{ end }}
     <div class="flex w-full xl:w-6xl h-full flex-auto mx-auto">
       <main
-        class="flex-1 mx-auto lg:mx-0 w-full max-w-3x lg:max-w-3x pt-8 lg:pt-14 pb-20 px-main">
+        class="flex-1 mx-auto lg:mx-0 w-full max-w-3x lg:max-w-3x pt-8 lg:pt-14 pb-20 px-main print:pt-0">
+        {{ partial "layouts/hooks/body-main-start.html" . }}
         {{ block "main" . }}{{ end }}
       </main>
       {{ block "rightsidebar" . }}
