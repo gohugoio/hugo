@@ -111,6 +111,12 @@ Hugo passes these CLI flags when calling the Pandoc executable:
 --mathjax
 ```
 
+If your Pandoc has version 2.11 or later, it also passes this CLI flag:
+
+```text
+--citeproc
+```
+
 [Pandoc]: https://pandoc.org/
 
 ### reStructuredText
