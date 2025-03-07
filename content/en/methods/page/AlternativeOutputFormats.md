@@ -28,7 +28,7 @@ Generate a `link` element in the `<head>` of each page for each of the alternati
   {{ if .IsHome }}
     {{ $title = site.Title }}
   {{ end }}
-  {{ range .AlternativeOutputFormats -}}
+  {{ range .AlternativeOutputFormats }}
     {{ printf `<link rel=%q type=%q href=%q title=%q>` .Rel .MediaType.Type .Permalink $title | safeHTML }}
   {{ end }}
   ...

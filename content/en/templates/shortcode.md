@@ -116,7 +116,7 @@ Create a shortcode to capture an image as a page resource, resize it to the give
 
 ```go-html-template {file="layouts/shortcodes/image.html"}
 {{- with .Page.Resources.Get (.Get "path") }}
-  {{- with .Process (printf "resize %dx wepb" ($.Get "width")) }}
+  {{- with .Process (printf "resize %dx wepb" ($.Get "width")) -}}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="{{ $.Get "alt" }}">
   {{- end }}
 {{- end -}}
@@ -150,21 +150,21 @@ Read more about context in the [introduction to templating].
 The previous example, while functional, silently fails if the image is missing, and does not gracefully exit if a required argument is missing. We'll add error handling to address these issues:
 
 ```go-html-template {file="layouts/shortcodes/image.html"}
-{{ with .Get "path" }}
+{{- with .Get "path" }}
   {{- with $r := $.Page.Resources.Get ($.Get "path") }}
     {{- with $.Get "width" }}
       {{- with $r.Process (printf "resize %dx wepb" ($.Get "width" )) }}
-        {{- $alt := or ($.Get "alt") "" }}
+        {{- $alt := or ($.Get "alt") "" -}}
         <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="{{ $alt }}">
       {{- end }}
     {{- else }}
       {{- errorf "The %q shortcode requires a 'width' argument: see %s" $.Name $.Position }}
     {{- end }}
   {{- else }}
-    {{ warnf "The %q shortcode was unable to find %s: see %s" $.Name ($.Get "path") $.Position }}
+    {{- warnf "The %q shortcode was unable to find %s: see %s" $.Name ($.Get "path") $.Position }}
   {{- end }}
 {{- else }}
-  {{ errorf "The %q shortcode requires a 'path' argument: see %s" .Name .Position }}
+  {{- errorf "The %q shortcode requires a 'path' argument: see %s" .Name .Position }}
 {{- end -}}
 ```
 
@@ -198,9 +198,9 @@ Here's how to call it with positional arguments:
 Using the `Get` method with zero-indexed keys, we'll initialize variables with descriptive names in our template:
 
 ```go-html-template {file="layouts/shortcodes/image.html"}
-{{- $path := .Get 0 }}
-{{- $width := .Get 1 }}
-{{- $alt := .Get 2 }}
+{{ $path := .Get 0 }}
+{{ $width := .Get 1 }}
+{{ $alt := .Get 2 }}
 ```
 
 {{< note >}}
@@ -212,9 +212,9 @@ Positional arguments work well for frequently used shortcodes with one or two ar
 You can create a shortcode that will accept both named and positional arguments, but not at the same time. Use the [`IsNamedParams`] method to determine whether the shortcode call used named or positional arguments:
 
 ```go-html-template {file="layouts/shortcodes/image.html"}
-{{- $path := cond (.IsNamedParams) (.Get "path") (.Get 0) }}
-{{- $width := cond (.IsNamedParams) (.Get "width") (.Get 1) }}
-{{- $alt := cond (.IsNamedParams) (.Get "alt") (.Get 2) }}
+{{ $path := cond (.IsNamedParams) (.Get "path") (.Get 0) }}
+{{ $width := cond (.IsNamedParams) (.Get "width") (.Get 1) }}
+{{ $alt := cond (.IsNamedParams) (.Get "alt") (.Get 2) }}
 ```
 
 This example uses the `cond` alias for the [`compare.Conditional`] function to get the argument by name if `IsNamedParams` returns `true`, otherwise get the argument by position.
@@ -235,9 +235,9 @@ When using named arguments, the `Params` method returns a map:
 ```
 
 ```go-html-template {file="layouts/shortcodes/image.html"}
-{{- .Params.path }} → a.jpg
-{{- .Params.width }} → 300
-{{- .Params.alt }} → A white kitten
+{{ .Params.path }} → a.jpg
+{{ .Params.width }} → 300
+{{ .Params.alt }} → A white kitten
 ```
 
  When using positional arguments, the `Params` method returns a slice:
@@ -247,9 +247,9 @@ When using named arguments, the `Params` method returns a map:
 ```
 
 ```go-html-template {file="layouts/shortcodes/image.html"}
-{{- index .Params 0 }} → a.jpg
-{{- index .Params 1 }} → 300
-{{- index .Params 1 }} → A white kitten
+{{ index .Params 0 }} → a.jpg
+{{ index .Params 1 }} → 300
+{{ index .Params 1 }} → A white kitten
 ```
 
 Combine the `Params` method with the [`collections.IsSet`] function to determine if a parameter is set, even if its value is falsy.

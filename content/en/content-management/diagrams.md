@@ -44,16 +44,16 @@ Hugo does not provide a built-in template for Mermaid diagrams. Create your own 
 
 [code block render hook]: /render-hooks/code-blocks/
 
-```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html"}
+```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
-  {{- .Inner | htmlEscape | safeHTML }}
+  {{ .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
 ```
 
-And then include this snippet at the _bottom_ of the content template, before the closing `body` tag:
+Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
 
-```go-html-template
+```go-html-template {file="layouts/_default/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
@@ -64,7 +64,7 @@ And then include this snippet at the _bottom_ of the content template, before th
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
-````text
+````text {copy=true}
 ```mermaid
 sequenceDiagram
     participant Alice

@@ -22,7 +22,7 @@ The `OutputFormats` method on a `Page` object returns a slice of `OutputFormat` 
 To link to the RSS feed for the current page:
 
 ```go-html-template
-{{ with .OutputFormats.Get "rss" -}}
+{{ with .OutputFormats.Get "rss" }}
   <a href="{{ .RelPermalink }}">RSS Feed</a>
 {{ end }}
 ```
