@@ -25,9 +25,6 @@ A fenced code block consists of:
 - A code sample
 - A trailing code fence
 
-[code fence]: https://spec.commonmark.org/0.31.2/#code-fence
-[info string]: https://spec.commonmark.org/0.31.2/#info-string
-
 In the previous example, the info string contains:
 
 - The language of the code sample (the first word)
@@ -39,12 +36,8 @@ In the example above, the _generic attributes_ are `class` and `id`. In the abse
 
 In the example above, the _highlighting options_ are `lineNos` and `tabWidth`. Hugo uses the [Chroma] syntax highlighter to render the code sample. You can control the appearance of the rendered code by specifying one or more [highlighting options].
 
-[Chroma]: https://github.com/alecthomas/chroma/
-[highlighting options]: /functions/transform/highlight/#options
-
-{{< note >}}
-Although `style` is a global HTML attribute, when used in an info string it is a highlighting option.
-{{< /note >}}
+> [!note]
+> Although `style` is a global HTML attribute, when used in an info string it is a highlighting option.
 
 ## Context
 
@@ -75,13 +68,9 @@ Position
 Type
 : (`string`) The first word of the info string, typically the code language.
 
-[`RenderShortcodes`]: /methods/page/rendershortcodes
-
 ## Examples
 
 In its default configuration, Hugo renders fenced code blocks by passing the code sample through the Chroma syntax highlighter and wrapping the result. To create a render hook that does the same thing:
-
-[CommonMark specification]: https://spec.commonmark.org/current/
 
 ```go-html-template {file="layouts/_default/_markup/render-codeblock.html" copy=true}
 {{ $result := transform.HighlightCodeBlock . }}
@@ -100,8 +89,6 @@ layouts/
 ```
 
 For example, to create a code block render hook to render [Mermaid] diagrams:
-
-[Mermaid]: https://mermaid.js.org/
 
 ```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
@@ -123,13 +110,18 @@ Then include this snippet at the _bottom_ of your base template, before the clos
 
 See the [diagrams] page for details.
 
-[diagrams]: /content-management/diagrams/#mermaid-diagrams
-
 ## Embedded
 
 Hugo includes an [embedded code block render hook] to render [GoAT diagrams].
 
+{{% include "/_common/render-hooks/pageinner.md" %}}
+
+[`RenderShortcodes`]: /methods/page/rendershortcodes
+[Chroma]: https://github.com/alecthomas/chroma/
+[code fence]: https://spec.commonmark.org/0.31.2/#code-fence
+[diagrams]: /content-management/diagrams/#mermaid-diagrams
 [embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 [GoAT diagrams]: /content-management/diagrams/#goat-diagrams-ascii
-
-{{% include "/_common/render-hooks/pageinner.md" %}}
+[highlighting options]: /functions/transform/highlight/#options
+[info string]: https://spec.commonmark.org/0.31.2/#info-string
+[Mermaid]: https://mermaid.js.org/

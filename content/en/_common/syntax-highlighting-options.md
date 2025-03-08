@@ -11,9 +11,8 @@ codeFences
 guessSyntax
 : (`bool`) Whether to automatically detect the language if the `LANG` argument is blank or set to a language for which there is no corresponding [lexer](g). Falls back to a plain text lexer if unable to automatically detect the language. Default is `false`.
 
-  {{< note >}}
-  The Chroma syntax highlighter includes lexers for approximately 250 languages, but only 5 of these have implemented automatic language detection.
-  {{< /note >}}
+  > [!note]
+  > The Chroma syntax highlighter includes lexers for approximately 250 languages, but only 5 of these have implemented automatic language detection.
 
 hl_Lines
 : (`string`) A space-delimited list of lines to emphasize within the highlighted code. To emphasize lines 2, 3, 4, and 7, set this value to `2-4 7`. This option is independent of the `lineNoStart` option.
@@ -28,7 +27,11 @@ lineNoStart
 : (`int`) The number to display at the beginning of the first line. Irrelevant if `lineNos` is `false`. Default is `1`.
 
 lineNos
-: (`bool`) Whether to display a number at the beginning of each line. Default is `false`.
+: (`any`) Controls line number display. Default is `false`.
+  - `true`: Enable line numbers, controlled by `lineNumbersInTable`.
+  - `false`: Disable line numbers.
+  - `inline`: Enable inline line numbers (sets `lineNumbersInTable` to `false`).
+  - `table`: Enable table-based line numbers (sets `lineNumbersInTable` to `true`).
 
 lineNumbersInTable
 : (`bool`) Whether to render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers, while the right table cell contains the code. Irrelevant if `lineNos` is `false`. Default is `true`.
@@ -50,16 +53,4 @@ wrapperClass
 : {{< new-in 0.140.2 />}}
 : (`string`) The class or classes to use for the outermost element of the highlighted code. Default is `highlight`.
 
-{{< note >}}
-Instead of specifying both `lineNos` and `lineNumbersInTable`, you can use the following shorthand notation:
-
-lineNos=inline
-: equivalent to `lineNos=true` and `lineNumbersInTable=false`
-
-lineNos=table
-: equivalent to `lineNos=true` and `lineNumbersInTable=true`
-{{< /note >}}
-
-[Short snippets]: https://xyproto.github.io/splash/docs/all.html
-[Long snippets]: https://xyproto.github.io/splash/docs/longer/all.html
 [syntax highlighting styles]: /quick-reference/syntax-highlighting-styles/

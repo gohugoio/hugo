@@ -6,11 +6,8 @@ categories: []
 keywords: []
 ---
 
-{{< note >}}
-To override Hugo's embedded `vimeo` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl vimeo %}}
-{{< /note >}}
+> [!note]
+> To override Hugo's embedded `vimeo` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -65,3 +62,4 @@ simple
 The source code for the simple version of the shortcode is available [here].
 
 [here]: {{% eturl vimeo_simple %}}
+[source code]: {{% eturl vimeo %}}

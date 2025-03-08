@@ -58,7 +58,7 @@ Hugo provides custom Markdown features including:
 [Markdown]: https://daringfireball.net/projects/markdown/
 [Mathematics]: /content-management/mathematics/
 [Render hooks]: /render-hooks/introduction/
-[configure goldmark]:/configuration/markup/#goldmark
+[configure goldmark]: /configuration/markup/#goldmark
 
 ### HTML
 

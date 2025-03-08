@@ -8,11 +8,8 @@ keywords: []
 
 {{< new-in 0.140.0 />}}
 
-{{< note >}}
-To override Hugo's embedded `details` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl details %}}
-{{< /note >}}
+> [!note]
+> To override Hugo's embedded `details` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -73,3 +70,5 @@ details > summary > * { }
 /* target the content */
 details > :not(summary) { }
 ```
+
+[source code]: {{% eturl details %}}

@@ -78,7 +78,7 @@ weight: 20
 ## Asset pipelines
 
 [Image processing]
-: Convert, resize, crop, rotate,  adjust colors, apply filters, overlay text and images, and extract EXIF data.
+: Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract EXIF data.
 
 [JavaScript bundling]
 : Transpile TypeScript and JSX to JavaScript, bundle, tree shake, minify, create source maps, and perform SRI hashing.

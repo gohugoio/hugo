@@ -8,18 +8,12 @@ keywords: []
 
 {{< new-in 0.141.0 />}}
 
-{{< note >}}
-To override Hugo's embedded `qr` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl qr %}}
-{{< /note >}}
+> [!note]
+> To override Hugo's embedded `qr` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 The `qr` shortcode encodes the given text into a [QR code] using the specified options and renders the resulting image.
 
 Internally this shortcode calls the `images.QR` function. Please read the [related documentation] for implementation details and guidance.
-
-[QR code]: https://en.wikipedia.org/wiki/QR_code
-[related documentation]: /functions/images/qr/
 
 ## Examples
 
@@ -50,8 +44,6 @@ To create a QR code for a phone number:
 {{< qr text="tel:+12065550101" class="qrcode" targetDir="images/qr" />}}
 
 To create a QR code containing contact information in the [vCard] format:
-
-[vCard]: https://en.wikipedia.org/wiki/VCard
 
 ```text
 {{</* qr level="low" scale=2 alt="QR code of vCard for John Smith" */>}}
@@ -93,8 +85,6 @@ scale
 targetDir
 : (`string`) The subdirectory within the [`publishDir`] where Hugo will place the generated image.
 
-[`publishDir`]: /configuration/all/#publishdir
-
 alt
 : (`string`) The `alt` attribute of the `img` element.
 
@@ -109,3 +99,9 @@ loading
 
 title
 : (`string`) The `title` attribute of the `img` element.
+
+[`publishDir`]: /configuration/all/#publishdir
+[QR code]: https://en.wikipedia.org/wiki/QR_code
+[related documentation]: /functions/images/qr/
+[source code]: {{% eturl qr %}}
+[vCard]: https://en.wikipedia.org/wiki/VCard

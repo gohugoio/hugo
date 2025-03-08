@@ -6,11 +6,8 @@ categories: []
 keywords: []
 ---
 
-{{< note >}}
-To understand Hugo's related content identification, please refer to the [related content] page.
-
-[related content]: /content-management/related-content/
-{{< /note >}}
+> [!note]
+> To understand Hugo's related content identification, please refer to the [related content] page.
 
 Hugo provides a sensible default configuration for identifying related content, but you can customize it in your site configuration, either globally or per language.
 
@@ -20,9 +17,8 @@ This is the default configuration:
 
 {{< code-toggle config=related />}}
 
-{{< note >}}
-Adding a `related` section to your site configuration requires you to provide a full configuration. You cannot override individual default values without specifying all related settings.
-{{< /note >}}
+> [!note]
+> Adding a `related` section to your site configuration requires you to provide a full configuration. You cannot override individual default values without specifying all related settings.
 
 ## Top-level options
 
@@ -111,3 +107,5 @@ Then render a list of 5 related reviews with a partial template like this:
   </ul>
 {{ end }}
 ```
+
+[related content]: /content-management/related-content/

@@ -100,17 +100,15 @@ Example 4: Skips rendering if there's problem accessing a remote resource.
 
 The `image` resource implements the  [`Process`],  [`Resize`], [`Fit`], [`Fill`], [`Crop`], [`Filter`], [`Colors`] and [`Exif`] methods.
 
-{{< note >}}
-Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the `Exif` method with the _original_ image to extract EXIF metadata from JPEG, PNG, TIFF, and WebP images.
-{{< /note >}}
+> [!note]
+> Metadata (EXIF, IPTC, XMP, etc.) is not preserved during image transformation. Use the `Exif` method with the _original_ image to extract EXIF metadata from JPEG, PNG, TIFF, and WebP images.
 
 ### Process
 
 {{< new-in 0.119.0 />}}
 
-{{< note >}}
-The `Process` method is also available as a filter, which is more effective if you need to apply multiple filters to an image. See [Process filter](/functions/images/process).
-{{< /note >}}
+> [!note]
+> The `Process` method is also available as a filter, which is more effective if you need to apply multiple filters to an image. See [Process filter](/functions/images/process).
 
 Process processes the image with the given specification. The specification can contain an optional action, one of `resize`, `crop`, `fit` or `fill`. This means that you can use this method instead of [`Resize`], [`Fit`], [`Fill`], or [`Crop`].
 
@@ -248,8 +246,6 @@ You may also access EXIF fields individually, using the [`lang.FormatNumber`] fu
 Date
 : (`time.Time`) Returns the image creation date/time. Format with the [`time.Format`]function.
 
-[time.Format]: /functions/time/format/
-
 Lat
 : (`float64`) Returns the GPS latitude in degrees.
 
@@ -344,8 +340,6 @@ The default value is 75. You may override the default value in the [site configu
 
 Applicable to WebP images, this option corresponds to a set of predefined encoding parameters, and is equivalent to the `-preset` flag for the [`cwebp`] encoder.
 
-[`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
-
 Value|Example
 :--|:--
 `drawing`|Hand or line drawing with high-contrast details
@@ -434,20 +428,20 @@ hugo --gc
 ```
 
 [`anchor`]: /content-management/image-processing#anchor
-[mounted]: /configuration/module/#mounts
-[page bundle]: /content-management/page-bundles/
-[`lang.FormatNumber`]: /functions/lang/formatnumber/
-[filters]: /functions/images/filter/#image-filters
-[github.com/disintegration/imaging]: https://github.com/disintegration/imaging#image-resizing
-[Smartcrop]: https://github.com/muesli/smartcrop#smartcrop
-[Exif]: https://en.wikipedia.org/wiki/Exif
-[`Process`]: #process
 [`Colors`]: #colors
 [`Crop`]: #crop
+[`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
 [`Exif`]: #exif
 [`Fill`]: #fill
 [`Filter`]: #filter
 [`Fit`]: #fit
+[`lang.FormatNumber`]: /functions/lang/formatnumber/
+[`Process`]: #process
 [`Resize`]: #resize
-[site configuration]: /configuration/imaging/
+[`time.Format`]: /functions/time/format/
 [`with`]: /functions/go-template/with/
+[EXIF]: https://en.wikipedia.org/wiki/Exif
+[filters]: /functions/images/filter/#image-filters
+[github.com/disintegration/imaging]: https://github.com/disintegration/imaging#image-resizing
+[site configuration]: /configuration/imaging/
+[Smartcrop]: https://github.com/muesli/smartcrop#smartcrop

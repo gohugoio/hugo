@@ -7,12 +7,8 @@ weight: 120
 aliases: [/templates/shortcode-templates/]
 ---
 
-{{< note >}}
-Before creating custom shortcodes, please review the [shortcodes] page in the [content management] section. Understanding the usage details will help you design and create better templates.
-
-[shortcodes]: /content-management/shortcodes/
-[content management]: /content-management/shortcodes/
-{{< /note >}}
+> [!note]
+> Before creating custom shortcodes, please review the [shortcodes] page in the [content management] section. Understanding the usage details will help you design and create better templates.
 
 ## Introduction
 
@@ -25,8 +21,6 @@ Hugo provides [embedded shortcodes] for many common tasks, but you'll likely nee
 - Maps
 - Tables
 - And many other custom elements
-
-[embedded shortcodes]: /shortcodes/
 
 ## Directory structure
 
@@ -98,8 +92,6 @@ This is {{</* year */>}}, and look at how far we've come.
 
 This shortcode can be used inline or as a block on its own line. If a shortcode might be used inline, remove the surrounding [whitespace] by using [template action](g) delimiters with hyphens.
 
-[whitespace]: /templates/introduction/#whitespace
-
 ### Insert image
 
 This example assumes the following content structure, where `content/example/index.md` is a [page bundle](g) containing one or more [page resources](g).
@@ -134,16 +126,10 @@ The example above uses:
 - The [`Get`] method to retrieve arguments by name
 - The `$` to access the template context
 
-[`get`]: /methods/shortcode/get/
-[`with`]: /functions/go-template/with/
-
-{{< note >}}
-Make sure that you thoroughly understand the concept of context. The most common templating errors made by new users relate to context.
-
-Read more about context in the [introduction to templating].
-
-[introduction to templating]: /templates/introduction/
-{{< /note >}}
+> [!note]
+> Make sure that you thoroughly understand the concept of context. The most common templating errors made by new users relate to context.
+>
+> Read more about context in the [introduction to templating].
 
 ### Insert image with error handling
 
@@ -172,9 +158,6 @@ This template throws an error and gracefully fails the build if the author negle
 
 The [`Name`] and [`Position`] methods provide helpful context for errors and warnings. For example, a missing `width` argument causes the shortcode to throw this error:
 
-[`name`]: /methods/shortcode/name/
-[`position`]: /methods/shortcode/position/
-
 ```text
 ERROR The "image" shortcode requires a 'width' argument: see "/home/user/project/content/example/index.md:7:1"
 ```
@@ -182,8 +165,6 @@ ERROR The "image" shortcode requires a 'width' argument: see "/home/user/project
 ### Positional arguments
 
 Shortcode arguments can be [named or positional]. We used named arguments previously; let's explore positional arguments. Here's the named argument version of our example:
-
-[named or positional]: /content-management/shortcodes/#arguments
 
 ```text {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
@@ -203,9 +184,8 @@ Using the `Get` method with zero-indexed keys, we'll initialize variables with d
 {{ $alt := .Get 2 }}
 ```
 
-{{< note >}}
-Positional arguments work well for frequently used shortcodes with one or two arguments. Since you'll use them often, the argument order will be easy to remember. For less frequently used shortcodes, or those with more than two arguments, named arguments improve readability and reduce the chance of errors.
-{{< /note >}}
+> [!note]
+> Positional arguments work well for frequently used shortcodes with one or two arguments. Since you'll use them often, the argument order will be easy to remember. For less frequently used shortcodes, or those with more than two arguments, named arguments improve readability and reduce the chance of errors.
 
 ### Named and positional arguments
 
@@ -219,14 +199,9 @@ You can create a shortcode that will accept both named and positional arguments,
 
 This example uses the `cond` alias for the [`compare.Conditional`] function to get the argument by name if `IsNamedParams` returns `true`, otherwise get the argument by position.
 
-[`compare.Conditional`]: /functions/compare/conditional/
-[`IsNamedParams`]: /methods/shortcode/isnamedparams/
-
 ### Argument collection
 
 Use the [`Params`] method to access the arguments as a collection.
-
-[`Params`]: /methods/shortcode/params/
 
 When using named arguments, the `Params` method returns a map:
 
@@ -254,13 +229,9 @@ When using named arguments, the `Params` method returns a map:
 
 Combine the `Params` method with the [`collections.IsSet`] function to determine if a parameter is set, even if its value is falsy.
 
-[`collections.IsSet`]: /functions/collections/isset/
-
 ### Inner content
 
 Extract the content enclosed within shortcode tags using the [`Inner`] method. This example demonstrates how to pass both content and a title to a shortcode. The shortcode then generates a `div` element containing an `h2` element (displaying the title) and the provided content.
-
-[`Inner`]: /methods/shortcode/inner/
 
 ```text {file="content/example.md"}
 {{</* contrived title="A Contrived Example" */>}}
@@ -277,15 +248,9 @@ This is a **bold** word, and this is an _emphasized_ word.
 
 The preceding example called the shortcode using [standard notation], requiring us to process the inner content with the [`RenderString`] method to convert the Markdown to HTML. This conversion is unnecessary when calling a shortcode using [Markdown notation].
 
-[`RenderString`]: /methods/page/renderstring/
-[markdown notation]: /content-management/shortcodes/#markdown-notation
-[standard notation]: /content-management/shortcodes/#standard-notation
-
 ### Nesting
 
 The  [`Parent`] method provides access to the parent shortcode context when the shortcode in question is called within the context of a parent shortcode. This provides an inheritance model.
-
-[`Parent`]: /methods/shortcode/parent/
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` argument:
 
@@ -330,8 +295,6 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 For guidance, consider examining Hugo's embedded shortcodes. The source code, available on [GitHub], can provide a useful model.
 
-[GitHub]: https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates/shortcodes
-
 ## Detection
 
 The [`HasShortcode`] method allows you to check if a specific shortcode has been called on a page. For example, consider a custom audio shortcode:
@@ -352,4 +315,24 @@ You can use the `HasShortcode` method in your base template to conditionally loa
 </head>
 ```
 
+[`collections.IsSet`]: /functions/collections/isset/
+[`compare.Conditional`]: /functions/compare/conditional/
+[`Get`]: /methods/shortcode/get/
 [`HasShortcode`]: /methods/page/hasshortcode/
+[`Inner`]: /methods/shortcode/inner/
+[`IsNamedParams`]: /methods/shortcode/isnamedparams/
+[`Name`]: /methods/shortcode/name/
+[`Params`]: /methods/shortcode/params/
+[`Parent`]: /methods/shortcode/parent/
+[`Position`]: /methods/shortcode/position/
+[`RenderString`]: /methods/page/renderstring/
+[`with`]: /functions/go-template/with/
+[content management]: /content-management/shortcodes/
+[embedded shortcodes]: /shortcodes/
+[GitHub]: https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates/shortcodes
+[introduction to templating]: /templates/introduction/
+[Markdown notation]: /content-management/shortcodes/#markdown-notation
+[named or positional]: /content-management/shortcodes/#arguments
+[shortcodes]: /content-management/shortcodes/
+[standard notation]: /content-management/shortcodes/#standard-notation
+[whitespace]: /templates/introduction/#whitespace

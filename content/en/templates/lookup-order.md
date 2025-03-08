@@ -31,9 +31,8 @@ Type
 Section
 : Is relevant for `section`, `taxonomy` and `term` types.
 
-{{< note >}}
-Templates can live in either the project's or the themes' `layout` directories, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
-{{< /note >}}
+> [!note]
+> Templates can live in either the project's or the themes' `layout` directories, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
 
 ## Target a template
 

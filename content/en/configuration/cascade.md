@@ -8,11 +8,8 @@ keywords: []
 
 You can configure your site to cascade front matter values to the home page and any of its descendants. However, this cascading will be prevented if the descendant already defines the field, or if a closer ancestor [node](g) has already cascaded a value for the same field through its front matter's `cascade` key.
 
-{{< note >}}
-You can also configure cascading behavior within a page's front matter. See&nbsp;[details].
-
-[details]: /content-management/front-matter/#cascade-1
-{{< /note >}}
+> [!note]
+> You can also configure cascading behavior within a page's front matter. See&nbsp;[details].
 
 For example, to cascade a "color" parameter to the home page and all its descendants:
 
@@ -55,8 +52,6 @@ lang
 path
 : (`string`) A [glob](g) pattern matching the page's [logical path](g). For example: `{/books,/books/**}`.
 
-[page language]: /methods/page/language/
-
 ## Array
 
 Define an array of cascade parameters to apply different values to different targets. For example:
@@ -77,3 +72,6 @@ path = '{/films/**}'
 kind = 'page'
 environment = 'production'
 {{< /code-toggle >}}
+
+[details]: /content-management/front-matter/#cascade-1
+[page language]: /methods/page/language/

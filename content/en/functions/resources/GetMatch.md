@@ -16,14 +16,13 @@ params:
 {{ end }}
 ```
 
-{{< note >}}
-This function operates on global resources. A global resource is a file within the `assets` directory, or within any directory mounted to the `assets` directory.
-
-For page resources, use the [`Resources.GetMatch`] method on a `Page` object.
-
-[`Resources.GetMatch`]: /methods/page/resources/
-{{< /note >}}
+> [!note]
+> This function operates on global resources. A global resource is a file within the `assets` directory, or within any directory mounted to the `assets` directory.
+>
+> For page resources, use the [`Resources.GetMatch`] method on a `Page` object.
 
 Hugo determines a match using a case-insensitive [glob](g) pattern.
 
 {{% include "/_common/glob-patterns.md" %}}
+
+[`Resources.GetMatch`]: /methods/page/resources/

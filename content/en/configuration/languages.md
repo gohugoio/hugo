@@ -30,8 +30,6 @@ disableDefaultLanguageRedirect
 disableLanguages
 : (`[]string]`) A slice of language keys representing the languages to disable during the build process. Although this is functional, consider using the [`disabled`](#disabled) key under each language instead.
 
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
-
 ## Language settings
 
 Configure each language under the `languages` key:
@@ -63,16 +61,6 @@ title
 
 weight
 : (`int`) The language [weight](g). When set to a non-zero value, this is the primary sort criteria for this language. Access this value from a template using the [`Language.Weight`] method on a `Site` or `Page` object.
-
-[`Language.LanguageCode`]: /methods/site/language/#languagecode
-[`Language.LanguageDirection`]: /methods/site/language/#languagedirection
-[`Language.LanguageName`]: /methods/site/language/#languagename
-[`Language.Weight`]: /methods/site/language/#weight
-[`Title`]: /methods/site/title/
-[`dir`]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir
-[built-in OpenGraph template]: {{% eturl opengraph %}}
-[built-in RSS template]: {{% eturl rss %}}
-[built-in alias template]: {{% eturl alias %}}
 
 ## Localized settings
 
@@ -121,11 +109,8 @@ weight = 1
 weight = 2
 {{< /code-toggle >}}
 
-{{< note >}}
-Private use subtags must not exceed 8 alphanumeric characters.
-{{< /note >}}
-
-[RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
+> [!note]
+> Private use subtags must not exceed 8 alphanumeric characters.
 
 ## Example
 
@@ -159,19 +144,15 @@ weight = 2
 subtitle = 'Reference, Tutorials, and Explanations'
 {{< /code-toggle >}}
 
-{{< note >}}
-In the example above, omit `contentDir` if [translating by file name].
-
-[translating by file name]: /content-management/multilingual/#translation-by-file-name
-{{< /note >}}
+> [!note]
+> In the example above, omit `contentDir` if [translating by file name].
 
 ## Multihost
 
 Hugo supports multiple languages in a multihost configuration. This means you can configure a `baseURL` per `language`.
 
-{{< note >}}
-If you define a `baseURL` for one language, you must define a unique `baseURL` for all languages.
-{{< /note >}}
+> [!note]
+> If you define a `baseURL` for one language, you must define a unique `baseURL` for all languages.
 
 For example:
 
@@ -197,3 +178,16 @@ public
 ├── en
 └── fr
 ```
+
+[`dir`]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir
+[`Language.LanguageCode`]: /methods/site/language/#languagecode
+[`Language.LanguageDirection`]: /methods/site/language/#languagedirection
+[`Language.LanguageName`]: /methods/site/language/#languagename
+[`Language.Weight`]: /methods/site/language/#weight
+[`Title`]: /methods/site/title/
+[built-in alias template]: {{% eturl alias %}}
+[built-in OpenGraph template]: {{% eturl opengraph %}}
+[built-in RSS template]: {{% eturl rss %}}
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
+[RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
+[translating by file name]: /content-management/multilingual/#translation-by-file-name

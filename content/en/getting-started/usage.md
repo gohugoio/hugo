@@ -45,11 +45,10 @@ hugo
 
 The [`hugo`] command builds your site, publishing the files to the `public` directory. To publish your site to a different directory, use the [`--destination`] flag or set [`publishDir`] in your site configuration.
 
-{{< note >}}
-Hugo does not clear the `public` directory before building your site. Existing files are overwritten, but not deleted. This behavior is intentional to prevent the inadvertent removal of files that you may have added to the `public` directory after the build.
-
-Depending on your needs, you may wish to manually clear the contents of the `public` directory before every build.
-{{< /note >}}
+> [!note]
+> Hugo does not clear the `public` directory before building your site. Existing files are overwritten, but not deleted. This behavior is intentional to prevent the inadvertent removal of files that you may have added to the `public` directory after the build.
+>
+> Depending on your needs, you may wish to manually clear the contents of the `public` directory before every build.
 
 ## Draft, future, and expired content
 
@@ -62,12 +61,8 @@ Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [
 
 {{< new-in 0.123.0 />}}
 
-{{< note >}}
-Hugo publishes descendants of draft, future, and expired [node](g) pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.
-
-[build options]: /content-management/build-options/
-[`cascade`]: /content-management/front-matter/#cascade
-{{< /note >}}
+> [!note]
+> Hugo publishes descendants of draft, future, and expired [node](g) pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.
 
 You can override the default behavior when running `hugo` or `hugo server` with command line flags:
 
@@ -79,11 +74,10 @@ hugo --buildFuture    # or -F
 
 Although you can also set these values in your site configuration, it can lead to unwanted results unless all content authors are aware of, and understand, the settings.
 
-{{< note >}}
-As noted above, Hugo does not clear the `public` directory before building your site. Depending on the _current_ evaluation of the four conditions above, after the build your `public` directory may contain extraneous files from a previous build.
-
-A common practice is to manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
-{{< /note >}}
+> [!note]
+> As noted above, Hugo does not clear the `public` directory before building your site. Depending on the _current_ evaluation of the four conditions above, after the build your `public` directory may contain extraneous files from a previous build.
+>
+> A common practice is to manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
 
 ## Develop and test your site
 
@@ -117,9 +111,8 @@ hugo server --navigateToChanged
 
 ## Deploy your site
 
-{{< note >}}
-As noted above, Hugo does not clear the `public` directory before building your site. Manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
-{{< /note >}}
+> [!note]
+> As noted above, Hugo does not clear the `public` directory before building your site. Manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
 
 When you are ready to deploy your site, run:
 
@@ -156,10 +149,12 @@ Learn more in the [host and deploy] section.
 [^1]: The Git repository contains the entire project directory, typically excluding the `public` directory because the site is built _after_ the push.
 
 [`--destination`]: /commands/hugo/#options
+[`cascade`]: /content-management/front-matter/#cascade
 [`hugo server`]: /commands/hugo_server/
 [`hugo`]: /commands/hugo/
 [`publishDir`]: /configuration/all/#publishdir
 [AWS Amplify]: https://aws.amazon.com/amplify/
+[build options]: /content-management/build-options/
 [CloudCannon]: https://cloudcannon.com/
 [Cloudflare Pages]: https://pages.cloudflare.com/
 [front matter]: /content-management/front-matter/

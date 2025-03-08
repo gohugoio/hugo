@@ -38,6 +38,5 @@ But if the value of `showHeroImage` is `false`, we can't use either `if` or `wit
 {{ end }}
 ```
 
-{{< note >}}
-When using the `isset` function you must reference the key using lower case. See the previous example.
-{{< /note >}}
+> [!note]
+> When using the `isset` function you must reference the key using lower case. See the previous example.

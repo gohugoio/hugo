@@ -36,11 +36,10 @@ Access the data with either of the following:
 {{ $data := getCSV "," "other-files/" "pets.csv" }}
 ```
 
-{{< note >}}
-When working with local data, the file path is relative to the working directory.
-
-You must not place CSV files in the project's `data` directory.
-{{< /note >}}
+> [!note]
+> When working with local data, the file path is relative to the working directory.
+>
+> You must not place CSV files in the project's `data` directory.
 
 Access remote data with either of the following:
 

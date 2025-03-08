@@ -88,9 +88,8 @@ firebase login:ci
 
 You can also set up your CI and add the token to a private variable like `$FIREBASE_DEPLOY_TOKEN`.
 
-{{< note >}}
-This is a private secret and it should not appear in a public repository. Make sure you understand your chosen CI and that it's not visible to others.
-{{< /note >}}
+> [!note]
+> This is a private secret and it should not appear in a public repository. Make sure you understand your chosen CI and that it's not visible to others.
 
 You can then add a step in your build to do the deployment using the token:
 

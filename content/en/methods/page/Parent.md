@@ -11,11 +11,8 @@ params:
 
 {{% glossary-term section %}}
 
-{{< note >}}
-The parent section of a regular page is the [current section].
-
-[current section]: /methods/page/currentsection/
-{{< /note >}}
+> [!note]
+> The parent section of a regular page is the [current section].
 
 Consider this content structure:
 
@@ -51,3 +48,5 @@ In the example above, note the parent section of the home page is nil. Code defe
   <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
 {{ end }}
 ```
+
+[current section]: /methods/page/currentsection/

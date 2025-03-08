@@ -36,8 +36,6 @@ Then call the shortcode from within markup:
 
 Learn more about creating shortcodes in the [shortcode templates] section.
 
-[shortcode templates]: /templates/shortcode/
-
 ## Inline
 
 An inline shortcode is a shortcode template defined within content.
@@ -54,8 +52,6 @@ enableInlineShortcodes = true
 For more information see [configure security](/configuration/security).
 
 The following example demonstrates an inline shortcode, `date.inline`, that accepts a single positional argument: a date/time [layout string].
-
-[layout string]: /functions/time/format/#layout-string
 
 ```text {file="content/example.md"}
 Today is
@@ -75,11 +71,8 @@ In the example above, the inline shortcode is executed twice: once upon definiti
 
 Inline shortcodes process their inner content within the same context as regular shortcode templates, allowing you to use any available [shortcode method].
 
-[shortcode method]: /templates/shortcode/#methods
-
-{{< note >}}
-You cannot [nest](#nesting) inline shortcodes.
-{{< /note >}}
+> [!note]
+> You cannot [nest](#nesting) inline shortcodes.
 
 Learn more about creating shortcodes in the [shortcode templates] section.
 
@@ -117,10 +110,6 @@ Or use the self-closing syntax with a trailing slash to pass the text as an argu
 {{</* qr text=https://gohugo.io /*/>}}
 ```
 
-[`details`]: /shortcodes/details
-[`instagram`]: /shortcodes/instagram
-[`qr`]: /shortcodes/qr
-
 Refer to each shortcode's documentation for specific usage instructions and available arguments.
 
 ### Arguments
@@ -128,8 +117,6 @@ Refer to each shortcode's documentation for specific usage instructions and avai
 Shortcode arguments can be either _named_ or _positional_.
 
 Named arguments are passed as case-sensitive key-value pairs, as seen in this example with the embedded [`figure`] shortcode. The `src` argument, for instance, is required.
-
-[`figure`]: /shortcodes/figure
 
 ```text
 {{</* figure src=/images/kitten.jpg */>}}
@@ -188,8 +175,6 @@ Standard|`{{</* foo */>}} ## Section 2 {{</* /foo */>}}`
 
 Hugo processes the shortcode before the page content is rendered by the Markdown renderer. This means, for instance, that Markdown headings inside a Markdown-notation shortcode will be included when invoking the [`TableOfContents`] method on the `Page` object.
 
-[`TableOfContents`]: /methods/page/tableofcontents/
-
 #### Standard notation
 
 With standard notation, Hugo processes the shortcode separately, merging the output into the page content after Markdown rendering. This means, for instance, that Markdown headings inside a standard-notation shortcode will be excluded when invoking the `TableOfContents` method on the `Page` object.
@@ -234,4 +219,12 @@ Shortcodes (excluding [inline](#inline) shortcodes) can be nested, creating pare
 
 The [shortcode templates][nesting] section provides a detailed explanation and examples.
 
+[`details`]: /shortcodes/details
+[`figure`]: /shortcodes/figure
+[`instagram`]: /shortcodes/instagram
+[`qr`]: /shortcodes/qr
+[`TableOfContents`]: /methods/page/tableofcontents/
+[layout string]: /functions/time/format/#layout-string
 [nesting]: /templates/shortcode/#nesting
+[shortcode method]: /templates/shortcode/#methods
+[shortcode templates]: /templates/shortcode/

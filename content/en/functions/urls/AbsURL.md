@@ -16,8 +16,6 @@ With multilingual configurations, use the [`urls.AbsLangURL`] function instead. 
 - Whether the input begins with a slash (`/`)
 - The `baseURL` in your site configuration
 
-[`urls.AbsLangURL`]: /functions/urls/abslangurl/
-
 ## Input does not begin with a slash
 
 If the input does not begin with a slash, the path in the resulting URL will be relative to the `baseURL` in your site configuration.
@@ -58,6 +56,7 @@ With `baseURL = https://example.org/docs/`
 {{ absURL "/style.css" }} → https://example.org/style.css
 ```
 
-{{< note >}}
-As illustrated by the previous example, using a leading slash is rarely desirable and can lead to unexpected outcomes. In nearly all cases, omit the leading slash.
-{{< /note >}}
+> [!note]
+> As illustrated by the previous example, using a leading slash is rarely desirable and can lead to unexpected outcomes. In nearly all cases, omit the leading slash.
+
+[`urls.AbsLangURL`]: /functions/urls/abslangurl/

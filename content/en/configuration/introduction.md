@@ -18,9 +18,8 @@ title = 'My New Hugo Site'
 
 Only define settings that deviate from the defaults. A smaller configuration file is easier to read, understand, and debug. Keep your configuration concise.
 
-{{< note >}}
-The best configuration file is a short configuration file.
-{{< /note >}}
+> [!note]
+> The best configuration file is a short configuration file.
 
 ## Configuration file
 
@@ -31,9 +30,8 @@ my-project/
 └── hugo.toml
 ```
 
-{{< note >}}
-For versions v0.109.0 and earlier, the site configuration file was named `config`. While you can still use this name, it's recommended to switch to the newer naming convention, `hugo`.
-{{< /note >}}
+> [!note]
+> For versions v0.109.0 and earlier, the site configuration file was named `config`. While you can still use this name, it's recommended to switch to the newer naming convention, `hugo`.
 
 A simple example:
 
@@ -60,13 +58,8 @@ Combine two or more configuration files, with left-to-right precedence:
 hugo --config a.toml,b.yaml,c.json
 ```
 
-{{< note >}}
-See the specifications for each file format: [TOML], [YAML], and [JSON].
-
-[TOML]: https://toml.io/en/latest
-[YAML]: https://yaml.org/spec/
-[JSON]: https://datatracker.ietf.org/doc/html/rfc7159
-{{< /note >}}
+> [!note]
+> See the specifications for each file format: [TOML], [YAML], and [JSON].
 
 ## Configuration directory
 
@@ -134,8 +127,6 @@ my-project/
 Considering the structure above, when running `hugo --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
 
 Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify a [Google tag ID] in your site configuration:
-
-[Google tag ID]: https://support.google.com/tagmanager/answer/12326985?hl=en
 
 {{< code-toggle file=hugo >}}
 [services.googleAnalytics]
@@ -236,27 +227,17 @@ hugo
 
 The above sets the [`baseURL`], [`enableGitInfo`], and [`environment`] configuration options and then builds your site.
 
-[`baseURL`]: /configuration/all#baseurl
-[`enableGitInfo`]: /configuration/all#enablegitinfo
-[`environment`]:  /configuration/all#environment
-
-{{< note >}}
-An environment variable takes precedence over the values set in the configuration file. This means that if you set a configuration value with both an environment variable and in the configuration file, the value in the environment variable will be used.
-{{< /note >}}
+> [!note]
+> An environment variable takes precedence over the values set in the configuration file. This means that if you set a configuration value with both an environment variable and in the configuration file, the value in the environment variable will be used.
 
 Environment variables simplify configuration for CI/CD deployments like GitHub Pages, GitLab Pages, and Netlify by allowing you to set values directly within their respective configuration and workflow files.
 
-[CI/CD]: https://en.wikipedia.org/wiki/CI/CD
-
-{{< note >}}
-Environment variable names must be prefixed with `HUGO_`.
-
-To set custom site parameters, prefix the name with `HUGO_PARAMS_`.
-{{< /note >}}
+> [!note]
+> Environment variable names must be prefixed with `HUGO_`.
+>
+> To set custom site parameters, prefix the name with `HUGO_PARAMS_`.
 
 For snake_case variable names, the standard `HUGO_` prefix won't work. Hugo infers the delimiter from the first character following `HUGO`. This allows for variations like `HUGOxPARAMSxAPI_KEY=abcdefgh` using any [permitted delimiter].
-
-[permitted delimiter]: https://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html
 
 In addition to configuring standard settings, environment variables may be used to override default values for certain internal settings:
 
@@ -292,3 +273,12 @@ Display the configured file mounts with:
 ```sh
 hugo config mounts
 ```
+
+[`baseURL`]: /configuration/all#baseurl
+[`enableGitInfo`]: /configuration/all#enablegitinfo
+[`environment`]: /configuration/all#environment
+[Google tag ID]: https://support.google.com/tagmanager/answer/12326985?hl=en
+[JSON]: https://datatracker.ietf.org/doc/html/rfc7159
+[permitted delimiter]: https://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html
+[TOML]: https://toml.io/en/latest
+[YAML]: https://yaml.org/spec/

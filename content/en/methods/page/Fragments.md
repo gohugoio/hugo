@@ -96,16 +96,14 @@ Hugo renders this to:
 </nav>
 ```
 
-{{< note >}}
-It is safe to use the `Fragments` methods within a render hook, even for the current page.
+> [!note]
+> It is safe to use the `Fragments` methods within a render hook, even for the current page.
+>
+> When using the `Fragments` methods within a shortcode, call the shortcode using [standard notation]. If you use [Markdown notation] the rendered shortcode is included in the creation of the fragments map, resulting in a circular loop.
 
-When using the `Fragments` methods within a shortcode, call the shortcode using [standard notation]. If you use [Markdown notation] the rendered shortcode is included in the creation of the fragments map, resulting in a circular loop.
-
+[`TableOfContents`]: /methods/page/tableofcontents/
+[ATX]: https://spec.commonmark.org/0.30/#atx-headings
 [Markdown notation]: /content-management/shortcodes/#notation
-[standard notation]: /content-management/shortcodes/#notation
-{{< /note >}}
-
-[atx]: https://spec.commonmark.org/0.30/#atx-headings
 [setext]: https://spec.commonmark.org/0.30/#setext-headings
+[standard notation]: /content-management/shortcodes/#notation
 [table of contents]: /methods/page/tableofcontents/
-[`tableofcontents`]: /methods/page/tableofcontents/

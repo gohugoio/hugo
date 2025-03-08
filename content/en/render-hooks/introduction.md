@@ -16,13 +16,10 @@ When rendering Markdown to HTML, render hooks override the conversion. Each rend
 - [Passthrough elements](/render-hooks/passthrough)
 - [Tables](/render-hooks/tables)
 
-{{< note >}}
-Hugo supports multiple [content formats] including Markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, and reStructuredText.
-
-The render hook capability is limited to Markdown. You cannot create render hooks for the other content formats.
-
-[content formats]: /content-management/formats/
-{{< /note >}}
+> [!note]
+> Hugo supports multiple [content formats] including Markdown, HTML, AsciiDoc, Emacs Org Mode, Pandoc, and reStructuredText.
+>
+> The render hook capability is limited to Markdown. You cannot create render hooks for the other content formats.
 
 For example, consider this Markdown:
 
@@ -80,3 +77,5 @@ layouts/
 ```
 
 The remaining pages in this section describe each type of render hook, including examples and the context received by each template.
+
+[content formats]: /content-management/formats/

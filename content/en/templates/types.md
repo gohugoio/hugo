@@ -37,11 +37,8 @@ layouts/
 
 Hugo's [template lookup order] determines the template path, allowing you to create unique templates for any page.
 
-[template lookup order]: /templates/lookup-order/
-
-{{< note >}}
-You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
-{{< /note >}}
+> [!note]
+> You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
 
 The purpose of each template type is described below.
 
@@ -50,9 +47,6 @@ The purpose of each template type is described below.
 Base templates reduce duplicate code by wrapping other templates within a shell.
 
 For example, the base template below calls the [partial] function to include partial templates for the `head`, `header`, and `footer` elements of each page, and it uses the [block] function to include `home`, `single`, `section`, `taxonomy`, and `term` templates within the `main` element of each page.
-
-[block]: /functions/go-template/block/
-[partial]: /functions/partials/include/
 
 ```go-html-template {file="layouts/_default/baseof.html"}
 <!DOCTYPE html>
@@ -172,11 +166,8 @@ Learn more about [term templates](/templates/term/).
 
 A partial template is typically used to render a component of your site, though you may also create partial templates that return values.
 
-{{< note >}}
-Unlike other template types, you cannot create partial templates to target a particular page kind, content type, section, language, or output format. Partial templates do not follow Hugo's [template lookup order].
-
-[template lookup order]: /templates/lookup-order/
-{{< /note >}}
+> [!note]
+> Unlike other template types, you cannot create partial templates to target a particular page kind, content type, section, language, or output format. Partial templates do not follow Hugo's [template lookup order].
 
 For example, the partial template below renders copyright information.
 
@@ -192,8 +183,6 @@ A content view template is similar to a partial template, invoked by calling the
 
 - Automatically inherit the context of the current page
 - Follow a lookup order allowing you to target a given content type or section
-
-[`Render`]: /methods/page/render/
 
 For example, the home template below inherits the site's shell from the base template, and renders a card component for each page within the "articles" section of your site.
 
@@ -264,3 +253,9 @@ Use other specialized templates to create:
 - [RSS feeds](/templates/rss/)
 - [404 error pages](/templates/404/)
 - [robots.txt files](/templates/robots/)
+
+[`Render`]: /methods/page/render/
+[block]: /functions/go-template/block/
+[partial]: /functions/partials/include/
+[template lookup order]: /templates/lookup-order/
+[template lookup order]: /templates/lookup-order/

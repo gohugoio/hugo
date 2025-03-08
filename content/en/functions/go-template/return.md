@@ -16,9 +16,8 @@ The returned value may be of any data type including, but not limited to, [`bool
 
 A `return` statement without a value returns an empty string of type `template.HTML`.
 
-{{< note >}}
-Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks. See [usage](#usage) notes below.
-{{< /note >}}
+> [!note]
+> Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks. See [usage](#usage) notes below.
 
 ## Example
 
@@ -63,13 +62,10 @@ Hugo renders:
 
 See additional examples in the [partial templates] section.
 
-[partial templates]: /templates/partial/#returning-a-value-from-a-partial
-
 ## Usage
 
-{{< note >}}
-Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks.
-{{< /note >}}
+> [!note]
+> Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks.
 
 A partial that returns a value must contain only one `return` statement, placed at the end of the template.
 
@@ -85,9 +81,8 @@ For example:
 {{ return $result }}
 ```
 
-{{< note >}}
-The construct below is incorrect; it contains more than one `return` statement.
-{{< /note >}}
+> [!note]
+> The construct below is incorrect; it contains more than one `return` statement.
 
 ```go-html-template {file="layouts/partials/do-not-do-this.html"}
 {{ if math.ModBool . 2 }}
@@ -96,3 +91,6 @@ The construct below is incorrect; it contains more than one `return` statement.
   {{ return "odd" }}
 {{ end }}
 ```
+
+[partial templates]: /templates/partial/#returning-a-value-from-a-partial
+[text/template package]: https://pkg.go.dev/text/template

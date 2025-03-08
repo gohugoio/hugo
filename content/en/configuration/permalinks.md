@@ -12,11 +12,8 @@ This is the default configuration:
 
 Define a URL pattern for each top-level section. Each URL pattern can target a given language and/or page kind.
 
-{{< note >}}
-The [`url`] front matter field overrides any matching permalink pattern.
-
-[`url`]: /content-management/front-matter/#url
-{{< /note >}}
+> [!note]
+> The [`url`] front matter field overrides any matching permalink pattern.
 
 ## Monolingual example
 
@@ -161,3 +158,5 @@ public/
 Use these tokens when defining a URL pattern.
 
 {{% include "/_common/permalink-tokens.md" %}}
+
+[`url`]: /content-management/front-matter/#url

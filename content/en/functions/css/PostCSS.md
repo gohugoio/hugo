@@ -22,13 +22,9 @@ params:
 
 Follow the steps below to transform CSS using any of the available [PostCSS plugins].
 
-[postcss plugins]: https://postcss.org/docs/postcss-plugins
-
 ### Step 1
 
 Install [Node.js].
-
-[node.js]: https://nodejs.org/en/download
 
 ### Step 2
 
@@ -50,9 +46,8 @@ module.exports = {
 };
 ```
 
-{{< note >}}
-{{% include "/_common/functions/postcss-windows-warning.md" %}}
-{{< /note >}}
+> [!note]
+> If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
 
 ### Step 4
 
@@ -126,3 +121,8 @@ module.exports = {
   ]
 }
 ```
+
+[#7333]: https://github.com/gohugoio/hugo/issues/7333
+[Node.js]: https://nodejs.org/en
+[PostCSS plugins]: https://postcss.org/docs/postcss-plugins
+[this example]: https://github.com/postcss/postcss-load-config#packagejson

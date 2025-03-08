@@ -41,17 +41,12 @@ Text
 Title
 : (`string`) The link title.
 
-[`RenderShortcodes`]: /methods/page/rendershortcodes
-
 ## Examples
 
-{{< note >}}
-With inline elements such as images and links, remove leading and trailing whitespace using the `{{‑ ‑}}` delimiter notation to prevent whitespace between adjacent inline elements and text.
-{{< /note >}}
+> [!note]
+> With inline elements such as images and links, remove leading and trailing whitespace using the `{{‑ ‑}}` delimiter notation to prevent whitespace between adjacent inline elements and text.
 
 In its default configuration, Hugo renders Markdown links according to the [CommonMark specification]. To create a render hook that does the same thing:
-
-[CommonMark specification]: https://spec.commonmark.org/current/
 
 ```go-html-template {file="layouts/_default/_markup/render-link.html" copy=true}
 <a href="{{ .Destination | safeURL }}"
@@ -81,8 +76,6 @@ To include a `rel` attribute set to `external` for external links:
 
 Hugo includes an [embedded link render hook] to resolve Markdown link destinations. Disabled by default, you can enable it in your site configuration:
 
-[embedded link render hook]: {{% eturl render-link %}}
-
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.link]
 enableDefault = true
@@ -90,11 +83,8 @@ enableDefault = true
 
 A custom render hook, even when provided by a theme or module, will override the embedded render hook regardless of the configuration setting above.
 
-{{< note >}}
-The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
-
-[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-{{< /note >}}
+> [!note]
+> The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
 The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource](g), then falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 
@@ -111,3 +101,8 @@ target = 'assets'
 {{< /code-toggle >}}
 
 {{% include "/_common/render-hooks/pageinner.md" %}}
+
+[`RenderShortcodes`]: /methods/page/rendershortcodes
+[CommonMark specification]: https://spec.commonmark.org/current/
+[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
+[embedded link render hook]: {{% eturl render-link %}}

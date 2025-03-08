@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.Type]
 ---
 
-The `Type` method on a `Page` object returns the [content type](g) of the given page. The content type is defined by the `type` field in front matter,  or inferred from the top-level directory name if the `type` field in front matter is not defined.
+The `Type` method on a `Page` object returns the [content type](g) of the given page. The content type is defined by the `type` field in front matter, or inferred from the top-level directory name if the `type` field in front matter is not defined.
 
 With this content structure:
 

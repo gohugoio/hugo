@@ -30,18 +30,10 @@ Each color is an object with the following methods:
 
 (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
-{{< note >}}
-Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.
-
-Hugo renders an `images.Color` object as a hexadecimal color value.
-
-[`images.Dither`]: /functions/images/dither/
-[`images.Padding`]: /functions/images/padding/
-[`images.Text`]: /functions/images/text/
-{{< /note >}}
-
-[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
-[relative luminance]: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+> [!note]
+> Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.
+>
+> Hugo renders an `images.Color` object as a hexadecimal color value.
 
 ## Sorting
 
@@ -172,7 +164,12 @@ Calculate the contrast ratio to determine WCAG conformance:
 {{ end }}
 ```
 
-[WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines
+[`images.Dither`]: /functions/images/dither/
+[`images.Padding`]: /functions/images/padding/
+[`images.Text`]: /functions/images/text/
 [contrast ratio]: https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
 [enhanced]: https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=145#contrast-enhanced
+[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 [minimum]: https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=145#contrast-minimum
+[relative luminance]: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+[WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines

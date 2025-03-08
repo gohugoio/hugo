@@ -12,15 +12,10 @@ params:
 
 The `Data` method on a `Page` object returns a unique data object for each [page kind](g).
 
-{{< note >}}
-The `Data` method is only useful within [taxonomy](g) and [term](g) templates.
-
-Themes that are not actively maintained may still use `.Data.Pages` in list templates. Although that syntax remains functional, use one of these methods instead: [`Pages`], [`RegularPages`], or [`RegularPagesRecursive`]
-
-[`Pages`]: /methods/page/pages/
-[`RegularPages`]: /methods/page/regularpages/
-[`RegularPagesRecursive`]: /methods/page/regularpagesrecursive/
-{{< /note >}}
+> [!note]
+> The `Data` method is only useful within [taxonomy](g) and [term](g) templates.
+>
+> Themes that are not actively maintained may still use `.Data.Pages` in list templates. Although that syntax remains functional, use one of these methods instead: [`Pages`], [`RegularPages`], or [`RegularPagesRecursive`]
 
 The examples that follow are based on this site configuration:
 
@@ -67,11 +62,8 @@ Terms
 {{ $taxonomyObject := .Data.Terms }} 
 ```
 
-{{< note >}}
-Once you have captured the `Taxonomy` object, use any of the [taxonomy methods] to sort, count, or capture a subset of its weighted pages.
-
-[taxonomy methods]: /methods/taxonomy/
-{{< /note >}}
+> [!note]
+> Once you have captured the `Taxonomy` object, use any of the [taxonomy methods] to sort, count, or capture a subset of its weighted pages.
 
 Learn more about [taxonomy templates].
 
@@ -102,5 +94,9 @@ Term
 
 Learn more about [term templates].
 
+[`Pages`]: /methods/page/pages/
+[`RegularPages`]: /methods/page/regularpages/
+[`RegularPagesRecursive`]: /methods/page/regularpagesrecursive/
+[taxonomy methods]: /methods/taxonomy/
 [taxonomy templates]: /templates/types/#taxonomy
 [term templates]: /templates/types/#term

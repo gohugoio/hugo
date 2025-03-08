@@ -39,11 +39,10 @@ Front matter fields may be [boolean](g), [integer](g), [float](g), [string](g), 
 
 The most common front matter fields are `date`, `draft`, `title`, and `weight`, but you can specify metadata using any of fields below.
 
-{{< note >}}
-The field names below are reserved. For example, you cannot create a custom field named `type`. Create custom fields under the `params` key. See the [parameters] section for details.
+> [!note]
+> The field names below are reserved. For example, you cannot create a custom field named `type`. Create custom fields under the `params` key. See the [parameters] section for details.
 
 [parameters]: #parameters
-{{< /note >}}
 
 aliases
 : (`string array`) An array of one or more aliases, where each alias is a relative URL that will redirect the browser to the current location. Access these values from a template using the [`Aliases`] method on a `Page` object. See the [aliases] section for details.
@@ -205,11 +204,6 @@ Parameter|Data type|Used by these embedded templates
 
 The embedded templates will skip a parameter if not provided in front matter, but will throw an error if the data type is unexpected.
 
-[`opengraph.html`]: {{% eturl opengraph %}}
-[`schema.html`]: {{% eturl schema %}}
-[`twitter_cards.html`]: {{% eturl twitter_cards %}}
-[embedded templates]: /templates/embedded/
-
 ## Taxonomies
 
 Classify content by adding taxonomy terms to front matter. For example, with this site configuration:
@@ -320,11 +314,10 @@ path = '{/films/**}'
 kind = 'page'
 {{< /code-toggle >}}
 
-{{< note >}}
-For multilingual sites, defining cascade values in your site configuration is often more efficient. This avoids repeating the same cascade values on the home, section, taxonomy, or term page for each language. See&nbsp;[details](/configuration/cascade/).
-
-If you choose to define cascade values in front matter for a multilingual site, you must create a corresponding home, section, taxonomy, or term page for every language.
-{{< /note >}}
+> [!note]
+> For multilingual sites, defining cascade values in your site configuration is often more efficient. This avoids repeating the same cascade values on the home, section, taxonomy, or term page for each language. See&nbsp;[details](/configuration/cascade/).
+>
+> If you choose to define cascade values in front matter for a multilingual site, you must create a corresponding home, section, taxonomy, or term page for every language.
 
 ## Emacs Org Mode
 
@@ -362,3 +355,8 @@ To override the default time zone, set the [`timeZone`](/configuration/all/#time
 1. The time zone offset in the date/time string
 1. The time zone specified in your site configuration
 1. The `Etc/UTC` time zone
+
+[`opengraph.html`]: {{% eturl opengraph %}}
+[`schema.html`]: {{% eturl schema %}}
+[`twitter_cards.html`]: {{% eturl twitter_cards %}}
+[embedded templates]: /templates/embedded/

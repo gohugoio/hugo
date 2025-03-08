@@ -19,9 +19,8 @@ params:
 - `image`. Note that the image handling is currently very simple; we link to the `asset.url` using `asset.altText` as the image alt text and `asset.title` as the title. For more fine grained control you may want to process the images in a [image render hook](/render-hooks/images/).
 - `code` (see the [code-input](https://www.sanity.io/plugins/code-input) plugin). Code will be rendered as [fenced code blocks](/contribute/documentation/#fenced-code-blocks) with any file name provided passed on as a markdown attribute.
 
-{{< note >}}
-Since the Portable Text gets converted to Markdown before it gets passed to Hugo, rendering of links, headings, images and code blocks can be controlled with [Render Hooks](https://gohugo.io/render-hooks/).
-{{< /note >}}
+> [!note]
+> Since the Portable Text gets converted to Markdown before it gets passed to Hugo, rendering of links, headings, images and code blocks can be controlled with [Render Hooks](https://gohugo.io/render-hooks/).
 
 ## Example
 

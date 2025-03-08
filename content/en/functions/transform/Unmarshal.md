@@ -107,15 +107,12 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 {{ end }}
 ```
 
-{{< note >}}
-When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
-
-In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
-
-`{{ $data = .Content | transform.Unmarshal }}`
-
-[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-{{< /note >}}
+> [!note]
+> When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
+>
+> In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
+>
+> `{{ $data = .Content | transform.Unmarshal }}`
 
 ## Options
 
@@ -292,4 +289,5 @@ Hugo renders this to:
 ```
 
 [`index`]: /functions/collections/indexfunction/
+[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
 [page bundle]: /content-management/page-bundles/

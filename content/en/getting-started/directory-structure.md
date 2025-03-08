@@ -144,11 +144,10 @@ source = '/home/user/shared-content'
 target = 'content'
 {{< /code-toggle >}}
 
-{{< note >}}
-When you overlay one directory on top of another, you must mount both directories.
-
-Hugo does not follow symbolic links. If you need the functionality provided by symbolic links, use Hugo's union file system instead.
-{{< /note >}}
+> [!note]
+> When you overlay one directory on top of another, you must mount both directories.
+>
+> Hugo does not follow symbolic links. If you need the functionality provided by symbolic links, use Hugo's union file system instead.
 
 After mounting, the union file system has this structure:
 
@@ -171,9 +170,8 @@ home/
         └── hugo.toml
 ```
 
-{{< note >}}
-When two or more files have the same path, the order of precedence follows the order of the mounts. For example, if the shared content directory contains `books/book-1.md`, it will be ignored because the project's `content` directory was mounted first.
-{{< /note >}}
+> [!note]
+> When two or more files have the same path, the order of precedence follows the order of the mounts. For example, if the shared content directory contains `books/book-1.md`, it will be ignored because the project's `content` directory was mounted first.
 
 You can mount directories to `archetypes`, `assets`, `content`, `data`, `i18n`, `layouts`, and `static`. See&nbsp;[details](/configuration/module/#mounts).
 

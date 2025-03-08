@@ -15,8 +15,6 @@ params:
 
 The `try` statement is a non-standard extension to Go's [text/template] package. It introduces a mechanism for handling errors within templates, mimicking the `try-catch` constructs found in other programming languages.
 
-[text/template]: https://pkg.go.dev/text/template
-
 ## Methods
 
 The `TryValue` object encapsulates the result of evaluating the expression, and provides two methods:
@@ -90,8 +88,6 @@ Hugo renders the above to:
 
 Error handling is essential when using the [`resources.GetRemote`] function to capture remote resources such as data or images. When calling this function, if the HTTP request fails, Hugo will fail the build.
 
-[`resources.GetRemote`]: /functions/resources/getremote/
-
 Instead of failing the build, we can catch the error and emit a warning:
 
 ```go-html-template
@@ -108,8 +104,9 @@ Instead of failing the build, we can catch the error and emit a warning:
 ```
 In the above, note that the [context](g) within the last conditional block is the `TryValue` object returned by the `try` statement. At this point neither the `Err` nor `Value` methods returned anything, so the current context is not useful. Use the `$` to access the [template context] if needed.
 
-[template context]: /templates/introduction/#template-context
+> [!note]
+> Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
 
-{{< note >}}
-Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
-{{< /note >}}
+[`resources.GetRemote`]: /functions/resources/getremote/
+[template context]: /templates/introduction/#template-context
+[text/template]: https://pkg.go.dev/text/template

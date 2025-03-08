@@ -54,9 +54,8 @@ Hugo will throw an error:
 
 The error occurs because we are trying to use the `.Title` method on an integer instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
 
-{{< note >}}
-Use the `$` to get the context passed into the template.
-{{< /note >}}
+> [!note]
+> Use the `$` to get the context passed into the template.
 
 This template will render the page title three times:
 
@@ -66,11 +65,8 @@ This template will render the page title three times:
 {{ end }}
 ```
 
-{{< note >}}
-Gaining a thorough understanding of context is critical for anyone writing template code.
-{{< /note >}}
-
-[`seq`]: /functions/collections/seq/
+> [!note]
+> Gaining a thorough understanding of context is critical for anyone writing template code.
 
 ## Array or slice of scalars
 
@@ -188,6 +184,7 @@ Unlike ranging over an array or slice, Hugo sorts by key when ranging over a map
 
 {{% include "/_common/functions/go-template/text-template.md" %}}
 
-[`else`]: /functions/go-template/else/
 [`break`]: /functions/go-template/break/
 [`continue`]: /functions/go-template/continue/
+[`else`]: /functions/go-template/else/
+[`seq`]: /functions/collections/seq/

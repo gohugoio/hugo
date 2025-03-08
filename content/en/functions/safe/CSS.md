@@ -28,8 +28,6 @@ Use of this type presents a security risk: the encapsulated content should come 
 
 See the [Go documentation] for details.
 
-[Go documentation]: https://pkg.go.dev/html/template#CSS
-
 ## Example
 
 Without a safe declaration:
@@ -45,9 +43,8 @@ Hugo renders the above to:
 <p style="ZgotmplZ">foo</p>
 ```
 
-{{< note >}}
-`ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
-{{< /note >}}
+> [!note]
+> `ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
 
 To declare the string as safe:
 
@@ -61,3 +58,5 @@ Hugo renders the above to:
 ```html
 <p style="color: red;">foo</p>
 ```
+
+[Go documentation]: https://pkg.go.dev/html/template#CSS

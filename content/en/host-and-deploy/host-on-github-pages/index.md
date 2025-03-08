@@ -14,21 +14,12 @@ Please complete the following tasks before continuing:
 1. [Install Git]
 1. [Create a Hugo site] and test it locally with `hugo server`.
 
-[Create a GitHub account]: https://github.com/signup
-[Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[Create a Hugo site]: /getting-started/quick-start/
-
 ## Types of sites
 
 There are three types of GitHub Pages sites: project, user, and organization. Project sites are connected to a specific project hosted on GitHub. User and organization sites are connected to a specific account on GitHub.com.
 
-{{< note >}}
-See the [GitHub Pages documentation] to understand the requirements for repository ownership and naming.
-
-[GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
-{{< /note >}}
-
-[GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
+> [!note]
+> See the [GitHub Pages documentation] to understand the requirements for repository ownership and naming.
 
 ## Procedure
 
@@ -194,10 +185,14 @@ The example workflow above includes this step, which typically takes 10&#8209;15
 
 You may remove this step if your site, themes, and modules do not transpile Sass to CSS using the [Dart Sass] transpiler.
 
-[Dart Sass]: /functions/css/sass/#dart-sass
-
 ## Other resources
 
 - [Learn more about GitHub Actions](https://docs.github.com/en/actions)
 - [Caching dependencies to speed up workflows](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows)
 - [Manage a custom domain for your GitHub Pages site](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages)
+
+[Create a GitHub account]: https://github.com/signup
+[Create a Hugo site]: /getting-started/quick-start/
+[Dart Sass]: /functions/css/sass/#dart-sass
+[GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
+[Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git

@@ -26,11 +26,8 @@ A home page template is used to render your site's home page, and is the only te
 
 Hugo's [template lookup order] determines the template path, allowing you to create unique templates for any page.
 
-[template lookup order]: /templates/lookup-order/#home-templates
-
-{{< note >}}
-You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
-{{< /note >}}
+> [!note]
+> You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
 
 ## Content and front matter
 
@@ -57,3 +54,5 @@ The home page template below inherits the site's shell from the base template, r
   {{ end }}
 {{ end }}
 ```
+
+[template lookup order]: /templates/lookup-order/#home-templates

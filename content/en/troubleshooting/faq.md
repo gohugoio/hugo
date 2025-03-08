@@ -96,20 +96,18 @@ Why is my page Scratch or Store missing a value?
 
   You can trigger content rendering with other methods as well. See next FAQ.
 
-2025-02-18T22:07:09-08:00Which page methods trigger content rendering?
+Which page methods trigger content rendering?
 : The following methods on a `Page` object trigger content rendering: `Content`, `ContentWithoutSummary`, `FuzzyWordCount`, `Len`, `Plain`, `PlainWords`, `ReadingTime`, `Summary`, `Truncated`, and `WordCount`.
 
-{{< note >}}
-For other questions please visit the [forum]. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.
-
-[forum]: https://discourse.gohugo.io
-[requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
-{{< /note >}}
+> [!note]
+> For other questions please visit the [forum]. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.
 
 [`Paginate`]: /methods/page/paginate/
 [`Paginator`]: /methods/page/paginator/
+[`Scratch`]: /methods/page/scratch
+[`Store`]: /methods/page/store
+[forum]: https://discourse.gohugo.io
 [forum]: https://discourse.gohugo.io
 [installation]: /installation/
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
-[`Scratch`]: /methods/page/scratch
-[`Store`]: /methods/page/store
+[requesting help]: https://discourse.gohugo.io/t/requesting-help/9132

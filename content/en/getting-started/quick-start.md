@@ -29,18 +29,14 @@ You must also be comfortable working from the command line.
 
 ### Commands
 
-{{< note >}}
-**If you are a Windows user:**
-
-- Do not use the Command Prompt
-- Do not use Windows PowerShell
-- Run these commands from [PowerShell] or a Linux terminal such as WSL or Git Bash
-
-PowerShell and Windows PowerShell [are different applications].
-
-[PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
-[are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
-{{< /note >}}
+> [!note]
+> **If you are a Windows user:**
+>
+> - Do not use the Command Prompt
+> - Do not use Windows PowerShell
+> - Run these commands from [PowerShell] or a Linux terminal such as WSL or Git > Bash
+>
+> PowerShell and Windows PowerShell [are different applications].
 
 Verify that you have installed Hugo {{% param "minVersion" %}} or later.
 
@@ -123,8 +119,6 @@ Notice the `draft` value in the [front matter] is `true`. By default, Hugo does 
 
 Add some [Markdown] to the body of the post, but do not change the `draft` value.
 
-[markdown]: https://commonmark.org/help/
-
 ```text
 +++
 title = 'My First Post'
@@ -149,12 +143,8 @@ View your site at the URL displayed in your terminal. Keep the development serve
 
 When satisfied with your new content, set the front matter `draft` parameter to `false`.
 
-{{< note >}}
-Hugo's rendering engine conforms to the CommonMark [specification] for Markdown. The CommonMark organization provides a useful [live testing tool] powered by the reference implementation.
-
-[live testing tool]: https://spec.commonmark.org/dingus/
-[specification]: https://spec.commonmark.org/
-{{< /note >}}
+> [!note]
+> Hugo's rendering engine conforms to the CommonMark [specification] for Markdown. The CommonMark organization provides a useful [live testing tool] powered by the reference implementation.
 
 ## Configure the site
 
@@ -179,15 +169,10 @@ Start Hugo's development server to see your changes, remembering to include draf
 hugo server -D
 ```
 
-{{< note >}}
-Most theme authors provide configuration guidelines and options. Make sure to visit your theme's repository or documentation site for details.
-
-[The New Dynamic], authors of the Ananke theme, provide [documentation] for configuration and usage. They also provide a [demonstration site].
-
-[demonstration site]: https://gohugo-ananke-theme-demo.netlify.app/
-[documentation]: https://github.com/theNewDynamic/gohugo-theme-ananke#readme
-[The New Dynamic]: https://www.thenewdynamic.com/
-{{< /note >}}
+> [!note]
+> Most theme authors provide configuration guidelines and options. Make sure to visit your theme's repository or documentation site for details.
+>
+> [The New Dynamic], authors of the Ananke theme, provide [documentation] for configuration and usage. They also provide a [demonstration site].
 
 ## Publish the site
 
@@ -212,17 +197,22 @@ Hugo's [forum] is an active community of users and developers who answer questio
 For other resources to help you learn Hugo, including books and video tutorials, see the [external learning resources](/getting-started/external-learning-resources/) page.
 
 [Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
+[are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
+[demonstration site]: https://gohugo-ananke-theme-demo.netlify.app/
 [directory structure]: /getting-started/directory-structure/
+[documentation]: https://github.com/theNewDynamic/gohugo-theme-ananke#readme
 [draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
 [draft, future, or expired content]: /getting-started/usage/#draft-future-and-expired-content
-[external learning resources]:/getting-started/external-learning-resources/
-[forum]: https://discourse.gohugo.io/
 [forum]: https://discourse.gohugo.io/
 [front matter]: /content-management/front-matter/
 [Git submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [host and deploy]: /host-and-deploy/
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 [Install Hugo]: /installation/
-[Requesting Help]: https://discourse.gohugo.io/t/requesting-help/9132
-[Requesting Help]: https://discourse.gohugo.io/t/requesting-help/9132
+[live testing tool]: https://spec.commonmark.org/dingus/
+[Markdown]: https://daringfireball.net/projects/markdown
+[PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
+[requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
 [site configuration]: /configuration/
+[specification]: https://spec.commonmark.org/
+[The New Dynamic]: https://www.thenewdynamic.com/

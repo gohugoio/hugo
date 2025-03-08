@@ -32,6 +32,5 @@ A contrived example of iterating over a sequence of integers:
 {{ $product }} → 24
 ```
 
-{{< note >}}
-The slice created by the `seq` function is limited to 2000 elements.
-{{< /note >}}
+> [!note]
+> The slice created by the `seq` function is limited to 2000 elements.

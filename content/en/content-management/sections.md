@@ -9,13 +9,7 @@ aliases: [/content/sections/]
 
 ## Overview
 
-A section is a top-level content directory, or any content directory with an&nbsp;`_index.md`&nbsp;file. A content directory with an&nbsp;`_index.md`&nbsp;file is also known as a [branch bundle](g). Section templates receive one or more page [collections](g) in [context](g).
-
-{{< note >}}
-Although top-level directories without `_index.md`&nbsp;files are sections, we recommend creating `_index.md`&nbsp;files in _all_ sections.
-{{< /note >}}
-
-A typical site consists of one or more sections. For example:
+{{% glossary-term "section" %}}
 
 ```text
 content/
@@ -72,9 +66,6 @@ With the file structure from the [example above](#overview):
 1. The list page for the products section, by default, includes product-1 and product-2, but not their descendant pages. To include descendant pages, use the `RegularPagesRecursive` method instead of the `Pages` method in the list template.
 1. All directories in the products section have list pages; each directory is a section.
 
-[`Pages`]: /methods/page/pages/
-[`RegularPagesRecursive`]: /methods/page/regularpagesrecursive/
-
 ## Template selection
 
 Hugo has a defined [lookup order] to determine which template to use when rendering a page. The [lookup rules] consider the top-level section name; subsection names are not considered when selecting a template.
@@ -94,9 +85,6 @@ Content directory|Single template
 `content/products/product-1/benefits`|`layouts/products/single.html`
 
 If you need to use a different template for a subsection, specify `type` and/or `layout` in front matter.
-
-[lookup rules]: /templates/lookup-order/#lookup-rules
-[lookup order]: /templates/lookup-order/
 
 ## Ancestors and descendants
 
@@ -147,9 +135,5 @@ Hugo renders this, where each breadcrumb is a link to the corresponding page:
 Home » Products » Product 1 » Benefits » Benefit 1
 ```
 
-[archetype]: /content-management/archetypes/
-[content type]: /content-management/types/
-[directory structure]: /getting-started/directory-structure/
-[section templates]: /templates/types/#section
-[leaf bundles]: /content-management/page-bundles/#leaf-bundles
-[branch bundles]: /content-management/page-bundles/#branch-bundles
+[lookup order]: /templates/lookup-order/
+[lookup rules]: /templates/lookup-order/#lookup-rules

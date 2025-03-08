@@ -19,14 +19,10 @@ The `Path` method on a `Page` object returns the logical path of the given page,
 {{ .Path }} → /posts/post-1
 ```
 
-{{< note >}}
-Beginning with the release of [v0.92.0] in January 2022, Hugo emitted a warning whenever calling the `Path` method. The warning indicated that this method would change in a future release.
-
-The meaning of, and value returned by, the `Path` method on a `Page` object changed with the release of [v0.123.0] in February 2024.
-
-[v0.92.0]: https://github.com/gohugoio/hugo/releases/tag/v0.92.0
-[v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0
-{{< /note >}}
+> [!note]
+> Beginning with the release of [v0.92.0] in January 2022, Hugo emitted a warning whenever calling the `Path` method. The warning indicated that this method would change in a future release.
+>
+> The meaning of, and value returned by, the `Path` method on a `Page` object changed with the release of [v0.123.0] in February 2024.
 
 The value returned by the `Path` method on a `Page` object is independent of content format, language, and URL modifiers such as the `slug` and `url` front matter fields.
 
@@ -96,20 +92,8 @@ Methods|Functions|Shortcodes
 [`Shortcode.Ref`]|||
 [`Shortcode.RelRef`]|||
 
-[`urls.Ref`]: /functions/urls/ref/
-[`urls.RelRef`]: /functions/urls/relref/
-[`Page.GetPage`]: /methods/page/getpage/
-[`Site.GetPage`]: /methods/site/getpage/
-[`ref`]: /shortcodes/ref/
-[`relref`]: /shortcodes/relref/
-[`Page.Ref`]: /methods/page/ref/
-[`Page.RelRef`]: /methods/page/relref/
-[`Shortcode.Ref`]: /methods/shortcode/ref
-[`Shortcode.RelRef`]: /methods/shortcode/relref
-
-{{< note >}}
-Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
-{{< /note >}}
+> [!note]
+> Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
 
 ## Logical tree
 
@@ -139,6 +123,18 @@ A key difference between these trees is the relative path from p1 to p2:
 - In the file tree, the relative path from p1 to p2 is `../p2.md`
 - In the logical tree, the relative path is `p2`
 
-{{< note >}}
-Remember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
-{{< /note >}}
+> [!note]
+> Remember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
+
+[`Page.GetPage`]: /methods/page/getpage/
+[`Page.Ref`]: /methods/page/ref/
+[`Page.RelRef`]: /methods/page/relref/
+[`ref`]: /shortcodes/ref/
+[`relref`]: /shortcodes/relref/
+[`Shortcode.Ref`]: /methods/shortcode/ref
+[`Shortcode.RelRef`]: /methods/shortcode/relref
+[`Site.GetPage`]: /methods/site/getpage/
+[`urls.Ref`]: /functions/urls/ref/
+[`urls.RelRef`]: /functions/urls/relref/
+[v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0
+[v0.92.0]: https://github.com/gohugoio/hugo/releases/tag/v0.92.0

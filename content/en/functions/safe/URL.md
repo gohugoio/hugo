@@ -27,8 +27,6 @@ Use of this type presents a security risk: the encapsulated content should come 
 
 See the [Go documentation] for details.
 
-[Go documentation]: https://pkg.go.dev/html/template#URL
-
 ## Example
 
 Without a safe declaration:
@@ -44,9 +42,8 @@ Hugo renders the above to:
 <a href="#ZgotmplZ">IRC</a>
 ```
 
-{{< note >}}
-`ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
-{{< /note >}}
+> [!note]
+> `ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
 
 To declare the string as safe:
 
@@ -60,3 +57,5 @@ Hugo renders the above to:
 ```html
 <a href="irc://irc.freenode.net/#golang">IRC</a>
 ```
+
+[Go documentation]: https://pkg.go.dev/html/template#URL

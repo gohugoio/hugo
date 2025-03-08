@@ -41,18 +41,8 @@ render
   - `link`: Do not render the page to disk, but assign `Permalink` and `RelPermalink` values.
   - `never`: Never render the page to disk, and exclude it from all page collections.
 
-[page bundles]: /content-management/page-bundles/
-[page resources]: /content-management/page-resources/
-[`Permalink`]: /methods/resource/permalink/
-[`RelPermalink`]: /methods/resource/relpermalink/
-[`Publish`]: /methods/resource/publish/
-
-{{< note >}}
-Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`] or [`.Site.GetPage`] method.
-
-[`.Page.GetPage`]: /methods/page/getpage/
-[`.Site.GetPage`]: /methods/site/getpage/
-{{< /note >}}
+> [!note]
+> Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`] or [`.Site.GetPage`] method.
 
 ## Example -- headless page
 
@@ -106,8 +96,6 @@ In the example above, note that:
 ## Example -- headless section
 
 Create a unpublished section whose content and resources can be included in other pages.
-
-[branch bundle]: /content-management/page-bundles/
 
 ```text
 content/
@@ -305,3 +293,11 @@ public/
 │   └── index.html
 └── index.html
 ```
+
+[`.Page.GetPage`]: /methods/page/getpage/
+[`.Site.GetPage`]: /methods/site/getpage/
+[`Permalink`]: /methods/resource/permalink/
+[`Publish`]: /methods/resource/publish/
+[`RelPermalink`]: /methods/resource/relpermalink/
+[page bundles]: /content-management/page-bundles/
+[page resources]: /content-management/page-resources/

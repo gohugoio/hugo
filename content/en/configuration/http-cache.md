@@ -6,11 +6,8 @@ categories: []
 keywords: []
 ---
 
-{{< note >}}
-This configuration is only relevant when using the [`resources.GetRemote`] function.
-
-[`resources.GetRemote`]: /functions/resources/getremote/
-{{< /note >}}
+> [!note]
+> This configuration is only relevant when using the [`resources.GetRemote`] function.
 
 ## Layered caching
 
@@ -40,10 +37,6 @@ HTTP Cache
 
 File cache
 : See [configure file caches].
-
-[cache-busting]: /configuration/build/#cache-busters
-[RFC 9111]: https://datatracker.ietf.org/doc/html/rfc9111
-[configure file caches]: /configuration/caches/
 
 The HTTP cache involves two key aspects: determining which content to cache (the caching process itself) and defining the frequency with which to check for updates (the polling strategy).
 
@@ -107,4 +100,8 @@ Polling and HTTP caching interact as follows:
 - If polling is enabled but HTTP caching is disabled, the remote is checked for changes only after the file cache's TTL expires (e.g., a `maxAge` of `10h` with a `1s` polling interval is inefficient).
 - If both polling and HTTP caching are enabled, changes are checked for even before the file cache's TTL expires. Cached `eTag` and `last-modified` values are sent in `if-none-match` and `if-modified-since` headers, respectively, and a cached response is returned on HTTP [304].
 
+[`resources.GetRemote`]: /functions/resources/getremote/
 [304]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
+[cache-busting]: /configuration/build/#cache-busters
+[configure file caches]: /configuration/caches/
+[RFC 9111]: https://datatracker.ietf.org/doc/html/rfc9111

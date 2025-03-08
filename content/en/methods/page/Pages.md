@@ -70,14 +70,13 @@ When rendering lesson-2, the `Pages` method returns:
 
 In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section](g)---it does not contain an&nbsp;`_index.md`&nbsp;file. Its contents are part of the lesson-2 section.
 
-{{< note >}}
-When used with a `Site` object, the `Pages` method recursively returns all pages within the site. See&nbsp;[details].
-
-[details]: /methods/site/pages/
-{{< /note >}}
+> [!note]
+> When used with a `Site` object, the `Pages` method recursively returns all pages within the site. See&nbsp;[details].
 
 ```go-html-template
 {{ range .Site.Pages.ByTitle }}
   <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
+
+[details]: /methods/site/pages/

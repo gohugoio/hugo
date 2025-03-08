@@ -29,28 +29,15 @@ If a matching page is not found:
 - The [`Page`] method returns nil
 - The [`HasMenuCurrent`] and [`IsMenuCurrent`] methods on a `Page` object return `false`
 
-{{< note >}}
-In almost also scenarios you should use the [`URL`] method instead.
-
-[`URL`]: /methods/menu-entry/url/
-{{< /note >}}
-
-[defining a menu entry]: /content-management/menus/#define-in-site-configuration
-[`Page`]: /methods/menu-entry/page/
-[`URL`]: /methods/menu-entry/url/
-[`IsMenuCurrent`]: /methods/page/ismenucurrent/
-[`HasMenuCurrent`]: /methods/page/hasmenucurrent/
-[`RelPermalink`]: /methods/page/relpermalink/
+> [!note]
+> In almost also scenarios you should use the [`URL`] method instead.
 
 ## Example
 
 This example is contrived.
 
-{{< note >}}
-In almost also scenarios you should use the [`URL`] method instead.
-
-[`URL`]: /methods/menu-entry/url/
-{{< /note >}}
+> [!note]
+> In almost also scenarios you should use the [`URL`] method instead.
 
 Consider this content structure:
 
@@ -114,3 +101,9 @@ Hugo renders this HTML:
 ```
 
 In the above note that Hugo populates the `href` attribute of the second `anchor` element with the `pageRef` property as defined in the site configuration because the template code falls back to the `PageRef` method.
+
+[`HasMenuCurrent`]: /methods/page/hasmenucurrent/
+[`IsMenuCurrent`]: /methods/page/ismenucurrent/
+[`Page`]: /methods/menu-entry/page/
+[`URL`]: /methods/menu-entry/url/
+[defining a menu entry]: /content-management/menus/#define-in-site-configuration

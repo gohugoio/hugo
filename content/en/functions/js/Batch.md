@@ -10,9 +10,8 @@ params:
     signatures: ['js.Batch [ID]']
 ---
 
-{{< note >}}
-For a runnable example of this feature, see [this test and demo repo](https://github.com/bep/hugojsbatchdemo/).
-{{< /note >}}
+> [!note]
+> For a runnable example of this feature, see [this test and demo repo](https://github.com/bep/hugojsbatchdemo/).
 
 The Batch `ID` is used to create the base directory for this batch. Forward slashes are allowed. `js.Batch` returns an object with an API with this structure:
 
@@ -182,7 +181,7 @@ Setting the `Config` for a batch can be done from any template (including shortc
 ### Build options
 
 format
-: (`string`) Currently only `esm` is supported in [ESBuild's code splitting].
+: (`string`) Currently only `esm` is supported in ESBuild's [code splitting].
 
 {{% include "/_common/functions/js/options.md" %}}
 
@@ -243,13 +242,10 @@ Each [`Resource`] will be of media type `application/javascript` or `text/css`.
 
 In a template you would typically handle one group with a given `ID` (e.g. scripts for the current section). Because of the concurrent build, this needs to be done in a [`templates.Defer`] block:
 
-{{< note >}}
-The [`templates.Defer`] acts as a synchronisation point to handle scripts added concurrently by different templates. If you have a setup with where the batch is created in one go (in one template), you don't need it.
-
-See [this discussion](https://discourse.gohugo.io/t/js-batch-with-simple-global-script/53002/5?u=bep) for more.
-
-[`templates.Defer`]: /functions/templates/defer/
-{{< /note >}}
+> [!note]
+> The [`templates.Defer`] acts as a synchronisation point to handle scripts added concurrently by different templates. If you have a setup with where the batch is created in one go (in one template), you don't need it.
+>
+> See [this discussion](https://discourse.gohugo.io/t/js-batch-with-simple-global-script/53002/5?u=bep) for more.
 
 ```go-html-template
 {{ $group := .group }}
@@ -272,7 +268,7 @@ See [this discussion](https://discourse.gohugo.io/t/js-batch-with-simple-global-
 
 ## Known Issues
 
-In the official documentation for [ESBuild's code splitting], there's a warning note in the header. The two issues are:
+In the official documentation for ESBuild's [code splitting], there's a warning note in the header. The two issues are:
 
   - `esm` is currently the only implemented output format. This means that it will not work for very old browsers. See [caniuse](https://caniuse.com/?search=ESM).
   - There's a known import ordering issue.
@@ -289,28 +285,23 @@ import './lib2.js';
 import './lib1.js';
 
 console.log('entrypoints-workaround.js');
-
 ```
 
-[build options]: #build-options
 [`Resource`]: /methods/resource/
-[`Resources`]: /methods/page/resources/
 [`Resources.Mount`]: /methods/page/resources/#mount
+[`Resources`]: /methods/page/resources/
 [`templates.Defer`]: /functions/templates/defer/
+[`templates.Defer`]: /functions/templates/defer/
+[build options]: #build-options
 [code splitting]: https://esbuild.github.io/api/#splitting
 [config]: #config
-[ESBuild's code splitting]: https://esbuild.github.io/api/#splitting
 [ESBuild]: https://github.com/evanw/esbuild
-[group]: #group
-[instance]: #instance
 [JavaScript import]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
 [js.Batch Demo Repo]: https://github.com/bep/hugojsbatchdemo/
-[map]: /functions/collections/dictionary/
 [OptionsSetter]: #optionssetter
-[page bundles]: /content-management/page-bundles/
 [params options]: #params-options
 [runner]: #runner
-[script options]: #script-options
 [script]: #script
+[script options]: #script-options
 [SetOptions]: #optionssetter
 [with]: /functions/go-template/with/

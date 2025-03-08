@@ -58,7 +58,7 @@ pages:
     - master
 ```
 
-Using this integration method,  you will have to specify the Zone ID and your [KeyCDN API](https://www.keycdn.com/api) key as secret variables. To do this, navigate to the top-left menu bar in GitLab and select Projects. Then, select your project and click on the Settings page. Finally, select Pipelines from the sub-menu and scroll down to the Secret Variable section.
+Using this integration method, you will have to specify the Zone ID and your [KeyCDN API](https://www.keycdn.com/api) key as secret variables. To do this, navigate to the top-left menu bar in GitLab and select Projects. Then, select your project and click on the Settings page. Finally, select Pipelines from the sub-menu and scroll down to the Secret Variable section.
 
 The Secret Variable for your Zone ID should look similar to:
 

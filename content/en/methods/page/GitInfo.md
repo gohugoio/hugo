@@ -11,9 +11,8 @@ params:
 
 The `GitInfo` method on a `Page` object returns an object with additional methods.
 
-{{< note >}}
-Hugo's Git integration is performant, but may increase build times on large sites.
-{{< /note >}}
+> [!note]
+> Hugo's Git integration is performant, but may increase build times on large sites.
 
 ## Prerequisites
 
@@ -31,13 +30,10 @@ Alternatively, use the command line flag when building your site:
 hugo --enableGitInfo
 ```
 
-{{< note >}}
-When you set `enableGitInfo` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
-
-This is configurable. See&nbsp;[details].
-
-[details]: /configuration/front-matter/#dates
-{{< /note >}}
+> [!note]
+> When you set `enableGitInfo` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
+>
+> This is configurable. See&nbsp;[details].
 
 ## Methods
 
@@ -127,10 +123,6 @@ By default, when `enableGitInfo` is `true`, the `Lastmod` method on a `Page` obj
 
 You can change this behavior in your [site configuration].
 
-[git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[gitmailmap]: https://git-scm.com/docs/gitmailmap
-[site configuration]: /configuration/front-matter/
-
 ## Hosting considerations
 
 When hosting your site in a CI/CD environment, the step that clones your project repository must perform a deep clone. If the clone is shallow, the Git information for a given file may not be accurate---it may reflect the most recent repository commit, not the commit that last modified the file.
@@ -153,3 +145,7 @@ Vercel | Shallow | No
 [^2]: You can configure the GitHub Action to do a deep clone by specifying `fetch-depth: 0` in the applicable "checkout" step of your workflow file, as shown in the Hugo documentation's [example workflow file](/host-and-deploy/host-on-github-pages/#procedure).
 
 [^3]: You can configure the GitLab Runner's clone depth [as explained in the GitLab documentation](https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning); see also the Hugo documentation's [example workflow file](/host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd).
+
+[details]: /configuration/front-matter/#dates
+[gitmailmap]: https://git-scm.com/docs/gitmailmap
+[site configuration]: /configuration/front-matter/

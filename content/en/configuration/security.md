@@ -33,13 +33,8 @@ http.mediaTypes
 http.urls
 : (`[]string`) A slice of regular expressions matching the URLs that the `resources.GetRemote` function is allowed to access.
 
-[inline shortcodes]: /content-management/shortcodes/#inline
-[`os.Getenv`]: /functions/os/getenv
-[`resources.GetRemote`]: /functions/resources/getremote
-
-{{< note >}}
-Setting an allow list to the string `none` will completely disable the associated feature.
-{{< /note >}}
+> [!note]
+> Setting an allow list to the string `none` will completely disable the associated feature.
 
 You can also override the site configuration with environment variables. For example, to block `resources.GetRemote` from accessing any URL:
 
@@ -49,4 +44,7 @@ export HUGO_SECURITY_HTTP_URLS=none
 
 Learn more about [using environment variables] to configure your site.
 
+[`os.Getenv`]: /functions/os/getenv
+[`resources.GetRemote`]: /functions/resources/getremote
+[inline shortcodes]: /content-management/shortcodes/#inline
 [using environment variables]: /configuration/introduction/#environment-variables

@@ -15,20 +15,14 @@ aliases: [/functions/tomath]
 
 Hugo uses an embedded instance of the [KaTeX] display engine to render mathematical markup to HTML. You do not need to install the KaTeX display engine.
 
-[KaTeX]: https://katex.org/
-
 ```go-html-template
 {{ transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
 ```
 
-{{< note >}}
-By default, Hugo renders mathematical markup to [MathML], and does not require any CSS to display the result.
-
-[MathML]: https://developer.mozilla.org/en-US/docs/Web/MathML
-
-To optimize rendering quality and accessibility, use the `htmlAndMathml` output option as described below. This approach requires an external stylesheet.
-
-{{< /note >}}
+> [!note]
+> By default, Hugo renders mathematical markup to [MathML], and does not require any CSS to display the result.
+>
+> To optimize rendering quality and accessibility, use the `htmlAndMathml` output option as described below. This approach requires an external stylesheet.
 
 ```go-html-template
 {{ $opts := dict "output" "htmlAndMathml" }}
@@ -39,15 +33,11 @@ To optimize rendering quality and accessibility, use the `htmlAndMathml` output 
 
 Pass a map of options as the second argument to the `transform.ToMath` function. The options below are a subset of the KaTeX [rendering options].
 
-[rendering options]: https://katex.org/docs/options.html
-
 displayMode
 : (`bool`) Whether to render in display mode instead of inline mode. Default is `false`.
 
 errorColor
 : (`string`) The color of the error messages expressed as an RGB [hexadecimal color]. Default is `#cc0000`.
-
-[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 
 fleqn
 : (`bool`) Whether to render flush left with a 2em left margin. Default is `false`.
@@ -96,8 +86,6 @@ Instead of client-side JavaScript rendering of mathematical markup using MathJax
 
 Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
-[passthrough extension]: /configuration/markup/#passthrough
-
 {{< code-toggle file=hugo copy=true >}}
 [markup.goldmark.extensions.passthrough]
 enable = true
@@ -107,15 +95,12 @@ block = [['\[', '\]'], ['$$', '$$']]
 inline = [['\(', '\)']]
 {{< /code-toggle >}}
 
-{{< note >}}
-The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
-{{< /note >}}
+> [!note]
+> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 
 ### Step 2
 
 Create a [passthrough render hook] to capture and render the LaTeX markup.
-
-[passthrough render hook]: /render-hooks/passthrough/
 
 ```go-html-template {file="layouts/_default/_markup/render-passthrough.html" copy=true}
 {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
@@ -164,10 +149,16 @@ $$a^*=x-b^*$$
 
 You can also use the `transform.ToMath` function to render chemical equations, leveraging the `\ce` and `\pu` functions from the [mhchem] package.
 
-[mhchem]: https://mhchem.github.io/MathJax-mhchem/
-
 ```text
 $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 ```
 
 $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
+
+[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
+[KaTeX]: https://katex.org/
+[MathML]: https://developer.mozilla.org/en-US/docs/Web/MathML
+[mhchem]: https://mhchem.github.io/MathJax-mhchem/
+[passthrough extension]: /configuration/markup/#passthrough
+[passthrough render hook]: /render-hooks/passthrough/
+[rendering options]: https://katex.org/docs/options.html

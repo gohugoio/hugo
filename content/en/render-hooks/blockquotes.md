@@ -49,14 +49,9 @@ Text
 Type
 : (`string`) The blockquote type. Returns `alert` if the blockquote has an alert designator, else `regular`. See the [alerts](#alerts) section below.
 
-[Markdown attributes]: /content-management/markdown-attributes/
-[`RenderShortcodes`]: /methods/page/rendershortcodes
-
 ## Examples
 
 In its default configuration, Hugo renders Markdown blockquotes according to the [CommonMark specification]. To create a render hook that does the same thing:
-
-[CommonMark specification]: https://spec.commonmark.org/current/
 
 ```go-html-template {file="layouts/_default/_markup/render-blockquote.html" copy=true}
 <blockquote>
@@ -113,10 +108,6 @@ With the basic Markdown syntax, the first line of each alert is an alert designa
 
 The basic syntax is compatible with [GitHub], [Obsidian], and [Typora].
 
-[GitHub]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts
-[Obsidian]: https://help.obsidian.md/Editing+and+formatting/Callouts
-[Typora]: https://support.typora.io/Markdown-Reference/#callouts--github-style-alerts
-
 ### Extended syntax
 
 With the extended Markdown syntax, you may optionally include an alert sign and/or an alert title. The alert sign is one of&nbsp;`+`&nbsp;or&nbsp;`-`, typically used to indicate whether an alert is graphically foldable. For example:
@@ -128,9 +119,8 @@ With the extended Markdown syntax, you may optionally include an alert sign and/
 
 The extended syntax is compatible with [Obsidian].
 
-{{< note >}}
-The extended syntax is not compatible with GitHub or Typora. If you include an alert sign or an alert title, these applications render the Markdown as a blockquote.
-{{< /note >}}
+> [!note]
+> The extended syntax is not compatible with GitHub or Typora. If you include an alert sign or an alert title, these applications render the Markdown as a blockquote.
 
 ### Example
 
@@ -185,3 +175,10 @@ layouts/
 ```
 
 {{% include "/_common/render-hooks/pageinner.md" %}}
+
+[`RenderShortcodes`]: /methods/page/rendershortcodes
+[CommonMark specification]: https://spec.commonmark.org/current/
+[GitHub]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts
+[Markdown attributes]: /content-management/markdown-attributes/
+[Obsidian]: https://help.obsidian.md/Editing+and+formatting/Callouts
+[Typora]: https://support.typora.io/Markdown-Reference/#callouts--github-style-alerts

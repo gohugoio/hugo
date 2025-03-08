@@ -59,21 +59,21 @@ The default list template will inherit all of the code defined above and can the
 {{ end }}
 ```
 
-This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"` block, so the contents from our base template remain unchanged in lists.
+This replaces the contents of our (basically empty) `main` block with something useful for the list template. In this case, we didn't define a `title` block, so the contents from our base template remain unchanged in lists.
 
-{{< note >}}
-Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
+> [!caution]
+> Only [template comments] are allowed outside a block's `define` and `end` statements. Avoid placing any other text, including HTML comments, outside these boundaries. Doing so will cause rendering issues, potentially resulting in a blank page. See the example below.
 
-```go-html-template
-<!-- Seemingly harmless HTML comment..that will break your layout at build -->
+```go-html-template {file="layouts/default/single.html"}
+<div>This div element broke your template.</div>
 {{ define "main" }}
-...your code here
+  <h2>{{ .Title }}</h2>
+  {{ .Content }}
 {{ end }}
+<!-- An HTML comment will break your template too. -->
 ```
-[See this thread from the Hugo discussion forums.](https://discourse.gohugo.io/t/baseof-html-block-templates-and-list-types-results-in-empty-pages/5612/6)
-{{< /note >}}
 
-The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your default [single template]:
+The following shows how you can override both the `main` and `title` block areas from the base template with code unique to your default [single template]:
 
 ```go-html-template {file="layouts/_default/single.html"}
 {{ define "title" }}
@@ -87,3 +87,4 @@ The following shows how you can override both the `"main"` and `"title"` block a
 ```
 
 [single template]: /templates/types/#single
+[template comments]: /templates/introduction/#comments

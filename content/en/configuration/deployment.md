@@ -6,9 +6,8 @@ categories: []
 keywords: []
 ---
 
-{{< note >}}
-This configuration is only relevant when running `hugo deploy`. See&nbsp;[details](/host-and-deploy/deploy-with-hugo-deploy/).
-{{< /note >}}
+> [!note]
+> This configuration is only relevant when running `hugo deploy`. See&nbsp;[details](/host-and-deploy/deploy-with-hugo-deploy/).
 
 ## Top-level options
 

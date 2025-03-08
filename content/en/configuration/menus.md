@@ -6,11 +6,8 @@ categories: []
 keywords: []
 ---
 
-{{< note >}}
-To understand Hugo's menu system, please refer to the [menus] page.
-
-[menus]: /content-management/menus/
-{{< /note >}}
+> [!note]
+> To understand Hugo's menu system, please refer to the [menus] page.
 
 There are three ways to define menu entries:
 
@@ -73,11 +70,6 @@ Access this menu structure in the same way:
 {{ end }}
 ```
 
-[Automatically]: /content-management/menus/#define-automatically
-[In front matter]: /content-management/menus/#define-in-front-matter
-[`Menus`]: /methods/site/menus/
-[menu templates]: /templates/menu/
-
 ## Properties
 
 Menu entries usually include at least three properties: `name`, `weight`, and either `pageRef` or `url`. Use `pageRef` for internal page destinations and `url` for external destinations.
@@ -135,3 +127,9 @@ weight = 30
 [menus.main.params]
 rel = 'external'
 {{< /code-toggle >}}
+
+[`Menus`]: /methods/site/menus/
+[Automatically]: /content-management/menus/#define-automatically
+[In front matter]: /content-management/menus/#define-in-front-matter
+[menu templates]: /templates/menu/
+[menus]: /content-management/menus/

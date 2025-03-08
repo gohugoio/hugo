@@ -26,6 +26,5 @@ When the `Site` object is in context you can use the `Site` property:
 {{ $.Site.Params.foo }}
 ```
 
-{{< note >}}
-To simplify your templates, use the global `site` function regardless of whether the `Site` object is in context.
-{{< /note >}}
+> [!note]
+> To simplify your templates, use the global `site` function regardless of whether the `Site` object is in context.

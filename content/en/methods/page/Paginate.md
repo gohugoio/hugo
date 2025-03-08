@@ -13,20 +13,12 @@ Pagination is the process of splitting a list page into two or more pagers, wher
 
 By default, the number of elements on each pager is determined by your [site configuration]. The default is `10`. Override that value by providing a second argument, an integer, when calling the `Paginate` method.
 
-[site configuration]: /configuration/pagination/
-
-{{< note >}}
-There is also a `Paginator` method on `Page` objects, but it can neither filter nor sort the page collection.
-
-The `Paginate` method is more flexible.
-{{< /note >}}
+> [!note]
+> There is also a `Paginator` method on `Page` objects, but it can neither filter nor sort the page collection.
+>
+> The `Paginate` method is more flexible.
 
 You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates].
-
-[home template]: /templates/types/#home
-[section templates]: /templates/types/#section
-[taxonomy templates]: /templates/types/#taxonomy
-[term templates]: /templates/types/#term
 
 ```go-html-template {file="layouts/_default/list.html"}
 {{ $pages := where .Site.RegularPages "Section" "articles" }}
@@ -45,6 +37,11 @@ In the example above, we:
 1. Range over the paginated page collection, rendering a link to each page
 1. Call the embedded pagination template to create navigation links between pagers
 
-{{< note >}}
-Please note that the results of pagination are cached. Once you have invoked either the `Paginator` or `Paginate` method, the paginated collection is immutable. Additional invocations of these methods will have no effect.
-{{< /note >}}
+> [!note]
+> Please note that the results of pagination are cached. Once you have invoked either the `Paginator` or `Paginate` method, the paginated collection is immutable. Additional invocations of these methods will have no effect.
+
+[home template]: /templates/types/#home
+[section templates]: /templates/types/#section
+[site configuration]: /configuration/pagination/
+[taxonomy templates]: /templates/types/#taxonomy
+[term templates]: /templates/types/#term

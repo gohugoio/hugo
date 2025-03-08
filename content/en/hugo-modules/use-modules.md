@@ -9,7 +9,7 @@ aliases: [/themes/usage/,/themes/installing/,/installing-and-using-themes/]
 
 ## Prerequisite
 
-{{< gomodules-info >}}
+{{% include "/_common/gomodules-info.md" %}}
 
 ## Initialize a new module
 

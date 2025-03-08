@@ -22,9 +22,8 @@ Create the filter:
 
 {{% include "/_common/functions/images/apply-image-filter.md" %}}
 
-{{< note >}}
-When using with other filters, specify `images.AutoOrient` first.
-{{< /note >}}
+> [!note]
+> When using with other filters, specify `images.AutoOrient` first.
 
 ```go-html-template
 {{ $filters := slice

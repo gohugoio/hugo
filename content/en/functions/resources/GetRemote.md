@@ -61,11 +61,10 @@ The `resources.GetRemote` function takes an optional map of options.
 
 ## Options examples
 
-{{< note >}}
-For brevity, the examples below do not include [error handling].
+> [!note]
+> For brevity, the examples below do not include [error handling].
 
 [error handling]: #error-handling
-{{< /note >}}
 
 To include a header:
 
@@ -140,15 +139,12 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
 {{ end }}
 ```
 
-{{< note >}}
-When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
-
-In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
-
-`{{ $data = .Content | transform.Unmarshal }}`
-
-[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-{{< /note >}}
+> [!note]
+> When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
+>
+> In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
+>
+> `{{ $data = .Content | transform.Unmarshal }}`
 
 ## Error handling
 
@@ -156,9 +152,8 @@ Use the [`try`] statement to capture HTTP request errors. If you do not handle t
 
 [`try`]: /functions/go-template/try
 
-{{< note >}}
-Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
-{{< /note >}}
+> [!note]
+> Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
 
 ```go-html-template
 {{ $url := "https://broken-example.org/images/a.jpg" }}

@@ -23,6 +23,5 @@ The relative URL of the new published resource will be:
 /img/new-image-name.jpg
 ```
 
-{{< note >}}
-Use the `resources.Copy` function with global, page, and remote resources.
-{{< /note >}}
+> [!note]
+> Use the `resources.Copy` function with global, page, and remote resources.

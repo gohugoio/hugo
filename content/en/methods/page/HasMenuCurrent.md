@@ -27,8 +27,7 @@ If the `Page` object associated with the menu entry is a section, this method al
 
 See [menu templates] for a complete example.
 
-{{< note >}}
-When using this method you must either define the menu entry in front matter, or specify a `pageRef` property when defining the menu entry in your site configuration.
-{{< /note >}}
+> [!note]
+> When using this method you must either define the menu entry in front matter, or specify a `pageRef` property when defining the menu entry in your site configuration.
 
 [menu templates]: /templates/menu/#example

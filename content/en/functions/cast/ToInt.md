@@ -44,8 +44,7 @@ With a hexadecimal (base 16) input:
 {{ int "0x11" }} → 17 (int)
 ```
 
-{{< note >}}
-Values with a leading zero are octal (base 8). When casting a string representation of a decimal (base 10) number, remove leading zeros:
+> [!note]
+> Values with a leading zero are octal (base 8). When casting a string representation of a decimal (base 10) number, remove leading zeros:
 
 `{{ strings.TrimLeft "0" "0011" | int }} → 11`
-{{< /note >}}

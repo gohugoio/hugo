@@ -18,9 +18,8 @@ For example, with Microsoft Defender Antivirus:
 
 Then type `hugo.exe` add press the **Add** button.
 
-{{< note >}}
-Virus scanning exclusions are common, but use caution when changing these settings. See the [Microsoft Defender Antivirus documentation](https://support.microsoft.com/en-us/topic/how-to-add-a-file-type-or-process-exclusion-to-windows-security-e524cbc2-3975-63c2-f9d1-7c2eb5331e53) for details.
-{{< /note >}}
+> [!note]
+> Virus scanning exclusions are common, but use caution when changing these settings. See the [Microsoft Defender Antivirus documentation] for details.
 
 Other virus scanners have similar exclusion mechanisms. See their respective documentation.
 
@@ -86,21 +85,20 @@ total count
 template
 : The path to the template, relative to the `layouts` directory.
 
-[`partial`]: /functions/partials/include/
-[`partialCached`]: /functions/partials/includecached/
-
-{{< note >}}
-Hugo builds pages in parallel where multiple pages are generated simultaneously. Because of this parallelism, the sum of "cumulative duration" values is usually greater than the actual time it takes to build a site.
-{{< /note >}}
+> [!note]
+> Hugo builds pages in parallel where multiple pages are generated simultaneously. Because of this parallelism, the sum of "cumulative duration" values is usually greater than the actual time it takes to build a site.
 
 ## Caching
 
 Some partial templates such as sidebars or menus are executed many times during a site build. Depending on the content within the partial template and the desired output, the template may benefit from caching to reduce the number of executions. The [`partialCached`] template function provides caching capabilities for partial templates.
 
-{{< note >}}
-Note that you can create cached variants of each partial by passing additional arguments to `partialCached` beyond the initial context. See the `partialCached` documentation for more details.
-{{< /note >}}
+> [!note]
+> Note that you can create cached variants of each partial by passing additional arguments to `partialCached` beyond the initial context. See the `partialCached` documentation for more details.
 
 ## Timers
 
 Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottlenecks in templates. See&nbsp;[details](/functions/debug/timer/).
+
+[`partial`]: /functions/partials/include/
+[`partialCached`]: /functions/partials/includecached/
+[Microsoft Defender Antivirus documentation]: https://support.microsoft.com/en-us/topic/how-to-add-a-file-type-or-process-exclusion-to-windows-security-e524cbc2-3975-63c2-f9d1-7c2eb5331e53

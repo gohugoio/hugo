@@ -6,11 +6,8 @@ categories: []
 keywords: []
 ---
 
-{{< note >}}
-To override Hugo's embedded `youtube` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl youtube %}}
-{{< /note >}}
+> [!note]
+> To override Hugo's embedded `youtube` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -90,3 +87,5 @@ disable
 
 privacyEnhanced
 : (`bool`) Whether to block YouTube from storing information about visitors on your website unless the user plays the embedded video. Default is `false`.
+
+[source code]: {{% eturl youtube %}}

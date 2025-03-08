@@ -6,9 +6,8 @@ keywords: []
 weight: 30
 ---
 
-{{< note >}}
-Hugo v0.121.1 and later require at least Windows 10 or Windows Server 2016.
-{{< /note >}}
+> [!note]
+> Hugo v0.121.1 and later require at least Windows 10 or Windows Server 2016.
 
 ## Editions
 
@@ -30,8 +29,6 @@ Unless your specific deployment needs require the extended/deploy edition, we re
 choco install hugo-extended
 ```
 
-[Chocolatey]: https://chocolatey.org/
-
 ### Scoop
 
 [Scoop] is a free and open-source package manager for Windows. To install the extended edition of Hugo:
@@ -39,8 +36,6 @@ choco install hugo-extended
 ```sh
 scoop install hugo-extended
 ```
-
-[Scoop]: https://scoop.sh/
 
 ### Winget
 
@@ -56,13 +51,10 @@ To uninstall the extended edition of Hugo:
 winget uninstall --name "Hugo (Extended)"
 ```
 
-[Winget]: https://learn.microsoft.com/en-us/windows/package-manager/
-
 {{% include "/_common/installation/04-build-from-source.md" %}}
 
-{{< note >}}
-See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
-{{< /note >}}
+> [!note]
+> See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
 
 ## Comparison
 
@@ -76,3 +68,7 @@ Latest version available?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mar
 
 [^1]: Possible but requires advanced configuration.
 [^2]: Easy if a previous version is still installed.
+
+[Chocolatey]: https://chocolatey.org/
+[Scoop]: https://scoop.sh/
+[Winget]: https://learn.microsoft.com/en-us/windows/package-manager/

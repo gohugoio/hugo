@@ -14,9 +14,8 @@ Configured media types serve multiple purposes in Hugo, including the definition
 
 The `suffixes` column in the table above shows the suffixes associated with each media type. For example, Hugo associates `.html` and `.htm` files with the `text/html` media type.
 
-{{< note >}}
-The first suffix is the primary suffix. Use the primary suffix when naming template files. For example, when creating a template for an RSS feed, use the `xml` suffix.
-{{< /note >}}
+> [!note]
+> The first suffix is the primary suffix. Use the primary suffix when naming template files. For example, when creating a template for an RSS feed, use the `xml` suffix.
 
 ## Default configuration
 

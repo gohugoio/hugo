@@ -59,7 +59,7 @@ export HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."
 export HUGO_MODULE_WORKSPACE="/my/hugo.work"
 ```
 
-{{< gomodules-info >}}
+{{% include "/_common/gomodules-info.md" %}}
 
 ## Hugo version
 
@@ -114,7 +114,7 @@ path
 
 [`themesDir`]: /configuration/all#themesDir
 
-{{< gomodules-info >}}
+{{% include "/_common/gomodules-info.md" %}}
 
 ## Mounts
 
@@ -129,15 +129,13 @@ you cannot use both.
 [`layoutDi`]: /configuration/all/
 [`staticDir`]: /configuration/all/
 
-{{< note >}}
-If you use module mounts do not use the legacy settings.
-{{< /note >}}
+> [!note]
+> If you use module mounts do not use the legacy settings.
 
 ### Default mounts
 
-{{< note >}}
-Adding a new mount to a target root will cause the existing default mount for that root to be ignored. If you still need the default mount, you must explicitly add it along with the new mount.
-{{< /note >}}
+> [!note]
+> Adding a new mount to a target root will cause the existing default mount for that root to be ignored. If you still need the default mount, you must explicitly add it along with the new mount.
 
 The are the default mounts:
 

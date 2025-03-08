@@ -25,9 +25,8 @@ When a `Page` object is not in context, you can use the global `page` function:
 {{ page.Params.foo }}
 ```
 
-{{< note >}}
-Do not use the global `page` function in shortcodes, partials called by shortcodes, or cached partials. See [warnings](#warnings) below.
-{{< /note >}}
+> [!note]
+> Do not use the global `page` function in shortcodes, partials called by shortcodes, or cached partials. See [warnings](#warnings) below.
 
 ## Explanation
 
@@ -97,5 +96,5 @@ When you call the [`Summary`] method, Hugo renders the page content including sh
 
 If Hugo renders the section page before a content page, the cached rendered shortcode will be incorrect. You cannot control the rendering sequence due to concurrency.
 
-[`Summary`]: /methods/page/summary/
 [`partialCached`]: /functions/partials/includecached/
+[`Summary`]: /methods/page/summary/

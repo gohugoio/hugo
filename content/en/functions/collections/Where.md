@@ -91,9 +91,8 @@ Use any of the following logical operators:
 : {{< new-in 0.116.0 />}}
 : (`bool`) Reports whether the given field value matches the regular expression specified in `VALUE`. Use the `like` operator to compare `string` values. The `like` operator returns `false` when comparing other data types to the regular expression.
 
-{{< note >}}
-The examples below perform comparisons within a page collection, but the same comparisons are applicable to a slice of maps.
-{{< /note >}}
+> [!note]
+> The examples below perform comparisons within a page collection, but the same comparisons are applicable to a slice of maps.
 
 ## String comparison
 
@@ -156,7 +155,7 @@ To return a collection of pages where the "color" page parameter is neither "red
 
 ## Intersection comparison
 
-Compare a [`slice`] to a [`slice`], returning collection elements with common values. This is frequently used when comparing taxonomy terms.
+Compare a `slice` to a `slice`, returning collection elements with common values. This is frequently used when comparing taxonomy terms.
 
 For example, to return a collection of pages where any of the terms in the "genres" taxonomy are "suspense" or "romance":
 
@@ -179,21 +178,14 @@ To return a collection of pages where the "author" page parameter begins with ei
 
 {{% include "/_common/functions/regular-expressions.md" %}}
 
-{{< note >}}
-Use the `like` operator to compare string values. Comparing other data types will result in an empty collection.
-{{< /note >}}
+> [!note]
+> Use the `like` operator to compare string values. Comparing other data types will result in an empty collection.
 
 ## Date comparison
 
 ### Predefined dates
 
 There are four predefined front matter dates: [`date`], [`publishDate`], [`lastmod`], and [`expiryDate`]. Regardless of the front matter data format (TOML, YAML, or JSON) these are [`time.Time`] values, allowing precise comparisons.
-
-[`date`]: /methods/page/date/
-[`publishdate`]: /methods/page/publishdate/
-[`lastmod`]: /methods/page/lastmod/
-[`expirydate`]: /methods/page/expirydate/
-[`time.Time`]: https://pkg.go.dev/time#Time
 
 For example, to return a collection of pages that were created before the current year:
 
@@ -206,9 +198,8 @@ For example, to return a collection of pages that were created before the curren
 
 With custom front matter dates, the comparison depends on the front matter data format (TOML, YAML, or JSON).
 
-{{< note >}}
-Using TOML for pages with custom front matter dates enables precise date comparisons.
-{{< /note >}}
+> [!note]
+> Using TOML for pages with custom front matter dates enables precise date comparisons.
 
 With TOML, date values are first-class citizens. TOML has a date data type while JSON and YAML do not. If you quote a TOML date, it is a string. If you do not quote a TOML date value, it is [`time.Time`] value, enabling precise comparisons.
 
@@ -272,8 +263,6 @@ These are equivalent:
 ## Portable section comparison
 
 Useful for theme authors, avoid hardcoding section names by using the `where` function with the [`MainSections`] method on a `Site` object.
-
-[`MainSections`]: /methods/site/mainsections/
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Section" "in" .Site.MainSections }}
@@ -387,8 +376,6 @@ To exclude a page with an undefined field from a boolean _inequality_ test:
 1. Create a collection using a nil comparison
 1. Subtract the second collection from the first collection using the [`collections.Complement`] function.
 
-[`collections.Complement`]: /functions/collections/complement/
-
 This template:
 
 ```go-html-template
@@ -428,3 +415,9 @@ Is rendered to:
   <li><a href="/posts/post-1/">Post 2</a></li>
 </ul>
 ```
+
+[`collections.Complement`]: /functions/collections/complement/
+[`date`]: /methods/page/date/
+[`lastmod`]: /methods/page/lastmod/
+[`MainSections`]: /methods/site/mainsections/
+[`time.Time`]: https://pkg.go.dev/time#Time

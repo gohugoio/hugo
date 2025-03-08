@@ -67,9 +67,8 @@ The following demonstrates the relationships between your content organization a
 
 `_index.md` has a special role in Hugo. It allows you to add front matter and content to `home`, `section`, `taxonomy`, and `term` pages.
 
-{{< note >}}
-**Tip:** You can get a reference to the content and metadata in `_index.md` using the [`.Site.GetPage` function](/methods/page/getpage).
-{{< /note >}}
+> [!note]
+> Access the content and metadata within an `_index.md` file by invoking the `GetPage` method on a `Site` or `Page` object.
 
 You can create one `_index.md` for your home page and one in each of your content sections, taxonomies, and terms. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
 
@@ -147,10 +146,6 @@ A content's `path` is determined by the section's path to the file. The file `pa
 The `url` is the entire URL path, defined by the file path and optionally overridden by a `url` value in front matter. See [URL Management](/content-management/urls/#slug) for details.
 
 [config]: /configuration/
-[formats]: /content-management/formats/
-[front matter]: /content-management/front-matter/
-[getpage]: /methods/page/getpage/
 [pretty]: /content-management/urls/#appearance
 [sections]: /content-management/sections/
 [single template]: /templates/types/#single
-[urls]: /content-management/urls/

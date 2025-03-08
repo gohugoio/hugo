@@ -60,8 +60,7 @@ excludeFields
 includeFields
 : (`string`) A regular expression matching the tags to include when extracting EXIF data. To include all available tags, set this value to&nbsp;`".*"`.
 
-{{< note >}}
-To improve performance and decrease cache size, Hugo excludes the following tags: `ColorSpace`, `Contrast`, `Exif`, `Exposure[M|P|B]`, `Flash`, `GPS`, `JPEG`, `Metering`, `Resolution`, `Saturation`, `Sensing`, `Sharp`, and `WhiteBalance`.
-
-To control tag availability, change the `excludeFields` or `includeFields` settings as described above.
-{{< /note >}}
+> [!note]
+> To improve performance and decrease cache size, Hugo excludes the following tags: `ColorSpace`, `Contrast`, `Exif`, `Exposure[M|P|B]`, `Flash`, `GPS`, `JPEG`, `Metering`, `Resolution`, `Saturation`, `Sensing`, `Sharp`, and `WhiteBalance`.
+>
+> To control tag availability, change the `excludeFields` or `includeFields` settings as described above.

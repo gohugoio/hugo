@@ -8,11 +8,8 @@ aliases: [/hosting-and-deployment/hugo-deploy/]
 
 Use the `hugo deploy` command to deploy your site Amazon S3, Azure Blob Storage, or Google Cloud Storage.
 
-{{< note >}}
-This feature requires the Hugo extended/deploy edition. See the [installation] section for details.
-
-[installation]: /installation/
-{{< /note >}}
+> [!note]
+> This feature requires the Hugo extended/deploy edition. See the [installation] section for details.
 
 ## Assumptions
 
@@ -32,10 +29,6 @@ This feature requires the Hugo extended/deploy edition. See the [installation] s
 
     - Google Cloud: [create a bucket](https://cloud.google.com/storage/docs/creating-buckets) and [host a static website](https://cloud.google.com/storage/docs/hosting-static-website)
 
-[AWS]: https://aws.amazon.com
-[Azure]: https://azure.microsoft.com
-[Google Cloud]: https://cloud.google.com/
-
 ## Configuration
 
 Create a deployment target in your [site configuration]. The only required parameters are [`name`] and [`url`]:
@@ -46,10 +39,6 @@ Create a deployment target in your [site configuration]. The only required param
     name = 'production'
     url = 's3://my_bucket?region=us-west-1'
 {{< /code-toggle >}}
-
-[`name`]: /configuration/deployment/#name
-[`url`]: /configuration/deployment/#url
-[site configuration]: /configuration/deployment/
 
 ## Deploy
 
@@ -63,8 +52,6 @@ This command syncs the contents of your local `public` directory (the default pu
 
 For more command-line options, see `hugo help deploy` or the [CLI documentation].
 
-[CLI documentation]: /commands/hugo_deploy/
-
 ### File list creation
 
 `hugo deploy` creates local and remote file lists by traversing the local publish directory and the remote bucket. Inclusion and exclusion are determined by the deployment target's [configuration]:
@@ -72,21 +59,15 @@ For more command-line options, see `hugo help deploy` or the [CLI documentation]
 - `include`: All files are skipped by default except those that match the pattern.
 - `exclude`: Files matching the pattern are skipped.
 
-[configuration]: /configuration/deployment/#targets-1
-
-{{< note >}}
-During local file list creation, Hugo skips `.DS_Store` files and hidden directories (those starting with a period, like `.git`), except for the [`.well-known`] directory, which is traversed if present.
-
-[`.well-known`]: https://en.wikipedia.org/wiki/Well-known_URI
-{{< /note >}}
+> [!note]
+> During local file list creation, Hugo skips `.DS_Store` files and hidden directories (those starting with a period, like `.git`), except for the [`.well-known`] directory, which is traversed if present.
 
 ### File list comparison
 
 Hugo compares the local and remote file lists to identify necessary changes. It first compares file names. If both exist, it compares sizes and MD5 checksums. Any difference triggers a re-upload, and remote files not present locally are deleted.
 
-{{< note >}}
-Excluded remote files (due to `include`/`exclude` configuration) won't be deleted.
-{{< /note >}}
+> [!note]
+> Excluded remote files (due to `include`/`exclude` configuration) won't be deleted.
 
 The `--force` flag forces all files to be re-uploaded, even if Hugo detects no local/remote differences.
 
@@ -96,10 +77,21 @@ The `--confirm` or `--dryRun` flags cause Hugo to display the detected differenc
 
 Hugo applies the changes to the remote bucket: uploading missing or changed files and deleting remote files not present locally. Uploaded file headers are configured remotely based on the matchers configuration.
 
-{{< note >}}
-To prevent accidental data loss, Hugo will not delete more than 256 remote files by default. Use the `--maxDeletes` flag to override this limit.
-{{< /note >}}
+> [!note]
+> To prevent accidental data loss, Hugo will not delete more than 256 remote files by default. Use the `--maxDeletes` flag to override this limit.
 
 ## Advanced configuration
 
 See [configure deployment](/configuration/deployment/).
+
+[`.well-known`]: https://en.wikipedia.org/wiki/Well-known_URI
+[`name`]: /configuration/deployment/#name
+[`url`]: /configuration/deployment/#url
+[AWS]: https://aws.amazon.com
+[Azure]: https://azure.microsoft.com
+[CLI documentation]: /commands/hugo_deploy/
+[configuration]: /configuration/deployment/#targets-1
+[Google Cloud]: https://cloud.google.com/
+[installation]: /installation/
+[Quick Start]: /getting-started/quick-start/
+[site configuration]: /configuration/deployment/

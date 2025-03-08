@@ -6,25 +6,15 @@ categories: []
 keywords: [highlight]
 ---
 
-{{< note >}}
-To override Hugo's embedded `highlight` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
+> [!note]
+> To override Hugo's embedded `highlight` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
-[source code]: {{% eturl highlight %}}
-{{< /note >}}
-
-{{< note >}}
-With the Markdown [content format], the `highlight` shortcode is rarely needed because, by default, Hugo automatically applies syntax highlighting to fenced code blocks.
-
-The primary use case for the `highlight` shortcode in Markdown is to apply syntax highlighting to inline code snippets.
-
-[content format]: /content-management/formats/
-{{< /note >}}
+> [!note]
+> With the Markdown [content format], the `highlight` shortcode is rarely needed because, by default, Hugo automatically applies syntax highlighting to fenced code blocks.
+>
+> The primary use case for the `highlight` shortcode in Markdown is to apply syntax highlighting to inline code snippets.
 
 The `highlight` shortcode calls the [`transform.Highlight`] function which uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 [highlighting styles].
-
-[chroma]: https://github.com/alecthomas/chroma
-[highlighting styles]: /quick-reference/syntax-highlighting-styles/
-[`transform.Highlight`]: /functions/transform/highlight/
 
 ## Arguments
 
@@ -44,9 +34,6 @@ LANG
 
 OPTIONS
 : (`string`) Zero or more space-separated key-value pairs wrapped in quotation marks. Set default values for each option in your [site configuration]. The key names are case-insensitive.
-
-[site configuration]: /configuration/markup/#highlight
-[supported languages]: /content-management/syntax-highlighting/#languages
 
 ## Example
 
@@ -110,3 +97,11 @@ This is some {{< hl >}}fmt.Println("inline"){{< /hl >}} code.
 Pass the options when calling the shortcode. You can set their default values in your [site configuration].
 
 {{% include "_common/syntax-highlighting-options.md" %}}
+
+[`transform.Highlight`]: /functions/transform/highlight/
+[Chroma]: https://github.com/alecthomas/chroma
+[content format]: /content-management/formats/
+[highlighting styles]: /quick-reference/syntax-highlighting-styles/
+[site configuration]: /configuration/markup/#highlight
+[source code]: {{% eturl highlight %}}
+[supported languages]: /content-management/syntax-highlighting/#languages

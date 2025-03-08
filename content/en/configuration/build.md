@@ -71,12 +71,11 @@ disableTags
 disableClasses
 : (`bool`) Whether to exclude `class` attributes. Default is `false`.
 
-{{< note >}}
-Given that CSS purging is typically limited to production builds, place the `buildStats` object below [`config/production`].
-
-[`config/production`]: /configuration/introduction/#configuration-directory
-
-Built for speed, there may be "false positive" detections (e.g., HTML elements that are not HTML elements) while parsing the published site. These "false positives" are infrequent and inconsequential.
-{{< /note >}}
+> [!note]
+> Given that CSS purging is typically limited to production builds, place the `buildStats` object below [`config/production`].
+>
+> Built for speed, there may be "false positive" detections (e.g., HTML elements that are not HTML elements) while parsing the published site. These "false positives" are infrequent and inconsequential.
 
 Due to the nature of partial server builds, new HTML entities are added while the server is running, but old values will not be removed until you restart the server or run a regular `hugo` build.
+
+[`config/production`]: /configuration/introduction/#configuration-directory

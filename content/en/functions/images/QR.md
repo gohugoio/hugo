@@ -20,27 +20,23 @@ The `images.QR` function encodes the given text into a [QR code] using the speci
 
 Although the default option values are sufficient for most applications, you should test the rendered QR code both on-screen and in print.
 
-[QR code]: https://en.wikipedia.org/wiki/QR_code
-
 ## Options
 
 level
 : (`string`) The error correction level to use when encoding the text, one of `low`, `medium`, `quartile`, or `high`. Default is `medium`.
 
-Error correction level|Redundancy
-:--|:--|:--
-low|20%
-medium|38%
-quartile|55%
-high|65%
+  Error correction level|Redundancy
+  :--|:--|:--
+  low|20%
+  medium|38%
+  quartile|55%
+  high|65%
 
 scale
 : (`int`) The number of image pixels per QR code module. Must be greater than or equal to `2`. Default is `4`.
 
 targetDir
 : (`string`) The subdirectory within the [`publishDir`] where Hugo will place the generated image. Use Unix-style slashes (`/`) to separarate path segments. If empty or not provided, the image is placed directly in the `publishDir` root. Hugo automatically creates the necessary subdirectories if they don't exist.
-
-[`publishDir`]: /configuration/all/#publishdir
 
 ## Examples
 
@@ -115,9 +111,8 @@ If the QR code will be printed, use the default `scale` value of `4` pixels per 
 
 Avoid using Hugo's image processing methods to resize QR codes. Resizing can introduce blurring due to anti-aliasing when a QR code module occupies a fractional number of pixels.
 
-{{< note >}}
-Always test the rendered QR code both on-screen and in print.
-{{< /note >}}
+> [!note]
+> Always test the rendered QR code both on-screen and in print.
 
 ## Shortcode
 
@@ -139,4 +134,6 @@ https://gohugo.io
 
 The `qr` shortcode accepts several arguments including `level` and `scale`. See the [related documentation] for details.
 
+[`publishDir`]: /configuration/all/#publishdir
+[QR code]: https://en.wikipedia.org/wiki/QR_code
 [related documentation]: /shortcodes/qr/

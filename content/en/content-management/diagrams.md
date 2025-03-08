@@ -9,9 +9,6 @@ keywords: []
 
 Hugo natively supports [GoAT] diagrams with an [embedded code block render hook]. This means that this code block:
 
-[GoAT]: https://github.com/bep/goat
-[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
-
 ````txt
 ```goat
       .               .                .               .--- 1          .-- 1     / 1
@@ -41,8 +38,6 @@ Will be rendered as:
 ## Mermaid diagrams
 
 Hugo does not provide a built-in template for Mermaid diagrams. Create your own using a [code block render hook]:
-
-[code block render hook]: /render-hooks/code-blocks/
 
 ```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
@@ -259,3 +254,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 │LITERAL    = """" character { character } """" .│
 └────────────────────────────────────────────────┘
 ```
+
+[code block render hook]: /render-hooks/code-blocks/
+[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+[GoAT]: https://github.com/bep/goat

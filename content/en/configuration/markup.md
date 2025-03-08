@@ -30,20 +30,8 @@ To use a different renderer for Markdown files, specify one of `asciidocext`, `o
 
 To use AsciiDoc, Pandoc, or reStructuredText you must install the relevant renderer and update your [security policy].
 
-{{< note >}}
-Unless you need a unique capability provided by one of the alternative Markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
-
-[commonmark]: https://spec.commonmark.org/0.30/
-[github flavored markdown]: https://github.github.com/gfm/
-{{< /note >}}
-
-[asciidoc]: https://asciidoc.org/
-[content format]: /content-management/formats/#formats
-[emacs org mode]: https://orgmode.org/
-[goldmark]: https://github.com/yuin/goldmark/
-[pandoc]: https://pandoc.org/
-[restructuredtext]: https://docutils.sourceforge.io/rst.html
-[security policy]: /configuration/security/
+> [!note]
+> Unless you need a unique capability provided by one of the alternative Markdown handlers, we strongly recommend that you use the default setting. Goldmark is fast, well maintained, conforms to the [CommonMark] specification, and is compatible with [GitHub Flavored Markdown] (GFM).
 
 ## Goldmark
 
@@ -68,17 +56,6 @@ Extension|Documentation|Enabled
 `taskList`|[GitHub Flavored Markdown: Task list items]|:heavy_check_mark:
 `typographer`|[Goldmark Extensions: Typographer]|:heavy_check_mark:
 
-[GitHub Flavored Markdown: Autolinks]: https://github.github.com/gfm/#autolinks-extension-
-[GitHub Flavored Markdown: Strikethrough]: https://github.github.com/gfm/#strikethrough-extension-
-[GitHub Flavored Markdown: Tables]: https://github.github.com/gfm/#tables-extension-
-[GitHub Flavored Markdown: Task list items]: https://github.github.com/gfm/#task-list-items-extension-
-[Goldmark Extensions: CJK]: https://github.com/yuin/goldmark?tab=readme-ov-file#cjk-extension
-[Goldmark Extensions: Typographer]: https://github.com/yuin/goldmark?tab=readme-ov-file#typographer-extension
-[Hugo Goldmark Extensions: Extras]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#extras-extension
-[Hugo Goldmark Extensions: Passthrough]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#passthrough-extension
-[PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
-[PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
-
 #### Extras
 
 {{< new-in 0.126.0 />}}
@@ -92,12 +69,6 @@ Inserted text|`++bar++`|`<ins>bar</ins>`
 Mark text|`==baz==`|`<mark>baz</mark>`
 Subscript|`H~2~O`|`H<sub>2</sub>O`
 Superscript|`1^st^`|`1<sup>st</sup>`
-
-[deleted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del
-[inserted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins
-[mark text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark
-[subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
-[superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
 
 To avoid a conflict when enabling the "subscript" feature of the Extras extension, if you want to render subscript and strikethrough text concurrently you must:
 
@@ -122,8 +93,6 @@ enable = true
 {{< new-in 0.122.0 />}}
 
 Enable the Passthrough extension to include mathematical equations and expressions in Markdown using LaTeX markup. See [mathematics in Markdown] for details.
-
-[mathematics in Markdown]: content-management/mathematics/
 
 #### Typographer
 
@@ -150,12 +119,8 @@ duplicateResourceFiles
 : {{< new-in 0.123.0 />}}
 : (`bool`) Whether to duplicate shared page resources for each language on multilingual single-host sites. See [multilingual page resources] for details. Default is `false`.
 
-  {{< note >}}
-  With multilingual single-host sites, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host sites.
-
-  [embedded image render hook]: /render-hooks/images/#default
-  [embedded link render hook]: /render-hooks/links/#default
-  {{< /note >}}
+  > [!note]
+  >  With multilingual single-host sites, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host sites.
 
 parser.wrapStandAloneImageWithinParagraph
 : (`bool`) Whether to wrap image elements without adjacent content within a `p` element when rendered. This is the default Markdown behavior. Set to `false` when using an [image render hook] to render standalone images as `figure` elements. Default is `true`.
@@ -186,21 +151,15 @@ renderHooks.image.enableDefault
 : {{< new-in 0.123.0 />}}
 : (`bool`) Whether to enable the [embedded image render hook]. Default is `false`.
 
-  {{< note >}}
-  The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
-
-  [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-  {{< /note >}}
+  > [!note]
+  > The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
 renderHooks.link.enableDefault
 : {{< new-in 0.123.0 />}}
 : (`bool`) Whether to enable the [embedded link render hook]. Default is `false`.
 
-  {{< note >}}
-  The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
-
-  [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-  {{< /note >}}
+  > [!note]
+  >   The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
 renderer.hardWraps
 : (`bool`) Whether to replace newline characters within a paragraph with `br` elements. Default is `false`.
@@ -208,12 +167,6 @@ renderer.hardWraps
 renderer.unsafe
 : (`bool`) Whether to render raw HTML mixed within Markdown. This is unsafe unless the content is under your control. Default is `false`.
 
-[Markdown attributes]: /content-management/markdown-attributes/
-[embedded image render hook]: /render-hooks/images/#default
-[embedded link render hook]: /render-hooks/links/#default
-[image render hook]: /render-hooks/images/
-[multilingual page resources]: /content-management/page-resources/#multilingual
-[`Fragments.Identifiers`]: /methods/page/fragments/#identifiers
 ## AsciiDoc
 
 This is the default configuration for the AsciiDoc renderer:
@@ -231,9 +184,8 @@ backend
 extensions
 : (`string array`) An array of enabled extensions, one or more of `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`, `asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, or `asciidoctor-question`.
 
-  {{< note >}}
-  To mitigate security risks, entries in the extension array may not contain forward slashes (`/`), backslashes (`\`), or periods. Due to this restriction, extensions must be in Ruby's `$LOAD_PATH`.
-  {{< /note >}}
+  > [!note]
+  > To mitigate security risks, entries in the extension array may not contain forward slashes (`/`), backslashes (`\`), or periods. Due to this restriction, extensions must be in Ruby's `$LOAD_PATH`.
 
 failureLevel
 : (`string`) The minimum logging level that triggers a non-zero exit code (failure). Default is `fatal`.
@@ -258,11 +210,6 @@ verbose
 
 workingFolderCurrent
 : (`bool`) Whether to set the working directory to be the same as that of the AsciiDoc file being processed, allowing [includes] to work with relative paths. Set to `true` to render diagrams with the [asciidoctor-diagram] extension. Default is `false`.
-
-[`TableOfContents`]: /methods/page/tableofcontents/
-[asciidoctor-diagram]: https://asciidoctor.org/docs/asciidoctor-diagram/
-[attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions
-[includes]: https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/#includes
 
 ### Configuration example
 
@@ -353,3 +300,38 @@ endLevel
 
 ordered
 : (`bool`) Whether to generates an ordered list instead of an unordered list. Default is `false`.
+
+[`Fragments.Identifiers`]: /methods/page/fragments/#identifiers
+[`TableOfContents`]: /methods/page/tableofcontents/
+[asciidoctor-diagram]: https://asciidoctor.org/docs/asciidoctor-diagram/
+[attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions
+[CommonMark]: https://spec.commonmark.org/current/
+[deleted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del
+[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
+[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
+[embedded image render hook]: /render-hooks/images/#default
+[embedded image render hook]: /render-hooks/images/#default
+[embedded link render hook]: /render-hooks/links/#default
+[embedded link render hook]: /render-hooks/links/#default
+[GitHub Flavored Markdown]: https://github.github.com/gfm/
+[GitHub Flavored Markdown: Autolinks]: https://github.github.com/gfm/#autolinks-extension-
+[GitHub Flavored Markdown: Strikethrough]: https://github.github.com/gfm/#strikethrough-extension-
+[GitHub Flavored Markdown: Tables]: https://github.github.com/gfm/#tables-extension-
+[GitHub Flavored Markdown: Task list items]: https://github.github.com/gfm/#task-list-items-extension-
+[Goldmark]: https://github.com/yuin/goldmark/
+[Goldmark Extensions: CJK]: https://github.com/yuin/goldmark?tab=readme-ov-file#cjk-extension
+[Goldmark Extensions: Typographer]: https://github.com/yuin/goldmark?tab=readme-ov-file#typographer-extension
+[Hugo Goldmark Extensions: Extras]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#extras-extension
+[Hugo Goldmark Extensions: Passthrough]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#passthrough-extension
+[image render hook]: /render-hooks/images/
+[includes]: https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/#includes
+[inserted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins
+[mark text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark
+[Markdown attributes]: /content-management/markdown-attributes/
+[mathematics in Markdown]: content-management/mathematics/
+[multilingual page resources]: /content-management/page-resources/#multilingual
+[PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
+[PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
+[security policy]: /configuration/security/
+[subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
+[superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup

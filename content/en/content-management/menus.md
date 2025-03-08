@@ -22,9 +22,8 @@ There are three ways to define menu entries:
 1. In front matter
 1. In site configuration
 
-{{< note >}}
-Although you can use these methods in combination when defining a menu, the menu will be easier to conceptualize and maintain if you use one method throughout the site.
-{{< /note >}}
+> [!note]
+> Although you can use these methods in combination when defining a menu, the menu will be easier to conceptualize and maintain if you use one method throughout the site.
 
 ## Define automatically
 
@@ -56,9 +55,8 @@ menus = ['main','footer']
 
 Access the entry with `site.Menus.main` and `site.Menus.footer` in your templates. See [menu templates] for details.
 
-{{< note >}}
-The configuration key in the examples above is `menus`. The `menu` (singular) configuration key is an alias for `menus`.
-{{< /note >}}
+> [!note]
+> The configuration key in the examples above is `menus`. The `menu` (singular) configuration key is an alias for `menus`.
 
 ### Properties
 
@@ -94,7 +92,6 @@ Hugo provides two methods to localize your menu entries. See [multilingual].
 
 See [menu templates].
 
-[localize]: /content-management/multilingual/#menus
 [menu templates]: /templates/menu/
 [multilingual]: /content-management/multilingual/#menus
 [template]: /templates/menu/

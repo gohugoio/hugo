@@ -18,9 +18,6 @@ With a multilingual project, Hugo generates:
 - A sitemap.xml file in the root of each site (language) using the [embedded sitemap template]
 - A sitemap.xml file in the root of the [`publishDir`] using the [embedded sitemapindex template]
 
-[embedded sitemap template]: {{% eturl sitemap %}}
-[embedded sitemapindex template]: {{% eturl sitemapindex %}}
-
 ## Configuration
 
 See [configure sitemap](/configuration/sitemap).
@@ -60,4 +57,6 @@ disableKinds = ['sitemap']
 {{</ code-toggle >}}
 
 [`publishDir`]: /configuration/all/#publishdir
+[embedded sitemap template]: {{% eturl sitemap %}}
+[embedded sitemapindex template]: {{% eturl sitemapindex %}}
 [sitemap protocol]: https://www.sitemaps.org/protocol.html

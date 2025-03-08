@@ -85,9 +85,8 @@ Returns the `Site` to which the pages will be added.
 {{ .Site.Title }}
 ```
 
-{{< note >}}
-Note that the `Site` returned isn't fully built when invoked from the content adapters; if you try to call methods that depends on pages, e.g. `.Site.Pages`, you will get an error saying "this method cannot be called before the site is fully initialized".
-{{< /note >}}
+> [!note]
+> Note that the `Site` returned isn't fully built when invoked from the content adapters; if you try to call methods that depends on pages, e.g. `.Site.Pages`, you will get an error saying "this method cannot be called before the site is fully initialized".
 
 ### Store
 
@@ -135,11 +134,10 @@ Key|Description|Required
 `path`|The page's [logical path](g) relative to the content adapter. Do not include a leading slash or file extension.|:heavy_check_mark:
 `title`|The page title.|&nbsp;
 
-{{< note >}}
-While `path` is the only required field, we recommend setting `title` as well.
-
-When setting the `path`, Hugo transforms the given string to a logical path. For example, setting `path` to `A B C` produces a logical path of `/section/a-b-c`.
-{{< /note >}}
+> [!note]
+> While `path` is the only required field, we recommend setting `title` as well.
+>
+> When setting the `path`, Hugo transforms the given string to a logical path. For example, setting `path` to `A B C` produces a logical path of `/section/a-b-c`.
 
 ## Resource map
 
@@ -154,11 +152,10 @@ Key|Description|Required
 `path`|The resources's [logical path](g) relative to the content adapter. Do not include a leading slash.|:heavy_check_mark:
 `title`|The resource title.|&nbsp;
 
-{{< note >}}
-If the `content.value` is a string Hugo creates a new resource. If the `content.value` is a resource, Hugo obtains the value from the existing resource.
-
-When setting the `path`, Hugo transforms the given string to a logical path. For example, setting `path` to `A B C/cover.jpg` produces a logical path of `/section/a-b-c/cover.jpg`.
-{{< /note >}}
+> [!note]
+> If the `content.value` is a string Hugo creates a new resource. If the `content.value` is a resource, Hugo obtains the value from the existing resource.
+>
+> When setting the `path`, Hugo transforms the given string to a logical path. For example, setting `path` to `A B C/cover.jpg` produces a logical path of `/section/a-b-c/cover.jpg`.
 
 ## Example
 

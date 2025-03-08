@@ -16,8 +16,6 @@ enableRobotsTXT = true
 
 By default, Hugo generates robots.txt using an [embedded template].
 
-[embedded template]: {{% eturl robots %}}
-
 ```text
 User-agent: *
 ```
@@ -42,15 +40,14 @@ Disallow: {{ .RelPermalink }}
 
 This template creates a robots.txt file with a `Disallow` directive for each page on the site. Search engines that honor the Robots Exclusion Protocol will not crawl any page on the site.
 
-{{< note >}}
-To create a robots.txt file without using a template:
+> [!note]
+> To create a robots.txt file without using a template:
+>
+> 1. Set `enableRobotsTXT` to `false` in the site configuration.
+> 1. Create a robots.txt file in the `static` directory.
+>
+> Remember that Hugo copies everything in the [`static` directory][static] to the root of `publishDir` (typically `public`) when you build your site.
 
-1. Set `enableRobotsTXT` to `false` in the site configuration.
-1. Create a robots.txt file in the `static` directory.
-
-Remember that Hugo copies everything in the [`static` directory][static] to the root of `publishDir` (typically `public`) when you build your site.
-
-[static]: /getting-started/directory-structure/
-{{< /note >}}
-
+[embedded template]: {{% eturl robots %}}
 [site configuration]: /configuration/
+[static]: /getting-started/directory-structure/

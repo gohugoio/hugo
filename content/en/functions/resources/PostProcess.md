@@ -21,16 +21,8 @@ In this example, after the build is complete, Hugo will:
 3. [Minify] the CSS
 4. [Fingerprint] the CSS
 
-[autoprefixer]: https://github.com/postcss/autoprefixer
-[fingerprint]: /functions/resources/fingerprint/
-[minify]: /functions/resources/minify/
-[postcss]: /functions/css/postcss/
-[purgecss]: https://purgecss.com/plugins/postcss.html
-
 Step 1
 : Install [Node.js].
-
-[node.js]: https://nodejs.org/en/download
 
 Step 2
 : Install the required Node.js packages in the root of your project:
@@ -42,16 +34,12 @@ npm i -D postcss postcss-cli autoprefixer @fullhuman/postcss-purgecss
 Step 3
 : Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [`config/production`].
 
-[`config/production`]: /configuration/introduction/#configuration-directory
-
 {{< code-toggle file=hugo >}}
 [build.buildStats]
 enable = true
 {{< /code-toggle >}}
 
 See the [configure build] documentation for details and options.
-
-[configure build]: /configuration/build/
 
 Step 4
 : Create a PostCSS configuration file in the root of your project.
@@ -82,9 +70,8 @@ module.exports = {
 };
 ```
 
-{{< note >}}
-{{% include "/_common/functions/postcss-windows-warning.md" %}}
-{{< /note >}}
+> [!note]
+> If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
 
 Step 5
 : Place your CSS file within the `assets/css` directory.
@@ -148,3 +135,14 @@ You cannot manipulate the values returned from the resource's methods. For examp
 {{ $css = $css | css.PostCSS | minify | fingerprint | resources.PostProcess }}
 {{ $css.RelPermalink | strings.ToUpper }}
 ```
+
+[#7333]: https://github.com/gohugoio/hugo/issues/7333
+[`config/production`]: /configuration/introduction/#configuration-directory
+[Autoprefixer]: https://github.com/postcss/autoprefixer
+[configure build]: /configuration/build/
+[Fingerprint]: /functions/resources/fingerprint/
+[Minify]: /functions/resources/minify/
+[Node.js]: https://nodejs.org/en
+[PostCSS]: https://postcss.org/
+[PurgeCSS]: https://github.com/FullHuman/purgecss
+[this example]: https://github.com/postcss/postcss-load-config#packagejson

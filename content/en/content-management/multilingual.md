@@ -29,9 +29,8 @@ Their language is __assigned__ according to the language code added as a __suffi
 
 By having the same **path and base file name**, the content pieces are __linked__ together as translated pages.
 
-{{< note >}}
-If a file has no language code, it will be assigned the default language.
-{{< /note >}}
+> [!note]
+> If a file has no language code, it will be assigned the default language.
 
 ### Translation by content directory
 
@@ -88,9 +87,6 @@ To localize URLs:
 - For a regular page, set either [`slug`] or [`url`] in front matter
 - For a section page, set [`url`] in front matter
 
-[`slug`]: /content-management/urls/#slug
-[`url`]: /content-management/urls/#url
-
 For example, a French translation can have its own localized slug.
 
 {{< code-toggle file=content/about.fr.md fm=true >}}
@@ -111,9 +107,8 @@ If, across the linked bundles, two or more files share the same basename, only o
 - File from current language bundle, if present.
 - First file found across bundles by order of language `Weight`.
 
-{{< note >}}
-Page Bundle resources follow the same language assignment logic as content files, both by file name (`image.jpg`, `image.fr.jpg`) and by directory (`english/about/header.jpg`, `french/about/header.jpg`).
-{{< /note >}}
+> [!note]
+> Page Bundle resources follow the same language assignment logic as content files, both by file name (`image.jpg`, `image.fr.jpg`) and by directory (`english/about/header.jpg`, `french/about/header.jpg`).
 
 ## Reference translated content
 
@@ -151,8 +146,6 @@ The above also uses the [`i18n` function][i18func] described in the next section
 ## Translation of strings
 
 See the [`lang.Translate`] template function.
-
-[`lang.Translate`]: /functions/lang/translate
 
 ## Localization
 
@@ -335,8 +328,6 @@ pageRef = '/services'
 weight = 20
 {{< /code-toggle >}}
 
-[configuration directory]: /configuration/introduction/#configuration-directory
-
 ### Use translation tables
 
 When rendering the text that appears in menu each entry, the [example menu template] does this:
@@ -374,20 +365,14 @@ products = 'Produkte'
 services = 'Leistungen'
 {{< / code-toggle >}}
 
-[example menu template]: /templates/menu/#example
-[automatically]: /content-management/menus/#define-automatically
-[in front matter]: /content-management/menus/#define-in-front-matter
-[in site configuration]: /content-management/menus/#define-in-site-configuration
-
 ## Missing translations
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
 
 While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`enableMissingTranslationPlaceholders` configuration option][config] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
 
-{{< note >}}
-Hugo will generate your website with these missing translation placeholders. It might not be suitable for production environments.
-{{< /note >}}
+> [!note]
+> Hugo will generate your website with these missing translation placeholders. It might not be suitable for production environments.
 
 For merging of content from other languages (i.e. missing content translations), see [lang.Merge].
 
@@ -423,18 +408,22 @@ hugo new content content/en/post/test.md
 hugo new content content/de/post/test.md
 ```
 
-[`abslangurl`]: /functions/urls/abslangurl/
+[`absLangURL`]: /functions/urls/abslangurl/
+[`lang.Translate`]: /functions/lang/translate
+[`relLangURL`]: /functions/urls/rellangurl/
+[`slug`]: /content-management/urls/#slug
+[`time.Format`]: /functions/time/format/
+[`url`]: /content-management/urls/#url
+[automatically]: /content-management/menus/#define-automatically
 [config]: /configuration/
-[go-i18n-source]: https://github.com/nicksnyder/go-i18n
-[go-i18n]: https://github.com/nicksnyder/go-i18n
-[Hugo Multilingual Part 1: Content translation]: https://regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/
+[configuration directory]: /configuration/introduction/#configuration-directory
+[example menu template]: /templates/menu/#example
 [i18func]: /functions/lang/translate/
+[in front matter]: /content-management/menus/#define-in-front-matter
+[in site configuration]: /content-management/menus/#define-in-site-configuration
 [lang.FormatAccounting]: /functions/lang/formataccounting/
 [lang.FormatCurrency]: /functions/lang/formatcurrency/
 [lang.FormatNumber]: /functions/lang/formatnumber/
 [lang.FormatNumberCustom]: /functions/lang/formatnumbercustom/
 [lang.FormatPercent]: /functions/lang/formatpercent/
 [lang.Merge]: /functions/lang/merge/
-[menus]: /content-management/menus/
-[`rellangurl`]: /functions/urls/rellangurl/
-[`time.Format`]: /functions/time/format/

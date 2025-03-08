@@ -294,28 +294,6 @@ titleCaseStyle
 uglyurls
 : See [configure ugly URLs](/configuration/ugly-urls/).
 
-[IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
-[`FuzzyWordCount`]: /methods/page/fuzzywordcount/
-[`GitInfo`]: /methods/page/gitinfo/
-[`MainSections`]: /methods/site/mainsections/
-[`Summary`]: /methods/page/summary/
-[`WordCount`]: /methods/page/wordcount/
-[`disabled`]: /configuration/languages/#disabled
-[`erroridf`]: /functions/fmt/erroridf/
-[`segments`]: /configuration/segments/
-[`strings.Title`]: /functions/strings/title
-[`time.AsTime`]: /functions/time/astime/
-[`time.Format`]: /functions/time/format/
-[`warnidf`]: /functions/fmt/warnidf/
-[automatic summaries]: /content-management/summaries/#automatic-summary
-[default front matter configuration]: /configuration/front-matter/
-[duration]: https://pkg.go.dev/time#Duration
-[embedded Open Graph template]: {{% eturl opengraph %}}
-[embedded RSS template]: {{% eturl rss %}}
-[embedded alias template]: {{% eturl alias %}}
-[module mounts]: /configuration/module/#mounts
-
 ## Cache directory
 
 Hugo's file cache directory is configurable via the [`cacheDir`] configuration option or the `HUGO_CACHEDIR` environment variable. If neither is set, Hugo will use, in order of preference:
@@ -329,11 +307,6 @@ To determine the current `cacheDir`:
 ```sh
 hugo config | grep cachedir
 ```
-
-[XDG base directory specification]: https://specifications.freedesktop.org/basedir-spec/latest/
-[`cacheDir`]: #cachedir
-[os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir
-[this configuration]: https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml
 
 ## Title case style
 
@@ -354,11 +327,36 @@ firstupper
 none
 : Disable transformation of automatic section titles, and disable the transformation performed by the `strings.Title` function. This is useful if you would prefer to manually capitalize section titles as needed, and to bypass opinionated theme usage of the `strings.Title` function.
 
-[Associated Press Stylebook]: https://www.apstylebook.com/
-[Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
-[`strings.Title`]: /functions/strings/title/
-[`titleCaseStyle`]: #titlecasestyle
-
 ## Localized settings
 
 Some configuration settings, such as menus and custom parameters, can be defined separately for each language. See [configure languages](/configuration/languages/#localized-settings).
+
+[`cacheDir`]: #cachedir
+[`disabled`]: /configuration/languages/#disabled
+[`erroridf`]: /functions/fmt/erroridf/
+[`FuzzyWordCount`]: /methods/page/fuzzywordcount/
+[`GitInfo`]: /methods/page/gitinfo/
+[`MainSections`]: /methods/site/mainsections/
+[`segments`]: /configuration/segments/
+[`strings.Title`]: /functions/strings/title/
+[`strings.Title`]: /functions/strings/title
+[`Summary`]: /methods/page/summary/
+[`time.AsTime`]: /functions/time/astime/
+[`time.Format`]: /functions/time/format/
+[`titleCaseStyle`]: #titlecasestyle
+[`warnidf`]: /functions/fmt/warnidf/
+[`WordCount`]: /methods/page/wordcount/
+[Associated Press Stylebook]: https://www.apstylebook.com/
+[automatic summaries]: /content-management/summaries/#automatic-summary
+[Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
+[default front matter configuration]: /configuration/front-matter/
+[duration]: https://pkg.go.dev/time#Duration
+[embedded alias template]: {{% eturl alias %}}
+[embedded Open Graph template]: {{% eturl opengraph %}}
+[embedded RSS template]: {{% eturl rss %}}
+[IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+[module mounts]: /configuration/module/#mounts
+[os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
+[this configuration]: https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml
+[XDG base directory specification]: https://specifications.freedesktop.org/basedir-spec/latest/

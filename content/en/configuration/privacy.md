@@ -26,9 +26,8 @@ Some of these templates include settings to enhance privacy.
 
 ## Configuration
 
-{{< note >}}
-These settings affect the behavior of some of Hugo's embedded templates. These settings may or may not affect the behavior of templates provided by third parties in their modules or themes.
-{{< /note >}}
+> [!note]
+> These settings affect the behavior of some of Hugo's embedded templates. These settings may or may not affect the behavior of templates provided by third parties in their modules or themes.
 
 These are the default privacy settings for Hugo's embedded templates:
 

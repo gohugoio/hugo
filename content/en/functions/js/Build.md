@@ -18,8 +18,6 @@ The `js.Build` function uses the [evanw/esbuild] package to:
 - Minify
 - Create source maps
 
-[evanw/esbuild]: https://github.com/evanw/esbuild
-
 ```go-html-template
 {{ with resources.Get "js/main.js" }}
   {{ $opts := dict
@@ -100,9 +98,8 @@ Any imports in a file outside `assets` or that does not resolve to a component i
 
 The start directory for resolving npm packages (aka. packages that live inside a `node_modules` directory) is always the main project directory.
 
-{{< note >}}
-If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the npm dependencies in a project.
-{{< /note >}}
+> [!note]
+> If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [hugo mod npm pack](/commands/hugo_mod_npm_pack/), a tool to consolidate all the npm dependencies in a project.
 
 ## Examples
 
@@ -120,3 +117,5 @@ Or with options:
 {{ $built := resources.Get "scripts/main.js" | js.Build $opts }}
 <script src="{{ $built.RelPermalink }}" defer></script>
 ```
+
+[evanw/esbuild]: https://github.com/evanw/esbuild

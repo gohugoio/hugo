@@ -42,13 +42,10 @@ In some rare use cases, you may need to defer the execution of a template until 
 {{ end }}
 ```
 
-{{< note >}}
-This function only works in combination with the `with` keyword.
-{{< /note >}}
-
-{{< note >}}
-Variables defined on the outside are not visible on the inside and vice versa. To pass in data, use the `data` [option](#options).
-{{< /note >}}
+> [!note]
+> This function only works in combination with the `with` keyword.
+>
+> Variables defined on the outside are not visible on the inside and vice versa. To pass in data, use the `data` [option](#options).
 
 For the above to work well when running the server (or `hugo -w`), you want to have a configuration similar to this:
 

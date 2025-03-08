@@ -36,9 +36,8 @@ Access the data with either of the following:
 {{ $data := getJSON "other-files/" "books.json" }}
 ```
 
-{{< note >}}
-When working with local data, the file path is relative to the working directory.
-{{< /note >}}
+> [!note]
+> When working with local data, the file path is relative to the working directory.
 
 Access remote data with either of the following:
 

@@ -27,16 +27,6 @@ If there is sufficient interest, [create a proposal]. Do not submit a pull reque
 
 For a complete guide to contributing to Hugo, see the [Contribution Guide].
 
-[bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
-[contributing]: CONTRIBUTING.md
-[create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
-[documentation repository]: https://github.com/gohugoio/hugoDocs
-[documentation]: /documentation
-[forum]: https://discourse.gohugo.io
-[issue queue]: https://github.com/gohugoio/hugo/issues
-[themes]: https://themes.gohugo.io/
-[contribution guide]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md
-
 ## Prerequisites
 
 To build the extended or extended/deploy edition from source you must:
@@ -46,21 +36,13 @@ To build the extended or extended/deploy edition from source you must:
 1. Install a C compiler, either [GCC] or [Clang]
 1. Update your `PATH` environment variable as described in the [Go documentation]
 
-[Clang]: https://clang.llvm.org/
-[GCC]: https://gcc.gnu.org/
-[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[Go documentation]: https://go.dev/doc/code#Command
-[Go]: https://go.dev/doc/install
-
-{{< note >}}
-See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
-{{< /note >}}
+> [!note]
+> See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
 
 ## GitHub workflow
 
-{{< note >}}
-This section assumes that you have a working knowledge of Go, Git and GitHub, and are comfortable working on the command line.
-{{< /note >}}
+> [!note]
+> This section assumes that you have a working knowledge of Go, Git and GitHub, and are comfortable working on the command line.
 
 Use this workflow to create and submit pull requests.
 
@@ -157,10 +139,6 @@ Visit the [project repository] and create a pull request (PR).
 
 A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
-[commit message guidelines]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md#git-commit-message-guidelines
-[issues]: https://github.com/gohugoio/hugo/issues
-[project repository]: https://github.com/gohugoio/hugo/
-
 ## Building from source
 
 You can build, install, and test Hugo at any point in its development history. The examples below build and install the extended edition of Hugo.
@@ -188,3 +166,20 @@ To build and install at a specific commit:
 ```sh
 CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@0851c17
 ```
+
+[bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
+[Clang]: https://clang.llvm.org/
+[commit message guidelines]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md#git-commit-message-guidelines
+[Contribution Guide]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md
+[create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
+[documentation]: /documentation
+[documentation repository]: https://github.com/gohugoio/hugoDocs
+[forum]: https://discourse.gohugo.io
+[GCC]: https://gcc.gnu.org/
+[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[Go]: https://go.dev/doc/install
+[Go documentation]: https://go.dev/doc/code#Command
+[issue queue]: https://github.com/gohugoio/hugo/issues
+[issues]: https://github.com/gohugoio/hugo/issues
+[project repository]: https://github.com/gohugoio/hugo/
+[themes]: https://themes.gohugo.io/

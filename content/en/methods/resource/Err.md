@@ -56,6 +56,5 @@ To log an error as a warning instead of an error:
 {{ end }}
 ```
 
-{{< note >}}
-An HTTP response with a 404 status code is not an HTTP request error. To handle 404 status codes, code defensively using the nested `with-else-end` construct as shown above.
-{{< /note >}}
+> [!note]
+> An HTTP response with a 404 status code is not an HTTP request error. To handle 404 status codes, code defensively using the nested `with-else-end` construct as shown above.

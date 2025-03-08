@@ -62,9 +62,6 @@ Hugo will render this to:
 
 Override Hugo's [embedded RSS template] by creating one or more of your own, following the naming conventions as shown in the [template lookup order].
 
-[embedded RSS template]: {{% eturl rss %}}
-[template lookup order]: /templates/lookup-order/#rss-templates
-
 For example, to use different templates for home, section, taxonomy, and term pages:
 
 ```text
@@ -77,3 +74,6 @@ layouts/
 ```
 
 RSS templates receive the `.Page` and `.Site` objects in context.
+
+[embedded RSS template]: {{% eturl rss %}}
+[template lookup order]: /templates/lookup-order/#rss-templates
