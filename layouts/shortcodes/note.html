@@ -10,7 +10,7 @@ Renders a callout.
 {{- $text := .Inner | strings.TrimSpace | .Page.RenderString (dict "display" "block") }}
 {{- partial "layouts/blocks/alert.html" (dict
   "color" "blue"
-  "icon" "exclamation"
+  "icon" "exclamation-triangle"
   "text" $text
   )
 }}
