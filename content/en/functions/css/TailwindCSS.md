@@ -93,7 +93,7 @@ Create a partial template to process the CSS with the Tailwind CSS CLI:
 
 Call the partial template from your base template:
 
-```go-html-template {file="layouts/default/baseof.html"}
+```go-html-template {file="layouts/_default/baseof.html"}
 <head>
   ...
   {{ partialCached "css.html" . }}

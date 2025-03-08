@@ -61,10 +61,10 @@ The default list template will inherit all of the code defined above and can the
 
 This replaces the contents of our (basically empty) `main` block with something useful for the list template. In this case, we didn't define a `title` block, so the contents from our base template remain unchanged in lists.
 
-> [!caution]
+> [!warning]
 > Only [template comments] are allowed outside a block's `define` and `end` statements. Avoid placing any other text, including HTML comments, outside these boundaries. Doing so will cause rendering issues, potentially resulting in a blank page. See the example below.
 
-```go-html-template {file="layouts/default/single.html"}
+```go-html-template {file="layouts/_default/do-not-do-this.html"}
 <div>This div element broke your template.</div>
 {{ define "main" }}
   <h2>{{ .Title }}</h2>

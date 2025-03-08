@@ -125,7 +125,7 @@ You can change this behavior in your [site configuration].
 
 ## Hosting considerations
 
-When hosting your site in a CI/CD environment, the step that clones your project repository must perform a deep clone. If the clone is shallow, the Git information for a given file may not be accurate---it may reflect the most recent repository commit, not the commit that last modified the file.
+When hosting your site in a [CI/CD](g) environment, the step that clones your project repository must perform a deep clone. If the clone is shallow, the Git information for a given file may not be accurate---it may reflect the most recent repository commit, not the commit that last modified the file.
 
 Some providers perform deep clones by default, others allow you to configure the clone depth, and some only perform shallow clones.
 

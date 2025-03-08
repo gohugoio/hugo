@@ -26,7 +26,7 @@ Adhere to these Markdown conventions:
 - Use [ATX] headings (levels 2-4), not [setext] headings.
 - Use [fenced code blocks], not [indented code blocks].
 - Use hyphens, not asterisks, for unordered [list items].
-- Use the [callouts](#callouts) instead bold text for emphasis.
+- Use [callouts](#callouts) instead of bold text for emphasis.
 - Do not mix [raw HTML] within Markdown.
 - Do not use bold text in place of a heading or description term (`dt`).
 - Remove consecutive blank lines.
@@ -76,6 +76,16 @@ Link to the [glossary] as needed and use terms consistently. Pay particular atte
 - Avoid formatted strings.
 - Keep them concise.
 
+### Page descriptions
+
+When writing the page `description` use imperative present tense when possible. For example:
+
+{{< code-toggle file=content/en/functions/data/_index.md" fm=true >}}
+title: Data functions
+linkTitle: data
+description: Use these functions to read local or remote data files.
+{{< /code-toggle >}}
+
 ### Writing style
 
 Use active voice and present tense wherever possible.
@@ -102,7 +112,7 @@ Yes → Hugo is fast.
 
 ### Function and method descriptions
 
-Start descriptions in the functions and methods sections with "Returns" or "Reports whether" for boolean values.
+Start descriptions in the functions and methods sections with "Returns", of for booelan values, "Reports whether".
 
 ### File paths and names
 
@@ -260,47 +270,55 @@ draft = false
 
 ## Callouts
 
-Also known as admonitions, use callouts to visually highlight important information. The type (e.g., NOTE, TIP) is case-insensitive.
+To visually emphasize important information, use callouts (admonitions). Callout types are case-insensitive. Effective March 8, 2025, we utilize only three of the five available types.
+
+- note (272 instances)
+- warning (2 instances)
+- caution (1 instance)
+
+Limiting the number of callout types helps us to use them consistently.
 
 ```text
-> [!NOTE]
+> [!note]
 > Useful information that users should know, even when skimming content.
 ```
 
-> [!NOTE]
+> [!note]
 > Useful information that users should know, even when skimming content.
 
 ```text
-> [!TIP]
-> Helpful advice for doing things better or more easily.
-```
-
-> [!TIP]
-> Helpful advice for doing things better or more easily.
-
-```text
-> [!IMPORTANT]
-> Key information users need to know to achieve their goal.
-```
-
-> [!IMPORTANT]
-> Key information users need to know to achieve their goal.
-
-```text
-> [!WARNING]
+> [!warning]
 > Urgent info that needs immediate user attention to avoid problems.
 ```
 
-> [!WARNING]
+> [!warning]
 > Urgent info that needs immediate user attention to avoid problems.
 
 ```text
-> [!CAUTION]
+> [!caution]
 > Advises about risks or negative outcomes of certain actions.
 ```
 
-> [!CAUTION]
+> [!caution]
 > Advises about risks or negative outcomes of certain actions.
+
+```text
+> [!tip]
+> Helpful advice for doing things better or more easily.
+```
+
+> [!tip]
+> Helpful advice for doing things better or more easily.
+
+```text
+> [!important]
+> Key information users need to know to achieve their goal.
+```
+
+> [!important]
+> Key information users need to know to achieve their goal.
+
+
 
 ## Shortcodes
 
@@ -460,7 +478,7 @@ Commit your changes with a descriptive commit message:
   - Begin the summary with one of `content`, `theme`, `config`, `all`, or `misc`, followed by a colon, a space, and a brief description of the change beginning with a capital letter
   - Use imperative present tense
 - Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
-- Optionally, add one or more "Fixes" (for bugs) or "Closes" (for enhancements) keywords, each on its own line, referencing the [issues] addressed by this change.
+- Optionally, add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
 
 For example:
 

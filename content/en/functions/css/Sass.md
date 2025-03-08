@@ -123,7 +123,7 @@ Run `hugo env` to list the active transpilers.
 
 ### Installing in a production environment
 
-For [CI/CD] deployments (e.g., GitHub Pages, GitLab Pages, Netlify, etc.) you must edit the workflow to install Dart Sass before Hugo builds the site[^2]. Some providers allow you to use one of the package managers above, or you can download and extract one of the prebuilt binaries.
+For [CI/CD](g) deployments (e.g., GitHub Pages, GitLab Pages, Netlify, etc.) you must edit the workflow to install Dart Sass before Hugo builds the site[^2]. Some providers allow you to use one of the package managers above, or you can download and extract one of the prebuilt binaries.
 
 [^2]: You do not have to do this if (a) you have not modified the assets cache location, and (b) you have not set `useResourceCacheWhen` to `never` in your [site configuration], and (c) you add and commit your `resources` directory to your repository.
 
@@ -224,7 +224,6 @@ If you build Hugo from source and run `mage test -v`, the test will fail if you 
 
 [brew.sh]: https://brew.sh/
 [chocolatey.org]: https://community.chocolatey.org/packages/sass
-[ci/cd]: https://en.wikipedia.org/wiki/CI/CD
 [dart sass]: https://sass-lang.com/dart-sass
 [libsass]: https://sass-lang.com/libsass
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest

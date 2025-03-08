@@ -230,7 +230,7 @@ The above sets the [`baseURL`], [`enableGitInfo`], and [`environment`] configura
 > [!note]
 > An environment variable takes precedence over the values set in the configuration file. This means that if you set a configuration value with both an environment variable and in the configuration file, the value in the environment variable will be used.
 
-Environment variables simplify configuration for CI/CD deployments like GitHub Pages, GitLab Pages, and Netlify by allowing you to set values directly within their respective configuration and workflow files.
+Environment variables simplify configuration for [CI/CD](g) deployments like GitHub Pages, GitLab Pages, and Netlify by allowing you to set values directly within their respective configuration and workflow files.
 
 > [!note]
 > Environment variable names must be prefixed with `HUGO_`.

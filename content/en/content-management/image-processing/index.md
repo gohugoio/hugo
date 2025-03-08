@@ -419,7 +419,7 @@ Examples using the sunset image from above:
 
 ## Image processing performance consideration
 
-Hugo caches processed images in the `resources` directory. If you include this directory in source control, Hugo will not have to regenerate the images in a CI/CD workflow (e.g., GitHub Pages, GitLab Pages, Netlify, etc.). This results in faster builds.
+Hugo caches processed images in the `resources` directory. If you include this directory in source control, Hugo will not have to regenerate the images in a [CI/CD](g) workflow (e.g., GitHub Pages, GitLab Pages, Netlify, etc.). This results in faster builds.
 
 If you change image processing methods or options, or if you rename or remove images, the `resources` directory will contain unused images. To remove the unused images, perform garbage collection with:
 

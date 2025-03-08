@@ -19,7 +19,7 @@ The `baseURL` in your [site configuration](/configuration/) must reflect the ful
 
 ## Configure GitLab CI/CD
 
-Define your [CI/CD](https://docs.gitlab.com/ee/ci/quick_start/) jobs by creating a `.gitlab-ci.yml` file in the root of your project.
+Define your [CI/CD](g) jobs by creating a `.gitlab-ci.yml` file in the root of your project.
 
 ```yaml {file=".gitlab-ci.yml" copy=true}
 variables:

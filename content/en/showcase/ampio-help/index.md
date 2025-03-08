@@ -67,7 +67,7 @@ Very quickly it became apparent that our initial concerns about the adaptation o
 
 We recommended that our colleagues use Visual Studio Code as a tool for content creation. The project's repository tracks project-scoped configuration of the editor, which includes a set of _tasks_ allowing to run a live server from the GUI level. This is very useful for those who are easily frightened when faced with the mighty terminal.
 
-The basic skills of the Git workflow were also easily acquired. At the end of the day, builds and deployments are fully managed by CI/CD processes, so the administration of the service drills down to reviewing and accepting merge requests in the Git frontend. As a side effect, we receive a full and clear history of contributions, which is well appreciated by our quality assurance auditors.
+The basic skills of the Git workflow were also easily acquired. At the end of the day, builds and deployments are fully managed by [CI/CD](g) processes, so the administration of the service drills down to reviewing and accepting merge requests in the Git frontend. As a side effect, we receive a full and clear history of contributions, which is well appreciated by our quality assurance auditors.
 
 We could even say that our experiment spread the love for Git among non-programmers in our organization!
 

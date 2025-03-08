@@ -109,7 +109,10 @@ go test ./...
 Commit your changes with a descriptive commit message:
 
 - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
-- Optionally, provide a detailed description where each line is 80 characters or less, followed by a blank line.
+  - Begin the summary with one of content, theme, config, all, or misc, followed by a colon, a space, and a brief description of the change beginning with a capital letter
+  - Use imperative present tense
+  - See the [commit message guidelines] for requirements
+- Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
 - Add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
 
 For example:
@@ -124,8 +127,6 @@ splitting in the middle of a word.
 Fixes #99998
 Closes #99999"
 ```
-
-See the [commit message guidelines] for details.
 
 ### Step 8
 

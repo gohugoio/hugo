@@ -60,7 +60,7 @@ Here is your opportunity to include some commands before you run the deploy.
 
 You can let in the default option (main)
 
-After that Firebase has been set in your project with CI/CD. After that run:
+After that Firebase has been set in your project with [CI/CD](g). After that run:
 
 ```sh
 hugo && firebase deploy
