@@ -11,6 +11,7 @@ export const navbar = (Alpine) => ({
 					let els = contentEl.querySelectorAll('h2[id], h3[id], h4[id], h5[id], h6[id], dt[id]');
 					for (let i = 0; i < els.length; i++) {
 						let el = els[i];
+						el.classList.add('group');
 						let a = anchorTemplate.content.cloneNode(true).firstElementChild;
 						a.href = '#' + el.id;
 						el.appendChild(a);
