@@ -210,7 +210,10 @@ With examples of template code:
 
 ### Fenced code blocks
 
-Always specify the language:
+Always specify the language.
+
+When providing a Mardown example, set the code language to "text" to prevent
+erroneous lexing/highlighting of shortcode calls.
 
 ````text
 ```go-html-template
@@ -230,8 +233,15 @@ To include a filename header and copy-to-clipboard button:
 ```
 ````
 
-When providing a Mardown example, set the code language to "text" to prevent
-erroneous lexing/highlighting of shortcode calls.
+To wrap the code block within an initially-opened `details` element using a non-default summary:
+
+````text
+```go-html-template {details=true open=true summary="layouts/partials/foo.html" copy=true}
+{{ if eq $foo "bar" }}
+  {{ print "foo is bar" }}
+{{ end }}
+```
+````
 
 ### Shortcode calls
 

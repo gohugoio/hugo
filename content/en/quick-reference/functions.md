@@ -5,4 +5,4 @@ categories: []
 keywords: []
 ---
 
-{{< quick-reference section="functions" >}}
+{{% quick-reference section="functions" %}}

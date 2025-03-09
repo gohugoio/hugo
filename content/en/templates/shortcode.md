@@ -70,7 +70,7 @@ foo|json|en|`layouts/shortcodes/foo.json.en.json`
 
 Use these methods in your shortcode templates. Refer to each methods's documentation for details and examples.
 
-{{< list-pages-in-section path=/methods/shortcode >}}
+{{% list-pages-in-section path=/methods/shortcode %}}
 
 ## Examples
 

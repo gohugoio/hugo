@@ -62,4 +62,4 @@ You can also apply image filters using the [`Filter`] method on a `Resource` obj
 
 Use any of these filters with the `images.Filter` function, or with the `Filter` method on a `Resource` object.
 
-{{< list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude >}}
+{{% list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude %}}

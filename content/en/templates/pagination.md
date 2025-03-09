@@ -144,7 +144,7 @@ The `terse` format has fewer controls and page slots, consuming less space when 
 
 Create custom navigation components using any of the `Pager` methods:
 
-{{< list-pages-in-section path=/methods/pager >}}
+{{% list-pages-in-section path=/methods/pager %}}
 
 ## Structure
 

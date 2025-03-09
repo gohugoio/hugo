@@ -16,7 +16,7 @@ There are three types of shortcodes: embedded, custom, and inline.
 
 Hugo's embedded shortcodes are pre-defined templates within the application. Refer to each shortcode's documentation for specific usage instructions and available arguments.
 
-{{< list-pages-in-section path=/shortcodes >}}
+{{% list-pages-in-section path=/shortcodes %}}
 
 ## Custom
 

@@ -1,40 +1,28 @@
-{{/* prettier-ignore-start */ -}}
 {{- /*
 Renders the child sections of the given top-level section, listing each child's
 immediate descendants.
 
 @param {string} section The top-level section to render.
 
-@example {{< quick-reference section="functions" >}}
+@example {{% quick-reference section="/functions" %}}
 */ -}}
-{{/* prettier-ignore-end */ -}}
 {{ $section := "" }}
 {{ with .Get "section" }}
   {{ $section = . }}
 {{ else }}
-  {{ errorf "The %q shortcodes requires a 'section' parameter. See %s" .Name .Position }}
+  {{ errorf "The %q shortcode requires a 'section' parameter. See %s" .Name .Position }}
 {{ end }}
 
 {{ with site.GetPage $section }}
   {{ range .Sections }}
-    <h2>{{ .LinkTitle }}</h2>
+## {{ .LinkTitle }}{{/* Do not indent. */}}
+{{ .Description }}{{/* Do not indent. */}}
     {{ .Content }}
     {{ with .Pages }}
-      <dl>
-        {{ range . }}
-          {{ $aliases := "" }}
-          {{ if eq .Section "functions" }}
-            {{ with .Params.functions_and_methods.aliases }}
-              {{ $aliases = delimit . " or " }}
-            {{ end }}
-          {{ end }}
-          <dt>
-            <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
-            {{ with $aliases }}<span class="font-normal text-stone-700">({{ . }})</span>{{ end }}
-          </dt>
-          <dd>{{ .Description }}</dd>
-        {{ end }}
-      </dl>
+      {{ range . }}
+[{{ .LinkTitle }}]({{ .RelPermalink }}){{/* Do not indent. */}}
+: {{ .Description }}{{/* Do not indent. */}}
+      {{ end }}
     {{ end }}
   {{ end }}
 {{ else }}

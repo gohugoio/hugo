@@ -7,6 +7,9 @@ may also specify the following parameters:
 
 @param {bool} [copy=false] Whether to display a copy-to-clipboard button.
 @param {string} [file] The file name to display above the rendered code.
+@param {bool} [details=false] Whether to wrap the highlighted code block within a details element.
+@param {bool} [open=false] Whether to initially display the content of the details element.
+@param {string} [summary=Details] The content of the details summary element rendered from Markdown to HTML.
 
 @returns {template.HTML}
 
@@ -24,6 +27,9 @@ may also specify the following parameters:
 
 {{- $copy := false }}
 {{- $file := or .Attributes.file "" }}
+{{- $details := false }}
+{{- $open := "" }}
+{{- $summary := or .Attributes.summary "Details" | .Page.RenderString }}
 {{- $ext := strings.TrimPrefix "." (path.Ext $file) }}
 {{- $lang := or .Type $ext "text" }}
 {{- if in (slice "html" "gotmpl") $lang }}
@@ -41,6 +47,26 @@ may also specify the following parameters:
   {{- end }}
 {{- end }}
 
+{{- with .Attributes.details }}
+  {{- if in (slice true "true" 1) . }}
+    {{- $details = true }}
+  {{- else if in (slice false "false" 0) . }}
+    {{- $details = false }}
+  {{- end }}
+{{- end }}
+
+{{- with .Attributes.open }}
+  {{- if in (slice true "true" 1) . }}
+    {{- $open = "open" }}
+  {{- else if in (slice false "false" 0) . }}
+    {{- $open = "" }}
+  {{- end }}
+{{- end }}
+
+{{- if $details }}
+  <details class="cursor-pointer" {{ $open }}>
+  <summary>{{ $summary }}</summary>
+{{- end }}
 
 <div
   x-data
@@ -66,3 +92,7 @@ may also specify the following parameters:
     {{- transform.Highlight (strings.TrimSpace .Inner) $lang .Options }}
   </div>
 </div>
+
+{{- if $details }}
+  </details>
+{{- end }}

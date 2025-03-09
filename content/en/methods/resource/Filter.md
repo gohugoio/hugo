@@ -63,4 +63,4 @@ You can also apply image filters using the [`images.Filter`] function.
 
 Use any of these filters with the `Filter` method.
 
-{{< list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude >}}
+{{% list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude %}}
