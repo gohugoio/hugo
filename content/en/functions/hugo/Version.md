@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: hugo.VersionString
     signatures: [hugo.Version]
 ---

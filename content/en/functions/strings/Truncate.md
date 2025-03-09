@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [truncate]
-    related: []
     returnType: template.HTML
     signatures: ['strings.Truncate SIZE [ELLIPSIS] INPUT']
 aliases: [/functions/truncate]

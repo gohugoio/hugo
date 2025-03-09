@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: url.URL
     signatures: [urls.Parse URL]
 aliases: [/functions/urls.parse]

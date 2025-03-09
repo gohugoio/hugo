@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: '[]images.Color'
     signatures: [RESOURCE.Colors]
 ---

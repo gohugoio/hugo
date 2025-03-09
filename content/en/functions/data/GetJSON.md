@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [getJSON]
-    related: []
     returnType: any
     signatures: ['data.GetJSON INPUT... [OPTIONS]']
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0

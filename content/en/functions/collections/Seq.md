@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [seq]
-    related: []
     returnType: '[]int'
     signatures:
       - collections.Seq LAST

@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [where]
-    related: []
     returnType: any
     signatures: ['collections.Where COLLECTION KEY [OPERATOR] VALUE']
 aliases: [/functions/where]

@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: openapi3.OpenAPIDocument
     signatures: ['openapi3.Unmarshal RESOURCE']
 ---

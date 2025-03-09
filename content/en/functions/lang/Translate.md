@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [T, i18n]
-    related: []
     returnType: string
     signatures: ['lang.Translate KEY [CONTEXT]']
 aliases: [/functions/i18n]

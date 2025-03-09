@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: image.Config
     signatures: [images.Config PATH]
 aliases: [/functions/imageconfig]

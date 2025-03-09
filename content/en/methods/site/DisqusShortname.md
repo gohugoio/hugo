@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: string
     signatures: [SITE.DisqusShortname]
 expiryDate: 2025-10-30 # deprecated 2023-10-30 in v0.120.0

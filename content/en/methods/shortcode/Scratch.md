@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: maps.Scratch
     signatures: [SHORTCODE.Scratch]
 expiryDate: 2026-11-18 # deprecated 2024-11-18 (soft)

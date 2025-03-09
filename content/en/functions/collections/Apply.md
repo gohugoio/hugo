@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [apply]
-    related: []
     returnType: '[]any'
     signatures: [collections.Apply COLLECTION FUNCTION PARAM...]
 aliases: [/functions/apply]

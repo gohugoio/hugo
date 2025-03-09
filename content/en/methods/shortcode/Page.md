@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: hugolib.pageForShortcode
     signatures: [SHORTCODE.Page]
 ---

@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [getCSV]
-    related: []
     returnType: '[][]string'
     signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0

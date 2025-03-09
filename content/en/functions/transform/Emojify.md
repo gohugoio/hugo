@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [emojify]
-    related: []
     returnType: template.HTML
     signatures: [transform.Emojify INPUT]
 aliases: [/functions/emojify]

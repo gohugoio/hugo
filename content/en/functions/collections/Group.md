@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [group]
-    related: []
     returnType: any
     signatures: [collections.Group KEY PAGES]
 aliases: [/functions/group]

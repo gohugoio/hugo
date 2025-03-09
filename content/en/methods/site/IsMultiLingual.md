@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: bool
     signatures: [SITE.IsMultiLingual]
 expiryDate: 2026-03-16 # deprecated 2024-03-16 in 0.124.0

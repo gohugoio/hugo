@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [plainify]
-    related: []
     returnType: template.HTML
     signatures: [transform.Plainify INPUT]
 aliases: [/functions/plainify]

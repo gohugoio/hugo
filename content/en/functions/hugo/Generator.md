@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: template.HTML
     signatures: [hugo.Generator]
 ---

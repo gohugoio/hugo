@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: debug.Timer
     signatures: [debug.Timer NAME] 
 ---

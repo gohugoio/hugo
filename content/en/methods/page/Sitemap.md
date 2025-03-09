@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: config.SitemapConfig
     signatures: [PAGE.Sitemap]
 ---

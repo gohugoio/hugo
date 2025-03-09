@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: time.Time
     signatures: [SITE.Lastmod]
 ---

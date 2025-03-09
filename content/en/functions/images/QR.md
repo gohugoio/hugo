@@ -5,7 +5,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: images.ImageResource
     signatures: ['images.QR TEXT [OPTIONS]']
 ---

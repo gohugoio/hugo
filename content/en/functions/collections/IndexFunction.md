@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [index]
-    related: []
     returnType: any
     signatures: [collections.Index COLLECTION KEY...]
 aliases: [/functions/index,/functions/index-function]

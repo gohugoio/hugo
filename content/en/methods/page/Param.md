@@ -5,7 +5,6 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    related: []
     returnType: any
     signatures: [PAGE.Param KEY]
 aliases: [/functions/param]

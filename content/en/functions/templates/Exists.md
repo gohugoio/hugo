@@ -6,7 +6,6 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    related: []
     returnType: bool
     signatures: [templates.Exists PATH]
 aliases: [/functions/templates.exists]
