@@ -1,16 +1,20 @@
 ---
 title: diagrams.Goat
-description: Converts ASCII art to an SVG diagram, returning a GoAT diagram object.
+description: Returns an SVGDiagram object created from the given GoAT markup and options.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType: diagrams.goatDiagram
-    signatures: ['diagrams.Goat INPUT']
+    returnType: diagrams.SVGDiagram
+    signatures: [diagrams.Goat MARKUP]
 ---
 
-Useful in a [code block render hook], the `diagram.Goat` function converts ASCII art to an SVG diagram, returning a [GoAT] diagram object with the following methods:
+Useful in a [code block render hook], the `diagrams.Goat` function returns an SVGDiagram object created from the given [GoAT] markup.
+
+## Methods
+
+The SVGDiagram object has the following methods:
 
 Inner
 : (`template.HTML`) Returns the SVG child elements without a wrapping `svg` element, allowing you to create your own wrapper.
