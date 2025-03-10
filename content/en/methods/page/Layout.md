@@ -13,7 +13,7 @@ Specify the `layout` field in front matter to target a particular template. See&
 
 [details]: /templates/lookup-order/#target-a-template
 
-{{< code-toggle file=content/contact.md >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 layout = 'contact'
 {{< /code-toggle >}}

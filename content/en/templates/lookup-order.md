@@ -56,7 +56,7 @@ layouts/
 
 But the contact page probably has a form and requires a different template. In the front matter specify `layout`:
 
-{{< code-toggle file=content/contact.md >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 layout = 'contact'
 {{< /code-toggle >}}
@@ -72,12 +72,12 @@ layouts/
 
 As a content type, the word `page` is vague. Perhaps `miscellaneous` would be better. Add `type` to the front matter of each page:
 
-{{< code-toggle file=content/about.md >}}
+{{< code-toggle file=content/about.md fm=true >}}
 title = 'About'
 type = 'miscellaneous'
 {{< /code-toggle >}}
 
-{{< code-toggle file=content/contact.md >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 type = 'miscellaneous'
 layout = 'contact'

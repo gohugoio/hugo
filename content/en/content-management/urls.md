@@ -189,7 +189,7 @@ Create redirects from old URLs to new URLs with aliases:
 
 Change the file name of an existing page, and create an alias from the previous URL to the new URL:
 
-{{< code-toggle file=content/posts/new-file-name.md >}}
+{{< code-toggle file=content/posts/new-file-name.md fm=true >}}
 aliases = ['/posts/previous-file-name']
 {{< /code-toggle >}}
 
@@ -201,13 +201,13 @@ Each of these directory-relative aliases is equivalent to the site-relative alia
 
 You can create more than one alias to the current page:
 
-{{< code-toggle file=content/posts/new-file-name.md >}}
+{{< code-toggle file=content/posts/new-file-name.md fm=true >}}
 aliases = ['previous-file-name','original-file-name']
 {{< /code-toggle >}}
 
 In a multilingual site, use a directory-relative alias, or include the language prefix with a site-relative alias:
 
-{{< code-toggle file=content/posts/new-file-name.de.md >}}
+{{< code-toggle file=content/posts/new-file-name.de.md fm=true >}}
 aliases = ['/de/posts/previous-file-name']
 {{< /code-toggle >}}
 

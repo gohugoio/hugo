@@ -26,7 +26,7 @@ To include the embedded template:
 
 To use Hugo's Disqus template, first set up a single configuration value:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [services.disqus]
 shortname = 'your-disqus-shortname'
 {{</ code-toggle >}}
@@ -186,7 +186,7 @@ Hugo's X (Twitter) Card template is configured using a mix of configuration sett
   description = "Text about my cool site"
 {{</ code-toggle >}}
 
-{{< code-toggle file=content/blog/my-post.md >}}
+{{< code-toggle file=content/blog/my-post.md fm=true >}}
 title = "Post title"
 description = "Text about this post"
 images = ["post-cover.png"]
@@ -200,7 +200,7 @@ Hugo uses the page title and description for the card's title and description fi
 
 Set the value of `twitter:site` in your site configuration:
 
-{{< code-toggle file="hugo" >}}
+{{< code-toggle file=hugo >}}
 [params.social]
 twitter = "GoHugoIO"
 {{</ code-toggle >}}
