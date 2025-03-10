@@ -23,7 +23,8 @@
     "dates" $dates
     "kind" "page"
     "params" $params
-    "path" .name
+    "path" (strings.Replace .name "." "-")
+    "slug" .name
     "title" (printf "Release %s" .name)
   }}
   {{ $.AddPage $page }}
