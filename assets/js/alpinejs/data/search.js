@@ -33,7 +33,7 @@ const applyHelperFuncs = (array) => {
 };
 
 export const search = (Alpine, cfg) => ({
-	query: designMode ? 'shortcodes' : '',
+	query: designMode ? 'apac' : '',
 	open: designMode,
 	result: {},
 
