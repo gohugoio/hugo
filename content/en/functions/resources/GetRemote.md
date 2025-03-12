@@ -230,7 +230,7 @@ mediaTypes = ['^image/avif$','^application/vnd\.api\+json$']
 Note that the entry above is:
 
 - An _addition_ to the allowlist; it does not _replace_ the allowlist
-- An array of [regular expression](g)
+- An array of [regular expressions](g)
 
 [allowlist]: https://en.wikipedia.org/wiki/Whitelist
 [Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
