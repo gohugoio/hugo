@@ -19,19 +19,19 @@ exec.allow
 : (`[]string`) A slice of [regular expressions](g) matching the names of external executables that Hugo is allowed to run.
 
 exec.osEnv
-: (`[]string`) A slice of regular expressions matching the names of operating system environment variables that Hugo is allowed to access.
+: (`[]string`) A slice of [regular expression](g) matching the names of operating system environment variables that Hugo is allowed to access.
 
 funcs.getenv
-: (`[]string`) A slice of regular expressions matching the names of operating system environment variables that Hugo is allowed to access with the [`os.Getenv`] function.
+: (`[]string`) A slice of [regular expression](g) matching the names of operating system environment variables that Hugo is allowed to access with the [`os.Getenv`] function.
 
 http.methods
-: (`[]string`) A slice of regular expressions matching the HTTP methods that the [`resources.GetRemote`] function is allowed to use.
+: (`[]string`) A slice of [regular expression](g) matching the HTTP methods that the [`resources.GetRemote`] function is allowed to use.
 
 http.mediaTypes
-: (`[]string`) Applicable to the `resources.GetRemote` function, a slice of regular expressions matching the `Content-Type` in HTTP responses that Hugo trusts, bypassing file content analysis for media type detection.
+: (`[]string`) Applicable to the `resources.GetRemote` function, a slice of [regular expression](g) matching the `Content-Type` in HTTP responses that Hugo trusts, bypassing file content analysis for media type detection.
 
 http.urls
-: (`[]string`) A slice of regular expressions matching the URLs that the `resources.GetRemote` function is allowed to access.
+: (`[]string`) A slice of [regular expression](g) matching the URLs that the `resources.GetRemote` function is allowed to access.
 
 > [!note]
 > Setting an allow list to the string `none` will completely disable the associated feature.

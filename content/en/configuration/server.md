@@ -37,7 +37,7 @@ fromHeaders
 
 fromRe
 : {{< new-in 0.144.0 />}}
-: (`string`) A regular expression used to match the requested URL. Either `from` or `fromRE` must be set. If both `from` and `fromRe` are specified, the URL must match both patterns. Capture groups from the regular expression are accessible in the `to` field as `$1`, `$2`, and so on.
+: (`string`) A [regular expression](g) used to match the requested URL. Either `from` or `fromRE` must be set. If both `from` and `fromRe` are specified, the URL must match both patterns. Capture groups from the regular expression are accessible in the `to` field as `$1`, `$2`, and so on.
 
 status
 : (`string`) The HTTP status code to use for the redirect. A status code of 200 will trigger a URL rewrite.

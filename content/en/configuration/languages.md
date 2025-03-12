@@ -44,9 +44,9 @@ disabled
 languageCode
 : (`string`) The language tag as described in [RFC 5646]. This value does not affect localization or URLs. Hugo uses this value to populate:
 
-  - The `lang` attribute of the `html` element in the [built-in alias template]
-  - The `language` element in the [built-in RSS template]
-  - The `locale` property in the [built-in OpenGraph template]
+  - The `lang` attribute of the `html` element in the [embedded alias template]
+  - The `language` element in the [embedded RSS template]
+  - The `locale` property in the [embedded OpenGraph template]
 
   Access this value from a template using the [`Language.LanguageCode`] method on a `Site` or `Page` object.
 
@@ -185,9 +185,9 @@ public
 [`Language.LanguageName`]: /methods/site/language/#languagename
 [`Language.Weight`]: /methods/site/language/#weight
 [`Title`]: /methods/site/title/
-[built-in alias template]: {{% eturl alias %}}
-[built-in OpenGraph template]: {{% eturl opengraph %}}
-[built-in RSS template]: {{% eturl rss %}}
+[embedded alias template]: {{% eturl alias %}}
+[embedded OpenGraph template]: {{% eturl opengraph %}}
+[embedded RSS template]: {{% eturl rss %}}
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
 [translating by file name]: /content-management/multilingual/#translation-by-file-name

@@ -120,7 +120,7 @@ duplicateResourceFiles
 : (`bool`) Whether to duplicate shared page resources for each language on multilingual single-host sites. See [multilingual page resources] for details. Default is `false`.
 
   > [!note]
-  >  With multilingual single-host sites, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host sites.
+  > With multilingual single-host sites, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host sites.
 
 parser.wrapStandAloneImageWithinParagraph
 : (`bool`) Whether to wrap image elements without adjacent content within a `p` element when rendered. This is the default Markdown behavior. Set to `false` when using an [image render hook] to render standalone images as `figure` elements. Default is `true`.
@@ -159,7 +159,7 @@ renderHooks.link.enableDefault
 : (`bool`) Whether to enable the [embedded link render hook]. Default is `false`.
 
   > [!note]
-  >   The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+  > The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
 
 renderer.hardWraps
 : (`bool`) Whether to replace newline characters within a paragraph with `br` elements. Default is `false`.
@@ -335,3 +335,7 @@ ordered
 [security policy]: /configuration/security/
 [subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
 [superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
+[AsciiDoc]: https://asciidoc.org/
+[Emacs Org Mode]: https://orgmode.org/
+[Pandoc]: https://www.pandoc.org/
+[reStructuredText]: https://docutils.sourceforge.io/rst.html

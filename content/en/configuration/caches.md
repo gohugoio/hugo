@@ -16,7 +16,7 @@ dir
 : (`string`) The absolute file system path where the cached files will be stored. You can begin the path with the `:cacheDir` or `:resourceDir` token. These tokens will be replaced with the actual configured cache directory and resource directory paths, respectively.
 
 maxAge
-: (`string`) The `duration` a cached entry remains valid before being evicted. A value of `0` disables the cache. A value of `-1` means the cache entry never expires (the default).
+: (`string`) The [duration](g) a cached entry remains valid before being evicted. A value of `0` disables the cache. A value of `-1` means the cache entry never expires (the default).
 
 ## Tokens
 

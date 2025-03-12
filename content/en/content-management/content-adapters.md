@@ -99,7 +99,7 @@ Returns a persistent “scratch pad” to store and manipulate data. The main us
 
 ### EnableAllLanguages
 
-By default, Hugo executes the content adapter for the language defined by the _content.gotmpl file . Use this method to activate the content adapter for all languages.
+By default, Hugo executes the content adapter for the language defined by the _content.gotmpl file. Use this method to activate the content adapter for all languages.
 
 ```go-html-template {file="content/books/_content.gotmpl"}
 {{ .EnableAllLanguages }}

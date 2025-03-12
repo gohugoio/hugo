@@ -34,7 +34,7 @@ matchers
 : (`[]*Matcher`) A slice of [matchers](#matchers-1).
 
 order
-: (`[]string`) An ordered slice of [RE2] regular expressions that determines upload priority (left to right). Files not matching any expression are uploaded last in an arbitrary order.
+: (`[]string`) An ordered slice of [regular expressions](g) that determines upload priority (left to right). Files not matching any expression are uploaded last in an arbitrary order.
 
 target
 : (`string`) The target deployment [`name`](#name). Defaults to the first target.
@@ -44,8 +44,6 @@ targets
 
 workers
 : (`int`) The number of concurrent workers to use when uploading files. Default is `10`.
-
-[RE2]: https://github.com/google/re2/wiki/Syntax/
 
 ## Targets
 
@@ -93,7 +91,7 @@ gzip
 : (`bool`) Whether the file should be gzipped before upload. If so, the `ContentEncoding` field will automatically be set to `gzip`. Default is `false`.
 
 pattern
-: (`string`) An [RE2] regular expression used to match paths. Paths are converted to use forward slashes (`/`) before matching.
+: (`string`) A [regular expression](g) used to match paths. Paths are converted to use forward slashes (`/`) before matching.
 
 [cacheControl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
 [contentEncoding]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding

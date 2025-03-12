@@ -95,7 +95,7 @@ You can create new output formats as needed. For example, you may wish to create
 
 ### Step 1
 
-You must specify a media type when you create an output format. Because `application/atom+xml`, the media type for Atom feeds, is not a [default media type], begin by creating a new one:
+Output formats require a specified media type. Because Atom feeds use `application/atom+xml`, which is not one of the [default media types], you must create it first.
 
 {{< code-toggle file=hugo >}}
 [mediaTypes.'application/atom+xml']
@@ -202,7 +202,7 @@ Output format|Template path
 [configure media types]: /configuration/media-types/
 [configure outputs]: /configuration/outputs/
 [configured media types]: /configuration/media-types/
-[default media type]: /configuration/media-types/
+[default media types]: /configuration/media-types/
 [embedded RSS template]: {{% eturl rss %}}
 [html/template]: https://pkg.go.dev/html/template
 [template lookup order]: /templates/lookup-order/

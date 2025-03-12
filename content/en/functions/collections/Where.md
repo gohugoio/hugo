@@ -88,7 +88,7 @@ Use any of the following logical operators:
 
 `like`
 : {{< new-in 0.116.0 />}}
-: (`bool`) Reports whether the given field value matches the regular expression specified in `VALUE`. Use the `like` operator to compare `string` values. The `like` operator returns `false` when comparing other data types to the regular expression.
+: (`bool`) Reports whether the given field value matches the [regular expression](g) specified in `VALUE`. Use the `like` operator to compare `string` values. The `like` operator returns `false` when comparing other data types to the regular expression.
 
 > [!note]
 > The examples below perform comparisons within a page collection, but the same comparisons are applicable to a slice of maps.
