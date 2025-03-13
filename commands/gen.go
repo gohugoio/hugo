@@ -184,13 +184,13 @@ url: %s
 				prepender := func(filename string) string {
 					name := filepath.Base(filename)
 					base := strings.TrimSuffix(name, path.Ext(name))
-					url := "/commands/" + strings.ToLower(base) + "/"
+					url := "/docs/reference/commands/" + strings.ToLower(base) + "/"
 					return fmt.Sprintf(gendocFrontmatterTemplate, strings.Replace(base, "_", " ", -1), base, url)
 				}
 
 				linkHandler := func(name string) string {
 					base := strings.TrimSuffix(name, path.Ext(name))
-					return "/commands/" + strings.ToLower(base) + "/"
+					return "/docs/reference/commands/" + strings.ToLower(base) + "/"
 				}
 				r.Println("Generating Hugo command-line documentation in", gendocdir, "...")
 				doc.GenMarkdownTreeCustom(cd.CobraCommand.Root(), gendocdir, prepender, linkHandler)
