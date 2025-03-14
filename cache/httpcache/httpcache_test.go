@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestGlobMatcher(t *testing.T) {
@@ -39,4 +40,34 @@ func TestGlobMatcher(t *testing.T) {
 	c.Assert(p("foo.css"), qt.IsFalse)
 	c.Assert(p("foo/bar/foo.css"), qt.IsFalse)
 	c.Assert(p("foo/bar/foo.xml"), qt.IsTrue)
+}
+
+func TestDefaultConfig(t *testing.T) {
+	c := qt.New(t)
+
+	_, err := DefaultConfig.Compile()
+	c.Assert(err, qt.IsNil)
+}
+
+func TestDecodeConfigInjectsDefaultAndCompiles(t *testing.T) {
+	c := qt.New(t)
+
+	cfg, err := DecodeConfig(config.BaseConfig{}, map[string]interface{}{})
+	c.Assert(err, qt.IsNil)
+	c.Assert(cfg, qt.DeepEquals, DefaultConfig)
+
+	_, err = cfg.Compile()
+	c.Assert(err, qt.IsNil)
+
+	cfg, err = DecodeConfig(config.BaseConfig{}, map[string]any{
+		"cache": map[string]any{
+			"polls": []map[string]any{
+				{"disable": true},
+			},
+		},
+	})
+	c.Assert(err, qt.IsNil)
+
+	_, err = cfg.Compile()
+	c.Assert(err, qt.IsNil)
 }

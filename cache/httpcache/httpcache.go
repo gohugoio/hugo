@@ -188,7 +188,7 @@ func (gm *GlobMatcher) CompilePredicate() (func(string) bool, error) {
 	return p, nil
 }
 
-func DecodeConfig(bcfg config.BaseConfig, m map[string]any) (Config, error) {
+func DecodeConfig(_ config.BaseConfig, m map[string]any) (Config, error) {
 	if len(m) == 0 {
 		return DefaultConfig, nil
 	}
@@ -212,6 +212,17 @@ func DecodeConfig(bcfg config.BaseConfig, m map[string]any) (Config, error) {
 
 	if c.Cache.For.IsZero() {
 		c.Cache.For = DefaultConfig.Cache.For
+	}
+
+	for pci := range c.Polls {
+		if c.Polls[pci].For.IsZero() {
+			c.Polls[pci].For = DefaultConfig.Cache.For
+			c.Polls[pci].Disable = true
+		}
+	}
+
+	if len(c.Polls) == 0 {
+		c.Polls = DefaultConfig.Polls
 	}
 
 	return c, nil
