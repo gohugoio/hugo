@@ -10,16 +10,16 @@
   "license": "",
   "devDependencies": {
     "@awmottaz/prettier-plugin-void-html": "^1.8.0",
-    "@tailwindcss/cli": "^4.0.0",
-    "@tailwindcss/typography": "^0.5.15",
-    "prettier": "^3.5.0",
+    "@tailwindcss/cli": "^4.0.14",
+    "@tailwindcss/typography": "^0.5.16",
+    "prettier": "^3.5.3",
     "prettier-plugin-go-template": "^0.0.15",
-    "tailwindcss": "^4.0.0"
+    "tailwindcss": "^4.0.14"
   },
   "dependencies": {
-    "@alpinejs/focus": "^3.14.8",
-    "@alpinejs/persist": "^3.14.8",
-    "@hotwired/turbo": "^8.0.12",
-    "alpinejs": "^3.14.8"
+    "@alpinejs/focus": "^3.14.9",
+    "@alpinejs/persist": "^3.14.9",
+    "@hotwired/turbo": "^8.0.13",
+    "alpinejs": "^3.14.9"
   }
 }
