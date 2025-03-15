@@ -389,7 +389,7 @@ See [github.com/disintegration/imaging] for the complete list of resampling filt
 
 ## Image processing examples
 
-_The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
+_The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://bep.is) (Creative Commons Attribution-Share Alike 4.0 International license)_
 
 {{< imgproc path="sunset.jpg" spec="resize 480x" alt="A sunset" />}}
 
