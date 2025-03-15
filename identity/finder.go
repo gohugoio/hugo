@@ -45,9 +45,7 @@ func putSearchID(sid *searchID) {
 	sid.dp = nil
 	sid.peq = nil
 	sid.eqer = nil
-	for k := range sid.seen {
-		delete(sid.seen, k)
-	}
+	clear(sid.seen)
 	searchIDPool.Put(sid)
 }
 
