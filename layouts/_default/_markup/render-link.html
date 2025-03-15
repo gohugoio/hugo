@@ -187,7 +187,6 @@ either of these shortcodes in conjunction with this render hook.
 
 {{- /* Render anchor element. */ -}}
 <a
-  aria-label="{{ .PlainText }}"
   {{- with .Title }}title="{{ . }}"{{- end }}
   {{- range $k, $v := $attrs }}
     {{- if $v }}
