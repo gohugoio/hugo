@@ -854,7 +854,7 @@ title: "p1"
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	b.AssertFileContent("public/p1/index.html", "<!-- raw HTML omitted -->")
-	b.AssertLogContains("WARN  Raw HTML omitted while rendering \"/content/p1.md\"; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-goldmark-raw-html']")
+	b.AssertLogContains("WARN  Raw HTML omitted while rendering \"/content/p1.md\"; see https://gohugo.io/docs/reference/configuration/markup/#rendererunsafe\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-goldmark-raw-html']")
 
 	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
 	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
@@ -878,7 +878,7 @@ title: "p1"
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	b.AssertFileContent("public/p1/index.html", "<!-- raw HTML omitted -->")
-	b.AssertLogContains("WARN  Raw HTML omitted while rendering \"/content/p1.md\"; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-goldmark-raw-html']")
+	b.AssertLogContains("WARN  Raw HTML omitted while rendering \"/content/p1.md\"; see https://gohugo.io/docs/reference/configuration/markup/#rendererunsafe\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-goldmark-raw-html']")
 
 	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
 	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
@@ -897,7 +897,7 @@ title: "p1"
 ---
 # HTML comments
 
-## Simple 
+## Simple
 <!-- This is a comment -->
 
     <!-- This is a comment indented -->
@@ -918,7 +918,7 @@ title: "p1"
 <img border="0" src="pic_trulli.jpg" alt="Trulli">
 -->
 
-## XSS 
+## XSS
 
 <!-- --><script>alert("I just escaped the HTML comment")</script><!-- -->
 
@@ -931,10 +931,10 @@ This is a <!-- hidden--> word.
 
 This is a <!-- hidden --> word.
 
-This is a <!-- 
+This is a <!--
 hidden --> word.
 
-This is a <!-- 
+This is a <!--
 hidden
 --> word.
 
