@@ -60,7 +60,7 @@ func newGenCommand() *genCommand {
 			short: "Generate CSS stylesheet for the Chroma code highlighter",
 			long: `Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if markup.highlight.noClasses is disabled in config.
 
-See https://gohugo.io/quick-reference/syntax-highlighting-styles/ for a preview of the available styles.`,
+See https://gohugo.io/docs/reference/miscellaneous/syntax-highlighting-styles/ for a preview of the available styles.`,
 
 			run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 				style = strings.ToLower(style)
@@ -168,7 +168,7 @@ url: %s
 			short: "Generate Markdown documentation for the Hugo CLI",
 			long: `Generate Markdown documentation for the Hugo CLI.
 			This command is, mostly, used to create up-to-date documentation
-	of Hugo's command-line interface for https://gohugo.io/.
+	of Hugo's command-line interface for https://gohugo.io/docs/.
 
 	It creates one Markdown file per command with front matter suitable
 	for rendering in Hugo.`,
