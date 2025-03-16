@@ -117,7 +117,7 @@ func isGlobWithExtension(s string) bool {
 
 func checkCascadePattern(logger loggers.Logger, m PageMatcher) {
 	if m.Lang != "" {
-		hugo.Deprecate("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/content-management/front-matter/#target", "v0.150.0")
+		hugo.Deprecate("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/docs/concepts/front-matter/#target", "v0.150.0")
 	}
 }
 

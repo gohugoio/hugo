@@ -500,7 +500,7 @@ func (m *Mount) init(logger logg.Logger) error {
 		m.Sites.Matrix.Languages = append(m.Sites.Matrix.Languages, m.Lang)
 		m.Lang = ""
 
-		hugo.DeprecateWithLogger("module.mounts.lang", "Replaced by the more powerful 'sites.matrix' setting, see https://gohugo.io/configuration/module/#mounts", "v0.153.0", logger)
+		hugo.DeprecateWithLogger("module.mounts.lang", "Replaced by the more powerful 'sites.matrix' setting, see https://gohugo.io/docs/reference/configuration/modules/#mounts", "v0.153.0", logger)
 	}
 
 	m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
