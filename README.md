@@ -4,18 +4,18 @@
 [bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
 [contributing]: CONTRIBUTING.md
 [create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
-[details]: https://gohugo.io/host-and-deploy/deploy-with-hugo-deploy/
+[details]: https://gohugo.io/docs/guides/host-and-deploy/deploy-with-hugo-deploy/
 [documentation repository]: https://github.com/gohugoio/hugoDocs
-[documentation]: https://gohugo.io/documentation
-[dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/installation/bsd
+[documentation]: https://gohugo.io/docs/
+[dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/docs/installation/bsd/
 [features]: https://gohugo.io/about/features/
 [forum]: https://discourse.gohugo.io
 [friends]: https://github.com/gohugoio/hugo/graphs/contributors
-[hugo modules]: https://gohugo.io/hugo-modules/
-[installation]: https://gohugo.io/installation
+[hugo modules]: https://gohugo.io/docs/concepts/modules/
+[installation]: https://gohugo.io/docs/installation/
 [issue queue]: https://github.com/gohugoio/hugo/issues
-[linux]: https://gohugo.io/installation/linux
-[macos]: https://gohugo.io/installation/macos
+[linux]: https://gohugo.io/docs/installation/linux/
+[macos]: https://gohugo.io/docs/installation/macos/
 [prebuilt binary]: https://github.com/gohugoio/hugo/releases/latest
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
 [spf13]: https://github.com/spf13
@@ -23,7 +23,7 @@
 [support]: https://discourse.gohugo.io
 [themes]: https://themes.gohugo.io/
 [website]: https://gohugo.io
-[windows]: https://gohugo.io/installation/windows
+[windows]: https://gohugo.io/docs/installation/windows/
 
 <a href="https://gohugo.io/"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565"></a>
 
