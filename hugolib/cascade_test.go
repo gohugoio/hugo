@@ -515,7 +515,7 @@ defaultContentLanguageInSubDir = false
 	createContentFiles("en")
 
 	b.WithTemplates("index.html", `
-	
+
 {{ range .Site.Pages }}
 {{- .Weight }}|{{ .Kind }}|{{ .Path }}|{{ .Title }}|{{ .Params.icon }}|{{ .Type }}|{{ range .OutputFormats }}{{ .Name }}-{{ end }}|
 {{ end }}
@@ -749,7 +749,7 @@ title: "Post 1"
 `
 	b, err := TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
-	b.AssertLogContains(`cascade target path "/posts/post-1.de.md" looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/`)
+	b.AssertLogContains(`cascade target path "/posts/post-1.de.md" looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see https://gohugo.io/docs/reference/methods/page/path/`)
 }
 
 func TestCascadeExtensionInPathIgnore(t *testing.T) {
