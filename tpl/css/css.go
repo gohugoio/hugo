@@ -157,7 +157,7 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 			switch t {
 			case sass.TranspilerDart:
 			case sass.TranspilerLibSass:
-				return nil, errors.New("css.Sass: the libsass transpiler was removed in Hugo v0.170.0 (deprecated from v0.153.0); use dartsass instead. See https://gohugo.io/functions/css/sass/#dart-sass")
+				return nil, errors.New("css.Sass: the libsass transpiler was removed in Hugo v0.170.0 (deprecated from v0.153.0); use dartsass instead. See https://gohugo.io/docs/reference/functions/css/sass/#dart-sass")
 			default:
 				return nil, fmt.Errorf("unsupported transpiler %q; valid value is %q", t, sass.TranspilerDart)
 			}

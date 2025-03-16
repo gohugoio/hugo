@@ -312,7 +312,7 @@ func (ns *Namespace) Publish(r resource.Resource) (resource.Resource, error) {
 //
 // Deprecated: Use templates.Defer instead.
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
-	hugo.DeprecateWithLogger("resources.PostProcess", "Use templates.Defer instead. See https://gohugo.io/functions/templates/defer/", "v0.164.0", ns.deps.Log.Logger())
+	hugo.DeprecateWithLogger("resources.PostProcess", "Use templates.Defer instead. See https://gohugo.io/docs/reference/functions/templates/defer/", "v0.164.0", ns.deps.Log.Logger())
 	return ns.deps.ResourceSpec.PostProcess(r)
 }
 
