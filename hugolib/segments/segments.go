@@ -151,7 +151,7 @@ func (s *segmentsBuilder) buildOne(f []SegmentMatcherFields) (predicate.PR[Segme
 			}
 		}
 		if fields.Lang != "" {
-			hugo.DeprecateWithLogger("config segments.[...]lang ", "Use sites.matrix instead, see https://gohugo.io/configuration/segments/#segment-definition", "v0.153.0", s.logger.Logger())
+			hugo.DeprecateWithLogger("config segments.[...]lang ", "Use sites.matrix instead, see https://gohugo.io/docs/reference/configuration/segments/#segment-definition", "v0.153.0", s.logger.Logger())
 			fields.Sites.Matrix.Languages = []string{fields.Lang}
 		}
 		if !fields.Sites.Matrix.IsZero() {
