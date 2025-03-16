@@ -709,10 +709,10 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			patterns, hasLegacyIncludes, hasLegacyExcludes := mount.FilesToFilter()
 			if hasLegacyIncludes {
-				hugo.Deprecate("module.mounts.includeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/configuration/module/#files", "v0.153.0")
+				hugo.Deprecate("module.mounts.includeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/docs/reference/configuration/modules/#files", "v0.153.0")
 			}
 			if hasLegacyExcludes {
-				hugo.Deprecate("module.mounts.excludeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/configuration/module/#files", "v0.153.0")
+				hugo.Deprecate("module.mounts.excludeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/docs/reference/configuration/modules/#files", "v0.153.0")
 			}
 
 			inclusionFilter, err := hglob.NewFilenameFilterV2(patterns)

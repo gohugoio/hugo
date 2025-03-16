@@ -142,7 +142,7 @@ title: home
 
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 	b.AssertFileContent("public/index.html", `<script src="https://gist.github.com/jmooring/23932424365401ffa5e9d9810102a477.js"></script>`)
-	b.AssertLogContains(`WARN  The "gist" shortcode was deprecated in v0.143.0 and will be removed in a future release. See https://gohugo.io/shortcodes/gist for instructions to create a replacement.`)
+	b.AssertLogContains(`WARN  The "gist" shortcode was deprecated in v0.143.0 and will be removed in a future release. See https://gohugo.io/docs/guides/embedded-shortcodes/gist/ for instructions to create a replacement.`)
 }
 
 func TestHighlightShortcode(t *testing.T) {
