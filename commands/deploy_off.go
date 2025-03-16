@@ -40,7 +40,7 @@ func newDeployCommand() simplecobra.Commander {
 	return &simpleCommand{
 		name: "deploy",
 		run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-			return errors.New("the deploy command requires the deploy edition, see https://gohugo.io/installation/")
+			return errors.New("the deploy command requires the deploy edition, see https://gohugo.io/docs/installation/")
 		},
 		withc: func(cmd *cobra.Command, r *rootCommand) {
 			applyDeployFlags(cmd, r)
