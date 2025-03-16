@@ -512,15 +512,15 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 				case "postcss":
 					// This transformation is not available in this
 					// Most likely because PostCSS is not installed.
-					errMsg = ". You need to install PostCSS. See https://gohugo.io/functions/css/postcss/"
+					errMsg = ". You need to install PostCSS. See https://gohugo.io/docs/reference/functions/css/postcss/"
 				case "tailwindcss":
-					errMsg = ". You need to install TailwindCSS CLI. See https://gohugo.io/functions/css/tailwindcss/"
+					errMsg = ". You need to install TailwindCSS CLI. See https://gohugo.io/docs/reference/functions/css/tailwindcss/"
 				case "tocss":
 					errMsg = ". Check your Hugo installation; you need the extended version to build SCSS/SASS with transpiler set to 'libsass'."
 				case "tocss-dart":
-					errMsg = ". You need to install Dart Sass, see https://gohugo.io//functions/css/sass/#dart-sass"
+					errMsg = ". You need to install Dart Sass, see https://gohugo.io/docs/reference/functions/css/sass/#dart-sass"
 				case "babel":
-					errMsg = ". You need to install Babel, see https://gohugo.io/functions/js/babel/"
+					errMsg = ". You need to install Babel, see https://gohugo.io/docs/reference/functions/js/babel/"
 
 				}
 

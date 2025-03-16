@@ -3,17 +3,17 @@
 [contributing]: CONTRIBUTING.md
 [create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
 [documentation repository]: https://github.com/gohugoio/hugoDocs
-[documentation]: https://gohugo.io/documentation
-[dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/installation/bsd
+[documentation]: https://gohugo.io/docs/
+[dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/docs/installation/bsd/
 [features]: https://gohugo.io/about/features/
 [forum]: https://discourse.gohugo.io
 [friends]: https://github.com/gohugoio/hugo/graphs/contributors
 [go]: https://go.dev/
-[hugo modules]: https://gohugo.io/hugo-modules/
-[installation]: https://gohugo.io/installation
+[modules]: https://gohugo.io/docs/concepts/modules/
+[installation]: https://gohugo.io/docs/installation/
 [issue queue]: https://github.com/gohugoio/hugo/issues
-[linux]: https://gohugo.io/installation/linux
-[macos]: https://gohugo.io/installation/macos
+[linux]: https://gohugo.io/docs/installation/linux/
+[macos]: https://gohugo.io/docs/installation/macos/
 [prebuilt binary]: https://github.com/gohugoio/hugo/releases/latest
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
 [spf13]: https://github.com/spf13
@@ -21,9 +21,9 @@
 [support]: https://discourse.gohugo.io
 [themes]: https://themes.gohugo.io/
 [website]: https://gohugo.io
-[windows]: https://gohugo.io/installation/windows
+[windows]: https://gohugo.io/docs/installation/windows/
 
-<a href="https://gohugo.io/"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565"></a>
+<a href="https://gohugo.io/"><img src="https://gohugo.io/images/hugo-logo-wide.svg" alt="Hugo" width="565"></a>
 
 A fast and flexible static site generator built with love by [bep], [spf13], and [friends] in [Go].
 
@@ -57,7 +57,7 @@ Hugo's fast asset pipelines include:
 - Sass processing &ndash; Transpile Sass to CSS, bundle, tree shake, minify, create source maps, perform SRI hashing, and integrate with PostCSS
 - Tailwind CSS processing &ndash; Compile Tailwind CSS utility classes into standard CSS, bundle, tree shake, optimize, minify, perform SRI hashing, and integrate with PostCSS
 
-And with [Hugo Modules], you can share content, assets, data, translations, themes, templates, and configuration with other projects via public or private Git repositories.
+And with Hugo [modules], you can share content, assets, data, translations, themes, templates, and configuration with other projects via public or private Git repositories.
 
 See the [features] section of the documentation for a comprehensive summary of Hugo's capabilities.
 
@@ -82,10 +82,10 @@ Encode to the WebP format when [processing images]. You can decode WebP images w
 [Transpile Sass to CSS] using the embedded LibSass transpiler. You can use the [Dart Sass] transpiler with any edition.|:heavy_check_mark:|:heavy_check_mark:
 Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details].|:x:|:heavy_check_mark:
 
-[dart sass]: https://gohugo.io/functions/css/sass/#dart-sass
-[processing images]: https://gohugo.io/content-management/image-processing/
-[transpile sass to css]: https://gohugo.io/functions/css/sass/
-[details]: https://gohugo.io/hosting-and-deployment/hugo-deploy/
+[dart sass]: https://gohugo.io/docs/reference/functions/css/sass/#dart-sass
+[processing images]: https://gohugo.io/docs/guides/asset-pipelines/imaging/
+[transpile sass to css]: https://gohugo.io/docs/reference/functions/css/sass
+[details]: https://gohugo.io/docs/guides/host-and-deploy/deploy-with-hugo-deploy/
 
 Unless your specific deployment needs require the extended/deploy edition, we recommend the extended edition.
 
