@@ -18,6 +18,9 @@ Use the `css.TailwindCSS` function to process your Tailwind CSS files. This func
 1. Compile those utility classes into standard CSS.
 1. Generate an optimized CSS output file.
 
+> [!caution]
+> Tailwind CSS v.4.0 and requires a relatively [modern browser](https://tailwindcss.com/docs/compatibility#browser-support) to render correctly.
+
 ## Setup
 
 ### Step 1
