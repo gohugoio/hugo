@@ -47,6 +47,17 @@ Change the **Source** to `GitHub Actions`. The change is immediate; you do not h
 
 ### Step 5
 
+In your site configuration, change the location of the image cache to the [`cacheDir`] as shown below:
+
+{{< code-toggle file=hugo >}}
+[caches.images]
+dir = ":cacheDir/images"
+{{< /code-toggle >}}
+
+See [configure file caches] for more information.
+
+### Step 6
+
 Create a file named `hugo.yaml` in a directory named `.github/workflows`.
 
 ```text
@@ -54,7 +65,10 @@ mkdir -p .github/workflows
 touch .github/workflows/hugo.yaml
 ```
 
-### Step 6
+### Step 7
+
+> [!note]
+> The workflow below ensures Hugo's `cacheDir` is persistent, preserving modules, processed images, and [`resources.GetRemote`] data between builds.
 
 Copy and paste the YAML below into the file you created. Change the branch name and Hugo version as needed.
 
@@ -93,7 +107,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.144.2
+      HUGO_VERSION: 0.145.0
+      HUGO_ENVIRONMENT: production
+      TZ: America/Los_Angeles
     steps:
       - name: Install Hugo CLI
         run: |
@@ -111,16 +127,27 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Install Node.js dependencies
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+      - name: Cache Restore
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ${{ runner.temp }}/hugo_cache
+          key: hugo
       - name: Build with Hugo
-        env:
-          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
-          HUGO_ENVIRONMENT: production
-          TZ: America/Los_Angeles
         run: |
           hugo \
             --gc \
             --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+            --baseURL "${{ steps.pages.outputs.base_url }}/" \
+            --cacheDir "${{ runner.temp }}/hugo_cache"
+      - name: Cache Save
+        id: cache-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ runner.temp }}/hugo_cache
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -139,7 +166,7 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-### Step 7
+### Step 8
 
 Commit and push the change to your GitHub repository.
 
@@ -149,21 +176,21 @@ git commit -m "Create hugo.yaml"
 git push
 ```
 
-### Step 8
+### Step 9
 
 From GitHub's main menu, choose **Actions**. You will see something like this:
 
 ![screen capture](gh-pages-3.png)
 {style="max-width: 350px"}
 
-### Step 9
+### Step 10
 
 When GitHub has finished building and deploying your site, the color of the status indicator will change to green.
 
 ![screen capture](gh-pages-4.png)
 {style="max-width: 350px"}
 
-### Step 10
+### Step 11
 
 Click on the commit message as shown above. You will see this:
 
@@ -196,3 +223,6 @@ You may remove this step if your site, themes, and modules do not transpile Sass
 [Dart Sass]: /functions/css/sass/#dart-sass
 [GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
 [Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[`cacheDir`]: /configuration/all/#cachedir
+[`resources.GetRemote`]: /functions/resources/getremote/
+[configure file caches]: /configuration/caches/
