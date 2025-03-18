@@ -133,7 +133,9 @@ jobs:
         with:
           path: |
             ${{ runner.temp }}/hugo_cache
-          key: hugo
+          key: hugo-${{ github.run_id }}
+          restore-keys:
+            hugo-
       - name: Build with Hugo
         run: |
           hugo \
