@@ -13,6 +13,9 @@ aliases: [/functions/templates.defer]
 
 {{< new-in 0.128.0 />}}
 
+> [!note]
+> This feature is meant to be used in the main page layout files/templates, and has undefined behavior when used from shortcodes, partials or render hook templates. See [this issue](https://github.com/gohugoio/hugo/issues/13492#issuecomment-2734700391) for more info.
+
 In some rare use cases, you may need to defer the execution of a template until after all sites and output formats have been rendered. One such example could be [TailwindCSS](/functions/css/tailwindcss/) using the output of [hugo_stats.json](/configuration/build/) to determine which classes and other HTML identifiers are being used in the final output:
 
 ```go-html-template
