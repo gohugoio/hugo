@@ -99,6 +99,7 @@ func TestUnmarshalToMap(t *testing.T) {
 		// errors
 		{`a = b`, TOML, false},
 		{`a,b,c`, CSV, false}, // Use Unmarshal for CSV
+		{`<root>just a string</root>`, XML, false},
 	} {
 		msg := qt.Commentf("%d: %s", i, test.format)
 		m, err := d.UnmarshalToMap([]byte(test.data), test.format)

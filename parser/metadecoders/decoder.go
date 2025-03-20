@@ -152,7 +152,19 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 			if err != nil {
 				return toFileError(f, data, fmt.Errorf("failed to unmarshal XML: %w", err))
 			}
-			xmlValue = xmlRoot[xmlRootName].(map[string]any)
+
+			// Get the root value and verify it's a map
+			rootValue := xmlRoot[xmlRootName]
+			if rootValue == nil {
+				return toFileError(f, data, fmt.Errorf("XML root element '%s' has no value", xmlRootName))
+			}
+
+			// Type check before conversion
+			mapValue, ok := rootValue.(map[string]any)
+			if !ok {
+				return toFileError(f, data, fmt.Errorf("XML root element '%s' must be a map/object, got %T", xmlRootName, rootValue))
+			}
+			xmlValue = mapValue
 		}
 
 		switch v := v.(type) {
