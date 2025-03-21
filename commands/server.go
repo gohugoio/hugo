@@ -819,7 +819,7 @@ func (c *serverCommand) fixURL(baseURLFromConfig, baseURLFromFlag string, port i
 	if useLocalhost {
 		if certsSet {
 			u.Scheme = "https"
-		} else if u.Scheme == "https" {
+		} else {
 			u.Scheme = "http"
 		}
 		u.Host = "localhost"
