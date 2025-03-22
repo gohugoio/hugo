@@ -24,7 +24,6 @@ require (
 	github.com/bep/tmc v0.5.1
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
-	github.com/cli/safeexec v1.0.1
 	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/evanw/esbuild v0.24.2
@@ -120,6 +119,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
+	github.com/cli/safeexec v1.0.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
