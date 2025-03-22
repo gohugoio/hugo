@@ -27,7 +27,6 @@ import (
 	"sync"
 
 	"github.com/bep/logg"
-	"github.com/cli/safeexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
@@ -113,18 +112,6 @@ func IsNotFound(err error) bool {
 	return errors.As(err, &notFoundErr)
 }
 
-// SafeCommand is a wrapper around os/exec Command which uses a LookPath
-// implementation that does not search in current directory before looking in PATH.
-// See https://github.com/cli/safeexec and the linked issues.
-func SafeCommand(name string, arg ...string) (*exec.Cmd, error) {
-	bin, err := safeexec.LookPath(name)
-	if err != nil {
-		return nil, err
-	}
-
-	return exec.Command(bin, arg...), nil
-}
-
 // Exec enforces a security policy for commands run via os/exec.
 type Exec struct {
 	sc         security.Config
@@ -197,7 +184,7 @@ func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
 		tryFuncs := map[binaryLocation]tryFunc{
 			binaryLocationNodeModules: func() func(...any) (Runner, error) {
 				nodeBinFilename := filepath.Join(e.workingDir, nodeModulesBinPath, name)
-				_, err := safeexec.LookPath(nodeBinFilename)
+				_, err := exec.LookPath(nodeBinFilename)
 				if err != nil {
 					return nil
 				}
@@ -215,7 +202,7 @@ func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
 				}
 			},
 			binaryLocationPath: func() func(...any) (Runner, error) {
-				if _, err := safeexec.LookPath(name); err != nil {
+				if _, err := exec.LookPath(name); err != nil {
 					return nil
 				}
 				return func(arg2 ...any) (Runner, error) {
@@ -346,7 +333,7 @@ func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
 		bin = c.fullyQualifiedName
 	} else {
 		var err error
-		bin, err = safeexec.LookPath(c.name)
+		bin, err = exec.LookPath(c.name)
 		if err != nil {
 			return nil, &NotFoundError{
 				name:   c.name,
@@ -384,7 +371,7 @@ func InPath(binaryName string) bool {
 	if strings.Contains(binaryName, "/") {
 		panic("binary name should not contain any slash")
 	}
-	_, err := safeexec.LookPath(binaryName)
+	_, err := exec.LookPath(binaryName)
 	return err == nil
 }
 
@@ -394,7 +381,7 @@ func LookPath(binaryName string) string {
 	if strings.Contains(binaryName, "/") {
 		panic("binary name should not contain any slash")
 	}
-	s, err := safeexec.LookPath(binaryName)
+	s, err := exec.LookPath(binaryName)
 	if err != nil {
 		return ""
 	}

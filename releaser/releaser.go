@@ -19,11 +19,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/hugo"
 )
 
@@ -222,7 +222,7 @@ func (r *ReleaseHandler) replaceInFile(filename string, oldNew ...string) error 
 }
 
 func git(args ...string) (string, error) {
-	cmd, _ := hexec.SafeCommand("git", args...)
+	cmd := exec.Command("git", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("git failed: %q: %q (%q)", err, out, args)

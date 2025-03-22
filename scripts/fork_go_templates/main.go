@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/gohugoio/hugo/common/hexec"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -208,7 +207,7 @@ func removeAll(expression, content string) string {
 }
 
 func rewrite(filename, rule string) {
-	cmf, _ := hexec.SafeCommand("gofmt", "-w", "-r", rule, filename)
+	cmf := exec.Command("gofmt", "-w", "-r", rule, filename)
 	out, err := cmf.CombinedOutput()
 	if err != nil {
 		log.Fatal("gofmt failed:", string(out))
@@ -217,7 +216,7 @@ func rewrite(filename, rule string) {
 
 func goimports(dir string) {
 	// Needs go install golang.org/x/tools/cmd/goimports@latest
-	cmf, _ := hexec.SafeCommand("goimports", "-w", dir)
+	cmf := exec.Command("goimports", "-w", dir)
 	out, err := cmf.CombinedOutput()
 	if err != nil {
 		log.Fatal("goimports failed:", string(out))
@@ -225,7 +224,7 @@ func goimports(dir string) {
 }
 
 func gofmt(dir string) {
-	cmf, _ := hexec.SafeCommand("gofmt", "-w", dir)
+	cmf := exec.Command("gofmt", "-w", dir)
 	out, err := cmf.CombinedOutput()
 	if err != nil {
 		log.Fatal("gofmt failed:", string(out))
