@@ -10,7 +10,7 @@ require (
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.6.0
 	github.com/bep/goat v0.5.0
-	github.com/bep/godartsass/v2 v2.4.0
+	github.com/bep/godartsass/v2 v2.4.1
 	github.com/bep/golibsass v1.2.0
 	github.com/bep/goportabletext v0.1.0
 	github.com/bep/gowebp v0.3.0
@@ -119,7 +119,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
-	github.com/cli/safeexec v1.0.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
