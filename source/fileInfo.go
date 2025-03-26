@@ -155,7 +155,23 @@ func NewFileInfo(fi hugofs.FileMetaInfo) *File {
 }
 
 func NewGitInfo(info gitmap.GitInfo) GitInfo {
-	return GitInfo(info)
+	gi := GitInfo{
+		Hash:            info.Hash,
+		AbbreviatedHash: info.AbbreviatedHash,
+		Subject:         info.Subject,
+		AuthorName:      info.AuthorName,
+		AuthorEmail:     info.AuthorEmail,
+		AuthorDate:      info.AuthorDate,
+		CommitDate:      info.CommitDate,
+		Body:            info.Body,
+	}
+
+	if info.Ancestor != nil {
+		anc := NewGitInfo(*info.Ancestor)
+		gi.Ancestor = &anc
+	}
+
+	return gi
 }
 
 // GitInfo provides information about a version controlled source file.
@@ -176,10 +192,12 @@ type GitInfo struct {
 	CommitDate time.Time `json:"commitDate"`
 	// The commit message's body.
 	Body string `json:"body"`
+	// The file-filtered ancestor commit, if any.
+	Ancestor *GitInfo `json:"ancestor"`
 }
 
 // IsZero returns true if the GitInfo is empty,
 // meaning it will also be falsy in the Go templates.
-func (g GitInfo) IsZero() bool {
-	return g.Hash == ""
+func (g *GitInfo) IsZero() bool {
+	return g == nil || g.Hash == ""
 }
