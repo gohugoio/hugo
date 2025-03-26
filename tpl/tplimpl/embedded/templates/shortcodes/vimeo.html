@@ -4,10 +4,11 @@ Renders an embedded Vimeo video.
 Accepts named or positional arguments. If positional, order is id, class,
 title, then loading.
 
-@param {string} [class] The class attribute of the wrapping div element. When specified, removes the style attributes from the iframe element and its wrapping div element.
 @param {string} [id] The video id. Optional if the id is provided as first positional argument.
+@param {string} [class] The class attribute of the wrapping div element. When specified, removes the style attributes from the iframe element and its wrapping div element.
 @param {string} [loading=eager] The loading attribute of the iframe element.
 @param {string} [title=Vimeo video] The title attribute of the iframe element.
+@param {bool} [allowFullScreen=true] Whether the iframe element can activate full screen mode.
 
 @returns {template.HTML}
 
@@ -19,11 +20,24 @@ title, then loading.
   {{- if $pc.Simple }}
     {{- template "_internal/shortcodes/vimeo_simple.html" . }}
   {{- else }}
+    {{- $dnt := cond $pc.EnableDNT 1 0 }}
+
     {{- $id := or (.Get "id") (.Get 0) "" }}
     {{- $class := or (.Get "class") (.Get 1) "" }}
     {{- $title := or (.Get "title") (.Get 2) "Vimeo video" }}
     {{- $loading := or (.Get "loading") (.Get 3) "eager" }}
-    {{- $dnt := cond $pc.EnableDNT 1 0 }}
+    {{- $allowFullScreen := or (.Get "allowFullScreen") (.Get 4) true }}
+
+    {{- if in (slice "false" false 0) ($.Get "allowFullScreen") }}
+      {{- $allowFullScreen = false }}
+    {{- else if in (slice "true" true 1) ($.Get "allowFullScreen") }}
+      {{- $allowFullScreen = true }}
+    {{- end }}
+
+    {{- $iframeAllowList := "" }}
+    {{- if $allowFullScreen }}
+      {{- $iframeAllowList = "fullscreen" }}
+    {{- end }}
 
     {{- $divStyle := "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;" }}
     {{- $iframeStyle := "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" }}
@@ -36,11 +50,12 @@ title, then loading.
         {{- else }}
           style="{{ $divStyle | safeCSS }}"
         {{- end }}>
-        <iframe webkitallowfullscreen mozallowfullscreen allowfullscreen
+        <iframe
           src="{{- $src }}"
           {{- if not $class }}
             style="{{ $iframeStyle | safeCSS }}"
           {{- end }}
+          {{- with $iframeAllowList }} allow="{{ . }}" {{- end }}
           {{- with $loading }} loading="{{ . }}" {{- end }}
           {{- with $title }} title="{{ . }}" {{- end }}>
         </iframe>

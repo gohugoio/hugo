@@ -27,7 +27,7 @@ Renders an embedded YouTube video.
   {{- with $id := or (.Get "id") (.Get 0) }}
 
     {{- /* Set defaults. */}}
-    {{- $allowFullScreen := "allowfullscreen" }}
+    {{- $allowFullScreen := true }}
     {{- $autoplay := 0 }}
     {{- $class := "" }}
     {{- $controls := 1 }}
@@ -37,12 +37,11 @@ Renders an embedded YouTube video.
     {{- $mute := 0 }}
     {{- $start := 0 }}
     {{- $title := "YouTube video" }}
+    {{- $iframeAllowList := "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" }}
 
     {{- /* Get arguments. */}}
-    {{- if in (slice "false" false 0) ($.Get "allowFullScreen") }}
-      {{- $allowFullScreen = "" }}
-    {{- else if in (slice "true" true 1) ($.Get "allowFullScreen") }}
-      {{- $allowFullScreen = "allowfullscreen" }}
+    {{- if in (slice "true" true 1) ($.Get "allowFullScreen") }}
+      {{- $iframeAllowList = printf "%s; fullscreen" $iframeAllowList }}
     {{- end }}
     {{- if in (slice "false" false 0) ($.Get "autoplay") }}
       {{- $autoplay = 0 }}
@@ -99,7 +98,6 @@ Renders an embedded YouTube video.
     {{- if $class }}
       {{- $iframeStyle = "" }}
     {{- end }}
-    {{- $allow := "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" }}
     {{- $referrerpolicy := "strict-origin-when-cross-origin" }}
 
     {{- /* Render. */ -}}
@@ -108,8 +106,7 @@ Renders an embedded YouTube video.
       {{- with $divStyle }} style="{{ . | safeCSS }}" {{- end -}}
     >
       <iframe
-        {{- with $allow }} allow="{{ . }}" {{- end }}
-        {{- with $allowFullScreen }} allowfullscreen="{{ . }}" {{- end }}
+        {{- with $iframeAllowList }} allow="{{ . }}" {{- end }}
         {{- with $loading }} loading="{{ . }}" {{- end }}
         {{- with $referrerpolicy }} referrerpolicy="{{ . }}" {{- end }}
         {{- with $src }} src="{{ . }}" {{- end }}

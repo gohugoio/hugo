@@ -464,26 +464,38 @@ func TestVimeoShortcode(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 privacy.vimeo.simple = false
--- content/_index.md --
+-- content/p1.md --
 ---
-title: home
+title: p1
 ---
 {{< vimeo 55073825 >}}
--- layouts/index.html --
+-- content/p2.md --
+---
+title: p2
+---
+{{< vimeo id=55073825 allowFullScreen=true >}}
+-- content/p3.md --
+---
+title: p3
+---
+{{< vimeo id=55073825 allowFullScreen=false >}}
+-- layouts/_default/single.html --
 Hash: {{ .Content | hash.XxHash }}
 Content: {{ .Content }}
 `
 
 	// Regular mode
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "d1f592d2256ac3ff")
+	b.AssertFileContent("public/p1/index.html", "f7687b0c4e85b7d4")
+	b.AssertFileContent("public/p2/index.html", "f7687b0c4e85b7d4")
+	b.AssertFileContent("public/p3/index.html", "caca499bdc7f1e1e")
 
 	// Simple mode
 	files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "c5bf16d87e2a370b")
+	b.AssertFileContent("public/p1/index.html", "c5bf16d87e2a370b")
 
 	// Simple mode with non-existent id
 	files = strings.ReplaceAll(files, "{{< vimeo 55073825 >}}", "{{< vimeo __id_does_not_exist__ >}}")
@@ -675,12 +687,12 @@ title: p2
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", "a0a6f5ade9cc3a9f")
+	b.AssertFileContent("public/p1/index.html", "5156322adda11844")
 	b.AssertFileContent("public/p2/index.html", "289c655e727e596c")
 
 	files = strings.ReplaceAll(files, "privacy.youtube.privacyEnhanced = false", "privacy.youtube.privacyEnhanced = true")
 
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "b76d790c20d2bd04")
+	b.AssertFileContent("public/p1/index.html", "599174706edf963a")
 	b.AssertFileContent("public/p2/index.html", "a6db910a9cf54bc1")
 }
