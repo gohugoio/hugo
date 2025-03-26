@@ -36,7 +36,7 @@ title, then loading.
         {{- else }}
           style="{{ $divStyle | safeCSS }}"
         {{- end }}>
-        <iframe webkitallowfullscreen mozallowfullscreen allowfullscreen
+        <iframe allow="fullscreen"
           src="{{- $src }}"
           {{- if not $class }}
             style="{{ $iframeStyle | safeCSS }}"
