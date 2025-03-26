@@ -220,3 +220,23 @@ disableLiveReload = true
 
 	b.AssertFileContent("public/index.html", "1\n2\n3")
 }
+
+func TestThatPageGitInfoShouldBeZero(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/all.html --
+GitInfo: {{ with .GitInfo }}FAIL{{ end }}
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "! FAIL")
+}
