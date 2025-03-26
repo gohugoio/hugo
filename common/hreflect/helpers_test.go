@@ -134,3 +134,17 @@ func BenchmarkGetMethodByName(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkGetMethodByNamePara(b *testing.B) {
+	v := reflect.ValueOf(&testStruct{})
+	methods := []string{"Method1", "Method2", "Method3", "Method4", "Method5"}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			for _, method := range methods {
+				_ = GetMethodByName(v, method)
+			}
+		}
+	})
+}
