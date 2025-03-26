@@ -134,12 +134,7 @@ type methodKey struct {
 	name string
 }
 
-type methods struct {
-	sync.RWMutex
-	cache map[methodKey]int
-}
-
-var methodCache = &methods{cache: make(map[methodKey]int)}
+var methodCache sync.Map
 
 // GetMethodByName is the same as reflect.Value.MethodByName, but it caches the
 // type lookup.
@@ -157,22 +152,16 @@ func GetMethodByName(v reflect.Value, name string) reflect.Value {
 // -1 if no such method exists.
 func GetMethodIndexByName(tp reflect.Type, name string) int {
 	k := methodKey{tp, name}
-	methodCache.RLock()
-	index, found := methodCache.cache[k]
-	methodCache.RUnlock()
+	v, found := methodCache.Load(k)
 	if found {
-		return index
+		return v.(int)
 	}
-
-	methodCache.Lock()
-	defer methodCache.Unlock()
-
 	m, ok := tp.MethodByName(name)
-	index = m.Index
+	index := m.Index
 	if !ok {
 		index = -1
 	}
-	methodCache.cache[k] = index
+	methodCache.Store(k, index)
 
 	if !ok {
 		return -1
