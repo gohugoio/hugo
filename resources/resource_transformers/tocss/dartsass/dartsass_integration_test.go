@@ -642,3 +642,65 @@ T1: {{ $r.Content }}
 	b.AssertLogContains("! Dart Sass: DEPRECATED [import]")
 	b.AssertFileContent("public/index.html", `moo{color:#fff}`)
 }
+
+func TestSilenceDependencyDeprecations(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ $opts := dict
+  "transpiler" "dartsass"
+  "outputStyle" "compressed"
+  "includePaths" (slice "node_modules")
+  KVPAIR
+}}
+{{ (resources.Get "sass/main.scss" | css.Sass $opts).Content }}
+-- assets/sass/main.scss --
+@use "sass:color";
+@use "foo/deprecated.scss";
+h3 { color: rgb(color.channel(#ccc, "red", $space: rgb), 0, 0); }
+// COMMENT
+-- node_modules/foo/deprecated.scss --
+@use "sass:color";
+h1 { color: rgb(color.channel(#eee, "red", $space: rgb), 0, 0); }
+h2 { color: rgb(color.red(#ddd), 0, 0); } // deprecated
+`
+
+	expectedCSS := "h1{color:#e00}h2{color:#d00}h3{color:#c00}"
+
+	// Do not silence dependency deprecation warnings (default).
+	f := strings.ReplaceAll(files, "KVPAIR", "")
+	b := hugolib.Test(t, f, hugolib.TestOptWarn(), hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html", expectedCSS)
+	b.AssertLogContains(
+		"WARN  Dart Sass: DEPRECATED [color-functions]",
+		"color.red() is deprecated",
+	)
+
+	// Do not silence dependency deprecation warnings (explicit).
+	f = strings.ReplaceAll(files, "KVPAIR", `"silenceDependencyDeprecations" false`)
+	b = hugolib.Test(t, f, hugolib.TestOptWarn(), hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html", expectedCSS)
+	b.AssertLogContains(
+		"WARN  Dart Sass: DEPRECATED [color-functions]",
+		"color.red() is deprecated",
+	)
+
+	// Silence dependency deprecation warnings.
+	f = strings.ReplaceAll(files, "KVPAIR", `"silenceDependencyDeprecations" true`)
+	b = hugolib.Test(t, f, hugolib.TestOptWarn(), hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html", expectedCSS)
+	b.AssertLogContains("! WARN")
+
+	// Make sure that we are not silencing non-dependency deprecation warnings.
+	f = strings.ReplaceAll(files, "KVPAIR", `"silenceDependencyDeprecations" true`)
+	f = strings.ReplaceAll(f, "// COMMENT", "h4 { color: rgb(0, color.green(#bbb), 0); }")
+	b = hugolib.Test(t, f, hugolib.TestOptWarn(), hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html", expectedCSS+"h4{color:#0b0}")
+	b.AssertLogContains(
+		"WARN  Dart Sass: DEPRECATED [color-functions]",
+		"color.green() is deprecated",
+	)
+}

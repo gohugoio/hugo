@@ -161,6 +161,11 @@ type Options struct {
 	// The IDs can be found in the Dart Sass log output, e.g. "import" in
 	//    WARN  Dart Sass: DEPRECATED [import].
 	SilenceDeprecations []string
+
+	// Whether to silence deprecation warnings from dependencies, where a
+	// dependency is considered any file transitively imported through a load
+	// path. This does not apply to @warn or @debug rules.
+	SilenceDependencyDeprecations bool
 }
 
 func decodeOptions(m map[string]any) (opts Options, err error) {
