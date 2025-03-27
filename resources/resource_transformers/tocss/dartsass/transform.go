@@ -86,10 +86,11 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 
 			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(sass.TranspilerDart, opts.Vars)},
 		},
-		OutputStyle:             godartsass.ParseOutputStyle(opts.OutputStyle),
-		EnableSourceMap:         opts.EnableSourceMap,
-		SourceMapIncludeSources: opts.SourceMapIncludeSources,
-		SilenceDeprecations:     opts.SilenceDeprecations,
+		OutputStyle:                   godartsass.ParseOutputStyle(opts.OutputStyle),
+		EnableSourceMap:               opts.EnableSourceMap,
+		SourceMapIncludeSources:       opts.SourceMapIncludeSources,
+		SilenceDeprecations:           opts.SilenceDeprecations,
+		SilenceDependencyDeprecations: opts.SilenceDependencyDeprecations,
 	}
 
 	// Append any workDir relative include paths
