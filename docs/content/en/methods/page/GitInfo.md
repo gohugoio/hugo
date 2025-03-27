@@ -123,6 +123,21 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
+###### Ancestor
+
+(`*source.GitInfo`) The file-filtered ancestor commit, if any.
+
+```go-html-template
+{{ partial `partials/_inline/changelog` .GitInfo }} → 2023-10-09: Add tutorials
+
+{{ define `partials/_inline/changelog` }}
+  {{ with .Ancestor }}
+    {{ .CommitDate.Format "2006-01-02" }}: {{ .Subject }}
+    {{ partial `partials/_inline/changelog` . }}
+  {{ end }}
+{{ end }}
+```
+
 ## Last modified date
 
 By default, when `enableGitInfo` is `true`, the `Lastmod` method on a `Page` object returns the Git AuthorDate of the last commit that included the file.
