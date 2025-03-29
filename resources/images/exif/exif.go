@@ -221,36 +221,18 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 
 	tagsXmp := make(map[string]any)
 	for k, v := range tagInfos.XMP() {
-		if d.shouldExclude(k) {
-			continue
-		}
-		if !d.shouldInclude(k) {
-			continue
-		}
 		tagsXmp[k] = v.Value
 		tags[k] = v.Value
 	}
 
 	tagsIptc := make(map[string]any)
 	for k, v := range tagInfos.IPTC() {
-		if d.shouldExclude(k) {
-			continue
-		}
-		if !d.shouldInclude(k) {
-			continue
-		}
 		tagsIptc[k] = v.Value
 		tags[k] = v.Value
 	}
 	
 	tagsExif := make(map[string]any)
 	for k, v := range tagInfos.EXIF() {
-		if d.shouldExclude(k) {
-			continue
-		}
-		if !d.shouldInclude(k) {
-			continue
-		}
 		tagsExif[k] = v.Value
 		tags[k] = v.Value
 	}
