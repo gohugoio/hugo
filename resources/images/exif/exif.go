@@ -37,8 +37,17 @@ type ExifInfo struct {
 	// Image creation date/time.
 	Date time.Time
 
-	// A collection of the available Exif tags for this Image.
+	// A collection of the available Exif, Iptc and Xmp tags for this Image.
 	Tags Tags
+
+	// A collection of the available Exif tags for this Image.
+	Exif Tags
+
+	// A collection of the available Iptc tags for this Image.
+	Iptc Tags
+
+	// A collection of the available Xmp tags for this Image.
+	Xmp Tags
 }
 
 type Decoder struct {
@@ -193,7 +202,6 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 			ImageFormat:     format,
 			ShouldHandleTag: shouldInclude,
 			HandleTag:       handleTag,
-			Sources:         imagemeta.EXIF, // For now. TODO(bep)
 			Warnf:           warnf,
 		},
 	)
@@ -210,17 +218,44 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 	}
 
 	tags := make(map[string]any)
-	for k, v := range tagInfos.All() {
+
+	tagsXmp := make(map[string]any)
+	for k, v := range tagInfos.XMP() {
 		if d.shouldExclude(k) {
 			continue
 		}
 		if !d.shouldInclude(k) {
 			continue
 		}
+		tagsXmp[k] = v.Value
 		tags[k] = v.Value
 	}
 
-	ex = &ExifInfo{Lat: lat, Long: long, Date: tm, Tags: tags}
+	tagsIptc := make(map[string]any)
+	for k, v := range tagInfos.IPTC() {
+		if d.shouldExclude(k) {
+			continue
+		}
+		if !d.shouldInclude(k) {
+			continue
+		}
+		tagsIptc[k] = v.Value
+		tags[k] = v.Value
+	}
+	
+	tagsExif := make(map[string]any)
+	for k, v := range tagInfos.EXIF() {
+		if d.shouldExclude(k) {
+			continue
+		}
+		if !d.shouldInclude(k) {
+			continue
+		}
+		tagsExif[k] = v.Value
+		tags[k] = v.Value
+	}
+
+	ex = &ExifInfo{Lat: lat, Long: long, Date: tm, Tags: tags, Exif: tagsExif, Iptc: tagsIptc, Xmp: tagsXmp}
 
 	return
 }
