@@ -34,10 +34,60 @@ var siteFs embed.FS
 var themeFs embed.FS
 
 // CreateTheme creates a theme skeleton.
-func CreateTheme(createpath string, sourceFs afero.Fs) error {
+func CreateTheme(createpath string, sourceFs afero.Fs, format string) error {
 	if exists, _ := helpers.Exists(createpath, sourceFs); exists {
 		return errors.New(createpath + " already exists")
 	}
+
+	format = strings.ToLower(format)
+
+	siteConfig := map[string]any{
+		"baseURL":      "https://example.org/",
+		"languageCode": "en-US",
+		"title":        "My New Hugo Site",
+		"menus": map[string]any{
+			"main": []any{
+				map[string]any{
+					"name":    "Home",
+					"pageRef": "/",
+					"weight":  10,
+				},
+				map[string]any{
+					"name":    "Posts",
+					"pageRef": "/posts",
+					"weight":  20,
+				},
+				map[string]any{
+					"name":    "Tags",
+					"pageRef": "/tags",
+					"weight":  30,
+				},
+			},
+		},
+		"module": map[string]any{
+			"hugoVersion": map[string]any{
+				"extended": false,
+				"min":      "0.146.0",
+			},
+		},
+	}
+
+	err := createSiteConfig(sourceFs, createpath, siteConfig, format)
+	if err != nil {
+		return err
+	}
+
+	defaultArchetype := map[string]any{
+		"title": "{{ replace .File.ContentBaseName \"-\" \" \" | title }}",
+		"date":  "{{ .Date }}",
+		"draft": true,
+	}
+
+	err = createDefaultArchetype(sourceFs, createpath, defaultArchetype, format)
+	if err != nil {
+		return err
+	}
+
 	return copyFiles(createpath, sourceFs, themeFs)
 }
 
@@ -71,12 +121,24 @@ func CreateSite(createpath string, sourceFs afero.Fs, force bool, format string)
 		}
 	}
 
-	err := newSiteCreateConfig(sourceFs, createpath, format)
+	siteConfig := map[string]any{
+		"baseURL":      "https://example.org/",
+		"title":        "My New Hugo Site",
+		"languageCode": "en-us",
+	}
+
+	err := createSiteConfig(sourceFs, createpath, siteConfig, format)
 	if err != nil {
 		return err
 	}
 
-	err = newSiteCreateArchetype(sourceFs, createpath, format)
+	defaultArchetype := map[string]any{
+		"title": "{{ replace .File.ContentBaseName \"-\" \" \" | title }}",
+		"date":  "{{ .Date }}",
+		"draft": true,
+	}
+
+	err = createDefaultArchetype(sourceFs, createpath, defaultArchetype, format)
 	if err != nil {
 		return err
 	}
@@ -99,13 +161,7 @@ func copyFiles(createpath string, sourceFs afero.Fs, skeleton embed.FS) error {
 	})
 }
 
-func newSiteCreateConfig(fs afero.Fs, createpath string, format string) (err error) {
-	in := map[string]string{
-		"baseURL":      "https://example.org/",
-		"title":        "My New Hugo Site",
-		"languageCode": "en-us",
-	}
-
+func createSiteConfig(fs afero.Fs, createpath string, in map[string]any, format string) (err error) {
 	var buf bytes.Buffer
 	err = parser.InterfaceToConfig(in, metadecoders.FormatFromString(format), &buf)
 	if err != nil {
@@ -115,13 +171,7 @@ func newSiteCreateConfig(fs afero.Fs, createpath string, format string) (err err
 	return helpers.WriteToDisk(filepath.Join(createpath, "hugo."+format), &buf, fs)
 }
 
-func newSiteCreateArchetype(fs afero.Fs, createpath string, format string) (err error) {
-	in := map[string]any{
-		"title": "{{ replace .File.ContentBaseName \"-\" \" \" | title }}",
-		"date":  "{{ .Date }}",
-		"draft": true,
-	}
-
+func createDefaultArchetype(fs afero.Fs, createpath string, in map[string]any, format string) (err error) {
 	var buf bytes.Buffer
 	err = parser.InterfaceToFrontMatter(in, metadecoders.FormatFromString(format), &buf)
 	if err != nil {
