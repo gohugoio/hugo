@@ -1,5 +1,5 @@
 {{- with resources.Get "css/main.css" }}
-  {{- if eq hugo.Environment "development" }}
+  {{- if hugo.IsDevelopment }}
     <link rel="stylesheet" href="{{ .RelPermalink }}">
   {{- else }}
     {{- with . | minify | fingerprint }}

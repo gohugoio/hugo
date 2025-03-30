@@ -144,7 +144,7 @@ according to your needs.`,
 					createpath := paths.AbsPathify(conf.configs.Base.WorkingDir, filepath.Join(conf.configs.Base.ThemesDir, args[0]))
 					r.Println("Creating new theme in", createpath)
 
-					err = skeletons.CreateTheme(createpath, sourceFs)
+					err = skeletons.CreateTheme(createpath, sourceFs, format)
 					if err != nil {
 						return err
 					}
@@ -152,7 +152,14 @@ according to your needs.`,
 					return nil
 				},
 				withc: func(cmd *cobra.Command, r *rootCommand) {
-					cmd.ValidArgsFunction = cobra.NoFileCompletions
+					cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+						if len(args) != 0 {
+							return []string{}, cobra.ShellCompDirectiveNoFileComp
+						}
+						return []string{}, cobra.ShellCompDirectiveNoFileComp | cobra.ShellCompDirectiveFilterDirs
+					}
+					cmd.Flags().StringVar(&format, "format", "toml", "preferred file format (toml, yaml or json)")
+					_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
 				},
 			},
 		},
