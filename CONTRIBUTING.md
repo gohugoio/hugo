@@ -2,6 +2,19 @@
 
 # Contributing to Hugo
 
+The purpose of the `CONTRIBUTING.md` file is to provide guidelines and instructions for contributing to the Hugo project. It includes information on various aspects of contributing, such as:
+
+* Encouraging contributions of any kind, including documentation, themes, tutorials, bug reports, feature requests, and more.
+* Providing a step-by-step guide for those unfamiliar with GitHub or contributing to open source projects.
+* Directing users to the appropriate repositories for documentation-related pull requests and issues.
+* Explaining how to ask support questions and where to ask them.
+* Guidelines for reporting issues, including providing the Hugo version and operating system.
+* Code contribution guidelines, including the criteria for new functionality, maintaining and supporting new features, and updating open issues.
+* Instructions for submitting patches, including forking the project, creating pull requests, signing the CLA, adding test cases, running `go fmt`, adding documentation, squashing commits, and ensuring that `mage check` succeeds.
+* Git commit message guidelines, including writing good commit messages, using appropriate prefixes, and referencing GitHub issues.
+* Instructions for fetching the sources from GitHub, creating a new branch, committing changes, forking Hugo, adding a new remote, pushing changes, and submitting a pull request.
+* Building Hugo with changes, including using `mage` to sync vendor dependencies, build Hugo, run tests, and other tasks.
+
 We welcome contributions to Hugo of any kind including documentation, themes,
 organization, tutorials, blog posts, bug reports, issues, feature requests,
 feature implementations, pull requests, answering questions on the forum,
@@ -78,6 +91,8 @@ To make the contribution process as seamless as possible, we ask for the followi
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
     * Ensure that `mage check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Windows, Linux and macOS) will fail the build if `mage check` fails.
     * Follow the **Git Commit Message Guidelines** below.
+
+For a complete guide to contributing to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
 
 ### Git Commit Message Guidelines
 
