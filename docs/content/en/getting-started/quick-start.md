@@ -38,7 +38,7 @@ You must also be comfortable working from the command line.
 
 - Do not use the Command Prompt
 - Do not use Windows PowerShell
-- Run these commands from [PowerShell] or a Linux terminal such as WSL or Git Bash
+- Run these commands sequentially from [PowerShell] or a Linux terminal such as WSL or Git Bash
 
 PowerShell and Windows PowerShell [are different applications].
 
