@@ -18,16 +18,28 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/deps"
 
 	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the time-namespaced template functions.
-func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace {
+func New(timeFormatter htime.TimeFormatter, location *time.Location, deps *deps.Deps) *Namespace {
+	if deps.MemCache == nil {
+		panic("must provide MemCache")
+	}
+
 	return &Namespace{
 		timeFormatter: timeFormatter,
 		location:      location,
+		deps:          deps,
+		cacheIn: dynacache.GetOrCreatePartition[string, *time.Location](
+			deps.MemCache,
+			"/tmpl/time/in",
+			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearNever},
+		),
 	}
 }
 
@@ -35,6 +47,8 @@ func New(timeFormatter htime.TimeFormatter, location *time.Location) *Namespace 
 type Namespace struct {
 	timeFormatter htime.TimeFormatter
 	location      *time.Location
+	deps          *deps.Deps
+	cacheIn       *dynacache.Partition[string, *time.Location]
 }
 
 // AsTime converts the textual representation of the datetime string into
@@ -69,6 +83,21 @@ func (ns *Namespace) Format(layout string, v any) (string, error) {
 // Now returns the current local time or `clock` time
 func (ns *Namespace) Now() time.Time {
 	return htime.Now()
+}
+
+// In returns the time t in the IANA time zone specified by timeZoneName.
+// If timeZoneName is "" or "UTC", the time is returned in UTC.
+// If timeZoneName is "Local", the time is returned in the system's local time zone.
+// Otherwise, timeZoneName must be a valid IANA location name (e.g., "Europe/Oslo").
+func (ns *Namespace) In(timeZoneName string, t time.Time) (time.Time, error) {
+	location, err := ns.cacheIn.GetOrCreate(dynacache.CleanKey(timeZoneName), func(string) (*time.Location, error) {
+		return time.LoadLocation(timeZoneName)
+	})
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return t.In(location), nil
 }
 
 // ParseDuration parses the duration string s.
