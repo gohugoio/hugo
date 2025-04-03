@@ -39,7 +39,7 @@ require (
 	github.com/gohugoio/hashstructure v0.5.0
 	github.com/gohugoio/httpcache v0.7.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.3.0
-	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.0
+	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.1
 	github.com/gohugoio/locales v0.14.0
 	github.com/gohugoio/localescompressed v1.0.1
 	github.com/gohugoio/testmodBuilder/mods v0.0.0-20190520184928-c56af20f2e95
@@ -172,3 +172,5 @@ require (
 )
 
 go 1.23.0
+
+toolchain go1.24.1
