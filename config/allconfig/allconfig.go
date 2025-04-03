@@ -396,44 +396,44 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 
 	// Legacy paginate values.
 	if c.Paginate != 0 {
-		hugo.Deprecate("site config key paginate", "Use pagination.pagerSize instead.", "v0.128.0")
+		hugo.DeprecateWithLogger("site config key paginate", "Use pagination.pagerSize instead.", "v0.128.0", logger.Logger())
 		c.Pagination.PagerSize = c.Paginate
 	}
 
 	if c.PaginatePath != "" {
-		hugo.Deprecate("site config key paginatePath", "Use pagination.path instead.", "v0.128.0")
+		hugo.DeprecateWithLogger("site config key paginatePath", "Use pagination.path instead.", "v0.128.0", logger.Logger())
 		c.Pagination.Path = c.PaginatePath
 	}
 
 	// Legacy privacy values.
 	if c.Privacy.Twitter.Disable {
-		hugo.Deprecate("site config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0")
+		hugo.DeprecateWithLogger("site config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.Disable = c.Privacy.Twitter.Disable
 	}
 
 	if c.Privacy.Twitter.EnableDNT {
-		hugo.Deprecate("site config key privacy.twitter.enableDNT", "Use privacy.x.enableDNT instead.", "v0.141.0")
+		hugo.DeprecateWithLogger("site config key privacy.twitter.enableDNT", "Use privacy.x.enableDNT instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.EnableDNT = c.Privacy.Twitter.EnableDNT
 	}
 
 	if c.Privacy.Twitter.Simple {
-		hugo.Deprecate("site config key privacy.twitter.simple", "Use privacy.x.simple instead.", "v0.141.0")
+		hugo.DeprecateWithLogger("site config key privacy.twitter.simple", "Use privacy.x.simple instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.Simple = c.Privacy.Twitter.Simple
 	}
 
 	// Legacy services values.
 	if c.Services.Twitter.DisableInlineCSS {
-		hugo.Deprecate("site config key services.twitter.disableInlineCSS", "Use services.x.disableInlineCSS instead.", "v0.141.0")
+		hugo.DeprecateWithLogger("site config key services.twitter.disableInlineCSS", "Use services.x.disableInlineCSS instead.", "v0.141.0", logger.Logger())
 		c.Services.X.DisableInlineCSS = c.Services.Twitter.DisableInlineCSS
 	}
 
 	// Legacy permalink tokens
 	vs := fmt.Sprintf("%v", c.Permalinks)
 	if strings.Contains(vs, ":filename") {
-		hugo.Deprecate("the \":filename\" permalink token", "Use \":contentbasename\" instead.", "0.144.0")
+		hugo.DeprecateWithLogger("the \":filename\" permalink token", "Use \":contentbasename\" instead.", "0.144.0", logger.Logger())
 	}
 	if strings.Contains(vs, ":slugorfilename") {
-		hugo.Deprecate("the \":slugorfilename\" permalink token", "Use \":slugorcontentbasename\" instead.", "0.144.0")
+		hugo.DeprecateWithLogger("the \":slugorfilename\" permalink token", "Use \":slugorcontentbasename\" instead.", "0.144.0", logger.Logger())
 	}
 
 	c.C = &ConfigCompiled{
