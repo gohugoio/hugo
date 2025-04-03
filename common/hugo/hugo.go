@@ -411,17 +411,28 @@ func IsDartSassGeV2() bool {
 // 2. Their theme to work for at least the last few Hugo versions.
 func Deprecate(item, alternative string, version string) {
 	level := deprecationLogLevelFromVersion(version)
-	DeprecateLevel(item, alternative, version, level)
+	deprecateLevel(item, alternative, version, level)
+}
+
+// See Deprecate for details.
+func DeprecateWithLogger(item, alternative string, version string, log logg.Logger) {
+	level := deprecationLogLevelFromVersion(version)
+	deprecateLevelWithLogger(item, alternative, version, level, log)
 }
 
 // DeprecateLevelMin informs about a deprecation starting at the given version, but with a minimum log level.
 func DeprecateLevelMin(item, alternative string, version string, minLevel logg.Level) {
 	level := max(deprecationLogLevelFromVersion(version), minLevel)
-	DeprecateLevel(item, alternative, version, level)
+	deprecateLevel(item, alternative, version, level)
+}
+
+// deprecateLevel informs about a deprecation logging at the given level.
+func deprecateLevel(item, alternative, version string, level logg.Level) {
+	deprecateLevelWithLogger(item, alternative, version, level, loggers.Log().Logger())
 }
 
 // DeprecateLevel informs about a deprecation logging at the given level.
-func DeprecateLevel(item, alternative, version string, level logg.Level) {
+func deprecateLevelWithLogger(item, alternative, version string, level logg.Level, log logg.Logger) {
 	var msg string
 	if level == logg.LevelError {
 		msg = fmt.Sprintf("%s was deprecated in Hugo %s and subsequently removed. %s", item, version, alternative)
@@ -429,7 +440,7 @@ func DeprecateLevel(item, alternative, version string, level logg.Level) {
 		msg = fmt.Sprintf("%s was deprecated in Hugo %s and will be removed in a future release. %s", item, version, alternative)
 	}
 
-	loggers.Log().Logger().WithLevel(level).WithField(loggers.FieldNameCmd, "deprecated").Logf("%s", msg)
+	log.WithLevel(level).WithField(loggers.FieldNameCmd, "deprecated").Logf("%s", msg)
 }
 
 // We usually do about one minor version a month.
