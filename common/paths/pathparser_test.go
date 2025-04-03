@@ -32,8 +32,8 @@ var testParser = &PathParser{
 	IsContentExt: func(ext string) bool {
 		return ext == "md"
 	},
-	IsOutputFormat: func(s string) bool {
-		switch s {
+	IsOutputFormat: func(name, ext string) bool {
+		switch name {
 		case "html", "amp", "csv", "rss":
 			return true
 		}
@@ -393,6 +393,7 @@ func TestParseLayouts(t *testing.T) {
 			"/list.html",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/list.html")
+				c.Assert(p.OutputFormat(), qt.Equals, "html")
 			},
 		},
 		{

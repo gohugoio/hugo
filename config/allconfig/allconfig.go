@@ -853,9 +853,18 @@ func (c *Configs) Init() error {
 		LanguageIndex:  languagesDefaultFirst.AsIndexSet(),
 		IsLangDisabled: c.Base.IsLangDisabled,
 		IsContentExt:   c.Base.ContentTypes.Config.IsContentSuffix,
-		IsOutputFormat: func(s string) bool {
-			_, ok := c.Base.OutputFormats.Config.GetByName(s)
-			return ok
+		IsOutputFormat: func(name, ext string) bool {
+			if name == "" {
+				return false
+			}
+
+			if of, ok := c.Base.OutputFormats.Config.GetByName(name); ok {
+				if ext != "" && !of.MediaType.HasSuffix(ext) {
+					return false
+				}
+				return true
+			}
+			return false
 		},
 	}
 

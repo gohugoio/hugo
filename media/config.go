@@ -271,7 +271,7 @@ var DefaultPathParser = &paths.PathParser{
 	IsContentExt: func(ext string) bool {
 		panic("not supported")
 	},
-	IsOutputFormat: func(ext string) bool {
-		panic("not supported")
+	IsOutputFormat: func(name, ext string) bool {
+		panic("DefaultPathParser: not supported")
 	},
 }

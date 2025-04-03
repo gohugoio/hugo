@@ -768,3 +768,23 @@ All.
 	b.AssertFileContent("public/p1/index.html", "Single.")
 	b.AssertFileContent("public/index.html", "All.")
 }
+
+func TestPartialHTML(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/all.html --
+<html>
+<head>
+{{ partial "css.html" .}}
+</head>
+</html>
+-- layouts/partials/css.html --
+<link rel="stylesheet" href="/css/style.css">
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "<link rel=\"stylesheet\" href=\"/css/style.css\">")
+}

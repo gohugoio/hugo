@@ -38,8 +38,9 @@ type PathParser struct {
 	// Reports whether the given language is disabled.
 	IsLangDisabled func(string) bool
 
-	// Reports whether the given string represetns a know output format.
-	IsOutputFormat func(string) bool
+	// IsOutputFormat reports whether the given name is a valid output format.
+	// The second argument is optional.
+	IsOutputFormat func(name, ext string) bool
 
 	// Reports whether the given ext is a content file.
 	IsContentExt func(string) bool
@@ -136,20 +137,26 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 		high = len(p.s)
 	}
 	id := types.LowHigh[string]{Low: i + 1, High: high}
+	sid := p.s[id.Low:id.High]
+
 	if len(p.identifiers) == 0 {
 		// The first is always the extension.
 		p.identifiers = append(p.identifiers, id)
 		found = true
+
+		// May also be the output format.
+		if mayHaveOutputFormat && pp.IsOutputFormat(sid, "") {
+			p.posIdentifierOutputFormat = 0
+		}
 	} else {
-		s := p.s[id.Low:id.High]
 
 		var langFound bool
 
 		if mayHaveLang {
 			var disabled bool
-			_, langFound = pp.LanguageIndex[s]
+			_, langFound = pp.LanguageIndex[sid]
 			if !langFound {
-				disabled = pp.IsLangDisabled != nil && pp.IsLangDisabled(s)
+				disabled = pp.IsLangDisabled != nil && pp.IsLangDisabled(sid)
 				if disabled {
 					p.disabled = true
 					langFound = true
@@ -164,7 +171,11 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 		}
 
 		if !found && mayHaveOutputFormat {
-			if pp.IsOutputFormat(s) {
+			// At this point we may already have resolved an output format,
+			// but we need to keep looking for a more specific one, e.g. amp before html.
+			// Use both name and extension to prevent
+			// false positives on the form css.html.
+			if pp.IsOutputFormat(sid, p.Ext()) {
 				found = true
 				p.identifiers = append(p.identifiers, id)
 				p.posIdentifierOutputFormat = len(p.identifiers) - 1
@@ -172,14 +183,14 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 		}
 
 		if !found && mayHaveKind {
-			if kinds.GetKindMain(s) != "" {
+			if kinds.GetKindMain(sid) != "" {
 				found = true
 				p.identifiers = append(p.identifiers, id)
 				p.posIdentifierKind = len(p.identifiers) - 1
 			}
 		}
 
-		if !found && s == identifierBaseof {
+		if !found && sid == identifierBaseof {
 			found = true
 			p.identifiers = append(p.identifiers, id)
 			p.posIdentifierBaseof = len(p.identifiers) - 1
@@ -187,7 +198,7 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 
 		if !found {
 			p.identifiers = append(p.identifiers, id)
-			p.posIdentifiersUnknown = append(p.posIdentifiersUnknown, len(p.identifiers)-1)
+			p.identifiersUnknown = append(p.identifiersUnknown, len(p.identifiers)-1)
 		}
 
 	}
@@ -266,11 +277,6 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 			}
 		}
 
-		if component == files.ComponentFolderLayouts && p.OutputFormat() == "" {
-			if pp.IsOutputFormat(p.Ext()) {
-				p.posIdentifierOutputFormat = 0
-			}
-		}
 	}
 
 	if component == files.ComponentFolderLayouts {
@@ -350,7 +356,7 @@ type Path struct {
 	posIdentifierOutputFormat int
 	posIdentifierKind         int
 	posIdentifierBaseof       int
-	posIdentifiersUnknown     []int
+	identifiersUnknown        []int
 	disabled                  bool
 
 	trimLeadingSlash bool
@@ -691,8 +697,8 @@ func (p *Path) Identifiers() []string {
 }
 
 func (p *Path) IdentifiersUnknown() []string {
-	ids := make([]string, len(p.posIdentifiersUnknown))
-	for i, id := range p.posIdentifiersUnknown {
+	ids := make([]string, len(p.identifiersUnknown))
+	for i, id := range p.identifiersUnknown {
 		ids[i] = p.s[p.identifiers[id].Low:p.identifiers[id].High]
 	}
 	return ids
