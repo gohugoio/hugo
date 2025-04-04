@@ -397,7 +397,7 @@ func doRenderShortcode(
 			ofCount[match.D.OutputFormat]++
 			return true
 		}
-		base, layoutDescriptor := po.getBaseAndTemplateDescriptor()
+		base, layoutDescriptor := po.getInternalTemplateBasePathAndDescriptor()
 		q := tplimpl.TemplateQuery{
 			Path:     base,
 			Name:     sc.name,

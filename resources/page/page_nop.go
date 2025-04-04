@@ -514,6 +514,10 @@ func (p *nopPage) HeadingsFiltered(context.Context) tableofcontents.Headings {
 	return nil
 }
 
+func (p *nopPage) GetInternalTemplateBasePathAndDescriptor() (string, any) {
+	return "", ""
+}
+
 type nopContentRenderer int
 
 func (r *nopContentRenderer) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {

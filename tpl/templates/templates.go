@@ -22,7 +22,9 @@ import (
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -101,4 +103,51 @@ func (ns *Namespace) DoDefer(ctx context.Context, id string, optsv any) string {
 		})
 
 	return id
+}
+
+type dDebugLayoutLookupOpts struct {
+	Category string // "partials", "shortcodes", "markup", "layouts"
+	Page     page.Page
+
+	// Page overrides.
+	Path       string
+	Descriptor map[string]any
+}
+
+func (ns *Namespace) DebugLayoutLookup(opts any) (any, error) {
+	var optsv dDebugLayoutLookupOpts
+	if err := mapstructure.WeakDecode(opts, &optsv); err != nil {
+		return nil, err
+	}
+	if optsv.Page == nil {
+		return nil, fmt.Errorf("page is required")
+	}
+	basePath, v := optsv.Page.GetInternalTemplateBasePathAndDescriptor()
+	descriptor := v.(tplimpl.TemplateDescriptor)
+
+	store := ns.deps.GetTemplateStore()
+
+	switch optsv.Category {
+	case "partials":
+		panic("Not implemented")
+	case "shortcodes":
+		panic("Not implemented")
+	case "markup":
+		panic("Not implemented")
+	default:
+		result := store.LookupPagesLayout(
+			tplimpl.TemplateQuery{
+				Category: tplimpl.CategoryLayout,
+				Path:     basePath,
+				Desc:     descriptor,
+			},
+		)
+		if result != nil {
+			fmt.Println("Found template:", result.Name())
+		}
+	}
+
+	fmt.Println("Base Path:", basePath)
+	fmt.Println("Template Descriptor:", descriptor)
+	return nil, nil
 }

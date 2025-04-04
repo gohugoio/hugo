@@ -476,7 +476,13 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	return nil
 }
 
-func (po *pageOutput) getBaseAndTemplateDescriptor() (string, tplimpl.TemplateDescriptor) {
+// Exported to be used in templates.DebugLayoutLookup.
+func (po *pageOutput) GetInternalTemplateBasePathAndDescriptor() (string, any) {
+	return po.getInternalTemplateBasePathAndDescriptor()
+}
+
+// GetInternalTemplateBasePathAndDescriptor is for internal use only.
+func (po *pageOutput) getInternalTemplateBasePathAndDescriptor() (string, tplimpl.TemplateDescriptor) {
 	p := po.p
 	f := po.f
 	base := p.PathInfo().BaseReTyped(p.m.pageConfig.Type)
@@ -491,7 +497,7 @@ func (po *pageOutput) getBaseAndTemplateDescriptor() (string, tplimpl.TemplateDe
 }
 
 func (p *pageState) resolveTemplate(layouts ...string) (*tplimpl.TemplInfo, bool, error) {
-	dir, d := p.getBaseAndTemplateDescriptor()
+	dir, d := p.getInternalTemplateBasePathAndDescriptor()
 
 	if len(layouts) > 0 {
 		d.Layout = layouts[0]

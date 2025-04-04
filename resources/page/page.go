@@ -389,6 +389,7 @@ type PageWithoutContent interface {
 	maps.StoreProvider
 
 	RelatedKeywordsProvider
+	InternalProvider
 
 	// GetTerms gets the terms of a given taxonomy,
 	// e.g. GetTerms("categories")
@@ -438,6 +439,11 @@ type RefProvider interface {
 
 	// RelRefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
+}
+
+type InternalProvider interface {
+	// GetInternalTemplateBasePathAndDescriptor is for internal use only.
+	GetInternalTemplateBasePathAndDescriptor() (string, any)
 }
 
 // RelatedKeywordsProvider allows a Page to be indexed.
