@@ -704,19 +704,6 @@ func (p *Path) IdentifiersUnknown() []string {
 	return ids
 }
 
-func (p *Path) IdentifiersUnknownString() string {
-	var sb strings.Builder
-
-	for i, id := range p.identifiersUnknown {
-		if i > 0 {
-			sb.WriteString(".")
-		}
-		sb.WriteString(p.s[p.identifiers[id].Low:p.identifiers[id].High])
-	}
-
-	return sb.String()
-}
-
 func (p *Path) Type() Type {
 	return p.pathType
 }

@@ -314,7 +314,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			return nil, filepath.SkipDir
 		}
 
-		seen := map[hstrings.Strings3]bool{}
+		seen := map[hstrings.Strings2]hugofs.FileMetaInfo{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
@@ -327,11 +327,14 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			// These would eventually have been filtered out as duplicates when
 			// inserting them into the document store,
 			// but doing it here will preserve a consistent ordering.
-			baseLang := hstrings.Strings3{pi.Base(), pi.IdentifiersUnknownString(), meta.Lang}
-			if seen[baseLang] {
+			baseLang := hstrings.Strings2{pi.Base(), meta.Lang}
+			if fi2, ok := seen[baseLang]; ok {
+				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {
+					c.logger.Warnf("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
+				}
 				continue
 			}
-			seen[baseLang] = true
+			seen[baseLang] = fi
 
 			if pi == nil {
 				panic(fmt.Sprintf("no path info for %q", meta.Filename))
