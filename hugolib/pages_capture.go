@@ -314,7 +314,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			return nil, filepath.SkipDir
 		}
 
-		seen := map[hstrings.Tuple]bool{}
+		seen := map[hstrings.Strings3]bool{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
@@ -327,7 +327,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			// These would eventually have been filtered out as duplicates when
 			// inserting them into the document store,
 			// but doing it here will preserve a consistent ordering.
-			baseLang := hstrings.Tuple{First: pi.Base(), Second: meta.Lang}
+			baseLang := hstrings.Strings3{pi.Base(), pi.IdentifiersUnknownString(), meta.Lang}
 			if seen[baseLang] {
 				continue
 			}
@@ -374,7 +374,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
 	bundlePi := bundle.Meta().PathInfo
-	seen := map[hstrings.Tuple]bool{}
+	seen := map[hstrings.Strings2]bool{}
 
 	walk := func(path string, info hugofs.FileMetaInfo) error {
 		if info.IsDir() {
@@ -396,7 +396,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 		// These would eventually have been filtered out as duplicates when
 		// inserting them into the document store,
 		// but doing it here will preserve a consistent ordering.
-		baseLang := hstrings.Tuple{First: pi.Base(), Second: info.Meta().Lang}
+		baseLang := hstrings.Strings2{pi.Base(), info.Meta().Lang}
 		if seen[baseLang] {
 			return nil
 		}

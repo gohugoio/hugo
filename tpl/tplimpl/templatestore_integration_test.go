@@ -769,6 +769,37 @@ All.
 	b.AssertFileContent("public/index.html", "All.")
 }
 
+func TestLayoutAllNested(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- content/s2/p2.md --
+---
+title: p2
+---
+-- layouts/single.html --
+layouts/single.html
+-- layouts/list.html --
+layouts/list.html
+-- layouts/s1/all.html --
+layouts/s1/all.html
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "layouts/list.html")
+	b.AssertFileContent("public/s1/index.html", "layouts/s1/all.html")
+	b.AssertFileContent("public/s1/p1/index.html", "layouts/s1/all.html")
+	b.AssertFileContent("public/s2/index.html", "layouts/list.html")
+	b.AssertFileContent("public/s2/p2/index.html", "layouts/single.html")
+}
+
 func TestPartialHTML(t *testing.T) {
 	t.Parallel()
 
@@ -787,4 +818,25 @@ func TestPartialHTML(t *testing.T) {
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", "<link rel=\"stylesheet\" href=\"/css/style.css\">")
+}
+
+// Issue #13515
+func TestPrintPathWarningOnDotRemoval(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+printPathWarnings = true
+-- content/v0.124.0.md --
+-- content/v0.123.0.md --
+-- layouts/all.html --
+All.
+-- layouts/_default/single.html --
+{{ .Title }}|
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertLogContains("Duplicate content path")
 }

@@ -129,7 +129,7 @@ func (p Pages) withInvertedIndex(ctx context.Context, search func(idx *related.I
 		return nil, fmt.Errorf("invalid type %T in related search", p[0])
 	}
 
-	cache := d.GetRelatedDocsHandler()
+	cache := d.GetInternalRelatedDocsHandler()
 
 	searchIndex, err := cache.getOrCreateIndex(ctx, p)
 	if err != nil {

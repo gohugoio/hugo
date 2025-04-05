@@ -150,8 +150,8 @@ type InSectionPositioner interface {
 
 // InternalDependencies is considered an internal interface.
 type InternalDependencies interface {
-	// GetRelatedDocsHandler is for internal use only.
-	GetRelatedDocsHandler() *RelatedDocsHandler
+	// GetInternalRelatedDocsHandler is for internal use only.
+	GetInternalRelatedDocsHandler() *RelatedDocsHandler
 }
 
 // OutputFormatsProvider provides the OutputFormats of a Page.

@@ -711,6 +711,7 @@ func (s *TemplateStore) findBestMatchWalkPath(q TemplateQuery, k1 string, slashC
 			}
 
 			weight := s.dh.compareDescriptors(q.Category, q.Desc, k.d)
+
 			weight.distance = distance
 
 			if best.isBetter(weight, vv) {
@@ -1734,6 +1735,15 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	}
 
 	if w.isEqualWeights(best.w) {
+		// Tie breakers.
+		if w.distance < best.w.distance {
+			return true
+		}
+
+		if ti.D.Layout != "" && best.desc.Layout != "" {
+			return ti.D.Layout != layoutAll
+		}
+
 		return w.distance < best.w.distance || ti.PathInfo.Path() < best.templ.PathInfo.Path()
 	}
 

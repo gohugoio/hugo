@@ -834,7 +834,7 @@ func (s *Site) initRenderFormats() {
 	s.renderFormats = formats
 }
 
-func (s *Site) GetRelatedDocsHandler() *page.RelatedDocsHandler {
+func (s *Site) GetInternalRelatedDocsHandler() *page.RelatedDocsHandler {
 	return s.relatedDocsHandler
 }
 

@@ -141,7 +141,7 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 	const (
 		weightKind         = 3 // page, home, section, taxonomy, term (and only those)
 		weightcustomLayout = 4 // custom layout (mylayout, set in e.g. front matter)
-		weightLayout       = 2 // standard layouts (single,list)
+		weightLayout       = 2 // standard layouts (single,list,all)
 		weightOutputFormat = 2 // a configured output format (e.g. rss, html, json)
 		weightMediaType    = 1 // a configured media type (e.g. text/html, text/plain)
 		weightLang         = 1 // a configured language (e.g. en, nn, fr, ...)
@@ -155,7 +155,7 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 		// two templates /layouts/posts/single.html and /layouts/page.html,
 		// the first one is the best match even if the second one
 		// has a higher w1 value.
-		weight2Group1 = 1 // kind, standardl layout (single,list)
+		weight2Group1 = 1 // kind, standardl layout (single,list,all)
 		weight2Group2 = 2 // custom layout (mylayout)
 
 		weight3 = 1 // for media type, lang, output format.
@@ -170,7 +170,7 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 		w.w2 = weight2Group1
 	}
 
-	if other.Layout != "" && other.Layout == this.Layout {
+	if other.Layout != "" && other.Layout == this.Layout || other.Layout == layoutAll {
 		if isLayoutCustom(this.Layout) {
 			w.w1 += weightcustomLayout
 			w.w2 = weight2Group2
