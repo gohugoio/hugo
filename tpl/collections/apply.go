@@ -21,7 +21,6 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/tpl"
 )
 
 // Apply takes an array or slice c and returns a new slice with the function fname applied over it.
@@ -109,8 +108,7 @@ func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (re
 func (ns *Namespace) lookupFunc(ctx context.Context, fname string) (reflect.Value, bool) {
 	namespace, methodName, ok := strings.Cut(fname, ".")
 	if !ok {
-		templ := ns.deps.Tmpl().(tpl.TemplateFuncGetter)
-		return templ.GetFunc(fname)
+		return ns.deps.GetTemplateStore().GetFunc(fname)
 	}
 
 	// Namespace

@@ -24,7 +24,7 @@ const name = "math"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New()
+		ctx := New(d)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,

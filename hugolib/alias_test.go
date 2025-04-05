@@ -107,13 +107,26 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 func TestAliasTemplate(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("page.md", pageWithAlias).WithTemplatesAdded("alias.html", aliasTemplate)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com"
+-- layouts/single.html --
+Single.
+-- layouts/home.html --
+Home.
+-- layouts/alias.html --
+ALIASTEMPLATE
+-- content/page.md --
+---
+title: "Page"
+aliases: ["/foo/bar/"]
+---
+`
 
-	b.CreateSites().Build(BuildCfg{})
+	b := Test(t, files)
 
 	// the real page
-	b.AssertFileContent("public/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/page/index.html", "Single.")
 	// the alias redirector
 	b.AssertFileContent("public/foo/bar/index.html", "ALIASTEMPLATE")
 }

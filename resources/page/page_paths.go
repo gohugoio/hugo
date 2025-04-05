@@ -145,7 +145,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		pb.isUgly = true
 	}
 
-	if d.Type == output.HTTPStatusHTMLFormat || d.Type == output.SitemapFormat || d.Type == output.RobotsTxtFormat {
+	if d.Type == output.HTTPStatus404HTMLFormat || d.Type == output.SitemapFormat || d.Type == output.RobotsTxtFormat {
 		pb.noSubResources = true
 	} else if d.Kind != kinds.KindPage && d.URL == "" && d.Section.Base() != "/" {
 		if d.ExpandedPermalink != "" {

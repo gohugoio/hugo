@@ -170,7 +170,7 @@ D1
 	got := buf.String()
 
 	// Get rid of all the durations, they are never the same.
-	durationRe := regexp.MustCompile(`\b[\.\d]*(ms|µs|s)\b`)
+	durationRe := regexp.MustCompile(`\b[\.\d]*(ms|ns|µs|s)\b`)
 
 	normalize := func(s string) string {
 		s = durationRe.ReplaceAllString(s, "")
@@ -193,10 +193,10 @@ D1
 
 	expect := `
 	0        0       0      1  index.html
-	100        0       0      1  partials/static2.html
-	100       50       1      2  partials/static1.html
-	25       50       2      4  partials/dynamic1.html
-	66       33       1      3  partials/halfdynamic1.html
+	100        0       0      1  _partials/static2.html
+	100       50       1      2  _partials/static1.html
+	25       50       2      4  _partials/dynamic1.html
+	66       33       1      3  _partials/halfdynamic1.html
 	`
 
 	b.Assert(got, hqt.IsSameString, expect)

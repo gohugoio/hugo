@@ -127,3 +127,28 @@ Try printf: {{ (try (printf "hello %s" "world")).Value }}
 		"Try printf: hello world",
 	)
 }
+
+func TestDebugLayoutLookup(t *testing.T) {
+	t.Skip("work in progress")
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/_partials/get.html --
+{{ $opts := dict "page" .}}
+{{ $info := templates.DebugLayoutLookup $opts }}
+{{ return $info }}
+-- layouts/page.html --
+Page. {{ partial "get.html" . }}
+-- layouts/all.html --
+All.
+-- content/p1.md --
+---
+title: p1
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "asdf")
+}

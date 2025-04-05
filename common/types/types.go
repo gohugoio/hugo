@@ -28,6 +28,16 @@ type RLocker interface {
 	RUnlock()
 }
 
+type Locker interface {
+	Lock()
+	Unlock()
+}
+
+type RWLocker interface {
+	RLocker
+	Locker
+}
+
 // KeyValue is a interface{} tuple.
 type KeyValue struct {
 	Key   any

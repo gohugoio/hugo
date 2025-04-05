@@ -133,6 +133,15 @@ var (
 		Weight: 10,
 	}
 
+	// Alias is the output format used for alias redirects.
+	AliasHTMLFormat = Format{
+		Name:          "alias",
+		MediaType:     media.Builtin.HTMLType,
+		IsHTML:        true,
+		Ugly:          true,
+		Permalinkable: false,
+	}
+
 	MarkdownFormat = Format{
 		Name:        "markdown",
 		MediaType:   media.Builtin.MarkdownType,
@@ -192,8 +201,17 @@ var (
 		Rel:       "sitemap",
 	}
 
-	HTTPStatusHTMLFormat = Format{
-		Name:           "httpstatus",
+	GotmplFormat = Format{
+		Name:           "gotmpl",
+		MediaType:      media.Builtin.GotmplType,
+		IsPlainText:    true,
+		NotAlternative: true,
+	}
+
+	// I'm not sure having a 404 format is a good idea,
+	// for one, we would want to have multiple formats for this.
+	HTTPStatus404HTMLFormat = Format{
+		Name:           "404",
 		MediaType:      media.Builtin.HTMLType,
 		NotAlternative: true,
 		Ugly:           true,
@@ -209,12 +227,16 @@ var DefaultFormats = Formats{
 	CSSFormat,
 	CSVFormat,
 	HTMLFormat,
+	GotmplFormat,
+	HTTPStatus404HTMLFormat,
+	AliasHTMLFormat,
 	JSONFormat,
 	MarkdownFormat,
 	WebAppManifestFormat,
 	RobotsTxtFormat,
 	RSSFormat,
 	SitemapFormat,
+	SitemapIndexFormat,
 }
 
 func init() {

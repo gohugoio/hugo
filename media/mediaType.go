@@ -282,7 +282,7 @@ func (t Types) BySuffix(suffix string) []Type {
 	suffix = t.normalizeSuffix(suffix)
 	var types []Type
 	for _, tt := range t {
-		if tt.hasSuffix(suffix) {
+		if tt.HasSuffix(suffix) {
 			types = append(types, tt)
 		}
 	}
@@ -293,7 +293,7 @@ func (t Types) BySuffix(suffix string) []Type {
 func (t Types) GetFirstBySuffix(suffix string) (Type, SuffixInfo, bool) {
 	suffix = t.normalizeSuffix(suffix)
 	for _, tt := range t {
-		if tt.hasSuffix(suffix) {
+		if tt.HasSuffix(suffix) {
 			return tt, SuffixInfo{
 				FullSuffix: tt.Delimiter + suffix,
 				Suffix:     suffix,
@@ -310,7 +310,7 @@ func (t Types) GetFirstBySuffix(suffix string) (Type, SuffixInfo, bool) {
 func (t Types) GetBySuffix(suffix string) (tp Type, si SuffixInfo, found bool) {
 	suffix = t.normalizeSuffix(suffix)
 	for _, tt := range t {
-		if tt.hasSuffix(suffix) {
+		if tt.HasSuffix(suffix) {
 			if found {
 				// ambiguous
 				found = false
@@ -330,14 +330,14 @@ func (t Types) GetBySuffix(suffix string) (tp Type, si SuffixInfo, found bool) {
 func (t Types) IsTextSuffix(suffix string) bool {
 	suffix = t.normalizeSuffix(suffix)
 	for _, tt := range t {
-		if tt.hasSuffix(suffix) {
+		if tt.HasSuffix(suffix) {
 			return tt.IsText()
 		}
 	}
 	return false
 }
 
-func (m Type) hasSuffix(suffix string) bool {
+func (m Type) HasSuffix(suffix string) bool {
 	return strings.Contains(","+m.SuffixesCSV+",", ","+suffix+",")
 }
 

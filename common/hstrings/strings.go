@@ -16,11 +16,11 @@ package hstrings
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/compare"
-	"slices"
 )
 
 var _ compare.Eqer = StringEqualFold("")
@@ -128,7 +128,7 @@ func ToString(v any) (string, bool) {
 	return "", false
 }
 
-type Tuple struct {
-	First  string
-	Second string
-}
+type (
+	Strings2 [2]string
+	Strings3 [3]string
+)

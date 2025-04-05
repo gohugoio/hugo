@@ -21,7 +21,6 @@ import (
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/navigation"
-	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
@@ -85,9 +84,6 @@ type pageCommon struct {
 	// Describes how paths and URLs for this page and its descendants
 	// should look like.
 	targetPathDescriptor page.TargetPathDescriptor
-
-	layoutDescriptor     layouts.LayoutDescriptor
-	layoutDescriptorInit sync.Once
 
 	// Set if feature enabled and this is in a Git repo.
 	gitInfo    source.GitInfo

@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"golang.org/x/text/unicode/norm"
@@ -219,19 +220,31 @@ type IntegrationTestBuilder struct {
 
 type lockingBuffer struct {
 	sync.Mutex
-	bytes.Buffer
+	buf bytes.Buffer
+}
+
+func (b *lockingBuffer) String() string {
+	b.Lock()
+	defer b.Unlock()
+	return b.buf.String()
+}
+
+func (b *lockingBuffer) Reset() {
+	b.Lock()
+	defer b.Unlock()
+	b.buf.Reset()
 }
 
 func (b *lockingBuffer) ReadFrom(r io.Reader) (n int64, err error) {
 	b.Lock()
-	n, err = b.Buffer.ReadFrom(r)
+	n, err = b.buf.ReadFrom(r)
 	b.Unlock()
 	return
 }
 
 func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 	b.Lock()
-	n, err = b.Buffer.Write(p)
+	n, err = b.buf.Write(p)
 	b.Unlock()
 	return
 }
@@ -300,6 +313,13 @@ func (s *IntegrationTestBuilder) negate(match string) (string, bool) {
 		match = strings.TrimPrefix(match, "! ")
 	}
 	return match, negate
+}
+
+// TODO1 2 remove me.
+func (s *IntegrationTestBuilder) DebugPrint(prefix string, category tplimpl.Category) {
+	ss := s.H.Sites[0]
+	store := ss.TemplateStore
+	store.PrintDebug(prefix, category, os.Stdout)
 }
 
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {

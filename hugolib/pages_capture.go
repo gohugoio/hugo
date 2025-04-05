@@ -195,7 +195,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 						return id.p.Dir() == fim.Meta().PathInfo.Dir()
 					}
 
-					if fim.Meta().PathInfo.IsLeafBundle() && id.p.BundleType() == paths.PathTypeContentSingle {
+					if fim.Meta().PathInfo.IsLeafBundle() && id.p.Type() == paths.TypeContentSingle {
 						return id.p.Dir() == fim.Meta().PathInfo.Dir()
 					}
 
@@ -314,7 +314,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			return nil, filepath.SkipDir
 		}
 
-		seen := map[hstrings.Tuple]bool{}
+		seen := map[hstrings.Strings2]hugofs.FileMetaInfo{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
@@ -327,11 +327,14 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			// These would eventually have been filtered out as duplicates when
 			// inserting them into the document store,
 			// but doing it here will preserve a consistent ordering.
-			baseLang := hstrings.Tuple{First: pi.Base(), Second: meta.Lang}
-			if seen[baseLang] {
+			baseLang := hstrings.Strings2{pi.Base(), meta.Lang}
+			if fi2, ok := seen[baseLang]; ok {
+				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {
+					c.logger.Warnf("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
+				}
 				continue
 			}
-			seen[baseLang] = true
+			seen[baseLang] = fi
 
 			if pi == nil {
 				panic(fmt.Sprintf("no path info for %q", meta.Filename))
@@ -374,7 +377,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
 	bundlePi := bundle.Meta().PathInfo
-	seen := map[hstrings.Tuple]bool{}
+	seen := map[hstrings.Strings2]bool{}
 
 	walk := func(path string, info hugofs.FileMetaInfo) error {
 		if info.IsDir() {
@@ -396,7 +399,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 		// These would eventually have been filtered out as duplicates when
 		// inserting them into the document store,
 		// but doing it here will preserve a consistent ordering.
-		baseLang := hstrings.Tuple{First: pi.Base(), Second: info.Meta().Lang}
+		baseLang := hstrings.Strings2{pi.Base(), info.Meta().Lang}
 		if seen[baseLang] {
 			return nil
 		}

@@ -150,8 +150,8 @@ type InSectionPositioner interface {
 
 // InternalDependencies is considered an internal interface.
 type InternalDependencies interface {
-	// GetRelatedDocsHandler is for internal use only.
-	GetRelatedDocsHandler() *RelatedDocsHandler
+	// GetInternalRelatedDocsHandler is for internal use only.
+	GetInternalRelatedDocsHandler() *RelatedDocsHandler
 }
 
 // OutputFormatsProvider provides the OutputFormats of a Page.
@@ -389,6 +389,7 @@ type PageWithoutContent interface {
 	maps.StoreProvider
 
 	RelatedKeywordsProvider
+	InternalProvider
 
 	// GetTerms gets the terms of a given taxonomy,
 	// e.g. GetTerms("categories")
@@ -438,6 +439,11 @@ type RefProvider interface {
 
 	// RelRefFrom is for internal use only.
 	RelRefFrom(argsm map[string]any, source any) (string, error)
+}
+
+type InternalProvider interface {
+	// GetInternalTemplateBasePathAndDescriptor is for internal use only.
+	GetInternalTemplateBasePathAndDescriptor() (string, any)
 }
 
 // RelatedKeywordsProvider allows a Page to be indexed.

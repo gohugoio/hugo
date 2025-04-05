@@ -76,12 +76,13 @@ Single: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {
 
 `
 
-	b := Test(t, files)
-
-	b.AssertFileContent("public/index.html", `List: |/|html: /|rss: /index.xml|$`)
-	b.AssertFileContent("public/index.xml", `List xml: |/|html: /|rss: /index.xml|$`)
-	b.AssertFileContent("public/p1/index.html", `Single: Page|/p1/|html: /p1/|$`)
-	b.AssertFileExists("public/p1/index.xml", false)
+	for i := 0; i < 2; i++ {
+		b := Test(t, files)
+		b.AssertFileContent("public/index.html", `List: |/|html: /|rss: /index.xml|$`)
+		b.AssertFileContent("public/index.xml", `List xml: |/|html: /|rss: /index.xml|$`)
+		b.AssertFileContent("public/p1/index.html", `Single: Page|/p1/|html: /p1/|$`)
+		b.AssertFileExists("public/p1/index.xml", false)
+	}
 }
 
 func TestSmoke(t *testing.T) {

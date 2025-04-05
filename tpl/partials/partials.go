@@ -25,12 +25,12 @@ import (
 
 	"github.com/bep/lazycache"
 
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/identity"
 
-	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
-
 	"github.com/gohugoio/hugo/tpl"
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
@@ -52,13 +52,6 @@ func (k partialCacheKey) Key() string {
 		return k.Name
 	}
 	return hashing.HashString(append([]any{k.Name}, k.Variants...)...)
-}
-
-func (k partialCacheKey) templateName() string {
-	if !strings.HasPrefix(k.Name, "partials/") {
-		return "partials/" + k.Name
-	}
-	return k.Name
 }
 
 // partialCache represents a LRU cache of partials.
@@ -129,6 +122,11 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 }
 
 func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
+	if strings.HasPrefix(name, "partials/") {
+		// This is most likely not what the user intended.
+		// This worked before Hugo 0.146.0.
+		ns.deps.Log.Warnidf(constants.WarnPartialSuperfluousPrefix, "Partial name %q starting with 'partials/' (as in {{ partial \"%s\"}}) is most likely not what you want. Before 0.146.0 we did a double lookup in this situation.", name, name)
+	}
 	// Create a new context with a timeout not connected to the incoming context.
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Conf.Timeout())
 	defer cancel()
@@ -159,28 +157,14 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 	if len(dataList) > 0 {
 		data = dataList[0]
 	}
-
-	var n string
-	if strings.HasPrefix(name, "partials/") {
-		n = name
-	} else {
-		n = "partials/" + name
-	}
-
-	templ, found := ns.deps.Tmpl().Lookup(n)
-	if !found {
-		// For legacy reasons.
-		templ, found = ns.deps.Tmpl().Lookup(n + ".html")
-	}
-
-	if !found {
+	name, desc := ns.deps.TemplateStore.TemplateDescriptorFromPath(name)
+	v := ns.deps.TemplateStore.LookupPartial(name, desc)
+	if v == nil {
 		return includeResult{err: fmt.Errorf("partial %q not found", name)}
 	}
 
-	var info tpl.ParseInfo
-	if ip, ok := templ.(tpl.Info); ok {
-		info = ip.ParseInfo()
-	}
+	templ := v
+	info := v.ParseInfo
 
 	var w io.Writer
 
@@ -200,7 +184,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 		w = b
 	}
 
-	if err := ns.deps.Tmpl().ExecuteWithContext(ctx, templ, w, data); err != nil {
+	if err := ns.deps.GetTemplateStore().ExecuteWithContext(ctx, templ, w, data); err != nil {
 		return includeResult{err: err}
 	}
 
@@ -208,14 +192,14 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 
 	if ctx, ok := data.(*contextWrapper); ok {
 		result = ctx.Result
-	} else if _, ok := templ.(*texttemplate.Template); ok {
+	} else if _, ok := templ.Template.(*texttemplate.Template); ok {
 		result = w.(fmt.Stringer).String()
 	} else {
 		result = template.HTML(w.(fmt.Stringer).String())
 	}
 
 	return includeResult{
-		name:   templ.Name(),
+		name:   templ.Template.Name(),
 		result: result,
 	}
 }
@@ -253,9 +237,9 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 			// The templates that gets executed is measured in Execute.
 			// We need to track the time spent in the cache to
 			// get the totals correct.
-			ns.deps.Metrics.MeasureSince(key.templateName(), start)
+			ns.deps.Metrics.MeasureSince(r.name, start)
 		}
-		ns.deps.Metrics.TrackValue(key.templateName(), r.result, found)
+		ns.deps.Metrics.TrackValue(r.name, r.result, found)
 	}
 
 	if r.mangager != nil && depsManagerIn != nil {

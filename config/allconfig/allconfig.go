@@ -849,7 +849,24 @@ func (c *Configs) Init() error {
 	c.Languages = languages
 	c.LanguagesDefaultFirst = languagesDefaultFirst
 
-	c.ContentPathParser = &paths.PathParser{LanguageIndex: languagesDefaultFirst.AsIndexSet(), IsLangDisabled: c.Base.IsLangDisabled, IsContentExt: c.Base.ContentTypes.Config.IsContentSuffix}
+	c.ContentPathParser = &paths.PathParser{
+		LanguageIndex:  languagesDefaultFirst.AsIndexSet(),
+		IsLangDisabled: c.Base.IsLangDisabled,
+		IsContentExt:   c.Base.ContentTypes.Config.IsContentSuffix,
+		IsOutputFormat: func(name, ext string) bool {
+			if name == "" {
+				return false
+			}
+
+			if of, ok := c.Base.OutputFormats.Config.GetByName(name); ok {
+				if ext != "" && !of.MediaType.HasSuffix(ext) {
+					return false
+				}
+				return true
+			}
+			return false
+		},
+	}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 	for i, l := range c.LanguagesDefaultFirst {

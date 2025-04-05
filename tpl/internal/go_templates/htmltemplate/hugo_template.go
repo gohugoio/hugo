@@ -14,6 +14,8 @@
 package template
 
 import (
+	"fmt"
+
 	"github.com/gohugoio/hugo/common/types"
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
@@ -50,4 +52,29 @@ func indirect(a any) any {
 	}
 
 	return in
+}
+
+// CloneShallow creates a shallow copy of the template. It does not clone  or copy the nested templates.
+func (t *Template) CloneShallow() (*Template, error) {
+	t.nameSpace.mu.Lock()
+	defer t.nameSpace.mu.Unlock()
+	if t.escapeErr != nil {
+		return nil, fmt.Errorf("html/template: cannot Clone %q after it has executed", t.Name())
+	}
+	textClone, err := t.text.Clone()
+	if err != nil {
+		return nil, err
+	}
+	ns := &nameSpace{set: make(map[string]*Template)}
+	ns.esc = makeEscaper(ns)
+	ret := &Template{
+		nil,
+		textClone,
+		textClone.Tree,
+		ns,
+	}
+	ret.set[ret.Name()] = ret
+
+	// Return the template associated with the name of this template.
+	return ret.set[ret.Name()], nil
 }

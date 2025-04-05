@@ -509,6 +509,10 @@ func probablyEq(a, b Identity) bool {
 		return true
 	}
 
+	if a2, ok := a.(compare.ProbablyEqer); ok && a2.ProbablyEq(b) {
+		return true
+	}
+
 	if a2, ok := a.(IsProbablyDependentProvider); ok {
 		return a2.IsProbablyDependent(b)
 	}

@@ -221,8 +221,12 @@ func (p *testPage) GetTerms(taxonomy string) Pages {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) GetRelatedDocsHandler() *RelatedDocsHandler {
+func (p *testPage) GetInternalRelatedDocsHandler() *RelatedDocsHandler {
 	return relatedDocsHandler
+}
+
+func (p *testPage) GetInternalTemplateBasePathAndDescriptor() (string, any) {
+	return "", nil
 }
 
 func (p *testPage) GitInfo() source.GitInfo {
