@@ -72,8 +72,11 @@ type pageMeta struct {
 
 // Prepare for a rebuild of the data passed in from front matter.
 func (m *pageMeta) setMetaPostPrepareRebuild() {
-	params := xmaps.Clone[map[string]any](m.paramsOriginal)
+	params := xmaps.Clone(m.paramsOriginal)
 	m.pageMetaParams.pageConfig = &pagemeta.PageConfig{
+		Kind:   m.pageConfig.Kind,
+		Lang:   m.pageConfig.Lang,
+		Path:   m.pageConfig.Path,
 		Params: params,
 	}
 	m.pageMetaFrontMatter = pageMetaFrontMatter{}
@@ -108,10 +111,10 @@ func (p *pageMeta) Aliases() []string {
 }
 
 func (p *pageMeta) BundleType() string {
-	switch p.pathInfo.BundleType() {
-	case paths.PathTypeLeaf:
+	switch p.pathInfo.Type() {
+	case paths.TypeLeaf:
 		return "leaf"
-	case paths.PathTypeBranch:
+	case paths.TypeBranch:
 		return "branch"
 	default:
 		return ""

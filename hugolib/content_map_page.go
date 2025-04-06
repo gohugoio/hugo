@@ -180,7 +180,7 @@ func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Iden
 
 	if p.Component() == files.ComponentFolderContent {
 		// It may also be a bundled content resource.
-		key := p.ForBundleType(paths.PathTypeContentResource).Base()
+		key := p.ForBundleType(paths.TypeContentResource).Base()
 		tree = t.treeResources
 		nCount = 0
 		tree.ForEeachInDimension(key, doctree.DimensionLanguage.Index(),
@@ -1304,14 +1304,14 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 		checkedCounter atomic.Int64
 	)
 
-	resetPo := func(po *pageOutput, r identity.FinderResult) {
-		if po.pco != nil {
+	resetPo := func(po *pageOutput, rebuildContent bool, r identity.FinderResult) {
+		if rebuildContent && po.pco != nil {
 			po.pco.Reset() // Will invalidate content cache.
 		}
 
 		po.renderState = 0
 		po.p.resourcesPublishInit = &sync.Once{}
-		if r == identity.FinderFoundOneOfMany || po.f.Name == output.HTTPStatusHTMLFormat.Name {
+		if r == identity.FinderFoundOneOfMany || po.f.Name == output.HTTPStatus404HTMLFormat.Name {
 			// Will force a re-render even in fast render mode.
 			po.renderOnce = false
 		}
@@ -1323,7 +1323,7 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 	}
 
 	// This can be a relativeley expensive operations, so we do it in parallel.
-	g := rungroup.Run[*pageState](ctx, rungroup.Config[*pageState]{
+	g := rungroup.Run(ctx, rungroup.Config[*pageState]{
 		NumWorkers: h.numWorkers,
 		Handle: func(ctx context.Context, p *pageState) error {
 			if !p.isRenderedAny() {
@@ -1335,7 +1335,8 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 				checkedCounter.Add(1)
 				if r := depsFinder.Contains(id, p.dependencyManager, 2); r > identity.FinderFoundOneOfManyRepetition {
 					for _, po := range p.pageOutputs {
-						resetPo(po, r)
+						// Note that p.dependencyManager is used when rendering content, so reset that.
+						resetPo(po, true, r)
 					}
 					// Done.
 					return nil
@@ -1351,7 +1352,8 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 				for _, id := range changes {
 					checkedCounter.Add(1)
 					if r := depsFinder.Contains(id, po.dependencyManagerOutput, 50); r > identity.FinderFoundOneOfManyRepetition {
-						resetPo(po, r)
+						// Note that dependencyManagerOutput is not used when rendering content, so don't reset that.
+						resetPo(po, false, r)
 						continue OUTPUTS
 					}
 				}
@@ -1954,7 +1956,7 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 		tree.InsertIntoValuesDimension(key, p)
 	}
 
-	addStandalone("/404", kinds.KindStatus404, output.HTTPStatusHTMLFormat)
+	addStandalone("/404", kinds.KindStatus404, output.HTTPStatus404HTMLFormat)
 
 	if s.conf.EnableRobotsTXT {
 		if m.i == 0 || s.Conf.IsMultihost() {

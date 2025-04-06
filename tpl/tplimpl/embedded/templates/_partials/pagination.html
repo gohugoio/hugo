@@ -20,7 +20,7 @@
 {{- if in $validFormats $format }}
   {{- if gt $page.Paginator.TotalPages 1 }}
     <ul class="pagination pagination-{{ $format }}">
-      {{- partial (printf "partials/inline/pagination/%s" $format) $page }}
+      {{- partial (printf "inline/pagination/%s" $format) $page }}
     </ul>
   {{- end }}
 {{- else }}

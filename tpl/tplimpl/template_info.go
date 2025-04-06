@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,24 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tpl
+package tplimpl
 
 // Increments on breaking changes.
 const TemplateVersion = 2
 
-type Info interface {
-	ParseInfo() ParseInfo
-}
-
-type FileInfo interface {
-	Name() string
-	Filename() string
-}
-
-type IsInternalTemplateProvider interface {
-	IsInternalTemplate() bool
-}
-
+// ParseInfo holds information about a parsed ntemplate.
 type ParseInfo struct {
 	// Set for shortcode templates with any {{ .Inner }}
 	IsInner bool
@@ -44,14 +32,15 @@ func (info ParseInfo) IsZero() bool {
 	return info.Config.Version == 0
 }
 
+// ParseConfig holds configuration extracted from the template.
 type ParseConfig struct {
 	Version int
 }
 
-var DefaultParseConfig = ParseConfig{
+var defaultParseConfig = ParseConfig{
 	Version: TemplateVersion,
 }
 
-var DefaultParseInfo = ParseInfo{
-	Config: DefaultParseConfig,
+var defaultParseInfo = ParseInfo{
+	Config: defaultParseConfig,
 }

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,19 +15,7 @@ package tpl
 
 import (
 	"testing"
-
-	qt "github.com/frankban/quicktest"
 )
-
-func TestExtractBaseof(t *testing.T) {
-	c := qt.New(t)
-
-	replaced := extractBaseOf(`failed: template: _default/baseof.html:37:11: executing "_default/baseof.html" at <.Parents>: can't evaluate field Parents in type *hugolib.PageOutput`)
-
-	c.Assert(replaced, qt.Equals, "_default/baseof.html")
-	c.Assert(extractBaseOf("not baseof for you"), qt.Equals, "")
-	c.Assert(extractBaseOf("template: blog/baseof.html:23:11:"), qt.Equals, "blog/baseof.html")
-}
 
 func TestStripHTML(t *testing.T) {
 	type test struct {

@@ -28,14 +28,12 @@ import (
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
-	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/related"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
-
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/types"
@@ -116,6 +114,14 @@ type pageState struct {
 	resourcesPublishInit *sync.Once
 }
 
+func (p *pageState) incrPageOutputTemplateVariation() {
+	p.pageOutputTemplateVariationsState.Add(1)
+}
+
+func (p *pageState) canReusePageOutputContent() bool {
+	return p.pageOutputTemplateVariationsState.Load() == 1
+}
+
 func (p *pageState) IdentifierBase() string {
 	return p.Path()
 }
@@ -167,10 +173,6 @@ func (p *pageState) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword,
 
 func (p *pageState) resetBuildState() {
 	// Nothing to do for now.
-}
-
-func (p *pageState) reusePageOutputContent() bool {
-	return p.pageOutputTemplateVariationsState.Load() == 1
 }
 
 func (p *pageState) skipRender() bool {
@@ -474,49 +476,40 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	return nil
 }
 
-func (p *pageState) getLayoutDescriptor() layouts.LayoutDescriptor {
-	p.layoutDescriptorInit.Do(func() {
-		var section string
-		sections := p.SectionsEntries()
-
-		switch p.Kind() {
-		case kinds.KindSection:
-			if len(sections) > 0 {
-				section = sections[0]
-			}
-		case kinds.KindTaxonomy, kinds.KindTerm:
-
-			if p.m.singular != "" {
-				section = p.m.singular
-			} else if len(sections) > 0 {
-				section = sections[0]
-			}
-		default:
-		}
-
-		p.layoutDescriptor = layouts.LayoutDescriptor{
-			Kind:    p.Kind(),
-			Type:    p.Type(),
-			Lang:    p.Language().Lang,
-			Layout:  p.Layout(),
-			Section: section,
-		}
-	})
-
-	return p.layoutDescriptor
+func (po *pageOutput) getTemplateBasePathAndDescriptor() (string, tplimpl.TemplateDescriptor) {
+	p := po.p
+	f := po.f
+	base := p.PathInfo().BaseReTyped(p.m.pageConfig.Type)
+	return base, tplimpl.TemplateDescriptor{
+		Kind:         p.Kind(),
+		Lang:         p.Language().Lang,
+		Layout:       p.Layout(),
+		OutputFormat: f.Name,
+		MediaType:    f.MediaType.Type,
+		IsPlainText:  f.IsPlainText,
+	}
 }
 
-func (p *pageState) resolveTemplate(layouts ...string) (tpl.Template, bool, error) {
-	f := p.outputFormat()
-
-	d := p.getLayoutDescriptor()
+func (p *pageState) resolveTemplate(layouts ...string) (*tplimpl.TemplInfo, bool, error) {
+	dir, d := p.getTemplateBasePathAndDescriptor()
 
 	if len(layouts) > 0 {
 		d.Layout = layouts[0]
-		d.LayoutOverride = true
+		d.LayoutMustMatch = true
 	}
 
-	return p.s.Tmpl().LookupLayout(d, f)
+	q := tplimpl.TemplateQuery{
+		Path:     dir,
+		Category: tplimpl.CategoryLayout,
+		Desc:     d,
+	}
+
+	tinfo := p.s.TemplateStore.LookupPagesLayout(q)
+	if tinfo == nil {
+		return nil, false, nil
+	}
+
+	return tinfo, true, nil
 }
 
 // Must be run after the site section tree etc. is built and ready.
@@ -705,7 +698,7 @@ func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 
 	if isRenderingSite {
 		cp := p.pageOutput.pco
-		if cp == nil && p.reusePageOutputContent() {
+		if cp == nil && p.canReusePageOutputContent() {
 			// Look for content to reuse.
 			for i := range p.pageOutputs {
 				if i == idx {

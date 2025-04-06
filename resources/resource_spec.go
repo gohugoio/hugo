@@ -42,7 +42,6 @@ import (
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/gohugoio/hugo/tpl"
 )
 
 func NewSpec(
@@ -122,8 +121,6 @@ type Spec struct {
 	ErrorSender  herrors.ErrorSender
 	BuildClosers types.CloseAdder
 	Rebuilder    identity.SignalRebuilder
-
-	TextTemplates tpl.TemplateParseFinder
 
 	Permalinks page.PermalinkExpander
 

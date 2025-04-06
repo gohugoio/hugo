@@ -14,8 +14,9 @@
 package maps
 
 import (
-	"github.com/gohugoio/hugo/common/hashing"
 	"slices"
+
+	"github.com/gohugoio/hugo/common/hashing"
 )
 
 // Ordered is a map that can be iterated in the order of insertion.
@@ -55,6 +56,15 @@ func (m *Ordered[K, T]) Get(key K) (T, bool) {
 	}
 	value, found := m.values[key]
 	return value, found
+}
+
+// Has returns whether the given key exists in the map.
+func (m *Ordered[K, T]) Has(key K) bool {
+	if m == nil {
+		return false
+	}
+	_, found := m.values[key]
+	return found
 }
 
 // Delete deletes the value for the given key.

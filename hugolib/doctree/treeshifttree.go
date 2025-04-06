@@ -13,7 +13,9 @@
 
 package doctree
 
-var _ Tree[string] = (*TreeShiftTree[string])(nil)
+import "iter"
+
+var _ TreeThreadSafe[string] = (*TreeShiftTree[string])(nil)
 
 type TreeShiftTree[T comparable] struct {
 	// This tree is shiftable in one dimension.
@@ -26,16 +28,16 @@ type TreeShiftTree[T comparable] struct {
 	zero T
 
 	// Will be of length equal to the length of the dimension.
-	trees []*SimpleTree[T]
+	trees []*SimpleThreadSafeTree[T]
 }
 
 func NewTreeShiftTree[T comparable](d, length int) *TreeShiftTree[T] {
 	if length <= 0 {
 		panic("length must be > 0")
 	}
-	trees := make([]*SimpleTree[T], length)
+	trees := make([]*SimpleThreadSafeTree[T], length)
 	for i := range length {
-		trees[i] = NewSimpleTree[T]()
+		trees[i] = NewSimpleThreadSafeTree[T]()
 	}
 	return &TreeShiftTree[T]{d: d, trees: trees}
 }
@@ -89,6 +91,14 @@ func (t *TreeShiftTree[T]) WalkPrefixRaw(lockType LockType, s string, f func(s s
 		}
 	}
 	return nil
+}
+
+func (t *TreeShiftTree[T]) WalkPath(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
+	return t.trees[t.v].WalkPath(lockType, s, f)
+}
+
+func (t *TreeShiftTree[T]) All(lockType LockType) iter.Seq2[string, T] {
+	return t.trees[t.v].All(lockType)
 }
 
 func (t *TreeShiftTree[T]) LenRaw() int {

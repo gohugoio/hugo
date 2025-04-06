@@ -23,17 +23,17 @@ import (
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
-	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
 
 // Client contains methods to perform template processing of Resource objects.
 type Client struct {
 	rs *resources.Spec
-	t  tpl.TemplatesProvider
+	t  tplimpl.TemplateStoreProvider
 }
 
 // New creates a new Client with the given specification.
-func New(rs *resources.Spec, t tpl.TemplatesProvider) *Client {
+func New(rs *resources.Spec, t tplimpl.TemplateStoreProvider) *Client {
 	if rs == nil {
 		panic("must provide a resource Spec")
 	}
@@ -45,7 +45,7 @@ func New(rs *resources.Spec, t tpl.TemplatesProvider) *Client {
 
 type executeAsTemplateTransform struct {
 	rs         *resources.Spec
-	t          tpl.TemplatesProvider
+	t          tplimpl.TemplateStoreProvider
 	targetPath string
 	data       any
 }
@@ -56,14 +56,13 @@ func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
 
 func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransformationCtx) error {
 	tplStr := helpers.ReaderToString(ctx.From)
-	templ, err := t.t.TextTmpl().Parse(ctx.InPath, tplStr)
+	th := t.t.GetTemplateStore()
+	ti, err := th.TextParse(ctx.InPath, tplStr)
 	if err != nil {
 		return fmt.Errorf("failed to parse Resource %q as Template:: %w", ctx.InPath, err)
 	}
-
 	ctx.OutPath = t.targetPath
-
-	return t.t.Tmpl().ExecuteWithContext(ctx.Ctx, templ, ctx.To, t.data)
+	return th.ExecuteWithContext(ctx.Ctx, ti, ctx.To, t.data)
 }
 
 func (c *Client) ExecuteAsTemplate(ctx context.Context, res resources.ResourceTransformer, targetPath string, data any) (resource.Resource, error) {

@@ -44,7 +44,7 @@ type Namespace struct {
 // Note that this is the Unix-styled relative path including filename suffix,
 // e.g. partials/header.html
 func (ns *Namespace) Exists(name string) bool {
-	return ns.deps.Tmpl().HasTemplate(name)
+	return ns.deps.GetTemplateStore().HasTemplate(name)
 }
 
 // Defer defers the execution of a template block.
@@ -93,7 +93,7 @@ func (ns *Namespace) DoDefer(ctx context.Context, id string, optsv any) string {
 	_, _ = ns.deps.BuildState.DeferredExecutions.Executions.GetOrCreate(id,
 		func() (*tpl.DeferredExecution, error) {
 			return &tpl.DeferredExecution{
-				TemplateName: templateName,
+				TemplatePath: templateName,
 				Ctx:          ctx,
 				Data:         opts.Data,
 				Executed:     false,

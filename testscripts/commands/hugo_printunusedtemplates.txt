@@ -1,6 +1,6 @@
 hugo  --printUnusedTemplates
 
-stderr 'Template _default/list.html is unused'
+stderr 'Template /list.html is unused'
 
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404", "section", "page"]

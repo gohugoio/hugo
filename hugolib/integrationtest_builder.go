@@ -219,19 +219,31 @@ type IntegrationTestBuilder struct {
 
 type lockingBuffer struct {
 	sync.Mutex
-	bytes.Buffer
+	buf bytes.Buffer
+}
+
+func (b *lockingBuffer) String() string {
+	b.Lock()
+	defer b.Unlock()
+	return b.buf.String()
+}
+
+func (b *lockingBuffer) Reset() {
+	b.Lock()
+	defer b.Unlock()
+	b.buf.Reset()
 }
 
 func (b *lockingBuffer) ReadFrom(r io.Reader) (n int64, err error) {
 	b.Lock()
-	n, err = b.Buffer.ReadFrom(r)
+	n, err = b.buf.ReadFrom(r)
 	b.Unlock()
 	return
 }
 
 func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 	b.Lock()
-	n, err = b.Buffer.Write(p)
+	n, err = b.buf.Write(p)
 	b.Unlock()
 	return
 }

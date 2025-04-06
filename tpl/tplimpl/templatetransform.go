@@ -1,48 +1,27 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package tplimpl
 
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
-
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
-	"slices"
 )
 
-type templateType int
-
-const (
-	templateUndefined templateType = iota
-	templateShortcode
-	templatePartial
-)
-
-type templateContext struct {
+type templateTransformContext struct {
 	visited          map[string]bool
 	templateNotFound map[string]bool
 	deferNodes       map[string]*parse.ListNode
-	lookupFn         func(name string) *templateState
+	lookupFn         func(name string, in *TemplInfo) *TemplInfo
 
 	// The last error encountered.
 	err error
@@ -50,18 +29,18 @@ type templateContext struct {
 	// Set when we're done checking for config header.
 	configChecked bool
 
-	t *templateState
+	t *TemplInfo
 
 	// Store away the return node in partials.
 	returnNode *parse.CommandNode
 }
 
-func (c templateContext) getIfNotVisited(name string) *templateState {
+func (c templateTransformContext) getIfNotVisited(name string) *TemplInfo {
 	if c.visited[name] {
 		return nil
 	}
 	c.visited[name] = true
-	templ := c.lookupFn(name)
+	templ := c.lookupFn(name, c.t)
 	if templ == nil {
 		// This may be a inline template defined outside of this file
 		// and not yet parsed. Unusual, but it happens.
@@ -72,11 +51,11 @@ func (c templateContext) getIfNotVisited(name string) *templateState {
 	return templ
 }
 
-func newTemplateContext(
-	t *templateState,
-	lookupFn func(name string) *templateState,
-) *templateContext {
-	return &templateContext{
+func newTemplateTransformContext(
+	t *TemplInfo,
+	lookupFn func(name string, in *TemplInfo) *TemplInfo,
+) *templateTransformContext {
+	return &templateTransformContext{
 		t:                t,
 		lookupFn:         lookupFn,
 		visited:          make(map[string]bool),
@@ -86,21 +65,25 @@ func newTemplateContext(
 }
 
 func applyTemplateTransformers(
-	t *templateState,
-	lookupFn func(name string) *templateState,
-) (*templateContext, error) {
+	t *TemplInfo,
+	lookupFn func(name string, in *TemplInfo) *TemplInfo,
+) (*templateTransformContext, error) {
 	if t == nil {
 		return nil, errors.New("expected template, but none provided")
 	}
 
-	c := newTemplateContext(t, lookupFn)
+	c := newTemplateTransformContext(t, lookupFn)
+	c.t.ParseInfo = defaultParseInfo
 	tree := getParseTree(t.Template)
+	if tree == nil {
+		panic(fmt.Errorf("template %s not parsed", t))
+	}
 
 	_, err := c.applyTransformations(tree.Root)
 
 	if err == nil && c.returnNode != nil {
 		// This is a partial with a return statement.
-		c.t.parseInfo.HasReturn = true
+		c.t.ParseInfo.HasReturn = true
 		tree.Root = c.wrapInPartialReturnWrapper(tree.Root)
 	}
 
@@ -108,7 +91,6 @@ func applyTemplateTransformers(
 }
 
 func getParseTree(templ tpl.Template) *parse.Tree {
-	templ = unwrap(templ)
 	if text, ok := templ.(*texttemplate.Template); ok {
 		return text.Tree
 	}
@@ -146,7 +128,7 @@ func init() {
 
 // wrapInPartialReturnWrapper copies and modifies the parsed nodes of a
 // predefined partial return wrapper to insert those of a user-defined partial.
-func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
+func (c *templateTransformContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
 	wrapper := partialReturnWrapper.CopyList()
 	rangeNode := wrapper.Nodes[2].(*parse.RangeNode)
 	retn := rangeNode.List.Nodes[0]
@@ -163,7 +145,7 @@ func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.L
 // applyTransformations do 2 things:
 // 1) Parses partial return statement.
 // 2) Tracks template (partial) dependencies and some other info.
-func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
+func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, error) {
 	switch x := n.(type) {
 	case *parse.ListNode:
 		if x != nil {
@@ -208,7 +190,7 @@ func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 	return true, c.err
 }
 
-func (c *templateContext) handleDefer(withNode *parse.WithNode) {
+func (c *templateTransformContext) handleDefer(withNode *parse.WithNode) {
 	if len(withNode.Pipe.Cmds) != 1 {
 		return
 	}
@@ -265,13 +247,13 @@ func (c *templateContext) handleDefer(withNode *parse.WithNode) {
 	n.Pipe.Cmds[0].Args[2] = deferArg
 }
 
-func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {
+func (c *templateTransformContext) applyTransformationsToNodes(nodes ...parse.Node) {
 	for _, node := range nodes {
 		c.applyTransformations(node)
 	}
 }
 
-func (c *templateContext) hasIdent(idents []string, ident string) bool {
+func (c *templateTransformContext) hasIdent(idents []string, ident string) bool {
 	return slices.Contains(idents, ident)
 }
 
@@ -280,8 +262,8 @@ func (c *templateContext) hasIdent(idents []string, ident string) bool {
 // on the form:
 //
 //	{{ $_hugo_config:= `{ "version": 1 }` }}
-func (c *templateContext) collectConfig(n *parse.PipeNode) {
-	if c.t.typ != templateShortcode {
+func (c *templateTransformContext) collectConfig(n *parse.PipeNode) {
+	if c.t.Category != CategoryShortcode {
 		return
 	}
 	if c.configChecked {
@@ -313,7 +295,7 @@ func (c *templateContext) collectConfig(n *parse.PipeNode) {
 			c.err = fmt.Errorf(errMsg, err)
 			return
 		}
-		if err := mapstructure.WeakDecode(m, &c.t.parseInfo.Config); err != nil {
+		if err := mapstructure.WeakDecode(m, &c.t.ParseInfo.Config); err != nil {
 			c.err = fmt.Errorf(errMsg, err)
 		}
 	}
@@ -321,11 +303,11 @@ func (c *templateContext) collectConfig(n *parse.PipeNode) {
 
 // collectInner determines if the given CommandNode represents a
 // shortcode call to its .Inner.
-func (c *templateContext) collectInner(n *parse.CommandNode) {
-	if c.t.typ != templateShortcode {
+func (c *templateTransformContext) collectInner(n *parse.CommandNode) {
+	if c.t.Category != CategoryShortcode {
 		return
 	}
-	if c.t.parseInfo.IsInner || len(n.Args) == 0 {
+	if c.t.ParseInfo.IsInner || len(n.Args) == 0 {
 		return
 	}
 
@@ -339,14 +321,14 @@ func (c *templateContext) collectInner(n *parse.CommandNode) {
 		}
 
 		if c.hasIdent(idents, "Inner") || c.hasIdent(idents, "InnerDeindent") {
-			c.t.parseInfo.IsInner = true
+			c.t.ParseInfo.IsInner = true
 			break
 		}
 	}
 }
 
-func (c *templateContext) collectReturnNode(n *parse.CommandNode) bool {
-	if c.t.typ != templatePartial || c.returnNode != nil {
+func (c *templateTransformContext) collectReturnNode(n *parse.CommandNode) bool {
+	if c.t.Category != CategoryPartial || c.returnNode != nil {
 		return true
 	}
 
@@ -364,18 +346,4 @@ func (c *templateContext) collectReturnNode(n *parse.CommandNode) bool {
 	c.returnNode.Args = c.returnNode.Args[1:]
 
 	return false
-}
-
-func findTemplateIn(name string, in tpl.Template) (tpl.Template, bool) {
-	in = unwrap(in)
-	if text, ok := in.(*texttemplate.Template); ok {
-		if templ := text.Lookup(name); templ != nil {
-			return templ, true
-		}
-		return nil, false
-	}
-	if templ := in.(*htmltemplate.Template).Lookup(name); templ != nil {
-		return templ, true
-	}
-	return nil, false
 }

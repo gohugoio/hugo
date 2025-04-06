@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 
@@ -26,7 +27,6 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
-	"slices"
 )
 
 // DefaultTypes is the default media types supported by Hugo.
@@ -270,5 +270,8 @@ func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTyp
 var DefaultPathParser = &paths.PathParser{
 	IsContentExt: func(ext string) bool {
 		panic("not supported")
+	},
+	IsOutputFormat: func(name, ext string) bool {
+		panic("DefaultPathParser: not supported")
 	},
 }

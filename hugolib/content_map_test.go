@@ -242,8 +242,13 @@ Data en
 }
 
 func TestBundleMultipleContentPageWithSamePath(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- hugo.toml --
+printPathWarnings = true
+-- layouts/all.html --
+All.
 -- content/bundle/index.md --
 ---
 title: "Bundle md"
@@ -273,14 +278,18 @@ Bundle: {{ $bundle.Title }}|{{ $bundle.Params.foo }}|{{ $bundle.File.Filename }}
 P1: {{ $p1.Title }}|{{ $p1.Params.foo }}|{{ $p1.File.Filename }}|
 `
 
-	b := Test(t, files)
+	for range 3 {
+		b := Test(t, files, TestOptWarn())
 
-	// There's multiple content files sharing the same logical path and language.
-	// This is a little arbitrary, but we have to pick one and prefer the Markdown version.
-	b.AssertFileContent("public/index.html",
-		filepath.FromSlash("Bundle: Bundle md|md|/content/bundle/index.md|"),
-		filepath.FromSlash("P1: P1 md|md|/content/p1.md|"),
-	)
+		b.AssertLogContains("WARN  Duplicate content path: \"/p1\"")
+
+		// There's multiple content files sharing the same logical path and language.
+		// This is a little arbitrary, but we have to pick one and prefer the Markdown version.
+		b.AssertFileContent("public/index.html",
+			filepath.FromSlash("Bundle: Bundle md|md|/content/bundle/index.md|"),
+			filepath.FromSlash("P1: P1 md|md|/content/p1.md|"),
+		)
+	}
 }
 
 // Issue #11944

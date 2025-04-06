@@ -24,7 +24,7 @@ func TestBasicNSArithmetic(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	type TestCase struct {
 		fn     func(inputs ...any) (any, error)
@@ -66,7 +66,7 @@ func TestBasicNSArithmetic(t *testing.T) {
 func TestAbs(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -93,7 +93,7 @@ func TestAbs(t *testing.T) {
 func TestCeil(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -126,7 +126,7 @@ func TestFloor(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -159,7 +159,7 @@ func TestLog(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -200,7 +200,7 @@ func TestSqrt(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -239,7 +239,7 @@ func TestMod(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -279,7 +279,7 @@ func TestModBool(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -325,7 +325,7 @@ func TestRound(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -358,7 +358,7 @@ func TestPow(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -398,7 +398,7 @@ func TestMax(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	type TestCase struct {
 		values []any
@@ -452,7 +452,7 @@ func TestMin(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	type TestCase struct {
 		values []any
@@ -507,7 +507,7 @@ func TestSum(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	mustSum := func(values ...any) any {
 		result, err := ns.Sum(values...)
@@ -530,7 +530,7 @@ func TestProduct(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	mustProduct := func(values ...any) any {
 		result, err := ns.Product(values...)
@@ -554,7 +554,7 @@ func TestPi(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	expect := 3.1415
 	result := ns.Pi()
@@ -570,7 +570,7 @@ func TestSin(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -604,7 +604,7 @@ func TestCos(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -638,7 +638,7 @@ func TestTan(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		a      any
@@ -680,7 +680,7 @@ func TestTan(t *testing.T) {
 func TestAsin(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -715,7 +715,7 @@ func TestAsin(t *testing.T) {
 func TestAcos(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -751,7 +751,7 @@ func TestAcos(t *testing.T) {
 func TestAtan(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -782,7 +782,7 @@ func TestAtan(t *testing.T) {
 func TestAtan2(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -821,7 +821,7 @@ func TestAtan2(t *testing.T) {
 func TestToDegrees(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any
@@ -852,7 +852,7 @@ func TestToDegrees(t *testing.T) {
 func TestToRadians(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	ns := New()
+	ns := New(nil)
 
 	for _, test := range []struct {
 		x      any

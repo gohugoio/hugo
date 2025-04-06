@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -48,6 +49,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
@@ -57,7 +59,6 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/livereload"
-	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/transform"
 	"github.com/gohugoio/hugo/transform/livereloadinject"
 	"github.com/spf13/afero"
@@ -65,7 +66,6 @@ import (
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
-	"maps"
 )
 
 var (
@@ -897,16 +897,16 @@ func (c *serverCommand) serve() error {
 	// To allow the en user to change the error template while the server is running, we use
 	// the freshest template we can provide.
 	var (
-		errTempl     tpl.Template
-		templHandler tpl.TemplateHandler
+		errTempl     *tplimpl.TemplInfo
+		templHandler *tplimpl.TemplateStore
 	)
-	getErrorTemplateAndHandler := func(h *hugolib.HugoSites) (tpl.Template, tpl.TemplateHandler) {
+	getErrorTemplateAndHandler := func(h *hugolib.HugoSites) (*tplimpl.TemplInfo, *tplimpl.TemplateStore) {
 		if h == nil {
 			return errTempl, templHandler
 		}
-		templHandler := h.Tmpl()
-		errTempl, found := templHandler.Lookup("_server/error.html")
-		if !found {
+		templHandler := h.GetTemplateStore()
+		errTempl := templHandler.LookupByPath("/_server/error.html")
+		if errTempl == nil {
 			panic("template server/error.html not found")
 		}
 		return errTempl, templHandler

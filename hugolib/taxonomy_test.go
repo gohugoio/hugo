@@ -76,6 +76,8 @@ func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 }
 
 func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, uglyURLs bool) {
+	t.Helper()
+
 	siteConfig := `
 baseURL = "http://example.com/blog"
 titleCaseStyle = "firstupper"

@@ -20,9 +20,9 @@ import (
 	"math"
 	"math/rand"
 	"reflect"
-	"sync/atomic"
 
 	_math "github.com/gohugoio/hugo/common/math"
+	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
 )
 
@@ -32,12 +32,16 @@ var (
 )
 
 // New returns a new instance of the math-namespaced template functions.
-func New() *Namespace {
-	return &Namespace{}
+func New(d *deps.Deps) *Namespace {
+	return &Namespace{
+		d: d,
+	}
 }
 
 // Namespace provides template functions for the "math" namespace.
-type Namespace struct{}
+type Namespace struct {
+	d *deps.Deps
+}
 
 // Abs returns the absolute value of n.
 func (ns *Namespace) Abs(n any) (float64, error) {
@@ -345,8 +349,6 @@ func (ns *Namespace) doArithmetic(inputs []any, operation rune) (value any, err 
 	return
 }
 
-var counter uint64
-
 // Counter increments and returns a global counter.
 // This was originally added to be used in tests where now.UnixNano did not
 // have the needed precision (especially on Windows).
@@ -354,5 +356,5 @@ var counter uint64
 // and the counter will reset on new builds.
 // <docsmeta>{"identifiers": ["now.UnixNano"] }</docsmeta>
 func (ns *Namespace) Counter() uint64 {
-	return atomic.AddUint64(&counter, uint64(1))
+	return ns.d.Counters.MathCounter.Add(1)
 }

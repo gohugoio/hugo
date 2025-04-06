@@ -17,8 +17,6 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-
-	radix "github.com/armon/go-radix"
 )
 
 var _ MutableTrees = MutableTrees{}
@@ -60,11 +58,9 @@ func (ctx *WalkContext[T]) AddPostHook(handler func() error) {
 	ctx.HooksPost = append(ctx.HooksPost, handler)
 }
 
-func (ctx *WalkContext[T]) Data() *SimpleTree[any] {
+func (ctx *WalkContext[T]) Data() *SimpleThreadSafeTree[any] {
 	ctx.dataInit.Do(func() {
-		ctx.data = &SimpleTree[any]{
-			tree: radix.New(),
-		}
+		ctx.data = NewSimpleThreadSafeTree[any]()
 	})
 	return ctx.data
 }
@@ -191,7 +187,7 @@ func (t MutableTrees) CanLock() bool {
 
 // WalkContext is passed to the Walk callback.
 type WalkContext[T any] struct {
-	data          *SimpleTree[any]
+	data          *SimpleThreadSafeTree[any]
 	dataInit      sync.Once
 	eventHandlers eventHandlers[T]
 	events        []*Event[T]

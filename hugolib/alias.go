@@ -29,16 +29,17 @@ import (
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
 
 type aliasHandler struct {
-	t         tpl.TemplateHandler
+	ts        *tplimpl.TemplateStore
 	log       loggers.Logger
 	allowRoot bool
 }
 
-func newAliasHandler(t tpl.TemplateHandler, l loggers.Logger, allowRoot bool) aliasHandler {
-	return aliasHandler{t, l, allowRoot}
+func newAliasHandler(ts *tplimpl.TemplateStore, l loggers.Logger, allowRoot bool) aliasHandler {
+	return aliasHandler{ts, l, allowRoot}
 }
 
 type aliasPage struct {
@@ -47,16 +48,24 @@ type aliasPage struct {
 }
 
 func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, error) {
-	var templ tpl.Template
-	var found bool
+	var templateDesc tplimpl.TemplateDescriptor
+	var base string = ""
+	if ps, ok := p.(*pageState); ok {
+		base, templateDesc = ps.getTemplateBasePathAndDescriptor()
+	}
+	templateDesc.Layout = ""
+	templateDesc.Kind = ""
+	templateDesc.OutputFormat = output.AliasHTMLFormat.Name
 
-	templ, found = a.t.Lookup("alias.html")
-	if !found {
-		// TODO(bep) consolidate
-		templ, found = a.t.Lookup("_internal/alias.html")
-		if !found {
-			return nil, errors.New("no alias template found")
-		}
+	q := tplimpl.TemplateQuery{
+		Path:     base,
+		Category: tplimpl.CategoryLayout,
+		Desc:     templateDesc,
+	}
+
+	t := a.ts.LookupPagesLayout(q)
+	if t == nil {
+		return nil, errors.New("no alias template found")
 	}
 
 	data := aliasPage{
@@ -67,7 +76,7 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, err
 	ctx := tpl.Context.Page.Set(context.Background(), p)
 
 	buffer := new(bytes.Buffer)
-	err := a.t.ExecuteWithContext(ctx, templ, buffer, data)
+	err := a.ts.ExecuteWithContext(ctx, t, buffer, data)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +88,7 @@ func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format
 }
 
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
-	handler := newAliasHandler(s.Tmpl(), s.Log, allowRoot)
+	handler := newAliasHandler(s.GetTemplateStore(), s.Log, allowRoot)
 
 	targetPath, err := handler.targetPathAlias(path)
 	if err != nil {

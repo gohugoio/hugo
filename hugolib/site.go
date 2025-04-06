@@ -47,7 +47,13 @@ import (
 	"github.com/gohugoio/hugo/langs/i18n"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/resources"
+
 	"github.com/gohugoio/hugo/tpl/tplimpl"
+	"github.com/gohugoio/hugo/tpl/tplimplinit"
+	xmaps "golang.org/x/exp/maps"
+
+	// Loads the template funcs namespaces.
+
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/gohugoio/hugo/common/paths"
@@ -188,8 +194,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		BuildState: &deps.BuildState{
 			OnSignalRebuild: onSignalRebuild,
 		},
+		Counters:            &deps.Counters{},
 		MemCache:            memCache,
-		TemplateProvider:    tplimpl.DefaultTemplateProvider,
 		TranslationProvider: i18n.NewTranslationProvider(),
 		WasmDispatchers: warpc.AllDispatchers(
 			warpc.Options{
@@ -385,6 +391,34 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 	var prototype *deps.Deps
 	for i, s := range sites {
 		s.h = h
+		// The template store needs to be initialized after the h container is set on s.
+		if i == 0 {
+			templateStore, err := tplimpl.NewStore(
+				tplimpl.StoreOptions{
+					Fs:                     s.BaseFs.Layouts.Fs,
+					DefaultContentLanguage: s.Conf.DefaultContentLanguage(),
+					Watching:               s.Conf.Watching(),
+					PathParser:             s.Conf.PathParser(),
+					Metrics:                d.Metrics,
+					OutputFormats:          s.conf.OutputFormats.Config,
+					MediaTypes:             s.conf.MediaTypes.Config,
+					DefaultOutputFormat:    s.conf.DefaultOutputFormat,
+					TaxonomySingularPlural: s.conf.Taxonomies,
+				}, tplimpl.SiteOptions{
+					Site:          s,
+					TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
+				})
+			if err != nil {
+				return nil, err
+			}
+			s.Deps.TemplateStore = templateStore
+		} else {
+			s.Deps.TemplateStore = prototype.TemplateStore.WithSiteOpts(
+				tplimpl.SiteOptions{
+					Site:          s,
+					TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
+				})
+		}
 		if err := s.Deps.Compile(prototype); err != nil {
 			return nil, err
 		}
@@ -464,7 +498,10 @@ func (s *Site) MainSections() []string {
 
 // Returns a struct with some information about the build.
 func (s *Site) Hugo() hugo.HugoInfo {
-	if s.h == nil || s.h.hugoInfo.Environment == "" {
+	if s.h == nil {
+		panic("site: hugo: h not initialized")
+	}
+	if s.h.hugoInfo.Environment == "" {
 		panic("site: hugo: hugoInfo not initialized")
 	}
 	return s.h.hugoInfo
@@ -797,7 +834,7 @@ func (s *Site) initRenderFormats() {
 	s.renderFormats = formats
 }
 
-func (s *Site) GetRelatedDocsHandler() *page.RelatedDocsHandler {
+func (s *Site) GetInternalRelatedDocsHandler() *page.RelatedDocsHandler {
 	return s.relatedDocsHandler
 }
 
@@ -923,19 +960,24 @@ type WhatChanged struct {
 	mu sync.Mutex
 
 	needsPagesAssembly bool
-	identitySet        identity.Identities
+
+	ids map[identity.Identity]bool
+}
+
+func (w *WhatChanged) init() {
+	if w.ids == nil {
+		w.ids = make(map[identity.Identity]bool)
+	}
 }
 
 func (w *WhatChanged) Add(ids ...identity.Identity) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	if w.identitySet == nil {
-		w.identitySet = make(identity.Identities)
-	}
+	w.init()
 
 	for _, id := range ids {
-		w.identitySet[id] = true
+		w.ids[id] = true
 	}
 }
 
@@ -946,20 +988,20 @@ func (w *WhatChanged) Clear() {
 }
 
 func (w *WhatChanged) clear() {
-	w.identitySet = identity.Identities{}
+	w.ids = nil
 }
 
 func (w *WhatChanged) Changes() []identity.Identity {
-	if w == nil || w.identitySet == nil {
+	if w == nil || w.ids == nil {
 		return nil
 	}
-	return w.identitySet.AsSlice()
+	return xmaps.Keys(w.ids)
 }
 
 func (w *WhatChanged) Drain() []identity.Identity {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	ids := w.identitySet.AsSlice()
+	ids := w.Changes()
 	w.clear()
 	return ids
 }
@@ -1394,7 +1436,7 @@ const (
 	pageDependencyScopeGlobal
 )
 
-func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, d any, templ tpl.Template) error {
+func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, d any, templ *tplimpl.TemplInfo) error {
 	s.h.buildCounters.pageRenderCounter.Add(1)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
@@ -1453,8 +1495,8 @@ var infoOnMissingLayout = map[string]bool{
 // hookRendererTemplate is the canonical implementation of all hooks.ITEMRenderer,
 // where ITEM is the thing being hooked.
 type hookRendererTemplate struct {
-	templateHandler tpl.TemplateHandler
-	templ           tpl.Template
+	templateHandler *tplimpl.TemplateStore
+	templ           *tplimpl.TemplInfo
 	resolvePosition func(ctx any) text.Position
 }
 
@@ -1490,7 +1532,7 @@ func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {
 	return false
 }
 
-func (s *Site) renderForTemplate(ctx context.Context, name, outputFormat string, d any, w io.Writer, templ tpl.Template) (err error) {
+func (s *Site) renderForTemplate(ctx context.Context, name, outputFormat string, d any, w io.Writer, templ *tplimpl.TemplInfo) (err error) {
 	if templ == nil {
 		s.logMissingLayout(name, "", "", outputFormat)
 		return nil
@@ -1500,7 +1542,7 @@ func (s *Site) renderForTemplate(ctx context.Context, name, outputFormat string,
 		panic("nil context")
 	}
 
-	if err = s.Tmpl().ExecuteWithContext(ctx, templ, w, d); err != nil {
+	if err = s.GetTemplateStore().ExecuteWithContext(ctx, templ, w, d); err != nil {
 		filename := name
 		if p, ok := d.(*pageState); ok {
 			filename = p.String()

@@ -978,8 +978,7 @@ func TestRefLinking(t *testing.T) {
 		{".", "", true, "/level2/level3/"},
 		{"./", "", true, "/level2/level3/"},
 
-		// try to confuse parsing
-		{"embedded.dot.md", "", true, "/level2/level3/embedded.dot/"},
+		{"embedded.dot.md", "", true, "/level2/level3/embedded/"},
 
 		// test empty link, as well as fragment only link
 		{"", "", true, ""},
