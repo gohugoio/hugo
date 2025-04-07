@@ -36,6 +36,7 @@ type textFilter struct {
 	color       color.Color
 	x, y        int
 	alignx      string
+	aligny      string
 	size        float64
 	linespacing int
 	fontSource  hugio.ReadSeekCloserProvider
@@ -110,12 +111,19 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 		}
 		finalLines = append(finalLines, currentLine)
 	}
+	// Total height of the text from the top of the first line to the baseline of the last line
+	totalHeight := len(finalLines)*fontHeight + (len(finalLines)-1)*f.linespacing
 
 	// Correct y position based on font and size
-	f.y = f.y + fontHeight
-
-	// Start position
-	y := f.y
+	y := f.y + fontHeight
+	switch f.aligny {
+	case "top":
+		// Do nothing
+	case "center":
+		y = y - totalHeight/2
+	case "bottom":
+		y = y - totalHeight
+	}
 
 	// Draw text line by line
 	for _, line := range finalLines {
