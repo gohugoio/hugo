@@ -168,7 +168,7 @@ func pageRenderer(
 
 		s.Log.Trace(
 			func() string {
-				return fmt.Sprintf("rendering outputFormat %q kind %q using layout %q to %q", p.pageOutput.f.Name, p.Kind(), templ.Template.Name(), targetPath)
+				return fmt.Sprintf("rendering outputFormat %q kind %q using layout %q to %q", p.pageOutput.f.Name, p.Kind(), templ.Name(), targetPath)
 			},
 		)
 

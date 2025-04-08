@@ -55,12 +55,16 @@ type Client struct {
 	remoteResourceLogger  logg.LevelLogger
 }
 
-type contextKey string
+type contextKey uint8
+
+const (
+	contextKeyResourceID contextKey = iota
+)
 
 // New creates a new Client with the given specification.
 func New(rs *resources.Spec) *Client {
 	fileCache := rs.FileCaches.GetResourceCache()
-	resourceIDDispatcher := hcontext.NewContextDispatcher[string](contextKey("resourceID"))
+	resourceIDDispatcher := hcontext.NewContextDispatcher[string](contextKeyResourceID)
 	httpCacheConfig := rs.Cfg.GetConfigSection("httpCacheCompiled").(hhttpcache.ConfigCompiled)
 	var remoteResourceChecker *tasks.RunEvery
 	if rs.Cfg.Watching() && !httpCacheConfig.IsPollingDisabled() {

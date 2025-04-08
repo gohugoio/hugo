@@ -157,8 +157,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 	if len(dataList) > 0 {
 		data = dataList[0]
 	}
-	name, desc := ns.deps.TemplateStore.TemplateDescriptorFromPath(name)
-	v := ns.deps.TemplateStore.LookupPartial(name, desc)
+	v := ns.deps.TemplateStore.LookupPartial(name)
 	if v == nil {
 		return includeResult{err: fmt.Errorf("partial %q not found", name)}
 	}
@@ -199,7 +198,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 	}
 
 	return includeResult{
-		name:   templ.Template.Name(),
+		name:   templ.Name(),
 		result: result,
 	}
 }

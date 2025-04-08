@@ -263,7 +263,7 @@ func (c *templateTransformContext) hasIdent(idents []string, ident string) bool 
 //
 //	{{ $_hugo_config:= `{ "version": 1 }` }}
 func (c *templateTransformContext) collectConfig(n *parse.PipeNode) {
-	if c.t.Category != CategoryShortcode {
+	if c.t.category != CategoryShortcode {
 		return
 	}
 	if c.configChecked {
@@ -304,7 +304,7 @@ func (c *templateTransformContext) collectConfig(n *parse.PipeNode) {
 // collectInner determines if the given CommandNode represents a
 // shortcode call to its .Inner.
 func (c *templateTransformContext) collectInner(n *parse.CommandNode) {
-	if c.t.Category != CategoryShortcode {
+	if c.t.category != CategoryShortcode {
 		return
 	}
 	if c.t.ParseInfo.IsInner || len(n.Args) == 0 {
@@ -328,7 +328,7 @@ func (c *templateTransformContext) collectInner(n *parse.CommandNode) {
 }
 
 func (c *templateTransformContext) collectReturnNode(n *parse.CommandNode) bool {
-	if c.t.Category != CategoryPartial || c.returnNode != nil {
+	if c.t.category != CategoryPartial || c.returnNode != nil {
 		return true
 	}
 

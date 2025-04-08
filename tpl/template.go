@@ -16,6 +16,7 @@ package tpl
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"sync"
 	"unicode"
@@ -41,7 +42,17 @@ type RenderingContext struct {
 	SiteOutIdx int
 }
 
-type contextKey string
+type (
+	contextKey uint8
+)
+
+const (
+	contextKeyDependencyManagerScopedProvider contextKey = iota
+	contextKeyDependencyScope
+	contextKeyPage
+	contextKeyIsInGoldmark
+	cntextKeyCurrentTemplateInfo
+)
 
 // Context manages values passed in the context to templates.
 var Context = struct {
@@ -50,11 +61,13 @@ var Context = struct {
 	DependencyScope                    hcontext.ContextDispatcher[int]
 	Page                               hcontext.ContextDispatcher[page]
 	IsInGoldmark                       hcontext.ContextDispatcher[bool]
+	CurrentTemplate                    hcontext.ContextDispatcher[*CurrentTemplateInfo]
 }{
-	DependencyManagerScopedProvider: hcontext.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKey("DependencyManagerScopedProvider")),
-	DependencyScope:                 hcontext.NewContextDispatcher[int](contextKey("DependencyScope")),
-	Page:                            hcontext.NewContextDispatcher[page](contextKey("Page")),
-	IsInGoldmark:                    hcontext.NewContextDispatcher[bool](contextKey("IsInGoldmark")),
+	DependencyManagerScopedProvider: hcontext.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKeyDependencyManagerScopedProvider),
+	DependencyScope:                 hcontext.NewContextDispatcher[int](contextKeyDependencyScope),
+	Page:                            hcontext.NewContextDispatcher[page](contextKeyPage),
+	IsInGoldmark:                    hcontext.NewContextDispatcher[bool](contextKeyIsInGoldmark),
+	CurrentTemplate:                 hcontext.NewContextDispatcher[*CurrentTemplateInfo](cntextKeyCurrentTemplateInfo),
 }
 
 func init() {
@@ -129,4 +142,47 @@ type DeferredExecution struct {
 
 	Executed bool
 	Result   string
+}
+
+type CurrentTemplateInfoOps interface {
+	CurrentTemplateInfoCommonOps
+	Base() CurrentTemplateInfoCommonOps
+}
+
+type CurrentTemplateInfoCommonOps interface {
+	// Template name.
+	Name() string
+	// Template source filename.
+	// Will be empty for internal templates.
+	Filename() string
+}
+
+// CurrentTemplateInfo as returned in templates.Current.
+type CurrentTemplateInfo struct {
+	Parent *CurrentTemplateInfo
+	CurrentTemplateInfoOps
+}
+
+// CurrentTemplateInfos is a slice of CurrentTemplateInfo.
+type CurrentTemplateInfos []*CurrentTemplateInfo
+
+// Reverse creates a copy of the slice and reverses it.
+func (c CurrentTemplateInfos) Reverse() CurrentTemplateInfos {
+	if len(c) == 0 {
+		return c
+	}
+	r := make(CurrentTemplateInfos, len(c))
+	copy(r, c)
+	slices.Reverse(r)
+	return r
+}
+
+// Ancestors returns the ancestors of the current template.
+func (ti *CurrentTemplateInfo) Ancestors() CurrentTemplateInfos {
+	var ancestors []*CurrentTemplateInfo
+	for ti.Parent != nil {
+		ti = ti.Parent
+		ancestors = append(ancestors, ti)
+	}
+	return ancestors
 }

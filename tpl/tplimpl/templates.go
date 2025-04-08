@@ -25,9 +25,9 @@ func (t *templateNamespace) readTemplateInto(templ *TemplInfo) error {
 		if err != nil {
 			return err
 		}
-		templ.Content = removeLeadingBOM(string(b))
-		if !templ.NoBaseOf {
-			templ.NoBaseOf = !needsBaseTemplate(templ.Content)
+		templ.content = removeLeadingBOM(string(b))
+		if !templ.noBaseOf {
+			templ.noBaseOf = !needsBaseTemplate(templ.content)
 		}
 		return nil
 	}(); err != nil {
@@ -43,7 +43,7 @@ var embeddedTemplatesAliases = map[string][]string{
 }
 
 func (t *templateNamespace) parseTemplate(ti *TemplInfo) error {
-	if !ti.NoBaseOf || ti.Category == CategoryBaseof {
+	if !ti.noBaseOf || ti.category == CategoryBaseof {
 		// Delay parsing until we have the base template.
 		return nil
 	}
@@ -62,18 +62,18 @@ func (t *templateNamespace) parseTemplate(ti *TemplInfo) error {
 
 	if ti.D.IsPlainText {
 		prototype := t.parseText
-		templ, err = prototype.New(name).Parse(ti.Content)
+		templ, err = prototype.New(name).Parse(ti.content)
 		if err != nil {
 			return err
 		}
 	} else {
 		prototype := t.parseHTML
-		templ, err = prototype.New(name).Parse(ti.Content)
+		templ, err = prototype.New(name).Parse(ti.content)
 		if err != nil {
 			return err
 		}
 
-		if ti.SubCategory == SubCategoryEmbedded {
+		if ti.subCategory == SubCategoryEmbedded {
 			// In Hugo 0.146.0 we moved the internal templates around.
 			// For the "_internal/twitter_cards.html" style templates, they
 			// were moved to the _partials directory.
@@ -111,17 +111,17 @@ func (t *templateNamespace) applyBaseTemplate(overlay *TemplInfo, base keyTempla
 		Base:    base.Info,
 	}
 
-	base.Info.Overlays = append(base.Info.Overlays, overlay)
+	base.Info.overlays = append(base.Info.overlays, overlay)
 
 	var templ tpl.Template
 	if overlay.D.IsPlainText {
 		tt := texttemplate.Must(t.parseText.Clone()).New(overlay.PathInfo.PathNoLeadingSlash())
 		var err error
-		tt, err = tt.Parse(base.Info.Content)
+		tt, err = tt.Parse(base.Info.content)
 		if err != nil {
 			return err
 		}
-		tt, err = tt.Parse(overlay.Content)
+		tt, err = tt.Parse(overlay.content)
 		if err != nil {
 			return err
 		}
@@ -130,11 +130,11 @@ func (t *templateNamespace) applyBaseTemplate(overlay *TemplInfo, base keyTempla
 	} else {
 		tt := htmltemplate.Must(t.parseHTML.CloneShallow()).New(overlay.PathInfo.PathNoLeadingSlash())
 		var err error
-		tt, err = tt.Parse(base.Info.Content)
+		tt, err = tt.Parse(base.Info.content)
 		if err != nil {
 			return err
 		}
-		tt, err = tt.Parse(overlay.Content)
+		tt, err = tt.Parse(overlay.content)
 		if err != nil {
 			return err
 		}
@@ -146,17 +146,17 @@ func (t *templateNamespace) applyBaseTemplate(overlay *TemplInfo, base keyTempla
 
 	tb.Template = &TemplInfo{
 		Template: templ,
-		Base:     base.Info,
+		base:     base.Info,
 		PathInfo: overlay.PathInfo,
 		Fi:       overlay.Fi,
 		D:        overlay.D,
-		NoBaseOf: true,
+		noBaseOf: true,
 	}
 
-	variants := overlay.BaseVariants.Get(base.Key)
+	variants := overlay.baseVariants.Get(base.Key)
 	if variants == nil {
 		variants = make(map[TemplateDescriptor]*TemplWithBaseApplied)
-		overlay.BaseVariants.Insert(base.Key, variants)
+		overlay.baseVariants.Insert(base.Key, variants)
 	}
 	variants[base.Info.D] = tb
 	return nil

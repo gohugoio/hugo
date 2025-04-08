@@ -97,15 +97,16 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 		panic("HTML output format not found")
 	}
 	s := &TemplateStore{
-		opts:            opts,
-		siteOpts:        siteOpts,
-		optsOrig:        opts,
-		siteOptsOrig:    siteOpts,
-		htmlFormat:      html,
-		storeSite:       configureSiteStorage(siteOpts, opts.Watching),
-		treeMain:        doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
-		treeShortcodes:  doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
-		templatesByPath: maps.NewCache[string, *TemplInfo](),
+		opts:                     opts,
+		siteOpts:                 siteOpts,
+		optsOrig:                 opts,
+		siteOptsOrig:             siteOpts,
+		htmlFormat:               html,
+		storeSite:                configureSiteStorage(siteOpts, opts.Watching),
+		treeMain:                 doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
+		treeShortcodes:           doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
+		templatesByPath:          maps.NewCache[string, *TemplInfo](),
+		templateDescriptorByPath: maps.NewCache[string, PathTemplateDescriptor](),
 
 		// Note that the funcs passed below is just for name validation.
 		tns: newTemplateNamespace(siteOpts.TemplateFuncs),
@@ -191,9 +192,9 @@ type SubCategory int
 
 type TemplInfo struct {
 	// The category of this template.
-	Category Category
+	category Category
 
-	SubCategory SubCategory
+	subCategory SubCategory
 
 	// PathInfo info.
 	PathInfo *paths.Path
@@ -202,7 +203,7 @@ type TemplInfo struct {
 	Fi hugofs.FileMetaInfo
 
 	// The template content with any leading BOM removed.
-	Content string
+	content string
 
 	// The parsed template.
 	// Note that any baseof template will be applied later.
@@ -210,16 +211,16 @@ type TemplInfo struct {
 
 	// If no baseof is needed, this will be set to true.
 	// E.g. shortcode templates do not need a baseof.
-	NoBaseOf bool
+	noBaseOf bool
 
 	// If NoBaseOf is false, we will look for the final template in this tree.
-	BaseVariants *doctree.SimpleTree[map[TemplateDescriptor]*TemplWithBaseApplied]
+	baseVariants *doctree.SimpleTree[map[TemplateDescriptor]*TemplWithBaseApplied]
 
 	// The template variants that are based on this template.
-	Overlays []*TemplInfo
+	overlays []*TemplInfo
 
 	// The base template used, if any.
-	Base *TemplInfo
+	base *TemplInfo
 
 	// The descriptior that this template represents.
 	D TemplateDescriptor
@@ -228,16 +229,20 @@ type TemplInfo struct {
 	ParseInfo ParseInfo
 
 	// The execution counter for this template.
-	ExecutionCounter atomic.Uint64
+	executionCounter atomic.Uint64
 
 	// processing state.
 	state          processingState
 	isLegacyMapped bool
 }
 
+func (ti *TemplInfo) SubCategory() SubCategory {
+	return ti.subCategory
+}
+
 func (ti *TemplInfo) BaseVariantsSeq() iter.Seq[*TemplWithBaseApplied] {
 	return func(yield func(*TemplWithBaseApplied) bool) {
-		ti.BaseVariants.Walk(func(key string, v map[TemplateDescriptor]*TemplWithBaseApplied) (bool, error) {
+		ti.baseVariants.Walk(func(key string, v map[TemplateDescriptor]*TemplWithBaseApplied) (bool, error) {
 			for _, vv := range v {
 				if !yield(vv) {
 					return true, nil
@@ -260,6 +265,11 @@ func (t *TemplInfo) GetIdentity() identity.Identity {
 }
 
 func (ti *TemplInfo) Name() string {
+	if ti.Template == nil {
+		if ti.PathInfo != nil {
+			return ti.PathInfo.PathNoLeadingSlash()
+		}
+	}
 	return ti.Template.Name()
 }
 
@@ -272,7 +282,7 @@ func (t *TemplInfo) IsProbablyDependency(other identity.Identity) bool {
 }
 
 func (t *TemplInfo) IsProbablyDependent(other identity.Identity) bool {
-	for _, overlay := range t.Overlays {
+	for _, overlay := range t.overlays {
 		if overlay.isProbablyTheSameIDAs(other) {
 			return true
 		}
@@ -288,11 +298,11 @@ func (ti *TemplInfo) String() string {
 }
 
 func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, k1 string, slashCountK1 int, best *bestMatch) {
-	if ti.BaseVariants == nil {
+	if ti.baseVariants == nil {
 		return
 	}
 
-	ti.BaseVariants.WalkPath(k1, func(k2 string, v map[TemplateDescriptor]*TemplWithBaseApplied) (bool, error) {
+	ti.baseVariants.WalkPath(k1, func(k2 string, v map[TemplateDescriptor]*TemplWithBaseApplied) (bool, error) {
 		slashCountK2 := strings.Count(k2, "/")
 		distance := slashCountK1 - slashCountK2
 
@@ -317,6 +327,18 @@ func (t *TemplInfo) isProbablyTheSameIDAs(other identity.Identity) bool {
 	}
 
 	return false
+}
+
+// Implements the additional methods in tpl.CurrentTemplateInfoOps.
+func (ti *TemplInfo) Base() tpl.CurrentTemplateInfoCommonOps {
+	return ti.base
+}
+
+func (ti *TemplInfo) Filename() string {
+	if ti.Fi == nil {
+		return ""
+	}
+	return ti.Fi.Meta().Filename
 }
 
 type TemplWithBaseApplied struct {
@@ -378,9 +400,10 @@ type TemplateStore struct {
 	siteOpts   SiteOptions
 	htmlFormat output.Format
 
-	treeMain        *doctree.SimpleTree[map[nodeKey]*TemplInfo]
-	treeShortcodes  *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
-	templatesByPath *maps.Cache[string, *TemplInfo]
+	treeMain                 *doctree.SimpleTree[map[nodeKey]*TemplInfo]
+	treeShortcodes           *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
+	templatesByPath          *maps.Cache[string, *TemplInfo]
+	templateDescriptorByPath *maps.Cache[string, PathTemplateDescriptor]
 
 	dh descriptorHandler
 
@@ -414,7 +437,7 @@ func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, desc Te
 	descBaseof := desc
 	s.treeMain.Walk(func(k string, v map[nodeKey]*TemplInfo) (bool, error) {
 		for _, vv := range v {
-			if vv.Category != CategoryBaseof {
+			if vv.category != CategoryBaseof {
 				continue
 			}
 
@@ -430,13 +453,20 @@ func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, desc Te
 
 func (t *TemplateStore) ExecuteWithContext(ctx context.Context, ti *TemplInfo, wr io.Writer, data any) error {
 	defer func() {
-		ti.ExecutionCounter.Add(1)
-		if ti.Base != nil {
-			ti.Base.ExecutionCounter.Add(1)
+		ti.executionCounter.Add(1)
+		if ti.base != nil {
+			ti.base.executionCounter.Add(1)
 		}
 	}()
 
 	templ := ti.Template
+
+	currentTi := &tpl.CurrentTemplateInfo{
+		Parent:                 tpl.Context.CurrentTemplate.Get(ctx),
+		CurrentTemplateInfoOps: ti,
+	}
+
+	ctx = tpl.Context.CurrentTemplate.Set(ctx, currentTi)
 
 	if t.opts.Metrics != nil {
 		defer t.opts.Metrics.MeasureSince(templ.Name(), time.Now())
@@ -498,7 +528,7 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 		return nil
 	}
 	m := best1.templ
-	if m.NoBaseOf {
+	if m.noBaseOf {
 		return m
 	}
 	best1.reset()
@@ -509,13 +539,15 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 	return best1.templ
 }
 
-func (s *TemplateStore) LookupPartial(pth string, desc TemplateDescriptor) *TemplInfo {
+func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
+	d := s.templateDescriptorFromPath(pth)
+	desc := d.Desc
 	if desc.Layout != "" {
 		panic("shortcode template descriptor must not have a layout")
 	}
 	best := s.getBest()
 	defer s.putBest(best)
-	s.findBestMatchGet(s.key(path.Join(containerPartials, pth)), CategoryPartial, nil, desc, best)
+	s.findBestMatchGet(s.key(path.Join(containerPartials, d.Path)), CategoryPartial, nil, desc, best)
 	return best.templ
 }
 
@@ -564,10 +596,10 @@ func (s *TemplateStore) PrintDebug(prefix string, category Category, w io.Writer
 
 	printOne := func(key string, vv *TemplInfo) {
 		level := strings.Count(key, "/")
-		if category != vv.Category {
+		if category != vv.category {
 			return
 		}
-		s := strings.ReplaceAll(strings.TrimSpace(vv.Content), "\n", " ")
+		s := strings.ReplaceAll(strings.TrimSpace(vv.content), "\n", " ")
 		ts := fmt.Sprintf("kind: %q layout: %q content: %.30s", vv.D.Kind, vv.D.Layout, s)
 		fmt.Fprintf(w, "%s%s %s\n", strings.Repeat(" ", level), key, ts)
 	}
@@ -642,17 +674,17 @@ func (t *TemplateStore) UnusedTemplates() []*TemplInfo {
 	var unused []*TemplInfo
 
 	for vv := range t.templates() {
-		if vv.SubCategory != SubCategoryMain {
+		if vv.subCategory != SubCategoryMain {
 			// Skip inline partials and internal templates.
 			continue
 		}
-		if vv.NoBaseOf {
-			if vv.ExecutionCounter.Load() == 0 {
+		if vv.noBaseOf {
+			if vv.executionCounter.Load() == 0 {
 				unused = append(unused, vv)
 			}
 		} else {
 			for vvv := range vv.BaseVariantsSeq() {
-				if vvv.Template.ExecutionCounter.Load() == 0 {
+				if vvv.Template.executionCounter.Load() == 0 {
 					unused = append(unused, vvv.Template)
 				}
 			}
@@ -681,7 +713,7 @@ func (s *TemplateStore) findBestMatchGet(key string, category Category, consider
 	}
 
 	for k, vv := range v {
-		if vv.Category != category {
+		if vv.category != category {
 			continue
 		}
 
@@ -702,7 +734,7 @@ func (s *TemplateStore) findBestMatchWalkPath(q TemplateQuery, k1 string, slashC
 		distance := slashCountK1 - slashCountK2
 
 		for k, vv := range v {
-			if vv.Category != q.Category {
+			if vv.category != q.Category {
 				continue
 			}
 
@@ -803,8 +835,8 @@ func (s *TemplateStore) addFileContext(ti *TemplInfo, inerr error) error {
 		return err
 	}
 
-	if ti.Base != nil {
-		if err, ok := checkFilename(ti.Base.Fi, inerr); ok {
+	if ti.base != nil {
+		if err, ok := checkFilename(ti.base.Fi, inerr); ok {
 			return err
 		}
 	}
@@ -850,8 +882,8 @@ func (s *TemplateStore) extractInlinePartials() error {
 
 			if ti != nil {
 				ti.Template = templ
-				ti.NoBaseOf = true
-				ti.SubCategory = SubCategoryInline
+				ti.noBaseOf = true
+				ti.subCategory = SubCategoryInline
 				ti.D.IsPlainText = isText
 			}
 
@@ -913,9 +945,9 @@ func (s *TemplateStore) insertEmbedded() error {
 
 			if ti != nil {
 				// Currently none of the embedded templates need a baseof template.
-				ti.NoBaseOf = true
-				ti.Content = content
-				ti.SubCategory = SubCategoryEmbedded
+				ti.noBaseOf = true
+				ti.content = content
+				ti.subCategory = SubCategoryEmbedded
 			}
 
 			return nil
@@ -965,8 +997,8 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 		PathInfo: pi,
 		Fi:       fi,
 		D:        d,
-		Category: CategoryShortcode,
-		NoBaseOf: true,
+		category: CategoryShortcode,
+		noBaseOf: true,
 	}
 
 	m1[d] = ti
@@ -1022,8 +1054,8 @@ func (s *TemplateStore) insertTemplate2(
 		PathInfo:       pi,
 		Fi:             fi,
 		D:              d,
-		Category:       category,
-		NoBaseOf:       category > CategoryLayout,
+		category:       category,
+		noBaseOf:       category > CategoryLayout,
 		isLegacyMapped: isLegacyMapped,
 	}
 
@@ -1231,7 +1263,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		s.tns.baseofTextClones = nil
 		s.treeMain.Walk(func(key string, v map[nodeKey]*TemplInfo) (bool, error) {
 			for _, vv := range v {
-				if !vv.NoBaseOf {
+				if !vv.noBaseOf {
 					vv.state = processingStateInitial
 				}
 			}
@@ -1270,20 +1302,20 @@ func (s *TemplateStore) parseTemplates() error {
 				if vv.state == processingStateTransformed {
 					continue
 				}
-				if !vv.NoBaseOf {
+				if !vv.noBaseOf {
 					d := vv.D
 					// Find all compatible base templates.
 					baseTemplates := s.FindAllBaseTemplateCandidates(key, d)
 					if len(baseTemplates) == 0 {
 						// The regular expression used to detect if a template needs a base template has some
 						// rare false positives. Assume we don't need one.
-						vv.NoBaseOf = true
+						vv.noBaseOf = true
 						if err := s.tns.parseTemplate(vv); err != nil {
 							return err
 						}
 						continue
 					}
-					vv.BaseVariants = doctree.NewSimpleTree[map[TemplateDescriptor]*TemplWithBaseApplied]()
+					vv.baseVariants = doctree.NewSimpleTree[map[TemplateDescriptor]*TemplWithBaseApplied]()
 
 					for _, base := range baseTemplates {
 						if err := s.tns.applyBaseTemplate(vv, base); err != nil {
@@ -1320,7 +1352,7 @@ func (s *TemplateStore) parseTemplates() error {
 // prepareTemplates prepares all templates for execution.
 func (s *TemplateStore) prepareTemplates() error {
 	for t := range s.templates() {
-		if t.Category == CategoryBaseof {
+		if t.category == CategoryBaseof {
 			continue
 		}
 		if _, err := t.Prepare(); err != nil {
@@ -1330,38 +1362,51 @@ func (s *TemplateStore) prepareTemplates() error {
 	return nil
 }
 
-// TemplateDescriptorFromPath returns a template descriptor from the given path.
+type PathTemplateDescriptor struct {
+	Path string
+	Desc TemplateDescriptor
+}
+
+// templateDescriptorFromPath returns a template descriptor from the given path.
 // This is currently used in partial lookups only.
-func (s *TemplateStore) TemplateDescriptorFromPath(pth string) (string, TemplateDescriptor) {
-	var (
-		mt media.Type
-		of output.Format
-	)
+func (s *TemplateStore) templateDescriptorFromPath(pth string) PathTemplateDescriptor {
+	// Check cache first.
+	d, _ := s.templateDescriptorByPath.GetOrCreate(pth, func() (PathTemplateDescriptor, error) {
+		var (
+			mt media.Type
+			of output.Format
+		)
 
-	// Common cases.
-	dotCount := strings.Count(pth, ".")
-	if dotCount <= 1 {
-		if dotCount == 0 {
-			// Asume HTML.
-			of, mt = s.resolveOutputFormatAndOrMediaType("html", "")
+		// Common cases.
+		dotCount := strings.Count(pth, ".")
+		if dotCount <= 1 {
+			if dotCount == 0 {
+				// Asume HTML.
+				of, mt = s.resolveOutputFormatAndOrMediaType("html", "")
+			} else {
+				pth = strings.TrimPrefix(pth, "/")
+				ext := path.Ext(pth)
+				pth = strings.TrimSuffix(pth, ext)
+				ext = ext[1:]
+				of, mt = s.resolveOutputFormatAndOrMediaType("", ext)
+			}
 		} else {
-			pth = strings.TrimPrefix(pth, "/")
-			ext := path.Ext(pth)
-			pth = strings.TrimSuffix(pth, ext)
-			ext = ext[1:]
-			of, mt = s.resolveOutputFormatAndOrMediaType("", ext)
+			path := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth)
+			pth = path.PathNoIdentifier()
+			of, mt = s.resolveOutputFormatAndOrMediaType(path.OutputFormat(), path.Ext())
 		}
-	} else {
-		path := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth)
-		pth = path.PathNoIdentifier()
-		of, mt = s.resolveOutputFormatAndOrMediaType(path.OutputFormat(), path.Ext())
-	}
 
-	return pth, TemplateDescriptor{
-		OutputFormat: of.Name,
-		MediaType:    mt.Type,
-		IsPlainText:  of.IsPlainText,
-	}
+		return PathTemplateDescriptor{
+			Path: pth,
+			Desc: TemplateDescriptor{
+				OutputFormat: of.Name,
+				MediaType:    mt.Type,
+				IsPlainText:  of.IsPlainText,
+			},
+		}, nil
+	})
+
+	return d
 }
 
 // resolveOutputFormatAndOrMediaType resolves the output format and/or media type
@@ -1404,7 +1449,7 @@ func (s *TemplateStore) templates() iter.Seq[*TemplInfo] {
 	return func(yield func(*TemplInfo) bool) {
 		for _, v := range s.treeMain.All() {
 			for _, vv := range v {
-				if !vv.NoBaseOf {
+				if !vv.noBaseOf {
 					for vvv := range vv.BaseVariantsSeq() {
 						if !yield(vvv.Template) {
 							return
@@ -1562,10 +1607,10 @@ func (s *TemplateStore) transformTemplates() error {
 			continue
 		}
 		vv.state = processingStateTransformed
-		if vv.Category == CategoryBaseof {
+		if vv.category == CategoryBaseof {
 			continue
 		}
-		if !vv.NoBaseOf {
+		if !vv.noBaseOf {
 			for vvv := range vv.BaseVariantsSeq() {
 				tctx, err := applyTemplateTransformers(vvv.Template, lookup)
 				if err != nil {
@@ -1709,13 +1754,13 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	}
 
 	if best.w.w1 > 0 {
-		currentBestIsEmbedded := best.templ.SubCategory == SubCategoryEmbedded
+		currentBestIsEmbedded := best.templ.subCategory == SubCategoryEmbedded
 		if currentBestIsEmbedded {
-			if ti.SubCategory != SubCategoryEmbedded {
+			if ti.subCategory != SubCategoryEmbedded {
 				return true
 			}
 		} else {
-			if ti.SubCategory == SubCategoryEmbedded {
+			if ti.subCategory == SubCategoryEmbedded {
 				// Prefer user provided template.
 				return false
 			}
