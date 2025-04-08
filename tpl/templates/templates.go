@@ -102,3 +102,8 @@ func (ns *Namespace) DoDefer(ctx context.Context, id string, optsv any) string {
 
 	return id
 }
+
+// Get information about the currently executing template.
+func (ns *Namespace) Current(ctx context.Context) *tpl.CurrentTemplateInfo {
+	return tpl.Context.CurrentTemplate.Get(ctx)
+}

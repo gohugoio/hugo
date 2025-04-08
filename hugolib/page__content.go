@@ -667,7 +667,13 @@ func (c *cachedContentScope) mustContentToC(ctx context.Context) contentTableOfC
 	return ct
 }
 
-var setGetContentCallbackInContext = hcontext.NewContextDispatcher[func(*pageContentOutput, contentTableOfContents)]("contentCallback")
+type contextKey uint8
+
+const (
+	contextKeyContentCallback contextKey = iota
+)
+
+var setGetContentCallbackInContext = hcontext.NewContextDispatcher[func(*pageContentOutput, contentTableOfContents)](contextKeyContentCallback)
 
 func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfContents, error) {
 	cp := c.pco

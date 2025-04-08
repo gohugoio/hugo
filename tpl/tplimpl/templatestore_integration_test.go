@@ -1,6 +1,8 @@
 package tplimpl_test
 
 import (
+	"context"
+	"io"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -839,4 +841,43 @@ All.
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	b.AssertLogContains("Duplicate content path")
+}
+
+func BenchmarkExecuteWithContext(b *testing.B) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "home"]
+-- layouts/all.html --
+{{ .Title }}|
+ {{ partial "p1.html" . }}
+-- layouts/_partials/p1.html --
+ p1.
+{{ partial "p2.html" . }}
+{{ partial "p2.html" . }}
+{{ partial "p3.html" . }}
+{{ partial "p2.html" . }}
+{{ partial "p2.html" . }}
+{{ partial "p2.html" . }}
+{{ partial "p3.html" . }}
+-- layouts/_partials/p2.html --
+{{ partial "p3.html" . }}
+-- layouts/_partials/p3.html --
+p3
+-- content/p1.md --
+`
+
+	bb := hugolib.Test(b, files)
+
+	store := bb.H.TemplateStore
+
+	ti := store.LookupByPath("/all.html")
+	bb.Assert(ti, qt.Not(qt.IsNil))
+	p := bb.H.Sites[0].RegularPages()[0]
+	bb.Assert(p, qt.Not(qt.IsNil))
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := store.ExecuteWithContext(context.Background(), ti, io.Discard, p)
+		bb.Assert(err, qt.IsNil)
+	}
 }

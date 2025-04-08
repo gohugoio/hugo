@@ -139,9 +139,13 @@ func (i HugoInfo) IsMultilingual() bool {
 	return i.conf.IsMultilingual()
 }
 
-type contextKey string
+type contextKey uint8
 
-var markupScope = hcontext.NewContextDispatcher[string](contextKey("markupScope"))
+const (
+	contextKeyMarkupScope contextKey = iota
+)
+
+var markupScope = hcontext.NewContextDispatcher[string](contextKeyMarkupScope)
 
 type Context struct{}
 

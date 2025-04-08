@@ -120,7 +120,7 @@ func (pco *pageContentOutput) Render(ctx context.Context, layout ...string) (tem
 	// Make sure to send the *pageState and not the *pageContentOutput to the template.
 	res, err := executeToString(ctx, pco.po.p.s.GetTemplateStore(), templ, pco.po.p)
 	if err != nil {
-		return "", pco.po.p.wrapError(fmt.Errorf("failed to execute template %s: %w", templ.Template.Name(), err))
+		return "", pco.po.p.wrapError(fmt.Errorf("failed to execute template %s: %w", templ.Name(), err))
 	}
 	return template.HTML(res), nil
 }
@@ -323,7 +323,7 @@ func (pco *pageContentOutput) initRenderHooks() error {
 					return false
 				}
 
-				if ignoreInternal && candidate.SubCategory == tplimpl.SubCategoryEmbedded {
+				if ignoreInternal && candidate.SubCategory() == tplimpl.SubCategoryEmbedded {
 					// Don't consider the internal hook templates.
 					return false
 				}
