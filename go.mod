@@ -15,7 +15,7 @@ require (
 	github.com/bep/goportabletext v0.1.0
 	github.com/bep/gowebp v0.3.0
 	github.com/bep/helpers v0.5.0
-	github.com/bep/imagemeta v0.10.0
+	github.com/bep/imagemeta v0.11.0
 	github.com/bep/lazycache v0.8.0
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20400.20402
@@ -47,7 +47,6 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/hairyhenderson/go-codeowners v0.7.0
 	github.com/jdkato/prose v1.2.1
-	github.com/kylelemons/godebug v1.1.0
 	github.com/kyokomi/emoji/v2 v2.2.13
 	github.com/magefile/mage v1.15.0
 	github.com/makeworld-the-better-one/dither/v2 v2.4.0
@@ -139,6 +138,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
