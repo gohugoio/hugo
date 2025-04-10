@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/helpers"
@@ -155,6 +156,9 @@ type SiteOptions struct {
 type StoreOptions struct {
 	// The filesystem to use.
 	Fs afero.Fs
+
+	// The logger to use.
+	Log loggers.Logger
 
 	// The path parser to use.
 	PathParser *paths.PathParser
@@ -986,7 +990,10 @@ func (s *TemplateStore) setTemplateByPath(p string, ti *TemplInfo) {
 }
 
 func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, replace bool, tree doctree.Tree[map[string]map[TemplateDescriptor]*TemplInfo]) (*TemplInfo, error) {
-	k1, k2, _, d := s.toKeyCategoryAndDescriptor(pi)
+	k1, k2, _, d, err := s.toKeyCategoryAndDescriptor(pi)
+	if err != nil {
+		return nil, err
+	}
 	m := tree.Get(k1)
 	if m == nil {
 		m = make(map[string]map[TemplateDescriptor]*TemplInfo)
@@ -1027,7 +1034,18 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 }
 
 func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, replace bool, tree doctree.Tree[map[nodeKey]*TemplInfo]) (*TemplInfo, error) {
-	key, _, category, d := s.toKeyCategoryAndDescriptor(pi)
+	key, _, category, d, err := s.toKeyCategoryAndDescriptor(pi)
+	// See #13577. Warn for now.
+	if err != nil {
+		var loc string
+		if fi != nil {
+			loc = fmt.Sprintf("file %q", fi.Meta().Filename)
+		} else {
+			loc = fmt.Sprintf("path %q", pi.Path())
+		}
+		s.opts.Log.Warnf("skipping template %s: %s", loc, err)
+		return nil, nil
+	}
 
 	return s.insertTemplate2(pi, fi, key, category, d, replace, false, tree)
 }
@@ -1481,7 +1499,7 @@ func (s *TemplateStore) templates() iter.Seq[*TemplInfo] {
 	}
 }
 
-func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, string, Category, TemplateDescriptor) {
+func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, string, Category, TemplateDescriptor, error) {
 	k1 := p.Dir()
 	k2 := ""
 
@@ -1575,7 +1593,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 		k1 = strings.TrimSuffix(k1, "/_markup")
 		parts := strings.Split(d.Layout, "-")
 		if len(parts) < 2 {
-			panic("markup template must have at least 2 parts")
+			return "", "", 0, TemplateDescriptor{}, fmt.Errorf("unrecognized render hook template")
 		}
 		// Either 2 or 3 parts, e.g. render-codeblock-go.
 		d.Variant1 = parts[1]
@@ -1585,7 +1603,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 		d.Layout = "" // This allows using page layout as part of the key for lookups.
 	}
 
-	return k1, k2, category, d
+	return k1, k2, category, d, nil
 }
 
 func (s *TemplateStore) transformTemplates() error {

@@ -844,6 +844,21 @@ All.
 	b.AssertLogContains("Duplicate content path")
 }
 
+// Issue #13577.
+func TestPrintPathWarningOnInvalidMarkupFilename(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/all.html --
+All.
+-- layouts/_markup/sitemap.xml --
+`
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertLogContains("unrecognized render hook")
+}
+
 func BenchmarkExecuteWithContext(b *testing.B) {
 	files := `
 -- hugo.toml --
