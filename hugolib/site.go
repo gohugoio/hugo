@@ -396,6 +396,7 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 			templateStore, err := tplimpl.NewStore(
 				tplimpl.StoreOptions{
 					Fs:                     s.BaseFs.Layouts.Fs,
+					Log:                    s.Log,
 					DefaultContentLanguage: s.Conf.DefaultContentLanguage(),
 					Watching:               s.Conf.Watching(),
 					PathParser:             s.Conf.PathParser(),
