@@ -23,7 +23,7 @@ Ancestors
 : (`tpl.CurrentTemplateInfos`) Returns a slice containing information about each template in the current execution chain, starting from the parent of the current template and going up towards the initial template called. It excludes any base template applied via `define` and `block`. You can chain the `Reverse` method to this result to get the slice in chronological execution order.
 
 Base
-: (`tplimpl.TemplInfo`) Returns an object representing the base template that was applied to the current template, if any. This may be `nil`.
+: (`tpl.CurrentTemplateInfoCommonOps`) Returns an object representing the base template that was applied to the current template, if any. This may be `nil`.
 
 Filename
 : (`string`) Returns the absolute path of the current template. This will be empty for embedded templates.
@@ -43,7 +43,7 @@ The examples below help visualize template execution and require a `debug` param
 debug = true
 {{< /code-toggle >}}
 
-### Template boundaries
+### Boundaries
 
 To visually mark where a template begins and ends execution:
 
@@ -62,28 +62,28 @@ To visually mark where a template begins and ends execution:
 {{ end }}
 ```
 
-### Template call stack
+### Call stack
 
-To show the chain of templates that led to the current one, create a partial template that iterates through its ancestors:
+To display the chain of templates that led to the current one, create a partial template that iterates through its ancestors:
 
-```go-html-template {file="layouts/partials/render-template-stack.html" copy=true}
-<div class="debug">
-  {{ with templates.Current }}
+```go-html-template {file="layouts/partials/template-call-stack.html" copy=true}
+{{ with templates.Current }}
+  <div class="debug">
     {{ range .Ancestors }}
       {{ .Filename }}<br>
       {{ with .Base }}
         {{ .Filename }}<br>
       {{ end }}
     {{ end }}
-  {{ end }}
-</div>
+  </div>
+{{ end }}
 ```
 
 Then call the partial from any template:
 
 ```go-html-template {file="layouts/partials/footer/copyright.html" copy=true}
 {{ if site.Params.debug }}
-  {{ partial "render-template-stack.html" . }}
+  {{ partial "template-call-stack.html" . }}
 {{ end }}
 ```
 
@@ -92,36 +92,64 @@ The rendered template stack would look something like this:
 ```text
 /home/user/project/layouts/partials/footer/copyright.html
 /home/user/project/themes/foo/layouts/partials/footer.html
-/home/user/project/themes/foo/layouts/_default/single.html
+/home/user/project/layouts/_default/single.html
 /home/user/project/themes/foo/layouts/_default/baseof.html
 ```
 
-To reverse the order of the entries chain the `Reverse` method to the `Ancestors` method:
+To reverse the order of the entries, chain the `Reverse` method to the `Ancestors` method:
 
-```go-html-template {file="layouts/partials/render-template-stack.html" copy=true}
-<div class="debug">
-  {{ with templates.Current }}
+```go-html-template {file="layouts/partials/template-call-stack.html" copy=true}
+{{ with templates.Current }}
+  <div class="debug">
     {{ range .Ancestors.Reverse }}
       {{ with .Base }}
         {{ .Filename }}<br>
       {{ end }}
       {{ .Filename }}<br>
     {{ end }}
-  {{ end }}
-</div>
+  </div>
+{{ end }}
 ```
 
-To render each entry as an anchor element that, when clicked, will open the template in VS Code:
+### VS Code
 
-```go-html-template {file="layouts/partials/render-template-stack.html" copy=true}
-<div class="debug">
-  {{ with templates.Current }}
+To render links that, when clicked, will open the template in Microsoft Visual Studio Code, create a partial template with anchor elements that use the `vscode` URI scheme:
+
+```go-html-template {file="layouts/partials/template-open-in-vs-code.html" copy=true}
+{{ with templates.Current.Parent }}
+  <div class="debug">
+    <a href="vscode://file/{{ .Filename }}">{{ .Name }}</a>
+    {{ with .Base }}
+      <a href="vscode://file/{{ .Filename }}">{{ .Name }}</a>
+    {{ end }}
+  </div>
+{{ end }}
+```
+
+Then call the partial from any template:
+
+```go-html-template {file="layouts/_default/single.html" copy=true}
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+
+  {{ if site.Params.debug }}
+    {{ partial "template-open-in-vs-code.html" . }}
+  {{ end }}
+{{ end }}
+```
+
+Use the same approach to render the entire call stack as links:
+
+```go-html-template {file="layouts/partials/template-call-stack.html" copy=true}
+{{ with templates.Current }}
+  <div class="debug">
     {{ range .Ancestors }}
       <a href="vscode://file/{{ .Filename }}">{{ .Filename }}</a><br>
       {{ with .Base }}
         <a href="vscode://file/{{ .Filename }}">{{ .Filename }}</a><br>
       {{ end }}
     {{ end }}
-  {{ end }}
-</div>
+  </div>
+{{ end }}
 ```
