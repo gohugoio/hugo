@@ -209,11 +209,11 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 				ShortcodeInfoProvider:     page.NopPage,
 				LanguageProvider:          m.s,
 
-				InternalDependencies: m.s,
-				init:                 lazy.New(),
-				m:                    m,
-				s:                    m.s,
-				sWrapped:             page.WrapSite(m.s),
+				RelatedDocsHandlerProvider: m.s,
+				init:                       lazy.New(),
+				m:                          m,
+				s:                          m.s,
+				sWrapped:                   page.WrapSite(m.s),
 			},
 		}
 

@@ -97,16 +97,16 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 		panic("HTML output format not found")
 	}
 	s := &TemplateStore{
-		opts:                     opts,
-		siteOpts:                 siteOpts,
-		optsOrig:                 opts,
-		siteOptsOrig:             siteOpts,
-		htmlFormat:               html,
-		storeSite:                configureSiteStorage(siteOpts, opts.Watching),
-		treeMain:                 doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
-		treeShortcodes:           doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
-		templatesByPath:          maps.NewCache[string, *TemplInfo](),
-		templateDescriptorByPath: maps.NewCache[string, PathTemplateDescriptor](),
+		opts:                opts,
+		siteOpts:            siteOpts,
+		optsOrig:            opts,
+		siteOptsOrig:        siteOpts,
+		htmlFormat:          html,
+		storeSite:           configureSiteStorage(siteOpts, opts.Watching),
+		treeMain:            doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
+		treeShortcodes:      doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
+		templatesByPath:     maps.NewCache[string, *TemplInfo](),
+		cacheLookupPartials: maps.NewCache[string, *TemplInfo](),
 
 		// Note that the funcs passed below is just for name validation.
 		tns: newTemplateNamespace(siteOpts.TemplateFuncs),
@@ -400,10 +400,9 @@ type TemplateStore struct {
 	siteOpts   SiteOptions
 	htmlFormat output.Format
 
-	treeMain                 *doctree.SimpleTree[map[nodeKey]*TemplInfo]
-	treeShortcodes           *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
-	templatesByPath          *maps.Cache[string, *TemplInfo]
-	templateDescriptorByPath *maps.Cache[string, PathTemplateDescriptor]
+	treeMain        *doctree.SimpleTree[map[nodeKey]*TemplInfo]
+	treeShortcodes  *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
+	templatesByPath *maps.Cache[string, *TemplInfo]
 
 	dh descriptorHandler
 
@@ -417,6 +416,9 @@ type TemplateStore struct {
 	// For testing benchmarking.
 	optsOrig     StoreOptions
 	siteOptsOrig SiteOptions
+
+	// caches. These need to be refreshed when the templates are refreshed.
+	cacheLookupPartials *maps.Cache[string, *TemplInfo]
 }
 
 // NewFromOpts creates a new store with the same configuration as the original.
@@ -540,15 +542,19 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 }
 
 func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
-	d := s.templateDescriptorFromPath(pth)
-	desc := d.Desc
-	if desc.Layout != "" {
-		panic("shortcode template descriptor must not have a layout")
-	}
-	best := s.getBest()
-	defer s.putBest(best)
-	s.findBestMatchGet(s.key(path.Join(containerPartials, d.Path)), CategoryPartial, nil, desc, best)
-	return best.templ
+	ti, _ := s.cacheLookupPartials.GetOrCreate(pth, func() (*TemplInfo, error) {
+		d := s.templateDescriptorFromPath(pth)
+		desc := d.Desc
+		if desc.Layout != "" {
+			panic("shortcode template descriptor must not have a layout")
+		}
+		best := s.getBest()
+		defer s.putBest(best)
+		s.findBestMatchGet(s.key(path.Join(containerPartials, d.Path)), CategoryPartial, nil, desc, best)
+		return best.templ, nil
+	})
+
+	return ti
 }
 
 func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
@@ -619,8 +625,14 @@ func (s *TemplateStore) PrintDebug(prefix string, category Category, w io.Writer
 	})
 }
 
+func (s *TemplateStore) clearCaches() {
+	s.cacheLookupPartials.Reset()
+}
+
 // RefreshFiles refreshes this store for the files matching the given predicate.
 func (s *TemplateStore) RefreshFiles(include func(fi hugofs.FileMetaInfo) bool) error {
+	s.clearCaches()
+
 	if err := s.tns.createPrototypesParse(); err != nil {
 		return err
 	}
@@ -1370,43 +1382,38 @@ type PathTemplateDescriptor struct {
 // templateDescriptorFromPath returns a template descriptor from the given path.
 // This is currently used in partial lookups only.
 func (s *TemplateStore) templateDescriptorFromPath(pth string) PathTemplateDescriptor {
-	// Check cache first.
-	d, _ := s.templateDescriptorByPath.GetOrCreate(pth, func() (PathTemplateDescriptor, error) {
-		var (
-			mt media.Type
-			of output.Format
-		)
+	var (
+		mt media.Type
+		of output.Format
+	)
 
-		// Common cases.
-		dotCount := strings.Count(pth, ".")
-		if dotCount <= 1 {
-			if dotCount == 0 {
-				// Asume HTML.
-				of, mt = s.resolveOutputFormatAndOrMediaType("html", "")
-			} else {
-				pth = strings.TrimPrefix(pth, "/")
-				ext := path.Ext(pth)
-				pth = strings.TrimSuffix(pth, ext)
-				ext = ext[1:]
-				of, mt = s.resolveOutputFormatAndOrMediaType("", ext)
-			}
+	// Common cases.
+	dotCount := strings.Count(pth, ".")
+	if dotCount <= 1 {
+		if dotCount == 0 {
+			// Asume HTML.
+			of, mt = s.resolveOutputFormatAndOrMediaType("html", "")
 		} else {
-			path := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth)
-			pth = path.PathNoIdentifier()
-			of, mt = s.resolveOutputFormatAndOrMediaType(path.OutputFormat(), path.Ext())
+			pth = strings.TrimPrefix(pth, "/")
+			ext := path.Ext(pth)
+			pth = strings.TrimSuffix(pth, ext)
+			ext = ext[1:]
+			of, mt = s.resolveOutputFormatAndOrMediaType("", ext)
 		}
+	} else {
+		path := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth)
+		pth = path.PathNoIdentifier()
+		of, mt = s.resolveOutputFormatAndOrMediaType(path.OutputFormat(), path.Ext())
+	}
 
-		return PathTemplateDescriptor{
-			Path: pth,
-			Desc: TemplateDescriptor{
-				OutputFormat: of.Name,
-				MediaType:    mt.Type,
-				IsPlainText:  of.IsPlainText,
-			},
-		}, nil
-	})
-
-	return d
+	return PathTemplateDescriptor{
+		Path: pth,
+		Desc: TemplateDescriptor{
+			OutputFormat: of.Name,
+			MediaType:    mt.Type,
+			IsPlainText:  of.IsPlainText,
+		},
+	}
 }
 
 // resolveOutputFormatAndOrMediaType resolves the output format and/or media type

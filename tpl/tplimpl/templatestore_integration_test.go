@@ -8,6 +8,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/kinds"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
 
@@ -849,7 +850,7 @@ func BenchmarkExecuteWithContext(b *testing.B) {
 disableKinds = ["taxonomy", "term", "home"]
 -- layouts/all.html --
 {{ .Title }}|
- {{ partial "p1.html" . }}
+{{ partial "p1.html" . }}
 -- layouts/_partials/p1.html --
  p1.
 {{ partial "p2.html" . }}
@@ -878,6 +879,82 @@ p3
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := store.ExecuteWithContext(context.Background(), ti, io.Discard, p)
-		bb.Assert(err, qt.IsNil)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
+}
+
+func BenchmarkLookupPartial(b *testing.B) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "home"]
+-- layouts/all.html --
+{{ .Title }}|
+-- layouts/_partials/p1.html --
+-- layouts/_partials/p2.html --
+-- layouts/_partials/p2.json --
+-- layouts/_partials/p3.html --
+`
+	bb := hugolib.Test(b, files)
+
+	store := bb.H.TemplateStore
+
+	for i := 0; i < b.N; i++ {
+		fi := store.LookupPartial("p3.html")
+		if fi == nil {
+			b.Fatal("not found")
+		}
+	}
+}
+
+// Implemented by pageOutput.
+type getDescriptorProvider interface {
+	GetInternalTemplateBasePathAndDescriptor() (string, tplimpl.TemplateDescriptor)
+}
+
+func BenchmarkLookupShortcode(b *testing.B) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "home"]
+-- content/toplevelpage.md --
+-- content/a/b/c/nested.md --
+-- layouts/all.html --
+{{ .Title }}|
+-- layouts/_shortcodes/s.html --
+s1.
+-- layouts/_shortcodes/a/b/s.html --
+s2.
+
+`
+	bb := hugolib.Test(b, files)
+	store := bb.H.TemplateStore
+
+	runOne := func(p page.Page) {
+		pth, desc := p.(getDescriptorProvider).GetInternalTemplateBasePathAndDescriptor()
+		q := tplimpl.TemplateQuery{
+			Path:     pth,
+			Name:     "s",
+			Category: tplimpl.CategoryShortcode,
+			Desc:     desc,
+		}
+		v := store.LookupShortcode(q)
+		if v == nil {
+			b.Fatal("not found")
+		}
+	}
+
+	b.Run("toplevelpage", func(b *testing.B) {
+		toplevelpage, _ := bb.H.Sites[0].GetPage("/toplevelpage")
+		for i := 0; i < b.N; i++ {
+			runOne(toplevelpage)
+		}
+	})
+
+	b.Run("nestedpage", func(b *testing.B) {
+		toplevelpage, _ := bb.H.Sites[0].GetPage("/a/b/c/nested")
+		for i := 0; i < b.N; i++ {
+			runOne(toplevelpage)
+		}
+	})
 }
