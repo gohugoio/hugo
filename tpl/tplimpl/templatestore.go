@@ -1118,14 +1118,19 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 	legacyOrdinalMappings := map[legacyTargetPathIdentifiers]legacyOrdinalMappingFi{}
 
 	walker := func(pth string, fi hugofs.FileMetaInfo) error {
-		piOrig := fi.Meta().PathInfo
 		if fi.IsDir() {
+			return nil
+		}
+
+		if isDotFile(pth) || isBackupFile(pth) {
 			return nil
 		}
 
 		if !include(fi) {
 			return nil
 		}
+
+		piOrig := fi.Meta().PathInfo
 
 		// Convert any legacy value to new format.
 		fromLegacyPath := func(pi *paths.Path) *paths.Path {
@@ -1921,4 +1926,12 @@ func configureSiteStorage(opts SiteOptions, watching bool) *storeSite {
 	s.executer = texttemplate.NewExecuter(s.execHelper)
 
 	return s
+}
+
+func isBackupFile(path string) bool {
+	return path[len(path)-1] == '~'
+}
+
+func isDotFile(path string) bool {
+	return filepath.Base(path)[0] == '.'
 }

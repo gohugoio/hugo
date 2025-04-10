@@ -973,3 +973,18 @@ s2.
 		}
 	})
 }
+
+func TestSkipDotFiles(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/all.html --
+All.
+-- layouts/.DS_Store --
+{{ foo }}
+`
+
+	// Just make sure it doesn't fail.
+	hugolib.Test(t, files)
+}
