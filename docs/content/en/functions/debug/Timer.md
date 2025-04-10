@@ -3,11 +3,11 @@ title: debug.Timer
 description: Creates a named timer that reports elapsed time to the console.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: debug.Timer
-  signatures: [debug.Timer NAME] 
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: debug.Timer
+    signatures: [debug.Timer NAME] 
 ---
 
 {{< new-in 0.120.0 />}}

@@ -3,14 +3,11 @@ title: css.PostCSS
 description: Processes the given resource with PostCSS using any PostCSS plugin.
 categories: []
 keywords: []
-action:
-  aliases: [postCSS]
-  related:
-    - functions/css/Sass
-    - functions/css/TailwindCSS
-  returnType: resource.Resource
-  signatures: ['css.PostCSS [OPTIONS] RESOURCE']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [postCSS]
+    returnType: resource.Resource
+    signatures: ['css.PostCSS [OPTIONS] RESOURCE']
 ---
 
 {{< new-in 0.128.0 />}}
@@ -25,40 +22,40 @@ toc: true
 
 Follow the steps below to transform CSS using any of the available [PostCSS plugins].
 
-[postcss plugins]: https://postcss.org/docs/postcss-plugins
+### Step 1
 
-Step 1
-: Install [Node.js].
+Install [Node.js].
 
-[node.js]: https://nodejs.org/en/download
+### Step 2
 
-Step 2
-: Install the required Node.js packages in the root of your project. For example, to add vendor prefixes to your CSS rules:
+Install the required Node.js packages in the root of your project. For example, to add vendor prefixes to your CSS rules:
 
 ```sh
 npm i -D postcss postcss-cli autoprefixer
 ```
 
-Step 3
-: Create a PostCSS configuration file in the root of your project.
+### Step 3
 
-{{< code file=postcss.config.js >}}
+Create a PostCSS configuration file in the root of your project.
+
+```js {file="postcss.config.js"}
 module.exports = {
   plugins: [
     require('autoprefixer')
   ]
 };
-{{< /code >}}
+```
 
-{{% note %}}
-{{% include "functions/resources/_common/postcss-windows-warning.md" %}}
-{{% /note %}}
+> [!note]
+> If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
 
-Step 4
-: Place your CSS file within the `assets/css` directory.
+### Step 4
 
-Step 5
-: Process the resource with PostCSS:
+Place your CSS file within the `assets/css` directory.
+
+### Step 5
+
+Process the resource with PostCSS:
 
 ```go-html-template
 {{ with resources.Get "css/main.css" | postCSS }}
@@ -74,13 +71,13 @@ config
 : (`string`) The directory that contains the PostCSS configuration file. Default is the root of the project directory.
 
 noMap
-: (`bool`) Default is `false`. If `true`, disables inline sourcemaps.
+: (`bool`) Whether to disable inline source maps. Default is `false`.
 
 inlineImports
-: (`bool`) Default is `false`. Enable inlining of @import statements. It does so recursively, but will only import a file once. URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');`) and imports with media queries will be ignored. Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file. Hugo will look for imports relative to the module mount and will respect theme overrides.
+: (`bool`) Whether to enable inlining of import statements. It does so recursively, but will only import a file once. URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');`) and imports with media queries will be ignored. Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file. Hugo will look for imports relative to the module mount and will respect theme overrides. Default is `false`.
 
 skipInlineImportsNotFound
-: (`bool`) Default is `false`. Before Hugo 0.99.0 when `inlineImports` was enabled and we failed to resolve an import, we logged it as a warning. We now fail the build. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set `skipInlineImportsNotFound` to true.
+: (`bool`) Whether to allow the build process to continue despite unresolved import statements, preserving the original import declarations. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set this option to `true`. Default is `false`."
 
 ```go-html-template
 {{ $opts := dict "config" "config-directory" "noMap" true }}
@@ -124,3 +121,8 @@ module.exports = {
   ]
 }
 ```
+
+[#7333]: https://github.com/gohugoio/hugo/issues/7333
+[Node.js]: https://nodejs.org/en
+[PostCSS plugins]: https://postcss.org/docs/postcss-plugins
+[this example]: https://github.com/postcss/postcss-load-config#packagejson

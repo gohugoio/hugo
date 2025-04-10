@@ -3,11 +3,10 @@ title: LinkTitle
 description: Returns the link title of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Title
-  returnType: string
-  signatures: [PAGE.LinkTitle]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.LinkTitle]
 ---
 
 The `LinkTitle` method returns the `linkTitle` field as defined in front matter, falling back to the value returned by the [`Title`] method.

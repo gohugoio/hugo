@@ -3,15 +3,11 @@ title: images.Process
 description: Returns an image filter that processes the given image using the given specification.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-    - methods/resource/Process
-  returnType: images.filter
-  signatures: [images.Process SPEC]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Process SPEC]
 ---
 
 {{< new-in 0.119.0 />}}
@@ -101,7 +97,7 @@ Create a filter:
 {{ $filter := images.Process "resize 256x q40 webp" }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

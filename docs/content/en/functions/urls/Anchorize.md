@@ -3,16 +3,15 @@ title: urls.Anchorize
 description: Returns the given string, sanitized for usage in an HTML id attribute.
 categories: []
 keywords: []
-action:
-  aliases: [anchorize]
-  related:
-    - functions/urls/URLize
-  returnType: string
-  signatures: [urls.Anchorize INPUT]
+params:
+  functions_and_methods:
+    aliases: [anchorize]
+    returnType: string
+    signatures: [urls.Anchorize INPUT]
 aliases: [/functions/anchorize]
 ---
 
-{{% include "/functions/urls/_common/anchorize-vs-urlize.md" %}}
+{{% include "/_common/functions/urls/anchorize-vs-urlize.md" %}}
 
 ## Sanitizing logic
 
@@ -31,7 +30,7 @@ github
 : Compatible with GitHub. This is the default.
 
 github-ascii
-: Similar to the `github` setting, but removes non-ASCII characters. 
+: Similar to the `github` setting, but removes non-ASCII characters.
 
 blackfriday
 : Provided for backwards compatibility with Hugo v0.59.1 and earlier. This option will be removed in a future release.

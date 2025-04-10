@@ -3,11 +3,10 @@ title: Sub
 description: Returns the duration computed by subtracting TIME2 from TIME1.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-  returnType: time.Duration
-  signatures: [TIME1.Sub TIME2]
+params:
+  functions_and_methods:
+    returnType: time.Duration
+    signatures: [TIME1.Sub TIME2]
 ---
 
 ```go-html-template

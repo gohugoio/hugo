@@ -2,11 +2,11 @@
 title: resources.Copy
 description: Copies the given resource to the target path.
 categories: []
-action:
-  aliases: []
-  related: []
-  returnType: resource.Resource
-  signatures: [resources.Copy TARGETPATH RESOURCE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: [resources.Copy TARGETPATH RESOURCE]
 ---
 
 ```go-html-template
@@ -23,6 +23,5 @@ The relative URL of the new published resource will be:
 /img/new-image-name.jpg
 ```
 
-{{% note %}}
-Use the `resources.Copy` function with global, page, and remote resources.
-{{% /note %}}
+> [!note]
+> Use the `resources.Copy` function with global, page, and remote resources.

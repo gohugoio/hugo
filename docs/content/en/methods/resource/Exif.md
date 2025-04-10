@@ -3,28 +3,35 @@ title: Exif
 description: Applicable to JPEG, PNG, TIFF, and WebP images, returns an EXIF object containing image metadata.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: exif.ExifInfo
-  signatures: [RESOURCE.Exif]
-toc: true
+params:
+  functions_and_methods:
+    returnType: exif.ExifInfo
+    signatures: [RESOURCE.Exif]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 Applicable to JPEG, PNG, TIFF, and WebP images, the `Exif` method on an image `Resource` object returns an [EXIF] object containing image metadata.
 
 ## Methods
 
-Date
-: (`time.Time`) Returns the image creation date/time. Format with the [`time.Format`] function.
+### Date
 
-Lat
-: (`float64`) Returns the GPS latitude in degrees.
+(`time.Time`) Returns the image creation date/time. Format with the [`time.Format`] function.
 
-Long
-: (`float64`) Returns the GPS longitude in degrees.
+### Lat
 
-Tags
-: (`exif.Tags`) Returns a collection of the available EXIF tags for this image. You may include or exclude specific tags from this collection in the [site configuration].
+(`float64`) Returns the GPS latitude in degrees.
+
+### Long
+
+(`float64`) Returns the GPS longitude in degrees.
+
+### Tags
+
+(`exif.Tags`) Returns a collection of the available EXIF tags for this image. You may include or exclude specific tags from this collection. See [configure imaging].
+
+[configure imaging]: /configuration/imaging/#exif-data
 
 ## Examples
 
@@ -71,8 +78,5 @@ To list specific values:
 {{ end }}
 ```
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
-
 [exif]: https://en.wikipedia.org/wiki/Exif
-[site configuration]: /content-management/image-processing/#exif-data
 [`time.Format`]: /functions/time/format/

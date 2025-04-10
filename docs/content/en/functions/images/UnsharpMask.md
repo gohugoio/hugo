@@ -3,14 +3,11 @@ title: images.UnsharpMask
 description: Returns an image filter that sharpens an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.UnsharpMask SIGMA AMOUNT THRESHOLD]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.UnsharpMask SIGMA AMOUNT THRESHOLD]
 ---
 
 The sigma argument is used in a gaussian function and affects the radius of effect. Sigma must be positive. The sharpen radius is approximately 3 times the sigma value.
@@ -27,7 +24,7 @@ Create the filter:
 {{ $filter := images.UnsharpMask 10 0.4 0.03 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

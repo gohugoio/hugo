@@ -3,12 +3,10 @@ title: PageRef
 description: Returns the `pageRef` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related:
-    - /methods/menu-entry/URL
-  returnType: string
-  signatures: [MENUENTRY.PageRef]
-toc: true
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [MENUENTRY.PageRef]
 ---
 
 The use case for this method is rare.
@@ -31,28 +29,15 @@ If a matching page is not found:
 - The [`Page`] method returns nil
 - The [`HasMenuCurrent`] and [`IsMenuCurrent`] methods on a `Page` object return `false`
 
-{{% note %}}
-In almost also scenarios you should use the [`URL`] method instead.
-
-[`URL`]: /methods/menu-entry/url/
-{{% /note %}}
-
-[defining a menu entry]: /content-management/menus/#define-in-site-configuration
-[`Page`]: /methods/menu-entry/page/
-[`URL`]: /methods/menu-entry/url/
-[`IsMenuCurrent`]: /methods/page/ismenucurrent/
-[`HasMenuCurrent`]: /methods/page/hasmenucurrent/
-[`RelPermalink`]: /methods/page/relpermalink/
+> [!note]
+> In almost also scenarios you should use the [`URL`] method instead.
 
 ## Example
 
 This example is contrived.
 
-{{% note %}}
-In almost also scenarios you should use the [`URL`] method instead.
-
-[`URL`]: /methods/menu-entry/url/
-{{% /note %}}
+> [!note]
+> In almost also scenarios you should use the [`URL`] method instead.
 
 Consider this content structure:
 
@@ -77,13 +62,13 @@ weight = 20
 
 With this template code:
 
-{{< code file=layouts/partials/menu.html >}}
+```go-html-template {file="layouts/partials/menu.html"}
 <ul>
   {{ range .Site.Menus.main }}
     <li><a href="{{ .URL }}">{{ .Name }}</a></li>
   {{ end }}
 </ul>
-{{< /code >}}
+```
 
 Hugo render this HTML:
 
@@ -98,13 +83,13 @@ In the above note that the `href` attribute of the second `anchor` element is bl
 
 With this template code:
 
-{{< code file=layouts/partials/menu.html >}}
+```go-html-template {file="layouts/partials/menu.html"}
 <ul>
   {{ range .Site.Menus.main }}
     <li><a href="{{ or .URL .PageRef }}">{{ .Name }}</a></li>
   {{ end }}
 </ul>
-{{< /code >}}
+```
 
 Hugo renders this HTML:
 
@@ -116,3 +101,9 @@ Hugo renders this HTML:
 ```
 
 In the above note that Hugo populates the `href` attribute of the second `anchor` element with the `pageRef` property as defined in the site configuration because the template code falls back to the `PageRef` method.
+
+[`HasMenuCurrent`]: /methods/page/hasmenucurrent/
+[`IsMenuCurrent`]: /methods/page/ismenucurrent/
+[`Page`]: /methods/menu-entry/page/
+[`URL`]: /methods/menu-entry/url/
+[defining a menu entry]: /content-management/menus/#define-in-site-configuration

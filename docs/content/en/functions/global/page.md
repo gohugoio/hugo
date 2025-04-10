@@ -3,13 +3,11 @@ title: page
 description: Provides global access to a Page object.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/global/site
-  returnType: 
-  signatures: [page]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: 
+    signatures: [page]
 aliases: [/functions/page]
 ---
 
@@ -27,13 +25,12 @@ When a `Page` object is not in context, you can use the global `page` function:
 {{ page.Params.foo }}
 ```
 
-{{% note %}}
-Do not use the global `page` function in shortcodes, partials called by shortcodes, or cached partials. See [warnings](#warnings) below.
-{{% /note %}}
+> [!note]
+> Do not use the global `page` function in shortcodes, partials called by shortcodes, or cached partials. See [warnings](#warnings) below.
 
 ## Explanation
 
-Hugo almost always passes a `Page` as the data context into the top level template (e.g., `single.html`). The one exception is the multihost sitemap template. This means that you can access the current page with the `.` in the template.
+Hugo almost always passes a `Page` as the data context into the top-level template (e.g., `single.html`). The one exception is the multihost sitemap template. This means that you can access the current page with the `.` in the template.
 
 But when you are deeply nested inside of a [content view](g), [partial](g), or [render hook](g), it is not always practical or possible to access the `Page` object.
 
@@ -99,5 +96,5 @@ When you call the [`Summary`] method, Hugo renders the page content including sh
 
 If Hugo renders the section page before a content page, the cached rendered shortcode will be incorrect. You cannot control the rendering sequence due to concurrency.
 
-[`Summary`]: /methods/page/summary/
 [`partialCached`]: /functions/partials/includecached/
+[`Summary`]: /methods/page/summary/

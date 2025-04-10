@@ -3,10 +3,10 @@ title: Home
 description: Returns the home Page object for the given site.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Page
-  signatures: [SITE.Home]
+params:
+  functions_and_methods:
+    returnType: page.Page
+    signatures: [SITE.Home]
 ---
 
 This method is useful for obtaining a link to the home page.

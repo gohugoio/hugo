@@ -3,16 +3,10 @@ title: Day
 description: Returns the day of the month of the given time.Time value.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Year
-    - methods/time/Month
-    - methods/time/Hour
-    - methods/time/Minute
-    - methods/time/Second
-    - functions/time/AsTime
-  returnType: int
-  signatures: [TIME.Day]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [TIME.Day]
 ---
 
 ```go-html-template

@@ -3,14 +3,11 @@ title: images.Sigmoid
 description: Returns an image filter that changes the contrast of an image using a sigmoidal function.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Sigmoid MIDPOINT FACTOR]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Sigmoid MIDPOINT FACTOR]
 ---
 
 This is a non-linear contrast change useful for photo adjustments; it preserves highlight and shadow detail.
@@ -27,7 +24,7 @@ Create the filter:
 {{ $filter := images.Sigmoid 0.6 -4 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

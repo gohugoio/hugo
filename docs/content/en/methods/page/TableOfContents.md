@@ -3,11 +3,10 @@ title: TableOfContents
 description: Returns a table of contents for the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Fragments
-  returnType: template.HTML
-  signatures: [PAGE.TableOfContents]
+params:
+  functions_and_methods:
+    returnType: template.HTML
+    signatures: [PAGE.TableOfContents]
 aliases: [/content-management/toc/]
 ---
 

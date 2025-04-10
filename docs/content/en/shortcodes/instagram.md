@@ -1,21 +1,13 @@
 ---
-title: Instagram
+title: Instagram shortcode
+linkTitle: Instagram
 description: Embed an Instagram post in your content using the instagram shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
-{{% note %}}
-To override Hugo's embedded `instagram` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl instagram %}}
-{{% /note %}}
+> [!note]
+> To override Hugo's embedded `instagram` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -46,3 +38,5 @@ disable
 
 simple
 : (`bool`) Whether to enable simple mode for image card generation. If `true`, Hugo creates a static card without JavaScript. This mode only supports image cards, and the image is fetched directly from Instagram's servers. Default is `false`.
+
+[source code]: {{% eturl instagram %}}

@@ -3,12 +3,10 @@ title: PageNumber
 description: Returns the current pager's number within the pager collection.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/TotalPages
-    - methods/page/Paginate
-  returnType: int
-  signatures: [PAGER.PageNumber]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [PAGER.PageNumber]
 ---
 
 Use the `PageNumber` method to build navigation between pagers.

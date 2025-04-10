@@ -3,19 +3,16 @@ title: GitInfo
 description: Returns Git information related to the last commit of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/CodeOwners
-  returnType: source.GitInfo
-  signatures: [PAGE.GitInfo]
-toc: true
+params:
+  functions_and_methods:
+    returnType: source.GitInfo
+    signatures: [PAGE.GitInfo]
 ---
 
 The `GitInfo` method on a `Page` object returns an object with additional methods.
 
-{{% note %}}
-Hugo's Git integration is performant, but may increase build times on large sites.
-{{% /note %}}
+> [!note]
+> Hugo's Git integration is performant, but may increase build times on large sites.
 
 ## Prerequisites
 
@@ -33,17 +30,14 @@ Alternatively, use the command line flag when building your site:
 hugo --enableGitInfo
 ```
 
-{{% note %}}
-When you set `enableGitInfo` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
-
-This is configurable. See&nbsp;[details].
-
-[details]: /getting-started/configuration/#configure-dates
-{{% /note %}}
+> [!note]
+> When you set `enableGitInfo` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
+>
+> This is configurable. See&nbsp;[details].
 
 ## Methods
 
-###### AbbreviatedHash
+### AbbreviatedHash
 
 (`string`) The abbreviated commit hash.
 
@@ -53,7 +47,7 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
-###### AuthorDate
+### AuthorDate
 
 (`time.Time`) The author date.
 
@@ -63,7 +57,7 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
-###### AuthorEmail
+### AuthorEmail
 
 (`string`) The author's email address, respecting [gitmailmap].
 
@@ -73,7 +67,7 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
-###### AuthorName
+### AuthorName
 
 (`string`) The author's name, respecting [gitmailmap].
 
@@ -83,7 +77,7 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
-###### CommitDate
+### CommitDate
 
 (`time.Time`) The commit date.
 
@@ -93,7 +87,7 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
-###### Hash
+### Hash
 
 (`string`) The commit hash.
 
@@ -103,7 +97,7 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
-###### Subject
+### Subject
 
 (`string`) The commit message subject.
 
@@ -113,7 +107,7 @@ This is configurable. See&nbsp;[details].
 {{ end }}
 ```
 
-###### Body
+### Body
 
 (`string`) The commit message body.
 
@@ -129,29 +123,29 @@ By default, when `enableGitInfo` is `true`, the `Lastmod` method on a `Page` obj
 
 You can change this behavior in your [site configuration].
 
-[git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[gitmailmap]: https://git-scm.com/docs/gitmailmap
-[site configuration]: /getting-started/configuration/#configure-front-matter
-
 ## Hosting considerations
 
-When hosting your site in a CI/CD environment, the step that clones your project repository must perform a deep clone. If the clone is shallow, the Git information for a given file may not be accurate---it may reflect the most recent repository commit, not the commit that last modified the file.
+When hosting your site in a [CI/CD](g) environment, the step that clones your project repository must perform a deep clone. If the clone is shallow, the Git information for a given file may not be accurate---it may reflect the most recent repository commit, not the commit that last modified the file.
 
-Some providers perform deep clones by default, others allow you to configure the clone depth, and some providers only perform shallow clones.
+Some providers perform deep clones by default, others allow you to configure the clone depth, and some only perform shallow clones.
 
 Hosting service | Default clone depth | Configurable
 :-- | :-- | :--
 AWS Amplify | Deep | N/A
-Cloudflare Pages | Shallow | Yes [^CFP]
+Cloudflare Pages | Shallow | Yes [^1]
 DigitalOcean App Platform | Deep | N/A
-GitHub Pages | Shallow | Yes [^GHP]
-GitLab Pages | Shallow | Yes [^GLP]
+GitHub Pages | Shallow | Yes [^2]
+GitLab Pages | Shallow | Yes [^3]
 Netlify | Deep | N/A
 Render | Shallow | No
 Vercel | Shallow | No
 
-[^CFP]: To configure a Cloudflare Pages site for deep cloning, preface the site's normal Hugo build command with `git fetch --unshallow &&` (*e.g.*, `git fetch --unshallow && hugo`).
+[^1]: To configure a Cloudflare Pages site for deep cloning, run `git fetch --unshallow` before building the site.
 
-[^GHP]: You can configure the GitHub Action to do a deep clone by specifying `fetch-depth: 0` in the applicable "checkout" step of your workflow file, as shown in the Hugo documentation's [example workflow file](/hosting-and-deployment/hosting-on-github/#procedure).
+[^2]: You can configure the GitHub Action to do a deep clone by specifying `fetch-depth: 0` in the applicable "checkout" step of your workflow file, as shown in the Hugo documentation's [example workflow file](/host-and-deploy/host-on-github-pages/#procedure).
 
-[^GLP]: You can configure the GitLab Runner's clone depth [as explained in the GitLab documentation](https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning); see also the Hugo documentation's [example workflow file](/hosting-and-deployment/hosting-on-gitlab/#configure-gitlab-cicd).
+[^3]: You can configure the GitLab Runner's clone depth [as explained in the GitLab documentation](https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning); see also the Hugo documentation's [example workflow file](/host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd).
+
+[details]: /configuration/front-matter/#dates
+[gitmailmap]: https://git-scm.com/docs/gitmailmap
+[site configuration]: /configuration/front-matter/

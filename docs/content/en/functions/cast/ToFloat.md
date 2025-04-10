@@ -3,13 +3,11 @@ title: cast.ToFloat
 description: Converts a value to a decimal floating-point number (base 10).
 categories: []
 keywords: []
-action:
-  aliases: [float]
-  related:
-    - functions/cast/ToInt
-    - functions/cast/ToString
-  returnType: float64
-  signatures: [cast.ToFloat INPUT]
+params:
+  functions_and_methods:
+    aliases: [float]
+    returnType: float64
+    signatures: [cast.ToFloat INPUT]
 aliases: [/functions/float]
 ---
 

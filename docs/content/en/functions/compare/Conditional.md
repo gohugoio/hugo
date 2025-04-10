@@ -3,12 +3,11 @@ title: compare.Conditional
 description: Returns one of two arguments depending on the value of the control argument.
 categories: []
 keywords: []
-action:
-  aliases: [cond]
-  related:
-    - functions/compare/Default
-  returnType: any
-  signatures: [compare.Conditional CONTROL ARG1 ARG2]
+params:
+  functions_and_methods:
+    aliases: [cond]
+    returnType: any
+    signatures: [compare.Conditional CONTROL ARG1 ARG2]
 aliases: [/functions/cond]
 ---
 

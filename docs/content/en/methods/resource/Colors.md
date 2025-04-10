@@ -3,42 +3,36 @@ title: Colors
 description: Applicable to images, returns a slice of the most dominant colors using a simple histogram method.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: '[]images.Color'
-  signatures: [RESOURCE.Colors]
-toc: true
-math: true
+params:
+  functions_and_methods:
+    returnType: '[]images.Color'
+    signatures: [RESOURCE.Colors]
 ---
 
-The `Resources.Colors` method returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
+The `Resources.Colors` method returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
 
 ## Methods
 
 Each color is an object with the following methods:
 
-ColorHex
+### ColorHex
+
 {{< new-in 0.125.0 />}}
-: (`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
 
-Luminance
+(`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
+
+### Luminance
+
 {{< new-in 0.125.0 />}}
-: (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
-{{% note %}}
-Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.
+(`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
-Hugo renders an `images.Color` object as a hexadecimal color value.
-
-[`images.Dither`]: /functions/images/dither/
-[`images.Padding`]: /functions/images/padding/
-[`images.Text`]: /functions/images/text/
-{{% /note %}}
-
-[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
-[relative luminance]: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+> [!note]
+> Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.
+>
+> Hugo renders an `images.Color` object as a hexadecimal color value.
 
 ## Sorting
 
@@ -169,7 +163,12 @@ Calculate the contrast ratio to determine WCAG conformance:
 {{ end }}
 ```
 
-[WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines
+[`images.Dither`]: /functions/images/dither/
+[`images.Padding`]: /functions/images/padding/
+[`images.Text`]: /functions/images/text/
 [contrast ratio]: https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
 [enhanced]: https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=145#contrast-enhanced
+[hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 [minimum]: https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=145#contrast-minimum
+[relative luminance]: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+[WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines

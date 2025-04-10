@@ -1,15 +1,15 @@
 ---
 title: Title
-description: Returns the `title` property of the given menu entry.  
+description: Returns the `title` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [MENUENTRY.Title]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [MENUENTRY.Title]
 ---
 
-The `Title` method returns the `title` property of the given menu entry. If the `title` is not defined, and the menu entry resolves to a page, the `Title`  returns the page [`Title`].
+The `Title` method returns the `title` property of the given menu entry. If the `title` is not defined, and the menu entry resolves to a page, the `Title` returns the page [`Title`].
 
 [`Title`]: /methods/page/title/
 

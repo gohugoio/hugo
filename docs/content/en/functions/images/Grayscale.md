@@ -3,14 +3,11 @@ title: images.Grayscale
 description: Returns an image filter that produces a grayscale version of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Grayscale]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Grayscale]
 ---
 
 ## Usage
@@ -21,7 +18,7 @@ Create the filter:
 {{ $filter := images.Grayscale }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

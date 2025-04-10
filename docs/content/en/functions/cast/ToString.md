@@ -3,13 +3,11 @@ title: cast.ToString
 description: Converts a value to a string.
 categories: []
 keywords: []
-action:
-  aliases: [string]
-  related:
-    - functions/cast/ToFloat
-    - functions/cast/ToInt
-  returnType: string
-  signatures: [cast.ToString INPUT]
+params:
+  functions_and_methods:
+    aliases: [string]
+    returnType: string
+    signatures: [cast.ToString INPUT]
 aliases: [/functions/string]
 ---
 

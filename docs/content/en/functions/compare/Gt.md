@@ -3,16 +3,11 @@ title: compare.Gt
 description: Returns the boolean truth of arg1 > arg2 && arg1 > arg3.
 categories: []
 keywords: []
-action:
-  aliases: [gt]
-  related:
-    - functions/compare/Eq
-    - functions/compare/Ge
-    - functions/compare/Le
-    - functions/compare/Lt
-    - functions/compare/Ne
-  returnType: bool
-  signatures: ['compare.Gt ARG1 ARG2 [ARG...]']
+params:
+  functions_and_methods:
+    aliases: [gt]
+    returnType: bool
+    signatures: ['compare.Gt ARG1 ARG2 [ARG...]']
 aliases: [/functions/gt]
 ---
 

@@ -3,11 +3,10 @@ title: Title
 description: Returns the title of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/LinkTitle
-  returnType: string
-  signatures: [PAGE.Title]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.Title]
 ---
 
 With pages backed by a file, the `Title` method returns the `title` field as defined in front matter:
@@ -35,6 +34,6 @@ titleCaseStyle = "firstupper"
 
  See&nbsp;[details].
 
-[`capitalizeListTitles`]: /getting-started/configuration/#capitalizelisttitles
-[`pluralizeListTitles`]: /getting-started/configuration/#pluralizelisttitles
-[details]: /getting-started/configuration/#configure-title-case
+[`capitalizeListTitles`]: /configuration/all/#capitalizelisttitles
+[`pluralizeListTitles`]: /configuration/all/#pluralizelisttitles
+[details]: /configuration/all/#title-case-style

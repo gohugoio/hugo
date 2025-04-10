@@ -1,13 +1,8 @@
 ---
 title: Deprecation
 description: The Hugo project follows a formal and consistent process to deprecate functions, methods, and configuration settings.
-categories: [troubleshooting]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: troubleshooting
-    weight: 50
-weight: 50
 ---
 
 When a project _deprecates_ something, they are telling its users:

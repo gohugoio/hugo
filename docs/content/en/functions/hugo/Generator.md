@@ -1,15 +1,15 @@
 ---
 title: hugo.Generator
-description: Renders an HTML meta element identifying the software that generated the site. 
+description: Renders an HTML meta element identifying the software that generated the site.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: template.HTML
-  signatures: [hugo.Generator]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: template.HTML
+    signatures: [hugo.Generator]
 ---
 
 ```go-html-template
-{{ hugo.Generator }} → <meta name="generator" content="Hugo 0.141.0">
+{{ hugo.Generator }} → <meta name="generator" content="Hugo 0.144.2">
 ```

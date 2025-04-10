@@ -3,20 +3,13 @@ title: Sections
 description: Returns a collection of section pages, one for each immediate descendant section of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/CurrentSection
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/IsDescendant
-    - methods/page/Parent
-  returnType: page.Pages
-  signatures: [PAGE.Sections]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.Sections]
 ---
 
-{{% glossary-term section %}}
+The `Sections` method on a `Page` object is available to these [page kinds](g): `home`, `section`, and `taxonomy`. The templates for these page kinds receive a page [collection](g) in [context](g), in the [default sort order](g).
 
 With this content structure:
 

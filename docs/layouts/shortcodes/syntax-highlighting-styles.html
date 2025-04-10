@@ -1,0 +1,70 @@
+{{- /*
+Renders a gallery a Chroma syntax highlighting styles.
+
+@example {{% syntax-highlighting-styles %}}
+*/ -}}
+{{- $examples := slice }}
+
+{{- /* Example: css */}}
+{{- $example := dict "lang" "css" "code" `
+body {
+  font-size: 16px;  /* comment */
+}
+`}}
+{{- $examples = $examples | append $example }}
+
+{{- /* Example: html */}}
+{{- $example = dict "lang" "html" "code" `
+<a href="/about.html">Example</a>  <!-- comment -->
+`}}
+{{- $examples = $examples | append $example }}
+
+{{- /* Example: go-html-template */}}
+{{- $example = dict "lang" "go-html-template" "code" `
+{{ with $.Page.Params.content }}
+  {{ . | $.Page.RenderString }}  {{/* comment */}}
+{{ end }}
+`}}
+{{- $examples = $examples | append $example }}
+
+{{- /* Example: javascript */}}
+{{- $example = dict "lang" "javascript" "code" `
+if ([1,"one",2,"two"].includes(value)){
+  console.log("Number is either 1 or 2.");  // comment
+}
+`}}
+{{- $examples := $examples | append $example }}
+
+{{- /* Example: markdown */}}
+{{- $example = dict "lang" "markdown" "code" `
+{{< figure src="kitten.jpg" >}}
+[example](https://example.org "An example")  <!-- comment -->
+`}}
+{{- $examples := $examples | append $example }}
+
+{{- /* Example: toml */}}
+{{- $example = dict "lang" "toml" "code" `
+[params]
+bool = true  # comment
+string = 'foo'
+`}}
+{{- $examples := $examples | append $example }}
+
+{{- /* Render */}}
+{{- with site.Data.docs.chroma.styles }}
+  {{- range $style := . }}
+
+### {{ $style }} {class="!mt-7 !mb-6"}{{/* Do not indent. */}}
+
+    {{- range $examples }}
+
+{{ .lang }}{{/* Do not indent. */}}
+{class="text-sm !-mt-3 !-mb-5"}{{/* Do not indent. */}}
+
+```{{ .lang }} {noClasses=true style="{{ $style }}"}{{/* Do not indent. */}}
+{{- .code | safeHTML -}}{{/* Do not indent. */}}
+```{{/* Do not indent. */}}
+
+    {{- end }}
+  {{- end }}
+{{- end }}

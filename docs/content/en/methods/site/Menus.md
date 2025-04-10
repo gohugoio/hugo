@@ -3,21 +3,16 @@ title: Menus
 description: Returns a collection of menu objects for the given site.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/IsMenuCurrent
-    - methods/page/HasMenuCurrent
-  returnType: navigation.Menus
-  signatures: [SITE.Menus]
+params:
+  functions_and_methods:
+    returnType: navigation.Menus
+    signatures: [SITE.Menus]
 ---
 
 The `Menus` method on a `Site` object returns a collection of menus, where each menu contains one or more entries, either flat or nested. Each entry points to a page within the site, or to an external resource.
 
-{{% note %}}
-Menus can be defined and localized in several ways. Please see the [menus] section for a complete explanation and examples.
-
-[menus]: /content-management/menus/
-{{% /note %}}
+> [!note]
+> Menus can be defined and localized in several ways. Please see the [menus] section for a complete explanation and examples.
 
 A site can have multiple menus. For example, a main menu and a footer menu:
 
@@ -88,7 +83,7 @@ You will typically render a menu using a partial template. As the active menu en
 
 The example above is simplistic. Please see the [menu templates] section for more information.
 
-[menu templates]: /templates/menu/
-
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/
+[menu templates]: /templates/menu/
+[menus]: /content-management/menus/

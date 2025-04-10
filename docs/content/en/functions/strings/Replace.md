@@ -3,14 +3,11 @@ title: strings.Replace
 description: Returns a copy of INPUT, replacing all occurrences of OLD with NEW.
 categories: []
 keywords: []
-action:
-  aliases: [replace]
-  related:
-    - functions/strings/FindRE
-    - functions/strings/FindRESubmatch
-    - functions/strings/ReplaceRE
-  returnType: string
-  signatures: ['strings.Replace INPUT OLD NEW [LIMIT]']
+params:
+  functions_and_methods:
+    aliases: [replace]
+    returnType: string
+    signatures: ['strings.Replace INPUT OLD NEW [LIMIT]']
 aliases: [/functions/replace]
 ---
 

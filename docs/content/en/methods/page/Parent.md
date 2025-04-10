@@ -3,26 +3,16 @@ title: Parent
 description: Returns the Page object of the parent section of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/CurrentSection
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/IsDescendant
-    - methods/page/Sections
-  returnType: page.Page
-  signatures: [PAGE.Parent]
+params:
+  functions_and_methods:
+    returnType: page.Page
+    signatures: [PAGE.Parent]
 ---
 
 {{% glossary-term section %}}
 
-{{% note %}}
-The parent section of a regular page is the [current section].
-
-[current section]: /methods/page/currentsection/
-{{% /note %}}
+> [!note]
+> The parent section of a regular page is the [current section].
 
 Consider this content structure:
 
@@ -58,3 +48,5 @@ In the example above, note the parent section of the home page is nil. Code defe
   <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
 {{ end }}
 ```
+
+[current section]: /methods/page/currentsection/

@@ -3,12 +3,11 @@ title: resources.FromString
 description: Returns a resource created from a string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/resources/ExecuteAsTemplate
-  returnType: resource.Resource
-  signatures: [resources.FromString TARGETPATH STRING]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: [resources.FromString TARGETPATH STRING]
 ---
 
 The `resources.FromString` function returns a resource created from a string, caching the result using the target path as its cache key.

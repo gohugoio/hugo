@@ -3,11 +3,10 @@ title: URL
 description: Returns the URL of the current pager relative to the site root.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Paginate
-  returnType: string
-  signatures: [PAGER.URL]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGER.URL]
 ---
 
 Use the `URL` method to build navigation between pagers.

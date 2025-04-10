@@ -1,15 +1,9 @@
 ---
 title: Editor plugins
-linkTitle: Editor plugins
 description: The Hugo community uses a wide range of tools and has developed plugins for some of the most popular text editors to help automate parts of your workflow.
-categories: [developer tools]
-keywords: [editor,plugin]
-menu:
-  docs:
-    parent: developer-tools
-    weight: 20
-weight: 20
-toc: true
+categories: []
+keywords: []
+weight: 10
 ---
 
 ## Visual Studio Code

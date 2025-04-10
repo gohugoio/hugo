@@ -3,16 +3,10 @@ title: strings.TrimSpace
 description: Returns the given string, removing leading and trailing whitespace as defined by Unicode.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/strings/Chomp
-    - functions/strings/Trim
-    - functions/strings/TrimLeft
-    - functions/strings/TrimPrefix
-    - functions/strings/TrimRight
-    - functions/strings/TrimSuffix
-  returnType: string
-  signatures: [strings.TrimSpace INPUT]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [strings.TrimSpace INPUT]
 ---
 
 {{< new-in 0.136.3 />}}

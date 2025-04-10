@@ -3,23 +3,17 @@ title: safe.JSStr
 description: Declares the given string as a safe JavaScript string.
 categories: []
 keywords: []
-action:
-  aliases: [safeJSStr]
-  related:
-    - functions/safe/CSS
-    - functions/safe/HTML
-    - functions/safe/HTMLAttr
-    - functions/safe/JS
-    - functions/safe/URL
-  returnType: template.JSStr
-  signatures: [safe.JSStr INPUT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: [safeJSStr]
+    returnType: template.JSStr
+    signatures: [safe.JSStr INPUT]
 aliases: [/functions/safejsstr]
 ---
 
 ## Introduction
 
-{{% include "functions/_common/go-html-template-package.md" %}}
+{{% include "/_common/functions/go-html-template-package.md" %}}
 
 ## Usage
 

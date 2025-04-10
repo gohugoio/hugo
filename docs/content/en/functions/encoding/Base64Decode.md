@@ -3,12 +3,11 @@ title: encoding.Base64Decode
 description: Returns the base64 decoding of the given content.
 categories: []
 keywords: []
-action:
-  aliases: [base64Decode]
-  related:
-    - functions/encoding/Base64Encode
-  returnType: string
-  signatures: [encoding.Base64Decode INPUT]
+params:
+  functions_and_methods:
+    aliases: [base64Decode]
+    returnType: string
+    signatures: [encoding.Base64Decode INPUT]
 aliases: [/functions/base64Decode]
 ---
 
@@ -29,7 +28,7 @@ To retrieve and render the content:
 {{ with try (resources.GetRemote $url) }}
   {{ with .Err }}
     {{ errorf "%s" . }}
-  {{ else with .Value}}
+  {{ else with .Value }}
     {{ with . | transform.Unmarshal }}
       {{ .content | base64Decode | markdownify }}
     {{ end }}

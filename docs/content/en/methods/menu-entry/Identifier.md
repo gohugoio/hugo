@@ -1,17 +1,15 @@
 ---
 title: Identifier
-description: Returns the `identifier` property of the given menu entry. 
+description: Returns the `identifier` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [MENUENTRY.Identifier]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [MENUENTRY.Identifier]
 ---
 
 The `Identifier` method returns the `identifier` property of the menu entry. If you define the menu entry [automatically], it returns the page's section.
-
-[automatically]: /content-management/menus/#define-automatically
 
 {{< code-toggle file=hugo >}}
 [[menus.main]]
@@ -37,8 +35,7 @@ This example uses the `Identifier` method when querying the translation table on
 </ul>
 ```
 
-{{% note %}}
-In the menu definition above, note that the `identifier` property is only required when two or more menu entries have the same name, or when localizing the name using translation tables.
+> [!note]
+> In the menu definition above, note that the `identifier` property is only required when two or more menu entries have the same name, or when localizing the name using translation tables.
 
-[details]: /content-management/menus/#properties-front-matter
-{{% /note %}}
+[automatically]: /content-management/menus/#define-automatically

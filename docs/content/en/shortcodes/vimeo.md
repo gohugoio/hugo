@@ -1,21 +1,13 @@
 ---
-title: Vimeo
+title: Vimeo shortcode
+linkTitle: Vimeo
 description: Embed a Vimeo video in your content using the vimeo shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
-{{% note %}}
-To override Hugo's embedded `vimeo` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl vimeo %}}
-{{% /note %}}
+> [!note]
+> To override Hugo's embedded `vimeo` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -35,7 +27,7 @@ Hugo renders this to:
 
 {{< vimeo 55073825 >}}
 
-## Parameters
+## Arguments
 
 class
 : (`string`) The `class` attribute of the wrapping `div` element. Adding one or more CSS classes disables inline styling.
@@ -70,3 +62,4 @@ simple
 The source code for the simple version of the shortcode is available [here].
 
 [here]: {{% eturl vimeo_simple %}}
+[source code]: {{% eturl vimeo %}}

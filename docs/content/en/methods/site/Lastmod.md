@@ -3,10 +3,10 @@ title: Lastmod
 description: Returns the last modification date of site content.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: time.Time
-  signatures: [SITE.Lastmod]
+params:
+  functions_and_methods:
+    returnType: time.Time
+    signatures: [SITE.Lastmod]
 ---
 
 {{< new-in 0.123.0 />}}

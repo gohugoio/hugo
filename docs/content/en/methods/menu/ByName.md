@@ -3,10 +3,10 @@ title: ByName
 description: Returns the given menu with its entries sorted by name.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: navigation.Menu
-  signatures: [MENU.ByName]
+params:
+  functions_and_methods:
+    returnType: navigation.Menu
+    signatures: [MENU.ByName]
 ---
 
 The `Sort` method returns the given menu with its entries sorted by `name`.

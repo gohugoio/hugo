@@ -3,13 +3,11 @@ title: math.ToRadians
 description: ToRadians converts degrees into radians.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/math/ToDegrees
-    - functions/math/Pi
-  returnType: float64
-  signatures: [math.ToRadians VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: float64
+    signatures: [math.ToRadians VALUE]
 ---
 
 {{< new-in 0.130.0 />}}

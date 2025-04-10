@@ -3,13 +3,10 @@ title: After
 description: Reports whether TIME1 is after TIME2.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Before
-    - methods/time/Equal
-    - functions/time/AsTime
-  returnType: bool
-  signatures: [TIME1.After TIME2]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [TIME1.After TIME2]
 ---
 
 ```go-html-template

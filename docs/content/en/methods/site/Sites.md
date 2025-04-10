@@ -3,10 +3,10 @@ title: Sites
 description: Returns a collection of all Site objects, one for each language, ordered by default content language then by language weight.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Sites
-  signatures: [SITE.Sites]
+params:
+  functions_and_methods:
+    returnType: page.Sites
+    signatures: [SITE.Sites]
 ---
 
 With this site configuration:

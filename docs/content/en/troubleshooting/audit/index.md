@@ -2,20 +2,15 @@
 title: Site audit
 linkTitle: Audit
 description: Run this audit before deploying your production site.
-categories: [troubleshooting]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: troubleshooting
-    weight: 20
-weight: 20
 ---
 
 There are several conditions that can produce errors in your published site which are not detected during the build. Run this audit before your final build.
 
-{{< code copy=true >}}
+```text {copy=true}
 HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true hugo && grep -inorE "<\!-- raw HTML omitted -->|ZgotmplZ|\[i18n\]|\(<nil>\)|(&lt;nil&gt;)|hahahugo" public/
-{{< /code >}}
+```
 
 _Tested with GNU Bash 5.1 and GNU grep 3.7._
 

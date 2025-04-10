@@ -1,7 +1,7 @@
 ---
 title: Alora Labs
 date: 2021-05-27
-description: "Showcase: \"Making performant websites accessible for everyone.\""
+description: 'Showcase: "Making performant websites accessible for everyone."'
 siteURL: https://aloralabs.com/
 siteSource: https://github.com/aloralabs/homepage
 aliases: [/showcase/aloralabs/]

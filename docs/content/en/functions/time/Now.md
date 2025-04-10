@@ -3,15 +3,11 @@ title: time.Now
 description: Returns the current local time.
 categories: []
 keywords: []
-action:
-  aliases: [now]
-  related:
-    - functions/time/AsTime
-    - functions/time/Duration
-    - functions/time/Format
-    - functions/time/ParseDuration
-  returnType: time.Time
-  signatures: [time.Now]
+params:
+  functions_and_methods:
+    aliases: [now]
+    returnType: time.Time
+    signatures: [time.Now]
 aliases: [/functions/now]
 ---
 

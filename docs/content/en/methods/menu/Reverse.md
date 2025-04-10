@@ -3,10 +3,10 @@ title: Reverse
 description: Returns the given menu, reversing the sort order of its entries.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: navigation.Menu
-  signatures: [MENU.Reverse]
+params:
+  functions_and_methods:
+    returnType: navigation.Menu
+    signatures: [MENU.Reverse]
 ---
 
 The `Reverse` method returns the given menu, reversing the sort order of its entries.

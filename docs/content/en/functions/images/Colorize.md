@@ -3,14 +3,11 @@ title: images.Colorize
 description: Returns an image filter that produces a colorized version of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Colorize HUE SATURATION PERCENTAGE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Colorize HUE SATURATION PERCENTAGE]
 ---
 
 The hue is the angle on the color wheel, typically in the range [0, 360].
@@ -27,7 +24,7 @@ Create the filter:
 {{ $filter := images.Colorize 180 50 20 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

@@ -3,13 +3,11 @@ title: collections.After
 description: Slices an array to the items after the Nth item.
 categories: []
 keywords: []
-action:
-  aliases: [after]
-  related:
-    - functions/collections/First
-    - functions/collections/Last
-  returnType: any
-  signatures: [collections.After INDEX COLLECTION]
+params:
+  functions_and_methods:
+    aliases: [after]
+    returnType: any
+    signatures: [collections.After INDEX COLLECTION]
 aliases: [/functions/after]
 ---
 
@@ -40,7 +38,7 @@ You can use `after` in combination with the [`first`] function and Hugo's [power
 1. The top row is titled "Featured" and shows only the most recently published article (i.e. by `publishdate` in the content files' front matter).
 1. The second row is titled "Recent Articles" and shows only the 2nd- to 4th-most recently published articles.
 
-{{< code file=layouts/section/articles.html >}}
+```go-html-template {file="layouts/section/articles.html"}
 {{ define "main" }}
   <section class="row featured-article">
     <h2>Featured Article</h2>
@@ -63,7 +61,7 @@ You can use `after` in combination with the [`first`] function and Hugo's [power
     {{ end }}
   </div>
 {{ end }}
-{{< /code >}}
+```
 
 [`first`]: /functions/collections/first/
 [`slice`]: /functions/collections/slice/

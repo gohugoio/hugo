@@ -3,24 +3,16 @@ title: CurrentSection
 description: Returns the Page object of the section in which the given page resides.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/IsDescendant
-    - methods/page/Parent
-    - methods/page/Sections
-  returnType: page.Page
-  signatures: [PAGE.CurrentSection]
+params:
+  functions_and_methods:
+    returnType: page.Page
+    signatures: [PAGE.CurrentSection]
 ---
 
 {{% glossary-term section %}}
 
-{{% note %}}
-The current section of a [section page](g), [taxonomy page](g), [term page](g), or the home page, is itself.
-{{% /note %}}
+> [!note]
+> The current section of a [section page](g), [taxonomy page](g), [term page](g), or the home page, is itself.
 
 Consider this content structure:
 

@@ -1,17 +1,13 @@
 ---
 title: time.Duration
-description: Returns a time.Duration value using the given time unit and  number.
+description: Returns a time.Duration value using the given time unit and number.
 categories: []
 keywords: []
-action:
-  aliases: [duration]
-  related:
-    - functions/time/AsTime
-    - functions/time/Format
-    - functions/time/Now
-    - functions/time/ParseDuration
-  returnType: time.Duration
-  signatures: [time.Duration TIME_UNIT NUMBER]
+params:
+  functions_and_methods:
+    aliases: [duration]
+    returnType: time.Duration
+    signatures: [time.Duration TIME_UNIT NUMBER]
 aliases: [/functions/duration]
 ---
 

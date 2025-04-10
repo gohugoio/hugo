@@ -3,18 +3,20 @@ title: templates.Defer
 description: Defer execution of a template until after all sites and output formats have been rendered.
 categories: []
 keywords: []
-toc: true
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [templates.Defer OPTIONS]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [templates.Defer OPTIONS]
 aliases: [/functions/templates.defer]
 ---
 
 {{< new-in 0.128.0 />}}
 
-In some rare use cases, you may need to defer the execution of a template until after all sites and output formats have been rendered. One such example could be [TailwindCSS](/functions/css/tailwindcss/) using the output of [hugo_stats.json](/getting-started/configuration/#configure-build) to determine which classes and other HTML identifiers are being used in the final output:
+> [!note]
+> This feature is meant to be used in the main page layout files/templates, and has undefined behavior when used from shortcodes, partials or render hook templates. See [this issue](https://github.com/gohugoio/hugo/issues/13492#issuecomment-2734700391) for more info.
+
+In some rare use cases, you may need to defer the execution of a template until after all sites and output formats have been rendered. One such example could be [TailwindCSS](/functions/css/tailwindcss/) using the output of [hugo_stats.json](/configuration/build/) to determine which classes and other HTML identifiers are being used in the final output:
 
 ```go-html-template
 {{ with (templates.Defer (dict "key" "global")) }}
@@ -42,13 +44,10 @@ In some rare use cases, you may need to defer the execution of a template until 
 {{ end }}
 ```
 
-{{% note %}}
-This function only works in combination with the `with` keyword.
-{{% /note %}}
-
-{{% note %}}
-Variables defined on the outside are not visible on the inside and vice versa. To pass in data, use the `data` [option](#options).
-{{% /note %}}
+> [!note]
+> This function only works in combination with the `with` keyword.
+>
+> Variables defined on the outside are not visible on the inside and vice versa. To pass in data, use the `data` [option](#options).
 
 For the above to work well when running the server (or `hugo -w`), you want to have a configuration similar to this:
 
@@ -75,7 +74,7 @@ The `templates.Defer` function takes a single argument, a map with the following
 key (`string`)
 : The key to use for the deferred template. This will, combined with a hash of the template content, be used as a cache key. If this is not set, Hugo will execute the deferred template on every render. This is not what you want for shared resources like CSS and JavaScript.
 
-data (`map`) 
+data (`map`)
 : Optional map to pass as data to the deferred template. This will be available in the deferred template as `.` or `$`.
 
 ```go-html-template
@@ -90,4 +89,4 @@ I18n Outside: {{ i18n "hello" }}
 {{ end }}
 ```
 
-The [Output Format](/templates/output-formats/), [Site](/methods/page/site/), and [language](/methods/site/language) will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Lang` and `.RelPermalink` will be the same on the inside and the outside of the deferred template. 
+The [output format](/configuration/output-formats/), [site](/methods/page/site/), and [language](/methods/site/language) will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Lang` and `.RelPermalink` will be the same on the inside and the outside of the deferred template.

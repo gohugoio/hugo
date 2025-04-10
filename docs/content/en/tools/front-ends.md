@@ -2,14 +2,9 @@
 title: Front-end interfaces
 linkTitle: Front-ends
 description: Do you prefer a graphical user interface over a text editor? Give these front-ends a try.
-categories: [developer tools]
-keywords: [frontend, gui]
-menu:
-  docs:
-    parent: developer-tools
-    weight: 30
-weight: 30
-toc: true
+categories: []
+keywords: []
+weight: 20
 aliases: [/tools/frontends/]
 ---
 

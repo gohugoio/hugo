@@ -1,0 +1,98 @@
+{{/* prettier-ignore-start */}}
+{{/*
+Renders a highlighted code block using the given options and attributes.
+
+In addition to the options available to the transform.Highlight function, you
+may also specify the following parameters:
+
+@param {bool} [copy=false] Whether to display a copy-to-clipboard button.
+@param {string} [file] The file name to display above the rendered code.
+@param {bool} [details=false] Whether to wrap the highlighted code block within a details element.
+@param {bool} [open=false] Whether to initially display the content of the details element.
+@param {string} [summary=Details] The content of the details summary element rendered from Markdown to HTML.
+
+@returns {template.HTML}
+
+@examples
+
+    ```go
+    fmt.Println("Hello world!")
+    ```
+
+    ```go {linenos=true file="layouts/index.html" copy=true}
+    fmt.Println("Hello world!")
+    ```
+*/}}
+{{/* prettier-ignore-end */}}
+
+{{- $copy := false }}
+{{- $file := or .Attributes.file "" }}
+{{- $details := false }}
+{{- $open := "" }}
+{{- $summary := or .Attributes.summary "Details" | .Page.RenderString }}
+{{- $ext := strings.TrimPrefix "." (path.Ext $file) }}
+{{- $lang := or .Type $ext "text" }}
+{{- if in (slice "html" "gotmpl") $lang }}
+  {{- $lang = "go-html-template" }}
+{{- end }}
+{{- if eq $lang "md" }}
+  {{- $lang = "text" }}
+{{- end }}
+
+{{- with .Attributes.copy }}
+  {{- if in (slice true "true" 1) . }}
+    {{- $copy = true }}
+  {{- else if in (slice false "false" 0) . }}
+    {{- $copy = false }}
+  {{- end }}
+{{- end }}
+
+{{- with .Attributes.details }}
+  {{- if in (slice true "true" 1) . }}
+    {{- $details = true }}
+  {{- else if in (slice false "false" 0) . }}
+    {{- $details = false }}
+  {{- end }}
+{{- end }}
+
+{{- with .Attributes.open }}
+  {{- if in (slice true "true" 1) . }}
+    {{- $open = "open" }}
+  {{- else if in (slice false "false" 0) . }}
+    {{- $open = "" }}
+  {{- end }}
+{{- end }}
+
+{{- if $details }}
+  <details class="cursor-pointer" {{ $open }}>
+  <summary>{{ $summary }}</summary>
+{{- end }}
+
+<div
+  x-data
+  class="render-hook-codeblock font-mono not-prose relative mt-6 mb-8 border-1 border-gray-200 dark:border-gray-800 bg-light dark:bg-dark">
+  {{- $fileSelectClass := "select-none" }}
+  {{- if $copy }}
+    {{- $fileSelectClass = "select-text" }}
+    <svg
+      class="absolute right-4 top-2 z-30 text-blue-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer w-6 h-6"
+      @click="$copy($refs.code)">
+      <use href="#icon--copy"></use>
+    </svg>
+  {{- end }}
+  {{- with $file }}
+    <div
+      class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-gray-300 dark:bg-slate-700 w-full {{ $fileSelectClass }}
+">
+      {{ . }}
+    </div>
+  {{- end }}
+
+  <div x-ref="code">
+    {{- transform.Highlight (strings.TrimSpace .Inner) $lang .Options }}
+  </div>
+</div>
+
+{{- if $details }}
+  </details>
+{{- end }}

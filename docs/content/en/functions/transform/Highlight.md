@@ -2,22 +2,19 @@
 title: transform.Highlight
 description: Renders code with a syntax highlighter.
 categories: []
-keywords: []
-action:
-  aliases: [highlight]
-  related:
-    - functions/transform/CanHighlight
-    - functions/transform/HighlightCodeBlock
-  returnType: template.HTML
-  signatures: ['transform.Highlight CODE LANG [OPTIONS]']
+keywords: [highlight]
+params:
+  functions_and_methods:
+    aliases: [highlight]
+    returnType: template.HTML
+    signatures: ['transform.Highlight CODE LANG [OPTIONS]']
 aliases: [/functions/highlight]
-toc: true
 ---
 
-The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 [available styles].
+The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 [highlighting styles].
 
 [chroma]: https://github.com/alecthomas/chroma
-[available styles]: https://xyproto.github.io/splash/docs/
+[highlighting styles]: /quick-reference/syntax-highlighting-styles/
 
 ## Arguments
 
@@ -30,10 +27,10 @@ LANG
 : (`string`) The language of the code to highlight. Choose from one of the [supported languages]. This value is case-insensitive.
 
 OPTIONS
-: (`map or string`) A map or space-separate key-value pairs wrapped in quotation marks. Set default values for each option in your [site configuration]. The key names are case-insensitive.
+: (`map or string`) A map or comma-separated key-value pairs wrapped in quotation marks. Set default values for each option in your [site configuration]. The key names are case-insensitive.
 
-[site configuration]: /getting-started/configuration-markup#highlight
-[supported languages]: /content-management/syntax-highlighting#list-of-chroma-highlighting-languages
+[site configuration]: /configuration/markup#highlight
+[supported languages]: /content-management/syntax-highlighting#languages
 
 ## Examples
 
@@ -53,4 +50,4 @@ OPTIONS
 
 ## Options
 
-{{% include "functions/_common/highlighting-options" %}}
+{{% include "_common/syntax-highlighting-options.md" %}}

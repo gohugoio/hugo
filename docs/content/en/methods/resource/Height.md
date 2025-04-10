@@ -3,12 +3,13 @@ title: Height
 description: Applicable to images, returns the height of the given resource.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Width
-  returnType: int
-  signatures: [RESOURCE.Height]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [RESOURCE.Height]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
@@ -23,5 +24,3 @@ Use the `Width` and `Height` methods together when rendering an `img` element:
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}">
 {{ end }}
 ```
-
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}

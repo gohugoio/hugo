@@ -3,18 +3,15 @@ title: fmt.Erroridf
 description: Log a suppressible ERROR from a template.
 categories: []
 keywords: []
-action:
-  aliases: [erroridf]
-  related:
-    - functions/fmt/Errorf
-    - functions/fmt/Warnf
-    - functions/fmt/Warnidf
-  returnType: string
-  signatures: ['fmt.Erroridf ID FORMAT [INPUT]']
+params:
+  functions_and_methods:
+    aliases: [erroridf]
+    returnType: string
+    signatures: ['fmt.Erroridf ID FORMAT [INPUT]']
 aliases: [/functions/erroridf]
 ---
 
-{{% include "functions/fmt/_common/fmt-layout.md" %}}
+{{% include "/_common/functions/fmt/format-string.md" %}}
 
 The `erroridf` function evaluates the format string, then prints the result to the ERROR log and fails the build. Unlike the [`errorf`] function, you may suppress errors logged by the `erroridf` function by adding the message ID to the `ignoreLogs` array in your site configuration.
 

@@ -1,16 +1,12 @@
 ---
 title: UnixNano
-description: Returns the given time.Time value expressed as the number of nanoseconds elapsed since January 1, 1970 UTC. 
+description: Returns the given time.Time value expressed as the number of nanoseconds elapsed since January 1, 1970 UTC.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Unix
-    - methods/time/UnixMilli
-    - methods/time/UnixMicro
-    - functions/time/AsTime
-  returnType: int64
-  signatures: [TIME.UnixNano]
+params:
+  functions_and_methods:
+    returnType: int64
+    signatures: [TIME.UnixNano]
 ---
 
 See [Unix epoch](https://en.wikipedia.org/wiki/Unix_time).

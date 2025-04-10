@@ -3,17 +3,11 @@ title: path.BaseName
 description: Replaces path separators with slashes (`/`) and returns the last element of the given path, removing the extension if present.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/path/Base
-    - functions/path/Clean
-    - functions/path/Dir
-    - functions/path/Ext
-    - functions/path/Join
-    - functions/path/Split
-  returnType: string
-  signatures: [path.BaseName PATH]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [path.BaseName PATH]
 aliases: [/functions/path.basename]
 ---
 

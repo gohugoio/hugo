@@ -3,16 +3,10 @@ title: Second
 description: Returns the second offset within the minute of the given time.Time value, in the range [0, 59].
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Year
-    - methods/time/Month
-    - methods/time/Day
-    - methods/time/Hour
-    - methods/time/Minute
-    - functions/time/AsTime
-  returnType: int
-  signatures: [TIME.Second]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [TIME.Second]
 ---
 
 ```go-html-template

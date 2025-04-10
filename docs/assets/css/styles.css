@@ -76,8 +76,9 @@
   --color-green-950: #051410;
 
   /* Fonts. */
-  --font-sans: "Mulish", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    "Mulish", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 html {
@@ -120,4 +121,11 @@ body {
 /* Algolia DocSearch */
 .algolia-docsearch-suggestion--highlight {
   color: var(--color-primary);
+}
+
+/* Footnotes */
+.footnote-backref,
+.footnote-ref {
+  text-decoration: none;
+  padding-left: .0625em;
 }

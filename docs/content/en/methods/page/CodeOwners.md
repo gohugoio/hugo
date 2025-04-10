@@ -3,11 +3,10 @@ title: CodeOwners
 description: Returns of slice of code owners for the given page, derived from the CODEOWNERS file in the root of the project directory.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/GitInfo
-  returnType: '[]string'
-  signatures: [PAGE.CodeOwners]
+params:
+  functions_and_methods:
+    returnType: '[]string'
+    signatures: [PAGE.CodeOwners]
 ---
 
 GitHub and GitLab support CODEOWNERS files. This file specifies the users responsible for developing and maintaining software and documentation. This definition can apply to the entire repository, specific directories, or to individual files. To learn more:

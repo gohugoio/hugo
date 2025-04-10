@@ -3,15 +3,10 @@ title: Format
 description: Returns a textual representation of the time.Time value formatted according to the layout string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/time/AsTime
-    - methods/time/UTC
-    - methods/time/Local
-  returnType: string
-  signatures: [TIME.Format LAYOUT]
-toc: true
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [TIME.Format LAYOUT]
 aliases: [/methods/time/format]
 ---
 
@@ -23,11 +18,8 @@ aliases: [/methods/time/format]
 {{ $t.Format $format }} → 27 Jan 2023
 ```
 
-{{% note %}}
-To [localize](g) the return value, use the [`time.Format`] function instead.
-
-[`time.Format`]: /functions/time/format/
-{{% /note %}}
+> [!note]
+> To [localize](g) the return value, use the [`time.Format`] function instead.
 
 Use the `Format` method with any `time.Time` value, including the four predefined front matter dates:
 
@@ -40,15 +32,12 @@ Use the `Format` method with any `time.Time` value, including the four predefine
 {{ .Lastmod.Format $format }}
 ```
 
-{{% note %}}
-Use the [`time.Format`] function to format string representations of dates, and to format raw TOML dates that exclude time and time zone offset.
-
-[`time.Format`]: /functions/time/format/
-{{% /note %}}
+> [!note]
+> Use the [`time.Format`] function to format string representations of dates, and to format raw TOML dates that exclude time and time zone offset.
 
 ## Layout string
 
-{{% include "functions/_common/time-layout-string.md" %}}
+{{% include "/_common/time-layout-string.md" %}}
 
 ## Examples
 
@@ -95,3 +84,5 @@ Use the [`humanize`](/functions/inflect/humanize) function to render the day of 
 
 {{ humanize $t.Day }} of {{ $t.Format "January 2006" }} → 27th of January 2023
 ```
+
+[`time.Format`]: /functions/time/format/

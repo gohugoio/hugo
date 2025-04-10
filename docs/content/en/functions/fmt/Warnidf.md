@@ -3,20 +3,17 @@ title: fmt.Warnidf
 description: Log a suppressible WARNING from a template.
 categories: []
 keywords: []
-action:
-  aliases: [warnidf]
-  related:
-    - functions/fmt/Errorf
-    - functions/fmt/Erroridf
-    - functions/fmt/Warnf
-  returnType: string
-  signatures: ['fmt.Warnidf ID FORMAT [INPUT]']
+params:
+  functions_and_methods:
+    aliases: [warnidf]
+    returnType: string
+    signatures: ['fmt.Warnidf ID FORMAT [INPUT]']
 aliases: [/functions/warnidf]
 ---
 
 {{< new-in 0.123.0 />}}
 
-{{% include "functions/fmt/_common/fmt-layout.md" %}}
+{{% include "/_common/functions/fmt/format-string.md" %}}
 
 The `warnidf` function evaluates the format string, then prints the result to the WARNING log. Unlike the [`warnf`] function, you may suppress warnings logged by the `warnidf` function by adding the message ID to the `ignoreLogs` array in your site configuration.
 

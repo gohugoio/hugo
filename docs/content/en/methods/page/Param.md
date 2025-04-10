@@ -3,10 +3,10 @@ title: Param
 description: Returns a page parameter with the given key, falling back to a site parameter if present.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: any
-  signatures: [PAGE.Param KEY]
+params:
+  functions_and_methods:
+    returnType: any
+    signatures: [PAGE.Param KEY]
 aliases: [/functions/param]
 ---
 

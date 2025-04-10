@@ -3,16 +3,10 @@ title: Resources
 description: Returns a collection of page resources.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/resources/ByType
-    - functions/resources/Get
-    - functions/resources/GetMatch
-    - functions/resources/GetRemote
-    - functions/resources/Match
-  returnType: resource.Resources
-  signatures: [PAGE.Resources]
-toc: true
+params:
+  functions_and_methods:
+    returnType: resource.Resources
+    signatures: [PAGE.Resources]
 ---
 
 The `Resources` method on a `Page` object returns a collection of page resources. A page resource is a file within a [page bundle](g).
@@ -21,7 +15,7 @@ To work with global or remote resources, see the [`resources`] functions.
 
 ## Methods
 
-###### ByType
+### ByType
 
 (`resource.Resources`) Returns a collection of page resources of the given [media type], or nil if none found. The media type is typically one of `image`, `text`, `audio`, `video`, or `application`.
 
@@ -33,7 +27,7 @@ To work with global or remote resources, see the [`resources`] functions.
 
 When working with global resources instead of page resources, use the [`resources.ByType`] function.
 
-###### Get
+### Get
 
 (`resource.Resource`) Returns a page resource from the given path, or nil if none found.
 
@@ -45,9 +39,9 @@ When working with global resources instead of page resources, use the [`resource
 
 When working with global resources instead of page resources, use the [`resources.Get`] function.
 
-###### GetMatch
+### GetMatch
 
-(`resource.Resource`) Returns the first page resource from paths matching the given [glob pattern], or nil if none found.
+(`resource.Resource`) Returns the first page resource from paths matching the given [glob](g) pattern, or nil if none found.
 
 ```go-html-template
 {{ with .Resources.GetMatch "images/*.jpg" }}
@@ -57,9 +51,9 @@ When working with global resources instead of page resources, use the [`resource
 
 When working with global resources instead of page resources, use the [`resources.GetMatch`] function.
 
-###### Match
+### Match
 
-(`resource.Resources`) Returns a collection of page resources from paths matching the given [glob pattern], or nil if none found.
+(`resource.Resources`) Returns a collection of page resources from paths matching the given [glob](g) pattern, or nil if none found.
 
 ```go-html-template
 {{ range .Resources.Match "images/*.jpg" }}
@@ -69,7 +63,7 @@ When working with global resources instead of page resources, use the [`resource
 
 When working with global resources instead of page resources, use the [`resources.Match`] function.
 
-###### Mount
+### Mount
 
 {{< new-in 0.140.0 />}}
 
@@ -84,14 +78,13 @@ This method is currently only useful in [js.Batch](/functions/js/batch/#import-c
 
 ## Pattern matching
 
-With the `GetMatch` and `Match` methods, Hugo determines a match using a case-insensitive [glob pattern].
+With the `GetMatch` and `Match` methods, Hugo determines a match using a case-insensitive [glob](g) pattern.
 
-{{% include "functions/_common/glob-patterns.md" %}}
+{{% include "/_common/glob-patterns.md" %}}
 
 [`resources.ByType`]: /functions/resources/ByType/
 [`resources.GetMatch`]: /functions/resources/ByType/
 [`resources.Get`]: /functions/resources/ByType/
 [`resources.Match`]: /functions/resources/ByType/
 [`resources`]: /functions/resources/
-[glob pattern]: https://github.com/gobwas/glob#example
 [media type]: https://en.wikipedia.org/wiki/Media_type

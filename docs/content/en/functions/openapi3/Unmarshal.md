@@ -3,11 +3,11 @@ title: openapi3.Unmarshal
 description: Unmarshals the given resource into an OpenAPI 3 document.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: openapi3.OpenAPIDocument
-  signatures: ['openapi3.Unmarshal RESOURCE']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: openapi3.OpenAPIDocument
+    signatures: ['openapi3.Unmarshal RESOURCE']
 ---
 
 Use the `openapi3.Unmarshal` function with [global resources](g), [page resources](g), or [remote resources](g).

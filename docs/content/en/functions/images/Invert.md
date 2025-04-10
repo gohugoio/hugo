@@ -3,14 +3,11 @@ title: images.Invert
 description: Returns an image filter that negates the colors of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Invert]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Invert]
 ---
 
 ## Usage
@@ -21,7 +18,7 @@ Create the filter:
 {{ $filter := images.Invert }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

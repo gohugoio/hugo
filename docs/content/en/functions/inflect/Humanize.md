@@ -3,13 +3,11 @@ title: inflect.Humanize
 description: Returns the humanized version of the input with the first letter capitalized.
 categories: []
 keywords: []
-action:
-  aliases: [humanize]
-  related:
-    - functions/inflect/Pluralize
-    - functions/inflect/Singularize
-  returnType: string
-  signatures: [inflect.Humanize INPUT]
+params:
+  functions_and_methods:
+    aliases: [humanize]
+    returnType: string
+    signatures: [inflect.Humanize INPUT]
 aliases: [/functions/humanize]
 ---
 

@@ -3,13 +3,11 @@ title: transform.HighlightCodeBlock
 description: Highlights code received in context within a code block render hook.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/transform/CanHighlight
-    - functions/transform/Highlight
-  returnType: highlight.HighlightResult 
-  signatures: ['transform.HighlightCodeBlock CONTEXT [OPTIONS]']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: highlight.HighlightResult 
+    signatures: ['transform.HighlightCodeBlock CONTEXT [OPTIONS]']
 ---
 
 This function is only useful within a code block render hook.

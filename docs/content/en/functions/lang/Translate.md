@@ -3,31 +3,24 @@ title: lang.Translate
 description: Translates a string using the translation tables in the i18n directory.
 categories: []
 keywords: []
-action:
-  aliases: [T, i18n]
-  related: []
-  returnType: string
-  signatures: ['lang.Translate KEY [CONTEXT]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [T, i18n]
+    returnType: string
+    signatures: ['lang.Translate KEY [CONTEXT]']
 aliases: [/functions/i18n]
 ---
 
-The `lang.Translate` function returns the value associated with given key as defined in the translation table for the current language. 
+The `lang.Translate` function returns the value associated with given key as defined in the translation table for the current language.
 
 If the key is not found in the translation table for the current language, the `lang.Translate` function falls back to the translation table for the [`defaultContentLanguage`].
 
-[`defaultContentLanguage`]: /getting-started/configuration/#defaultcontentlanguage
-
 If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
 
-{{% note %}}
-To list missing and fallback translations, use the `--printI18nWarnings` flag when building your site.
-
-To render placeholders for missing and fallback translations, set 
-[`enableMissingTranslationPlaceholders`] to `true` in your site configuration.
-
-[`enableMissingTranslationPlaceholders`]: /getting-started/configuration/#enablemissingtranslationplaceholders
-{{% /note %}}
+> [!note]
+> To list missing and fallback translations, use the `--printI18nWarnings` flag when building your site.
+>
+> To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`] to `true` in your site configuration.
 
 ## Translation tables
 
@@ -38,7 +31,7 @@ i18n/en.toml
 i18n/en-US.toml
 ```
 
-The base name must match the language key as defined in your site configuration.
+The base name must match the [language key] as defined in your site configuration.
 
 Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7] are also supported. You may omit the `art-x-` prefix for brevity. For example:
 
@@ -47,10 +40,8 @@ i18n/art-x-hugolang.toml
 i18n/hugolang.toml
 ```
 
-Private use subtags must not exceed 8 alphanumeric characters.
-
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
-[RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
+> [!note]
+> Private use subtags must not exceed 8 alphanumeric characters.
 
 ## Simple translations
 
@@ -76,9 +67,8 @@ privacy = 'prywatność'
 security = 'bezpieczeństwo'
 {{< /code-toggle >}}
 
-{{% note %}}
-The examples below use the `T` alias for brevity.
-{{% /note %}}
+> [!note]
+> The examples below use the `T` alias for brevity.
 
 When viewing the English language site:
 
@@ -105,8 +95,6 @@ i18n/
 ```
 
 The Unicode [CLDR Plural Rules chart] describes the pluralization categories for each language.
-
-[CLDR Plural Rules chart]: https://www.unicode.org/cldr/charts/43/supplemental/language_plural_rules.html
 
 The English translation table:
 
@@ -136,9 +124,8 @@ many = '{{ . }} miesięcy'
 other = '{{ . }} miesiąca'
 {{< /code-toggle >}}
 
-{{% note %}}
-The examples below use the `T` alias for brevity.
-{{% /note %}}
+> [!note]
+> The examples below use the `T` alias for brevity.
 
 When viewing the English language site:
 
@@ -185,15 +172,12 @@ Template code:
 {{ T "age" (dict "name" "John" "count" 3) }} → John is 3 years old.
 ```
 
-{{% note %}}
-Translation tables may contain both simple translations and translations with pluralization.
-{{% /note %}}
+> [!note]
+> Translation tables may contain both simple translations and translations with pluralization.
 
 ## Reserved keys
 
 Hugo uses the [go-i18n] package to look up values in translation tables. This package reserves the following keys for internal use:
-
-[go-i18n]: https://github.com/nicksnyder/go-i18n
 
 id
 : (`string`) Uniquely identifies the message.
@@ -228,8 +212,6 @@ many
 other
 : (`string`) The content of the message for the [CLDR] plural form "other".
 
-[CLDR]: https://www.unicode.org/cldr/charts/43/supplemental/language_plural_rules.html
-
 If you need to provide a translation for one of the reserved keys, you can prepend the word with an underscore. For example:
 
 {{< code-toggle file=i18n/es >}}
@@ -253,3 +235,12 @@ Then in your templates:
 {{ T "_zero" }} → cero
 {{ T "_other" }} → otro
 ```
+
+[`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
+[`enableMissingTranslationPlaceholders`]: /configuration/all/#enablemissingtranslationplaceholders
+[CLDR]: https://www.unicode.org/cldr/charts/43/supplemental/language_plural_rules.html
+[CLDR Plural Rules chart]: https://www.unicode.org/cldr/charts/43/supplemental/language_plural_rules.html
+[go-i18n]: https://github.com/nicksnyder/go-i18n
+[language key]: /configuration/languages/#language-keys
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
+[RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7

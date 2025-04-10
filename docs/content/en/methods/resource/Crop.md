@@ -3,17 +3,13 @@ title: Crop
 description: Applicable to images, returns an image resource cropped to the given dimensions without resizing.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Fit
-    - methods/resource/Fill
-    - methods/resource/Resize
-    - methods/resource/Process
-    - functions/images/Process
-  returnType: images.ImageResource
-  signatures: [RESOURCE.Crop SPEC]
-toc: true
+params:
+  functions_and_methods:
+    returnType: images.ImageResource
+    signatures: [RESOURCE.Crop SPEC]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 Crop an image to match the given dimensions without resizing. You must provide both width and height.
 
@@ -25,9 +21,7 @@ Crop an image to match the given dimensions without resizing. You must provide b
 {{ end }}
 ```
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
-
-{{% include "/methods/resource/_common/processing-spec.md" %}}
+{{% include "/_common/methods/resource/processing-spec.md" %}}
 
 ## Example
 

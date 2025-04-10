@@ -3,16 +3,11 @@ title: strings.ContainsNonSpace
 description: Reports whether the given string contains any non-space characters as defined by Unicode.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/strings/Contains
-    - functions/strings/ContainsAny
-    - functions/strings/HasPrefix
-    - functions/strings/HasSuffix
-    - functions/collections/In
-  returnType: bool
-  signatures: [strings.ContainsNonSpace STRING]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: bool
+    signatures: [strings.ContainsNonSpace STRING]
 aliases: [/functions/strings.containsnonspace]
 ---
 

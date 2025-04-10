@@ -3,17 +3,12 @@ title: os.Getenv
 description: Returns the value of an environment variable, or an empty string if the environment variable is not set.
 categories: []
 keywords: []
-action:
-  aliases: [getenv]
-  related:
-    - functions/os/FileExists
-    - functions/os/ReadDir
-    - functions/os/ReadFile
-    - functions/os/Stat
-  returnType: string
-  signatures: [os.Getenv VARIABLE]
+params:
+  functions_and_methods:
+    aliases: [getenv]
+    returnType: string
+    signatures: [os.Getenv VARIABLE]
 aliases: [/functions/getenv]
-toc: true
 ---
 
 ## Security
@@ -30,9 +25,7 @@ To access other environment variables, adjust your site configuration. For examp
 getenv = ['^HUGO_', '^CI$', '^USER$', '^HOME$']
 {{< /code-toggle >}}
 
-Read more about Hugo's [security policy].
-
-[security policy]: /about/security/#security-policy
+For more information see [configure security](/configuration/security).
 
 ## Examples
 

@@ -3,15 +3,15 @@ title: Taxonomies
 description: Returns a data structure containing the site's Taxonomy objects, the terms within each Taxonomy object, and the pages to which the terms are assigned.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.TaxonomyList
-  signatures: [SITE.Taxonomies]
+params:
+  functions_and_methods:
+    returnType: page.TaxonomyList
+    signatures: [SITE.Taxonomies]
 ---
 
 Conceptually, the `Taxonomies` method on a `Site` object returns a data structure such&nbsp;as:
 
-{{< code-toggle >}}
+{{< code-toggle file=hugo >}}
 taxonomy a:
   - term 1:
     - page 1
@@ -50,7 +50,7 @@ content/
 
 Conceptually, the taxonomies data structure looks like:
 
-{{< code-toggle >}}
+{{< code-toggle file=hugo >}}
 genres:
   - suspense:
     - And Then There Were None
@@ -89,13 +89,10 @@ Hugo renders this to:
 </ul>
 ```
 
-{{% note %}}
-Hugo's taxonomy system is powerful, allowing you to classify content and create relationships between pages.
-
-Please see the [taxonomies] section for a complete explanation and examples.
-
-[taxonomies]: /content-management/taxonomies/
-{{% /note %}}
+> [!note]
+> Hugo's taxonomy system is powerful, allowing you to classify content and create relationships between pages.
+>
+> Please see the [taxonomies] section for a complete explanation and examples.
 
 ## Examples
 
@@ -143,7 +140,7 @@ The following example displays all terms in a site's tags taxonomy:
 ```
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
-{{< code file=layouts/partials/all-taxonomies.html >}}
+```go-html-template {file="layouts/partials/all-taxonomies.html"}
 {{ with .Site.Taxonomies }}
   {{ $numberOfTerms := 0 }}
   {{ range $taxonomy, $terms := . }}
@@ -174,4 +171,6 @@ This example will list all taxonomies and their terms, as well as all the conten
     </ul>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
+
+[taxonomies]: /content-management/taxonomies/

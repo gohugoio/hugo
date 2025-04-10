@@ -3,16 +3,10 @@ title: Next
 description: Returns the next pager in the pager collection.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/Prev
-    - methods/pager/HasPrev
-    - methods/pager/HasNext
-    - methods/pager/First
-    - methods/pager/Last
-    - methods/page/Paginate
-  returnType: page.Pager
-  signatures: [PAGER.Next]
+params:
+  functions_and_methods:
+    returnType: page.Pager
+    signatures: [PAGER.Next]
 ---
 
 Use the `Next` method to build navigation between pagers.

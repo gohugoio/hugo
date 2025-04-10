@@ -1,4 +1,7 @@
 ---
 title: Showcases
-draft: true
+cascade:
+  build:
+    render: never
+    list: never
 ---

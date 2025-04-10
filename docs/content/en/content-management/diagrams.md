@@ -1,22 +1,13 @@
 ---
 title: Diagrams
 description: Use fenced code blocks and Markdown render hooks to include diagrams in your content.
-categories: [content management]
-keywords: [diagrams,drawing]
-menu:
-  docs:
-    parent: content-management
-    weight: 260
-weight: 260
-toc: true
+categories: []
+keywords: []
 ---
 
 ## GoAT diagrams (ASCII)
 
 Hugo natively supports [GoAT] diagrams with an [embedded code block render hook]. This means that this code block:
-
-[GoAT]: https://github.com/bep/goat
-[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 
 ````txt
 ```goat
@@ -48,18 +39,16 @@ Will be rendered as:
 
 Hugo does not provide a built-in template for Mermaid diagrams. Create your own using a [code block render hook]:
 
-[code block render hook]: /render-hooks/code-blocks/
-
-{{< code file=layouts/_default/_markup/render-codeblock-mermaid.html >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
-  {{- .Inner | htmlEscape | safeHTML }}
+  {{ .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
-{{< /code >}}
+```
 
-And then include this snippet at the bottom of the content template:
+Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
 
-```go-html-template
+```go-html-template {file="layouts/_default/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
@@ -70,7 +59,7 @@ And then include this snippet at the bottom of the content template:
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
-````text
+````text {copy=true}
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -158,7 +147,7 @@ sequenceDiagram
 
 Created from <https://arthursonzogni.com/Diagon/#Tree>
 
-```goat  { width=300  color="orange" }
+```goat  {width=300 color="orange"}
 ───Linux─┬─Android
          ├─Debian─┬─Ubuntu─┬─Lubuntu
          │        │        ├─Kubuntu
@@ -173,7 +162,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 
 <https://arthursonzogni.com/Diagon/#Sequence>
 
-```goat { class="w-40" }
+```goat {class="w-40"}
 ┌─────┐       ┌───┐
 │Alice│       │Bob│
 └──┬──┘       └─┬─┘
@@ -238,7 +227,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 
 <https://arthursonzogni.com/Diagon/#Table>
 
-```goat { class="w-80 dark-blue" }
+```goat {class="w-80 dark-blue"}
 ┌────────────────────────────────────────────────┐
 │                                                │
 ├────────────────────────────────────────────────┤
@@ -265,3 +254,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 │LITERAL    = """" character { character } """" .│
 └────────────────────────────────────────────────┘
 ```
+
+[code block render hook]: /render-hooks/code-blocks/
+[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+[GoAT]: https://github.com/bep/goat

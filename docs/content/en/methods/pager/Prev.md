@@ -3,16 +3,10 @@ title: Prev
 description: Returns the previous pager in the pager collection.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/Next
-    - methods/pager/HasPrev
-    - methods/pager/HasNext
-    - methods/pager/First
-    - methods/pager/Last
-    - methods/page/Paginate
-  returnType: page.Pager
-  signatures: [PAGER.Prev]
+params:
+  functions_and_methods:
+    returnType: page.Pager
+    signatures: [PAGER.Prev]
 ---
 
 Use the `Prev` method to build navigation between pagers.

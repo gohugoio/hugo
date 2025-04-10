@@ -3,16 +3,11 @@ title: collections.In
 description: Reports whether the given value is a member of the given set.
 categories: []
 keywords: []
-action:
-  aliases: [in]
-  related:
-    - functions/strings/Contains
-    - functions/strings/ContainsAny
-    - functions/strings/ContainsNonSpace
-    - functions/strings/HasPrefix
-    - functions/strings/HasSuffix
-  returnType: bool
-  signatures: [collections.In SET VALUE]
+params:
+  functions_and_methods:
+    aliases: [in]
+    returnType: bool
+    signatures: [collections.In SET VALUE]
 aliases: [/functions/in]
 ---
 

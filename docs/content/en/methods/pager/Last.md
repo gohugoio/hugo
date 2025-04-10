@@ -3,16 +3,10 @@ title: Last
 description: Returns the last pager in the pager collection.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/First
-    - methods/pager/Prev
-    - methods/pager/Next
-    - methods/pager/HasPrev
-    - methods/pager/HasNext
-    - methods/page/Paginate
-  returnType: page.Pager
-  signatures: [PAGER.Last]
+params:
+  functions_and_methods:
+    returnType: page.Pager
+    signatures: [PAGER.Last]
 ---
 
 Use the `Last` method to build navigation between pagers.

@@ -3,11 +3,10 @@ title: AddDate
 description: Returns the time corresponding to adding the given number of years, months, and days to the given time.Time value.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: time.Time
-  signatures: [TIME.AddDate YEARS MONTHS DAYS]
+params:
+  functions_and_methods:
+    returnType: time.Time
+    signatures: [TIME.AddDate YEARS MONTHS DAYS]
 aliases: [/functions/adddate]
 ---
 
@@ -21,11 +20,10 @@ aliases: [/functions/adddate]
 {{ $d.AddDate -1 -1 -1 | time.Format "2006-01-02" }} → 2020-11-30
 ```
 
-{{% note %}}
-When adding months or years, Hugo normalizes the final `time.Time` value if the resulting day does not exist. For example, adding one month to 31 January produces 2 March or 3 March, depending on the year.
-
-See [this explanation](https://github.com/golang/go/issues/31145#issuecomment-479067967) from the Go team.
-{{% /note %}}
+> [!note]
+> When adding months or years, Hugo normalizes the final `time.Time` value if the resulting day does not exist. For example, adding one month to 31 January produces 2 March or 3 March, depending on the year.
+>
+> See [this explanation](https://github.com/golang/go/issues/31145#issuecomment-479067967) from the Go team.
 
 ```go-html-template
 {{ $d := "2023-01-31" | time.AsTime }}

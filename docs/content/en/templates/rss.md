@@ -1,14 +1,9 @@
 ---
 title: RSS templates
 description: Use the embedded RSS template, or create your own.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 150
-weight: 150
-toc: true
+weight: 140
 ---
 
 ## Configuration
@@ -52,7 +47,7 @@ email = 'jdoe@example.org'
 To include a feed reference in the `head` element of your rendered pages, place this within the `head` element of your templates:
 
 ```go-html-template
-{{ with .OutputFormats.Get "rss" -}}
+{{ with .OutputFormats.Get "rss" }}
   {{ printf `<link rel=%q type=%q href=%q title=%q>` .Rel .MediaType.Type .Permalink site.Title | safeHTML }}
 {{ end }}
 ```
@@ -67,9 +62,6 @@ Hugo will render this to:
 
 Override Hugo's [embedded RSS template] by creating one or more of your own, following the naming conventions as shown in the [template lookup order].
 
-[embedded RSS template]: {{% eturl rss %}}
-[template lookup order]: /templates/lookup-order/#rss-templates
-
 For example, to use different templates for home, section, taxonomy, and term pages:
 
 ```text
@@ -82,3 +74,6 @@ layouts/
 ```
 
 RSS templates receive the `.Page` and `.Site` objects in context.
+
+[embedded RSS template]: {{% eturl rss %}}
+[template lookup order]: /templates/lookup-order/#rss-templates

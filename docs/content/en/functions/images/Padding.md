@@ -3,14 +3,11 @@ title: images.Padding
 description: Returns an image filter that resizes the image canvas without resizing the image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: ['images.Padding V1 [V2] [V3] [V4] [COLOR]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: ['images.Padding V1 [V2] [V3] [V4] [COLOR]']
 ---
 
 {{< new-in 0.120.0 />}}
@@ -28,7 +25,7 @@ Create the filter:
 {{ $filter := images.Padding 20 40 "#976941" }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 Combine with the [`Colors`] method to create a border with one of the image's most dominant colors:
 

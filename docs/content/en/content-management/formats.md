@@ -1,14 +1,8 @@
 ---
 title: Content formats
 description: Create your content using Markdown, HTML, Emacs Org Mode, AsciiDoc, Pandoc, or reStructuredText.
-categories: [content management]
-keywords: [markdown,asciidoc,pandoc,content format]
-menu:
-  docs:
-    parent: content-management
-    weight: 40
-weight: 40
-toc: true
+categories: []
+keywords: []
 aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
 ---
 
@@ -58,13 +52,13 @@ Hugo provides custom Markdown features including:
 
 [Attributes]: /content-management/markdown-attributes/
 [CommonMark]: https://spec.commonmark.org/current/
-[Extensions]: /getting-started/configuration-markup/#goldmark-extensions
+[Extensions]: /configuration/markup/#extensions
 [GitHub Flavored Markdown]: https://github.github.com/gfm/
 [Goldmark]: https://github.com/yuin/goldmark
 [Markdown]: https://daringfireball.net/projects/markdown/
 [Mathematics]: /content-management/mathematics/
 [Render hooks]: /render-hooks/introduction/
-[configure goldmark]: /getting-started/configuration-markup/#goldmark
+[configure goldmark]: /configuration/markup/#goldmark
 
 ### HTML
 
@@ -98,8 +92,8 @@ hugo --logLevel info
 ```
 
 [AsciiDoc]: https://asciidoc.org/
-[configure the AsciiDoc renderer]: /getting-started/configuration-markup/#asciidoc
-[configure asciidoc]: /getting-started/configuration-markup/#asciidoc
+[configure the AsciiDoc renderer]: /configuration/markup/#asciidoc
+[configure asciidoc]: /configuration/markup/#asciidoc
 
 ### Pandoc
 
@@ -128,14 +122,7 @@ Hugo passes these CLI flags when calling the rst2html executable:
 
 ## Classification
 
-Content format|Media type|Identifier|File extensions
-:--|:--|:--|:--
-Markdown|`text/markdown`|`markdown`|`markdown`,`md`, `mdown`
-HTML|`text/html`|`html`|`htm`, `html`
-Emacs Org Mode|`text/org`|`org`|`org`
-AsciiDoc|`text/asciidoc`|`asciidoc`|`ad`, `adoc`, `asciidoc`
-Pandoc|`text/pandoc`|`pandoc`|`pandoc`, `pdc`
-reStructuredText|`text/rst`|`rst`|`rst`
+{{% include "/_common/content-format-table.md" %}}
 
 When converting content to HTML, Hugo uses:
 

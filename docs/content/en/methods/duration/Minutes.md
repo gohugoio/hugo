@@ -3,12 +3,10 @@ title: Minutes
 description: Returns the time.Duration value as a floating point number of minutes.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/Duration
-    - functions/time/ParseDuration
-  returnType: float64
-  signatures: [DURATION.Minutes]
+params:
+  functions_and_methods:
+    returnType: float64
+    signatures: [DURATION.Minutes]
 ---
 
 ```go-html-template

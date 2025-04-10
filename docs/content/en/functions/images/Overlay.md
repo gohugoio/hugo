@@ -3,14 +3,11 @@ title: images.Overlay
 description: Returns an image filter that overlays the source image at the given coordinates, relative to the upper left corner.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Overlay RESOURCE X Y]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Overlay RESOURCE X Y]
 ---
 
 ## Usage
@@ -35,7 +32,7 @@ Create the filter:
 {{ $filter := images.Overlay $overlay 20 20 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

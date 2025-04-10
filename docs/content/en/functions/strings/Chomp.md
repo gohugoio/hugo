@@ -3,17 +3,11 @@ title: strings.Chomp
 description: Returns the given string, removing all trailing newline characters and carriage returns.
 categories: []
 keywords: []
-action:
-  aliases: [chomp]
-  related:
-    - functions/strings/Trim
-    - functions/strings/TrimSpace
-    - functions/strings/TrimLeft
-    - functions/strings/TrimPrefix
-    - functions/strings/TrimRight
-    - functions/strings/TrimSuffix
-  returnType: any
-  signatures: [strings.Chomp STRING]
+params:
+  functions_and_methods:
+    aliases: [chomp]
+    returnType: any
+    signatures: [strings.Chomp STRING]
 aliases: [/functions/chomp]
 ---
 

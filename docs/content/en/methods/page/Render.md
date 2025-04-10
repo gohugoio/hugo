@@ -3,12 +3,10 @@ title: Render
 description: Renders the given template with the given page as context.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/partials/Include
-    - functions/partials/IncludeCached
-  returnType: template.HTML
-  signatures: [PAGE.Render NAME]
+params:
+  functions_and_methods:
+    returnType: template.HTML
+    signatures: [PAGE.Render NAME]
 aliases: [/functions/render]
 ---
 

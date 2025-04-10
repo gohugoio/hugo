@@ -1,19 +1,9 @@
 ---
-
 title: PHARMASEAL
 date: 2019-04-29
-
 description: "Pharmaseal website developed using Hugo, Forestry, hosted and deployed by Netlify."
-
-# The URL to the site on the internet.
 siteURL: https://pharmaseal.co/
-
-# Link to the site's Hugo source code if public and you can/want to share.
-# Remove or leave blank if not needed/wanted.
-
-# Add credit to the article author. Leave blank or remove if not needed/wanted.
 byline: "[Roboto Studio](https://roboto.studio), Jonathan Alford"
-
 ---
 
 We wanted to shake the status quo with PHARMASEAL, opting for a fast and scalable website built with Hugo instead of slower monolithic systems the competitors were using.

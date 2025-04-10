@@ -1086,6 +1086,13 @@ config:
   cascade: []
   cleanDestinationDir: false
   contentDir: content
+  contentTypes:
+    text/asciidoc: {}
+    text/html: {}
+    text/markdown: {}
+    text/org: {}
+    text/pandoc: {}
+    text/rst: {}
   copyright: ""
   dataDir: data
   defaultContentLanguage: en
@@ -1221,8 +1228,9 @@ config:
         attribute:
           block: false
           title: true
+        autoDefinitionTermID: false
         autoHeadingID: true
-        autoHeadingIDType: github
+        autoIDType: github
         wrapStandAloneImageWithinParagraph: true
       renderHooks:
         image:
@@ -1467,6 +1475,7 @@ config:
       xml:
         keepWhitespace: false
   module:
+    auth: ""
     hugoVersion:
       extended: false
       max: ""
@@ -1863,6 +1872,8 @@ config_helpers:
     caches:
       _merge: none
     cascade:
+      _merge: none
+    contenttypes:
       _merge: none
     deployment:
       _merge: none

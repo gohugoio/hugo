@@ -3,18 +3,15 @@ title: ByDate
 description: Returns the given page collection sorted by date in ascending order.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pages/ByExpiryDate
-    - methods/pages/ByLastMod
-    - methods/pages/ByPublishDate
-  returnType: page.Pages
-  signatures: [PAGES.ByDate]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGES.ByDate]
 ---
 
 When sorting by date, the value is determined by your [site configuration], defaulting to the `date` field in front matter.
 
-[site configuration]: /getting-started/configuration/#configure-dates
+[site configuration]: /configuration/front-matter/#dates
 
 ```go-html-template
 {{ range .Pages.ByDate }}

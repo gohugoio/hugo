@@ -3,11 +3,10 @@ title: Permalink
 description: Returns the permalink of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/RelPermalink
-  returnType: string
-  signatures: [PAGE.Permalink]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.Permalink]
 ---
 
 Site configuration:

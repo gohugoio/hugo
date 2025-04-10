@@ -1,18 +1,18 @@
 ---
 title: Build options
 description: Build options help define how Hugo must treat a given page when building the site.
-categories: [content management,fundamentals]
-keywords: [build,content,front matter, page resources]
-menu:
-  docs:
-    parent: content-management
-    weight: 70
-weight: 70
-toc: true
+categories: []
+keywords: []
 aliases: [/content/build-options/]
 ---
 
-Build options are stored in a reserved front matter object named `build` with these defaults:
+<!-- TODO
+We deprecated the `_build` front matter key in favor of `build` in v0.145.0 on 2025-02-26. Remove footnote #1 on or after 2026-05-26 (15 months after deprecation).
+-->
+
+Build options are stored in a reserved front matter object named `build`[^1] with these defaults:
+
+[^1]: The `_build` alias for `build` is deprecated and will be removed in a future release.
 
 {{< code-toggle file=content/example/index.md fm=true >}}
 [build]
@@ -23,49 +23,26 @@ render = 'always'
 
 list
 : When to include the page within page collections. Specify one of:
-  
-  - `always`
-    : Include the page in _all_ page collections. For example, `site.RegularPages`, `.Pages`, etc. This is the default value.
 
-  - `local`
-    : Include the page in _local_ page collections. For example, `.RegularPages`, `.Pages`, etc. Use this option to create fully navigable but headless content sections.
-
-  - `never`
-    : Do not include the page in _any_ page collection.
+  - `always`: Include the page in _all_ page collections. For example, `site.RegularPages`, `.Pages`, etc. This is the default value.
+  - `local`: Include the page in _local_ page collections. For example, `.RegularPages`, `.Pages`, etc. Use this option to create fully navigable but headless content sections.
+  - `never`: Do not include the page in _any_ page collection.
 
 publishResources
 : Applicable to [page bundles], determines whether to publish the associated [page resources]. Specify one of:
 
-  - `true`
-    : Always publish resources. This is the default value.
-
-  - `false`
-    : Only publish a resource when invoking its [`Permalink`], [`RelPermalink`], or [`Publish`] method within a template.
+  - `true`: Always publish resources. This is the default value.
+  - `false`: Only publish a resource when invoking its [`Permalink`], [`RelPermalink`], or [`Publish`] method within a template.
 
 render
 : When to render the page. Specify one of:
 
-  - `always`
-    : Always render the page to disk. This is the default value.
+  - `always`: Always render the page to disk. This is the default value.
+  - `link`: Do not render the page to disk, but assign `Permalink` and `RelPermalink` values.
+  - `never`: Never render the page to disk, and exclude it from all page collections.
 
-  - `link`
-    : Do not render the page to disk, but assign `Permalink` and `RelPermalink` values.
-
-  - `never`
-    : Never render the page to disk, and exclude it from all page collections.
-
-[page bundles]: /content-management/page-bundles/
-[page resources]: /content-management/page-resources/
-[`Permalink`]: /methods/resource/permalink/
-[`RelPermalink`]: /methods/resource/relpermalink/
-[`Publish`]: /methods/resource/publish/
-
-{{% note %}}
-Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`] or [`.Site.GetPage`] method.
-
-[`.Page.GetPage`]: /methods/page/getpage/
-[`.Site.GetPage`]: /methods/site/getpage/
-{{% /note %}}
+> [!note]
+> Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`] or [`.Site.GetPage`] method.
 
 ## Example -- headless page
 
@@ -92,14 +69,14 @@ title = 'Headless page'
 
 To include the content and images on the home page:
 
-{{< code file=layouts/_default/home.html  >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ with .Site.GetPage "/headless" }}
   {{ .Content }}
   {{ range .Resources.ByType "image" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 The published site will have this structure:
 
@@ -119,8 +96,6 @@ In the example above, note that:
 ## Example -- headless section
 
 Create a unpublished section whose content and resources can be included in other pages.
-
-[branch bundle]: /content-management/page-bundles/
 
 ```text
 content/
@@ -152,7 +127,7 @@ In the front matter above, note that we have set `list` to `local` to include th
 
 To include the content and images on the home page:
 
-{{< code file=layouts/_default/home.html  >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ with .Site.GetPage "/headless" }}
   {{ range .Pages }}
     {{ .Content }}
@@ -161,7 +136,7 @@ To include the content and images on the home page:
     {{ end }}
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 The published site will have this structure:
 
@@ -211,14 +186,14 @@ render = 'always'
 
 To render the glossary:
 
-{{< code file=layouts/glossary/list.html  >}}
+```go-html-template {file="layouts/glossary/list.html"}
 <dl>
   {{ range .Pages }}
     <dt>{{ .Title }}</dt>
     <dd>{{ .Content }}</dd>
   {{ end }}
 </dl>
-{{< /code >}}
+```
 
 The published site will have this structure:
 
@@ -253,7 +228,7 @@ list = 'never'
 
 The published site will have this structure:
 
-```html
+```text
 public/
 ├── books/
 │   ├── book-1/
@@ -296,13 +271,13 @@ title = 'Internal'
 [cascade.build]
 render = 'never'
 list = 'never'
-[cascade._target]
+[cascade.target]
 environment = 'production'
 {{< /code-toggle >}}
 
 The production site will have this structure:
 
-```html
+```text
 public/
 ├── reference/
 │   ├── reference-1/
@@ -318,3 +293,11 @@ public/
 │   └── index.html
 └── index.html
 ```
+
+[`.Page.GetPage`]: /methods/page/getpage/
+[`.Site.GetPage`]: /methods/site/getpage/
+[`Permalink`]: /methods/resource/permalink/
+[`Publish`]: /methods/resource/publish/
+[`RelPermalink`]: /methods/resource/relpermalink/
+[page bundles]: /content-management/page-bundles/
+[page resources]: /content-management/page-resources/

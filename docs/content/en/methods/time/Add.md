@@ -3,13 +3,10 @@ title: Add
 description: Returns the given time plus the given duration.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-    - functions/time/Duration
-    - functions/time/ParseDuration
-  returnType: time.Time
-  signatures: [TIME.Add DURATION]
+params:
+  functions_and_methods:
+    returnType: time.Time
+    signatures: [TIME.Add DURATION]
 ---
 
 ```go-html-template

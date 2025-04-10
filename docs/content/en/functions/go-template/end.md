@@ -3,16 +3,11 @@ title: end
 description: Terminates if, with, range, block, and define statements.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/block
-    - functions/go-template/define
-    - functions/go-template/if
-    - functions/go-template/range
-    - functions/go-template/with
-  returnType:
-  signatures: [end]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType:
+    signatures: [end]
 ---
 
 Use with the [`if`] statement:
@@ -56,7 +51,7 @@ Use with the [`define`] statement:
 {{ end }}
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`block`]: /functions/go-template/block/
 [`define`]: /functions/go-template/define/

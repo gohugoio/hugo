@@ -3,23 +3,21 @@ title: Alphabetical
 description: Returns an ordered taxonomy, sorted alphabetically by term.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/taxonomy/ByCount
-  returnType: page.OrderedTaxonomy
-  signatures: [TAXONOMY.Alphabetical]
-toc: true
+params:
+  functions_and_methods:
+    returnType: page.OrderedTaxonomy
+    signatures: [TAXONOMY.Alphabetical]
 ---
 
 The `Alphabetical` method on a `Taxonomy` object returns an [ordered taxonomy](g), sorted alphabetically by [term](g).
 
 While a `Taxonomy` object is a [map](g), an ordered taxonomy is a [slice](g), where each element is an object that contains the term and a slice of its [weighted pages](g).
 
-{{% include "methods/taxonomy/_common/get-a-taxonomy-object.md" %}}
+{{% include "/_common/methods/taxonomy/get-a-taxonomy-object.md" %}}
 
 ## Get the ordered taxonomy
 
-Now that we have captured the “genres” Taxonomy object, let’s get the ordered taxonomy sorted alphabetically by term:
+Now that we have captured the “genres” Taxonomy object, let's get the ordered taxonomy sorted alphabetically by term:
 
 ```go-html-template
 {{ $taxonomyObject.Alphabetical }}
@@ -37,7 +35,7 @@ To inspect the data structure:
 <pre>{{ debug.Dump $taxonomyObject.Alphabetical }}</pre>
 ```
 
-{{% include "methods/taxonomy/_common/ordered-taxonomy-element-methods.md" %}}
+{{% include "/_common/methods/taxonomy/ordered-taxonomy-element-methods.md" %}}
 
 ## Example
 

@@ -1,3 +1,5 @@
+import { LRUCache } from '../../helpers';
+
 const designMode = false;
 
 const groupByLvl0 = (array) => {
@@ -33,10 +35,10 @@ const applyHelperFuncs = (array) => {
 };
 
 export const search = (Alpine, cfg) => ({
-	query: designMode ? 'shortcodes' : '',
+	query: designMode ? 'apac' : '',
 	open: designMode,
 	result: {},
-
+	cache: new LRUCache(10), // Small cache, avoids network requests on e.g. backspace.
 	init() {
 		Alpine.bind(this.$root, this.root);
 
@@ -66,6 +68,13 @@ export const search = (Alpine, cfg) => ({
 			this.result = {};
 			return;
 		}
+
+		// Check cache first.
+		const cached = this.cache.get(this.query);
+		if (cached) {
+			this.result = cached;
+			return;
+		}
 		var queries = {
 			requests: [
 				{
@@ -91,6 +100,7 @@ export const search = (Alpine, cfg) => ({
 			.then((response) => response.json())
 			.then((data) => {
 				this.result = groupByLvl0(applyHelperFuncs(data.results[0].hits));
+				this.cache.put(this.query, this.result);
 			});
 	},
 	root: {
@@ -102,7 +112,7 @@ export const search = (Alpine, cfg) => ({
 		['@search-toggle.window']() {
 			this.toggleOpen();
 		},
-		['@keydown.meta.k.window.prevent']() {
+		['@keydown.slash.window.prevent']() {
 			this.toggleOpen();
 		},
 	},

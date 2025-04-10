@@ -3,11 +3,10 @@ title: HasChildren
 description: Reports whether the given menu entry has child menu entries.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/menu-entry/Children
-  returnType: bool
-  signatures: [MENUENTRY.HasChildren]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [MENUENTRY.HasChildren]
 ---
 
 Use the `HasChildren` method when rendering a nested menu.

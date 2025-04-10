@@ -1,21 +1,13 @@
 ---
-title: Figure
+title: Figure shortcode
+linkTitle: Figure
 description: Insert an HTML figure element into your content using the figure shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
-{{% note %}}
-To override Hugo's embedded `figure` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl figure %}}
-{{% /note %}}
+> [!note]
+> To override Hugo's embedded `figure` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -57,7 +49,7 @@ Which looks like this in your browser:
   class="ma0 w-75"
 >}}
 
-## Parameters
+## Arguments
 
 src
 : (`string`) The `src` attribute of the `img` element. Typically this is a [page resource](g) or a [global resource](g).
@@ -113,3 +105,5 @@ target = 'assets'
 source = 'static'
 target = 'assets'
 {{< /code-toggle >}}
+
+[source code]: {{% eturl figure %}}

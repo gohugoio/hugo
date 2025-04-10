@@ -3,14 +3,11 @@ title: collections.Complement
 description: Returns the elements of the last collection that are not in any of the others.
 categories: []
 keywords: []
-action:
-  aliases: [complement]
-  related:
-    - functions/collections/Intersect
-    - functions/collections/SymDiff
-    - functions/collections/Union
-  returnType: any
-  signatures: ['collections.Complement COLLECTION [COLLECTION...]']
+params:
+  functions_and_methods:
+    aliases: [complement]
+    returnType: any
+    signatures: ['collections.Complement COLLECTION [COLLECTION...]']
 aliases: [/functions/complement]
 ---
 
@@ -24,11 +21,8 @@ To find the elements within `$c3` that do not exist in `$c1` or `$c2`:
 {{ complement $c1 $c2 $c3 }} → [1 2]
 ```
 
-{{% note %}}
-Make your code simpler to understand by using a [chained pipeline]:
-
-[chained pipeline]: https://pkg.go.dev/text/template#hdr-Pipelines
-{{% /note %}}
+> [!note]
+> Make your code simpler to understand by using a [chained pipeline]:
 
 ```go-html-template
 {{ $c3 | complement $c1 $c2 }} → [1 2]
@@ -55,11 +49,8 @@ To list everything except blog articles (`blog`) and frequently asked questions 
 {{ end }}
 ```
 
-{{% note %}}
-Although the example above demonstrates the `complement` function, you could use the [`where`] function as well:
-
-[`where`]: /functions/collections/where/
-{{% /note %}}
+> [!note]
+> Although the example above demonstrates the `complement` function, you could use the [`where`] function as well:
 
 ```go-html-template
 {{ range where site.RegularPages "Type" "not in" (slice "blog" "faqs") }}
@@ -77,4 +68,6 @@ In this example we use the `complement` function to remove [stop words] from a s
 {{ delimit $filtered " " }} → The quick brown fox jumps lazy dog
 ```
 
+[`where`]: /functions/collections/where/
+[chained pipeline]: https://pkg.go.dev/text/template#hdr-Pipelines
 [stop words]: https://en.wikipedia.org/wiki/Stop_word

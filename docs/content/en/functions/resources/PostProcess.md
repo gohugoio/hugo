@@ -3,14 +3,11 @@ title: resources.PostProcess
 description: Processes the given resource after the build.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/css/PostCSS
-    - functions/css/Sass
-  returnType: postpub.PostPublishedResource
-  signatures: [resources.PostProcess RESOURCE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: postpub.PostPublishedResource
+    signatures: [resources.PostProcess RESOURCE]
 ---
 
 The `resources.PostProcess` function delays resource transformation steps until the build is complete, primarily for tasks like removing unused CSS rules.
@@ -22,18 +19,10 @@ In this example, after the build is complete, Hugo will:
 1. Purge unused CSS using the [PurgeCSS] plugin for [PostCSS]
 2. Add vendor prefixes to CSS rules using the [Autoprefixer] plugin for PostCSS
 3. [Minify] the CSS
-4. [Fingerprint] the CSS 
-
-[autoprefixer]: https://github.com/postcss/autoprefixer
-[fingerprint]: /functions/resources/fingerprint/
-[minify]: /functions/resources/minify/
-[postcss]: /functions/css/postcss/
-[purgecss]: https://purgecss.com/plugins/postcss.html
+4. [Fingerprint] the CSS
 
 Step 1
 : Install [Node.js].
-
-[node.js]: https://nodejs.org/en/download
 
 Step 2
 : Install the required Node.js packages in the root of your project:
@@ -45,8 +34,6 @@ npm i -D postcss postcss-cli autoprefixer @fullhuman/postcss-purgecss
 Step 3
 : Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [`config/production`].
 
-[`config/production`]: /getting-started/configuration/#configuration-directory
-
 {{< code-toggle file=hugo >}}
 [build.buildStats]
 enable = true
@@ -54,12 +41,10 @@ enable = true
 
 See the [configure build] documentation for details and options.
 
-[configure build]: /getting-started/configuration/#configure-build
-
 Step 4
 : Create a PostCSS configuration file in the root of your project.
 
-{{< code file="postcss.config.js" copy=true >}}
+```js {file="postcss.config.js" copy=true}
 const autoprefixer = require('autoprefixer');
 const purgeCSSPlugin = require('@fullhuman/postcss-purgecss').default;
 
@@ -83,11 +68,10 @@ module.exports = {
     autoprefixer,
   ]
 };
-{{< /code >}}
+```
 
-{{% note %}}
-{{% include "functions/resources/_common/postcss-windows-warning.md" %}}
-{{% /note %}}
+> [!note]
+> If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
 
 Step 5
 : Place your CSS file within the `assets/css` directory.
@@ -132,7 +116,7 @@ HUGO_FILE_X
 - `postcss.config.js`
 - `tailwind.config.js`
 
-For each file, Hugo creates a corresponding environment variable named `HUGO_FILE_:filename:`, where `:filename:` is the uppercase version of the filename with periods replaced by underscores.  This allows you to access these files within your JavaScript, for example:
+For each file, Hugo creates a corresponding environment variable named `HUGO_FILE_:filename:`, where `:filename:` is the uppercase version of the filename with periods replaced by underscores. This allows you to access these files within your JavaScript, for example:
 
 ```js
 let tailwindConfig = process.env.HUGO_FILE_TAILWIND_CONFIG_JS || './tailwind.config.js';
@@ -144,10 +128,21 @@ Do not use `resources.PostProcess` when running Hugo's built-in development serv
 
 The `resources.PostProcess` function only works within templates that produce HTML files.
 
-You cannot manipulate the values returned from the resource’s methods. For example, the `strings.ToUpper` function in this example will not work as expected:
+You cannot manipulate the values returned from the resource's methods. For example, the `strings.ToUpper` function in this example will not work as expected:
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}
 {{ $css = $css | css.PostCSS | minify | fingerprint | resources.PostProcess }}
 {{ $css.RelPermalink | strings.ToUpper }}
 ```
+
+[#7333]: https://github.com/gohugoio/hugo/issues/7333
+[`config/production`]: /configuration/introduction/#configuration-directory
+[Autoprefixer]: https://github.com/postcss/autoprefixer
+[configure build]: /configuration/build/
+[Fingerprint]: /functions/resources/fingerprint/
+[Minify]: /functions/resources/minify/
+[Node.js]: https://nodejs.org/en
+[PostCSS]: https://postcss.org/
+[PurgeCSS]: https://github.com/FullHuman/purgecss
+[this example]: https://github.com/postcss/postcss-load-config#packagejson

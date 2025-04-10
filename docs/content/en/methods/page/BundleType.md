@@ -3,10 +3,10 @@ title: BundleType
 description: Returns the bundle type of the given page, or an empty string if the page is not a page bundle.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [PAGE.BundleType]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.BundleType]
 ---
 
 A page bundle is a directory that encapsulates both content and associated [resources](g). There are two types of page bundles: [leaf bundles](g) and [branch bundles](g). See&nbsp;[details](/content-management/page-bundles/).

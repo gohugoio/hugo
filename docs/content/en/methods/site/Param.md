@@ -3,10 +3,10 @@ title: Param
 description: Returns the site parameter with the given key.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: any
-  signatures: [SITE.Param KEY]
+params:
+  functions_and_methods:
+    returnType: any
+    signatures: [SITE.Param KEY]
 ---
 
 The `Param` method on a `Site` object is a convenience method to return the value of a user-defined parameter in the site configuration.

@@ -3,13 +3,11 @@ title: break
 description: Used with the range statement, stops the innermost iteration and bypasses all remaining iterations.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/continue
-    - functions/go-template/range
-  returnType:
-  signatures: [break]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType:
+    signatures: [break]
 ---
 
 This template code:
@@ -30,4 +28,4 @@ Is rendered to:
 <p>foo</p>
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

@@ -3,15 +3,11 @@ title: crypto.MD5
 description: Hashes the given input and returns its MD5 checksum encoded to a hexadecimal string.
 categories: []
 keywords: []
-action:
-  aliases: [md5]
-  related:
-    - functions/crypto/FNV32a
-    - functions/crypto/HMAC
-    - functions/crypto/SHA1
-    - functions/crypto/SHA256
-  returnType: string
-  signatures: [crypto.MD5 INPUT]
+params:
+  functions_and_methods:
+    aliases: [md5]
+    returnType: string
+    signatures: [crypto.MD5 INPUT]
 aliases: [/functions/md5]
 ---
 

@@ -1,16 +1,9 @@
 ---
-
 title: Godot Tutorials
 date: 2021-01-07
-
 description: "Teaching game development skills with love."
-
-# The URL to the site on the internet.
 siteURL: https://godottutorials.com
-
-# Add credit to the article author. Leave blank or remove if not needed/wanted.
 byline: "[Godot Tutorials](https://godottutorials.com), Web Developer & Game Programmer"
-
 ---
 
 [Godot Tutorials](https://godottutorials.com) started as a way to teach beginners game programming and game development.

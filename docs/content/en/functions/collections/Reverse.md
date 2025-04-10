@@ -3,14 +3,11 @@ title: collections.Reverse
 description: Reverses the order of a collection.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/collections/Sort
-    - functions/collections/Shuffle
-    - functions/collections/Uniq
-  returnType: any
-  signatures: [collections.Reverse COLLECTION]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: any
+    signatures: [collections.Reverse COLLECTION]
 aliases: [/functions/collections.reverse]
 ---
 

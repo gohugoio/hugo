@@ -1,23 +1,15 @@
 ---
-title: Details
+title: Details shortcode
+linkTitle: Details
 description: Insert an HTML details element into your content using the details shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< new-in 0.140.0 />}}
 
-{{% note %}}
-To override Hugo's embedded `details` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl details %}}
-{{% /note %}}
+> [!note]
+> To override Hugo's embedded `details` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -44,7 +36,7 @@ Which looks like this in your browser:
 This is a **bold** word.
 {{< /details >}}
 
-## Parameters
+## Arguments
 
 summary
 : (`string`) The content of the child `summary` element rendered from Markdown to HTML. Default is `Details`.
@@ -78,3 +70,5 @@ details > summary > * { }
 /* target the content */
 details > :not(summary) { }
 ```
+
+[source code]: {{% eturl details %}}

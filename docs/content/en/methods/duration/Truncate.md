@@ -3,12 +3,10 @@ title: Truncate
 description: Returns the result of rounding DURATION1 toward zero to a multiple of DURATION2.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/Duration
-    - functions/time/ParseDuration
-  returnType: time.Duration
-  signatures: [DURATION1.Truncate DURATION2]
+params:
+  functions_and_methods:
+    returnType: time.Duration
+    signatures: [DURATION1.Truncate DURATION2]
 ---
 
 ```go-html-template

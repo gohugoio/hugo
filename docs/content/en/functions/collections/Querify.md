@@ -3,13 +3,11 @@ title: collections.Querify
 description: Returns a URL query string composed of the given key-value pairs, encoded and sorted by key.
 categories: []
 keywords: []
-action:
-  aliases: [querify]
-  related:
-    - functions/go-template/urlquery.md
-  returnType: string
-  signatures:
-    - collections.Querify [VALUE...]
+params:
+  functions_and_methods:
+    aliases: [querify]
+    returnType: string
+    signatures: ['collections.Querify [VALUE...]']
 aliases: [/functions/querify]
 ---
 

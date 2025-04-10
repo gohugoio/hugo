@@ -3,12 +3,11 @@ title: transform.HTMLEscape
 description: Returns the given string, escaping special characters by replacing them with HTML entities.
 categories: []
 keywords: []
-action:
-  aliases: [htmlEscape]
-  related:
-    - functions/transform/HTMLUnescape
-  returnType: string
-  signatures: [transform.HTMLEscape INPUT]
+params:
+  functions_and_methods:
+    aliases: [htmlEscape]
+    returnType: string
+    signatures: [transform.HTMLEscape INPUT]
 aliases: [/functions/htmlescape]
 ---
 

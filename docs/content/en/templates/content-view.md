@@ -1,21 +1,16 @@
 ---
 title: Content view templates
 description: Hugo can render alternative views of your content, useful in list and summary views.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 120
-weight: 120
-toc: true
+weight: 110
 aliases: [/templates/views/]
 ---
 
 The following are common use cases for content views:
 
-* You want content of every type to be shown on the home page but only with limited [summary views][summaries].
-* You only want a bulleted list of your content in a [taxonomy template]. Views make this very straightforward by delegating the rendering of each different type of content to the content itself.
+- You want content of every type to be shown on the home page but only with limited [summary views][summaries].
+- You only want a bulleted list of your content in a [taxonomy template]. Views make this very straightforward by delegating the rendering of each different type of content to the content itself.
 
 ## Create a content view
 
@@ -46,11 +41,11 @@ The following is the lookup order for content views ordered by specificity.
 
 ## Example: content view inside a list
 
-### `list.html`
+### list.html
 
 In this example, `.Render` is passed into the template to call the [render function][render]. `.Render` is a special function that instructs content to render itself with the view template provided as the first argument. In this case, the template is going to render the `summary.html` view that follows:
 
-{{< code file=layouts/_default/list.html >}}
+```go-html-template {file="layouts/_default/list.html"}
 <main id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
@@ -59,13 +54,13 @@ In this example, `.Render` is passed into the template to call the [render funct
     {{ end }}
   </div>
 </main>
-{{< /code >}}
+```
 
-### `summary.html`
+### summary.html
 
 Hugo passes the `Page` object to the following `summary.html` view template.
 
-{{< code file=layouts/_default/summary.html >}}
+```go-html-template {file="layouts/_default/summary.html"}
 <article class="post">
   <header>
     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
@@ -76,18 +71,18 @@ Hugo passes the `Page` object to the following `summary.html` view template.
   <a href='{{ .RelPermalink }}'>Read&nbsp;more&nbsp;&raquo;</a>
   </footer>
 </article>
-{{< /code >}}
+```
 
-### `li.html`
+### li.html
 
 Continuing on the previous example, we can change our render function to use a smaller `li.html` view by changing the argument in the call to the `.Render` function (i.e., `{{ .Render "li" }}`).
 
-{{< code file=layouts/_default/li.html >}}
+```go-html-template {file="layouts/_default/li.html"}
 <li>
   <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
   <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
 </li>
-{{< /code >}}
+```
 
 [render]: /methods/page/render/
 [single template]: /templates/types/#single

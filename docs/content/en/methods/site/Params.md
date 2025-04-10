@@ -3,13 +3,10 @@ title: Params
 description: Returns a map of custom parameters as defined in the site configuration.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/collections/indexFunction
-    - methods/page/Params
-    - methods/page/Param
-  returnType: maps.Params
-  signatures: [SITE.Params]
+params:
+  functions_and_methods:
+    returnType: maps.Params
+    signatures: [SITE.Params]
 ---
 
 With this site configuration:

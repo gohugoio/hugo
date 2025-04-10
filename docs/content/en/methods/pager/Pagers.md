@@ -3,11 +3,10 @@ title: Pagers
 description: Returns the pagers collection.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Paginate
-  returnType: page.pagers
-  signatures: [PAGER.Pagers]
+params:
+  functions_and_methods:
+    returnType: page.pagers
+    signatures: [PAGER.Pagers]
 ---
 
 Use the `Pagers` method to build navigation between pagers.

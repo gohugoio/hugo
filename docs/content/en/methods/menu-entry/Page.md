@@ -3,10 +3,10 @@ title: Page
 description: Returns the Page object associated with the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Page
-  signatures: [MENUENTRY.Page]
+params:
+  functions_and_methods:
+    returnType: page.Page
+    signatures: [MENUENTRY.Page]
 ---
 
 Regardless of how you [define menu entries], an entry associated with a page has access to its [methods].

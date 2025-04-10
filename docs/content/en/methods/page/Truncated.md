@@ -3,11 +3,10 @@ title: Truncated
 description: Reports whether the content length exceeds the summary length.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Summary
-  returnType: bool
-  signatures: [PAGE.Truncated]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE.Truncated]
 ---
 
 You can define a [summary] manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.
@@ -26,6 +25,5 @@ The `Truncated` method returns `true` if the content length exceeds the summary 
 {{ end }}
 ```
 
-{{% note %}}
-The `Truncated` method returns `false` if you define the summary in front matter.
-{{% /note %}}
+> [!note]
+> The `Truncated` method returns `false` if you define the summary in front matter.

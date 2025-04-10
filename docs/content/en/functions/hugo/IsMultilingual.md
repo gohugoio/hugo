@@ -3,11 +3,11 @@ title: hugo.IsMultilingual
 description: Reports whether there are two or more configured languages.
 categories: []
 keywords: []
-action:
-  related:
-    - /functions/hugo/IsMultihost
-  returnType: bool
-  signatures: [hugo.IsMultilingual]
+params:
+  functions_and_methods:
+    aliases: [] 
+    returnType: bool
+    signatures: [hugo.IsMultilingual]
 ---
 
 {{< new-in 0.124.0 />}}

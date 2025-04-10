@@ -3,16 +3,10 @@ title: HasPrev
 description: Reports whether there is a pager before the current pager.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/HasNext
-    - methods/pager/Prev
-    - methods/pager/Next
-    - methods/pager/First
-    - methods/pager/Last
-    - methods/page/Paginate
-  returnType: bool
-  signatures: [PAGER.HasPrev]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGER.HasPrev]
 ---
 
 Use the `HasPrev` method to build navigation between pagers.

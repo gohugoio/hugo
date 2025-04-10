@@ -3,18 +3,11 @@ title: path.Join
 description: Replaces path separators with slashes (`/`), joins the given path elements into a single path, and returns the shortest path name equivalent to the result.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/path/Base
-    - functions/path/BaseName
-    - functions/path/Clean
-    - functions/path/Dir
-    - functions/path/Ext
-    - functions/path/Split
-    - functions/urls/JoinPath
-  returnType: string
-  signatures: [path.Join ELEMENT...]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [path.Join ELEMENT...]
 aliases: [/functions/path.join]
 ---
 

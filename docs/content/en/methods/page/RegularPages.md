@@ -3,15 +3,13 @@ title: RegularPages
 description: Returns a collection of regular pages within the current section.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Pages
-    - methods/page/RegularPagesRecursive
-  returnType: page.Pages
-  signatures: [PAGE.RegularPages]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.RegularPages]
 ---
 
-The `RegularPages` method on a `Page` object is available to these [page kinds](g): `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection](g) in [context](g).
+The `RegularPages` method on a `Page` object is available to these [page kinds](g): `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection](g) in [context](g), in the [default sort order](g).
 
 Range through the page collection in your template:
 
@@ -69,14 +67,13 @@ When rendering lesson-2, the `RegularPages` method returns:
 
 In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section](g)---it does not contain an&nbsp;`_index.md`&nbsp;file. Its contents are part of the lesson-2 section.
 
-{{% note %}}
-When used with the `Site` object, the `RegularPages` method recursively returns all regular pages within the site. See&nbsp;[details].
-
-[details]: /methods/site/regularpages/
-{{% /note %}}
+> [!note]
+> When used with the `Site` object, the `RegularPages` method recursively returns all regular pages within the site. See&nbsp;[details].
 
 ```go-html-template
 {{ range .Site.RegularPages.ByTitle }}
   <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
 ```
+
+[details]: /methods/site/regularpages/

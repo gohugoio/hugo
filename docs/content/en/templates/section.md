@@ -1,14 +1,9 @@
 ---
 title: Section templates
 description: Create a section template to list its members.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 80
-weight: 80
-toc: true
+weight: 70
 aliases: [/templates/sections/,/templates/section-templates/]
 ---
 
@@ -22,7 +17,7 @@ See [Template Lookup](/templates/lookup-order/).
 
 ## Example: creating a default section template
 
-{{< code file=layouts/_default/section.html >}}
+```go-html-template {file="layouts/_default/section.html"}
 {{ define "main" }}
   <main>
     {{ .Content }}
@@ -37,7 +32,7 @@ See [Template Lookup](/templates/lookup-order/).
     {{ template "_internal/pagination.html" . }}
   </main>
 {{ end }}
-{{< /code >}}
+```
 
 ### Example: using `.Site.GetPage`
 

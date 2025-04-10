@@ -3,15 +3,11 @@ title: collections.Uniq
 description: Returns the given collection, removing duplicate elements.
 categories: []
 keywords: []
-action:
-  aliases: [uniq]
-  related:
-    - functions/collections/Reverse
-    - functions/collections/Shuffle
-    - functions/collections/Sort
-    - functions/collections/Uniq
-  returnType: any
-  signatures: [collections.Uniq COLLECTION]
+params:
+  functions_and_methods:
+    aliases: [uniq]
+    returnType: any
+    signatures: [collections.Uniq COLLECTION]
 aliases: [/functions/uniq]
 ---
 

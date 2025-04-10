@@ -2,4 +2,4 @@
 title: CLI
 ---
 
-_CLI_ is an abbreviation of Command Line Interface.
+_CLI_ stands for command-line interface, a text-based method for interacting with computer programs or operating systems.

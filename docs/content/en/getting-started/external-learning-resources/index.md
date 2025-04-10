@@ -2,19 +2,14 @@
 title: External learning resources
 linkTitle: External resources
 description: Use these third-party resources to learn Hugo.
-categories: [getting started]
-keywords: [books, tutorials, learning, usage]
-menu:
-  docs:
-    parent: getting-started
-    weight: 90
-weight: 90
-toc: true
+categories: []
+keywords: []
+weight: 40
 ---
 
 ## Books
 
-### Hugo In Action
+### Hugo in Action
 
 Hugo in Action is a step-by-step guide to using Hugo to create static websites. Working with a complete example website and source code samples, you'll learn how to build and host a low-maintenance, high-performance site that will wow your users and stay stable without relying on a third-party server.
 
@@ -28,7 +23,7 @@ ISBN: 9781617297007
 
 ### Build Websites with Hugo
 
-In this book, you'll use Hugo to build a personal portfolio site that you can use to showcase your skills and thoughts to the world. You'll build the basic skeleton, develop a custom theme, and use content templates to generate new pages quickly. You'll use internal and external data sources to embed content into your site, and render some of your content in JSON and RSS. You'll add a blog section with posts and integrate Disqus with your site, and then make your site searchable.
+In this book, you'll use Hugo to build a personal portfolio site that you can use to showcase your skills and thoughts to the world. You'll build the basic skeleton, develop a custom theme, and use content templates to generate new pages quickly. You'll use internal and external data sources to embed content into your site and render some of your content in JSON and RSS. You'll add a blog section with posts and integrate Disqus with your site, and then make your site searchable.
 
 [{{< img src="build-websites-with-hugo.png" alt="Book cover: Build Websites with Hugo" filter="process" filterArgs="resize x350 webp">}}](https://pragprog.com/titles/bhhugo/build-websites-with-hugo/)
 
@@ -42,7 +37,7 @@ ISBN: 9781680507263
 
 ### Hugo Beginner Tutorial Series
 
-Welcome to this introduction to Hugo tutorial. The goal of this series is to take you from a lion cub with basic web design knowledge to creating your first Hugo website. In this series you’ll learn how to set up a Hugo site, the basics of usingHugo layouts, partials, and templating, set up a blog, and finally use data files. By the end of this series you’ll have the foundational knowledge to build your own Hugo sites.
+Welcome to this introduction to Hugo tutorial. This series aims to take you from a lion cub with basic web design knowledge to creating your first Hugo website. In this series, you'll learn how to set up a Hugo site, the basics of using Hugo layouts, partials, and templating, set up a blog, and finally, use data files. By the end of this series, you'll have the foundational knowledge to build your own Hugo sites.
 
 1. [Getting set up in Hugo](https://cloudcannon.com/tutorials/hugo-beginner-tutorial/)
 1. [Layouts in Hugo](https://cloudcannon.com/tutorials/hugo-beginner-tutorial/layouts-in-hugo/)
@@ -55,9 +50,9 @@ Creator: Mike Neumegen\
 Affiliation: [CloudCannon](https://cloudcannon.com/)\
 Creation date: April 2022
 
-#### Hugo Static Site Generator
+### Hugo Static Site Generator
 
-This course covers the basics of using the Hugo static site generator. Work your way through the articles and we'll teach you everything you need to know to create a professional and scalable website or blog!
+This course covers the basics of using the Hugo static site generator. Work your way through the articles, and we'll teach you everything you need to know to create a professional and scalable website or blog!
 
 1. [Introduction](https://www.giraffeacademy.com/static-site-generators/hugo/)
 1. [Windows Installation](https://www.giraffeacademy.com/static-site-generators/hugo/installing-hugo-on-windows/)

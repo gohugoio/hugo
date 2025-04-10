@@ -2,14 +2,9 @@
 title: Hugo Pipes
 linkTitle: Introduction
 description: Hugo Pipes is Hugo's asset processing set of functions.
-categories: [asset management]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: hugo-pipes
-    weight: 20
-weight: 20
-toc: true
+weight: 10
 aliases: [/assets/]
 ---
 
@@ -25,7 +20,7 @@ remote resource
 
 For `.Page` scoped resources, see the [page resources] section.
 
-[mounted]: /hugo-modules/configuration/#module-configuration-mounts
+[mounted]: /configuration/module/#mounts
 [page resources]: /content-management/page-resources/
 
 ## Get a resource

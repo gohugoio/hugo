@@ -3,16 +3,14 @@ title: or
 description: Returns the first truthy argument. If all arguments are falsy, returns the last argument.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/and
-    - functions/go-template/not
-  returnType: any
-  signatures: [or VALUE...]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: any
+    signatures: [or VALUE...]
 ---
 
-{{% include "functions/go-template/_common/truthy-falsy.md" %}}
+{{% include "/_common/functions/truthy-falsy.md" %}}
 
 ```go-html-template
 {{ or 0 1 2 }} → 1
@@ -23,4 +21,4 @@ action:
 {{ or 0 "" false }} → false
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

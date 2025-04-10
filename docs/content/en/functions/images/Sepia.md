@@ -3,14 +3,11 @@ title: images.Sepia
 description: Returns an image filter that produces a sepia-toned version of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Sepia PERCENTAGE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Sepia PERCENTAGE]
 ---
 
 The percentage must be in the range [0, 100] where 0 has no effect.
@@ -23,7 +20,7 @@ Create the filter:
 {{ $filter := images.Sepia 75 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 
