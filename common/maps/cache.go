@@ -160,7 +160,7 @@ func (c *Cache[K, T]) Len() int {
 
 func (c *Cache[K, T]) Reset() {
 	c.Lock()
-	c.m = make(map[K]T)
+	clear(c.m)
 	c.hasBeenInitialized = false
 	c.Unlock()
 }

@@ -97,7 +97,7 @@ type pageCommon struct {
 	pageMenus *pageMenus
 
 	// Internal use
-	page.InternalDependencies
+	page.RelatedDocsHandlerProvider
 
 	contentConverterInit sync.Once
 	contentConverter     converter.Converter

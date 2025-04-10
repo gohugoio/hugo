@@ -51,7 +51,7 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, err
 	var templateDesc tplimpl.TemplateDescriptor
 	var base string = ""
 	if ps, ok := p.(*pageState); ok {
-		base, templateDesc = ps.getTemplateBasePathAndDescriptor()
+		base, templateDesc = ps.GetInternalTemplateBasePathAndDescriptor()
 	}
 	templateDesc.Layout = ""
 	templateDesc.Kind = ""

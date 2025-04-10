@@ -275,7 +275,7 @@ func (pco *pageContentOutput) initRenderHooks() error {
 			// Inherit the descriptor from the page/current output format.
 			// This allows for fine-grained control of the template used for
 			// rendering of e.g. links.
-			base, layoutDescriptor := pco.po.p.getTemplateBasePathAndDescriptor()
+			base, layoutDescriptor := pco.po.p.GetInternalTemplateBasePathAndDescriptor()
 
 			switch tp {
 			case hooks.LinkRendererType:

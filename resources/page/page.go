@@ -148,8 +148,8 @@ type InSectionPositioner interface {
 	PrevInSection() Page
 }
 
-// InternalDependencies is considered an internal interface.
-type InternalDependencies interface {
+// RelatedDocsHandlerProvider is considered an internal interface.
+type RelatedDocsHandlerProvider interface {
 	// GetInternalRelatedDocsHandler is for internal use only.
 	GetInternalRelatedDocsHandler() *RelatedDocsHandler
 }
