@@ -3,15 +3,11 @@ title: os.ReadDir
 description: Returns an array of FileInfo structures sorted by file name, one element for each directory entry.
 categories: []
 keywords: []
-action:
-  aliases: [readDir]
-  related:
-    - functions/os/FileExists
-    - functions/os/Getenv
-    - functions/os/ReadFile
-    - functions/os/Stat
-  returnType: os.FileInfo
-  signatures: [os.ReadDir PATH]
+params:
+  functions_and_methods:
+    aliases: [readDir]
+    returnType: os.FileInfo
+    signatures: [os.ReadDir PATH]
 aliases: [/functions/readdir]
 ---
 

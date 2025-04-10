@@ -3,15 +3,15 @@ title: Keywords
 description: Returns a slice of keywords as defined in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: '[]string'
-  signatures: [PAGE.Keywords]
+params:
+  functions_and_methods:
+    returnType: '[]string'
+    signatures: [PAGE.Keywords]
 ---
 
 By default, Hugo evaluates the keywords when creating collections of [related content].
 
-[related content]: /content-management/related/
+[related content]: /content-management/related-content/
 
 {{< code-toggle file=content/recipes/sushi.md fm=true >}}
 title = 'How to make spicy tuna hand rolls'

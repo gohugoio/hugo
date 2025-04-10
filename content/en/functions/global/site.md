@@ -3,12 +3,11 @@ title: site
 description: Provides global access to the current Site object.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/global/page
-  returnType: 
-  signatures: [site]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: 
+    signatures: [site]
 aliases: [/functions/site]
 ---
 
@@ -27,6 +26,5 @@ When the `Site` object is in context you can use the `Site` property:
 {{ $.Site.Params.foo }}
 ```
 
-{{% note %}}
-To simplify your templates, use the global `site` function regardless of whether the `Site` object is in context.
-{{% /note %}}
+> [!note]
+> To simplify your templates, use the global `site` function regardless of whether the `Site` object is in context.

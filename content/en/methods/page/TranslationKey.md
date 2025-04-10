@@ -3,13 +3,10 @@ title: TranslationKey
 description: Returns the translation key of the given page.
 categories: []
 keywords: []
-action:
-  related:
-   - methods/page/Translations
-   - methods/page/AllTranslations
-   - methods/page/IsTranslated
-  returnType: string
-  signatures: [PAGE.TranslationKey]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.TranslationKey]
 ---
 
 The translation key creates a relationship between all translations of a given page. The translation key is derived from the file path, or from the `translationKey` parameter if defined in front matter.

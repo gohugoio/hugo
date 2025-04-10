@@ -3,18 +3,21 @@ title: MediaType
 description: Returns a media type object for the given resource.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: media.Type
-  signatures: [RESOURCE.MediaType]
+params:
+  functions_and_methods:
+    returnType: media.Type
+    signatures: [RESOURCE.MediaType]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 The `MediaType` method on a `Resource` object returns an object with additional methods.
 
 ## Methods
 
-Type
-: (`string`) The resource's media type.
+### Type
+
+(`string`) The resource's media type.
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
@@ -22,8 +25,9 @@ Type
 {{ end }}
 ```
 
-MainType
-: (`string`) The main type of the resource’s media type.
+### MainType
+
+(`string`) The main type of the resource's media type.
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
@@ -31,8 +35,9 @@ MainType
 {{ end }}
 ```
 
-SubType
-: (`string`) The subtype of the resource’s media type. This may or may not correspond to the file suffix.
+### SubType
+
+(`string`) The subtype of the resource's media type. This may or may not correspond to the file suffix.
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
@@ -40,8 +45,9 @@ SubType
 {{ end }}
 ```
 
-Suffixes
-: (`slice`) A slice of possible file suffixes for the resource’s media type.
+### Suffixes
+
+(`slice`) A slice of possible file suffixes for the resource's media type.
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
@@ -49,4 +55,12 @@ Suffixes
 {{ end }}
 ```
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
+### FirstSuffix.Suffix
+
+(`string`) The first of the possible file suffixes for the resource's media type.
+
+```go-html-template
+{{ with resources.Get "images/a.jpg" }}
+  {{ .MediaType.FirstSuffix.Suffix }} → jpg
+{{ end }}
+```

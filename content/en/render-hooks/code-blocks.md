@@ -2,27 +2,21 @@
 title: Code block render hooks
 linkTitle: Code blocks
 description: Create a code block render hook to override the rendering of Markdown code blocks to HTML.
-categories: [render hooks]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: render-hooks
-    weight: 40
-weight: 40
-toc: true
 ---
 
 ## Markdown
 
 This Markdown example contains a fenced code block:
 
-{{< code file=content/example.md lang=text >}}
+````text {file="content/example.md"}
 ```bash {class="my-class" id="my-codeblock" lineNos=inline tabWidth=2}
 declare a=1
 echo "$a"
 exit
 ```
-{{< /code >}}
+````
 
 A fenced code block consists of:
 
@@ -30,9 +24,6 @@ A fenced code block consists of:
 - An optional [info string]
 - A code sample
 - A trailing code fence
-
-[code fence]: https://spec.commonmark.org/0.31.2/#code-fence
-[info string]: https://spec.commonmark.org/0.31.2/#info-string
 
 In the previous example, the info string contains:
 
@@ -45,63 +36,46 @@ In the example above, the _generic attributes_ are `class` and `id`. In the abse
 
 In the example above, the _highlighting options_ are `lineNos` and `tabWidth`. Hugo uses the [Chroma] syntax highlighter to render the code sample. You can control the appearance of the rendered code by specifying one or more [highlighting options].
 
-[Chroma]: https://github.com/alecthomas/chroma/
-[highlighting options]: /functions/transform/highlight/#options
-
-{{% note %}}
-Although `style` is a global HTML attribute, when used in an info string it is a highlighting option.
-{{% /note %}}
+> [!note]
+> Although `style` is a global HTML attribute, when used in an info string it is a highlighting option.
 
 ## Context
 
 Code block render hook templates receive the following [context](g):
 
-###### Attributes
+Attributes
+: (`map`) The generic attributes from the info string.
 
-(`map`) The generic attributes from the info string.
+Inner
+: (`string`) The content between the leading and trailing code fences, excluding the info string.
 
-###### Inner
+Options
+: (`map`) The highlighting options from the info string.
 
-(`string`) The content between the leading and trailing code fences, excluding the info string.
+Ordinal
+: (`int`) The zero-based ordinal of the code block on the page.
 
-###### Options
+Page
+: (`page`) A reference to the current page.
 
-(`map`) The highlighting options from the info string.
+PageInner
+: {{< new-in 0.125.0 />}}
+: (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
-###### Ordinal
+Position
+: (`text.Position`) The position of the code block within the page content.
 
-(`int`) The zero-based ordinal of the code block on the page.
-
-###### Page
-
-(`page`) A reference to the current page.
-
-###### PageInner
-
-{{< new-in 0.125.0 />}}
-
-(`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
-
-[`RenderShortcodes`]: /methods/page/rendershortcodes
-
-###### Position
-
-(`text.Position`) The position of the code block within the page content.
-
-###### Type
-
-(`string`) The first word of the info string, typically the code language.
+Type
+: (`string`) The first word of the info string, typically the code language.
 
 ## Examples
 
 In its default configuration, Hugo renders fenced code blocks by passing the code sample through the Chroma syntax highlighter and wrapping the result. To create a render hook that does the same thing:
 
-[CommonMark specification]: https://spec.commonmark.org/current/
-
-{{< code file=layouts/_default/_markup/render-codeblock.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock.html" copy=true}
 {{ $result := transform.HighlightCodeBlock . }}
 {{ $result.Wrapped }}
-{{< /code >}}
+```
 
 Although you can use one template with conditional logic to control the behavior on a per-language basis, you can also create language-specific templates.
 
@@ -116,35 +90,38 @@ layouts/
 
 For example, to create a code block render hook to render [Mermaid] diagrams:
 
-[Mermaid]: https://mermaid.js.org/
-
-{{< code file=layouts/_default/_markup/render-codeblock-mermaid.html copy=true >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
-  {{- .Inner | htmlEscape | safeHTML }}
+  {{ .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
-{{< /code >}}
+```
 
-Then include this snippet at the bottom of the your base template:
+Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
 
-{{< code file=layouts/_default/baseof.html copy=true >}}
+```go-html-template {file="layouts/_default/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
   </script>
 {{ end }}
-{{< /code >}}
+```
 
 See the [diagrams] page for details.
-
-[diagrams]: /content-management/diagrams/#mermaid-diagrams
 
 ## Embedded
 
 Hugo includes an [embedded code block render hook] to render [GoAT diagrams].
 
+{{% include "/_common/render-hooks/pageinner.md" %}}
+
+[`RenderShortcodes`]: /methods/page/rendershortcodes
+[Chroma]: https://github.com/alecthomas/chroma/
+[code fence]: https://spec.commonmark.org/0.31.2/#code-fence
+[diagrams]: /content-management/diagrams/#mermaid-diagrams
 [embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 [GoAT diagrams]: /content-management/diagrams/#goat-diagrams-ascii
-
-{{% include "/render-hooks/_common/pageinner.md" %}}
+[highlighting options]: /functions/transform/highlight/#options
+[info string]: https://spec.commonmark.org/0.31.2/#info-string
+[Mermaid]: https://mermaid.js.org/

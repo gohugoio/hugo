@@ -1,17 +1,10 @@
 ---
-
 title: Tomango
-
 date: 2018-05-04
-
-description: "Showcase: \"Tomango site relaunch: Building our JAMstack site\""
-
+description: 'Showcase: "Tomango site relaunch: Building our JAMstack site"'
 siteURL: https://www.tomango.co.uk
-
 siteSource: https://github.com/trys/tomango-2018
-
 byline: "[Trys Mudford](https://www.trysmudford.com), Lead Developer, Tomango"
-
 ---
 
 Hugo is our static site generator (SSG) of choice. It's **really quick**. After using it on a number of [client projects](/showcase/hartwell-insurance/), it became clear that our new site _had_ to be built with Hugo.

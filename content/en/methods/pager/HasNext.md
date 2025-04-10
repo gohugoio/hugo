@@ -3,16 +3,10 @@ title: HasNext
 description: Reports whether there is a pager after the current pager.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/HasPrev
-    - methods/pager/Prev
-    - methods/pager/Next
-    - methods/pager/First
-    - methods/pager/Last
-    - methods/page/Paginate
-  returnType: bool
-  signatures: [PAGER.HasNext]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGER.HasNext]
 ---
 
 Use the `HasNext` method to build navigation between pagers.

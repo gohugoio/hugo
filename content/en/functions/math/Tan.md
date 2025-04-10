@@ -3,18 +3,11 @@ title: math.Tan
 description: Returns the tangent of the given radian number.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/math/Pi
-    - functions/math/Sin
-    - functions/math/Cos
-    - functions/math/Asin
-    - functions/math/Acos
-    - functions/math/Atan
-    - functions/math/Atan2
-  returnType: float64
-  signatures: [math.Tan VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: float64
+    signatures: [math.Tan VALUE]
 ---
 
 {{< new-in 0.130.0 />}}

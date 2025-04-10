@@ -3,12 +3,10 @@ title: LanguagePrefix
 description: Returns the URL language prefix, if any, for the given site.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/urls/AbsLangURL
-    - functions/urls/RelLangURL
-  returnType: string
-  signatures: [SITE.LanguagePrefix]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [SITE.LanguagePrefix]
 ---
 
 Consider this site configuration:

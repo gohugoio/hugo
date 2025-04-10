@@ -2,14 +2,9 @@
 title: Search tools
 linkTitle: Search
 description: See some of the open-source and commercial search options for your newly created Hugo website.
-categories: [developer tools]
-keywords: [search]
-menu:
-  docs:
-    parent: developer-tools
-    weight: 40
-weight: 40
-toc: true
+categories: []
+keywords: []
+weight: 30
 ---
 
 A static website with a dynamic search function? Yes, Hugo provides an alternative to embeddable scripts from Google or other search engines for static websites. Hugo allows you to provide your visitors with a custom search function by indexing your content files directly.
@@ -48,8 +43,8 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 
 ## Commercial
 
-[Algolia](https://www.algolia.com/)
-: Algolia's Search API makes it easy to deliver a great search experience in your apps and websites. Algolia Search provides hosted full-text, numerical, faceted, and geolocalized search.
+[Algolia DocSearch](https://docsearch.algolia.com/)
+: Algolia DocSearch is free for public technical documentation sites and easy to set up. For other use cases, [Algolia's Search API](https://www.algolia.com) makes it easy to deliver a great search experience in your apps and websites. Algolia Search provides hosted full-text, numerical, faceted, and geolocalized search.
 
 [Bonsai](https://www.bonsai.io)
 : Bonsai is a fully-managed hosted Elasticsearch service that is fast, reliable, and simple to set up. Easily ingest your docs from Hugo into Elasticsearch following [this guide from the docs](https://bonsai.io/docs/hugo).

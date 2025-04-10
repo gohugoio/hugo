@@ -3,20 +3,21 @@ title: Content
 description: Returns the content of the given resource.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: any
-  signatures: [RESOURCE.Content]
-toc:
+params:
+  functions_and_methods:
+    returnType: any
+    signatures: [RESOURCE.Content]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 The `Content` method on a `Resource` object returns `template.HTML` when the resource type is `page`, otherwise it returns a `string`.
 
 [resource type]: /methods/resource/resourcetype/
 
-{{< code file=assets/quotations/kipling.txt >}}
+```text {file="assets/quotations/kipling.txt"}
 He travels the fastest who travels alone.
-{{< /code >}}
+```
 
 To get the content:
 
@@ -57,5 +58,3 @@ To create inline JavaScript:
   <script>{{ .Content | safeJS }}</script>
 {{ end }}
 ```
-
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}

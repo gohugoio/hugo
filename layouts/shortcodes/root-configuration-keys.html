@@ -1,0 +1,45 @@
+{{/* prettier-ignore-start */ -}}
+{{/*
+Renders a comma-separated list of links to the root key configuration pages.
+
+@example {{< root-configuration-keys >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
+{{- /* Create scratch map of key:filename. */}}
+{{- $s := newScratch }}
+{{- range $k, $v := site.Data.docs.config }}
+  {{- if or (reflect.IsMap .) (reflect.IsSlice .) }}
+    {{- $s.Set $k ($k | humanize | anchorize) }}
+  {{- end }}
+{{- end }}
+
+{{/* Deprecated. */}}
+{{- $s.Delete "author" }}
+
+{{/* Use mounts instead. */}}
+{{- $s.Delete "staticDir" }}
+{{- $s.Delete "ignoreFiles" }}
+
+{{/* This key is "HTTPCache" not "httpCache". */}}
+{{- $s.Set "HTTPCache" "http-cache" }}
+
+{{/* This key is "frontmatter" not "frontMatter" */}}
+{{- $s.Set "frontmatter" "front-matter" }}
+
+{{/* The page title is "Related content" not "related". */}}
+{{- $s.Set "related" "related-content" }}
+
+{{/* It can be configured as bool or map; we want to show map. */}}
+{{- $s.Set "uglyURLs" "ugly-urls" }}
+
+{{- $links := slice }}
+{{- range $k, $v := $s.Values }}
+  {{- $path := printf "/configuration/%s" $v }}
+  {{- with site.GetPage $path }}
+    {{- $links = $links | append (printf "<a href=%q><code>%s</code></a>" .RelPermalink $k) }}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find the page %s. See %s." $.Name $path $.Position }}
+  {{- end }}
+{{- end }}
+
+{{- delimit $links ", " ", and " | safeHTML -}}

@@ -1,15 +1,12 @@
 ---
 title: Translations
-description: Returns all translations of the given page, excluding the current language.  
+description: Returns all translations of the given page, excluding the current language.
 categories: []
 keywords: []
-action:
-  related:
-   - methods/page/AllTranslations
-   - methods/page/IsTranslated
-   - methods/page/TranslationKey
-  returnType: page.Pages
-  signatures: [PAGE.Translations]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.Translations]
 ---
 
 With this site configuration:

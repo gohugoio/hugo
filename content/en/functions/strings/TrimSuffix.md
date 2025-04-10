@@ -3,17 +3,11 @@ title: strings.TrimSuffix
 description: Returns the given string, removing the suffix from the end of the string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/strings/Chomp
-    - functions/strings/Trim
-    - functions/strings/TrimSpace
-    - functions/strings/TrimLeft
-    - functions/strings/TrimPrefix
-    - functions/strings/TrimRight
-  returnType: string
-  signatures: [strings.TrimSuffix SUFFIX STRING]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [strings.TrimSuffix SUFFIX STRING]
 aliases: [/functions/strings.trimsuffix]
 ---
 

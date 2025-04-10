@@ -3,28 +3,22 @@ title: safe.HTMLAttr
 description: Declares the given key-value pair as a safe HTML attribute.
 categories: []
 keywords: []
-action:
-  aliases: [safeHTMLAttr]
-  related:
-    - functions/safe/CSS
-    - functions/safe/HTML
-    - functions/safe/JS
-    - functions/safe/JSStr
-    - functions/safe/URL
-  returnType: template.HTMLAttr
-  signatures: [safe.HTMLAttr INPUT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: [safeHTMLAttr]
+    returnType: template.HTMLAttr
+    signatures: [safe.HTMLAttr INPUT]
 aliases: [/functions/safehtmlattr]
 ---
 
 ## Introduction
 
-{{% include "functions/_common/go-html-template-package.md" %}}
+{{% include "/_common/functions/go-html-template-package.md" %}}
 
 ## Usage
 
 Use the `safe.HTMLAttr` function to encapsulate an HTML attribute from a trusted source.
- 
+
 Use of this type presents a security risk: the encapsulated content should come from a trusted source, as it will be included verbatim in the template output.
 
 See the [Go documentation] for details.

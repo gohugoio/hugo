@@ -1,17 +1,17 @@
 ---
 title: Weight
-description:  Returns the `weight` property of the given menu entry.   
+description: Returns the `weight` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: int
-  signatures: [MENUENTRY.Weight]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [MENUENTRY.Weight]
 ---
 
-If you define the menu entry [automatically], the `Weight` method returns the page’s [`Weight`].
+If you define the menu entry [automatically], the `Weight` method returns the page's [`Weight`].
 
-If you define the menu entry [in front matter] or [in site configuration], the `Weight` method returns the `weight` property, falling back to the page’s `Weight`.
+If you define the menu entry [in front matter] or [in site configuration], the `Weight` method returns the `weight` property, falling back to the page's `Weight`.
 
 [`Weight`]: /methods/page/weight/
 [automatically]: /content-management/menus/#define-automatically

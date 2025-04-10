@@ -3,16 +3,11 @@ title: math.Add
 description: Adds two or more numbers.
 categories: []
 keywords: []
-action:
-  aliases: [add]
-  related:
-    - functions/math/Div
-    - functions/math/Mul
-    - functions/math/Product
-    - functions/math/Sub
-    - functions/math/Sum
-  returnType: any
-  signatures: [math.Add VALUE VALUE...]
+params:
+  functions_and_methods:
+    aliases: [add]
+    returnType: any
+    signatures: [math.Add VALUE VALUE...]
 ---
 
 If one of the numbers is a [`float`](g), the result is a `float`.

@@ -3,16 +3,10 @@ title: ContentWithoutSummary
 description: Returns the rendered content of the given page, excluding the content summary.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Content
-    - methods/page/Summary
-    - methods/page/RawContent
-    - methods/page/Plain
-    - methods/page/PlainWords
-    - methods/page/RenderShortcodes
-  returnType: template.HTML
-  signatures: [PAGE.ContentWithoutSummary]
+params:
+  functions_and_methods:
+    returnType: template.HTML
+    signatures: [PAGE.ContentWithoutSummary]
 ---
 
 {{< new-in 0.134.0 />}}

@@ -3,16 +3,13 @@ title: Resize
 description: Applicable to images, returns an image resource resized to the given width and/or height.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Crop
-    - methods/resource/Fit
-    - methods/resource/Fill
-    - methods/resource/Process
-    - functions/images/Process
-  returnType: images.ImageResource
-  signatures: [RESOURCE.Resize SPEC]
+params:
+  functions_and_methods:
+    returnType: images.ImageResource
+    signatures: [RESOURCE.Resize SPEC]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 Resize an image to the given width and/or height.
 
@@ -26,9 +23,7 @@ If you specify both width and height, the resulting image will be disproportiona
 {{ end }}
 ```
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
-
-{{% include "/methods/resource/_common/processing-spec.md" %}}
+{{% include "/_common/methods/resource/processing-spec.md" %}}
 
 ## Example
 

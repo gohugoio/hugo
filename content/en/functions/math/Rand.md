@@ -3,11 +3,11 @@ title: math.Rand
 description: Returns a pseudo-random number in the half-open interval [0.0, 1.0).
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: float64
-  signatures: [math.Rand]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: float64
+    signatures: [math.Rand]
 ---
 
 {{< new-in 0.121.2 />}}

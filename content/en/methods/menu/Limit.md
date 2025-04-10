@@ -3,10 +3,10 @@ title: Limit
 description: Returns the given menu, limited to the first N entries.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: navigation.Menu
-  signatures: [MENU.Limit N]
+params:
+  functions_and_methods:
+    returnType: navigation.Menu
+    signatures: [MENU.Limit N]
 ---
 
 The `Limit` method returns the given menu, limited to the first N entries.

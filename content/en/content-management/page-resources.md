@@ -1,14 +1,8 @@
 ---
 title: Page resources
 description: Use page resources to logically associate assets with a page.
-categories: [content management]
-keywords: [bundle,content,resources]
-menu:
-  docs:
-    parent: content-management
-    weight: 80
-weight: 80
-toc: true
+categories: []
+keywords: []
 ---
 
 Page resources are only accessible from [page bundles](/content-management/page-bundles), those directories with `index.md` or
@@ -46,13 +40,7 @@ Use any of these methods on a `Page` object to capture page resources:
  - [`Resources.GetMatch`]
  - [`Resources.Match`]
 
- Once you have captured a resource, use any of the applicable [`Resource`] methods to return a value or perform an action. 
-
-[`Resource`]: /methods/resource
-[`Resources.ByType`]: /methods/page/resources#bytype
-[`Resources.GetMatch`]: /methods/page/resources#getmatch
-[`Resources.Get`]: /methods/page/resources#get
-[`Resources.Match`]: /methods/page/resources#match
+ Once you have captured a resource, use any of the applicable [`Resource`] methods to return a value or perform an action.
 
 The following examples assume this content structure:
 
@@ -120,16 +108,14 @@ List the titles in the data file, and throw an error if the file does not exist.
 
 The page resources' metadata is managed from the corresponding page's front matter with an array/table parameter named `resources`. You can batch assign values using [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 
-{{% note %}}
-Resources of type `page` get `Title` etc. from their own front matter.
-{{% /note %}}
+> [!note]
+> Resources of type `page` get `Title` etc. from their own front matter.
 
 name
 : (`string`) Sets the value returned in `Name`.
 
-{{% note %}}
-The methods `Match`, `Get` and `GetMatch` use `Name` to match the resources.
-{{% /note %}}
+> [!note]
+> The methods `Match`, `Get` and `GetMatch` use `Name` to match the resources.
 
 title
 : (`string`) Sets the value returned in `Title`
@@ -173,9 +159,8 @@ From the example above:
 - All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder-in-name-and-title), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - Every docx in the bundle will receive the `word` icon.
 
-{{% note %}}
-The order matters; only the first set values of the `title`, `name` and `params` keys will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
-{{% /note %}}
+> [!note]
+> The order matters; only the first set values of the `title`, `name` and `params` keys will be used. Consecutive parameters will be set only for the ones not already set. In the above example, `.Params.icon` is first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
 
 ### The `:counter` placeholder in `name` and `title`
 
@@ -210,11 +195,8 @@ the `Name` and `Title` will be assigned to the resource files as follows:
 
 By default, with a multilingual single-host site, Hugo does not duplicate shared page resources when building the site.
 
-{{% note %}}
-This behavior is limited to Markdown content. Shared page resources for other [content formats] are copied into each language bundle.
-
-[content formats]: /content-management/formats/
-{{% /note %}}
+> [!note]
+> This behavior is limited to Markdown content. Shared page resources for other [content formats] are copied into each language bundle.
 
 Consider this site configuration:
 
@@ -289,18 +271,12 @@ public/
 
 This approach reduces build times, storage requirements, bandwidth consumption, and deployment times, ultimately reducing cost.
 
-{{% note %}}
-To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
-
-By default, with multilingual single-host sites, Hugo enables its [embedded link render hook] and [embedded image render hook] to resolve Markdown link and image destinations.
-
-You may override the embedded render hooks as needed, provided they capture the resource as described above.
-
-[embedded link render hook]: /render-hooks/links/#default
-[embedded image render hook]: /render-hooks/images/#default
-[`Resources.Get`]: /methods/page/resources/#get
-[`RelPermalink`]: /methods/resource/relpermalink/
-{{% /note %}}
+> [!note]
+> To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
+>
+> By default, with multilingual single-host sites, Hugo enables its [embedded link render hook] and [embedded image render hook] to resolve Markdown link and image destinations.
+>
+> You may override the embedded render hooks as needed, provided they capture the resource as described above.
 
 Although duplicating shared page resources is inefficient, you can enable this feature in your site configuration if desired:
 
@@ -308,3 +284,14 @@ Although duplicating shared page resources is inefficient, you can enable this f
 [markup.goldmark]
 duplicateResourceFiles = true
 {{< /code-toggle >}}
+
+[`RelPermalink`]: /methods/resource/relpermalink/
+[`Resource`]: /methods/resource
+[`Resources.ByType`]: /methods/page/resources#bytype
+[`Resources.Get`]: /methods/page/resources#get
+[`Resources.Get`]: /methods/page/resources/#get
+[`Resources.GetMatch`]: /methods/page/resources#getmatch
+[`Resources.Match`]: /methods/page/resources#match
+[content formats]: /content-management/formats/
+[embedded image render hook]: /render-hooks/images/#default
+[embedded link render hook]: /render-hooks/links/#default

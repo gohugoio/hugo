@@ -3,12 +3,11 @@ title: math.Min
 description: Returns the smaller of all numbers. Accepts scalars, slices, or both.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/math/Max
-  returnType: float64
-  signatures: [math.Min VALUE...]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: float64
+    signatures: [math.Min VALUE...]
 ---
 
 ```go-html-template

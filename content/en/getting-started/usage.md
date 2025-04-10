@@ -1,14 +1,9 @@
 ---
 title: Basic usage
-description: Hugo's command line interface (CLI) is fully featured but simple to use, even for those with limited experience working from the command line.
-categories: [getting started]
-keywords: [usage,livereload,command,flags]
-menu:
-  docs:
-    parent: getting-started
-    weight: 30
-weight: 30
-toc: true
+description: Use the command-line interface (CLI) to perform basic tasks.
+categories: []
+keywords: []
+weight: 20
 aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 ---
 
@@ -50,11 +45,10 @@ hugo
 
 The [`hugo`] command builds your site, publishing the files to the `public` directory. To publish your site to a different directory, use the [`--destination`] flag or set [`publishDir`] in your site configuration.
 
-{{% note %}}
-Hugo does not clear the `public` directory before building your site. Existing files are overwritten, but not deleted. This behavior is intentional to prevent the inadvertent removal of files that you may have added to the `public` directory after the build.
-
-Depending on your needs, you may wish to manually clear the contents of the `public` directory before every build.
-{{% /note %}}
+> [!note]
+> Hugo does not clear the `public` directory before building your site. Existing files are overwritten, but not deleted. This behavior is intentional to prevent the inadvertent removal of files that you may have added to the `public` directory after the build.
+>
+> Depending on your needs, you may wish to manually clear the contents of the `public` directory before every build.
 
 ## Draft, future, and expired content
 
@@ -67,12 +61,8 @@ Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [
 
 {{< new-in 0.123.0 />}}
 
-{{% note %}}
-Hugo publishes descendants of draft, future, and expired [node](g) pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.
-
-[build options]: /content-management/build-options/
-[`cascade`]: /content-management/front-matter/#cascade-field
-{{% /note %}}
+> [!note]
+> Hugo publishes descendants of draft, future, and expired [node](g) pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.
 
 You can override the default behavior when running `hugo` or `hugo server` with command line flags:
 
@@ -84,11 +74,10 @@ hugo --buildFuture    # or -F
 
 Although you can also set these values in your site configuration, it can lead to unwanted results unless all content authors are aware of, and understand, the settings.
 
-{{% note %}}
-As noted above, Hugo does not clear the `public` directory before building your site. Depending on the _current_ evaluation of the four conditions above, after the build your `public` directory may contain extraneous files from a previous build.
-
-A common practice is to manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
-{{% /note %}}
+> [!note]
+> As noted above, Hugo does not clear the `public` directory before building your site. Depending on the _current_ evaluation of the four conditions above, after the build your `public` directory may contain extraneous files from a previous build.
+>
+> A common practice is to manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
 
 ## Develop and test your site
 
@@ -122,9 +111,8 @@ hugo server --navigateToChanged
 
 ## Deploy your site
 
-{{% note %}}
-As noted above, Hugo does not clear the `public` directory before building your site. Manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
-{{% /note %}}
+> [!note]
+> As noted above, Hugo does not clear the `public` directory before building your site. Manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
 
 When you are ready to deploy your site, run:
 
@@ -154,25 +142,25 @@ public/
 
 In a simple hosting environment, where you typically `ftp`, `rsync`, or `scp` your files to the root of a virtual host, the contents of the `public` directory are all that you need.
 
-Most of our users deploy their sites using a CI/CD workflow, where a push[^1] to their GitHub or GitLab repository triggers a build and deployment. Popular providers include [AWS Amplify], [CloudCannon], [Cloudflare Pages], [GitHub Pages], [GitLab Pages], and [Netlify].
+Most of our users deploy their sites using a [CI/CD](g) workflow, where a push[^1] to their GitHub or GitLab repository triggers a build and deployment. Popular providers include [AWS Amplify], [CloudCannon], [Cloudflare Pages], [GitHub Pages], [GitLab Pages], and [Netlify].
 
-Learn more in the [hosting and deployment] section.
+Learn more in the [host and deploy] section.
 
 [^1]: The Git repository contains the entire project directory, typically excluding the `public` directory because the site is built _after_ the push.
 
 [`--destination`]: /commands/hugo/#options
+[`cascade`]: /content-management/front-matter/#cascade
 [`hugo server`]: /commands/hugo_server/
 [`hugo`]: /commands/hugo/
-[`publishDir`]: /getting-started/configuration/#publishdir
+[`publishDir`]: /configuration/all/#publishdir
 [AWS Amplify]: https://aws.amazon.com/amplify/
+[build options]: /content-management/build-options/
 [CloudCannon]: https://cloudcannon.com/
 [Cloudflare Pages]: https://pages.cloudflare.com/
-[commands]: /commands/
 [front matter]: /content-management/front-matter/
 [GitHub Pages]: https://pages.github.com/
 [GitLab Pages]: https://docs.gitlab.com/ee/user/project/pages/
-[hosting and deployment]: /hosting-and-deployment/
-[hosting]: /hosting-and-deployment/
+[host and deploy]: /host-and-deploy/
 [installing]: /installation/
 [LiveReload]: https://github.com/livereload/livereload-js
 [Netlify]: https://www.netlify.com/

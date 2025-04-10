@@ -3,13 +3,11 @@ title: images.Filter
 description: Applies one or more image filters to the given image resource.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - methods/resource/Filter
-  returnType: images.ImageResource
-  signatures: [images.Filter FILTERS... IMAGE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.ImageResource
+    signatures: [images.Filter FILTERS... IMAGE]
 ---
 
 Apply one or more [image filters](#image-filters) to the given image.
@@ -64,4 +62,4 @@ You can also apply image filters using the [`Filter`] method on a `Resource` obj
 
 Use any of these filters with the `images.Filter` function, or with the `Filter` method on a `Resource` object.
 
-{{< list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude >}}
+{{% list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude %}}

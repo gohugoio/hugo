@@ -3,13 +3,13 @@ title: RelPermalink
 description: Publishes the given resource and returns its relative permalink.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Permalink
-    - methods/resource/Publish
-  returnType: string
-  signatures: [RESOURCE.RelPermalink]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [RESOURCE.RelPermalink]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 The `Permalink` method on a `Resource` object writes the resource to the publish directory, typically `public`, and returns its [relative permalink](g).
 
@@ -18,5 +18,3 @@ The `Permalink` method on a `Resource` object writes the resource to the publish
   {{ .RelPermalink }} → /images/a.jpg
 {{ end }}
 ```
-
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}

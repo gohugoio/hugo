@@ -3,14 +3,11 @@ title: images.AutoOrient
 description: Returns an image filter that rotates and flips an image as needed per its EXIF orientation tag.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.AutoOrient]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.AutoOrient]
 ---
 
 {{< new-in 0.121.2 />}}
@@ -23,11 +20,10 @@ Create the filter:
 {{ $filter := images.AutoOrient }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
-{{% note %}}
-When using with other filters, specify `images.AutoOrient` first.
-{{% /note %}}
+> [!note]
+> When using with other filters, specify `images.AutoOrient` first.
 
 ```go-html-template
 {{ $filters := slice

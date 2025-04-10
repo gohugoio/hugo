@@ -3,14 +3,10 @@ title: GroupByParamDate
 description: Returns the given page collection grouped by the given date parameter in descending order.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pages/GroupByDate
-    - methods/pages/GroupByExpiryDate
-    - methods/pages/GroupByLastMod
-    - methods/pages/GroupByPublishDate
-  returnType: page.PagesGroup
-  signatures: ['PAGES.GroupByParamDate PARAM LAYOUT [SORT]']
+params:
+  functions_and_methods:
+    returnType: page.PagesGroup
+    signatures: ['PAGES.GroupByParamDate PARAM LAYOUT [SORT]']
 ---
 
 The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized](g) for language and region.
@@ -18,7 +14,7 @@ The [layout string] has the same format as the layout string for the [`time.Form
 [`time.Format`]: /functions/time/format/
 [layout string]: #layout-string
 
-{{% include "methods/pages/_common/group-sort-order.md" %}}
+{{% include "/_common/methods/pages/group-sort-order.md" %}}
 
 To group content by year and month:
 
@@ -61,4 +57,4 @@ The pages within each group will also be sorted by the parameter date, either as
 
 ## Layout string
 
-{{% include "functions/_common/time-layout-string.md" %}}
+{{% include "/_common/time-layout-string.md" %}}

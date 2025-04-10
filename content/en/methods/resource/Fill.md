@@ -1,19 +1,15 @@
 ---
 title: Fill
-description:  Applicable to images, returns an image resource cropped and resized to the given dimensions.
+description: Applicable to images, returns an image resource cropped and resized to the given dimensions.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Crop
-    - methods/resource/Fit
-    - methods/resource/Resize
-    - methods/resource/Process
-    - functions/images/Process
-  returnType: images.ImageResource
-  signatures: [RESOURCE.Fill SPEC]
-toc: true
+params:
+  functions_and_methods:
+    returnType: images.ImageResource
+    signatures: [RESOURCE.Fill SPEC]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 Crop and resize an image to match the given dimensions. You must provide both width and height.
 
@@ -25,9 +21,7 @@ Crop and resize an image to match the given dimensions. You must provide both wi
 {{ end }}
 ```
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
-
-{{% include "/methods/resource/_common/processing-spec.md" %}}
+{{% include "/_common/methods/resource/processing-spec.md" %}}
 
 ## Example
 

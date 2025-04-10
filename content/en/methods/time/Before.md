@@ -3,13 +3,10 @@ title: Before
 description: Reports whether TIME1 is before TIME2.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/After
-    - methods/time/Equal
-    - functions/time/AsTime
-  returnType: bool
-  signatures: [TIME1.Before TIME2]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [TIME1.Before TIME2]
 ---
 
 ```go-html-template

@@ -2,13 +2,8 @@
 title: Data inspection
 linkTitle: Inspection
 description: Use template functions to inspect values and data structures.
-categories: [troubleshooting]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: troubleshooting
-    weight: 40
-weight: 40
 ---
 
 Use the [`debug.Dump`] function to inspect a data structure:

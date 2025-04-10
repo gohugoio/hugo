@@ -1,9 +1,9 @@
 {{ define "main" }}
   <div class="flex flex-col w-full p-0 m-0">
     {{ partial "layouts/home/opensource.html" . }}
-    <hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14" />
+    <hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14">
     {{ partial "layouts/home/sponsors.html"  (dict "ctx" . "gtag" "home" ) }}
-    <hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14" />
+    <hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14">
     {{ partial "layouts/home/features.html" . }}
   </div>
 {{ end }}
@@ -15,7 +15,7 @@
         <img
           src="{{ `images/hugo-logo-wide.svg`| relURL }}"
           alt="Hugo Logo"
-          class="w-64 aspect-3/1 mx-auto mb-8" />
+          class="w-64 aspect-3/1 mx-auto mb-8">
         <h1
           class="text-4xl font-bold tracking-tight text-balance text-gray-900 dark:text-gray-300 sm:text-6xl">
           The world’s fastest framework for building websites

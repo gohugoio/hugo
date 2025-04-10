@@ -1,3 +1,4 @@
+{{/* prettier-ignore-start */ -}}
 {{/*
 Parses the serialized data from the given URL and returns a map or an array.
 
@@ -8,7 +9,7 @@ Supports CSV, JSON, TOML, YAML, and XML.
 
 @example {{ partial "get-remote-data.html" "https://example.org/foo.json" }}
 */}}
-
+{{/* prettier-ignore-end */ -}}
 {{ $url := . }}
 {{ $data := dict }}
 {{ with try (resources.GetRemote $url) }}

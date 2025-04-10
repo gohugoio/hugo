@@ -3,15 +3,11 @@ title: strings.CountRunes
 description: Returns the number of runes in the given string excluding whitespace.
 categories: []
 keywords: []
-action:
-  aliases: [countrunes]
-  related:
-    - functions/go-template/len
-    - functions/strings/Count
-    - functions/strings/CountWords
-    - functions/strings/RuneCount
-  returnType: int
-  signatures: [strings.CountRunes INPUT]
+params:
+  functions_and_methods:
+    aliases: [countrunes]
+    returnType: int
+    signatures: [strings.CountRunes INPUT]
 aliases: [/functions/countrunes]
 ---
 

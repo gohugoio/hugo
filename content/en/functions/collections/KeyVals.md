@@ -3,12 +3,11 @@ title: collections.KeyVals
 description: Returns a KeyVals struct.
 categories: []
 keywords: []
-action:
-  aliases: [keyVals]
-  related:
-    - methods/pages/Related
-  returnType: types.KeyValues
-  signatures: [collections.KeyVals KEY VALUE...]
+params:
+  functions_and_methods:
+    aliases: [keyVals]
+    returnType: types.KeyValues
+    signatures: [collections.KeyVals KEY VALUE...]
 aliases: [/functions/keyvals]
 ---
 
@@ -16,7 +15,7 @@ The primary application for this function is the definition of the `namedSlices`
 
 [`Related`]: /methods/pages/related/
 
-See [related content](/content-management/related).
+See [related content](/content-management/related-content/).
 
 ```go-html-template
 {{ $kv := keyVals "foo" "a" "b" "c" }}

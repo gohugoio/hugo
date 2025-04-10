@@ -3,23 +3,22 @@ title: data.GetCSV
 description: Returns an array of arrays from a local or remote CSV file, or an error if the file does not exist.
 categories: []
 keywords: []
-action:
-  aliases: [getCSV]
-  related: []
-  returnType: '[][]string'
-  signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [getCSV]
+    returnType: '[][]string'
+    signatures: ['data.GetCSV SEPARATOR INPUT... [OPTIONS]']
 expiryDate: 2026-02-19 # deprecated 2024-02-19 in v0.123.0
 ---
 
-{{% deprecated-in 0.123.0 %}}
+{{< deprecated-in 0.123.0 >}}
 Instead, use [`transform.Unmarshal`] with a [global resource](g), [page resource](g), or [remote resource](g).
 
 See the [remote data example].
 
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
 [remote data example]: /functions/resources/getremote/#remote-data
-{{% /deprecated-in %}}
+{{< /deprecated-in >}}
 
 Given the following directory structure:
 
@@ -36,11 +35,10 @@ Access the data with either of the following:
 {{ $data := getCSV "," "other-files/" "pets.csv" }}
 ```
 
-{{% note %}}
-When working with local data, the file path is relative to the working directory.
-
-You must not place CSV files in the project's `data` directory.
-{{% /note %}}
+> [!note]
+> When working with local data, the file path is relative to the working directory.
+>
+> You must not place CSV files in the project's `data` directory.
 
 Access remote data with either of the following:
 

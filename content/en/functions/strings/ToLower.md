@@ -3,14 +3,11 @@ title: strings.ToLower
 description: Returns the given string, converting all characters to lowercase.
 categories: []
 keywords: []
-action:
-  aliases: [lower]
-  related:
-    - functions/strings/FirstUpper
-    - functions/strings/Title
-    - functions/strings/ToUpper
-  returnType: string
-  signatures: [strings.ToLower INPUT]
+params:
+  functions_and_methods:
+    aliases: [lower]
+    returnType: string
+    signatures: [strings.ToLower INPUT]
 aliases: [/functions/lower]
 ---
 

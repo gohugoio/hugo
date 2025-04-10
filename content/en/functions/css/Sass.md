@@ -3,16 +3,11 @@ title: css.Sass
 description: Transpiles Sass to CSS.
 categories: []
 keywords: []
-action:
-  aliases: [toCSS]
-  related:
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
-    - functions/css/PostCSS
-    - functions/resources/PostProcess
-  returnType: resource.Resource
-  signatures: ['css.Sass [OPTIONS] RESOURCE']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [toCSS]
+    returnType: resource.Resource
+    signatures: ['css.Sass [OPTIONS] RESOURCE']
 ---
 
 {{< new-in 0.128.0 />}}
@@ -70,10 +65,10 @@ precision
 : (`int`) Precision of floating point math. Not applicable to Dart Sass.
 
 enableSourceMap
-: (`bool`) If `true`, generates a source map.
+: (`bool`) Whether to generate a source map. Default is `false`.
 
 sourceMapIncludeSources
-: (`bool`) If `true`, embeds sources in the generated source map. Not applicable to LibSass.
+: (`bool`) Whether to embed sources in the generated source map. Not applicable to LibSass. Default is `false`.
 
 includePaths
 : (`slice`) A slice of paths, relative to the project root, that the transpiler will use when resolving `@use` and `@import` statements.
@@ -128,7 +123,7 @@ Run `hugo env` to list the active transpilers.
 
 ### Installing in a production environment
 
-For [CI/CD] deployments (e.g., GitHub Pages, GitLab Pages, Netlify, etc.) you must edit the workflow to install Dart Sass before Hugo builds the site[^2]. Some providers allow you to use one of the package managers above, or you can download and extract one of the prebuilt binaries.
+For [CI/CD](g) deployments (e.g., GitHub Pages, GitLab Pages, Netlify, etc.) you must edit the workflow to install Dart Sass before Hugo builds the site[^2]. Some providers allow you to use one of the package managers above, or you can download and extract one of the prebuilt binaries.
 
 [^2]: You do not have to do this if (a) you have not modified the assets cache location, and (b) you have not set `useResourceCacheWhen` to `never` in your [site configuration], and (c) you add and commit your `resources` directory to your repository.
 
@@ -149,8 +144,8 @@ To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file 
 
 ```yaml
 variables:
-  HUGO_VERSION: 0.141.0
-  DART_SASS_VERSION: 1.83.4
+  HUGO_VERSION: 0.144.2
+  DART_SASS_VERSION: 1.85.0
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
@@ -183,8 +178,8 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 
 ```toml
 [build.environment]
-HUGO_VERSION = "0.141.0"
-DART_SASS_VERSION = "1.83.4"
+HUGO_VERSION = "0.144.2"
+DART_SASS_VERSION = "1.85.0"
 NODE_VERSION = "22"
 TZ = "America/Los_Angeles"
 
@@ -229,12 +224,11 @@ If you build Hugo from source and run `mage test -v`, the test will fail if you 
 
 [brew.sh]: https://brew.sh/
 [chocolatey.org]: https://community.chocolatey.org/packages/sass
-[ci/cd]: https://en.wikipedia.org/wiki/CI/CD
 [dart sass]: https://sass-lang.com/dart-sass
 [libsass]: https://sass-lang.com/libsass
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
 [scoop.sh]: https://scoop.sh/#/apps?q=sass
-[site configuration]: /getting-started/configuration/#configure-build
+[site configuration]: /configuration/build/
 [snap package]: /installation/linux/#snap
 [snapcraft.io]: https://snapcraft.io/dart-sass
 [starter workflow]: https://github.com/actions/starter-workflows/blob/main/pages/hugo.yml

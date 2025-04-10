@@ -958,6 +958,73 @@ chroma:
   - Aliases:
     - zig
     Name: Zig
+  styles:
+  - abap
+  - algol
+  - algol_nu
+  - arduino
+  - autumn
+  - average
+  - base16-snazzy
+  - borland
+  - bw
+  - catppuccin-frappe
+  - catppuccin-latte
+  - catppuccin-macchiato
+  - catppuccin-mocha
+  - colorful
+  - doom-one
+  - doom-one2
+  - dracula
+  - emacs
+  - evergarden
+  - friendly
+  - fruity
+  - github
+  - github-dark
+  - gruvbox
+  - gruvbox-light
+  - hr_high_contrast
+  - hrdark
+  - igor
+  - lovelace
+  - manni
+  - modus-operandi
+  - modus-vivendi
+  - monokai
+  - monokailight
+  - murphy
+  - native
+  - nord
+  - nordic
+  - onedark
+  - onesenterprise
+  - paraiso-dark
+  - paraiso-light
+  - pastie
+  - perldoc
+  - pygments
+  - rainbow_dash
+  - rose-pine
+  - rose-pine-dawn
+  - rose-pine-moon
+  - rrt
+  - solarized-dark
+  - solarized-dark256
+  - solarized-light
+  - swapoff
+  - tango
+  - tokyonight-day
+  - tokyonight-moon
+  - tokyonight-night
+  - tokyonight-storm
+  - trac
+  - vim
+  - vs
+  - vulcan
+  - witchhazel
+  - xcode
+  - xcode-dark
 config:
   HTTPCache:
     cache:
@@ -1019,6 +1086,13 @@ config:
   cascade: []
   cleanDestinationDir: false
   contentDir: content
+  contentTypes:
+    text/asciidoc: {}
+    text/html: {}
+    text/markdown: {}
+    text/org: {}
+    text/pandoc: {}
+    text/rst: {}
   copyright: ""
   dataDir: data
   defaultContentLanguage: en
@@ -1154,8 +1228,9 @@ config:
         attribute:
           block: false
           title: true
+        autoDefinitionTermID: false
         autoHeadingID: true
-        autoHeadingIDType: github
+        autoIDType: github
         wrapStandAloneImageWithinParagraph: true
       renderHooks:
         image:
@@ -1400,6 +1475,7 @@ config:
       xml:
         keepWhitespace: false
   module:
+    auth: ""
     hugoVersion:
       extended: false
       max: ""
@@ -1737,7 +1813,9 @@ config:
     headers: null
     redirects:
     - force: false
-      from: '**'
+      from: /**
+      fromHeaders: null
+      fromRe: ""
       status: 404
       to: /404.html
   services:
@@ -1794,6 +1872,8 @@ config_helpers:
     caches:
       _merge: none
     cascade:
+      _merge: none
+    contenttypes:
       _merge: none
     deployment:
       _merge: none

@@ -2,27 +2,24 @@
 title: compare.Default
 description: Returns the second argument if set, else the first argument.
 keywords: []
-action:
-  aliases: [default]
-  related:
-    - functions/compare/Conditional
-    - functions/go-template/Or
-  returnType: any
-  signatures: [compare.Default DEFAULT INPUT]
+params:
+  functions_and_methods:
+    aliases: [default]
+    returnType: any
+    signatures: [compare.Default DEFAULT INPUT]
 aliases: [/functions/default]
 ---
 
 The `default` function returns the second argument if set, else the first argument.
 
-{{% note %}}
-When the second argument is the boolean `false` value, the `default` function returns `false`. All _other_ falsy values are considered unset.
-
-{{% include "functions/go-template/_common/truthy-falsy.md" %}}
-
-To set a default value based on truthiness, use the [`or`] operator instead.
-
-[`or`]: /functions/go-template/or/
-{{% /note %}}
+> [!note]
+> When the second argument is the boolean `false` value, the `default` function returns `false`. All _other_ falsy values are considered unset.
+>
+> The falsy values are `false`, `0`, any `nil` pointer or interface value, any array, slice, map, or string of length zero, and zero `time.Time` values.
+>
+> Everything else is truthy.
+>
+> To set a default value based on truthiness, use the [`or`] operator instead.
 
 The `default` function returns the second argument if set:
 
@@ -46,3 +43,5 @@ The `default` function returns the first argument if the second argument is not 
 {{ default 42 slice }} → 42
 {{ default 42 <nil> }} → 42
 ```
+
+[`or`]: /functions/go-template/or/

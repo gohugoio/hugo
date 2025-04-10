@@ -3,12 +3,10 @@ title: TotalPages
 description: Returns the number of pagers in the pager collection.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/PageNumber
-    - methods/page/Paginate
-  returnType: int
-  signatures: [PAGER.TotalPages]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [PAGER.TotalPages]
 ---
 
 Use the `TotalPages` method to build navigation between pagers.

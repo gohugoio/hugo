@@ -3,11 +3,11 @@ title: debug.Dump
 description: Returns an object dump as a string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [debug.Dump VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [debug.Dump VALUE]
 ---
 
 ```go-html-template
@@ -29,6 +29,5 @@ action:
 ]
 ```
 
-{{% note %}}
-Output from this function may change from one release to the next. Use for debugging only.
-{{% /note %}}
+> [!note]
+> Output from this function may change from one release to the next. Use for debugging only.

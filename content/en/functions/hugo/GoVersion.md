@@ -3,11 +3,11 @@ title: hugo.GoVersion
 description: Returns the Go version used to compile the Hugo binary
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [hugo.GoVersion]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [hugo.GoVersion]
 ---
 
 ```go-html-template

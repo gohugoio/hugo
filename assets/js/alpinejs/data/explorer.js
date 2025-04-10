@@ -1,6 +1,6 @@
 var debug = 0 ? console.log.bind(console, '[explorer]') : function () {};
 
-// This is cureently not used, but kept in case I change my mind.
+// This is currently not used, but kept in case I change my mind.
 export const explorer = (Alpine) => ({
 	uiState: {
 		containerScrollTop: -1,

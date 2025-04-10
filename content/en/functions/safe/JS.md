@@ -3,23 +3,17 @@ title: safe.JS
 description: Declares the given string as a safe JavaScript expression.
 categories: []
 keywords: []
-action:
-  aliases: [safeJS]
-  related:
-    - functions/safe/CSS
-    - functions/safe/HTML
-    - functions/safe/HTMLAttr
-    - functions/safe/JSStr
-    - functions/safe/URL
-  returnType: template.JS
-  signatures: [safe.JS INPUT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: [safeJS]
+    returnType: template.JS
+    signatures: [safe.JS INPUT]
 aliases: [/functions/safejs]
 ---
 
 ## Introduction
 
-{{% include "functions/_common/go-html-template-package.md" %}}
+{{% include "/_common/functions/go-html-template-package.md" %}}
 
 ## Usage
 

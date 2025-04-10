@@ -3,12 +3,11 @@ title: math.Max
 description: Returns the greater of all numbers. Accepts scalars, slices, or both.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/math/Min
-  returnType: float64
-  signatures: [math.Max VALUE...]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: float64
+    signatures: [math.Max VALUE...]
 ---
 
 ```go-html-template

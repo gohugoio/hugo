@@ -1,15 +1,12 @@
 {{ define "main" }}
   {{ $pages := "" }}
-  {{ $showDate := false }}
   {{ if .IsPage }}
     {{/* We currently have a slightly odd content structure with no top level /docs section. */}}
     {{ $pages = .CurrentSection.Pages }}
   {{ else }}
+    {{ $pages = .Pages }}
     {{ if eq .Section "news" }}
-      {{ $pages = partial "news/get-news-items.html" . }}
-      {{ $showDate = true }}
-    {{ else }}
-      {{ $pages = .Pages }}
+      {{ $pages = $pages.ByPublishDate.Reverse }}
     {{ end }}
   {{ end }}
 
@@ -23,23 +20,25 @@
         {{ end }}
         <a
           class="flex col-span-1 a--block cursor-pointer flex-col group border p-3 sm:p-4 hover:shadow-md dark:shadow-slate-800 border-gray-300 dark:border-gray-800 m-0"
-          href="{{ .RelPermalink }}">
-          {{ if $showDate }}
-            <p
-              class="text-gray-500 dark:text-gray-400 text-sm/5 md:text-base/2 mb-2 sm:mb-4">
-              {{ .Date.Format "January 2, 2006" }}
-            </p>
+          href="{{ or .Params.permalink .RelPermalink }}">
+          {{ if .Params.show_publish_date }}
+            {{ with .PublishDate }}
+              <p
+                class="text-gray-500 dark:text-gray-400 text-sm/5 md:text-base/2 mb-2 sm:mb-4">
+                {{ partial "layouts/date.html" . }}
+              </p>
+            {{ end }}
           {{ end }}
           <h3
             class="text-lg/6 md:text-2xl tracking-tight p-0 -mt-1 sm:mt-0 mb-1 sm:mb-2 text-primary group-hover:text-primary/70 overflow-hidden">
             {{ .LinkTitle }}
           </h3>
 
-          {{ with .Params.action.signatures }}
+          {{ with .Params.functions_and_methods.signatures }}
             {{/* Set in functions and methods pages. */}}
             {{ with $signature := index . 0 }}
-              {{ if $.Params.action.returnType }}
-                {{ $signature = printf "%s ⟼ %s" $signature $.context.Params.action.returnType }}
+              {{ if $.Params.functions_and_methods.returnType }}
+                {{ $signature = printf "%s ⟼ %s" $signature $.context.Params.functions_and_methods.returnType }}
               {{ end }}
               <div
                 class="font-mono font-light text-sm whitespace-nowrap mb-2 sm:mb-4 p-2 bg-slate-50 dark:bg-slate-700 border-0 mr-8 overflow-x-auto">
@@ -56,6 +55,9 @@
               {{ (or .Params.description .Summary) | plainify | safeHTML }}
             {{ end }}
           </p>
+          {{ if and hugo.IsDevelopment site.Params.debug.display_page_metadata }}
+            {{ partial "helpers/debug/list-item-metadata.html" . }}
+          {{ end }}
         </a>
       {{ end }}
     </div>

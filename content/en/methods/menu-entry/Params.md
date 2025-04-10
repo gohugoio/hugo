@@ -3,10 +3,10 @@ title: Params
 description: Returns the `params` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: maps.Params
-  signatures: [MENUENTRY.Params]
+params:
+  functions_and_methods:
+    returnType: maps.Params
+    signatures: [MENUENTRY.Params]
 ---
 
 When you define menu entries [in site configuration] or [in front matter], you can include a `params` key to attach additional information to the entry. For example:

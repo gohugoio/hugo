@@ -3,11 +3,10 @@ title: PagerSize
 description: Returns the number of pages per pager.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Paginate
-  returnType: int
-  signatures: [PAGER.PagerSize]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [PAGER.PagerSize]
 ---
 
 {{< new-in 0.128.0 />}}

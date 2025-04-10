@@ -1,9 +1,9 @@
 {{ $t := debug.Timer "qr" }}
-{{ $qr := partial "partials/_inline/qr" (dict
+{{ $qr := partial "_inline/qr" (dict
   "page" $
   "img_class" "w-10 bg-white view-transition-qr" )
 }}
-{{ $qrBig := partial "partials/_inline/qr" (dict "page" $ "img_class" "w-64 p-4") }}
+{{ $qrBig := partial "_inline/qr" (dict "page" $ "img_class" "w-64 p-4") }}
 {{ $t.Stop }}
 <div
   class="hidden lg:block cursor-pointer outline-2 hover:outline-3 outline-blue-500 w-10 h-10">
@@ -20,6 +20,6 @@
       height="{{ .Height }}"
       @load="$event.target.classList.remove('_opacity-0')"
       alt="QR code linking to {{ $.page.Permalink }}"
-      class="{{ $img_class }}" />
+      class="{{ $img_class }}">
   {{ end }}
 {{ end }}

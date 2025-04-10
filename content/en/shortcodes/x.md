@@ -1,23 +1,15 @@
 ---
-title: X
+title: X shortcode
+linkTitle: X
 description: Embed an X post in your content using the x shortcode.
-categories: [shortcodes]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: shortcodes
-    weight:
-weight:
-toc: true
 ---
 
 {{< new-in 0.141.0 />}}
 
-{{% note %}}
-To override Hugo's embedded `x` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
-
-[source code]: {{% eturl x %}}
-{{% /note %}}
+> [!note]
+> To override Hugo's embedded `x` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 ## Example
 
@@ -54,8 +46,9 @@ simple
 
 The source code for the simple version of the shortcode is available [here].
 
-[here]: {{% eturl x_simple %}}
-
 If you enable simple mode you may want to disable the hardcoded inline styles by setting `disableInlineCSS` to `true` in your site configuration. The default value for this setting is `false`.
 
 {{< code-toggle config=services.x />}}
+
+[here]: {{% eturl x_simple %}}
+[source code]: {{% eturl x %}}

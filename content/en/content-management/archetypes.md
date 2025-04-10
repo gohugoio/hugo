@@ -1,15 +1,8 @@
 ---
 title: Archetypes
 description: An archetype is a template for new content.
-categories: [content management]
-keywords: [archetypes,generators,metadata,front matter]
-menu:
-  docs:
-    parent: content-management
-    weight: 140
-  quicklinks:
-weight: 140
-toc: true
+categories: []
+keywords: []
 aliases: [/content/archetypes/]
 ---
 
@@ -102,7 +95,7 @@ Although typically used as a front matter template, you can also use an archetyp
 
 For example, in a documentation site you might have a section (content type) for functions. Every page within this section should follow the same format: a brief description, the function signature, examples, and notes. We can pre-populate the page to remind content authors of the standard format.
 
-{{< code file=archetypes/functions.md >}}
+````text {file="archetypes/functions.md"}
 ---
 date: '{{ .Date }}'
 draft: true
@@ -126,7 +119,7 @@ One or more practical examples, each within a fenced code block.
 ## Notes
 
 Additional information to clarify as needed.
-{{< /code >}}
+````
 
 Although you can include [template actions](g) within the content body, remember that Hugo evaluates these once---at the time of content creation. In most cases, place template actions in a [template](g) where Hugo evaluates the actions every time you [build](g) the site.
 

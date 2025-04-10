@@ -3,13 +3,13 @@ title: GroupByParam
 description: Returns the given page collection grouped by the given parameter in ascending order.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.PagesGroup
-  signatures: ['PAGES.GroupByParam PARAM [SORT]']
+params:
+  functions_and_methods:
+    returnType: page.PagesGroup
+    signatures: ['PAGES.GroupByParam PARAM [SORT]']
 ---
 
-{{% include "methods/pages/_common/group-sort-order.md" %}}
+{{% include "/_common/methods/pages/group-sort-order.md" %}}
 
 ```go-html-template
 {{ range .Pages.GroupByParam "color" }}

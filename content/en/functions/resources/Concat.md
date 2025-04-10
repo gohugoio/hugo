@@ -3,11 +3,11 @@ title: resources.Concat
 description: Returns a concatenated slice of resources.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: resource.Resource
-  signatures: ['resources.Concat TARGETPATH [RESOURCE...]']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: ['resources.Concat TARGETPATH [RESOURCE...]']
 ---
 
 The `resources.Concat` function returns a concatenated slice of resources, caching the result using the target path as its cache key. Each resource must have the same [media type].

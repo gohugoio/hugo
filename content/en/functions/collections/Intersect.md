@@ -3,14 +3,11 @@ title: collections.Intersect
 description: Returns the common elements of two arrays or slices, in the same order as the first array.
 categories: []
 keywords: []
-action:
-  aliases: [intersect]
-  related:
-    - functions/collections/Complement
-    - functions/collections/SymDiff
-    - functions/collections/Union
-  returnType: any
-  signatures: [collections.Intersect SET1 SET2]
+params:
+  functions_and_methods:
+    aliases: [intersect]
+    returnType: any
+    signatures: [collections.Intersect SET1 SET2]
 aliases: [/functions/intersect]
 ---
 

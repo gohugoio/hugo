@@ -3,12 +3,11 @@ title: collections.Slice
 description: Returns a slice composed of the given values.
 categories: []
 keywords: []
-action:
-  aliases: [slice]
-  related:
-    - functions/collections/Dictionary
-  returnType: any
-  signatures: ['collections.Slice [VALUE...]']
+params:
+  functions_and_methods:
+    aliases: [slice]
+    returnType: any
+    signatures: ['collections.Slice [VALUE...]']
 aliases: [/functions/slice]
 ---
 

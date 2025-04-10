@@ -3,16 +3,15 @@ title: Get
 description: Returns a slice of weighted pages to which the given term has been assigned.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.WeightedPages
-  signatures: [TAXONOMY.Get TERM]
-toc: true
+params:
+  functions_and_methods:
+    returnType: page.WeightedPages
+    signatures: [TAXONOMY.Get TERM]
 ---
 
 The `Get` method on a `Taxonomy` object returns a slice of [weighted pages](g) to which the given [term](g) has been assigned.
 
-{{% include "methods/taxonomy/_common/get-a-taxonomy-object.md" %}}
+{{% include "/_common/methods/taxonomy/get-a-taxonomy-object.md" %}}
 
 ## Get the weighted pages
 

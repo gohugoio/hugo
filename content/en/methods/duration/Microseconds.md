@@ -3,12 +3,10 @@ title: Microseconds
 description: Returns the time.Duration value as an integer microsecond count.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/Duration
-    - functions/time/ParseDuration
-  returnType: int64
-  signatures: [DURATION.Microseconds]
+params:
+  functions_and_methods:
+    returnType: int64
+    signatures: [DURATION.Microseconds]
 ---
 
 ```go-html-template

@@ -1,19 +1,13 @@
 ---
 title: path.Split
-description: Replaces path separators with slashes (`/`) and splits the resulting path immediately following the final slash, separating it into a directory and file name component. 
+description: Replaces path separators with slashes (`/`) and splits the resulting path immediately following the final slash, separating it into a directory and file name component.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/path/Base
-    - functions/path/BaseName
-    - functions/path/Clean
-    - functions/path/Dir
-    - functions/path/Ext
-    - functions/path/Join
-  returnType: paths.DirFile
-  signatures: [path.Split PATH]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: paths.DirFile
+    signatures: [path.Split PATH]
 aliases: [/functions/path.split]
 ---
 

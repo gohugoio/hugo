@@ -3,12 +3,10 @@ title: Hours
 description: Returns the time.Duration value as a floating point number of hours.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/Duration
-    - functions/time/ParseDuration
-  returnType: float64
-  signatures: [DURATION.Hours]
+params:
+  functions_and_methods:
+    returnType: float64
+    signatures: [DURATION.Hours]
 ---
 
 ```go-html-template

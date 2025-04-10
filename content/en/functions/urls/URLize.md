@@ -3,16 +3,15 @@ title: urls.URLize
 description: Returns the given string, sanitized for usage in a URL.
 categories: []
 keywords: []
-action:
-  aliases: [urlize]
-  related:
-    - functions/urls/Anchorize
-  returnType: string
-  signatures: [urls.URLize INPUT]
+params:
+  functions_and_methods:
+    aliases: [urlize]
+    returnType: string
+    signatures: [urls.URLize INPUT]
 aliases: [/functions/urlize]
 ---
 
-{{% include "/functions/urls/_common/anchorize-vs-urlize.md" %}}
+{{% include "/_common/functions/urls/anchorize-vs-urlize.md" %}}
 
 ## Example
 

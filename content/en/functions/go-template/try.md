@@ -3,29 +3,28 @@ title: try
 description: Returns a TryValue object after evaluating the given expression.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: TryValue
-  signatures: ['try EXPRESSION']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: TryValue
+    signatures: ['try EXPRESSION']
 ---
 
 {{< new-in 0.141.0 />}}
 
 The `try` statement is a non-standard extension to Go's [text/template] package. It introduces a mechanism for handling errors within templates, mimicking the `try-catch` constructs found in other programming languages.
 
-[text/template]: https://pkg.go.dev/text/template
-
 ## Methods
 
 The `TryValue` object encapsulates the result of evaluating the expression, and provides two methods:
 
-Err
-: (`string`) Returns a string representation of the error thrown by the expression, if an error occurred, or returns `nil` if the expression evaluated without errors.
+### Err
 
-Value
-: (`any`) Returns the result of the expression if the evaluation was successful, or returns `nil` if an error occurred while evaluating the expression.
+(`string`) Returns a string representation of the error thrown by the expression, if an error occurred, or returns `nil` if the expression evaluated without errors.
+
+### Value
+
+(`any`) Returns the result of the expression if the evaluation was successful, or returns `nil` if an error occurred while evaluating the expression.
 
 ## Explanation
 
@@ -88,8 +87,6 @@ Hugo renders the above to:
 
 Error handling is essential when using the [`resources.GetRemote`] function to capture remote resources such as data or images. When calling this function, if the HTTP request fails, Hugo will fail the build.
 
-[`resources.GetRemote`]: /functions/resources/getremote/
-
 Instead of failing the build, we can catch the error and emit a warning:
 
 ```go-html-template
@@ -106,8 +103,9 @@ Instead of failing the build, we can catch the error and emit a warning:
 ```
 In the above, note that the [context](g) within the last conditional block is the `TryValue` object returned by the `try` statement. At this point neither the `Err` nor `Value` methods returned anything, so the current context is not useful. Use the `$` to access the [template context] if needed.
 
-[template context]: /templates/introduction/#template-context
+> [!note]
+> Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
 
-{{% note %}}
-Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
-{{% /note %}}
+[`resources.GetRemote`]: /functions/resources/getremote/
+[template context]: /templates/introduction/#template-context
+[text/template]: https://pkg.go.dev/text/template

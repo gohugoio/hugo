@@ -3,23 +3,20 @@ title: transform.Remarshal
 description: Marshals a string of serialized data, or a map, into a string of serialized data in the specified format.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/encoding/Jsonify
-    - functions/transform/Unmarshal
-  returnType: string
-  signatures: [transform.Remarshal FORMAT INPUT]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [transform.Remarshal FORMAT INPUT]
 aliases: [/functions/transform.remarshal]
 ---
 
 The format must be one of `json`, `toml`, `yaml`, or `xml`. If the input is a string of serialized data, it must be valid JSON, TOML, YAML, or XML.
 
-{{% note %}}
-This function is primarily a helper for Hugo's documentation, used to convert configuration and front matter examples to JSON, TOML, and YAML.
-
-This is not a general purpose converter, and may change without notice if required for Hugo's documentation site.
-{{% /note %}}
+> [!note]
+> This function is primarily a helper for Hugo's documentation, used to convert configuration and front matter examples to JSON, TOML, and YAML.
+>
+> This is not a general purpose converter, and may change without notice if required for Hugo's documentation site.
 
 Example 1
 : Convert a string of TOML to JSON.

@@ -3,11 +3,10 @@ title: Pages
 description: Returns the pages in the current pager.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Paginate
-  returnType: page.Pages
-  signatures: [PAGER.Pages]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGER.Pages]
 ---
 
 ```go-html-template

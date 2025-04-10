@@ -3,14 +3,11 @@ title: template
 description: Executes the given template, optionally passing context.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/define
-    - functions/partials/Include
-    - functions/partials/IncludeCached
-  returnType: 
-  signatures: ['template NAME [CONTEXT]']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: 
+    signatures: ['template NAME [CONTEXT]']
 ---
 
 Use the `template` function to execute [embedded templates]. For example:
@@ -42,7 +39,7 @@ The example above can be rewritten using an [inline partial] template:
 {{ end }}
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`partial`]: /functions/partials/include/
 [inline partial]: /templates/partial/#inline-partials

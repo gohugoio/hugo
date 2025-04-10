@@ -3,16 +3,11 @@ title: compare.Lt
 description: Returns the boolean truth of arg1 < arg2 && arg1 < arg3.
 categories: []
 keywords: []
-action:
-  aliases: [lt]
-  related:
-    - functions/compare/Eq
-    - functions/compare/Ge
-    - functions/compare/Gt
-    - functions/compare/Le
-    - functions/compare/Ne
-  returnType: bool
-  signatures: ['compare.Lt ARG1 ARG2 [ARG...]']
+params:
+  functions_and_methods:
+    aliases: [lt]
+    returnType: bool
+    signatures: ['compare.Lt ARG1 ARG2 [ARG...]']
 aliases: [/functions/lt]
 ---
 

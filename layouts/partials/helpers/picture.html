@@ -9,17 +9,17 @@
   <source
     srcset="{{ $imageWebp.RelPermalink }}"
     type="image/webp"
-    media="(min-width: 1200px)" />
+    media="(min-width: 1200px)">
   <source
     srcset="{{ $image.RelPermalink }}"
     type="image/jpeg"
-    media="(min-width: 1200px)" />
-  <source srcset="{{ $image1xWebp.RelPermalink }}" type="image/webp" />
-  <source srcset="{{ $image1x.RelPermalink }}" type="image/jpeg" />
+    media="(min-width: 1200px)">
+  <source srcset="{{ $image1xWebp.RelPermalink }}" type="image/webp">
+  <source srcset="{{ $image1x.RelPermalink }}" type="image/jpeg">
   <img
     class="{{ $class }}"
     src="{{ $image1x.RelPermalink }}"
     alt=""
     width="{{ $image1x.Width }}"
-    height="{{ $image1x.Height }}" />
+    height="{{ $image1x.Height }}">
 </picture>

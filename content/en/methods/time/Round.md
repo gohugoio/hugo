@@ -3,13 +3,10 @@ title: Round
 description: Returns the result of rounding TIME to the nearest multiple of DURATION since January 1, 0001, 00:00:00 UTC.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-    - functions/time/ParseDuration
-    - methods/time/Truncate
-  returnType: time.Time
-  signatures: [TIME.Round DURATION]
+params:
+  functions_and_methods:
+    returnType: time.Time
+    signatures: [TIME.Round DURATION]
 ---
 
 The rounding behavior for halfway values is to round up.

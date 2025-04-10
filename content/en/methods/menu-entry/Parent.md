@@ -3,10 +3,10 @@ title: Parent
 description: Returns the `parent` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [MENUENTRY.Parent]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [MENUENTRY.Parent]
 ---
 
 With this menu definition:
@@ -40,7 +40,7 @@ This template renders the nested menu, listing the `parent` property next each o
       {{ if .HasChildren }}
         <ul>
           {{ range .Children }}
-            <li><a href="{{ .URL }}">{{ .Name }}</a> ({{ .Parent  }})</li>
+            <li><a href="{{ .URL }}">{{ .Name }}</a> ({{ .Parent }})</li>
           {{ end }}
         </ul>
       {{ end }}

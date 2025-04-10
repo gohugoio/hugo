@@ -3,16 +3,13 @@ title: Pages
 description: Returns a collection of all pages.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/site/AllPages
-    - methods/site/RegularPages
-    - methods/site/Sections
-  returnType: page.Pages
-  signatures: [SITE.Pages]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [SITE.Pages]
 ---
 
-This method returns all page [kinds](g) in the current language. That includes the home page, section pages, taxonomy pages, term pages, and regular pages.
+This method returns all page [kinds](g) in the current language, in the [default sort order](g). That includes the home page, section pages, taxonomy pages, term pages, and regular pages.
 
 In most cases you should use the [`RegularPages`] method instead.
 

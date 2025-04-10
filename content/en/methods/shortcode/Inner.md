@@ -3,28 +3,23 @@ title: Inner
 description: Returns the content between opening and closing shortcode tags, applicable when the shortcode call includes a closing tag.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/strings/Trim
-    - methods/page/RenderString
-    - functions/transform/Markdownify
-    - methods/shortcode/InnerDeindent
-  returnType: template.HTML
-  signatures: [SHORTCODE.Inner]
-toc: true
+params:
+  functions_and_methods:
+    returnType: template.HTML
+    signatures: [SHORTCODE.Inner]
 ---
 
 This content:
 
-{{< code file=content/services.md lang=md >}}
+```text {file="content/services.md"}
 {{</* card title="Product Design" */>}}
 We design the **best** widgets in the world.
 {{</* /card */>}}
-{{< /code >}}
+```
 
 With this shortcode:
 
-{{< code file=layouts/shortcodes/card.html  >}}
+```go-html-template {file="layouts/shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -33,7 +28,7 @@ With this shortcode:
     {{ .Inner | strings.TrimSpace }}
   </div>
 </div>
-{{< /code >}}
+```
 
 Is rendered to:
 
@@ -46,23 +41,17 @@ Is rendered to:
 </div>
 ```
 
-{{% note %}}
-Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`strings.TrimSpace`] function as shown above to remove both carriage returns and newlines.
+> [!note]
+> Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`strings.TrimSpace`] function as shown above to remove carriage returns and newlines.
 
-[`strings.TrimSpace`]: /functions/strings/trimspace/
-{{% /note %}}
-
-{{% note %}}
-In the example above, the value returned by `Inner` is Markdown, but it was rendered as plain text. Use either of the following approaches to render Markdown to HTML.
-{{% /note %}}
+> [!note]
+> In the example above, the value returned by `Inner` is Markdown, but it was rendered as plain text. Use either of the following approaches to render Markdown to HTML.
 
 ## Use RenderString
 
 Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`] method on the `Page` object:
 
-[`RenderString`]: /methods/page/renderstring/
-
-{{< code file=layouts/shortcodes/card.html  >}}
+```go-html-template {file="layouts/shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -71,7 +60,7 @@ Let's modify the example above to pass the value returned by `Inner` through the
     {{ .Inner | strings.TrimSpace | .Page.RenderString }}
   </div>
 </div>
-{{< /code >}}
+```
 
 Hugo renders this to:
 
@@ -86,18 +75,15 @@ Hugo renders this to:
 
 You can use the [`markdownify`] function instead of the `RenderString` method, but the latter is more flexible. See&nbsp;[details].
 
-[details]: /methods/page/renderstring/
-[`markdownify`]: /functions/transform/markdownify/
-
 ## Alternative notation
 
 Instead of calling the shortcode with the `{{</* */>}}` notation, use the `{{%/* */%}}` notation:
 
-{{< code file=content/services.md lang=md >}}
+```text {file="content/services.md"}
 {{%/* card title="Product Design" */%}}
 We design the **best** widgets in the world.
 {{%/* /card */%}}
-{{< /code >}}
+```
 
 When you use the `{{%/* */%}}` notation, Hugo renders the entire shortcode as Markdown, requiring the following changes.
 
@@ -112,7 +98,7 @@ This configuration is not unsafe if _you_ control the content. Read more about H
 
 Second, because we are rendering the entire shortcode as Markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
 
-{{< code file=layouts/shortcodes/card.html  >}}
+```go-html-template {file="layouts/shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
   <div class="card-title">{{ . }}</div>
@@ -122,7 +108,7 @@ Second, because we are rendering the entire shortcode as Markdown, we must adher
   {{ .Inner | strings.TrimSpace }}
   </div>
 </div>
-{{< /code >}}
+```
 
 The difference between this and the previous example is subtle but required. Note the change in indentation, the addition of a blank line, and removal of the `RenderString` method.
 
@@ -143,11 +129,15 @@ The difference between this and the previous example is subtle but required. Not
  </div>
 ```
 
-{{% note %}}
-When using the `{{%/* */%}}` notation, do not pass the value returned by `Inner` through the `RenderString` method or  the `markdownify` function.
-{{% /note %}}
+> [!note]
+> Don't process the `Inner` value with `RenderString` or `markdownify` when using [Markdown notation] to call the shortcode.
 
-[commonmark]: https://commonmark.org/
+[`markdownify`]: /functions/transform/markdownify/
+[`RenderString`]: /methods/page/renderstring/
+[`strings.TrimSpace`]: /functions/strings/trimspace/
+[CommonMark]: https://spec.commonmark.org/current/
+[details]: /methods/page/renderstring/
 [indentation]: https://spec.commonmark.org/0.30/#indented-code-blocks
-[raw html blocks]: https://spec.commonmark.org/0.30/#html-blocks
+[Markdown notation]: /content-management/shortcodes/#notation
+[raw HTML blocks]: https://spec.commonmark.org/0.31.2/#html-blocks
 [security model]: /about/security/

@@ -3,11 +3,10 @@ title: Children
 description: Returns a collection of child menu entries, if any, under the given menu entry.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/menu-entry/HasChildren
-  returnType: navigation.Menu
-  signatures: [MENUENTRY.Children]
+params:
+  functions_and_methods:
+    returnType: navigation.Menu
+    signatures: [MENUENTRY.Children]
 ---
 
 Use the `Children` method when rendering a nested menu.

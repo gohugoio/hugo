@@ -1,14 +1,9 @@
 ---
 title: Features
 description: Hugo's rich and powerful feature set provides the framework and tools to create static sites that build in seconds, often less.
-categories: [about]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: about
-    weight: 30
-weight: 30
-toc: true
+weight: 20
 ---
 
 ## Framework
@@ -61,7 +56,7 @@ toc: true
 : Syntactically highlight code examples using Hugo's embedded syntax highlighter, enabled by default for fenced code blocks in Markdown. The syntax highlighter supports hundreds of code languages and dozens of styles.
 
 [Shortcodes]
-: Use Hugo's embedded shortcodes, or create your own, to insert complex content. For example, use shortcodes to include `audio` and `video` elements, render tables from local or remote data sources, insert snippets from other  pages, and more.
+: Use Hugo's embedded shortcodes, or create your own, to insert complex content. For example, use shortcodes to include `audio` and `video` elements, render tables from local or remote data sources, insert snippets from other pages, and more.
 
 ## Content management
 
@@ -83,7 +78,7 @@ toc: true
 ## Asset pipelines
 
 [Image processing]
-: Convert, resize, crop, rotate,  adjust colors, apply filters, overlay text and images, and extract EXIF data.
+: Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract EXIF data.
 
 [JavaScript bundling]
 : Transpile TypeScript and JSX to JavaScript, bundle, tree shake, minify, create source maps, and perform SRI hashing.
@@ -107,18 +102,18 @@ toc: true
 
 [Multilingual]: /content-management/multilingual/
 [Multiplatform]: /installation/
-[Output formats]: /templates/output-formats/
+[Output formats]: /configuration/output-formats/
 [Templates]: /templates/introduction/
 [Themes]: https://themes.gohugo.io/
 [Modules]: /hugo-modules/
-[Privacy]: /about/privacy/
+[Privacy]: /configuration/privacy/
 [Security]: /about/security/
 
 [Content formats]: /content-management/formats/
 [CommonMark]: https://spec.commonmark.org/current/
 [GitHub Flavored Markdown]: https://github.github.com/gfm/
 [Markdown attributes]: /content-management/markdown-attributes/
-[Markdown extensions]: /getting-started/configuration-markup/#goldmark-extensions
+[Markdown extensions]: /configuration/markup/#extensions
 [Markdown render hooks]: /render-hooks/introduction/
 [Diagrams]: /content-management/diagrams/
 [Mathematics]: /content-management/mathematics/
@@ -137,5 +132,5 @@ toc: true
 [Tailwind CSS processing]: /functions/css/tailwindcss/
 
 [Caching]: /functions/partials/includecached/
-[Segmentation]: /getting-started/configuration/#configure-segments
-[Minification]: /getting-started/configuration/#configure-minify
+[Segmentation]: /configuration/segments/
+[Minification]: /configuration/minify/

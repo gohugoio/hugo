@@ -2,14 +2,9 @@
 title: Template lookup order
 linkTitle: Lookup order
 description: Hugo uses the rules below to select a template for a given page, starting from the most specific.
-categories: [templates,fundamentals]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 40
-weight: 40
-toc: true
+weight: 20
 ---
 
 ## Lookup rules
@@ -23,7 +18,7 @@ Layout
 : Can be set in front matter.
 
 Output Format
-: See [Custom Output Formats](/templates/output-formats). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`), but look for less specific templates.
+: See [configure output formats](/configuration/output-formats/). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`), but look for less specific templates.
 
 Note that if the output format's Media Type has more than one suffix defined, only the first is considered.
 
@@ -36,9 +31,8 @@ Type
 Section
 : Is relevant for `section`, `taxonomy` and `term` types.
 
-{{% note %}}
-Templates can live in either the project's or the themes' `layout` directories, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
-{{% /note %}}
+> [!note]
+> Templates can live in either the project's or the themes' `layout` directories, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
 
 ## Target a template
 
@@ -62,7 +56,7 @@ layouts/
 
 But the contact page probably has a form and requires a different template. In the front matter specify `layout`:
 
-{{< code-toggle file=content/contact.md >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 layout = 'contact'
 {{< /code-toggle >}}
@@ -78,12 +72,12 @@ layouts/
 
 As a content type, the word `page` is vague. Perhaps `miscellaneous` would be better. Add `type` to the front matter of each page:
 
-{{< code-toggle file=content/about.md >}}
+{{< code-toggle file=content/about.md fm=true >}}
 title = 'About'
 type = 'miscellaneous'
 {{< /code-toggle >}}
 
-{{< code-toggle file=content/contact.md >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 type = 'miscellaneous'
 layout = 'contact'

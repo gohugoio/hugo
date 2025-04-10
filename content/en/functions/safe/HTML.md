@@ -3,23 +3,17 @@ title: safe.HTML
 description: Declares the given string as a safeHTML string.
 categories: []
 keywords: []
-action:
-  aliases: [safeHTML]
-  related:
-    - functions/safe/CSS
-    - functions/safe/HTMLAttr
-    - functions/safe/JS
-    - functions/safe/JSStr
-    - functions/safe/URL
-  returnType: template.HTML
-  signatures: [safe.HTML INPUT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: [safeHTML]
+    returnType: template.HTML
+    signatures: [safe.HTML INPUT]
 aliases: [/functions/safehtml]
 ---
 
 ## Introduction
 
-{{% include "functions/_common/go-html-template-package.md" %}}
+{{% include "/_common/functions/go-html-template-package.md" %}}
 
 ## Usage
 

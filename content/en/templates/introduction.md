@@ -1,34 +1,22 @@
 ---
 title: Introduction to templating
 linkTitle: Introduction
-description: Create templates to render your content, resources, and data.
-categories: [templates,fundamentals]
+description: An introduction to Hugo's templating syntax.
+categories: []
 keywords: []
-menu:
-  docs:
-    identifier: templates-introduction
-    parent: templates
-    weight: 20
-weight: 20
-toc: true
+weight: 10
 ---
 
-A template is a file in the `layouts` directory of a project, theme, or module. Templates use [variables] , [functions], and [methods] to transform your content, resources, and data into a published page.
+{{% glossary-term template %}}
 
-[functions]: /functions/
-[methods]: /methods/
-[variables]: #variables
+Templates use [variables], [functions], and [methods] to transform your content, resources, and data into a published page.
 
-{{% note %}}
-Hugo uses Go's [text/template] and [html/template] packages.
-
-The text/template package implements data-driven templates for generating textual output, while the html/template package implements data-driven templates for generating HTML output safe against code injection.
-
-By default, Hugo uses the html/template package when rendering HTML files.
-
-[text/template]: https://pkg.go.dev/text/template
-[html/template]: https://pkg.go.dev/html/template
-{{% /note %}}
+> [!note]
+> Hugo uses Go's [text/template] and [html/template] packages.
+>
+> The text/template package implements data-driven templates for generating textual output, while the html/template package implements data-driven templates for generating HTML output safe against code injection.
+>
+> By default, Hugo uses the html/template package when rendering HTML files.
 
 For example, this HTML template initializes the `$v1` and `$v2` variables, then displays them and their product within an HTML paragraph.
 
@@ -38,9 +26,7 @@ For example, this HTML template initializes the `$v1` and `$v2` variables, then 
 <p>The product of {{ $v1 }} and {{ $v2 }} is {{ mul $v1 $v2 }}.</p>
 ```
 
-While HTML templates are the most common, you can create templates for any [output format] including CSV, JSON, RSS, and plain text.
-
-[output format]: /templates/output-formats/
+While HTML templates are the most common, you can create templates for any [output format](g) including CSV, JSON, RSS, and plain text.
 
 ## Context
 
@@ -52,21 +38,15 @@ For example, a template for a single page receives a `Page` object, and the `Pag
 
 Within a template, the dot (`.`) represents the current context.
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 <h2>{{ .Title }}</h2>
-{{< /code >}}
+```
 
 In the example above the dot represents the `Page` object, and we call its [`Title`] method to return the title as defined in [front matter].
 
-[front matter]: /content-management/front-matter/
-[`Title`]: /methods/page/title
-
 The current context may change within a template. For example, at the top of a template the context might be a `Page` object, but we rebind the context to another value or object within [`range`] or [`with`] blocks.
 
-[`range`]: /functions/go-template/range/
-[`with`]: /functions/go-template/with/
-
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 <h2>{{ .Title }}</h2>
 
 {{ range slice "foo" "bar" }}
@@ -76,7 +56,7 @@ The current context may change within a template. For example, at the top of a t
 {{ with "baz" }}
   <p>{{ . }}</p>
 {{ end }}
-{{< /code >}}
+```
 
 In the example above, the context changes as we `range` through the [slice](g) of values. In the first iteration the context is "foo", and in the second iteration the context is "bar". Inside of the `with` block the context is "baz". Hugo renders the above to:
 
@@ -91,11 +71,11 @@ In the example above, the context changes as we `range` through the [slice](g) o
 
 Within a `range` or `with` block you can access the context passed into the template by prepending a dollar sign (`$`) to the dot:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ with "foo" }}
   <p>{{ $.Title }} - {{ . }}</p>
 {{ end }}
-{{< /code >}}
+```
 
 Hugo renders this to:
 
@@ -103,9 +83,8 @@ Hugo renders this to:
 <p>My Page Title - foo</p>
 ```
 
-{{% note %}}
-Make sure that you thoroughly understand the concept of _context_ before you continue reading. The most common templating errors made by new users relate to context.
-{{% /note %}}
+> [!note]
+> Make sure that you thoroughly understand the concept of _context_ before you continue reading. The most common templating errors made by new users relate to context.
 
 ## Actions
 
@@ -113,12 +92,12 @@ In the examples above the paired opening and closing braces represent the beginn
 
 A template action may contain literal values ([boolean](g), [string](g), [integer](g), and [float](g)), variables, functions, and methods.
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ $convertToLower := true }}
 {{ if $convertToLower }}
   <h2>{{ strings.ToLower .Title }}</h2>
 {{ end }}
-{{< /code >}}
+```
 
 In the example above:
 
@@ -140,12 +119,12 @@ Hugo renders the above to:
 
 Notice the blank lines and indentation in the previous example? Although irrelevant in production when you typically minify the output, you can remove the adjacent whitespace by using template action delimiters with hyphens:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{- $convertToLower := true -}}
 {{- if $convertToLower -}}
   <h2>{{ strings.ToLower .Title }}</h2>
 {{- end -}}
-{{< /code >}}
+```
 
 Hugo renders this to:
 
@@ -178,9 +157,8 @@ These are also equivalent:
 {{ 5 | add 2 | mul 6 }} → 42
 ```
 
-{{% note %}}
-Remember that the piped value becomes the final argument to the function or method to which you are piping.
-{{% /note %}}
+> [!note]
+> Remember that the piped value becomes the final argument to the function or method to which you are piping.
 
 ### Line splitting
 
@@ -225,8 +203,6 @@ Variables initialized inside of an `if`, `range`, or `with` block are scoped to 
 
 With variables that represent a slice or map, use the [`index`] function to return the desired value.
 
-[`index`]: /functions/collections/indexfunction/
-
 ```go-html-template
 {{ $slice := slice "foo" "bar" "baz" }}
 {{ index $slice 2 }} → baz
@@ -235,9 +211,8 @@ With variables that represent a slice or map, use the [`index`] function to retu
 {{ index $map "c" }} → baz
 ```
 
-{{% note %}}
-Slices and arrays are zero-based; element 0 is the first element.
-{{% /note %}}
+> [!note]
+> Slices and arrays are zero-based; element 0 is the first element.
 
 With variables that represent a map or object, [chain](g) identifiers to return the desired value or to access the desired method.
 
@@ -249,9 +224,8 @@ With variables that represent a map or object, [chain](g) identifiers to return 
 {{ $homePage.Title }} → My Homepage
 ```
 
-{{% note %}}
-As seen above, object and method names are capitalized. Although not required, to avoid confusion we recommend beginning variable and map key names with a lowercase letter or underscore.
-{{% /note %}}
+> [!note]
+> As seen above, object and method names are capitalized. Although not required, to avoid confusion we recommend beginning variable and map key names with a lowercase letter or underscore.
 
 ## Functions
 
@@ -259,11 +233,7 @@ Used within a template action, a function takes one or more arguments and return
 
 Go's text/template and html/template packages provide a small set of functions, operators, and statements for general use. See the [go-templates] section of the function documentation for details.
 
-[go-templates]: /functions/go-template/
-
 Hugo provides hundreds of custom [functions] categorized by namespace. For example, the `strings` namespace includes these and other functions:
-
-[functions]: /functions
 
 Function|Alias
 :--|:--
@@ -285,10 +255,6 @@ Used within a template action and associated with an object, a method takes zero
 
 The most commonly accessed objects are the [`Page`] and [`Site`] objects. This is a small sampling of the [methods] available to each object.
 
-[`Site`]: /methods/site/
-[`Page`]: /methods/page/
-[methods]: /methods/
-
 Object|Method|Description
 :--|:--|:--
 `Page`|[`Date`](methods/page/date/)|Returns the date of the given page.
@@ -300,34 +266,31 @@ Object|Method|Description
 
 Chain the method to its object with a dot (`.`) as shown below, remembering that the leading dot represents the [current context].
 
-[current context]: #current-context
-
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ .Site.Title }} → My Site Title
 {{ .Page.Title }} → My Page Title
-{{< /code >}}
+```
 
 The context passed into most templates is a `Page` object, so this is equivalent to the previous example:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ .Site.Title }} → My Site Title
 {{ .Title }} → My Page Title
-{{< /code >}}
+```
 
 Some methods take an argument. Separate the argument from the method with a space. For example:
 
-{{< code file=layouts/_default/single.html >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ $page := .Page.GetPage "/books/les-miserables" }}
 {{ $page.Title }} → Les Misérables
-{{< /code >}}
+```
 
 ## Comments
 
-{{% note %}}
-Do not attempt to use HTML comment delimiters to comment out template code.
-
-Hugo strips HTML comments when rendering a page, but first evaluates any template code within the HTML comment delimiters. Depending on the template code within the HTML comment delimiters, this could cause unexpected results or fail the build.
-{{% /note %}}
+> [!note]
+> Do not attempt to use HTML comment delimiters to comment out template code.
+>
+> Hugo strips HTML comments when rendering a page, but first evaluates any template code within the HTML comment delimiters. Depending on the template code within the HTML comment delimiters, this could cause unexpected results or fail the build.
 
 Template comments are similar to template actions. Paired opening and closing braces represent the beginning and end of a comment. For example:
 
@@ -353,8 +316,6 @@ You may not nest one comment inside of another.
 
 To render an HTML comment, pass a string through the [`safeHTML`] template function. For example:
 
-[`safeHTML`]: /functions/safe/html
-
 ```go-html-template
 {{ "<!-- I am an HTML comment. -->" | safeHTML }}
 {{ printf "<!-- This is the %s site. -->" .Site.Title | safeHTML }}
@@ -364,8 +325,6 @@ To render an HTML comment, pass a string through the [`safeHTML`] template funct
 
 Use the [`template`] function to include one or more of Hugo's [embedded templates]:
 
-[embedded templates]: /templates/embedded/
-
 ```go-html-template
 {{ template "_internal/google_analytics.html" . }}
 {{ template "_internal/opengraph" . }}
@@ -374,13 +333,7 @@ Use the [`template`] function to include one or more of Hugo's [embedded templat
 {{ template "_internal/twitter_cards.html" . }}
 ```
 
-[`partial`]: /functions/partials/include/
-[`partialCached`]: /functions/partials/includecached/
-[`template`]: /functions/go-template/template/
-
 Use the [`partial`] or [`partialCached`] function to include one or more [partial templates]:
-
-[partial templates]: /templates/partial
 
 ```go-html-template
 {{ partial "breadcrumbs.html" . }}
@@ -389,23 +342,16 @@ Use the [`partial`] or [`partialCached`] function to include one or more [partia
 
 Create your partial templates in the layouts/partials directory.
 
-{{% note %}}
-In the examples above, note that we are passing the current context (the dot) to each of the templates.
-{{% /note %}}
+> [!note]
+> In the examples above, note that we are passing the current context (the dot) to each of the templates.
 
 ## Examples
 
 This limited set of contrived examples demonstrates some of concepts described above. Please see the [functions], [methods], and [templates] documentation for specific examples.
 
-[templates]: /templates/
-
 ### Conditional blocks
 
 See documentation for [`if`], [`else`], and [`end`].
-
-[`if`]: /functions/go-template/if/
-[`else`]: /functions/go-template/else/
-[`end`]: /functions/go-template/end/
 
 ```go-html-template
 {{ $var := 42 }}
@@ -423,9 +369,6 @@ See documentation for [`if`], [`else`], and [`end`].
 ### Logical operators
 
 See documentation for [`and`] and [`or`].
-
-[`and`]: /functions/go-template/and
-[`or`]: /functions/go-template/or
 
 ```go-html-template
 {{ $v1 := true }}
@@ -448,8 +391,6 @@ See documentation for [`and`] and [`or`].
 
 See documentation for [`range`], [`else`], and [`end`].
 
-[`range`]: /functions/go-template/range/
-
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
 {{ range $s }}
@@ -460,8 +401,6 @@ See documentation for [`range`], [`else`], and [`end`].
 ```
 
 Use the [`seq`] function to loop a specified number of times:
-
-[`seq`]: /functions/collections/seq
 
 ```go-html-template
 {{ $total := 0 }}
@@ -474,8 +413,6 @@ Use the [`seq`] function to loop a specified number of times:
 ### Rebind context
 
 See documentation for [`with`], [`else`], and [`end`].
-
-[`with`]: /functions/go-template/with/
 
 ```go-html-template
 {{ $var := "foo" }}
@@ -534,21 +471,65 @@ Access the custom site parameters by chaining the identifiers:
 
 See documentation for the [`Params`](/methods/page/params/) method on a `Page` object.
 
-With this front matter:
+By way of example, consider this front matter:
 
-{{< code-toggle file=content/news/annual-conference.md >}}
+{{< code-toggle file=content/annual-conference.md fm=true >}}
 title = 'Annual conference'
 date = 2023-10-17T15:11:37-07:00
 [params]
 display_related = true
+key-with-hyphens = 'must use index function'
 [params.author]
   email = 'jsmith@example.org'
   name = 'John Smith'
 {{< /code-toggle >}}
 
-Access the custom page parameters by chaining the identifiers:
+The `title` and `date` fields are standard [front matter fields], while the other fields are user-defined.
+
+Access the custom fields by [chaining](g) the [identifiers](g) when needed:
 
 ```go-html-template
 {{ .Params.display_related }} → true
+{{ .Params.author.email }} → jsmith@example.org
 {{ .Params.author.name }} → John Smith
 ```
+
+In the template example above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
+
+```go-html-template
+{{ index .Params "key-with-hyphens" }} → must use index function
+```
+
+[`and`]: /functions/go-template/and
+[`else`]: /functions/go-template/else/
+[`end`]: /functions/go-template/end/
+[`if`]: /functions/go-template/if/
+[`index`]: /functions/collections/indexfunction/
+[`index`]: /functions/collections/indexfunction/
+[`or`]: /functions/go-template/or
+[`Page`]: /methods/page/
+[`partial`]: /functions/partials/include/
+[`partialCached`]: /functions/partials/includecached/
+[`range`]: /functions/go-template/range/
+[`range`]: /functions/go-template/range/
+[`safeHTML`]: /functions/safe/html
+[`seq`]: /functions/collections/seq
+[`Site`]: /methods/site/
+[`template`]: /functions/go-template/template/
+[`Title`]: /methods/page/title
+[`with`]: /functions/go-template/with/
+[`with`]: /functions/go-template/with/
+[current context]: #current-context
+[embedded templates]: /templates/embedded/
+[front matter]: /content-management/front-matter/
+[front matter fields]: /content-management/front-matter/#fields
+[functions]: /functions/
+[functions]: /functions
+[go-templates]: /functions/go-template/
+[html/template]: https://pkg.go.dev/html/template
+[methods]: /methods/
+[methods]: /methods/
+[partial templates]: /templates/partial
+[templates]: /templates/
+[text/template]: https://pkg.go.dev/text/template
+[variables]: #variables

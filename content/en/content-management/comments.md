@@ -1,14 +1,8 @@
 ---
 title: Comments
 description: Hugo ships with an internal Disqus template, but this isn't the only commenting system that will work with your new Hugo website.
-categories: [content management]
-keywords: [sections,content,organization]
-menu:
-  docs:
-    parent: content-management
-    weight: 220
-weight: 220
-toc: true
+categories: []
+keywords: []
 aliases: [/extras/comments/]
 ---
 
@@ -31,9 +25,9 @@ shortname = 'your-disqus-shortname'
 
 For many websites, this is enough configuration. However, you also have the option to set the following in the [front matter] of a single content file:
 
-* `disqus_identifier`
-* `disqus_title`
-* `disqus_url`
+- `disqus_identifier`
+- `disqus_title`
+- `disqus_url`
 
 ### Render Hugo's built-in Disqus partial template
 
@@ -67,7 +61,7 @@ Open-source commenting systems:
 - [Talkyard](https://blog-comments.talkyard.io/)
 - [Utterances](https://utteranc.es/)
 
-[configuration]: /getting-started/configuration/
+[configuration]: /configuration/
 [disquspartial]: /templates/embedded/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discourse.gohugo.io

@@ -3,11 +3,11 @@ title: hugo.CommitHash
 description: Returns the Git commit hash of the Hugo binary.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: string
-  signatures: [hugo.CommitHash]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [hugo.CommitHash]
 ---
 
 ```go-html-template

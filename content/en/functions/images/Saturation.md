@@ -3,14 +3,11 @@ title: images.Saturation
 description: Returns an image filter that changes the saturation of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Saturation PERCENTAGE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Saturation PERCENTAGE]
 ---
 
 The percentage must be in the range [-100, 500] where 0 has no effect.
@@ -23,7 +20,7 @@ Create the filter:
 {{ $filter := images.Saturation 65 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

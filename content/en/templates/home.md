@@ -1,41 +1,33 @@
 ---
 title: Home page templates
 description: The home page of a website is often formatted differently than the other pages. For this reason, Hugo makes it easy for you to define your new site's home page as a unique template.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 60
-weight: 60
-toc: true
+weight: 50
 aliases: [/layout/homepage/,/templates/homepage-template/,/templates/homepage/]
 ---
 
 ## Introduction
 
-A home page template is used to render your site's home page, and is the only template required for a single-page website.  For example, the home page template below inherits the site's shell from the base template and renders the home page content, such as a list of other pages.
+A home page template is used to render your site's home page, and is the only template required for a single-page website. For example, the home page template below inherits the site's shell from the base template and renders the home page content, such as a list of other pages.
 
-{{< code file=layouts/_default/home.html >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ define "main" }}
   {{ .Content }}
   {{ range site.RegularPages }}
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
-{{% include "templates/_common/filter-sort-group.md" %}}
+{{% include "/_common/filter-sort-group.md" %}}
 
 ## Lookup order
 
 Hugo's [template lookup order] determines the template path, allowing you to create unique templates for any page.
 
-[template lookup order]: /templates/lookup-order/#home-templates
-
-{{% note %}}
-You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
-{{% /note %}}
+> [!note]
+> You must have thorough understanding of the template lookup order when creating templates. Template selection is based on template type, page kind, content type, section, language, and output format.
 
 ## Content and front matter
 
@@ -53,7 +45,7 @@ params:
 
 The home page template below inherits the site's shell from the base template, renders the subtitle and content as defined in the&nbsp;`_index.md`&nbsp;file, then renders of list of the site's [regular pages](g).
 
-{{< code file=layouts/_default/home.html >}}
+```go-html-template {file="layouts/_default/home.html"}
 {{ define "main" }}
   <h3>{{ .Params.Subtitle }}</h3>
   {{ .Content }}
@@ -61,4 +53,6 @@ The home page template below inherits the site's shell from the base template, r
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
+
+[template lookup order]: /templates/lookup-order/#home-templates

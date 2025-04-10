@@ -3,10 +3,10 @@ title: Aliases
 description: Returns the URL aliases as defined in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: '[]string'
-  signatures: [PAGE.Aliases]
+params:
+  functions_and_methods:
+    returnType: '[]string'
+    signatures: [PAGE.Aliases]
 ---
 
 The `Aliases` method on a `Page` object returns the URL [aliases] as defined in front matter.

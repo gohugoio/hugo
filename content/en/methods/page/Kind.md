@@ -3,11 +3,10 @@ title: Kind
 description: Returns the kind of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Type
-  returnType: string
-  signatures: [PAGE.Kind]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.Kind]
 ---
 
 The [page kind](g) is one of `home`, `page`, `section`, `taxonomy`, or `term`.

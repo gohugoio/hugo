@@ -3,21 +3,19 @@ title: Related
 description: Returns a collection of pages related to the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/HeadingsFiltered
-    - functions/collections/KeyVals
-  returnType: page.Pages
-  signatures:
-    - PAGES.Related PAGE
-    - PAGES.Related OPTIONS
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures:
+      - PAGES.Related PAGE
+      - PAGES.Related OPTIONS
 ---
 
 Based on front matter, Hugo uses several factors to identify content related to the given page. Use the default [related content configuration], or tune the results to the desired indices and parameters. See&nbsp;[details].
 
 The argument passed to the `Related` method may be a `Page` or an options map. For example, to pass the current page:
 
-{{< code file=layouts/_default/single.html  >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ with .Site.RegularPages.Related . | first 5 }}
   <p>Related pages:</p>
   <ul>
@@ -26,11 +24,11 @@ The argument passed to the `Related` method may be a `Page` or an options map. F
     {{ end }}
   </ul>
 {{ end }}
-{{< /code >}}
+```
 
 To pass an options map:
 
-{{< code file=layouts/_default/single.html  >}}
+```go-html-template {file="layouts/_default/single.html"}
 {{ $opts := dict
   "document" .
   "indices" (slice "tags" "keywords")
@@ -43,7 +41,7 @@ To pass an options map:
     {{ end }}
   </ul>
 {{ end }}
-{{< /code >}}
+```
 
 ## Options
 
@@ -73,5 +71,5 @@ A contrived example using all of the above:
 }}
 ```
 
-[details]: /content-management/related/
-[related content configuration]: /content-management/related/
+[details]: /content-management/related-content/
+[related content configuration]: /configuration/related-content/

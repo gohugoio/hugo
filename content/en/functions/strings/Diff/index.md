@@ -3,10 +3,10 @@ title: strings.Diff
 description: Returns an anchored diff of the two texts OLD and NEW in the unified diff format. If OLD and NEW are identical, returns an empty string.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [strings.Diff OLDNAME OLD NEWNAME NEW]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [strings.Diff OLDNAME OLD NEWNAME NEW]
 ---
 
 {{< new-in 0.125.0 />}}

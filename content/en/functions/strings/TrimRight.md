@@ -3,17 +3,11 @@ title: strings.TrimRight
 description: Returns the given string, removing trailing characters specified in the cutset.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/strings/Chomp
-    - functions/strings/Trim
-    - functions/strings/TrimSpace
-    - functions/strings/TrimLeft
-    - functions/strings/TrimPrefix
-    - functions/strings/TrimSuffix
-  returnType: string
-  signatures: [strings.TrimRight CUTSET STRING]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [strings.TrimRight CUTSET STRING]
 aliases: [/functions/strings.trimright]
 ---
 

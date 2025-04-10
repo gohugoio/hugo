@@ -3,16 +3,10 @@ title: First
 description: Returns the first pager in the pager collection.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pager/Last
-    - methods/pager/Prev
-    - methods/pager/Next
-    - methods/pager/HasPrev
-    - methods/pager/HasNext
-    - methods/page/Paginate
-  returnType: page.Pager
-  signatures: [PAGER.First]
+params:
+  functions_and_methods:
+    returnType: page.Pager
+    signatures: [PAGER.First]
 ---
 
 Use the `First` method to build navigation between pagers.

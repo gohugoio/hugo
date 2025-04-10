@@ -3,12 +3,11 @@ title: collections.Dictionary
 description: Returns a map composed of the given key-value pairs.
 categories: []
 keywords: []
-action:
-  aliases: [dict]
-  related:
-    - functions/collections/Slice
-  returnType: map[string]any
-  signatures: ['collections.Dictionary [VALUE...]']
+params:
+  functions_and_methods:
+    aliases: [dict]
+    returnType: map[string]any
+    signatures: ['collections.Dictionary [VALUE...]']
 aliases: [/functions/dict]
 ---
 

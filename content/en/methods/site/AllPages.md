@@ -3,16 +3,13 @@ title: AllPages
 description: Returns a collection of all pages in all languages.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/site/Pages
-    - methods/site/RegularPages
-    - methods/site/Sections
-  returnType: page.Pages
-  signatures: [SITE.AllPages]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [SITE.AllPages]
 ---
 
-This method returns all page [kinds](g) in all languages. That includes the home page, section pages, taxonomy pages, term pages, and regular pages.
+This method returns all page [kinds](g) in all languages, in the [default sort order](g). That includes the home page, section pages, taxonomy pages, term pages, and regular pages.
 
 In most cases you should use the [`RegularPages`] method instead.
 

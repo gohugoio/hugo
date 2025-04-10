@@ -1,18 +1,13 @@
 ---
 title: math.Sub
-description: Subtracts one or more numbers from the first number. 
+description: Subtracts one or more numbers from the first number.
 categories: []
 keywords: []
-action:
-  aliases: [sub]
-  related:
-    - functions/math/Add
-    - functions/math/Div
-    - functions/math/Mul
-    - functions/math/Product
-    - functions/math/Sum
-  returnType: any
-  signatures: [math.Sub VALUE VALUE...]
+params:
+  functions_and_methods:
+    aliases: [sub]
+    returnType: any
+    signatures: [math.Sub VALUE VALUE...]
 ---
 
 If one of the numbers is a [`float`](g), the result is a `float`.

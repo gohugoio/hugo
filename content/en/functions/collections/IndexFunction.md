@@ -3,12 +3,11 @@ title: collections.Index
 description: Returns the object, element, or value associated with the given key or keys.
 categories: []
 keywords: []
-action:
-  aliases: [index]
-  related: []
-  returnType: any
-  signatures:
-    - collections.Index COLLECTION KEY...
+params:
+  functions_and_methods:
+    aliases: [index]
+    returnType: any
+    signatures: [collections.Index COLLECTION KEY...]
 aliases: [/functions/index,/functions/index-function]
 ---
 

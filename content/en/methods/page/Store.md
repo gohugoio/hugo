@@ -3,15 +3,10 @@ title: Store
 description: Returns a "scratch pad" to store and manipulate data, scoped to the current page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/site/Store
-    - methods/shortcode/Store
-    - functions/hugo/Store
-    - functions/collections/NewScratch
-  returnType: maps.Scratch
-  signatures: [PAGE.Store]
-toc: true
+params:
+  functions_and_methods:
+    returnType: maps.Scratch
+    signatures: [PAGE.Store]
 aliases: [/functions/store/,/extras/scratch/,/doc/scratch/,/functions/scratch]
 ---
 

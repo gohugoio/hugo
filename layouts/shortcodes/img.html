@@ -1,5 +1,23 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
 Renders the given image using the given filter, if any.
+
+When using the text filter, provide the arguments in this order:
+
+0. The text
+1. The horizontal offset, in pixels, relative to the left of the image (default 20)
+2. The vertical offset, in pixels, relative to the top of the image (default 20)
+3. The font size in pixels (default 64)
+4. The line height (default 1.2)
+5. The font color (default #ffffff)
+
+When using the padding filter, provide all arguments in this order:
+
+0. Padding top
+1. Padding right
+2. Padding bottom
+3. Padding right
+4. Canvas color
 
 @param {string} src The path to the image which must be a remote, page, or global resource.
 @param {string} [filter] The filter to apply to the image (case-insensitive).
@@ -7,84 +25,61 @@ Renders the given image using the given filter, if any.
 @param {bool} [example=false] If true, renders a before/after example.
 @param {int} [exampleWidth=384] Image width, in pixels, when rendering a before/after example.
 
-@returns {template.HTML}
+@example  {{< img src="zion-national-park.jpg" >}}
+@example  {{< img src="zion-national-park.jpg" alt="Zion National Park" >}}
 
-@examples
+@example  {{< img
+            src="zion-national-park.jpg"
+            alt="Zion National Park"
+            filter="grayscale"
+          >}}
 
-  {{< img src="zion-national-park.jpg" >}}
+@example  {{< img
+            src="zion-national-park.jpg"
+            alt="Zion National Park"
+            filter="process"
+            filterArgs="resize 400x webp"
+          >}}
 
-  {{< img src="zion-national-park.jpg" alt="Zion National Park" >}}
+@example  {{< img
+            src="zion-national-park.jpg"
+            alt="Zion National Park"
+            filter="colorize"
+            filterArgs="180,50,20"
+          >}}
 
-  {{< img
-    src="zion-national-park.jpg"
-    alt="Zion National Park"
-    filter="grayscale"
-  >}}
+@example  {{< img
+            src="zion-national-park.jpg"
+            alt="Zion National Park"
+            filter="grayscale"
+            example=true
+          >}}
 
-  {{< img
-    src="zion-national-park.jpg"
-    alt="Zion National Park"
-    filter="process"
-    filterArgs="resize 400x webp"
-  >}}
+@example  {{< img
+            src="zion-national-park.jpg"
+            alt="Zion National Park"
+            filter="grayscale"
+            example=true
+            exampleWidth=400
+          >}}
 
-  {{< img
-    src="zion-national-park.jpg"
-    alt="Zion National Park"
-    filter="colorize"
-    filterArgs="180,50,20"
-  >}}
+@example  {{< img
+            src="images/examples/zion-national-park.jpg"
+            alt="Zion National Park"
+            filter="Text"
+            filterArgs="Zion National Park,25,250,56"
+            example=true
+          >}}
 
-  {{< img
-    src="zion-national-park.jpg"
-    alt="Zion National Park"
-    filter="grayscale"
-    example=true
-  >}}
-
-  {{< img
-    src="zion-national-park.jpg"
-    alt="Zion National Park"
-    filter="grayscale"
-    example=true
-    exampleWidth=400
-  >}}
-
-  When using the text filter, provide the arguments in this order:
-
-    0. The text
-    1. The horizontal offset, in pixels, relative to the left of the image (default 20)
-    2. The vertical offset, in pixels, relative to the top of the image (default 20)
-    3. The font size in pixels (default 64)
-    4. The line height (default 1.2)
-    5. The font color (default #ffffff)
-
-  {{< img
-    src="images/examples/zion-national-park.jpg"
-    alt="Zion National Park"
-    filter="Text"
-    filterArgs="Zion National Park,25,250,56"
-    example=true
-  >}}
-
-  When using the padding filter, provide all arguments in this order:
-
-  0. Padding top
-  1. Padding right
-  2. Padding bottom
-  3. Padding right
-  4. Canvas color
-
-  {{< img
-    src="images/examples/zion-national-park.jpg"
-    alt="Zion National Park"
-    filter="Padding"
-    filterArgs="20,50,20,50,#0705"
-    example=true
-  >}}
-
-*/}}
-
+@example  {{< img
+            src="images/examples/zion-national-park.jpg"
+            alt="Zion National Park"
+            filter="Padding"
+            filterArgs="20,50,20,50,#0705"
+            example=true
+          >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
 {{- /* Initialize. */}}
 {{- $alt := "" }}
 {{- $src := "" }}
@@ -100,12 +95,12 @@ Renders the given image using the given filter, if any.
   "fontSize" 64
   "lineHeight" 1.2
   "fontColor" "#ffffff"
-  "fontPath" "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Regular.ttf"
+  "fontPath" "https://github.com/google/fonts/raw/refs/heads/main/ofl/lato/Lato-Regular.ttf"
 }}
 
 {{- /* Get and validate parameters. */}}
 {{- with .Get "alt" }}
-  {{- $alt = .}}
+  {{- $alt = . }}
 {{- end }}
 
 {{- with .Get "src" }}
@@ -138,7 +133,7 @@ Renders the given image using the given filter, if any.
 
 {{- if in (slice "false" false 0) (.Get "example") }}
   {{- $example = false }}
-{{- else if in (slice "true" true 1) (.Get "example")}}
+{{- else if in (slice "true" true 1) (.Get "example") }}
   {{- $example = true }}
 {{- end }}
 
@@ -328,17 +323,22 @@ Renders the given image using the given filter, if any.
 {{- end }}
 
 {{- /* Render. */}}
-{{- $class := "di va b--black-20" }}
-{{- if eq $filter "mask" }}
-  {{- $class = "di va" }}
-{{- end }}
+{{- $class := "border-1 border-gray-300 dark:border-gray-500" }}
 {{- if $example }}
   <p>Original</p>
-  <img class="{{ $class}}" style="width: initial;" src="{{ $i.RelPermalink }}" alt="{{ $alt }}">
+  <img
+    class="{{ $class }}"
+    src="{{ $i.RelPermalink }}"
+    alt="{{ $alt }}">
   <p>Processed</p>
-  <img class="{{ $class }}" style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
+  <img
+    class="{{ $class }}"
+    src="{{ $fi.RelPermalink }}"
+    alt="{{ $alt }}">
 {{- else -}}
-  <img class='di' style="width: initial;" src="{{ $fi.RelPermalink }}" alt="{{ $alt }}">
+  <img
+    src="{{ $fi.RelPermalink }}"
+    alt="{{ $alt }}">
 {{- end }}
 
 {{- define "validate-arg-count" }}
@@ -387,5 +387,5 @@ Renders the given image using the given filter, if any.
       {{- end }}
     {{- end }}
   {{- end }}
-  {{- return $r}}
+  {{- return $r }}
 {{- end -}}

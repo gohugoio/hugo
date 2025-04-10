@@ -3,10 +3,10 @@ title: ByWeight
 description: Returns the given menu with its entries sorted by weight, then by name, then by identifier.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: navigation.Menu
-  signatures: [MENU.ByWeight]
+params:
+  functions_and_methods:
+    returnType: navigation.Menu
+    signatures: [MENU.ByWeight]
 ---
 
 The `ByWeight` method returns the given menu with its entries sorted by [`weight`](g), then by `name`, then by `identifier`. This is the default sort order.
@@ -53,11 +53,8 @@ Hugo renders this to:
 </ul>
 ```
 
-{{% note %}}
-In the menu definition above, note that the `identifier` property is only required when two or more menu entries have the same name, or when localizing the name using translation tables.
-
-[details]: /content-management/menus/#properties-front-matter
-{{% /note %}}
+> [!note]
+> In the menu definition above, note that the `identifier` property is only required when two or more menu entries have the same name, or when localizing the name using translation tables.
 
 You can also sort menu entries using the [`sort`] function. For example, to sort by `weight` in descending order:
 

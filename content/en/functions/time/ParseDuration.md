@@ -3,15 +3,11 @@ title: time.ParseDuration
 description: Returns a time.Duration value by parsing the given duration string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/time/AsTime
-    - functions/time/Duration
-    - functions/time/Format
-    - functions/time/Now
-  returnType: time.Duration
-  signatures: [time.ParseDuration DURATION]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: time.Duration
+    signatures: [time.ParseDuration DURATION]
 aliases: [/functions/time.parseduration]
 ---
 

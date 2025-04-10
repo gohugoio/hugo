@@ -2,26 +2,14 @@
 title: Sections
 description: Organize content into sections.
 
-categories: [content management]
-keywords: [lists,sections,content types,organization]
-menu:
-  docs:
-    parent: content-management
-    weight: 120
-weight: 120
-toc: true
+categories: []
+keywords: []
 aliases: [/content/sections/]
 ---
 
 ## Overview
 
-A section is a top-level content directory, or any content directory with an&nbsp;`_index.md`&nbsp;file. A content directory with an&nbsp;`_index.md`&nbsp;file is also known as a [branch bundle](g). Section templates receive one or more page [collections](g) in [context](g).
-
-{{% note %}}
-Although top-level directories without `_index.md`&nbsp;files are sections, we recommend creating `_index.md`&nbsp;files in _all_ sections.
-{{% /note %}}
-
-A typical site consists of one or more sections. For example:
+{{% glossary-term "section" %}}
 
 ```text
 content/
@@ -74,14 +62,8 @@ Have list pages|:heavy_check_mark:|:x:
 With the file structure from the [example above](#overview):
 
 1. The list page for the articles section includes all articles, regardless of directory structure; none of the subdirectories are sections.
-
 1. The articles/2022 and articles/2023 directories do not have list pages; they are not sections.
-
 1. The list page for the products section, by default, includes product-1 and product-2, but not their descendant pages. To include descendant pages, use the `RegularPagesRecursive` method instead of the `Pages` method in the list template.
-
-[`Pages`]: /methods/page/pages/
-[`RegularPagesRecursive`]: /methods/page/regularpagesrecursive/
-
 1. All directories in the products section have list pages; each directory is a section.
 
 ## Template selection
@@ -104,9 +86,6 @@ Content directory|Single template
 
 If you need to use a different template for a subsection, specify `type` and/or `layout` in front matter.
 
-[lookup rules]: /templates/lookup-order/#lookup-rules
-[lookup order]: /templates/lookup-order/
-
 ## Ancestors and descendants
 
 A section has one or more ancestors (including the home page), and zero or more descendants. With the file structure from the [example above](#overview):
@@ -119,7 +98,7 @@ The content file (benefit-1.md) has four ancestors: benefits, product-1, product
 
 For example, use the `.Ancestors` method to render breadcrumb navigation.
 
-{{< code file=layouts/partials/breadcrumb.html >}}
+```go-html-template {file="layouts/partials/breadcrumb.html"}
 <nav aria-label="breadcrumb" class="breadcrumb">
   <ol>
     {{ range .Ancestors.Reverse }}
@@ -132,7 +111,7 @@ For example, use the `.Ancestors` method to render breadcrumb navigation.
     </li>
   </ol>
 </nav>
-{{< /code >}}
+```
 
 With this CSS:
 
@@ -156,9 +135,5 @@ Hugo renders this, where each breadcrumb is a link to the corresponding page:
 Home » Products » Product 1 » Benefits » Benefit 1
 ```
 
-[archetype]: /content-management/archetypes/
-[content type]: /content-management/types/
-[directory structure]: /getting-started/directory-structure/
-[section templates]: /templates/types/#section
-[leaf bundles]: /content-management/page-bundles/#leaf-bundles
-[branch bundles]: /content-management/page-bundles/#branch-bundles
+[lookup order]: /templates/lookup-order/
+[lookup rules]: /templates/lookup-order/#lookup-rules

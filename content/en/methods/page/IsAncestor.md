@@ -3,21 +3,11 @@ title: IsAncestor
 description: Reports whether PAGE1 is an ancestor of PAGE2.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/CurrentSection
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsDescendant
-    - methods/page/Parent
-    - methods/page/Sections
-  returnType: bool
-  signatures: [PAGE1.IsAncestor PAGE2]
-toc: true
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE1.IsAncestor PAGE2]
 ---
-
-{{% glossary-term section %}}
 
 With this content structure:
 
@@ -81,9 +71,8 @@ Inside of the `with` block, the [context](g) (the dot) is the section `Page` obj
 
 The result would be wrong when rendering the "auction-1" page because we are comparing the section page to itself.
 
-{{% note %}}
-Use the `$` to get the context passed into the template.
-{{% /note %}}
+> [!note]
+> Use the `$` to get the context passed into the template.
 
 ```go-html-template
 {{ with .Site.GetPage "/auctions" }}
@@ -91,9 +80,8 @@ Use the `$` to get the context passed into the template.
 {{ end }}
 ```
 
-{{% note %}}
-Gaining a thorough understanding of context is critical for anyone writing template code.
-{{% /note %}}
+> [!note]
+> Gaining a thorough understanding of context is critical for anyone writing template code.
 
-[`with`]: /functions/go-template/with/
 [`else`]: /functions/go-template/else/
+[`with`]: /functions/go-template/with/

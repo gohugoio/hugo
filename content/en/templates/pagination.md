@@ -1,14 +1,9 @@
 ---
 title: Pagination
 description: Split a list page into two or more subsets.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 190
-weight: 190
-toc: true
+weight: 160
 aliases: [/extras/pagination,/doc/pagination/]
 ---
 
@@ -20,9 +15,8 @@ Displaying a large page collection on a list page is not user-friendly:
 
 Improve usability by paginating `home`, `section`, `taxonomy`, and `term` pages.
 
-{{% note %}}
-The most common templating mistake related to pagination is invoking pagination more than once for a given list page. See the [caching](#caching) section below.
-{{% /note %}}
+> [!note]
+> The most common templating mistake related to pagination is invoking pagination more than once for a given list page. See the [caching](#caching) section below.
 
 ## Terminology
 
@@ -40,43 +34,7 @@ paginator
 
 ## Configuration
 
-Control pagination behavior in your site configuration. These are the default settings:
-
-{{< code-toggle file=hugo config=pagination />}}
-
-disableAliases
-: (`bool`) Whether to disable alias generation for the first pager. Default is `false`.
-
-pagerSize
-: (`int`) The number of pages per pager. Default is `10`.
-
-path
-: (`string`) The segment of each pager URL indicating that the target page is a pager. Default is `page`.
-
-With multilingual sites you can define the pagination behavior for each language:
-
-{{< code-toggle file=hugo >}}
-[languages.en]
-contentDir = 'content/en'
-languageCode = 'en-US'
-languageDirection = 'ltr'
-languageName = 'English'
-weight = 1
-[languages.en.pagination]
-disableAliases = true
-pagerSize = 10
-path = 'page'
-[languages.de]
-contentDir = 'content/de'
-languageCode = 'de-DE'
-languageDirection = 'ltr'
-languageName = 'Deutsch'
-weight = 2
-[languages.de.pagination]
-disableAliases = true
-pagerSize = 20
-path = 'blatt'
-{{< /code-toggle >}}
+See [configure pagination](/configuration/pagination).
 
 ## Methods
 
@@ -92,9 +50,6 @@ The `Paginate` method is more flexible, allowing you to:
 - Override the number of pages per pager as defined in your site configuration
 
 By comparison, the `Paginator` method paginates the page collection passed into the template, and you cannot override the number of pages per pager.
-
-[`Paginate`]: /methods/page/paginate/
-[`Paginator`]: /methods/page/paginator/
 
 ## Examples
 
@@ -137,21 +92,16 @@ In the example above, we:
 
 ## Caching
 
-{{% note %}}
-The most common templating mistake related to pagination is invoking pagination more than once for a given list page.
-{{% /note %}}
+> [!note]
+> The most common templating mistake related to pagination is invoking pagination more than once for a given list page.
 
 Regardless of pagination method, the initial invocation is cached and cannot be changed. If you invoke pagination more than once for a given list page, subsequent invocations use the cached result. This means that subsequent invocations will not behave as written.
 
 When paginating conditionally, do not use the `compare.Conditional` function due to its eager evaluation of arguments. Use an `if-else` construct instead.
 
-[`compare.Conditional`]: /functions/compare/conditional/
-
 ## Grouping
 
 Use pagination with any of the [grouping methods]. For example:
-
-[grouping methods]: /quick-reference/page-collections/#group
 
 ```go-html-template
 {{ $pages := where site.RegularPages "Type" "posts" }}
@@ -166,8 +116,6 @@ Use pagination with any of the [grouping methods]. For example:
 
 {{ template "_internal/pagination.html" . }}
 ```
-
-[grouping methods]: /quick-reference/page-collections/#group
 
 ## Navigation
 
@@ -189,18 +137,14 @@ The `terse` format has fewer controls and page slots, consuming less space when 
 {{ template "_internal/pagination.html" (dict "page" . "format" "terse") }}
 ```
 
-{{% note %}}
-To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
-
-`{{ partial "pagination.html" . }}`
-
-[`partial`]: /functions/partials/include/
-[source code]: {{% eturl pagination %}}
-{{% /note %}}
+> [!note]
+> To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
+>
+> `{{ partial "pagination.html" . }}`
 
 Create custom navigation components using any of the `Pager` methods:
 
-{{< list-pages-in-section path=/methods/pager >}}
+{{% list-pages-in-section path=/methods/pager %}}
 
 ## Structure
 
@@ -288,3 +232,10 @@ public/
 │   └── index.html
 └── index.html
 ```
+
+[`Paginate`]: /methods/page/paginate/
+[`Paginator`]: /methods/page/paginator/
+[`partial`]: /functions/partials/include/
+[grouping methods]: /quick-reference/page-collections/#group
+[grouping methods]: /quick-reference/page-collections/#group
+[source code]: {{% eturl pagination %}}

@@ -1,31 +1,31 @@
+{{/* prettier-ignore-start */ -}}
 {{- /*
-  Renders a "new in" button indicating the version in which a feature was added.
+Renders a callout or badge indicating the version in which a feature was added.
 
-  When comparing the current version to the specified version, the "new in"
-  button will be hidden if any of the following conditions is true:
+To render a callout, include descriptive text between the opening and closing
+tags. To render a badge,omit the descriptive text and call the shortcode with a
+self-closing tag.
 
-  - The major version difference exceeds the majorVersionDiffThreshold
-  - The minor version difference exceeds the minorVersionDiffThreshold
+When comparing the current version to the specified version, the "new in"
+button will be hidden if any of the following conditions is true:
 
-  @param {string} version The semantic version string, with or without a leading v.
-  @returns {template.HTML}
+- The major version difference exceeds the majorVersionDiffThreshold
+- The minor version difference exceeds the minorVersionDiffThreshold
 
-  @examples {{< new-in 0.100.0 /
->}}
+@param {string} 0 The semantic version string, with or without a leading v.
 
-{{< new-in 0.100.0 >}}
-Some descriptive text here.
-{{< /new-in >}}
-*/}}
-{{ $_hugo_config := `{ "version": 1 }` }}
+@example  {{< new-in 0.100.0 />}}
 
-{{- /* Set defaults. */}}
+@example  {{{< new-in 0.100.0 >}}
+          Some descriptive text here.
+          {{< /new-in >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
 {{- $majorVersionDiffThreshold := 0 }}
 {{- $minorVersionDiffThreshold := 30 }}
 {{- $displayExpirationWarning := true }}
 
-{{- /* Render. */}}
-{{- with $version := .Get 0 | strings.TrimPrefix "v" }}
+{{- with $version := .Get 0 | strings.TrimLeft "vV" }}
   {{- $majorVersionDiff := sub (index (split hugo.Version ".") 0 | int) (index (split $version ".") 0 | int) }}
   {{- $minorVersionDiff := sub (index (split hugo.Version ".") 1 | int) (index (split $version ".") 1 | int) }}
   {{- if or (gt $majorVersionDiff $majorVersionDiffThreshold) (gt $minorVersionDiff $minorVersionDiffThreshold) }}
@@ -35,14 +35,12 @@ Some descriptive text here.
   {{- else }}
     {{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}
     {{- with $.Inner }}
-      {{ $text := printf `<p class="fon-semibold">New in <a href=%q>v%s</a>.</p>%s`
-        $href $version (. | $.Page.RenderString (dict "display" "block"))
-      }}
-
+      {{- $inner := strings.TrimSpace . }}
+      {{- $text := printf "New in [v%s](%s)\n\n%s" $version $href $inner | $.Page.RenderString (dict "display" "block") }}
       {{ partial "layouts/blocks/alert.html" (dict
-        "text" ($text | safeHTML)
         "color" "green"
         "icon" "exclamation"
+        "text" $text
         )
       }}
     {{- else }}
@@ -62,5 +60,5 @@ Some descriptive text here.
     {{- end }}
   {{- end }}
 {{- else }}
-  {{- errorf "The %q shortcode requires a positional parameter (version). See %s" .Name .Position }}
-{{- end -}}
+  {{- errorf "The %q shortcode requires a single positional parameter indicating version. See %s" .Name .Position }}
+{{- end }}

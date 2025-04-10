@@ -1,23 +1,9 @@
 ---
-
-# A suitable title for this article.
 title: Quiply Employee Communications App
-
-# Set this to the current date.
 date: 2018-02-13
-
-description: "\"It became immediately clear that we'd use Hugo going forward as it compiles super-fast, is intuitive to use and offers all the features we need.\""
-
-# The URL to the site on the internet.
+description: '"It became immediately clear that we would use Hugo going forward as it compiles super-fast, is intuitive to use, and offers all the features we need."'
 siteURL: https://www.quiply.com
-
-# Link to the site's Hugo source code if public and you can/want to share.
-# Remove or leave blank if not needed/wanted.
-# siteSource: https://github.com/gohugoio/hugoDocs
-
-# Add credit to the article author. Leave blank or remove if not needed/wanted.
 byline: "[Sebastian Schirmer](mailto:sebastian.schirmer@quiply.com), Quiply Co-Founder"
-
 ---
 
 With the launch of our Employee Communications app Quiply we created a very simple and static one-page website to showcase our product.

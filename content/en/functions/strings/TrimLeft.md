@@ -3,17 +3,11 @@ title: strings.TrimLeft
 description: Returns the given string, removing leading characters specified in the cutset.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/strings/Chomp
-    - functions/strings/Trim
-    - functions/strings/TrimSpace
-    - functions/strings/TrimPrefix
-    - functions/strings/TrimRight
-    - functions/strings/TrimSuffix
-  returnType: string
-  signatures: [strings.TrimLeft CUTSET STRING]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [strings.TrimLeft CUTSET STRING]
 aliases: [/functions/strings.trimleft]
 ---
 

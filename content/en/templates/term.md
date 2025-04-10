@@ -1,21 +1,16 @@
 ---
 title: Term templates
 description: Create a term template to render a list of pages associated with the current term.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 100
-weight: 100
-toc: true
+weight: 90
 ---
 
 The [term](g) template below inherits the site's shell from the [base template], and renders a list of pages associated with the current term.
 
 [base template]: /templates/types/
 
-{{< code file=layouts/_default/term.html >}}
+```go-html-template {file="layouts/_default/term.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -23,7 +18,7 @@ The [term](g) template below inherits the site's shell from the [base template],
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 Review the [template lookup order] to select a template path that provides the desired level of specificity.
 
@@ -93,7 +88,7 @@ affiliation = "University of Chicago"
 
 Then create a term template specific to the "authors" taxonomy:
 
-{{< code file=layouts/authors/term.html >}}
+```go-html-template {file="layouts/authors/term.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   <p>Affiliation: {{ .Params.affiliation }}</p>
@@ -107,6 +102,6 @@ Then create a term template specific to the "authors" taxonomy:
     <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ end }}
 {{ end }}
-{{< /code >}}
+```
 
 In the example above we display the author with their affiliation and portrait, then a list of associated content.

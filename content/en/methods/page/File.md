@@ -3,36 +3,33 @@ title: File
 description: For pages backed by a file, returns file information for the given page.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: hugolib.fileInfo
-  signatures: [PAGE.File]
-toc: true
+params:
+  functions_and_methods:
+    returnType: hugolib.fileInfo
+    signatures: [PAGE.File]
 ---
 
-By default, not all pages are backed by a file, including top level [section pages](g), [taxonomy pages](g), and [term pages](g). By definition, you cannot retrieve file information when the file does not exist.
+By default, not all pages are backed by a file, including top-level [section pages](g), [taxonomy pages](g), and [term pages](g). By definition, you cannot retrieve file information when the file does not exist.
 
 To back one of the pages above with a file, create an&nbsp;`_index.md`&nbsp;file in the corresponding directory. For example:
 
 ```text
 content/
 └── books/
-    ├── _index.md  <-- the top level section page
+    ├── _index.md  <-- the top-slevel section page
     ├── book-1.md
     └── book-2.md
 ```
 
-{{% note %}}
-Code defensively by verifying file existence as shown in the examples below.
-{{% /note %}}
+> [!note]
+> Code defensively by verifying file existence as shown in the examples below.
 
 ## Methods
 
-{{% note %}}
-The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend on the operating system.
-{{% /note %}}
+> [!note]
+> The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend on the operating system.
 
-###### BaseFileName
+### BaseFileName
 
 (`string`) The file name, excluding the extension.
 
@@ -42,7 +39,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### ContentBaseName
+### ContentBaseName
 
 (`string`) If the page is a branch or leaf bundle, the name of the containing directory, else the `TranslationBaseName`.
 
@@ -52,7 +49,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### Dir
+### Dir
 
 (`string`) The file path, excluding the file name, relative to the `content` directory.
 
@@ -62,7 +59,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### Ext
+### Ext
 
 (`string`) The file extension.
 
@@ -72,7 +69,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### Filename
+### Filename
 
 (`string`) The absolute file path.
 
@@ -82,13 +79,11 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### IsContentAdapter
+### IsContentAdapter
 
 {{< new-in 0.126.0 />}}
 
 (`bool`) Reports whether the file is a [content adapter].
-
-[content adapter]: /content-management/content-adapters/
 
 ```go-html-template
 {{ with .File }}
@@ -96,7 +91,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### LogicalName
+### LogicalName
 
 (`string`) The file name.
 
@@ -106,7 +101,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### Path
+### Path
 
 (`string`) The file path, relative to the `content` directory.
 
@@ -116,9 +111,9 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### Section
+### Section
 
-(`string`) The name of the top level section in which the file resides.
+(`string`) The name of the top-level section in which the file resides.
 
 ```go-html-template
 {{ with .File }}
@@ -126,7 +121,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### TranslationBaseName
+### TranslationBaseName
 
 (`string`) The file name, excluding the extension and language identifier.
 
@@ -136,7 +131,7 @@ The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend
 {{ end }}
 ```
 
-###### UniqueID
+### UniqueID
 
 (`string`) The MD5 hash of `.File.Path`.
 
@@ -184,7 +179,7 @@ UniqueID|15be14b...|186868f...|7d9159d...
 
 Some of the pages on a site may not be backed by a file. For example:
 
-- Top level section pages
+- Top-level section pages
 - Taxonomy pages
 - Term pages
 
@@ -195,3 +190,5 @@ Without a backing file, Hugo will throw an error if you attempt to access a `.Fi
   {{ .ContentBaseName }}
 {{ end }}
 ```
+
+[content adapter]: /content-management/content-adapters/

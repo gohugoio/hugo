@@ -3,16 +3,10 @@ title: Month
 description: Returns the month of the year of the given time.Time value.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Year
-    - methods/time/Day
-    - methods/time/Hour
-    - methods/time/Minute
-    - methods/time/Second
-    - functions/time/AsTime
-  returnType: time.Month
-  signatures: [TIME.Month]
+params:
+  functions_and_methods:
+    returnType: time.Month
+    signatures: [TIME.Month]
 ---
 
 To convert the `time.Month` value to a string:

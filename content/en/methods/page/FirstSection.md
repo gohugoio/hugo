@@ -1,26 +1,18 @@
 ---
 title: FirstSection
-description: Returns the Page object of the top level section of which the given page is a descendant.
+description: Returns the Page object of the top-level section of which the given page is a descendant.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/CurrentSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/IsDescendant
-    - methods/page/Parent
-    - methods/page/Sections
-  returnType: page.Page
-  signatures: [PAGE.FirstSection]
+params:
+  functions_and_methods:
+    returnType: page.Page
+    signatures: [PAGE.FirstSection]
 ---
 
 {{% glossary-term section %}}
 
-{{% note %}}
-When called on the home page, the `FirstSection` method returns the `Page` object of the home page itself.
-{{% /note %}}
+> [!note]
+> When called on the home page, the `FirstSection` method returns the `Page` object of the home page itself.
 
 Consider this content structure:
 
@@ -49,7 +41,7 @@ content/
 └── _index.md             <-- first section: home
 ```
 
-To link to the top level section of which the current page is a descendant:
+To link to the top-level section of which the current page is a descendant:
 
 ```go-html-template
 <a href="{{ .FirstSection.RelPermalink }}">{{ .FirstSection.LinkTitle }}</a>

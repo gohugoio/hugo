@@ -1,20 +1,20 @@
 ---
 title: diagrams.Goat
-description: Converts ASCII art to an SVG diagram, returning a GoAT diagram object.
+description: Returns an SVGDiagram object created from the given GoAT markup and options.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: diagrams.goatDiagram
-  signatures: ['diagrams.Goat INPUT']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: diagrams.SVGDiagram
+    signatures: [diagrams.Goat MARKUP]
 ---
 
-Useful in a [code block render hook], the `diagram.Goat` function converts ASCII art to an SVG diagram, returning a [GoAT] diagram object with the following methods:
+Useful in a [code block render hook], the `diagrams.Goat` function returns an SVGDiagram object created from the given [GoAT] markup.
 
-[GoAT]: https://github.com/blampe/goat#readme
-[code block render hook]: /render-hooks/code-blocks/
+## Methods
+
+The SVGDiagram object has the following methods:
 
 Inner
 : (`template.HTML`) Returns the SVG child elements without a wrapping `svg` element, allowing you to create your own wrapper.
@@ -30,13 +30,11 @@ Height
 
 ## GoAT Diagrams
 
-Hugo natively supports [GoAT](https://github.com/bep/goat) diagrams with an [embedded code block render hook].
-
-[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+Hugo natively supports GoAT diagrams with an [embedded code block render hook].
 
 This Markdown:
 
-````
+````text
 ```goat
 .---.     .-.       .-.       .-.     .---.
 | A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
@@ -68,7 +66,7 @@ To customize rendering, override Hugo's [embedded code block render hook] for Go
 
 By way of example, let's create a code block render hook to render GoAT diagrams as `figure` elements with an optional caption.
 
-{{< code file=layouts/_default/_markup/render-codeblock-goat.html >}}
+```go-html-template {file="layouts/_default/_markup/render-codeblock-goat.html"}
 {{ $caption := or .Attributes.caption "" }}
 {{ $class := or .Attributes.class "diagram" }}
 {{ $id := or .Attributes.id (printf "diagram-%d" (add 1 .Ordinal)) }}
@@ -81,17 +79,17 @@ By way of example, let's create a code block render hook to render GoAT diagrams
   {{ end }}
   <figcaption>{{ $caption }}</figcaption>
 </figure>
-{{< /code >}}
+```
 
 This Markdown:
 
-{{< code file=content/example.md lang=text >}}
+````text {file="content/example.md" }
 ```goat {class="foo" caption="Diagram 1: Example"}
 .---.     .-.       .-.       .-.     .---.
 | A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
 '---'     '-'       '+'       '+'     '---'
 ```
-{{< /code >}}
+````
 
 Is rendered to:
 
@@ -111,3 +109,7 @@ svg.foo {
   font-family: "Segoe UI","Noto Sans",Helvetica,Arial,sans-serif
 }
 ```
+
+[code block render hook]: /render-hooks/code-blocks/
+[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+[GoAT]: https://github.com/bep/goat

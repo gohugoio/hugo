@@ -3,18 +3,15 @@ title: ByPublishDate
 description: Returns the given page collection sorted by publish date in ascending order.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pages/ByDate
-    - methods/pages/ByExpiryDate
-    - methods/pages/ByLastMod
-  returnType: page.Pages
-  signatures: [PAGES.ByPublishDate]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGES.ByPublishDate]
 ---
 
 When sorting by publish date, the value is determined by your [site configuration], defaulting to the `publishDate` field in front matter.
 
-[site configuration]: /getting-started/configuration/#configure-dates
+[site configuration]: /configuration/front-matter/#dates
 
 ```go-html-template
 {{ range .Pages.ByPublishDate }}

@@ -3,13 +3,10 @@ title: PublishDate
 description: Returns the publish date of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Date
-    - methods/page/ExpiryDate
-    - methods/page/LastMod
-  returnType: time.Time
-  signatures: [PAGE.PublishDate]
+params:
+  functions_and_methods:
+    returnType: time.Time
+    signatures: [PAGE.PublishDate]
 ---
 
 By default, Hugo excludes pages with future publish dates when building your site. To include future pages, use the `--buildFuture` command line flag.
@@ -30,6 +27,6 @@ The publish date is a [time.Time] value. Format and localize the value with the 
 In the example above we explicitly set the publish date in front matter. With Hugo's default configuration, the `PublishDate` method returns the front matter value. This behavior is configurable, allowing you to set fallback values if the publish date is not defined in front matter. See&nbsp;[details].
 
 [`time.Format`]: /functions/time/format/
-[details]: /getting-started/configuration/#configure-dates
+[details]: /configuration/front-matter/#dates
 [time methods]: /methods/time/
 [time.Time]: https://pkg.go.dev/time#Time

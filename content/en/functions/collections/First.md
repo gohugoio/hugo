@@ -3,14 +3,11 @@ title: collections.First
 description: Returns the given collection, limited to the first N elements.
 categories: []
 keywords: []
-action:
-  aliases: [first]
-  related:
-    - functions/collections/After
-    - functions/collections/Last
-    - methods/pages/Limit
-  returnType: any
-  signatures: [collections.First N COLLECTION]
+params:
+  functions_and_methods:
+    aliases: [first]
+    returnType: any
+    signatures: [collections.First N COLLECTION]
 aliases: [/functions/first]
 ---
 
@@ -23,7 +20,7 @@ aliases: [/functions/first]
 Set `N` to zero to return an empty collection.
 
 ```go-html-template
-{{ $emptyPageCollection := first 0 .Pages}}
+{{ $emptyPageCollection := first 0 .Pages }}
 ```
 
 Use `first` and [`where`] together.

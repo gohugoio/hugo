@@ -1,22 +1,13 @@
 ---
 title: Ancestors
-description: Returns a collection of Page objects, one for each ancestor section of the given page. 
+description: Returns a collection of Page objects, one for each ancestor section of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/CurrentSection
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/IsDescendant
-    - methods/page/Parent
-    - methods/page/Sections
-  returnType: page.Pages
-  signatures: [PAGE.Ancestors]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.Ancestors]
 ---
-
-{{% glossary-term section %}}
 
 With this content structure:
 

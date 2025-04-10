@@ -3,13 +3,10 @@ title: IsTranslated
 description: Reports whether the given page has one or more translations.
 categories: []
 keywords: []
-action:
-  related:
-   - methods/page/Translations
-   - methods/page/AllTranslations
-   - methods/page/TranslationKey
-  returnType: bool
-  signatures: [PAGE.IsTranslated]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE.IsTranslated]
 ---
 
 With this site configuration:

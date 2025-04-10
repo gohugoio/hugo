@@ -2,21 +2,19 @@
 title: Hugo Documentation
 linkTitle: Docs
 description: Hugo is the world's fastest static website engine. It's written in Go (aka Golang) and developed by bep, spf13 and friends.
-menu:
-  main:
-    weight: 1
-weight: 1
 layout: list
 ---
 
-A fast and flexible [static site generator] built with love by [bep], [spf13], and [friends] in [Go].
+<!--
+If we want content on this page at some point, considering taking it from:
 
-Hugo is optimized for speed and designed for flexibility. With its advanced templating system and fast asset pipelines, Hugo renders a complete site in seconds, often less.
+- https://gohugo.io/about/introduction/
+- https://gohugo.io/about/features/
 
-[bep]: https://github.com/bep
-[spf13]: https://github.com/spf13
-[friends]: https://github.com/gohugoio/hugo/graphs/contributors
-[go]: https://go.dev/
-[static site generator]: https://en.wikipedia.org/wiki/Static_site_generator
+Try to use the same language (e.g., tagline) everywhere:
 
-Below you will find some of the most common and helpful pages from our documentation.
+- Home: https://gohugo.io/
+- Docs: https://gohugo.io/documentation/
+- Project repo: https://github.com/gohugoio/hugo?tab=readme-ov-file#readme
+- Docs repo: https://github.com/gohugoio/hugoDocs?tab=readme-ov-file#readme 
+-->

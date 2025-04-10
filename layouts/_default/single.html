@@ -1,14 +1,21 @@
 {{ define "main" }}
   {{ $ttop := debug.Timer "single" }}
-  <article class="max-w-5xl lg:max-w-3xl">
+  <article class="max-w-5xl lg:max-w-3xl" id="article">
     {{ partial "layouts/docsheader.html" . }}
-    <div class="content" id="content">
+    <div class="content">
       {{ with .Params.description }}
         <div class="lead">
           {{ . | markdownify }}
         </div>
       {{ end }}
-
+      {{ if .Params.show_publish_date }}
+        {{ with .PublishDate }}
+          <p
+            class="text-gray-500 dark:text-gray-400 text-sm/5 md:text-base/2 mb-2 sm:mb-4">
+            {{ partial "layouts/date.html" . }}
+          </p>
+        {{ end }}
+      {{ end }}
       {{ $t := debug.Timer "single.categories" }}
       {{ $categories := .GetTerms "categories" }}
       {{ with $categories }}
@@ -41,7 +48,7 @@
       {{ end }}
       {{ $t.Stop }}
 
-      {{ if .Params.action.signatures }}
+      {{ if .Params.functions_and_methods.signatures }}
         <div class="mb-4 not-prose">
           {{- partial "docs/functions-signatures.html" . -}}
           {{- partial "docs/functions-return-type.html" . -}}
@@ -67,5 +74,7 @@
     {{ partial "layouts/in-this-section.html" . }}
   {{ end }}
   {{ $related }}
-  {{ $toc }}
+  {{ if $.Store.Get "hasToc" }}
+    {{ $toc }}
+  {{ end }}
 {{ end }}

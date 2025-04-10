@@ -3,10 +3,10 @@ title: Reverse
 description: Returns the given page collection in reverse order.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Pages
-  signatures: [PAGES.Reverse]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGES.Reverse]
 ---
 
 ```go-html-template

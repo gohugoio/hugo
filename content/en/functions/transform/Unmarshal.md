@@ -3,16 +3,11 @@ title: transform.Unmarshal
 description: Parses serialized data and returns a map or an array. Supports CSV, JSON, TOML, YAML, and XML.
 categories: []
 keywords: []
-action:
-  aliases: [unmarshal]
-  related:
-    - functions/transform/Remarshal
-    - functions/resources/Get
-    - functions/resources/GetRemote
-    - functions/encoding/Jsonify
-  returnType: any
-  signatures: ['transform.Unmarshal [OPTIONS] INPUT']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [unmarshal]
+    returnType: any
+    signatures: ['transform.Unmarshal [OPTIONS] INPUT']
 aliases: [/functions/transform.unmarshal]
 ---
 
@@ -112,15 +107,12 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 {{ end }}
 ```
 
-{{% note %}}
-When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
-
-In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
-
-`{{ $data = .Content | transform.Unmarshal }}`
-
-[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-{{% /note %}}
+> [!note]
+> When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
+>
+> In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
+>
+> `{{ $data = .Content | transform.Unmarshal }}`
 
 ## Options
 
@@ -132,8 +124,9 @@ delimiter
 comment
 : (`string`) The comment character used in the CSV. If set, lines beginning with the comment character without preceding whitespace are ignored.
 
-lazyQuotes {{< new-in 0.122.0 />}}
-: (`bool`) If true, a quote may appear in an unquoted field and a non-doubled quote may appear in a quoted field. Default is `false`.
+lazyQuotes
+: {{< new-in 0.122.0 />}}
+: (`bool`) Whether to allow a quote in an unquoted field, or to allow a non-doubled quote in a quoted field. Default is `false`.
 
 ```go-html-template
 {{ $csv := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
@@ -296,4 +289,5 @@ Hugo renders this to:
 ```
 
 [`index`]: /functions/collections/indexfunction/
+[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
 [page bundle]: /content-management/page-bundles/

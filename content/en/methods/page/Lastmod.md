@@ -1,16 +1,12 @@
 ---
 title: Lastmod
-description: Returns the last modification date of the given page. 
+description: Returns the last modification date of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Date
-    - methods/page/ExpiryDate
-    - methods/page/PublishDate
-    - methods/page/GitInfo
-  returnType: time.Time
-  signatures: [PAGE.Lastmod]
+params:
+  functions_and_methods:
+    returnType: time.Time
+    signatures: [PAGE.Lastmod]
 ---
 
 Set the last modification date in front matter:
@@ -35,6 +31,6 @@ Learn more about [date configuration].
 
 [`gitinfo`]: /methods/page/gitinfo/
 [`time.format`]: /functions/time/format/
-[date configuration]: /getting-started/configuration/#configure-dates
+[date configuration]: /configuration/front-matter/#dates
 [time methods]: /methods/time/
-[time.time]: https://pkg.go.dev/time#time
+[time.time]: https://pkg.go.dev/time#Time

@@ -3,15 +3,11 @@ title: else
 description: Begins an alternate block for if, with, and range statements.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/if
-    - functions/go-template/range
-    - functions/go-template/with
-    - functions/go-template/end
-  returnType:
-  signatures: [else VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType:
+    signatures: [else VALUE]
 ---
 
 Use with the [`if`] statement:
@@ -62,7 +58,7 @@ Use `else if` to check multiple conditions.
 {{ end }}
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`if`]: /functions/go-template/if/
 [`with`]: /functions/go-template/with/

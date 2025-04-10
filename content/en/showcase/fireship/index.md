@@ -1,7 +1,7 @@
 ---
 title: fireship.io
 date: 2019-02-02
-description: "Showcase: \"Hugo helps us create complex technical content that integrates engaging web components\""
+description: 'Showcase: "Hugo helps us create complex technical content that integrates engaging web components."'
 siteURL: https://fireship.io
 siteSource: https://github.com/fireship-io/fireship.io
 byline: "[Jeff Delaney](https://github.com/codediodeio), Fireship.io Creator"

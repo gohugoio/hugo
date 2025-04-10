@@ -3,8 +3,6 @@
 {{ $isFooter := (eq $gtag "footer") }}
 {{ $utmSource := cond $isFooter "hugofooter" "hugohome" }}
 {{ $containerClass := .containerClass | default "mx-auto max-w-7xl px-6 lg:px-8" }}
-{{/* TODO1 prod: onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});"
-*/}}
 {{ with .ctx.Site.Data.sponsors }}
   <div class="{{ $containerClass }}">
     <h2 class="font-bold text-2xl mb-6 tracking-tighter">Hugo Sponsors</h2>
@@ -21,6 +19,9 @@
           <a
             href="{{ $url }}"
             title="{{ .title | default .name }}"
+            {{ if hugo.IsProduction }}
+              onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});"
+            {{ end }}
             class="group inline-block w-full h-full shadow-md dark:shadow-gray-600"
             {{ with .link_attr }}{{ . | safeHTMLAttr }}{{ end }}>
             <div

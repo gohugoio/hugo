@@ -3,13 +3,10 @@ title: IsHome
 description: Reports whether the given page is the home page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/IsNode
-    - methods/page/IsPage
-    - methods/page/IsSection
-  returnType: bool
-  signatures: [PAGE.IsHome]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE.IsHome]
 ---
 
 The `IsHome` method on a `Page` object returns `true` if the [page kind](g) is `home`.

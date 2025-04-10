@@ -1,14 +1,9 @@
 ---
 title: Partial templates
 description: Partials are smaller, context-aware components in your list and page templates that can be used economically to keep your templating DRY.
-categories: [templates]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: templates
-    weight: 110
-weight: 110
-toc: true
+weight: 100
 aliases: [/templates/partials/,/layout/chrome/]
 ---
 
@@ -39,13 +34,11 @@ All partials are called within your templates using the following pattern:
 {{ partial "<PATH>/<PARTIAL>.html" . }}
 ```
 
-{{% note %}}
-One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Hugo templating introduction](/templates/introduction/#context).
-{{% /note %}}
+> [!note]
+> One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Hugo templating introduction](/templates/introduction/#context).
 
-{{% note %}}
-`<PARTIAL>` including `baseof` is reserved. ([#5373](https://github.com/gohugoio/hugo/issues/5373))
-{{% /note %}}
+> [!note]
+> Do not include the word "baseof" when naming partial templates. The word "baseof" is reserved for base templates.
 
 As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:
 
@@ -99,9 +92,8 @@ In addition to outputting markup, partials can be used to return a value of any 
 {{ end }}
 ```
 
-{{% note %}}
-Only one `return` statement is allowed per partial file.
-{{% /note %}}
+> [!note]
+> Only one `return` statement is allowed per partial file.
 
 ## Inline partials
 
@@ -126,7 +118,7 @@ The `partialCached` template function provides significant performance gains for
 
 The following `header.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file=layouts/partials/header.html >}}
+```go-html-template {file="layouts/partials/header.html"}
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
@@ -141,17 +133,16 @@ The following `header.html` partial template is used for [spf13.com](https://spf
 
     {{ partial "head_includes.html" . }}
 </head>
-{{< /code >}}
+```
 
-{{% note %}}
-The `header.html` example partial was built before the introduction of block templates to Hugo. Read more on [base templates and blocks](/templates/base/) for defining the outer chrome or shell of your master templates (i.e., your site's head, header, and footer). You can even combine blocks and partials for added flexibility.
-{{% /note %}}
+> [!note]
+> The `header.html` example partial was built before the introduction of block templates to Hugo. Read more on [base templates and blocks](/templates/base/) for defining the outer chrome or shell of your master templates (i.e., your site's head, header, and footer). You can even combine blocks and partials for added flexibility.
 
 ### `footer.html`
 
 The following `footer.html` partial template is used for [spf13.com](https://spf13.com/):
 
-{{< code file=layouts/partials/footer.html >}}
+```go-html-template {file="layouts/partials/footer.html"}
 <footer>
   <div>
     <p>
@@ -161,10 +152,7 @@ The following `footer.html` partial template is used for [spf13.com](https://spf
     </p>
   </div>
 </footer>
-{{< /code >}}
+```
 
 [context]: /templates/introduction/
-[customize]: /hugo-modules/theme-components/
-[lookup order]: /templates/lookup-order/
 [partialcached]: /functions/partials/includecached/
-[themes]: /themes/

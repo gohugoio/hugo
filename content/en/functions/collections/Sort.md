@@ -3,15 +3,11 @@ title: collections.Sort
 description: Sorts slices, maps, and page collections.
 categories: []
 keywords: []
-action:
-  aliases: [sort]
-  related:
-    - functions/collections/Reverse
-    - functions/collections/Shuffle
-    - functions/collections/Uniq
-  returnType: any
-  signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: [sort]
+    returnType: any
+    signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
 aliases: [/functions/sort]
 ---
 
@@ -65,9 +61,8 @@ firstName = "Jean"
 lastName  = "Valjean"
 {{< /code-toggle >}}
 
-{{% note %}}
-When sorting maps, the `KEY` argument must be lowercase.
-{{% /note %}}
+> [!note]
+> When sorting maps, the `KEY` argument must be lowercase.
 
 ### Ascending order {#map-ascending-order}
 
@@ -141,11 +136,8 @@ After sorting:
 
 ## Sort a page collection
 
-{{% note %}}
-Although you can use the `sort` function to sort a page collection, Hugo provides [sorting and grouping methods] as well.
-
-[sorting and grouping methods]: /methods/pages/
-{{% /note %}}
+> [!note]
+> Although you can use the `sort` function to sort a page collection, Hugo provides [sorting and grouping methods] as well.
 
 In this contrived example, sort the site's regular pages by `.Type` in descending order:
 
@@ -154,3 +146,5 @@ In this contrived example, sort the site's regular pages by `.Type` in descendin
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
+
+[sorting and grouping methods]: /methods/pages/

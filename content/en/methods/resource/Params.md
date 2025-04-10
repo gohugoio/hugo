@@ -3,10 +3,10 @@ title: Params
 description: Returns a map of resource parameters as defined in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: map
-  signatures: [RESOURCE.Params]
+params:
+  functions_and_methods:
+    returnType: map
+    signatures: [RESOURCE.Params]
 ---
 
 Use the `Params` method with [page resources](g). It is not applicable to either [global resources](g) or [remote resources](g).

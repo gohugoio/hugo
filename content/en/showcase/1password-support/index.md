@@ -1,12 +1,10 @@
 ---
-
 title: 1Password Support
 date: 2018-02-22
-description: "Showcase: \"Compiles 400 pages in five languages in the blink of an eye.\""
+description: 'Showcase: "Compiles 400 pages in five languages in the blink of an eye."'
 siteURL: https://support.1password.com/
 byline: "[Mitch Cohen](https://github.com/mitchchn), Documentation Team Lead"
 aliases: [/showcase/1password/]
-
 ---
 
 At 1Password, we used to go through a different documentation platform every month: blog engines, ebooks, wikis, site generators written in Ruby and JavaScript. Each was inadequate in its own special way. Then we found **Hugo**. We made one last switch, and we're glad we did.
@@ -31,9 +29,9 @@ Finding a tool that will make your customers, writers, designers, _and_ DevOps t
 
 ### Tech specs
 
-* [1Password Support](https://support.1password.com) uses Hugo with a custom theme. It shares styles and some template code with [1Password.com](https://1password.com), which we also moved to Hugo in 2016.
-* Code and articles live in a private GitHub repository, which is deployed to a static content server using Git hooks.
-* Writers build and preview the site on their computers and contribute content using pull requests.
-* We use Hugo's [multilingual support](/content-management/multilingual/) to build the site in English, Spanish, French, Italian, German, and Russian. With the help of Hugo, 1Password Support became our very first site in multiple languages.
-* Our [contact form](https://support.1password.com/contact) is a single-page React app. We were able to integrate it with Hugo seamlessly thanks to its support for static files.
-* The one part of the support site which is not static is our search engine, which we developed with Elasticsearch and host on AWS.
+- [1Password Support](https://support.1password.com) uses Hugo with a custom theme. It shares styles and some template code with [1Password.com](https://1password.com), which we also moved to Hugo in 2016.
+- Code and articles live in a private GitHub repository, which is deployed to a static content server using Git hooks.
+- Writers build and preview the site on their computers and contribute content using pull requests.
+- We use Hugo's [multilingual support](/content-management/multilingual/) to build the site in English, Spanish, French, Italian, German, and Russian. With the help of Hugo, 1Password Support became our very first site in multiple languages.
+- Our [contact form](https://support.1password.com/contact) is a single-page React app. We were able to integrate it with Hugo seamlessly thanks to its support for static files.
+- The one part of the support site which is not static is our search engine, which we developed with Elasticsearch and host on AWS.

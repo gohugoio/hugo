@@ -3,15 +3,11 @@ title: len
 description: Returns the length of a string, slice, map, or collection.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/strings/Count
-    - functions/strings/CountRunes
-    - functions/strings/CountWords
-    - functions/strings/RuneCount
-  returnType: int
-  signatures: [len VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: int
+    signatures: [len VALUE]
 aliases: [/functions/len]
 ---
 
@@ -48,4 +44,4 @@ You may also determine the number of pages in a collection with:
 {{ site.RegularPages.Len }} → 42
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

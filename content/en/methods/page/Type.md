@@ -3,15 +3,13 @@ title: Type
 description: Returns the content type of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Kind
-    - methods/page/Layout
-  returnType: string
-  signatures: [PAGE.Type]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.Type]
 ---
 
-The `Type` method on a `Page` object returns the [content type](g) of the given page. The content type is defined by the `type` field in front matter,  or inferred from the top-level directory name if the `type` field in front matter is not defined.
+The `Type` method on a `Page` object returns the [content type](g) of the given page. The content type is defined by the `type` field in front matter, or inferred from the top-level directory name if the `type` field in front matter is not defined.
 
 With this content structure:
 

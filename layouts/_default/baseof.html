@@ -1,14 +1,9 @@
 <!doctype html>
 <html
   class="h-full antialiased scheme-light dark:scheme-dark"
-  lang="{{ with site.Language.LanguageCode }}
-    {{ . }}
-  {{ else }}
-    en-us
-  {{ end }}
-">
+  lang="{{ or site.Language.LanguageCode `en-US` }}">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <title>
       {{ .Title }}
     </title>
@@ -19,7 +14,7 @@
     </style>
     <meta
       name="description"
-      content="{{ .Description | default site.Params.description }}" />
+      content="{{ .Description | default site.Params.description }}">
     {{ partial "layouts/head/head-js.html" . }}
     {{ with (templates.Defer (dict "key" "global")) }}
       {{ $t := debug.Timer "tailwindcss" }}
@@ -34,9 +29,16 @@
       {{ end }}
       {{ $t.Stop }}
     {{ end }}
+    {{ $noop := .WordCount }}
+    {{ if .Page.Store.Get "hasMath" }}
+      <link
+        href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+        rel="stylesheet">
+    {{ end }}
     {{ partial "layouts/head/head.html" . }}
   </head>
-  <body class="flex flex-col min-h-full bg-white dark:bg-blue-950">
+  <body
+    class="flex flex-col min-h-full bg-white dark:bg-blue-950 kind-{{ .Kind }}">
     {{ partial "layouts/hooks/body-start.html" . }}
     {{/* Layout. */}}
     {{ block "header" . }}
@@ -46,7 +48,8 @@
     {{ end }}
     <div class="flex w-full xl:w-6xl h-full flex-auto mx-auto">
       <main
-        class="flex-1 mx-auto lg:mx-0 w-full max-w-3x lg:max-w-3x pt-8 lg:pt-14 pb-20 px-main">
+        class="flex-1 mx-auto lg:mx-0 w-full max-w-3x lg:max-w-3x pt-8 lg:pt-14 pb-20 px-main print:pt-0">
+        {{ partial "layouts/hooks/body-main-start.html" . }}
         {{ block "main" . }}{{ end }}
       </main>
       {{ block "rightsidebar" . }}
@@ -58,6 +61,8 @@
     </div>
     {{/* Common icons. */}}
     {{ partial "layouts/icons.html" . }}
+    {{/* Common templates. */}}
+    {{ partial "layouts/templates.html" . }}
     {{/* Footer. */}}
     {{ block "footer" . }}
       {{ partial "layouts/footer.html" . }}

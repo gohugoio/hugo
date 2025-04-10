@@ -3,14 +3,11 @@ title: strings.Title
 description: Returns the given string, converting it to title case.
 categories: []
 keywords: []
-action:
-  aliases: [title]
-  related:
-    - functions/strings/FirstUpper
-    - functions/strings/ToLower
-    - functions/strings/ToUpper
-  returnType: string
-  signatures: [strings.Title STRING]
+params:
+  functions_and_methods:
+    aliases: [title]
+    returnType: string
+    signatures: [strings.Title STRING]
 aliases: [/functions/title]
 ---
 
@@ -29,4 +26,4 @@ The last option is useful if your theme uses the `title` function, and you would
 
 [Associated Press Stylebook]: https://www.apstylebook.com/
 [Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
-[site configuration]: /getting-started/configuration/#configure-title-case
+[site configuration]: /configuration/all/#title-case-style

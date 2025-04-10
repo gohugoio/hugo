@@ -3,20 +3,15 @@ title: range
 description: Iterates over a non-empty collection, binds context (the dot) to successive elements, and executes the block.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/break
-    - functions/go-template/continue
-    - functions/go-template/else
-    - functions/go-template/end
-  returnType: 
-  signatures: [range COLLECTION]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: 
+    signatures: [range COLLECTION]
 aliases: [/functions/range]
-toc: true
 ---
 
-{{% include "functions/go-template/_common/truthy-falsy.md" %}}
+{{% include "/_common/functions/truthy-falsy.md" %}}
 
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
@@ -59,9 +54,8 @@ Hugo will throw an error:
 
 The error occurs because we are trying to use the `.Title` method on an integer instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
 
-{{% note %}}
-Use the `$` to get the context passed into the template.
-{{% /note %}}
+> [!note]
+> Use the `$` to get the context passed into the template.
 
 This template will render the page title three times:
 
@@ -71,11 +65,8 @@ This template will render the page title three times:
 {{ end }}
 ```
 
-{{% note %}}
-Gaining a thorough understanding of context is critical for anyone writing template code.
-{{% /note %}}
-
-[`seq`]: /functions/collections/seq/
+> [!note]
+> Gaining a thorough understanding of context is critical for anyone writing template code.
 
 ## Array or slice of scalars
 
@@ -191,8 +182,9 @@ Is rendered to:
 
 Unlike ranging over an array or slice, Hugo sorts by key when ranging over a map.
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}
 
-[`else`]: /functions/go-template/else/
 [`break`]: /functions/go-template/break/
 [`continue`]: /functions/go-template/continue/
+[`else`]: /functions/go-template/else/
+[`seq`]: /functions/collections/seq/

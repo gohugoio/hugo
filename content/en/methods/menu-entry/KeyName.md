@@ -1,12 +1,12 @@
 ---
 title: KeyName
-description: Returns the `identifier` property of the given menu entry, falling back to its `name` property. 
+description: Returns the `identifier` property of the given menu entry, falling back to its `name` property.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [MENUENTRY.KeyName]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [MENUENTRY.KeyName]
 ---
 
 In this menu definition, the second entry does not contain an `identifier`, so the `Identifier` method returns its `name` property instead:

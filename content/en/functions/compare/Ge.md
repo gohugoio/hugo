@@ -3,16 +3,11 @@ title: compare.Ge
 description: Returns the boolean truth of arg1 >= arg2 && arg1 >= arg3.
 categories: []
 keywords: []
-action:
-  aliases: [ge]
-  related:
-    - functions/compare/Eq
-    - functions/compare/Gt
-    - functions/compare/Le
-    - functions/compare/Lt
-    - functions/compare/Ne
-  returnType: bool
-  signatures: ['compare.Ge ARG1 ARG2 [ARG...]']
+params:
+  functions_and_methods:
+    aliases: [ge]
+    returnType: bool
+    signatures: ['compare.Ge ARG1 ARG2 [ARG...]']
 aliases: [/functions/ge]
 ---
 

@@ -3,23 +3,17 @@ title: safe.CSS
 description: Declares the given string as a safe CSS string.
 categories: []
 keywords: []
-action:
-  aliases: [safeCSS]
-  related:
-    - functions/safe/HTML
-    - functions/safe/HTMLAttr
-    - functions/safe/JS
-    - functions/safe/JSStr
-    - functions/safe/URL
-  returnType: template.CSS
-  signatures: [safe.CSS INPUT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: [safeCSS]
+    returnType: template.CSS
+    signatures: [safe.CSS INPUT]
 aliases: [/functions/safecss]
 ---
 
 ## Introduction
 
-{{% include "functions/_common/go-html-template-package.md" %}}
+{{% include "/_common/functions/go-html-template-package.md" %}}
 
 ## Usage
 
@@ -33,8 +27,6 @@ Use the `safe.CSS` function to encapsulate known safe content that matches any o
 Use of this type presents a security risk: the encapsulated content should come from a trusted source, as it will be included verbatim in the template output.
 
 See the [Go documentation] for details.
-
-[Go documentation]: https://pkg.go.dev/html/template#CSS
 
 ## Example
 
@@ -51,9 +43,8 @@ Hugo renders the above to:
 <p style="ZgotmplZ">foo</p>
 ```
 
-{{% note %}}
-`ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
-{{% /note %}}
+> [!note]
+> `ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
 
 To declare the string as safe:
 
@@ -67,3 +58,5 @@ Hugo renders the above to:
 ```html
 <p style="color: red;">foo</p>
 ```
+
+[Go documentation]: https://pkg.go.dev/html/template#CSS

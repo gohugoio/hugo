@@ -3,14 +3,10 @@ title: GroupByExpiryDate
 description: Returns the given page collection grouped by expiration date in descending order.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pages/GroupByDate
-    - methods/pages/GroupByLastMod
-    - methods/pages/GroupByParamDate
-    - methods/pages/GroupByPublishDate
-  returnType: page.PagesGroup
-  signatures: ['PAGES.GroupByExpiryDate LAYOUT [SORT]']
+params:
+  functions_and_methods:
+    returnType: page.PagesGroup
+    signatures: ['PAGES.GroupByExpiryDate LAYOUT [SORT]']
 ---
 
 When grouping by expiration date, the value is determined by your [site configuration], defaulting to the `expiryDate` field in front matter.
@@ -19,9 +15,9 @@ The [layout string] has the same format as the layout string for the [`time.Form
 
 [`time.Format`]: /functions/time/format/
 [layout string]: #layout-string
-[site configuration]: /getting-started/configuration/#configure-dates
+[site configuration]: /configuration/front-matter/#dates
 
-{{% include "methods/pages/_common/group-sort-order.md" %}}
+{{% include "/_common/methods/pages/group-sort-order.md" %}}
 
 To group content by year and month:
 
@@ -64,4 +60,4 @@ The pages within each group will also be sorted by expiration date, either ascen
 
 ## Layout string
 
-{{% include "functions/_common/time-layout-string.md" %}}
+{{% include "/_common/time-layout-string.md" %}}
