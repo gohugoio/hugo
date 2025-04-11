@@ -441,7 +441,7 @@ title: "P1"
 {{ define "main" }}FOO{{ end }}
 -- layouts/_default/single.json --
 -- layouts/_default/single.html --
-{{ define "main" }}MAIN{{ end }}
+{{ define "main" }}MAIN /_default/single.html{{ end }}
 -- layouts/post/single.html --
 {{ define "main" }}MAIN{{ end }}
 -- layouts/_partials/usedpartial.html --
@@ -461,6 +461,8 @@ title: "P1"
 	)
 	b.Build()
 
+	b.AssertFileContent("public/p1/index.html", "MAIN /_default/single.html")
+
 	unused := b.H.GetTemplateStore().UnusedTemplates()
 	var names []string
 	for _, tmpl := range unused {
@@ -468,8 +470,9 @@ title: "P1"
 			names = append(names, fi.Meta().PathInfo.PathNoLeadingSlash())
 		}
 	}
-	b.Assert(len(unused), qt.Equals, 5, qt.Commentf("%#v", names))
+
 	b.Assert(names, qt.DeepEquals, []string{"_partials/unusedpartial.html", "shortcodes/unusedshortcode.html", "baseof.json", "post/single.html", "_default/single.json"})
+	b.Assert(len(unused), qt.Equals, 5, qt.Commentf("%#v", names))
 }
 
 func TestCreateManyTemplateStores(t *testing.T) {

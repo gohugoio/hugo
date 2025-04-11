@@ -3,7 +3,9 @@ package tplimpl
 import (
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"unicode"
 	"unicode/utf8"
 
@@ -49,11 +51,6 @@ func (t *templateNamespace) parseTemplate(ti *TemplInfo) error {
 	}
 	pi := ti.PathInfo
 	name := pi.PathNoLeadingSlash()
-	if ti.isLegacyMapped {
-		// When mapping the old taxonomy structure to the new one, we may map the same path to multiple templates per kind.
-		// Append the kind here to make the name unique.
-		name += ("-" + ti.D.Kind)
-	}
 
 	var (
 		templ tpl.Template
@@ -62,12 +59,18 @@ func (t *templateNamespace) parseTemplate(ti *TemplInfo) error {
 
 	if ti.D.IsPlainText {
 		prototype := t.parseText
+		if prototype.Lookup(name) != nil {
+			name += "-" + strconv.FormatUint(t.nameCounter.Add(1), 10)
+		}
 		templ, err = prototype.New(name).Parse(ti.content)
 		if err != nil {
 			return err
 		}
 	} else {
 		prototype := t.parseHTML
+		if prototype.Lookup(name) != nil {
+			name += "-" + strconv.FormatUint(t.nameCounter.Add(1), 10)
+		}
 		templ, err = prototype.New(name).Parse(ti.content)
 		if err != nil {
 			return err
@@ -295,6 +298,8 @@ type templateNamespace struct {
 	parseHTML     *htmltemplate.Template
 	prototypeText *texttemplate.Template
 	prototypeHTML *htmltemplate.Template
+
+	nameCounter atomic.Uint64
 
 	standaloneText *texttemplate.Template
 
