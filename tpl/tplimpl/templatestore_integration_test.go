@@ -826,6 +826,31 @@ func TestPartialHTML(t *testing.T) {
 	b.AssertFileContent("public/index.html", "<link rel=\"stylesheet\" href=\"/css/style.css\">")
 }
 
+// Issue #13593.
+func TestNoGoat(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+§§§
+printf "Hello, world!"
+§§§
+
+-- layouts/all.html --
+{{ .Content }}
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Hello, world!")
+}
+
 // Issue #13515
 func TestPrintPathWarningOnDotRemoval(t *testing.T) {
 	t.Parallel()

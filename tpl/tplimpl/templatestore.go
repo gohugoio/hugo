@@ -311,7 +311,7 @@ func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, d1 TemplateDescriptor
 		distance := slashCountK1 - slashCountK2
 
 		for d2, vv := range v {
-			weight := s.dh.compareDescriptors(CategoryBaseof, d1, d2)
+			weight := s.dh.compareDescriptors(CategoryBaseof, false, d1, d2)
 			weight.distance = distance
 			if best.isBetter(weight, vv.Template) {
 				best.updateValues(weight, k2, d2, vv.Template)
@@ -447,7 +447,7 @@ func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, desc Te
 				continue
 			}
 
-			if vv.D.isKindInLayout(desc.Layout) && s.dh.compareDescriptors(CategoryBaseof, descBaseof, vv.D).w1 > 0 {
+			if vv.D.isKindInLayout(desc.Layout) && s.dh.compareDescriptors(CategoryBaseof, false, descBaseof, vv.D).w1 > 0 {
 				result = append(result, keyTemplateInfo{Key: k, Info: vv})
 			}
 		}
@@ -584,7 +584,7 @@ func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
 				continue
 			}
 
-			weight := s.dh.compareDescriptors(q.Category, q.Desc, k)
+			weight := s.dh.compareDescriptors(q.Category, vv.subCategory == SubCategoryEmbedded, q.Desc, k)
 			weight.distance = distance
 			if best.isBetter(weight, vv) {
 				best.updateValues(weight, k2, k, vv)
@@ -737,7 +737,7 @@ func (s *TemplateStore) findBestMatchGet(key string, category Category, consider
 			continue
 		}
 
-		weight := s.dh.compareDescriptors(category, desc, k.d)
+		weight := s.dh.compareDescriptors(category, vv.subCategory == SubCategoryEmbedded, desc, k.d)
 		if best.isBetter(weight, vv) {
 			best.updateValues(weight, key, k.d, vv)
 		}
@@ -758,7 +758,7 @@ func (s *TemplateStore) findBestMatchWalkPath(q TemplateQuery, k1 string, slashC
 				continue
 			}
 
-			weight := s.dh.compareDescriptors(q.Category, q.Desc, k.d)
+			weight := s.dh.compareDescriptors(q.Category, vv.subCategory == SubCategoryEmbedded, q.Desc, k.d)
 
 			weight.distance = distance
 			isBetter := best.isBetter(weight, vv)

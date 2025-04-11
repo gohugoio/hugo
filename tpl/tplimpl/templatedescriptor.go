@@ -60,12 +60,13 @@ type descriptorHandler struct {
 
 // Note that this in this setup is usually a descriptor constructed from a page,
 // so we want to find the best match for that page.
-func (s descriptorHandler) compareDescriptors(category Category, this, other TemplateDescriptor) weight {
+func (s descriptorHandler) compareDescriptors(category Category, isEmbedded bool, this, other TemplateDescriptor) weight {
 	if this.LayoutMustMatch && this.Layout != other.Layout {
 		return weightNoMatch
 	}
 
-	w := this.doCompare(category, other)
+	w := this.doCompare(category, isEmbedded, other)
+
 	if w.w1 <= 0 {
 		if category == CategoryMarkup && (this.Variant1 == other.Variant1) && (this.Variant2 == other.Variant2 || this.Variant2 != "" && other.Variant2 == "") {
 			// See issue 13242.
@@ -82,7 +83,7 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 }
 
 //lint:ignore ST1006 this vs other makes it easier to reason about.
-func (this TemplateDescriptor) doCompare(category Category, other TemplateDescriptor) weight {
+func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, other TemplateDescriptor) weight {
 	w := weightNoMatch
 
 	// HTML in plain text is OK, but not the other way around.
@@ -135,9 +136,15 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 		return w
 	}
 
-	// If both are set and different, no match.
-	if other.Variant2 != "" && this.Variant2 != "" && other.Variant2 != this.Variant2 {
-		return w
+	if isEmbedded {
+		if other.Variant2 != "" && other.Variant2 != this.Variant2 {
+			return w
+		}
+	} else {
+		// If both are set and different, no match.
+		if other.Variant2 != "" && this.Variant2 != "" && other.Variant2 != this.Variant2 {
+			return w
+		}
 	}
 
 	const (

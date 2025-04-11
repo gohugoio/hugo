@@ -20,14 +20,14 @@ func TestTemplateDescriptorCompare(t *testing.T) {
 
 	less := func(category Category, this, other1, other2 TemplateDescriptor) {
 		c.Helper()
-		result1 := dh.compareDescriptors(category, this, other1)
-		result2 := dh.compareDescriptors(category, this, other2)
+		result1 := dh.compareDescriptors(category, false, this, other1)
+		result2 := dh.compareDescriptors(category, false, this, other2)
 		c.Assert(result1.w1 < result2.w1, qt.IsTrue, qt.Commentf("%d < %d", result1, result2))
 	}
 
 	check := func(category Category, this, other TemplateDescriptor, less bool) {
 		c.Helper()
-		result := dh.compareDescriptors(category, this, other)
+		result := dh.compareDescriptors(category, false, this, other)
 		if less {
 			c.Assert(result.w1 < 0, qt.IsTrue, qt.Commentf("%d", result))
 		} else {
@@ -98,7 +98,7 @@ func BenchmarkCompareDescriptors(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, pair := range pairs {
-			_ = dh.compareDescriptors(CategoryLayout, pair.d1, pair.d2)
+			_ = dh.compareDescriptors(CategoryLayout, false, pair.d1, pair.d2)
 		}
 	}
 }
