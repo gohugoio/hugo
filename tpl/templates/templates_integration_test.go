@@ -166,3 +166,31 @@ p3.current.Ancestors.Reverse: {{ with templates.Current }}{{ range .Ancestors.Re
 		"p2.current.Ancestors: _partials/p1.html|all.html",
 	)
 }
+
+func TestBaseOfIssue13583(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+---
+title: "Home"
+outputs: ["html", "amp"]
+---
+title: "Home"
+-- layouts/baseof.html --
+layouts/baseof.html
+{{ block "main" . }}{{ end }}
+-- layouts/baseof.amp.html --
+layouts/baseof.amp.html
+{{ block "main" . }}{{ end }}
+-- layouts/home.html --
+{{ define "main" }}
+Home.
+{{ end }}
+
+`
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "layouts/baseof.html")
+	b.AssertFileContent("public/amp/index.html", "layouts/baseof.amp.html")
+}

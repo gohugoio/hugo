@@ -301,7 +301,7 @@ func (ti *TemplInfo) String() string {
 	return ti.PathInfo.String()
 }
 
-func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, k1 string, slashCountK1 int, best *bestMatch) {
+func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, d1 TemplateDescriptor, k1 string, slashCountK1 int, best *bestMatch) {
 	if ti.baseVariants == nil {
 		return
 	}
@@ -310,11 +310,11 @@ func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, k1 string, slashCount
 		slashCountK2 := strings.Count(k2, "/")
 		distance := slashCountK1 - slashCountK2
 
-		for d, vv := range v {
-			weight := s.dh.compareDescriptors(CategoryBaseof, ti.D, d)
+		for d2, vv := range v {
+			weight := s.dh.compareDescriptors(CategoryBaseof, d1, d2)
 			weight.distance = distance
 			if best.isBetter(weight, vv.Template) {
-				best.updateValues(weight, k2, d, vv.Template)
+				best.updateValues(weight, k2, d2, vv.Template)
 			}
 		}
 		return false, nil
@@ -538,7 +538,7 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 		return m
 	}
 	best1.reset()
-	m.findBestMatchBaseof(s, key, slashCountKey, best1)
+	m.findBestMatchBaseof(s, q.Desc, key, slashCountKey, best1)
 	if best1.w.w1 <= 0 {
 		return nil
 	}
