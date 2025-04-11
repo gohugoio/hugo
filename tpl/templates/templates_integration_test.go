@@ -214,3 +214,18 @@ All.
 	b.AssertFileContent("public/index.html", "All.")
 	b.AssertFileContent("public/amp/index.html", "All.")
 }
+
+// Issue #13584.
+func TestLegacySectionSection(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/mysection/_index.md --
+-- layouts/section/section.html --
+layouts/section/section.html
+
+`
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/mysection/index.html", "layouts/section/section.html")
+}

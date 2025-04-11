@@ -690,7 +690,7 @@ func (t *TemplateStore) UnusedTemplates() []*TemplInfo {
 	var unused []*TemplInfo
 
 	for vv := range t.templates() {
-		if vv.subCategory != SubCategoryMain {
+		if vv.subCategory != SubCategoryMain || vv.isLegacyMapped {
 			// Skip inline partials and internal templates.
 			continue
 		}
@@ -1169,8 +1169,8 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		case containerPartials, containerShortcodes, containerMarkup:
 			// OK.
 		default:
-			applyLegacyMapping = true
 			pi = fromLegacyPath(pi)
+			applyLegacyMapping = strings.Count(pi.Path(), "/") <= 2
 		}
 
 		if applyLegacyMapping {
@@ -1183,6 +1183,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 					ext:            pi.Ext(),
 					outputFormat:   pi.OutputFormat(),
 				}
+
 				if m2, ok := legacyOrdinalMappings[key]; ok {
 					if m1.ordinal < m2.m.ordinal {
 						// Higher up == better match.
@@ -1208,26 +1209,74 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 
 			base := piOrig.PathBeforeLangAndOutputFormatAndExt()
 			identifiers := pi.IdentifiersUnknown()
-
-			// Tokens on e.g. form /SECTIONKIND/THESECTION
-			insertSectionTokens := func(section string, kindOnly bool) string {
-				s := base
-				if !kindOnly {
-					s = strings.Replace(s, section, sectionToken, 1)
-				}
-				s = strings.Replace(s, kinds.KindSection, sectionKindToken, 1)
-				return s
+			if pi.Kind() != "" {
+				identifiers = append(identifiers, pi.Kind())
 			}
 
-			for _, section := range identifiers {
-				if section == baseNameBaseof {
+			shouldIncludeSection := func(section string) bool {
+				switch section {
+				case containerShortcodes, containerPartials, containerMarkup:
+					return false
+				case "taxonomy", "":
+					return false
+				default:
+					for k, v := range s.opts.TaxonomySingularPlural {
+						if k == section || v == section {
+							return false
+						}
+					}
+					return true
+				}
+			}
+			if shouldIncludeSection(pi.Section()) {
+				identifiers = append(identifiers, pi.Section())
+			}
+
+			identifiers = helpers.UniqueStrings(identifiers)
+
+			// Tokens on e.g. form /SECTIONKIND/THESECTION
+			insertSectionTokens := func(section string) []string {
+				kindOnly := isLayoutStandard(section)
+				var ss []string
+				s1 := base
+				if !kindOnly {
+					s1 = strings.ReplaceAll(s1, section, sectionToken)
+				}
+				s1 = strings.ReplaceAll(s1, kinds.KindSection, sectionKindToken)
+				if s1 != base {
+					ss = append(ss, s1)
+				}
+				s1 = strings.ReplaceAll(base, kinds.KindSection, sectionKindToken)
+				if !kindOnly {
+					s1 = strings.ReplaceAll(s1, section, sectionToken)
+				}
+				if s1 != base {
+					ss = append(ss, s1)
+				}
+
+				helpers.UniqueStringsReuse(ss)
+
+				return ss
+			}
+
+			for _, id := range identifiers {
+				if id == "" {
 					continue
 				}
-				kindOnly := isLayoutStandard(section)
-				p := insertSectionTokens(section, kindOnly)
-				if m1, ok := s.opts.legacyMappingSection[p]; ok {
-					m1.mapping.targetPath = strings.Replace(m1.mapping.targetPath, sectionToken, section, 1)
-					handleMapping(m1)
+
+				p := insertSectionTokens(id)
+				for _, ss := range p {
+					if m1, ok := s.opts.legacyMappingSection[ss]; ok {
+						targetPath := m1.mapping.targetPath
+
+						if targetPath != "" {
+							targetPath = strings.ReplaceAll(targetPath, sectionToken, id)
+							targetPath = strings.ReplaceAll(targetPath, sectionKindToken, id)
+							targetPath = strings.ReplaceAll(targetPath, "//", "/")
+						}
+						m1.mapping.targetPath = targetPath
+						handleMapping(m1)
+					}
 				}
 			}
 
