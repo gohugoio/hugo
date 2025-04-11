@@ -35,14 +35,18 @@ func TestInclude(t *testing.T) {
 baseURL = 'http://example.com/'
 -- layouts/index.html --
 partial: {{ partials.Include "foo.html" . }}
+partial: {{ partials.Include "bar.html" . }}
 -- layouts/partials/foo.html --
 foo
+-- layouts/partials/bar.gotmpl.html --
+bar
   `
 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 partial: foo
+partial: bar
 `)
 }
 

@@ -27,7 +27,8 @@ import (
 )
 
 const (
-	identifierBaseof = "baseof"
+	identifierBaseof           = "baseof"
+	identifierGotmplOuterftype = "gotmpl"
 )
 
 // PathParser parses a path into a Path.
@@ -198,7 +199,11 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 
 		if !found {
 			p.identifiers = append(p.identifiers, id)
-			p.identifiersUnknown = append(p.identifiersUnknown, len(p.identifiers)-1)
+			if sid == identifierGotmplOuterftype {
+				p.posIdentifierOuterftype = len(p.identifiers) - 1
+			} else {
+				p.identifiersUnknown = append(p.identifiersUnknown, len(p.identifiers)-1)
+			}
 		}
 
 	}
@@ -352,6 +357,7 @@ type Path struct {
 
 	identifiers []types.LowHigh[string]
 
+	posIdentifierOuterftype   int
 	posIdentifierLanguage     int
 	posIdentifierOutputFormat int
 	posIdentifierKind         int
@@ -389,6 +395,7 @@ func (p *Path) reset() {
 	p.component = ""
 	p.pathType = 0
 	p.identifiers = p.identifiers[:0]
+	p.posIdentifierOuterftype = -1
 	p.posIdentifierLanguage = -1
 	p.posIdentifierOutputFormat = -1
 	p.posIdentifierKind = -1
@@ -468,30 +475,42 @@ func (p *Path) isContentPage() bool {
 	return p.Type() >= TypeContentSingle && p.Type() <= TypeContentData
 }
 
-// Name returns the last element of path.
+// Name returns the last element of path without any outer filetype extension.
 func (p *Path) Name() string {
+	if i := p.identifierIndex(p.posIdentifierOuterftype); i != -1 {
+		return p.s[p.posContainerHigh:p.identifiers[i].Low-1] + p.s[p.identifiers[i].High:]
+	}
+
 	if p.posContainerHigh > 0 {
 		return p.s[p.posContainerHigh:]
 	}
 	return p.s
 }
 
-// Name returns the last element of path without any extension.
+// NameNoExt returns the last element of path without any extension and outer filetype extension.
 func (p *Path) NameNoExt() string {
 	if i := p.identifierIndex(0); i != -1 {
+		if j := p.identifierIndex(p.posIdentifierOuterftype); j != -1 {
+			return p.s[p.posContainerHigh : p.identifiers[j].Low-1]
+		}
+
 		return p.s[p.posContainerHigh : p.identifiers[i].Low-1]
 	}
+
 	return p.s[p.posContainerHigh:]
 }
 
-// Name returns the last element of path without any language identifier.
+// NameNoLang returns the last element of path without any language identifier and outer filetype extension.
 func (p *Path) NameNoLang() string {
-	i := p.identifierIndex(p.posIdentifierLanguage)
-	if i == -1 {
-		return p.Name()
+	if i := p.identifierIndex(p.posIdentifierLanguage); i != -1 {
+		if j := p.identifierIndex(p.posIdentifierOuterftype); j != -1 {
+			return p.s[p.posContainerHigh:p.identifiers[i].Low-1] + p.s[p.identifiers[j].High:]
+		}
+
+		return p.s[p.posContainerHigh:p.identifiers[i].Low-1] + p.s[p.identifiers[i].High:]
 	}
 
-	return p.s[p.posContainerHigh:p.identifiers[i].Low-1] + p.s[p.identifiers[i].High:]
+	return p.Name()
 }
 
 // BaseNameNoIdentifier returns the logical base name for a resource without any identifier (e.g. no extension).
@@ -539,8 +558,11 @@ func (p *Path) Dir() (d string) {
 	return
 }
 
-// Path returns the full path.
+// Path returns the full path but with any outer filetype extension removed.
 func (p *Path) Path() (d string) {
+	if i := p.identifierIndex(p.posIdentifierOuterftype); i != -1 {
+		return p.norm(p.s[:p.identifiers[i].Low-1] + p.s[p.identifiers[i].High:])
+	}
 	return p.norm(p.s)
 }
 
@@ -554,12 +576,12 @@ func (p *Path) Unnormalized() *Path {
 	return p.unnormalized
 }
 
-// PathNoLang returns the Path but with any language identifier removed.
+// PathNoLang returns the Path but with any language identifier and outer filetype extension removed.
 func (p *Path) PathNoLang() string {
 	return p.base(true, false)
 }
 
-// PathNoIdentifier returns the Path but with any identifier (ext, lang) removed.
+// PathNoIdentifier returns the Path but with any identifier (ext, outer filetype ext, lang) removed.
 func (p *Path) PathNoIdentifier() string {
 	return p.base(false, false)
 }
@@ -579,10 +601,13 @@ func (p *Path) PathBeforeLangAndOutputFormatAndExt() string {
 	}
 
 	if i == -1 {
-		return p.norm(p.s)
+		return p.Path()
 	}
 
 	id := p.identifiers[i]
+	if j := p.posIdentifierOuterftype; j != -1 && j >= i {
+		return p.norm(p.s[:p.identifiers[j].Low-1] + p.s[p.identifiers[j].High:id.Low-1])
+	}
 	return p.norm(p.s[:id.Low-1])
 }
 

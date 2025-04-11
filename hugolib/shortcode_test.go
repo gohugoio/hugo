@@ -142,7 +142,9 @@ title: "%s"
 # Doc
 
 {{< myShort >}}
+{{< myShortGotmpl >}}
 {{< noExt >}}
+{{< noExtGotmpl >}}
 {{%% onlyHTML %%}}
 
 {{< myInner >}}{{< myShort >}}{{< /myInner >}}
@@ -156,6 +158,7 @@ outputs: ["CSV"]
 # Doc
 
 CSV: {{< myShort >}}
+CSV: {{< myShortGotmpl >}}
 `
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", siteConfig)
@@ -167,11 +170,17 @@ CSV: {{< myShort >}}
 		"layouts/index.amp.html", `Home AMP: {{ .Title }}|{{ .Content }}`,
 		"layouts/index.ics", `Home Calendar: {{ .Title }}|{{ .Content }}`,
 		"layouts/shortcodes/myShort.html", `ShortHTML`,
+		"layouts/shortcodes/myShortGotmpl.gotmpl.html", `ShortHTMLGotmpl`,
 		"layouts/shortcodes/myShort.amp.html", `ShortAMP`,
+		"layouts/shortcodes/myShortGotmpl.amp.gotmpl.html", `ShortAMPGotmpl`,
 		"layouts/shortcodes/myShort.csv", `ShortCSV`,
+		"layouts/shortcodes/myShortGotmpl.gotmpl.csv", `ShortCSVGotmpl`,
 		"layouts/shortcodes/myShort.ics", `ShortCalendar`,
+		"layouts/shortcodes/myShortGotmpl.gotmpl.ics", `ShortCalendarGotmpl`,
 		"layouts/shortcodes/myShort.json", `ShortJSON`,
+		"layouts/shortcodes/myShortGotmpl.gotmpl.json", `ShortJSONGotmpl`,
 		"layouts/shortcodes/noExt", `ShortNoExt`,
+		"layouts/shortcodes/noExtGotmpl.gotmpl", `ShortNoExtGotmpl`,
 		"layouts/shortcodes/onlyHTML.html", `ShortOnlyHTML`,
 		"layouts/shortcodes/myInner.html", `myInner:--{{- .Inner -}}--`,
 	)
@@ -193,7 +202,9 @@ CSV: {{< myShort >}}
 	b.AssertFileContent("public/index.html",
 		"Home HTML",
 		"ShortHTML",
+		"ShortHTMLGotmpl",
 		"ShortNoExt",
+		"ShortNoExtGotmpl",
 		"ShortOnlyHTML",
 		"myInner:--ShortHTML--",
 	)
@@ -201,7 +212,9 @@ CSV: {{< myShort >}}
 	b.AssertFileContent("public/amp/index.html",
 		"Home AMP",
 		"ShortAMP",
+		"ShortAMPGotmpl",
 		"ShortNoExt",
+		"ShortNoExtGotmpl",
 		"ShortOnlyHTML",
 		"myInner:--ShortAMP--",
 	)
@@ -209,7 +222,9 @@ CSV: {{< myShort >}}
 	b.AssertFileContent("public/index.ics",
 		"Home Calendar",
 		"ShortCalendar",
+		"ShortCalendarGotmpl",
 		"ShortNoExt",
+		"ShortNoExtGotmpl",
 		"ShortOnlyHTML",
 		"myInner:--ShortCalendar--",
 	)
@@ -217,7 +232,9 @@ CSV: {{< myShort >}}
 	b.AssertFileContent("public/sect/mypage/index.html",
 		"Single HTML",
 		"ShortHTML",
+		"ShortHTMLGotmpl",
 		"ShortNoExt",
+		"ShortNoExtGotmpl",
 		"ShortOnlyHTML",
 		"myInner:--ShortHTML--",
 	)
@@ -225,7 +242,9 @@ CSV: {{< myShort >}}
 	b.AssertFileContent("public/sect/mypage/index.json",
 		"Single JSON",
 		"ShortJSON",
+		"ShortJSONGotmpl",
 		"ShortNoExt",
+		"ShortNoExtGotmpl",
 		"ShortOnlyHTML",
 		"myInner:--ShortJSON--",
 	)
@@ -234,7 +253,9 @@ CSV: {{< myShort >}}
 		// No special AMP template
 		"Single HTML",
 		"ShortAMP",
+		"ShortAMPGotmpl",
 		"ShortNoExt",
+		"ShortNoExtGotmpl",
 		"ShortOnlyHTML",
 		"myInner:--ShortAMP--",
 	)
@@ -242,6 +263,7 @@ CSV: {{< myShort >}}
 	b.AssertFileContent("public/sect/mycsvpage/index.csv",
 		"Single CSV",
 		"ShortCSV",
+		"ShortCSVGotmpl",
 	)
 }
 

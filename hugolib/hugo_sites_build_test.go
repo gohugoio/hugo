@@ -375,3 +375,62 @@ func TestRebuildOnAssetChange(t *testing.T) {
 	b.Build(BuildCfg{})
 	b.AssertFileContent("public/index.html", `changed data`)
 }
+
+func TestLayoutWithOuterfiletypeExtInFilenameTakesPrecedence(t *testing.T) {
+	files := `
+-- content/index.md --
+---
+title: Home
+---
+world
+-- layouts/home.gotmpl.html --
+hello: {{ .Content | plainify }}
+-- layouts/home.html --
+hi: {{ .Content | plainify }}
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html", `hello: world`)
+}
+
+func TestRebuildOnLayoutFileWithOuterfiletypeExtChange(t *testing.T) {
+	b := newTestSitesBuilder(t).Running().WithLogger(loggers.NewDefault())
+	b.WithTemplatesAdded(
+		"home.gotmpl.html", `gotmpl: {{ .Content | plainify }}`,
+		"home.html", `html: {{ .Content | plainify }}`,
+	)
+	b.WithContent("index.md", `
+---
+title: Home
+---
+foo
+`)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `gotmpl: foo`)
+
+	b.EditFiles("layouts/home.html", `html edited: {{ .Content | plainify }}`)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", `html edited: foo`)
+}
+
+func TestGotmplOutputFormatIsNotSeenAsOuterfiletypeExt(t *testing.T) {
+	files := `
+-- hugo.toml --
+[outputFormats.gotmpl]
+baseName = 'index'
+[outputs]
+home = ['html', 'gotmpl']
+-- content/index.md --
+---
+title: Home
+---
+-- layouts/home.gotmpl --
+gotmpl output format
+-- layouts/home.html --
+html output format
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html", `html output format`)
+	b.AssertFileContent("public/index.gotmpl", `gotmpl output format`)
+}

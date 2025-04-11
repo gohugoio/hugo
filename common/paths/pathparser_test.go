@@ -184,6 +184,23 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
+			"Identifiers (with gotmpl outer filetype ext)",
+			"/a/b.a.b.no.gotmpl.txt",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Name(), qt.Equals, "b.a.b.no.txt")
+				c.Assert(p.NameNoIdentifier(), qt.Equals, "b")
+				c.Assert(p.NameNoExt(), qt.Equals, "b.a.b.no")
+				c.Assert(p.NameNoLang(), qt.Equals, "b.a.b.txt")
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "gotmpl", "no", "b", "a", "b"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"b", "a", "b"})
+				c.Assert(p.Base(), qt.Equals, "/a/b.txt")
+				c.Assert(p.Path(), qt.Equals, "/a/b.a.b.no.txt")
+				c.Assert(p.PathNoLang(), qt.Equals, "/a/b.txt")
+				c.Assert(p.Ext(), qt.Equals, "txt")
+				c.Assert(p.PathNoIdentifier(), qt.Equals, "/a/b")
+			},
+		},
+		{
 			"Home branch cundle",
 			"/_index.md",
 			func(c *qt.C, p *Path) {
@@ -427,6 +444,13 @@ func TestParseLayouts(t *testing.T) {
 				c.Assert(p.Lang(), qt.Equals, "")
 				c.Assert(p.Kind(), qt.Equals, "term")
 				c.Assert(p.OutputFormat(), qt.Equals, "html")
+			},
+		},
+		{
+			"Term (with gotmpl outer filetype ext)",
+			"/term.gotmpl.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.PathBeforeLangAndOutputFormatAndExt(), qt.Equals, "/term")
 			},
 		},
 		{
