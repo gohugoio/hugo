@@ -92,6 +92,7 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 	if other.Kind != "" && other.Kind != this.Kind {
 		return w
 	}
+
 	if other.Layout != "" && other.Layout != layoutAll && other.Layout != this.Layout {
 		if isLayoutCustom(this.Layout) {
 			if this.Kind == "" {
@@ -108,6 +109,7 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 			return w
 		}
 	}
+
 	if other.Lang != "" && other.Lang != this.Lang {
 		return w
 	}
@@ -120,7 +122,7 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 		// We want e.g. home page in amp output format (media type text/html) to
 		// find a template even if one isn't specified for that output format,
 		// when one exist for the html output format (same media type).
-		if category != CategoryBaseof && (this.Kind == "" || (this.Kind != other.Kind && this.Layout != other.Layout)) {
+		if category != CategoryBaseof && (this.Kind == "" || (this.Kind != other.Kind && (this.Layout != other.Layout && other.Layout != layoutAll))) {
 			return w
 		}
 

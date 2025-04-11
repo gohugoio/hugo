@@ -194,3 +194,23 @@ Home.
 	b.AssertFileContent("public/index.html", "layouts/baseof.html")
 	b.AssertFileContent("public/amp/index.html", "layouts/baseof.amp.html")
 }
+
+func TestAllVsAmp(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+---
+title: "Home"
+outputs: ["html", "amp"]
+---
+title: "Home"
+-- layouts/all.html --
+All.
+
+`
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "All.")
+	b.AssertFileContent("public/amp/index.html", "All.")
+}
