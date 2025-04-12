@@ -827,7 +827,46 @@ func TestPartialHTML(t *testing.T) {
 }
 
 // Issue #13593.
-func TestNoGoat(t *testing.T) {
+func TestGoatAndNoGoat(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+
+§§§
+printf "Hello, world!"
+§§§
+
+
+§§§ goat
+.---.     .-.       .-.       .-.     .---.
+| A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
+'---'     '-'       '+'       '+'     '---'
+§§§
+
+
+
+-- layouts/all.html --
+{{ .Content }}
+
+`
+
+	b := hugolib.Test(t, files)
+
+	// Basic code block.
+	b.AssertFileContent("public/index.html", "<code>printf &#34;Hello, world!&#34;\n</code>")
+
+	// Goat code block.
+	b.AssertFileContent("public/index.html", "Menlo,Lucida")
+}
+
+// Issue #13595.
+func TestGoatAndNoGoatCustomTemplate(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -841,6 +880,16 @@ title: "Home"
 printf "Hello, world!"
 §§§
 
+§§§ goat
+.---.     .-.       .-.       .-.     .---.
+| A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
+'---'     '-'       '+'       '+'     '---'
+§§§
+
+
+
+-- layouts/_markup/render-codeblock.html --
+_markup/render-codeblock.html
 -- layouts/all.html --
 {{ .Content }}
 
@@ -848,7 +897,51 @@ printf "Hello, world!"
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html", "Hello, world!")
+	// Basic code block.
+	b.AssertFileContent("public/index.html", "_markup/render-codeblock.html")
+
+	// Goat code block.
+	b.AssertFileContent("public/index.html", "Menlo,Lucida")
+}
+
+func TestGoatcustom(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+§§§
+printf "Hello, world!"
+§§§
+
+§§§ goat
+.---.     .-.       .-.       .-.     .---.
+| A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
+'---'     '-'       '+'       '+'     '---'
+§§§
+
+
+
+-- layouts/_markup/render-codeblock.html --
+_markup/render-codeblock.html
+-- layouts/_markup/render-codeblock-goat.html --
+_markup/render-codeblock-goat.html
+-- layouts/all.html --
+{{ .Content }}
+
+`
+
+	b := hugolib.Test(t, files)
+
+	// Basic code block.
+	b.AssertFileContent("public/index.html", "_markup/render-codeblock.html")
+
+	// Custom Goat code block.
+	b.AssertFileContent("public/index.html", "_markup/render-codeblock.html_markup/render-codeblock-goat.html")
 }
 
 // Issue #13515

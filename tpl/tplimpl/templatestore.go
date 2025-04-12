@@ -1832,7 +1832,10 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 		return false
 	}
 
-	if best.w.w1 > 0 {
+	// Note that for render hook templates, we need to make
+	// the embedded render hook template wih if they're a better match,
+	// e.g. render-codeblock-goat.html.
+	if best.templ.category != CategoryMarkup && best.w.w1 > 0 {
 		currentBestIsEmbedded := best.templ.subCategory == SubCategoryEmbedded
 		if currentBestIsEmbedded {
 			if ti.subCategory != SubCategoryEmbedded {

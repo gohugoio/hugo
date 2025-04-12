@@ -208,11 +208,8 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		w.w1 += weightVariant1
 	}
 
-	if other.Variant2 != "" && other.Variant2 == this.Variant2 {
+	if other.Variant1 != "" && other.Variant2 == this.Variant2 {
 		w.w1 += weightVariant2
-	}
-	if other.Variant2 != "" && this.Variant2 == "" {
-		w.w1--
 	}
 
 	return w
