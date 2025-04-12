@@ -482,12 +482,12 @@ func (po *pageOutput) GetInternalTemplateBasePathAndDescriptor() (string, tplimp
 	f := po.f
 	base := p.PathInfo().BaseReTyped(p.m.pageConfig.Type)
 	return base, tplimpl.TemplateDescriptor{
-		Kind:         p.Kind(),
-		Lang:         p.Language().Lang,
-		Layout:       p.Layout(),
-		OutputFormat: f.Name,
-		MediaType:    f.MediaType.Type,
-		IsPlainText:  f.IsPlainText,
+		Kind:           p.Kind(),
+		Lang:           p.Language().Lang,
+		LayoutFromUser: p.Layout(),
+		OutputFormat:   f.Name,
+		MediaType:      f.MediaType.Type,
+		IsPlainText:    f.IsPlainText,
 	}
 }
 
@@ -495,8 +495,8 @@ func (p *pageState) resolveTemplate(layouts ...string) (*tplimpl.TemplInfo, bool
 	dir, d := p.GetInternalTemplateBasePathAndDescriptor()
 
 	if len(layouts) > 0 {
-		d.Layout = layouts[0]
-		d.LayoutMustMatch = true
+		d.LayoutFromUser = layouts[0]
+		d.LayoutFromUserMustMatch = true
 	}
 
 	q := tplimpl.TemplateQuery{

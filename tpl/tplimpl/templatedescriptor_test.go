@@ -38,29 +38,29 @@ func TestTemplateDescriptorCompare(t *testing.T) {
 	check(
 
 		CategoryBaseof,
-		TemplateDescriptor{Kind: "", Layout: "", Lang: "", OutputFormat: "404", MediaType: "text/html"},
-		TemplateDescriptor{Kind: "", Layout: "", Lang: "", OutputFormat: "html", MediaType: "text/html"},
+		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", Lang: "", OutputFormat: "404", MediaType: "text/html"},
+		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", Lang: "", OutputFormat: "html", MediaType: "text/html"},
 		false,
 	)
 
 	check(
 		CategoryLayout,
 		TemplateDescriptor{Kind: "", Lang: "en", OutputFormat: "404", MediaType: "text/html"},
-		TemplateDescriptor{Kind: "", Layout: "", Lang: "", OutputFormat: "alias", MediaType: "text/html"},
+		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", Lang: "", OutputFormat: "alias", MediaType: "text/html"},
 		true,
 	)
 
 	less(
 		CategoryLayout,
-		TemplateDescriptor{Kind: kinds.KindHome, Layout: "list", OutputFormat: "html"},
-		TemplateDescriptor{Layout: "list", OutputFormat: "html"},
+		TemplateDescriptor{Kind: kinds.KindHome, LayoutFromTemplate: "list", OutputFormat: "html"},
+		TemplateDescriptor{LayoutFromTemplate: "list", OutputFormat: "html"},
 		TemplateDescriptor{Kind: kinds.KindHome, OutputFormat: "html"},
 	)
 
 	check(
 		CategoryLayout,
-		TemplateDescriptor{Kind: kinds.KindHome, Layout: "list", OutputFormat: "html", MediaType: "text/html"},
-		TemplateDescriptor{Kind: kinds.KindHome, Layout: "list", OutputFormat: "myformat", MediaType: "text/html"},
+		TemplateDescriptor{Kind: kinds.KindHome, LayoutFromTemplate: "list", OutputFormat: "html", MediaType: "text/html"},
+		TemplateDescriptor{Kind: kinds.KindHome, LayoutFromTemplate: "list", OutputFormat: "myformat", MediaType: "text/html"},
 		false,
 	)
 }
@@ -78,20 +78,20 @@ func BenchmarkCompareDescriptors(b *testing.B) {
 		d1, d2 TemplateDescriptor
 	}{
 		{
-			TemplateDescriptor{Kind: "", Layout: "", OutputFormat: "404", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", Layout: "", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "404", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 		{
-			TemplateDescriptor{Kind: "page", Layout: "single", OutputFormat: "html", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", Layout: "list", OutputFormat: "", MediaType: "application/rss+xml", Lang: "", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "html", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "list", OutputFormat: "", MediaType: "application/rss+xml", Lang: "", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 		{
-			TemplateDescriptor{Kind: "page", Layout: "single", OutputFormat: "html", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", Layout: "", OutputFormat: "alias", MediaType: "text/html", Lang: "", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "html", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "alias", MediaType: "text/html", Lang: "", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 		{
-			TemplateDescriptor{Kind: "page", Layout: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "en", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", Layout: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "nn", Variant1: "", Variant2: "", LayoutMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "nn", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 	}
 

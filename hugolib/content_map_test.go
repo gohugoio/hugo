@@ -538,6 +538,7 @@ title: p1
 -- content/p1/c.html --
 <p>c</p>
 -- layouts/_default/single.html --
+Path: {{ .Path }}|{{.Kind }}
 |{{ (.Resources.Get "a.html").RelPermalink -}}
 |{{ (.Resources.Get "b.html").RelPermalink -}}
 |{{ (.Resources.Get "c.html").Publish }}

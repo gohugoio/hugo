@@ -510,7 +510,7 @@ baseof: {{ block "main" . }}{{ end }}
 		q := tplimpl.TemplateQuery{
 			Path:     "/baz",
 			Category: tplimpl.CategoryLayout,
-			Desc:     tplimpl.TemplateDescriptor{Kind: kinds.KindPage, Layout: "single", OutputFormat: "html"},
+			Desc:     tplimpl.TemplateDescriptor{Kind: kinds.KindPage, LayoutFromTemplate: "single", OutputFormat: "html"},
 		}
 		for i := 0; i < b.N; i++ {
 			store.LookupPagesLayout(q)
@@ -521,7 +521,7 @@ baseof: {{ block "main" . }}{{ end }}
 		q := tplimpl.TemplateQuery{
 			Path:     "/foo/bar",
 			Category: tplimpl.CategoryLayout,
-			Desc:     tplimpl.TemplateDescriptor{Kind: kinds.KindPage, Layout: "single", OutputFormat: "html"},
+			Desc:     tplimpl.TemplateDescriptor{Kind: kinds.KindPage, LayoutFromTemplate: "single", OutputFormat: "html"},
 		}
 		for i := 0; i < b.N; i++ {
 			store.LookupPagesLayout(q)
@@ -647,9 +647,6 @@ layout: mylayout
 `
 
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
-
-	// s := b.H.Sites[0].TemplateStore
-	// s.PrintDebug("", tplimpl.CategoryLayout, os.Stdout)
 
 	b.AssertLogContains("! WARN")
 
@@ -1093,6 +1090,41 @@ s2.
 			runOne(toplevelpage)
 		}
 	})
+}
+
+func TestStandardLayoutInFrontMatter13588(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','page','rss','sitemap','taxonomy','term']
+-- content/s1/_index.md --
+---
+title: s1
+---
+-- content/s2/_index.md --
+---
+title: s2
+layout: list
+---
+-- content/s3/_index.md --
+---
+title: s3
+layout: single
+---
+-- layouts/list.html --
+list.html
+-- layouts/section.html --
+section.html
+-- layouts/single.html --
+single.html
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html", "section.html")
+	b.AssertFileContent("public/s2/index.html", "list.html")   // fail
+	b.AssertFileContent("public/s3/index.html", "single.html") // fail
 }
 
 func TestSkipDotFiles(t *testing.T) {

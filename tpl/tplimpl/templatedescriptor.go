@@ -22,8 +22,9 @@ const baseNameBaseof = "baseof"
 // This is used both as a key and in lookups.
 type TemplateDescriptor struct {
 	// Group 1.
-	Kind   string // page, home, section, taxonomy, term (and only those)
-	Layout string // list, single, baseof, mycustomlayout.
+	Kind               string // page, home, section, taxonomy, term (and only those)
+	LayoutFromTemplate string // list, single, all,mycustomlayout
+	LayoutFromUser     string //  custom layout set in front matter, e.g. list, single, all, mycustomlayout
 
 	// Group 2.
 	OutputFormat string // rss, csv ...
@@ -34,23 +35,21 @@ type TemplateDescriptor struct {
 	Variant2 string // contextual variant, e.g. "id" in render.
 
 	// Misc.
-	LayoutMustMatch bool // If set, we only look for the exact layout.
-	IsPlainText     bool // Whether this is a plain text template.
+	LayoutFromUserMustMatch bool // If set, we only look for the exact layout.
+	IsPlainText             bool // Whether this is a plain text template.
 }
 
 func (d *TemplateDescriptor) normalizeFromFile() {
-	// fmt.Println("normalizeFromFile", "kind:", d.Kind, "layout:", d.Layout, "of:", d.OutputFormat)
-
-	if d.Layout == d.OutputFormat {
-		d.Layout = ""
+	if d.LayoutFromTemplate == d.OutputFormat {
+		d.LayoutFromTemplate = ""
 	}
 
 	if d.Kind == kinds.KindTemporary {
 		d.Kind = ""
 	}
 
-	if d.Layout == d.Kind {
-		d.Layout = ""
+	if d.LayoutFromTemplate == d.Kind {
+		d.LayoutFromTemplate = ""
 	}
 }
 
@@ -61,7 +60,7 @@ type descriptorHandler struct {
 // Note that this in this setup is usually a descriptor constructed from a page,
 // so we want to find the best match for that page.
 func (s descriptorHandler) compareDescriptors(category Category, isEmbedded bool, this, other TemplateDescriptor) weight {
-	if this.LayoutMustMatch && this.Layout != other.Layout {
+	if this.LayoutFromUserMustMatch && this.LayoutFromUser != other.LayoutFromTemplate {
 		return weightNoMatch
 	}
 
@@ -94,20 +93,15 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		return w
 	}
 
-	if other.Layout != "" && other.Layout != layoutAll && other.Layout != this.Layout {
-		if isLayoutCustom(this.Layout) {
-			if this.Kind == "" {
-				this.Layout = ""
-			} else if this.Kind == kinds.KindPage {
-				this.Layout = layoutSingle
-			} else {
-				this.Layout = layoutList
+	if other.LayoutFromTemplate != "" && other.LayoutFromTemplate != layoutAll {
+		if this.LayoutFromUser == "" {
+			if other.LayoutFromTemplate != this.LayoutFromTemplate {
+				return w
 			}
-		}
-
-		// Test again.
-		if other.Layout != this.Layout {
-			return w
+		} else if isLayoutStandard(this.LayoutFromUser) {
+			if other.LayoutFromTemplate != this.LayoutFromUser {
+				return w
+			}
 		}
 	}
 
@@ -123,7 +117,11 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		// We want e.g. home page in amp output format (media type text/html) to
 		// find a template even if one isn't specified for that output format,
 		// when one exist for the html output format (same media type).
-		if category != CategoryBaseof && (this.Kind == "" || (this.Kind != other.Kind && (this.Layout != other.Layout && other.Layout != layoutAll))) {
+		skip := category != CategoryBaseof && (this.Kind == "" || (this.Kind != other.Kind && (this.LayoutFromTemplate != other.LayoutFromTemplate && other.LayoutFromTemplate != layoutAll)))
+		if this.LayoutFromUser != "" {
+			skip = skip && (this.LayoutFromUser != other.LayoutFromTemplate)
+		}
+		if skip {
 			return w
 		}
 
@@ -148,14 +146,14 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 	}
 
 	const (
-		weightKind         = 3 // page, home, section, taxonomy, term (and only those)
-		weightcustomLayout = 4 // custom layout (mylayout, set in e.g. front matter)
-		weightLayout       = 2 // standard layouts (single,list,all)
-		weightOutputFormat = 2 // a configured output format (e.g. rss, html, json)
-		weightMediaType    = 1 // a configured media type (e.g. text/html, text/plain)
-		weightLang         = 1 // a configured language (e.g. en, nn, fr, ...)
-		weightVariant1     = 4 // currently used for render hooks, e.g. "link", "image"
-		weightVariant2     = 2 // currently used for render hooks, e.g. the language "go" in code blocks.
+		weightKind           = 3 // page, home, section, taxonomy, term (and only those)
+		weightcustomLayout   = 4 // custom layout (mylayout, set in e.g. front matter)
+		weightLayoutStandard = 2 // standard layouts (single,list,all)
+		weightOutputFormat   = 2 // a configured output format (e.g. rss, html, json)
+		weightMediaType      = 1 // a configured media type (e.g. text/html, text/plain)
+		weightLang           = 1 // a configured language (e.g. en, nn, fr, ...)
+		weightVariant1       = 4 // currently used for render hooks, e.g. "link", "image"
+		weightVariant2       = 2 // currently used for render hooks, e.g. the language "go" in code blocks.
 
 		// We will use the values for group 2 and 3
 		// if the distance up to the template is shorter than
@@ -179,14 +177,16 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		w.w2 = weight2Group1
 	}
 
-	if other.Layout != "" && other.Layout == this.Layout || other.Layout == layoutAll {
-		if isLayoutCustom(this.Layout) {
-			w.w1 += weightcustomLayout
-			w.w2 = weight2Group2
-		} else {
-			w.w1 += weightLayout
-			w.w2 = weight2Group1
-		}
+	if this.LayoutFromUser == "" && other.LayoutFromTemplate != "" && (other.LayoutFromTemplate == this.LayoutFromTemplate || other.LayoutFromTemplate == layoutAll) {
+		w.w1 += weightLayoutStandard
+		w.w2 = weight2Group1
+
+	}
+
+	// LayoutCustom is only set in this (usually from Page.Layout).
+	if this.LayoutFromUser != "" && this.LayoutFromUser == other.LayoutFromTemplate {
+		w.w1 += weightcustomLayout
+		w.w2 = weight2Group2
 	}
 
 	if other.Lang != "" && other.Lang == this.Lang {

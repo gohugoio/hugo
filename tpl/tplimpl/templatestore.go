@@ -378,11 +378,11 @@ func (q *TemplateQuery) init() {
 	} else if kinds.GetKindMain(q.Desc.Kind) == "" {
 		q.Desc.Kind = ""
 	}
-	if q.Desc.Layout == "" && q.Desc.Kind != "" {
+	if q.Desc.LayoutFromTemplate == "" && q.Desc.Kind != "" {
 		if q.Desc.Kind == kinds.KindPage {
-			q.Desc.Layout = layoutSingle
+			q.Desc.LayoutFromTemplate = layoutSingle
 		} else {
-			q.Desc.Layout = layoutList
+			q.Desc.LayoutFromTemplate = layoutList
 		}
 	}
 
@@ -447,7 +447,7 @@ func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, desc Te
 				continue
 			}
 
-			if vv.D.isKindInLayout(desc.Layout) && s.dh.compareDescriptors(CategoryBaseof, false, descBaseof, vv.D).w1 > 0 {
+			if vv.D.isKindInLayout(desc.LayoutFromTemplate) && s.dh.compareDescriptors(CategoryBaseof, false, descBaseof, vv.D).w1 > 0 {
 				result = append(result, keyTemplateInfo{Key: k, Info: vv})
 			}
 		}
@@ -549,7 +549,7 @@ func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 	ti, _ := s.cacheLookupPartials.GetOrCreate(pth, func() (*TemplInfo, error) {
 		d := s.templateDescriptorFromPath(pth)
 		desc := d.Desc
-		if desc.Layout != "" {
+		if desc.LayoutFromTemplate != "" {
 			panic("shortcode template descriptor must not have a layout")
 		}
 		best := s.getBest()
@@ -610,7 +610,7 @@ func (s *TemplateStore) PrintDebug(prefix string, category Category, w io.Writer
 			return
 		}
 		s := strings.ReplaceAll(strings.TrimSpace(vv.content), "\n", " ")
-		ts := fmt.Sprintf("kind: %q layout: %q content: %.30s", vv.D.Kind, vv.D.Layout, s)
+		ts := fmt.Sprintf("kind: %q layout: %q content: %.30s", vv.D.Kind, vv.D.LayoutFromTemplate, s)
 		fmt.Fprintf(w, "%s%s %s\n", strings.Repeat(" ", level), key, ts)
 	}
 	s.treeMain.WalkPrefix(prefix, func(key string, v map[nodeKey]*TemplInfo) (bool, error) {
@@ -1573,12 +1573,12 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 	}
 
 	d := TemplateDescriptor{
-		Lang:         p.Lang(),
-		OutputFormat: p.OutputFormat(),
-		MediaType:    mediaType.Type,
-		Kind:         p.Kind(),
-		Layout:       layout,
-		IsPlainText:  outputFormat.IsPlainText,
+		Lang:               p.Lang(),
+		OutputFormat:       p.OutputFormat(),
+		MediaType:          mediaType.Type,
+		Kind:               p.Kind(),
+		LayoutFromTemplate: layout,
+		IsPlainText:        outputFormat.IsPlainText,
 	}
 
 	d.normalizeFromFile()
@@ -1611,7 +1611,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 	}
 
 	if category == CategoryPartial {
-		d.Layout = ""
+		d.LayoutFromTemplate = ""
 		k1 = p.PathNoIdentifier()
 	}
 
@@ -1626,15 +1626,15 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 	}
 
 	// Legacy layout for home page.
-	if d.Layout == "index" {
+	if d.LayoutFromTemplate == "index" {
 		if d.Kind == "" {
 			d.Kind = kinds.KindHome
 		}
-		d.Layout = ""
+		d.LayoutFromTemplate = ""
 	}
 
-	if d.Layout == d.Kind {
-		d.Layout = ""
+	if d.LayoutFromTemplate == d.Kind {
+		d.LayoutFromTemplate = ""
 	}
 
 	k1 = strings.TrimPrefix(k1, "/_default")
@@ -1645,7 +1645,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 	if category == CategoryMarkup {
 		// We store all template nodes for a given directory on the same level.
 		k1 = strings.TrimSuffix(k1, "/_markup")
-		parts := strings.Split(d.Layout, "-")
+		parts := strings.Split(d.LayoutFromTemplate, "-")
 		if len(parts) < 2 {
 			return "", "", 0, TemplateDescriptor{}, fmt.Errorf("unrecognized render hook template")
 		}
@@ -1654,7 +1654,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 		if len(parts) > 2 {
 			d.Variant2 = parts[2]
 		}
-		d.Layout = "" // This allows using page layout as part of the key for lookups.
+		d.LayoutFromTemplate = "" // This allows using page layout as part of the key for lookups.
 	}
 
 	return k1, k2, category, d, nil
@@ -1868,8 +1868,8 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 			return true
 		}
 
-		if ti.D.Layout != "" && best.desc.Layout != "" {
-			return ti.D.Layout != layoutAll
+		if ti.D.LayoutFromTemplate != "" && best.desc.LayoutFromTemplate != "" {
+			return ti.D.LayoutFromTemplate != layoutAll
 		}
 
 		return w.distance < best.w.distance || ti.PathInfo.Path() < best.templ.PathInfo.Path()
@@ -1920,17 +1920,6 @@ type weight struct {
 	distance int
 }
 
-func (w weight) isEqualWeights(other weight) bool {
-	return w.w1 == other.w1 && w.w2 == other.w2 && w.w3 == other.w3
-}
-
-func isLayoutCustom(s string) bool {
-	if s == "" || isLayoutStandard(s) {
-		return false
-	}
-	return true
-}
-
 func isLayoutStandard(s string) bool {
 	switch s {
 	case layoutAll, layoutList, layoutSingle:
@@ -1938,6 +1927,10 @@ func isLayoutStandard(s string) bool {
 	default:
 		return false
 	}
+}
+
+func (w weight) isEqualWeights(other weight) bool {
+	return w.w1 == other.w1 && w.w2 == other.w2 && w.w3 == other.w3
 }
 
 func configureSiteStorage(opts SiteOptions, watching bool) *storeSite {
