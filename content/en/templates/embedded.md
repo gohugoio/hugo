@@ -145,6 +145,10 @@ Various optional metadata can also be set:
 
 If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. Use the `https://youtu.be/<id>` format with YouTube videos (example: `https://youtu.be/qtIqKaDlqXo`).
 
+## Pagination
+
+See [details](/templates/pagination/).
+
 ## Schema
 
 > [!note]
