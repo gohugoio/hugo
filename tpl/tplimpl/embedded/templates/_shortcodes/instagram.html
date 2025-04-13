@@ -3,7 +3,7 @@
   {{- with .Get 0 -}}
     {{- template "render-instagram" (dict "id" . "pc" $pc) -}}
   {{- else -}}
-    {{- errorf "The %q shortocde requires a single positional parameter, the ID of the Instagram post. See %s" .Name .Position -}}
+    {{- errorf "The %q shortcode requires a single positional parameter, the ID of the Instagram post. See %s" .Name .Position -}}
   {{- end -}}
 {{- end -}}
 

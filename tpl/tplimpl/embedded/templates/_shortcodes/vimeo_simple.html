@@ -6,14 +6,14 @@
       {{- $ctx = merge $ctx (dict "id" . "class" ($.Get "class")) -}}
       {{- template "render-vimeo" $ctx -}}
     {{- else -}}
-      {{- errorf "The %q shortocde requires a single named parameter, the ID of the Vimeo video. See %s" .Name .Position -}}
+      {{- errorf "The %q shortcode requires a single named parameter, the ID of the Vimeo video. See %s" .Name .Position -}}
     {{- end -}}
   {{- else -}}
     {{- with .Get 0 -}}
       {{- $ctx = merge $ctx (dict "id" . "class" ($.Get 1)) -}}
       {{- template "render-vimeo" $ctx -}}
     {{- else -}}
-      {{- errorf "The %q shortocde requires a single positional parameter, the ID of the Vimeo video. See %s" .Name .Position -}}
+      {{- errorf "The %q shortcode requires a single positional parameter, the ID of the Vimeo video. See %s" .Name .Position -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
