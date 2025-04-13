@@ -5,6 +5,7 @@
 {{ $image1x := $image.Resize (printf "%dx" $width1x) }}
 {{ $image1xWebp := $image.Resize (printf "%dx webp" $width1x) }}
 {{ $class := .class | default "h-64 tablet:h-96 lg:h-full w-full object-cover lg:absolute" }}
+{{ $loading := .loading | default "eager" }}
 <picture>
   <source
     srcset="{{ $imageWebp.RelPermalink }}"
@@ -20,6 +21,7 @@
     class="{{ $class }}"
     src="{{ $image1x.RelPermalink }}"
     alt=""
+    loading="{{ $loading }}"
     width="{{ $image1x.Width }}"
     height="{{ $image1x.Height }}">
 </picture>
