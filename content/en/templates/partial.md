@@ -49,7 +49,7 @@ As shown in the above example directory structure, you can nest your directories
 
 ### Variable scoping
 
-The second argument in a partial call is the variable being passed down. The above examples are passing the `.`, which tells the template receiving the partial to apply the current [context][context].
+The second argument in a partial call is the variable being passed down. The above examples are passing the dot (`.`), which tells the template receiving the partial to apply the current [context][context].
 
 This means the partial will *only* be able to access those variables. The partial is isolated and cannot access the outer scope. From within the partial, `$.Var` is equivalent to `.Var`.
 
