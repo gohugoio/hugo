@@ -17,6 +17,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -228,4 +229,36 @@ layouts/section/section.html
 `
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/mysection/index.html", "layouts/section/section.html")
+}
+
+func TestErrorMessageParseError(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+Line 1.
+Line 2. {{ foo }} <- this func does not exist.
+Line 3.
+`
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`"/layouts/home.html:2:1": parse of template failed: template: home.html:2: function "foo" not defined`))
+}
+
+func TestErrorMessageExecuteError(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+Line 1.
+Line 2. {{ .Foo }} <- this method does not exist.
+Line 3.
+`
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(` "/layouts/home.html:2:11": execute of template failed`))
 }
