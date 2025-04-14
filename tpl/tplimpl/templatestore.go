@@ -913,7 +913,7 @@ func (s *TemplateStore) extractInlinePartials() error {
 			name := templ.Name()
 			if !paths.HasExt(name) {
 				// Assume HTML. This in line with how the lookup works.
-				name = name + ".html"
+				name = name + s.htmlFormat.MediaType.FirstSuffix.FullSuffix
 			}
 			if !strings.HasPrefix(name, "_") {
 				name = "_" + name
@@ -1090,6 +1090,12 @@ func (s *TemplateStore) insertTemplate2(
 ) (*TemplInfo, error) {
 	if category == 0 {
 		panic("category not set")
+	}
+
+	if category == CategoryPartial && d.OutputFormat == "" && d.MediaType == "" {
+		// See issue #13601.
+		d.OutputFormat = s.htmlFormat.Name
+		d.MediaType = s.htmlFormat.MediaType.Type
 	}
 
 	m := tree.Get(key)
@@ -1719,6 +1725,7 @@ func (s *TemplateStore) transformTemplates() error {
 			continue
 		}
 		if !vv.noBaseOf {
+			// TODO(bep) I don't think this branch is ever called.
 			for vvv := range vv.BaseVariantsSeq() {
 				tctx, err := applyTemplateTransformers(vvv.Template, lookup)
 				if err != nil {

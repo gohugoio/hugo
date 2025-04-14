@@ -279,3 +279,23 @@ P1.
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "wrong number of args for string: want 1 got 0")
 }
+
+func TestPartialWithoutSuffixIssue13601(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+P1: {{ partial "p1" . }}
+P2: {{ partial "p2" . }}
+-- layouts/_partials/p1 --
+P1.
+-- layouts/_partials/p2 --
+P2.
+{{ return "foo bar" }}
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "P1: P1.\nP2: foo bar")
+}
