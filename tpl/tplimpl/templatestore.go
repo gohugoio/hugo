@@ -738,16 +738,8 @@ func (t *TemplateStore) UnusedTemplates() []*TemplInfo {
 			// Skip inline partials and internal templates.
 			continue
 		}
-		if vv.noBaseOf {
-			if vv.executionCounter.Load() == 0 {
-				unused = append(unused, vv)
-			}
-		} else {
-			for vvv := range vv.BaseVariantsSeq() {
-				if vvv.Template.executionCounter.Load() == 0 {
-					unused = append(unused, vvv.Template)
-				}
-			}
+		if vv.executionCounter.Load() == 0 {
+			unused = append(unused, vv)
 		}
 	}
 
@@ -1543,6 +1535,9 @@ func (s *TemplateStore) resolveOutputFormatAndOrMediaType(ofs, mns string) (outp
 	return outputFormat, mediaType
 }
 
+// templates iterates over all templates in the store.
+// Note that for templates with one or more base templates applied,
+// we will yield the variants, e.g. the templates that's actually in use.
 func (s *TemplateStore) templates() iter.Seq[*TemplInfo] {
 	return func(yield func(*TemplInfo) bool) {
 		for _, v := range s.treeMain.All() {
@@ -1697,30 +1692,13 @@ func (s *TemplateStore) transformTemplates() error {
 		if vv.category == CategoryBaseof {
 			continue
 		}
-		if !vv.noBaseOf {
-			// TODO(bep) I don't think this branch is ever called.
-			for vvv := range vv.BaseVariantsSeq() {
-				tctx, err := applyTemplateTransformers(vvv.Template, lookup)
-				if err != nil {
-					return err
-				}
-
-				for name, node := range tctx.deferNodes {
-					if err := s.addDeferredTemplate(vvv.Overlay, name, node); err != nil {
-						return err
-					}
-				}
-			}
-		} else {
-			tctx, err := applyTemplateTransformers(vv, lookup)
-			if err != nil {
+		tctx, err := applyTemplateTransformers(vv, lookup)
+		if err != nil {
+			return err
+		}
+		for name, node := range tctx.deferNodes {
+			if err := s.addDeferredTemplate(vv, name, node); err != nil {
 				return err
-			}
-
-			for name, node := range tctx.deferNodes {
-				if err := s.addDeferredTemplate(vv, name, node); err != nil {
-					return err
-				}
 			}
 		}
 	}
