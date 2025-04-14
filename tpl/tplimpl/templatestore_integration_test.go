@@ -1127,6 +1127,28 @@ single.html
 	b.AssertFileContent("public/s3/index.html", "single.html") // fail
 }
 
+func TestIssue13605(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+{{< sc >}}
+-- layouts/s1/_shortcodes/sc.html --
+layouts/s1/_shortcodes/sc.html
+-- layouts/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/p1/index.html", "layouts/s1/_shortcodes/sc.html")
+}
+
 func TestSkipDotFiles(t *testing.T) {
 	t.Parallel()
 

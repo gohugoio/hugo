@@ -677,13 +677,7 @@ Loop:
 
 			// Used to check if the template expects inner content,
 			// so just pick one arbitrarily with the same name.
-			q := tplimpl.TemplateQuery{
-				Path:     "",
-				Name:     sc.name,
-				Category: tplimpl.CategoryShortcode,
-				Consider: nil,
-			}
-			templ := s.s.TemplateStore.LookupShortcode(q)
+			templ := s.s.TemplateStore.LookupShortcodeByName(sc.name)
 			if templ == nil {
 				return nil, fmt.Errorf("%s: template for shortcode %q not found", errorPrefix, sc.name)
 			}
