@@ -99,7 +99,14 @@ func (t *templateNamespace) parseTemplate(ti *TemplInfo) error {
 					return err
 				}
 			}
+		}
 
+		// Issue #13599.
+		if ti.category == CategoryPartial && ti.Fi != nil && ti.Fi.Meta().PathInfo.Section() == "partials" {
+			aliasName := strings.TrimPrefix(name, "_")
+			if _, err := prototype.AddParseTree(aliasName, templ.(*htmltemplate.Template).Tree); err != nil {
+				return err
+			}
 		}
 	}
 
