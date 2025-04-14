@@ -495,7 +495,7 @@ func (t *TemplateStore) ExecuteWithContext(ctx context.Context, ti *TemplInfo, w
 
 	execErr := t.storeSite.executer.ExecuteWithContext(ctx, ti, wr, data)
 	if execErr != nil {
-		return t.addFileContext(ti, execErr)
+		return t.addFileContext(ti, "execute of template failed", execErr)
 	}
 	return nil
 }
@@ -822,7 +822,7 @@ func (t *TemplateStore) addDeferredTemplate(owner *TemplInfo, name string, n *pa
 	return nil
 }
 
-func (s *TemplateStore) addFileContext(ti *TemplInfo, inerr error) error {
+func (s *TemplateStore) addFileContext(ti *TemplInfo, what string, inerr error) error {
 	if ti.Fi == nil {
 		return inerr
 	}
@@ -854,25 +854,27 @@ func (s *TemplateStore) addFileContext(ti *TemplInfo, inerr error) error {
 		fe := herrors.NewFileErrorFromName(inErr, fi.Meta().Filename)
 		fe.UpdateContent(f, lineMatcher)
 
-		if !fe.ErrorContext().Position.IsValid() {
-			return inErr, false
-		}
-		return fe, true
+		return fe, fe.ErrorContext().Position.IsValid()
 	}
 
-	inerr = fmt.Errorf("execute of template failed: %w", inerr)
+	inerr = fmt.Errorf("%s: %w", what, inerr)
 
-	if err, ok := checkFilename(ti.Fi, inerr); ok {
-		return err
+	var (
+		currentErr error
+		ok         bool
+	)
+
+	if currentErr, ok = checkFilename(ti.Fi, inerr); ok {
+		return currentErr
 	}
 
 	if ti.base != nil {
-		if err, ok := checkFilename(ti.base.Fi, inerr); ok {
-			return err
+		if currentErr, ok = checkFilename(ti.base.Fi, inerr); ok {
+			return currentErr
 		}
 	}
 
-	return inerr
+	return currentErr
 }
 
 func (s *TemplateStore) extractIdentifiers(line string) []string {
@@ -1389,7 +1391,7 @@ func (s *TemplateStore) parseTemplates() error {
 				if vv.state == processingStateTransformed {
 					continue
 				}
-				if err := s.tns.parseTemplate(vv); err != nil {
+				if err := s.parseTemplate(vv); err != nil {
 					return err
 				}
 			}
@@ -1409,7 +1411,7 @@ func (s *TemplateStore) parseTemplates() error {
 						// The regular expression used to detect if a template needs a base template has some
 						// rare false positives. Assume we don't need one.
 						vv.noBaseOf = true
-						if err := s.tns.parseTemplate(vv); err != nil {
+						if err := s.parseTemplate(vv); err != nil {
 							return err
 						}
 						continue
@@ -1438,7 +1440,7 @@ func (s *TemplateStore) parseTemplates() error {
 				if vvv.state == processingStateTransformed {
 					continue
 				}
-				if err := s.tns.parseTemplate(vvv); err != nil {
+				if err := s.parseTemplate(vvv); err != nil {
 					return err
 				}
 			}

@@ -44,7 +44,16 @@ var embeddedTemplatesAliases = map[string][]string{
 	"_shortcodes/twitter.html": {"_shortcodes/tweet.html"},
 }
 
-func (t *templateNamespace) parseTemplate(ti *TemplInfo) error {
+func (s *TemplateStore) parseTemplate(ti *TemplInfo) error {
+	err := s.tns.doParseTemplate(ti)
+	if err != nil {
+		return s.addFileContext(ti, "parse of template failed", err)
+	}
+
+	return err
+}
+
+func (t *templateNamespace) doParseTemplate(ti *TemplInfo) error {
 	if !ti.noBaseOf || ti.category == CategoryBaseof {
 		// Delay parsing until we have the base template.
 		return nil
