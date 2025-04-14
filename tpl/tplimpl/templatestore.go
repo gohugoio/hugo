@@ -122,6 +122,7 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 		treeMain:            doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
 		treeShortcodes:      doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
 		templatesByPath:     maps.NewCache[string, *TemplInfo](),
+		shortcodesByName:    maps.NewCache[string, *TemplInfo](),
 		cacheLookupPartials: maps.NewCache[string, *TemplInfo](),
 
 		// Note that the funcs passed below is just for name validation.
@@ -419,9 +420,10 @@ type TemplateStore struct {
 	siteOpts   SiteOptions
 	htmlFormat output.Format
 
-	treeMain        *doctree.SimpleTree[map[nodeKey]*TemplInfo]
-	treeShortcodes  *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
-	templatesByPath *maps.Cache[string, *TemplInfo]
+	treeMain         *doctree.SimpleTree[map[nodeKey]*TemplInfo]
+	treeShortcodes   *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
+	templatesByPath  *maps.Cache[string, *TemplInfo]
+	shortcodesByName *maps.Cache[string, *TemplInfo]
 
 	dh descriptorHandler
 
@@ -573,6 +575,15 @@ func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 		return best.templ, nil
 	})
 
+	return ti
+}
+
+func (s *TemplateStore) LookupShortcodeByName(name string) *TemplInfo {
+	name = strings.ToLower(name)
+	ti, _ := s.shortcodesByName.Get(name)
+	if ti == nil {
+		return nil
+	}
 	return ti
 }
 
@@ -1039,6 +1050,7 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 
 	m1[d] = ti
 
+	s.shortcodesByName.Set(k2, ti)
 	s.setTemplateByPath(pi.Path(), ti)
 
 	if fi != nil {
