@@ -175,6 +175,9 @@ func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, err
 		}
 
 	case *parse.CommandNode:
+		if x == nil {
+			return true, nil
+		}
 		c.collectInner(x)
 		keep := c.collectReturnNode(x)
 

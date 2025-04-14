@@ -262,3 +262,20 @@ Line 3.
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(` "/layouts/home.html:2:11": execute of template failed`))
 }
+
+func TestPartialReturnPanicIssue13600(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+Partial: {{ partial "p1.html" . }}
+-- layouts/_partials/p1.html --
+P1.
+{{ return ( delimit . ", " ) | string }}
+`
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "wrong number of args for string: want 1 got 0")
+}
