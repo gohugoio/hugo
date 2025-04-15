@@ -564,14 +564,21 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 
 func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 	ti, _ := s.cacheLookupPartials.GetOrCreate(pth, func() (*TemplInfo, error) {
-		d := s.templateDescriptorFromPath(pth)
-		desc := d.Desc
-		if desc.LayoutFromTemplate != "" {
-			panic("shortcode template descriptor must not have a layout")
+		pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth).ForType(paths.TypePartial)
+		k1, _, _, desc, err := s.toKeyCategoryAndDescriptor(pi)
+		if err != nil {
+			return nil, err
 		}
+		if desc.OutputFormat == "" && desc.MediaType == "" {
+			// Assume HTML.
+			desc.OutputFormat = s.htmlFormat.Name
+			desc.MediaType = s.htmlFormat.MediaType.Type
+			desc.IsPlainText = s.htmlFormat.IsPlainText
+		}
+
 		best := s.getBest()
 		defer s.putBest(best)
-		s.findBestMatchGet(s.key(path.Join(containerPartials, d.Path)), CategoryPartial, nil, desc, best)
+		s.findBestMatchGet(s.key(path.Join(containerPartials, k1)), CategoryPartial, nil, desc, best)
 		return best.templ, nil
 	})
 
@@ -1484,43 +1491,6 @@ func (s *TemplateStore) prepareTemplates() error {
 type PathTemplateDescriptor struct {
 	Path string
 	Desc TemplateDescriptor
-}
-
-// templateDescriptorFromPath returns a template descriptor from the given path.
-// This is currently used in partial lookups only.
-func (s *TemplateStore) templateDescriptorFromPath(pth string) PathTemplateDescriptor {
-	var (
-		mt media.Type
-		of output.Format
-	)
-
-	// Common cases.
-	dotCount := strings.Count(pth, ".")
-	if dotCount <= 1 {
-		if dotCount == 0 {
-			// Asume HTML.
-			of, mt = s.resolveOutputFormatAndOrMediaType("html", "")
-		} else {
-			pth = strings.TrimPrefix(pth, "/")
-			ext := path.Ext(pth)
-			pth = strings.TrimSuffix(pth, ext)
-			ext = ext[1:]
-			of, mt = s.resolveOutputFormatAndOrMediaType("", ext)
-		}
-	} else {
-		path := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth)
-		pth = path.PathNoIdentifier()
-		of, mt = s.resolveOutputFormatAndOrMediaType(path.OutputFormat(), path.Ext())
-	}
-
-	return PathTemplateDescriptor{
-		Path: pth,
-		Desc: TemplateDescriptor{
-			OutputFormat: of.Name,
-			MediaType:    mt.Type,
-			IsPlainText:  of.IsPlainText,
-		},
-	}
 }
 
 // resolveOutputFormatAndOrMediaType resolves the output format and/or media type

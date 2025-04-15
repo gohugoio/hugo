@@ -180,7 +180,7 @@ func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Iden
 
 	if p.Component() == files.ComponentFolderContent {
 		// It may also be a bundled content resource.
-		key := p.ForBundleType(paths.TypeContentResource).Base()
+		key := p.ForType(paths.TypeContentResource).Base()
 		tree = t.treeResources
 		nCount = 0
 		tree.ForEeachInDimension(key, doctree.DimensionLanguage.Index(),
