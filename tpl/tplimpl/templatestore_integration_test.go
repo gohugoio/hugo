@@ -1163,3 +1163,44 @@ All.
 	// Just make sure it doesn't fail.
 	hugolib.Test(t, files)
 }
+
+func TestPartialsLangIssue13612(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','sitemap','taxonomy','term']
+
+defaultContentLanguage = 'ru'
+defaultContentLanguageInSubdir = true
+
+[languages.ru]
+weight = 1
+
+[languages.en]
+weight = 2
+
+[outputs]
+home = ['html','rss']
+
+-- layouts/_partials/comment.en.html --
+layouts/_partials/comment.en.html
+-- layouts/_partials/comment.en.xml --
+layouts/_partials/comment.en.xml
+-- layouts/_partials/comment.ru.html --
+layouts/_partials/comment.ru.html
+-- layouts/_partials/comment.ru.xml --
+layouts/_partials/comment.ru.xml
+-- layouts/home.html --
+{{ partial (print "comment." (default "ru" .Lang) ".html") . }}
+-- layouts/home.rss.xml --
+{{ partial (print "comment." (default "ru" .Lang) ".xml") . }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "layouts/_partials/comment.en.html")
+	b.AssertFileContent("public/en/index.xml", "layouts/_partials/comment.en.xml")   // fail
+	b.AssertFileContent("public/ru/index.html", "layouts/_partials/comment.ru.html") // fail
+	b.AssertFileContent("public/ru/index.xml", "layouts/_partials/comment.ru.xml")   // fail
+}

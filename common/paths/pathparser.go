@@ -724,7 +724,7 @@ func (p *Path) IsContentData() bool {
 	return p.pathType == TypeContentData
 }
 
-func (p Path) ForBundleType(t Type) *Path {
+func (p Path) ForType(t Type) *Path {
 	p.pathType = t
 	return &p
 }
