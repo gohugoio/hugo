@@ -1968,3 +1968,25 @@ Title: {{ .Title }}
 		"deprecated: path in front matter was deprecated",
 	)
 }
+
+// See #13422
+func TestPageTermWithSpaceInTaxonomyName(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+[taxonomies]
+"book author" = "book authors"
+-- content/p1.md --
+---
+title: "p1"
+kind: "page"
+lang: "en"
+path: "mypath"
+book authors: ["Author One"]
+---
+-- layouts/_default/term.html --
+{{ .Data.Term }}
+`
+	b := Test(t, files, TestOptWarn())
+	b.AssertFileContent("public/book-authors/author-one/index.html", "Author One")
+}
