@@ -36,16 +36,22 @@ import (
 
 // Decoder provides some configuration options for the decoders.
 type Decoder struct {
-	// Delimiter is the field delimiter used in the CSV decoder. It defaults to ','.
+	// Delimiter is the field delimiter. Used in the CSV decoder. Default is
+	// ','.
 	Delimiter rune
 
-	// Comment, if not 0, is the comment character used in the CSV decoder. Lines beginning with the
-	// Comment character without preceding whitespace are ignored.
+	// Comment, if not 0, is the comment character. Lines beginning with the
+	// Comment character without preceding whitespace are ignored. Used in the
+	// CSV decoder.
 	Comment rune
 
 	// If true, a quote may appear in an unquoted field and a non-doubled quote
-	// may appear in a quoted field. It defaults to false.
+	// may appear in a quoted field. Used in the CSV decoder. Default is false.
 	LazyQuotes bool
+
+	// The target data type, either slice or map. Used in the CSV decoder.
+	// Default is slice.
+	TargetType string
 }
 
 // OptionsKey is used in cache keys.
@@ -54,12 +60,14 @@ func (d Decoder) OptionsKey() string {
 	sb.WriteRune(d.Delimiter)
 	sb.WriteRune(d.Comment)
 	sb.WriteString(strconv.FormatBool(d.LazyQuotes))
+	sb.WriteString(d.TargetType)
 	return sb.String()
 }
 
 // Default is a Decoder in its default configuration.
 var Default = Decoder{
-	Delimiter: ',',
+	Delimiter:  ',',
+	TargetType: "slice",
 }
 
 // UnmarshalToMap will unmarshall data in format f into a new map. This is
@@ -122,7 +130,14 @@ func (d Decoder) Unmarshal(data []byte, f Format) (any, error) {
 	if len(data) == 0 {
 		switch f {
 		case CSV:
-			return make([][]string, 0), nil
+			switch d.TargetType {
+			case "map":
+				return make(map[string]any), nil
+			case "slice":
+				return make([][]string, 0), nil
+			default:
+				return nil, fmt.Errorf("invalid targetType: expected either slice or map, received %s", d.TargetType)
+			}
 		default:
 			return make(map[string]any), nil
 		}
@@ -232,10 +247,36 @@ func (d Decoder) unmarshalCSV(data []byte, v any) error {
 
 	switch vv := v.(type) {
 	case *any:
-		*vv = records
-	default:
-		return fmt.Errorf("CSV cannot be unmarshaled into %T", v)
+		switch d.TargetType {
+		case "map":
+			if len(records) < 2 {
+				return fmt.Errorf("cannot unmarshal CSV into %T: expected at least a header row and one data row", v)
+			}
 
+			seen := make(map[string]bool, len(records[0]))
+			for _, fieldName := range records[0] {
+				if seen[fieldName] {
+					return fmt.Errorf("cannot unmarshal CSV into %T: header row contains duplicate field names", v)
+				}
+				seen[fieldName] = true
+			}
+
+			sm := make([]map[string]string, len(records)-1)
+			for i, record := range records[1:] {
+				m := make(map[string]string, len(records[0]))
+				for j, col := range record {
+					m[records[0][j]] = col
+				}
+				sm[i] = m
+			}
+			*vv = sm
+		case "slice":
+			*vv = records
+		default:
+			return fmt.Errorf("cannot unmarshal CSV into %T: invalid targetType: expected either slice or map, received %s", v, d.TargetType)
+		}
+	default:
+		return fmt.Errorf("cannot unmarshal CSV into %T", v)
 	}
 
 	return nil
