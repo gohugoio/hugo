@@ -379,3 +379,59 @@ Markdown: {{ $markdown }}|
 
 	b.AssertFileContent("public/index.html", "Markdown: ## Heading 2\n|")
 }
+
+func TestUnmarshalCSVToMap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/all.html --
+{{ $opts := dict "toMap" true }}
+{{ with resources.Get "pets.csv" | transform.Unmarshal $opts }}
+  {{ jsonify . }}
+{{ end }}
+-- assets/pets.csv --
+DATA
+`
+
+	// Error: expected at least a header row and one data row
+	f := strings.ReplaceAll(files, "DATA", `name,type,breed,age`)
+	_, err := hugolib.TestE(t, f)
+	if err == nil {
+		t.Errorf("expected error")
+	} else {
+		if !strings.Contains(err.Error(), `expected at least a header row and one data row`) {
+			t.Errorf("error message does not match expected error message")
+		}
+	}
+
+	// Error: header row contains duplicate field names
+	f = strings.ReplaceAll(files, "DATA",
+		"name,name,breed,age\nSpot,dog,Collie,3\nFelix,cat,Malicious,7",
+	)
+	_, err = hugolib.TestE(t, f)
+	if err == nil {
+		t.Errorf("expected error")
+	} else {
+		if !strings.Contains(err.Error(), `header row contains duplicate field names`) {
+			t.Errorf("error message does not match expected error message")
+		}
+	}
+
+	// toMap = true
+	f = strings.ReplaceAll(files, "DATA",
+		"name,type,breed,age\nSpot,dog,Collie,3\nFelix,cat,Malicious,7",
+	)
+	b := hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`[{"age":"3","breed":"Collie","name":"Spot","type":"dog"},{"age":"7","breed":"Malicious","name":"Felix","type":"cat"}]`,
+	)
+
+	// toMap = false
+	f = strings.ReplaceAll(f, `"toMap" true`, `"toMap" false`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`[["name","type","breed","age"],["Spot","dog","Collie","3"],["Felix","cat","Malicious","7"]]`,
+	)
+}
