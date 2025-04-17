@@ -18,6 +18,9 @@ alignx
 : {{< new-in 0.141.0 />}}
 : (`string`) The horizontal alignment of the text relative to the horizontal offset, one of `left`, `center`, or `right`. Default is `left`.
 
+aligny
+: (`string`) The vertical alignment of the text relative to the vertical offset, one of `top`, `center`, or `bottom`. Default is `top`.
+
 color
 : (`string`) The font color, either a 3-digit or 6-digit hexadecimal color code. Default is `#ffffff` (white).
 
