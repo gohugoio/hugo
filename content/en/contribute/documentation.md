@@ -112,7 +112,7 @@ Yes → Hugo is fast.
 
 ### Function and method descriptions
 
-Start descriptions in the functions and methods sections with "Returns", of for booelan values, "Reports whether".
+Start descriptions in the functions and methods sections with "Returns", or for boolean values, "Reports whether".
 
 ### File paths and names
 
