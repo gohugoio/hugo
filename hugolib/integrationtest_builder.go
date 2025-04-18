@@ -918,7 +918,7 @@ type IntegrationTestConfig struct {
 
 	// The files to use on txtar format, see
 	// https://pkg.go.dev/golang.org/x/exp/cmd/txtar
-	// There are some conentions used in this test setup.
+	// There are some contentions used in this test setup.
 	// - §§§ can be used to wrap code fences.
 	// - §§ can be used to wrap multiline strings.
 	// - filenames prefixed with sourcefilename: will be read from the file system relative to the current dir.

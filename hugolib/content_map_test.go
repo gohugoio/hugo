@@ -517,7 +517,7 @@ func TestHTMLNotContent(t *testing.T) {
 -- hugo.toml.temp --
 [contentTypes]
 [contentTypes."text/markdown"]
-# Emopty for now.
+# Empty for now.
 -- hugo.yaml.temp --
 contentTypes:
   text/markdown: {}
