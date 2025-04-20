@@ -256,7 +256,6 @@ func TestIncludeTimeout(t *testing.T) {
 	files := `
 -- config.toml --
 baseURL = 'http://example.com/'
-timeout = '200ms'
 -- layouts/index.html --
 {{ partials.Include "foo.html" . }}
 -- layouts/partials/foo.html --
@@ -271,7 +270,7 @@ timeout = '200ms'
 	).BuildE()
 
 	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, "timed out")
+	b.Assert(err.Error(), qt.Contains, "maximum template call stack size exceeded")
 }
 
 func TestIncludeCachedTimeout(t *testing.T) {
@@ -284,6 +283,8 @@ timeout = '200ms'
 -- layouts/index.html --
 {{ partials.IncludeCached "foo.html" . }}
 -- layouts/partials/foo.html --
+{{ partialCached "bar.html" . }}
+-- layouts/partials/bar.html --
 {{ partialCached "foo.html" . }}
   `
 
@@ -295,7 +296,7 @@ timeout = '200ms'
 	).BuildE()
 
 	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, "timed out")
+	b.Assert(err.Error(), qt.Contains, `error calling partialCached: circular call stack detected in partial`)
 }
 
 // See Issue #10789

@@ -24,13 +24,13 @@ import (
 	"time"
 
 	"github.com/bep/lazycache"
-
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/identity"
+	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/tpl"
-	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
@@ -109,7 +109,7 @@ func (c *contextWrapper) Set(in any) string {
 // A string if the partial is a text/template, or template.HTML when html/template.
 // Note that ctx is provided by Hugo, not the end user.
 func (ns *Namespace) Include(ctx context.Context, name string, contextList ...any) (any, error) {
-	res := ns.includWithTimeout(ctx, name, contextList...)
+	res := ns.include(ctx, name, contextList...)
 	if res.err != nil {
 		return nil, res.err
 	}
@@ -121,49 +121,36 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 	return res.result, nil
 }
 
-func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
+func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) includeResult {
+	v, err := ns.lookup(name)
+	if err != nil {
+		return includeResult{err: err}
+	}
+	return ns.doInclude(ctx, v, dataList...)
+}
+
+func (ns *Namespace) lookup(name string) (*tplimpl.TemplInfo, error) {
 	if strings.HasPrefix(name, "partials/") {
 		// This is most likely not what the user intended.
 		// This worked before Hugo 0.146.0.
 		ns.deps.Log.Warnidf(constants.WarnPartialSuperfluousPrefix, "Partial name %q starting with 'partials/' (as in {{ partial \"%s\"}}) is most likely not what you want. Before 0.146.0 we did a double lookup in this situation.", name, name)
 	}
-	// Create a new context with a timeout not connected to the incoming context.
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Conf.Timeout())
-	defer cancel()
-
-	res := make(chan includeResult, 1)
-
-	go func() {
-		res <- ns.include(ctx, name, dataList...)
-	}()
-
-	select {
-	case r := <-res:
-		return r
-	case <-timeoutCtx.Done():
-		err := timeoutCtx.Err()
-		if err == context.DeadlineExceeded {
-			//lint:ignore ST1005 end user message.
-			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Conf.Timeout())
-		}
-		return includeResult{err: err}
+	v := ns.deps.TemplateStore.LookupPartial(name)
+	if v == nil {
+		return nil, fmt.Errorf("partial %q not found", name)
 	}
+	return v, nil
 }
 
 // include is a helper function that lookups and executes the named partial.
 // Returns the final template name and the rendered output.
-func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) includeResult {
+func (ns *Namespace) doInclude(ctx context.Context, templ *tplimpl.TemplInfo, dataList ...any) includeResult {
 	var data any
 	if len(dataList) > 0 {
 		data = dataList[0]
 	}
-	v := ns.deps.TemplateStore.LookupPartial(name)
-	if v == nil {
-		return includeResult{err: fmt.Errorf("partial %q not found", name)}
-	}
 
-	templ := v
-	info := v.ParseInfo
+	info := templ.ParseInfo
 
 	var w io.Writer
 
@@ -212,6 +199,20 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 		Variants: variants,
 	}
 	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
+	ti, err := ns.lookup(name)
+	if err != nil {
+		return nil, err
+	}
+
+	if parent := tpl.Context.CurrentTemplate.Get(ctx); parent != nil {
+		for parent != nil {
+			if parent.CurrentTemplateInfoOps == ti {
+				// This will deadlock if we continue.
+				return nil, fmt.Errorf("circular call stack detected in partial %q", ti.Filename())
+			}
+			parent = parent.Parent
+		}
+	}
 
 	r, found, err := ns.cachedPartials.cache.GetOrCreate(key.Key(), func(string) (includeResult, error) {
 		var depsManagerShared identity.Manager
@@ -221,7 +222,7 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 			depsManagerShared = identity.NewManager("partials")
 			ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, depsManagerShared.(identity.DependencyManagerScopedProvider))
 		}
-		r := ns.includWithTimeout(ctx, key.Name, context)
+		r := ns.doInclude(ctx, ti, context)
 		if ns.deps.Conf.Watching() {
 			r.mangager = depsManagerShared
 		}

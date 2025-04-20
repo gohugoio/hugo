@@ -1229,3 +1229,19 @@ layouts/list.html
 		b.AssertFileContent("public/p1/index.html", "layouts/single.html")
 	}
 }
+
+func TestTemplateLoop(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/_partials/p.html --
+p: {{ partial "p.html" . }}
+-- layouts/all.html --
+{{ partial "p.html" . }}
+
+`
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "error calling partial: maximum template call stack size exceeded")
+}

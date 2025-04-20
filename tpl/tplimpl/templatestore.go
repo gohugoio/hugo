@@ -484,12 +484,23 @@ func (t *TemplateStore) ExecuteWithContext(ctx context.Context, ti *TemplInfo, w
 
 	templ := ti.Template
 
+	parent := tpl.Context.CurrentTemplate.Get(ctx)
+	var level int
+	if parent != nil {
+		level = parent.Level + 1
+	}
 	currentTi := &tpl.CurrentTemplateInfo{
-		Parent:                 tpl.Context.CurrentTemplate.Get(ctx),
+		Parent:                 parent,
+		Level:                  level,
 		CurrentTemplateInfoOps: ti,
 	}
 
 	ctx = tpl.Context.CurrentTemplate.Set(ctx, currentTi)
+
+	const levelThreshold = 999
+	if level > levelThreshold {
+		return fmt.Errorf("maximum template call stack size exceeded in %q", ti.Filename())
+	}
 
 	if t.opts.Metrics != nil {
 		defer t.opts.Metrics.MeasureSince(templ.Name(), time.Now())

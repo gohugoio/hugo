@@ -213,7 +213,7 @@ func (l configLoader) applyDefaultConfig() error {
 		"disableAliases":                       false,
 		"debug":                                false,
 		"disableFastRender":                    false,
-		"timeout":                              "30s",
+		"timeout":                              "60s",
 		"timeZone":                             "",
 		"enableInlineShortcodes":               false,
 	}
