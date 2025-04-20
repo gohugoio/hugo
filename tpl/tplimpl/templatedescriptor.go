@@ -177,7 +177,7 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		w.w2 = weight2Group1
 	}
 
-	if this.LayoutFromUser == "" && other.LayoutFromTemplate != "" && (other.LayoutFromTemplate == this.LayoutFromTemplate || other.LayoutFromTemplate == layoutAll) {
+	if other.LayoutFromTemplate != "" && (other.LayoutFromTemplate == this.LayoutFromTemplate || other.LayoutFromTemplate == layoutAll) {
 		w.w1 += weightLayoutStandard
 		w.w2 = weight2Group1
 

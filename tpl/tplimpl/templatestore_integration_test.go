@@ -1204,3 +1204,28 @@ layouts/_partials/comment.ru.xml
 	b.AssertFileContent("public/ru/index.html", "layouts/_partials/comment.ru.html") // fail
 	b.AssertFileContent("public/ru/index.xml", "layouts/_partials/comment.ru.xml")   // fail
 }
+
+func TestLayoutIssue13628(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+layout: foo
+---
+-- layouts/single.html --
+layouts/single.html
+-- layouts/list.html --
+layouts/list.html
+`
+
+	for range 5 {
+
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/p1/index.html", "layouts/single.html")
+	}
+}
