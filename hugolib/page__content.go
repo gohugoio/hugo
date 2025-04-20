@@ -850,7 +850,7 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 	})
 	if err != nil {
 		if herrors.IsTimeoutError(err) {
-			err = fmt.Errorf("timed out rendering the page content. You may have a circular loop in a shortcode, or your site may have resources that take longer to build than the `timeout` limit in your Hugo config file: %w", err)
+			err = fmt.Errorf("timed out rendering the page content. Extend the `timeout` limit in your Hugo config file: %w", err)
 		}
 		return contentPlainPlainWords{}, err
 	}

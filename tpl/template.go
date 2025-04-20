@@ -160,6 +160,7 @@ type CurrentTemplateInfoCommonOps interface {
 // CurrentTemplateInfo as returned in templates.Current.
 type CurrentTemplateInfo struct {
 	Parent *CurrentTemplateInfo
+	Level  int
 	CurrentTemplateInfoOps
 }
 
