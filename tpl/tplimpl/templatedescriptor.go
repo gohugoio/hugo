@@ -64,7 +64,7 @@ func (s descriptorHandler) compareDescriptors(category Category, isEmbedded bool
 		return weightNoMatch
 	}
 
-	w := this.doCompare(category, isEmbedded, other)
+	w := this.doCompare(category, isEmbedded, s.opts.DefaultContentLanguage, other)
 
 	if w.w1 <= 0 {
 		if category == CategoryMarkup && (this.Variant1 == other.Variant1) && (this.Variant2 == other.Variant2 || this.Variant2 != "" && other.Variant2 == "") {
@@ -82,7 +82,7 @@ func (s descriptorHandler) compareDescriptors(category Category, isEmbedded bool
 }
 
 //lint:ignore ST1006 this vs other makes it easier to reason about.
-func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, other TemplateDescriptor) weight {
+func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, defaultContentLanguage string, other TemplateDescriptor) weight {
 	w := weightNoMatch
 
 	// HTML in plain text is OK, but not the other way around.
@@ -124,6 +124,10 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		// Continue.
 	}
 
+	if other.MediaType != this.MediaType {
+		return w
+	}
+
 	// One example of variant1 and 2 is for render codeblocks:
 	// variant1=codeblock, variant2=go (language).
 	if other.Variant1 != "" && other.Variant1 != this.Variant1 {
@@ -142,14 +146,15 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 	}
 
 	const (
-		weightKind           = 3 // page, home, section, taxonomy, term (and only those)
-		weightcustomLayout   = 4 // custom layout (mylayout, set in e.g. front matter)
-		weightLayoutStandard = 2 // standard layouts (single,list,all)
-		weightOutputFormat   = 2 // a configured output format (e.g. rss, html, json)
+		weightKind           = 5 // page, home, section, taxonomy, term (and only those)
+		weightcustomLayout   = 6 // custom layout (mylayout, set in e.g. front matter)
+		weightLayoutStandard = 4 // standard layouts (single,list)
+		weightLayoutAll      = 2 // the "all" layout
+		weightOutputFormat   = 4 // a configured output format (e.g. rss, html, json)
 		weightMediaType      = 1 // a configured media type (e.g. text/html, text/plain)
 		weightLang           = 1 // a configured language (e.g. en, nn, fr, ...)
-		weightVariant1       = 4 // currently used for render hooks, e.g. "link", "image"
-		weightVariant2       = 2 // currently used for render hooks, e.g. the language "go" in code blocks.
+		weightVariant1       = 6 // currently used for render hooks, e.g. "link", "image"
+		weightVariant2       = 4 // currently used for render hooks, e.g. the language "go" in code blocks.
 
 		// We will use the values for group 2 and 3
 		// if the distance up to the template is shorter than
@@ -173,10 +178,12 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		w.w2 = weight2Group1
 	}
 
-	if other.LayoutFromTemplate != "" && (other.LayoutFromTemplate == this.LayoutFromTemplate || other.LayoutFromTemplate == layoutAll) {
+	if other.LayoutFromTemplate != "" && (other.LayoutFromTemplate == this.LayoutFromTemplate) {
 		w.w1 += weightLayoutStandard
 		w.w2 = weight2Group1
-
+	} else if other.LayoutFromTemplate == layoutAll {
+		w.w1 += weightLayoutAll
+		w.w2 = weight2Group1
 	}
 
 	// LayoutCustom is only set in this (usually from Page.Layout).
@@ -185,7 +192,7 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 		w.w2 = weight2Group2
 	}
 
-	if other.Lang != "" && other.Lang == this.Lang {
+	if (other.Lang != "" && other.Lang == this.Lang) || (other.Lang == "" && this.Lang == defaultContentLanguage) {
 		w.w1 += weightLang
 		w.w3 += weight3
 	}

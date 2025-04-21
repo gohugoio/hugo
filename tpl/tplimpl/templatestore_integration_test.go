@@ -3,6 +3,7 @@ package tplimpl_test
 import (
 	"context"
 	"io"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -682,6 +683,102 @@ layout: mylayout
 	b.AssertFileContent("public/en/qux/index.html", "layouts/qux/mylayout.section.html")
 	// output format: rss.
 	b.AssertFileContent("public/en/foo/index.xml", "layouts/list.xml")
+}
+
+func TestLookupOrderIssue13636(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/s1/p1.en.md --
+---
+outputs: ["html", "amp", "json"]
+---
+-- content/s1/p1.nn.md --
+---
+outputs: ["html", "amp", "json"]
+---
+-- layouts/L1 --
+L1
+-- layouts/L2 --
+L2
+-- layouts/L3 --
+L3
+
+`
+
+	tests := []struct {
+		Lang       string
+		L1         string
+		L2         string
+		L3         string
+		ExpectHTML string
+		ExpectAmp  string
+		ExpectJSON string
+	}{
+		{"en", "all.en.html", "all.html", "single.html", "single.html", "single.html", ""},
+		{"en", "all.amp.html", "all.html", "page.html", "page.html", "all.amp.html", ""},
+		{"en", "all.amp.html", "all.html", "list.html", "all.html", "all.amp.html", ""},
+		{"en", "all.en.html", "all.json", "single.html", "single.html", "single.html", "all.json"},
+		{"en", "all.en.html", "single.json", "single.html", "single.html", "single.html", "single.json"},
+		{"en", "all.en.html", "all.html", "list.html", "all.en.html", "all.en.html", ""},
+		{"en", "list.en.html", "list.html", "list.en.html", "", "", ""},
+		{"nn", "all.en.html", "all.html", "single.html", "single.html", "single.html", ""},
+		{"nn", "all.en.html", "all.nn.html", "single.html", "single.html", "single.html", ""},
+		{"nn", "all.en.html", "all.nn.html", "single.nn.html", "single.nn.html", "single.nn.html", ""},
+		{"nn", "single.json", "single.nn.json", "all.json", "", "", "single.nn.json"},
+		{"nn", "single.json", "single.en.json", "all.nn.json", "", "", "single.json"},
+	}
+
+	for i, test := range tests {
+		if i != 8 {
+			// continue
+		}
+		files := strings.ReplaceAll(filesTemplate, "L1", test.L1)
+		files = strings.ReplaceAll(files, "L2", test.L2)
+		files = strings.ReplaceAll(files, "L3", test.L3)
+		t.Logf("Test %d: %s %s %s %s", i, test.Lang, test.L1, test.L2, test.L3)
+
+		for range 3 {
+			b := hugolib.Test(t, files)
+			b.Assert(len(b.H.Sites), qt.Equals, 2)
+
+			var (
+				pubhHTML = "public/LANG/s1/p1/index.html"
+				pubhAmp  = "public/LANG/amp/s1/p1/index.html"
+				pubhJSON = "public/LANG/s1/p1/index.json"
+			)
+
+			pubhHTML = strings.ReplaceAll(pubhHTML, "LANG", test.Lang)
+			pubhAmp = strings.ReplaceAll(pubhAmp, "LANG", test.Lang)
+			pubhJSON = strings.ReplaceAll(pubhJSON, "LANG", test.Lang)
+
+			if test.ExpectHTML != "" {
+				b.AssertFileContent(pubhHTML, test.ExpectHTML)
+			} else {
+				b.AssertFileExists(pubhHTML, false)
+			}
+
+			if test.ExpectAmp != "" {
+				b.AssertFileContent(pubhAmp, test.ExpectAmp)
+			} else {
+				b.AssertFileExists(pubhAmp, false)
+			}
+
+			if test.ExpectJSON != "" {
+				b.AssertFileContent(pubhJSON, test.ExpectJSON)
+			} else {
+				b.AssertFileExists(pubhJSON, false)
+			}
+		}
+	}
 }
 
 func TestLookupShortcodeDepth(t *testing.T) {
