@@ -138,6 +138,9 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 		}
 
 		if mv.Len() == 0 {
+			if op == "not in" {
+				return true, nil
+			}
 			return false, nil
 		}
 

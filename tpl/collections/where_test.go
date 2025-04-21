@@ -761,6 +761,7 @@ func TestCheckCondition(t *testing.T) {
 			expect{true, false},
 		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{45, 678}), "not in", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf([]int{}), "not in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"bar", "baz"}), "not in", expect{true, false}},
 		{
 			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),

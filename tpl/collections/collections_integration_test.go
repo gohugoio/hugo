@@ -278,3 +278,23 @@ disableKinds = ['rss','sitemap', 'taxonomy', 'term', 'page']
 
 	b.AssertFileContentExact("public/index.html", "0: /a3_b1.html\n\n1: /b2.html\n\n2: /a1.html\n\n3: /a2.html\n$")
 }
+
+// Issue 13621.
+func TestWhereNotInEmptySlice(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{- $pages := where site.RegularPages "Kind" "not in" (slice) -}}
+Len: {{  $pages | len }}|
+-- layouts/all.html --
+All|{{ .Title }}|
+-- content/p1.md --
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Len: 1|")
+}
