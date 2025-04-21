@@ -1577,15 +1577,15 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 	nameNoIdentifier := p.NameNoIdentifier()
 
 	var layout string
-	unknownids := p.IdentifiersUnknown()
+	ids := p.Identifiers()
 	if p.Type() == paths.TypeShortcode {
-		if len(unknownids) > 1 {
+		if len(ids) > 1 {
 			// The name is the last identifier.
-			layout = unknownids[len(unknownids)-2]
+			layout = ids[len(ids)-2]
 		}
-	} else if len(unknownids) > 0 {
+	} else if len(ids) > 0 {
 		// Pick the last, closest to the base name.
-		layout = unknownids[len(unknownids)-1]
+		layout = ids[len(ids)-1]
 	}
 
 	d := TemplateDescriptor{
@@ -1633,6 +1633,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 
 	if category == CategoryShortcode {
 		k1 = p.PathNoIdentifier()
+
 		parts := strings.Split(k1, "/"+containerShortcodes+"/")
 		k1 = parts[0]
 		if len(parts) > 1 {

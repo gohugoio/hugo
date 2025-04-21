@@ -78,3 +78,26 @@ disablePathToLower = true
 	b.AssertFileContent("public/en/mysection/mybundle/index.html", "en|Single")
 	b.AssertFileContent("public/fr/MySection/MyBundle/index.html", "fr|Single")
 }
+
+func TestIssue13596(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1/index.md --
+---
+title: p1
+---
+-- content/p1/a.1.txt --
+-- content/p1/a.2.txt --
+-- layouts/all.html --
+{{ range .Resources.Match "*" }}{{ .Name }}|{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "a.1.txt|a.2.txt|")
+	b.AssertFileExists("public/p1/a.1.txt", true)
+	b.AssertFileExists("public/p1/a.2.txt", true) // fails
+}

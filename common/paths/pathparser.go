@@ -124,14 +124,14 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 	if p.posContainerHigh != -1 {
 		return
 	}
-	mayHaveLang := pp.LanguageIndex != nil
+	mayHaveLang := p.posIdentifierLanguage == -1 && pp.LanguageIndex != nil
 	mayHaveLang = mayHaveLang && (component == files.ComponentFolderContent || component == files.ComponentFolderLayouts)
-	mayHaveOutputFormat := component == files.ComponentFolderLayouts
-	mayHaveKind := mayHaveOutputFormat
+	mayHaveOutputFormat := p.posIdentifierOutputFormat == -1 && component == files.ComponentFolderLayouts
+	mayHaveKind := p.posIdentifierKind == -1 && mayHaveOutputFormat
 
 	var found bool
 	var high int
-	if len(p.identifiers) > 0 {
+	if len(p.identifiersKnown) > 0 {
 		high = lastDot
 	} else {
 		high = len(p.s)
@@ -139,9 +139,9 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 	id := types.LowHigh[string]{Low: i + 1, High: high}
 	sid := p.s[id.Low:id.High]
 
-	if len(p.identifiers) == 0 {
+	if len(p.identifiersKnown) == 0 {
 		// The first is always the extension.
-		p.identifiers = append(p.identifiers, id)
+		p.identifiersKnown = append(p.identifiersKnown, id)
 		found = true
 
 		// May also be the output format.
@@ -164,8 +164,8 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 			}
 			found = langFound
 			if langFound {
-				p.identifiers = append(p.identifiers, id)
-				p.posIdentifierLanguage = len(p.identifiers) - 1
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierLanguage = len(p.identifiersKnown) - 1
 
 			}
 		}
@@ -177,28 +177,32 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 			// false positives on the form css.html.
 			if pp.IsOutputFormat(sid, p.Ext()) {
 				found = true
-				p.identifiers = append(p.identifiers, id)
-				p.posIdentifierOutputFormat = len(p.identifiers) - 1
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierOutputFormat = len(p.identifiersKnown) - 1
 			}
 		}
 
 		if !found && mayHaveKind {
 			if kinds.GetKindMain(sid) != "" {
 				found = true
-				p.identifiers = append(p.identifiers, id)
-				p.posIdentifierKind = len(p.identifiers) - 1
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierKind = len(p.identifiersKnown) - 1
 			}
 		}
 
 		if !found && sid == identifierBaseof {
 			found = true
-			p.identifiers = append(p.identifiers, id)
-			p.posIdentifierBaseof = len(p.identifiers) - 1
+			p.identifiersKnown = append(p.identifiersKnown, id)
+			p.posIdentifierBaseof = len(p.identifiersKnown) - 1
+		}
+
+		if !found && component == files.ComponentFolderLayouts {
+			p.identifiersKnown = append(p.identifiersKnown, id)
+			found = true
 		}
 
 		if !found {
-			p.identifiers = append(p.identifiers, id)
-			p.identifiersUnknown = append(p.identifiersUnknown, len(p.identifiers)-1)
+			p.identifiersUnknown = append(p.identifiersUnknown, id)
 		}
 
 	}
@@ -252,13 +256,13 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 		}
 	}
 
-	if len(p.identifiers) > 0 {
+	if len(p.identifiersKnown) > 0 {
 		isContentComponent := p.component == files.ComponentFolderContent || p.component == files.ComponentFolderArchetypes
 		isContent := isContentComponent && pp.IsContentExt(p.Ext())
-		id := p.identifiers[len(p.identifiers)-1]
+		id := p.identifiersKnown[len(p.identifiersKnown)-1]
 
-		if id.High > p.posContainerHigh {
-			b := p.s[p.posContainerHigh:id.High]
+		if id.Low > p.posContainerHigh {
+			b := p.s[p.posContainerHigh : id.Low-1]
 			if isContent {
 				switch b {
 				case "index":
@@ -350,13 +354,13 @@ type Path struct {
 	component string
 	pathType  Type
 
-	identifiers []types.LowHigh[string]
+	identifiersKnown   []types.LowHigh[string]
+	identifiersUnknown []types.LowHigh[string]
 
 	posIdentifierLanguage     int
 	posIdentifierOutputFormat int
 	posIdentifierKind         int
 	posIdentifierBaseof       int
-	identifiersUnknown        []int
 	disabled                  bool
 
 	trimLeadingSlash bool
@@ -388,7 +392,7 @@ func (p *Path) reset() {
 	p.posSectionHigh = -1
 	p.component = ""
 	p.pathType = 0
-	p.identifiers = p.identifiers[:0]
+	p.identifiersKnown = p.identifiersKnown[:0]
 	p.posIdentifierLanguage = -1
 	p.posIdentifierOutputFormat = -1
 	p.posIdentifierKind = -1
@@ -479,7 +483,7 @@ func (p *Path) Name() string {
 // Name returns the last element of path without any extension.
 func (p *Path) NameNoExt() string {
 	if i := p.identifierIndex(0); i != -1 {
-		return p.s[p.posContainerHigh : p.identifiers[i].Low-1]
+		return p.s[p.posContainerHigh : p.identifiersKnown[i].Low-1]
 	}
 	return p.s[p.posContainerHigh:]
 }
@@ -491,7 +495,7 @@ func (p *Path) NameNoLang() string {
 		return p.Name()
 	}
 
-	return p.s[p.posContainerHigh:p.identifiers[i].Low-1] + p.s[p.identifiers[i].High:]
+	return p.s[p.posContainerHigh:p.identifiersKnown[i].Low-1] + p.s[p.identifiersKnown[i].High:]
 }
 
 // BaseNameNoIdentifier returns the logical base name for a resource without any identifier (e.g. no extension).
@@ -510,15 +514,15 @@ func (p *Path) NameNoIdentifier() string {
 }
 
 func (p *Path) nameLowHigh() types.LowHigh[string] {
-	if len(p.identifiers) > 0 {
-		lastID := p.identifiers[len(p.identifiers)-1]
+	if len(p.identifiersKnown) > 0 {
+		lastID := p.identifiersKnown[len(p.identifiersKnown)-1]
 		if p.posContainerHigh == lastID.Low {
 			// The last identifier is the name.
 			return lastID
 		}
 		return types.LowHigh[string]{
 			Low:  p.posContainerHigh,
-			High: p.identifiers[len(p.identifiers)-1].Low - 1,
+			High: p.identifiersKnown[len(p.identifiersKnown)-1].Low - 1,
 		}
 	}
 	return types.LowHigh[string]{
@@ -566,7 +570,7 @@ func (p *Path) PathNoIdentifier() string {
 
 // PathBeforeLangAndOutputFormatAndExt returns the path up to the first identifier that is not a language or output format.
 func (p *Path) PathBeforeLangAndOutputFormatAndExt() string {
-	if len(p.identifiers) == 0 {
+	if len(p.identifiersKnown) == 0 {
 		return p.norm(p.s)
 	}
 	i := p.identifierIndex(0)
@@ -582,7 +586,7 @@ func (p *Path) PathBeforeLangAndOutputFormatAndExt() string {
 		return p.norm(p.s)
 	}
 
-	id := p.identifiers[i]
+	id := p.identifiersKnown[i]
 	return p.norm(p.s[:id.Low-1])
 }
 
@@ -633,11 +637,11 @@ func (p *Path) BaseNoLeadingSlash() string {
 }
 
 func (p *Path) base(preserveExt, isBundle bool) string {
-	if len(p.identifiers) == 0 {
+	if len(p.identifiersKnown) == 0 {
 		return p.norm(p.s)
 	}
 
-	if preserveExt && len(p.identifiers) == 1 {
+	if preserveExt && len(p.identifiersKnown) == 1 {
 		// Preserve extension.
 		return p.norm(p.s)
 	}
@@ -659,7 +663,7 @@ func (p *Path) base(preserveExt, isBundle bool) string {
 	}
 
 	// For txt files etc. we want to preserve the extension.
-	id := p.identifiers[0]
+	id := p.identifiersKnown[0]
 
 	return p.norm(p.s[:high] + p.s[id.Low-1:id.High])
 }
@@ -689,8 +693,8 @@ func (p *Path) Disabled() bool {
 }
 
 func (p *Path) Identifiers() []string {
-	ids := make([]string, len(p.identifiers))
-	for i, id := range p.identifiers {
+	ids := make([]string, len(p.identifiersKnown))
+	for i, id := range p.identifiersKnown {
 		ids[i] = p.s[id.Low:id.High]
 	}
 	return ids
@@ -699,7 +703,7 @@ func (p *Path) Identifiers() []string {
 func (p *Path) IdentifiersUnknown() []string {
 	ids := make([]string, len(p.identifiersUnknown))
 	for i, id := range p.identifiersUnknown {
-		ids[i] = p.s[p.identifiers[id].Low:p.identifiers[id].High]
+		ids[i] = p.s[id.Low:id.High]
 	}
 	return ids
 }
@@ -735,12 +739,12 @@ func (p *Path) identifierAsString(i int) string {
 		return ""
 	}
 
-	id := p.identifiers[i]
+	id := p.identifiersKnown[i]
 	return p.s[id.Low:id.High]
 }
 
 func (p *Path) identifierIndex(i int) int {
-	if i < 0 || i >= len(p.identifiers) {
+	if i < 0 || i >= len(p.identifiersKnown) {
 		return -1
 	}
 	return i
