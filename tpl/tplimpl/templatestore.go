@@ -1842,7 +1842,9 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 		// Anything is better than nothing.
 		return true
 	}
+
 	if w.w1 <= 0 {
+
 		if best.w.w1 <= 0 {
 			return ti.PathInfo.Path() < best.templ.PathInfo.Path()
 		}
@@ -1885,11 +1887,7 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 			return true
 		}
 
-		if ti.D.LayoutFromTemplate != "" && best.desc.LayoutFromTemplate != "" {
-			return ti.D.LayoutFromTemplate != layoutAll
-		}
-
-		return w.distance < best.w.distance || ti.PathInfo.Path() < best.templ.PathInfo.Path()
+		return ti.PathInfo.Path() < best.templ.PathInfo.Path()
 	}
 
 	return true

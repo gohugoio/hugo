@@ -139,7 +139,7 @@ weight = 1
 languageName = "English"
 [languages.nn]
 weight = 2
--- layouts/_default/list.xml --
+-- layouts/list.xml --
 Site: {{ .Site.Title }}|
 -- layouts/home --
 Home.

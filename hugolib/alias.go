@@ -56,6 +56,7 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, err
 	templateDesc.LayoutFromUser = ""
 	templateDesc.Kind = ""
 	templateDesc.OutputFormat = output.AliasHTMLFormat.Name
+	templateDesc.MediaType = output.AliasHTMLFormat.MediaType.Type
 
 	q := tplimpl.TemplateQuery{
 		Path:     base,
