@@ -1245,3 +1245,28 @@ p: {{ partial "p.html" . }}
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "error calling partial: maximum template call stack size exceeded")
 }
+
+func TestIssue13630(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap']
+-- content/p1.md --
+---
+title: p1
+layout: foo
+---
+-- layouts/list.html --
+layouts/list.html
+-- layouts/taxononmy.html.html --
+layouts/taxononmy.html.html
+`
+
+	var b *hugolib.IntegrationTestBuilder
+
+	for range 3 {
+		b = hugolib.Test(t, files)
+		b.AssertFileExists("public/p1/index.html", false)
+	}
+}

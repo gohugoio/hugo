@@ -94,12 +94,8 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, oth
 	}
 
 	if other.LayoutFromTemplate != "" && other.LayoutFromTemplate != layoutAll {
-		if this.LayoutFromUser == "" {
+		if this.LayoutFromUser == "" || this.LayoutFromUser != other.LayoutFromTemplate {
 			if other.LayoutFromTemplate != this.LayoutFromTemplate {
-				return w
-			}
-		} else if isLayoutStandard(this.LayoutFromUser) {
-			if other.LayoutFromTemplate != this.LayoutFromUser {
 				return w
 			}
 		}
