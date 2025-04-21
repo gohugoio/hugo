@@ -654,7 +654,7 @@ func (s *TemplateStore) PrintDebug(prefix string, category Category, w io.Writer
 			return
 		}
 		s := strings.ReplaceAll(strings.TrimSpace(vv.content), "\n", " ")
-		ts := fmt.Sprintf("kind: %q layout: %q content: %.30s", vv.D.Kind, vv.D.LayoutFromTemplate, s)
+		ts := fmt.Sprintf("kind: %q layout: %q lang: %q content: %.30s", vv.D.Kind, vv.D.LayoutFromTemplate, vv.D.Lang, s)
 		fmt.Fprintf(w, "%s%s %s\n", strings.Repeat(" ", level), key, ts)
 	}
 	s.treeMain.WalkPrefix(prefix, func(key string, v map[nodeKey]*TemplInfo) (bool, error) {
@@ -1126,7 +1126,7 @@ func (s *TemplateStore) insertTemplate2(
 
 	if !replace {
 		if v, found := m[nk]; found {
-			if len(pi.IdentifiersUnknown()) >= len(v.PathInfo.IdentifiersUnknown()) {
+			if len(pi.Identifiers()) >= len(v.PathInfo.Identifiers()) {
 				// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
 				return nil, nil
 			}
@@ -1261,7 +1261,10 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 			)
 
 			base := piOrig.PathBeforeLangAndOutputFormatAndExt()
-			identifiers := pi.IdentifiersUnknown()
+			identifiers := []string{}
+			if pi.Layout() != "" {
+				identifiers = append(identifiers, pi.Layout())
+			}
 			if pi.Kind() != "" {
 				identifiers = append(identifiers, pi.Kind())
 			}
@@ -1576,24 +1579,12 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 	outputFormat, mediaType := s.resolveOutputFormatAndOrMediaType(p.OutputFormat(), p.Ext())
 	nameNoIdentifier := p.NameNoIdentifier()
 
-	var layout string
-	unknownids := p.IdentifiersUnknown()
-	if p.Type() == paths.TypeShortcode {
-		if len(unknownids) > 1 {
-			// The name is the last identifier.
-			layout = unknownids[len(unknownids)-2]
-		}
-	} else if len(unknownids) > 0 {
-		// Pick the last, closest to the base name.
-		layout = unknownids[len(unknownids)-1]
-	}
-
 	d := TemplateDescriptor{
 		Lang:               p.Lang(),
 		OutputFormat:       p.OutputFormat(),
 		MediaType:          mediaType.Type,
 		Kind:               p.Kind(),
-		LayoutFromTemplate: layout,
+		LayoutFromTemplate: p.Layout(),
 		IsPlainText:        outputFormat.IsPlainText,
 	}
 
@@ -1633,6 +1624,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 
 	if category == CategoryShortcode {
 		k1 = p.PathNoIdentifier()
+
 		parts := strings.Split(k1, "/"+containerShortcodes+"/")
 		k1 = parts[0]
 		if len(parts) > 1 {

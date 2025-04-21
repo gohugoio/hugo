@@ -39,6 +39,8 @@ title: "Page"
 `)
 	b.CreateSites().Build(BuildCfg{})
 
+	// b.H.TemplateStore.PrintDebug("", tplimpl.CategoryLayout, os.Stdout)
+
 	c.Assert(len(b.H.Sites), qt.Equals, 1)
 	c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 

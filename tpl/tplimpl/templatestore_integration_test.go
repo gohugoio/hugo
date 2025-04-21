@@ -1056,7 +1056,7 @@ All.
 
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
-	b.AssertLogContains("Duplicate content path")
+	b.AssertLogContains("! Duplicate content path")
 }
 
 // Issue #13577.
