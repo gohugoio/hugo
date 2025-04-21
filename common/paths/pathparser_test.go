@@ -171,22 +171,25 @@ func TestParse(t *testing.T) {
 			"/a/b.a.b.no.txt",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Name(), qt.Equals, "b.a.b.no.txt")
-				c.Assert(p.NameNoIdentifier(), qt.Equals, "b")
+				c.Assert(p.NameNoIdentifier(), qt.Equals, "b.a.b")
 				c.Assert(p.NameNoLang(), qt.Equals, "b.a.b.txt")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "no", "b", "a", "b"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "no"})
 				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"b", "a", "b"})
-				c.Assert(p.Base(), qt.Equals, "/a/b.txt")
-				c.Assert(p.BaseNoLeadingSlash(), qt.Equals, "a/b.txt")
+				c.Assert(p.Base(), qt.Equals, "/a/b.a.b.txt")
+				c.Assert(p.BaseNoLeadingSlash(), qt.Equals, "a/b.a.b.txt")
 				c.Assert(p.Path(), qt.Equals, "/a/b.a.b.no.txt")
-				c.Assert(p.PathNoLang(), qt.Equals, "/a/b.txt")
+				c.Assert(p.PathNoLang(), qt.Equals, "/a/b.a.b.txt")
 				c.Assert(p.Ext(), qt.Equals, "txt")
-				c.Assert(p.PathNoIdentifier(), qt.Equals, "/a/b")
+				c.Assert(p.PathNoIdentifier(), qt.Equals, "/a/b.a.b")
 			},
 		},
 		{
 			"Home branch cundle",
 			"/_index.md",
 			func(c *qt.C, p *Path) {
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md"})
+				c.Assert(p.IsBranchBundle(), qt.IsTrue)
+				c.Assert(p.IsBundle(), qt.IsTrue)
 				c.Assert(p.Base(), qt.Equals, "/")
 				c.Assert(p.BaseReTyped("foo"), qt.Equals, "/foo")
 				c.Assert(p.Path(), qt.Equals, "/_index.md")
@@ -206,7 +209,8 @@ func TestParse(t *testing.T) {
 				c.Assert(p.ContainerDir(), qt.Equals, "")
 				c.Assert(p.Dir(), qt.Equals, "/a")
 				c.Assert(p.Ext(), qt.Equals, "md")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md", "index"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"index"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md"})
 				c.Assert(p.IsBranchBundle(), qt.IsFalse)
 				c.Assert(p.IsBundle(), qt.IsTrue)
 				c.Assert(p.IsLeafBundle(), qt.IsTrue)
@@ -228,7 +232,7 @@ func TestParse(t *testing.T) {
 				c.Assert(p.ContainerDir(), qt.Equals, "/a")
 				c.Assert(p.Dir(), qt.Equals, "/a/b")
 				c.Assert(p.Ext(), qt.Equals, "md")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md", "no", "index"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md", "no"})
 				c.Assert(p.IsBranchBundle(), qt.IsFalse)
 				c.Assert(p.IsBundle(), qt.IsTrue)
 				c.Assert(p.IsLeafBundle(), qt.IsTrue)
@@ -250,7 +254,7 @@ func TestParse(t *testing.T) {
 				c.Assert(p.Container(), qt.Equals, "b")
 				c.Assert(p.ContainerDir(), qt.Equals, "/a")
 				c.Assert(p.Ext(), qt.Equals, "md")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md", "no", "_index"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md", "no"})
 				c.Assert(p.IsBranchBundle(), qt.IsTrue)
 				c.Assert(p.IsBundle(), qt.IsTrue)
 				c.Assert(p.IsLeafBundle(), qt.IsFalse)
@@ -289,7 +293,7 @@ func TestParse(t *testing.T) {
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/index.txt")
 				c.Assert(p.Ext(), qt.Equals, "txt")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "no", "index"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "no"})
 				c.Assert(p.IsLeafBundle(), qt.IsFalse)
 				c.Assert(p.PathNoIdentifier(), qt.Equals, "/a/b/index")
 			},
@@ -372,7 +376,7 @@ func TestParse(t *testing.T) {
 	}
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-			if test.name != "Basic Markdown file" {
+			if test.name != "Home branch cundle" {
 				// return
 			}
 			test.assert(c, testParser.Parse(files.ComponentFolderContent, test.path))
@@ -401,8 +405,56 @@ func TestParseLayouts(t *testing.T) {
 			"/list.no.html",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "list"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
 				c.Assert(p.Base(), qt.Equals, "/list.html")
 				c.Assert(p.Lang(), qt.Equals, "no")
+			},
+		},
+		{
+			"Kind",
+			"/section.no.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Kind(), qt.Equals, kinds.KindSection)
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
+				c.Assert(p.Base(), qt.Equals, "/section.html")
+				c.Assert(p.Lang(), qt.Equals, "no")
+			},
+		},
+		{
+			"Layout",
+			"/list.section.no.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Layout(), qt.Equals, "list")
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "list"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
+				c.Assert(p.Base(), qt.Equals, "/list.html")
+				c.Assert(p.Lang(), qt.Equals, "no")
+			},
+		},
+		{
+			"Layout multiple",
+			"/maylayout.list.section.no.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Layout(), qt.Equals, "maylayout")
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "list", "maylayout"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
+				c.Assert(p.Base(), qt.Equals, "/maylayout.html")
+				c.Assert(p.Lang(), qt.Equals, "no")
+			},
+		},
+		{
+			"Layout shortcode",
+			"/_shortcodes/myshort.list.no.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Layout(), qt.Equals, "list")
+			},
+		},
+		{
+			"Layout baseof",
+			"/baseof.list.no.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Layout(), qt.Equals, "list")
 			},
 		},
 		{
@@ -430,6 +482,20 @@ func TestParseLayouts(t *testing.T) {
 			},
 		},
 		{
+			"Shortcode with layout",
+			"/_shortcodes/myshortcode.list.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Base(), qt.Equals, "/_shortcodes/myshortcode.html")
+				c.Assert(p.Type(), qt.Equals, TypeShortcode)
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "list", "myshortcode"})
+				c.Assert(p.PathNoIdentifier(), qt.Equals, "/_shortcodes/myshortcode")
+				c.Assert(p.PathBeforeLangAndOutputFormatAndExt(), qt.Equals, "/_shortcodes/myshortcode.list")
+				c.Assert(p.Lang(), qt.Equals, "")
+				c.Assert(p.Kind(), qt.Equals, "")
+				c.Assert(p.OutputFormat(), qt.Equals, "html")
+			},
+		},
+		{
 			"Sub dir",
 			"/pages/home.html",
 			func(c *qt.C, p *Path) {
@@ -445,7 +511,7 @@ func TestParseLayouts(t *testing.T) {
 			"/pages/baseof.list.section.fr.amp.html",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "amp", "fr", "section", "list", "baseof"})
-				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"list"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
 				c.Assert(p.Kind(), qt.Equals, kinds.KindSection)
 				c.Assert(p.Lang(), qt.Equals, "fr")
 				c.Assert(p.OutputFormat(), qt.Equals, "amp")
@@ -501,6 +567,9 @@ func TestParseLayouts(t *testing.T) {
 
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
+			if test.name != "Baseof" {
+				// return
+			}
 			test.assert(c, testParser.Parse(files.ComponentFolderLayouts, test.path))
 		})
 	}

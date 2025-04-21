@@ -464,8 +464,6 @@ title: "Home"
 `
 	b := Test(t, files)
 
-	// b.DebugPrint("", tplimpl.CategoryShortcode)
-
 	b.AssertFileContentExact("public/index.xml", "My shortcode XML.")
 	b.AssertFileContentExact("public/index.html", "My shortcode HTML.")
 	s := b.H.Sites[0]
