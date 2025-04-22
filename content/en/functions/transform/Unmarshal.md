@@ -114,12 +114,14 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 >
 > `{{ $data = .Content | transform.Unmarshal }}`
 
-## Options
+## Working with CSV
+
+### Options
 
 When unmarshaling a CSV file, provide an optional map of options.
 
 delimiter
-: (`string`) The delimiter used, default is `,`.
+: (`string`) The delimiter used. Default is `,`.
 
 comment
 : (`string`) The comment character used in the CSV. If set, lines beginning with the comment character without preceding whitespace are ignored.
@@ -128,8 +130,85 @@ lazyQuotes
 : {{< new-in 0.122.0 />}}
 : (`bool`) Whether to allow a quote in an unquoted field, or to allow a non-doubled quote in a quoted field. Default is `false`.
 
+targetType
+: {{< new-in 0.146.7 />}}
+: (`string`) The target data type, either `slice` or `map`. Default is `slice`.
+
+### Examples
+
+The examples below use this CSV file:
+
+```csv
+"name","type","breed","age"
+"Spot","dog","Collie",3
+"Rover","dog","Boxer",5
+"Felix","cat","Calico",7
+```
+
+To render an HTML table from a CSV file:
+
 ```go-html-template
-{{ $csv := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
+{{ $data := slice }}
+{{ $file := "pets.csv" }}
+{{ with or (.Resources.Get $file) (resources.Get $file) }}
+  {{ $opts := dict "targetType" "slice" }}
+  {{ $data = transform.Unmarshal $opts . }}
+{{ end }}
+
+{{ with $data }}
+  <table>
+    <thead>
+      <tr>
+        {{ range index . 0 }}
+          <th>{{ . }}</th>
+        {{ end }}
+      </tr>
+    </thead>
+    <tbody>
+      {{ range . | after 1 }}
+        <tr>
+          {{ range . }}
+            <td>{{ . }}</td>
+          {{ end }}
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+{{ end }}
+```
+
+To extract a subset of the data, or to sort the data, unmarshal to a map instead of a slice:
+
+```go-html-template
+{{ $data := slice }}
+{{ $file := "pets.csv" }}
+{{ with or (.Resources.Get $file) (resources.Get $file) }}
+  {{ $opts := dict "targetType" "map" }}
+  {{ $data = transform.Unmarshal $opts . }}
+{{ end }}
+
+{{ with sort (where $data "type" "dog") "name" "asc" }}
+  <table>
+    <thead>
+      <tr>
+        <th>name</th>
+        <th>type</th>
+        <th>breed</th>
+        <th>age</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range . }}
+        <tr>
+          <td>{{ .name }}</td>
+          <td>{{ .type }}</td>
+          <td>{{ .breed }}</td>
+          <td>{{ .age }}</td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+{{ end }}
 ```
 
 ## Working with XML
