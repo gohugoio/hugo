@@ -60,7 +60,7 @@ type Config struct {
 	NoClasses bool
 
 	// When set, line numbers will be printed.
-	LineNos            bool
+	LineNos            any
 	LineNumbersInTable bool
 
 	// When set, add links to line numbers
@@ -85,16 +85,44 @@ type Config struct {
 	GuessSyntax bool
 }
 
-func (cfg Config) toHTMLOptions() []html.Option {
-	var lineAnchors string
+const errLineNosMsg = `lineNos must be one of true, false, "inline", or "table"; got %[1]v (%[1]T)`
+
+func (cfg Config) toHTMLOptions() ([]html.Option, error) {
+	var (
+		lineAnchors string
+		lineNos     bool
+		inTable     = cfg.LineNumbersInTable
+	)
+
 	if cfg.LineAnchors != "" {
 		lineAnchors = cfg.LineAnchors + "-"
 	}
+
+	switch v := cfg.LineNos.(type) {
+	case string:
+		switch v {
+		case "inline":
+			lineNos = true
+			inTable = false
+		case "table":
+			lineNos = true
+			inTable = true
+		default:
+			return nil, fmt.Errorf(errLineNosMsg, v)
+		}
+	case bool:
+		lineNos = v
+	case nil:
+		lineNos = false
+	default:
+		return nil, fmt.Errorf(errLineNosMsg, v)
+	}
+
 	options := []html.Option{
 		html.TabWidth(cfg.TabWidth),
-		html.WithLineNumbers(cfg.LineNos),
+		html.WithLineNumbers(lineNos),
 		html.BaseLineNumber(cfg.LineNoStart),
-		html.LineNumbersInTable(cfg.LineNumbersInTable),
+		html.LineNumbersInTable(inTable),
 		html.WithClasses(!cfg.NoClasses),
 		html.WithLinkableLineNumbers(cfg.AnchorLineNos, lineAnchors),
 		html.InlineCode(cfg.Hl_inline),
@@ -117,7 +145,7 @@ func (cfg Config) toHTMLOptions() []html.Option {
 		}
 	}
 
-	return options
+	return options, nil
 }
 
 func applyOptions(opts any, cfg *Config) error {

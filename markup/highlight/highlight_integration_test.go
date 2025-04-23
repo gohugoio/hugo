@@ -14,8 +14,10 @@
 package highlight_test
 
 import (
+	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -128,4 +130,75 @@ xəx := 0
 	b.AssertFileContent("public/index.html", `
 		 <div class="highlight no-prose"><pre
 	`)
+}
+
+func TestHighlightLineNos(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.highlight]
+noClasses = false
+lineNoStart = 42
+#LINENOS
+-- content/_index.md --
+---
+title: home
+---
+§§§go
+aaa
+§§§
+-- layouts/index.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		`<span class="nx">aaa</span>`,
+		`! <table class="lntable">`,
+		`! 42`,
+	)
+
+	f := strings.ReplaceAll(files, "#LINENOS", `linenos = false`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`<span class="nx">aaa</span>`,
+		`! <table class="lntable">`,
+		`! 42`,
+	)
+
+	f = strings.ReplaceAll(files, "#LINENOS", `linenos = true`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`<span class="nx">aaa</span>`,
+		`<table class="lntable">`,
+		`42`,
+	)
+
+	f = strings.ReplaceAll(files, "#LINENOS", `linenos = "table"`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`<span class="nx">aaa</span>`,
+		`<table class="lntable">`,
+		`42`,
+	)
+
+	f = strings.ReplaceAll(files, "#LINENOS", `linenos = "inline"`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`<span class="nx">aaa</span>`,
+		`! <table class="lntable">`,
+		`42`,
+	)
+
+	want := `.* lineNos must be one of .*`
+
+	f = strings.ReplaceAll(files, "#LINENOS", `linenos = "foo"`)
+	b, err := hugolib.TestE(t, f)
+	b.Assert(err, qt.ErrorMatches, want)
+
+	f = strings.ReplaceAll(files, "#LINENOS", `linenos = 123`)
+	b, err = hugolib.TestE(t, f)
+	b.Assert(err, qt.ErrorMatches, want)
 }
