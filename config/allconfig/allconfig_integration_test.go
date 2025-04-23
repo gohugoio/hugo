@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/media"
@@ -233,4 +234,63 @@ baseURL = "https://example.com"
 
 	b.Assert(c.IsContentFile("foo.md"), qt.Equals, true)
 	b.Assert(len(s), qt.Equals, 6)
+}
+
+func TestMergeDeep(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+theme = ["theme1", "theme2"]
+_merge = "deep"
+-- themes/theme1/hugo.toml --
+[sitemap]
+filename = 'mysitemap.xml'
+[services]
+[services.googleAnalytics]
+id = 'foo bar'
+[taxonomies]
+  foo = 'bars'
+-- themes/theme2/config/_default/hugo.toml --
+[taxonomies]
+  bar = 'baz'
+-- layouts/home.html --
+GA ID: {{ site.Config.Services.GoogleAnalytics.ID }}.
+
+`
+
+	b := hugolib.Test(t, files)
+
+	conf := b.H.Configs
+	base := conf.Base
+
+	b.Assert(base.Environment, qt.Equals, hugo.EnvironmentProduction)
+	b.Assert(base.BaseURL, qt.Equals, "https://example.com")
+	b.Assert(base.Sitemap.Filename, qt.Equals, "mysitemap.xml")
+	b.Assert(base.Taxonomies, qt.DeepEquals, map[string]string{"bar": "baz", "foo": "bars"})
+
+	b.AssertFileContent("public/index.html", "GA ID: foo bar.")
+}
+
+func TestDefaultConfigLanguageBlankWhenNoEnglishExists(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+[languages]
+[languages.nn]
+weight = 20
+[languages.sv]
+weight = 10
+[languages.sv.taxonomies]
+  tag = "taggar"
+-- layouts/all.html --
+All.
+`
+
+	b := hugolib.Test(t, files)
+
+	b.Assert(b.H.Conf.DefaultContentLanguage(), qt.Equals, "sv")
 }

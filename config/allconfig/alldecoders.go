@@ -249,14 +249,18 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "sitemap",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Sitemap, err = config.DecodeSitemap(config.SitemapConfig{Priority: -1, Filename: "sitemap.xml"}, p.p.GetStringMap(d.key))
+			if p.p.IsSet(d.key) {
+				p.c.Sitemap, err = config.DecodeSitemap(p.c.Sitemap, p.p.GetStringMap(d.key))
+			}
 			return err
 		},
 	},
 	"taxonomies": {
 		key: "taxonomies",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			p.c.Taxonomies = maps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
+			if p.p.IsSet(d.key) {
+				p.c.Taxonomies = maps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
+			}
 			return nil
 		},
 	},
@@ -306,15 +310,17 @@ var allDecoderSetups = map[string]decodeWeight{
 			}
 
 			// Validate defaultContentLanguage.
-			var found bool
-			for lang := range p.c.Languages {
-				if lang == p.c.DefaultContentLanguage {
-					found = true
-					break
+			if p.c.DefaultContentLanguage != "" {
+				var found bool
+				for lang := range p.c.Languages {
+					if lang == p.c.DefaultContentLanguage {
+						found = true
+						break
+					}
 				}
-			}
-			if !found {
-				return fmt.Errorf("config value %q for defaultContentLanguage does not match any language definition", p.c.DefaultContentLanguage)
+				if !found {
+					return fmt.Errorf("config value %q for defaultContentLanguage does not match any language definition", p.c.DefaultContentLanguage)
+				}
 			}
 
 			return nil

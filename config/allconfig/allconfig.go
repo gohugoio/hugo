@@ -800,28 +800,56 @@ func (c *Configs) IsZero() bool {
 
 func (c *Configs) Init() error {
 	var languages langs.Languages
-	defaultContentLanguage := c.Base.DefaultContentLanguage
-	for k, v := range c.LanguageConfigMap {
+
+	var langKeys []string
+	var hasEn bool
+
+	const en = "en"
+
+	for k := range c.LanguageConfigMap {
+		langKeys = append(langKeys, k)
+		if k == en {
+			hasEn = true
+		}
+	}
+
+	// Sort the LanguageConfigSlice by language weight (if set) or lang.
+	sort.Slice(langKeys, func(i, j int) bool {
+		ki := langKeys[i]
+		kj := langKeys[j]
+		lki := c.LanguageConfigMap[ki]
+		lkj := c.LanguageConfigMap[kj]
+		li := lki.Languages[ki]
+		lj := lkj.Languages[kj]
+		if li.Weight != lj.Weight {
+			return li.Weight < lj.Weight
+		}
+		return ki < kj
+	})
+
+	// See issue #13646.
+	defaultConfigLanguageFallback := en
+	if !hasEn {
+		// Pick the first one.
+		defaultConfigLanguageFallback = langKeys[0]
+	}
+
+	if c.Base.DefaultContentLanguage == "" {
+		c.Base.DefaultContentLanguage = defaultConfigLanguageFallback
+	}
+
+	for _, k := range langKeys {
+		v := c.LanguageConfigMap[k]
+		if v.DefaultContentLanguage == "" {
+			v.DefaultContentLanguage = defaultConfigLanguageFallback
+		}
+		c.LanguageConfigSlice = append(c.LanguageConfigSlice, v)
 		languageConf := v.Languages[k]
-		language, err := langs.NewLanguage(k, defaultContentLanguage, v.TimeZone, languageConf)
+		language, err := langs.NewLanguage(k, c.Base.DefaultContentLanguage, v.TimeZone, languageConf)
 		if err != nil {
 			return err
 		}
 		languages = append(languages, language)
-	}
-
-	// Sort the sites by language weight (if set) or lang.
-	sort.Slice(languages, func(i, j int) bool {
-		li := languages[i]
-		lj := languages[j]
-		if li.Weight != lj.Weight {
-			return li.Weight < lj.Weight
-		}
-		return li.Lang < lj.Lang
-	})
-
-	for _, l := range languages {
-		c.LanguageConfigSlice = append(c.LanguageConfigSlice, c.LanguageConfigMap[l.Lang])
 	}
 
 	// Filter out disabled languages.
@@ -836,12 +864,12 @@ func (c *Configs) Init() error {
 
 	var languagesDefaultFirst langs.Languages
 	for _, l := range languages {
-		if l.Lang == defaultContentLanguage {
+		if l.Lang == c.Base.DefaultContentLanguage {
 			languagesDefaultFirst = append(languagesDefaultFirst, l)
 		}
 	}
 	for _, l := range languages {
-		if l.Lang != defaultContentLanguage {
+		if l.Lang != c.Base.DefaultContentLanguage {
 			languagesDefaultFirst = append(languagesDefaultFirst, l)
 		}
 	}
@@ -927,17 +955,48 @@ func (c Configs) GetByLang(lang string) config.AllProvider {
 	return nil
 }
 
+func newDefaultConfig() *Config {
+	return &Config{
+		Taxonomies: map[string]string{"tag": "tags", "category": "categories"},
+		Sitemap:    config.SitemapConfig{Priority: -1, Filename: "sitemap.xml"},
+		RootConfig: RootConfig{
+			Environment:          hugo.EnvironmentProduction,
+			TitleCaseStyle:       "AP",
+			PluralizeListTitles:  true,
+			CapitalizeListTitles: true,
+			StaticDir:            []string{"static"},
+			SummaryLength:        70,
+			Timeout:              "60s",
+
+			CommonDirs: config.CommonDirs{
+				ArcheTypeDir: "archetypes",
+				ContentDir:   "content",
+				ResourceDir:  "resources",
+				PublishDir:   "public",
+				ThemesDir:    "themes",
+				AssetDir:     "assets",
+				LayoutDir:    "layouts",
+				I18nDir:      "i18n",
+				DataDir:      "data",
+			},
+		},
+	}
+}
+
 // fromLoadConfigResult creates a new Config from res.
 func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadConfigResult) (*Configs, error) {
 	if !res.Cfg.IsSet("languages") {
 		// We need at least one
 		lang := res.Cfg.GetString("defaultContentLanguage")
+		if lang == "" {
+			lang = "en"
+		}
 		res.Cfg.Set("languages", maps.Params{lang: maps.Params{}})
 	}
 	bcfg := res.BaseConfig
 	cfg := res.Cfg
 
-	all := &Config{}
+	all := newDefaultConfig()
 
 	err := decodeConfigFromParams(fs, logger, bcfg, cfg, all, nil)
 	if err != nil {
@@ -947,6 +1006,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 	langConfigMap := make(map[string]*Config)
 
 	languagesConfig := cfg.GetStringMap("languages")
+
 	var isMultihost bool
 
 	if err := all.CompileConfig(logger); err != nil {

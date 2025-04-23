@@ -101,6 +101,9 @@ func DecodeConfig(cfg config.Provider) (c Config, err error) {
 
 	if c.RSS.Limit == 0 {
 		c.RSS.Limit = cfg.GetInt(rssLimitKey)
+		if c.RSS.Limit == 0 {
+			c.RSS.Limit = -1
+		}
 	}
 
 	return
