@@ -205,7 +205,11 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 		writeDivStart(w, attributes, cfg.WrapperClass)
 	}
 
-	options := cfg.toHTMLOptions()
+	options, err := cfg.toHTMLOptions()
+	if err != nil {
+		return 0, 0, err
+	}
+
 	var wrapper html.PreWrapper
 
 	if cfg.Hl_inline {
