@@ -23,15 +23,15 @@ Define your [CI/CD](g) jobs by creating a `.gitlab-ci.yml` file in the root of y
 
 ```yaml {file=".gitlab-ci.yml" copy=true}
 variables:
-  DART_SASS_VERSION: 1.85.0
+  DART_SASS_VERSION: 1.87.0
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
-  HUGO_VERSION: 0.144.2
-  NODE_VERSION: 23.x
+  HUGO_VERSION: 0.146.7
+  NODE_VERSION: 22.x
   TZ: America/Los_Angeles
 image:
-  name: golang:1.23.4-bookworm
+  name: golang:1.24.2-bookworm
 
 pages:
   script:
@@ -53,6 +53,8 @@ pages:
     - apt-get install -y nodejs
     # Install Node.js dependencies
     - "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+    # Configure Git
+    - git config core.quotepath false
     # Build
     - hugo --gc --minify --baseURL ${CI_PAGES_URL}
     # Compress
