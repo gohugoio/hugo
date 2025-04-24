@@ -488,9 +488,9 @@ Content: {{ .Content }}
 
 	// Regular mode
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "f7687b0c4e85b7d4")
-	b.AssertFileContent("public/p2/index.html", "f7687b0c4e85b7d4")
-	b.AssertFileContent("public/p3/index.html", "caca499bdc7f1e1e")
+	b.AssertFileContent("public/p1/index.html", "82566e6b8d04b53e")
+	b.AssertFileContent("public/p2/index.html", "82566e6b8d04b53e")
+	b.AssertFileContent("public/p3/index.html", "2b5f9cc3167d1336")
 
 	// Simple mode
 	files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
@@ -687,12 +687,12 @@ title: p2
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", "5156322adda11844")
+	b.AssertFileContent("public/p1/index.html", "4b54bf9bd03946ec")
 	b.AssertFileContent("public/p2/index.html", "289c655e727e596c")
 
 	files = strings.ReplaceAll(files, "privacy.youtube.privacyEnhanced = false", "privacy.youtube.privacyEnhanced = true")
 
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "599174706edf963a")
+	b.AssertFileContent("public/p1/index.html", "78eb19b5c6f3768f")
 	b.AssertFileContent("public/p2/index.html", "a6db910a9cf54bc1")
 }
