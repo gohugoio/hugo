@@ -56,6 +56,7 @@ Rendered:
 {{% include "_common/ref-and-relref-error-handling.md" %}}
 
 [content format]: /content-management/formats/
-[link render hooks]: /render-hooks/images/#default
+[embedded link render hook]: /render-hooks/links/#default
+[link render hook]: /render-hooks/links/
 [Markdown notation]: /content-management/shortcodes/#notation
-[source code]: {{% eturl ref %}}
+[source code]: {{% eturl relref %}}
