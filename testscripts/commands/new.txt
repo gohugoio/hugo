@@ -36,8 +36,8 @@ checkfile content/posts/post-3/bryce-canyon.jpg
 checkfile content/posts/post-3/index.md
 checkfile layouts/baseof.html
 checkfile layouts/home.html
-checkfile layouts/list.html
-checkfile layouts/single.html
+checkfile layouts/section.html
+checkfile layouts/page.html
 checkfile layouts/taxonomy.html
 checkfile layouts/term.html
 checkfile layouts/_partials/footer.html
