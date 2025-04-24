@@ -30,17 +30,33 @@ To install the extended edition of Hugo:
 sudo snap install hugo
 ```
 
-To enable or revoke access to removable media:
+To control automatic updates:
 
 ```sh
+# disable automatic updates
+sudo snap refresh --hold hugo
+
+# enable automatic updates
+sudo snap refresh --unhold hugo
+```
+
+To control access to removable media:
+
+```sh
+# allow access
 sudo snap connect hugo:removable-media
+
+# revoke access
 sudo snap disconnect hugo:removable-media
 ```
 
-To enable or revoke access to SSH keys:
+To control access to SSH keys:
 
 ```sh
+# allow access
 sudo snap connect hugo:ssh-keys
+
+# revoke access
 sudo snap disconnect hugo:ssh-keys
 ```
 

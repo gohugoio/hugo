@@ -10,7 +10,18 @@ params:
     signatures: ['template NAME [CONTEXT]']
 ---
 
-Use the `template` function to execute [embedded templates]. For example:
+Use the `template` function to execute any of these [embedded templates](g):
+
+- [`disqus.html`]
+- [`google_analytics.html`]
+- [`opengraph.html`]
+- [`pagination.html`]
+- [`schema.html`]
+- [`twitter_cards.html`]
+
+
+
+For example:
 
 ```go-html-template
 {{ range (.Paginate .Pages).Pages }}
@@ -39,8 +50,21 @@ The example above can be rewritten using an [inline partial] template:
 {{ end }}
 ```
 
+The key distinctions between the preceding two examples are:
+
+1. Inline partials are globally scoped. That means that an inline partial defined in _one_ template may be called from _any_ template.
+2. Leveraging the [`partialCached`] function when calling an inline partial allows for performance optimization through result caching.
+3. An inline partial can [`return`] a value of any data type instead of rendering a string.
+
 {{% include "/_common/functions/go-template/text-template.md" %}}
 
+[`disqus.html`]: /templates/embedded/#disqus
+[`google_analytics.html`]: /templates/embedded/#google-analytics
+[`opengraph.html`]: /templates/embedded/#open-graph
+[`pagination.html`]: /templates/embedded/#pagination
+[`partialCached`]: /functions/partials/includecached/
 [`partial`]: /functions/partials/include/
+[`return`]: /functions/go-template/return/
+[`schema.html`]: /templates/embedded/#schema
+[`twitter_cards.html`]: /templates/embedded/#x-twitter-cards
 [inline partial]: /templates/partial/#inline-partials
-[embedded templates]: /templates/embedded/

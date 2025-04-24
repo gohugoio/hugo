@@ -70,7 +70,7 @@ start
 title
 : (`string`) The `title` attribute of the `iframe` element. Defaults to "YouTube video".
 
-Example using some of the above:
+Here's an example using some of the available arguments:
 
 ```text
 {{</* youtube id=0RKpf3rK57I start=30 end=60 loading=lazy */>}}

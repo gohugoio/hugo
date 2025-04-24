@@ -1,6 +1,6 @@
 ---
-title: Embedded templates
-description: Hugo provides embedded templates for common use cases.
+title: Embedded partial templates
+description: Hugo provides embedded partial templates for common use cases.
 categories: []
 keywords: []
 weight: 170
@@ -144,6 +144,10 @@ Various optional metadata can also be set:
 - The `series` taxonomy is used to specify related "see also" pages by placing them in the same series.
 
 If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. Use the `https://youtu.be/<id>` format with YouTube videos (example: `https://youtu.be/qtIqKaDlqXo`).
+
+## Pagination
+
+See [details](/templates/pagination/).
 
 ## Schema
 
