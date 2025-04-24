@@ -113,21 +113,23 @@ Create a new file named netlify.toml in the root of your project directory. In i
 
 ```toml {file="netlify.toml"}
 [build.environment]
-HUGO_VERSION = "0.144.2"
+GO_VERSION = "1.24"
+HUGO_VERSION = "0.146.7"
 NODE_VERSION = "22"
 TZ = "America/Los_Angeles"
 
 [build]
 publish = "public"
-command = "hugo --gc --minify"
+command = "git config core.quotepath false && hugo --gc --minify"
 ```
 
 If your site requires Dart Sass to transpile Sass to CSS, the configuration file should look something like this:
 
 ```toml {file="netlify.toml"}
 [build.environment]
-HUGO_VERSION = "0.144.2"
-DART_SASS_VERSION = "1.85.0"
+DART_SASS_VERSION = "1.87.0"
+GO_VERSION = "1.24"
+HUGO_VERSION = "0.146.7"
 NODE_VERSION = "22"
 TZ = "America/Los_Angeles"
 
@@ -138,6 +140,7 @@ command = """\
   tar -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
   rm dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
   export PATH=/opt/build/repo/dart-sass:$PATH && \
+  git config core.quotepath false && \
   hugo --gc --minify \
   """
 ```

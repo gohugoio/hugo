@@ -136,6 +136,8 @@ jobs:
           key: hugo-${{ github.run_id }}
           restore-keys:
             hugo-
+      - name: Configure Git
+        run: git config core.quotepath false
       - name: Build with Hugo
         run: |
           hugo \

@@ -10,7 +10,7 @@ keywords: []
 > To override Hugo's embedded `relref` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
 
 > [!note]
-> When working with the Markdown [content format], this shortcode has become largely redundant. Its functionality is now primarily handled by [link render hooks], specifically the embedded one provided by Hugo. This hook effectively addresses all the use cases previously covered by this shortcode.
+> When working with Markdown, this shortcode is obsolete. Instead, use a [link render hook] that resolves the link destination using the `GetPage` method on the `Page` object. You can either create your own, or simply enable the [embedded link render hook]. The embedded link render hook is automatically enabled for multilingual single-host projects.
 
 ## Usage
 
@@ -56,6 +56,7 @@ Rendered:
 {{% include "_common/ref-and-relref-error-handling.md" %}}
 
 [content format]: /content-management/formats/
-[link render hooks]: /render-hooks/links/
+[embedded link render hook]: /render-hooks/links/#default
+[link render hook]: /render-hooks/links/
 [Markdown notation]: /content-management/shortcodes/#notation
 [source code]: {{% eturl relref %}}

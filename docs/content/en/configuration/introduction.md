@@ -249,7 +249,7 @@ HUGO_FILE_LOG_FORMAT
 
 HUGO_MEMORYLIMIT
 : {{< new-in 0.123.0 />}}
-: (`int`) The maximum amount of system memory, in gigabytes, that Hugo can use while rendering your site. Default is 25% of total system memory. Note that The `HUGO_MEMORYLIMIT` is a “best effort” setting. Don't expect Hugo to build a million pages with only 1 GB memory. You can get more information about how this behaves during the build by building with `hugo --logLevel info` and look for the `dynacache` label.
+: (`int`) The maximum amount of system memory, in gigabytes, that Hugo can use while rendering your site. Default is 25% of total system memory. Note that `HUGO_MEMORYLIMIT` is a "best effort" setting. Don't expect Hugo to build a million pages with only 1 GB of memory. You can get more information about how this behaves during the build by building with `hugo --logLevel info` and look for the `dynacache` label.
 
 HUGO_NUMWORKERMULTIPLIER
 : (`int`) The number of workers used in parallel processing. Default is the number of logical CPUs.

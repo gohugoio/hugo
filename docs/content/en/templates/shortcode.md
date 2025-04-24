@@ -329,7 +329,7 @@ You can use the `HasShortcode` method in your base template to conditionally loa
 [`with`]: /functions/go-template/with/
 [content management]: /content-management/shortcodes/
 [embedded shortcodes]: /shortcodes/
-[GitHub]: https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates/shortcodes
+[GitHub]: https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates/_shortcodes
 [introduction to templating]: /templates/introduction/
 [Markdown notation]: /content-management/shortcodes/#markdown-notation
 [named or positional]: /content-management/shortcodes/#arguments

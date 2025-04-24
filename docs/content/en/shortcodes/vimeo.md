@@ -29,19 +29,27 @@ Hugo renders this to:
 
 ## Arguments
 
+id
+: (string) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.
+
+allowFullScreen
+: {{< new-in 0.146.0 />}}
+: (`bool`) Whether the `iframe` element can activate full screen mode. Default is `true`.
+
 class
 : (`string`) The `class` attribute of the wrapping `div` element. Adding one or more CSS classes disables inline styling.
 
-id
-: (`string`) The `id` of the Vimeo video
+loading
+: {{< new-in 0.146.0 />}}
+: (`string`) The loading attribute of the `iframe` element, either `eager` or `lazy`. Default is `eager`.
 
 title
 : (`string`) The `title` attribute of the `iframe` element.
 
-If you provide a `class` or `title` you must use a named parameter for the `id`.
+Here's an example using some of the available arguments:
 
 ```text
-{{</* vimeo id=55073825 class="foo bar" title="My Video" */>}}
+{{</* vimeo id=55073825 allowFullScreen=false loading=lazy */>}}
 ```
 
 ## Privacy
