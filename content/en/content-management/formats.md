@@ -75,7 +75,7 @@ Create your content in the [Emacs Org Mode] format preceded by front matter. You
 
 ### AsciiDoc
 
-Create your content in the [AsciiDoc] format preceded by front matter. Hugo renders AsciiDoc content to HTML using the Asciidoctor executable. You must install Asciidoctor and its dependencies (Ruby) to use the AsciiDoc content format.
+Create your content in the [AsciiDoc] format preceded by front matter. Hugo renders AsciiDoc content to HTML using the Asciidoctor executable. You must install Asciidoctor and its dependencies (Ruby) to render the AsciiDoc content format.
 
 You can configure the AsciiDoc renderer in your [site configuration][configure asciidoc].
 
@@ -97,7 +97,7 @@ hugo --logLevel info
 
 ### Pandoc
 
-Create your content in the [Pandoc] format preceded by front matter. Hugo renders Pandoc content to HTML using the Pandoc executable. You must install Pandoc to use the Pandoc content format.
+Create your content in the [Pandoc] format preceded by front matter. Hugo renders Pandoc content to HTML using the Pandoc executable. You must install Pandoc to render the Pandoc content format.
 
 Hugo passes these CLI flags when calling the Pandoc executable:
 
@@ -109,7 +109,7 @@ Hugo passes these CLI flags when calling the Pandoc executable:
 
 ### reStructuredText
 
-Create your content in the [reStructuredText] format preceded by front matter. Hugo renders reStructuredText content to HTML using [Docutils], specifically rst2html. You must install Docutils and its dependencies (Python) to use the reStructuredText content format.
+Create your content in the [reStructuredText] format preceded by front matter. Hugo renders reStructuredText content to HTML using [Docutils], specifically rst2html. You must install Docutils and its dependencies (Python) to render the reStructuredText content format.
 
 Hugo passes these CLI flags when calling the rst2html executable:
 
