@@ -252,8 +252,8 @@ Home.
   "linespacing" 8
   "size" 28
   "x" (div $sunset.Width 2 | int)
+  "y" (div $sunset.Height 2 | int)
   "alignx" "center"
-  "y" 190
 }}
 
 {{ $text := "Pariatur deserunt sunt nisi sunt tempor quis eu. Sint et nulla enim officia sunt cupidatat. Eu amet ipsum qui velit cillum cillum ad Lorem in non ad aute." }}
@@ -262,6 +262,11 @@ Home.
 {{ template "filters" (dict "name" "text_alignx-right.jpg" "img" $sunset  "filters" (images.Text $text $textOpts )) }}
 {{ $textOpts = (dict "alignx" "left") | merge $textOpts }}
 {{ template "filters" (dict "name" "text_alignx-left.jpg" "img" $sunset  "filters" (images.Text $text $textOpts )) }}
+{{ $textOpts = (dict "alignx" "center" "aligny" "center") | merge $textOpts }}
+{{ $text = "Est exercitation deserunt exercitation nostrud magna. Eiusmod anim deserunt sit elit dolore ea incididunt nisi. Ea ullamco excepteur voluptate occaecat duis pariatur proident cupidatat.  Eu id esse qui consectetur commodo ad ex esse cupidatat velit duis cupidatat. Aliquip irure tempor consequat non amet in mollit ipsum officia tempor laborum." }}
+{{ template "filters" (dict "name" "text_alignx-center_aligny-center.jpg" "img" $sunset  "filters" (images.Text $text $textOpts )) }}
+{{ $textOpts = (dict "alignx" "center" "aligny" "bottom") | merge $textOpts }}
+{{ template "filters" (dict "name" "text_alignx-center_aligny-bottom.jpg" "img" $sunset  "filters" (images.Text $text $textOpts )) }}
 
 {{ define "filters"}}
 {{ if lt (len (path.Ext .name)) 4 }}
@@ -279,6 +284,8 @@ Home.
 	opts.T = t
 	opts.Name = name
 	opts.Files = files
+	// opts.WriteFiles = true
+	// opts.DevMode = true
 
 	imagetesting.RunGolden(opts)
 }
