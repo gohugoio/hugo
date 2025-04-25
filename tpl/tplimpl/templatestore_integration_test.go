@@ -1038,6 +1038,35 @@ _markup/render-codeblock-goat.html
 	b.AssertFileContent("public/index.html", "_markup/render-codeblock.html_markup/render-codeblock-goat.html")
 }
 
+func TestLookupCodeblockIssue13651(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/all.html --
+{{ .Content }}|
+-- layouts/_markup/render-codeblock-foo.html --
+render-codeblock-foo.html
+-- content/_index.md --
+---
+---
+
+§§§
+printf "Hello, world!"
+§§§
+
+§§§ foo
+printf "Hello, world again!"
+§§§
+`
+
+	b := hugolib.Test(t, files)
+
+	content := b.FileContent("public/index.html")
+	fooCount := strings.Count(content, "render-codeblock-foo.html")
+	b.Assert(fooCount, qt.Equals, 1)
+}
+
 // Issue #13515
 func TestPrintPathWarningOnDotRemoval(t *testing.T) {
 	t.Parallel()
