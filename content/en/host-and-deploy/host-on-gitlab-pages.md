@@ -34,6 +34,7 @@ image:
   name: golang:1.24.2-bookworm
 
 pages:
+  stage: deploy
   script:
     # Install brotli
     - apt-get update
