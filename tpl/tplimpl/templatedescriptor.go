@@ -130,17 +130,12 @@ func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, def
 
 	// One example of variant1 and 2 is for render codeblocks:
 	// variant1=codeblock, variant2=go (language).
-	if other.Variant1 != "" && other.Variant1 != this.Variant1 {
-		return w
-	}
-
-	if isEmbedded {
-		if other.Variant2 != "" && other.Variant2 != this.Variant2 {
+	if other.Variant1 != "" {
+		if other.Variant1 != this.Variant1 {
 			return w
 		}
-	} else {
-		// If both are set and different, no match.
-		if other.Variant2 != "" && this.Variant2 != "" && other.Variant2 != this.Variant2 {
+
+		if other.Variant2 != "" && other.Variant2 != this.Variant2 {
 			return w
 		}
 	}
