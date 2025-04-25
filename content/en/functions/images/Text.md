@@ -19,6 +19,7 @@ alignx
 : (`string`) The horizontal alignment of the text relative to the horizontal offset, one of `left`, `center`, or `right`. Default is `left`.
 
 aligny
+: {{< new-in 0.147.0 />}}
 : (`string`) The vertical alignment of the text relative to the vertical offset, one of `top`, `center`, or `bottom`. Default is `top`.
 
 color
