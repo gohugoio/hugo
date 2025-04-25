@@ -74,6 +74,7 @@ Create the filter, centering the text horizontally and vertically:
 {{ with $r = resources.Get $imagePath }}
   {{ $opts := dict
     "alignx" "center"
+    "aligny" "center"
     "color" "#fbfaf5"
     "font" $font
     "linespacing" 8

@@ -30,7 +30,7 @@ Hugo renders this to:
 ## Arguments
 
 id
-: (string) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.
+: (string) The video `id`. Optional if the `id` is the first and only positional argument.
 
 allowFullScreen
 : {{< new-in 0.146.0 />}}

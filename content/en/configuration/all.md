@@ -280,7 +280,7 @@ themesDir
 : (`string`) The designated directory for themes. Default is `themes`.
 
 timeout
-: (`string`) The timeout for generating page content, either as a [duration] or in seconds. This timeout is used to prevent infinite recursion during content generation. You may need to increase this value if your pages take a long time to generate, for example, due to extensive image processing or reliance on remote content. Default is `30s`.
+: (`string`) The timeout for generating page content, either as a [duration] or in seconds. This timeout is used to prevent infinite recursion during content generation. You may need to increase this value if your pages take a long time to generate, for example, due to extensive image processing or reliance on remote content. Default is `60s`.
 
 timeZone
 : (`string`) The time zone used to parse dates without time zone offsets, including front matter date fields and values passed to the [`time.AsTime`] and [`time.Format`] template functions. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone Database]. For example, `America/Los_Angeles` and `Europe/Oslo` are valid time zones.
