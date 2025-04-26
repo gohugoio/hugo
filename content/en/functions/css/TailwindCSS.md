@@ -76,16 +76,16 @@ Create a partial template to process the CSS with the Tailwind CSS CLI:
 {{ with (templates.Defer (dict "key" "global")) }}
   {{ with resources.Get "css/main.css" }}
     {{ $opts := dict
-      "minify" hugo.IsProduction
+      "minify" (not hugo.IsDevelopment)
       "inlineImports" true
     }}
     {{ with . | css.TailwindCSS $opts }}
-      {{ if hugo.IsProduction }}
+      {{ if hugo.IsDevelopment }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
+      {{ else }}
         {{ with . | fingerprint }}
           <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
         {{ end }}
-      {{ else }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}">
       {{ end }}
     {{ end }}
   {{ end }}

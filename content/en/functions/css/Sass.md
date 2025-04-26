@@ -66,20 +66,20 @@ vars
 ```go-html-template {copy=true}
 {{ with resources.Get "sass/main.scss" }}
   {{ $opts := dict
-    "enableSourceMap" (not hugo.IsProduction)
-    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "enableSourceMap" hugo.IsDevelopment
+    "outputStyle" (cond hugo.IsDevelopment "expanded" "compressed")
     "targetPath" "css/main.css"
     "transpiler" "dartsass"
     "vars" site.Params.styles
     "includePaths" (slice "node_modules/bootstrap/scss")
   }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsProduction }}
+    {{ if hugo.IsDevelopment }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ else }}
       {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
-    {{ else }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}
