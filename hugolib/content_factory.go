@@ -114,7 +114,7 @@ func (f ContentFactory) CreateContentPlaceHolder(filename string, force bool) (s
 	// the paths correct.
 	placeholder := `---
 title: "Content Placeholder"
-_build:
+build:
   render: never
   list: never
   publishResources: false
