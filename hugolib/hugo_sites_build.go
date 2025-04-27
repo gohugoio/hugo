@@ -161,7 +161,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		}
 	}
 
-	for _, s := range h.Sites {
+	for s := range h.allSites() {
 		s.state = siteStateReady
 	}
 
@@ -286,22 +286,24 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	h.translationKeyPages.Reset()
-	assemblers := make([]*sitePagesAssembler, len(h.Sites))
+	var assemblers []*sitePagesAssembler
 	// Changes detected during assembly (e.g. aggregate date changes)
-
-	for i, s := range h.Sites {
-		assemblers[i] = &sitePagesAssembler{
-			Site:            s,
+	for s := range h.allSites() {
+		assemblers = append(assemblers, &sitePagesAssembler{
+			s:               s,
 			assembleChanges: bcfg.WhatChanged,
 			ctx:             ctx,
-		}
+		})
 	}
 
 	g, _ := h.workersSite.Start(ctx)
+	if err := assemblers[0].createPages(); err != nil {
+		return err
+	}
 	for _, s := range assemblers {
 		s := s
 		g.Run(func() error {
-			return s.assemblePagesStep1(ctx)
+			return s.assemblePagesStep1()
 		})
 	}
 	if err := g.Wait(); err != nil {
@@ -333,8 +335,8 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	h.renderFormats = output.Formats{}
-	for _, s := range h.Sites {
-		s.s.initRenderFormats()
+	for s := range h.allSites() {
+		s.initRenderFormats()
 		h.renderFormats = append(h.renderFormats, s.renderFormats...)
 	}
 
@@ -374,63 +376,67 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 	}
 
 	i := 0
-	for _, s := range h.Sites {
-		segmentFilter := s.conf.C.SegmentFilter
-		if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
-			l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
-			continue
-		}
-
-		siteRenderContext.languageIdx = s.languagei
-		h.currentSite = s
-		for siteOutIdx, renderFormat := range s.renderFormats {
-			if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
-				l.Logf("skip output format %q for language %q not matching segments set in --renderSegments", renderFormat.Name, s.language.Lang)
-				continue
-			}
-
-			if err := func() error {
-				rc := tpl.RenderingContext{Site: s, SiteOutIdx: siteOutIdx}
-				h.BuildState.StartStageRender(rc)
-				defer h.BuildState.StopStageRender(rc)
-
-				siteRenderContext.outIdx = siteOutIdx
-				siteRenderContext.sitesOutIdx = i
-				i++
-
-				select {
-				case <-h.Done():
-					return nil
-				default:
-					for _, s2 := range h.Sites {
-						if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
-							return err
-						}
-					}
-					if !config.SkipRender {
-						ll := l.WithField("substep", "pages").
-							WithField("site", s.language.Lang).
-							WithField("outputFormat", renderFormat.Name)
-
-						start := time.Now()
-
-						if config.PartialReRender {
-							if err := s.renderPages(siteRenderContext); err != nil {
-								return err
-							}
-						} else {
-							if err := s.render(siteRenderContext); err != nil {
-								return renderErr(err)
-							}
-						}
-						loggers.TimeTrackf(ll, start, nil, "")
-					}
+	for _, v := range h.sitesVersionsRoles {
+		for _, r := range v {
+			// TODO1 h.Sites = r
+			for _, s := range r {
+				segmentFilter := s.conf.C.SegmentFilter
+				if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
+					l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
+					continue
 				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+				siteRenderContext.languageIdx = s.dims.Language()
+				h.currentSite = s
+				for siteOutIdx, renderFormat := range s.renderFormats {
+					if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
+						l.Logf("skip output format %q for language %q not matching segments set in --renderSegments", renderFormat.Name, s.language.Lang)
+						continue
+					}
 
+					if err := func() error {
+						rc := tpl.RenderingContext{Site: s, SiteOutIdx: siteOutIdx}
+						h.BuildState.StartStageRender(rc)
+						defer h.BuildState.StopStageRender(rc)
+
+						siteRenderContext.outIdx = siteOutIdx
+						siteRenderContext.sitesOutIdx = i
+						i++
+
+						select {
+						case <-h.Done():
+							return nil
+						default:
+							for s2 := range h.allSites() {
+								if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
+									return err
+								}
+							}
+							if !config.SkipRender {
+								ll := l.WithField("substep", "pages").
+									WithField("site", s.language.Lang).
+									WithField("outputFormat", renderFormat.Name)
+
+								start := time.Now()
+
+								if config.PartialReRender {
+									if err := s.renderPages(siteRenderContext); err != nil {
+										return err
+									}
+								} else {
+									if err := s.render(siteRenderContext); err != nil {
+										return renderErr(err)
+									}
+								}
+								loggers.TimeTrackf(ll, start, nil, "")
+							}
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+
+				}
+			}
 		}
 	}
 
@@ -926,7 +932,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 							prefix := pathInfo.Base() + "/"
 							h.pageTrees.treePages.DeletePrefixAll(prefix)
 							h.pageTrees.resourceTrees.DeletePrefixAll(prefix)
-							changes = append(changes, identity.NewGlobIdentity(prefix+"*"))
+							changes = append(changes, glob.NewGlobIdentity(prefix+"*"))
 						}
 						return err != nil
 					})
@@ -980,7 +986,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 					changes = append(changes, identity.GenghisKhan)
 				}
 				if strings.Contains(base, "shortcodes") {
-					changes = append(changes, identity.NewGlobIdentity(fmt.Sprintf("shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
+					changes = append(changes, glob.NewGlobIdentity(fmt.Sprintf("shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
 				} else {
 					changes = append(changes, pathInfo)
 				}

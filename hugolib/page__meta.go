@@ -23,8 +23,12 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gobuffalo/flect"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/resources"
 	xmaps "golang.org/x/exp/maps"
 
 	"github.com/gohugoio/hugo/source"
@@ -64,9 +68,93 @@ type pageMeta struct {
 	pathInfo *paths.Path // Always set. This the canonical path to the Page.
 	f        *source.File
 
+	dims sitematrix.VectorProvider
+
 	content *cachedContent // The source and the parsed page content.
 
 	s *Site // The site this page belongs to.
+}
+
+// bookmark1
+func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMeta, error) {
+	pid := pageIDCounter.Add(1) // TODO1
+
+	m := &pageMeta{
+		f:        source.NewFileInfo(fi),
+		dims:     fi.Meta().SiteInts, // TODO1 front matter.
+		pathInfo: fi.Meta().PathInfo,
+		Staler:   &resources.AtomicStaler{},
+		pageMetaParams: &pageMetaParams{
+			pageConfig: &pagemeta.PageConfig{
+				PageConfigEarly: pagemeta.PageConfigEarly{
+					Params: make(maps.Params),
+				},
+			},
+		},
+		bundled: false,
+	}
+
+	var tc viewName
+
+	// Resolve page kind.
+	m.pageConfig.Kind = kinds.KindSection
+	if m.pathInfo.Base() == "/" {
+		m.pageConfig.Kind = kinds.KindHome
+	} else if m.pathInfo.IsBranchBundle() {
+		// A section, taxonomy or term.
+		tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+		if !tc.IsZero() {
+			// Either a taxonomy or a term.
+			if tc.pluralTreeKey == m.Path() {
+				m.pageConfig.Kind = kinds.KindTaxonomy
+			} else {
+				m.pageConfig.Kind = kinds.KindTerm
+			}
+		}
+	} else if m.f != nil {
+		m.pageConfig.Kind = kinds.KindPage
+	}
+
+	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
+		if tc.IsZero() {
+			tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+		}
+		if tc.IsZero() {
+			return nil, fmt.Errorf("no taxonomy configuration found for %q", m.Path())
+		}
+		m.singular = tc.singular
+		if m.pageConfig.Kind == kinds.KindTerm {
+			m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
+		}
+	}
+
+	// TODO1 can we do this here?
+	/*if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
+		return nil,, nil
+	}*/
+
+	// Read front matter.
+
+	pi, err := m.parseFrontMatter(h, pid)
+	if err != nil {
+		return nil, err
+	}
+
+	var dimensionsFromFile *sitematrix.IntSets
+	if m.f != nil {
+		dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
+	}
+
+	if err := m.setMetaPre(pi, dimensionsFromFile, h.Log, h.Conf); err != nil {
+		return nil, m.wrapError(err, h.BaseFs.SourceFs)
+	}
+
+	return m, nil
+}
+
+func (m pageMeta) cloneForSite(s *Site) (*pageMeta, error) {
+	m.s = s
+	return &m, nil
 }
 
 // Prepare for a rebuild of the data passed in from front matter.
@@ -134,7 +222,7 @@ func (p *pageMeta) Description() string {
 }
 
 func (p *pageMeta) Lang() string {
-	return p.s.Lang()
+	return "TODO1" // p.s.Lang()
 }
 
 func (p *pageMeta) Draft() bool {
@@ -242,51 +330,30 @@ func (p *pageMeta) Weight() int {
 	return p.pageConfig.Weight
 }
 
-func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf config.AllProvider) error {
+func (p *pageMeta) setMetaPre(pi *contentParseInfo, dimensionsFromFile *sitematrix.IntSets, logger loggers.Logger, conf config.AllProvider) error {
 	frontmatter := pi.frontMatter
 
 	if frontmatter != nil {
-		pcfg := p.pageConfig
-		// Needed for case insensitive fetching of params values
-		maps.PrepareParams(frontmatter)
-		pcfg.Params = frontmatter
-		// Check for any cascade define on itself.
-		if cv, found := frontmatter["cascade"]; found {
-			var err error
-			cascade, err := page.DecodeCascade(logger, true, cv)
-			if err != nil {
-				return err
-			}
-			pcfg.CascadeCompiled = cascade
-		}
-
-		// Look for path, lang and kind, all of which values we need early on.
-		if v, found := frontmatter["path"]; found {
-			pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
-			pcfg.Params["path"] = pcfg.Path
-		}
-		if v, found := frontmatter["lang"]; found {
-			lang := strings.ToLower(cast.ToString(v))
-			if _, ok := conf.PathParser().LanguageIndex[lang]; ok {
-				pcfg.Lang = lang
-				pcfg.Params["lang"] = pcfg.Lang
-			}
-		}
-		if v, found := frontmatter["kind"]; found {
-			s := cast.ToString(v)
-			if s != "" {
-				pcfg.Kind = kinds.GetKindMain(s)
-				if pcfg.Kind == "" {
-					return fmt.Errorf("unknown kind %q in front matter", s)
-				}
-				pcfg.Params["kind"] = pcfg.Kind
-			}
+		if err := p.pageConfig.SetMetaPreFromMap(frontmatter, logger, conf); err != nil {
+			return err
 		}
 	} else if p.pageMetaParams.pageConfig.Params == nil {
 		p.pageConfig.Params = make(maps.Params)
 	}
 
+	if p.pageConfig.Lang == "" {
+		if p.f != nil {
+			p.pageConfig.Lang = p.f.FileInfo().Meta().Lang
+		} else {
+			p.pageConfig.Lang = p.pathInfo.Lang()
+		}
+	}
+
 	p.pageMetaParams.init(conf.Watching())
+
+	if err := p.pageConfig.CompileEearly(conf, dimensionsFromFile); err != nil {
+		return fmt.Errorf("failed to compile roles: %w", err)
+	}
 
 	return nil
 }
@@ -378,7 +445,7 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.Pa
 		return err
 	}
 
-	if err := ps.m.applyDefaultValues(); err != nil {
+	if err := ps.m.applyDefaultValues(ps.s); err != nil {
 		return err
 	}
 
@@ -415,7 +482,7 @@ func (p *pageState) setMetaPostParams() error {
 		BaseFilename:  contentBaseName,
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
-		Location:      langs.GetLocation(pm.s.Language()),
+		Location:      langs.GetLocation(p.s.Language()),
 		PathOrTitle:   p.pathOrTitle(),
 	}
 
@@ -428,7 +495,7 @@ func (p *pageState) setMetaPostParams() error {
 	// Handle the date separately
 	// TODO(bep) we need to "do more" in this area so this can be split up and
 	// more easily tested without the Page, but the coupling is strong.
-	err := pm.s.frontmatterHandler.HandleDates(descriptor)
+	err := p.s.frontmatterHandler.HandleDates(descriptor)
 	if err != nil {
 		p.s.Log.Errorf("Failed to handle dates for page %q: %s", p.pathOrTitle(), err)
 	}
@@ -469,7 +536,7 @@ params:
 	pcfg := pm.pageConfig
 	params := pcfg.Params
 	if params == nil {
-		panic("params not set for " + p.Title())
+		panic("params not set for " + p.Path())
 	}
 
 	var draft, published, isCJKLanguage *bool
@@ -496,7 +563,7 @@ params:
 			continue
 		}
 
-		if pm.s.frontmatterHandler.IsDateKey(loki) {
+		if p.s.frontmatterHandler.IsDateKey(loki) {
 			continue
 		}
 
@@ -733,19 +800,19 @@ func (p *pageMeta) noLink() bool {
 	return p.pageConfig.Build.Render == pagemeta.Never
 }
 
-func (p *pageMeta) applyDefaultValues() error {
+func (p *pageMeta) applyDefaultValues(s *Site) error {
 	if p.pageConfig.Build.IsZero() {
 		p.pageConfig.Build, _ = pagemeta.DecodeBuildConfig(nil)
 	}
 
-	if !p.s.conf.IsKindEnabled(p.Kind()) {
+	if !s.conf.IsKindEnabled(p.Kind()) {
 		(&p.pageConfig.Build).Disable()
 	}
 
 	if p.pageConfig.Content.Markup == "" {
 		if p.File() != nil {
 			// Fall back to file extension
-			p.pageConfig.Content.Markup = p.s.ContentSpec.ResolveMarkup(p.File().Ext())
+			p.pageConfig.Content.Markup = s.ContentSpec.ResolveMarkup(p.File().Ext())
 		}
 		if p.pageConfig.Content.Markup == "" {
 			p.pageConfig.Content.Markup = "markdown"
@@ -755,19 +822,19 @@ func (p *pageMeta) applyDefaultValues() error {
 	if p.pageConfig.Title == "" && p.f == nil {
 		switch p.Kind() {
 		case kinds.KindHome:
-			p.pageConfig.Title = p.s.Title()
+			p.pageConfig.Title = s.Title()
 		case kinds.KindSection:
 			sectionName := p.pathInfo.Unnormalized().BaseNameNoIdentifier()
 			if p.s.conf.PluralizeListTitles {
 				sectionName = flect.Pluralize(sectionName)
 			}
 			if p.s.conf.CapitalizeListTitles {
-				sectionName = p.s.conf.C.CreateTitle(sectionName)
+				sectionName = s.conf.C.CreateTitle(sectionName)
 			}
 			p.pageConfig.Title = sectionName
 		case kinds.KindTerm:
 			if p.term != "" {
-				if p.s.conf.CapitalizeListTitles {
+				if s.conf.CapitalizeListTitles {
 					p.pageConfig.Title = p.s.conf.C.CreateTitle(p.term)
 				} else {
 					p.pageConfig.Title = p.term
@@ -839,11 +906,11 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 }
 
 // The output formats this page will be rendered to.
-func (m *pageMeta) outputFormats() output.Formats {
-	if len(m.pageConfig.ConfiguredOutputFormats) > 0 {
-		return m.pageConfig.ConfiguredOutputFormats
+func (p *pageState) outputFormats() output.Formats {
+	if len(p.m.pageConfig.ConfiguredOutputFormats) > 0 {
+		return p.m.pageConfig.ConfiguredOutputFormats
 	}
-	return m.s.conf.C.KindOutputFormats[m.Kind()]
+	return p.s.conf.C.KindOutputFormats[p.Kind()]
 }
 
 func (p *pageMeta) Slug() string {
@@ -881,6 +948,37 @@ func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool)
 	}
 }
 
+// Implement contentNodeI.
+// Note that pageMeta is just a temporary contentNode. It will be replaced in the tree with a *pageState.
+// TODO1 make some partial interfaces.
+func (m *pageMeta) GetIdentity() identity.Identity {
+	panic("not supported")
+}
+
+func (m *pageMeta) ForEeachIdentity(cb func(id identity.Identity) bool) bool {
+	panic("not supported")
+}
+
+func (m *pageMeta) isContentNodeBranch() bool {
+	panic("not supported")
+}
+
+func (m *pageMeta) matchDirectOrInDelegees(_ sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMeta) Dims() sitematrix.VectorProvider {
+	return m.dims
+}
+
+func (m *pageMeta) resetBuildState() {
+	panic("not supported")
+}
+
+func (m *pageMeta) MarkStale() {
+	// panic("not supported")
+}
+
 func getParamToLower(m resource.ResourceParamsProvider, key string) any {
 	return getParam(m, key, true)
 }
@@ -896,7 +994,7 @@ func (ps *pageState) initLazyProviders() error {
 		var renderFormats output.Formats
 
 		if ps.m.standaloneOutputFormat.IsZero() {
-			outputFormatsForPage = ps.m.outputFormats()
+			outputFormatsForPage = ps.outputFormats()
 			renderFormats = ps.s.h.renderFormats
 		} else {
 			// One of the fixed output format pages, e.g. 404.

@@ -36,6 +36,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -1352,7 +1353,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 				identifiers = append(identifiers, pi.Section())
 			}
 
-			identifiers = helpers.UniqueStrings(identifiers)
+			identifiers = hstrings.UniqueStrings(identifiers)
 
 			// Tokens on e.g. form /SECTIONKIND/THESECTION
 			insertSectionTokens := func(section string) []string {
@@ -1374,7 +1375,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 					ss = append(ss, s1)
 				}
 
-				helpers.UniqueStringsReuse(ss)
+				hstrings.UniqueStringsReuse(ss)
 
 				return ss
 			}
