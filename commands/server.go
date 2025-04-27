@@ -627,7 +627,7 @@ func (c *serverCommand) setServerInfoInConfig() error {
 		panic("no server ports set")
 	}
 	return c.withConfE(func(conf *commonConfig) error {
-		for i, language := range conf.configs.Languages {
+		for i, language := range conf.configs.LanguagesDefaultFirst {
 			isMultihost := conf.configs.IsMultihost
 			var serverPort int
 			if isMultihost {
