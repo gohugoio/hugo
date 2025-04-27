@@ -40,7 +40,9 @@ import (
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/hugolib/segments"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/media"
@@ -139,6 +141,12 @@ type Config struct {
 
 	// The outputformats configuration sections maps a format name (a string) to a configuration object for that format.
 	OutputFormats *config.ConfigNamespace[map[string]output.OutputFormatConfig, output.Formats] `mapstructure:"-"`
+
+	// The roles configuration section contains the top level roles configuration options.
+	Roles *config.ConfigNamespace[map[string]roles.RoleConfig, roles.RolesInternal] `mapstructure:"-"`
+
+	// The versions configuration section contains the top level versions configuration options.
+	Versions *config.ConfigNamespace[map[string]versions.VersionConfig, versions.VersionsInternal] `mapstructure:"-"`
 
 	// The outputs configuration section maps a Page Kind (a string) to a slice of output formats.
 	// This can be overridden in the front matter.
@@ -551,6 +559,18 @@ type RootConfig struct {
 	// Set this to true to put all languages below their language ID.
 	DefaultContentLanguageInSubdir bool
 
+	// The default content role to use for the site.
+	DefaultContentRole string
+
+	// Set this to true to put the default role in a subdirectory.
+	DefaultContentRoleInSubdir bool
+
+	// The default content version to use for the site.
+	DefaultContentVersion string
+
+	// Set to true to render the default version in a subdirectory.
+	DefaultContentVersionInSubdir bool
+
 	// The default output format to use for the site.
 	// If not set, we will use the first output format.
 	DefaultOutputFormat string
@@ -897,7 +917,7 @@ func (c *Configs) Init() error {
 	}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
-	for i, l := range c.LanguagesDefaultFirst {
+	for i, l := range c.Languages {
 		c.configLangs[i] = ConfigLanguage{
 			m:          c,
 			config:     c.LanguageConfigMap[l.Lang],

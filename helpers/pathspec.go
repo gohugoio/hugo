@@ -66,7 +66,7 @@ func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.AllProvider, lo
 		BaseFs:          bfs,
 		Fs:              fs,
 		Cfg:             cfg,
-		ProcessingStats: NewProcessingStats(p.Lang()),
+		ProcessingStats: NewProcessingStats(p.Lang__()),
 	}
 
 	return ps, nil

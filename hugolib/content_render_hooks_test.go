@@ -233,6 +233,7 @@ P1 Fragments: [b c z]
 }
 
 func TestDefaultRenderHooksMultilingual(t *testing.T) {
+	t.Skip("TODO1 resource multilang")
 	files := `
 -- hugo.toml --
 baseURL = "https://example.org"

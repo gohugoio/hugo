@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"iter"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -51,7 +52,13 @@ import (
 
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
+	// The current site slice.
+	// When rendering, this slice will be shifted out.
+	// TODO1 check that access of this isn't cached.
 	Sites []*Site
+
+	// All sites for all versions and roles.
+	sitesVersionsRoles [][][]*Site
 
 	Configs *allconfig.Configs
 
@@ -104,6 +111,21 @@ type HugoSites struct {
 	buildCounter atomic.Uint64
 }
 
+// TODO1 check usage of this vs .Sites.
+func (h *HugoSites) allSites() iter.Seq[*Site] {
+	return func(yield func(s *Site) bool) {
+		for _, v := range h.sitesVersionsRoles {
+			for _, r := range v {
+				for _, s := range r {
+					if !yield(s) {
+						return
+					}
+				}
+			}
+		}
+	}
+}
+
 // ShouldSkipFileChangeEvent allows skipping filesystem event early before
 // the build is started.
 func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
@@ -120,18 +142,24 @@ func (h *HugoSites) isRebuild() bool {
 	return h.buildCounter.Load() > 0
 }
 
-func (h *HugoSites) resolveSite(lang string) *Site {
-	if lang == "" {
-		lang = h.Conf.DefaultContentLanguage()
-	}
+func (h *HugoSites) resolveSites(languages, versions, roles *maps.OrderedIntSet) []*Site {
+	var matches []*Site
 
-	for _, s := range h.Sites {
-		if s.Lang() == lang {
-			return s
+	for s := range h.allSites() {
+		if !languages.Has(s.dims.Language()) {
+			continue
+		}
+
+		if versions != nil && !versions.Has(s.dims.Version()) {
+			continue
+		}
+
+		if roles == nil || roles.Has(s.dims.Role()) {
+			matches = append(matches, s)
 		}
 	}
 
-	return nil
+	return matches
 }
 
 type buildCounters struct {

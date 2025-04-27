@@ -46,7 +46,7 @@ func (c *ImageCache) getOrCreate(
 	// Note that we don't need to include the language in the file cache key,
 	// as the hash will take care of any different content.
 	if c.pathSpec.Cfg.IsMultihost() {
-		memKey = c.pathSpec.Lang() + memKey
+		memKey = c.pathSpec.Lang__() + memKey
 	}
 	memKey = dynacache.CleanKey(memKey)
 

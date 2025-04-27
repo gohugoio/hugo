@@ -938,3 +938,85 @@ path = '/p1'
 
 	b.AssertFileContent("public/p1/index.html", "p1|bar") // actual content is "p1|"
 }
+
+func TestDimensionsCascadeConfig(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[languages.sv]
+weight = 3
+
+[versions]
+[versions.v1.0.0]
+[versions.v2.0.0]
+
+[cascade]
+languages = ["en*"]
+languageDelegees = ["nn*"]
+versions = ["v1*"]
+versionDelegees = ["v2*"]
+roles = ["guest*"]
+roleDelegees = ["member*"]
+-- content/_index.md --
+---
+title: "Home"
+---
+-- layouts/all.html --
+All.
+
+`
+
+	b := Test(t, files)
+
+	homeEn := b.H.Sites[0].Home().(*pageState)
+	b.Assert(homeEn.m.pageConfig.Versions, qt.DeepEquals, []string{"v1*"})
+	b.Assert(homeEn.m.pageConfig.VersionDelegees, qt.DeepEquals, []string{"v2*"})
+	b.Assert(homeEn.m.pageConfig.Roles, qt.DeepEquals, []string{"guest*"})
+	b.Assert(homeEn.m.pageConfig.RoleDelegees, qt.DeepEquals, []string{"member*"})
+	b.Assert(homeEn.m.pageConfig.Languages, qt.DeepEquals, []string{"en*"})
+	b.Assert(homeEn.m.pageConfig.LanguageDelegees, qt.DeepEquals, []string{"nn*"})
+}
+
+func TestCascadeFileMount(t *testing.T) {
+	t.Fail()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[module]
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'en'
+[[module.mounts.cascade]]
+title = 'Cascade Title English'
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+lang = 'nn'
+[[module.mounts.cascade]]
+title = 'Cascade Tittel Nynorsk'
+-- content/en/_index.md --
+-- content/nn/_index.md --
+-- layouts/all.html --
+{{ .Title }}|
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "Cascade Title English")
+	b.AssertFileContent("public/nn/index.html", "Cascade Tittel Nynorsk")
+}

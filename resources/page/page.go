@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -345,6 +347,7 @@ type PageWithoutContent interface {
 	resource.Resource
 	PageMetaProvider
 	PageMetaInternalProvider
+
 	resource.LanguageProvider
 
 	// For pages backed by a file.
@@ -398,6 +401,10 @@ type PageWithoutContent interface {
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
+}
+
+type SiteDimensionProvider interface {
+	Role() roles.Role
 }
 
 // Positioner provides next/prev navigation.
@@ -529,6 +536,19 @@ type TreeProvider interface {
 
 	// SectionsPath is SectionsEntries joined with a /.
 	SectionsPath() string
+}
+
+// DimsProvider provides the dimensions of a Page.
+type DimsProvider interface {
+	Dims() doctree.Dimensions
+}
+
+// GetDims returns the dimensions of a Page, if it implements DimsProvider.
+func GetDims(p Page) doctree.Dimensions {
+	if dp, ok := p.(DimsProvider); ok {
+		return dp.Dims()
+	}
+	return doctree.Dimensions{}
 }
 
 // PageWithContext is a Page with a context.Context.
