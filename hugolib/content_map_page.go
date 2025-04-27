@@ -655,18 +655,25 @@ type contentNodeI interface {
 
 var _ contentNodeI = (*contentNodeIs)(nil)
 
-type contentNodeIs []contentNodeI
+type contentNodeIs map[doctree.Dimension]contentNodeI
+
+func (n contentNodeIs) one() contentNodeI {
+	for _, nn := range n {
+		return nn
+	}
+	return nil
+}
 
 func (n contentNodeIs) Path() string {
-	return n[0].Path()
+	return n.one().Path()
 }
 
 func (n contentNodeIs) isContentNodeBranch() bool {
-	return n[0].isContentNodeBranch()
+	return n.one().isContentNodeBranch()
 }
 
 func (n contentNodeIs) GetIdentity() identity.Identity {
-	return n[0].GetIdentity()
+	return n.one().GetIdentity()
 }
 
 func (n contentNodeIs) ForEeachIdentity(f func(identity.Identity) bool) bool {
@@ -699,13 +706,12 @@ type contentNodeShifter struct {
 }
 
 func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimension) (contentNodeI, bool, bool) {
-	lidx := dimension[0]
 	switch v := n.(type) {
 	case contentNodeIs:
-		deleted := v[lidx]
+		deleted := v[dimension]
 		resource.MarkStale(deleted)
 		wasDeleted := deleted != nil
-		v[lidx] = nil
+		v[dimension] = nil
 		isEmpty := true
 		for _, vv := range v {
 			if vv != nil {
@@ -715,10 +721,10 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimension)
 		}
 		return deleted, wasDeleted, isEmpty
 	case resourceSources:
-		deleted := v[lidx]
+		deleted := v[dimension]
 		resource.MarkStale(deleted)
 		wasDeleted := deleted != nil
-		v[lidx] = nil
+		v[dimension] = nil
 		isEmpty := true
 		for _, vv := range v {
 			if vv != nil {
@@ -728,13 +734,13 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimension)
 		}
 		return deleted, wasDeleted, isEmpty
 	case *resourceSource:
-		if lidx != v.LangIndex() {
+		if dimension != v.Dim() {
 			return nil, false, false
 		}
 		resource.MarkStale(v)
 		return v, true, true
 	case *pageState:
-		if lidx != v.s.languagei {
+		if dimension != v.s.dim {
 			return nil, false, false
 		}
 		resource.MarkStale(v)
@@ -745,7 +751,6 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimension)
 }
 
 func (s *contentNodeShifter) Shift(n contentNodeI, dimension doctree.Dimension, exact bool) (contentNodeI, bool, doctree.DimensionFlag) {
-	lidx := dimension[0]
 	// How accurate is the match.
 	accuracy := doctree.DimensionLanguage
 	switch v := n.(type) {
@@ -753,13 +758,13 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dimension doctree.Dimension, 
 		if len(v) == 0 {
 			panic("empty contentNodeIs")
 		}
-		vv := v[lidx]
+		vv := v[dimension]
 		if vv != nil {
 			return vv, true, accuracy
 		}
 		return nil, false, 0
 	case resourceSources:
-		vv := v[lidx]
+		vv := v[dimension]
 		if vv != nil {
 			return vv, true, doctree.DimensionLanguage
 		}
@@ -776,14 +781,14 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dimension doctree.Dimension, 
 			}
 		}
 	case *resourceSource:
-		if v.LangIndex() == lidx {
-			return v, true, doctree.DimensionLanguage
+		if v.Dim() == dimension {
+			return v, true, doctree.DimensionLanguage // TODO1
 		}
 		if !v.isPage() && !exact {
 			return v, true, 0
 		}
 	case *pageState:
-		if v.s.languagei == lidx {
+		if v.s.dim == dimension {
 			return n, true, doctree.DimensionLanguage
 		}
 	default:
@@ -812,39 +817,38 @@ func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, d int, f func(c
 }
 
 func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension doctree.Dimension) (contentNodeI, contentNodeI, bool) {
-	langi := dimension[doctree.DimensionLanguage.Index()]
 	switch vv := old.(type) {
 	case *pageState:
 		newp, ok := new.(*pageState)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if vv.s.languagei == newp.s.languagei && newp.s.languagei == langi {
+		if vv.s.dim == newp.s.dim && newp.s.dim == dimension {
 			return new, vv, true
 		}
 		is := make(contentNodeIs, s.numLanguages)
-		is[vv.s.languagei] = old
-		is[langi] = new
+		is[vv.s.dim] = old
+		is[dimension] = new
 		return is, old, false
 	case contentNodeIs:
-		oldv := vv[langi]
-		vv[langi] = new
+		oldv := vv[dimension]
+		vv[dimension] = new
 		return vv, oldv, oldv != nil
 	case resourceSources:
-		oldv := vv[langi]
-		vv[langi] = new.(*resourceSource)
+		oldv := vv[dimension]
+		vv[dimension] = new.(*resourceSource)
 		return vv, oldv, oldv != nil
 	case *resourceSource:
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if vv.LangIndex() == newp.LangIndex() && newp.LangIndex() == langi {
+		if vv.Dim() == newp.Dim() && newp.Dim() == dimension {
 			return new, vv, true
 		}
 		rs := make(resourceSources, s.numLanguages)
-		rs[vv.LangIndex()] = vv
-		rs[langi] = newp
+		rs[vv.Dim()] = vv
+		rs[dimension] = newp
 		return rs, vv, false
 
 	default:
@@ -859,74 +863,74 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if vv.s.languagei == newp.s.languagei {
+		if vv.s.dim == newp.s.dim {
 			if newp != old {
 				resource.MarkStale(old)
 			}
 			return new, vv, true
 		}
-		is := make(contentNodeIs, s.numLanguages)
-		is[newp.s.languagei] = new
-		is[vv.s.languagei] = old
+		is := make(contentNodeIs)
+		is[newp.s.dim] = new
+		is[vv.s.dim] = old
 		return is, old, false
 	case contentNodeIs:
 		newp, ok := new.(*pageState)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		oldp := vv[newp.s.languagei]
+		oldp := vv[newp.s.dim]
 		if oldp != newp {
 			resource.MarkStale(oldp)
 		}
-		vv[newp.s.languagei] = new
+		vv[newp.s.dim] = new
 		return vv, oldp, oldp != nil
 	case *resourceSource:
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if vv.LangIndex() == newp.LangIndex() {
+		if vv.Dim() == newp.Dim() {
 			if vv != newp {
 				resource.MarkStale(vv)
 			}
 			return new, vv, true
 		}
 		rs := make(resourceSources, s.numLanguages)
-		rs[newp.LangIndex()] = newp
-		rs[vv.LangIndex()] = vv
+		rs[newp.Dim()] = newp
+		rs[vv.Dim()] = vv
 		return rs, vv, false
 	case resourceSources:
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		oldp := vv[newp.LangIndex()]
+		oldp := vv[newp.Dim()]
 		if oldp != newp {
 			resource.MarkStale(oldp)
 		}
-		vv[newp.LangIndex()] = newp
+		vv[newp.Dim()] = newp
 		return vv, oldp, oldp != nil
 	default:
 		panic(fmt.Sprintf("unknown type %T", old))
 	}
 }
 
-func newPageMap(sitei, rolei int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *pageMap {
+func newPageMap(sitei, versioni, rolei int, s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *pageMap {
 	var m *pageMap
 
-	siteRoleKey := fmt.Sprintf("s%d/%d", sitei, rolei)
+	siteVersionRoleKey := fmt.Sprintf("s%d/%d&%d", sitei, versioni, rolei)
 
 	var taxonomiesConfig taxonomiesConfig = s.conf.Taxonomies
 
 	m = &pageMap{
-		pageTrees:              pageTrees.Shape(doctree.DimensionLanguage.Index(), sitei).Shape(doctree.DimensionRole.Index(), rolei),
-		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
-		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
-		cacheGetTerms:          dynacache.GetOrCreatePartition[string, map[string]page.Pages](mcache, fmt.Sprintf("/gett/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 5, ClearWhen: dynacache.ClearOnRebuild}),
-		cacheResources:         dynacache.GetOrCreatePartition[string, resource.Resources](mcache, fmt.Sprintf("/ress/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 60, ClearWhen: dynacache.ClearOnRebuild}),
-		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
-		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
-		contentTableOfContents: dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentTableOfContents]](mcache, fmt.Sprintf("/cont/toc/%s", siteRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		pageTrees:              pageTrees.Shape(doctree.DimensionLanguage.Index(), sitei).Shape(doctree.DimensionVersion.Index(), versioni).Shape(doctree.DimensionRole.Index(), rolei),
+		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%s", siteVersionRoleKey), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
+		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%s", siteVersionRoleKey), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
+		cacheGetTerms:          dynacache.GetOrCreatePartition[string, map[string]page.Pages](mcache, fmt.Sprintf("/gett/%s", siteVersionRoleKey), dynacache.OptionsPartition{Weight: 5, ClearWhen: dynacache.ClearOnRebuild}),
+		cacheResources:         dynacache.GetOrCreatePartition[string, resource.Resources](mcache, fmt.Sprintf("/ress/%s", siteVersionRoleKey), dynacache.OptionsPartition{Weight: 60, ClearWhen: dynacache.ClearOnRebuild}),
+		cacheContentRendered:   dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentSummary]](mcache, fmt.Sprintf("/cont/ren/%s", siteVersionRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%s", siteVersionRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		contentTableOfContents: dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentTableOfContents]](mcache, fmt.Sprintf("/cont/toc/%s", siteVersionRoleKey), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 
 		contentDataFileSeenItems: maps.NewCache[string, map[uint64]bool](),
 

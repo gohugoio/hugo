@@ -50,6 +50,8 @@ type AllProvider interface {
 	IsUglyURLs(section string) bool
 	DefaultContentLanguage() string
 	DefaultContentLanguageInSubdir() bool
+	DefaultRoleInSubdir() bool
+	DefaultVersionInSubdir() bool
 	IsLangDisabled(string) bool
 	SummaryLength() int
 	Pagination() Pagination

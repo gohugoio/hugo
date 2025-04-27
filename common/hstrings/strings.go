@@ -127,8 +127,3 @@ func ToString(v any) (string, bool) {
 	}
 	return "", false
 }
-
-type (
-	Strings2 [2]string
-	Strings3 [3]string
-)

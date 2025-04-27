@@ -64,7 +64,7 @@ type (
 type NodeShiftTree[T any] struct {
 	tree *radix.Tree
 
-	// E.g. [language, role].
+	// [language, version, role].
 	dims    Dimension
 	shifter Shifter[T]
 
@@ -173,6 +173,7 @@ func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, T, bool)
 	if vv, ok := r.tree.Get(s); ok {
 		v, existing, updated = r.shifter.Insert(vv.(T), v)
 	}
+
 	r.tree.Insert(s, v)
 	return v, existing, updated
 }
@@ -418,6 +419,8 @@ func (t NodeShiftTree[T]) clone() *NodeShiftTree[T] {
 }
 
 func (r *NodeShiftTree[T]) shift(t T, exact bool) (T, bool, DimensionFlag) {
+	// TODO1 exact.
+	exact = true
 	return r.shifter.Shift(t, r.dims, exact)
 }
 

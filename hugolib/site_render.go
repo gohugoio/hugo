@@ -167,7 +167,7 @@ func pageRenderer(
 		targetPath := p.targetPaths().TargetFilename
 
 		// TODO1 remove.
-		fmt.Println("targetPath", p.s.rolei, targetPath, p.m.pageConfig.Roles, p.m.pageConfig.RolesCompiledMap)
+		fmt.Println("targetPath", s.dim, targetPath, "versions:", p.m.pageConfig.VersionsCompiledMap, "roles:", p.m.pageConfig.RolesCompiledMap)
 
 		s.Log.Trace(
 			func() string {

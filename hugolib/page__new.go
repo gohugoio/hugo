@@ -134,11 +134,15 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 				lang = m.pathInfo.Lang()
 			}
 
-			m.s = h.resolveSite(lang)
+			// TODO1
+			m.s = h.resolveSite(lang, pcfg.VersionsCompiledMap, pcfg.RolesCompiledMap)
 
 			if m.s == nil {
-				return nil, fmt.Errorf("no site found for language %q", lang)
+				return nil, fmt.Errorf("no site found for language %q, versions %v and roles %v", lang, pcfg.VersionsCompiledMap, pcfg.RolesCompiledMap)
 			}
+
+			fmt.Println("new page", m.pathInfo.Path(), "for site", m.s.dim, "b", lang, pcfg.VersionsCompiledMap, pcfg.RolesCompiledMap)
+
 		}
 
 		var tc viewName

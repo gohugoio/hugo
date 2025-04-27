@@ -25,6 +25,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/source"
@@ -55,11 +56,11 @@ type contentMapConfig struct {
 var _ contentNodeI = (*resourceSource)(nil)
 
 type resourceSource struct {
-	langIndex int
-	path      *paths.Path
-	opener    hugio.OpenReadSeekCloser
-	fi        hugofs.FileMetaInfo
-	rc        *pagemeta.ResourceConfig
+	dim    doctree.Dimension
+	path   *paths.Path
+	opener hugio.OpenReadSeekCloser
+	fi     hugofs.FileMetaInfo
+	rc     *pagemeta.ResourceConfig
 
 	r resource.Resource
 }
@@ -69,8 +70,8 @@ func (r resourceSource) clone() *resourceSource {
 	return &r
 }
 
-func (r *resourceSource) LangIndex() int {
-	return r.langIndex
+func (r *resourceSource) Dim() doctree.Dimension {
+	return r.dim
 }
 
 func (r *resourceSource) MarkStale() {
@@ -109,7 +110,7 @@ func (r *resourceSource) isContentNodeBranch() bool {
 
 var _ contentNodeI = (*resourceSources)(nil)
 
-type resourceSources []*resourceSource
+type resourceSources map[doctree.Dimension]*resourceSource
 
 func (n resourceSources) MarkStale() {
 	for _, r := range n {
@@ -231,9 +232,9 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		commit := tree.Lock(true)
 		defer commit()
 
-		r := func() (hugio.ReadSeekCloser, error) {
+		/*r := func() (hugio.ReadSeekCloser, error) {
 			return fim.Meta().Open()
-		}
+		}*/
 
 		var rs *resourceSource
 		if pi.IsContent() {
@@ -255,9 +256,10 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			}
 			key = pi.Base()
 
-			rs = &resourceSource{r: pageResource, langIndex: pageResource.s.languagei}
+			rs = &resourceSource{r: pageResource, dim: pageResource.s.dim}
 		} else {
-			rs = &resourceSource{path: pi, opener: r, fi: fim, langIndex: fim.Meta().LangIndex}
+			// TODO1
+			// rs = &resourceSource{path: pi, opener: r, fi: fim, langIndex: fim.Meta().LangIndex}
 		}
 
 		_, _, _ = m.insertResource(key, rs)
@@ -335,7 +337,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 		return
 	}
 
-	s := m.s.h.resolveSite(fi.Meta().Lang)
+	s := m.s.h.resolveSite(fi.Meta().Lang, nil, nil) // TODO1 versions, roles.
 	f := source.NewFileInfo(fi)
 	h := s.h
 
@@ -419,7 +421,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 						return err
 					}
 
-					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, langIndex: s.languagei}
+					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, dim: s.dim}
 
 					_, n, replaced := s.pageMap.insertResourceWithLock(rc.PathInfo.Base(), rs)
 

@@ -462,6 +462,9 @@ func (p *pageState) Translations() page.Pages {
 
 func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	if ps.IsPage() {
+		if ps.s == nil {
+			panic("no site")
+		}
 		ps.posNextPrev = &nextPrev{init: ps.s.init.prevNext}
 		ps.posNextPrevSection = &nextPrev{init: ps.s.init.prevNextInSection}
 		ps.InSectionPositioner = newPagePositionInSection(ps.posNextPrevSection)
@@ -676,6 +679,7 @@ func (p *pageState) posOffset(offset int) text.Position {
 // shiftToOutputFormat is serialized. The output format idx refers to the
 // full set of output formats for all sites.
 // This is serialized.
+// TODO1 with the added dimensions, we need to compress the pageOutputs slice.
 func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	if err := p.initPage(); err != nil {
 		return err

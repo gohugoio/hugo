@@ -24,9 +24,9 @@ import (
 	"time"
 
 	"github.com/bep/logg"
-	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/source"
@@ -118,7 +118,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		logFilesProcessed(true)
 	}()
 
-	c.g = rungroup.Run[hugofs.FileMetaInfo](c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
+	c.g = rungroup.Run(c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
 		NumWorkers: numWorkers,
 		Handle: func(ctx context.Context, fi hugofs.FileMetaInfo) error {
 			numPages, numResources, err := c.m.AddFi(fi, c.buildConfig)
@@ -314,7 +314,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			return nil, filepath.SkipDir
 		}
 
-		seen := map[hstrings.Strings2]hugofs.FileMetaInfo{}
+		seen := map[types.Strings2]hugofs.FileMetaInfo{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
@@ -327,7 +327,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			// These would eventually have been filtered out as duplicates when
 			// inserting them into the document store,
 			// but doing it here will preserve a consistent ordering.
-			baseLang := hstrings.Strings2{pi.Base(), meta.Lang}
+			baseLang := types.Strings2{pi.Base(), meta.Lang}
 			if fi2, ok := seen[baseLang]; ok {
 				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {
 					c.logger.Warnf("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
@@ -377,7 +377,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
 	bundlePi := bundle.Meta().PathInfo
-	seen := map[hstrings.Strings2]bool{}
+	seen := map[types.Strings2]bool{}
 
 	walk := func(path string, info hugofs.FileMetaInfo) error {
 		if info.IsDir() {
@@ -399,7 +399,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 		// These would eventually have been filtered out as duplicates when
 		// inserting them into the document store,
 		// but doing it here will preserve a consistent ordering.
-		baseLang := hstrings.Strings2{pi.Base(), info.Meta().Lang}
+		baseLang := types.Strings2{pi.Base(), info.Meta().Lang}
 		if seen[baseLang] {
 			return nil
 		}

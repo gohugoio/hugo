@@ -42,6 +42,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/hugolib/segments"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/media"
@@ -143,6 +144,9 @@ type Config struct {
 
 	// The roles configuration section contains the top level roles configuration options.
 	Roles *config.ConfigNamespace[map[string]roles.RoleConfig, roles.Roles] `mapstructure:"-"`
+
+	// The versions configuration section contains the top level versions configuration options.
+	Versions *config.ConfigNamespace[map[string]versions.VersionConfig, versions.Versions] `mapstructure:"-"`
 
 	// The outputs configuration section maps a Page Kind (a string) to a slice of output formats.
 	// This can be overridden in the front matter.
@@ -554,6 +558,12 @@ type RootConfig struct {
 	// By default, we put the default content language in the root and the others below their language ID, e.g. /no/.
 	// Set this to true to put all languages below their language ID.
 	DefaultContentLanguageInSubdir bool
+
+	// Set this to true to put the default role in a subdirectory.
+	DefaultRoleInSubdir bool
+
+	// Set to true to render the default version in a subdirectory.
+	DefaultVersionInSubdir bool
 
 	// The default output format to use for the site.
 	// If not set, we will use the first output format.

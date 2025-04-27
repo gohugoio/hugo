@@ -268,7 +268,7 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 			pcfg.CascadeCompiled = cascade
 		}
 
-		// Look for path, lang and kind, all of which values we need early on.
+		// Look for path, lang, roles and kind, all of which values we need early on.
 		if v, found := frontmatter["path"]; found {
 			pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
 			pcfg.Params["path"] = pcfg.Path
@@ -290,11 +290,25 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 				pcfg.Params["kind"] = pcfg.Kind
 			}
 		}
+		if v, found := frontmatter["roles"]; found {
+			pcfg.Roles = cast.ToStringSlice(v)
+			pcfg.Params["roles"] = pcfg.Roles
+		}
+		if v, found := frontmatter["versions"]; found {
+			pcfg.Versions = cast.ToStringSlice(v)
+			pcfg.Params["versions"] = pcfg.Versions
+		}
+
 	} else if p.pageMetaParams.pageConfig.Params == nil {
 		p.pageConfig.Params = make(maps.Params)
 	}
 
 	p.pageMetaParams.init(conf.Watching())
+
+	// TODO1 check if we can allow cascade from config.
+	if err := p.pageConfig.CompileEearly(conf); err != nil {
+		return fmt.Errorf("failed to compile roles: %w", err)
+	}
 
 	return nil
 }
@@ -515,9 +529,6 @@ params:
 		case "keywords":
 			pcfg.Keywords = cast.ToStringSlice(v)
 			params[loki] = pcfg.Keywords
-		case "roles":
-			pcfg.Roles = cast.ToStringSlice(v)
-			params[loki] = pcfg.Roles
 		case "headless":
 			// Legacy setting for leaf bundles.
 			// This is since Hugo 0.63 handled in a more general way for all

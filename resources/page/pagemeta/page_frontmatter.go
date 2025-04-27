@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/markup"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/kinds"
@@ -108,7 +109,8 @@ type PageConfig struct {
 	Build   BuildConfig
 	Menus   any // Can be a string, []string or map[string]any.
 
-	Roles []string
+	Roles    []string
+	Versions []string
 
 	// User defined params.
 	Params maps.Params
@@ -122,6 +124,8 @@ type PageConfig struct {
 	IsFromContentAdapter bool                                         `mapstructure:"-" json:"-"`
 	RolesCompiled        []int                                        `mapstructure:"-" json:"-"`
 	RolesCompiledMap     map[int]bool                                 `mapstructure:"-" json:"-"` // TODO1 consider https://github.com/bits-and-blooms/bitset
+	VersionsCompiled     []int                                        `mapstructure:"-" json:"-"`
+	VersionsCompiledMap  map[int]bool                                 `mapstructure:"-" json:"-"`
 }
 
 var DefaultPageConfig = PageConfig{
@@ -154,12 +158,15 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 	return nil
 }
 
-func (p *PageConfig) compileRoles(conf config.AllProvider) error {
+// CompileEearly gets called early and before the cascade from content gets applied.
+func (p *PageConfig) CompileEearly(conf config.AllProvider) error {
 	configuredRoles := conf.GetConfigSection("roles").(roles.Roles)
+	defaultIdx := configuredRoles.IndexDefault()
+
 	p.RolesCompiledMap = make(map[int]bool)
 	if p.Roles == nil {
-		p.RolesCompiled = []int{configuredRoles.IndexDefault()}
-		p.RolesCompiledMap[configuredRoles.IndexDefault()] = true
+		p.RolesCompiled = []int{defaultIdx}
+		p.RolesCompiledMap[defaultIdx] = true
 	} else {
 		for _, pattern := range p.Roles {
 			i, err := configuredRoles.IndexMatch(pattern)
@@ -172,6 +179,37 @@ func (p *PageConfig) compileRoles(conf config.AllProvider) error {
 			p.RolesCompiledMap[i] = true
 			p.RolesCompiled = append(p.RolesCompiled, i)
 		}
+	}
+
+	if p.RolesCompiled == nil {
+		p.RolesCompiled = []int{defaultIdx}
+		p.RolesCompiledMap[defaultIdx] = true
+	}
+
+	configuredVersions := conf.GetConfigSection("versions").(versions.Versions)
+	p.VersionsCompiledMap = make(map[int]bool)
+	defaultIdx = configuredVersions.IndexDefault()
+
+	if p.Versions == nil {
+		p.RolesCompiled = []int{defaultIdx}
+		p.RolesCompiledMap[defaultIdx] = true
+	} else {
+		for _, pattern := range p.Versions {
+			i, err := configuredVersions.IndexMatch(pattern)
+			if err != nil {
+				return fmt.Errorf("failed to match role %q: %w", pattern, err)
+			}
+			if i == -1 {
+				continue
+			}
+			p.VersionsCompiledMap[i] = true
+			p.VersionsCompiled = append(p.VersionsCompiled, i)
+		}
+	}
+
+	if p.VersionsCompiled == nil {
+		p.VersionsCompiled = []int{defaultIdx}
+		p.VersionsCompiledMap[defaultIdx] = true
 	}
 
 	return nil
@@ -242,10 +280,6 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 			return fmt.Errorf("failed to decode cascade: %w", err)
 		}
 		p.CascadeCompiled = cascade
-	}
-
-	if err := p.compileRoles(conf); err != nil {
-		return fmt.Errorf("failed to compile roles: %w", err)
 	}
 
 	return nil

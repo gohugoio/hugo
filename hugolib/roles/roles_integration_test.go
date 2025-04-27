@@ -20,18 +20,28 @@ import (
 )
 
 // TODO1 role hierarchy.
-func TestRoles(t *testing.T) {
+func TestRolesAndVersions(t *testing.T) {
+	// TODO1 for resources, don't apply a default lang,role, etc. Insert with -1 as a null value.
 	t.Parallel()
 	files := `
 -- hugo.toml --
 baseURL = "https://example.org/"
+defaultVersionInSubdir = true
+defaultRoleInSubdir = true
+defaultContentLanguageInSubdir = true
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 [roles]
-  [roles.guest]
-  	default = true
-	weight = 100
-  [roles.member]
-	weight = 200
+[roles.guest]
+default = true
+weight = 100
+[roles.member]
+weight = 200
+[versions]
+[versions."v2.0.0"]
+default = true
+weight = 100
+[versions."v1.2.3"]
+weight = 300
 -- content/memberonly.md --
 ---
 title: "Member Only"
@@ -41,6 +51,7 @@ Member content.
 -- content/public.md --
 ---
 title: "Public"
+versions: ["v1.2.3"]
 ---
 Users with no (blank) role will see this.
 -- layouts/_default/single.html --

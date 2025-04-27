@@ -143,3 +143,10 @@ func NewBool(b bool) *bool {
 type PrintableValueProvider interface {
 	PrintableValue() any
 }
+
+type (
+	Strings2 [2]string
+	Strings3 [3]string
+	Ints2    [2]int
+	Ints3    [3]int
+)

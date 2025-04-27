@@ -468,7 +468,7 @@ type targetPather interface {
 }
 
 type targetPathsHolder struct {
-	// relURL is usually the same as OutputFormat.RelPermalink, but can be different
+	// relURL is usually the saTargetPaths{me as OutputFormat.RelPermalink, but can be different
 	// for non-permalinkable output formats. These shares RelPermalink with the main (first) output format.
 	relURL string
 	paths  page.TargetPaths

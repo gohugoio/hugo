@@ -167,6 +167,8 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.config.OutputFormats.Config
 	case "roles":
 		return c.config.Roles.Config
+	case "versions":
+		return c.config.Versions.Config
 	case "permalinks":
 		return c.config.Permalinks
 	case "minify":
@@ -212,6 +214,14 @@ func (c ConfigLanguage) DefaultContentLanguage() string {
 
 func (c ConfigLanguage) DefaultContentLanguageInSubdir() bool {
 	return c.config.DefaultContentLanguageInSubdir
+}
+
+func (c ConfigLanguage) DefaultRoleInSubdir() bool {
+	return c.config.DefaultRoleInSubdir
+}
+
+func (c ConfigLanguage) DefaultVersionInSubdir() bool {
+	return c.config.DefaultVersionInSubdir
 }
 
 func (c ConfigLanguage) SummaryLength() int {

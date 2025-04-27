@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/hugolib/segments"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/media"
@@ -217,6 +218,15 @@ var allDecoderSetups = map[string]decodeWeight{
 			var err error
 			m := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
 			p.c.Roles, err = roles.DecodeConfig(m)
+			return err
+		},
+	},
+	"versions": {
+		key: "versions",
+		decode: func(d decodeWeight, p decodeConfig) error {
+			var err error
+			m := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
+			p.c.Versions, err = versions.DecodeConfig(m)
 			return err
 		},
 	},

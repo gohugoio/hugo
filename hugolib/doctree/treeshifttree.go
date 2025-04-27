@@ -13,7 +13,10 @@
 
 package doctree
 
-import "iter"
+import (
+	"fmt"
+	"iter"
+)
 
 var _ TreeThreadSafe[string] = (*TreeShiftTree[string])(nil)
 
@@ -46,7 +49,7 @@ func NewTreeShiftTree[T comparable](dimensionsLengths []int) *TreeShiftTree[T] {
 
 func (t TreeShiftTree[T]) Shape(d, v int) *TreeShiftTree[T] {
 	if v < 0 || v >= len(t.dimensions[d]) {
-		panic("dimension value out of range")
+		panic(fmt.Sprintf("invalid dimension %d, value %d", d, v))
 	}
 	t.v = v
 	t.d = d

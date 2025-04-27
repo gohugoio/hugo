@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ func (r Roles) IndexMatch(pattern string) (int, error) {
 func (r *Roles) init() error {
 	if len(r.roleConfigs) == 0 {
 		// Add a default role.
-		r.roleConfigs["guest"] = RoleConfig{Default: true}
+		r.roleConfigs[""] = RoleConfig{Default: true}
 	}
 
 	var defaultSeen int
