@@ -14,15 +14,32 @@
 package doctree
 
 const (
-	// Language is currently the only dimension in the Hugo build matrix.
-	DimensionLanguage DimensionFlag = 1 << iota
+	// Dimensions in the Hugo build matrix.
+	DimensionLanguage DimensionFlag = iota + 1
+	DimensionVersion
+	DimensionRole
 )
 
-// Dimension is a row in the Hugo build matrix which currently has one value: language.
-type Dimension [1]int
+// Dimensions is a row in the Hugo build matrix which currently has three values: language, version and role, in that order.
+type Dimensions [3]int
+
+// Language returns the language dimension.
+func (d Dimensions) Language() int {
+	return d[DimensionLanguage.Index()]
+}
+
+// Version returns the version dimension.
+func (d Dimensions) Version() int {
+	return d[DimensionVersion.Index()]
+}
+
+// Role returns the role dimension.
+func (d Dimensions) Role() int {
+	return d[DimensionRole.Index()]
+}
 
 // DimensionFlag is a flag in the Hugo build matrix.
-type DimensionFlag byte
+type DimensionFlag int8
 
 // Has returns whether the given flag is set.
 func (d DimensionFlag) Has(o DimensionFlag) bool {

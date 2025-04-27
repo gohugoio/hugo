@@ -26,7 +26,11 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/versions"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
@@ -117,6 +121,10 @@ type PageConfig struct {
 	Build   BuildConfig
 	Menus   any // Can be a string, []string or map[string]any.
 
+	Roles     []string
+	Versions  []string
+	Languages []string // TODO1 vs Lang.
+
 	// User defined params.
 	Params maps.Params
 
@@ -125,10 +133,17 @@ type PageConfig struct {
 	ContentAdapterData map[string]any `mapstructure:"-" json:"-"`
 
 	// Compiled values.
+	ConfiguredOutputFormats output.Formats                               `mapstructure:"-" json:"-"`
 	CascadeCompiled         *maps.Ordered[page.PageMatcher, maps.Params] `mapstructure:"-" json:"-"`
 	ContentMediaType        media.Type                                   `mapstructure:"-" json:"-"`
-	ConfiguredOutputFormats output.Formats                               `mapstructure:"-" json:"-"`
 	IsFromContentAdapter    bool                                         `mapstructure:"-" json:"-"`
+
+	LanguagesCompiledSet        *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	RolesCompiledSet            *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	VersionsCompiledSet         *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	LanguageDelegeesCompiledSet *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	RolesDelegeesCompiledSet    *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	VersionDelegeesCompiledSet  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 }
 
 func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
@@ -170,6 +185,93 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 		if !kinds.IsBranch(p.Kind) {
 			return errors.New("cascade is only supported for branch nodes")
 		}
+	}
+
+	return nil
+}
+
+// CompileEearly gets called early and before the cascade from content gets applied.
+func (p *PageConfig) CompileEearly(conf config.AllProvider) error {
+	configuredLanguages := conf.Languages()
+	applyLanguagesFilter := func(values []string, result *maps.OrderedIntSet) error {
+		if len(values) == 0 {
+			return nil
+		}
+		filter, err := predicate.NewFilterFromGlobs(values)
+		if err != nil {
+			return fmt.Errorf("failed to create filter for languages: %w", err)
+		}
+		for _, pattern := range p.Languages {
+			iter, err := langs.IndexMatch(configuredLanguages, filter)
+			if err != nil {
+				return fmt.Errorf("failed to match language %q: %w", pattern, err)
+			}
+			for i := range iter {
+				result.Set(i)
+			}
+		}
+		return nil
+	}
+
+	p.LanguagesCompiledSet = maps.NewOrderedIntSet()
+	applyLanguagesFilter(p.Languages, p.LanguagesCompiledSet)
+	if p.LanguagesCompiledSet.Len() == 0 {
+		p.LanguagesCompiledSet.Set(langs.IndexDefault(configuredLanguages))
+	}
+
+	configuredRoles := conf.GetConfigSection("roles").(roles.RolesInternal)
+
+	applyRolesFilter := func(values []string, matcher predicate.IndexMatcher, result *maps.OrderedIntSet) error {
+		if len(values) == 0 {
+			return nil
+		}
+		filter, err := predicate.NewFilterFromGlobs(values)
+		if err != nil {
+			return fmt.Errorf("failed to create filter for roles: %w", err)
+		}
+		for _, pattern := range values {
+			iter, err := matcher.IndexMatch(filter)
+			if err != nil {
+				return fmt.Errorf("failed to match role %q: %w", pattern, err)
+			}
+			for i := range iter {
+				result.Set(i)
+			}
+		}
+		return nil
+	}
+
+	p.RolesCompiledSet = maps.NewOrderedIntSet()
+
+	applyRolesFilter(p.Roles, configuredRoles, p.RolesCompiledSet)
+
+	if p.RolesCompiledSet.Len() == 0 {
+		p.RolesCompiledSet.Set(configuredRoles.IndexDefault())
+	}
+
+	configuredVersions := conf.GetConfigSection("versions").(versions.VersionsInternal)
+	defaultIdx := configuredVersions.IndexDefault()
+	p.VersionsCompiledSet = maps.NewOrderedIntSet()
+
+	if len(p.Versions) > 0 {
+		filter, err := predicate.NewFilterFromGlobs(p.Versions)
+		if err != nil {
+			return fmt.Errorf("failed to create filter for versions: %w", err)
+		}
+		for _, pattern := range p.Versions {
+			iter, err := configuredVersions.IndexMatch(filter)
+			if err != nil {
+				return fmt.Errorf("failed to match role %q: %w", pattern, err)
+			}
+			for i := range iter {
+				p.VersionsCompiledSet.Set(i)
+			}
+		}
+
+	}
+
+	if p.VersionsCompiledSet.Len() == 0 {
+		p.VersionsCompiledSet.Set(defaultIdx)
 	}
 
 	return nil
