@@ -218,6 +218,10 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		return
 	}
 
+	if m == nil {
+		panic("nil pageMap")
+	}
+
 	insertResource := func(fim hugofs.FileMetaInfo) error {
 		resourceCount++
 		pi := fi.Meta().PathInfo
@@ -356,7 +360,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 				Watching:          s.Conf.Watching(),
 				HandlePage: func(pt *pagesfromdata.PagesFromTemplate, pc *pagemeta.PageConfig) error {
 					s := pt.Site.(*Site)
-					if err := pc.Compile(pt.GoTmplFi.Meta().PathInfo.Base(), true, "", s.Log, s.conf.MediaTypes.Config); err != nil {
+					if err := pc.Compile(pt.GoTmplFi.Meta().PathInfo.Base(), true, "", s.Log, s.Conf); err != nil {
 						return err
 					}
 

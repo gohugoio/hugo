@@ -366,63 +366,65 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 	}
 
 	i := 0
-	for _, s := range h.Sites {
-		segmentFilter := s.conf.C.SegmentFilter
-		if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
-			l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
-			continue
-		}
-
-		siteRenderContext.languageIdx = s.languagei
-		h.currentSite = s
-		for siteOutIdx, renderFormat := range s.renderFormats {
-			if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
-				l.Logf("skip output format %q for language %q not matching segments set in --renderSegments", renderFormat.Name, s.language.Lang)
+	for _, sitesRole := range h.rolesSites {
+		h.Sites = sitesRole
+		for _, s := range h.Sites {
+			segmentFilter := s.conf.C.SegmentFilter
+			if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
+				l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
 				continue
 			}
+			siteRenderContext.languageIdx = s.languagei
+			h.currentSite = s
+			for siteOutIdx, renderFormat := range s.renderFormats {
+				if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
+					l.Logf("skip output format %q for language %q not matching segments set in --renderSegments", renderFormat.Name, s.language.Lang)
+					continue
+				}
 
-			if err := func() error {
-				rc := tpl.RenderingContext{Site: s, SiteOutIdx: siteOutIdx}
-				h.BuildState.StartStageRender(rc)
-				defer h.BuildState.StopStageRender(rc)
+				if err := func() error {
+					rc := tpl.RenderingContext{Site: s, SiteOutIdx: siteOutIdx}
+					h.BuildState.StartStageRender(rc)
+					defer h.BuildState.StopStageRender(rc)
 
-				siteRenderContext.outIdx = siteOutIdx
-				siteRenderContext.sitesOutIdx = i
-				i++
+					siteRenderContext.outIdx = siteOutIdx
+					siteRenderContext.sitesOutIdx = i
+					i++
 
-				select {
-				case <-h.Done():
-					return nil
-				default:
-					for _, s2 := range h.Sites {
-						if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
-							return err
-						}
-					}
-					if !config.SkipRender {
-						ll := l.WithField("substep", "pages").
-							WithField("site", s.language.Lang).
-							WithField("outputFormat", renderFormat.Name)
-
-						start := time.Now()
-
-						if config.PartialReRender {
-							if err := s.renderPages(siteRenderContext); err != nil {
+					select {
+					case <-h.Done():
+						return nil
+					default:
+						for _, s2 := range h.Sites {
+							if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
 								return err
 							}
-						} else {
-							if err := s.render(siteRenderContext); err != nil {
-								return renderErr(err)
-							}
 						}
-						loggers.TimeTrackf(ll, start, nil, "")
-					}
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+						if !config.SkipRender {
+							ll := l.WithField("substep", "pages").
+								WithField("site", s.language.Lang).
+								WithField("outputFormat", renderFormat.Name)
 
+							start := time.Now()
+
+							if config.PartialReRender {
+								if err := s.renderPages(siteRenderContext); err != nil {
+									return err
+								}
+							} else {
+								if err := s.render(siteRenderContext); err != nil {
+									return renderErr(err)
+								}
+							}
+							loggers.TimeTrackf(ll, start, nil, "")
+						}
+					}
+					return nil
+				}(); err != nil {
+					return err
+				}
+
+			}
 		}
 	}
 

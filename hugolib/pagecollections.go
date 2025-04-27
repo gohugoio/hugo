@@ -30,14 +30,14 @@ import (
 
 // pageFinder provides ways to find a Page in a Site.
 type pageFinder struct {
-	pageMap *pageMap
+	pm *pageMap
 }
 
 func newPageFinder(m *pageMap) *pageFinder {
 	if m == nil {
 		panic("must provide a pageMap")
 	}
-	c := &pageFinder{pageMap: m}
+	c := &pageFinder{pm: m}
 	return c
 }
 
@@ -149,7 +149,7 @@ func (c *pageFinder) getContentNode(context page.Page, isReflink bool, ref strin
 }
 
 func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExtension bool, inRef, ref string) (contentNodeI, error) {
-	s := c.pageMap.s
+	s := c.pm.s
 	contentPathParser := s.Conf.PathParser()
 
 	if context != nil && !strings.HasPrefix(ref, "/") {
@@ -213,7 +213,7 @@ func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExten
 		return nil, nil
 	}
 
-	n = c.pageMap.pageReverseIndex.Get(nameNoIdentifier)
+	n = c.pm.pageReverseIndex.Get(nameNoIdentifier)
 	if n == ambiguousContentNode {
 		return nil, fmt.Errorf("page reference %q is ambiguous", inRef)
 	}
@@ -222,7 +222,7 @@ func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExten
 }
 
 func (c *pageFinder) getContentNodeFromRefReverseLookup(ref string, fi hugofs.FileMetaInfo) (contentNodeI, error) {
-	s := c.pageMap.s
+	s := c.pm.s
 	meta := fi.Meta()
 	dir := meta.Filename
 	if !fi.IsDir() {
@@ -239,7 +239,7 @@ func (c *pageFinder) getContentNodeFromRefReverseLookup(ref string, fi hugofs.Fi
 	// There may be multiple matches, but we will only use the first one.
 	for _, pc := range pcs {
 		pi := s.Conf.PathParser().Parse(pc.Component, pc.Path)
-		if n := c.pageMap.treePages.Get(pi.Base()); n != nil {
+		if n := c.pm.treePages.Get(pi.Base()); n != nil {
 			return n, nil
 		}
 	}
@@ -247,7 +247,7 @@ func (c *pageFinder) getContentNodeFromRefReverseLookup(ref string, fi hugofs.Fi
 }
 
 func (c *pageFinder) getContentNodeFromPath(s string, ref string) (contentNodeI, error) {
-	n := c.pageMap.treePages.Get(s)
+	n := c.pm.treePages.Get(s)
 	if n != nil {
 		return n, nil
 	}

@@ -340,7 +340,7 @@ func GetOrCreatePartition[K comparable, V any](c *Cache, name string, opts Optio
 		panic("invalid Weight, must be between 1 and 100")
 	}
 
-	if partitionNameRe.FindString(name) != name {
+	if !partitionNameRe.MatchString(name) {
 		panic(fmt.Sprintf("invalid partition name %q", name))
 	}
 

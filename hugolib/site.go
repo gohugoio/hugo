@@ -100,13 +100,36 @@ type Site struct {
 	conf      *allconfig.Config
 	language  *langs.Language
 	languagei int
-	pageMap   *pageMap
 	store     *maps.Scratch
 
 	// The owning container.
 	h *HugoSites
 
 	*deps.Deps
+	*siteRole
+
+	relatedDocsHandler *page.RelatedDocsHandler
+	siteRefLinker
+	publisher          publisher.Publisher
+	frontmatterHandler pagemeta.FrontMatterHandler
+
+	// The output formats that we need to render this site in. This slice
+	// will be fixed once set.
+	// This will be the union of Site.Pages' outputFormats.
+	// This slice will be sorted.
+	renderFormats output.Formats
+}
+
+func (s Site) cloneForRole(role int) *Site {
+	s.siteRole = s.siteRole.cloneForRole(role)
+	return &s
+}
+
+// TODO1 adjust all methods that uses the embedded siteRole to use the siteRole directly.
+type siteRole struct {
+	rolei int
+
+	pageMap *pageMap
 
 	// Page navigation.
 	*pageFinder
@@ -120,19 +143,18 @@ type Site struct {
 	// The last modification date of this site.
 	lastmod time.Time
 
-	relatedDocsHandler *page.RelatedDocsHandler
-	siteRefLinker
-	publisher          publisher.Publisher
-	frontmatterHandler pagemeta.FrontMatterHandler
-
-	// The output formats that we need to render this site in. This slice
-	// will be fixed once set.
-	// This will be the union of Site.Pages' outputFormats.
-	// This slice will be sorted.
-	renderFormats output.Formats
-
 	// Lazily loaded site dependencies
 	init *siteInit
+}
+
+func (s siteRole) cloneForRole(role int) *siteRole {
+	s.rolei = role
+	s.home = nil
+	s.lastmod = time.Time{}
+	s.init = nil
+	s.taxonomies = nil
+	s.menus = nil
+	return &s
 }
 
 func (s *Site) Debug() {
@@ -143,6 +165,7 @@ func (s *Site) Debug() {
 // NewHugoSites creates HugoSites from the given config.
 func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	conf := cfg.Configs.GetFirstLanguageConfig()
+	roles := cfg.Configs.Base.Roles.Config.Sorted
 
 	var logger loggers.Logger
 	if cfg.TestLogger != nil {
@@ -232,6 +255,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		Shifter: ns,
 	}
 
+	dimensionLengths := []int{len(confm.Languages), len(roles)}
+
 	pageTrees := &pageTrees{
 		treePages: doctree.New(
 			treeConfig,
@@ -239,8 +264,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		treeResources: doctree.New(
 			treeConfig,
 		),
-		treeTaxonomyEntries:           doctree.NewTreeShiftTree[*weightedContentNode](doctree.DimensionLanguage.Index(), len(confm.Languages)),
-		treePagesFromTemplateAdapters: doctree.NewTreeShiftTree[*pagesfromdata.PagesFromTemplate](doctree.DimensionLanguage.Index(), len(confm.Languages)),
+		treeTaxonomyEntries:           doctree.NewTreeShiftTree[*weightedContentNode](dimensionLengths),
+		treePagesFromTemplateAdapters: doctree.NewTreeShiftTree[*pagesfromdata.PagesFromTemplate](dimensionLengths),
 	}
 
 	pageTrees.createMutableTrees()
@@ -278,9 +303,13 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			s.Deps = d
 		}
 
-		s.pageMap = newPageMap(i, s, memCache, pageTrees)
+		// TODO1 clean up s vs siteRole injected.
+		pm := newPageMap(i, 0, s, memCache, pageTrees)
+		s.siteRole = &siteRole{
+			pageMap:    pm,
+			pageFinder: newPageFinder(pm),
+		}
 
-		s.pageFinder = newPageFinder(s.pageMap)
 		s.siteRefLinker, err = newSiteRefLinker(s)
 		if err != nil {
 			return nil, err
@@ -326,7 +355,17 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		return li.Lang < lj.Lang
 	})
 
-	h, err = newHugoSites(cfg, firstSiteDeps, pageTrees, sites)
+	// The sites slice created above represents role 0, no need to create that.
+	rolesSites := make([][]*Site, len(roles))
+	rolesSites[0] = sites
+	for i := 1; i < len(roles); i++ {
+		roleSites := make([]*Site, len(sites))
+		for j, s := range sites {
+			roleSites[j] = s.cloneForRole(i)
+		}
+		rolesSites[i] = roleSites
+	}
+	h, err = newHugoSites(cfg, firstSiteDeps, pageTrees, rolesSites)
 	if err == nil && h == nil {
 		panic("hugo: newHugoSitesNew returned nil error and nil HugoSites")
 	}
@@ -334,14 +373,16 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	return h, err
 }
 
-func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []*Site) (*HugoSites, error) {
+func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, rolesSites [][]*Site) (*HugoSites, error) {
 	numWorkers := config.GetNumWorkerMultiplier()
-	numWorkersSite := min(numWorkers, len(sites))
+	numWorkersSite := 4 // TODO1 min(numWorkers, len(sites))
 	workersSite := para.New(numWorkersSite)
+	first := rolesSites[0]
 
 	h := &HugoSites{
-		Sites:           sites,
-		Deps:            sites[0].Deps,
+		Sites:           first,
+		rolesSites:      rolesSites,
+		Deps:            first[0].Deps,
 		Configs:         cfg.Configs,
 		workersSite:     workersSite,
 		numWorkersSites: numWorkers,
@@ -353,7 +394,7 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 		),
 		cacheContentSource:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[[]byte]](d.MemCache, "/cont/src", dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		translationKeyPages:     maps.NewSliceCache[page.Page](),
-		currentSite:             sites[0],
+		currentSite:             first[0],
 		skipRebuildForFilenames: make(map[string]bool),
 		init: &hugoSitesInit{
 			data:    lazy.New(),
@@ -389,42 +430,46 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 	h.hugoInfo = hugo.NewInfo(h.Configs.GetFirstLanguageConfig(), dependencies)
 
 	var prototype *deps.Deps
-	for i, s := range sites {
-		s.h = h
-		// The template store needs to be initialized after the h container is set on s.
-		if i == 0 {
-			templateStore, err := tplimpl.NewStore(
-				tplimpl.StoreOptions{
-					Fs:                     s.BaseFs.Layouts.Fs,
-					Log:                    s.Log,
-					DefaultContentLanguage: s.Conf.DefaultContentLanguage(),
-					Watching:               s.Conf.Watching(),
-					PathParser:             s.Conf.PathParser(),
-					Metrics:                d.Metrics,
-					OutputFormats:          s.conf.OutputFormats.Config,
-					MediaTypes:             s.conf.MediaTypes.Config,
-					DefaultOutputFormat:    s.conf.DefaultOutputFormat,
-					TaxonomySingularPlural: s.conf.Taxonomies,
-				}, tplimpl.SiteOptions{
-					Site:          s,
-					TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
-				})
-			if err != nil {
+	for i := 0; i < len(rolesSites); i++ {
+		for j := 0; j < len(rolesSites[i]); j++ {
+			s := rolesSites[i][j]
+
+			s.h = h
+			// The template store needs to be initialized after the h container is set on s.
+			if i == 0 {
+				templateStore, err := tplimpl.NewStore(
+					tplimpl.StoreOptions{
+						Fs:                     s.BaseFs.Layouts.Fs,
+						Log:                    s.Log,
+						DefaultContentLanguage: s.Conf.DefaultContentLanguage(),
+						Watching:               s.Conf.Watching(),
+						PathParser:             s.Conf.PathParser(),
+						Metrics:                d.Metrics,
+						OutputFormats:          s.conf.OutputFormats.Config,
+						MediaTypes:             s.conf.MediaTypes.Config,
+						DefaultOutputFormat:    s.conf.DefaultOutputFormat,
+						TaxonomySingularPlural: s.conf.Taxonomies,
+					}, tplimpl.SiteOptions{
+						Site:          s,
+						TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
+					})
+				if err != nil {
+					return nil, err
+				}
+				s.Deps.TemplateStore = templateStore
+			} else {
+				s.Deps.TemplateStore = prototype.TemplateStore.WithSiteOpts(
+					tplimpl.SiteOptions{
+						Site:          s,
+						TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
+					})
+			}
+			if err := s.Deps.Compile(prototype); err != nil {
 				return nil, err
 			}
-			s.Deps.TemplateStore = templateStore
-		} else {
-			s.Deps.TemplateStore = prototype.TemplateStore.WithSiteOpts(
-				tplimpl.SiteOptions{
-					Site:          s,
-					TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
-				})
-		}
-		if err := s.Deps.Compile(prototype); err != nil {
-			return nil, err
-		}
-		if i == 0 {
-			prototype = s.Deps
+			if i == 0 {
+				prototype = s.Deps
+			}
 		}
 	}
 

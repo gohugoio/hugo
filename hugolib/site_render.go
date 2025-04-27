@@ -166,6 +166,9 @@ func pageRenderer(
 
 		targetPath := p.targetPaths().TargetFilename
 
+		// TODO1 remove.
+		fmt.Println("targetPath", p.s.rolei, targetPath, p.m.pageConfig.Roles, p.m.pageConfig.RolesCompiledMap)
+
 		s.Log.Trace(
 			func() string {
 				return fmt.Sprintf("rendering outputFormat %q kind %q using layout %q to %q", p.pageOutput.f.Name, p.Kind(), templ.Name(), targetPath)

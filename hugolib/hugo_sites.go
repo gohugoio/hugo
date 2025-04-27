@@ -51,7 +51,14 @@ import (
 
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
+	// The current site slice.
+	// When rendering, this slice will be shifted out.
+	// TODO1 check that access of this isn't cached.
 	Sites []*Site
+
+	// All sites for all roles.
+	// TODO1 consider adding versions to this, too.
+	rolesSites [][]*Site
 
 	Configs *allconfig.Configs
 

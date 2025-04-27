@@ -27,38 +27,42 @@ type TreeShiftTree[T comparable] struct {
 	// The zero value of T.
 	zero T
 
-	// Will be of length equal to the length of the dimension.
-	trees []*SimpleThreadSafeTree[T]
+	dimensions [][]*SimpleThreadSafeTree[T]
 }
 
-func NewTreeShiftTree[T comparable](d, length int) *TreeShiftTree[T] {
-	if length <= 0 {
-		panic("length must be > 0")
+func NewTreeShiftTree[T comparable](dimensionsLengths []int) *TreeShiftTree[T] {
+	dimensions := make([][]*SimpleThreadSafeTree[T], len(dimensionsLengths))
+	for d := 0; d < len(dimensionsLengths); d++ {
+		length := dimensionsLengths[d]
+		trees := make([]*SimpleThreadSafeTree[T], length)
+		for i := 0; i < length; i++ {
+			trees[i] = NewSimpleThreadSafeTree[T]()
+		}
+		dimensions[d] = trees
 	}
-	trees := make([]*SimpleThreadSafeTree[T], length)
-	for i := range length {
-		trees[i] = NewSimpleThreadSafeTree[T]()
-	}
-	return &TreeShiftTree[T]{d: d, trees: trees}
+
+	return &TreeShiftTree[T]{dimensions: dimensions}
 }
 
 func (t TreeShiftTree[T]) Shape(d, v int) *TreeShiftTree[T] {
-	if d != t.d {
-		panic("dimension mismatch")
-	}
-	if v >= len(t.trees) {
-		panic("value out of range")
+	if v < 0 || v >= len(t.dimensions[d]) {
+		panic("dimension value out of range")
 	}
 	t.v = v
+	t.d = d
 	return &t
 }
 
+func (t *TreeShiftTree[T]) tree() *SimpleThreadSafeTree[T] {
+	return t.dimensions[t.d][t.v]
+}
+
 func (t *TreeShiftTree[T]) Get(s string) T {
-	return t.trees[t.v].Get(s)
+	return t.tree().Get(s)
 }
 
 func (t *TreeShiftTree[T]) DeleteAllFunc(s string, f func(s string, v T) bool) {
-	for _, tt := range t.trees {
+	for tt := range t.Trees() {
 		if v := tt.Get(s); v != t.zero {
 			if f(s, v) {
 				// Delete.
@@ -68,24 +72,36 @@ func (t *TreeShiftTree[T]) DeleteAllFunc(s string, f func(s string, v T) bool) {
 	}
 }
 
+func (t *TreeShiftTree[T]) Trees() iter.Seq[*SimpleThreadSafeTree[T]] {
+	return func(yield func(v *SimpleThreadSafeTree[T]) bool) {
+		for _, dd := range t.dimensions {
+			for _, tt := range dd {
+				if !yield(tt) {
+					return
+				}
+			}
+		}
+	}
+}
+
 func (t *TreeShiftTree[T]) LongestPrefix(s string) (string, T) {
-	return t.trees[t.v].LongestPrefix(s)
+	return t.tree().LongestPrefix(s)
 }
 
 func (t *TreeShiftTree[T]) Insert(s string, v T) T {
-	return t.trees[t.v].Insert(s, v)
+	return t.tree().Insert(s, v)
 }
 
 func (t *TreeShiftTree[T]) Lock(lockType LockType) func() {
-	return t.trees[t.v].Lock(lockType)
+	return t.tree().Lock(lockType)
 }
 
 func (t *TreeShiftTree[T]) WalkPrefix(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
-	return t.trees[t.v].WalkPrefix(lockType, s, f)
+	return t.tree().WalkPrefix(lockType, s, f)
 }
 
 func (t *TreeShiftTree[T]) WalkPrefixRaw(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
-	for _, tt := range t.trees {
+	for tt := range t.Trees() {
 		if err := tt.WalkPrefix(lockType, s, f); err != nil {
 			return err
 		}
@@ -94,30 +110,30 @@ func (t *TreeShiftTree[T]) WalkPrefixRaw(lockType LockType, s string, f func(s s
 }
 
 func (t *TreeShiftTree[T]) WalkPath(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
-	return t.trees[t.v].WalkPath(lockType, s, f)
+	return t.tree().WalkPath(lockType, s, f)
 }
 
 func (t *TreeShiftTree[T]) All(lockType LockType) iter.Seq2[string, T] {
-	return t.trees[t.v].All(lockType)
+	return t.tree().All(lockType)
 }
 
 func (t *TreeShiftTree[T]) LenRaw() int {
 	var count int
-	for _, tt := range t.trees {
+	for tt := range t.Trees() {
 		count += tt.tree.Len()
 	}
 	return count
 }
 
 func (t *TreeShiftTree[T]) Delete(key string) {
-	for _, tt := range t.trees {
+	for tt := range t.Trees() {
 		tt.tree.Delete(key)
 	}
 }
 
 func (t *TreeShiftTree[T]) DeletePrefix(prefix string) int {
 	var count int
-	for _, tt := range t.trees {
+	for tt := range t.Trees() {
 		count += tt.tree.DeletePrefix(prefix)
 	}
 	return count
