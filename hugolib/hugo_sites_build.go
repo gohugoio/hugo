@@ -324,6 +324,14 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 		}
 	}
 
+	// Handle new terms from assemblePagesStep2.
+	changes = bcfg.WhatChanged.Drain()
+	if len(changes) > 0 {
+		if err := h.resolveAndClearStateForIdentities(ctx, l, nil, changes); err != nil {
+			return err
+		}
+	}
+
 	h.renderFormats = output.Formats{}
 	for _, s := range h.Sites {
 		s.s.initRenderFormats()

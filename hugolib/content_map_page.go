@@ -1330,6 +1330,7 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 				// This needs no reset, so no need to check it.
 				return nil
 			}
+
 			// First check the top level dependency manager.
 			for _, id := range changes {
 				checkedCounter.Add(1)
@@ -1645,6 +1646,8 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 		views   = sa.pageMap.cfg.taxonomyConfig.views
 	)
 
+	rebuild := sa.s.h.isRebuild()
+
 	lockType := doctree.LockTypeWrite
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		Tree:     pages,
@@ -1677,6 +1680,14 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 					pi := sa.Site.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
 					term := pages.Get(pi.Base())
 					if term == nil {
+						if rebuild {
+							// A new tag was added in server mode.
+							taxonomy := pages.Get(viewName.pluralTreeKey)
+							if taxonomy != nil {
+								sa.assembleChanges.Add(taxonomy.GetIdentity())
+							}
+						}
+
 						m := &pageMeta{
 							term:     v,
 							singular: viewName.singular,
