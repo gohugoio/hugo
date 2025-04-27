@@ -451,7 +451,7 @@ func (l *genericResource) Key() string {
 		}
 
 		if l.spec.Cfg.IsMultihost() {
-			l.key = l.spec.Lang() + l.key
+			l.key = l.spec.Lang__() + l.key
 		}
 
 		if l.includeHashInKey && !l.sourceFilenameIsHash {

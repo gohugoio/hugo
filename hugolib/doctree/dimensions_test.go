@@ -35,3 +35,10 @@ func TestDimensionFlag(t *testing.T) {
 	c.Assert(DimensionLanguage.Index(), qt.Equals, 0)
 	c.Assert(p.Index(), qt.Equals, 11)
 }
+
+func TestDimensionsIndex(t *testing.T) {
+	c := qt.New(t)
+	c.Assert(DimensionLanguage.Index(), qt.Equals, 0)
+	c.Assert(DimensionVersion.Index(), qt.Equals, 1)
+	c.Assert(DimensionRole.Index(), qt.Equals, 2)
+}

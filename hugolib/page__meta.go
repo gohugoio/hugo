@@ -69,6 +69,11 @@ type pageMeta struct {
 	s *Site // The site this page belongs to.
 }
 
+func (m pageMeta) cloneForSite(s *Site) (*pageMeta, error) {
+	m.s = s
+	return &m, nil
+}
+
 // Prepare for a rebuild of the data passed in from front matter.
 func (m *pageMeta) setMetaPostPrepareRebuild() {
 	params := xmaps.Clone(m.paramsOriginal)
@@ -261,7 +266,7 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 			pcfg.CascadeCompiled = cascade
 		}
 
-		// Look for path, lang and kind, all of which values we need early on.
+		// Look for path, lang, roles and kind, all of which values we need early on.
 		if v, found := frontmatter["path"]; found {
 			pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
 			pcfg.Params["path"] = pcfg.Path
@@ -283,11 +288,29 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 				pcfg.Params["kind"] = pcfg.Kind
 			}
 		}
+		if v, found := frontmatter["roles"]; found {
+			pcfg.Roles = cast.ToStringSlice(v)
+			pcfg.Params["roles"] = pcfg.Roles
+		}
+		if v, found := frontmatter["versions"]; found {
+			pcfg.Versions = cast.ToStringSlice(v)
+			pcfg.Params["versions"] = pcfg.Versions
+		}
+		if v, found := frontmatter["languages"]; found {
+			pcfg.Languages = cast.ToStringSlice(v)
+			pcfg.Params["languages"] = pcfg.Languages
+		}
+
 	} else if p.pageMetaParams.pageConfig.Params == nil {
 		p.pageConfig.Params = make(maps.Params)
 	}
 
 	p.pageMetaParams.init(conf.Watching())
+
+	// TODO1 check if we can allow cascade from config.
+	if err := p.pageConfig.CompileEearly(conf); err != nil {
+		return fmt.Errorf("failed to compile roles: %w", err)
+	}
 
 	return nil
 }

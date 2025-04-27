@@ -19,6 +19,8 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/config"
@@ -32,6 +34,18 @@ import (
 type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
+
+	// Returns the role configured for this Site.
+	Role() roles.Role
+
+	// Returns the roles configured for this Site.
+	Roles() roles.Roles
+
+	// Returns the version configured for this Site.
+	Version() versions.Version
+
+	// Returns the versions configured for this Site.
+	Versions() versions.Versions
 
 	// Returns all the languages configured for all sites.
 	Languages() langs.Languages
@@ -192,6 +206,22 @@ func (s *siteWrapper) Language() *langs.Language {
 
 func (s *siteWrapper) Languages() langs.Languages {
 	return s.s.Languages()
+}
+
+func (s *siteWrapper) Role() roles.Role {
+	return s.s.Role()
+}
+
+func (s *siteWrapper) Roles() roles.Roles {
+	return s.s.Roles()
+}
+
+func (s *siteWrapper) Version() versions.Version {
+	return s.s.Version()
+}
+
+func (s *siteWrapper) Versions() versions.Versions {
+	return s.s.Versions()
 }
 
 func (s *siteWrapper) AllPages() Pages {
@@ -383,12 +413,28 @@ func (t testSite) Languages() langs.Languages {
 	return nil
 }
 
+func (t testSite) Roles() roles.Roles {
+	return nil
+}
+
+func (t testSite) Versions() versions.Versions {
+	return nil
+}
+
 func (t testSite) MainSections() []string {
 	return nil
 }
 
 func (t testSite) Language() *langs.Language {
 	return t.l
+}
+
+func (t testSite) Role() roles.Role {
+	return nil
+}
+
+func (t testSite) Version() versions.Version {
+	return nil
 }
 
 func (t testSite) Home() Page {

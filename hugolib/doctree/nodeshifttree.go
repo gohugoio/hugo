@@ -46,15 +46,15 @@ type (
 		// It may replace old.
 		// It returns the updated and existing T
 		// and a bool indicating if an existing record is updated.
-		InsertInto(old, new T, dimension Dimension) (T, T, bool)
+		InsertInto(old, new T, dimension Dimensions) (T, T, bool)
 
 		// Delete deletes T from the given dimension and returns the deleted T and whether the dimension was deleted and if  it's empty after the delete.
-		Delete(v T, dimension Dimension) (T, bool, bool)
+		Delete(v T, dimension Dimensions) (T, bool, bool)
 
 		// Shift shifts T into the given dimension
 		// and returns the shifted T and a bool indicating if the shift was successful and
 		// how accurate a match T is according to its dimensions.
-		Shift(v T, dimension Dimension, exact bool) (T, bool, DimensionFlag)
+		Shift(v T, dimension Dimensions, exact bool) (T, bool, DimensionFlag)
 	}
 )
 
@@ -64,8 +64,8 @@ type (
 type NodeShiftTree[T any] struct {
 	tree *radix.Tree
 
-	// E.g. [language, role].
-	dims    Dimension
+	// [language, version, role].
+	dims    Dimensions
 	shifter Shifter[T]
 
 	mu *sync.RWMutex
@@ -81,6 +81,10 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 		shifter: cfg.Shifter,
 		tree:    radix.New(),
 	}
+}
+
+func (r *NodeShiftTree[T]) Dims() Dimensions {
+	return r.dims
 }
 
 func (r *NodeShiftTree[T]) Delete(key string) (T, bool) {
@@ -173,6 +177,7 @@ func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, T, bool)
 	if vv, ok := r.tree.Get(s); ok {
 		v, existing, updated = r.shifter.Insert(vv.(T), v)
 	}
+
 	r.tree.Insert(s, v)
 	return v, existing, updated
 }
@@ -418,6 +423,8 @@ func (t NodeShiftTree[T]) clone() *NodeShiftTree[T] {
 }
 
 func (r *NodeShiftTree[T]) shift(t T, exact bool) (T, bool, DimensionFlag) {
+	// TODO1 exact.
+	exact = true
 	return r.shifter.Shift(t, r.dims, exact)
 }
 
