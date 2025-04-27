@@ -14,33 +14,37 @@
 package hugolib
 
 import (
-	"fmt"
-	"strings"
+	"iter"
 	"sync/atomic"
 
-	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/resources"
-
-	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/lazy"
 
-	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
-	"github.com/gohugoio/hugo/resources/page/pagemeta"
 )
 
-var pageIDCounter atomic.Uint64
+var (
+	pageIDCounter       atomic.Uint64
+	pageSourceIDCounter atomic.Uint64
+)
+
+func (h *HugoSites) newPages(m *pageMeta) (iter.Seq2[int, *pageState], *paths.Path, error) {
+	panic("newPages: TODO1 remove me.")
+}
 
 func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
-	p, pth, err := h.doNewPage(m)
+	panic("newPage: TODO1 remove me.")
+	// newPageNew
+	/*p, pth, _, err := h.doNewPage(m)
 	if err != nil {
+		// TODO1 port this.
 		// Make sure that any partially created page part is marked as stale.
 		m.MarkStale()
 	}
 
+	// TODO1 port this.
 	if p != nil && pth != nil && p.IsHome() && pth.IsLeafBundle() {
 		msg := "Using %s in your content's root directory is usually incorrect for your home page. "
 		msg += "You should use %s instead. If you don't rename this file, your home page will be "
@@ -48,218 +52,68 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 		h.Log.Warnidf(constants.WarnHomePageIsLeafBundle, msg, pth.PathNoLeadingSlash(), strings.ReplaceAll(pth.PathNoLeadingSlash(), "index", "_index"))
 	}
 
-	return p, pth, err
+	return p, pth, err*/
 }
 
-func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
-	m.Staler = &resources.AtomicStaler{}
-	if m.pageMetaParams == nil {
-		m.pageMetaParams = &pageMetaParams{
-			pageConfig: &pagemeta.PageConfig{},
-		}
-	}
-	if m.pageConfig.Params == nil {
-		m.pageConfig.Params = maps.Params{}
-	}
+func (h *HugoSites) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
+	panic("doNewPageFromMeta:TODO1 remove me?")
+}
 
-	pid := pageIDCounter.Add(1)
-	pi, err := m.parseFrontMatter(h, pid)
+// TODO1 move/rename.
+func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
+	if err := m.initLate(s); err != nil {
+		return nil, m.wrapError(err, s.SourceFs)
+	}
+	// Parse the rest of the page content.
+	var err error
+	m.content, err = m.newCachedContent(s)
 	if err != nil {
-		return nil, nil, err
+		return nil, m.wrapError(err, s.SourceFs)
+	}
+	ps := &pageState{
+		pid:                               pid,
+		s:                                 s,
+		pageOutput:                        nopPageOutput,
+		pageOutputTemplateVariationsState: &atomic.Uint32{},
+		Staler:                            m,
+		dependencyManager:                 s.Conf.NewIdentityManager(m.Path()),
+		pageCommon: &pageCommon{
+			store:                      maps.NewScratch(),
+			Positioner:                 page.NopPage,
+			InSectionPositioner:        page.NopPage,
+			ResourceNameTitleProvider:  m,
+			ResourceParamsProvider:     m,
+			PageMetaProvider:           m,
+			PageMetaInternalProvider:   m,
+			FileProvider:               m,
+			OutputFormatsProvider:      page.NopPage,
+			ResourceTypeProvider:       pageTypesProvider,
+			MediaTypeProvider:          pageTypesProvider,
+			RefProvider:                page.NopPage,
+			ShortcodeInfoProvider:      page.NopPage,
+			LanguageProvider:           s,
+			RelatedDocsHandlerProvider: s,
+			init:                       lazy.New(),
+			m:                          m,
+			s:                          s,
+			sWrapped:                   s, // page.WrapSite(s), // TODO1 need this?
+			pageContentConverter:       &pageContentConverter{},
+		},
 	}
 
-	if err := m.setMetaPre(pi, h.Log, h.Conf); err != nil {
-		return nil, nil, m.wrapError(err, h.BaseFs.SourceFs)
-	}
-	pcfg := m.pageConfig
-	if pcfg.Lang != "" {
-		if h.Conf.IsLangDisabled(pcfg.Lang) {
-			return nil, nil, nil
-		}
-	}
+	ps.pageMenus = &pageMenus{p: ps}
+	ps.PageMenusProvider = ps.pageMenus
+	ps.GetPageProvider = pageSiteAdapter{s: s, p: ps}
+	ps.GitInfoProvider = ps
+	ps.TranslationsProvider = ps
+	ps.ResourceDataProvider = &pageData{pageState: ps}
+	ps.RawContentProvider = ps
+	ps.ChildCareProvider = ps
+	ps.TreeProvider = pageTree{p: ps}
+	ps.Eqer = ps
+	ps.TranslationKeyProvider = ps
+	ps.ShortcodeInfoProvider = ps
+	ps.AlternativeOutputFormatsProvider = ps
 
-	if pcfg.Path != "" {
-		s := m.pageConfig.Path
-		// Paths from content adapters should never have any extension.
-		if pcfg.IsFromContentAdapter || !paths.HasExt(s) {
-			var (
-				isBranch    bool
-				isBranchSet bool
-				ext         string = m.pageConfig.ContentMediaType.FirstSuffix.Suffix
-			)
-			if pcfg.Kind != "" {
-				isBranch = kinds.IsBranch(pcfg.Kind)
-				isBranchSet = true
-			}
-
-			if !pcfg.IsFromContentAdapter {
-				if m.pathInfo != nil {
-					if !isBranchSet {
-						isBranch = m.pathInfo.IsBranchBundle()
-					}
-					if m.pathInfo.Ext() != "" {
-						ext = m.pathInfo.Ext()
-					}
-				} else if m.f != nil {
-					pi := m.f.FileInfo().Meta().PathInfo
-					if !isBranchSet {
-						isBranch = pi.IsBranchBundle()
-					}
-					if pi.Ext() != "" {
-						ext = pi.Ext()
-					}
-				}
-			}
-
-			if isBranch {
-				s += "/_index." + ext
-			} else {
-				s += "/index." + ext
-			}
-
-		}
-		m.pathInfo = h.Conf.PathParser().Parse(files.ComponentFolderContent, s)
-	} else if m.pathInfo == nil {
-		if m.f != nil {
-			m.pathInfo = m.f.FileInfo().Meta().PathInfo
-		}
-
-		if m.pathInfo == nil {
-			panic(fmt.Sprintf("missing pathInfo in %v", m))
-		}
-	}
-
-	ps, err := func() (*pageState, error) {
-		if m.s == nil {
-			// Identify the Site/language to associate this Page with.
-			var lang string
-			if pcfg.Lang != "" {
-				lang = pcfg.Lang
-			} else if m.f != nil {
-				meta := m.f.FileInfo().Meta()
-				lang = meta.Lang
-			} else {
-				lang = m.pathInfo.Lang()
-			}
-
-			m.s = h.resolveSite(lang)
-
-			if m.s == nil {
-				return nil, fmt.Errorf("no site found for language %q", lang)
-			}
-		}
-
-		var tc viewName
-		// Identify Page Kind.
-		if m.pageConfig.Kind == "" {
-			m.pageConfig.Kind = kinds.KindSection
-			if m.pathInfo.Base() == "/" {
-				m.pageConfig.Kind = kinds.KindHome
-			} else if m.pathInfo.IsBranchBundle() {
-				// A section, taxonomy or term.
-				tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
-				if !tc.IsZero() {
-					// Either a taxonomy or a term.
-					if tc.pluralTreeKey == m.Path() {
-						m.pageConfig.Kind = kinds.KindTaxonomy
-					} else {
-						m.pageConfig.Kind = kinds.KindTerm
-					}
-				}
-			} else if m.f != nil {
-				m.pageConfig.Kind = kinds.KindPage
-			}
-		}
-
-		if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
-			if tc.IsZero() {
-				tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
-			}
-			if tc.IsZero() {
-				return nil, fmt.Errorf("no taxonomy configuration found for %q", m.Path())
-			}
-			m.singular = tc.singular
-			if m.pageConfig.Kind == kinds.KindTerm {
-				m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
-			}
-		}
-
-		if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
-			return nil, nil
-		}
-
-		// Parse the rest of the page content.
-		m.content, err = m.newCachedContent(h, pi)
-		if err != nil {
-			return nil, m.wrapError(err, h.SourceFs)
-		}
-
-		ps := &pageState{
-			pid:                               pid,
-			pageOutput:                        nopPageOutput,
-			pageOutputTemplateVariationsState: &atomic.Uint32{},
-			Staler:                            m,
-			dependencyManager:                 m.s.Conf.NewIdentityManager(m.Path()),
-			pageCommon: &pageCommon{
-				FileProvider:              m,
-				store:                     maps.NewScratch(),
-				Positioner:                page.NopPage,
-				InSectionPositioner:       page.NopPage,
-				ResourceNameTitleProvider: m,
-				ResourceParamsProvider:    m,
-				PageMetaProvider:          m,
-				PageMetaInternalProvider:  m,
-				OutputFormatsProvider:     page.NopPage,
-				ResourceTypeProvider:      pageTypesProvider,
-				MediaTypeProvider:         pageTypesProvider,
-				RefProvider:               page.NopPage,
-				ShortcodeInfoProvider:     page.NopPage,
-				LanguageProvider:          m.s,
-
-				RelatedDocsHandlerProvider: m.s,
-				init:                       lazy.New(),
-				m:                          m,
-				s:                          m.s,
-				sWrapped:                   page.WrapSite(m.s),
-			},
-		}
-
-		if m.f != nil {
-			gi, err := m.s.h.gitInfoForPage(ps)
-			if err != nil {
-				return nil, fmt.Errorf("failed to load Git data: %w", err)
-			}
-			ps.gitInfo = gi
-			owners, err := m.s.h.codeownersForPage(ps)
-			if err != nil {
-				return nil, fmt.Errorf("failed to load CODEOWNERS: %w", err)
-			}
-			ps.codeowners = owners
-		}
-
-		ps.pageMenus = &pageMenus{p: ps}
-		ps.PageMenusProvider = ps.pageMenus
-		ps.GetPageProvider = pageSiteAdapter{s: m.s, p: ps}
-		ps.GitInfoProvider = ps
-		ps.TranslationsProvider = ps
-		ps.ResourceDataProvider = &pageData{pageState: ps}
-		ps.RawContentProvider = ps
-		ps.ChildCareProvider = ps
-		ps.TreeProvider = pageTree{p: ps}
-		ps.Eqer = ps
-		ps.TranslationKeyProvider = ps
-		ps.ShortcodeInfoProvider = ps
-		ps.AlternativeOutputFormatsProvider = ps
-
-		if err := ps.initLazyProviders(); err != nil {
-			return nil, ps.wrapError(err)
-		}
-		return ps, nil
-	}()
-
-	if ps == nil {
-		return nil, nil, err
-	}
-
-	return ps, ps.PathInfo(), err
+	return ps, nil
 }

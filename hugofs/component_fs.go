@@ -180,22 +180,30 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 	if pi.Disabled() {
 		return fim, false
 	}
+
+	// TODO1 redo vs. Dimensions.
 	if meta.Lang != "" {
 		if isLangDisabled := fs.opts.PathParser.IsLangDisabled; isLangDisabled != nil && isLangDisabled(meta.Lang) {
 			return fim, false
 		}
 	}
+
 	meta.PathInfo = pi
 	if !fim.IsDir() {
 		if fileLang := meta.PathInfo.Lang(); fileLang != "" {
-			// A valid lang set in filename.
-			// Give priority to myfile.sv.txt inside the sv filesystem.
-			meta.Weight++
-			meta.Lang = fileLang
+			if idx, ok := fs.opts.PathParser.LanguageIndex[fileLang]; ok {
+				// A valid lang set in filename.
+				// Give priority to myfile.sv.txt inside the sv filesystem.
+				meta.Weight++
+				meta.Lang = fileLang // TODO1 remove.
+				meta.SiteInts = meta.SiteInts.WithLanguageIndex(idx)
+				meta.SiteIntsWithDefaults = meta.SiteIntsWithDefaults.WithLanguageIndex(idx)
+			}
 		}
 	}
 
-	if meta.Lang == "" {
+	// TODO1
+	/*if meta.Lang == "" {
 		meta.Lang = fs.opts.DefaultContentLanguage
 	}
 
@@ -204,6 +212,7 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 		panic("no language found for " + meta.Lang)
 	}
 	meta.LangIndex = langIdx
+	*/
 
 	if fi.IsDir() {
 		meta.OpenFunc = func() (afero.File, error) {

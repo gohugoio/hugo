@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package doctree
+package compare
 
 import (
 	"testing"
@@ -19,19 +19,13 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestDimensionFlag(t *testing.T) {
+func TestWeights(t *testing.T) {
 	c := qt.New(t)
 
-	var zero DimensionFlag
-	var d DimensionFlag
-	var o DimensionFlag = 1
-	var p DimensionFlag = 12
-
-	c.Assert(d.Has(o), qt.Equals, false)
-	d = d.Set(o)
-	c.Assert(d.Has(o), qt.Equals, true)
-	c.Assert(d.Has(d), qt.Equals, true)
-	c.Assert(func() { zero.Index() }, qt.PanicMatches, "dimension flag not set")
-	c.Assert(DimensionLanguage.Index(), qt.Equals, 0)
-	c.Assert(p.Index(), qt.Equals, 11)
+	c.Assert(LessWeight(1, 2), qt.IsTrue)
+	c.Assert(LessWeight(2, 1), qt.IsFalse)
+	c.Assert(LessWeight(1, 1), qt.IsFalse)
+	c.Assert(LessWeight(0, 1), qt.IsFalse)
+	c.Assert(LessWeight(-1, 2), qt.IsTrue)
+	c.Assert(LessWeight(1, 0), qt.IsTrue)
 }

@@ -145,6 +145,11 @@ func (p *pagesFromDataTemplateContext) EnableAllLanguages() string {
 	return ""
 }
 
+func (p *pagesFromDataTemplateContext) EnableAllDimensions() string {
+	p.p.buildState.EnableAllDimensions = true
+	return ""
+}
+
 func NewPagesFromTemplate(opts PagesFromTemplateOptions) *PagesFromTemplate {
 	return &PagesFromTemplate{
 		PagesFromTemplateOptions: opts,
@@ -196,18 +201,20 @@ func (b *PagesFromTemplate) StaleVersion() uint32 {
 }
 
 type BuildInfo struct {
-	NumPagesAdded      uint64
-	NumResourcesAdded  uint64
-	EnableAllLanguages bool
-	ChangedIdentities  []identity.Identity
-	DeletedPaths       []string
-	Path               *paths.Path
+	NumPagesAdded       uint64
+	NumResourcesAdded   uint64
+	EnableAllLanguages  bool
+	EnableAllDimensions bool
+	ChangedIdentities   []identity.Identity
+	DeletedPaths        []string
+	Path                *paths.Path
 }
 
 type BuildState struct {
 	StaleVersion uint32
 
-	EnableAllLanguages bool
+	EnableAllLanguages  bool
+	EnableAllDimensions bool
 
 	// Paths deleted in the current build.
 	DeletedPaths []string
@@ -326,12 +333,13 @@ func (p *PagesFromTemplate) Execute(ctx context.Context) (BuildInfo, error) {
 	}
 
 	bi := BuildInfo{
-		NumPagesAdded:      p.buildState.NumPagesAdded,
-		NumResourcesAdded:  p.buildState.NumResourcesAdded,
-		EnableAllLanguages: p.buildState.EnableAllLanguages,
-		ChangedIdentities:  p.buildState.ChangedIdentities,
-		DeletedPaths:       p.buildState.DeletedPaths,
-		Path:               p.GoTmplFi.Meta().PathInfo,
+		NumPagesAdded:       p.buildState.NumPagesAdded,
+		NumResourcesAdded:   p.buildState.NumResourcesAdded,
+		EnableAllLanguages:  p.buildState.EnableAllLanguages,
+		EnableAllDimensions: p.buildState.EnableAllDimensions,
+		ChangedIdentities:   p.buildState.ChangedIdentities,
+		DeletedPaths:        p.buildState.DeletedPaths,
+		Path:                p.GoTmplFi.Meta().PathInfo,
 	}
 
 	return bi, nil

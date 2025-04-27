@@ -22,6 +22,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/identity"
@@ -149,6 +150,7 @@ func (pco *pageContentOutput) c() page.Markup {
 }
 
 func (pco *pageContentOutput) Content(ctx context.Context) (any, error) {
+	defer herrors.Recover()
 	r, err := pco.c().Render(ctx)
 	if err != nil {
 		return nil, err
@@ -468,7 +470,7 @@ type targetPather interface {
 }
 
 type targetPathsHolder struct {
-	// relURL is usually the same as OutputFormat.RelPermalink, but can be different
+	// relURL is usually the saTargetPaths{me as OutputFormat.RelPermalink, but can be different
 	// for non-permalinkable output formats. These shares RelPermalink with the main (first) output format.
 	relURL string
 	paths  page.TargetPaths

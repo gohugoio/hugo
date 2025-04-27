@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -185,6 +187,11 @@ type PageMetaResource interface {
 	resource.Resource
 }
 
+type PageMetaLanguageResource interface {
+	PageMetaResource
+	resource.LanguageProvider
+}
+
 // PageMetaProvider provides page metadata, typically provided via front matter.
 type PageMetaProvider interface {
 	// The 4 page dates
@@ -234,9 +241,6 @@ type PageMetaProvider interface {
 	// The slug, typically defined in front matter.
 	Slug() string
 
-	// This page's language code. Will be the same as the site's.
-	Lang() string
-
 	// IsSection returns whether this is a section
 	IsSection() bool
 
@@ -260,7 +264,7 @@ type PageMetaProvider interface {
 // This is currently only used to generate keywords for related content.
 // If nameLower is not one of the metadata interface methods, we
 // look in Params.
-func NamedPageMetaValue(p PageMetaResource, nameLower string) (any, bool, error) {
+func NamedPageMetaValue(p PageMetaLanguageResource, nameLower string) (any, bool, error) {
 	var (
 		v   any
 		err error
@@ -345,6 +349,7 @@ type PageWithoutContent interface {
 	resource.Resource
 	PageMetaProvider
 	PageMetaInternalProvider
+
 	resource.LanguageProvider
 
 	// For pages backed by a file.
@@ -398,6 +403,10 @@ type PageWithoutContent interface {
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
+}
+
+type SiteDimensionProvider interface {
+	Role() roles.Role
 }
 
 // Positioner provides next/prev navigation.
@@ -529,6 +538,19 @@ type TreeProvider interface {
 
 	// SectionsPath is SectionsEntries joined with a /.
 	SectionsPath() string
+}
+
+// DimsProvider provides the dimensions of a Page.
+type DimsProvider interface {
+	Dims() sitematrix.VectorProvider
+}
+
+// GetDims returns the dimensions of a Page, if it implements DimsProvider.
+func GetDims(p Page) sitematrix.Vector {
+	if dp, ok := p.(DimsProvider); ok {
+		return dp.Dims().FirstVector()
+	}
+	return sitematrix.Vector{}
 }
 
 // PageWithContext is a Page with a context.Context.

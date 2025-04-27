@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -41,6 +42,7 @@ import (
 	hpaths "github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/spf13/afero"
 )
 
@@ -611,7 +613,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
 	var staticFsMap map[string]*overlayfs.OverlayFs
 	if b.p.Cfg.IsMultihost() {
-		languages := b.p.Cfg.Languages()
+		languages := b.p.Cfg.Languages().(langs.Languages)
 		staticFsMap = make(map[string]*overlayfs.OverlayFs)
 		for _, l := range languages {
 			staticFsMap[l.Lang] = overlayfs.New(overlayfs.Options{})
@@ -712,6 +714,21 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			base, filename := absPathify(mount.Source)
 
+			v := mount.Sites
+			intSetsCfg := sitematrix.IntSetsConfig{
+				Cfg:          b.p.Cfg.ConfiguredDimensions(),
+				ApplyDefault: false,
+				Weight:       v.Weight,
+				Languages:    v.Sites.Languages,
+				Versions:     v.Sites.Versions,
+				Roles:        v.Sites.Roles,
+			}
+			sets, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
+			if err != nil {
+				return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
+			}
+			setsWithDefaults := sets.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+
 			rm := hugofs.RootMapping{
 				From:          mount.Target,
 				To:            filename,
@@ -720,9 +737,11 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				ModuleOrdinal: md.ordinal,
 				IsProject:     md.isMainProject,
 				Meta: &hugofs.FileMeta{
-					Watch:           !mount.DisableWatch && md.Watch(),
-					Weight:          mountWeight,
-					InclusionFilter: inclusionFilter,
+					Watch:                !mount.DisableWatch && md.Watch(),
+					Weight:               mountWeight,
+					InclusionFilter:      inclusionFilter,
+					SiteInts:             sets,
+					SiteIntsWithDefaults: setsWithDefaults,
 				},
 			}
 
@@ -770,7 +789,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 		collector.addRootFs(rmfsStatic)
 
 		if collector.staticPerLanguage != nil {
-			for _, l := range b.p.Cfg.Languages() {
+			for _, l := range b.p.Cfg.Languages().(langs.Languages) {
 				lang := l.Lang
 
 				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {

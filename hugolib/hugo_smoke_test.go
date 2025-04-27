@@ -598,3 +598,72 @@ Aliqua labore enim et sint anim amet excepteur ea dolore.
 
 	return files
 }
+
+func TestSmoke202506(t *testing.T) {
+	t.Parallel()
+
+	// Test variants:
+	// Site with two languages, one with home page content and one without.
+	// A common translated page but with different dates.
+	// Test Rotate with language.
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages.en]
+title = "Site title en"
+weight = 200
+[languages.nn]
+title = "Site title nn"
+weight = 100
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'en'
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+lang = 'nn'
+-- content/en/_index.md --
+---
+title: "Home in English"
+---
+Home Content.
+-- content/en/mysection/p1.md --
+---
+title: "p1 en"
+date: 2023-10-01
+---
+Content p1.
+-- content/nn/mysection/p1.md --
+---
+title: "p1 nn"
+date: 2024-10-01
+---
+Content p1.
+-- layouts/all.html --
+All. {{ .Title }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
+Rotate(language): {{ range .Rotate "language" }}{{ .Lang }}|{{ .Title }}|{{ end }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/index.html",
+		"All. Home in English|", // from content file.
+		"Lastmod: 2023-10-01",
+	)
+	b.AssertFileContent("public/nn/index.html",
+		"Site title nn|", // from site config.
+		"Lastmod: 2024-10-01",
+	)
+
+	b.AssertFileContent("public/nn/mysection/p1/index.html",
+		"p1 nn|Lastmod: 2024-10-01|\nRotate(language): nn|p1 nn|en|p1 en||",
+	)
+
+	b.AssertFileContent("public/en/mysection/p1/index.html",
+		"p1 en|Lastmod: 2023-10-01|\nRotate(language): nn|p1 nn|en|p1 en||",
+	)
+}

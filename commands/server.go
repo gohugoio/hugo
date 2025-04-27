@@ -49,6 +49,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/common/types"
@@ -879,7 +880,7 @@ func (c *serverCommand) serve() error {
 		if isMultihost {
 			for _, l := range conf.configs.ConfigLangs() {
 				baseURLs = append(baseURLs, l.BaseURL())
-				roots = append(roots, l.Language().Lang)
+				roots = append(roots, l.Language().(*langs.Language).Lang)
 			}
 		} else {
 			l := conf.configs.GetFirstLanguageConfig()
