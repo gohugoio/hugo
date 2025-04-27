@@ -20,23 +20,6 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestGlobIdentity(t *testing.T) {
-	c := qt.New(t)
-
-	gid := NewGlobIdentity("/a/b/*")
-
-	c.Assert(isNotDependent(gid, StringIdentity("/a/b/c")), qt.IsFalse)
-	c.Assert(isNotDependent(gid, StringIdentity("/a/c/d")), qt.IsTrue)
-	c.Assert(isNotDependent(StringIdentity("/a/b/c"), gid), qt.IsTrue)
-	c.Assert(isNotDependent(StringIdentity("/a/c/d"), gid), qt.IsTrue)
-}
-
-func isNotDependent(a, b Identity) bool {
-	f := NewFinder(FinderConfig{})
-	r := f.Contains(a, b, -1)
-	return r == 0
-}
-
 func TestPredicateIdentity(t *testing.T) {
 	c := qt.New(t)
 

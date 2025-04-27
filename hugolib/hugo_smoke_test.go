@@ -49,6 +49,187 @@ Home: {{ .Title }}
 	b.AssertFileContent("public/index.html", `Hello`)
 }
 
+func TestSmoke202506(t *testing.T) {
+	t.Parallel()
+
+	// Test variants:
+	// Site with two languages, one with home page content and one without.
+	// A common translated page bundle but with different dates.
+	// A text resource in one of the languages.
+	// A content resource in one of the languages.
+	// Basic shortcode usage with templates in both languages.
+	// Test Rotate the language dimension.
+	// The same content page mounted for all languages.
+	// RenderString with shortcode.
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages.en]
+title = "Site title en"
+weight = 200
+[languages.nn]
+title = "Site title nn"
+weight = 100
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+lang = 'en'
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+lang = 'nn'
+[[module.mounts]]
+source = 'content/all'
+target = 'content'
+[module.mounts.sites.matrix]
+languages  = ["**"]
+-- content/en/_index.md --
+---
+title: "Home in English"
+---
+Home Content.
+-- content/en/mysection/p1/mytext.txt --
+This is a text resource in English.
+-- content/en/mysection/p1/mypage.md --
+---
+title: "mypage en"
+---
+mypage en content.
+-- content/en/mysection/p1/index.md --
+---
+title: "p1 en"
+date: 2023-10-01
+---
+Content p1 en.
+
+{{< myshortcode >}}
+-- content/nn/mysection/p1/index.md --
+---
+title: "p1 nn"
+date: 2024-10-01
+---
+Content p1 nn.
+
+{{< myshortcode >}}
+-- content/all/mysection/p2/index.md --
+---
+title: "p2 all"
+date: 2022-10-01
+---
+Content p2 all.
+
+{{< myshortcode >}}
+-- layouts/all.html --
+All. {{ .Title }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
+Content: {{ .Content }}|
+Rotate(language): {{ range .Rotate "language" }}{{ .Lang }}|{{ .Title }}|{{ end }}|
+mytext.txt: {{ with .Resources.GetMatch "**.txt" }}{{ .Content }}|{{ .RelPermalink }}{{ end }}|
+mypage.md: {{ with .Resources.GetMatch "**.md" }}{{ .Content }}|{{ .RelPermalink }}{{ end }}|
+RenderString with shortcode: {{ .RenderString "{{< myshortcode >}}" }}|
+-- layouts/shortcodes/myshortcode.html --
+myshortcode.html
+-- layouts/shortcodes/myshortcode.en.html --
+myshortcode.en.html
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/index.html",
+		"All. Home in English|", // from content file.
+		"Lastmod: 2023-10-01",
+		"RenderString with shortcode: myshortcode.en.html",
+	)
+	b.AssertFileContent("public/nn/index.html",
+		"Site title nn|", // from site config.
+		"Lastmod: 2024-10-01",
+		"RenderString with shortcode: myshortcode.html",
+	)
+
+	b.AssertFileContent("public/nn/mysection/p1/index.html",
+		"p1 nn|Lastmod: 2024-10-01|\nRotate(language): nn|p1 nn|en|p1 en||",
+		"mytext.txt: This is a text resource in English.|/en/mysection/p1/mytext.txt|",
+		"Content p1 nn.",
+		"mypage.md: |",
+		"myshortcode.html",
+	)
+
+	b.AssertFileContent("public/en/mysection/p1/index.html",
+		"p1 en|Lastmod: 2023-10-01|\nRotate(language): nn|p1 nn|en|p1 en||",
+		"mytext.txt: This is a text resource in English.|/en/mysection/p1/mytext.txt|",
+		"mypage.md: <p>mypage en content.</p>",
+		"Content p1 en.",
+		"myshortcode.en.html",
+		"RenderString with shortcode: myshortcode.en.html",
+	)
+
+	b.AssertFileContent("public/nn/mysection/p2/index.html",
+		"myshortcode.html",
+		"RenderString with shortcode: myshortcode.html",
+	)
+
+	b.AssertFileContent("public/en/mysection/p2/index.html",
+		"myshortcode.en.html",
+		"RenderString with shortcode: myshortcode.en.html",
+	)
+}
+
+func TestSmokeEdits202506(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy"]
+disableLiveReload = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages.en]
+title = "Site title en"
+weight = 200
+[languages.nn]
+title = "Site title nn"
+weight = 100
+[module]
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = ['en']
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = ['nn']
+-- content/en/p1/index.md --
+---
+title: "p1 en"
+date: 2023-10-01
+---
+Content p1 en.
+-- content/nn/p1/index.md --
+---
+title: "p1 nn"
+date: 2024-10-01
+---
+Content p1 nn.
+-- layouts/all.html --
+All. {{ .Title }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|Content: {{ .Content }}|
+
+`
+
+	b := TestRunning(t, files)
+
+	// b.AssertPublishDir("sDF")
+	b.AssertFileContent("public/en/p1/index.html", "All. p1 en|")
+	b.AssertFileContent("public/nn/p1/index.html", "All. p1 nn|")
+	b.EditFileReplaceAll("public/en/p1/index.html", "p1 en", "p1 en edited").Build()
+	b.AssertFileContent("public/en/p1/index.html", "All. p1 en edited")
+	b.EditFileReplaceAll("public/nn/p1/index.html", "p1 nn", "p1 nn|").Build()
+}
+
 func TestSmokeOutputFormats(t *testing.T) {
 	t.Parallel()
 

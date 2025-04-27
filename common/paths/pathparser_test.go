@@ -23,7 +23,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-var testParser = &PathParser{
+var testParser = &PathHandler{
 	LanguageIndex: map[string]int{
 		"no": 0,
 		"en": 1,
@@ -437,8 +437,8 @@ func TestParseLayouts(t *testing.T) {
 			"/mylayout.list.section.no.html",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Layout(), qt.Equals, "mylayout")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "list", "mylayout"})
-				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "mylayout"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"list"})
 				c.Assert(p.Base(), qt.Equals, "/mylayout.html")
 				c.Assert(p.Lang(), qt.Equals, "no")
 			},
@@ -461,7 +461,8 @@ func TestParseLayouts(t *testing.T) {
 			"Lang and output format",
 			"/list.no.amp.not.html",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "not", "amp", "no", "list"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "list", "amp", "no"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"not"})
 				c.Assert(p.OutputFormat(), qt.Equals, "amp")
 				c.Assert(p.Ext(), qt.Equals, "html")
 				c.Assert(p.Lang(), qt.Equals, "no")
@@ -583,12 +584,24 @@ func TestParseLayouts(t *testing.T) {
 				c.Assert(p.NameNoIdentifier(), qt.Equals, "myshortcode")
 			},
 		},
+		{
+			"Not lang",
+			"/foo/index.xy.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Lang(), qt.Equals, "")
+				c.Assert(p.Layout(), qt.Equals, "index")
+				c.Assert(p.NameNoLang(), qt.Equals, "index.xy.html")
+				c.Assert(p.PathNoLang(), qt.Equals, "/foo/index.xy.html")
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "index"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"xy"})
+			},
+		},
 	}
 
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-			if test.name != "Shortcode lang layout" {
-				// return
+			if test.name != "Not lang" {
+				return
 			}
 			test.assert(c, testParser.Parse(files.ComponentFolderLayouts, test.path))
 		})

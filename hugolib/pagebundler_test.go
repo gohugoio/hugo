@@ -36,6 +36,41 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+func TestPageBundlerBasic(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/mybundle/index.md --
+---
+title: "My Bundle"
+---
+-- content/mybundle/p1.md --
+---
+title: "P1"
+---
+-- content/mybundle/p1.html --
+---
+title: "P1 HTML"
+---
+-- content/mybundle/data.txt --
+Data txt.
+-- content/mybundle/sub/data.txt --
+Data sub txt.
+-- content/mybundle/sub/index.md --
+-- content/mysection/_index.md --
+---
+title: "My Section"
+---
+-- content/mysection/data.txt --
+Data section txt.
+-- layouts/all.html --
+All. {{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|{{ .BundleType }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/mybundle/index.html", "My Bundle|/mybundle/|page|leaf|")
+}
+
 func TestPageBundlerBundleInRoot(t *testing.T) {
 	t.Parallel()
 	files := `
