@@ -1865,3 +1865,30 @@ p1-content|
 	b.EditFileReplaceAll("content/p1/index.md", "p1-content", "p1-content-foo").Build()
 	b.AssertFileContent("public/p1/index.html", "p1-content-foo")
 }
+
+func TestRebuildEditTagIssue13648(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- layouts/all.html --
+All. {{ range .Pages }}{{ .Title }}|{{ end }}
+-- content/p1.md --
+---
+title: "P1"
+tags: ["tag1"]
+---
+
+`
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/tags/index.html", "All. Tag1|")
+	b.EditFileReplaceAll("content/p1.md", "tag1", "tag2").Build()
+
+	// Note that the below is still not correct, as this is effectively a rename, and
+	// Tag2 should be removed from the list.
+	// But that is a harder problem to tackle.
+	b.AssertFileContent("public/tags/index.html", "All. Tag1|Tag2|")
+}
