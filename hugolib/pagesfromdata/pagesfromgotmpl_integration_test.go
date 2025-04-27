@@ -915,3 +915,119 @@ Title: {{ .Title }}|Content: {{ .Content }}|
 
 	b.AssertFileContent("public/s1/index.html", "Title: baz|")
 }
+
+func TestPagesFromGoTmplVersions(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentVersionInSubdir = true
+[versions]
+[versions."v2.0.0"]
+[versions."v1.0.0"]
+
+[[module.mounts]]
+source = 'content/v1'
+target = 'content'
+[module.mounts.sites]
+weight = 100
+versions  = ["v1**"]
+-- layouts/all.html --
+All: {{ .Title }}|all.html Site version: {{ site.Version.Name }}|Content: {{ .Content }}|
+-- content/v1/_index.md --
+-- content/v1/_content.gotmpl --
+{{ $contenValue := printf "v1/_content.gotmpl Site version: %s" site.Version.Name  }}
+{{ $page := dict
+	"content" (dict "mediaType" "text/html" "value" $contenValue )
+	"title" "p1"
+	"path" "p1"
+ }}
+ {{ .AddPage $page }}
+ 
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/v1.0.0/p1/index.html", "All: p1|all.html Site version: v1.0.0|Content: v1/_content.gotmpl Site version: v1.0.0|")
+	b.AssertFileExists("public/v2.0.0/p1/index.html", false)
+}
+
+func TestPagesFromGoTmplVersionsInFrontMatter(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+defaultContentVersionInSubdir = true
+[versions]
+[versions."v2.0.0"]
+[versions."v1.0.0"]
+
+[[module.mounts]]
+source = 'content/v1'
+target = 'content'
+[module.mounts.sites]
+versions  = ["v1**"]
+-- layouts/all.html --
+All: {{ .Title }}|all.html Site version: {{ site.Version.Name }}|Content: {{ .Content }}|
+-- content/v1/_index.md --
+---
+sites:
+   versions: ["**"]
+---
+-- content/v1/_content.gotmpl --
+{{ $contenValue := printf "v1/_content.gotmpl Site version: %s" site.Version.Name  }}
+{{ $matrix := dict "versions" (slice "**") }}
+{{ $page := dict
+	"content" (dict "mediaType" "text/html" "value" $contenValue )
+	"title" "p1"
+	"path" "p1"
+	"sites" $matrix
+ }}
+ {{ .AddPage $page }}
+ 
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/v1.0.0/p1/index.html", "All: p1|all.html Site version: v1.0.0|Content: v1/_content.gotmpl Site version: v1.0.0|")
+	b.AssertFileContent("public/v2.0.0/p1/index.html", "All: p1|all.html Site version: v2.0.0|Content: v1/_content.gotmpl Site version: v1.0.0|")
+}
+
+func TestPagesFromGoTmplVersionsEnableAllDimensions(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentVersionInSubdir = true
+[versions]
+[versions."v2.0.0"]
+[versions."v1.0.0"]
+
+[[module.mounts]]
+source = 'content/v1'
+target = 'content'
+[module.mounts.sites]
+weight = 100
+versions  = ["v1**"]
+-- layouts/all.html --
+All: {{ .Title }}|all.html Site version: {{ site.Version.Name }}|Content: {{ .Content }}|
+-- content/v1/_index.md --
+-- content/v1/_content.gotmpl --
+{{ .EnableAllDimensions }}
+{{ $contenValue := printf "v1/_content.gotmpl Site version: %s" site.Version.Name  }}
+{{ $page := dict
+	"content" (dict "mediaType" "text/html" "value" $contenValue )
+	"title" "p1"
+	"path" (printf "p1/%s" site.Version.Name)
+ }}
+ {{ .AddPage $page }}
+ 
+`
+
+	b := hugolib.Test(t, files)
+
+	// This looks a little odd, but that's just the path set to a funky value.
+	b.AssertFileContent("public/v1.0.0/p1/v1.0.0/index.html", "All: p1|all.html Site version: v1.0.0|Content: v1/_content.gotmpl Site version: v1.0.0|")
+	b.AssertFileContent("public/v1.0.0/p1/v2.0.0/index.html", "All: p1|all.html Site version: v1.0.0|Content: v1/_content.gotmpl Site version: v2.0.0|")
+}
