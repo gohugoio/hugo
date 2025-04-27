@@ -23,6 +23,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gobuffalo/flect"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/converter"
 	xmaps "golang.org/x/exp/maps"
@@ -67,6 +68,11 @@ type pageMeta struct {
 	content *cachedContent // The source and the parsed page content.
 
 	s *Site // The site this page belongs to.
+}
+
+func (m pageMeta) cloneForSite(s *Site) (*pageMeta, error) {
+	m.s = s
+	return &m, nil
 }
 
 // Prepare for a rebuild of the data passed in from front matter.
@@ -242,51 +248,30 @@ func (p *pageMeta) Weight() int {
 	return p.pageConfig.Weight
 }
 
-func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf config.AllProvider) error {
+func (p *pageMeta) setMetaPre(pi *contentParseInfo, dimensionsFromFile *sitematrix.IntSets, logger loggers.Logger, conf config.AllProvider) error {
 	frontmatter := pi.frontMatter
 
 	if frontmatter != nil {
-		pcfg := p.pageConfig
-		// Needed for case insensitive fetching of params values
-		maps.PrepareParams(frontmatter)
-		pcfg.Params = frontmatter
-		// Check for any cascade define on itself.
-		if cv, found := frontmatter["cascade"]; found {
-			var err error
-			cascade, err := page.DecodeCascade(logger, true, cv)
-			if err != nil {
-				return err
-			}
-			pcfg.CascadeCompiled = cascade
-		}
-
-		// Look for path, lang and kind, all of which values we need early on.
-		if v, found := frontmatter["path"]; found {
-			pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
-			pcfg.Params["path"] = pcfg.Path
-		}
-		if v, found := frontmatter["lang"]; found {
-			lang := strings.ToLower(cast.ToString(v))
-			if _, ok := conf.PathParser().LanguageIndex[lang]; ok {
-				pcfg.Lang = lang
-				pcfg.Params["lang"] = pcfg.Lang
-			}
-		}
-		if v, found := frontmatter["kind"]; found {
-			s := cast.ToString(v)
-			if s != "" {
-				pcfg.Kind = kinds.GetKindMain(s)
-				if pcfg.Kind == "" {
-					return fmt.Errorf("unknown kind %q in front matter", s)
-				}
-				pcfg.Params["kind"] = pcfg.Kind
-			}
+		if err := p.pageConfig.SetMetaPreFromMap(frontmatter, logger, conf); err != nil {
+			return err
 		}
 	} else if p.pageMetaParams.pageConfig.Params == nil {
 		p.pageConfig.Params = make(maps.Params)
 	}
 
+	if p.pageConfig.Lang == "" {
+		if p.f != nil {
+			p.pageConfig.Lang = p.f.FileInfo().Meta().Lang
+		} else {
+			p.pageConfig.Lang = p.pathInfo.Lang()
+		}
+	}
+
 	p.pageMetaParams.init(conf.Watching())
+
+	if err := p.pageConfig.CompileEearly(conf, dimensionsFromFile); err != nil {
+		return fmt.Errorf("failed to compile roles: %w", err)
+	}
 
 	return nil
 }

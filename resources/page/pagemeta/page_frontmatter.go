@@ -21,12 +21,15 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/markup"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
@@ -34,8 +37,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/mitchellh/mapstructure"
-
-	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
@@ -78,13 +79,126 @@ func (d Dates) IsAllDatesZero() bool {
 
 // Page config that needs to be set early. These cannot be modified by cascade.
 type PageConfigEarly struct {
-	Kind    string // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
-	Path    string // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
-	Lang    string // The language code for this page. This is usually derived from the module mount or filename.
+	Kind string // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
+	Path string // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
+	Lang string // The language code for this page. This is usually derived from the module mount or filename.
+
+	Roles        []string
+	Versions     []string
+	Languages    []string // TODO1 vs Lang.
+	RoleDelegees []string
+
+	VersionDelegees  []string
+	LanguageDelegees []string
+
+	// User defined params.
+	Params maps.Params
+
 	Cascade []map[string]any
 
 	// Content holds the content for this page.
 	Content Source
+
+	// Compiled/temporary values.
+	CascadeCompiled *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] `mapstructure:"-" json:"-"`
+}
+
+const (
+	pageMetaKeyVersions         = "versions"
+	pageMetaKeyLanguages        = "languages"
+	pageMetaKeyRoles            = "roles"
+	pageMetaKeyVersionDelegees  = "versiondelegees"
+	pageMetaKeyLanguageDelegees = "languagedelegees"
+	pageMetaKeyRoleDelegees     = "roledelegees"
+	pageMetaKeyCascade          = "cascade"
+	pageMetaKeyPath             = "path"
+	pageMetaKeyLang             = "lang"
+	pageMetaKeyKind             = "kind"
+)
+
+func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logger loggers.Logger, conf config.AllProvider) error {
+	// Needed for case insensitive fetching of params values.
+	maps.PrepareParams(frontmatter)
+	pcfg.Params = frontmatter
+	// Check for any cascade define on itself.
+	if cv, found := frontmatter[pageMetaKeyCascade]; found {
+		var err error
+		cascade, err := page.DecodeCascade(logger, true, cv)
+		if err != nil {
+			return err
+		}
+		pcfg.CascadeCompiled = cascade
+	}
+
+	// Look for path, lang, roles and kind, all of which values we need early on.
+	if v, found := frontmatter[pageMetaKeyPath]; found {
+		pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
+	}
+	if v, found := frontmatter[pageMetaKeyLang]; found {
+		lang := strings.ToLower(cast.ToString(v))
+		if _, ok := conf.PathParser().LanguageIndex[lang]; ok {
+			pcfg.Lang = lang
+		}
+	}
+	if v, found := frontmatter[pageMetaKeyKind]; found {
+		s := cast.ToString(v)
+		if s != "" {
+			pcfg.Kind = kinds.GetKindMain(s)
+			if pcfg.Kind == "" {
+				return fmt.Errorf("unknown kind %q in front matter", s)
+			}
+		}
+	}
+	if v, found := frontmatter[pageMetaKeyRoles]; found {
+		pcfg.Roles = cast.ToStringSlice(v)
+	}
+	if v, found := frontmatter[pageMetaKeyVersions]; found {
+		pcfg.Versions = cast.ToStringSlice(v)
+	}
+	if v, found := frontmatter[pageMetaKeyLanguages]; found {
+		pcfg.Languages = cast.ToStringSlice(v)
+	}
+	if v, found := frontmatter[pageMetaKeyLanguageDelegees]; found {
+		pcfg.LanguageDelegees = cast.ToStringSlice(v)
+	}
+	if v, found := frontmatter[pageMetaKeyVersionDelegees]; found {
+		pcfg.VersionDelegees = cast.ToStringSlice(v)
+	}
+	if v, found := frontmatter[pageMetaKeyRoleDelegees]; found {
+		pcfg.RoleDelegees = cast.ToStringSlice(v)
+	}
+
+	return nil
+}
+
+func (p *PageConfigEarly) setConfigCascadeValueIfNotSet(key string, value any) {
+	switch key {
+	case pageMetaKeyVersions:
+		if p.Versions == nil {
+			// p.Versions = types.ToStringSlicePreserveString(value)
+		}
+	case pageMetaKeyLanguages:
+		if p.Languages == nil {
+			p.Languages = types.ToStringSlicePreserveString(value)
+		}
+	case pageMetaKeyRoles:
+		if p.Roles == nil {
+			p.Roles = types.ToStringSlicePreserveString(value)
+		}
+	case pageMetaKeyVersionDelegees:
+		if p.VersionDelegees == nil {
+			p.VersionDelegees = types.ToStringSlicePreserveString(value)
+		}
+	case pageMetaKeyLanguageDelegees:
+		if p.LanguageDelegees == nil {
+			p.LanguageDelegees = types.ToStringSlicePreserveString(value)
+		}
+	case pageMetaKeyRoleDelegees:
+		if p.RoleDelegees == nil {
+			p.RoleDelegees = types.ToStringSlicePreserveString(value)
+		}
+
+	}
 }
 
 // PageConfig configures a Page, typically from front matter.
@@ -117,18 +231,32 @@ type PageConfig struct {
 	Build   BuildConfig
 	Menus   any // Can be a string, []string or map[string]any.
 
-	// User defined params.
-	Params maps.Params
-
 	// The raw data from the content adapter.
 	// TODO(bep) clean up the ContentAdapterData vs Params.
 	ContentAdapterData map[string]any `mapstructure:"-" json:"-"`
 
 	// Compiled values.
-	CascadeCompiled         *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] `mapstructure:"-" json:"-"`
-	ContentMediaType        media.Type                                                    `mapstructure:"-" json:"-"`
-	ConfiguredOutputFormats output.Formats                                                `mapstructure:"-" json:"-"`
-	IsFromContentAdapter    bool                                                          `mapstructure:"-" json:"-"`
+	ConfiguredOutputFormats output.Formats `mapstructure:"-" json:"-"`
+	ContentMediaType        media.Type     `mapstructure:"-" json:"-"`
+	IsFromContentAdapter    bool           `mapstructure:"-" json:"-"`
+
+	Dimensions        *sitematrix.IntSets `mapstructure:"-" json:"-"`
+	DimensionDelegees *sitematrix.IntSets `mapstructure:"-" json:"-"`
+}
+
+func MatchLanguageOrLanguageDelegee(p *PageConfig, dims sitematrix.Vector) bool {
+	i := dims.Language()
+	return p.Dimensions.Languages.Has(i) || p.DimensionDelegees.Languages.Has(i)
+}
+
+func MatchRoleOrRoleDelegee(p *PageConfig, dims sitematrix.Vector) bool {
+	i := dims.Role()
+	return p.Dimensions.Roles.Has(i) || p.DimensionDelegees.Roles.Has(i)
+}
+
+func MatchVersionOrVersionDelegee(p *PageConfig, dims sitematrix.Vector) bool {
+	i := dims.Version()
+	return p.Dimensions.Versions.Has(i) || p.DimensionDelegees.Versions.Has(i)
 }
 
 func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
@@ -171,6 +299,49 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 			return errors.New("cascade is only supported for branch nodes")
 		}
 	}
+
+	return nil
+}
+
+// CompileEearly gets called early and before the cascade from content gets applied.
+func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *sitematrix.IntSets) error {
+	configCascade := conf.GetConfigSection("cascade").(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
+	if configCascade != nil {
+		configCascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
+			if !k.MatchesValues(p.Kind, p.Lang, p.Path, conf.Environment()) {
+				return true
+			}
+			vv, found := configCascade.Get(k)
+			if !found {
+				return true
+			}
+			for ck, cv := range vv.Fields {
+				p.setConfigCascadeValueIfNotSet(ck, cv)
+			}
+
+			return true
+		})
+	}
+
+	if false && p.Lang != "" {
+		// TODO1 move this or consolidate.
+		p.Languages = append(p.Languages, p.Lang)
+		p.Languages = hstrings.UniqueStringsReuse(p.Languages)
+	}
+
+	// TODO1 default when?
+	sets, err := sitematrix.NewIntSets2(conf.ConfiguredDimensions(), false, p.Languages, p.Versions, p.Roles)
+	if err != nil {
+		return fmt.Errorf("failed to create dimensions sets: %w", err)
+	}
+	sets.SetFrom(dimensionsFromFile)
+	p.Dimensions = sets
+
+	setsDelegees, err := sitematrix.NewIntSets2(conf.ConfiguredDimensions(), false, p.LanguageDelegees, p.VersionDelegees, p.RoleDelegees)
+	if err != nil {
+		return fmt.Errorf("failed to create dimensions delegees sets: %w", err)
+	}
+	p.DimensionDelegees = setsDelegees
 
 	return nil
 }
@@ -579,7 +750,7 @@ func addDateFieldAliases(values []string) []string {
 			complete = append(complete, aliases...)
 		}
 	}
-	return helpers.UniqueStringsReuse(complete)
+	return hstrings.UniqueStringsReuse(complete)
 }
 
 func expandDefaultValues(values []string, defaults []string) []string {

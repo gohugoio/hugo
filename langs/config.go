@@ -15,8 +15,15 @@ package langs
 
 import (
 	"errors"
+	"fmt"
+	"iter"
+	"slices"
+	"sort"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/predicate"
+	"github.com/gohugoio/hugo/config"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -44,6 +51,129 @@ type LanguageConfig struct {
 	Disabled bool
 }
 
+type LanguageInternal struct {
+	// Name is the name of the role, extracted from the key in the config.
+	Name string
+
+	// Whether this role is the default role.
+	// This will be rendered in the root.
+	// There is only be one default role.
+	Default bool
+
+	LanguageConfig
+}
+
+type LanguagesInternal struct {
+	languageConfigs map[string]LanguageConfig
+	Sorted          []LanguageInternal
+}
+
+func (ls LanguagesInternal) IndexDefault() int {
+	for i, role := range ls.Sorted {
+		if role.Default {
+			return i
+		}
+	}
+	panic("no default role found")
+}
+
+// IndexMatch returns an iterator for the roles that match the filter.
+func (ls LanguagesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
+	return func(yield func(i int) bool) {
+		for i, l := range ls.Sorted {
+			if !filter.ShouldExcludeFine(l.Name) {
+				if !yield(i) {
+					return
+				}
+			}
+		}
+	}, nil
+}
+
+func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguages []string) (string, error) {
+	const en = "en"
+
+	if len(ls.languageConfigs) == 0 {
+		// Add a default language.
+		if defaultContentLanguage == "" {
+			defaultContentLanguage = en
+		}
+		ls.languageConfigs[defaultContentLanguage] = LanguageConfig{}
+	}
+
+	var (
+		defaultSeen bool
+		enIdx       int = -1
+	)
+	for k, v := range ls.languageConfigs {
+		if !v.Disabled && slices.Contains(disabledLanguages, k) {
+			// This language is disabled.
+			v.Disabled = true
+			ls.languageConfigs[k] = v
+		}
+
+		if k == "" {
+			return "", errors.New("role name cannot be empty")
+		}
+
+		if err := paths.ValidateIdentifier(k); err != nil {
+			// TODO1 config keys gets auto lowercased, so this will (almost) never happen.
+			// TODO1: Tree store: linked list for dimension nodes.
+			return "", fmt.Errorf("role name %q is invalid: %s", k, err)
+		}
+
+		var isDefault bool
+		if k == defaultContentLanguage {
+			isDefault = true
+			defaultSeen = true
+		}
+
+		if isDefault && v.Disabled {
+			return "", fmt.Errorf("default language %q is disabled", k)
+		}
+
+		ls.Sorted = append(ls.Sorted, LanguageInternal{Name: k, Default: isDefault, LanguageConfig: v})
+	}
+
+	// Sort by weight if set, then by name.
+	sort.SliceStable(ls.Sorted, func(i, j int) bool {
+		ri, rj := ls.Sorted[i], ls.Sorted[j]
+		if ri.Weight == rj.Weight {
+			return ri.Name < rj.Name
+		}
+		if rj.Weight == 0 {
+			return true
+		}
+		if ri.Weight == 0 {
+			return false
+		}
+		return ri.Weight < rj.Weight
+	})
+
+	for i, l := range ls.Sorted {
+		if l.Name == en {
+			enIdx = i
+			break
+		}
+	}
+
+	if !defaultSeen {
+		defaultIdx := 0
+		if enIdx != -1 {
+			defaultIdx = enIdx
+		}
+		d := ls.Sorted[defaultIdx]
+		d.Default = true
+		ls.languageConfigs[d.Name] = d.LanguageConfig
+		ls.Sorted[defaultIdx] = d
+		defaultContentLanguage = d.Name
+
+	}
+
+	return defaultContentLanguage, nil
+}
+
+// TODO1 remove.
 func DecodeConfig(m map[string]any) (map[string]LanguageConfig, error) {
 	m = maps.CleanConfigStringMap(m)
 	var langs map[string]LanguageConfig
@@ -55,4 +185,22 @@ func DecodeConfig(m map[string]any) (map[string]LanguageConfig, error) {
 		return nil, errors.New("no languages configured")
 	}
 	return langs, nil
+}
+
+func DecodeConfig2(defaultContentLanguage string, disabledLanguages []string, m map[string]any) (*config.ConfigNamespace[map[string]LanguageConfig, LanguagesInternal], string, error) {
+	v, err := config.DecodeNamespace[map[string]LanguageConfig](m, func(in any) (LanguagesInternal, any, error) {
+		var languages LanguagesInternal
+		var conf map[string]LanguageConfig
+		if err := mapstructure.Decode(m, &conf); err != nil {
+			return languages, nil, err
+		}
+		languages.languageConfigs = conf
+		var err error
+		if defaultContentLanguage, err = languages.init(defaultContentLanguage, disabledLanguages); err != nil {
+			return languages, nil, err
+		}
+		return languages, nil, nil
+	})
+
+	return v, defaultContentLanguage, err
 }
