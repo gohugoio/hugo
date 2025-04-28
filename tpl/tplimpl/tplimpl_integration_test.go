@@ -195,18 +195,35 @@ func TestGoogleAnalyticsTemplate(t *testing.T) {
 disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 [privacy.googleAnalytics]
 disable = false
-respectDoNotTrack = true
+DNT
 [services.googleAnalytics]
 id = 'G-0123456789'
--- layouts/index.html --
-{{ template "_internal/google_analytics.html" . }}
+-- layouts/home.html --
+{{ partial "google_analytics.html" . }}
 `
 
-	b := hugolib.Test(t, files)
-
+	// default respectDoNotTrack value
+	f := strings.ReplaceAll(files, "DNT", "")
+	b := hugolib.Test(t, f)
 	b.AssertFileContent("public/index.html",
 		`<script async src="https://www.googletagmanager.com/gtag/js?id=G-0123456789"></script>`,
-		`var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);`,
+		`if ( true )`,
+	)
+
+	// respectDoNotTrack = true
+	f = strings.ReplaceAll(files, "DNT", "respectDoNotTrack = true")
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`<script async src="https://www.googletagmanager.com/gtag/js?id=G-0123456789"></script>`,
+		`if ( true )`,
+	)
+
+	// respectDoNotTrack = false
+	f = strings.ReplaceAll(files, "DNT", "respectDoNotTrack = false")
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html",
+		`<script async src="https://www.googletagmanager.com/gtag/js?id=G-0123456789"></script>`,
+		`if ( false )`,
 	)
 }
 
