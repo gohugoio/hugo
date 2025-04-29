@@ -155,10 +155,12 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 		}
 	}
 
-	versionPrefix := s.getPrefixVersion()
-	addPrefix(versionPrefix, versionPrefix)
+	// Add path prefixes.
+	// Add any role first, as that is a natural candidate for external ACL checks.
 	rolePrefix := s.getPrefixRole()
 	addPrefix(rolePrefix, rolePrefix)
+	versionPrefix := s.getPrefixVersion()
+	addPrefix(versionPrefix, versionPrefix)
 	addPrefix(s.getLanguageTargetPathLang(alwaysInSubDir), s.getLanguagePermalinkLang(alwaysInSubDir))
 
 	if desc.URL != "" && strings.IndexByte(desc.URL, ':') >= 0 {

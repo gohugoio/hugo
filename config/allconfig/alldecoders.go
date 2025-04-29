@@ -71,8 +71,10 @@ var allDecoderSetups = map[string]decodeWeight{
 				return err
 			}
 
-			// This need to match with Lang which is always lower case.
+			// This need to match with the map keys, always lower case.
 			p.c.RootConfig.DefaultContentLanguage = strings.ToLower(p.c.RootConfig.DefaultContentLanguage)
+			p.c.RootConfig.DefaultContentRole = strings.ToLower(p.c.RootConfig.DefaultContentRole)
+			p.c.RootConfig.DefaultContentVersion = strings.ToLower(p.c.RootConfig.DefaultContentVersion)
 
 			return nil
 		},
@@ -217,7 +219,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
 			m := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
-			p.c.Roles, err = roles.DecodeConfig(m)
+			p.c.Roles, err = roles.DecodeConfig(p.c.RootConfig.DefaultContentRole, m)
 			return err
 		},
 	},
@@ -226,7 +228,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
 			m := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
-			p.c.Versions, err = versions.DecodeConfig(m)
+			p.c.Versions, err = versions.DecodeConfig(p.c.RootConfig.DefaultContentVersion, m)
 			return err
 		},
 	},

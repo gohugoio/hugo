@@ -25,11 +25,6 @@ import (
 )
 
 type RoleConfig struct {
-	// Whether this role is the default role.
-	// This will be rendered in the root.
-	// There can only be one default role.
-	Default bool
-
 	// The weight of the role.
 	// Used to determine the order of the roles.
 	// If zero, we use the role name.
@@ -37,7 +32,14 @@ type RoleConfig struct {
 }
 
 type Role struct {
+	// Name is the name of the role, extracted from the key in the config.
 	Name string
+
+	// Whether this role is the default role.
+	// This will be rendered in the root.
+	// There is only be one default role.
+	Default bool
+
 	RoleConfig
 }
 
@@ -69,13 +71,13 @@ func (r Roles) IndexMatch(pattern string) (int, error) {
 	return -1, nil
 }
 
-func (r *Roles) init() error {
+func (r *Roles) init(defaultContentRole string) error {
 	if len(r.roleConfigs) == 0 {
 		// Add a default role.
-		r.roleConfigs[""] = RoleConfig{Default: true}
+		r.roleConfigs[""] = RoleConfig{}
 	}
 
-	var defaultSeen int
+	var defaultSeen bool
 	for k, v := range r.roleConfigs {
 		if k == "" {
 			return errors.New("role name cannot be empty")
@@ -83,20 +85,17 @@ func (r *Roles) init() error {
 
 		if err := paths.ValidateIdentifier(k); err != nil {
 			// TODO1 config keys gets auto lowercased, so this will (almost) never happen.
-			// TODO1: Page.cloneForRole(role)
 			// TODO1: Tree store: linked list for dimension nodes.
 			return fmt.Errorf("role name %q is invalid: %s", k, err)
 		}
 
-		if v.Default {
-			defaultSeen++
+		var isDefault bool
+		if k == defaultContentRole {
+			isDefault = true
+			defaultSeen = true
 		}
 
-		if defaultSeen > 1 {
-			return errors.New("only one role can be the default role")
-		}
-
-		r.Sorted = append(r.Sorted, Role{Name: k, RoleConfig: v})
+		r.Sorted = append(r.Sorted, Role{Name: k, Default: isDefault, RoleConfig: v})
 	}
 
 	// Sort by weight if set, then by name.
@@ -114,7 +113,7 @@ func (r *Roles) init() error {
 		return ri.Weight < rj.Weight
 	})
 
-	if defaultSeen == 0 {
+	if !defaultSeen {
 		// If no default role is set, we set the first one.
 		first := r.Sorted[0]
 		first.Default = true
@@ -130,7 +129,7 @@ func (r Roles) Has(role string) bool {
 	return found
 }
 
-func DecodeConfig(m map[string]any) (*config.ConfigNamespace[map[string]RoleConfig, Roles], error) {
+func DecodeConfig(defaultContentRole string, m map[string]any) (*config.ConfigNamespace[map[string]RoleConfig, Roles], error) {
 	return config.DecodeNamespace[map[string]RoleConfig](m, func(in any) (Roles, any, error) {
 		var roles Roles
 		var conf map[string]RoleConfig
@@ -138,7 +137,7 @@ func DecodeConfig(m map[string]any) (*config.ConfigNamespace[map[string]RoleConf
 			return roles, nil, err
 		}
 		roles.roleConfigs = conf
-		if err := roles.init(); err != nil {
+		if err := roles.init(defaultContentRole); err != nil {
 			return roles, nil, err
 		}
 		return roles, nil, nil

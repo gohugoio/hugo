@@ -1456,7 +1456,7 @@ func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
 func (s *Site) getPrefixRole() string {
 	role := s.role
 	if role.Default {
-		if s.conf.DefaultRoleInSubdir {
+		if s.conf.DefaultContentRoleInSubdir {
 			return role.Name
 		}
 		return ""
@@ -1467,7 +1467,7 @@ func (s *Site) getPrefixRole() string {
 func (s *Site) getPrefixVersion() string {
 	version := s.version
 	if version.Default {
-		if s.conf.DefaultVersionInSubdir {
+		if s.conf.DefaultContentVersionInSubdir {
 			return version.Name
 		}
 		return ""

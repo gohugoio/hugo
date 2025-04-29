@@ -216,12 +216,12 @@ func (c ConfigLanguage) DefaultContentLanguageInSubdir() bool {
 	return c.config.DefaultContentLanguageInSubdir
 }
 
-func (c ConfigLanguage) DefaultRoleInSubdir() bool {
-	return c.config.DefaultRoleInSubdir
+func (c ConfigLanguage) DefaultContentRoleInSubdir() bool {
+	return c.config.DefaultContentRoleInSubdir
 }
 
-func (c ConfigLanguage) DefaultVersionInSubdir() bool {
-	return c.config.DefaultVersionInSubdir
+func (c ConfigLanguage) DefaultContentVersionInSubdir() bool {
+	return c.config.DefaultContentVersionInSubdir
 }
 
 func (c ConfigLanguage) SummaryLength() int {

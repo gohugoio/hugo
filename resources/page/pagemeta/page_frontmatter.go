@@ -191,8 +191,8 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider) error {
 	defaultIdx = configuredVersions.IndexDefault()
 
 	if p.Versions == nil {
-		p.RolesCompiled = []int{defaultIdx}
-		p.RolesCompiledMap[defaultIdx] = true
+		p.VersionsCompiled = []int{defaultIdx}
+		p.VersionsCompiledMap[defaultIdx] = true
 	} else {
 		for _, pattern := range p.Versions {
 			i, err := configuredVersions.IndexMatch(pattern)

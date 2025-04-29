@@ -559,11 +559,17 @@ type RootConfig struct {
 	// Set this to true to put all languages below their language ID.
 	DefaultContentLanguageInSubdir bool
 
+	// The default content role to use for the site.
+	DefaultContentRole string
+
 	// Set this to true to put the default role in a subdirectory.
-	DefaultRoleInSubdir bool
+	DefaultContentRoleInSubdir bool
+
+	// The default content version to use for the site.
+	DefaultContentVersion string
 
 	// Set to true to render the default version in a subdirectory.
-	DefaultVersionInSubdir bool
+	DefaultContentVersionInSubdir bool
 
 	// The default output format to use for the site.
 	// If not set, we will use the first output format.

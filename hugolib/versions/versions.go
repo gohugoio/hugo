@@ -26,11 +26,6 @@ import (
 )
 
 type VersionConfig struct {
-	// Whether this version is the default version.
-	// This will be by default rendered in the root.
-	// There can only be one default version.
-	Default bool
-
 	// The weight of the version.
 	// Used to determine the order of the versions.
 	// If zero, we use the version name to sort.
@@ -39,7 +34,14 @@ type VersionConfig struct {
 }
 
 type Version struct {
+	// Name of the version.
+	// This is the key from the config.
 	Name string
+	// Whether this version is the default version.
+	// This will be by default rendered in the root.
+	// There can only be one default version.
+	Default bool
+
 	VersionConfig
 }
 
@@ -71,13 +73,13 @@ func (r Versions) IndexMatch(pattern string) (int, error) {
 	return -1, nil
 }
 
-func (r *Versions) init() error {
+func (r *Versions) init(defaultContentVersion string) error {
 	if len(r.versionConfigs) == 0 {
 		// Add a default version.
-		r.versionConfigs[""] = VersionConfig{Default: true}
+		r.versionConfigs[""] = VersionConfig{}
 	}
 
-	var defaultSeen int
+	var defaultSeen bool
 	for k, v := range r.versionConfigs {
 		if k == "" {
 			return errors.New("version name cannot be empty")
@@ -86,14 +88,13 @@ func (r *Versions) init() error {
 			return fmt.Errorf("version name %q is invalid: %s", k, err)
 		}
 
-		if v.Default {
-			defaultSeen++
+		var isDefault bool
+		if k == defaultContentVersion {
+			isDefault = true
+			defaultSeen = true
 		}
 
-		if defaultSeen > 1 {
-			return errors.New("only one version can be the default version")
-		}
-		r.Sorted = append(r.Sorted, Version{Name: k, VersionConfig: v})
+		r.Sorted = append(r.Sorted, Version{Name: k, Default: isDefault, VersionConfig: v})
 	}
 
 	// Sort by weight if set, then by name.
@@ -112,7 +113,7 @@ func (r *Versions) init() error {
 		return ri.Weight < rj.Weight
 	})
 
-	if defaultSeen == 0 {
+	if !defaultSeen {
 		// If no default version is set, we set the first one.
 		first := r.Sorted[0]
 		first.Default = true
@@ -128,7 +129,7 @@ func (r Versions) Has(version string) bool {
 	return found
 }
 
-func DecodeConfig(m map[string]any) (*config.ConfigNamespace[map[string]VersionConfig, Versions], error) {
+func DecodeConfig(defaultContentVersion string, m map[string]any) (*config.ConfigNamespace[map[string]VersionConfig, Versions], error) {
 	return config.DecodeNamespace[map[string]VersionConfig](m, func(in any) (Versions, any, error) {
 		var versions Versions
 		var conf map[string]VersionConfig
@@ -136,7 +137,7 @@ func DecodeConfig(m map[string]any) (*config.ConfigNamespace[map[string]VersionC
 			return versions, nil, err
 		}
 		versions.versionConfigs = conf
-		if err := versions.init(); err != nil {
+		if err := versions.init(defaultContentVersion); err != nil {
 			return versions, nil, err
 		}
 		return versions, nil, nil
