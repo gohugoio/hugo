@@ -323,6 +323,9 @@ func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, d1 TemplateDescriptor
 	}
 
 	ti.baseVariants.WalkPath(k1, func(k2 string, v map[TemplateDescriptor]*TemplWithBaseApplied) (bool, error) {
+		if !s.inPath(k1, k2) {
+			return false, nil
+		}
 		slashCountK2 := strings.Count(k2, "/")
 		distance := slashCountK1 - slashCountK2
 
@@ -615,6 +618,9 @@ func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
 	defer s.putBest(best)
 
 	s.treeShortcodes.WalkPath(k1, func(k2 string, m map[string]map[TemplateDescriptor]*TemplInfo) (bool, error) {
+		if !s.inPath(k1, k2) {
+			return false, nil
+		}
 		slashCountK2 := strings.Count(k2, "/")
 		distance := slashCountK1 - slashCountK2
 
@@ -780,8 +786,18 @@ func (s *TemplateStore) findBestMatchGet(key string, category Category, consider
 	}
 }
 
+func (s *TemplateStore) inPath(k1, k2 string) bool {
+	if k1 != k2 && !strings.HasPrefix(k1, k2+"/") {
+		return false
+	}
+	return true
+}
+
 func (s *TemplateStore) findBestMatchWalkPath(q TemplateQuery, k1 string, slashCountK1 int, best *bestMatch) {
 	s.treeMain.WalkPath(k1, func(k2 string, v map[nodeKey]*TemplInfo) (bool, error) {
+		if !s.inPath(k1, k2) {
+			return false, nil
+		}
 		slashCountK2 := strings.Count(k2, "/")
 		distance := slashCountK1 - slashCountK2
 

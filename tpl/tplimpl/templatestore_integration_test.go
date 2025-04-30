@@ -1396,3 +1396,19 @@ layouts/taxononmy.html.html
 		b.AssertFileExists("public/p1/index.html", false)
 	}
 }
+
+func TestTemplateLoopBlogVsBlogrollIssue13672(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+-- layouts/blog/all.html --
+blog/all.html
+-- layouts/blogroll/all.html --
+blogroll/all.html
+-- content/blogroll/p1.md --
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/blogroll/p1/index.html", "blogroll/all.html")
+}
