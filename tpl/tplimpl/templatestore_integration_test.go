@@ -1401,14 +1401,61 @@ func TestTemplateLoopBlogVsBlogrollIssue13672(t *testing.T) {
 	t.Parallel()
 	files := `
 -- hugo.toml --
+-- layouts/blog/_shortcodes/myshortcode.html --
+layouts/blog/_shortcodes/myshortcode.html
+-- layouts/blog/baseof.html --
+blog/baseof.html {{ block "main" . }}{{ end }}
 -- layouts/blog/all.html --
-blog/all.html
+{{ define "main" }}blog/all.html|{{ .Content}}{{ end }}
+-- layouts/blogroll/_shortcodes/myshortcode.html --
+layouts/blogroll/myshortcode.html
+-- layouts/blogroll/baseof.html --
+{{ block "main" . }}blogroll/baseof.html{{ end }}
 -- layouts/blogroll/all.html --
-blogroll/all.html
+{{ define "main" }}blogroll/all.html|{{ .Content}}{{ end }}
+-- content/blog/p1.md --
+---
+title: p1
+---
+{{< myshortcode >}}
 -- content/blogroll/p1.md --
+---
+title: p1
+---
+{{< myshortcode >}}
 `
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/blogroll/p1/index.html", "blogroll/all.html")
+	b.AssertFileContent("public/blog/p1/index.html", "blog/baseof.html blog/all.html|layouts/blog/_shortcodes/myshortcode.html")
+	b.AssertFileContent("public/blogroll/p1/index.html", "blogroll/all.html|layouts/blogroll/myshortcode.html")
+}
+
+// See issue #13668.
+func TestPartialPlainTextVsHTML(t *testing.T) {
+	t.Parallel()
+
+	/*
+		Note that in the below, there's no output format named txt,
+		so the isPlainText is fetched from the only output format with that extension.
+	*/
+	files := `
+-- hugo.toml --
+-- layouts/_partials/myhtml.html --
+<div>myhtml</div>
+-- layouts/_partials/mytext.txt --
+<div>mytext</div>
+-- layouts/all.html --
+myhtml: {{ partial "myhtml.html" . }}
+mytext: {{ partial "mytext.txt" . }}
+mytexts|safeHTML: {{ partial "mytext.txt" . | safeHTML }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"myhtml: <div>myhtml</div>",
+		"mytext: &lt;div&gt;mytext&lt;/div&gt;",
+		"mytexts|safeHTML: <div>mytext</div>",
+	)
 }
