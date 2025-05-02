@@ -273,6 +273,69 @@ GA ID: {{ site.Config.Services.GoogleAnalytics.ID }}.
 	b.AssertFileContent("public/index.html", "GA ID: foo bar.")
 }
 
+func TestMergeDeepBuildStats(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+title = "Theme 1"
+_merge = "deep"
+[module]
+[module.hugoVersion]
+[[module.imports]]
+path = "theme1"
+-- themes/theme1/hugo.toml --
+[build]
+[build.buildStats]
+disableIDs = true
+enable     = true
+-- layouts/home.html --
+Home.
+
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	conf := b.H.Configs
+	base := conf.Base
+
+	b.Assert(base.Title, qt.Equals, "Theme 1")
+	b.Assert(len(base.Module.Imports), qt.Equals, 1)
+	b.Assert(base.Build.BuildStats.Enable, qt.Equals, true)
+	b.AssertFileExists("/hugo_stats.json", true)
+}
+
+func TestMergeDeepBuildStatsTheme(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+_merge = "deep"
+theme = ["theme1"]
+-- themes/theme1/hugo.toml --
+title = "Theme 1"
+[build]
+[build.buildStats]
+disableIDs = true
+enable     = true
+-- layouts/home.html --
+Home.
+
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	conf := b.H.Configs
+	base := conf.Base
+
+	b.Assert(base.Title, qt.Equals, "Theme 1")
+	b.Assert(len(base.Module.Imports), qt.Equals, 1)
+	b.Assert(base.Build.BuildStats.Enable, qt.Equals, true)
+	b.AssertFileExists("/hugo_stats.json", true)
+}
+
 func TestDefaultConfigLanguageBlankWhenNoEnglishExists(t *testing.T) {
 	t.Parallel()
 
