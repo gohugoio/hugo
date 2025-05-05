@@ -96,7 +96,7 @@ inline = [['\(', '\)']]
 {{< /code-toggle >}}
 
 > [!note]
-> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
+> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 
 ### Step 2
 

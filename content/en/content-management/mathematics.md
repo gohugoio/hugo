@@ -64,7 +64,7 @@ math = true
 The configuration above enables mathematical rendering on every page unless you set the `math` parameter to `false` in front matter. To enable mathematical rendering as needed, set the `math` parameter to `false` in your site configuration, and set the `math` parameter to `true` in front matter. Use this parameter in your base template as shown in [Step 3].
 
 > [!note]
-> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration and JavaScript, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
+> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration and JavaScript, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 >
 > See the [inline delimiters](#inline-delimiters) section for details.
 
@@ -161,10 +161,10 @@ math = true
 
 The configuration, JavaScript, and examples above use the `\(...\)` delimiter pair for inline equations. The `$...$` delimiter pair is a common alternative, but using it may result in unintended formatting if you use the `$` symbol outside of math contexts.
 
-If you add the `$...$` delimiter pair to your configuration and JavaScript, you must double-escape the `$` when outside of math contexts, regardless of whether mathematical rendering is enabled on the page. For example:
+If you add the `$...$` delimiter pair to your configuration and JavaScript, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting. For example:
 
 ```text
-A \\$5 bill _saved_ is a \\$5 bill _earned_.
+I will give you \\$2 if you can solve $y = x^2$.
 ```
 
 > [!note]
