@@ -27,7 +27,7 @@ variables:
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
-  HUGO_VERSION: 0.146.7
+  HUGO_VERSION: 0.147.1
   NODE_VERSION: 22.x
   TZ: America/Los_Angeles
 image:
