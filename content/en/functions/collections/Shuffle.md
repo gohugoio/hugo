@@ -36,7 +36,7 @@ For better performance with large collections, use the [`math.Rand`] and [`colle
   {{ $p := site.RegularPages }}
   {{ range seq 5 }}
     {{ with math.Rand | mul $p.Len | math.Floor | int }}
-      {{ with index $p . }}
+      {{ with collections.Index $p . }}
         <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
       {{ end }}
     {{ end }}
