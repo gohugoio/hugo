@@ -299,3 +299,19 @@ P2.
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "P1: P1.\nP2: foo bar")
 }
+
+func TestTemplateExistsCaseIssue13684(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+P1: {{ templates.Exists "_partials/MyPartial.html" }}|P1: {{ templates.Exists "_partials/mypartial.html" }}|
+-- layouts/_partials/MyPartial.html --
+MyPartial.
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "P1: true|P1: true|")
+}
