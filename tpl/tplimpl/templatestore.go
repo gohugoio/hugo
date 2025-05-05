@@ -712,6 +712,7 @@ func (s *TemplateStore) RefreshFiles(include func(fi hugofs.FileMetaInfo) bool) 
 }
 
 func (s *TemplateStore) HasTemplate(templatePath string) bool {
+	templatePath = strings.ToLower(templatePath)
 	templatePath = paths.AddLeadingSlash(templatePath)
 	return s.templatesByPath.Contains(templatePath)
 }
