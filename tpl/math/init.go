@@ -115,6 +115,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.MaxInt64,
+			nil,
+			[][2]string{
+				{"{{ math.MaxInt64 }}", "9223372036854775807"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Min,
 			nil,
 			[][2]string{

@@ -147,6 +147,11 @@ func (ns *Namespace) Max(inputs ...any) (maximum float64, err error) {
 	return ns.applyOpToScalarsOrSlices("Max", math.Max, inputs...)
 }
 
+// MaxInt64 returns the maximum value for a signed 64-bit integer.
+func (ns *Namespace) MaxInt64() int64 {
+	return math.MaxInt64
+}
+
 // Min returns the smaller of all numbers in inputs. Any slices in inputs are flattened.
 func (ns *Namespace) Min(inputs ...any) (minimum float64, err error) {
 	return ns.applyOpToScalarsOrSlices("Min", math.Min, inputs...)

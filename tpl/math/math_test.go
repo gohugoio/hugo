@@ -879,3 +879,14 @@ func TestToRadians(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
+
+func TestMaxInt64(t *testing.T) {
+	t.Parallel()
+	ns := New(nil)
+
+	var want int64 = 9223372036854775807
+	got := ns.MaxInt64()
+	if want != got {
+		t.Errorf("want %d, got %d", want, got)
+	}
+}
