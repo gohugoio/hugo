@@ -37,7 +37,7 @@ Use these methods within a content adapter.
 
 Adds a page to the site.
 
-```go-html-template {file="content/books/"}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ $content := dict
   "mediaType" "text/markdown"
   "value" "The _Hunchback of Notre Dame_ was written by Victor Hugo."
@@ -55,7 +55,7 @@ Adds a page to the site.
 
 Adds a page resource to the site.
 
-```go-html-template {file="content/books/"}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ with resources.Get "images/a.jpg" }}
   {{ $content := dict
     "mediaType" .MediaType.Type
@@ -81,7 +81,7 @@ Then retrieve the new page resource with something like:
 
 Returns the `Site` to which the pages will be added.
 
-```go-html-template {file="content/books/"}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ .Site.Title }}
 ```
 
@@ -92,7 +92,7 @@ Returns the `Site` to which the pages will be added.
 
 Returns a persistent “scratch pad” to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
 
-```go-html-template {file="content/books/"}
+```go-html-template {file="content/books/_content.gotmpl"}
 {{ .Store.Set "key" "value" }}
 {{ .Store.Get "key" }}
 ```
