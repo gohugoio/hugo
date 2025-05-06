@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/markup"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -114,9 +115,10 @@ type PageConfig struct {
 	Content Source
 
 	// Compiled values.
-	CascadeCompiled      *maps.Ordered[page.PageMatcher, maps.Params] `mapstructure:"-" json:"-"`
-	ContentMediaType     media.Type                                   `mapstructure:"-" json:"-"`
-	IsFromContentAdapter bool                                         `mapstructure:"-" json:"-"`
+	CascadeCompiled         *maps.Ordered[page.PageMatcher, maps.Params] `mapstructure:"-" json:"-"`
+	ContentMediaType        media.Type                                   `mapstructure:"-" json:"-"`
+	ConfiguredOutputFormats output.Formats                               `mapstructure:"-" json:"-"`
+	IsFromContentAdapter    bool                                         `mapstructure:"-" json:"-"`
 }
 
 var DefaultPageConfig = PageConfig{
@@ -150,7 +152,7 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 }
 
 // Compile sets up the page configuration after all fields have been set.
-func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, logger loggers.Logger, mediaTypes media.Types) error {
+func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, logger loggers.Logger, outputFormats output.Formats, mediaTypes media.Types) error {
 	// In content adapters, we always get relative paths.
 	if basePath != "" {
 		p.Path = path.Join(basePath, p.Path)
@@ -195,6 +197,15 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 		p.Content.Markup = p.ContentMediaType.SubType
 	}
 
+	if len(p.Outputs) > 0 {
+		outFormats, err := outputFormats.GetByNames(p.Outputs...)
+		if err != nil {
+			return fmt.Errorf("failed to resolve output formats %v: %w", p.Outputs, err)
+		} else {
+			p.ConfiguredOutputFormats = outFormats
+		}
+	}
+
 	if pagesFromData {
 		if p.Kind == "" {
 			p.Kind = kinds.KindPage
@@ -205,6 +216,7 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 		// but also because people tend to use use the filename to name their resources (with spaces and all),
 		// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
 		p.Path = paths.NormalizePathStringBasic(p.Path)
+
 	}
 
 	if p.Cascade != nil {

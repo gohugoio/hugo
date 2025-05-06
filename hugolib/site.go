@@ -804,7 +804,7 @@ func (s *Site) initRenderFormats() {
 		Tree: s.pageMap.treePages,
 		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			if p, ok := n.(*pageState); ok {
-				for _, f := range p.m.configuredOutputFormats {
+				for _, f := range p.m.pageConfig.ConfiguredOutputFormats {
 					if !formatSet[f.Name] {
 						formats = append(formats, f)
 						formatSet[f.Name] = true
