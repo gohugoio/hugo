@@ -27,7 +27,7 @@ content/
     └── _index.md
 ```
 
-Each content adapter is named _content.gotmpl and uses the same [syntax] as templates in the `layouts` directory. You can use any of the [template functions] within a content adapter, as well as the methods described below.
+Each content adapter is named `_content.gotmpl` and uses the same [syntax] as templates in the `layouts` directory. You can use any of the [template functions] within a content adapter, as well as the methods described below.
 
 ## Methods
 
@@ -37,7 +37,7 @@ Use these methods within a content adapter.
 
 Adds a page to the site.
 
-```go-html-template {file="content/books/_content.gotmpl"}
+```go-html-template {file="content/books/"}
 {{ $content := dict
   "mediaType" "text/markdown"
   "value" "The _Hunchback of Notre Dame_ was written by Victor Hugo."
@@ -55,7 +55,7 @@ Adds a page to the site.
 
 Adds a page resource to the site.
 
-```go-html-template {file="content/books/_content.gotmpl"}
+```go-html-template {file="content/books/"}
 {{ with resources.Get "images/a.jpg" }}
   {{ $content := dict
     "mediaType" .MediaType.Type
@@ -81,7 +81,7 @@ Then retrieve the new page resource with something like:
 
 Returns the `Site` to which the pages will be added.
 
-```go-html-template {file="content/books/_content.gotmpl"}
+```go-html-template {file="content/books/"}
 {{ .Site.Title }}
 ```
 
@@ -92,14 +92,14 @@ Returns the `Site` to which the pages will be added.
 
 Returns a persistent “scratch pad” to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
 
-```go-html-template {file="content/books/_content.gotmpl"}
+```go-html-template {file="content/books/"}
 {{ .Store.Set "key" "value" }}
 {{ .Store.Get "key" }}
 ```
 
 ### EnableAllLanguages
 
-By default, Hugo executes the content adapter for the language defined by the _content.gotmpl file. Use this method to activate the content adapter for all languages.
+By default, Hugo executes the content adapter for the language defined by the `_content.gotmpl` file. Use this method to activate the content adapter for all languages.
 
 ```go-html-template {file="content/books/_content.gotmpl"}
 {{ .EnableAllLanguages }}
