@@ -132,7 +132,7 @@ lazyQuotes
 
 targetType
 : {{< new-in 0.146.7 />}}
-: (`string`) The target data type, either `slice` or `map`. Default is `slice`.
+: (`string`) The target data type, either `` or `map`. Default is ``.
 
 ### Examples
 
@@ -148,7 +148,7 @@ The examples below use this CSV file:
 To render an HTML table from a CSV file:
 
 ```go-html-template
-{{ $data := slice }}
+{{ $data :=  }}
 {{ $file := "pets.csv" }}
 {{ with or (.Resources.Get $file) (resources.Get $file) }}
   {{ $opts := dict "targetType" "slice" }}
@@ -180,7 +180,7 @@ To render an HTML table from a CSV file:
 To extract a subset of the data, or to sort the data, unmarshal to a map instead of a slice:
 
 ```go-html-template
-{{ $data := slice }}
+{{ $data := dict }}
 {{ $file := "pets.csv" }}
 {{ with or (.Resources.Get $file) (resources.Get $file) }}
   {{ $opts := dict "targetType" "map" }}
