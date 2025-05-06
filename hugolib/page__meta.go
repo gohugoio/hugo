@@ -54,7 +54,6 @@ type pageMeta struct {
 
 	resource.Staler
 	*pageMetaParams
-	pageMetaFrontMatter
 
 	// Set for standalone pages, e.g. robotsTXT.
 	standaloneOutputFormat output.Format
@@ -79,7 +78,6 @@ func (m *pageMeta) setMetaPostPrepareRebuild() {
 		Path:   m.pageConfig.Path,
 		Params: params,
 	}
-	m.pageMetaFrontMatter = pageMetaFrontMatter{}
 }
 
 type pageMetaParams struct {
@@ -92,11 +90,6 @@ type pageMetaParams struct {
 	datesOriginal   pagemeta.Dates
 	paramsOriginal  map[string]any                               // contains the original params as defined in the front matter.
 	cascadeOriginal *maps.Ordered[page.PageMatcher, maps.Params] // contains the original cascade as defined in the front matter.
-}
-
-// From page front matter.
-type pageMetaFrontMatter struct {
-	configuredOutputFormats output.Formats // outputs defined in front matter.
 }
 
 func (m *pageMetaParams) init(preserveOriginal bool) {
@@ -531,16 +524,7 @@ params:
 			for i, s := range o {
 				o[i] = strings.ToLower(s)
 			}
-			if len(o) > 0 {
-				// Output formats are explicitly set in front matter, use those.
-				outFormats, err := p.s.conf.OutputFormats.Config.GetByNames(o...)
-				if err != nil {
-					p.s.Log.Errorf("Failed to resolve output formats: %s", err)
-				} else {
-					pm.configuredOutputFormats = outFormats
-					params[loki] = outFormats
-				}
-			}
+			pm.pageConfig.Outputs = o
 		case "draft":
 			draft = new(bool)
 			*draft = cast.ToBool(v)
@@ -672,7 +656,7 @@ params:
 		return err
 	}
 
-	if err := pcfg.Compile("", false, ext, p.s.Log, p.s.conf.MediaTypes.Config); err != nil {
+	if err := pcfg.Compile("", false, ext, p.s.Log, p.s.conf.OutputFormats.Config, p.s.conf.MediaTypes.Config); err != nil {
 		return err
 	}
 
@@ -829,8 +813,8 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 
 // The output formats this page will be rendered to.
 func (m *pageMeta) outputFormats() output.Formats {
-	if len(m.configuredOutputFormats) > 0 {
-		return m.configuredOutputFormats
+	if len(m.pageConfig.ConfiguredOutputFormats) > 0 {
+		return m.pageConfig.ConfiguredOutputFormats
 	}
 	return m.s.conf.C.KindOutputFormats[m.Kind()]
 }

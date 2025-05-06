@@ -22,6 +22,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
 
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 
@@ -175,7 +176,7 @@ func TestContentMediaTypeFromMarkup(t *testing.T) {
 	} {
 		var pc pagemeta.PageConfig
 		pc.Content.Markup = test.in
-		c.Assert(pc.Compile("", true, "", logger, media.DefaultTypes), qt.IsNil)
+		c.Assert(pc.Compile("", true, "", logger, output.DefaultFormats, media.DefaultTypes), qt.IsNil)
 		c.Assert(pc.ContentMediaType.Type, qt.Equals, test.expected)
 	}
 }
