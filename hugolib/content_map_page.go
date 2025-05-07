@@ -1695,7 +1695,9 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 							pathInfo: pi,
 							pageMetaParams: &pageMetaParams{
 								pageConfig: &pagemeta.PageConfig{
-									Kind: kinds.KindTerm,
+									PageConfigEarly: pagemeta.PageConfigEarly{
+										Kind: kinds.KindTerm,
+									},
 								},
 							},
 						}
@@ -1956,7 +1958,9 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 			pathInfo: s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
 			pageMetaParams: &pageMetaParams{
 				pageConfig: &pagemeta.PageConfig{
-					Kind: kind,
+					PageConfigEarly: pagemeta.PageConfigEarly{
+						Kind: kind,
+					},
 				},
 			},
 			standaloneOutputFormat: f,
@@ -2082,7 +2086,9 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 			pathInfo: p,
 			pageMetaParams: &pageMetaParams{
 				pageConfig: &pagemeta.PageConfig{
-					Kind: kinds.KindHome,
+					PageConfigEarly: pagemeta.PageConfigEarly{
+						Kind: kinds.KindHome,
+					},
 				},
 			},
 		}
@@ -2115,7 +2121,9 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 				pathInfo: sa.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md"),
 				pageMetaParams: &pageMetaParams{
 					pageConfig: &pagemeta.PageConfig{
-						Kind: kinds.KindTaxonomy,
+						PageConfigEarly: pagemeta.PageConfigEarly{
+							Kind: kinds.KindTaxonomy,
+						},
 					},
 				},
 				singular: viewName.singular,

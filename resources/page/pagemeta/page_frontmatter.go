@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -75,35 +76,43 @@ func (d Dates) IsAllDatesZero() bool {
 	return d.Date.IsZero() && d.Lastmod.IsZero() && d.PublishDate.IsZero() && d.ExpiryDate.IsZero()
 }
 
+// Page config that needs to be set early. These cannot be modified by cascade.
+type PageConfigEarly struct {
+	Kind    string // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
+	Path    string // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
+	Lang    string // The language code for this page. This is usually derived from the module mount or filename.
+	Cascade []map[string]any
+
+	// Content holds the content for this page.
+	Content Source
+}
+
 // PageConfig configures a Page, typically from front matter.
 // Note that all the top level fields are reserved Hugo keywords.
 // Any custom configuration needs to be set in the Params map.
 type PageConfig struct {
 	Dates Dates `json:"-"` // Dates holds the four core dates for this page.
 	DatesStrings
-	Title          string   // The title of the page.
-	LinkTitle      string   // The link title of the page.
-	Type           string   // The content type of the page.
-	Layout         string   // The layout to use for to render this page.
-	Weight         int      // The weight of the page, used in sorting if set to a non-zero value.
-	Kind           string   // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
-	Path           string   // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
-	Lang           string   // The language code for this page. This is usually derived from the module mount or filename.
-	URL            string   // The URL to the rendered page, e.g. /sect/mypage.html.
-	Slug           string   // The slug for this page.
-	Description    string   // The description for this page.
-	Summary        string   // The summary for this page.
-	Draft          bool     // Whether or not the content is a draft.
-	Headless       bool     `json:"-"` // Whether or not the page should be rendered.
-	IsCJKLanguage  bool     // Whether or not the content is in a CJK language.
-	TranslationKey string   // The translation key for this page.
-	Keywords       []string // The keywords for this page.
-	Aliases        []string // The aliases for this page.
-	Outputs        []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
+	PageConfigEarly `mapstructure:",squash"`
+	Title           string   // The title of the page.
+	LinkTitle       string   // The link title of the page.
+	Type            string   // The content type of the page.
+	Layout          string   // The layout to use for to render this page.
+	Weight          int      // The weight of the page, used in sorting if set to a non-zero value.
+	URL             string   // The URL to the rendered page, e.g. /sect/mypage.html.
+	Slug            string   // The slug for this page.
+	Description     string   // The description for this page.
+	Summary         string   // The summary for this page.
+	Draft           bool     // Whether or not the content is a draft.
+	Headless        bool     `json:"-"` // Whether or not the page should be rendered.
+	IsCJKLanguage   bool     // Whether or not the content is in a CJK language.
+	TranslationKey  string   // The translation key for this page.
+	Keywords        []string // The keywords for this page.
+	Aliases         []string // The aliases for this page.
+	Outputs         []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
 
 	FrontMatterOnlyValues `mapstructure:"-" json:"-"`
 
-	Cascade []map[string]any
 	Sitemap config.SitemapConfig
 	Build   BuildConfig
 	Menus   any // Can be a string, []string or map[string]any.
@@ -111,14 +120,29 @@ type PageConfig struct {
 	// User defined params.
 	Params maps.Params
 
-	// Content holds the content for this page.
-	Content Source
+	// The raw data from the content adapter.
+	// TODO(bep) clean up the ContentAdapterData vs Params.
+	ContentAdapterData map[string]any `mapstructure:"-" json:"-"`
 
 	// Compiled values.
 	CascadeCompiled         *maps.Ordered[page.PageMatcher, maps.Params] `mapstructure:"-" json:"-"`
 	ContentMediaType        media.Type                                   `mapstructure:"-" json:"-"`
 	ConfiguredOutputFormats output.Formats                               `mapstructure:"-" json:"-"`
 	IsFromContentAdapter    bool                                         `mapstructure:"-" json:"-"`
+}
+
+func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
+	pp := &PageConfig{
+		PageConfigEarly:      p.PageConfigEarly,
+		IsFromContentAdapter: p.IsFromContentAdapter,
+	}
+	if pp.IsFromContentAdapter {
+		pp.ContentAdapterData = params
+	} else {
+		pp.Params = params
+	}
+
+	return pp
 }
 
 var DefaultPageConfig = PageConfig{
@@ -151,8 +175,7 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 	return nil
 }
 
-// Compile sets up the page configuration after all fields have been set.
-func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, logger loggers.Logger, outputFormats output.Formats, mediaTypes media.Types) error {
+func (p *PageConfig) CompileForPagesFromDataPre(basePath string, logger loggers.Logger, mediaTypes media.Types) error {
 	// In content adapters, we always get relative paths.
 	if basePath != "" {
 		p.Path = path.Join(basePath, p.Path)
@@ -160,12 +183,32 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 
 	if p.Params == nil {
 		p.Params = make(maps.Params)
-	} else if pagesFromData {
-		p.Params = maps.PrepareParamsClone(p.Params)
 	} else {
-		maps.PrepareParams(p.Params)
+		p.Params = maps.PrepareParamsClone(p.Params)
 	}
 
+	if p.Kind == "" {
+		p.Kind = kinds.KindPage
+	}
+
+	if p.Cascade != nil {
+		cascade, err := page.DecodeCascade(logger, false, p.Cascade)
+		if err != nil {
+			return fmt.Errorf("failed to decode cascade: %w", err)
+		}
+		p.CascadeCompiled = cascade
+	}
+
+	// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
+	// We do that when we create pages from the file system; mostly for backward compatibility,
+	// but also because people tend to use use the filename to name their resources (with spaces and all),
+	// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
+	p.Path = paths.NormalizePathStringBasic(p.Path)
+
+	return p.compilePrePost("", mediaTypes)
+}
+
+func (p *PageConfig) compilePrePost(ext string, mediaTypes media.Types) error {
 	if p.Content.Markup == "" && p.Content.MediaType == "" {
 		if ext == "" {
 			ext = "md"
@@ -196,6 +239,29 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 	if p.Content.Markup == "" {
 		p.Content.Markup = p.ContentMediaType.SubType
 	}
+	return nil
+}
+
+// Compile sets up the page configuration after all fields have been set.
+func (p *PageConfig) Compile(ext string, logger loggers.Logger, outputFormats output.Formats, mediaTypes media.Types) error {
+	if p.IsFromContentAdapter {
+		if err := mapstructure.WeakDecode(p.ContentAdapterData, p); err != nil {
+			err = fmt.Errorf("failed to decode page map: %w", err)
+			return err
+		}
+		// Not needed anymore.
+		p.ContentAdapterData = nil
+	}
+
+	if p.Params == nil {
+		p.Params = make(maps.Params)
+	} else {
+		maps.PrepareParams(p.Params)
+	}
+
+	if err := p.compilePrePost(ext, mediaTypes); err != nil {
+		return err
+	}
 
 	if len(p.Outputs) > 0 {
 		outFormats, err := outputFormats.GetByNames(p.Outputs...)
@@ -204,27 +270,6 @@ func (p *PageConfig) Compile(basePath string, pagesFromData bool, ext string, lo
 		} else {
 			p.ConfiguredOutputFormats = outFormats
 		}
-	}
-
-	if pagesFromData {
-		if p.Kind == "" {
-			p.Kind = kinds.KindPage
-		}
-
-		// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
-		// We do that when we create pages from the file system; mostly for backward compatibility,
-		// but also because people tend to use use the filename to name their resources (with spaces and all),
-		// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
-		p.Path = paths.NormalizePathStringBasic(p.Path)
-
-	}
-
-	if p.Cascade != nil {
-		cascade, err := page.DecodeCascade(logger, p.Cascade)
-		if err != nil {
-			return fmt.Errorf("failed to decode cascade: %w", err)
-		}
-		p.CascadeCompiled = cascade
 	}
 
 	return nil

@@ -72,12 +72,7 @@ type pageMeta struct {
 // Prepare for a rebuild of the data passed in from front matter.
 func (m *pageMeta) setMetaPostPrepareRebuild() {
 	params := xmaps.Clone(m.paramsOriginal)
-	m.pageMetaParams.pageConfig = &pagemeta.PageConfig{
-		Kind:   m.pageConfig.Kind,
-		Lang:   m.pageConfig.Lang,
-		Path:   m.pageConfig.Path,
-		Params: params,
-	}
+	m.pageMetaParams.pageConfig = pagemeta.ClonePageConfigForRebuild(m.pageMetaParams.pageConfig, params)
 }
 
 type pageMetaParams struct {
@@ -94,7 +89,11 @@ type pageMetaParams struct {
 
 func (m *pageMetaParams) init(preserveOriginal bool) {
 	if preserveOriginal {
-		m.paramsOriginal = xmaps.Clone[maps.Params](m.pageConfig.Params)
+		if m.pageConfig.IsFromContentAdapter {
+			m.paramsOriginal = xmaps.Clone(m.pageConfig.ContentAdapterData)
+		} else {
+			m.paramsOriginal = xmaps.Clone(m.pageConfig.Params)
+		}
 		m.cascadeOriginal = m.pageConfig.CascadeCompiled.Clone()
 	}
 }
@@ -254,7 +253,7 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 		// Check for any cascade define on itself.
 		if cv, found := frontmatter["cascade"]; found {
 			var err error
-			cascade, err := page.DecodeCascade(logger, cv)
+			cascade, err := page.DecodeCascade(logger, true, cv)
 			if err != nil {
 				return err
 			}
@@ -341,17 +340,28 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, maps.Pa
 	}
 
 	// Cascade is also applied to itself.
+	var err error
 	cascade.Range(func(k page.PageMatcher, v maps.Params) bool {
 		if !k.Matches(ps) {
 			return true
 		}
 		for kk, vv := range v {
-			if _, found := ps.m.pageConfig.Params[kk]; !found {
-				ps.m.pageConfig.Params[kk] = vv
+			if ps.m.pageConfig.IsFromContentAdapter {
+				if _, found := ps.m.pageConfig.ContentAdapterData[kk]; !found {
+					ps.m.pageConfig.ContentAdapterData[kk] = vv
+				}
+			} else {
+				if _, found := ps.m.pageConfig.Params[kk]; !found {
+					ps.m.pageConfig.Params[kk] = vv
+				}
 			}
 		}
 		return true
 	})
+
+	if err != nil {
+		return err
+	}
 
 	if err := ps.setMetaPostParams(); err != nil {
 		return err
@@ -396,6 +406,12 @@ func (p *pageState) setMetaPostParams() error {
 		GitAuthorDate: gitAuthorDate,
 		Location:      langs.GetLocation(pm.s.Language()),
 		PathOrTitle:   p.pathOrTitle(),
+	}
+
+	if isContentAdapter {
+		if err := pm.pageConfig.Compile(ext, p.s.Log, p.s.conf.OutputFormats.Config, p.s.conf.MediaTypes.Config); err != nil {
+			return err
+		}
 	}
 
 	// Handle the date separately
@@ -656,7 +672,7 @@ params:
 		return err
 	}
 
-	if err := pcfg.Compile("", false, ext, p.s.Log, p.s.conf.OutputFormats.Config, p.s.conf.MediaTypes.Config); err != nil {
+	if err := pcfg.Compile(ext, p.s.Log, p.s.conf.OutputFormats.Config, p.s.conf.MediaTypes.Config); err != nil {
 		return err
 	}
 

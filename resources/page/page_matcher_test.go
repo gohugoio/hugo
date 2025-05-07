@@ -84,7 +84,7 @@ func TestPageMatcher(t *testing.T) {
 
 	c.Run("mapToPageMatcherParamsConfig", func(c *qt.C) {
 		fn := func(m map[string]any) PageMatcherParamsConfig {
-			v, err := mapToPageMatcherParamsConfig(m)
+			v, err := mapToPageMatcherParamsConfigLegacy(m)
 			c.Assert(err, qt.IsNil)
 			return v
 		}
@@ -129,7 +129,7 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		},
 	}
 
-	got, err := DecodeCascadeConfig(loggers.NewDefault(), in)
+	got, err := DecodeCascadeConfig(loggers.NewDefault(), true, in)
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
@@ -143,7 +143,7 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		{Params: maps.Params{"b": string("bv")}, Target: PageMatcher{Kind: "page"}},
 	})
 
-	got, err = DecodeCascadeConfig(loggers.NewDefault(), nil)
+	got, err = DecodeCascadeConfig(loggers.NewDefault(), true, nil)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
 }
