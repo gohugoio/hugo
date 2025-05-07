@@ -821,3 +821,97 @@ outputs:
 	b.AssertFileExists("public/p4/index.html", true)
 	b.AssertFileExists("public/p4/index.json", false) // currently returns true
 }
+
+func TestContentAdapterOutputsIssue13692(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','home','sitemap','taxonomy','term']
+[[cascade]]
+outputs = ['html','json']
+[cascade.target]
+path = '{/s2,/s4}'
+-- layouts/section.html --
+html: {{ .Title }}
+-- layouts/section.json --
+json: {{ .Title }}
+-- content/s1/_index.md --
+---
+title: s1
+---
+-- content/s2/_index.md --
+---
+title: s2
+---
+-- content/_content.gotmpl --
+{{ $page := dict "path" "s3" "title" "s3" "kind" "section" }}
+{{ $.AddPage $page }}
+
+{{ $page := dict "path" "s4" "title" "s4" "kind" "section" }}
+{{ $.AddPage $page }}
+
+{{ $page := dict "path" "s5" "title" "s5" "kind" "section" "outputs" (slice "html") }}
+ {{ $.AddPage $page }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/s1/index.html", true)
+	b.AssertFileExists("public/s1/index.json", false)
+	b.AssertFileExists("public/s1/index.xml", true)
+
+	b.AssertFileExists("public/s2/index.html", true)
+	b.AssertFileExists("public/s2/index.json", true)
+	b.AssertFileExists("public/s2/index.xml", false)
+
+	b.AssertFileExists("public/s3/index.html", true)
+	b.AssertFileExists("public/s3/index.json", false)
+	b.AssertFileExists("public/s3/index.xml", true)
+
+	b.AssertFileExists("public/s4/index.html", true)
+	b.AssertFileExists("public/s4/index.json", true)
+	b.AssertFileExists("public/s4/index.xml", false)
+
+	b.AssertFileExists("public/s5/index.html", true)
+	b.AssertFileExists("public/s5/index.json", false)
+	b.AssertFileExists("public/s5/index.xml", false)
+}
+
+func TestContentAdapterCascadeBasic(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+-- content/_index.md --
+---
+cascade:
+  - title: foo
+    target:
+      path: "**"
+---
+-- layouts/all.html --
+Title: {{ .Title }}|Content: {{ .Content }}|
+-- content/_content.gotmpl --
+{{ $content := dict
+  "mediaType" "text/markdown"
+  "value" "The _Hunchback of Notre Dame_ was written by Victor Hugo."
+}}
+
+{{ $page := dict "path" "s1"  "kind" "page" }}
+{{ $.AddPage $page }}
+ {{ $page := dict "path" "s2"  "kind" "page" "title" "bar" "content" $content }}
+{{ $.AddPage $page }}
+
+`
+
+	b := hugolib.TestRunning(t, files)
+
+	b.AssertFileContent("public/s1/index.html", "Title: foo|")
+	b.AssertFileContent("public/s2/index.html", "Title: bar|", "Content: <p>The <em>Hunchback of Notre Dame</em> was written by Victor Hugo.</p>")
+
+	b.EditFileReplaceAll("content/_index.md", "foo", "baz").Build()
+
+	b.AssertFileContent("public/s1/index.html", "Title: baz|")
+}

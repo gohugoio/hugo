@@ -91,16 +91,19 @@ func (p *pagesFromDataTemplateContext) AddPage(v any) (string, error) {
 
 	pd := pagemeta.DefaultPageConfig
 	pd.IsFromContentAdapter = true
+	pd.ContentAdapterData = m
 
-	if err := mapstructure.WeakDecode(m, &pd); err != nil {
-		return "", fmt.Errorf("failed to decode page map: %w", err)
+	// The rest will be handled after the cascade is calculated and applied.
+	if err := mapstructure.WeakDecode(pd.ContentAdapterData, &pd.PageConfigEarly); err != nil {
+		err = fmt.Errorf("failed to decode page map: %w", err)
+		return "", err
 	}
-
-	p.p.buildState.NumPagesAdded++
 
 	if err := pd.Validate(true); err != nil {
 		return "", err
 	}
+
+	p.p.buildState.NumPagesAdded++
 
 	return "", p.p.HandlePage(p.p, &pd)
 }

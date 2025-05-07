@@ -330,7 +330,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "cascade",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Cascade, err = page.DecodeCascadeConfig(nil, p.p.Get(d.key))
+			p.c.Cascade, err = page.DecodeCascadeConfig(nil, true, p.p.Get(d.key))
 			return err
 		},
 	},

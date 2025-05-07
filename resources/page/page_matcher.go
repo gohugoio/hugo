@@ -16,6 +16,7 @@ package page
 import (
 	"fmt"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -24,7 +25,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/mitchellh/mapstructure"
-	"slices"
 )
 
 // A PageMatcher can be used to match a Page with Glob patterns.
@@ -105,7 +105,7 @@ func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
 	}
 }
 
-func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, maps.Params]], error) {
+func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, maps.Params]], error) {
 	buildConfig := func(in any) (*maps.Ordered[PageMatcher, maps.Params], any, error) {
 		cascade := maps.NewOrdered[PageMatcher, maps.Params]()
 		if in == nil {
@@ -120,7 +120,15 @@ func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace
 
 		for _, m := range ms {
 			m = maps.CleanConfigStringMap(m)
-			c, err := mapToPageMatcherParamsConfig(m)
+			var (
+				c   PageMatcherParamsConfig
+				err error
+			)
+			if handleLegacyFormat {
+				c, err = mapToPageMatcherParamsConfigLegacy(m)
+			} else {
+				c, err = mapToPageMatcherParamsConfig(m)
+			}
 			if err != nil {
 				return nil, nil, err
 			}
@@ -155,8 +163,8 @@ func DecodeCascadeConfig(logger loggers.Logger, in any) (*config.ConfigNamespace
 }
 
 // DecodeCascade decodes in which could be either a map or a slice of maps.
-func DecodeCascade(logger loggers.Logger, in any) (*maps.Ordered[PageMatcher, maps.Params], error) {
-	conf, err := DecodeCascadeConfig(logger, in)
+func DecodeCascade(logger loggers.Logger, handleLegacyFormat bool, in any) (*maps.Ordered[PageMatcher, maps.Params], error) {
+	conf, err := DecodeCascadeConfig(logger, handleLegacyFormat, in)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +172,26 @@ func DecodeCascade(logger loggers.Logger, in any) (*maps.Ordered[PageMatcher, ma
 }
 
 func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, error) {
+	var pcfg PageMatcherParamsConfig
+	for k, v := range m {
+		switch strings.ToLower(k) {
+		case "_target", "target":
+			var target PageMatcher
+			if err := decodePageMatcher(v, &target); err != nil {
+				return pcfg, err
+			}
+			pcfg.Target = target
+		default:
+			if pcfg.Params == nil {
+				pcfg.Params = make(maps.Params)
+			}
+			pcfg.Params[k] = v
+		}
+	}
+	return pcfg, pcfg.init()
+}
+
+func mapToPageMatcherParamsConfigLegacy(m map[string]any) (PageMatcherParamsConfig, error) {
 	var pcfg PageMatcherParamsConfig
 	for k, v := range m {
 		switch strings.ToLower(k) {
@@ -190,7 +218,6 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 			}
 			pcfg.Target = target
 		default:
-			// Legacy config.
 			if pcfg.Params == nil {
 				pcfg.Params = make(maps.Params)
 			}

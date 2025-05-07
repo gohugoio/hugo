@@ -176,7 +176,7 @@ func TestContentMediaTypeFromMarkup(t *testing.T) {
 	} {
 		var pc pagemeta.PageConfig
 		pc.Content.Markup = test.in
-		c.Assert(pc.Compile("", true, "", logger, output.DefaultFormats, media.DefaultTypes), qt.IsNil)
+		c.Assert(pc.Compile("", logger, output.DefaultFormats, media.DefaultTypes), qt.IsNil)
 		c.Assert(pc.ContentMediaType.Type, qt.Equals, test.expected)
 	}
 }
