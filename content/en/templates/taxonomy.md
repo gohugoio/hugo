@@ -7,6 +7,9 @@ weight: 80
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy-templates/]
 ---
 
+{{< newtemplatesystem >}}
+
+
 The [taxonomy](g) template below inherits the site's shell from the [base template], and renders a list of [terms](g) in the current taxonomy.
 
 [base template]: /templates/types/

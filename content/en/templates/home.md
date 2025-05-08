@@ -7,6 +7,9 @@ weight: 50
 aliases: [/layout/homepage/,/templates/homepage-template/,/templates/homepage/]
 ---
 
+{{< newtemplatesystem >}}
+
+
 ## Introduction
 
 A home page template is used to render your site's home page, and is the only template required for a single-page website. For example, the home page template below inherits the site's shell from the base template and renders the home page content, such as a list of other pages.

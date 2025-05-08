@@ -7,6 +7,8 @@ weight: 40
 aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 ---
 
+{{< newtemplatesystem >}}
+
 The `block` keyword allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
 
 {{< youtube QVOMCYitLEc >}}

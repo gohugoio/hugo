@@ -7,6 +7,9 @@ weight: 60
 aliases: [/layout/content/,/templates/single-page-templates/]
 ---
 
+{{< newtemplatesystem >}}
+
+
 The single template below inherits the site's shell from the [base template].
 
 [base template]: /templates/types/

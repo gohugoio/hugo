@@ -7,6 +7,8 @@ weight: 110
 aliases: [/templates/views/]
 ---
 
+{{< newtemplatesystem >}}
+
 The following are common use cases for content views:
 
 - You want content of every type to be shown on the home page but only with limited [summary views][summaries].

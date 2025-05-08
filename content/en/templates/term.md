@@ -6,6 +6,9 @@ keywords: []
 weight: 90
 ---
 
+{{< newtemplatesystem >}}
+
+
 The [term](g) template below inherits the site's shell from the [base template], and renders a list of pages associated with the current term.
 
 [base template]: /templates/types/

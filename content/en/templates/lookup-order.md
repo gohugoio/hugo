@@ -7,6 +7,8 @@ keywords: []
 weight: 20
 ---
 
+{{< newtemplatesystem >}}
+
 ## Lookup rules
 
 Hugo takes the parameters listed below into consideration when choosing a template for a given page. The templates are ordered by specificity. This should feel natural, but look at the table below for concrete examples of the different parameter variations.
