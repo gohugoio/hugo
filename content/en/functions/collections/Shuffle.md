@@ -12,7 +12,6 @@ aliases: [/functions/shuffle]
 ---
 
 ```go-html-template
-{{ collections.Shuffle (seq 1 2 3) }} → [3 1 2] 
 {{ collections.Shuffle (slice "a" "b" "c") }} → [b a c] 
 ```
 
@@ -28,21 +27,3 @@ To render an unordered list of 5 random pages from a page collection:
   {{ end }}
 </ul>
 ```
-
-For better performance with large collections, use the [`math.Rand`] and [`collections.Index`] functions instead:
-
-```go-html-template
-<ul>
-  {{ $p := site.RegularPages }}
-  {{ range seq 5 }}
-    {{ with math.Rand | mul $p.Len | math.Floor | int }}
-      {{ with collections.Index $p . }}
-        <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
-      {{ end }}
-    {{ end }}
-  {{ end }}
-</ul>
-```
-
-[`collections.Index`]:/functions/collections/indexfunction/
-[`math.Rand`]: /functions/math/rand/

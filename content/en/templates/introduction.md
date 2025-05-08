@@ -400,14 +400,14 @@ See documentation for [`range`], [`else`], and [`end`].
 {{ end }}
 ```
 
-Use the [`seq`] function to loop a specified number of times:
+To loop a specified number of times:
 
 ```go-html-template
-{{ $total := 0 }}
-{{ range seq 4 }}
-  {{ $total = add $total . }}
+{{ $s := slice }}
+{{ range 3 }}
+  {{ $s = $s | append . }}
 {{ end }}
-{{ $total }} → 10
+{{ $s }} → [0 1 2]
 ```
 
 ### Rebind context
@@ -513,7 +513,6 @@ In the template example above, each of the keys is a valid identifier. For examp
 [`range`]: /functions/go-template/range/
 [`range`]: /functions/go-template/range/
 [`safeHTML`]: /functions/safe/html
-[`seq`]: /functions/collections/seq
 [`Site`]: /methods/site/
 [`template`]: /functions/go-template/template/
 [`Title`]: /methods/page/title
