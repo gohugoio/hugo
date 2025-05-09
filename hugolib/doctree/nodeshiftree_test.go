@@ -243,15 +243,15 @@ func (s *testShifter) Insert(old, new *testValue) (*testValue, *testValue, bool)
 	return new, old, true
 }
 
-func (s *testShifter) InsertInto(old, new *testValue, dimension doctree.Dimension) (*testValue, *testValue, bool) {
+func (s *testShifter) InsertInto(old, new *testValue, dimension doctree.Dimensions) (*testValue, *testValue, bool) {
 	return new, old, true
 }
 
-func (s *testShifter) Delete(n *testValue, dimension doctree.Dimension) (*testValue, bool, bool) {
+func (s *testShifter) Delete(n *testValue, dimension doctree.Dimensions) (*testValue, bool, bool) {
 	return nil, true, true
 }
 
-func (s *testShifter) Shift(n *testValue, dimension doctree.Dimension, exact bool) (*testValue, bool, doctree.DimensionFlag) {
+func (s *testShifter) Shift(n *testValue, dimension doctree.Dimensions, exact bool) (*testValue, bool, doctree.DimensionFlag) {
 	if s.echo {
 		return n, true, doctree.DimensionLanguage
 	}

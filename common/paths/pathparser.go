@@ -14,6 +14,7 @@
 package paths
 
 import (
+	"fmt"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -779,4 +780,13 @@ func HasExt(p string) bool {
 		}
 	}
 	return false
+}
+
+// ValidateIdentifier returns true if the given string is a valid identifier according
+// to Hugo's basic path normalization rules.
+func ValidateIdentifier(s string) error {
+	if s == NormalizePathStringBasic(s) {
+		return nil
+	}
+	return fmt.Errorf("must be all lower case and no spaces")
 }

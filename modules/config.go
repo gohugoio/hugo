@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/config"
@@ -323,10 +324,10 @@ func (c Config) hasModuleImport() bool {
 // HugoVersion holds Hugo binary version requirements for a module.
 type HugoVersion struct {
 	// The minimum Hugo version that this module works with.
-	Min hugo.VersionString
+	Min version.VersionString
 
 	// The maximum Hugo version that this module works with.
-	Max hugo.VersionString
+	Max version.VersionString
 
 	// Set if the extended version is needed.
 	Extended bool

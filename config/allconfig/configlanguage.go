@@ -165,6 +165,10 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.config.MediaTypes.Config
 	case "outputFormats":
 		return c.config.OutputFormats.Config
+	case "roles":
+		return c.config.Roles.Config
+	case "versions":
+		return c.config.Versions.Config
 	case "permalinks":
 		return c.config.Permalinks
 	case "minify":
@@ -210,6 +214,14 @@ func (c ConfigLanguage) DefaultContentLanguage() string {
 
 func (c ConfigLanguage) DefaultContentLanguageInSubdir() bool {
 	return c.config.DefaultContentLanguageInSubdir
+}
+
+func (c ConfigLanguage) DefaultContentRoleInSubdir() bool {
+	return c.config.DefaultContentRoleInSubdir
+}
+
+func (c ConfigLanguage) DefaultContentVersionInSubdir() bool {
+	return c.config.DefaultContentVersionInSubdir
 }
 
 func (c ConfigLanguage) SummaryLength() int {

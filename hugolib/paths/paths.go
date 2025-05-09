@@ -96,7 +96,7 @@ func (p *Paths) GetBasePath(isRelativeURL bool) string {
 	return p.Cfg.BaseURL().BasePathNoTrailingSlash
 }
 
-func (p *Paths) Lang() string {
+func (p *Paths) Lang__() string { // TODO1
 	if p == nil || p.Cfg.Language() == nil {
 		return ""
 	}
@@ -106,7 +106,7 @@ func (p *Paths) Lang() string {
 func (p *Paths) GetTargetLanguageBasePath() string {
 	if p.Cfg.IsMultihost() {
 		// In a multihost configuration all assets will be published below the language code.
-		return p.Lang()
+		return p.Lang__()
 	}
 	return p.GetLanguagePrefix()
 }
