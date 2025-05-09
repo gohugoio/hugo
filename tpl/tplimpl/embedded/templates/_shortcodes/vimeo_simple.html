@@ -37,7 +37,7 @@
         {{- $thumbnail := .thumbnail_url -}}
         {{- $original := $thumbnail | replaceRE "(_.*\\.)" "." -}}
         <div class="{{ $class }}">
-          <a href="{{ .provider_url }}{{ .video_id }}" rel="noopener" target="_blank">
+          <a href="{{ .provider_url }}{{ .video_id | string }}" rel="noopener" target="_blank">
             <img src="{{ $thumbnail }}" srcset="{{ $thumbnail }} 1x, {{ $original }} 2x" alt="{{ .title }}">
             <div class="play">
               {{ template "__h_simple_icon_play" $.ctx.Page }}
