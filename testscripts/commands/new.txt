@@ -1,7 +1,7 @@
 # Test the new command.
 
 hugo new site -h
-stdout 'Create a new site in the provided directory'
+stdout 'Create a new site at the specified path.'
 hugo new site my-yaml-site --format yml
 checkfile my-yaml-site/hugo.yml
 hugo new site mysite -f
@@ -19,7 +19,7 @@ exists themes
 ! exists resources
 
 hugo new theme -h
-stdout 'Create a new theme \(skeleton\) called \[name\] in ./themes'
+stdout 'Create a new theme with the specified name in the ./themes directory.'
 hugo new theme mytheme --format yml
 stdout 'Creating new theme'
 ! exists resources

@@ -76,10 +76,8 @@ Ensure you run this within the root directory of your site.`,
 			&simpleCommand{
 				name:  "site",
 				use:   "site [path]",
-				short: "Create a new site (skeleton)",
-				long: `Create a new site in the provided directory.
-The new site will have the correct structure, but no content or theme yet.
-Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
+				short: "Create a new site",
+				long:  `Create a new site at the specified path.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 1 {
 						return newUserError("path needs to be provided")
@@ -124,11 +122,9 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 			&simpleCommand{
 				name:  "theme",
 				use:   "theme [name]",
-				short: "Create a new theme (skeleton)",
-				long: `Create a new theme (skeleton) called [name] in ./themes.
-New theme is a skeleton. Please add content to the touched files. Add your
-name to the copyright line in the license and adjust the theme.toml file
-according to your needs.`,
+				short: "Create a new theme",
+				long: `Create a new theme with the specified name in the ./themes directory.
+This generates a functional theme including template examples and sample content.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 1 {
 						return newUserError("theme name needs to be provided")
