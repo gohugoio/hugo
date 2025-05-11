@@ -12,9 +12,7 @@
         display: none !important;
       }
     </style>
-    <meta
-      name="description"
-      content="{{ .Description | default site.Params.description }}">
+
     {{ partial "layouts/head/head-js.html" . }}
     {{ with (templates.Defer (dict "key" "global")) }}
       {{ $t := debug.Timer "tailwindcss" }}

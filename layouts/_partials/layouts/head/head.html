@@ -28,19 +28,11 @@
     href="{{ .RelPermalink | safeURL }}" />
 {{ end -}}
 
+<meta name="description" content="{{ or .Description site.Params.description }}">
 
-<meta
-  name="description"
-  content="{{ with .Description }}
-    {{ . }}
-  {{ else }}
-    {{ with .Site.Params.description }}{{ . }}{{ end }}
-  {{ end }}
-    " />
-
-{{- partial "opengraph/opengraph.html" . }}
-{{- partial "schema.html" . -}}
-{{- partial "twitter_cards.html" . -}}
+{{ partial "opengraph/opengraph.html" . }}
+{{ partial "schema.html" . }}
+{{ partial "twitter_cards.html" . }}
 
 {{ if hugo.IsProduction }}
   {{ partial "helpers/gtag.html" . }}
