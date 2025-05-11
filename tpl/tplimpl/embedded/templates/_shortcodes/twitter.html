@@ -2,7 +2,7 @@
 {{- $pc := site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
   {{- if $pc.Simple -}}
-    {{- template "_internal/shortcodes/twitter_simple.html" . -}}
+    {{- template "_shortcodes/twitter_simple.html" . -}}
   {{- else -}}
     {{- $id := or (.Get "id") "" -}}
     {{- $user := or (.Get "user") "" -}}

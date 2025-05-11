@@ -1,7 +1,7 @@
 {{- $pc := site.Config.Privacy.X -}}
 {{- if not $pc.Disable -}}
   {{- if $pc.Simple -}}
-    {{- template "_internal/shortcodes/x_simple.html" . -}}
+    {{- template "_shortcodes/x_simple.html" . -}}
   {{- else -}}
     {{- $id := or (.Get "id") "" -}}
     {{- $user := or (.Get "user") "" -}}
