@@ -357,3 +357,25 @@ All.
 
 	b.Assert(b.H.Conf.DefaultContentLanguage(), qt.Equals, "sv")
 }
+
+func TestDefaultConfigEnvDisableLanguagesIssue13707(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableLanguages = []
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[languages.sv]
+weight = 3
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWithConfig(func(conf *hugolib.IntegrationTestConfig) {
+		conf.Environ = []string{`HUGO_DISABLELANGUAGES=sv nn`}
+	}))
+
+	b.Assert(len(b.H.Sites), qt.Equals, 1)
+}

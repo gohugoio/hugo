@@ -233,38 +233,49 @@ func (l configLoader) applyOsEnvOverrides(environ []string) error {
 
 		if existing != nil {
 			val, err := metadecoders.Default.UnmarshalStringTo(env.Value, existing)
-			if err != nil {
+			if err == nil {
+				val = l.envValToVal(env.Key, val)
+				if owner != nil {
+					owner[nestedKey] = val
+				} else {
+					l.cfg.Set(env.Key, val)
+				}
 				continue
 			}
-
-			if owner != nil {
-				owner[nestedKey] = val
-			} else {
-				l.cfg.Set(env.Key, val)
-			}
-		} else {
-			if nestedKey != "" {
-				owner[nestedKey] = env.Value
-			} else {
-				var val any
-				key := strings.ReplaceAll(env.Key, delim, ".")
-				_, ok := allDecoderSetups[key]
-				if ok {
-					// A map.
-					if v, err := metadecoders.Default.UnmarshalStringTo(env.Value, map[string]any{}); err == nil {
-						val = v
-					}
-				}
-				if val == nil {
-					// A string.
-					val = l.envStringToVal(key, env.Value)
-				}
-				l.cfg.Set(key, val)
-			}
 		}
+
+		if owner != nil && nestedKey != "" {
+			owner[nestedKey] = env.Value
+		} else {
+			var val any
+			key := strings.ReplaceAll(env.Key, delim, ".")
+			_, ok := allDecoderSetups[key]
+			if ok {
+				// A map.
+				if v, err := metadecoders.Default.UnmarshalStringTo(env.Value, map[string]any{}); err == nil {
+					val = v
+				}
+			}
+
+			if val == nil {
+				// A string.
+				val = l.envStringToVal(key, env.Value)
+			}
+			l.cfg.Set(key, val)
+		}
+
 	}
 
 	return nil
+}
+
+func (l *configLoader) envValToVal(k string, v any) any {
+	switch v := v.(type) {
+	case string:
+		return l.envStringToVal(k, v)
+	default:
+		return v
+	}
 }
 
 func (l *configLoader) envStringToVal(k, v string) any {
