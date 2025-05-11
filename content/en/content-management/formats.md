@@ -97,7 +97,9 @@ hugo --logLevel info
 
 ### Pandoc
 
-Create your content in the [Pandoc] format preceded by front matter. Hugo renders Pandoc content to HTML using the Pandoc executable. You must install Pandoc to render the Pandoc content format.
+Create your content in the [Pandoc] format[^1] preceded by front matter. Hugo renders Pandoc content to HTML using the Pandoc executable. You must install Pandoc to render the Pandoc content format.
+
+[^1]: This is a derivation of the Markdown format as described by the CommonMark specification.
 
 Hugo passes these CLI flags when calling the Pandoc executable:
 
@@ -105,7 +107,7 @@ Hugo passes these CLI flags when calling the Pandoc executable:
 --mathjax
 ```
 
-[Pandoc]: https://pandoc.org/
+[Pandoc]: https://pandoc.org/MANUAL.html#pandocs-markdown
 
 ### reStructuredText
 
