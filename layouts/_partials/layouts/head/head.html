@@ -38,11 +38,9 @@
   {{ end }}
     " />
 
-
-
-{{ partial "opengraph/opengraph.html" . }}
-{{- template "_internal/schema.html" . -}}
-{{- template "_internal/twitter_cards.html" . -}}
+{{- partial "opengraph/opengraph.html" . }}
+{{- partial "schema.html" . -}}
+{{- partial "twitter_cards.html" . -}}
 
 {{ if hugo.IsProduction }}
   {{ partial "helpers/gtag.html" . }}
