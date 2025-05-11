@@ -18,7 +18,7 @@ title, then loading.
 {{- $pc := site.Config.Privacy.Vimeo }}
 {{- if not $pc.Disable }}
   {{- if $pc.Simple }}
-    {{- template "_internal/shortcodes/vimeo_simple.html" . }}
+    {{- template "_shortcodes/vimeo_simple.html" . }}
   {{- else }}
     {{- $dnt := cond $pc.EnableDNT 1 0 }}
 

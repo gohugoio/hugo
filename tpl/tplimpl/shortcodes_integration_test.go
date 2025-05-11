@@ -460,7 +460,6 @@ title: p1 (de)
 }
 
 func TestVimeoShortcode(t *testing.T) {
-	t.Skip("Fix me: Upstream API changes")
 	t.Parallel()
 
 	files := `
