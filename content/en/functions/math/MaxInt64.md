@@ -10,7 +10,7 @@ params:
     signatures: [math.MaxInt64]
 ---
 
-{{< new-in 0.148.0 />}}
+{{< new-in 0.147.3 />}}
 
 ```go-html-template
 {{ math.MaxInt64 }} → 9223372036854775807
