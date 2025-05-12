@@ -46,4 +46,4 @@ Render with [Pandoc]:
 ```
 
 [markup identifier]: /content-management/formats/#classification
-[pandoc]: https://www.pandoc.org/
+[pandoc]: https://pandoc.org/

@@ -337,5 +337,5 @@ ordered
 [superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
 [AsciiDoc]: https://asciidoc.org/
 [Emacs Org Mode]: https://orgmode.org/
-[Pandoc]: https://www.pandoc.org/
+[Pandoc]: https://pandoc.org/
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
