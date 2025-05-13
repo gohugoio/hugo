@@ -32,7 +32,8 @@ import (
 
 type Language struct {
 	// The language code, e.g. "en" or "no".
-	// This is currently only settable as the key in the language map in the config.
+	// This is the key used in the languages map in the configuration,
+	// and currently only settable as the key in the language map in the config.
 	Lang string
 
 	// Fields from the language config.
@@ -53,6 +54,11 @@ type Language struct {
 
 	// This is just an alias of Site.Params.
 	params maps.Params
+}
+
+// Name is an alias for Lang.
+func (l *Language) Name() string {
+	return l.Lang
 }
 
 // TODO1 add Site.

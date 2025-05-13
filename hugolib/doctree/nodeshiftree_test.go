@@ -52,7 +52,7 @@ func TestTree(t *testing.T) {
 	zeroZero.InsertIntoValuesDimension("/a/b", ab)
 
 	c.Assert(zeroZero.Get("/a"), eq, &testValue{ID: "/a", Lang: 0})
-	s, v := zeroZero.LongestPrefix("/a/b/c", true, nil)
+	s, v := zeroZero.LongestPrefix("/a/b/c", true, false, nil)
 	c.Assert(v, eq, ab)
 	c.Assert(s, eq, "/a/b")
 
@@ -251,7 +251,7 @@ func (s *testShifter) Delete(n *testValue, dimension doctree.Dimensions) (*testV
 	return nil, true, true
 }
 
-func (s *testShifter) Shift(n *testValue, dimension doctree.Dimensions, exact bool) (*testValue, bool, doctree.DimensionFlag) {
+func (s *testShifter) Shift(n *testValue, dimension doctree.Dimensions, exact, matchDelegees bool) (*testValue, bool, doctree.DimensionFlag) {
 	if s.echo {
 		return n, true, doctree.DimensionLanguage
 	}

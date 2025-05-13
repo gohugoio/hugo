@@ -72,28 +72,33 @@ title: "Public v3"
 versions: ["v3.*"]
 ---
 Users with guest role will see this.
--- layouts/home.html --
+-- layouts/all.html --
 Role: {{ .Site.Role.Name }}|Version: {{ .Site.Version.Name }}|Lang: {{ .Site.Language.Lang }}|
 Roles: {{ range .Site.Roles }}Name: {{ .Name }} Site.Version: {{.Site.Version.Name }} Site.Language.Lang: {{ .Site.Language.Lang}}|{{ end }}$
 Versions: {{ range site.Versions }}Name: {{ .Name }} Site.Role: {{ .Site.Role.Name }} Site.Language.Lang: {{ .Site.Language.Lang }}|{{ end }}$
--- layouts/page.html --
-{{ .Title }}|{{ .Content }}|{{ .Site.Version.Name }}|{{ .Site.Role.Name }}|
+RegularPages: {{ range .RegularPages }}{{ .RelPermalink }} r: {{ .Site.Language.Name }}  v: {{ .Site.Version.Name }} l: {{ .Site.Role.Name }}|{{ end }}$
+
 `
 
-	b := hugolib.Test(t, files)
+	for range 20 {
+		b := hugolib.Test(t, files)
 
-	// TODO1 export Default?
-	// /guest/v1.2.3/en/publicpost/index.html
-	// TODO1 redirect Aliases.
+		// TODO1 export Default?
+		// /guest/v1.2.3/en/publicpost/index.html
+		// TODO1 redirect Aliases.
 
-	// TODO1 make it hugo.Roles, version.Versions, etc. (also hugo.Languages)
-	b.AssertPublishDir(
-		"guest/v1.2.3/en/publicpost", "guest/v2.0.0/en/publicpost", "! guest/v2.1.0/en/publicpost",
-		"member/v2.0.0/en/memberonlypost", "member/v2.0.0/nn/memberonlypost",
-	)
+		// TODO1 make it hugo.Roles, version.Versions, etc. (also hugo.Languages)
+		b.AssertPublishDir(
+			"guest/v1.2.3/en/publicpost", "guest/v2.0.0/en/publicpost", "! guest/v2.1.0/en/publicpost",
+			"member/v2.0.0/en/memberonlypost", "member/v2.0.0/nn/memberonlypost",
+		)
 
-	b.AssertFileContent("public/guest/v2.0.0/en/index.html",
-		"Role: guest|Version: v2.0.0|",
-		"Roles: Name: member Site.Version: v2.0.0 Site.Language.Lang: en|Name: guest Site.Version: v2.0.0 Site.Language.Lang: en|$",
-		"Versions: Name: v3.0.0 Site.Role: guest Site.Language.Lang: en|Name: v2.1.0 Site.Role: guest Site.Language.Lang: en|Name: v2.0.0 Site.Role: guest Site.Language.Lang: en|Name: v1.2.3 Site.Role: guest Site.Language.Lang: en|$")
+		b.AssertFileContent("public/guest/v2.0.0/en/index.html",
+			"Role: guest|Version: v2.0.0|",
+			"Roles: Name: member Site.Version: v2.0.0 Site.Language.Lang: en|Name: guest Site.Version: v2.0.0 Site.Language.Lang: en|$",
+			"Versions: Name: v3.0.0 Site.Role: guest Site.Language.Lang: en|Name: v2.1.0 Site.Role: guest Site.Language.Lang: en|Name: v2.0.0 Site.Role: guest Site.Language.Lang: en|Name: v1.2.3 Site.Role: guest Site.Language.Lang: en|$")
+
+		b.AssertFileContent("public/guest/v3.0.0/en/index.html", "RegularPages: /guest/v2.0.0/en/publicpost/ r: en  v: v2.0.0 l: guest|/guest/v3.0.0/en/publicpostv3/ r: en  v: v3.0.0 l: guest|$")
+
+	}
 }

@@ -54,7 +54,7 @@ type (
 		// Shift shifts T into the given dimension
 		// and returns the shifted T and a bool indicating if the shift was successful and
 		// how accurate a match T is according to its dimensions.
-		Shift(v T, dimension Dimensions, exact bool) (T, bool, DimensionFlag)
+		Shift(v T, dimension Dimensions, exact, delegeeFallback bool) (T, bool, DimensionFlag)
 	}
 )
 
@@ -226,12 +226,12 @@ func (t *NodeShiftTree[T]) Lock(writable bool) (commit func()) {
 
 // LongestPrefix finds the longest prefix of s that exists in the tree that also matches the predicate (if set).
 // Set exact to true to only match exact in the current dimension (e.g. language).
-func (r *NodeShiftTree[T]) LongestPrefix(s string, exact bool, predicate func(v T) bool) (string, T) {
+func (r *NodeShiftTree[T]) LongestPrefix(s string, exact, delegeeFallback bool, predicate func(v T) bool) (string, T) {
 	for {
 		longestPrefix, v, found := r.tree.LongestPrefix(s)
 
 		if found {
-			if t, ok, _ := r.shift(v.(T), exact); ok && (predicate == nil || predicate(t)) {
+			if t, ok, _ := r.shift(v.(T), exact, delegeeFallback); ok && (predicate == nil || predicate(t)) {
 				return longestPrefix, t
 			}
 		}
@@ -316,6 +316,9 @@ type NodeShiftTreeWalker[T any] struct {
 
 	// Don't fall back to alternative dimensions (e.g. language).
 	Exact bool
+
+	// TODO1 document this and check vs exact.
+	DelegeeFallback bool
 
 	// Used in development only.
 	Debug bool
@@ -408,7 +411,7 @@ func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (t T, ok boo
 		t = v.(T)
 		ok = true
 	} else {
-		t, ok, exact = tree.shift(v.(T), r.Exact)
+		t, ok, exact = tree.shift(v.(T), r.Exact, r.DelegeeFallback)
 	}
 	return
 }
@@ -422,10 +425,10 @@ func (t NodeShiftTree[T]) clone() *NodeShiftTree[T] {
 	return &t
 }
 
-func (r *NodeShiftTree[T]) shift(t T, exact bool) (T, bool, DimensionFlag) {
+func (r *NodeShiftTree[T]) shift(t T, exact, delegeeFallback bool) (T, bool, DimensionFlag) {
 	// TODO1 exact.
 	exact = true
-	return r.shifter.Shift(t, r.dims, exact)
+	return r.shifter.Shift(t, r.dims, exact, delegeeFallback)
 }
 
 func (r *NodeShiftTree[T]) get(s string) (T, bool) {
@@ -435,7 +438,7 @@ func (r *NodeShiftTree[T]) get(s string) (T, bool) {
 		var t T
 		return t, false
 	}
-	t, ok, _ := r.shift(v.(T), true)
+	t, ok, _ := r.shift(v.(T), true, false) // TODO1
 	return t, ok
 }
 

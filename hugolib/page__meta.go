@@ -268,13 +268,11 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 		// Look for path, lang, roles and kind, all of which values we need early on.
 		if v, found := frontmatter["path"]; found {
 			pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
-			pcfg.Params["path"] = pcfg.Path
 		}
 		if v, found := frontmatter["lang"]; found {
 			lang := strings.ToLower(cast.ToString(v))
 			if _, ok := conf.PathParser().LanguageIndex[lang]; ok {
 				pcfg.Lang = lang
-				pcfg.Params["lang"] = pcfg.Lang
 			}
 		}
 		if v, found := frontmatter["kind"]; found {
@@ -284,20 +282,25 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 				if pcfg.Kind == "" {
 					return fmt.Errorf("unknown kind %q in front matter", s)
 				}
-				pcfg.Params["kind"] = pcfg.Kind
 			}
 		}
 		if v, found := frontmatter["roles"]; found {
 			pcfg.Roles = cast.ToStringSlice(v)
-			pcfg.Params["roles"] = pcfg.Roles
 		}
 		if v, found := frontmatter["versions"]; found {
 			pcfg.Versions = cast.ToStringSlice(v)
-			pcfg.Params["versions"] = pcfg.Versions
 		}
 		if v, found := frontmatter["languages"]; found {
 			pcfg.Languages = cast.ToStringSlice(v)
-			pcfg.Params["languages"] = pcfg.Languages
+		}
+		if v, found := frontmatter["languagedelegees"]; found {
+			pcfg.LanguageDelegees = cast.ToStringSlice(v)
+		}
+		if v, found := frontmatter["versiondelegees"]; found {
+			pcfg.VersionDelegees = cast.ToStringSlice(v)
+		}
+		if v, found := frontmatter["roledelegees"]; found {
+			pcfg.RoleDelegees = cast.ToStringSlice(v)
 		}
 
 	} else if p.pageMetaParams.pageConfig.Params == nil {

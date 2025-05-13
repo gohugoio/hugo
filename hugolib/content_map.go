@@ -71,7 +71,7 @@ func (r resourceSource) clone() *resourceSource {
 	return &r
 }
 
-func (r *resourceSource) Dim() doctree.Dimensions {
+func (r *resourceSource) Dims() doctree.Dimensions {
 	return r.dims
 }
 
@@ -95,6 +95,10 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 		return r.r.(identity.IdentityProvider).GetIdentity()
 	}
 	return r.path
+}
+
+func (p *resourceSource) matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+	panic("not implemented")
 }
 
 func (r *resourceSource) ForEeachIdentity(f func(identity.Identity) bool) bool {
@@ -135,6 +139,10 @@ func (n resourceSources) resetBuildState() {
 			r.resetBuildState()
 		}
 	}
+}
+
+func (n resourceSources) matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+	panic("not implemented")
 }
 
 func (n resourceSources) GetIdentity() identity.Identity {

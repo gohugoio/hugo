@@ -44,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -216,6 +217,20 @@ func (po *pageState) isRenderedAny() bool {
 
 func (p *pageState) isContentNodeBranch() bool {
 	return p.IsNode()
+}
+
+func (p *pageState) matchDirectOrInDelegees(dims doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+	pc := p.m.pageConfig
+	if !pagemeta.MatchLanguageOrLanguageDelegee(pc, dims) {
+		return nil, doctree.Dimensions{}
+	}
+	if !pagemeta.MatchVersionOrVersionDelegee(pc, dims) {
+		return nil, doctree.Dimensions{}
+	}
+	if !pagemeta.MatchRoleOrRoleDelegee(pc, dims) {
+		return nil, doctree.Dimensions{}
+	}
+	return p, p.s.dims
 }
 
 // Eq returns whether the current page equals the given page.

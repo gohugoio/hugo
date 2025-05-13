@@ -23,6 +23,30 @@ const (
 // Dimensions is a row in the Hugo build matrix which currently has three values: language, version and role, in that order.
 type Dimensions [3]int
 
+// Compare returns -1 if this dimension is less than the given dimension, 0 if they are equal, and 1 if this dimension is greater than the given dimension.
+// This adds a impicit weighting to the dimensions, where the first dimension is the most important,
+// but this is just used for sorting to get stable output.
+func (d Dimensions) Compare(e Dimensions) int {
+	// note that a and b will never be equal.
+	minusOneOrOne := func(a, b int) int {
+		if a < b {
+			return -1
+		}
+		return 1
+	}
+	if d[0] != e[0] {
+		return minusOneOrOne(d[0], e[0])
+	}
+	if d[1] != e[1] {
+		return minusOneOrOne(d[1], e[1])
+	}
+	if d[2] != e[2] {
+		return minusOneOrOne(d[2], e[2])
+	}
+	// They are equal.
+	return 0
+}
+
 // Language returns the language dimension.
 func (d Dimensions) Language() int {
 	return d[DimensionLanguage.Index()]

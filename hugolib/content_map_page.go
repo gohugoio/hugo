@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"iter"
 	"path"
 	"sort"
 	"strconv"
@@ -367,8 +368,9 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 		}
 
 		w := &doctree.NodeShiftTreeWalker[contentNodeI]{
-			Tree:   m.treePages,
-			Prefix: prefix,
+			Tree:            m.treePages,
+			Prefix:          prefix,
+			DelegeeFallback: true,
 		}
 
 		w.Handle = func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
@@ -649,6 +651,7 @@ type contentNodeI interface {
 	identity.ForEeachIdentityProvider
 	Path() string
 	isContentNodeBranch() bool
+	matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions)
 	buildStateReseter
 	resource.StaleMarker
 }
@@ -670,6 +673,10 @@ func (n contentNodeIs) Path() string {
 
 func (n contentNodeIs) isContentNodeBranch() bool {
 	return n.one().isContentNodeBranch()
+}
+
+func (p contentNodeIs) matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+	panic("not implemented")
 }
 
 func (n contentNodeIs) GetIdentity() identity.Identity {
@@ -705,13 +712,13 @@ type contentNodeShifter struct {
 	numLanguages int
 }
 
-func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimensions) (contentNodeI, bool, bool) {
+func (s *contentNodeShifter) Delete(n contentNodeI, dims doctree.Dimensions) (contentNodeI, bool, bool) {
 	switch v := n.(type) {
 	case contentNodeIs:
-		deleted := v[dimension]
+		deleted := v[dims]
 		resource.MarkStale(deleted)
 		wasDeleted := deleted != nil
-		v[dimension] = nil
+		v[dims] = nil
 		isEmpty := true
 		for _, vv := range v {
 			if vv != nil {
@@ -721,10 +728,10 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimensions
 		}
 		return deleted, wasDeleted, isEmpty
 	case resourceSources:
-		deleted := v[dimension]
+		deleted := v[dims]
 		resource.MarkStale(deleted)
 		wasDeleted := deleted != nil
-		v[dimension] = nil
+		v[dims] = nil
 		isEmpty := true
 		for _, vv := range v {
 			if vv != nil {
@@ -734,13 +741,13 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimensions
 		}
 		return deleted, wasDeleted, isEmpty
 	case *resourceSource:
-		if dimension != v.Dim() {
+		if dims != v.Dims() {
 			return nil, false, false
 		}
 		resource.MarkStale(v)
 		return v, true, true
 	case *pageState:
-		if dimension != v.s.dims {
+		if dims != v.s.dims {
 			return nil, false, false
 		}
 		resource.MarkStale(v)
@@ -750,8 +757,25 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dimension doctree.Dimensions
 	}
 }
 
-func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exact bool) (contentNodeI, bool, doctree.DimensionFlag) {
-	// How accurate is the match.
+func (s *contentNodeShifter) findDelegee(q doctree.Dimensions, candidates iter.Seq[contentNodeI]) contentNodeI {
+	var (
+		best     contentNodeI = nil
+		bestDims doctree.Dimensions
+	)
+	for n := range candidates {
+		if nn, dims := n.matchDirectOrInDelegees(q); nn != nil {
+			if best == nil || dims.Compare(bestDims) < 0 {
+				best = nn
+				bestDims = dims
+			}
+		}
+	}
+	return best
+}
+
+func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exact, delegeeFallback bool) (contentNodeI, bool, doctree.DimensionFlag) {
+	// dims: language, version and role
+	// How accurate is the match. TODO1 revise this.
 	accuracy := doctree.DimensionLanguage
 	switch v := n.(type) {
 	case contentNodeIs:
@@ -760,6 +784,19 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exac
 		}
 		vv := v[dims]
 		if vv != nil {
+			return vv, true, accuracy
+		}
+		if !delegeeFallback {
+			return nil, false, 0
+		}
+		iter := func(yield func(n contentNodeI) bool) {
+			for _, nn := range v {
+				if !yield(nn) {
+					return
+				}
+			}
+		}
+		if vv = s.findDelegee(dims, iter); vv != nil {
 			return vv, true, accuracy
 		}
 		return nil, false, 0
@@ -781,7 +818,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exac
 			}
 		}
 	case *resourceSource:
-		if v.Dim() == dims {
+		if v.Dims() == dims {
 			return v, true, doctree.DimensionLanguage // TODO1
 		}
 		if !v.isPage() && !exact {
@@ -843,11 +880,11 @@ func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension doctree
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if vv.Dim() == newp.Dim() && newp.Dim() == dimension {
+		if vv.Dims() == newp.Dims() && newp.Dims() == dimension {
 			return new, vv, true
 		}
 		rs := make(resourceSources, s.numLanguages)
-		rs[vv.Dim()] = vv
+		rs[vv.Dims()] = vv
 		rs[dimension] = newp
 		return rs, vv, false
 
@@ -889,26 +926,26 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if vv.Dim() == newp.Dim() {
+		if vv.Dims() == newp.Dims() {
 			if vv != newp {
 				resource.MarkStale(vv)
 			}
 			return new, vv, true
 		}
 		rs := make(resourceSources, s.numLanguages)
-		rs[newp.Dim()] = newp
-		rs[vv.Dim()] = vv
+		rs[newp.Dims()] = newp
+		rs[vv.Dims()] = vv
 		return rs, vv, false
 	case resourceSources:
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		oldp := vv[newp.Dim()]
+		oldp := vv[newp.Dims()]
 		if oldp != newp {
 			resource.MarkStale(oldp)
 		}
-		vv[newp.Dim()] = newp
+		vv[newp.Dims()] = newp
 		return vv, oldp, oldp != nil
 	default:
 		panic(fmt.Sprintf("unknown type %T", old))
@@ -1050,7 +1087,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 
 		resourceWalker.Handle = func(ss string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			if isBranch {
-				ownerKey, _ := pageWalker.Tree.LongestPrefix(ss, true, nil)
+				ownerKey, _ := pageWalker.Tree.LongestPrefix(ss, true, false, nil)
 				if ownerKey != keyPage {
 					// Stop walking downwards, someone else owns this resource.
 					pageWalker.SkipPrefix(ownerKey + "/")
@@ -1500,7 +1537,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 
 		rw.Handle = func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
 			if isBranch {
-				ownerKey, _ := pw.Tree.LongestPrefix(resourceKey, true, nil)
+				ownerKey, _ := pw.Tree.LongestPrefix(resourceKey, true, false, nil)
 				if ownerKey != keyPage {
 					// Stop walking downwards, someone else owns this resource.
 					rw.SkipPrefix(ownerKey + "/")
