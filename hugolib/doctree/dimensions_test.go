@@ -35,3 +35,26 @@ func TestDimensionFlag(t *testing.T) {
 	c.Assert(DimensionLanguage.Index(), qt.Equals, 0)
 	c.Assert(p.Index(), qt.Equals, 11)
 }
+
+func TestDimensionsIndex(t *testing.T) {
+	c := qt.New(t)
+	c.Assert(DimensionLanguage.Index(), qt.Equals, 0)
+	c.Assert(DimensionVersion.Index(), qt.Equals, 1)
+	c.Assert(DimensionRole.Index(), qt.Equals, 2)
+}
+
+func TestDimensionsCompare(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(Dimensions{1, 2, 3}.Compare(Dimensions{1, 2, 8}), qt.Equals, -1)
+	c.Assert(Dimensions{1, 2, 3}.Compare(Dimensions{1, 2, 3}), qt.Equals, 0)
+	c.Assert(Dimensions{1, 2, 3}.Compare(Dimensions{1, 2, 0}), qt.Equals, 1)
+	c.Assert(Dimensions{1, 2, 3}.Compare(Dimensions{1, 0, 3}), qt.Equals, 1)
+	c.Assert(Dimensions{1, 2, 3}.Compare(Dimensions{0, 3, 2}), qt.Equals, 1)
+	c.Assert(Dimensions{1, 2, 3}.Compare(Dimensions{0, 0, 0}), qt.Equals, 1)
+	c.Assert(Dimensions{0, 0, 0}.Compare(Dimensions{1, 2, 3}), qt.Equals, -1)
+	c.Assert(Dimensions{0, 0, 0}.Compare(Dimensions{0, 0, 0}), qt.Equals, 0)
+	c.Assert(Dimensions{0, 0, 0}.Compare(Dimensions{1, 0, 0}), qt.Equals, -1)
+	c.Assert(Dimensions{0, 0, 0}.Compare(Dimensions{0, 1, 0}), qt.Equals, -1)
+	c.Assert(Dimensions{0, 0, 0}.Compare(Dimensions{0, 0, 1}), qt.Equals, -1)
+}
