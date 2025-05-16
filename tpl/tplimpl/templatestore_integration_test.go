@@ -1103,6 +1103,23 @@ All.
 	b.AssertLogContains("unrecognized render hook")
 }
 
+func TestLayoutOverrideThemeWhenThemeOnOldFormatIssue13715(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+theme = "mytheme"
+-- layouts/list.html --
+ layouts/list.html
+-- themes/mytheme/layouts/_default/list.html --
+mytheme/layouts/_default/list.html
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "layouts/list.html")
+}
+
 func BenchmarkExecuteWithContext(b *testing.B) {
 	files := `
 -- hugo.toml --

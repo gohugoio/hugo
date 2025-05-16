@@ -1133,12 +1133,21 @@ func (s *TemplateStore) insertTemplate2(
 		tree.Insert(key, m)
 	}
 
-	if !replace {
-		if v, found := m[nk]; found {
-			if len(pi.Identifiers()) >= len(v.PathInfo.Identifiers()) {
-				// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
-				return nil, nil
-			}
+	nkExisting, existingFound := m[nk]
+	if !replace && existingFound && fi != nil && nkExisting.Fi != nil {
+		// See issue #13715.
+		// We do the merge on the file system level, but from Hugo v0.146.0 we have a situation where
+		// the project may well have a different layouts layout compared to the theme(s) it uses.
+		// We could possibly have fixed that on a lower (file system) level, but since this is just
+		// a temporary situation (until all projects are updated),
+		// do a replace here if the file comes from higher up in the module chain.
+		replace = fi.Meta().ModuleOrdinal < nkExisting.Fi.Meta().ModuleOrdinal
+	}
+
+	if !replace && existingFound {
+		if len(pi.Identifiers()) >= len(nkExisting.PathInfo.Identifiers()) {
+			// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
+			return nil, nil
 		}
 	}
 
