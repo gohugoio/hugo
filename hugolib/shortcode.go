@@ -398,6 +398,10 @@ func doRenderShortcode(
 			return true
 		}
 		base, layoutDescriptor := po.GetInternalTemplateBasePathAndDescriptor()
+
+		// With shortcodes/mymarkdown.md (only), this allows {{% mymarkdown %}} when rendering HTML,
+		// but will not resolve any template when doing {{< mymarkdown >}}.
+		layoutDescriptor.AlwaysAllowPlainText = sc.doMarkup
 		q := tplimpl.TemplateQuery{
 			Path:     base,
 			Name:     sc.name,
@@ -405,10 +409,9 @@ func doRenderShortcode(
 			Desc:     layoutDescriptor,
 			Consider: include,
 		}
-		v := s.TemplateStore.LookupShortcode(q)
+		v, err := s.TemplateStore.LookupShortcode(q)
 		if v == nil {
-			s.Log.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.File().Path())
-			return zeroShortcode, nil
+			return zeroShortcode, err
 		}
 		tmpl = v
 		hasVariants = hasVariants || len(ofCount) > 1

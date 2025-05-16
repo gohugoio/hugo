@@ -37,6 +37,7 @@ type TemplateDescriptor struct {
 	// Misc.
 	LayoutFromUserMustMatch bool // If set, we only look for the exact layout.
 	IsPlainText             bool // Whether this is a plain text template.
+	AlwaysAllowPlainText    bool // Whether to e.g. allow plain text templates to be rendered in HTML.
 }
 
 func (d *TemplateDescriptor) normalizeFromFile() {
@@ -64,7 +65,7 @@ func (s descriptorHandler) compareDescriptors(category Category, isEmbedded bool
 		return weightNoMatch
 	}
 
-	w := this.doCompare(category, isEmbedded, s.opts.DefaultContentLanguage, other)
+	w := this.doCompare(category, s.opts.DefaultContentLanguage, other)
 
 	if w.w1 <= 0 {
 		if category == CategoryMarkup && (this.Variant1 == other.Variant1) && (this.Variant2 == other.Variant2 || this.Variant2 != "" && other.Variant2 == "") {
@@ -74,7 +75,12 @@ func (s descriptorHandler) compareDescriptors(category Category, isEmbedded bool
 			}
 
 			w.w1 = 1
-			return w
+		}
+
+		if category == CategoryShortcode {
+			if (this.IsPlainText == other.IsPlainText || !other.IsPlainText) || this.AlwaysAllowPlainText {
+				w.w1 = 1
+			}
 		}
 	}
 
@@ -82,13 +88,16 @@ func (s descriptorHandler) compareDescriptors(category Category, isEmbedded bool
 }
 
 //lint:ignore ST1006 this vs other makes it easier to reason about.
-func (this TemplateDescriptor) doCompare(category Category, isEmbedded bool, defaultContentLanguage string, other TemplateDescriptor) weight {
+func (this TemplateDescriptor) doCompare(category Category, defaultContentLanguage string, other TemplateDescriptor) weight {
 	w := weightNoMatch
 
-	// HTML in plain text is OK, but not the other way around.
-	if other.IsPlainText && !this.IsPlainText {
-		return w
+	if !this.AlwaysAllowPlainText {
+		// HTML in plain text is OK, but not the other way around.
+		if other.IsPlainText && !this.IsPlainText {
+			return w
+		}
 	}
+
 	if other.Kind != "" && other.Kind != this.Kind {
 		return w
 	}
