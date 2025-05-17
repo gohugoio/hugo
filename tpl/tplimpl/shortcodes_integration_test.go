@@ -729,3 +729,31 @@ SHORTCODE
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `no compatible template found for shortcode "mymarkdown" in [/_shortcodes/mymarkdown.md]; note that to use plain text template shortcodes in HTML you need to use the shortcode {{% delimiter`)
 }
+
+func TestShortcodeOnlyLanguageInBaseIssue13699(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+[languages]
+[languages.en]
+weight = 1
+disableLanguages = ['de']
+[languages.de]
+weight = 2
+-- layouts/_shortcodes/de.html --
+de.html
+-- layouts/all.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{< de >}}
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "de.html")
+}
