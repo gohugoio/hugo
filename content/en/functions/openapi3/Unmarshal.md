@@ -39,7 +39,7 @@ To inspect the data structure:
 To list the GET and POST operations for each of the API paths:
 
 ```go-html-template
-{{ range $path, $details := $api.Paths }}
+{{ range $path, $details := $api.Paths.Map }}
   <p>{{ $path }}</p>
   <dl>
     {{ with $details.Get }}
@@ -53,6 +53,11 @@ To list the GET and POST operations for each of the API paths:
   </dl>
 {{ end }}
 ```
+
+> [!warning]
+> The unmarshaled data structure is created with [`kin-openapi`](https://github.com/getkin/kin-openapi). Many fields are structs or pointers (not maps), and therefore require accessors or other methods for indexing and iteration. 
+> For example, prior to [`kin-openapi` v0.122.0](https://github.com/getkin/kin-openapi#v01220) / [Hugo v0.121.0](https://github.com/gohugoio/hugo/releases/tag/v0.121.0), `Paths` was a map (so `.Paths` was iterable) and it is now a pointer (and requires the `.Paths.Map` accessor, as in the example above).
+> See the [`kin-openapi` godoc for OpenAPI 3](https://pkg.go.dev/github.com/getkin/kin-openapi/openapi3) for full type definitions.
 
 Hugo renders this to:
 
