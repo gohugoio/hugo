@@ -129,9 +129,11 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		t.rs.Assets.Fs, t.rs.Logger, ctx.DependencyManager,
 	)
 
-	src, err = imp.resolve()
-	if err != nil {
-		return err
+	if !options.InlineImports.DisableInlineImports {
+		src, err = imp.resolve()
+		if err != nil {
+			return err
+		}
 	}
 
 	go func() {
@@ -146,7 +148,11 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 				Cause: err,
 			}
 		}
-		return imp.toFileError(errBuf.String())
+		s := errBuf.String()
+		if options.InlineImports.DisableInlineImports && strings.Contains(s, "Can't resolve") {
+			s += "You may want to set the 'disableInlineImports' option to false to inline imports, see https://gohugo.io/functions/css/tailwindcss/#disableinlineimports"
+		}
+		return imp.toFileError(s)
 	}
 
 	return nil
