@@ -16,6 +16,9 @@ aliases: [/tools/frontends/]
 [DatoCMS](https://www.datocms.com)
 : DatoCMS is a fully customizable administrative area for your static websites. Use your favorite website generator, let your clients publish new content independently, and the host the site anywhere you like.
 
+[GitCMS](https://gitcms.blog)
+: GitCMS is a Chrome extension that transforms GitHub into a user-friendly headless CMS, supporting all major static site generators. It offers a Notion-like editor for markdown editing, custom frontmatter schemas with multiple types of fields, easy media files uploads, internal link managment and many more. 
+
 [PubCrank](https://www.pubcrank.com/)
 : PubCrank is a static site editor which lets you define templates for different front matter layouts in your site. This gives writers an easy-to-use visual interface to create and edit content while maintaining the guardrails that the developer has created. PubCrank is free for local editing.
 
