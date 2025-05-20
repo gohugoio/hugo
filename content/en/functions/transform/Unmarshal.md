@@ -132,7 +132,7 @@ lazyQuotes
 
 targetType
 : {{< new-in 0.146.7 />}}
-: (`string`) The target data type, either `slice` or `map`. Default is ``.
+: (`string`) The target data type, either `slice` or `map`. Default is `slice`.
 
 ### Examples
 
