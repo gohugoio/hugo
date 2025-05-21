@@ -1766,6 +1766,60 @@ MyTemplate: {{ partial "MyTemplate.html" . }}|
 	b.AssertFileContent("public/index.html", "MyTemplate: MyTemplate Edited")
 }
 
+func TestRebuildEditInlinePartial13723(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+title = "Foo"
+-- layouts/baseof.html --
+{{ block "main" . }}Main.{{ end }}
+{{ partial "myinlinepartialinbaseof.html" . }}|
+ {{- define "_partials/myinlinepartialinbaseof.html" }}
+ My inline partial in baseof.
+ {{ end }}
+-- layouts/_partials/mypartial.html --
+Mypartial.
+{{ partial "myinlinepartial.html" . }}|
+{{- define "_partials/myinlinepartial.html" }}
+Mypartial Inline.|{{ .Title }}|
+{{ end }}
+-- layouts/_partials/myotherpartial.html --
+Myotherpartial.
+{{ partial "myotherinlinepartial.html" . }}|
+{{- define "_partials/myotherinlinepartial.html" }}
+Myotherpartial Inline.|{{ .Title }}|
+{{ return "myotherinlinepartial" }}
+{{ end }}
+-- layouts/all.html --
+{{ define "main" }}
+{{ partial "mypartial.html" . }}|
+{{ partial "myotherpartial.html" . }}|
+  {{ partial "myinlinepartialinall.html" . }}|
+{{ end }}
+ {{- define "_partials/myinlinepartialinall.html" }}
+ My inline partial in all.
+ {{ end }}
+
+`
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "Mypartial.", "Mypartial Inline.|Foo")
+
+	// Edit inline partial in partial.
+	b.EditFileReplaceAll("layouts/_partials/mypartial.html", "Mypartial Inline.", "Mypartial Inline Edited.").Build()
+	b.AssertFileContent("public/index.html", "Mypartial Inline Edited.|Foo")
+
+	// Edit inline partial in baseof.
+	b.EditFileReplaceAll("layouts/baseof.html", "My inline partial in baseof.", "My inline partial in baseof Edited.").Build()
+	b.AssertFileContent("public/index.html", "My inline partial in baseof Edited.")
+
+	// Edit inline partial in all.
+	b.EditFileReplaceAll("layouts/all.html", "My inline partial in all.", "My inline partial in all Edited.").Build()
+	b.AssertFileContent("public/index.html", "My inline partial in all Edited.")
+}
+
 func TestRebuildEditAsciidocContentFile(t *testing.T) {
 	if !asciidocext.Supports() {
 		t.Skip("skip asciidoc")
