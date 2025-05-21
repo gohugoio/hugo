@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -608,7 +609,7 @@ func (s *TemplateStore) LookupShortcodeByName(name string) *TemplInfo {
 	return ti
 }
 
-func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
+func (s *TemplateStore) LookupShortcode(q TemplateQuery) (*TemplInfo, error) {
 	q.init()
 	k1 := s.key(q.Path)
 
@@ -630,13 +631,15 @@ func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
 		}
 
 		for k, vv := range v {
+			best.candidates = append(best.candidates, vv)
 			if !q.Consider(vv) {
 				continue
 			}
 
 			weight := s.dh.compareDescriptors(q.Category, vv.subCategory == SubCategoryEmbedded, q.Desc, k)
 			weight.distance = distance
-			if best.isBetter(weight, vv) {
+			isBetter := best.isBetter(weight, vv)
+			if isBetter {
 				best.updateValues(weight, k2, k, vv)
 			}
 		}
@@ -644,8 +647,21 @@ func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
 		return false, nil
 	})
 
-	// Any match will do.
-	return best.templ
+	if best.w.w1 <= 0 {
+		var err error
+		if s := best.candidatesAsStringSlice(); s != nil {
+			msg := fmt.Sprintf("no compatible template found for shortcode %q in %s", q.Name, s)
+			if !q.Desc.IsPlainText {
+				msg += "; note that to use plain text template shortcodes in HTML you need to use the shortcode {{% delimiter"
+			}
+			err = errors.New(msg)
+		} else {
+			err = fmt.Errorf("no template found for shortcode %q", q.Name)
+		}
+		return nil, err
+	}
+
+	return best.templ, nil
 }
 
 // PrintDebug is for testing/debugging only.
@@ -1133,12 +1149,21 @@ func (s *TemplateStore) insertTemplate2(
 		tree.Insert(key, m)
 	}
 
-	if !replace {
-		if v, found := m[nk]; found {
-			if len(pi.Identifiers()) >= len(v.PathInfo.Identifiers()) {
-				// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
-				return nil, nil
-			}
+	nkExisting, existingFound := m[nk]
+	if !replace && existingFound && fi != nil && nkExisting.Fi != nil {
+		// See issue #13715.
+		// We do the merge on the file system level, but from Hugo v0.146.0 we have a situation where
+		// the project may well have a different layouts layout compared to the theme(s) it uses.
+		// We could possibly have fixed that on a lower (file system) level, but since this is just
+		// a temporary situation (until all projects are updated),
+		// do a replace here if the file comes from higher up in the module chain.
+		replace = fi.Meta().ModuleOrdinal < nkExisting.Fi.Meta().ModuleOrdinal
+	}
+
+	if !replace && existingFound {
+		if len(pi.Identifiers()) >= len(nkExisting.PathInfo.Identifiers()) {
+			// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
+			return nil, nil
 		}
 	}
 
@@ -1808,10 +1833,11 @@ type TextTemplatHandler interface {
 }
 
 type bestMatch struct {
-	templ *TemplInfo
-	desc  TemplateDescriptor
-	w     weight
-	key   string
+	templ      *TemplInfo
+	desc       TemplateDescriptor
+	w          weight
+	key        string
+	candidates []*TemplInfo
 
 	// settings.
 	defaultOutputformat string
@@ -1822,6 +1848,18 @@ func (best *bestMatch) reset() {
 	best.w = weight{}
 	best.desc = TemplateDescriptor{}
 	best.key = ""
+	best.candidates = nil
+}
+
+func (best *bestMatch) candidatesAsStringSlice() []string {
+	if len(best.candidates) == 0 {
+		return nil
+	}
+	candidates := make([]string, len(best.candidates))
+	for i, v := range best.candidates {
+		candidates[i] = v.PathInfo.Path()
+	}
+	return candidates
 }
 
 func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
@@ -1831,7 +1869,6 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	}
 
 	if w.w1 <= 0 {
-
 		if best.w.w1 <= 0 {
 			return ti.PathInfo.Path() < best.templ.PathInfo.Path()
 		}

@@ -69,7 +69,6 @@ func (c *PostCSSClient) Process(res resources.ResourceTransformer, options map[s
 }
 
 type InlineImports struct {
-	// Service `mapstructure:",squash"`
 	// Enable inlining of @import statements.
 	// Does so recursively, but currently once only per file;
 	// that is, it's not possible to import the same file in
@@ -77,6 +76,11 @@ type InlineImports struct {
 	// Note that this import routine does not care about the CSS spec,
 	// so you can have @import anywhere in the file.
 	InlineImports bool
+
+	// See issue https://github.com/gohugoio/hugo/issues/13719
+	// Disable inlining of @import statements
+	// This is currenty only used for css.TailwindCSS.
+	DisableInlineImports bool
 
 	// When InlineImports is enabled, we fail the build if an import cannot be resolved.
 	// You can enable this to allow the build to continue and leave the import statement in place.

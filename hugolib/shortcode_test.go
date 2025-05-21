@@ -918,7 +918,7 @@ func TestShortcodeMarkdownOutputFormat(t *testing.T) {
 ---
 title: "p1"
 ---
-{{< foo >}}
+{{% foo %}}
 # The below would have failed using the HTML template parser.
 -- layouts/shortcodes/foo.md --
 §§§
@@ -930,9 +930,7 @@ title: "p1"
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", `
-<x
-	`)
+	b.AssertFileContent("public/p1/index.html", "<code>&lt;x")
 }
 
 func TestShortcodePreserveIndentation(t *testing.T) {

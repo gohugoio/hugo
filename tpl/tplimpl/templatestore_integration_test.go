@@ -920,6 +920,26 @@ func TestPartialHTML(t *testing.T) {
 	b.AssertFileContent("public/index.html", "<link rel=\"stylesheet\" href=\"/css/style.css\">")
 }
 
+func TestPartialPlainTextInHTML(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/all.html --
+<html>
+<head>
+{{ partial "mypartial.txt" . }}
+</head>
+</html>
+-- layouts/partials/mypartial.txt --
+My <div>partial</div>.
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "My &lt;div&gt;partial&lt;/div&gt;.")
+}
+
 // Issue #13593.
 func TestGoatAndNoGoat(t *testing.T) {
 	t.Parallel()
@@ -1103,6 +1123,35 @@ All.
 	b.AssertLogContains("unrecognized render hook")
 }
 
+func TestLayoutNotFound(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/single.html --
+Single.
+`
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+	b.AssertLogContains("WARN  found no layout file for \"html\" for kind \"home\"")
+}
+
+func TestLayoutOverrideThemeWhenThemeOnOldFormatIssue13715(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+theme = "mytheme"
+-- layouts/list.html --
+ layouts/list.html
+-- themes/mytheme/layouts/_default/list.html --
+mytheme/layouts/_default/list.html
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "layouts/list.html")
+}
+
 func BenchmarkExecuteWithContext(b *testing.B) {
 	files := `
 -- hugo.toml --
@@ -1197,8 +1246,8 @@ s2.
 			Category: tplimpl.CategoryShortcode,
 			Desc:     desc,
 		}
-		v := store.LookupShortcode(q)
-		if v == nil {
+		v, err := store.LookupShortcode(q)
+		if v == nil || err != nil {
 			b.Fatal("not found")
 		}
 	}
