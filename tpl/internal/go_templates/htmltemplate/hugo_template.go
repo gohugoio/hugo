@@ -15,6 +15,7 @@ package template
 
 import (
 	"fmt"
+	"iter"
 
 	"github.com/gohugoio/hugo/common/types"
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -36,6 +37,19 @@ func (t *Template) Prepare() (*template.Template, error) {
 		return nil, err
 	}
 	return t.text, nil
+}
+
+func (t *Template) All() iter.Seq[*Template] {
+	return func(yield func(t *Template) bool) {
+		ns := t.nameSpace
+		ns.mu.Lock()
+		defer ns.mu.Unlock()
+		for _, v := range ns.set {
+			if !yield(v) {
+				return
+			}
+		}
+	}
 }
 
 // See https://github.com/golang/go/issues/5884

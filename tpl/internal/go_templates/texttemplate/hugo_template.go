@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"iter"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -432,4 +433,19 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 
 func isTrue(val reflect.Value) (truth, ok bool) {
 	return hreflect.IsTruthfulValue(val), true
+}
+
+func (t *Template) All() iter.Seq[*Template] {
+	return func(yield func(t *Template) bool) {
+		if t.common == nil {
+			return
+		}
+		t.muTmpl.RLock()
+		defer t.muTmpl.RUnlock()
+		for _, v := range t.tmpl {
+			if !yield(v) {
+				return
+			}
+		}
+	}
 }
