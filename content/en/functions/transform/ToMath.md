@@ -63,7 +63,7 @@ output
     With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
 
     ```html
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
 
 throwOnError
 : (`bool`) Whether to throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
