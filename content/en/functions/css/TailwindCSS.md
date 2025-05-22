@@ -106,6 +106,9 @@ Call the partial template from your base template:
 
 ### Step 6
 
+> [!note]
+> The following step is only neccesary for Tailwind v3 and earlier.
+
 Optionally create a `tailwind.config.js` file in the root of your project as shown below. This is necessary if you use the [Tailwind CSS IntelliSense
 extension] for Visual Studio Code.
 
