@@ -248,6 +248,7 @@ func TestCountWords(t *testing.T) {
 		{"Here's to you...", 3},
 		{"Here’s to you...", 3},
 		{"Here’s to you…", 3},
+		{"日本語 is Japanese for Japanese", 7},
 		// errors
 		{tstNoStringer{}, false},
 	} {

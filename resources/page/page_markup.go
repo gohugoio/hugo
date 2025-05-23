@@ -21,6 +21,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/media"
@@ -172,7 +173,7 @@ func isProbablyHTMLToken(s string) bool {
 }
 
 // ExtractSummaryFromHTML extracts a summary from the given HTML content.
-func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK bool) (result HtmlSummary) {
+func ExtractSummaryFromHTML(mt media.Type, input string, numWords int) (result HtmlSummary) {
 	result.source = input
 	ptag := result.resolveParagraphTagAndSetWrapper(mt)
 
@@ -191,17 +192,9 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 			return 0
 		}
 
-		if isCJK {
-			word = tpl.StripHTML(word)
-			runeCount := utf8.RuneCountInString(word)
-			if len(word) == runeCount {
-				return 1
-			} else {
-				return runeCount
-			}
-		}
-
-		return 1
+		word = tpl.StripHTML(word)
+		nonCjkWordCount, cjkWordCount := hstrings.CountWords(word)
+		return nonCjkWordCount + cjkWordCount
 	}
 
 	high := len(input)
