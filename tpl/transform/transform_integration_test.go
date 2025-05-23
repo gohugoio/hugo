@@ -495,3 +495,44 @@ DATA
 		}
 	}
 }
+
+// Issue 13729
+func TestToMathStrictMode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/all.html --
+{{ transform.ToMath "a %" dict }}
+-- foo --
+`
+
+	// strict mode: default
+	f := strings.ReplaceAll(files, "dict", "")
+	b, err := hugolib.TestE(t, f)
+	b.Assert(err.Error(), qt.Contains, "[commentAtEnd]")
+
+	// strict mode: error
+	f = strings.ReplaceAll(files, "dict", `(dict "strict" "error")`)
+	b, err = hugolib.TestE(t, f)
+	b.Assert(err.Error(), qt.Contains, "[commentAtEnd]")
+
+	// strict mode: ignore
+	f = strings.ReplaceAll(files, "dict", `(dict "strict" "ignore")`)
+	b = hugolib.Test(t, f, hugolib.TestOptWarn())
+	b.AssertLogMatches("")
+	b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
+
+	// strict: warn
+	// TODO: see https://github.com/gohugoio/hugo/issues/13735
+	// f = strings.ReplaceAll(files, "dict", `(dict "strict" "warn")`)
+	// b = hugolib.Test(t, f, hugolib.TestOptWarn())
+	// b.AssertLogMatches("[commentAtEnd]")
+	// b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
+
+	// strict mode: invalid value
+	f = strings.ReplaceAll(files, "dict", `(dict "strict" "foo")`)
+	b, err = hugolib.TestE(t, f)
+	b.Assert(err.Error(), qt.Contains, "invalid strict mode")
+}
