@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"html"
 	"html/template"
 	"io"
@@ -234,6 +235,7 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 			MinRuleThickness: 0.04,
 			ErrorColor:       "#cc0000",
 			ThrowOnError:     true,
+			Strict:           "error",
 		},
 	}
 
@@ -241,6 +243,13 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 		if err := mapstructure.WeakDecode(args[1], &katexInput.Options); err != nil {
 			return "", err
 		}
+	}
+
+	switch katexInput.Options.Strict {
+	case "error", "ignore", "warn":
+		// Valid strict mode, continue
+	default:
+		return "", fmt.Errorf("invalid strict mode; expected one of error, ignore, or warn; received %s", katexInput.Options.Strict)
 	}
 
 	s := hashing.HashString(args...)
