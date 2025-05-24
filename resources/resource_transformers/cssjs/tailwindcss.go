@@ -102,6 +102,7 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 	var errBuf bytes.Buffer
 
 	stderr := io.MultiWriter(infow, &errBuf)
+	cmdArgs = append(cmdArgs, hexec.WithDir(workingDir+"/assets/css"))
 	cmdArgs = append(cmdArgs, hexec.WithStderr(stderr))
 	cmdArgs = append(cmdArgs, hexec.WithStdout(ctx.To))
 	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(workingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
