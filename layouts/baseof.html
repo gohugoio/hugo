@@ -17,10 +17,7 @@
     {{ with (templates.Defer (dict "key" "global")) }}
       {{ $t := debug.Timer "tailwindcss" }}
       {{ with resources.Get "css/styles.css" }}
-        {{ $opts := dict
-          "inlineImports" true
-          "minify" (not hugo.IsDevelopment)
-        }}
+        {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
         {{ with . | css.TailwindCSS $opts }}
           {{ partial "helpers/linkcss.html" (dict "r" .) }}
         {{ end }}
