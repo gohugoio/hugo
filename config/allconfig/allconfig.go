@@ -627,9 +627,6 @@ type RootConfig struct {
 	// The default language code.
 	LanguageCode string
 
-	// Enable if the site content has CJK language (Chinese, Japanese, or Korean). This affects how Hugo counts words.
-	HasCJKLanguage bool
-
 	// The default number of pages per page when paginating.
 	// Deprecated: Use the Pagination struct.
 	Paginate int
