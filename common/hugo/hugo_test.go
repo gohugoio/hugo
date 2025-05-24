@@ -20,6 +20,7 @@ import (
 
 	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/version"
 )
 
 func TestHugoInfo(t *testing.T) {
@@ -29,7 +30,7 @@ func TestHugoInfo(t *testing.T) {
 	hugoInfo := NewInfo(conf, nil)
 
 	c.Assert(hugoInfo.Version(), qt.Equals, CurrentVersion.Version())
-	c.Assert(fmt.Sprintf("%T", VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
+	c.Assert(fmt.Sprintf("%T", version.VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
 	c.Assert(hugoInfo.WorkingDir(), qt.Equals, "/mywork")
 
 	bi := getBuildInfo()

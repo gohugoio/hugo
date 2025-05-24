@@ -139,8 +139,29 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 		desc.BaseName = pageInfoPage.BaseNameNoIdentifier()
 	}
 
-	desc.PrefixFilePath = s.getLanguageTargetPathLang(alwaysInSubDir)
-	desc.PrefixLink = s.getLanguagePermalinkLang(alwaysInSubDir)
+	addPrefix := func(filePath, link string) {
+		if filePath != "" {
+			if desc.PrefixFilePath != "" {
+				desc.PrefixFilePath += "/"
+			}
+			desc.PrefixFilePath += filePath
+		}
+
+		if link != "" {
+			if desc.PrefixLink != "" {
+				desc.PrefixLink += "/"
+			}
+			desc.PrefixLink += link
+		}
+	}
+
+	// Add path prefixes.
+	// Add any role first, as that is a natural candidate for external ACL checks.
+	rolePrefix := s.getPrefixRole()
+	addPrefix(rolePrefix, rolePrefix)
+	versionPrefix := s.getPrefixVersion()
+	addPrefix(versionPrefix, versionPrefix)
+	addPrefix(s.getLanguageTargetPathLang(alwaysInSubDir), s.getLanguagePermalinkLang(alwaysInSubDir))
 
 	if desc.URL != "" && strings.IndexByte(desc.URL, ':') >= 0 {
 		// Attempt to parse and expand an url

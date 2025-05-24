@@ -26,8 +26,8 @@ import (
 	"github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/common/hexec"
-	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -291,7 +291,7 @@ func (b *contentBuilder) applyArcheType(contentFilename string, archetypeFi hugo
 func (b *contentBuilder) mapArcheTypeDir() error {
 	var m archetypeMap
 
-	seen := map[hstrings.Strings2]bool{}
+	seen := map[types.Strings2]bool{}
 
 	walkFn := func(path string, fim hugofs.FileMetaInfo) error {
 		if fim.IsDir() {
@@ -301,7 +301,7 @@ func (b *contentBuilder) mapArcheTypeDir() error {
 		pi := fim.Meta().PathInfo
 
 		if pi.IsContent() {
-			pathLang := hstrings.Strings2{pi.PathBeforeLangAndOutputFormatAndExt(), fim.Meta().Lang}
+			pathLang := types.Strings2{pi.PathBeforeLangAndOutputFormatAndExt(), fim.Meta().Lang}
 			if seen[pathLang] {
 				// Duplicate content file, e.g. page.md and page.html.
 				// In the regular build, we will filter out the duplicates, but

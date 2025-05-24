@@ -69,6 +69,11 @@ type pageMeta struct {
 	s *Site // The site this page belongs to.
 }
 
+func (m pageMeta) cloneForSite(s *Site) (*pageMeta, error) {
+	m.s = s
+	return &m, nil
+}
+
 // Prepare for a rebuild of the data passed in from front matter.
 func (m *pageMeta) setMetaPostPrepareRebuild() {
 	params := xmaps.Clone(m.paramsOriginal)
@@ -260,16 +265,14 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 			pcfg.CascadeCompiled = cascade
 		}
 
-		// Look for path, lang and kind, all of which values we need early on.
+		// Look for path, lang, roles and kind, all of which values we need early on.
 		if v, found := frontmatter["path"]; found {
 			pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
-			pcfg.Params["path"] = pcfg.Path
 		}
 		if v, found := frontmatter["lang"]; found {
 			lang := strings.ToLower(cast.ToString(v))
 			if _, ok := conf.PathParser().LanguageIndex[lang]; ok {
 				pcfg.Lang = lang
-				pcfg.Params["lang"] = pcfg.Lang
 			}
 		}
 		if v, found := frontmatter["kind"]; found {
@@ -279,14 +282,37 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 				if pcfg.Kind == "" {
 					return fmt.Errorf("unknown kind %q in front matter", s)
 				}
-				pcfg.Params["kind"] = pcfg.Kind
 			}
 		}
+		if v, found := frontmatter["roles"]; found {
+			pcfg.Roles = cast.ToStringSlice(v)
+		}
+		if v, found := frontmatter["versions"]; found {
+			pcfg.Versions = cast.ToStringSlice(v)
+		}
+		if v, found := frontmatter["languages"]; found {
+			pcfg.Languages = cast.ToStringSlice(v)
+		}
+		if v, found := frontmatter["languagedelegees"]; found {
+			pcfg.LanguageDelegees = cast.ToStringSlice(v)
+		}
+		if v, found := frontmatter["versiondelegees"]; found {
+			pcfg.VersionDelegees = cast.ToStringSlice(v)
+		}
+		if v, found := frontmatter["roledelegees"]; found {
+			pcfg.RoleDelegees = cast.ToStringSlice(v)
+		}
+
 	} else if p.pageMetaParams.pageConfig.Params == nil {
 		p.pageConfig.Params = make(maps.Params)
 	}
 
 	p.pageMetaParams.init(conf.Watching())
+
+	// TODO1 check if we can allow cascade from config.
+	if err := p.pageConfig.CompileEearly(conf); err != nil {
+		return fmt.Errorf("failed to compile roles: %w", err)
+	}
 
 	return nil
 }

@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -345,6 +346,7 @@ type PageWithoutContent interface {
 	resource.Resource
 	PageMetaProvider
 	PageMetaInternalProvider
+
 	resource.LanguageProvider
 
 	// For pages backed by a file.
@@ -398,6 +400,10 @@ type PageWithoutContent interface {
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
+}
+
+type SiteDimensionProvider interface {
+	Role() roles.Role
 }
 
 // Positioner provides next/prev navigation.
