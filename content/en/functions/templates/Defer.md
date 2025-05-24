@@ -20,27 +20,18 @@ In some rare use cases, you may need to defer the execution of a template until 
 
 ```go-html-template
 {{ with (templates.Defer (dict "key" "global")) }}
-  {{ $t := debug.Timer "tailwindcss" }}
-  {{ with resources.Get "css/styles.css" }}
-    {{ $opts := dict
-      "inlineImports" true
-      "optimize" hugo.IsProduction
-    }}
+  {{ with resources.Get "css/main.css" }}
+    {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
     {{ with . | css.TailwindCSS $opts }}
       {{ if hugo.IsDevelopment }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}" />
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
       {{ else }}
-        {{ with . | minify | fingerprint }}
-          <link
-            rel="stylesheet"
-            href="{{ .RelPermalink }}"
-            integrity="{{ .Data.Integrity }}"
-            crossorigin="anonymous" />
+        {{ with . | fingerprint }}
+          <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
         {{ end }}
       {{ end }}
     {{ end }}
   {{ end }}
-  {{ $t.Stop }}
 {{ end }}
 ```
 

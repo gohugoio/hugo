@@ -18,8 +18,10 @@ Use the `css.TailwindCSS` function to process your Tailwind CSS files. This func
 1. Compile those utility classes into standard CSS.
 1. Generate an optimized CSS output file.
 
-> [!caution]
-> Tailwind CSS v4.0 and later requires a relatively [modern browser](https://tailwindcss.com/docs/compatibility#browser-support) to render correctly.
+> [!note]
+> Use this function with Tailwind CSS v4.0 and later, which require a relatively [modern browser] to render correctly.
+
+[modern browser]: https://tailwindcss.com/docs/compatibility#browser-support
 
 ## Setup
 
@@ -75,10 +77,7 @@ Create a partial template to process the CSS with the Tailwind CSS CLI:
 ```go-html-template {file="layouts/partials/css.html" copy=true}
 {{ with (templates.Defer (dict "key" "global")) }}
   {{ with resources.Get "css/main.css" }}
-    {{ $opts := dict
-      "minify" (not hugo.IsDevelopment)
-      "inlineImports" true
-    }}
+    {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
     {{ with . | css.TailwindCSS $opts }}
       {{ if hugo.IsDevelopment }}
         <link rel="stylesheet" href="{{ .RelPermalink }}">
@@ -102,28 +101,6 @@ Call the partial template from your base template:
   {{ partialCached "css.html" . }}
   ...
 <head>
-```
-
-### Step 6
-
-> [!note]
-> The following step is only neccesary for Tailwind v3 and earlier.
-
-Optionally create a `tailwind.config.js` file in the root of your project as shown below. This is necessary if you use the [Tailwind CSS IntelliSense
-extension] for Visual Studio Code.
-
-[Tailwind CSS IntelliSense
-extension]: https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
-
-```js {file="tailwind.config.js" copy=true}
-/*
-This file is present to satisfy a requirement of the Tailwind CSS IntelliSense
-extension for Visual Studio Code.
-
-https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
-
-The rest of this file is intentionally empty.
-*/
 ```
 
 ## Options
