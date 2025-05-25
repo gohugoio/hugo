@@ -51,9 +51,11 @@ git remote add origin https://codeberg.org/<YourUsername>/pages.git
 git push -u origin main
 ```
 
-## Automated deployment
+## Automated deployment using Woodpecker CI
 
-In order to automatically deploy your Hugo website, you need to have or [request] access to Codeberg's CI, as well as add a `.woodpecker.yaml` file in the root of your project. A template and additional instructions are available in the official [examples repository].
+There are two methods you can use to deploy your Hugo website to Codeberg automatically. These are: Woodpecker CI and Forgejo Actions.
+
+To use Codeberg's Woodperker CI, you need to have or [request] access to it, as well as add a `.woodpecker.yaml` file in the root of your project. A template and additional instructions are available in the official [examples repository].
 
 [request]: https://codeberg.org/Codeberg-e.V./requests/issues/new?template=ISSUE_TEMPLATE%2fWoodpecker-CI.yaml
 [examples repository]: https://codeberg.org/Codeberg-CI/examples/src/branch/main/Hugo/.woodpecker.yaml
@@ -74,7 +76,85 @@ git remote add origin https://codeberg.org/<YourUsername>/<YourWebsite>.git
 git push -u origin main
 ```
 
-Your project will then be built and deployed by Codeberg's CI.
+Your project will then be built and deployed by Codeberg's Woodpecker CI.
+
+## Automated deployment using Forgejo Actions
+
+The other way to deploy your website to Codeberg pages automatically is to make use of Forgejo Actions. Actions need a _runner_ to work, and Codeberg has [great documentation] on how to set one up yourself. However, Codeberg provides a [handful of humble runners] themselves (they say this feature is in "open alpha"), which actually seem powerful enough to build at least relatively simple websites.
+
+[great documentation]: https://docs.codeberg.org/ci/actions/
+[handful of humble runners]: https://codeberg.org/actions/meta
+
+To deploy your website this way, you don't need to request any access. All you need to do is enable actions in your repository settings (see the documentation link above) and add a workflow configuration file, for example, `hugo.yaml`, to the `.forgejo/workflows/` directory in your website's source repository.
+
+An example of such a file is provided below. It should work for automatically building your website from the `main` branch, and committing the result to the `pages` branch to have it accessible under `https://<YourUsername>.codeberg.page/<YourWebsiteRepositoryName>/`.
+
+**Please note** however that this is a slightly different approach than the one described above, where you use a separate `pages` repository and the resulting website is available at `https://<YourUsername>.codeberg.page/` directly. This file should be a good starting point to explore that path though:
+
+```yaml {file=".forgejo/workflows/hugo.yaml" copy=true}
+name: Deploy Hugo site to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches:
+      - main
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    # You can find the list of available runners on https://codeberg.org/actions/meta, or run one yourself.
+    runs-on: codeberg-tiny-lazy
+    container:
+      image: "hugomods/hugo:exts-0.147.3"
+    steps:
+      - name: Clone the repository
+        uses: https://code.forgejo.org/actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Generate static files with Hugo
+        env:
+          # For maximum backward compatibility with Hugo modules
+          HUGO_ENVIRONMENT: production
+          HUGO_ENV: production
+        run: |
+          hugo \
+            --gc \
+            --minify
+      - name: Upload generated files
+        uses: https://code.forgejo.org/actions/upload-artifact@v3
+        with:
+          name: Generated files
+          path: public/
+  deploy:
+    needs: [ build ]
+    runs-on: codeberg-tiny-lazy
+    steps:
+      - name: Clone the repository
+        uses: https://code.forgejo.org/actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Checkout the pages branch and clean it up
+        run: |
+          git checkout pages || git switch --orphan pages && \
+          rm -Rf $(ls -A | grep -v ^\.git$)
+      - name: Download generated files
+        uses: https://code.forgejo.org/actions/download-artifact@v3
+        with:
+          name: Generated files
+      - name: Publish the website
+        run: |
+          git config user.email codeberg-ci && \
+          git config user.name "Codeberg CI" && \
+          git add . && \
+          git commit --allow-empty --message "Codeberg build for ${GITHUB_SHA}" && \
+          git push origin pages
+```
+
+Once you commit this file to your website source repository, you should see a build firing up pretty soon. You can also trigger it manually by navigating to the **Actions** section of your repository web page, choosing **hugo.yaml** on the left and clicking on **Run workflow**.
 
 ## Other resources
 
