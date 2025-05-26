@@ -563,11 +563,20 @@ func TestParseLayouts(t *testing.T) {
 				c.Assert(p.Type(), qt.Equals, TypePartial)
 			},
 		},
+		{
+			"Shortcode lang in root",
+			"/_shortcodes/no.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Type(), qt.Equals, TypeShortcode)
+				c.Assert(p.Lang(), qt.Equals, "")
+				c.Assert(p.NameNoIdentifier(), qt.Equals, "no")
+			},
+		},
 	}
 
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-			if test.name != "Baseof" {
+			if test.name != "Shortcode lang in root" {
 				// return
 			}
 			test.assert(c, testParser.Parse(files.ComponentFolderLayouts, test.path))
