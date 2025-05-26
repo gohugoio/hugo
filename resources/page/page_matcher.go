@@ -105,9 +105,9 @@ func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
 	}
 }
 
-func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, maps.Params]], error) {
-	buildConfig := func(in any) (*maps.Ordered[PageMatcher, maps.Params], any, error) {
-		cascade := maps.NewOrdered[PageMatcher, maps.Params]()
+func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, PageMatcherParamsConfig]], error) {
+	buildConfig := func(in any) (*maps.Ordered[PageMatcher, PageMatcherParamsConfig], any, error) {
+		cascade := maps.NewOrdered[PageMatcher, PageMatcherParamsConfig]()
 		if in == nil {
 			return cascade, []map[string]any{}, nil
 		}
@@ -124,11 +124,7 @@ func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any)
 				c   PageMatcherParamsConfig
 				err error
 			)
-			if handleLegacyFormat {
-				c, err = mapToPageMatcherParamsConfigLegacy(m)
-			} else {
-				c, err = mapToPageMatcherParamsConfig(m)
-			}
+			c, err = mapToPageMatcherParamsConfig(m)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -147,23 +143,28 @@ func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any)
 			if found {
 				// Merge
 				for k, v := range cfg.Params {
-					if _, found := c[k]; !found {
-						c[k] = v
+					if _, found := c.Params[k]; !found {
+						c.Params[k] = v
+					}
+				}
+				for k, v := range cfg.Fields {
+					if _, found := c.Fields[k]; !found {
+						c.Fields[k] = v
 					}
 				}
 			} else {
-				cascade.Set(m, cfg.Params)
+				cascade.Set(m, cfg)
 			}
 		}
 
 		return cascade, cfgs, nil
 	}
 
-	return config.DecodeNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, maps.Params]](in, buildConfig)
+	return config.DecodeNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, PageMatcherParamsConfig]](in, buildConfig)
 }
 
 // DecodeCascade decodes in which could be either a map or a slice of maps.
-func DecodeCascade(logger loggers.Logger, handleLegacyFormat bool, in any) (*maps.Ordered[PageMatcher, maps.Params], error) {
+func DecodeCascade(logger loggers.Logger, handleLegacyFormat bool, in any) (*maps.Ordered[PageMatcher, PageMatcherParamsConfig], error) {
 	conf, err := DecodeCascadeConfig(logger, handleLegacyFormat, in)
 	if err != nil {
 		return nil, err
@@ -181,47 +182,22 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 				return pcfg, err
 			}
 			pcfg.Target = target
-		default:
+		case "params":
 			if pcfg.Params == nil {
 				pcfg.Params = make(maps.Params)
 			}
-			pcfg.Params[k] = v
-		}
-	}
-	return pcfg, pcfg.init()
-}
-
-func mapToPageMatcherParamsConfigLegacy(m map[string]any) (PageMatcherParamsConfig, error) {
-	var pcfg PageMatcherParamsConfig
-	for k, v := range m {
-		switch strings.ToLower(k) {
-		case "params":
-			// We simplified the structure of the cascade config in Hugo 0.111.0.
-			// There is a small chance that someone has used the old structure with the params keyword,
-			// those values will now be moved to the top level.
-			// This should be very unlikely as it would lead to constructs like .Params.params.foo,
-			// and most people see params as an Hugo internal keyword.
 			params := maps.ToStringMap(v)
-			if pcfg.Params == nil {
-				pcfg.Params = params
-			} else {
-				for k, v := range params {
-					if _, found := pcfg.Params[k]; !found {
-						pcfg.Params[k] = v
-					}
+			for k, v := range params {
+				if _, found := pcfg.Params[k]; !found {
+					pcfg.Params[k] = v
 				}
 			}
-		case "_target", "target":
-			var target PageMatcher
-			if err := decodePageMatcher(v, &target); err != nil {
-				return pcfg, err
-			}
-			pcfg.Target = target
 		default:
-			if pcfg.Params == nil {
-				pcfg.Params = make(maps.Params)
+			if pcfg.Fields == nil {
+				pcfg.Fields = make(maps.Params)
 			}
-			pcfg.Params[k] = v
+
+			pcfg.Fields[k] = v
 		}
 	}
 	return pcfg, pcfg.init()
@@ -250,10 +226,14 @@ func decodePageMatcher(m any, v *PageMatcher) error {
 type PageMatcherParamsConfig struct {
 	// Apply Params to all Pages matching Target.
 	Params maps.Params
+	// Fields holds all fields but Params.
+	Fields maps.Params
+	// Target is the PageMatcher that this config applies to.
 	Target PageMatcher
 }
 
 func (p *PageMatcherParamsConfig) init() error {
 	maps.PrepareParams(p.Params)
+	maps.PrepareParams(p.Fields)
 	return nil
 }

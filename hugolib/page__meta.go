@@ -83,8 +83,8 @@ type pageMetaParams struct {
 
 	// These are only set in watch mode.
 	datesOriginal   pagemeta.Dates
-	paramsOriginal  map[string]any                               // contains the original params as defined in the front matter.
-	cascadeOriginal *maps.Ordered[page.PageMatcher, maps.Params] // contains the original cascade as defined in the front matter.
+	paramsOriginal  map[string]any                                                // contains the original params as defined in the front matter.
+	cascadeOriginal *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] // contains the original cascade as defined in the front matter.
 }
 
 func (m *pageMetaParams) init(preserveOriginal bool) {
@@ -291,7 +291,7 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 	return nil
 }
 
-func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, maps.Params]) error {
+func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]) error {
 	ps.m.setMetaPostCount++
 	var cascadeHashPre uint64
 	if ps.m.setMetaPostCount > 1 {
@@ -303,15 +303,20 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, maps.Pa
 	// Apply cascades first so they can be overridden later.
 	if cascade != nil {
 		if ps.m.pageConfig.CascadeCompiled != nil {
-			cascade.Range(func(k page.PageMatcher, v maps.Params) bool {
+			cascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
 				vv, found := ps.m.pageConfig.CascadeCompiled.Get(k)
 				if !found {
 					ps.m.pageConfig.CascadeCompiled.Set(k, v)
 				} else {
 					// Merge
-					for ck, cv := range v {
-						if _, found := vv[ck]; !found {
-							vv[ck] = cv
+					for ck, cv := range v.Params {
+						if _, found := vv.Params[ck]; !found {
+							vv.Params[ck] = cv
+						}
+					}
+					for ck, cv := range v.Fields {
+						if _, found := vv.Fields[ck]; !found {
+							vv.Fields[ck] = cv
 						}
 					}
 				}
@@ -341,11 +346,17 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, maps.Pa
 
 	// Cascade is also applied to itself.
 	var err error
-	cascade.Range(func(k page.PageMatcher, v maps.Params) bool {
+	cascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
 		if !k.Matches(ps) {
 			return true
 		}
-		for kk, vv := range v {
+		for kk, vv := range v.Params {
+			if _, found := ps.m.pageConfig.Params[kk]; !found {
+				ps.m.pageConfig.Params[kk] = vv
+			}
+		}
+
+		for kk, vv := range v.Fields {
 			if ps.m.pageConfig.IsFromContentAdapter {
 				if _, found := ps.m.pageConfig.ContentAdapterData[kk]; !found {
 					ps.m.pageConfig.ContentAdapterData[kk] = vv

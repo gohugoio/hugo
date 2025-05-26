@@ -125,10 +125,10 @@ type PageConfig struct {
 	ContentAdapterData map[string]any `mapstructure:"-" json:"-"`
 
 	// Compiled values.
-	CascadeCompiled         *maps.Ordered[page.PageMatcher, maps.Params] `mapstructure:"-" json:"-"`
-	ContentMediaType        media.Type                                   `mapstructure:"-" json:"-"`
-	ConfiguredOutputFormats output.Formats                               `mapstructure:"-" json:"-"`
-	IsFromContentAdapter    bool                                         `mapstructure:"-" json:"-"`
+	CascadeCompiled         *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] `mapstructure:"-" json:"-"`
+	ContentMediaType        media.Type                                                    `mapstructure:"-" json:"-"`
+	ConfiguredOutputFormats output.Formats                                                `mapstructure:"-" json:"-"`
+	IsFromContentAdapter    bool                                                          `mapstructure:"-" json:"-"`
 }
 
 func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
