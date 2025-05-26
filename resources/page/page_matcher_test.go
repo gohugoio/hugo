@@ -84,19 +84,17 @@ func TestPageMatcher(t *testing.T) {
 
 	c.Run("mapToPageMatcherParamsConfig", func(c *qt.C) {
 		fn := func(m map[string]any) PageMatcherParamsConfig {
-			v, err := mapToPageMatcherParamsConfigLegacy(m)
+			v, err := mapToPageMatcherParamsConfig(m)
 			c.Assert(err, qt.IsNil)
 			return v
 		}
-		// Legacy.
 		c.Assert(fn(map[string]any{"_target": map[string]any{"kind": "page"}, "foo": "bar"}), qt.DeepEquals, PageMatcherParamsConfig{
-			Params: maps.Params{
+			Fields: maps.Params{
 				"foo": "bar",
 			},
 			Target: PageMatcher{Path: "", Kind: "page", Lang: "", Environment: ""},
 		})
 
-		// Current format.
 		c.Assert(fn(map[string]any{"target": map[string]any{"kind": "page"}, "params": map[string]any{"foo": "bar"}}), qt.DeepEquals, PageMatcherParamsConfig{
 			Params: maps.Params{
 				"foo": "bar",
@@ -134,7 +132,7 @@ func TestDecodeCascadeConfig(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
 	c.Assert(got.Config.Keys(), qt.DeepEquals, []PageMatcher{{Kind: "page", Environment: "production"}, {Kind: "page"}})
-	c.Assert(got.Config.Values(), qt.DeepEquals, []maps.Params{{"a": string("av")}, {"b": string("bv")}})
+
 	c.Assert(got.SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
 		{
 			Params: maps.Params{"a": string("av")},
