@@ -133,7 +133,7 @@ func (ns *Namespace) lookup(name string) (*tplimpl.TemplInfo, error) {
 	if strings.HasPrefix(name, "partials/") {
 		// This is most likely not what the user intended.
 		// This worked before Hugo 0.146.0.
-		ns.deps.Log.Warnidf(constants.WarnPartialSuperfluousPrefix, "Partial name %q starting with 'partials/' (as in {{ partial \"%s\"}}) is most likely not what you want. Before 0.146.0 we did a double lookup in this situation.", name, name)
+		ns.deps.Log.Warnidf(constants.WarnPartialSuperfluousPrefix, "Doubtful use of partial function in {{ partial \"%s\"}}), this is most likely not what you want. Consider removing superfluous prefix \"partials/\" from template name given as first function argument.", name)
 	}
 	v := ns.deps.TemplateStore.LookupPartial(name)
 	if v == nil {
