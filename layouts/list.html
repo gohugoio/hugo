@@ -21,7 +21,7 @@
         <a
           class="flex col-span-1 a--block cursor-pointer flex-col group border p-3 sm:p-4 hover:shadow-md dark:shadow-slate-800 border-gray-300 dark:border-gray-800 m-0"
           href="{{ or .Params.permalink .RelPermalink }}">
-          {{ if .Params.show_publish_date }}
+          {{ if or .Params.show_publish_date (eq .Section "news") }}
             {{ with .PublishDate }}
               <p
                 class="text-gray-500 dark:text-gray-400 text-sm/5 md:text-base/2 mb-2 sm:mb-4">
