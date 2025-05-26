@@ -109,6 +109,8 @@ disableAliases = true
     ghrepo      = "https://github.com/gohugoio/hugoDocs/"
     [params.render_hooks.link]
         errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
+    [params.social.mastodon]
+        url = "https://fosstodon.org/@gohugoio"
 
 [related]
     includeNewer = true
