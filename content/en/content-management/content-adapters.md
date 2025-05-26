@@ -153,7 +153,7 @@ Key|Description|Required
 `title`|The resource title.|&nbsp;
 
 > [!note]
-> If the `content.value` is a string Hugo creates a new resource. If the `content.value` is a resource, Hugo obtains the value from the existing resource.
+> When `content.value` is a string, Hugo generates a new resource with a publication path relative to the page. However, if `content.value` is already a resource, Hugo directly uses its value and publishes it relative to the site root. This latter method is more efficient.
 >
 > When setting the `path`, Hugo transforms the given string to a logical path. For example, setting `path` to `A B C/cover.jpg` produces a logical path of `/section/a-b-c/cover.jpg`.
 
