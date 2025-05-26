@@ -120,11 +120,11 @@ func (pp *PathParser) parse(component, s string) (*Path, error) {
 	return p, nil
 }
 
-func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot int) {
+func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, numDots int) {
 	if p.posContainerHigh != -1 {
 		return
 	}
-	mayHaveLang := p.posIdentifierLanguage == -1 && pp.LanguageIndex != nil
+	mayHaveLang := numDots > 1 && p.posIdentifierLanguage == -1 && pp.LanguageIndex != nil
 	mayHaveLang = mayHaveLang && (component == files.ComponentFolderContent || component == files.ComponentFolderLayouts)
 	mayHaveOutputFormat := component == files.ComponentFolderLayouts
 	mayHaveKind := p.posIdentifierKind == -1 && mayHaveOutputFormat
@@ -167,7 +167,6 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot i
 			if langFound {
 				p.identifiersKnown = append(p.identifiersKnown, id)
 				p.posIdentifierLanguage = len(p.identifiersKnown) - 1
-
 			}
 		}
 
@@ -234,19 +233,21 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 	p.s = s
 	slashCount := 0
 	lastDot := 0
+	lastSlashIdx := strings.LastIndex(s, "/")
+	numDots := strings.Count(s[lastSlashIdx+1:], ".")
 
 	for i := len(s) - 1; i >= 0; i-- {
 		c := s[i]
 
 		switch c {
 		case '.':
-			pp.parseIdentifier(component, s, p, i, lastDot)
+			pp.parseIdentifier(component, s, p, i, lastDot, numDots)
 			lastDot = i
 		case '/':
 			slashCount++
 			if p.posContainerHigh == -1 {
 				if lastDot > 0 {
-					pp.parseIdentifier(component, s, p, i, lastDot)
+					pp.parseIdentifier(component, s, p, i, lastDot, numDots)
 				}
 				p.posContainerHigh = i + 1
 			} else if p.posContainerLow == -1 {
