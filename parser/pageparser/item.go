@@ -104,7 +104,7 @@ func (i Item) ValTyped(source []byte) any {
 }
 
 func (i Item) IsText() bool {
-	return i.Type == tText || i.Type == tIndentation
+	return i.Type == tText || i.IsIndentation()
 }
 
 func (i Item) IsIndentation() bool {
@@ -152,7 +152,7 @@ func (i Item) IsFrontMatter() bool {
 }
 
 func (i Item) IsDone() bool {
-	return i.Type == tError || i.Type == tEOF
+	return i.IsError() || i.IsEOF()
 }
 
 func (i Item) IsEOF() bool {
@@ -166,18 +166,19 @@ func (i Item) IsError() bool {
 func (i Item) ToString(source []byte) string {
 	val := i.Val(source)
 	switch {
-	case i.Type == tEOF:
+	case i.IsEOF():
 		return "EOF"
-	case i.Type == tError:
+	case i.IsError():
 		return string(val)
-	case i.Type == tIndentation:
+	case i.IsIndentation():
 		return fmt.Sprintf("%s:[%s]", i.Type, util.VisualizeSpaces(val))
 	case i.Type > tKeywordMarker:
 		return fmt.Sprintf("<%s>", val)
 	case len(val) > 50:
 		return fmt.Sprintf("%v:%.20q...", i.Type, val)
+	default:
+		return fmt.Sprintf("%v:[%s]", i.Type, val)
 	}
-	return fmt.Sprintf("%v:[%s]", i.Type, val)
 }
 
 type ItemType int
