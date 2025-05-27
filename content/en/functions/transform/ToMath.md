@@ -6,7 +6,7 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType: types.Result[template.HTML]
+    returnType: template.HTML
     signatures: ['transform.ToMath INPUT [OPTIONS]']
 aliases: [/functions/tomath]
 ---
