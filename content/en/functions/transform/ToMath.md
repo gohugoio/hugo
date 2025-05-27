@@ -58,12 +58,26 @@ minRuleThickness
 : (`float`) The minimum thickness of the fraction lines in `em`. Default is `0.04`.
 
 output
-: (`string`). Determines the markup language of the output, one of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
+: (`string`) Determines the markup language of the output, one of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
 
     With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
 
     ```html
     <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+
+strict
+: {{< new-in 0.147.6 />}}
+: (`string`) Controls how KaTeX handles LaTeX features that offer convenience but aren't officially supported, either `error` or `ignore`. Default is `error`.
+
+  - `error`: Throws an error when convenient, unsupported LaTeX features
+    are encountered.
+  - `ignore`: Allows convenient, unsupported LaTeX features without any
+    feedback.
+
+: The `newLineInDisplayMode` error code, which flags the use of `\\`
+or `\newline` in display mode outside an array or tabular environment, is
+intentionally designed not to throw an error, despite this behavior
+being questionable.
 
 throwOnError
 : (`bool`) Whether to throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
