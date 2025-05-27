@@ -136,3 +136,37 @@ func TestSortedStringSlice(t *testing.T) {
 	c.Assert(s.Count("z"), qt.Equals, 0)
 	c.Assert(s.Count("a"), qt.Equals, 1)
 }
+
+func TestStringSliceToInterfaceSlice(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	tests := []struct {
+		name string
+		in   []string
+		want []any
+	}{
+		{
+			name: "empty slice",
+			in:   []string{},
+			want: []any{},
+		},
+		{
+			name: "single element",
+			in:   []string{"hello"},
+			want: []any{"hello"},
+		},
+		{
+			name: "multiple elements",
+			in:   []string{"a", "b", "c"},
+			want: []any{"a", "b", "c"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := StringSliceToInterfaceSlice(tt.in)
+			c.Assert(got, qt.DeepEquals, tt.want)
+		})
+	}
+}
