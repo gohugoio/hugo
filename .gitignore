@@ -4,3 +4,7 @@ imports.*
 dist/
 public/
 .DS_Store 
+
+# Windows resource files
+resource_windows.syso
+versioninfo.json

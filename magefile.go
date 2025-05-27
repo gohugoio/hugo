@@ -43,6 +43,12 @@ func runWith(env map[string]string, cmd string, inArgs ...any) error {
 
 // Build hugo binary
 func Hugo() error {
+	// adding Windows FileInfo - fixes #10588
+	if runtime.GOOS == "windows" || os.Getenv("GOOS") == "windows" {
+		if err := generateWindowsSyso(); err != nil {
+			return err
+		}
+	}
 	return runWith(flagEnv(), goexe, "build", "-ldflags", ldflags, buildFlags(), "-tags", buildTags(), packageName)
 }
 
@@ -320,4 +326,15 @@ func argsToStrings(v ...any) []string {
 	}
 
 	return args
+}
+
+// adding Windows FileInfo - fixes #10588
+func generateWindowsSyso() error {
+	if runtime.GOOS == "windows" || os.Getenv("GOOS") == "windows" {
+		cmd := exec.Command("bash", "scripts/gen-windows-syso.sh")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		return cmd.Run()
+	}
+	return nil
 }
