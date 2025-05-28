@@ -905,7 +905,6 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 	handleChange := func(pathInfo *paths.Path, delete, isDir bool) {
 		switch pathInfo.Component() {
 		case files.ComponentFolderContent:
-			logger.Println("Source changed", pathInfo.Path())
 			isContentDataFile := pathInfo.IsContentData()
 			if !isContentDataFile {
 				if ids := h.pageTrees.collectAndMarkStaleIdentities(pathInfo); len(ids) > 0 {

@@ -16,7 +16,6 @@ package hugolib
 import (
 	"fmt"
 	"strings"
-	"sync"
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -190,7 +189,6 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			pid:                               pid,
 			pageOutput:                        nopPageOutput,
 			pageOutputTemplateVariationsState: &atomic.Uint32{},
-			resourcesPublishInit:              &sync.Once{},
 			Staler:                            m,
 			dependencyManager:                 m.s.Conf.NewIdentityManager(m.Path()),
 			pageCommon: &pageCommon{

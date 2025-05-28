@@ -1946,3 +1946,23 @@ tags: ["tag1"]
 	// But that is a harder problem to tackle.
 	b.AssertFileContent("public/tags/index.html", "All. Tag1|Tag2|")
 }
+
+func TestRebuildEditNonReferencedResourceIssue13748(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- content/mybundle/index.md --
+-- content/mybundle/resource.txt --
+This is a resource file.
+-- layouts/all.html --
+All.
+`
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/mybundle/resource.txt", "This is a resource file.")
+	b.EditFileReplaceAll("content/mybundle/resource.txt", "This is a resource file.", "This is an edited resource file.").Build()
+	b.AssertFileContent("public/mybundle/resource.txt", "This is an edited resource file.")
+}
