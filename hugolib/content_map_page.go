@@ -21,7 +21,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -1310,7 +1309,6 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 		}
 
 		po.renderState = 0
-		po.p.resourcesPublishInit = &sync.Once{}
 		if r == identity.FinderFoundOneOfMany || po.f.Name == output.HTTPStatus404HTMLFormat.Name {
 			// Will force a re-render even in fast render mode.
 			po.renderOnce = false

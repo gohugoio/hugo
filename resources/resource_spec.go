@@ -20,6 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/jsconfig"
@@ -189,7 +190,7 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 	gr := &genericResource{
 		Staler:           &AtomicStaler{},
 		h:                &resourceHash{},
-		publishInit:      &sync.Once{},
+		publishInit:      &lazy.OnceMore{},
 		keyInit:          &sync.Once{},
 		includeHashInKey: isImage,
 		paths:            rp,

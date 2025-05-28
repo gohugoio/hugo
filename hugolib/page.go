@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -29,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/related"
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 	"github.com/spf13/afero"
 
@@ -110,8 +110,7 @@ type pageState struct {
 	*pageCommon
 
 	resource.Staler
-	dependencyManager    identity.Manager
-	resourcesPublishInit *sync.Once
+	dependencyManager identity.Manager
 }
 
 func (p *pageState) incrPageOutputTemplateVariation() {
@@ -522,39 +521,41 @@ func (p *pageState) initPage() error {
 }
 
 func (p *pageState) renderResources() error {
-	var initErr error
+	for _, r := range p.Resources() {
 
-	p.resourcesPublishInit.Do(func() {
-		for _, r := range p.Resources() {
-			if _, ok := r.(page.Page); ok {
+		if _, ok := r.(page.Page); ok {
+			if p.s.h.buildCounter.Load() == 0 {
 				// Pages gets rendered with the owning page but we count them here.
 				p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Pages)
-				continue
 			}
-
-			if _, isWrapper := r.(resource.ResourceWrapper); isWrapper {
-				// Skip resources that are wrapped.
-				// These gets published on its own.
-				continue
-			}
-
-			src, ok := r.(resource.Source)
-			if !ok {
-				initErr = fmt.Errorf("resource %T does not support resource.Source", r)
-				return
-			}
-
-			if err := src.Publish(); err != nil {
-				if !herrors.IsNotExist(err) {
-					p.s.Log.Errorf("Failed to publish Resource for page %q: %s", p.pathOrTitle(), err)
-				}
-			} else {
-				p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Files)
-			}
+			continue
 		}
-	})
 
-	return initErr
+		if resources.IsPublished(r) {
+			continue
+		}
+
+		if _, isWrapper := r.(resource.ResourceWrapper); isWrapper {
+			// Skip resources that are wrapped.
+			// These gets published on its own.
+			continue
+		}
+
+		src, ok := r.(resource.Source)
+		if !ok {
+			return fmt.Errorf("resource %T does not support resource.Source", r)
+		}
+
+		if err := src.Publish(); err != nil {
+			if !herrors.IsNotExist(err) {
+				p.s.Log.Errorf("Failed to publish Resource for page %q: %s", p.pathOrTitle(), err)
+			}
+		} else {
+			p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Files)
+		}
+	}
+
+	return nil
 }
 
 func (p *pageState) AlternativeOutputFormats() page.OutputFormats {
