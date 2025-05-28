@@ -81,11 +81,6 @@ type ResourceWithoutMeta interface {
 	ResourceDataProvider
 }
 
-type ResourceWrapper interface {
-	UnwrappedResource() Resource
-	WrapResource(Resource) ResourceWrapper
-}
-
 type ResourceTypeProvider interface {
 	// ResourceType is the resource type. For most file types, this is the main
 	// part of the MIME type, e.g. "image", "application", "text" etc.
