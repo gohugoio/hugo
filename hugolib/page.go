@@ -535,12 +535,6 @@ func (p *pageState) renderResources() error {
 			continue
 		}
 
-		if _, isWrapper := r.(resource.ResourceWrapper); isWrapper {
-			// Skip resources that are wrapped.
-			// These gets published on its own.
-			continue
-		}
-
 		src, ok := r.(resource.Source)
 		if !ok {
 			return fmt.Errorf("resource %T does not support resource.Source", r)
