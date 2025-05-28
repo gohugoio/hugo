@@ -16,7 +16,6 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"testing"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -89,14 +88,11 @@ aliases: [/Ali%d]
 		h.Sites[1].PathSpec.ProcessingStats,
 	}
 
-	stats[0].Table(io.Discard)
-	stats[1].Table(io.Discard)
-
 	var buff bytes.Buffer
 
 	helpers.ProcessingStatsTable(&buff, stats...)
 
-	c.Assert(buff.String(), qt.Contains, "Pages            | 21 |  7")
+	c.Assert(buff.String(), qt.Contains, "Pages            │ 21 │  7")
 }
 
 func TestSiteLastmod(t *testing.T) {
