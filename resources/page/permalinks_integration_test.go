@@ -14,6 +14,7 @@
 package page_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/bep/logg"
@@ -342,4 +343,30 @@ slug: "c2slug"
 	// Taxonomies.
 	b.AssertFileContent("public/myc/c1/index.html", "C1|/myc/c1/|term|")
 	b.AssertFileContent("public/myc/c2slug/index.html", "C2|/myc/c2slug/|term|")
+}
+
+func TestIssue13755(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+disablePathToLower = false
+[permalinks.page]
+s1 = "/:contentbasename"
+-- content/s1/aBc.md --
+---
+title: aBc
+---
+-- layouts/all.html --
+{{ .Title }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileExists("public/abc/index.html", true)
+
+	files = strings.ReplaceAll(files, "disablePathToLower = false", "disablePathToLower = true")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileExists("public/aBc/index.html", true)
 }
