@@ -4,6 +4,17 @@ export function readInput(handle) {
 	let currentLine = [];
 	const buffer = new Uint8Array(buffSize);
 
+	// QuickJS does not support console.warn or console.error, so we override it to console.log.
+	console.warn = (value) => {
+		console.log(value);
+	};
+
+	// TODO(bep) we should improve this, possibly make it part of the JSONL protocol.
+	// These were added for Katex to handle warnings.
+	console.error = (value) => {
+		console.log(value);
+	};
+
 	// Read all the available bytes
 	while (true) {
 		// Stdin file descriptor

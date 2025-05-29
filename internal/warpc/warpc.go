@@ -269,6 +269,7 @@ type Options struct {
 	Ctx context.Context
 
 	Infof func(format string, v ...any)
+	Warnf func(format string, v ...any)
 
 	// E.g. quickjs wasm. May be omitted if not needed.
 	Runtime Binary
@@ -426,6 +427,18 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 			c := c
 			g.Go(func() error {
 				var errBuff bytes.Buffer
+				defer func() {
+					// The console.log in the Javy/quickjs WebAssembly module will write to stderr.
+					// In non-error situations, write that to the provided Warnf or infof logger.
+					if errBuff.Len() > 0 {
+						s := errBuff.String()
+						if strings.Contains(s, "warn") {
+							opts.Warnf("%s", s)
+						} else {
+							opts.Infof("%s", s)
+						}
+					}
+				}()
 				ctx := context.WithoutCancel(ctx)
 				configBase := wazero.NewModuleConfig().WithStderr(&errBuff).WithStdout(c.stdout).WithStdin(c.stdin).WithStartFunctions()
 				if opts.Runtime.Data != nil {
@@ -452,15 +465,10 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 					return toErr(opts.Main.Name, errBuff, err)
 				}
 
-				// The console.log in the Javy/quickjs WebAssembly module will write to stderr.
-				// In non-error situations, write that to the provided infof logger.
-				if errBuff.Len() > 0 {
-					opts.Infof("%s", errBuff.String())
-				}
-
 				return nil
 			})
 		}
+
 		return g.Wait()
 	}
 
