@@ -536,3 +536,21 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b, err = hugolib.TestE(t, f)
 	b.Assert(err.Error(), qt.Contains, "invalid strict mode")
 }
+
+// Issue 13735.
+func TestToMathStrictModeWarn(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/all.html --
+{{ transform.ToMath "a %" (dict "strict" "warn") }}
+-- foo --
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertLogMatches("commentAtEnd")
+	b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
+}

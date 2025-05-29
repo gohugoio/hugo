@@ -51,6 +51,9 @@ type Header struct {
 
 	// Set in the response if there was an error.
 	Err string `json:"err"`
+
+	// Warnings is a list of warnings that may be returned in the response.
+	Warnings []string `json:"warnings,omitempty"`
 }
 
 type Message[T any] struct {
@@ -155,6 +158,12 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 	}
 
 	resp, err := call.response, p.Err()
+	if len(resp.Header.Warnings) > 0 {
+		for _, w := range resp.Header.Warnings {
+			p.opts.Warnf("%s", w)
+		}
+	}
+
 	if err == nil && resp.Header.Err != "" {
 		err = errors.New(resp.Header.Err)
 	}
@@ -270,6 +279,8 @@ type Options struct {
 
 	Infof func(format string, v ...any)
 
+	Warnf func(format string, v ...any)
+
 	// E.g. quickjs wasm. May be omitted if not needed.
 	Runtime Binary
 
@@ -325,6 +336,7 @@ type dispatcherPool[Q, R any] struct {
 	counter     atomic.Uint32
 	dispatchers []*dispatcher[Q, R]
 	close       func() error
+	opts        Options
 
 	errc  chan error
 	donec chan struct{}
@@ -352,6 +364,11 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 
 	if opts.Infof == nil {
 		opts.Infof = func(format string, v ...any) {
+			// noop
+		}
+	}
+	if opts.Warnf == nil {
+		opts.Warnf = func(format string, v ...any) {
 			// noop
 		}
 	}
@@ -466,6 +483,7 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 
 	dp := &dispatcherPool[Q, R]{
 		dispatchers: make([]*dispatcher[Q, R], len(inOuts)),
+		opts:        opts,
 
 		errc:  make(chan error, 10),
 		donec: make(chan struct{}),
