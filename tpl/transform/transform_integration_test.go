@@ -525,11 +525,10 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
 
 	// strict: warn
-	// TODO: see https://github.com/gohugoio/hugo/issues/13735
-	// f = strings.ReplaceAll(files, "dict", `(dict "strict" "warn")`)
-	// b = hugolib.Test(t, f, hugolib.TestOptWarn())
-	// b.AssertLogMatches("[commentAtEnd]")
-	// b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
+	f = strings.ReplaceAll(files, "dict", `(dict "strict" "warn")`)
+	b = hugolib.Test(t, f, hugolib.TestOptWarn())
+	b.AssertLogMatches("[commentAtEnd]")
+	b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
 
 	// strict mode: invalid value
 	f = strings.ReplaceAll(files, "dict", `(dict "strict" "foo")`)

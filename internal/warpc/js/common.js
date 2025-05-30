@@ -4,6 +4,15 @@ export function readInput(handle) {
 	let currentLine = [];
 	const buffer = new Uint8Array(buffSize);
 
+	// These are not implemented by QuickJS.
+	console.warn = (value) => {
+		console.log(value);
+	};
+
+	console.error = (value) => {
+		throw new Error(value);
+	};
+
 	// Read all the available bytes
 	while (true) {
 		// Stdin file descriptor

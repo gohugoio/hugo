@@ -204,6 +204,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 				// Katex is relatively slow.
 				PoolSize: 8,
 				Infof:    logger.InfoCommand("wasm").Logf,
+				Warnf:    logger.WarnCommand("wasm").Logf,
 			},
 		),
 	}
