@@ -69,10 +69,9 @@ strict
 : {{< new-in 0.147.6 />}}
 : (`string`) Controls how KaTeX handles LaTeX features that offer convenience but aren't officially supported, either `error` or `ignore`. Default is `error`.
 
-  - `error`: Throws an error when convenient, unsupported LaTeX features
-    are encountered.
-  - `ignore`: Allows convenient, unsupported LaTeX features without any
-    feedback.
+  - `error`: Throws an error when convenient, unsupported LaTeX features are encountered.
+  - `ignore`: Allows convenient, unsupported LaTeX features without any feedback.
+  - `warn`: {{< new-in 0.147.7 />}} Emits a warning when convenient, unsupported LaTeX features are encountered.
 
 : The `newLineInDisplayMode` error code, which flags the use of `\\`
 or `\newline` in display mode outside an array or tabular environment, is
