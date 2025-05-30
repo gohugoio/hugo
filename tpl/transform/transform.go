@@ -259,7 +259,7 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 		Warnings []string `json:"warnings,omitempty"`
 	}
 
-	const fileCacheEntryVersion = "1" // Increment on incompatible changes.
+	const fileCacheEntryVersion = "v1" // Increment on incompatible changes.
 
 	s := hashing.HashString(args...)
 	key := "tomath/" + fileCacheEntryVersion + "/" + s[:2] + "/" + s[2:]
@@ -284,17 +284,16 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 				return nil, err
 			}
 
-			v := fileCacheEntry{
+			e := fileCacheEntry{
 				Version:  fileCacheEntryVersion,
 				Output:   result.Data.Output,
 				Warnings: result.Header.Warnings,
 			}
 
-			// To JSON:
 			buf := &bytes.Buffer{}
 			enc := json.NewEncoder(buf)
 			enc.SetEscapeHTML(false)
-			if err := enc.Encode(v); err != nil {
+			if err := enc.Encode(e); err != nil {
 				return nil, fmt.Errorf("failed to encode file cache entry: %w", err)
 			}
 			return hugio.NewReadSeekerNoOpCloserFromBytes(buf.Bytes()), nil
@@ -303,18 +302,16 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 			return "", err
 		}
 
-		var v fileCacheEntry
-
-		// From JSON.
-		if err := json.NewDecoder(r).Decode(&v); err != nil {
+		var e fileCacheEntry
+		if err := json.NewDecoder(r).Decode(&e); err != nil {
 			return "", fmt.Errorf("failed to decode file cache entry: %w", err)
 		}
 
-		for _, warning := range v.Warnings {
+		for _, warning := range e.Warnings {
 			ns.deps.Log.Warnf("transform.ToMath: %s", warning)
 		}
 
-		return template.HTML(v.Output), err
+		return template.HTML(e.Output), err
 	})
 	if err != nil {
 		return "", err
