@@ -158,11 +158,6 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 	}
 
 	resp, err := call.response, p.Err()
-	if len(resp.Header.Warnings) > 0 {
-		for _, w := range resp.Header.Warnings {
-			p.opts.Warnf("%s", w)
-		}
-	}
 
 	if err == nil && resp.Header.Err != "" {
 		err = errors.New(resp.Header.Err)
