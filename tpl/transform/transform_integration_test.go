@@ -525,32 +525,13 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
 
 	// strict: warn
-	// TODO: see https://github.com/gohugoio/hugo/issues/13735
-	// f = strings.ReplaceAll(files, "dict", `(dict "strict" "warn")`)
-	// b = hugolib.Test(t, f, hugolib.TestOptWarn())
-	// b.AssertLogMatches("[commentAtEnd]")
-	// b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
+	f = strings.ReplaceAll(files, "dict", `(dict "strict" "warn")`)
+	b = hugolib.Test(t, f, hugolib.TestOptWarn())
+	b.AssertLogMatches("[commentAtEnd]")
+	b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
 
 	// strict mode: invalid value
 	f = strings.ReplaceAll(files, "dict", `(dict "strict" "foo")`)
 	b, err = hugolib.TestE(t, f)
 	b.Assert(err.Error(), qt.Contains, "invalid strict mode")
-}
-
-// Issue 13735.
-func TestToMathStrictModeWarn(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/all.html --
-{{ transform.ToMath "a %" (dict "strict" "warn") }}
--- foo --
-`
-
-	b := hugolib.Test(t, files, hugolib.TestOptWarn())
-
-	b.AssertLogMatches("commentAtEnd")
-	b.AssertFileContent("public/index.html", `<annotation encoding="application/x-tex">a %</annotation>`)
 }
