@@ -77,8 +77,8 @@ require (
 	golang.org/x/image v0.26.0
 	golang.org/x/mod v0.24.0
 	golang.org/x/net v0.39.0
-	golang.org/x/sync v0.13.0
-	golang.org/x/text v0.24.0
+	golang.org/x/sync v0.14.0
+	golang.org/x/text v0.25.0
 	golang.org/x/tools v0.32.0
 	google.golang.org/api v0.221.0
 	gopkg.in/yaml.v2 v2.4.0
