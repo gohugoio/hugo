@@ -757,3 +757,40 @@ title: home
 
 	b.AssertFileContent("public/index.html", "de.html")
 }
+
+func TestShortcodeLanguage13767(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = 'pl'
+defaultContentLanguageInSubdir = true
+[languages.pl]
+weight = 1
+[languages.en]
+weight = 2	
+-- content/_index.md --
+---
+title: dom
+---
+{{< myshortcode >}}
+-- content/_index.en.md --
+---
+title: home
+---
+{{< myshortcode >}}
+-- layouts/_shortcodes/myshortcode.html --
+myshortcode.html
+-- layouts/_shortcodes/myshortcode.en.html --
+myshortcode.en.html
+-- layouts/all.html --
+{{ .Content }}
+
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/pl/index.html", "myshortcode.html")
+	b.AssertFileContent("public/en/index.html", "myshortcode.en.html")
+}
