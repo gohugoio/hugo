@@ -66,7 +66,7 @@ func (pt pageTree) CurrentSection() page.Page {
 		return pt.p.s.home
 	}
 
-	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, false, func(n contentNodeI) bool { return n.isContentNodeBranch() })
 	if n != nil {
 		return n.(page.Page)
 	}
@@ -81,7 +81,7 @@ func (pt pageTree) FirstSection() page.Page {
 	}
 
 	for {
-		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, true, false, func(n contentNodeI) bool { return n.isContentNodeBranch() })
 		if n == nil {
 			return nil
 		}
@@ -125,7 +125,7 @@ func (pt pageTree) Parent() page.Page {
 	}
 
 	for {
-		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, nil)
+		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, false, nil)
 		if n == nil {
 			return pt.p.s.home
 		}
