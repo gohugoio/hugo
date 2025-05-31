@@ -101,7 +101,7 @@ func isGlobWithExtension(s string) bool {
 
 func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
 	if logger != nil && isGlobWithExtension(m.Path) {
-		logger.Erroridf("cascade-pattern-with-extension", "cascade target path %q looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/", m.Path)
+		logger.Erroridf("cascade-pattern-with-extension", "cascade target path %q looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see https://gohugo.io/docs/reference/methods/page/path/", m.Path)
 	}
 }
 
