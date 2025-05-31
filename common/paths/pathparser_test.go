@@ -434,12 +434,12 @@ func TestParseLayouts(t *testing.T) {
 		},
 		{
 			"Layout multiple",
-			"/maylayout.list.section.no.html",
+			"/mylayout.list.section.no.html",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Layout(), qt.Equals, "maylayout")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "list", "maylayout"})
+				c.Assert(p.Layout(), qt.Equals, "mylayout")
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "list", "mylayout"})
 				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
-				c.Assert(p.Base(), qt.Equals, "/maylayout.html")
+				c.Assert(p.Base(), qt.Equals, "/mylayout.html")
 				c.Assert(p.Lang(), qt.Equals, "no")
 			},
 		},
@@ -487,7 +487,8 @@ func TestParseLayouts(t *testing.T) {
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/_shortcodes/myshortcode.html")
 				c.Assert(p.Type(), qt.Equals, TypeShortcode)
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "list", "myshortcode"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "list"})
+				c.Assert(p.Layout(), qt.Equals, "list")
 				c.Assert(p.PathNoIdentifier(), qt.Equals, "/_shortcodes/myshortcode")
 				c.Assert(p.PathBeforeLangAndOutputFormatAndExt(), qt.Equals, "/_shortcodes/myshortcode.list")
 				c.Assert(p.Lang(), qt.Equals, "")
@@ -572,11 +573,21 @@ func TestParseLayouts(t *testing.T) {
 				c.Assert(p.NameNoIdentifier(), qt.Equals, "no")
 			},
 		},
+		{
+			"Shortcode lang layout",
+			"/_shortcodes/myshortcode.no.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Type(), qt.Equals, TypeShortcode)
+				c.Assert(p.Lang(), qt.Equals, "no")
+				c.Assert(p.Layout(), qt.Equals, "")
+				c.Assert(p.NameNoIdentifier(), qt.Equals, "myshortcode")
+			},
+		},
 	}
 
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-			if test.name != "Shortcode lang in root" {
+			if test.name != "Shortcode lang layout" {
 				// return
 			}
 			test.assert(c, testParser.Parse(files.ComponentFolderLayouts, test.path))

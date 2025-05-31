@@ -120,7 +120,7 @@ func (pp *PathParser) parse(component, s string) (*Path, error) {
 	return p, nil
 }
 
-func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, numDots int) {
+func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, numDots int, isLast bool) {
 	if p.posContainerHigh != -1 {
 		return
 	}
@@ -128,7 +128,12 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 	mayHaveLang = mayHaveLang && (component == files.ComponentFolderContent || component == files.ComponentFolderLayouts)
 	mayHaveOutputFormat := component == files.ComponentFolderLayouts
 	mayHaveKind := p.posIdentifierKind == -1 && mayHaveOutputFormat
-	mayHaveLayout := component == files.ComponentFolderLayouts
+	var mayHaveLayout bool
+	if p.pathType == TypeShortcode {
+		mayHaveLayout = !isLast && component == files.ComponentFolderLayouts
+	} else {
+		mayHaveLayout = component == files.ComponentFolderLayouts
+	}
 
 	var found bool
 	var high int
@@ -235,19 +240,22 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 	lastDot := 0
 	lastSlashIdx := strings.LastIndex(s, "/")
 	numDots := strings.Count(s[lastSlashIdx+1:], ".")
+	if strings.Contains(s, "/_shortcodes/") {
+		p.pathType = TypeShortcode
+	}
 
 	for i := len(s) - 1; i >= 0; i-- {
 		c := s[i]
 
 		switch c {
 		case '.':
-			pp.parseIdentifier(component, s, p, i, lastDot, numDots)
+			pp.parseIdentifier(component, s, p, i, lastDot, numDots, false)
 			lastDot = i
 		case '/':
 			slashCount++
 			if p.posContainerHigh == -1 {
 				if lastDot > 0 {
-					pp.parseIdentifier(component, s, p, i, lastDot, numDots)
+					pp.parseIdentifier(component, s, p, i, lastDot, numDots, true)
 				}
 				p.posContainerHigh = i + 1
 			} else if p.posContainerLow == -1 {
@@ -283,10 +291,9 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 				p.pathType = TypeContentData
 			}
 		}
-
 	}
 
-	if component == files.ComponentFolderLayouts {
+	if p.pathType < TypeMarkup && component == files.ComponentFolderLayouts {
 		if p.posIdentifierBaseof != -1 {
 			p.pathType = TypeBaseof
 		} else {
@@ -302,12 +309,10 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 	}
 
 	if p.pathType == TypeShortcode && p.posIdentifierLayout != -1 {
-		// myshortcode or myshortcode.html, no layout.
-		if len(p.identifiersKnown) <= 2 {
+		id := p.identifiersKnown[p.posIdentifierLayout]
+		if id.Low == p.posContainerHigh {
+			// First identifier is shortcode name.
 			p.posIdentifierLayout = -1
-		} else {
-			// First is always the name.
-			p.posIdentifierLayout--
 		}
 	}
 
