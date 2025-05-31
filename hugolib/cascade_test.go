@@ -132,7 +132,6 @@ cascade:
 				b.Assert(p1.Params(), qt.DeepEquals, maps.Params{
 					"imgconfig":     "img-config.jpg",
 					"draft":         bool(false),
-					"iscjklanguage": bool(false),
 					"img1":          "img1-home.jpg",
 					"img2":          "img2-home.jpg",
 				})
@@ -141,7 +140,6 @@ cascade:
 					"img1":          "img1-config.jpg",
 					"imgconfig":     "img-config.jpg",
 					"draft":         bool(false),
-					"iscjklanguage": bool(false),
 				})
 			}
 		})

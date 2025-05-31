@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"math"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -620,8 +622,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 
 			if !c.pi.hasSummaryDivider && cp.po.p.m.pageConfig.Summary == "" {
 				numWords := cp.po.p.s.conf.SummaryLength
-				isCJKLanguage := cp.po.p.m.pageConfig.IsCJKLanguage
-				summary := page.ExtractSummaryFromHTML(cp.po.p.m.pageConfig.ContentMediaType, string(result.content), numWords, isCJKLanguage)
+				summary := page.ExtractSummaryFromHTML(cp.po.p.m.pageConfig.ContentMediaType, string(result.content), numWords)
 				result.summary = page.Summary{
 					Text:      template.HTML(summary.Summary()),
 					Type:      page.SummaryTypeAuto,
@@ -817,32 +818,27 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 		result.plain = tpl.StripHTML(string(rendered.content))
 		result.plainWords = strings.Fields(result.plain)
 
-		isCJKLanguage := cp.po.p.m.pageConfig.IsCJKLanguage
-
-		if isCJKLanguage {
-			result.wordCount = 0
-			for _, word := range result.plainWords {
-				runeCount := utf8.RuneCountInString(word)
-				if len(word) == runeCount {
-					result.wordCount++
-				} else {
-					result.wordCount += runeCount
-				}
+		cjkWordCount := 0
+		nonCjkWordCount := 0
+		cjkReg := regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
+		for _, word := range result.plainWords {
+			runeCount := utf8.RuneCountInString(word)
+			if cjkReg.MatchString(word) {
+				cjkWordCount += runeCount
+			} else {
+				nonCjkWordCount++
 			}
-		} else {
-			result.wordCount = helpers.TotalWords(result.plain)
 		}
+		result.wordCount = cjkWordCount + nonCjkWordCount
 
 		// TODO(bep) is set in a test. Fix that.
 		if result.fuzzyWordCount == 0 {
 			result.fuzzyWordCount = (result.wordCount + 100) / 100 * 100
 		}
 
-		if isCJKLanguage {
-			result.readingTime = (result.wordCount + 500) / 501
-		} else {
-			result.readingTime = (result.wordCount + 212) / 213
-		}
+		cjkReadingTime := float64(cjkWordCount) / 501
+		nonCjkReadingTime := float64(nonCjkWordCount) / 213
+		result.readingTime = int(math.Ceil(cjkReadingTime + nonCjkReadingTime))
 
 		rs.Value = result
 

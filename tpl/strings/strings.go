@@ -77,22 +77,14 @@ func (ns *Namespace) CountWords(s any) (int, error) {
 		return 0, fmt.Errorf("failed to convert content to string: %w", err)
 	}
 
-	isCJKLanguage, err := regexp.MatchString(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`, ss)
-	if err != nil {
-		return 0, fmt.Errorf("failed to match regex pattern against string: %w", err)
-	}
-
-	if !isCJKLanguage {
-		return len(strings.Fields(tpl.StripHTML(ss))), nil
-	}
-
 	counter := 0
+	cjkReg := regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 	for _, word := range strings.Fields(tpl.StripHTML(ss)) {
 		runeCount := utf8.RuneCountInString(word)
-		if len(word) == runeCount {
-			counter++
-		} else {
+		if cjkReg.MatchString(word) {
 			counter += runeCount
+		} else {
+			counter++
 		}
 	}
 
