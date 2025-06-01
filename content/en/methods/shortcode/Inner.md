@@ -137,7 +137,7 @@ The difference between this and the previous example is subtle but required. Not
 [`strings.TrimSpace`]: /functions/strings/trimspace/
 [CommonMark]: https://spec.commonmark.org/current/
 [details]: /methods/page/renderstring/
-[indentation]: https://spec.commonmark.org/0.30/#indented-code-blocks
+[indentation]: https://spec.commonmark.org/current/#indented-code-blocks
 [Markdown notation]: /content-management/shortcodes/#notation
-[raw HTML blocks]: https://spec.commonmark.org/0.31.2/#html-blocks
+[raw HTML blocks]: https://spec.commonmark.org/current/#html-blocks
 [security model]: /about/security/

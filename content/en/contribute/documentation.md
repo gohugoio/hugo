@@ -514,17 +514,17 @@ Visit the [documentation repository] and create a pull request (PR).
 
 A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
-[ATX]: https://spec.commonmark.org/0.30/#atx-headings
+[ATX]: https://spec.commonmark.org/current/#atx-headings
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [developer documentation style guide]: https://developers.google.com/style
 [documentation repository]: https://github.com/gohugoio/hugoDocs/
-[fenced code blocks]: https://spec.commonmark.org/0.30/#fenced-code-blocks
+[fenced code blocks]: https://spec.commonmark.org/current/#fenced-code-blocks
 [glossary]: /quick-reference/glossary/
-[indented code blocks]: https://spec.commonmark.org/0.30/#indented-code-blocks
+[indented code blocks]: https://spec.commonmark.org/current/#indented-code-blocks
 [issues]: https://github.com/gohugoio/hugoDocs/issues
-[list items]: https://spec.commonmark.org/0.30/#list-items
+[list items]: https://spec.commonmark.org/current/#list-items
 [project repository]: https://github.com/gohugoio/hugo
-[raw HTML]: https://spec.commonmark.org/0.30/#raw-html
+[raw HTML]: https://spec.commonmark.org/current/#raw-html
 [related content]: /content-management/related-content/
-[setext]: https://spec.commonmark.org/0.30/#setext-heading
+[setext]: https://spec.commonmark.org/current/#setext-heading
