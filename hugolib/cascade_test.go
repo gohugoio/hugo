@@ -892,7 +892,7 @@ disableKinds = ['home','rss','sitemap','taxonomy','term']
 ---
 title: s
 cascade:
-  _build:
+  build:
     render: never
 ---
 -- content/s/p1.md --

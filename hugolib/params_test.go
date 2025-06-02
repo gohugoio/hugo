@@ -57,7 +57,7 @@ Summary: {{ .Summary }}|
 	)
 }
 
-func TestFrontMatterParamsKindPath(t *testing.T) {
+func TestFrontMatterParamsPath(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -72,10 +72,9 @@ date: 2019-08-07
 path: "/a/b/c"
 slug: "s1"
 ---
--- content/mysection.md --
+-- content/mysection/_index.md --
 ---
 title: "My Section"
-kind: "section"
 date: 2022-08-07
 path: "/a/b"
 ---
