@@ -615,7 +615,7 @@ var weightedPage5 = `+++
 weight = "5"
 title = "Five"
 
-[_build]
+[build]
 render = "never"
 +++
 Front Matter with Ordered Pages 5`
