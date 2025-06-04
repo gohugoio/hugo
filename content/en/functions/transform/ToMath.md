@@ -67,7 +67,7 @@ output
 
 strict
 : {{< new-in 0.147.6 />}}
-: (`string`) Controls how KaTeX handles LaTeX features that offer convenience but aren't officially supported, either `error` or `ignore`. Default is `error`.
+: (`string`) Controls how KaTeX handles LaTeX features that offer convenience but aren't officially supported, one of `error`, `ignore`, or `warn`. Default is `error`.
 
   - `error`: Throws an error when convenient, unsupported LaTeX features are encountered.
   - `ignore`: Allows convenient, unsupported LaTeX features without any feedback.
