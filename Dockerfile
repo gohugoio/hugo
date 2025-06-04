@@ -2,9 +2,9 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-ARG GO_VERSION="1.23.2"
-ARG ALPINE_VERSION="3.20"
-ARG DART_SASS_VERSION="1.79.3"
+ARG GO_VERSION="1.23.9"
+ARG ALPINE_VERSION="3.22"
+ARG DART_SASS_VERSION="1.89.1"
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS gobuild
