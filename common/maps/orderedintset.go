@@ -48,6 +48,16 @@ func (m *OrderedIntSet) Set(key int) {
 	m.keys = append(m.keys, key)
 }
 
+// SetFrom sets the values from another OrderedIntSet.
+func (m *OrderedIntSet) SetFrom(other *OrderedIntSet) {
+	if m == nil || other == nil {
+		return
+	}
+	for _, key := range other.keys {
+		m.Set(key)
+	}
+}
+
 func (m *OrderedIntSet) Has(key int) bool {
 	if m == nil {
 		return false

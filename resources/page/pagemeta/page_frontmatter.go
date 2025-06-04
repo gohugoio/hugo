@@ -21,18 +21,15 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/hugolib/doctree"
-	"github.com/gohugoio/hugo/hugolib/roles"
-	"github.com/gohugoio/hugo/hugolib/versions"
-	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/markup"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
@@ -40,8 +37,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/mitchellh/mapstructure"
-
-	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
@@ -158,9 +153,7 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logge
 		pcfg.Roles = cast.ToStringSlice(v)
 	}
 	if v, found := frontmatter[pageMetaKeyVersions]; found {
-		fmt.Println("PageConfigEarly: set versions", pcfg.Path, pcfg.Versions, "=>", v)
 		pcfg.Versions = cast.ToStringSlice(v)
-
 	}
 	if v, found := frontmatter[pageMetaKeyLanguages]; found {
 		pcfg.Languages = cast.ToStringSlice(v)
@@ -247,27 +240,23 @@ type PageConfig struct {
 	ContentMediaType        media.Type     `mapstructure:"-" json:"-"`
 	IsFromContentAdapter    bool           `mapstructure:"-" json:"-"`
 
-	LanguagesCompiledSet        *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	RolesCompiledSet            *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	VersionsCompiledSet         *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	LanguageDelegeesCompiledSet *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	RoleDelegeesCompiledSet     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	VersionDelegeesCompiledSet  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	Dimensions        *dimensions.IntSets `mapstructure:"-" json:"-"`
+	DimensionDelegees *dimensions.IntSets `mapstructure:"-" json:"-"`
 }
 
-func MatchLanguageOrLanguageDelegee(p *PageConfig, dims doctree.Dimensions) bool {
+func MatchLanguageOrLanguageDelegee(p *PageConfig, dims dimensions.Dimensions) bool {
 	i := dims.Language()
-	return p.LanguagesCompiledSet.Has(i) || p.LanguageDelegeesCompiledSet.Has(i)
+	return p.Dimensions.Languages.Has(i) || p.DimensionDelegees.Languages.Has(i)
 }
 
-func MatchRoleOrRoleDelegee(p *PageConfig, dims doctree.Dimensions) bool {
+func MatchRoleOrRoleDelegee(p *PageConfig, dims dimensions.Dimensions) bool {
 	i := dims.Role()
-	return p.RolesCompiledSet.Has(i) || p.RoleDelegeesCompiledSet.Has(i)
+	return p.Dimensions.Roles.Has(i) || p.DimensionDelegees.Roles.Has(i)
 }
 
-func MatchVersionOrVersionDelegee(p *PageConfig, dims doctree.Dimensions) bool {
+func MatchVersionOrVersionDelegee(p *PageConfig, dims dimensions.Dimensions) bool {
 	i := dims.Version()
-	return p.VersionsCompiledSet.Has(i) || p.VersionDelegeesCompiledSet.Has(i)
+	return p.Dimensions.Versions.Has(i) || p.DimensionDelegees.Versions.Has(i)
 }
 
 func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
@@ -315,8 +304,7 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 }
 
 // CompileEearly gets called early and before the cascade from content gets applied.
-func (p *PageConfig) CompileEearly(conf config.AllProvider) error {
-	configuredLanguages := conf.Languages()
+func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *dimensions.IntSets) error {
 	configCascade := conf.GetConfigSection("cascade").(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 	if configCascade != nil {
 		configCascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
@@ -335,100 +323,26 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider) error {
 		})
 	}
 
-	applyLanguagesFilter := func(values []string) (*maps.OrderedIntSet, error) {
-		if len(values) == 0 {
-			return nil, nil
-		}
-		filter, err := predicate.NewFilterFromGlobs(values)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create filter for languages: %w", err)
-		}
-		var result *maps.OrderedIntSet
-		for _, pattern := range p.Languages {
-			iter, err := langs.IndexMatch(configuredLanguages, filter)
-			if err != nil {
-				return nil, fmt.Errorf("failed to match language %q: %w", pattern, err)
-			}
-			for i := range iter {
-				if result == nil {
-					result = maps.NewOrderedIntSet()
-				}
-				result.Set(i)
-			}
-		}
-		return result, nil
-	}
-
-	if p.Lang != "" {
-		// Merge into the languages slice.
+	if false && p.Lang != "" {
+		// TODO1 move this or consolidate.
 		p.Languages = append(p.Languages, p.Lang)
-		p.Languages = helpers.UniqueStringsReuse(p.Languages)
+		p.Languages = hstrings.UniqueStringsReuse(p.Languages)
 	}
 
-	var err error
-	p.LanguagesCompiledSet, err = applyLanguagesFilter(p.Languages)
+	sets, err := dimensions.NewIntSets2(conf.ConfiguredDimensions(), false, p.Languages, p.Versions, p.Roles)
 	if err != nil {
-		return err
-	}
-	if p.LanguagesCompiledSet == nil {
-		p.LanguagesCompiledSet = maps.NewOrderedIntSet(langs.IndexDefault(configuredLanguages))
-	}
-	p.LanguageDelegeesCompiledSet, err = applyLanguagesFilter(p.LanguageDelegees)
-	if err != nil {
-		return err
+		return fmt.Errorf("failed to create dimensions sets: %w", err)
 	}
 
-	configuredRoles := conf.GetConfigSection("roles").(roles.RolesInternal)
+	sets.SetFrom(dimensionsFromFile)
+	p.Dimensions = sets
 
-	applyFilter := func(what string, values []string, matcher predicate.IndexMatcher) (*maps.OrderedIntSet, error) {
-		if len(values) == 0 {
-			return nil, nil
-		}
-		var result *maps.OrderedIntSet
-		filter, err := predicate.NewFilterFromGlobs(values)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create filter for %s: %w", what, err)
-		}
-		for _, pattern := range values {
-			iter, err := matcher.IndexMatch(filter)
-			if err != nil {
-				return nil, fmt.Errorf("failed to match %s %q: %w", what, pattern, err)
-			}
-			for i := range iter {
-				if result == nil {
-					result = maps.NewOrderedIntSet()
-				}
-				result.Set(i)
-			}
-		}
-		return result, nil
+	setsDelegees, err := dimensions.NewIntSets2(conf.ConfiguredDimensions(), false, p.LanguageDelegees, p.VersionDelegees, p.RoleDelegees)
+	if err != nil {
+		return fmt.Errorf("failed to create dimensions delegees sets: %w", err)
 	}
+	p.DimensionDelegees = setsDelegees
 
-	p.RolesCompiledSet = maps.NewOrderedIntSet()
-	p.RolesCompiledSet, err = applyFilter("role", p.Roles, configuredRoles)
-	if err != nil {
-		return err
-	}
-	if p.RolesCompiledSet == nil {
-		p.RolesCompiledSet = maps.NewOrderedIntSet(configuredRoles.IndexDefault())
-	}
-	p.RoleDelegeesCompiledSet, err = applyFilter("role delegee", p.RoleDelegees, configuredRoles)
-	if err != nil {
-		return err
-	}
-
-	configuredVersions := conf.GetConfigSection("versions").(versions.VersionsInternal)
-	p.VersionsCompiledSet, err = applyFilter("version", p.Versions, configuredVersions)
-	if err != nil {
-		return err
-	}
-	if p.VersionsCompiledSet == nil {
-		p.VersionsCompiledSet = maps.NewOrderedIntSet(configuredVersions.IndexDefault())
-	}
-	p.VersionDelegeesCompiledSet, err = applyFilter("version delegee", p.VersionDelegees, configuredVersions)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -836,7 +750,7 @@ func addDateFieldAliases(values []string) []string {
 			complete = append(complete, aliases...)
 		}
 	}
-	return helpers.UniqueStringsReuse(complete)
+	return hstrings.UniqueStringsReuse(complete)
 }
 
 func expandDefaultValues(values []string, defaults []string) []string {

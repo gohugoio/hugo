@@ -14,6 +14,7 @@
 package roles_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -106,6 +107,8 @@ RegularPages: {{ range .RegularPages }}{{ .RelPermalink }} r: {{ .Site.Language.
 	}
 }
 
+// TODO1 add dimensions to cascade config (instead of lang).
+
 func TestPageRotate(t *testing.T) {
 	t.Parallel()
 	files := `
@@ -196,3 +199,63 @@ Remove: Site.Versions, Roles and (if new) Languages.
 
 TODO: Rename Dims to Dimensions.
 */
+
+func TestDimensionsFileMount(t *testing.T) {
+	filesTemplate := `
+-- hugo.toml --
+baseURL = "https://example.org"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[module]
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+DIMSEN
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+DIMSNN
+-- content/en/_index.md --
+---
+title: "Title English"
+---
+-- content/nn/_index.md --
+---
+title: "Tittel Nynorsk"
+---
+-- layouts/all.html --
+{{ .Title }}|
+
+`
+
+	testOne := func(t *testing.T, files string) {
+		t.Helper()
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/nn/index.html", "Tittel Nynorsk")
+		b.AssertFileContent("public/en/index.html", "Title English")
+	}
+
+	// Format from v0.148.0:
+	dims := `[module.mounts.dimensions]
+languages = ["en"]
+`
+	files := strings.Replace(filesTemplate, "DIMSEN", dims, 1)
+	dims = strings.Replace(dims, `["en"]`, `["nn"]`, 1)
+	files = strings.Replace(files, "DIMSNN", dims, 1)
+	testOne(t, files)
+
+	if true {
+		return
+	}
+
+	// Old format:
+	files = strings.Replace(filesTemplate, "DIMSEN", `lang = "en"`, 1)
+	files = strings.Replace(files, "DIMSNN", `lang = "nn"`, 1)
+	testOne(t, files)
+}

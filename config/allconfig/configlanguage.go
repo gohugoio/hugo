@@ -31,15 +31,15 @@ type ConfigLanguage struct {
 	language *langs.Language
 }
 
-func (c ConfigLanguage) Language() *langs.Language {
+func (c ConfigLanguage) Language() any {
 	return c.language
 }
 
-func (c ConfigLanguage) Languages() langs.Languages {
+func (c ConfigLanguage) Languages() any {
 	return c.m.Languages
 }
 
-func (c ConfigLanguage) LanguagesDefaultFirst() langs.Languages {
+func (c ConfigLanguage) LanguagesDefaultFirst() any {
 	return c.m.LanguagesDefaultFirst
 }
 
@@ -48,14 +48,14 @@ func (c ConfigLanguage) PathParser() *paths.PathParser {
 }
 
 func (c ConfigLanguage) LanguagePrefix() string {
-	if c.DefaultContentLanguageInSubdir() && c.DefaultContentLanguage() == c.Language().Lang {
-		return c.Language().Lang
+	if c.DefaultContentLanguageInSubdir() && c.DefaultContentLanguage() == c.language.Lang {
+		return c.language.Lang
 	}
 
-	if !c.IsMultilingual() || c.DefaultContentLanguage() == c.Language().Lang {
+	if !c.IsMultilingual() || c.DefaultContentLanguage() == c.language.Lang {
 		return ""
 	}
-	return c.Language().Lang
+	return c.language.Lang
 }
 
 func (c ConfigLanguage) BaseURL() urls.BaseURL {
@@ -272,4 +272,13 @@ func (c ConfigLanguage) StaticDirs() []string {
 
 func (c ConfigLanguage) EnableEmoji() bool {
 	return c.config.EnableEmoji
+}
+
+func (c ConfigLanguage) ConfiguredDimensions() config.ConfiguredDimensions {
+	// TODO1 cache if hot path.
+	return config.ConfiguredDimensions{
+		ConfiguredLanguages: c.m.Base.Languages.Config,
+		ConfiguredVersions:  c.m.Base.Versions.Config,
+		ConfiguredRoles:     c.m.Base.Roles.Config,
+	}
 }

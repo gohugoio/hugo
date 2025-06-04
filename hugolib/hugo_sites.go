@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/resources"
 
@@ -142,19 +143,19 @@ func (h *HugoSites) isRebuild() bool {
 	return h.buildCounter.Load() > 0
 }
 
-func (h *HugoSites) resolveSites(languages, versions, roles *maps.OrderedIntSet) []*Site {
+func (h *HugoSites) resolveSites(membership *dimensions.IntSets) []*Site {
 	var matches []*Site
 
 	for s := range h.allSites() {
-		if !languages.Has(s.dims.Language()) {
+		if !membership.Languages.Has(s.dims.Language()) {
 			continue
 		}
 
-		if versions != nil && !versions.Has(s.dims.Version()) {
+		if membership.Versions != nil && !membership.Versions.Has(s.dims.Version()) {
 			continue
 		}
 
-		if roles == nil || roles.Has(s.dims.Role()) {
+		if membership.Roles == nil || membership.Roles.Has(s.dims.Role()) {
 			matches = append(matches, s)
 		}
 	}
@@ -422,7 +423,7 @@ func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
 		w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 			Tree:     s.pageMap.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+			Handle: func(s string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 				return fn(s, n.(*pageState)), nil
 			},
 		}

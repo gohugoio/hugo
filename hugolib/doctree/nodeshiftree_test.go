@@ -23,6 +23,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/para"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/google/go-cmp/cmp"
 )
@@ -85,7 +86,7 @@ func TestTreeData(t *testing.T) {
 	w := &doctree.NodeShiftTreeWalker[*testValue]{
 		Tree:        tree,
 		WalkContext: ctx,
-		Handle: func(s string, t *testValue, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(s string, t *testValue, match dimensions.DimensionFlag) (bool, error) {
 			ctx.Data().Insert(s, map[string]any{
 				"id": t.ID,
 			})
@@ -127,7 +128,7 @@ func TestTreeEvents(t *testing.T) {
 		WalkContext: &doctree.WalkContext[*testValue]{},
 	}
 
-	w.Handle = func(s string, t *testValue, match doctree.DimensionFlag) (bool, error) {
+	w.Handle = func(s string, t *testValue, match dimensions.DimensionFlag) (bool, error) {
 		if t.IsBranch {
 			w.WalkContext.AddEventListener("weight", s, func(e *doctree.Event[*testValue]) {
 				if e.Source.Weight > t.Weight {
@@ -233,7 +234,7 @@ type testShifter struct {
 }
 
 func (s *testShifter) ForEeachInDimension(n *testValue, d int, f func(n *testValue) bool) {
-	if d != doctree.DimensionLanguage.Index() {
+	if d != dimensions.DimensionLanguage.Index() {
 		panic("not implemented")
 	}
 	f(n)
@@ -243,27 +244,27 @@ func (s *testShifter) Insert(old, new *testValue) (*testValue, *testValue, bool)
 	return new, old, true
 }
 
-func (s *testShifter) InsertInto(old, new *testValue, dimension doctree.Dimensions) (*testValue, *testValue, bool) {
+func (s *testShifter) InsertInto(old, new *testValue, dimension dimensions.Dimensions) (*testValue, *testValue, bool) {
 	return new, old, true
 }
 
-func (s *testShifter) Delete(n *testValue, dimension doctree.Dimensions) (*testValue, bool, bool) {
+func (s *testShifter) Delete(n *testValue, dimension dimensions.Dimensions) (*testValue, bool, bool) {
 	return nil, true, true
 }
 
-func (s *testShifter) Shift(n *testValue, dimension doctree.Dimensions, exact, matchDelegees bool) (*testValue, bool, doctree.DimensionFlag) {
+func (s *testShifter) Shift(n *testValue, dimension dimensions.Dimensions, exact, matchDelegees bool) (*testValue, bool, dimensions.DimensionFlag) {
 	if s.echo {
-		return n, true, doctree.DimensionLanguage
+		return n, true, dimensions.DimensionLanguage
 	}
 	if n.NoCopy {
 		if n.Lang == dimension[0] {
-			return n, true, doctree.DimensionLanguage
+			return n, true, dimensions.DimensionLanguage
 		}
-		return nil, false, doctree.DimensionLanguage
+		return nil, false, dimensions.DimensionLanguage
 	}
 	c := *n
 	c.Lang = dimension[0]
-	return &c, true, doctree.DimensionLanguage
+	return &c, true, dimensions.DimensionLanguage
 }
 
 func (s *testShifter) All(n *testValue) []*testValue {
@@ -331,7 +332,7 @@ func BenchmarkWalk(b *testing.B) {
 		return tree
 	}
 
-	handle := func(s string, t *testValue, match doctree.DimensionFlag) (bool, error) {
+	handle := func(s string, t *testValue, match dimensions.DimensionFlag) (bool, error) {
 		return false, nil
 	}
 

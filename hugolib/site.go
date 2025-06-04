@@ -40,6 +40,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/hugolib/roles"
@@ -127,7 +128,7 @@ func (s Site) cloneForVersionAndRole(version, role int) (*Site, error) {
 
 // TODO1 adjust all methods that uses the embedded siteVersionRole to use the siteVersionRole directly.
 type siteVersionRole struct {
-	dims doctree.Dimensions
+	dims dimensions.Dimensions
 
 	roleInternal roles.RoleInternal
 	role         roles.Role
@@ -163,8 +164,8 @@ type siteVersionRole struct {
 }
 
 func (s siteVersionRole) cloneForVersionAndRole(version, role int) *siteVersionRole {
-	s.dims[doctree.DimensionVersion.Index()] = version
-	s.dims[doctree.DimensionRole.Index()] = role
+	s.dims[dimensions.DimensionVersion.Index()] = version
+	s.dims[dimensions.DimensionRole.Index()] = role
 	s.home = nil
 	s.lastmod = time.Time{}
 	s.init = &siteInit{}
@@ -307,7 +308,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	pageTrees.createMutableTrees()
 
 	for i, confp := range confm.ConfigLangs() {
-		language := confp.Language()
+		language := confp.Language().(*langs.Language)
 		if language.Disabled {
 			continue
 		}
@@ -326,7 +327,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			frontmatterHandler: frontmatterHandler,
 			store:              maps.NewScratch(),
 			siteVersionRole: &siteVersionRole{
-				dims: doctree.Dimensions{i, 0, 0},
+				dims: dimensions.Dimensions{i, 0, 0},
 			},
 		}
 
@@ -561,14 +562,14 @@ func newHugoSites(
 // TODO1 remove Site from role, version.
 // GetSiteDimension returns the value of the specified site dimension (such as language, version, or role)
 // based on the provided dimension name string. If the dimension name is unknown, it panics.
-// Valid dimension names are those defined in doctree.DimensionLanguage, doctree.DimensionVersion, and doctree.DimensionRole.
+// Valid dimension names are those defined in dimensions.DimensionLanguage, dimensions.DimensionVersion, and dimensions.DimensionRole.
 func (s Site) Dimension(d string) page.SiteDimension {
 	switch d {
-	case doctree.DimensionLanguage.Name():
+	case dimensions.DimensionLanguage.Name():
 		return s.language
-	case doctree.DimensionVersion.Name():
+	case dimensions.DimensionVersion.Name():
 		return s.version
-	case doctree.DimensionRole.Name():
+	case dimensions.DimensionRole.Name():
 		return s.role
 	default:
 		panic(fmt.Sprintf("unknown dimension %q", d))
@@ -929,7 +930,7 @@ func (s *Site) initRenderFormats() {
 
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			if p, ok := n.(*pageState); ok {
 				for _, f := range p.m.pageConfig.ConfiguredOutputFormats {
 					if !formatSet[f.Name] {
@@ -1348,7 +1349,7 @@ func (h *HugoSites) fileEventsContentPaths(p []pathChange) []pathChange {
 // SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
 func (s *Site) SitemapAbsURL() string {
 	base := ""
-	if len(s.conf.Languages) > 1 || s.Conf.DefaultContentLanguageInSubdir() {
+	if s.Conf.IsMultilingual() || s.Conf.DefaultContentLanguageInSubdir() {
 		base = s.Language().Lang
 	}
 	p := s.AbsURL(base, false)

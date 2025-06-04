@@ -20,6 +20,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -90,7 +91,12 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, []*Site, er
 		return nil, nil, nil, err
 	}
 
-	if err := m.setMetaPre(pi, h.Log, h.Conf); err != nil {
+	var dimensionsFromFile *dimensions.IntSets
+	if m.f != nil {
+		dimensionsFromFile = m.f.FileInfo().Meta().DimensionInts
+	}
+
+	if err := m.setMetaPre(pi, dimensionsFromFile, h.Log, h.Conf); err != nil {
 		return nil, nil, nil, m.wrapError(err, h.BaseFs.SourceFs)
 	}
 	pcfg := m.pageConfig
@@ -156,9 +162,9 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, []*Site, er
 		if m.s == nil {
 
 			// TODO1 avoid allocating a new slice here.
-			sites = h.resolveSites(pcfg.LanguagesCompiledSet, pcfg.VersionsCompiledSet, pcfg.RolesCompiledSet)
+			sites = h.resolveSites(pcfg.Dimensions)
 			if len(sites) == 0 {
-				return nil, nil, fmt.Errorf("no site found for languages %v, versions %v and roles %v", pcfg.LanguagesCompiledSet, pcfg.VersionsCompiledSet, pcfg.RolesCompiledSet)
+				return nil, nil, fmt.Errorf("no site found for %s", pcfg.Dimensions)
 			}
 			m.s = sites[0]
 

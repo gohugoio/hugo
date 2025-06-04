@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
@@ -76,7 +77,7 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 
 	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
 
-	dst.Translate = tp.t.Func(dst.Conf.Language().Lang)
+	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
 
 	return nil
 }
@@ -122,7 +123,7 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 
 // CloneResource sets the language func for the new language.
 func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
-	dst.Translate = tp.t.Func(dst.Conf.Language().Lang)
+	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
 	return nil
 }
 

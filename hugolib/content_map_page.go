@@ -34,6 +34,7 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
@@ -168,14 +169,14 @@ func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Iden
 	}
 	tree := t.treePages
 	nCount = 0
-	dims := doctree.Dimensions{} // TODO1 fix the below.
-	tree.ForEeachInDimension(key, dims, doctree.DimensionLanguage.Index(),
+	dims := dimensions.Dimensions{} // TODO1 fix the below.
+	tree.ForEeachInDimension(key, dims, dimensions.DimensionLanguage.Index(),
 		cb,
 	)
 
 	tree = t.treeResources
 	nCount = 0
-	tree.ForEeachInDimension(key, dims, doctree.DimensionLanguage.Index(),
+	tree.ForEeachInDimension(key, dims, dimensions.DimensionLanguage.Index(),
 		cb,
 	)
 
@@ -184,7 +185,7 @@ func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Iden
 		key := p.ForType(paths.TypeContentResource).Base()
 		tree = t.treeResources
 		nCount = 0
-		tree.ForEeachInDimension(key, dims, doctree.DimensionLanguage.Index(),
+		tree.ForEeachInDimension(key, dims, dimensions.DimensionLanguage.Index(),
 			cb,
 		)
 
@@ -299,7 +300,7 @@ func (m *pageMap) forEachPage(include predicate.P[*pageState], fn func(p *pageSt
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		Tree:     m.treePages,
 		LockType: doctree.LockTypeRead,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			if p, ok := n.(*pageState); ok && include(p) {
 				if terminate, err := fn(p); terminate || err != nil {
 					return terminate, err
@@ -326,7 +327,7 @@ func (m *pageMap) forEeachPageIncludingBundledPages(include predicate.P[*pageSta
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		Tree:     m.treeResources,
 		LockType: doctree.LockTypeRead,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			if rs, ok := n.(*resourceSource); ok {
 				if p, ok := rs.r.(*pageState); ok && include(p) {
 					if terminate, err := fn(p); terminate || err != nil {
@@ -373,7 +374,7 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 			DelegeeFallback: true,
 		}
 
-		w.Handle = func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		w.Handle = func(key string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			if q.Recursive {
 				if p, ok := n.(*pageState); ok && include(p) {
 					pas = append(pas, p)
@@ -489,7 +490,7 @@ func (m *pageMap) forEachResourceInPage(
 	ps *pageState,
 	lockType doctree.LockType,
 	exact bool,
-	handle func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error),
+	handle func(resourceKey string, n contentNodeI, match dimensions.DimensionFlag) (bool, error),
 ) error {
 	keyPage := ps.Path()
 	if keyPage == "/" {
@@ -505,7 +506,7 @@ func (m *pageMap) forEachResourceInPage(
 		Exact:    exact,
 	}
 
-	rw.Handle = func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+	rw.Handle = func(resourceKey string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 		if isBranch {
 			// A resourceKey always represents a filename with extension.
 			// A page key points to the logical path of a page, which when sourced from the filesystem
@@ -542,7 +543,7 @@ func (m *pageMap) forEachResourceInPage(
 
 func (m *pageMap) getResourcesForPage(ps *pageState) (resource.Resources, error) {
 	var res resource.Resources
-	m.forEachResourceInPage(ps, doctree.LockTypeNone, false, func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+	m.forEachResourceInPage(ps, doctree.LockTypeNone, false, func(resourceKey string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 		rs := n.(*resourceSource)
 		if rs.r != nil {
 			res = append(res, rs.r)
@@ -651,15 +652,15 @@ type contentNodeI interface {
 	identity.ForEeachIdentityProvider
 	Path() string
 	isContentNodeBranch() bool
-	matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions)
-	Dims() doctree.Dimensions // TODO1 Can we unexport this?
+	matchDirectOrInDelegees(dimensions.Dimensions) (contentNodeI, dimensions.Dimensions)
+	Dims() dimensions.Dimensions // TODO1 Can we unexport this?
 	buildStateReseter
 	resource.StaleMarker
 }
 
 var _ contentNodeI = (*contentNodeIs)(nil)
 
-type contentNodeIs map[doctree.Dimensions]contentNodeI
+type contentNodeIs map[dimensions.Dimensions]contentNodeI
 
 func (n contentNodeIs) one() contentNodeI {
 	for _, nn := range n {
@@ -669,7 +670,7 @@ func (n contentNodeIs) one() contentNodeI {
 }
 
 // TODO1 remove this from the contentNodeI interface.
-func (n contentNodeIs) Dims() doctree.Dimensions {
+func (n contentNodeIs) Dims() dimensions.Dimensions {
 	panic("not supported")
 }
 
@@ -681,7 +682,7 @@ func (n contentNodeIs) isContentNodeBranch() bool {
 	return n.one().isContentNodeBranch()
 }
 
-func (p contentNodeIs) matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+func (p contentNodeIs) matchDirectOrInDelegees(dimensions.Dimensions) (contentNodeI, dimensions.Dimensions) {
 	panic("not implemented")
 }
 
@@ -718,7 +719,7 @@ type contentNodeShifter struct {
 	numLanguages int
 }
 
-func (s *contentNodeShifter) Delete(n contentNodeI, dims doctree.Dimensions) (contentNodeI, bool, bool) {
+func (s *contentNodeShifter) Delete(n contentNodeI, dims dimensions.Dimensions) (contentNodeI, bool, bool) {
 	switch v := n.(type) {
 	case contentNodeIs:
 		deleted := v[dims]
@@ -763,7 +764,7 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dims doctree.Dimensions) (co
 	}
 }
 
-func (s *contentNodeShifter) findDelegee(q doctree.Dimensions, candidates iter.Seq[contentNodeI]) contentNodeI {
+func (s *contentNodeShifter) findDelegee(q dimensions.Dimensions, candidates iter.Seq[contentNodeI]) contentNodeI {
 	var (
 		best         contentNodeI = nil
 		bestDistance int
@@ -803,10 +804,10 @@ func absint(i int) int {
 	return i
 }
 
-func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exact, delegeeFallback bool) (contentNodeI, bool, doctree.DimensionFlag) {
+func (s *contentNodeShifter) Shift(n contentNodeI, dims dimensions.Dimensions, exact, delegeeFallback bool) (contentNodeI, bool, dimensions.DimensionFlag) {
 	// dims: language, version and role
 	// How accurate is the match. TODO1 revise this.
-	accuracy := doctree.DimensionLanguage
+	accuracy := dimensions.DimensionLanguage
 	switch v := n.(type) {
 	case contentNodeIs:
 		if len(v) == 0 {
@@ -833,7 +834,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exac
 	case resourceSources:
 		vv := v[dims]
 		if vv != nil {
-			return vv, true, doctree.DimensionLanguage
+			return vv, true, dimensions.DimensionLanguage
 		}
 		if exact {
 			return nil, false, 0
@@ -849,8 +850,8 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exac
 		}
 	case *resourceSource:
 		// TODO1 think.
-		if v.Dims()[doctree.DimensionLanguage.Index()] == dims[doctree.DimensionLanguage.Index()] {
-			return v, true, doctree.DimensionLanguage // TODO1
+		if v.Dims()[dimensions.DimensionLanguage.Index()] == dims[dimensions.DimensionLanguage.Index()] {
+			return v, true, dimensions.DimensionLanguage // TODO1
 		}
 
 		if !v.isPage() && !exact {
@@ -858,7 +859,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exac
 		}
 	case *pageState:
 		if v.s.dims == dims {
-			return n, true, doctree.DimensionLanguage
+			return n, true, dimensions.DimensionLanguage
 		}
 	default:
 		panic(fmt.Sprintf("unknown type %T", n))
@@ -866,7 +867,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims doctree.Dimensions, exac
 	return nil, false, 0
 }
 
-func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, dims doctree.Dimensions, d int, f func(contentNodeI) bool) {
+func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, dims dimensions.Dimensions, d int, f func(contentNodeI) bool) {
 	switch vv := n.(type) {
 	case contentNodeIs:
 	LOOP:
@@ -895,7 +896,7 @@ func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, dims doctree.Di
 	}
 }
 
-func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension doctree.Dimensions) (contentNodeI, contentNodeI, bool) {
+func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension dimensions.Dimensions) (contentNodeI, contentNodeI, bool) {
 	switch vv := old.(type) {
 	case *pageState:
 		newp, ok := new.(*pageState)
@@ -1002,7 +1003,7 @@ func newPageMap(sitei, versioni, rolei int, s *Site, mcache *dynacache.Cache, pa
 	var taxonomiesConfig taxonomiesConfig = s.conf.Taxonomies
 
 	m = &pageMap{
-		pageTrees:              pageTrees.Shape(doctree.DimensionLanguage.Index(), sitei).Shape(doctree.DimensionVersion.Index(), versioni).Shape(doctree.DimensionRole.Index(), rolei),
+		pageTrees:              pageTrees.Shape(dimensions.DimensionLanguage.Index(), sitei).Shape(dimensions.DimensionVersion.Index(), versioni).Shape(dimensions.DimensionRole.Index(), rolei),
 		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%s", roleVersionSite), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
 		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%s", roleVersionSite), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
 		cacheGetTerms:          dynacache.GetOrCreatePartition[string, map[string]page.Pages](mcache, fmt.Sprintf("/gett/%s", roleVersionSite), dynacache.OptionsPartition{Weight: 5, ClearWhen: dynacache.ClearOnRebuild}),
@@ -1037,7 +1038,7 @@ func newPageMap(sitei, versioni, rolei int, s *Site, mcache *dynacache.Cache, pa
 		w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 			Tree:     m.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+			Handle: func(s string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 				p := n.(*pageState)
 				if p.PathInfo() != nil {
 					add(p.PathInfo().BaseNameNoIdentifier(), p)
@@ -1098,7 +1099,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 	resourceWalker := pageWalker.Extend()
 	resourceWalker.Tree = m.treeResources
 
-	pageWalker.Handle = func(keyPage string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+	pageWalker.Handle = func(keyPage string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 		level := strings.Count(keyPage, "/")
 		if level > maxLevel {
 			return false, nil
@@ -1127,7 +1128,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 		prevKey = keyPage
 		resourceWalker.Prefix = keyPage + "/"
 
-		resourceWalker.Handle = func(ss string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		resourceWalker.Handle = func(ss string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			if isBranch {
 				ownerKey, _ := pageWalker.Tree.LongestPrefix(ss, true, false, nil)
 				if ownerKey != keyPage {
@@ -1482,7 +1483,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 	sa.s.lastmod = time.Time{}
 	rebuild := sa.s.h.isRebuild()
 
-	pw.Handle = func(keyPage string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+	pw.Handle = func(keyPage string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 		pageBundle := n.(*pageState)
 
 		if pageBundle.Kind() == kinds.KindTerm {
@@ -1575,7 +1576,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		isBranch := n.isContentNodeBranch()
 		rw.Prefix = keyPage + "/"
 
-		rw.Handle = func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		rw.Handle = func(resourceKey string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			if isBranch {
 				ownerKey, _ := pw.Tree.LongestPrefix(resourceKey, true, false, nil)
 				if ownerKey != keyPage {
@@ -1639,7 +1640,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 			Prefix:      key, // We also want to include the root taxonomy nodes, so no trailing slash.
 			LockType:    doctree.LockTypeRead,
 			WalkContext: walkContext,
-			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+			Handle: func(s string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 				p := n.(*pageState)
 				if p.Kind() != kinds.KindTerm {
 					// The other kinds were handled in applyAggregates.
@@ -1735,7 +1736,7 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		Tree:     pages,
 		LockType: lockType,
-		Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(s string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			ps := n.(*pageState)
 
 			if ps.m.noLink() {
@@ -1826,7 +1827,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		Tree:     pagesTree,
 		LockType: lockType,
-		Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(s string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			ps := n.(*pageState)
 
 			// This is a little out of place, but is conveniently put here.
@@ -1850,9 +1851,9 @@ func (sa *sitePagesAssembler) assembleResources() error {
 			err := sa.s.pageMap.forEachResourceInPage(
 				ps, lockType,
 				!duplicateResourceFiles,
-				func(resourceKey string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+				func(resourceKey string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 					rs := n.(*resourceSource)
-					if !match.Has(doctree.DimensionLanguage) {
+					if !match.Has(dimensions.DimensionLanguage) {
 						// We got an alternative language version.
 						// Clone this and insert it into the tree.
 						rs = rs.clone()
@@ -1984,7 +1985,7 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 		LockType: doctree.LockTypeRead,
 		Tree:     sa.s.pageMap.treePages,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			p := n.(*pageState)
 			if !s.shouldBuild(p) {
 				switch p.Kind() {
@@ -2099,7 +2100,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 	w = &doctree.NodeShiftTreeWalker[contentNodeI]{
 		LockType: doctree.LockTypeWrite,
 		Tree:     sa.s.pageMap.treePages,
-		Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(s string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 			if n == nil {
 				panic("n is nil")
 			}
@@ -2237,7 +2238,7 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) error {
 			Tree:     m.treePages,
 			Prefix:   paths.AddTrailingSlash(key),
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+			Handle: func(s string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 				p := n.(*pageState)
 
 				switch p.Kind() {

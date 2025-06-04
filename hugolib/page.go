@@ -22,7 +22,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/segments"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
@@ -218,16 +218,16 @@ func (p *pageState) isContentNodeBranch() bool {
 	return p.IsNode()
 }
 
-func (p *pageState) matchDirectOrInDelegees(dims doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+func (p *pageState) matchDirectOrInDelegees(dims dimensions.Dimensions) (contentNodeI, dimensions.Dimensions) {
 	pc := p.m.pageConfig
 	if !pagemeta.MatchLanguageOrLanguageDelegee(pc, dims) {
-		return nil, doctree.Dimensions{}
+		return nil, dimensions.Dimensions{}
 	}
 	if !pagemeta.MatchVersionOrVersionDelegee(pc, dims) {
-		return nil, doctree.Dimensions{}
+		return nil, dimensions.Dimensions{}
 	}
 	if !pagemeta.MatchRoleOrRoleDelegee(pc, dims) {
-		return nil, doctree.Dimensions{}
+		return nil, dimensions.Dimensions{}
 	}
 	return p, p.s.dims
 }
@@ -454,7 +454,7 @@ func (p *pageState) AllTranslations() page.Pages {
 		}
 		var pas page.Pages
 
-		p.s.pageMap.treePages.ForEeachInDimension(p.Path(), p.s.dims, doctree.DimensionLanguage.Index(),
+		p.s.pageMap.treePages.ForEeachInDimension(p.Path(), p.s.dims, dimensions.DimensionLanguage.Index(),
 			func(n contentNodeI) bool {
 				if n != nil {
 					pas = append(pas, n.(page.Page))
@@ -474,7 +474,7 @@ func (p *pageState) AllTranslations() page.Pages {
 	return pages
 }
 
-func (p *pageState) Dims() doctree.Dimensions {
+func (p *pageState) Dims() dimensions.Dimensions {
 	return p.s.dims
 }
 
@@ -482,7 +482,7 @@ func (p *pageState) Dims() doctree.Dimensions {
 func (p *pageState) Rotate(dimensionStr string) (page.Pages, error) {
 	dimensionStr = strings.ToLower(dimensionStr)
 	key := p.Path() + "/" + "rotate-" + dimensionStr
-	d, err := doctree.ParseDimensionFlag(dimensionStr)
+	d, err := dimensions.ParseDimensionFlag(dimensionStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse dimension %q: %w", dimensionStr, err)
 	}

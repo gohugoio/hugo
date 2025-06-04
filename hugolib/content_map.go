@@ -26,7 +26,7 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/source"
@@ -57,7 +57,7 @@ type contentMapConfig struct {
 var _ contentNodeI = (*resourceSource)(nil)
 
 type resourceSource struct {
-	dims   doctree.Dimensions
+	dims   dimensions.Dimensions
 	path   *paths.Path
 	opener hugio.OpenReadSeekCloser
 	fi     hugofs.FileMetaInfo
@@ -71,7 +71,7 @@ func (r resourceSource) clone() *resourceSource {
 	return &r
 }
 
-func (r *resourceSource) Dims() doctree.Dimensions {
+func (r *resourceSource) Dims() dimensions.Dimensions {
 	return r.dims
 }
 
@@ -97,7 +97,7 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 	return r.path
 }
 
-func (p *resourceSource) matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+func (p *resourceSource) matchDirectOrInDelegees(dimensions.Dimensions) (contentNodeI, dimensions.Dimensions) {
 	panic("not implemented")
 }
 
@@ -115,7 +115,7 @@ func (r *resourceSource) isContentNodeBranch() bool {
 
 var _ contentNodeI = (*resourceSources)(nil)
 
-type resourceSources map[doctree.Dimensions]*resourceSource
+type resourceSources map[dimensions.Dimensions]*resourceSource
 
 func (n resourceSources) MarkStale() {
 	for _, r := range n {
@@ -141,11 +141,11 @@ func (n resourceSources) resetBuildState() {
 	}
 }
 
-func (n resourceSources) matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+func (n resourceSources) matchDirectOrInDelegees(dimensions.Dimensions) (contentNodeI, dimensions.Dimensions) {
 	panic("not implemented")
 }
 
-func (n resourceSources) Dims() doctree.Dimensions {
+func (n resourceSources) Dims() dimensions.Dimensions {
 	panic("not supported")
 }
 
@@ -272,7 +272,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			rs = &resourceSource{r: pageResource, dims: pageResource.s.dims}
 		} else {
 			// TODO1, role and version.
-			dims := doctree.Dimensions{fim.Meta().LangIndex, 0, 0}
+			dims := dimensions.Dimensions{fim.Meta().LangIndex, 0, 0}
 			rs = &resourceSource{path: pi, opener: r, fi: fim, dims: dims}
 		}
 
@@ -349,9 +349,11 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 		return
 	}
 
-	langs := maps.NewOrderedIntSet(fi.Meta().LangIndex)
+	memberships := dimensions.NewIntSets()
+	memberships.Languages = maps.NewOrderedIntSet(fi.Meta().LangIndex)
+
 	// sites = h.resolveSites(pcfg.LanguagesCompiledSet, pcfg.VersionsCompiledSet, pcfg.RolesCompiledSet)
-	sites := m.s.h.resolveSites(langs, nil, nil) // TODO1 languages, versions, roles.
+	sites := m.s.h.resolveSites(memberships) // TODO1 languages, versions, roles.
 	if len(sites) == 0 {
 		panic("TODO1")
 	}

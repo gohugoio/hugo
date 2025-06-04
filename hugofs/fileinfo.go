@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 
 	"golang.org/x/text/unicode/norm"
 
@@ -58,6 +59,9 @@ type FileMeta struct {
 	IsProject bool
 	Watch     bool
 
+	DimensionInts *dimensions.IntSets
+
+	// TODO1 remove Lang*
 	// The lang associated with this file. This may be
 	// either the language set in the filename or
 	// the language defined in the source mount configuration.

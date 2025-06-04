@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/hugolib/dimensions"
+
 	radix "github.com/armon/go-radix"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -34,7 +36,7 @@ type (
 	Shifter[T any] interface {
 		// ForEeachInDimension will call the given function for each value in the given dimension d.
 		// If the function returns true, the walk will stop.
-		ForEeachInDimension(n T, dims Dimensions, d int, f func(T) bool)
+		ForEeachInDimension(n T, dims dimensions.Dimensions, d int, f func(T) bool)
 
 		// Insert inserts new into the tree into the dimension it provides.
 		// It may replace old.
@@ -46,15 +48,15 @@ type (
 		// It may replace old.
 		// It returns the updated and existing T
 		// and a bool indicating if an existing record is updated.
-		InsertInto(old, new T, dimension Dimensions) (T, T, bool)
+		InsertInto(old, new T, dimension dimensions.Dimensions) (T, T, bool)
 
 		// Delete deletes T from the given dimension and returns the deleted T and whether the dimension was deleted and if  it's empty after the delete.
-		Delete(v T, dimension Dimensions) (T, bool, bool)
+		Delete(v T, dimension dimensions.Dimensions) (T, bool, bool)
 
 		// Shift shifts T into the given dimension
 		// and returns the shifted T and a bool indicating if the shift was successful and
 		// how accurate a match T is according to its dimensions.
-		Shift(v T, dimension Dimensions, exact, delegeeFallback bool) (T, bool, DimensionFlag)
+		Shift(v T, dimension dimensions.Dimensions, exact, delegeeFallback bool) (T, bool, dimensions.DimensionFlag)
 	}
 )
 
@@ -65,7 +67,7 @@ type NodeShiftTree[T any] struct {
 	tree *radix.Tree
 
 	// [language, version, role].
-	dims    Dimensions
+	dims    dimensions.Dimensions
 	shifter Shifter[T]
 
 	mu *sync.RWMutex
@@ -83,7 +85,7 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 	}
 }
 
-func (r *NodeShiftTree[T]) Dims() Dimensions {
+func (r *NodeShiftTree[T]) Dims() dimensions.Dimensions {
 	return r.dims
 }
 
@@ -285,7 +287,7 @@ func (r *NodeShiftTree[T]) Get(s string) T {
 	return t
 }
 
-func (r *NodeShiftTree[T]) ForEeachInDimension(s string, dims Dimensions, d int, f func(T) bool) {
+func (r *NodeShiftTree[T]) ForEeachInDimension(s string, dims dimensions.Dimensions, d int, f func(T) bool) {
 	s = cleanKey(s)
 	v, ok := r.tree.Get(s)
 	if !ok {
@@ -303,7 +305,7 @@ type NodeShiftTreeWalker[T any] struct {
 	// Handle will be called for each node in the main tree.
 	// If the callback returns true, the walk will stop.
 	// The callback can optionally return a callback for the nested tree.
-	Handle func(s string, v T, exact DimensionFlag) (terminate bool, err error)
+	Handle func(s string, v T, exact dimensions.DimensionFlag) (terminate bool, err error)
 
 	// Optional prefix filter.
 	Prefix string
@@ -406,7 +408,7 @@ func (r *NodeShiftTreeWalker[T]) resetLocalState() {
 	r.skipPrefixes = nil
 }
 
-func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (t T, ok bool, exact DimensionFlag) {
+func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (t T, ok bool, exact dimensions.DimensionFlag) {
 	if r.NoShift {
 		t = v.(T)
 		ok = true
@@ -425,7 +427,7 @@ func (t NodeShiftTree[T]) clone() *NodeShiftTree[T] {
 	return &t
 }
 
-func (r *NodeShiftTree[T]) shift(t T, exact, delegeeFallback bool) (T, bool, DimensionFlag) {
+func (r *NodeShiftTree[T]) shift(t T, exact, delegeeFallback bool) (T, bool, dimensions.DimensionFlag) {
 	return r.shifter.Shift(t, r.dims, exact, delegeeFallback)
 }
 

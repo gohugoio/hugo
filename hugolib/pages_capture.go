@@ -332,7 +332,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {
 					c.logger.Warnf("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
 				}
-				continue
+				// TODO1 lang continue
 			}
 			seen[baseLang] = fi
 
@@ -401,7 +401,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 		// but doing it here will preserve a consistent ordering.
 		baseLang := types.Strings2{pi.Base(), info.Meta().Lang}
 		if seen[baseLang] {
-			return nil
+			// TODO1 return nil
 		}
 		seen[baseLang] = true
 

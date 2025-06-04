@@ -23,6 +23,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gobuffalo/flect"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/converter"
 	xmaps "golang.org/x/exp/maps"
@@ -247,7 +248,7 @@ func (p *pageMeta) Weight() int {
 	return p.pageConfig.Weight
 }
 
-func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf config.AllProvider) error {
+func (p *pageMeta) setMetaPre(pi *contentParseInfo, dimensionsFromFile *dimensions.IntSets, logger loggers.Logger, conf config.AllProvider) error {
 	frontmatter := pi.frontMatter
 
 	if frontmatter != nil {
@@ -268,7 +269,7 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, logger loggers.Logger, conf 
 
 	p.pageMetaParams.init(conf.Watching())
 
-	if err := p.pageConfig.CompileEearly(conf); err != nil {
+	if err := p.pageConfig.CompileEearly(conf, dimensionsFromFile); err != nil {
 		return fmt.Errorf("failed to compile roles: %w", err)
 	}
 

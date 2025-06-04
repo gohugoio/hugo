@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
@@ -540,15 +540,15 @@ type TreeProvider interface {
 
 // DimsProvider provides the dimensions of a Page.
 type DimsProvider interface {
-	Dims() doctree.Dimensions
+	Dims() dimensions.Dimensions
 }
 
 // GetDims returns the dimensions of a Page, if it implements DimsProvider.
-func GetDims(p Page) doctree.Dimensions {
+func GetDims(p Page) dimensions.Dimensions {
 	if dp, ok := p.(DimsProvider); ok {
 		return dp.Dims()
 	}
-	return doctree.Dimensions{}
+	return dimensions.Dimensions{}
 }
 
 // PageWithContext is a Page with a context.Context.

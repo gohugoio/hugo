@@ -19,9 +19,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/mitchellh/mapstructure"
@@ -129,7 +132,7 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 
 			var lang string
 			if perLang && !dropLang {
-				lang = cfg.Language().Lang
+				lang = cfg.Language().(*langs.Language).Lang
 			}
 
 			// Static mounts are a little special.
@@ -221,6 +224,11 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 		for i, mnt := range c.Mounts {
 			mnt.Source = filepath.Clean(mnt.Source)
 			mnt.Target = filepath.Clean(mnt.Target)
+			if mnt.Lang != "" {
+				// We moved this to the more flixeble Dimensions type in Hugo 0.148.0.
+				mnt.Dimensions.Languages = append(mnt.Dimensions.Languages, mnt.Lang)
+				mnt.Dimensions.Languages = hstrings.UniqueStringsReuse(mnt.Dimensions.Languages)
+			}
 			c.Mounts[i] = mnt
 		}
 
@@ -402,7 +410,11 @@ type Mount struct {
 	Target string
 
 	// Any file in this mount will be associated with this language.
+	// TODO1. Deprecate this in favour of DImensions.
 	Lang string
+
+	// Dimensions holds a list of Glob  patterns to match the dimensions of this mount.
+	Dimensions dimensions.DimensionsStringSlices
 
 	// TODO1 replace these 2 with a Filter type that can handle both.
 	// Include only files matching the given Glob patterns (string or slice).

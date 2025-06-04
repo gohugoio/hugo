@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/identity"
 )
 
@@ -503,8 +503,8 @@ func (n *testContentNode) Path() string {
 	return n.key
 }
 
-func (n *testContentNode) Dims() doctree.Dimensions {
-	return doctree.Dimensions{}
+func (n *testContentNode) Dims() dimensions.Dimensions {
+	return dimensions.Dimensions{}
 }
 
 func (n *testContentNode) isContentNodeBranch() bool {
@@ -514,7 +514,7 @@ func (n *testContentNode) isContentNodeBranch() bool {
 func (n *testContentNode) resetBuildState() {
 }
 
-func (n *testContentNode) matchDirectOrInDelegees(doctree.Dimensions) (contentNodeI, doctree.Dimensions) {
+func (n *testContentNode) matchDirectOrInDelegees(dimensions.Dimensions) (contentNodeI, dimensions.Dimensions) {
 	panic("not implemented")
 }
 

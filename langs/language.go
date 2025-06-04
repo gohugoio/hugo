@@ -212,6 +212,7 @@ func IndexDefault(languages Languages) int {
 }
 
 // IndexMatch returns an iterator for the languages that match the filter.
+// TODO1 remove me?
 func IndexMatch(languages Languages, filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, l := range languages {
