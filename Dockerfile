@@ -3,7 +3,7 @@
 # Website:      https://gohugo.io/
 
 ARG GO_VERSION="1.24.0"
-ARG ALPINE_VERSION="3.20"
+ARG ALPINE_VERSION="3.22"
 ARG DART_SASS_VERSION="1.79.3"
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.5.0 AS xx
