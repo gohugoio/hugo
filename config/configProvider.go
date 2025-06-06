@@ -18,17 +18,19 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/langs"
 )
 
 // AllProvider is a sub set of all config settings.
 type AllProvider interface {
-	Language() *langs.Language
-	Languages() langs.Languages
-	LanguagesDefaultFirst() langs.Languages
+	// TODO1 get rid of these.
+	Language() any
+	Languages() any
+	LanguagesDefaultFirst() any
+	//
 	LanguagePrefix() string
 	BaseURL() urls.BaseURL
 	BaseURLLiveReload() urls.BaseURL
@@ -50,6 +52,8 @@ type AllProvider interface {
 	IsUglyURLs(section string) bool
 	DefaultContentLanguage() string
 	DefaultContentLanguageInSubdir() bool
+	DefaultContentRoleInSubdir() bool
+	DefaultContentVersionInSubdir() bool
 	IsLangDisabled(string) bool
 	SummaryLength() int
 	Pagination() Pagination
@@ -73,6 +77,7 @@ type AllProvider interface {
 	IgnoredLogs() map[string]bool
 	WorkingDir() string
 	EnableEmoji() bool
+	ConfiguredDimensions() ConfiguredDimensions
 }
 
 // We cannot import the media package as that would create a circular dependency.
@@ -109,4 +114,15 @@ type Provider interface {
 func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	sd := cfg.Get(key)
 	return types.ToStringSlicePreserveString(sd)
+}
+
+type ConfiguredDimension interface {
+	predicate.IndexMatcher
+	IndexDefault() int
+}
+
+type ConfiguredDimensions struct {
+	ConfiguredLanguages ConfiguredDimension
+	ConfiguredVersions  ConfiguredDimension
+	ConfiguredRoles     ConfiguredDimension
 }

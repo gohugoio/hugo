@@ -22,7 +22,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/segments"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
@@ -44,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -174,6 +175,23 @@ func (p *pageState) resetBuildState() {
 	// Nothing to do for now.
 }
 
+func (ps *pageState) cloneForSite(s *Site) (*pageState, error) {
+	m, err := ps.m.cloneForSite(s)
+	if err != nil {
+		return nil, err
+	}
+	pid := pageIDCounter.Add(1)
+	clone, err := s.h.doNewPageFromMeta(pid, m)
+	if err != nil {
+		return nil, ps.wrapError(err)
+	}
+	if err := clone.initLazyProviders(); err != nil {
+		return nil, clone.wrapError(err)
+	}
+
+	return clone, nil
+}
+
 func (p *pageState) skipRender() bool {
 	b := p.s.conf.C.SegmentFilter.ShouldExcludeFine(
 		segments.SegmentMatcherFields{
@@ -198,6 +216,20 @@ func (po *pageState) isRenderedAny() bool {
 
 func (p *pageState) isContentNodeBranch() bool {
 	return p.IsNode()
+}
+
+func (p *pageState) matchDirectOrInDelegees(dims dimensions.Dimensions) (contentNodeI, dimensions.Dimensions) {
+	pc := p.m.pageConfig
+	if !pagemeta.MatchLanguageOrLanguageDelegee(pc, dims) {
+		return nil, dimensions.Dimensions{}
+	}
+	if !pagemeta.MatchVersionOrVersionDelegee(pc, dims) {
+		return nil, dimensions.Dimensions{}
+	}
+	if !pagemeta.MatchRoleOrRoleDelegee(pc, dims) {
+		return nil, dimensions.Dimensions{}
+	}
+	return p, p.s.dims
 }
 
 // Eq returns whether the current page equals the given page.
@@ -421,7 +453,8 @@ func (p *pageState) AllTranslations() page.Pages {
 			return pasc, nil
 		}
 		var pas page.Pages
-		p.s.pageMap.treePages.ForEeachInDimension(p.Path(), doctree.DimensionLanguage.Index(),
+
+		p.s.pageMap.treePages.ForEeachInDimension(p.Path(), p.s.dims, dimensions.DimensionLanguage.Index(),
 			func(n contentNodeI) bool {
 				if n != nil {
 					pas = append(pas, n.(page.Page))
@@ -439,6 +472,38 @@ func (p *pageState) AllTranslations() page.Pages {
 	}
 
 	return pages
+}
+
+func (p *pageState) Dims() dimensions.Dimensions {
+	return p.s.dims
+}
+
+// TODO1 name.
+func (p *pageState) Rotate(dimensionStr string) (page.Pages, error) {
+	dimensionStr = strings.ToLower(dimensionStr)
+	key := p.Path() + "/" + "rotate-" + dimensionStr
+	d, err := dimensions.ParseDimensionFlag(dimensionStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse dimension %q: %w", dimensionStr, err)
+	}
+
+	pages, err := p.s.pageMap.getOrCreatePagesFromCache(p.s.pageMap.cachePages2, key, func(string) (page.Pages, error) {
+		var pas page.Pages
+		p.s.pageMap.treePages.ForEeachInDimension(p.Path(), p.s.dims, d.Index(),
+			func(n contentNodeI) bool {
+				if n != nil {
+					pas = append(pas, n.(page.Page))
+				}
+				return false
+			},
+		)
+
+		pas = pagePredicates.ShouldLink.Filter(pas)
+		page.SortByDims(pas)
+		return pas, nil
+	})
+
+	return pages, err
 }
 
 // Translations returns the translations excluding the current Page.
@@ -461,6 +526,9 @@ func (p *pageState) Translations() page.Pages {
 
 func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	if ps.IsPage() {
+		if ps.s == nil {
+			panic("no site")
+		}
 		ps.posNextPrev = &nextPrev{init: ps.s.init.prevNext}
 		ps.posNextPrevSection = &nextPrev{init: ps.s.init.prevNextInSection}
 		ps.InSectionPositioner = newPagePositionInSection(ps.posNextPrevSection)
@@ -671,6 +739,7 @@ func (p *pageState) posOffset(offset int) text.Position {
 // shiftToOutputFormat is serialized. The output format idx refers to the
 // full set of output formats for all sites.
 // This is serialized.
+// TODO1 with the added dimensions, we need to compress the pageOutputs slice.
 func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	if err := p.initPage(); err != nil {
 		return err

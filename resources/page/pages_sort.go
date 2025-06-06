@@ -155,6 +155,16 @@ var (
 	lessPagePubDate = func(p1, p2 Page) bool {
 		return p1.PublishDate().Unix() < p2.PublishDate().Unix()
 	}
+
+	lessPageDims = func(p1, p2 Page) bool {
+		d1, d2 := GetDims(p1), GetDims(p2)
+		if n := d1.Compare(d2); n != 0 {
+			return n < 0
+		}
+
+		// Fall back to the default sort order.
+		return DefaultPageSort(p1, p2)
+	}
 )
 
 func (ps *pageSorter) Len() int      { return len(ps.pages) }
@@ -358,6 +368,11 @@ func (p Pages) ByLanguage() Pages {
 // SortByLanguage sorts the pages by language.
 func SortByLanguage(pages Pages) {
 	pageBy(lessPageLanguage).Sort(pages)
+}
+
+// SortByDims sorts the pages by dimensions.
+func SortByDims(pages Pages) {
+	pageBy(lessPageDims).Sort(pages)
 }
 
 // Reverse reverses the order in Pages and returns a copy.

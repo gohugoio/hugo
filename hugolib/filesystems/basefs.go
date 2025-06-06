@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -40,6 +41,7 @@ import (
 
 	hpaths "github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/spf13/afero"
 )
@@ -611,7 +613,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
 	var staticFsMap map[string]*overlayfs.OverlayFs
 	if b.p.Cfg.IsMultihost() {
-		languages := b.p.Cfg.Languages()
+		languages := b.p.Cfg.Languages().(langs.Languages)
 		staticFsMap = make(map[string]*overlayfs.OverlayFs)
 		for _, l := range languages {
 			staticFsMap[l.Lang] = overlayfs.New(overlayfs.Options{})
@@ -711,6 +713,16 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			}
 
 			base, filename := absPathify(mount.Source)
+			var sets *dimensions.IntSets
+
+			if !mount.Dimensions.IsZero() {
+				v := mount.Dimensions
+				var err error
+				sets, err = dimensions.NewIntSets2(b.p.Cfg.ConfiguredDimensions(), true, v.Languages, v.Versions, v.Roles)
+				if err != nil {
+					return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
+				}
+			}
 
 			rm := hugofs.RootMapping{
 				From:          mount.Target,
@@ -723,6 +735,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 					Watch:           !mount.DisableWatch && md.Watch(),
 					Weight:          mountWeight,
 					InclusionFilter: inclusionFilter,
+					DimensionInts:   sets,
 				},
 			}
 
@@ -770,7 +783,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 		collector.addRootFs(rmfsStatic)
 
 		if collector.staticPerLanguage != nil {
-			for _, l := range b.p.Cfg.Languages() {
+			for _, l := range b.p.Cfg.Languages().(langs.Languages) {
 				lang := l.Lang
 
 				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {

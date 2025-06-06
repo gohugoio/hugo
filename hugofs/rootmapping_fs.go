@@ -407,7 +407,7 @@ func (fs *RootMappingFs) getRoot(key string) []RootMapping {
 func (fs *RootMappingFs) getRoots(key string) (string, []RootMapping) {
 	tree := fs.rootMapToReal
 	levels := strings.Count(key, filepathSeparator)
-	seen := make(map[RootMapping]bool)
+	seen := make(map[RootMapping]bool) // TODO1 lang vs langugages etc.
 
 	var roots []RootMapping
 	var s string

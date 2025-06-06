@@ -25,7 +25,7 @@ const name = "compare"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		language := d.Conf.Language()
+		language := d.Conf.Language().(*langs.Language)
 		if language == nil {
 			panic("language must be set")
 		}
@@ -55,7 +55,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Ge,
 			[]string{"ge"},
 			[][2]string{
-				{`{{ if ge hugo.Version "0.80" }}Reasonable new Hugo version!{{ end }}`, `Reasonable new Hugo version!`},
+				{`{{ if ge version.Version "0.80" }}Reasonable new Hugo version!{{ end }}`, `Reasonable new Hugo version!`},
 			},
 		)
 

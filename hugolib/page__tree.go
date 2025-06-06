@@ -20,6 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/hugolib/dimensions"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
@@ -66,7 +67,7 @@ func (pt pageTree) CurrentSection() page.Page {
 		return pt.p.s.home
 	}
 
-	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, false, func(n contentNodeI) bool { return n.isContentNodeBranch() })
 	if n != nil {
 		return n.(page.Page)
 	}
@@ -81,7 +82,7 @@ func (pt pageTree) FirstSection() page.Page {
 	}
 
 	for {
-		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, true, false, func(n contentNodeI) bool { return n.isContentNodeBranch() })
 		if n == nil {
 			return nil
 		}
@@ -125,7 +126,7 @@ func (pt pageTree) Parent() page.Page {
 	}
 
 	for {
-		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, nil)
+		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, false, nil)
 		if n == nil {
 			return pt.p.s.home
 		}
@@ -159,7 +160,7 @@ func (pt pageTree) Sections() page.Pages {
 		Tree:   tree,
 		Prefix: prefix,
 	}
-	w.Handle = func(ss string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+	w.Handle = func(ss string, n contentNodeI, match dimensions.DimensionFlag) (bool, error) {
 		if !n.isContentNodeBranch() {
 			return false, nil
 		}
