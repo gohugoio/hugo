@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/resources"
 
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 
@@ -39,6 +40,14 @@ func (h *HugoSites) newPage(m *pageMeta) (*pageState, *paths.Path, error) {
 		// Make sure that any partially created page part is marked as stale.
 		m.MarkStale()
 	}
+
+	if p != nil && pth != nil && p.IsHome() && pth.IsLeafBundle() {
+		msg := "Using %s in your content's root directory is usually incorrect for your home page. "
+		msg += "You should use %s instead. If you don't rename this file, your home page will be "
+		msg += "treated as a leaf bundle, meaning it won't be able to have any child pages or sections."
+		h.Log.Warnidf(constants.WarnHomePageIsLeafBundle, msg, pth.PathNoLeadingSlash(), strings.ReplaceAll(pth.PathNoLeadingSlash(), "index", "_index"))
+	}
+
 	return p, pth, err
 }
 

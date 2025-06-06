@@ -1968,3 +1968,35 @@ Title: {{ .Title }}
 		"deprecated: path in front matter was deprecated",
 	)
 }
+
+// Issue 13538
+func TestHomePageIsLeafBundle(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = 'de'
+defaultContentLanguageInSubdir = true
+[languages.de]
+weight = 1
+[languages.en]
+weight = 2
+-- layouts/all.html --
+{{ .Title }}
+-- content/index.de.md --
+---
+title: home de
+---
+-- content/index.en.org --
+---
+title: home en
+---
+`
+
+	b := Test(t, files, TestOptWarn())
+
+	b.AssertFileContent("public/de/index.html", "home de")
+	b.AssertFileContent("public/en/index.html", "home en")
+	b.AssertLogContains("Using index.de.md in your content's root directory is usually incorrect for your home page. You should use _index.de.md instead.")
+	b.AssertLogContains("Using index.en.org in your content's root directory is usually incorrect for your home page. You should use _index.en.org instead.")
+}
