@@ -2,7 +2,7 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-ARG GO_VERSION="1.24.0"
+ARG GO_VERSION="1.24"
 ARG ALPINE_VERSION="3.22"
 ARG DART_SASS_VERSION="1.79.3"
 
@@ -19,7 +19,7 @@ RUN apk add clang lld
 COPY --from=xx / /
 
 ARG TARGETPLATFORM
-RUN xx-apk add musl-dev gcc g++ 
+RUN xx-apk add musl-dev gcc g++
 
 # Optionally set HUGO_BUILD_TAGS to "none" or "withdeploy" when building like so:
 # docker build --build-arg HUGO_BUILD_TAGS=withdeploy .
@@ -72,7 +72,7 @@ RUN mkdir -p /var/hugo/bin /cache && \
     adduser -Sg hugo -u 1000 -h /var/hugo hugo && \
     chown -R hugo: /var/hugo /cache && \
     # For the Hugo's Git integration to work.
-    runuser -u hugo -- git config --global --add safe.directory /project && \ 
+    runuser -u hugo -- git config --global --add safe.directory /project && \
     # See https://github.com/gohugoio/hugo/issues/9810
     runuser -u hugo -- git config --global core.quotepath false
 
