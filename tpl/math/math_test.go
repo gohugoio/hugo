@@ -258,7 +258,7 @@ func TestMod(t *testing.T) {
 		{int32(3), int32(2), int64(1)},
 		{int64(3), int64(2), int64(1)},
 		{"3", "2", int64(1)},
-		{"3.1", "2", false},
+		{"3.1", "2", int64(1)},
 		{"aaa", "0", false},
 		{"3", "aaa", false},
 	} {
@@ -304,7 +304,7 @@ func TestModBool(t *testing.T) {
 		{int64(3), int64(2), false},
 		{"3", "3", true},
 		{"3", "2", false},
-		{"3.1", "2", nil},
+		{"3.1", "2", false},
 		{"aaa", "0", nil},
 		{"3", "aaa", nil},
 	} {

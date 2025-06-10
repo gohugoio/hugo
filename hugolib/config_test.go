@@ -1406,7 +1406,7 @@ home = ["html"]
 			"home":     {"html"},
 			"page":     {"html"},
 			"rss":      {"rss"},
-			"section":  nil,
+			"section":  {},
 			"taxonomy": {"html", "rss"},
 			"term":     {"html", "rss"},
 		})
