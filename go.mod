@@ -62,7 +62,7 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/sanity-io/litter v1.5.8
 	github.com/spf13/afero v1.14.0
-	github.com/spf13/cast v1.8.0
+	github.com/spf13/cast v1.9.2
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.6
