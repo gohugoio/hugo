@@ -32,14 +32,136 @@ func TestIntSetsVectorProvider(t *testing.T) {
 	c.Assert(sets.HasVector(Vector{1, 2, 3}), qt.Equals, true)
 	c.Assert(sets.HasVector(Vector{3, 2, 3}), qt.Equals, false)
 	c.Assert(sets.FirstVector(), qt.Equals, Vector{1, 1, 1})
+	c.Assert(sets.EqualsVector(sets), qt.Equals, true)
+	c.Assert(sets.EqualsVector(&IntSets{
+		Languages: maps.NewOrderedIntSet(1, 2),
+		Versions:  maps.NewOrderedIntSet(1, 2, 3),
+		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+	}), qt.Equals, true)
+	c.Assert(sets.EqualsVector(&IntSets{
+		Languages: maps.NewOrderedIntSet(1, 2, 3),
+		Versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
+		Roles:     maps.NewOrderedIntSet(1, 2, 3, 4),
+	}), qt.Equals, false)
+
+	c.Assert(sets.EqualsVector(&IntSets{
+		Languages: maps.NewOrderedIntSet(1, 2),
+		Versions:  maps.NewOrderedIntSet(1, 2, 3),
+		Roles:     maps.NewOrderedIntSet(2, 3, 4),
+	}), qt.Equals, false)
 
 	alllCount := 0
 	seen := make(map[Vector]bool)
-	for v := range sets.AllVectors() {
+	ok := sets.ForEeachVector(func(v Vector) bool {
 		c.Assert(seen[v], qt.IsFalse)
 		seen[v] = true
 		alllCount++
-	}
+		return true
+	})
+
+	c.Assert(ok, qt.IsTrue)
+
 	// 2 languages * 3 versions * 3 roles = 18 combinations.
 	c.Assert(alllCount, qt.Equals, 18)
+}
+
+func BenchmarkSets(b *testing.B) {
+	sets1 := &IntSets{
+		Languages: maps.NewOrderedIntSet(1, 2),
+		Versions:  maps.NewOrderedIntSet(1, 2, 3),
+		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+	}
+
+	sets1Copy := &IntSets{
+		Languages: maps.NewOrderedIntSet(1, 2),
+		Versions:  maps.NewOrderedIntSet(1, 2, 3),
+		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+	}
+
+	sets2 := &IntSets{
+		Languages: maps.NewOrderedIntSet(1, 2, 3),
+		Versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
+		Roles:     maps.NewOrderedIntSet(1, 2, 3, 4),
+	}
+
+	v1 := Vector{1, 2, 3}
+	v2 := Vector{3, 2, 3}
+
+	b.ResetTimer()
+	b.Run("HasVector", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sets1.HasVector(v1)
+			_ = sets1.HasVector(v2)
+		}
+	})
+
+	b.Run("FirstVector", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sets1.FirstVector()
+		}
+	})
+
+	b.Run("LenVectors", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sets1.LenVectors()
+		}
+	})
+
+	b.Run("ForEeachVector", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			allCount := 0
+			ok := sets1.ForEeachVector(func(v Vector) bool {
+				allCount++
+				_ = v
+				return true
+			})
+
+			if !ok {
+				b.Fatal("Expected ForEeachVector to return true")
+			}
+
+			if allCount != 18 {
+				b.Fatalf("Expected 18 combinations, got %d", allCount)
+			}
+		}
+	})
+
+	b.Run("EqualsVector pointer equal", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			if !sets1.EqualsVector(sets1) {
+				b.Fatal("Expected sets1 to equal itself")
+			}
+		}
+	})
+
+	b.Run("EqualsVector equal copy", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			if !sets1.EqualsVector(sets1Copy) {
+				b.Fatal("Expected sets1 to equal its copy")
+			}
+		}
+	})
+
+	b.Run("EqualsVector different sets", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			if sets1.EqualsVector(sets2) {
+				b.Fatal("Expected sets1 to not equal sets2")
+			}
+		}
+	})
+
+	b.Run("Distance", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sets1.FirstVector().Distance(v1)
+			_ = sets1.FirstVector().Distance(v2)
+		}
+	})
+
+	b.Run("SetFrom", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			newSets := &IntSets{}
+			newSets.SetFrom(sets1)
+			_ = newSets
+		}
+	})
 }

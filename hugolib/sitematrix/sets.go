@@ -16,7 +16,6 @@ package sitematrix
 import (
 	"cmp"
 	"fmt"
-	"iter"
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
@@ -68,23 +67,44 @@ func (s *IntSets) LenVectors() int {
 	return s.Languages.Len() * s.Versions.Len() * s.Roles.Len()
 }
 
-func (s *IntSets) AllVectors() iter.Seq[Vector] {
+// The reason we don't use iter.Seq is https://github.com/golang/go/issues/69015
+// This is 60% faster and allocation free.
+func (s *IntSets) ForEeachVector(yield func(v Vector) bool) bool {
 	if s.LenVectors() == 0 {
-		return func(yield func(Vector) bool) {
-		}
+		return true
 	}
 
-	return func(yield func(Vector) bool) {
-		for _, lang := range s.Languages.Keys() {
-			for _, ver := range s.Versions.Keys() {
-				for _, role := range s.Roles.Keys() {
-					if !yield(Vector{lang, ver, role}) {
-						return
-					}
+	b := s.Languages.ForEachKey(func(lang int) bool {
+		return s.Versions.ForEachKey(func(ver int) bool {
+			return s.Roles.ForEachKey(func(role int) bool {
+				if !yield(Vector{lang, ver, role}) {
+					return false
 				}
-			}
-		}
+				return true
+			})
+		})
+	})
+
+	return b
+}
+
+func (s *IntSets) EqualsVector(other VectorProvider) bool {
+	if s == nil && other == nil {
+		return true
 	}
+	if s == nil || other == nil {
+		return false
+	}
+	if s == other {
+		return true
+	}
+	if s.LenVectors() != other.LenVectors() {
+		return false
+	}
+
+	return other.ForEeachVector(func(v Vector) bool {
+		return s.HasVector(v)
+	})
 }
 
 func (s *IntSets) SetFrom(other *IntSets) {

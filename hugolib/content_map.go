@@ -170,6 +170,60 @@ func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	return false
 }
 
+type resourceSourcesSlice []*resourceSource
+
+func (n resourceSourcesSlice) MarkStale() {
+	for _, r := range n {
+		if r != nil {
+			r.MarkStale()
+		}
+	}
+}
+
+func (n resourceSourcesSlice) Path() string {
+	panic("not supported")
+}
+
+func (n resourceSourcesSlice) isContentNodeBranch() bool {
+	return false
+}
+
+func (n resourceSourcesSlice) resetBuildState() {
+	for _, r := range n {
+		if r != nil {
+			r.resetBuildState()
+		}
+	}
+}
+
+func (n resourceSourcesSlice) matchDirectOrInDelegees(sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
+	panic("not implemented")
+}
+
+func (n resourceSourcesSlice) Dims() sitematrix.VectorProvider {
+	panic("not supported")
+}
+
+func (n resourceSourcesSlice) GetIdentity() identity.Identity {
+	for _, r := range n {
+		if r != nil {
+			return r.GetIdentity()
+		}
+	}
+	return nil
+}
+
+func (n resourceSourcesSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	for _, r := range n {
+		if r != nil {
+			if f(r.GetIdentity()) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	for _, n := range cfg.taxonomyConfig.views {
 		if strings.HasPrefix(s, n.pluralTreeKey) {

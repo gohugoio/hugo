@@ -15,7 +15,6 @@ package maps
 
 import (
 	"fmt"
-	"iter"
 
 	"github.com/bits-and-blooms/bitset"
 )
@@ -68,18 +67,19 @@ func (m *OrderedIntSet) Get(i int) int {
 	return m.keys[i]
 }
 
-func (m *OrderedIntSet) Keys() iter.Seq2[int, int] {
-	return func(yield func(int, int) bool) {
-		if m == nil {
-			return
-		}
-
-		for i, key := range m.keys {
-			if !yield(i, key) {
-				return
-			}
+// The reason we don't use iter.Seq is https://github.com/golang/go/issues/69015
+// This is 70% faster than using iter.Seq2[int, int] for the keys.
+// It returns false if the iteration was stopped early.
+func (m *OrderedIntSet) ForEachKey(yield func(int) bool) bool {
+	if m == nil {
+		return true
+	}
+	for _, key := range m.keys {
+		if !yield(key) {
+			return false
 		}
 	}
+	return true
 }
 
 func (m *OrderedIntSet) Has(key int) bool {

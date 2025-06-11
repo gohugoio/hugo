@@ -849,6 +849,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims sitematrix.Vector, exact
 			}
 		}
 	case *resourceSource:
+
 		// TODO1 think.
 		if v.Dims().FirstVector()[sitematrix.Language.Index()] == dims[sitematrix.Language.Index()] {
 			return v, true, sitematrix.Language // TODO1
@@ -888,7 +889,7 @@ func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, dims sitematrix
 			return
 		}
 
-		for dims2 := range n.Dims().AllVectors() {
+		n.Dims().ForEeachVector(func(dims2 sitematrix.Vector) bool {
 			var match bool
 			for i, v := range dims2 {
 				if i != d && v != dims[i] {
@@ -899,10 +900,11 @@ func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, dims sitematrix
 			}
 			if match {
 				if f(n) {
-					return
+					return true
 				}
 			}
-		}
+			return false
+		})
 
 	}
 }
@@ -937,7 +939,7 @@ func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension sitemat
 		if vv.Dims() == newp.Dims() && newp.Dims() == dimension {
 			return new, vv, true
 		}
-		rs := make(resourceSources, s.numLanguages)
+		rs := make(resourceSources)
 		rs[vv.Dims().FirstVector()] = vv
 		rs[dimension] = newp
 		return rs, vv, false
@@ -976,16 +978,20 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		vv[newp.s.dims] = new
 		return vv, oldp, oldp != nil
 	case *resourceSource:
+
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		if vv.Dims() == newp.Dims() {
+		if vv.Dims().EqualsVector(newp.Dims()) {
 			if vv != newp {
 				resource.MarkStale(vv)
 			}
 			return new, vv, true
 		}
+
+		fmt.Println("HERE??", new.Path())
+
 		rs := make(resourceSources)
 		rs[newp.Dims().FirstVector()] = newp
 		rs[vv.Dims().FirstVector()] = vv

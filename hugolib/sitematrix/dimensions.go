@@ -15,7 +15,6 @@ package sitematrix
 
 import (
 	"fmt"
-	"iter"
 )
 
 const (
@@ -64,12 +63,15 @@ func (v1 Vector) FirstVector() Vector {
 	return v1
 }
 
-func (v1 Vector) AllVectors() iter.Seq[Vector] {
-	return func(yield func(Vector) bool) {
-		if !yield(v1) {
-			return
-		}
+func (v1 Vector) EqualsVector(other VectorProvider) bool {
+	if other.LenVectors() != 1 {
+		return false
 	}
+	return other.FirstVector() == v1
+}
+
+func (v1 Vector) ForEeachVector(yield func(v Vector) bool) bool {
+	return yield(v1)
 }
 
 // Distance returns the distance between v1 and v2
@@ -114,8 +116,12 @@ type VectorProvider interface {
 	// This will panic if the provider is empty.
 	FirstVector() Vector
 
-	// AllVectors returns all vectors in the provider as an iterator.
-	AllVectors() iter.Seq[Vector]
+	// Equals returns true if this provider is equal to the other provider.
+	EqualsVector(other VectorProvider) bool
+
+	// ForEeachVector iterates over all vectors in the provider.
+	// It returns false if the iteration was stopped early.
+	ForEeachVector(func(v Vector) bool) bool
 }
 
 // Dimension is a dimension in the Hugo build matrix.
