@@ -91,6 +91,13 @@ func (r VersionsInternal) IndexDefault() int {
 	panic("no default version found")
 }
 
+func (r VersionsInternal) ResolveName(i int) string {
+	if i < 0 || i >= len(r.Sorted) {
+		panic(fmt.Sprintf("index %d out of range for versions", i))
+	}
+	return r.Sorted[i].Name
+}
+
 // IndexMatch returns an iterator for the versions that match the filter.
 func (r VersionsInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {

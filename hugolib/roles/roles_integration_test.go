@@ -39,7 +39,7 @@ defaultContentLanguageInSubdir = true
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 
 [cascade]
-versions = ["v2*"]
+versions = ["v2**"]
 
 [languages]
 [languages.en]
@@ -61,20 +61,20 @@ weight = 200
 ---
 title: "Member Only"
 roles: ["member"]
-languages: ["*"]
+languages: ["**"]
 ---
 Member content.
 -- content/publicpost.md --
 ---
 title: "Public"
-versions: ["v1.2.3", "v2.*", "! v2.1.*"]
-versionDelegees: ["v3*"]
+versions: ["v1.2.3", "v2.**", "! v2.1.*"]
+versionDelegees: ["v3**"]
 ---
 Users with guest role will see this.
--- content/publicpostv3.md --
+-- content/v3publicpost.md --
 ---
 title: "Public v3"
-versions: ["v3.*"]
+versions: ["v3**"]
 ---
 Users with guest role will see this.
 -- layouts/all.html --
@@ -94,7 +94,7 @@ RegularPages: {{ range .RegularPages }}{{ .RelPermalink }} r: {{ .Site.Language.
 
 		b.AssertPublishDir(
 			"guest/v1.2.3/en/publicpost", "guest/v2.0.0/en/publicpost", "! guest/v2.1.0/en/publicpost",
-			"member/v2.0.0/en/memberonlypost", "member/v2.0.0/nn/memberonlypost",
+			"member/v4.0.0/en/memberonlypost", "member/v4.0.0/nn/memberonlypost",
 		)
 
 		b.AssertFileContent("public/guest/v2.0.0/en/index.html",
@@ -102,7 +102,7 @@ RegularPages: {{ range .RegularPages }}{{ .RelPermalink }} r: {{ .Site.Language.
 			"Roles: Name: member Site.Version: v2.0.0 Site.Language.Lang: en|Name: guest Site.Version: v2.0.0 Site.Language.Lang: en|$",
 			"Versions: Name: v4.0.0 Site.Role: guest Site.Language.Lang: en|Name: v3.0.0 Site.Role: guest Site.Language.Lang: en|Name: v2.1.0 Site.Role: guest Site.Language.Lang: en|Name: v2.0.0 Site.Role: guest Site.Language.Lang: en|Name: v1.2.3 Site.Role: guest Site.Language.Lang: en|$")
 
-		b.AssertFileContent("public/guest/v3.0.0/en/index.html", "RegularPages: /guest/v2.0.0/en/publicpost/ r: en  v: v2.0.0 l: guest|/guest/v3.0.0/en/publicpostv3/ r: en  v: v3.0.0 l: guest|$")
+		b.AssertFileContent("public/guest/v3.0.0/en/index.html", "RegularPages: /guest/v2.0.0/en/publicpost/ r: en  v: v2.0.0 l: guest|/guest/v3.0.0/en/v3publicpost/ r: en  v: v3.0.0 l: guest|$")
 
 	}
 }
@@ -155,7 +155,7 @@ versions: ["v1.2.3", "v2.*", "! v2.1.*"]
 versionDelegees: ["v3*"]
 ---
 Users with guest role will see this.
--- content/publicpostv3.md --
+-- content/v3publicpost.md --
 ---
 title: "Public v3"
 versions: ["v3.*"]
@@ -205,6 +205,9 @@ func TestDimensionsFileMount(t *testing.T) {
 baseURL = "https://example.org"
 defaultContentLanguage = "en"
 defaultContentLanguageInSubDir = true
+[versions]
+[versions."v1.2.3"]
+[versions."v2.0.0"]
 [languages]
 [languages.en]
 weight = 1
@@ -241,6 +244,7 @@ Tekst Nynorsk
 		t.Helper()
 		b := hugolib.Test(t, files)
 
+		b.AssertPublishDir("asdfaf")
 		b.AssertFileContent("public/en/index.html", "Title English", "Text English")
 		b.AssertFileContent("public/nn/index.html", "Tittel Nynorsk", "Tekst Nynorsk")
 	}
@@ -248,6 +252,7 @@ Tekst Nynorsk
 	// Format from v0.148.0:
 	dims := `[module.mounts.dimensions]
 languages = ["en"]
+versions = ["**"]
 `
 	files := strings.Replace(filesTemplate, "DIMSEN", dims, 1)
 	dims = strings.Replace(dims, `["en"]`, `["nn"]`, 1)

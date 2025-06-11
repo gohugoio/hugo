@@ -831,7 +831,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims sitematrix.Vector, exact
 			return vv, true, accuracy
 		}
 		return nil, false, 0
-	case resourceSources:
+	case resourceSources: // TODO1 remove this type.
 		vv := v[dims]
 		if vv != nil {
 			return vv, true, sitematrix.Language
@@ -848,8 +848,18 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims sitematrix.Vector, exact
 				return vv, true, 0
 			}
 		}
-	case *resourceSource:
+	case resourceSourcesSlice:
+		for _, vv := range v {
+			if vv.Dims().HasVector(dims) {
+				return vv, true, sitematrix.Language
+			}
+			if !exact && vv.isPage() {
+				// For non content resources, pick the first match.
+				return vv, true, 0
+			}
+		}
 
+	case *resourceSource:
 		// TODO1 think.
 		if v.Dims().FirstVector()[sitematrix.Language.Index()] == dims[sitematrix.Language.Index()] {
 			return v, true, sitematrix.Language // TODO1
@@ -978,11 +988,11 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		vv[newp.s.dims] = new
 		return vv, oldp, oldp != nil
 	case *resourceSource:
-
 		newp, ok := new.(*resourceSource)
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
+
 		if vv.Dims().EqualsVector(newp.Dims()) {
 			if vv != newp {
 				resource.MarkStale(vv)
@@ -990,12 +1000,13 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 			return new, vv, true
 		}
 
-		fmt.Println("HERE??", new.Path())
+		rs := resourceSourcesSlice{
+			vv,
+			newp,
+		}
 
-		rs := make(resourceSources)
-		rs[newp.Dims().FirstVector()] = newp
-		rs[vv.Dims().FirstVector()] = vv
 		return rs, vv, false
+
 	case resourceSources:
 		newp, ok := new.(*resourceSource)
 		if !ok {

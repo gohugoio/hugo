@@ -24,7 +24,8 @@ const (
 	Role
 )
 
-// Vector represents a dimension vector in the Hugo build matrix.
+// Vector represents a dimension vector in the Hugo build matrix from the three dimensions:
+// Language, Version and Role.
 type Vector [3]int
 
 // Compare returns -1 if v1 is less than v2, 0 if they are equal, and 1 if v1 is greater than v2.
@@ -51,6 +52,40 @@ func (v1 Vector) Compare(v2 Vector) int {
 	return 0
 }
 
+// DotProduct returns the dot product of two vectors.
+func (v1 Vector) DotProduct(v2 Vector) int {
+	dot := 0
+	for i := range v1 {
+		dot += v1[i] * v2[i]
+	}
+	return dot
+}
+
+// Distance returns the distance between v1 and v2
+// ussing the first dimension that is different.
+func (v1 Vector) Distance(v2 Vector) int {
+	if v1[0] != v2[0] {
+		return v1[0] - v2[0]
+	}
+	if v1[1] != v2[1] {
+		return v1[1] - v2[1]
+	}
+	if v1[2] != v2[2] {
+		return v1[2] - v2[2]
+	}
+	return 0
+}
+
+// EuclideanDistanceSquared returns the Euclidean distance between two vectors as the sum of the squared differences.
+func (v1 Vector) EuclideanDistanceSquared(v2 Vector) int {
+	sum := 0
+	for i := range v1 {
+		diff := v1[i] - v2[i]
+		sum += diff * diff
+	}
+	return sum
+}
+
 func (v1 Vector) HasVector(v2 Vector) bool {
 	return v1 == v2
 }
@@ -72,21 +107,6 @@ func (v1 Vector) EqualsVector(other VectorProvider) bool {
 
 func (v1 Vector) ForEeachVector(yield func(v Vector) bool) bool {
 	return yield(v1)
-}
-
-// Distance returns the distance between v1 and v2
-// ussing the first dimension that is different.
-func (v1 Vector) Distance(v2 Vector) int {
-	if v1[0] != v2[0] {
-		return v1[0] - v2[0]
-	}
-	if v1[1] != v2[1] {
-		return v1[1] - v2[1]
-	}
-	if v1[2] != v2[2] {
-		return v1[2] - v2[2]
-	}
-	return 0
 }
 
 // Language returns the language dimension.

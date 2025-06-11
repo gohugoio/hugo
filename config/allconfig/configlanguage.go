@@ -19,6 +19,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 )
@@ -274,9 +275,9 @@ func (c ConfigLanguage) EnableEmoji() bool {
 	return c.config.EnableEmoji
 }
 
-func (c ConfigLanguage) ConfiguredDimensions() config.ConfiguredDimensions {
+func (c ConfigLanguage) ConfiguredDimensions() sitematrix.ConfiguredDimensions {
 	// TODO1 cache if hot path.
-	return config.ConfiguredDimensions{
+	return sitematrix.ConfiguredDimensions{
 		ConfiguredLanguages: c.m.Base.Languages.Config,
 		ConfiguredVersions:  c.m.Base.Versions.Config,
 		ConfiguredRoles:     c.m.Base.Roles.Config,

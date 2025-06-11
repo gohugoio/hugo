@@ -77,6 +77,13 @@ func (ls LanguagesInternal) IndexDefault() int {
 	panic("no default role found")
 }
 
+func (ls LanguagesInternal) ResolveName(i int) string {
+	if i < 0 || i >= len(ls.Sorted) {
+		panic(fmt.Sprintf("index %d out of range for languages", i))
+	}
+	return ls.Sorted[i].Name
+}
+
 // IndexMatch returns an iterator for the roles that match the filter.
 func (ls LanguagesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {

@@ -240,7 +240,7 @@ type PageConfig struct {
 	ContentMediaType        media.Type     `mapstructure:"-" json:"-"`
 	IsFromContentAdapter    bool           `mapstructure:"-" json:"-"`
 
-	Dimensions        *sitematrix.IntSets `mapstructure:"-" json:"-"`
+	Dimensions        *sitematrix.IntSets `mapstructure:"-" json:"-"` // TODO1 rename SiteVectors. Same below.
 	DimensionDelegees *sitematrix.IntSets `mapstructure:"-" json:"-"`
 }
 
@@ -330,7 +330,7 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *
 	}
 
 	// TODO1 default when?
-	sets, err := sitematrix.NewIntSets2(conf.ConfiguredDimensions(), false, p.Languages, p.Versions, p.Roles)
+	sets, err := sitematrix.NewIntSets2(conf.ConfiguredDimensions(), true, p.Languages, p.Versions, p.Roles)
 	if err != nil {
 		return fmt.Errorf("failed to create dimensions sets: %w", err)
 	}

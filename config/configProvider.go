@@ -18,9 +18,9 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/identity"
 )
 
@@ -77,7 +77,7 @@ type AllProvider interface {
 	IgnoredLogs() map[string]bool
 	WorkingDir() string
 	EnableEmoji() bool
-	ConfiguredDimensions() ConfiguredDimensions
+	ConfiguredDimensions() sitematrix.ConfiguredDimensions
 }
 
 // We cannot import the media package as that would create a circular dependency.
@@ -116,13 +116,5 @@ func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	return types.ToStringSlicePreserveString(sd)
 }
 
-type ConfiguredDimension interface {
-	predicate.IndexMatcher
-	IndexDefault() int
-}
-
-type ConfiguredDimensions struct {
-	ConfiguredLanguages ConfiguredDimension
-	ConfiguredVersions  ConfiguredDimension
-	ConfiguredRoles     ConfiguredDimension
-}
+/*func (cd ConfiguredDimensions) Language(v sitematrix.Vector) ConfiguredDimension {
+}*/

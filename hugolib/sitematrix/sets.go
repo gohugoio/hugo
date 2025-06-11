@@ -19,7 +19,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/glob"
 )
 
@@ -137,7 +137,7 @@ func NewIntSets() *IntSets {
 }
 
 // TODO1 name etc.
-func NewIntSets2(cfg config.ConfiguredDimensions, applyDefault bool, languages, versions, roles []string) (*IntSets, error) {
+func NewIntSets2(cfg ConfiguredDimensions, applyDefault bool, languages, versions, roles []string) (*IntSets, error) {
 	// TODO1
 	/*if p.Lang != "" {
 		// Merge into the languages slice.
@@ -145,7 +145,7 @@ func NewIntSets2(cfg config.ConfiguredDimensions, applyDefault bool, languages, 
 		p.Languages = hstrings.UniqueStringsReuse(p.Languages)
 	}*/
 
-	applyFilter := func(what string, values []string, matcher config.ConfiguredDimension) (*maps.OrderedIntSet, error) {
+	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*maps.OrderedIntSet, error) {
 		if len(values) == 0 {
 			if applyDefault {
 				result := maps.NewOrderedIntSet()
@@ -199,4 +199,25 @@ type DimensionsStringSlices struct {
 
 func (d DimensionsStringSlices) IsZero() bool {
 	return len(d.Languages) == 0 && len(d.Versions) == 0 && len(d.Roles) == 0
+}
+
+// TODO1 move/rename these.
+type ConfiguredDimension interface {
+	predicate.IndexMatcher
+	IndexDefault() int
+	ResolveName(int) string
+}
+
+type ConfiguredDimensions struct {
+	ConfiguredLanguages ConfiguredDimension
+	ConfiguredVersions  ConfiguredDimension
+	ConfiguredRoles     ConfiguredDimension
+}
+
+func (c ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
+	return types.Strings3{
+		c.ConfiguredLanguages.ResolveName(v.Language()),
+		c.ConfiguredVersions.ResolveName(v.Version()),
+		c.ConfiguredRoles.ResolveName(v.Role()),
+	}
 }

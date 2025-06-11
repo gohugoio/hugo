@@ -89,6 +89,13 @@ func (r RolesInternal) IndexDefault() int {
 	panic("no default role found")
 }
 
+func (r RolesInternal) ResolveName(i int) string {
+	if i < 0 || i >= len(r.Sorted) {
+		panic(fmt.Sprintf("index %d out of range for roles", i))
+	}
+	return r.Sorted[i].Name
+}
+
 // IndexMatch returns an iterator for the roles that match the filter.
 func (r RolesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {

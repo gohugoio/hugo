@@ -99,8 +99,19 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, []*Site, er
 	if err := m.setMetaPre(pi, dimensionsFromFile, h.Log, h.Conf); err != nil {
 		return nil, nil, nil, m.wrapError(err, h.BaseFs.SourceFs)
 	}
+
 	pcfg := m.pageConfig
+	if m.f != nil && m.f.Path() == "::: memberonlypost.md" {
+		// TODO1: Remove.
+
+		fmt.Println("===>", m.f.Path(), pcfg.Languages, pcfg.Versions, pcfg.Roles, "dims", pcfg.Dimensions, "file vectors:", m.f.FileInfo().Meta().SiteInts)
+		pcfg.Dimensions.ForEeachVector(func(v sitematrix.Vector) bool {
+			fmt.Println("pcfg.Dimensions.Vector", h.Conf.ConfiguredDimensions().ResolveNames(v))
+			return true
+		})
+	}
 	if pcfg.Lang != "" {
+		// TODO1
 		if h.Conf.IsLangDisabled(pcfg.Lang) {
 			return nil, nil, nil, nil
 		}

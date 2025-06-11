@@ -36,6 +36,29 @@ func TestDimensionFlag(t *testing.T) {
 	c.Assert(p.Index(), qt.Equals, 11)
 }
 
+func TestVectorDotProduct(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(Vector{1, 2, 3}.DotProduct(Vector{4, 5, 6}), qt.Equals, 32)
+	c.Assert(Vector{0, 0, 0}.DotProduct(Vector{4, 5, 6}), qt.Equals, 0)
+	c.Assert(Vector{1, 2, 3}.DotProduct(Vector{0, 0, 0}), qt.Equals, 0)
+	c.Assert(Vector{1, 2, 3}.DotProduct(Vector{1, 2, 3}), qt.Equals, 14)
+}
+
+func TestVectorEuclideanDistanceSquared(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(Vector{1, 2, 3}.EuclideanDistanceSquared(Vector{4, 5, 6}), qt.Equals, 27)
+	c.Assert(Vector{4, 5, 6}.EuclideanDistanceSquared(Vector{1, 2, 3}), qt.Equals, 27)
+	c.Assert(Vector{0, 0, 0}.EuclideanDistanceSquared(Vector{4, 5, 6}), qt.Equals, 77)
+	c.Assert(Vector{4, 5, 6}.EuclideanDistanceSquared(Vector{0, 0, 0}), qt.Equals, 77)
+	c.Assert(Vector{1, 2, 3}.EuclideanDistanceSquared(Vector{0, 0, 0}), qt.Equals, 14)
+	c.Assert(Vector{1, 2, 3}.EuclideanDistanceSquared(Vector{1, 2, 3}), qt.Equals, 0)
+	c.Assert(Vector{1, 2, 3}.EuclideanDistanceSquared(Vector{1, 2, 4}), qt.Equals, 1)
+	c.Assert(Vector{1, 2, 3}.EuclideanDistanceSquared(Vector{1, 3, 3}), qt.Equals, 1)
+	c.Assert(Vector{1, 2, 3}.EuclideanDistanceSquared(Vector{2, 2, 3}), qt.Equals, 1)
+}
+
 func TestDimensionsIndex(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(Language.Index(), qt.Equals, 0)
