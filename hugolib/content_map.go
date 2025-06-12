@@ -23,9 +23,11 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/source"
 
@@ -55,11 +57,11 @@ type contentMapConfig struct {
 var _ contentNodeI = (*resourceSource)(nil)
 
 type resourceSource struct {
-	langIndex int
-	path      *paths.Path
-	opener    hugio.OpenReadSeekCloser
-	fi        hugofs.FileMetaInfo
-	rc        *pagemeta.ResourceConfig
+	dims   sitematrix.VectorProvider
+	path   *paths.Path
+	opener hugio.OpenReadSeekCloser
+	fi     hugofs.FileMetaInfo
+	rc     *pagemeta.ResourceConfig
 
 	r resource.Resource
 }
@@ -69,8 +71,9 @@ func (r resourceSource) clone() *resourceSource {
 	return &r
 }
 
-func (r *resourceSource) LangIndex() int {
-	return r.langIndex
+// TODO1 name for this method.
+func (r *resourceSource) Dims() sitematrix.VectorProvider {
+	return r.dims
 }
 
 func (r *resourceSource) MarkStale() {
@@ -95,6 +98,10 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 	return r.path
 }
 
+func (p *resourceSource) matchDirectOrInDelegees(sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
+	panic("not implemented")
+}
+
 func (r *resourceSource) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	return f(r.GetIdentity())
 }
@@ -109,7 +116,7 @@ func (r *resourceSource) isContentNodeBranch() bool {
 
 var _ contentNodeI = (*resourceSources)(nil)
 
-type resourceSources []*resourceSource
+type resourceSources map[sitematrix.Vector]*resourceSource
 
 func (n resourceSources) MarkStale() {
 	for _, r := range n {
@@ -135,6 +142,14 @@ func (n resourceSources) resetBuildState() {
 	}
 }
 
+func (n resourceSources) matchDirectOrInDelegees(sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
+	panic("not implemented")
+}
+
+func (n resourceSources) Dims() sitematrix.VectorProvider {
+	panic("not supported")
+}
+
 func (n resourceSources) GetIdentity() identity.Identity {
 	for _, r := range n {
 		if r != nil {
@@ -145,6 +160,60 @@ func (n resourceSources) GetIdentity() identity.Identity {
 }
 
 func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	for _, r := range n {
+		if r != nil {
+			if f(r.GetIdentity()) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+type resourceSourcesSlice []*resourceSource
+
+func (n resourceSourcesSlice) MarkStale() {
+	for _, r := range n {
+		if r != nil {
+			r.MarkStale()
+		}
+	}
+}
+
+func (n resourceSourcesSlice) Path() string {
+	panic("not supported")
+}
+
+func (n resourceSourcesSlice) isContentNodeBranch() bool {
+	return false
+}
+
+func (n resourceSourcesSlice) resetBuildState() {
+	for _, r := range n {
+		if r != nil {
+			r.resetBuildState()
+		}
+	}
+}
+
+func (n resourceSourcesSlice) matchDirectOrInDelegees(sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
+	panic("not implemented")
+}
+
+func (n resourceSourcesSlice) Dims() sitematrix.VectorProvider {
+	panic("not supported")
+}
+
+func (n resourceSourcesSlice) GetIdentity() identity.Identity {
+	for _, r := range n {
+		if r != nil {
+			return r.GetIdentity()
+		}
+	}
+	return nil
+}
+
+func (n resourceSourcesSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	for _, r := range n {
 		if r != nil {
 			if f(r.GetIdentity()) {
@@ -218,6 +287,10 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		return
 	}
 
+	if m == nil {
+		panic("nil pageMap")
+	}
+
 	insertResource := func(fim hugofs.FileMetaInfo) error {
 		resourceCount++
 		pi := fi.Meta().PathInfo
@@ -251,9 +324,9 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			}
 			key = pi.Base()
 
-			rs = &resourceSource{r: pageResource, langIndex: pageResource.s.languagei}
+			rs = &resourceSource{r: pageResource, dims: pageResource.s.dims}
 		} else {
-			rs = &resourceSource{path: pi, opener: r, fi: fim, langIndex: fim.Meta().LangIndex}
+			rs = &resourceSource{path: pi, opener: r, fi: fim, dims: fim.Meta().SiteInts}
 		}
 
 		_, _, _ = m.insertResource(key, rs)
@@ -294,7 +367,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		pageCount++
 
 		// A content file.
-		p, pi, err := m.s.h.newPage(
+		pages, pi, err := m.s.h.newPages(
 			&pageMeta{
 				f:        source.NewFileInfo(fi),
 				pathInfo: pi,
@@ -305,12 +378,10 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			addErr = err
 			return
 		}
-		if p == nil {
-			// Disabled page.
-			return
-		}
 
-		m.insertPageWithLock(pi.Base(), p)
+		for _, p := range pages {
+			m.insertPageWithLock(pi.Base(), p)
+		}
 
 	}
 	return
@@ -331,7 +402,15 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 		return
 	}
 
-	s := m.s.h.resolveSite(fi.Meta().Lang)
+	memberships := sitematrix.NewIntSets()
+	memberships.Languages = maps.NewOrderedIntSet(fi.Meta().LangIndex)
+
+	// sites = h.resolveSites(pcfg.LanguagesCompiledSet, pcfg.VersionsCompiledSet, pcfg.RolesCompiledSet)
+	sites := m.s.h.resolveSites(memberships) // TODO1 languages, versions, roles.
+	if len(sites) == 0 {
+		panic("TODO1")
+	}
+	s := sites[0]
 	f := source.NewFileInfo(fi)
 	h := s.h
 
@@ -415,7 +494,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 						return err
 					}
 
-					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, langIndex: s.languagei}
+					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, dims: s.dims}
 
 					_, n, replaced := s.pageMap.insertResourceWithLock(rc.PathInfo.Base(), rs)
 
@@ -446,6 +525,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 
 	if !rebuild && bi.EnableAllLanguages {
 		// Clone and insert the adapter for the other sites.
+		// TODO1
 		for _, ss := range s.h.Sites {
 			if s == ss {
 				continue

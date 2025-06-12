@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"iter"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -26,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/fsnotify/fsnotify"
@@ -51,7 +53,13 @@ import (
 
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
+	// The current site slice.
+	// When rendering, this slice will be shifted out.
+	// TODO1 check that access of this isn't cached.
 	Sites []*Site
+
+	// All sites for all versions and roles.
+	sitesVersionsRoles [][][]*Site
 
 	Configs *allconfig.Configs
 
@@ -104,6 +112,21 @@ type HugoSites struct {
 	buildCounter atomic.Uint64
 }
 
+// TODO1 check usage of this vs .Sites.
+func (h *HugoSites) allSites() iter.Seq[*Site] {
+	return func(yield func(s *Site) bool) {
+		for _, v := range h.sitesVersionsRoles {
+			for _, r := range v {
+				for _, s := range r {
+					if !yield(s) {
+						return
+					}
+				}
+			}
+		}
+	}
+}
+
 // ShouldSkipFileChangeEvent allows skipping filesystem event early before
 // the build is started.
 func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
@@ -120,18 +143,24 @@ func (h *HugoSites) isRebuild() bool {
 	return h.buildCounter.Load() > 0
 }
 
-func (h *HugoSites) resolveSite(lang string) *Site {
-	if lang == "" {
-		lang = h.Conf.DefaultContentLanguage()
-	}
+func (h *HugoSites) resolveSites(membership *sitematrix.IntSets) []*Site {
+	var matches []*Site
 
-	for _, s := range h.Sites {
-		if s.Lang() == lang {
-			return s
+	for s := range h.allSites() {
+		if !membership.Languages.Has(s.dims.Language()) {
+			continue
+		}
+
+		if membership.Versions != nil && !membership.Versions.Has(s.dims.Version()) {
+			continue
+		}
+
+		if membership.Roles == nil || membership.Roles.Has(s.dims.Role()) {
+			matches = append(matches, s)
 		}
 	}
 
-	return nil
+	return matches
 }
 
 type buildCounters struct {
@@ -394,7 +423,7 @@ func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
 		w := &doctree.NodeShiftTreeWalker[contentNodeI]{
 			Tree:     s.pageMap.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+			Handle: func(s string, n contentNodeI, match sitematrix.Dimension) (bool, error) {
 				return fn(s, n.(*pageState)), nil
 			},
 		}
