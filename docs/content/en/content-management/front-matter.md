@@ -68,9 +68,6 @@ expiryDate
 headless
 : (`bool`) Applicable to [leaf bundles], whether to set the `render` and `list` [build options] to `never`, creating a headless bundle of [page resources].
 
-isCJKLanguage
-: (`bool`) Whether the content language is in the [CJK](g) family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`], [`FuzzyWordCount`], [`ReadingTime`], and [`Summary`] methods on a `Page` object.
-
 keywords
 : (`string array`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy](g) to classify content. Access these values from a template using the [`Keywords`] method on a `Page` object.
 

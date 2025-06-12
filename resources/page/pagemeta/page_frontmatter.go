@@ -105,7 +105,6 @@ type PageConfig struct {
 	Summary         string   // The summary for this page.
 	Draft           bool     // Whether or not the content is a draft.
 	Headless        bool     `json:"-"` // Whether or not the page should be rendered.
-	IsCJKLanguage   bool     // Whether or not the content is in a CJK language.
 	TranslationKey  string   // The translation key for this page.
 	Keywords        []string // The keywords for this page.
 	Aliases         []string // The aliases for this page.
