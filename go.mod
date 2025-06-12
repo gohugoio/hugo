@@ -74,12 +74,12 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.40.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
-	golang.org/x/image v0.27.0
-	golang.org/x/mod v0.24.0
+	golang.org/x/image v0.28.0
+	golang.org/x/mod v0.25.0
 	golang.org/x/net v0.40.0
-	golang.org/x/sync v0.14.0
-	golang.org/x/text v0.25.0
-	golang.org/x/tools v0.32.0
+	golang.org/x/sync v0.15.0
+	golang.org/x/text v0.26.0
+	golang.org/x/tools v0.33.0
 	google.golang.org/api v0.221.0
 	gopkg.in/yaml.v2 v2.4.0
 	rsc.io/qr v0.2.0
