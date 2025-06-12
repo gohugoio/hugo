@@ -90,7 +90,7 @@ Returns the `Site` to which the pages will be added.
 
 ### Store
 
-Returns a persistent “scratch pad” to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
+Returns a persistent "scratch pad" to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
 
 ```go-html-template {file="content/books/_content.gotmpl"}
 {{ .Store.Set "key" "value" }}
@@ -338,7 +338,7 @@ content/
     └── the-hunchback-of-notre-dame.md
 ```
 
-If the content adapter also creates books/the-hunchback-of-notre-dame, the content of the published page is indeterminate. You can not define the processing order.
+If the content adapter also creates `books/the-hunchback-of-notre-dame`, the content of the published page is indeterminate. You can not define the processing order.
 
 To detect page collisions, use the `--printPathWarnings` flag when building your site.
 
