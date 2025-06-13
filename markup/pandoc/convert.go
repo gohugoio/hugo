@@ -15,10 +15,12 @@
 package pandoc
 
 import (
+	"bytes"
+	"sync"
+
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/identity"
-
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/internal"
 )
@@ -64,6 +66,9 @@ func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentCon
 		return src, nil
 	}
 	args := []string{"--mathjax"}
+	if supportsCitations(c.cfg) {
+		args = append(args[:], "--citeproc")
+	}
 	return internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
 }
 
@@ -74,6 +79,45 @@ func getPandocBinaryName() string {
 		return pandocBinary
 	}
 	return ""
+}
+
+var pandocSupportsCiteprocOnce sync.Once
+var pandocSupportsCiteproc bool
+
+// getPandocSupportsCiteproc runs a dump-args to determine if pandoc knows the --citeproc argument
+func getPandocSupportsCiteproc(cfg converter.ProviderConfig) (bool, error) {
+	var err error
+
+	pandocSupportsCiteprocOnce.Do(func() {
+		argsv := []any{"--dump-args", "--citeproc"}
+
+		var out bytes.Buffer
+		argsv = append(argsv, hexec.WithStdout(&out))
+
+		cmd, err := cfg.Exec.New(pandocBinary, argsv...)
+		if err != nil {
+			pandocSupportsCiteproc = false
+			return
+		}
+
+		err = cmd.Run()
+		if err != nil {
+			pandocSupportsCiteproc = false
+			return
+		}
+		pandocSupportsCiteproc = true
+	})
+
+	return pandocSupportsCiteproc, err
+}
+
+// supportsCitations returns true if citeproc is available
+func supportsCitations(cfg converter.ProviderConfig) bool {
+	if Supports() {
+		supportsCiteproc, err := getPandocSupportsCiteproc(cfg)
+		return supportsCiteproc && err == nil
+	}
+	return false
 }
 
 // Supports returns whether Pandoc is installed on this computer.
