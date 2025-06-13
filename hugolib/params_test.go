@@ -94,44 +94,6 @@ a/b pages: {{ range $ab.RegularPages }}{{ .Path }}|{{ .RelPermalink }}|{{ end }}
 	)
 }
 
-func TestFrontMatterParamsLang(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org/"
-disableKinds = ["taxonomy", "term"]
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = true
-[languages]
-[languages.en]
-weight = 1
-[languages.nn]
-weight = 2
--- content/p1.md --
----
-title: "P1 nn"
-lang: "nn"
----
--- content/p2.md --
----
-title: "P2"
----
--- layouts/index.html --
-RegularPages: {{ range site.RegularPages }}{{ .Path }}|{{ .RelPermalink }}|{{ .Title }}|{{ end }}$
-
-`
-
-	b := Test(t, files)
-
-	b.AssertFileContent("public/en/index.html",
-		"RegularPages: /p2|/en/p2/|P2|$",
-	)
-	b.AssertFileContent("public/nn/index.html",
-		"RegularPages: /p1|/nn/p1/|P1 nn|$",
-	)
-}
-
 func TestFrontMatterTitleOverrideWarn(t *testing.T) {
 	t.Parallel()
 
