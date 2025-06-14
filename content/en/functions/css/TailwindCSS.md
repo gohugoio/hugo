@@ -29,7 +29,7 @@ Use the `css.TailwindCSS` function to process your Tailwind CSS files. This func
 
 Install the Tailwind CSS CLI v4.0 or later:
 
-```sh
+```sh {copy=true}
 npm install --save-dev tailwindcss @tailwindcss/cli
 ```
 
@@ -42,21 +42,23 @@ The TailwindCSS CLI is also available as a [standalone executable] if you want t
 Add this to your site configuration:
 
 {{< code-toggle file=hugo copy=true >}}
-[[module.mounts]]
-source = "assets"
-target = "assets"
-[[module.mounts]]
-source = "hugo_stats.json"
-target = "assets/notwatching/hugo_stats.json"
-disableWatch = true
-[build.buildStats]
-enable = true
-[[build.cachebusters]]
-source = "assets/notwatching/hugo_stats\\.json"
-target = "css"
-[[build.cachebusters]]
-source = "(postcss|tailwind)\\.config\\.js"
-target = "css"
+[build]
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\.json'
+    target = 'css'
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\.config\.js'
+    target = 'css'
+[module]
+  [[module.mounts]]
+    source = 'assets'
+    target = 'assets'
+  [[module.mounts]]
+    disableWatch = true
+    source = 'hugo_stats.json'
+    target = 'assets/notwatching/hugo_stats.json'
 {{< /code-toggle >}}
 
 ### Step 3
@@ -75,16 +77,14 @@ Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` i
 Create a partial template to process the CSS with the Tailwind CSS CLI:
 
 ```go-html-template {file="layouts/partials/css.html" copy=true}
-{{ with (templates.Defer (dict "key" "global")) }}
-  {{ with resources.Get "css/main.css" }}
-    {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
-    {{ with . | css.TailwindCSS $opts }}
-      {{ if hugo.IsDevelopment }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}">
-      {{ else }}
-        {{ with . | fingerprint }}
-          <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
-        {{ end }}
+{{ with resources.Get "css/main.css" }}
+  {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
+  {{ with . | css.TailwindCSS $opts }}
+    {{ if hugo.IsDevelopment }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ else }}
+      {{ with . | fingerprint }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
     {{ end }}
   {{ end }}
@@ -93,14 +93,16 @@ Create a partial template to process the CSS with the Tailwind CSS CLI:
 
 ### Step 5
 
-Call the partial template from your base template:
+Call the partial template from your base template, deferring template execution until after all sites and output formats have been rendered:
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html" copy=true}
 <head>
   ...
-  {{ partialCached "css.html" . }}
+  {{ with (templates.Defer (dict "key" "global")) }}
+    {{ partial "css.html" . }}
+  {{ end }}
   ...
-<head>
+</head>
 ```
 
 ## Options
