@@ -68,12 +68,9 @@ func (p *pagesFromDataTemplateContext) toPathMap(v any) (string, map[string]any,
 	if err != nil {
 		return "", nil, err
 	}
-	pathv, ok := m["path"]
-	if !ok {
-		return "", nil, fmt.Errorf("path not set")
-	}
-	path, err := cast.ToStringE(pathv)
-	if err != nil || path == "" {
+
+	path, err := cast.ToStringE(m["path"])
+	if err != nil {
 		return "", nil, fmt.Errorf("invalid path %q", path)
 	}
 	return path, m, nil
@@ -99,7 +96,7 @@ func (p *pagesFromDataTemplateContext) AddPage(v any) (string, error) {
 		return "", err
 	}
 
-	if err := pd.Validate(true); err != nil {
+	if err := pd.Init(true); err != nil {
 		return "", err
 	}
 
@@ -336,5 +333,3 @@ func (p *PagesFromTemplate) Execute(ctx context.Context) (BuildInfo, error) {
 
 	return bi, nil
 }
-
-//////////////
