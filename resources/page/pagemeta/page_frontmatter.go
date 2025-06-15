@@ -154,8 +154,11 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 		if p.Path == "" {
 			return errors.New("path must be set")
 		}
-		if strings.HasPrefix(p.Path, "/") {
+		if p.Path != "/" && strings.HasPrefix(p.Path, "/") {
 			return fmt.Errorf("path %q must not start with a /", p.Path)
+		}
+		if p.Path == "/" && p.Kind != kinds.KindHome {
+			return fmt.Errorf("path %q is reserved for home pages", p.Path)
 		}
 		if p.Lang != "" {
 			return errors.New("lang must not be set")
