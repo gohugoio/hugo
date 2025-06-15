@@ -195,14 +195,7 @@ baseURL = "https://example.com"
 		b, err := hugolib.TestE(t, files)
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, "_content.gotmpl:1:4")
-		b.Assert(err.Error(), qt.Contains, "error calling AddPage: path not set")
-	})
-
-	t.Run("AddPage, path starting with slash", func(t *testing.T) {
-		files := strings.ReplaceAll(filesTemplate, "DICT", `(dict "kind" "page" "title" "p1" "path" "/foo")`)
-		b, err := hugolib.TestE(t, files)
-		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, `path "/foo" must not start with a /`)
+		b.Assert(err.Error(), qt.Contains, "error calling AddPage: empty path is reserved for the home page")
 	})
 
 	t.Run("AddPage, lang set", func(t *testing.T) {
@@ -230,23 +223,6 @@ baseURL = "https://example.com"
 				b.Assert(err.Error(), qt.Contains, fmt.Sprintf("error calling %s: this method cannot be called before the site is fully initialized", method))
 			})
 		}
-	})
-}
-
-func TestPagesFromGoTmplAddResourceErrors(t *testing.T) {
-	filesTemplate := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "rss", "sitemap"]
-baseURL = "https://example.com"
--- content/docs/_content.gotmpl --
-{{ $.AddResource  DICT }}
-`
-
-	t.Run("missing Path", func(t *testing.T) {
-		files := strings.ReplaceAll(filesTemplate, "DICT", `(dict "name" "r1")`)
-		b, err := hugolib.TestE(t, files)
-		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "error calling AddResource: path not set")
 	})
 }
 
@@ -914,4 +890,22 @@ Title: {{ .Title }}|Content: {{ .Content }}|
 	b.EditFileReplaceAll("content/_index.md", "foo", "baz").Build()
 
 	b.AssertFileContent("public/s1/index.html", "Title: baz|")
+}
+
+func TestPagesFromGoTmplHome(t *testing.T) {
+	t.Parallel()
+
+	files := ` 
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+baseURL = "https://example.com"
+-- layouts/all.html --
+{{ .Kind }}: {{ .Title }}|
+-- content/_content.gotmpl --
+{{ $.AddPage (dict  "title" "My Home!" "kind" "home" ) }}
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "home: My Home!|")
 }
