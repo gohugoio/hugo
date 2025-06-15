@@ -926,7 +926,7 @@ baseURL = "https://example.com"
 -- layouts/all.html --
 {{ .Kind }}: {{ .Title }}|
 -- content/_content.gotmpl --
-{{ $.AddPage (dict "path" "/" "title" "My Home!" "kind" "home" ) }}
+{{ $.AddPage (dict  "title" "My Home!" "kind" "home" ) }}
 
 `
 	b := hugolib.Test(t, files)

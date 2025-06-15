@@ -149,16 +149,12 @@ var DefaultPageConfig = PageConfig{
 	Build: DefaultBuildConfig,
 }
 
-func (p *PageConfig) Validate(pagesFromData bool) error {
+func (p *PageConfig) Init(pagesFromData bool) error {
 	if pagesFromData {
-		if p.Path == "" {
-			return errors.New("path must be set")
-		}
-		if p.Path != "/" && strings.HasPrefix(p.Path, "/") {
-			return fmt.Errorf("path %q must not start with a /", p.Path)
-		}
-		if p.Path == "/" && p.Kind != kinds.KindHome {
-			return fmt.Errorf("path %q is reserved for home pages", p.Path)
+		p.Path = strings.TrimPrefix(p.Path, "/")
+
+		if p.Path == "" && p.Kind != kinds.KindHome {
+			return fmt.Errorf("empty path is reserved for the home page")
 		}
 		if p.Lang != "" {
 			return errors.New("lang must not be set")
