@@ -47,25 +47,23 @@ Each render hook is a template, with one template for each supported element typ
 
 ```text
 layouts/
-└── _default/
-    └── _markup/
-        ├── render-blockquote.html
-        ├── render-codeblock.html
-        ├── render-heading.html
-        ├── render-image.html
-        ├── render-link.html
-        ├── render-passthrough.html
-        └── render-table.html
+  └── _markup/
+      ├── render-blockquote.html
+      ├── render-codeblock.html
+      ├── render-heading.html
+      ├── render-image.html
+      ├── render-link.html
+      ├── render-passthrough.html
+      └── render-table.html
 ```
 
 The template lookup order allows you to create different render hooks for each page [type](g), [kind](g), language, and [output format](g). For example:
 
 ```text
 layouts/
-├── _default/
-│   └── _markup/
-│       ├── render-link.html
-│       └── render-link.rss.xml
+├── _markup/
+│   ├── render-link.html
+│   └── render-link.rss.xml
 ├── books/
 │   └── _markup/
 │       ├── render-link.html

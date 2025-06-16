@@ -16,7 +16,7 @@ We have aimed to maintain as much backward compatibility as possible by mapping 
 
 | Description   | Action required |
 | ------------- | ------------- |
-| The `_default` folder is removed. | Move all files in `layouts/_default` up to the `layouts/` root.|
+| The `_default` folder is removed. | Move all files in `layouts` up to the `layouts/` root.|
 | The `layouts/partials` folder is renamed to `layouts/_partials`.  | Rename the folder.  |
 | The `layouts/shortcodes` folder is renamed to `layouts/_shortcodes`.  | Rename the folder.  |
 | Any folder in `layouts` that does not start with `_` represents the root of a [Page path]. In [Hugo v0.146.0], this can be nested as deeply as needed, and `_shortcodes` and `_markup` folders can be placed at any level in the tree.| No action required.|
@@ -24,7 +24,7 @@ We have aimed to maintain as much backward compatibility as possible by mapping 
 |A template named `taxonomy.html` used to be a candidate for both Page kind `term` and `taxonomy`, now it's only considered for `taxonomy`.|Create both `taxonomy.html` and `term.html` or create a more general layout, e.g. `list.html`.|
 | For base templates (e.g., `baseof.html`), in previous Hugo versions, you could prepend one identifier (layout, type, or kind) with a hyphen in front of the baseof keyword.|Move that identifier after the first "dot," e.g., rename`list-baseof.html` to `baseof.list.html`.|
 | We have added a new `all` "catch-all" layout. This means that if you have, e.g., `layouts/all.html` and that is the only template, that layout will be used for all HTML page rendering.||
-| We have removed the concept of `_internal` Hugo templates.[^internal]|Replace constructs similar to `{{ template "_internal/opengraph.html" . }}` with `{{ partial "opengraph.html" . }}`.|
+| We have removed the concept of `_internal` Hugo templates.[^internal]|Replace constructs similar to `{{ partial "opengraph.html" . }}` with `{{ partial "opengraph.html" . }}`.|
 | The identifiers that can be used in a template filename are one of the [Page kinds] (`home`, `page`, `section`, `taxonomy`, or `term`), one of the standard layouts (`list`, `single`, or `all`), a custom layout (as defined in the `layout` front matter field), a language (e.g., `en`), an output format (e.g., `html`, `rss`), and a suffix representing the media type. E.g., `all.en.html` and `home.rss.xml`.||
 | The above means that there's no such thing as an `index.html` template for the home page anymore. | Rename `index.html` to `home.html`.|
 
@@ -56,33 +56,33 @@ For templates placed in a `layouts` folder partly or completely matching a [Page
 
 ## Example folder structure
 
-```
+```text
 layouts
 ├── baseof.html
 ├── baseof.term.html
 ├── home.html
-├── list.html
-├── single.html
+├── page.html
+├── section.html
 ├── taxonomy.html
 ├── term.html
 ├── term.mylayout.en.rss.xml
 ├── _markup
-│   ├── render-codeblock-go.term.mylayout.no.rss.xml
-│   └── render-link.html
+│   ├── render-codeblock-go.term.mylayout.no.rss.xml
+│   └── render-link.html
 ├── _partials
-│   └── mypartial.html
+│   └── mypartial.html
 ├── _shortcodes
-│   ├── myshortcode.html
-│   └── myshortcode.section.mylayout.en.rss.xml
+│   ├── myshortcode.html
+│   └── myshortcode.section.mylayout.en.rss.xml
 ├── docs
-│   ├── baseof.html
-│   ├── _shortcodes
-│   │   └── myshortcode.html
-│   └── api
-│       ├── mylayout.html
-│       ├── single.html
-│       └── _markup
-│           └── render-link.html
+│   ├── baseof.html
+│   ├── _shortcodes
+│   │   └── myshortcode.html
+│   └── api
+│       ├── mylayout.html
+│       ├── page.html
+│       └── _markup
+│           └── render-link.html
 └── tags
     ├── taxonomy.html
     ├── term.html
@@ -97,4 +97,3 @@ layouts
 
 [^type]: The `type` set in front matter will effectively replace the `section` folder in [Page path] when doing lookups.
 [^internal]: The old way of doing it made it very hard/impossible to, e.g., override `_internal/disqus.html` in a theme. Now you can just create a partial with the same name.
-

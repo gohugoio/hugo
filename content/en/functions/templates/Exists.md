@@ -17,7 +17,7 @@ Use the `templates.Exists` function with dynamic template paths:
 
 ```go-html-template
 {{ $partialPath := printf "headers/%s.html" .Type }}
-{{ if templates.Exists ( printf "partials/%s" $partialPath ) }}
+{{ if templates.Exists ( printf "_partials/%s" $partialPath ) }}
   {{ partial $partialPath . }}
 {{ else }}
   {{ partial "headers/default.html" . }}

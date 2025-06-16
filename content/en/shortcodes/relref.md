@@ -7,7 +7,7 @@ keywords: []
 ---
 
 > [!note]
-> To override Hugo's embedded `relref` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
+> To override Hugo's embedded `relref` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
 
 > [!note]
 > When working with Markdown, this shortcode is obsolete. Instead, use a [link render hook] that resolves the link destination using the `GetPage` method on the `Page` object. You can either create your own, or simply enable the [embedded link render hook]. The embedded link render hook is automatically enabled for multilingual single-host projects.

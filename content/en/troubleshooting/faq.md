@@ -53,10 +53,10 @@ Why is my partial template not rendered as expected?
 
   ```go-html-template
   {{/* incorrect */}}
-  {{ partial "_internal/pagination.html" }}
+  {{ partial "pagination.html" }}
 
   {{/* correct */}}
-  {{ partial "_internal/pagination.html" . }}
+  {{ partial "pagination.html" . }}
   ```
 
 In a template, what's the difference between `:=` and `=` when assigning values to variables?

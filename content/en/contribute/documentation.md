@@ -226,7 +226,7 @@ erroneous lexing/highlighting of shortcode calls.
 To include a filename header and copy-to-clipboard button:
 
 ````text
-```go-html-template {file="layouts/partials/foo.html" copy=true}
+```go-html-template {file="layouts/_partials/foo.html" copy=true}
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
 {{ end }}
@@ -236,7 +236,7 @@ To include a filename header and copy-to-clipboard button:
 To wrap the code block within an initially-opened `details` element using a non-default summary:
 
 ````text
-```go-html-template {details=true open=true summary="layouts/partials/foo.html" copy=true}
+```go-html-template {details=true open=true summary="layouts/_partials/foo.html" copy=true}
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
 {{ end }}
@@ -427,7 +427,7 @@ Use the [new-in shortcode](#new-in) to indicate a new feature:
 {{</* new-in 0.144.0 */>}}
 ```
 
-The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/shortcodes/new-in.html).
+The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/_shortcodes/new-in.html).
 
 ## Deprecated features
 

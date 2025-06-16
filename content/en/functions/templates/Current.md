@@ -47,7 +47,7 @@ debug = true
 
 To visually mark where a template begins and ends execution:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ define "main" }}
   {{ if site.Params.debug }}
     <div class="debug">[entering {{ templates.Current.Filename }}]</div>
@@ -66,7 +66,7 @@ To visually mark where a template begins and ends execution:
 
 To display the chain of templates that led to the current one, create a partial template that iterates through its ancestors:
 
-```go-html-template {file="layouts/partials/template-call-stack.html" copy=true}
+```go-html-template {file="layouts/_partials/template-call-stack.html" copy=true}
 {{ with templates.Current }}
   <div class="debug">
     {{ range .Ancestors }}
@@ -81,7 +81,7 @@ To display the chain of templates that led to the current one, create a partial 
 
 Then call the partial from any template:
 
-```go-html-template {file="layouts/partials/footer/copyright.html" copy=true}
+```go-html-template {file="layouts/_partials/footer/copyright.html" copy=true}
 {{ if site.Params.debug }}
   {{ partial "template-call-stack.html" . }}
 {{ end }}
@@ -90,15 +90,15 @@ Then call the partial from any template:
 The rendered template stack would look something like this:
 
 ```text
-/home/user/project/layouts/partials/footer/copyright.html
-/home/user/project/themes/foo/layouts/partials/footer.html
-/home/user/project/layouts/_default/single.html
-/home/user/project/themes/foo/layouts/_default/baseof.html
+/home/user/project/layouts/_partials/footer/copyright.html
+/home/user/project/themes/foo/layouts/_partials/footer.html
+/home/user/project/layouts/page.html
+/home/user/project/themes/foo/layouts/baseof.html
 ```
 
 To reverse the order of the entries, chain the `Reverse` method to the `Ancestors` method:
 
-```go-html-template {file="layouts/partials/template-call-stack.html" copy=true}
+```go-html-template {file="layouts/_partials/template-call-stack.html" copy=true}
 {{ with templates.Current }}
   <div class="debug">
     {{ range .Ancestors.Reverse }}
@@ -115,7 +115,7 @@ To reverse the order of the entries, chain the `Reverse` method to the `Ancestor
 
 To render links that, when clicked, will open the template in Microsoft Visual Studio Code, create a partial template with anchor elements that use the `vscode` URI scheme:
 
-```go-html-template {file="layouts/partials/template-open-in-vs-code.html" copy=true}
+```go-html-template {file="layouts/_partials/template-open-in-vs-code.html" copy=true}
 {{ with templates.Current.Parent }}
   <div class="debug">
     <a href="vscode://file/{{ .Filename }}">{{ .Name }}</a>
@@ -128,7 +128,7 @@ To render links that, when clicked, will open the template in Microsoft Visual S
 
 Then call the partial from any template:
 
-```go-html-template {file="layouts/_default/single.html" copy=true}
+```go-html-template {file="layouts/page.html" copy=true}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
@@ -141,7 +141,7 @@ Then call the partial from any template:
 
 Use the same approach to render the entire call stack as links:
 
-```go-html-template {file="layouts/partials/template-call-stack.html" copy=true}
+```go-html-template {file="layouts/_partials/template-call-stack.html" copy=true}
 {{ with templates.Current }}
   <div class="debug">
     {{ range .Ancestors }}

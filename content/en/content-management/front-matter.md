@@ -237,7 +237,7 @@ You can add taxonomy terms to the front matter of any these [page kinds](g):
 
 Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] method on a `Page` object. For example:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ with .GetTerms "tags" }}
   <p>Tags</p>
   <ul>

@@ -135,7 +135,7 @@ See [configure outputs] for more information.
 Create a template to render the output format. Since Atom feeds are lists, you need to create a list template. Consult the [template lookup order] to find the correct template path:
 
 ```text
-layouts/_default/list.atom.atom
+layouts/list.atom.atom
 ```
 
 We leave writing the template code as an exercise for you. Aim for a result similar to the [embedded RSS template].
@@ -154,7 +154,7 @@ To access output formats, each `Page` object provides two methods: [`OutputForma
 
 By default, a `Page` object's [`Permalink`] and [`RelPermalink`] methods return the URL of the [primary output format](g), typically `html`. This behavior remains consistent regardless of the template used.
 
-For example, in `single.json.json`, you'll see:
+For example, in `page.json.json`, you'll see:
 
 ```go-html-template
 {{ .RelPermalink }} → /that-page/
@@ -165,7 +165,7 @@ For example, in `single.json.json`, you'll see:
 
 To make these methods return the URL of the _current_ template's output format, you must set the [`permalinkable`] setting to `true` for that format.
 
-With `permalinkable` set to true for `json` in the same `single.json.json` template:
+With `permalinkable` set to true for `json` in the same `page.json.json` template:
 
 ```go-html-template
 {{ .RelPermalink }} → /that-page/index.json
@@ -188,9 +188,9 @@ For example, for section pages:
 
 Output format|Template path
 :--|:--
-`html`|`layouts/_default/section.html.html`
-`json`|`layouts/_default/section.json.json`
-`rss`|`layouts/_default/section.rss.xml`
+`html`|`layouts/section.html.html`
+`json`|`layouts/section.json.json`
+`rss`|`layouts/section.rss.xml`
 
 [`AlternativeOutputFormats`]: /methods/page/alternativeoutputformats/
 [`OutputFormats`]: /methods/page/outputformats/

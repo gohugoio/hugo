@@ -23,7 +23,7 @@ A `return` statement without a value returns an empty string of type `template.H
 
 By way of example, let's create a partial template that _renders_ HTML, describing whether the given number is odd or even:
 
-```go-html-template {file="layouts/partials/odd-or-even.html"}
+```go-html-template {file="layouts/_partials/odd-or-even.html"}
 {{ if math.ModBool . 2 }}
   <p>{{ . }} is even</p>
 {{ else }}
@@ -39,7 +39,7 @@ When called, the partial renders HTML:
 
 Instead of rendering HTML, let's create a partial that _returns_ a boolean value, reporting whether the given number is even:
 
-```go-html-template {file="layouts/partials/is-even.html"}
+```go-html-template {file="layouts/_partials/is-even.html"}
 {{ return math.ModBool . 2 }}
 ```
 
@@ -60,8 +60,6 @@ Hugo renders:
 <p>42 is even</p>
 ```
 
-See additional examples in the [partial templates] section.
-
 ## Usage
 
 > [!note]
@@ -71,7 +69,7 @@ A partial that returns a value must contain only one `return` statement, placed 
 
 For example:
 
-```go-html-template {file="layouts/partials/is-even.html"}
+```go-html-template {file="layouts/_partials/is-even.html"}
 {{ $result := false }}
 {{ if math.ModBool . 2 }}
   {{ $result = "even" }}
@@ -84,7 +82,7 @@ For example:
 > [!note]
 > The construct below is incorrect; it contains more than one `return` statement.
 
-```go-html-template {file="layouts/partials/do-not-do-this.html"}
+```go-html-template {file="layouts/_partials/do-not-do-this.html"}
 {{ if math.ModBool . 2 }}
   {{ return "even" }}
 {{ else }}
@@ -92,5 +90,4 @@ For example:
 {{ end }}
 ```
 
-[partial templates]: /templates/partial/#returning-a-value-from-a-partial
 [text/template package]: https://pkg.go.dev/text/template

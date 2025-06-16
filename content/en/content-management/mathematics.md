@@ -87,7 +87,7 @@ inline = [['@', '@']]
 
 Create a partial template to load MathJax or KaTeX. The example below loads MathJax, or you can use KaTeX as described in the [engines](#engines) section.
 
-```go-html-template {file="layouts/partials/math.html" copy=true}
+```go-html-template {file="layouts/_partials/math.html" copy=true}
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <script>
   MathJax = {
@@ -108,7 +108,7 @@ The delimiters above must match the delimiters in your site configuration.
 
 Conditionally call the partial template from the base template.
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html"}
 <head>
   ...
   {{ if .Param "math" }}
@@ -181,7 +181,7 @@ MathJax and KaTeX are open-source JavaScript display engines. Both engines are f
 
 To use KaTeX instead of MathJax, replace the partial template from [Step 2] with this:
 
-```go-html-template {file="layouts/partials/math.html" copy=true}
+```go-html-template {file="layouts/_partials/math.html" copy=true}
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"

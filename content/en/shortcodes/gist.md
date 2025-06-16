@@ -10,7 +10,7 @@ expiryDate: 2027-02-01 # deprecated 2025-02-01 in v0.143.0
 {{< deprecated-in 0.143.0 >}}
 The `gist` shortcode was deprecated in version 0.143.0 and will be removed in a future release. To continue embedding GitHub Gists in your content, you'll need to create a custom shortcode:
 
-1. Create a new file: Create a file named `gist.html` within the `layouts/shortcodes` directory.
+1. Create a new file: Create a file named `gist.html` within the `layouts/_shortcodes` directory.
 1. Copy the source code: Paste the [original source code]({{% eturl gist %}}) of the gist shortcode into the newly created `gist.html` file.
 
 This will allow you to maintain the functionality of embedding GitHub Gists in your content after the deprecation of the original shortcode.

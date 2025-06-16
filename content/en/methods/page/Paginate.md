@@ -20,13 +20,13 @@ By default, the number of elements on each pager is determined by your [site con
 
 You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates].
 
-```go-html-template {file="layouts/_default/list.html"}
+```go-html-template {file="layouts/section.html"}
 {{ $pages := where .Site.RegularPages "Section" "articles" }}
 {{ $pages = $pages.ByTitle }}
 {{ range (.Paginate $pages 7).Pages }}
   <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
 {{ end }}
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```
 
 In the example above, we:

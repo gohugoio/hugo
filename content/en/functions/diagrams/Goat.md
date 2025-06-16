@@ -66,7 +66,7 @@ To customize rendering, override Hugo's [embedded code block render hook] for Go
 
 By way of example, let's create a code block render hook to render GoAT diagrams as `figure` elements with an optional caption.
 
-```go-html-template {file="layouts/_default/_markup/render-codeblock-goat.html"}
+```go-html-template {file="layouts/_markup/render-codeblock-goat.html"}
 {{ $caption := or .Attributes.caption "" }}
 {{ $class := or .Attributes.class "diagram" }}
 {{ $id := or .Attributes.id (printf "diagram-%d" (add 1 .Ordinal)) }}

@@ -108,18 +108,73 @@ categories_weight = 44
 
 By using taxonomic weight, the same piece of content can appear in different positions in different taxonomies.
 
-## Add custom metadata to a taxonomy or term
+## Metadata
 
-If you need to add custom metadata to your taxonomy terms, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in its front matter. Continuing with our 'Actors' example, let's say you want to add a Wikipedia page link to each actor. Your terms pages would be something like this:
+Display metadata about each term by creating a corresponding branch bundle in the `content` directory.
 
-{{< code-toggle file=content/actors/bruce-willis/_index.md fm=true >}}
-title: "Bruce Willis"
-wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
+For example, create an "authors" taxonomy:
+
+{{< code-toggle file=hugo >}}
+[taxonomies]
+author = 'authors'
 {{< /code-toggle >}}
 
-[content section]: /content-management/sections/
-[content type]: /content-management/types/
-[documentation on archetypes]: /content-management/archetypes/
-[front matter]: /content-management/front-matter/
-[taxonomy templates]: /templates/types/#taxonomy
-[site configuration]: /configuration/
+Then create content with one [branch bundle](g) for each term:
+
+```text
+content/
+└── authors/
+    ├── jsmith/
+    │   ├── _index.md
+    │   └── portrait.jpg
+    └── rjones/
+        ├── _index.md
+        └── portrait.jpg
+```
+
+Then add front matter to each term page:
+
+{{< code-toggle file=content/authors/jsmith/_index.md fm=true >}}
+title = "John Smith"
+affiliation = "University of Chicago"
+{{< /code-toggle >}}
+
+Then create a taxonomy template specific to the "authors" taxonomy:
+
+```go-html-template {file="layouts/authors/taxonomy.html"}
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+  {{ range .Data.Terms.Alphabetical }}
+    <h2><a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a></h2>
+    <p>Affiliation: {{ .Page.Params.Affiliation }}</p>
+    {{ with .Page.Resources.Get "portrait.jpg" }}
+      {{ with .Fill "100x100" }}
+        <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="portrait">
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+```
+
+In the example above we list each author including their affiliation and portrait.
+
+Or create a term template specific to the "authors" taxonomy:
+
+```go-html-template {file="layouts/authors/term.html"}
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  <p>Affiliation: {{ .Params.affiliation }}</p>
+  {{ with .Resources.Get "portrait.jpg" }}
+    {{ with .Fill "100x100" }}
+      <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="portrait">
+    {{ end }}
+  {{ end }}
+  {{ .Content }}
+  {{ range .Pages }}
+    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  {{ end }}
+{{ end }}
+```
+
+In the example above we display the author including their affiliation and portrait, then a list of associated content.

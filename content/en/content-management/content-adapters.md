@@ -71,7 +71,7 @@ Adds a page resource to the site.
 
 Then retrieve the new page resource with something like:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ with .Resources.Get "cover.jpg" }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
 {{ end }}
@@ -237,9 +237,9 @@ Create the content adapter.
 
 ### Step 4
 
-Create a single template to render each book review.
+Create a page template to render each book review.
 
-```go-html-template {file="layouts/books/single.html" copy=true}
+```go-html-template {file="layouts/books/page.html" copy=true}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
 

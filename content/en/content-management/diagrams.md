@@ -39,7 +39,7 @@ Will be rendered as:
 
 Hugo does not provide a built-in template for Mermaid diagrams. Create your own using a [code block render hook]:
 
-```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
+```go-html-template {file="layouts/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
   {{ .Inner | htmlEscape | safeHTML }}
 </pre>
@@ -48,7 +48,7 @@ Hugo does not provide a built-in template for Mermaid diagrams. Create your own 
 
 Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
 
-```go-html-template {file="layouts/_default/baseof.html" copy=true}
+```go-html-template {file="layouts/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';

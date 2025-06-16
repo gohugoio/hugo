@@ -32,13 +32,13 @@ content/
 
 And these templates:
 
-```go-html-template {file="layouts/_default/list.html"}
+```go-html-template {file="layouts/section.html"}
 {{ range .Pages.ByWeight }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ with .PrevInSection }}
   <a href="{{ .RelPermalink }}">Previous</a>
 {{ end }}

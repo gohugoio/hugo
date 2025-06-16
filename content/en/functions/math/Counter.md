@@ -12,14 +12,14 @@ params:
 
 The counter is global for both monolingual and multilingual sites, and its initial value for each build is&nbsp;1.
 
-```go-html-template
-{{ warnf "single.html called %d times" math.Counter }}
+```go-html-template {file="layouts/page.html"}
+{{ warnf "page.html called %d times" math.Counter }}
 ```
 
-```sh
-WARN  single.html called 1 times
-WARN  single.html called 2 times
-WARN  single.html called 3 times
+```text
+WARN  page.html called 1 times
+WARN  page.html called 2 times
+WARN  page.html called 3 times
 ```
 
 Use this function to:

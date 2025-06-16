@@ -13,7 +13,7 @@ Use this method in shortcode templates to compose a page from multiple content f
 
 For example:
 
-```go-html-template {file="layouts/shortcodes/include.html" copy=true}
+```go-html-template {file="layouts/_shortcodes/include.html" copy=true}
 {{ with .Get 0 }}
   {{ with $.Page.GetPage . }}
     {{- .RenderShortcodes }}

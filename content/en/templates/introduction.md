@@ -41,7 +41,7 @@ For example, a template for a single page receives a `Page` object, and the `Pag
 
 Within a template, the dot (`.`) represents the current context.
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 <h2>{{ .Title }}</h2>
 ```
 
@@ -49,7 +49,7 @@ In the example above the dot represents the `Page` object, and we call its [`Tit
 
 The current context may change within a template. For example, at the top of a template the context might be a `Page` object, but we rebind the context to another value or object within [`range`] or [`with`] blocks.
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 <h2>{{ .Title }}</h2>
 
 {{ range slice "foo" "bar" }}
@@ -74,7 +74,7 @@ In the example above, the context changes as we `range` through the [slice](g) o
 
 Within a `range` or `with` block you can access the context passed into the template by prepending a dollar sign (`$`) to the dot:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ with "foo" }}
   <p>{{ $.Title }} - {{ . }}</p>
 {{ end }}
@@ -95,7 +95,7 @@ In the examples above the paired opening and closing braces represent the beginn
 
 A template action may contain literal values ([boolean](g), [string](g), [integer](g), and [float](g)), variables, functions, and methods.
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ $convertToLower := true }}
 {{ if $convertToLower }}
   <h2>{{ strings.ToLower .Title }}</h2>
@@ -122,7 +122,7 @@ Hugo renders the above to:
 
 Notice the blank lines and indentation in the previous example? Although irrelevant in production when you typically minify the output, you can remove the adjacent whitespace by using template action delimiters with hyphens:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{- $convertToLower := true -}}
 {{- if $convertToLower -}}
   <h2>{{ strings.ToLower .Title }}</h2>
@@ -269,21 +269,21 @@ Object|Method|Description
 
 Chain the method to its object with a dot (`.`) as shown below, remembering that the leading dot represents the [current context].
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ .Site.Title }} → My Site Title
 {{ .Page.Title }} → My Page Title
 ```
 
 The context passed into most templates is a `Page` object, so this is equivalent to the previous example:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ .Site.Title }} → My Site Title
 {{ .Title }} → My Page Title
 ```
 
 Some methods take an argument. Separate the argument from the method with a space. For example:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ $page := .Page.GetPage "/books/les-miserables" }}
 {{ $page.Title }} → Les Misérables
 ```
@@ -329,11 +329,11 @@ To render an HTML comment, pass a string through the [`safeHTML`] template funct
 Use the [`template`] function to include one or more of Hugo's [embedded templates]:
 
 ```go-html-template
-{{ template "_internal/google_analytics.html" . }}
-{{ template "_internal/opengraph" . }}
-{{ template "_internal/pagination.html" . }}
-{{ template "_internal/schema.html" . }}
-{{ template "_internal/twitter_cards.html" . }}
+{{ partial "google_analytics.html" . }}
+{{ partial "opengraph" . }}
+{{ partial "pagination.html" . }}
+{{ partial "schema.html" . }}
+{{ partial "twitter_cards.html" . }}
 ```
 
 Use the [`partial`] or [`partialCached`] function to include one or more [partial templates]:
@@ -343,7 +343,7 @@ Use the [`partial`] or [`partialCached`] function to include one or more [partia
 {{ partialCached "css.html" . }}
 ```
 
-Create your partial templates in the layouts/partials directory.
+Create your partial templates in the layouts/_partials directory.
 
 > [!note]
 > In the examples above, note that we are passing the current context (the dot) to each of the templates.
@@ -531,7 +531,7 @@ In the template example above, each of the keys is a valid identifier. For examp
 [html/template]: https://pkg.go.dev/html/template
 [methods]: /methods/
 [methods]: /methods/
-[partial templates]: /templates/partial
+[partial templates]: /templates/types/#partial
 [templates]: /templates/
 [text/template]: https://pkg.go.dev/text/template
 [variables]: #variables

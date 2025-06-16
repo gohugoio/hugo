@@ -24,7 +24,7 @@ This shortcode call uses positional arguments:
 
 To retrieve arguments by position:
 
-```go-html-template {file="layouts/shortcodes/myshortcode.html"}
+```go-html-template {file="layouts/_shortcodes/myshortcode.html"}
 {{ printf "%s %s." (.Get 0) (.Get 1) }} → Hello world.
 ```
 
@@ -38,7 +38,7 @@ This shortcode call uses named arguments:
 
 To retrieve arguments by name:
 
-```go-html-template {file="layouts/shortcodes/myshortcode.html"}
+```go-html-template {file="layouts/_shortcodes/myshortcode.html"}
 {{ printf "%s %s." (.Get "greeting") (.Get "firstName") }} → Hello world.
 ```
 

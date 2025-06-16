@@ -76,7 +76,7 @@ Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` i
 
 Create a partial template to process the CSS with the Tailwind CSS CLI:
 
-```go-html-template {file="layouts/partials/css.html" copy=true}
+```go-html-template {file="layouts/_partials/css.html" copy=true}
 {{ with resources.Get "css/main.css" }}
   {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
   {{ with . | css.TailwindCSS $opts }}

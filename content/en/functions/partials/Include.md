@@ -19,7 +19,7 @@ In this example we have three partial templates:
 
 ```text
 layouts/
-└── partials/
+└── _partials/
     ├── average.html
     ├── breadcrumbs.html
     └── footer.html

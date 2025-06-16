@@ -27,7 +27,7 @@ Hugo provides [embedded shortcodes] for many common tasks, but you'll likely nee
 
 ## Directory structure
 
-Create shortcode templates within the `layouts/shortcodes` directory, either at its root or organized into subdirectories.
+Create shortcode templates within the `layouts/_shortcodes` directory, either at its root or organized into subdirectories.
 
 ```text
 layouts/
@@ -45,7 +45,7 @@ layouts/
     └── row.html
 ```
 
-When calling a shortcode in a subdirectory, specify its path relative to the `shortcode` directory, excluding the file extension.
+When calling a shortcode in a subdirectory, specify its path relative to the `_shortcode` directory, excluding the file extension.
 
 ```text
 {{</* media/audio path=/audio/podcast/episode-42.mp3 */>}}
@@ -57,17 +57,17 @@ Hugo selects shortcode templates based on the shortcode name, the current output
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
-foo|html|en|`layouts/shortcodes/foo.en.html`
-foo|html|en|`layouts/shortcodes/foo.html.html`
-foo|html|en|`layouts/shortcodes/foo.html`
-foo|html|en|`layouts/shortcodes/foo.html.en.html`
+foo|html|en|`layouts/_shortcodes/foo.en.html`
+foo|html|en|`layouts/_shortcodes/foo.html.html`
+foo|html|en|`layouts/_shortcodes/foo.html`
+foo|html|en|`layouts/_shortcodes/foo.html.en.html`
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
-foo|json|en|`layouts/shortcodes/foo.en.json`
-foo|json|en|`layouts/shortcodes/foo.json`
-foo|json|en|`layouts/shortcodes/foo.json.json`
-foo|json|en|`layouts/shortcodes/foo.json.en.json`
+foo|json|en|`layouts/_shortcodes/foo.en.json`
+foo|json|en|`layouts/_shortcodes/foo.json`
+foo|json|en|`layouts/_shortcodes/foo.json.json`
+foo|json|en|`layouts/_shortcodes/foo.json.en.json`
 
 ## Methods
 
@@ -83,7 +83,7 @@ These examples range in complexity from simple to moderately advanced, with some
 
 Create a shortcode to insert the current year:
 
-```go-html-template {file="layouts/shortcodes/year.html"}
+```go-html-template {file="layouts/_shortcodes/year.html"}
 {{- now.Format "2006" -}}
 ```
 
@@ -109,7 +109,7 @@ content/
 
 Create a shortcode to capture an image as a page resource, resize it to the given width, convert it to the WebP format, and add an `alt` attribute:
 
-```go-html-template {file="layouts/shortcodes/image.html"}
+```go-html-template {file="layouts/_shortcodes/image.html"}
 {{- with .Page.Resources.Get (.Get "path") }}
   {{- with .Process (printf "resize %dx wepb" ($.Get "width")) -}}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="{{ $.Get "alt" }}">
@@ -138,7 +138,7 @@ The example above uses:
 
 The previous example, while functional, silently fails if the image is missing, and does not gracefully exit if a required argument is missing. We'll add error handling to address these issues:
 
-```go-html-template {file="layouts/shortcodes/image.html"}
+```go-html-template {file="layouts/_shortcodes/image.html"}
 {{- with .Get "path" }}
   {{- with $r := $.Page.Resources.Get ($.Get "path") }}
     {{- with $.Get "width" }}
@@ -181,7 +181,7 @@ Here's how to call it with positional arguments:
 
 Using the `Get` method with zero-indexed keys, we'll initialize variables with descriptive names in our template:
 
-```go-html-template {file="layouts/shortcodes/image.html"}
+```go-html-template {file="layouts/_shortcodes/image.html"}
 {{ $path := .Get 0 }}
 {{ $width := .Get 1 }}
 {{ $alt := .Get 2 }}
@@ -194,7 +194,7 @@ Using the `Get` method with zero-indexed keys, we'll initialize variables with d
 
 You can create a shortcode that will accept both named and positional arguments, but not at the same time. Use the [`IsNamedParams`] method to determine whether the shortcode call used named or positional arguments:
 
-```go-html-template {file="layouts/shortcodes/image.html"}
+```go-html-template {file="layouts/_shortcodes/image.html"}
 {{ $path := cond (.IsNamedParams) (.Get "path") (.Get 0) }}
 {{ $width := cond (.IsNamedParams) (.Get "width") (.Get 1) }}
 {{ $alt := cond (.IsNamedParams) (.Get "alt") (.Get 2) }}
@@ -212,7 +212,7 @@ When using named arguments, the `Params` method returns a map:
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
 ```
 
-```go-html-template {file="layouts/shortcodes/image.html"}
+```go-html-template {file="layouts/_shortcodes/image.html"}
 {{ .Params.path }} → a.jpg
 {{ .Params.width }} → 300
 {{ .Params.alt }} → A white kitten
@@ -224,7 +224,7 @@ When using named arguments, the `Params` method returns a map:
 {{</* image a.jpg 300 "A white kitten" */>}}
 ```
 
-```go-html-template {file="layouts/shortcodes/image.html"}
+```go-html-template {file="layouts/_shortcodes/image.html"}
 {{ index .Params 0 }} → a.jpg
 {{ index .Params 1 }} → 300
 {{ index .Params 1 }} → A white kitten
@@ -242,7 +242,7 @@ This is a **bold** word, and this is an _emphasized_ word.
 {{</* /contrived  */>}}
 ```
 
-```go-html-template {file="layouts/shortcodes/contrived.html"}
+```go-html-template {file="layouts/_shortcodes/contrived.html"}
 <div class="contrived">
   <h2>{{ .Get "title" }}</h2>
   {{ .Inner | .Page.RenderString }}
@@ -257,7 +257,7 @@ The  [`Parent`] method provides access to the parent shortcode context when the 
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` argument:
 
-```go-html-template {file="layouts/shortcodes/gallery.html"}
+```go-html-template {file="layouts/_shortcodes/gallery.html"}
 <div class="{{ .Get "class" }}">
   {{ .Inner }}
 </div>
@@ -265,7 +265,7 @@ The following example is contrived but demonstrates the concept. Assume you have
 
 You also have an `img` shortcode with a single named `src` argument that you want to call inside of `gallery` and other shortcodes, so that the parent defines the context of each `img`:
 
-```go-html-template {file="layouts/shortcodes/img.html"}
+```go-html-template {file="layouts/_shortcodes/img.html"}
 {{ $src := .Get "src" }}
 {{ with .Parent }}
   <img src="{{ $src }}" class="{{ .Get "class" }}-image">
@@ -308,7 +308,7 @@ The [`HasShortcode`] method allows you to check if a specific shortcode has been
 
 You can use the `HasShortcode` method in your base template to conditionally load CSS if the audio shortcode was used on the page:
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html"}
 <head>
   ...
   {{ if .HasShortcode "audio" }}

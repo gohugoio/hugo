@@ -65,7 +65,7 @@ Use data sources to augment existing content. For example, create a shortcode to
 {{</* csv-to-table "pets.csv" */>}}
 ```
 
-```go-html-template {file="layouts/shortcodes/csv-to-table.html"}
+```go-html-template {file="layouts/_shortcodes/csv-to-table.html"}
 {{ with $file := .Get 0 }}
   {{ with resources.Get $file }}
     {{ with . | transform.Unmarshal }}
