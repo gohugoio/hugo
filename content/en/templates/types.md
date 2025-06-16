@@ -4,7 +4,17 @@ description: Create templates of different types to render your content, resourc
 categories: []
 keywords: []
 weight: 30
-aliases: ['/templates/lists/']
+aliases: [
+  '/templates/base/',
+  '/templates/content-view/',
+  '/templates/home/',
+  '/templates/lists/',
+  '/templates/partial/',
+  '/templates/section/',
+  '/templates/single/',
+  '/templates/taxonomy/',
+  '/templates/term/',
+]
 ---
 
 ## Structure
