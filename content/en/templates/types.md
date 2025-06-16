@@ -7,8 +7,6 @@ weight: 30
 aliases: ['/templates/lists/']
 ---
 
-{{< newtemplatesystem >}}
-
 ## Structure
 
 Create templates in the `layouts` directory in the root of your project.
