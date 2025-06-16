@@ -180,6 +180,65 @@ Within a term template, the [`Data`] object provides these term-specific methods
 - [`Plural`][term-plural]
 - [`Term`].
 
+## Single
+
+A single template is a fallback for [page templates](#page). If a page template does not exist, Hugo will look for a single template instead.
+
+Like a page template, a single template renders a regular page.
+
+For example, the single template below inherits the site's shell from the [base template] and renders the page title and page content.
+
+```go-html-template {file="layouts/single.html"}
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+{{ end }}
+```
+
+## List
+
+A list template is a fallback for these template types: [home](#home), [section](#section), [taxonomy](#taxonomy), and [term](#term). If one of these template types does not exist, Hugo will look for a list template instead.
+
+For example, the list template below inherits the site's shell from the [base template] and renders a list of pages:
+
+```go-html-template {file="layouts/list.html"}
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+  {{ range .Pages }}
+    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  {{ end }}
+{{ end }}
+```
+
+## All
+
+An "all" template is a fallback for these template types: [home](#home), [page](#page), [section](#section), [taxonomy](#taxonomy), [term](#term), [single](#single), and [list](#list). If one of these template types does not exist, Hugo will look for an "all" template instead.
+
+For example, the contrived "all" template below inherits the site's shell from the [base template] and conditionally renders a page based on its page kind:
+
+```go-html-template {file="layouts/all.html"}
+{{ define "main" }}
+  {{ if eq .Kind "home" }}
+    {{ .Content }}
+    {{ range .Site.RegularPages }}
+      <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+    {{ end }}
+  {{ else if eq .Kind "page" }}
+    <h1>{{ .Title }}</h1>
+    {{ .Content }}
+  {{ else if in (slice "section" "taxonomy" "term") .Kind }}
+    <h1>{{ .Title }}</h1>
+    {{ .Content }}
+    {{ range .Pages }}
+      <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+    {{ end }}
+  {{ else }}
+    {{ errorf "Unsupported page kind: %s" .Kind }}
+  {{ end }}
+{{ end }}
+```
+
 ## Partial
 
 A partial template is typically used to render a component of your site, though you may also create partial templates that return values.
@@ -288,65 +347,6 @@ Then call the shortcode from within markup:
 ```
 
 Learn more about [shortcode templates](/templates/shortcode/).
-
-## Single
-
-A single template is a fallback for [page templates](#page). If a page template does not exist, Hugo will look for a single template instead.
-
-Like a page template, a single template renders a regular page.
-
-For example, the single template below inherits the site's shell from the [base template] and renders the page title and page content.
-
-```go-html-template {file="layouts/single.html"}
-{{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-{{ end }}
-```
-
-## List
-
-A list template is a fallback for these template types: [home](#home), [section](#section), [taxonomy](#taxonomy), and [term](#term). If one of these template types does not exist, Hugo will look for a list template instead.
-
-For example, the list template below inherits the site's shell from the [base template] and renders a list of pages:
-
-```go-html-template {file="layouts/list.html"}
-{{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  {{ range .Pages }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-  {{ end }}
-{{ end }}
-```
-
-## All
-
-An "all" template is a fallback for these template types: [home](#home), [page](#page), [section](#section), [taxonomy](#taxonomy), [term](#term), [single](#single), and [list](#list). If one of these template types does not exist, Hugo will look for an "all" template instead.
-
-For example, the contrived "all" template below inherits the site's shell from the [base template] and conditionally renders pages based on page kind:
-
-```go-html-template {file="layouts/all.html"}
-{{ define "main" }}
-  {{ if eq .Kind "home" }}
-    {{ .Content }}
-    {{ range .Site.RegularPages }}
-      <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-    {{ end }}
-  {{ else if eq .Kind "page" }}
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
-  {{ else if in (slice "section" "taxonomy" "term") .Kind }}
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
-    {{ range .Pages }}
-      <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-    {{ end }}
-  {{ else }}
-    {{ errorf "Unsupported page kind: %s" .Kind }}
-  {{ end }}
-{{ end }}
-```
 
 ## Other
 
