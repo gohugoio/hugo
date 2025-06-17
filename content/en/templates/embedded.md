@@ -149,7 +149,7 @@ If using YouTube this will produce a og:video tag like `<meta property="og:video
 
 ## Pagination
 
-See [details](/templates/pagination/).
+See&nbsp;[details](/templates/pagination/).
 
 ## Schema
 

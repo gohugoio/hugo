@@ -113,7 +113,7 @@ macOS|Homebrew|[brew.sh]|`brew install sass/sass/sass`
 Windows|Chocolatey|[chocolatey.org]|`choco install sass`
 Windows|Scoop|[scoop.sh]|`scoop install sass`
 
-You may also install [prebuilt binaries] for Linux, macOS, and Windows.
+You may also install [prebuilt binaries] for Linux, macOS, and Windows. You must install the prebuilt binary outside of your project directory and ensure its path is included in your system's PATH environment variable.
 
 Run `hugo env` to list the active transpilers.
 

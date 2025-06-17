@@ -82,7 +82,7 @@ For example, the base template below calls the [`partial`] function to include p
 </html>
 ```
 
-The `block` construct above is used to define a set of root templates that are then customized by redefining the block templates within. See [details](/functions/go-template/block/)
+The `block` construct above is used to define a set of root templates that are then customized by redefining the block templates within. See&nbsp;[details](/functions/go-template/block/)
 
 ## Home
 

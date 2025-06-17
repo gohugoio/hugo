@@ -33,7 +33,8 @@ Install the Tailwind CSS CLI v4.0 or later:
 npm install --save-dev tailwindcss @tailwindcss/cli
 ```
 
-The TailwindCSS CLI is also available as a [standalone executable] if you want to use it without installing Node.js.
+The Tailwind CSS CLI is also available as a [standalone executable]. You must install it outside of your project directory and ensure its path is included in your system's `PATH` environment variable.
+
 
 [standalone executable]: https://github.com/tailwindlabs/tailwindcss/releases/latest
 
