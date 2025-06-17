@@ -679,7 +679,7 @@ params:
 
 	params["iscjklanguage"] = pcfg.IsCJKLanguage
 
-	if err := pcfg.Validate(false); err != nil {
+	if err := pcfg.Init(false); err != nil {
 		return err
 	}
 
