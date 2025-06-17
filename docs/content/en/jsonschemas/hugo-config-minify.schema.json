@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-minify.schema.json",
+  "properties": {
+    "minifyOutput": {
+      "type": "boolean",
+      "description": "Whether to minify the published output (the HTML written to /public). \nhttps://gohugo.io/configuration/minify/#minify-output"
+    },
+    "disableHTML": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/minify/#disable-h-t-m-l"
+    },
+    "disableCSS": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/minify/#disable-c-s-s"
+    },
+    "disableJS": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/minify/#disable-j-s"
+    },
+    "disableJSON": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/minify/#disable-j-s-o-n"
+    },
+    "disableSVG": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/minify/#disable-s-v-g"
+    },
+    "disableXML": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/minify/#disable-x-m-l"
+    },
+    "tdewolff": {
+      "properties": {
+        "hTML": {
+          "properties": {
+            "keepComments": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeepcomments"
+            },
+            "keepConditionalComments": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeepconditionalcomments"
+            },
+            "keepSpecialComments": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeepspecialcomments"
+            },
+            "keepDefaultAttrVals": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeepdefaultattrvals"
+            },
+            "keepDocumentTags": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeepdocumenttags"
+            },
+            "keepEndTags": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeependtags"
+            },
+            "keepQuotes": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeepquotes"
+            },
+            "keepWhitespace": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmlkeepwhitespace"
+            },
+            "templateDelims": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2,
+              "description": "https://gohugo.io/configuration/minify/#tdewolffhtmltemplatedelims"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/minify/#tdewolffhtml"
+        },
+        "cSS": {
+          "properties": {
+            "keepCSS2": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffcsskeepcss2"
+            },
+            "precision": {
+              "type": "integer",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffcssprecision"
+            },
+            "inline": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffcssinline"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/minify/#tdewolffcss"
+        },
+        "jS": {
+          "properties": {
+            "precision": {
+              "type": "integer",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffjsprecision"
+            },
+            "keepVarNames": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffjskeepvarnames"
+            },
+            "version": {
+              "type": "integer",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffjsversion"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/minify/#tdewolffjs"
+        },
+        "jSON": {
+          "properties": {
+            "precision": {
+              "type": "integer",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffjsonprecision"
+            },
+            "keepNumbers": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffjsonkeepnumbers"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/minify/#tdewolffjson"
+        },
+        "sVG": {
+          "properties": {
+            "keepComments": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffsvgkeepcomments"
+            },
+            "precision": {
+              "type": "integer",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffsvgprecision"
+            },
+            "inline": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffsvginline"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/minify/#tdewolffsvg"
+        },
+        "xML": {
+          "properties": {
+            "keepWhitespace": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/minify/#tdewolffxmlkeepwhitespace"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/minify/#tdewolffxml"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/minify/#tdewolff"
+    }
+  },
+  "type": "object"
+}

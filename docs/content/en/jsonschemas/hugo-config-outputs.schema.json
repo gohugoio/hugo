@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-outputs.schema.json",
+  "additionalProperties": {
+    "items": {
+      "type": "string",
+      "description": "Output format name"
+    },
+    "type": "array",
+    "description": "List of output formats for this page kind"
+  },
+  "type": "object",
+  "description": "Output format configuration. Maps page kind to list of output formats."
+}

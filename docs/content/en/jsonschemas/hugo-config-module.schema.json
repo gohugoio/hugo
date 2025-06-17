@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-module.schema.json",
+  "properties": {
+    "mounts": {
+      "items": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Relative path in source repo, e.g. \"scss\". \nhttps://gohugo.io/configuration/module/#source"
+          },
+          "target": {
+            "type": "string",
+            "description": "Relative target path, e.g. \"assets/bootstrap/scss\". \nhttps://gohugo.io/configuration/module/#target"
+          },
+          "lang": {
+            "type": "string",
+            "description": "Any file in this mount will be associated with this language. \nhttps://gohugo.io/configuration/module/#lang"
+          },
+          "includeFiles": {
+            "description": "Include only files matching the given Glob patterns (string or slice). \nhttps://gohugo.io/configuration/module/#includefiles"
+          },
+          "excludeFiles": {
+            "description": "Exclude all files matching the given Glob patterns (string or slice). \nhttps://gohugo.io/configuration/module/#excludefiles"
+          },
+          "disableWatch": {
+            "type": "boolean",
+            "description": "Disable watching in watch mode for this mount. \nhttps://gohugo.io/configuration/module/#disablewatch"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "File system mounts. \nhttps://gohugo.io/configuration/module/#mounts"
+    },
+    "imports": {
+      "items": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Module path \nhttps://gohugo.io/configuration/module/#path"
+          },
+          "ignoreConfig": {
+            "type": "boolean",
+            "description": "Ignore any config in config.toml (will still follow imports). \nhttps://gohugo.io/configuration/module/#ignoreconfig"
+          },
+          "ignoreImports": {
+            "type": "boolean",
+            "description": "Do not follow any configured imports. \nhttps://gohugo.io/configuration/module/#ignoreimports"
+          },
+          "noMounts": {
+            "type": "boolean",
+            "description": "Do not mount any folder in this import. \nhttps://gohugo.io/configuration/module/#nomounts"
+          },
+          "noVendor": {
+            "type": "boolean",
+            "description": "Never vendor this import (only allowed in main project). \nhttps://gohugo.io/configuration/module/#novendor-1"
+          },
+          "disable": {
+            "type": "boolean",
+            "description": "Turn off this module. \nhttps://gohugo.io/configuration/module/#disable"
+          },
+          "mounts": {
+            "items": {
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "description": "Relative path in source repo, e.g. \"scss\". \nhttps://gohugo.io/configuration/module/#source"
+                },
+                "target": {
+                  "type": "string",
+                  "description": "Relative target path, e.g. \"assets/bootstrap/scss\". \nhttps://gohugo.io/configuration/module/#target"
+                },
+                "lang": {
+                  "type": "string",
+                  "description": "Any file in this mount will be associated with this language. \nhttps://gohugo.io/configuration/module/#lang"
+                },
+                "includeFiles": {
+                  "description": "Include only files matching the given Glob patterns (string or slice). \nhttps://gohugo.io/configuration/module/#includefiles"
+                },
+                "excludeFiles": {
+                  "description": "Exclude all files matching the given Glob patterns (string or slice). \nhttps://gohugo.io/configuration/module/#excludefiles"
+                },
+                "disableWatch": {
+                  "type": "boolean",
+                  "description": "Disable watching in watch mode for this mount. \nhttps://gohugo.io/configuration/module/#disablewatch"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "File mounts. \nhttps://gohugo.io/configuration/module/#importsmounts"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "Module imports. \nhttps://gohugo.io/configuration/module/#imports"
+    },
+    "params": {
+      "type": "object",
+      "description": "Meta info about this module (license information etc.). \nhttps://gohugo.io/configuration/module/#params"
+    },
+    "hugoVersion": {
+      "properties": {
+        "min": {
+          "type": "string",
+          "description": "The minimum Hugo version that this module works with. \nhttps://gohugo.io/configuration/module/#min"
+        },
+        "max": {
+          "type": "string",
+          "description": "The maximum Hugo version that this module works with. \nhttps://gohugo.io/configuration/module/#max"
+        },
+        "extended": {
+          "type": "boolean",
+          "description": "Set if the extended version is needed. \nhttps://gohugo.io/configuration/module/#extended"
+        }
+      },
+      "type": "object",
+      "description": "Will be validated against the running Hugo version. \nhttps://gohugo.io/configuration/module/#hugo-version"
+    },
+    "noVendor": {
+      "type": "string",
+      "description": "Optional Glob pattern matching module paths to skip when vendoring, e.g. “github.com/**” \nhttps://gohugo.io/configuration/module/#novendor-1"
+    },
+    "vendorClosest": {
+      "type": "boolean",
+      "description": "When enabled, we will pick the vendored module closest to the module\nusing it.\nThe default behavior is to pick the first.\nNote that there can still be only one dependency of a given module path,\nso once it is in use it cannot be redefined. \nhttps://gohugo.io/configuration/module/#vendorclosest"
+    },
+    "replacements": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "A comma separated (or a slice) list of module path to directory replacement mapping,\ne.g. github.com/bep/my-theme -\u003e ../..,github.com/bep/shortcodes -\u003e /some/path.\nThis is mostly useful for temporary locally development of a module, and then it makes sense to set it as an\nOS environment variable, e.g: env HUGO_MODULE_REPLACEMENTS=\"github.com/bep/my-theme -\u003e ../..\".\nAny relative path is relate to themesDir, and absolute paths are allowed. \nhttps://gohugo.io/configuration/module/#replacements"
+    },
+    "proxy": {
+      "type": "string",
+      "description": "Defines the proxy server to use to download remote modules. Default is direct, which means “git clone” and similar.\nConfigures GOPROXY when running the Go command for module operations. \nhttps://gohugo.io/configuration/module/#proxy"
+    },
+    "noProxy": {
+      "type": "string",
+      "description": "Comma separated glob list matching paths that should not use the proxy configured above.\nConfigures GONOPROXY when running the Go command for module operations. \nhttps://gohugo.io/configuration/module/#noproxy"
+    },
+    "private": {
+      "type": "string",
+      "description": "Comma separated glob list matching paths that should be treated as private.\nConfigures GOPRIVATE when running the Go command for module operations. \nhttps://gohugo.io/configuration/module/#private"
+    },
+    "auth": {
+      "type": "string",
+      "description": "Configures GOAUTH when running the Go command for module operations.\nThis is a semicolon-separated list of authentication commands for go-import and HTTPS module mirror interactions.\nThis is useful for private repositories.\nSee `go help goauth` for more information. \nhttps://gohugo.io/configuration/module/#auth"
+    },
+    "workspace": {
+      "type": "string",
+      "description": "Defaults to \"off\".\nSet to a work file, e.g. hugo.work, to enable Go \"Workspace\" mode.\nCan be relative to the working directory or absolute.\nRequires Go 1.18+.\nNote that this can also be set via OS env, e.g. export HUGO_MODULE_WORKSPACE=/my/hugo.work. \nhttps://gohugo.io/configuration/module/#workspace"
+    }
+  },
+  "type": "object",
+  "description": "Config holds a module config."
+}

@@ -147,7 +147,7 @@ type Extensions struct {
 	Table           bool
 	Strikethrough   bool
 	Linkify         bool
-	LinkifyProtocol string
+	LinkifyProtocol string `jsonschema:"enum=http,enum=https"`
 	TaskList        bool
 	CJK             CJK
 }
@@ -239,7 +239,7 @@ type CJK struct {
 	EastAsianLineBreaks bool
 
 	// Styles of Line Breaking of EastAsianLineBreaks: "simple" or "css3draft"
-	EastAsianLineBreaksStyle string
+	EastAsianLineBreaksStyle string `jsonschema:"enum=simple,enum=css3draft"`
 
 	// Whether a '\' escaped half-space(0x20) should not be rendered.
 	EscapedSpace bool
@@ -267,7 +267,7 @@ type Parser struct {
 	// The strategy to use when generating IDs.
 	// Available options are "github", "github-ascii", and "blackfriday".
 	// Default is "github", which will create GitHub-compatible anchor names.
-	AutoIDType string
+	AutoIDType string `jsonschema:"enum=github,enum=github-ascii,enum=blackfriday"`
 
 	// Enables custom attributes.
 	Attribute ParserAttribute

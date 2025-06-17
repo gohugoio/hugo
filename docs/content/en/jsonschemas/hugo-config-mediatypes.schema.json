@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-mediatypes.schema.json",
+  "properties": {
+    "suffixes": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "The file suffixes used for this media type. \nhttps://gohugo.io/configuration/media-types/#suffixes"
+    },
+    "delimiter": {
+      "type": "string",
+      "description": "Delimiter used before suffix. \nhttps://gohugo.io/configuration/media-types/#delimiter"
+    }
+  },
+  "type": "object",
+  "description": "Hold the configuration for a given media type."
+}

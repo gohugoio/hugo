@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-segments.schema.json",
+  "properties": {
+    "excludes": {
+      "items": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#kind"
+          },
+          "path": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#path"
+          },
+          "lang": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#lang"
+          },
+          "output": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#output"
+          }
+        },
+        "type": "object",
+        "description": "SegmentMatcherFields is a matcher for a segment include or exclude."
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/segments/#excludes"
+    },
+    "includes": {
+      "items": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#kind"
+          },
+          "path": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#path"
+          },
+          "lang": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#lang"
+          },
+          "output": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/segments/#output"
+          }
+        },
+        "type": "object",
+        "description": "SegmentMatcherFields is a matcher for a segment include or exclude."
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/segments/#includes"
+    }
+  },
+  "type": "object"
+}

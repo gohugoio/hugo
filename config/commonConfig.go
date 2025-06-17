@@ -98,7 +98,7 @@ var defaultBuild = BuildConfig{
 type BuildConfig struct {
 	// When to use the resource file cache.
 	// One of never, fallback, always. Default is fallback
-	UseResourceCacheWhen string
+	UseResourceCacheWhen string `jsonschema:"enum=never,enum=fallback,enum=always"`
 
 	// When enabled, will collect and write a hugo_stats.json with some build
 	// related aggregated data (e.g. CSS class names).
@@ -208,7 +208,7 @@ func DecodeBuildConfig(cfg Provider) BuildConfig {
 // SitemapConfig configures the sitemap to be generated.
 type SitemapConfig struct {
 	// The page change frequency.
-	ChangeFreq string
+	ChangeFreq string `jsonschema:"enum=always,enum=hourly,enum=daily,enum=weekly,enum=monthly,enum=yearly,enum=never"`
 	// The priority of the page.
 	Priority float64
 	// The sitemap filename.
@@ -498,10 +498,10 @@ type Pagination struct {
 // PageConfig configures the behavior of pages.
 type PageConfig struct {
 	// Sort order for Page.Next and Page.Prev. Default "desc" (the default page sort order in Hugo).
-	NextPrevSortOrder string
+	NextPrevSortOrder string `jsonschema:"enum=asc,enum=desc"`
 
 	// Sort order for Page.NextInSection and Page.PrevInSection. Default "desc".
-	NextPrevInSectionSortOrder string
+	NextPrevInSectionSortOrder string `jsonschema:"enum=asc,enum=desc"`
 }
 
 func (c *PageConfig) CompileConfig(loggers.Logger) error {

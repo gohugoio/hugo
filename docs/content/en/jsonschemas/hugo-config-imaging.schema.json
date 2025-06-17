@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-imaging.schema.json",
+  "properties": {
+    "quality": {
+      "type": "integer",
+      "description": "Default image quality setting (1-100). Only used for JPEG images. \nhttps://gohugo.io/configuration/imaging/#quality"
+    },
+    "resampleFilter": {
+      "type": "string",
+      "description": "Resample filter to use in resize operations. \nhttps://gohugo.io/configuration/imaging/#resamplefilter"
+    },
+    "hint": {
+      "type": "string",
+      "description": "Hint about what type of image this is.\nCurrently only used when encoding to Webp.\nDefault is \"photo\".\nValid values are \"picture\", \"photo\", \"drawing\", \"icon\", or \"text\". \nhttps://gohugo.io/configuration/imaging/#hint"
+    },
+    "anchor": {
+      "type": "string",
+      "description": "The anchor to use in Fill. Default is \"smart\", i.e. Smart Crop. \nhttps://gohugo.io/configuration/imaging/#anchor"
+    },
+    "bgColor": {
+      "type": "string",
+      "description": "Default color used in fill operations (e.g. \"fff\" for white). \nhttps://gohugo.io/configuration/imaging/#bgcolor"
+    },
+    "exif": {
+      "properties": {
+        "includeFields": {
+          "type": "string",
+          "description": "Regexp matching the Exif fields you want from the (massive) set of Exif info\navailable. As we cache this info to disk, this is for performance and\ndisk space reasons more than anything.\nIf you want it all, put \".*\" in this config setting.\nNote that if neither this or ExcludeFields is set, Hugo will return a small\ndefault set. \nhttps://gohugo.io/configuration/imaging/#includefields"
+        },
+        "excludeFields": {
+          "type": "string",
+          "description": "Regexp matching the Exif fields you want to exclude. This may be easier to use\nthan IncludeFields above, depending on what you want. \nhttps://gohugo.io/configuration/imaging/#excludefields"
+        },
+        "disableDate": {
+          "type": "boolean",
+          "description": "Hugo extracts the \"photo taken\" date/time into .Date by default.\nSet this to true to turn it off. \nhttps://gohugo.io/configuration/imaging/#disabledate"
+        },
+        "disableLatLong": {
+          "type": "boolean",
+          "description": "Hugo extracts the \"photo taken where\" (GPS latitude and longitude) into\n.Long and .Lat. Set this to true to turn it off. \nhttps://gohugo.io/configuration/imaging/#disablelatlong"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/imaging/#exif"
+    }
+  },
+  "type": "object",
+  "description": "ImagingConfig contains default image processing configuration."
+}

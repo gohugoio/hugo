@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-services.schema.json",
+  "properties": {
+    "disqus": {
+      "properties": {
+        "shortname": {
+          "type": "string",
+          "description": "A Shortname is the unique identifier assigned to a Disqus site. \nhttps://gohugo.io/configuration/services/#disqusshortname"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#disqus"
+    },
+    "googleAnalytics": {
+      "properties": {
+        "iD": {
+          "type": "string",
+          "description": "The GA tracking ID. \nhttps://gohugo.io/configuration/services/#googleanalyticsid"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#google-analytics"
+    },
+    "instagram": {
+      "properties": {
+        "disableInlineCSS": {
+          "type": "boolean",
+          "description": "The Simple variant of the Instagram is decorated with Bootstrap 4 card classes.\nThis means that if you use Bootstrap 4 or want to provide your own CSS, you want\nto disable the inline CSS provided by Hugo. \nhttps://gohugo.io/configuration/services/#instagramdisableinlinecss"
+        },
+        "accessToken": {
+          "type": "string",
+          "description": "App or Client Access Token.\nIf you are using a Client Access Token, remember that you must combine it with your App ID\nusing a pipe symbol (\u003cAPPID\u003e|\u003cCLIENTTOKEN\u003e) otherwise the request will fail. \nhttps://gohugo.io/configuration/services/#instagramaccesstoken"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#instagram"
+    },
+    "twitter": {
+      "properties": {
+        "disableInlineCSS": {
+          "type": "boolean",
+          "description": "The Simple variant of Twitter is decorated with a basic set of inline styles.\nThis means that if you want to provide your own CSS, you want\nto disable the inline CSS provided by Hugo. \nhttps://gohugo.io/configuration/services/#twitterdisableinlinecss"
+        }
+      },
+      "type": "object",
+      "description": "deprecated in favor of X in v0.141.0 \nhttps://gohugo.io/configuration/services/#twitter"
+    },
+    "x": {
+      "properties": {
+        "disableInlineCSS": {
+          "type": "boolean",
+          "description": "The Simple variant of X is decorated with a basic set of inline styles.\nThis means that if you want to provide your own CSS, you want\nto disable the inline CSS provided by Hugo. \nhttps://gohugo.io/configuration/services/#xdisableinlinecss"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#x"
+    },
+    "rSS": {
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "description": "Limit the number of pages. \nhttps://gohugo.io/configuration/services/#rsslimit"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#r-s-s"
+    }
+  },
+  "type": "object",
+  "description": "Config is a privacy configuration for all the relevant services in Hugo."
+}

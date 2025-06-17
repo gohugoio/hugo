@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-page.schema.json",
+  "$defs": {
+    "flexibleDate": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC3339 date-time format (e.g., 2017-01-02T15:04:05Z07:00)"
+        },
+        {
+          "type": "string",
+          "format": "date",
+          "description": "Date only format (e.g., 2017-01-02)"
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}$",
+          "description": "Date with time format (e.g., 2017-01-02 15:04:05)"
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}$",
+          "description": "Date with hour:minute format (e.g., 2017-01-02 15:04)"
+        }
+      ],
+      "description": "Hugo date field supporting multiple formats"
+    }
+  },
+  "properties": {
+    "date": {
+      "$ref": "#/$defs/flexibleDate",
+      "description": "https://gohugo.io/content-management/front-matter#date"
+    },
+    "lastMod": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#lastmod"
+    },
+    "publishDate": {
+      "$ref": "#/$defs/flexibleDate",
+      "description": "https://gohugo.io/content-management/front-matter#publishdate"
+    },
+    "expiryDate": {
+      "$ref": "#/$defs/flexibleDate",
+      "description": "https://gohugo.io/content-management/front-matter#expirydate"
+    },
+    "kind": {
+      "type": "string",
+      "description": "The kind of page, e.g. \"page\", \"section\", \"home\" etc. This is usually derived from the content path. \nhttps://gohugo.io/content-management/front-matter#kind"
+    },
+    "path": {
+      "type": "string",
+      "description": "The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers. \nhttps://gohugo.io/content-management/front-matter#path"
+    },
+    "lang": {
+      "type": "string",
+      "description": "The language code for this page. This is usually derived from the module mount or filename. \nhttps://gohugo.io/content-management/front-matter"
+    },
+    "cascade": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/content-management/front-matter#cascade"
+    },
+    "title": {
+      "type": "string",
+      "description": "The title of the page. \nhttps://gohugo.io/content-management/front-matter#title"
+    },
+    "linkTitle": {
+      "type": "string",
+      "description": "The link title of the page. \nhttps://gohugo.io/content-management/front-matter#linktitle"
+    },
+    "type": {
+      "type": "string",
+      "description": "The content type of the page. \nhttps://gohugo.io/content-management/front-matter#type"
+    },
+    "layout": {
+      "type": "string",
+      "description": "The layout to use for to render this page. \nhttps://gohugo.io/content-management/front-matter#layout"
+    },
+    "weight": {
+      "type": "integer",
+      "description": "The weight of the page, used in sorting if set to a non-zero value. \nhttps://gohugo.io/content-management/front-matter#weight"
+    },
+    "uRL": {
+      "type": "string",
+      "description": "The URL to the rendered page, e.g. /sect/mypage.html. \nhttps://gohugo.io/content-management/front-matter#url"
+    },
+    "slug": {
+      "type": "string",
+      "description": "The slug for this page. \nhttps://gohugo.io/content-management/front-matter#slug"
+    },
+    "description": {
+      "type": "string",
+      "description": "The description for this page. \nhttps://gohugo.io/content-management/front-matter#description"
+    },
+    "summary": {
+      "type": "string",
+      "description": "The summary for this page. \nhttps://gohugo.io/content-management/front-matter#summary"
+    },
+    "draft": {
+      "type": "boolean",
+      "description": "Whether or not the content is a draft. \nhttps://gohugo.io/content-management/front-matter#draft"
+    },
+    "isCJKLanguage": {
+      "type": "boolean",
+      "description": "Whether or not the content is in a CJK language. \nhttps://gohugo.io/content-management/front-matter#iscjklanguage"
+    },
+    "translationKey": {
+      "type": "string",
+      "description": "The translation key for this page. \nhttps://gohugo.io/content-management/front-matter#translationkey"
+    },
+    "keywords": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "The keywords for this page. \nhttps://gohugo.io/content-management/front-matter#keywords"
+    },
+    "aliases": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "The aliases for this page. \nhttps://gohugo.io/content-management/front-matter#aliases"
+    },
+    "outputs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used. \nhttps://gohugo.io/content-management/front-matter#outputs"
+    },
+    "sitemap": {
+      "properties": {
+        "changeFreq": {
+          "type": "string",
+          "enum": [
+            "always",
+            "hourly",
+            "daily",
+            "weekly",
+            "monthly",
+            "yearly",
+            "never"
+          ],
+          "description": "The page change frequency. \nhttps://gohugo.io/content-management/front-matter#sitemap"
+        },
+        "priority": {
+          "type": "number",
+          "description": "The priority of the page. \nhttps://gohugo.io/content-management/front-matter#sitemap"
+        },
+        "filename": {
+          "type": "string",
+          "description": "The sitemap filename. \nhttps://gohugo.io/content-management/front-matter#sitemap"
+        },
+        "disable": {
+          "type": "boolean",
+          "description": "Whether to disable page inclusion. \nhttps://gohugo.io/content-management/front-matter#sitemap"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/content-management/front-matter#sitemap"
+    },
+    "build": {
+      "properties": {
+        "list": {
+          "type": "string",
+          "enum": [
+            "never",
+            "always",
+            "local"
+          ],
+          "description": "Whether to add it to any of the page collections.\nNote that the page can always be found with .Site.GetPage.\nValid values: never, always, local.\nSetting it to 'local' means they will be available via the local\npage collections, e.g. $section.Pages.\nNote: before 0.57.2 this was a bool, so we accept those too. \nhttps://gohugo.io/content-management/front-matter#build"
+        },
+        "render": {
+          "type": "string",
+          "enum": [
+            "never",
+            "always",
+            "link"
+          ],
+          "description": "Whether to render it.\nValid values: never, always, link.\nThe value link means it will not be rendered, but it will get a RelPermalink/Permalink.\nNote that before 0.76.0 this was a bool, so we accept those too. \nhttps://gohugo.io/content-management/front-matter#build"
+        },
+        "publishResources": {
+          "type": "boolean",
+          "description": "Whether to publish its resources. These will still be published on demand,\nbut enabling this can be useful if the originals (e.g. images) are\nnever used. \nhttps://gohugo.io/content-management/front-matter#build"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/content-management/front-matter#build"
+    },
+    "menus": {
+      "description": "Can be a string, []string or map[string]any. \nhttps://gohugo.io/content-management/front-matter#menus"
+    },
+    "params": {
+      "type": "object",
+      "description": "User defined params. \nhttps://gohugo.io/content-management/front-matter#params"
+    }
+  },
+  "type": "object",
+  "title": "Hugo Page Front Matter Schema",
+  "description": "JSON Schema for Hugo page front matter structure"
+}

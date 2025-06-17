@@ -1,0 +1,521 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-markup.schema.json",
+  "$defs": {
+    "asciidocExt": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "backend": {
+          "oneOf": [
+            {
+              "const": "html5"
+            },
+            {
+              "const": "html5s"
+            },
+            {
+              "const": "xhtml5"
+            },
+            {
+              "const": "docbook5"
+            },
+            {
+              "const": "docbook45"
+            },
+            {
+              "const": "manpage"
+            }
+          ],
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#backend"
+        },
+        "extensions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "https://gohugo.io/configuration/markup/#extensions-1"
+        },
+        "attributes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#attributes"
+        },
+        "noHeaderOrFooter": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#noheaderorfooter"
+        },
+        "safeMode": {
+          "oneOf": [
+            {
+              "const": "unsafe"
+            },
+            {
+              "const": "safe"
+            },
+            {
+              "const": "server"
+            },
+            {
+              "const": "secure"
+            }
+          ],
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#safemode"
+        },
+        "sectionNumbers": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#sectionnumbers"
+        },
+        "verbose": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#verbose"
+        },
+        "trace": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#trace"
+        },
+        "failureLevel": {
+          "oneOf": [
+            {
+              "const": "fatal"
+            },
+            {
+              "const": "warn"
+            }
+          ],
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#failurelevel"
+        },
+        "workingFolderCurrent": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#workingfoldercurrent"
+        },
+        "preserveTOC": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#preservetoc"
+        }
+      },
+      "type": "object",
+      "description": "Config configures asciidoc."
+    },
+    "goldmark": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "renderer": {
+          "properties": {
+            "hardWraps": {
+              "type": "boolean",
+              "description": "Whether softline breaks should be rendered as '\u003cbr\u003e' \nhttps://gohugo.io/configuration/markup/#rendererhardwraps"
+            },
+            "xHTML": {
+              "type": "boolean",
+              "description": "XHTML instead of HTML5. \nhttps://gohugo.io/configuration/markup/#rendererxhtml"
+            },
+            "unsafe": {
+              "type": "boolean",
+              "description": "Allow raw HTML etc. \nhttps://gohugo.io/configuration/markup/#rendererunsafe"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#renderer"
+        },
+        "parser": {
+          "properties": {
+            "autoHeadingID": {
+              "type": "boolean",
+              "description": "Enables custom heading ids and\nauto generated heading ids. \nhttps://gohugo.io/configuration/markup/#parserautoheadingid"
+            },
+            "autoDefinitionTermID": {
+              "type": "boolean",
+              "description": "Enables auto definition term ids. \nhttps://gohugo.io/configuration/markup/#parserautodefinitiontermid"
+            },
+            "autoIDType": {
+              "oneOf": [
+                {
+                  "const": "github"
+                },
+                {
+                  "const": "github-ascii"
+                },
+                {
+                  "const": "blackfriday"
+                }
+              ],
+              "type": "string",
+              "description": "The strategy to use when generating IDs.\nAvailable options are \"github\", \"github-ascii\", and \"blackfriday\".\nDefault is \"github\", which will create GitHub-compatible anchor names. \nhttps://gohugo.io/configuration/markup/#parserautoidtype"
+            },
+            "attribute": {
+              "properties": {
+                "title": {
+                  "type": "boolean",
+                  "description": "Enables custom attributes for titles. \nhttps://gohugo.io/configuration/markup/#parserattributetitle"
+                },
+                "block": {
+                  "type": "boolean",
+                  "description": "Enables custom attributes for blocks. \nhttps://gohugo.io/configuration/markup/#parserattributeblock"
+                }
+              },
+              "type": "object",
+              "description": "Enables custom attributes. \nhttps://gohugo.io/configuration/markup/#parserattribute"
+            },
+            "wrapStandAloneImageWithinParagraph": {
+              "type": "boolean",
+              "description": "Whether to wrap stand-alone images within a paragraph or not. \nhttps://gohugo.io/configuration/markup/#parserwrapstandaloneimagewithinparagraph"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#parser"
+        },
+        "extensions": {
+          "properties": {
+            "typographer": {
+              "properties": {
+                "disable": {
+                  "type": "boolean",
+                  "description": "Whether to disable typographer. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "leftSingleQuote": {
+                  "type": "string",
+                  "description": "Value used for left single quote. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "rightSingleQuote": {
+                  "type": "string",
+                  "description": "Value used for right single quote. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "leftDoubleQuote": {
+                  "type": "string",
+                  "description": "Value used for left double quote. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "rightDoubleQuote": {
+                  "type": "string",
+                  "description": "Value used for right double quote. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "enDash": {
+                  "type": "string",
+                  "description": "Value used for en dash. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "emDash": {
+                  "type": "string",
+                  "description": "Value used for em dash. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "ellipsis": {
+                  "type": "string",
+                  "description": "Value used for ellipsis. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "leftAngleQuote": {
+                  "type": "string",
+                  "description": "Value used for left angle quote. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "rightAngleQuote": {
+                  "type": "string",
+                  "description": "Value used for right angle quote. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "apostrophe": {
+                  "type": "string",
+                  "description": "Value used for apostrophe. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "footnote": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "definitionList": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "extras": {
+              "properties": {
+                "delete": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "insert": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "mark": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "subscript": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "superscript": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "passthrough": {
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "Whether to enable the extension \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "delimiters": {
+                  "properties": {
+                    "inline": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "type": "array",
+                      "description": "The delimiters to use for inline passthroughs. Each entry in the list\nis a size-2 list of strings, where the first string is the opening delimiter\nand the second string is the closing delimiter, e.g.,\n\n[[\"$\", \"$\"], [\"\\\\(\", \"\\\\)\"]] \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                    },
+                    "block": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "type": "array",
+                      "description": "The delimiters to use for block passthroughs. Same format as Inline. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "The delimiters to use for inline and block passthroughs. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "table": {
+              "type": "boolean",
+              "description": "GitHub flavored markdown \nhttps://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "strikethrough": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "linkify": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "linkifyProtocol": {
+              "oneOf": [
+                {
+                  "const": "http"
+                },
+                {
+                  "const": "https"
+                }
+              ],
+              "type": "string",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "taskList": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "cJK": {
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "Whether to enable CJK support. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "eastAsianLineBreaks": {
+                  "type": "boolean",
+                  "description": "Whether softline breaks between east asian wide characters should be ignored. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "eastAsianLineBreaksStyle": {
+                  "oneOf": [
+                    {
+                      "const": "simple"
+                    },
+                    {
+                      "const": "css3draft"
+                    }
+                  ],
+                  "type": "string",
+                  "description": "Styles of Line Breaking of EastAsianLineBreaks: \"simple\" or \"css3draft\" \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "escapedSpace": {
+                  "type": "boolean",
+                  "description": "Whether a '\\' escaped half-space(0x20) should not be rendered. \nhttps://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#extensions-1"
+        },
+        "duplicateResourceFiles": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#duplicateresourcefiles"
+        },
+        "renderHooks": {
+          "properties": {
+            "image": {
+              "properties": {
+                "enableDefault": {
+                  "type": "boolean",
+                  "description": "Enable the default image render hook.\nWe need to know if it is set or not, hence the pointer. \nhttps://gohugo.io/configuration/markup/#renderhooksimageenabledefault"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#renderhooksimage"
+            },
+            "link": {
+              "properties": {
+                "enableDefault": {
+                  "type": "boolean",
+                  "description": "Disable the default image render hook.\nWe need to know if it is set or not, hence the pointer. \nhttps://gohugo.io/configuration/markup/#renderhookslinkenabledefault"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#renderhookslink"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#render-hooks"
+        }
+      },
+      "type": "object",
+      "description": "Config configures Goldmark."
+    },
+    "highlight": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "style": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#style"
+        },
+        "codeFences": {
+          "type": "boolean",
+          "description": "Enable syntax highlighting of fenced code blocks. \nhttps://gohugo.io/configuration/markup/#codefences"
+        },
+        "wrapperClass": {
+          "type": "string",
+          "description": "The class or classes to use for the outermost element of the highlighted code. \nhttps://gohugo.io/configuration/markup/#wrapperclass"
+        },
+        "noClasses": {
+          "type": "boolean",
+          "description": "Use inline CSS styles. \nhttps://gohugo.io/configuration/markup/#noclasses"
+        },
+        "lineNos": {
+          "type": "boolean",
+          "description": "When set, line numbers will be printed. \nhttps://gohugo.io/configuration/markup/#linenos"
+        },
+        "lineNumbersInTable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#linenumbersintable"
+        },
+        "anchorLineNos": {
+          "type": "boolean",
+          "description": "When set, add links to line numbers \nhttps://gohugo.io/configuration/markup/#anchorlinenos"
+        },
+        "lineAnchors": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#lineanchors"
+        },
+        "lineNoStart": {
+          "type": "integer",
+          "description": "Start the line numbers from this value (default is 1). \nhttps://gohugo.io/configuration/markup/#linenostart"
+        },
+        "hl_Lines": {
+          "type": "string",
+          "description": "A space separated list of line numbers, e.g. “3-8 10-20”. \nhttps://gohugo.io/configuration/markup/#hl_lines"
+        },
+        "hl_inline": {
+          "type": "boolean",
+          "description": "If set, the markup will not be wrapped in any container. \nhttps://gohugo.io/configuration/markup/#hl_inline"
+        },
+        "tabWidth": {
+          "type": "integer",
+          "description": "TabWidth sets the number of characters for a tab. Defaults to 4. \nhttps://gohugo.io/configuration/markup/#tabwidth"
+        },
+        "guessSyntax": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#guesssyntax"
+        }
+      },
+      "type": "object"
+    },
+    "tableOfContents": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "startLevel": {
+          "type": "integer",
+          "description": "Heading start level to include in the table of contents, starting\nat h1 (inclusive).\n\u003cdocsmeta\u003e{ \"identifiers\": [\"h1\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/markup/#startlevel"
+        },
+        "endLevel": {
+          "type": "integer",
+          "description": "Heading end level, inclusive, to include in the table of contents.\nDefault is 3, a value of -1 will include everything. \nhttps://gohugo.io/configuration/markup/#endlevel"
+        },
+        "ordered": {
+          "type": "boolean",
+          "description": "Whether to produce a ordered list or not. \nhttps://gohugo.io/configuration/markup/#ordered"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "properties": {
+    "defaultMarkdownHandler": {
+      "type": "string",
+      "description": "Default markdown handler for md/markdown extensions. Default is 'goldmark'. \nhttps://gohugo.io/configuration/markup/#default-handler"
+    },
+    "highlight": {
+      "$ref": "#/$defs/highlight",
+      "description": "Configuration for syntax highlighting. \nhttps://gohugo.io/configuration/markup/#highlight"
+    },
+    "tableOfContents": {
+      "$ref": "#/$defs/tableOfContents",
+      "description": "Table of contents configuration. \nhttps://gohugo.io/configuration/markup/#table-of-contents"
+    },
+    "goldmark": {
+      "$ref": "#/$defs/goldmark",
+      "description": "Configuration for the Goldmark markdown engine. \nhttps://gohugo.io/configuration/markup/#goldmark"
+    },
+    "asciidocExt": {
+      "$ref": "#/$defs/asciidocExt",
+      "description": "Configuration for the Asciidoc external markdown engine. \nhttps://gohugo.io/configuration/markup/#asciidoc-ext"
+    }
+  },
+  "type": "object",
+  "description": "Configuration for markup processing"
+}
