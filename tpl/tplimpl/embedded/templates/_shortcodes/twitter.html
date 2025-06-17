@@ -20,7 +20,7 @@
   {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
   {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
-      {{- errorf "%s" . -}}
+      {{- warnidf "shortcode-twitter-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
     {{- else with .Value -}}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
     {{- else -}}

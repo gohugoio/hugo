@@ -25,7 +25,7 @@
   {{- $request := printf "https://vimeo.com/api/oembed.json?%s" $query -}}
   {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
-      {{- errorf "%s" . -}}
+      {{- warnidf "shortcode-vimeo-simple" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
     {{- else with .Value -}}
       {{- with . | transform.Unmarshal -}}
         {{- $class := printf "%s %s" "s_video_simple" "__h_video" -}}
