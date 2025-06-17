@@ -152,26 +152,27 @@ This example demonstrates the minimum required front matter fields.
 
 If quotation marks are required, prefer single quotes to double quotes when possible.
 
-Seq|Field|Description|Required
---:|:--|:--|:--
-1|`title`|The page title|:heavy_check_mark:|
-2|`linkTitle`|A short version of the page title||
-3|`description`|A complete sentence describing the page|:heavy_check_mark:|
-4|`categories`|An array of terms in the categories taxonomy|:heavy_check_mark: [^1]|
-5|`keywords`|An array of keywords used to identify related content|:heavy_check_mark: [^1]|
-6|`publishDate`|Applicable to news items: the publication date||
-7|`params.altTitle`|An alternate title: used in the "see also" panel if provided||
-8|`params.functions_and_methods.aliases`|Applicable to function and method pages: an array of alias names||
-9|`params.functions_and_methods.returnType`|Applicable to function and method pages: the data type returned||
-10|`params.functions_and_methods.signatures`|Applicable to function and method pages: an array of signatures||
-11|`params.hide_in_this_section`|Whether to hide the "in this section" panel||
-12|`params.minversion`|Applicable to the quick start page: the minimum Hugo version required||
-13|`params.permalink`|Reserved for use by the news content adapter||
-14|`params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information||
-15|`params.show_publish_date`|Whether to show the `publishDate` when rendering the page||
-16|`weight`|The page weight||
-17|`aliases`|Previous URLs used to access this page||
-18|`expirydate`|The expiration date||
+Field|Description|Required
+:--|:--|:--
+`title`|The page title|:heavy_check_mark:|
+`linkTitle`|A short version of the page title||
+`description`|A complete sentence describing the page|:heavy_check_mark:|
+`categories`|An array of terms in the categories taxonomy|:heavy_check_mark: [^1]|
+`keywords`|An array of keywords used to identify related content|:heavy_check_mark: [^1]|
+`publishDate`|Applicable to news items: the publication date||
+`params.alt_title`|An alternate title: used in the "see also" panel if provided||
+`params.functions_and_methods.aliases`|Applicable to function and method pages: an array of alias names||
+`params.functions_and_methods.returnType`|Applicable to function and method pages: the data type returned||
+`params.functions_and_methods.signatures`|Applicable to function and method pages: an array of signatures||
+`params.hide_in_this_section`|Whether to hide the "in this section" panel||
+`params.minversion`|Applicable to the quick start page: the minimum Hugo version required||
+`params.permalink`|Reserved for use by the news content adapter||
+`params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information||
+`params.searchable`|Whether to add the content of this page to the search index. The default value is cascaded down from the site configuration; `true` if the page kind is `page`, and `false` if the page kind is one of `home`, `section`, `taxonomy`, or `term`. Add this field to override the default value.||
+`params.show_publish_date`|Whether to show the `publishDate` when rendering the page||
+`weight`|The page weight||
+`aliases`|Previous URLs used to access this page||
+`expirydate`|The expiration date||
 
 [^1]: The field is required, but its data is not.
 
@@ -185,13 +186,13 @@ If the title in the "See also" sidebar is ambiguous or the same as another page,
 title = "Long descriptive title"
 linkTitle = "Short title"
 [params]
-altTitle = "Whatever you want"
+alt_title = "Whatever you want"
 {{< /code-toggle >}}
 
 Use of the alternate title is limited to the "See also" sidebar.
 
 > [!note]
-> Think carefully before setting the `altTitle`. Use it only when absolutely necessary.
+> Think carefully before setting the `alt_title`. Use it only when absolutely necessary.
 
 ## Code examples
 

@@ -32,8 +32,13 @@
     {{ end }}
     {{ partial "layouts/head/head.html" . }}
   </head>
-  <body
-    class="flex flex-col min-h-full bg-white dark:bg-blue-950 kind-{{ .Kind }}">
+
+  {{ $bodyClass := printf "flex flex-col min-h-full bg-white dark:bg-blue-950 kind-%s" .Kind }}
+  {{ if .Params.searchable }}
+    {{ $bodyClass = printf "%s searchable" $bodyClass }}
+  {{ end }}
+
+  <body class="{{ $bodyClass }}">
     {{ partial "layouts/hooks/body-start.html" . }}
     {{/* Layout. */}}
     {{ block "header" . }}

@@ -3,6 +3,8 @@ title: Emojis
 description: Include emoji shortcodes in your Markdown or templates.
 categories: []
 keywords: []
+params:
+  searchable: false
 ---
 
 ## Attribution
