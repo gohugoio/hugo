@@ -240,11 +240,11 @@ jobs:
           name: Generated files
       - name: Commit and push the website
         run: |
-          git config user.email codeberg-ci
-          && git config user.name "Codeberg CI"
-          && git add -v .
-          && git commit -v --allow-empty --message "Codeberg build for ${GITHUB_SHA}"
-          && git push -v origin ${{ vars.TARGET_BRANCH }}
+          git config user.email codeberg-ci && \
+          git config user.name "Codeberg CI" && \
+          git add -v . && \
+          git commit -v --allow-empty --message "Codeberg build for ${GITHUB_SHA}" && \
+          git push -v origin ${{ vars.TARGET_BRANCH }}
 ```
 
 Once you commit one of the two files to your website source repository, you should see your first automated build firing up pretty soon. You can also trigger it manually by navigating to the **Actions** section of your repository web page, choosing **hugo.yaml** on the left and clicking on **Run workflow**.
