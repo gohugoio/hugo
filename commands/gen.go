@@ -59,9 +59,9 @@ import (
 
 // Schema generation statistics
 type schemaStats struct {
-	schemasGenerated    int
-	totalProperties     int
-	documentationLinks  int
+	schemasGenerated   int
+	totalProperties    int
+	documentationLinks int
 }
 
 func newGenCommand() *genCommand {
@@ -294,7 +294,7 @@ url: %s
 			run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 				// This function generates JSON Schema for Hugo configuration
 				// It creates individual schema files for each configuration section
-				
+
 				// Initialize statistics tracking
 				var stats schemaStats
 				// and a main schema file that includes RootConfig properties and
@@ -472,7 +472,7 @@ url: %s
 						// Generate markup schema with nested definitions for goldmark, highlight, tableOfContents, asciidocExt
 						// Due to a bug in jsonschema reflection with the markup_config.Config struct,
 						// we'll manually create the schema structure
-						
+
 						// Create definitions for nested structs
 						markupRf := jsonschema.Reflector{
 							KeyNamer:                   camel,
@@ -482,49 +482,49 @@ url: %s
 							ExpandedStruct:             true,
 							AllowAdditionalProperties:  true,
 						}
-						
+
 						// Add Go comments to the markup reflector
 						if err := markupRf.AddGoComments("github.com/gohugoio/hugo", "."); err != nil {
 							r.Printf("Warning: failed to add Go comments for markup reflector: %v\n", err)
 						}
-						
+
 						// Create the main markup schema manually
 						schema = &jsonschema.Schema{
 							Type:        "object",
 							Description: "Configuration for markup processing",
 							Properties:  jsonschema.NewProperties(),
 						}
-						
+
 						// Add properties manually based on markup_config.Config struct
-						
+
 						schema.Properties.Set("defaultMarkdownHandler", &jsonschema.Schema{
 							Type:        "string",
 							Description: "Default markdown handler for md/markdown extensions. Default is 'goldmark'.",
 						})
-						
+
 						schema.Properties.Set("highlight", &jsonschema.Schema{
 							Ref:         "#/$defs/highlight",
 							Description: "Configuration for syntax highlighting.",
 						})
-						
+
 						schema.Properties.Set("tableOfContents", &jsonschema.Schema{
 							Ref:         "#/$defs/tableOfContents",
 							Description: "Table of contents configuration.",
 						})
-						
+
 						schema.Properties.Set("goldmark", &jsonschema.Schema{
 							Ref:         "#/$defs/goldmark",
 							Description: "Configuration for the Goldmark markdown engine.",
 						})
-						
+
 						schema.Properties.Set("asciidocExt", &jsonschema.Schema{
 							Ref:         "#/$defs/asciidocExt",
 							Description: "Configuration for the Asciidoc external markdown engine.",
 						})
-						
+
 						// Create definitions for nested structs
 						schema.Definitions = make(jsonschema.Definitions)
-						
+
 						// Add goldmark definition
 						goldmarkSchema := markupRf.Reflect(goldmark_config.Config{})
 						cleanupSubSchema(goldmarkSchema)
@@ -612,7 +612,7 @@ url: %s
 					}
 					f.Close()
 					r.Printf("Wrote %s\n", filename)
-					
+
 					// Update statistics
 					stats.schemasGenerated++
 					stats.totalProperties += countSchemaProperties(schema)
@@ -664,7 +664,7 @@ url: %s
 					return fmt.Errorf("failed to encode main schema: %w", err)
 				}
 				r.Printf("Wrote %s\n", filename)
-				
+
 				// Update statistics for main config schema
 				stats.schemasGenerated++
 				stats.totalProperties += countSchemaProperties(rootConfigSchema)
@@ -791,13 +791,6 @@ func createPrimitiveSchema(typeName string) *jsonschema.Schema {
 	default:
 		return &jsonschema.Schema{Type: "string"} // fallback
 	}
-}
-
-// convertPropertyToRef converts a property to use a $ref and cleans up its definition
-func convertPropertyToRef(prop *jsonschema.Schema, refPath string) {
-	prop.Ref = refPath
-	prop.Definitions = nil
-	prop.Properties = nil
 }
 
 // removeRequiredFromSchema removes "required" fields from the schema and all nested schemas
@@ -984,12 +977,12 @@ func generatePageSchemas(rf jsonschema.Reflector, schemaDir string, r *rootComma
 	}
 
 	r.Printf("Wrote page schema %s\n", filename)
-	
+
 	// Update statistics for page schema
 	stats.schemasGenerated++
 	stats.totalProperties += countSchemaProperties(schema)
 	stats.documentationLinks += countDocumentationLinks(schema)
-	
+
 	return nil
 }
 
@@ -1643,34 +1636,34 @@ func countSchemaProperties(schema *jsonschema.Schema) int {
 	}
 
 	count := 0
-	
+
 	// Count direct properties
 	if schema.Properties != nil {
 		count += schema.Properties.Len()
-		
+
 		// Recursively count nested properties
 		for pair := schema.Properties.Oldest(); pair != nil; pair = pair.Next() {
 			count += countSchemaProperties(pair.Value)
 		}
 	}
-	
+
 	// Count properties in definitions
 	if schema.Definitions != nil {
 		for _, defSchema := range schema.Definitions {
 			count += countSchemaProperties(defSchema)
 		}
 	}
-	
+
 	// Count properties in array items
 	if schema.Items != nil {
 		count += countSchemaProperties(schema.Items)
 	}
-	
+
 	// Count properties in additional properties
 	if schema.AdditionalProperties != nil {
 		count += countSchemaProperties(schema.AdditionalProperties)
 	}
-	
+
 	// Count properties in conditional schemas
 	for _, condSchema := range schema.AnyOf {
 		count += countSchemaProperties(condSchema)
@@ -1684,7 +1677,7 @@ func countSchemaProperties(schema *jsonschema.Schema) int {
 	if schema.Not != nil {
 		count += countSchemaProperties(schema.Not)
 	}
-	
+
 	return count
 }
 
@@ -1695,36 +1688,36 @@ func countDocumentationLinks(schema *jsonschema.Schema) int {
 	}
 
 	count := 0
-	
+
 	// Check if this schema has a documentation link in its description
 	if schema.Description != "" && strings.Contains(schema.Description, "https://gohugo.io") {
 		count++
 	}
-	
+
 	// Count links in direct properties
 	if schema.Properties != nil {
 		for pair := schema.Properties.Oldest(); pair != nil; pair = pair.Next() {
 			count += countDocumentationLinks(pair.Value)
 		}
 	}
-	
+
 	// Count links in definitions
 	if schema.Definitions != nil {
 		for _, defSchema := range schema.Definitions {
 			count += countDocumentationLinks(defSchema)
 		}
 	}
-	
+
 	// Count links in array items
 	if schema.Items != nil {
 		count += countDocumentationLinks(schema.Items)
 	}
-	
+
 	// Count links in additional properties
 	if schema.AdditionalProperties != nil {
 		count += countDocumentationLinks(schema.AdditionalProperties)
 	}
-	
+
 	// Count links in conditional schemas
 	for _, condSchema := range schema.AnyOf {
 		count += countDocumentationLinks(condSchema)
@@ -1738,7 +1731,7 @@ func countDocumentationLinks(schema *jsonschema.Schema) int {
 	if schema.Not != nil {
 		count += countDocumentationLinks(schema.Not)
 	}
-	
+
 	return count
 }
 
