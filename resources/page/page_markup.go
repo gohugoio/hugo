@@ -172,7 +172,7 @@ func isProbablyHTMLToken(s string) bool {
 }
 
 // ExtractSummaryFromHTML extracts a summary from the given HTML content.
-func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK bool) (result HtmlSummary) {
+func ExtractSummaryFromHTML(mt media.Type, input string, numWords int) (result HtmlSummary) {
 	result.source = input
 	ptag := result.resolveParagraphTagAndSetWrapper(mt)
 
@@ -191,17 +191,14 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 			return 0
 		}
 
-		if isCJK {
-			word = tpl.StripHTML(word)
-			runeCount := utf8.RuneCountInString(word)
-			if len(word) == runeCount {
-				return 1
-			} else {
-				return runeCount
-			}
+		cjkReg := regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
+		word = tpl.StripHTML(word)
+		runeCount := utf8.RuneCountInString(word)
+		if cjkReg.MatchString(word) {
+			return runeCount
+		} else {
+			return 1
 		}
-
-		return 1
 	}
 
 	high := len(input)
