@@ -1,20 +1,25 @@
 ---
-title: "hugo gen"
-slug: hugo_gen
-url: /commands/hugo_gen/
+title: "hugo gen jsonschemas"
+slug: hugo_gen_jsonschemas
+url: /commands/hugo_gen_jsonschemas/
 ---
-## hugo gen
+## hugo gen jsonschemas
 
-Generate documentation and syntax highlighting styles
+Generate JSON Schema for Hugo config and page structures
 
 ### Synopsis
 
-Generate documentation for your project using Hugo's documentation engine, including syntax highlighting for various programming languages.
+Generate a JSON Schema for Hugo configuration options and page structures using reflection.
+
+```
+hugo gen jsonschemas [flags] [args]
+```
 
 ### Options
 
 ```
-  -h, --help   help for gen
+      --dir string   output directory for schema files (default "/tmp/hugo-schemas")
+  -h, --help         help for jsonschemas
 ```
 
 ### Options inherited from parent commands
@@ -36,9 +41,5 @@ Generate documentation for your project using Hugo's documentation engine, inclu
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
-* [hugo gen chromastyles](/commands/hugo_gen_chromastyles/)	 - Generate CSS stylesheet for the Chroma code highlighter
-* [hugo gen doc](/commands/hugo_gen_doc/)	 - Generate Markdown documentation for the Hugo CLI
-* [hugo gen jsonschemas](/commands/hugo_gen_jsonschemas/)	 - Generate JSON Schema for Hugo config and page structures
-* [hugo gen man](/commands/hugo_gen_man/)	 - Generate man pages for the Hugo CLI
+* [hugo gen](/commands/hugo_gen/)	 - Generate documentation and syntax highlighting styles
 

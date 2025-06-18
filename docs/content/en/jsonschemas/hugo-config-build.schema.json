@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-build.schema.json",
+  "properties": {
+    "useResourceCacheWhen": {
+      "oneOf": [
+        {
+          "const": "never"
+        },
+        {
+          "const": "fallback"
+        },
+        {
+          "const": "always"
+        }
+      ],
+      "type": "string",
+      "description": "When to use the resource file cache.\nOne of never, fallback, always. Default is fallback \nhttps://gohugo.io/configuration/build/#useresourcecachewhen"
+    },
+    "buildStats": {
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#enable"
+        },
+        "disableTags": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#disabletags"
+        },
+        "disableClasses": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#disableclasses"
+        },
+        "disableIDs": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#disableids"
+        }
+      },
+      "type": "object",
+      "description": "When enabled, will collect and write a hugo_stats.json with some build\nrelated aggregated data (e.g. CSS class names).\nNote that this was a bool \u003c= v0.115.0. \nhttps://gohugo.io/configuration/build/#buildstats"
+    },
+    "noJSConfigInAssets": {
+      "type": "boolean",
+      "description": "Can be used to toggle off writing of the IntelliSense /assets/jsconfig.js\nfile. \nhttps://gohugo.io/configuration/build/#nojsconfiginassets"
+    },
+    "cacheBusters": {
+      "items": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Trigger for files matching this regexp. \nhttps://gohugo.io/configuration/build/#source"
+          },
+          "target": {
+            "type": "string",
+            "description": "Cache bust targets matching this regexp.\nThis regexp can contain group matches (e.g. $1) from the source regexp. \nhttps://gohugo.io/configuration/build/#target"
+          }
+        },
+        "type": "object",
+        "description": "CacheBuster configures cache busting for assets."
+      },
+      "type": "array",
+      "description": "Can used to control how the resource cache gets evicted on rebuilds. \nhttps://gohugo.io/configuration/build/#cachebusters"
+    }
+  },
+  "type": "object",
+  "description": "BuildConfig holds some build related configuration."
+}

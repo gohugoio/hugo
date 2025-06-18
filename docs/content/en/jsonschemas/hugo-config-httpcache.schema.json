@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-httpcache.schema.json",
+  "properties": {
+    "cache": {
+      "properties": {
+        "for": {
+          "properties": {
+            "excludes": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "description": "Excludes holds a list of glob patterns that will be excluded. \nhttps://gohugo.io/configuration/http-cache/#cacheforexcludes"
+            },
+            "includes": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "description": "Includes holds a list of glob patterns that will be included. \nhttps://gohugo.io/configuration/http-cache/#cacheforincludes"
+            }
+          },
+          "type": "object",
+          "description": "Enable HTTP cache behavior (RFC 9111) for these resources. \nhttps://gohugo.io/configuration/http-cache/#cachefor"
+        }
+      },
+      "type": "object",
+      "description": "Configures the HTTP cache behavior (RFC 9111).\nWhen this is not enabled for a resource, Hugo will go straight to the file cache. \nhttps://gohugo.io/configuration/http-cache/#cache"
+    },
+    "polls": {
+      "items": {
+        "properties": {
+          "for": {
+            "properties": {
+              "excludes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Excludes holds a list of glob patterns that will be excluded. \nhttps://gohugo.io/configuration/http-cache/#pollsforexcludes"
+              },
+              "includes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Includes holds a list of glob patterns that will be included. \nhttps://gohugo.io/configuration/http-cache/#pollsforincludes"
+              }
+            },
+            "type": "object",
+            "description": "What remote resources to apply this configuration to. \nhttps://gohugo.io/configuration/http-cache/#pollsfor"
+          },
+          "disable": {
+            "type": "boolean",
+            "description": "Disable polling for this configuration. \nhttps://gohugo.io/configuration/http-cache/#pollsdisable"
+          },
+          "low": {
+            "type": "integer",
+            "description": "Low is the lower bound for the polling interval.\nThis is the starting point when the resource has recently changed,\nif that resource stops changing, the polling interval will gradually increase towards High. \nhttps://gohugo.io/configuration/http-cache/#pollslow"
+          },
+          "high": {
+            "type": "integer",
+            "description": "High is the upper bound for the polling interval.\nThis is the interval used when the resource is stable. \nhttps://gohugo.io/configuration/http-cache/#pollshigh"
+          }
+        },
+        "type": "object",
+        "description": "PollConfig holds the configuration for polling remote resources to detect changes in watch mode."
+      },
+      "type": "array",
+      "description": "Polls holds a list of configurations for polling remote resources to detect changes in watch mode.\nThis can be disabled for some resources, typically if they are known to not change. \nhttps://gohugo.io/configuration/http-cache/#polls"
+    }
+  },
+  "type": "object",
+  "description": "Config holds the configuration for the HTTP cache."
+}
