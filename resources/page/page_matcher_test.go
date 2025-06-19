@@ -99,6 +99,7 @@ func TestPageMatcher(t *testing.T) {
 			Params: maps.Params{
 				"foo": "bar",
 			},
+			Fields: maps.Params{},
 			Target: PageMatcher{Path: "", Kind: "page", Lang: "", Environment: ""},
 		})
 	})
@@ -136,9 +137,10 @@ func TestDecodeCascadeConfig(t *testing.T) {
 	c.Assert(got.SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
 		{
 			Params: maps.Params{"a": string("av")},
+			Fields: maps.Params{},
 			Target: PageMatcher{Kind: "page", Environment: "production"},
 		},
-		{Params: maps.Params{"b": string("bv")}, Target: PageMatcher{Kind: "page"}},
+		{Params: maps.Params{"b": string("bv")}, Fields: maps.Params{}, Target: PageMatcher{Kind: "page"}},
 	})
 
 	got, err = DecodeCascadeConfig(loggers.NewDefault(), true, nil)
