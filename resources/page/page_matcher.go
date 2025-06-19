@@ -174,6 +174,9 @@ func DecodeCascade(logger loggers.Logger, handleLegacyFormat bool, in any) (*map
 
 func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, error) {
 	var pcfg PageMatcherParamsConfig
+	if pcfg.Fields == nil {
+		pcfg.Fields = make(maps.Params)
+	}
 	for k, v := range m {
 		switch strings.ToLower(k) {
 		case "_target", "target":
@@ -193,9 +196,6 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 				}
 			}
 		default:
-			if pcfg.Fields == nil {
-				pcfg.Fields = make(maps.Params)
-			}
 
 			pcfg.Fields[k] = v
 		}
