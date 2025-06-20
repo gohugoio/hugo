@@ -1508,3 +1508,43 @@ mytexts|safeHTML: {{ partial "mytext.txt" . | safeHTML }}
 		"mytexts|safeHTML: <div>mytext</div>",
 	)
 }
+
+func TestIssue13351(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[outputs]
+home = ['html','json']
+[outputFormats.html]
+weight = 1
+[outputFormats.json]
+weight = 2
+-- content/_index.md --
+---
+title: home
+---
+a|b
+:--|:--
+1|2
+-- layouts/index.html --
+{{ .Content }}
+-- layouts/index.json --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "<table>")
+	b.AssertFileContent("public/index.json", "<table>")
+
+	f := strings.ReplaceAll(files, "weight = 1", "weight = 0")
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "<table>")
+	b.AssertFileContent("public/index.json", "<table>")
+
+	f = strings.ReplaceAll(files, "weight = 1", "")
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "<table>")
+	b.AssertFileContent("public/index.json", "<table>")
+}
