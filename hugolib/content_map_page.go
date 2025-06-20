@@ -1085,7 +1085,10 @@ func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension sitemat
 }
 
 func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, contentNodeI, bool) {
+	deb("Insert: old %T, new %T", old, new)
 	switch vv := old.(type) {
+	case *pageMetaSource:
+		return pageMetaSourcesSlice{vv}, old, false
 	case *pageMeta:
 		switch new := new.(type) {
 		case *pageState:
@@ -1978,7 +1981,7 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 						m := &pageMeta{
 							term:     v,
 							singular: viewName.singular,
-							s:        sa.s,
+							// TODO1 s:        sa.s,
 							pathInfo: pi,
 							pageMetaParams: &pageMetaParams{
 								pageConfig: &pagemeta.PageConfig{
@@ -2081,7 +2084,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						if rs.rc.Name == "" {
 							rs.rc.Name = relPathOriginal
 						}
-						r, err := ps.m.s.ResourceSpec.NewResourceWrapperFromResourceConfig(rs.rc)
+						r, err := ps.s.ResourceSpec.NewResourceWrapperFromResourceConfig(rs.rc)
 						if err != nil {
 							return false, err
 						}
@@ -2127,7 +2130,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						rd.Params = rc.Params
 					}
 
-					r, err := ps.m.s.ResourceSpec.NewResource(rd)
+					r, err := ps.s.ResourceSpec.NewResource(rd)
 					if err != nil {
 						return false, err
 					}
@@ -2252,7 +2255,7 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 		}
 
 		m := &pageMeta{
-			s:        s,
+			// TODO1 s:        s,
 			pathInfo: s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
 			pageMetaParams: &pageMetaParams{
 				pageConfig: &pagemeta.PageConfig{
@@ -2354,7 +2357,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 
 			if nn == nil {
 				m := &pageMeta{
-					s:        sa.s,
+					// TODO1 s:        sa.s,
 					pathInfo: pth,
 				}
 
@@ -2382,7 +2385,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 	if false && !hasHome {
 		p := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
 		m := &pageMeta{
-			s:        sa.s,
+			// TODO1 s:        sa.s,
 			pathInfo: p,
 			pageMetaParams: &pageMetaParams{
 				pageConfig: &pagemeta.PageConfig{
@@ -2465,7 +2468,7 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 		key := viewName.pluralTreeKey
 		if v := tree.Get(key); v == nil {
 			m := &pageMeta{
-				s:        sa.s,
+				// TODO1 s:        sa.s,
 				pathInfo: sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md"),
 				pageMetaParams: &pageMetaParams{
 					pageConfig: &pagemeta.PageConfig{

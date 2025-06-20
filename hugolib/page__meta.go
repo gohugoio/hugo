@@ -52,11 +52,60 @@ import (
 
 var cjkRe = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 
+// Implement contentNodeI
+func (m *pageMetaSource) GetIdentity() identity.Identity {
+	panic("not implemented") // TODO: Implement
+}
+
+// ForEeachIdentityProvider calls cb for each Identity.
+// If cb returns true, the iteration is terminated.
+// The return value is whether the iteration was terminated.
+func (m *pageMetaSource) ForEeachIdentity(cb func(id identity.Identity) bool) bool {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMetaSource) Path() string {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMetaSource) isContentNodeBranch() bool {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMetaSource) contentWeight() int {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMetaSource) matchDirectOrInDelegees(_ sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMetaSource) Dims() sitematrix.VectorProvider {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMetaSource) resetBuildState() {
+	panic("not implemented") // TODO: Implement
+}
+
+func (m *pageMetaSource) MarkStale() {
+	panic("not implemented") // TODO: Implement
+}
+
+type pageMetaSource struct {
+	pathInfo *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
+	f        *source.File
+	resource.Staler
+}
+
 type pageMeta struct {
+	// Shared between all dimensions of this page.
+	*pageMetaSource
+
 	term     string // Set for kind == KindTerm.
 	singular string // Set for kind == KindTerm and kind == KindTaxonomy.
 
-	resource.Staler
+	resource.Staler // TODO1 remove.
 	*pageMetaParams
 
 	// Set for standalone pages, e.g. robotsTXT.
@@ -65,18 +114,24 @@ type pageMeta struct {
 	resourcePath string // Set for bundled pages; path relative to its bundle root.
 	bundled      bool   // Set if this page is bundled inside another.
 
-	pathInfo *paths.Path // Always set. This the canonical path to the Page.
-	f        *source.File
+	pathInfo *paths.Path  // Always set. This the canonical path to the Page. // TODO1 remove.
+	f        *source.File // TODO1 remove.
 
 	dims sitematrix.VectorProvider
 
 	content *cachedContent // The source and the parsed page content.
-
-	s *Site // The site this page belongs to.
 }
 
 // bookmark1
-func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMeta, error) {
+func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMetaSource, error) {
+	return &pageMetaSource{
+		f:        source.NewFileInfo(fi),
+		pathInfo: fi.Meta().PathInfo,
+		Staler:   &resources.AtomicStaler{},
+	}, nil
+}
+
+func (h *HugoSites) newPageMetaFromFile_(fi hugofs.FileMetaInfo) (*pageMeta, error) {
 	pid := pageIDCounter.Add(1) // TODO1
 
 	m := &pageMeta{
@@ -94,15 +149,16 @@ func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMeta, erro
 		bundled: false,
 	}
 
-	var tc viewName
+	// var tc viewName
 
 	// Resolve page kind.
 	m.pageConfig.Kind = kinds.KindSection
 	if m.pathInfo.Base() == "/" {
 		m.pageConfig.Kind = kinds.KindHome
 	} else if m.pathInfo.IsBranchBundle() {
+		// TODO1 maybe we need to do this later.
 		// A section, taxonomy or term.
-		tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+		/*tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
 		if !tc.IsZero() {
 			// Either a taxonomy or a term.
 			if tc.pluralTreeKey == m.Path() {
@@ -110,22 +166,23 @@ func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMeta, erro
 			} else {
 				m.pageConfig.Kind = kinds.KindTerm
 			}
-		}
+		}*/
 	} else if m.f != nil {
 		m.pageConfig.Kind = kinds.KindPage
 	}
 
 	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
-		if tc.IsZero() {
+		// TODO1 maybe we need to do this later.
+		/*if tc.IsZero() {
 			tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
 		}
 		if tc.IsZero() {
 			return nil, fmt.Errorf("no taxonomy configuration found for %q", m.Path())
-		}
-		m.singular = tc.singular
-		if m.pageConfig.Kind == kinds.KindTerm {
-			m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
-		}
+		}*/
+		//m.singular = tc.singular
+		//if m.pageConfig.Kind == kinds.KindTerm {
+		//	m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
+		//}
 	}
 
 	// TODO1 can we do this here?
@@ -150,11 +207,6 @@ func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMeta, erro
 	}
 
 	return m, nil
-}
-
-func (m pageMeta) cloneForSite(s *Site) (*pageMeta, error) {
-	m.s = s
-	return &m, nil
 }
 
 // Prepare for a rebuild of the data passed in from front matter.
@@ -281,7 +333,8 @@ func (p *pageMeta) IsPage() bool {
 // This method is also implemented on SiteInfo.
 // TODO(bep) interface
 func (p *pageMeta) Param(key any) (any, error) {
-	return resource.Param(p, p.s.Params(), key)
+	panic("TODO1: reimplement me.")
+	// return resource.Param(p, p.s.Params(), key)
 }
 
 func (p *pageMeta) Params() maps.Params {
@@ -726,7 +779,7 @@ params:
 
 	if draft != nil && published != nil {
 		pcfg.Draft = *draft
-		p.m.s.Log.Warnf("page %q has both draft and published settings in its frontmatter. Using draft.", p.File().Filename())
+		p.s.Log.Warnf("page %q has both draft and published settings in its frontmatter. Using draft.", p.File().Filename())
 	} else if draft != nil {
 		pcfg.Draft = *draft
 	} else if published != nil {
@@ -825,17 +878,17 @@ func (p *pageMeta) applyDefaultValues(s *Site) error {
 			p.pageConfig.Title = s.Title()
 		case kinds.KindSection:
 			sectionName := p.pathInfo.Unnormalized().BaseNameNoIdentifier()
-			if p.s.conf.PluralizeListTitles {
+			if s.conf.PluralizeListTitles {
 				sectionName = flect.Pluralize(sectionName)
 			}
-			if p.s.conf.CapitalizeListTitles {
+			if s.conf.CapitalizeListTitles {
 				sectionName = s.conf.C.CreateTitle(sectionName)
 			}
 			p.pageConfig.Title = sectionName
 		case kinds.KindTerm:
 			if p.term != "" {
 				if s.conf.CapitalizeListTitles {
-					p.pageConfig.Title = p.s.conf.C.CreateTitle(p.term)
+					p.pageConfig.Title = s.conf.C.CreateTitle(p.term)
 				} else {
 					p.pageConfig.Title = p.term
 				}
@@ -843,8 +896,8 @@ func (p *pageMeta) applyDefaultValues(s *Site) error {
 				panic("term not set")
 			}
 		case kinds.KindTaxonomy:
-			if p.s.conf.CapitalizeListTitles {
-				p.pageConfig.Title = strings.Replace(p.s.conf.C.CreateTitle(p.pathInfo.Unnormalized().BaseNameNoIdentifier()), "-", " ", -1)
+			if s.conf.CapitalizeListTitles {
+				p.pageConfig.Title = strings.Replace(s.conf.C.CreateTitle(p.pathInfo.Unnormalized().BaseNameNoIdentifier()), "-", " ", -1)
 			} else {
 				p.pageConfig.Title = strings.Replace(p.pathInfo.Unnormalized().BaseNameNoIdentifier(), "-", " ", -1)
 			}
@@ -860,7 +913,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 	if ps == nil {
 		panic("no Page provided")
 	}
-	cp := p.s.ContentSpec.Converters.Get(markup)
+	cp := ps.s.ContentSpec.Converters.Get(markup)
 	if cp == nil {
 		return converter.NopConverter, fmt.Errorf("no content renderer found for markup %q, page: %s", markup, ps.getPageInfoForError())
 	}

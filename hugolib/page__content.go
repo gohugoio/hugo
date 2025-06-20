@@ -127,7 +127,8 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo
 }
 
 func (m *pageMeta) newCachedContent(h *HugoSites, pi *contentParseInfo) (*cachedContent, error) {
-	var filename string
+	panic("TODO1 remove/replace this method")
+	/*var filename string
 	if m.f != nil {
 		filename = m.f.Filename()
 	}
@@ -151,6 +152,8 @@ func (m *pageMeta) newCachedContent(h *HugoSites, pi *contentParseInfo) (*cached
 	}
 
 	return c, nil
+	*/
+	return nil, nil
 }
 
 type cachedContent struct {

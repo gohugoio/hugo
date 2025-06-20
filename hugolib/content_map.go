@@ -178,6 +178,44 @@ func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	return false
 }
 
+type pageMetaSourcesSlice []*pageMetaSource
+
+func (n pageMetaSourcesSlice) MarkStale() {
+	panic("not supported")
+}
+
+func (n pageMetaSourcesSlice) contentWeight() int {
+	return 0
+}
+
+func (n pageMetaSourcesSlice) Path() string {
+	panic("not supported")
+}
+
+func (n pageMetaSourcesSlice) isContentNodeBranch() bool {
+	return false
+}
+
+func (n pageMetaSourcesSlice) resetBuildState() {
+	panic("not supported")
+}
+
+func (n pageMetaSourcesSlice) matchDirectOrInDelegees(sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
+	panic("not supported")
+}
+
+func (n pageMetaSourcesSlice) Dims() sitematrix.VectorProvider {
+	panic("not supported")
+}
+
+func (n pageMetaSourcesSlice) GetIdentity() identity.Identity {
+	panic("not supported")
+}
+
+func (n pageMetaSourcesSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	panic("not supported")
+}
+
 type resourceSourcesSlice []*resourceSource
 
 func (n resourceSourcesSlice) MarkStale() {
@@ -245,7 +283,7 @@ func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	return
 }
 
-func (m *pageMap) insertPageMetaWithLock(p *pageMeta) (contentNodeI, contentNodeI, bool) {
+func (m *pageMap) insertPageMetaWithLock(p *pageMetaSource) (contentNodeI, contentNodeI, bool) {
 	u, n, replaced := m.treePages.InsertIntoValuesDimensionWithLock(p.pathInfo.Base(), p)
 
 	// TODO1
@@ -331,8 +369,6 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		panic("nil pageMap")
 	}
 
-	deb("AddFi: %q Weight: %d", fi.Meta().Filename, fi.Meta().Weight)
-
 	h := m.s.h
 
 	insertResource := func(fim hugofs.FileMetaInfo) error {
@@ -408,7 +444,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			},
 		))
 
-		pageCount++
+		pageCount++ // TODO1 this vs dims.
 
 		pm, err := h.newPageMetaFromFile(fi)
 		if err != nil {
@@ -479,7 +515,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 					ps, pi, err := h.newPage(
 						&pageMeta{
 							f: f,
-							s: s,
+							// TODO1 s: s,
 							pageMetaParams: &pageMetaParams{
 								pageConfig: pc,
 							},

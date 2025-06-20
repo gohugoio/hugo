@@ -177,23 +177,6 @@ func (p *pageState) resetBuildState() {
 	// Nothing to do for now.
 }
 
-func (ps *pageState) cloneForSite(s *Site) (*pageState, error) {
-	m, err := ps.m.cloneForSite(s)
-	if err != nil {
-		return nil, err
-	}
-	pid := pageIDCounter.Add(1)
-	clone, err := s.h.doNewPageFromMeta(pid, m)
-	if err != nil {
-		return nil, ps.wrapError(err)
-	}
-	if err := clone.initLazyProviders(); err != nil {
-		return nil, clone.wrapError(err)
-	}
-
-	return clone, nil
-}
-
 func (p *pageState) skipRender() bool {
 	b := p.s.conf.C.SegmentFilter.ShouldExcludeFine(
 		segments.SegmentMatcherFields{
