@@ -1018,7 +1018,7 @@ func (s *TemplateStore) allRawTemplates() iter.Seq[tpl.Template] {
 }
 
 func (s *TemplateStore) insertEmbedded() error {
-	return fs.WalkDir(embeddedTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(embeddedTemplatesFs, ".", func(tpath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -1026,7 +1026,7 @@ func (s *TemplateStore) insertEmbedded() error {
 			return nil
 		}
 
-		templb, err := embeddedTemplatesFs.ReadFile(path)
+		templb, err := embeddedTemplatesFs.ReadFile(tpath)
 		if err != nil {
 			return err
 		}
@@ -1034,7 +1034,7 @@ func (s *TemplateStore) insertEmbedded() error {
 		// Get the newlines on Windows in line with how we had it back when we used Go Generate
 		// to write the templates to Go files.
 		templ := string(bytes.ReplaceAll(templb, []byte("\r\n"), []byte("\n")))
-		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
+		name := strings.TrimPrefix(filepath.ToSlash(tpath), "embedded/templates/")
 
 		insertOne := func(name, content string) error {
 			pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
@@ -1059,6 +1059,19 @@ func (s *TemplateStore) insertEmbedded() error {
 				ti.noBaseOf = true
 				ti.content = content
 				ti.subCategory = SubCategoryEmbedded
+			}
+
+			return nil
+		}
+
+		// Copy the embedded HTML table render hook to each output format.
+		// See https://github.com/gohugoio/hugo/issues/13351.
+		if name == path.Join(containerMarkup, "render-table.html") {
+			for _, of := range s.opts.OutputFormats {
+				path := paths.TrimExt(name) + "." + of.Name + of.MediaType.FirstSuffix.FullSuffix
+				if err := insertOne(path, templ); err != nil {
+					return err
+				}
 			}
 
 			return nil
