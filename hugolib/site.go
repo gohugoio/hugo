@@ -297,6 +297,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 	ns := &contentNodeShifter{
 		numLanguages: len(confm.Languages),
+		conf:         conf,
 	}
 
 	treeConfig := doctree.Config[contentNodeI]{

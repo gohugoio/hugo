@@ -401,10 +401,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 			}
 
 			if updated {
-				// TODO1 remove.
-				fmt.Printf("transform updates: %s %T\n", s, v2)
 				_, ok := r.Tree.tree.Insert(s, v2)
-				fmt.Println("updated:", ok)
 				t, ok, exact = r.toT(r.Tree, v2)
 				if !ok {
 					return false

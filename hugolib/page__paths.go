@@ -114,7 +114,8 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 	pm := p.m
 	alwaysInSubDir := p.Kind() == kinds.KindSitemap
 	pageInfoPage := p.PathInfo()
-	pageInfoCurrentSection := p.CurrentSection().PathInfo()
+
+	pageInfoCurrentSection := p.CurrentSection().PathInfo() //
 	if p.s.Conf.DisablePathToLower() {
 		pageInfoPage = pageInfoPage.Unnormalized()
 		pageInfoCurrentSection = pageInfoCurrentSection.Unnormalized()

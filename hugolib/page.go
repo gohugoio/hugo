@@ -216,8 +216,13 @@ func (po *pageState) isRenderedAny() bool {
 	return false
 }
 
+// Implements contentNodeI.
 func (p *pageState) isContentNodeBranch() bool {
 	return p.IsNode()
+}
+
+func (p *pageState) contentWeight() int {
+	return p.m.contentWeight()
 }
 
 func (p *pageState) matchDirectOrInDelegees(dims sitematrix.Vector) (contentNodeI, sitematrix.Vector) {

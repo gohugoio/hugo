@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/rungroup"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/hugolib/doctree"
@@ -653,6 +654,7 @@ type contentNodeI interface {
 	identity.ForEeachIdentityProvider
 	Path() string
 	isContentNodeBranch() bool
+	contentWeight() int
 	matchDirectOrInDelegees(sitematrix.Vector) (contentNodeI, sitematrix.Vector)
 	Dims() sitematrix.VectorProvider // TODO1 Can we unexport this?
 	buildStateReseter
@@ -676,6 +678,10 @@ func (n contentNodeIs2) Path() string {
 
 func (n contentNodeIs2) isContentNodeBranch() bool {
 	return n.first().isContentNodeBranch()
+}
+
+func (n contentNodeIs2) contentWeight() int {
+	return 0
 }
 
 func (n contentNodeIs2) first() contentNodeI {
@@ -733,6 +739,10 @@ func (n contentNodeIs) Dims() sitematrix.VectorProvider {
 	panic("not supported")
 }
 
+func (n contentNodeIs) contentWeight() int {
+	return 0
+}
+
 func (n contentNodeIs) Path() string {
 	return n.one().Path()
 }
@@ -775,7 +785,8 @@ func (n contentNodeIs) MarkStale() {
 }
 
 type contentNodeShifter struct {
-	numLanguages int
+	numLanguages int                // TODO1 remove.
+	conf         config.AllProvider // Used for logging/debugging.
 }
 
 func (s *contentNodeShifter) Delete(n contentNodeI, dims sitematrix.Vector) (contentNodeI, bool, bool) {
@@ -1082,13 +1093,21 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		case *pageMeta:
 			is := make(contentNodeIs)
 			// TODO1 remove s from pageMeta.
-			vv.Dims().ForEeachVector(func(dims sitematrix.Vector) bool {
-				is[dims] = old
-				return false
-			})
-			vv.Dims().ForEeachVector(func(dims sitematrix.Vector) bool {
+			vv.dims.ForEeachVector(func(dims sitematrix.Vector) bool {
+				if vvv, ok := is[dims]; ok && vvv.contentWeight() > vv.contentWeight() {
+					return true
+				}
+				deb("1 Insert: inserting pageMeta %s with dims %v/%v\t%v", old.Path(), dims, vv.dims, s.conf.ConfiguredDimensions().ResolveNames(dims))
 				is[dims] = vv
-				return false
+				return true
+			})
+			new.dims.ForEeachVector(func(dims sitematrix.Vector) bool {
+				if vvv, ok := is[dims]; ok && vvv.contentWeight() > new.contentWeight() {
+					return true
+				}
+				deb("2 Insert: inserting pageMeta %s with dims %v/%v %v", new.Path(), dims, new.dims, s.conf.ConfiguredDimensions().ResolveNames(dims))
+				is[dims] = new
+				return true
 			})
 
 			// TODO1 stale + updated.
@@ -2141,7 +2160,7 @@ func (sa *sitePagesAssembler) assemblePagesStep1() error {
 		}
 	*/
 
-	if err := sa.addMissingRootSections(); err != nil {
+	if err := sa.addMissingRootSections(); err != nil { // TODO1 see above.
 		return err
 	}
 
@@ -2300,9 +2319,6 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 				panic("n is nil")
 			}
 
-			// TODO1
-			fmt.Printf("addMissingRootSections.Handle: %s %T %v\n", s, n, sa.s.dims)
-
 			ps := n.(*pageState)
 
 			if s == "" {
@@ -2397,12 +2413,11 @@ func (sa *sitePagesAssembler) createPages() error {
 		NoShift:  true,
 
 		Transform: func(s string, n contentNodeI) (contentNodeI, bool, bool, error) {
-			fmt.Println("createPages.Transform", s)
 			switch v := n.(type) {
 			case *pageMeta:
 				site, found := sites[v.dims.FirstVector()]
 				if !found {
-					panic(fmt.Sprintf("site not found for %s", v))
+					panic(fmt.Sprintf("site not found for %v", v))
 				}
 				p, err := site.newPageNew(v)
 				return p, true, false, err

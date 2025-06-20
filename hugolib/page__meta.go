@@ -963,6 +963,13 @@ func (m *pageMeta) isContentNodeBranch() bool {
 	panic("not supported")
 }
 
+func (m *pageMeta) contentWeight() int {
+	if m.f == nil {
+		return 0
+	}
+	return m.f.FileInfo().Meta().Weight
+}
+
 func (m *pageMeta) matchDirectOrInDelegees(_ sitematrix.Vector) (contentNodeI, sitematrix.Vector) {
 	panic("not implemented") // TODO: Implement
 }

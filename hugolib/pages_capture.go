@@ -328,6 +328,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			// These would eventually have been filtered out as duplicates when
 			// inserting them into the document store,
 			// but doing it here will preserve a consistent ordering.
+			// TODO1
 			baseLang := types.Strings2{pi.Base(), meta.Lang}
 			if fi2, ok := seen[baseLang]; ok {
 				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {

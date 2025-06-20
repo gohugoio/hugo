@@ -91,6 +91,10 @@ func (r *resourceSource) isPage() bool {
 	return ok
 }
 
+func (r *resourceSource) contentWeight() int {
+	return 0
+}
+
 func (r *resourceSource) GetIdentity() identity.Identity {
 	if r.r != nil {
 		return r.r.(identity.IdentityProvider).GetIdentity()
@@ -124,6 +128,10 @@ func (n resourceSources) MarkStale() {
 			r.MarkStale()
 		}
 	}
+}
+
+func (r resourceSources) contentWeight() int {
+	return 0
 }
 
 func (n resourceSources) Path() string {
@@ -186,6 +194,10 @@ func (n resourceSourcesSlice) Path() string {
 
 func (n resourceSourcesSlice) isContentNodeBranch() bool {
 	return false
+}
+
+func (m resourceSourcesSlice) contentWeight() int {
+	return 0
 }
 
 func (n resourceSourcesSlice) resetBuildState() {
@@ -286,6 +298,15 @@ func (m *pageMap) insertResource(s string, r contentNodeI) (contentNodeI, conten
 	return u, n, replaced
 }
 
+func deb(format string, args ...any) {
+	// TODO1 remove this.
+	if !strings.Contains(format, "%") {
+		format = format + ": %v"
+	}
+	format = format + "\n"
+	fmt.Printf(format, args...)
+}
+
 func (m *pageMap) handleDuplicateResourcePath(s string, updated, existing contentNodeI) {
 	if m.s.h.isRebuild() || !m.s.conf.PrintPathWarnings {
 		return
@@ -309,6 +330,8 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 	if m == nil {
 		panic("nil pageMap")
 	}
+
+	deb("AddFi: %q Weight: %d", fi.Meta().Filename, fi.Meta().Weight)
 
 	h := m.s.h
 

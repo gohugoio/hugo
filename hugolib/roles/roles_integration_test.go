@@ -17,7 +17,6 @@ import (
 	"strings"
 	"testing"
 
-	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -305,30 +304,35 @@ versions = ["v1**"]
 
 func TestSpecificMountShouldAlwaysWin(t *testing.T) {
 	t.Parallel()
+
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
 defaultContentLanguage = "en"
 defaultContentLanguageInSubDir = true
+defaultCOntentVersionInSubDir = true
+defaultContentVersion = "v2.0.0"
 [languages]
 [languages.en]
 weight = 1
 [languages.nn]
 weight = 2
+[versions]
+[versions."v1.2.3"]
+[versions."v2.0.0"]
 [module]
 [[module.mounts]]
 source = 'content/nn'
 target = 'content'
 [module.mounts.dimensions]
 languages = ["nn"]
-versions  = ["**"]
+versions  = ["v1.**"]
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
 [module.mounts.dimensions]
 languages = ["**"]
 versions  = ["**"]
-
 -- content/en/_index.md --
 ---
 title: "English Home"
@@ -343,15 +347,13 @@ title: "Nynorsk Heim"
 ---
 -- layouts/all.html --
 title: {{ .Title }}|
-
 `
 
-	b := hugolib.Test(t, files)
-	s1, s2 := b.H.Sites[0], b.H.Sites[1]
-	b.Assert(s1.Home().Kind(), qt.Equals, "home")
-	b.Assert(s1.Home().RelPermalink(), qt.Equals, "/en/")
-	b.Assert(s2.Home().Kind(), qt.Equals, "home")
-	b.Assert(s2.Home().RelPermalink(), qt.Equals, "/nn/")
-	b.AssertFileContent("public/nn/index.html", "title: Nynorsk Heim|")
-	b.AssertFileContent("public/en/index.html", "title: English Home|")
+	for range 2 {
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/v1.2.3/nn/index.html", "title: Nynorsk Heim|")
+		b.AssertFileContent("public/v2.0.0/en/index.html", "title: English Home|")
+		b.AssertFileContent("public/v1.2.3/en/index.html", "title: English Home|")
+	}
 }
