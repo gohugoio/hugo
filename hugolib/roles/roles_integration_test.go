@@ -354,6 +354,7 @@ title: {{ .Title }}|
 
 		b.AssertFileContent("public/v1.2.3/nn/index.html", "title: Nynorsk Heim|")
 		b.AssertFileContent("public/v2.0.0/en/index.html", "title: English Home|")
+		b.AssertFileContent("public/v2.0.0/nn/index.html", "title: English Home|") // v2.0.0 is only in English.
 		b.AssertFileContent("public/v1.2.3/en/index.html", "title: English Home|")
 	}
 }

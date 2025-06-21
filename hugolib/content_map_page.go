@@ -966,6 +966,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims sitematrix.Vector, exact
 			return v, true, 0
 		}
 	case *pageMeta:
+		panic("TODO1 remove me") // TODO1 remove this type.
 		if v.Dims().HasVector(dims) {
 			return v, true, sitematrix.Language
 		}
@@ -1088,7 +1089,7 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 	deb("Insert: old %T, new %T", old, new)
 	switch vv := old.(type) {
 	case *pageMetaSource:
-		return pageMetaSourcesSlice{vv}, old, false
+		return pageMetaSourcesSlice{vv, new.(*pageMetaSource)}, old, false
 	case *pageMeta:
 		switch new := new.(type) {
 		case *pageState:
@@ -2416,8 +2417,46 @@ func (sa *sitePagesAssembler) createPages() error {
 		NoShift:  true,
 
 		Transform: func(s string, n contentNodeI) (contentNodeI, bool, bool, error) {
+			handlePageMetaSource := func(ms *pageMetaSource, is contentNodeIs) error {
+				var err error
+				d := ms.f.FileInfo().Meta().SiteInts
+				d.ForEeachVector(func(vec sitematrix.Vector) bool {
+					site, found := sites[vec]
+					if !found {
+						panic(fmt.Sprintf("site not found for %s", vec))
+					}
+					var p *pageState
+					p, err = site.newPageFromPageMetasource(ms)
+					if err != nil {
+						return false
+					}
+
+					if pp, found := is[vec]; found && pp.contentWeight() > p.contentWeight() {
+						return true
+					}
+
+					is[vec] = p
+					return true
+				})
+				return err
+			}
+
 			switch v := n.(type) {
-			case *pageMeta:
+			case pageMetaSourcesSlice:
+				is := make(contentNodeIs)
+				for _, ms := range v {
+					if err := handlePageMetaSource(ms, is); err != nil {
+						return nil, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
+					}
+				}
+				return is, true, false, nil
+			case *pageMetaSource:
+				is := make(contentNodeIs)
+				if err := handlePageMetaSource(v, is); err != nil {
+					return nil, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
+				}
+				return is, true, false, nil
+			case *pageMeta: // TODO1 remove.
 				site, found := sites[v.dims.FirstVector()]
 				if !found {
 					panic(fmt.Sprintf("site not found for %v", v))
