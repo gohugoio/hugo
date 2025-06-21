@@ -2,6 +2,7 @@ package allconfig_test
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -378,4 +379,29 @@ weight = 3
 	}))
 
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
+}
+
+// Issue 13535
+// We changed enablement of the embedded link and image render hooks from
+// booleans to enums in v0.148.0.
+func TestLegacyEmbeddedRenderHookEnablement(t *testing.T) {
+	files := `
+-- hugo.toml --
+[markup.goldmark.renderHooks.image]
+#KEY_VALUE
+
+[markup.goldmark.renderHooks.link]
+#KEY_VALUE
+`
+	f := strings.ReplaceAll(files, "#KEY_VALUE", "enableDefault = false")
+	b := hugolib.Test(t, f)
+	c := b.H.Configs.Base.Markup.Goldmark.RenderHooks
+	b.Assert(c.Link.UseEmbedded, qt.Equals, "never")
+	b.Assert(c.Image.UseEmbedded, qt.Equals, "never")
+
+	f = strings.ReplaceAll(files, "#KEY_VALUE", "enableDefault = true")
+	b = hugolib.Test(t, f)
+	c = b.H.Configs.Base.Markup.Goldmark.RenderHooks
+	b.Assert(c.Link.UseEmbedded, qt.Equals, "fallback")
+	b.Assert(c.Image.UseEmbedded, qt.Equals, "fallback")
 }

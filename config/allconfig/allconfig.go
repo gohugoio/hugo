@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,7 +33,6 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
@@ -399,7 +399,6 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		hugo.DeprecateWithLogger("site config key paginate", "Use pagination.pagerSize instead.", "v0.128.0", logger.Logger())
 		c.Pagination.PagerSize = c.Paginate
 	}
-
 	if c.PaginatePath != "" {
 		hugo.DeprecateWithLogger("site config key paginatePath", "Use pagination.path instead.", "v0.128.0", logger.Logger())
 		c.Pagination.Path = c.PaginatePath
@@ -410,12 +409,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		hugo.DeprecateWithLogger("site config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.Disable = c.Privacy.Twitter.Disable
 	}
-
 	if c.Privacy.Twitter.EnableDNT {
 		hugo.DeprecateWithLogger("site config key privacy.twitter.enableDNT", "Use privacy.x.enableDNT instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.EnableDNT = c.Privacy.Twitter.EnableDNT
 	}
-
 	if c.Privacy.Twitter.Simple {
 		hugo.DeprecateWithLogger("site config key privacy.twitter.simple", "Use privacy.x.simple instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.Simple = c.Privacy.Twitter.Simple
@@ -434,6 +431,33 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	}
 	if strings.Contains(vs, ":slugorfilename") {
 		hugo.DeprecateWithLogger("the \":slugorfilename\" permalink token", "Use \":slugorcontentbasename\" instead.", "0.144.0", logger.Logger())
+	}
+
+	// Legacy render hook values.
+	if c.Markup.Goldmark.RenderHooks.Image.EnableDefault != nil {
+		hugo.DeprecateWithLogger("site config key markup.goldmark.renderHooks.image.enableDefault", "Use markup.goldmark.renderHooks.image.useEmbedded instead.  Set to \"never\" if previous value was false, or set to \"fallback\" if previous value was true.", "0.148.0", logger.Logger())
+		if *c.Markup.Goldmark.RenderHooks.Image.EnableDefault {
+			c.Markup.Goldmark.RenderHooks.Image.UseEmbedded = "fallback"
+		} else {
+			c.Markup.Goldmark.RenderHooks.Image.UseEmbedded = "never"
+		}
+	}
+	if c.Markup.Goldmark.RenderHooks.Link.EnableDefault != nil {
+		hugo.DeprecateWithLogger("site config key markup.goldmark.renderHooks.link.enableDefault", "Use markup.goldmark.renderHooks.link.useEmbedded instead. Set to \"never\" if previous value was false, or set to \"fallback\" if previous value was true.", "0.148.0", logger.Logger())
+		if *c.Markup.Goldmark.RenderHooks.Link.EnableDefault {
+			c.Markup.Goldmark.RenderHooks.Link.UseEmbedded = "fallback"
+		} else {
+			c.Markup.Goldmark.RenderHooks.Link.UseEmbedded = "never"
+		}
+	}
+
+	// Validate render hook configuration.
+	useEmbeddedModes := []string{"always", "auto", "fallback", "never"}
+	if !slices.Contains(useEmbeddedModes, c.Markup.Goldmark.RenderHooks.Image.UseEmbedded) {
+		return fmt.Errorf("site config markup.goldmark.renderHooks.image must be one of %s", helpers.StringSliceToList(useEmbeddedModes, "or"))
+	}
+	if !slices.Contains(useEmbeddedModes, c.Markup.Goldmark.RenderHooks.Link.UseEmbedded) {
+		return fmt.Errorf("site config markup.goldmark.renderHooks.link must be one of %s", helpers.StringSliceToList(useEmbeddedModes, "or"))
 	}
 
 	c.C = &ConfigCompiled{
@@ -1082,13 +1106,11 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 
 			// Adjust Goldmark config defaults for multilingual, single-host sites.
 			if len(languagesConfig) > 1 && !isMultihost && !clone.Markup.Goldmark.DuplicateResourceFiles {
-				if !clone.Markup.Goldmark.DuplicateResourceFiles {
-					if clone.Markup.Goldmark.RenderHooks.Link.EnableDefault == nil {
-						clone.Markup.Goldmark.RenderHooks.Link.EnableDefault = types.NewBool(true)
-					}
-					if clone.Markup.Goldmark.RenderHooks.Image.EnableDefault == nil {
-						clone.Markup.Goldmark.RenderHooks.Image.EnableDefault = types.NewBool(true)
-					}
+				if clone.Markup.Goldmark.RenderHooks.Image.UseEmbedded == "auto" {
+					clone.Markup.Goldmark.RenderHooks.Image.UseEmbedded = "fallback"
+				}
+				if clone.Markup.Goldmark.RenderHooks.Link.UseEmbedded == "auto" {
+					clone.Markup.Goldmark.RenderHooks.Link.UseEmbedded = "fallback"
 				}
 			}
 
