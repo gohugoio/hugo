@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/markup/converter/hooks"
+	gc "github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -304,12 +305,17 @@ func (pco *pageContentOutput) initRenderHooks() error {
 			}
 
 			renderHookConfig := pco.po.p.s.conf.Markup.Goldmark.RenderHooks
-			var ignoreInternal bool
+			var ignoreEmbedded bool
+
+			// For multilingual single-host sites, "auto" becomes "fallback"
+			// earlier in the process.
 			switch layoutDescriptor.Variant1 {
 			case "link":
-				ignoreInternal = !renderHookConfig.Link.IsEnableDefault()
+				ignoreEmbedded = renderHookConfig.Link.UseEmbedded == gc.RenderHookUseEmbeddedNever ||
+					renderHookConfig.Link.UseEmbedded == gc.RenderHookUseEmbeddedAuto
 			case "image":
-				ignoreInternal = !renderHookConfig.Image.IsEnableDefault()
+				ignoreEmbedded = renderHookConfig.Image.UseEmbedded == gc.RenderHookUseEmbeddedNever ||
+					renderHookConfig.Image.UseEmbedded == gc.RenderHookUseEmbeddedAuto
 			}
 
 			candidates := pco.po.p.s.renderFormats
@@ -323,8 +329,8 @@ func (pco *pageContentOutput) initRenderHooks() error {
 					return false
 				}
 
-				if ignoreInternal && candidate.SubCategory() == tplimpl.SubCategoryEmbedded {
-					// Don't consider the internal hook templates.
+				if ignoreEmbedded && candidate.SubCategory() == tplimpl.SubCategoryEmbedded {
+					// Don't consider the embedded hook templates.
 					return false
 				}
 
