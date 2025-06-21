@@ -69,6 +69,7 @@ func (s *IntSets) LenVectors() int {
 
 // The reason we don't use iter.Seq is https://github.com/golang/go/issues/69015
 // This is 60% faster and allocation free.
+// The yield function should return false to stop iteration.
 func (s *IntSets) ForEeachVector(yield func(v Vector) bool) bool {
 	if s.LenVectors() == 0 {
 		return true

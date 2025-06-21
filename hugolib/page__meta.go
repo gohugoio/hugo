@@ -131,6 +131,93 @@ func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMetaSource
 	}, nil
 }
 
+func (s *Site) newPageFromPageMetasource(ms *pageMetaSource) (*pageState, error) {
+	m, err := s.h.newPageMetaFromPageMetasource(ms)
+	if err != nil {
+		return nil, err
+	}
+	return s.newPageNew(m)
+}
+
+func (h *HugoSites) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, error) {
+	pid := pageIDCounter.Add(1) // TODO1
+
+	m := &pageMeta{
+		pageMetaSource: ms,
+		f:              ms.f, // TODO1 remove,
+		// TODO1 remove dims:     fi.Meta().SiteInts, // TODO1 front matter.
+		pathInfo: ms.pathInfo,
+		Staler:   &resources.AtomicStaler{},
+		pageMetaParams: &pageMetaParams{
+			pageConfig: &pagemeta.PageConfig{
+				PageConfigEarly: pagemeta.PageConfigEarly{
+					Params: make(maps.Params),
+				},
+			},
+		},
+		bundled: false,
+	}
+
+	// var tc viewName
+
+	// Resolve page kind.
+	m.pageConfig.Kind = kinds.KindSection
+	if m.pathInfo.Base() == "/" {
+		m.pageConfig.Kind = kinds.KindHome
+	} else if m.pathInfo.IsBranchBundle() {
+		// TODO1 maybe we need to do this later.
+		// A section, taxonomy or term.
+		/*tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+		if !tc.IsZero() {
+			// Either a taxonomy or a term.
+			if tc.pluralTreeKey == m.Path() {
+				m.pageConfig.Kind = kinds.KindTaxonomy
+			} else {
+				m.pageConfig.Kind = kinds.KindTerm
+			}
+		}*/
+	} else if m.f != nil {
+		m.pageConfig.Kind = kinds.KindPage
+	}
+
+	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
+		// TODO1 maybe we need to do this later.
+		/*if tc.IsZero() {
+			tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
+		}
+		if tc.IsZero() {
+			return nil, fmt.Errorf("no taxonomy configuration found for %q", m.Path())
+		}*/
+		//m.singular = tc.singular
+		//if m.pageConfig.Kind == kinds.KindTerm {
+		//	m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
+		//}
+	}
+
+	// TODO1 can we do this here?
+	/*if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
+		return nil,, nil
+	}*/
+
+	// Read front matter.
+
+	pi, err := m.parseFrontMatter(h, pid)
+	if err != nil {
+		return nil, err
+	}
+
+	var dimensionsFromFile *sitematrix.IntSets
+	if m.f != nil {
+		dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
+	}
+
+	if err := m.setMetaPre(pi, dimensionsFromFile, h.Log, h.Conf); err != nil {
+		return nil, m.wrapError(err, h.BaseFs.SourceFs)
+	}
+
+	return m, nil
+}
+
 func (h *HugoSites) newPageMetaFromFile_(fi hugofs.FileMetaInfo) (*pageMeta, error) {
 	pid := pageIDCounter.Add(1) // TODO1
 
