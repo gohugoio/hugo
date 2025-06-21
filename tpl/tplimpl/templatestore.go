@@ -44,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/identity"
+	gc "github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
@@ -201,6 +202,9 @@ type StoreOptions struct {
 
 	// Whether we are in watch or server mode.
 	Watching bool
+
+	// The render hook configuration.
+	RenderHooks gc.RenderHooks
 
 	// compiled.
 	legacyMappingTaxonomy map[string]legacyOrdinalMapping
@@ -1422,20 +1426,36 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 
 		var ti *TemplInfo
 		var err error
-		if pi.Type() == paths.TypeShortcode {
-			ti, err = s.insertShortcode(pi, fi, partialRebuild, s.treeShortcodes)
-			if err != nil || ti == nil {
-				return err
+		var insertFunc func() (*TemplInfo, error)
+
+		insertFunc = func() (*TemplInfo, error) {
+			return s.insertTemplate(pi, fi, SubCategoryMain, partialRebuild, s.treeMain)
+		}
+
+		switch pi.Type() {
+		case paths.TypeShortcode:
+			insertFunc = func() (*TemplInfo, error) {
+				return s.insertShortcode(pi, fi, partialRebuild, s.treeShortcodes)
 			}
-		} else {
-			ti, err = s.insertTemplate(pi, fi, SubCategoryMain, partialRebuild, s.treeMain)
+		case paths.TypeMarkup:
+			skipImageRenderHook := pi.Name() == "render-image.html" && s.opts.RenderHooks.Image.UseEmbedded == "always"
+			skipLinkRenderHook := pi.Name() == "render-link.html" && s.opts.RenderHooks.Link.UseEmbedded == "always"
+			if skipImageRenderHook || skipLinkRenderHook {
+				insertFunc = nil
+			}
+		}
+
+		if insertFunc != nil {
+			ti, err = insertFunc()
 			if err != nil || ti == nil {
 				return err
 			}
 		}
 
-		if err := s.tns.readTemplateInto(ti); err != nil {
-			return err
+		if ti != nil {
+			if err := s.tns.readTemplateInto(ti); err != nil {
+				return err
+			}
 		}
 
 		return nil

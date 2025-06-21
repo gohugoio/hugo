@@ -406,6 +406,7 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 					MediaTypes:             s.conf.MediaTypes.Config,
 					DefaultOutputFormat:    s.conf.DefaultOutputFormat,
 					TaxonomySingularPlural: s.conf.Taxonomies,
+					RenderHooks:            s.conf.Markup.Goldmark.RenderHooks,
 				}, tplimpl.SiteOptions{
 					Site:          s,
 					TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
