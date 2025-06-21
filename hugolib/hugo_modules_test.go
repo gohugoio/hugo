@@ -28,8 +28,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/version"
 
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
@@ -304,7 +304,7 @@ func TestHugoModulesMatrix(t *testing.T) {
 	}
 	t.Parallel()
 
-	if !htesting.IsCI() || hugo.GoMinorVersion() < 12 {
+	if !htesting.IsCI() || version.GoMinorVersion() < 12 {
 		// https://github.com/golang/go/issues/26794
 		// There were some concurrent issues with Go modules in < Go 12.
 		t.Skip("skip this on local host and for Go <= 1.11 due to a bug in Go's stdlib")

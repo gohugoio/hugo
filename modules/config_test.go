@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/version"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -79,7 +80,7 @@ lang="en"
 		mcfg, err := DecodeConfig(cfg)
 		c.Assert(err, qt.IsNil)
 
-		v056 := hugo.VersionString("0.56.0")
+		v056 := version.VersionString("0.56.0")
 
 		hv := mcfg.HugoVersion
 
