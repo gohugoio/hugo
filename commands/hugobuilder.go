@@ -30,6 +30,7 @@ import (
 	"github.com/bep/simplecobra"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -142,7 +143,7 @@ func (c *hugoBuilder) getDirList() ([]string, error) {
 		return nil, err
 	}
 
-	return helpers.UniqueStringsSorted(h.PathSpec.BaseFs.WatchFilenames()), nil
+	return hstrings.UniqueStringsSorted(h.PathSpec.BaseFs.WatchFilenames()), nil
 }
 
 func (c *hugoBuilder) initCPUProfile() (func(), error) {

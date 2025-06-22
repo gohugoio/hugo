@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 
 	"golang.org/x/text/unicode/norm"
 
@@ -58,6 +59,10 @@ type FileMeta struct {
 	IsProject bool
 	Watch     bool
 
+	// The site matrix associated with this file.
+	SiteInts *sitematrix.IntSets
+
+	// TODO1 remove Lang*
 	// The lang associated with this file. This may be
 	// either the language set in the filename or
 	// the language defined in the source mount configuration.

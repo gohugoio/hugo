@@ -46,18 +46,17 @@ type PageMatcher struct {
 	Environment string
 }
 
-// Matches returns whether p matches this matcher.
-func (m PageMatcher) Matches(p Page) bool {
+func (m PageMatcher) MatchesValues(kind, lang, path, environment string) bool {
 	if m.Kind != "" {
 		g, err := glob.GetGlob(m.Kind)
-		if err == nil && !g.Match(p.Kind()) {
+		if err == nil && !g.Match(kind) {
 			return false
 		}
 	}
 
 	if m.Lang != "" {
 		g, err := glob.GetGlob(m.Lang)
-		if err == nil && !g.Match(p.Lang()) {
+		if err == nil && !g.Match(lang) {
 			return false
 		}
 	}
@@ -65,7 +64,7 @@ func (m PageMatcher) Matches(p Page) bool {
 	if m.Path != "" {
 		g, err := glob.GetGlob(m.Path)
 		// TODO(bep) Path() vs filepath vs leading slash.
-		p := strings.ToLower(filepath.ToSlash(p.Path()))
+		p := strings.ToLower(filepath.ToSlash(path))
 		if !(strings.HasPrefix(p, "/")) {
 			p = "/" + p
 		}
@@ -76,12 +75,22 @@ func (m PageMatcher) Matches(p Page) bool {
 
 	if m.Environment != "" {
 		g, err := glob.GetGlob(m.Environment)
-		if err == nil && !g.Match(p.Site().Hugo().Environment) {
+		if err == nil && !g.Match(environment) {
 			return false
 		}
 	}
 
 	return true
+}
+
+// Matches returns whether p matches this matcher.
+func (m PageMatcher) Matches(p Page) bool {
+	return m.MatchesValues(
+		p.Kind(),
+		p.Lang(),
+		p.Path(),
+		p.Site().Hugo().Environment,
+	)
 }
 
 var disallowedCascadeKeys = map[string]bool{

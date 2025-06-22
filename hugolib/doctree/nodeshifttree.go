@@ -21,6 +21,7 @@ import (
 	"sync"
 
 	radix "github.com/armon/go-radix"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -32,9 +33,9 @@ type (
 
 	// Shifter handles tree transformations.
 	Shifter[T any] interface {
-		// ForEeachInDimension will call the given function for each value in the given dimension.
+		// ForEeachInDimension will call the given function for each value in the given dimension d.
 		// If the function returns true, the walk will stop.
-		ForEeachInDimension(n T, d int, f func(T) bool)
+		ForEeachInDimension(n T, dims sitematrix.Vector, d int, f func(T) bool)
 
 		// Insert inserts new into the tree into the dimension it provides.
 		// It may replace old.
@@ -46,15 +47,15 @@ type (
 		// It may replace old.
 		// It returns the updated and existing T
 		// and a bool indicating if an existing record is updated.
-		InsertInto(old, new T, dimension Dimension) (T, T, bool)
+		InsertInto(old, new T, dimension sitematrix.Vector) (T, T, bool)
 
 		// Delete deletes T from the given dimension and returns the deleted T and whether the dimension was deleted and if  it's empty after the delete.
-		Delete(v T, dimension Dimension) (T, bool, bool)
+		Delete(v T, dimension sitematrix.Vector) (T, bool, bool)
 
 		// Shift shifts T into the given dimension
 		// and returns the shifted T and a bool indicating if the shift was successful and
-		// how accurate a match T is according to its dimensions.
-		Shift(v T, dimension Dimension, exact bool) (T, bool, DimensionFlag)
+		// how accurate a match T is according to its sitematrix.
+		Shift(v T, dimension sitematrix.Vector, exact, delegeeFallback bool) (T, bool, sitematrix.Dimension)
 	}
 )
 
@@ -64,8 +65,8 @@ type (
 type NodeShiftTree[T any] struct {
 	tree *radix.Tree
 
-	// E.g. [language, role].
-	dims    Dimension
+	// [language, version, role].
+	dims    sitematrix.Vector
 	shifter Shifter[T]
 
 	mu *sync.RWMutex
@@ -81,6 +82,10 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 		shifter: cfg.Shifter,
 		tree:    radix.New(),
 	}
+}
+
+func (r *NodeShiftTree[T]) Dims() sitematrix.VectorProvider {
+	return r.dims
 }
 
 func (r *NodeShiftTree[T]) Delete(key string) (T, bool) {
@@ -173,6 +178,7 @@ func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, T, bool)
 	if vv, ok := r.tree.Get(s); ok {
 		v, existing, updated = r.shifter.Insert(vv.(T), v)
 	}
+
 	r.tree.Insert(s, v)
 	return v, existing, updated
 }
@@ -221,12 +227,12 @@ func (t *NodeShiftTree[T]) Lock(writable bool) (commit func()) {
 
 // LongestPrefix finds the longest prefix of s that exists in the tree that also matches the predicate (if set).
 // Set exact to true to only match exact in the current dimension (e.g. language).
-func (r *NodeShiftTree[T]) LongestPrefix(s string, exact bool, predicate func(v T) bool) (string, T) {
+func (r *NodeShiftTree[T]) LongestPrefix(s string, exact, delegeeFallback bool, predicate func(v T) bool) (string, T) {
 	for {
 		longestPrefix, v, found := r.tree.LongestPrefix(s)
 
 		if found {
-			if t, ok, _ := r.shift(v.(T), exact); ok && (predicate == nil || predicate(t)) {
+			if t, ok, _ := r.shift(v.(T), exact, delegeeFallback); ok && (predicate == nil || predicate(t)) {
 				return longestPrefix, t
 			}
 		}
@@ -242,7 +248,7 @@ func (r *NodeShiftTree[T]) LongestPrefix(s string, exact bool, predicate func(v 
 	}
 }
 
-// LongestPrefixAll returns the longest prefix considering all tree dimensions.
+// LongestPrefixAll returns the longest prefix considering all tree sitematrix.
 func (r *NodeShiftTree[T]) LongestPrefixAll(s string) (string, bool) {
 	s, _, found := r.tree.LongestPrefix(s)
 	return s, found
@@ -280,13 +286,13 @@ func (r *NodeShiftTree[T]) Get(s string) T {
 	return t
 }
 
-func (r *NodeShiftTree[T]) ForEeachInDimension(s string, d int, f func(T) bool) {
+func (r *NodeShiftTree[T]) ForEeachInDimension(s string, dims sitematrix.Vector, d int, f func(T) bool) {
 	s = cleanKey(s)
 	v, ok := r.tree.Get(s)
 	if !ok {
 		return
 	}
-	r.shifter.ForEeachInDimension(v.(T), d, f)
+	r.shifter.ForEeachInDimension(v.(T), dims, d, f)
 }
 
 type WalkFunc[T any] func(string, T) (bool, error)
@@ -295,10 +301,16 @@ type NodeShiftTreeWalker[T any] struct {
 	// The tree to walk.
 	Tree *NodeShiftTree[T]
 
+	// Transform will be called for each node in the main tree.
+	// v2 will replace v1 in the tree.
+	// The first bool indicates if the value was updated and needs to be re-inserted into the tree.
+	// the second bool indicates if the walk should terminate.
+	Transform func(s string, v1 T) (v2 T, updated, terminate bool, err error)
+
 	// Handle will be called for each node in the main tree.
 	// If the callback returns true, the walk will stop.
 	// The callback can optionally return a callback for the nested tree.
-	Handle func(s string, v T, exact DimensionFlag) (terminate bool, err error)
+	Handle func(s string, v T, exact sitematrix.Dimension) (terminate bool, err error)
 
 	// Optional prefix filter.
 	Prefix string
@@ -311,6 +323,9 @@ type NodeShiftTreeWalker[T any] struct {
 
 	// Don't fall back to alternative dimensions (e.g. language).
 	Exact bool
+
+	// TODO1 document this and check vs exact.
+	DelegeeFallback bool
 
 	// Used in development only.
 	Debug bool
@@ -374,10 +389,33 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 		}
 
 		var terminate bool
-		terminate, err = r.Handle(s, t, exact)
-		if terminate || err != nil {
-			return true
+
+		if r.Transform != nil {
+			var (
+				v2      T
+				updated bool
+			)
+			v2, updated, terminate, err = r.Transform(s, t)
+			if terminate || err != nil {
+				return true
+			}
+
+			if updated {
+				_, ok := r.Tree.tree.Insert(s, v2)
+				t, ok, exact = r.toT(r.Tree, v2)
+				if !ok {
+					return false
+				}
+			}
 		}
+
+		if r.Handle != nil {
+			terminate, err = r.Handle(s, t, exact)
+			if terminate || err != nil {
+				return true
+			}
+		}
+
 		return false
 	}
 
@@ -398,12 +436,12 @@ func (r *NodeShiftTreeWalker[T]) resetLocalState() {
 	r.skipPrefixes = nil
 }
 
-func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (t T, ok bool, exact DimensionFlag) {
+func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (t T, ok bool, exact sitematrix.Dimension) {
 	if r.NoShift {
 		t = v.(T)
 		ok = true
 	} else {
-		t, ok, exact = tree.shift(v.(T), r.Exact)
+		t, ok, exact = tree.shift(v.(T), r.Exact, r.DelegeeFallback)
 	}
 	return
 }
@@ -417,18 +455,22 @@ func (t NodeShiftTree[T]) clone() *NodeShiftTree[T] {
 	return &t
 }
 
-func (r *NodeShiftTree[T]) shift(t T, exact bool) (T, bool, DimensionFlag) {
-	return r.shifter.Shift(t, r.dims, exact)
+func (r *NodeShiftTree[T]) shift(t T, exact, delegeeFallback bool) (T, bool, sitematrix.Dimension) {
+	return r.shifter.Shift(t, r.dims, exact, delegeeFallback)
 }
 
 func (r *NodeShiftTree[T]) get(s string) (T, bool) {
 	s = cleanKey(s)
 	v, ok := r.tree.Get(s)
+	// dims: language, version and role
+	// How accurate is the match. TODO1 revise this.
+
 	if !ok {
 		var t T
 		return t, false
 	}
-	t, ok, _ := r.shift(v.(T), true)
+	t, ok, _ := r.shift(v.(T), true, false) // TODO1
+
 	return t, ok
 }
 

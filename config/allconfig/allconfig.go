@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/cache/httpcache"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
@@ -40,7 +41,9 @@ import (
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/hugolib/segments"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
 	"github.com/gohugoio/hugo/media"
@@ -140,6 +143,15 @@ type Config struct {
 	// The outputformats configuration sections maps a format name (a string) to a configuration object for that format.
 	OutputFormats *config.ConfigNamespace[map[string]output.OutputFormatConfig, output.Formats] `mapstructure:"-"`
 
+	// The languages configuration sections maps a language code (a string) to a configuration object for that language.
+	Languages *config.ConfigNamespace[map[string]langs.LanguageConfig, langs.LanguagesInternal] `mapstructure:"-"`
+
+	// The versions configuration section contains the top level versions configuration options.
+	Versions *config.ConfigNamespace[map[string]versions.VersionConfig, versions.VersionsInternal] `mapstructure:"-"`
+
+	// The roles configuration section contains the top level roles configuration options.
+	Roles *config.ConfigNamespace[map[string]roles.RoleConfig, roles.RolesInternal] `mapstructure:"-"`
+
 	// The outputs configuration section maps a Page Kind (a string) to a slice of output formats.
 	// This can be overridden in the front matter.
 	Outputs map[string][]string `mapstructure:"-"`
@@ -200,9 +212,6 @@ type Config struct {
 	// User provided parameters.
 	// <docsmeta>{"refs": ["config:languages:params"] }</docsmeta>
 	Params maps.Params `mapstructure:"-"`
-
-	// The languages configuration sections maps a language code (a string) to a configuration object for that language.
-	Languages map[string]langs.LanguageConfig `mapstructure:"-"`
 
 	// UglyURLs configuration. Either a boolean or a sections map.
 	UglyURLs any `mapstructure:"-"`
@@ -319,18 +328,6 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	disabledLangs := make(map[string]bool)
 	for _, lang := range c.DisableLanguages {
 		disabledLangs[lang] = true
-	}
-	for lang, language := range c.Languages {
-		if !language.Disabled && disabledLangs[lang] {
-			language.Disabled = true
-			c.Languages[lang] = language
-		}
-		if language.Disabled {
-			disabledLangs[lang] = true
-			if lang == c.DefaultContentLanguage {
-				return fmt.Errorf("cannot disable default content language %q", lang)
-			}
-		}
 	}
 
 	for i, s := range c.IgnoreLogs {
@@ -551,6 +548,18 @@ type RootConfig struct {
 	// Set this to true to put all languages below their language ID.
 	DefaultContentLanguageInSubdir bool
 
+	// The default content role to use for the site.
+	DefaultContentRole string
+
+	// Set this to true to put the default role in a subdirectory.
+	DefaultContentRoleInSubdir bool
+
+	// The default content version to use for the site.
+	DefaultContentVersion string
+
+	// Set to true to render the default version in a subdirectory.
+	DefaultContentVersionInSubdir bool
+
 	// The default output format to use for the site.
 	// If not set, we will use the first output format.
 	DefaultOutputFormat string
@@ -753,7 +762,7 @@ func (c RootConfig) staticDirs() []string {
 	dirs = append(dirs, c.StaticDir8...)
 	dirs = append(dirs, c.StaticDir9...)
 	dirs = append(dirs, c.StaticDir10...)
-	return helpers.UniqueStringsReuse(dirs)
+	return hstrings.UniqueStringsReuse(dirs)
 }
 
 type Configs struct {
@@ -801,51 +810,10 @@ func (c *Configs) IsZero() bool {
 func (c *Configs) Init() error {
 	var languages langs.Languages
 
-	var langKeys []string
-	var hasEn bool
-
-	const en = "en"
-
-	for k := range c.LanguageConfigMap {
-		langKeys = append(langKeys, k)
-		if k == en {
-			hasEn = true
-		}
-	}
-
-	// Sort the LanguageConfigSlice by language weight (if set) or lang.
-	sort.Slice(langKeys, func(i, j int) bool {
-		ki := langKeys[i]
-		kj := langKeys[j]
-		lki := c.LanguageConfigMap[ki]
-		lkj := c.LanguageConfigMap[kj]
-		li := lki.Languages[ki]
-		lj := lkj.Languages[kj]
-		if li.Weight != lj.Weight {
-			return li.Weight < lj.Weight
-		}
-		return ki < kj
-	})
-
-	// See issue #13646.
-	defaultConfigLanguageFallback := en
-	if !hasEn {
-		// Pick the first one.
-		defaultConfigLanguageFallback = langKeys[0]
-	}
-
-	if c.Base.DefaultContentLanguage == "" {
-		c.Base.DefaultContentLanguage = defaultConfigLanguageFallback
-	}
-
-	for _, k := range langKeys {
-		v := c.LanguageConfigMap[k]
-		if v.DefaultContentLanguage == "" {
-			v.DefaultContentLanguage = defaultConfigLanguageFallback
-		}
-		c.LanguageConfigSlice = append(c.LanguageConfigSlice, v)
-		languageConf := v.Languages[k]
-		language, err := langs.NewLanguage(k, c.Base.DefaultContentLanguage, v.TimeZone, languageConf)
+	// TODO1 more cleanups, please.
+	for _, f := range c.Base.Languages.Config.Sorted {
+		v := c.LanguageConfigMap[f.Name]
+		language, err := langs.NewLanguage(f.Name, c.Base.DefaultContentLanguage, v.TimeZone, f.LanguageConfig)
 		if err != nil {
 			return err
 		}
@@ -897,7 +865,7 @@ func (c *Configs) Init() error {
 	}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
-	for i, l := range c.LanguagesDefaultFirst {
+	for i, l := range c.Languages {
 		c.configLangs[i] = ConfigLanguage{
 			m:          c,
 			config:     c.LanguageConfigMap[l.Lang],
@@ -948,7 +916,7 @@ func (c Configs) GetFirstLanguageConfig() config.AllProvider {
 
 func (c Configs) GetByLang(lang string) config.AllProvider {
 	for _, l := range c.configLangs {
-		if l.Language().Lang == lang {
+		if l.Language().(*langs.Language).Lang == lang {
 			return l
 		}
 	}
@@ -1063,7 +1031,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					}
 				}
 			}
-			differentRootKeys = helpers.UniqueStringsSorted(differentRootKeys)
+			differentRootKeys = hstrings.UniqueStringsSorted(differentRootKeys)
 
 			if len(differentRootKeys) == 0 {
 				langConfigMap[k] = all

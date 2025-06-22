@@ -43,7 +43,7 @@ func (p *pageCommon) getNextPrevInSection() *nextPrev {
 }
 
 type pageCommon struct {
-	s *Site
+	s *Site // TODO(bep) get rid of this.
 	m *pageMeta
 
 	sWrapped page.Site
@@ -99,6 +99,10 @@ type pageCommon struct {
 	// Internal use
 	page.RelatedDocsHandlerProvider
 
+	*pageContentConverter
+}
+
+type pageContentConverter struct {
 	contentConverterInit sync.Once
 	contentConverter     converter.Converter
 }

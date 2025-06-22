@@ -180,6 +180,8 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 	if pi.Disabled() {
 		return fim, false
 	}
+
+	// TODO1 redo vs. Dimensions.
 	if meta.Lang != "" {
 		if isLangDisabled := fs.opts.PathParser.IsLangDisabled; isLangDisabled != nil && isLangDisabled(meta.Lang) {
 			return fim, false
@@ -195,7 +197,8 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 		}
 	}
 
-	if meta.Lang == "" {
+	// TODO1
+	/*if meta.Lang == "" {
 		meta.Lang = fs.opts.DefaultContentLanguage
 	}
 
@@ -204,6 +207,7 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 		panic("no language found for " + meta.Lang)
 	}
 	meta.LangIndex = langIdx
+	*/
 
 	if fi.IsDir() {
 		meta.OpenFunc = func() (afero.File, error) {
