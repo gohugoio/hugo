@@ -938,3 +938,30 @@ path = '/p1'
 
 	b.AssertFileContent("public/p1/index.html", "p1|bar") // actual content is "p1|"
 }
+
+func TestCascadeWarnOverrideIssue13806(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[[cascade]]
+[cascade.params]
+searchable = true
+[cascade.target]
+kind = 'page'
+-- content/something.md --
+---
+title: Something
+params:
+  searchable: false
+---
+-- layouts/all.html --
+All.
+
+`
+
+	b := Test(t, files, TestOptWarn())
+
+	b.AssertLogContains("! WARN")
+}

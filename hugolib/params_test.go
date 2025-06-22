@@ -94,28 +94,6 @@ a/b pages: {{ range $ab.RegularPages }}{{ .Path }}|{{ .RelPermalink }}|{{ end }}
 	)
 }
 
-func TestFrontMatterTitleOverrideWarn(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org/"
-disableKinds = ["taxonomy", "term"]
--- content/p1.md --
----
-title: "My title"
-params:
-  title: "My title from params"
----
-
-
-`
-
-	b := Test(t, files, TestOptWarn())
-
-	b.AssertLogContains("ARN  Hugo front matter key \"title\" is overridden in params section", "You can suppress this warning")
-}
-
 func TestFrontMatterParamsLangNoCascade(t *testing.T) {
 	t.Parallel()
 
