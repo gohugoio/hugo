@@ -108,24 +108,24 @@ type ExternalOptions struct {
 	Minify bool
 
 	// One of "inline", "external", "linked" or "none".
-	SourceMap string
+	SourceMap string `jsonschema:"enum=inline,enum=external,enum=linked,enum=none"`
 
 	SourcesContent bool
 
 	// The language target.
 	// One of: es2015, es2016, es2017, es2018, es2019, es2020 or esnext.
 	// Default is esnext.
-	Target string
+	Target string `jsonschema:"enum=es5,enum=es2015,enum=es2016,enum=es2017,enum=es2018,enum=es2019,enum=es2020,enum=es2021,enum=es2022,enum=es2023,enum=es2024,enum=esnext"`
 
 	// The output format.
 	// One of: iife, cjs, esm
 	// Default is to esm.
-	Format string
+	Format string `jsonschema:"enum=iife,enum=cjs,enum=esm"`
 
 	// One of browser, node, neutral.
 	// Default is browser.
 	// See https://esbuild.github.io/api/#platform
-	Platform string
+	Platform string `jsonschema:"enum=browser,enum=node,enum=neutral"`
 
 	// External dependencies, e.g. "react".
 	Externals []string
@@ -140,7 +140,7 @@ type ExternalOptions struct {
 
 	// This tells esbuild to edit your source code before building to drop certain constructs.
 	// See https://esbuild.github.io/api/#drop
-	Drop string
+	Drop string `jsonschema:"enum=console,enum=debugger"`
 
 	// Maps a component import to another.
 	Shims map[string]string
@@ -165,7 +165,7 @@ type ExternalOptions struct {
 
 	// What to do about JSX syntax.
 	// See https://esbuild.github.io/api/#jsx
-	JSX string
+	JSX string `jsonschema:"enum=transform,enum=preserve,enum=automatic"`
 
 	// Which library to use to automatically import JSX helper functions from. Only works if JSX is set to automatic.
 	// See https://esbuild.github.io/api/#jsx-import-source

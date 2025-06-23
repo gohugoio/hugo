@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-frontmatter.schema.json",
+  "properties": {
+    "date": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Controls how the Date is set from front matter. \nhttps://gohugo.io/configuration/front-matter/#dates"
+    },
+    "lastmod": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Controls how the Lastmod is set from front matter. \nhttps://gohugo.io/configuration/front-matter/#dates"
+    },
+    "publishDate": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Controls how the PublishDate is set from front matter. \nhttps://gohugo.io/configuration/front-matter/#dates"
+    },
+    "expiryDate": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Controls how the ExpiryDate is set from front matter. \nhttps://gohugo.io/configuration/front-matter/#dates"
+    }
+  },
+  "type": "object"
+}

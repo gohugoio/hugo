@@ -65,15 +65,15 @@ var (
 
 // Config configures asciidoc.
 type Config struct {
-	Backend              string
+	Backend              string `jsonschema:"enum=html5,enum=html5s,enum=xhtml5,enum=docbook5,enum=docbook45,enum=manpage"`
 	Extensions           []string
 	Attributes           map[string]string
 	NoHeaderOrFooter     bool
-	SafeMode             string
+	SafeMode             string `jsonschema:"enum=unsafe,enum=safe,enum=server,enum=secure"`
 	SectionNumbers       bool
 	Verbose              bool
 	Trace                bool
-	FailureLevel         string
+	FailureLevel         string `jsonschema:"enum=fatal,enum=warn"`
 	WorkingFolderCurrent bool
 	PreserveTOC          bool
 }
