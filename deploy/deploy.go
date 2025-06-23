@@ -487,7 +487,71 @@ func knownHiddenDirectory(name string) bool {
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
 func (d *Deployer) walkLocal(fs afero.Fs, matchers []*deployconfig.Matcher, include, exclude glob.Glob, mediaTypes media.Types, mappath func(string) string) (map[string]*localFile, error) {
-	retval := map[string]*localFile{}
+	retval := sync.Map{}
+
+	// Create a worker pool
+	workerCount := d.cfg.Workers
+	jobs := make(chan string, workerCount)
+	errs := make(chan error, workerCount)
+	var wg sync.WaitGroup
+
+	// Start workers
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for path := range jobs {
+				info, err := fs.Stat(path)
+				if err != nil {
+					errs <- err
+					continue
+				}
+
+				// .DS_Store is an internal MacOS attribute file; skip it.
+				if info.IsDir() || info.Name() == ".DS_Store" {
+					continue
+				}
+
+				// When a file system is HFS+, its filepath is in NFD form.
+				if runtime.GOOS == "darwin" {
+					path = norm.NFC.String(path)
+				}
+
+				// Check include/exclude matchers.
+				slashpath := filepath.ToSlash(path)
+				if include != nil && !include.Match(slashpath) {
+					d.logger.Infof("  dropping %q due to include\n", slashpath)
+					continue
+				}
+				if exclude != nil && exclude.Match(slashpath) {
+					d.logger.Infof("  dropping %q due to exclude\n", slashpath)
+					continue
+				}
+
+				// Find the first matching matcher (if any).
+				var m *deployconfig.Matcher
+				for _, cur := range matchers {
+					if cur.Matches(slashpath) {
+						m = cur
+						break
+					}
+				}
+				// Apply any additional modifications to the local path, to map it to
+				// the remote path.
+				if mappath != nil {
+					slashpath = mappath(slashpath)
+				}
+				lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
+				if err != nil {
+					errs <- err
+					continue
+				}
+				retval.Store(lf.SlashPath, lf)
+			}
+		}()
+	}
+
+	// Walk the directory tree and send paths to workers
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -502,52 +566,32 @@ func (d *Deployer) walkLocal(fs afero.Fs, matchers []*deployconfig.Matcher, incl
 			}
 			return nil
 		}
-
-		// .DS_Store is an internal MacOS attribute file; skip it.
-		if info.Name() == ".DS_Store" {
-			return nil
-		}
-
-		// When a file system is HFS+, its filepath is in NFD form.
-		if runtime.GOOS == "darwin" {
-			path = norm.NFC.String(path)
-		}
-
-		// Check include/exclude matchers.
-		slashpath := filepath.ToSlash(path)
-		if include != nil && !include.Match(slashpath) {
-			d.logger.Infof("  dropping %q due to include\n", slashpath)
-			return nil
-		}
-		if exclude != nil && exclude.Match(slashpath) {
-			d.logger.Infof("  dropping %q due to exclude\n", slashpath)
-			return nil
-		}
-
-		// Find the first matching matcher (if any).
-		var m *deployconfig.Matcher
-		for _, cur := range matchers {
-			if cur.Matches(slashpath) {
-				m = cur
-				break
-			}
-		}
-		// Apply any additional modifications to the local path, to map it to
-		// the remote path.
-		if mappath != nil {
-			slashpath = mappath(slashpath)
-		}
-		lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
-		if err != nil {
-			return err
-		}
-		retval[lf.SlashPath] = lf
+		jobs <- path
 		return nil
 	})
+
+	close(jobs)
+	wg.Wait()
+	close(errs)
+
+	// Check for any errors from workers
+	for err := range errs {
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	return retval, nil
+
+	// Convert sync.Map to regular map
+	result := make(map[string]*localFile)
+	retval.Range(func(key, value interface{}) bool {
+		result[key.(string)] = value.(*localFile)
+		return true
+	})
+	return result, nil
 }
 
 // stripIndexHTML remaps keys matching "<dir>/index.html" to "<dir>/".
