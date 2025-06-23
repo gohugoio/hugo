@@ -41,6 +41,8 @@ type ErrorSender interface {
 // Put this at the top of a method/function that crashes in a template:
 //
 //	defer herrors.Recover()
+//
+// TODO1 remove usage.
 func Recover(args ...any) {
 	if r := recover(); r != nil {
 		fmt.Println("ERR:", r)

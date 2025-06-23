@@ -1980,6 +1980,9 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 						}
 
 						m := &pageMeta{
+							pageMetaSource: &pageMetaSource{
+								pathInfo: pi,
+							},
 							term:     v,
 							singular: viewName.singular,
 							// TODO1 s:        sa.s,
@@ -1992,11 +1995,11 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 								},
 							},
 						}
-						n, pi, err := sa.s.h.newPage(m)
+						ps, err := sa.s.newPageNew(m)
 						if err != nil {
 							return false, err
 						}
-						pages.InsertIntoValuesDimension(pi.Base(), n)
+						pages.InsertIntoValuesDimension(ps.PathInfo().Base(), ps)
 						term = pages.Get(pi.Base())
 					} else {
 						m := term.(*pageState).m
@@ -2420,10 +2423,13 @@ func (sa *sitePagesAssembler) createPages() error {
 			handlePageMetaSource := func(ms *pageMetaSource, is contentNodeIs) error {
 				var err error
 				d := ms.f.FileInfo().Meta().SiteInts
+				if d == nil {
+					panic(fmt.Sprintf("pageMetaSource %s has no site dimension", ms.f.FileInfo().Meta().Filename))
+				}
 				d.ForEeachVector(func(vec sitematrix.Vector) bool {
 					site, found := sites[vec]
 					if !found {
-						panic(fmt.Sprintf("site not found for %s", vec))
+						panic(fmt.Sprintf("site not found for %v", vec))
 					}
 					var p *pageState
 					p, err = site.newPageFromPageMetasource(ms)
@@ -2469,7 +2475,7 @@ func (sa *sitePagesAssembler) createPages() error {
 						var err error
 						site, found := sites[m.dims.FirstVector()] // TODO1 get rid of this interface.
 						if !found {
-							panic(fmt.Sprintf("site not found for %s", m))
+							panic(fmt.Sprintf("site not found for %v", m))
 						}
 						v[i], err = site.newPageNew(m)
 						if err != nil {

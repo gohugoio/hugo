@@ -384,31 +384,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			return fim.Meta().Open()
 		}
 
-		var rs *resourceSource
-		if pi.IsContent() {
-			// Create the page now as we need it at assembly time.
-			// The other resources are created if needed.
-			pageResource, pi, err := m.s.h.newPage(
-				&pageMeta{
-					f:        source.NewFileInfo(fim),
-					pathInfo: pi,
-					bundled:  true,
-				},
-			)
-			if err != nil {
-				return err
-			}
-			if pageResource == nil {
-				// Disabled page.
-				return nil
-			}
-			key = pi.Base()
-
-			rs = &resourceSource{r: pageResource, dims: pageResource.s.dims}
-		} else {
-			rs = &resourceSource{path: pi, opener: r, fi: fim, dims: fim.Meta().SiteInts}
-		}
-
+		rs := &resourceSource{path: pi, opener: r, fi: fim, dims: fim.Meta().SiteInts} // TODO1 front matter dims.
 		_, _, _ = m.insertResource(key, rs)
 
 		return nil

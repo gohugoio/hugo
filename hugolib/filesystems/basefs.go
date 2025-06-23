@@ -713,15 +713,11 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			}
 
 			base, filename := absPathify(mount.Source)
-			var sets *sitematrix.IntSets
 
-			if !mount.Dimensions.IsZero() {
-				v := mount.Dimensions
-				var err error
-				sets, err = sitematrix.NewIntSets2(b.p.Cfg.ConfiguredDimensions(), true, v.Languages, v.Versions, v.Roles)
-				if err != nil {
-					return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
-				}
+			v := mount.Dimensions
+			sets, err := sitematrix.NewIntSets2(b.p.Cfg.ConfiguredDimensions(), true, v.Languages, v.Versions, v.Roles)
+			if err != nil {
+				return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
 			}
 
 			rm := hugofs.RootMapping{

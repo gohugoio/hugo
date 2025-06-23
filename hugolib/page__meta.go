@@ -477,9 +477,8 @@ func (p *pageMeta) setMetaPre(pi *contentParseInfo, dimensionsFromFile *sitematr
 		if err := p.pageConfig.SetMetaPreFromMap(frontmatter, logger, conf); err != nil {
 			return err
 		}
-	} else if p.pageMetaParams.pageConfig.Params == nil {
-		p.pageConfig.Params = make(maps.Params)
 	}
+	p.pageConfig.Params = make(maps.Params)
 
 	if p.pageConfig.Lang == "" {
 		if p.f != nil {

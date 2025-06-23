@@ -511,6 +511,10 @@ func (n *testContentNode) isContentNodeBranch() bool {
 	return false
 }
 
+func (n *testContentNode) contentWeight() int {
+	return 0
+}
+
 func (n *testContentNode) resetBuildState() {
 }
 

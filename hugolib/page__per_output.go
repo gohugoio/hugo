@@ -22,6 +22,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/identity"
@@ -149,6 +150,7 @@ func (pco *pageContentOutput) c() page.Markup {
 }
 
 func (pco *pageContentOutput) Content(ctx context.Context) (any, error) {
+	defer herrors.Recover()
 	r, err := pco.c().Render(ctx)
 	if err != nil {
 		return nil, err
