@@ -307,11 +307,13 @@ func TestSpecificMountShouldAlwaysWin(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
+disableKinds = ["rss", "sitemap", "section"]
 defaultContentLanguage = "en"
 defaultContentLanguageInSubDir = true
 defaultCOntentVersionInSubDir = true
 defaultContentVersion = "v2.0.0"
+[taxonomies]
+tag = "tags"
 [languages]
 [languages.en]
 weight = 1
@@ -336,6 +338,7 @@ versions  = ["**"]
 -- content/en/_index.md --
 ---
 title: "English Home"
+tags: ["tag1"]
 ---
 -- content/en/p1.md --
 ---
@@ -344,17 +347,20 @@ title: "English p1"
 -- content/nn/_index.md --
 ---
 title: "Nynorsk Heim"
+tags: ["tag2"]
 ---
 -- layouts/all.html --
 title: {{ .Title }}|
+tags: {{ range $term, $taxonomy := .Site.Taxonomies.tags }}{{ $term }}: {{ range $taxonomy.Pages }}{{ .Title }}: {{ .RelPermalink}}|{{ end }}{{ end }}$
 `
 
 	for range 2 {
 		b := hugolib.Test(t, files)
 
-		b.AssertFileContent("public/v1.2.3/nn/index.html", "title: Nynorsk Heim|")
-		b.AssertFileContent("public/v2.0.0/en/index.html", "title: English Home|")
-		b.AssertFileContent("public/v2.0.0/nn/index.html", "title: English Home|") // v2.0.0 is only in English.
+		// b.AssertPublishDir("asdf")
+		b.AssertFileContent("public/v1.2.3/nn/index.html", "title: Nynorsk Heim|", "tags: tag2: Nynorsk Heim: /v1.2.3/nn/|$")
+		b.AssertFileContent("public/v2.0.0/en/index.html", "title: English Home|", "tags: tag1: English Home: /v2.0.0/en/|$")
+		b.AssertFileContent("public/v2.0.0/nn/index.html", "title: English Home|", "tags: tag1: English Home: /v2.0.0/nn/|$") // v2.0.0 is only in English.
 		b.AssertFileContent("public/v1.2.3/en/index.html", "title: English Home|")
 	}
 }

@@ -134,11 +134,11 @@ type pageTrees struct {
 	treePagesResources doctree.WalkableTrees[contentNodeI]
 
 	// This tree contains all taxonomy entries, e.g "/tags/blue/page1"
-	treeTaxonomyEntries *doctree.TreeShiftTree[*weightedContentNode]
+	treeTaxonomyEntries *doctree.TreeShiftTreeSlice[*weightedContentNode]
 
 	// Stores the state for _content.gotmpl files.
 	// Mostly releveant for rebuilds.
-	treePagesFromTemplateAdapters *doctree.TreeShiftTree[*pagesfromdata.PagesFromTemplate]
+	treePagesFromTemplateAdapters *doctree.TreeShiftTreeSlice[*pagesfromdata.PagesFromTemplate]
 
 	// A slice of the resource trees.
 	resourceTrees doctree.MutableTrees
@@ -236,12 +236,11 @@ func (t *pageTrees) DeletePageAndResourcesBelow(ss ...string) {
 	}
 }
 
-// Shape shapes all trees in t to the given dimension.
-func (t pageTrees) Shape(d, v int) *pageTrees {
-	t.treePages = t.treePages.Shape(d, v)
-	t.treeResources = t.treeResources.Shape(d, v)
-	t.treeTaxonomyEntries = t.treeTaxonomyEntries.Shape(d, v)
-	t.treePagesFromTemplateAdapters = t.treePagesFromTemplateAdapters.Shape(d, v)
+func (t pageTrees) Shape(v sitematrix.Vector) *pageTrees {
+	t.treePages = t.treePages.Shape(v)
+	t.treeResources = t.treeResources.Shape(v)
+	t.treeTaxonomyEntries = t.treeTaxonomyEntries.Shape(v)
+	t.treePagesFromTemplateAdapters = t.treePagesFromTemplateAdapters.Shape(v)
 	t.createMutableTrees()
 
 	return &t
@@ -1086,7 +1085,6 @@ func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension sitemat
 }
 
 func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, contentNodeI, bool) {
-	deb("Insert: old %T, new %T", old, new)
 	switch vv := old.(type) {
 	case *pageMetaSource:
 		return pageMetaSourcesSlice{vv, new.(*pageMetaSource)}, old, false
@@ -1207,10 +1205,12 @@ func newPageMap(sitei, versioni, rolei int, s *Site, mcache *dynacache.Cache, pa
 
 	roleVersionSite := fmt.Sprintf("s%d/%d&%d", rolei, versioni, sitei)
 
+	vec := sitematrix.Vector{sitei, versioni, rolei} // TODO1 use s.dims.
+
 	var taxonomiesConfig taxonomiesConfig = s.conf.Taxonomies
 
 	m = &pageMap{
-		pageTrees:              pageTrees.Shape(sitematrix.Language.Index(), sitei).Shape(sitematrix.Version.Index(), versioni).Shape(sitematrix.Role.Index(), rolei),
+		pageTrees:              pageTrees.Shape(vec),
 		cachePages1:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag1/%s", roleVersionSite), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
 		cachePages2:            dynacache.GetOrCreatePartition[string, page.Pages](mcache, fmt.Sprintf("/pag2/%s", roleVersionSite), dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild}),
 		cacheGetTerms:          dynacache.GetOrCreatePartition[string, map[string]page.Pages](mcache, fmt.Sprintf("/gett/%s", roleVersionSite), dynacache.OptionsPartition{Weight: 5, ClearWhen: dynacache.ClearOnRebuild}),
@@ -2154,13 +2154,14 @@ func (sa *sitePagesAssembler) assemblePagesStep1() error {
 	defer herrors.Recover()
 
 	// TODO1
+	if err := sa.addMissingTaxonomies(); err != nil {
+		return err
+	}
 
-	/*if err := sa.addMissingTaxonomies(); err != nil {
-		return err
-	}*/
-	/*if err := sa.addMissingRootSections(); err != nil {
-		return err
-	}*/
+	/*
+		/*if err := sa.addMissingRootSections(); err != nil {
+			return err
+		}*/
 	/*
 		if err := sa.addStandalonePages(); err != nil {
 			return err
@@ -2431,6 +2432,7 @@ func (sa *sitePagesAssembler) createPages() error {
 					if !found {
 						panic(fmt.Sprintf("site not found for %v", vec))
 					}
+
 					var p *pageState
 					p, err = site.newPageFromPageMetasource(ms)
 					if err != nil {
@@ -2512,9 +2514,13 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 	for _, viewName := range sa.s.pageMap.cfg.taxonomyConfig.views {
 		key := viewName.pluralTreeKey
 		if v := tree.Get(key); v == nil {
+			pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
 			m := &pageMeta{
 				// TODO1 s:        sa.s,
-				pathInfo: sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md"),
+				pathInfo: pi,
+				pageMetaSource: &pageMetaSource{
+					pathInfo: pi,
+				},
 				pageMetaParams: &pageMetaParams{
 					pageConfig: &pagemeta.PageConfig{
 						PageConfigEarly: pagemeta.PageConfigEarly{
@@ -2524,7 +2530,10 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 				},
 				singular: viewName.singular,
 			}
-			p, _, _ := sa.s.h.newPage(m)
+			p, err := sa.s.newPageNew(m)
+			if err != nil {
+				return fmt.Errorf("failed to create taxonomy %s: %w", viewName.plural, err)
+			}
 			tree.InsertIntoValuesDimension(key, p)
 		}
 	}

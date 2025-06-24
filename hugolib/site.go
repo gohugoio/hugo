@@ -126,7 +126,12 @@ func (s Site) cloneForVersionAndRole(version, role int) (*Site, error) {
 	return &s, nil
 }
 
-func (s Site) newPageNew(m *pageMeta) (*pageState, error) { // TODO1 rename.
+// For debugging purposes only.
+func (s *Site) debugResolveDimensionNames() types.Strings3 {
+	return s.Conf.ConfiguredDimensions().ResolveNames(s.dims)
+}
+
+func (s *Site) newPageNew(m *pageMeta) (*pageState, error) { // TODO1 rename.
 	p, err := s.doNewPageFromMeta(32, m)
 	if err != nil {
 		return nil, err
@@ -304,7 +309,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		Shifter: ns,
 	}
 
-	dimensionLengths := []int{len(confm.Languages), len(versionsSorted), len(rolesSorted)}
+	dimensionLengths := sitematrix.Vector{len(confm.Languages), len(versionsSorted), len(rolesSorted)}
 
 	pageTrees := &pageTrees{
 		treePages: doctree.New(

@@ -130,6 +130,7 @@ func pageRenderer(
 	defer wg.Done()
 
 	for p := range pages {
+
 		if p.m.isStandalone() && !ctx.shouldRenderStandalonePage(p.Kind()) {
 			continue
 		}

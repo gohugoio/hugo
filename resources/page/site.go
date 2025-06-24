@@ -178,6 +178,7 @@ type siteWrapper struct {
 	s Site
 }
 
+// TODO1 check if we need this.
 func WrapSite(s Site) Site {
 	if s == nil {
 		panic("Site is nil")

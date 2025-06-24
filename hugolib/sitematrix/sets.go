@@ -148,6 +148,12 @@ func (s *IntSets) SetFrom(other *IntSets) {
 	}
 }
 
+// WithLanguageIndex replaces the current language set with a single language index.
+func (s IntSets) WithLanguageIndex(i int) *IntSets {
+	s.Languages = maps.NewOrderedIntSet(i)
+	return &s
+}
+
 // NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
 func NewIntSets() *IntSets {
 	return &IntSets{}

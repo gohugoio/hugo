@@ -95,6 +95,7 @@ func (m *pageMetaSource) MarkStale() {
 type pageMetaSource struct {
 	pathInfo *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
 	f        *source.File
+	pi       *contentParseInfo
 	resource.Staler
 }
 
@@ -105,7 +106,7 @@ type pageMeta struct {
 	term     string // Set for kind == KindTerm.
 	singular string // Set for kind == KindTerm and kind == KindTaxonomy.
 
-	resource.Staler // TODO1 remove.
+	resource.Staler // TODO1 remove?
 	*pageMetaParams
 
 	// Set for standalone pages, e.g. robotsTXT.
@@ -122,6 +123,70 @@ type pageMeta struct {
 	content *cachedContent // The source and the parsed page content.
 }
 
+func (m *pageMeta) init(s *Site, pid uint64) error {
+	if m.Staler == nil {
+		m.Staler = &resources.AtomicStaler{}
+	}
+
+	h := s.h
+
+	var tc viewName
+
+	// Resolve page kind.
+	m.pageConfig.Kind = kinds.KindSection
+	if m.pathInfo.Base() == "/" {
+		m.pageConfig.Kind = kinds.KindHome
+	} else if m.pathInfo.IsBranchBundle() {
+		// A section, taxonomy or term.
+		tc = s.pageMap.cfg.getTaxonomyConfig(m.Path())
+		if !tc.IsZero() {
+			// Either a taxonomy or a term.
+			if tc.pluralTreeKey == m.Path() {
+				m.pageConfig.Kind = kinds.KindTaxonomy
+			} else {
+				m.pageConfig.Kind = kinds.KindTerm
+			}
+		}
+	} else if m.f != nil {
+		m.pageConfig.Kind = kinds.KindPage
+	}
+
+	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
+		if tc.IsZero() {
+			tc = s.pageMap.cfg.getTaxonomyConfig(m.Path())
+		}
+		if tc.IsZero() {
+			return fmt.Errorf("no taxonomy configuration found for %q", m.Path())
+		}
+		m.singular = tc.singular
+
+		if m.pageConfig.Kind == kinds.KindTerm {
+			m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
+		}
+	}
+
+	// TODO1 can we do this here?
+	/*if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
+		return nil,, nil
+	}*/
+
+	// Read front matter.
+
+	if err := m.parseFrontMatter(h, pid); err != nil {
+		return err
+	}
+
+	var dimensionsFromFile *sitematrix.IntSets
+	if m.f != nil {
+		dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
+	}
+
+	if err := m.setMetaPre(dimensionsFromFile, h.Log, h.Conf); err != nil {
+		return m.wrapError(err, h.BaseFs.SourceFs)
+	}
+	return nil
+}
+
 // bookmark1
 func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMetaSource, error) {
 	return &pageMetaSource{
@@ -132,14 +197,14 @@ func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMetaSource
 }
 
 func (s *Site) newPageFromPageMetasource(ms *pageMetaSource) (*pageState, error) {
-	m, err := s.h.newPageMetaFromPageMetasource(ms)
+	m, err := s.newPageMetaFromPageMetasource(ms)
 	if err != nil {
 		return nil, err
 	}
 	return s.newPageNew(m)
 }
 
-func (h *HugoSites) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, error) {
+func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, error) {
 	pid := pageIDCounter.Add(1) // TODO1
 
 	m := &pageMeta{
@@ -158,68 +223,11 @@ func (h *HugoSites) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta
 		bundled: false,
 	}
 
-	// var tc viewName
-
-	// Resolve page kind.
-	m.pageConfig.Kind = kinds.KindSection
-	if m.pathInfo.Base() == "/" {
-		m.pageConfig.Kind = kinds.KindHome
-	} else if m.pathInfo.IsBranchBundle() {
-		// TODO1 maybe we need to do this later.
-		// A section, taxonomy or term.
-		/*tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
-		if !tc.IsZero() {
-			// Either a taxonomy or a term.
-			if tc.pluralTreeKey == m.Path() {
-				m.pageConfig.Kind = kinds.KindTaxonomy
-			} else {
-				m.pageConfig.Kind = kinds.KindTerm
-			}
-		}*/
-	} else if m.f != nil {
-		m.pageConfig.Kind = kinds.KindPage
-	}
-
-	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
-		// TODO1 maybe we need to do this later.
-		/*if tc.IsZero() {
-			tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
-		}
-		if tc.IsZero() {
-			return nil, fmt.Errorf("no taxonomy configuration found for %q", m.Path())
-		}*/
-		//m.singular = tc.singular
-		//if m.pageConfig.Kind == kinds.KindTerm {
-		//	m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
-		//}
-	}
-
-	// TODO1 can we do this here?
-	/*if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
-		return nil,, nil
-	}*/
-
-	// Read front matter.
-
-	pi, err := m.parseFrontMatter(h, pid)
-	if err != nil {
-		return nil, err
-	}
-
-	var dimensionsFromFile *sitematrix.IntSets
-	if m.f != nil {
-		dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
-	}
-
-	if err := m.setMetaPre(pi, dimensionsFromFile, h.Log, h.Conf); err != nil {
-		return nil, m.wrapError(err, h.BaseFs.SourceFs)
-	}
-
-	return m, nil
+	return m, m.init(s, pid)
 }
 
 func (h *HugoSites) newPageMetaFromFile_(fi hugofs.FileMetaInfo) (*pageMeta, error) {
-	pid := pageIDCounter.Add(1) // TODO1
+	/*^pid := pageIDCounter.Add(1) // TODO1
 
 	m := &pageMeta{
 		f:        source.NewFileInfo(fi),
@@ -234,66 +242,9 @@ func (h *HugoSites) newPageMetaFromFile_(fi hugofs.FileMetaInfo) (*pageMeta, err
 			},
 		},
 		bundled: false,
-	}
-
-	// var tc viewName
-
-	// Resolve page kind.
-	m.pageConfig.Kind = kinds.KindSection
-	if m.pathInfo.Base() == "/" {
-		m.pageConfig.Kind = kinds.KindHome
-	} else if m.pathInfo.IsBranchBundle() {
-		// TODO1 maybe we need to do this later.
-		// A section, taxonomy or term.
-		/*tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
-		if !tc.IsZero() {
-			// Either a taxonomy or a term.
-			if tc.pluralTreeKey == m.Path() {
-				m.pageConfig.Kind = kinds.KindTaxonomy
-			} else {
-				m.pageConfig.Kind = kinds.KindTerm
-			}
-		}*/
-	} else if m.f != nil {
-		m.pageConfig.Kind = kinds.KindPage
-	}
-
-	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
-		// TODO1 maybe we need to do this later.
-		/*if tc.IsZero() {
-			tc = m.s.pageMap.cfg.getTaxonomyConfig(m.Path())
-		}
-		if tc.IsZero() {
-			return nil, fmt.Errorf("no taxonomy configuration found for %q", m.Path())
-		}*/
-		//m.singular = tc.singular
-		//if m.pageConfig.Kind == kinds.KindTerm {
-		//	m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
-		//}
-	}
-
-	// TODO1 can we do this here?
-	/*if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
-		return nil,, nil
 	}*/
 
-	// Read front matter.
-
-	pi, err := m.parseFrontMatter(h, pid)
-	if err != nil {
-		return nil, err
-	}
-
-	var dimensionsFromFile *sitematrix.IntSets
-	if m.f != nil {
-		dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
-	}
-
-	if err := m.setMetaPre(pi, dimensionsFromFile, h.Log, h.Conf); err != nil {
-		return nil, m.wrapError(err, h.BaseFs.SourceFs)
-	}
-
-	return m, nil
+	panic("TODO1 remove me")
 }
 
 // Prepare for a rebuild of the data passed in from front matter.
@@ -325,12 +276,12 @@ func (m *pageMetaParams) init(preserveOriginal bool) {
 	}
 }
 
-func (p *pageMeta) Aliases() []string {
-	return p.pageConfig.Aliases
+func (m *pageMeta) Aliases() []string {
+	return m.pageConfig.Aliases
 }
 
-func (p *pageMeta) BundleType() string {
-	switch p.pathInfo.Type() {
+func (m *pageMeta) BundleType() string {
+	switch m.pathInfo.Type() {
 	case paths.TypeLeaf:
 		return "leaf"
 	case paths.TypeBranch:
@@ -340,78 +291,74 @@ func (p *pageMeta) BundleType() string {
 	}
 }
 
-func (p *pageMeta) Date() time.Time {
-	return p.pageConfig.Dates.Date
+func (m *pageMeta) Date() time.Time {
+	return m.pageConfig.Dates.Date
 }
 
-func (p *pageMeta) PublishDate() time.Time {
-	return p.pageConfig.Dates.PublishDate
+func (m *pageMeta) PublishDate() time.Time {
+	return m.pageConfig.Dates.PublishDate
 }
 
-func (p *pageMeta) Lastmod() time.Time {
-	return p.pageConfig.Dates.Lastmod
+func (m *pageMeta) Lastmod() time.Time {
+	return m.pageConfig.Dates.Lastmod
 }
 
-func (p *pageMeta) ExpiryDate() time.Time {
-	return p.pageConfig.Dates.ExpiryDate
+func (m *pageMeta) ExpiryDate() time.Time {
+	return m.pageConfig.Dates.ExpiryDate
 }
 
-func (p *pageMeta) Description() string {
-	return p.pageConfig.Description
+func (m *pageMeta) Description() string {
+	return m.pageConfig.Description
 }
 
-func (p *pageMeta) Lang() string {
-	return "TODO1" // p.s.Lang()
+func (m *pageMeta) Draft() bool {
+	return m.pageConfig.Draft
 }
 
-func (p *pageMeta) Draft() bool {
-	return p.pageConfig.Draft
+func (m *pageMeta) File() *source.File {
+	return m.f
 }
 
-func (p *pageMeta) File() *source.File {
-	return p.f
+func (m *pageMeta) IsHome() bool {
+	return m.Kind() == kinds.KindHome
 }
 
-func (p *pageMeta) IsHome() bool {
-	return p.Kind() == kinds.KindHome
+func (m *pageMeta) Keywords() []string {
+	return m.pageConfig.Keywords
 }
 
-func (p *pageMeta) Keywords() []string {
-	return p.pageConfig.Keywords
+func (m *pageMeta) Kind() string {
+	return m.pageConfig.Kind
 }
 
-func (p *pageMeta) Kind() string {
-	return p.pageConfig.Kind
+func (m *pageMeta) Layout() string {
+	return m.pageConfig.Layout
 }
 
-func (p *pageMeta) Layout() string {
-	return p.pageConfig.Layout
-}
-
-func (p *pageMeta) LinkTitle() string {
-	if p.pageConfig.LinkTitle != "" {
-		return p.pageConfig.LinkTitle
+func (m *pageMeta) LinkTitle() string {
+	if m.pageConfig.LinkTitle != "" {
+		return m.pageConfig.LinkTitle
 	}
 
-	return p.Title()
+	return m.Title()
 }
 
-func (p *pageMeta) Name() string {
-	if p.resourcePath != "" {
-		return p.resourcePath
+func (m *pageMeta) Name() string {
+	if m.resourcePath != "" {
+		return m.resourcePath
 	}
-	if p.pageConfig.Kind == kinds.KindTerm {
-		return p.pathInfo.Unnormalized().BaseNameNoIdentifier()
+	if m.pageConfig.Kind == kinds.KindTerm {
+		return m.pathInfo.Unnormalized().BaseNameNoIdentifier()
 	}
-	return p.Title()
+	return m.Title()
 }
 
-func (p *pageMeta) IsNode() bool {
-	return !p.IsPage()
+func (m *pageMeta) IsNode() bool {
+	return !m.IsPage()
 }
 
-func (p *pageMeta) IsPage() bool {
-	return p.Kind() == kinds.KindPage
+func (m *pageMeta) IsPage() bool {
+	return m.Kind() == kinds.KindPage
 }
 
 // Param is a convenience method to do lookups in Page's and Site's Params map,
@@ -419,78 +366,79 @@ func (p *pageMeta) IsPage() bool {
 //
 // This method is also implemented on SiteInfo.
 // TODO(bep) interface
-func (p *pageMeta) Param(key any) (any, error) {
+func (m *pageMeta) Param(key any) (any, error) {
 	panic("TODO1: reimplement me.")
 	// return resource.Param(p, p.s.Params(), key)
 }
 
-func (p *pageMeta) Params() maps.Params {
-	return p.pageConfig.Params
+func (m *pageMeta) Params() maps.Params {
+	return m.pageConfig.Params
 }
 
-func (p *pageMeta) Path() string {
-	return p.pathInfo.Base()
+func (m *pageMeta) Path() string {
+	return m.pathInfo.Base()
 }
 
-func (p *pageMeta) PathInfo() *paths.Path {
-	return p.pathInfo
+func (m *pageMeta) PathInfo() *paths.Path {
+	return m.pathInfo
 }
 
-func (p *pageMeta) IsSection() bool {
-	return p.Kind() == kinds.KindSection
+func (m *pageMeta) IsSection() bool {
+	return m.Kind() == kinds.KindSection
 }
 
-func (p *pageMeta) Section() string {
-	return p.pathInfo.Section()
+func (m *pageMeta) Section() string {
+	return m.pathInfo.Section()
 }
 
-func (p *pageMeta) Sitemap() config.SitemapConfig {
-	return p.pageConfig.Sitemap
+func (m *pageMeta) Sitemap() config.SitemapConfig {
+	return m.pageConfig.Sitemap
 }
 
-func (p *pageMeta) Title() string {
-	return p.pageConfig.Title
+func (m *pageMeta) Title() string {
+	return m.pageConfig.Title
 }
 
 const defaultContentType = "page"
 
-func (p *pageMeta) Type() string {
-	if p.pageConfig.Type != "" {
-		return p.pageConfig.Type
+func (m *pageMeta) Type() string {
+	if m.pageConfig.Type != "" {
+		return m.pageConfig.Type
 	}
 
-	if sect := p.Section(); sect != "" {
+	if sect := m.Section(); sect != "" {
 		return sect
 	}
 
 	return defaultContentType
 }
 
-func (p *pageMeta) Weight() int {
-	return p.pageConfig.Weight
+func (m *pageMeta) Weight() int {
+	return m.pageConfig.Weight
 }
 
-func (p *pageMeta) setMetaPre(pi *contentParseInfo, dimensionsFromFile *sitematrix.IntSets, logger loggers.Logger, conf config.AllProvider) error {
-	frontmatter := pi.frontMatter
+func (m *pageMeta) setMetaPre(dimensionsFromFile *sitematrix.IntSets, logger loggers.Logger, conf config.AllProvider) error {
+	frontmatter := m.pi.frontMatter
 
 	if frontmatter != nil {
-		if err := p.pageConfig.SetMetaPreFromMap(frontmatter, logger, conf); err != nil {
+		if err := m.pageConfig.SetMetaPreFromMap(frontmatter, logger, conf); err != nil {
 			return err
 		}
+	} else {
+		m.pageConfig.Params = make(maps.Params)
 	}
-	p.pageConfig.Params = make(maps.Params)
 
-	if p.pageConfig.Lang == "" {
-		if p.f != nil {
-			p.pageConfig.Lang = p.f.FileInfo().Meta().Lang
+	if m.pageConfig.Lang == "" {
+		if m.f != nil {
+			m.pageConfig.Lang = m.f.FileInfo().Meta().Lang
 		} else {
-			p.pageConfig.Lang = p.pathInfo.Lang()
+			m.pageConfig.Lang = m.pathInfo.Lang()
 		}
 	}
 
-	p.pageMetaParams.init(conf.Watching())
+	m.pageMetaParams.init(conf.Watching())
 
-	if err := p.pageConfig.CompileEearly(conf, dimensionsFromFile); err != nil {
+	if err := m.pageConfig.CompileEearly(conf, dimensionsFromFile); err != nil {
 		return fmt.Errorf("failed to compile roles: %w", err)
 	}
 
@@ -503,7 +451,6 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.Pa
 	if ps.m.setMetaPostCount > 1 {
 		cascadeHashPre = hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
 		ps.m.pageConfig.CascadeCompiled = ps.m.cascadeOriginal.Clone()
-
 	}
 
 	// Apply cascades first so they can be overridden later.
@@ -594,26 +541,26 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.Pa
 	return nil
 }
 
-func (p *pageState) setMetaPostParams() error {
-	pm := p.m
+func (ps *pageState) setMetaPostParams() error {
+	pm := ps.m
 	var mtime time.Time
 	var contentBaseName string
 	var ext string
 	var isContentAdapter bool
-	if p.File() != nil {
-		isContentAdapter = p.File().IsContentAdapter()
-		contentBaseName = p.File().ContentBaseName()
-		if p.File().FileInfo() != nil {
-			mtime = p.File().FileInfo().ModTime()
+	if ps.File() != nil {
+		isContentAdapter = ps.File().IsContentAdapter()
+		contentBaseName = ps.File().ContentBaseName()
+		if ps.File().FileInfo() != nil {
+			mtime = ps.File().FileInfo().ModTime()
 		}
 		if !isContentAdapter {
-			ext = p.File().Ext()
+			ext = ps.File().Ext()
 		}
 	}
 
 	var gitAuthorDate time.Time
-	if !p.gitInfo.IsZero() {
-		gitAuthorDate = p.gitInfo.AuthorDate
+	if !ps.gitInfo.IsZero() {
+		gitAuthorDate = ps.gitInfo.AuthorDate
 	}
 
 	descriptor := &pagemeta.FrontMatterDescriptor{
@@ -621,12 +568,12 @@ func (p *pageState) setMetaPostParams() error {
 		BaseFilename:  contentBaseName,
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
-		Location:      langs.GetLocation(p.s.Language()),
-		PathOrTitle:   p.pathOrTitle(),
+		Location:      langs.GetLocation(ps.s.Language()),
+		PathOrTitle:   ps.pathOrTitle(),
 	}
 
 	if isContentAdapter {
-		if err := pm.pageConfig.Compile(ext, p.s.Log, p.s.conf.OutputFormats.Config, p.s.conf.MediaTypes.Config); err != nil {
+		if err := pm.pageConfig.Compile(ext, ps.s.Log, ps.s.conf.OutputFormats.Config, ps.s.conf.MediaTypes.Config); err != nil {
 			return err
 		}
 	}
@@ -634,9 +581,9 @@ func (p *pageState) setMetaPostParams() error {
 	// Handle the date separately
 	// TODO(bep) we need to "do more" in this area so this can be split up and
 	// more easily tested without the Page, but the coupling is strong.
-	err := p.s.frontmatterHandler.HandleDates(descriptor)
+	err := ps.s.frontmatterHandler.HandleDates(descriptor)
 	if err != nil {
-		p.s.Log.Errorf("Failed to handle dates for page %q: %s", p.pathOrTitle(), err)
+		ps.s.Log.Errorf("Failed to handle dates for page %q: %s", ps.pathOrTitle(), err)
 	}
 
 	if isContentAdapter {
@@ -675,7 +622,7 @@ params:
 	pcfg := pm.pageConfig
 	params := pcfg.Params
 	if params == nil {
-		panic("params not set for " + p.Path())
+		panic("params not set for " + ps.Path())
 	}
 
 	var draft, published, isCJKLanguage *bool
@@ -702,7 +649,7 @@ params:
 			continue
 		}
 
-		if p.s.frontmatterHandler.IsDateKey(loki) {
+		if ps.s.frontmatterHandler.IsDateKey(loki) {
 			continue
 		}
 
@@ -731,7 +678,7 @@ params:
 		case "url":
 			url := cast.ToString(v)
 			if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
-				return fmt.Errorf("URLs with protocol (http*) not supported: %q. In page %q", url, p.pathOrTitle())
+				return fmt.Errorf("URLs with protocol (http*) not supported: %q. In page %q", url, ps.pathOrTitle())
 			}
 			pcfg.URL = url
 			params[loki] = url
@@ -780,7 +727,7 @@ params:
 			}
 			params[loki] = pcfg.Aliases
 		case "sitemap":
-			pcfg.Sitemap, err = config.DecodeSitemap(p.s.conf.Sitemap, maps.ToStringMap(v))
+			pcfg.Sitemap, err = config.DecodeSitemap(ps.s.conf.Sitemap, maps.ToStringMap(v))
 			if err != nil {
 				return fmt.Errorf("failed to decode sitemap config in front matter: %s", err)
 			}
@@ -854,18 +801,18 @@ params:
 
 	for k, v := range userParams {
 		if _, found := params[k]; found {
-			p.s.Log.Warnidf(constants.WarnFrontMatterParamsOverrides, "Hugo front matter key %q is overridden in params section.", k)
+			ps.s.Log.Warnidf(constants.WarnFrontMatterParamsOverrides, "Hugo front matter key %q is overridden in params section.", k)
 		}
 		params[strings.ToLower(k)] = v
 	}
 
 	if !sitemapSet {
-		pcfg.Sitemap = p.s.conf.Sitemap
+		pcfg.Sitemap = ps.s.conf.Sitemap
 	}
 
 	if draft != nil && published != nil {
 		pcfg.Draft = *draft
-		p.s.Log.Warnf("page %q has both draft and published settings in its frontmatter. Using draft.", p.File().Filename())
+		ps.s.Log.Warnf("page %q has both draft and published settings in its frontmatter. Using draft.", ps.File().Filename())
 	} else if draft != nil {
 		pcfg.Draft = *draft
 	} else if published != nil {
@@ -875,8 +822,8 @@ params:
 
 	if isCJKLanguage != nil {
 		pcfg.IsCJKLanguage = *isCJKLanguage
-	} else if p.s.conf.HasCJKLanguage && p.m.content.pi.openSource != nil {
-		if cjkRe.Match(p.m.content.mustSource()) {
+	} else if ps.s.conf.HasCJKLanguage && ps.m.content.pi.openSource != nil {
+		if cjkRe.Match(ps.m.content.mustSource()) {
 			pcfg.IsCJKLanguage = true
 		} else {
 			pcfg.IsCJKLanguage = false
@@ -889,7 +836,7 @@ params:
 		return err
 	}
 
-	if err := pcfg.Compile(ext, p.s.Log, p.s.conf.OutputFormats.Config, p.s.conf.MediaTypes.Config); err != nil {
+	if err := pcfg.Compile(ext, ps.s.Log, ps.s.conf.OutputFormats.Config, ps.s.conf.MediaTypes.Config); err != nil {
 		return err
 	}
 
@@ -898,13 +845,13 @@ params:
 
 // shouldList returns whether this page should be included in the list of pages.
 // global indicates site.Pages etc.
-func (p *pageMeta) shouldList(global bool) bool {
-	if p.isStandalone() {
+func (m *pageMeta) shouldList(global bool) bool {
+	if m.isStandalone() {
 		// Never list 404, sitemap and similar.
 		return false
 	}
 
-	switch p.pageConfig.Build.List {
+	switch m.pageConfig.Build.List {
 	case pagemeta.Always:
 		return true
 	case pagemeta.Never:
@@ -915,87 +862,87 @@ func (p *pageMeta) shouldList(global bool) bool {
 	return false
 }
 
-func (p *pageMeta) shouldListAny() bool {
-	return p.shouldList(true) || p.shouldList(false)
+func (m *pageMeta) shouldListAny() bool {
+	return m.shouldList(true) || m.shouldList(false)
 }
 
-func (p *pageMeta) isStandalone() bool {
-	return !p.standaloneOutputFormat.IsZero()
+func (m *pageMeta) isStandalone() bool {
+	return !m.standaloneOutputFormat.IsZero()
 }
 
-func (p *pageMeta) shouldBeCheckedForMenuDefinitions() bool {
-	if !p.shouldList(false) {
+func (m *pageMeta) shouldBeCheckedForMenuDefinitions() bool {
+	if !m.shouldList(false) {
 		return false
 	}
 
-	return p.pageConfig.Kind == kinds.KindHome || p.pageConfig.Kind == kinds.KindSection || p.pageConfig.Kind == kinds.KindPage
+	return m.pageConfig.Kind == kinds.KindHome || m.pageConfig.Kind == kinds.KindSection || m.pageConfig.Kind == kinds.KindPage
 }
 
-func (p *pageMeta) noRender() bool {
-	return p.pageConfig.Build.Render != pagemeta.Always
+func (m *pageMeta) noRender() bool {
+	return m.pageConfig.Build.Render != pagemeta.Always
 }
 
-func (p *pageMeta) noLink() bool {
-	return p.pageConfig.Build.Render == pagemeta.Never
+func (m *pageMeta) noLink() bool {
+	return m.pageConfig.Build.Render == pagemeta.Never
 }
 
-func (p *pageMeta) applyDefaultValues(s *Site) error {
-	if p.pageConfig.Build.IsZero() {
-		p.pageConfig.Build, _ = pagemeta.DecodeBuildConfig(nil)
+func (m *pageMeta) applyDefaultValues(s *Site) error {
+	if m.pageConfig.Build.IsZero() {
+		m.pageConfig.Build, _ = pagemeta.DecodeBuildConfig(nil)
 	}
 
-	if !s.conf.IsKindEnabled(p.Kind()) {
-		(&p.pageConfig.Build).Disable()
+	if !s.conf.IsKindEnabled(m.Kind()) {
+		(&m.pageConfig.Build).Disable()
 	}
 
-	if p.pageConfig.Content.Markup == "" {
-		if p.File() != nil {
+	if m.pageConfig.Content.Markup == "" {
+		if m.File() != nil {
 			// Fall back to file extension
-			p.pageConfig.Content.Markup = s.ContentSpec.ResolveMarkup(p.File().Ext())
+			m.pageConfig.Content.Markup = s.ContentSpec.ResolveMarkup(m.File().Ext())
 		}
-		if p.pageConfig.Content.Markup == "" {
-			p.pageConfig.Content.Markup = "markdown"
+		if m.pageConfig.Content.Markup == "" {
+			m.pageConfig.Content.Markup = "markdown"
 		}
 	}
 
-	if p.pageConfig.Title == "" && p.f == nil {
-		switch p.Kind() {
+	if m.pageConfig.Title == "" && m.f == nil {
+		switch m.Kind() {
 		case kinds.KindHome:
-			p.pageConfig.Title = s.Title()
+			m.pageConfig.Title = s.Title()
 		case kinds.KindSection:
-			sectionName := p.pathInfo.Unnormalized().BaseNameNoIdentifier()
+			sectionName := m.pathInfo.Unnormalized().BaseNameNoIdentifier()
 			if s.conf.PluralizeListTitles {
 				sectionName = flect.Pluralize(sectionName)
 			}
 			if s.conf.CapitalizeListTitles {
 				sectionName = s.conf.C.CreateTitle(sectionName)
 			}
-			p.pageConfig.Title = sectionName
+			m.pageConfig.Title = sectionName
 		case kinds.KindTerm:
-			if p.term != "" {
+			if m.term != "" {
 				if s.conf.CapitalizeListTitles {
-					p.pageConfig.Title = s.conf.C.CreateTitle(p.term)
+					m.pageConfig.Title = s.conf.C.CreateTitle(m.term)
 				} else {
-					p.pageConfig.Title = p.term
+					m.pageConfig.Title = m.term
 				}
 			} else {
 				panic("term not set")
 			}
 		case kinds.KindTaxonomy:
 			if s.conf.CapitalizeListTitles {
-				p.pageConfig.Title = strings.Replace(s.conf.C.CreateTitle(p.pathInfo.Unnormalized().BaseNameNoIdentifier()), "-", " ", -1)
+				m.pageConfig.Title = strings.Replace(s.conf.C.CreateTitle(m.pathInfo.Unnormalized().BaseNameNoIdentifier()), "-", " ", -1)
 			} else {
-				p.pageConfig.Title = strings.Replace(p.pathInfo.Unnormalized().BaseNameNoIdentifier(), "-", " ", -1)
+				m.pageConfig.Title = strings.Replace(m.pathInfo.Unnormalized().BaseNameNoIdentifier(), "-", " ", -1)
 			}
 		case kinds.KindStatus404:
-			p.pageConfig.Title = "404 Page not found"
+			m.pageConfig.Title = "404 Page not found"
 		}
 	}
 
 	return nil
 }
 
-func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.Converter, error) {
+func (m *pageMeta) newContentConverter(ps *pageState, markup string) (converter.Converter, error) {
 	if ps == nil {
 		panic("no Page provided")
 	}
@@ -1007,12 +954,12 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 	var id string
 	var filename string
 	var path string
-	if p.f != nil {
-		id = p.f.UniqueID()
-		filename = p.f.Filename()
-		path = p.f.Path()
+	if m.f != nil {
+		id = m.f.UniqueID()
+		filename = m.f.Filename()
+		path = m.f.Path()
 	} else {
-		path = p.Path()
+		path = m.Path()
 	}
 
 	doc := newPageForRenderHook(ps)
@@ -1045,15 +992,15 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 }
 
 // The output formats this page will be rendered to.
-func (p *pageState) outputFormats() output.Formats {
-	if len(p.m.pageConfig.ConfiguredOutputFormats) > 0 {
-		return p.m.pageConfig.ConfiguredOutputFormats
+func (ps *pageState) outputFormats() output.Formats {
+	if len(ps.m.pageConfig.ConfiguredOutputFormats) > 0 {
+		return ps.m.pageConfig.ConfiguredOutputFormats
 	}
-	return p.s.conf.C.KindOutputFormats[p.Kind()]
+	return ps.s.conf.C.KindOutputFormats[ps.Kind()]
 }
 
-func (p *pageMeta) Slug() string {
-	return p.pageConfig.Slug
+func (m *pageMeta) Slug() string {
+	return m.pageConfig.Slug
 }
 
 func getParam(m resource.ResourceParamsProvider, key string, stringToLower bool) any {

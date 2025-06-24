@@ -66,7 +66,7 @@ type FileMeta struct {
 	// The lang associated with this file. This may be
 	// either the language set in the filename or
 	// the language defined in the source mount configuration.
-	Lang string
+	Lang string // TODO1 remove?
 	// The language index for the above lang. This is the index
 	// in the sorted list of languages/sites.
 	LangIndex int

@@ -63,7 +63,7 @@ type pageContentReplacement struct {
 	source pageparser.Item
 }
 
-func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo, error) {
+func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) error {
 	var (
 		sourceKey            string
 		openSource           hugio.OpenReadSeekCloser
@@ -90,16 +90,16 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo
 		sourceKey = strconv.FormatUint(pid, 10)
 	}
 
-	pi := &contentParseInfo{
+	m.pageMetaSource.pi = &contentParseInfo{
 		h:          h,
 		pid:        pid,
 		sourceKey:  sourceKey,
 		openSource: openSource,
 	}
 
-	source, err := pi.contentSource(m)
+	source, err := m.pi.contentSource(m)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	items, err := pageparser.ParseBytes(
@@ -109,36 +109,39 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo
 		},
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	pi.itemsStep1 = items
+	m.pi.itemsStep1 = items
 
 	if isFromContentAdapter {
 		// No front matter.
-		return pi, nil
+		return nil
 	}
 
-	if err := pi.mapFrontMatter(source); err != nil {
-		return nil, err
+	if err := m.pi.mapFrontMatter(source); err != nil {
+		return err
 	}
 
-	return pi, nil
+	return nil
 }
 
-func (m *pageMeta) newCachedContent(h *HugoSites, pi *contentParseInfo) (*cachedContent, error) {
-	panic("TODO1 remove/replace this method")
-	/*var filename string
+func (m *pageMeta) newCachedContent(s *Site) (*cachedContent, error) {
+	var filename string
 	if m.f != nil {
 		filename = m.f.Filename()
 	}
 
+	if m.pi == nil {
+		panic("pageMeta.pi must be set before creating cachedContent")
+	}
+
 	c := &cachedContent{
-		pm:             m.s.pageMap,
+		pm:             s.pageMap,
 		StaleInfo:      m,
-		shortcodeState: newShortcodeHandler(filename, m.s),
-		pi:             pi,
-		enableEmoji:    m.s.conf.EnableEmoji,
+		shortcodeState: newShortcodeHandler(filename, s),
+		pi:             m.pi,
+		enableEmoji:    s.conf.EnableEmoji,
 		scopes:         maps.NewCache[string, *cachedContentScope](),
 	}
 
@@ -152,8 +155,6 @@ func (m *pageMeta) newCachedContent(h *HugoSites, pi *contentParseInfo) (*cached
 	}
 
 	return c, nil
-	*/
-	return nil, nil
 }
 
 type cachedContent struct {

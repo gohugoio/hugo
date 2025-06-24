@@ -60,6 +60,15 @@ func (h *HugoSites) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, erro
 
 // TODO1 move/rename.
 func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
+	if err := m.init(s, pid); err != nil {
+		return nil, m.wrapError(err, s.SourceFs)
+	}
+	// Parse the rest of the page content.
+	var err error
+	m.content, err = m.newCachedContent(s)
+	if err != nil {
+		return nil, m.wrapError(err, s.SourceFs)
+	}
 	ps := &pageState{
 		pid:                               pid,
 		s:                                 s,
@@ -86,7 +95,7 @@ func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
 			init:                       lazy.New(),
 			m:                          m,
 			s:                          s,
-			sWrapped:                   page.WrapSite(s), // TODO1 need this?
+			sWrapped:                   s, // page.WrapSite(s), // TODO1 need this?
 			pageContentConverter:       &pageContentConverter{},
 		},
 	}

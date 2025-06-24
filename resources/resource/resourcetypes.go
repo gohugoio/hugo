@@ -219,6 +219,7 @@ type LengthProvider interface {
 // LanguageProvider is a Resource in a language.
 type LanguageProvider interface {
 	Language() *langs.Language
+	Lang() string
 }
 
 // TranslationKeyProvider connects translations of the same Resource.

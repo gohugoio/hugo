@@ -48,6 +48,14 @@ func (m *OrderedIntSet) Set(key int) {
 	m.keys = append(m.keys, key)
 }
 
+func (m *OrderedIntSet) Clear() {
+	if m == nil {
+		return
+	}
+	m.keys = nil
+	m.values = bitset.BitSet{}
+}
+
 // SetFrom sets the values from another OrderedIntSet.
 func (m *OrderedIntSet) SetFrom(other *OrderedIntSet) {
 	if m == nil || other == nil {

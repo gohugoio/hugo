@@ -148,11 +148,6 @@ func (t *NodeShiftTree[T]) DeletePrefixAll(prefix string) int {
 	return count
 }
 
-// Increment the value of dimension d by 1.
-func (t *NodeShiftTree[T]) Increment(d int) *NodeShiftTree[T] {
-	return t.Shape(d, t.dims[d]+1)
-}
-
 func (r *NodeShiftTree[T]) InsertIntoCurrentDimension(s string, v T) (T, T, bool) {
 	s = mustValidateKey(cleanKey(s))
 	var (
@@ -270,10 +265,9 @@ func (r *NodeShiftTree[T]) WalkPrefixRaw(prefix string, walker func(key string, 
 	r.tree.WalkPrefix(prefix, walker2)
 }
 
-// Shape the tree for dimension d to value v.
-func (t *NodeShiftTree[T]) Shape(d, v int) *NodeShiftTree[T] {
+func (t *NodeShiftTree[T]) Shape(v sitematrix.Vector) *NodeShiftTree[T] {
 	x := t.clone()
-	x.dims[d] = v
+	x.dims = v
 	return x
 }
 
