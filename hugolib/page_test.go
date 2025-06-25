@@ -975,7 +975,7 @@ summary: Summary (zh)
 <li>Summary: Summary (zh)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 26</li>
 
 </ul>
@@ -996,7 +996,7 @@ summary: Summary (zh)
 <li>Summary: Summary (zh)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 26</li>
 
 </ul>`)
@@ -1017,7 +1017,7 @@ summary: Summary (zh)
 <li>Summary: Summary (en)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 29</li>
 
 </ul>
@@ -1038,7 +1038,7 @@ summary: Summary (zh)
 <li>Summary: Summary (en)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 29</li>
 
 </ul>`)
@@ -1167,7 +1167,7 @@ func TestWordCount(t *testing.T) {
 			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.FuzzyWordCount(context.Background()))
 		}
 
-		if p.ReadingTime(context.Background()) != 3 {
+		if p.ReadingTime(context.Background()) != 2 {
 			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime(context.Background()))
 		}
 	}

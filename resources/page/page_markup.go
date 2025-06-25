@@ -21,6 +21,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/media"
@@ -191,14 +192,9 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int) (result H
 			return 0
 		}
 
-		cjkReg := regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 		word = tpl.StripHTML(word)
-		runeCount := utf8.RuneCountInString(word)
-		if cjkReg.MatchString(word) {
-			return runeCount
-		} else {
-			return 1
-		}
+		nonCjkWordCount, cjkWordCount := hstrings.CountWordsCJK(word)
+		return nonCjkWordCount + cjkWordCount
 	}
 
 	high := len(input)

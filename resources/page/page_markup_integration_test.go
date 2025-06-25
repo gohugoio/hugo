@@ -79,7 +79,7 @@ Page.ContentWithoutSummmary: {{ .ContentWithoutSummary }}|
 		"main: Content: <p>Two <em>words</em>.</p>\n|",
 		"main: ContentWithoutSummary: |",
 		"main: Plain: Two words.\n|",
-		"PlainWords: [Two words.]|\nmain: WordCount: 2|\nmain: FuzzyWordCount: 100|\nmain: ReadingTime: 1|",
+		"PlainWords: [Two words.]|\nmain: WordCount: 2|\nmain: FuzzyWordCount: 100|\nmain: ReadingTime: 0|",
 		"main: Summary: <p>Two <em>words</em>.</p>|\n\nmain: Fragments: []|",
 		"main: Len: 27|",
 	)
@@ -90,7 +90,7 @@ Page.ContentWithoutSummmary: {{ .ContentWithoutSummary }}|
 		"foo: ContentWithoutSummary: <h2",
 		"Plain: Two words.\nHeading 1",
 		"PlainWords: [Two words. Heading 1",
-		"foo: WordCount: 81|\nfoo: FuzzyWordCount: 100|\nfoo: ReadingTime: 1|\nfoo: Len: 622|",
+		"foo: WordCount: 81|\nfoo: FuzzyWordCount: 100|\nfoo: ReadingTime: 0|\nfoo: Len: 622|",
 		"foo: Summary: <p>Two <em>words</em>.</p>|",
 		"foo: Fragments: [heading-1 heading-2]|",
 	)

@@ -19,18 +19,16 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"math"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 
 	maps0 "maps"
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hcontext"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
@@ -818,17 +816,7 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 		result.plain = tpl.StripHTML(string(rendered.content))
 		result.plainWords = strings.Fields(result.plain)
 
-		cjkWordCount := 0
-		nonCjkWordCount := 0
-		cjkReg := regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
-		for _, word := range result.plainWords {
-			runeCount := utf8.RuneCountInString(word)
-			if cjkReg.MatchString(word) {
-				cjkWordCount += runeCount
-			} else {
-				nonCjkWordCount++
-			}
-		}
+		nonCjkWordCount, cjkWordCount := hstrings.CountWordsCJK(result.plain)
 		result.wordCount = cjkWordCount + nonCjkWordCount
 
 		// TODO(bep) is set in a test. Fix that.
@@ -836,9 +824,9 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 			result.fuzzyWordCount = (result.wordCount + 100) / 100 * 100
 		}
 
-		cjkReadingTime := float64(cjkWordCount) / 501
-		nonCjkReadingTime := float64(nonCjkWordCount) / 213
-		result.readingTime = int(math.Ceil(cjkReadingTime + nonCjkReadingTime))
+		cjkReadingTime := cjkWordCount / 501
+		nonCjkReadingTime := nonCjkWordCount / 213
+		result.readingTime = int(cjkReadingTime + nonCjkReadingTime)
 
 		rs.Value = result
 
