@@ -826,7 +826,7 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 
 		cjkReadingTime := cjkWordCount / 501
 		nonCjkReadingTime := nonCjkWordCount / 213
-		result.readingTime = int(cjkReadingTime + nonCjkReadingTime)
+		result.readingTime = cjkReadingTime + nonCjkReadingTime
 
 		rs.Value = result
 
