@@ -81,7 +81,7 @@ type TreeShiftTreeSlice[T comparable] struct {
 	dimensions [][][]*SimpleThreadSafeTree[T]
 }
 
-func NewTreeShiftTree[T comparable](v sitematrix.Vector) *TreeShiftTreeSlice[T] {
+func NewTreeShiftTreeSlice[T comparable](v sitematrix.Vector) *TreeShiftTreeSlice[T] {
 	dimensions := make([][][]*SimpleThreadSafeTree[T], v[0])
 	for i := 0; i < v[0]; i++ {
 		dimensions[i] = make([][]*SimpleThreadSafeTree[T], v[1])

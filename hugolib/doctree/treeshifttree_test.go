@@ -18,11 +18,13 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 )
 
 func TestTreeShiftTree(t *testing.T) {
 	c := qt.New(t)
 
-	tree := doctree.NewTreeShiftTree[string]([]int{10})
+	tree := doctree.NewTreeShiftTreeSlice[string](sitematrix.Vector{10, 1, 1})
 	c.Assert(tree, qt.IsNotNil)
 }
+

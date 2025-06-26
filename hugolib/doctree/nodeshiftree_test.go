@@ -58,7 +58,7 @@ func TestTree(t *testing.T) {
 	c.Assert(s, eq, "/a/b")
 
 	// Change language.
-	oneZero := zeroZero.Increment(0)
+	oneZero := zeroZero.Shape(sitematrix.Vector{1, 0, 0})
 	c.Assert(zeroZero.Get("/a"), eq, &testValue{ID: "/a", Lang: 0})
 	c.Assert(oneZero.Get("/a"), eq, &testValue{ID: "/a", Lang: 1})
 }
@@ -178,7 +178,7 @@ func TestTreeInsert(t *testing.T) {
 	c.Assert(ok, qt.IsTrue)
 	c.Assert(v, qt.DeepEquals, ab2)
 
-	tree1 := tree.Increment(0)
+	tree1 := tree.Shape(sitematrix.Vector{1, 0, 0})
 	c.Assert(tree1.Get("/a/b"), qt.DeepEquals, &testValue{ID: "/a/b", Lang: 1})
 }
 
@@ -233,7 +233,7 @@ type testShifter struct {
 	echo bool
 }
 
-func (s *testShifter) ForEeachInDimension(n *testValue, d int, f func(n *testValue) bool) {
+func (s *testShifter) ForEeachInDimension(n *testValue, v sitematrix.Vector, d int, f func(n *testValue) bool) {
 	if d != sitematrix.Language.Index() {
 		panic("not implemented")
 	}
@@ -358,7 +358,7 @@ func BenchmarkWalk(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for d1 := range 1 {
 					for d2 := range 2 {
-						tree := base.Shape(d1, d2)
+						tree := base.Shape(sitematrix.Vector{d1, d2, 0})
 						w := &doctree.NodeShiftTreeWalker[*testValue]{
 							Tree:   tree,
 							Handle: handle,
