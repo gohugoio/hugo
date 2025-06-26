@@ -124,26 +124,20 @@ func (s *IntSets) SetDefaultsIfNotSet(cfg ConfiguredDimensions) {
 	}
 }
 
-func (s *IntSets) SetFrom(other *IntSets) {
+func (s *IntSets) SetFromOtherIfNotSet(other *IntSets) {
 	if other == nil {
 		return
 	}
-	if other.Languages != nil {
-		if s.Languages == nil {
-			s.Languages = maps.NewOrderedIntSet()
-		}
+	if s.Languages == nil && other.Languages != nil {
+		s.Languages = maps.NewOrderedIntSet()
 		s.Languages.SetFrom(other.Languages)
 	}
-	if other.Versions != nil {
-		if s.Versions == nil {
-			s.Versions = maps.NewOrderedIntSet()
-		}
+	if s.Versions == nil && other.Versions != nil {
+		s.Versions = maps.NewOrderedIntSet()
 		s.Versions.SetFrom(other.Versions)
 	}
-	if other.Roles != nil {
-		if s.Roles == nil {
-			s.Roles = maps.NewOrderedIntSet()
-		}
+	if s.Roles == nil && other.Roles != nil {
+		s.Roles = maps.NewOrderedIntSet()
 		s.Roles.SetFrom(other.Roles)
 	}
 }
@@ -154,23 +148,25 @@ func (s IntSets) WithLanguageIndex(i int) *IntSets {
 	return &s
 }
 
+type IntSetsConfig struct {
+	Cfg          ConfiguredDimensions
+	ApplyDefault bool
+	Languages    []string
+	Versions     []string
+	Roles        []string
+}
+
 // NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
 func NewIntSets() *IntSets {
 	return &IntSets{}
 }
 
-// TODO1 name etc.
-func NewIntSets2(cfg ConfiguredDimensions, applyDefault bool, languages, versions, roles []string) (*IntSets, error) {
-	// TODO1
-	/*if p.Lang != "" {
-		// Merge into the languages slice.
-		p.Languages = append(p.Languages, p.Lang)
-		p.Languages = hstrings.UniqueStringsReuse(p.Languages)
-	}*/
-
+// NewIntSetsFromConfig creates a new IntSets from the given IntSetsConfig.
+// It applies the filters based on the provided languages, versions, and roles.
+func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*maps.OrderedIntSet, error) {
 		if len(values) == 0 {
-			if applyDefault {
+			if cfg.ApplyDefault {
 				result := maps.NewOrderedIntSet()
 				result.Set(matcher.IndexDefault())
 				return result, nil
@@ -200,9 +196,9 @@ func NewIntSets2(cfg ConfiguredDimensions, applyDefault bool, languages, version
 	}
 
 	sets := NewIntSets()
-	l, err1 := applyFilter("languages", languages, cfg.ConfiguredLanguages)
-	v, err2 := applyFilter("versions", versions, cfg.ConfiguredVersions)
-	r, err3 := applyFilter("roles", roles, cfg.ConfiguredRoles)
+	l, err1 := applyFilter("languages", cfg.Languages, cfg.Cfg.ConfiguredLanguages)
+	v, err2 := applyFilter("versions", cfg.Versions, cfg.Cfg.ConfiguredVersions)
+	r, err3 := applyFilter("roles", cfg.Roles, cfg.Cfg.ConfiguredRoles)
 
 	if err := cmp.Or(err1, err2, err3); err != nil {
 		return nil, fmt.Errorf("failed to apply filters: %w", err)
@@ -214,17 +210,16 @@ func NewIntSets2(cfg ConfiguredDimensions, applyDefault bool, languages, version
 	return sets, nil
 }
 
-type DimensionsStringSlices struct {
+type StringSlices struct {
 	Languages []string `mapstructure:"languages" json:"languages"`
 	Versions  []string `mapstructure:"versions" json:"versions"`
 	Roles     []string `mapstructure:"roles" json:"roles"`
 }
 
-func (d DimensionsStringSlices) IsZero() bool {
+func (d StringSlices) IsZero() bool {
 	return len(d.Languages) == 0 && len(d.Versions) == 0 && len(d.Roles) == 0
 }
 
-// TODO1 move/rename these.
 type ConfiguredDimension interface {
 	predicate.IndexMatcher
 	IndexDefault() int

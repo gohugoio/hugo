@@ -714,8 +714,15 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			base, filename := absPathify(mount.Source)
 
-			v := mount.Dimensions
-			sets, err := sitematrix.NewIntSets2(b.p.Cfg.ConfiguredDimensions(), true, v.Languages, v.Versions, v.Roles)
+			v := mount.Sites
+			intSetsCfg := sitematrix.IntSetsConfig{
+				Cfg:          b.p.Cfg.ConfiguredDimensions(),
+				ApplyDefault: true,
+				Languages:    v.Languages,
+				Versions:     v.Versions,
+				Roles:        v.Roles,
+			}
+			sets, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 			if err != nil {
 				return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
 			}

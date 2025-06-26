@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ type (
 	}
 
 	// Shifter handles tree transformations.
+	// TODO1 clean up all the description in here and elsewhere where dimensions etc. are mentioned.
 	Shifter[T any] interface {
 		// ForEeachInDimension will call the given function for each value in the given dimension d.
 		// If the function returns true, the walk will stop.

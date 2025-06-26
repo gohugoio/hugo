@@ -27,7 +27,10 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-var pageIDCounter atomic.Uint64
+var (
+	pageIDCounter       atomic.Uint64
+	pageSourceIDCounter atomic.Uint64
+)
 
 func (h *HugoSites) newPages(m *pageMeta) (iter.Seq2[int, *pageState], *paths.Path, error) {
 	panic("TODO1 remove me.")
@@ -60,7 +63,7 @@ func (h *HugoSites) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, erro
 
 // TODO1 move/rename.
 func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
-	if err := m.init(s, pid); err != nil {
+	if err := m.initLate(s, pid); err != nil {
 		return nil, m.wrapError(err, s.SourceFs)
 	}
 	// Parse the rest of the page content.

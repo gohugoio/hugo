@@ -422,7 +422,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 
 		pageCount++ // TODO1 this vs dims.
 
-		pm, err := h.newPageMetaFromFile(fi)
+		pm, err := h.newPageMetaSourceFromFile(fi)
 		if err != nil {
 			addErr = fmt.Errorf("failed to create page meta from file %q: %w", fi.Meta().Filename, err)
 			return
@@ -491,7 +491,6 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 					ps, pi, err := h.newPage(
 						&pageMeta{
 							f: f,
-							// TODO1 s: s,
 							pageMetaParams: &pageMetaParams{
 								pageConfig: pc,
 							},

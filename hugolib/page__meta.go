@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bep/logg"
@@ -35,6 +36,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
@@ -97,17 +99,24 @@ type pageMetaSource struct {
 	f        *source.File
 	pi       *contentParseInfo
 	resource.Staler
+
+	hasFrontMatter bool
+	openSource     func() (hugio.ReadSeekCloser, error)
+
+	initEarlyInit sync.Once
 }
 
 type pageMeta struct {
 	// Shared between all dimensions of this page.
 	*pageMetaSource
 
+	// Per Page. TODO1, potentially share some.
+	*pageMetaParams
+
 	term     string // Set for kind == KindTerm.
 	singular string // Set for kind == KindTerm and kind == KindTaxonomy.
 
 	resource.Staler // TODO1 remove?
-	*pageMetaParams
 
 	// Set for standalone pages, e.g. robotsTXT.
 	standaloneOutputFormat output.Format
@@ -123,13 +132,35 @@ type pageMeta struct {
 	content *cachedContent // The source and the parsed page content.
 }
 
-func (m *pageMeta) init(s *Site, pid uint64) error {
+// initEarly may be called before we know which Site(s) this belongs to.
+func (m *pageMetaSource) initEarly(h *HugoSites) error {
+	var initErr error
+	m.initEarlyInit.Do(func() {
+		if m.Staler == nil {
+			m.Staler = &resources.AtomicStaler{}
+		}
+
+		sid := pageSourceIDCounter.Add(1)
+
+		// Read front matter.
+		if err := m.parseFrontMatter(h, sid); err != nil {
+			initErr = err
+		}
+	})
+	return initErr
+}
+
+func (m *pageMeta) initLate(s *Site, pid uint64) error {
+	if err := m.initEarly(s.h); err != nil {
+		return err
+	}
+
+	// Remove me. TODO1
 	if m.Staler == nil {
 		m.Staler = &resources.AtomicStaler{}
 	}
 
 	h := s.h
-
 	var tc viewName
 
 	// Resolve page kind.
@@ -170,12 +201,6 @@ func (m *pageMeta) init(s *Site, pid uint64) error {
 		return nil,, nil
 	}*/
 
-	// Read front matter.
-
-	if err := m.parseFrontMatter(h, pid); err != nil {
-		return err
-	}
-
 	var dimensionsFromFile *sitematrix.IntSets
 	if m.f != nil {
 		dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
@@ -188,12 +213,24 @@ func (m *pageMeta) init(s *Site, pid uint64) error {
 }
 
 // bookmark1
-func (h *HugoSites) newPageMetaFromFile(fi hugofs.FileMetaInfo) (*pageMetaSource, error) {
-	return &pageMetaSource{
-		f:        source.NewFileInfo(fi),
-		pathInfo: fi.Meta().PathInfo,
-		Staler:   &resources.AtomicStaler{},
-	}, nil
+func (h *HugoSites) newPageMetaSourceFromFile(fi hugofs.FileMetaInfo) (*pageMetaSource, error) {
+	meta := fi.Meta()
+	openSource := func() (hugio.ReadSeekCloser, error) {
+		r, err := meta.Open()
+		if err != nil {
+			return nil, fmt.Errorf("failed to open file %q: %w", meta.Filename, err)
+		}
+		return r, nil
+	}
+	p := &pageMetaSource{
+		f:              source.NewFileInfo(fi),
+		pathInfo:       fi.Meta().PathInfo,
+		openSource:     openSource,
+		hasFrontMatter: true,
+		Staler:         &resources.AtomicStaler{},
+	}
+
+	return p, p.initEarly(h)
 }
 
 func (s *Site) newPageFromPageMetasource(ms *pageMetaSource) (*pageState, error) {
@@ -205,8 +242,6 @@ func (s *Site) newPageFromPageMetasource(ms *pageMetaSource) (*pageState, error)
 }
 
 func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, error) {
-	pid := pageIDCounter.Add(1) // TODO1
-
 	m := &pageMeta{
 		pageMetaSource: ms,
 		f:              ms.f, // TODO1 remove,
@@ -223,7 +258,7 @@ func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, err
 		bundled: false,
 	}
 
-	return m, m.init(s, pid)
+	return m, m.initEarly(s.h)
 }
 
 func (h *HugoSites) newPageMetaFromFile_(fi hugofs.FileMetaInfo) (*pageMeta, error) {
@@ -250,7 +285,7 @@ func (h *HugoSites) newPageMetaFromFile_(fi hugofs.FileMetaInfo) (*pageMeta, err
 // Prepare for a rebuild of the data passed in from front matter.
 func (m *pageMeta) setMetaPostPrepareRebuild() {
 	params := xmaps.Clone(m.paramsOriginal)
-	m.pageMetaParams.pageConfig = pagemeta.ClonePageConfigForRebuild(m.pageMetaParams.pageConfig, params)
+	m.pageConfig = pagemeta.ClonePageConfigForRebuild(m.pageConfig, params)
 }
 
 type pageMetaParams struct {
@@ -265,7 +300,7 @@ type pageMetaParams struct {
 	cascadeOriginal *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] // contains the original cascade as defined in the front matter.
 }
 
-func (m *pageMetaParams) init(preserveOriginal bool) {
+func (m *pageMetaParams) initPageMetaParams(preserveOriginal bool) {
 	if preserveOriginal {
 		if m.pageConfig.IsFromContentAdapter {
 			m.paramsOriginal = xmaps.Clone(m.pageConfig.ContentAdapterData)
@@ -436,7 +471,7 @@ func (m *pageMeta) setMetaPre(dimensionsFromFile *sitematrix.IntSets, logger log
 		}
 	}
 
-	m.pageMetaParams.init(conf.Watching())
+	m.initPageMetaParams(conf.Watching())
 
 	if err := m.pageConfig.CompileEearly(conf, dimensionsFromFile); err != nil {
 		return fmt.Errorf("failed to compile roles: %w", err)

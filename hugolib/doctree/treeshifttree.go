@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ TODO1: From Gemini.
 
   Let's refine the definition:
 
-
    * A value from one dimension (e.g., role: 'developer') defines a slice or a subtree. This would be the collection of all content for
      developers, across all available languages and versions.
 
@@ -72,27 +71,29 @@ import (
 var _ TreeThreadSafe[string] = (*TreeShiftTreeSlice[string])(nil)
 
 type TreeShiftTreeSlice[T comparable] struct {
-	// v is the index of the current dimension.
+	// v points to a specific tree in the slice.
 	v sitematrix.Vector
 
 	// The zero value of T.
 	zero T
 
-	dimensions [][][]*SimpleThreadSafeTree[T]
+	// trees is a 3D slice that holds all the trees.
+	// Note that we have tested a version backed by a map, which is as fast to use, but is twice as epxensive/slow to create.
+	trees [][][]*SimpleThreadSafeTree[T]
 }
 
-func NewTreeShiftTreeSlice[T comparable](v sitematrix.Vector) *TreeShiftTreeSlice[T] {
-	dimensions := make([][][]*SimpleThreadSafeTree[T], v[0])
+func NewTreeShiftTree[T comparable](v sitematrix.Vector) *TreeShiftTreeSlice[T] {
+	trees := make([][][]*SimpleThreadSafeTree[T], v[0])
 	for i := 0; i < v[0]; i++ {
-		dimensions[i] = make([][]*SimpleThreadSafeTree[T], v[1])
+		trees[i] = make([][]*SimpleThreadSafeTree[T], v[1])
 		for j := 0; j < v[1]; j++ {
-			dimensions[i][j] = make([]*SimpleThreadSafeTree[T], v[2])
+			trees[i][j] = make([]*SimpleThreadSafeTree[T], v[2])
 			for k := 0; k < v[2]; k++ {
-				dimensions[i][j][k] = NewSimpleThreadSafeTree[T]()
+				trees[i][j][k] = NewSimpleThreadSafeTree[T]()
 			}
 		}
 	}
-	return &TreeShiftTreeSlice[T]{dimensions: dimensions}
+	return &TreeShiftTreeSlice[T]{trees: trees}
 }
 
 func (t TreeShiftTreeSlice[T]) Shape(v sitematrix.Vector) *TreeShiftTreeSlice[T] {
@@ -101,7 +102,7 @@ func (t TreeShiftTreeSlice[T]) Shape(v sitematrix.Vector) *TreeShiftTreeSlice[T]
 }
 
 func (t *TreeShiftTreeSlice[T]) tree() *SimpleThreadSafeTree[T] {
-	return t.dimensions[t.v[0]][t.v[1]][t.v[2]]
+	return t.trees[t.v[0]][t.v[1]][t.v[2]]
 }
 
 func (t *TreeShiftTreeSlice[T]) Get(s string) T {
@@ -121,7 +122,7 @@ func (t *TreeShiftTreeSlice[T]) DeleteAllFunc(s string, f func(s string, v T) bo
 
 func (t *TreeShiftTreeSlice[T]) Trees() iter.Seq[*SimpleThreadSafeTree[T]] {
 	return func(yield func(v *SimpleThreadSafeTree[T]) bool) {
-		for _, l1 := range t.dimensions {
+		for _, l1 := range t.trees {
 			for _, l2 := range l1 {
 				for _, l3 := range l2 {
 					if !yield(l3) {

@@ -226,8 +226,8 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			mnt.Target = filepath.Clean(mnt.Target)
 			if mnt.Lang != "" {
 				// We moved this to the more flixeble Dimensions type in Hugo 0.148.0.
-				mnt.Dimensions.Languages = append(mnt.Dimensions.Languages, mnt.Lang)
-				mnt.Dimensions.Languages = hstrings.UniqueStringsReuse(mnt.Dimensions.Languages)
+				mnt.Sites.Languages = append(mnt.Sites.Languages, mnt.Lang)
+				mnt.Sites.Languages = hstrings.UniqueStringsReuse(mnt.Sites.Languages)
 			}
 			c.Mounts[i] = mnt
 		}
@@ -413,8 +413,8 @@ type Mount struct {
 	// TODO1. Deprecate this in favour of DImensions.
 	Lang string
 
-	// Dimensions holds a list of Glob  patterns to match the dimensions of this mount.
-	Dimensions sitematrix.DimensionsStringSlices
+	// Sites holds a list of Glob  patterns to decide which sites the files in this mmount should be associated with.
+	Sites sitematrix.StringSlices
 
 	// TODO1 replace these 2 with a Filter type that can handle both.
 	// Include only files matching the given Glob patterns (string or slice).

@@ -240,7 +240,7 @@ DIMSNN
 [[module.mounts]]
 source = 'content/all'
 target = 'content'
-[module.mounts.dimensions]
+[module.mounts.sites]
 languages = ["**"]
 versions = ["**"]
 -- content/en/p1/index.md --
@@ -282,7 +282,7 @@ site.GetPage p1: {{ with .Site.GetPage "p1" }}{{ .Title }}|{{ end }}$
 	}
 
 	// Format from v0.148.0:
-	dims := `[module.mounts.dimensions]
+	dims := `[module.mounts.sites]
 languages = ["en"]
 versions = ["v1**"]
 `
@@ -326,13 +326,13 @@ weight = 2
 [[module.mounts]]
 source = 'content/nn'
 target = 'content'
-[module.mounts.dimensions]
+[module.mounts.sites]
 languages = ["nn"]
 versions  = ["v1.**"]
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
-[module.mounts.dimensions]
+[module.mounts.sites]
 languages = ["**"]
 versions  = ["**"]
 -- content/en/_index.md --
@@ -363,4 +363,75 @@ tags: {{ range $term, $taxonomy := .Site.Taxonomies.tags }}{{ $term }}: {{ range
 		b.AssertFileContent("public/v2.0.0/nn/index.html", "title: English Home|", "tags: tag1: English Home: /v2.0.0/nn/|$") // v2.0.0 is only in English.
 		b.AssertFileContent("public/v1.2.3/en/index.html", "title: English Home|")
 	}
+}
+
+const filesVariationsSiteMatrix = `
+-- hugo.toml --
+disableKinds = ["rss", "sitemap", "section"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+defaultCOntentVersionInSubDir = true
+defaultContentVersion = "v2.0.0"
+[taxonomies]
+tag = "tags"
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[versions]
+[versions."v1.2.3"]
+[versions."v2.0.0"]
+[module]
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+[module.mounts.sites]
+languages = ["nn"]
+versions  = ["v1.**"]
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+[module.mounts.sites]
+languages = ["**"]
+versions  = ["**"]
+[[module.mounts]]
+source = 'content/other'
+target = 'content'
+-- content/en/_index.md --
+---
+title: "English Home"
+tags: ["tag1"]
+---
+-- content/en/p1.md --
+---
+title: "English p1"
+---
+-- content/nn/_index.md --
+---
+title: "Nynorsk Heim"
+tags: ["tag2"]
+---
+-- layouts/all.html --
+title: {{ .Title }}|
+tags: {{ range $term, $taxonomy := .Site.Taxonomies.tags }}{{ $term }}: {{ range $taxonomy.Pages }}{{ .Title }}: {{ .RelPermalink}}|{{ end }}{{ end }}$
+`
+
+func TestFrontMatterSites(t *testing.T) {
+	t.Parallel()
+
+	files := filesVariationsSiteMatrix
+
+	files += `
+-- content/other/p2.md --
+---
+title: "NN p2"
+sites:
+   languages: ["nn"]
+   versions: ["v1.2.3"]
+---
+`
+	b := hugolib.Test(t, files)
+	// b.AssertPublishDir("asdf")
+	b.AssertFileContent("public/v2.0.0/nn/p2/index.html", "title: NN p2|")
 }

@@ -27,7 +27,6 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/markup"
@@ -83,16 +82,10 @@ type PageConfigEarly struct {
 	Path string // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
 	Lang string // The language code for this page. This is usually derived from the module mount or filename.
 
-	Roles        []string
-	Versions     []string
-	Languages    []string // TODO1 vs Lang.
-	RoleDelegees []string
-
-	VersionDelegees  []string
-	LanguageDelegees []string
-
 	// User defined params.
 	Params maps.Params
+
+	Sites PageConfigSites
 
 	Cascade []map[string]any
 
@@ -103,17 +96,27 @@ type PageConfigEarly struct {
 	CascadeCompiled *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] `mapstructure:"-" json:"-"`
 }
 
+type PageConfigSites struct {
+	Roles        []string
+	Versions     []string
+	Languages    []string // TODO1 vs Lang.
+	RoleDelegees []string
+
+	VersionDelegees  []string
+	LanguageDelegees []string
+}
+
+func (p PageConfigSites) IsZero() bool {
+	return p.Roles == nil && p.Versions == nil && p.Languages == nil &&
+		p.RoleDelegees == nil && p.VersionDelegees == nil && p.LanguageDelegees == nil
+}
+
 const (
-	pageMetaKeyVersions         = "versions"
-	pageMetaKeyLanguages        = "languages"
-	pageMetaKeyRoles            = "roles"
-	pageMetaKeyVersionDelegees  = "versiondelegees"
-	pageMetaKeyLanguageDelegees = "languagedelegees"
-	pageMetaKeyRoleDelegees     = "roledelegees"
-	pageMetaKeyCascade          = "cascade"
-	pageMetaKeyPath             = "path"
-	pageMetaKeyLang             = "lang"
-	pageMetaKeyKind             = "kind"
+	pageMetaKeySites   = "sites"
+	pageMetaKeyCascade = "cascade"
+	pageMetaKeyPath    = "path"
+	pageMetaKeyLang    = "lang"
+	pageMetaKeyKind    = "kind"
 )
 
 func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logger loggers.Logger, conf config.AllProvider) error {
@@ -149,23 +152,10 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logge
 			}
 		}
 	}
-	if v, found := frontmatter[pageMetaKeyRoles]; found {
-		pcfg.Roles = cast.ToStringSlice(v)
-	}
-	if v, found := frontmatter[pageMetaKeyVersions]; found {
-		pcfg.Versions = cast.ToStringSlice(v)
-	}
-	if v, found := frontmatter[pageMetaKeyLanguages]; found {
-		pcfg.Languages = cast.ToStringSlice(v)
-	}
-	if v, found := frontmatter[pageMetaKeyLanguageDelegees]; found {
-		pcfg.LanguageDelegees = cast.ToStringSlice(v)
-	}
-	if v, found := frontmatter[pageMetaKeyVersionDelegees]; found {
-		pcfg.VersionDelegees = cast.ToStringSlice(v)
-	}
-	if v, found := frontmatter[pageMetaKeyRoleDelegees]; found {
-		pcfg.RoleDelegees = cast.ToStringSlice(v)
+	if v, found := frontmatter[pageMetaKeySites]; found {
+		if err := mapstructure.WeakDecode(v, &pcfg.Sites); err != nil {
+			return fmt.Errorf("failed to decode sites from front matter: %w", err)
+		}
 	}
 
 	return nil
@@ -173,31 +163,16 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logge
 
 func (p *PageConfigEarly) setConfigCascadeValueIfNotSet(key string, value any) {
 	switch key {
-	case pageMetaKeyVersions:
-		if p.Versions == nil {
-			// p.Versions = types.ToStringSlicePreserveString(value)
+	case pageMetaKeySites:
+		if p.Sites.IsZero() {
+			if v, ok := value.(map[string]any); ok {
+				if err := mapstructure.WeakDecode(v, &p.Sites); err != nil {
+					panic(fmt.Errorf("failed to decode sites from front matter: %w", err))
+				}
+			} else {
+				panic(fmt.Errorf("expected map[string]any for %q, got %T", pageMetaKeySites, value))
+			}
 		}
-	case pageMetaKeyLanguages:
-		if p.Languages == nil {
-			p.Languages = types.ToStringSlicePreserveString(value)
-		}
-	case pageMetaKeyRoles:
-		if p.Roles == nil {
-			p.Roles = types.ToStringSlicePreserveString(value)
-		}
-	case pageMetaKeyVersionDelegees:
-		if p.VersionDelegees == nil {
-			p.VersionDelegees = types.ToStringSlicePreserveString(value)
-		}
-	case pageMetaKeyLanguageDelegees:
-		if p.LanguageDelegees == nil {
-			p.LanguageDelegees = types.ToStringSlicePreserveString(value)
-		}
-	case pageMetaKeyRoleDelegees:
-		if p.RoleDelegees == nil {
-			p.RoleDelegees = types.ToStringSlicePreserveString(value)
-		}
-
 	}
 }
 
@@ -325,19 +300,36 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *
 
 	if false && p.Lang != "" {
 		// TODO1 move this or consolidate.
-		p.Languages = append(p.Languages, p.Lang)
-		p.Languages = hstrings.UniqueStringsReuse(p.Languages)
+		p.Sites.Languages = append(p.Sites.Languages, p.Lang)
+		p.Sites.Languages = hstrings.UniqueStringsReuse(p.Sites.Languages)
+
 	}
 
-	sets, err := sitematrix.NewIntSets2(conf.ConfiguredDimensions(), false, p.Languages, p.Versions, p.Roles)
+	intsetsCfg := sitematrix.IntSetsConfig{
+		Cfg:       conf.ConfiguredDimensions(),
+		Languages: p.Sites.Languages,
+		Versions:  p.Sites.Versions,
+		Roles:     p.Sites.Roles,
+	}
+
+	sets, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
 	if err != nil {
 		return fmt.Errorf("failed to create dimensions sets: %w", err)
 	}
-	sets.SetFrom(dimensionsFromFile)
+
+	// TODO1 a way  to control precedence of config, file vs. front matter.
+	sets.SetFromOtherIfNotSet(dimensionsFromFile)
 	sets.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
+
 	p.Dimensions = sets
 
-	setsDelegees, err := sitematrix.NewIntSets2(conf.ConfiguredDimensions(), false, p.LanguageDelegees, p.VersionDelegees, p.RoleDelegees)
+	intSetsCfg := sitematrix.IntSetsConfig{
+		Cfg:       conf.ConfiguredDimensions(),
+		Languages: p.Sites.LanguageDelegees,
+		Versions:  p.Sites.VersionDelegees,
+		Roles:     p.Sites.RoleDelegees,
+	}
+	setsDelegees, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 	if err != nil {
 		return fmt.Errorf("failed to create dimensions delegees sets: %w", err)
 	}

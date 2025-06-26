@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -63,14 +62,14 @@ type pageContentReplacement struct {
 	source pageparser.Item
 }
 
-func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) error {
-	var (
-		sourceKey            string
-		openSource           hugio.OpenReadSeekCloser
-		isFromContentAdapter = m.pageConfig.IsFromContentAdapter
-	)
+func (m *pageMetaSource) parseFrontMatter(
+	h *HugoSites,
+	sid uint64,
+) error {
+	var sourceKey string
 
-	if m.f != nil && !isFromContentAdapter {
+	// TODO1 move this logic.
+	/*if m.f != nil && !isFromContentAdapter {
 		sourceKey = filepath.ToSlash(m.f.Filename())
 		if !isFromContentAdapter {
 			meta := m.f.FileInfo().Meta()
@@ -84,17 +83,17 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) error {
 		}
 	} else if isFromContentAdapter {
 		openSource = m.pageConfig.Content.ValueAsOpenReadSeekCloser()
-	}
+	}*/
 
 	if sourceKey == "" {
-		sourceKey = strconv.FormatUint(pid, 10)
+		sourceKey = strconv.FormatUint(sid, 10)
 	}
 
-	m.pageMetaSource.pi = &contentParseInfo{
+	m.pi = &contentParseInfo{
 		h:          h,
-		pid:        pid,
+		sid:        sid,
 		sourceKey:  sourceKey,
-		openSource: openSource,
+		openSource: m.openSource,
 	}
 
 	source, err := m.pi.contentSource(m)
@@ -105,7 +104,7 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) error {
 	items, err := pageparser.ParseBytes(
 		source,
 		pageparser.Config{
-			NoFrontMatter: isFromContentAdapter,
+			NoFrontMatter: !m.hasFrontMatter,
 		},
 	)
 	if err != nil {
@@ -114,7 +113,7 @@ func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) error {
 
 	m.pi.itemsStep1 = items
 
-	if isFromContentAdapter {
+	if m.hasFrontMatter {
 		// No front matter.
 		return nil
 	}
@@ -187,7 +186,7 @@ func (c *cachedContent) getOrCreateScope(scope string, pco *pageContentOutput) *
 type contentParseInfo struct {
 	h *HugoSites
 
-	pid       uint64
+	sid       uint64
 	sourceKey string
 
 	// The source bytes.
@@ -418,7 +417,7 @@ Loop:
 			currShortcode.pos = it.Pos()
 			currShortcode.length = iter.Current().Pos() - it.Pos()
 			if currShortcode.placeholder == "" {
-				currShortcode.placeholder = createShortcodePlaceholder("s", rn.pid, currShortcode.ordinal)
+				currShortcode.placeholder = createShortcodePlaceholder("s", rn.sid, currShortcode.ordinal)
 			}
 
 			if currShortcode.name != "" {
@@ -430,7 +429,7 @@ Loop:
 				currShortcode.params = s
 			}
 
-			currShortcode.placeholder = createShortcodePlaceholder("s", rn.pid, ordinal)
+			currShortcode.placeholder = createShortcodePlaceholder("s", rn.sid, ordinal)
 			ordinal++
 			s.shortcodes = append(s.shortcodes, currShortcode)
 
@@ -968,7 +967,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 
 	parseInfo := &contentParseInfo{
 		h:   pco.po.p.s.h,
-		pid: pco.po.p.pid,
+		sid: pco.po.p.pid,
 	}
 
 	if pageparser.HasShortcode(contentToRender) {
