@@ -147,7 +147,7 @@ func (c *ContentSpec) ResolveMarkup(in string) string {
 
 // TotalWords counts the approximate number of words (and CJK characters) in s
 func TotalWords(s string) int {
-	nonCjkWordCount, cjkWordCount  := hstrings.CountWordsCJK(s)
+	nonCjkWordCount, cjkWordCount := hstrings.CountWordsCJK(s)
 	return nonCjkWordCount + cjkWordCount
 }
 
