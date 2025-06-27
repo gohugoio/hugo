@@ -31,7 +31,7 @@ Create shortcode templates within the `layouts/_shortcodes` directory, either at
 
 ```text
 layouts/
-└── shortcodes/
+└── _shortcodes/
     ├── diagrams/
     │   ├── kroki.html
     │   └── plotly.html
