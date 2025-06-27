@@ -95,9 +95,10 @@ func (m *pageMetaSource) MarkStale() {
 }
 
 type pageMetaSource struct {
-	pathInfo *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
-	f        *source.File
-	pi       *contentParseInfo
+	pathInfo   *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
+	f          *source.File
+	pi         *contentParseInfo
+	siteMatrix sitematrix.VectorProvider
 	resource.Staler
 
 	hasFrontMatter bool
@@ -126,8 +127,6 @@ type pageMeta struct {
 
 	pathInfo *paths.Path  // Always set. This the canonical path to the Page. // TODO1 remove.
 	f        *source.File // TODO1 remove.
-
-	dims sitematrix.VectorProvider
 
 	content *cachedContent // The source and the parsed page content.
 }
@@ -1096,7 +1095,7 @@ func (m *pageMeta) matchDirectOrInDelegees(_ sitematrix.Vector) (contentNodeI, s
 }
 
 func (m *pageMeta) Dims() sitematrix.VectorProvider {
-	return m.dims
+	return m.siteMatrix
 }
 
 func (m *pageMeta) resetBuildState() {

@@ -1095,19 +1095,19 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		case *pageMeta:
 			is := make(contentNodeIs)
 			// TODO1 remove s from pageMeta.
-			vv.dims.ForEeachVector(func(dims sitematrix.Vector) bool {
+			vv.siteMatrix.ForEeachVector(func(dims sitematrix.Vector) bool {
 				if vvv, ok := is[dims]; ok && vvv.contentWeight() > vv.contentWeight() {
 					return true
 				}
-				deb("1 Insert: inserting pageMeta %s with dims %v/%v\t%v", old.Path(), dims, vv.dims, s.conf.ConfiguredDimensions().ResolveNames(dims))
+				deb("1 Insert: inserting pageMeta %s with dims %v/%v\t%v", old.Path(), dims, vv.siteMatrix, s.conf.ConfiguredDimensions().ResolveNames(dims))
 				is[dims] = vv
 				return true
 			})
-			new.dims.ForEeachVector(func(dims sitematrix.Vector) bool {
+			new.siteMatrix.ForEeachVector(func(dims sitematrix.Vector) bool {
 				if vvv, ok := is[dims]; ok && vvv.contentWeight() > new.contentWeight() {
 					return true
 				}
-				deb("2 Insert: inserting pageMeta %s with dims %v/%v %v", new.Path(), dims, new.dims, s.conf.ConfiguredDimensions().ResolveNames(dims))
+				deb("2 Insert: inserting pageMeta %s with dims %v/%v %v", new.Path(), dims, new.siteMatrix, s.conf.ConfiguredDimensions().ResolveNames(dims))
 				is[dims] = new
 				return true
 			})
@@ -2465,7 +2465,7 @@ func (sa *sitePagesAssembler) createPages() error {
 				}
 				return is, true, false, nil
 			case *pageMeta: // TODO1 remove.
-				site, found := sites[v.dims.FirstVector()]
+				site, found := sites[v.siteMatrix.FirstVector()]
 				if !found {
 					panic(fmt.Sprintf("site not found for %v", v))
 				}
@@ -2475,7 +2475,7 @@ func (sa *sitePagesAssembler) createPages() error {
 				for i, vv := range v {
 					if m, ok := vv.(*pageMeta); ok {
 						var err error
-						site, found := sites[m.dims.FirstVector()] // TODO1 get rid of this interface.
+						site, found := sites[m.siteMatrix.FirstVector()] // TODO1 get rid of this interface.
 						if !found {
 							panic(fmt.Sprintf("site not found for %v", m))
 						}

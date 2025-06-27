@@ -132,7 +132,7 @@ func (s *Site) debugResolveDimensionNames() types.Strings3 {
 }
 
 func (s *Site) newPageNew(m *pageMeta) (*pageState, error) { // TODO1 rename.
-	p, err := s.doNewPageFromMeta(32, m)
+	p, err := s.doNewPageFromMeta(32, m) // TODO1
 	if err != nil {
 		return nil, err
 	}
