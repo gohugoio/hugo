@@ -139,6 +139,17 @@ func NewBool(b bool) *bool {
 	return &b
 }
 
+// WeightProvider provides a weight.
+type WeightProvider interface {
+	Weight() int
+}
+
+// Weight0Provider provides a weight that's considered before the WeightProvider in sorting.
+// This allows the weight set on a given term to win.
+type Weight0Provider interface {
+	Weight0() int
+}
+
 // PrintableValueProvider is implemented by types that can provide a printable value.
 type PrintableValueProvider interface {
 	PrintableValue() any

@@ -95,11 +95,12 @@ func (m *pageMetaSource) MarkStale() {
 }
 
 type pageMetaSource struct {
-	pathInfo   *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
-	f          *source.File
-	pi         *contentParseInfo
-	siteMatrix sitematrix.VectorProvider
+	pathInfo *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
+	f        *source.File
+	pi       *contentParseInfo
 	resource.Staler
+
+	pageConfig *pagemeta.PageConfig
 
 	hasFrontMatter bool
 	openSource     func() (hugio.ReadSeekCloser, error)
@@ -135,18 +136,55 @@ type pageMeta struct {
 func (m *pageMetaSource) initEarly(h *HugoSites) error {
 	var initErr error
 	m.initEarlyInit.Do(func() {
-		if m.Staler == nil {
-			m.Staler = &resources.AtomicStaler{}
-		}
+		initErr = func() error {
+			if m.Staler == nil {
+				m.Staler = &resources.AtomicStaler{}
+			}
+			sid := pageSourceIDCounter.Add(1)
 
-		sid := pageSourceIDCounter.Add(1)
+			// Read front matter.
+			if err := m.parseFrontMatter(h, sid); err != nil {
+				return err
+			}
 
-		// Read front matter.
-		if err := m.parseFrontMatter(h, sid); err != nil {
-			initErr = err
-		}
+			if m.pi.frontMatter != nil {
+				if err := m.pageConfig.SetMetaPreFromMap(m.pi.frontMatter, h.Log, h.Conf); err != nil {
+					return err
+				}
+			} else {
+				m.pageConfig.Params = make(maps.Params)
+			}
+
+			if m.pageConfig.Lang == "" {
+				if m.f != nil {
+					m.pageConfig.Lang = m.f.FileInfo().Meta().Lang
+				} else {
+					m.pageConfig.Lang = m.pathInfo.Lang()
+				}
+			}
+
+			var dimensionsFromFile *sitematrix.IntSets
+			if m.f != nil {
+				dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
+			}
+
+			if err := m.pageConfig.CompileEearly(h.Conf, dimensionsFromFile); err != nil {
+				return err
+			}
+
+			return nil
+		}()
 	})
 	return initErr
+}
+
+func (m *pageMetaSource) siteMatrix() sitematrix.VectorProvider {
+	return m.pageConfig.Dimensions
+}
+
+// TODO1 remove.
+func (m *pageMetaSource) setMetaPre(dimensionsFromFile *sitematrix.IntSets, logger loggers.Logger, conf config.AllProvider) error {
+	return nil
 }
 
 func (m *pageMeta) initLate(s *Site, pid uint64) error {
@@ -195,19 +233,13 @@ func (m *pageMeta) initLate(s *Site, pid uint64) error {
 		}
 	}
 
+	m.initPageMetaParams(h.Conf.Watching())
+
 	// TODO1 can we do this here?
 	/*if m.pageConfig.Kind == kinds.KindPage && !m.s.conf.IsKindEnabled(m.pageConfig.Kind) {
 		return nil,, nil
 	}*/
 
-	var dimensionsFromFile *sitematrix.IntSets
-	if m.f != nil {
-		dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
-	}
-
-	if err := m.setMetaPre(dimensionsFromFile, h.Log, h.Conf); err != nil {
-		return m.wrapError(err, h.BaseFs.SourceFs)
-	}
 	return nil
 }
 
@@ -227,6 +259,7 @@ func (h *HugoSites) newPageMetaSourceFromFile(fi hugofs.FileMetaInfo) (*pageMeta
 		openSource:     openSource,
 		hasFrontMatter: true,
 		Staler:         &resources.AtomicStaler{},
+		pageConfig:     &pagemeta.PageConfig{},
 	}
 
 	return p, p.initEarly(h)
@@ -245,16 +278,10 @@ func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, err
 		pageMetaSource: ms,
 		f:              ms.f, // TODO1 remove,
 		// TODO1 remove dims:     fi.Meta().SiteInts, // TODO1 front matter.
-		pathInfo: ms.pathInfo,
-		Staler:   &resources.AtomicStaler{},
-		pageMetaParams: &pageMetaParams{
-			pageConfig: &pagemeta.PageConfig{
-				PageConfigEarly: pagemeta.PageConfigEarly{
-					Params: make(maps.Params),
-				},
-			},
-		},
-		bundled: false,
+		pathInfo:       ms.pathInfo,
+		Staler:         &resources.AtomicStaler{},
+		pageMetaParams: &pageMetaParams{},
+		bundled:        false,
 	}
 
 	return m, m.initEarly(s.h)
@@ -291,15 +318,13 @@ type pageMetaParams struct {
 	setMetaPostCount          int
 	setMetaPostCascadeChanged bool
 
-	pageConfig *pagemeta.PageConfig
-
 	// These are only set in watch mode.
 	datesOriginal   pagemeta.Dates
 	paramsOriginal  map[string]any                                                // contains the original params as defined in the front matter.
 	cascadeOriginal *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] // contains the original cascade as defined in the front matter.
 }
 
-func (m *pageMetaParams) initPageMetaParams(preserveOriginal bool) {
+func (m *pageMeta) initPageMetaParams(preserveOriginal bool) {
 	if preserveOriginal {
 		if m.pageConfig.IsFromContentAdapter {
 			m.paramsOriginal = xmaps.Clone(m.pageConfig.ContentAdapterData)
@@ -449,34 +474,6 @@ func (m *pageMeta) Type() string {
 
 func (m *pageMeta) Weight() int {
 	return m.pageConfig.Weight
-}
-
-func (m *pageMeta) setMetaPre(dimensionsFromFile *sitematrix.IntSets, logger loggers.Logger, conf config.AllProvider) error {
-	frontmatter := m.pi.frontMatter
-
-	if frontmatter != nil {
-		if err := m.pageConfig.SetMetaPreFromMap(frontmatter, logger, conf); err != nil {
-			return err
-		}
-	} else {
-		m.pageConfig.Params = make(maps.Params)
-	}
-
-	if m.pageConfig.Lang == "" {
-		if m.f != nil {
-			m.pageConfig.Lang = m.f.FileInfo().Meta().Lang
-		} else {
-			m.pageConfig.Lang = m.pathInfo.Lang()
-		}
-	}
-
-	m.initPageMetaParams(conf.Watching())
-
-	if err := m.pageConfig.CompileEearly(conf, dimensionsFromFile); err != nil {
-		return fmt.Errorf("failed to compile roles: %w", err)
-	}
-
-	return nil
 }
 
 func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]) error {
@@ -1095,7 +1092,7 @@ func (m *pageMeta) matchDirectOrInDelegees(_ sitematrix.Vector) (contentNodeI, s
 }
 
 func (m *pageMeta) Dims() sitematrix.VectorProvider {
-	return m.siteMatrix
+	return m.siteMatrix()
 }
 
 func (m *pageMeta) resetBuildState() {

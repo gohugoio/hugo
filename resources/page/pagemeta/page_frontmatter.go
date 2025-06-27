@@ -97,6 +97,7 @@ type PageConfigEarly struct {
 }
 
 type PageConfigSites struct {
+	Weight       int
 	Roles        []string
 	Versions     []string
 	Languages    []string // TODO1 vs Lang.
@@ -307,6 +308,7 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *
 
 	intsetsCfg := sitematrix.IntSetsConfig{
 		Cfg:       conf.ConfiguredDimensions(),
+		Weight:    p.Sites.Weight,
 		Languages: p.Sites.Languages,
 		Versions:  p.Sites.Versions,
 		Roles:     p.Sites.Roles,

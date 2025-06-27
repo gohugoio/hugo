@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,4 +64,18 @@ func ProbablyEq(v1, v2 any) bool {
 	}
 
 	return false
+}
+
+// LessWeight returns wheter a is less than b.
+func LessWeight(a, b int) bool {
+	if a == b {
+		return false
+	}
+	if a == 0 {
+		return false
+	}
+	if b == 0 {
+		return true
+	}
+	return a < b
 }

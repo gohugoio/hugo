@@ -18,6 +18,7 @@ import (
 	"sort"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/resources/resource"
@@ -54,14 +55,14 @@ func getOrdinals(p1, p2 Page) (int, int) {
 	return p1o.Ordinal(), p2o.Ordinal()
 }
 
-func getWeight0s(p1, p2 Page) (int, int) {
-	p1w, ok1 := p1.(resource.Weight0Provider)
+func getWeight0s(p1, p2 Page) (w1 int, w2 int) {
+	p1w, ok1 := p1.(types.Weight0Provider)
 	if !ok1 {
-		return -1, -1
+		return
 	}
-	p2w, ok2 := p2.(resource.Weight0Provider)
+	p2w, ok2 := p2.(types.Weight0Provider)
 	if !ok2 {
-		return -1, -1
+		return
 	}
 
 	return p1w.Weight0(), p2w.Weight0()
@@ -87,32 +88,24 @@ var (
 		}
 		// Weight0, as by the weight of the taxonomy entrie in the front matter.
 		w01, w02 := getWeight0s(p1, p2)
-		if w01 != w02 && w01 != -1 && w02 != -1 {
-			return w01 < w02
-		}
-
-		if p1.Weight() == p2.Weight() {
-			if p1.Date().Unix() == p2.Date().Unix() {
-				c := collatorStringCompare(func(p Page) string { return p.LinkTitle() }, p1, p2)
-				if c == 0 {
-					// This is the full normalized path, which will contain extension and any language code preserved,
-					// which is what we want for sorting.
-					return compare.LessStrings(p1.PathInfo().Path(), p2.PathInfo().Path())
-				}
-				return c < 0
-			}
-			return p1.Date().Unix() > p2.Date().Unix()
-		}
-
-		if p2.Weight() == 0 {
+		if compare.LessWeight(w01, w02) {
 			return true
 		}
 
-		if p1.Weight() == 0 {
-			return false
+		if compare.LessWeight(p1.Weight(), p2.Weight()) {
+			return true
 		}
 
-		return p1.Weight() < p2.Weight()
+		if p1.Date().Unix() == p2.Date().Unix() {
+			c := collatorStringCompare(func(p Page) string { return p.LinkTitle() }, p1, p2)
+			if c == 0 {
+				// This is the full normalized path, which will contain extension and any language code preserved,
+				// which is what we want for sorting.
+				return compare.LessStrings(p1.PathInfo().Path(), p2.PathInfo().Path())
+			}
+			return c < 0
+		}
+		return p1.Date().Unix() > p2.Date().Unix()
 	}
 
 	lessPageLanguage = func(p1, p2 Page) bool {

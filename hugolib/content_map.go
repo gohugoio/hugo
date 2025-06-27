@@ -336,15 +336,6 @@ func (m *pageMap) insertResource(s string, r contentNodeI) (contentNodeI, conten
 	return u, n, replaced
 }
 
-func deb(format string, args ...any) {
-	// TODO1 remove this.
-	if !strings.Contains(format, "%") {
-		format = format + ": %v"
-	}
-	format = format + "\n"
-	fmt.Printf(format, args...)
-}
-
 func (m *pageMap) handleDuplicateResourcePath(s string, updated, existing contentNodeI) {
 	if m.s.h.isRebuild() || !m.s.conf.PrintPathWarnings {
 		return
@@ -451,7 +442,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 		return
 	}
 
-	memberships := sitematrix.NewIntSets()
+	memberships := sitematrix.NewIntSets(0)
 	memberships.Languages = maps.NewOrderedIntSet(fi.Meta().LangIndex)
 
 	// sites = h.resolveSites(pcfg.LanguagesCompiledSet, pcfg.VersionsCompiledSet, pcfg.RolesCompiledSet)
@@ -488,10 +479,11 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 						return err
 					}
 
+					// TODO1
 					ps, pi, err := h.newPage(
 						&pageMeta{
 							f: f,
-							pageMetaParams: &pageMetaParams{
+							pageMetaSource: &pageMetaSource{
 								pageConfig: pc,
 							},
 						},

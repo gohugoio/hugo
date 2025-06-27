@@ -432,6 +432,5 @@ sites:
 ---
 `
 	b := hugolib.Test(t, files)
-	// b.AssertPublishDir("asdf")
-	b.AssertFileContent("public/v2.0.0/nn/p2/index.html", "title: NN p2|")
+	b.AssertFileContent("public/v1.2.3/nn/p2/index.html", "title: NN p2|")
 }

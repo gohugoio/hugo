@@ -23,11 +23,15 @@ import (
 	"github.com/gohugoio/hugo/hugofs/glob"
 )
 
-var _ VectorProvider = &IntSets{}
+var (
+	_ VectorProvider       = &IntSets{}
+	_ types.WeightProvider = &IntSets{}
+)
 
 // IntSets holds the ordered sets of integers for the dimensions,
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
+	weight    int                 // Any non-zero value will be considered when sorting, lesser weights comes first.
 	Languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	Versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	Roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
@@ -35,6 +39,13 @@ type IntSets struct {
 
 func (s *IntSets) String() string {
 	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.Languages, s.Versions, s.Roles)
+}
+
+func (s *IntSets) Weight() int {
+	if s == nil {
+		return 0
+	}
+	return s.weight
 }
 
 // HasVector checks if the given vector is contained in the sets.
@@ -150,6 +161,7 @@ func (s IntSets) WithLanguageIndex(i int) *IntSets {
 
 type IntSetsConfig struct {
 	Cfg          ConfiguredDimensions
+	Weight       int
 	ApplyDefault bool
 	Languages    []string
 	Versions     []string
@@ -157,8 +169,8 @@ type IntSetsConfig struct {
 }
 
 // NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
-func NewIntSets() *IntSets {
-	return &IntSets{}
+func NewIntSets(weight int) *IntSets {
+	return &IntSets{weight: weight}
 }
 
 // NewIntSetsFromConfig creates a new IntSets from the given IntSetsConfig.
@@ -195,7 +207,7 @@ func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 		return result, nil
 	}
 
-	sets := NewIntSets()
+	sets := NewIntSets(cfg.Weight)
 	l, err1 := applyFilter("languages", cfg.Languages, cfg.Cfg.ConfiguredLanguages)
 	v, err2 := applyFilter("versions", cfg.Versions, cfg.Cfg.ConfiguredVersions)
 	r, err3 := applyFilter("roles", cfg.Roles, cfg.Cfg.ConfiguredRoles)

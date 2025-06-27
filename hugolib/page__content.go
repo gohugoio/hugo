@@ -113,8 +113,7 @@ func (m *pageMetaSource) parseFrontMatter(
 
 	m.pi.itemsStep1 = items
 
-	if m.hasFrontMatter {
-		// No front matter.
+	if !m.hasFrontMatter {
 		return nil
 	}
 

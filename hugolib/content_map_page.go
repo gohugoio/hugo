@@ -27,6 +27,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
@@ -1095,19 +1096,19 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		case *pageMeta:
 			is := make(contentNodeIs)
 			// TODO1 remove s from pageMeta.
-			vv.siteMatrix.ForEeachVector(func(dims sitematrix.Vector) bool {
+			vv.siteMatrix().ForEeachVector(func(dims sitematrix.Vector) bool {
 				if vvv, ok := is[dims]; ok && vvv.contentWeight() > vv.contentWeight() {
 					return true
 				}
-				deb("1 Insert: inserting pageMeta %s with dims %v/%v\t%v", old.Path(), dims, vv.siteMatrix, s.conf.ConfiguredDimensions().ResolveNames(dims))
+				hdebug.Printf("1 Insert: inserting pageMeta %s with dims %v/%v\t%v", old.Path(), dims, vv.siteMatrix, s.conf.ConfiguredDimensions().ResolveNames(dims))
 				is[dims] = vv
 				return true
 			})
-			new.siteMatrix.ForEeachVector(func(dims sitematrix.Vector) bool {
+			new.siteMatrix().ForEeachVector(func(dims sitematrix.Vector) bool {
 				if vvv, ok := is[dims]; ok && vvv.contentWeight() > new.contentWeight() {
 					return true
 				}
-				deb("2 Insert: inserting pageMeta %s with dims %v/%v %v", new.Path(), dims, new.siteMatrix, s.conf.ConfiguredDimensions().ResolveNames(dims))
+				hdebug.Printf("2 Insert: inserting pageMeta %s with dims %v/%v %v", new.Path(), dims, new.siteMatrix, s.conf.ConfiguredDimensions().ResolveNames(dims))
 				is[dims] = new
 				return true
 			})
@@ -1982,18 +1983,17 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 						m := &pageMeta{
 							pageMetaSource: &pageMetaSource{
 								pathInfo: pi,
-							},
-							term:     v,
-							singular: viewName.singular,
-							// TODO1 s:        sa.s,
-							pathInfo: pi,
-							pageMetaParams: &pageMetaParams{
 								pageConfig: &pagemeta.PageConfig{
 									PageConfigEarly: pagemeta.PageConfigEarly{
 										Kind: kinds.KindTerm,
 									},
 								},
 							},
+							term:     v,
+							singular: viewName.singular,
+							// TODO1 s:        sa.s,
+							pathInfo:       pi,
+							pageMetaParams: &pageMetaParams{},
 						}
 						ps, err := sa.s.newPageNew(m)
 						if err != nil {
@@ -2261,8 +2261,9 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 
 		m := &pageMeta{
 			// TODO1 s:        s,
-			pathInfo: s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
-			pageMetaParams: &pageMetaParams{
+			pathInfo:       s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
+			pageMetaParams: &pageMetaParams{},
+			pageMetaSource: &pageMetaSource{
 				pageConfig: &pagemeta.PageConfig{
 					PageConfigEarly: pagemeta.PageConfigEarly{
 						Kind: kind,
@@ -2391,8 +2392,9 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 		p := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
 		m := &pageMeta{
 			// TODO1 s:        sa.s,
-			pathInfo: p,
-			pageMetaParams: &pageMetaParams{
+			pathInfo:       p,
+			pageMetaParams: &pageMetaParams{},
+			pageMetaSource: &pageMetaSource{
 				pageConfig: &pagemeta.PageConfig{
 					PageConfigEarly: pagemeta.PageConfigEarly{
 						Kind: kinds.KindHome,
@@ -2423,9 +2425,9 @@ func (sa *sitePagesAssembler) createPages() error {
 		Transform: func(s string, n contentNodeI) (contentNodeI, bool, bool, error) {
 			handlePageMetaSource := func(ms *pageMetaSource, is contentNodeIs) error {
 				var err error
-				d := ms.f.FileInfo().Meta().SiteInts
+				d := ms.siteMatrix()
 				if d == nil {
-					panic(fmt.Sprintf("pageMetaSource %s has no site dimension", ms.f.FileInfo().Meta().Filename))
+					panic(fmt.Sprintf("pageMetaSource %s has no siteMatrix defined", ms.f.FileInfo().Meta().Filename))
 				}
 				d.ForEeachVector(func(vec sitematrix.Vector) bool {
 					site, found := sites[vec]
@@ -2465,7 +2467,7 @@ func (sa *sitePagesAssembler) createPages() error {
 				}
 				return is, true, false, nil
 			case *pageMeta: // TODO1 remove.
-				site, found := sites[v.siteMatrix.FirstVector()]
+				site, found := sites[v.siteMatrix().FirstVector()]
 				if !found {
 					panic(fmt.Sprintf("site not found for %v", v))
 				}
@@ -2475,7 +2477,7 @@ func (sa *sitePagesAssembler) createPages() error {
 				for i, vv := range v {
 					if m, ok := vv.(*pageMeta); ok {
 						var err error
-						site, found := sites[m.siteMatrix.FirstVector()] // TODO1 get rid of this interface.
+						site, found := sites[m.siteMatrix().FirstVector()] // TODO1 get rid of this interface.
 						if !found {
 							panic(fmt.Sprintf("site not found for %v", m))
 						}
@@ -2520,15 +2522,14 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 				pathInfo: pi,
 				pageMetaSource: &pageMetaSource{
 					pathInfo: pi,
-				},
-				pageMetaParams: &pageMetaParams{
 					pageConfig: &pagemeta.PageConfig{
 						PageConfigEarly: pagemeta.PageConfigEarly{
 							Kind: kinds.KindTaxonomy,
 						},
 					},
 				},
-				singular: viewName.singular,
+				pageMetaParams: &pageMetaParams{},
+				singular:       viewName.singular,
 			}
 			p, err := sa.s.newPageNew(m)
 			if err != nil {
