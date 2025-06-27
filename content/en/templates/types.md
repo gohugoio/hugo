@@ -323,17 +323,13 @@ For example, the home template below inherits the site's shell from the [base te
 
 A render hook template overrides the conversion of Markdown to HTML.
 
-For example, the render hook template below adds a `rel` attribute to external links.
+For example, the render hook template below adds an anchor link to the right of each heading.
 
-```go-html-template {file="layouts/_markup/render-link.html"}
-{{- $u := urls.Parse .Destination -}}
-<a href="{{ .Destination | safeURL }}"
-  {{- with .Title }} title="{{ . }}"{{ end -}}
-  {{- if $u.IsAbs }} rel="external"{{ end -}}
->
-  {{- with .Text }}{{ . }}{{ end -}}
-</a>
-{{- /* chomp trailing newline */ -}}
+```go-html-template {file="layouts/_markup/heading.html"}
+<h{{ .Level }} id="{{ .Anchor }}" {{- with .Attributes.class }} class="{{ . }}" {{- end }}>
+  {{ .Text }}
+  <a href="#{{ .Anchor }}">#</a>
+</h{{ .Level }}>
 ```
 
 Learn more about [render hook templates](/render-hooks/).
