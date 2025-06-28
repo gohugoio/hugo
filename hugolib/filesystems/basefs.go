@@ -717,10 +717,11 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			v := mount.Sites
 			intSetsCfg := sitematrix.IntSetsConfig{
 				Cfg:          b.p.Cfg.ConfiguredDimensions(),
-				ApplyDefault: true,
-				Languages:    v.Languages,
-				Versions:     v.Versions,
-				Roles:        v.Roles,
+				ApplyDefault: false,
+				Weight:       v.Weight,
+				Languages:    v.Sites.Languages,
+				Versions:     v.Sites.Versions,
+				Roles:        v.Sites.Roles,
 			}
 			sets, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 			if err != nil {

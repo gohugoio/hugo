@@ -179,7 +179,7 @@ func (m *pageMetaSource) initEarly(h *HugoSites) error {
 }
 
 func (m *pageMetaSource) siteMatrix() sitematrix.VectorProvider {
-	return m.pageConfig.Dimensions
+	return m.pageConfig.SiteMatrix
 }
 
 // TODO1 remove.

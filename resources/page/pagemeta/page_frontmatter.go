@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/markup"
@@ -216,23 +218,23 @@ type PageConfig struct {
 	ContentMediaType        media.Type     `mapstructure:"-" json:"-"`
 	IsFromContentAdapter    bool           `mapstructure:"-" json:"-"`
 
-	Dimensions        *sitematrix.IntSets `mapstructure:"-" json:"-"` // TODO1 rename SiteVectors. Same below.
-	DimensionDelegees *sitematrix.IntSets `mapstructure:"-" json:"-"`
+	SiteMatrix         *sitematrix.IntSets `mapstructure:"-" json:"-"` // TODO1 rename SiteVectors. Same below.
+	SiteMatrixDelegees *sitematrix.IntSets `mapstructure:"-" json:"-"`
 }
 
 func MatchLanguageOrLanguageDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Language()
-	return p.Dimensions.Languages.Has(i) || p.DimensionDelegees.Languages.Has(i)
+	return p.SiteMatrix.Languages.Has(i) || p.SiteMatrixDelegees.Languages.Has(i)
 }
 
 func MatchRoleOrRoleDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Role()
-	return p.Dimensions.Roles.Has(i) || p.DimensionDelegees.Roles.Has(i)
+	return p.SiteMatrix.Roles.Has(i) || p.SiteMatrixDelegees.Roles.Has(i)
 }
 
 func MatchVersionOrVersionDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Version()
-	return p.Dimensions.Versions.Has(i) || p.DimensionDelegees.Versions.Has(i)
+	return p.SiteMatrix.Versions.Has(i) || p.SiteMatrixDelegees.Versions.Has(i)
 }
 
 func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
@@ -280,7 +282,7 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 }
 
 // CompileEearly gets called early and before the cascade from content gets applied.
-func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *sitematrix.IntSets) error {
+func (p *PageConfig) CompileEearly(conf config.AllProvider, siteMatrixFile *sitematrix.IntSets) error {
 	configCascade := conf.GetConfigSection("cascade").(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 	if configCascade != nil {
 		configCascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
@@ -314,16 +316,34 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *
 		Roles:     p.Sites.Roles,
 	}
 
-	sets, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
+	siteMatrixPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
 	if err != nil {
 		return fmt.Errorf("failed to create dimensions sets: %w", err)
 	}
 
-	// TODO1 a way  to control precedence of config, file vs. front matter.
-	sets.SetFromOtherIfNotSet(dimensionsFromFile)
-	sets.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
+	var siteMatrix *sitematrix.IntSets
+	if siteMatrixFile == nil {
+		siteMatrix = siteMatrixPage
+	} else {
+		all := []*sitematrix.IntSets{
+			siteMatrixPage, // Front matter wins over config.
+			siteMatrixFile,
+		}
+		// Sort by weight.
+		sort.Slice(all, func(i, j int) bool {
+			return compare.LessWeight(all[i].Weight(), all[j].Weight())
+		})
+		siteMatrix = all[0]
 
-	p.Dimensions = sets
+		for i := 1; i < len(all); i++ {
+			siteMatrix.SetFromOtherIfNotSet(all[i])
+		}
+
+	}
+
+	siteMatrix.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
+
+	p.SiteMatrix = siteMatrix
 
 	intSetsCfg := sitematrix.IntSetsConfig{
 		Cfg:       conf.ConfiguredDimensions(),
@@ -331,11 +351,11 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, dimensionsFromFile *
 		Versions:  p.Sites.VersionDelegees,
 		Roles:     p.Sites.RoleDelegees,
 	}
-	setsDelegees, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
+	siteMatrixDelegees, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 	if err != nil {
 		return fmt.Errorf("failed to create dimensions delegees sets: %w", err)
 	}
-	p.DimensionDelegees = setsDelegees
+	p.SiteMatrixDelegees = siteMatrixDelegees
 
 	return nil
 }

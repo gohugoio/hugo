@@ -974,10 +974,10 @@ All.
 	b := Test(t, files)
 
 	homeEn := b.H.Sites[0].Home().(*pageState)
-	b.Assert(homeEn.m.pageConfig.Versions, qt.DeepEquals, []string{"v1*"})
-	b.Assert(homeEn.m.pageConfig.VersionDelegees, qt.DeepEquals, []string{"v2*"})
-	b.Assert(homeEn.m.pageConfig.Roles, qt.DeepEquals, []string{"guest*"})
-	b.Assert(homeEn.m.pageConfig.RoleDelegees, qt.DeepEquals, []string{"member*"})
-	b.Assert(homeEn.m.pageConfig.Languages, qt.DeepEquals, []string{"en*"})
-	b.Assert(homeEn.m.pageConfig.LanguageDelegees, qt.DeepEquals, []string{"nn*"})
+	b.Assert(homeEn.m.pageConfig.SiteMatrix.Versions, qt.DeepEquals, []string{"v1*"})
+	b.Assert(homeEn.m.pageConfig.SiteMatrixDelegees.Versions, qt.DeepEquals, []string{"v2*"})
+	b.Assert(homeEn.m.pageConfig.SiteMatrix.Roles, qt.DeepEquals, []string{"guest*"})
+	b.Assert(homeEn.m.pageConfig.SiteMatrixDelegees.Roles, qt.DeepEquals, []string{"member*"})
+	b.Assert(homeEn.m.pageConfig.SiteMatrix.Languages, qt.DeepEquals, []string{"en*"})
+	b.Assert(homeEn.m.pageConfig.SiteMatrixDelegees.Languages, qt.DeepEquals, []string{"nn*"})
 }

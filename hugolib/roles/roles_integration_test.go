@@ -389,10 +389,12 @@ target = 'content'
 [module.mounts.sites]
 languages = ["nn"]
 versions  = ["v1.**"]
+weight = 100
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
 [module.mounts.sites]
+weight = 100
 languages = ["**"]
 versions  = ["**"]
 [[module.mounts]]
@@ -433,4 +435,32 @@ sites:
 `
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/v1.2.3/nn/p2/index.html", "title: NN p2|")
+}
+
+func TestFrontMatterSitesWeight(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := filesVariationsSiteMatrix
+
+	filesTemplate += `
+-- content/nn/p2.md --
+---
+title: "EN p2"
+sites:
+   # module.mounts.sites.weight=100.
+   weight: WEIGHT
+   languages: ["en"]
+   versions: ["**"]
+---
+`
+	files := strings.Replace(filesTemplate, "WEIGHT", "99", 1)
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/v1.2.3/en/p2/index.html", "title: EN p2|")
+	files = strings.Replace(filesTemplate, "WEIGHT", "101", 1)
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/v1.2.3/nn/p2/index.html", "title: EN p2|")
+	files = strings.Replace(filesTemplate, "WEIGHT", "100", 1)
+	b = hugolib.Test(t, files)
+	// All things equal, the front matter wins.
+	b.AssertFileContent("public/v1.2.3/en/p2/index.html", "title: EN p2|")
 }
