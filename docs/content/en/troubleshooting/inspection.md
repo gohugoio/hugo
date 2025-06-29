@@ -16,7 +16,6 @@ Use the [`debug.Dump`] function to inspect a data structure:
 {
   "date": "2023-11-10T15:10:42-08:00",
   "draft": false,
-  "iscjklanguage": false,
   "lastmod": "2023-11-10T15:10:42-08:00",
   "publishdate": "2023-11-10T15:10:42-08:00",
   "tags": [

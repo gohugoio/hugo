@@ -28,22 +28,21 @@ func TestExtractSummaryFromHTML(t *testing.T) {
 	tests := []struct {
 		mt                          media.Type
 		input                       string
-		isCJK                       bool
 		numWords                    int
 		expectSummary               string
 		expectContentWithoutSummary string
 	}{
-		{media.Builtin.ReStructuredTextType, "<div class=\"document\">\n\n\n<p>Simple Page</p>\n</div>", false, 70, "<div class=\"document\">\n\n\n<p>Simple Page</p>\n</div>", ""},
-		{media.Builtin.ReStructuredTextType, "<div class=\"document\"><p>First paragraph</p><p>Second paragraph</p></div>", false, 2, `<div class="document"><p>First paragraph</p></div>`, "<div class=\"document\"><p>Second paragraph</p></div>"},
-		{media.Builtin.MarkdownType, "<p>First paragraph</p>", false, 10, "<p>First paragraph</p>", ""},
-		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p>", false, 2, "<p>First paragraph</p>", "<p>Second paragraph</p>"},
-		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p><p>Third paragraph</p>", false, 3, "<p>First paragraph</p><p>Second paragraph</p>", "<p>Third paragraph</p>"},
-		{media.Builtin.AsciiDocType, "<div><p>First paragraph</p></div><div><p>Second paragraph</p></div>", false, 2, "<div><p>First paragraph</p></div>", "<div><p>Second paragraph</p></div>"},
-		{media.Builtin.MarkdownType, "<p>这是中文，全中文</p><p>a这是中文，全中文</p>", true, 5, "<p>这是中文，全中文</p>", "<p>a这是中文，全中文</p>"},
+		{media.Builtin.ReStructuredTextType, "<div class=\"document\">\n\n\n<p>Simple Page</p>\n</div>", 70, "<div class=\"document\">\n\n\n<p>Simple Page</p>\n</div>", ""},
+		{media.Builtin.ReStructuredTextType, "<div class=\"document\"><p>First paragraph</p><p>Second paragraph</p></div>", 2, `<div class="document"><p>First paragraph</p></div>`, "<div class=\"document\"><p>Second paragraph</p></div>"},
+		{media.Builtin.MarkdownType, "<p>First paragraph</p>", 10, "<p>First paragraph</p>", ""},
+		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p>", 2, "<p>First paragraph</p>", "<p>Second paragraph</p>"},
+		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p><p>Third paragraph</p>", 3, "<p>First paragraph</p><p>Second paragraph</p>", "<p>Third paragraph</p>"},
+		{media.Builtin.AsciiDocType, "<div><p>First paragraph</p></div><div><p>Second paragraph</p></div>", 2, "<div><p>First paragraph</p></div>", "<div><p>Second paragraph</p></div>"},
+		{media.Builtin.MarkdownType, "<p>这是中文，全中文</p><p>a这是中文，全中文</p>", 5, "<p>这是中文，全中文</p>", "<p>a这是中文，全中文</p>"},
 	}
 
 	for i, test := range tests {
-		summary := ExtractSummaryFromHTML(test.mt, test.input, test.numWords, test.isCJK)
+		summary := ExtractSummaryFromHTML(test.mt, test.input, test.numWords)
 		c.Assert(summary.Summary(), qt.Equals, test.expectSummary, qt.Commentf("Summary %d", i))
 		c.Assert(summary.ContentWithoutSummary(), qt.Equals, test.expectContentWithoutSummary, qt.Commentf("ContentWithoutSummary %d", i))
 	}
@@ -85,7 +84,7 @@ And it liked milk.
 </p>
 `
 
-	summary := ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 10, false)
+	summary := ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 10)
 	c.Assert(strings.HasSuffix(summary.Summary(), "<p>\nThis is a story about a cat.\n</p>\n<p>\nThe cat was white and fluffy.\n</p>"), qt.IsTrue)
 }
 
@@ -176,7 +175,7 @@ func BenchmarkSummaryFromHTML(b *testing.B) {
 	input := "<p>First paragraph</p><p>Second paragraph</p>"
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		summary := ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 2, false)
+		summary := ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 2)
 		if s := summary.Content(); s != input {
 			b.Fatalf("unexpected content: %q", s)
 		}

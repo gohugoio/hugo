@@ -137,30 +137,6 @@ More then 70 words.
 		"In Chinese, 好 means good. In Chinese, 好 means good. " +
 		"In Chinese, 好 means good. In Chinese, 好 means good."
 
-	simplePageWithIsCJKLanguageFalse = `---
-title: Simple
-isCJKLanguage: false
----
-
-In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
-In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
-In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
-In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
-In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
-In Chinese, 好的啊 means good.  In Chinese, 好的呀 means good.
-In Chinese, 好的啊 means good.  In Chinese, 好的呀呀 means good enough.
-More then 70 words.
-
-
-`
-	simplePageWithIsCJKLanguageFalseSummary = "In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀呀 means good enough."
-
 	simplePageWithLongContent = `---
 title: Simple
 ---
@@ -999,7 +975,7 @@ summary: Summary (zh)
 <li>Summary: Summary (zh)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 26</li>
 
 </ul>
@@ -1020,7 +996,7 @@ summary: Summary (zh)
 <li>Summary: Summary (zh)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 26</li>
 
 </ul>`)
@@ -1041,7 +1017,7 @@ summary: Summary (zh)
 <li>Summary: Summary (en)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 29</li>
 
 </ul>
@@ -1062,7 +1038,7 @@ summary: Summary (zh)
 <li>Summary: Summary (en)</li>
 <li>Truncated: false</li>
 <li>FuzzyWordCount: 100</li>
-<li>ReadingTime: 1</li>
+<li>ReadingTime: 0</li>
 <li>Len: 29</li>
 
 </ul>`)
@@ -1154,21 +1130,8 @@ Content
 	}
 }
 
-func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
+func TestWordCountWithAllCJKRunes(t *testing.T) {
 	t.Parallel()
-	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		p := pages[0]
-		if p.WordCount(context.Background()) != 8 {
-			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 8, p.WordCount(context.Background()))
-		}
-	}
-
-	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithAllCJKRunes)
-}
-
-func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
-	t.Parallel()
-	settings := map[string]any{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
@@ -1176,12 +1139,11 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 			t.Fatalf("[%s] incorrect word count, expected %v, got %v", ext, 15, p.WordCount(context.Background()))
 		}
 	}
-	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithAllCJKRunes)
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithAllCJKRunes)
 }
 
 func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 	t.Parallel()
-	settings := map[string]any{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
@@ -1190,23 +1152,7 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 		}
 	}
 
-	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithMainEnglishWithCJKRunes)
-}
-
-func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
-	t.Parallel()
-	settings := map[string]any{
-		"hasCJKLanguage": true,
-	}
-
-	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
-		p := pages[0]
-		if p.WordCount(context.Background()) != 75 {
-			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.Plain(context.Background()), 74, p.WordCount(context.Background()))
-		}
-	}
-
-	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithIsCJKLanguageFalse)
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithMainEnglishWithCJKRunes)
 }
 
 func TestWordCount(t *testing.T) {
@@ -1221,7 +1167,7 @@ func TestWordCount(t *testing.T) {
 			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.FuzzyWordCount(context.Background()))
 		}
 
-		if p.ReadingTime(context.Background()) != 3 {
+		if p.ReadingTime(context.Background()) != 2 {
 			t.Fatalf("[%s] incorrect min read. expected %v, got %v", ext, 3, p.ReadingTime(context.Background()))
 		}
 	}
