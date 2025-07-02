@@ -2000,3 +2000,61 @@ title: home en
 	b.AssertLogContains("Using index.de.md in your content's root directory is usually incorrect for your home page. You should use _index.de.md instead.")
 	b.AssertLogContains("Using index.en.org in your content's root directory is usually incorrect for your home page. You should use _index.en.org instead.")
 }
+
+// Issue 13826
+func TestTemplateSelectionIssue13826(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1 (type implicitly set to page)
+---
+-- content/p2.md --
+---
+title: p2 (type explicitly set to page)
+type: page
+---
+-- content/p3.md --
+---
+title: p3 (type explicitly set to foo)
+type: foo
+---
+-- content/foo/p4.md --
+---
+title: p4 (type implicitly set to foo)
+---
+-- content/bar/p5.md --
+---
+title: p5 (type explicitly set to foo)
+type: foo
+---
+-- layouts/page/page.html --
+layouts/page/page.html
+-- layouts/foo/page.html --
+layouts/foo/page.html
+-- layouts/page.html --
+layouts/page.html
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "layouts/page/page.html")
+	b.AssertFileContent("public/p2/index.html", "layouts/page/page.html")
+	b.AssertFileContent("public/p3/index.html", "layouts/foo/page.html")
+	b.AssertFileContent("public/foo/p4/index.html", "layouts/foo/page.html")
+	b.AssertFileContent("public/bar/p5/index.html", "layouts/foo/page.html")
+
+	files = strings.ReplaceAll(files, "-- layouts/page/page.html --", "-- delete-me-1.txt --")
+	files = strings.ReplaceAll(files, "-- layouts/foo/page.html --", "-- delete-me-2.txt --")
+
+	b = Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "layouts/page.html")
+	b.AssertFileContent("public/p2/index.html", "layouts/page.html")
+	b.AssertFileContent("public/p3/index.html", "layouts/page.html")
+	b.AssertFileContent("public/foo/p4/index.html", "layouts/page.html")
+	b.AssertFileContent("public/bar/p5/index.html", "layouts/page.html")
+}
