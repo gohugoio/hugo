@@ -16,7 +16,7 @@
   {{- $request := printf "https://publish.twitter.com/oembed?%s" $query -}}
   {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
-      {{- errorf "%s" . -}}
+      {{- warnidf "shortcode-twitter-simple-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
     {{- else with .Value -}}
       {{- if not site.Config.Services.Twitter.DisableInlineCSS }}
         {{- template "__h_simple_twitter_css" (dict "ctx" $.ctx) }}

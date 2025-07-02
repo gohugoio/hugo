@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -113,17 +114,18 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 		panic("HTML output format not found")
 	}
 	s := &TemplateStore{
-		opts:                opts,
-		siteOpts:            siteOpts,
-		optsOrig:            opts,
-		siteOptsOrig:        siteOpts,
-		htmlFormat:          html,
-		storeSite:           configureSiteStorage(siteOpts, opts.Watching),
-		treeMain:            doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
-		treeShortcodes:      doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
-		templatesByPath:     maps.NewCache[string, *TemplInfo](),
-		shortcodesByName:    maps.NewCache[string, *TemplInfo](),
-		cacheLookupPartials: maps.NewCache[string, *TemplInfo](),
+		opts:                 opts,
+		siteOpts:             siteOpts,
+		optsOrig:             opts,
+		siteOptsOrig:         siteOpts,
+		htmlFormat:           html,
+		storeSite:            configureSiteStorage(siteOpts, opts.Watching),
+		treeMain:             doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
+		treeShortcodes:       doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
+		templatesByPath:      maps.NewCache[string, *TemplInfo](),
+		shortcodesByName:     maps.NewCache[string, *TemplInfo](),
+		cacheLookupPartials:  maps.NewCache[string, *TemplInfo](),
+		templatesSnapshotSet: maps.NewCache[*parse.Tree, struct{}](),
 
 		// Note that the funcs passed below is just for name validation.
 		tns: newTemplateNamespace(siteOpts.TemplateFuncs),
@@ -142,10 +144,10 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 	if err := s.insertEmbedded(); err != nil {
 		return nil, err
 	}
-	if err := s.parseTemplates(); err != nil {
+	if err := s.parseTemplates(false); err != nil {
 		return nil, err
 	}
-	if err := s.extractInlinePartials(); err != nil {
+	if err := s.extractInlinePartials(false); err != nil {
 		return nil, err
 	}
 	if err := s.transformTemplates(); err != nil {
@@ -423,10 +425,11 @@ type TemplateStore struct {
 	siteOpts   SiteOptions
 	htmlFormat output.Format
 
-	treeMain         *doctree.SimpleTree[map[nodeKey]*TemplInfo]
-	treeShortcodes   *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
-	templatesByPath  *maps.Cache[string, *TemplInfo]
-	shortcodesByName *maps.Cache[string, *TemplInfo]
+	treeMain             *doctree.SimpleTree[map[nodeKey]*TemplInfo]
+	treeShortcodes       *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
+	templatesByPath      *maps.Cache[string, *TemplInfo]
+	shortcodesByName     *maps.Cache[string, *TemplInfo]
+	templatesSnapshotSet *maps.Cache[*parse.Tree, struct{}]
 
 	dh descriptorHandler
 
@@ -608,7 +611,7 @@ func (s *TemplateStore) LookupShortcodeByName(name string) *TemplInfo {
 	return ti
 }
 
-func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
+func (s *TemplateStore) LookupShortcode(q TemplateQuery) (*TemplInfo, error) {
 	q.init()
 	k1 := s.key(q.Path)
 
@@ -630,13 +633,15 @@ func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
 		}
 
 		for k, vv := range v {
+			best.candidates = append(best.candidates, vv)
 			if !q.Consider(vv) {
 				continue
 			}
 
 			weight := s.dh.compareDescriptors(q.Category, vv.subCategory == SubCategoryEmbedded, q.Desc, k)
 			weight.distance = distance
-			if best.isBetter(weight, vv) {
+			isBetter := best.isBetter(weight, vv)
+			if isBetter {
 				best.updateValues(weight, k2, k, vv)
 			}
 		}
@@ -644,8 +649,21 @@ func (s *TemplateStore) LookupShortcode(q TemplateQuery) *TemplInfo {
 		return false, nil
 	})
 
-	// Any match will do.
-	return best.templ
+	if best.w.w1 <= 0 {
+		var err error
+		if s := best.candidatesAsStringSlice(); s != nil {
+			msg := fmt.Sprintf("no compatible template found for shortcode %q in %s", q.Name, s)
+			if !q.Desc.IsPlainText {
+				msg += "; note that to use plain text template shortcodes in HTML you need to use the shortcode {{% delimiter"
+			}
+			err = errors.New(msg)
+		} else {
+			err = fmt.Errorf("no template found for shortcode %q", q.Name)
+		}
+		return nil, err
+	}
+
+	return best.templ, nil
 }
 
 // PrintDebug is for testing/debugging only.
@@ -693,12 +711,16 @@ func (s *TemplateStore) RefreshFiles(include func(fi hugofs.FileMetaInfo) bool) 
 	if err := s.insertTemplates(include, true); err != nil {
 		return err
 	}
-	if err := s.parseTemplates(); err != nil {
+	if err := s.createTemplatesSnapshot(); err != nil {
 		return err
 	}
-	if err := s.extractInlinePartials(); err != nil {
+	if err := s.parseTemplates(true); err != nil {
 		return err
 	}
+	if err := s.extractInlinePartials(true); err != nil {
+		return err
+	}
+
 	if err := s.transformTemplates(); err != nil {
 		return err
 	}
@@ -924,61 +946,79 @@ func (s *TemplateStore) extractIdentifiers(line string) []string {
 	return identifiers
 }
 
-func (s *TemplateStore) extractInlinePartials() error {
+func (s *TemplateStore) extractInlinePartials(rebuild bool) error {
 	isPartialName := func(s string) bool {
 		return strings.HasPrefix(s, "partials/") || strings.HasPrefix(s, "_partials/")
 	}
 
-	p := s.tns
 	// We may find both inline and external partials in the current template namespaces,
 	// so only add the ones we have not seen before.
-	addIfNotSeen := func(isText bool, templs ...tpl.Template) error {
-		for _, templ := range templs {
-			if templ.Name() == "" || !isPartialName(templ.Name()) {
-				continue
-			}
-			name := templ.Name()
-			if !paths.HasExt(name) {
-				// Assume HTML. This in line with how the lookup works.
-				name = name + s.htmlFormat.MediaType.FirstSuffix.FullSuffix
-			}
-			if !strings.HasPrefix(name, "_") {
-				name = "_" + name
-			}
-			pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
-			ti, err := s.insertTemplate(pi, nil, false, s.treeMain)
-			if err != nil {
-				return err
-			}
-
-			if ti != nil {
-				ti.Template = templ
-				ti.noBaseOf = true
-				ti.subCategory = SubCategoryInline
-				ti.D.IsPlainText = isText
-			}
-
+	for templ := range s.allRawTemplates() {
+		if templ.Name() == "" || !isPartialName(templ.Name()) {
+			continue
 		}
-		return nil
-	}
-	addIfNotSeen(false, p.templatesIn(p.parseHTML)...)
-	addIfNotSeen(true, p.templatesIn(p.parseText)...)
-
-	for _, t := range p.baseofHtmlClones {
-		if err := addIfNotSeen(false, p.templatesIn(t)...); err != nil {
+		if rebuild && s.templatesSnapshotSet.Contains(getParseTree(templ)) {
+			// This partial was not created during this build.
+			continue
+		}
+		name := templ.Name()
+		if !paths.HasExt(name) {
+			// Assume HTML. This in line with how the lookup works.
+			name = name + s.htmlFormat.MediaType.FirstSuffix.FullSuffix
+		}
+		if !strings.HasPrefix(name, "_") {
+			name = "_" + name
+		}
+		pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
+		ti, err := s.insertTemplate(pi, nil, SubCategoryInline, false, s.treeMain)
+		if err != nil {
 			return err
 		}
-	}
-	for _, t := range p.baseofTextClones {
-		if err := addIfNotSeen(true, p.templatesIn(t)...); err != nil {
-			return err
+
+		if ti != nil {
+			ti.Template = templ
+			ti.noBaseOf = true
+			ti.subCategory = SubCategoryInline
+			ti.D.IsPlainText = isText(templ)
 		}
 	}
+
 	return nil
 }
 
+func (s *TemplateStore) allRawTemplates() iter.Seq[tpl.Template] {
+	p := s.tns
+	return func(yield func(tpl.Template) bool) {
+		for t := range p.templatesIn(p.parseHTML) {
+			if !yield(t) {
+				return
+			}
+		}
+		for t := range p.templatesIn(p.parseText) {
+			if !yield(t) {
+				return
+			}
+		}
+
+		for _, tt := range p.baseofHtmlClones {
+			for t := range p.templatesIn(tt) {
+				if !yield(t) {
+					return
+				}
+			}
+		}
+		for _, tt := range p.baseofTextClones {
+			for t := range p.templatesIn(tt) {
+				if !yield(t) {
+					return
+				}
+			}
+		}
+	}
+}
+
 func (s *TemplateStore) insertEmbedded() error {
-	return fs.WalkDir(embeddedTemplatesFs, ".", func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(embeddedTemplatesFs, ".", func(tpath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -986,7 +1026,7 @@ func (s *TemplateStore) insertEmbedded() error {
 			return nil
 		}
 
-		templb, err := embeddedTemplatesFs.ReadFile(path)
+		templb, err := embeddedTemplatesFs.ReadFile(tpath)
 		if err != nil {
 			return err
 		}
@@ -994,7 +1034,7 @@ func (s *TemplateStore) insertEmbedded() error {
 		// Get the newlines on Windows in line with how we had it back when we used Go Generate
 		// to write the templates to Go files.
 		templ := string(bytes.ReplaceAll(templb, []byte("\r\n"), []byte("\n")))
-		name := strings.TrimPrefix(filepath.ToSlash(path), "embedded/templates/")
+		name := strings.TrimPrefix(filepath.ToSlash(tpath), "embedded/templates/")
 
 		insertOne := func(name, content string) error {
 			pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
@@ -1008,7 +1048,7 @@ func (s *TemplateStore) insertEmbedded() error {
 					return err
 				}
 			} else {
-				ti, err = s.insertTemplate(pi, nil, false, s.treeMain)
+				ti, err = s.insertTemplate(pi, nil, SubCategoryEmbedded, false, s.treeMain)
 				if err != nil {
 					return err
 				}
@@ -1019,6 +1059,19 @@ func (s *TemplateStore) insertEmbedded() error {
 				ti.noBaseOf = true
 				ti.content = content
 				ti.subCategory = SubCategoryEmbedded
+			}
+
+			return nil
+		}
+
+		// Copy the embedded HTML table render hook to each output format.
+		// See https://github.com/gohugoio/hugo/issues/13351.
+		if name == path.Join(containerMarkup, "render-table.html") {
+			for _, of := range s.opts.OutputFormats {
+				path := paths.TrimExt(name) + "." + of.Name + of.MediaType.FirstSuffix.FullSuffix
+				if err := insertOne(path, templ); err != nil {
+					return err
+				}
 			}
 
 			return nil
@@ -1089,7 +1142,7 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 	return ti, nil
 }
 
-func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, replace bool, tree doctree.Tree[map[nodeKey]*TemplInfo]) (*TemplInfo, error) {
+func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, subCategory SubCategory, replace bool, tree doctree.Tree[map[nodeKey]*TemplInfo]) (*TemplInfo, error) {
 	key, _, category, d, err := s.toKeyCategoryAndDescriptor(pi)
 	// See #13577. Warn for now.
 	if err != nil {
@@ -1103,7 +1156,7 @@ func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, r
 		return nil, nil
 	}
 
-	return s.insertTemplate2(pi, fi, key, category, d, replace, false, tree)
+	return s.insertTemplate2(pi, fi, key, category, subCategory, d, replace, false, tree)
 }
 
 func (s *TemplateStore) insertTemplate2(
@@ -1111,6 +1164,7 @@ func (s *TemplateStore) insertTemplate2(
 	fi hugofs.FileMetaInfo,
 	key string,
 	category Category,
+	subCategory SubCategory,
 	d TemplateDescriptor,
 	replace, isLegacyMapped bool,
 	tree doctree.Tree[map[nodeKey]*TemplInfo],
@@ -1133,12 +1187,26 @@ func (s *TemplateStore) insertTemplate2(
 		tree.Insert(key, m)
 	}
 
-	if !replace {
-		if v, found := m[nk]; found {
-			if len(pi.Identifiers()) >= len(v.PathInfo.Identifiers()) {
-				// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
-				return nil, nil
-			}
+	nkExisting, existingFound := m[nk]
+	if !replace && existingFound && fi != nil && nkExisting.Fi != nil {
+		// See issue #13715.
+		// We do the merge on the file system level, but from Hugo v0.146.0 we have a situation where
+		// the project may well have a different layouts layout compared to the theme(s) it uses.
+		// We could possibly have fixed that on a lower (file system) level, but since this is just
+		// a temporary situation (until all projects are updated),
+		// do a replace here if the file comes from higher up in the module chain.
+		replace = fi.Meta().ModuleOrdinal < nkExisting.Fi.Meta().ModuleOrdinal
+	}
+
+	if !replace && existingFound {
+		// Always replace inline partials to allow for reloading.
+		replace = subCategory == SubCategoryInline && nkExisting.subCategory == SubCategoryInline
+	}
+
+	if !replace && existingFound {
+		if len(pi.Identifiers()) >= len(nkExisting.PathInfo.Identifiers()) {
+			// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
+			return nil, nil
 		}
 	}
 
@@ -1165,7 +1233,7 @@ func (s *TemplateStore) insertTemplate2(
 	return ti, nil
 }
 
-func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) bool, replace bool) error {
+func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) bool, partialRebuild bool) error {
 	if include == nil {
 		include = func(fi hugofs.FileMetaInfo) bool {
 			return true
@@ -1347,7 +1415,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 
 		}
 
-		if replace && pi.NameNoIdentifier() == baseNameBaseof {
+		if partialRebuild && pi.NameNoIdentifier() == baseNameBaseof {
 			// A baseof file has changed.
 			resetBaseVariants = true
 		}
@@ -1355,12 +1423,12 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		var ti *TemplInfo
 		var err error
 		if pi.Type() == paths.TypeShortcode {
-			ti, err = s.insertShortcode(pi, fi, replace, s.treeShortcodes)
+			ti, err = s.insertShortcode(pi, fi, partialRebuild, s.treeShortcodes)
 			if err != nil || ti == nil {
 				return err
 			}
 		} else {
-			ti, err = s.insertTemplate(pi, fi, replace, s.treeMain)
+			ti, err = s.insertTemplate(pi, fi, SubCategoryMain, partialRebuild, s.treeMain)
 			if err != nil || ti == nil {
 				return err
 			}
@@ -1394,7 +1462,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		desc.IsPlainText = outputFormat.IsPlainText
 		desc.MediaType = mediaType.Type
 
-		ti, err := s.insertTemplate2(pi, fi, targetPath, category, desc, true, true, s.treeMain)
+		ti, err := s.insertTemplate2(pi, fi, targetPath, category, SubCategoryMain, desc, true, true, s.treeMain)
 		if err != nil {
 			return err
 		}
@@ -1405,6 +1473,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		if err := s.tns.readTemplateInto(ti); err != nil {
 			return err
 		}
+
 	}
 
 	if resetBaseVariants {
@@ -1431,7 +1500,15 @@ func (s *TemplateStore) key(dir string) string {
 	return paths.TrimTrailing(dir)
 }
 
-func (s *TemplateStore) parseTemplates() error {
+func (s *TemplateStore) createTemplatesSnapshot() error {
+	s.templatesSnapshotSet.Reset()
+	for t := range s.allRawTemplates() {
+		s.templatesSnapshotSet.Set(getParseTree(t), struct{}{})
+	}
+	return nil
+}
+
+func (s *TemplateStore) parseTemplates(replace bool) error {
 	if err := func() error {
 		// Read and parse all templates.
 		for _, v := range s.treeMain.All() {
@@ -1439,7 +1516,7 @@ func (s *TemplateStore) parseTemplates() error {
 				if vv.state == processingStateTransformed {
 					continue
 				}
-				if err := s.parseTemplate(vv); err != nil {
+				if err := s.parseTemplate(vv, replace); err != nil {
 					return err
 				}
 			}
@@ -1459,7 +1536,7 @@ func (s *TemplateStore) parseTemplates() error {
 						// The regular expression used to detect if a template needs a base template has some
 						// rare false positives. Assume we don't need one.
 						vv.noBaseOf = true
-						if err := s.parseTemplate(vv); err != nil {
+						if err := s.parseTemplate(vv, replace); err != nil {
 							return err
 						}
 						continue
@@ -1488,7 +1565,7 @@ func (s *TemplateStore) parseTemplates() error {
 				if vvv.state == processingStateTransformed {
 					continue
 				}
-				if err := s.parseTemplate(vvv); err != nil {
+				if err := s.parseTemplate(vvv, replace); err != nil {
 					return err
 				}
 			}
@@ -1808,10 +1885,11 @@ type TextTemplatHandler interface {
 }
 
 type bestMatch struct {
-	templ *TemplInfo
-	desc  TemplateDescriptor
-	w     weight
-	key   string
+	templ      *TemplInfo
+	desc       TemplateDescriptor
+	w          weight
+	key        string
+	candidates []*TemplInfo
 
 	// settings.
 	defaultOutputformat string
@@ -1822,6 +1900,18 @@ func (best *bestMatch) reset() {
 	best.w = weight{}
 	best.desc = TemplateDescriptor{}
 	best.key = ""
+	best.candidates = nil
+}
+
+func (best *bestMatch) candidatesAsStringSlice() []string {
+	if len(best.candidates) == 0 {
+		return nil
+	}
+	candidates := make([]string, len(best.candidates))
+	for i, v := range best.candidates {
+		candidates[i] = v.PathInfo.Path()
+	}
+	return candidates
 }
 
 func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
@@ -1831,7 +1921,6 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	}
 
 	if w.w1 <= 0 {
-
 		if best.w.w1 <= 0 {
 			return ti.PathInfo.Path() < best.templ.PathInfo.Path()
 		}

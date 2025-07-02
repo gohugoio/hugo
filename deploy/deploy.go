@@ -36,6 +36,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deploy/deployconfig"
 	"github.com/gohugoio/hugo/media"
@@ -487,7 +488,12 @@ func knownHiddenDirectory(name string) bool {
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
 func (d *Deployer) walkLocal(fs afero.Fs, matchers []*deployconfig.Matcher, include, exclude glob.Glob, mediaTypes media.Types, mappath func(string) string) (map[string]*localFile, error) {
-	retval := map[string]*localFile{}
+	retval := make(map[string]*localFile)
+	var mu sync.Mutex
+
+	workers := para.New(d.cfg.Workers)
+	g, _ := workers.Start(context.Background())
+
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -508,43 +514,52 @@ func (d *Deployer) walkLocal(fs afero.Fs, matchers []*deployconfig.Matcher, incl
 			return nil
 		}
 
-		// When a file system is HFS+, its filepath is in NFD form.
-		if runtime.GOOS == "darwin" {
-			path = norm.NFC.String(path)
-		}
-
-		// Check include/exclude matchers.
-		slashpath := filepath.ToSlash(path)
-		if include != nil && !include.Match(slashpath) {
-			d.logger.Infof("  dropping %q due to include\n", slashpath)
-			return nil
-		}
-		if exclude != nil && exclude.Match(slashpath) {
-			d.logger.Infof("  dropping %q due to exclude\n", slashpath)
-			return nil
-		}
-
-		// Find the first matching matcher (if any).
-		var m *deployconfig.Matcher
-		for _, cur := range matchers {
-			if cur.Matches(slashpath) {
-				m = cur
-				break
+		// Process each file in a worker
+		g.Run(func() error {
+			// When a file system is HFS+, its filepath is in NFD form.
+			if runtime.GOOS == "darwin" {
+				path = norm.NFC.String(path)
 			}
-		}
-		// Apply any additional modifications to the local path, to map it to
-		// the remote path.
-		if mappath != nil {
-			slashpath = mappath(slashpath)
-		}
-		lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
-		if err != nil {
-			return err
-		}
-		retval[lf.SlashPath] = lf
+
+			// Check include/exclude matchers.
+			slashpath := filepath.ToSlash(path)
+			if include != nil && !include.Match(slashpath) {
+				d.logger.Infof("  dropping %q due to include\n", slashpath)
+				return nil
+			}
+			if exclude != nil && exclude.Match(slashpath) {
+				d.logger.Infof("  dropping %q due to exclude\n", slashpath)
+				return nil
+			}
+
+			// Find the first matching matcher (if any).
+			var m *deployconfig.Matcher
+			for _, cur := range matchers {
+				if cur.Matches(slashpath) {
+					m = cur
+					break
+				}
+			}
+			// Apply any additional modifications to the local path, to map it to
+			// the remote path.
+			if mappath != nil {
+				slashpath = mappath(slashpath)
+			}
+			lf, err := newLocalFile(fs, path, slashpath, m, mediaTypes)
+			if err != nil {
+				return err
+			}
+			mu.Lock()
+			retval[lf.SlashPath] = lf
+			mu.Unlock()
+			return nil
+		})
 		return nil
 	})
 	if err != nil {
+		return nil, err
+	}
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 	return retval, nil

@@ -311,7 +311,7 @@ func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, er
 
 // pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
 func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (string, error) {
-	return l.urlize(p.PathInfo().BaseNameNoIdentifier()), nil
+	return l.urlize(p.PathInfo().Unnormalized().BaseNameNoIdentifier()), nil
 }
 
 // pageToPermalinkSlugOrContentBaseName returns the URL-safe form of the slug, content base name.

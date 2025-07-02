@@ -19,7 +19,7 @@
   {{- $request := printf "https://publish.x.com/oembed?%s" $query -}}
   {{- with try (resources.GetRemote $request) -}}
     {{- with .Err -}}
-      {{- errorf "%s" . -}}
+      {{- warnidf "shortcode-x-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
     {{- else with .Value -}}
       {{- (. | transform.Unmarshal).html | safeHTML -}}
     {{- else -}}

@@ -45,7 +45,7 @@ type KatexOptions struct {
 	// A color string given in the format "#XXX" or "#XXXXXX"
 	ErrorColor string `json:"errorColor"`
 
-	//  A collection of custom macros.
+	// A collection of custom macros.
 	Macros map[string]string `json:"macros,omitempty"`
 
 	// Specifies a minimum thickness, in ems, for fraction lines.
@@ -53,6 +53,22 @@ type KatexOptions struct {
 
 	// If true, KaTeX will throw a ParseError when it encounters an unsupported command.
 	ThrowOnError bool `json:"throwOnError"`
+
+	// Controls how KaTeX handles LaTeX features that offer convenience but
+	// aren't officially supported, one of error (default), ignore, or warn.
+	//
+	//  - error: Throws an error when convenient, unsupported LaTeX features
+	//    are encountered.
+	//  - ignore: Allows convenient, unsupported LaTeX features without any
+	//    feedback.
+	//  - warn: Emits a warning when convenient, unsupported LaTeX features are
+	//    encountered.
+	//
+	// The "newLineInDisplayMode" error code, which flags the use of \\
+	// or \newline in display mode outside an array or tabular environment, is
+	// intentionally designed not to throw an error, despite this behavior
+	// being questionable.
+	Strict string `json:"strict"`
 }
 
 type KatexOutput struct {

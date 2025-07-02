@@ -920,6 +920,26 @@ func TestPartialHTML(t *testing.T) {
 	b.AssertFileContent("public/index.html", "<link rel=\"stylesheet\" href=\"/css/style.css\">")
 }
 
+func TestPartialPlainTextInHTML(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/all.html --
+<html>
+<head>
+{{ partial "mypartial.txt" . }}
+</head>
+</html>
+-- layouts/partials/mypartial.txt --
+My <div>partial</div>.
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "My &lt;div&gt;partial&lt;/div&gt;.")
+}
+
 // Issue #13593.
 func TestGoatAndNoGoat(t *testing.T) {
 	t.Parallel()
@@ -1103,6 +1123,35 @@ All.
 	b.AssertLogContains("unrecognized render hook")
 }
 
+func TestLayoutNotFound(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/single.html --
+Single.
+`
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+	b.AssertLogContains("WARN  found no layout file for \"html\" for kind \"home\"")
+}
+
+func TestLayoutOverrideThemeWhenThemeOnOldFormatIssue13715(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+theme = "mytheme"
+-- layouts/list.html --
+ layouts/list.html
+-- themes/mytheme/layouts/_default/list.html --
+mytheme/layouts/_default/list.html
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "layouts/list.html")
+}
+
 func BenchmarkExecuteWithContext(b *testing.B) {
 	files := `
 -- hugo.toml --
@@ -1197,8 +1246,8 @@ s2.
 			Category: tplimpl.CategoryShortcode,
 			Desc:     desc,
 		}
-		v := store.LookupShortcode(q)
-		if v == nil {
+		v, err := store.LookupShortcode(q)
+		if v == nil || err != nil {
 			b.Fatal("not found")
 		}
 	}
@@ -1458,4 +1507,44 @@ mytexts|safeHTML: {{ partial "mytext.txt" . | safeHTML }}
 		"mytext: &lt;div&gt;mytext&lt;/div&gt;",
 		"mytexts|safeHTML: <div>mytext</div>",
 	)
+}
+
+func TestIssue13351(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[outputs]
+home = ['html','json']
+[outputFormats.html]
+weight = 1
+[outputFormats.json]
+weight = 2
+-- content/_index.md --
+---
+title: home
+---
+a|b
+:--|:--
+1|2
+-- layouts/index.html --
+{{ .Content }}
+-- layouts/index.json --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "<table>")
+	b.AssertFileContent("public/index.json", "<table>")
+
+	f := strings.ReplaceAll(files, "weight = 1", "weight = 0")
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "<table>")
+	b.AssertFileContent("public/index.json", "<table>")
+
+	f = strings.ReplaceAll(files, "weight = 1", "")
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "<table>")
+	b.AssertFileContent("public/index.json", "<table>")
 }

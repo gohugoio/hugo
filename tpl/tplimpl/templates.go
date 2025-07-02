@@ -2,6 +2,7 @@ package tplimpl
 
 import (
 	"io"
+	"iter"
 	"regexp"
 	"strconv"
 	"strings"
@@ -44,16 +45,15 @@ var embeddedTemplatesAliases = map[string][]string{
 	"_shortcodes/twitter.html": {"_shortcodes/tweet.html"},
 }
 
-func (s *TemplateStore) parseTemplate(ti *TemplInfo) error {
-	err := s.tns.doParseTemplate(ti)
+func (s *TemplateStore) parseTemplate(ti *TemplInfo, replace bool) error {
+	err := s.tns.doParseTemplate(ti, replace)
 	if err != nil {
 		return s.addFileContext(ti, "parse of template failed", err)
 	}
-
 	return err
 }
 
-func (t *templateNamespace) doParseTemplate(ti *TemplInfo) error {
+func (t *templateNamespace) doParseTemplate(ti *TemplInfo, replace bool) error {
 	if !ti.noBaseOf || ti.category == CategoryBaseof {
 		// Delay parsing until we have the base template.
 		return nil
@@ -68,7 +68,7 @@ func (t *templateNamespace) doParseTemplate(ti *TemplInfo) error {
 
 	if ti.D.IsPlainText {
 		prototype := t.parseText
-		if prototype.Lookup(name) != nil {
+		if !replace && prototype.Lookup(name) != nil {
 			name += "-" + strconv.FormatUint(t.nameCounter.Add(1), 10)
 		}
 		templ, err = prototype.New(name).Parse(ti.content)
@@ -77,7 +77,7 @@ func (t *templateNamespace) doParseTemplate(ti *TemplInfo) error {
 		}
 	} else {
 		prototype := t.parseHTML
-		if prototype.Lookup(name) != nil {
+		if !replace && prototype.Lookup(name) != nil {
 			name += "-" + strconv.FormatUint(t.nameCounter.Add(1), 10)
 		}
 		templ, err = prototype.New(name).Parse(ti.content)
@@ -181,19 +181,24 @@ func (t *templateNamespace) applyBaseTemplate(overlay *TemplInfo, base keyTempla
 	return nil
 }
 
-func (t *templateNamespace) templatesIn(in tpl.Template) []tpl.Template {
-	var templs []tpl.Template
-	if textt, ok := in.(*texttemplate.Template); ok {
-		for _, t := range textt.Templates() {
-			templs = append(templs, t)
+func (t *templateNamespace) templatesIn(in tpl.Template) iter.Seq[tpl.Template] {
+	return func(yield func(t tpl.Template) bool) {
+		switch in := in.(type) {
+		case *htmltemplate.Template:
+			for t := range in.All() {
+				if !yield(t) {
+					return
+				}
+			}
+
+		case *texttemplate.Template:
+			for t := range in.All() {
+				if !yield(t) {
+					return
+				}
+			}
 		}
 	}
-	if htmlt, ok := in.(*htmltemplate.Template); ok {
-		for _, t := range htmlt.Templates() {
-			templs = append(templs, t)
-		}
-	}
-	return templs
 }
 
 /*
@@ -337,8 +342,6 @@ func (t *templateNamespace) createPrototypes(init bool) error {
 		t.prototypeHTML = htmltemplate.Must(t.parseHTML.Clone())
 		t.prototypeText = texttemplate.Must(t.parseText.Clone())
 	}
-	// t.execHTML = htmltemplate.Must(t.parseHTML.Clone())
-	// t.execText = texttemplate.Must(t.parseText.Clone())
 
 	return nil
 }
@@ -348,5 +351,16 @@ func newTemplateNamespace(funcs map[string]any) *templateNamespace {
 		parseHTML:      htmltemplate.New("").Funcs(funcs),
 		parseText:      texttemplate.New("").Funcs(funcs),
 		standaloneText: texttemplate.New("").Funcs(funcs),
+	}
+}
+
+func isText(t tpl.Template) bool {
+	switch t.(type) {
+	case *texttemplate.Template:
+		return true
+	case *htmltemplate.Template:
+		return false
+	default:
+		panic("unknown template type")
 	}
 }

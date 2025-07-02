@@ -15,6 +15,7 @@ package collections
 
 import (
 	"html/template"
+	"reflect"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -77,6 +78,7 @@ func TestAppend(t *testing.T) {
 		{[]string{"a", "b"}, []any{nil}, []any{"a", "b", nil}},
 		{[]string{"a", "b"}, []any{nil, "d", nil}, []any{"a", "b", nil, "d", nil}},
 		{[]any{"a", nil, "c"}, []any{"d", nil, "f"}, []any{"a", nil, "c", "d", nil, "f"}},
+		{[]string{"a", "b"}, []any{}, []string{"a", "b"}},
 	} {
 
 		result, err := Append(test.start, test.addend...)
@@ -145,4 +147,67 @@ func TestAppendShouldMakeACopyOfTheInputSlice(t *testing.T) {
 	slice[0] = "d"
 	c.Assert(result, qt.DeepEquals, []string{"a", "b", "c"})
 	c.Assert(slice, qt.DeepEquals, []string{"d", "b"})
+}
+
+func TestIndirect(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	type testStruct struct {
+		Field string
+	}
+
+	var (
+		nilPtr      *testStruct
+		nilIface    interface{} = nil
+		nonNilIface interface{} = &testStruct{Field: "hello"}
+	)
+
+	tests := []struct {
+		name     string
+		input    any
+		wantKind reflect.Kind
+		wantNil  bool
+	}{
+		{
+			name:     "nil pointer",
+			input:    nilPtr,
+			wantKind: reflect.Ptr,
+			wantNil:  true,
+		},
+		{
+			name:     "nil interface",
+			input:    nilIface,
+			wantKind: reflect.Invalid,
+			wantNil:  false,
+		},
+		{
+			name:     "non-nil pointer to struct",
+			input:    &testStruct{Field: "abc"},
+			wantKind: reflect.Struct,
+			wantNil:  false,
+		},
+		{
+			name:     "non-nil interface holding pointer",
+			input:    nonNilIface,
+			wantKind: reflect.Struct,
+			wantNil:  false,
+		},
+		{
+			name:     "plain value",
+			input:    testStruct{Field: "xyz"},
+			wantKind: reflect.Struct,
+			wantNil:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := reflect.ValueOf(tt.input)
+			got, isNil := indirect(v)
+
+			c.Assert(got.Kind(), qt.Equals, tt.wantKind)
+			c.Assert(isNil, qt.Equals, tt.wantNil)
+		})
+	}
 }

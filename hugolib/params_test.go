@@ -57,7 +57,7 @@ Summary: {{ .Summary }}|
 	)
 }
 
-func TestFrontMatterParamsKindPath(t *testing.T) {
+func TestFrontMatterParamsPath(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -72,10 +72,9 @@ date: 2019-08-07
 path: "/a/b/c"
 slug: "s1"
 ---
--- content/mysection.md --
+-- content/mysection/_index.md --
 ---
 title: "My Section"
-kind: "section"
 date: 2022-08-07
 path: "/a/b"
 ---
@@ -93,66 +92,6 @@ a/b pages: {{ range $ab.RegularPages }}{{ .Path }}|{{ .RelPermalink }}|{{ end }}
 		"Sections: /a|/a/|As",
 		"a/b pages: /a/b/c|/a/b/s1/|$",
 	)
-}
-
-func TestFrontMatterParamsLang(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org/"
-disableKinds = ["taxonomy", "term"]
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = true
-[languages]
-[languages.en]
-weight = 1
-[languages.nn]
-weight = 2
--- content/p1.md --
----
-title: "P1 nn"
-lang: "nn"
----
--- content/p2.md --
----
-title: "P2"
----
--- layouts/index.html --
-RegularPages: {{ range site.RegularPages }}{{ .Path }}|{{ .RelPermalink }}|{{ .Title }}|{{ end }}$
-
-`
-
-	b := Test(t, files)
-
-	b.AssertFileContent("public/en/index.html",
-		"RegularPages: /p2|/en/p2/|P2|$",
-	)
-	b.AssertFileContent("public/nn/index.html",
-		"RegularPages: /p1|/nn/p1/|P1 nn|$",
-	)
-}
-
-func TestFrontMatterTitleOverrideWarn(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org/"
-disableKinds = ["taxonomy", "term"]
--- content/p1.md --
----
-title: "My title"
-params:
-  title: "My title from params"
----
-
-
-`
-
-	b := Test(t, files, TestOptWarn())
-
-	b.AssertLogContains("ARN  Hugo front matter key \"title\" is overridden in params section", "You can suppress this warning")
 }
 
 func TestFrontMatterParamsLangNoCascade(t *testing.T) {

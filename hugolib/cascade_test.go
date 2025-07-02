@@ -890,7 +890,7 @@ disableKinds = ['home','rss','sitemap','taxonomy','term']
 ---
 title: s
 cascade:
-  _build:
+  build:
     render: never
 ---
 -- content/s/p1.md --
@@ -914,4 +914,52 @@ title: p2
 
 	b.AssertFileExists("public/sx/index.html", true)    // failing
 	b.AssertFileExists("public/sx/p2/index.html", true) // failing
+}
+
+func TestCascadeGotmplIssue13743(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[cascade.params]
+foo = 'bar'
+[cascade.target]
+path = '/p1'
+-- content/_content.gotmpl --
+{{ .AddPage (dict "title" "p1" "path" "p1") }}
+-- layouts/all.html --
+{{ .Title }}|{{ .Params.foo }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "p1|bar") // actual content is "p1|"
+}
+
+func TestCascadeWarnOverrideIssue13806(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[[cascade]]
+[cascade.params]
+searchable = true
+[cascade.target]
+kind = 'page'
+-- content/something.md --
+---
+title: Something
+params:
+  searchable: false
+---
+-- layouts/all.html --
+All.
+
+`
+
+	b := Test(t, files, TestOptWarn())
+
+	b.AssertLogContains("! WARN")
 }

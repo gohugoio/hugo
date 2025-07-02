@@ -972,6 +972,9 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 					lrl.Logf("force refresh")
 					livereload.ForceRefresh()
 				}
+			} else {
+				lrl.Logf("force refresh")
+				livereload.ForceRefresh()
 			}
 
 			if len(cssChanges) > 0 {

@@ -263,7 +263,7 @@ func (s *IntegrationTestBuilder) AssertLogContains(els ...string) {
 	}
 }
 
-// AssertLogNotContains asserts that the last build log does matches the given regular expressions.
+// AssertLogMatches asserts that the last build log matches the given regular expressions.
 // The regular expressions can be negated with a "! " prefix.
 func (s *IntegrationTestBuilder) AssertLogMatches(expression string) {
 	s.Helper()

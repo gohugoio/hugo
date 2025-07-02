@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -695,4 +696,101 @@ title: p2
 	b = hugolib.Test(t, files)
 	b.AssertFileContent("public/p1/index.html", "78eb19b5c6f3768f")
 	b.AssertFileContent("public/p2/index.html", "a6db910a9cf54bc1")
+}
+
+func TestShortcodePlainTextVsHTMLTemplateIssue13698(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+markup.goldmark.renderer.unsafe = true
+-- layouts/all.html --
+Content: {{ .Content }}|
+-- layouts/_shortcodes/mymarkdown.md --
+<div>Foo bar</div>
+-- content/p1.md --
+---
+title: p1
+---
+## A shortcode
+
+SHORTCODE
+
+`
+
+	files := strings.ReplaceAll(filesTemplate, "SHORTCODE", "{{% mymarkdown %}}")
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", "<div>Foo bar</div>")
+
+	files = strings.ReplaceAll(filesTemplate, "SHORTCODE", "{{< mymarkdown >}}")
+
+	var err error
+	b, err = hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, `no compatible template found for shortcode "mymarkdown" in [/_shortcodes/mymarkdown.md]; note that to use plain text template shortcodes in HTML you need to use the shortcode {{% delimiter`)
+}
+
+func TestShortcodeOnlyLanguageInBaseIssue13699And13740(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableLanguages = ['de']
+[languages]
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+-- layouts/_shortcodes/de.html --
+de.html
+-- layouts/all.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{< de >}}
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "de.html")
+}
+
+func TestShortcodeLanguage13767(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = 'pl'
+defaultContentLanguageInSubdir = true
+[languages.pl]
+weight = 1
+[languages.en]
+weight = 2	
+-- content/_index.md --
+---
+title: dom
+---
+{{< myshortcode >}}
+-- content/_index.en.md --
+---
+title: home
+---
+{{< myshortcode >}}
+-- layouts/_shortcodes/myshortcode.html --
+myshortcode.html
+-- layouts/_shortcodes/myshortcode.en.html --
+myshortcode.en.html
+-- layouts/all.html --
+{{ .Content }}
+
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/pl/index.html", "myshortcode.html")
+	b.AssertFileContent("public/en/index.html", "myshortcode.en.html")
 }

@@ -31,7 +31,7 @@ func TestDecodeBuildConfig(t *testing.T) {
 	c := qt.New(t)
 
 	configTempl := `
-[_build]
+[build]
 render = %s
 list = %s
 publishResources = true`
@@ -82,7 +82,7 @@ publishResources = true`
 	} {
 		cfg, err := config.FromConfigString(fmt.Sprintf(configTempl, test.args...), "toml")
 		c.Assert(err, qt.IsNil)
-		bcfg, err := DecodeBuildConfig(cfg.Get("_build"))
+		bcfg, err := DecodeBuildConfig(cfg.Get("build"))
 		c.Assert(err, qt.IsNil)
 
 		eq := qt.CmpEquals(hqt.DeepAllowUnexported(BuildConfig{}))

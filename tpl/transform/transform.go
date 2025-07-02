@@ -17,8 +17,10 @@ package transform
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"html"
 	"html/template"
 	"io"
@@ -234,6 +236,7 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 			MinRuleThickness: 0.04,
 			ErrorColor:       "#cc0000",
 			ThrowOnError:     true,
+			Strict:           "error",
 		},
 	}
 
@@ -243,8 +246,23 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 		}
 	}
 
+	switch katexInput.Options.Strict {
+	case "error", "ignore", "warn":
+		// Valid strict mode, continue
+	default:
+		return "", fmt.Errorf("invalid strict mode; expected one of error, ignore, or warn; received %s", katexInput.Options.Strict)
+	}
+
+	type fileCacheEntry struct {
+		Version  string   `json:"version"`
+		Output   string   `json:"output"`
+		Warnings []string `json:"warnings,omitempty"`
+	}
+
+	const fileCacheEntryVersion = "v1" // Increment on incompatible changes.
+
 	s := hashing.HashString(args...)
-	key := "tomath/" + s[:2] + "/" + s[2:]
+	key := "tomath/" + fileCacheEntryVersion + "/" + s[:2] + "/" + s[2:]
 	fileCache := ns.deps.ResourceSpec.FileCaches.MiscCache()
 
 	v, err := ns.cacheMath.GetOrCreate(key, func(string) (template.HTML, error) {
@@ -265,15 +283,35 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 			if err != nil {
 				return nil, err
 			}
-			return hugio.NewReadSeekerNoOpCloserFromString(result.Data.Output), nil
+
+			e := fileCacheEntry{
+				Version:  fileCacheEntryVersion,
+				Output:   result.Data.Output,
+				Warnings: result.Header.Warnings,
+			}
+
+			buf := &bytes.Buffer{}
+			enc := json.NewEncoder(buf)
+			enc.SetEscapeHTML(false)
+			if err := enc.Encode(e); err != nil {
+				return nil, fmt.Errorf("failed to encode file cache entry: %w", err)
+			}
+			return hugio.NewReadSeekerNoOpCloserFromBytes(buf.Bytes()), nil
 		})
 		if err != nil {
 			return "", err
 		}
 
-		s, err := hugio.ReadString(r)
+		var e fileCacheEntry
+		if err := json.NewDecoder(r).Decode(&e); err != nil {
+			return "", fmt.Errorf("failed to decode file cache entry: %w", err)
+		}
 
-		return template.HTML(s), err
+		for _, warning := range e.Warnings {
+			ns.deps.Log.Warnf("transform.ToMath: %s", warning)
+		}
+
+		return template.HTML(e.Output), err
 	})
 	if err != nil {
 		return "", err

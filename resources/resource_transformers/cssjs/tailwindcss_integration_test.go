@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/bep/logg"
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -69,4 +70,67 @@ CSS: {{ $css.Content | safeCSS }}|
 		}).Build()
 
 	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.")
+}
+
+func TestTailwindCSSNoInlineImportsIssue13719(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+theme = 'my-theme'
+
+[[module.mounts]]
+source = 'assets'
+target = 'assets'
+
+[[module.mounts]]
+source = 'other'
+target = 'assets/css'
+-- assets/css/main.css --
+@import "tailwindcss";
+
+@import "colors/red.css";
+@import "colors/blue.css";
+@import "colors/purple.css";
+-- assets/css/colors/red.css --
+@import "green.css";
+
+.red {color: red;}
+-- assets/css/colors/green.css --
+.green {color: green;}
+-- themes/my-theme/assets/css/colors/blue.css --
+.blue {color: blue;}
+-- other/colors/purple.css --
+.purple {color: purple;}
+-- layouts/home.html --
+{{ with (templates.Defer (dict "key" "global")) }}
+  {{ with resources.Get "css/main.css" }}
+    {{ $opts := dict "disableInlineImports" true }}
+    {{ with . | css.TailwindCSS $opts }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ end }}
+  {{ end }}
+{{ end }}
+-- package.json --
+{
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.7",
+    "tailwindcss": "^4.1.7"
+  }
+}
+`
+
+	b, err := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:               t,
+			TxtarString:     files,
+			NeedsOsFS:       true,
+			NeedsNpmInstall: true,
+			LogLevel:        logg.LevelInfo,
+		}).BuildE()
+
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "Can't resolve 'colors/red.css'")
+	b.Assert(err.Error(), qt.Contains, "You may want to set the 'disableInlineImports' option to false")
 }

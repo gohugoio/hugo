@@ -21,7 +21,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -1310,7 +1309,6 @@ func (h *HugoSites) resolveAndResetDependententPageOutputs(ctx context.Context, 
 		}
 
 		po.renderState = 0
-		po.p.resourcesPublishInit = &sync.Once{}
 		if r == identity.FinderFoundOneOfMany || po.f.Name == output.HTTPStatus404HTMLFormat.Name {
 			// Will force a re-render even in fast render mode.
 			po.renderOnce = false
@@ -1412,7 +1410,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		}
 
 		// Handle cascades first to get any default dates set.
-		var cascade *maps.Ordered[page.PageMatcher, maps.Params]
+		var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
 		if keyPage == "" {
 			// Home page gets it's cascade from the site config.
 			cascade = sa.conf.Cascade.Config
@@ -1424,7 +1422,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		} else {
 			_, data := pw.WalkContext.Data().LongestPrefix(paths.Dir(keyPage))
 			if data != nil {
-				cascade = data.(*maps.Ordered[page.PageMatcher, maps.Params])
+				cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 			}
 		}
 
@@ -1506,11 +1504,11 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 				pageResource := rs.r.(*pageState)
 				relPath := pageResource.m.pathInfo.BaseRel(pageBundle.m.pathInfo)
 				pageResource.m.resourcePath = relPath
-				var cascade *maps.Ordered[page.PageMatcher, maps.Params]
+				var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
 				// Apply cascade (if set) to the page.
 				_, data := pw.WalkContext.Data().LongestPrefix(resourceKey)
 				if data != nil {
-					cascade = data.(*maps.Ordered[page.PageMatcher, maps.Params])
+					cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 				}
 				if err := pageResource.setMetaPost(cascade); err != nil {
 					return false, err
@@ -1574,10 +1572,10 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 				const eventName = "dates"
 
 				if p.Kind() == kinds.KindTerm {
-					var cascade *maps.Ordered[page.PageMatcher, maps.Params]
+					var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
 					_, data := pw.WalkContext.Data().LongestPrefix(s)
 					if data != nil {
-						cascade = data.(*maps.Ordered[page.PageMatcher, maps.Params])
+						cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 					}
 					if err := p.setMetaPost(cascade); err != nil {
 						return false, err

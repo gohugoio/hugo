@@ -623,7 +623,7 @@ func TestEndToEndSync(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1},
 			}
 
 			// Initial deployment should sync remote with local.
@@ -706,7 +706,7 @@ func TestMaxDeletes(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1},
 			}
 
 			// Sync remote with local.
@@ -836,7 +836,7 @@ func TestIncludeExclude(t *testing.T) {
 			}
 			deployer := &Deployer{
 				localFs: fsTest.fs,
-				cfg:     deployconfig.DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
+				cfg:     deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1}, bucket: fsTest.bucket,
 				target:     tgt,
 				mediaTypes: media.DefaultTypes,
 			}
@@ -893,7 +893,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 			}
 			deployer := &Deployer{
 				localFs: fsTest.fs,
-				cfg:     deployconfig.DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
+				cfg:     deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1}, bucket: fsTest.bucket,
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -945,7 +945,7 @@ func TestCompression(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: ".*", Gzip: true, Re: regexp.MustCompile(".*")}}},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: ".*", Gzip: true, Re: regexp.MustCompile(".*")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -1000,7 +1000,7 @@ func TestMatching(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: "^subdir/aaa$", Force: true, Re: regexp.MustCompile("^subdir/aaa$")}}},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: "^subdir/aaa$", Force: true, Re: regexp.MustCompile("^subdir/aaa$")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -1097,5 +1097,6 @@ func verifyRemote(ctx context.Context, bucket *blob.Bucket, local []*fileData) (
 func newDeployer() *Deployer {
 	return &Deployer{
 		logger: loggers.NewDefault(),
+		cfg:    deployconfig.DeployConfig{Workers: 2},
 	}
 }

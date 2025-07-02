@@ -61,6 +61,7 @@ var (
 	_ identity.DependencyManagerProvider = (*resourceAdapter)(nil)
 	_ identity.IdentityGroupProvider     = (*resourceAdapter)(nil)
 	_ resource.NameNormalizedProvider    = (*resourceAdapter)(nil)
+	_ isPublishedProvider                = (*resourceAdapter)(nil)
 )
 
 // These are transformations that need special support in Hugo that may not
@@ -323,6 +324,11 @@ func (r *resourceAdapter) Publish() error {
 	r.init(false, false)
 
 	return r.target.Publish()
+}
+
+func (r *resourceAdapter) isPublished() bool {
+	r.init(false, false)
+	return r.target.isPublished()
 }
 
 func (r *resourceAdapter) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
