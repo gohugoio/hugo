@@ -1145,6 +1145,7 @@ config:
     - pubdate
     - published
     - date
+  hasCJKLanguage: false
   i18nDir: i18n
   ignoreCache: false
   ignoreFiles: []
