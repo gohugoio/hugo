@@ -488,6 +488,82 @@ func TestCreateManyTemplateStores(t *testing.T) {
 	}
 }
 
+func TestLayoutWithLanguagesVersionsAndRoles(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "rss"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+defaultContentVersion = "v2.0.0"
+defaultContentVersionInSubdir = true
+defaultContentRole = "admin"
+defaultContentRoleInSubdir = true
+
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+
+[versions."v2.0.0"]
+[versions."v1.0.0"]
+
+[roles.admin]
+weight = 1
+[roles.user]
+weight = 2
+
+
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+[module.mounts.sites]
+languages = ['en']
+versions = ['**']
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+[module.mounts.sites]
+languages = ['nn']
+versions = ['**']
+[[module.mounts]]
+source = 'layouts/v1'
+target = 'layouts'
+[module.mounts.sites]
+weight = 10
+versions = ['v1**']
+languages = ['**']
+[[module.mounts]]
+source = 'layouts/en'
+target = 'layouts'
+[module.mounts.sites]
+languages = ['en']
+versions = ['**']
+[[module.mounts]]
+source = 'layouts/nn'
+target = 'layouts'
+[module.mounts.sites]
+languages = ['nn']
+versions = ['**']
+-- layouts/v1/all.html --
+layouts/v1/all.html
+-- layouts/en/all.html --
+layouts/en/all.html
+-- layouts/nn/all.html --
+layouts/nn/all.html
+
+
+`
+
+	b := hugolib.Test(t, files)
+	// b.AssertPublishDir("asdf")
+	b.AssertFileContent("public/admin/v2.0.0/en/index.html", "layouts/en/all.html")
+	b.AssertFileContent("public/admin/v2.0.0/nn/index.html", "layouts/nn/all.html")
+	b.AssertFileContent("public/admin/v1.0.0/nn/index.html", "layouts/v1/all.html")
+	b.AssertFileContent("public/admin/v1.0.0/en/index.html", "layouts/v1/all.html")
+}
+
 func BenchmarkLookupPagesLayout(b *testing.B) {
 	files := `
 -- hugo.toml --

@@ -124,6 +124,14 @@ func (v1 Vector) Role() int {
 	return v1[Role.Index()]
 }
 
+func (v1 Vector) Weight() int {
+	return 0
+}
+
+func (v1 Vector) Ordinal() int {
+	return 0
+}
+
 type VectorProvider interface {
 	// HasVector returns true if the given vector is contained in the provider.
 	// Used for membership testing of files, resources and pages.
@@ -142,6 +150,12 @@ type VectorProvider interface {
 	// ForEeachVector iterates over all vectors in the provider.
 	// It returns false if the iteration was stopped early.
 	ForEeachVector(func(v Vector) bool) bool
+
+	// Weight returns the weight of this vector provider, 0 if not set.
+	Weight() int
+
+	// Zero based ordinal. Lower is earlier.
+	Ordinal() int
 }
 
 // Dimension is a dimension in the Hugo build matrix.

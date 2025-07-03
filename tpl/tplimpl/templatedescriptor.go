@@ -14,6 +14,7 @@
 package tplimpl
 
 import (
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/resources/kinds"
 )
 
@@ -27,9 +28,10 @@ type TemplateDescriptor struct {
 	LayoutFromUser     string //  custom layout set in front matter, e.g. list, single, all, mycustomlayout
 
 	// Group 2.
-	OutputFormat string // rss, csv ...
-	MediaType    string // text/html, text/plain, ...
-	Lang         string // en, nn, fr, ...
+	OutputFormat string                    // rss, csv ...
+	MediaType    string                    // text/html, text/plain, ...
+	Lang         string                    // en, nn, fr, ... // TODO1 remove.
+	Dimensions   sitematrix.VectorProvider // language, version, role.
 
 	Variant1 string // contextual variant, e.g. "link" in render hooks."
 	Variant2 string // contextual variant, e.g. "id" in render.
@@ -107,6 +109,12 @@ func (this TemplateDescriptor) doCompare(category Category, defaultContentLangua
 			if other.LayoutFromTemplate != this.LayoutFromTemplate {
 				return w
 			}
+		}
+	}
+
+	if other.Dimensions != nil && other.Dimensions.LenVectors() > 0 {
+		if (this.Dimensions == nil || this.Dimensions.LenVectors() == 0) || !other.Dimensions.HasVector(this.Dimensions.FirstVector()) {
+			return w
 		}
 	}
 

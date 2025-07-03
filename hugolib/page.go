@@ -542,6 +542,7 @@ func (po *pageOutput) GetInternalTemplateBasePathAndDescriptor() (string, tplimp
 	return base, tplimpl.TemplateDescriptor{
 		Kind:           p.Kind(),
 		Lang:           p.Language().Lang,
+		Dimensions:     p.s.dims,
 		LayoutFromUser: p.Layout(),
 		OutputFormat:   f.Name,
 		MediaType:      f.MediaType.Type,

@@ -2397,7 +2397,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 		if err != nil {
 			return err
 		}
-		w.Tree.InsertIntoCurrentDimension(n.PathInfo().Base(), n)
+		w.Tree.InsertIntoCurrentDimensionWithLock(n.PathInfo().Base(), n)
 		sa.s.home = n
 	}
 

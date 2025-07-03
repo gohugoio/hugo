@@ -194,7 +194,7 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 			if idx, ok := fs.opts.PathParser.LanguageIndex[fileLang]; ok {
 				// A valid lang set in filename.
 				// Give priority to myfile.sv.txt inside the sv filesystem.
-				meta.Weight++
+				meta.Weight++        // TODO1
 				meta.Lang = fileLang // TODO1 remove.
 				meta.SiteInts = meta.SiteInts.WithLanguageIndex(idx)
 				meta.SiteIntsWithDefaults = meta.SiteIntsWithDefaults.WithLanguageIndex(idx)

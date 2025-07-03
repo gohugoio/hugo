@@ -85,7 +85,7 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 	}
 }
 
-func (r *NodeShiftTree[T]) Dims() sitematrix.VectorProvider {
+func (r *NodeShiftTree[T]) Dims() sitematrix.Vector {
 	return r.dims
 }
 
@@ -147,6 +147,12 @@ func (t *NodeShiftTree[T]) DeletePrefixAll(prefix string) int {
 	})
 
 	return count
+}
+
+func (r *NodeShiftTree[T]) InsertIntoCurrentDimensionWithLock(s string, v T) (T, T, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.InsertIntoCurrentDimension(s, v)
 }
 
 func (r *NodeShiftTree[T]) InsertIntoCurrentDimension(s string, v T) (T, T, bool) {
@@ -363,12 +369,13 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 	if r.Tree == nil {
 		panic("Tree is required")
 	}
-	r.resetLocalState()
 
 	if r.LockType > LockTypeNone {
 		commit1 := r.Tree.Lock(r.LockType == LockTypeWrite)
 		defer commit1()
 	}
+
+	r.resetLocalState()
 
 	main := r.Tree
 

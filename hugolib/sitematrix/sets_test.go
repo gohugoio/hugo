@@ -20,7 +20,7 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 )
 
-func TestIntSetsVectorProvider(t *testing.T) {
+func TestIntSets(t *testing.T) {
 	c := qt.New(t)
 
 	sets := &IntSets{
@@ -157,10 +157,10 @@ func BenchmarkSets(b *testing.B) {
 		}
 	})
 
-	b.Run("SetFrom", func(b *testing.B) {
+	b.Run("SetFromOtherIfNotSet", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			newSets := &IntSets{}
-			newSets.SetFrom(sets1)
+			newSets.SetFromOtherIfNotSet(sets1)
 			_ = newSets
 		}
 	})

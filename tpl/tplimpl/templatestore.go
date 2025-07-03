@@ -44,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/metrics"
@@ -583,7 +584,7 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 	ti, _ := s.cacheLookupPartials.GetOrCreate(pth, func() (*TemplInfo, error) {
 		pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth).ForType(paths.TypePartial)
-		k1, _, _, desc, err := s.toKeyCategoryAndDescriptor(pi)
+		k1, _, _, desc, err := s.toKeyCategoryAndDescriptor(pi, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -1086,7 +1087,7 @@ func (s *TemplateStore) setTemplateByPath(p string, ti *TemplInfo) {
 }
 
 func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, replace bool, tree doctree.Tree[map[string]map[TemplateDescriptor]*TemplInfo]) (*TemplInfo, error) {
-	k1, k2, _, d, err := s.toKeyCategoryAndDescriptor(pi)
+	k1, k2, _, d, err := s.toKeyCategoryAndDescriptor(pi, fi)
 	if err != nil {
 		return nil, err
 	}
@@ -1131,7 +1132,7 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 }
 
 func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, subCategory SubCategory, replace bool, tree doctree.Tree[map[nodeKey]*TemplInfo]) (*TemplInfo, error) {
-	key, _, category, d, err := s.toKeyCategoryAndDescriptor(pi)
+	key, _, category, d, err := s.toKeyCategoryAndDescriptor(pi, fi)
 	// See #13577. Warn for now.
 	if err != nil {
 		var loc string
@@ -1649,15 +1650,21 @@ func (s *TemplateStore) templates() iter.Seq[*TemplInfo] {
 	}
 }
 
-func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, string, Category, TemplateDescriptor, error) {
+func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.FileMetaInfo) (string, string, Category, TemplateDescriptor, error) {
 	k1 := p.Dir()
 	k2 := ""
 
 	outputFormat, mediaType := s.resolveOutputFormatAndOrMediaType(p.OutputFormat(), p.Ext())
 	nameNoIdentifier := p.NameNoIdentifier()
 
+	var sites *sitematrix.IntSets
+	if fi != nil {
+		sites = fi.Meta().SiteIntsWithDefaults
+	}
+
 	d := TemplateDescriptor{
 		Lang:               p.Lang(),
+		Dimensions:         sites,
 		OutputFormat:       p.OutputFormat(),
 		MediaType:          mediaType.Type,
 		Kind:               p.Kind(),
@@ -1947,6 +1954,10 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 
 	if w.isEqualWeights(best.w) {
 		// Tie breakers.
+		if ti.D.Dimensions.Ordinal() < best.desc.Dimensions.Ordinal() {
+			return true
+		}
+
 		if w.distance < best.w.distance {
 			return true
 		}

@@ -31,7 +31,8 @@ var (
 // IntSets holds the ordered sets of integers for the dimensions,
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
-	weight    int                 // Any non-zero value will be considered when sorting, lesser weights comes first.
+	weight    int
+	ordinal   int                 // Any non-zero value will be considered when sorting, lesser weights comes first.
 	Languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	Versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	Roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
@@ -48,8 +49,18 @@ func (s *IntSets) Weight() int {
 	return s.weight
 }
 
+func (s *IntSets) Ordinal() int {
+	if s == nil {
+		return 0
+	}
+	return s.ordinal
+}
+
 // HasVector checks if the given vector is contained in the sets.
 func (s *IntSets) HasVector(v Vector) bool {
+	if s == nil {
+		return false
+	}
 	if !s.Languages.Has(v.Language()) {
 		return false
 	}
@@ -75,6 +86,9 @@ func (s *IntSets) FirstVector() Vector {
 }
 
 func (s *IntSets) LenVectors() int {
+	if s == nil {
+		return 0
+	}
 	return s.Languages.Len() * s.Versions.Len() * s.Roles.Len()
 }
 
@@ -167,6 +181,7 @@ func (s IntSets) WithLanguageIndex(i int) *IntSets {
 type IntSetsConfig struct {
 	Cfg          ConfiguredDimensions
 	Weight       int
+	Ordinal      int
 	ApplyDefault bool
 	Languages    []string
 	Versions     []string
@@ -174,8 +189,8 @@ type IntSetsConfig struct {
 }
 
 // NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
-func NewIntSets(weight int) *IntSets {
-	return &IntSets{weight: weight}
+func NewIntSets(weight, ordinal int) *IntSets {
+	return &IntSets{weight: weight, ordinal: ordinal}
 }
 
 // NewIntSetsFromConfig creates a new IntSets from the given IntSetsConfig.
@@ -212,7 +227,7 @@ func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 		return result, nil
 	}
 
-	sets := NewIntSets(cfg.Weight)
+	sets := NewIntSets(cfg.Weight, cfg.Ordinal)
 	l, err1 := applyFilter("languages", cfg.Languages, cfg.Cfg.ConfiguredLanguages)
 	v, err2 := applyFilter("versions", cfg.Versions, cfg.Cfg.ConfiguredVersions)
 	r, err3 := applyFilter("roles", cfg.Roles, cfg.Cfg.ConfiguredRoles)
