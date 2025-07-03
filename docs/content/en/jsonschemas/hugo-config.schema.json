@@ -1,0 +1,473 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config.schema.json",
+  "properties": {
+    "baseURL": {
+      "type": "string",
+      "description": "The base URL of the site.\nNote that the default value is empty, but Hugo requires a valid URL (e.g. \"https://example.com/\") to work properly.\n\u003cdocsmeta\u003e{\"identifiers\": [\"URL\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/all/#baseurl"
+    },
+    "buildDrafts": {
+      "type": "boolean",
+      "description": "Whether to build content marked as draft.X\n\u003cdocsmeta\u003e{\"identifiers\": [\"draft\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/all/#builddrafts"
+    },
+    "buildExpired": {
+      "type": "boolean",
+      "description": "Whether to build content with expiryDate in the past.\n\u003cdocsmeta\u003e{\"identifiers\": [\"expiryDate\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/all/#buildexpired"
+    },
+    "buildFuture": {
+      "type": "boolean",
+      "description": "Whether to build content with publishDate in the future.\n\u003cdocsmeta\u003e{\"identifiers\": [\"publishDate\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/all/#buildfuture"
+    },
+    "copyright": {
+      "type": "string",
+      "description": "Copyright information. \nhttps://gohugo.io/configuration/all/#copyright"
+    },
+    "defaultContentLanguage": {
+      "type": "string",
+      "description": "The language to apply to content without any language indicator. \nhttps://gohugo.io/configuration/all/#defaultcontentlanguage"
+    },
+    "defaultContentLanguageInSubdir": {
+      "type": "boolean",
+      "description": "By default, we put the default content language in the root and the others below their language ID, e.g. /no/.\nSet this to true to put all languages below their language ID. \nhttps://gohugo.io/configuration/all/#defaultcontentlanguageinsubdir"
+    },
+    "defaultOutputFormat": {
+      "type": "string",
+      "description": "The default output format to use for the site.\nIf not set, we will use the first output format. \nhttps://gohugo.io/configuration/all/#defaultoutputformat"
+    },
+    "disableDefaultLanguageRedirect": {
+      "type": "boolean",
+      "description": "Disable generation of redirect to the default language when DefaultContentLanguageInSubdir is enabled. \nhttps://gohugo.io/configuration/all/#disabledefaultlanguageredirect"
+    },
+    "disableAliases": {
+      "type": "boolean",
+      "description": "Disable creation of alias redirect pages. \nhttps://gohugo.io/configuration/all/#disablealiases"
+    },
+    "disablePathToLower": {
+      "type": "boolean",
+      "description": "Disable lower casing of path segments. \nhttps://gohugo.io/configuration/all/#disablepathtolower"
+    },
+    "disableKinds": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Disable page kinds from build. \nhttps://gohugo.io/configuration/all/#disablekinds"
+    },
+    "disableLanguages": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "A list of languages to disable. \nhttps://gohugo.io/configuration/all/#disablelanguages"
+    },
+    "renderSegments": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "The named segments to render.\nThis needs to match the name of the segment in the segments configuration. \nhttps://gohugo.io/configuration/all/#rendersegments"
+    },
+    "disableHugoGeneratorInject": {
+      "type": "boolean",
+      "description": "Disable the injection of the Hugo generator tag on the home page. \nhttps://gohugo.io/configuration/all/#disablehugogeneratorinject"
+    },
+    "disableLiveReload": {
+      "type": "boolean",
+      "description": "Disable live reloading in server mode. \nhttps://gohugo.io/configuration/all/#disablelivereload"
+    },
+    "enableEmoji": {
+      "type": "boolean",
+      "description": "Enable replacement in Pages' Content of Emoji shortcodes with their equivalent Unicode characters.\n\u003cdocsmeta\u003e{\"identifiers\": [\"Content\", \"Unicode\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/all/#enableemoji"
+    },
+    "mainSections": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "THe main section(s) of the site.\nIf not set, Hugo will try to guess this from the content. \nhttps://gohugo.io/configuration/all/#mainsections"
+    },
+    "enableRobotsTXT": {
+      "type": "boolean",
+      "description": "Enable robots.txt generation. \nhttps://gohugo.io/configuration/all/#enablerobotstxt"
+    },
+    "enableGitInfo": {
+      "type": "boolean",
+      "description": "When enabled, Hugo will apply Git version information to each Page if possible, which\ncan be used to keep lastUpdated in synch and to print version information.\n\u003cdocsmeta\u003e{\"identifiers\": [\"Page\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/all/#enablegitinfo"
+    },
+    "templateMetrics": {
+      "type": "boolean",
+      "description": "Enable to track, calculate and print metrics. \nhttps://gohugo.io/configuration/all/#templatemetrics"
+    },
+    "templateMetricsHints": {
+      "type": "boolean",
+      "description": "Enable to track, print and calculate metric hints. \nhttps://gohugo.io/configuration/all/#templatemetricshints"
+    },
+    "noBuildLock": {
+      "type": "boolean",
+      "description": "Enable to disable the build lock file. \nhttps://gohugo.io/configuration/all/#nobuildlock"
+    },
+    "ignoreLogs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "A list of log IDs to ignore. \nhttps://gohugo.io/configuration/all/#ignorelogs"
+    },
+    "ignoreFiles": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "A list of regexps that match paths to ignore.\nDeprecated: Use the settings on module imports. \nhttps://gohugo.io/configuration/all/#ignorefiles"
+    },
+    "ignoreCache": {
+      "type": "boolean",
+      "description": "Ignore cache. \nhttps://gohugo.io/configuration/all/#ignorecache"
+    },
+    "enableMissingTranslationPlaceholders": {
+      "type": "boolean",
+      "description": "Enable to print greppable placeholders (on the form \"[i18n] TRANSLATIONID\") for missing translation strings. \nhttps://gohugo.io/configuration/all/#enablemissingtranslationplaceholders"
+    },
+    "panicOnWarning": {
+      "type": "boolean",
+      "description": "Enable to panic on warning log entries. This may make it easier to detect the source. \nhttps://gohugo.io/configuration/all/#paniconwarning"
+    },
+    "environment": {
+      "type": "string",
+      "description": "The configured environment. Default is \"development\" for server and \"production\" for build. \nhttps://gohugo.io/configuration/all/#environment"
+    },
+    "languageCode": {
+      "type": "string",
+      "description": "The default language code. \nhttps://gohugo.io/configuration/all/#languagecode"
+    },
+    "hasCJKLanguage": {
+      "type": "boolean",
+      "description": "Enable if the site content has CJK language (Chinese, Japanese, or Korean). This affects how Hugo counts words. \nhttps://gohugo.io/configuration/all/#hascjklanguage"
+    },
+    "paginate": {
+      "type": "integer",
+      "description": "The default number of pages per page when paginating.\nDeprecated: Use the Pagination struct. \nhttps://gohugo.io/configuration/all/#paginate"
+    },
+    "paginatePath": {
+      "type": "string",
+      "description": "The path to use when creating pagination URLs, e.g. \"page\" in /page/2/.\nDeprecated: Use the Pagination struct. \nhttps://gohugo.io/configuration/all/#paginatepath"
+    },
+    "pluralizeListTitles": {
+      "type": "boolean",
+      "description": "Whether to pluralize default list titles.\nNote that this currently only works for English, but you can provide your own title in the content file's front matter. \nhttps://gohugo.io/configuration/all/#pluralizelisttitles"
+    },
+    "capitalizeListTitles": {
+      "type": "boolean",
+      "description": "Whether to capitalize automatic page titles, applicable to section, taxonomy, and term pages. \nhttps://gohugo.io/configuration/all/#capitalizelisttitles"
+    },
+    "canonifyURLs": {
+      "type": "boolean",
+      "description": "Make all relative URLs absolute using the baseURL.\n\u003cdocsmeta\u003e{\"identifiers\": [\"baseURL\"] }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/all/#canonifyurls"
+    },
+    "relativeURLs": {
+      "type": "boolean",
+      "description": "Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. \nhttps://gohugo.io/configuration/all/#relativeurls"
+    },
+    "removePathAccents": {
+      "type": "boolean",
+      "description": "Removes non-spacing marks from composite characters in content paths. \nhttps://gohugo.io/configuration/all/#removepathaccents"
+    },
+    "printUnusedTemplates": {
+      "type": "boolean",
+      "description": "Whether to track and print unused templates during the build. \nhttps://gohugo.io/configuration/all/#printunusedtemplates"
+    },
+    "printI18nWarnings": {
+      "type": "boolean",
+      "description": "Enable to print warnings for missing translation strings. \nhttps://gohugo.io/configuration/all/#printi18nwarnings"
+    },
+    "printPathWarnings": {
+      "type": "boolean",
+      "description": "ENable to print warnings for multiple files published to the same destination. \nhttps://gohugo.io/configuration/all/#printpathwarnings"
+    },
+    "refLinksNotFoundURL": {
+      "type": "string",
+      "description": "URL to be used as a placeholder when a page reference cannot be found in ref or relref. Is used as-is. \nhttps://gohugo.io/configuration/all/#reflinksnotfoundurl"
+    },
+    "refLinksErrorLevel": {
+      "type": "string",
+      "enum": [
+        "ERROR",
+        "WARNING"
+      ],
+      "description": "When using ref or relref to resolve page links and a link cannot be resolved, it will be logged with this log level.\nValid values are ERROR (default) or WARNING. Any ERROR will fail the build (exit -1). \nhttps://gohugo.io/configuration/all/#reflinkserrorlevel"
+    },
+    "sectionPagesMenu": {
+      "type": "string",
+      "description": "This will create a menu with all the sections as menu items and all the sections’ pages as “shadow-members”. \nhttps://gohugo.io/configuration/all/#sectionpagesmenu"
+    },
+    "summaryLength": {
+      "type": "integer",
+      "description": "The length of text in words to show in a .Summary. \nhttps://gohugo.io/configuration/all/#summarylength"
+    },
+    "title": {
+      "type": "string",
+      "description": "The site title. \nhttps://gohugo.io/configuration/all/#title"
+    },
+    "theme": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "The theme(s) to use.\nSee Modules for more a more flexible way to load themes. \nhttps://gohugo.io/configuration/all/#theme"
+    },
+    "timeout": {
+      "type": "string",
+      "description": "Timeout for generating page contents, specified as a duration or in seconds. \nhttps://gohugo.io/configuration/all/#timeout"
+    },
+    "timeZone": {
+      "type": "string",
+      "description": "The time zone (or location), e.g. Europe/Oslo, used to parse front matter dates without such information and in the time function. \nhttps://gohugo.io/configuration/all/#timezone"
+    },
+    "titleCaseStyle": {
+      "type": "string",
+      "enum": [
+        "ap",
+        "chicago",
+        "go",
+        "firstupper",
+        "none"
+      ],
+      "description": "Set titleCaseStyle to specify the title style used by the title template function and the automatic section titles in Hugo.\nIt defaults to AP Stylebook for title casing, but you can also set it to Chicago or Go (every word starts with a capital letter). \nhttps://gohugo.io/configuration/all/#titlecasestyle"
+    },
+    "newContentEditor": {
+      "type": "string",
+      "description": "The editor used for opening up new content. \nhttps://gohugo.io/configuration/all/#newcontenteditor"
+    },
+    "noTimes": {
+      "type": "boolean",
+      "description": "Don't sync modification time of files for the static mounts. \nhttps://gohugo.io/configuration/all/#notimes"
+    },
+    "noChmod": {
+      "type": "boolean",
+      "description": "Don't sync modification time of files for the static mounts. \nhttps://gohugo.io/configuration/all/#nochmod"
+    },
+    "cleanDestinationDir": {
+      "type": "boolean",
+      "description": "Clean the destination folder before a new build.\nThis currently only handles static files. \nhttps://gohugo.io/configuration/all/#cleandestinationdir"
+    },
+    "ignoreVendorPaths": {
+      "type": "string",
+      "description": "A Glob pattern of module paths to ignore in the _vendor folder. \nhttps://gohugo.io/configuration/all/#ignorevendorpaths"
+    },
+    "themesDir": {
+      "type": "string",
+      "description": "The directory where Hugo will look for themes. \nhttps://gohugo.io/configuration/all/#themesdir"
+    },
+    "publishDir": {
+      "type": "string",
+      "description": "Where to put the generated files. \nhttps://gohugo.io/configuration/all/#publishdir"
+    },
+    "resourceDir": {
+      "type": "string",
+      "description": "The directory to put the generated resources files. This directory should in most situations be considered temporary\nand not be committed to version control. But there may be cached content in here that you want to keep,\ne.g. resources/_gen/images for performance reasons or CSS built from SASS when your CI server doesn't have the full setup. \nhttps://gohugo.io/configuration/all/#resourcedir"
+    },
+    "workingDir": {
+      "type": "string",
+      "description": "The project root directory. \nhttps://gohugo.io/configuration/all/#workingdir"
+    },
+    "cacheDir": {
+      "type": "string",
+      "description": "The root directory for all cache files. \nhttps://gohugo.io/configuration/all/#cachedir"
+    },
+    "contentDir": {
+      "type": "string",
+      "description": "The content source directory.\nDeprecated: Use module mounts. \nhttps://gohugo.io/configuration/all/#contentdir"
+    },
+    "dataDir": {
+      "type": "string",
+      "description": "Deprecated: Use module mounts.\nThe data source directory. \nhttps://gohugo.io/configuration/all/#datadir"
+    },
+    "layoutDir": {
+      "type": "string",
+      "description": "Deprecated: Use module mounts.\nThe layout source directory. \nhttps://gohugo.io/configuration/all/#layoutdir"
+    },
+    "i18nDir": {
+      "type": "string",
+      "description": "Deprecated: Use module mounts.\nThe i18n source directory. \nhttps://gohugo.io/configuration/all/#i18ndir"
+    },
+    "archeTypeDir": {
+      "type": "string",
+      "description": "Deprecated: Use module mounts.\nThe archetypes source directory. \nhttps://gohugo.io/configuration/all/#archetypedir"
+    },
+    "assetDir": {
+      "type": "string",
+      "description": "Deprecated: Use module mounts.\nThe assets source directory. \nhttps://gohugo.io/configuration/all/#assetdir"
+    },
+    "staticDir": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "The odd constructs below are kept for backwards compatibility.\nDeprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir"
+    },
+    "staticDir0": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir0"
+    },
+    "staticDir1": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir1"
+    },
+    "staticDir2": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir2"
+    },
+    "staticDir3": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir3"
+    },
+    "staticDir4": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir4"
+    },
+    "staticDir5": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir5"
+    },
+    "staticDir6": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir6"
+    },
+    "staticDir7": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir7"
+    },
+    "staticDir8": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir8"
+    },
+    "staticDir9": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir9"
+    },
+    "staticDir10": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir10"
+    },
+    "mediatypes": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-mediatypes.schema.json"
+    },
+    "markup": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-markup.schema.json"
+    },
+    "params": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-params.schema.json"
+    },
+    "cascade": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-cascade.schema.json"
+    },
+    "segments": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-segments.schema.json"
+    },
+    "server": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-server.schema.json"
+    },
+    "imaging": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-imaging.schema.json"
+    },
+    "languages": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-languages.schema.json"
+    },
+    "outputs": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputs.schema.json"
+    },
+    "deployment": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-deployment.schema.json"
+    },
+    "taxonomies": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-taxonomies.schema.json"
+    },
+    "services": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-services.schema.json"
+    },
+    "menus": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-menus.schema.json"
+    },
+    "build": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-build.schema.json"
+    },
+    "contenttypes": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-contenttypes.schema.json"
+    },
+    "related": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-related.schema.json"
+    },
+    "security": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-security.schema.json"
+    },
+    "privacy": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-privacy.schema.json"
+    },
+    "permalinks": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-permalinks.schema.json"
+    },
+    "page": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-page.schema.json"
+    },
+    "caches": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-caches.schema.json"
+    },
+    "module": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-module.schema.json"
+    },
+    "sitemap": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-sitemap.schema.json"
+    },
+    "pagination": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-pagination.schema.json"
+    },
+    "outputformats": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputformats.schema.json"
+    },
+    "httpcache": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-httpcache.schema.json"
+    },
+    "frontmatter": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-frontmatter.schema.json"
+    },
+    "minify": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-minify.schema.json"
+    }
+  },
+  "type": "object",
+  "title": "Hugo Configuration Schema",
+  "description": "JSON Schema for Hugo configuration files"
+}
