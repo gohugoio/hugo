@@ -54,7 +54,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mitchellh/mapstructure v1.5.1-0.20231216201459-8508981c8b6c
 	github.com/muesli/smartcrop v0.3.0
-	github.com/niklasfasching/go-org v1.8.0
+	github.com/niklasfasching/go-org v1.9.0
 	github.com/olekukonko/tablewriter v1.0.7
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
 	github.com/pelletier/go-toml/v2 v2.2.4
