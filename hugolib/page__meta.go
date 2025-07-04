@@ -104,6 +104,8 @@ type pageMetaSource struct {
 
 	pageConfig *pagemeta.PageConfig
 
+	resourcePath   string // Set for bundled pages; path relative to its bundle root.
+	bundled        bool   // Set if this page is bundled inside another.
 	hasFrontMatter bool
 	openSource     func() (hugio.ReadSeekCloser, error)
 
@@ -131,9 +133,6 @@ type pageMeta struct {
 
 	// Set for standalone pages, e.g. robotsTXT.
 	standaloneOutputFormat output.Format
-
-	resourcePath string // Set for bundled pages; path relative to its bundle root.
-	bundled      bool   // Set if this page is bundled inside another.
 
 	content *cachedContent // The source and the parsed page content.
 }
@@ -363,7 +362,6 @@ func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, err
 		pageMetaSource: ms,
 		Staler:         &resources.AtomicStaler{},
 		pageMetaParams: &pageMetaParams{},
-		bundled:        false,
 	}
 
 	return m, m.initEarly(s.h)

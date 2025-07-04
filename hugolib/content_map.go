@@ -370,12 +370,21 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		commit := tree.Lock(true)
 		defer commit()
 
-		r := func() (hugio.ReadSeekCloser, error) {
-			return fim.Meta().Open()
-		}
+		if pi.IsContent() {
+			pm, err := h.newPageMetaSourceFromFile(fi)
+			if err != nil {
+				return fmt.Errorf("failed to create page meta from file %q: %w", fi.Meta().Filename, err)
+			}
+			pm.bundled = true
+			_, _, _ = m.insertResource(key, pm)
+		} else {
+			r := func() (hugio.ReadSeekCloser, error) {
+				return fim.Meta().Open()
+			}
 
-		rs := &resourceSource{path: pi, opener: r, fi: fim, dims: fim.Meta().SiteInts} // TODO1 front matter dims.
-		_, _, _ = m.insertResource(key, rs)
+			rs := &resourceSource{path: pi, opener: r, fi: fim, dims: fim.Meta().SiteInts}
+			_, _, _ = m.insertResource(key, rs)
+		}
 
 		return nil
 	}
@@ -417,10 +426,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			addErr = fmt.Errorf("failed to create page meta from file %q: %w", fi.Meta().Filename, err)
 			return
 		}
-		if pm == nil {
-			// Disabled page.
-			return
-		}
+
 		m.insertPageMetaWithLock(pm)
 	}
 	return

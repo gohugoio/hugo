@@ -330,11 +330,9 @@ func (m *pageMap) forEeachPageIncludingBundledPages(include predicate.P[*pageSta
 		Tree:     m.treeResources,
 		LockType: doctree.LockTypeRead,
 		Handle: func(key string, n contentNodeI, match sitematrix.Dimension) (bool, error) {
-			if rs, ok := n.(*resourceSource); ok {
-				if p, ok := rs.r.(*pageState); ok && include(p) {
-					if terminate, err := fn(p); terminate || err != nil {
-						return terminate, err
-					}
+			if p, ok := n.(*pageState); ok && include(p) {
+				if terminate, err := fn(p); terminate || err != nil {
+					return terminate, err
 				}
 			}
 			return false, nil
@@ -546,10 +544,15 @@ func (m *pageMap) forEachResourceInPage(
 func (m *pageMap) getResourcesForPage(ps *pageState) (resource.Resources, error) {
 	var res resource.Resources
 	m.forEachResourceInPage(ps, doctree.LockTypeNone, false, func(resourceKey string, n contentNodeI, match sitematrix.Dimension) (bool, error) {
-		rs := n.(*resourceSource)
-		if rs.r != nil {
-			res = append(res, rs.r)
+		switch n := n.(type) {
+		case *resourceSource:
+			if n.r != nil {
+				res = append(res, n.r)
+			}
+		case *pageState:
+			res = append(res, n)
 		}
+
 		return false, nil
 	})
 	return res, nil
@@ -1793,18 +1796,17 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 					return false, nil
 				}
 			}
-			rs := n.(*resourceSource)
-			if rs.isPage() {
-				pageResource := rs.r.(*pageState)
-				relPath := pageResource.m.pathInfo.BaseRel(pageBundle.m.pathInfo)
-				pageResource.m.resourcePath = relPath
+			switch rs := n.(type) {
+			case *pageState:
+				relPath := rs.m.pathInfo.BaseRel(pageBundle.m.pathInfo)
+				rs.m.resourcePath = relPath
 				var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
 				// Apply cascade (if set) to the page.
 				_, data := pw.WalkContext.Data().LongestPrefix(resourceKey)
 				if data != nil {
 					cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 				}
-				if err := pageResource.setMetaPost(cascade); err != nil {
+				if err := rs.setMetaPost(cascade); err != nil {
 					return false, err
 				}
 			}
@@ -2060,8 +2062,11 @@ func (sa *sitePagesAssembler) assembleResources() error {
 				ps, lockType,
 				!duplicateResourceFiles,
 				func(resourceKey string, n contentNodeI, match sitematrix.Dimension) (bool, error) {
+					if _, ok := n.(*pageState); ok { // TODO1
+						return false, nil
+					}
 					rs := n.(*resourceSource)
-					if !match.Has(sitematrix.Language) {
+					if !match.Has(sitematrix.Language) { // TODO1
 						// We got an alternative language version.
 						// Clone this and insert it into the tree.
 						rs = rs.clone()
@@ -2397,6 +2402,7 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 		if err != nil {
 			return err
 		}
+
 		w.Tree.InsertIntoCurrentDimensionWithLock(n.PathInfo().Base(), n)
 		sa.s.home = n
 	}
@@ -2404,17 +2410,17 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 	return nil
 }
 
-func (sa *sitePagesAssembler) createPages() error {
+func (sa *sitePagesAssembler) createPages(tree *doctree.NodeShiftTree[contentNodeI]) error {
 	sites := sa.s.h.sitesVersionsRolesMap
 
 	var w *doctree.NodeShiftTreeWalker[contentNodeI]
 	w = &doctree.NodeShiftTreeWalker[contentNodeI]{
 		LockType: doctree.LockTypeWrite,
-		Tree:     sa.s.pageMap.treePages,
+		Tree:     tree,
 		NoShift:  true,
 
 		Transform: func(s string, n contentNodeI) (contentNodeI, bool, bool, error) {
-			handlePageMetaSource := func(v any, is contentNodeIs) error {
+			handlePageMetaSource := func(v any, is contentNodeIs) (bool, error) {
 				var err error
 				switch ms := v.(type) {
 				case *pageMetaSource:
@@ -2442,31 +2448,38 @@ func (sa *sitePagesAssembler) createPages() error {
 						is[vec] = p
 						return true
 					})
+					return true, err
 				case *pageState:
 					is[ms.s.dims] = ms
-				default:
-					panic(fmt.Sprintf("unexpected type %T for pageMetaSource %s", ms, s))
+					return true, err
+
 				}
-				return err
+				return false, err
 			}
 
 			switch v := n.(type) {
 			case *pageState:
 				// Nothing to do.
 			case pageMetaSourcesSlice:
+				var updated bool
 				is := make(contentNodeIs)
 				for _, ms := range v {
-					if err := handlePageMetaSource(ms, is); err != nil {
+					b, err := handlePageMetaSource(ms, is)
+					if err != nil {
 						return nil, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 					}
+					updated = updated || b
 				}
-				return is, true, false, nil
+				return is, updated, false, nil
 			case *pageMetaSource:
+				var updated bool
 				is := make(contentNodeIs)
-				if err := handlePageMetaSource(v, is); err != nil {
+				b, err := handlePageMetaSource(v, is)
+				if err != nil {
 					return nil, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 				}
-				return is, true, false, nil
+				updated = updated || b
+				return is, updated, false, nil
 			case *pageMeta: // TODO1 remove.
 				site, found := sites[v.siteMatrix().FirstVector()]
 				if !found {
@@ -2488,8 +2501,6 @@ func (sa *sitePagesAssembler) createPages() error {
 						}
 					}
 				}
-			default:
-				panic(fmt.Sprintf("unexpected contentNodeI type %T for %s", n, s))
 			}
 
 			return n, false, false, nil

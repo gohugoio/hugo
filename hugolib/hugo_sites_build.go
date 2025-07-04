@@ -297,7 +297,11 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	g, _ := h.workersSite.Start(ctx)
-	if err := assemblers[0].createPages(); err != nil {
+	firstAssembler := assemblers[0]
+	if err := firstAssembler.createPages(firstAssembler.s.pageMap.treePages); err != nil {
+		return err
+	}
+	if err := firstAssembler.createPages(firstAssembler.s.pageMap.treeResources); err != nil {
 		return err
 	}
 	for _, s := range assemblers {

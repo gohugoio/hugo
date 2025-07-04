@@ -725,11 +725,14 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				Versions:  v.Sites.Versions,
 				Roles:     v.Sites.Roles,
 			}
-			sets, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
+			sites, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 			if err != nil {
 				return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
 			}
-			setsWithDefaults := sets.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+
+			if b.isContentMount(mount) {
+				sites = sites.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+			}
 
 			rm := hugofs.RootMapping{
 				From:          mount.Target,
@@ -742,8 +745,8 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 					Watch:                !mount.DisableWatch && md.Watch(),
 					Weight:               mountWeight,
 					InclusionFilter:      inclusionFilter,
-					SiteInts:             sets,
-					SiteIntsWithDefaults: setsWithDefaults,
+					SiteInts:             sites,
+					SiteIntsWithDefaults: sites,
 				},
 			}
 

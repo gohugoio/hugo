@@ -979,7 +979,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 			return "", err
 		}
 
-		placeholders, err := c.pi.shortcodeState.prepareShortcodesForPage(ctx, pco.po, true)
+		placeholders, err := parseInfo.shortcodeState.prepareShortcodesForPage(ctx, pco.po, true)
 		if err != nil {
 			return "", err
 		}
@@ -1019,7 +1019,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 					return repl, nil
 				}
 				// This should not happen.
-				return nil, fmt.Errorf("unknown shortcode token %q", token)
+				return nil, fmt.Errorf("RenderString: unknown shortcode token %q", token)
 			}
 
 			rendered, err = expandShortcodeTokens(ctx, rendered, tokenHandler)
