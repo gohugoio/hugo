@@ -457,26 +457,43 @@ func (f FrontMatterHandler) IsDateKey(key string) bool {
 	return f.allDateKeys[key]
 }
 
-// A Zero date is a signal that the name can not be parsed.
-// This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
-// "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
-func dateAndSlugFromBaseFilename(location *time.Location, name string) (time.Time, string) {
-	withoutExt, _ := paths.FileAndExt(name)
+// dateAndSlugFromBaseFilename returns a time.Time value (resolved to the
+// default system location) and a slug, extracted by parsing the provided path.
+// Parsing supports YYYY-MM-DD-HH-MM-SS and YYYY-MM-DD date/time formats.
+// Within the YYYY-MM-DD-HH-MM-SS format, the date and time values may be
+// separated by any character including a space (e.g., YYYY-MM-DD HH-MM-SS).
+func dateAndSlugFromBaseFilename(location *time.Location, path string) (time.Time, string) {
+	base, _ := paths.FileAndExt(path)
 
-	if len(withoutExt) < 10 {
-		// This can not be a date.
+	if len(base) < 10 {
+		// Not long enough to start with a YYYY-MM-DD date.
 		return time.Time{}, ""
 	}
 
-	d, err := htime.ToTimeInDefaultLocationE(withoutExt[:10], location)
-	if err != nil {
-		return time.Time{}, ""
+	// Delimiters allowed between the date and the slug.
+	delimiters := " -_"
+
+	if len(base) >= 19 {
+		// Attempt to parse a YYYY-MM-DD-HH-MM-SS date-time prefix.
+		ds := base[:10]
+		ts := strings.ReplaceAll(base[11:19], "-", ":")
+
+		d, err := htime.ToTimeInDefaultLocationE(ds+"T"+ts, location)
+		if err == nil {
+			return d, strings.Trim(base[19:], delimiters)
+		}
 	}
 
-	// Be a little lenient with the format here.
-	slug := strings.Trim(withoutExt[10:], " -_")
+	// Attempt to parse a YYYY-MM-DD date prefix.
+	ds := base[:10]
 
-	return d, slug
+	d, err := htime.ToTimeInDefaultLocationE(ds, location)
+	if err == nil {
+		return d, strings.Trim(base[10:], delimiters)
+	}
+
+	// If no date is defined, return the zero time instant.
+	return time.Time{}, ""
 }
 
 type frontMatterFieldHandler func(d *FrontMatterDescriptor) (bool, error)
