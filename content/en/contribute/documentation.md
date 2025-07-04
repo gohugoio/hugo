@@ -224,7 +224,7 @@ erroneous lexing/highlighting of shortcode calls.
 ```
 ````
 
-To include a filename header and copy-to-clipboard button:
+To include a file name header and copy-to-clipboard button:
 
 ````text
 ```go-html-template {file="layouts/_partials/foo.html" copy=true}
