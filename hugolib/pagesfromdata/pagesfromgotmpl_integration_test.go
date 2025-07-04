@@ -915,3 +915,21 @@ Title: {{ .Title }}|Content: {{ .Content }}|
 
 	b.AssertFileContent("public/s1/index.html", "Title: baz|")
 }
+
+func TestPagesFromGoTmplHome(t *testing.T) {
+	t.Parallel()
+
+	files := ` 
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+baseURL = "https://example.com"
+-- layouts/all.html --
+{{ .Kind }}: {{ .Title }}|
+-- content/_content.gotmpl --
+{{ $.AddPage (dict  "title" "My Home!" "kind" "home" ) }}
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "home: My Home!|")
+}
