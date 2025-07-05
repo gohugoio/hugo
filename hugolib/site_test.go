@@ -511,12 +511,13 @@ func TestSectionNaming(t *testing.T) {
 func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	c := qt.New(t)
 
-	var expectedPathSuffix string
-
-	if uglify {
-		expectedPathSuffix = ".html"
-	} else {
-		expectedPathSuffix = "/index.html"
+	expectedPathSuffix := func(kind string) string {
+		isUgly := uglify && (kind == kinds.KindPage || kind == kinds.KindTerm)
+		if isUgly {
+			return ".html"
+		} else {
+			return "/index.html"
+		}
 	}
 
 	sources := [][2]string{
@@ -554,12 +555,12 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		pluralAware bool
 		expected    string
 	}{
-		{filepath.FromSlash(fmt.Sprintf("sect/doc1%s", expectedPathSuffix)), false, "doc1"},
-		{filepath.FromSlash(fmt.Sprintf("sect%s", expectedPathSuffix)), true, "Sect"},
-		{filepath.FromSlash(fmt.Sprintf("fish-and-chips/doc2%s", expectedPathSuffix)), false, "doc2"},
-		{filepath.FromSlash(fmt.Sprintf("fish-and-chips%s", expectedPathSuffix)), true, "Fish and Chips"},
-		{filepath.FromSlash(fmt.Sprintf("ラーメン/doc3%s", expectedPathSuffix)), false, "doc3"},
-		{filepath.FromSlash(fmt.Sprintf("ラーメン%s", expectedPathSuffix)), true, "ラーメン"},
+		{filepath.FromSlash(fmt.Sprintf("sect/doc1%s", expectedPathSuffix(kinds.KindPage))), false, "doc1"},
+		{filepath.FromSlash(fmt.Sprintf("sect%s", expectedPathSuffix(kinds.KindSection))), true, "Sect"},
+		{filepath.FromSlash(fmt.Sprintf("fish-and-chips/doc2%s", expectedPathSuffix(kinds.KindPage))), false, "doc2"},
+		{filepath.FromSlash(fmt.Sprintf("fish-and-chips%s", expectedPathSuffix(kinds.KindSection))), true, "Fish and Chips"},
+		{filepath.FromSlash(fmt.Sprintf("ラーメン/doc3%s", expectedPathSuffix(kinds.KindPage))), false, "doc3"},
+		{filepath.FromSlash(fmt.Sprintf("ラーメン%s", expectedPathSuffix(kinds.KindSection))), true, "ラーメン"},
 	}
 
 	for _, test := range tests {
