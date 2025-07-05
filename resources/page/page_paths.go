@@ -145,6 +145,10 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		pb.isUgly = true
 	}
 
+	if d.Type.Path != "" {
+		pb.Add(d.Type.Path)
+	}
+
 	if d.Type == output.HTTPStatus404HTMLFormat || d.Type == output.SitemapFormat || d.Type == output.RobotsTxtFormat {
 		pb.noSubResources = true
 	} else if d.Kind != kinds.KindPage && d.URL == "" && d.Section.Base() != "/" {
@@ -154,10 +158,6 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 			pb.Add(d.Section.Base())
 		}
 		needsBase = false
-	}
-
-	if d.Type.Path != "" {
-		pb.Add(d.Type.Path)
 	}
 
 	if d.Kind != kinds.KindHome && d.URL != "" {
