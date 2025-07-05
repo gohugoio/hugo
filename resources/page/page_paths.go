@@ -140,6 +140,8 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	pb.isUgly = (d.UglyURLs || d.Type.Ugly) && !d.Type.NoUgly
 	pb.baseNameSameAsType = !d.Path.IsBundle() && d.BaseName != "" && d.BaseName == d.Type.BaseName
+	indexIsUglyKind := d.Kind == kinds.KindHome || d.Kind == kinds.KindSection || d.Kind == kinds.KindTaxonomy
+	indexIsUglyKind = indexIsUglyKind && pb.isUgly
 
 	if d.ExpandedPermalink == "" && pb.baseNameSameAsType {
 		pb.isUgly = true
@@ -233,13 +235,13 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 		needsBase = needsBase && d.Addends == ""
 
-		if needsBase || !pb.isUgly {
+		if needsBase || (!pb.isUgly || indexIsUglyKind) {
 			pb.Add(d.Type.BaseName + pb.fullSuffix)
 		} else {
 			pb.ConcatLast(pb.fullSuffix)
 		}
 
-		if pb.IsHtmlIndex() {
+		if !indexIsUglyKind && pb.IsHtmlIndex() {
 			pb.linkUpperOffset = 1
 		}
 
@@ -261,6 +263,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 	}
 
 	link := pb.Link()
+
 	pagePath := pb.PathFile()
 
 	tp.TargetFilename = filepath.FromSlash(pagePath)
