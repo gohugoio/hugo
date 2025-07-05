@@ -90,7 +90,7 @@ i18n: {{ i18n "a" . }}|
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
-	i18n: Reading time: 3|
+	i18n: Reading time: 2|
 	`)
 }
 
