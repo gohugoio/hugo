@@ -87,6 +87,14 @@ var Default = Config{
 			Block: false,
 		},
 	},
+	RenderHooks: RenderHooks{
+		Image: ImageRenderHook{
+			UseEmbedded: "auto",
+		},
+		Link: LinkRenderHook{
+			UseEmbedded: "auto",
+		},
+	},
 }
 
 // Config configures Goldmark.
@@ -118,22 +126,24 @@ type RenderHooks struct {
 type ImageRenderHook struct {
 	// Enable the default image render hook.
 	// We need to know if it is set or not, hence the pointer.
+	// Deprecated: Use UseEmbedded instead.
 	EnableDefault *bool
-}
 
-func (h ImageRenderHook) IsEnableDefault() bool {
-	return h.EnableDefault != nil && *h.EnableDefault
+	// When to use the embedded image render hook.
+	// One of auto, never, always, or fallback. Default is auto.
+	UseEmbedded string
 }
 
 // LinkRenderHook contains configuration for the link render hook.
 type LinkRenderHook struct {
 	// Disable the default image render hook.
 	// We need to know if it is set or not, hence the pointer.
+	// Deprecated: Use UseEmbedded instead.
 	EnableDefault *bool
-}
 
-func (h LinkRenderHook) IsEnableDefault() bool {
-	return h.EnableDefault != nil && *h.EnableDefault
+	// When to use the embedded link render hook.
+	// One of auto, never, always, or fallback. Default is auto.
+	UseEmbedded string
 }
 
 type Extensions struct {

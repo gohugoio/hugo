@@ -18,9 +18,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/helpers"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 func TestResolveMarkup(t *testing.T) {
@@ -303,4 +302,27 @@ func BenchmarkUniqueStrings(b *testing.B) {
 			}
 		}
 	})
+}
+
+func TestStringSliceToList(t *testing.T) {
+	for _, tt := range []struct {
+		slice       []string
+		conjunction string
+		want        string
+	}{
+		{[]string{}, "", ""},
+		{[]string{"foo"}, "", "foo"},
+		{[]string{"foo"}, "and", "foo"},
+		{[]string{"foo", "bar"}, "", "foo and bar"},
+		{[]string{"foo", "bar"}, "and", "foo and bar"},
+		{[]string{"foo", "bar"}, "or", "foo or bar"},
+		{[]string{"foo", "bar", "baz"}, "", "foo, bar, and baz"},
+		{[]string{"foo", "bar", "baz"}, "and", "foo, bar, and baz"},
+		{[]string{"foo", "bar", "baz"}, "or", "foo, bar, or baz"},
+	} {
+		got := helpers.StringSliceToList(tt.slice, tt.conjunction)
+		if got != tt.want {
+			t.Errorf("StringSliceToList() got: %q, want: %q", got, tt.want)
+		}
+	}
 }

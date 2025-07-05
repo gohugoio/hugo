@@ -44,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
@@ -201,6 +202,9 @@ type StoreOptions struct {
 
 	// Whether we are in watch or server mode.
 	Watching bool
+
+	// The render hook configuration.
+	RenderHooks goldmark_config.RenderHooks
 
 	// compiled.
 	legacyMappingTaxonomy map[string]legacyOrdinalMapping
@@ -1048,7 +1052,9 @@ func (s *TemplateStore) insertEmbedded() error {
 					return err
 				}
 			} else {
-				ti, err = s.insertTemplate(pi, nil, SubCategoryEmbedded, false, s.treeMain)
+				replace := (name == path.Join(containerMarkup, "render-image.html") && s.opts.RenderHooks.Image.UseEmbedded == "always") ||
+					(name == path.Join(containerMarkup, "render-link.html") && s.opts.RenderHooks.Link.UseEmbedded == "always")
+				ti, err = s.insertTemplate(pi, nil, SubCategoryEmbedded, replace, s.treeMain)
 				if err != nil {
 					return err
 				}
