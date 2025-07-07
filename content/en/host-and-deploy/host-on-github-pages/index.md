@@ -107,6 +107,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      DART_SASS_VERSION: 1.89.2
       HUGO_VERSION: 0.147.9
       HUGO_ENVIRONMENT: production
       TZ: America/Los_Angeles
@@ -116,7 +117,11 @@ jobs:
           wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
           && sudo dpkg -i ${{ runner.temp }}/hugo.deb
       - name: Install Dart Sass
-        run: sudo snap install dart-sass
+        run: |
+          wget -O ${{ runner.temp }}/dart-sass.tar.gz https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz \
+          && tar -xf ${{ runner.temp }}/dart-sass.tar.gz --directory ${{ runner.temp }} \
+          && mv ${{ runner.temp }}/dart-sass/ /usr/local/bin \
+          && echo "/usr/local/bin/dart-sass" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v4
         with:
