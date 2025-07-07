@@ -238,7 +238,7 @@ func (p *pageState) ApplyFilterToHeadings(ctx context.Context, fn func(*tableofc
 	}
 }
 
-func (p *pageState) GitInfo() source.GitInfo {
+func (p *pageState) GitInfo() *source.GitInfo {
 	return p.gitInfo
 }
 

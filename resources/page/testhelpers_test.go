@@ -225,8 +225,8 @@ func (p *testPage) GetInternalRelatedDocsHandler() *RelatedDocsHandler {
 	return relatedDocsHandler
 }
 
-func (p *testPage) GitInfo() source.GitInfo {
-	return source.GitInfo{}
+func (p *testPage) GitInfo() *source.GitInfo {
+	return nil
 }
 
 func (p *testPage) CodeOwners() []string {

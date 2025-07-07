@@ -230,13 +230,13 @@ func (h *HugoSites) RegularPages() page.Pages {
 	return v
 }
 
-func (h *HugoSites) gitInfoForPage(p page.Page) (source.GitInfo, error) {
+func (h *HugoSites) gitInfoForPage(p page.Page) (*source.GitInfo, error) {
 	if _, err := h.init.gitInfo.Do(context.Background()); err != nil {
-		return source.GitInfo{}, err
+		return nil, err
 	}
 
 	if h.gitInfo == nil {
-		return source.GitInfo{}, nil
+		return nil, nil
 	}
 
 	return h.gitInfo.forPage(p), nil

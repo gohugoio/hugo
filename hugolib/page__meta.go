@@ -405,7 +405,7 @@ func (p *pageState) setMetaPostParams() error {
 	}
 
 	var gitAuthorDate time.Time
-	if !p.gitInfo.IsZero() {
+	if p.gitInfo != nil {
 		gitAuthorDate = p.gitInfo.AuthorDate
 	}
 

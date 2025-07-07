@@ -135,7 +135,7 @@ type GetPageProvider interface {
 // GitInfoProvider provides Git info.
 type GitInfoProvider interface {
 	// GitInfo returns the Git info for this object.
-	GitInfo() source.GitInfo
+	GitInfo() *source.GitInfo
 	// CodeOwners returns the code owners for this object.
 	CodeOwners() []string
 }

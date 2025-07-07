@@ -16,7 +16,6 @@ package source
 import (
 	"path/filepath"
 	"sync"
-	"time"
 
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/common/hashing"
@@ -154,50 +153,5 @@ func NewFileInfo(fi hugofs.FileMetaInfo) *File {
 	}
 }
 
-func NewGitInfo(info gitmap.GitInfo) GitInfo {
-	gi := GitInfo{
-		Hash:            info.Hash,
-		AbbreviatedHash: info.AbbreviatedHash,
-		Subject:         info.Subject,
-		AuthorName:      info.AuthorName,
-		AuthorEmail:     info.AuthorEmail,
-		AuthorDate:      info.AuthorDate,
-		CommitDate:      info.CommitDate,
-		Body:            info.Body,
-	}
-
-	if info.Ancestor != nil {
-		anc := NewGitInfo(*info.Ancestor)
-		gi.Ancestor = &anc
-	}
-
-	return gi
-}
-
 // GitInfo provides information about a version controlled source file.
-type GitInfo struct {
-	// Commit hash.
-	Hash string `json:"hash"`
-	// Abbreviated commit hash.
-	AbbreviatedHash string `json:"abbreviatedHash"`
-	// The commit message's subject/title line.
-	Subject string `json:"subject"`
-	// The author name, respecting .mailmap.
-	AuthorName string `json:"authorName"`
-	// The author email address, respecting .mailmap.
-	AuthorEmail string `json:"authorEmail"`
-	// The author date.
-	AuthorDate time.Time `json:"authorDate"`
-	// The commit date.
-	CommitDate time.Time `json:"commitDate"`
-	// The commit message's body.
-	Body string `json:"body"`
-	// The file-filtered ancestor commit, if any.
-	Ancestor *GitInfo `json:"ancestor"`
-}
-
-// IsZero returns true if the GitInfo is empty,
-// meaning it will also be falsy in the Go templates.
-func (g *GitInfo) IsZero() bool {
-	return g == nil || g.Hash == ""
-}
+type GitInfo = gitmap.GitInfo
