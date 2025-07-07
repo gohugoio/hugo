@@ -14,33 +14,34 @@ aliases: [/functions/templates.defer]
 {{< new-in 0.128.0 />}}
 
 > [!note]
-> This feature is meant to be used in the main page layout files/templates, and has undefined behavior when used from shortcodes, partials or render hook templates. See [this issue](https://github.com/gohugoio/hugo/issues/13492#issuecomment-2734700391) for more info.
+> This feature should only be used in the main page template, typically `layouts/baseof.html`. Using it in shortcodes, partials, or render hook templates may lead to unpredictable results. For further details, please refer to [this issue].
+
+[this issue]: https://github.com/gohugoio/hugo/issues/13492#issuecomment-2734700391
 
 In some rare use cases, you may need to defer the execution of a template until after all sites and output formats have been rendered. One such example could be [TailwindCSS](/functions/css/tailwindcss/) using the output of [hugo_stats.json](/configuration/build/) to determine which classes and other HTML identifiers are being used in the final output:
 
-```go-html-template
-{{ with (templates.Defer (dict "key" "global")) }}
-  {{ $t := debug.Timer "tailwindcss" }}
-  {{ with resources.Get "css/styles.css" }}
-    {{ $opts := dict
-      "inlineImports" true
-      "optimize" hugo.IsProduction
-    }}
-    {{ with . | css.TailwindCSS $opts }}
-      {{ if hugo.IsDevelopment }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}" />
-      {{ else }}
-        {{ with . | minify | fingerprint }}
-          <link
-            rel="stylesheet"
-            href="{{ .RelPermalink }}"
-            integrity="{{ .Data.Integrity }}"
-            crossorigin="anonymous" />
-        {{ end }}
+```go-html-template {file="layouts/baseof.html" copy=true}
+<head>
+  ...
+  {{ with (templates.Defer (dict "key" "global")) }}
+    {{ partial "css.html" . }}
+  {{ end }}
+  ...
+</head>
+```
+
+```go-html-template {file="layouts/_partials/css.html" copy=true}
+{{ with resources.Get "css/main.css" }}
+  {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
+  {{ with . | css.TailwindCSS $opts }}
+    {{ if hugo.IsDevelopment }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ else }}
+      {{ with . | fingerprint }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
     {{ end }}
   {{ end }}
-  {{ $t.Stop }}
 {{ end }}
 ```
 
@@ -52,19 +53,23 @@ In some rare use cases, you may need to defer the execution of a template until 
 For the above to work well when running the server (or `hugo -w`), you want to have a configuration similar to this:
 
 {{< code-toggle file=hugo >}}
+[build]
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\.json'
+    target = 'css'
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\.config\.js'
+    target = 'css'
 [module]
-[[module.mounts]]
-source       = "hugo_stats.json"
-target       = "assets/notwatching/hugo_stats.json"
-disableWatch = true
-[build.buildStats]
-enable = true
-[[build.cachebusters]]
-source = "assets/notwatching/hugo_stats\\.json"
-target = "styles\\.css"
-[[build.cachebusters]]
-source = "(postcss|tailwind)\\.config\\.js"
-target = "css"
+  [[module.mounts]]
+    source = 'assets'
+    target = 'assets'
+  [[module.mounts]]
+    disableWatch = true
+    source = 'hugo_stats.json'
+    target = 'assets/notwatching/hugo_stats.json'
 {{< /code-toggle >}}
 
 ## Options

@@ -31,7 +31,7 @@ For example:
 
 When using `transform.XMLEscape` in a template rendered by Go's [html/template] package, declare the string to be safe HTML to avoid double escaping. For example, in an RSS template:
 
-```xml {file="layouts/_default/rss.xml"}
+```xml {file="layouts/rss.xml"}
 <description>{{ .Summary | transform.XMLEscape | safeHTML }}</description>
 ```
 

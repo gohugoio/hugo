@@ -70,6 +70,7 @@
     "# cspell: ignore hugo terminology",
     "# ----------------------------------------------------------------------",
     "alignx",
+    "aligny",
     "attrlink",
     "canonify",
     "codeowners",

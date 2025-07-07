@@ -11,7 +11,7 @@ params:
 
 The `Name` method is useful for error reporting. For example, if your shortcode requires a "greeting" argument:
 
-```go-html-template {file="layouts/shortcodes/myshortcode.html"}
+```go-html-template {file="layouts/_shortcodes/myshortcode.html"}
 {{ $greeting := "" }}
 {{ with .Get "greeting" }}
   {{ $greeting = . }}

@@ -53,7 +53,7 @@ Type
 
 In its default configuration, Hugo renders Markdown blockquotes according to the [CommonMark specification]. To create a render hook that does the same thing:
 
-```go-html-template {file="layouts/_default/_markup/render-blockquote.html" copy=true}
+```go-html-template {file="layouts/_markup/render-blockquote.html" copy=true}
 <blockquote>
   {{ .Text }}
 </blockquote>
@@ -61,7 +61,7 @@ In its default configuration, Hugo renders Markdown blockquotes according to the
 
 To render a blockquote as an HTML `figure` element with an optional citation and caption:
 
-```go-html-template {file="layouts/_default/_markup/render-blockquote.html" copy=true}
+```go-html-template {file="layouts/_markup/render-blockquote.html" copy=true}
 <figure>
   <blockquote {{ with .Attributes.cite }}cite="{{ . }}"{{ end }}>
     {{ .Text }}
@@ -126,7 +126,7 @@ The extended syntax is compatible with [Obsidian].
 
 This blockquote render hook renders a multilingual alert if an alert designator is present, otherwise it renders a blockquote according to the CommonMark specification.
 
-```go-html-template {file="layouts/_default/_markup/render-blockquote.html" copy=true}
+```go-html-template {file="layouts/_markup/render-blockquote.html" copy=true}
 {{ $emojis := dict
   "caution" ":exclamation:"
   "important" ":information_source:"
@@ -168,10 +168,9 @@ Although you can use one template with conditional logic as shown above, you can
 
 ```text
 layouts/
-└── _default/
-    └── _markup/
-        ├── render-blockquote-alert.html
-        └── render-blockquote-regular.html
+  └── _markup/
+      ├── render-blockquote-alert.html
+      └── render-blockquote-regular.html
 ```
 
 {{% include "/_common/render-hooks/pageinner.md" %}}

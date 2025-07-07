@@ -180,7 +180,7 @@ To render an HTML table from a CSV file:
 To extract a subset of the data, or to sort the data, unmarshal to a map instead of a slice:
 
 ```go-html-template
-{{ $data := slice }}
+{{ $data := dict }}
 {{ $file := "pets.csv" }}
 {{ with or (.Resources.Get $file) (resources.Get $file) }}
   {{ $opts := dict "targetType" "map" }}

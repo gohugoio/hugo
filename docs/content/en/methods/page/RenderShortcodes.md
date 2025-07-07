@@ -9,13 +9,11 @@ params:
     signatures: [PAGE.RenderShortcodes]
 ---
 
-{{< new-in 0.117.0 />}}
-
 Use this method in shortcode templates to compose a page from multiple content files, while preserving a global context for footnotes and the table of contents.
 
 For example:
 
-```go-html-template {file="layouts/shortcodes/include.html" copy=true}
+```go-html-template {file="layouts/_shortcodes/include.html" copy=true}
 {{ with .Get 0 }}
   {{ with $.Page.GetPage . }}
     {{- .RenderShortcodes }}

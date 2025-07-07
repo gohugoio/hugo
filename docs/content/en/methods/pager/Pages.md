@@ -17,5 +17,5 @@ params:
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```

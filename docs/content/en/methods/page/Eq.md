@@ -9,9 +9,9 @@ params:
     signatures: [PAGE1.Eq PAGE2]
 ---
 
-In this contrived example from a single template, we list all pages in the current section except for the current page.
+In this contrived example we list all pages in the current section except for the current page.
 
-```go-html-template
+```go-html-template {file="layouts/page.html"}
 {{ $currentPage := . }}
 {{ range .CurrentSection.Pages }}
   {{ if not (.Eq $currentPage) }}

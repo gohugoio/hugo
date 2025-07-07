@@ -99,7 +99,7 @@ The [sections] can be nested as deeply as you want. The important thing to under
 
 ### Single pages in sections
 
-Single content files in each of your sections will be rendered by a [single template]. Here is an example of a single `post` within `posts`:
+Single content files in each of your sections will be rendered by a [page template]. Here is an example of a single `post` within `posts`:
 
 ```txt
                    path ("posts/my-first-hugo-post.md")
@@ -148,4 +148,4 @@ The `url` is the entire URL path, defined by the file path and optionally overri
 [config]: /configuration/
 [pretty]: /content-management/urls/#appearance
 [sections]: /content-management/sections/
-[single template]: /templates/types/#single
+[page template]: /templates/types/#page

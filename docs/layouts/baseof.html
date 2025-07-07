@@ -12,17 +12,12 @@
         display: none !important;
       }
     </style>
-    <meta
-      name="description"
-      content="{{ .Description | default site.Params.description }}">
+
     {{ partial "layouts/head/head-js.html" . }}
     {{ with (templates.Defer (dict "key" "global")) }}
       {{ $t := debug.Timer "tailwindcss" }}
       {{ with resources.Get "css/styles.css" }}
-        {{ $opts := dict
-          "inlineImports" true
-          "minify" (not hugo.IsDevelopment)
-        }}
+        {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
         {{ with . | css.TailwindCSS $opts }}
           {{ partial "helpers/linkcss.html" (dict "r" .) }}
         {{ end }}
@@ -37,8 +32,13 @@
     {{ end }}
     {{ partial "layouts/head/head.html" . }}
   </head>
-  <body
-    class="flex flex-col min-h-full bg-white dark:bg-blue-950 kind-{{ .Kind }}">
+
+  {{ $bodyClass := printf "flex flex-col min-h-full bg-white dark:bg-blue-950 kind-%s" .Kind }}
+  {{ if .Params.searchable }}
+    {{ $bodyClass = printf "%s searchable" $bodyClass }}
+  {{ end }}
+
+  <body class="{{ $bodyClass }}">
     {{ partial "layouts/hooks/body-start.html" . }}
     {{/* Layout. */}}
     {{ block "header" . }}

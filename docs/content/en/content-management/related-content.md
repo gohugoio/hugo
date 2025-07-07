@@ -12,7 +12,7 @@ Hugo uses a set of factors to identify a page's related content based on front m
 
 To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your template:
 
-```go-html-template {file="layouts/partials/related.html" copy=true}
+```go-html-template {file="layouts/_partials/related.html" copy=true}
 {{ with site.RegularPages.Related . | first 5 }}
   <p>Related content:</p>
   <ul>

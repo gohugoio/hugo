@@ -11,5 +11,5 @@ params:
 ---
 
 ```go-html-template
-{{ hugo.Generator }} → <meta name="generator" content="Hugo 0.144.2">
+{{ hugo.Generator }} → <meta name="generator" content="Hugo 0.147.9">
 ```

@@ -62,7 +62,7 @@ This course covers the basics of using the Hugo static site generator. Work your
 1. [Content Organization](https://www.giraffeacademy.com/static-site-generators/hugo/content-organization/)
 1. [Front Matter](https://www.giraffeacademy.com/static-site-generators/hugo/front-matter/)
 1. [Archetypes](https://www.giraffeacademy.com/static-site-generators/hugo/archetypes/)
-1. [Shortcodes](https://www.giraffeacademy.com/static-site-generators/hugo/archetypes/)
+1. [Shortcodes](https://www.giraffeacademy.com/static-site-generators/hugo/shortcodes/)
 1. [Taxonomies](https://www.giraffeacademy.com/static-site-generators/hugo/taxonomies/)
 1. [Template Basics](https://www.giraffeacademy.com/static-site-generators/hugo/introduction-to-templates/)
 1. [List Page Templates](https://www.giraffeacademy.com/static-site-generators/hugo/list-page-templates/)

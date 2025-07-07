@@ -6,7 +6,7 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType: types.Result[template.HTML]
+    returnType: template.HTML
     signatures: ['transform.ToMath INPUT [OPTIONS]']
 aliases: [/functions/tomath]
 ---
@@ -58,12 +58,25 @@ minRuleThickness
 : (`float`) The minimum thickness of the fraction lines in `em`. Default is `0.04`.
 
 output
-: (`string`). Determines the markup language of the output, one of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
+: (`string`) Determines the markup language of the output, one of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
 
     With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
 
     ```html
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+
+strict
+: {{< new-in 0.147.6 />}}
+: (`string`) Controls how KaTeX handles LaTeX features that offer convenience but aren't officially supported, one of `error`, `ignore`, or `warn`. Default is `error`.
+
+  - `error`: Throws an error when convenient, unsupported LaTeX features are encountered.
+  - `ignore`: Allows convenient, unsupported LaTeX features without any feedback.
+  - `warn`: {{< new-in 0.147.7 />}} Emits a warning when convenient, unsupported LaTeX features are encountered.
+
+: The `newLineInDisplayMode` error code, which flags the use of `\\`
+or `\newline` in display mode outside an array or tabular environment, is
+intentionally designed not to throw an error, despite this behavior
+being questionable.
 
 throwOnError
 : (`bool`) Whether to throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
@@ -96,13 +109,13 @@ inline = [['\(', '\)']]
 {{< /code-toggle >}}
 
 > [!note]
-> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
+> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 
 ### Step 2
 
 Create a [passthrough render hook] to capture and render the LaTeX markup.
 
-```go-html-template {file="layouts/_default/_markup/render-passthrough.html" copy=true}
+```go-html-template {file="layouts/_markup/render-passthrough.html" copy=true}
 {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
 {{- with try (transform.ToMath .Inner $opts) }}
   {{- with .Err }}
@@ -118,11 +131,11 @@ Create a [passthrough render hook] to capture and render the LaTeX markup.
 
 In your base template, conditionally include the KaTeX CSS within the head element.
 
-```go-html-template {file="layouts/_default/baseof.html" copy=true}
+```go-html-template {file="layouts/baseof.html" copy=true}
 <head>
   {{ $noop := .WordCount }}
   {{ if .Page.Store.Get "hasMath" }}
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
   {{ end }}
 </head>
 ```

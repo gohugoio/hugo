@@ -36,7 +36,7 @@ content/
 
 With the structure above, we can range through page resources of type `page` to build content:
 
-```go-html-template {file="layouts/lessons/single.html"}
+```go-html-template {file="layouts/lessons/page.html"}
 {{ range .Resources.ByType "page" }}
   {{ .Content }}
 {{ end }}

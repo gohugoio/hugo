@@ -46,7 +46,7 @@ In its default configuration, Hugo renders Markdown headings according to the [C
 
 [CommonMark specification]: https://spec.commonmark.org/current/
 
-```go-html-template {file="layouts/_default/_markup/render-heading.html" copy=true}
+```go-html-template {file="layouts/_markup/render-heading.html" copy=true}
 <h{{ .Level }} id="{{ .Anchor }}" {{- with .Attributes.class }} class="{{ . }}" {{- end }}>
   {{- .Text -}}
 </h{{ .Level }}>
@@ -54,7 +54,7 @@ In its default configuration, Hugo renders Markdown headings according to the [C
 
 To add an anchor link to the right of each heading:
 
-```go-html-template {file="layouts/_default/_markup/render-heading.html" copy=true}
+```go-html-template {file="layouts/_markup/render-heading.html" copy=true}
 <h{{ .Level }} id="{{ .Anchor }}" {{- with .Attributes.class }} class="{{ . }}" {{- end }}>
   {{ .Text }}
   <a href="#{{ .Anchor }}">#</a>

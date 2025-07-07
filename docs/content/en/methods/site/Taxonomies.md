@@ -140,7 +140,7 @@ The following example displays all terms in a site's tags taxonomy:
 ```
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
-```go-html-template {file="layouts/partials/all-taxonomies.html"}
+```go-html-template {file="layouts/_partials/all-taxonomies.html"}
 {{ with .Site.Taxonomies }}
   {{ $numberOfTerms := 0 }}
   {{ range $taxonomy, $terms := . }}

@@ -7,7 +7,7 @@ keywords: [highlight]
 ---
 
 > [!note]
-> To override Hugo's embedded `highlight` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
+> To override Hugo's embedded `highlight` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
 
 > [!note]
 > With the Markdown [content format], the `highlight` shortcode is rarely needed because, by default, Hugo automatically applies syntax highlighting to fenced code blocks.
@@ -77,7 +77,7 @@ This is some {{< highlight go "hl_inline=true, noClasses=true" >}}fmt.Println("i
 
 Given the verbosity of the example above, if you need to frequently highlight inline code snippets, create your own shortcode using a shorter name with preset options.
 
-```go-html-template {file="layouts/shortcodes/hl.html"}
+```go-html-template {file="layouts/_shortcodes/hl.html"}
 {{ $code := .Inner | strings.TrimSpace }}
 {{ $lang := or (.Get 0) "go" }}
 {{ $opts := dict "hl_inline" true "noClasses" true }}

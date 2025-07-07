@@ -64,7 +64,7 @@ math = true
 The configuration above enables mathematical rendering on every page unless you set the `math` parameter to `false` in front matter. To enable mathematical rendering as needed, set the `math` parameter to `false` in your site configuration, and set the `math` parameter to `true` in front matter. Use this parameter in your base template as shown in [Step 3].
 
 > [!note]
-> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration and JavaScript, you will need to double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
+> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration and JavaScript, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 >
 > See the [inline delimiters](#inline-delimiters) section for details.
 
@@ -87,7 +87,7 @@ inline = [['@', '@']]
 
 Create a partial template to load MathJax or KaTeX. The example below loads MathJax, or you can use KaTeX as described in the [engines](#engines) section.
 
-```go-html-template {file="layouts/partials/math.html" copy=true}
+```go-html-template {file="layouts/_partials/math.html" copy=true}
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <script>
   MathJax = {
@@ -108,7 +108,7 @@ The delimiters above must match the delimiters in your site configuration.
 
 Conditionally call the partial template from the base template.
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html"}
 <head>
   ...
   {{ if .Param "math" }}
@@ -161,10 +161,10 @@ math = true
 
 The configuration, JavaScript, and examples above use the `\(...\)` delimiter pair for inline equations. The `$...$` delimiter pair is a common alternative, but using it may result in unintended formatting if you use the `$` symbol outside of math contexts.
 
-If you add the `$...$` delimiter pair to your configuration and JavaScript, you must double-escape the `$` when outside of math contexts, regardless of whether mathematical rendering is enabled on the page. For example:
+If you add the `$...$` delimiter pair to your configuration and JavaScript, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting. For example:
 
 ```text
-A \\$5 bill _saved_ is a \\$5 bill _earned_.
+I will give you \\$2 if you can solve $y = x^2$.
 ```
 
 > [!note]
@@ -181,7 +181,7 @@ MathJax and KaTeX are open-source JavaScript display engines. Both engines are f
 
 To use KaTeX instead of MathJax, replace the partial template from [Step 2] with this:
 
-```go-html-template {file="layouts/partials/math.html" copy=true}
+```go-html-template {file="layouts/_partials/math.html" copy=true}
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"

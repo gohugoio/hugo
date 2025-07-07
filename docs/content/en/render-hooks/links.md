@@ -48,7 +48,7 @@ Title
 
 In its default configuration, Hugo renders Markdown links according to the [CommonMark specification]. To create a render hook that does the same thing:
 
-```go-html-template {file="layouts/_default/_markup/render-link.html" copy=true}
+```go-html-template {file="layouts/_markup/render-link.html" copy=true}
 <a href="{{ .Destination | safeURL }}"
   {{- with .Title }} title="{{ . }}"{{ end -}}
 >
@@ -59,7 +59,7 @@ In its default configuration, Hugo renders Markdown links according to the [Comm
 
 To include a `rel` attribute set to `external` for external links:
 
-```go-html-template {file="layouts/_default/_markup/render-link.html" copy=true}
+```go-html-template {file="layouts/_markup/render-link.html" copy=true}
 {{- $u := urls.Parse .Destination -}}
 <a href="{{ .Destination | safeURL }}"
   {{- with .Title }} title="{{ . }}"{{ end -}}

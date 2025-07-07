@@ -7,6 +7,8 @@ keywords: []
 weight: 20
 ---
 
+{{< newtemplatesystem >}}
+
 ## Lookup rules
 
 Hugo takes the parameters listed below into consideration when choosing a template for a given page. The templates are ordered by specificity. This should feel natural, but look at the table below for concrete examples of the different parameter variations.
@@ -91,60 +93,3 @@ layouts/
     └── contact.html  <-- renders contact.md
     └── single.html   <-- renders about.md
 ```
-
-## Home templates
-
-These template paths are sorted by specificity in descending order. The least specific path is at the bottom of each list.
-
-{{< datatable-filtered "output" "layouts" "Kind == home" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Single templates
-
-These template paths are sorted by specificity in descending order. The least specific path is at the bottom of each list.
-
-{{< datatable-filtered "output" "layouts" "Kind == page" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Section templates
-
-These template paths are sorted by specificity in descending order. The least specific path is at the bottom of each list.
-
-{{< datatable-filtered "output" "layouts" "Kind == section" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Taxonomy templates
-
-These template paths are sorted by specificity in descending order. The least specific path is at the bottom of each list.
-
-The examples below assume the following site configuration:
-
-{{< code-toggle file=hugo >}}
-[taxonomies]
-category = 'categories'
-{{< /code-toggle >}}
-
-{{< datatable-filtered "output" "layouts" "Kind == taxonomy" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Term templates
-
-These template paths are sorted by specificity in descending order. The least specific path is at the bottom of each list.
-
-The examples below assume the following site configuration:
-
-{{< code-toggle file=hugo >}}
-[taxonomies]
-category = 'categories'
-{{< /code-toggle >}}
-
-{{< datatable-filtered "output" "layouts" "Kind == term" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## RSS templates
-
-These template paths are sorted by specificity in descending order. The least specific path is at the bottom of each list.
-
-The examples below assume the following site configuration:
-
-{{< code-toggle file=hugo >}}
-[taxonomies]
-category = 'categories'
-{{< /code-toggle >}}
-
-{{< datatable-filtered "output" "layouts" "OutputFormat == rss" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}

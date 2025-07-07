@@ -79,6 +79,11 @@ my-project/
 
 The root configuration keys are {{< root-configuration-keys >}}.
 
+> [!note]
+> You must define `cascade` tables in the root configuration file. You cannot define `cascade` tables in a dedicated file. See issue [#12899] for details.
+
+[#12899]: https://github.com/gohugoio/hugo/issues/12899
+
 ### Omit the root key
 
 When splitting the configuration by root key, omit the root key in the component file. For example, these are equivalent:

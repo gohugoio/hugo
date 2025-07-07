@@ -7,7 +7,7 @@ keywords: []
 ---
 
 > [!note]
-> To override Hugo's embedded `relref` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
+> To override Hugo's embedded `relref` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
 
 > [!note]
 > When working with Markdown, this shortcode is obsolete. Instead, use a [link render hook] that resolves the link destination using the `GetPage` method on the `Page` object. You can either create your own, or simply enable the [embedded link render hook]. The embedded link render hook is automatically enabled for multilingual single-host projects.
@@ -30,13 +30,13 @@ The `relref` shortcode typically provides the destination for a Markdown link.
 The following examples show the rendered output for a page on the English version of the site:
 
 ```md
-[Link A]({{%/* ref "/books/book-1" */%}})
+[Link A]({{%/* relref "/books/book-1" */%}})
 
-[Link B]({{%/* ref path="/books/book-1" */%}})
+[Link B]({{%/* relref path="/books/book-1" */%}})
 
-[Link C]({{%/* ref path="/books/book-1" lang="de" */%}})
+[Link C]({{%/* relref path="/books/book-1" lang="de" */%}})
 
-[Link D]({{%/* ref path="/books/book-1" lang="de" outputFormat="json" */%}})
+[Link D]({{%/* relref path="/books/book-1" lang="de" outputFormat="json" */%}})
 ```
 
 Rendered:

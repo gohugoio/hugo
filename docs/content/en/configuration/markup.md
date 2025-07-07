@@ -247,7 +247,7 @@ rougify style monokai.sublime > assets/css/syntax.css
 
 In your base template add a link to the CSS file:
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html"}
 <head>
   ...
   {{ with resources.Get "css/syntax.css" }}
@@ -337,5 +337,5 @@ ordered
 [superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
 [AsciiDoc]: https://asciidoc.org/
 [Emacs Org Mode]: https://orgmode.org/
-[Pandoc]: https://www.pandoc.org/
+[Pandoc]: https://pandoc.org/
 [reStructuredText]: https://docutils.sourceforge.io/rst.html

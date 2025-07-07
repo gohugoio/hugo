@@ -20,18 +20,18 @@ The `js.Build` function uses the [evanw/esbuild] package to:
 
 ```go-html-template
 {{ with resources.Get "js/main.js" }}
-  {{ $opts := dict
-    "minify" hugo.IsProduction
-    "sourceMap" (cond hugo.IsProduction "" "external")
+  {{$opts := dict
+    "minify" (not hugo.IsDevelopment)
+    "sourceMap" (cond hugo.IsDevelopment "external" "")
     "targetPath" "js/main.js"
   }}
   {{ with . | js.Build $opts }}
-    {{ if hugo.IsProduction }}
+    {{ if hugo.IsDevelopment }}
+      <script src="{{ .RelPermalink }}"></script>
+    {{ else }}
       {{ with . | fingerprint }}
         <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
       {{ end }}
-    {{ else }}
-      <script src="{{ .RelPermalink }}"></script>
     {{ end }}
   {{ end }}
 {{ end }}

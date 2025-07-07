@@ -23,17 +23,18 @@ Define your [CI/CD](g) jobs by creating a `.gitlab-ci.yml` file in the root of y
 
 ```yaml {file=".gitlab-ci.yml" copy=true}
 variables:
-  DART_SASS_VERSION: 1.87.0
+  DART_SASS_VERSION: 1.89.2
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
-  HUGO_VERSION: 0.146.7
+  HUGO_VERSION: 0.147.9
   NODE_VERSION: 22.x
   TZ: America/Los_Angeles
 image:
   name: golang:1.24.2-bookworm
 
 pages:
+  stage: deploy
   script:
     # Install brotli
     - apt-get update

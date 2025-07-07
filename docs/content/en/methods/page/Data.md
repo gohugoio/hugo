@@ -14,7 +14,7 @@ The `Data` method on a `Page` object returns a unique data object for each [page
 > [!note]
 > The `Data` method is only useful within [taxonomy](g) and [term](g) templates.
 >
-> Themes that are not actively maintained may still use `.Data.Pages` in list templates. Although that syntax remains functional, use one of these methods instead: [`Pages`], [`RegularPages`], or [`RegularPagesRecursive`]
+> Themes that are not actively maintained may still use `.Data.Pages` in their templates. Although that syntax remains functional, use one of these methods instead: [`Pages`], [`RegularPages`], or [`RegularPagesRecursive`]
 
 The examples that follow are based on this site configuration:
 

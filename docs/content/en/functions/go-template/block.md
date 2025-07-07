@@ -23,7 +23,7 @@ and then executing it in place:
 ```
 The typical use is to define a set of root templates that are then customized by redefining the block templates within.
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html"}
 <body>
   <main>
     {{ block "main" . }}
@@ -33,14 +33,14 @@ The typical use is to define a set of root templates that are then customized by
 </body>
 ```
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}
 {{ end }}
 ```
 
-```go-html-template {file="layouts/_default/list.html"}
+```go-html-template {file="layouts/section.html"}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
   {{ .Content }}

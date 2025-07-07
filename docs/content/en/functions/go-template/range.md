@@ -11,7 +11,7 @@ params:
 aliases: [/functions/range]
 ---
 
-{{% include "/_common/functions/truthy-falsy.md" %}}
+The collection may be a slice, a map, or an integer.
 
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
@@ -40,19 +40,22 @@ Within a range block:
 
 At the top of a page template, the [context](g) (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
 
-With this contrived example that uses the [`seq`] function to generate a slice of integers:
+With this contrived example:
 
 ```go-html-template
-{{ range seq 3 }}
-  {{ .Title }}
+{{ $s := slice "foo" "bar" "baz" }}
+{{ range $s }}
+  {{ .Title }} 
 {{ end }}
 ```
 
 Hugo will throw an error:
 
-    can't evaluate field Title in type int
+```text
+can't evaluate field Title in type int
+```
 
-The error occurs because we are trying to use the `.Title` method on an integer instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
+The error occurs because we are trying to use the `.Title` method on a string instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
 
 > [!note]
 > Use the `$` to get the context passed into the template.
@@ -60,15 +63,18 @@ The error occurs because we are trying to use the `.Title` method on an integer 
 This template will render the page title three times:
 
 ```go-html-template
-{{ range seq 3 }}
-  {{ $.Title }}
+{{ $s := slice "foo" "bar" "baz" }}
+{{ range $s }}
+  {{ $.Title }} 
 {{ end }}
 ```
 
 > [!note]
 > Gaining a thorough understanding of context is critical for anyone writing template code.
 
-## Array or slice of scalars
+## Examples
+
+### Slice of scalars
 
 This template code:
 
@@ -121,7 +127,7 @@ Is rendered to:
 <p>2: baz</p>
 ```
 
-## Array or slice of maps
+### Slice of maps
 
 This template code:
 
@@ -144,7 +150,7 @@ Is rendered to:
 <p>Joey is 24</p>
 ```
 
-## Array or slice of pages
+### Slice of pages
 
 This template code:
 
@@ -162,7 +168,7 @@ Is rendered to:
 <h2><a href="/articles/article-1/">Article 1</a></h2>
 ```
 
-## Maps
+### Maps
 
 This template code:
 
@@ -182,9 +188,32 @@ Is rendered to:
 
 Unlike ranging over an array or slice, Hugo sorts by key when ranging over a map.
 
+### Integers
+
+{{< new-in 0.123.0 />}}
+
+Ranging over a positive integer `n` executes the block `n` times, with the context starting at zero and incrementing by one in each iteration.
+
+```go-html-template
+{{ $s := slice }}
+{{ range 1 }}
+  {{ $s = $s | append . }}
+{{ end }}
+{{ $s }} → [0]
+```
+
+```go-html-template
+{{ $s := slice }}
+{{ range 3 }}
+  {{ $s = $s | append . }}
+{{ end }}
+{{ $s }} → [0 1 2]
+```
+
+Ranging over a non-positive integer executes the block zero times.
+
 {{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`break`]: /functions/go-template/break/
 [`continue`]: /functions/go-template/continue/
 [`else`]: /functions/go-template/else/
-[`seq`]: /functions/collections/seq/

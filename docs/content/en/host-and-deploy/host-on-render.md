@@ -1,6 +1,6 @@
 ---
 title: Host on Render
-description: Host your on Render.
+description: Host your site on Render.
 categories: []
 keywords: []
 aliases: [/hosting-and-deployment/hosting-on-render/]

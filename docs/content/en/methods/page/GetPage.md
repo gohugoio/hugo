@@ -35,9 +35,9 @@ content/
 └── _index.md
 ```
 
-The examples below depict the result of rendering works/paintings/the-mona-lisa.md:
+The examples below depict the result of rendering `works/paintings/the-mona-lisa.md`:
 
-```go-html-template {file="layouts/works/single.html"}
+```go-html-template {file="layouts/works/page.html"}
 {{ with .GetPage "starry-night" }}
   {{ .Title }} → Starry Night
 {{ end }}

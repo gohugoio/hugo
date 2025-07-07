@@ -1,0 +1,11 @@
+{{ $text := `We did a complete overhaul of Hugo's template system in v0.146.0.
+  We're working on getting all of the relevant documentation up to date, but until
+  then, see [this page](/templates/new-templatesystem-overview/). `
+}}
+{{ partial "layouts/blocks/alert.html"
+  (dict
+  "color"  "orange"
+  "icon"  "information-circle"
+  "text" ($text | $.Page.RenderString )
+  "title" "")
+}}

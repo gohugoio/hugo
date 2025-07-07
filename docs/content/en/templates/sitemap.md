@@ -39,14 +39,14 @@ title = 'News'
 To override the built-in sitemap.xml template, create a new file in either of these locations:
 
 - `layouts/sitemap.xml`
-- `layouts/_default/sitemap.xml`
+- `layouts/sitemap.xml`
 
 When ranging through the page collection, access the _change frequency_ and _priority_ with `.Sitemap.ChangeFreq` and `.Sitemap.Priority` respectively.
 
 To override the built-in sitemapindex.xml template, create a new file in either of these locations:
 
 - `layouts/sitemapindex.xml`
-- `layouts/_default/sitemapindex.xml`
+- `layouts/sitemapindex.xml`
 
 ## Disable sitemap generation
 

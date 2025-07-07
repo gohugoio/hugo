@@ -63,7 +63,7 @@ With the file structure from the [example above](#overview):
 
 1. The list page for the articles section includes all articles, regardless of directory structure; none of the subdirectories are sections.
 1. The articles/2022 and articles/2023 directories do not have list pages; they are not sections.
-1. The list page for the products section, by default, includes product-1 and product-2, but not their descendant pages. To include descendant pages, use the `RegularPagesRecursive` method instead of the `Pages` method in the list template.
+1. The list page for the products section, by default, includes product-1 and product-2, but not their descendant pages. To include descendant pages, use the `RegularPagesRecursive` method instead of the `Pages` method in the section template.
 1. All directories in the products section have list pages; each directory is a section.
 
 ## Template selection
@@ -74,15 +74,15 @@ With the file structure from the [example above](#overview):
 
 Content directory|Section template
 :--|:--
-`content/products`|`layouts/products/list.html`
-`content/products/product-1`|`layouts/products/list.html`
-`content/products/product-1/benefits`|`layouts/products/list.html`
+`content/products`|`layouts/products/section.html`
+`content/products/product-1`|`layouts/products/section.html`
+`content/products/product-1/benefits`|`layouts/products/section.html`
 
-Content directory|Single template
+Content directory|Page template
 :--|:--
-`content/products`|`layouts/products/single.html`
-`content/products/product-1`|`layouts/products/single.html`
-`content/products/product-1/benefits`|`layouts/products/single.html`
+`content/products`|`layouts/products/page.html`
+`content/products/product-1`|`layouts/products/page.html`
+`content/products/product-1/benefits`|`layouts/products/page.html`
 
 If you need to use a different template for a subsection, specify `type` and/or `layout` in front matter.
 
@@ -98,7 +98,7 @@ The content file (benefit-1.md) has four ancestors: benefits, product-1, product
 
 For example, use the `.Ancestors` method to render breadcrumb navigation.
 
-```go-html-template {file="layouts/partials/breadcrumb.html"}
+```go-html-template {file="layouts/_partials/breadcrumb.html"}
 <nav aria-label="breadcrumb" class="breadcrumb">
   <ol>
     {{ range .Ancestors.Reverse }}

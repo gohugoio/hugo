@@ -24,6 +24,6 @@ A more practical example is to fill in the missing translations from the other l
 ```sh
 {{ $pages := .Site.RegularPages }}
 {{ range .Site.Home.Translations }}
-{{ $pages = $pages | lang.Merge .Site.RegularPages }}
+  {{ $pages = $pages | lang.Merge .Site.RegularPages }}
 {{ end }}
  ```

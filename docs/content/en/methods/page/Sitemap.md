@@ -58,7 +58,7 @@ changeFreq = 'hourly'
 
 And this simplistic sitemap template:
 
-```xml {file="layouts/_default/sitemap.xml"}
+```xml {file="layouts/sitemap.xml"}
 {{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">

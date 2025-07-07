@@ -152,26 +152,27 @@ This example demonstrates the minimum required front matter fields.
 
 If quotation marks are required, prefer single quotes to double quotes when possible.
 
-Seq|Field|Description|Required
---:|:--|:--|:--
-1|`title`|The page title|:heavy_check_mark:|
-2|`linkTitle`|A short version of the page title||
-3|`description`|A complete sentence describing the page|:heavy_check_mark:|
-4|`categories`|An array of terms in the categories taxonomy|:heavy_check_mark: [^1]|
-5|`keywords`|An array of keywords used to identify related content|:heavy_check_mark: [^1]|
-6|`publishDate`|Applicable to news items: the publication date||
-7|`params.altTitle`|An alternate title: used in the "see also" panel if provided||
-8|`params.functions_and_methods.aliases`|Applicable to function and method pages: an array of alias names||
-9|`params.functions_and_methods.returnType`|Applicable to function and method pages: the data type returned||
-10|`params.functions_and_methods.signatures`|Applicable to function and method pages: an array of signatures||
-11|`params.hide_in_this_section`|Whether to hide the "in this section" panel||
-12|`params.minversion`|Applicable to the quick start page: the minimum Hugo version required||
-13|`params.permalink`|Reserved for use by the news content adapter||
-14|`params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information||
-15|`params.show_publish_date`|Whether to show the `publishDate` when rendering the page||
-16|`weight`|The page weight||
-17|`aliases`|Previous URLs used to access this page||
-18|`expirydate`|The expiration date||
+Field|Description|Required
+:--|:--|:--
+`title`|The page title|:heavy_check_mark:|
+`linkTitle`|A short version of the page title||
+`description`|A complete sentence describing the page|:heavy_check_mark:|
+`categories`|An array of terms in the categories taxonomy|:heavy_check_mark: [^1]|
+`keywords`|An array of keywords used to identify related content|:heavy_check_mark: [^1]|
+`publishDate`|Applicable to news items: the publication date||
+`params.alt_title`|An alternate title: used in the "see also" panel if provided||
+`params.functions_and_methods.aliases`|Applicable to function and method pages: an array of alias names||
+`params.functions_and_methods.returnType`|Applicable to function and method pages: the data type returned||
+`params.functions_and_methods.signatures`|Applicable to function and method pages: an array of signatures||
+`params.hide_in_this_section`|Whether to hide the "in this section" panel||
+`params.minversion`|Applicable to the quick start page: the minimum Hugo version required||
+`params.permalink`|Reserved for use by the news content adapter||
+`params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information||
+`params.searchable`|Whether to add the content of this page to the search index. The default value is cascaded down from the site configuration; `true` if the page kind is `page`, and `false` if the page kind is one of `home`, `section`, `taxonomy`, or `term`. Add this field to override the default value.||
+`params.show_publish_date`|Whether to show the `publishDate` when rendering the page||
+`weight`|The page weight||
+`aliases`|Previous URLs used to access this page||
+`expirydate`|The expiration date||
 
 [^1]: The field is required, but its data is not.
 
@@ -185,13 +186,13 @@ If the title in the "See also" sidebar is ambiguous or the same as another page,
 title = "Long descriptive title"
 linkTitle = "Short title"
 [params]
-altTitle = "Whatever you want"
+alt_title = "Whatever you want"
 {{< /code-toggle >}}
 
 Use of the alternate title is limited to the "See also" sidebar.
 
 > [!note]
-> Think carefully before setting the `altTitle`. Use it only when absolutely necessary.
+> Think carefully before setting the `alt_title`. Use it only when absolutely necessary.
 
 ## Code examples
 
@@ -223,10 +224,10 @@ erroneous lexing/highlighting of shortcode calls.
 ```
 ````
 
-To include a filename header and copy-to-clipboard button:
+To include a file name header and copy-to-clipboard button:
 
 ````text
-```go-html-template {file="layouts/partials/foo.html" copy=true}
+```go-html-template {file="layouts/_partials/foo.html" copy=true}
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
 {{ end }}
@@ -236,7 +237,7 @@ To include a filename header and copy-to-clipboard button:
 To wrap the code block within an initially-opened `details` element using a non-default summary:
 
 ````text
-```go-html-template {details=true open=true summary="layouts/partials/foo.html" copy=true}
+```go-html-template {details=true open=true summary="layouts/_partials/foo.html" copy=true}
 {{ if eq $foo "bar" }}
   {{ print "foo is bar" }}
 {{ end }}
@@ -427,7 +428,7 @@ Use the [new-in shortcode](#new-in) to indicate a new feature:
 {{</* new-in 0.144.0 */>}}
 ```
 
-The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/shortcodes/new-in.html).
+The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/_shortcodes/new-in.html).
 
 ## Deprecated features
 
@@ -514,17 +515,17 @@ Visit the [documentation repository] and create a pull request (PR).
 
 A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
-[ATX]: https://spec.commonmark.org/0.30/#atx-headings
+[ATX]: https://spec.commonmark.org/current/#atx-headings
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [developer documentation style guide]: https://developers.google.com/style
 [documentation repository]: https://github.com/gohugoio/hugoDocs/
-[fenced code blocks]: https://spec.commonmark.org/0.30/#fenced-code-blocks
+[fenced code blocks]: https://spec.commonmark.org/current/#fenced-code-blocks
 [glossary]: /quick-reference/glossary/
-[indented code blocks]: https://spec.commonmark.org/0.30/#indented-code-blocks
+[indented code blocks]: https://spec.commonmark.org/current/#indented-code-blocks
 [issues]: https://github.com/gohugoio/hugoDocs/issues
-[list items]: https://spec.commonmark.org/0.30/#list-items
+[list items]: https://spec.commonmark.org/current/#list-items
 [project repository]: https://github.com/gohugoio/hugo
-[raw HTML]: https://spec.commonmark.org/0.30/#raw-html
+[raw HTML]: https://spec.commonmark.org/current/#raw-html
 [related content]: /content-management/related-content/
-[setext]: https://spec.commonmark.org/0.30/#setext-heading
+[setext]: https://spec.commonmark.org/current/#setext-heading
