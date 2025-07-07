@@ -30,14 +30,14 @@ type gitInfo struct {
 	repo       *gitmap.GitRepo
 }
 
-func (g *gitInfo) forPage(p page.Page) source.GitInfo {
+func (g *gitInfo) forPage(p page.Page) *source.GitInfo {
 	name := strings.TrimPrefix(filepath.ToSlash(p.File().Filename()), g.contentDir)
 	name = strings.TrimPrefix(name, "/")
 	gi, found := g.repo.Files[name]
 	if !found {
-		return source.GitInfo{}
+		return nil
 	}
-	return source.NewGitInfo(*gi)
+	return gi
 }
 
 func newGitInfo(d *deps.Deps) (*gitInfo, error) {

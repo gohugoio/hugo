@@ -178,8 +178,8 @@ func (p *nopPage) GetTerms(taxonomy string) Pages {
 	return nil
 }
 
-func (p *nopPage) GitInfo() source.GitInfo {
-	return source.GitInfo{}
+func (p *nopPage) GitInfo() *source.GitInfo {
+	return nil
 }
 
 func (p *nopPage) CodeOwners() []string {

@@ -221,7 +221,7 @@ disableLiveReload = true
 	b.AssertFileContent("public/index.html", "1\n2\n3")
 }
 
-func TestThatPageGitInfoShouldBeZero(t *testing.T) {
+func TestThatPageGitInfoShouldBeNil(t *testing.T) {
 	t.Parallel()
 
 	files := `

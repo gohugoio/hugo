@@ -86,7 +86,7 @@ type pageCommon struct {
 	targetPathDescriptor page.TargetPathDescriptor
 
 	// Set if feature enabled and this is in a Git repo.
-	gitInfo    source.GitInfo
+	gitInfo    *source.GitInfo
 	codeowners []string
 
 	// Positional navigation
