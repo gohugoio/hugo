@@ -426,8 +426,8 @@ github.com/olekukonko/errors v0.0.0-20250405072817-4e6d85265da6 h1:r3FaAI0NZK3hS
 github.com/olekukonko/errors v0.0.0-20250405072817-4e6d85265da6/go.mod h1:ppzxA5jBKcO1vIpCXQ9ZqgDh8iwODz6OXIGKU8r5m4Y=
 github.com/olekukonko/ll v0.0.8 h1:sbGZ1Fx4QxJXEqL/6IG8GEFnYojUSQ45dJVwN2FH2fc=
 github.com/olekukonko/ll v0.0.8/go.mod h1:En+sEW0JNETl26+K8eZ6/W4UQ7CYSrrgg/EdIYT2H8g=
-github.com/olekukonko/tablewriter v1.0.7 h1:HCC2e3MM+2g72M81ZcJU11uciw6z/p82aEnm4/ySDGw=
-github.com/olekukonko/tablewriter v1.0.7/go.mod h1:H428M+HzoUXC6JU2Abj9IT9ooRmdq9CxuDmKMtrOCMs=
+github.com/olekukonko/tablewriter v1.0.8 h1:f6wJzHg4QUtJdvrVPKco4QTrAylgaU0+b9br/lJxEiQ=
+github.com/olekukonko/tablewriter v1.0.8/go.mod h1:H428M+HzoUXC6JU2Abj9IT9ooRmdq9CxuDmKMtrOCMs=
 github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 h1:onHthvaw9LFnH4t2DcNVpwGmV9E1BkGknEliJkfwQj0=
 github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58/go.mod h1:DXv8WO4yhMYhSNPKjeNKa5WY9YCIEBRbNzFFPJbWO6Y=
 github.com/pelletier/go-toml/v2 v2.2.4 h1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=
