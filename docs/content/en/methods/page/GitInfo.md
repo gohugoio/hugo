@@ -117,21 +117,21 @@ hugo --enableGitInfo
 {{ end }}
 ```
 
-###### Ancestor
+### Ancestors
 
-(`*source.GitInfo`) The file-filtered ancestor commit, if any.
+(`*source.GitInfo`) The file-filtered ancestor commits, if any.
 
 ```go-html-template
-{{ partial "inline/changelog.html" .GitInfo }} → 2023-10-09: Add tutorials
-                                                 2025-03-26: Edit GitInfo docs
-
-{{ define "_partials/inline/changelog.html" }}
-  {{ with . }}
-    {{ partial "inline/changelog.html" .Ancestor }}
-    {{ .CommitDate.Format "2006-01-02" }}: {{ .Subject }}<br>
+{{ with .GitInfo }}
+  {{ range .Ancestors | first 5 }} 
+    {{ .CommitDate.Format "2006-01-02" }}: {{ .Subject }}
   {{ end }}
 {{ end }}
 ```
+
+### Parent
+
+(`*source.GitInfo`) The first file-filtered ancestor commit, if any.
 
 ## Last modified date
 
