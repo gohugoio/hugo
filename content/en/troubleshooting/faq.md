@@ -53,10 +53,10 @@ Why is my partial template not rendered as expected?
 
   ```go-html-template
   {{/* incorrect */}}
-  {{ partial "_internal/pagination.html" }}
+  {{ partial "pagination.html" }}
 
   {{/* correct */}}
-  {{ partial "_internal/pagination.html" . }}
+  {{ partial "pagination.html" . }}
   ```
 
 In a template, what's the difference between `:=` and `=` when assigning values to variables?
@@ -84,8 +84,8 @@ Why isn't Hugo's development server detecting file changes?
 
   In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds, use `--poll 700ms`.
 
-Why is my page Scratch or Store missing a value?
-: The [`Scratch`] and [`Store`] methods on a `Page` object allow you to create a [scratch pad](g) on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
+Why is my page Store missing a value?
+: The [`Store`] method on a `Page` object allows you to create a [scratch pad](g) on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
 
   If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop](g) variable:
 
@@ -104,7 +104,6 @@ Which page methods trigger content rendering?
 
 [`Paginate`]: /methods/page/paginate/
 [`Paginator`]: /methods/page/paginator/
-[`Scratch`]: /methods/page/scratch
 [`Store`]: /methods/page/store
 [forum]: https://discourse.gohugo.io
 [forum]: https://discourse.gohugo.io

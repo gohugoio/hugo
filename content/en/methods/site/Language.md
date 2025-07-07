@@ -72,7 +72,7 @@ Some of the methods above are commonly used in a base template as attributes for
 ```go-html-template
 <html
   lang="{{ .Site.Language.LanguageCode }}" 
-  dir="{{ or .Site.Language.LanguageDirection `ltr` }}
+  dir="{{ or .Site.Language.LanguageDirection `ltr` }}"
 >
 ```
 

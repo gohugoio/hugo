@@ -15,11 +15,11 @@ The number of elements on each pager is determined by your [site configuration].
 
 You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates]. Each of these receives a collection of regular pages in [context](g). When you invoke the `Paginator` method, it paginates the page collection received in context.
 
-```go-html-template {file="layouts/_default/list.html"}
+```go-html-template {file="layouts/section.html"}
 {{ range .Paginator.Pages }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```
 
 In the example above, the embedded pagination template creates navigation links between pagers.

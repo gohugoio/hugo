@@ -18,6 +18,10 @@ alignx
 : {{< new-in 0.141.0 />}}
 : (`string`) The horizontal alignment of the text relative to the horizontal offset, one of `left`, `center`, or `right`. Default is `left`.
 
+aligny
+: {{< new-in 0.147.0 />}}
+: (`string`) The vertical alignment of the text relative to the vertical offset, one of `top`, `center`, or `bottom`. Default is `top`.
+
 color
 : (`string`) The font color, either a 3-digit or 6-digit hexadecimal color code. Default is `#ffffff` (white).
 
@@ -71,6 +75,7 @@ Create the filter, centering the text horizontally and vertically:
 {{ with $r = resources.Get $imagePath }}
   {{ $opts := dict
     "alignx" "center"
+    "aligny" "center"
     "color" "#fbfaf5"
     "font" $font
     "linespacing" 8

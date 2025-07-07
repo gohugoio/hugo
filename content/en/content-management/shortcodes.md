@@ -22,7 +22,7 @@ Hugo's embedded shortcodes are pre-defined templates within the application. Ref
 
 Create custom shortcodes to simplify and standardize content creation. For example, the following shortcode template generates an audio player using a [global resource](g):
 
-```go-html-template {file="layouts/shortcodes/audio.html"}
+```go-html-template {file="layouts/_shortcodes/audio.html"}
 {{ with resources.Get (.Get "src") }}
   <audio controls preload="auto" src="{{ .RelPermalink }}"></audio>
 {{ end }}
@@ -181,7 +181,7 @@ With standard notation, Hugo processes the shortcode separately, merging the out
 
 By way of example, with this shortcode template:
 
-```go-html-template {file="layouts/shortcodes/foo.html"}
+```go-html-template {file="layouts/_shortcodes/foo.html"}
 {{ .Inner }}
 ```
 

@@ -2,16 +2,16 @@
 **/icons.html
 
 # These are whitespace sensitive.
-layouts/_default/_markup/render-code*
-layouts/_default/_markup/render-table*
-layouts/shortcodes/glossary-term.html
-layouts/shortcodes/glossary.html
-layouts/shortcodes/highlighting-styles.html
-layouts/shortcodes/list-pages-in-section.html
-layouts/shortcodes/quick-reference.html
+layouts/_markup/render-code*
+layouts/_markup/render-table*
+layouts/_shortcodes/glossary-term.html
+layouts/_shortcodes/glossary.html
+layouts/_shortcodes/highlighting-styles.html
+layouts/_shortcodes/list-pages-in-section.html
+layouts/_shortcodes/quick-reference.html
 
 # No root node.
-layouts/partials/layouts/head/head.html
+layouts/_partials/layouts/head/head.html
 
 # Auto generated.
 assets/css/components/chroma*.css

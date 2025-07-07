@@ -97,7 +97,7 @@ We've configured the `authors` index with a weight of `2` and the `genres` index
 
 Then render a list of 5 related reviews with a partial template like this:
 
-```go-html-template {file="layouts/partials/related.html" copy=true}
+```go-html-template {file="layouts/_partials/related.html" copy=true}
 {{ with site.RegularPages.Related . | first 5 }}
   <p>Related content:</p>
   <ul>

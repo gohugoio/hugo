@@ -15,7 +15,7 @@ When you call a shortcode using positional arguments, the `Params` method return
 {{</* myshortcode "Hello" "world" */>}}
 ```
 
-```go-html-template {file="layouts/shortcodes/myshortcode.html"}
+```go-html-template {file="layouts/_shortcodes/myshortcode.html"}
 {{ index .Params 0 }} → Hello
 {{ index .Params 1 }} → world
 ```
@@ -26,7 +26,7 @@ When you call a shortcode using named arguments, the `Params` method returns a m
 {{</* myshortcode greeting="Hello" name="world" */>}}
 ```
 
-```go-html-template {file="layouts/shortcodes/myshortcode.html"}
+```go-html-template {file="layouts/_shortcodes/myshortcode.html"}
 {{ .Params.greeting }} → Hello
 {{ .Params.name }} → world
 ```

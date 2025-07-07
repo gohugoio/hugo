@@ -60,20 +60,16 @@ Hugo will render this to:
 
 ## Custom templates
 
-Override Hugo's [embedded RSS template] by creating one or more of your own, following the naming conventions as shown in the [template lookup order].
-
-For example, to use different templates for home, section, taxonomy, and term pages:
+Override Hugo's [embedded RSS template] by creating one or more of your own. For example, to use different templates for home, section, taxonomy, and term pages:
 
 ```text
 layouts/
-└── _default/
-    ├── home.rss.xml
-    ├── section.rss.xml
-    ├── taxonomy.rss.xml
-    └── term.rss.xml
+  ├── home.rss.xml
+  ├── section.rss.xml
+  ├── taxonomy.rss.xml
+  └── term.rss.xml
 ```
 
 RSS templates receive the `.Page` and `.Site` objects in context.
 
 [embedded RSS template]: {{% eturl rss %}}
-[template lookup order]: /templates/lookup-order/#rss-templates

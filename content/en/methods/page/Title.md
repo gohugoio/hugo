@@ -19,7 +19,16 @@ title = 'About us'
 {{ .Title }} → About us
 ```
 
-With section, taxonomy, and term pages not backed by a file, the `Title` method returns the section name, capitalized and pluralized. You can disable these transformations by setting [`capitalizeListTitles`] and [`pluralizeListTitles`] in your site configuration. For example:
+When a page is not backed by a file, the value returned by the `Title` method depends on the page [kind](g).
+
+Page kind|Page title when the page is not backed by a file
+:--|:--
+home|site title
+section|section name (capitalized and pluralized)
+taxonomy|taxonomy name (capitalized and pluralized)
+term|term name (capitalized and pluralized)
+
+You can disable automatic capitalization and pluralization in your site configuration:
 
 {{< code-toggle file=hugo >}}
 capitalizeListTitles = false
@@ -32,8 +41,6 @@ You can change the capitalization style in your site configuration to one of `ap
 titleCaseStyle = "firstupper"
 {{< /code-toggle >}}
 
- See&nbsp;[details].
+See&nbsp;[details].
 
-[`capitalizeListTitles`]: /configuration/all/#capitalizelisttitles
-[`pluralizeListTitles`]: /configuration/all/#pluralizelisttitles
 [details]: /configuration/all/#title-case-style

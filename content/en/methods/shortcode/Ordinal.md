@@ -24,7 +24,7 @@ This method is useful for, among other things, assigning unique element IDs when
 
 This shortcode performs error checking, then renders an HTML `img` element with a unique `id` attribute:
 
-```go-html-template {file="layouts/shortcodes/img.html"}
+```go-html-template {file="layouts/_shortcodes/img.html"}
 {{ $src := "" }}
 {{ with .Get "src" }}
   {{ $src = . }}

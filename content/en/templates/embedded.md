@@ -7,10 +7,12 @@ weight: 170
 aliases: [/templates/internal]
 ---
 
+{{< newtemplatesystem >}}
+
 ## Disqus
 
 > [!note]
-> To override Hugo's embedded Disqus template, copy the [source code]({{% eturl disqus %}}) to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
+> To override Hugo's embedded Disqus template, copy the [source code]({{% eturl disqus %}}) to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`] function:
 >
 > `{{ partial "disqus.html" . }}`
 
@@ -19,7 +21,7 @@ Hugo includes an embedded template for [Disqus], a popular commenting system for
 To include the embedded template:
 
 ```go-html-template
-{{ template "_internal/disqus.html" . }}
+{{ partial "disqus.html" . }}
 ```
 
 ### Configuration {#configuration-disqus}
@@ -55,7 +57,7 @@ disable
 ## Google Analytics
 
 > [!note]
-> To override Hugo's embedded Google Analytics template, copy the [source code]({{% eturl google_analytics %}}) to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
+> To override Hugo's embedded Google Analytics template, copy the [source code]({{% eturl google_analytics %}}) to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`] function:
 >
 > `{{ partial "google_analytics.html" . }}`
 
@@ -64,7 +66,7 @@ Hugo includes an embedded template supporting [Google Analytics 4].
 To include the embedded template:
 
 ```go-html-template
-{{ template "_internal/google_analytics.html" . }}
+{{ partial "google_analytics.html" . }}
 ```
 
 ### Configuration {#configuration-google-analytics}
@@ -93,7 +95,7 @@ respectDoNotTrack
 ## Open Graph
 
 > [!note]
-> To override Hugo's embedded Open Graph template, copy the [source code]({{% eturl opengraph %}}) to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
+> To override Hugo's embedded Open Graph template, copy the [source code]({{% eturl opengraph %}}) to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`] function:
 >
 > `{{ partial "opengraph.html" . }}`
 
@@ -103,7 +105,7 @@ This format is used for Facebook and some other sites.
 To include the embedded template:
 
 ```go-html-template
-{{ template "_internal/opengraph.html" . }}
+{{ partial "opengraph.html" . }}
 ```
 
 ### Configuration {#configuration-open-graph}
@@ -147,12 +149,12 @@ If using YouTube this will produce a og:video tag like `<meta property="og:video
 
 ## Pagination
 
-See [details](/templates/pagination/).
+See&nbsp;[details](/templates/pagination/).
 
 ## Schema
 
 > [!note]
-> To override Hugo's embedded Schema template, copy the [source code]({{% eturl schema %}}) to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
+> To override Hugo's embedded Schema template, copy the [source code]({{% eturl schema %}}) to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`] function:
 >
 > `{{ partial "schema.html" . }}`
 
@@ -161,13 +163,13 @@ Hugo includes an embedded template to render [microdata] `meta` elements within 
 To include the embedded template:
 
 ```go-html-template
-{{ template "_internal/schema.html" . }}
+{{ partial "schema.html" . }}
 ```
 
 ## X (Twitter) Cards
 
 > [!note]
-> To override Hugo's embedded Twitter Cards template, copy the [source code]({{% eturl twitter_cards %}}) to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
+> To override Hugo's embedded Twitter Cards template, copy the [source code]({{% eturl twitter_cards %}}) to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`] function:
 >
 > `{{ partial "twitter_cards.html" . }}`
 
@@ -177,7 +179,7 @@ metadata used to attach rich media to Tweets linking to your site.
 To include the embedded template:
 
 ```go-html-template
-{{ template "_internal/twitter_cards.html" . }}
+{{ partial "twitter_cards.html" . }}
 ```
 
 ### Configuration {#configuration-x-cards}

@@ -30,7 +30,7 @@ When a `Page` object is not in context, you can use the global `page` function:
 
 ## Explanation
 
-Hugo almost always passes a `Page` as the data context into the top-level template (e.g., `single.html`). The one exception is the multihost sitemap template. This means that you can access the current page with the `.` in the template.
+Hugo almost always passes a `Page` as the data context into the top-level template (e.g., `baseof.html`). The one exception is the multihost sitemap template. This means that you can access the current page with the `.` in the template.
 
 But when you are deeply nested inside of a [content view](g), [partial](g), or [render hook](g), it is not always practical or possible to access the `Page` object.
 

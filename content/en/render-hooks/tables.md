@@ -57,7 +57,7 @@ In its default configuration, Hugo renders Markdown tables according to the [Git
 
 [GitHub Flavored Markdown specification]: https://github.github.com/gfm/#tables-extension-
 
-```go-html-template {file="layouts/_default/_markup/render-table.html" copy=true}
+```go-html-template {file="layouts/_markup/render-table.html" copy=true}
 <table
   {{- range $k, $v := .Attributes }}
     {{- if $v }}

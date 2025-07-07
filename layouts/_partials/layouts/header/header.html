@@ -22,6 +22,23 @@
       >
     {{ end }}
 
+
+    <div class="hidden 2xl:block ml-8 text-xs text-gray-400 dark:text-gray-400">
+      {{ with  hugo.Version }}
+
+        Built with Hugo
+        {{ if strings.Contains . "-DEV" }}
+          v{{ . }}
+        {{ else }}
+          <a
+            class="text-blue-600 hover:text-blue-500 ml-1"
+            href="{{ printf `https://github.com/gohugoio/hugo/releases/tag/v%s` . }}"
+            >v{{ . }}</a
+          >
+        {{ end }}
+      {{ end }}
+
+    </div>
   </div>
 
   <div class="-my-5 pl-2 grow-0">
@@ -29,7 +46,7 @@
     {{ partial "layouts/search/input.html" . }}
   </div>
   <div
-    class="relative ml-0 md:ml-8 flex basis-0 justify-end gap-0 sm:gap-1 xl:grow-1">
+    class="relative ml-0 md:ml-8 flex content-center basis-0 justify-end gap-0 sm:gap-1 xl:grow-1">
     {{/* QR code. */}}
     {{ partial "layouts/header/qr.html" . }}
     {{/* Theme selector. */}}
@@ -39,6 +56,10 @@
     <div
       class="hidden sm:block ml-2 sm:ml-6 h-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300">
       {{ partial "layouts/header/githubstars.html" . }}
+    </div>
+    <div
+      class="hidden sm:block ml-2 sm:ml-6 h-6">
+      {{ partial "layouts/header/mastodon.html" . }}
     </div>
   </div>
 </header>

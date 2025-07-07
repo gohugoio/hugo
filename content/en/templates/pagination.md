@@ -63,7 +63,7 @@ To paginate a list page using the `Paginate` method:
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```
 
 In the example above, we:
@@ -81,7 +81,7 @@ To paginate a list page using the `Paginator` method:
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```
 
 In the example above, we:
@@ -114,7 +114,7 @@ Use pagination with any of the [grouping methods]. For example:
   {{ end }}
 {{ end }}
 
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```
 
 ## Navigation
@@ -122,23 +122,23 @@ Use pagination with any of the [grouping methods]. For example:
 As shown in the examples above, the easiest way to add navigation between pagers is with Hugo's embedded pagination template:
 
 ```go-html-template
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```
 
 The embedded pagination template has two formats: `default` and `terse`. The above is equivalent to:
 
 ```go-html-template
-{{ template "_internal/pagination.html" (dict "page" . "format" "default") }}
+{{ partial "pagination.html" (dict "page" . "format" "default") }}
 ```
 
 The `terse` format has fewer controls and page slots, consuming less space when styled as a horizontal list. To use the `terse` format:
 
 ```go-html-template
-{{ template "_internal/pagination.html" (dict "page" . "format" "terse") }}
+{{ partial "pagination.html" (dict "page" . "format" "terse") }}
 ```
 
 > [!note]
-> To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the `layouts/partials` directory, then call it from your templates using the [`partial`] function:
+> To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`] function:
 >
 > `{{ partial "pagination.html" . }}`
 
@@ -179,7 +179,7 @@ And this section template:
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```
 
 The published site has this structure:

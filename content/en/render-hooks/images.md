@@ -64,7 +64,7 @@ Title
 
 In its default configuration, Hugo renders Markdown images according to the [CommonMark specification]. To create a render hook that does the same thing:
 
-```go-html-template {file="layouts/_default/_markup/render-image.html" copy=true}
+```go-html-template {file="layouts/_markup/render-image.html" copy=true}
 <img src="{{ .Destination | safeURL }}"
   {{- with .PlainText }} alt="{{ . }}"{{ end -}}
   {{- with .Title }} title="{{ . }}"{{ end -}}
@@ -74,7 +74,7 @@ In its default configuration, Hugo renders Markdown images according to the [Com
 
 To render standalone images within `figure` elements:
 
-```go-html-template {file="layouts/_default/_markup/render-image.html" copy=true}
+```go-html-template {file="layouts/_markup/render-image.html" copy=true}
 {{- if .IsBlock -}}
   <figure>
     <img src="{{ .Destination | safeURL }}"

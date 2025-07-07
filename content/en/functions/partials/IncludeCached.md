@@ -16,7 +16,7 @@ Without a [`return`] statement, the `partialCached` function returns a string of
 The `partialCached` function can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation.
 
 > [!note]
-> Each Site (or language) has its own `partialCached` cache, so each site will execute a partial once.
+> Each site (or language) has its own `partialCached` cache, so each site will execute a partial once.
 >
 > Hugo renders pages in parallel, and will render the partial more than once with concurrent calls to the `partialCached` function. After Hugo caches the rendered partial, new pages entering the build pipeline will use the cached result.
 
@@ -28,7 +28,7 @@ Here is the simplest usage:
 
 Pass additional arguments to `partialCached` to create variants of the cached partial. For example, if you have a complex partial that should be identical when rendered for pages within the same section, use a variant based on section so that the partial is only rendered once per section:
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html"}
 {{ partialCached "footer.html" . .Section }}
 ```
 

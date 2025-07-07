@@ -7,7 +7,7 @@ keywords: []
 ---
 
 > [!note]
-> To override Hugo's embedded `youtube` shortcode, copy the [source code] to a file with the same name in the `layouts/shortcodes` directory.
+> To override Hugo's embedded `youtube` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
 
 ## Example
 
@@ -30,7 +30,7 @@ Hugo renders this to:
 ## Arguments
 
 id
-: (`string`) The video `id`. Optional if the `id` is provided as a positional argument as shown in the example above.
+: (`string`) The video `id`. Optional if the `id` is the first and only positional argument.
 
 allowFullScreen
 : {{< new-in 0.125.0 />}}

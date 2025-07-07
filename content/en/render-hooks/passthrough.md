@@ -86,7 +86,7 @@ Instead of client-side JavaScript rendering of mathematical markup using MathJax
 
 [`transform.ToMath`]: /functions/transform/tomath/
 
-```go-html-template {file="layouts/_default/_markup/render-passthrough.html" copy=true}
+```go-html-template {file="layouts/_markup/render-passthrough.html" copy=true}
 {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
 {{- with try (transform.ToMath .Inner $opts) }}
   {{- with .Err }}
@@ -100,7 +100,7 @@ Instead of client-side JavaScript rendering of mathematical markup using MathJax
 
 Then, in your base template, conditionally include the KaTeX CSS within the head element:
 
-```go-html-template {file="layouts/_default/baseof.html" copy=true}
+```go-html-template {file="layouts/baseof.html" copy=true}
 <head>
   {{ $noop := .WordCount }}
   {{ if .Page.Store.Get "hasMath" }}
@@ -115,10 +115,9 @@ Although you can use one template with conditional logic as shown above, you can
 
 ```text
 layouts/
-└── _default/
-    └── _markup/
-        ├── render-passthrough-block.html
-        └── render-passthrough-inline.html
+  └── _markup/
+      ├── render-passthrough-block.html
+      └── render-passthrough-inline.html
 ```
 
 {{% include "/_common/render-hooks/pageinner.md" %}}

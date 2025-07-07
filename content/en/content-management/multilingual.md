@@ -114,7 +114,7 @@ If, across the linked bundles, two or more files share the same basename, only o
 
 To create a list of links to translated content, use a template similar to the following:
 
-```go-html-template {file="layouts/partials/i18nlist.html"}
+```go-html-template {file="layouts/_partials/i18nlist.html"}
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
 <ul>
@@ -127,7 +127,7 @@ To create a list of links to translated content, use a template similar to the f
 {{ end }}
 ```
 
-The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template. It will not print anything if there are no translations for a given page.
+The above can be put in a partial template then included in any template. It will not print anything if there are no translations for a given page.
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 
@@ -135,7 +135,7 @@ The above also uses the [`i18n` function][i18func] described in the next section
 
 `.AllTranslations` on a `Page` can be used to list all translations, including the page itself. On the home page it can be used to build a language navigator:
 
-```go-html-template {file="layouts/partials/allLanguages.html"}
+```go-html-template {file="layouts/_partials/allLanguages.html"}
 <ul>
 {{ range $.Site.Home.AllTranslations }}
 <li><a href="{{ .RelPermalink }}">{{ .Language.LanguageName }}</a></li>

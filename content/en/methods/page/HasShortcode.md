@@ -29,7 +29,7 @@ By example, let's use [Plotly] to render a chart:
 
 The shortcode is simple:
 
-```go-html-template {file="layouts/shortcodes/plotly.html"}
+```go-html-template {file="layouts/_shortcodes/plotly.html"}
 {{ $id := printf "plotly-%02d" .Ordinal }}
 <div id="{{ $id }}"></div>
 <script>
@@ -39,7 +39,7 @@ The shortcode is simple:
 
 Now we can selectively load the required JavaScript on pages that call the "plotly" shortcode:
 
-```go-html-template {file="layouts/_default/baseof.html"}
+```go-html-template {file="layouts/baseof.html"}
 <head>
   ...
   {{ if .HasShortcode "plotly" }}

@@ -72,7 +72,7 @@ Type
 
 In its default configuration, Hugo renders fenced code blocks by passing the code sample through the Chroma syntax highlighter and wrapping the result. To create a render hook that does the same thing:
 
-```go-html-template {file="layouts/_default/_markup/render-codeblock.html" copy=true}
+```go-html-template {file="layouts/_markup/render-codeblock.html" copy=true}
 {{ $result := transform.HighlightCodeBlock . }}
 {{ $result.Wrapped }}
 ```
@@ -81,16 +81,15 @@ Although you can use one template with conditional logic to control the behavior
 
 ```text
 layouts/
-└── _default/
-    └── _markup/
-        ├── render-codeblock-mermaid.html
-        ├── render-codeblock-python.html
-        └── render-codeblock.html
+  └── _markup/
+      ├── render-codeblock-mermaid.html
+      ├── render-codeblock-python.html
+      └── render-codeblock.html
 ```
 
 For example, to create a code block render hook to render [Mermaid] diagrams:
 
-```go-html-template {file="layouts/_default/_markup/render-codeblock-mermaid.html" copy=true}
+```go-html-template {file="layouts/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
   {{ .Inner | htmlEscape | safeHTML }}
 </pre>
@@ -99,7 +98,7 @@ For example, to create a code block render hook to render [Mermaid] diagrams:
 
 Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
 
-```go-html-template {file="layouts/_default/baseof.html" copy=true}
+```go-html-template {file="layouts/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
@@ -118,10 +117,10 @@ Hugo includes an [embedded code block render hook] to render [GoAT diagrams].
 
 [`RenderShortcodes`]: /methods/page/rendershortcodes
 [Chroma]: https://github.com/alecthomas/chroma/
-[code fence]: https://spec.commonmark.org/0.31.2/#code-fence
+[code fence]: https://spec.commonmark.org/current/#code-fence
 [diagrams]: /content-management/diagrams/#mermaid-diagrams
 [embedded code block render hook]: {{% eturl render-codeblock-goat %}}
 [GoAT diagrams]: /content-management/diagrams/#goat-diagrams-ascii
 [highlighting options]: /functions/transform/highlight/#options
-[info string]: https://spec.commonmark.org/0.31.2/#info-string
+[info string]: https://spec.commonmark.org/current/#info-string
 [Mermaid]: https://mermaid.js.org/

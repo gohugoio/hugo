@@ -27,7 +27,7 @@ content/
     └── _index.md
 ```
 
-Each content adapter is named _content.gotmpl and uses the same [syntax] as templates in the `layouts` directory. You can use any of the [template functions] within a content adapter, as well as the methods described below.
+Each content adapter is named `_content.gotmpl` and uses the same [syntax] as templates in the `layouts` directory. You can use any of the [template functions] within a content adapter, as well as the methods described below.
 
 ## Methods
 
@@ -71,7 +71,7 @@ Adds a page resource to the site.
 
 Then retrieve the new page resource with something like:
 
-```go-html-template {file="layouts/_default/single.html"}
+```go-html-template {file="layouts/page.html"}
 {{ with .Resources.Get "cover.jpg" }}
   <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
 {{ end }}
@@ -90,7 +90,7 @@ Returns the `Site` to which the pages will be added.
 
 ### Store
 
-Returns a persistent “scratch pad” to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
+Returns a persistent "scratch pad" to store and manipulate data. The main use case for this is to transfer values between executions when [EnableAllLanguages](#enablealllanguages) is set. See [examples](/methods/page/store/).
 
 ```go-html-template {file="content/books/_content.gotmpl"}
 {{ .Store.Set "key" "value" }}
@@ -99,7 +99,7 @@ Returns a persistent “scratch pad” to store and manipulate data. The main us
 
 ### EnableAllLanguages
 
-By default, Hugo executes the content adapter for the language defined by the _content.gotmpl file. Use this method to activate the content adapter for all languages.
+By default, Hugo executes the content adapter for the language defined by the `_content.gotmpl` file. Use this method to activate the content adapter for all languages.
 
 ```go-html-template {file="content/books/_content.gotmpl"}
 {{ .EnableAllLanguages }}
@@ -153,7 +153,7 @@ Key|Description|Required
 `title`|The resource title.|&nbsp;
 
 > [!note]
-> If the `content.value` is a string Hugo creates a new resource. If the `content.value` is a resource, Hugo obtains the value from the existing resource.
+> When `content.value` is a string, Hugo generates a new resource with a publication path relative to the page. However, if `content.value` is already a resource, Hugo directly uses its value and publishes it relative to the site root. This latter method is more efficient.
 >
 > When setting the `path`, Hugo transforms the given string to a logical path. For example, setting `path` to `A B C/cover.jpg` produces a logical path of `/section/a-b-c/cover.jpg`.
 
@@ -237,9 +237,9 @@ Create the content adapter.
 
 ### Step 4
 
-Create a single template to render each book review.
+Create a page template to render each book review.
 
-```go-html-template {file="layouts/books/single.html" copy=true}
+```go-html-template {file="layouts/books/page.html" copy=true}
 {{ define "main" }}
   <h1>{{ .Title }}</h1>
 
@@ -338,7 +338,7 @@ content/
     └── the-hunchback-of-notre-dame.md
 ```
 
-If the content adapter also creates books/the-hunchback-of-notre-dame, the content of the published page is indeterminate. You can not define the processing order.
+If the content adapter also creates `books/the-hunchback-of-notre-dame`, the content of the published page is indeterminate. You can not define the processing order.
 
 To detect page collisions, use the `--printPathWarnings` flag when building your site.
 

@@ -24,5 +24,5 @@ Use the `PageGroups` method with any of the [grouping methods].
   {{ end }}
 {{ end }}
 
-{{ template "_internal/pagination.html" . }}
+{{ partial "pagination.html" . }}
 ```

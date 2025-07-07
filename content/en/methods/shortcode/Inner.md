@@ -19,7 +19,7 @@ We design the **best** widgets in the world.
 
 With this shortcode:
 
-```go-html-template {file="layouts/shortcodes/card.html"}
+```go-html-template {file="layouts/_shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -51,7 +51,7 @@ Is rendered to:
 
 Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`] method on the `Page` object:
 
-```go-html-template {file="layouts/shortcodes/card.html"}
+```go-html-template {file="layouts/_shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
     <div class="card-title">{{ . }}</div>
@@ -98,7 +98,7 @@ This configuration is not unsafe if _you_ control the content. Read more about H
 
 Second, because we are rendering the entire shortcode as Markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
 
-```go-html-template {file="layouts/shortcodes/card.html"}
+```go-html-template {file="layouts/_shortcodes/card.html"}
 <div class="card">
   {{ with .Get "title" }}
   <div class="card-title">{{ . }}</div>
@@ -113,8 +113,8 @@ Second, because we are rendering the entire shortcode as Markdown, we must adher
 The difference between this and the previous example is subtle but required. Note the change in indentation, the addition of a blank line, and removal of the `RenderString` method.
 
 ```diff
---- layouts/shortcodes/a.html
-+++ layouts/shortcodes/b.html
+--- layouts/_shortcodes/a.html
++++ layouts/_shortcodes/b.html
 @@ -1,8 +1,9 @@
  <div class="card">
    {{ with .Get "title" }}
@@ -137,7 +137,7 @@ The difference between this and the previous example is subtle but required. Not
 [`strings.TrimSpace`]: /functions/strings/trimspace/
 [CommonMark]: https://spec.commonmark.org/current/
 [details]: /methods/page/renderstring/
-[indentation]: https://spec.commonmark.org/0.30/#indented-code-blocks
+[indentation]: https://spec.commonmark.org/current/#indented-code-blocks
 [Markdown notation]: /content-management/shortcodes/#notation
-[raw HTML blocks]: https://spec.commonmark.org/0.31.2/#html-blocks
+[raw HTML blocks]: https://spec.commonmark.org/current/#html-blocks
 [security model]: /about/security/

@@ -84,7 +84,7 @@ disableKinds
 : (`[]string`) A slice of page [kinds](g) to disable during the build process, any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
 
 disableLanguages
-: (`[]string]`) A slice of language keys representing the languages to disable during the build process. Although this is functional, consider using the [`disabled`] key under each language instead.
+: (`[]string`) A slice of language keys representing the languages to disable during the build process. Although this is functional, consider using the [`disabled`] key under each language instead.
 
 disableLiveReload
 : (`bool`) Whether to disable automatic live reloading of the browser window. Default is `false`.
@@ -123,7 +123,7 @@ ignoreCache
 : (`bool`) Whether to ignore the cache directory. Default is `false`.
 
 ignoreFiles
-: (`[]string]`) A slice of [regular expressions](g) used to exclude specific files from a build. These expressions are matched against the absolute file path and apply to files within the `content`, `data`, and `i18n` directories. For more advanced file exclusion options, see the section on [module mounts].
+: (`[]string`) A slice of [regular expressions](g) used to exclude specific files from a build. These expressions are matched against the absolute file path and apply to files within the `content`, `data`, and `i18n` directories. For more advanced file exclusion options, see the section on [module mounts].
 
 ignoreLogs
 : (`[]string`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`] and [`warnidf`].
@@ -280,7 +280,7 @@ themesDir
 : (`string`) The designated directory for themes. Default is `themes`.
 
 timeout
-: (`string`) The timeout for generating page content, either as a [duration] or in seconds. This timeout is used to prevent infinite recursion during content generation. You may need to increase this value if your pages take a long time to generate, for example, due to extensive image processing or reliance on remote content. Default is `30s`.
+: (`string`) The timeout for generating page content, either as a [duration] or in seconds. This timeout is used to prevent infinite recursion during content generation. You may need to increase this value if your pages take a long time to generate, for example, due to extensive image processing or reliance on remote content. Default is `60s`.
 
 timeZone
 : (`string`) The time zone used to parse dates without time zone offsets, including front matter date fields and values passed to the [`time.AsTime`] and [`time.Format`] template functions. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone Database]. For example, `America/Los_Angeles` and `Europe/Oslo` are valid time zones.

@@ -22,12 +22,13 @@ Hugo will render the page using contact.html.
 
 ```text
 layouts/
-└── _default/
-    ├── baseof.html
-    ├── contact.html
-    ├── home.html
-    ├── list.html
-    └── single.html
+├── baseof.html
+├── contact.html
+├── home.html
+├── page.html
+├── section.html
+├── taxonomy.html
+└── term.html
 ```
 
 Although rarely used within a template, you can access the value with:

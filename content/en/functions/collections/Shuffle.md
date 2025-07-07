@@ -12,8 +12,18 @@ aliases: [/functions/shuffle]
 ---
 
 ```go-html-template
-{{ shuffle (seq 1 2 3) }} → [3 1 2] 
-{{ shuffle (slice "a" "b" "c") }} → [b a c] 
+{{ collections.Shuffle (slice "a" "b" "c") }} → [b a c] 
 ```
 
 The result will vary from one build to the next.
+
+To render an unordered list of 5 random pages from a page collection:
+
+```go-html-template
+<ul>
+  {{ $p := site.RegularPages }}
+  {{ range $p | collections.Shuffle | first 5 }}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+  {{ end }}
+</ul>
+```

@@ -66,20 +66,20 @@ vars
 ```go-html-template {copy=true}
 {{ with resources.Get "sass/main.scss" }}
   {{ $opts := dict
-    "enableSourceMap" (not hugo.IsProduction)
-    "outputStyle" (cond hugo.IsProduction "compressed" "expanded")
+    "enableSourceMap" hugo.IsDevelopment
+    "outputStyle" (cond hugo.IsDevelopment "expanded" "compressed")
     "targetPath" "css/main.css"
     "transpiler" "dartsass"
     "vars" site.Params.styles
     "includePaths" (slice "node_modules/bootstrap/scss")
   }}
   {{ with . | toCSS $opts }}
-    {{ if hugo.IsProduction }}
+    {{ if hugo.IsDevelopment }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ else }}
       {{ with . | fingerprint }}
         <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
       {{ end }}
-    {{ else }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
   {{ end }}
 {{ end }}
@@ -113,7 +113,7 @@ macOS|Homebrew|[brew.sh]|`brew install sass/sass/sass`
 Windows|Chocolatey|[chocolatey.org]|`choco install sass`
 Windows|Scoop|[scoop.sh]|`scoop install sass`
 
-You may also install [prebuilt binaries] for Linux, macOS, and Windows.
+You may also install [prebuilt binaries] for Linux, macOS, and Windows. You must install the prebuilt binary outside of your project directory and ensure its path is included in your system's PATH environment variable.
 
 Run `hugo env` to list the active transpilers.
 
@@ -141,8 +141,8 @@ To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file 
 
 ```yaml
 variables:
-  HUGO_VERSION: 0.144.2
-  DART_SASS_VERSION: 1.85.0
+  HUGO_VERSION: 0.147.9
+  DART_SASS_VERSION: 1.89.2
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
@@ -175,8 +175,8 @@ To install Dart Sass for your builds on Netlify, the `netlify.toml` file should 
 
 ```toml
 [build.environment]
-HUGO_VERSION = "0.144.2"
-DART_SASS_VERSION = "1.85.0"
+HUGO_VERSION = "0.147.9"
+DART_SASS_VERSION = "1.89.2"
 NODE_VERSION = "22"
 TZ = "America/Los_Angeles"
 

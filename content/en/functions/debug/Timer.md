@@ -18,7 +18,7 @@ The timer starts when you instantiate it, and stops when you call its `Stop` met
 
 ```go-html-template
 {{ $t := debug.Timer "TestSqrt" }}
-{{ range seq 2000 }}
+{{ range 2000 }}
   {{ $f := math.Sqrt . }}
 {{ end }}
 {{ $t.Stop }}
