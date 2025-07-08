@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DART_SASS_VERSION: 1.89.2
-      HUGO_VERSION: 0.147.9
+      HUGO_VERSION: 0.148.0
       HUGO_ENVIRONMENT: production
       TZ: America/Los_Angeles
     steps:

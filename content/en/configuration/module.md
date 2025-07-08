@@ -75,10 +75,10 @@ extended
 : (`bool`) Whether the extended edition of Hugo is required, satisfied by installing either the extended or extended/deploy edition.
 
 max
-: (`string`) The maximum Hugo version supported, for example `0.143.0`.
+: (`string`) The maximum Hugo version supported, for example `0.148.0`.
 
 min
-: (`string`) The minimum Hugo version supported, for example `0.123.0`.
+: (`string`) The minimum Hugo version supported, for example `0.102.0`.
 
 [`themesDir`]: /configuration/all/#themesdir
 
