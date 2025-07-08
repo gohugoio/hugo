@@ -60,7 +60,7 @@ Rendered:
 {{% include "_common/ref-and-relref-error-handling.md" %}}
 
 [content format]: /content-management/formats/
-[duplication of shared page resources]: http://localhost:1313/configuration/markup/#duplicateresourcefiles
+[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
 [embedded link render hook]: /render-hooks/links/#embedded
 [Markdown notation]: /content-management/shortcodes/#notation
 [source code]: {{% eturl relref %}}
