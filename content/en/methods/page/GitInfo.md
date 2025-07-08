@@ -5,7 +5,7 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    returnType: source.GitInfo
+    returnType: '*gitmap.GitInfo'
     signatures: [PAGE.GitInfo]
 ---
 
@@ -119,7 +119,9 @@ hugo --enableGitInfo
 
 ### Ancestors
 
-(`*source.GitInfo`) The file-filtered ancestor commits, if any.
+(`gitmap.GitInfos`) A slice of file-filtered ancestor commits, if any, ordered from most recent to least recent.
+
+For example, to list the last 5 commits:
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -129,9 +131,19 @@ hugo --enableGitInfo
 {{ end }}
 ```
 
+To reverse the order:
+
+```go-html-template
+{{ with .GitInfo }}
+  {{ range .Ancestors.Reverse | first 5 }} 
+    {{ .CommitDate.Format "2006-01-02" }}: {{ .Subject }}
+  {{ end }}
+{{ end }}
+```
+
 ### Parent
 
-(`*source.GitInfo`) The first file-filtered ancestor commit, if any.
+(`*gitmap.GitInfo`) The first file-filtered ancestor commit, if any.
 
 ## Last modified date
 

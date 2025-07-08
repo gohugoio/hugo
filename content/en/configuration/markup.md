@@ -156,11 +156,10 @@ renderHooks.image.useEmbedded
 : {{< new-in 0.148.0 />}}
 : (`string`) When to use the [embedded image render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
 
-  - `auto`: Automatically use the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites.
-  If a custom image render hook is defined by your project, modules, or themes, it will be utilized instead.
-  - `never`: Never use the embedded image render hook. If a custom image render hook is defined by your project, modules, or themes, it will be utilized instead.
-  - `always`: Always use the embedded image render hook, even if a custom image render hook is provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
-  - `fallback`: Use the embedded image render hook only if no custom image render hook is provided by your project, modules, or themes. If a custom hook exists, it will be used instead.
+  - `auto`: Automatically use the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `never`: Never use the embedded image render hook. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `always`: Always use the embedded image render hook, even if custom image render hooks are provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `fallback`: Use the embedded image render hook only if custom image render hooks are not provided by your project, modules, or themes. If custom image render hooks exist, these will be used instead.
 
 <!-- TODO: delete this on or after July 1, 2027. -->
 renderHooks.link.enableDefault
@@ -171,11 +170,10 @@ renderHooks.link.useEmbedded
 : {{< new-in 0.148.0 />}}
 : (`string`) When to use the [embedded link render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
 
-  - `auto`: Automatically use the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites.
-  If a custom link render hook is defined by your project, modules, or themes, it will be utilized instead.
-  - `never`: Never use the embedded link render hook. If a custom link render hook is defined by your project, modules, or themes, it will be utilized instead.
-  - `always`: Always use the embedded link render hook, even if a custom link render hook is provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
-  - `fallback`: Use the embedded link render hook only if no custom link render hook is provided by your project, modules, or themes. If a custom hook exists, it will be used instead.
+  - `auto`: Automatically use the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `never`: Never use the embedded link render hook. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `always`: Always use the embedded link render hook, even if custom link render hooks are provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `fallback`: Use the embedded link render hook only if custom link render hooks are not provided by your project, modules, or themes. If custom link render hooks exist, these will be used instead.
 
 renderer.hardWraps
 : (`bool`) Whether to replace newline characters within a paragraph with `br` elements. Default is `false`.

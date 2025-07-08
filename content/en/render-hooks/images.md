@@ -101,10 +101,16 @@ wrapStandAloneImageWithinParagraph = false
 
 {{< new-in 0.123.0 />}}
 
-Hugo includes an [embedded image render hook] to resolve Markdown image destinations.
+Hugo includes an [embedded image render hook] to resolve Markdown image destinations. You can adjust its behavior in your site configuration. This is the default setting:
 
-> [!important]
-> In its default configuration, Hugo automatically uses the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. The default behavior will not override any custom image render hooks that are provided by your project, modules, or themes. You can change this behavior in your site configuration. See&nbsp;[details](/configuration/markup/#renderhooksimageuseembedded).
+{{< code-toggle file=hugo >}}
+[markup.goldmark.renderHooks.image]
+useEmbedded = 'auto'
+{{< /code-toggle >}}
+
+When set to `auto` as shown above, Hugo automatically uses the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
+
+You can also configure Hugo to `always` use the embedded image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhooksimageuseembedded).
 
 The embedded image render hook resolves internal Markdown destinations by looking for a matching [page resource](g), falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 

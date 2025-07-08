@@ -274,9 +274,9 @@ This approach reduces build times, storage requirements, bandwidth consumption, 
 > [!important]
 > To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
 >
-> In its default configuration, Hugo automatically uses the [embedded link render hook] and the [embedded image render hook] for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites.
+> In its default configuration, Hugo automatically uses the [embedded link render hook] and the [embedded image render hook] for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link or image render hooks are defined by your project, modules, or themes, these will be used instead.
 >
-> The embedded render hooks will not override any custom link or image render hooks that are provided by your project, modules, or themes. You can change this behavior in your site configuration by setting and [`markup.goldmark.renderHooks.link.useEmbedded`] and [`markup.goldmark.renderHooks.image.useEmbedded`] .
+> You can also configure Hugo to `always` use the embedded link or image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 
 Although duplicating shared page resources is inefficient, you can enable this feature in your site configuration if desired:
 

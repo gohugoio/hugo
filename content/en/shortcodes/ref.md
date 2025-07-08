@@ -12,7 +12,9 @@ keywords: []
 > [!note]
 > When working with Markdown this shortcode is obsolete. Instead, to properly resolve Markdown link destinations, use the [embedded link render hook] or create your own.
 >
-> In its default configuration, Hugo automatically uses the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. The default behavior will not override any custom link render hooks that are provided by your project, modules, or themes. You can change this behavior in your site configuration. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
+> In its default configuration, Hugo automatically uses the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+>
+> You can also configure Hugo to `always` use the embedded link render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 
 ## Usage
 
