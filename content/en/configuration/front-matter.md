@@ -74,7 +74,6 @@ Hugo provides the following [tokens](g) to help you configure your front matter:
   - `YYYY-MM-DD`
   - `YYYY-MM-DD-HH-MM-SS` {{< new-in 0.148.0 />}}
 
-
   Within the `YYYY-MM-DD-HH-MM-SS` format, the date and time values may be separated by any character including a space (e.g., `2025-02-01T14-30-00`).
 
   Hugo resolves the extracted date to the [`timeZone`] defined in your site configuration, falling back to the system time zone. After extracting the date, Hugo uses the remaining part of the file name to generate the page's [`slug`], but only if you haven't already specified a slug in the page's front matter.
