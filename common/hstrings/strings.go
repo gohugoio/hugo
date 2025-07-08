@@ -19,6 +19,8 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/compare"
 )
@@ -126,6 +128,45 @@ func ToString(v any) (string, bool) {
 		return vv.String(), true
 	}
 	return "", false
+}
+
+// CountWords returns the approximate word count in s, split by CJK and non-CJK
+// CJK words are counted as number of characters
+func CountWords(s string) (int, int) {
+	nCJK := 0
+	nNonCJK := 0
+	if hasCJK(s) {
+		for _, word := range strings.Fields(s) {
+			firstCharacter, _ := utf8.DecodeRuneInString(word)
+			if unicode.In(firstCharacter, unicode.Han, unicode.Hangul, unicode.Hiragana, unicode.Katakana) {
+				nCJK += utf8.RuneCountInString(word)
+			} else {
+				nNonCJK++
+			}
+		}
+	} else {
+		inWord := false
+		for _, r := range s {
+			wasInWord := inWord
+			inWord = !unicode.IsSpace(r)
+			if inWord && !wasInWord {
+				nNonCJK++
+			}
+		}
+	}
+
+	return nNonCJK, nCJK
+}
+
+// hasCJK reports whether the string s contains one or more Chinese, Japanese,
+// or Korean (CJK) characters.
+func hasCJK(s string) bool {
+	for _, r := range s {
+		if unicode.In(r, unicode.Han, unicode.Hangul, unicode.Hiragana, unicode.Katakana) {
+			return true
+		}
+	}
+	return false
 }
 
 type (
