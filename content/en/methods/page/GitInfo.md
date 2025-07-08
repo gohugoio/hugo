@@ -16,7 +16,7 @@ The `GitInfo` method on a `Page` object returns an object with additional method
 
 ## Prerequisites
 
-Install [Git], create a repository, and commit your project files.
+Install Git, create a repository, and commit your project files.
 
 You must also allow Hugo to access your repository. In your site configuration:
 
