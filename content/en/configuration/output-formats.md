@@ -56,7 +56,7 @@ noUgly
 : (`bool`) Whether to disable ugly URLs for this output format when [`uglyURLs`] are enabled in your site configuration. Default is `false`.
 
 path
-: (`string`) The published file's directory path, relative to the root of the publish directory. If not specified, the file will be published using its content path.
+: (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your [`publishDir`]. If omitted, Hugo will use the file's original content path for publishing.
 
 permalinkable
 : (`bool`) Whether to return the rendering output format rather than main output format when invoking the [`Permalink`] and [`RelPermalink`] methods on a `Page` object. See&nbsp;[details](#link-to-output-formats). Enabled by default for the `html` and `amp` output formats. Default is `false`.
@@ -193,11 +193,12 @@ Output format|Template path
 `rss`|`layouts/section.rss.xml`
 
 [`AlternativeOutputFormats`]: /methods/page/alternativeoutputformats/
+[`baseURL`]: /configuration/all/#baseurl
 [`OutputFormats`]: /methods/page/outputformats/
 [`Permalink`]: /methods/page/permalink/
-[`RelPermalink`]: /methods/page/relpermalink/
-[`baseURL`]: /configuration/all/#baseurl
 [`permalinkable`]: #permalinkable
+[`publishDir`]: /configuration/all/#publishdir
+[`RelPermalink`]: /methods/page/relpermalink/
 [`uglyURLs`]: /configuration/ugly-urls/
 [configure media types]: /configuration/media-types/
 [configure outputs]: /configuration/outputs/

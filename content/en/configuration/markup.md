@@ -133,13 +133,13 @@ parser.autoHeadingID
 : (`bool`) Whether to automatically add `id` attributes to headings (i.e., `h1`, `h2`, `h3`, `h4`, `h5`, and `h6` elements).
 
 parser.autoIDType
-: (`string`) The strategy used to automatically generate `id` attributes, one of `github`, `github-ascii` or `blackfriday`.
+: (`string`) The strategy used to automatically generate `id` attributes, one of `github`, `github-ascii` or `blackfriday`. Default is `github`.
 
-  - `github` produces GitHub-compatible `id` attributes
-  - `github-ascii` drops any non-ASCII characters after accent normalization
-  - `blackfriday` produces `id` attributes compatible with the Blackfriday Markdown renderer
+  - `github`: Generate GitHub-compatible `id` attributes
+  - `github-ascii`: Drop any non-ASCII characters after accent normalization
+  - `blackfriday`: Generate `id` attributes compatible with the Blackfriday Markdown renderer
 
-  This is also the strategy used by the [anchorize](/functions/urls/anchorize) template function. Default is `github`.
+  This is also the strategy used by the [anchorize](/functions/urls/anchorize) template function.
 
 parser.attribute.block
 : (`bool`) Whether to enable [Markdown attributes] for block elements. Default is `false`.
@@ -147,19 +147,35 @@ parser.attribute.block
 parser.attribute.title
 : (`bool`) Whether to enable [Markdown attributes] for headings. Default is `true`.
 
+<!-- TODO: delete this on or after July 1, 2027. -->
 renderHooks.image.enableDefault
 : {{< new-in 0.123.0 />}}
-: (`bool`) Whether to enable the [embedded image render hook]. Default is `false`.
+: Deprecated in v0.148.0. Use `renderHooks.image.useEmbedded` instead.
 
-  > [!note]
-  > The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+renderHooks.image.useEmbedded
+: {{< new-in 0.148.0 />}}
+: (`string`) When to use the [embedded image render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
 
+  - `auto`: Automatically use the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites.
+  If a custom image render hook is defined by your project, modules, or themes, it will be utilized instead.
+  - `never`: Never use the embedded image render hook. If a custom image render hook is defined by your project, modules, or themes, it will be utilized instead.
+  - `always`: Always use the embedded image render hook, even if a custom image render hook is provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `fallback`: Use the embedded image render hook only if no custom image render hook is provided by your project, modules, or themes. If a custom hook exists, it will be used instead.
+
+<!-- TODO: delete this on or after July 1, 2027. -->
 renderHooks.link.enableDefault
 : {{< new-in 0.123.0 />}}
-: (`bool`) Whether to enable the [embedded link render hook]. Default is `false`.
+: Deprecated in v0.148.0. Use `renderHooks.link.useEmbedded` instead.
 
-  > [!note]
-  > The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+renderHooks.link.useEmbedded
+: {{< new-in 0.148.0 />}}
+: (`string`) When to use the [embedded link render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
+
+  - `auto`: Automatically use the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites.
+  If a custom link render hook is defined by your project, modules, or themes, it will be utilized instead.
+  - `never`: Never use the embedded link render hook. If a custom link render hook is defined by your project, modules, or themes, it will be utilized instead.
+  - `always`: Always use the embedded link render hook, even if a custom link render hook is provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `fallback`: Use the embedded link render hook only if no custom link render hook is provided by your project, modules, or themes. If a custom hook exists, it will be used instead.
 
 renderer.hardWraps
 : (`bool`) Whether to replace newline characters within a paragraph with `br` elements. Default is `false`.
@@ -301,26 +317,26 @@ endLevel
 ordered
 : (`bool`) Whether to generates an ordered list instead of an unordered list. Default is `false`.
 
+
 [`Fragments.Identifiers`]: /methods/page/fragments/#identifiers
 [`TableOfContents`]: /methods/page/tableofcontents/
+[AsciiDoc]: https://asciidoc.org/
 [asciidoctor-diagram]: https://asciidoctor.org/docs/asciidoctor-diagram/
 [attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions
 [CommonMark]: https://spec.commonmark.org/current/
 [deleted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-[embedded image render hook]: /render-hooks/images/#default
-[embedded image render hook]: /render-hooks/images/#default
-[embedded link render hook]: /render-hooks/links/#default
-[embedded link render hook]: /render-hooks/links/#default
-[GitHub Flavored Markdown]: https://github.github.com/gfm/
+[Emacs Org Mode]: https://orgmode.org/
+[embedded image render hook]: /render-hooks/images/#embedded
+[embedded link render hook]: /render-hooks/links/#embedded
 [GitHub Flavored Markdown: Autolinks]: https://github.github.com/gfm/#autolinks-extension-
 [GitHub Flavored Markdown: Strikethrough]: https://github.github.com/gfm/#strikethrough-extension-
 [GitHub Flavored Markdown: Tables]: https://github.github.com/gfm/#tables-extension-
 [GitHub Flavored Markdown: Task list items]: https://github.github.com/gfm/#task-list-items-extension-
-[Goldmark]: https://github.com/yuin/goldmark/
+[GitHub Flavored Markdown]: https://github.github.com/gfm/
 [Goldmark Extensions: CJK]: https://github.com/yuin/goldmark?tab=readme-ov-file#cjk-extension
 [Goldmark Extensions: Typographer]: https://github.com/yuin/goldmark?tab=readme-ov-file#typographer-extension
+[Goldmark]: https://github.com/yuin/goldmark/
 [Hugo Goldmark Extensions: Extras]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#extras-extension
 [Hugo Goldmark Extensions: Passthrough]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#passthrough-extension
 [image render hook]: /render-hooks/images/
@@ -330,12 +346,10 @@ ordered
 [Markdown attributes]: /content-management/markdown-attributes/
 [mathematics in Markdown]: content-management/mathematics/
 [multilingual page resources]: /content-management/page-resources/#multilingual
+[Pandoc]: https://pandoc.org/
 [PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
 [PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
+[reStructuredText]: https://docutils.sourceforge.io/rst.html
 [security policy]: /configuration/security/
 [subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
 [superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
-[AsciiDoc]: https://asciidoc.org/
-[Emacs Org Mode]: https://orgmode.org/
-[Pandoc]: https://pandoc.org/
-[reStructuredText]: https://docutils.sourceforge.io/rst.html
