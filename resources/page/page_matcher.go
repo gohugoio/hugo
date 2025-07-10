@@ -177,6 +177,9 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 	if pcfg.Fields == nil {
 		pcfg.Fields = make(maps.Params)
 	}
+	if pcfg.Params == nil {
+		pcfg.Params = make(maps.Params)
+	}
 	for k, v := range m {
 		switch strings.ToLower(k) {
 		case "_target", "target":
@@ -186,9 +189,6 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 			}
 			pcfg.Target = target
 		case "params":
-			if pcfg.Params == nil {
-				pcfg.Params = make(maps.Params)
-			}
 			params := maps.ToStringMap(v)
 			for k, v := range params {
 				if _, found := pcfg.Params[k]; !found {
@@ -196,7 +196,6 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 				}
 			}
 		default:
-
 			pcfg.Fields[k] = v
 		}
 	}
