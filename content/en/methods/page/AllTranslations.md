@@ -1,6 +1,6 @@
 ---
 title: AllTranslations
-description: Returns all translations of the given page, including the current language.
+description: Returns all translations of the given page, including the current language, sorted by language weight.
 categories: []
 keywords: []
 params:
