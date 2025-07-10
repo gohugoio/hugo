@@ -965,3 +965,27 @@ All.
 
 	b.AssertLogContains("! WARN")
 }
+
+func TestCascadeNilMapIssue13853(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/test/_index.md --
+---
+title: Test
+cascade:
+- build:
+    list: local
+  target:
+    path: '{/test/**}'
+- params:
+    title: 'Test page'
+  target:
+    path: '{/test/**}'
+---
+`
+
+	// Just verify that it does not panic.
+	_ = Test(t, files)
+}

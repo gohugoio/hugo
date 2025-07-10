@@ -89,6 +89,7 @@ func TestPageMatcher(t *testing.T) {
 			return v
 		}
 		c.Assert(fn(map[string]any{"_target": map[string]any{"kind": "page"}, "foo": "bar"}), qt.DeepEquals, PageMatcherParamsConfig{
+			Params: maps.Params{},
 			Fields: maps.Params{
 				"foo": "bar",
 			},
