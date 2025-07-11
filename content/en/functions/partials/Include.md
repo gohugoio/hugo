@@ -1,6 +1,6 @@
 ---
 title: partials.Include
-description: Executes the given partial template, optionally passing context. If the partial template contains a return statement, returns the given value, else returns the rendered output.
+description: Executes the given , optionally passing context. If the  contains a return statement, returns the given value, else returns the rendered output.
 categories: []
 keywords: []
 params:
@@ -15,7 +15,7 @@ Without a [`return`] statement, the `partial` function returns a string of type 
 
 [`return`]: /functions/go-template/return/
 
-In this example we have three partial templates:
+In this example we have three _partial_ templates:
 
 ```text
 layouts/
@@ -56,7 +56,7 @@ You can pass anything in context: a page, a page collection, a scalar value, a s
 {{ partial "render-student-info.html" $ctx }}
 ```
 
-Then, within the partial template:
+Then, within the _partial_ template:
 
 ```go-html-template
 <p>{{ .name }} is majoring in {{ .major }}.</p>
@@ -64,7 +64,7 @@ Then, within the partial template:
 <p>See <a href="{{ .page.RelPermalink }}">details.</a></p>
 ```
 
-To return a value from a partial template, it must contain only one `return` statement, placed at the end of the template:
+To return a value from a _partial_ template, it must contain only one `return` statement, placed at the end of the template:
 
 ```go-html-template
 {{ $result := "" }}

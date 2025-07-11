@@ -20,7 +20,7 @@ Use the `template` function to execute a defined template:
 {{ end }}
 ```
 
-The example above can be rewritten using an inline partial template:
+The example above can be rewritten using an inline _partial_ template:
 
 ```go-html-template
 {{ partial "inline/foo.html" (dict "answer" 42) }}

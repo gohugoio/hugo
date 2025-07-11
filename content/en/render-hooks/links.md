@@ -20,7 +20,7 @@ These components are passed into the render hook [context](g) as shown below.
 
 ## Context
 
-Link render hook templates receive the following context:
+Link _render hook_ templates receive the following context:
 
 Destination
 : (`string`) The link destination.

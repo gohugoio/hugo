@@ -95,7 +95,7 @@ weight = 1
 
 We've configured the `authors` index with a weight of `2` and the `genres` index with a weight of `1`. This means Hugo prioritizes shared `authors` as twice as significant as shared `genres`.
 
-Then render a list of 5 related reviews with a partial template like this:
+Then render a list of 5 related reviews with a _partial_ template like this:
 
 ```go-html-template {file="layouts/_partials/related.html" copy=true}
 {{ with site.RegularPages.Related . | first 5 }}

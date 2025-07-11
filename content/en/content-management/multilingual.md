@@ -127,7 +127,7 @@ To create a list of links to translated content, use a template similar to the f
 {{ end }}
 ```
 
-The above can be put in a partial template then included in any template. It will not print anything if there are no translations for a given page.
+The above can be put in a _partial_ template then included in any template. It will not print anything if there are no translations for a given page.
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 

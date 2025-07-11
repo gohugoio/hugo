@@ -139,7 +139,7 @@ title = "John Smith"
 affiliation = "University of Chicago"
 {{< /code-toggle >}}
 
-Then create a taxonomy template specific to the "authors" taxonomy:
+Then create a _taxonomy_ template specific to the "authors" taxonomy:
 
 ```go-html-template {file="layouts/authors/taxonomy.html"}
 {{ define "main" }}
@@ -159,7 +159,7 @@ Then create a taxonomy template specific to the "authors" taxonomy:
 
 In the example above we list each author including their affiliation and portrait.
 
-Or create a term template specific to the "authors" taxonomy:
+Or create a _term_ template specific to the "authors" taxonomy:
 
 ```go-html-template {file="layouts/authors/term.html"}
 {{ define "main" }}

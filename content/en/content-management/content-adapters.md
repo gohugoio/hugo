@@ -237,7 +237,7 @@ Create the content adapter.
 
 ### Step 4
 
-Create a page template to render each book review.
+Create a _page_ template to render each book review.
 
 ```go-html-template {file="layouts/books/page.html" copy=true}
 {{ define "main" }}

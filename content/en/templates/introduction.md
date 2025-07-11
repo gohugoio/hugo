@@ -35,7 +35,7 @@ While HTML templates are the most common, you can create templates for any [outp
 
 The most important concept to understand before creating a template is _context_, the data passed into each template. The data may be a simple value, or more commonly [objects](g) and associated [methods](g).
 
-For example, a template for a single page receives a `Page` object, and the `Page` object provides methods to return values or perform actions.
+For example, a _page_ template receives a `Page` object, and the `Page` object provides methods to return values or perform actions.
 
 ### Current context
 
@@ -343,7 +343,7 @@ Use the [`partial`] or [`partialCached`] function to include one or more [partia
 {{ partialCached "css.html" . }}
 ```
 
-Create your partial templates in the layouts/_partials directory.
+Create your _partial_ templates in the `layouts/_partials` directory.
 
 > [!note]
 > In the examples above, note that we are passing the current context (the dot) to each of the templates.

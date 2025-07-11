@@ -70,6 +70,22 @@ Link to the [glossary] as needed and use terms consistently. Pay particular atte
 - "Markdown" (capitalized)
 - "open-source" (hyphenated adjective)
 
+### Template types
+
+When you refer to a template type, italicize it:
+
+```text
+When creating a _taxonomy_ template, do this...
+```
+
+However, if the template type is also a link, do not italicize it to avoid distracting formatting:
+
+```text
+When creating a [taxonomy] template, do this...
+```
+
+Do not italicize the template type in a title, heading, or front matter description.
+
 ### Titles and headings
 
 - Use sentence-style capitalization.

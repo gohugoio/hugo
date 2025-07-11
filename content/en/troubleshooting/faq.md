@@ -48,7 +48,7 @@ Why can't I see any of a page's descendants?
 What is the difference between an&nbsp;`index.md`&nbsp;file and an&nbsp;`_index.md`&nbsp;file?
 : A directory with an `index.md file` is a [leaf bundle](g). A directory with an&nbsp;`_index.md`&nbsp;file is a [branch bundle](g). See&nbsp;[details](/content-management/page-bundles/).
 
-Why is my partial template not rendered as expected?
+Why is my _partial_ template not rendered as expected?
 : You may have neglected to pass the required [context](g) when calling the partial. For example:
 
   ```go-html-template
@@ -66,7 +66,7 @@ When I paginate a list page, why is the page collection not filtered as specifie
 : You are probably invoking the [`Paginate`] or [`Paginator`] method more than once on the same page. See&nbsp;[details](/templates/pagination/).
 
 Why are there two ways to call a shortcode?
-: Use the `{{%/* shortcode */%}}` notation if the shortcode template, or the content between the opening and closing shortcode tags, contains Markdown. Otherwise use the\
+: Use the `{{%/* shortcode */%}}` notation if the _shortcode_ template, or the content between the opening and closing shortcode tags, contains Markdown. Otherwise use the\
 `{{</* shortcode */>}}` notation. See&nbsp;[details](/content-management/shortcodes/#notation).
 
 Can I use environment variables to control configuration?
@@ -85,7 +85,7 @@ Why isn't Hugo's development server detecting file changes?
   In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds, use `--poll 700ms`.
 
 Why is my page Store missing a value?
-: The [`Store`] method on a `Page` object allows you to create a [scratch pad](g) on the given page to store and manipulate data. Values are often set within a shortcode, a partial template called by a shortcode, or by a Markdown render hook. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
+: The [`Store`] method on a `Page` object allows you to create a [scratch pad](g) on the given page to store and manipulate data. Values are often set within a _shortcode_ template, a _partial_ template called by a _shortcode_ template, or by a _render hook_ template. In all three cases, the scratch pad values are not determinate until Hugo renders the page content.
 
   If you need to access a scratch pad value from a parent template, and the parent template has not yet rendered the page content, you can trigger content rendering by assigning the returned value to a [noop](g) variable:
 

@@ -45,9 +45,9 @@ Template:
 
 When creating a theme, instead of hardcoding section names when listing the most relevant pages on the front page, instruct site authors to set `mainSections` in their site configuration.
 
-Then your home template can do something like this:
+Then your _home_ template can do something like this:
 
-```go-html-template
+```go-html-template {file="layouts/home.html"}
 {{ range where .Site.RegularPages "Section" "in" .Site.MainSections }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}

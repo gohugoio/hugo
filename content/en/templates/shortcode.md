@@ -27,7 +27,7 @@ Hugo provides [embedded shortcodes] for many common tasks, but you'll likely nee
 
 ## Directory structure
 
-Create shortcode templates within the `layouts/_shortcodes` directory, either at its root or organized into subdirectories.
+Create _shortcode_ templates within the `layouts/_shortcodes` directory, either at its root or organized into subdirectories.
 
 ```text
 layouts/
@@ -53,7 +53,7 @@ When calling a shortcode in a subdirectory, specify its path relative to the `_s
 
 ## Lookup order
 
-Hugo selects shortcode templates based on the shortcode name, the current output format, and the current language. The examples below are sorted by specificity in descending order. The least specific path is at the bottom of the list.
+Hugo selects _shortcode_ templates based on the shortcode name, the current output format, and the current language. The examples below are sorted by specificity in descending order. The least specific path is at the bottom of the list.
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
@@ -71,7 +71,7 @@ foo|json|en|`layouts/_shortcodes/foo.json.en.json`
 
 ## Methods
 
-Use these methods in your shortcode templates. Refer to each methods's documentation for details and examples.
+Use these methods in your _shortcode_ templates. Refer to each methods's documentation for details and examples.
 
 {{% list-pages-in-section path=/methods/shortcode %}}
 

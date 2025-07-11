@@ -1,7 +1,7 @@
 ---
 title: Code block render hooks
 linkTitle: Code blocks
-description: Create a code block render hook to override the rendering of Markdown code blocks to HTML.
+description: Create code block render hook templates to override the rendering of Markdown code blocks to HTML.
 categories: []
 keywords: []
 ---
@@ -41,7 +41,7 @@ In the example above, the _highlighting options_ are `lineNos` and `tabWidth`. H
 
 ## Context
 
-Code block render hook templates receive the following [context](g):
+Code block _render hook_ templates receive the following [context](g):
 
 Attributes
 : (`map`) The generic attributes from the info string.

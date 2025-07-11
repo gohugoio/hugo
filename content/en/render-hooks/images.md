@@ -1,7 +1,7 @@
 ---
 title: Image render hooks
 linkTitle: Images
-description: Create an image render to hook override the rendering of Markdown images to HTML.
+description: Create image render hook templates to override the rendering of Markdown images to HTML.
 categories: []
 keywords: []
 ---
@@ -20,7 +20,7 @@ These components are passed into the render hook [context](g) as shown below.
 
 ## Context
 
-Image render hook templates receive the following context:
+Image _render hook_ templates receive the following context:
 
 Attributes
 : (`map`) The [Markdown attributes], available if you configure your site as follows:

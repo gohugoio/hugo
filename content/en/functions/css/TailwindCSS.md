@@ -75,7 +75,7 @@ Tailwind CSS respects `.gitignore` files. This means that if `hugo_stats.json` i
 
 ### Step 4
 
-Create a partial template to process the CSS with the Tailwind CSS CLI:
+Create a _partial_ template to process the CSS with the Tailwind CSS CLI:
 
 ```go-html-template {file="layouts/_partials/css.html" copy=true}
 {{ with resources.Get "css/main.css" }}
@@ -94,7 +94,7 @@ Create a partial template to process the CSS with the Tailwind CSS CLI:
 
 ### Step 5
 
-Call the partial template from your base template, deferring template execution until after all sites and output formats have been rendered:
+Call the _partial_ template from your base template, deferring template execution until after all sites and output formats have been rendered:
 
 ```go-html-template {file="layouts/baseof.html" copy=true}
 <head>

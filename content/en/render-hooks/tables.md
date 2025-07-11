@@ -1,7 +1,7 @@
 ---
 title: Table render hooks
 linkTitle: Tables
-description: Create a table render hook to override the rendering of Markdown tables to HTML.
+description: Create table render hook templates to override the rendering of Markdown tables to HTML.
 categories: []
 keywords: []
 ---
@@ -10,7 +10,7 @@ keywords: []
 
 ## Context
 
-Table render hook templates receive the following [context](g):
+Table _render hook_ templates receive the following [context](g):
 
 Attributes
 : (`map`) The [Markdown attributes], available if you configure your site as follows:

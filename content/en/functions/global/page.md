@@ -53,9 +53,9 @@ content/
 └── _index.md      <-- title is "My Home Page"
 ```
 
-And this code in the home template:
+And this code in the _home_ template:
 
-```go-html-template
+```go-html-template {file="layouts/home.html"}
 {{ range site.Sections }}
   {{ range .Pages }}
     {{ page.Title }}
@@ -71,7 +71,7 @@ My Home Page
 My Home Page
 ```
 
-In the example above, the global `page` function accesses the `Page` object passed into the home template; it does not access the `Page` object of the iterated pages.
+In the example above, the global `page` function accesses the `Page` object passed into the _home_ template; it does not access the `Page` object of the iterated pages.
 
 ### Be aware of caching
 
@@ -83,9 +83,9 @@ Do not use the global `page` function in:
 
 Hugo caches rendered shortcodes. If you use the global `page` function within a shortcode, and the page content is rendered in two or more templates, the cached shortcode may be incorrect.
 
-Consider this section template:
+Consider this _section_ template:
 
-```go-html-template
+```go-html-template {file="layouts/section.html"}
 {{ range .Pages }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ .Summary }}

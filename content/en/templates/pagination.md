@@ -172,9 +172,9 @@ And this site configuration:
   path = 'page'
 {{< /code-toggle >}}
 
-And this section template:
+And this _section_ template:
 
-```go-html-template
+```go-html-template {file="layouts/section.html"}
 {{ range (.Paginate .Pages).Pages }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
