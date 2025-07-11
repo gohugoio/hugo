@@ -26,9 +26,12 @@ import (
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
 )
+
+var _ sitematrix.DimensionInfo = (*Language)(nil)
 
 type Language struct {
 	// The language code, e.g. "en" or "no".
@@ -59,6 +62,10 @@ type Language struct {
 // Name is an alias for Lang.
 func (l *Language) Name() string {
 	return l.Lang
+}
+
+func (l *Language) IsDefault() bool {
+	return l.isDefault
 }
 
 // TODO1 add Site.

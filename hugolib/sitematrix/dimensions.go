@@ -204,3 +204,12 @@ func ParseDimension(s string) (Dimension, error) {
 		return 0, fmt.Errorf("unknown dimension flag: %s", s)
 	}
 }
+
+// Connon information provided by all of labguage, version and role.
+type DimensionInfo interface {
+	// The name. This corresponds to the key in the config, e.g. "en", "v1.2.3", "guest".
+	Name() string
+
+	// Whether this is the default value for this dimension.
+	IsDefault() bool
+}

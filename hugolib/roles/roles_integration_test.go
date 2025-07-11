@@ -424,6 +424,9 @@ tags: ["tag2"]
 -- layouts/all.html --
 title: {{ .Title }}|
 tags: {{ range $term, $taxonomy := .Site.Taxonomies.tags }}{{ $term }}: {{ range $taxonomy.Pages }}{{ .Title }}: {{ .RelPermalink}}|{{ end }}{{ end }}$
+.Language.IsDefault: {{ with .Rotate "language" }}{{ range . }}{{ .RelPermalink }}: {{ with .Site.Language }}{{ .Name}}: {{ .IsDefault }}|{{ end }}{{ end }}{{ end }}$
+.Version.IsDefault: {{ with .Rotate "version" }}{{ range . }}{{ .RelPermalink }}: {{ with .Site.Version }}{{ .Name}}: {{ .IsDefault }}|{{ end }}{{ end }}{{ end }}$
+.Role.IsDefault: {{ with .Rotate "role" }}{{ range . }}{{ .RelPermalink }}: {{ with .Site.Role }}{{ .Name}}: {{ .IsDefault }}|{{ end }}{{ end }}{{ end }}$
 `
 
 func TestFrontMatterSites(t *testing.T) {
@@ -470,4 +473,15 @@ sites:
 	b = hugolib.Test(t, files)
 	// All things equal, the front matter wins.
 	b.AssertFileContent("public/guest/v1.2.3/en/p2/index.html", "title: EN p2|")
+}
+
+func TestLanguageVersionRoleIsDefault(t *testing.T) {
+	files := filesVariationsSiteMatrix
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/guest/v2.0.0/en/index.html",
+		".Language.IsDefault: /guest/v2.0.0/en/: en: true|/guest/v2.0.0/nn/: nn: false|$",
+		".Version.IsDefault: /guest/v2.0.0/en/: v2.0.0: true|/guest/v1.2.3/en/: v1.2.3: false|$",
+		".Role.IsDefault: /member/v2.0.0/en/: member: false|/guest/v2.0.0/en/: guest: true|$",
+	)
 }

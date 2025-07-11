@@ -23,8 +23,11 @@ import (
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/mitchellh/mapstructure"
 )
+
+var _ sitematrix.DimensionInfo = (*VersionSite)(nil)
 
 type VersionConfig struct {
 	// The weight of the version.
@@ -40,7 +43,7 @@ type Site interface {
 }
 type Version interface {
 	Name() string
-	Site() Site
+	Site() Site // TODO1 keep? Maybe move to sitematrix.DimensionInfo?
 }
 
 type Versions []Version
@@ -52,6 +55,10 @@ type VersionSite struct {
 
 func (v VersionSite) Name() string {
 	return v.v.Name
+}
+
+func (v VersionSite) IsDefault() bool {
+	return v.v.Default
 }
 
 func (v VersionSite) Site() Site {

@@ -22,8 +22,11 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/mitchellh/mapstructure"
 )
+
+var _ sitematrix.DimensionInfo = (*RoleSite)(nil)
 
 type RoleConfig struct {
 	// The weight of the role.
@@ -57,6 +60,10 @@ type RoleSite struct {
 
 func (r RoleSite) Name() string {
 	return r.r.Name
+}
+
+func (r RoleSite) IsDefault() bool {
+	return r.r.Default
 }
 
 func (r RoleSite) Site() Site {
