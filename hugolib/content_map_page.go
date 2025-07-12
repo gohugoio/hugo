@@ -1138,16 +1138,25 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		is[newp.s.dims] = new
 		return is, old, false
 	case contentNodeIs:
-		newp, ok := new.(*pageState)
-		if !ok {
-			panic(fmt.Sprintf("unknown type %T", new))
+		switch new := new.(type) {
+		case *pageState:
+			oldp := vv[new.s.dims]
+			if oldp != new {
+				resource.MarkStale(oldp)
+			}
+			vv[new.s.dims] = new
+			return vv, oldp, oldp != nil
+		case *pageMetaSource:
+			s := make(pageMetaSourcesSlice, 0, len(vv)+1)
+			for _, v := range vv {
+				s = append(s, v)
+			}
+			s = append(s, new)
+			return s, vv, false
+		default:
+			panic(fmt.Sprintf("Insert: unknown type %T", new))
 		}
-		oldp := vv[newp.s.dims]
-		if oldp != newp {
-			resource.MarkStale(oldp)
-		}
-		vv[newp.s.dims] = new
-		return vv, oldp, oldp != nil
+
 	case contentNodeIs2:
 		panic("not supported") // TODO1 remove this type.
 		newp, ok := new.(*pageState)

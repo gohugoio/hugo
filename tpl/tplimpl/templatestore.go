@@ -1954,8 +1954,10 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 
 	if w.isEqualWeights(best.w) {
 		// Tie breakers.
-		if ti.D.Dimensions.Ordinal() < best.desc.Dimensions.Ordinal() {
-			return true
+		if ti.D.Dimensions != nil && best.desc.Dimensions != nil {
+			if ti.D.Dimensions.Ordinal() < best.desc.Dimensions.Ordinal() {
+				return true
+			}
 		}
 
 		if w.distance < best.w.distance {
