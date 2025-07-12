@@ -60,14 +60,15 @@ The purpose of each template type is described below.
 
 A _base_ template serves as a foundational layout that other templates can build upon. It typically defines the common structural components of your HTML, such as the `html`, `head`, and `body` elements. It also often includes recurring features like headers, footers, navigation, and script inclusions that appear across multiple pages of your site. By defining these common aspects once in a _base_ template, you avoid redundancy, ensure consistency, and simplify the maintenance of your website.
 
-A _base_ template can be applied to these template types: [home](#home), [page](#page), [section](#section), [taxonomy](#taxonomy), [term](#term), [single](#single), [list](#list), and [all](#all). When Hugo parses any of these template types, it will apply a _base_ template if the template being parsed meets these specific criteria:
+Hugo can apply a _base_ template to the following template types: [home](#home), [page](#page), [section](#section), [taxonomy](#taxonomy), [term](#term), [single](#single), [list](#list), and [all](#all).
 
-- It must begin with a [`define`] [action](g).
-- This `define` action can optionally be preceded by a [template comment] or whitespace.
-- The template must only contain `define` actions.
+When Hugo parses any of these template types, it will apply a _base_ template only if the template being parsed meets these specific conditions:
 
-  > [!note]
-  > If the template does not satisfy all the criteria, it will be executed exactly as provided, without the application of a _base_ template.
+- It must include at least one [`define`] [action](g).
+- It can only contain `define` actions, whitespace, and [template comments]. No other content is allowed.
+
+> [!note]
+> If a template doesn't meet all these criteria, Hugo executes it exactly as provided, without applying a _base_ template.
 
 When Hugo applies a _base_ template, it replaces its `block` actions with content from the corresponding `define` actions found in the template to which the base template is applied.
 
@@ -396,7 +397,7 @@ Use other specialized templates to create:
 [`Terms`]: /methods/page/data/#terms
 [taxonomy-plural]: /methods/page/data/#plural
 [taxonomy-singular]: /methods/page/data/#singular
-[template comment]: /templates/introduction/#comments
+[template comments]: /templates/introduction/#comments
 [template lookup order]: /templates/lookup-order/
 [term-plural]: /methods/page/data/#plural-1
 [term-singular]: /methods/page/data/#singular-1
