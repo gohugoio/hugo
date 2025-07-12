@@ -177,7 +177,7 @@ func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	return false
 }
 
-type pageMetaSourcesSlice []contentNodeI
+type pageMetaSourcesSlice []contentNodeI // TODO1 pool?
 
 func (n pageMetaSourcesSlice) MarkStale() {
 	panic("not supported")

@@ -1138,16 +1138,25 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		is[newp.s.dims] = new
 		return is, old, false
 	case contentNodeIs:
-		newp, ok := new.(*pageState)
-		if !ok {
-			panic(fmt.Sprintf("unknown type %T", new))
+		switch new := new.(type) {
+		case *pageState:
+			oldp := vv[new.s.dims]
+			if oldp != new {
+				resource.MarkStale(oldp)
+			}
+			vv[new.s.dims] = new
+			return vv, oldp, oldp != nil
+		case *pageMetaSource:
+			s := make(pageMetaSourcesSlice, 0, len(vv)+1)
+			for _, v := range vv {
+				s = append(s, v)
+			}
+			s = append(s, new)
+			return s, vv, false
+		default:
+			panic(fmt.Sprintf("Insert: unknown type %T", new))
 		}
-		oldp := vv[newp.s.dims]
-		if oldp != newp {
-			resource.MarkStale(oldp)
-		}
-		vv[newp.s.dims] = new
-		return vv, oldp, oldp != nil
+
 	case contentNodeIs2:
 		panic("not supported") // TODO1 remove this type.
 		newp, ok := new.(*pageState)
@@ -2156,22 +2165,15 @@ func (sa *sitePagesAssembler) assembleResources() error {
 func (sa *sitePagesAssembler) assemblePagesStep1() error {
 	defer herrors.Recover()
 
-	// TODO1
 	if err := sa.addMissingTaxonomies(); err != nil {
 		return err
 	}
 
-	/*
-		/*if err := sa.addMissingRootSections(); err != nil {
-			return err
-		}*/
-	/*
-		if err := sa.addStandalonePages(); err != nil {
-			return err
-		}
-	*/
-
 	if err := sa.addMissingRootSections(); err != nil { // TODO1 see above.
+		return err
+	}
+
+	if err := sa.addStandalonePages(); err != nil {
 		return err
 	}
 
@@ -2251,8 +2253,8 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 		if !s.Conf.IsMultihost() {
 			switch kind {
 			case kinds.KindSitemapIndex, kinds.KindRobotsTXT:
-				// Only one for all languages.
-				if s.dims.Language() != 0 {
+				// Only one for all dimensions.
+				if !s.dims.IsFirst() {
 					return
 				}
 			}
@@ -2275,9 +2277,9 @@ func (sa *sitePagesAssembler) addStandalonePages() error {
 			standaloneOutputFormat: f,
 		}
 
-		p, _, _ := s.h.newPage(m)
+		p, _ := s.newPageNew(m)
 
-		tree.InsertIntoValuesDimension(key, p)
+		tree.InsertIntoCurrentDimension(key, p)
 	}
 
 	addStandalone("/404", kinds.KindStatus404, output.HTTPStatus404HTMLFormat)

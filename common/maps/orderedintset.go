@@ -15,6 +15,7 @@ package maps
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/bits-and-blooms/bitset"
 )
@@ -102,6 +103,16 @@ func (m *OrderedIntSet) Len() int {
 		return 0
 	}
 	return len(m.keys)
+}
+
+// KeysSorted returns the keys in sorted order.
+func (m *OrderedIntSet) KeysSorted() []int {
+	if m == nil {
+		return nil
+	}
+	keys := slices.Clone(m.keys)
+	slices.Sort(keys)
+	return m.keys
 }
 
 func (m *OrderedIntSet) String() string {

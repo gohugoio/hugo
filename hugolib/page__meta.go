@@ -272,23 +272,25 @@ func (m *pageMeta) initLate(s *Site) error {
 	h := s.h
 	var tc viewName
 
-	// Resolve page kind.
-	m.pageConfig.Kind = kinds.KindSection
-	if m.pathInfo.Base() == "/" {
-		m.pageConfig.Kind = kinds.KindHome
-	} else if m.pathInfo.IsBranchBundle() {
-		// A section, taxonomy or term.
-		tc = s.pageMap.cfg.getTaxonomyConfig(m.Path())
-		if !tc.IsZero() {
-			// Either a taxonomy or a term.
-			if tc.pluralTreeKey == m.Path() {
-				m.pageConfig.Kind = kinds.KindTaxonomy
-			} else {
-				m.pageConfig.Kind = kinds.KindTerm
+	if m.pageConfig.Kind == "" {
+		// Resolve page kind.
+		m.pageConfig.Kind = kinds.KindSection
+		if m.pathInfo.Base() == "/" {
+			m.pageConfig.Kind = kinds.KindHome
+		} else if m.pathInfo.IsBranchBundle() {
+			// A section, taxonomy or term.
+			tc = s.pageMap.cfg.getTaxonomyConfig(m.Path())
+			if !tc.IsZero() {
+				// Either a taxonomy or a term.
+				if tc.pluralTreeKey == m.Path() {
+					m.pageConfig.Kind = kinds.KindTaxonomy
+				} else {
+					m.pageConfig.Kind = kinds.KindTerm
+				}
 			}
+		} else if m.f != nil {
+			m.pageConfig.Kind = kinds.KindPage
 		}
-	} else if m.f != nil {
-		m.pageConfig.Kind = kinds.KindPage
 	}
 
 	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {

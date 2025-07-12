@@ -99,12 +99,11 @@ type PageConfigEarly struct {
 }
 
 type PageConfigSites struct {
-	Weight       int
-	Roles        []string
-	Versions     []string
-	Languages    []string // TODO1 vs Lang.
-	RoleDelegees []string
-
+	Weight           int
+	Roles            []string
+	Versions         []string
+	Languages        []string // TODO1 vs Lang.
+	RoleDelegees     []string
 	VersionDelegees  []string
 	LanguageDelegees []string
 }
@@ -168,12 +167,8 @@ func (p *PageConfigEarly) setConfigCascadeValueIfNotSet(key string, value any) {
 	switch key {
 	case pageMetaKeySites:
 		if p.Sites.IsZero() {
-			if v, ok := value.(map[string]any); ok {
-				if err := mapstructure.WeakDecode(v, &p.Sites); err != nil {
-					panic(fmt.Errorf("failed to decode sites from front matter: %w", err))
-				}
-			} else {
-				panic(fmt.Errorf("expected map[string]any for %q, got %T", pageMetaKeySites, value))
+			if err := mapstructure.WeakDecode(value, &p.Sites); err != nil {
+				panic(fmt.Errorf("failed to decode sites from config cascade: %w", err))
 			}
 		}
 	}

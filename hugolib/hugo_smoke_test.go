@@ -176,6 +176,60 @@ myshortcode.en.html
 	)
 }
 
+func TestSmokeEdits202506(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy"]
+disableLiveReload = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages.en]
+title = "Site title en"
+weight = 200
+[languages.nn]
+title = "Site title nn"
+weight = 100
+[module]
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+[module.mounts.sites]
+languages = ['en']
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+[module.mounts.sites]
+languages = ['nn']
+-- content/en/p1/index.md --
+---
+title: "p1 en"
+date: 2023-10-01
+---
+Content p1 en.
+-- content/nn/p1/index.md --
+---
+title: "p1 nn"
+date: 2024-10-01
+---
+Content p1 nn.
+-- layouts/all.html --
+All. {{ .Title }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|Content: {{ .Content }}|
+
+`
+
+	b := TestRunning(t, files)
+
+	// b.AssertPublishDir("sDF")
+	b.AssertFileContent("public/en/p1/index.html", "All. p1 en|")
+	b.AssertFileContent("public/nn/p1/index.html", "All. p1 nn|")
+	b.EditFileReplaceAll("public/en/p1/index.html", "p1 en", "p1 en edited").Build()
+	b.AssertFileContent("public/en/p1/index.html", "All. p1 en edited")
+	b.EditFileReplaceAll("public/nn/p1/index.html", "p1 nn", "p1 nn|").Build()
+}
+
 func TestSmokeOutputFormats(t *testing.T) {
 	t.Parallel()
 

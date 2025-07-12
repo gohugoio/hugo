@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/parser"
@@ -952,19 +953,27 @@ weight = 2
 weight = 3
 
 [versions]
-[versions.v1.0.0]
-[versions.v2.0.0]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+[versions."v2.1.0"]
+
+[roles]
+[roles.guest]
+[roles.member]
 
 [cascade]
-languages = ["en*"]
-languageDelegees = ["nn*"]
-versions = ["v1*"]
-versionDelegees = ["v2*"]
-roles = ["guest*"]
-roleDelegees = ["member*"]
+[cascade.sites]
+languages = ["en"]
+languageDelegees = ["nn"]
+versions = ["v2**"]
+versionDelegees = ["v1.0.*"]
+roles = ["guest"]
+roleDelegees = ["member"]
 -- content/_index.md --
 ---
 title: "Home"
+sites:
+  roles: ["member"]
 ---
 -- layouts/all.html --
 All.
@@ -973,11 +982,21 @@ All.
 
 	b := Test(t, files)
 
-	homeEn := b.H.Sites[0].Home().(*pageState)
-	b.Assert(homeEn.m.pageConfig.SiteMatrix.Versions, qt.DeepEquals, []string{"v1*"})
-	b.Assert(homeEn.m.pageConfig.SiteMatrixDelegees.Versions, qt.DeepEquals, []string{"v2*"})
-	b.Assert(homeEn.m.pageConfig.SiteMatrix.Roles, qt.DeepEquals, []string{"guest*"})
-	b.Assert(homeEn.m.pageConfig.SiteMatrixDelegees.Roles, qt.DeepEquals, []string{"member*"})
-	b.Assert(homeEn.m.pageConfig.SiteMatrix.Languages, qt.DeepEquals, []string{"en*"})
-	b.Assert(homeEn.m.pageConfig.SiteMatrixDelegees.Languages, qt.DeepEquals, []string{"nn*"})
+	s0 := b.H.sitesVersionsRolesMap[sitematrix.Vector{0, 1, 1}] // en, v2.0.0, member
+	b.Assert(s0.home.File(), qt.IsNotNil)
+	b.Assert(s0.language.Name(), qt.Equals, "en")
+	b.Assert(s0.version.Name(), qt.Equals, "v2.0.0")
+	b.Assert(s0.role.Name(), qt.Equals, "member")
+	sitesCfg := s0.Home().(*pageState).m.pageConfig.Sites
+	b.Assert(sitesCfg.Languages, qt.DeepEquals, []string{"en"})
+	b.Assert(sitesCfg.Versions, qt.DeepEquals, []string{"v2**"})
+
+	s0Matrix := s0.Home().(*pageState).m.pageConfig.SiteMatrix
+	s0MatrixDelegees := s0.Home().(*pageState).m.pageConfig.SiteMatrixDelegees
+	b.Assert(s0Matrix.Versions.KeysSorted(), qt.DeepEquals, []int{0, 1})       // v2**
+	b.Assert(s0MatrixDelegees.Versions.KeysSorted(), qt.DeepEquals, []int{2})  // v1.0.0
+	b.Assert(s0Matrix.Roles.KeysSorted(), qt.DeepEquals, []int{0})             // guest
+	b.Assert(s0MatrixDelegees.Roles.KeysSorted(), qt.DeepEquals, []int{1})     // member
+	b.Assert(s0Matrix.Languages.KeysSorted(), qt.DeepEquals, []int{0})         // en
+	b.Assert(s0MatrixDelegees.Languages.KeysSorted(), qt.DeepEquals, []int{1}) // nn
 }

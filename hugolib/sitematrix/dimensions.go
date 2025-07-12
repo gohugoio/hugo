@@ -119,6 +119,11 @@ func (v1 Vector) Version() int {
 	return v1[Version.Index()]
 }
 
+// IsFirst returns true if this is the first vector in the matrix, i.e. all dimensions are 0.
+func (v1 Vector) IsFirst() bool {
+	return v1[Language.Index()] == 0 && v1[Version.Index()] == 0 && v1[Role.Index()] == 0
+}
+
 // Role returns the role dimension.
 func (v1 Vector) Role() int {
 	return v1[Role.Index()]
