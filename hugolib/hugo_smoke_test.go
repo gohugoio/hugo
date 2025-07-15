@@ -84,7 +84,7 @@ lang = 'nn'
 [[module.mounts]]
 source = 'content/all'
 target = 'content'
-[module.mounts.sites]
+[module.mounts.sites.matrix]
 languages  = ["**"]
 -- content/en/_index.md --
 ---

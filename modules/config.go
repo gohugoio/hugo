@@ -226,8 +226,8 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			mnt.Target = filepath.Clean(mnt.Target)
 			if mnt.Lang != "" {
 				// We moved this to a more flixeble setup in Hugo 0.148.0.
-				mnt.Sites.Sites.Languages = append(mnt.Sites.Sites.Languages, mnt.Lang)
-				mnt.Sites.Sites.Languages = hstrings.UniqueStringsReuse(mnt.Sites.Sites.Languages)
+				mnt.Sites.Sites.Matrix.Languages = append(mnt.Sites.Sites.Matrix.Languages, mnt.Lang)
+				mnt.Sites.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(mnt.Sites.Sites.Matrix.Languages)
 			}
 			c.Mounts[i] = mnt
 		}
@@ -429,7 +429,7 @@ type Mount struct {
 
 type MountSites struct {
 	Weight int
-	Sites  sitematrix.StringSlices `mapstructure:",squash"`
+	Sites  sitematrix.SitesConfig `mapstructure:",squash"`
 }
 
 // Used as key to remove duplicates.

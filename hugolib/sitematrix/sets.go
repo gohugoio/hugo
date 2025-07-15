@@ -242,6 +242,18 @@ func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 	return sets, nil
 }
 
+type SitesConfig struct {
+	// Matrix defines the main build matrix.
+	Matrix StringSlices `mapstructure:"matrix" json:"matrix"`
+	// Fallbacks defines the fallback matrix.
+	Fallbacks StringSlices `mapstructure:"fallbacks" json:"fallbacks"`
+}
+
+// IsZero returns true if all slices are empty.
+func (s SitesConfig) IsZero() bool {
+	return s.Matrix.IsZero() && s.Fallbacks.IsZero()
+}
+
 type StringSlices struct {
 	Languages []string `mapstructure:"languages" json:"languages"`
 	Versions  []string `mapstructure:"versions" json:"versions"`

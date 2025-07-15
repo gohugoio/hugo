@@ -240,7 +240,7 @@ DIMSNN
 [[module.mounts]]
 source = 'content/all'
 target = 'content'
-[module.mounts.sites]
+[module.mounts.sites.matrix]
 languages = ["**"]
 versions = ["**"]
 -- content/en/p1/index.md --
@@ -282,7 +282,7 @@ site.GetPage p1: {{ with .Site.GetPage "p1" }}{{ .Title }}|{{ end }}$
 	}
 
 	// Format from v0.148.0:
-	dims := `[module.mounts.sites]
+	dims := `[module.mounts.sites.matrix]
 languages = ["en"]
 versions = ["v1**"]
 `
@@ -326,13 +326,13 @@ weight = 2
 [[module.mounts]]
 source = 'content/nn'
 target = 'content'
-[module.mounts.sites]
+[module.mounts.sites.matrix]
 languages = ["nn"]
 versions  = ["v1.**"]
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
-[module.mounts.sites]
+[module.mounts.sites.matrix]
 languages = ["**"]
 versions  = ["**"]
 -- content/en/_index.md --
@@ -439,8 +439,11 @@ func TestFrontMatterSites(t *testing.T) {
 ---
 title: "NN p2"
 sites:
-   languages: ["nn"]
-   versions: ["v1.2.3"]
+  matrix:
+    languages:
+      - nn
+    versions:
+      - v1.2.3
 ---
 `
 	b := hugolib.Test(t, files)
@@ -458,9 +461,10 @@ func TestFrontMatterSitesWeight(t *testing.T) {
 title: "EN p2"
 sites:
    # module.mounts.sites.weight=100.
-   weight: WEIGHT
-   languages: ["en"]
-   versions: ["**"]
+  weight: WEIGHT
+  matrix:
+    languages: ["en"]
+    versions: ["**"]
 ---
 `
 	files := strings.Replace(filesTemplate, "WEIGHT", "99", 1)

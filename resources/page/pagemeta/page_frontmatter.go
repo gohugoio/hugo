@@ -99,18 +99,8 @@ type PageConfigEarly struct {
 }
 
 type PageConfigSites struct {
-	Weight           int
-	Roles            []string
-	Versions         []string
-	Languages        []string // TODO1 vs Lang.
-	RoleDelegees     []string
-	VersionDelegees  []string
-	LanguageDelegees []string
-}
-
-func (p PageConfigSites) IsZero() bool {
-	return p.Roles == nil && p.Versions == nil && p.Languages == nil &&
-		p.RoleDelegees == nil && p.VersionDelegees == nil && p.LanguageDelegees == nil
+	Weight                 int
+	sitematrix.SitesConfig `mapstructure:",squash"`
 }
 
 const (
@@ -166,6 +156,7 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logge
 func (p *PageConfigEarly) setConfigCascadeValueIfNotSet(key string, value any) {
 	switch key {
 	case pageMetaKeySites:
+		// TODO1
 		if p.Sites.IsZero() {
 			if err := mapstructure.WeakDecode(value, &p.Sites); err != nil {
 				panic(fmt.Errorf("failed to decode sites from config cascade: %w", err))
@@ -298,17 +289,17 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, siteMatrixFile *site
 
 	if false && p.Lang != "" {
 		// TODO1 move this or consolidate.
-		p.Sites.Languages = append(p.Sites.Languages, p.Lang)
-		p.Sites.Languages = hstrings.UniqueStringsReuse(p.Sites.Languages)
+		p.Sites.Matrix.Languages = append(p.Sites.Matrix.Languages, p.Lang)
+		p.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(p.Sites.Matrix.Languages)
 
 	}
 
 	intsetsCfg := sitematrix.IntSetsConfig{
 		Cfg:       conf.ConfiguredDimensions(),
 		Weight:    p.Sites.Weight,
-		Languages: p.Sites.Languages,
-		Versions:  p.Sites.Versions,
-		Roles:     p.Sites.Roles,
+		Languages: p.Sites.Matrix.Languages,
+		Versions:  p.Sites.Matrix.Versions,
+		Roles:     p.Sites.Matrix.Roles,
 	}
 
 	siteMatrixPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
@@ -342,9 +333,9 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, siteMatrixFile *site
 
 	intSetsCfg := sitematrix.IntSetsConfig{
 		Cfg:       conf.ConfiguredDimensions(),
-		Languages: p.Sites.LanguageDelegees,
-		Versions:  p.Sites.VersionDelegees,
-		Roles:     p.Sites.RoleDelegees,
+		Languages: p.Sites.Fallbacks.Languages,
+		Versions:  p.Sites.Fallbacks.Versions,
+		Roles:     p.Sites.Fallbacks.Roles,
 	}
 	siteMatrixDelegees, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 	if err != nil {
