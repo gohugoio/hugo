@@ -15,6 +15,7 @@ package hstrings
 
 import (
 	"regexp"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -52,5 +53,32 @@ func BenchmarkGetOrCompileRegexp(b *testing.B) {
 func BenchmarkCompileRegexp(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		regexp.MustCompile(`\d+`)
+	}
+}
+
+func BenchmarkCountWordsASCII(b *testing.B) {
+	s := "The quick brown fox jumps over the lazy dog"
+	sLong := strings.Repeat(s, 400) // 9 x 400 = 3600 words
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		CountWords(sLong)
+	}
+}
+
+func BenchmarkCountWordsMixed(b *testing.B) {
+	s := "The 素早い brown fox jumps over the lazy 犬"
+	sLong := strings.Repeat(s, 400)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		CountWords(sLong)
+	}
+}
+
+func BenchmarkCountWordsChinese(b *testing.B) {
+	s := "敏捷的棕狐狸跳过懒惰的狗"
+	sLong := strings.Repeat(s, 400)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		CountWords(sLong)
 	}
 }
