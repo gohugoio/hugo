@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-security.schema.json",
+  "properties": {
+    "exec": {
+      "properties": {
+        "allow": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#execallow"
+        },
+        "osEnv": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#execosenv"
+        }
+      },
+      "type": "object",
+      "description": "Restricts access to os.Exec....\n\u003cdocsmeta\u003e{ \"newIn\": \"0.91.0\" }\u003c/docsmeta\u003e \nhttps://gohugo.io/configuration/security/#exec"
+    },
+    "funcs": {
+      "properties": {
+        "getenv": {
+          "properties": {},
+          "type": "object",
+          "description": "OS env keys allowed to query in os.Getenv. \nhttps://gohugo.io/configuration/security/#funcsgetenv"
+        }
+      },
+      "type": "object",
+      "description": "Restricts access to certain template funcs. \nhttps://gohugo.io/configuration/security/#funcs"
+    },
+    "http": {
+      "properties": {
+        "urls": {
+          "properties": {},
+          "type": "object",
+          "description": "URLs to allow in remote HTTP (resources.Get, getJSON, getCSV). \nhttps://gohugo.io/configuration/security/#httpurls"
+        },
+        "methods": {
+          "properties": {},
+          "type": "object",
+          "description": "HTTP methods to allow. \nhttps://gohugo.io/configuration/security/#httpmethods"
+        },
+        "mediaTypes": {
+          "properties": {},
+          "type": "object",
+          "description": "Media types where the Content-Type in the response is used instead of resolving from the file content. \nhttps://gohugo.io/configuration/security/#httpmediatypes"
+        }
+      },
+      "type": "object",
+      "description": "Restricts access to resources.GetRemote, getJSON, getCSV. \nhttps://gohugo.io/configuration/security/#http"
+    },
+    "enableInlineShortcodes": {
+      "type": "boolean",
+      "description": "Allow inline shortcodes \nhttps://gohugo.io/configuration/security/#enableinlineshortcodes"
+    }
+  },
+  "type": "object",
+  "description": "Config is the top level security config."
+}

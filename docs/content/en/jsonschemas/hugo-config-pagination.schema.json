@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-pagination.schema.json",
+  "properties": {
+    "pagerSize": {
+      "type": "integer",
+      "description": "Default number of elements per pager in pagination. \nhttps://gohugo.io/configuration/pagination/#pagersize"
+    },
+    "path": {
+      "type": "string",
+      "description": "The path element used during pagination. \nhttps://gohugo.io/configuration/pagination/#path"
+    },
+    "disableAliases": {
+      "type": "boolean",
+      "description": "Whether to disable generation of alias for the first pagination page. \nhttps://gohugo.io/configuration/pagination/#disablealiases"
+    }
+  },
+  "type": "object",
+  "description": "Pagination configures the pagination behavior."
+}
