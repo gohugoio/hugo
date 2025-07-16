@@ -226,8 +226,8 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 			mnt.Target = filepath.Clean(mnt.Target)
 			if mnt.Lang != "" {
 				// We moved this to a more flixeble setup in Hugo 0.148.0.
-				mnt.Sites.Sites.Matrix.Languages = append(mnt.Sites.Sites.Matrix.Languages, mnt.Lang)
-				mnt.Sites.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(mnt.Sites.Sites.Matrix.Languages)
+				mnt.Sites.Matrix.Languages = append(mnt.Sites.Matrix.Languages, mnt.Lang)
+				mnt.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(mnt.Sites.Matrix.Languages)
 			}
 			c.Mounts[i] = mnt
 		}
@@ -413,8 +413,8 @@ type Mount struct {
 	// TODO1. Deprecate this in favour of DImensions.
 	Lang string
 
-	// Sites holds a list of Glob  patterns to decide which sites the files in this mmount should be associated with.
-	Sites MountSites
+	// Sites defines which sites this mount applies to.
+	Sites sitematrix.Sites
 
 	// TODO1 replace these 2 with a Filter type that can handle both.
 	// Include only files matching the given Glob patterns (string or slice).
@@ -425,11 +425,6 @@ type Mount struct {
 
 	// Disable watching in watch mode for this mount.
 	DisableWatch bool
-}
-
-type MountSites struct {
-	Weight int
-	Sites  sitematrix.SitesConfig `mapstructure:",squash"`
 }
 
 // Used as key to remove duplicates.

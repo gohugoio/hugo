@@ -718,12 +718,8 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			intSetsCfg := sitematrix.IntSetsConfig{
 				Cfg:          b.p.Cfg.ConfiguredDimensions(),
 				ApplyDefault: false,
-				// TODO1 remove weight.
-				Weight:    v.Weight,
-				Ordinal:   md.ordinal + i,
-				Languages: v.Sites.Matrix.Languages,
-				Versions:  v.Sites.Matrix.Versions,
-				Roles:     v.Sites.Matrix.Roles,
+				Ordinal:      md.ordinal + i,
+				Globs:        v.Matrix,
 			}
 			sites, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 			if err != nil {

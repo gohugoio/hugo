@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"golang.org/x/text/unicode/norm"
@@ -246,6 +247,17 @@ func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 	n, err = b.buf.Write(p)
 	b.Unlock()
 	return
+}
+
+func (s *IntegrationTestBuilder) SiteMatrixMap() map[sitematrix.Vector]*Site {
+	s.Helper()
+	if s.H == nil {
+		s.Fatal("HugoSites is not initialized")
+	}
+	if s.H.sitesVersionsRolesMap == nil {
+		s.Fatal("sitesVersionsRolesMap is not initialized")
+	}
+	return s.H.sitesVersionsRolesMap
 }
 
 // AssertLogContains asserts that the last build log contains the given strings.

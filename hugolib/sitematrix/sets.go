@@ -23,15 +23,11 @@ import (
 	"github.com/gohugoio/hugo/hugofs/glob"
 )
 
-var (
-	_ VectorProvider       = &IntSets{}
-	_ types.WeightProvider = &IntSets{}
-)
+var _ VectorProvider = &IntSets{}
 
 // IntSets holds the ordered sets of integers for the dimensions,
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
-	weight    int
 	ordinal   int                 // Any non-zero value will be considered when sorting, lesser weights comes first.
 	Languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	Versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
@@ -40,13 +36,6 @@ type IntSets struct {
 
 func (s *IntSets) String() string {
 	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.Languages, s.Versions, s.Roles)
-}
-
-func (s *IntSets) Weight() int {
-	if s == nil {
-		return 0
-	}
-	return s.weight
 }
 
 func (s *IntSets) Ordinal() int {
@@ -180,17 +169,14 @@ func (s IntSets) WithLanguageIndex(i int) *IntSets {
 
 type IntSetsConfig struct {
 	Cfg          ConfiguredDimensions
-	Weight       int
 	Ordinal      int
 	ApplyDefault bool
-	Languages    []string
-	Versions     []string
-	Roles        []string
+	Globs        StringSlices
 }
 
 // NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
-func NewIntSets(weight, ordinal int) *IntSets {
-	return &IntSets{weight: weight, ordinal: ordinal}
+func NewIntSets(ordinal int) *IntSets {
+	return &IntSets{ordinal: ordinal}
 }
 
 // NewIntSetsFromConfig creates a new IntSets from the given IntSetsConfig.
@@ -227,10 +213,10 @@ func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 		return result, nil
 	}
 
-	sets := NewIntSets(cfg.Weight, cfg.Ordinal)
-	l, err1 := applyFilter("languages", cfg.Languages, cfg.Cfg.ConfiguredLanguages)
-	v, err2 := applyFilter("versions", cfg.Versions, cfg.Cfg.ConfiguredVersions)
-	r, err3 := applyFilter("roles", cfg.Roles, cfg.Cfg.ConfiguredRoles)
+	sets := NewIntSets(cfg.Ordinal)
+	l, err1 := applyFilter("languages", cfg.Globs.Languages, cfg.Cfg.ConfiguredLanguages)
+	v, err2 := applyFilter("versions", cfg.Globs.Versions, cfg.Cfg.ConfiguredVersions)
+	r, err3 := applyFilter("roles", cfg.Globs.Roles, cfg.Cfg.ConfiguredRoles)
 
 	if err := cmp.Or(err1, err2, err3); err != nil {
 		return nil, fmt.Errorf("failed to apply filters: %w", err)
@@ -242,7 +228,8 @@ func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 	return sets, nil
 }
 
-type SitesConfig struct {
+// Sites holds configuration about which sites a file/content/page/resource belongs to.
+type Sites struct {
 	// Matrix defines the main build matrix.
 	Matrix StringSlices `mapstructure:"matrix" json:"matrix"`
 	// Fallbacks defines the fallback matrix.
@@ -250,10 +237,25 @@ type SitesConfig struct {
 }
 
 // IsZero returns true if all slices are empty.
-func (s SitesConfig) IsZero() bool {
+func (s Sites) IsZero() bool {
 	return s.Matrix.IsZero() && s.Fallbacks.IsZero()
 }
 
+func (s *Sites) SetFromParamsIfNotSet(params maps.Params) {
+	const (
+		matrixKey    = "matrix"
+		fallbacksKey = "fallbacks"
+	)
+
+	if m, ok := params[matrixKey]; ok {
+		s.Matrix.SetFromParamsIfNotSet(m.(maps.Params))
+	}
+	if f, ok := params[fallbacksKey]; ok {
+		s.Fallbacks.SetFromParamsIfNotSet(f.(maps.Params))
+	}
+}
+
+// StringSlices holds slices of Glob patterns for languages, versions, and roles.
 type StringSlices struct {
 	Languages []string `mapstructure:"languages" json:"languages"`
 	Versions  []string `mapstructure:"versions" json:"versions"`
@@ -262,6 +264,32 @@ type StringSlices struct {
 
 func (d StringSlices) IsZero() bool {
 	return len(d.Languages) == 0 && len(d.Versions) == 0 && len(d.Roles) == 0
+}
+
+func (d *StringSlices) SetFromParamsIfNotSet(params maps.Params) {
+	const (
+		languagesKey = "languages"
+		versionsKey  = "versions"
+		rolesKey     = "roles"
+	)
+
+	if len(d.Languages) == 0 {
+		if v, ok := params[languagesKey]; ok {
+			d.Languages = types.ToStringSlicePreserveString(v)
+		}
+	}
+
+	if len(d.Versions) == 0 {
+		if v, ok := params[versionsKey]; ok {
+			d.Versions = types.ToStringSlicePreserveString(v)
+		}
+	}
+
+	if len(d.Roles) == 0 {
+		if v, ok := params[rolesKey]; ok {
+			d.Roles = types.ToStringSlicePreserveString(v)
+		}
+	}
 }
 
 type ConfiguredDimension interface {

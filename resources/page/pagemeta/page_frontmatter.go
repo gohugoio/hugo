@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"path"
-	"sort"
 	"strings"
 	"time"
 
@@ -28,7 +27,6 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/markup"
@@ -87,7 +85,7 @@ type PageConfigEarly struct {
 	// User defined params.
 	Params maps.Params
 
-	Sites PageConfigSites
+	Sites sitematrix.Sites
 
 	Cascade []map[string]any
 
@@ -96,11 +94,6 @@ type PageConfigEarly struct {
 
 	// Compiled/temporary values.
 	CascadeCompiled *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] `mapstructure:"-" json:"-"`
-}
-
-type PageConfigSites struct {
-	Weight                 int
-	sitematrix.SitesConfig `mapstructure:",squash"`
 }
 
 const (
@@ -156,12 +149,7 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logge
 func (p *PageConfigEarly) setConfigCascadeValueIfNotSet(key string, value any) {
 	switch key {
 	case pageMetaKeySites:
-		// TODO1
-		if p.Sites.IsZero() {
-			if err := mapstructure.WeakDecode(value, &p.Sites); err != nil {
-				panic(fmt.Errorf("failed to decode sites from config cascade: %w", err))
-			}
-		}
+		p.Sites.SetFromParamsIfNotSet(value.(maps.Params))
 	}
 }
 
@@ -204,23 +192,23 @@ type PageConfig struct {
 	ContentMediaType        media.Type     `mapstructure:"-" json:"-"`
 	IsFromContentAdapter    bool           `mapstructure:"-" json:"-"`
 
-	SiteMatrix         *sitematrix.IntSets `mapstructure:"-" json:"-"` // TODO1 rename SiteVectors. Same below.
-	SiteMatrixDelegees *sitematrix.IntSets `mapstructure:"-" json:"-"`
+	SitesMatrix    *sitematrix.IntSets `mapstructure:"-" json:"-"`
+	SitesFallbacks *sitematrix.IntSets `mapstructure:"-" json:"-"`
 }
 
 func MatchLanguageOrLanguageDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Language()
-	return p.SiteMatrix.Languages.Has(i) || p.SiteMatrixDelegees.Languages.Has(i)
+	return p.SitesMatrix.Languages.Has(i) || p.SitesFallbacks.Languages.Has(i)
 }
 
 func MatchRoleOrRoleDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Role()
-	return p.SiteMatrix.Roles.Has(i) || p.SiteMatrixDelegees.Roles.Has(i)
+	return p.SitesMatrix.Roles.Has(i) || p.SitesFallbacks.Roles.Has(i)
 }
 
 func MatchVersionOrVersionDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Version()
-	return p.SiteMatrix.Versions.Has(i) || p.SiteMatrixDelegees.Versions.Has(i)
+	return p.SitesMatrix.Versions.Has(i) || p.SitesFallbacks.Versions.Has(i)
 }
 
 func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
@@ -295,11 +283,8 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, siteMatrixFile *site
 	}
 
 	intsetsCfg := sitematrix.IntSetsConfig{
-		Cfg:       conf.ConfiguredDimensions(),
-		Weight:    p.Sites.Weight,
-		Languages: p.Sites.Matrix.Languages,
-		Versions:  p.Sites.Matrix.Versions,
-		Roles:     p.Sites.Matrix.Roles,
+		Cfg:   conf.ConfiguredDimensions(),
+		Globs: p.Sites.Matrix,
 	}
 
 	siteMatrixPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
@@ -311,37 +296,23 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, siteMatrixFile *site
 	if siteMatrixFile == nil {
 		siteMatrix = siteMatrixPage
 	} else {
-		all := []*sitematrix.IntSets{
-			siteMatrixPage, // Front matter wins over config.
-			siteMatrixFile,
-		}
-		// Sort by weight.
-		sort.Slice(all, func(i, j int) bool {
-			return compare.LessWeight(all[i].Weight(), all[j].Weight())
-		})
-		siteMatrix = all[0]
-
-		for i := 1; i < len(all); i++ {
-			siteMatrix.SetFromOtherIfNotSet(all[i])
-		}
-
+		siteMatrix = siteMatrixPage // Front matter wins over mount config.
+		siteMatrix.SetFromOtherIfNotSet(siteMatrixFile)
 	}
 
 	siteMatrix.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
 
-	p.SiteMatrix = siteMatrix
+	p.SitesMatrix = siteMatrix
 
 	intSetsCfg := sitematrix.IntSetsConfig{
-		Cfg:       conf.ConfiguredDimensions(),
-		Languages: p.Sites.Fallbacks.Languages,
-		Versions:  p.Sites.Fallbacks.Versions,
-		Roles:     p.Sites.Fallbacks.Roles,
+		Cfg:   conf.ConfiguredDimensions(),
+		Globs: p.Sites.Fallbacks,
 	}
 	siteMatrixDelegees, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 	if err != nil {
 		return fmt.Errorf("failed to create dimensions delegees sets: %w", err)
 	}
-	p.SiteMatrixDelegees = siteMatrixDelegees
+	p.SitesFallbacks = siteMatrixDelegees
 
 	return nil
 }

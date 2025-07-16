@@ -156,9 +156,6 @@ type VectorProvider interface {
 	// It returns false if the iteration was stopped early.
 	ForEeachVector(func(v Vector) bool) bool
 
-	// Weight returns the weight of this vector provider, 0 if not set.
-	Weight() int
-
 	// Zero based ordinal. Lower is earlier.
 	Ordinal() int
 }

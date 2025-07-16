@@ -940,7 +940,7 @@ path = '/p1'
 	b.AssertFileContent("public/p1/index.html", "p1|bar") // actual content is "p1|"
 }
 
-func TestDimensionsCascadeConfig(t *testing.T) {
+func TestSiteMatrixCascadeConfig(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
@@ -960,15 +960,15 @@ weight = 3
 [roles]
 [roles.guest]
 [roles.member]
-
 [cascade]
-[cascade.sites]
+[cascade.sites.matrix]
 languages = ["en"]
-languageDelegees = ["nn"]
 versions = ["v2**"]
-versionDelegees = ["v1.0.*"]
+roles = ["member"]
+[cascade.sites.fallbacks]
+languages = ["nn"]
+versions = ["v1.0.*"]
 roles = ["guest"]
-roleDelegees = ["member"]
 -- content/_index.md --
 ---
 title: "Home"
@@ -987,16 +987,16 @@ All.
 	b.Assert(s0.language.Name(), qt.Equals, "en")
 	b.Assert(s0.version.Name(), qt.Equals, "v2.0.0")
 	b.Assert(s0.role.Name(), qt.Equals, "member")
-	sitesCfg := s0.Home().(*pageState).m.pageConfig.Sites
-	b.Assert(sitesCfg.Languages, qt.DeepEquals, []string{"en"})
-	b.Assert(sitesCfg.Versions, qt.DeepEquals, []string{"v2**"})
+	s0Pconfig := s0.Home().(*pageState).m.pageConfig
+	b.Assert(s0Pconfig.Sites.Matrix.Languages, qt.DeepEquals, []string{"en"})
+	b.Assert(s0Pconfig.Sites.Matrix.Versions, qt.DeepEquals, []string{"v2**"})
 
-	s0Matrix := s0.Home().(*pageState).m.pageConfig.SiteMatrix
-	s0MatrixDelegees := s0.Home().(*pageState).m.pageConfig.SiteMatrixDelegees
-	b.Assert(s0Matrix.Versions.KeysSorted(), qt.DeepEquals, []int{0, 1})       // v2**
-	b.Assert(s0MatrixDelegees.Versions.KeysSorted(), qt.DeepEquals, []int{2})  // v1.0.0
-	b.Assert(s0Matrix.Roles.KeysSorted(), qt.DeepEquals, []int{0})             // guest
-	b.Assert(s0MatrixDelegees.Roles.KeysSorted(), qt.DeepEquals, []int{1})     // member
-	b.Assert(s0Matrix.Languages.KeysSorted(), qt.DeepEquals, []int{0})         // en
-	b.Assert(s0MatrixDelegees.Languages.KeysSorted(), qt.DeepEquals, []int{1}) // nn
+	s0Matrix := s0Pconfig.SitesMatrix
+	s0Fallbacks := s0Pconfig.SitesFallbacks
+	b.Assert(s0Matrix.Versions.KeysSorted(), qt.DeepEquals, []int{0, 1})  // v2**
+	b.Assert(s0Fallbacks.Versions.KeysSorted(), qt.DeepEquals, []int{2})  // v1.0.0
+	b.Assert(s0Matrix.Roles.KeysSorted(), qt.DeepEquals, []int{1})        // member
+	b.Assert(s0Fallbacks.Roles.KeysSorted(), qt.DeepEquals, []int{0})     // guest
+	b.Assert(s0Matrix.Languages.KeysSorted(), qt.DeepEquals, []int{0})    // en
+	b.Assert(s0Fallbacks.Languages.KeysSorted(), qt.DeepEquals, []int{1}) // nn
 }
