@@ -232,12 +232,11 @@ func (m *pageMetaSource) initEarly(h *HugoSites) error {
 				}
 			}
 
-			var dimensionsFromFile *sitematrix.IntSets
+			var fim *hugofs.FileMeta
 			if m.f != nil {
-				dimensionsFromFile = m.f.FileInfo().Meta().SiteInts
+				fim = m.f.FileInfo().Meta()
 			}
-
-			if err := m.pageConfig.CompileEearly(h.Conf, dimensionsFromFile); err != nil {
+			if err := m.pageConfig.CompileEearly(h.Conf, fim); err != nil {
 				return err
 			}
 

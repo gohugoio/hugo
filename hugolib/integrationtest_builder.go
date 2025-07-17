@@ -218,6 +218,69 @@ type IntegrationTestBuilder struct {
 	builderInit sync.Once
 }
 
+type IntegrationTestSiteMatrixHelper struct {
+	*qt.C
+	b *IntegrationTestBuilder
+	S *Site
+}
+
+type IntegrationTestPageHelper struct {
+	*qt.C
+	b *IntegrationTestBuilder
+	p *pageState
+}
+
+func (s *IntegrationTestPageHelper) ConfiguredSites() map[string]map[string][]string {
+	pc := s.p.m.pageConfig
+	dconf := s.p.s.Conf.ConfiguredDimensions()
+
+	intSetsToMap := func(intSets *sitematrix.IntSets) map[string][]string {
+		var languages, versions, roles []string
+
+		for _, v := range intSets.Languages.KeysSorted() {
+			languages = append(languages, dconf.ConfiguredLanguages.ResolveName(v))
+		}
+		for _, v := range intSets.Versions.KeysSorted() {
+			versions = append(versions, dconf.ConfiguredVersions.ResolveName(v))
+		}
+		for _, v := range intSets.Roles.KeysSorted() {
+			roles = append(roles, dconf.ConfiguredRoles.ResolveName(v))
+		}
+
+		return map[string][]string{
+			"languages": languages,
+			"versions":  versions,
+			"roles":     roles,
+		}
+	}
+
+	return map[string]map[string][]string{
+		"matrix":    intSetsToMap(pc.SitesMatrix),
+		"fallbacks": intSetsToMap(pc.SitesFallbacks),
+	}
+}
+
+func (s *IntegrationTestSiteMatrixHelper) PageHelper(path string) *IntegrationTestPageHelper {
+	p, err := s.S.GetPage(path)
+	s.Assert(err, qt.IsNil)
+	s.Assert(p, qt.Not(qt.IsNil), qt.Commentf("Page not found: %s", path))
+	ps, ok := p.(*pageState)
+	s.Assert(ok, qt.IsTrue, qt.Commentf("Expected pageState, got %T", p))
+	return &IntegrationTestPageHelper{
+		C: s.C,
+		b: s.b,
+		p: ps,
+	}
+}
+
+func (s *IntegrationTestSiteMatrixHelper) DimensionNames() types.Strings3 {
+	return types.Strings3{
+		s.S.Language().Name(),
+		s.S.Version().Name(),
+		s.S.Role().Name(),
+	}
+}
+
 type lockingBuffer struct {
 	sync.Mutex
 	buf bytes.Buffer
@@ -249,15 +312,24 @@ func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 	return
 }
 
-func (s *IntegrationTestBuilder) SiteMatrixMap() map[sitematrix.Vector]*Site {
+// SiteMatrixHelper returns a helper for the SiteMatrix for the given language, version and role.
+// Note that a blank value for an argument will use the default value for that dimension.
+func (s *IntegrationTestBuilder) SiteMatrixHelper(language, version, role string) *IntegrationTestSiteMatrixHelper {
 	s.Helper()
 	if s.H == nil {
-		s.Fatal("HugoSites is not initialized")
+		s.Fatal("SiteMatrixHelper: no sites available")
 	}
-	if s.H.sitesVersionsRolesMap == nil {
-		s.Fatal("sitesVersionsRolesMap is not initialized")
+	v := s.H.Conf.ConfiguredDimensions().ResolveVector(types.Strings3{language, version, role})
+	site, found := s.H.sitesVersionsRolesMap[v]
+	if !found {
+		s.Fatalf("SiteMatrixHelper: no site found for vector %v", v)
 	}
-	return s.H.sitesVersionsRolesMap
+
+	return &IntegrationTestSiteMatrixHelper{
+		C: s.C,
+		b: s,
+		S: site,
+	}
 }
 
 // AssertLogContains asserts that the last build log contains the given strings.

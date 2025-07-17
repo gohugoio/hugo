@@ -94,20 +94,20 @@ myparam = "svParamValue"
 		b := Test(t, files)
 
 		b.Assert(len(b.H.Sites), qt.Equals, 2)
-		enSite := b.H.Sites[0]
-		svSite := b.H.Sites[1]
-		b.Assert(enSite.Title(), qt.Equals, "English Title")
-		b.Assert(enSite.Home().Title(), qt.Equals, "English Title")
-		b.Assert(enSite.Params()["myparam"], qt.Equals, "enParamValue")
-		b.Assert(enSite.Params()["p1"], qt.Equals, "p1en")
-		b.Assert(enSite.Params()["p2"], qt.Equals, "p2base")
-		b.Assert(svSite.Params()["p1"], qt.Equals, "p1base")
-		b.Assert(enSite.conf.StaticDir[0], qt.Equals, "mystatic")
+		enSiteH := b.SiteMatrixHelper("en", "", "")
+		svSiteH := b.SiteMatrixHelper("sv", "", "")
+		b.Assert(enSiteH.S.Title(), qt.Equals, "English Title")
+		b.Assert(enSiteH.S.Home().Title(), qt.Equals, "English Title")
+		b.Assert(enSiteH.S.Params()["myparam"], qt.Equals, "enParamValue")
+		b.Assert(enSiteH.S.Params()["p1"], qt.Equals, "p1en")
+		b.Assert(enSiteH.S.Params()["p2"], qt.Equals, "p2base")
+		b.Assert(svSiteH.S.Params()["p1"], qt.Equals, "p1base")
+		b.Assert(enSiteH.S.conf.StaticDir[0], qt.Equals, "mystatic")
 
-		b.Assert(svSite.Title(), qt.Equals, "Svensk Title")
-		b.Assert(svSite.Home().Title(), qt.Equals, "Svensk Title")
-		b.Assert(svSite.Params()["myparam"], qt.Equals, "svParamValue")
-		b.Assert(svSite.conf.StaticDir[0], qt.Equals, "mysvstatic")
+		b.Assert(svSiteH.S.Title(), qt.Equals, "Svensk Title")
+		b.Assert(svSiteH.S.Home().Title(), qt.Equals, "Svensk Title")
+		b.Assert(svSiteH.S.Params()["myparam"], qt.Equals, "svParamValue")
+		b.Assert(svSiteH.S.conf.StaticDir[0], qt.Equals, "mysvstatic")
 	})
 
 	t.Run("disable default language", func(t *testing.T) {

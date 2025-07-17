@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -387,7 +388,7 @@ sites:
 	b.AssertFileContent("public/guest/v1.2.3/en/p2/index.html", "title: EN p2|")
 }
 
-func TestMountCascadeFrontMatterSitesMatrixShouldBeMerged(t *testing.T) {
+func TestMountCascadeFrontMatterSitesMatrixAndFallbacksShouldBeMerged(t *testing.T) {
 	t.Parallel()
 
 	// Pick language from mount, role from cascade and version from front matter.
@@ -425,25 +426,69 @@ target = 'content'
 languages = ["nn"] # used.
 versions = ["v1.2.*"] # not used.
 roles = ["guest"] # not used.
+[module.mounts.sites.fallbacks]
+languages = ["en"] # used.
+versions = ["v1.4.*"] # not used.
+roles = ["member"] # not used.
 
 [cascade.sites.matrix]
 roles = ["member"] # used
 versions = ["v1.2.*"] # not used.
+[cascade.sites.fallbacks]
+roles = ["guest"] # used
+versions = ["v2**"] # not used.
 
 -- content/other/p2.md --
 +++
 title = "NN p2"
 [sites.matrix]
-versions = ["v1.4.*"]
-
+versions = ["v1.2.*","v1.4.*"]
+[sites.fallbacks]
+versions = ["v2.*.*"]
++++
+-- content/other/p3.md --
++++
+title = "NN p3"
+[sites.matrix]
+versions = "v1.4.*"
 +++
 -- layouts/all.html --
-All.
-
+All. {{ site.Language.Name }}|{{ site.Version.Name }}|{{ site.Role.Name }}
 
 `
+
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/member/v1.4.0/nn/p2/index.html", "All.")
+	s := b.SiteMatrixHelper("nn", "v1.4.0", "member")
+	p2 := s.PageHelper("/p2")
+	s.Assert(p2.ConfiguredSites(), qt.DeepEquals,
+		map[string]map[string][]string{
+			"fallbacks": {
+				"languages": {"en"},
+				"roles":     {"guest"},
+				"versions":  {"v2.0.0"},
+			},
+			"matrix": {
+				"languages": {"nn"},
+				"roles":     {"member"},
+				"versions":  {"v1.4.0", "v1.2.3"},
+			},
+		},
+	)
+
+	p3 := s.PageHelper("/p3")
+	s.Assert(p3.ConfiguredSites(), qt.DeepEquals, map[string]map[string][]string{
+		"fallbacks": {
+			"languages": {"en"},
+			"roles":     {"guest"},
+			"versions":  {"v2.0.0"},
+		},
+		"matrix": {
+			"languages": {"nn"},
+			"roles":     {"member"},
+			"versions":  {"v1.4.0"},
+		},
+	})
 }
 
 func TestLanguageVersionRoleIsDefault(t *testing.T) {

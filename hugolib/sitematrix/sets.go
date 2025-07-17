@@ -296,6 +296,7 @@ type ConfiguredDimension interface {
 	predicate.IndexMatcher
 	IndexDefault() int
 	ResolveName(int) string
+	ResolveIndex(string) int
 }
 
 type ConfiguredDimensions struct {
@@ -310,4 +311,24 @@ func (c ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
 		c.ConfiguredVersions.ResolveName(v.Version()),
 		c.ConfiguredRoles.ResolveName(v.Role()),
 	}
+}
+
+func (c ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
+	var vec Vector
+	if s := names[0]; s != "" {
+		vec[0] = c.ConfiguredLanguages.ResolveIndex(s)
+	} else {
+		vec[0] = c.ConfiguredLanguages.IndexDefault()
+	}
+	if s := names[1]; s != "" {
+		vec[1] = c.ConfiguredVersions.ResolveIndex(s)
+	} else {
+		vec[1] = c.ConfiguredVersions.IndexDefault()
+	}
+	if s := names[2]; s != "" {
+		vec[2] = c.ConfiguredRoles.ResolveIndex(s)
+	} else {
+		vec[2] = c.ConfiguredRoles.IndexDefault()
+	}
+	return vec
 }

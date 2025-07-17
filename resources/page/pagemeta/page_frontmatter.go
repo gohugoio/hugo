@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/markup"
@@ -256,7 +257,7 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 }
 
 // CompileEearly gets called early and before the cascade from content gets applied.
-func (p *PageConfig) CompileEearly(conf config.AllProvider, siteMatrixFile *sitematrix.IntSets) error {
+func (p *PageConfig) CompileEearly(conf config.AllProvider, fim *hugofs.FileMeta) error {
 	configCascade := conf.GetConfigSection("cascade").(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 	if configCascade != nil {
 		configCascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
@@ -286,33 +287,35 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, siteMatrixFile *site
 		Cfg:   conf.ConfiguredDimensions(),
 		Globs: p.Sites.Matrix,
 	}
-
-	siteMatrixPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
+	sitesMatrixPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
 	if err != nil {
 		return fmt.Errorf("failed to create dimensions sets: %w", err)
 	}
-
-	var siteMatrix *sitematrix.IntSets
-	if siteMatrixFile == nil {
-		siteMatrix = siteMatrixPage
-	} else {
-		siteMatrix = siteMatrixPage // Front matter wins over mount config.
-		siteMatrix.SetFromOtherIfNotSet(siteMatrixFile)
-	}
-
-	siteMatrix.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
-
-	p.SitesMatrix = siteMatrix
-
-	intSetsCfg := sitematrix.IntSetsConfig{
-		Cfg:   conf.ConfiguredDimensions(),
-		Globs: p.Sites.Fallbacks,
-	}
-	siteMatrixDelegees, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
+	intsetsCfg.Globs = p.Sites.Fallbacks
+	sitesFallbacksPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
 	if err != nil {
-		return fmt.Errorf("failed to create dimensions delegees sets: %w", err)
+		return fmt.Errorf("failed to create fallback dimensions sets: %w", err)
 	}
-	p.SitesFallbacks = siteMatrixDelegees
+
+	var sitesMatrix *sitematrix.IntSets
+	if fim != nil && fim.SiteInts != nil {
+		sitesMatrix = sitesMatrixPage // Front matter wins over mount config.
+		sitesMatrix.SetFromOtherIfNotSet(fim.SiteInts)
+	} else {
+		sitesMatrix = sitesMatrixPage
+	}
+	sitesMatrix.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
+
+	var sitesFallbacks *sitematrix.IntSets
+	if fim != nil && fim.SiteIntsFallbacks != nil {
+		sitesFallbacks = sitesFallbacksPage // Front matter wins over mount config.
+		sitesFallbacks.SetFromOtherIfNotSet(fim.SiteIntsFallbacks)
+	} else {
+		sitesFallbacks = sitesFallbacksPage
+	}
+
+	p.SitesMatrix = sitesMatrix
+	p.SitesFallbacks = sitesFallbacks
 
 	return nil
 }

@@ -105,6 +105,15 @@ func (r VersionsInternal) ResolveName(i int) string {
 	return r.Sorted[i].Name
 }
 
+func (r VersionsInternal) ResolveIndex(name string) int {
+	for i, version := range r.Sorted {
+		if version.Name == name {
+			return i
+		}
+	}
+	panic(fmt.Sprintf("no version found for name %q", name))
+}
+
 // IndexMatch returns an iterator for the versions that match the filter.
 func (r VersionsInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {

@@ -84,6 +84,15 @@ func (ls LanguagesInternal) ResolveName(i int) string {
 	return ls.Sorted[i].Name
 }
 
+func (ls LanguagesInternal) ResolveIndex(name string) int {
+	for i, role := range ls.Sorted {
+		if role.Name == name {
+			return i
+		}
+	}
+	panic(fmt.Sprintf("no language found for name %q", name))
+}
+
 // IndexMatch returns an iterator for the roles that match the filter.
 func (ls LanguagesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {

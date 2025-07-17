@@ -63,7 +63,10 @@ type FileMeta struct {
 	SiteInts *sitematrix.IntSets
 
 	// SiteIntsWithDefaults is the same as SiteInts, but defaults applied.
-	SiteIntsWithDefaults *sitematrix.IntSets
+	SiteIntsWithDefaults *sitematrix.IntSets // TODO1 rmmove?
+
+	// Fallback values for the SiteInts.
+	SiteIntsFallbacks *sitematrix.IntSets
 
 	// TODO1 remove Lang*
 	// The lang associated with this file. This may be

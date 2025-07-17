@@ -721,13 +721,18 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				Ordinal:      md.ordinal + i,
 				Globs:        v.Matrix,
 			}
-			sites, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
+			matrix, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 			if err != nil {
 				return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
 			}
+			intSetsCfg.Globs = v.Fallbacks
+			fallbacks, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
+			if err != nil {
+				return fmt.Errorf("failed to create fallback dimension sets for %q: %w", filename, err)
+			}
 
 			if b.isContentMount(mount) {
-				sites = sites.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+				matrix = matrix.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
 			}
 
 			rm := hugofs.RootMapping{
@@ -741,8 +746,9 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 					Watch:                !mount.DisableWatch && md.Watch(),
 					Weight:               mountWeight,
 					InclusionFilter:      inclusionFilter,
-					SiteInts:             sites,
-					SiteIntsWithDefaults: sites,
+					SiteInts:             matrix,
+					SiteIntsWithDefaults: matrix,
+					SiteIntsFallbacks:    fallbacks,
 				},
 			}
 

@@ -103,6 +103,15 @@ func (r RolesInternal) ResolveName(i int) string {
 	return r.Sorted[i].Name
 }
 
+func (r RolesInternal) ResolveIndex(name string) int {
+	for i, role := range r.Sorted {
+		if role.Name == name {
+			return i
+		}
+	}
+	panic(fmt.Sprintf("no role found for name %q", name))
+}
+
 // IndexMatch returns an iterator for the roles that match the filter.
 func (r RolesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
