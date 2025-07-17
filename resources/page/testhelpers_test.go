@@ -111,6 +111,9 @@ type testPage struct {
 
 	currentSection *testPage
 	sectionEntries []string
+
+	// Functions
+	doGetPage func(ref string) Page
 }
 
 func (p *testPage) Aliases() []string {
@@ -210,6 +213,9 @@ func (p *testPage) FuzzyWordCount(context.Context) int {
 }
 
 func (p *testPage) GetPage(ref string) (Page, error) {
+	if p.doGetPage != nil {
+		return p.doGetPage(ref), nil
+	}
 	panic("testpage: not implemented")
 }
 
