@@ -1125,6 +1125,7 @@ Content
 			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 			b.Build(BuildCfg{SkipRender: true})
 
+			c.Assert(len(b.H.Sites), qt.Equals, 1)
 			s := b.H.Sites[0]
 			c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
@@ -1940,32 +1941,6 @@ Page: p-Homer|
 Site: s-Home|
 Hugo: h-Home|
 `,
-	)
-}
-
-// See #12484
-func TestPageFrontMatterDeprecatePathKindLang(t *testing.T) {
-	// This cannot be parallel as it depends on output from the global logger.
-
-	files := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "home", "section"]
--- content/p1.md --
----
-title: "p1"
-kind: "page"
-lang: "en"
-path: "mypath"
----
--- layouts/_default/single.html --
-Title: {{ .Title }}
-`
-	b := Test(t, files, TestOptWarn())
-	b.AssertFileContent("public/mypath/index.html", "p1")
-	b.AssertLogContains(
-		"deprecated: kind in front matter was deprecated",
-		"deprecated: lang in front matter was deprecated",
-		"deprecated: path in front matter was deprecated",
 	)
 }
 

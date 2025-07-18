@@ -1240,7 +1240,9 @@ Home.
 	b := Test(t, files)
 
 	b.Assert(b.H.Configs.Base.Module.Mounts, qt.HasLen, 7)
-	b.Assert(b.H.Configs.LanguageConfigSlice[0].Module.Mounts, qt.HasLen, 7)
+	b.Assert(b.H.Configs.Base.Languages.Config.Sorted[0].Name, qt.Equals, "en")
+	firstLang := b.H.Configs.Base.Languages.Config.Sorted[0].Name
+	b.Assert(b.H.Configs.LanguageConfigMap[firstLang].Module.Mounts, qt.HasLen, 7)
 }
 
 func TestDefaultContentLanguageInSubdirOnlyOneLanguage(t *testing.T) {

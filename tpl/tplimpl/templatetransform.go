@@ -12,6 +12,7 @@ import (
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
@@ -80,6 +81,10 @@ func applyTemplateTransformers(
 	}
 
 	_, err := c.applyTransformations(tree.Root)
+
+	if t.category == CategoryPartial {
+		hdebug.Printf("tplimpl", "applyTemplateTransformers: %s, hasReturn: %t", t.Name(), c.t.ParseInfo.HasReturn)
+	}
 
 	if err == nil && c.returnNode != nil {
 		// This is a partial with a return statement.

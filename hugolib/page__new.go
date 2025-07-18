@@ -15,8 +15,10 @@ package hugolib
 
 import (
 	"iter"
+	"strings"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 
@@ -99,6 +101,13 @@ func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
 			sWrapped:                   s, // page.WrapSite(s), // TODO1 need this?
 			pageContentConverter:       &pageContentConverter{},
 		},
+	}
+
+	if ps.IsHome() && ps.PathInfo().IsLeafBundle() {
+		msg := "Using %s in your content's root directory is usually incorrect for your home page. "
+		msg += "You should use %s instead. If you don't rename this file, your home page will be "
+		msg += "treated as a leaf bundle, meaning it won't be able to have any child pages or sections."
+		ps.s.Log.Warnidf(constants.WarnHomePageIsLeafBundle, msg, ps.PathInfo().PathNoLeadingSlash(), strings.ReplaceAll(ps.PathInfo().PathNoLeadingSlash(), "index", "_index"))
 	}
 
 	ps.pageMenus = &pageMenus{p: ps}

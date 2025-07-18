@@ -231,9 +231,6 @@ type PageMetaProvider interface {
 	// IsPage returns whether this is a regular content
 	IsPage() bool
 
-	// Param looks for a param in Page and then in Site config.
-	Param(key any) (any, error)
-
 	// Path gets the relative path, including file name and extension if relevant,
 	// to the source of this Page. It will be relative to any content root.
 	Path() string
@@ -348,6 +345,8 @@ type PageWithoutContent interface {
 	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
+
+	Param(key any) (any, error)
 	PageMetaInternalProvider
 
 	resource.LanguageProvider

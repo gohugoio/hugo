@@ -276,10 +276,9 @@ func (c ConfigLanguage) EnableEmoji() bool {
 }
 
 func (c ConfigLanguage) ConfiguredDimensions() sitematrix.ConfiguredDimensions {
-	// TODO1 cache if hot path.
-	return sitematrix.ConfiguredDimensions{
-		ConfiguredLanguages: c.m.Base.Languages.Config,
-		ConfiguredVersions:  c.m.Base.Versions.Config,
-		ConfiguredRoles:     c.m.Base.Roles.Config,
-	}
+	return c.m.ConfiguredDimensions
+}
+
+func (c ConfigLanguage) DefaultContentSitesMatrix() *sitematrix.IntSets {
+	return c.m.DefaultContentSitesMatrix
 }

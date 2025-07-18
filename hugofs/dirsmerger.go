@@ -24,11 +24,11 @@ import (
 // TODO1
 var LanguageDirsMerger overlayfs.DirsMerger = func(lofi, bofi []fs.DirEntry) []fs.DirEntry {
 	for _, fi1 := range bofi {
-		fim1 := fi1.(FileMetaInfo)
+		//	fim1 := fi1.(FileMetaInfo)
 		var found bool
 		for _, fi2 := range lofi {
-			fim2 := fi2.(FileMetaInfo)
-			if fi1.Name() == fi2.Name() && fim1.Meta().Lang == fim2.Meta().Lang {
+			// fim2 := fi2.(FileMetaInfo)
+			if fi1.Name() == fi2.Name() { //  && fim1.Meta().Lang == fim2.Meta().Lang {
 				found = true
 				break
 			}

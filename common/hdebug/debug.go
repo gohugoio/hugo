@@ -33,11 +33,13 @@ func Printf(format string, args ...any) {
 	fmt.Printf(format, args...)
 }
 
-func AssertNotNil(a any) {
+func AssertNotNil(a ...any) {
 	if htesting.IsRealCI() {
 		panic("hdebug.AssertNotNil statements should be removed before committing code!")
 	}
-	if types.IsNil(a) {
-		panic("hdebug.AssertNotNil: value is nil")
+	for _, v := range a {
+		if types.IsNil(v) {
+			panic("hdebug.AssertNotNil: value is nil")
+		}
 	}
 }

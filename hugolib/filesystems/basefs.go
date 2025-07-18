@@ -714,25 +714,39 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			base, filename := absPathify(mount.Source)
 
+			var matrix *sitematrix.IntSets
 			v := mount.Sites
+
+			ordinal := md.ordinal + i
+			isContent := b.isContentMount(mount)
+
 			intSetsCfg := sitematrix.IntSetsConfig{
-				Cfg:          b.p.Cfg.ConfiguredDimensions(),
-				ApplyDefault: false,
-				Ordinal:      md.ordinal + i,
-				Globs:        v.Matrix,
+				Cfg:           b.p.Cfg.ConfiguredDimensions(),
+				ApplyDefaults: false,
+				Ordinal:       ordinal,
+				Globs:         v.Matrix,
 			}
-			matrix, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
-			if err != nil {
-				return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
+
+			if !v.Matrix.IsZero() {
+				matrix, err = sitematrix.NewIntSetsFromConfig(intSetsCfg)
+				if err != nil {
+					return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
+				}
+			} else if isContent {
+				matrix = b.p.Cfg.DefaultContentSitesMatrix().WithOrdinal(ordinal)
+			} else {
+				matrix = sitematrix.NewIntSets(ordinal)
 			}
+
+			if isContent {
+				matrix = matrix.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+			}
+
 			intSetsCfg.Globs = v.Fallbacks
+			intSetsCfg.ApplyDefaults = false
 			fallbacks, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
 			if err != nil {
 				return fmt.Errorf("failed to create fallback dimension sets for %q: %w", filename, err)
-			}
-
-			if b.isContentMount(mount) {
-				matrix = matrix.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
 			}
 
 			rm := hugofs.RootMapping{
@@ -753,13 +767,6 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			}
 
 			isContentMount := b.isContentMount(mount)
-
-			lang := mount.Lang
-			if lang == "" && isContentMount {
-				lang = b.p.Cfg.DefaultContentLanguage()
-			}
-
-			rm.Meta.Lang = lang
 
 			if isContentMount {
 				fromToContent = append(fromToContent, rm)
@@ -796,12 +803,11 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 		collector.addRootFs(rmfsStatic)
 
 		if collector.staticPerLanguage != nil {
-			for _, l := range b.p.Cfg.Languages().(langs.Languages) {
+			for i, l := range b.p.Cfg.Languages().(langs.Languages) {
 				lang := l.Lang
 
 				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
-					rlang := rm.Meta.Lang
-					return rlang == "" || rlang == lang
+					return rm.Meta.SiteInts.Languages.Has(i)
 				})
 				bfs := hugofs.NewBasePathFs(lfs, files.ComponentFolderStatic)
 				collector.staticPerLanguage[lang] = collector.staticPerLanguage[lang].Append(bfs)

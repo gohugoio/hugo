@@ -359,6 +359,9 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		panic("nil pageMap")
 	}
 
+	// mm := fi.Meta()
+	// hdebug.Printf("AddFi: %q %q", mm.Filename, mm.SiteInts)
+
 	h := m.s.h
 
 	insertResource := func(fim hugofs.FileMetaInfo) error {
@@ -373,7 +376,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		if pi.IsContent() {
 			pm, err := h.newPageMetaSourceFromFile(fi)
 			if err != nil {
-				return fmt.Errorf("failed to create page meta from file %q: %w", fi.Meta().Filename, err)
+				return fmt.Errorf("failed to create page from file %q: %w", fi.Meta().Filename, err)
 			}
 			pm.bundled = true
 			_, _, _ = m.insertResource(key, pm)

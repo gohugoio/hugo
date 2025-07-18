@@ -727,7 +727,6 @@ func (n contentNodeIs2) MarkStale() {
 	}
 }
 
-// TODO1 remove me.
 type contentNodeIs map[sitematrix.Vector]contentNodeI
 
 func (n contentNodeIs) one() contentNodeI {
@@ -798,15 +797,8 @@ func (s *contentNodeShifter) Delete(n contentNodeI, dims sitematrix.Vector) (con
 		deleted := v[dims]
 		resource.MarkStale(deleted)
 		wasDeleted := deleted != nil
-		v[dims] = nil
-		isEmpty := true
-		for _, vv := range v {
-			if vv != nil {
-				isEmpty = false
-				break
-			}
-		}
-		return deleted, wasDeleted, isEmpty
+		delete(v, dims)
+		return deleted, wasDeleted, len(v) == 0
 	case contentNodeIs2:
 		panic("TODO1 Delete")
 		// TODO1 implement me.
@@ -1058,7 +1050,7 @@ func (s *contentNodeShifter) InsertInto(old, new contentNodeI, dimension sitemat
 		if vv.s.dims == newp.s.dims && newp.s.dims == dimension {
 			return new, vv, true
 		}
-		is := make(contentNodeIs, s.numLanguages)
+		is := make(contentNodeIs)
 		is[vv.s.dims] = old
 		is[dimension] = new
 		return is, old, false
@@ -1092,6 +1084,12 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 	switch vv := old.(type) {
 	case *pageMetaSource:
 		return pageMetaSourcesSlice{vv, new}, old, false
+	case pageMetaSourcesSlice:
+		newp, ok := new.(*pageMetaSource)
+		if !ok {
+			panic(fmt.Sprintf("Insert: unknown type %T", new))
+		}
+		return append(vv, newp), old, false
 	case *pageMeta:
 		switch new := new.(type) {
 		case *pageState:
@@ -1144,6 +1142,7 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 			if oldp != new {
 				resource.MarkStale(oldp)
 			}
+			hdebug.AssertNotNil(new)
 			vv[new.s.dims] = new
 			return vv, oldp, oldp != nil
 		case *pageMetaSource:
@@ -1202,12 +1201,13 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		oldp := vv[newp.Dims().FirstVector()]
+		oldp := vv[newp.Dims().FirstVector()] // TODO1
 		if oldp != newp {
 			resource.MarkStale(oldp)
 		}
 		vv[newp.Dims().FirstVector()] = newp
 		return vv, oldp, oldp != nil
+
 	default:
 		panic(fmt.Sprintf("Insert: unknown type %T", old))
 	}

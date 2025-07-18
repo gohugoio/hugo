@@ -155,6 +155,14 @@ func (ps *pageState) GetDependencyManagerForScopesAll() []identity.Manager {
 	return []identity.Manager{ps.dependencyManager, ps.dependencyManagerOutput}
 }
 
+// Param is a convenience method to do lookups in Page's and Site's Params map,
+// in that order.
+//
+// This method is also implemented on SiteInfo.
+func (p *pageState) Param(key any) (any, error) {
+	return resource.Param(p, p.s.Params(), key)
+}
+
 func (ps *pageState) Key() string {
 	return "page-" + strconv.FormatUint(ps.pid, 10)
 }
@@ -325,6 +333,8 @@ func (ps *pageState) RegularPages() page.Pages {
 }
 
 func (ps *pageState) Pages() page.Pages {
+	defer herrors.Recover()
+
 	switch ps.Kind() {
 	case kinds.KindPage:
 	case kinds.KindSection, kinds.KindHome:

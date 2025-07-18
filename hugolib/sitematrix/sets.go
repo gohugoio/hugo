@@ -156,6 +156,11 @@ func (s *IntSets) SetFromOtherIfNotSet(other *IntSets) {
 	}
 }
 
+func (s IntSets) WithOrdinal(i int) *IntSets {
+	s.ordinal = i
+	return &s
+}
+
 func (s IntSets) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSets {
 	s.SetDefaultsIfNotSet(cfg)
 	return &s
@@ -168,10 +173,10 @@ func (s IntSets) WithLanguageIndex(i int) *IntSets {
 }
 
 type IntSetsConfig struct {
-	Cfg          ConfiguredDimensions
-	Ordinal      int
-	ApplyDefault bool
-	Globs        StringSlices
+	Cfg           ConfiguredDimensions
+	Ordinal       int
+	ApplyDefaults bool
+	Globs         StringSlices
 }
 
 // NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
@@ -184,7 +189,7 @@ func NewIntSets(ordinal int) *IntSets {
 func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*maps.OrderedIntSet, error) {
 		if len(values) == 0 {
-			if cfg.ApplyDefault {
+			if cfg.ApplyDefaults {
 				result := maps.NewOrderedIntSet()
 				result.Set(matcher.IndexDefault())
 				return result, nil

@@ -196,12 +196,12 @@ weight = 100
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
-[module.mounts.sites]
+[module.mounts.sites.matrix]
 languages = ['en']
 [[module.mounts]]
 source = 'content/nn'
 target = 'content'
-[module.mounts.sites]
+[module.mounts.sites.matrix]
 languages = ['nn']
 -- content/en/p1/index.md --
 ---

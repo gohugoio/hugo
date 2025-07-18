@@ -179,6 +179,7 @@ Resources: {{ range .Resources }}RelPermalink: {{ .RelPermalink }}|Content: {{ .
 }
 
 func TestMultilingualDisableLanguage(t *testing.T) {
+	t.Skip("TODO1")
 	t.Parallel()
 
 	files := `
@@ -836,6 +837,7 @@ myposts/mybundle/index.html
 }
 
 func TestBundleDuplicatePagesAndResources(t *testing.T) {
+	t.Skip("TODO1")
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"

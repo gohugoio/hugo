@@ -54,6 +54,7 @@ type AllProvider interface {
 	DefaultContentLanguageInSubdir() bool
 	DefaultContentRoleInSubdir() bool
 	DefaultContentVersionInSubdir() bool
+	DefaultContentSitesMatrix() *sitematrix.IntSets
 	IsLangDisabled(string) bool
 	SummaryLength() int
 	Pagination() Pagination

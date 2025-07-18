@@ -43,6 +43,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/hugolib/segments"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/markup_config"
@@ -766,10 +767,9 @@ func (c RootConfig) staticDirs() []string {
 }
 
 type Configs struct {
-	Base                *Config
-	LoadingInfo         config.LoadConfigResult
-	LanguageConfigMap   map[string]*Config
-	LanguageConfigSlice []*Config
+	Base              *Config
+	LoadingInfo       config.LoadConfigResult
+	LanguageConfigMap map[string]*Config
 
 	IsMultihost bool
 
@@ -777,9 +777,11 @@ type Configs struct {
 	ModulesClient *modules.Client
 
 	// All below is set in Init.
-	Languages             langs.Languages
-	LanguagesDefaultFirst langs.Languages
-	ContentPathParser     *paths.PathParser
+	Languages                 langs.Languages
+	LanguagesDefaultFirst     langs.Languages // TODO1 remove?
+	ContentPathParser         *paths.PathParser
+	ConfiguredDimensions      sitematrix.ConfiguredDimensions
+	DefaultContentSitesMatrix *sitematrix.IntSets
 
 	configLangs []config.AllProvider
 }
@@ -844,9 +846,25 @@ func (c *Configs) Init() error {
 
 	c.Languages = languages
 	c.LanguagesDefaultFirst = languagesDefaultFirst
+	c.ConfiguredDimensions = sitematrix.ConfiguredDimensions{
+		ConfiguredLanguages: c.Base.Languages.Config,
+		ConfiguredVersions:  c.Base.Versions.Config,
+		ConfiguredRoles:     c.Base.Roles.Config,
+	}
+
+	intSetsCfg := sitematrix.IntSetsConfig{
+		Cfg:           c.ConfiguredDimensions,
+		ApplyDefaults: true,
+		Ordinal:       0,
+	}
+	matrix, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
+	if err != nil {
+		return fmt.Errorf("failed to create default dimension sets")
+	}
+	c.DefaultContentSitesMatrix = matrix
 
 	c.ContentPathParser = &paths.PathParser{
-		LanguageIndex:  languagesDefaultFirst.AsIndexSet(),
+		LanguageIndex:  languages.AsIndexSet(),
 		IsLangDisabled: c.Base.IsLangDisabled,
 		IsContentExt:   c.Base.ContentTypes.Config.IsContentSuffix,
 		IsOutputFormat: func(name, ext string) bool {
@@ -885,6 +903,7 @@ func (c *Configs) Init() error {
 
 	// We should consolidate this, but to get a full view of the mounts in e.g. "hugo config" we need to
 	// transfer any default mounts added above to the config used to print the config.
+	// TODO1 consider the matrix.
 	for _, m := range c.Modules[0].Mounts() {
 		var found bool
 		for _, cm := range c.Base.Module.Mounts {
@@ -899,7 +918,7 @@ func (c *Configs) Init() error {
 	}
 
 	// Transfer the changed mounts to the language versions (all share the same mount set, but can be displayed in different languages).
-	for _, l := range c.LanguageConfigSlice {
+	for _, l := range c.LanguageConfigMap {
 		l.Module.Mounts = c.Base.Module.Mounts
 	}
 

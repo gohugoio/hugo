@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/version"
@@ -145,7 +146,11 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 			}
 
 			if dir != "" {
-				mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+				mnt := Mount{Lang: lang, Source: dir, Target: component}
+				if err := mnt.init(); err != nil {
+					return fmt.Errorf("failed to init mount %d: %w", i, err)
+				}
+				mounts = append(mounts, mnt)
 			}
 		}
 	}
@@ -224,12 +229,11 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 		for i, mnt := range c.Mounts {
 			mnt.Source = filepath.Clean(mnt.Source)
 			mnt.Target = filepath.Clean(mnt.Target)
-			if mnt.Lang != "" {
-				// We moved this to a more flixeble setup in Hugo 0.148.0.
-				mnt.Sites.Matrix.Languages = append(mnt.Sites.Matrix.Languages, mnt.Lang)
-				mnt.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(mnt.Sites.Matrix.Languages)
+			if err := mnt.init(); err != nil {
+				return c, fmt.Errorf("failed to init mount %d: %w", i, err)
 			}
 			c.Mounts[i] = mnt
+			hdebug.Printf("decodeConfig: Mount %d: %q -> %q (%s)", i, mnt.Source, mnt.Target, mnt.Lang)
 		}
 
 		if c.Workspace == "" {
@@ -439,4 +443,13 @@ func (m Mount) Component() string {
 func (m Mount) ComponentAndName() (string, string) {
 	c, n, _ := strings.Cut(m.Target, fileSeparator)
 	return c, n
+}
+
+func (m *Mount) init() error {
+	if m.Lang != "" {
+		// We moved this to a more flixeble setup in Hugo 0.148.0.
+		m.Sites.Matrix.Languages = append(m.Sites.Matrix.Languages, m.Lang)
+		m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
+	}
+	return nil
 }

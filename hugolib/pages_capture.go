@@ -26,7 +26,6 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
-	"github.com/gohugoio/hugo/common/types"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/source"
@@ -315,7 +314,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			return nil, filepath.SkipDir
 		}
 
-		seen := map[types.Strings2]hugofs.FileMetaInfo{}
+		// seen := map[types.Strings2]hugofs.FileMetaInfo{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
@@ -329,7 +328,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			// inserting them into the document store,
 			// but doing it here will preserve a consistent ordering.
 			// TODO1
-			baseLang := types.Strings2{pi.Base(), meta.Lang}
+			/*baseLang := types.Strings2{pi.Base(), meta.Lang}
 			if fi2, ok := seen[baseLang]; ok {
 				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {
 					c.logger.Warnf("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
@@ -337,13 +336,10 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 				// TODO1 lang continue
 			}
 			seen[baseLang] = fi
+			*/
 
 			if pi == nil {
 				panic(fmt.Sprintf("no path info for %q", meta.Filename))
-			}
-
-			if meta.Lang == "" {
-				panic("lang not set")
 			}
 
 			if err := c.g.Enqueue(fi); err != nil {
@@ -379,7 +375,6 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
 	bundlePi := bundle.Meta().PathInfo
-	seen := map[types.Strings2]bool{}
 
 	walk := func(path string, info hugofs.FileMetaInfo) error {
 		if info.IsDir() {
@@ -401,11 +396,13 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 		// These would eventually have been filtered out as duplicates when
 		// inserting them into the document store,
 		// but doing it here will preserve a consistent ordering.
-		baseLang := types.Strings2{pi.Base(), info.Meta().Lang}
+		// TODO1
+		/*baseLang := types.Strings2{pi.Base(), info.Meta().Lang}
 		if seen[baseLang] {
 			// TODO1 return nil
 		}
 		seen[baseLang] = true
+		*/
 
 		return c.g.Enqueue(info)
 	}

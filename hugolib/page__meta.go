@@ -224,14 +224,6 @@ func (m *pageMetaSource) initEarly(h *HugoSites) error {
 				m.pageConfig.Params = make(maps.Params)
 			}
 
-			if m.pageConfig.Lang == "" {
-				if m.f != nil {
-					m.pageConfig.Lang = m.f.FileInfo().Meta().Lang
-				} else {
-					m.pageConfig.Lang = m.pathInfo.Lang()
-				}
-			}
-
 			var fim *hugofs.FileMeta
 			if m.f != nil {
 				fim = m.f.FileInfo().Meta()
@@ -318,24 +310,31 @@ func (m *pageMeta) initLate(s *Site) error {
 
 // bookmark1
 func (h *HugoSites) newPageMetaSourceFromFile(fi hugofs.FileMetaInfo) (*pageMetaSource, error) {
-	meta := fi.Meta()
-	openSource := func() (hugio.ReadSeekCloser, error) {
-		r, err := meta.Open()
-		if err != nil {
-			return nil, fmt.Errorf("failed to open file %q: %w", meta.Filename, err)
+	p, err := func() (*pageMetaSource, error) {
+		meta := fi.Meta()
+		openSource := func() (hugio.ReadSeekCloser, error) {
+			r, err := meta.Open()
+			if err != nil {
+				return nil, fmt.Errorf("failed to open file %q: %w", meta.Filename, err)
+			}
+			return r, nil
 		}
-		return r, nil
-	}
-	p := &pageMetaSource{
-		f:              source.NewFileInfo(fi),
-		pathInfo:       fi.Meta().PathInfo,
-		openSource:     openSource,
-		hasFrontMatter: true,
-		Staler:         &resources.AtomicStaler{},
-		pageConfig:     &pagemeta.PageConfig{},
+		p := &pageMetaSource{
+			f:              source.NewFileInfo(fi),
+			pathInfo:       fi.Meta().PathInfo,
+			openSource:     openSource,
+			hasFrontMatter: true,
+			Staler:         &resources.AtomicStaler{},
+			pageConfig:     &pagemeta.PageConfig{},
+		}
+
+		return p, p.initEarly(h)
+	}()
+	if err != nil {
+		return nil, hugofs.AddFileInfoToError(err, fi, h.SourceFs)
 	}
 
-	return p, p.initEarly(h)
+	return p, err
 }
 
 func (h *HugoSites) newPageMetaSourceForContentAdapter(fi hugofs.FileMetaInfo, pc *pagemeta.PageConfig) (*pageMetaSource, error) {
@@ -499,16 +498,6 @@ func (m *pageMeta) IsNode() bool {
 
 func (m *pageMeta) IsPage() bool {
 	return m.Kind() == kinds.KindPage
-}
-
-// Param is a convenience method to do lookups in Page's and Site's Params map,
-// in that order.
-//
-// This method is also implemented on SiteInfo.
-// TODO(bep) interface
-func (m *pageMeta) Param(key any) (any, error) {
-	panic("TODO1: reimplement me.")
-	// return resource.Param(p, p.s.Params(), key)
 }
 
 func (m *pageMeta) Params() maps.Params {

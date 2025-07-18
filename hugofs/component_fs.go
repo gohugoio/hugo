@@ -182,11 +182,11 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 	}
 
 	// TODO1 redo vs. Dimensions.
-	if meta.Lang != "" {
+	/*if meta.Lang != "" {
 		if isLangDisabled := fs.opts.PathParser.IsLangDisabled; isLangDisabled != nil && isLangDisabled(meta.Lang) {
 			return fim, false
 		}
-	}
+	}*/
 
 	meta.PathInfo = pi
 	if !fim.IsDir() {
@@ -194,8 +194,7 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 			if idx, ok := fs.opts.PathParser.LanguageIndex[fileLang]; ok {
 				// A valid lang set in filename.
 				// Give priority to myfile.sv.txt inside the sv filesystem.
-				meta.Weight++        // TODO1
-				meta.Lang = fileLang // TODO1 remove.
+				meta.Weight++
 				meta.SiteInts = meta.SiteInts.WithLanguageIndex(idx)
 				meta.SiteIntsWithDefaults = meta.SiteIntsWithDefaults.WithLanguageIndex(idx)
 			}

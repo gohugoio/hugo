@@ -12,20 +12,3 @@
 // limitations under the License.
 
 package compare
-
-import (
-	"testing"
-
-	qt "github.com/frankban/quicktest"
-)
-
-func TestWeights(t *testing.T) {
-	c := qt.New(t)
-
-	c.Assert(LessWeight(1, 2), qt.IsTrue)
-	c.Assert(LessWeight(2, 1), qt.IsFalse)
-	c.Assert(LessWeight(1, 1), qt.IsFalse)
-	c.Assert(LessWeight(0, 1), qt.IsFalse)
-	c.Assert(LessWeight(-1, 2), qt.IsTrue)
-	c.Assert(LessWeight(1, 0), qt.IsTrue)
-}

@@ -155,6 +155,7 @@ func (ns *Namespace) doInclude(ctx context.Context, templ *tplimpl.TemplInfo, da
 	var w io.Writer
 
 	if info.HasReturn {
+
 		// Wrap the context sent to the template to capture the return value.
 		// Note that the template is rewritten to make sure that the dot (".")
 		// and the $ variable points to Arg.

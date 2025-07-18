@@ -81,7 +81,6 @@ func (d Dates) IsAllDatesZero() bool {
 type PageConfigEarly struct {
 	Kind string // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
 	Path string // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
-	Lang string // The language code for this page. This is usually derived from the module mount or filename.
 
 	// User defined params.
 	Params maps.Params
@@ -101,7 +100,6 @@ const (
 	pageMetaKeySites   = "sites"
 	pageMetaKeyCascade = "cascade"
 	pageMetaKeyPath    = "path"
-	pageMetaKeyLang    = "lang"
 	pageMetaKeyKind    = "kind"
 )
 
@@ -123,12 +121,7 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logge
 	if v, found := frontmatter[pageMetaKeyPath]; found {
 		pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
 	}
-	if v, found := frontmatter[pageMetaKeyLang]; found {
-		lang := strings.ToLower(cast.ToString(v))
-		if _, ok := conf.PathParser().LanguageIndex[lang]; ok {
-			pcfg.Lang = lang
-		}
-	}
+
 	if v, found := frontmatter[pageMetaKeyKind]; found {
 		s := cast.ToString(v)
 		if s != "" {
@@ -238,9 +231,6 @@ func (p *PageConfig) Validate(pagesFromData bool) error {
 		if strings.HasPrefix(p.Path, "/") {
 			return fmt.Errorf("path %q must not start with a /", p.Path)
 		}
-		if p.Lang != "" {
-			return errors.New("lang must not be set")
-		}
 
 		if p.Content.Markup != "" {
 			return errors.New("markup must not be set, use mediaType")
@@ -261,7 +251,8 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, fim *hugofs.FileMeta
 	configCascade := conf.GetConfigSection("cascade").(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 	if configCascade != nil {
 		configCascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
-			if !k.MatchesValues(p.Kind, p.Lang, p.Path, conf.Environment()) {
+			// TODO1 kind + lang is not set here.
+			if !k.MatchesValues(p.Kind, "", p.Path, conf.Environment()) {
 				return true
 			}
 			vv, found := configCascade.Get(k)
@@ -274,13 +265,6 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, fim *hugofs.FileMeta
 
 			return true
 		})
-	}
-
-	if false && p.Lang != "" {
-		// TODO1 move this or consolidate.
-		p.Sites.Matrix.Languages = append(p.Sites.Matrix.Languages, p.Lang)
-		p.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(p.Sites.Matrix.Languages)
-
 	}
 
 	intsetsCfg := sitematrix.IntSetsConfig{
