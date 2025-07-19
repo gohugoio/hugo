@@ -44,7 +44,7 @@ Alternatively, you can use the [Jekyll import command](/commands/hugo_import_jek
 : A small utility written in Java that exports the entire WordPress site from the database and resource (e.g., images) files stored locally or remotely. Therefore, migration from the backup files is possible. Supports merging multiple WordPress sites into a single Hugo site.
 
 [wp2hugo](https://github.com/ashishb/wp2hugo)
-: A Go-based CLI tool to migrate WordPress website to Hugo while preserving original URLs, GUIDs (for feeds), image URLs, code highlights, table of contents, YouTube embeds, Google Maps embeds, and original WordPress navigation categories.
+: A Go-based CLI tool to migrate WordPress website to Hugo while preserving original URLs, GUIDs (for feeds), image URLs, code highlights, table of contents and original WordPress navigation categories. It can migrate WordPress custom post types, custom taxonomies, custom fields, and respects page hierarchy. It supports translated WordPress blogs (through Polylang or WPML). It imports a WP media library database with orginal titles and dates and can download all media or only the ones inserted into pages from the original server. It supports a large range of conversions from WP legacy shortcodes and Gutenbarg blocks to Hugo [shortcodes](https://github.com/ashishb/wp2hugo/blob/main/doc/shortcodes.md): galleries, images, audio, YouTube embeds, Gists, Google Maps,...
 
 ## Medium
 
