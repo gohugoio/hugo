@@ -60,13 +60,13 @@ type FileMeta struct {
 	Watch     bool
 
 	// The site matrix associated with this file.
-	SiteInts *sitematrix.IntSets
+	SitesMatrix *sitematrix.IntSets
 
 	// SiteIntsWithDefaults is the same as SiteInts, but defaults applied.
 	SiteIntsWithDefaults *sitematrix.IntSets // TODO1 rmmove?
 
 	// Fallback values for the SiteInts.
-	SiteIntsFallbacks *sitematrix.IntSets
+	SitesFallbacks *sitematrix.IntSets
 
 	// TODO1 remove Lang*
 	// The lang associated with this file. This may be

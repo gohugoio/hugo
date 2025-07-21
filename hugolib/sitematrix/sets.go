@@ -161,6 +161,57 @@ func (s IntSets) WithOrdinal(i int) *IntSets {
 	return &s
 }
 
+func (s IntSets) Clone() *IntSets {
+	if s.Languages == nil && s.Versions == nil && s.Roles == nil {
+		return nil
+	}
+	s.Languages = s.Languages.Clone()
+	s.Versions = s.Versions.Clone()
+	s.Roles = s.Roles.Clone()
+	return &s
+}
+
+// Complement returns a new IntSets that is the complement of the IntSets passed in is.
+// This will return nil if the resulting set is empty.
+func (s *IntSets) Complement(is ...*IntSets) *IntSets {
+	if len(is) == 0 || (len(is) == 1 && is[0] == s) {
+		return nil
+	}
+
+	// If all keys in s are present in is, we return nil.
+	var notAllPresent bool
+	for _, v := range is {
+		s.ForEeachVector(func(vec Vector) bool {
+			if !v.HasVector(vec) {
+				notAllPresent = true
+				return false
+			}
+			return true
+		})
+	}
+
+	if !notAllPresent {
+		return nil
+	}
+
+	result := s.Clone()
+	for _, i := range is {
+		if i == nil {
+			continue
+		}
+		if result.Languages != nil {
+			result.Languages.Complement(i.Languages)
+		}
+		if result.Versions != nil {
+			result.Versions.Complement(i.Versions)
+		}
+		if result.Roles != nil {
+			result.Roles.Complement(i.Roles)
+		}
+	}
+	return result
+}
+
 func (s IntSets) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSets {
 	s.SetDefaultsIfNotSet(cfg)
 	return &s

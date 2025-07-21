@@ -230,10 +230,13 @@ type IntegrationTestPageHelper struct {
 	p *pageState
 }
 
-func (s *IntegrationTestPageHelper) ConfiguredSites() map[string]map[string][]string {
+func (s *IntegrationTestPageHelper) MatrixFallbacksFromPageConfig() map[string]map[string][]string {
 	pc := s.p.m.pageConfig
-	dconf := s.p.s.Conf.ConfiguredDimensions()
+	return s.siteIntsToMap(pc.SitesMatrix, pc.SitesFallbacks)
+}
 
+func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks *sitematrix.IntSets) map[string]map[string][]string {
+	dconf := s.p.s.Conf.ConfiguredDimensions()
 	intSetsToMap := func(intSets *sitematrix.IntSets) map[string][]string {
 		var languages, versions, roles []string
 
@@ -255,9 +258,17 @@ func (s *IntegrationTestPageHelper) ConfiguredSites() map[string]map[string][]st
 	}
 
 	return map[string]map[string][]string{
-		"matrix":    intSetsToMap(pc.SitesMatrix),
-		"fallbacks": intSetsToMap(pc.SitesFallbacks),
+		"matrix":    intSetsToMap(matrix),
+		"fallbacks": intSetsToMap(fallbacks),
 	}
+}
+
+func (s *IntegrationTestPageHelper) MatrixFromFile() map[string]map[string][]string {
+	if s.p.m.f == nil {
+		return nil
+	}
+	m := s.p.m.f.FileInfo().Meta()
+	return s.siteIntsToMap(m.SitesMatrix, m.SitesFallbacks)
 }
 
 func (s *IntegrationTestSiteMatrixHelper) PageHelper(path string) *IntegrationTestPageHelper {

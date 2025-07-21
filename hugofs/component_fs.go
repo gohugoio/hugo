@@ -20,6 +20,7 @@ import (
 	"runtime"
 	"sort"
 
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -99,7 +100,14 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		if _, ok := f.fs.applyMeta(fi, s); ok {
 			fis[n] = fi
 			n++
+			meta := fi.(FileMetaInfo).Meta()
+			var baseName string
+			if meta.PathInfo != nil {
+				baseName = meta.PathInfo.Base()
+			}
+			hdebug.Printf("componentFsDir.ReadDir %q %q %q", baseName, f.name, fi.Name())
 		}
+
 	}
 	fis = fis[:n]
 
@@ -195,7 +203,7 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 				// A valid lang set in filename.
 				// Give priority to myfile.sv.txt inside the sv filesystem.
 				meta.Weight++
-				meta.SiteInts = meta.SiteInts.WithLanguageIndex(idx)
+				meta.SitesMatrix = meta.SitesMatrix.WithLanguageIndex(idx)
 				meta.SiteIntsWithDefaults = meta.SiteIntsWithDefaults.WithLanguageIndex(idx)
 			}
 		}

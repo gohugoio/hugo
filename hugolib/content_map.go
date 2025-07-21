@@ -385,7 +385,7 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 				return fim.Meta().Open()
 			}
 
-			rs := &resourceSource{path: pi, opener: r, fi: fim, dims: fim.Meta().SiteInts}
+			rs := &resourceSource{path: pi, opener: r, fi: fim, dims: fim.Meta().SitesMatrix}
 			_, _, _ = m.insertResource(key, rs)
 		}
 

@@ -461,7 +461,7 @@ All. {{ site.Language.Name }}|{{ site.Version.Name }}|{{ site.Role.Name }}
 	b.AssertFileContent("public/member/v1.4.0/nn/p2/index.html", "All.")
 	s := b.SiteMatrixHelper("nn", "v1.4.0", "member")
 	p2 := s.PageHelper("/p2")
-	s.Assert(p2.ConfiguredSites(), qt.DeepEquals,
+	s.Assert(p2.MatrixFallbacksFromPageConfig(), qt.DeepEquals,
 		map[string]map[string][]string{
 			"fallbacks": {
 				"languages": {"en"},
@@ -477,7 +477,7 @@ All. {{ site.Language.Name }}|{{ site.Version.Name }}|{{ site.Role.Name }}
 	)
 
 	p3 := s.PageHelper("/p3")
-	s.Assert(p3.ConfiguredSites(), qt.DeepEquals, map[string]map[string][]string{
+	s.Assert(p3.MatrixFallbacksFromPageConfig(), qt.DeepEquals, map[string]map[string][]string{
 		"fallbacks": {
 			"languages": {"en"},
 			"roles":     {"guest"},
@@ -500,4 +500,68 @@ func TestLanguageVersionRoleIsDefault(t *testing.T) {
 		".Version.IsDefault: /guest/v2.0.0/en/: v2.0.0: true|/guest/v1.4.0/en/: v1.4.0: false|/guest/v1.2.3/en/: v1.2.3: false|$",
 		".Role.IsDefault: /member/v2.0.0/en/: member: false|/guest/v2.0.0/en/: guest: true|$",
 	)
+}
+
+func TestModuleMountsLanguageOverlap(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["rss", "sitemap", "section", "taxonomy", "term"]
+theme = "mytheme"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[[module.mounts]]
+source = 'content'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = "en"
+-- content/p1.md --
+---
+title: "Project p1"
+---
+-- themes/mytheme/hugo.toml --
+
+[[module.mounts]]
+source = 'content'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = "**"
+-- themes/mytheme/content/p1.md --
+---
+title: "Theme p1"
+---
+-- themes/mytheme/content/p2.md --
+---
+title: "Theme p1"
+---
+-- layouts/all.html --
+{{ .Title }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	sEn := b.SiteMatrixHelper("en", "", "")
+	sNN := b.SiteMatrixHelper("nn", "", "guest")
+
+	b.Assert(sEn.PageHelper("/p1").MatrixFallbacksFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{"languages": {"en"}, "roles": {"guest"}, "versions": {"v1"}})
+	b.Assert(sEn.PageHelper("/p2").MatrixFallbacksFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
+		"languages": {"en", "nn"},
+		"roles":     {"guest"},
+		"versions":  {"v1"},
+	})
+
+	p1NN := sNN.PageHelper("/p1")
+	p2NN := sNN.PageHelper("/p2")
+
+	b.Assert(p2NN.MatrixFallbacksFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
+		"languages": {"en", "nn"},
+		"roles":     {"guest"},
+		"versions":  {"v1"},
+	})
+
+	b.Assert(p1NN.MatrixFromFile(), qt.DeepEquals, "asdf")
 }

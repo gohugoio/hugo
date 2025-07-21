@@ -17,6 +17,7 @@ import (
 	"io/fs"
 
 	"github.com/bep/overlayfs"
+	"github.com/gohugoio/hugo/common/hdebug"
 )
 
 // LanguageDirsMerger implements the overlayfs.DirsMerger func, which is used
@@ -24,12 +25,13 @@ import (
 // TODO1
 var LanguageDirsMerger overlayfs.DirsMerger = func(lofi, bofi []fs.DirEntry) []fs.DirEntry {
 	for _, fi1 := range bofi {
-		//	fim1 := fi1.(FileMetaInfo)
+		fim1 := fi1.(FileMetaInfo).Meta()
 		var found bool
 		for _, fi2 := range lofi {
-			// fim2 := fi2.(FileMetaInfo)
+			fim2 := fi2.(FileMetaInfo).Meta()
 			if fi1.Name() == fi2.Name() { //  && fim1.Meta().Lang == fim2.Meta().Lang {
-				found = true
+				hdebug.Printf("language dirs merger %q %q %q", fi1.Name(), fim1.Filename, fim2.Filename)
+				found = false // TODO1
 				break
 			}
 		}

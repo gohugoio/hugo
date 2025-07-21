@@ -760,9 +760,9 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 					Watch:                !mount.DisableWatch && md.Watch(),
 					Weight:               mountWeight,
 					InclusionFilter:      inclusionFilter,
-					SiteInts:             matrix,
+					SitesMatrix:          matrix,
 					SiteIntsWithDefaults: matrix,
-					SiteIntsFallbacks:    fallbacks,
+					SitesFallbacks:       fallbacks,
 				},
 			}
 
@@ -807,7 +807,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				lang := l.Lang
 
 				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
-					return rm.Meta.SiteInts.Languages.Has(i)
+					return rm.Meta.SitesMatrix.Languages.Has(i)
 				})
 				bfs := hugofs.NewBasePathFs(lfs, files.ComponentFolderStatic)
 				collector.staticPerLanguage[lang] = collector.staticPerLanguage[lang].Append(bfs)

@@ -282,18 +282,18 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, fim *hugofs.FileMeta
 	}
 
 	var sitesMatrix *sitematrix.IntSets
-	if fim != nil && fim.SiteInts != nil {
+	if fim != nil && fim.SitesMatrix != nil {
 		sitesMatrix = sitesMatrixPage // Front matter wins over mount config.
-		sitesMatrix.SetFromOtherIfNotSet(fim.SiteInts)
+		sitesMatrix.SetFromOtherIfNotSet(fim.SitesMatrix)
 	} else {
 		sitesMatrix = sitesMatrixPage
 	}
 	sitesMatrix.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
 
 	var sitesFallbacks *sitematrix.IntSets
-	if fim != nil && fim.SiteIntsFallbacks != nil {
+	if fim != nil && fim.SitesFallbacks != nil {
 		sitesFallbacks = sitesFallbacksPage // Front matter wins over mount config.
-		sitesFallbacks.SetFromOtherIfNotSet(fim.SiteIntsFallbacks)
+		sitesFallbacks.SetFromOtherIfNotSet(fim.SitesFallbacks)
 	} else {
 		sitesFallbacks = sitesFallbacksPage
 	}

@@ -22,13 +22,16 @@ import (
 
 type OrderedIntSet struct {
 	keys   []int
-	values bitset.BitSet
+	values *bitset.BitSet
 }
 
 // NewOrderedIntSet creates a new OrderedIntSet.
 // Note that this is backed by https://github.com/bits-and-blooms/bitset
 func NewOrderedIntSet(vals ...int) *OrderedIntSet {
-	m := &OrderedIntSet{}
+	m := &OrderedIntSet{
+		keys:   make([]int, 0, len(vals)),
+		values: bitset.New(uint(len(vals))),
+	}
 	for _, v := range vals {
 		m.Set(v)
 	}
@@ -54,7 +57,7 @@ func (m *OrderedIntSet) Clear() {
 		return
 	}
 	m.keys = nil
-	m.values = bitset.BitSet{}
+	m.values = &bitset.BitSet{}
 }
 
 // SetFrom sets the values from another OrderedIntSet.
@@ -65,6 +68,29 @@ func (m *OrderedIntSet) SetFrom(other *OrderedIntSet) {
 	for _, key := range other.keys {
 		m.Set(key)
 	}
+}
+
+func (m *OrderedIntSet) Clone() *OrderedIntSet {
+	if m == nil {
+		return nil
+	}
+	newSet := &OrderedIntSet{
+		keys:   slices.Clone(m.keys),
+		values: m.values.Clone(),
+	}
+	return newSet
+}
+
+func (m *OrderedIntSet) Complement(other *OrderedIntSet) {
+	if m == nil || other == nil {
+		return
+	}
+	for _, key := range other.keys {
+		m.values.Clear(uint(key))
+	}
+	m.keys = slices.DeleteFunc(m.keys, func(k int) bool {
+		return !m.values.Test(uint(k))
+	})
 }
 
 // Get returns the value at the given index.
