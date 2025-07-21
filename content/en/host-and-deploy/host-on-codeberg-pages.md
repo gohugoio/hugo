@@ -249,6 +249,26 @@ jobs:
 
 Once you commit one of the two files to your website source repository, you should see your first automated build firing up pretty soon. You can also trigger it manually by navigating to the **Actions** section of your repository web page, choosing **hugo.yaml** on the left and clicking on **Run workflow**.
 
+### Using custom domain with Forgejo Actions
+
+Codeberg Pages utilizes `.domains` file to identify allowed domains for a specific branch. It's necessary to ensure that the `.domains` file is located in the root directory of output repository or branch instead of root directory of source files.
+
+The ideal practice is putting your `.domains` file in `static` folder, and it will be preserved without modification in `public` folder, which will be the root directory of the output repository or branch.
+
+Nevertheless, it's worth noticing that in the example `.forgejo/workflows/hugo.yaml`, the action `upload-artifact@v3` , has been used to upload `public` folder to the target branch for deploy. And by default, [upload-artifact@v3 and @v4 exclude all dot files from uploading unless you explicitly prevents it from doing so](https://github.com/actions/upload-artifact/issues/602):
+
+```yaml {file=".forgejo/workflows/hugo.yaml" copy=true}
+      - name: Upload generated files
+        uses: https://code.forgejo.org/actions/upload-artifact@v3
+        with:
+          name: Generated files
+          path: public/
+          include-hidden-files: true # Prevents excluding .domains from uploading
+```
+
+It is important to modify the workflow file accordingly if you are using a custom domain.
+
+
 ## Other resources
 
 - [Codeberg Pages](https://codeberg.page/)
