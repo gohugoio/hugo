@@ -50,7 +50,7 @@ Inner
 : (`string`) The content between the leading and trailing code fences, excluding the info string.
 
 Options
-: (`map`) The highlighting options from the info string.
+: (`map`) The highlighting options from the info string. This map is empty if [`Type`](#type) is an empty string or a code language that is not supported by the Chroma syntax highlighter. However, in this case, the highlighting options are available in the [`Attributes`](#attributes) map.
 
 Ordinal
 : (`int`) The zero-based ordinal of the code block on the page.
