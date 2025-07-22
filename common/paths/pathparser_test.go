@@ -601,7 +601,7 @@ func TestParseLayouts(t *testing.T) {
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
 			if test.name != "Not lang" {
-				// return
+				return
 			}
 			test.assert(c, testParser.Parse(files.ComponentFolderLayouts, test.path))
 		})

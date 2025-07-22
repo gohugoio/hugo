@@ -99,30 +99,37 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		s := path.Join(f.name, fi.Name())
 		if _, ok := f.fs.applyMeta(fi, s); ok {
 			meta := fi.(FileMetaInfo).Meta()
-			baseName := meta.PathInfo.PathNoLang() // Update this when I get the ^1 identifiers working.
-			var skip bool
+			pi := meta.PathInfo
+
+			switch meta.Component {
+			case files.ComponentFolderLayouts:
+				// Eg. indeex.fr.html when French isn't defined.
+				if len(pi.IdentifiersUnknown()) > 0 {
+					continue
+				}
+			}
+
+			baseName := pi.PathNoLang() // Update this when I get the ^1 identifiers working.
 
 			// There may be multiple languge/version/role combinations for the same file.
 			// The most important come early.
 			matrixes, found := variants[baseName]
 			if found {
 				complement := meta.SitesMatrix.Complement(matrixes...)
-				skip = complement == nil
-				if !skip {
-					meta.SitesMatrix = complement
-					matrixes = append(matrixes, complement)
-					variants[baseName] = matrixes
-
+				if complement == nil {
+					continue
 				}
+				meta.SitesMatrix = complement
+				matrixes = append(matrixes, complement)
+				variants[baseName] = matrixes
+
 			} else {
 				matrixes = []*sitematrix.IntSets{meta.SitesMatrix}
 				variants[baseName] = matrixes
 			}
 
-			if !skip {
-				fis[n] = fi
-				n++
-			}
+			fis[n] = fi
+			n++
 		}
 
 	}

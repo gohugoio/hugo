@@ -1661,14 +1661,14 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 	outputFormat, mediaType := s.resolveOutputFormatAndOrMediaType(p.OutputFormat(), p.Ext())
 	nameNoIdentifier := p.NameNoIdentifier()
 
-	var sites *sitematrix.IntSets
-	if fi != nil {
-		sites = fi.Meta().SiteIntsWithDefaults
+	var dimensionHash uint64
+	if fi != nil && p.Type() != paths.TypePartial {
+		dimensionHash = fi.Meta().SitesMatrix.MustHash()
 	}
 
 	d := TemplateDescriptor{
 		Lang:               p.Lang(),
-		DimensionsHash:     sites.MustHash(),
+		DimensionsHash:     dimensionHash,
 		OutputFormat:       p.OutputFormat(),
 		MediaType:          mediaType.Type,
 		Kind:               p.Kind(),
