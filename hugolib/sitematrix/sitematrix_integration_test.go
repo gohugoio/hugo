@@ -563,5 +563,9 @@ title: "Theme p1"
 		"versions":  {"v1"},
 	})
 
-	b.Assert(p1NN.MatrixFromFile(), qt.DeepEquals, "asdf")
+	b.Assert(p1NN.MatrixFromFile()["matrix"], qt.DeepEquals, map[string][]string{
+		"languages": {"nn"}, // It's defined as ** in the mount.
+		"roles":     {"guest"},
+		"versions":  {"v1"},
+	})
 }

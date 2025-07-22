@@ -174,6 +174,7 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 				p.identifiersKnown = append(p.identifiersKnown, id)
 				p.posIdentifierLanguage = len(p.identifiersKnown) - 1
 			}
+
 		}
 
 		if !found && mayHaveOutputFormat {

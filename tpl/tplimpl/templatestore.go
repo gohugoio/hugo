@@ -249,6 +249,8 @@ type TemplInfo struct {
 	// The descriptior that this template represents.
 	D TemplateDescriptor
 
+	dimensions sitematrix.VectorProvider // language, version, role.
+
 	// Parser state.
 	ParseInfo ParseInfo
 
@@ -387,6 +389,8 @@ type TemplateQuery struct {
 
 	// The category to look in.
 	Category Category
+
+	Dimensions sitematrix.VectorProvider // language, version, role.
 
 	// The template descriptor to match against.
 	Desc TemplateDescriptor
@@ -1664,7 +1668,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 
 	d := TemplateDescriptor{
 		Lang:               p.Lang(),
-		Dimensions:         sites,
+		DimensionsHash:     sites.MustHash(),
 		OutputFormat:       p.OutputFormat(),
 		MediaType:          mediaType.Type,
 		Kind:               p.Kind(),
@@ -1954,8 +1958,8 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 
 	if w.isEqualWeights(best.w) {
 		// Tie breakers.
-		if ti.D.Dimensions != nil && best.desc.Dimensions != nil {
-			if ti.D.Dimensions.Ordinal() < best.desc.Dimensions.Ordinal() {
+		if ti.dimensions != nil && best.templ.dimensions != nil {
+			if ti.dimensions.Ordinal() < best.templ.dimensions.Ordinal() {
 				return true
 			}
 		}

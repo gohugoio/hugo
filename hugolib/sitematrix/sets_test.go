@@ -37,8 +37,15 @@ func TestIntSets(t *testing.T) {
 		maps.NewOrderedIntSet(1, 2, 4),
 	).Build()
 
-	c.Assert(hashing.HashStringHex(sets), qt.Equals, "fb6349a290fa5920")
-	c.Assert(hashing.HashStringHex(sets2), qt.Equals, "5218dc8d5d3b944")
+	sets3 := sitematrix.NewIntSetsBuilder(0).WithSets(
+		maps.NewOrderedIntSet(2, 1),
+		maps.NewOrderedIntSet(1, 2, 3),
+		maps.NewOrderedIntSet(2, 1, 4),
+	).Build()
+
+	c.Assert(hashing.HashStringHex(sets), qt.Equals, "396725c5e4598142")
+	c.Assert(hashing.HashStringHex(sets2), qt.Equals, "e7ad64ab669b1ab8")
+	c.Assert(hashing.HashStringHex(sets3), qt.Equals, "e7ad64ab669b1ab8")
 
 	c.Assert(sets.HasVector(sitematrix.Vector{1, 2, 3}), qt.Equals, true)
 	c.Assert(sets.HasVector(sitematrix.Vector{3, 2, 3}), qt.Equals, false)
@@ -86,32 +93,24 @@ func TestIntSetsComplement(t *testing.T) {
 	c := qt.New(t)
 
 	sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1, 2, 3),
-		maps.NewOrderedIntSet(1, 2, 3),
-		maps.NewOrderedIntSet(1, 2, 3),
-	).Build()
-
-	sets1Copy := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1, 2, 3),
-		maps.NewOrderedIntSet(1, 2, 3),
-		maps.NewOrderedIntSet(1, 2, 3),
+		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1),
 	).Build()
 
 	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1, 2, 3, 4),
-		maps.NewOrderedIntSet(1, 2, 3, 4),
-		maps.NewOrderedIntSet(1, 2, 3, 4, 6),
+		maps.NewOrderedIntSet(1, 2),
+		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1),
 	).Build()
 
 	c1 := sets2.Complement(sets1)
 	k1, k2, k3 := c1.KeysSorted()
-	c.Assert(k1, qt.DeepEquals, []int{4})
-	c.Assert(k2, qt.DeepEquals, []int{4})
-	c.Assert(k3, qt.DeepEquals, []int{4, 6})
+	c.Assert(k1, qt.DeepEquals, []int{2})
+	c.Assert(k2, qt.DeepEquals, []int{1})
+	c.Assert(k3, qt.DeepEquals, []int{1})
 	c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets1))
 	c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
-	c2 := sets1.Complement(sets1Copy)
-	c.Assert(c2, qt.IsNil)
 }
 
 func BenchmarkIntSetsComplement(b *testing.B) {
@@ -188,6 +187,15 @@ func BenchmarkSets(b *testing.B) {
 	v2 := sitematrix.Vector{3, 2, 3}
 
 	b.ResetTimer()
+	b.Run("Build", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sitematrix.NewIntSetsBuilder(0).WithSets(
+				maps.NewOrderedIntSet(1, 2),
+				maps.NewOrderedIntSet(1, 2, 3),
+				maps.NewOrderedIntSet(1, 2, 3),
+			).Build()
+		}
+	})
 	b.Run("HasVector", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = sets1.HasVector(v1)

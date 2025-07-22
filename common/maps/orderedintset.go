@@ -42,7 +42,7 @@ func NewOrderedIntSet(vals ...int) *OrderedIntSet {
 // Note that insertion order is not affected if a key is re-inserted into the set.
 func (m *OrderedIntSet) Set(key int) {
 	if m == nil {
-		return
+		panic("nil OrderedIntSet")
 	}
 	keyu := uint(key)
 	if m.values.Test(keyu) {
@@ -79,18 +79,6 @@ func (m *OrderedIntSet) Clone() *OrderedIntSet {
 		values: m.values.Clone(),
 	}
 	return newSet
-}
-
-func (m *OrderedIntSet) Complement(other *OrderedIntSet) {
-	if m == nil || other == nil {
-		return
-	}
-	for _, key := range other.keys {
-		m.values.Clear(uint(key))
-	}
-	m.keys = slices.DeleteFunc(m.keys, func(k int) bool {
-		return !m.values.Test(uint(k))
-	})
 }
 
 // Get returns the value at the given index.
@@ -143,4 +131,14 @@ func (m *OrderedIntSet) KeysSorted() []int {
 
 func (m *OrderedIntSet) String() string {
 	return fmt.Sprintf("%v", m.keys)
+}
+
+// Words returns the bitset as array of 64-bit words, giving direct access to the internal representation.
+// It is not a copy, so changes to the returned slice will affect the bitset.
+// It is meant for advanced users.
+func (m *OrderedIntSet) Words() []uint64 {
+	if m == nil {
+		return nil
+	}
+	return m.values.Words()
 }

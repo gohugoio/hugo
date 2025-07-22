@@ -60,14 +60,20 @@ func (s *IntSets) String() string {
 	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.languages, s.versions, s.roles)
 }
 
+func (s *IntSets) MustHash() uint64 {
+	if s == nil {
+		return 0
+	}
+	return s.hash
+}
+
 func (s *IntSets) Hash() (uint64, error) {
 	return s.hash, nil
 }
 
 func (s *IntSets) calculateHash() {
-	k1, k2, k3 := s.KeysSorted()
 	var err error
-	s.hash, err = hashing.Hash(s.ordinal, k1, k2, k3)
+	s.hash, err = hashing.Hash(s.ordinal, s.languages.Words(), s.versions.Words(), s.roles.Words())
 	if err != nil {
 		panic(fmt.Errorf("failed to calculate hash for IntSets: %w", err))
 	}
@@ -218,6 +224,8 @@ func (s *IntSets) setFromOtherIfNotSet(other *IntSets) {
 	if other == nil {
 		return
 	}
+
+	// TODO1 clean up these nil checks.
 	if s.languages == nil && other.languages != nil {
 		s.languages = maps.NewOrderedIntSet()
 		s.languages.SetFrom(other.languages)
@@ -230,6 +238,24 @@ func (s *IntSets) setFromOtherIfNotSet(other *IntSets) {
 		s.roles = maps.NewOrderedIntSet()
 		s.roles.SetFrom(other.roles)
 	}
+}
+
+func (s *IntSets) initSets() {
+	if s.languages == nil {
+		s.languages = maps.NewOrderedIntSet()
+	}
+	if s.versions == nil {
+		s.versions = maps.NewOrderedIntSet()
+	}
+	if s.roles == nil {
+		s.roles = maps.NewOrderedIntSet()
+	}
+}
+
+func (s *IntSets) setVector(vec Vector) {
+	s.languages.Set(vec.Language())
+	s.versions.Set(vec.Version())
+	s.roles.Set(vec.Role())
 }
 
 func (s IntSets) WithOrdinal(i int) *IntSets {
@@ -254,37 +280,25 @@ func (s *IntSets) Complement(is ...*IntSets) *IntSets {
 		return nil
 	}
 
-	// If all keys in s are present in is, we return nil.
-	var notAllPresent bool
-	for _, v := range is {
-		s.ForEeachVector(func(vec Vector) bool {
-			if !v.HasVector(vec) {
-				notAllPresent = true
-				return false
+	result := NewIntSets(s.ordinal)
+
+	s.ForEeachVector(func(vec Vector) bool {
+		var found bool
+		for _, v := range is {
+			if v.HasVector(vec) {
+				found = true
+				break
 			}
-			return true
-		})
-	}
+		}
 
-	if !notAllPresent {
-		return nil
-	}
+		if !found {
+			result.initSets()
+			result.setVector(vec)
+		}
 
-	result := s.Clone()
-	for _, i := range is {
-		if i == nil {
-			continue
-		}
-		if result.languages != nil {
-			result.languages.Complement(i.languages)
-		}
-		if result.versions != nil {
-			result.versions.Complement(i.versions)
-		}
-		if result.roles != nil {
-			result.roles.Complement(i.roles)
-		}
-	}
+		return true
+	})
+
 	return result.init()
 }
 

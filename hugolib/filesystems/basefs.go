@@ -663,6 +663,10 @@ func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
 	return strings.HasPrefix(mnt.Target, files.ComponentFolderStatic)
 }
 
+func (b *sourceFilesystemsBuilder) isLayoutsMount(mnt modules.Mount) bool {
+	return strings.HasPrefix(mnt.Target, files.ComponentFolderLayouts)
+}
+
 func (b *sourceFilesystemsBuilder) createOverlayFs(
 	collector *filesystemsCollector,
 	mounts []mountsDescriptor,
@@ -718,7 +722,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			v := mount.Sites
 
 			ordinal := md.ordinal + i
-			isContent := b.isContentMount(mount)
+			needsDefaultsIfNotset := b.isContentMount(mount) || b.isLayoutsMount(mount)
 
 			intSetsCfg := sitematrix.IntSetsConfig{
 				Cfg:           b.p.Cfg.ConfiguredDimensions(),
@@ -733,14 +737,14 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				if err != nil {
 					return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
 				}
-				if isContent {
+				if needsDefaultsIfNotset {
 					matrixBuilder.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
 				}
 				matrix = matrixBuilder.Build()
-			} else if isContent {
+			} else if needsDefaultsIfNotset {
 				matrix = b.p.Cfg.DefaultContentSitesMatrix().WithOrdinal(ordinal)
 			} else {
-				if isContent {
+				if needsDefaultsIfNotset {
 					matrixBuilder.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
 				}
 				matrix = matrixBuilder.Build()

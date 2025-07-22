@@ -22,6 +22,7 @@ import (
 	"unicode"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/paths"
@@ -359,8 +360,8 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		panic("nil pageMap")
 	}
 
-	// mm := fi.Meta()
-	// hdebug.Printf("AddFi: %q %q", mm.Filename, mm.SiteInts)
+	mm := fi.Meta()
+	hdebug.Printf("AddFi: %q %q", mm.Filename, mm.SitesMatrix)
 
 	h := m.s.h
 

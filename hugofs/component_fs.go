@@ -20,7 +20,6 @@ import (
 	"runtime"
 	"sort"
 
-	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -100,7 +99,7 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		s := path.Join(f.name, fi.Name())
 		if _, ok := f.fs.applyMeta(fi, s); ok {
 			meta := fi.(FileMetaInfo).Meta()
-			baseName := meta.PathInfo.Base()
+			baseName := meta.PathInfo.PathNoLang() // Update this when I get the ^1 identifiers working.
 			var skip bool
 
 			// There may be multiple languge/version/role combinations for the same file.
@@ -113,7 +112,6 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 					meta.SitesMatrix = complement
 					matrixes = append(matrixes, complement)
 					variants[baseName] = matrixes
-					hdebug.Printf("componentFsDir.ReadDir %q %q %q %q", baseName, f.name, fi.Name(), meta.SitesMatrix)
 
 				}
 			} else {

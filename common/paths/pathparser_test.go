@@ -583,6 +583,16 @@ func TestParseLayouts(t *testing.T) {
 				c.Assert(p.NameNoIdentifier(), qt.Equals, "myshortcode")
 			},
 		},
+		{
+			"Not lang",
+			"/foo/index.xy.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Lang(), qt.Equals, "")
+				c.Assert(p.Layout(), qt.Equals, "index")
+				c.Assert(p.NameNoLang(), qt.Equals, "index.xy.html")
+				c.Assert(p.PathNoLang(), qt.Equals, "/foo/index.xy.html")
+			},
+		},
 	}
 
 	for _, test := range tests {
