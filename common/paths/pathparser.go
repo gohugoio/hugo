@@ -156,7 +156,6 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 			p.posIdentifierOutputFormat = 0
 		}
 	} else {
-
 		var langFound bool
 
 		if mayHaveLang {
@@ -204,8 +203,14 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 		}
 
 		if !found && mayHaveLayout {
-			p.identifiersKnown = append(p.identifiersKnown, id)
-			p.posIdentifierLayout = len(p.identifiersKnown) - 1
+			if p.posIdentifierLayout != -1 {
+				// Move it to identifiersUnknown.
+				p.identifiersUnknown = append(p.identifiersUnknown, p.identifiersKnown[p.posIdentifierLayout])
+				p.identifiersKnown[p.posIdentifierLayout] = id
+			} else {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierLayout = len(p.identifiersKnown) - 1
+			}
 			found = true
 		}
 
@@ -582,6 +587,9 @@ func (p *Path) Unnormalized() *Path {
 
 // PathNoLang returns the Path but with any language identifier removed.
 func (p *Path) PathNoLang() string {
+	if p.identifierIndex(p.posIdentifierLanguage) == -1 {
+		return p.Path()
+	}
 	return p.base(true, false)
 }
 
