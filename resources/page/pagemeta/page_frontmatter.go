@@ -192,17 +192,17 @@ type PageConfig struct {
 
 func MatchLanguageOrLanguageDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Language()
-	return p.SitesMatrix.Languages.Has(i) || p.SitesFallbacks.Languages.Has(i)
+	return p.SitesMatrix.HasLanguage(i) || p.SitesFallbacks.HasLanguage(i)
 }
 
 func MatchRoleOrRoleDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Role()
-	return p.SitesMatrix.Roles.Has(i) || p.SitesFallbacks.Roles.Has(i)
+	return p.SitesMatrix.HasRole(i) || p.SitesFallbacks.HasRole(i)
 }
 
 func MatchVersionOrVersionDelegee(p *PageConfig, dims sitematrix.Vector) bool {
 	i := dims.Version()
-	return p.SitesMatrix.Versions.Has(i) || p.SitesFallbacks.Versions.Has(i)
+	return p.SitesMatrix.HasVersion(i) || p.SitesFallbacks.HasVersion(i)
 }
 
 func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {

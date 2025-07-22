@@ -240,13 +240,15 @@ func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks *sitematrix.
 	intSetsToMap := func(intSets *sitematrix.IntSets) map[string][]string {
 		var languages, versions, roles []string
 
-		for _, v := range intSets.Languages.KeysSorted() {
+		keys1, keys2, keys3 := intSets.KeysSorted()
+
+		for _, v := range keys1 {
 			languages = append(languages, dconf.ConfiguredLanguages.ResolveName(v))
 		}
-		for _, v := range intSets.Versions.KeysSorted() {
+		for _, v := range keys2 {
 			versions = append(versions, dconf.ConfiguredVersions.ResolveName(v))
 		}
-		for _, v := range intSets.Roles.KeysSorted() {
+		for _, v := range keys3 {
 			roles = append(roles, dconf.ConfiguredRoles.ResolveName(v))
 		}
 

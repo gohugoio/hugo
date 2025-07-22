@@ -807,7 +807,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				lang := l.Lang
 
 				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
-					return rm.Meta.SitesMatrix.Languages.Has(i)
+					return rm.Meta.SitesMatrix.HasLanguage(i)
 				})
 				bfs := hugofs.NewBasePathFs(lfs, files.ComponentFolderStatic)
 				collector.staticPerLanguage[lang] = collector.staticPerLanguage[lang].Append(bfs)

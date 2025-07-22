@@ -29,13 +29,13 @@ var _ VectorProvider = &IntSets{}
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
 	ordinal   int                 // Any non-zero value will be considered when sorting, lesser weights comes first.
-	Languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	Versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	Roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 }
 
 func (s *IntSets) String() string {
-	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.Languages, s.Versions, s.Roles)
+	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.languages, s.versions, s.roles)
 }
 
 func (s *IntSets) Ordinal() int {
@@ -45,18 +45,49 @@ func (s *IntSets) Ordinal() int {
 	return s.ordinal
 }
 
+func (s *IntSets) KeysSorted() ([]int, []int, []int) {
+	if s == nil {
+		return nil, nil, nil
+	}
+	languages := s.languages.KeysSorted()
+	versions := s.versions.KeysSorted()
+	roles := s.roles.KeysSorted()
+	return languages, versions, roles
+}
+
+func (s *IntSets) HasLanguage(lang int) bool {
+	if s == nil {
+		return false
+	}
+	return s.languages.Has(lang)
+}
+
+func (s *IntSets) HasVersion(ver int) bool {
+	if s == nil {
+		return false
+	}
+	return s.versions.Has(ver)
+}
+
+func (s *IntSets) HasRole(role int) bool {
+	if s == nil {
+		return false
+	}
+	return s.roles.Has(role)
+}
+
 // HasVector checks if the given vector is contained in the sets.
 func (s *IntSets) HasVector(v Vector) bool {
 	if s == nil {
 		return false
 	}
-	if !s.Languages.Has(v.Language()) {
+	if !s.languages.Has(v.Language()) {
 		return false
 	}
-	if !s.Versions.Has(v.Version()) {
+	if !s.versions.Has(v.Version()) {
 		return false
 	}
-	if !s.Roles.Has(v.Role()) {
+	if !s.roles.Has(v.Role()) {
 		return false
 	}
 	return true
@@ -68,9 +99,9 @@ func (s *IntSets) FirstVector() Vector {
 	}
 
 	return Vector{
-		s.Languages.Get(0),
-		s.Versions.Get(0),
-		s.Roles.Get(0),
+		s.languages.Get(0),
+		s.versions.Get(0),
+		s.roles.Get(0),
 	}
 }
 
@@ -78,7 +109,7 @@ func (s *IntSets) LenVectors() int {
 	if s == nil {
 		return 0
 	}
-	return s.Languages.Len() * s.Versions.Len() * s.Roles.Len()
+	return s.languages.Len() * s.versions.Len() * s.roles.Len()
 }
 
 // The reason we don't use iter.Seq is https://github.com/golang/go/issues/69015
@@ -89,9 +120,9 @@ func (s *IntSets) ForEeachVector(yield func(v Vector) bool) bool {
 		return true
 	}
 
-	b := s.Languages.ForEachKey(func(lang int) bool {
-		return s.Versions.ForEachKey(func(ver int) bool {
-			return s.Roles.ForEachKey(func(role int) bool {
+	b := s.languages.ForEachKey(func(lang int) bool {
+		return s.versions.ForEachKey(func(ver int) bool {
+			return s.roles.ForEachKey(func(role int) bool {
 				if !yield(Vector{lang, ver, role}) {
 					return false
 				}
@@ -124,17 +155,17 @@ func (s *IntSets) EqualsVector(other VectorProvider) bool {
 
 // ApplyDefaultsIfNotSet applies default values to the IntSets if they are not already set.
 func (s *IntSets) SetDefaultsIfNotSet(cfg ConfiguredDimensions) {
-	if s.Languages == nil {
-		s.Languages = maps.NewOrderedIntSet()
-		s.Languages.Set(cfg.ConfiguredLanguages.IndexDefault())
+	if s.languages == nil {
+		s.languages = maps.NewOrderedIntSet()
+		s.languages.Set(cfg.ConfiguredLanguages.IndexDefault())
 	}
-	if s.Versions == nil {
-		s.Versions = maps.NewOrderedIntSet()
-		s.Versions.Set(cfg.ConfiguredVersions.IndexDefault())
+	if s.versions == nil {
+		s.versions = maps.NewOrderedIntSet()
+		s.versions.Set(cfg.ConfiguredVersions.IndexDefault())
 	}
-	if s.Roles == nil {
-		s.Roles = maps.NewOrderedIntSet()
-		s.Roles.Set(cfg.ConfiguredRoles.IndexDefault())
+	if s.roles == nil {
+		s.roles = maps.NewOrderedIntSet()
+		s.roles.Set(cfg.ConfiguredRoles.IndexDefault())
 	}
 }
 
@@ -142,17 +173,17 @@ func (s *IntSets) SetFromOtherIfNotSet(other *IntSets) {
 	if other == nil {
 		return
 	}
-	if s.Languages == nil && other.Languages != nil {
-		s.Languages = maps.NewOrderedIntSet()
-		s.Languages.SetFrom(other.Languages)
+	if s.languages == nil && other.languages != nil {
+		s.languages = maps.NewOrderedIntSet()
+		s.languages.SetFrom(other.languages)
 	}
-	if s.Versions == nil && other.Versions != nil {
-		s.Versions = maps.NewOrderedIntSet()
-		s.Versions.SetFrom(other.Versions)
+	if s.versions == nil && other.versions != nil {
+		s.versions = maps.NewOrderedIntSet()
+		s.versions.SetFrom(other.versions)
 	}
-	if s.Roles == nil && other.Roles != nil {
-		s.Roles = maps.NewOrderedIntSet()
-		s.Roles.SetFrom(other.Roles)
+	if s.roles == nil && other.roles != nil {
+		s.roles = maps.NewOrderedIntSet()
+		s.roles.SetFrom(other.roles)
 	}
 }
 
@@ -162,12 +193,12 @@ func (s IntSets) WithOrdinal(i int) *IntSets {
 }
 
 func (s IntSets) Clone() *IntSets {
-	if s.Languages == nil && s.Versions == nil && s.Roles == nil {
+	if s.languages == nil && s.versions == nil && s.roles == nil {
 		return nil
 	}
-	s.Languages = s.Languages.Clone()
-	s.Versions = s.Versions.Clone()
-	s.Roles = s.Roles.Clone()
+	s.languages = s.languages.Clone()
+	s.versions = s.versions.Clone()
+	s.roles = s.roles.Clone()
 	return &s
 }
 
@@ -199,14 +230,14 @@ func (s *IntSets) Complement(is ...*IntSets) *IntSets {
 		if i == nil {
 			continue
 		}
-		if result.Languages != nil {
-			result.Languages.Complement(i.Languages)
+		if result.languages != nil {
+			result.languages.Complement(i.languages)
 		}
-		if result.Versions != nil {
-			result.Versions.Complement(i.Versions)
+		if result.versions != nil {
+			result.versions.Complement(i.versions)
 		}
-		if result.Roles != nil {
-			result.Roles.Complement(i.Roles)
+		if result.roles != nil {
+			result.roles.Complement(i.roles)
 		}
 	}
 	return result
@@ -219,7 +250,7 @@ func (s IntSets) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSets {
 
 // WithLanguageIndex replaces the current language set with a single language index.
 func (s IntSets) WithLanguageIndex(i int) *IntSets {
-	s.Languages = maps.NewOrderedIntSet(i)
+	s.languages = maps.NewOrderedIntSet(i)
 	return &s
 }
 
@@ -277,9 +308,9 @@ func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 	if err := cmp.Or(err1, err2, err3); err != nil {
 		return nil, fmt.Errorf("failed to apply filters: %w", err)
 	}
-	sets.Languages = l
-	sets.Versions = v
-	sets.Roles = r
+	sets.languages = l
+	sets.versions = v
+	sets.roles = r
 
 	return sets, nil
 }

@@ -24,9 +24,9 @@ func TestIntSets(t *testing.T) {
 	c := qt.New(t)
 
 	sets := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}
 
 	c.Assert(sets.HasVector(Vector{1, 2, 3}), qt.Equals, true)
@@ -34,20 +34,20 @@ func TestIntSets(t *testing.T) {
 	c.Assert(sets.FirstVector(), qt.Equals, Vector{1, 1, 1})
 	c.Assert(sets.EqualsVector(sets), qt.Equals, true)
 	c.Assert(sets.EqualsVector(&IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}), qt.Equals, true)
 	c.Assert(sets.EqualsVector(&IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3, 4),
+		languages: maps.NewOrderedIntSet(1, 2, 3),
+		versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
+		roles:     maps.NewOrderedIntSet(1, 2, 3, 4),
 	}), qt.Equals, false)
 
 	c.Assert(sets.EqualsVector(&IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(2, 3, 4),
+		languages: maps.NewOrderedIntSet(1, 2),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(2, 3, 4),
 	}), qt.Equals, false)
 
 	alllCount := 0
@@ -69,27 +69,27 @@ func TestIntSetsComplement(t *testing.T) {
 	c := qt.New(t)
 
 	sets1 := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2, 3),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}
 
 	sets1Copy := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2, 3),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}
 
 	sets2 := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3, 4),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3, 4, 6),
+		languages: maps.NewOrderedIntSet(1, 2, 3, 4),
+		versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
+		roles:     maps.NewOrderedIntSet(1, 2, 3, 4, 6),
 	}
 
 	c1 := sets2.Complement(sets1)
-	c.Assert(c1.Languages.KeysSorted(), qt.DeepEquals, []int{4})
-	c.Assert(c1.Versions.KeysSorted(), qt.DeepEquals, []int{4})
-	c.Assert(c1.Roles.KeysSorted(), qt.DeepEquals, []int{4, 6})
+	c.Assert(c1.languages.KeysSorted(), qt.DeepEquals, []int{4})
+	c.Assert(c1.versions.KeysSorted(), qt.DeepEquals, []int{4})
+	c.Assert(c1.roles.KeysSorted(), qt.DeepEquals, []int{4, 6})
 
 	c2 := sets1.Complement(sets1Copy)
 	c.Assert(c2, qt.IsNil)
@@ -97,47 +97,47 @@ func TestIntSetsComplement(t *testing.T) {
 
 func BenchmarkIntSetsComplement(b *testing.B) {
 	sets1 := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2, 3),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}
 
 	sets1Copy := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2, 3),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}
 
 	setsLanguage1 := &IntSets{
-		Languages: maps.NewOrderedIntSet(1),
+		languages: maps.NewOrderedIntSet(1),
 	}
 
 	sets2 := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3, 4),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3, 4, 6),
+		languages: maps.NewOrderedIntSet(1, 2, 3, 4),
+		versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
+		roles:     maps.NewOrderedIntSet(1, 2, 3, 4, 6),
 	}
 
 	b.ResetTimer()
-	b.Run("Complement", func(b *testing.B) {
+	b.Run("two different sets, some overlap", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = sets2.Complement(sets1)
 		}
 	})
 
-	b.Run("Complement self", func(b *testing.B) {
+	b.Run("self", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = sets1.Complement(sets1)
 		}
 	})
 
-	b.Run("Complement same", func(b *testing.B) {
+	b.Run("same", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = sets1.Complement(sets1Copy)
 		}
 	})
 
-	b.Run("Complement one overlapping language", func(b *testing.B) {
+	b.Run("one overlapping language", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = setsLanguage1.Complement(sets1)
 		}
@@ -146,21 +146,21 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 
 func BenchmarkSets(b *testing.B) {
 	sets1 := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}
 
 	sets1Copy := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3),
+		languages: maps.NewOrderedIntSet(1, 2),
+		versions:  maps.NewOrderedIntSet(1, 2, 3),
+		roles:     maps.NewOrderedIntSet(1, 2, 3),
 	}
 
 	sets2 := &IntSets{
-		Languages: maps.NewOrderedIntSet(1, 2, 3),
-		Versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
-		Roles:     maps.NewOrderedIntSet(1, 2, 3, 4),
+		languages: maps.NewOrderedIntSet(1, 2, 3),
+		versions:  maps.NewOrderedIntSet(1, 2, 3, 4),
+		roles:     maps.NewOrderedIntSet(1, 2, 3, 4),
 	}
 
 	v1 := Vector{1, 2, 3}

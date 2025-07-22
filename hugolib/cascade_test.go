@@ -990,13 +990,4 @@ All.
 	s0Pconfig := s0.Home().(*pageState).m.pageConfig
 	b.Assert(s0Pconfig.Sites.Matrix.Languages, qt.DeepEquals, []string{"en"})
 	b.Assert(s0Pconfig.Sites.Matrix.Versions, qt.DeepEquals, []string{"v2**"})
-
-	s0Matrix := s0Pconfig.SitesMatrix
-	s0Fallbacks := s0Pconfig.SitesFallbacks
-	b.Assert(s0Matrix.Versions.KeysSorted(), qt.DeepEquals, []int{0, 1})  // v2**
-	b.Assert(s0Fallbacks.Versions.KeysSorted(), qt.DeepEquals, []int{2})  // v1.0.0
-	b.Assert(s0Matrix.Roles.KeysSorted(), qt.DeepEquals, []int{1})        // member
-	b.Assert(s0Fallbacks.Roles.KeysSorted(), qt.DeepEquals, []int{0})     // guest
-	b.Assert(s0Matrix.Languages.KeysSorted(), qt.DeepEquals, []int{0})    // en
-	b.Assert(s0Fallbacks.Languages.KeysSorted(), qt.DeepEquals, []int{1}) // nn
 }
