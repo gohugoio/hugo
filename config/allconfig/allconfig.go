@@ -855,13 +855,9 @@ func (c *Configs) Init() error {
 	intSetsCfg := sitematrix.IntSetsConfig{
 		Cfg:           c.ConfiguredDimensions,
 		ApplyDefaults: true,
-		Ordinal:       0,
 	}
-	matrix, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
-	if err != nil {
-		return fmt.Errorf("failed to create default dimension sets")
-	}
-	c.DefaultContentSitesMatrix = matrix
+	matrix := sitematrix.NewIntSetsBuilder(0).WithConfig(intSetsCfg)
+	c.DefaultContentSitesMatrix = matrix.Build()
 
 	c.ContentPathParser = &paths.PathParser{
 		LanguageIndex:  languages.AsIndexSet(),

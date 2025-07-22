@@ -271,35 +271,22 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, fim *hugofs.FileMeta
 		Cfg:   conf.ConfiguredDimensions(),
 		Globs: p.Sites.Matrix,
 	}
-	sitesMatrixPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
-	if err != nil {
-		return fmt.Errorf("failed to create dimensions sets: %w", err)
-	}
+	sitesMatrixPage := sitematrix.NewIntSetsBuilder(0).WithConfig(intsetsCfg)
+
 	intsetsCfg.Globs = p.Sites.Fallbacks
-	sitesFallbacksPage, err := sitematrix.NewIntSetsFromConfig(intsetsCfg)
-	if err != nil {
-		return fmt.Errorf("failed to create fallback dimensions sets: %w", err)
-	}
+	sitesFallbacksPage := sitematrix.NewIntSetsBuilder(0).WithConfig(intsetsCfg)
 
-	var sitesMatrix *sitematrix.IntSets
 	if fim != nil && fim.SitesMatrix != nil {
-		sitesMatrix = sitesMatrixPage // Front matter wins over mount config.
-		sitesMatrix.SetFromOtherIfNotSet(fim.SitesMatrix)
-	} else {
-		sitesMatrix = sitesMatrixPage
+		sitesMatrixPage.WithFromOtherIfNotSet(fim.SitesMatrix)
 	}
-	sitesMatrix.SetDefaultsIfNotSet(conf.ConfiguredDimensions())
+	sitesMatrixPage.WithDefaultsIfNotSet(conf.ConfiguredDimensions())
 
-	var sitesFallbacks *sitematrix.IntSets
 	if fim != nil && fim.SitesFallbacks != nil {
-		sitesFallbacks = sitesFallbacksPage // Front matter wins over mount config.
-		sitesFallbacks.SetFromOtherIfNotSet(fim.SitesFallbacks)
-	} else {
-		sitesFallbacks = sitesFallbacksPage
+		sitesFallbacksPage.WithFromOtherIfNotSet(fim.SitesFallbacks)
 	}
 
-	p.SitesMatrix = sitesMatrix
-	p.SitesFallbacks = sitesFallbacks
+	p.SitesMatrix = sitesMatrixPage.Build()
+	p.SitesFallbacks = sitesFallbacksPage.Build()
 
 	return nil
 }

@@ -723,31 +723,33 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			intSetsCfg := sitematrix.IntSetsConfig{
 				Cfg:           b.p.Cfg.ConfiguredDimensions(),
 				ApplyDefaults: false,
-				Ordinal:       ordinal,
 				Globs:         v.Matrix,
 			}
 
+			matrixBuilder := sitematrix.NewIntSetsBuilder(ordinal)
+
 			if !v.Matrix.IsZero() {
-				matrix, err = sitematrix.NewIntSetsFromConfig(intSetsCfg)
+				matrixBuilder.WithConfig(intSetsCfg)
 				if err != nil {
 					return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
 				}
+				if isContent {
+					matrixBuilder.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+				}
+				matrix = matrixBuilder.Build()
 			} else if isContent {
 				matrix = b.p.Cfg.DefaultContentSitesMatrix().WithOrdinal(ordinal)
 			} else {
-				matrix = sitematrix.NewIntSets(ordinal)
-			}
-
-			if isContent {
-				matrix = matrix.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+				if isContent {
+					matrixBuilder.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+				}
+				matrix = matrixBuilder.Build()
 			}
 
 			intSetsCfg.Globs = v.Fallbacks
 			intSetsCfg.ApplyDefaults = false
-			fallbacks, err := sitematrix.NewIntSetsFromConfig(intSetsCfg)
-			if err != nil {
-				return fmt.Errorf("failed to create fallback dimension sets for %q: %w", filename, err)
-			}
+			matrixBuilder = sitematrix.NewIntSetsBuilder(ordinal).WithConfig(intSetsCfg)
+			fallbacks := matrixBuilder.Build()
 
 			rm := hugofs.RootMapping{
 				From:          mount.Target,

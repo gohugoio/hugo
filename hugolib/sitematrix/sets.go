@@ -17,25 +17,60 @@ import (
 	"cmp"
 	"fmt"
 
+	"github.com/gohugoio/hashstructure"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/glob"
 )
 
-var _ VectorProvider = &IntSets{}
+var (
+	_ VectorProvider         = &IntSets{}
+	_ hashstructure.Hashable = &IntSets{}
+)
+
+type IntSetsBuilder struct {
+	s *IntSets
+}
+
+func (b *IntSetsBuilder) Build() *IntSets {
+	b.s.init()
+	return b.s
+}
 
 // IntSets holds the ordered sets of integers for the dimensions,
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
-	ordinal   int                 // Any non-zero value will be considered when sorting, lesser weights comes first.
+	ordinal   int
 	languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+
+	// Calculated on build.
+	hash uint64
+}
+
+func (s *IntSets) init() *IntSets {
+	s.calculateHash()
+	return s
 }
 
 func (s *IntSets) String() string {
 	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.languages, s.versions, s.roles)
+}
+
+func (s *IntSets) Hash() (uint64, error) {
+	return s.hash, nil
+}
+
+func (s *IntSets) calculateHash() {
+	k1, k2, k3 := s.KeysSorted()
+	var err error
+	s.hash, err = hashing.Hash(s.ordinal, k1, k2, k3)
+	if err != nil {
+		panic(fmt.Errorf("failed to calculate hash for IntSets: %w", err))
+	}
 }
 
 func (s *IntSets) Ordinal() int {
@@ -153,8 +188,8 @@ func (s *IntSets) EqualsVector(other VectorProvider) bool {
 	})
 }
 
-// ApplyDefaultsIfNotSet applies default values to the IntSets if they are not already set.
-func (s *IntSets) SetDefaultsIfNotSet(cfg ConfiguredDimensions) {
+// setDefaultsIfNotSet applies default values to the IntSets if they are not already set.
+func (s *IntSets) setDefaultsIfNotSet(cfg ConfiguredDimensions) {
 	if s.languages == nil {
 		s.languages = maps.NewOrderedIntSet()
 		s.languages.Set(cfg.ConfiguredLanguages.IndexDefault())
@@ -169,7 +204,17 @@ func (s *IntSets) SetDefaultsIfNotSet(cfg ConfiguredDimensions) {
 	}
 }
 
-func (s *IntSets) SetFromOtherIfNotSet(other *IntSets) {
+func (s *IntSetsBuilder) WithFromOtherIfNotSet(other *IntSets) *IntSetsBuilder {
+	s.s.setFromOtherIfNotSet(other)
+	return s
+}
+
+func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {
+	s.s.setDefaultsIfNotSet(cfg)
+	return s
+}
+
+func (s *IntSets) setFromOtherIfNotSet(other *IntSets) {
 	if other == nil {
 		return
 	}
@@ -240,35 +285,40 @@ func (s *IntSets) Complement(is ...*IntSets) *IntSets {
 			result.roles.Complement(i.roles)
 		}
 	}
-	return result
-}
-
-func (s IntSets) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSets {
-	s.SetDefaultsIfNotSet(cfg)
-	return &s
+	return result.init()
 }
 
 // WithLanguageIndex replaces the current language set with a single language index.
 func (s IntSets) WithLanguageIndex(i int) *IntSets {
 	s.languages = maps.NewOrderedIntSet(i)
+	s.init()
 	return &s
 }
 
 type IntSetsConfig struct {
 	Cfg           ConfiguredDimensions
-	Ordinal       int
 	ApplyDefaults bool
 	Globs         StringSlices
 }
 
 // NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
+// TODO1 remove me.
 func NewIntSets(ordinal int) *IntSets {
 	return &IntSets{ordinal: ordinal}
 }
 
-// NewIntSetsFromConfig creates a new IntSets from the given IntSetsConfig.
-// It applies the filters based on the provided languages, versions, and roles.
-func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
+func NewIntSetsBuilder(ordinal int) *IntSetsBuilder {
+	return &IntSetsBuilder{s: &IntSets{ordinal: ordinal}}
+}
+
+func (b *IntSetsBuilder) WithSets(languages, versions, roles *maps.OrderedIntSet) *IntSetsBuilder {
+	b.s.languages = languages
+	b.s.versions = versions
+	b.s.roles = roles
+	return b
+}
+
+func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*maps.OrderedIntSet, error) {
 		if len(values) == 0 {
 			if cfg.ApplyDefaults {
@@ -300,19 +350,18 @@ func NewIntSetsFromConfig(cfg IntSetsConfig) (*IntSets, error) {
 		return result, nil
 	}
 
-	sets := NewIntSets(cfg.Ordinal)
 	l, err1 := applyFilter("languages", cfg.Globs.Languages, cfg.Cfg.ConfiguredLanguages)
 	v, err2 := applyFilter("versions", cfg.Globs.Versions, cfg.Cfg.ConfiguredVersions)
 	r, err3 := applyFilter("roles", cfg.Globs.Roles, cfg.Cfg.ConfiguredRoles)
 
 	if err := cmp.Or(err1, err2, err3); err != nil {
-		return nil, fmt.Errorf("failed to apply filters: %w", err)
+		panic(fmt.Errorf("failed to apply filters: %w", err))
 	}
-	sets.languages = l
-	sets.versions = v
-	sets.roles = r
+	b.s.languages = l
+	b.s.versions = v
+	b.s.roles = r
 
-	return sets, nil
+	return b
 }
 
 // Sites holds configuration about which sites a file/content/page/resource belongs to.

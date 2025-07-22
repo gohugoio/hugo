@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 	"github.com/spf13/afero"
 	"golang.org/x/text/unicode/norm"
 )
@@ -92,20 +93,38 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		}
 	}
 
+	variants := make(map[string][]*sitematrix.IntSets)
 	fis = fis[:n]
-
 	n = 0
 	for _, fi := range fis {
 		s := path.Join(f.name, fi.Name())
 		if _, ok := f.fs.applyMeta(fi, s); ok {
-			fis[n] = fi
-			n++
 			meta := fi.(FileMetaInfo).Meta()
-			var baseName string
-			if meta.PathInfo != nil {
-				baseName = meta.PathInfo.Base()
+			baseName := meta.PathInfo.Base()
+			var skip bool
+
+			// There may be multiple languge/version/role combinations for the same file.
+			// The most important come early.
+			matrixes, found := variants[baseName]
+			if found {
+				complement := meta.SitesMatrix.Complement(matrixes...)
+				skip = complement == nil
+				if !skip {
+					meta.SitesMatrix = complement
+					matrixes = append(matrixes, complement)
+					variants[baseName] = matrixes
+					hdebug.Printf("componentFsDir.ReadDir %q %q %q %q", baseName, f.name, fi.Name(), meta.SitesMatrix)
+
+				}
+			} else {
+				matrixes = []*sitematrix.IntSets{meta.SitesMatrix}
+				variants[baseName] = matrixes
 			}
-			hdebug.Printf("componentFsDir.ReadDir %q %q %q", baseName, f.name, fi.Name())
+
+			if !skip {
+				fis[n] = fi
+				n++
+			}
 		}
 
 	}

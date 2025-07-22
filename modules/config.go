@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/version"
@@ -233,7 +232,6 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 				return c, fmt.Errorf("failed to init mount %d: %w", i, err)
 			}
 			c.Mounts[i] = mnt
-			hdebug.Printf("decodeConfig: Mount %d: %q -> %q (%s)", i, mnt.Source, mnt.Target, mnt.Lang)
 		}
 
 		if c.Workspace == "" {
