@@ -70,12 +70,19 @@ Mark text|`==baz==`|`<mark>baz</mark>`
 Subscript|`H~2~O`|`H<sub>2</sub>O`
 Superscript|`1^st^`|`1<sup>st</sup>`
 
-To avoid a conflict when enabling the "subscript" feature of the Extras extension, if you want to render subscript and strikethrough text concurrently you must:
+To avoid a conflict[^1], if you enable the "subscript" feature of the Extras extension, you must disable the Strikethrough extension:
 
-1. Disable the Strikethrough extension
-1. Enable the "deleted text" feature of the Extras extension
+[^1]: See [details](https://github.com/gohugoio/hugo-goldmark-extensions/commit/4d4fcd022fe45a9b51483df001c9e5f4e632d5a9).
 
-For example:
+{{< code-toggle file=hugo >}}
+[markup.goldmark.extensions]
+strikethrough = false
+
+[markup.goldmark.extensions.extras.subscript]
+enable = true
+{{< /code-toggle >}}
+
+If you still need to show deleted text after disabling the Strikethrough extension, enable the "deleted text" feature of the Extras extension:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.extensions]
@@ -83,10 +90,9 @@ strikethrough = false
 
 [markup.goldmark.extensions.extras.delete]
 enable = true
-
-[markup.goldmark.extensions.extras.subscript]
-enable = true
 {{< /code-toggle >}}
+
+With this configuration, to format text as deleted, wrap it with double-tildes.
 
 #### Passthrough
 
