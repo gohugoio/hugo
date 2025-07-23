@@ -1195,6 +1195,9 @@ func (s *contentNodeShifter) Insert(old, new contentNodeI) (contentNodeI, conten
 		}
 
 		return rs, vv, false
+	case resourceSourcesSlice:
+		newp := new.(*resourceSource)
+		return append(vv, newp), old, false
 
 	case resourceSources:
 		newp, ok := new.(*resourceSource)

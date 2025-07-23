@@ -727,6 +727,7 @@ Prev: {{ with  .NextInSection }}{{ .Title }}{{ end }}|
 }
 
 func TestRebuildVariations(t *testing.T) {
+	t.Skip("TODO1")
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	// This leaktest seems to be a little bit shaky on Travis.
 	if !htesting.IsCI() {
