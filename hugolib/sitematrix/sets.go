@@ -16,6 +16,7 @@ package sitematrix
 import (
 	"cmp"
 	"fmt"
+	"sync"
 
 	"github.com/gohugoio/hashstructure"
 	"github.com/gohugoio/hugo/common/hashing"
@@ -30,13 +31,55 @@ var (
 	_ hashstructure.Hashable = &IntSets{}
 )
 
-type IntSetsBuilder struct {
-	s *IntSets
+// NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
+// TODO1 remove me.
+func NewIntSets(ordinal int) *IntSets {
+	return &IntSets{ordinal: ordinal, h: &hashOnce{}}
 }
 
-func (b *IntSetsBuilder) Build() *IntSets {
-	b.s.init()
-	return b.s
+func NewIntSetsBuilder(ordinal int) *IntSetsBuilder {
+	return &IntSetsBuilder{s: &IntSets{ordinal: ordinal, h: &hashOnce{}}}
+}
+
+type ConfiguredDimension interface {
+	predicate.IndexMatcher
+	IndexDefault() int
+	ResolveIndex(string) int
+	ResolveName(int) string
+}
+
+type ConfiguredDimensions struct {
+	ConfiguredLanguages ConfiguredDimension
+	ConfiguredVersions  ConfiguredDimension
+	ConfiguredRoles     ConfiguredDimension
+}
+
+func (c ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
+	return types.Strings3{
+		c.ConfiguredLanguages.ResolveName(v.Language()),
+		c.ConfiguredVersions.ResolveName(v.Version()),
+		c.ConfiguredRoles.ResolveName(v.Role()),
+	}
+}
+
+func (c ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
+	var vec Vector
+	if s := names[0]; s != "" {
+		vec[0] = c.ConfiguredLanguages.ResolveIndex(s)
+	} else {
+		vec[0] = c.ConfiguredLanguages.IndexDefault()
+	}
+	if s := names[1]; s != "" {
+		vec[1] = c.ConfiguredVersions.ResolveIndex(s)
+	} else {
+		vec[1] = c.ConfiguredVersions.IndexDefault()
+	}
+	if s := names[2]; s != "" {
+		vec[2] = c.ConfiguredRoles.ResolveIndex(s)
+	} else {
+		vec[2] = c.ConfiguredRoles.IndexDefault()
+	}
+	return vec
 }
 
 // IntSets holds the ordered sets of integers for the dimensions,
@@ -47,91 +90,60 @@ type IntSets struct {
 	versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 
-	// Calculated on build.
+	h *hashOnce
+}
+
+type hashOnce struct {
+	once sync.Once
 	hash uint64
 }
 
-func (s *IntSets) init() *IntSets {
-	s.calculateHash()
-	return s
-}
-
-func (s *IntSets) String() string {
-	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.languages, s.versions, s.roles)
-}
-
-func (s *IntSets) MustHash() uint64 {
-	if s == nil {
-		return 0
+// Complement returns a new IntSets that is the complement of the IntSets passed in is.
+// This will return nil if the resulting set is empty.
+func (s *IntSets) Complement(is ...*IntSets) *IntSets {
+	if len(is) == 0 || (len(is) == 1 && is[0] == s) {
+		return nil
 	}
-	return s.hash
+
+	result := NewIntSets(s.ordinal)
+
+	s.ForEeachVector(func(vec Vector) bool {
+		var found bool
+		for _, v := range is {
+			if v.HasVector(vec) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			result.initSets()
+			result.setVector(vec)
+		}
+
+		return true
+	})
+
+	return result.init()
 }
 
-func (s *IntSets) Hash() (uint64, error) {
-	return s.hash, nil
-}
-
-func (s *IntSets) calculateHash() {
-	var err error
-	s.hash, err = hashing.Hash(s.ordinal, s.languages.Words(), s.versions.Words(), s.roles.Words())
-	if err != nil {
-		panic(fmt.Errorf("failed to calculate hash for IntSets: %w", err))
+func (s *IntSets) EqualsVector(other VectorProvider) bool {
+	if s == nil && other == nil {
+		return true
 	}
-}
-
-func (s *IntSets) Ordinal() int {
-	if s == nil {
-		return 0
-	}
-	return s.ordinal
-}
-
-func (s *IntSets) KeysSorted() ([]int, []int, []int) {
-	if s == nil {
-		return nil, nil, nil
-	}
-	languages := s.languages.KeysSorted()
-	versions := s.versions.KeysSorted()
-	roles := s.roles.KeysSorted()
-	return languages, versions, roles
-}
-
-func (s *IntSets) HasLanguage(lang int) bool {
-	if s == nil {
+	if s == nil || other == nil {
 		return false
 	}
-	return s.languages.Has(lang)
-}
+	if s == other {
+		return true
+	}
+	if s.LenVectors() != other.LenVectors() {
+		return false
+	}
 
-func (s *IntSets) HasVersion(ver int) bool {
-	if s == nil {
-		return false
-	}
-	return s.versions.Has(ver)
-}
-
-func (s *IntSets) HasRole(role int) bool {
-	if s == nil {
-		return false
-	}
-	return s.roles.Has(role)
-}
-
-// HasVector checks if the given vector is contained in the sets.
-func (s *IntSets) HasVector(v Vector) bool {
-	if s == nil {
-		return false
-	}
-	if !s.languages.Has(v.Language()) {
-		return false
-	}
-	if !s.versions.Has(v.Version()) {
-		return false
-	}
-	if !s.roles.Has(v.Role()) {
-		return false
-	}
-	return true
+	return other.ForEeachVector(func(v Vector) bool {
+		return s.HasVector(v)
+	})
 }
 
 func (s *IntSets) FirstVector() Vector {
@@ -144,13 +156,6 @@ func (s *IntSets) FirstVector() Vector {
 		s.versions.Get(0),
 		s.roles.Get(0),
 	}
-}
-
-func (s *IntSets) LenVectors() int {
-	if s == nil {
-		return 0
-	}
-	return s.languages.Len() * s.versions.Len() * s.roles.Len()
 }
 
 // The reason we don't use iter.Seq is https://github.com/golang/go/issues/69015
@@ -175,23 +180,104 @@ func (s *IntSets) ForEeachVector(yield func(v Vector) bool) bool {
 	return b
 }
 
-func (s *IntSets) EqualsVector(other VectorProvider) bool {
-	if s == nil && other == nil {
-		return true
+func (s *IntSets) KeysSorted() ([]int, []int, []int) {
+	if s == nil {
+		return nil, nil, nil
 	}
-	if s == nil || other == nil {
-		return false
-	}
-	if s == other {
-		return true
-	}
-	if s.LenVectors() != other.LenVectors() {
-		return false
-	}
+	languages := s.languages.KeysSorted()
+	versions := s.versions.KeysSorted()
+	roles := s.roles.KeysSorted()
+	return languages, versions, roles
+}
 
-	return other.ForEeachVector(func(v Vector) bool {
-		return s.HasVector(v)
-	})
+func (s *IntSets) HasLanguage(lang int) bool {
+	if s == nil {
+		return false
+	}
+	return s.languages.Has(lang)
+}
+
+func (s *IntSets) LenVectors() int {
+	if s == nil {
+		return 0
+	}
+	return s.languages.Len() * s.versions.Len() * s.roles.Len()
+}
+
+func (s *IntSets) Ordinal() int {
+	if s == nil {
+		return 0
+	}
+	return s.ordinal
+}
+
+func (s *IntSets) HasRole(role int) bool {
+	if s == nil {
+		return false
+	}
+	return s.roles.Has(role)
+}
+
+func (s *IntSets) String() string {
+	return fmt.Sprintf("Languages: %v, Versions: %v, Roles: %v", s.languages, s.versions, s.roles)
+}
+
+// HasVector checks if the given vector is contained in the sets.
+func (s *IntSets) HasVector(v Vector) bool {
+	if s == nil {
+		return false
+	}
+	if !s.languages.Has(v.Language()) {
+		return false
+	}
+	if !s.versions.Has(v.Version()) {
+		return false
+	}
+	if !s.roles.Has(v.Role()) {
+		return false
+	}
+	return true
+}
+
+func (s *IntSets) HasVersion(ver int) bool {
+	if s == nil {
+		return false
+	}
+	return s.versions.Has(ver)
+}
+
+func (s IntSets) shallowClone() *IntSets {
+	s.h = &hashOnce{}
+	return &s
+}
+
+// WithLanguageIndex replaces the current language set with a single language index.
+func (s *IntSets) WithLanguageIndex(i int) *IntSets {
+	c := s.shallowClone()
+	c.languages = maps.NewOrderedIntSet(i)
+	return c.init()
+}
+
+func (s *IntSets) WithOrdinal(i int) *IntSets {
+	c := s.shallowClone()
+	c.ordinal = i
+	return c.init()
+}
+
+func (s *IntSets) Hash() (uint64, error) {
+	s.initHash()
+	return s.h.hash, nil
+}
+
+func (s *IntSets) MustHash() uint64 {
+	if s == nil {
+		return 0
+	}
+	hash, err := s.Hash()
+	if err != nil {
+		panic(fmt.Errorf("failed to calculate hash for IntSets: %w", err))
+	}
+	return hash
 }
 
 // setDefaultsIfNotSet applies default values to the IntSets if they are not already set.
@@ -210,13 +296,17 @@ func (s *IntSets) setDefaultsIfNotSet(cfg ConfiguredDimensions) {
 	}
 }
 
-func (s *IntSetsBuilder) WithFromOtherIfNotSet(other *IntSets) *IntSetsBuilder {
-	s.s.setFromOtherIfNotSet(other)
-	return s
+func (s *IntSets) initHash() {
+	s.h.once.Do(func() {
+		var err error
+		s.h.hash, err = hashing.Hash(s.ordinal, s.languages.Words(), s.versions.Words(), s.roles.Words())
+		if err != nil {
+			panic(fmt.Errorf("failed to calculate hash for IntSets: %w", err))
+		}
+	})
 }
 
-func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {
-	s.s.setDefaultsIfNotSet(cfg)
+func (s *IntSets) init() *IntSets {
 	return s
 }
 
@@ -258,78 +348,13 @@ func (s *IntSets) setVector(vec Vector) {
 	s.roles.Set(vec.Role())
 }
 
-func (s IntSets) WithOrdinal(i int) *IntSets {
-	s.ordinal = i
-	return &s
+type IntSetsBuilder struct {
+	s *IntSets
 }
 
-func (s IntSets) Clone() *IntSets {
-	if s.languages == nil && s.versions == nil && s.roles == nil {
-		return nil
-	}
-	s.languages = s.languages.Clone()
-	s.versions = s.versions.Clone()
-	s.roles = s.roles.Clone()
-	return &s
-}
-
-// Complement returns a new IntSets that is the complement of the IntSets passed in is.
-// This will return nil if the resulting set is empty.
-func (s *IntSets) Complement(is ...*IntSets) *IntSets {
-	if len(is) == 0 || (len(is) == 1 && is[0] == s) {
-		return nil
-	}
-
-	result := NewIntSets(s.ordinal)
-
-	s.ForEeachVector(func(vec Vector) bool {
-		var found bool
-		for _, v := range is {
-			if v.HasVector(vec) {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			result.initSets()
-			result.setVector(vec)
-		}
-
-		return true
-	})
-
-	return result.init()
-}
-
-// WithLanguageIndex replaces the current language set with a single language index.
-func (s IntSets) WithLanguageIndex(i int) *IntSets {
-	s.languages = maps.NewOrderedIntSet(i)
-	s.init()
-	return &s
-}
-
-type IntSetsConfig struct {
-	Cfg           ConfiguredDimensions
-	ApplyDefaults bool
-	Globs         StringSlices
-}
-
-// NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
-// TODO1 remove me.
-func NewIntSets(ordinal int) *IntSets {
-	return &IntSets{ordinal: ordinal}
-}
-
-func NewIntSetsBuilder(ordinal int) *IntSetsBuilder {
-	return &IntSetsBuilder{s: &IntSets{ordinal: ordinal}}
-}
-
-func (b *IntSetsBuilder) WithSets(languages, versions, roles *maps.OrderedIntSet) *IntSetsBuilder {
-	b.s.languages = languages
-	b.s.versions = versions
-	b.s.roles = roles
-	return b
+func (b *IntSetsBuilder) Build() *IntSets {
+	b.s.init()
+	return b.s
 }
 
 func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
@@ -378,17 +403,35 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 	return b
 }
 
+func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {
+	s.s.setDefaultsIfNotSet(cfg)
+	return s
+}
+
+func (s *IntSetsBuilder) WithFromOtherIfNotSet(other *IntSets) *IntSetsBuilder {
+	s.s.setFromOtherIfNotSet(other)
+	return s
+}
+
+func (b *IntSetsBuilder) WithSets(languages, versions, roles *maps.OrderedIntSet) *IntSetsBuilder {
+	b.s.languages = languages
+	b.s.versions = versions
+	b.s.roles = roles
+	return b
+}
+
+type IntSetsConfig struct {
+	Cfg           ConfiguredDimensions
+	ApplyDefaults bool
+	Globs         StringSlices
+}
+
 // Sites holds configuration about which sites a file/content/page/resource belongs to.
 type Sites struct {
 	// Matrix defines the main build matrix.
 	Matrix StringSlices `mapstructure:"matrix" json:"matrix"`
 	// Fallbacks defines the fallback matrix.
 	Fallbacks StringSlices `mapstructure:"fallbacks" json:"fallbacks"`
-}
-
-// IsZero returns true if all slices are empty.
-func (s Sites) IsZero() bool {
-	return s.Matrix.IsZero() && s.Fallbacks.IsZero()
 }
 
 func (s *Sites) SetFromParamsIfNotSet(params maps.Params) {
@@ -405,15 +448,16 @@ func (s *Sites) SetFromParamsIfNotSet(params maps.Params) {
 	}
 }
 
+// IsZero returns true if all slices are empty.
+func (s Sites) IsZero() bool {
+	return s.Matrix.IsZero() && s.Fallbacks.IsZero()
+}
+
 // StringSlices holds slices of Glob patterns for languages, versions, and roles.
 type StringSlices struct {
 	Languages []string `mapstructure:"languages" json:"languages"`
 	Versions  []string `mapstructure:"versions" json:"versions"`
 	Roles     []string `mapstructure:"roles" json:"roles"`
-}
-
-func (d StringSlices) IsZero() bool {
-	return len(d.Languages) == 0 && len(d.Versions) == 0 && len(d.Roles) == 0
 }
 
 func (d *StringSlices) SetFromParamsIfNotSet(params maps.Params) {
@@ -442,43 +486,6 @@ func (d *StringSlices) SetFromParamsIfNotSet(params maps.Params) {
 	}
 }
 
-type ConfiguredDimension interface {
-	predicate.IndexMatcher
-	IndexDefault() int
-	ResolveName(int) string
-	ResolveIndex(string) int
-}
-
-type ConfiguredDimensions struct {
-	ConfiguredLanguages ConfiguredDimension
-	ConfiguredVersions  ConfiguredDimension
-	ConfiguredRoles     ConfiguredDimension
-}
-
-func (c ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
-	return types.Strings3{
-		c.ConfiguredLanguages.ResolveName(v.Language()),
-		c.ConfiguredVersions.ResolveName(v.Version()),
-		c.ConfiguredRoles.ResolveName(v.Role()),
-	}
-}
-
-func (c ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
-	var vec Vector
-	if s := names[0]; s != "" {
-		vec[0] = c.ConfiguredLanguages.ResolveIndex(s)
-	} else {
-		vec[0] = c.ConfiguredLanguages.IndexDefault()
-	}
-	if s := names[1]; s != "" {
-		vec[1] = c.ConfiguredVersions.ResolveIndex(s)
-	} else {
-		vec[1] = c.ConfiguredVersions.IndexDefault()
-	}
-	if s := names[2]; s != "" {
-		vec[2] = c.ConfiguredRoles.ResolveIndex(s)
-	} else {
-		vec[2] = c.ConfiguredRoles.IndexDefault()
-	}
-	return vec
+func (d StringSlices) IsZero() bool {
+	return len(d.Languages) == 0 && len(d.Versions) == 0 && len(d.Roles) == 0
 }
