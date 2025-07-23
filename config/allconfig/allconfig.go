@@ -814,7 +814,10 @@ func (c *Configs) Init() error {
 
 	// TODO1 more cleanups, please.
 	for _, f := range c.Base.Languages.Config.Sorted {
-		v := c.LanguageConfigMap[f.Name]
+		v, found := c.LanguageConfigMap[f.Name]
+		if !found {
+			return fmt.Errorf("invalid language configuration for %q", f.Name)
+		}
 		language, err := langs.NewLanguage(f.Name, c.Base.DefaultContentLanguage, v.TimeZone, f.LanguageConfig)
 		if err != nil {
 			return err

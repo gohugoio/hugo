@@ -240,6 +240,20 @@ func (s *testShifter) ForEeachInDimension(n *testValue, v sitematrix.Vector, d i
 	f(n)
 }
 
+func (s *testShifter) ForEeachInAllDimensions(n *testValue, f func(*testValue) bool) {
+	if n == nil {
+		return
+	}
+	if !f(n) {
+		return
+	}
+	for _, v := range s.All(n) {
+		if v != n && !f(v) {
+			return
+		}
+	}
+}
+
 func (s *testShifter) Insert(old, new *testValue) (*testValue, *testValue, bool) {
 	return new, old, true
 }

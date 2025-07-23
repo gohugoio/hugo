@@ -63,7 +63,7 @@ type FileMeta struct {
 	SitesMatrix *sitematrix.IntSets
 
 	// SiteIntsWithDefaults is the same as SiteInts, but defaults applied.
-	SiteIntsWithDefaults *sitematrix.IntSets // TODO1 rmmove?
+	SiteIntsWithDefaults *sitematrix.IntSets // TODO1 remove?
 
 	// Fallback values for the SiteInts.
 	SitesFallbacks *sitematrix.IntSets

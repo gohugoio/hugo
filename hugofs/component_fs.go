@@ -19,7 +19,9 @@ import (
 	"path"
 	"runtime"
 	"sort"
+	"strings"
 
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -92,22 +94,19 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		}
 	}
 
+	sort.Slice(fis, func(i, j int) bool {
+		return fis[i].Name() < fis[j].Name()
+	})
+
 	variants := make(map[string][]*sitematrix.IntSets)
 	fis = fis[:n]
 	n = 0
 	for _, fi := range fis {
 		s := path.Join(f.name, fi.Name())
+
 		if _, ok := f.fs.applyMeta(fi, s); ok {
 			meta := fi.(FileMetaInfo).Meta()
 			pi := meta.PathInfo
-
-			switch meta.Component {
-			case files.ComponentFolderLayouts:
-				// Eg. indeex.fr.html when French isn't defined.
-				if len(pi.IdentifiersUnknown()) > 0 {
-					continue
-				}
-			}
 
 			baseName := pi.PathNoLang() // Update this when I get the ^1 identifiers working.
 
@@ -116,6 +115,9 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 			matrixes, found := variants[baseName]
 			if found {
 				complement := meta.SitesMatrix.Complement(matrixes...)
+				if strings.Contains(s, "index") {
+					hdebug.Printf("componentFsDir.ReadDir: %q %q complement==nil", s, baseName, complement == nil)
+				}
 				if complement == nil {
 					continue
 				}
@@ -229,6 +231,14 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 				meta.Weight++
 				meta.SitesMatrix = meta.SitesMatrix.WithLanguageIndex(idx)
 				meta.SiteIntsWithDefaults = meta.SiteIntsWithDefaults.WithLanguageIndex(idx)
+			}
+		}
+		switch meta.Component {
+		case files.ComponentFolderLayouts:
+			// Eg. index.fr.html when French isn't defined,
+			// we want e.g. index.html to be used instead.
+			if len(pi.IdentifiersUnknown()) > 0 {
+				meta.Weight--
 			}
 		}
 	}

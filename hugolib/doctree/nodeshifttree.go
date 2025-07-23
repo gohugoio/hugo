@@ -38,6 +38,9 @@ type (
 		// If the function returns true, the walk will stop.
 		ForEeachInDimension(n T, dims sitematrix.Vector, d int, f func(T) bool)
 
+		// ForEeachInAllDimensions will call the given function for each value in all dimensions.
+		ForEeachInAllDimensions(n T, f func(T) bool)
+
 		// Insert inserts new into the tree into the dimension it provides.
 		// It may replace old.
 		// It returns the updated and existing T
@@ -294,6 +297,15 @@ func (r *NodeShiftTree[T]) ForEeachInDimension(s string, dims sitematrix.Vector,
 		return
 	}
 	r.shifter.ForEeachInDimension(v.(T), dims, d, f)
+}
+
+func (r *NodeShiftTree[T]) ForEeachInAllDimensions(s string, f func(T) bool) {
+	s = cleanKey(s)
+	v, ok := r.tree.Get(s)
+	if !ok {
+		return
+	}
+	r.shifter.ForEeachInAllDimensions(v.(T), f)
 }
 
 type WalkFunc[T any] func(string, T) (bool, error)

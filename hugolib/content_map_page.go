@@ -172,25 +172,18 @@ func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Iden
 	}
 	tree := t.treePages
 	nCount = 0
-	dims := sitematrix.Vector{} // TODO1 fix the below.
-	tree.ForEeachInDimension(key, dims, sitematrix.Language.Index(),
-		cb,
-	)
+	tree.ForEeachInAllDimensions(key, cb)
 
 	tree = t.treeResources
 	nCount = 0
-	tree.ForEeachInDimension(key, dims, sitematrix.Language.Index(),
-		cb,
-	)
+	tree.ForEeachInAllDimensions(key, cb)
 
 	if p.Component() == files.ComponentFolderContent {
 		// It may also be a bundled content resource.
 		key := p.ForType(paths.TypeContentResource).Base()
 		tree = t.treeResources
 		nCount = 0
-		tree.ForEeachInDimension(key, dims, sitematrix.Language.Index(),
-			cb,
-		)
+		tree.ForEeachInAllDimensions(key, cb)
 
 	}
 	return ids
@@ -664,6 +657,8 @@ type contentNodeI interface {
 	resource.StaleMarker
 }
 
+type contentNodeIOptional interface{}
+
 var (
 	_ contentNodeI = (*contentNodeIs)(nil)
 	_ contentNodeI = (*contentNodeIs2)(nil)
@@ -734,6 +729,14 @@ func (n contentNodeIs) one() contentNodeI {
 		return nn
 	}
 	return nil
+}
+
+func (n contentNodeIs) ForEeachInAllDimensions(f func(contentNodeI) bool) {
+	for _, nn := range n {
+		if f(nn) {
+			return
+		}
+	}
 }
 
 // TODO1 remove this from the contentNodeI interface.
@@ -974,6 +977,20 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims sitematrix.Vector, exact
 		panic(fmt.Sprintf("Shift: unsupported type %T", n))
 	}
 	return nil, false, 0
+}
+
+func (s *contentNodeShifter) ForEeachInAllDimensions(n contentNodeI, f func(contentNodeI) bool) {
+	if n == nil {
+		return
+	}
+	if v, ok := n.(interface {
+		// Implemented by all the list nodes.
+		ForEeachInAllDimensions(f func(contentNodeI) bool)
+	}); ok {
+		v.ForEeachInAllDimensions(f)
+		return
+	}
+	f(n)
 }
 
 func (s *contentNodeShifter) ForEeachInDimension(n contentNodeI, dims sitematrix.Vector, d int, f func(contentNodeI) bool) {

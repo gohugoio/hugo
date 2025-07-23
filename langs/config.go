@@ -129,13 +129,13 @@ func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguag
 		}
 
 		if k == "" {
-			return "", errors.New("role name cannot be empty")
+			return "", errors.New("language name cannot be empty")
 		}
 
 		if err := paths.ValidateIdentifier(k); err != nil {
 			// TODO1 config keys gets auto lowercased, so this will (almost) never happen.
 			// TODO1: Tree store: linked list for dimension nodes.
-			return "", fmt.Errorf("role name %q is invalid: %s", k, err)
+			return "", fmt.Errorf("language name %q is invalid: %s", k, err)
 		}
 
 		var isDefault bool
@@ -174,6 +174,11 @@ func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguag
 	}
 
 	if !defaultSeen {
+		if defaultContentLanguage != "" {
+			// Set by the user, but not found in the config.
+			return "", fmt.Errorf("defaultContentLanguage %q not found in languages configuration", defaultContentLanguage)
+		}
+		// Not set by the user, so we use the first language in the config.
 		defaultIdx := 0
 		if enIdx != -1 {
 			defaultIdx = enIdx

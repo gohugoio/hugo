@@ -225,6 +225,14 @@ func (n resourceSourcesSlice) MarkStale() {
 	}
 }
 
+func (n resourceSourcesSlice) ForEeachInAllDimensions(f func(contentNodeI) bool) {
+	for _, nn := range n {
+		if f(nn) {
+			return
+		}
+	}
+}
+
 func (n resourceSourcesSlice) Path() string {
 	panic("not supported")
 }

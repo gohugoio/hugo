@@ -1193,7 +1193,7 @@ Foo: {{ site.Params.foo }}|
 		).BuildE()
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "no languages")
+		b.Assert(err.Error(), qt.Contains, "invalid language configuration ")
 	})
 
 	// Issue 11044
@@ -1220,7 +1220,7 @@ weight = 1
 		).BuildE()
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "defaultContentLanguage does not match any language definition")
+		b.Assert(err.Error(), qt.Contains, `defaultContentLanguage "sv" not found in languages configuration`)
 	})
 }
 

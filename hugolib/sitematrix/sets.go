@@ -86,7 +86,7 @@ func (c ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
 	ordinal   int
-	languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	languages *maps.OrderedIntSet `mapstructure:"-" json:"-"` // TODO1 does this need to be ordered?
 	versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 

@@ -21,8 +21,10 @@ import (
 
 	iofs "io/fs"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/sitematrix"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
@@ -47,16 +49,19 @@ func TestLanguageRootMapping(t *testing.T) {
 	c.Assert(afero.WriteFile(fs, filepath.Join("themes/a/mysvdocs", "sv-docs.txt"), []byte("some sv docs content"), 0o755), qt.IsNil)
 	c.Assert(afero.WriteFile(fs, filepath.Join("themes/b/myenblogcontent", "en-b-f.txt"), []byte("some en content"), 0o755), qt.IsNil)
 
+	en := sitesMatrixForLangs(0)
+	sv := sitesMatrixForLangs(1)
+
 	rfs, err := NewRootMappingFs(fs,
 		RootMapping{
 			From: "content/blog",             // Virtual path, first element is one of content, static, layouts etc.
 			To:   "themes/a/mysvblogcontent", // Real path
-			Meta: &FileMeta{Lang: "sv"},
+			Meta: &FileMeta{SitesMatrix: sv},
 		},
 		RootMapping{
 			From: "content/blog",
 			To:   "themes/a/myenblogcontent",
-			Meta: &FileMeta{Lang: "en"},
+			Meta: &FileMeta{SitesMatrix: en},
 		},
 		RootMapping{
 			From: "content/blog",
@@ -66,7 +71,7 @@ func TestLanguageRootMapping(t *testing.T) {
 		RootMapping{
 			From: "content/blog",
 			To:   "themes/a/myotherenblogcontent",
-			Meta: &FileMeta{Lang: "en"},
+			Meta: &FileMeta{SitesMatrix: en},
 		},
 		RootMapping{
 			From: "content/docs",
@@ -217,7 +222,7 @@ func TestRootMappingFsMount(t *testing.T) {
 		{
 			From: "content/blog",
 			To:   "myenblogcontent",
-			Meta: &FileMeta{Lang: "en"},
+			Meta: &FileMeta{SitesMatrix: en},
 		},
 		{
 			From: "content/blog",
@@ -515,7 +520,7 @@ func TestRootMappingFileFilter(t *testing.T) {
 		{
 			From: "content",
 			To:   "en",
-			Meta: &FileMeta{Lang: "en"},
+			Meta: &FileMeta{SitesMatrix: en},
 		},
 		{
 			From: "content",
@@ -557,4 +562,8 @@ func TestRootMappingFileFilter(t *testing.T) {
 
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(dirEntries), qt.Equals, 4)
+}
+
+func sitesMatrixForLangs(langs ...int) *sitematrix.IntSets {
+	return sitematrix.NewIntSetsBuilder(0).WithSets(maps.NewOrderedIntSet(langs...), nil, nil).Build()
 }
