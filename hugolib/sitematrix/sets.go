@@ -16,6 +16,7 @@ package sitematrix
 import (
 	"cmp"
 	"fmt"
+	"sort"
 	"sync"
 
 	"github.com/gohugoio/hashstructure"
@@ -105,7 +106,19 @@ func (s *IntSets) Complement(is ...*IntSets) *IntSets {
 		return nil
 	}
 
-	// TODO1 see bitsets.IsSuperSet etc.
+	var isSuperSet bool
+	for _, other := range is {
+		if s.languages.IsSuperSet(other.languages) &&
+			s.versions.IsSuperSet(other.versions) &&
+			s.roles.IsSuperSet(other.roles) {
+			isSuperSet = true
+			break
+		}
+	}
+
+	if !isSuperSet {
+		return nil
+	}
 
 	result := NewIntSets(s.ordinal)
 
@@ -154,9 +167,9 @@ func (s *IntSets) FirstVector() Vector {
 	}
 
 	return Vector{
-		s.languages.Get(0),
-		s.versions.Get(0),
-		s.roles.Get(0),
+		s.languages.Next(0),
+		s.versions.Next(0),
+		s.roles.Next(0),
 	}
 }
 
@@ -180,6 +193,25 @@ func (s *IntSets) ForEeachVector(yield func(v Vector) bool) bool {
 	})
 
 	return b
+}
+
+func (s *IntSets) Vectors() []Vector {
+	if s.LenVectors() == 0 {
+		return nil
+	}
+
+	var vectors []Vector
+	s.ForEeachVector(func(v Vector) bool {
+		vectors = append(vectors, v)
+		return true
+	})
+
+	sort.Slice(vectors, func(i, j int) bool {
+		v1, v2 := vectors[i], vectors[j]
+		return v1.EuclideanDistanceSquared(v2) < 0
+	})
+
+	return vectors
 }
 
 func (s *IntSets) KeysSorted() ([]int, []int, []int) {

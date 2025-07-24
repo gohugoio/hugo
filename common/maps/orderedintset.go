@@ -15,13 +15,13 @@ package maps
 
 import (
 	"fmt"
-	"iter"
 	"slices"
 
 	"github.com/bits-and-blooms/bitset"
 )
 
 type OrderedIntSet struct {
+	keys   []int
 	values *bitset.BitSet
 }
 
@@ -29,6 +29,7 @@ type OrderedIntSet struct {
 // Note that this is backed by https://github.com/bits-and-blooms/bitset
 func NewOrderedIntSet(vals ...int) *OrderedIntSet {
 	m := &OrderedIntSet{
+		keys:   make([]int, 0, len(vals)),
 		values: bitset.New(uint(len(vals))),
 	}
 	for _, v := range vals {
@@ -48,13 +49,29 @@ func (m *OrderedIntSet) Set(key int) {
 		return
 	}
 	m.values.Set(keyu)
+	m.keys = append(m.keys, key)
+}
+
+func (m *OrderedIntSet) IsStrictSuperSet(other *OrderedIntSet) bool {
+	if m == nil || other == nil {
+		return false
+	}
+	return m.values.IsStrictSuperSet(other.values)
+}
+
+func (m *OrderedIntSet) IsSuperSet(other *OrderedIntSet) bool {
+	if m == nil || other == nil {
+		return false
+	}
+	return m.values.IsSuperSet(other.values)
 }
 
 func (m *OrderedIntSet) Clear() {
 	if m == nil {
 		return
 	}
-	m.values.ClearAll()
+	m.keys = nil
+	m.values = &bitset.BitSet{}
 }
 
 // SetFrom sets the values from another OrderedIntSet.
@@ -62,21 +79,8 @@ func (m *OrderedIntSet) SetFrom(other *OrderedIntSet) {
 	if m == nil || other == nil {
 		return
 	}
-	for key := range other.eachKey() {
+	for _, key := range other.keys {
 		m.Set(key)
-	}
-}
-
-func (m *OrderedIntSet) eachKey() iter.Seq[int] {
-	if m == nil {
-		return nil
-	}
-	return func(yield func(int) bool) {
-		for i := range m.values.EachSet() {
-			if !yield(int(i)) {
-				return
-			}
-		}
 	}
 }
 
@@ -85,18 +89,19 @@ func (m *OrderedIntSet) Clone() *OrderedIntSet {
 		return nil
 	}
 	newSet := &OrderedIntSet{
+		keys:   slices.Clone(m.keys),
 		values: m.values.Clone(),
 	}
 	return newSet
 }
 
-// Get returns the value at the given index.
-// If the index is out of bounds, it panics.
-func (m *OrderedIntSet) Get(i int) int {
-	if m == nil || i < 0 || i >= len(m.keys) {
+// Next returns the next key in the set possibly including the given key.
+func (m *OrderedIntSet) Next(i int) int {
+	n, ok := m.values.NextSet(uint(i))
+	if !ok {
 		panic("index out of bounds")
 	}
-	return m.keys[i]
+	return int(n)
 }
 
 // The reason we don't use iter.Seq is https://github.com/golang/go/issues/69015
@@ -135,7 +140,7 @@ func (m *OrderedIntSet) KeysSorted() []int {
 	}
 	keys := slices.Clone(m.keys)
 	slices.Sort(keys)
-	return keys
+	return m.keys
 }
 
 func (m *OrderedIntSet) String() string {
