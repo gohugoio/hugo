@@ -105,6 +105,8 @@ func (s *IntSets) Complement(is ...*IntSets) *IntSets {
 		return nil
 	}
 
+	// TODO1 see bitsets.IsSuperSet etc.
+
 	result := NewIntSets(s.ordinal)
 
 	s.ForEeachVector(func(vec Vector) bool {

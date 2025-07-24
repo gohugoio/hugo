@@ -22,16 +22,17 @@ import (
 func TestOrderedIntSet(t *testing.T) {
 	c := qt.New(t)
 
-	m := NewOrderedIntSet(1, 2, 3)
+	m := NewOrderedIntSet(2, 1, 3)
 
 	c.Assert(m.Len(), qt.Equals, 3)
 	c.Assert(m.Has(1), qt.Equals, true)
 	c.Assert(m.Has(4), qt.Equals, false)
-	c.Assert(m.String(), qt.Equals, "[1 2 3]")
+	c.Assert(m.String(), qt.Equals, "[2 1 3]")
 	m.Set(4)
 	c.Assert(m.Len(), qt.Equals, 4)
 	c.Assert(m.Has(4), qt.Equals, true)
-	c.Assert(m.String(), qt.Equals, "[1 2 3 4]")
+	c.Assert(m.String(), qt.Equals, "[2 1 3 4]")
+	c.Assert(m.KeysSorted(), qt.DeepEquals, []int{1, 2, 3, 4})
 
 	var nilset *OrderedIntSet
 	c.Assert(nilset.Len(), qt.Equals, 0)

@@ -15,13 +15,13 @@ package maps
 
 import (
 	"fmt"
+	"iter"
 	"slices"
 
 	"github.com/bits-and-blooms/bitset"
 )
 
 type OrderedIntSet struct {
-	keys   []int
 	values *bitset.BitSet
 }
 
@@ -29,7 +29,6 @@ type OrderedIntSet struct {
 // Note that this is backed by https://github.com/bits-and-blooms/bitset
 func NewOrderedIntSet(vals ...int) *OrderedIntSet {
 	m := &OrderedIntSet{
-		keys:   make([]int, 0, len(vals)),
 		values: bitset.New(uint(len(vals))),
 	}
 	for _, v := range vals {
@@ -49,15 +48,13 @@ func (m *OrderedIntSet) Set(key int) {
 		return
 	}
 	m.values.Set(keyu)
-	m.keys = append(m.keys, key)
 }
 
 func (m *OrderedIntSet) Clear() {
 	if m == nil {
 		return
 	}
-	m.keys = nil
-	m.values = &bitset.BitSet{}
+	m.values.ClearAll()
 }
 
 // SetFrom sets the values from another OrderedIntSet.
@@ -65,8 +62,21 @@ func (m *OrderedIntSet) SetFrom(other *OrderedIntSet) {
 	if m == nil || other == nil {
 		return
 	}
-	for _, key := range other.keys {
+	for key := range other.eachKey() {
 		m.Set(key)
+	}
+}
+
+func (m *OrderedIntSet) eachKey() iter.Seq[int] {
+	if m == nil {
+		return nil
+	}
+	return func(yield func(int) bool) {
+		for i := range m.values.EachSet() {
+			if !yield(int(i)) {
+				return
+			}
+		}
 	}
 }
 
@@ -75,7 +85,6 @@ func (m *OrderedIntSet) Clone() *OrderedIntSet {
 		return nil
 	}
 	newSet := &OrderedIntSet{
-		keys:   slices.Clone(m.keys),
 		values: m.values.Clone(),
 	}
 	return newSet
@@ -126,10 +135,13 @@ func (m *OrderedIntSet) KeysSorted() []int {
 	}
 	keys := slices.Clone(m.keys)
 	slices.Sort(keys)
-	return m.keys
+	return keys
 }
 
 func (m *OrderedIntSet) String() string {
+	if m == nil {
+		return "[]"
+	}
 	return fmt.Sprintf("%v", m.keys)
 }
 
