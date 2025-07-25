@@ -235,9 +235,9 @@ func (s *IntegrationTestPageHelper) MatrixFallbacksFromPageConfig() map[string]m
 	return s.siteIntsToMap(pc.SitesMatrix, pc.SitesFallbacks)
 }
 
-func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks *sitematrix.IntSets) map[string]map[string][]string {
+func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks sitematrix.VectorStore) map[string]map[string][]string {
 	dconf := s.p.s.Conf.ConfiguredDimensions()
-	intSetsToMap := func(intSets *sitematrix.IntSets) map[string][]string {
+	intSetsToMap := func(intSets sitematrix.VectorStore) map[string][]string {
 		var languages, versions, roles []string
 
 		keys1, keys2, keys3 := intSets.KeysSorted()

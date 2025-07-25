@@ -19,9 +19,7 @@ import (
 	"path"
 	"runtime"
 	"sort"
-	"strings"
 
-	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -98,7 +96,7 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		return fis[i].Name() < fis[j].Name()
 	})
 
-	variants := make(map[string][]*sitematrix.IntSets)
+	variants := make(map[string][]sitematrix.VectorProvider)
 	fis = fis[:n]
 	n = 0
 	for _, fi := range fis {
@@ -113,20 +111,19 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 			// There may be multiple languge/version/role combinations for the same file.
 			// The most important come early.
 			matrixes, found := variants[baseName]
+
 			if found {
 				complement := meta.SitesMatrix.Complement(matrixes...)
-				if strings.Contains(s, "index") {
-					hdebug.Printf("componentFsDir.ReadDir: %q %q complement==nil", s, baseName, complement == nil)
-				}
 				if complement == nil {
 					continue
 				}
 				meta.SitesMatrix = complement
+
 				matrixes = append(matrixes, complement)
 				variants[baseName] = matrixes
 
 			} else {
-				matrixes = []*sitematrix.IntSets{meta.SitesMatrix}
+				matrixes = []sitematrix.VectorProvider{meta.SitesMatrix}
 				variants[baseName] = matrixes
 			}
 

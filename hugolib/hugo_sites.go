@@ -144,7 +144,7 @@ func (h *HugoSites) isRebuild() bool {
 	return h.buildCounter.Load() > 0
 }
 
-func (h *HugoSites) resolveFirstSite(matrix *sitematrix.IntSets) *Site {
+func (h *HugoSites) resolveFirstSite(matrix sitematrix.VectorStore) *Site {
 	var s *Site
 	var ok bool
 	matrix.ForEeachVector(func(v sitematrix.Vector) bool {

@@ -14,8 +14,10 @@
 package sitematrix_test
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/bits-and-blooms/bitset"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/maps"
@@ -89,29 +91,107 @@ func TestIntSets(t *testing.T) {
 	c.Assert(allCount, qt.Equals, 18)
 }
 
-func TestIntSetsComplement(t *testing.T) {
+func TestIntSetsIsSuperSet(t *testing.T) {
 	c := qt.New(t)
 
 	sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1),
-		maps.NewOrderedIntSet(1),
-		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1, 2),
+		maps.NewOrderedIntSet(1, 2, 3),
+		maps.NewOrderedIntSet(1, 2, 3),
 	).Build()
 
 	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
 		maps.NewOrderedIntSet(1, 2),
-		maps.NewOrderedIntSet(1),
-		maps.NewOrderedIntSet(1, 3),
+		maps.NewOrderedIntSet(1, 2, 3),
+		maps.NewOrderedIntSet(1, 2, 3, 4),
 	).Build()
 
-	c1 := sets2.Complement(sets1)
+	c.Assert(sets1.IsSuperSet(sets2), qt.Equals, false)
+	c.Assert(sets2.IsSuperSet(sets1), qt.Equals, true)
+	c.Assert(sets1.IsSuperSet(sets1), qt.Equals, true)
+	c.Assert(sets2.IsSuperSet(sets2), qt.Equals, true)
+}
 
-	vectors := c1.Vectors()
-	c.Assert(len(vectors), qt.Equals, 4)
-	c.Assert(vectors, qt.DeepEquals, []sitematrix.Vector{{2, 1, 1}})
+func TestBitSetExperiments(t *testing.T) {
+	c := qt.New(t)
 
-	c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets1))
-	c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
+	a, b, d := bitset.New(10), bitset.New(10), bitset.New(10)
+
+	ints := func(v *bitset.BitSet) []uint {
+		var ints []uint
+		for i := range v.EachSet() {
+			ints = append(ints, i)
+		}
+		return ints
+	}
+
+	a.Set(3).Set(4)
+	b.Set(4).Set(5).Set(6).Set(7)
+	d.Set(3).Set(4)
+
+	c.Assert(b.Test(5), qt.Equals, true)
+
+	fmt.Println("a:", ints(a), "==>", ints(b), "=> Intersection:", ints(a.Intersection(b)), "=> Symdiff:", ints(a.SymmetricDifference(b)))
+	fmt.Println("===>", ints(a.Difference(b)))
+	fmt.Println("===>", ints(b.Difference(a)))
+	fmt.Println("===> d", d.Difference(a).Count())
+}
+
+func TestIntSetsComplement(t *testing.T) {
+	c := qt.New(t)
+
+	c.Run("Test 1", func(c *qt.C) {
+		sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
+			maps.NewOrderedIntSet(1),
+			maps.NewOrderedIntSet(1),
+			maps.NewOrderedIntSet(1),
+		).Build()
+
+		sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
+			maps.NewOrderedIntSet(1, 2),
+			maps.NewOrderedIntSet(1),
+			maps.NewOrderedIntSet(1, 3),
+		).Build()
+
+		c1 := sets2.Complement(sets1)
+
+		vectors := c1.Vectors()
+		c.Assert(len(vectors), qt.Equals, 3)
+		c.Assert(vectors, qt.DeepEquals, []sitematrix.Vector{
+			{1, 1, 3},
+			{2, 1, 1},
+			{2, 1, 3},
+		})
+
+		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets1))
+		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
+	})
+
+	c.Run("Test 2", func(c *qt.C) {
+		sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
+			maps.NewOrderedIntSet(1),
+			maps.NewOrderedIntSet(1),
+			maps.NewOrderedIntSet(1),
+		).Build()
+
+		sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
+			maps.NewOrderedIntSet(2),
+			maps.NewOrderedIntSet(1),
+			maps.NewOrderedIntSet(1),
+		).Build()
+
+		c1 := sets2.Complement(sets1)
+		c.Assert(c1, qt.Not(qt.IsNil))
+
+		vectors := c1.Vectors()
+		c.Assert(len(vectors), qt.Equals, 1)
+		c.Assert(vectors, qt.DeepEquals, []sitematrix.Vector{
+			{2, 1, 1},
+		})
+
+		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets1))
+		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
+	})
 }
 
 func BenchmarkIntSetsComplement(b *testing.B) {
@@ -119,6 +199,12 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
+	).Build()
+
+	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
+		maps.NewOrderedIntSet(1, 2, 3, 4),
+		maps.NewOrderedIntSet(1, 2, 3, 4),
+		maps.NewOrderedIntSet(1, 2, 3, 4, 6),
 	).Build()
 
 	sets1Copy := sitematrix.NewIntSetsBuilder(0).WithSets(
@@ -129,14 +215,8 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 
 	setsLanguage1 := sitematrix.NewIntSetsBuilder(0).WithSets(
 		maps.NewOrderedIntSet(1),
-		nil,
-		nil,
-	).Build()
-
-	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1, 2, 3, 4),
-		maps.NewOrderedIntSet(1, 2, 3, 4),
-		maps.NewOrderedIntSet(1, 2, 3, 4, 6),
+		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1),
 	).Build()
 
 	b.ResetTimer()

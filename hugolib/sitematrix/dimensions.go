@@ -160,6 +160,20 @@ type VectorProvider interface {
 	Ordinal() int
 }
 
+type VectorStore interface {
+	VectorProvider
+	Complement(...VectorProvider) VectorStore
+	WithLanguageIndex(i int) VectorStore
+	HasLanguage(lang int) bool
+	HasVersion(version int) bool
+	HasRole(role int) bool
+	MustHash() uint64
+
+	// Used in tests.
+	KeysSorted() ([]int, []int, []int)
+	Vectors() []Vector
+}
+
 // Dimension is a dimension in the Hugo build matrix.
 type Dimension int8
 

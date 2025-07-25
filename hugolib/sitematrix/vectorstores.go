@@ -16,6 +16,8 @@ package sitematrix
 import (
 	"cmp"
 	"fmt"
+	xmaps "maps"
+	"slices"
 	"sort"
 	"sync"
 
@@ -28,11 +30,199 @@ import (
 )
 
 var (
-	_ VectorProvider         = &IntSets{}
+	_ VectorStore            = &IntSets{}
+	_ VectorStore            = &vectorStoreMap{}
 	_ hashstructure.Hashable = &IntSets{}
+	_ hashstructure.Hashable = &vectorStoreMap{}
 )
 
-// NewIntSets creates a new DimensionsIntSets with nil sets for languages, roles, and versions.
+func newVectorStoreMap(ordinal int) *vectorStoreMap {
+	return &vectorStoreMap{
+		sets:    make(map[Vector]struct{}),
+		ordinal: ordinal,
+		h:       &hashOnce{},
+	}
+}
+
+// A vector store backed by a map.
+type vectorStoreMap struct {
+	sets    map[Vector]struct{}
+	ordinal int
+	h       *hashOnce
+}
+
+func (m *vectorStoreMap) initHash() {
+	m.h.once.Do(func() {
+		var err error
+		m.h.hash, err = hashing.Hash(m.ordinal, m.sets)
+		if err != nil {
+			panic(fmt.Errorf("failed to calculate hash for MapVectorStore: %w", err))
+		}
+	})
+}
+
+func (m *vectorStoreMap) setVector(vec Vector) {
+	m.sets[vec] = struct{}{}
+}
+
+func (m *vectorStoreMap) Ordinal() int {
+	return 0
+}
+
+func (m *vectorStoreMap) KeysSorted() ([]int, []int, []int) {
+	var k0, k1, k2 []int
+	for v := range m.sets {
+		k0 = append(k0, v.Language())
+		k1 = append(k1, v.Version())
+		k2 = append(k2, v.Role())
+	}
+	sort.Ints(k0)
+	sort.Ints(k1)
+	sort.Ints(k2)
+	k0 = slices.Compact(k0)
+	k1 = slices.Compact(k1)
+	k2 = slices.Compact(k2)
+
+	return k0, k1, k2
+}
+
+func (m *vectorStoreMap) Hash() (uint64, error) {
+	m.initHash()
+	return m.h.hash, nil
+}
+
+func (m *vectorStoreMap) MustHash() uint64 {
+	i, _ := m.Hash()
+	return i
+}
+
+func (m *vectorStoreMap) HasVector(v Vector) bool {
+	if _, ok := m.sets[v]; ok {
+		return true
+	}
+	return false
+}
+
+func (m *vectorStoreMap) LenVectors() int {
+	return len(m.sets)
+}
+
+func (m *vectorStoreMap) IsSuperSet(other VectorProvider) bool {
+	if other == nil {
+		return false
+	}
+	if m == other {
+		return true
+	}
+	if m.LenVectors() < other.LenVectors() {
+		return false
+	}
+	panic("TODO1: Implement me.")
+}
+
+func (m *vectorStoreMap) Complement(is ...VectorProvider) VectorStore {
+	panic("TODO1: Implement me.")
+}
+
+func (m *vectorStoreMap) EqualsVector(other VectorProvider) bool {
+	if other == nil {
+		return false
+	}
+	if m == other {
+		return true
+	}
+	if m.LenVectors() != other.LenVectors() {
+		return false
+	}
+	return other.ForEeachVector(func(v Vector) bool {
+		_, ok := m.sets[v]
+		return ok
+	})
+}
+
+func (m *vectorStoreMap) FirstVector() Vector {
+	if len(m.sets) == 0 {
+		panic("no vectors available")
+	}
+	for v := range m.sets {
+		return v
+	}
+	panic("unreachable")
+}
+
+func (m *vectorStoreMap) ForEeachVector(yield func(v Vector) bool) bool {
+	if len(m.sets) == 0 {
+		return true
+	}
+	for v := range m.sets {
+		if !yield(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func (m *vectorStoreMap) Vectors() []Vector {
+	if len(m.sets) == 0 {
+		return nil
+	}
+	var vectors []Vector
+	for v := range m.sets {
+		vectors = append(vectors, v)
+	}
+	sort.Slice(vectors, func(i, j int) bool {
+		v1, v2 := vectors[i], vectors[j]
+		return v1.Compare(v2) < 0
+	})
+	return vectors
+}
+
+func (m *vectorStoreMap) WithLanguageIndex(i int) VectorStore {
+	c := m.clone()
+
+	for v := range c.sets {
+		v[Language.Index()] = i
+		c.sets[v] = struct{}{}
+	}
+
+	return c
+}
+
+func (m *vectorStoreMap) HasLanguage(i int) bool {
+	for v := range m.sets {
+		if v.Language() == i {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *vectorStoreMap) HasVersion(i int) bool {
+	for v := range m.sets {
+		if v.Version() == i {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *vectorStoreMap) HasRole(i int) bool {
+	for v := range m.sets {
+		if v.Role() == i {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *vectorStoreMap) clone() *vectorStoreMap {
+	c := *m
+	c.h = &hashOnce{}
+	c.sets = xmaps.Clone(m.sets)
+	return &c
+}
+
+// NewIntSets creates a new NewIntSets with nil sets for languages, roles, and versions.
 // TODO1 remove me.
 func NewIntSets(ordinal int) *IntSets {
 	return &IntSets{ordinal: ordinal, h: &hashOnce{}}
@@ -99,28 +289,43 @@ type hashOnce struct {
 	hash uint64
 }
 
-// Complement returns a new IntSets that is the complement of the IntSets passed in is.
-// This will return nil if the resulting set is empty.
-func (s *IntSets) Complement(is ...*IntSets) *IntSets {
+// TODO1 consider removing if not used. Also see the other one.
+func (s *IntSets) IsSuperSet(other VectorProvider) bool {
+	if s == nil || other == nil {
+		return false
+	}
+	if s == other {
+		return true
+	}
+	if s.LenVectors() < other.LenVectors() {
+		return false
+	}
+
+	if is, ok := other.(*IntSets); ok {
+		// Fast path.
+		return s.languages.IsSuperSet(is.languages) &&
+			s.versions.IsSuperSet(is.versions) &&
+			s.roles.IsSuperSet(is.roles)
+	}
+
+	return other.ForEeachVector(func(v Vector) bool {
+		return s.HasVector(v)
+	})
+}
+
+// Complement returns a new VectorStore that contains all vectors in is that are not in s.
+func (s *IntSets) Complement(is ...VectorProvider) VectorStore {
 	if len(is) == 0 || (len(is) == 1 && is[0] == s) {
 		return nil
 	}
 
-	var isSuperSet bool
-	for _, other := range is {
-		if s.languages.IsSuperSet(other.languages) &&
-			s.versions.IsSuperSet(other.versions) &&
-			s.roles.IsSuperSet(other.roles) {
-			isSuperSet = true
-			break
-		}
-	}
+	// 1 1
+	// 1 1
 
-	if !isSuperSet {
-		return nil
-	}
+	// 1 1
+	// 1 2
 
-	result := NewIntSets(s.ordinal)
+	result := newVectorStoreMap(s.ordinal)
 
 	s.ForEeachVector(func(vec Vector) bool {
 		var found bool
@@ -132,14 +337,13 @@ func (s *IntSets) Complement(is ...*IntSets) *IntSets {
 		}
 
 		if !found {
-			result.initSets()
 			result.setVector(vec)
 		}
 
 		return true
 	})
 
-	return result.init()
+	return result
 }
 
 func (s *IntSets) EqualsVector(other VectorProvider) bool {
@@ -208,7 +412,7 @@ func (s *IntSets) Vectors() []Vector {
 
 	sort.Slice(vectors, func(i, j int) bool {
 		v1, v2 := vectors[i], vectors[j]
-		return v1.EuclideanDistanceSquared(v2) < 0
+		return v1.Compare(v2) < 0
 	})
 
 	return vectors
@@ -286,7 +490,7 @@ func (s IntSets) shallowClone() *IntSets {
 }
 
 // WithLanguageIndex replaces the current language set with a single language index.
-func (s *IntSets) WithLanguageIndex(i int) *IntSets {
+func (s *IntSets) WithLanguageIndex(i int) VectorStore {
 	c := s.shallowClone()
 	c.languages = maps.NewOrderedIntSet(i)
 	return c.init()
@@ -344,24 +548,17 @@ func (s *IntSets) init() *IntSets {
 	return s
 }
 
-func (s *IntSets) setFromOtherIfNotSet(other *IntSets) {
+func (s *IntSets) setFromOtherIfNotSet(other VectorStore) {
 	if other == nil {
 		return
 	}
-
-	// TODO1 clean up these nil checks.
-	if s.languages == nil && other.languages != nil {
-		s.languages = maps.NewOrderedIntSet()
-		s.languages.SetFrom(other.languages)
-	}
-	if s.versions == nil && other.versions != nil {
-		s.versions = maps.NewOrderedIntSet()
-		s.versions.SetFrom(other.versions)
-	}
-	if s.roles == nil && other.roles != nil {
-		s.roles = maps.NewOrderedIntSet()
-		s.roles.SetFrom(other.roles)
-	}
+	other.ForEeachVector(func(v Vector) bool {
+		if !s.HasVector(v) {
+			s.initSets()
+			s.setVector(v)
+		}
+		return true
+	})
 }
 
 func (s *IntSets) initSets() {
@@ -442,7 +639,7 @@ func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSets
 	return s
 }
 
-func (s *IntSetsBuilder) WithFromOtherIfNotSet(other *IntSets) *IntSetsBuilder {
+func (s *IntSetsBuilder) WithFromOtherIfNotSet(other VectorStore) *IntSetsBuilder {
 	s.s.setFromOtherIfNotSet(other)
 	return s
 }
