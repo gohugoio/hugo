@@ -59,8 +59,9 @@ pages:
     # Build
     - hugo --gc --minify --baseURL ${CI_PAGES_URL}
     # Compress
-    - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec gzip -f -k {} \;
-    - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec brotli -f -k {} \;
+    - find public/ -type f -regextype posix-extended -regex '.+\.(css|html|js|json|mjs|svg|txt|xml)$' -print0 > files.txt
+    - time xargs --null --max-procs=0 --max-args=1 brotli --quality=10 --force --keep < files.txt
+    - time xargs --null --max-procs=0 --max-args=1 gzip -9 --force --keep < files.txt
   artifacts:
     paths:
       - public
