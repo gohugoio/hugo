@@ -140,58 +140,141 @@ func TestBitSetExperiments(t *testing.T) {
 func TestIntSetsComplement(t *testing.T) {
 	c := qt.New(t)
 
-	c.Run("Test 1", func(c *qt.C) {
-		sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
-			maps.NewOrderedIntSet(1),
-			maps.NewOrderedIntSet(1),
-			maps.NewOrderedIntSet(1),
+	type values struct {
+		v0 []int
+		v1 []int
+		v2 []int
+	}
+
+	type test struct {
+		name     string
+		left     values
+		input    []values
+		expected []sitematrix.Vector
+	}
+
+	runOne := func(c *qt.C, test test) {
+		c.Helper()
+
+		self := sitematrix.NewIntSetsBuilder(0).WithSets(
+			maps.NewOrderedIntSet(test.left.v0...),
+			maps.NewOrderedIntSet(test.left.v1...),
+			maps.NewOrderedIntSet(test.left.v2...),
 		).Build()
 
-		sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
-			maps.NewOrderedIntSet(1, 2),
-			maps.NewOrderedIntSet(1),
-			maps.NewOrderedIntSet(1, 3),
-		).Build()
+		var input []sitematrix.VectorProvider
+		for _, v := range test.input {
+			input = append(input, sitematrix.NewIntSetsBuilder(0).WithSets(
+				maps.NewOrderedIntSet(v.v0...),
+				maps.NewOrderedIntSet(v.v1...),
+				maps.NewOrderedIntSet(v.v2...),
+			).Build())
+		}
 
-		c1 := sets2.Complement(sets1)
+		result := self.Complement(input...)
 
-		vectors := c1.Vectors()
-		c.Assert(len(vectors), qt.Equals, 3)
-		c.Assert(vectors, qt.DeepEquals, []sitematrix.Vector{
-			{1, 1, 3},
-			{2, 1, 1},
-			{2, 1, 3},
+		vectors := result.Vectors()
+		c.Assert(vectors, qt.DeepEquals, test.expected)
+
+		c.Assert(hashing.HashStringHex(result), qt.Not(qt.Equals), hashing.HashStringHex(self))
+	}
+
+	for _, test := range []test{
+		{
+			name: "Test 3",
+			left: values{
+				v0: []int{1, 3, 5},
+				v1: []int{1},
+				v2: []int{1},
+			},
+			input: []values{
+				{v0: []int{2}, v1: []int{1}, v2: []int{1}},
+				{v0: []int{2, 3}, v1: []int{1}, v2: []int{1}},
+			},
+			expected: []sitematrix.Vector{
+				{1, 1, 1},
+				{5, 1, 1},
+			},
+		},
+		{
+			name: "Test 1",
+			left: values{
+				v0: []int{1},
+				v1: []int{1},
+				v2: []int{1},
+			},
+			input: []values{
+				{v0: []int{2}, v1: []int{1}, v2: []int{1}},
+			},
+			expected: []sitematrix.Vector{
+				{1, 1, 1},
+			},
+		},
+		{
+			name: "Same values",
+			left: values{
+				v0: []int{1},
+				v1: []int{1},
+				v2: []int{1},
+			},
+			input: []values{
+				{v0: []int{1}, v1: []int{1}, v2: []int{1}},
+			},
+			expected: nil,
+		},
+		{
+			name: "Test 2",
+			left: values{
+				v0: []int{1, 3, 5},
+				v1: []int{1},
+				v2: []int{1},
+			},
+			input: []values{
+				{v0: []int{2}, v1: []int{1}, v2: []int{1}},
+			},
+			expected: []sitematrix.Vector{
+				{1, 1, 1},
+				{3, 1, 1},
+				{5, 1, 1},
+			},
+		},
+	} {
+		c.Run(test.name, func(c *qt.C) {
+			runOne(c, test)
 		})
+	}
+}
 
-		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets1))
-		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
+func TestIntSetsComplementOfComplement(t *testing.T) {
+	c := qt.New(t)
+
+	sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
+		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1),
+	).Build()
+
+	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
+		maps.NewOrderedIntSet(1, 2),
+		maps.NewOrderedIntSet(1),
+		maps.NewOrderedIntSet(1, 3),
+	).Build()
+
+	c1 := sets2.Complement(sets1)
+
+	vectors := c1.Vectors()
+	//	c.Assert(len(vectors), qt.Equals, 3)
+	c.Assert(vectors, qt.DeepEquals, []sitematrix.Vector{
+		{1, 1, 3},
+		{2, 1, 1},
+		{2, 1, 3},
 	})
 
-	c.Run("Test 2", func(c *qt.C) {
-		sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
-			maps.NewOrderedIntSet(1),
-			maps.NewOrderedIntSet(1),
-			maps.NewOrderedIntSet(1),
-		).Build()
+	c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets1))
+	c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
 
-		sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
-			maps.NewOrderedIntSet(2),
-			maps.NewOrderedIntSet(1),
-			maps.NewOrderedIntSet(1),
-		).Build()
-
-		c1 := sets2.Complement(sets1)
-		c.Assert(c1, qt.Not(qt.IsNil))
-
-		vectors := c1.Vectors()
-		c.Assert(len(vectors), qt.Equals, 1)
-		c.Assert(vectors, qt.DeepEquals, []sitematrix.Vector{
-			{2, 1, 1},
-		})
-
-		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets1))
-		c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
-	})
+	c2 := sets1.Complement(c1)
+	c.Assert(len(c2.Vectors()), qt.Equals, 0)
 }
 
 func BenchmarkIntSetsComplement(b *testing.B) {

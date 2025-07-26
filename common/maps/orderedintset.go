@@ -104,6 +104,20 @@ func (m *OrderedIntSet) Next(i int) int {
 	return int(n)
 }
 
+func (m *OrderedIntSet) Difference(other *OrderedIntSet) *bitset.BitSet {
+	if m == nil || other == nil {
+		return nil
+	}
+	return m.values.Difference(other.values)
+}
+
+func (m *OrderedIntSet) Values() *bitset.BitSet {
+	if m == nil {
+		return nil
+	}
+	return m.values
+}
+
 // The reason we don't use iter.Seq is https://github.com/golang/go/issues/69015
 // This is 70% faster than using iter.Seq2[int, int] for the keys.
 // It returns false if the iteration was stopped early.
