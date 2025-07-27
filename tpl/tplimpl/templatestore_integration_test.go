@@ -393,6 +393,61 @@ Link: [Foo](/foo)
 	}
 }
 
+func TestCodeblockIssue13864(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- content/_index.md --
+---
+title: home
+---
+
+~~~
+LANG: none
+~~~
+
+~~~go
+LANG: go
+~~~
+
+~~~go-html-template
+LANG: go-html-template
+~~~
+
+~~~xy
+LANG: xy
+~~~
+
+~~~x-y
+LANG: x-y
+~~~
+-- layouts/home.html --
+{{ .Content }}
+-- layouts/_markup/render-codeblock.html --
+{{ .Inner }} LAYOUT: render-codeblock.html|
+-- layouts/_markup/render-codeblock-go.html --
+{{ .Inner }} LAYOUT: render-codeblock-go.html|
+-- layouts/_markup/render-codeblock-go-html-template.html --
+{{ .Inner }} LAYOUT: render-codeblock-go-html-template.html|
+-- layouts/_markup/render-codeblock-xy.html --
+{{ .Inner }} LAYOUT: render-codeblock-xy.html|
+-- layouts/_markup/render-codeblock-x-y.html.html --
+{{ .Inner }} LAYOUT: render-codeblock-x-y.html|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"LANG: none LAYOUT: render-codeblock.html|",                              // pass
+		"LANG: go LAYOUT: render-codeblock-go.html|",                             // fail: uses render-codeblock-go-html-template.html
+		"LANG: go-html-template LAYOUT: render-codeblock-go-html-template.html|", // fail: uses render-codeblock.html
+		"LANG: xy LAYOUT: render-codeblock-xy.html|",                             // pass
+		"LANG: x-y LAYOUT: render-codeblock-x-y.html|",                           // fail: uses render-codeblock.html
+	)
+}
+
 func TestRenderCodeblockSpecificity(t *testing.T) {
 	files := `
 -- hugo.toml --

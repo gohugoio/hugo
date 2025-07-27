@@ -1762,15 +1762,18 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 	if category == CategoryMarkup {
 		// We store all template nodes for a given directory on the same level.
 		k1 = strings.TrimSuffix(k1, "/_markup")
-		parts := strings.Split(d.LayoutFromTemplate, "-")
-		if len(parts) < 2 {
+		v, found := strings.CutPrefix(d.LayoutFromTemplate, "render-")
+		if !found {
 			return "", "", 0, TemplateDescriptor{}, fmt.Errorf("unrecognized render hook template")
 		}
-		// Either 2 or 3 parts, e.g. render-codeblock-go.
-		d.Variant1 = parts[1]
-		if len(parts) > 2 {
-			d.Variant2 = parts[2]
+		hyphenIdx := strings.Index(v, "-")
+
+		d.Variant1 = v
+		if hyphenIdx > 0 {
+			d.Variant1 = v[:hyphenIdx]
+			d.Variant2 = v[hyphenIdx+1:]
 		}
+
 		d.LayoutFromTemplate = "" // This allows using page layout as part of the key for lookups.
 	}
 
