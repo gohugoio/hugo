@@ -1603,3 +1603,24 @@ a|b
 	b.AssertFileContent("public/index.html", "<table>")
 	b.AssertFileContent("public/index.json", "<table>")
 }
+
+func TestPageKindIssue13868(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+---
+-- layouts/page.html --
+layouts/page.html
+-- layouts/p1/page.html --
+layouts/p1/page.html
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "layouts/p1/page.html")
+}
