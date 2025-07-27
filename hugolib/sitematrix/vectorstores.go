@@ -21,7 +21,6 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/bits-and-blooms/bitset"
 	"github.com/gohugoio/hashstructure"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/maps"
@@ -321,58 +320,10 @@ func (s *IntSets) Complement(is ...VectorProvider) VectorStore {
 	}
 
 	result := newVectorStoreMap(s.ordinal)
-	var otherTypes []int
 
-	var s0, s1, s2 *bitset.BitSet = bitset.MustNew(10), bitset.MustNew(10), bitset.MustNew(10)
-
-	for i, v := range is {
-		switch v := v.(type) {
-		case *IntSets:
-			s0 = s0.Union(v.languages.Values())
-			s1 = s1.Union(v.versions.Values())
-			s2 = s2.Union(v.roles.Values())
-
-		default:
-			otherTypes = append(otherTypes, i)
-		}
-	}
-
-	d0, d1, d2 := s.languages.Values().Difference(s0), s.versions.Values().Difference(s1), s.roles.Values().Difference(s2)
-
-	if d0.Count() != 0 || d1.Count() != 0 || d2.Count() != 0 {
-
-		if d0.Count() == 0 {
-			d0 = s.languages.Values()
-		}
-		if d1.Count() == 0 {
-			d1 = s.versions.Values()
-		}
-		if d2.Count() == 0 {
-			d2 = s.roles.Values()
-		}
-
-		fmt.Println("Complementing with", d0, "languages,", d1, "versions, and", d2, "roles.")
-
-		for lang := range d0.EachSet() {
-			for ver := range d1.EachSet() {
-				for role := range d2.EachSet() {
-					vec := Vector{int(lang), int(ver), int(role)}
-					result.setVector(vec)
-
-				}
-			}
-		}
-	}
-
-	if len(otherTypes) == 0 {
-		return result
-	}
-
-	// Slow path for other types.
 	s.ForEeachVector(func(vec Vector) bool {
 		var found bool
-		for _, i := range otherTypes {
-			v := is[i]
+		for _, v := range is {
 			if v.HasVector(vec) {
 				found = true
 				break

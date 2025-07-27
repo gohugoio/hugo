@@ -274,7 +274,9 @@ func TestIntSetsComplementOfComplement(t *testing.T) {
 	c.Assert(hashing.HashStringHex(c1), qt.Not(qt.Equals), hashing.HashStringHex(sets2))
 
 	c2 := sets1.Complement(c1)
-	c.Assert(len(c2.Vectors()), qt.Equals, 0)
+	c.Assert(c2.Vectors(), qt.DeepEquals, []sitematrix.Vector{
+		{1, 1, 1},
+	})
 }
 
 func BenchmarkIntSetsComplement(b *testing.B) {
