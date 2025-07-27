@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-sitemap.schema.json",
+  "properties": {
+    "changeFreq": {
+      "oneOf": [
+        {
+          "const": "always"
+        },
+        {
+          "const": "hourly"
+        },
+        {
+          "const": "daily"
+        },
+        {
+          "const": "weekly"
+        },
+        {
+          "const": "monthly"
+        },
+        {
+          "const": "yearly"
+        },
+        {
+          "const": "never"
+        }
+      ],
+      "type": "string",
+      "description": "The page change frequency. \nhttps://gohugo.io/configuration/sitemap/#changefreq"
+    },
+    "priority": {
+      "type": "number",
+      "description": "The priority of the page. \nhttps://gohugo.io/configuration/sitemap/#priority"
+    },
+    "filename": {
+      "type": "string",
+      "description": "The sitemap filename. \nhttps://gohugo.io/configuration/sitemap/#filename"
+    },
+    "disable": {
+      "type": "boolean",
+      "description": "Whether to disable page inclusion. \nhttps://gohugo.io/configuration/sitemap/#disable"
+    }
+  },
+  "type": "object",
+  "description": "SitemapConfig configures the sitemap to be generated."
+}

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-deployment.schema.json",
+  "properties": {
+    "targets": {
+      "items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#name"
+          },
+          "uRL": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#url"
+          },
+          "cloudFrontDistributionID": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#cloudfrontdistributionid"
+          },
+          "googleCloudCDNOrigin": {
+            "type": "string",
+            "description": "GoogleCloudCDNOrigin specifies the Google Cloud project and CDN origin to\ninvalidate when deploying this target.  It is specified as \u003cproject\u003e/\u003corigin\u003e. \nhttps://gohugo.io/configuration/deployment/#googlecloudcdnorigin"
+          },
+          "include": {
+            "type": "string",
+            "description": "Optional patterns of files to include/exclude for this target.\nParsed using github.com/gobwas/glob. \nhttps://gohugo.io/configuration/deployment/#include"
+          },
+          "exclude": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#exclude"
+          },
+          "stripIndexHTML": {
+            "type": "boolean",
+            "description": "If true, any local path matching \u003cdir\u003e/index.html will be mapped to the\nremote path \u003cdir\u003e/. This does not affect the top-level index.html file,\nsince that would result in an empty path. \nhttps://gohugo.io/configuration/deployment/#stripindexhtml"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/deployment/#targets"
+    },
+    "matchers": {
+      "items": {
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "Pattern is the string pattern to match against paths.\nMatching is done against paths converted to use / as the path separator. \nhttps://gohugo.io/configuration/deployment/#pattern"
+          },
+          "cacheControl": {
+            "type": "string",
+            "description": "CacheControl specifies caching attributes to use when serving the blob.\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control \nhttps://gohugo.io/configuration/deployment/#cachecontrol"
+          },
+          "contentEncoding": {
+            "type": "string",
+            "description": "ContentEncoding specifies the encoding used for the blob's content, if any.\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding \nhttps://gohugo.io/configuration/deployment/#contentencoding"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "ContentType specifies the MIME type of the blob being written.\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type \nhttps://gohugo.io/configuration/deployment/#contenttype"
+          },
+          "gzip": {
+            "type": "boolean",
+            "description": "Gzip determines whether the file should be gzipped before upload.\nIf so, the ContentEncoding field will automatically be set to \"gzip\". \nhttps://gohugo.io/configuration/deployment/#gzip"
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Force indicates that matching files should be re-uploaded. Useful when\nother route-determined metadata (e.g., ContentType) has changed. \nhttps://gohugo.io/configuration/deployment/#force-1"
+          }
+        },
+        "type": "object",
+        "description": "Matcher represents configuration to be applied to files whose paths match a specified pattern."
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/deployment/#matchers"
+    },
+    "order": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/deployment/#order"
+    },
+    "target": {
+      "type": "string",
+      "description": "Usually set via flags.\nTarget deployment Name; defaults to the first one. \nhttps://gohugo.io/configuration/deployment/#target"
+    },
+    "confirm": {
+      "type": "boolean",
+      "description": "Show a confirm prompt before deploying. \nhttps://gohugo.io/configuration/deployment/#confirm"
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "DryRun will try the deployment without any remote changes. \nhttps://gohugo.io/configuration/deployment/#dryrun"
+    },
+    "force": {
+      "type": "boolean",
+      "description": "Force will re-upload all files. \nhttps://gohugo.io/configuration/deployment/#force-1"
+    },
+    "invalidateCDN": {
+      "type": "boolean",
+      "description": "Invalidate the CDN cache listed in the deployment target. \nhttps://gohugo.io/configuration/deployment/#invalidatecdn"
+    },
+    "maxDeletes": {
+      "type": "integer",
+      "description": "MaxDeletes is the maximum number of files to delete. \nhttps://gohugo.io/configuration/deployment/#maxdeletes"
+    },
+    "workers": {
+      "type": "integer",
+      "description": "Number of concurrent workers to use when uploading files. \nhttps://gohugo.io/configuration/deployment/#workers"
+    }
+  },
+  "type": "object",
+  "description": "DeployConfig is the complete configuration for deployment."
+}
