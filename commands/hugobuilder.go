@@ -962,7 +962,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 					lrl.Logf("no page to navigate to, force refresh")
 					livereload.ForceRefresh()
 				}
-			} else if len(otherChanges) > 0 {
+			} else if len(otherChanges) > 0 || len(cssChanges) > 0 {
 				if len(otherChanges) == 1 {
 					// Allow single changes to be refreshed without a full page reload.
 					pathToRefresh := h.PathSpec.RelURL(paths.ToSlashTrimLeading(otherChanges[0]), false)
