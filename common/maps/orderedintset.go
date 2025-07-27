@@ -52,28 +52,6 @@ func (m *OrderedIntSet) Set(key int) {
 	m.keys = append(m.keys, key)
 }
 
-func (m *OrderedIntSet) IsStrictSuperSet(other *OrderedIntSet) bool {
-	if m == nil || other == nil {
-		return false
-	}
-	return m.values.IsStrictSuperSet(other.values)
-}
-
-func (m *OrderedIntSet) IsSuperSet(other *OrderedIntSet) bool {
-	if m == nil || other == nil {
-		return false
-	}
-	return m.values.IsSuperSet(other.values)
-}
-
-func (m *OrderedIntSet) Clear() {
-	if m == nil {
-		return
-	}
-	m.keys = nil
-	m.values = &bitset.BitSet{}
-}
-
 // SetFrom sets the values from another OrderedIntSet.
 func (m *OrderedIntSet) SetFrom(other *OrderedIntSet) {
 	if m == nil || other == nil {

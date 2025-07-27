@@ -107,19 +107,6 @@ func (m *vectorStoreMap) LenVectors() int {
 	return len(m.sets)
 }
 
-func (m *vectorStoreMap) IsSuperSet(other VectorProvider) bool {
-	if other == nil {
-		return false
-	}
-	if m == other {
-		return true
-	}
-	if m.LenVectors() < other.LenVectors() {
-		return false
-	}
-	panic("TODO1: Implement me.")
-}
-
 func (m *vectorStoreMap) Complement(is ...VectorProvider) VectorStore {
 	panic("TODO1: Implement me.")
 }
@@ -287,30 +274,6 @@ type IntSets struct {
 type hashOnce struct {
 	once sync.Once
 	hash uint64
-}
-
-// TODO1 consider removing if not used. Also see the other one.
-func (s *IntSets) IsSuperSet(other VectorProvider) bool {
-	if s == nil || other == nil {
-		return false
-	}
-	if s == other {
-		return true
-	}
-	if s.LenVectors() < other.LenVectors() {
-		return false
-	}
-
-	if is, ok := other.(*IntSets); ok {
-		// Fast path.
-		return s.languages.IsSuperSet(is.languages) &&
-			s.versions.IsSuperSet(is.versions) &&
-			s.roles.IsSuperSet(is.roles)
-	}
-
-	return other.ForEeachVector(func(v Vector) bool {
-		return s.HasVector(v)
-	})
 }
 
 // Complement returns a new VectorStore that contains all vectors in is that are not in s.

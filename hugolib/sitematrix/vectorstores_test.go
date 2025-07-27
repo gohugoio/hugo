@@ -91,27 +91,6 @@ func TestIntSets(t *testing.T) {
 	c.Assert(allCount, qt.Equals, 18)
 }
 
-func TestIntSetsIsSuperSet(t *testing.T) {
-	c := qt.New(t)
-
-	sets1 := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1, 2),
-		maps.NewOrderedIntSet(1, 2, 3),
-		maps.NewOrderedIntSet(1, 2, 3),
-	).Build()
-
-	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1, 2),
-		maps.NewOrderedIntSet(1, 2, 3),
-		maps.NewOrderedIntSet(1, 2, 3, 4),
-	).Build()
-
-	c.Assert(sets1.IsSuperSet(sets2), qt.Equals, false)
-	c.Assert(sets2.IsSuperSet(sets1), qt.Equals, true)
-	c.Assert(sets1.IsSuperSet(sets1), qt.Equals, true)
-	c.Assert(sets2.IsSuperSet(sets2), qt.Equals, true)
-}
-
 func TestBitSetExperiments(t *testing.T) {
 	c := qt.New(t)
 
@@ -238,6 +217,48 @@ func TestIntSetsComplement(t *testing.T) {
 				{5, 1, 1},
 			},
 		},
+		{
+			name: "Many",
+			left: values{
+				v0: []int{1, 3, 5, 6, 7},
+				v1: []int{1, 3, 5, 6, 7},
+				v2: []int{1, 3, 5, 6, 7},
+			},
+			input: []values{
+				{
+					v0: []int{1, 3, 5, 6, 7},
+					v1: []int{1, 3, 5, 6},
+					v2: []int{1, 3, 5, 6, 7},
+				},
+			},
+			expected: []sitematrix.Vector{
+				{1, 7, 1},
+				{1, 7, 3},
+				{1, 7, 5},
+				{1, 7, 6},
+				{1, 7, 7},
+				{3, 7, 1},
+				{3, 7, 3},
+				{3, 7, 5},
+				{3, 7, 6},
+				{3, 7, 7},
+				{5, 7, 1},
+				{5, 7, 3},
+				{5, 7, 5},
+				{5, 7, 6},
+				{5, 7, 7},
+				{6, 7, 1},
+				{6, 7, 3},
+				{6, 7, 5},
+				{6, 7, 6},
+				{6, 7, 7},
+				{7, 7, 1},
+				{7, 7, 3},
+				{7, 7, 5},
+				{7, 7, 6},
+				{7, 7, 7},
+			},
+		},
 	} {
 		c.Run(test.name, func(c *qt.C) {
 			runOne(c, test)
@@ -286,16 +307,16 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 		maps.NewOrderedIntSet(1, 2, 3),
 	).Build()
 
-	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
-		maps.NewOrderedIntSet(1, 2, 3, 4),
-		maps.NewOrderedIntSet(1, 2, 3, 4),
-		maps.NewOrderedIntSet(1, 2, 3, 4, 6),
-	).Build()
-
 	sets1Copy := sitematrix.NewIntSetsBuilder(0).WithSets(
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
+	).Build()
+
+	sets2 := sitematrix.NewIntSetsBuilder(0).WithSets(
+		maps.NewOrderedIntSet(1, 2, 3, 4),
+		maps.NewOrderedIntSet(1, 2, 3, 4),
+		maps.NewOrderedIntSet(1, 2, 3, 4, 6),
 	).Build()
 
 	setsLanguage1 := sitematrix.NewIntSetsBuilder(0).WithSets(
@@ -305,9 +326,15 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 	).Build()
 
 	b.ResetTimer()
-	b.Run("two different sets, some overlap", func(b *testing.B) {
+	b.Run("sub set", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = sets2.Complement(sets1)
+		}
+	})
+
+	b.Run("super set", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sets1.Complement(sets2)
 		}
 	})
 
