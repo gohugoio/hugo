@@ -128,6 +128,20 @@ func (m *OrderedIntSet) String() string {
 	return fmt.Sprintf("%v", m.keys)
 }
 
+func (m *OrderedIntSet) Values() *bitset.BitSet {
+	if m == nil {
+		return nil
+	}
+	return m.values
+}
+
+func (m *OrderedIntSet) IsSuperSet(other *OrderedIntSet) bool {
+	if m == nil || other == nil {
+		return false
+	}
+	return m.values.IsSuperSet(other.values)
+}
+
 // Words returns the bitset as array of 64-bit words, giving direct access to the internal representation.
 // It is not a copy, so changes to the returned slice will affect the bitset.
 // It is meant for advanced users.

@@ -114,12 +114,12 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 
 			if found {
 				complement := meta.SitesMatrix.Complement(matrixes...)
-				if complement == nil {
+				if complement.LenVectors() == 0 {
 					continue
 				}
+				matrixes = append(matrixes, meta.SitesMatrix)
 				meta.SitesMatrix = complement
 
-				matrixes = append(matrixes, complement)
 				variants[baseName] = matrixes
 
 			} else {

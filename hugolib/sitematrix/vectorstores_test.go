@@ -344,6 +344,12 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 		}
 	})
 
+	b.Run("self multiple", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sets1.Complement(sets1, sets1, sets1, sets1, sets1, sets1, sets1)
+		}
+	})
+
 	b.Run("same", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = sets1.Complement(sets1Copy)

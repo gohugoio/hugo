@@ -36,9 +36,9 @@ var (
 	_ hashstructure.Hashable = &vectorStoreMap{}
 )
 
-func newVectorStoreMap(ordinal int) *vectorStoreMap {
+func newVectorStoreMap(ordinal, cap int) *vectorStoreMap {
 	return &vectorStoreMap{
-		sets:    make(map[Vector]struct{}),
+		sets:    make(map[Vector]struct{}, cap),
 		ordinal: ordinal,
 		h:       &hashOnce{},
 	}
@@ -150,7 +150,7 @@ func (m *vectorStoreMap) ForEeachVector(yield func(v Vector) bool) bool {
 }
 
 func (m *vectorStoreMap) Vectors() []Vector {
-	if len(m.sets) == 0 {
+	if m == nil || len(m.sets) == 0 {
 		return nil
 	}
 	var vectors []Vector
@@ -276,17 +276,42 @@ type hashOnce struct {
 	hash uint64
 }
 
-// Complement returns a new VectorStore that contains all vectors in is that are not in s.
-func (s *IntSets) Complement(is ...VectorProvider) VectorStore {
-	if len(is) == 0 || (len(is) == 1 && is[0] == s) {
+func (s *IntSets) IsSuperSet(other *IntSets) bool {
+	return s.languages.IsSuperSet(other.languages) &&
+		s.versions.IsSuperSet(other.versions) &&
+		s.roles.IsSuperSet(other.roles)
+}
+
+func (s *IntSets) DifferenceCardinality(other *IntSets) Vector {
+	return Vector{
+		int(s.languages.Values().DifferenceCardinality(other.languages.Values())),
+		int(s.versions.Values().DifferenceCardinality(other.versions.Values())),
+		int(s.roles.Values().DifferenceCardinality(other.roles.Values())),
+	}
+}
+
+// Complement returns a new VectorStore that contains all vectors in s that are not in any of ss.
+func (s *IntSets) Complement(ss ...VectorProvider) VectorStore {
+	if len(ss) == 0 || (len(ss) == 1 && ss[0] == s) {
 		return nil
 	}
 
-	result := newVectorStoreMap(s.ordinal)
+	for _, v := range ss {
+		vv, ok := v.(*IntSets)
+		if !ok {
+			continue
+		}
+		if vv.IsSuperSet(s) {
+			var s *IntSets
+			return s
+		}
+	}
+
+	result := newVectorStoreMap(s.ordinal, 36)
 
 	s.ForEeachVector(func(vec Vector) bool {
 		var found bool
-		for _, v := range is {
+		for _, v := range ss {
 			if v.HasVector(vec) {
 				found = true
 				break
