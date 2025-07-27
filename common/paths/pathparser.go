@@ -640,7 +640,7 @@ func (p *Path) Base() string {
 // For pages with Type set, we treat that as the section.
 func (p *Path) BaseReTyped(typ string) (d string) {
 	base := p.Base()
-	if p.Section() == typ {
+	if typ == "" || p.Section() == typ {
 		return base
 	}
 	d = "/" + typ

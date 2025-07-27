@@ -479,7 +479,7 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 func (po *pageOutput) GetInternalTemplateBasePathAndDescriptor() (string, tplimpl.TemplateDescriptor) {
 	p := po.p
 	f := po.f
-	base := p.PathInfo().BaseReTyped(p.m.Type())
+	base := p.PathInfo().BaseReTyped(p.m.pageConfig.Type)
 	return base, tplimpl.TemplateDescriptor{
 		Kind:           p.Kind(),
 		Lang:           p.Language().Lang,
