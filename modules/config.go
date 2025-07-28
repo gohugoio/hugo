@@ -447,7 +447,17 @@ func (m *Mount) init() error {
 	if m.Lang != "" {
 		// We moved this to a more flixeble setup in Hugo 0.148.0.
 		m.Sites.Matrix.Languages = append(m.Sites.Matrix.Languages, m.Lang)
-		m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
 	}
+
+	if len(m.Sites.Matrix.Languages) == 0 {
+		if strings.HasPrefix(m.Target, files.ComponentFolderLayouts) {
+			// Any specific language set in filename wil still win,
+			// but we need layout coverage for all languages.
+			// TODO1 version, roles?
+			m.Sites.Matrix.Languages = []string{"**"}
+		}
+	}
+
+	m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
 	return nil
 }

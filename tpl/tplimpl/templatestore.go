@@ -1095,6 +1095,7 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 	if err != nil {
 		return nil, err
 	}
+
 	m := tree.Get(k1)
 	if m == nil {
 		m = make(map[string]map[TemplateDescriptor]*TemplInfo)

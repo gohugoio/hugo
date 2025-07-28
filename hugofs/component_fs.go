@@ -106,25 +106,29 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 			meta := fi.(FileMetaInfo).Meta()
 			pi := meta.PathInfo
 
-			baseName := pi.PathNoLang() // Update this when I get the ^1 identifiers working.
+			// TODO1 static?
+			if pi.Component() == files.ComponentFolderLayouts || pi.Component() == files.ComponentFolderContent {
 
-			// There may be multiple languge/version/role combinations for the same file.
-			// The most important come early.
-			matrixes, found := variants[baseName]
+				baseName := pi.PathNoLang() // Update this when I get the ^1 identifiers working.
 
-			if found {
-				complement := meta.SitesMatrix.Complement(matrixes...)
-				if complement.LenVectors() == 0 {
-					continue
+				// There may be multiple languge/version/role combinations for the same file.
+				// The most important come early.
+				matrixes, found := variants[baseName]
+
+				if found {
+					complement := meta.SitesMatrix.Complement(matrixes...)
+					if complement.LenVectors() == 0 {
+						continue
+					}
+					matrixes = append(matrixes, meta.SitesMatrix)
+					meta.SitesMatrix = complement
+
+					variants[baseName] = matrixes
+
+				} else {
+					matrixes = []sitematrix.VectorProvider{meta.SitesMatrix}
+					variants[baseName] = matrixes
 				}
-				matrixes = append(matrixes, meta.SitesMatrix)
-				meta.SitesMatrix = complement
-
-				variants[baseName] = matrixes
-
-			} else {
-				matrixes = []sitematrix.VectorProvider{meta.SitesMatrix}
-				variants[baseName] = matrixes
 			}
 
 			fis[n] = fi
@@ -225,9 +229,11 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 			if idx, ok := fs.opts.PathParser.LanguageIndex[fileLang]; ok {
 				// A valid lang set in filename.
 				// Give priority to myfile.sv.txt inside the sv filesystem.
+
 				meta.Weight++
 				meta.SitesMatrix = meta.SitesMatrix.WithLanguageIndex(idx)
 				meta.SiteIntsWithDefaults = meta.SiteIntsWithDefaults.WithLanguageIndex(idx)
+
 			}
 		}
 		switch meta.Component {
