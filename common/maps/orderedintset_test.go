@@ -37,28 +37,81 @@ func TestOrderedIntSet(t *testing.T) {
 	c.Assert(m.Next(3), qt.Equals, 3)
 	c.Assert(m.Next(4), qt.Equals, 4)
 	c.Assert(m.Next(7), qt.Equals, 7)
-	c.Assert(m.Next(8), qt.Equals, 7)
+	c.Assert(m.Next(8), qt.Equals, -1)
 	c.Assert(m.String(), qt.Equals, "[2 1 3 7 4]")
 
 	var nilset *OrderedIntSet
 	c.Assert(nilset.Len(), qt.Equals, 0)
 	c.Assert(nilset.Has(1), qt.Equals, false)
 	c.Assert(nilset.String(), qt.Equals, "[]")
+
+	var collected []int
+	m.ForEachKey(func(key int) bool {
+		collected = append(collected, key)
+		return true
+	})
+	c.Assert(collected, qt.DeepEquals, []int{2, 1, 3, 7, 4})
 }
 
-func BenchmarkOrderedIntSetHasInSmallSet(b *testing.B) {
-	m := NewOrderedIntSet()
+func BenchmarkOrderedIntSet(b *testing.B) {
+	smallSet := NewOrderedIntSet()
 	for i := range 8 {
-		m.Set(i)
+		smallSet.Set(i)
 	}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		m.Has(i % 32)
+	mediumSet := NewOrderedIntSet()
+	for i := range 64 {
+		mediumSet.Set(i)
 	}
-}
+	largeSet := NewOrderedIntSet()
+	for i := range 1024 {
+		largeSet.Set(i)
+	}
 
-func BenchmarkOrderedIntSetNew(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		NewOrderedIntSet(1, 2, 3, 4, 5, 6, 7, 8)
-	}
+	b.Run("New", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			NewOrderedIntSet(1, 2, 3, 4, 5, 6, 7, 8)
+		}
+	})
+
+	b.Run("Has small", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			smallSet.Has(i % 32)
+		}
+	})
+
+	b.Run("Has medium", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			mediumSet.Has(i % 32)
+		}
+	})
+
+	b.Run("Next", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			mediumSet.Next(i % 32)
+		}
+	})
+
+	b.Run("ForEachKey small", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			smallSet.ForEachKey(func(key int) bool {
+				return true
+			})
+		}
+	})
+
+	b.Run("ForEachKey medium", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			mediumSet.ForEachKey(func(key int) bool {
+				return true
+			})
+		}
+	})
+
+	b.Run("ForEachKey large", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			largeSet.ForEachKey(func(key int) bool {
+				return true
+			})
+		}
+	})
 }

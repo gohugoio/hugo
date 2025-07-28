@@ -143,6 +143,11 @@ func (v Version) NextPatchLevel(level int) Version {
 }
 
 func version(major, minor, patch int, suffix string) string {
+	if suffix != "" {
+		if suffix[0] != '-' {
+			suffix = "-" + suffix
+		}
+	}
 	if patch > 0 || minor > 53 {
 		return fmt.Sprintf("%d.%d.%d%s", major, minor, patch, suffix)
 	}

@@ -74,10 +74,11 @@ func (m *OrderedIntSet) Clone() *OrderedIntSet {
 }
 
 // Next returns the next key in the set possibly including the given key.
+// It returns -1 if the key is not found or if there are no keys greater than the given key.
 func (m *OrderedIntSet) Next(i int) int {
 	n, ok := m.values.NextSet(uint(i))
 	if !ok {
-		panic("index out of bounds")
+		return -1
 	}
 	return int(n)
 }
