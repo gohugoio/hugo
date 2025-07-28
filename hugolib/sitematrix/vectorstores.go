@@ -16,6 +16,7 @@ package sitematrix
 import (
 	"cmp"
 	"fmt"
+	"iter"
 	xmaps "maps"
 	"slices"
 	"sort"
@@ -224,6 +225,7 @@ type ConfiguredDimension interface {
 	IndexDefault() int
 	ResolveIndex(string) int
 	ResolveName(int) string
+	ForEachIndex() iter.Seq[int]
 }
 
 type ConfiguredDimensions struct {
@@ -516,6 +518,16 @@ func (s *IntSets) setDefaultsIfNotSet(cfg ConfiguredDimensions) {
 	}
 }
 
+func (s *IntSets) setDefaultsAndAllLAnguagesIfNotSet(cfg ConfiguredDimensions) {
+	if s.languages == nil {
+		s.languages = maps.NewOrderedIntSet()
+		for i := range cfg.ConfiguredLanguages.ForEachIndex() {
+			s.languages.Set(i)
+		}
+	}
+	s.setDefaultsIfNotSet(cfg)
+}
+
 func (s *IntSets) initHash() {
 	s.h.once.Do(func() {
 		var err error
@@ -614,6 +626,11 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 	b.s.roles = r
 
 	return b
+}
+
+func (s *IntSetsBuilder) WithDefaultsAndAllLanguagesIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {
+	s.s.setDefaultsAndAllLAnguagesIfNotSet(cfg)
+	return s
 }
 
 func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {

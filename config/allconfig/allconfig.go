@@ -884,10 +884,11 @@ func (c *Configs) Init() error {
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 	for i, l := range c.Languages {
 		c.configLangs[i] = ConfigLanguage{
-			m:          c,
-			config:     c.LanguageConfigMap[l.Lang],
-			baseConfig: c.LoadingInfo.BaseConfig,
-			language:   l,
+			m:             c,
+			config:        c.LanguageConfigMap[l.Lang],
+			baseConfig:    c.LoadingInfo.BaseConfig,
+			language:      l,
+			languageIndex: i,
 		}
 	}
 

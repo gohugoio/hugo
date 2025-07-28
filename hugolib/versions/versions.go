@@ -127,6 +127,17 @@ func (r VersionsInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[
 	}, nil
 }
 
+// ForEachIndex returns an iterator for the indices of the versions.
+func (r VersionsInternal) ForEachIndex() iter.Seq[int] {
+	return func(yield func(i int) bool) {
+		for i := range r.Sorted {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
 const dfaultContentVersionFallback = "v1"
 
 func (r *VersionsInternal) init(defaultContentVersion string) error {

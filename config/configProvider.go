@@ -28,6 +28,7 @@ import (
 type AllProvider interface {
 	// TODO1 get rid of these.
 	Language() any
+	LanguageIndex() int
 	Languages() any
 	LanguagesDefaultFirst() any
 	//

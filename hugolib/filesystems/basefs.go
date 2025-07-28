@@ -723,6 +723,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			ordinal := md.ordinal + i
 			needsDefaultsIfNotset := b.isContentMount(mount) || b.isLayoutsMount(mount)
+			needsDefaultsAndAllLanguagesIfNotSet := b.isStaticMount(mount)
 
 			intSetsCfg := sitematrix.IntSetsConfig{
 				Cfg:           b.p.Cfg.ConfiguredDimensions(),
@@ -740,6 +741,9 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				if needsDefaultsIfNotset {
 					matrixBuilder.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
 				}
+				matrix = matrixBuilder.Build()
+			} else if needsDefaultsAndAllLanguagesIfNotSet {
+				matrixBuilder.WithDefaultsAndAllLanguagesIfNotSet(b.p.Cfg.ConfiguredDimensions())
 				matrix = matrixBuilder.Build()
 			} else if needsDefaultsIfNotset {
 				matrix = b.p.Cfg.DefaultContentSitesMatrix().WithOrdinal(ordinal)

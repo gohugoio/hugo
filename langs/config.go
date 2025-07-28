@@ -106,6 +106,17 @@ func (ls LanguagesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Se
 	}, nil
 }
 
+// ForEachIndex returns an iterator for the indices of the languages.
+func (ls LanguagesInternal) ForEachIndex() iter.Seq[int] {
+	return func(yield func(i int) bool) {
+		for i := range ls.Sorted {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
 func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguages []string) (string, error) {
 	const en = "en"
 

@@ -131,15 +131,23 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 			}
 
 			var lang string
+			var sites sitematrix.Sites
+
 			if perLang && !dropLang {
-				lang = cfg.Language().(*langs.Language).Lang
+				l := cfg.Language().(*langs.Language)
+				lang = l.Lang
+				sites = sitematrix.Sites{
+					Matrix: sitematrix.StringSlices{
+						Languages: []string{l.Lang},
+					},
+				}
 			}
 
 			// Static mounts are a little special.
 			if component == files.ComponentFolderStatic {
 				staticDirs := cfg.StaticDirs()
 				for _, dir := range staticDirs {
-					mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+					mounts = append(mounts, Mount{Sites: sites, Source: dir, Target: component})
 				}
 				continue
 			}
@@ -450,10 +458,7 @@ func (m *Mount) init() error {
 	}
 
 	if len(m.Sites.Matrix.Languages) == 0 {
-		if strings.HasPrefix(m.Target, files.ComponentFolderLayouts) {
-			// Any specific language set in filename wil still win,
-			// but we need layout coverage for all languages.
-			// TODO1 version, roles?
+		if strings.HasPrefix(m.Target, files.ComponentFolderLayouts) || strings.HasPrefix(m.Target, files.ComponentFolderStatic) {
 			m.Sites.Matrix.Languages = []string{"**"}
 		}
 	}

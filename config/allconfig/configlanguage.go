@@ -28,12 +28,17 @@ type ConfigLanguage struct {
 	config     *Config
 	baseConfig config.BaseConfig
 
-	m        *Configs
-	language *langs.Language
+	m             *Configs
+	language      *langs.Language
+	languageIndex int
 }
 
 func (c ConfigLanguage) Language() any {
 	return c.language
+}
+
+func (c ConfigLanguage) LanguageIndex() int {
+	return c.languageIndex
 }
 
 func (c ConfigLanguage) Languages() any {

@@ -125,6 +125,17 @@ func (r RolesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int
 	}, nil
 }
 
+// ForEachIndex returns an iterator for the indices of the roles.
+func (r RolesInternal) ForEachIndex() iter.Seq[int] {
+	return func(yield func(i int) bool) {
+		for i := range r.Sorted {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
 const dfaultContentRoleFallback = "guest"
 
 func (r *RolesInternal) init(defaultContentRole string) (string, error) {
