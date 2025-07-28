@@ -111,4 +111,22 @@ func BenchmarkTruncate(b *testing.B) {
 			ns.Truncate(10, "I have a <a href='/markdown'>Markdown link</a> inside")
 		}
 	})
+
+	b.Run("Plain text (long)", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			ns.Truncate(371, `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`)
+		}
+	})
+
+	b.Run("With HTML (long)", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			ns.Truncate(371, `Lorem ipsum dolor sit amet, <span>consectetur adipiscing elit</span>, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, <p>quis nostrud exercitation ullamco</p> laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+Excepteur <code>sint occaecat cupidatat</code> non proident, <a href="#my-text">sunt in culpa qui officia deserunt mollit anim id est</a> laborum.`)
+		}
+	})
 }
