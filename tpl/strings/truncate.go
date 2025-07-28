@@ -67,9 +67,7 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 	default:
 		return "", errors.New("too many arguments passed to truncate")
 	}
-	if err != nil {
-		return "", errors.New("text to truncate must be a string")
-	}
+
 	text, err := cast.ToStringE(textParam)
 	if err != nil {
 		return "", errors.New("text must be a string")
