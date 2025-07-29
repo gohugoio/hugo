@@ -128,6 +128,26 @@ func (h *HugoSites) allSites() iter.Seq[*Site] {
 	}
 }
 
+// allSiteLanguages will range over the first site in each language.
+func (h *HugoSites) allSiteLanguages(skip func(s *Site) bool) iter.Seq[*Site] {
+	return func(yield func(s *Site) bool) {
+	LOOP:
+		for _, v := range h.sitesVersionsRoles {
+			for _, r := range v {
+				for _, s := range r {
+					if skip(s) {
+						continue
+					}
+					if !yield(r[0]) {
+						return
+					}
+					continue LOOP
+				}
+			}
+		}
+	}
+}
+
 // ShouldSkipFileChangeEvent allows skipping filesystem event early before
 // the build is started.
 func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {

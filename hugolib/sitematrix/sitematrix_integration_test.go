@@ -109,7 +109,7 @@ Rotate(role): {{/* with .Rotate "role" }}{{ range . }}{{ template "printp" . }}|
 }
 
 // TODO1 check defaultCOntentVersionInSubDir = false vs language.
-func TestDimensionsFileMount(t *testing.T) {
+func TestFileMountSitesMatrix(t *testing.T) {
 	filesTemplate := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
@@ -163,18 +163,22 @@ site.GetPage p1: {{ with .Site.GetPage "p1" }}{{ .Title }}|{{ end }}$
 
 `
 
-	testOne := func(t *testing.T, files string) {
-		t.Helper()
-		b := hugolib.Test(t, files)
+	testOne := func(t *testing.T, name, files string) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-		// b.AssertPublishDir("asdf")
-		// b.AssertFileContent("public/v1.2.3/nn/p1/index.html", "asdfasfd")
-		// b.AssertFileContent("public/en/index.html", "Title English", "Text English")
-		b.AssertFileContent("public/v2.0.0/nn/p1/index.html", "Tittel Nynorsk", "Tekst Nynorsk", "site.GetPage p1: Tittel Nynorsk|")
-		b.AssertFileContent("public/v2.0.0/nn/p2/index.html", "p2 all||", "site.GetPage p2: p2 all", "site.GetPage p1: Tittel Nynorsk|")
-		b.AssertFileContent("public/v2.0.0/en/p2/index.html", "p2 all||", "site.GetPage p1: $")
-		b.AssertFileContent("public/v2.0.0/nn/p2/index.html", "p2 all||", "site.GetPage p1: Tittel Nynorsk|$")
-		b.AssertFileContent("public/v1.2.3/en/p2/index.html", "p2 all||", "site.GetPage p2: p2 all")
+			b := hugolib.Test(t, files)
+
+			nn20 := b.SiteMatrixHelper("nn", "v2.0.0", "")
+			b.Assert(nn20.PageHelper("/p2").MatrixFromFile()["matrix"],
+				qt.DeepEquals,
+				map[string][]string{"languages": {"en", "nn"}, "roles": {"guest"}, "versions": {"v2.0.0", "v1.2.3"}})
+
+			b.AssertFileContent("public/v2.0.0/nn/p1/index.html", "Tittel Nynorsk", "Tekst Nynorsk", "site.GetPage p1: Tittel Nynorsk|")
+			b.AssertFileContent("public/v2.0.0/nn/p2/index.html", "p2 all||", "site.GetPage p2: p2 all", "site.GetPage p1: Tittel Nynorsk|")
+			b.AssertFileContent("public/v2.0.0/nn/p2/index.html", "p2 all||", "site.GetPage p1: Tittel Nynorsk|$")
+			b.AssertFileContent("public/v1.2.3/en/p2/index.html", "p2 all||", "site.GetPage p2: p2 all")
+		})
 	}
 
 	// Format from v0.148.0:
@@ -186,16 +190,12 @@ versions = ["v1**"]
 	dims = strings.Replace(dims, `["en"]`, `["nn"]`, 1)
 	dims = strings.Replace(dims, `["v1**"]`, `["v2**"]`, 1)
 	files = strings.Replace(files, "DIMSNN", dims, 1)
-	testOne(t, files)
-
-	if true {
-		return
-	}
+	testOne(t, "new", files)
 
 	// Old format:
 	files = strings.Replace(filesTemplate, "DIMSEN", `lang = "en"`, 1)
 	files = strings.Replace(files, "DIMSNN", `lang = "nn"`, 1)
-	testOne(t, files)
+	testOne(t, "old", files)
 }
 
 func TestSpecificMountShouldAlwaysWin(t *testing.T) {
@@ -461,7 +461,7 @@ All. {{ site.Language.Name }}|{{ site.Version.Name }}|{{ site.Role.Name }}
 	b.AssertFileContent("public/member/v1.4.0/nn/p2/index.html", "All.")
 	s := b.SiteMatrixHelper("nn", "v1.4.0", "member")
 	p2 := s.PageHelper("/p2")
-	s.Assert(p2.MatrixFallbacksFromPageConfig(), qt.DeepEquals,
+	s.Assert(p2.MatrixFromPageConfig(), qt.DeepEquals,
 		map[string]map[string][]string{
 			"fallbacks": {
 				"languages": {"en"},
@@ -477,7 +477,7 @@ All. {{ site.Language.Name }}|{{ site.Version.Name }}|{{ site.Role.Name }}
 	)
 
 	p3 := s.PageHelper("/p3")
-	s.Assert(p3.MatrixFallbacksFromPageConfig(), qt.DeepEquals, map[string]map[string][]string{
+	s.Assert(p3.MatrixFromPageConfig(), qt.DeepEquals, map[string]map[string][]string{
 		"fallbacks": {
 			"languages": {"en"},
 			"roles":     {"guest"},
@@ -547,8 +547,8 @@ title: "Theme p1"
 	sEn := b.SiteMatrixHelper("en", "", "")
 	sNN := b.SiteMatrixHelper("nn", "", "guest")
 
-	b.Assert(sEn.PageHelper("/p1").MatrixFallbacksFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{"languages": {"en"}, "roles": {"guest"}, "versions": {"v1"}})
-	b.Assert(sEn.PageHelper("/p2").MatrixFallbacksFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
+	b.Assert(sEn.PageHelper("/p1").MatrixFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{"languages": {"en"}, "roles": {"guest"}, "versions": {"v1"}})
+	b.Assert(sEn.PageHelper("/p2").MatrixFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
 		"languages": {"en", "nn"},
 		"roles":     {"guest"},
 		"versions":  {"v1"},
@@ -557,7 +557,7 @@ title: "Theme p1"
 	p1NN := sNN.PageHelper("/p1")
 	p2NN := sNN.PageHelper("/p2")
 
-	b.Assert(p2NN.MatrixFallbacksFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
+	b.Assert(p2NN.MatrixFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
 		"languages": {"en", "nn"},
 		"roles":     {"guest"},
 		"versions":  {"v1"},

@@ -207,8 +207,18 @@ func (n pageMetaSourcesSlice) Dims() sitematrix.VectorProvider {
 	panic("not supported")
 }
 
+func (n pageMetaSourcesSlice) one() contentNodeI {
+	if len(n) == 0 {
+		return nil
+	}
+	return n[0]
+}
+
 func (n pageMetaSourcesSlice) GetIdentity() identity.Identity {
-	panic("not supported")
+	if nn := n.one(); nn != nil {
+		return nn.GetIdentity()
+	}
+	return identity.Anonymous
 }
 
 func (n pageMetaSourcesSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
@@ -569,14 +579,16 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 
 	if !rebuild && (bi.EnableAllLanguages || bi.EnableAllDimensions) {
 		// Clone and insert the adapter for the other sites.
-		// TODO1
-		for _, ss := range s.h.Sites {
-			if s == ss {
-				continue
+		iter := h.allSites()
+		if bi.EnableAllLanguages {
+			skio := func(ss *Site) bool {
+				return s == ss
 			}
+			iter = h.allSiteLanguages(skio)
+		}
 
-			// TODO1 I'm not sure this makes sense.
-			if !bi.EnableAllDimensions && s.dims[0] == ss.dims[0] {
+		for ss := range iter {
+			if s == ss {
 				continue
 			}
 

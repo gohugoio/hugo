@@ -727,7 +727,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			intSetsCfg := sitematrix.IntSetsConfig{
 				Cfg:           b.p.Cfg.ConfiguredDimensions(),
-				ApplyDefaults: false,
+				ApplyDefaults: 0,
 				Globs:         v.Matrix,
 			}
 
@@ -755,7 +755,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			}
 
 			intSetsCfg.Globs = v.Fallbacks
-			intSetsCfg.ApplyDefaults = false
+			intSetsCfg.ApplyDefaults = 0
 			matrixBuilder = sitematrix.NewIntSetsBuilder(ordinal).WithConfig(intSetsCfg)
 			fallbacks := matrixBuilder.Build()
 

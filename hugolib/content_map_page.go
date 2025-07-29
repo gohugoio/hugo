@@ -891,6 +891,7 @@ func (s *contentNodeShifter) Shift(n contentNodeI, dims sitematrix.Vector, exact
 		if !delegeeFallback {
 			return nil, false, 0
 		}
+
 		iter := func(yield func(n contentNodeI) bool) {
 			for _, nn := range v {
 				if !yield(nn) {

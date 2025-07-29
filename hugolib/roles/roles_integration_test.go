@@ -36,7 +36,7 @@ defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = true
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 
-[cascade]
+[cascade.sites.matrix]
 versions = ["v2**"]
 
 [languages]
@@ -58,21 +58,29 @@ weight = 200
 -- content/memberonlypost.md --
 ---
 title: "Member Only"
-roles: ["member"]
-languages: ["**"]
+sites:
+  matrix:
+    languages: "**"
+    roles: member
+    versions: "v4.0.0"
 ---
 Member content.
 -- content/publicpost.md --
 ---
 title: "Public"
-versions: ["v1.2.3", "v2.**", "! v2.1.*"]
-versionDelegees: ["v3**"]
+sites:
+  matrix:
+    versions: ["v1.2.3", "v2.**", "! v2.1.*"]
+  fallbacks: # TODO1 fallback => fallback. As in this page is a fallback for versions ... Maybe.
+    versions: "v3**"
 ---
 Users with guest role will see this.
 -- content/v3publicpost.md --
 ---
 title: "Public v3"
-versions: ["v3**"]
+sites:
+  matrix:
+    versions: "v3**"
 ---
 Users with guest role will see this.
 -- layouts/all.html --
@@ -86,10 +94,6 @@ RegularPages: {{ range .RegularPages }}{{ .RelPermalink }} r: {{ .Site.Language.
 	for range 3 {
 		b := hugolib.Test(t, files)
 
-		// TODO1 export Default?
-		// /guest/v1.2.3/en/publicpost/index.html
-		// TODO1 redirect Aliases.
-
 		b.AssertPublishDir(
 			"guest/v1.2.3/en/publicpost", "guest/v2.0.0/en/publicpost", "! guest/v2.1.0/en/publicpost",
 			"member/v4.0.0/en/memberonlypost", "member/v4.0.0/nn/memberonlypost",
@@ -100,7 +104,7 @@ RegularPages: {{ range .RegularPages }}{{ .RelPermalink }} r: {{ .Site.Language.
 			"Roles: Name: member Site.Version: v2.0.0 Site.Language.Lang: en|Name: guest Site.Version: v2.0.0 Site.Language.Lang: en|$",
 			"Versions: Name: v4.0.0 Site.Role: guest Site.Language.Lang: en|Name: v3.0.0 Site.Role: guest Site.Language.Lang: en|Name: v2.1.0 Site.Role: guest Site.Language.Lang: en|Name: v2.0.0 Site.Role: guest Site.Language.Lang: en|Name: v1.2.3 Site.Role: guest Site.Language.Lang: en|$")
 
-		b.AssertFileContent("public/guest/v3.0.0/en/index.html", "RegularPages: /guest/v2.0.0/en/publicpost/ r: en  v: v2.0.0 l: guest|/guest/v3.0.0/en/v3publicpost/ r: en  v: v3.0.0 l: guest|$")
+		b.AssertFileContent("public/guest/v3.0.0/en/index.html", "egularPages: /guest/v2.0.0/en/publicpost/ r: en  v: v2.0.0 l: guest|/guest/v3.0.0/en/v3publicpost/ r: en  v: v3.0.0 l: guest|$")
 
 	}
 }

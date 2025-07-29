@@ -857,7 +857,7 @@ func (c *Configs) Init() error {
 
 	intSetsCfg := sitematrix.IntSetsConfig{
 		Cfg:           c.ConfiguredDimensions,
-		ApplyDefaults: true,
+		ApplyDefaults: sitematrix.IntSetsConfigApplyDefaultsIfNotSet,
 	}
 	matrix := sitematrix.NewIntSetsBuilder(0).WithConfig(intSetsCfg)
 	c.DefaultContentSitesMatrix = matrix.Build()

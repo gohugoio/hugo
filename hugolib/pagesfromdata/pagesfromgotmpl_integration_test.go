@@ -205,14 +205,6 @@ baseURL = "https://example.com"
 		b.Assert(err.Error(), qt.Contains, `path "/foo" must not start with a /`)
 	})
 
-	t.Run("AddPage, lang set", func(t *testing.T) {
-		files := strings.ReplaceAll(filesTemplate, "DICT", `(dict "kind" "page" "path" "p1" "lang" "en")`)
-		b, err := hugolib.TestE(t, files)
-		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "_content.gotmpl:1:4")
-		b.Assert(err.Error(), qt.Contains, "error calling AddPage: lang must not be set")
-	})
-
 	t.Run("Site methods not ready", func(t *testing.T) {
 		filesTemplate := `
 -- hugo.toml --
@@ -929,8 +921,7 @@ defaultContentVersionInSubdir = true
 [[module.mounts]]
 source = 'content/v1'
 target = 'content'
-[module.mounts.sites]
-weight = 100
+[module.mounts.sites.matrix]
 versions  = ["v1**"]
 -- layouts/all.html --
 All: {{ .Title }}|all.html Site version: {{ site.Version.Name }}|Content: {{ .Content }}|
@@ -966,13 +957,14 @@ defaultContentVersionInSubdir = true
 [[module.mounts]]
 source = 'content/v1'
 target = 'content'
-[module.mounts.sites]
+[module.mounts.sites.matrix]
 versions  = ["v1**"]
 -- layouts/all.html --
 All: {{ .Title }}|all.html Site version: {{ site.Version.Name }}|Content: {{ .Content }}|
 -- content/v1/_index.md --
 ---
 sites:
+  matrix:
    versions: ["**"]
 ---
 -- content/v1/_content.gotmpl --
@@ -982,7 +974,7 @@ sites:
 	"content" (dict "mediaType" "text/html" "value" $contenValue )
 	"title" "p1"
 	"path" "p1"
-	"sites" $matrix
+	"sites" (dict "matrix" $matrix)
  }}
  {{ .AddPage $page }}
  
@@ -1007,8 +999,7 @@ defaultContentVersionInSubdir = true
 [[module.mounts]]
 source = 'content/v1'
 target = 'content'
-[module.mounts.sites]
-weight = 100
+[module.mounts.sites.matrix]
 versions  = ["v1**"]
 -- layouts/all.html --
 All: {{ .Title }}|all.html Site version: {{ site.Version.Name }}|Content: {{ .Content }}|

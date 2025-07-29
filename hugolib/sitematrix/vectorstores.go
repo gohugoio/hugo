@@ -24,6 +24,7 @@ import (
 
 	"github.com/gohugoio/hashstructure"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types"
@@ -542,35 +543,46 @@ func (s *IntSets) init() *IntSets {
 	return s
 }
 
-func (s *IntSets) setFromOtherIfNotSet(other VectorStore) {
+func (s *IntSets) setDimensionsFromOtherIfNotSet(other VectorStore) {
 	if other == nil {
 		return
 	}
+	setLang := s.languages == nil
+	setVer := s.versions == nil
+	setRole := s.roles == nil
+
+	if !(setLang || setVer || setRole) {
+		return
+	}
+
 	other.ForEeachVector(func(v Vector) bool {
 		if !s.HasVector(v) {
-			s.initSets()
-			s.setVector(v)
+			s.setValuesInNilSets(v, setLang, setVer, setRole)
 		}
 		return true
 	})
 }
 
-func (s *IntSets) initSets() {
-	if s.languages == nil {
-		s.languages = maps.NewOrderedIntSet()
+func (s *IntSets) setValuesInNilSets(vec Vector, setLang, setVer, setRole bool) {
+	if setLang {
+		if s.languages == nil {
+			s.languages = maps.NewOrderedIntSet()
+		}
+		s.languages.Set(vec.Language())
 	}
-	if s.versions == nil {
-		s.versions = maps.NewOrderedIntSet()
+	if setVer {
+		if s.versions == nil {
+			s.versions = maps.NewOrderedIntSet()
+		}
+		s.versions.Set(vec.Version())
 	}
-	if s.roles == nil {
-		s.roles = maps.NewOrderedIntSet()
-	}
-}
 
-func (s *IntSets) setVector(vec Vector) {
-	s.languages.Set(vec.Language())
-	s.versions.Set(vec.Version())
-	s.roles.Set(vec.Role())
+	if setRole {
+		if s.roles == nil {
+			s.roles = maps.NewOrderedIntSet()
+		}
+		s.roles.Set(vec.Role())
+	}
 }
 
 type IntSetsBuilder struct {
@@ -584,15 +596,28 @@ func (b *IntSetsBuilder) Build() *IntSets {
 
 func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*maps.OrderedIntSet, error) {
-		if len(values) == 0 {
-			if cfg.ApplyDefaults {
-				result := maps.NewOrderedIntSet()
-				result.Set(matcher.IndexDefault())
-				return result, nil
-			}
-			return nil, nil
-		}
 		var result *maps.OrderedIntSet
+		if len(values) == 0 {
+
+			if cfg.ApplyDefaults > 0 {
+				result = maps.NewOrderedIntSet()
+			}
+			switch cfg.ApplyDefaults {
+			case IntSetsConfigApplyDefaultsIfNotSet:
+				result.Set(matcher.IndexDefault())
+			case IntSetsConfigApplyDefaultsAndAllLanguagesIfNotSet:
+				if what == "languages" {
+					for i := range matcher.ForEachIndex() {
+						result.Set(i)
+					}
+				} else {
+					result.Set(matcher.IndexDefault())
+				}
+			}
+
+			return result, nil
+		}
+
 		// Dot separated globs.
 		filter, err := predicate.NewFilterFromGlobs(values, glob.GetGlobDot)
 		if err != nil {
@@ -621,6 +646,9 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 	if err := cmp.Or(err1, err2, err3); err != nil {
 		panic(fmt.Errorf("failed to apply filters: %w", err))
 	}
+
+	// TODO1 defaults.if l == nil &&
+
 	b.s.languages = l
 	b.s.versions = v
 	b.s.roles = r
@@ -638,9 +666,14 @@ func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSets
 	return s
 }
 
-func (s *IntSetsBuilder) WithFromOtherIfNotSet(other VectorStore) *IntSetsBuilder {
-	s.s.setFromOtherIfNotSet(other)
+func (s *IntSetsBuilder) WithDimensionsFromOtherIfNotSet(other VectorStore) *IntSetsBuilder {
+	s.s.setDimensionsFromOtherIfNotSet(other)
 	return s
+}
+
+// TODO1 remove me.
+func (s *IntSetsBuilder) Debug() {
+	hdebug.Printf("IntSetsBuilder: languages: %v, versions: %v, roles: %v", s.s.languages, s.s.versions, s.s.roles)
 }
 
 func (b *IntSetsBuilder) WithSets(languages, versions, roles *maps.OrderedIntSet) *IntSetsBuilder {
@@ -650,9 +683,17 @@ func (b *IntSetsBuilder) WithSets(languages, versions, roles *maps.OrderedIntSet
 	return b
 }
 
+type IntSetsConfigApplyDefaults int
+
+const (
+	IntSetsConfigApplyDefaultsNone IntSetsConfigApplyDefaults = iota
+	IntSetsConfigApplyDefaultsIfNotSet
+	IntSetsConfigApplyDefaultsAndAllLanguagesIfNotSet
+)
+
 type IntSetsConfig struct {
 	Cfg           ConfiguredDimensions
-	ApplyDefaults bool
+	ApplyDefaults IntSetsConfigApplyDefaults
 	Globs         StringSlices
 }
 

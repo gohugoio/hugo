@@ -58,7 +58,7 @@ var cjkRe = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 
 // Implement contentNodeI
 func (m *pageMetaSource) GetIdentity() identity.Identity {
-	panic("not implemented") // TODO: Implement
+	return m.pathInfo
 }
 
 // ForEeachIdentityProvider calls cb for each Identity.
@@ -600,7 +600,6 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.Pa
 	}
 
 	// Cascade is also applied to itself.
-	var err error
 	cascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
 		if !k.Matches(ps) {
 			return true
@@ -624,10 +623,6 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.Pa
 		}
 		return true
 	})
-
-	if err != nil {
-		return err
-	}
 
 	if err := ps.setMetaPostParams(); err != nil {
 		return err

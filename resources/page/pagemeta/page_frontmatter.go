@@ -277,12 +277,12 @@ func (p *PageConfig) CompileEearly(conf config.AllProvider, fim *hugofs.FileMeta
 	sitesFallbacksPage := sitematrix.NewIntSetsBuilder(0).WithConfig(intsetsCfg)
 
 	if fim != nil && fim.SitesMatrix != nil {
-		sitesMatrixPage.WithFromOtherIfNotSet(fim.SitesMatrix)
+		sitesMatrixPage.WithDimensionsFromOtherIfNotSet(fim.SitesMatrix)
 	}
 	sitesMatrixPage.WithDefaultsIfNotSet(conf.ConfiguredDimensions())
 
 	if fim != nil && fim.SitesFallbacks != nil {
-		sitesFallbacksPage.WithFromOtherIfNotSet(fim.SitesFallbacks)
+		sitesFallbacksPage.WithDimensionsFromOtherIfNotSet(fim.SitesFallbacks)
 	}
 
 	p.SitesMatrix = sitesMatrixPage.Build()

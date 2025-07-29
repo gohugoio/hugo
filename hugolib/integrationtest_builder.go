@@ -230,11 +230,6 @@ type IntegrationTestPageHelper struct {
 	p *pageState
 }
 
-func (s *IntegrationTestPageHelper) MatrixFallbacksFromPageConfig() map[string]map[string][]string {
-	pc := s.p.m.pageConfig
-	return s.siteIntsToMap(pc.SitesMatrix, pc.SitesFallbacks)
-}
-
 func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks sitematrix.VectorStore) map[string]map[string][]string {
 	dconf := s.p.s.Conf.ConfiguredDimensions()
 	intSetsToMap := func(intSets sitematrix.VectorStore) map[string][]string {
@@ -263,6 +258,11 @@ func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks sitematrix.V
 		"matrix":    intSetsToMap(matrix),
 		"fallbacks": intSetsToMap(fallbacks),
 	}
+}
+
+func (s *IntegrationTestPageHelper) MatrixFromPageConfig() map[string]map[string][]string {
+	pc := s.p.m.pageConfig
+	return s.siteIntsToMap(pc.SitesMatrix, pc.SitesFallbacks)
 }
 
 func (s *IntegrationTestPageHelper) MatrixFromFile() map[string]map[string][]string {

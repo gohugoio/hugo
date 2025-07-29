@@ -103,31 +103,35 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		s := path.Join(f.name, fi.Name())
 
 		if _, ok := f.fs.applyMeta(fi, s); ok {
-			meta := fi.(FileMetaInfo).Meta()
-			pi := meta.PathInfo
+			if !fi.IsDir() {
+				meta := fi.(FileMetaInfo).Meta()
+				pi := meta.PathInfo
 
-			// TODO1 static?
-			if pi.Component() == files.ComponentFolderLayouts || pi.Component() == files.ComponentFolderContent {
+				// TODO1 static?
+				if pi.Component() == files.ComponentFolderLayouts || pi.Component() == files.ComponentFolderContent {
 
-				baseName := pi.PathNoLang() // Update this when I get the ^1 identifiers working.
+					baseName := pi.PathNoLang() // TODO1 Update this when I get the ^1 identifiers working.
 
-				// There may be multiple languge/version/role combinations for the same file.
-				// The most important come early.
-				matrixes, found := variants[baseName]
+					// TODO1 consider content files with front matter matrix. We may need to pass even nil matrix matches along.
 
-				if found {
-					complement := meta.SitesMatrix.Complement(matrixes...)
-					if complement.LenVectors() == 0 {
-						continue
+					// There may be multiple languge/version/role combinations for the same file.
+					// The most important come early.
+					matrixes, found := variants[baseName]
+
+					if found {
+						complement := meta.SitesMatrix.Complement(matrixes...)
+						if complement.LenVectors() == 0 {
+							continue
+						}
+						matrixes = append(matrixes, meta.SitesMatrix)
+						meta.SitesMatrix = complement
+
+						variants[baseName] = matrixes
+
+					} else {
+						matrixes = []sitematrix.VectorProvider{meta.SitesMatrix}
+						variants[baseName] = matrixes
 					}
-					matrixes = append(matrixes, meta.SitesMatrix)
-					meta.SitesMatrix = complement
-
-					variants[baseName] = matrixes
-
-				} else {
-					matrixes = []sitematrix.VectorProvider{meta.SitesMatrix}
-					variants[baseName] = matrixes
 				}
 			}
 
