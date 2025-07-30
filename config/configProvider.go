@@ -48,6 +48,7 @@ type AllProvider interface {
 	DisablePathToLower() bool
 	RemovePathAccents() bool
 	IsUglyURLs(section string) bool
+	SectionUglyURLs() bool
 	DefaultContentLanguage() string
 	DefaultContentLanguageInSubdir() bool
 	IsLangDisabled(string) bool

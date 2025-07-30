@@ -686,6 +686,9 @@ type RootConfig struct {
 	// <docsmeta>{"identifiers": ["baseURL"] }</docsmeta>
 	CanonifyURLs bool
 
+	// SectionUglyURLs forces old UglyURLs behavior for sections
+	SectionUglyURLs bool
+
 	// Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
 	RelativeURLs bool
 

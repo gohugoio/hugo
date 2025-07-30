@@ -70,6 +70,9 @@ type TargetPathDescriptor struct {
 
 	// Some types cannot have uglyURLs, even if globally enabled, RSS being one example.
 	UglyURLs bool
+
+	// Forwarded configuration of SectionUglyURLs
+	SectionUglyURLs bool
 }
 
 // TODO(bep) move this type.
@@ -140,7 +143,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	pb.isUgly = (d.UglyURLs || d.Type.Ugly) && !d.Type.NoUgly
 	pb.baseNameSameAsType = !d.Path.IsBundle() && d.BaseName != "" && d.BaseName == d.Type.BaseName
-	indexIsUglyKind := d.Kind == kinds.KindHome || d.Kind == kinds.KindSection || d.Kind == kinds.KindTaxonomy
+	indexIsUglyKind := d.Kind == kinds.KindHome || (!d.SectionUglyURLs && (d.Kind == kinds.KindSection || d.Kind == kinds.KindTaxonomy))
 	indexIsUglyKind = indexIsUglyKind && pb.isUgly
 
 	if d.ExpandedPermalink == "" && pb.baseNameSameAsType {

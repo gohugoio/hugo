@@ -496,23 +496,26 @@ func TestSectionNaming(t *testing.T) {
 	for _, canonify := range []bool{true, false} {
 		for _, uglify := range []bool{true, false} {
 			for _, pluralize := range []bool{true, false} {
-				canonify := canonify
-				uglify := uglify
-				pluralize := pluralize
-				t.Run(fmt.Sprintf("canonify=%t,uglify=%t,pluralize=%t", canonify, uglify, pluralize), func(t *testing.T) {
-					t.Parallel()
-					doTestSectionNaming(t, canonify, uglify, pluralize)
-				})
+				for _, sectionUglify := range []bool{true, false} {
+					canonify := canonify
+					uglify := uglify
+					sectionUglify := sectionUglify
+					pluralize := pluralize
+					t.Run(fmt.Sprintf("canonify=%t,uglify=%t,pluralize=%t,sectionUglify=%t", canonify, uglify, pluralize, sectionUglify), func(t *testing.T) {
+						t.Parallel()
+						doTestSectionNaming(t, canonify, uglify, pluralize, sectionUglify)
+					})
+				}
 			}
 		}
 	}
 }
 
-func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
+func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize, sectionUglify bool) {
 	c := qt.New(t)
 
 	expectedPathSuffix := func(kind string) string {
-		isUgly := uglify && (kind == kinds.KindPage || kind == kinds.KindTerm)
+		isUgly := uglify && (sectionUglify || (kind == kinds.KindPage || kind == kinds.KindTerm))
 		if isUgly {
 			return ".html"
 		} else {
@@ -532,6 +535,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 	cfg.Set("baseURL", "http://auth/sub/")
 	cfg.Set("uglyURLs", uglify)
+	cfg.Set("sectionUglyURLs", sectionUglify)
 	cfg.Set("pluralizeListTitles", pluralize)
 	cfg.Set("canonifyURLs", canonify)
 

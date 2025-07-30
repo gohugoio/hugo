@@ -192,6 +192,10 @@ func (c ConfigLanguage) IsUglyURLs(section string) bool {
 	return c.config.C.IsUglyURLSection(section)
 }
 
+func (c ConfigLanguage) SectionUglyURLs() bool {
+	return c.config.SectionUglyURLs
+}
+
 func (c ConfigLanguage) IgnoreFile(s string) bool {
 	return c.config.C.IgnoreFile(s)
 }

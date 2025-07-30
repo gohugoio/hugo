@@ -122,13 +122,14 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 	}
 
 	desc := page.TargetPathDescriptor{
-		PathSpec:    d.PathSpec,
-		Kind:        p.Kind(),
-		Path:        pageInfoPage,
-		Section:     pageInfoCurrentSection,
-		UglyURLs:    s.h.Conf.IsUglyURLs(p.Section()),
-		ForcePrefix: s.h.Conf.IsMultihost() || alwaysInSubDir,
-		URL:         pm.pageConfig.URL,
+		PathSpec:        d.PathSpec,
+		Kind:            p.Kind(),
+		Path:            pageInfoPage,
+		Section:         pageInfoCurrentSection,
+		UglyURLs:        s.h.Conf.IsUglyURLs(p.Section()),
+		SectionUglyURLs: s.h.Conf.SectionUglyURLs(),
+		ForcePrefix:     s.h.Conf.IsMultihost() || alwaysInSubDir,
+		URL:             pm.pageConfig.URL,
 	}
 
 	if pm.Slug() != "" {
