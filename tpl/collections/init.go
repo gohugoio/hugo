@@ -202,6 +202,11 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Update,
+			[]string{},
+			[][2]string{},
+		)
+
 		return ns
 	}
 
