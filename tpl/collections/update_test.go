@@ -63,7 +63,7 @@ func TestUpdate(t *testing.T) {
 
 			c := qt.New(t)
 
-			result, err := ns.Update(test.params[0], test.params[1], test.params[2])
+			_, err := ns.Update(test.params[0], test.params[1], test.params[2])
 
 			if test.isErr {
 				c.Assert(err, qt.Not(qt.IsNil), errMsg)
@@ -71,7 +71,7 @@ func TestUpdate(t *testing.T) {
 			}
 
 			c.Assert(err, qt.IsNil)
-			c.Assert(result, qt.DeepEquals, test.expect, errMsg)
+			c.Assert(test.params[2], qt.DeepEquals, test.expect, errMsg)
 		})
 	}
 }
