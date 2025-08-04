@@ -125,7 +125,11 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 		return nil, nil
 	}
 
-	key := hashing.MD5FromStringHexEncoded(dataStr) + decoder.Format
+	key := hashing.MD5FromStringHexEncoded(dataStr)
+
+	if decoder != metadecoders.Default {
+		key += decoder.OptionsKey()
+	}
 
 	v, err := ns.cacheUnmarshal.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
 		var f metadecoders.Format
