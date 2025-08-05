@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/bep/clocks"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
 	"github.com/gohugoio/hugo/tpl"
@@ -368,7 +369,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 	}{
 		{"md", func() bool { return true }},
 		{"ad", func() bool { return asciidocext.Supports() }},
-		{"rst", func() bool { return rst.Supports() }},
+		{"rst", func() bool { return !htesting.IsRealCI() && rst.Supports() }},
 	}
 
 	for _, e := range engines {
