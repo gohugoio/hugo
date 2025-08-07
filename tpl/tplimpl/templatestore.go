@@ -485,6 +485,10 @@ func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, desc Te
 }
 
 func (t *TemplateStore) ExecuteWithContext(ctx context.Context, ti *TemplInfo, wr io.Writer, data any) error {
+	return t.ExecuteWithContextAndKey(ctx, "", ti, wr, data)
+}
+
+func (t *TemplateStore) ExecuteWithContextAndKey(ctx context.Context, key string, ti *TemplInfo, wr io.Writer, data any) error {
 	defer func() {
 		ti.executionCounter.Add(1)
 		if ti.base != nil {
@@ -502,6 +506,7 @@ func (t *TemplateStore) ExecuteWithContext(ctx context.Context, ti *TemplInfo, w
 	currentTi := &tpl.CurrentTemplateInfo{
 		Parent:                 parent,
 		Level:                  level,
+		Key:                    key,
 		CurrentTemplateInfoOps: ti,
 	}
 
