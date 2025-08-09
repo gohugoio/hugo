@@ -109,38 +109,41 @@ Press the **Open production deploy** button to view the live site.
 
 In the procedure above we configured our site using the Netlify user interface. Most site owners find it easier to use a configuration file checked into source control.
 
-Create a new file named netlify.toml in the root of your project directory. In its simplest form, the configuration file might look like this:
+Create a new file named `netlify.toml` in the root of your project directory. In its simplest form, the configuration file might look like this:
 
 ```toml {file="netlify.toml"}
 [build.environment]
-GO_VERSION = "1.24.2"
-HUGO_VERSION = "0.148.0"
-NODE_VERSION = "22"
-TZ = "America/Los_Angeles"
+GO_VERSION = "1.24.5"
+HUGO_VERSION = "0.148.2"
+NODE_VERSION = "22.18.0"
+TZ = "Europe/Oslo"
 
 [build]
 publish = "public"
-command = "git config core.quotepath false && hugo --gc --minify"
+command = """\
+  git config core.quotepath false && \
+  hugo --gc --minify --baseURL "${URL}"
+  """
 ```
 
 If your site requires Dart Sass to transpile Sass to CSS, the configuration file should look something like this:
 
 ```toml {file="netlify.toml"}
 [build.environment]
-DART_SASS_VERSION = "1.89.2"
-GO_VERSION = "1.24.2"
-HUGO_VERSION = "0.148.0"
-NODE_VERSION = "22"
-TZ = "America/Los_Angeles"
+DART_SASS_VERSION = "1.90.0"
+GO_VERSION = "1.24.5"
+HUGO_VERSION = "0.148.2"
+NODE_VERSION = "22.18.0"
+TZ = "Europe/Oslo"
 
 [build]
 publish = "public"
 command = """\
-  curl -LJO https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
-  tar -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
-  rm dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
-  export PATH=/opt/build/repo/dart-sass:$PATH && \
+  curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
+  tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
+  rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
+  export PATH="${HOME}/.local/dart-sass:${PATH}" && \
   git config core.quotepath false && \
-  hugo --gc --minify \
+  hugo --gc --minify --baseURL "${URL}"
   """
 ```

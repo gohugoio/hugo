@@ -44,11 +44,11 @@ version: 1
 env:
   variables:
     # Application versions
-    DART_SASS_VERSION: 1.89.2
-    GO_VERSION: 1.24.2
-    HUGO_VERSION: 0.148.0
+    DART_SASS_VERSION: 1.90.0
+    GO_VERSION: 1.24.5
+    HUGO_VERSION: 0.148.2
     # Time zone
-    TZ: America/Los_Angeles
+    TZ: Europe/Oslo
     # Cache
     HUGO_CACHEDIR: ${PWD}/.hugo
     NPM_CONFIG_CACHE: ${PWD}/.npm
@@ -56,38 +56,49 @@ frontend:
   phases:
     preBuild:
       commands:
+        # Create directory for user-specific executable files
+        - echo "Creating directory for user-specific executable files..."
+        - mkdir -p "${HOME}/.local"
+
         # Install Dart Sass
-        - curl -LJO https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-        - sudo tar -C /usr/local/bin -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-        - rm dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-        - export PATH=/usr/local/bin/dart-sass:$PATH
+        - echo "Installing Dart Sass ${DART_SASS_VERSION}..."
+        - curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+        - tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+        - rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+        - export PATH="${HOME}/.local/dart-sass:${PATH}"
 
         # Install Go
-        - curl -LJO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
-        - sudo tar -C /usr/local -xf go${GO_VERSION}.linux-amd64.tar.gz
-        - rm go${GO_VERSION}.linux-amd64.tar.gz
-        - export PATH=/usr/local/go/bin:$PATH
+        - echo "Installing Go ${GO_VERSION}..."
+        - curl -sLJO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
+        - tar -C "${HOME}/.local" -xf "go${GO_VERSION}.linux-amd64.tar.gz"
+        - rm "go${GO_VERSION}.linux-amd64.tar.gz"
+        - export PATH="${HOME}/.local/go/bin:${PATH}"
 
         # Install Hugo
-        - curl -LJO https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz
-        - sudo tar -C /usr/local/bin -xf hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz
-        - rm hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz
-        - export PATH=/usr/local/bin:$PATH
+        - echo "Installing Hugo ${HUGO_VERSION}..."
+        - curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+        - mkdir "${HOME}/.local/hugo"
+        - tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+        - rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+        - export PATH="${HOME}/.local/hugo:${PATH}"
 
-        # Check installed versions
-        - go version
-        - hugo version
-        - node -v
-        - npm -v
-        - sass --embedded --version
+        # Verify installations
+        - echo "Verifying installations..."
+        - "echo Dart Sass: $(sass --version)"
+        - "echo Go: $(go version)"
+        - "echo Hugo: $(hugo version)"
+        - "echo Node.js: $(node --version)"
 
-        # Install Node.JS dependencies
+        # Install Node.js dependencies
+        - echo "Installing Node.js dependencies..."
         - "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci --prefer-offline || true"
 
-        # https://github.com/gohugoio/hugo/issues/9810
-        - git config --add core.quotepath false
+        # Configure Git
+        - echo "Configuring Git..."
+        - git config core.quotepath false
     build:
       commands:
+        - echo "Building site..."
         - hugo --gc --minify
   artifacts:
     baseDirectory: public

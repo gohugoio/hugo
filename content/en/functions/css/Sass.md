@@ -122,83 +122,33 @@ Run `hugo env` to list the active transpilers.
 
 ### Installing in a production environment
 
-For [CI/CD](g) deployments (e.g., GitHub Pages, GitLab Pages, Netlify, etc.) you must edit the workflow to install Dart Sass before Hugo builds the site[^2]. Some providers allow you to use one of the package managers above, or you can download and extract one of the prebuilt binaries.
+To use Dart Sass with Hugo on a CI/CD platform like GitHub Pages, GitLab Pages, or Netlify, you typically must modify your build workflow to install Dart Sass before the Hugo site build begins. This is because these platforms don't have Dart Sass pre-installed, and Hugo needs it to process your Sass files.
 
-[^2]: You do not have to do this if (a) you have not modified the assets cache location, and (b) you have not set `useResourceCacheWhen` to `never` in your [site configuration], and (c) you add and commit your `resources` directory to your repository.
+There's one key exception where you can skip this step: you have committed your `resources` directory to your repository. This is only possible if:
 
-#### GitHub Pages
+- You have not changed Hugo's default asset cache location.
+- You have not set [`useResourceCacheWhen`] to never in your sites configuration.
 
-To install Dart Sass for your builds on GitHub Pages, add this step to the GitHub Pages workflow file:
+By committing the `resources` directory, you're providing the pre-built CSS files directly to your CI/CD service, so it doesn't need to run the Sass compilation itself.
 
-```yaml
-- name: Install Dart Sass
-  run: sudo snap install dart-sass
-```
+For examples of how to install Dart Sass in a production environment, see the following workflow files:
 
-#### GitLab Pages
+- [GitHub Pages]
+- [GitLab Pages]
+- [Netlify]
 
-To install Dart Sass for your builds on GitLab Pages, the `.gitlab-ci.yml` file should look something like this:
-
-```yaml
-variables:
-  HUGO_VERSION: 0.148.0
-  DART_SASS_VERSION: 1.89.2
-  GIT_DEPTH: 0
-  GIT_STRATEGY: clone
-  GIT_SUBMODULE_STRATEGY: recursive
-  TZ: America/Los_Angeles
-image:
-  name: golang:1.20-buster
-pages:
-  script:
-    # Install Dart Sass
-    - curl -LJO https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-    - tar -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-    - cp -r dart-sass/* /usr/local/bin
-    - rm -rf dart-sass*
-    # Install Hugo
-    - curl -LJO https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
-    - apt install -y ./hugo_extended_${HUGO_VERSION}_linux-amd64.deb
-    - rm hugo_extended_${HUGO_VERSION}_linux-amd64.deb
-    # Build
-    - hugo --gc --minify
-  artifacts:
-    paths:
-      - public
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-```
-
-#### Netlify
-
-To install Dart Sass for your builds on Netlify, the `netlify.toml` file should look something like this:
-
-```toml
-[build.environment]
-HUGO_VERSION = "0.148.0"
-DART_SASS_VERSION = "1.89.2"
-NODE_VERSION = "22"
-TZ = "America/Los_Angeles"
-
-[build]
-publish = "public"
-command = """\
-  curl -LJO https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
-  tar -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
-  rm dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz && \
-  export PATH=/opt/build/repo/dart-sass:$PATH && \
-  hugo --gc --minify \
-  """
-```
-
+[`publishDir`]: /configuration/all/#publishdir
+[`useResourceCacheWhen`]: /configuration/build/#useresourcecachewhen
 [brew.sh]: https://brew.sh/
 [chocolatey.org]: https://community.chocolatey.org/packages/sass
 [dart sass]: https://sass-lang.com/dart-sass
+[GitHub Pages]: /host-and-deploy/host-on-github-pages/#step-7
+[GitLab Pages]: /host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd
 [libsass]: https://sass-lang.com/libsass
+[Netlify]: /host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
 [scoop.sh]: https://scoop.sh/#/apps?q=sass
 [site configuration]: /configuration/build/
 [snap package]: /installation/linux/#snap
 [snapcraft.io]: https://snapcraft.io/dart-sass
 [starter workflow]: https://github.com/actions/starter-workflows/blob/main/pages/hugo.yml
-[`publishDir`]: /configuration/all/#publishdir

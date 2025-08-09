@@ -73,90 +73,97 @@ touch .github/workflows/hugo.yaml
 Copy and paste the YAML below into the file you created. Change the branch name and Hugo version as needed.
 
 ```yaml {file=".github/workflows/hugo.yaml" copy=true}
-# Sample workflow for building and deploying a Hugo site to GitHub Pages
-name: Deploy Hugo site to Pages
-
+name: Build and deploy Hugo site to GitHub Pages
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches:
       - main
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
-
-# Default to bash
 defaults:
   run:
-    # GitHub-hosted runners automatically enable `set -eo pipefail` for Bash shells.
     shell: bash
-
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     env:
-      DART_SASS_VERSION: 1.89.2
-      HUGO_VERSION: 0.148.0
-      HUGO_ENVIRONMENT: production
-      TZ: America/Los_Angeles
+      DART_SASS_VERSION: 1.90.0
+      GO_VERSION: 1.24.5
+      HUGO_VERSION: 0.148.2
+      NODE_VERSION: 22.18.0
+      TZ: Europe/Oslo
     steps:
-      - name: Install Hugo CLI
-        run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
-          sudo dpkg -i ${{ runner.temp }}/hugo.deb
-      - name: Install Dart Sass
-        run: |
-          wget -O ${{ runner.temp }}/dart-sass.tar.gz https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-          tar -xf ${{ runner.temp }}/dart-sass.tar.gz --directory ${{ runner.temp }}
-          mv ${{ runner.temp }}/dart-sass/ /usr/local/bin
-          echo "/usr/local/bin/dart-sass" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
+      - name: Create directory for user-specific executable files
+        run: |
+          mkdir -p "${HOME}/.local"
+      - name: Install Dart Sass
+        run: |
+          curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+          tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+          rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+          echo "${HOME}/.local/dart-sass" >> "${GITHUB_PATH}"
+      - name: Install Hugo
+        run: |
+          curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          mkdir "${HOME}/.local/hugo"
+          tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          echo "${HOME}/.local/hugo" >> "${GITHUB_PATH}"
+      - name: Verify installations
+        run: |
+          echo "Dart Sass: $(sass --version)"
+          echo "Go: $(go version)"
+          echo "Hugo: $(hugo version)"
+          echo "Node.js: $(node --version)"
       - name: Install Node.js dependencies
-        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
-      - name: Cache Restore
+        run: |
+          [[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true
+      - name: Configure Git
+        run: |
+          git config core.quotepath false
+      - name: Cache restore
         id: cache-restore
         uses: actions/cache/restore@v4
         with:
-          path: |
-            ${{ runner.temp }}/hugo_cache
+          path: ${{ runner.temp }}/hugo_cache
           key: hugo-${{ github.run_id }}
           restore-keys:
             hugo-
-      - name: Configure Git
-        run: git config core.quotepath false
-      - name: Build with Hugo
+      - name: Build the site
         run: |
           hugo \
             --gc \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/" \
             --cacheDir "${{ runner.temp }}/hugo_cache"
-      - name: Cache Save
+      - name: Cache save
         id: cache-save
         uses: actions/cache/save@v4
         with:
-          path: |
-            ${{ runner.temp }}/hugo_cache
+          path: ${{ runner.temp }}/hugo_cache
           key: ${{ steps.cache-restore.outputs.cache-primary-key }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
