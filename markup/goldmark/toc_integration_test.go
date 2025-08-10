@@ -90,6 +90,11 @@ title: p6 (strikethrough)
 title: p7 (emoji)
 ---
 ## A :snake: emoji
+-- content/p8.md --
+---
+title: p8 (link)
+---
+## A [link](https://example.org)
 `
 
 	b := hugolib.Test(t, files)
@@ -111,36 +116,41 @@ title: p7 (emoji)
 </nav>`)
 
 	// markdown
-	b.AssertFileContent("public/p2/index.html", `<nav id="TableOfContents">
-<li><a href="#">Some <em>emphasized</em> text</a></li>
-<li><a href="#">Some <code>inline</code> code</a></li>
-<li><a href="#">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>
-`)
+	b.AssertFileContent("public/p2/index.html",
+		`<li><a href="#">Some <em>emphasized</em> text</a></li>`,
+		`<li><a href="#">Some <code>inline</code> code</a></li>`,
+		`<li><a href="#">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>`,
+	)
 
 	// image
-	b.AssertFileContent("public/p3/index.html", `
-<li><a href="#">An image <img src="a.jpg" alt="kitten"></a></li>
-`)
+	b.AssertFileContent("public/p3/index.html",
+		`<li><a href="#">An image <img src="a.jpg" alt="kitten"></a></li>`,
+	)
 
 	// raw html
-	b.AssertFileContent("public/p4/index.html", `
-<li><a href="#">Some <!-- raw HTML omitted -->raw<!-- raw HTML omitted --> HTML</a></li>
-`)
+	b.AssertFileContent("public/p4/index.html",
+		`<li><a href="#">Some raw HTML</a></li>`,
+	)
 
 	// typographer
-	b.AssertFileContent("public/p5/index.html", `
-<li><a href="#">Some &quot;typographer&quot; markup</a></li>
-`)
+	b.AssertFileContent("public/p5/index.html",
+		`<li><a href="#">Some &quot;typographer&quot; markup</a></li>`,
+	)
 
 	// strikethrough
-	b.AssertFileContent("public/p6/index.html", `
-<li><a href="#">Some ~~deleted~~ text</a></li>
-	`)
+	b.AssertFileContent("public/p6/index.html",
+		`<li><a href="#">Some ~~deleted~~ text</a></li>`,
+	)
 
 	// emoji
-	b.AssertFileContent("public/p7/index.html", `
-<li><a href="#">A :snake: emoji</a></li>
-		`)
+	b.AssertFileContent("public/p7/index.html",
+		`<li><a href="#">A :snake: emoji</a></li>`,
+	)
+
+	// link
+	b.AssertFileContent("public/p8/index.html",
+		`<li><a href="#">A link</a></li>`,
+	)
 }
 
 func TestTableOfContentsAdvanced(t *testing.T) {
@@ -214,6 +224,11 @@ title: p6 (strikethrough)
 title: p7 (emoji)
 ---
 ## A :snake: emoji
+-- content/p8.md --
+---
+title: p8 (link)
+---
+## A [link](https://example.org)
 `
 
 	b := hugolib.Test(t, files)
@@ -231,37 +246,41 @@ title: p7 (emoji)
 </nav>`)
 
 	// markdown
-	b.AssertFileContent("public/p2/index.html", `<nav id="TableOfContents">
-<li><a href="#some-emphasized-text">Some <em>emphasized</em> text</a></li>
-<li><a href="#some-inline-code">Some <code>inline</code> code</a></li>
-<li><a href="#something-to-escape-a--b--c--b">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>
-`)
+	b.AssertFileContent("public/p2/index.html",
+		`<li><a href="#some-emphasized-text">Some <em>emphasized</em> text</a></li>`,
+		`<li><a href="#some-inline-code">Some <code>inline</code> code</a></li>`,
+		`<li><a href="#something-to-escape-a--b--c--b">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>`,
+	)
 
 	// image
-	b.AssertFileContent("public/p3/index.html", `
-<li><a href="#an-image-kitten">An image <img src="a.jpg" alt="kitten" /></a></li>
-`)
+	b.AssertFileContent("public/p3/index.html",
+		`<li><a href="#an-image-kitten">An image <img src="a.jpg" alt="kitten"/></a></li>`,
+	)
 
 	// raw html
-	b.AssertFileContent("public/p4/index.html", `
-<li><a href="#some-raw-html">Some <span>raw</span> HTML</a></li>
-`)
+	b.AssertFileContent("public/p4/index.html",
+		`<li><a href="#some-raw-html">Some <span>raw</span> HTML</a></li>`,
+	)
 
 	// typographer
-	b.AssertFileContent("public/p5/index.html", `
-<li><a href="#some-typographer-markup">Some &ldquo;typographer&rdquo; markup</a></li>
-`)
+	b.AssertFileContent("public/p5/index.html",
+		`<li><a href="#some-typographer-markup">Some &ldquo;typographer&rdquo; markup</a></li>`,
+	)
 
 	// strikethrough
-	b.AssertFileContent("public/p6/index.html", `
-<li><a href="#some-deleted-text">Some <del>deleted</del> text</a></li>
-`)
+	b.AssertFileContent("public/p6/index.html",
+		`<li><a href="#some-deleted-text">Some <del>deleted</del> text</a></li>`,
+	)
 
 	// emoji
+	b.AssertFileContent("public/p7/index.html",
+		`<li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>`,
+	)
 
-	b.AssertFileContent("public/p7/index.html", `
-<li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>
-`)
+	// link
+	b.AssertFileContent("public/p8/index.html",
+		`<li><a href="#a-link">A link</a></li>`,
+	)
 }
 
 func TestIssue13416(t *testing.T) {
