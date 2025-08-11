@@ -14,6 +14,7 @@
 package goldmark_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -302,4 +303,64 @@ title: home
 	b := hugolib.Test(t, files)
 
 	b.AssertFileExists("public/index.html", true)
+}
+
+// Issue 12605
+func TestTableOfContentsWithGoldmarkExtras(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions]
+strikethrough = false
+[markup.goldmark.extensions.extras.delete]
+enable = true
+[markup.goldmark.extensions.extras.insert]
+enable = true
+[markup.goldmark.extensions.extras.mark]
+enable = true
+[markup.goldmark.extensions.extras.subscript]
+enable = true
+[markup.goldmark.extensions.extras.superscript]
+enable = true
+
+-- content/_index.md --
+---
+title: home
+---
+## ~~deleted~~
+
+## ++inserted++
+
+## ==marked==
+
+## H~2~O
+
+## 1^st^
+-- layouts/home.html --
+{{ .TableOfContents }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<li><a href="#deleted"><del>deleted</del></a></li>`,
+		`<li><a href="#inserted"><ins>inserted</ins></a></li>`,
+		`<li><a href="#marked"><mark>marked</mark></a></li>`,
+		`<li><a href="#h2o">H<sub>2</sub>O</a></li>`,
+		`<li><a href="#1st">1<sup>st</sup></a></li>`,
+	)
+
+	files = strings.ReplaceAll(files, "enable = true", "enable = false")
+
+	b = hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<li><a href="#deleted">~~deleted~~</a></li>`,
+		`<li><a href="#inserted">++inserted++</a></li>`,
+		`<li><a href="#marked">==marked==</a></li>`,
+		`<li><a href="#h2o">H~2~O</a></li>`,
+		`<li><a href="#1st">1^st^</a></li>`,
+	)
 }
