@@ -35,7 +35,7 @@ Log in to your Netlify account, navigate to the Sites page, press the **Add new 
 
 Select your deployment method.
 
-  ![screen capture](netlify-step-02.png)
+![screen capture](netlify-step-02.png)
 
 ### Step 3
 
