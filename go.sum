@@ -424,6 +424,8 @@ github.com/niklasfasching/go-org v1.8.0 h1:WyGLaajLLp8JbQzkmapZ1y0MOzKuKV47HkZRl
 github.com/niklasfasching/go-org v1.8.0/go.mod h1:e2A9zJs7cdONrEGs3gvxCcaAEpwwPNPG7csDpXckMNg=
 github.com/niklasfasching/go-org v1.9.0 h1:4/Sr68Qx06hjC9MVDB/4etGP67JionLHGscLMOClpnk=
 github.com/niklasfasching/go-org v1.9.0/go.mod h1:ZAGFFkWvUQcpazmi/8nHqwvARpr1xpb+Es67oUGX/48=
+github.com/niklasfasching/go-org v1.9.1 h1:/3s4uTPOF06pImGa2Yvlp24yKXZoTYM+nsIlMzfpg/0=
+github.com/niklasfasching/go-org v1.9.1/go.mod h1:ZAGFFkWvUQcpazmi/8nHqwvARpr1xpb+Es67oUGX/48=
 github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 h1:G7ERwszslrBzRxj//JalHPu/3yz+De2J+4aLtSRlHiY=
 github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037/go.mod h1:2bpvgLBZEtENV5scfDFEtB/5+1M4hkQhDQrccEJ/qGw=
 github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 h1:bQx3WeLcUWy+RletIKwUIt4x3t8n2SxavmoclizMb8c=
