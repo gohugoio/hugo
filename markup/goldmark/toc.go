@@ -23,6 +23,7 @@ import (
 
 	emojiAst "github.com/yuin/goldmark-emoji/ast"
 
+	"github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/yuin/goldmark"
@@ -99,7 +100,12 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			ast.KindImage,
 			ast.KindEmphasis,
 			strikethroughAst.KindStrikethrough,
-			emojiAst.KindEmoji:
+			emojiAst.KindEmoji,
+			extras.KindDelete,
+			extras.KindInsert,
+			extras.KindMark,
+			extras.KindSubscript,
+			extras.KindSuperscript:
 			err := t.r.Render(&headingText, reader.Source(), n)
 			if err != nil {
 				return s, err
