@@ -69,7 +69,7 @@ require (
 	github.com/tdewolff/minify/v2 v2.23.8
 	github.com/tdewolff/parse/v2 v2.8.1
 	github.com/tetratelabs/wazero v1.9.0
-	github.com/yuin/goldmark v1.7.12
+	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.40.0
