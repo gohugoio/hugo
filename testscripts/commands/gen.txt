@@ -20,3 +20,8 @@ hugo gen chromastyles --style monokai
 stdout '{  }'
 hugo gen chromastyles --omitEmpty --style monokai
 ! stdout '\{  \}'
+
+# Test the jsonschemas generator
+hugo gen jsonschemas -h
+stdout 'Generate a JSON Schema for Hugo configuration options and page structures using reflection'
+hugo gen jsonschemas --dir jsonschemas

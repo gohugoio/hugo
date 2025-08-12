@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-menus.schema.json",
+  "properties": {
+    "identifier": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#identifier"
+    },
+    "parent": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#parent"
+    },
+    "name": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#name"
+    },
+    "pre": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#pre"
+    },
+    "post": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#post"
+    },
+    "uRL": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#url"
+    },
+    "pageRef": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#pageref"
+    },
+    "weight": {
+      "type": "integer",
+      "description": "https://gohugo.io/configuration/menus/#weight"
+    },
+    "title": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/menus/#title"
+    },
+    "params": {
+      "type": "object",
+      "description": "User defined params. \nhttps://gohugo.io/configuration/menus/#params"
+    }
+  },
+  "type": "object",
+  "description": "MenuConfig holds the configuration for a menu."
+}

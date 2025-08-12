@@ -40,13 +40,13 @@ type BuildConfig struct {
 	// Setting it to 'local' means they will be available via the local
 	// page collections, e.g. $section.Pages.
 	// Note: before 0.57.2 this was a bool, so we accept those too.
-	List string
+	List string `jsonschema:"enum=never,enum=always,enum=local"`
 
 	// Whether to render it.
 	// Valid values: never, always, link.
 	// The value link means it will not be rendered, but it will get a RelPermalink/Permalink.
 	// Note that before 0.76.0 this was a bool, so we accept those too.
-	Render string
+	Render string `jsonschema:"enum=never,enum=always,enum=link"`
 
 	// Whether to publish its resources. These will still be published on demand,
 	// but enabling this can be useful if the originals (e.g. images) are

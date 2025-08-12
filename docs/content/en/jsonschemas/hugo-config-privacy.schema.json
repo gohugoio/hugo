@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-privacy.schema.json",
+  "properties": {
+    "disqus": {
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/privacy/#disqusdisable"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/privacy/#disqus"
+    },
+    "googleAnalytics": {
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/privacy/#googleanalyticsdisable"
+        },
+        "respectDoNotTrack": {
+          "type": "boolean",
+          "description": "Enabling this will make the GA templates respect the\n\"Do Not Track\" HTTP header. See  https://www.paulfurley.com/google-analytics-dnt/. \nhttps://gohugo.io/configuration/privacy/#googleanalyticsrespectdonottrack"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/privacy/#google-analytics"
+    },
+    "instagram": {
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/privacy/#instagramdisable"
+        },
+        "simple": {
+          "type": "boolean",
+          "description": "If simple mode is enabled, a static and no-JS version of the Instagram\nimage card will be built. \nhttps://gohugo.io/configuration/privacy/#instagramsimple"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/privacy/#instagram"
+    },
+    "twitter": {
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/privacy/#twitterdisable"
+        },
+        "enableDNT": {
+          "type": "boolean",
+          "description": "When set to true, the Tweet and its embedded page on your site are not used\nfor purposes that include personalized suggestions and personalized ads. \nhttps://gohugo.io/configuration/privacy/#twitterenablednt"
+        },
+        "simple": {
+          "type": "boolean",
+          "description": "If simple mode is enabled, a static and no-JS version of the Tweet will be built. \nhttps://gohugo.io/configuration/privacy/#twittersimple"
+        }
+      },
+      "type": "object",
+      "description": "deprecated in favor of X in v0.141.0 \nhttps://gohugo.io/configuration/privacy/#twitter"
+    },
+    "vimeo": {
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/privacy/#vimeodisable"
+        },
+        "enableDNT": {
+          "type": "boolean",
+          "description": "When set to true, the Vimeo player will be blocked from tracking any session data,\nincluding all cookies and stats. \nhttps://gohugo.io/configuration/privacy/#vimeoenablednt"
+        },
+        "simple": {
+          "type": "boolean",
+          "description": "If simple mode is enabled, only a thumbnail is fetched from i.vimeocdn.com and\nshown with a play button overlaid. If a user clicks the button, he/she will\nbe taken to the video page on vimeo.com in a new browser tab. \nhttps://gohugo.io/configuration/privacy/#vimeosimple"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/privacy/#vimeo"
+    },
+    "youTube": {
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/privacy/#youtubedisable"
+        },
+        "privacyEnhanced": {
+          "type": "boolean",
+          "description": "When you turn on privacy-enhanced mode,\nYouTube won’t store information about visitors on your website\nunless the user plays the embedded video. \nhttps://gohugo.io/configuration/privacy/#youtubeprivacyenhanced"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/privacy/#you-tube"
+    },
+    "x": {
+      "properties": {
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/privacy/#xdisable"
+        },
+        "enableDNT": {
+          "type": "boolean",
+          "description": "When set to true, the X post and its embedded page on your site are not\nused for purposes that include personalized suggestions and personalized\nads. \nhttps://gohugo.io/configuration/privacy/#xenablednt"
+        },
+        "simple": {
+          "type": "boolean",
+          "description": "If simple mode is enabled, a static and no-JS version of the X post will\nbe built. \nhttps://gohugo.io/configuration/privacy/#xsimple"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/privacy/#x"
+    }
+  },
+  "type": "object",
+  "description": "Config is a privacy configuration for all the relevant services in Hugo."
+}
