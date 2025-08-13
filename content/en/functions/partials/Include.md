@@ -1,6 +1,6 @@
 ---
 title: partials.Include
-description: Executes the given , optionally passing context. If the  contains a return statement, returns the given value, else returns the rendered output.
+description: Executes the given template, optionally passing context. If the  partial template contains a return statement, returns the given value, else returns the rendered output.
 categories: []
 keywords: []
 params:
