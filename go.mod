@@ -4,7 +4,7 @@ require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/alecthomas/chroma/v2 v2.19.0
 	github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c
-	github.com/aws/aws-sdk-go-v2 v1.36.4
+	github.com/aws/aws-sdk-go-v2 v1.38.0
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.44.10
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
@@ -52,6 +52,7 @@ require (
 	github.com/makeworld-the-better-one/dither/v2 v2.4.0
 	github.com/marekm4/color-extractor v1.2.1
 	github.com/mattn/go-isatty v0.0.20
+	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/mitchellh/mapstructure v1.5.1-0.20231216201459-8508981c8b6c
 	github.com/muesli/smartcrop v0.3.0
 	github.com/niklasfasching/go-org v1.9.1
@@ -122,7 +123,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.22.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3 // indirect
-	github.com/aws/smithy-go v1.22.2 // indirect
+	github.com/aws/smithy-go v1.22.5 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20250326154945-ae57f3c0d45f // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
@@ -153,7 +154,6 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect
