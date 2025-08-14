@@ -19,6 +19,8 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/config"
@@ -32,6 +34,21 @@ import (
 type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
+
+	// TODO1 name.
+	Dimension(string) SiteDimension
+
+	// Returns the role configured for this Site.
+	Role() roles.Role
+
+	// Returns the roles configured for this Site.
+	Roles() roles.Roles
+
+	// Returns the version configured for this Site.
+	Version() versions.Version
+
+	// Returns the versions configured for this Site.
+	Versions() versions.Versions
 
 	// Returns all the languages configured for all sites.
 	Languages() langs.Languages
@@ -122,6 +139,10 @@ type Site interface {
 	// LanguagePrefix returns the language prefix for this site.
 	LanguagePrefix() string
 
+	// String returns a string representation of the site.
+	// Note that this represenetation may change in the future.
+	String() string
+
 	maps.StoreProvider
 
 	// For internal use only.
@@ -129,6 +150,11 @@ type Site interface {
 	// This is typically used to inform the user in the content adapter templates,
 	// as these are executed before all the page collections etc. are ready to use.
 	CheckReady()
+}
+
+// SiteDimension represents a dimension of the site.
+type SiteDimension interface {
+	Name() string
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -146,6 +172,11 @@ func (s Sites) Default() Site {
 	if len(s) == 0 {
 		return nil
 	}
+	for _, site := range s {
+		if site.Language().IsDefault() {
+			return site
+		}
+	}
 	return s[0]
 }
 
@@ -156,6 +187,7 @@ type siteWrapper struct {
 	s Site
 }
 
+// TODO1 check if we need this.
 func WrapSite(s Site) Site {
 	if s == nil {
 		panic("Site is nil")
@@ -192,6 +224,26 @@ func (s *siteWrapper) Language() *langs.Language {
 
 func (s *siteWrapper) Languages() langs.Languages {
 	return s.s.Languages()
+}
+
+func (s *siteWrapper) Role() roles.Role {
+	return s.s.Role()
+}
+
+func (s *siteWrapper) Roles() roles.Roles {
+	return s.s.Roles()
+}
+
+func (s *siteWrapper) Dimension(d string) SiteDimension {
+	return s.s.Dimension(d)
+}
+
+func (s *siteWrapper) Version() versions.Version {
+	return s.s.Version()
+}
+
+func (s *siteWrapper) Versions() versions.Versions {
+	return s.s.Versions()
 }
 
 func (s *siteWrapper) AllPages() Pages {
@@ -300,6 +352,10 @@ func (s *siteWrapper) Store() *maps.Scratch {
 	return s.s.Store()
 }
 
+func (s *siteWrapper) String() string {
+	return s.s.String()
+}
+
 // For internal use only.
 func (s *siteWrapper) ForEeachIdentityByName(name string, f func(identity.Identity) bool) {
 	s.s.(identity.ForEeachIdentityByNameProvider).ForEeachIdentityByName(name, f)
@@ -383,12 +439,32 @@ func (t testSite) Languages() langs.Languages {
 	return nil
 }
 
+func (t testSite) Roles() roles.Roles {
+	return nil
+}
+
+func (t testSite) Versions() versions.Versions {
+	return nil
+}
+
+func (t testSite) Dimension(d string) SiteDimension {
+	return nil
+}
+
 func (t testSite) MainSections() []string {
 	return nil
 }
 
 func (t testSite) Language() *langs.Language {
 	return t.l
+}
+
+func (t testSite) Role() roles.Role {
+	return nil
+}
+
+func (t testSite) Version() versions.Version {
+	return nil
 }
 
 func (t testSite) Home() Page {
@@ -446,6 +522,10 @@ func (s testSite) Param(key any) (any, error) {
 
 func (s testSite) Store() *maps.Scratch {
 	return maps.NewScratch()
+}
+
+func (s testSite) String() string {
+	return "testSite"
 }
 
 func (s testSite) CheckReady() {

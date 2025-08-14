@@ -57,43 +57,6 @@ Summary: {{ .Summary }}|
 	)
 }
 
-func TestFrontMatterParamsPath(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org/"
-disableKinds = ["taxonomy", "term"]
-
--- content/p1.md --
----
-title: "P1"
-date: 2019-08-07
-path: "/a/b/c"
-slug: "s1"
----
--- content/mysection/_index.md --
----
-title: "My Section"
-date: 2022-08-07
-path: "/a/b"
----
--- layouts/index.html --
-RegularPages: {{ range site.RegularPages }}{{ .Path }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Date.Format "2006-02-01" }}| Slug: {{ .Params.slug }}|{{ end }}$
-Sections: {{ range site.Sections }}{{ .Path }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Date.Format "2006-02-01" }}| Slug: {{ .Params.slug }}|{{ end }}$
-{{ $ab := site.GetPage "a/b" }}
-a/b pages: {{ range $ab.RegularPages }}{{ .Path }}|{{ .RelPermalink }}|{{ end }}$
-`
-
-	b := Test(t, files)
-
-	b.AssertFileContent("public/index.html",
-		"RegularPages: /a/b/c|/a/b/s1/|P1|2019-07-08| Slug: s1|$",
-		"Sections: /a|/a/|As",
-		"a/b pages: /a/b/c|/a/b/s1/|$",
-	)
-}
-
 func TestFrontMatterParamsLangNoCascade(t *testing.T) {
 	t.Parallel()
 

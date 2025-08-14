@@ -267,7 +267,7 @@ func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTyp
 }
 
 // TODO(bep) get rid of this.
-var DefaultPathParser = &paths.PathParser{
+var DefaultPathParser = &paths.PathHandler{
 	IsContentExt: func(ext string) bool {
 		panic("not supported")
 	},

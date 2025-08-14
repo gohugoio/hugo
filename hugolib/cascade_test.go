@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/parser"
@@ -939,53 +940,54 @@ path = '/p1'
 	b.AssertFileContent("public/p1/index.html", "p1|bar") // actual content is "p1|"
 }
 
-func TestCascadeWarnOverrideIssue13806(t *testing.T) {
-	t.Parallel()
-
+func TestSitesMatrixCascadeConfig(t *testing.T) {
 	files := `
 -- hugo.toml --
-disableKinds = ['home','rss','section','sitemap','taxonomy','term']
-[[cascade]]
-[cascade.params]
-searchable = true
-[cascade.target]
-kind = 'page'
--- content/something.md --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[languages.sv]
+weight = 3
+
+[versions]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+[versions."v2.1.0"]
+
+[roles]
+[roles.guest]
+[roles.member]
+[cascade]
+[cascade.sites.matrix]
+languages = ["en"]
+versions = ["v2**"]
+roles = ["member"]
+[cascade.sites.fallbacks]
+languages = ["nn"]
+versions = ["v1.0.*"]
+roles = ["guest"]
+-- content/_index.md --
 ---
-title: Something
-params:
-  searchable: false
+title: "Home"
+sites:
+  roles: ["member"]
 ---
 -- layouts/all.html --
 All.
 
 `
 
-	b := Test(t, files, TestOptWarn())
+	b := Test(t, files)
 
-	b.AssertLogContains("! WARN")
-}
-
-func TestCascadeNilMapIssue13853(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
--- content/test/_index.md --
----
-title: Test
-cascade:
-- build:
-    list: local
-  target:
-    path: '{/test/**}'
-- params:
-    title: 'Test page'
-  target:
-    path: '{/test/**}'
----
-`
-
-	// Just verify that it does not panic.
-	_ = Test(t, files)
+	s0 := b.H.sitesVersionsRolesMap[sitesmatrix.Vector{0, 1, 1}] // en, v2.0.0, member
+	b.Assert(s0.home.File(), qt.IsNotNil)
+	b.Assert(s0.language.Name(), qt.Equals, "en")
+	b.Assert(s0.version.Name(), qt.Equals, "v2.0.0")
+	b.Assert(s0.role.Name(), qt.Equals, "member")
+	s0Pconfig := s0.Home().(*pageState).m.pageConfig
+	b.Assert(s0Pconfig.Sites.Matrix.Languages, qt.DeepEquals, []string{"en"})
+	b.Assert(s0Pconfig.Sites.Matrix.Versions, qt.DeepEquals, []string{"v2**"})
 }

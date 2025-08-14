@@ -68,7 +68,6 @@ type legacyTargetPathIdentifiers struct {
 	targetPath     string
 	targetCategory Category
 	kind           string
-	lang           string
 	outputFormat   string
 	ext            string
 }
