@@ -20,7 +20,7 @@ require (
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.10.0
-	github.com/bep/simplecobra v0.6.0
+	github.com/bep/simplecobra v0.6.1
 	github.com/bep/tmc v0.5.1
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
@@ -52,6 +52,7 @@ require (
 	github.com/makeworld-the-better-one/dither/v2 v2.4.0
 	github.com/marekm4/color-extractor v1.2.1
 	github.com/mattn/go-isatty v0.0.20
+	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/mitchellh/mapstructure v1.5.1-0.20231216201459-8508981c8b6c
 	github.com/muesli/smartcrop v0.3.0
 	github.com/niklasfasching/go-org v1.9.1
@@ -65,7 +66,7 @@ require (
 	github.com/spf13/cast v1.9.2
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/fsync v0.10.1
-	github.com/spf13/pflag v1.0.6
+	github.com/spf13/pflag v1.0.7
 	github.com/tdewolff/minify/v2 v2.23.8
 	github.com/tdewolff/parse/v2 v2.8.1
 	github.com/tetratelabs/wazero v1.9.0
@@ -153,7 +154,6 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect
