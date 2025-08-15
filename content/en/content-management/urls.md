@@ -20,7 +20,7 @@ You can change the structure and appearance of URLs with front matter values and
 
 ### `slug`
 
-Set the `slug` in front matter to override the last segment of the path. The `slug` value does not affect section pages.
+Set the `slug` in front matter to override the last segment of the path. This front matter field is not applicable to `home`, `section`, `taxonomy`, or `term` pages.
 
 {{< code-toggle file=content/posts/post-1.md fm=true >}}
 title = 'My First Post'
