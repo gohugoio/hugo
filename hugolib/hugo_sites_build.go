@@ -921,12 +921,14 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 						if err == nil {
 							f.Close()
 						}
+
 						if err != nil {
 							// Remove all pages and resources below.
-							prefix := pathInfo.Base() + "/"
+							prefix := paths.AddTrailingSlash(pathInfo.Base())
+
 							h.pageTrees.treePages.DeletePrefixAll(prefix)
 							h.pageTrees.resourceTrees.DeletePrefixAll(prefix)
-							changes = append(changes, identity.NewGlobIdentity(prefix+"*"))
+							changes = append(changes, identity.NewGlobIdentity(prefix+"**"))
 						}
 						return err != nil
 					})

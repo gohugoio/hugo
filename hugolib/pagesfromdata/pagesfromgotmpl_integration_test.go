@@ -308,6 +308,45 @@ func TestPagesFromGoTmplRemoveGoTmpl(t *testing.T) {
 	b.AssertFileContent("public/docs/index.html", "RegularPagesRecursive: pfile:/docs/pfile|$")
 }
 
+func TestPagesFromGoTmplEditOverlappingContentFile(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+-- layouts/all.html --
+All: {{ .Content }}|{{ .Title }}|
+-- layouts/section.html --
+Title: {{ .Title}}|
+RegularPages: {{ range .RegularPages }}{{ .Title }}:{{ .Path }}|{{ end }}|
+-- content/mysection/_index.md --
+---
+title: "My Section"
+---
+-- content/mysection/p1.md --
+---
+title: "p1 content file"
+---
+Content of p1
+-- content/_content.gotmpl --
+{{ $.AddPage (dict "kind" "page" "path" "mysection/p2" "title" "p2 content adapter") }}
+`
+	b := hugolib.TestRunning(t, files)
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section|", "RegularPages: p1 content file:/mysection/p1|p2 content adapter:/mysection/p2|")
+
+	b.EditFileReplaceAll("content/mysection/p1.md", `"p1 content file"`, `"p1 content file edited"`).Build()
+	b.AssertFileContent("public/mysection/index.html", "RegularPages: p1 content file edited:/mysection/p1|p2 content adapter:/mysection/p2|")
+
+	b.EditFileReplaceAll("content/mysection/_index.md", "My Section", "My Section edited").Build()
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section edited|", "RegularPages: p1 content file edited:/mysection/p1|p2 content adapter:/mysection/p2|")
+
+	b.RemoveFiles("content/mysection/p1.md").Build()
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section edited|\nRegularPages: p2 content adapter:/mysection/p2|")
+
+	b.RemoveFiles("content/_content.gotmpl", "public/mysection/index.html").Build()
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section edited|\nRegularPages: |")
+}
+
 // Issue #13443.
 func TestPagesFromGoRelatedKeywords(t *testing.T) {
 	t.Parallel()
