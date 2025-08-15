@@ -192,6 +192,10 @@ func (c *pagesCollector) Collect() (collectErr error) {
 							return strings.HasPrefix(fim.Meta().PathInfo.Path(), paths.AddTrailingSlash(id.p.Path()))
 						}
 
+						if id.p.IsContentData() {
+							return strings.HasPrefix(fim.Meta().PathInfo.Path(), paths.AddTrailingSlash(id.p.Dir()))
+						}
+
 						return id.p.Dir() == fim.Meta().PathInfo.Dir()
 					}
 
