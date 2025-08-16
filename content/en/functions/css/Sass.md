@@ -145,7 +145,7 @@ For examples of how to install Dart Sass in a production environment, see the fo
 [GitHub Pages]: /host-and-deploy/host-on-github-pages/#step-7
 [GitLab Pages]: /host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd
 [libsass]: https://sass-lang.com/libsass
-[Netlify]: /host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd
+[Netlify]: /host-and-deploy/host-on-netlify/#configuration-file
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
 [scoop.sh]: https://scoop.sh/#/apps?q=sass
 [site configuration]: /configuration/build/
