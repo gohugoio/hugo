@@ -165,7 +165,7 @@ Select the repository to import.
 
 ### Step 11
 
-On the "Set up your application" screen, provide a project name, leave the build command blank, then press the **Create and deploy" button.
+On the "Set up your application" screen, provide a project name, leave the build command blank, then press the **Create and deploy** button.
 
 ![screen capture](cloudflare-07.png)
 
