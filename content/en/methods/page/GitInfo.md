@@ -153,24 +153,34 @@ You can change this behavior in your [site configuration].
 
 ## Hosting considerations
 
-When hosting your site in a [CI/CD](g) environment, the step that clones your project repository must perform a deep clone. If the clone is shallow, the Git information for a given file may not be accurate---it may reflect the most recent repository commit, not the commit that last modified the file.
+In a [CI/CD](g) environment, the step that clones your project repository must perform a deep clone. If the clone is shallow, the Git information for a given file may be inaccurate. It might incorrectly reflect the most recent repository commit, rather than the commit that actually modified the file.
 
-Some providers perform deep clones by default, others allow you to configure the clone depth, and some only perform shallow clones.
+While some providers perform a deep clone by default, others require you to configure the depth yourself.
 
-Hosting service | Default clone depth | Configurable
-:-- | :-- | :--
-AWS Amplify | Deep | N/A
-Cloudflare Pages | Shallow | Yes [^1]
-DigitalOcean App Platform | Deep | N/A
-GitHub Pages | Shallow | Yes [^2]
-GitLab Pages | Shallow | Yes [^3]
-Netlify | Deep | N/A
-Render | Shallow | No
-Vercel | Shallow | No
+Hosting service|Default clone depth|Configurable
+:--|:--|:--
+AWS Amplify|Deep|N/A
+Cloudflare|Shallow|Yes [^1]
+DigitalOcean App Platform|Deep|N/A
+GitHub Pages|Shallow|Yes [^2]
+GitLab Pages|Shallow|Yes [^3]
+Netlify|Deep|N/A
+Render|Shallow|Yes [^1]
+Vercel|Shallow|Yes [^1]
 
-[^1]: To configure a Cloudflare Pages site for deep cloning, run `git fetch --unshallow` before building the site.
 
-[^2]: You can configure the GitHub Action to do a deep clone by specifying `fetch-depth: 0` in the applicable "checkout" step of your workflow file, as shown in the Hugo documentation's [example workflow file](/host-and-deploy/host-on-github-pages/#procedure).
+[^1]: To perform a deep clone when hosting on Cloudflare, Render, or Vercel, include this code in the build script after the repository has been cloned:
+
+    ```text
+    if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+      git fetch --unshallow
+    fi
+    ```
+
+[^2]: To perform a deep clone when hosting on GitHub Pages, set `fetch-depth: 0` in the `checkout` step of the GitHub Action. See [example](/host-and-deploy/host-on-github-pages/#step-7).
+
+[^3]: To perform a deep clone when hosting on GitLab Pages, set the `GIT_DEPTH` environment variable to `0` in the workflow file. See [example](/host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd).
+
 
 [^3]: You can configure the GitLab Runner's clone depth [as explained in the GitLab documentation](https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning); see also the Hugo documentation's [example workflow file](/host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd).
 
