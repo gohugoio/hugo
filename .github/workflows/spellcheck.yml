@@ -12,7 +12,7 @@ jobs:
   spellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: streetsidesoftware/cspell-action@v7
         with:
           incremental_files_only: true
