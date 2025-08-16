@@ -73,7 +73,7 @@ touch .github/workflows/hugo.yaml
 Copy and paste the YAML below into the file you created. Change the branch name and Hugo version as needed.
 
 ```yaml {file=".github/workflows/hugo.yaml" copy=true}
-name: Build and deploy Hugo site to GitHub Pages
+name: Build and deploy
 on:
   push:
     branches:
@@ -100,7 +100,7 @@ jobs:
       TZ: Europe/Oslo
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
           fetch-depth: 0
@@ -169,8 +169,6 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
-
-  # Deployment job
   deploy:
     environment:
       name: github-pages
