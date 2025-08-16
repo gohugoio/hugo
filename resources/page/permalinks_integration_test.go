@@ -37,6 +37,9 @@ tag = "tags"
 [permalinks.page]
 withpageslug = '/pageslug/:slug/'
 withallbutlastsection = '/:sections[:last]/:slug/'
+withallbutlastsectionslug = '/:sectionslugs[:last]/:slug/'
+withsectionslug = '/sectionslug/:sectionslug/:slug/'
+withsectionslugs = '/sectionslugs/:sectionslugs/:slug/'
 [permalinks.section]
 withfilefilename = '/sectionwithfilefilename/:filename/'
 withfilefiletitle = '/sectionwithfilefiletitle/:title/'
@@ -64,6 +67,39 @@ slug: "withfileslugvalue"
 -- content/nofiletitle1/p1.md --
 -- content/nofiletitle2/asdf/p1.md --
 -- content/withallbutlastsection/subsection/p1.md --
+-- content/withallbutlastsectionslug/_index.md --
+---
+slug: "root-section-slug"
+---
+-- content/withallbutlastsectionslug/subsection/_index.md --
+---
+slug: "sub-section-slug"
+---
+-- content/withallbutlastsectionslug/subsection/p1.md --
+---
+slug: "page-slug"
+---
+-- content/withsectionslug/_index.md --
+---
+slug: "section-root-slug"
+---
+-- content/withsectionslug/subsection/_index.md --
+-- content/withsectionslug/subsection/p1.md --
+---
+slug: "page1-slug"
+---
+-- content/withsectionslugs/_index.md --
+---
+slug: "sections-root-slug"
+---
+-- content/withsectionslugs/level1/_index.md --
+---
+slug: "level1-slug"
+---
+-- content/withsectionslugs/level1/p1.md --
+---
+slug: "page1-slug"
+---
 -- content/tags/_index.md --
 ---
 slug: "tagsslug"
@@ -87,6 +123,8 @@ slug: "mytagslug"
 	// No .File.TranslationBaseName on zero object etc. warnings.
 	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
 	b.AssertFileContent("public/pageslug/p1slugvalue/index.html", "Single|page|/pageslug/p1slugvalue/|")
+	b.AssertFileContent("public/sectionslug/section-root-slug/page1-slug/index.html", "Single|page|/sectionslug/section-root-slug/page1-slug/|")
+	b.AssertFileContent("public/sectionslugs/sections-root-slug/level1-slug/page1-slug/index.html", "Single|page|/sectionslugs/sections-root-slug/level1-slug/page1-slug/|")
 	b.AssertFileContent("public/sectionwithfilefilename/index.html", "List|section|/sectionwithfilefilename/|")
 	b.AssertFileContent("public/sectionwithfileslug/withfileslugvalue/index.html", "List|section|/sectionwithfileslug/withfileslugvalue/|")
 	b.AssertFileContent("public/sectionnofilefilename/index.html", "List|section|/sectionnofilefilename/|")
@@ -99,7 +137,7 @@ slug: "mytagslug"
 
 	permalinksConf := b.H.Configs.Base.Permalinks
 	b.Assert(permalinksConf, qt.DeepEquals, map[string]map[string]string{
-		"page":     {"withallbutlastsection": "/:sections[:last]/:slug/", "withpageslug": "/pageslug/:slug/"},
+		"page":     {"withallbutlastsection": "/:sections[:last]/:slug/", "withallbutlastsectionslug": "/:sectionslugs[:last]/:slug/", "withpageslug": "/pageslug/:slug/", "withsectionslug": "/sectionslug/:sectionslug/:slug/", "withsectionslugs": "/sectionslugs/:sectionslugs/:slug/"},
 		"section":  {"nofilefilename": "/sectionnofilefilename/:filename/", "nofileslug": "/sectionnofileslug/:slug/", "nofiletitle1": "/sectionnofiletitle1/:title/", "nofiletitle2": "/sectionnofiletitle2/:sections[:last]/", "withfilefilename": "/sectionwithfilefilename/:filename/", "withfilefiletitle": "/sectionwithfilefiletitle/:title/", "withfileslug": "/sectionwithfileslug/:slug/"},
 		"taxonomy": {"tags": "/tagsslug/:slug/"},
 		"term":     {"tags": "/tagsslug/tag/:slug/"},
@@ -194,6 +232,55 @@ List.
 	b.AssertFileContent("public/libros/index.html", "List.")
 	b.AssertFileContent("public/libros/fiction/index.html", "List.")
 	b.AssertFileContent("public/libros/fiction/2023/book1/index.html", "Single.")
+}
+
+func TestPermalinksNestedSectionsWithSlugs(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[permalinks.page]
+books = '/libros/:sectionslugs[1:]/:slug'
+
+[permalinks.section]
+books = '/libros/:sectionslugs[1:]'
+-- content/books/_index.md --
+---
+title: Books
+---
+-- content/books/fiction/_index.md --
+---
+title: Fiction
+slug: fictionslug
+---
+-- content/books/fiction/2023/_index.md --
+---
+title: 2023
+---
+-- content/books/fiction/2023/book1/index.md --
+---
+title: Book One
+---
+-- layouts/_default/single.html --
+Single.
+-- layouts/_default/list.html --
+List.
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			LogLevel:    logg.LevelWarn,
+		}).Build()
+
+	t.Log(b.LogString())
+	// No .File.TranslationBaseName on zero object etc. warnings.
+	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
+
+	b.AssertFileContent("public/libros/index.html", "List.")
+	b.AssertFileContent("public/libros/fictionslug/index.html", "List.")
+	b.AssertFileContent("public/libros/fictionslug/2023/book-one/index.html", "Single.")
 }
 
 func TestPermalinksUrlCascade(t *testing.T) {
