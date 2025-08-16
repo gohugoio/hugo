@@ -18,6 +18,7 @@ import (
 	"sort"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/resources/resource"
@@ -54,14 +55,14 @@ func getOrdinals(p1, p2 Page) (int, int) {
 	return p1o.Ordinal(), p2o.Ordinal()
 }
 
-func getWeight0s(p1, p2 Page) (int, int) {
-	p1w, ok1 := p1.(resource.Weight0Provider)
+func getWeight0s(p1, p2 Page) (w1 int, w2 int) {
+	p1w, ok1 := p1.(types.Weight0Provider)
 	if !ok1 {
-		return -1, -1
+		return
 	}
-	p2w, ok2 := p2.(resource.Weight0Provider)
+	p2w, ok2 := p2.(types.Weight0Provider)
 	if !ok2 {
-		return -1, -1
+		return
 	}
 
 	return p1w.Weight0(), p2w.Weight0()
@@ -154,6 +155,16 @@ var (
 
 	lessPagePubDate = func(p1, p2 Page) bool {
 		return p1.PublishDate().Unix() < p2.PublishDate().Unix()
+	}
+
+	lessPageDims = func(p1, p2 Page) bool {
+		d1, d2 := GetSiteVector(p1), GetSiteVector(p2)
+		if n := d1.Compare(d2); n != 0 {
+			return n < 0
+		}
+
+		// Fall back to the default sort order.
+		return DefaultPageSort(p1, p2)
 	}
 )
 
@@ -358,6 +369,11 @@ func (p Pages) ByLanguage() Pages {
 // SortByLanguage sorts the pages by language.
 func SortByLanguage(pages Pages) {
 	pageBy(lessPageLanguage).Sort(pages)
+}
+
+// SortByDims sorts the pages by sitesmatrix.
+func SortByDims(pages Pages) {
+	pageBy(lessPageDims).Sort(pages)
 }
 
 // Reverse reverses the order in Pages and returns a copy.

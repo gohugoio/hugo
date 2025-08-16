@@ -110,9 +110,8 @@ type LockType int
 // MutableTree is a tree that can be modified.
 type MutableTree interface {
 	DeleteRaw(key string)
-	DeleteAll(key string)
 	DeletePrefix(prefix string) int
-	DeletePrefixAll(prefix string) int
+	DeletePrefixRaw(prefix string) int
 	Lock(writable bool) (commit func())
 	CanLock() bool // Used for troubleshooting only.
 }
@@ -142,12 +141,6 @@ func (t MutableTrees) DeleteRaw(key string) {
 	}
 }
 
-func (t MutableTrees) DeleteAll(key string) {
-	for _, tree := range t {
-		tree.DeleteAll(key)
-	}
-}
-
 func (t MutableTrees) DeletePrefix(prefix string) int {
 	var count int
 	for _, tree := range t {
@@ -156,10 +149,10 @@ func (t MutableTrees) DeletePrefix(prefix string) int {
 	return count
 }
 
-func (t MutableTrees) DeletePrefixAll(prefix string) int {
+func (t MutableTrees) DeletePrefixRaw(prefix string) int {
 	var count int
 	for _, tree := range t {
-		count += tree.DeletePrefixAll(prefix)
+		count += tree.DeletePrefixRaw(prefix)
 	}
 	return count
 }
