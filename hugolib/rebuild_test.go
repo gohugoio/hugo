@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bep/logg"
 	"github.com/fortytw2/leaktest"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/types"
@@ -242,7 +243,7 @@ func TestRebuildRenameTextFileInBranchBundle(t *testing.T) {
 	b.RenameFile("content/mysection/mysectiontext.txt", "content/mysection/mysectiontext2.txt").Build()
 	b.AssertFileContent("public/mysection/index.html", "mysectiontext2", "My Section")
 	b.AssertRenderCountPage(3)
-	b.AssertRenderCountContent(2)
+	b.AssertRenderCountContent(1)
 }
 
 func TestRebuildRenameTextFileInHomeBundle(t *testing.T) {
@@ -810,6 +811,7 @@ Len RegularPagesRecursive: {{ len .RegularPagesRecursive }}
 Site.Lastmod: {{ .Site.Lastmod.Format "2006-01-02" }}|
 Paginate: {{ range (.Paginate .Site.RegularPages).Pages }}{{ .RelPermalink }}|{{ .Title }}|{{ end }}$
 -- layouts/_default/single.html --
+Single: .Site: {{ .Site }} 
 Single: {{ .Title }}|{{ .Content }}|
 Single Partial Cached: {{ partialCached "pcached" . }}|
 Page.Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
@@ -828,6 +830,7 @@ Partial P1.
 Partial Pcached.
 -- layouts/shortcodes/include.html --
 {{ $p := site.GetPage (.Get 0)}}
+.Page.Site: {{ .Page.Site }} :: site: {{ site }}
 {{ with $p }}
 Shortcode Include: {{ .Title }}|
 {{ end }}
@@ -839,8 +842,6 @@ Shortcode Partial P1: {{ partial "p1" . }}|
 Codeblock Include: {{ .Title }}|
 {{ end }}
 
-
-
 `
 
 	b := NewIntegrationTestBuilder(
@@ -848,11 +849,11 @@ Codeblock Include: {{ .Title }}|
 			T:           t,
 			TxtarString: files,
 			Running:     true,
+			Verbose:     false,
 			BuildCfg: BuildCfg{
 				testCounters: &buildCounters{},
 			},
-			// Verbose:     true,
-			// LogLevel: logg.LevelTrace,
+			LogLevel: logg.LevelWarn,
 		},
 	).Build()
 

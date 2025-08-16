@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/bep/logg"
-	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
 	"github.com/spf13/afero"
@@ -118,7 +117,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		logFilesProcessed(true)
 	}()
 
-	c.g = rungroup.Run[hugofs.FileMetaInfo](c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
+	c.g = rungroup.Run(c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
 		NumWorkers: numWorkers,
 		Handle: func(ctx context.Context, fi hugofs.FileMetaInfo) error {
 			numPages, numResources, err := c.m.AddFi(fi, c.buildConfig)
@@ -131,6 +130,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 			if numFilesProcessedTotal.Load()%1000 == 0 {
 				logFilesProcessed(false)
 			}
+
 			return nil
 		},
 	})
@@ -251,6 +251,8 @@ func (c *pagesCollector) collectDir(dirPath *paths.Path, isDir bool, inFilter fu
 }
 
 func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, inFilter func(fim hugofs.FileMetaInfo) bool) error {
+	ctx := context.Background()
+
 	filter := func(fim hugofs.FileMetaInfo) bool {
 		if inFilter != nil {
 			return inFilter(fim)
@@ -258,7 +260,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 		return true
 	}
 
-	preHook := func(dir hugofs.FileMetaInfo, path string, readdir []hugofs.FileMetaInfo) ([]hugofs.FileMetaInfo, error) {
+	preHook := func(ctx context.Context, dir hugofs.FileMetaInfo, path string, readdir []hugofs.FileMetaInfo) ([]hugofs.FileMetaInfo, error) {
 		filtered := readdir[:0]
 		for _, fi := range readdir {
 			if filter(fi) {
@@ -308,13 +310,13 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 		}
 
 		if firstPi.IsLeafBundle() {
-			if err := c.handleBundleLeaf(dir, first, path, readdir); err != nil {
+			if err := c.handleBundleLeaf(ctx, dir, first, path, readdir); err != nil {
 				return nil, err
 			}
 			return nil, filepath.SkipDir
 		}
 
-		seen := map[hstrings.Strings2]hugofs.FileMetaInfo{}
+		// seen := map[types.Strings2]hugofs.FileMetaInfo{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
@@ -327,21 +329,19 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			// These would eventually have been filtered out as duplicates when
 			// inserting them into the document store,
 			// but doing it here will preserve a consistent ordering.
-			baseLang := hstrings.Strings2{pi.Base(), meta.Lang}
+			// TODO1
+			/*baseLang := types.Strings2{pi.Base(), meta.Lang}
 			if fi2, ok := seen[baseLang]; ok {
 				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {
 					c.logger.Warnf("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
 				}
-				continue
+				// TODO1 lang continue
 			}
 			seen[baseLang] = fi
+			*/
 
 			if pi == nil {
 				panic(fmt.Sprintf("no path info for %q", meta.Filename))
-			}
-
-			if meta.Lang == "" {
-				panic("lang not set")
 			}
 
 			if err := c.g.Enqueue(fi); err != nil {
@@ -355,7 +355,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 	var postHook hugofs.WalkHook
 
-	wfn := func(path string, fi hugofs.FileMetaInfo) error {
+	wfn := func(ctx context.Context, path string, fi hugofs.FileMetaInfo) error {
 		return nil
 	}
 
@@ -366,6 +366,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			Info:       root,
 			Fs:         c.fs,
 			IgnoreFile: c.h.SourceSpec.IgnoreFile,
+			Ctx:        ctx,
 			PathParser: c.h.Conf.PathParser(),
 			HookPre:    preHook,
 			HookPost:   postHook,
@@ -375,11 +376,10 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 	return w.Walk()
 }
 
-func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
+func (c *pagesCollector) handleBundleLeaf(ctx context.Context, dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
 	bundlePi := bundle.Meta().PathInfo
-	seen := map[hstrings.Strings2]bool{}
 
-	walk := func(path string, info hugofs.FileMetaInfo) error {
+	walk := func(ctx context.Context, path string, info hugofs.FileMetaInfo) error {
 		if info.IsDir() {
 			return nil
 		}
@@ -387,6 +387,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 		pi := info.Meta().PathInfo
 
 		if info != bundle {
+			// TODO1 remove this, should no longer be needed.
 			// Everything inside a leaf bundle is a Resource,
 			// even the content pages.
 			// Note that we do allow index.md as page resources, but not in the bundle root.
@@ -399,11 +400,13 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 		// These would eventually have been filtered out as duplicates when
 		// inserting them into the document store,
 		// but doing it here will preserve a consistent ordering.
-		baseLang := hstrings.Strings2{pi.Base(), info.Meta().Lang}
+		// TODO1
+		/*baseLang := types.Strings2{pi.Base(), info.Meta().Lang}
 		if seen[baseLang] {
-			return nil
+			// TODO1 return nil
 		}
 		seen[baseLang] = true
+		*/
 
 		return c.g.Enqueue(info)
 	}
@@ -416,6 +419,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 			Logger:     c.logger,
 			Info:       dir,
 			DirEntries: readdir,
+			Ctx:        ctx,
 			IgnoreFile: c.h.SourceSpec.IgnoreFile,
 			PathParser: c.h.Conf.PathParser(),
 			WalkFn:     walk,

@@ -437,10 +437,11 @@ func TestPartialWithReturn(t *testing.T) {
 	}
 
 	c.Run("Return", func(c *qt.C) {
-		b := newBuilder(c)
+		for range 2 {
+			b := newBuilder(c)
 
-		b.WithTemplatesAdded(
-			"index.html", `
+			b.WithTemplatesAdded(
+				"index.html", `
 Test Partials With Return Values:
 
 add42: 50: {{ partial "add42.tpl" 8 }}
@@ -449,18 +450,19 @@ dollarContext: 60: {{ partial "dollarContext.tpl" 18 }}
 adder: 70: {{ partial "dict.tpl" (dict "adder" 28) }}
 complex: 80: {{ partial "complex.tpl" 38 }}
 `,
-		)
+			)
 
-		b.CreateSites().Build(BuildCfg{})
+			b.CreateSites().Build(BuildCfg{})
 
-		b.AssertFileContent("public/index.html", `
+			b.AssertFileContent("public/index.html", `
 add42: 50: 50
 hello world: hello world
 dollarContext: 60: 60
 adder: 70: 70
 complex: 80: 80
 `,
-		)
+			)
+		}
 	})
 }
 

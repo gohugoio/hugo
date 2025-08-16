@@ -53,6 +53,6 @@ title: "Bundle De"
 		"Bundle all translations: en|fr|de|$",
 		"Bundle translations: fr|de|$",
 		"Site languages: en|fr|de|$",
-		"Sites: fr|en|de|$",
+		"Sites: en|fr|de|$", // TODO1 create issue about this sort order change.
 	)
 }

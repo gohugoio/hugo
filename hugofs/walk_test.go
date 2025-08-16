@@ -116,7 +116,7 @@ func TestWalkRootMappingFs(t *testing.T) {
 func collectPaths(fs afero.Fs, root string) ([]string, error) {
 	var names []string
 
-	walkFn := func(path string, info FileMetaInfo) error {
+	walkFn := func(ctx context.Context, path string, info FileMetaInfo) error {
 		if info.IsDir() {
 			return nil
 		}
@@ -135,7 +135,7 @@ func collectPaths(fs afero.Fs, root string) ([]string, error) {
 func collectFileinfos(fs afero.Fs, root string) ([]FileMetaInfo, error) {
 	var fis []FileMetaInfo
 
-	walkFn := func(path string, info FileMetaInfo) error {
+	walkFn := func(ctx context.Context, path string, info FileMetaInfo) error {
 		fis = append(fis, info)
 
 		return nil
@@ -169,7 +169,7 @@ func BenchmarkWalk(b *testing.B) {
 	writeFiles("root/l1_2/l2_1", numFilesPerDir)
 	writeFiles("root/l1_3", numFilesPerDir)
 
-	walkFn := func(path string, info FileMetaInfo) error {
+	walkFn := func(ctx context.Context, path string, info FileMetaInfo) error {
 		if info.IsDir() {
 			return nil
 		}

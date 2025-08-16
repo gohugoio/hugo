@@ -71,7 +71,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 			return fmt.Errorf("language %q not found", c.lang)
 		}
 	} else {
-		config = conf.configs.LanguageConfigSlice[0]
+		config = conf.configs.LanguageConfigMap[conf.configs.Base.DefaultContentLanguage]
 	}
 
 	var buf bytes.Buffer

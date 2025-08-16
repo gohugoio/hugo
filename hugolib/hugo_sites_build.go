@@ -161,7 +161,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		}
 	}
 
-	for _, s := range h.Sites {
+	for s := range h.allSites() {
 		s.state = siteStateReady
 	}
 
@@ -235,7 +235,7 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 		return errors.New("rebuild called when not in watch mode")
 	}
 
-	h.pageTrees.treePagesResources.WalkPrefixRaw("", func(key string, n contentNodeI) bool {
+	h.pageTrees.treePagesResources.WalkPrefixRaw("", func(key string, n contentNode) bool {
 		n.resetBuildState()
 		return false
 	})
@@ -286,22 +286,28 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	h.translationKeyPages.Reset()
-	assemblers := make([]*sitePagesAssembler, len(h.Sites))
+	var assemblers []*sitePagesAssembler
 	// Changes detected during assembly (e.g. aggregate date changes)
-
-	for i, s := range h.Sites {
-		assemblers[i] = &sitePagesAssembler{
-			Site:            s,
+	for s := range h.allSites() {
+		assemblers = append(assemblers, &sitePagesAssembler{
+			s:               s,
 			assembleChanges: bcfg.WhatChanged,
 			ctx:             ctx,
-		}
+		})
 	}
 
 	g, _ := h.workersSite.Start(ctx)
+	firstAssembler := assemblers[0]
+	if err := firstAssembler.createPages(firstAssembler.s.pageMap.treePages); err != nil {
+		return err
+	}
+	if err := firstAssembler.createPages(firstAssembler.s.pageMap.treeResources); err != nil {
+		return err
+	}
 	for _, s := range assemblers {
 		s := s
 		g.Run(func() error {
-			return s.assemblePagesStep1(ctx)
+			return s.assemblePagesStep1()
 		})
 	}
 	if err := g.Wait(); err != nil {
@@ -333,8 +339,8 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	h.renderFormats = output.Formats{}
-	for _, s := range h.Sites {
-		s.s.initRenderFormats()
+	for s := range h.allSites() {
+		s.initRenderFormats()
 		h.renderFormats = append(h.renderFormats, s.renderFormats...)
 	}
 
@@ -374,14 +380,16 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 	}
 
 	i := 0
-	for _, s := range h.Sites {
+
+	// TODO1 h.Sites = r
+	for s := range h.allSites() {
 		segmentFilter := s.conf.C.SegmentFilter
+		// TODO1 revise vs versions and roles and new Glob setup.
 		if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
 			l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
 			continue
 		}
-
-		siteRenderContext.languageIdx = s.languagei
+		siteRenderContext.languageIdx = s.siteVector.Language()
 		h.currentSite = s
 		for siteOutIdx, renderFormat := range s.renderFormats {
 			if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
@@ -402,7 +410,7 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 				case <-h.Done():
 					return nil
 				default:
-					for _, s2 := range h.Sites {
+					for s2 := range h.allSites() {
 						if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
 							return err
 						}
@@ -432,6 +440,7 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 			}
 
 		}
+
 	}
 
 	return nil
@@ -926,7 +935,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 							prefix := pathInfo.Base() + "/"
 							h.pageTrees.treePages.DeletePrefixAll(prefix)
 							h.pageTrees.resourceTrees.DeletePrefixAll(prefix)
-							changes = append(changes, identity.NewGlobIdentity(prefix+"*"))
+							changes = append(changes, glob.NewGlobIdentity(prefix+"*"))
 						}
 						return err != nil
 					})
@@ -980,7 +989,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 					changes = append(changes, identity.GenghisKhan)
 				}
 				if strings.Contains(base, "shortcodes") {
-					changes = append(changes, identity.NewGlobIdentity(fmt.Sprintf("shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
+					changes = append(changes, glob.NewGlobIdentity(fmt.Sprintf("shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
 				} else {
 					changes = append(changes, pathInfo)
 				}
