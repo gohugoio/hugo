@@ -1,8 +1,15 @@
 {
   "version": "0.2",
   "allowCompoundWords": true,
-  "files": [
-    "**/*.md"
+  "overrides": [
+    {
+      "filename": "**/*",
+      "enabled": false
+    },
+    {
+      "filename": "**/*.md",
+      "enabled": true
+    }
   ],
   "flagWords": [
     "alot",
@@ -13,7 +20,6 @@
     "teh"
   ],
   "ignorePaths": [
-    "**/*.ai",
     "**/emojis.md",
     "**/commands/*",
     "**/showcase/*",
@@ -102,6 +108,8 @@
     "descripción",
     "dokumentation",
     "erklärungen",
+    "español",
+    "français",
     "libros",
     "mercredi",
     "miesiąc",
