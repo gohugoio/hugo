@@ -68,8 +68,6 @@ See the [features] section of the documentation for a comprehensive summary of H
   <a href="https://www.linode.com/?utm_campaign=hugosponsor&utm_medium=banner&utm_source=hugogithub" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/linode-logo_standard_light_medium.png" width="200" alt="Linode"></a>
 &nbsp;&nbsp;&nbsp;
   <a href="https://www.jetbrains.com/go/?utm_source=OSS&utm_medium=referral&utm_campaign=hugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/goland.svg" width="200" alt="The complete IDE crafted for professional Go developers."></a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="https://pinme.eth.limo/?s=hugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/logo-pinme.svg" width="200" alt="PinMe."></a>
 </p>
 
 ## Editions
