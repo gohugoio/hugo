@@ -15,7 +15,6 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          debug-only: true # TODO remove once tested
           days-before-stale: 90 # default is 60
           days-before-close: 14 # default is 7
           exempt-all-assignees: true
