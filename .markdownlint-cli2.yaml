@@ -1,6 +1,7 @@
 # Glob patterns to include
 globs:
   - "content/**/*.md"
+
 # Glob patterns to exclude
 ignores:
   - "content/**/commands/**"
