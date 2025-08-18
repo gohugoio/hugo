@@ -106,7 +106,5 @@ Which page methods trigger content rendering?
 [`Paginator`]: /methods/page/paginator/
 [`Store`]: /methods/page/store
 [forum]: https://discourse.gohugo.io
-[forum]: https://discourse.gohugo.io
 [installation]: /installation/
-[requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132

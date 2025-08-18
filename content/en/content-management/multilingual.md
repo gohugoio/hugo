@@ -25,9 +25,9 @@ Considering the following example:
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
 
-Their language is __assigned__ according to the language code added as a __suffix to the file name__.
+Their language is assigned according to the language code added as a suffix to the file name.
 
-By having the same **path and base file name**, the content pieces are __linked__ together as translated pages.
+By having the same path and base file name, the content pieces are linked together as translated pages.
 
 > [!note]
 > If a file has no language code, it will be assigned the default language.
@@ -58,9 +58,9 @@ Considering the following example in conjunction with the configuration above:
 The first file is assigned the English language and is linked to the second.
 The second file is assigned the French language and is linked to the first.
 
-Their language is __assigned__ according to the `content` directory they are __placed__ in.
+Their language is assigned according to the `content` directory they are placed in.
 
-By having the same **path and basename** (relative to their language `content` directory), the content pieces are __linked__ together as translated pages.
+By having the same path and basename (relative to their language `content` directory), the content pieces are linked together as translated pages.
 
 ### Bypassing default linking
 
@@ -76,7 +76,7 @@ Considering the following example:
 translationKey: "about"
 {{< /code-toggle >}}
 
-By setting the `translationKey` front matter parameter to `about` in all three pages, they will be __linked__ as translated pages.
+By setting the `translationKey` front matter parameter to `about` in all three pages, they will be linked as translated pages.
 
 ### Localizing permalinks
 

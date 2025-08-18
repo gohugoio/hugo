@@ -173,6 +173,7 @@ content/
 ```
 
 ### Step 2
+
 Inspect the remote data to determine how to map key-value pairs to front matter fields.\
 <https://gohugo.io/shared/examples/data/books.json>
 

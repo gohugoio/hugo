@@ -148,7 +148,5 @@ For examples of how to install Dart Sass in a production environment, see the fo
 [Netlify]: /host-and-deploy/host-on-netlify/#configuration-file
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
 [scoop.sh]: https://scoop.sh/#/apps?q=sass
-[site configuration]: /configuration/build/
 [snap package]: /installation/linux/#snap
 [snapcraft.io]: https://snapcraft.io/dart-sass
-[starter workflow]: https://github.com/actions/starter-workflows/blob/main/pages/hugo.yml

@@ -9,7 +9,6 @@ aliases: [/templates/shortcode-templates/]
 
 {{< newtemplatesystem >}}
 
-
 > [!note]
 > Before creating custom shortcodes, please review the [shortcodes] page in the [content management] section. Understanding the usage details will help you design and create better templates.
 

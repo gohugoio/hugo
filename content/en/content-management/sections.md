@@ -53,7 +53,7 @@ The example above has two top-level sections: articles and products. None of the
 
 Sections and non-sections behave differently.
 
-||Sections|Non-sections
+&nbsp;|Sections|Non-sections
 :--|:-:|:-:
 Directory names become URL segments|:heavy_check_mark:|:heavy_check_mark:
 Have logical ancestors and descendants|:heavy_check_mark:|:x:

@@ -164,7 +164,7 @@ The second file implements a more complex scenario: having your website sources 
 Since this action involves more than one repository, it will require a bit more preparation:
 
 1. Create the target repository. Name it `pages`.
-2. Generate a new SSH key. *Do not* use any of your own SSH keys for this, but generate one for this specific task only. On Linux, BSD, and, likely, other operating systems, you can open a terminal emulator and run the following command to generate the key:
+1. Generate a new SSH key. Do not use any of your own SSH keys for this, but generate one for this specific task only. On Linux, BSD, and, likely, other operating systems, you can open a terminal emulator and run the following command to generate the key:
 
    ```shell
    ssh-keygen -f pagesbuild -P ""
@@ -172,9 +172,9 @@ Since this action involves more than one repository, it will require a bit more 
 
    This will generate two files in your current directory: `pagesbuild` (private key) and `pagesbuild.pub` (public key).
 
-3. Add the newly generated public key as a deploy key to your `pages` repository: navigate to its Settings, click on "Deploy keys" in the left menu, click the "Add deploy key" button, give it a name (e.g. "Actions deploy key"), paste the contents of the **public** key file (`pagesbuild.pub`) to the Content field, tick the "Enable write access" checkbox, then submit the form.
-4. Navigate back to your source repository settings, expand the "Actions" menu and click on "Secrets". Then click "Add Secret", enter "DEPLOY_KEY" as the secret name and paste the contents of the newly generated **private** key file (`pagesbuild`) into the Value field.
-5. Navigate to the "Variables" submenu of the "Actions" menu and add the following variables:
+1. Add the newly generated public key as a deploy key to your `pages` repository: navigate to its Settings, click on "Deploy keys" in the left menu, click the "Add deploy key" button, give it a name (e.g. "Actions deploy key"), paste the contents of the **public** key file (`pagesbuild.pub`) to the Content field, tick the "Enable write access" checkbox, then submit the form.
+1. Navigate back to your source repository settings, expand the "Actions" menu and click on "Secrets". Then click "Add Secret", enter "DEPLOY_KEY" as the secret name and paste the contents of the newly generated **private** key file (`pagesbuild`) into the Value field.
+1. Navigate to the "Variables" submenu of the "Actions" menu and add the following variables:
 
 Name|Value
 :--|:--
@@ -259,9 +259,11 @@ Once you commit one of the two files to your website source repository, you shou
 
 Codeberg Pages relies on a `.domains` file to identify allowed domains for a specific branch. It's important that this file is located in the root directory of your output repository or branch, rather than in the root directory of your source files. To achieve this, simply place your `.domains` file in the `static` directory of your project. When your site is built, it will be automatically copied to the `public` directory, which serves as the root of your output.
 
-When looking at the example `.forgejo/workflows/hugo.yaml`, you'll notice that the `upload-artifact@v3` action is used to upload the public directory to the deployment branch. By default, both `upload-artifact@v3` and `upload-artifact@v4` exclude all dot files from being uploaded unless you specifically tell them not to (you can find more details [here]). To make sure dot files are included, modify your workflow like this:
+When looking at the example `.forgejo/workflows/hugo.yaml`, you'll notice that the `upload-artifact@v3` action is used to upload the public directory to the deployment branch.
 
-[here]: https://github.com/actions/upload-artifact/issues/602
+By default, both `upload-artifact@v3` and `upload-artifact@v4` exclude all dot files from being uploaded unless you specifically tell them not to (you can find more details [here]).
+
+By default, upload-artifact@v3 and upload-artifact@v4 exclude all dot files from being uploaded. You can find more details on [how to handle dot files and other file patterns in the documentation](https://github.com/actions/upload-artifact/issues/602). To make sure dot files are included, modify your workflow like this:
 
 ```yaml {file=".forgejo/workflows/hugo.yaml" copy=true}
       - name: Upload generated files

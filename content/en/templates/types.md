@@ -69,7 +69,7 @@ Hugo can apply a _base_ template to the following template types: [home](#home),
 > [!note]
 > If a template doesn't meet all these criteria, Hugo executes it exactly as provided, without applying a _base_ template.
 
-When Hugo applies a _base_ template, it replaces its `block` actions with content from the corresponding `define` actions found in the template to which the base template is applied.
+When Hugo applies a _base_ template, it replaces its [`block`] actions with content from the corresponding `define` actions found in the template to which the base template is applied.
 
 For example, the _base_ template below calls the [`partial`] function to include `head`, `header`, and `footer` elements. The `block` action acts as a placeholder, and its content will be replaced by a matching `define` action  from the template to which it is applied.
 
@@ -393,7 +393,6 @@ Use other specialized templates to create:
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includeCached/
 [`Render`]: /methods/page/render/
-[`Taxonomy`]: /methods/taxonomy/
 [`Term`]: /methods/page/data/#term
 [`Terms`]: /methods/page/data/#terms
 [taxonomy-plural]: /methods/page/data/#plural

@@ -49,4 +49,4 @@ Add your own domains to your site easily using 21YunBox's [custom domains](https
 
 ## Support
 
-Click [here](https://www.21cloudbox.com/contact.html) to contact with 21YunBox' experts if you need help.
+You can [contact 21YunBox's experts](https://www.21cloudbox.com/contact.html) if you need help.

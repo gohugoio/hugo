@@ -48,4 +48,3 @@ Use with the [`template`] function:
 [`block`]: /functions/go-template/block/
 [`template`]: /functions/go-template/block/
 [`partial`]: /functions/partials/include/
-[template comments]: /templates/introduction/#comments

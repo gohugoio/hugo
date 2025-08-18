@@ -8,7 +8,7 @@ byline: "[Trys Mudford](http://www.trysmudford.com), Lead Developer, Tomango"
 
 We've just launched a shiny new website for [Hartwell Insurance](https://www.hartwell-insurance.com/). I'm really proud of it. It was tackled in a different way to most previous Tomango site builds, using some fancy new tools and some vintage web standards.
 
-It's a multi-page, single-page (!) website written in Hugo, a static site generator built with performance as a first-class feature. _I've outlined a load of benefits to Hugo & static sites [here](https://why-static.netlify.com/), in case you're interested._
+It's a multi-page, single-page (!) website written in Hugo, a static site generator built with performance as a first-class feature. I've outlined a load of benefits to Hugo and static sites [on a page explaining the benefits of static sites](https://why-static.netlify.com/), in case you're interested.
 
 > **In essence, a static site generator pre-renders the whole site into HTML files and serves them like it's 1995.**
 

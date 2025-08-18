@@ -11,6 +11,7 @@ aliases: [/hugo-modules/configuration/]
 
 This is the default configuration:
 
+<!-- markdownlint-disable MD049 -->
 {{< code-toggle file=hugo >}}
 [module]
 noProxy = 'none'
@@ -20,6 +21,7 @@ proxy = 'direct'
 vendorClosest = false
 workspace = 'off'
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD049 -->
 
 auth
 : {{< new-in 0.144.0 />}}
@@ -80,8 +82,6 @@ max
 min
 : (`string`) The minimum Hugo version supported, for example `0.102.0`.
 
-[`themesDir`]: /configuration/all/#themesdir
-
 ## Imports
 
 {{< code-toggle file=hugo >}}
@@ -111,8 +111,6 @@ noVendor
 
 path
 : (`string`) The module path, either a valid Go module path (e.g., `github.com/gohugoio/myShortcodes`) or the directory name if stored in the [`themesDir`].
-
-[`themesDir`]: /configuration/all#themesDir
 
 {{% include "/_common/gomodules-info.md" %}}
 
@@ -177,3 +175,5 @@ excludeFiles
     source="assets"
     target="assets"
 {{< /code-toggle >}}
+
+[`themesDir`]: /configuration/all/#themesdir

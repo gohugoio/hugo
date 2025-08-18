@@ -47,7 +47,7 @@ to
 
 ## Headers
 
-Include headers in every server response to facilitate testing, particularly for features like Content Security Policies.
+Include headers in every server response to facilitate testing, particularly for features like [Content Security Policies].
 
 [Content Security Policies]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
 

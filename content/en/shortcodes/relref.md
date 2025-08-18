@@ -59,7 +59,6 @@ Rendered:
 
 {{% include "_common/ref-and-relref-error-handling.md" %}}
 
-[content format]: /content-management/formats/
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
 [embedded link render hook]: /render-hooks/links/#embedded
 [Markdown notation]: /content-management/shortcodes/#notation

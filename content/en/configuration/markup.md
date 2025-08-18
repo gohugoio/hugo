@@ -47,10 +47,10 @@ Extension|Documentation|Enabled
 :--|:--|:-:
 `cjk`|[Goldmark Extensions: CJK]|:heavy_check_mark:
 `definitionList`|[PHP Markdown Extra: Definition lists]|:heavy_check_mark:
-`extras`|[Hugo Goldmark Extensions: Extras]||
+`extras`|[Hugo Goldmark Extensions: Extras]|&nbsp;
 `footnote`|[PHP Markdown Extra: Footnotes]|:heavy_check_mark:
 `linkify`|[GitHub Flavored Markdown: Autolinks]|:heavy_check_mark:
-`passthrough`|[Hugo Goldmark Extensions: Passthrough]||
+`passthrough`|[Hugo Goldmark Extensions: Passthrough]|&nbsp;
 `strikethrough`|[GitHub Flavored Markdown: Strikethrough]|:heavy_check_mark:
 `table`|[GitHub Flavored Markdown: Tables]|:heavy_check_mark:
 `taskList`|[GitHub Flavored Markdown: Task list items]|:heavy_check_mark:
@@ -117,7 +117,7 @@ Markdown|Replaced by|Description
 `”`|`&rdquo;`|right double quote
 `’`|`&rsquo;`|right single quote
 
-### Settings explained
+### Goldmark settings explained
 
 Most of the Goldmark settings above are self-explanatory, but some require explanation.
 
@@ -193,7 +193,7 @@ This is the default configuration for the AsciiDoc renderer:
 
 {{< code-toggle config=markup.asciidocExt />}}
 
-### Settings explained
+### AsciiDoc settings explained
 
 attributes
 : (`map`) A map of key-value pairs, each a document attribute. See Asciidoctor's [attributes].
@@ -320,7 +320,6 @@ endLevel
 
 ordered
 : (`bool`) Whether to generates an ordered list instead of an unordered list. Default is `false`.
-
 
 [`Fragments.Identifiers`]: /methods/page/fragments/#identifiers
 [`TableOfContents`]: /methods/page/tableofcontents/

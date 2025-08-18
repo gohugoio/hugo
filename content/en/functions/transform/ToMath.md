@@ -45,14 +45,14 @@ fleqn
 macros
 : (`map`) A map of macros to be used in the math expression. Default is `{}`.
 
-    ```go-html-template
-    {{ $macros := dict
-      "\\addBar" "\\bar{#1}"
-      "\\bold" "\\mathbf{#1}"
-    }}
-    {{ $opts := dict "macros" $macros }}
-    {{ transform.ToMath "\\addBar{y} + \\bold{H}" $opts }}
-    ```
+  ```go-html-template
+  {{ $macros := dict
+    "\\addBar" "\\bar{#1}"
+    "\\bold" "\\mathbf{#1}"
+  }}
+  {{ $opts := dict "macros" $macros }}
+  {{ transform.ToMath "\\addBar{y} + \\bold{H}" $opts }}
+  ```
 
 minRuleThickness
 : (`float`) The minimum thickness of the fraction lines in `em`. Default is `0.04`.
@@ -60,10 +60,10 @@ minRuleThickness
 output
 : (`string`) Determines the markup language of the output, one of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
 
-    With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
+  With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
 
-    ```html
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+  ```html
+  <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
 
 strict
 : {{< new-in 0.147.6 />}}
@@ -73,10 +73,7 @@ strict
   - `ignore`: Allows convenient, unsupported LaTeX features without any feedback.
   - `warn`: {{< new-in 0.147.7 />}} Emits a warning when convenient, unsupported LaTeX features are encountered.
 
-: The `newLineInDisplayMode` error code, which flags the use of `\\`
-or `\newline` in display mode outside an array or tabular environment, is
-intentionally designed not to throw an error, despite this behavior
-being questionable.
+  The `newLineInDisplayMode` error code, which flags the use of `\\` or `\newline` in display mode outside an array or tabular environment, is intentionally designed not to throw an error, despite this behavior being questionable.
 
 throwOnError
 : (`bool`) Whether to throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
@@ -99,6 +96,8 @@ Instead of client-side JavaScript rendering of mathematical markup using MathJax
 
 Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
+[passthrough extension]: /configuration/markup/#passthrough
+
 {{< code-toggle file=hugo copy=true >}}
 [markup.goldmark.extensions.passthrough]
 enable = true
@@ -114,6 +113,8 @@ inline = [['\(', '\)']]
 ### Step 2
 
 Create a [passthrough render hook] to capture and render the LaTeX markup.
+
+[passthrough render hook]: /render-hooks/passthrough/
 
 ```go-html-template {file="layouts/_markup/render-passthrough.html" copy=true}
 {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
@@ -172,6 +173,4 @@ $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 [KaTeX]: https://katex.org/
 [MathML]: https://developer.mozilla.org/en-US/docs/Web/MathML
 [mhchem]: https://mhchem.github.io/MathJax-mhchem/
-[passthrough extension]: /configuration/markup/#passthrough
-[passthrough render hook]: /render-hooks/passthrough/
 [rendering options]: https://katex.org/docs/options.html

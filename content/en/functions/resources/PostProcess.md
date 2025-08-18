@@ -17,9 +17,9 @@ The `resources.PostProcess` function delays resource transformation steps until 
 In this example, after the build is complete, Hugo will:
 
 1. Purge unused CSS using the [PurgeCSS] plugin for [PostCSS]
-2. Add vendor prefixes to CSS rules using the [Autoprefixer] plugin for PostCSS
-3. [Minify] the CSS
-4. [Fingerprint] the CSS
+1. Add vendor prefixes to CSS rules using the [Autoprefixer] plugin for PostCSS
+1. [Minify] the CSS
+1. [Fingerprint] the CSS
 
 Step 1
 : Install [Node.js].

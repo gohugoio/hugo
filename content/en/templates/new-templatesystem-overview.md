@@ -1,4 +1,3 @@
-
 ---
 title: New template system in Hugo v0.146.0
 linktitle: New template system
@@ -50,9 +49,9 @@ The identifiers used in the template weighting, in order of importance, are:
 
 For templates placed in a `layouts` folder partly or completely matching a [Page path], a closer match upwards will be considered _better_. In the [Example folder structure] below, this means that:
 
-* `layouts/docs/api/_markup/render-link.html` will be used to render links from the Page path `/docs/api` and below.
-* `layouts/docs/baseof.html` will be used as the base template for the Page path `/docs` and below.
-* `layouts/tags/term.html` will be used for all `term` rendering in the `tags` taxonomy, except for the `blue` term, which will use `layouts/tags/blue/list.html`.
+- `layouts/docs/api/_markup/render-link.html` will be used to render links from the Page path `/docs/api` and below.
+- `layouts/docs/baseof.html` will be used as the base template for the Page path `/docs` and below.
+- `layouts/tags/term.html` will be used for all `term` rendering in the `tags` taxonomy, except for the `blue` term, which will use `layouts/tags/blue/list.html`.
 
 ## Example folder structure
 

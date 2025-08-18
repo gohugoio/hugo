@@ -174,7 +174,7 @@ sudo xbps-install -S hugo
 
 ## Comparison
 
-||Prebuilt binaries|Package managers|Repository packages|Build from source
+&nbsp;|Prebuilt binaries|Package managers|Repository packages|Build from source
 :--|:--:|:--:|:--:|:--:
 Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
 Easy to upgrade?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_check_mark:

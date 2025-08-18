@@ -107,7 +107,7 @@ pages:
 
 ## Push your Hugo website to GitLab
 
-Next, create a new repository on GitLab. It is *not* necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
+Next, create a new repository on GitLab. It is not necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
 
 ```sh
 # initialize new git repository

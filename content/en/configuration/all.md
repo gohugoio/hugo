@@ -339,7 +339,6 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [`MainSections`]: /methods/site/mainsections/
 [`segments`]: /configuration/segments/
 [`strings.Title`]: /functions/strings/title/
-[`strings.Title`]: /functions/strings/title
 [`Summary`]: /methods/page/summary/
 [`time.AsTime`]: /functions/time/astime/
 [`time.Format`]: /functions/time/format/

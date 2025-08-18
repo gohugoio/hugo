@@ -92,7 +92,6 @@ hugo --logLevel info
 ```
 
 [AsciiDoc]: https://asciidoc.org/
-[configure the AsciiDoc renderer]: /configuration/markup/#asciidoc
 [configure asciidoc]: /configuration/markup/#asciidoc
 
 ### Pandoc

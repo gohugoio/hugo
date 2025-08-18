@@ -1,6 +1,6 @@
 # Glob patterns to include
 globs:
-  - "content/**/*.md"
+  - "content/**/*.md" # the
 
 # Glob patterns to exclude
 ignores:

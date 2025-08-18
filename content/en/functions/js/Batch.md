@@ -270,8 +270,8 @@ In a template you would typically handle one group with a given `ID` (e.g. scrip
 
 In the official documentation for ESBuild's [code splitting], there's a warning note in the header. The two issues are:
 
-  - `esm` is currently the only implemented output format. This means that it will not work for very old browsers. See [caniuse](https://caniuse.com/?search=ESM).
-  - There's a known import ordering issue.
+- `esm` is currently the only implemented output format. This means that it will not work for very old browsers. See [caniuse](https://caniuse.com/?search=ESM).
+- There's a known import ordering issue.
 
 We have not seen the ordering issue as a problem during our [extensive testing](https://github.com/bep/hugojsbatchdemo) of this new feature with different libraries. There are two main cases:
 
@@ -290,7 +290,6 @@ console.log('entrypoints-workaround.js');
 [`Resource`]: /methods/resource/
 [`Resources.Mount`]: /methods/page/resources/#mount
 [`Resources`]: /methods/page/resources/
-[`templates.Defer`]: /functions/templates/defer/
 [`templates.Defer`]: /functions/templates/defer/
 [build options]: #build-options
 [code splitting]: https://esbuild.github.io/api/#splitting

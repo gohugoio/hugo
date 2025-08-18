@@ -35,7 +35,6 @@ npm install --save-dev tailwindcss @tailwindcss/cli
 
 The Tailwind CSS CLI is also available as a [standalone executable]. You must install it outside of your project directory and ensure its path is included in your system's `PATH` environment variable.
 
-
 [standalone executable]: https://github.com/tailwindlabs/tailwindcss/releases/latest
 
 ### Step 2

@@ -168,7 +168,6 @@ Netlify|Deep|N/A
 Render|Shallow|Yes [^1]
 Vercel|Shallow|Yes [^1]
 
-
 [^1]: To perform a deep clone when hosting on Cloudflare, Render, or Vercel, include this code in the build script after the repository has been cloned:
 
     ```text
@@ -180,9 +179,6 @@ Vercel|Shallow|Yes [^1]
 [^2]: To perform a deep clone when hosting on GitHub Pages, set `fetch-depth: 0` in the `checkout` step of the GitHub Action. See [example](/host-and-deploy/host-on-github-pages/#step-7).
 
 [^3]: To perform a deep clone when hosting on GitLab Pages, set the `GIT_DEPTH` environment variable to `0` in the workflow file. See [example](/host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd).
-
-
-[^3]: You can configure the GitLab Runner's clone depth [as explained in the GitLab documentation](https://docs.gitlab.com/ee/ci/large_repositories/#shallow-cloning); see also the Hugo documentation's [example workflow file](/host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd).
 
 [details]: /configuration/front-matter/#dates
 [gitmailmap]: https://git-scm.com/docs/gitmailmap

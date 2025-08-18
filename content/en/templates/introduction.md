@@ -9,7 +9,6 @@ weight: 10
 
 {{< newtemplatesystem >}}
 
-
 {{% glossary-term template %}}
 
 Templates use [variables], [functions], and [methods] to transform your content, resources, and data into a published page.
@@ -508,28 +507,23 @@ In the template example above, each of the keys is a valid identifier. For examp
 [`end`]: /functions/go-template/end/
 [`if`]: /functions/go-template/if/
 [`index`]: /functions/collections/indexfunction/
-[`index`]: /functions/collections/indexfunction/
 [`or`]: /functions/go-template/or
 [`Page`]: /methods/page/
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/
-[`range`]: /functions/go-template/range/
 [`range`]: /functions/go-template/range/
 [`safeHTML`]: /functions/safe/html
 [`Site`]: /methods/site/
 [`template`]: /functions/go-template/template/
 [`Title`]: /methods/page/title
 [`with`]: /functions/go-template/with/
-[`with`]: /functions/go-template/with/
 [current context]: #current-context
 [embedded templates]: /templates/embedded/
 [front matter]: /content-management/front-matter/
 [front matter fields]: /content-management/front-matter/#fields
 [functions]: /functions/
-[functions]: /functions
 [go-templates]: /functions/go-template/
 [html/template]: https://pkg.go.dev/html/template
-[methods]: /methods/
 [methods]: /methods/
 [partial templates]: /templates/types/#partial
 [templates]: /templates/

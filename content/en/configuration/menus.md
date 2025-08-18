@@ -96,6 +96,7 @@ url
 
 This nested menu demonstrates some of the available properties:
 
+<!-- markdownlint-disable MD033 -->
 {{< code-toggle file=hugo >}}
 [[menus.main]]
 name = 'Products'
@@ -127,6 +128,7 @@ weight = 30
 [menus.main.params]
 rel = 'external'
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD033 -->
 
 [`Menus`]: /methods/site/menus/
 [Automatically]: /content-management/menus/#define-automatically
