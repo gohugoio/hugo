@@ -67,8 +67,8 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.7
-	github.com/tdewolff/minify/v2 v2.23.8
-	github.com/tdewolff/parse/v2 v2.8.1
+	github.com/tdewolff/minify/v2 v2.23.11
+	github.com/tdewolff/parse/v2 v2.8.2-0.20250806174018-50048bb39781
 	github.com/tetratelabs/wazero v1.9.0
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-emoji v1.0.6
