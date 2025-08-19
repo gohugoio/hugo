@@ -11,7 +11,6 @@ ignores:
 # Markdownlint rules and configuration
 # https://github.com/DavidAnson/markdownlint?tab=readme-ov-file#rules--aliases
 config:
-  # default: false # disable all rules
   MD001: true
   # MD002 deprecated
   MD003:
