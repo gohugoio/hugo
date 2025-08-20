@@ -28,15 +28,15 @@ Create a `wrangler.toml` file in the root of your project.
 ```toml {file="wrangler.toml" copy=true}
 # Configure Cloudflare Worker
 
-name = 'hosting-cloudflare-worker'
-compatibility_date = '2025-07-31'
+name = "hosting-cloudflare-worker"
+compatibility_date = "2025-07-31"
 
 [build]
-command = './build.sh'
+command = "chmod a+x build.sh && ./build.sh"
 
 [assets]
-directory = './public'
-not_found_handling = '404-page'
+directory = "./public"
+not_found_handling = "404"
 ```
 
 ### Step 2
