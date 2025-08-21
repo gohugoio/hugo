@@ -28,12 +28,13 @@ import (
 	"github.com/bep/logg"
 
 	"github.com/bep/godartsass/v2"
-	"github.com/gohugoio/hugo/common/hcontext"
+
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugofs/files"
 
+	"github.com/bep/helpers/contexthelpers"
 	"github.com/spf13/afero"
 
 	iofs "io/fs"
@@ -145,7 +146,7 @@ const (
 	contextKeyMarkupScope contextKey = iota
 )
 
-var markupScope = hcontext.NewContextDispatcher[string](contextKeyMarkupScope)
+var markupScope = contexthelpers.NewContextDispatcher[string](contextKeyMarkupScope)
 
 type Context struct{}
 
