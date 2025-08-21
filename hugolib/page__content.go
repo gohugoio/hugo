@@ -26,8 +26,9 @@ import (
 
 	maps0 "maps"
 
+	"github.com/bep/helpers/contexthelpers"
 	"github.com/bep/logg"
-	"github.com/gohugoio/hugo/common/hcontext"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
@@ -673,7 +674,7 @@ const (
 	contextKeyContentCallback contextKey = iota
 )
 
-var setGetContentCallbackInContext = hcontext.NewContextDispatcher[func(*pageContentOutput, contentTableOfContents)](contextKeyContentCallback)
+var setGetContentCallbackInContext = contexthelpers.NewContextDispatcher[func(*pageContentOutput, contentTableOfContents)](contextKeyContentCallback)
 
 func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfContents, error) {
 	cp := c.pco

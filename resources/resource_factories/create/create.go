@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/helpers/contexthelpers"
+
 	"github.com/bep/logg"
 	"github.com/gohugoio/httpcache"
 	hhttpcache "github.com/gohugoio/hugo/cache/httpcache"
@@ -34,7 +36,7 @@ import (
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/hcontext"
+
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/tasks"
 	"github.com/gohugoio/hugo/resources"
@@ -48,7 +50,7 @@ type Client struct {
 	httpClient           *http.Client
 	httpCacheConfig      hhttpcache.ConfigCompiled
 	cacheGetResource     *filecache.Cache
-	resourceIDDispatcher hcontext.ContextDispatcher[string]
+	resourceIDDispatcher contexthelpers.ContextDispatcher[string]
 
 	// Set when watching.
 	remoteResourceChecker *tasks.RunEvery
@@ -64,7 +66,7 @@ const (
 // New creates a new Client with the given specification.
 func New(rs *resources.Spec) *Client {
 	fileCache := rs.FileCaches.GetResourceCache()
-	resourceIDDispatcher := hcontext.NewContextDispatcher[string](contextKeyResourceID)
+	resourceIDDispatcher := contexthelpers.NewContextDispatcher[string](contextKeyResourceID)
 	httpCacheConfig := rs.Cfg.GetConfigSection("httpCacheCompiled").(hhttpcache.ConfigCompiled)
 	var remoteResourceChecker *tasks.RunEvery
 	if rs.Cfg.Watching() && !httpCacheConfig.IsPollingDisabled() {
