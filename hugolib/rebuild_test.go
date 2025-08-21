@@ -125,6 +125,24 @@ func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b.AssertRenderCountContent(0)
 }
 
+func TestRebuildAddingALeaffBundleIssue13925(t *testing.T) {
+	t.Parallel()
+
+	b := TestRunning(t, rebuildFilesSimple)
+
+	b.AddFiles(
+		"content/mysection/mysectionbundle2/index.md", "",
+		"content/mysection/mysectionbundle2/mysectionbundletext.txt", "mysectionbundletext.txt").Build()
+
+	b.AssertFileContent("public/mysection/mysectionbundle2/index.html", "Len Resources: 1|")
+
+	b.AddFiles(
+		"content/mynewsection/_index.md", "",
+		"content/mynewsection/mynewsectiontext.txt", "foo").Build()
+
+	b.AssertFileContent("public/mynewsection/index.html", "Len Resources: 1|")
+}
+
 func TestRebuildEditTextFileInShortcode(t *testing.T) {
 	t.Parallel()
 	for range 3 {
