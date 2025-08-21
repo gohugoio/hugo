@@ -72,9 +72,17 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 		}
 
 		v, err := ns.cacheUnmarshal.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
-			f := metadecoders.FormatFromStrings(r.MediaType().Suffixes()...)
-			if f == "" {
-				return nil, fmt.Errorf("MIME %q not supported", r.MediaType())
+			var f metadecoders.Format
+			if decoder.Format != "" {
+				f = metadecoders.FormatFromString(decoder.Format)
+				if f == "" {
+					return nil, fmt.Errorf("format %q not supported", decoder.Format)
+				}
+			} else {
+				f = metadecoders.FormatFromStrings(r.MediaType().Suffixes()...)
+				if f == "" {
+					return nil, fmt.Errorf("MIME %q not supported", r.MediaType())
+				}
 			}
 
 			reader, err := r.ReadSeekCloser()
@@ -119,10 +127,22 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 
 	key := hashing.MD5FromStringHexEncoded(dataStr)
 
+	if decoder != metadecoders.Default {
+		key += decoder.OptionsKey()
+	}
+
 	v, err := ns.cacheUnmarshal.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
-		f := decoder.FormatFromContentString(dataStr)
-		if f == "" {
-			return nil, errors.New("unknown format")
+		var f metadecoders.Format
+		if decoder.Format != "" {
+			f = metadecoders.FormatFromString(decoder.Format)
+			if f == "" {
+				return nil, fmt.Errorf("format %q not supported", decoder.Format)
+			}
+		} else {
+			f = decoder.FormatFromContentString(dataStr)
+			if f == "" {
+				return nil, errors.New("unknown format")
+			}
 		}
 
 		v, err := decoder.Unmarshal([]byte(dataStr), f)

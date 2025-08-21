@@ -161,6 +161,7 @@ type CurrentTemplateInfoCommonOps interface {
 type CurrentTemplateInfo struct {
 	Parent *CurrentTemplateInfo
 	Level  int
+	Key    string
 	CurrentTemplateInfoOps
 }
 

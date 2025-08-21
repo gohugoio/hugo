@@ -299,6 +299,32 @@ timeout = '200ms'
 	b.Assert(err.Error(), qt.Contains, `error calling partialCached: circular call stack detected in partial`)
 }
 
+// See Issue #13889
+func TestIncludeCachedDifferentKey(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+baseURL = 'http://example.com/'
+timeout = '200ms'
+-- layouts/index.html --
+{{ partialCached "foo.html" "a" "a" }}
+-- layouts/partials/foo.html --
+{{ if eq . "a" }}
+{{ partialCached "bar.html" . }}
+{{ else }}
+DONE
+{{ end }}
+-- layouts/partials/bar.html --
+{{ partialCached "foo.html" "b" "b" }}
+  `
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+DONE
+`)
+}
+
 // See Issue #10789
 func TestReturnExecuteFromTemplateInPartial(t *testing.T) {
 	t.Parallel()
