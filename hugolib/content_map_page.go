@@ -575,7 +575,8 @@ func (m *pageMap) createResource(ps *pageState, n contentNode) (resource.Resourc
 func (m *pageMap) forEachResourceInPage(
 	ps *pageState,
 	lockType doctree.LockType,
-	exact bool,
+	exact bool, // TODO1 remove.
+	fallback bool,
 	handle func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error),
 ) error {
 	keyPage := ps.Path()
@@ -586,10 +587,11 @@ func (m *pageMap) forEachResourceInPage(
 	isBranch := ps.IsNode()
 
 	rw := &doctree.NodeShiftTreeWalker[contentNode]{
-		Tree:     m.treeResources,
-		Prefix:   prefix,
-		LockType: lockType,
-		Exact:    exact,
+		Tree:            m.treeResources,
+		Prefix:          prefix,
+		LockType:        lockType,
+		Exact:           exact,
+		DelegeeFallback: fallback,
 	}
 
 	rw.Handle = func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
@@ -629,7 +631,7 @@ func (m *pageMap) forEachResourceInPage(
 
 func (m *pageMap) getResourcesForPage(ps *pageState) (resource.Resources, error) {
 	var res resource.Resources
-	m.forEachResourceInPage(ps, doctree.LockTypeNone, false, func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+	m.forEachResourceInPage(ps, doctree.LockTypeNone, false, true, func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
 		switch n := n.(type) {
 		case *resourceSource:
 			if n.r == nil {
@@ -865,7 +867,7 @@ func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (cont
 	}
 }
 
-func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, exact bool, candidates iter.Seq[contentNode]) contentNodeForSite {
+func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, fallback bool, candidates iter.Seq[contentNode]) contentNodeForSite {
 	var (
 		best         contentNodeForSite = nil
 		bestDistance int
@@ -876,13 +878,14 @@ func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, exact b
 		// get stable output. This compare will also make sure that we pick
 		// language, version and role according to their individual sort order:
 		// Closer is better, and matches above are better than matches below.
-		if nn, vec := n.(contentNodeMatcher).matchSiteVector(q, exact); nn != nil {
+		if nn, vec := n.(contentNodeMatcher).matchSiteVector(q, fallback); nn != nil {
 			if q == vec {
 				// Exact match.
 				return nn
 			}
 
 			distance := q.Distance(vec)
+
 			if best == nil {
 				best = nn
 				bestDistance = distance
@@ -936,7 +939,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			}
 		}
 
-		if vv = s.findNodeForSiteVector(siteVector, exact, iter); vv != nil {
+		if vv = s.findNodeForSiteVector(siteVector, delegeeFallback, iter); vv != nil {
 			r.V = vv
 			r.OK = true
 			return
@@ -964,7 +967,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			}
 		}
 	case resourceSourcesSlice:
-		// Consider replacing this and also the page slice with maps,
+		// TODO1 Consider replacing this and also the page slice with maps,
 		// and just iterate and look for an open slot on insert.
 		iter := func(yield func(n contentNode) bool) {
 			for _, vv := range v {
@@ -977,8 +980,8 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			}
 		}
 
-		if vv := s.findNodeForSiteVector(siteVector, exact, iter); vv != nil {
-			if vv.siteVector() != siteVector {
+		if vv := s.findNodeForSiteVector(siteVector, delegeeFallback, iter); vv != nil {
+			if !delegeeFallback && vv.siteVector() != siteVector {
 				r.TransformWillWrite = true
 				r.Transform = func() (contentNode, contentNode, bool, bool) {
 					rc := vv.(*resourceSource)
@@ -1000,7 +1003,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 
 	case *resourceSource:
 		if !v.isPage() { // TODO1 page.
-			if vv, _ := v.matchSiteVector(siteVector, exact); v != nil {
+			if vv, _ := v.matchSiteVector(siteVector, delegeeFallback); v != nil {
 				if vv.siteVector() != siteVector {
 					r.TransformWillWrite = true
 					r.Transform = func() (contentNode, contentNode, bool, bool) {
@@ -2108,6 +2111,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 			err := sa.s.pageMap.forEachResourceInPage(
 				ps, lockType,
 				!duplicateResourceFiles,
+				false,
 				func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
 					rs := n.(*resourceSource)
 
@@ -2181,6 +2185,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						return false, err
 					}
 					rs.r = r
+					rs.svAssigned = true
 					return false, nil
 				},
 			)

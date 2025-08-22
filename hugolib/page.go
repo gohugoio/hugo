@@ -215,9 +215,9 @@ func (ps *pageState) contentWeight() int {
 	return ps.m.contentWeight()
 }
 
-func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, exact bool) (contentNode, sitesmatrix.Vector) {
+func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, fallback bool) (contentNode, sitesmatrix.Vector) {
 	pc := ps.m.pageConfigSource
-	if exact {
+	if !fallback {
 		if !pc.MatchSiteVector(dims) {
 			return nil, sitesmatrix.Vector{}
 		}

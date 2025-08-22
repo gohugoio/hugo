@@ -66,6 +66,10 @@ type resourceSource struct {
 	r resource.Resource
 }
 
+func (r resourceSource) String() string {
+	return fmt.Sprintf("resourceSource: %v(%t)", r.sv, r.svAssigned)
+}
+
 func (r resourceSource) clone() *resourceSource {
 	r.r = nil
 	return &r
@@ -106,24 +110,25 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 	return r.path
 }
 
-func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector, exact bool) (contentNodeForSite, sitesmatrix.Vector) {
+func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector, fallback bool) (contentNodeForSite, sitesmatrix.Vector) {
 	pc := p.rc
 
 	if siteVector == p.sv {
 		return p, p.sv
 	}
 
-	if p.svAssigned {
-		// No need to look further.
-		return nil, sitesmatrix.Vector{}
-	}
+	if !fallback {
+		if p.svAssigned {
+			// No need to look further.
+			return nil, sitesmatrix.Vector{}
+		}
 
-	if exact {
 		if pc.MatchSiteVector(siteVector) {
 			return p, p.siteVector() // TODO1
 		}
 		return nil, sitesmatrix.Vector{}
 	}
+
 	if pc != nil {
 		if !pc.MatchLanguageOrLanguageDelegee(siteVector) {
 			return nil, sitesmatrix.Vector{}
