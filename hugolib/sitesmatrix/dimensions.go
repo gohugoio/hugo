@@ -62,7 +62,7 @@ func (v1 Vector) DotProduct(v2 Vector) int {
 }
 
 // Distance returns the distance between v1 and v2
-// ussing the first dimension that is different.
+// using the first dimension that is different.
 func (v1 Vector) Distance(v2 Vector) int {
 	if v1[0] != v2[0] {
 		return v1[0] - v2[0]

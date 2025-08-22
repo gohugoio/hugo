@@ -16,6 +16,7 @@ package hugolib
 import (
 	"context"
 	"fmt"
+	"iter"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -1134,7 +1135,7 @@ func (m *pageMeta) contentWeight() int {
 	return m.f.FileInfo().Meta().Weight
 }
 
-func (m *pageMeta) matchSiteVector(_ sitesmatrix.Vector, _ bool) (contentNode, sitesmatrix.Vector) {
+func (m *pageMeta) matchSiteVector(_ sitesmatrix.Vector, _ bool) (iter.Seq[contentNodeForSite], sitesmatrix.Vector) {
 	panic("not implemented") // TODO: Implement
 }
 
