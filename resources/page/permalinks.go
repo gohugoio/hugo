@@ -317,12 +317,8 @@ func (l PermalinkExpander) pageToPermalinkSection(p Page, _ string) (string, err
 
 // pageToPermalinkSectionSlug returns the URL-safe form of the first section's slug or title
 func (l PermalinkExpander) pageToPermalinkSectionSlug(p Page, attr string) (string, error) {
-	if p.Section() == "" {
-		return "", nil
-	}
-
-	sectionPage, err := p.GetPage("/" + p.Section())
-	if err != nil {
+	sectionPage := p.FirstSection()
+	if sectionPage == nil || sectionPage.IsHome() {
 		return "", nil
 	}
 	return l.pageToPermalinkSlugElseTitle(sectionPage, attr)
@@ -369,18 +365,16 @@ func (l PermalinkExpander) translationBaseName(p Page) string {
 func (l PermalinkExpander) withSectionPagesFunc(f func(Page, string) (string, error), join func(...string) string) func(p Page, s string) (string, error) {
 	return func(p Page, s string) (string, error) {
 		var entries []string
-		sectionEntries := p.CurrentSection().SectionsEntries()
+		currentSection := p.CurrentSection()
 
-		for i := range sectionEntries {
-			sectionPath := "/" + path.Join(sectionEntries[:i+1]...)
-			section, err := p.GetPage(sectionPath)
-			if err != nil {
-				return "", err
-			}
-			if section == nil {
-				return "", nil
-			}
+		// Build section hierarchy: ancestors (reversed to root-first) + current section
+		sections := currentSection.Ancestors().Reverse()
+		sections = append(sections, currentSection)
 
+		for _, section := range sections {
+			if section.IsHome() {
+				continue
+			}
 			entry, err := f(section, s)
 			if err != nil {
 				return "", err

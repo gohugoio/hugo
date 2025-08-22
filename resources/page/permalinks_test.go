@@ -64,33 +64,44 @@ var testdataPermalinks = []struct {
 	}, "/test-page/"},
 	// slug, title.                                                         // Section slug
 	{"/:sectionslug/", true, func(p *testPage) {
-		p.doGetPage = func(string) Page {
-			return &testPage{slug: "my-slug"}
-		}
+		p.currentSection = &testPage{slug: "my-slug"}
 	}, "/my-slug/"},
 	// slug, title.                                                         // Section slugs
 	{"/:sectionslugs/", true, func(p *testPage) {
-		p.doGetPage = func(ref string) Page {
-			return &testPage{
-				slug: ref[strings.LastIndex(ref, "/")+1:] + "-slug",
-			}
+		// Set up current section with ancestors
+		currentSection := &testPage{
+			slug: "c-slug",
+			kind: "section",
+			ancestors: Pages{
+				&testPage{slug: "b-slug", kind: "section"},
+				&testPage{slug: "a-slug", kind: "section"},
+			},
 		}
+		p.currentSection = currentSection
 	}, "/a-slug/b-slug/c-slug/"},
 	// slice: slug, title.
 	{"/:sectionslugs[0]/:sectionslugs[last]/", true, func(p *testPage) {
-		p.doGetPage = func(ref string) Page {
-			return &testPage{
-				slug: ref[strings.LastIndex(ref, "/")+1:] + "-slug",
-			}
+		currentSection := &testPage{
+			slug: "c-slug",
+			kind: "section",
+			ancestors: Pages{
+				&testPage{slug: "b-slug", kind: "section"},
+				&testPage{slug: "a-slug", kind: "section"},
+			},
 		}
+		p.currentSection = currentSection
 	}, "/a-slug/c-slug/"},
 	// slice: slug, title.
 	{"/:sectionslugs[last]/", true, func(p *testPage) {
-		p.doGetPage = func(ref string) Page {
-			return &testPage{
-				slug: ref[strings.LastIndex(ref, "/")+1:] + "-slug",
-			}
+		currentSection := &testPage{
+			slug: "c-slug",
+			kind: "section",
+			ancestors: Pages{
+				&testPage{slug: "b-slug", kind: "section"},
+				&testPage{slug: "a-slug", kind: "section"},
+			},
 		}
+		p.currentSection = currentSection
 	}, "/c-slug/"},
 	// Failures
 	{"/blog/:fred", false, nil, ""},
