@@ -1,9 +1,8 @@
 ---
-title: Host on Render
-description: Host your site on Render.
+title: Host on Vercel
+description: Host your site on Vercel.
 categories: []
 keywords: []
-aliases: [/hosting-and-deployment/hosting-on-render/]
 ---
 
 Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply if you are using GitLab or Bitbucket for version control.
@@ -12,8 +11,8 @@ Use these instructions to enable continuous deployment from a GitHub repository.
 
 Please complete the following tasks before continuing:
 
-1. [Create](https://dashboard.render.com/register) a Render account
-1. [Log in](https://dashboard.render.com/login) to your Render account
+1. [Create](https://vercel.com/signup) a Vercel account
+1. [Log in](https://vercel.com/login) to your Vercel account
 1. [Create](https://github.com/signup) a GitHub account
 1. [Log in](https://github.com/login) to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
@@ -24,27 +23,14 @@ Please complete the following tasks before continuing:
 
 ### Step 1
 
-Create a [Render Blueprint][] in the root of your project.
+Create a `vercel.json` file in the root of your project.
 
-``` {file="render.yaml" copy=true}
-services:
-  - type: web
-    name: hosting-render
-    repo: https://github.com/jmooring/hosting-render
-    runtime: static
-    buildCommand: chmod a+x build.sh && ./build.sh
-    staticPublishPath: public
-    envVars:
-      - key: DART_SASS_VERSION
-        value: 1.90.0
-      - key: GO_VERSION
-        value: 1.24.5
-      - key: HUGO_VERSION
-        value: 0.148.2
-      - key: NODE_VERSION
-        value: 22.18.0
-      - key: TZ
-        value: Europe/Oslo
+```json {file="vercel.json" copy=true}
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "chmod a+x build.sh && ./build.sh",
+  "outputDirectory": "public"
+}
 ```
 
 ### Step 2
@@ -56,18 +42,21 @@ Create a `build.sh` file in the root of your project.
 
 #------------------------------------------------------------------------------
 # @file
-# Builds a Hugo site hosted on a Render.
+# Builds a Hugo site hosted on Vercel.
 #
-# Render automatically installs Node.js dependencies.
+# The Vercel build image automatically installs Node.js dependencies.
 #------------------------------------------------------------------------------
 
 main() {
 
-  # Create directory for user-specific executable files
-  echo "Creating directory for user-specific executable files..."
-  mkdir -p "${HOME}/.local"
+  DART_SASS_VERSION=1.90.0
+  GO_VERSION=1.24.5
+  HUGO_VERSION=0.148.2
+  NODE_VERSION=22.18.0
 
-   # Install Dart Sass
+  export TZ=Europe/Oslo
+
+  # Install Dart Sass
   echo "Installing Dart Sass ${DART_SASS_VERSION}..."
   curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
   tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
@@ -84,10 +73,17 @@ main() {
   # Install Hugo
   echo "Installing Hugo ${HUGO_VERSION}..."
   curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-  mkdir -p "${HOME}/.local/hugo"
+  mkdir "${HOME}/.local/hugo"
   tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
   rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
   export PATH="${HOME}/.local/hugo:${PATH}"
+
+  # Install Node.js
+  echo "Installing Node.js ${NODE_VERSION}..."
+  curl -sLJO "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
+  tar -C "${HOME}/.local" -xf "node-v${NODE_VERSION}-linux-x64.tar.xz"
+  rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
+  export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
 
   # Verify installations
   echo "Verifying installations..."
@@ -104,8 +100,8 @@ main() {
   fi
 
   # Build the site
-  echo "Building the site..."
-  hugo --gc --minify --baseURL "${RENDER_EXTERNAL_URL}"
+  echo "Building the site"
+  hugo --gc --minify --baseURL "https://${VERCEL_PROJECT_PRODUCTION_URL}"
 
 }
 
@@ -119,63 +115,62 @@ Commit the changes to your local Git repository and push to your GitHub reposito
 
 ### Step 4
 
-On the Render [dashboard][], press the **Add new** button and select "Blueprint" from the drop-down menu.
+In the upper right corner of the Vercel dashboard, press the **Add New** button and select "Project" from the drop down menu.
 
-![screen capture](render-01.png)
+![screen capture](vercel-01.png)
 
 ### Step 5
 
-Press the **GitHub** button to connect to your GitHub account.
+Press the "Continue with GitHub" button.
 
-![screen capture](render-02.png)
+![screen capture](vercel-02.png)
 
 ### Step 6
 
-Press the **Authorize Render** button to allow the Render application to access your GitHub account.
+Press the **Authorize Vercel** button to allow the Vercel application to access your GitHub account.
 
-![screen capture](render-03.png)
+![screen capture](vercel-03.png)
 
 ### Step 7
 
-Select the GitHub account where you want to install the Render application.
+Press the **Install** button to install the Vercel application.
 
-![screen capture](render-04.png)
+![screen capture](vercel-04.png)
 
 ### Step 8
 
-Authorize the Render application to access all repositories or only select repositories, then press the **Install** button.
+Select the GitHub account where you want to install the Vercel application.
 
-![screen capture](render-05.png)
+![screen capture](vercel-05.png)
 
 ### Step 9
 
-On the "Create a new Blueprint Instance in My Workspacee" page, press the **Connect** button to the right of the name of your GitHub repository.
+Authorize the Vercel application to access all repositories or only select repositories, then press the **Install** button.
 
-![screen capture](render-06.png)
+![screen capture](vercel-06.png)
+
+Your browser will be redirected to the Cloudflare dashboard.
 
 ### Step 10
 
-Enter a unique name for your Blueprint, then press the **Deploy Blueprint** button at the bottom of the page.
+Press the **Import** button to the right of the name of your GitHub repository.
 
-![screen capture](render-07.png)
+![screen capture](vercel-07.png)
 
 ### Step 11
 
-Wait for the site to build and deploy, then click on the "Resources" link on the left side of the page.
+On the "New Project" page, leave the settings at their default values and press the **Deploy** button.
 
-![screen capture](render-08.png)
+![screen capture](vercel-08.png)
 
 ### Step 12
 
-Click on the link to the static site resource.
+When the deployment completes, press the **Continue to Dashboard" button at the bottom of the page.
 
-![screen capture](render-09.png)
+![screen capture](vercel-09.png)
 
 ### Step 13
 
-Click on the link to your published site.
+On the "Production Deployment" page, click on the link to your published site.
 
-![screen capture](render-10.png)
-
-[Render Blueprint]: https://render.com/docs/blueprint-spec
-[dashboard]: https://dashboard.render.com/
+![screen capture](vercel-10.png)
