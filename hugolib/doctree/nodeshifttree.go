@@ -58,33 +58,12 @@ type (
 		// Delete deletes T from the given dimension and returns the deleted T and whether the dimension was deleted and if  it's empty after the delete.
 		Delete(v T, dimension sitesmatrix.Vector) (T, bool, bool)
 
-		// Shift shifts v into the given dimension
-		// and returns the shifted T and a bool indicating if the shift was successful.
-		Shift(v T, dimension sitesmatrix.Vector, exact, delegeeFallback bool) Shifted[T]
+		// Shift shifts v into the given dimension,
+		// if fallback is true, it will fall back a fallback match if found.
+		// It returns the shifted T and a bool indicating if the shift was successful.
+		Shift(v T, dimension sitesmatrix.Vector, fallback bool) (T, bool)
 	}
 )
-
-type Shifted[T any] struct {
-	V  T
-	OK bool
-
-	// TransformWillWrite will write to potentially shared data structures,
-	// the caller needs to adjust the locking accordingly before calling Do.
-	TransformWillWrite bool
-
-	// Transform is an optional function that can be used to transform the value.
-	// It returns the transformed value, an optional replaced value  a bool indicating if the value was transformed,
-	// and a bool indicating if the value was replaced and that the replaced value needs to be re-inserted into the tree.
-	Transform func() (T, T, bool, bool)
-}
-
-func (s Shifted[T]) Do() (T, T, bool, bool) {
-	if s.Transform != nil {
-		return s.Transform()
-	}
-	var zero T
-	return s.V, zero, s.OK, false
-}
 
 // NodeShiftTree is the root of a tree that can be shaped using the Shape method.
 // Note that multiplied shapes of the same tree is meant to be used concurrently,
@@ -245,12 +224,12 @@ func (t *NodeShiftTree[T]) Lock(writable bool) (commit func()) {
 
 // LongestPrefix finds the longest prefix of s that exists in the tree that also matches the predicate (if set).
 // Set exact to true to only match exact in the current dimension (e.g. language).
-func (r *NodeShiftTree[T]) LongestPrefix(s string, exact, delegeeFallback bool, predicate func(v T) bool) (string, T) {
+func (r *NodeShiftTree[T]) LongestPrefix(s string, fallback bool, predicate func(v T) bool) (string, T) {
 	for {
 		longestPrefix, v, found := r.tree.LongestPrefix(s)
 
 		if found {
-			if v, _, ok, _ := r.shift(v.(T), exact, delegeeFallback).Do(); ok && (predicate == nil || predicate(v)) {
+			if v, ok := r.shift(v.(T), fallback); ok && (predicate == nil || predicate(v)) {
 				return longestPrefix, v
 			}
 		}
@@ -358,11 +337,9 @@ type NodeShiftTreeWalker[T any] struct {
 	// When set, no dimension shifting will be performed.
 	NoShift bool
 
-	// Don't fall back to alternative dimensions (e.g. language).
-	Exact bool
-
-	// TODO1 document this and check vs exact.
-	DelegeeFallback bool
+	// WHen set, will try to fall back to alternative match,
+	// typically a shared resoures common for all languages.
+	Fallback bool
 
 	// Used in development only.
 	Debug bool
@@ -411,16 +388,6 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 		panic("Tree is required")
 	}
 
-	type keyShifted[T any] struct {
-		Key string
-		Shifted[T]
-	}
-
-	var (
-		delayWrites = r.LockType == LockTypeRead
-		writeQueue  []keyShifted[T]
-	)
-
 	handleT := func(s string, t T) (terminate bool, err error) {
 		if r.IncludeFilter != nil && !r.IncludeFilter(s, t) {
 			return false, nil
@@ -429,41 +396,24 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 			if r.LockType == LockTypeRead {
 				panic("Transform must be performed with a write lock or no lock")
 			}
-			if err, skip, terminate := func() (error, bool, bool) {
+			if err, skip, terminate := func() (err error, skip bool, terminate bool) {
 				if r.LockType == LockTypeNone {
 					unlock := r.Tree.Lock(true)
 					defer unlock()
 				}
 				var (
-					v2       T
-					skip     bool
+					t2       T
 					replaced bool
 				)
-				v2, replaced, skip, terminate, err = r.Transform(s, t)
+				t2, replaced, skip, terminate, err = r.Transform(s, t)
 				if terminate || skip || err != nil {
-					return err, skip, terminate
+					return
 				}
 
 				if replaced {
-					_, _ = r.Tree.tree.Insert(s, v2)
-					if r.NoShift {
-						t = v2
-					} else {
-						var (
-							ok   bool
-							repl T
-						)
-						shifted := r.toT(r.Tree, v2)
-						t, repl, ok, replaced = shifted.Do()
-						if !ok {
-							return nil, false, true
-						}
-						if replaced {
-							_, _ = r.Tree.tree.Insert(s, repl)
-						}
-					}
+					_, _ = r.Tree.tree.Insert(s, t2)
 				}
-				return nil, false, false
+				return
 			}(); skip || terminate || err != nil {
 				return terminate, err
 			}
@@ -479,7 +429,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 		return
 	}
 
-	if err := func() error {
+	return func() error {
 		if r.LockType > LockTypeNone {
 			unlock := r.Tree.Lock(r.LockType == LockTypeWrite)
 			defer unlock()
@@ -498,32 +448,9 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 				t = v.(T)
 			} else {
 				var ok bool
-				shifted := r.toT(r.Tree, v)
-				if delayWrites && shifted.TransformWillWrite {
-
-					// Postpone writes to their own transaction.
-					writeQueue = append(writeQueue, keyShifted[T]{
-						Key:     s,
-						Shifted: shifted,
-					})
+				t, ok = r.toT(r.Tree, v)
+				if !ok {
 					return false
-				} else {
-					var (
-						replacement T
-						replace     bool
-					)
-					t, replacement, ok, replace = shifted.Do()
-
-					if !ok {
-						return false
-					}
-
-					if replace {
-						if !shifted.TransformWillWrite {
-							panic("TransformWillWrite must be set to true when shift writes/transforms")
-						}
-						_, _ = r.Tree.tree.Insert(s, replacement)
-					}
 				}
 			}
 
@@ -531,7 +458,6 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 			if terminate || err != nil {
 				return true
 			}
-
 			return false
 		}
 
@@ -542,33 +468,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 		}
 
 		return nil
-	}(); err != nil {
-		return err
-	}
-
-	if len(writeQueue) > 0 {
-		if err := func() error {
-			unlock := r.Tree.Lock(true)
-			for _, shifted := range writeQueue {
-				t, replacement, ok, replaced := shifted.Do()
-				if !ok {
-					continue
-				}
-				if terminate, err := handleT(shifted.Key, t); terminate || err != nil {
-					return err
-				}
-				if replaced {
-					_, _ = r.Tree.tree.Insert(shifted.Key, replacement)
-				}
-			}
-			defer unlock()
-			return nil
-		}(); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	}()
 }
 
 func (r *NodeShiftTreeWalker[T]) resetLocalState() {
@@ -576,8 +476,8 @@ func (r *NodeShiftTreeWalker[T]) resetLocalState() {
 }
 
 // TODO1 revise all usage vs Do().
-func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) Shifted[T] {
-	return tree.shift(v.(T), r.Exact, r.DelegeeFallback)
+func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (T, bool) {
+	return tree.shift(v.(T), r.Fallback)
 }
 
 func (r *NodeShiftTree[T]) Has(s string) bool {
@@ -589,8 +489,8 @@ func (t NodeShiftTree[T]) clone() *NodeShiftTree[T] {
 	return &t
 }
 
-func (r *NodeShiftTree[T]) shift(t T, exact, delegeeFallback bool) Shifted[T] {
-	return r.shifter.Shift(t, r.dims, exact, delegeeFallback)
+func (r *NodeShiftTree[T]) shift(t T, fallback bool) (T, bool) {
+	return r.shifter.Shift(t, r.dims, fallback)
 }
 
 func (r *NodeShiftTree[T]) get(s string) (T, bool) {
@@ -603,7 +503,7 @@ func (r *NodeShiftTree[T]) get(s string) (T, bool) {
 		var t T
 		return t, false
 	}
-	if v, _, ok, _ := r.shift(v.(T), true, false).Do(); ok {
+	if v, ok := r.shift(v.(T), false); ok {
 		return v, true
 	}
 

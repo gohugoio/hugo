@@ -16,6 +16,7 @@ package hugolib
 import (
 	"context"
 	"fmt"
+	"iter"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -215,13 +216,15 @@ func (ps *pageState) contentWeight() int {
 	return ps.m.contentWeight()
 }
 
-func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, fallback bool) (contentNode, sitesmatrix.Vector) {
+func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, fallback bool) (iter.Seq[contentNodeForSite], sitesmatrix.Vector) {
 	pc := ps.m.pageConfigSource
 	if !fallback {
 		if !pc.MatchSiteVector(dims) {
 			return nil, sitesmatrix.Vector{}
 		}
-		return ps, ps.s.siteVector
+		return func(yield func(n contentNodeForSite) bool) {
+			yield(ps)
+		}, ps.s.siteVector
 	}
 	if !pc.MatchLanguageOrLanguageDelegee(dims) {
 		return nil, sitesmatrix.Vector{}
@@ -232,7 +235,9 @@ func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, fallback bool) (co
 	if !pc.MatchRoleOrRoleDelegee(dims) {
 		return nil, sitesmatrix.Vector{}
 	}
-	return ps, ps.s.siteVector
+	return func(yield func(n contentNodeForSite) bool) {
+		yield(ps)
+	}, ps.s.siteVector
 }
 
 // Eq returns whether the current page equals the given page.
@@ -486,6 +491,10 @@ func (ps *pageState) sitesMatrix() sitesmatrix.VectorProvider {
 
 // For internal use only.
 func (ps *pageState) SiteVector() sitesmatrix.Vector {
+	return ps.s.siteVector
+}
+
+func (ps *pageState) siteVector() sitesmatrix.Vector {
 	return ps.s.siteVector
 }
 

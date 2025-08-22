@@ -608,5 +608,5 @@ All. {{ .Title }}|Hello: {{ with $hello }}{{ .RelPermalink }}|{{ .Content | safe
 	b.AssertFileContent("public/en/p1/index.html", "Hello: /en/p1/hello.txt|Hello World|")
 	b.AssertFileContent("public/nn/p1/index.html", "P1 scandinavia|", "/nn/p1/hello.txt|Hallo verd|")
 	b.AssertFileContent("public/sv/p1/index.html", "P1 scandinavia|", "/sv/p1/hello.txt|Hallo verd|")
-	b.AssertFileContent("public/da/p1/index.html", "P1 da|", "/sv/p1/hello.txt|Hallo verd|") // Beccause it's closest of the Scandinavian fallbacks.
+	b.AssertFileContent("public/da/p1/index.html", "P1 da|", "/sv/p1/hello.txt|Hallo verd|") // Because it's closest of the Scandinavian fallbacks.
 }
