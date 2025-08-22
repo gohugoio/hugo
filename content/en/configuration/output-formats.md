@@ -44,25 +44,25 @@ isHTML
 : (`bool`) Whether to classify the output format as HTML. Hugo uses this value to determine when to create alias redirects and when to inject the LiveReload script. Default is `false`.
 
 isPlainText
-: (`bool`) Whether to parse templates for this output format with Go's [text/template] package instead of the [html/template] package. Default is `false`.
+: (`bool`) Whether to parse templates for this output format with Go's [text/template][] package instead of the [html/template][] package. Default is `false`.
 
 mediaType
-: (`string`) The [media type](g) of the published file. This must match one of the [configured media types].
+: (`string`) The [media type](g) of the published file. This must match one of the [configured media types][].
 
 notAlternative
-: (`bool`) Whether to exclude this output format from the values returned by the [`AlternativeOutputFormats`] method on a `Page` object. Default is `false`.
+: (`bool`) Whether to exclude this output format from the values returned by the [`AlternativeOutputFormats`][] method on a `Page` object. Default is `false`.
 
 noUgly
-: (`bool`) Whether to disable ugly URLs for this output format when [`uglyURLs`] are enabled in your site configuration. Default is `false`.
+: (`bool`) Whether to disable ugly URLs for this output format when [`uglyURLs`][] are enabled in your site configuration. Default is `false`.
 
 path
-: (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your [`publishDir`]. If omitted, Hugo will use the file's original content path for publishing.
+: (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your [`publishDir`][]. If omitted, Hugo will use the file's original content path for publishing.
 
 permalinkable
-: (`bool`) Whether to return the rendering output format rather than main output format when invoking the [`Permalink`] and [`RelPermalink`] methods on a `Page` object. See&nbsp;[details](#link-to-output-formats). Enabled by default for the `html` and `amp` output formats. Default is `false`.
+: (`bool`) Whether to return the rendering output format rather than main output format when invoking the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object. See&nbsp;[details](#link-to-output-formats). Enabled by default for the `html` and `amp` output formats. Default is `false`.
 
 protocol
-: (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the [`baseURL`] parameter in your site configuration, typically `https://`.
+: (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the [`baseURL`][] parameter in your site configuration, typically `https://`.
 
 rel
 : (`string`) If provided, you can assign this value to `rel` attributes in `link` elements when iterating over output formats in your templates. Default is `alternate`.
@@ -93,56 +93,52 @@ The example above shows that when you modify a default content format, you only 
 
 You can create new output formats as needed. For example, you may wish to create an output format to support Atom feeds.
 
-### Step 1
+Step 1
+: Output formats require a specified media type. Because Atom feeds use `application/atom+xml`, which is not one of the [default media types][], you must create it first.
 
-Output formats require a specified media type. Because Atom feeds use `application/atom+xml`, which is not one of the [default media types], you must create it first.
+  {{< code-toggle file=hugo >}}
+  [mediaTypes.'application/atom+xml']
+  suffixes = ['atom']
+  {{< /code-toggle >}}
 
-{{< code-toggle file=hugo >}}
-[mediaTypes.'application/atom+xml']
-suffixes = ['atom']
-{{< /code-toggle >}}
+  See [configure media types][] for more information.
 
-See [configure media types] for more information.
+Step 2
+: Create a new output format:
 
-### Step 2
+  {{< code-toggle file=hugo >}}
+  [outputFormats.atom]
+  mediaType = 'application/atom+xml'
+  noUgly = true
+  {{< /code-toggle >}}
 
-Create a new output format:
+  Note that we use the default settings for all other output format properties.
 
-{{< code-toggle file=hugo >}}
-[outputFormats.atom]
-mediaType = 'application/atom+xml'
-noUgly = true
-{{< /code-toggle >}}
+Step 3
+: Specify the page [kinds](g) for which to render this output format:
 
-Note that we use the default settings for all other output format properties.
+  {{< code-toggle file=hugo >}}
+  [outputs]
+  home = ['html', 'rss', 'atom']
+  section = ['html', 'rss', 'atom']
+  taxonomy = ['html', 'rss', 'atom']
+  term = ['html', 'rss', 'atom']
+  {{< /code-toggle >}}
 
-### Step 3
+  See [configure outputs][] for more information.
 
-Specify the page [kinds](g) for which to render this output format:
+Step 4
+: Create a template to render the output format. Since Atom feeds are lists, you need to create a list template. Consult the [template lookup order] to find the correct template path:
 
-{{< code-toggle file=hugo >}}
-[outputs]
-home = ['html', 'rss', 'atom']
-section = ['html', 'rss', 'atom']
-taxonomy = ['html', 'rss', 'atom']
-term = ['html', 'rss', 'atom']
-{{< /code-toggle >}}
+  ```text
+  layouts/list.atom.atom
+  ```
 
-See [configure outputs] for more information.
-
-### Step 4
-
-Create a template to render the output format. Since Atom feeds are lists, you need to create a list template. Consult the [template lookup order] to find the correct template path:
-
-```text
-layouts/list.atom.atom
-```
-
-We leave writing the template code as an exercise for you. Aim for a result similar to the [embedded RSS template].
+  We leave writing the template code as an exercise for you. Aim for a result similar to the [embedded RSS template][].
 
 ## List output formats
 
-To access output formats, each `Page` object provides two methods: [`OutputFormats`] (for all formats, including the current one) and [`AlternativeOutputFormats`]. Use `AlternativeOutputFormats` to create a link `rel` list within your site's `head` element, as shown below:
+To access output formats, each `Page` object provides two methods: [`OutputFormats`][] (for all formats, including the current one) and [`AlternativeOutputFormats`][]. Use `AlternativeOutputFormats` to create a link `rel` list within your site's `head` element, as shown below:
 
 ```go-html-template
 {{ range .AlternativeOutputFormats }}
@@ -152,7 +148,7 @@ To access output formats, each `Page` object provides two methods: [`OutputForma
 
 ## Link to output formats
 
-By default, a `Page` object's [`Permalink`] and [`RelPermalink`] methods return the URL of the [primary output format](g), typically `html`. This behavior remains consistent regardless of the template used.
+By default, a `Page` object's [`Permalink`][] and [`RelPermalink`][] methods return the URL of the [primary output format](g), typically `html`. This behavior remains consistent regardless of the template used.
 
 For example, in `page.json.json`, you'll see:
 
@@ -163,7 +159,7 @@ For example, in `page.json.json`, you'll see:
 {{ end }}
 ```
 
-To make these methods return the URL of the _current_ template's output format, you must set the [`permalinkable`] setting to `true` for that format.
+To make these methods return the URL of the _current_ template's output format, you must set the [`permalinkable`][] setting to `true` for that format.
 
 With `permalinkable` set to true for `json` in the same `page.json.json` template:
 
@@ -176,7 +172,7 @@ With `permalinkable` set to true for `json` in the same `page.json.json` templat
 
 ## Template lookup order
 
-Each output format requires a template conforming to the [template lookup order].
+Each output format requires a template conforming to the [template lookup order][].
 
 For the highest specificity in the template lookup order, include the page kind, output format, and suffix in the file name:
 
@@ -204,7 +200,7 @@ Output format|Template path
 [configure outputs]: /configuration/outputs/
 [configured media types]: /configuration/media-types/
 [default media types]: /configuration/media-types/
-[embedded RSS template]: {{% eturl rss %}}
+[embedded RSS template]: <{{% eturl rss %}}>
 [html/template]: https://pkg.go.dev/html/template
 [template lookup order]: /templates/lookup-order/
 [text/template]: https://pkg.go.dev/text/template

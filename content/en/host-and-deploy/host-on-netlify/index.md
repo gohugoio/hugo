@@ -6,104 +6,85 @@ keywords: []
 aliases: [/hosting-and-deployment/hosting-on-netlify/]
 ---
 
+Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply if you are using Azure DevOps, Bitbucket, or GitLab for version control.
+
 ## Prerequisites
 
 Please complete the following tasks before continuing:
 
-1. [Create a Netlify account]
-1. [Install Git]
-1. [Create a Hugo site] and test it locally with `hugo server`
-1. Commit the changes to your local repository
-1. Push the local repository to your [GitHub], [GitLab], or [Bitbucket] account
-
-[Bitbucket]: https://bitbucket.org/product
-[Create a Hugo site]: /getting-started/quick-start/
-[Create a Netlify account]: https://app.netlify.com/signup
-[GitHub]: https://github.com
-[GitLab]: https://about.gitlab.com/
-[Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+1. [Create](https://app.netlify.com/signup) a Netlify account
+1. [Log in](https://app.netlify.com/login) to your Netlify account
+1. [Create](https://github.com/signup) a GitHub account
+1. [Log in](https://github.com/login) to your GitHub account
+1. [Create](https://github.com/new) a GitHub repository for your project
+1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
+1. Create a Hugo site within your local Git repository and test it with the `hugo server` command
+1. Commit the changes to your local Git repository and push to your GitHub repository.
 
 ## Procedure
 
-This procedure will enable continuous deployment from a GitHub repository. The procedure is essentially the same if you are using GitLab or Bitbucket.
+Step 1
+: Log in to your Netlify account, navigate to the Sites page, press the **Add new site** button, and choose "Import an existing project" from the dropdown menu.
 
-### Step 1
+Step 2
+: Select your deployment method.
 
-Log in to your Netlify account, navigate to the Sites page, press the **Add new site** button, and choose "Import an existing project" from the dropdown menu.
+  ![screen capture](netlify-step-02.png)
 
-### Step 2
+Step 3
+: Authorize Netlify to connect with your GitHub account by pressing the **Authorize Netlify** button.
 
-Select your deployment method.
+  ![screen capture](netlify-step-03.png)
 
-![screen capture](netlify-step-02.png)
+Step 4
+: Press the **Configure Netlify on GitHub** button.
 
-### Step 3
+  ![screen capture](netlify-step-04.png)
 
-Authorize Netlify to connect with your GitHub account by pressing the **Authorize Netlify** button.
+Step 5
+: Install the Netlify app by selecting your GitHub account.
 
-![screen capture](netlify-step-03.png)
+  ![screen capture](netlify-step-05.png)
 
-### Step 4
+Step 6
+: Press the **Install** button.
 
-Press the **Configure Netlify on GitHub** button.
+  ![screen capture](netlify-step-06.png)
 
-![screen capture](netlify-step-04.png)
+Step 7
+: Click on the site's repository from the list.
 
-### Step 5
+  ![screen capture](netlify-step-07.png)
 
-Install the Netlify app by selecting your GitHub account.
+Step 8
+: Set the site name and branch from which to deploy.
 
-![screen capture](netlify-step-05.png)
+  ![screen capture](netlify-step-08.png)
 
-### Step 6
+Step 9
+: Define the build settings, press the **Add environment variables** button, then press the **New variable** button.
 
-Press the **Install** button.
+  ![screen capture](netlify-step-09.png)
 
-![screen capture](netlify-step-06.png)
+Step 10
+: Create a new environment variable named `HUGO_VERSION` and set the value to the [latest version](https://github.com/gohugoio/hugo/releases/latest).
 
-### Step 7
+  ![screen capture](netlify-step-10.png)
 
-Click on the site's repository from the list.
+Step 11
+: Press the "Deploy my new site" button at the bottom of the page.
 
-![screen capture](netlify-step-07.png)
+  ![screen capture](netlify-step-11.png)
 
-### Step 8
+Step 12
+: At the bottom of the screen, wait for the deploy to complete, then click on the deploy log entry.
 
-Set the site name and branch from which to deploy.
+  ![screen capture](netlify-step-12.png)
 
-![screen capture](netlify-step-08.png)
+Step 13
+: Press the **Open production deploy** button to view the live site.
 
-### Step 9
-
-Define the build settings, press the **Add environment variables** button, then press the **New variable** button.
-
-![screen capture](netlify-step-09.png)
-
-### Step 10
-
-Create a new environment variable named `HUGO_VERSION` and set the value to the [latest version].
-
-[latest version]: https://github.com/gohugoio/hugo/releases/latest
-
-![screen capture](netlify-step-10.png)
-
-### Step 11
-
-Press the "Deploy my new site" button at the bottom of the page.
-
-![screen capture](netlify-step-11.png)
-
-### Step 12
-
-At the bottom of the screen, wait for the deploy to complete, then click on the deploy log entry.
-
-![screen capture](netlify-step-12.png)
-
-### Step 13
-
-Press the **Open production deploy** button to view the live site.
-
-![screen capture](netlify-step-13.png)
+  ![screen capture](netlify-step-13.png)
 
 ## Configuration file
 

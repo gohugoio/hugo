@@ -92,70 +92,65 @@ The example below demonstrates error handing within a template.
 
 Instead of client-side JavaScript rendering of mathematical markup using MathJax or KaTeX, create a passthrough render hook which calls the `transform.ToMath` function.
 
-### Step 1
-
-Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
+Step 1
+: Enable and configure the Goldmark [passthrough extension][] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
 [passthrough extension]: /configuration/markup/#passthrough
 
-{{< code-toggle file=hugo copy=true >}}
-[markup.goldmark.extensions.passthrough]
-enable = true
+  {{< code-toggle file=hugo copy=true >}}
+  [markup.goldmark.extensions.passthrough]
+  enable = true
+  [markup.goldmark.extensions.passthrough.delimiters]
+  block = [['\[', '\]'], ['$$', '$$']]
+  inline = [['\(', '\)']]
+  {{< /code-toggle >}}
 
-[markup.goldmark.extensions.passthrough.delimiters]
-block = [['\[', '\]'], ['$$', '$$']]
-inline = [['\(', '\)']]
-{{< /code-toggle >}}
+  > [!note]
+  > The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 
-> [!note]
-> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
-
-### Step 2
-
-Create a [passthrough render hook] to capture and render the LaTeX markup.
+Step 2
+: Create a [passthrough render hook][] to capture and render the LaTeX markup.4
 
 [passthrough render hook]: /render-hooks/passthrough/
 
-```go-html-template {file="layouts/_markup/render-passthrough.html" copy=true}
-{{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
-{{- with try (transform.ToMath .Inner $opts) }}
-  {{- with .Err }}
-    {{- errorf "Unable to render mathematical markup to HTML using the transform.ToMath function. The KaTeX display engine threw the following error: %s: see %s." . $.Position }}
-  {{- else }}
-    {{- .Value }}
-    {{- $.Page.Store.Set "hasMath" true }}
-  {{- end }}
-{{- end -}}
-```
+  ```go-html-template {file="layouts/_markup/render-passthrough.html" copy=true}
+  {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
+  {{- with try (transform.ToMath .Inner $opts) }}
+    {{- with .Err }}
+      {{- errorf "Unable to render mathematical markup to HTML using the transform.ToMath function. The KaTeX display engine threw the following error: %s: see %s." . $.Position }}
+    {{- else }}
+      {{- .Value }}
+      {{- $.Page.Store.Set "hasMath" true }}
+    {{- end }}
+  {{- end -}}
+  ```
+  
+Step 3
+: In your base template, conditionally include the KaTeX CSS within the head element.
 
-### Step 3
+  ```go-html-template {file="layouts/baseof.html" copy=true}
+  <head>
+    {{ $noop := .WordCount }}
+    {{ if .Page.Store.Get "hasMath" }}
+      <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+    {{ end }}
+  </head>
+  ```
 
-In your base template, conditionally include the KaTeX CSS within the head element.
+  In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
-```go-html-template {file="layouts/baseof.html" copy=true}
-<head>
-  {{ $noop := .WordCount }}
-  {{ if .Page.Store.Get "hasMath" }}
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
-  {{ end }}
-</head>
-```
+Step 4
+: Add some mathematical markup to your content, then test.
 
-In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
+  ```text {file="content/example.md"}
+  This is an inline \(a^*=x-b^*\) equation.
 
-### Step 4
+  These are block equations:
 
-Add some mathematical markup to your content, then test.
+  \[a^*=x-b^*\]
 
-```text {file="content/example.md"}
-This is an inline \(a^*=x-b^*\) equation.
-
-These are block equations:
-
-\[a^*=x-b^*\]
-
-$$a^*=x-b^*$$
-```
+  $$a^*=x-b^*$$
+  ```
 
 ## Chemistry
 

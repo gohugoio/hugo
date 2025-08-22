@@ -246,49 +246,47 @@ workingFolderCurrent
 
 Follow the steps below to enable syntax highlighting.
 
-#### Step 1
+Step 1
+: Set the `source-highlighter` attribute in your site configuration. For example:
 
-Set the `source-highlighter` attribute in your site configuration. For example:
+  {{< code-toggle file=hugo >}}
+  [markup.asciidocExt.attributes]
+  source-highlighter = 'rouge'
+  {{< /code-toggle >}}
 
-{{< code-toggle file=hugo >}}
-[markup.asciidocExt.attributes]
-source-highlighter = 'rouge'
-{{< /code-toggle >}}
+Step 2
+: Generate the highlighter CSS. For example:
 
-#### Step 2
+  ```text
+  rougify style monokai.sublime > assets/css/syntax.css
+  ```
 
-Generate the highlighter CSS. For example:
+Step 3
+: In your base template add a link to the CSS file:
 
-```text
-rougify style monokai.sublime > assets/css/syntax.css
-```
+  ```go-html-template {file="layouts/baseof.html"}
+  <head>
+    ...
+    {{ with resources.Get "css/syntax.css" }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+    {{ end }}
+    ...
+  </head>
+  ```
 
-#### Step 3
+Step 4
+: Add the code to be highlighted to your markup:
 
-In your base template add a link to the CSS file:
+  ```text
+  [#hello,ruby]
+  ----
+  require 'sinatra'
 
-```go-html-template {file="layouts/baseof.html"}
-<head>
-  ...
-  {{ with resources.Get "css/syntax.css" }}
-    <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
-  {{ end }}
-  ...
-</head>
-```
-
-Then add the code to be highlighted to your markup:
-
-```text
-[#hello,ruby]
-----
-require 'sinatra'
-
-get '/hi' do
-  "Hello World!"
-end
-----
-```
+  get '/hi' do
+    "Hello World!"
+  end
+  ----
+  ```
 
 ### Troubleshooting
 
