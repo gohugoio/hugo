@@ -62,6 +62,14 @@ func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
 		}, true
 	}
 
+	if strings.HasPrefix(attr, "sectionslugs[") {
+		fn := p.toSliceFunc(strings.TrimPrefix(attr, "sectionslugs"))
+		sectionSlugsFunc := p.withSectionPagesFunc(p.pageToPermalinkSlugElseTitle, func(s ...string) string {
+			return path.Join(fn(s)...)
+		})
+		return sectionSlugsFunc, true
+	}
+
 	// Make sure this comes after all the other checks.
 	if referenceTime.Format(attr) != attr {
 		return p.pageToPermalinkDate, true
@@ -87,7 +95,9 @@ func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]ma
 		"weekdayname":           p.pageToPermalinkDate,
 		"yearday":               p.pageToPermalinkDate,
 		"section":               p.pageToPermalinkSection,
+		"sectionslug":           p.pageToPermalinkSectionSlug,
 		"sections":              p.pageToPermalinkSections,
+		"sectionslugs":          p.pageToPermalinkSectionSlugs,
 		"title":                 p.pageToPermalinkTitle,
 		"slug":                  p.pageToPermalinkSlugElseTitle,
 		"slugorfilename":        p.pageToPermalinkSlugElseFilename,
@@ -305,8 +315,23 @@ func (l PermalinkExpander) pageToPermalinkSection(p Page, _ string) (string, err
 	return p.Section(), nil
 }
 
+// pageToPermalinkSectionSlug returns the URL-safe form of the first section's slug or title
+func (l PermalinkExpander) pageToPermalinkSectionSlug(p Page, attr string) (string, error) {
+	sectionPage := p.FirstSection()
+	if sectionPage == nil || sectionPage.IsHome() {
+		return "", nil
+	}
+	return l.pageToPermalinkSlugElseTitle(sectionPage, attr)
+}
+
 func (l PermalinkExpander) pageToPermalinkSections(p Page, _ string) (string, error) {
 	return p.CurrentSection().SectionsPath(), nil
+}
+
+// pageToPermalinkSectionSlugs returns a path built from all ancestor sections using their slugs or titles
+func (l PermalinkExpander) pageToPermalinkSectionSlugs(p Page, attr string) (string, error) {
+	sectionSlugsFunc := l.withSectionPagesFunc(l.pageToPermalinkSlugElseTitle, path.Join)
+	return sectionSlugsFunc(p, attr)
 }
 
 // pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
@@ -331,6 +356,34 @@ func (l PermalinkExpander) translationBaseName(p Page) string {
 		return ""
 	}
 	return p.File().TranslationBaseName()
+}
+
+// withSectionPagesFunc returns a function that builds permalink attributes from section pages.
+// It applies the transformation function f to each ancestor section (Page), then joins the results with the join function.
+//
+// Current use is create section-based hierarchical paths using section slugs.
+func (l PermalinkExpander) withSectionPagesFunc(f func(Page, string) (string, error), join func(...string) string) func(p Page, s string) (string, error) {
+	return func(p Page, s string) (string, error) {
+		var entries []string
+		currentSection := p.CurrentSection()
+
+		// Build section hierarchy: ancestors (reversed to root-first) + current section
+		sections := currentSection.Ancestors().Reverse()
+		sections = append(sections, currentSection)
+
+		for _, section := range sections {
+			if section.IsHome() {
+				continue
+			}
+			entry, err := f(section, s)
+			if err != nil {
+				return "", err
+			}
+			entries = append(entries, entry)
+		}
+
+		return join(entries...), nil
+	}
 }
 
 var (

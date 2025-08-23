@@ -62,6 +62,47 @@ var testdataPermalinks = []struct {
 		p.title = "mytitle"
 		p.file = source.NewContentFileInfoFrom("/", "_index.md")
 	}, "/test-page/"},
+	// slug, title.                                                         // Section slug
+	{"/:sectionslug/", true, func(p *testPage) {
+		p.currentSection = &testPage{slug: "my-slug"}
+	}, "/my-slug/"},
+	// slug, title.                                                         // Section slugs
+	{"/:sectionslugs/", true, func(p *testPage) {
+		// Set up current section with ancestors
+		currentSection := &testPage{
+			slug: "c-slug",
+			kind: "section",
+			ancestors: Pages{
+				&testPage{slug: "b-slug", kind: "section"},
+				&testPage{slug: "a-slug", kind: "section"},
+			},
+		}
+		p.currentSection = currentSection
+	}, "/a-slug/b-slug/c-slug/"},
+	// slice: slug, title.
+	{"/:sectionslugs[0]/:sectionslugs[last]/", true, func(p *testPage) {
+		currentSection := &testPage{
+			slug: "c-slug",
+			kind: "section",
+			ancestors: Pages{
+				&testPage{slug: "b-slug", kind: "section"},
+				&testPage{slug: "a-slug", kind: "section"},
+			},
+		}
+		p.currentSection = currentSection
+	}, "/a-slug/c-slug/"},
+	// slice: slug, title.
+	{"/:sectionslugs[last]/", true, func(p *testPage) {
+		currentSection := &testPage{
+			slug: "c-slug",
+			kind: "section",
+			ancestors: Pages{
+				&testPage{slug: "b-slug", kind: "section"},
+				&testPage{slug: "a-slug", kind: "section"},
+			},
+		}
+		p.currentSection = currentSection
+	}, "/c-slug/"},
 	// Failures
 	{"/blog/:fred", false, nil, ""},
 	{"/:year//:title", false, nil, ""},
