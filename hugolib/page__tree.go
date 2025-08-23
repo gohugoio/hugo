@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -31,7 +32,7 @@ type pageTree struct {
 }
 
 func (pt pageTree) IsAncestor(other any) bool {
-	n, ok := other.(contentNodeI)
+	n, ok := other.(contentNode)
 	if !ok {
 		return false
 	}
@@ -44,7 +45,7 @@ func (pt pageTree) IsAncestor(other any) bool {
 }
 
 func (pt pageTree) IsDescendant(other any) bool {
-	n, ok := other.(contentNodeI)
+	n, ok := other.(contentNode)
 	if !ok {
 		return false
 	}
@@ -62,16 +63,20 @@ func (pt pageTree) CurrentSection() page.Page {
 	}
 
 	dir := pt.p.m.pathInfo.Dir()
+
 	if dir == "/" {
 		return pt.p.s.home
 	}
 
-	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, false, func(n contentNode) bool {
+		return n.isContentNodeBranch()
+	})
+
 	if n != nil {
 		return n.(page.Page)
 	}
 
-	panic(fmt.Sprintf("CurrentSection not found for %q in lang %s", pt.p.Path(), pt.p.Lang()))
+	panic(fmt.Sprintf("CurrentSection not found for %q for %s", pt.p.Path(), pt.p.s.debugResolveDimensionNames()))
 }
 
 func (pt pageTree) FirstSection() page.Page {
@@ -81,7 +86,7 @@ func (pt pageTree) FirstSection() page.Page {
 	}
 
 	for {
-		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, false, func(n contentNode) bool { return n.isContentNodeBranch() })
 		if n == nil {
 			return nil
 		}
@@ -125,7 +130,7 @@ func (pt pageTree) Parent() page.Page {
 	}
 
 	for {
-		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, nil)
+		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, false, nil)
 		if n == nil {
 			return pt.p.s.home
 		}
@@ -155,11 +160,11 @@ func (pt pageTree) Sections() page.Pages {
 		tree                = pt.p.s.pageMap.treePages
 	)
 
-	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:   tree,
 		Prefix: prefix,
 	}
-	w.Handle = func(ss string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+	w.Handle = func(ss string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
 		if !n.isContentNodeBranch() {
 			return false, nil
 		}

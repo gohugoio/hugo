@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import (
 	"sync"
 
 	radix "github.com/armon/go-radix"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -31,30 +32,36 @@ type (
 	}
 
 	// Shifter handles tree transformations.
+	// TODO1 clean up all the description in here and elsewhere where dimensions etc. are mentioned.
 	Shifter[T any] interface {
-		// ForEeachInDimension will call the given function for each value in the given dimension.
+		// ForEeachInDimension will call the given function for each value in the given dimension d.
 		// If the function returns true, the walk will stop.
-		ForEeachInDimension(n T, d int, f func(T) bool)
+		// TODO1 check usage of these ForEeachIn* methods.
+		ForEeachInDimension(n T, dims sitesmatrix.Vector, d int, f func(T) bool)
+
+		// ForEeachInAllDimensions will call the given function for each value in all dimensions.
+		ForEeachInAllDimensions(n T, f func(T) bool)
 
 		// Insert inserts new into the tree into the dimension it provides.
 		// It may replace old.
 		// It returns the updated and existing T
 		// and a bool indicating if an existing record is updated.
+		// TODO1 simplify the existing etc.
 		Insert(old, new T) (T, T, bool)
 
 		// Insert inserts new into the given dimension.
 		// It may replace old.
 		// It returns the updated and existing T
 		// and a bool indicating if an existing record is updated.
-		InsertInto(old, new T, dimension Dimension) (T, T, bool)
+		InsertInto(old, new T, dimension sitesmatrix.Vector) (T, T, bool)
 
 		// Delete deletes T from the given dimension and returns the deleted T and whether the dimension was deleted and if  it's empty after the delete.
-		Delete(v T, dimension Dimension) (T, bool, bool)
+		Delete(v T, dimension sitesmatrix.Vector) (T, bool, bool)
 
-		// Shift shifts T into the given dimension
-		// and returns the shifted T and a bool indicating if the shift was successful and
-		// how accurate a match T is according to its dimensions.
-		Shift(v T, dimension Dimension, exact bool) (T, bool, DimensionFlag)
+		// Shift shifts v into the given dimension,
+		// if fallback is true, it will fall back a fallback match if found.
+		// It returns the shifted T and a bool indicating if the shift was successful.
+		Shift(v T, dimension sitesmatrix.Vector, fallback bool) (T, bool)
 	}
 )
 
@@ -64,8 +71,8 @@ type (
 type NodeShiftTree[T any] struct {
 	tree *radix.Tree
 
-	// E.g. [language, role].
-	dims    Dimension
+	// [language, version, role].
+	dims    sitesmatrix.Vector
 	shifter Shifter[T]
 
 	mu *sync.RWMutex
@@ -83,22 +90,16 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 	}
 }
 
+func (r *NodeShiftTree[T]) Dims() sitesmatrix.Vector {
+	return r.dims
+}
+
 func (r *NodeShiftTree[T]) Delete(key string) (T, bool) {
 	return r.delete(key)
 }
 
 func (r *NodeShiftTree[T]) DeleteRaw(key string) {
-	r.delete(key)
-}
-
-func (r *NodeShiftTree[T]) DeleteAll(key string) {
-	r.tree.WalkPrefix(key, func(key string, value any) bool {
-		v, ok := r.tree.Delete(key)
-		if ok {
-			resource.MarkStale(v)
-		}
-		return false
-	})
+	r.tree.Delete(key)
 }
 
 func (r *NodeShiftTree[T]) DeletePrefix(prefix string) int {
@@ -129,7 +130,7 @@ func (r *NodeShiftTree[T]) delete(key string) (T, bool) {
 	return deleted, wasDeleted
 }
 
-func (t *NodeShiftTree[T]) DeletePrefixAll(prefix string) int {
+func (t *NodeShiftTree[T]) DeletePrefixRaw(prefix string) int {
 	count := 0
 
 	t.tree.WalkPrefix(prefix, func(key string, value any) bool {
@@ -143,9 +144,10 @@ func (t *NodeShiftTree[T]) DeletePrefixAll(prefix string) int {
 	return count
 }
 
-// Increment the value of dimension d by 1.
-func (t *NodeShiftTree[T]) Increment(d int) *NodeShiftTree[T] {
-	return t.Shape(d, t.dims[d]+1)
+func (r *NodeShiftTree[T]) InsertIntoCurrentDimensionWithLock(s string, v T) (T, T, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.InsertIntoCurrentDimension(s, v)
 }
 
 func (r *NodeShiftTree[T]) InsertIntoCurrentDimension(s string, v T) (T, T, bool) {
@@ -173,6 +175,7 @@ func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, T, bool)
 	if vv, ok := r.tree.Get(s); ok {
 		v, existing, updated = r.shifter.Insert(vv.(T), v)
 	}
+
 	r.tree.Insert(s, v)
 	return v, existing, updated
 }
@@ -203,7 +206,7 @@ func (t *NodeShiftTree[T]) CanLock() bool {
 }
 
 // Lock locks the data store for read or read/write access until commit is invoked.
-// Note that Root is not thread-safe outside of this transaction construct.
+// Note that NodeShiftTree is not thread-safe outside of this transaction construct.
 func (t *NodeShiftTree[T]) Lock(writable bool) (commit func()) {
 	if writable {
 		t.mu.Lock()
@@ -221,13 +224,13 @@ func (t *NodeShiftTree[T]) Lock(writable bool) (commit func()) {
 
 // LongestPrefix finds the longest prefix of s that exists in the tree that also matches the predicate (if set).
 // Set exact to true to only match exact in the current dimension (e.g. language).
-func (r *NodeShiftTree[T]) LongestPrefix(s string, exact bool, predicate func(v T) bool) (string, T) {
+func (r *NodeShiftTree[T]) LongestPrefix(s string, fallback bool, predicate func(v T) bool) (string, T) {
 	for {
 		longestPrefix, v, found := r.tree.LongestPrefix(s)
 
 		if found {
-			if t, ok, _ := r.shift(v.(T), exact); ok && (predicate == nil || predicate(t)) {
-				return longestPrefix, t
+			if v, ok := r.shift(v.(T), fallback); ok && (predicate == nil || predicate(v)) {
+				return longestPrefix, v
 			}
 		}
 
@@ -242,7 +245,7 @@ func (r *NodeShiftTree[T]) LongestPrefix(s string, exact bool, predicate func(v 
 	}
 }
 
-// LongestPrefixAll returns the longest prefix considering all tree dimensions.
+// LongestPrefixAll returns the longest prefix considering all tree sitesmatrix.
 func (r *NodeShiftTree[T]) LongestPrefixAll(s string) (string, bool) {
 	s, _, found := r.tree.LongestPrefix(s)
 	return s, found
@@ -264,10 +267,9 @@ func (r *NodeShiftTree[T]) WalkPrefixRaw(prefix string, walker func(key string, 
 	r.tree.WalkPrefix(prefix, walker2)
 }
 
-// Shape the tree for dimension d to value v.
-func (t *NodeShiftTree[T]) Shape(d, v int) *NodeShiftTree[T] {
+func (t *NodeShiftTree[T]) Shape(v sitesmatrix.Vector) *NodeShiftTree[T] {
 	x := t.clone()
-	x.dims[d] = v
+	x.dims = v
 	return x
 }
 
@@ -280,13 +282,22 @@ func (r *NodeShiftTree[T]) Get(s string) T {
 	return t
 }
 
-func (r *NodeShiftTree[T]) ForEeachInDimension(s string, d int, f func(T) bool) {
+func (r *NodeShiftTree[T]) ForEeachInDimension(s string, dims sitesmatrix.Vector, d int, f func(T) bool) {
 	s = cleanKey(s)
 	v, ok := r.tree.Get(s)
 	if !ok {
 		return
 	}
-	r.shifter.ForEeachInDimension(v.(T), d, f)
+	r.shifter.ForEeachInDimension(v.(T), dims, d, f)
+}
+
+func (r *NodeShiftTree[T]) ForEeachInAllDimensions(s string, f func(T) bool) {
+	s = cleanKey(s)
+	v, ok := r.tree.Get(s)
+	if !ok {
+		return
+	}
+	r.shifter.ForEeachInAllDimensions(v.(T), f)
 }
 
 type WalkFunc[T any] func(string, T) (bool, error)
@@ -295,13 +306,30 @@ type NodeShiftTreeWalker[T any] struct {
 	// The tree to walk.
 	Tree *NodeShiftTree[T]
 
+	// Transform will be called for each node in the main tree.
+	// v2 will replace v1 in the tree.
+	// The first bool indicates if the value was replaced and needs to be re-inserted into the tree.
+	// the second bool indicates if the walk should skip this node.
+	// the third bool indicates if the walk should terminate.
+	Transform func(s string, v1 T) (v2 T, replaced, skip, terminate bool, err error)
+
 	// Handle will be called for each node in the main tree.
 	// If the callback returns true, the walk will stop.
 	// The callback can optionally return a callback for the nested tree.
-	Handle func(s string, v T, exact DimensionFlag) (terminate bool, err error)
+	Handle func(s string, v T, exact sitesmatrix.Dimension) (terminate bool, err error)
 
 	// Optional prefix filter.
 	Prefix string
+
+	// IncludeFilter is an optional filter that can be used to filter nodes.
+	// If it returns false, the node will be skipped.
+	// Note that v is the shifted value from the tree.
+	IncludeFilter func(s string, v T) bool
+
+	// IncludeRawFilter is an optional filter that can be used to filter nodes.
+	// If it returns false, the node will be skipped.
+	// Note that v is the raw value from the tree.
+	IncludeRawFilter func(s string, v T) bool
 
 	// Enable read or write locking if needed.
 	LockType LockType
@@ -309,8 +337,9 @@ type NodeShiftTreeWalker[T any] struct {
 	// When set, no dimension shifting will be performed.
 	NoShift bool
 
-	// Don't fall back to alternative dimensions (e.g. language).
-	Exact bool
+	// WHen set, will try to fall back to alternative match,
+	// typically a shared resoures common for all languages.
+	Fallback bool
 
 	// Used in development only.
 	Debug bool
@@ -340,9 +369,14 @@ func (r *NodeShiftTreeWalker[T]) SkipPrefix(prefix ...string) {
 }
 
 // ShouldSkip returns whether the given key should be skipped in the walk.
-func (r *NodeShiftTreeWalker[T]) ShouldSkip(s string) bool {
+func (r *NodeShiftTreeWalker[T]) ShouldSkip(s string, v T) bool {
 	for _, prefix := range r.skipPrefixes {
 		if strings.HasPrefix(s, prefix) {
+			return true
+		}
+	}
+	if r.IncludeRawFilter != nil {
+		if !r.IncludeRawFilter(s, v) {
 			return true
 		}
 	}
@@ -353,59 +387,97 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 	if r.Tree == nil {
 		panic("Tree is required")
 	}
-	r.resetLocalState()
 
-	if r.LockType > LockTypeNone {
-		commit1 := r.Tree.Lock(r.LockType == LockTypeWrite)
-		defer commit1()
+	handleT := func(s string, t T) (terminate bool, err error) {
+		if r.IncludeFilter != nil && !r.IncludeFilter(s, t) {
+			return false, nil
+		}
+		if r.Transform != nil {
+			if r.LockType == LockTypeRead {
+				panic("Transform must be performed with a write lock or no lock")
+			}
+			if err, skip, terminate := func() (err error, skip bool, terminate bool) {
+				if r.LockType == LockTypeNone {
+					unlock := r.Tree.Lock(true)
+					defer unlock()
+				}
+				var (
+					t2       T
+					replaced bool
+				)
+				t2, replaced, skip, terminate, err = r.Transform(s, t)
+				if terminate || skip || err != nil {
+					return
+				}
+
+				if replaced {
+					_, _ = r.Tree.tree.Insert(s, t2)
+				}
+				return
+			}(); skip || terminate || err != nil {
+				return terminate, err
+			}
+		}
+
+		if r.Handle != nil {
+			terminate, err = r.Handle(s, t, sitesmatrix.Language)
+			if terminate || err != nil {
+				return
+			}
+		}
+
+		return
 	}
 
-	main := r.Tree
+	return func() error {
+		if r.LockType > LockTypeNone {
+			unlock := r.Tree.Lock(r.LockType == LockTypeWrite)
+			defer unlock()
+		}
 
-	var err error
-	fnMain := func(s string, v any) bool {
-		if r.ShouldSkip(s) {
+		r.resetLocalState()
+
+		main := r.Tree
+
+		handleV := func(s string, v any) bool {
+			if r.ShouldSkip(s, v.(T)) {
+				return false
+			}
+			var t T
+			if r.NoShift {
+				t = v.(T)
+			} else {
+				var ok bool
+				t, ok = r.toT(r.Tree, v)
+				if !ok {
+					return false
+				}
+			}
+
+			terminate, err := handleT(s, t)
+			if terminate || err != nil {
+				return true
+			}
 			return false
 		}
 
-		t, ok, exact := r.toT(r.Tree, v)
-		if !ok {
-			return false
+		if r.Prefix != "" {
+			main.tree.WalkPrefix(r.Prefix, handleV)
+		} else {
+			main.tree.Walk(handleV)
 		}
 
-		var terminate bool
-		terminate, err = r.Handle(s, t, exact)
-		if terminate || err != nil {
-			return true
-		}
-		return false
-	}
-
-	if r.Prefix != "" {
-		main.tree.WalkPrefix(r.Prefix, fnMain)
-	} else {
-		main.tree.Walk(fnMain)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+		return nil
+	}()
 }
 
 func (r *NodeShiftTreeWalker[T]) resetLocalState() {
 	r.skipPrefixes = nil
 }
 
-func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (t T, ok bool, exact DimensionFlag) {
-	if r.NoShift {
-		t = v.(T)
-		ok = true
-	} else {
-		t, ok, exact = tree.shift(v.(T), r.Exact)
-	}
-	return
+// TODO1 revise all usage vs Do().
+func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (T, bool) {
+	return tree.shift(v.(T), r.Fallback)
 }
 
 func (r *NodeShiftTree[T]) Has(s string) bool {
@@ -417,36 +489,24 @@ func (t NodeShiftTree[T]) clone() *NodeShiftTree[T] {
 	return &t
 }
 
-func (r *NodeShiftTree[T]) shift(t T, exact bool) (T, bool, DimensionFlag) {
-	return r.shifter.Shift(t, r.dims, exact)
+func (r *NodeShiftTree[T]) shift(t T, fallback bool) (T, bool) {
+	return r.shifter.Shift(t, r.dims, fallback)
 }
 
 func (r *NodeShiftTree[T]) get(s string) (T, bool) {
 	s = cleanKey(s)
 	v, ok := r.tree.Get(s)
+	// dims: language, version and role
+	// How accurate is the match. TODO1 revise this.
+
 	if !ok {
 		var t T
 		return t, false
 	}
-	t, ok, _ := r.shift(v.(T), true)
-	return t, ok
-}
+	if v, ok := r.shift(v.(T), false); ok {
+		return v, true
+	}
 
-type WalkConfig[T any] struct {
-	// Optional prefix filter.
-	Prefix string
-
-	// Callback will be called for each node in the tree.
-	// If the callback returns true, the walk will stop.
-	Callback func(ctx *WalkContext[T], s string, t T) (bool, error)
-
-	// Enable read or write locking if needed.
-	LockType LockType
-
-	// When set, no dimension shifting will be performed.
-	NoShift bool
-
-	// Exact will only match exact in the current dimension (e.g. language),
-	// and will not look for alternatives.
-	Exact bool
+	var t T
+	return t, false
 }

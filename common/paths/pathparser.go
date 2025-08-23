@@ -14,6 +14,7 @@
 package paths
 
 import (
+	"fmt"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -22,6 +23,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/kinds"
 )
@@ -30,8 +32,8 @@ const (
 	identifierBaseof = "baseof"
 )
 
-// PathParser parses a path into a Path.
-type PathParser struct {
+// PathHandler parses and manages paths.
+type PathHandler struct {
 	// Maps the language code to its index in the languages/sites slice.
 	LanguageIndex map[string]int
 
@@ -44,6 +46,9 @@ type PathParser struct {
 
 	// Reports whether the given ext is a content file.
 	IsContentExt func(string) bool
+
+	// The configured sites matrix.
+	ConfiguredDimensions sitesmatrix.ConfiguredDimensions
 }
 
 // NormalizePathString returns a normalized path string using the very basic Hugo rules.
@@ -57,21 +62,44 @@ func NormalizePathStringBasic(s string) string {
 	return s
 }
 
+func (pp *PathHandler) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
+	// TODO1 cache this, probably easier to wrap the builder.
+	builder := sitesmatrix.NewIntSetsBuilder()
+
+	if lang := p.Lang(); lang != "" {
+		if idx, ok := pp.LanguageIndex[lang]; ok {
+			builder.WithLanguageIndex(idx)
+		}
+	}
+
+	switch p.Component() {
+	case files.ComponentFolderContent:
+		builder.WithDefaultsIfNotSet(pp.ConfiguredDimensions)
+	case files.ComponentFolderLayouts:
+		builder.WithAllIfNotSet(pp.ConfiguredDimensions)
+	case files.ComponentFolderStatic:
+		builder.WithDefaultsAndAllLanguagesIfNotSet(pp.ConfiguredDimensions)
+
+	}
+
+	return builder.Build()
+}
+
 // ParseIdentity parses component c with path s into a StringIdentity.
-func (pp *PathParser) ParseIdentity(c, s string) identity.StringIdentity {
+func (pp *PathHandler) ParseIdentity(c, s string) identity.StringIdentity {
 	p := pp.parsePooled(c, s)
 	defer putPath(p)
 	return identity.StringIdentity(p.IdentifierBase())
 }
 
 // ParseBaseAndBaseNameNoIdentifier parses component c with path s into a base and a base name without any identifier.
-func (pp *PathParser) ParseBaseAndBaseNameNoIdentifier(c, s string) (string, string) {
+func (pp *PathHandler) ParseBaseAndBaseNameNoIdentifier(c, s string) (string, string) {
 	p := pp.parsePooled(c, s)
 	defer putPath(p)
 	return p.Base(), p.BaseNameNoIdentifier()
 }
 
-func (pp *PathParser) parsePooled(c, s string) *Path {
+func (pp *PathHandler) parsePooled(c, s string) *Path {
 	s = NormalizePathStringBasic(s)
 	p := getPath()
 	p.component = c
@@ -83,7 +111,7 @@ func (pp *PathParser) parsePooled(c, s string) *Path {
 }
 
 // Parse parses component c with path s into Path using Hugo's content path rules.
-func (pp *PathParser) Parse(c, s string) *Path {
+func (pp *PathHandler) Parse(c, s string) *Path {
 	p, err := pp.parse(c, s)
 	if err != nil {
 		panic(err)
@@ -91,14 +119,14 @@ func (pp *PathParser) Parse(c, s string) *Path {
 	return p
 }
 
-func (pp *PathParser) newPath(component string) *Path {
+func (pp *PathHandler) newPath(component string) *Path {
 	p := &Path{}
 	p.reset()
 	p.component = component
 	return p
 }
 
-func (pp *PathParser) parse(component, s string) (*Path, error) {
+func (pp *PathHandler) parse(component, s string) (*Path, error) {
 	ss := NormalizePathStringBasic(s)
 
 	p, err := pp.doParse(component, ss, pp.newPath(component))
@@ -120,7 +148,7 @@ func (pp *PathParser) parse(component, s string) (*Path, error) {
 	return p, nil
 }
 
-func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, numDots int, isLast bool) {
+func (pp *PathHandler) parseIdentifier(component, s string, p *Path, i, lastDot, numDots int, isLast bool) {
 	if p.posContainerHigh != -1 {
 		return
 	}
@@ -155,12 +183,12 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 			p.posIdentifierOutputFormat = 0
 		}
 	} else {
-
 		var langFound bool
 
 		if mayHaveLang {
 			var disabled bool
 			_, langFound = pp.LanguageIndex[sid]
+
 			if !langFound {
 				disabled = pp.IsLangDisabled != nil && pp.IsLangDisabled(sid)
 				if disabled {
@@ -173,6 +201,7 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 				p.identifiersKnown = append(p.identifiersKnown, id)
 				p.posIdentifierLanguage = len(p.identifiersKnown) - 1
 			}
+
 		}
 
 		if !found && mayHaveOutputFormat {
@@ -202,8 +231,14 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 		}
 
 		if !found && mayHaveLayout {
-			p.identifiersKnown = append(p.identifiersKnown, id)
-			p.posIdentifierLayout = len(p.identifiersKnown) - 1
+			if p.posIdentifierLayout != -1 {
+				// Move it to identifiersUnknown.
+				p.identifiersUnknown = append(p.identifiersUnknown, p.identifiersKnown[p.posIdentifierLayout])
+				p.identifiersKnown[p.posIdentifierLayout] = id
+			} else {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierLayout = len(p.identifiersKnown) - 1
+			}
 			found = true
 		}
 
@@ -214,7 +249,7 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 	}
 }
 
-func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
+func (pp *PathHandler) doParse(component, s string, p *Path) (*Path, error) {
 	if runtime.GOOS == "windows" {
 		s = path.Clean(filepath.ToSlash(s))
 		if s == "." {
@@ -333,7 +368,7 @@ type Type int
 
 const (
 
-	// A generic resource, e.g. a JSON file.
+	// A generic file, e.g. a JSON file.
 	TypeFile Type = iota
 
 	// All below are content files.
@@ -580,6 +615,9 @@ func (p *Path) Unnormalized() *Path {
 
 // PathNoLang returns the Path but with any language identifier removed.
 func (p *Path) PathNoLang() string {
+	if p.identifierIndex(p.posIdentifierLanguage) == -1 {
+		return p.Path()
+	}
 	return p.base(true, false)
 }
 
@@ -785,4 +823,13 @@ func HasExt(p string) bool {
 		}
 	}
 	return false
+}
+
+// ValidateIdentifier returns true if the given string is a valid identifier according
+// to Hugo's basic path normalization rules.
+func ValidateIdentifier(s string) error {
+	if s == NormalizePathStringBasic(s) {
+		return nil
+	}
+	return fmt.Errorf("must be all lower case and no spaces")
 }

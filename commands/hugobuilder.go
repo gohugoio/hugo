@@ -30,6 +30,7 @@ import (
 	"github.com/bep/simplecobra"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -142,7 +143,7 @@ func (c *hugoBuilder) getDirList() ([]string, error) {
 		return nil, err
 	}
 
-	return helpers.UniqueStringsSorted(h.PathSpec.BaseFs.WatchFilenames()), nil
+	return hstrings.UniqueStringsSorted(h.PathSpec.BaseFs.WatchFilenames()), nil
 }
 
 func (c *hugoBuilder) initCPUProfile() (func(), error) {
@@ -818,7 +819,7 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 			continue
 		}
 
-		walkAdder := func(path string, f hugofs.FileMetaInfo) error {
+		walkAdder := func(ctx context.Context, path string, f hugofs.FileMetaInfo) error {
 			if f.IsDir() {
 				c.r.logger.Println("adding created directory to watchlist", path)
 				if err := watcher.Add(path); err != nil {
