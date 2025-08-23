@@ -13,7 +13,7 @@ The `Truncate` method operates on TIME as an absolute duration since the [zero t
 
 ```go-html-template
 {{ $t := time.AsTime "2023-01-27T23:44:58-08:00" }}
-{{ $d := time.ParseDuration "1h"}}
+{{ $d := time.ParseDuration "1h" }}
 
 {{ ($t.Truncate $d).Format "2006-01-02T15:04:05-00:00" }} → 2023-01-27T23:00:00-00:00
 ```

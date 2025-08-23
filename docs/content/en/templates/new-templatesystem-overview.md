@@ -1,4 +1,3 @@
-
 ---
 title: New template system in Hugo v0.146.0
 linktitle: New template system
@@ -32,7 +31,7 @@ Also, see the [Example folder structure] below for a more concrete example of th
 
 ## Changes to template lookup order
 
-We have consolidated the template lookup so it works the same across all shortcodes, render hooks, partials, and page templates. The previous setup was very hard to understand and had a massive number of variants. The new setup aims to feel natural with few surprises.
+We have consolidated the template lookup so it works the same across all [template types]. The previous setup was very hard to understand and had a massive number of variants. The new setup aims to feel natural with few surprises.
 
 The identifiers used in the template weighting, in order of importance, are:
 
@@ -50,9 +49,9 @@ The identifiers used in the template weighting, in order of importance, are:
 
 For templates placed in a `layouts` folder partly or completely matching a [Page path], a closer match upwards will be considered _better_. In the [Example folder structure] below, this means that:
 
-* `layouts/docs/api/_markup/render-link.html` will be used to render links from the Page path `/docs/api` and below.
-* `layouts/docs/baseof.html` will be used as the base template for the Page path `/docs` and below.
-* `layouts/tags/term.html` will be used for all `term` rendering in the `tags` taxonomy, except for the `blue` term, which will use `layouts/tags/blue/list.html`.
+- `layouts/docs/api/_markup/render-link.html` will be used to render links from the Page path `/docs/api` and below.
+- `layouts/docs/baseof.html` will be used as the base template for the Page path `/docs` and below.
+- `layouts/tags/term.html` will be used for all `term` rendering in the `tags` taxonomy, except for the `blue` term, which will use `layouts/tags/blue/list.html`.
 
 ## Example folder structure
 
@@ -90,10 +89,11 @@ layouts
         └── list.html
 ```
 
-[Hugo v0.146.0]: https://github.com/gohugoio/hugo/releases/tag/v0.146.0
-[Page path]: https://gohugo.io/methods/page/path/
-[Page kinds]: https://gohugo.io/methods/page/kind/
-[Example folder structure]: #example-folder-structure
-
 [^type]: The `type` set in front matter will effectively replace the `section` folder in [Page path] when doing lookups.
 [^internal]: The old way of doing it made it very hard/impossible to, e.g., override `_internal/disqus.html` in a theme. Now you can just create a partial with the same name.
+
+[Example folder structure]: #example-folder-structure
+[Hugo v0.146.0]: https://github.com/gohugoio/hugo/releases/tag/v0.146.0
+[Page kinds]: https://gohugo.io/methods/page/kind/
+[Page path]: https://gohugo.io/methods/page/path/
+[template types]: /templates/types/

@@ -12,16 +12,16 @@ weight: 10
 : Once you go for a static site, you need to think about how you are going to manage your articles. Front matter is a tool that helps you maintain the metadata/front matter of your articles like: creation date, modified date, slug, tile, SEO check, and more.
 
 [Hugo Helper](https://marketplace.visualstudio.com/items?itemName=rusnasonov.vscode-hugo)
-: Hugo Helper is a plugin for Visual Studio Code that has some useful commands for Hugo. The source code can be found [here](https://github.com/rusnasonov/vscode-hugo).
+: Hugo Helper is a plugin for Visual Studio Code that has some useful commands for Hugo. The source code can be found on its [GitHub repository](https://github.com/rusnasonov/vscode-hugo).
 
 [Hugo Language and Syntax Support](https://marketplace.visualstudio.com/items?itemName=budparr.language-hugo-vscode)
-: Hugo Language and Syntax Support is a Visual Studio Code plugin for Hugo syntax highlighting and snippets. The source code can be found [here](https://github.com/budparr/language-hugo-vscode).
+: Hugo Language and Syntax Support is a Visual Studio Code plugin for Hugo syntax highlighting and snippets. The source code can be found on its [GitHub repository](https://github.com/budparr/language-hugo-vscode).
 
 [Hugo Themer](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-hugo-themer)
 : Hugo Themer is an extension to help you while developing themes. It allows you to easily navigate through your theme files.
 
 [Hugofy](https://marketplace.visualstudio.com/items?itemName=akmittal.hugofy)
-: Hugofy is a plugin for Visual Studio Code to "make life easier" when developing with Hugo. The source code can be found [here](https://github.com/akmittal/hugofy-vscode).
+: Hugofy is a plugin for Visual Studio Code to "make life easier" when developing with Hugo. The source code can be found on its [GitHub repository](https://github.com/akmittal/hugofy-vscode).
 
 [Prettier Plugin for Go Templates](https://github.com/NiklasPor/prettier-plugin-go-template)
 : Format Hugo templates using this [Prettier](https://prettier.io/) plugin. See [installation instructions](https://discourse.gohugo.io/t/38403).
@@ -35,7 +35,7 @@ weight: 10
 : Emacs major mode for managing hugo blogs. Note that Hugo also supports [Org-mode][formats].
 
 [ox-hugo.el](https://ox-hugo.scripter.co)
-: Native Org-mode exporter that exports to Blackfriday Markdown with Hugo front-matter. `ox-hugo` supports two common Org blogging flows --- exporting multiple Org subtrees in a single file to multiple Hugo posts, and exporting a single Org file to a single Hugo post. It also leverages the Org tag and property inheritance features. See [*Why ox-hugo?*](https://ox-hugo.scripter.co/doc/why-ox-hugo/) for more.
+: Native Org-mode exporter that exports to Blackfriday Markdown with Hugo front-matter. `ox-hugo` supports two common Org blogging flows --- exporting multiple Org subtrees in a single file to multiple Hugo posts, and exporting a single Org file to a single Hugo post. It also leverages the Org tag and property inheritance features. See [Why ox-hugo?](https://ox-hugo.scripter.co/doc/why-ox-hugo/) for more.
 
 ## Sublime Text
 

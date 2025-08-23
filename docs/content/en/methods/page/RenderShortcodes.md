@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.RenderShortcodes]
 ---
 
-Use this method in shortcode templates to compose a page from multiple content files, while preserving a global context for footnotes and the table of contents.
+Use this method in _shortcode_ templates to compose a page from multiple content files, while preserving a global context for footnotes and the table of contents.
 
 For example:
 

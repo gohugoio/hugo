@@ -1,7 +1,7 @@
 ---
 title: Image render hooks
 linkTitle: Images
-description: Create an image render to hook override the rendering of Markdown images to HTML.
+description: Create image render hook templates to override the rendering of Markdown images to HTML.
 categories: []
 keywords: []
 ---
@@ -20,7 +20,7 @@ These components are passed into the render hook [context](g) as shown below.
 
 ## Context
 
-Image render hook templates receive the following context:
+Image _render hook_ templates receive the following context:
 
 Attributes
 : (`map`) The [Markdown attributes], available if you configure your site as follows:
@@ -97,21 +97,20 @@ Note that the above requires the following site configuration:
 wrapStandAloneImageWithinParagraph = false
 {{< /code-toggle >}}
 
-## Default
+## Embedded
 
 {{< new-in 0.123.0 />}}
 
-Hugo includes an [embedded image render hook] to resolve Markdown image destinations. Disabled by default, you can enable it in your site configuration:
+Hugo includes an [embedded image render hook] to resolve Markdown image destinations. You can adjust its behavior in your site configuration. This is the default setting:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.image]
-enableDefault = true
+useEmbedded = 'auto'
 {{< /code-toggle >}}
 
-A custom render hook, even when provided by a theme or module, will override the embedded render hook regardless of the configuration setting above.
+When set to `auto` as shown above, Hugo automatically uses the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
 
-> [!note]
-> The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+You can also configure Hugo to `always` use the embedded image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhooksimageuseembedded).
 
 The embedded image render hook resolves internal Markdown destinations by looking for a matching [page resource](g), falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 

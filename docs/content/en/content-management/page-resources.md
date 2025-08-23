@@ -35,10 +35,10 @@ content
 
 Use any of these methods on a `Page` object to capture page resources:
 
- - [`Resources.ByType`]
- - [`Resources.Get`]
- - [`Resources.GetMatch`]
- - [`Resources.Match`]
+- [`Resources.ByType`]
+- [`Resources.Get`]
+- [`Resources.GetMatch`]
+- [`Resources.Match`]
 
  Once you have captured a resource, use any of the applicable [`Resource`] methods to return a value or perform an action.
 
@@ -125,30 +125,32 @@ params
 
 ### Resources metadata example
 
+<!-- markdownlint-disable MD007 MD032 -->
 {{< code-toggle file=content/example.md fm=true >}}
 title: Application
-date : 2018-01-25
-resources :
-- src : "images/sunset.jpg"
-  name : "header"
-- src : "documents/photo_specs.pdf"
-  title : "Photo Specifications"
-  params:
-    icon : "photo"
-- src : "documents/guide.pdf"
-  title : "Instruction Guide"
-- src : "documents/checklist.pdf"
-  title : "Document Checklist"
-- src : "documents/payment.docx"
-  title : "Proof of Payment"
-- src : "**.pdf"
-  name : "pdf-file-:counter"
-  params :
-    icon : "pdf"
-- src : "**.docx"
-  params :
-    icon : "word"
+date: 2018-01-25
+resources:
+  - src: images/sunset.jpg
+    name: header
+  - src: documents/photo_specs.pdf
+    title: Photo Specifications
+    params:
+      icon: photo
+  - src: documents/guide.pdf
+    title: Instruction Guide
+  - src: documents/checklist.pdf
+    title: Document Checklist
+  - src: documents/payment.docx
+    title: Proof of Payment
+  - src: "**.pdf"
+    name: pdf-file-:counter
+    params:
+      icon: pdf
+  - src: "**.docx"
+    params:
+      icon: word
 {{</ code-toggle >}}
+<!-- markdownlint-enable MD007 MD032 -->
 
 From the example above:
 
@@ -271,12 +273,12 @@ public/
 
 This approach reduces build times, storage requirements, bandwidth consumption, and deployment times, ultimately reducing cost.
 
-> [!note]
+> [!important]
 > To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
 >
-> By default, with multilingual single-host sites, Hugo enables its [embedded link render hook] and [embedded image render hook] to resolve Markdown link and image destinations.
+> In its default configuration, Hugo automatically uses the [embedded link render hook] and the [embedded image render hook] for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link or image render hooks are defined by your project, modules, or themes, these will be used instead.
 >
-> You may override the embedded render hooks as needed, provided they capture the resource as described above.
+> You can also configure Hugo to `always` use the embedded link or image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 
 Although duplicating shared page resources is inefficient, you can enable this feature in your site configuration if desired:
 
@@ -288,10 +290,10 @@ duplicateResourceFiles = true
 [`RelPermalink`]: /methods/resource/relpermalink/
 [`Resource`]: /methods/resource
 [`Resources.ByType`]: /methods/page/resources#bytype
-[`Resources.Get`]: /methods/page/resources#get
 [`Resources.Get`]: /methods/page/resources/#get
 [`Resources.GetMatch`]: /methods/page/resources#getmatch
 [`Resources.Match`]: /methods/page/resources#match
 [content formats]: /content-management/formats/
-[embedded image render hook]: /render-hooks/images/#default
-[embedded link render hook]: /render-hooks/links/#default
+[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
+[embedded image render hook]: /render-hooks/images/#embedded
+[embedded link render hook]: /render-hooks/links/#embedded

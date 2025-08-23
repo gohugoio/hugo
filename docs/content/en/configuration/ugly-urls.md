@@ -13,6 +13,7 @@ https://example.org/section/article.html
 ```
 
 In its default configuration, Hugo generates [pretty URLs](g). For example:
+
 ```text
 https://example.org/section/article/
 ```

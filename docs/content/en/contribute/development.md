@@ -46,99 +46,89 @@ To build the extended or extended/deploy edition from source you must:
 
 Use this workflow to create and submit pull requests.
 
-### Step 1
+Step 1
+: Fork the [project repository].
 
-Fork the [project repository].
+Step 2
+: Clone your fork.
 
-### Step 2
+Step 3
+: Create a new branch with a descriptive name that includes the corresponding issue number.
 
-Clone your fork.
+  For a new feature:
 
-### Step 3
+  ```sh
+  git checkout -b feat/implement-some-feature-99999
+  ```
 
-Create a new branch with a descriptive name that includes the corresponding issue number.
+  For a bug fix:
 
-For a new feature:
+  ```sh
+  git checkout -b fix/fix-some-bug-99999
+  ```
 
-```sh
-git checkout -b feat/implement-some-feature-99999
-```
+Step 4
+: Make changes.
 
-For a bug fix:
+Step 5
+: Compile and install.
 
-```sh
-git checkout -b fix/fix-some-bug-99999
-```
+  To compile and install the standard edition:
 
-### Step 4
+  ```text
+  go install
+  ```
 
-Make changes.
+  To compile and install the extended edition:
 
-### Step 5
+  ```text
+  CGO_ENABLED=1 go install -tags extended
+  ```
 
-Compile and install.
+  To compile and install the extended/deploy edition:
 
-To compile and install the standard edition:
+  ```text
+  CGO_ENABLED=1 go install -tags extended,withdeploy
+  ```
 
-```text
-go install
-```
+Step 6
+: Test your changes:
 
-To compile and install the extended edition:
+  ```text
+  go test ./...
+  ```
 
-```text
-CGO_ENABLED=1 go install -tags extended
-```
+Step 7
+: Commit your changes with a descriptive commit message:
 
-To compile and install the extended/deploy edition:
+  - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
+    - Begin the summary with one of content, theme, config, all, or misc, followed by a colon, a space, and a brief description of the change beginning with a capital letter
+    - Use imperative present tense
+    - See the [commit message guidelines] for requirements
+  - Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
+  - Add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
 
-```text
-CGO_ENABLED=1 go install -tags extended,withdeploy
-```
+  For example:
 
-### Step 6
+  ```sh
+  git commit -m "tpl/strings: Create wrap function
 
-Test your changes:
+  The strings.Wrap function wraps a string into one or more lines,
+  splitting the string after the given number of characters, but not
+  splitting in the middle of a word.
 
-```text
-go test ./...
-```
+  Fixes #99998
+  Closes #99999"
+  ```
 
-### Step 7
+Step 8
+: Push the new branch to your fork of the documentation repository.
 
-Commit your changes with a descriptive commit message:
+Step 9
+: Visit the [project repository] and create a pull request (PR).
 
-- Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
-  - Begin the summary with one of content, theme, config, all, or misc, followed by a colon, a space, and a brief description of the change beginning with a capital letter
-  - Use imperative present tense
-  - See the [commit message guidelines] for requirements
-- Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
-- Add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
-
-For example:
-
-```sh
-git commit -m "tpl/strings: Create wrap function
-
-The strings.Wrap function wraps a string into one or more lines,
-splitting the string after the given number of characters, but not
-splitting in the middle of a word.
-
-Fixes #99998
-Closes #99999"
-```
-
-### Step 8
-
-Push the new branch to your fork of the documentation repository.
-
-### Step 9
-
-Visit the [project repository] and create a pull request (PR).
-
-### Step 10
-
-A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
+Step 10
+: A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
 ## Building from source
 
@@ -153,7 +143,7 @@ CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 To build and install a specific release:
 
 ```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.147.1
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.148.0
 ```
 
 To build and install at the latest commit on the master branch:
@@ -165,7 +155,7 @@ CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@master
 To build and install at a specific commit:
 
 ```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@0851c17
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@c0d9beb
 ```
 
 [bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug

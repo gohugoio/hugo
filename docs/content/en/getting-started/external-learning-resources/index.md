@@ -7,6 +7,9 @@ keywords: []
 weight: 40
 ---
 
+> [!note]
+> Many of the resources on this page, including older books and videos, may contain out-of-date information. The Hugo software has undergone significant changes since these resources were created. These changes include the introduction of a new template system, the deprecation of various functions and settings, and the addition of new features like Markdown render hooks, content adapters, and support for mathematical markup. While some concepts may still be relevant, it's recommended to consult the official Hugo documentation for the most current and accurate information.
+
 ## Books
 
 ### Hugo in Action

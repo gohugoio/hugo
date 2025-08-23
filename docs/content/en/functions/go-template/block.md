@@ -21,6 +21,7 @@ and then executing it in place:
 ```go-html-template
 {{ template "name" pipeline }}
 ```
+
 The typical use is to define a set of root templates that are then customized by redefining the block templates within.
 
 ```go-html-template {file="layouts/baseof.html"}

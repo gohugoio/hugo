@@ -1,0 +1,91 @@
+# Glob patterns to include
+globs:
+  - "content/**/*.md"
+
+# Glob patterns to exclude
+ignores:
+  - "content/**/commands/**"
+  - "content/en/about/license.md"
+  - "content/LICENSE.md"
+
+# Markdownlint rules and configuration
+# https://github.com/DavidAnson/markdownlint?tab=readme-ov-file#rules--aliases
+config:
+  MD001: true
+  # MD002 deprecated
+  MD003:
+    style: atx
+  MD004:
+    style: dash
+  MD005: true
+  # MD006 deprecated
+  MD007: false # if enabled, throws errors when definition descriptions contain list items
+  # MD008 deprecated
+  MD009: true
+  MD010: true
+  MD011: true
+  MD012: true
+  MD013: false
+  MD014: true
+  # MD015 deprecated
+  # MD016 deprecated
+  # MD017 deprecated
+  MD018: true
+  MD019: true
+  MD020: true
+  MD021: true
+  MD022: true
+  MD023: true
+  MD024: true
+  MD025: true
+  MD026: true
+  MD027: true
+  MD028: false
+  MD029:
+    style: one
+  MD030: true
+  MD031: true
+  MD032: true
+  MD033: true
+  MD034: false
+  MD035:
+    style: ---
+  MD036: true
+  MD037: true
+  MD038: true
+  MD039: true
+  MD040: true
+  MD041: false
+  MD042: true
+  MD043: false
+  MD044: false
+  MD045: true
+  MD046: false
+  MD047: true
+  MD048:
+    style: backtick
+  MD049:
+    style: underscore
+  MD050:
+    style: asterisk
+  MD051: false
+  MD052: true
+  MD053: true
+  MD054:
+    autolink: true
+    collapsed: true
+    full: true
+    inline: true
+    shortcut: true
+    url_inline: true
+  MD055:
+    style: consistent
+  MD056: true
+  # MD057 deprecated
+  MD058: true
+  MD059:
+    prohibited_texts:
+      - click here
+      - here
+      - link
+      - more

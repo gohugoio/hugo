@@ -128,7 +128,7 @@ The following concepts provide more insight into the relationship between your p
 
 ### `section`
 
-A default content type is determined by the section in which a content item is stored. `section` is determined by the location within the project's `content` directory. `section` *cannot* be specified or overridden in front matter.
+A default content type is determined by the section in which a content item is stored. `section` is determined by the location within the project's `content` directory. `section` cannot be specified or overridden in front matter.
 
 ### `slug`
 

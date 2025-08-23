@@ -38,7 +38,9 @@ Within a range block:
 
 ## Understanding context
 
-At the top of a page template, the [context](g) (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
+See the [context] section in the introduction to templating.
+
+For example, at the top of a _page_ template, the [context](g) (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
 
 With this contrived example:
 
@@ -217,3 +219,4 @@ Ranging over a non-positive integer executes the block zero times.
 [`break`]: /functions/go-template/break/
 [`continue`]: /functions/go-template/continue/
 [`else`]: /functions/go-template/else/
+[context]: /templates/introduction/#context

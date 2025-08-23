@@ -1,8 +1,15 @@
 {
   "version": "0.2",
   "allowCompoundWords": true,
-  "files": [
-    "**/*.md"
+  "overrides": [
+    {
+      "filename": "**/*",
+      "enabled": false
+    },
+    {
+      "filename": "**/*.md",
+      "enabled": true
+    }
   ],
   "flagWords": [
     "alot",
@@ -64,6 +71,7 @@
     "templating",
     "transpile",
     "unmarshal",
+    "unmarshaled",
     "unmarshaling",
     "unmarshals",
     "# ----------------------------------------------------------------------",
@@ -100,6 +108,8 @@
     "descripción",
     "dokumentation",
     "erklärungen",
+    "español",
+    "français",
     "libros",
     "mercredi",
     "miesiąc",
@@ -147,6 +157,7 @@
     "dpkg",
     "doas",
     "eopkg",
+    "forgejo",
     "gitee",
     "goldmark",
     "katex",

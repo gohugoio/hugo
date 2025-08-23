@@ -196,10 +196,7 @@ my-theme/
 ├── i18n/
 ├── layouts/
 ├── static/
-├── LICENSE
-├── README.md
-├── hugo.toml
-└── theme.toml
+└── hugo.toml
 ```
 
 Using the union file system described above, Hugo mounts each of these directories to the corresponding location in the project. When two files have the same path, the file in the project directory takes precedence. This allows you, for example, to override a theme's template by placing a copy in the same location within the project directory.

@@ -51,9 +51,11 @@ git remote add origin https://codeberg.org/<YourUsername>/pages.git
 git push -u origin main
 ```
 
-## Automated deployment using Woodpecker CI
+## Automated deployment
 
-There are two methods you can use to deploy your Hugo website to Codeberg automatically. These are: Woodpecker CI and Forgejo Actions.
+You can automatically deploy your Hugo website to Codeberg using one of two methods: Woodpecker CI or Forgejo Actions.
+
+### Woodpecker CI
 
 To use Codeberg's Woodpecker CI, you need to have or [request] access to it, as well as add a `.woodpecker.yaml` file in the root of your project. A template and additional instructions are available in the official [examples repository].
 
@@ -78,7 +80,7 @@ git push -u origin main
 
 Your project will then be built and deployed by Codeberg's Woodpecker CI.
 
-## Automated deployment using Forgejo Actions
+### Forgejo Actions
 
 The other way to deploy your website to Codeberg pages automatically is to make use of Forgejo Actions. Actions need a _runner_ to work, and Codeberg has [great documentation] on how to set one up yourself. However, Codeberg provides a [handful of humble runners] themselves (they say this feature is in "open alpha"), which actually seem powerful enough to build at least relatively simple websites.
 
@@ -109,7 +111,7 @@ jobs:
     runs-on: codeberg-tiny-lazy
     container:
       # Specify "hugomods/hugo:exts" if you want to always use the latest version of Hugo for building.
-      image: "hugomods/hugo:exts-0.147.9"
+      image: "hugomods/hugo:exts-0.148.0"
     steps:
       - name: Clone the repository
         uses: https://code.forgejo.org/actions/checkout@v4
@@ -160,21 +162,25 @@ jobs:
 The second file implements a more complex scenario: having your website sources in one repository and the resulting static website in another repository (in this case, `pages`). If you want Codeberg to make your website available at the root of your pages subdomain (`https://<YourUsername>.codeberg.page/`), you have to push that website to the default branch of your repository named `pages`.
 
 Since this action involves more than one repository, it will require a bit more preparation:
+
 1. Create the target repository. Name it `pages`.
-2. Generate a new SSH key. *Do not* use any of your own SSH keys for this, but generate one for this specific task only. On Linux, BSD, and, likely, other operating systems, you can open a terminal emulator and run the following command to generate the key:
+1. Generate a new SSH key. Do not use any of your own SSH keys for this, but generate one for this specific task only. On Linux, BSD, and, likely, other operating systems, you can open a terminal emulator and run the following command to generate the key:
+
    ```shell
    ssh-keygen -f pagesbuild -P ""
    ```
-   This will generate two files in your current directory: `pagesbuild` (private key) and `pagesbuild.pub` (public key).
-3. Add the newly generated public key as a deploy key to your `pages` repository: navigate to its Settings, click on "Deploy keys" in the left menu, click the "Add deploy key" button, give it a name (e.g. "Actions deploy key"), paste the contents of the **public** key file (`pagesbuild.pub`) to the Content field, tick the "Enable write access" checkbox, then submit the form.
-4. Navigate back to your source repository settings, expand the "Actions" menu and click on "Secrets". Then click "Add Secret", enter "DEPLOY_KEY" as the secret name and paste the contents of the newly generated **private** key file (`pagesbuild`) into the Value field.
-5. Navigate to the "Variables" submenu of the "Actions" menu and add the following variables:
 
-    | Name                | Value                                                                            |
-    |---------------------|----------------------------------------------------------------------------------|
-    | `TARGET_REPOSITORY` | `<YourUsername>/pages`                                                           |
-    | `TARGET_BRANCH`     | `main` (enter the default branch name of the `pages` repo here)                  |
-    | `SSH_KNOWN_HOSTS`   | (paste the output you get by running `ssh-keyscan codeberg.org` in the terminal) |
+   This will generate two files in your current directory: `pagesbuild` (private key) and `pagesbuild.pub` (public key).
+
+1. Add the newly generated public key as a deploy key to your `pages` repository: navigate to its Settings, click on "Deploy keys" in the left menu, click the "Add deploy key" button, give it a name (e.g. "Actions deploy key"), paste the contents of the **public** key file (`pagesbuild.pub`) to the Content field, tick the "Enable write access" checkbox, then submit the form.
+1. Navigate back to your source repository settings, expand the "Actions" menu and click on "Secrets". Then click "Add Secret", enter "DEPLOY_KEY" as the secret name and paste the contents of the newly generated **private** key file (`pagesbuild`) into the Value field.
+1. Navigate to the "Variables" submenu of the "Actions" menu and add the following variables:
+
+Name|Value
+:--|:--
+`TARGET_REPOSITORY`|`<YourUsername>/pages`
+`TARGET_BRANCH`|`main` (enter the default branch name of the `pages` repo here)
+`SSH_KNOWN_HOSTS`|(paste the output you get by running `ssh-keyscan codeberg.org` in the terminal)
 
 Once you've done all of the above, commit the following file to your repository as `.forgejo/workflows/hugo.yaml`. As you can see, the `deploy` job of this workflow is slightly different from the file above:
 
@@ -195,7 +201,7 @@ jobs:
     runs-on: codeberg-tiny-lazy
     container:
       # Specify "hugomods/hugo:exts" if you want to always use the latest version of Hugo for building.
-      image: "hugomods/hugo:exts-0.147.9"
+      image: "hugomods/hugo:exts-0.148.0"
     steps:
       - name: Clone the repository
         uses: https://code.forgejo.org/actions/checkout@v4
@@ -248,6 +254,27 @@ jobs:
 ```
 
 Once you commit one of the two files to your website source repository, you should see your first automated build firing up pretty soon. You can also trigger it manually by navigating to the **Actions** section of your repository web page, choosing **hugo.yaml** on the left and clicking on **Run workflow**.
+
+## Forgejo Actions custom domains
+
+Codeberg Pages relies on a `.domains` file to identify allowed domains for a specific branch. It's important that this file is located in the root directory of your output repository or branch, rather than in the root directory of your source files. To achieve this, simply place your `.domains` file in the `static` directory of your project. When your site is built, it will be automatically copied to the `public` directory, which serves as the root of your output.
+
+When looking at the example `.forgejo/workflows/hugo.yaml`, you'll notice that the `upload-artifact@v3` action is used to upload the public directory to the deployment branch.
+
+By default, both `upload-artifact@v3` and `upload-artifact@v4` exclude all dot files from being uploaded unless you specifically tell them not to (you can find more details [here]).
+
+By default, upload-artifact@v3 and upload-artifact@v4 exclude all dot files from being uploaded. You can find more details on [how to handle dot files and other file patterns in the documentation](https://github.com/actions/upload-artifact/issues/602). To make sure dot files are included, modify your workflow like this:
+
+```yaml {file=".forgejo/workflows/hugo.yaml" copy=true}
+      - name: Upload generated files
+        uses: https://code.forgejo.org/actions/upload-artifact@v3
+        with:
+          name: Generated files
+          path: public/
+          include-hidden-files: true # Prevents excluding .domains from uploading
+```
+
+If you're using a custom domain, it's important to update your workflow file accordingly.
 
 ## Other resources
 

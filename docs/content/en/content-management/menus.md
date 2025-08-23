@@ -68,6 +68,7 @@ Use these properties when defining menu entries in front matter:
 
 This front matter menu entry demonstrates some of the available properties:
 
+<!-- markdownlint-disable MD033 -->
 {{< code-toggle file=content/products/software.md fm=true >}}
 title = 'Software'
 [menus.main]
@@ -77,6 +78,7 @@ pre = '<i class="fa-solid fa-code"></i>'
 [menus.main.params]
 class = 'center'
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD033 -->
 
 Access the entry with `site.Menus.main` in your templates. See [menu templates] for details.
 

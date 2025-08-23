@@ -60,25 +60,32 @@ The default front matter configuration includes these aliases.
 
 ## Tokens
 
-Hugo provides several [tokens](g) to assist with front matter configuration.
+Hugo provides the following [tokens](g) to help you configure your front matter:
 
-Token|Description
-:--|:--
-`:default`|The default ordered sequence of date fields.
-`:fileModTime`|The file's last modification timestamp.
-`:filename`|The date from the file name, if present.
-`:git`|The Git author date for the file's last revision.
+`:default`
+: The default ordered sequence of date fields.
 
-When Hugo extracts a date from a file name, it uses the rest of the file name to generate the page's [`slug`], but only if a slug isn't already specified in the page's front matter. For example, given the name `2025-02-01-article.md`, Hugo will set the `date` to `2025-02-01` and the `slug` to `article`.
+`:fileModTime`
+: The file's last modification timestamp.
 
-[`slug`]: /content-management/front-matter/#slug
+`:filename`
+: Extracts the date from the file name, provided the file name begins with a date in one of the following formats:
 
-To enable access to the Git author date, set [`enableGitInfo`] to `true`, or use\
-the `--enableGitInfo` flag when building your site.
+  - `YYYY-MM-DD`
+  - `YYYY-MM-DD-HH-MM-SS` {{< new-in 0.148.0 />}}
 
-[`enableGitInfo`]: /configuration/all/#enablegitinfo
+  Within the `YYYY-MM-DD-HH-MM-SS` format, the date and time values may be separated by any character including a space (e.g., `2025-02-01T14-30-00`).
 
-Consider this example:
+  Hugo resolves the extracted date to the [`timeZone`] defined in your site configuration, falling back to the system time zone. After extracting the date, Hugo uses the remaining part of the file name to generate the page's [`slug`], but only if you haven't already specified a slug in the page's front matter.
+
+  For example, if you name your file `2025-02-01-article.md`, Hugo will set the date to `2025-02-01` and the slug to `article`.
+
+`:git`
+: The Git author date for the file's last revision. To enable access to the Git author date, set [`enableGitInfo`] to `true`, or use the `--enableGitInfo` flag when building your site.
+
+## Example
+
+Consider this site configuration:
 
 {{< code-toggle file=hugo >}}
 [frontmatter]
@@ -89,3 +96,7 @@ lastmod = ['lastmod', ':fileModTime']
 To determine `date`, Hugo tries to extract the date from the file name, falling back to the default ordered sequence of date fields.
 
 To determine `lastmod`, Hugo looks for a `lastmod` field in front matter, falling back to the file's last modification timestamp.
+
+[`enableGitInfo`]: /configuration/all/#enablegitinfo
+[`slug`]: /content-management/front-matter/#slug
+[`timeZone`]: /configuration/all/#timezone

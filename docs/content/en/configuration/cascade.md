@@ -44,7 +44,7 @@ environment
 : (`string`) A [glob](g) pattern matching the build [environment](g). For example: `{staging,production}`.
 
 kind
-: (`string`) A [glob](g) pattern matching the [page kind](g). For example: ` {taxonomy,term}`.
+: (`string`) A [glob](g) pattern matching the [page kind](g). For example: `{taxonomy,term}`.
 
 lang
 : (`string`) A [glob](g) pattern matching the [page language]. For example: `{en,de}`.

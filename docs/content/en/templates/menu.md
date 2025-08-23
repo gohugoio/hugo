@@ -21,7 +21,7 @@ The example below handles every combination.
 
 ## Example
 
-This partial template recursively "walks" a menu structure, rendering a localized, accessible nested list.
+This _partial_ template recursively "walks" a menu structure, rendering a localized, accessible nested list.
 
 ```go-html-template {file="layouts/_partials/menu.html" copy=true}
 {{- $page := .page }}

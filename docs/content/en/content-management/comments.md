@@ -64,9 +64,4 @@ Open-source commenting systems:
 [configuration]: /configuration/
 [disquspartial]: /templates/embedded/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
-[forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/
-[kaijuissue]: https://github.com/spf13/kaiju/issues/new
-[issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
-[partials]: /templates/partial/
-[MongoDB]: https://www.mongodb.com/

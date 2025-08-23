@@ -15,9 +15,3 @@ Prebuilt binaries are available for a variety of operating systems and architect
 Please consult your operating system documentation if you need help setting file permissions or modifying your PATH environment variable.
 
 If you do not see a prebuilt binary for the desired edition, operating system, and architecture, install Hugo using one of the methods described below.
-
-[commit information]: /methods/page/gitinfo/
-[Git]: https://git-scm.com/
-[Go]: https://go.dev/
-[Hugo Modules]: /hugo-modules/
-[latest release]: https://github.com/gohugoio/hugo/releases/latest
