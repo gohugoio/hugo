@@ -15,8 +15,6 @@ The `Err` method on the returned resource was removed in v0.141.0.
 
 Use the [`try`] statement instead, as shown in the [error handling] example below.
 
-[`try`]: /functions/go-template/try
-[error handling]: #error-handling
 {{< /new-in >}}
 
 ```go-html-template
@@ -36,26 +34,21 @@ Use the [`try`] statement instead, as shown in the [error handling] example belo
 
 The `resources.GetRemote` function takes an optional map of options.
 
-###### body
+body
+: (`string`) The data you want to transmit to the server.
 
-(`string`) The data you want to transmit to the server.
+headers
+: (`map[string][]string`) The collection of key-value pairs that provide additional information about the request.
 
-###### headers
+key
+: (`string`) The cache key. Hugo derives the default value from the URL and options map. See [caching](#caching).
 
-(`map[string][]string`) The collection of key-value pairs that provide additional information about the request.
+method
+: (`string`) The action to perform on the requested resource, typically one of `GET`, `POST`, or `HEAD`.
 
-###### key
-
-(`string`) The cache key. Hugo derives the default value from the URL and options map. See [caching](#caching).
-
-###### method
-
-(`string`) The action to perform on the requested resource, typically one of `GET`, `POST`, or `HEAD`.
-
-###### responseHeaders
-{{< new-in 0.143.0 />}}
-
-(`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.
+responseHeaders
+: {{< new-in 0.143.0 />}}
+: (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.
 
 [`Data.Headers`]: /methods/resource/data/#headers
 
@@ -63,8 +56,6 @@ The `resources.GetRemote` function takes an optional map of options.
 
 > [!note]
 > For brevity, the examples below do not include [error handling].
-
-[error handling]: #error-handling
 
 To include a header:
 
@@ -150,8 +141,6 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
 
 Use the [`try`] statement to capture HTTP request errors. If you do not handle the error yourself, Hugo will fail the build.
 
-[`try`]: /functions/go-template/try
-
 > [!note]
 > Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
 
@@ -202,8 +191,6 @@ By default, Hugo derives the cache key from the arguments passed to the function
 {{ $resource := resources.GetRemote $url $opts }}
 ```
 
-[configure file caches]: /configuration/caches/
-
 ## Security
 
 To protect against malicious intent, the `resources.GetRemote` function inspects the server response including:
@@ -234,3 +221,7 @@ Note that the entry above is:
 
 [allowlist]: https://en.wikipedia.org/wiki/Whitelist
 [Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+
+[`try`]: /functions/go-template/try
+[configure file caches]: /configuration/caches/
+[error handling]: #error-handling

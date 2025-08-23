@@ -11,7 +11,7 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Content` method on a `Resource` object returns `template.HTML` when the resource type is `page`, otherwise it returns a `string`.
+The `Content` method on a `Resource` object returns `template.HTML` when the [resource type] is `page`, otherwise it returns a `string`.
 
 [resource type]: /methods/resource/resourcetype/
 

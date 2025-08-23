@@ -1,4 +1,4 @@
-# Do not delete. Required for layouts/shortcodes/list-pages-in-section.html.
+# Do not delete. Required for layouts/_shortcodes/list-pages-in-section.html.
 #
 # When calling the list-pages-in-section shortcode, you can specify a page
 # filter, and whether the pages in the filter should be included or excluded

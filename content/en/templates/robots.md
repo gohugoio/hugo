@@ -46,8 +46,7 @@ This template creates a robots.txt file with a `Disallow` directive for each pag
 > 1. Set `enableRobotsTXT` to `false` in the site configuration.
 > 1. Create a robots.txt file in the `static` directory.
 >
-> Remember that Hugo copies everything in the [`static` directory][static] to the root of `publishDir` (typically `public`) when you build your site.
+> Remember that Hugo copies everything in the static director to the root of `publishDir` (typically `public`) when you build your site.
 
 [embedded template]: {{% eturl robots %}}
 [site configuration]: /configuration/
-[static]: /getting-started/directory-structure/

@@ -190,6 +190,9 @@ chroma:
     - coq
     Name: Coq
   - Aliases:
+    - core
+    Name: Core
+  - Aliases:
     - cr
     - crystal
     Name: Crystal
@@ -515,6 +518,10 @@ chroma:
   - Aliases:
     - monkeyc
     Name: MonkeyC
+  - Aliases:
+    - moonscript
+    - moon
+    Name: MoonScript
   - Aliases:
     - morrowind
     - mwscript
@@ -1253,8 +1260,10 @@ config:
       renderHooks:
         image:
           enableDefault: false
+          useEmbedded: auto
         link:
           enableDefault: false
+          useEmbedded: auto
       renderer:
         hardWraps: false
         unsafe: false

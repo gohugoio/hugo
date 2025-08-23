@@ -18,10 +18,6 @@ The front matter at the top of each content file is metadata that:
 
 Provide front matter using a serialization format, one of [JSON], [TOML], or [YAML]. Hugo determines the front matter format by examining the delimiters that separate the front matter from the page content.
 
-[json]: https://www.json.org/
-[toml]: https://toml.io/
-[yaml]: https://yaml.org/
-
 See examples of front matter delimiters by toggling between the serialization formats below.
 
 {{< code-toggle file=content/example.md fm=true >}}
@@ -115,7 +111,7 @@ sitemap
 : (`map`) A map of sitemap options. See the [sitemap templates] page for details. Access these values from a template using the [`Sitemap`] method on a `Page` object.
 
 slug
-: (`string`) Overrides the last segment of the URL path. Not applicable to section pages. See the [URL management] page for details. Access this value from a template using the [`Slug`] method on a `Page` object.
+: (`string`) Overrides the last segment of the URL path. Not applicable to `home`, `section`, `taxonomy`, or `term` pages. See the [URL management] page for details. Access this value from a template using the [`Slug`] method on a `Page` object.
 
 summary
 : (`string`) Conceptually different than the page `description`, the summary either summarizes the content or serves as a teaser to encourage readers to visit the page. Access this value from a template using the [`Summary`] method on a `Page` object.
@@ -138,42 +134,6 @@ url
 weight
 : (`int`) The page [weight](g), used to order the page within a [page collection](g). Access this value from a template using the [`Weight`] method on a `Page` object.
 
-[URL management]: /content-management/urls/#slug
-[`Summary`]: /methods/page/summary/
-[`aliases`]: /methods/page/aliases/
-[`date`]: /methods/page/date/
-[`description`]: /methods/page/description/
-[`draft`]: /methods/page/draft/
-[`expirydate`]: /methods/page/expirydate/
-[`fuzzywordcount`]: /methods/page/wordcount/
-[`keywords`]: /methods/page/keywords/
-[`lastmod`]: /methods/page/date/
-[`layout`]: /methods/page/layout/
-[`linktitle`]: /methods/page/linktitle/
-[`publishdate`]: /methods/page/publishdate/
-[`readingtime`]: /methods/page/readingtime/
-[`sitemap`]: /methods/page/sitemap/
-[`slug`]: /methods/page/slug/
-[`summary`]: /methods/page/summary/
-[`title`]: /methods/page/title/
-[`translationkey`]: /methods/page/translationkey/
-[`type`]: /methods/page/type/
-[`weight`]: /methods/page/weight/
-[`wordcount`]: /methods/page/wordcount/
-[aliases]: /content-management/urls/#aliases
-[build options]: /content-management/build-options/
-[cascade]: #cascade-1
-[configure outputs]: /configuration/outputs/#outputs-per-page
-[content formats]: /content-management/formats/#classification
-[leaf bundles]: /content-management/page-bundles/#leaf-bundles
-[menus]: /content-management/menus/#define-in-front-matter
-[output formats]: /configuration/output-formats/
-[page parameters]: #parameters
-[page resources]: /content-management/page-resources/#metadata
-[sitemap templates]: /templates/sitemap/
-[target a specific template]: /templates/lookup-order/#target-a-template
-[template lookup order]: /templates/lookup-order/
-
 ## Parameters
 
 {{< new-in 0.123.0 />}}
@@ -190,9 +150,6 @@ author = 'John Smith'
 {{< /code-toggle >}}
 
 Access these values from a template using the [`Params`] or [`Param`] method on a `Page` object.
-
-[`param`]: /methods/page/param/
-[`params`]: /methods/page/params/
 
 Hugo provides [embedded templates] to optionally insert meta data within the `head` element of your rendered pages. These embedded templates expect the following front matter parameters:
 
@@ -248,7 +205,6 @@ Access taxonomy terms from a template using the [`Params`] or [`GetTerms`] metho
 {{ end }}
 ```
 
-[`Params`]: /methods/page/params/
 [`GetTerms`]: /methods/page/getterms/
 
 ## Cascade
@@ -289,7 +245,7 @@ environment
 : (`string`) A [glob](g) pattern matching the build [environment](g). For example: `{staging,production}`.
 
 kind
-: (`string`) A [glob](g) pattern matching the [page kind](g). For example: ` {taxonomy,term}`.
+: (`string`) A [glob](g) pattern matching the [page kind](g). For example: `{taxonomy,term}`.
 
 path
 : (`string`) A [glob](g) pattern matching the page's [logical path](g). For example: `{/books,/books/**}`.
@@ -356,7 +312,46 @@ To override the default time zone, set the [`timeZone`](/configuration/all/#time
 1. The time zone specified in your site configuration
 1. The `Etc/UTC` time zone
 
+[`aliases`]: /methods/page/aliases/
+[`date`]: /methods/page/date/
+[`description`]: /methods/page/description/
+[`draft`]: /methods/page/draft/
+[`expirydate`]: /methods/page/expirydate/
+[`fuzzywordcount`]: /methods/page/wordcount/
+[`keywords`]: /methods/page/keywords/
+[`lastmod`]: /methods/page/date/
+[`layout`]: /methods/page/layout/
+[`linktitle`]: /methods/page/linktitle/
 [`opengraph.html`]: {{% eturl opengraph %}}
+[`Param`]: /methods/page/param/
+[`Params`]: /methods/page/params/
+[`publishdate`]: /methods/page/publishdate/
+[`readingtime`]: /methods/page/readingtime/
 [`schema.html`]: {{% eturl schema %}}
+[`sitemap`]: /methods/page/sitemap/
+[`slug`]: /methods/page/slug/
+[`Summary`]: /methods/page/summary/
+[`title`]: /methods/page/title/
+[`translationkey`]: /methods/page/translationkey/
 [`twitter_cards.html`]: {{% eturl twitter_cards %}}
+[`type`]: /methods/page/type/
+[`weight`]: /methods/page/weight/
+[`wordcount`]: /methods/page/wordcount/
+[aliases]: /content-management/urls/#aliases
+[build options]: /content-management/build-options/
+[cascade]: #cascade-1
+[configure outputs]: /configuration/outputs/#outputs-per-page
+[content formats]: /content-management/formats/#classification
 [embedded templates]: /templates/embedded/
+[json]: https://www.json.org/
+[leaf bundles]: /content-management/page-bundles/#leaf-bundles
+[menus]: /content-management/menus/#define-in-front-matter
+[output formats]: /configuration/output-formats/
+[page parameters]: #parameters
+[page resources]: /content-management/page-resources/#metadata
+[sitemap templates]: /templates/sitemap/
+[target a specific template]: /templates/lookup-order/#target-a-template
+[template lookup order]: /templates/lookup-order/
+[toml]: https://toml.io/
+[URL management]: /content-management/urls/#slug
+[yaml]: https://yaml.org/

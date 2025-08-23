@@ -9,7 +9,7 @@ The method or function used to create a scratch pad determines its scope. For ex
 Scope|Method or function
 :--|:--
 page|[`PAGE.Store`]
-site|[`SITE.Store`] 
+site|[`SITE.Store`]
 global|[`hugo.Store`]
 local|[`collections.NewScratch`]
 shortcode|[`SHORTCODE.Store`]

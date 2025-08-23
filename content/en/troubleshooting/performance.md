@@ -69,7 +69,7 @@ maximum duration
 : The maximum time spent executing the template.
 
 cache potential
-: Displayed as a percentage, any partial template with a 100% cache potential should be called with the [`partialCached`] function instead of the [`partial`] function. See the [caching](#caching) section below.
+: Displayed as a percentage, any _partial_ template with a 100% cache potential should be called with the [`partialCached`] function instead of the [`partial`] function. See the [caching](#caching) section below.
 
 percent cached
 : The number of times the rendered templated was cached divided by the number of times the template was executed.
@@ -88,7 +88,7 @@ template
 
 ## Caching
 
-Some partial templates such as sidebars or menus are executed many times during a site build. Depending on the content within the partial template and the desired output, the template may benefit from caching to reduce the number of executions. The [`partialCached`] template function provides caching capabilities for partial templates.
+Some _partial_ templates such as sidebars or menus are executed many times during a site build. Depending on the content within the _partial_ template and the desired output, the template may benefit from caching to reduce the number of executions. The [`partialCached`] template function provides caching capabilities for _partial_ templates.
 
 > [!note]
 > Note that you can create cached variants of each partial by passing additional arguments to `partialCached` beyond the initial context. See the `partialCached` documentation for more details.

@@ -28,6 +28,7 @@ lineNoStart
 
 lineNos
 : (`any`) Controls line number display. Default is `false`.
+
   - `true`: Enable line numbers, controlled by `lineNumbersInTable`.
   - `false`: Disable line numbers.
   - `inline`: Enable inline line numbers (sets `lineNumbersInTable` to `false`).

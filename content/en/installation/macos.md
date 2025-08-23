@@ -34,9 +34,9 @@ sudo port install hugo
 
 ## Comparison
 
-||Prebuilt binaries|Package managers|Build from source
+&nbsp;|Prebuilt binaries|Package managers|Build from source
 :--|:--:|:--:|:--:
-Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
 Easy to upgrade?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
 Easy to downgrade?|:heavy_check_mark:|:heavy_check_mark: [^1]|:heavy_check_mark:
 Automatic updates?|:x:|:x: [^2]|:x:

@@ -77,6 +77,7 @@ content/
   {{ .Name }} → images/Sunrise in Bryce Canyon.jpg
 {{ end }}
 ```
+
 ## Remote resource
 
 With a [remote resource](g), the `Name` method returns a hashed file name.

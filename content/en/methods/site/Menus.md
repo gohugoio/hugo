@@ -79,7 +79,7 @@ When viewing the "books" page, the result is:
 </nav>
 ```
 
-You will typically render a menu using a partial template. As the active menu entry will be different on each page, use the [`partial`] function to call the template. Do not use the [`partialCached`] function.
+You will typically render a menu using a _partial_ template. As the active menu entry will be different on each page, use the [`partial`] function to call the template. Do not use the [`partialCached`] function.
 
 The example above is simplistic. Please see the [menu templates] section for more information.
 

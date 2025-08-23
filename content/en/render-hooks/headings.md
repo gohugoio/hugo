@@ -1,14 +1,14 @@
 ---
 title: Heading render hooks
 linkTitle: Headings
-description: Create a heading render hook to override the rendering of Markdown headings to HTML.
+description: Create heading render hook templates to override the rendering of Markdown headings to HTML.
 categories: []
 keywords: []
 ---
 
 ## Context
 
-Heading render hook templates receive the following [context](g):
+Heading _render hook_ templates receive the following [context](g):
 
 Anchor
 : (`string`) The `id` attribute of the heading element.

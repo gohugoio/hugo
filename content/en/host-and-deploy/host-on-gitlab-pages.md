@@ -23,44 +23,81 @@ Define your [CI/CD](g) jobs by creating a `.gitlab-ci.yml` file in the root of y
 
 ```yaml {file=".gitlab-ci.yml" copy=true}
 variables:
-  DART_SASS_VERSION: 1.89.2
+  # Application versions
+  DART_SASS_VERSION: 1.90.0
+  HUGO_VERSION: 0.148.2
+  NODE_VERSION: 22.18.0
+  # Git
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: recursive
-  HUGO_VERSION: 0.147.9
-  NODE_VERSION: 22.x
-  TZ: America/Los_Angeles
+  # Time zone
+  TZ: Europe/Oslo
+
 image:
-  name: golang:1.24.2-bookworm
+  name: golang:1.24.5-bookworm
 
 pages:
   stage: deploy
   script:
-    # Install brotli
+    # Create directory for user-specific executable files
+    - echo "Creating directory for user-specific executable files..."
+    - mkdir -p "${HOME}/.local"
+
+    # Install utilities
+    - echo "Installing utilities..."
     - apt-get update
-    - apt-get install -y brotli
+    - apt-get install -y brotli xz-utils zstd
+
     # Install Dart Sass
-    - curl -LJO https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-    - tar -xf dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz
-    - cp -r dart-sass/ /usr/local/bin
-    - rm -rf dart-sass*
-    - export PATH=/usr/local/bin/dart-sass:$PATH
+    - echo "Installing Dart Sass ${DART_SASS_VERSION}..."
+    - curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+    - tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+    - rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+    - export PATH="${HOME}/.local/dart-sass:${PATH}"
+
     # Install Hugo
-    - curl -LJO https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
-    - apt-get install -y ./hugo_extended_${HUGO_VERSION}_linux-amd64.deb
-    - rm hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+    - echo "Installing Hugo ${HUGO_VERSION}..."
+    - curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+    - mkdir "${HOME}/.local/hugo"
+    - tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+    - rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+    - export PATH="${HOME}/.local/hugo:${PATH}"
+
     # Install Node.js
-    - curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash -
-    - apt-get install -y nodejs
+    - echo "Installing Node.js ${NODE_VERSION}..."
+    - curl -sLJO "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
+    - tar -C "${HOME}/.local" -xf "node-v${NODE_VERSION}-linux-x64.tar.xz"
+    - rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
+    - export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
+
+    # Verify installations
+    - echo "Verifying installations..."
+    - "echo Dart Sass: $(sass --version)"
+    - "echo Go: $(go version)"
+    - "echo Hugo: $(hugo version)"
+    - "echo Node.js: $(node --version)"
+    - "echo brotli: $(brotli --version)"
+    - "echo xz: $(xz --version)"
+    - "echo zstd: $(zstd --version)"
+
     # Install Node.js dependencies
-    - "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+    - echo "Installing Node.js dependencies..."
+    - "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci --prefer-offline || true"
+
     # Configure Git
+    - echo "Configuring Git..."
     - git config core.quotepath false
-    # Build
-    - hugo --gc --minify --baseURL ${CI_PAGES_URL}
-    # Compress
-    - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec gzip -f -k {} \;
-    - find public -type f -regex '.*\.\(css\|html\|js\|txt\|xml\)$' -exec brotli -f -k {} \;
+
+    # Build site
+    - echo "Building site..."
+    - hugo --gc --minify --baseURL "${CI_PAGES_URL}"
+
+    # Compress published files
+    - echo "Compressing published files..."
+    - find public/ -type f -regextype posix-extended -regex '.+\.(css|html|js|json|mjs|svg|txt|xml)$' -print0 > files.txt
+    - time xargs --null --max-procs=0 --max-args=1 brotli --quality=10 --force --keep < files.txt
+    - time xargs --null --max-procs=0 --max-args=1 gzip -9 --force --keep < files.txt
   artifacts:
     paths:
       - public
@@ -70,7 +107,7 @@ pages:
 
 ## Push your Hugo website to GitLab
 
-Next, create a new repository on GitLab. It is *not* necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
+Next, create a new repository on GitLab. It is not necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
 
 ```sh
 # initialize new git repository

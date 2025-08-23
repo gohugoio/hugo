@@ -31,26 +31,23 @@ params:
 
 ## Setup
 
-### Step 1
+Step 1
+: Install [Node.js](https://nodejs.org/en/download)
 
-Install [Node.js](https://nodejs.org/en/download)
+Step 2
+: Install the required Node.js packages in the root of your project.
 
-### Step 2
+  ```sh
+  npm install --save-dev @babel/core @babel/cli
+  ```
 
-Install the required Node.js packages in the root of your project.
+Step 3
+: Add the babel executable to Hugo's `security.exec.allow` list in your site configuration:
 
-```sh
-npm install --save-dev @babel/core @babel/cli
-```
-
-### Step 3
-
-Add the babel executable to Hugo's `security.exec.allow` list in your site configuration:
-
-{{< code-toggle file=hugo >}}
-[security.exec]
-  allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^npx$', '^postcss$', '^babel$']
-{{< /code-toggle >}}
+  {{< code-toggle file=hugo >}}
+  [security.exec]
+    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^npx$', '^postcss$', '^babel$']
+  {{< /code-toggle >}}
 
 ## Configuration
 

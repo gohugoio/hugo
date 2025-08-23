@@ -45,14 +45,14 @@ fleqn
 macros
 : (`map`) A map of macros to be used in the math expression. Default is `{}`.
 
-    ```go-html-template
-    {{ $macros := dict
-      "\\addBar" "\\bar{#1}"
-      "\\bold" "\\mathbf{#1}"
-    }}
-    {{ $opts := dict "macros" $macros }}
-    {{ transform.ToMath "\\addBar{y} + \\bold{H}" $opts }}
-    ```
+  ```go-html-template
+  {{ $macros := dict
+    "\\addBar" "\\bar{#1}"
+    "\\bold" "\\mathbf{#1}"
+  }}
+  {{ $opts := dict "macros" $macros }}
+  {{ transform.ToMath "\\addBar{y} + \\bold{H}" $opts }}
+  ```
 
 minRuleThickness
 : (`float`) The minimum thickness of the fraction lines in `em`. Default is `0.04`.
@@ -60,10 +60,10 @@ minRuleThickness
 output
 : (`string`) Determines the markup language of the output, one of `html`, `mathml`, or `htmlAndMathml`. Default is `mathml`.
 
-    With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
+  With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
 
-    ```html
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+  ```html
+  <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
 
 strict
 : {{< new-in 0.147.6 />}}
@@ -73,10 +73,7 @@ strict
   - `ignore`: Allows convenient, unsupported LaTeX features without any feedback.
   - `warn`: {{< new-in 0.147.7 />}} Emits a warning when convenient, unsupported LaTeX features are encountered.
 
-: The `newLineInDisplayMode` error code, which flags the use of `\\`
-or `\newline` in display mode outside an array or tabular environment, is
-intentionally designed not to throw an error, despite this behavior
-being questionable.
+  The `newLineInDisplayMode` error code, which flags the use of `\\` or `\newline` in display mode outside an array or tabular environment, is intentionally designed not to throw an error, despite this behavior being questionable.
 
 throwOnError
 : (`bool`) Whether to throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
@@ -95,66 +92,65 @@ The example below demonstrates error handing within a template.
 
 Instead of client-side JavaScript rendering of mathematical markup using MathJax or KaTeX, create a passthrough render hook which calls the `transform.ToMath` function.
 
-### Step 1
+Step 1
+: Enable and configure the Goldmark [passthrough extension][] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
-Enable and configure the Goldmark [passthrough extension] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
+[passthrough extension]: /configuration/markup/#passthrough
 
-{{< code-toggle file=hugo copy=true >}}
-[markup.goldmark.extensions.passthrough]
-enable = true
+  {{< code-toggle file=hugo copy=true >}}
+  [markup.goldmark.extensions.passthrough]
+  enable = true
+  [markup.goldmark.extensions.passthrough.delimiters]
+  block = [['\[', '\]'], ['$$', '$$']]
+  inline = [['\(', '\)']]
+  {{< /code-toggle >}}
 
-[markup.goldmark.extensions.passthrough.delimiters]
-block = [['\[', '\]'], ['$$', '$$']]
-inline = [['\(', '\)']]
-{{< /code-toggle >}}
+  > [!note]
+  > The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
 
-> [!note]
-> The configuration above precludes the use of the `$...$` delimiter pair for inline equations. Although you can add this delimiter pair to the configuration, you must double-escape the `$` symbol when used outside of math contexts to avoid unintended formatting.
+Step 2
+: Create a [passthrough render hook][] to capture and render the LaTeX markup.4
 
-### Step 2
+[passthrough render hook]: /render-hooks/passthrough/
 
-Create a [passthrough render hook] to capture and render the LaTeX markup.
+  ```go-html-template {file="layouts/_markup/render-passthrough.html" copy=true}
+  {{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
+  {{- with try (transform.ToMath .Inner $opts) }}
+    {{- with .Err }}
+      {{- errorf "Unable to render mathematical markup to HTML using the transform.ToMath function. The KaTeX display engine threw the following error: %s: see %s." . $.Position }}
+    {{- else }}
+      {{- .Value }}
+      {{- $.Page.Store.Set "hasMath" true }}
+    {{- end }}
+  {{- end -}}
+  ```
+  
+Step 3
+: In your base template, conditionally include the KaTeX CSS within the head element.
 
-```go-html-template {file="layouts/_markup/render-passthrough.html" copy=true}
-{{- $opts := dict "output" "htmlAndMathml" "displayMode" (eq .Type "block") }}
-{{- with try (transform.ToMath .Inner $opts) }}
-  {{- with .Err }}
-    {{- errorf "Unable to render mathematical markup to HTML using the transform.ToMath function. The KaTeX display engine threw the following error: %s: see %s." . $.Position }}
-  {{- else }}
-    {{- .Value }}
-    {{- $.Page.Store.Set "hasMath" true }}
-  {{- end }}
-{{- end -}}
-```
+  ```go-html-template {file="layouts/baseof.html" copy=true}
+  <head>
+    {{ $noop := .WordCount }}
+    {{ if .Page.Store.Get "hasMath" }}
+      <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+    {{ end }}
+  </head>
+  ```
 
-### Step 3
+  In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
-In your base template, conditionally include the KaTeX CSS within the head element.
+Step 4
+: Add some mathematical markup to your content, then test.
 
-```go-html-template {file="layouts/baseof.html" copy=true}
-<head>
-  {{ $noop := .WordCount }}
-  {{ if .Page.Store.Get "hasMath" }}
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
-  {{ end }}
-</head>
-```
+  ```text {file="content/example.md"}
+  This is an inline \(a^*=x-b^*\) equation.
 
-In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
+  These are block equations:
 
-### Step 4
+  \[a^*=x-b^*\]
 
-Add some mathematical markup to your content, then test.
-
-```text {file="content/example.md"}
-This is an inline \(a^*=x-b^*\) equation.
-
-These are block equations:
-
-\[a^*=x-b^*\]
-
-$$a^*=x-b^*$$
-```
+  $$a^*=x-b^*$$
+  ```
 
 ## Chemistry
 
@@ -172,6 +168,4 @@ $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 [KaTeX]: https://katex.org/
 [MathML]: https://developer.mozilla.org/en-US/docs/Web/MathML
 [mhchem]: https://mhchem.github.io/MathJax-mhchem/
-[passthrough extension]: /configuration/markup/#passthrough
-[passthrough render hook]: /render-hooks/passthrough/
 [rendering options]: https://katex.org/docs/options.html

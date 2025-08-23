@@ -11,7 +11,7 @@ params:
 
 To support both positional and named arguments when calling a shortcode, use the `IsNamedParams` method to determine how the shortcode was called.
 
-With this shortcode template:
+With this _shortcode_ template:
 
 ```go-html-template {file="layouts/_shortcodes/myshortcode.html"}
 {{ if .IsNamedParams }}

@@ -194,6 +194,7 @@ export const schemaTypes = [postType]
 
 Unfortunately, Sanity's API does not support [RFC 7234](https://tools.ietf.org/html/rfc7234) and their output changes even if the data has not. A recommended setup is therefore to use their cached `apicdn` endpoint (see above) and then set up a reasonable polling and file cache strategy in your Hugo configuration, e.g:
 
+<!-- markdownlint-disable MD049 -->
 {{< code-toggle file=hugo >}}
 [HTTPCache]
   [[HTTPCache.polls]]
@@ -207,6 +208,7 @@ Unfortunately, Sanity's API does not support [RFC 7234](https://tools.ietf.org/h
     dir    = ':cacheDir/:project'
     maxAge = "5m"
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD049 -->
 
 The polling above will be used when running the server/watch mode and rebuild when you push new content in Sanity.
 
