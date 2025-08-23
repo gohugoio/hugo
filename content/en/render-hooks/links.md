@@ -104,4 +104,4 @@ target = 'assets'
 [`RenderShortcodes`]: /methods/page/rendershortcodes
 [CommonMark specification]: https://spec.commonmark.org/current/
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-[embedded link render hook]: {{% eturl render-link %}}
+[embedded link render hook]: <{{% eturl render-link %}}>

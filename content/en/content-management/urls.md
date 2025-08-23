@@ -263,4 +263,4 @@ Page
 [`baseURL`]: /configuration/all/#baseurl
 [removed in a future release]: https://github.com/gohugoio/hugo/issues/4733
 [reserved characters]: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
-[source code]: {{% eturl alias %}}
+[source code]: <{{% eturl alias %}}>

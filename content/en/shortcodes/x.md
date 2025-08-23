@@ -44,11 +44,11 @@ enableDNT
 simple
 : (`bool`) Whether to enable simple mode. If `true`, Hugo builds a static version of the of the post without JavaScript. Default is `false`.
 
-The source code for the simple version of the shortcode is available [here].
+The source code for the simple version of the shortcode is available [in this file].
 
 If you enable simple mode you may want to disable the hardcoded inline styles by setting `disableInlineCSS` to `true` in your site configuration. The default value for this setting is `false`.
 
 {{< code-toggle config=services.x />}}
 
-[here]: {{% eturl x_simple %}}
-[source code]: {{% eturl x %}}
+[in this file]: <{{% eturl x_simple %}}>
+[source code]: <{{% eturl x %}}>

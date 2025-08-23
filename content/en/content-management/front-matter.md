@@ -322,18 +322,18 @@ To override the default time zone, set the [`timeZone`](/configuration/all/#time
 [`lastmod`]: /methods/page/date/
 [`layout`]: /methods/page/layout/
 [`linktitle`]: /methods/page/linktitle/
-[`opengraph.html`]: {{% eturl opengraph %}}
+[`opengraph.html`]: <{{% eturl opengraph %}}>
 [`Param`]: /methods/page/param/
 [`Params`]: /methods/page/params/
 [`publishdate`]: /methods/page/publishdate/
 [`readingtime`]: /methods/page/readingtime/
-[`schema.html`]: {{% eturl schema %}}
+[`schema.html`]: <{{% eturl schema %}}>
 [`sitemap`]: /methods/page/sitemap/
 [`slug`]: /methods/page/slug/
 [`Summary`]: /methods/page/summary/
 [`title`]: /methods/page/title/
 [`translationkey`]: /methods/page/translationkey/
-[`twitter_cards.html`]: {{% eturl twitter_cards %}}
+[`twitter_cards.html`]: <{{% eturl twitter_cards %}}>
 [`type`]: /methods/page/type/
 [`weight`]: /methods/page/weight/
 [`wordcount`]: /methods/page/wordcount/

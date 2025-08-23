@@ -39,4 +39,4 @@ disable
 simple
 : (`bool`) Whether to enable simple mode for image card generation. If `true`, Hugo creates a static card without JavaScript. This mode only supports image cards, and the image is fetched directly from Instagram's servers. Default is `false`.
 
-[source code]: {{% eturl instagram %}}
+[source code]: <{{% eturl instagram %}}>

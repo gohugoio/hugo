@@ -256,5 +256,5 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 ```
 
 [code block render hook]: /render-hooks/code-blocks/
-[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+[embedded code block render hook]: <{{% eturl render-codeblock-goat %}}>
 [GoAT]: https://github.com/bep/goat

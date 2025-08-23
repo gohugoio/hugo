@@ -237,4 +237,4 @@ public/
 [`Paginator`]: /methods/page/paginator/
 [`partial`]: /functions/partials/include/
 [grouping methods]: /quick-reference/page-collections/#group
-[source code]: {{% eturl pagination %}}
+[source code]: <{{% eturl pagination %}}>

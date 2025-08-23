@@ -399,7 +399,7 @@ Use the embedded template URL (`eturl`) shortcode to insert an absolute URL to t
 ```text
 This is a link to the [embedded alias template].
 
-[embedded alias template]: {{%/* eturl alias */%}}
+[embedded alias template]: <{{%/* eturl alias */%}}>
 ```
 
 ### glossary-term

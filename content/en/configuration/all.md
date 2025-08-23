@@ -350,9 +350,9 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
 [default front matter configuration]: /configuration/front-matter/
 [duration]: https://pkg.go.dev/time#Duration
-[embedded alias template]: {{% eturl alias %}}
-[embedded Open Graph template]: {{% eturl opengraph %}}
-[embedded RSS template]: {{% eturl rss %}}
+[embedded alias template]: <{{% eturl alias %}}>
+[embedded Open Graph template]: <{{% eturl opengraph %}}>
+[embedded RSS template]: <{{% eturl rss %}}>
 [IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 [module mounts]: /configuration/module/#mounts
 [os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir

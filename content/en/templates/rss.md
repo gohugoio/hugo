@@ -72,4 +72,4 @@ layouts/
 
 RSS templates receive the `.Page` and `.Site` objects in context.
 
-[embedded RSS template]: {{% eturl rss %}}
+[embedded RSS template]: <{{% eturl rss %}}>
