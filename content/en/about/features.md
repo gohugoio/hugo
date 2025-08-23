@@ -92,7 +92,7 @@ weight: 20
 ## Performance
 
 [Caching]
-: Reduce build time and cost by rendering a partial template once then cache the result, either globally or within a given context. For example, cache the result of an asset pipeline to prevent reprocessing on every rendered page.
+: Reduce build time and cost by rendering a _partial_ template once then cache the result, either globally or within a given context. For example, cache the result of an asset pipeline to prevent reprocessing on every rendered page.
 
 [Segmentation]
 : Reduce build time and cost by partitioning your sites into segments. For example, render the home page and the "news section" every hour, and render the entire site once a week.

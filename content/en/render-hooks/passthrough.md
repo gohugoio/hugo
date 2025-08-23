@@ -1,7 +1,7 @@
 ---
 title: Passthrough render hooks
 linkTitle: Passthrough
-description: Create a passthrough render hook to override the rendering of text snippets captured by the Goldmark Passthrough extension.
+description: Create passthrough render hook templates to override the rendering of text snippets captured by the Goldmark Passthrough extension.
 categories: []
 keywords: []
 ---
@@ -47,7 +47,7 @@ To enable custom rendering of passthrough elements, create a passthrough render 
 
 ## Context
 
-Passthrough render hook templates receive the following [context](g):
+Passthrough _render hook_ templates receive the following [context](g):
 
 Attributes
 : (`map`) The [Markdown attributes], available if you configure your site as follows:

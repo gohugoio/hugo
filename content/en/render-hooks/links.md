@@ -20,7 +20,7 @@ These components are passed into the render hook [context](g) as shown below.
 
 ## Context
 
-Link render hook templates receive the following context:
+Link _render hook_ templates receive the following context:
 
 Destination
 : (`string`) The link destination.
@@ -70,21 +70,20 @@ To include a `rel` attribute set to `external` for external links:
 {{- /* chomp trailing newline */ -}}
 ```
 
-## Default
+## Embedded
 
 {{< new-in 0.123.0 />}}
 
-Hugo includes an [embedded link render hook] to resolve Markdown link destinations. Disabled by default, you can enable it in your site configuration:
+Hugo includes an [embedded link render hook] to resolve Markdown link destinations. You can adjust its behavior in your site configuration. This is the default setting:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.link]
-enableDefault = true
+useEmbedded = 'auto'
 {{< /code-toggle >}}
 
-A custom render hook, even when provided by a theme or module, will override the embedded render hook regardless of the configuration setting above.
+When set to `auto` as shown above, Hugo automatically uses the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
 
-> [!note]
-> The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+You can also configure Hugo to `always` use the embedded link render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 
 The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource](g), then falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 

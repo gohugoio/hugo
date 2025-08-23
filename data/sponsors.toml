@@ -12,10 +12,3 @@
   link            = "https://www.jetbrains.com/go/?utm_source=OSS&utm_medium=referral&utm_campaign=hugo"
   logo            = "images/sponsors/goland.svg"
   bgcolor         = "#f4f4f4"
-
-[[banners]]
-  name            = "PinMe"
-  link            = "https://pinme.eth.limo/?s=hugo"
-  logo            = "images/sponsors/logo-pinme.svg"
-  no_query_params = true
-  bgcolor         = "#fafafa"

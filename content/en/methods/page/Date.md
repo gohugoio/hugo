@@ -29,6 +29,5 @@ In the example above we explicitly set the date in front matter. With Hugo's def
 
 [`time.Format`]: /functions/time/format/
 [details]: /configuration/front-matter/#dates
-[details]: /configuration/front-matter/#dates
 [time methods]: /methods/time/
 [time.Time]: https://pkg.go.dev/time#Time

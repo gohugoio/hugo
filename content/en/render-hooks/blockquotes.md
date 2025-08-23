@@ -1,7 +1,7 @@
 ---
 title: Blockquote render hooks
 linkTitle: Blockquotes
-description: Create a blockquote render hook to override the rendering of Markdown blockquotes to HTML.
+description: Create blockquote render hook templates to override the rendering of Markdown blockquotes to HTML.
 categories: []
 keywords: []
 ---
@@ -10,7 +10,7 @@ keywords: []
 
 ## Context
 
-Blockquote render hook templates receive the following [context](g):
+Blockquote _render hook_ templates receive the following [context](g):
 
 AlertType
 : (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert type converted to lowercase. See the [alerts](#alerts) section below.

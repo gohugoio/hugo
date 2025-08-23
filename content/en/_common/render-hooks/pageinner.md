@@ -22,14 +22,14 @@ The primary use case for `PageInner` is to resolve links and [page resources](g)
 
 Then call the shortcode in your Markdown:
 
-```text {file="content/posts/p1.md"}
-{{%/* include "/posts/p2" */%}}
+```text {file="content/posts/post-1.md"}
+{{%/* include "/posts/post-2" */%}}
 ```
 
-Any render hook triggered while rendering `/posts/p2` will get:
+Any render hook triggered while rendering `/posts/post-2` will get:
 
-- `/posts/p1` when calling `Page`
-- `/posts/p2` when calling `PageInner`
+- `/posts/post-1` when calling `Page`
+- `/posts/post-2` when calling `PageInner`
 
 `PageInner` falls back to the value of `Page` if not relevant, and always returns a value.
 

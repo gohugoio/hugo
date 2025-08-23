@@ -17,7 +17,7 @@ To complete this showcase:
 1. Write the story about your site in this file.
 1. Add a summary to the `bio.md` file in this directory.
 1. Replace the `featured-template.png` with a screenshot of your site. You can rename it, but it must contain the word `featured`.
-1. Create a new pull request in https://github.com/gohugoio/hugoDocs/pulls
+1. Create a new pull request in <https://github.com/gohugoio/hugoDocs/pulls>
 
 The content of this bundle explained:
 

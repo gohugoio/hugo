@@ -67,5 +67,3 @@ For time-related values, you can also use the layout string components defined i
 permalinks:
   posts: /:06/:1/:2/:title/
 {{< /code-toggle >}}
-
-[content base name]: /methods/page/file/#contentbasename

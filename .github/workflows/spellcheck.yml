@@ -12,16 +12,14 @@ jobs:
   spellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: streetsidesoftware/cspell-action@v5
+      - uses: actions/checkout@v5
+      - uses: streetsidesoftware/cspell-action@v7
         with:
-          check_dot_files: false
-          files: content/**/*.md
           incremental_files_only: true
-          inline: warning
-          strict: false
+          strict: true
+          # cspell uses the .cspell.json configuration file
       - uses: codespell-project/actions-codespell@v2
         with:
           check_filenames: true
           check_hidden: true
-          # by default, codespell uses configuration from the .codespellrc
+          # codespell uses the .codespellrc file

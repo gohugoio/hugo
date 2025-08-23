@@ -18,7 +18,7 @@ By default, the number of elements on each pager is determined by your [site con
 >
 > The `Paginate` method is more flexible.
 
-You can invoke pagination on the [home template], [section templates], [taxonomy templates], and [term templates].
+You can invoke pagination in [home], [section], [taxonomy], and [term] templates.
 
 ```go-html-template {file="layouts/section.html"}
 {{ $pages := where .Site.RegularPages "Section" "articles" }}
@@ -40,8 +40,8 @@ In the example above, we:
 > [!note]
 > Please note that the results of pagination are cached. Once you have invoked either the `Paginator` or `Paginate` method, the paginated collection is immutable. Additional invocations of these methods will have no effect.
 
-[home template]: /templates/types/#home
-[section templates]: /templates/types/#section
+[home]: /templates/types/#home
+[section]: /templates/types/#section
 [site configuration]: /configuration/pagination/
-[taxonomy templates]: /templates/types/#taxonomy
-[term templates]: /templates/types/#term
+[taxonomy]: /templates/types/#taxonomy
+[term]: /templates/types/#term

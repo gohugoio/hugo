@@ -13,8 +13,8 @@ aliases: [/functions/jsonify]
 
 To customize the printing of the JSON, pass an options map as the first
 argument. Supported options are "prefix" and "indent". Each JSON element in
-the output will begin on a new line beginning with *prefix* followed by one or
-more copies of *indent* according to the indentation nesting.
+the output will begin on a new line beginning with _prefix_ followed by one or
+more copies of _indent_ according to the indentation nesting.
 
 ```go-html-template
 {{ dict "title" .Title "content" .Plain | jsonify }}

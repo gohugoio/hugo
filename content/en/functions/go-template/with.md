@@ -57,7 +57,9 @@ Initialize a variable, scoped to the current block:
 
 ## Understanding context
 
-At the top of a page template, the [context](g) (the dot) is a `Page` object. Inside of the `with` block, the context is bound to the value passed to the `with` statement.
+See the [context] section in the introduction to templating.
+
+For example, at the top of a _page_ template, the [context](g) (the dot) is a `Page` object. Inside of the `with` block, the context is bound to the value passed to the `with` statement.
 
 With this contrived example:
 
@@ -90,3 +92,4 @@ This template will render the page title as desired:
 {{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`else`]: /functions/go-template/else/
+[context]: /templates/introduction/#context

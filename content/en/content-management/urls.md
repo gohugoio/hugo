@@ -20,7 +20,7 @@ You can change the structure and appearance of URLs with front matter values and
 
 ### `slug`
 
-Set the `slug` in front matter to override the last segment of the path. The `slug` value does not affect section pages.
+Set the `slug` in front matter to override the last segment of the path. This front matter field is not applicable to `home`, `section`, `taxonomy`, or `term` pages.
 
 {{< code-toggle file=content/posts/post-1.md fm=true >}}
 title = 'My First Post'
@@ -39,6 +39,7 @@ Set the `url` in front matter to override the entire path. Use this with either 
 
 > [!note]
 > Hugo does not sanitize the `url` front matter field, allowing you to generate:
+>
 > - File paths that contain characters reserved by the operating system. For example, file paths on Windows may not contain any of these [reserved characters]. Hugo throws an error if a file path includes a character reserved by the current operating system.
 > - URLs that contain disallowed characters. For example, the less than sign (`<`) is not allowed in a URL.
 
