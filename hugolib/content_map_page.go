@@ -797,7 +797,7 @@ type (
 	contentNodeVariantAdder interface {
 		contentNode
 
-		// Returns the added node and true if added, false if a node already existed for the given vector.
+		// Returns the added node and a bool indicating if it was an update (true) or insert (false).
 		addContentNodeVariant(sitesmatrix.Vector) (contentNode, bool)
 	}
 )
@@ -1025,7 +1025,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		if m := v.matchSiteVector(siteVector, fallback); m != nil {
 			for vv := range m {
 				if !fallback && vv.siteVector() != siteVector {
-					rc := vv.(*resourceSource)
+					rc := vv.(contentNodeVariantAdder)
 					v, _ := rc.addContentNodeVariant(siteVector)
 					return v, true
 
@@ -1143,15 +1143,10 @@ func (s *contentNodeShifter) InsertInto(old, new contentNode, dimension sitesmat
 	}
 }
 
+// Returns the updated and existing and a bool indicating whether it was an update (true) or insert (false).
 func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentNode, bool) {
 	switch vv := old.(type) {
 	case *pageMetaSource:
-		hdebug.Printf("Insert %T <- %T", old, new)
-		switch new := new.(type) {
-		case *pageMetaSource:
-		default:
-			panic(fmt.Sprintf("Insert: unknown type %T", new))
-		}
 		return pageMetaSourcesSlice{vv, new}, old, false
 	case pageMetaSourcesSlice:
 		newp, ok := new.(*pageMetaSource)
@@ -2460,6 +2455,9 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 }
 
 func (sa *sitePagesAssembler) createPages(tree *doctree.NodeShiftTree[contentNode]) error {
+	if true {
+		return nil
+	}
 	sites := sa.s.h.sitesVersionsRolesMap
 	isRebuild := sa.s.h.isRebuild()
 	printPathWarnings := !isRebuild && sa.s.conf.PrintPathWarnings

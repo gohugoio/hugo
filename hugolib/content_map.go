@@ -108,7 +108,8 @@ func (r *contentNodeVariantsHolder[S, R]) addContentNodeVariant(sv sitesmatrix.V
 	if r.root == nil || r.root.siteVector() == sv {
 		v := &contentNodeSourceVariant[S, R]{s: r.s, sv: sv}
 		r.root = v
-		return r.root, true
+		update := r.root != nil
+		return r.root, update
 	}
 	if r.variants == nil {
 		r.variants = make(map[sitesmatrix.Vector]*contentNodeSourceVariant[S, R])
@@ -118,7 +119,7 @@ func (r *contentNodeVariantsHolder[S, R]) addContentNodeVariant(sv sitesmatrix.V
 		v = &contentNodeSourceVariant[S, R]{s: r.s, sv: sv}
 		r.variants[sv] = v
 	}
-	return v, !found
+	return v, found
 }
 
 func (r *contentNodeVariantsHolder[S, R]) getVariant(vec sitesmatrix.Vector) contentNodeForSite {
