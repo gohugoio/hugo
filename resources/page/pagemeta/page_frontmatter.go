@@ -203,17 +203,17 @@ func (p *SitesMatrixFallbacks) MatchSiteVector(siteVector sitesmatrix.Vector) bo
 	return p.SitesMatrix.HasAnyVector(siteVector)
 }
 
-func (p *SitesMatrixFallbacks) MatchLanguageOrLanguageDelegee(siteVector sitesmatrix.Vector) bool {
+func (p *SitesMatrixFallbacks) MatchLanguageOrLanguageFallback(siteVector sitesmatrix.Vector) bool {
 	i := siteVector.Language()
 	return p.SitesMatrix.HasLanguage(i) || p.SitesFallbacks.HasLanguage(i)
 }
 
-func (p *SitesMatrixFallbacks) MatchRoleOrRoleDelegee(siteVector sitesmatrix.Vector) bool {
+func (p *SitesMatrixFallbacks) MatchRoleOrRoleFallback(siteVector sitesmatrix.Vector) bool {
 	i := siteVector.Role()
 	return p.SitesMatrix.HasRole(i) || p.SitesFallbacks.HasRole(i)
 }
 
-func (p *SitesMatrixFallbacks) MatchVersionOrVersionDelegee(siteVector sitesmatrix.Vector) bool {
+func (p *SitesMatrixFallbacks) MatchVersionOrVersionFallback(siteVector sitesmatrix.Vector) bool {
 	i := siteVector.Version()
 	return p.SitesMatrix.HasVersion(i) || p.SitesFallbacks.HasVersion(i)
 }

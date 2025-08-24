@@ -216,28 +216,28 @@ func (ps *pageState) contentWeight() int {
 	return ps.m.contentWeight()
 }
 
-func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, fallback bool) (iter.Seq[contentNodeForSite], sitesmatrix.Vector) {
+func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
 	pc := ps.m.pageConfigSource
 	if !fallback {
 		if !pc.MatchSiteVector(dims) {
-			return nil, sitesmatrix.Vector{}
+			return nil
 		}
 		return func(yield func(n contentNodeForSite) bool) {
 			yield(ps)
-		}, ps.s.siteVector
+		}
 	}
-	if !pc.MatchLanguageOrLanguageDelegee(dims) {
-		return nil, sitesmatrix.Vector{}
+	if !pc.MatchLanguageOrLanguageFallback(dims) {
+		return nil
 	}
-	if !pc.MatchVersionOrVersionDelegee(dims) {
-		return nil, sitesmatrix.Vector{}
+	if !pc.MatchVersionOrVersionFallback(dims) {
+		return nil
 	}
-	if !pc.MatchRoleOrRoleDelegee(dims) {
-		return nil, sitesmatrix.Vector{}
+	if !pc.MatchRoleOrRoleFallback(dims) {
+		return nil
 	}
 	return func(yield func(n contentNodeForSite) bool) {
 		yield(ps)
-	}, ps.s.siteVector
+	}
 }
 
 // Eq returns whether the current page equals the given page.

@@ -322,12 +322,8 @@ func (m *pageMap) forEeachPageIncludingBundledPages(include predicate.P[*pageSta
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     m.treeResources,
 		LockType: doctree.LockTypeRead,
-		IncludeRawFilter: func(s string, n contentNode) bool {
-			p, ok := n.(*pageState)
-			return ok && include(p)
-		},
 		Handle: func(key string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
-			if p, ok := n.(*pageState); ok {
+			if p, ok := n.(*pageState); ok && include(p) {
 				if terminate, err := fn(p); terminate || err != nil {
 					return terminate, err
 				}
@@ -659,8 +655,8 @@ func (m *pageMap) getResourcesForPage(ps *pageState) (resource.Resources, error)
 	var res resource.Resources
 	m.forEachResourceInPage(ps, doctree.LockTypeNone, true, nil, func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
 		switch n := n.(type) {
-		case contentNodeResource:
-			r := n.getResource()
+		case contentNodeVariants[*resourceSource, resource.Resource]:
+			r := n.getContentNodeVariant()
 			if r == nil {
 				panic(fmt.Sprintf("getResourcesForPage: resource %q for page %q has no resource", resourceKey, ps.Path()))
 			}
@@ -788,14 +784,18 @@ type (
 	}
 
 	contentNodeMatcher interface {
-		matchSiteVector(v sitesmatrix.Vector, exact bool) (iter.Seq[contentNodeForSite], sitesmatrix.Vector)
+		matchSiteVector(v sitesmatrix.Vector, exact bool) iter.Seq[contentNodeForSite]
 	}
 
-	contentNodeResource interface {
+	contentNodeVariants[S contentNodeVariantAdder, R any] interface {
 		contentNode
-		getResourceSource() *resourceSource
-		setResource(r resource.Resource)
-		getResource() resource.Resource
+		getContentNodeVariantSource() S
+		setContentNodeVariant(r R)
+		getContentNodeVariant() R
+	}
+
+	contentNodeVariantAdder interface {
+		addContentNodeVariant(sitesmatrix.Vector) contentNode
 	}
 )
 
@@ -914,8 +914,9 @@ func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, fallbac
 		// get stable output. This compare will also make sure that we pick
 		// language, version and role according to their individual sort order:
 		// Closer is better, and matches above are better than matches below.
-		if m, vec := n.(contentNodeMatcher).matchSiteVector(q, fallback); m != nil {
+		if m := n.(contentNodeMatcher).matchSiteVector(q, fallback); m != nil {
 			for nn := range m {
+				vec := nn.siteVector()
 				if q == vec {
 					// Exact match.
 					return nn
@@ -980,6 +981,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		}
 		return nil, false
 	case resourceSources: // TODO1 remove this type.
+		panic("TODO1 remove me")
 		vv := v[siteVector]
 		if vv != nil {
 			return vv, true
@@ -999,9 +1001,6 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 	case resourceSourcesSlice:
 		iter := func(yield func(n contentNode) bool) {
 			for _, vv := range v {
-				if vv.isPage() { // TODO1
-					continue
-				}
 				if !yield(vv) {
 					return
 				}
@@ -1010,8 +1009,8 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 
 		if vv := s.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
 			if !fallback && vv.siteVector() != siteVector {
-				rc := vv.(*resourceSource)
-				return rc.addVariant(siteVector), true
+				rc := vv.(contentNodeVariantAdder)
+				return rc.addContentNodeVariant(siteVector), true
 			} else {
 				return vv, true
 			}
@@ -1019,20 +1018,17 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		return nil, false
 
 	case *resourceSource:
-		if !v.isPage() { // TODO1 page.
-			if m, _ := v.matchSiteVector(siteVector, fallback); m != nil {
-				for vv := range m {
-					if !fallback && vv.siteVector() != siteVector {
-						rc := vv.(*resourceSource)
-						return rc.addVariant(siteVector), true
+		if m := v.matchSiteVector(siteVector, fallback); m != nil {
+			for vv := range m {
+				if !fallback && vv.siteVector() != siteVector {
+					rc := vv.(*resourceSource)
+					return rc.addContentNodeVariant(siteVector), true
 
-					} else {
-						return vv, true
-					}
+				} else {
+					return vv, true
 				}
 			}
 		}
-
 	case *pageMeta:
 		panic("TODO1 remove me") // TODO1 remove this type.
 
@@ -2121,13 +2117,16 @@ func (sa *sitePagesAssembler) assembleResources() error {
 				false,
 				nil,
 				func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
-					nr := n.(contentNodeResource)
+					if _, ok := n.(*pageState); ok {
+						return false, nil
+					}
+					nr := n.(contentNodeVariants[*resourceSource, resource.Resource])
 
-					if nr.getResource() != nil {
+					if nr.getContentNodeVariant() != nil {
 						return false, nil
 					}
 
-					rs := nr.getResourceSource()
+					rs := nr.getContentNodeVariantSource()
 
 					relPathOriginal := rs.path.Unnormalized().PathRel(ps.m.pathInfo.Unnormalized())
 					relPath := rs.path.BaseRel(ps.m.pathInfo)
@@ -2148,7 +2147,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						if err != nil {
 							return false, err
 						}
-						nr.setResource(r)
+						nr.setContentNodeVariant(r)
 						return false, nil
 					}
 
@@ -2194,7 +2193,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 					if err != nil {
 						return false, err
 					}
-					nr.setResource(r)
+					nr.setContentNodeVariant(r)
 					return false, nil
 				},
 			)

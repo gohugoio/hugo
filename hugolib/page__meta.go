@@ -1135,7 +1135,7 @@ func (m *pageMeta) contentWeight() int {
 	return m.f.FileInfo().Meta().Weight
 }
 
-func (m *pageMeta) matchSiteVector(_ sitesmatrix.Vector, _ bool) (iter.Seq[contentNodeForSite], sitesmatrix.Vector) {
+func (m *pageMeta) matchSiteVector(_ sitesmatrix.Vector, _ bool) iter.Seq[contentNodeForSite] {
 	panic("not implemented") // TODO: Implement
 }
 

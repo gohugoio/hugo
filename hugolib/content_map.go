@@ -58,25 +58,27 @@ type contentMapConfig struct {
 var _ contentNode = (*resourceSource)(nil)
 
 type resourceSource struct {
-	sv         sitesmatrix.Vector
-	svAssigned bool
-	path       *paths.Path
-	opener     hugio.OpenReadSeekCloser
-	fi         hugofs.FileMetaInfo
-	rc         *pagemeta.ResourceConfig
+	sv     sitesmatrix.Vector
+	path   *paths.Path
+	opener hugio.OpenReadSeekCloser
+	fi     hugofs.FileMetaInfo
+	rc     *pagemeta.ResourceConfig
 
 	r resource.Resource
 
+	// variantsMu only protects the variants map.
+	// All other writes to resourceSource are either one go routine only,
+	// or protected from outside.
 	variantsMu sync.RWMutex
 	variants   map[sitesmatrix.Vector]*resourceSourceVariant
 }
 
 var (
-	_ contentNodeResource = (*resourceSourceVariant)(nil)
-	_ contentNodeResource = (*resourceSource)(nil)
+	_ contentNodeVariants[*resourceSource, resource.Resource] = (*resourceSourceVariant)(nil)
+	_ contentNodeVariants[*resourceSource, resource.Resource] = (*resourceSource)(nil)
 )
 
-func (r *resourceSource) addVariant(sv sitesmatrix.Vector) *resourceSourceVariant {
+func (r *resourceSource) addContentNodeVariant(sv sitesmatrix.Vector) contentNode {
 	r.variantsMu.Lock()
 	defer r.variantsMu.Unlock()
 	if r.variants == nil {
@@ -90,7 +92,7 @@ func (r *resourceSource) addVariant(sv sitesmatrix.Vector) *resourceSourceVarian
 	return v
 }
 
-func (r *resourceSource) getResourceSource() *resourceSource {
+func (r *resourceSource) getContentNodeVariantSource() *resourceSource {
 	return r
 }
 
@@ -103,12 +105,11 @@ func (r *resourceSource) getVariant(sv sitesmatrix.Vector) *resourceSourceVarian
 	return r.variants[sv]
 }
 
-func (r *resourceSource) setResource(res resource.Resource) {
+func (r *resourceSource) setContentNodeVariant(res resource.Resource) {
 	r.r = res
-	r.svAssigned = true
 }
 
-func (r *resourceSource) getResource() resource.Resource {
+func (r *resourceSource) getContentNodeVariant() resource.Resource {
 	return r.r
 }
 
@@ -122,26 +123,20 @@ func (r *resourceSourceVariant) siteVector() sitesmatrix.Vector {
 	return r.sv
 }
 
-func (r *resourceSourceVariant) setResource(res resource.Resource) {
+func (r *resourceSourceVariant) setContentNodeVariant(res resource.Resource) {
 	r.r = res
 }
 
-func (r *resourceSourceVariant) getResource() resource.Resource {
+func (r *resourceSourceVariant) getContentNodeVariant() resource.Resource {
 	return r.r
 }
 
-func (r *resourceSourceVariant) getResourceSource() *resourceSource {
+func (r *resourceSourceVariant) getContentNodeVariantSource() *resourceSource {
 	return r.resourceSource
 }
 
 func (r *resourceSource) String() string {
-	return fmt.Sprintf("resourceSource: %v(%t)", r.sv, r.svAssigned)
-}
-
-// TODO1 remove.
-func (r resourceSource) clone() *resourceSource {
-	r.r = nil
-	return &r
+	return fmt.Sprintf("resourceSource: %v", r.sv)
 }
 
 // TODO1 remove.
@@ -179,50 +174,44 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 	return r.path
 }
 
-func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector, fallback bool) (iter.Seq[contentNodeForSite], sitesmatrix.Vector) {
+func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
 	if siteVector == p.sv {
 		return func(yield func(n contentNodeForSite) bool) {
 			yield(p)
-		}, p.sv
+		}
 	}
 
 	if variant := p.getVariant(siteVector); variant != nil {
 		return func(yield func(n contentNodeForSite) bool) {
 			yield(variant)
-		}, variant.sv
+		}
 	}
 
 	pc := p.rc
 
 	var found bool
 	if !fallback {
-		if p.svAssigned {
-			// No need to look further.
-			return nil, sitesmatrix.Vector{}
-		}
-
-		if pc.MatchSiteVector(siteVector) {
+		if pc != nil && pc.MatchSiteVector(siteVector) {
 			found = true
 		} else {
-			return nil, sitesmatrix.Vector{}
+			return nil
 		}
-
 	}
 
 	if !found && pc != nil {
-		if !pc.MatchLanguageOrLanguageDelegee(siteVector) {
-			return nil, sitesmatrix.Vector{}
+		if !pc.MatchLanguageOrLanguageFallback(siteVector) {
+			return nil
 		}
-		if !pc.MatchVersionOrVersionDelegee(siteVector) {
-			return nil, sitesmatrix.Vector{}
+		if !pc.MatchVersionOrVersionFallback(siteVector) {
+			return nil
 		}
-		if !pc.MatchRoleOrRoleDelegee(siteVector) {
-			return nil, sitesmatrix.Vector{}
+		if !pc.MatchRoleOrRoleFallback(siteVector) {
+			return nil
 		}
 	}
 
 	if !found && !fallback {
-		return nil, sitesmatrix.Vector{}
+		return nil
 	}
 
 	return func(yield func(n contentNodeForSite) bool) {
@@ -234,7 +223,7 @@ func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector, fallback
 				return
 			}
 		}
-	}, p.siteVector()
+	}
 }
 
 func (r *resourceSource) ForEeachIdentity(f func(identity.Identity) bool) bool {
