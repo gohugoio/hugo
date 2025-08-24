@@ -91,6 +91,8 @@ func (m *pageMetaSource) MarkStale() {
 	panic("not implemented") // TODO: Implement
 }
 
+var _ contentNodeVariants[*pageMetaSource, *pageState] = (*pageMetaSource)(nil)
+
 type pageMetaSource struct {
 	pathInfo *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
 	f        *source.File
@@ -105,6 +107,21 @@ type pageMetaSource struct {
 	openSource    func() (hugio.ReadSeekCloser, error)
 
 	initEarlyInit sync.Once
+
+	contentNodeVariantsHolder[*pageMetaSource, *pageState]
+}
+
+func (m *pageMetaSource) getContentNodeVariantSource() *pageMetaSource {
+	return m
+}
+
+func (m *pageMetaSource) getContentNodeVariant() *pageState {
+	panic("TODO1 implement me")
+	// return m.contentNodeVariantsHolder.root
+}
+
+func (m *pageMetaSource) setContentNodeVariant(rr *pageState) {
+	m.contentNodeVariantsHolder.root = rr
 }
 
 func (m *pageMetaSource) String() string {
