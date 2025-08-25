@@ -1212,6 +1212,12 @@ func (s *TemplateStore) insertTemplate2(
 		replace = subCategory == SubCategoryInline && nkExisting.subCategory == SubCategoryInline
 	}
 
+	if !replace && existingFound && fi != nil && nkExisting.Fi != nil {
+		// Fix issue #13877.
+		primarySuffix := s.htmlFormat.MediaType.FirstSuffix.FullSuffix
+		replace = strings.HasSuffix(fi.Name(), primarySuffix) && !strings.HasSuffix(nkExisting.Fi.Name(), primarySuffix)
+	}
+
 	if !replace && existingFound {
 		if len(pi.Identifiers()) >= len(nkExisting.PathInfo.Identifiers()) {
 			// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
