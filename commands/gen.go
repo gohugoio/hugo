@@ -51,6 +51,7 @@ func newGenCommand() *genCommand {
 		lineNumbersInlineStyle string
 		lineNumbersTableStyle  string
 		omitEmpty              bool
+		omitClassComments      bool
 	)
 
 	newChromaStyles := func() simplecobra.Commander {
@@ -81,12 +82,14 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 					return err
 				}
 
-				var formatter *html.Formatter
+				var options []html.Option
 				if omitEmpty {
-					formatter = html.New(html.WithClasses(true))
+					options = append(options, html.WithClasses(true))
 				} else {
-					formatter = html.New(html.WithAllClasses(true))
+					options = append(options, html.WithAllClasses(true))
 				}
+				options = append(options, html.WithCSSComments(!omitClassComments))
+				formatter := html.New(options...)
 
 				w := os.Stdout
 				fmt.Fprintf(w, "/* Generated using: hugo %s */\n\n", strings.Join(os.Args[1:], " "))
@@ -105,6 +108,8 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				_ = cmd.RegisterFlagCompletionFunc("lineNumbersTableStyle", cobra.NoFileCompletions)
 				cmd.PersistentFlags().BoolVar(&omitEmpty, "omitEmpty", false, `omit empty CSS rules`)
 				_ = cmd.RegisterFlagCompletionFunc("omitEmpty", cobra.NoFileCompletions)
+				cmd.PersistentFlags().BoolVar(&omitClassComments, "omitClassComments", false, `omit CSS class comment prefixes in the generated CSS`)
+				_ = cmd.RegisterFlagCompletionFunc("omitClassComments", cobra.NoFileCompletions)
 			},
 		}
 	}
