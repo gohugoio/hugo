@@ -21,9 +21,9 @@ import (
 	"bytes"
 	"html/template"
 	"strings"
-	"unicode"
 
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/media"
 
@@ -145,20 +145,10 @@ func (c *ContentSpec) ResolveMarkup(in string) string {
 	return ""
 }
 
-// TotalWords counts instance of one or more consecutive white space
-// characters, as defined by unicode.IsSpace, in s.
-// This is a cheaper way of word counting than the obvious len(strings.Fields(s)).
+// TotalWords counts the approximate number of words (and CJK characters) in s
 func TotalWords(s string) int {
-	n := 0
-	inWord := false
-	for _, r := range s {
-		wasInWord := inWord
-		inWord = !unicode.IsSpace(r)
-		if inWord && !wasInWord {
-			n++
-		}
-	}
-	return n
+	nonCjkWordCount, cjkWordCount := hstrings.CountWords(s)
+	return nonCjkWordCount + cjkWordCount
 }
 
 // TrimShortHTML removes the outer tags from HTML input where (a) the opening
