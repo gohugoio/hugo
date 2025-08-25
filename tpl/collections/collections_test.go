@@ -788,6 +788,34 @@ func TestUniq(t *testing.T) {
 	}
 }
 
+func TestD(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := newNs()
+
+	c.Assert(ns.D(32, 5, 100), qt.DeepEquals, []int{13, 19, 31, 44, 83})
+}
+
+func BenchmarkD(b *testing.B) {
+	ns := newNs()
+
+	runBenchmark := func(seed, n, max int) {
+		name := fmt.Sprintf("n=%d,max=%d", n, max)
+		b.Run(name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				ns.D(seed, n, max)
+			}
+		})
+	}
+
+	runBenchmark(32, 5, 100)
+	runBenchmark(32, 50, 1000)
+	runBenchmark(32, 10, 10000)
+	runBenchmark(32, 500, 10000)
+	runBenchmark(32, 10, 500000)
+	runBenchmark(32, 5000, 500000)
+}
+
 func (x *TstX) TstRp() string {
 	return "r" + x.A
 }
