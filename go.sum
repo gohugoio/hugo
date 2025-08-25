@@ -155,8 +155,6 @@ github.com/bep/goportabletext v0.1.0 h1:8dqym2So1cEqVZiBa4ZnMM1R9l/DnC1h4ONg4J5k
 github.com/bep/goportabletext v0.1.0/go.mod h1:6lzSTsSue75bbcyvVc0zqd1CdApuT+xkZQ6Re5DzZFg=
 github.com/bep/gowebp v0.3.0 h1:MhmMrcf88pUY7/PsEhMgEP0T6fDUnRTMpN8OclDrbrY=
 github.com/bep/gowebp v0.3.0/go.mod h1:ZhFodwdiFp8ehGJpF4LdPl6unxZm9lLFjxD3z2h2AgI=
-github.com/bep/helpers v0.5.0 h1:rneezhnG7GzLFlsEWO/EnleaBRuluBDGFimalO6Y50o=
-github.com/bep/helpers v0.5.0/go.mod h1:dSqCzIvHbzsk5YOesp1M7sKAq5xUcvANsRoKdawxH4Q=
 github.com/bep/helpers v0.6.0 h1:qtqMCK8XPFNM9hp5Ztu9piPjxNNkk8PIyUVjg6v8Bsw=
 github.com/bep/helpers v0.6.0/go.mod h1:IOZlgx5PM/R/2wgyCatfsgg5qQ6rNZJNDpWGXqDR044=
 github.com/bep/imagemeta v0.12.0 h1:ARf+igs5B7pf079LrqRnwzQ/wEB8Q9v4NSDRZO1/F5k=
@@ -498,8 +496,8 @@ github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOf
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tdewolff/minify/v2 v2.23.11 h1:cZqTVCtuVvPC8/GbCvYgIcdAQGmoxEObZzKeKIUixTE=
 github.com/tdewolff/minify/v2 v2.23.11/go.mod h1:vmkbfGQ5hp/eYB+TswNWKma67S0a+32HBL+mFWxjZ2Q=
-github.com/tdewolff/parse/v2 v2.8.2-0.20250806174018-50048bb39781 h1:2qicgFovKg1XtX7Wf6GwexUdpb7q/jMIE2IgkYsVAvE=
-github.com/tdewolff/parse/v2 v2.8.2-0.20250806174018-50048bb39781/go.mod h1:Hwlni2tiVNKyzR1o6nUs4FOF07URA+JLBLd6dlIXYqo=
+github.com/tdewolff/parse/v2 v2.8.3 h1:5VbvtJ83cfb289A1HzRA9sf02iT8YyUwN84ezjkdY1I=
+github.com/tdewolff/parse/v2 v2.8.3/go.mod h1:Hwlni2tiVNKyzR1o6nUs4FOF07URA+JLBLd6dlIXYqo=
 github.com/tdewolff/test v1.0.11 h1:FdLbwQVHxqG16SlkGveC0JVyrJN62COWTRyUFzfbtBE=
 github.com/tdewolff/test v1.0.11/go.mod h1:XPuWBzvdUzhCuxWO1ojpXsyzsA5bFoS3tO/Q3kFuTG8=
 github.com/tetratelabs/wazero v1.9.0 h1:IcZ56OuxrtaEz8UYNRHBrUa9bYeX9oVY93KspZZBf/I=
