@@ -526,9 +526,9 @@ func (ns *Namespace) Slice(args ...any) any {
 }
 
 type dKey struct {
-	seed any
-	n    any
-	max  any
+	seed uint64
+	n    int
+	max  int
 }
 
 // D returns a slice of n unique random numbers in the range [0, max) using the provded seed,
@@ -536,12 +536,11 @@ type dKey struct {
 // - An Efficient Algorithm for Sequential Random Sampling - ACM Trans. Math. Software 11 (1985), 37-57.
 // See  https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
 func (ns *Namespace) D(seed, n, max any) []int {
-	key := dKey{seed: seed, n: n, max: max}
+	key := dKey{seed: cast.ToUint64(seed), n: cast.ToInt(n), max: cast.ToInt(max)}
 	v, _ := ns.dCache.GetOrCreate(key, func() ([]int, error) {
-		prng := rand.New(rand.NewPCG(cast.ToUint64(seed), 0))
-		nn := cast.ToInt(n)
-		result := make([]int, 0, nn)
-		vitter.D(prng, nn, cast.ToInt(max), func(i int) {
+		prng := rand.New(rand.NewPCG(key.seed, 0))
+		result := make([]int, 0, key.n)
+		vitter.D(prng, key.n, key.max, func(i int) {
 			result = append(result, i)
 		})
 		return result, nil
