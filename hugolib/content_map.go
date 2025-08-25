@@ -66,126 +66,73 @@ type resourceSource struct {
 
 	r resource.Resource
 
-	contentNodeVariantsHolder[*resourceSource, resource.Resource]
+	// variantsMu only protects the variants map.
+	// All other writes to resourceSource are either one go routine only,
+	// or protected from outside.
+	variantsMu sync.RWMutex
+	variants   map[sitesmatrix.Vector]*resourceSourceVariant
 }
 
-func (r *resourceSource) init() error {
-	r.contentNodeVariantsHolder.root = r
-	return nil
-}
+var (
+	_ contentNodeVariants[*resourceSource, resource.Resource] = (*resourceSourceVariant)(nil)
+	_ contentNodeVariants[*resourceSource, resource.Resource] = (*resourceSource)(nil)
+)
 
-func (r *resourceSource) getContentNodeVariant() resource.Resource {
-	return r.r
-}
-
-func (r *resourceSource) setContentNodeVariant(rr resource.Resource) {
-	r.r = rr
+func (r *resourceSource) addContentNodeVariant(sv sitesmatrix.Vector) contentNode {
+	r.variantsMu.Lock()
+	defer r.variantsMu.Unlock()
+	if r.variants == nil {
+		r.variants = make(map[sitesmatrix.Vector]*resourceSourceVariant)
+	}
+	v, found := r.variants[sv]
+	if !found {
+		v = &resourceSourceVariant{sv: sv, resourceSource: r}
+		r.variants[sv] = v
+	}
+	return v
 }
 
 func (r *resourceSource) getContentNodeVariantSource() *resourceSource {
 	return r
 }
 
-var (
-	_ contentNodeVariants[*resourceSource, resource.Resource] = (*contentNodeSourceVariant[*resourceSource, resource.Resource])(nil)
-	_ contentNodeVariants[*resourceSource, resource.Resource] = (*resourceSource)(nil)
-)
-
-type contentNodeVariantsHolder[S contentNodeVariantAdder, R any] struct {
-	s    S
-	root contentNodeForSite
-
-	// variantsMu only protects the variants map.
-	// All other writes are either one go routine only,
-	// or protected from outside.
-	variantsMu sync.RWMutex
-	variants   map[sitesmatrix.Vector]*contentNodeSourceVariant[S, R]
-}
-
-func (r *contentNodeVariantsHolder[S, R]) addContentNodeVariant(sv sitesmatrix.Vector) (contentNode, bool) {
-	r.variantsMu.Lock()
-	defer r.variantsMu.Unlock()
-	if r.root == nil || r.root.siteVector() == sv {
-		v := &contentNodeSourceVariant[S, R]{s: r.s, sv: sv}
-		r.root = v
-		return r.root, true
-	}
-	if r.variants == nil {
-		r.variants = make(map[sitesmatrix.Vector]*contentNodeSourceVariant[S, R])
-	}
-	v, found := r.variants[sv]
-	if !found {
-		v = &contentNodeSourceVariant[S, R]{s: r.s, sv: sv}
-		r.variants[sv] = v
-	}
-	return v, !found
-}
-
-func (r *contentNodeVariantsHolder[S, R]) getVariant(vec sitesmatrix.Vector) contentNodeForSite {
+func (r *resourceSource) getVariant(sv sitesmatrix.Vector) *resourceSourceVariant {
 	r.variantsMu.RLock()
 	defer r.variantsMu.RUnlock()
-	if r.root.siteVector() == vec {
-		return r.root
-	}
 	if r.variants == nil {
 		return nil
 	}
-	return r.variants[vec]
+	return r.variants[sv]
 }
 
-type contentNodeSourceVariant[S contentNodeVariantAdder, R any] struct {
-	s  S // This can unfortunately not be embedded directly due to Go generics limitations.
-	r  R
-	sv sitesmatrix.Vector
+func (r *resourceSource) setContentNodeVariant(res resource.Resource) {
+	r.r = res
 }
 
-func (r *contentNodeSourceVariant[S, R]) siteVector() sitesmatrix.Vector {
-	return r.sv
-}
-
-func (r *contentNodeSourceVariant[S, R]) setContentNodeVariant(rr R) {
-	r.r = rr
-}
-
-func (r *contentNodeSourceVariant[S, R]) getContentNodeVariant() R {
+func (r *resourceSource) getContentNodeVariant() resource.Resource {
 	return r.r
 }
 
-func (r *contentNodeSourceVariant[S, R]) getContentNodeVariantSource() S {
-	return r.s
+type resourceSourceVariant struct {
+	*resourceSource
+	sv sitesmatrix.Vector
+	r  resource.Resource
 }
 
-// Implements contentNode.
-func (r *contentNodeSourceVariant[S, R]) Path() string {
-	return r.s.Path()
+func (r *resourceSourceVariant) siteVector() sitesmatrix.Vector {
+	return r.sv
 }
 
-func (r *contentNodeSourceVariant[S, R]) isContentNodeBranch() bool {
-	return r.s.isContentNodeBranch()
+func (r *resourceSourceVariant) setContentNodeVariant(res resource.Resource) {
+	r.r = res
 }
 
-func (r *contentNodeSourceVariant[S, R]) MarkStale() {
-	r.s.MarkStale()
+func (r *resourceSourceVariant) getContentNodeVariant() resource.Resource {
+	return r.r
 }
 
-func (r *contentNodeSourceVariant[S, R]) contentWeight() int {
-	return r.s.contentWeight()
-}
-
-func (r *contentNodeSourceVariant[S, R]) resetBuildState() {
-	r.s.resetBuildState()
-}
-
-func (r *contentNodeSourceVariant[S, R]) ForEeachIdentity(f func(identity.Identity) bool) bool {
-	return r.s.ForEeachIdentity(f)
-}
-
-func (r *contentNodeSourceVariant[S, R]) GetIdentity() identity.Identity {
-	return r.s.GetIdentity()
-}
-
-func (r *contentNodeSourceVariant[S, R]) sitesMatrix() sitesmatrix.VectorProvider {
-	return r.s.sitesMatrix()
+func (r *resourceSourceVariant) getContentNodeVariantSource() *resourceSource {
+	return r.resourceSource
 }
 
 func (r *resourceSource) String() string {
@@ -551,9 +498,6 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 
 			// TODO1 siteVector vs matrix.
 			rs := &resourceSource{path: pi, opener: r, fi: fim, sv: fim.Meta().SitesMatrix.FirstVector()}
-			if err := rs.init(); err != nil {
-				return fmt.Errorf("failed to init resource from file %q: %w", fi.Meta().Filename, err)
-			}
 			_, _, _ = m.insertResource(key, rs)
 		}
 
@@ -716,9 +660,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 					// when needed.
 					siteVector := rc.SitesMatrix.FirstVector()
 					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, sv: siteVector}
-					if err := rs.init(); err != nil {
-						return fmt.Errorf("failed to init resource from content adapter %q: %w", fi.Meta().Filename, err)
-					}
+
 					_, n, replaced := s.pageMap.insertResourceWithLock(rc.PathInfo.Base(), rs)
 
 					if h.isRebuild() && replaced {

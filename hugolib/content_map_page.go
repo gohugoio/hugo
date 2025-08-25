@@ -795,10 +795,7 @@ type (
 	}
 
 	contentNodeVariantAdder interface {
-		contentNode
-
-		// Returns the added node and true if added, false if a node already existed for the given vector.
-		addContentNodeVariant(sitesmatrix.Vector) (contentNode, bool)
+		addContentNodeVariant(sitesmatrix.Vector) contentNode
 	}
 )
 
@@ -1013,8 +1010,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		if vv := s.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
 			if !fallback && vv.siteVector() != siteVector {
 				rc := vv.(contentNodeVariantAdder)
-				v, _ := rc.addContentNodeVariant(siteVector)
-				return v, true
+				return rc.addContentNodeVariant(siteVector), true
 			} else {
 				return vv, true
 			}
@@ -1026,8 +1022,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			for vv := range m {
 				if !fallback && vv.siteVector() != siteVector {
 					rc := vv.(*resourceSource)
-					v, _ := rc.addContentNodeVariant(siteVector)
-					return v, true
+					return rc.addContentNodeVariant(siteVector), true
 
 				} else {
 					return vv, true
@@ -1146,12 +1141,6 @@ func (s *contentNodeShifter) InsertInto(old, new contentNode, dimension sitesmat
 func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentNode, bool) {
 	switch vv := old.(type) {
 	case *pageMetaSource:
-		hdebug.Printf("Insert %T <- %T", old, new)
-		switch new := new.(type) {
-		case *pageMetaSource:
-		default:
-			panic(fmt.Sprintf("Insert: unknown type %T", new))
-		}
 		return pageMetaSourcesSlice{vv, new}, old, false
 	case pageMetaSourcesSlice:
 		newp, ok := new.(*pageMetaSource)
