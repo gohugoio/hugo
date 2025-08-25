@@ -582,7 +582,7 @@ func (m *pageMap) forEachResourceInPage(
 	prefix := paths.AddTrailingSlash(ps.Path())
 	isBranch := ps.IsNode()
 
-	rw := &doctree.NodeShiftTreeWalker[contentNode]{
+	rwr := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     m.treeResources,
 		Prefix:   prefix,
 		LockType: lockType,
@@ -615,14 +615,14 @@ func (m *pageMap) forEachResourceInPage(
 			}
 
 			// Stop walking downwards, someone else owns this resource.
-			rw.SkipPrefix(ownerKey + "/")
+			rwr.SkipPrefix(ownerKey + "/")
 			return true, false
 		}
 		return false, false
 	}
 
 	if transform != nil {
-		rw.Transform = func(resourceKey string, n contentNode) (n2 contentNode, replaced, skip, terminate bool, err error) {
+		rwr.Transform = func(resourceKey string, n contentNode) (n2 contentNode, replaced, skip, terminate bool, err error) {
 			if skip, terminate = shouldSkipOrTerminate(resourceKey); skip || terminate {
 				return
 			}
@@ -638,7 +638,7 @@ func (m *pageMap) forEachResourceInPage(
 		}
 	}
 
-	rw.Handle = func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (terminate bool, err error) {
+	rwr.Handle = func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (terminate bool, err error) {
 		if transform == nil {
 			var skip bool
 			if skip, terminate = shouldSkipOrTerminate(resourceKey); skip || terminate {
@@ -648,15 +648,15 @@ func (m *pageMap) forEachResourceInPage(
 		return handle(resourceKey, n, match)
 	}
 
-	return rw.Walk(context.Background())
+	return rwr.Walk(context.Background())
 }
 
 func (m *pageMap) getResourcesForPage(ps *pageState) (resource.Resources, error) {
 	var res resource.Resources
 	m.forEachResourceInPage(ps, doctree.LockTypeNone, true, nil, func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
 		switch n := n.(type) {
-		case contentNodeVariants[*resourceSource, resource.Resource]:
-			r := n.getContentNodeVariant()
+		case *resourceSource:
+			r := n.r
 			if r == nil {
 				panic(fmt.Sprintf("getResourcesForPage: resource %q for page %q has no resource", resourceKey, ps.Path()))
 			}
@@ -768,6 +768,7 @@ type buildStateReseter interface {
 
 type (
 	contentNode interface {
+		// TODO1 clean up.
 		identity.IdentityProvider
 		identity.ForEeachIdentityProvider
 		Path() string
@@ -776,6 +777,10 @@ type (
 		sitesMatrix() sitesmatrix.VectorProvider
 		buildStateReseter
 		resource.StaleMarker
+
+		// forEeachContentNode iterates over all content nodes.
+		// It returns false if the iteration was stopped early.
+		forEeachContentNode(func(contentNode) bool) bool
 	}
 
 	contentNodeForSite interface {
@@ -784,14 +789,8 @@ type (
 	}
 
 	contentNodeMatcher interface {
-		matchSiteVector(v sitesmatrix.Vector, exact bool) iter.Seq[contentNodeForSite]
-	}
-
-	contentNodeVariants[S contentNodeVariantAdder, R any] interface {
-		contentNode
-		getContentNodeVariantSource() S
-		setContentNodeVariant(r R)
-		getContentNodeVariant() R
+		matchSiteVectorAll(v sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite]
+		matchSiteVector(v sitesmatrix.Vector) bool
 	}
 
 	contentNodeVariantAdder interface {
@@ -808,6 +807,15 @@ func (n contentNodes) one() contentNode {
 		return nn
 	}
 	return nil
+}
+
+func (ps contentNodes) forEeachContentNode(f func(n contentNode) bool) bool {
+	for _, nn := range ps {
+		if !f(nn) {
+			return false
+		}
+	}
+	return true
 }
 
 func (n contentNodes) ForEeachInAllDimensions(f func(contentNode) bool) {
@@ -914,7 +922,7 @@ func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, fallbac
 		// get stable output. This compare will also make sure that we pick
 		// language, version and role according to their individual sort order:
 		// Closer is better, and matches above are better than matches below.
-		if m := n.(contentNodeMatcher).matchSiteVector(q, fallback); m != nil {
+		if m := n.(contentNodeMatcher).matchSiteVectorAll(q, fallback); m != nil {
 			for nn := range m {
 				vec := nn.siteVector()
 				if q == vec {
@@ -1018,15 +1026,10 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		return nil, false
 
 	case *resourceSource:
-		if m := v.matchSiteVector(siteVector, fallback); m != nil {
+		// TODO1
+		if m := v.matchSiteVectorAll(siteVector, fallback); m != nil {
 			for vv := range m {
-				if !fallback && vv.siteVector() != siteVector {
-					rc := vv.(*resourceSource)
-					return rc.addContentNodeVariant(siteVector), true
-
-				} else {
-					return vv, true
-				}
+				return vv, true
 			}
 		}
 	case *pageMeta:
@@ -2120,13 +2123,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 					if _, ok := n.(*pageState); ok {
 						return false, nil
 					}
-					nr := n.(contentNodeVariants[*resourceSource, resource.Resource])
-
-					if nr.getContentNodeVariant() != nil {
-						return false, nil
-					}
-
-					rs := nr.getContentNodeVariantSource()
+					rs := n.(*resourceSource)
 
 					relPathOriginal := rs.path.Unnormalized().PathRel(ps.m.pathInfo.Unnormalized())
 					relPath := rs.path.BaseRel(ps.m.pathInfo)
@@ -2147,7 +2144,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						if err != nil {
 							return false, err
 						}
-						nr.setContentNodeVariant(r)
+						rs.r = r
 						return false, nil
 					}
 
@@ -2193,7 +2190,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 					if err != nil {
 						return false, err
 					}
-					nr.setContentNodeVariant(r)
+					rs.r = r
 					return false, nil
 				},
 			)
@@ -2448,18 +2445,108 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 	return nil
 }
 
-func (sa *sitePagesAssembler) createPages(tree *doctree.NodeShiftTree[contentNode]) error {
+func (sa *sitePagesAssembler) createPages() error {
 	sites := sa.s.h.sitesVersionsRolesMap
 	isRebuild := sa.s.h.isRebuild()
 	printPathWarnings := !isRebuild && sa.s.conf.PrintPathWarnings
+	lockType := doctree.LockTypeWrite
+	treePages := sa.s.pageMap.treePages
+	treeResources := sa.s.pageMap.treeResources
 
-	var w *doctree.NodeShiftTreeWalker[contentNode]
-	w = &doctree.NodeShiftTreeWalker[contentNode]{
-		LockType: doctree.LockTypeWrite,
-		Tree:     tree,
+	resourceOwnerInfo := struct {
+		n contentNode
+		s string
+	}{}
+
+	forEeachPage := func(fn func(p *pageState) bool) bool {
+		switch nn := resourceOwnerInfo.n.(type) {
+		case *pageState:
+			return fn(nn)
+		case contentNodes:
+			for _, p := range nn {
+				if !fn(p.(*pageState)) {
+					return false
+				}
+			}
+		default:
+			panic(fmt.Sprintf("unknown type %T", nn))
+		}
+		return true
+	}
+
+	var rw *doctree.NodeShiftTreeWalker[contentNode]
+	rw = &doctree.NodeShiftTreeWalker[contentNode]{
+		Tree:     treeResources,
+		LockType: lockType,
 		NoShift:  true,
+		Transform: func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+			nodes := make(contentNodes)
+			n2 = nodes
+			replaced = true
+			n.forEeachContentNode(
+				func(nn contentNode) bool {
+					rs := nn.(*resourceSource)
+					return forEeachPage(
+						func(p *pageState) bool {
+							if rs.matchSiteVector(p.s.siteVector) {
+								if rs.state == resourceStateNew {
+									nodes[p.s.siteVector] = rs.assignSiteVector(p.s.siteVector)
+								} else {
+									nodes[p.s.siteVector] = rs.clone().assignSiteVector(p.s.siteVector)
+								}
+							}
+							return true
+						},
+					)
+				},
+			)
 
-		Transform: func(s string, n contentNode) (contentNode, bool, bool, bool, error) {
+			return
+		},
+	}
+
+	shouldSkipOrTerminate := func(owner contentNode, s string) (skip, terminate bool) {
+		if owner == nil {
+			return false, true
+		}
+		if !owner.isContentNodeBranch() {
+			return false, false
+		}
+
+		// A resourceKey always represents a filename with extension.
+		// A page key points to the logical path of a page, which when sourced from the filesystem
+		// may represent a directory (bundles) or a single content file (e.g. p1.md).
+		// So, to avoid any overlapping ambiguity, we start looking from the owning directory.
+
+		for {
+			s = path.Dir(s)
+			ownerKey, found := treePages.LongestPrefixAll(s)
+			if !found {
+				return false, true
+			}
+			if ownerKey == resourceOwnerInfo.s {
+				break
+			}
+
+			if s != ownerKey && strings.HasPrefix(s, ownerKey) {
+				// Keep looking
+				continue
+			}
+
+			// Stop walking downwards, someone else owns this resource.
+			rw.SkipPrefix(ownerKey + "/")
+			return true, false
+		}
+		return false, false
+	}
+
+	if _, foo := shouldSkipOrTerminate(nil, "foo"); foo {
+	}
+
+	pw := rw.Extend()
+	pw.Tree = sa.s.pageMap.treePages
+	pw.Transform = func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+		n2, replaced, skip, terminate, err = func() (contentNode, bool, bool, bool, error) {
 			handlePageMetaSource := func(v any, is contentNodes) (bool, bool, error) {
 				var (
 					replaced bool
@@ -2564,11 +2651,25 @@ func (sa *sitePagesAssembler) createPages(tree *doctree.NodeShiftTree[contentNod
 			}
 
 			return n, false, false, false, nil
-		},
-		Handle: nil,
-	}
+		}()
+		hdebug.Printf("page: %q", s)
+		if err != nil || skip || terminate {
+			return
+		}
 
-	if err := w.Walk(sa.ctx); err != nil {
+		// Walk nested resources.
+		resourceOwnerInfo.s = s
+		resourceOwnerInfo.n = n2
+		rw.Prefix = s + "/"
+		if err := rw.Walk(sa.ctx); err != nil {
+			return nil, false, false, false, err
+		}
+
+		return
+	}
+	pw.Handle = nil
+
+	if err := pw.Walk(sa.ctx); err != nil {
 		return err
 	}
 

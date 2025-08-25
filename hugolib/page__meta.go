@@ -79,6 +79,10 @@ func (m *pageMetaSource) contentWeight() int {
 	panic("not implemented") // TODO: Implement
 }
 
+func (m *pageMetaSource) forEeachContentNode(f func(n contentNode) bool) bool {
+	return f(m)
+}
+
 func (m *pageMetaSource) sitesMatrix() sitesmatrix.VectorProvider {
 	return m.pageConfigSource.SitesMatrix
 }
@@ -1135,7 +1139,7 @@ func (m *pageMeta) contentWeight() int {
 	return m.f.FileInfo().Meta().Weight
 }
 
-func (m *pageMeta) matchSiteVector(_ sitesmatrix.Vector, _ bool) iter.Seq[contentNodeForSite] {
+func (m *pageMeta) matchSiteVectorAll(_ sitesmatrix.Vector, _ bool) iter.Seq[contentNodeForSite] {
 	panic("not implemented") // TODO: Implement
 }
 

@@ -159,8 +159,8 @@ func (ps *pageState) GetDependencyManagerForScopesAll() []identity.Manager {
 // in that order.
 //
 // This method is also implemented on SiteInfo.
-func (p *pageState) Param(key any) (any, error) {
-	return resource.Param(p, p.s.Params(), key)
+func (ps *pageState) Param(key any) (any, error) {
+	return resource.Param(ps, ps.s.Params(), key)
 }
 
 func (ps *pageState) Key() string {
@@ -207,7 +207,12 @@ func (ps *pageState) isRenderedAny() bool {
 	return false
 }
 
-// Implements contentNodeI.
+// Implements contentNode.
+
+func (ps *pageState) forEeachContentNode(f func(n contentNode) bool) bool {
+	return f(ps)
+}
+
 func (ps *pageState) isContentNodeBranch() bool {
 	return ps.IsNode()
 }
@@ -216,7 +221,12 @@ func (ps *pageState) contentWeight() int {
 	return ps.m.contentWeight()
 }
 
-func (ps *pageState) matchSiteVector(dims sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
+func (ps *pageState) matchSiteVector(siteVector sitesmatrix.Vector) bool {
+	pc := ps.m.pageConfigSource
+	return pc.MatchSiteVector(siteVector)
+}
+
+func (ps *pageState) matchSiteVectorAll(dims sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
 	pc := ps.m.pageConfigSource
 	if !fallback {
 		if !pc.MatchSiteVector(dims) {

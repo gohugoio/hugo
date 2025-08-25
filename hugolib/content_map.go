@@ -20,7 +20,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"sync"
 	"unicode"
 
 	"github.com/bep/logg"
@@ -57,7 +56,15 @@ type contentMapConfig struct {
 
 var _ contentNode = (*resourceSource)(nil)
 
+type resourceSourceState int
+
+const (
+	resourceStateNew resourceSourceState = iota
+	resourceStateAssigned
+)
+
 type resourceSource struct {
+	state  resourceSourceState
 	sv     sitesmatrix.Vector
 	path   *paths.Path
 	opener hugio.OpenReadSeekCloser
@@ -65,74 +72,25 @@ type resourceSource struct {
 	rc     *pagemeta.ResourceConfig
 
 	r resource.Resource
-
-	// variantsMu only protects the variants map.
-	// All other writes to resourceSource are either one go routine only,
-	// or protected from outside.
-	variantsMu sync.RWMutex
-	variants   map[sitesmatrix.Vector]*resourceSourceVariant
 }
 
-var (
-	_ contentNodeVariants[*resourceSource, resource.Resource] = (*resourceSourceVariant)(nil)
-	_ contentNodeVariants[*resourceSource, resource.Resource] = (*resourceSource)(nil)
-)
-
-func (r *resourceSource) addContentNodeVariant(sv sitesmatrix.Vector) contentNode {
-	r.variantsMu.Lock()
-	defer r.variantsMu.Unlock()
-	if r.variants == nil {
-		r.variants = make(map[sitesmatrix.Vector]*resourceSourceVariant)
+func (r *resourceSource) assignSiteVector(vec sitesmatrix.Vector) *resourceSource {
+	if r.state == resourceStateAssigned {
+		panic("cannot assign site vector to a resourceSource that is already assigned")
 	}
-	v, found := r.variants[sv]
-	if !found {
-		v = &resourceSourceVariant{sv: sv, resourceSource: r}
-		r.variants[sv] = v
-	}
-	return v
-}
-
-func (r *resourceSource) getContentNodeVariantSource() *resourceSource {
+	r.sv = vec
+	r.state = resourceStateAssigned
 	return r
 }
 
-func (r *resourceSource) getVariant(sv sitesmatrix.Vector) *resourceSourceVariant {
-	r.variantsMu.RLock()
-	defer r.variantsMu.RUnlock()
-	if r.variants == nil {
-		return nil
-	}
-	return r.variants[sv]
+func (r resourceSource) clone() *resourceSource {
+	r.state = resourceStateNew
+	r.r = nil
+	return &r
 }
 
-func (r *resourceSource) setContentNodeVariant(res resource.Resource) {
-	r.r = res
-}
-
-func (r *resourceSource) getContentNodeVariant() resource.Resource {
-	return r.r
-}
-
-type resourceSourceVariant struct {
-	*resourceSource
-	sv sitesmatrix.Vector
-	r  resource.Resource
-}
-
-func (r *resourceSourceVariant) siteVector() sitesmatrix.Vector {
-	return r.sv
-}
-
-func (r *resourceSourceVariant) setContentNodeVariant(res resource.Resource) {
-	r.r = res
-}
-
-func (r *resourceSourceVariant) getContentNodeVariant() resource.Resource {
-	return r.r
-}
-
-func (r *resourceSourceVariant) getContentNodeVariantSource() *resourceSource {
-	return r.resourceSource
+func (r *resourceSource) forEeachContentNode(f func(n contentNode) bool) bool {
+	return f(r)
 }
 
 func (r *resourceSource) String() string {
@@ -174,18 +132,30 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 	return r.path
 }
 
-func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
+func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector) bool {
+	if siteVector == p.sv {
+		return true
+	}
+	if p.rc == nil {
+		return false
+	}
+
+	return p.rc.MatchSiteVector(siteVector)
+}
+
+func (p *resourceSource) matchSiteVectorAll(siteVector sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
 	if siteVector == p.sv {
 		return func(yield func(n contentNodeForSite) bool) {
 			yield(p)
 		}
 	}
 
-	if variant := p.getVariant(siteVector); variant != nil {
+	/*if variant := p.getVariant(siteVector); variant != nil {
+	// TODO1 remove all the variant stuff.
 		return func(yield func(n contentNodeForSite) bool) {
 			yield(variant)
 		}
-	}
+	}*/
 
 	pc := p.rc
 
@@ -218,11 +188,6 @@ func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector, fallback
 		if !yield(p) {
 			return
 		}
-		for _, v := range p.variants {
-			if !yield(v) {
-				return
-			}
-		}
 	}
 }
 
@@ -248,6 +213,15 @@ func (n resourceSources) MarkStale() {
 			r.MarkStale()
 		}
 	}
+}
+
+func (r resourceSources) forEeachContentNode(f func(n contentNode) bool) bool {
+	for _, rs := range r {
+		if !f(rs) {
+			return false
+		}
+	}
+	return true
 }
 
 func (r resourceSources) contentWeight() int {
@@ -308,6 +282,15 @@ func (n pageMetaSourcesSlice) Path() string {
 	return n.one().Path()
 }
 
+func (n pageMetaSourcesSlice) forEeachContentNode(f func(n contentNode) bool) bool {
+	for _, rs := range n {
+		if !f(rs) {
+			return false
+		}
+	}
+	return true
+}
+
 func (n pageMetaSourcesSlice) isContentNodeBranch() bool {
 	return false
 }
@@ -343,6 +326,15 @@ func (n resourceSourcesSlice) MarkStale() {
 			r.MarkStale()
 		}
 	}
+}
+
+func (r resourceSourcesSlice) forEeachContentNode(f func(n contentNode) bool) bool {
+	for _, rs := range r {
+		if !f(rs) {
+			return false
+		}
+	}
+	return true
 }
 
 func (n resourceSourcesSlice) ForEeachInAllDimensions(f func(contentNode) bool) {
