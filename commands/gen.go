@@ -82,13 +82,13 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 					return err
 				}
 
-				var options []html.Option
 				if omitEmpty {
-					options = append(options, html.WithClasses(true))
-				} else {
-					options = append(options, html.WithAllClasses(true))
+					// See https://github.com/alecthomas/chroma/commit/5b2a4c5a26c503c79bc86ba3c4ae5b330028bd3d
+					hugo.Deprecate("--omitEmpty", "Flag is no longer needed, empty classes are now always omitted.", "v0.149.0")
 				}
-				options = append(options, html.WithCSSComments(!omitClassComments))
+				options := []html.Option{
+					html.WithCSSComments(!omitClassComments),
+				}
 				formatter := html.New(options...)
 
 				w := os.Stdout
@@ -106,7 +106,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 				_ = cmd.RegisterFlagCompletionFunc("lineNumbersInlineStyle", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&lineNumbersTableStyle, "lineNumbersTableStyle", "", `foreground and background colors for table line numbers, e.g. --lineNumbersTableStyle "#fff000 bg:#000fff"`)
 				_ = cmd.RegisterFlagCompletionFunc("lineNumbersTableStyle", cobra.NoFileCompletions)
-				cmd.PersistentFlags().BoolVar(&omitEmpty, "omitEmpty", false, `omit empty CSS rules`)
+				cmd.PersistentFlags().BoolVar(&omitEmpty, "omitEmpty", false, `omit empty CSS rules (deprecated, no longer needed)`)
 				_ = cmd.RegisterFlagCompletionFunc("omitEmpty", cobra.NoFileCompletions)
 				cmd.PersistentFlags().BoolVar(&omitClassComments, "omitClassComments", false, `omit CSS class comment prefixes in the generated CSS`)
 				_ = cmd.RegisterFlagCompletionFunc("omitClassComments", cobra.NoFileCompletions)
