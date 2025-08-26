@@ -2,7 +2,7 @@
 title: transform.HighlightCodeBlock
 description: Highlights code received in context within a code block render hook.
 categories: []
-keywords: []
+keywords: [highlight]
 params:
   functions_and_methods:
     aliases: []
