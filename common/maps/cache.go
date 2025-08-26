@@ -20,13 +20,27 @@ import (
 // Cache is a simple thread safe cache backed by a map.
 type Cache[K comparable, T any] struct {
 	m                  map[K]T
+	opts               CacheOptions
 	hasBeenInitialized bool
 	sync.RWMutex
 }
 
-// NewCache creates a new Cache.
+// CacheOptions are the options for the Cache.
+type CacheOptions struct {
+	// If set, the cache will not grow beyond this size.
+	Size uint64
+}
+
+var defaultCacheOptions = CacheOptions{}
+
+// NewCache creates a new Cache with default options.
 func NewCache[K comparable, T any]() *Cache[K, T] {
-	return &Cache[K, T]{m: make(map[K]T)}
+	return &Cache[K, T]{m: make(map[K]T), opts: defaultCacheOptions}
+}
+
+// NewCacheWithOptions creates a new Cache with the given options.
+func NewCacheWithOptions[K comparable, T any](opts CacheOptions) *Cache[K, T] {
+	return &Cache[K, T]{m: make(map[K]T), opts: opts}
 }
 
 // Delete deletes the given key from the cache.
@@ -65,6 +79,7 @@ func (c *Cache[K, T]) GetOrCreate(key K, create func() (T, error)) (T, error) {
 	if err != nil {
 		return v, err
 	}
+	c.clearIfNeeded()
 	c.m[key] = v
 	return v, nil
 }
@@ -127,7 +142,15 @@ func (c *Cache[K, T]) SetIfAbsent(key K, value T) {
 	}
 }
 
+func (c *Cache[K, T]) clearIfNeeded() {
+	if c.opts.Size > 0 && uint64(len(c.m)) >= c.opts.Size {
+		// clear the map
+		clear(c.m)
+	}
+}
+
 func (c *Cache[K, T]) set(key K, value T) {
+	c.clearIfNeeded()
 	c.m[key] = value
 }
 

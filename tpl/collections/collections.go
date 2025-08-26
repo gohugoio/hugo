@@ -19,7 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"reflect"
 	"strings"
 	"time"
@@ -41,9 +41,12 @@ func New(deps *deps.Deps) *Namespace {
 	}
 	loc := langs.GetLocation(language)
 
+	dCache := maps.NewCacheWithOptions[dKey, []int](maps.CacheOptions{Size: 100})
+
 	return &Namespace{
 		loc:      loc,
 		sortComp: compare.New(loc, true),
+		dCache:   dCache,
 		deps:     deps,
 	}
 }
@@ -52,6 +55,7 @@ func New(deps *deps.Deps) *Namespace {
 type Namespace struct {
 	loc      *time.Location
 	sortComp *compare.Namespace
+	dCache   *maps.Cache[dKey, []int]
 	deps     *deps.Deps
 }
 
@@ -518,6 +522,29 @@ func (ns *Namespace) Slice(args ...any) any {
 	}
 
 	return collections.Slice(args...)
+}
+
+type dKey struct {
+	seed uint64
+	n    int
+	hi   int
+}
+
+// D returns a slice of n unique random numbers in the range [0, hi) using the provded seed,
+// using  J. S. Vitter's Method D for sequential random sampling, from Vitter, J.S.
+// - An Efficient Algorithm for Sequential Random Sampling - ACM Trans. Math. Software 11 (1985), 37-57.
+// See  https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
+func (ns *Namespace) D(seed, n, hi any) []int {
+	key := dKey{seed: cast.ToUint64(seed), n: cast.ToInt(n), hi: cast.ToInt(hi)}
+	v, _ := ns.dCache.GetOrCreate(key, func() ([]int, error) {
+		prng := rand.New(rand.NewPCG(key.seed, 0))
+		result := make([]int, 0, key.n)
+		_d(prng, key.n, key.hi, func(i int) {
+			result = append(result, i)
+		})
+		return result, nil
+	})
+	return v
 }
 
 type intersector struct {
