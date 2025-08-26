@@ -797,7 +797,7 @@ func TestD(t *testing.T) {
 	c.Assert(ns.D(31, 5, 100), qt.DeepEquals, []int{12, 37, 38, 69, 98})
 }
 
-func BenchmarkD(b *testing.B) {
+func BenchmarkD2(b *testing.B) {
 	ns := newNs()
 
 	runBenchmark := func(seed, n, max int) {

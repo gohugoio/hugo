@@ -30,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
-	"github.com/josharian/vitter"
 	"github.com/spf13/cast"
 )
 
@@ -540,7 +539,7 @@ func (ns *Namespace) D(seed, n, hi any) []int {
 	v, _ := ns.dCache.GetOrCreate(key, func() ([]int, error) {
 		prng := rand.New(rand.NewPCG(key.seed, 0))
 		result := make([]int, 0, key.n)
-		vitter.D(prng, key.n, key.hi, func(i int) {
+		_d(prng, key.n, key.hi, func(i int) {
 			result = append(result, i)
 		})
 		return result, nil
