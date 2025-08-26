@@ -270,6 +270,10 @@ func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
 
 type pageMetaSourcesSlice []contentNode // TODO1 pool?
 
+func (m *pageMetaSourcesSlice) nodeCategoryPage() {
+	// Marker method.
+}
+
 func (n pageMetaSourcesSlice) MarkStale() {
 	panic("not supported")
 }

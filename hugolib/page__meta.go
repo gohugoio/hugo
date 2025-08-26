@@ -118,6 +118,10 @@ func (m *pageMetaSource) String() string {
 	return fmt.Sprintf("pageMetaSource(%s)", m.pathInfo)
 }
 
+func (m *pageMetaSource) nodeCategoryPage() {
+	// Marker method.
+}
+
 type pageMeta struct {
 	// Shared between all dimensions of this page.
 	*pageMetaSource

@@ -506,6 +506,10 @@ func (n *testContentNode) Path() string {
 	return n.key
 }
 
+func (n *testContentNode) forEeachContentNode(f func(n contentNode) bool) bool {
+	return f(n)
+}
+
 func (n *testContentNode) sitesMatrix() sitesmatrix.VectorProvider {
 	return sitesmatrix.Vector{}
 }

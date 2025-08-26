@@ -796,7 +796,28 @@ type (
 	contentNodeVariantAdder interface {
 		addContentNodeVariant(sitesmatrix.Vector) contentNode
 	}
+
+	contentNodePage interface {
+		contentNode
+		nodeCategoryPage() // Marker interface.
+	}
+
+	helperContentNode struct{}
 )
+
+// TODO1 move all of these contentNode type checks here.
+var (
+	_ contentNodePage = (*pageState)(nil)
+	_ contentNodePage = (*pageMetaSource)(nil)
+	_ contentNodePage = (*pageMetaSourcesSlice)(nil)
+)
+
+var contentNodeHelper helperContentNode
+
+func (helperContentNode) isPageNode(n contentNode) bool {
+	_, ok := n.(contentNodePage)
+	return ok
+}
 
 var _ contentNode = (*contentNodes)(nil)
 
@@ -2458,6 +2479,112 @@ func (sa *sitePagesAssembler) createPages() error {
 		s string
 	}{}
 
+	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+		handlePageMetaSource := func(v any, is contentNodes) (bool, bool, error) {
+			var (
+				replaced bool
+				err      error
+			)
+			switch ms := v.(type) {
+			case *pageMetaSource:
+				ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
+					site, found := sites[vec]
+					if !found {
+						panic(fmt.Sprintf("site not found for %v", vec))
+					}
+
+					var p *pageState
+					p, err = site.newPageFromPageMetasource(ms)
+					if err != nil {
+						return false
+					}
+
+					pp, found := is[vec]
+
+					replaced = replaced || found
+
+					if found && pp.contentWeight() > p.contentWeight() {
+						return true
+					}
+
+					is[vec] = p
+					return true
+				})
+				return true, replaced, err
+			case *pageState:
+				is[ms.s.siteVector] = ms
+				return true, replaced, err
+			}
+			return false, replaced, err
+		}
+
+		switch v := n.(type) {
+		case *pageState:
+			// Nothing to do.
+		case pageMetaSourcesSlice:
+			var updated bool
+			is := make(contentNodes)
+			for _, ms := range v {
+				b, r, err := handlePageMetaSource(ms, is)
+				if err != nil {
+					return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
+				}
+
+				updated = updated || b
+
+				if r && printPathWarnings {
+					// TODO1 I'm not sure this is practical when we get all the matrix in play.
+					hdebug.Printf("Duplicate content path: %q", n.Path())
+					/*if replaced && !m.s.h.isRebuild() && m.s.conf.PrintPathWarnings {
+						var messageDetail string
+						if p1, ok := n.(*pageState); ok && p1.File() != nil {
+							messageDetail = fmt.Sprintf(" file: %q", p1.File().Filename())
+						}
+						if p2, ok := u.(*pageState); ok && p2.File() != nil {
+							messageDetail += fmt.Sprintf(" file: %q", p2.File().Filename())
+						}
+
+						m.s.Log.Warnf("Duplicate content path: %q%s", s, messageDetail)
+					}*/
+				}
+
+			}
+			return is, updated, false, false, nil
+		case *pageMetaSource:
+			var updated bool
+			is := make(contentNodes)
+			b, _, err := handlePageMetaSource(v, is)
+			if err != nil {
+				return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
+			}
+			updated = updated || b
+			return is, updated, false, false, nil
+		case *pageMeta: // TODO1 remove.
+			site, found := sites[v.sitesMatrix().FirstVector()]
+			if !found {
+				panic(fmt.Sprintf("site not found for %v", v))
+			}
+			p, err := site.newPageNew(v)
+			return p, true, false, false, err
+		case contentNodes:
+			for i, vv := range v {
+				if m, ok := vv.(*pageMeta); ok {
+					var err error
+					site, found := sites[m.sitesMatrix().FirstVector()] // TODO1 get rid of this interface.
+					if !found {
+						panic(fmt.Sprintf("site not found for %v", m))
+					}
+					v[i], err = site.newPageNew(m)
+					if err != nil {
+						return nil, false, false, false, fmt.Errorf("failed to create page %s: %w", s, err)
+					}
+				}
+			}
+		}
+
+		return n, false, false, false, nil
+	}
+
 	forEeachPage := func(fn func(p *pageState) bool) bool {
 		switch nn := resourceOwnerInfo.n.(type) {
 		case *pageState:
@@ -2480,6 +2607,10 @@ func (sa *sitePagesAssembler) createPages() error {
 		LockType: lockType,
 		NoShift:  true,
 		Transform: func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+			if contentNodeHelper.isPageNode(n) {
+				return transformPages(s, n)
+			}
+			hdebug.Printf("resource: %q %T", s, n)
 			nodes := make(contentNodes)
 			n2 = nodes
 			replaced = true
@@ -2546,113 +2677,8 @@ func (sa *sitePagesAssembler) createPages() error {
 	pw := rw.Extend()
 	pw.Tree = sa.s.pageMap.treePages
 	pw.Transform = func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		n2, replaced, skip, terminate, err = func() (contentNode, bool, bool, bool, error) {
-			handlePageMetaSource := func(v any, is contentNodes) (bool, bool, error) {
-				var (
-					replaced bool
-					err      error
-				)
-				switch ms := v.(type) {
-				case *pageMetaSource:
-					ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
-						site, found := sites[vec]
-						if !found {
-							panic(fmt.Sprintf("site not found for %v", vec))
-						}
-
-						var p *pageState
-						p, err = site.newPageFromPageMetasource(ms)
-						if err != nil {
-							return false
-						}
-
-						pp, found := is[vec]
-
-						replaced = replaced || found
-
-						if found && pp.contentWeight() > p.contentWeight() {
-							return true
-						}
-
-						is[vec] = p
-						return true
-					})
-					return true, replaced, err
-				case *pageState:
-					is[ms.s.siteVector] = ms
-					return true, replaced, err
-
-				}
-				return false, replaced, err
-			}
-
-			switch v := n.(type) {
-			case *pageState:
-				// Nothing to do.
-			case pageMetaSourcesSlice:
-				var updated bool
-				is := make(contentNodes)
-				for _, ms := range v {
-					b, r, err := handlePageMetaSource(ms, is)
-					if err != nil {
-						return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
-					}
-
-					updated = updated || b
-
-					if r && printPathWarnings {
-						// TODO1 I'm not sure this is practical when we get all the matrix in play.
-						hdebug.Printf("Duplicate content path: %q", n.Path())
-						/*if replaced && !m.s.h.isRebuild() && m.s.conf.PrintPathWarnings {
-							var messageDetail string
-							if p1, ok := n.(*pageState); ok && p1.File() != nil {
-								messageDetail = fmt.Sprintf(" file: %q", p1.File().Filename())
-							}
-							if p2, ok := u.(*pageState); ok && p2.File() != nil {
-								messageDetail += fmt.Sprintf(" file: %q", p2.File().Filename())
-							}
-
-							m.s.Log.Warnf("Duplicate content path: %q%s", s, messageDetail)
-						}*/
-					}
-
-				}
-				return is, updated, false, false, nil
-			case *pageMetaSource:
-				var updated bool
-				is := make(contentNodes)
-				b, _, err := handlePageMetaSource(v, is)
-				if err != nil {
-					return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
-				}
-				updated = updated || b
-				return is, updated, false, false, nil
-			case *pageMeta: // TODO1 remove.
-				site, found := sites[v.sitesMatrix().FirstVector()]
-				if !found {
-					panic(fmt.Sprintf("site not found for %v", v))
-				}
-				p, err := site.newPageNew(v)
-				return p, true, false, false, err
-			case contentNodes:
-				for i, vv := range v {
-					if m, ok := vv.(*pageMeta); ok {
-						var err error
-						site, found := sites[m.sitesMatrix().FirstVector()] // TODO1 get rid of this interface.
-						if !found {
-							panic(fmt.Sprintf("site not found for %v", m))
-						}
-						v[i], err = site.newPageNew(m)
-						if err != nil {
-							return nil, false, false, false, fmt.Errorf("failed to create page %s: %w", s, err)
-						}
-					}
-				}
-			}
-
-			return n, false, false, false, nil
-		}()
 		hdebug.Printf("page: %q", s)
+		n2, replaced, skip, terminate, err = transformPages(s, n)
 		if err != nil || skip || terminate {
 			return
 		}

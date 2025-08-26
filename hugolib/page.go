@@ -221,6 +221,10 @@ func (ps *pageState) contentWeight() int {
 	return ps.m.contentWeight()
 }
 
+func (ps *pageState) nodeCategoryPage() {
+	// Marker method.
+}
+
 func (ps *pageState) matchSiteVector(siteVector sitesmatrix.Vector) bool {
 	pc := ps.m.pageConfigSource
 	return pc.MatchSiteVector(siteVector)
