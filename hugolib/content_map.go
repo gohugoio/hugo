@@ -94,7 +94,18 @@ func (r *resourceSource) forEeachContentNode(f func(n contentNode) bool) bool {
 }
 
 func (r *resourceSource) String() string {
-	return fmt.Sprintf("resourceSource: %v", r.sv)
+	var sb strings.Builder
+	if r.fi != nil {
+		sb.WriteString("filename: " + r.fi.Meta().Filename)
+		sb.WriteString(fmt.Sprintf(" matrix: %v", r.fi.Meta().SitesMatrix))
+		sb.WriteString(fmt.Sprintf(" fallbacks: %v", r.fi.Meta().SitesFallbacks))
+	}
+	if r.rc != nil {
+		sb.WriteString(fmt.Sprintf("rc matrix: %v", r.rc.SitesMatrix))
+		sb.WriteString(fmt.Sprintf("rc fallbacks: %v", r.rc.SitesFallbacks))
+	}
+	sb.WriteString(fmt.Sprintf(" sv: %v", r.sv))
+	return sb.String()
 }
 
 // TODO1 remove.

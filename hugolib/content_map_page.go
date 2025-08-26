@@ -802,6 +802,12 @@ type (
 		nodeCategoryPage() // Marker interface.
 	}
 
+	contentNodeMap interface {
+		// TODO1 names.
+		lookupContentNode(sitesmatrix.Vector) contentNode
+		allContentNodes() iter.Seq2[sitesmatrix.Vector, contentNode]
+	}
+
 	helperContentNode struct{}
 )
 
@@ -815,124 +821,18 @@ var (
 var contentNodeHelper helperContentNode
 
 func (helperContentNode) isPageNode(n contentNode) bool {
-	_, ok := n.(contentNodePage)
-	return ok
-}
-
-var _ contentNode = (*contentNodes)(nil)
-
-type contentNodes map[sitesmatrix.Vector]contentNode
-
-func (n contentNodes) one() contentNode {
-	for _, nn := range n {
-		return nn
-	}
-	return nil
-}
-
-func (ps contentNodes) forEeachContentNode(f func(n contentNode) bool) bool {
-	for _, nn := range ps {
-		if !f(nn) {
-			return false
-		}
-	}
-	return true
-}
-
-func (n contentNodes) ForEeachInAllDimensions(f func(contentNode) bool) {
-	for _, nn := range n {
-		if f(nn) {
-			return
-		}
-	}
-}
-
-// TODO1 remove this from the contentNode interface.
-func (n contentNodes) sitesMatrix() sitesmatrix.VectorProvider {
-	panic("not supported")
-}
-
-func (n contentNodes) contentWeight() int {
-	return 0
-}
-
-func (n contentNodes) Path() string {
-	return n.one().Path()
-}
-
-func (n contentNodes) isContentNodeBranch() bool {
-	return n.one().isContentNodeBranch()
-}
-
-func (n contentNodes) GetIdentity() identity.Identity {
-	return n.one().GetIdentity()
-}
-
-func (n contentNodes) ForEeachIdentity(f func(identity.Identity) bool) bool {
-	for _, nn := range n {
-		if nn != nil {
-			if nn.ForEeachIdentity(f) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func (n contentNodes) resetBuildState() {
-	for _, nn := range n {
-		if nn != nil {
-			nn.resetBuildState()
-		}
-	}
-}
-
-func (n contentNodes) MarkStale() {
-	for _, nn := range n {
-		resource.MarkStale(nn)
-	}
-}
-
-type contentNodeShifter struct {
-	numLanguages int                // TODO1 remove.
-	conf         config.AllProvider // Used for logging/debugging.
-}
-
-func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (contentNode, bool, bool) {
-	switch v := n.(type) {
-	case contentNodes:
-		deleted, wasDeleted := v[vec]
-		if wasDeleted {
-			delete(v, vec)
-			resource.MarkStale(deleted)
-		}
-		return deleted, wasDeleted, len(v) == 0
-	case resourceSources:
-		deleted, wasDeleted := v[vec]
-		if wasDeleted {
-			delete(v, vec)
-			resource.MarkStale(deleted)
-		}
-		return deleted, wasDeleted, len(v) == 0
-	case *resourceSource:
-		if !v.sitesMatrix().HasVector(vec) {
-			return nil, false, false
-		}
-		resource.MarkStale(v)
-		return v, true, true
-	case *pageState:
-		// TODO1 revise this entire file vs this.
-		if !v.s.siteVector.HasVector(vec) {
-			return nil, false, false
-		}
-		resource.MarkStale(v)
-		return v, true, true
+	switch n.(type) {
+	case contentNodePage:
+		return true
+	case contentNodes[contentNodePage]:
+		return true
 	default:
-		panic(fmt.Sprintf("Delete: unknown type %T", n))
+		return false
+
 	}
 }
 
-func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, fallback bool, candidates iter.Seq[contentNode]) contentNodeForSite {
+func (helperContentNode) findNodeForSiteVector(q sitesmatrix.Vector, fallback bool, candidates iter.Seq[contentNode]) contentNodeForSite {
 	var (
 		best         contentNodeForSite = nil
 		bestDistance int
@@ -976,6 +876,134 @@ func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, fallbac
 	return best
 }
 
+var (
+	_ contentNode    = (*contentNodes[contentNodePage])(nil)
+	_ contentNodeMap = (*contentNodes[contentNodePage])(nil)
+)
+
+type contentNodes[V contentNode] map[sitesmatrix.Vector]V
+
+func (n contentNodes[V]) lookupContentNode(v sitesmatrix.Vector) contentNode {
+	return n[v]
+}
+
+func (n contentNodes[V]) allContentNodes() iter.Seq2[sitesmatrix.Vector, contentNode] {
+	return func(
+		yield func(k sitesmatrix.Vector, v contentNode) bool,
+	) {
+		for k, v := range n {
+			if !yield(k, v) {
+				return
+			}
+		}
+	}
+}
+
+func (n contentNodes[V]) one() contentNode {
+	for _, nn := range n {
+		return nn
+	}
+	return nil
+}
+
+func (ps contentNodes[V]) forEeachContentNode(f func(n contentNode) bool) bool {
+	for _, nn := range ps {
+		if !f(nn) {
+			return false
+		}
+	}
+	return true
+}
+
+func (n contentNodes[V]) ForEeachInAllDimensions(f func(contentNode) bool) {
+	for _, nn := range n {
+		if f(nn) {
+			return
+		}
+	}
+}
+
+// TODO1 remove this from the contentNode interface.
+func (n contentNodes[V]) sitesMatrix() sitesmatrix.VectorProvider {
+	panic(fmt.Sprintf("sitesMatrix: not supported on %T", n))
+}
+
+func (n contentNodes[V]) contentWeight() int {
+	return 0
+}
+
+func (n contentNodes[V]) Path() string {
+	return n.one().Path()
+}
+
+func (n contentNodes[V]) isContentNodeBranch() bool {
+	return n.one().isContentNodeBranch()
+}
+
+func (n contentNodes[V]) GetIdentity() identity.Identity {
+	return n.one().GetIdentity()
+}
+
+func (n contentNodes[V]) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	for _, nn := range n {
+		if nn.ForEeachIdentity(f) {
+			return true
+		}
+	}
+	return false
+}
+
+func (n contentNodes[V]) resetBuildState() {
+	for _, nn := range n {
+		nn.resetBuildState()
+	}
+}
+
+func (n contentNodes[V]) MarkStale() {
+	for _, nn := range n {
+		resource.MarkStale(nn)
+	}
+}
+
+type contentNodeShifter struct {
+	numLanguages int                // TODO1 remove.
+	conf         config.AllProvider // Used for logging/debugging.
+}
+
+func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (contentNode, bool, bool) {
+	switch v := n.(type) {
+	case contentNodes[contentNode]: // TODO1
+		deleted, wasDeleted := v[vec]
+		if wasDeleted {
+			delete(v, vec)
+			resource.MarkStale(deleted)
+		}
+		return deleted, wasDeleted, len(v) == 0
+	case resourceSources:
+		deleted, wasDeleted := v[vec]
+		if wasDeleted {
+			delete(v, vec)
+			resource.MarkStale(deleted)
+		}
+		return deleted, wasDeleted, len(v) == 0
+	case *resourceSource:
+		if !v.sitesMatrix().HasVector(vec) {
+			return nil, false, false
+		}
+		resource.MarkStale(v)
+		return v, true, true
+	case *pageState:
+		// TODO1 revise this entire file vs this.
+		if !v.s.siteVector.HasVector(vec) {
+			return nil, false, false
+		}
+		resource.MarkStale(v)
+		return v, true, true
+	default:
+		panic(fmt.Sprintf("Delete: unknown type %T", n))
+	}
+}
+
 func absint(i int) int {
 	if i < 0 {
 		return -i
@@ -985,11 +1013,8 @@ func absint(i int) int {
 
 func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector, fallback bool) (contentNode, bool) {
 	switch v := n.(type) {
-	case contentNodes:
-		if len(v) == 0 {
-			panic("empty contentNodes")
-		}
-		vv := v[siteVector]
+	case contentNodeMap:
+		vv := v.lookupContentNode(siteVector)
 		if vv != nil {
 			return vv, true
 		}
@@ -998,15 +1023,15 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		}
 
 		iter := func(yield func(n contentNode) bool) {
-			for _, nn := range v {
+			for _, nn := range v.allContentNodes() {
 				if !yield(nn) {
 					return
 				}
 			}
 		}
 
-		if vv = s.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
-			return vv, true
+		if vvv := contentNodeHelper.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
+			return vvv, true
 		}
 		return nil, false
 	case resourceSources: // TODO1 remove this type.
@@ -1036,7 +1061,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			}
 		}
 
-		if vv := s.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
+		if vv := contentNodeHelper.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
 			if !fallback && vv.siteVector() != siteVector {
 				rc := vv.(contentNodeVariantAdder)
 				return rc.addContentNodeVariant(siteVector), true
@@ -1083,9 +1108,9 @@ func (s *contentNodeShifter) ForEeachInAllDimensions(n contentNode, f func(conte
 
 func (s *contentNodeShifter) ForEeachInDimension(n contentNode, dims sitesmatrix.Vector, d int, f func(contentNode) bool) {
 	switch vv := n.(type) {
-	case contentNodes:
+	case contentNodeMap:
 	LOOP1:
-		for dims2, v := range vv {
+		for dims2, v := range vv.allContentNodes() {
 			if v != nil {
 				for i, v := range dims2 {
 					if i != d && v != dims[i] {
@@ -1132,13 +1157,13 @@ func (s *contentNodeShifter) InsertInto(old, new contentNode, dimension sitesmat
 		if vv.s.siteVector == newp.s.siteVector && newp.s.siteVector == dimension {
 			return new, vv, true
 		}
-		is := make(contentNodes)
-		is[vv.s.siteVector] = old
-		is[dimension] = new
+		is := make(contentNodes[contentNodePage])
+		is[vv.s.siteVector] = vv
+		is[dimension] = newp
 		return is, old, false
-	case contentNodes:
+	case contentNodes[contentNodePage]:
 		oldv := vv[dimension]
-		vv[dimension] = new
+		vv[dimension] = new.(contentNodePage)
 		return vv, oldv, oldv != nil
 	case resourceSources:
 		oldv := vv[dimension]
@@ -1177,7 +1202,7 @@ func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentN
 		case *pageState:
 			return new, old, true
 		case *pageMeta:
-			is := make(contentNodes)
+			is := make(contentNodes[contentNodePage])
 			// TODO1 remove s from pageMeta.
 			vv.sitesMatrix().ForEeachVector(func(dims sitesmatrix.Vector) bool {
 				if vvv, ok := is[dims]; ok && vvv.contentWeight() > vv.contentWeight() {
@@ -1211,11 +1236,11 @@ func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentN
 			}
 			return new, vv, true
 		}
-		is := make(contentNodes)
-		is[vv.s.siteVector] = old
-		is[newp.s.siteVector] = new
+		is := make(contentNodes[contentNodePage])
+		is[vv.s.siteVector] = old.(contentNodePage)
+		is[newp.s.siteVector] = newp
 		return is, old, false
-	case contentNodes:
+	case contentNodes[contentNodePage]:
 		switch new := new.(type) {
 		case *pageState:
 			oldp := vv[new.s.siteVector]
@@ -2212,6 +2237,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 						return false, err
 					}
 					rs.r = r
+
 					return false, nil
 				},
 			)
@@ -2480,7 +2506,7 @@ func (sa *sitePagesAssembler) createPages() error {
 	}{}
 
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		handlePageMetaSource := func(v any, is contentNodes) (bool, bool, error) {
+		handlePageMetaSource := func(v any, is contentNodes[contentNodePage]) (bool, bool, error) {
 			var (
 				replaced bool
 				err      error
@@ -2523,7 +2549,7 @@ func (sa *sitePagesAssembler) createPages() error {
 			// Nothing to do.
 		case pageMetaSourcesSlice:
 			var updated bool
-			is := make(contentNodes)
+			is := make(contentNodes[contentNodePage])
 			for _, ms := range v {
 				b, r, err := handlePageMetaSource(ms, is)
 				if err != nil {
@@ -2552,7 +2578,7 @@ func (sa *sitePagesAssembler) createPages() error {
 			return is, updated, false, false, nil
 		case *pageMetaSource:
 			var updated bool
-			is := make(contentNodes)
+			is := make(contentNodes[contentNodePage])
 			b, _, err := handlePageMetaSource(v, is)
 			if err != nil {
 				return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
@@ -2566,7 +2592,7 @@ func (sa *sitePagesAssembler) createPages() error {
 			}
 			p, err := site.newPageNew(v)
 			return p, true, false, false, err
-		case contentNodes:
+		case contentNodes[contentNodePage]:
 			for i, vv := range v {
 				if m, ok := vv.(*pageMeta); ok {
 					var err error
@@ -2585,58 +2611,10 @@ func (sa *sitePagesAssembler) createPages() error {
 		return n, false, false, false, nil
 	}
 
-	forEeachPage := func(fn func(p *pageState) bool) bool {
-		switch nn := resourceOwnerInfo.n.(type) {
-		case *pageState:
-			return fn(nn)
-		case contentNodes:
-			for _, p := range nn {
-				if !fn(p.(*pageState)) {
-					return false
-				}
-			}
-		default:
-			panic(fmt.Sprintf("unknown type %T", nn))
-		}
-		return true
-	}
-
 	var rw *doctree.NodeShiftTreeWalker[contentNode]
-	rw = &doctree.NodeShiftTreeWalker[contentNode]{
-		Tree:     treeResources,
-		LockType: lockType,
-		NoShift:  true,
-		Transform: func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-			if contentNodeHelper.isPageNode(n) {
-				return transformPages(s, n)
-			}
-			hdebug.Printf("resource: %q %T", s, n)
-			nodes := make(contentNodes)
-			n2 = nodes
-			replaced = true
-			n.forEeachContentNode(
-				func(nn contentNode) bool {
-					rs := nn.(*resourceSource)
-					return forEeachPage(
-						func(p *pageState) bool {
-							if rs.matchSiteVector(p.s.siteVector) {
-								if rs.state == resourceStateNew {
-									nodes[p.s.siteVector] = rs.assignSiteVector(p.s.siteVector)
-								} else {
-									nodes[p.s.siteVector] = rs.clone().assignSiteVector(p.s.siteVector)
-								}
-							}
-							return true
-						},
-					)
-				},
-			)
 
-			return
-		},
-	}
-
-	shouldSkipOrTerminate := func(owner contentNode, s string) (skip, terminate bool) {
+	shouldSkipOrTerminate := func(s string) (skip, terminate bool) {
+		owner := resourceOwnerInfo.n
 		if owner == nil {
 			return false, true
 		}
@@ -2671,7 +2649,62 @@ func (sa *sitePagesAssembler) createPages() error {
 		return false, false
 	}
 
-	if _, foo := shouldSkipOrTerminate(nil, "foo"); foo {
+	forEeachPage := func(fn func(p *pageState) bool) bool {
+		switch nn := resourceOwnerInfo.n.(type) {
+		case *pageState:
+			return fn(nn)
+		case contentNodes[contentNodePage]:
+			for _, p := range nn {
+				if !fn(p.(*pageState)) {
+					return false
+				}
+			}
+		default:
+			panic(fmt.Sprintf("unknown type %T", nn))
+		}
+		return true
+	}
+
+	rw = &doctree.NodeShiftTreeWalker[contentNode]{
+		Tree:     treeResources,
+		LockType: lockType,
+		NoShift:  true,
+		Transform: func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+			if skip, terminate = shouldSkipOrTerminate(s); skip || terminate {
+				return
+			}
+
+			if contentNodeHelper.isPageNode(n) {
+				return transformPages(s, n)
+			}
+
+			// TODO1 avoid creating a map for one node.
+			nodes := make(contentNodes[contentNode])
+			n2 = nodes
+			replaced = true
+			n.forEeachContentNode(
+				func(nn contentNode) bool {
+					rs := nn.(*resourceSource)
+					return forEeachPage(
+						func(p *pageState) bool {
+							if rs.matchSiteVector(p.s.siteVector) {
+								if rs.state == resourceStateNew {
+									nodes[p.s.siteVector] = rs.assignSiteVector(p.s.siteVector)
+								} else {
+									nodes[p.s.siteVector] = rs.clone().assignSiteVector(p.s.siteVector)
+								}
+								hdebug.Printf("resource: %q %v s: %v", s, rs.sv, p.s.siteVector)
+							} else {
+								hdebug.Printf("no resource: %q %s s: %v", s, rs, p.s.siteVector)
+							}
+							return true
+						},
+					)
+				},
+			)
+
+			return
+		},
 	}
 
 	pw := rw.Extend()
