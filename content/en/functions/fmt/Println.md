@@ -13,4 +13,5 @@ aliases: [/functions/println]
 
 ```go-html-template
 {{ println "foo" }} → foo\n
+{{ println "foo" "bar" }} → foo bar\n
 ```
