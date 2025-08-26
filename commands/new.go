@@ -53,7 +53,9 @@ Ensure you run this within the root directory of your site.`,
 					if len(args) < 1 {
 						return newUserError("path needs to be provided")
 					}
-					h, err := r.Hugo(flagsToCfg(cd, nil))
+					cfg := flagsToCfg(cd, nil)
+					cfg.Set("BuildFuture", true)
+					h, err := r.Hugo(cfg)
 					if err != nil {
 						return err
 					}
