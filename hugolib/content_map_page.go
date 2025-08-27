@@ -2482,6 +2482,25 @@ func (sa *sitePagesAssembler) createPages() error {
 		s string
 	}{}
 
+	getOrCreateCascade := func(s string, vec sitesmatrix.Vector, sourCascadeIsNil bool) *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] {
+		var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
+		data := rw.WalkContext.DataRaw(vec)
+		if s == "" {
+			// Home page gets it's cascade from the site config.
+			cascade = sa.s.conf.Cascade.Config
+			if sourCascadeIsNil {
+				// Pass the site cascade downwards.
+				data.Insert(s, cascade)
+			}
+		} else {
+			_, data := data.LongestPrefix(paths.Dir(s))
+			if data != nil {
+				cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
+			}
+		}
+		return cascade
+	}
+
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		handlePageMetaSource := func(v any, is contentNodes[contentNodePage]) (bool, bool, error) {
 			var (
@@ -2496,10 +2515,33 @@ func (sa *sitePagesAssembler) createPages() error {
 						panic(fmt.Sprintf("site not found for %v", vec))
 					}
 
+					cascade := getOrCreateCascade(s, vec, ms.pageConfigSource.Cascade == nil)
+
 					var p *pageState
 					p, err = site.newPageFromPageMetasource(ms)
 					if err != nil {
 						return false
+					}
+
+					// Combine the cascade map with front matter.
+					if err = p.setMetaPost(cascade); err != nil {
+						return true
+					}
+
+					hdebug.Printf("got cascade: %q %v %v", s, vec, cascade)
+
+					// We receive cascade values from above. If this leads to a change compared
+					// to the previous value, we need to mark the page and its dependencies as changed.
+					if isRebuild && p.m.setMetaPostCascadeChanged {
+						sa.assembleChanges.Add(p)
+					}
+
+					if !p.IsPage() {
+						hdebug.Printf("pass down cascade: %q %v %T", s, vec, p)
+						if p.m.pageConfig.CascadeCompiled != nil {
+							// Pass it down.
+							rw.WalkContext.DataRaw(vec).Insert(s, p.m.pageConfig.CascadeCompiled)
+						}
 					}
 
 					pp, found := is[vec]
@@ -2594,85 +2636,8 @@ func (sa *sitePagesAssembler) createPages() error {
 			return
 		}
 
-		fmt.Println("==>", rw.WalkContext)
-
-		/*
-
-			When done, remove from the other walker.
-			// Handle cascades first to get any default dates set.
-			var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
-			if keyPage == "" {
-				// Home page gets it's cascade from the site config.
-				cascade = sa.s.conf.Cascade.Config
-				if pageBundle.m.pageConfig.CascadeCompiled == nil {
-					// Pass the site cascade downwards.
-					pw.WalkContext.Data().Insert(keyPage, cascade)
-				}
-			} else {
-				_, data := pw.WalkContext.Data().LongestPrefix(paths.Dir(keyPage))
-				if data != nil {
-					cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
-				}
-			}
-
-						// Combine the cascade map with front matter.
-			if err := pageBundle.setMetaPost(cascade); err != nil {
-				return false, err
-			}
-
-			// We receive cascade values from above. If this leads to a change compared
-			// to the previous value, we need to mark the page and its dependencies as changed.
-			if rebuild && pageBundle.m.setMetaPostCascadeChanged {
-				sa.assembleChanges.Add(pageBundle)
-			}
-
-			if n.isContentNodeBranch() {
-				if pageBundle.m.pageConfig.CascadeCompiled != nil {
-					// Pass it down.
-					pw.WalkContext.Data().Insert(keyPage, pageBundle.m.pageConfig.CascadeCompiled)
-				}
-
-
-		*/
-
 		n2.forEeachContentNode(
 			func(vec sitesmatrix.Vector, nn contentNode) bool {
-				data := rw.WalkContext.DataRaw(vec)
-				ps := nn.(*pageState)
-				var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
-				if s == "" {
-					// Home page gets it's cascade from the site config.
-					cascade = sa.s.conf.Cascade.Config
-					if ps.m.pageConfig.CascadeCompiled == nil {
-						// Pass the site cascade downwards.
-						data.Insert(s, cascade)
-					}
-				} else {
-					_, data := data.LongestPrefix(paths.Dir(s))
-					if data != nil {
-						cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
-					}
-				}
-
-				// Combine the cascade map with front matter.
-				if err = ps.setMetaPost(cascade); err != nil {
-					return true
-				}
-
-				// We receive cascade values from above. If this leads to a change compared
-				// to the previous value, we need to mark the page and its dependencies as changed.
-				if isRebuild && ps.m.setMetaPostCascadeChanged {
-					sa.assembleChanges.Add(ps)
-				}
-
-				if nn.isContentNodeBranch() {
-					ps := nn.(*pageState)
-					hdebug.Printf("pass down cascade: %q %v %T", s, vec, ps)
-					if ps.m.pageConfig.CascadeCompiled != nil {
-						// Pass it down.
-						rw.WalkContext.DataRaw(vec).Insert(s, ps.m.pageConfig.CascadeCompiled)
-					}
-				}
 				return true
 			},
 		)

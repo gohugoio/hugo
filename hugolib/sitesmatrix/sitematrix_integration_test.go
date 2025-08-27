@@ -402,6 +402,8 @@ weight = 2
 -- content/_index.md --
 +++
 title = "English home"
+[cascade]
+p1 = "p1cascade"
 [cascade.sites.matrix]
 languages = ["en"]
 +++
@@ -410,10 +412,10 @@ languages = ["en"]
 title = "English p1"
 +++
 -- layouts/all.html --
-{{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|
+{{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|
 `
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|")
+	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|p1: p1cascade|")
 }
 
 func TestMountCascadeFrontMatterSitesMatrixAndFallbacksShouldBeMerged(t *testing.T) {
