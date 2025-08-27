@@ -780,7 +780,7 @@ type (
 
 		// forEeachContentNode iterates over all content nodes.
 		// It returns false if the iteration was stopped early.
-		forEeachContentNode(func(contentNode) bool) bool
+		forEeachContentNode(func(sitesmatrix.Vector, contentNode) bool) bool
 	}
 
 	contentNodeForSite interface {
@@ -832,50 +832,6 @@ func (helperContentNode) isPageNode(n contentNode) bool {
 	}
 }
 
-func (helperContentNode) findNodeForSiteVector(q sitesmatrix.Vector, fallback bool, candidates iter.Seq[contentNode]) contentNodeForSite {
-	var (
-		best         contentNodeForSite = nil
-		bestDistance int
-	)
-
-	for n := range candidates {
-		// The order of candidates is unstable, so we need to compare the matches to
-		// get stable output. This compare will also make sure that we pick
-		// language, version and role according to their individual sort order:
-		// Closer is better, and matches above are better than matches below.
-		if m := n.(contentNodeMatcher).matchSiteVectorAll(q, fallback); m != nil {
-			for nn := range m {
-				vec := nn.siteVector()
-				if q == vec {
-					// Exact match.
-					return nn
-				}
-
-				distance := q.Distance(vec)
-
-				if best == nil {
-					best = nn
-					bestDistance = distance
-				} else {
-					distanceAbs := absint(distance)
-					bestDistanceAbs := absint(bestDistance)
-					if distanceAbs < bestDistanceAbs {
-						// Closer is better.
-						best = nn
-						bestDistance = distance
-					} else if distanceAbs == bestDistanceAbs && distance > 0 {
-						// Positive distance is better than negative.
-						best = nn
-						bestDistance = distance
-					}
-				}
-			}
-		}
-	}
-
-	return best
-}
-
 var (
 	_ contentNode    = (*contentNodes[contentNodePage])(nil)
 	_ contentNodeMap = (*contentNodes[contentNodePage])(nil)
@@ -906,9 +862,9 @@ func (n contentNodes[V]) one() contentNode {
 	return nil
 }
 
-func (ps contentNodes[V]) forEeachContentNode(f func(n contentNode) bool) bool {
-	for _, nn := range ps {
-		if !f(nn) {
+func (ps contentNodes[V]) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	for vec, nn := range ps {
+		if !f(vec, nn) {
 			return false
 		}
 	}
@@ -1011,6 +967,51 @@ func absint(i int) int {
 	return i
 }
 
+// TODO1 check upsage
+func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, fallback bool, candidates iter.Seq[contentNode]) contentNodeForSite {
+	var (
+		best         contentNodeForSite = nil
+		bestDistance int
+	)
+
+	for n := range candidates {
+		// The order of candidates is unstable, so we need to compare the matches to
+		// get stable output. This compare will also make sure that we pick
+		// language, version and role according to their individual sort order:
+		// Closer is better, and matches above are better than matches below.
+		if m := n.(contentNodeMatcher).matchSiteVectorAll(q, fallback); m != nil {
+			for nn := range m {
+				vec := nn.siteVector()
+				if q == vec {
+					// Exact match.
+					return nn
+				}
+
+				distance := q.Distance(vec)
+
+				if best == nil {
+					best = nn
+					bestDistance = distance
+				} else {
+					distanceAbs := absint(distance)
+					bestDistanceAbs := absint(bestDistance)
+					if distanceAbs < bestDistanceAbs {
+						// Closer is better.
+						best = nn
+						bestDistance = distance
+					} else if distanceAbs == bestDistanceAbs && distance > 0 {
+						// Positive distance is better than negative.
+						best = nn
+						bestDistance = distance
+					}
+				}
+			}
+		}
+	}
+
+	return best
+}
+
 func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector, fallback bool) (contentNode, bool) {
 	switch v := n.(type) {
 	case contentNodeMap:
@@ -1018,6 +1019,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		if vv != nil {
 			return vv, true
 		}
+
 		if !fallback {
 			return nil, false
 		}
@@ -1030,7 +1032,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			}
 		}
 
-		if vvv := contentNodeHelper.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
+		if vvv := s.findNodeForSiteVector(siteVector, fallback, iter); vvv != nil {
 			return vvv, true
 		}
 		return nil, false
@@ -1061,7 +1063,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			}
 		}
 
-		if vv := contentNodeHelper.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
+		if vv := s.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
 			if !fallback && vv.siteVector() != siteVector {
 				rc := vv.(contentNodeVariantAdder)
 				return rc.addContentNodeVariant(siteVector), true
@@ -2500,6 +2502,8 @@ func (sa *sitePagesAssembler) createPages() error {
 	treePages := sa.s.pageMap.treePages
 	treeResources := sa.s.pageMap.treeResources
 
+	var rw *doctree.NodeShiftTreeWalker[contentNode]
+
 	resourceOwnerInfo := struct {
 		n contentNode
 		s string
@@ -2611,7 +2615,97 @@ func (sa *sitePagesAssembler) createPages() error {
 		return n, false, false, false, nil
 	}
 
-	var rw *doctree.NodeShiftTreeWalker[contentNode]
+	transformPagesAndPassDownCascade := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+		n2, replaced, skip, terminate, err = transformPages(s, n)
+		if err != nil || skip || terminate {
+			return
+		}
+
+		fmt.Println("==>", rw.WalkContext)
+
+		/*
+
+			When done, remove from the other walker.
+			// Handle cascades first to get any default dates set.
+			var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
+			if keyPage == "" {
+				// Home page gets it's cascade from the site config.
+				cascade = sa.s.conf.Cascade.Config
+				if pageBundle.m.pageConfig.CascadeCompiled == nil {
+					// Pass the site cascade downwards.
+					pw.WalkContext.Data().Insert(keyPage, cascade)
+				}
+			} else {
+				_, data := pw.WalkContext.Data().LongestPrefix(paths.Dir(keyPage))
+				if data != nil {
+					cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
+				}
+			}
+
+						// Combine the cascade map with front matter.
+			if err := pageBundle.setMetaPost(cascade); err != nil {
+				return false, err
+			}
+
+			// We receive cascade values from above. If this leads to a change compared
+			// to the previous value, we need to mark the page and its dependencies as changed.
+			if rebuild && pageBundle.m.setMetaPostCascadeChanged {
+				sa.assembleChanges.Add(pageBundle)
+			}
+
+			if n.isContentNodeBranch() {
+				if pageBundle.m.pageConfig.CascadeCompiled != nil {
+					// Pass it down.
+					pw.WalkContext.Data().Insert(keyPage, pageBundle.m.pageConfig.CascadeCompiled)
+				}
+
+
+		*/
+
+		n2.forEeachContentNode(
+			func(vec sitesmatrix.Vector, nn contentNode) bool {
+				data := rw.WalkContext.DataRaw(vec)
+				ps := nn.(*pageState)
+				var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
+				if s == "" {
+					// Home page gets it's cascade from the site config.
+					cascade = sa.s.conf.Cascade.Config
+					if ps.m.pageConfig.CascadeCompiled == nil {
+						// Pass the site cascade downwards.
+						data.Insert(s, cascade)
+					}
+				} else {
+					_, data := data.LongestPrefix(paths.Dir(s))
+					if data != nil {
+						cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
+					}
+				}
+
+				// Combine the cascade map with front matter.
+				if err = ps.setMetaPost(cascade); err != nil {
+					return true
+				}
+
+				// We receive cascade values from above. If this leads to a change compared
+				// to the previous value, we need to mark the page and its dependencies as changed.
+				if isRebuild && ps.m.setMetaPostCascadeChanged {
+					sa.assembleChanges.Add(ps)
+				}
+
+				if nn.isContentNodeBranch() {
+					ps := nn.(*pageState)
+					hdebug.Printf("pass down cascade: %q %v %T", s, vec, ps)
+					if ps.m.pageConfig.CascadeCompiled != nil {
+						// Pass it down.
+						rw.WalkContext.DataRaw(vec).Insert(s, ps.m.pageConfig.CascadeCompiled)
+					}
+				}
+				return true
+			},
+		)
+
+		return
+	}
 
 	shouldSkipOrTerminate := func(s string) (skip, terminate bool) {
 		owner := resourceOwnerInfo.n
@@ -2626,7 +2720,6 @@ func (sa *sitePagesAssembler) createPages() error {
 		// A page key points to the logical path of a page, which when sourced from the filesystem
 		// may represent a directory (bundles) or a single content file (e.g. p1.md).
 		// So, to avoid any overlapping ambiguity, we start looking from the owning directory.
-
 		for {
 			s = path.Dir(s)
 			ownerKey, found := treePages.LongestPrefixAll(s)
@@ -2666,40 +2759,48 @@ func (sa *sitePagesAssembler) createPages() error {
 	}
 
 	rw = &doctree.NodeShiftTreeWalker[contentNode]{
-		Tree:     treeResources,
-		LockType: lockType,
-		NoShift:  true,
+		Tree:        treeResources,
+		LockType:    lockType,
+		NoShift:     true,
+		WalkContext: &doctree.WalkContext[contentNode]{},
 		Transform: func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 			if skip, terminate = shouldSkipOrTerminate(s); skip || terminate {
 				return
 			}
 
 			if contentNodeHelper.isPageNode(n) {
-				return transformPages(s, n)
+				return transformPagesAndPassDownCascade(s, n)
 			}
 
 			// TODO1 avoid creating a map for one node.
 			nodes := make(contentNodes[contentNode])
 			n2 = nodes
 			replaced = true
-			n.forEeachContentNode(
-				func(nn contentNode) bool {
-					rs := nn.(*resourceSource)
-					return forEeachPage(
-						func(p *pageState) bool {
-							if rs.matchSiteVector(p.s.siteVector) {
-								if rs.state == resourceStateNew {
-									nodes[p.s.siteVector] = rs.assignSiteVector(p.s.siteVector)
-								} else {
-									nodes[p.s.siteVector] = rs.clone().assignSiteVector(p.s.siteVector)
+			forEeachPage(
+				func(p *pageState) bool {
+					if _, found := nodes[p.s.siteVector]; !found {
+						var rs *resourceSource
+						n.forEeachContentNode(
+							func(vec sitesmatrix.Vector, nn contentNode) bool {
+								if r, ok := nn.(*resourceSource); ok && r.matchSiteVector(p.s.siteVector) {
+									rs = r
+									return false
 								}
-								hdebug.Printf("resource: %q %v s: %v", s, rs.sv, p.s.siteVector)
+								return true
+							},
+						)
+
+						if rs != nil {
+							if rs.state == resourceStateNew {
+								nodes[p.s.siteVector] = rs.assignSiteVector(p.s.siteVector)
 							} else {
-								hdebug.Printf("no resource: %q %s s: %v", s, rs, p.s.siteVector)
+								nodes[p.s.siteVector] = rs.clone().assignSiteVector(p.s.siteVector)
 							}
-							return true
-						},
-					)
+							hdebug.Printf("resource: %q %v s: %v", s, rs.sv, p.s.siteVector)
+						}
+					}
+
+					return true
 				},
 			)
 
@@ -2710,8 +2811,11 @@ func (sa *sitePagesAssembler) createPages() error {
 	pw := rw.Extend()
 	pw.Tree = sa.s.pageMap.treePages
 	pw.Transform = func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		hdebug.Printf("page: %q", s)
-		n2, replaced, skip, terminate, err = transformPages(s, n)
+		if p, ok := n.(*pageMetaSource); ok {
+			hdebug.Printf("page: %q %T", s, p.pageConfigSource.CascadeCompiled)
+		}
+
+		n2, replaced, skip, terminate, err = transformPagesAndPassDownCascade(s, n)
 		if err != nil || skip || terminate {
 			return
 		}

@@ -89,8 +89,8 @@ func (r resourceSource) clone() *resourceSource {
 	return &r
 }
 
-func (r *resourceSource) forEeachContentNode(f func(n contentNode) bool) bool {
-	return f(r)
+func (r *resourceSource) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	return f(r.sv, r)
 }
 
 func (r *resourceSource) String() string {
@@ -144,14 +144,26 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 }
 
 func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector) bool {
-	if siteVector == p.sv {
+	if p.state >= resourceStateAssigned && p.sv == siteVector {
 		return true
 	}
-	if p.rc == nil {
+
+	// A site has not been assigned yet.
+
+	if p.rc != nil && p.rc.MatchSiteVector(siteVector) {
+		return true
+	}
+
+	if p.rc != nil && p.rc.SitesMatrix.LenVectors() > 0 {
+		// Do not consider file mount matrix if the resource config has its own.
 		return false
 	}
 
-	return p.rc.MatchSiteVector(siteVector)
+	if p.fi != nil && p.fi.Meta().SitesMatrix.HasAnyVector(siteVector) {
+		return true
+	}
+
+	return false
 }
 
 func (p *resourceSource) matchSiteVectorAll(siteVector sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
@@ -226,9 +238,9 @@ func (n resourceSources) MarkStale() {
 	}
 }
 
-func (r resourceSources) forEeachContentNode(f func(n contentNode) bool) bool {
+func (r resourceSources) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
 	for _, rs := range r {
-		if !f(rs) {
+		if !f(rs.sv, rs) {
 			return false
 		}
 	}
@@ -297,9 +309,9 @@ func (n pageMetaSourcesSlice) Path() string {
 	return n.one().Path()
 }
 
-func (n pageMetaSourcesSlice) forEeachContentNode(f func(n contentNode) bool) bool {
+func (n pageMetaSourcesSlice) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
 	for _, rs := range n {
-		if !f(rs) {
+		if !f(rs.sitesMatrix().FirstVector(), rs) {
 			return false
 		}
 	}
@@ -343,9 +355,9 @@ func (n resourceSourcesSlice) MarkStale() {
 	}
 }
 
-func (r resourceSourcesSlice) forEeachContentNode(f func(n contentNode) bool) bool {
+func (r resourceSourcesSlice) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
 	for _, rs := range r {
-		if !f(rs) {
+		if !f(rs.sv, rs) {
 			return false
 		}
 	}

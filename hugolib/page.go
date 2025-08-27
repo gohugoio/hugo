@@ -209,8 +209,8 @@ func (ps *pageState) isRenderedAny() bool {
 
 // Implements contentNode.
 
-func (ps *pageState) forEeachContentNode(f func(n contentNode) bool) bool {
-	return f(ps)
+func (ps *pageState) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	return f(ps.s.siteVector, ps)
 }
 
 func (ps *pageState) isContentNodeBranch() bool {

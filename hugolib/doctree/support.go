@@ -17,6 +17,9 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
 
 var _ MutableTrees = MutableTrees{}
@@ -63,6 +66,16 @@ func (ctx *WalkContext[T]) Data() *SimpleThreadSafeTree[any] {
 		ctx.data = NewSimpleThreadSafeTree[any]()
 	})
 	return ctx.data
+}
+
+func (ctx *WalkContext[T]) DataRaw(vec sitesmatrix.Vector) *SimpleThreadSafeTree[any] {
+	ctx.dataRawInit.Do(func() {
+		ctx.dataRaw = maps.NewCache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]()
+	})
+	v, _ := ctx.dataRaw.GetOrCreate(vec, func() (*SimpleThreadSafeTree[any], error) {
+		return NewSimpleThreadSafeTree[any](), nil
+	})
+	return v
 }
 
 // SendEvent sends an event up the tree.
@@ -180,8 +193,12 @@ func (t MutableTrees) CanLock() bool {
 
 // WalkContext is passed to the Walk callback.
 type WalkContext[T any] struct {
-	data          *SimpleThreadSafeTree[any]
-	dataInit      sync.Once
+	data     *SimpleThreadSafeTree[any]
+	dataInit sync.Once
+
+	dataRaw     *maps.Cache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]
+	dataRawInit sync.Once
+
 	eventHandlers eventHandlers[T]
 	events        []*Event[T]
 

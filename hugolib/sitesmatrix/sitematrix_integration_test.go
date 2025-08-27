@@ -388,6 +388,34 @@ sites:
 	b.AssertFileContent("public/guest/v1.2.3/en/p2/index.html", "title: EN p2|")
 }
 
+func TestCascadeMatrixInFrontMatter(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/_index.md --
++++
+title = "English home"
+[cascade.sites.matrix]
+languages = ["en"]
++++
+-- content/mysection/p1.md --
++++
+title = "English p1"
++++
+-- layouts/all.html --
+{{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|
+`
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|")
+}
+
 func TestMountCascadeFrontMatterSitesMatrixAndFallbacksShouldBeMerged(t *testing.T) {
 	t.Parallel()
 

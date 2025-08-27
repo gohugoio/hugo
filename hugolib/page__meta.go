@@ -79,8 +79,8 @@ func (m *pageMetaSource) contentWeight() int {
 	panic("not implemented") // TODO: Implement
 }
 
-func (m *pageMetaSource) forEeachContentNode(f func(n contentNode) bool) bool {
-	return f(m)
+func (m *pageMetaSource) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	return f(sitesmatrix.Vector{}, m)
 }
 
 func (m *pageMetaSource) sitesMatrix() sitesmatrix.VectorProvider {
