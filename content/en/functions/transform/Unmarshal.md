@@ -13,7 +13,7 @@ aliases: [/functions/transform.unmarshal]
 
 The input can be a string or a [resource](g).
 
-### Options
+## Options
 
 delimiter
 : (`string`) Applicable to CSV files. The delimiter used. Default is `,`.
