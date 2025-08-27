@@ -1795,22 +1795,6 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 			sectionPageCount[rootSection]++
 		}
 
-		// Handle cascades first to get any default dates set.
-		var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
-		if keyPage == "" {
-			// Home page gets it's cascade from the site config.
-			cascade = sa.s.conf.Cascade.Config
-			if pageBundle.m.pageConfig.CascadeCompiled == nil {
-				// Pass the site cascade downwards.
-				pw.WalkContext.Data().Insert(keyPage, cascade)
-			}
-		} else {
-			_, data := pw.WalkContext.Data().LongestPrefix(paths.Dir(keyPage))
-			if data != nil {
-				cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
-			}
-		}
-
 		if rebuild {
 			if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostCount > 0 {
 				oldDates := pageBundle.m.pageConfig.Dates
@@ -1825,17 +1809,6 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 					},
 				)
 			}
-		}
-
-		// Combine the cascade map with front matter.
-		if err := pageBundle.setMetaPost(cascade); err != nil {
-			return false, err
-		}
-
-		// We receive cascade values from above. If this leads to a change compared
-		// to the previous value, we need to mark the page and its dependencies as changed.
-		if rebuild && pageBundle.m.setMetaPostCascadeChanged {
-			sa.assembleChanges.Add(pageBundle)
 		}
 
 		const eventName = "dates"
