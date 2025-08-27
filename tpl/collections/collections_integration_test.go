@@ -298,3 +298,33 @@ All|{{ .Title }}|
 
 	b.AssertFileContent("public/index.html", "Len: 1|")
 }
+
+func TestD(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $p := site.RegularPages }}
+5 random pages: {{ range collections.D 42 5 ($p | len) }}{{ with (index $p .) }}{{ .RelPermalink }}|{{ end }}{{ end }}$
+-- content/a.md --
+-- content/b.md --
+-- content/c.md --
+-- content/d.md --
+-- content/e.md --
+-- content/f.md --
+-- content/g.md --
+-- content/h.md --
+-- content/i.md --
+-- content/j.md --
+-- content/k.md --
+-- content/l.md --
+-- content/m.md --
+-- content/n.md --
+-- content/o.md --
+-- content/p.md --
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentExact("public/index.html", "5 random pages: /b/|/g/|/j/|/k/|/l/|$")
+}

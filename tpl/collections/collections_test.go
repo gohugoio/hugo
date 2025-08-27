@@ -536,7 +536,7 @@ func TestSeq(t *testing.T) {
 		{[]any{1, -1, 2}, false},
 		{[]any{2, 1, 1}, false},
 		{[]any{2, 1, 1, 1}, false},
-		{[]any{2001}, false},
+		{[]any{-1000001}, false},
 		{[]any{}, false},
 		{[]any{0, -1000000}, false},
 		{[]any{tstNoStringer{}}, false},
@@ -795,6 +795,15 @@ func TestD(t *testing.T) {
 
 	c.Assert(ns.D(42, 5, 100), qt.DeepEquals, []int{24, 34, 66, 82, 96})
 	c.Assert(ns.D(31, 5, 100), qt.DeepEquals, []int{12, 37, 38, 69, 98})
+	c.Assert(ns.D(42, 9, 10), qt.DeepEquals, []int{0, 1, 2, 3, 4, 6, 7, 8, 9})
+	c.Assert(ns.D(42, 10, 10), qt.DeepEquals, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
+	c.Assert(ns.D(42, 11, 10), qt.IsNil) // n > hi
+	c.Assert(ns.D(42, -5, 100), qt.IsNil)
+	c.Assert(ns.D(42, 0, 100), qt.IsNil)
+	c.Assert(ns.D(42, 5, 0), qt.IsNil)
+	c.Assert(ns.D(42, 5, -10), qt.IsNil)
+	c.Assert(ns.D(42, 5, 3000000), qt.DeepEquals, []int{720363, 1041693, 2009179, 2489106, 2873969})
+	c.Assert(func() { ns.D(31, 2000000, 3000000) }, qt.PanicMatches, "size of result exceeds limit")
 }
 
 func BenchmarkD2(b *testing.B) {

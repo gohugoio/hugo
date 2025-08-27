@@ -409,6 +409,11 @@ func (ns *Namespace) Reverse(l any) (any, error) {
 	return sliceCopy.Interface(), nil
 }
 
+// Sanity check for slices created by Seq and D.
+const maxSeqSize = 1000000
+
+var errSeqSizeExceedsLimit = errors.New("size of result exceeds limit")
+
 // Seq creates a sequence of integers from args. It's named and used as GNU's seq.
 //
 // Examples:
@@ -462,14 +467,14 @@ func (ns *Namespace) Seq(args ...any) ([]int, error) {
 	}
 
 	// sanity check
-	if last < -100000 {
-		return nil, errors.New("size of result exceeds limit")
+	if last < -maxSeqSize {
+		return nil, errSeqSizeExceedsLimit
 	}
 	size := ((last - first) / inc) + 1
 
 	// sanity check
-	if size <= 0 || size > 2000 {
-		return nil, errors.New("size of result exceeds limit")
+	if size <= 0 || size > maxSeqSize {
+		return nil, errSeqSizeExceedsLimit
 	}
 
 	seq := make([]int, size)
@@ -536,6 +541,12 @@ type dKey struct {
 // See  https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
 func (ns *Namespace) D(seed, n, hi any) []int {
 	key := dKey{seed: cast.ToUint64(seed), n: cast.ToInt(n), hi: cast.ToInt(hi)}
+	if key.n <= 0 || key.hi <= 0 || key.n > key.hi {
+		return nil
+	}
+	if key.n > maxSeqSize {
+		panic(errSeqSizeExceedsLimit)
+	}
 	v, _ := ns.dCache.GetOrCreate(key, func() ([]int, error) {
 		prng := rand.New(rand.NewPCG(key.seed, 0))
 		result := make([]int, 0, key.n)
