@@ -100,9 +100,9 @@ Install Hugo from a [prebuilt binary], package manager, or package repository. P
 
 Prerequisites to build Hugo from source:
 
-- Standard edition: Go 1.23.0 or later
-- Extended edition: Go 1.23.0 or later, and GCC
-- Extended/deploy edition: Go 1.23.0 or later, and GCC
+- Standard edition: Go 1.24.0 or later
+- Extended edition: Go 1.24.0 or later, and GCC
+- Extended/deploy edition: Go 1.24.0 or later, and GCC
 
 Build the standard edition:
 
