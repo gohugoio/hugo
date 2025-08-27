@@ -2,7 +2,7 @@
 title: math.Rand
 description: Returns a pseudo-random number in the half-open interval [0.0, 1.0).
 categories: []
-keywords: []
+keywords: [random]
 params:
   functions_and_methods:
     aliases: []
