@@ -4,4 +4,24 @@ hugo new content --kind post post/first-post.md
 ! exists resources
 grep 'draft = true' content/post/first-post.md
 
+# Issue 12599
+cd $WORK
 
+hugo new site --format toml --force issue-12599
+cp hugo.toml issue-12599/hugo.toml
+cd issue-12599
+hugo new content content/s1/2099-12-31-p1.md
+hugo -DF
+grep 'DATE _2099-12-31_' public/s1/p1/index.html
+grep 'SLUG _p1_' public/s1/p1/index.html
+grep 'TITLE _2099 12 31 P1_' public/s1/p1/index.html
+
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[frontmatter]
+date = [':filename', ':default']
+publishDate = [':filename', ':default']
+-- issue-12599/layouts/all.html --
+DATE _{{ .Date.Format "2006-01-02" }}_
+SLUG _{{ .Slug }}_
+TITLE _{{ .Title }}_
