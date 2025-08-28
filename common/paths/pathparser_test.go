@@ -373,11 +373,20 @@ func TestParse(t *testing.T) {
 				c.Assert(p.IsContentData(), qt.IsFalse)
 			},
 		},
+		{
+			"Caret up identifier", // caret up or §? TODO1
+			"/a/b/p1.^myid.no.md",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
+				c.Assert(p.Lang(), qt.Equals, "no")
+				c.Assert(p.Ext(), qt.Equals, "md")
+			},
+		},
 	}
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-			if test.name != "Home branch cundle" {
-				// return
+			if test.name != "Caret up identifier" {
+				return
 			}
 			test.assert(c, testParser.Parse(files.ComponentFolderContent, test.path))
 		})

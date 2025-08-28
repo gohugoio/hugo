@@ -15,6 +15,7 @@ package doctree
 
 import (
 	"fmt"
+	"iter"
 	"strings"
 	"sync"
 
@@ -68,14 +69,27 @@ func (ctx *WalkContext[T]) Data() *SimpleThreadSafeTree[any] {
 	return ctx.data
 }
 
-func (ctx *WalkContext[T]) DataRaw(vec sitesmatrix.Vector) *SimpleThreadSafeTree[any] {
+func (ctx *WalkContext[T]) initDataRaw() {
 	ctx.dataRawInit.Do(func() {
 		ctx.dataRaw = maps.NewCache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]()
 	})
+}
+
+func (ctx *WalkContext[T]) DataRaw(vec sitesmatrix.Vector) *SimpleThreadSafeTree[any] {
+	ctx.initDataRaw()
 	v, _ := ctx.dataRaw.GetOrCreate(vec, func() (*SimpleThreadSafeTree[any], error) {
 		return NewSimpleThreadSafeTree[any](), nil
 	})
 	return v
+}
+
+func (ctx *WalkContext[T]) DataRawForEeach() iter.Seq2[sitesmatrix.Vector, *SimpleThreadSafeTree[any]] {
+	ctx.initDataRaw()
+	return func(yield func(vec sitesmatrix.Vector, data *SimpleThreadSafeTree[any]) bool) {
+		ctx.dataRaw.ForEeach(func(vec sitesmatrix.Vector, data *SimpleThreadSafeTree[any]) bool {
+			return yield(vec, data)
+		})
+	}
 }
 
 // SendEvent sends an event up the tree.

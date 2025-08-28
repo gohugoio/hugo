@@ -1813,11 +1813,6 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 
 		const eventName = "dates"
 		if n.isContentNodeBranch() {
-			if pageBundle.m.pageConfig.CascadeCompiled != nil {
-				// Pass it down.
-				pw.WalkContext.Data().Insert(keyPage, pageBundle.m.pageConfig.CascadeCompiled)
-			}
-
 			wasZeroDates := pageBundle.m.pageConfig.Dates.IsAllDatesZero()
 			if wasZeroDates || pageBundle.IsHome() {
 				pw.WalkContext.AddEventListener(eventName, keyPage, func(e *doctree.Event[contentNode]) {
@@ -1875,15 +1870,6 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 			case *pageState:
 				relPath := rs.m.pathInfo.BaseRel(pageBundle.m.pathInfo)
 				rs.m.resourcePath = relPath
-				var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
-				// Apply cascade (if set) to the page.
-				_, data := pw.WalkContext.Data().LongestPrefix(resourceKey)
-				if data != nil {
-					cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
-				}
-				if err := rs.setMetaPost(cascade); err != nil {
-					return false, err
-				}
 			}
 
 			return false, nil
@@ -2482,13 +2468,34 @@ func (sa *sitePagesAssembler) createPages() error {
 		s string
 	}{}
 
-	getOrCreateCascade := func(s string, vec sitesmatrix.Vector, sourCascadeIsNil bool) *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] {
+	getCascades := func(s string) iter.Seq2[sitesmatrix.Vector, *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]] {
+		return func(yield func(vec sitesmatrix.Vector, cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]) bool) {
+			for vec, data := range rw.WalkContext.DataRawForEeach() {
+				if s == "" {
+					// Home page gets it's cascade from the site config.
+					if !yield(vec, sa.s.conf.Cascade.Config) {
+						return
+					}
+				} else {
+					_, v := data.LongestPrefix(paths.Dir(s))
+					if v != nil {
+						if !yield(vec, v.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])) {
+							return
+						}
+					}
+				}
+			}
+		}
+	}
+
+	getCascade := func(s string, vec sitesmatrix.Vector, sourceCascadeIsNil bool) *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] {
 		var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
 		data := rw.WalkContext.DataRaw(vec)
 		if s == "" {
 			// Home page gets it's cascade from the site config.
+			// TODO1 move this.
 			cascade = sa.s.conf.Cascade.Config
-			if sourCascadeIsNil {
+			if sourceCascadeIsNil {
 				// Pass the site cascade downwards.
 				data.Insert(s, cascade)
 			}
@@ -2509,13 +2516,17 @@ func (sa *sitePagesAssembler) createPages() error {
 			)
 			switch ms := v.(type) {
 			case *pageMetaSource:
+				if err := ms.initSitesMatrix(sa.s.h, getCascades(s)); err != nil {
+					return false, false, err
+				}
 				ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
 					site, found := sites[vec]
 					if !found {
 						panic(fmt.Sprintf("site not found for %v", vec))
 					}
 
-					cascade := getOrCreateCascade(s, vec, ms.pageConfigSource.Cascade == nil)
+					// bookmark1
+					cascade := getCascade(s, vec, ms.pageConfigSource.Cascade == nil)
 
 					var p *pageState
 					p, err = site.newPageFromPageMetasource(ms)
@@ -2528,8 +2539,6 @@ func (sa *sitePagesAssembler) createPages() error {
 						return true
 					}
 
-					hdebug.Printf("got cascade: %q %v %v", s, vec, cascade)
-
 					// We receive cascade values from above. If this leads to a change compared
 					// to the previous value, we need to mark the page and its dependencies as changed.
 					if isRebuild && p.m.setMetaPostCascadeChanged {
@@ -2537,7 +2546,6 @@ func (sa *sitePagesAssembler) createPages() error {
 					}
 
 					if !p.IsPage() {
-						hdebug.Printf("pass down cascade: %q %v %T", s, vec, p)
 						if p.m.pageConfig.CascadeCompiled != nil {
 							// Pass it down.
 							rw.WalkContext.DataRaw(vec).Insert(s, p.m.pageConfig.CascadeCompiled)
@@ -2749,10 +2757,6 @@ func (sa *sitePagesAssembler) createPages() error {
 	pw := rw.Extend()
 	pw.Tree = sa.s.pageMap.treePages
 	pw.Transform = func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		if p, ok := n.(*pageMetaSource); ok {
-			hdebug.Printf("page: %q %T", s, p.pageConfigSource.CascadeCompiled)
-		}
-
 		n2, replaced, skip, terminate, err = transformPagesAndPassDownCascade(s, n)
 		if err != nil || skip || terminate {
 			return

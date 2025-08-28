@@ -399,6 +399,8 @@ defaultContentLanguageInSubDir = true
 weight = 1
 [languages.nn]
 weight = 2
+[languages.sv]
+weight = 3
 -- content/_index.md --
 +++
 title = "English home"
@@ -407,9 +409,29 @@ p1 = "p1cascade"
 [cascade.sites.matrix]
 languages = ["en"]
 +++
+-- content/_index.nn.md --
++++
+title = "Scandinavian home"
+[cascade]
+p1 = "p1cascadescandinavian"
+[cascade.target]
+path = "**scandinavian**"
+[cascade.sites.matrix]
+languages = "{nn,sv}"
++++
+-- content/mysection/_index.md --
++++
+title = "My section"
+[cascade.sites.matrix]
+languages = "**"
++++
 -- content/mysection/p1.md --
 +++
 title = "English p1"
++++
+-- content/mysection/scandinavianpages/p1.^s1.md --
++++
+title = "Scandinavian p1"
 +++
 -- layouts/all.html --
 {{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|

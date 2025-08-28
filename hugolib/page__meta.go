@@ -142,6 +142,30 @@ type pageMeta struct {
 	content *cachedContent // The source and the parsed page content.
 }
 
+func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades iter.Seq2[sitesmatrix.Vector, *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]]) error {
+	var sitesMatrixFile sitesmatrix.VectorStore
+	if m.f != nil {
+		sitesMatrixFile = m.f.FileInfo().Meta().SitesMatrix
+	}
+
+	if m.pi.frontMatter != nil {
+		if err := m.pageConfigSource.SetMetaPreFromMap(false, m.pi.frontMatter, h.Log, h.Conf); err != nil {
+			return err
+		}
+	} else {
+		m.pageConfigSource.Params = make(maps.Params)
+	}
+
+	var fim *hugofs.FileMeta
+	if m.f != nil {
+		fim = m.f.FileInfo().Meta()
+	}
+	if err := m.pageConfigSource.CompileEearly(false, m.pathInfo, cascades, h.Conf, fim, sitesMatrixFile); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *pageMetaSource) initPathInfo(h *HugoSites) error {
 	pcfg := m.pageConfigSource
 	if pcfg.Path != "" {
@@ -222,7 +246,7 @@ func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.Vec
 			}
 
 			if m.pi.frontMatter != nil {
-				if err := m.pageConfigSource.SetMetaPreFromMap(m.pi.frontMatter, h.Log, h.Conf); err != nil {
+				if err := m.pageConfigSource.SetMetaPreFromMap(true, m.pi.frontMatter, h.Log, h.Conf); err != nil {
 					return err
 				}
 			} else {
@@ -233,7 +257,7 @@ func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.Vec
 			if m.f != nil {
 				fim = m.f.FileInfo().Meta()
 			}
-			if err := m.pageConfigSource.CompileEearly(h.Conf, fim, sitesMatrixFile); err != nil {
+			if err := m.pageConfigSource.CompileEearly(true, m.pathInfo, nil, h.Conf, fim, sitesMatrixFile); err != nil {
 				return err
 			}
 
@@ -539,6 +563,7 @@ func (m *pageMeta) Weight() int {
 	return m.pageConfig.Weight
 }
 
+// TODO1 can we get rid of this method? Think about terms.
 func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]) error {
 	hdebug.AssertNotNil(ps.m.pageMetaParams)
 	ps.m.setMetaPostCount++

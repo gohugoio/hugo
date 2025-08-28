@@ -29,7 +29,8 @@ import (
 )
 
 const (
-	identifierBaseof = "baseof"
+	identifierBaseof       = "baseof"
+	identifierIgnorePrefix = "^"
 )
 
 // PathHandler parses and manages paths.
@@ -172,6 +173,11 @@ func (pp *PathHandler) parseIdentifier(component, s string, p *Path, i, lastDot,
 	}
 	id := types.LowHigh[string]{Low: i + 1, High: high}
 	sid := p.s[id.Low:id.High]
+
+	if strings.HasPrefix(sid, identifierIgnorePrefix) {
+		p.identifiersKnown = append(p.identifiersKnown, id)
+		found = true
+	}
 
 	if len(p.identifiersKnown) == 0 {
 		// The first is always the extension.
