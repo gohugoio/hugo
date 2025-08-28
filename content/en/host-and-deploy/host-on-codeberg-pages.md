@@ -261,8 +261,6 @@ Codeberg Pages relies on a `.domains` file to identify allowed domains for a spe
 
 When looking at the example `.forgejo/workflows/hugo.yaml`, you'll notice that the `upload-artifact@v3` action is used to upload the public directory to the deployment branch.
 
-By default, both `upload-artifact@v3` and `upload-artifact@v4` exclude all dot files from being uploaded unless you specifically tell them not to (you can find more details [here]).
-
 By default, upload-artifact@v3 and upload-artifact@v4 exclude all dot files from being uploaded. You can find more details on [how to handle dot files and other file patterns in the documentation](https://github.com/actions/upload-artifact/issues/602). To make sure dot files are included, modify your workflow like this:
 
 ```yaml {file=".forgejo/workflows/hugo.yaml" copy=true}
