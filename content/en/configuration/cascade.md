@@ -50,7 +50,7 @@ lang
 : (`string`) A [glob](g) pattern matching the [page language]. For example: `{en,de}`.
 
 path
-: (`string`) A [glob](g) pattern matching the page's [logical path](g). For example: `{/books,/books/**}`.
+: (`string`) A [glob](g) pattern matching the page's [logical path](g). For example: `/books,/books/**`.
 
 ## Array
 
@@ -61,14 +61,14 @@ Define an array of cascade parameters to apply different values to different tar
 [cascade.params]
 color = 'red'
 [cascade.target]
-path = '{/books/**}'
+path = '/books/**'
 kind = 'page'
 lang = '{en,de}'
 [[cascade]]
 [cascade.params]
 color = 'blue'
 [cascade.target]
-path = '{/films/**}'
+path = '/films/**'
 kind = 'page'
 environment = 'production'
 {{< /code-toggle >}}
