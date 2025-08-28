@@ -72,7 +72,7 @@ func (m *pageMetaSource) Path() string {
 }
 
 func (m *pageMetaSource) isContentNodeBranch() bool {
-	panic("not implemented") // TODO: Implement
+	return m.pathInfo.IsBranchBundle()
 }
 
 func (m *pageMetaSource) contentWeight() int {

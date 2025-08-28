@@ -2508,6 +2508,11 @@ func (sa *sitePagesAssembler) createPages() error {
 		return cascade
 	}
 
+	type cascadeVectorProvider struct {
+		cascade     *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
+		sitesMatrix sitesmatrix.VectorProvider
+	}
+
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		handlePageMetaSource := func(v any, is contentNodes[contentNodePage]) (bool, bool, error) {
 			var (
@@ -2518,6 +2523,14 @@ func (sa *sitePagesAssembler) createPages() error {
 			case *pageMetaSource:
 				if err := ms.initSitesMatrix(sa.s.h, getCascades(s)); err != nil {
 					return false, false, err
+				}
+				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
+					// Pass it down.
+					// Pass doen an terator of all vecotor/cascade mobminations for this node.
+					// When this gets considered to be applied to a page, we first
+					// ask the sites matrix in the cascade, if set, if not we fall back to the
+					// matrix set on the cascade owner.
+					rw.WalkContext.Data().Insert(s, cascadeVectorProvider{cascade: ms.pageConfigSource.CascadeCompiled, sitesMatrix: ms.sitesMatrix()})
 				}
 				ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
 					site, found := sites[vec]
@@ -2543,13 +2556,6 @@ func (sa *sitePagesAssembler) createPages() error {
 					// to the previous value, we need to mark the page and its dependencies as changed.
 					if isRebuild && p.m.setMetaPostCascadeChanged {
 						sa.assembleChanges.Add(p)
-					}
-
-					if !p.IsPage() {
-						if p.m.pageConfig.CascadeCompiled != nil {
-							// Pass it down.
-							rw.WalkContext.DataRaw(vec).Insert(s, p.m.pageConfig.CascadeCompiled)
-						}
 					}
 
 					pp, found := is[vec]
