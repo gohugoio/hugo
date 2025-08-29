@@ -14,6 +14,9 @@
 package minifiers
 
 import (
+	"fmt"
+
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/spf13/cast"
 
@@ -35,8 +38,8 @@ var defaultTdewolffConfig = TdewolffConfig{
 		KeepWhitespace:      false,
 	},
 	CSS: css.Minifier{
-		Precision: 0,
-		KeepCSS2:  true,
+		Precision: 0, // 0 means no trimming
+		Version:   0, // 0 means the latest CSS version
 	},
 	JS: js.Minifier{
 		Version: 2022,
@@ -44,7 +47,7 @@ var defaultTdewolffConfig = TdewolffConfig{
 	JSON: json.Minifier{},
 	SVG: svg.Minifier{
 		KeepComments: false,
-		Precision:    0,
+		Precision:    0, // 0 means no trimming
 	},
 	XML: xml.Minifier{
 		KeepWhitespace: false,
@@ -87,16 +90,23 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 
 	m := maps.ToStringMap(v)
 
-	// Handle upstream renames.
+	// Handle deprecations.
 	if td, found := m["tdewolff"]; found {
 		tdm := maps.ToStringMap(td)
 
+		// Decimals was renamed to Precision in tdewolff/minify v2.7.0.
+		// https://github.com/tdewolff/minify/commit/2fed4401348ce36bd6c20e77335a463e69d94386
 		for _, key := range []string{"css", "svg"} {
 			if v, found := tdm[key]; found {
 				vm := maps.ToStringMap(v)
-				ko := "decimal"
+				ko := "decimals"
 				kn := "precision"
 				if vv, found := vm[ko]; found {
+					hugo.Deprecate(
+						fmt.Sprintf("site config key minify.tdewolff.%s.%s", key, ko),
+						fmt.Sprintf("Use config key minify.tdewolff.%s.%s instead.", key, kn),
+						"v0.150.0",
+					)
 					if _, found = vm[kn]; !found {
 						vvi := cast.ToInt(vv)
 						if vvi > 0 {
@@ -108,25 +118,48 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 			}
 		}
 
-		// keepConditionalComments was renamed to keepSpecialComments
+		// KeepConditionalComments was renamed to KeepSpecialComments in tdewolff/minify v2.20.13.
+		// https://github.com/tdewolff/minify/commit/342cbc1974162db0ad3327f7a42a623b2cd3ebbc
 		if v, found := tdm["html"]; found {
 			vm := maps.ToStringMap(v)
 			ko := "keepconditionalcomments"
 			kn := "keepspecialcomments"
 			if vv, found := vm[ko]; found {
-				// Set keepspecialcomments, if not already set
+				hugo.Deprecate(
+					fmt.Sprintf("site config key minify.tdewolff.html.%s", ko),
+					fmt.Sprintf("Use config key minify.tdewolff.html.%s instead.", kn),
+					"v0.150.0",
+				)
 				if _, found := vm[kn]; !found {
 					vm[kn] = cast.ToBool(vv)
 				}
-				// Remove the old key to prevent deprecation warnings
 				delete(vm, ko)
 			}
 		}
 
+		// KeepCSS2 was deprecated in favor of Version in tdewolff/minify v2.24.1.
+		// https://github.com/tdewolff/minify/commit/57e3ebe0e6914b82c9ab0849a14f86bc29cd2ebf
+		if v, found := tdm["css"]; found {
+			vm := maps.ToStringMap(v)
+			ko := "keepcss2"
+			kn := "version"
+			if vv, found := vm[ko]; found {
+				hugo.Deprecate(
+					fmt.Sprintf("site config key minify.tdewolff.css.%s", ko),
+					fmt.Sprintf("Use config key minify.tdewolff.css.%s instead.", kn),
+					"v0.150.0",
+				)
+				if _, found := vm[kn]; !found {
+					if cast.ToBool(vv) {
+						vm[kn] = 2
+					}
+				}
+				delete(vm, ko)
+			}
+		}
 	}
 
 	err = mapstructure.WeakDecode(m, &conf)
-
 	if err != nil {
 		return
 	}
