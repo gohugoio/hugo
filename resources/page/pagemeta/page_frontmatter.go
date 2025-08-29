@@ -16,8 +16,8 @@ package pagemeta
 import (
 	"errors"
 	"fmt"
-	"iter"
 	"path"
+	"slices"
 	"strings"
 	"time"
 
@@ -95,7 +95,7 @@ type PageConfigEarly struct {
 	Content Source
 
 	// Compiled/temporary values.
-	CascadeCompiled *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] `mapstructure:"-" json:"-"`
+	CascadeCompiled []page.PageMatcherParamsConfig `mapstructure:"-" json:"-"`
 }
 
 const (
@@ -112,15 +112,6 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[stri
 		// Needed for case insensitive fetching of params values.
 		maps.PrepareParams(frontmatter)
 		pcfg.Params = frontmatter
-		// Check for any cascade define on itself.
-		if cv, found := frontmatter[pageMetaKeyCascade]; found {
-			var err error
-			cascade, err := page.DecodeCascade(logger, true, cv)
-			if err != nil {
-				return err
-			}
-			pcfg.CascadeCompiled = cascade
-		}
 
 		// Look for path, lang, roles and kind, all of which values we need early on.
 		// TODO1 we onlu need path and kind here.
@@ -146,6 +137,19 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[stri
 		}
 	}
 
+	return nil
+}
+
+func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, logger loggers.Logger) error {
+	// Check for any cascade define on itself.
+	if cv, found := frontmatter[pageMetaKeyCascade]; found {
+		var err error
+		cascade, err := page.DecodeCascadeConfig(page.DecodeCascadeConfigOptions{Logger: logger, HandleLegacyFormat: true, DefaultSitesMatrix: defaultSitesMatrix}, cv)
+		if err != nil {
+			return err
+		}
+		pcfg.CascadeCompiled = cascade.Config
+	}
 	return nil
 }
 
@@ -204,7 +208,7 @@ type SitesMatrixFallbacks struct {
 }
 
 func (p PageConfig) shallowCloneForSite() *PageConfig {
-	p.PageConfigEarly.CascadeCompiled = p.CascadeCompiled.Clone()
+	p.PageConfigEarly.CascadeCompiled = slices.Clone(p.PageConfigEarly.CascadeCompiled)
 	return &p
 }
 
@@ -299,9 +303,9 @@ func buildSiteMatrixFromSitesConfig(
 	return sitesMatrixPage.Build(), sitesFallbacksPage.Build()
 }
 
-// CompileEearly gets called early and before the cascade from content gets applied.
+// CompileEarly gets called early and before the cascade from content gets applied.
 // TODO1 remove me.
-func (p *PageConfig) CompileEearly(before bool, pi *paths.Path, cascades iter.Seq2[sitesmatrix.Vector, *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]], conf config.AllProvider, fim *hugofs.FileMeta, sitesMatrixFile sitesmatrix.VectorStore) error {
+func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.PageMatcherParamsConfig, conf config.AllProvider, fim *hugofs.FileMeta, sitesMatrixFile sitesmatrix.VectorStore) error {
 	if before {
 		return nil
 	}
@@ -316,28 +320,21 @@ func (p *PageConfig) CompileEearly(before bool, pi *paths.Path, cascades iter.Se
 
 	if cascades != nil {
 		for _, cascade := range cascades {
-			cascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
-				// TODO1 add languages, versions, rolles to PageMatcher; if a dimension is not set, set it to the vec here.
+			// TODO1 add languages, versions, rolles to PageMatcher; if a dimension is not set, set it to the vec here.
 
-				// For languages, versions and roles: Match against front matter / site.
-				// TODO1 kind + lang is not set here.
-				if !k.MatchesValues(p.Kind, "", pi.Base(), conf.Environment()) {
-					return true
-				}
-				vv, found := cascade.Get(k)
-				if !found {
-					return true
-				}
+			// For languages, versions and roles: Match against front matter / site.
+			// TODO1 kind + lang is not set here.
+			k := cascade.Target
+			if !k.MatchesValues(p.Kind, "", pi.Base(), conf.Environment()) {
+				continue
+			}
 
-				for ck, cv := range vv.Fields {
-					if pi.Base() == "/mysection/scandinavianpages/p1" {
-						hdebug.Printf("cascade matrix %q %s %s", pi.Base(), ck, cv)
-					}
-					p.setCascadeValueIfNotSet(ck, cv)
+			for ck, cv := range cascade.Fields {
+				if pi.Base() == "/mysection/scandinavianpages/p1" {
+					hdebug.Printf("cascade matrix %q %s %s", pi.Base(), ck, cv)
 				}
-
-				return true
-			})
+				p.setCascadeValueIfNotSet(ck, cv)
+			}
 		}
 	} else {
 		p.SitesMatrix, p.SitesFallbacks = sitesMatrix, sitesFallbacks
@@ -364,13 +361,14 @@ func (p *PageConfig) CompileForPagesFromDataPre(basePath string, logger loggers.
 		p.Kind = kinds.KindPage
 	}
 
-	if p.Cascade != nil {
+	// TODO1 check
+	/*if p.Cascade != nil {
 		cascade, err := page.DecodeCascade(logger, false, p.Cascade)
 		if err != nil {
 			return fmt.Errorf("failed to decode cascade: %w", err)
 		}
 		p.CascadeCompiled = cascade
-	}
+	}*/
 
 	// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
 	// We do that when we create pages from the file system; mostly for backward compatibility,

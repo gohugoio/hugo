@@ -49,7 +49,7 @@ type PathHandler struct {
 	IsContentExt func(string) bool
 
 	// The configured sites matrix.
-	ConfiguredDimensions sitesmatrix.ConfiguredDimensions
+	ConfiguredDimensions *sitesmatrix.ConfiguredDimensions
 }
 
 // NormalizePathString returns a normalized path string using the very basic Hugo rules.

@@ -23,6 +23,7 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/mitchellh/mapstructure"
 )
@@ -40,10 +41,19 @@ type PageMatcher struct {
 	Kind string
 
 	// A Glob pattern matching the Page's language, e.g. "{en,sv}".
+	// TODO1 remove me.
 	Lang string
+
+	// The sites to apply this to.
+	// Note that we currently only use the Matrix field for cascade matching.
+	Sites sitesmatrix.Sites
 
 	// A Glob pattern matching the Page's Environment, e.g. "{production,development}".
 	Environment string
+
+	// Compiled values.
+	// The site vectors to apply this to.
+	SitesMatrix sitesmatrix.VectorProvider `mapstructure:"-"`
 }
 
 func (m PageMatcher) MatchesValues(kind, lang, path, environment string) bool {
@@ -114,9 +124,20 @@ func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
 	}
 }
 
-func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, PageMatcherParamsConfig]], error) {
-	buildConfig := func(in any) (*maps.Ordered[PageMatcher, PageMatcherParamsConfig], any, error) {
-		cascade := maps.NewOrdered[PageMatcher, PageMatcherParamsConfig]()
+type DecodeCascadeConfigOptions struct {
+	Logger               loggers.Logger
+	DefaultSitesMatrix   sitesmatrix.VectorStore
+	ConfiguredDimensions *sitesmatrix.ConfiguredDimensions
+	HandleLegacyFormat   bool
+}
+
+func DecodeCascadeConfig(opts DecodeCascadeConfigOptions, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, []PageMatcherParamsConfig], error) {
+	buildConfig := func(in any) ([]PageMatcherParamsConfig, any, error) {
+		dec := cascadeConfigDecoder{
+			opts: opts,
+		}
+
+		var cascade []PageMatcherParamsConfig
 		if in == nil {
 			return cascade, []map[string]any{}, nil
 		}
@@ -133,7 +154,7 @@ func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any)
 				c   PageMatcherParamsConfig
 				err error
 			)
-			c, err = mapToPageMatcherParamsConfig(m)
+			c, err = dec.mapToPageMatcherParamsConfig(m)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -146,42 +167,20 @@ func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any)
 		}
 
 		for _, cfg := range cfgs {
-			m := cfg.Target
-			CheckCascadePattern(logger, m)
-			c, found := cascade.Get(m)
-			if found {
-				// Merge
-				for k, v := range cfg.Params {
-					if _, found := c.Params[k]; !found {
-						c.Params[k] = v
-					}
-				}
-				for k, v := range cfg.Fields {
-					if _, found := c.Fields[k]; !found {
-						c.Fields[k] = v
-					}
-				}
-			} else {
-				cascade.Set(m, cfg)
-			}
+			CheckCascadePattern(opts.Logger, cfg.Target)
 		}
 
-		return cascade, cfgs, nil
+		return cfgs, cfgs, nil
 	}
 
-	return config.DecodeNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, PageMatcherParamsConfig]](in, buildConfig)
+	return config.DecodeNamespace[[]PageMatcherParamsConfig, []PageMatcherParamsConfig](in, buildConfig)
 }
 
-// DecodeCascade decodes in which could be either a map or a slice of maps.
-func DecodeCascade(logger loggers.Logger, handleLegacyFormat bool, in any) (*maps.Ordered[PageMatcher, PageMatcherParamsConfig], error) {
-	conf, err := DecodeCascadeConfig(logger, handleLegacyFormat, in)
-	if err != nil {
-		return nil, err
-	}
-	return conf.Config, nil
+type cascadeConfigDecoder struct {
+	opts DecodeCascadeConfigOptions
 }
 
-func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, error) {
+func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, error) {
 	var pcfg PageMatcherParamsConfig
 	if pcfg.Fields == nil {
 		pcfg.Fields = make(maps.Params)
@@ -193,7 +192,7 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 		switch strings.ToLower(k) {
 		case "_target", "target":
 			var target PageMatcher
-			if err := decodePageMatcher(v, &target); err != nil {
+			if err := d.decodePageMatcher(v, &target); err != nil {
 				return pcfg, err
 			}
 			pcfg.Target = target
@@ -212,7 +211,7 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 }
 
 // decodePageMatcher decodes m into v.
-func decodePageMatcher(m any, v *PageMatcher) error {
+func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 	if err := mapstructure.WeakDecode(m, v); err != nil {
 		return err
 	}
@@ -227,6 +226,23 @@ func decodePageMatcher(m any, v *PageMatcher) error {
 	}
 
 	v.Path = filepath.ToSlash(strings.ToLower(v.Path))
+
+	if !v.Sites.Matrix.IsZero() {
+		if d.opts.ConfiguredDimensions == nil {
+			panic("ConfiguredDimensions must be set if Sites.Matrix is set")
+		}
+		intSetsCfg := sitesmatrix.IntSetsConfig{
+			Cfg:   d.opts.ConfiguredDimensions,
+			Globs: v.Sites.Matrix,
+		}
+		b := sitesmatrix.NewIntSetsBuilder().WithConfig(intSetsCfg)
+		if d.opts.DefaultSitesMatrix != nil {
+			b = b.WithDimensionsFromOtherIfNotSet(d.opts.DefaultSitesMatrix)
+		} else {
+			b = b.WithAllIfNotSet(d.opts.ConfiguredDimensions)
+		}
+		v.SitesMatrix = b.Build()
+	}
 
 	return nil
 }

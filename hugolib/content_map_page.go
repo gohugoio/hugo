@@ -1929,14 +1929,15 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 				const eventName = "dates"
 
 				if p.Kind() == kinds.KindTerm {
-					var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
+					// TODO1
+					/*var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
 					_, data := pw.WalkContext.Data().LongestPrefix(s)
 					if data != nil {
 						cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
 					}
 					if err := p.setMetaPost(cascade); err != nil {
 						return false, err
-					}
+					}*/
 					if !p.s.shouldBuild(p) {
 						sa.s.pageMap.treePages.Delete(s)
 						sa.s.pageMap.treeTaxonomyEntries.DeletePrefix(paths.AddTrailingSlash(s))
@@ -2468,32 +2469,12 @@ func (sa *sitePagesAssembler) createPages() error {
 		s string
 	}{}
 
-	getCascades := func(s string) iter.Seq2[sitesmatrix.Vector, *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]] {
-		return func(yield func(vec sitesmatrix.Vector, cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]) bool) {
-			for vec, data := range rw.WalkContext.DataRawForEeach() {
-				if s == "" {
-					// Home page gets it's cascade from the site config.
-					if !yield(vec, sa.s.conf.Cascade.Config) {
-						return
-					}
-				} else {
-					_, v := data.LongestPrefix(paths.Dir(s))
-					if v != nil {
-						if !yield(vec, v.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])) {
-							return
-						}
-					}
-				}
-			}
-		}
-	}
-
-	getCascade := func(s string, vec sitesmatrix.Vector, sourceCascadeIsNil bool) *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] {
-		var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
-		data := rw.WalkContext.DataRaw(vec)
+	getCascade := func(s string, sourceCascadeIsNil bool) []page.PageMatcherParamsConfig {
+		var cascade []page.PageMatcherParamsConfig
+		data := rw.WalkContext.Data()
 		if s == "" {
 			// Home page gets it's cascade from the site config.
-			// TODO1 move this.
+			// TODO1 get the correct language version.
 			cascade = sa.s.conf.Cascade.Config
 			if sourceCascadeIsNil {
 				// Pass the site cascade downwards.
@@ -2502,18 +2483,21 @@ func (sa *sitePagesAssembler) createPages() error {
 		} else {
 			_, data := data.LongestPrefix(paths.Dir(s))
 			if data != nil {
-				cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
+				cascade = data.([]page.PageMatcherParamsConfig)
 			}
 		}
 		return cascade
 	}
 
-	type cascadeVectorProvider struct {
-		cascade     *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
-		sitesMatrix sitesmatrix.VectorProvider
-	}
-
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+		var cascades []page.PageMatcherParamsConfig
+		defer func() {
+			if len(cascades) > 0 {
+				// Pass it down.
+				rw.WalkContext.Data().Insert(s, cascades)
+			}
+		}()
+
 		handlePageMetaSource := func(v any, is contentNodes[contentNodePage]) (bool, bool, error) {
 			var (
 				replaced bool
@@ -2521,25 +2505,25 @@ func (sa *sitePagesAssembler) createPages() error {
 			)
 			switch ms := v.(type) {
 			case *pageMetaSource:
-				if err := ms.initSitesMatrix(sa.s.h, getCascades(s)); err != nil {
+
+				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
+					cascades = append(cascades, ms.pageConfigSource.CascadeCompiled...)
+				}
+
+				// bookmark1
+				cascades := getCascade(s, ms.pageConfigSource.Cascade == nil)
+
+				if err := ms.initSitesMatrix(sa.s.h, cascades); err != nil {
 					return false, false, err
 				}
-				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
-					// Pass it down.
-					// Pass doen an terator of all vecotor/cascade mobminations for this node.
-					// When this gets considered to be applied to a page, we first
-					// ask the sites matrix in the cascade, if set, if not we fall back to the
-					// matrix set on the cascade owner.
-					rw.WalkContext.Data().Insert(s, cascadeVectorProvider{cascade: ms.pageConfigSource.CascadeCompiled, sitesMatrix: ms.sitesMatrix()})
-				}
+
+				hdebug.Printf("Creating page from pageMetaSource %q (matrix: %v) %t", s, ms.sitesMatrix(), cascades != nil)
+
 				ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
 					site, found := sites[vec]
 					if !found {
 						panic(fmt.Sprintf("site not found for %v", vec))
 					}
-
-					// bookmark1
-					cascade := getCascade(s, vec, ms.pageConfigSource.Cascade == nil)
 
 					var p *pageState
 					p, err = site.newPageFromPageMetasource(ms)
@@ -2548,7 +2532,7 @@ func (sa *sitePagesAssembler) createPages() error {
 					}
 
 					// Combine the cascade map with front matter.
-					if err = p.setMetaPost(cascade); err != nil {
+					if err = p.setMetaPost(cascades); err != nil {
 						return true
 					}
 

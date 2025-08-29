@@ -355,7 +355,8 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "cascade",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Cascade, err = page.DecodeCascadeConfig(nil, true, p.p.Get(d.key))
+			// TODO1 we need configureddimensions here.
+			p.c.Cascade, err = page.DecodeCascadeConfig(page.DecodeCascadeConfigOptions{HandleLegacyFormat: true}, p.p.Get(d.key))
 			return err
 		},
 	},

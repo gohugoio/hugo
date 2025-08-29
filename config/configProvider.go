@@ -79,7 +79,7 @@ type AllProvider interface {
 	IgnoredLogs() map[string]bool
 	WorkingDir() string
 	EnableEmoji() bool
-	ConfiguredDimensions() sitesmatrix.ConfiguredDimensions
+	ConfiguredDimensions() *sitesmatrix.ConfiguredDimensions
 }
 
 // We cannot import the media package as that would create a circular dependency.

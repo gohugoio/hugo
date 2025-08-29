@@ -19,6 +19,7 @@ import (
 	"iter"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -142,7 +143,7 @@ type pageMeta struct {
 	content *cachedContent // The source and the parsed page content.
 }
 
-func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades iter.Seq2[sitesmatrix.Vector, *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]]) error {
+func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatcherParamsConfig) error {
 	var sitesMatrixFile sitesmatrix.VectorStore
 	if m.f != nil {
 		sitesMatrixFile = m.f.FileInfo().Meta().SitesMatrix
@@ -160,8 +161,14 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades iter.Seq2[sitesm
 	if m.f != nil {
 		fim = m.f.FileInfo().Meta()
 	}
-	if err := m.pageConfigSource.CompileEearly(false, m.pathInfo, cascades, h.Conf, fim, sitesMatrixFile); err != nil {
+	if err := m.pageConfigSource.CompileEarly(false, m.pathInfo, cascades, h.Conf, fim, sitesMatrixFile); err != nil {
 		return err
+	}
+
+	if m.pi.frontMatter != nil {
+		if err := m.pageConfigSource.SetCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Log); err != nil {
+			return nil
+		}
 	}
 	return nil
 }
@@ -257,7 +264,7 @@ func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.Vec
 			if m.f != nil {
 				fim = m.f.FileInfo().Meta()
 			}
-			if err := m.pageConfigSource.CompileEearly(true, m.pathInfo, nil, h.Conf, fim, sitesMatrixFile); err != nil {
+			if err := m.pageConfigSource.CompileEarly(true, m.pathInfo, nil, h.Conf, fim, sitesMatrixFile); err != nil {
 				return err
 			}
 
@@ -417,8 +424,8 @@ type pageMetaParams struct {
 
 	// These are only set in watch mode.
 	datesOriginal   pagemeta.Dates
-	paramsOriginal  map[string]any                                                // contains the original params as defined in the front matter.
-	cascadeOriginal *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig] // contains the original cascade as defined in the front matter.
+	paramsOriginal  map[string]any                 // contains the original params as defined in the front matter.
+	cascadeOriginal []page.PageMatcherParamsConfig // contains the original cascade as defined in the front matter.
 }
 
 func (m *pageMeta) initPageMetaParams(preserveOriginal bool) {
@@ -428,7 +435,7 @@ func (m *pageMeta) initPageMetaParams(preserveOriginal bool) {
 		} else {
 			m.paramsOriginal = xmaps.Clone(m.pageConfig.Params)
 		}
-		m.cascadeOriginal = m.pageConfig.CascadeCompiled.Clone()
+		m.cascadeOriginal = slices.Clone(m.pageConfig.CascadeCompiled)
 	}
 }
 
@@ -564,45 +571,17 @@ func (m *pageMeta) Weight() int {
 }
 
 // TODO1 can we get rid of this method? Think about terms.
-func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]) error {
+func (ps *pageState) setMetaPost(cascades []page.PageMatcherParamsConfig) error {
 	hdebug.AssertNotNil(ps.m.pageMetaParams)
 	ps.m.setMetaPostCount++
 	var cascadeHashPre uint64
 	if ps.m.setMetaPostCount > 1 {
 		cascadeHashPre = hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
-		ps.m.pageConfig.CascadeCompiled = ps.m.cascadeOriginal.Clone()
+		ps.m.pageConfig.CascadeCompiled = slices.Clone(ps.m.cascadeOriginal)
 	}
 
-	// Apply cascades first so they can be overridden later.
-	if cascade != nil {
-		if ps.m.pageConfig.CascadeCompiled != nil {
-			cascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
-				vv, found := ps.m.pageConfig.CascadeCompiled.Get(k)
-				if !found {
-					ps.m.pageConfig.CascadeCompiled.Set(k, v)
-				} else {
-					// Merge
-					for ck, cv := range v.Params {
-						if _, found := vv.Params[ck]; !found {
-							vv.Params[ck] = cv
-						}
-					}
-					for ck, cv := range v.Fields {
-						if _, found := vv.Fields[ck]; !found {
-							vv.Fields[ck] = cv
-						}
-					}
-				}
-				return true
-			})
-			cascade = ps.m.pageConfig.CascadeCompiled
-		} else {
-			ps.m.pageConfig.CascadeCompiled = cascade
-		}
-	}
-
-	if cascade == nil {
-		cascade = ps.m.pageConfig.CascadeCompiled
+	if ps.m.pageConfig.CascadeCompiled != nil {
+		cascades = append(cascades, ps.m.pageConfig.CascadeCompiled...)
 	}
 
 	if ps.m.setMetaPostCount > 1 {
@@ -617,17 +596,15 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.Pa
 
 	}
 
-	// Cascade is also applied to itself.
-	cascade.Range(func(k page.PageMatcher, v page.PageMatcherParamsConfig) bool {
-		if !k.Matches(ps) {
-			return true
+	for _, v := range cascades {
+		if !v.Target.Matches(ps) {
+			continue
 		}
 		for kk, vv := range v.Params {
 			if _, found := ps.m.pageConfig.Params[kk]; !found {
 				ps.m.pageConfig.Params[kk] = vv
 			}
 		}
-
 		for kk, vv := range v.Fields {
 			if ps.m.pageConfig.IsFromContentAdapter {
 				if _, found := ps.m.pageConfig.ContentAdapterData[kk]; !found {
@@ -639,8 +616,7 @@ func (ps *pageState) setMetaPost(cascade *maps.Ordered[page.PageMatcher, page.Pa
 				}
 			}
 		}
-		return true
-	})
+	}
 
 	if err := ps.setMetaPostParams(); err != nil {
 		return err

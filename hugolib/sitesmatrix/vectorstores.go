@@ -246,7 +246,7 @@ type ConfiguredDimensions struct {
 	ConfiguredRoles     ConfiguredDimension
 }
 
-func (c ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
+func (c *ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
 	return types.Strings3{
 		c.ConfiguredLanguages.ResolveName(v.Language()),
 		c.ConfiguredVersions.ResolveName(v.Version()),
@@ -254,7 +254,7 @@ func (c ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
 	}
 }
 
-func (c ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
+func (c *ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
 	var vec Vector
 	if s := names[0]; s != "" {
 		vec[0] = c.ConfiguredLanguages.ResolveIndex(s)
@@ -529,7 +529,7 @@ func (s *IntSets) MustHash() uint64 {
 }
 
 // setDefaultsIfNotSet applies default values to the IntSets if they are not already set.
-func (s *IntSets) setDefaultsIfNotSet(cfg ConfiguredDimensions) {
+func (s *IntSets) setDefaultsIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
 		s.languages = maps.NewOrderedIntSet()
 		s.languages.Set(cfg.ConfiguredLanguages.IndexDefault())
@@ -544,7 +544,7 @@ func (s *IntSets) setDefaultsIfNotSet(cfg ConfiguredDimensions) {
 	}
 }
 
-func (s *IntSets) setDefaultsAndAllLAnguagesIfNotSet(cfg ConfiguredDimensions) {
+func (s *IntSets) setDefaultsAndAllLAnguagesIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
 		s.languages = maps.NewOrderedIntSet()
 		for i := range cfg.ConfiguredLanguages.ForEachIndex() {
@@ -554,7 +554,7 @@ func (s *IntSets) setDefaultsAndAllLAnguagesIfNotSet(cfg ConfiguredDimensions) {
 	s.setDefaultsIfNotSet(cfg)
 }
 
-func (s *IntSets) setAllIfNotSet(cfg ConfiguredDimensions) {
+func (s *IntSets) setAllIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
 		s.languages = maps.NewOrderedIntSet()
 		for i := range cfg.ConfiguredLanguages.ForEachIndex() {
@@ -710,17 +710,18 @@ func (s *IntSetsBuilder) WithLanguageIndex(i int) *IntSetsBuilder {
 	return s
 }
 
-func (s *IntSetsBuilder) WithDefaultsAndAllLanguagesIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {
+func (s *IntSetsBuilder) WithDefaultsAndAllLanguagesIfNotSet(cfg *ConfiguredDimensions) *IntSetsBuilder {
 	s.s.setDefaultsAndAllLAnguagesIfNotSet(cfg)
 	return s
 }
 
-func (s *IntSetsBuilder) WithAllIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {
+// TODO1 move ConfiguredDimensions into NewBuilder.
+func (s *IntSetsBuilder) WithAllIfNotSet(cfg *ConfiguredDimensions) *IntSetsBuilder {
 	s.s.setAllIfNotSet(cfg)
 	return s
 }
 
-func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg ConfiguredDimensions) *IntSetsBuilder {
+func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg *ConfiguredDimensions) *IntSetsBuilder {
 	s.s.setDefaultsIfNotSet(cfg)
 	return s
 }
@@ -751,7 +752,7 @@ const (
 )
 
 type IntSetsConfig struct {
-	Cfg           ConfiguredDimensions
+	Cfg           *ConfiguredDimensions
 	ApplyDefaults IntSetsConfigApplyDefaults
 	Globs         StringSlices
 }
@@ -761,7 +762,7 @@ type Sites struct {
 	// Matrix defines the main build matrix.
 	Matrix StringSlices `mapstructure:"matrix" json:"matrix"`
 	// Fallbacks defines the fallback matrix.
-	Fallbacks StringSlices `mapstructure:"fallbacks" json:"fallbacks"`
+	Fallbacks StringSlices `mapstructure:"fallbacks" json:"fallbacks,omitempty"`
 }
 
 func (s *Sites) SetFromParamsIfNotSet(params maps.Params) {
@@ -818,4 +819,60 @@ func (d *StringSlices) SetFromParamsIfNotSet(params maps.Params) {
 
 func (d StringSlices) IsZero() bool {
 	return len(d.Languages) == 0 && len(d.Versions) == 0 && len(d.Roles) == 0
+}
+
+// Used in tests.
+type testDimension struct {
+	names []string
+}
+
+func (m testDimension) IndexDefault() int {
+	return 0
+}
+
+func (m *testDimension) ResolveIndex(name string) int {
+	for i, n := range m.names {
+		if n == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (m *testDimension) ResolveName(i int) string {
+	if i < 0 || i >= len(m.names) {
+		return ""
+	}
+	return m.names[i]
+}
+
+func (m *testDimension) ForEachIndex() iter.Seq[int] {
+	return func(yield func(i int) bool) {
+		for i := range m.names {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
+func (m *testDimension) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
+	return func(yield func(i int) bool) {
+		for i, n := range m.names {
+			if !filter.ShouldExcludeFine(n) {
+				if !yield(i) {
+					return
+				}
+			}
+		}
+	}, nil
+}
+
+// NewTestingDimensions creates a new ConfiguredDimensions for testing.
+func NewTestingDimensions(languages, versions, roles []string) *ConfiguredDimensions {
+	return &ConfiguredDimensions{
+		ConfiguredLanguages: &testDimension{names: languages},
+		ConfiguredVersions:  &testDimension{names: versions},
+		ConfiguredRoles:     &testDimension{names: roles},
+	}
 }

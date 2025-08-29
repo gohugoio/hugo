@@ -160,7 +160,7 @@ type Config struct {
 
 	// The cascade configuration section contains the top level front matter cascade configuration options,
 	// a slice of page matcher and params to apply to those pages.
-	Cascade *config.ConfigNamespace[[]page.PageMatcherParamsConfig, *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]] `mapstructure:"-"`
+	Cascade *config.ConfigNamespace[[]page.PageMatcherParamsConfig, []page.PageMatcherParamsConfig] `mapstructure:"-"`
 
 	// The segments defines segments for the site. Used for partial/segmented builds.
 	Segments *config.ConfigNamespace[map[string]segments.SegmentConfig, segments.Segments] `mapstructure:"-"`
@@ -817,17 +817,16 @@ type Configs struct {
 	Languages                 langs.Languages
 	LanguagesDefaultFirst     langs.Languages // TODO1 remove?
 	ContentPathParser         *paths.PathHandler
-	ConfiguredDimensions      sitesmatrix.ConfiguredDimensions
+	ConfiguredDimensions      *sitesmatrix.ConfiguredDimensions
 	DefaultContentSitesMatrix *sitesmatrix.IntSets
 
 	configLangs []config.AllProvider
 }
 
 func (c *Configs) Validate(logger loggers.Logger) error {
-	c.Base.Cascade.Config.Range(func(p page.PageMatcher, cfg page.PageMatcherParamsConfig) bool {
-		page.CheckCascadePattern(logger, p)
-		return true
-	})
+	for _, cascade := range c.Base.Cascade.Config {
+		page.CheckCascadePattern(logger, cascade.Target)
+	}
 	return nil
 }
 
@@ -886,7 +885,7 @@ func (c *Configs) Init() error {
 
 	c.Languages = languages
 	c.LanguagesDefaultFirst = languagesDefaultFirst
-	c.ConfiguredDimensions = sitesmatrix.ConfiguredDimensions{
+	c.ConfiguredDimensions = &sitesmatrix.ConfiguredDimensions{
 		ConfiguredLanguages: c.Base.Languages.Config,
 		ConfiguredVersions:  c.Base.Versions.Config,
 		ConfiguredRoles:     c.Base.Roles.Config,

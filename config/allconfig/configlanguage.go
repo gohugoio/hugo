@@ -280,7 +280,7 @@ func (c ConfigLanguage) EnableEmoji() bool {
 	return c.config.EnableEmoji
 }
 
-func (c ConfigLanguage) ConfiguredDimensions() sitesmatrix.ConfiguredDimensions {
+func (c ConfigLanguage) ConfiguredDimensions() *sitesmatrix.ConfiguredDimensions {
 	return c.m.ConfiguredDimensions
 }
 
