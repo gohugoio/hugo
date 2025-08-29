@@ -170,10 +170,16 @@ func (l configLoader) applyDefaultConfig() error {
 }
 
 func (l configLoader) normalizeCfg(cfg config.Provider) error {
-	if b, ok := cfg.Get("minifyOutput").(bool); ok && b {
-		cfg.Set("minify.minifyOutput", true)
-	} else if b, ok := cfg.Get("minify").(bool); ok && b {
-		cfg.Set("minify", maps.Params{"minifyOutput": true})
+	if b, ok := cfg.Get("minifyOutput").(bool); ok {
+		hugo.Deprecate("site config minifyOutput", "Use minify.minifyOutput instead.", "v0.150.0")
+		if b {
+			cfg.Set("minify.minifyOutput", true)
+		}
+	} else if b, ok := cfg.Get("minify").(bool); ok {
+		hugo.Deprecate("site config minify", "Use minify.minifyOutput instead.", "v0.150.0")
+		if b {
+			cfg.Set("minify", maps.Params{"minifyOutput": true})
+		}
 	}
 
 	return nil

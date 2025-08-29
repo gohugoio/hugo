@@ -238,6 +238,7 @@ chroma:
   - Aliases:
     - docker
     - dockerfile
+    - containerfile
     Name: Docker
   - Aliases:
     - dtd
@@ -300,6 +301,12 @@ chroma:
     - gdscript3
     - gd3
     Name: GDScript3
+  - Aliases:
+    - gemtext
+    - gmi
+    - gmni
+    - gemini
+    Name: Gemtext
   - Aliases:
     - genshi
     - kid
@@ -456,6 +463,8 @@ chroma:
   - Aliases:
     - llvm
     Name: LLVM
+  - Aliases: null
+    Name: lox
   - Aliases:
     - lua
     - luau
@@ -561,6 +570,9 @@ chroma:
     - nsi
     - nsh
     Name: NSIS
+  - Aliases:
+    - nu
+    Name: Nu
   - Aliases:
     - objective-c
     - objectivec
@@ -1478,8 +1490,9 @@ config:
     tdewolff:
       css:
         inline: false
-        keepCSS2: true
+        keepCSS2: false
         precision: 0
+        version: 0
       html:
         keepComments: false
         keepConditionalComments: false
@@ -2093,6 +2106,11 @@ tpl:
         - - '{{ slice "a" "b" "c" "d" "e" "f" | complement (slice "b" "c") (slice
             "d" "e") }}'
           - '[a f]'
+      D:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Delimit:
         Aliases:
         - delimit
