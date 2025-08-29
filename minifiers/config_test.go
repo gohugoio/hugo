@@ -42,62 +42,87 @@ func TestConfig(t *testing.T) {
 	c.Assert(conf.Tdewolff.HTML.KeepWhitespace, qt.Equals, false)
 	// default value
 	c.Assert(conf.Tdewolff.HTML.KeepEndTags, qt.Equals, true)
-	c.Assert(conf.Tdewolff.CSS.KeepCSS2, qt.Equals, true)
+	c.Assert(conf.Tdewolff.CSS.Version, qt.Equals, 0)
 
 	// `enable` flags
 	c.Assert(conf.DisableHTML, qt.Equals, false)
 	c.Assert(conf.DisableXML, qt.Equals, true)
 }
 
-func TestConfigLegacy(t *testing.T) {
+func TestConfigDeprecations(t *testing.T) {
 	c := qt.New(t)
+
+	// Test default values of deprecated root keys.
 	v := config.New()
-
-	// This was a bool < Hugo v0.58.
-	v.Set("minify", true)
-
+	v.Set("minify", false)
 	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
+	c.Assert(conf.MinifyOutput, qt.Equals, false)
+
+	v = config.New()
+	v.Set("minifyoutput", false)
+	conf = testconfig.GetTestConfigs(nil, v).Base.Minify
+	c.Assert(conf.MinifyOutput, qt.Equals, false)
+
+	// Test non-default values of deprecated root keys.
+	v = config.New()
+	v.Set("minify", true)
+	conf = testconfig.GetTestConfigs(nil, v).Base.Minify
+	c.Assert(conf.MinifyOutput, qt.Equals, true)
+
+	v = config.New()
+	v.Set("minifyoutput", true)
+	conf = testconfig.GetTestConfigs(nil, v).Base.Minify
 	c.Assert(conf.MinifyOutput, qt.Equals, true)
 }
 
-func TestConfigNewCommentOptions(t *testing.T) {
+func TestConfigUpstreamDeprecations(t *testing.T) {
 	c := qt.New(t)
-	v := config.New()
 
-	// setting the old options should automatically set the new options
+	// Test default values of deprecated keys.
+	v := config.New()
 	v.Set("minify", map[string]any{
 		"tdewolff": map[string]any{
+			"css": map[string]any{
+				"decimals": 0,
+				"keepcss2": true,
+			},
 			"html": map[string]any{
-				"keepConditionalComments": false,
+				"keepconditionalcomments": true,
 			},
 			"svg": map[string]any{
-				"decimal": "5",
+				"decimals": 0,
 			},
 		},
 	})
 
 	conf := testconfig.GetTestConfigs(nil, v).Base.Minify
 
-	c.Assert(conf.Tdewolff.HTML.KeepSpecialComments, qt.Equals, false)
-	c.Assert(conf.Tdewolff.SVG.Precision, qt.Equals, 5)
+	c.Assert(conf.Tdewolff.CSS.Precision, qt.Equals, 0)
+	c.Assert(conf.Tdewolff.CSS.Version, qt.Equals, 2)
+	c.Assert(conf.Tdewolff.HTML.KeepSpecialComments, qt.Equals, true)
+	c.Assert(conf.Tdewolff.SVG.Precision, qt.Equals, 0)
 
-	// the new values should win, regardless of the contents of the old values
+	// Test non-default values of deprecated keys.
 	v = config.New()
 	v.Set("minify", map[string]any{
 		"tdewolff": map[string]any{
+			"css": map[string]any{
+				"decimals": 6,
+				"keepcss2": false,
+			},
 			"html": map[string]any{
-				"keepConditionalComments": false,
-				"keepSpecialComments":     true,
+				"keepconditionalcomments": false,
 			},
 			"svg": map[string]any{
-				"decimal":   "5",
-				"precision": "10",
+				"decimals": 7,
 			},
 		},
 	})
 
 	conf = testconfig.GetTestConfigs(nil, v).Base.Minify
 
-	c.Assert(conf.Tdewolff.HTML.KeepSpecialComments, qt.Equals, true)
-	c.Assert(conf.Tdewolff.SVG.Precision, qt.Equals, 10)
+	c.Assert(conf.Tdewolff.CSS.Precision, qt.Equals, 6)
+	c.Assert(conf.Tdewolff.CSS.Version, qt.Equals, 0)
+	c.Assert(conf.Tdewolff.HTML.KeepSpecialComments, qt.Equals, false)
+	c.Assert(conf.Tdewolff.SVG.Precision, qt.Equals, 7)
 }
