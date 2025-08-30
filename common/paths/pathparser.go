@@ -65,7 +65,7 @@ func NormalizePathStringBasic(s string) string {
 
 func (pp *PathHandler) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
 	// TODO1 cache this, probably easier to wrap the builder.
-	builder := sitesmatrix.NewIntSetsBuilder()
+	builder := sitesmatrix.NewIntSetsBuilder(pp.ConfiguredDimensions)
 
 	if lang := p.Lang(); lang != "" {
 		if idx, ok := pp.LanguageIndex[lang]; ok {
@@ -75,11 +75,11 @@ func (pp *PathHandler) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
 
 	switch p.Component() {
 	case files.ComponentFolderContent:
-		builder.WithDefaultsIfNotSet(pp.ConfiguredDimensions)
+		builder.WithDefaultsIfNotSet()
 	case files.ComponentFolderLayouts:
-		builder.WithAllIfNotSet(pp.ConfiguredDimensions)
+		builder.WithAllIfNotSet()
 	case files.ComponentFolderStatic:
-		builder.WithDefaultsAndAllLanguagesIfNotSet(pp.ConfiguredDimensions)
+		builder.WithDefaultsAndAllLanguagesIfNotSet()
 
 	}
 

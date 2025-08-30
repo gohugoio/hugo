@@ -166,7 +166,7 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatch
 	}
 
 	if m.pi.frontMatter != nil {
-		if err := m.pageConfigSource.SetCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Log); err != nil {
+		if err := m.pageConfigSource.SetCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Conf.ConfiguredDimensions(), h.Log); err != nil {
 			return nil
 		}
 	}
@@ -600,6 +600,9 @@ func (ps *pageState) setMetaPost(cascades []page.PageMatcherParamsConfig) error 
 		if !v.Target.Matches(ps) {
 			continue
 		}
+
+		hdebug.Printf(" match cascade set for %q %v %d", ps.Path(), ps.s.siteVector, len(v.Fields)+len(v.Params))
+
 		for kk, vv := range v.Params {
 			if _, found := ps.m.pageConfig.Params[kk]; !found {
 				ps.m.pageConfig.Params[kk] = vv

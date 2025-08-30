@@ -140,15 +140,26 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[stri
 	return nil
 }
 
-func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, logger loggers.Logger) error {
+func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions, logger loggers.Logger) error {
 	// Check for any cascade define on itself.
 	if cv, found := frontmatter[pageMetaKeyCascade]; found {
 		var err error
-		cascade, err := page.DecodeCascadeConfig(page.DecodeCascadeConfigOptions{Logger: logger, HandleLegacyFormat: true, DefaultSitesMatrix: defaultSitesMatrix}, cv)
+		cascade, err := page.DecodeCascadeConfig(
+			page.DecodeCascadeConfigOptions{
+				Logger:               logger,
+				HandleLegacyFormat:   true,
+				ConfiguredDimensions: configuredDimensions,
+				DefaultSitesMatrix:   defaultSitesMatrix,
+			}, cv)
 		if err != nil {
 			return err
 		}
-		pcfg.CascadeCompiled = cascade.Config
+		cascadeConfig := cascade.Config
+		pcfg.CascadeCompiled = cascadeConfig
+
+		first := pcfg.CascadeCompiled[0]
+		hdebug.Printf("cascade set  %v %d", first.Target, len(first.Fields)+len(first.Params))
+
 	}
 	return nil
 }
@@ -283,18 +294,17 @@ func buildSiteMatrixFromSitesConfig(
 	sitesConfig sitesmatrix.Sites,
 ) (*sitesmatrix.IntSets, *sitesmatrix.IntSets) {
 	intsetsCfg := sitesmatrix.IntSetsConfig{
-		Cfg:   conf.ConfiguredDimensions(),
 		Globs: sitesConfig.Matrix,
 	}
-	sitesMatrixPage := sitesmatrix.NewIntSetsBuilder().WithConfig(intsetsCfg)
+	sitesMatrixPage := sitesmatrix.NewIntSetsBuilder(conf.ConfiguredDimensions()).WithConfig(intsetsCfg)
 
 	intsetsCfg.Globs = sitesConfig.Fallbacks
-	sitesFallbacksPage := sitesmatrix.NewIntSetsBuilder().WithConfig(intsetsCfg)
+	sitesFallbacksPage := sitesmatrix.NewIntSetsBuilder(conf.ConfiguredDimensions()).WithConfig(intsetsCfg)
 
 	if sitesMatrixFile != nil {
 		sitesMatrixPage.WithDimensionsFromOtherIfNotSet(sitesMatrixFile)
 	}
-	sitesMatrixPage.WithDefaultsIfNotSet(conf.ConfiguredDimensions())
+	sitesMatrixPage.WithDefaultsIfNotSet()
 
 	if fim != nil && fim.SitesFallbacks != nil {
 		sitesFallbacksPage.WithDimensionsFromOtherIfNotSet(fim.SitesFallbacks)

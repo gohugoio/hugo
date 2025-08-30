@@ -2469,7 +2469,7 @@ func (sa *sitePagesAssembler) createPages() error {
 		s string
 	}{}
 
-	getCascade := func(s string, sourceCascadeIsNil bool) []page.PageMatcherParamsConfig {
+	getCascades := func(s string, sourceCascadeIsNil bool) []page.PageMatcherParamsConfig {
 		var cascade []page.PageMatcherParamsConfig
 		data := rw.WalkContext.Data()
 		if s == "" {
@@ -2490,11 +2490,11 @@ func (sa *sitePagesAssembler) createPages() error {
 	}
 
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		var cascades []page.PageMatcherParamsConfig
+		var newCascades []page.PageMatcherParamsConfig
 		defer func() {
-			if len(cascades) > 0 {
+			if len(newCascades) > 0 {
 				// Pass it down.
-				rw.WalkContext.Data().Insert(s, cascades)
+				rw.WalkContext.Data().Insert(s, newCascades)
 			}
 		}()
 
@@ -2506,18 +2506,16 @@ func (sa *sitePagesAssembler) createPages() error {
 			switch ms := v.(type) {
 			case *pageMetaSource:
 
-				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
-					cascades = append(cascades, ms.pageConfigSource.CascadeCompiled...)
-				}
-
 				// bookmark1
-				cascades := getCascade(s, ms.pageConfigSource.Cascade == nil)
+				cascades := getCascades(s, ms.pageConfigSource.CascadeCompiled == nil)
 
 				if err := ms.initSitesMatrix(sa.s.h, cascades); err != nil {
 					return false, false, err
 				}
 
-				hdebug.Printf("Creating page from pageMetaSource %q (matrix: %v) %t", s, ms.sitesMatrix(), cascades != nil)
+				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
+					newCascades = append(newCascades, ms.pageConfigSource.CascadeCompiled...)
+				}
 
 				ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
 					site, found := sites[vec]

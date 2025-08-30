@@ -187,9 +187,7 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)  // en, v1, free
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 1, 0}), qt.IsFalse) // en, v2, pro
 
-	defaultSitesMatrix := sitesmatrix.NewIntSetsBuilder().WithAllIfNotSet(
-		sitesmatrix.NewTestingDimensions([]string{"en"},
-			[]string{"v1"}, []string{"free"})).Build()
+	defaultSitesMatrix := sitesmatrix.NewIntSetsBuilder(sitesmatrix.NewTestingDimensions([]string{"en"}, []string{"v1"}, []string{"free"})).WithAllIfNotSet().Build()
 
 	got, err = DecodeCascadeConfig(DecodeCascadeConfigOptions{Logger: loggers.NewDefault(), ConfiguredDimensions: dims, DefaultSitesMatrix: defaultSitesMatrix, HandleLegacyFormat: true}, in)
 

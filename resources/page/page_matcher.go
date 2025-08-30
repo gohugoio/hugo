@@ -166,6 +166,25 @@ func DecodeCascadeConfig(opts DecodeCascadeConfigOptions, in any) (*config.Confi
 			cfgs = append(cfgs, c)
 		}
 
+		if len(cfgs) == 0 {
+			return cascade, []map[string]any{}, nil
+		}
+
+		var n int
+		for _, cfg := range cfgs {
+			if len(cfg.Params) > 0 || len(cfg.Fields) > 0 {
+				cfgs[n] = cfg
+				n++
+
+			}
+		}
+
+		if n == 0 {
+			return nil, nil, fmt.Errorf("at least one of params or other fields must be set in cascade config")
+		}
+
+		cfgs = cfgs[:n]
+
 		for _, cfg := range cfgs {
 			CheckCascadePattern(opts.Logger, cfg.Target)
 		}
@@ -188,6 +207,7 @@ func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (Pa
 	if pcfg.Params == nil {
 		pcfg.Params = make(maps.Params)
 	}
+
 	for k, v := range m {
 		switch strings.ToLower(k) {
 		case "_target", "target":
@@ -232,14 +252,13 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 			panic("ConfiguredDimensions must be set if Sites.Matrix is set")
 		}
 		intSetsCfg := sitesmatrix.IntSetsConfig{
-			Cfg:   d.opts.ConfiguredDimensions,
 			Globs: v.Sites.Matrix,
 		}
-		b := sitesmatrix.NewIntSetsBuilder().WithConfig(intSetsCfg)
+		b := sitesmatrix.NewIntSetsBuilder(d.opts.ConfiguredDimensions).WithConfig(intSetsCfg)
 		if d.opts.DefaultSitesMatrix != nil {
 			b = b.WithDimensionsFromOtherIfNotSet(d.opts.DefaultSitesMatrix)
 		} else {
-			b = b.WithAllIfNotSet(d.opts.ConfiguredDimensions)
+			b = b.WithAllIfNotSet()
 		}
 		v.SitesMatrix = b.Build()
 	}

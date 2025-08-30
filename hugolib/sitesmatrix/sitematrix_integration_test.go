@@ -406,7 +406,7 @@ weight = 3
 title = "English home"
 [cascade]
 p1 = "p1cascade"
-[cascade.sites.matrix]
+[cascade.target.sites.matrix]
 languages = ["en"]
 +++
 -- content/_index.nn.md --
@@ -416,13 +416,13 @@ title = "Scandinavian home"
 p1 = "p1cascadescandinavian"
 [cascade.target]
 path = "**scandinavian**"
-[cascade.sites.matrix]
+[cascade.target.sites.matrix]
 languages = "{nn,sv}"
 +++
 -- content/mysection/_index.md --
 +++
 title = "My section"
-[cascade.sites.matrix]
+[cascade.target.sites.matrix]
 languages = "**"
 +++
 -- content/mysection/p1.md --

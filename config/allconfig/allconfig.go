@@ -892,10 +892,9 @@ func (c *Configs) Init() error {
 	}
 
 	intSetsCfg := sitesmatrix.IntSetsConfig{
-		Cfg:           c.ConfiguredDimensions,
 		ApplyDefaults: sitesmatrix.IntSetsConfigApplyDefaultsIfNotSet,
 	}
-	matrix := sitesmatrix.NewIntSetsBuilder().WithConfig(intSetsCfg)
+	matrix := sitesmatrix.NewIntSetsBuilder(c.ConfiguredDimensions).WithConfig(intSetsCfg)
 	c.DefaultContentSitesMatrix = matrix.Build()
 
 	c.ContentPathParser = &paths.PathHandler{
