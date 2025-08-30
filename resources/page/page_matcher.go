@@ -56,18 +56,29 @@ type PageMatcher struct {
 	SitesMatrix sitesmatrix.VectorProvider `mapstructure:"-"`
 }
 
-func (m PageMatcher) MatchesValues(kind, lang, path, environment string) bool {
+func (m PageMatcher) MatchesValues(kind, lang, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
+	ok, _ := m.MatchesValuesReason(kind, lang, path, environment, sitesMatrix)
+	return ok
+}
+
+// TODO1 remove this.
+func (m PageMatcher) MatchesValuesReason(kind, lang, path, environment string, sitesMatrix sitesmatrix.VectorProvider) (bool, string) {
+	if sitesMatrix != nil {
+		if m.SitesMatrix != nil && !m.SitesMatrix.HasAnyVector(sitesMatrix) {
+			return false, "site vector mismatch"
+		}
+	}
 	if m.Kind != "" {
 		g, err := glob.GetGlob(m.Kind)
 		if err == nil && !g.Match(kind) {
-			return false
+			return false, "kind mismatch"
 		}
 	}
 
 	if m.Lang != "" {
 		g, err := glob.GetGlob(m.Lang)
 		if err == nil && !g.Match(lang) {
-			return false
+			return false, "lang mismatch"
 		}
 	}
 
@@ -79,18 +90,18 @@ func (m PageMatcher) MatchesValues(kind, lang, path, environment string) bool {
 			p = "/" + p
 		}
 		if err == nil && !g.Match(p) {
-			return false
+			return false, "path mismatch"
 		}
 	}
 
 	if m.Environment != "" {
 		g, err := glob.GetGlob(m.Environment)
 		if err == nil && !g.Match(environment) {
-			return false
+			return false, "environment mismatch"
 		}
 	}
 
-	return true
+	return true, ""
 }
 
 // Matches returns whether p matches this matcher.
@@ -100,15 +111,17 @@ func (m PageMatcher) Matches(p Page) bool {
 		p.Lang(),
 		p.Path(),
 		p.Site().Hugo().Environment,
+		nil, // TODO1
 	)
 }
 
 var disallowedCascadeKeys = map[string]bool{
 	// These define the structure of the page tree and cannot
 	// currently be set in the cascade.
-	"kind": true,
-	"path": true,
-	"lang": true,
+	"kind":    true,
+	"path":    true,
+	"lang":    true,
+	"cascade": true,
 }
 
 // See issue 11977.
@@ -137,10 +150,10 @@ func DecodeCascadeConfig(opts DecodeCascadeConfigOptions, in any) (*config.Confi
 			opts: opts,
 		}
 
-		var cascade []PageMatcherParamsConfig
 		if in == nil {
-			return cascade, []map[string]any{}, nil
+			return nil, []map[string]any{}, nil
 		}
+
 		ms, err := maps.ToSliceStringMap(in)
 		if err != nil {
 			return nil, nil, err
@@ -166,6 +179,24 @@ func DecodeCascadeConfig(opts DecodeCascadeConfigOptions, in any) (*config.Confi
 			cfgs = append(cfgs, c)
 		}
 
+		if len(cfgs) == 0 {
+			return nil, nil, nil
+		}
+
+		var n int
+		for _, cfg := range cfgs {
+			if len(cfg.Params) > 0 || len(cfg.Fields) > 0 {
+				cfgs[n] = cfg
+				n++
+			}
+		}
+
+		if n == 0 {
+			return nil, nil, nil
+		}
+
+		cfgs = cfgs[:n]
+
 		for _, cfg := range cfgs {
 			CheckCascadePattern(opts.Logger, cfg.Target)
 		}
@@ -173,7 +204,7 @@ func DecodeCascadeConfig(opts DecodeCascadeConfigOptions, in any) (*config.Confi
 		return cfgs, cfgs, nil
 	}
 
-	return config.DecodeNamespace[[]PageMatcherParamsConfig, []PageMatcherParamsConfig](in, buildConfig)
+	return config.DecodeNamespace[[]PageMatcherParamsConfig](in, buildConfig)
 }
 
 type cascadeConfigDecoder struct {
@@ -188,6 +219,7 @@ func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (Pa
 	if pcfg.Params == nil {
 		pcfg.Params = make(maps.Params)
 	}
+
 	for k, v := range m {
 		switch strings.ToLower(k) {
 		case "_target", "target":
@@ -232,14 +264,13 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 			panic("ConfiguredDimensions must be set if Sites.Matrix is set")
 		}
 		intSetsCfg := sitesmatrix.IntSetsConfig{
-			Cfg:   d.opts.ConfiguredDimensions,
 			Globs: v.Sites.Matrix,
 		}
-		b := sitesmatrix.NewIntSetsBuilder().WithConfig(intSetsCfg)
+		b := sitesmatrix.NewIntSetsBuilder(d.opts.ConfiguredDimensions).WithConfig(intSetsCfg)
 		if d.opts.DefaultSitesMatrix != nil {
 			b = b.WithDimensionsFromOtherIfNotSet(d.opts.DefaultSitesMatrix)
 		} else {
-			b = b.WithAllIfNotSet(d.opts.ConfiguredDimensions)
+			b = b.WithAllIfNotSet()
 		}
 		v.SitesMatrix = b.Build()
 	}

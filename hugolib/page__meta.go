@@ -166,7 +166,7 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatch
 	}
 
 	if m.pi.frontMatter != nil {
-		if err := m.pageConfigSource.SetCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Log); err != nil {
+		if err := m.pageConfigSource.SetCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Conf.ConfiguredDimensions(), h.Log); err != nil {
 			return nil
 		}
 	}
@@ -571,17 +571,13 @@ func (m *pageMeta) Weight() int {
 }
 
 // TODO1 can we get rid of this method? Think about terms.
-func (ps *pageState) setMetaPost(cascades []page.PageMatcherParamsConfig) error {
+func (ps *pageState) setMetaPost(s string, cascades []page.PageMatcherParamsConfig) error {
 	hdebug.AssertNotNil(ps.m.pageMetaParams)
 	ps.m.setMetaPostCount++
 	var cascadeHashPre uint64
 	if ps.m.setMetaPostCount > 1 {
 		cascadeHashPre = hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
-		ps.m.pageConfig.CascadeCompiled = slices.Clone(ps.m.cascadeOriginal)
-	}
-
-	if ps.m.pageConfig.CascadeCompiled != nil {
-		cascades = append(cascades, ps.m.pageConfig.CascadeCompiled...)
+		ps.m.pageConfig.CascadeCompiled = slices.Clone(ps.m.cascadeOriginal) // TODO1 move.
 	}
 
 	if ps.m.setMetaPostCount > 1 {
@@ -594,28 +590,6 @@ func (ps *pageState) setMetaPost(cascades []page.PageMatcherParamsConfig) error 
 		}
 		ps.m.setMetaPostPrepareRebuild()
 
-	}
-
-	for _, v := range cascades {
-		if !v.Target.Matches(ps) {
-			continue
-		}
-		for kk, vv := range v.Params {
-			if _, found := ps.m.pageConfig.Params[kk]; !found {
-				ps.m.pageConfig.Params[kk] = vv
-			}
-		}
-		for kk, vv := range v.Fields {
-			if ps.m.pageConfig.IsFromContentAdapter {
-				if _, found := ps.m.pageConfig.ContentAdapterData[kk]; !found {
-					ps.m.pageConfig.ContentAdapterData[kk] = vv
-				}
-			} else {
-				if _, found := ps.m.pageConfig.Params[kk]; !found {
-					ps.m.pageConfig.Params[kk] = vv
-				}
-			}
-		}
 	}
 
 	if err := ps.setMetaPostParams(); err != nil {

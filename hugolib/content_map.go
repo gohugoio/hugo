@@ -159,7 +159,7 @@ func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector) bool {
 		return false
 	}
 
-	if p.fi != nil && p.fi.Meta().SitesMatrix.HasAnyVector(siteVector) {
+	if p.fi != nil && p.fi.Meta().SitesMatrix.HasVector(siteVector) {
 		return true
 	}
 

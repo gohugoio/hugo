@@ -2469,17 +2469,17 @@ func (sa *sitePagesAssembler) createPages() error {
 		s string
 	}{}
 
-	getCascade := func(s string, sourceCascadeIsNil bool) []page.PageMatcherParamsConfig {
+	getCascades := func(s string) []page.PageMatcherParamsConfig {
 		var cascade []page.PageMatcherParamsConfig
 		data := rw.WalkContext.Data()
 		if s == "" {
 			// Home page gets it's cascade from the site config.
 			// TODO1 get the correct language version.
 			cascade = sa.s.conf.Cascade.Config
-			if sourceCascadeIsNil {
-				// Pass the site cascade downwards.
+			/*if sourceCascadeIsNil {
+				// Pass the site cascade downwards. TODO1
 				data.Insert(s, cascade)
-			}
+			}*/
 		} else {
 			_, data := data.LongestPrefix(paths.Dir(s))
 			if data != nil {
@@ -2490,10 +2490,13 @@ func (sa *sitePagesAssembler) createPages() error {
 	}
 
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		var cascades []page.PageMatcherParamsConfig
+		// bookmark1
+		cascades := getCascades(s)
+		cascadesLen := len(cascades)
+
 		defer func() {
-			if len(cascades) > 0 {
-				// Pass it down.
+			if len(cascades) > cascadesLen {
+				// New cascade values added, pass them downwards.
 				rw.WalkContext.Data().Insert(s, cascades)
 			}
 		}()
@@ -2506,18 +2509,13 @@ func (sa *sitePagesAssembler) createPages() error {
 			switch ms := v.(type) {
 			case *pageMetaSource:
 
-				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
-					cascades = append(cascades, ms.pageConfigSource.CascadeCompiled...)
-				}
-
-				// bookmark1
-				cascades := getCascade(s, ms.pageConfigSource.Cascade == nil)
-
 				if err := ms.initSitesMatrix(sa.s.h, cascades); err != nil {
 					return false, false, err
 				}
 
-				hdebug.Printf("Creating page from pageMetaSource %q (matrix: %v) %t", s, ms.sitesMatrix(), cascades != nil)
+				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
+					cascades = append(cascades, ms.pageConfigSource.CascadeCompiled...)
+				}
 
 				ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
 					site, found := sites[vec]
@@ -2532,7 +2530,7 @@ func (sa *sitePagesAssembler) createPages() error {
 					}
 
 					// Combine the cascade map with front matter.
-					if err = p.setMetaPost(cascades); err != nil {
+					if err = p.setMetaPost(s, cascades); err != nil {
 						return true
 					}
 

@@ -725,12 +725,11 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			needsAllIfNotSet := b.isLayoutsMount(mount)
 
 			intSetsCfg := sitesmatrix.IntSetsConfig{
-				Cfg:           b.p.Cfg.ConfiguredDimensions(),
 				ApplyDefaults: 0,
 				Globs:         v.Matrix,
 			}
 
-			matrixBuilder := sitesmatrix.NewIntSetsBuilder()
+			matrixBuilder := sitesmatrix.NewIntSetsBuilder(b.p.Cfg.ConfiguredDimensions())
 
 			if !v.Matrix.IsZero() {
 				matrixBuilder.WithConfig(intSetsCfg)
@@ -738,31 +737,31 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 					return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
 				}
 				if needsDefaultsIfNotset {
-					matrixBuilder.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+					matrixBuilder.WithDefaultsIfNotSet()
 				}
 				if needsAllIfNotSet {
-					matrixBuilder.WithAllIfNotSet(b.p.Cfg.ConfiguredDimensions())
+					matrixBuilder.WithAllIfNotSet()
 				}
 
 				matrix = matrixBuilder.Build()
 			} else if needsAllIfNotSet {
-				matrixBuilder.WithAllIfNotSet(b.p.Cfg.ConfiguredDimensions())
+				matrixBuilder.WithAllIfNotSet()
 				matrix = matrixBuilder.Build()
 			} else if needsDefaultsAndAllLanguagesIfNotSet {
-				matrixBuilder.WithDefaultsAndAllLanguagesIfNotSet(b.p.Cfg.ConfiguredDimensions())
+				matrixBuilder.WithDefaultsAndAllLanguagesIfNotSet()
 				matrix = matrixBuilder.Build()
 			} else if needsDefaultsIfNotset {
 				matrix = b.p.Cfg.DefaultContentsitesMatrix()
 			} else {
 				if needsDefaultsIfNotset {
-					matrixBuilder.WithDefaultsIfNotSet(b.p.Cfg.ConfiguredDimensions())
+					matrixBuilder.WithDefaultsIfNotSet()
 				}
 				matrix = matrixBuilder.Build()
 			}
 
 			intSetsCfg.Globs = v.Fallbacks
 			intSetsCfg.ApplyDefaults = 0
-			matrixBuilder = sitesmatrix.NewIntSetsBuilder().WithConfig(intSetsCfg)
+			matrixBuilder = sitesmatrix.NewIntSetsBuilder(b.p.Cfg.ConfiguredDimensions()).WithConfig(intSetsCfg)
 			fallbacks := matrixBuilder.Build()
 
 			rm := hugofs.RootMapping{

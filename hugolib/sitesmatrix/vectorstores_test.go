@@ -24,28 +24,30 @@ import (
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
 
+var testDims = sitesmatrix.NewTestingDimensions([]string{"en", "no"}, []string{"v1", "v2", "v3"}, []string{"admin", "editor", "viewer", "guest"})
+
 func TestIntSets(t *testing.T) {
 	c := qt.New(t)
 
-	sets := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 	).Build()
 
-	sets2 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets2 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 4),
 	).Build()
 
-	sets3 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets3 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(2, 1),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(2, 1, 4),
 	).Build()
 
-	sets4 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets4 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(3, 4, 5),
 		maps.NewOrderedIntSet(3, 4, 5),
 		maps.NewOrderedIntSet(3, 4, 5),
@@ -64,14 +66,14 @@ func TestIntSets(t *testing.T) {
 	c.Assert(sets.FirstVector(), qt.Equals, sitesmatrix.Vector{1, 1, 1})
 	c.Assert(sets.EqualsVector(sets), qt.Equals, true)
 	c.Assert(sets.EqualsVector(
-		sitesmatrix.NewIntSetsBuilder().WithSets(
+		sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 			maps.NewOrderedIntSet(1, 2),
 			maps.NewOrderedIntSet(1, 2, 3),
 			maps.NewOrderedIntSet(1, 2, 3),
 		).Build(),
 	), qt.Equals, true)
 	c.Assert(sets.EqualsVector(
-		sitesmatrix.NewIntSetsBuilder().WithSets(
+		sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 			maps.NewOrderedIntSet(1, 2, 3),
 			maps.NewOrderedIntSet(1, 2, 3, 4),
 			maps.NewOrderedIntSet(1, 2, 3, 4),
@@ -79,7 +81,7 @@ func TestIntSets(t *testing.T) {
 	), qt.Equals, false)
 
 	c.Assert(sets.EqualsVector(
-		sitesmatrix.NewIntSetsBuilder().WithSets(
+		sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 			maps.NewOrderedIntSet(1, 2),
 			maps.NewOrderedIntSet(1, 2, 3),
 			maps.NewOrderedIntSet(2, 3, 4),
@@ -145,7 +147,7 @@ func TestIntSetsComplement(t *testing.T) {
 	runOne := func(c *qt.C, test test) {
 		c.Helper()
 
-		self := sitesmatrix.NewIntSetsBuilder().WithSets(
+		self := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 			maps.NewOrderedIntSet(test.left.v0...),
 			maps.NewOrderedIntSet(test.left.v1...),
 			maps.NewOrderedIntSet(test.left.v2...),
@@ -153,7 +155,7 @@ func TestIntSetsComplement(t *testing.T) {
 
 		var input []sitesmatrix.VectorProvider
 		for _, v := range test.input {
-			input = append(input, sitesmatrix.NewIntSetsBuilder().WithSets(
+			input = append(input, sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 				maps.NewOrderedIntSet(v.v0...),
 				maps.NewOrderedIntSet(v.v1...),
 				maps.NewOrderedIntSet(v.v2...),
@@ -279,13 +281,13 @@ func TestIntSetsComplement(t *testing.T) {
 func TestIntSetsComplementOfComplement(t *testing.T) {
 	c := qt.New(t)
 
-	sets1 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1),
 		maps.NewOrderedIntSet(1),
 		maps.NewOrderedIntSet(1),
 	).Build()
 
-	sets2 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets2 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2),
 		maps.NewOrderedIntSet(1),
 		maps.NewOrderedIntSet(1, 3),
@@ -311,25 +313,25 @@ func TestIntSetsComplementOfComplement(t *testing.T) {
 }
 
 func BenchmarkIntSetsComplement(b *testing.B) {
-	sets1 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 	).Build()
 
-	sets1Copy := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets1Copy := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 	).Build()
 
-	sets2 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets2 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2, 3, 4),
 		maps.NewOrderedIntSet(1, 2, 3, 4),
 		maps.NewOrderedIntSet(1, 2, 3, 4, 6),
 	).Build()
 
-	setsLanguage1 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	setsLanguage1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1),
 		maps.NewOrderedIntSet(1),
 		maps.NewOrderedIntSet(1),
@@ -374,19 +376,19 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 }
 
 func BenchmarkSets(b *testing.B) {
-	sets1 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 	).Build()
 
-	sets1Copy := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets1Copy := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2),
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
 	).Build()
 
-	sets2 := sitesmatrix.NewIntSetsBuilder().WithSets(
+	sets2 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3, 4),
 		maps.NewOrderedIntSet(1, 2, 3, 4),
@@ -398,7 +400,7 @@ func BenchmarkSets(b *testing.B) {
 	b.ResetTimer()
 	b.Run("Build", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = sitesmatrix.NewIntSetsBuilder().WithSets(
+			_ = sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 				maps.NewOrderedIntSet(1, 2),
 				maps.NewOrderedIntSet(1, 2, 3),
 				maps.NewOrderedIntSet(1, 2, 3),
@@ -409,6 +411,12 @@ func BenchmarkSets(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = sets1.HasVector(v1)
 			_ = sets1.HasVector(v2)
+		}
+	})
+
+	b.Run("HasAnyVector", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_ = sets1.HasAnyVector(sets2)
 		}
 	})
 

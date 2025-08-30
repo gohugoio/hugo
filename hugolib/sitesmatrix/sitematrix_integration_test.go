@@ -392,6 +392,7 @@ func TestCascadeMatrixInFrontMatter(t *testing.T) {
 	t.Parallel()
 	files := `
 -- hugo.toml --
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
 defaultContentLanguage = "en"
 defaultContentLanguageInSubDir = true
 [languages]
@@ -405,31 +406,35 @@ weight = 3
 +++
 title = "English home"
 [cascade]
+[cascade.params]
 p1 = "p1cascade"
-[cascade.sites.matrix]
+[cascade.target.sites.matrix]
 languages = ["en"]
 +++
 -- content/_index.nn.md --
 +++
 title = "Scandinavian home"
+[sites.matrix]
+languages = "{nn,sv}"
 [cascade]
+[cascade.params]
 p1 = "p1cascadescandinavian"
-[cascade.target]
-path = "**scandinavian**"
 [cascade.sites.matrix]
 languages = "{nn,sv}"
+[cascade.target]
+path = "**scandinavian**"
 +++
 -- content/mysection/_index.md --
 +++
 title = "My section"
-[cascade.sites.matrix]
+[cascade.target.sites.matrix]
 languages = "**"
 +++
 -- content/mysection/p1.md --
 +++
 title = "English p1"
 +++
--- content/mysection/scandinavianpages/p1.^s1.md --
+-- content/mysection/scandinavianpages/p1.md --
 +++
 title = "Scandinavian p1"
 +++
@@ -438,6 +443,7 @@ title = "Scandinavian p1"
 `
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|p1: p1cascade|")
+	b.AssertFileContent("public/sv/mysection/scandinavianpages/p1/index.html", "Scandinavian p1|sv|v1|p1: p1cascadescandinavian|")
 }
 
 func TestMountCascadeFrontMatterSitesMatrixAndFallbacksShouldBeMerged(t *testing.T) {

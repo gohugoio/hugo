@@ -94,7 +94,7 @@ type PageConfigEarly struct {
 	// Content holds the content for this page.
 	Content Source
 
-	// Compiled/temporary values.
+	// Compiled/temporary values. TODO1 move this to source.
 	CascadeCompiled []page.PageMatcherParamsConfig `mapstructure:"-" json:"-"`
 }
 
@@ -140,20 +140,27 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[stri
 	return nil
 }
 
-func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, logger loggers.Logger) error {
+func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions, logger loggers.Logger) error {
 	// Check for any cascade define on itself.
 	if cv, found := frontmatter[pageMetaKeyCascade]; found {
 		var err error
-		cascade, err := page.DecodeCascadeConfig(page.DecodeCascadeConfigOptions{Logger: logger, HandleLegacyFormat: true, DefaultSitesMatrix: defaultSitesMatrix}, cv)
+		cascade, err := page.DecodeCascadeConfig(
+			page.DecodeCascadeConfigOptions{
+				Logger:               logger,
+				HandleLegacyFormat:   true,
+				ConfiguredDimensions: configuredDimensions,
+				DefaultSitesMatrix:   defaultSitesMatrix,
+			}, cv)
 		if err != nil {
 			return err
 		}
-		pcfg.CascadeCompiled = cascade.Config
+		cascadeConfig := cascade.Config
+		pcfg.CascadeCompiled = cascadeConfig
 	}
 	return nil
 }
 
-func (p *PageConfigEarly) setCascadeValueIfNotSet(key string, value any) {
+func (p *PageConfigEarly) setCascadeEarlyValueIfNotSet(key string, value any) {
 	switch key {
 	case pageMetaKeySites:
 		p.Sites.SetFromParamsIfNotSet(value.(maps.Params))
@@ -276,31 +283,40 @@ func (p *PageConfig) Init(pagesFromData bool) error {
 }
 
 // TODO1 move/rename this.
-func buildSiteMatrixFromSitesConfig(
+func buildSitesFallbacksFromSitesConfig(
 	conf config.AllProvider,
 	fim *hugofs.FileMeta,
-	sitesMatrixFile sitesmatrix.VectorStore,
 	sitesConfig sitesmatrix.Sites,
-) (*sitesmatrix.IntSets, *sitesmatrix.IntSets) {
+) *sitesmatrix.IntSets {
 	intsetsCfg := sitesmatrix.IntSetsConfig{
-		Cfg:   conf.ConfiguredDimensions(),
-		Globs: sitesConfig.Matrix,
+		Globs: sitesConfig.Fallbacks,
 	}
-	sitesMatrixPage := sitesmatrix.NewIntSetsBuilder().WithConfig(intsetsCfg)
 
-	intsetsCfg.Globs = sitesConfig.Fallbacks
-	sitesFallbacksPage := sitesmatrix.NewIntSetsBuilder().WithConfig(intsetsCfg)
-
-	if sitesMatrixFile != nil {
-		sitesMatrixPage.WithDimensionsFromOtherIfNotSet(sitesMatrixFile)
-	}
-	sitesMatrixPage.WithDefaultsIfNotSet(conf.ConfiguredDimensions())
+	sitesFallbacksPage := sitesmatrix.NewIntSetsBuilder(conf.ConfiguredDimensions()).WithConfig(intsetsCfg)
 
 	if fim != nil && fim.SitesFallbacks != nil {
 		sitesFallbacksPage.WithDimensionsFromOtherIfNotSet(fim.SitesFallbacks)
 	}
 
-	return sitesMatrixPage.Build(), sitesFallbacksPage.Build()
+	return sitesFallbacksPage.Build()
+}
+
+func buildSitesMatrixFromSitesConfig(
+	conf config.AllProvider,
+	sitesMatrixFile sitesmatrix.VectorStore,
+	sitesConfig sitesmatrix.Sites,
+) *sitesmatrix.IntSets {
+	intsetsCfg := sitesmatrix.IntSetsConfig{
+		Globs: sitesConfig.Matrix,
+	}
+	sitesMatrixPage := sitesmatrix.NewIntSetsBuilder(conf.ConfiguredDimensions()).WithConfig(intsetsCfg)
+
+	if sitesMatrixFile != nil {
+		sitesMatrixPage.WithDimensionsFromOtherIfNotSet(sitesMatrixFile)
+	}
+	sitesMatrixPage.WithDefaultsIfNotSet()
+
+	return sitesMatrixPage.Build()
 }
 
 // CompileEarly gets called early and before the cascade from content gets applied.
@@ -310,38 +326,72 @@ func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.P
 		return nil
 	}
 
-	// Incorporate these in the matching below.
-	sitesMatrix, sitesFallbacks := buildSiteMatrixFromSitesConfig(
+	p.SitesMatrix = buildSitesMatrixFromSitesConfig(
 		conf,
-		fim,
 		sitesMatrixFile,
 		p.Sites,
 	)
 
-	if cascades != nil {
-		for _, cascade := range cascades {
-			// TODO1 add languages, versions, rolles to PageMatcher; if a dimension is not set, set it to the vec here.
+	p.SitesFallbacks = buildSitesFallbacksFromSitesConfig(
+		conf,
+		fim,
+		p.Sites,
+	)
 
-			// For languages, versions and roles: Match against front matter / site.
-			// TODO1 kind + lang is not set here.
-			k := cascade.Target
-			if !k.MatchesValues(p.Kind, "", pi.Base(), conf.Environment()) {
-				continue
-			}
-
-			for ck, cv := range cascade.Fields {
-				if pi.Base() == "/mysection/scandinavianpages/p1" {
-					hdebug.Printf("cascade matrix %q %s %s", pi.Base(), ck, cv)
-				}
-				p.setCascadeValueIfNotSet(ck, cv)
-			}
-		}
-	} else {
-		p.SitesMatrix, p.SitesFallbacks = sitesMatrix, sitesFallbacks
+	if len(cascades) == 0 {
+		return nil
 	}
 
-	// Remove. TODO1
-	p.SitesMatrix, p.SitesFallbacks = sitesMatrix, sitesFallbacks
+	sitesMatrixBefore := p.Sites.Matrix
+
+	dodebug := pi.Path() == "/mysection/scandinavianpages/p1.md"
+
+	if dodebug {
+		hdebug.Printf("page1 %q: %v)", pi.Path(), p.SitesMatrix)
+		defer func() {
+			hdebug.Printf("page2 %q: %v)", pi.Path(), p.SitesMatrix)
+		}()
+	}
+
+	for _, v := range cascades {
+		k := v.Target
+		if ok, _ := k.MatchesValuesReason(p.Kind, "", pi.Base(), conf.Environment(), p.SitesMatrix); !ok {
+			continue
+		}
+
+		for kk, vv := range v.Params {
+			if _, found := p.Params[kk]; !found {
+				p.Params[kk] = vv
+			}
+		}
+
+		for kk, vv := range v.Fields {
+			switch kk {
+			case pageMetaKeySites:
+				p.Sites.SetFromParamsIfNotSet(vv.(maps.Params))
+			default:
+				if p.IsFromContentAdapter {
+					if _, found := p.ContentAdapterData[kk]; !found {
+						p.ContentAdapterData[kk] = vv
+					}
+				} else {
+					if _, found := p.Params[kk]; !found {
+						p.Params[kk] = vv
+					}
+				}
+			}
+		}
+	}
+
+	if !sitesMatrixBefore.Equal(p.Sites.Matrix) {
+		// Matrix has changed, rebuild.
+		p.SitesMatrix = buildSitesMatrixFromSitesConfig(
+			conf,
+			sitesMatrixFile,
+			p.Sites,
+		)
+	}
+
 	return nil
 }
 
@@ -498,10 +548,15 @@ func (rc *ResourceConfig) Compile(basePath string, fim hugofs.FileMetaInfo, conf
 		sitesMatrixFile = fim.Meta().SitesMatrix
 	}
 
-	rc.SitesMatrix, rc.SitesFallbacks = buildSiteMatrixFromSitesConfig(
+	rc.SitesMatrix = buildSitesMatrixFromSitesConfig(
+		conf,
+		sitesMatrixFile,
+		rc.Sites,
+	)
+
+	rc.SitesFallbacks = buildSitesFallbacksFromSitesConfig(
 		conf,
 		fim.Meta(),
-		sitesMatrixFile,
 		rc.Sites,
 	)
 

@@ -222,14 +222,11 @@ func (m *vectorStoreMap) clone() *vectorStoreMap {
 	return &c
 }
 
-// NewIntSets creates a new NewIntSets with nil sets for languages, roles, and versions.
-// TODO1 remove me.
-func NewIntSets() *IntSets {
-	return &IntSets{h: &hashOnce{}}
-}
-
-func NewIntSetsBuilder() *IntSetsBuilder {
-	return &IntSetsBuilder{s: &IntSets{h: &hashOnce{}}}
+func NewIntSetsBuilder(cfg *ConfiguredDimensions) *IntSetsBuilder {
+	if cfg == nil {
+		panic("cfg is required")
+	}
+	return &IntSetsBuilder{cfg: cfg, s: &IntSets{h: &hashOnce{}}}
 }
 
 type ConfiguredDimension interface {
@@ -277,6 +274,7 @@ func (c *ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
 // IntSets holds the ordered sets of integers for the dimensions,
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
+	cfg       *ConfiguredDimensions
 	languages *maps.OrderedIntSet `mapstructure:"-" json:"-"` // TODO1 does this need to be ordered?
 	versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
@@ -316,6 +314,15 @@ func (s *IntSets) DifferenceCardinality(other *IntSets) Vector {
 		int(s.versions.Values().DifferenceCardinality(other.versions.Values())),
 		int(s.roles.Values().DifferenceCardinality(other.roles.Values())),
 	}
+}
+
+func (s *IntSets) Intersects(other *IntSets) bool {
+	if s == nil || other == nil {
+		return false
+	}
+	return s.languages.Values().IntersectionCardinality(other.languages.Values()) > 0 &&
+		s.versions.Values().IntersectionCardinality(other.versions.Values()) > 0 &&
+		s.roles.Values().IntersectionCardinality(other.roles.Values()) > 0
 }
 
 // Complement returns a new VectorStore that contains all vectors in s that are not in any of ss.
@@ -485,6 +492,11 @@ func (s *IntSets) HasAnyVector(v VectorProvider) bool {
 		return false
 	}
 
+	if vs, ok := v.(*IntSets); ok {
+		// Fast path.
+		return s.Intersects(vs)
+	}
+
 	return !v.ForEeachVector(func(vec Vector) bool {
 		if s.HasVector(vec) {
 			return false // stop iteration
@@ -532,7 +544,7 @@ func (s *IntSets) MustHash() uint64 {
 func (s *IntSets) setDefaultsIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
 		s.languages = maps.NewOrderedIntSet()
-		s.languages.Set(cfg.ConfiguredLanguages.IndexDefault())
+		s.languages.Set(s.cfg.ConfiguredLanguages.IndexDefault())
 	}
 	if s.versions == nil {
 		s.versions = maps.NewOrderedIntSet()
@@ -632,7 +644,8 @@ func (s *IntSets) setValuesInNilSets(vec Vector, setLang, setVer, setRole bool) 
 }
 
 type IntSetsBuilder struct {
-	s *IntSets
+	cfg *ConfiguredDimensions
+	s   *IntSets
 }
 
 func (b *IntSetsBuilder) Build() *IntSets {
@@ -685,9 +698,9 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 		return result, nil
 	}
 
-	l, err1 := applyFilter("languages", cfg.Globs.Languages, cfg.Cfg.ConfiguredLanguages)
-	v, err2 := applyFilter("versions", cfg.Globs.Versions, cfg.Cfg.ConfiguredVersions)
-	r, err3 := applyFilter("roles", cfg.Globs.Roles, cfg.Cfg.ConfiguredRoles)
+	l, err1 := applyFilter("languages", cfg.Globs.Languages, b.cfg.ConfiguredLanguages)
+	v, err2 := applyFilter("versions", cfg.Globs.Versions, b.cfg.ConfiguredVersions)
+	r, err3 := applyFilter("roles", cfg.Globs.Roles, b.cfg.ConfiguredRoles)
 
 	if err := cmp.Or(err1, err2, err3); err != nil {
 		panic(fmt.Errorf("failed to apply filters: %w", err))
@@ -710,19 +723,18 @@ func (s *IntSetsBuilder) WithLanguageIndex(i int) *IntSetsBuilder {
 	return s
 }
 
-func (s *IntSetsBuilder) WithDefaultsAndAllLanguagesIfNotSet(cfg *ConfiguredDimensions) *IntSetsBuilder {
-	s.s.setDefaultsAndAllLAnguagesIfNotSet(cfg)
+func (s *IntSetsBuilder) WithDefaultsAndAllLanguagesIfNotSet() *IntSetsBuilder {
+	s.s.setDefaultsAndAllLAnguagesIfNotSet(s.cfg)
 	return s
 }
 
-// TODO1 move ConfiguredDimensions into NewBuilder.
-func (s *IntSetsBuilder) WithAllIfNotSet(cfg *ConfiguredDimensions) *IntSetsBuilder {
-	s.s.setAllIfNotSet(cfg)
+func (s *IntSetsBuilder) WithAllIfNotSet() *IntSetsBuilder {
+	s.s.setAllIfNotSet(s.cfg)
 	return s
 }
 
-func (s *IntSetsBuilder) WithDefaultsIfNotSet(cfg *ConfiguredDimensions) *IntSetsBuilder {
-	s.s.setDefaultsIfNotSet(cfg)
+func (s *IntSetsBuilder) WithDefaultsIfNotSet() *IntSetsBuilder {
+	s.s.setDefaultsIfNotSet(s.cfg)
 	return s
 }
 
@@ -752,7 +764,6 @@ const (
 )
 
 type IntSetsConfig struct {
-	Cfg           *ConfiguredDimensions
 	ApplyDefaults IntSetsConfigApplyDefaults
 	Globs         StringSlices
 }
@@ -789,6 +800,12 @@ type StringSlices struct {
 	Languages []string `mapstructure:"languages" json:"languages"`
 	Versions  []string `mapstructure:"versions" json:"versions"`
 	Roles     []string `mapstructure:"roles" json:"roles"`
+}
+
+func (d StringSlices) Equal(other StringSlices) bool {
+	return slices.Equal(d.Languages, other.Languages) &&
+		slices.Equal(d.Versions, other.Versions) &&
+		slices.Equal(d.Roles, other.Roles)
 }
 
 func (d *StringSlices) SetFromParamsIfNotSet(params maps.Params) {
