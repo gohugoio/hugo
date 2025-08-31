@@ -35,7 +35,7 @@ Step 1
 
   [assets]
   directory = "./public"
-  not_found_handling = "404"
+  not_found_handling = "404-page"
   ```
 
 Step 2
