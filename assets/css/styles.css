@@ -131,6 +131,7 @@ body {
 }
 
 /* Code spans within paragraphs. */
-p > code {
+p > code,
+td > code {
   white-space: nowrap;
 }

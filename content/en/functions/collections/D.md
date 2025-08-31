@@ -11,9 +11,11 @@ params:
 
 {{< new-in 0.149.0 />}}
 
-The `collections.D` function returns a slice of `N` sequentially ordered unique random integers in the half-open [interval](g) [0, `HIGH`) using the provided `SEED` value. This function implements J. S. Vitter's Method&nbsp;D[^1] for sequential random sampling, a fast and efficient algorithm for this task.
+The `collections.D` function returns a slice of `N` sequentially ordered unique random integers in the half-open [interval](g) [0, `HIGH`) using the provided [`SEED`](g) value. This function implements J. S. Vitter's Method&nbsp;D[^1] for sequential random sampling, a fast and efficient algorithm for this task.
 
 See [this article][] for a detailed explanation.
+
+## Examples
 
 ```go-html-template
 {{ collections.D 6 7 42 }} → [4, 9, 10, 20, 22, 24, 41]
@@ -33,7 +35,7 @@ A common use case is the selection of random pages from a page collection. For e
 ```go-html-template
 <ul>
   {{ $p := site.RegularPages }}
-  {{ range collections.D now.YearDay 5 ($p | len) }}
+  {{ range collections.D time.Now.YearDay 5 ($p | len) }}
     {{ with (index $p .) }}
       <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
     {{ end }}
@@ -43,11 +45,23 @@ A common use case is the selection of random pages from a page collection. For e
 
 The construct above is significantly faster than using the [`collections.Shuffle`][] function.
 
+## Seed value
+
+Choosing an appropriate seed value depends on your objective.
+
+Objective|Seed example
+:--|:--
+Consistent result|`42`
+Different result on each call|`time.Now.UnixNano`
+Same result per day|`time.Now.YearDay`
+Same result per page|`hash.FNV32a .Path`
+Different result per page per day|`hash.FNV32a (print .Path time.Now.YearDay)`
+
 > [!note]
 > The slice created by this function is limited to 1 million elements.
 
 [^1]: J. S. Vitter, "An efficient algorithm for sequential random sampling," _ACM Trans. Math. Soft._, vol. 13, pp. 58&ndash;67, Mar. 1987.
 
-[this article]: https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
 [`collections.Shuffle`]: /functions/collections/shuffle/
 [day of the year]: /methods/time/yearday/
+[this article]: https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
