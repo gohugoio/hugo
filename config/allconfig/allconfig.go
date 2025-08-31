@@ -918,10 +918,25 @@ func (c *Configs) Init() error {
 	}
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
+
 	for i, l := range c.Languages {
+		langConfig := c.LanguageConfigMap[l.Lang]
+		sitesMatrix := sitesmatrix.NewIntSetsBuilder(c.ConfiguredDimensions).WithLanguageIndex(i).WithAllIfNotSet().Build()
+		for j, cascade := range langConfig.Cascade.Config {
+			if err := cascade.Target.CompileSitesMatrix(
+				page.DecodeCascadeConfigOptions{
+					DefaultSitesMatrix:   sitesMatrix,
+					ConfiguredDimensions: c.ConfiguredDimensions,
+				}); err != nil {
+				return fmt.Errorf("invalid cascade target in language %q: %w", l.Lang, err)
+			}
+			langConfig.Cascade.Config[j] = cascade
+
+		}
+
 		c.configLangs[i] = ConfigLanguage{
 			m:             c,
-			config:        c.LanguageConfigMap[l.Lang],
+			config:        langConfig,
 			baseConfig:    c.LoadingInfo.BaseConfig,
 			language:      l,
 			languageIndex: i,

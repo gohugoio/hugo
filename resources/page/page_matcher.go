@@ -250,21 +250,31 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 			v.Sites.Matrix.Languages = append(v.Sites.Matrix.Languages, v.Lang)
 			v.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(v.Sites.Matrix.Languages)
 		}
-		if d.opts.ConfiguredDimensions == nil {
-			panic("ConfiguredDimensions must be set if Sites.Matrix is set")
+		if d.opts.ConfiguredDimensions != nil {
+			if err := v.CompileSitesMatrix(d.opts); err != nil {
+				return err
+			}
 		}
-		intSetsCfg := sitesmatrix.IntSetsConfig{
-			Globs: v.Sites.Matrix,
-		}
-		b := sitesmatrix.NewIntSetsBuilder(d.opts.ConfiguredDimensions).WithConfig(intSetsCfg)
-		if d.opts.DefaultSitesMatrix != nil {
-			b = b.WithDimensionsFromOtherIfNotSet(d.opts.DefaultSitesMatrix)
-		} else {
-			b = b.WithAllIfNotSet()
-		}
-		v.SitesMatrixCompiled = b.Build()
 	}
 
+	return nil
+}
+
+// DecodeCascadeConfigOptions
+func (v *PageMatcher) CompileSitesMatrix(opts DecodeCascadeConfigOptions) error {
+	if opts.ConfiguredDimensions == nil {
+		panic("ConfiguredDimensions must be set if Sites.Matrix is set")
+	}
+	intSetsCfg := sitesmatrix.IntSetsConfig{
+		Globs: v.Sites.Matrix,
+	}
+	b := sitesmatrix.NewIntSetsBuilder(opts.ConfiguredDimensions).WithConfig(intSetsCfg)
+	if opts.DefaultSitesMatrix != nil {
+		b = b.WithDimensionsFromOtherIfNotSet(opts.DefaultSitesMatrix)
+	} else {
+		b = b.WithAllIfNotSet()
+	}
+	v.SitesMatrixCompiled = b.Build()
 	return nil
 }
 
