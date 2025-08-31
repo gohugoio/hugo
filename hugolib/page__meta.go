@@ -593,7 +593,7 @@ func (ps *pageState) setMetaPost(s string, cascades []page.PageMatcherParamsConf
 	}
 
 	for _, v := range cascades {
-		if !v.Target.Matches(ps) {
+		if !v.Target.Match(ps.Kind(), "", ps.Path(), ps.s.Conf.Environment(), ps.s.siteVector) {
 			continue
 		}
 

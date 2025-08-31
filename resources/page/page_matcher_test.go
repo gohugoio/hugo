@@ -183,7 +183,7 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 	c.Assert(v.Target.Kind, qt.Equals, "page")
 	c.Assert(v.Target.Environment, qt.Equals, "production")
 
-	matrix := v.Target.SitesMatrix
+	matrix := v.Target.SitesMatrixCompiled
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)  // en, v1, free
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 1, 0}), qt.IsFalse) // en, v2, pro
 
@@ -195,7 +195,7 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 	c.Assert(got, qt.IsNotNil)
 	v = got.Config[0]
 
-	matrix = v.Target.SitesMatrix
+	matrix = v.Target.SitesMatrixCompiled
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)  // en, v1, free
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 1}), qt.IsFalse) // en, v1, pro
 }

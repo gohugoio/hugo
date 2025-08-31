@@ -135,7 +135,7 @@ func (h *HugoSites) allSiteLanguages(skip func(s *Site) bool) iter.Seq[*Site] {
 		for _, v := range h.sitesVersionsRoles {
 			for _, r := range v {
 				for _, s := range r {
-					if skip(s) {
+					if skip != nil && skip(s) {
 						continue
 					}
 					if !yield(r[0]) {

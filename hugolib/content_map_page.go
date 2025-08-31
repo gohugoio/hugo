@@ -2469,29 +2469,33 @@ func (sa *sitePagesAssembler) createPages() error {
 		s string
 	}{}
 
-	getCascades := func(s string) []page.PageMatcherParamsConfig {
-		var cascade []page.PageMatcherParamsConfig
+	getCascades := func(s string, sourceCascadeIsNil bool) []page.PageMatcherParamsConfig {
+		var cascades []page.PageMatcherParamsConfig
 		data := rw.WalkContext.Data()
 		if s == "" {
 			// Home page gets it's cascade from the site config.
-			// TODO1 get the correct language version.
-			cascade = sa.s.conf.Cascade.Config
-			/*if sourceCascadeIsNil {
-				// Pass the site cascade downwards. TODO1
-				data.Insert(s, cascade)
-			}*/
+			// TODO1 make sure this is called for auto generated home pages too.
+			for s := range sa.s.h.allSiteLanguages(nil) {
+				hdebug.Printf("get cascade from site config for %q", s.siteVector)
+				cascades = append(cascades, s.conf.Cascade.Config...)
+			}
+
+			if sourceCascadeIsNil {
+				// Pass the site cascades downwards.
+				data.Insert(s, cascades)
+			}
 		} else {
 			_, data := data.LongestPrefix(paths.Dir(s))
 			if data != nil {
-				cascade = data.([]page.PageMatcherParamsConfig)
+				cascades = data.([]page.PageMatcherParamsConfig)
 			}
 		}
-		return cascade
+		return cascades
 	}
 
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		// bookmark1
-		cascades := getCascades(s)
+		cascades := getCascades(s, true) // TODO sourceIsNil
 		cascadesLen := len(cascades)
 
 		defer func() {

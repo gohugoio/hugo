@@ -19,6 +19,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hstrings"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
@@ -41,7 +43,7 @@ type PageMatcher struct {
 	Kind string
 
 	// A Glob pattern matching the Page's language, e.g. "{en,sv}".
-	// TODO1 remove me.
+	// Deprecated: use Sites.Matrix instead.
 	Lang string
 
 	// The sites to apply this to.
@@ -53,32 +55,26 @@ type PageMatcher struct {
 
 	// Compiled values.
 	// The site vectors to apply this to.
-	SitesMatrix sitesmatrix.VectorProvider `mapstructure:"-"`
+	SitesMatrixCompiled sitesmatrix.VectorProvider `mapstructure:"-"`
 }
 
-func (m PageMatcher) MatchesValues(kind, lang, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
-	ok, _ := m.MatchesValuesReason(kind, lang, path, environment, sitesMatrix)
-	return ok
-}
-
-// TODO1 remove this.
-func (m PageMatcher) MatchesValuesReason(kind, lang, path, environment string, sitesMatrix sitesmatrix.VectorProvider) (bool, string) {
+func (m PageMatcher) Match(kind, lang, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
 	if sitesMatrix != nil {
-		if m.SitesMatrix != nil && !m.SitesMatrix.HasAnyVector(sitesMatrix) {
-			return false, "site vector mismatch"
+		if m.SitesMatrixCompiled != nil && !m.SitesMatrixCompiled.HasAnyVector(sitesMatrix) {
+			return false
 		}
 	}
 	if m.Kind != "" {
 		g, err := glob.GetGlob(m.Kind)
 		if err == nil && !g.Match(kind) {
-			return false, "kind mismatch"
+			return false
 		}
 	}
 
 	if m.Lang != "" {
 		g, err := glob.GetGlob(m.Lang)
 		if err == nil && !g.Match(lang) {
-			return false, "lang mismatch"
+			return false
 		}
 	}
 
@@ -90,29 +86,18 @@ func (m PageMatcher) MatchesValuesReason(kind, lang, path, environment string, s
 			p = "/" + p
 		}
 		if err == nil && !g.Match(p) {
-			return false, "path mismatch"
+			return false
 		}
 	}
 
 	if m.Environment != "" {
 		g, err := glob.GetGlob(m.Environment)
 		if err == nil && !g.Match(environment) {
-			return false, "environment mismatch"
+			return false
 		}
 	}
 
-	return true, ""
-}
-
-// Matches returns whether p matches this matcher.
-func (m PageMatcher) Matches(p Page) bool {
-	return m.MatchesValues(
-		p.Kind(),
-		p.Lang(),
-		p.Path(),
-		p.Site().Hugo().Environment,
-		nil, // TODO1
-	)
+	return true
 }
 
 var disallowedCascadeKeys = map[string]bool{
@@ -259,7 +244,12 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 
 	v.Path = filepath.ToSlash(strings.ToLower(v.Path))
 
-	if !v.Sites.Matrix.IsZero() {
+	if !v.Sites.Matrix.IsZero() || v.Lang != "" {
+		if v.Lang != "" {
+			hugo.Deprecate("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/content-management/front-matter/#target", "v0.150.0")
+			v.Sites.Matrix.Languages = append(v.Sites.Matrix.Languages, v.Lang)
+			v.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(v.Sites.Matrix.Languages)
+		}
 		if d.opts.ConfiguredDimensions == nil {
 			panic("ConfiguredDimensions must be set if Sites.Matrix is set")
 		}
@@ -272,7 +262,7 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 		} else {
 			b = b.WithAllIfNotSet()
 		}
-		v.SitesMatrix = b.Build()
+		v.SitesMatrixCompiled = b.Build()
 	}
 
 	return nil

@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
@@ -160,11 +159,13 @@ func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defau
 	return nil
 }
 
-func (p *PageConfigEarly) setCascadeValueIfNotSet(key string, value any) {
+func (p *PageConfigEarly) setCascadeValueIfNotSet(key string, value any) (done bool) {
 	switch key {
 	case pageMetaKeySites:
 		p.Sites.SetFromParamsIfNotSet(value.(maps.Params))
 	}
+
+	return !p.Sites.Matrix.IsZero()
 }
 
 // PageConfig configures a Page, typically from front matter.
@@ -344,33 +345,15 @@ func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.P
 
 	sitesMatrixBefore := p.Sites.Matrix
 
-	dodebug := pi.Path() == "/mysection/scandinavianpages/p1.md"
-
-	if dodebug {
-		hdebug.Printf("page1 %q: %v)", pi.Path(), p.SitesMatrix)
-		defer func() {
-			hdebug.Printf("page2 %q: %v)", pi.Path(), p.SitesMatrix)
-		}()
-	}
-
 	for _, cascade := range cascades {
-
-		if dodebug {
-			hdebug.Printf("cascade: %q %q target: %v", cascade.Target.Kind, cascade.Target.Path, cascade.Target.Sites.Matrix)
-		}
-
-		// TODO1 add languages, versions, rolles to PageMatcher; if a dimension is not set, set it to the vec here.
-
-		// For languages, versions and roles: Match against front matter / site.
-		// TODO1 kind + lang is not set here.
-		k := cascade.Target
-
-		if ok, _ := k.MatchesValuesReason(p.Kind, "", pi.Base(), conf.Environment(), p.SitesMatrix); !ok {
+		if !cascade.Target.Match(p.Kind, "", pi.Base(), conf.Environment(), p.SitesMatrix) {
 			continue
 		}
 
 		for ck, cv := range cascade.Fields {
-			p.setCascadeValueIfNotSet(ck, cv)
+			if done := p.setCascadeValueIfNotSet(ck, cv); done {
+				break
+			}
 		}
 
 	}
