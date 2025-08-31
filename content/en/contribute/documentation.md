@@ -24,7 +24,15 @@ Follow Google's [developer documentation style guide].
 Adhere to these Markdown conventions:
 
 - Use [ATX] headings (levels 2-4), not [setext] headings.
-- Use [fenced code blocks], not [indented code blocks].
+- Use [collapsed link references][] instead of full or shortcut references. For example:
+
+    ```text
+    This is a [link][].
+
+    [link]: https://example.org
+    ```
+
+- Use [fenced code blocks] instead of [indented code blocks].
 - Use hyphens, not asterisks, for unordered [list items].
 - Use [callouts](#callouts) instead of bold text for emphasis.
 - Do not mix [raw HTML] within Markdown.
@@ -522,6 +530,7 @@ Step 9
 
 [ATX]: https://spec.commonmark.org/current/#atx-headings
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
+[collapsed link references]: https://discourse.gohugo.io/t/55714
 [developer documentation style guide]: https://developers.google.com/style
 [documentation repository]: https://github.com/gohugoio/hugoDocs/
 [fenced code blocks]: https://spec.commonmark.org/current/#fenced-code-blocks
