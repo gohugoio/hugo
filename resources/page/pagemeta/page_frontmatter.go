@@ -160,7 +160,7 @@ func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defau
 	return nil
 }
 
-func (p *PageConfigEarly) setCascadeEarlyValueIfNotSet(key string, value any) {
+func (p *PageConfigEarly) setCascadeValueIfNotSet(key string, value any) {
 	switch key {
 	case pageMetaKeySites:
 		p.Sites.SetFromParamsIfNotSet(value.(maps.Params))
@@ -353,34 +353,26 @@ func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.P
 		}()
 	}
 
-	for _, v := range cascades {
-		k := v.Target
+	for _, cascade := range cascades {
+
+		if dodebug {
+			hdebug.Printf("cascade: %q %q target: %v", cascade.Target.Kind, cascade.Target.Path, cascade.Target.Sites.Matrix)
+		}
+
+		// TODO1 add languages, versions, rolles to PageMatcher; if a dimension is not set, set it to the vec here.
+
+		// For languages, versions and roles: Match against front matter / site.
+		// TODO1 kind + lang is not set here.
+		k := cascade.Target
+
 		if ok, _ := k.MatchesValuesReason(p.Kind, "", pi.Base(), conf.Environment(), p.SitesMatrix); !ok {
 			continue
 		}
 
-		for kk, vv := range v.Params {
-			if _, found := p.Params[kk]; !found {
-				p.Params[kk] = vv
-			}
+		for ck, cv := range cascade.Fields {
+			p.setCascadeValueIfNotSet(ck, cv)
 		}
 
-		for kk, vv := range v.Fields {
-			switch kk {
-			case pageMetaKeySites:
-				p.Sites.SetFromParamsIfNotSet(vv.(maps.Params))
-			default:
-				if p.IsFromContentAdapter {
-					if _, found := p.ContentAdapterData[kk]; !found {
-						p.ContentAdapterData[kk] = vv
-					}
-				} else {
-					if _, found := p.Params[kk]; !found {
-						p.Params[kk] = vv
-					}
-				}
-			}
-		}
 	}
 
 	if !sitesMatrixBefore.Equal(p.Sites.Matrix) {

@@ -592,6 +592,29 @@ func (ps *pageState) setMetaPost(s string, cascades []page.PageMatcherParamsConf
 
 	}
 
+	for _, v := range cascades {
+		if !v.Target.Matches(ps) {
+			continue
+		}
+
+		for kk, vv := range v.Params {
+			if _, found := ps.m.pageConfig.Params[kk]; !found {
+				ps.m.pageConfig.Params[kk] = vv
+			}
+		}
+		for kk, vv := range v.Fields {
+			if ps.m.pageConfig.IsFromContentAdapter {
+				if _, found := ps.m.pageConfig.ContentAdapterData[kk]; !found {
+					ps.m.pageConfig.ContentAdapterData[kk] = vv
+				}
+			} else {
+				if _, found := ps.m.pageConfig.Params[kk]; !found {
+					ps.m.pageConfig.Params[kk] = vv
+				}
+			}
+		}
+	}
+
 	if err := ps.setMetaPostParams(); err != nil {
 		return err
 	}
