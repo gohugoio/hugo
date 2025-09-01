@@ -143,18 +143,14 @@ func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defau
 	// Check for any cascade define on itself.
 	if cv, found := frontmatter[pageMetaKeyCascade]; found {
 		var err error
-		cascade, err := page.DecodeCascadeConfig(
-			page.DecodeCascadeConfigOptions{
-				Logger:               logger,
-				HandleLegacyFormat:   true,
-				ConfiguredDimensions: configuredDimensions,
-				DefaultSitesMatrix:   defaultSitesMatrix,
-			}, cv)
+		cascade, err := page.DecodeCascadeConfig(cv)
 		if err != nil {
 			return err
 		}
-		cascadeConfig := cascade.Config
-		pcfg.CascadeCompiled = cascadeConfig
+		if err := cascade.Config.InitConfig(logger, defaultSitesMatrix, configuredDimensions); err != nil {
+			return err
+		}
+		pcfg.CascadeCompiled = cascade.Config.Cascades
 	}
 	return nil
 }

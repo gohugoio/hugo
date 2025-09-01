@@ -87,7 +87,7 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 	configs.Modules = moduleConfig.AllModules
 	configs.ModulesClient = modulesClient
 
-	if err := configs.Init(); err != nil {
+	if err := configs.Init(d.Logger); err != nil {
 		return nil, fmt.Errorf("failed to init config: %w", err)
 	}
 

@@ -59,6 +59,7 @@ type decodeWeight struct {
 	key                  string
 	decode               func(decodeWeight, decodeConfig) error
 	getCompiler          func(c *Config) configCompiler
+	getInitializer       func(c *Config) configInitializer
 	weight               int
 	internalOrDeprecated bool // Hide it from the docs.
 }
@@ -355,10 +356,10 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "cascade",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			// TODO1 we need configureddimensions here.
-			p.c.Cascade, err = page.DecodeCascadeConfig(page.DecodeCascadeConfigOptions{HandleLegacyFormat: true}, p.p.Get(d.key))
+			p.c.Cascade, err = page.DecodeCascadeConfig(p.p.Get(d.key))
 			return err
 		},
+		getInitializer: func(c *Config) configInitializer { return &c.Cascade.Config },
 	},
 	"menus": {
 		key: "menus",

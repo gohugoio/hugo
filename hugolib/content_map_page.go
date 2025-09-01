@@ -2476,7 +2476,7 @@ func (sa *sitePagesAssembler) createPages() error {
 			// Home page gets it's cascade from the site config.
 			// TODO1 make sure this is called for auto generated home pages too.
 			for s := range sa.s.h.allSiteLanguages(nil) {
-				cascades = append(cascades, s.conf.Cascade.Config...)
+				cascades = append(cascades, s.conf.Cascade.Config.Cascades...)
 			}
 
 			if sourceCascadeIsNil {

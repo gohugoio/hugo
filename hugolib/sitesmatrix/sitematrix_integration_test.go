@@ -454,6 +454,9 @@ func TestCascadeMatrixConfigPerLanguage(t *testing.T) {
 disableKinds = ["rss", "sitemap", "taxonomy", "term"]
 defaultContentLanguage = "en"
 defaultContentLanguageInSubDir = true
+[cascade.params]
+p1 = "p1cascadeall"
+p2 = "p2cascadeall"
 [languages]
 [languages.en]
 weight = 1
@@ -476,12 +479,33 @@ title: "English p1"
 title: "Nynorsk p1"
 ---
 -- layouts/all.html --
-{{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|
+{{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|p2: {{ .Params.p2 }}|
 
 `
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|p1: p1cascadeen|")
-	b.AssertFileContent("public/nn/mysection/p1/index.html", "Nynorsk p1|nn|v1|p1: p1cascadenn|")
+	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|p1: p1cascadeen|p2: p2cascadeall|")
+	b.AssertFileContent("public/nn/mysection/p1/index.html", "Nynorsk p1|nn|v1|p1: p1cascadenn|p2: p2cascadeall|")
+}
+
+func TestCascadeMatrixNoHomeContent(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+[cascade.params]
+p1 = "p1cascadeall"
+p2 = "p2cascadeall"
+-- content/mysection/p1.md --
+-- layouts/all.html --
+{{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|p2: {{ .Params.p2 }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/mysection/p1/index.html", "p1: p1cascadeall|p2: p2cascadeall|")
 }
 
 func TestMountCascadeFrontMatterSitesMatrixAndFallbacksShouldBeMerged(t *testing.T) {

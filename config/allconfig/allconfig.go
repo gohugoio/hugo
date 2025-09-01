@@ -105,7 +105,8 @@ type Config struct {
 	// For internal use only.
 	Internal InternalConfig `mapstructure:"-" json:"-"`
 	// For internal use only.
-	C *ConfigCompiled `mapstructure:"-" json:"-"`
+	C               *ConfigCompiled `mapstructure:"-" json:"-"`
+	isLanguageClone bool
 
 	RootConfig
 
@@ -160,7 +161,7 @@ type Config struct {
 
 	// The cascade configuration section contains the top level front matter cascade configuration options,
 	// a slice of page matcher and params to apply to those pages.
-	Cascade *config.ConfigNamespace[[]page.PageMatcherParamsConfig, []page.PageMatcherParamsConfig] `mapstructure:"-"`
+	Cascade *config.ConfigNamespace[[]page.PageMatcherParamsConfig, page.CascadeConfig] `mapstructure:"-"`
 
 	// The segments defines segments for the site. Used for partial/segmented builds.
 	Segments *config.ConfigNamespace[map[string]segments.SegmentConfig, segments.Segments] `mapstructure:"-"`
@@ -219,12 +220,19 @@ type Config struct {
 	UglyURLs any `mapstructure:"-"`
 }
 
+// Early initialization of config.
 type configCompiler interface {
 	CompileConfig(logger loggers.Logger) error
 }
 
+// Late initialization of config.
+type configInitializer interface {
+	InitConfig(logger loggers.Logger, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error
+}
+
 func (c Config) cloneForLang() *Config {
 	x := c
+	x.isLanguageClone = true
 	x.C = nil
 	copyStringSlice := func(in []string) []string {
 		if in == nil {
@@ -824,7 +832,7 @@ type Configs struct {
 }
 
 func (c *Configs) Validate(logger loggers.Logger) error {
-	for _, cascade := range c.Base.Cascade.Config {
+	for _, cascade := range c.Base.Cascade.Config.Cascades {
 		page.CheckCascadePattern(logger, cascade.Target)
 	}
 	return nil
@@ -845,7 +853,7 @@ func (c *Configs) IsZero() bool {
 	return c == nil || len(c.Languages) == 0
 }
 
-func (c *Configs) Init() error {
+func (c *Configs) Init(logger loggers.Logger) error {
 	var languages langs.Languages
 
 	// TODO1 more cleanups, please.
@@ -922,16 +930,12 @@ func (c *Configs) Init() error {
 	for i, l := range c.Languages {
 		langConfig := c.LanguageConfigMap[l.Lang]
 		sitesMatrix := sitesmatrix.NewIntSetsBuilder(c.ConfiguredDimensions).WithLanguageIndex(i).WithAllIfNotSet().Build()
-		for j, cascade := range langConfig.Cascade.Config {
-			if err := cascade.Target.CompileSitesMatrix(
-				page.DecodeCascadeConfigOptions{
-					DefaultSitesMatrix:   sitesMatrix,
-					ConfiguredDimensions: c.ConfiguredDimensions,
-				}); err != nil {
-				return fmt.Errorf("invalid cascade target in language %q: %w", l.Lang, err)
+		for _, s := range allDecoderSetups {
+			if getInitializer := s.getInitializer; getInitializer != nil {
+				if err := getInitializer(langConfig).InitConfig(logger, sitesMatrix, c.ConfiguredDimensions); err != nil {
+					return err
+				}
 			}
-			langConfig.Cascade.Config[j] = cascade
-
 		}
 
 		c.configLangs[i] = ConfigLanguage{
@@ -1062,7 +1066,6 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					maps.MergeStrategyKey: maps.ParamsMergeStrategyDeep,
 				}
 			}
-
 			for kk, vv := range x {
 				if kk == "_merge" {
 					continue
@@ -1071,6 +1074,12 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					// baseURL configure don the language level is a multihost setup.
 					isMultihost = true
 				}
+
+				if kk == "cascade" {
+					// Always clone cascade config to get the sites matrix right.
+					differentRootKeys = append(differentRootKeys, kk)
+				}
+
 				mergedConfig.Set(kk, vv)
 				rootv := cfg.Get(kk)
 				if rootv != nil && cfg.IsSet(kk) {
