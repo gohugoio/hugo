@@ -56,6 +56,7 @@ type AllProvider interface {
 	DefaultContentRoleInSubdir() bool
 	DefaultContentVersionInSubdir() bool
 	DefaultContentsitesMatrix() *sitesmatrix.IntSets
+	AllSitesMatrix() *sitesmatrix.IntSets
 	IsLangDisabled(string) bool
 	SummaryLength() int
 	Pagination() Pagination

@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
 )
@@ -506,8 +507,12 @@ func (n *testContentNode) Path() string {
 	return n.key
 }
 
-func (n *testContentNode) forEeachContentNode(f func(n contentNode) bool) bool {
-	return f(n)
+func (n *testContentNode) PathInfo() *paths.Path {
+	panic("not supported")
+}
+
+func (n *testContentNode) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	panic("not supported")
 }
 
 func (n *testContentNode) sitesMatrix() sitesmatrix.VectorProvider {

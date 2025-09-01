@@ -72,6 +72,10 @@ func (m *pageMetaSource) Path() string {
 	return m.pathInfo.Base()
 }
 
+func (m *pageMetaSource) PathInfo() *paths.Path {
+	return m.pathInfo
+}
+
 func (m *pageMetaSource) isContentNodeBranch() bool {
 	return m.pathInfo.IsBranchBundle()
 }
@@ -97,9 +101,10 @@ func (m *pageMetaSource) MarkStale() {
 }
 
 type pageMetaSource struct {
-	pathInfo *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
-	f        *source.File
-	pi       *contentParseInfo
+	pathInfo       *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
+	f              *source.File
+	pi             *contentParseInfo
+	siteMatrixBase sitesmatrix.VectorStore
 	resource.Staler
 
 	pageConfigSource *pagemeta.PageConfig
@@ -144,12 +149,12 @@ type pageMeta struct {
 }
 
 func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatcherParamsConfig) error {
-	var sitesMatrixFile sitesmatrix.VectorStore
-	if m.f != nil {
-		sitesMatrixFile = m.f.FileInfo().Meta().SitesMatrix
+	siteMatrixBase := m.siteMatrixBase
+	if siteMatrixBase == nil && m.f != nil {
+		siteMatrixBase = m.f.FileInfo().Meta().SitesMatrix
 	}
 
-	if m.pi.frontMatter != nil {
+	if m.pi != nil && m.pi.frontMatter != nil {
 		if err := m.pageConfigSource.SetMetaPreFromMap(false, m.pi.frontMatter, h.Log, h.Conf); err != nil {
 			return err
 		}
@@ -161,11 +166,11 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatch
 	if m.f != nil {
 		fim = m.f.FileInfo().Meta()
 	}
-	if err := m.pageConfigSource.CompileEarly(false, m.pathInfo, cascades, h.Conf, fim, sitesMatrixFile); err != nil {
+	if err := m.pageConfigSource.CompileEarly(false, m.pathInfo, cascades, h.Conf, fim, siteMatrixBase); err != nil {
 		return err
 	}
 
-	if m.pi.frontMatter != nil {
+	if m.pi != nil && m.pi.frontMatter != nil {
 		if err := m.pageConfigSource.SetCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Conf.ConfiguredDimensions(), h.Log); err != nil {
 			return nil
 		}
@@ -375,6 +380,17 @@ func (h *HugoSites) newPageMetaSourceFromFile(fi hugofs.FileMetaInfo) (*pageMeta
 	}
 
 	return p, err
+}
+
+func (h *HugoSites) newPageMetaSourceFromPathInfo(pi *paths.Path) (*pageMetaSource, error) {
+	p := &pageMetaSource{
+		pathInfo:         pi,
+		openSource:       nil,
+		Staler:           &resources.AtomicStaler{},
+		pageConfigSource: &pagemeta.PageConfig{},
+	}
+
+	return p, p.initEarly(h, nil)
 }
 
 func (h *HugoSites) newPageMetaSourceForContentAdapter(fi hugofs.FileMetaInfo, sitesMatrixFile sitesmatrix.VectorStore, pc *pagemeta.PageConfig) (*pageMetaSource, error) {

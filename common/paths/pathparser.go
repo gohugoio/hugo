@@ -80,7 +80,6 @@ func (pp *PathHandler) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
 		builder.WithAllIfNotSet()
 	case files.ComponentFolderStatic:
 		builder.WithDefaultsAndAllLanguagesIfNotSet()
-
 	}
 
 	return builder.Build()
@@ -411,6 +410,7 @@ type Path struct {
 	posSectionHigh   int
 
 	component string
+	kind      string
 	pathType  Type
 
 	identifiersKnown   []types.LowHigh[string]

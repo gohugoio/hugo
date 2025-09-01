@@ -318,14 +318,14 @@ func buildSitesMatrixFromSitesConfig(
 
 // CompileEarly gets called early and before the cascade from content gets applied.
 // TODO1 remove me.
-func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.PageMatcherParamsConfig, conf config.AllProvider, fim *hugofs.FileMeta, sitesMatrixFile sitesmatrix.VectorStore) error {
+func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.PageMatcherParamsConfig, conf config.AllProvider, fim *hugofs.FileMeta, siteMatrixBase sitesmatrix.VectorStore) error {
 	if before {
 		return nil
 	}
 
 	p.SitesMatrix = buildSitesMatrixFromSitesConfig(
 		conf,
-		sitesMatrixFile,
+		siteMatrixBase,
 		p.Sites,
 	)
 
@@ -358,7 +358,7 @@ func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.P
 		// Matrix has changed, rebuild.
 		p.SitesMatrix = buildSitesMatrixFromSitesConfig(
 			conf,
-			sitesMatrixFile,
+			siteMatrixBase,
 			p.Sites,
 		)
 	}

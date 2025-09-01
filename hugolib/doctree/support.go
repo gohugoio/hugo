@@ -33,12 +33,12 @@ const (
 
 // AddEventListener adds an event listener to the tree.
 // Note that the handler func may not add listeners.
-func (ctx *WalkContext[T]) AddEventListener(event, path string, handler func(*Event[T])) {
+func (ctx *WalkContext[T]) AddEventListener(event, path string, handler func(*Event)) {
 	if ctx.eventHandlers == nil {
 		ctx.eventHandlers = make(eventHandlers[T])
 	}
 	if ctx.eventHandlers[event] == nil {
-		ctx.eventHandlers[event] = make([]func(*Event[T]), 0)
+		ctx.eventHandlers[event] = make([]func(*Event), 0)
 	}
 
 	// We want to match all above the path, so we need to exclude any similar named siblings.
@@ -47,7 +47,7 @@ func (ctx *WalkContext[T]) AddEventListener(event, path string, handler func(*Ev
 	}
 
 	ctx.eventHandlers[event] = append(
-		ctx.eventHandlers[event], func(e *Event[T]) {
+		ctx.eventHandlers[event], func(e *Event) {
 			// Propagate events up the tree only.
 			if strings.HasPrefix(e.Path, path) {
 				handler(e)
@@ -93,12 +93,12 @@ func (ctx *WalkContext[T]) DataRawForEeach() iter.Seq2[sitesmatrix.Vector, *Simp
 }
 
 // SendEvent sends an event up the tree.
-func (ctx *WalkContext[T]) SendEvent(event *Event[T]) {
+func (ctx *WalkContext[T]) SendEvent(event *Event) {
 	ctx.events = append(ctx.events, event)
 }
 
 // StopPropagation stops the propagation of the event.
-func (e *Event[T]) StopPropagation() {
+func (e *Event) StopPropagation() {
 	e.stopPropagation = true
 }
 
@@ -125,10 +125,10 @@ func ValidateKey(key string) error {
 }
 
 // Event is used to communicate events in the tree.
-type Event[T any] struct {
+type Event struct {
 	Name            string
 	Path            string
-	Source          T
+	Source          any
 	stopPropagation bool
 }
 
@@ -214,12 +214,12 @@ type WalkContext[T any] struct {
 	dataRawInit sync.Once
 
 	eventHandlers eventHandlers[T]
-	events        []*Event[T]
+	events        []*Event
 
 	HooksPost []func() error
 }
 
-type eventHandlers[T any] map[string][]func(*Event[T])
+type eventHandlers[T any] map[string][]func(*Event)
 
 func cleanKey(key string) string {
 	if key == "/" {

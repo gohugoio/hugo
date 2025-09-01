@@ -827,6 +827,7 @@ type Configs struct {
 	ContentPathParser         *paths.PathHandler
 	ConfiguredDimensions      *sitesmatrix.ConfiguredDimensions
 	DefaultContentSitesMatrix *sitesmatrix.IntSets
+	AllSitesMatrix            *sitesmatrix.IntSets
 
 	configLangs []config.AllProvider
 }
@@ -904,6 +905,7 @@ func (c *Configs) Init(logger loggers.Logger) error {
 	}
 	matrix := sitesmatrix.NewIntSetsBuilder(c.ConfiguredDimensions).WithConfig(intSetsCfg)
 	c.DefaultContentSitesMatrix = matrix.Build()
+	c.AllSitesMatrix = sitesmatrix.NewIntSetsBuilder(c.ConfiguredDimensions).WithAllIfNotSet().Build()
 
 	c.ContentPathParser = &paths.PathHandler{
 		ConfiguredDimensions: c.ConfiguredDimensions,

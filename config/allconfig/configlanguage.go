@@ -287,3 +287,7 @@ func (c ConfigLanguage) ConfiguredDimensions() *sitesmatrix.ConfiguredDimensions
 func (c ConfigLanguage) DefaultContentsitesMatrix() *sitesmatrix.IntSets {
 	return c.m.DefaultContentSitesMatrix
 }
+
+func (c ConfigLanguage) AllSitesMatrix() *sitesmatrix.IntSets {
+	return c.m.AllSitesMatrix
+}

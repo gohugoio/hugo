@@ -180,6 +180,10 @@ func (r *NodeShiftTree[T]) InsertIntoValuesDimension(s string, v T) (T, T, bool)
 	return v, existing, updated
 }
 
+func (r *NodeShiftTree[T]) InsertRaw(s string, v any) (any, bool) {
+	return r.tree.Insert(s, v)
+}
+
 func (r *NodeShiftTree[T]) InsertRawWithLock(s string, v any) (any, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

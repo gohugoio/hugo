@@ -298,6 +298,9 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 
 	g, _ := h.workersSite.Start(ctx)
 	firstAssembler := assemblers[0]
+	if err := firstAssembler.createMissingPageSources(); err != nil {
+		return err
+	}
 	if err := firstAssembler.createPages(); err != nil {
 		return err
 	}

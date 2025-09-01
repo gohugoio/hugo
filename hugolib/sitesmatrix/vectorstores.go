@@ -274,7 +274,6 @@ func (c *ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
 // IntSets holds the ordered sets of integers for the dimensions,
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
-	cfg       *ConfiguredDimensions
 	languages *maps.OrderedIntSet `mapstructure:"-" json:"-"` // TODO1 does this need to be ordered?
 	versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
 	roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
@@ -544,7 +543,7 @@ func (s *IntSets) MustHash() uint64 {
 func (s *IntSets) setDefaultsIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
 		s.languages = maps.NewOrderedIntSet()
-		s.languages.Set(s.cfg.ConfiguredLanguages.IndexDefault())
+		s.languages.Set(cfg.ConfiguredLanguages.IndexDefault())
 	}
 	if s.versions == nil {
 		s.versions = maps.NewOrderedIntSet()

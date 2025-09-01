@@ -222,6 +222,10 @@ func (r *resourceSource) Path() string {
 	return r.path.Base()
 }
 
+func (r *resourceSource) PathInfo() *paths.Path {
+	return r.path
+}
+
 func (r *resourceSource) isContentNodeBranch() bool {
 	return false
 }
@@ -252,6 +256,10 @@ func (r resourceSources) contentWeight() int {
 }
 
 func (n resourceSources) Path() string {
+	panic("not supported")
+}
+
+func (r resourceSources) PathInfo() *paths.Path {
 	panic("not supported")
 }
 
@@ -307,6 +315,10 @@ func (n pageMetaSourcesSlice) contentWeight() int {
 
 func (n pageMetaSourcesSlice) Path() string {
 	return n.one().Path()
+}
+
+func (n pageMetaSourcesSlice) PathInfo() *paths.Path {
+	return n.one().PathInfo()
 }
 
 func (n pageMetaSourcesSlice) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
@@ -381,6 +393,10 @@ func (n resourceSourcesSlice) one() *resourceSource {
 
 func (n resourceSourcesSlice) Path() string {
 	return n.one().Path()
+}
+
+func (n resourceSourcesSlice) PathInfo() *paths.Path {
+	return n.one().PathInfo()
 }
 
 func (n resourceSourcesSlice) isContentNodeBranch() bool {
