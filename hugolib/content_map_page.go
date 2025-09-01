@@ -2557,9 +2557,10 @@ func (sa *sitePagesAssembler) createPages() error {
 	}
 
 	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		level := strings.Count(s, "/")
 		cascades := getCascades(s)
 		cascadesLen := len(cascades)
+
+		level := strings.Count(s, "/")
 
 		hdebug.Printf("Transforming %q, cascades: %d level: %d", s, cascadesLen, level)
 
@@ -2586,7 +2587,9 @@ func (sa *sitePagesAssembler) createPages() error {
 					cascades = append(cascades, ms.pageConfigSource.CascadeCompiled...)
 				}
 
-				ms.sitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
+				sitesMatrix := ms.sitesMatrix()
+
+				sitesMatrix.ForEeachVector(func(vec sitesmatrix.Vector) bool {
 					site, found := sites[vec]
 					if !found {
 						panic(fmt.Sprintf("site not found for %v", vec))
@@ -2699,6 +2702,43 @@ func (sa *sitePagesAssembler) createPages() error {
 		n2, replaced, skip, terminate, err = transformPages(s, n)
 		if err != nil || skip || terminate {
 			return
+		}
+
+		level := strings.Count(s, "/")
+		isRootSetion := n.isContentNodeBranch() && level == 1
+
+		const eventNameSitesMatrix = "sitesmatrix"
+
+		if s == "" || isRootSetion {
+			// Every page needs a home and a root section (.FirstSection).
+			// We don't know yet what language, version, role combination that will
+			// be created below, so collect that information and create the missing pages.
+
+			switch nn := n2.(type) {
+			case *pageState:
+				n2 = contentNodes[contentNodePage]{
+					nn.s.siteVector: nn,
+				}
+			}
+
+			nm := n2.(contentNodes[contentNodePage])
+
+			rw.WalkContext.AddEventListener(eventNameSitesMatrix, s, func(e *doctree.Event) {
+				n := e.Source.(contentNode)
+				e.StopPropagation()
+				n.forEeachContentNode(
+					func(vec sitesmatrix.Vector, nn contentNode) bool {
+						if _, found := nm[vec]; !found {
+							hdebug.Printf("Missing node sitesmatrix for branch %q %T %v", s, n, vec)
+						}
+
+						return true
+					})
+			})
+		}
+
+		if s != "" {
+			rw.WalkContext.SendEvent(&doctree.Event{Source: n2, Path: s, Name: eventNameSitesMatrix})
 		}
 
 		return
@@ -2826,6 +2866,10 @@ func (sa *sitePagesAssembler) createPages() error {
 	pw.Handle = nil
 
 	if err := pw.Walk(sa.ctx); err != nil {
+		return err
+	}
+
+	if err := pw.WalkContext.HandleEventsAndHooks(); err != nil {
 		return err
 	}
 
