@@ -104,7 +104,9 @@ type pageMetaSource struct {
 	pathInfo       *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
 	f              *source.File
 	pi             *contentParseInfo
-	siteMatrixBase sitesmatrix.VectorStore
+	siteMatrixBase sitesmatrix.VectorIterator
+	// Set for standalone pages, e.g. robotsTXT.
+	standaloneOutputFormat output.Format
 	resource.Staler
 
 	pageConfigSource *pagemeta.PageConfig
@@ -141,9 +143,6 @@ type pageMeta struct {
 	singular string // Set for kind == KindTerm and kind == KindTaxonomy.
 
 	resource.Staler // TODO1 remove?
-
-	// Set for standalone pages, e.g. robotsTXT.
-	standaloneOutputFormat output.Format
 
 	content *cachedContent // The source and the parsed page content.
 }
@@ -311,7 +310,7 @@ func (m *pageMeta) initLate(s *Site) error {
 	if m.pageConfig.Kind == "" {
 		// Resolve page kind.
 		m.pageConfig.Kind = kinds.KindSection
-		if m.pathInfo.Base() == "/" {
+		if m.pathInfo.Base() == "" {
 			m.pageConfig.Kind = kinds.KindHome
 		} else if m.pathInfo.IsBranchBundle() {
 			// A section, taxonomy or term.

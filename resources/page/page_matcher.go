@@ -58,6 +58,10 @@ type PageMatcher struct {
 	SitesMatrixCompiled sitesmatrix.VectorProvider `mapstructure:"-"`
 }
 
+func (m PageMatcher) Matches(p Page) bool {
+	return m.Match(p.Kind(), p.Language().Lang, p.Path(), p.Site().Hugo().Environment, nil)
+}
+
 func (m PageMatcher) Match(kind, lang, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
 	if sitesMatrix != nil {
 		if m.SitesMatrixCompiled != nil && !m.SitesMatrixCompiled.HasAnyVector(sitesMatrix) {

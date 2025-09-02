@@ -146,7 +146,38 @@ func (v1 Vector) Weight() int {
 	return 0
 }
 
+type Vectors map[Vector]struct{}
+
+func (vs Vectors) ForEeachVector(yield func(v Vector) bool) bool {
+	for v := range vs {
+		if !yield(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func (vs Vectors) One() Vector {
+	for v := range vs {
+		return v
+	}
+	panic("no vectors")
+}
+
+type VectorIterator interface {
+	// ForEeachVector iterates over all vectors in the provider.
+	// It returns false if the iteration was stopped early.
+	ForEeachVector(func(v Vector) bool) bool
+}
+
+type VectorIteratorFunc func(func(v Vector) bool) bool
+
+func (f VectorIteratorFunc) ForEeachVector(yield func(v Vector) bool) bool {
+	return f(yield)
+}
+
 type VectorProvider interface {
+	VectorIterator
 	// HasVector returns true if the given vector is contained in the provider.
 	// Used for membership testing of files, resources and pages.
 	HasVector(HasAnyVectorv Vector) bool
@@ -163,10 +194,6 @@ type VectorProvider interface {
 
 	// Equals returns true if this provider is equal to the other provider.
 	EqualsVector(other VectorProvider) bool
-
-	// ForEeachVector iterates over all vectors in the provider.
-	// It returns false if the iteration was stopped early.
-	ForEeachVector(func(v Vector) bool) bool
 }
 
 type VectorStore interface {

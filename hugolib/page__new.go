@@ -42,6 +42,7 @@ func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
 	if err != nil {
 		return nil, m.wrapError(err, s.SourceFs)
 	}
+
 	ps := &pageState{
 		pid:                               pid,
 		s:                                 s,

@@ -500,12 +500,13 @@ p1 = "p1cascadeall"
 p2 = "p2cascadeall"
 -- content/mysection/p1.md --
 -- layouts/all.html --
-{{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|p2: {{ .Params.p2 }}|
+{{ .Title }}|{{ .Kind }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|p2: {{ .Params.p2 }}|
 `
 
 	b := hugolib.Test(t, files)
-
-	b.AssertFileContent("public/en/mysection/p1/index.html", "p1: p1cascadeall|p2: p2cascadeall|")
+	b.AssertFileContent("public/en/index.html", "|home|en|v1|p1: p1cascadeall|p2: p2cascadeall|")
+	b.AssertFileContent("public/en/mysection/index.html", "Mysections|section|en|v1|p1: p1cascadeall|p2: p2cascadeall|")
+	b.AssertFileContent("public/en/mysection/p1/index.html", "|page|en|v1|p1: p1cascadeall|p2: p2cascadeall|")
 }
 
 func TestMountCascadeFrontMatterSitesMatrixAndFallbacksShouldBeMerged(t *testing.T) {

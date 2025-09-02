@@ -600,7 +600,7 @@ func (s *IntSets) init() *IntSets {
 	return s
 }
 
-func (s *IntSets) setDimensionsFromOtherIfNotSet(other VectorStore) {
+func (s *IntSets) setDimensionsFromOtherIfNotSet(other VectorIterator) {
 	if other == nil {
 		return
 	}
@@ -737,7 +737,7 @@ func (s *IntSetsBuilder) WithDefaultsIfNotSet() *IntSetsBuilder {
 	return s
 }
 
-func (s *IntSetsBuilder) WithDimensionsFromOtherIfNotSet(other VectorStore) *IntSetsBuilder {
+func (s *IntSetsBuilder) WithDimensionsFromOtherIfNotSet(other VectorIterator) *IntSetsBuilder {
 	s.s.setDimensionsFromOtherIfNotSet(other)
 	return s
 }

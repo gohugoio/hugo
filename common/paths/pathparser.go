@@ -677,7 +677,12 @@ func (p *Path) BaseRel(owner *Path) string {
 //
 // For other files (Resources), any extension is kept.
 func (p *Path) Base() string {
-	return p.base(!p.isContentPage(), p.IsBundle())
+	s := p.base(!p.isContentPage(), p.IsBundle())
+	if s == "/" && p.isContentPage() {
+		// The content home page is represented as "".
+		s = ""
+	}
+	return s
 }
 
 // Used in template lookups.

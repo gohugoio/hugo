@@ -65,6 +65,9 @@ func (pt pageTree) CurrentSection() page.Page {
 	dir := pt.p.m.pathInfo.Dir()
 
 	if dir == "/" {
+		if pt.p.s.home == nil {
+			panic(fmt.Sprintf("home page is nil for %q", pt.p.Path()))
+		}
 		return pt.p.s.home
 	}
 
@@ -125,7 +128,7 @@ func (pt pageTree) Parent() page.Page {
 
 	dir := pt.p.m.pathInfo.ContainerDir()
 
-	if dir == "" {
+	if dir == "/" {
 		return pt.p.s.home
 	}
 
@@ -147,6 +150,7 @@ func (pt pageTree) Ancestors() page.Pages {
 	for parent != nil {
 		ancestors = append(ancestors, parent)
 		parent = parent.Parent()
+
 	}
 	return ancestors
 }

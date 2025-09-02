@@ -300,7 +300,7 @@ func buildSitesFallbacksFromSitesConfig(
 
 func buildSitesMatrixFromSitesConfig(
 	conf config.AllProvider,
-	sitesMatrixFile sitesmatrix.VectorStore,
+	sitesMatrixFile sitesmatrix.VectorIterator,
 	sitesConfig sitesmatrix.Sites,
 ) *sitesmatrix.IntSets {
 	intsetsCfg := sitesmatrix.IntSetsConfig{
@@ -318,7 +318,7 @@ func buildSitesMatrixFromSitesConfig(
 
 // CompileEarly gets called early and before the cascade from content gets applied.
 // TODO1 remove me.
-func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.PageMatcherParamsConfig, conf config.AllProvider, fim *hugofs.FileMeta, siteMatrixBase sitesmatrix.VectorStore) error {
+func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.PageMatcherParamsConfig, conf config.AllProvider, fim *hugofs.FileMeta, siteMatrixBase sitesmatrix.VectorIterator) error {
 	if before {
 		return nil
 	}

@@ -266,7 +266,7 @@ func (s *testShifter) Delete(n *testValue, dimension sitesmatrix.Vector) (*testV
 	return nil, true, true
 }
 
-func (s *testShifter) Shift(n *testValue, dimension sitesmatrix.Vector, exact, matchDelegees bool) (v *testValue, ok bool) {
+func (s *testShifter) Shift(n *testValue, dimension sitesmatrix.Vector, fallback bool) (v *testValue, ok bool) {
 	ok = true
 	v = n
 	if s.echo {

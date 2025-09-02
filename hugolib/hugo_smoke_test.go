@@ -49,13 +49,14 @@ Home: {{ .Title }}
 	b.AssertFileContent("public/index.html", `Hello`)
 }
 
-func TestSmoke202506(t *testing.T) {
+func TestSmoke202509(t *testing.T) {
 	t.Parallel()
 
 	// Test variants:
 	// Site with two languages, one with home page content and one without.
 	// A common translated page bundle but with different dates.
 	// A text resource in one of the languages.
+	// Date aggregation.
 	// A content resource in one of the languages.
 	// Basic shortcode usage with templates in both languages.
 	// Test Rotate the language dimension.
@@ -124,7 +125,11 @@ Content p2 all.
 {{< myshortcode >}}
 -- layouts/all.html --
 All. {{ .Title }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
+Kind: {{ .Kind }}|
 Content: {{ .Content }}|
+CurrentSection: {{ .CurrentSection.PathInfo.Path }}|
+Parent: {{ with .Parent }}{{ .RelPermalink }}{{ end }}|
+Home: {{ .Site.Home.Title }}|
 Rotate(language): {{ range .Rotate "language" }}{{ .Lang }}|{{ .Title }}|{{ end }}|
 mytext.txt: {{ with .Resources.GetMatch "**.txt" }}{{ .Content }}|{{ .RelPermalink }}{{ end }}|
 mypage.md: {{ with .Resources.GetMatch "**.md" }}{{ .Content }}|{{ .RelPermalink }}{{ end }}|
@@ -139,8 +144,10 @@ myshortcode.en.html
 
 	b.AssertFileContent("public/en/index.html",
 		"All. Home in English|", // from content file.
+		"Kind: home|",
 		"Lastmod: 2023-10-01",
 		"RenderString with shortcode: myshortcode.en.html",
+		"Parent: |",
 	)
 	b.AssertFileContent("public/nn/index.html",
 		"Site title nn|", // from site config.
@@ -176,7 +183,7 @@ myshortcode.en.html
 	)
 }
 
-func TestSmokeEdits202506(t *testing.T) {
+func TestSmokeEdits202509(t *testing.T) {
 	t.Parallel()
 
 	files := `

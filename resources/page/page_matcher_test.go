@@ -132,10 +132,10 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		},
 	}
 
-	got, err := DecodeCascadeConfig(DecodeCascadeConfigOptions{Logger: loggers.NewDefault(), HandleLegacyFormat: true}, in)
-
+	got, err := DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
+	c.Assert(got.Config.InitConfig(loggers.NewDefault(), nil, nil), qt.IsNil)
 	c.Assert(got.Config, qt.DeepEquals, []PageMatcher{{Kind: "page", Environment: "production"}, {Kind: "page"}})
 
 	c.Assert(got.SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
@@ -147,7 +147,7 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		{Params: maps.Params{"b": string("bv")}, Fields: maps.Params{}, Target: PageMatcher{Kind: "page"}},
 	})
 
-	got, err = DecodeCascadeConfig(DecodeCascadeConfigOptions{Logger: loggers.NewDefault(), HandleLegacyFormat: true}, nil)
+	got, err = DecodeCascadeConfig(nil)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
 }
@@ -175,11 +175,11 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 
 	dims := sitesmatrix.NewTestingDimensions([]string{"en", "no", "sv"}, []string{"v1", "v2"}, []string{"free", "pro"})
 
-	got, err := DecodeCascadeConfig(DecodeCascadeConfigOptions{Logger: loggers.NewDefault(), ConfiguredDimensions: dims, HandleLegacyFormat: true}, in)
-
+	got, err := DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
-	v := got.Config[0]
+	c.Assert(got.Config.InitConfig(loggers.NewDefault(), nil, dims), qt.IsNil)
+	v := got.Config.Cascades[0]
 	c.Assert(v.Target.Kind, qt.Equals, "page")
 	c.Assert(v.Target.Environment, qt.Equals, "production")
 
@@ -189,11 +189,12 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 
 	defaultSitesMatrix := sitesmatrix.NewIntSetsBuilder(sitesmatrix.NewTestingDimensions([]string{"en"}, []string{"v1"}, []string{"free"})).WithAllIfNotSet().Build()
 
-	got, err = DecodeCascadeConfig(DecodeCascadeConfigOptions{Logger: loggers.NewDefault(), ConfiguredDimensions: dims, DefaultSitesMatrix: defaultSitesMatrix, HandleLegacyFormat: true}, in)
-
+	got, err = DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
-	v = got.Config[0]
+	c.Assert(got.Config.InitConfig(loggers.NewDefault(), defaultSitesMatrix, dims), qt.IsNil)
+
+	v = got.Config.Cascades[0]
 
 	matrix = v.Target.SitesMatrixCompiled
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)  // en, v1, free
