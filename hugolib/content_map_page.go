@@ -822,7 +822,7 @@ type (
 var (
 	_ contentNodePage = (*pageState)(nil)
 	_ contentNodePage = (*pageMetaSource)(nil)
-	_ contentNodePage = (*pageMetaSourcesSlice)(nil)
+	_ contentNodePage = (*contentNodeSlice)(nil)
 )
 
 var contentNodeHelper helperContentNode
@@ -1221,8 +1221,8 @@ func (s *contentNodeShifter) InsertInto(old, new contentNode, dimension sitesmat
 func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentNode, bool) {
 	switch vv := old.(type) {
 	case *pageMetaSource:
-		return pageMetaSourcesSlice{vv, new}, old, false
-	case pageMetaSourcesSlice:
+		return contentNodeSlice{vv, new}, old, false
+	case contentNodeSlice:
 		newp, ok := new.(*pageMetaSource)
 		if !ok {
 			panic(fmt.Sprintf("Insert: unknown type %T", new))
@@ -1282,7 +1282,7 @@ func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentN
 			vv[new.s.siteVector] = new
 			return vv, oldp, oldp != nil
 		case *pageMetaSource:
-			s := make(pageMetaSourcesSlice, 0, len(vv)+1)
+			s := make(contentNodeSlice, 0, len(vv)+1)
 			for _, v := range vv {
 				s = append(s, v)
 			}
@@ -2020,7 +2020,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 	return nil
 }
 
-func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
+func (sa *sitePagesAssembler) assembleTerms() error {
 	if sa.s.pageMap.cfg.taxonomyTermDisabled {
 		return nil
 	}
@@ -2030,8 +2030,6 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 		entries = sa.s.pageMap.treeTaxonomyEntries
 		views   = sa.s.pageMap.cfg.taxonomyConfig.views
 	)
-
-	rebuild := sa.s.h.isRebuild()
 
 	lockType := doctree.LockTypeWrite
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
@@ -2065,45 +2063,20 @@ func (sa *sitePagesAssembler) assembleTermsAndTranslations() error {
 					pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
 					term := pages.Get(pi.Base())
 					if term == nil {
-						if rebuild {
-							// A new tag was added in server mode.
-							taxonomy := pages.Get(viewName.pluralTreeKey)
-							if taxonomy != nil {
-								sa.assembleChanges.Add(taxonomy.GetIdentity())
-							}
-						}
-
-						m := &pageMeta{
-							pageMetaSource: &pageMetaSource{
-								pathInfo: pi,
-								pageConfigSource: &pagemeta.PageConfig{
-									PageConfigEarly: pagemeta.PageConfigEarly{
-										Kind: kinds.KindTerm,
-									},
-								},
-							},
-							term:           v,
-							singular:       viewName.singular,
-							pageMetaParams: &pageMetaParams{},
-						}
-						ps, err := sa.s.newPageNew(m)
-						if err != nil {
-							return false, err
-						}
-						pages.InsertIntoValuesDimension(ps.PathInfo().Base(), ps)
-						term = pages.Get(pi.Base())
-					} else {
-						m := term.(*pageState).m
-						m.term = v
-						m.singular = viewName.singular
+						panic(fmt.Sprintf("missing term page for %q", viewTermKey))
 					}
 
+					m := term.(*pageState).m
+					m.term = v
+					m.singular = viewName.singular
+
 					if s == "" {
-						// Consider making this the real value.
 						s = "/"
 					}
 
 					key := pi.Base() + s
+
+					hdebug.Printf("[%v] Taxonomy entry: %q (term: %q, page: %q, weight: %d)", sa.s.siteVector, key, v, ps.Path(), weight)
 
 					entries.Insert(key, &weightedContentNode{
 						weight: weight,
@@ -2262,13 +2235,10 @@ func (sa *sitePagesAssembler) assemblePagesStep1() error {
 }
 
 func (sa *sitePagesAssembler) assemblePagesStep2() error {
-	if err := sa.removeShouldNotBuild(); err != nil {
+	if err := sa.removeShouldNotBuild(); err != nil { // TODO1
 		return err
 	}
-	if err := sa.assembleTermsAndTranslations(); err != nil {
-		return err
-	}
-	if err := sa.applyAggregatesToTaxonomiesAndTerms(); err != nil {
+	if err := sa.assembleTerms(); err != nil {
 		return err
 	}
 
@@ -2405,6 +2375,36 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 	return nil
 }
 
+func (sa *sitePagesAssembler) createMissingTaxonomies() error {
+	if sa.s.pageMap.cfg.taxonomyDisabled && sa.s.pageMap.cfg.taxonomyTermDisabled {
+		return nil
+	}
+
+	tree := sa.s.pageMap.treePages
+
+	commit := tree.Lock(true) // TODO1 revise locking for this flow.
+	defer commit()
+
+	for _, viewName := range sa.s.pageMap.cfg.taxonomyConfig.views {
+		key := viewName.pluralTreeKey
+		if _, found := tree.GetRaw(key); !found {
+			pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
+			p := &pageMetaSource{
+				pathInfo: pi,
+				singular: viewName.singular,
+				pageConfigSource: &pagemeta.PageConfig{
+					PageConfigEarly: pagemeta.PageConfigEarly{
+						Kind: kinds.KindTaxonomy,
+					},
+				},
+			}
+			tree.InsertRaw(key, p)
+		}
+	}
+
+	return nil
+}
+
 // // Create the fixed output pages, e.g. sitemap.xml, if not already there.
 func (sa *sitePagesAssembler) createMissingStandalonePages() error {
 	s := sa.s
@@ -2478,20 +2478,41 @@ func (sa *sitePagesAssembler) createMissingStandalonePages() error {
 	return nil
 }
 
-func (sa *sitePagesAssembler) createAllPages() error {
-	sites := sa.s.h.sitesVersionsRolesMap
-	isRebuild := sa.s.h.isRebuild()
-	printPathWarnings := !isRebuild && sa.s.conf.PrintPathWarnings
-	lockType := doctree.LockTypeWrite
-	treePages := sa.s.pageMap.treePages
-	treeResources := sa.s.pageMap.treeResources
+func (sa *sitePagesAssembler) createMissingPages() error {
+	if err := sa.createMissingTaxonomies(); err != nil {
+		return err
+	}
+	if err := sa.createMissingStandalonePages(); err != nil {
+		return err
+	}
+	return nil
+}
 
-	var rw *doctree.NodeShiftTreeWalker[contentNode]
+func (sa *sitePagesAssembler) createAllPages() error {
+	var (
+		sites             = sa.s.h.sitesVersionsRolesMap
+		isRebuild         = sa.s.h.isRebuild()
+		printPathWarnings = !isRebuild && sa.s.conf.PrintPathWarnings
+		lockType          = doctree.LockTypeWrite
+		treePages         = sa.s.pageMap.treePages
+		treeResources     = sa.s.pageMap.treeResources
+		views             = sa.s.pageMap.cfg.taxonomyConfig.views
+
+		pw *doctree.NodeShiftTreeWalker[contentNode]
+		rw *doctree.NodeShiftTreeWalker[contentNode]
+	)
 
 	resourceOwnerInfo := struct {
 		n contentNode
 		s string
 	}{}
+
+	type term struct {
+		view viewName
+		term string
+	}
+
+	seenTerms := map[term]sitesmatrix.Vectors{}
 
 	newHomePageMetaSource := func() *pageMetaSource {
 		pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
@@ -2506,7 +2527,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		}
 	}
 
-	if err := sa.createMissingStandalonePages(); err != nil {
+	if err := sa.createMissingPages(); err != nil {
 		return err
 	}
 
@@ -2613,7 +2634,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		switch v := n.(type) {
 		case *pageState:
 			// Nothing to do.
-		case pageMetaSourcesSlice:
+		case contentNodeSlice:
 			var updated bool
 			is := make(contentNodes[contentNodePage])
 			for _, ms := range v {
@@ -2696,7 +2717,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		seenHome bool
 	)
 
-	transformPagesAndCreateMissingStructuralNodes := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+	foo := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		level := strings.Count(s, "/")
 
 		if s != "" && !seenHome {
@@ -2759,7 +2780,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 
 			rw.WalkContext.AddEventListener(eventNameSitesMatrix, s,
 				func(e *doctree.Event[contentNode]) {
-					n := e.Source.(contentNode)
+					n := e.Source
 					e.StopPropagation()
 					n.forEeachContentNode(
 						func(vec sitesmatrix.Vector, nn contentNode) bool {
@@ -2803,6 +2824,66 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		if s != "" {
 			rw.WalkContext.SendEvent(&doctree.Event[contentNode]{Source: n2, Path: s, Name: eventNameSitesMatrix})
 		}
+
+		return
+	}
+
+	transformPagesAndCreateMissingStructuralNodes := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+		n2, replaced, skip, terminate, err = foo(s, n)
+		if err != nil || skip || terminate {
+			return
+		}
+		n2.forEeachContentNode(
+			func(vec sitesmatrix.Vector, nn contentNode) bool {
+				if ps, ok := nn.(*pageState); ok {
+					for _, viewName := range views {
+						vals := types.ToStringSlicePreserveString(getParam(ps, viewName.plural, false))
+						if vals == nil {
+							continue
+						}
+						for _, v := range vals {
+							if v == "" {
+								continue
+							}
+							t := term{view: viewName, term: v}
+							if vectors, found := seenTerms[t]; found {
+								if _, found := vectors[vec]; found {
+									continue
+								}
+								vectors[vec] = struct{}{}
+							} else {
+								seenTerms[t] = sitesmatrix.Vectors{
+									vec: struct{}{},
+								}
+							}
+
+							if true {
+								// TODO1 remove below.
+								continue
+							}
+							viewTermKey := "/" + viewName.plural + "/" + v
+							pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
+							termKey := pi.Base()
+
+							term, _, _, _, _ := transformPages(termKey, &pageMetaSource{
+								pathInfo:       pi,
+								siteMatrixBase: vec,
+								term:           v,
+								singular:       viewName.singular,
+								pageConfigSource: &pagemeta.PageConfig{
+									PageConfigEarly: pagemeta.PageConfigEarly{
+										Kind: kinds.KindTerm,
+									},
+								},
+							})
+							hdebug.Printf("add %q for %v => %T", termKey, vec, term)
+							pw.Tree.InsertRaw(termKey, term)
+						}
+					}
+				}
+				return true
+			},
+		)
 
 		return
 	}
@@ -2907,8 +2988,53 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		},
 	}
 
-	pw := rw.Extend()
+	pw = rw.Extend()
 	pw.Tree = sa.s.pageMap.treePages
+
+	pw.WalkContext.AddPostHook(
+		func() error {
+			for k, v := range seenTerms {
+				viewTermKey := "/" + k.view.plural + "/" + k.term
+				pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
+				termKey := pi.Base()
+				n, found := pw.Tree.GetRaw(termKey)
+
+				if found {
+					// Merge.
+					n.forEeachContentNode(
+						func(vec sitesmatrix.Vector, nn contentNode) bool {
+							delete(v, vec)
+							return true
+						},
+					)
+				}
+
+				if len(v) > 0 {
+					p := &pageMetaSource{
+						pathInfo:       pi,
+						siteMatrixBase: v,
+						term:           k.term,
+						singular:       k.view.singular,
+						pageConfigSource: &pagemeta.PageConfig{
+							PageConfigEarly: pagemeta.PageConfigEarly{
+								Kind: kinds.KindTerm,
+							},
+						},
+					}
+					var n2 contentNode = contentNodeSlice{n, p}
+					n2, replace, _, _, err := transformPages(termKey, n2)
+					if err != nil {
+						return fmt.Errorf("failed to create term page %q: %w", termKey, err)
+					}
+					if replace {
+						pw.Tree.InsertRaw(termKey, n2)
+					}
+				}
+			}
+			return nil
+		},
+	)
+
 	pw.Transform = func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		n2, replaced, skip, terminate, err = transformPagesAndCreateMissingStructuralNodes(s, n)
 		if err != nil || skip || terminate {
@@ -2955,6 +3081,7 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 			m := &pageMeta{
 				pageMetaSource: &pageMetaSource{
 					pathInfo: pi,
+					singular: viewName.singular,
 					pageConfigSource: &pagemeta.PageConfig{
 						PageConfigEarly: pagemeta.PageConfigEarly{
 							Kind: kinds.KindTaxonomy,
@@ -2962,7 +3089,6 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 					},
 				},
 				pageMetaParams: &pageMetaParams{},
-				singular:       viewName.singular,
 			}
 			p, err := sa.s.newPageNew(m)
 			if err != nil {

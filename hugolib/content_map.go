@@ -299,61 +299,61 @@ func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	return false
 }
 
-type pageMetaSourcesSlice []contentNode // TODO1 pool?
+type contentNodeSlice []contentNode
 
-func (m *pageMetaSourcesSlice) nodeCategoryPage() {
+func (m *contentNodeSlice) nodeCategoryPage() {
 	// Marker method.
 }
 
-func (n pageMetaSourcesSlice) MarkStale() {
+func (n contentNodeSlice) MarkStale() {
 	panic("not supported")
 }
 
-func (n pageMetaSourcesSlice) contentWeight() int {
+func (n contentNodeSlice) contentWeight() int {
 	return 0
 }
 
-func (n pageMetaSourcesSlice) Path() string {
+func (n contentNodeSlice) Path() string {
 	return n.one().Path()
 }
 
-func (n pageMetaSourcesSlice) PathInfo() *paths.Path {
+func (n contentNodeSlice) PathInfo() *paths.Path {
 	return n.one().PathInfo()
 }
 
-func (n pageMetaSourcesSlice) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
-	for _, rs := range n {
-		if !f(rs.sitesMatrix().FirstVector(), rs) {
+func (n contentNodeSlice) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	for _, nn := range n {
+		if !nn.forEeachContentNode(f) {
 			return false
 		}
 	}
 	return true
 }
 
-func (n pageMetaSourcesSlice) isContentNodeBranch() bool {
+func (n contentNodeSlice) isContentNodeBranch() bool {
 	return false
 }
 
-func (n pageMetaSourcesSlice) resetBuildState() {
+func (n contentNodeSlice) resetBuildState() {
 	panic("not supported")
 }
 
-func (n pageMetaSourcesSlice) sitesMatrix() sitesmatrix.VectorProvider {
+func (n contentNodeSlice) sitesMatrix() sitesmatrix.VectorProvider {
 	panic("not supported")
 }
 
-func (n pageMetaSourcesSlice) one() contentNode {
+func (n contentNodeSlice) one() contentNode {
 	if len(n) == 0 {
 		panic("pageMetaSourcesSlice is empty")
 	}
 	return n[0]
 }
 
-func (n pageMetaSourcesSlice) GetIdentity() identity.Identity {
+func (n contentNodeSlice) GetIdentity() identity.Identity {
 	return n.one().GetIdentity()
 }
 
-func (n pageMetaSourcesSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
+func (n contentNodeSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	panic("not supported")
 }
 

@@ -183,6 +183,64 @@ myshortcode.en.html
 	)
 }
 
+func TestSmokeTaxonomies202509(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["rss", "sitemap", "robotsTXT"]
+baseURL = "https://example.com"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[taxonomies]
+category = "categories"
+tag = "tags"
+[languages.en]
+title = "Site title en"
+weight = 200
+[languages.nn]
+title = "Site title nn"
+weight = 100
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = 'en'
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = 'nn'
+-- content/en/p1.md --
+---
+title: "p1 en"
+date: 2023-10-01
+tags: ["tag1", "tag2"]
+categories: ["cat1"]
+---
+Content p1 en.
+-- content/nn/p1.md --
+---
+title: "p1 nn"
+date: 2024-10-01
+tags: ["tag1", "tag3"]
+categories: ["cat1", "cat2"]
+---
+-- layouts/all.html --
+All. {{ .Title }}|{{ .Kind }}|
+GetTerms tags: {{ range .GetTerms "tags" }}{{ .Name }}|{{ end }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/p1/index.html", "p1 en", "GetTerms tags: tag1|tag2|")
+	b.AssertFileContent("public/nn/p1/index.html", "p1 nn", "GetTerms tags: tag1|tag3|")
+
+	b.AssertFileContent("public/en/tags/index.html", "All. Tags|taxonomy|")
+	b.AssertFileContent("public/nn/tags/tag1/index.html", "All. Tag1|term|")
+	b.AssertFileContent("public/en/tags/tag1/index.html", "All. Tag1|term|")
+}
+
 func TestSmokeEdits202509(t *testing.T) {
 	t.Parallel()
 

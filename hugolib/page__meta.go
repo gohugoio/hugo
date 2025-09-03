@@ -111,6 +111,9 @@ type pageMetaSource struct {
 
 	pageConfigSource *pagemeta.PageConfig
 
+	term     string // Set for kind == KindTerm.
+	singular string // Set for kind == KindTerm and kind == KindTaxonomy.
+
 	resourcePath  string // Set for bundled pages; path relative to its bundle root.
 	bundled       bool   // Set if this page is bundled inside another.
 	noFrontMatter bool
@@ -138,9 +141,6 @@ type pageMeta struct {
 
 	// Per Page. TODO1, potentially share some.
 	*pageMetaParams
-
-	term     string // Set for kind == KindTerm.
-	singular string // Set for kind == KindTerm and kind == KindTaxonomy.
 
 	resource.Staler // TODO1 remove?
 
