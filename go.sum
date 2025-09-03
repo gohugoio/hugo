@@ -486,8 +486,8 @@ github.com/spf13/cobra v1.9.1/go.mod h1:nDyEzZ8ogv936Cinf6g1RU9MRY64Ir93oCnqb9wx
 github.com/spf13/fsync v0.10.1 h1:JRnB7G72b+gIBaBcpn5ibJSd7ww1iEahXSX2B8G6dSE=
 github.com/spf13/fsync v0.10.1/go.mod h1:y+B41vYq5i6Boa3Z+BVoPbDeOvxVkNU5OBXhoT8i4TQ=
 github.com/spf13/pflag v1.0.6/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
-github.com/spf13/pflag v1.0.7 h1:vN6T9TfwStFPFM5XzjsvmzZkLuaLX+HS+0SeFLRgU6M=
-github.com/spf13/pflag v1.0.7/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
+github.com/spf13/pflag v1.0.10 h1:4EBh2KAYBwaONj6b2Ye1GiHfwjqyROoF4RwYO+vPwFk=
+github.com/spf13/pflag v1.0.10/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/spiffe/go-spiffe/v2 v2.5.0 h1:N2I01KCUkv1FAjZXJMwh95KK1ZIQLYbPfhaxw8WS0hE=
 github.com/spiffe/go-spiffe/v2 v2.5.0/go.mod h1:P+NxobPc6wXhVtINNtFjNWGBTreew1GBUCwT2wPmb7g=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
@@ -503,8 +503,6 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/tdewolff/minify/v2 v2.24.1 h1:9ZLg8Bnb4a7RxJtOi7WCpHrfHdNZBBzS7vNRQ4NwLW4=
-github.com/tdewolff/minify/v2 v2.24.1/go.mod h1:1JrCtoZXaDbqioQZfk3Jdmr0GPJKiU7c1Apmb+7tCeE=
 github.com/tdewolff/minify/v2 v2.24.2 h1:vnY3nTulEAbCAAlxTxPPDkzG24rsq31SOzp63yT+7mo=
 github.com/tdewolff/minify/v2 v2.24.2/go.mod h1:1JrCtoZXaDbqioQZfk3Jdmr0GPJKiU7c1Apmb+7tCeE=
 github.com/tdewolff/parse/v2 v2.8.3 h1:5VbvtJ83cfb289A1HzRA9sf02iT8YyUwN84ezjkdY1I=
