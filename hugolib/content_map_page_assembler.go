@@ -39,11 +39,43 @@ import (
 
 // Handles the flow of creating all the pages and resources for all sites.
 // This includes applying any cascade configuration passed down the tree.
-type createPagesHandler struct {
-	m *pageMap
+type allPagesAssembler struct {
+	// Dependencies.
+	ctx context.Context
+	h   *HugoSites
+	m   *pageMap
 
+	assembleChanges *WhatChanged
+
+	// Internal state.
 	pw *doctree.NodeShiftTreeWalker[contentNode] // walks pages.
 	rw *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
+}
+
+func newAllPagesAssembler(
+	ctx context.Context,
+	h *HugoSites,
+	m *pageMap,
+	assembleChanges *WhatChanged,
+) *allPagesAssembler {
+	rw := &doctree.NodeShiftTreeWalker[contentNode]{
+		Tree:        m.treeResources,
+		LockType:    doctree.LockTypeWrite,
+		NoShift:     true,
+		WalkContext: &doctree.WalkContext[contentNode]{},
+	}
+	pw := rw.Extend()
+	pw.Tree = m.treePages
+
+	return &allPagesAssembler{
+		ctx:             ctx,
+		h:               h,
+		m:               m,
+		assembleChanges: assembleChanges,
+
+		pw: pw,
+		rw: rw,
+	}
 }
 
 type sitePagesAssembler struct {
@@ -52,22 +84,19 @@ type sitePagesAssembler struct {
 	ctx             context.Context
 }
 
-func (sa *sitePagesAssembler) createAllPages() error {
+func (a *allPagesAssembler) createAllPages() error {
 	var (
-		sites             = sa.s.h.sitesVersionsRolesMap
-		h                 = sa.s.h
-		isRebuild         = sa.s.h.isRebuild()
-		printPathWarnings = !isRebuild && sa.s.conf.PrintPathWarnings
+		sites             = a.h.sitesVersionsRolesMap
+		h                 = a.h
+		isRebuild         = a.h.isRebuild()
+		printPathWarnings = !isRebuild && a.h.Configs.Base.PrintPathWarnings
 		lockType          = doctree.LockTypeWrite
-		treePages         = sa.s.pageMap.treePages
-		treeResources     = sa.s.pageMap.treeResources
+		treePages         = a.m.treePages
+		treeResources     = a.m.treeResources
 
 		getViews = func(vec sitesmatrix.Vector) []viewName {
 			return h.languageSiteForSiteVector(vec).pageMap.cfg.taxonomyConfig.views
 		}
-
-		pw *doctree.NodeShiftTreeWalker[contentNode]
-		rw *doctree.NodeShiftTreeWalker[contentNode]
 	)
 
 	resourceOwnerInfo := struct {
@@ -83,10 +112,10 @@ func (sa *sitePagesAssembler) createAllPages() error {
 	seenTerms := map[term]sitesmatrix.Vectors{}
 
 	newHomePageMetaSource := func() *pageMetaSource {
-		pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
+		pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
 		return &pageMetaSource{
 			pathInfo:       pi,
-			siteMatrixBase: sa.s.Conf.AllSitesMatrix(),
+			siteMatrixBase: a.h.Conf.AllSitesMatrix(),
 			pageConfigSource: &pagemeta.PageConfig{
 				PageConfigEarly: pagemeta.PageConfigEarly{
 					Kind: kinds.KindHome,
@@ -95,7 +124,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		}
 	}
 
-	if err := sa.createMissingPages(); err != nil {
+	if err := a.createMissingPages(); err != nil {
 		return err
 	}
 
@@ -107,11 +136,11 @@ func (sa *sitePagesAssembler) createAllPages() error {
 
 	getCascades := func(s string) []page.PageMatcherParamsConfig {
 		var cascades []page.PageMatcherParamsConfig
-		data := rw.WalkContext.Data()
+		data := a.rw.WalkContext.Data()
 		if s == "" {
 			// Home page gets it's cascade from the site config.
 			// TODO1 make sure this is called for auto generated home pages too.
-			for s := range sa.s.h.allSiteLanguages(nil) {
+			for s := range a.h.allSiteLanguages(nil) {
 				cascades = append(cascades, s.conf.Cascade.Config.Cascades...)
 			}
 		} else {
@@ -130,7 +159,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		defer func() {
 			if len(cascades) > cascadesLen || s == "" {
 				// New cascade values added, pass them downwards.
-				rw.WalkContext.Data().Insert(s, cascades)
+				a.rw.WalkContext.Data().Insert(s, cascades)
 			}
 		}()
 
@@ -141,7 +170,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 			)
 			switch ms := v.(type) {
 			case *pageMetaSource:
-				if err := ms.initSitesMatrix(sa.s.h, cascades); err != nil {
+				if err := ms.initSitesMatrix(a.h, cascades); err != nil {
 					return false, false, err
 				}
 
@@ -177,7 +206,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 					// We receive cascade values from above. If this leads to a change compared
 					// to the previous value, we need to mark the page and its dependencies as changed.
 					if isRebuild && p.m.setMetaPostCascadeChanged {
-						sa.assembleChanges.Add(p)
+						a.assembleChanges.Add(p)
 					}
 
 					pp, found := is[vec]
@@ -311,7 +340,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 				seenRootSections[rootSection] = true
 				// Try to preserve the original casing if possible.
 				sectionUnnormalized := p.Unnormalized().Section()
-				rootSectionPath := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
+				rootSectionPath := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
 				rootSectionPages, _, _, _, _ := transformPages(rootSectionPath.Base(), &pageMetaSource{
 					pathInfo:       rootSectionPath,
 					siteMatrixBase: n2.(contentNodeForSites).siteVectors(),
@@ -346,7 +375,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 			nm := n2.(contentNodes[contentNodePage])
 			missingVectors := sitesmatrix.Vectors{}
 
-			rw.WalkContext.AddEventListener(eventNameSitesMatrix, s,
+			a.rw.WalkContext.AddEventListener(eventNameSitesMatrix, s,
 				func(e *doctree.Event[contentNode]) {
 					n := e.Source
 					e.StopPropagation()
@@ -360,7 +389,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 				},
 			)
 			// We need to wait until after the walk to have a complete set.
-			rw.WalkContext.AddPostHook(
+			a.rw.WalkContext.AddPostHook(
 				func() error {
 					if i := len(missingVectors); i > 0 {
 						vec := missingVectors.One()
@@ -390,7 +419,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		}
 
 		if s != "" {
-			rw.WalkContext.SendEvent(&doctree.Event[contentNode]{Source: n2, Path: s, Name: eventNameSitesMatrix})
+			a.rw.WalkContext.SendEvent(&doctree.Event[contentNode]{Source: n2, Path: s, Name: eventNameSitesMatrix})
 		}
 
 		return
@@ -430,7 +459,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 								continue
 							}
 							viewTermKey := "/" + viewName.plural + "/" + v
-							pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
+							pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
 							termKey := pi.Base()
 
 							term, _, _, _, _ := transformPages(termKey, &pageMetaSource{
@@ -445,7 +474,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 								},
 							})
 							hdebug.Printf("add %q for %v => %T", termKey, vec, term)
-							pw.Tree.InsertRaw(termKey, term)
+							a.pw.Tree.InsertRaw(termKey, term)
 						}
 					}
 				}
@@ -485,7 +514,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 			}
 
 			// Stop walking downwards, someone else owns this resource.
-			rw.SkipPrefix(ownerKey + "/")
+			a.rw.SkipPrefix(ownerKey + "/")
 			return true, false
 		}
 		return false, false
@@ -507,7 +536,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		return true
 	}
 
-	rw = &doctree.NodeShiftTreeWalker[contentNode]{
+	a.rw = &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:        treeResources,
 		LockType:    lockType,
 		NoShift:     true,
@@ -556,16 +585,13 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		},
 	}
 
-	pw = rw.Extend()
-	pw.Tree = sa.s.pageMap.treePages
-
-	pw.WalkContext.AddPostHook(
+	a.pw.WalkContext.AddPostHook(
 		func() error {
 			for k, v := range seenTerms {
 				viewTermKey := "/" + k.view.plural + "/" + k.term
-				pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
+				pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
 				termKey := pi.Base()
-				n, found := pw.Tree.GetRaw(termKey)
+				n, found := a.pw.Tree.GetRaw(termKey)
 
 				if found {
 					// Merge.
@@ -595,7 +621,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 						return fmt.Errorf("failed to create term page %q: %w", termKey, err)
 					}
 					if replace {
-						pw.Tree.InsertRaw(termKey, n2)
+						a.pw.Tree.InsertRaw(termKey, n2)
 					}
 				}
 			}
@@ -603,7 +629,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		},
 	)
 
-	pw.Transform = func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+	a.pw.Transform = func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		n2, replaced, skip, terminate, err = transformPagesAndCreateMissingStructuralNodes(s, n)
 		if err != nil || skip || terminate {
 			return
@@ -612,20 +638,20 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		// Walk nested resources.
 		resourceOwnerInfo.s = s
 		resourceOwnerInfo.n = n2
-		rw.Prefix = s + "/"
-		if err := rw.Walk(sa.ctx); err != nil {
+		a.rw.Prefix = s + "/"
+		if err := a.rw.Walk(a.ctx); err != nil {
 			return nil, false, false, false, err
 		}
 
 		return
 	}
-	pw.Handle = nil
+	a.pw.Handle = nil
 
-	if err := pw.Walk(sa.ctx); err != nil {
+	if err := a.pw.Walk(a.ctx); err != nil {
 		return err
 	}
 
-	if err := pw.WalkContext.HandleEventsAndHooks(); err != nil {
+	if err := a.pw.WalkContext.HandleEventsAndHooks(); err != nil {
 		return err
 	}
 
@@ -1208,15 +1234,15 @@ func (sa *sitePagesAssembler) addMissingRootSections() error {
 	return nil
 }
 
-func (sa *sitePagesAssembler) createMissingTaxonomies() error {
-	if sa.s.pageMap.cfg.taxonomyDisabled && sa.s.pageMap.cfg.taxonomyTermDisabled {
+func (a *allPagesAssembler) createMissingTaxonomies() error {
+	if a.m.cfg.taxonomyDisabled && a.m.cfg.taxonomyTermDisabled {
 		return nil
 	}
 
-	tree := sa.s.pageMap.treePages
+	tree := a.m.treePages
 
 	viewLanguages := map[viewName][]int{}
-	for _, s := range sa.s.h.sitesLanguages {
+	for _, s := range a.h.sitesLanguages {
 		if s.pageMap.cfg.taxonomyDisabled && s.pageMap.cfg.taxonomyTermDisabled {
 			continue
 		}
@@ -1230,9 +1256,9 @@ func (sa *sitePagesAssembler) createMissingTaxonomies() error {
 
 	for viewName, languages := range viewLanguages {
 		key := viewName.pluralTreeKey
-		matrixAllForLanguages := sitesmatrix.NewIntSetsBuilder(sa.s.h.Conf.ConfiguredDimensions()).WithLanguageIndices(languages...).WithAllIfNotSet().Build()
+		matrixAllForLanguages := sitesmatrix.NewIntSetsBuilder(a.h.Conf.ConfiguredDimensions()).WithLanguageIndices(languages...).WithAllIfNotSet().Build()
 
-		pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
+		pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
 		p := &pageMetaSource{
 			pathInfo:       pi,
 			singular:       viewName.singular,
@@ -1250,32 +1276,33 @@ func (sa *sitePagesAssembler) createMissingTaxonomies() error {
 	return nil
 }
 
-// // Create the fixed output pages, e.g. sitemap.xml, if not already there.
-func (sa *sitePagesAssembler) createMissingStandalonePages() error {
-	s := sa.s
-	m := s.pageMap
+// Create the fixed output pages, e.g. sitemap.xml, if not already there.
+// TODO2 revise, especially around disabled and config per language/site.
+func (a *allPagesAssembler) createMissingStandalonePages() error {
+	m := a.m
 	tree := m.treePages
 
 	commit := tree.Lock(true)
 	defer commit()
 
 	addStandalone := func(key, kind string, f output.Format) {
-		if !s.Conf.IsMultihost() {
+		if !a.h.Conf.IsMultihost() {
 			switch kind {
 			case kinds.KindSitemapIndex, kinds.KindRobotsTXT:
-				// Only one for all dimensions.
-				if !s.siteVector.IsFirst() {
+				// Only one for all dimensions. TODO1
+				/*if !s.siteVector.IsFirst() {
 					return
-				}
+				}*/
 			}
 		}
 
-		if !sa.s.conf.IsKindEnabled(kind) || tree.Has(key) {
+		// TODO1 per site.
+		/*if !sa.h.Conf.IsKindEnabled(kind) || tree.Has(key) {
 			return
-		}
+		}*/
 
 		p := &pageMetaSource{
-			pathInfo:               s.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
+			pathInfo:               a.h.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
 			standaloneOutputFormat: f,
 			pageConfigSource: &pagemeta.PageConfig{
 				PageConfigEarly: pagemeta.PageConfigEarly{
@@ -1289,14 +1316,14 @@ func (sa *sitePagesAssembler) createMissingStandalonePages() error {
 
 	addStandalone("/404", kinds.KindStatus404, output.HTTPStatus404HTMLFormat)
 
-	if s.conf.EnableRobotsTXT {
-		if m.i == 0 || s.Conf.IsMultihost() {
+	if a.h.Configs.Base.EnableRobotsTXT {
+		if m.i == 0 || a.h.Conf.IsMultihost() {
 			addStandalone("/_robots", kinds.KindRobotsTXT, output.RobotsTxtFormat)
 		}
 	}
 
 	sitemapEnabled := false
-	for _, s := range s.h.Sites {
+	for _, s := range a.h.Sites {
 		if s.conf.IsKindEnabled(kinds.KindSitemap) {
 			sitemapEnabled = true
 			break
@@ -1305,16 +1332,16 @@ func (sa *sitePagesAssembler) createMissingStandalonePages() error {
 
 	if sitemapEnabled {
 		of := output.SitemapFormat
-		if s.conf.Sitemap.Filename != "" {
-			of.BaseName = paths.Filename(s.conf.Sitemap.Filename)
+		if a.h.Configs.Base.Sitemap.Filename != "" {
+			of.BaseName = paths.Filename(a.h.Configs.Base.Sitemap.Filename)
 		}
 		addStandalone("/_sitemap", kinds.KindSitemap, of)
 
-		skipSitemapIndex := s.Conf.IsMultihost() || !(s.Conf.DefaultContentLanguageInSubdir() || s.Conf.IsMultilingual())
+		skipSitemapIndex := a.h.Conf.IsMultihost() || !(a.h.Conf.DefaultContentLanguageInSubdir() || a.h.Conf.IsMultilingual())
 		if !skipSitemapIndex {
 			of = output.SitemapIndexFormat
-			if s.conf.Sitemap.Filename != "" {
-				of.BaseName = paths.Filename(s.conf.Sitemap.Filename)
+			if a.h.Configs.Base.Sitemap.Filename != "" {
+				of.BaseName = paths.Filename(a.h.Configs.Base.Sitemap.Filename)
 			}
 			addStandalone("/_sitemapindex", kinds.KindSitemapIndex, of)
 		}
@@ -1323,11 +1350,11 @@ func (sa *sitePagesAssembler) createMissingStandalonePages() error {
 	return nil
 }
 
-func (sa *sitePagesAssembler) createMissingPages() error {
-	if err := sa.createMissingTaxonomies(); err != nil {
+func (a *allPagesAssembler) createMissingPages() error {
+	if err := a.createMissingTaxonomies(); err != nil {
 		return err
 	}
-	if err := sa.createMissingStandalonePages(); err != nil {
+	if err := a.createMissingStandalonePages(); err != nil {
 		return err
 	}
 	return nil

@@ -544,6 +544,11 @@ func (m *pageMeta) Params() maps.Params {
 }
 
 func (m *pageMeta) Path() string {
+	if m.IsHome() {
+		// Base returns an empty string for the home page,
+		// which is correct as the key to the page tree.
+		return "/"
+	}
 	return m.pathInfo.Base()
 }
 

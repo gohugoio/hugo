@@ -286,6 +286,7 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	h.translationKeyPages.Reset()
+
 	var assemblers []*sitePagesAssembler
 	// Changes detected during assembly (e.g. aggregate date changes)
 	for s := range h.allSites() {
@@ -296,12 +297,18 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 		})
 	}
 
-	g, _ := h.workersSite.Start(ctx)
-	firstAssembler := assemblers[0]
-	if err := firstAssembler.createAllPages(); err != nil {
+	apa := newAllPagesAssembler(
+		ctx,
+		h,
+		assemblers[0].s.pageMap,
+		bcfg.WhatChanged,
+	)
+
+	if err := apa.createAllPages(); err != nil {
 		return err
 	}
 
+	g, _ := h.workersSite.Start(ctx)
 	for _, s := range assemblers {
 		s := s
 		g.Run(func() error {
