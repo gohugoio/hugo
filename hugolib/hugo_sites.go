@@ -61,6 +61,7 @@ type HugoSites struct {
 	// All sites for all versions and roles.
 	sitesVersionsRoles    [][][]*Site
 	sitesVersionsRolesMap map[sitesmatrix.Vector]*Site
+	sitesLanguages        []*Site // sample set with all languages.
 
 	Configs *allconfig.Configs
 
@@ -146,6 +147,11 @@ func (h *HugoSites) allSiteLanguages(skip func(s *Site) bool) iter.Seq[*Site] {
 			}
 		}
 	}
+}
+
+// returns one of the sites with the language of the given vector.
+func (h *HugoSites) languageSiteForSiteVector(v sitesmatrix.Vector) *Site {
+	return h.sitesLanguages[v.Language()]
 }
 
 // ShouldSkipFileChangeEvent allows skipping filesystem event early before

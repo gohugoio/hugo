@@ -55,12 +55,16 @@ type sitePagesAssembler struct {
 func (sa *sitePagesAssembler) createAllPages() error {
 	var (
 		sites             = sa.s.h.sitesVersionsRolesMap
+		h                 = sa.s.h
 		isRebuild         = sa.s.h.isRebuild()
 		printPathWarnings = !isRebuild && sa.s.conf.PrintPathWarnings
 		lockType          = doctree.LockTypeWrite
 		treePages         = sa.s.pageMap.treePages
 		treeResources     = sa.s.pageMap.treeResources
-		views             = sa.s.pageMap.cfg.taxonomyConfig.views
+
+		getViews = func(vec sitesmatrix.Vector) []viewName {
+			return h.languageSiteForSiteVector(vec).pageMap.cfg.taxonomyConfig.views
+		}
 
 		pw *doctree.NodeShiftTreeWalker[contentNode]
 		rw *doctree.NodeShiftTreeWalker[contentNode]
@@ -400,7 +404,7 @@ func (sa *sitePagesAssembler) createAllPages() error {
 		n2.forEeachContentNode(
 			func(vec sitesmatrix.Vector, nn contentNode) bool {
 				if ps, ok := nn.(*pageState); ok {
-					for _, viewName := range views {
+					for _, viewName := range getViews(vec) {
 						vals := types.ToStringSlicePreserveString(getParam(ps, viewName.plural, false))
 						if vals == nil {
 							continue
@@ -1211,24 +1215,36 @@ func (sa *sitePagesAssembler) createMissingTaxonomies() error {
 
 	tree := sa.s.pageMap.treePages
 
+	viewLanguages := map[viewName][]int{}
+	for _, s := range sa.s.h.sitesLanguages {
+		if s.pageMap.cfg.taxonomyDisabled && s.pageMap.cfg.taxonomyTermDisabled {
+			continue
+		}
+		for _, viewName := range s.pageMap.cfg.taxonomyConfig.views {
+			viewLanguages[viewName] = append(viewLanguages[viewName], s.siteVector.Language())
+		}
+	}
+
 	commit := tree.Lock(true) // TODO1 revise locking for this flow.
 	defer commit()
 
-	for _, viewName := range sa.s.pageMap.cfg.taxonomyConfig.views {
+	for viewName, languages := range viewLanguages {
 		key := viewName.pluralTreeKey
-		if _, found := tree.GetRaw(key); !found {
-			pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
-			p := &pageMetaSource{
-				pathInfo: pi,
-				singular: viewName.singular,
-				pageConfigSource: &pagemeta.PageConfig{
-					PageConfigEarly: pagemeta.PageConfigEarly{
-						Kind: kinds.KindTaxonomy,
-					},
+		matrixAllForLanguages := sitesmatrix.NewIntSetsBuilder(sa.s.h.Conf.ConfiguredDimensions()).WithLanguageIndices(languages...).WithAllIfNotSet().Build()
+
+		pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
+		p := &pageMetaSource{
+			pathInfo:       pi,
+			singular:       viewName.singular,
+			siteMatrixBase: matrixAllForLanguages,
+			pageConfigSource: &pagemeta.PageConfig{
+				PageConfigEarly: pagemeta.PageConfigEarly{
+					Kind: kinds.KindTaxonomy,
 				},
-			}
-			tree.InsertRaw(key, p)
+			},
 		}
+		tree.AppendRaw(key, p)
+
 	}
 
 	return nil

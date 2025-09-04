@@ -329,7 +329,7 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 				// Give priority to myfile.sv.txt inside the sv filesystem.
 
 				meta.Weight++
-				meta.SitesMatrix = meta.SitesMatrix.WithLanguageIndex(idx)
+				meta.SitesMatrix = meta.SitesMatrix.WithLanguageIndices(idx)
 				if idx > 0 {
 					// Not the default language, add some weight.
 					meta.SitesMatrix = sitesmatrix.NewWeightedVectorStore(meta.SitesMatrix, 10)

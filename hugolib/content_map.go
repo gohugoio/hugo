@@ -635,7 +635,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 					sitesMatrixFile := fi.Meta().SitesMatrix
 
 					if !sitesMatrixFile.HasLanguage(s.siteVector.Language()) {
-						sitesMatrixFile = sitesMatrixFile.WithLanguageIndex(s.siteVector.Language())
+						sitesMatrixFile = sitesMatrixFile.WithLanguageIndices(s.siteVector.Language())
 					}
 
 					ps, err := s.h.newPageMetaSourceForContentAdapter(fi, sitesMatrixFile, pc) // TODO1 fi vs f one instance?

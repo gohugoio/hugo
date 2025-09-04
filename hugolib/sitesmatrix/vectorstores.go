@@ -177,7 +177,7 @@ func (m *vectorStoreMap) Vectors() []Vector {
 	return vectors
 }
 
-func (m *vectorStoreMap) WithLanguageIndex(i int) VectorStore {
+func (m *vectorStoreMap) WithLanguageIndices(i int) VectorStore {
 	c := m.clone()
 
 	for v := range c.sets {
@@ -516,8 +516,8 @@ func (s IntSets) shallowClone() *IntSets {
 	return &s
 }
 
-// WithLanguageIndex replaces the current language set with a single language index.
-func (s *IntSets) WithLanguageIndex(i int) VectorStore {
+// WithLanguageIndices replaces the current language set with a single language index.
+func (s *IntSets) WithLanguageIndices(i int) VectorStore {
 	c := s.shallowClone()
 	c.languages = maps.NewOrderedIntSet(i)
 	return c.init()
@@ -714,11 +714,16 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 	return b
 }
 
-func (s *IntSetsBuilder) WithLanguageIndex(i int) *IntSetsBuilder {
+func (s *IntSetsBuilder) WithLanguageIndices(idxs ...int) *IntSetsBuilder {
+	if len(idxs) == 0 {
+		return s
+	}
 	if s.s.languages == nil {
 		s.s.languages = maps.NewOrderedIntSet()
 	}
-	s.s.languages.Set(i)
+	for _, i := range idxs {
+		s.s.languages.Set(i)
+	}
 	return s
 }
 

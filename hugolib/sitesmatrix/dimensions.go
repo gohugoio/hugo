@@ -199,7 +199,7 @@ type VectorProvider interface {
 type VectorStore interface {
 	VectorProvider
 	Complement(...VectorProvider) VectorStore
-	WithLanguageIndex(i int) VectorStore
+	WithLanguageIndices(i int) VectorStore
 	HasLanguage(lang int) bool
 	HasVersion(version int) bool
 	HasRole(role int) bool

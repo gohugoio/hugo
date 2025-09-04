@@ -69,7 +69,7 @@ func (pp *PathHandler) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
 
 	if lang := p.Lang(); lang != "" {
 		if idx, ok := pp.LanguageIndex[lang]; ok {
-			builder.WithLanguageIndex(idx)
+			builder.WithLanguageIndices(idx)
 		}
 	}
 
