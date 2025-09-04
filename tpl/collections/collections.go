@@ -539,8 +539,8 @@ type dKey struct {
 // using  J. S. Vitter's Method D for sequential random sampling, from Vitter, J.S.
 // - An Efficient Algorithm for Sequential Random Sampling - ACM Trans. Math. Software 11 (1985), 37-57.
 // See  https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
-func (ns *Namespace) D(seed, n, hi any) []int {
-	key := dKey{seed: cast.ToUint64(seed), n: cast.ToInt(n), hi: cast.ToInt(hi)}
+func (ns *Namespace) D(seed, n, hi int) []int {
+	key := dKey{seed: cast.ToUint64(seed), n: n, hi: hi}
 	if key.n <= 0 || key.hi <= 0 || key.n > key.hi {
 		return nil
 	}
