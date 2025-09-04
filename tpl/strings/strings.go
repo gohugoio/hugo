@@ -18,11 +18,11 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -70,33 +70,16 @@ func (ns *Namespace) RuneCount(s any) (int, error) {
 	return utf8.RuneCountInString(ss), nil
 }
 
-// CountWords returns the approximate word count in s.
+// CountWords returns the approximate word (and CJK character) count in s.
 func (ns *Namespace) CountWords(s any) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return 0, fmt.Errorf("failed to convert content to string: %w", err)
 	}
 
-	isCJKLanguage, err := regexp.MatchString(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`, ss)
-	if err != nil {
-		return 0, fmt.Errorf("failed to match regex pattern against string: %w", err)
-	}
-
-	if !isCJKLanguage {
-		return len(strings.Fields(tpl.StripHTML(ss))), nil
-	}
-
-	counter := 0
-	for _, word := range strings.Fields(tpl.StripHTML(ss)) {
-		runeCount := utf8.RuneCountInString(word)
-		if len(word) == runeCount {
-			counter++
-		} else {
-			counter += runeCount
-		}
-	}
-
-	return counter, nil
+	sss := tpl.StripHTML(ss)
+	nNonCJK, nCJK := hstrings.CountWords(sss)
+	return nNonCJK + nCJK, nil
 }
 
 // Count counts the number of non-overlapping instances of substr in s.
