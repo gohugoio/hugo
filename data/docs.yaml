@@ -1490,8 +1490,9 @@ config:
     tdewolff:
       css:
         inline: false
-        keepCSS2: true
+        keepCSS2: false
         precision: 0
+        version: 0
       html:
         keepComments: false
         keepConditionalComments: false
