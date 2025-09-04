@@ -28,11 +28,12 @@ import (
 type (
 	Config[T any] struct {
 		// Shifter handles tree transformations.
-		Shifter Shifter[T]
+		Shifter        Shifter[T]
+		TransformerRaw Transformer[T]
 	}
 
 	// Shifter handles tree transformations.
-	// TODO1 clean up all the description in here and elsewhere where dimensions etc. are mentioned.
+	// TODO1 clean up all the description in here and elsewhere where dimensions etc. are mentioned and remove unused.
 	Shifter[T any] interface {
 		// ForEeachInDimension will call the given function for each value in the given dimension d.
 		// If the function returns true, the walk will stop.
@@ -63,6 +64,12 @@ type (
 		// It returns the shifted T and a bool indicating if the shift was successful.
 		Shift(v T, dimension sitesmatrix.Vector, fallback bool) (T, bool)
 	}
+
+	Transformer[T any] interface {
+		// Append appends vs to t and returns the updated or replaced T and a bool indicating if T was replaced.
+		// Note that t may be the zero value and should be ignored.
+		Append(t T, ts ...T) (T, bool)
+	}
 )
 
 // NodeShiftTree is the root of a tree that can be shaped using the Shape method.
@@ -72,8 +79,9 @@ type NodeShiftTree[T any] struct {
 	tree *radix.Tree
 
 	// [language, version, role].
-	dims    sitesmatrix.Vector
-	shifter Shifter[T]
+	dims           sitesmatrix.Vector
+	shifter        Shifter[T]
+	transformerRaw Transformer[T]
 
 	mu *sync.RWMutex
 }
@@ -84,9 +92,10 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 	}
 
 	return &NodeShiftTree[T]{
-		mu:      &sync.RWMutex{},
-		shifter: cfg.Shifter,
-		tree:    radix.New(),
+		mu:             &sync.RWMutex{},
+		shifter:        cfg.Shifter,
+		transformerRaw: cfg.TransformerRaw,
+		tree:           radix.New(),
 	}
 }
 
@@ -262,6 +271,18 @@ func (r *NodeShiftTree[T]) GetRaw(s string) (T, bool) {
 		return t, false
 	}
 	return v.(T), true
+}
+
+func (r *NodeShiftTree[T]) AppendRaw(s string, ts ...T) (T, bool) {
+	if r.transformerRaw == nil {
+		panic("transformerRaw is required")
+	}
+	n, found := r.GetRaw(s)
+	n2, replaced := r.transformerRaw.Append(n, ts...)
+	if replaced || !found {
+		r.tree.Insert(s, n2)
+	}
+	return n2, replaced || !found
 }
 
 func (r *NodeShiftTree[T]) WalkPrefixRaw(prefix string, walker func(key string, value T) bool) {

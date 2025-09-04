@@ -714,11 +714,13 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 	return b
 }
 
-func (s *IntSetsBuilder) WithLanguageIndex(i int) *IntSetsBuilder {
+func (s *IntSetsBuilder) WithLanguageIndex(i ...int) *IntSetsBuilder {
 	if s.s.languages == nil {
 		s.s.languages = maps.NewOrderedIntSet()
 	}
-	s.s.languages.Set(i)
+	for _, i := range i {
+		s.s.languages.Set(i)
+	}
 	return s
 }
 

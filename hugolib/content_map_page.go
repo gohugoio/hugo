@@ -937,6 +937,31 @@ func (n contentNodes[V]) MarkStale() {
 	}
 }
 
+var _ doctree.Transformer[contentNode] = (*contentNodeTransformerRaw)(nil)
+
+type contentNodeTransformerRaw struct{}
+
+func (t *contentNodeTransformerRaw) Append(n contentNode, ns ...contentNode) (contentNode, bool) {
+	if n == nil {
+		if len(ns) == 1 {
+			return ns[0], true
+		}
+		var ss contentNodeSlice = ns
+		return ss, true
+	}
+
+	switch v := n.(type) {
+	case contentNodeSlice:
+		v = append(v, ns...)
+		return v, true
+	default:
+		ss := make(contentNodeSlice, 0, 1+len(ns))
+		ss = append(ss, v)
+		ss = append(ss, ns...)
+		return ss, true
+	}
+}
+
 type contentNodeShifter struct {
 	numLanguages int                // TODO1 remove.
 	conf         config.AllProvider // Used for logging/debugging.

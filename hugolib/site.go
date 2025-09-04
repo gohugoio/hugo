@@ -307,7 +307,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	}
 
 	treeConfig := doctree.Config[contentNode]{
-		Shifter: ns,
+		Shifter:        ns,
+		TransformerRaw: &contentNodeTransformerRaw{},
 	}
 
 	dimensionLengths := sitesmatrix.Vector{len(confm.Languages), len(versionsSorted), len(rolesSorted)}
@@ -465,11 +466,16 @@ func newHugoSites(
 			}
 		}
 	}
+	var sitesLanguages []*Site
+	for _, v := range sitesVersionsRoles {
+		sitesLanguages = append(sitesLanguages, v[0][0])
+	}
 
 	h := &HugoSites{
 		Sites:                 first,
 		sitesVersionsRoles:    sitesVersionsRoles,
 		sitesVersionsRolesMap: sitesVersionsRolesMap,
+		sitesLanguages:        sitesLanguages,
 		Deps:                  first[0].Deps,
 		Configs:               cfg.Configs,
 		workersSite:           workersSite,

@@ -201,6 +201,10 @@ weight = 200
 [languages.nn]
 title = "Site title nn"
 weight = 100
+[languages.nn.taxonomies]
+tag = "tags"
+foo = "foos"
+[module]
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
@@ -217,6 +221,7 @@ title: "p1 en"
 date: 2023-10-01
 tags: ["tag1", "tag2"]
 categories: ["cat1"]
+foos: ["foo2"]
 ---
 Content p1 en.
 -- content/nn/p1.md --
@@ -225,16 +230,19 @@ title: "p1 nn"
 date: 2024-10-01
 tags: ["tag1", "tag3"]
 categories: ["cat1", "cat2"]
+foos: ["foo1"]
 ---
 -- layouts/all.html --
 All. {{ .Title }}|{{ .Kind }}|
-GetTerms tags: {{ range .GetTerms "tags" }}{{ .Name }}|{{ end }}|
+GetTerms tags: {{ range .GetTerms "tags" }}{{ .Name }}|{{ end }}$
+GetTerms categories: {{ range .GetTerms "categories" }}{{ .Name }}|{{ end }}$
+GetTerms foos: {{ range .GetTerms "foos" }}{{ .Name }}|{{ end }}$
 `
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/en/p1/index.html", "p1 en", "GetTerms tags: tag1|tag2|")
-	b.AssertFileContent("public/nn/p1/index.html", "p1 nn", "GetTerms tags: tag1|tag3|")
+	b.AssertFileContent("public/en/p1/index.html", "p1 en", "GetTerms tags: tag1|tag2|$", "GetTerms categories: cat1|$", "GetTerms foos: $")
+	b.AssertFileContent("public/nn/p1/index.html", "p1 nn", "GetTerms tags: tag1|tag3|$", "GetTerms categories: $", "GetTerms foos: foo1|$")
 
 	b.AssertFileContent("public/en/tags/index.html", "All. Tags|taxonomy|")
 	b.AssertFileContent("public/nn/tags/tag1/index.html", "All. Tag1|term|")
