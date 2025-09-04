@@ -101,6 +101,10 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 		return
 	}
 
+	if val.Kind() == reflect.Pointer && val.IsNil() {
+		return
+	}
+
 	if val.Type().Implements(zeroType) {
 		return !val.Interface().(types.Zeroer).IsZero()
 	}
