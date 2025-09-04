@@ -22,13 +22,29 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
+type zeroStruct struct {
+	zero bool
+}
+
+func (z zeroStruct) IsZero() bool {
+	return z.zero
+}
+
 func TestIsTruthful(t *testing.T) {
 	c := qt.New(t)
+
+	var nilpointerZero *zeroStruct
 
 	c.Assert(IsTruthful(true), qt.Equals, true)
 	c.Assert(IsTruthful(false), qt.Equals, false)
 	c.Assert(IsTruthful(time.Now()), qt.Equals, true)
 	c.Assert(IsTruthful(time.Time{}), qt.Equals, false)
+	c.Assert(IsTruthful(&zeroStruct{zero: false}), qt.Equals, true)
+	c.Assert(IsTruthful(&zeroStruct{zero: true}), qt.Equals, false)
+	c.Assert(IsTruthful(zeroStruct{zero: false}), qt.Equals, true)
+	c.Assert(IsTruthful(zeroStruct{zero: true}), qt.Equals, false)
+	c.Assert(IsTruthful(nil), qt.Equals, false)
+	c.Assert(IsTruthful(nilpointerZero), qt.Equals, false)
 }
 
 func TestGetMethodByName(t *testing.T) {

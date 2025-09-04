@@ -121,3 +121,16 @@ CONTENT
 	b, _ = hugolib.TestE(t, files)
 	b.AssertLogMatches(`error calling ToHTML: startLevel: unable to cast "x" of type string`)
 }
+
+func TestHeadingsNilpointerIssue11843(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $h := index .Fragments.HeadingsMap "bad_id" }}
+{{ if not $h }}OK{{ end }}
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "OK")
+}
