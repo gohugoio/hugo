@@ -286,7 +286,14 @@ func (l *configLoader) envValToVal(k string, v any) any {
 
 func (l *configLoader) envStringToVal(k, v string) any {
 	switch k {
-	case "disablekinds", "disablelanguages":
+	case "disablekinds", "disablelanguages", "ignorefiles", "ignorelogs":
+		v = strings.TrimSpace(v)
+		if strings.HasPrefix(v, "[") && strings.HasSuffix(v, "]") {
+			if parsed, err := metadecoders.Default.UnmarshalStringTo(v, []any{}); err == nil {
+				return parsed
+			}
+		}
+
 		if strings.Contains(v, ",") {
 			return strings.Split(v, ",")
 		} else {
