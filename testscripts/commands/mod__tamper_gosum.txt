@@ -1,0 +1,22 @@
+
+# We're not testing Go's security here, so we just edit the go.sum and verifies that the build fails.
+
+! hugo
+stderr 'checksum mismatch'
+
+
+-- hugo.toml --
+baseURL = "https://example.org"
+[[module.imports]]
+path    = "github.com/bep/hugo-mod-nop"
+-- layouts/all.html --
+All.
+-- go.mod --
+module foo
+
+go 1.24.0
+
+require github.com/bep/hugo-mod-nop v1.0.0 // indirect
+-- go.sum --
+github.com/bep/hugo-mod-nop v1.0.0 h1:NRDMRPCD+4dw5K8XvaZURvZJCfBMCifkRe6C6x6W4II=
+github.com/bep/hugo-mod-nop v1.0.0/go.mod h1:6cqjOCVJHP6+aQ+5IYvaS9j8BfIVksAct4xzl9OnmIX=

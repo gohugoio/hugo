@@ -32,7 +32,7 @@ func TestPathKey(t *testing.T) {
 		{"github.com/foo/v3d", "github.com/foo/v3d"},
 		{"MyTheme", "mytheme"},
 	} {
-		c.Assert(pathKey(test.in), qt.Equals, test.expect)
+		c.Assert(pathBase(test.in), qt.Equals, test.expect)
 	}
 }
 

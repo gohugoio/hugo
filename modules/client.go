@@ -25,6 +25,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -63,6 +64,10 @@ const vendord = "_vendor"
 const (
 	goModFilename = "go.mod"
 	goSumFilename = "go.sum"
+
+	// Checksum file for direct dependencies only,
+	// that is, module imports with version set.
+	hugoDirectSumFilename = "hugo.direct.sum"
 )
 
 // NewClient creates a new Client that can be used to manage the Hugo Components
@@ -208,7 +213,7 @@ func (c *Client) Vendor() error {
 			continue
 		}
 
-		if !c.shouldVendor(t.Path()) {
+		if c.shouldNotVendor(t.PathVersionQuery(false)) || c.shouldNotVendor(t.PathVersionQuery(true)) {
 			continue
 		}
 
@@ -221,16 +226,16 @@ func (c *Client) Vendor() error {
 		// See https://github.com/gohugoio/hugo/issues/8239
 		// This is an error situation. We need something to vendor.
 		if t.Mounts() == nil {
-			return fmt.Errorf("cannot vendor module %q, need at least one mount", t.Path())
+			return fmt.Errorf("cannot vendor module %q, need at least one mount", t.PathVersionQuery(false))
 		}
 
-		fmt.Fprintln(&modulesContent, "# "+t.Path()+" "+t.Version())
+		fmt.Fprintln(&modulesContent, "# "+t.PathVersionQuery(true)+" "+t.Version())
 
 		dir := t.Dir()
 
 		for _, mount := range t.Mounts() {
 			sourceFilename := filepath.Join(dir, mount.Source)
-			targetFilename := filepath.Join(vendorDir, t.Path(), mount.Source)
+			targetFilename := filepath.Join(vendorDir, t.PathVersionQuery(true), mount.Source)
 			fi, err := c.fs.Stat(sourceFilename)
 			if err != nil {
 				return fmt.Errorf("failed to vendor module: %w", err)
@@ -257,7 +262,7 @@ func (c *Client) Vendor() error {
 		resourcesDir := filepath.Join(dir, files.FolderResources)
 		_, err := c.fs.Stat(resourcesDir)
 		if err == nil {
-			if err := hugio.CopyDir(c.fs, resourcesDir, filepath.Join(vendorDir, t.Path(), files.FolderResources), nil); err != nil {
+			if err := hugio.CopyDir(c.fs, resourcesDir, filepath.Join(vendorDir, t.PathVersionQuery(true), files.FolderResources), nil); err != nil {
 				return fmt.Errorf("failed to copy resources to vendor dir: %w", err)
 			}
 		}
@@ -266,7 +271,7 @@ func (c *Client) Vendor() error {
 		configDir := filepath.Join(dir, "config")
 		_, err = c.fs.Stat(configDir)
 		if err == nil {
-			if err := hugio.CopyDir(c.fs, configDir, filepath.Join(vendorDir, t.Path(), "config"), nil); err != nil {
+			if err := hugio.CopyDir(c.fs, configDir, filepath.Join(vendorDir, t.PathVersionQuery(true), "config"), nil); err != nil {
 				return fmt.Errorf("failed to copy config dir to vendor dir: %w", err)
 			}
 		}
@@ -277,7 +282,7 @@ func (c *Client) Vendor() error {
 		configFiles = append(configFiles, configFiles2...)
 		configFiles = append(configFiles, filepath.Join(dir, "theme.toml"))
 		for _, configFile := range configFiles {
-			if err := hugio.CopyFile(c.fs, configFile, filepath.Join(vendorDir, t.Path(), filepath.Base(configFile))); err != nil {
+			if err := hugio.CopyFile(c.fs, configFile, filepath.Join(vendorDir, t.PathVersionQuery(true), filepath.Base(configFile))); err != nil {
 				if !herrors.IsNotExist(err) {
 					return err
 				}
@@ -434,13 +439,34 @@ func isProbablyModule(path string) bool {
 	return module.CheckPath(path) == nil
 }
 
+func (c *Client) downloadModuleVersion(path, version string) (*goModule, error) {
+	args := []string{"mod", "download", "-json", fmt.Sprintf("%s@%s", path, version)}
+	b := &bytes.Buffer{}
+
+	err := c.runGo(context.Background(), b, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to download module %s@%s: %w", path, version, err)
+	}
+
+	m := &goModule{}
+	if err := json.NewDecoder(b).Decode(m); err != nil {
+		return nil, fmt.Errorf("failed to decode module download result: %w", err)
+	}
+
+	if m.Error != nil {
+		return nil, errors.New(m.Error.Err)
+	}
+
+	return m, nil
+}
+
 func (c *Client) listGoMods() (goModules, error) {
 	if c.GoModulesFilename == "" || !c.moduleConfig.hasModuleImport() {
 		return nil, nil
 	}
 
 	downloadModules := func(modules ...string) error {
-		args := []string{"mod", "download", "-modcacherw"}
+		args := []string{"mod", "download"}
 		args = append(args, modules...)
 		out := io.Discard
 		err := c.runGo(context.Background(), out, args...)
@@ -519,6 +545,86 @@ func (c *Client) listGoMods() (goModules, error) {
 	}
 
 	return modules, err
+}
+
+func (c *Client) writeHugoDirectSum(mods Modules) error {
+	if c.GoModulesFilename == "" {
+		return nil
+	}
+	var sums []modSum
+	for _, m := range mods {
+		if m.Owner() == nil {
+			// This is the project.
+			continue
+		}
+		if m.IsGoMod() && m.VersionQuery() != "" {
+			sums = append(sums, modSum{pathVersionKey: pathVersionKey{path: m.Path(), version: m.Version()}, sum: m.Sum()})
+		}
+	}
+
+	// Read the existing sums.
+	existingSums, err := c.readModSumFile(hugoDirectSumFilename)
+	if err != nil {
+		return err
+	}
+	if len(sums) == 0 && len(existingSums) == 0 {
+		// Nothing to do.
+		return nil
+	}
+
+	dirty := len(sums) != len(existingSums)
+	for _, s1 := range sums {
+		if s2, ok := existingSums[s1.pathVersionKey]; ok {
+			if s1.sum != s2 {
+				return fmt.Errorf("verifying %s@%s: checksum mismatch: %s != %s", s1.path, s1.version, s1.sum, s2)
+			}
+		} else if !dirty {
+			dirty = true
+		}
+	}
+	if !dirty {
+		// Nothing changed.
+		return nil
+	}
+
+	// Write the sums file.
+	// First sort the sums for reproducible output.
+	sort.Slice(sums, func(i, j int) bool {
+		pvi, pvj := sums[i].pathVersionKey, sums[j].pathVersionKey
+		return pvi.path < pvj.path || (pvi.path == pvj.path && pvi.version < pvj.version)
+	})
+
+	f, err := c.fs.OpenFile(filepath.Join(c.ccfg.WorkingDir, hugoDirectSumFilename), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	for _, s := range sums {
+		fmt.Fprintf(f, "%s %s %s\n", s.pathVersionKey.path, s.pathVersionKey.version, s.sum)
+	}
+
+	return nil
+}
+
+func (c *Client) readModSumFile(filename string) (map[pathVersionKey]string, error) {
+	b, err := afero.ReadFile(c.fs, filepath.Join(c.ccfg.WorkingDir, filename))
+	if err != nil {
+		if herrors.IsNotExist(err) {
+			return make(map[pathVersionKey]string), nil
+		}
+		return nil, err
+	}
+	lines := bytes.Split(b, []byte{'\n'})
+	sums := make(map[pathVersionKey]string)
+	for _, line := range lines {
+		parts := bytes.Fields(line)
+		if len(parts) == 3 {
+			sums[pathVersionKey{path: string(parts[0]), version: string(parts[1])}] = string(parts[2])
+		}
+	}
+
+	return sums, nil
 }
 
 func (c *Client) rewriteGoMod(name string, isGoMod map[string]bool) error {
@@ -707,8 +813,8 @@ func (c *Client) tidy(mods Modules, goModOnly bool) error {
 	return nil
 }
 
-func (c *Client) shouldVendor(path string) bool {
-	return c.noVendor == nil || !c.noVendor.Match(path)
+func (c *Client) shouldNotVendor(path string) bool {
+	return c.noVendor != nil && c.noVendor.Match(path)
 }
 
 func (c *Client) createThemeDirname(modulePath string, isProjectMod bool) (string, error) {
@@ -773,6 +879,7 @@ func (cfg ClientConfig) toEnv() []string {
 	keyVals := []string{
 		"PWD", cfg.WorkingDir,
 		"GO111MODULE", "on",
+		"GOFLAGS", "-modcacherw",
 		"GOPATH", cfg.CacheDir,
 		"GOWORK", mcfg.Workspace, // Requires Go 1.18, see https://tip.golang.org/doc/go1.18
 		// GOCACHE was introduced in Go 1.15. This matches the location derived from GOPATH above.
@@ -807,6 +914,7 @@ type goModule struct {
 	Replace  *goModule      // replaced by this module
 	Time     *time.Time     // time version was created
 	Update   *goModule      // available update, if any (with -u)
+	Sum      string         // checksum
 	Main     bool           // is this the main module?
 	Indirect bool           // is this module only an indirect dependency of main module?
 	Dir      string         // directory holding files for this module, if any
@@ -819,6 +927,11 @@ type goModuleError struct {
 }
 
 type goModules []*goModule
+
+type modSum struct {
+	pathVersionKey
+	sum string
+}
 
 func (modules goModules) GetByPath(p string) *goModule {
 	if modules == nil {
