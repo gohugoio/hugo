@@ -262,7 +262,7 @@ staticDir
 : (`string`) The designated directory for static files. Default is `static`. {{% module-mounts-note %}}
 
 summaryLength
-: (`int`) Applicable to [automatic summaries], the minimum number of words returned by the [`Summary`] method on a `Page` object. The `Summary` method will return content truncated at the paragraph boundary closest to the specified `summaryLength`, but at least this minimum number of words.
+: (`int`) Applicable to [automatic summaries], the minimum number of words returned by the [`Summary`] method on a `Page` object. The `Summary` method will return content truncated at the paragraph boundary closest to the specified `summaryLength`, but at least this minimum number of words. Default is `70`.
 
 taxonomies
 : See [configure taxonomies](/configuration/taxonomies/).
