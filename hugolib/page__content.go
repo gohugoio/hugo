@@ -645,8 +645,9 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 			}
 			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfig.Content.Markup)
 			rs.Value.summary = page.Summary{
-				Text: helpers.BytesToHTML(html),
-				Type: page.SummaryTypeFrontMatter,
+				Text:      helpers.BytesToHTML(html),
+				Type:      page.SummaryTypeFrontMatter,
+				Truncated: rs.Value.summary.Truncated,
 			}
 			rs.Value.contentWithoutSummary = rs.Value.content
 		}
