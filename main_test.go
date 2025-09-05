@@ -51,6 +51,7 @@ func TestUnfinished(t *testing.T) {
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/unfinished"
 	// p.UpdateScripts = true
+	// p.TestWork = true
 
 	testscript.Run(t, p)
 }
@@ -110,6 +111,35 @@ var commonTestScriptsParam = testscript.Params{
 			}
 			time.Sleep(time.Duration(i) * time.Second)
 		},
+		// tree lists a directory recursively to stdout as a simple tree.
+		"tree": func(ts *testscript.TestScript, neg bool, args []string) {
+			dirname := ts.MkAbs(args[0])
+
+			err := filepath.WalkDir(dirname, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				rel, err := filepath.Rel(dirname, path)
+				if err != nil {
+					return err
+				}
+				if rel == "." {
+					fmt.Fprintln(ts.Stdout(), ".")
+					return nil
+				}
+				depth := strings.Count(rel, string(os.PathSeparator))
+				prefix := strings.Repeat("  ", depth) + "└─"
+				if d.IsDir() {
+					fmt.Fprintf(ts.Stdout(), "%s%s/\n", prefix, d.Name())
+				} else {
+					fmt.Fprintf(ts.Stdout(), "%s%s\n", prefix, d.Name())
+				}
+				return nil
+			})
+			if err != nil {
+				ts.Fatalf("%v", err)
+			}
+		},
 		// ls lists a directory to stdout.
 		"ls": func(ts *testscript.TestScript, neg bool, args []string) {
 			dirname := ts.MkAbs(args[0])
@@ -128,7 +158,36 @@ var commonTestScriptsParam = testscript.Params{
 				return
 			}
 			for _, fi := range fis {
-				fmt.Fprintf(ts.Stdout(), "%s %04o %s %s\n", fi.Mode(), fi.Mode().Perm(), fi.ModTime().Format(time.RFC3339Nano), fi.Name())
+				fmt.Fprintf(ts.Stdout(), "%s %04o %s %s\n", fi.Mode(), fi.Mode().Perm(), fi.ModTime().Format(time.RFC3339), fi.Name())
+			}
+		},
+		// lsr lists a directory recursively to stdout.
+		"lsr": func(ts *testscript.TestScript, neg bool, args []string) {
+			dirname := ts.MkAbs(args[0])
+
+			err := filepath.WalkDir(dirname, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				if d.IsDir() {
+					return nil
+				}
+
+				fi, err := d.Info()
+				if err != nil {
+					return err
+				}
+
+				rel, err := filepath.Rel(dirname, path)
+				if err != nil {
+					return err
+				}
+
+				fmt.Fprintf(ts.Stdout(), "%s %04o %s\n", fi.Mode(), fi.Mode().Perm(), filepath.ToSlash(rel))
+				return nil
+			})
+			if err != nil {
+				ts.Fatalf("%v", err)
 			}
 		},
 		// append appends to a file with a leading newline.

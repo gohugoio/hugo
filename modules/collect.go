@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -28,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
+	"golang.org/x/mod/module"
 
 	"github.com/spf13/cast"
 
@@ -37,8 +39,6 @@ import (
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/gohugoio/hugo/hugofs/files"
-
-	"golang.org/x/mod/module"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
@@ -155,9 +155,14 @@ func filterUnwantedMounts(mounts []Mount) []Mount {
 	return tmp
 }
 
+type pathVersionKey struct {
+	path    string
+	version string
+}
+
 type collected struct {
 	// Pick the first and prevent circular loops.
-	seen map[string]bool
+	seenPaths map[string]*moduleAdapter
 
 	// Maps module path to a _vendor dir. These values are fetched from
 	// _vendor/modules.txt, and the first (top-most) will win.
@@ -186,9 +191,9 @@ type collector struct {
 
 func (c *collector) initModules() error {
 	c.collected = &collected{
-		seen:     make(map[string]bool),
-		vendored: make(map[string]vendoredModule),
-		gomods:   goModules{},
+		seenPaths: make(map[string]*moduleAdapter),
+		vendored:  make(map[string]vendoredModule),
+		gomods:    goModules{},
 	}
 
 	// If both these are true, we don't even need Go installed to build.
@@ -200,13 +205,16 @@ func (c *collector) initModules() error {
 	return c.loadModules()
 }
 
-func (c *collector) isSeen(path string) bool {
-	key := pathKey(path)
-	if c.seen[key] {
-		return true
+func (c *collector) isPathSeen(p string, owner *moduleAdapter) *moduleAdapter {
+	// Remove any major version suffix.
+	// We do allow multiple major versions in the same project,
+	// but not as transitive dependencies.
+	p = pathBase(p)
+	if v, ok := c.seenPaths[p]; ok {
+		return v
 	}
-	c.seen[key] = true
-	return false
+	c.seenPaths[p] = owner
+	return nil
 }
 
 func (c *collector) getVendoredDir(path string) (vendoredModule, bool) {
@@ -214,29 +222,37 @@ func (c *collector) getVendoredDir(path string) (vendoredModule, bool) {
 	return v, found
 }
 
-func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapter, error) {
+func (c *collector) getAndCreateModule(owner *moduleAdapter, moduleImport Import) (*moduleAdapter, error) {
 	var (
-		mod       *goModule
-		moduleDir string
-		version   string
-		vendored  bool
+		mod                   *goModule
+		moduleDir             string
+		versionMod            string
+		requestedVersionQuery string = moduleImport.Version
+		vendored              bool
 	)
 
 	modulePath := moduleImport.Path
+	vendorPath := modulePath
+	vendorPathEscaped := modulePath
+	if requestedVersionQuery != "" {
+		vendorPath += "@" + requestedVersionQuery
+		vendorPathEscaped += "@" + url.QueryEscape(requestedVersionQuery)
+	}
+
 	var realOwner Module = owner
 
-	if !c.ccfg.shouldIgnoreVendor(modulePath) {
+	if !(c.ccfg.shouldIgnoreVendor(vendorPath)) {
 		if err := c.collectModulesTXT(owner); err != nil {
 			return nil, err
 		}
 
 		// Try _vendor first.
 		var vm vendoredModule
-		vm, vendored = c.getVendoredDir(modulePath)
+		vm, vendored = c.getVendoredDir(vendorPathEscaped)
 		if vendored {
 			moduleDir = vm.Dir
 			realOwner = vm.Owner
-			version = vm.Version
+			versionMod = vm.Version
 
 			if owner.projectMod {
 				// We want to keep the go.mod intact with the versions and all.
@@ -247,34 +263,45 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapt
 	}
 
 	if moduleDir == "" {
-		var versionQuery string
-		mod = c.gomods.GetByPath(modulePath)
-		if mod != nil {
-			moduleDir = mod.Dir
-			versionQuery = mod.Version
+		if requestedVersionQuery == "" {
+			mod = c.gomods.GetByPath(modulePath)
+			if mod != nil {
+				moduleDir = mod.Dir
+			}
 		}
 
 		if moduleDir == "" {
-			if c.GoModulesFilename != "" && isProbablyModule(modulePath) {
-				// Try to "go get" it and reload the module configuration.
-				if versionQuery == "" {
+			if isProbablyModule(modulePath) {
+				if requestedVersionQuery != "" {
+					var err error
+					mod, err = c.downloadModuleVersion(modulePath, requestedVersionQuery)
+					if err != nil {
+						return nil, err
+					}
+					if mod == nil {
+						return nil, fmt.Errorf("module %q not found", modulePath)
+					}
+					moduleDir = mod.Dir
+					versionMod = mod.Version
+				} else if c.GoModulesFilename != "" {
 					// See https://golang.org/ref/mod#version-queries
 					// This will select the latest release-version (not beta etc.).
-					versionQuery = "upgrade"
-				}
+					const versionQuery = "upgrade"
+					// Try to "go get" it and reload the module configuration.
 
-				// Note that we cannot use c.Get for this, as that may
-				// trigger a new module collection and potentially create a infinite loop.
-				if err := c.get(fmt.Sprintf("%s@%s", modulePath, versionQuery)); err != nil {
-					return nil, err
-				}
-				if err := c.loadModules(); err != nil {
-					return nil, err
-				}
+					// Note that we cannot use c.Get for this, as that may
+					// trigger a new module collection and potentially create a infinite loop.
+					if err := c.get(fmt.Sprintf("%s@%s", modulePath, versionQuery)); err != nil {
+						return nil, err
+					}
+					if err := c.loadModules(); err != nil {
+						return nil, err
+					}
 
-				mod = c.gomods.GetByPath(modulePath)
-				if mod != nil {
-					moduleDir = mod.Dir
+					mod = c.gomods.GetByPath(modulePath)
+					if mod != nil {
+						moduleDir = mod.Dir
+					}
 				}
 			}
 
@@ -305,10 +332,11 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapt
 	}
 
 	ma := &moduleAdapter{
-		dir:     moduleDir,
-		vendor:  vendored,
-		gomod:   mod,
-		version: version,
+		dir:          moduleDir,
+		vendor:       vendored,
+		gomod:        mod,
+		version:      versionMod,
+		versionQuery: requestedVersionQuery,
 		// This may be the owner of the _vendor dir
 		owner: realOwner,
 	}
@@ -327,7 +355,6 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapt
 		return nil, err
 	}
 
-	c.modules = append(c.modules, ma)
 	return ma, nil
 }
 
@@ -338,23 +365,50 @@ func (c *collector) addAndRecurse(owner *moduleAdapter) error {
 			return fmt.Errorf("failed to apply mounts for project: %w", err)
 		}
 	}
-
+	seen := make(map[pathVersionKey]bool)
 	for _, moduleImport := range moduleConfig.Imports {
 		if moduleImport.Disable {
 			continue
 		}
-		if !c.isSeen(moduleImport.Path) {
-			tc, err := c.add(owner, moduleImport)
-			if err != nil {
-				return err
-			}
-			if tc == nil || moduleImport.IgnoreImports {
-				continue
-			}
-			if err := c.addAndRecurse(tc); err != nil {
-				return err
-			}
+
+		// Prevent cyclic references.
+		if v := c.isPathSeen(moduleImport.Path, owner); v != nil && v != owner {
+			continue
 		}
+
+		tc, err := c.getAndCreateModule(owner, moduleImport)
+		if err != nil {
+			return err
+		}
+
+		if tc == nil {
+			continue
+		}
+
+		pk := pathVersionKey{path: tc.Path(), version: tc.Version()}
+		seenInCurrent := seen[pk]
+		if seenInCurrent {
+			// Only one import of the same module per project.
+			if owner.projectMod {
+				// In Hugo v0.150.0 we introduced direct dependencies, and it may be tempting to import the same version
+				// with different mount setups. We may allow that in the future, but we need to get some experience first.
+				// For now, we just warn. The user needs to add multiple mount points in the same import.
+				c.logger.Warnf("module with path %q is imported for the same version %q more than once", tc.Path(), tc.Version())
+			}
+			continue
+		}
+		seen[pk] = true
+
+		c.modules = append(c.modules, tc)
+
+		if moduleImport.IgnoreImports {
+			continue
+		}
+
+		if err := c.addAndRecurse(tc); err != nil {
+			return err
+		}
+
 	}
 	return nil
 }
@@ -527,6 +581,11 @@ func (c *collector) collect() {
 
 	// Add the project mod on top.
 	c.modules = append(Modules{projectMod}, c.modules...)
+
+	if err := c.writeHugoDirectSum(c.modules); err != nil {
+		c.err = err
+		return
+	}
 }
 
 func (c *collector) isVendored(dir string) bool {
@@ -744,12 +803,7 @@ func createProjectModule(gomod *goModule, workingDir string, conf Config) *modul
 	}
 }
 
-// In the first iteration of Hugo Modules, we do not support multiple
-// major versions running at the same time, so we pick the first (upper most).
-// We will investigate namespaces in future versions.
-// TODO(bep) add a warning when the above happens.
-func pathKey(p string) string {
+func pathBase(p string) string {
 	prefix, _, _ := module.SplitPathVersion(p)
-
 	return strings.ToLower(prefix)
 }
