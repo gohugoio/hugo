@@ -54,6 +54,11 @@ type Module interface {
 	// or the path below your /theme folder, e.g. "mytheme".
 	Path() string
 
+	// Path used for vendoring. When importing modules with a version set,
+	// we can have multiple versions of the same module in the dependency tree.
+	// PathVendor returns a pseudo path including the version if the import had a version.
+	PathVendor() string
+
 	// Replaced by this module.
 	Replace() Module
 
@@ -73,12 +78,13 @@ type Module interface {
 type Modules []Module
 
 type moduleAdapter struct {
-	path       string
-	dir        string
-	version    string
-	vendor     bool
-	projectMod bool
-	owner      Module
+	path             string
+	dir              string
+	version          string
+	versionRequested string
+	vendor           bool
+	projectMod       bool
+	owner            Module
 
 	mounts []Mount
 
@@ -127,6 +133,18 @@ func (m *moduleAdapter) Path() string {
 		return m.path
 	}
 	return m.gomod.Path
+}
+
+func (m *moduleAdapter) PathVendor() string {
+	// We added version as a config option in Hugo v0.150.0, so
+	// to make this backward compatible, we only add the version
+	// if it was explicitly requested.
+	pathBase := m.Path()
+	if m.versionRequested == "" || !m.IsGoMod() {
+		return pathBase
+	}
+
+	return pathBase + "@" + m.version
 }
 
 func (m *moduleAdapter) Replace() Module {

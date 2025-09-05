@@ -377,6 +377,9 @@ func (v HugoVersion) IsValid() bool {
 type Import struct {
 	// Module path
 	Path string
+	// Module version.
+	// This should normally be empty to take part in the normal Go module version resolution.
+	Version string
 	// Set when Path is replaced in project config.
 	pathProjectReplaced bool
 	// Ignore any config in config.toml (will still follow imports).

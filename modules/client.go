@@ -221,16 +221,16 @@ func (c *Client) Vendor() error {
 		// See https://github.com/gohugoio/hugo/issues/8239
 		// This is an error situation. We need something to vendor.
 		if t.Mounts() == nil {
-			return fmt.Errorf("cannot vendor module %q, need at least one mount", t.Path())
+			return fmt.Errorf("cannot vendor module %q, need at least one mount", t.PathVendor())
 		}
 
-		fmt.Fprintln(&modulesContent, "# "+t.Path()+" "+t.Version())
+		fmt.Fprintln(&modulesContent, "# "+t.PathVendor()+" "+t.Version())
 
 		dir := t.Dir()
 
 		for _, mount := range t.Mounts() {
 			sourceFilename := filepath.Join(dir, mount.Source)
-			targetFilename := filepath.Join(vendorDir, t.Path(), mount.Source)
+			targetFilename := filepath.Join(vendorDir, t.PathVendor(), mount.Source)
 			fi, err := c.fs.Stat(sourceFilename)
 			if err != nil {
 				return fmt.Errorf("failed to vendor module: %w", err)
@@ -257,7 +257,7 @@ func (c *Client) Vendor() error {
 		resourcesDir := filepath.Join(dir, files.FolderResources)
 		_, err := c.fs.Stat(resourcesDir)
 		if err == nil {
-			if err := hugio.CopyDir(c.fs, resourcesDir, filepath.Join(vendorDir, t.Path(), files.FolderResources), nil); err != nil {
+			if err := hugio.CopyDir(c.fs, resourcesDir, filepath.Join(vendorDir, t.PathVendor(), files.FolderResources), nil); err != nil {
 				return fmt.Errorf("failed to copy resources to vendor dir: %w", err)
 			}
 		}
@@ -266,7 +266,7 @@ func (c *Client) Vendor() error {
 		configDir := filepath.Join(dir, "config")
 		_, err = c.fs.Stat(configDir)
 		if err == nil {
-			if err := hugio.CopyDir(c.fs, configDir, filepath.Join(vendorDir, t.Path(), "config"), nil); err != nil {
+			if err := hugio.CopyDir(c.fs, configDir, filepath.Join(vendorDir, t.PathVendor(), "config"), nil); err != nil {
 				return fmt.Errorf("failed to copy config dir to vendor dir: %w", err)
 			}
 		}
@@ -277,7 +277,7 @@ func (c *Client) Vendor() error {
 		configFiles = append(configFiles, configFiles2...)
 		configFiles = append(configFiles, filepath.Join(dir, "theme.toml"))
 		for _, configFile := range configFiles {
-			if err := hugio.CopyFile(c.fs, configFile, filepath.Join(vendorDir, t.Path(), filepath.Base(configFile))); err != nil {
+			if err := hugio.CopyFile(c.fs, configFile, filepath.Join(vendorDir, t.PathVendor(), filepath.Base(configFile))); err != nil {
 				if !herrors.IsNotExist(err) {
 					return err
 				}
@@ -434,13 +434,34 @@ func isProbablyModule(path string) bool {
 	return module.CheckPath(path) == nil
 }
 
+func (c *Client) downloadModuleVersion(path, version string) (*goModule, error) {
+	args := []string{"mod", "download", "-json", fmt.Sprintf("%s@%s", path, version)}
+	b := &bytes.Buffer{}
+
+	err := c.runGo(context.Background(), b, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to download module %s@%s: %w", path, version, err)
+	}
+
+	m := &goModule{}
+	if err := json.NewDecoder(b).Decode(m); err != nil {
+		return nil, fmt.Errorf("failed to decode module download result: %w", err)
+	}
+
+	if m.Error != nil {
+		return nil, errors.New(m.Error.Err)
+	}
+
+	return m, nil
+}
+
 func (c *Client) listGoMods() (goModules, error) {
 	if c.GoModulesFilename == "" || !c.moduleConfig.hasModuleImport() {
 		return nil, nil
 	}
 
 	downloadModules := func(modules ...string) error {
-		args := []string{"mod", "download", "-modcacherw"}
+		args := []string{"mod", "download"}
 		args = append(args, modules...)
 		out := io.Discard
 		err := c.runGo(context.Background(), out, args...)
@@ -773,6 +794,7 @@ func (cfg ClientConfig) toEnv() []string {
 	keyVals := []string{
 		"PWD", cfg.WorkingDir,
 		"GO111MODULE", "on",
+		"GOFLAGS", "-modcacherw",
 		"GOPATH", cfg.CacheDir,
 		"GOWORK", mcfg.Workspace, // Requires Go 1.18, see https://tip.golang.org/doc/go1.18
 		// GOCACHE was introduced in Go 1.15. This matches the location derived from GOPATH above.
