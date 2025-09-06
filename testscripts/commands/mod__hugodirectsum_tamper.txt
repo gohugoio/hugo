@@ -1,0 +1,16 @@
+! hugo
+stderr 'checksum mismatch'
+
+-- hugo.toml --
+baseURL = "https://example.org"
+[[module.imports]]
+path    = "github.com/bep/hugo-mod-nop"
+version = "v1.0.0"
+-- layouts/all.html --
+All.
+-- go.mod --
+module foo
+
+go 1.24.0
+-- hugo.direct.sum --
+github.com/bep/hugo-mod-nop v1.0.0 h1:NRDMRPCD+4dw5K8XvaZURvZJCfBMCifkRe6C6x6W4Ix=

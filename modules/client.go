@@ -25,6 +25,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -63,6 +64,10 @@ const vendord = "_vendor"
 const (
 	goModFilename = "go.mod"
 	goSumFilename = "go.sum"
+
+	// Checksum file for direct dependencies only,
+	// that is, module imports with version set.
+	hugoDirectSumFilename = "hugo.direct.sum"
 )
 
 // NewClient creates a new Client that can be used to manage the Hugo Components
@@ -542,6 +547,86 @@ func (c *Client) listGoMods() (goModules, error) {
 	return modules, err
 }
 
+func (c *Client) writeHugoDirectSum(mods Modules) error {
+	if c.GoModulesFilename == "" {
+		return nil
+	}
+	var sums []modSum
+	for _, m := range mods {
+		if m.Owner() == nil {
+			// This is the project.
+			continue
+		}
+		if m.IsGoMod() && m.VersionRequested() != "" {
+			sums = append(sums, modSum{pathVersionKey: pathVersionKey{path: m.Path(), version: m.Version()}, sum: m.Sum()})
+		}
+	}
+
+	// Read the existing sums.
+	existingSums, err := c.readModSumFile(hugoDirectSumFilename)
+	if err != nil {
+		return err
+	}
+	if len(sums) == 0 && len(existingSums) == 0 {
+		// Nothing to do.
+		return nil
+	}
+
+	dirty := len(sums) != len(existingSums)
+	for _, s1 := range sums {
+		if s2, ok := existingSums[s1.pathVersionKey]; ok {
+			if s1.sum != s2 {
+				return fmt.Errorf("verifying %s@%s: checksum mismatch: %s != %s", s1.path, s1.version, s1.sum, s2)
+			}
+		} else if !dirty {
+			dirty = true
+		}
+	}
+	if !dirty {
+		// Nothing changed.
+		return nil
+	}
+
+	// Write the sums file.
+	// First sort the sums for reproducible output.
+	sort.Slice(sums, func(i, j int) bool {
+		pvi, pvj := sums[i].pathVersionKey, sums[j].pathVersionKey
+		return pvi.path < pvj.path || (pvi.path == pvj.path && pvi.version < pvj.version)
+	})
+
+	f, err := c.fs.OpenFile(filepath.Join(c.ccfg.WorkingDir, hugoDirectSumFilename), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	for _, s := range sums {
+		fmt.Fprintf(f, "%s %s %s\n", s.pathVersionKey.path, s.pathVersionKey.version, s.sum)
+	}
+
+	return nil
+}
+
+func (c *Client) readModSumFile(filename string) (map[pathVersionKey]string, error) {
+	b, err := afero.ReadFile(c.fs, filepath.Join(c.ccfg.WorkingDir, filename))
+	if err != nil {
+		if herrors.IsNotExist(err) {
+			return make(map[pathVersionKey]string), nil
+		}
+		return nil, err
+	}
+	lines := bytes.Split(b, []byte{'\n'})
+	sums := make(map[pathVersionKey]string)
+	for _, line := range lines {
+		parts := bytes.Fields(line)
+		if len(parts) == 3 {
+			sums[pathVersionKey{path: string(parts[0]), version: string(parts[1])}] = string(parts[2])
+		}
+	}
+
+	return sums, nil
+}
+
 func (c *Client) rewriteGoMod(name string, isGoMod map[string]bool) error {
 	data, err := c.rewriteGoModRewrite(name, isGoMod)
 	if err != nil {
@@ -829,6 +914,7 @@ type goModule struct {
 	Replace  *goModule      // replaced by this module
 	Time     *time.Time     // time version was created
 	Update   *goModule      // available update, if any (with -u)
+	Sum      string         // checksum
 	Main     bool           // is this the main module?
 	Indirect bool           // is this module only an indirect dependency of main module?
 	Dir      string         // directory holding files for this module, if any
@@ -841,6 +927,13 @@ type goModuleError struct {
 }
 
 type goModules []*goModule
+
+// fmt.Fprintf(&buf, "%s %s %s\n", m.Path, m.Version, h)
+
+type modSum struct {
+	pathVersionKey
+	sum string
+}
 
 func (modules goModules) GetByPath(p string) *goModule {
 	if modules == nil {

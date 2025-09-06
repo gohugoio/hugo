@@ -555,6 +555,11 @@ func (c *collector) collect() {
 
 	// Add the project mod on top.
 	c.modules = append(Modules{projectMod}, c.modules...)
+
+	if err := c.writeHugoDirectSum(c.modules); err != nil {
+		c.err = err
+		return
+	}
 }
 
 func (c *collector) isVendored(dir string) bool {

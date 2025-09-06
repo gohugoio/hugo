@@ -57,6 +57,7 @@ type Module interface {
 	// Path used for vendoring. When importing modules with a version set,
 	// we can have multiple versions of the same module in the dependency tree.
 	// PathVendor returns a pseudo path including the version if the import had a version.
+	// TODO1 rename + check that it's used consistently.
 	PathVendor() string
 
 	// Replaced by this module.
@@ -67,6 +68,12 @@ type Module interface {
 
 	// The module version.
 	Version() string
+
+	// The version as requested in the import.
+	VersionRequested() string
+
+	// The expected cryptographic hash of the module.
+	Sum() string
 
 	// Time version was created.
 	Time() time.Time
@@ -166,6 +173,18 @@ func (m *moduleAdapter) Version() string {
 		return m.version
 	}
 	return m.gomod.Version
+}
+
+func (m *moduleAdapter) VersionRequested() string {
+	return m.versionRequested
+}
+
+func (m *moduleAdapter) Sum() string {
+	if !m.IsGoMod() {
+		return ""
+	}
+
+	return m.gomod.Sum
 }
 
 func (m *moduleAdapter) Time() time.Time {
