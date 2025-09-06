@@ -1,0 +1,15 @@
+hugo mod graph
+stdout 'foo'
+grep 'github.com/bep/hugo-mod-nop v1.0.0 h1:NRDMRPCD\+4dw5K8XvaZURvZJCfBMCifkRe6C6x6W4II=' hugo.direct.sum
+
+-- hugo.toml --
+baseURL = "https://example.org"
+[[module.imports]]
+path    = "github.com/bep/hugo-mod-nop"
+version = "v1.0.0"
+-- layouts/all.html --
+All.
+-- go.mod --
+module foo
+
+go 1.24.0

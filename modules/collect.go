@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,8 @@ import (
 var ErrNotExist = errors.New("module does not exist")
 
 const vendorModulesFilename = "modules.txt"
+
+// TODO1 remove duplicate path/versions.
 
 func (h *Client) Collect() (ModulesConfig, error) {
 	mc, coll := h.collect(true)
@@ -155,9 +157,14 @@ func filterUnwantedMounts(mounts []Mount) []Mount {
 	return tmp
 }
 
+type pathVersionKey struct {
+	path    string
+	version string
+}
+
 type collected struct {
 	// Pick the first and prevent circular loops.
-	seen map[string]bool
+	seen map[pathVersionKey]bool
 
 	// Maps module path to a _vendor dir. These values are fetched from
 	// _vendor/modules.txt, and the first (top-most) will win.
@@ -186,7 +193,7 @@ type collector struct {
 
 func (c *collector) initModules() error {
 	c.collected = &collected{
-		seen:     make(map[string]bool),
+		seen:     make(map[pathVersionKey]bool),
 		vendored: make(map[string]vendoredModule),
 		gomods:   goModules{},
 	}
@@ -200,8 +207,9 @@ func (c *collector) initModules() error {
 	return c.loadModules()
 }
 
-func (c *collector) isSeen(path string) bool {
-	key := pathKey(path)
+func (c *collector) isSeen(path, version string) bool {
+	path = pathKey(path)
+	key := pathVersionKey{path, version}
 	if c.seen[key] {
 		return true
 	}
@@ -216,13 +224,19 @@ func (c *collector) getVendoredDir(path string) (vendoredModule, bool) {
 
 func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapter, error) {
 	var (
-		mod       *goModule
-		moduleDir string
-		version   string
-		vendored  bool
+		mod              *goModule
+		moduleDir        string
+		versionMod       string
+		versionRequested string = moduleImport.Version
+		vendored         bool
 	)
 
 	modulePath := moduleImport.Path
+	vendorPath := modulePath
+	if versionRequested != "" {
+		vendorPath += "@" + versionRequested
+	}
+
 	var realOwner Module = owner
 
 	if !c.ccfg.shouldIgnoreVendor(modulePath) {
@@ -232,11 +246,11 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapt
 
 		// Try _vendor first.
 		var vm vendoredModule
-		vm, vendored = c.getVendoredDir(modulePath)
+		vm, vendored = c.getVendoredDir(vendorPath)
 		if vendored {
 			moduleDir = vm.Dir
 			realOwner = vm.Owner
-			version = vm.Version
+			versionMod = vm.Version
 
 			if owner.projectMod {
 				// We want to keep the go.mod intact with the versions and all.
@@ -248,14 +262,27 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapt
 
 	if moduleDir == "" {
 		var versionQuery string
-		mod = c.gomods.GetByPath(modulePath)
-		if mod != nil {
-			moduleDir = mod.Dir
-			versionQuery = mod.Version
+		if versionRequested == "" {
+			mod = c.gomods.GetByPath(modulePath)
+			if mod != nil {
+				moduleDir = mod.Dir
+				versionQuery = mod.Version
+			}
 		}
 
 		if moduleDir == "" {
-			if c.GoModulesFilename != "" && isProbablyModule(modulePath) {
+			if versionRequested != "" {
+				var err error
+				mod, err = c.downloadModuleVersion(modulePath, versionRequested)
+				if err != nil {
+					return nil, err
+				}
+				if mod == nil {
+					return nil, fmt.Errorf("module %q not found", modulePath)
+				}
+				moduleDir = mod.Dir
+				versionMod = mod.Version
+			} else if c.GoModulesFilename != "" && isProbablyModule(modulePath) {
 				// Try to "go get" it and reload the module configuration.
 				if versionQuery == "" {
 					// See https://golang.org/ref/mod#version-queries
@@ -305,10 +332,11 @@ func (c *collector) add(owner *moduleAdapter, moduleImport Import) (*moduleAdapt
 	}
 
 	ma := &moduleAdapter{
-		dir:     moduleDir,
-		vendor:  vendored,
-		gomod:   mod,
-		version: version,
+		dir:              moduleDir,
+		vendor:           vendored,
+		gomod:            mod,
+		version:          versionMod,
+		versionRequested: versionRequested,
 		// This may be the owner of the _vendor dir
 		owner: realOwner,
 	}
@@ -343,7 +371,7 @@ func (c *collector) addAndRecurse(owner *moduleAdapter) error {
 		if moduleImport.Disable {
 			continue
 		}
-		if !c.isSeen(moduleImport.Path) {
+		if !c.isSeen(moduleImport.Path, moduleImport.Version) {
 			tc, err := c.add(owner, moduleImport)
 			if err != nil {
 				return err
@@ -527,6 +555,11 @@ func (c *collector) collect() {
 
 	// Add the project mod on top.
 	c.modules = append(Modules{projectMod}, c.modules...)
+
+	if err := c.writeHugoDirectSum(c.modules); err != nil {
+		c.err = err
+		return
+	}
 }
 
 func (c *collector) isVendored(dir string) bool {

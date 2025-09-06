@@ -54,6 +54,12 @@ type Module interface {
 	// or the path below your /theme folder, e.g. "mytheme".
 	Path() string
 
+	// Path used for vendoring. When importing modules with a version set,
+	// we can have multiple versions of the same module in the dependency tree.
+	// PathVendor returns a pseudo path including the version if the import had a version.
+	// TODO1 rename + check that it's used consistently.
+	PathVendor() string
+
 	// Replaced by this module.
 	Replace() Module
 
@@ -62,6 +68,12 @@ type Module interface {
 
 	// The module version.
 	Version() string
+
+	// The version as requested in the import.
+	VersionRequested() string
+
+	// The expected cryptographic hash of the module.
+	Sum() string
 
 	// Time version was created.
 	Time() time.Time
@@ -73,12 +85,13 @@ type Module interface {
 type Modules []Module
 
 type moduleAdapter struct {
-	path       string
-	dir        string
-	version    string
-	vendor     bool
-	projectMod bool
-	owner      Module
+	path             string
+	dir              string
+	version          string
+	versionRequested string
+	vendor           bool
+	projectMod       bool
+	owner            Module
 
 	mounts []Mount
 
@@ -129,6 +142,18 @@ func (m *moduleAdapter) Path() string {
 	return m.gomod.Path
 }
 
+func (m *moduleAdapter) PathVendor() string {
+	// We added version as a config option in Hugo v0.150.0, so
+	// to make this backward compatible, we only add the version
+	// if it was explicitly requested.
+	pathBase := m.Path()
+	if m.versionRequested == "" || !m.IsGoMod() {
+		return pathBase
+	}
+
+	return pathBase + "@" + m.version
+}
+
 func (m *moduleAdapter) Replace() Module {
 	if m.IsGoMod() && !m.Vendor() && m.gomod.Replace != nil {
 		return &moduleAdapter{
@@ -148,6 +173,18 @@ func (m *moduleAdapter) Version() string {
 		return m.version
 	}
 	return m.gomod.Version
+}
+
+func (m *moduleAdapter) VersionRequested() string {
+	return m.versionRequested
+}
+
+func (m *moduleAdapter) Sum() string {
+	if !m.IsGoMod() {
+		return ""
+	}
+
+	return m.gomod.Sum
 }
 
 func (m *moduleAdapter) Time() time.Time {
