@@ -27,9 +27,6 @@ The example above generates the _same_ random numbers each time it is called. To
 {{ collections.D 2 7 42 }} → [3, 11, 19, 25, 32, 33, 38]
 ```
 
-> [!note]
-> All arguments are cast to integers, so setting the seed to `3.14` is the same as setting it to `3`.
-
 A common use case is the selection of random pages from a page collection. For example, to render a list of 5 random pages using the [day of the year][] as the seed value:
 
 ```go-html-template
