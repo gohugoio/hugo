@@ -534,11 +534,16 @@ func (fs *RootMappingFs) cleanName(name string) string {
 
 func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, error) {
 	prefix = filepathSeparator + rfs.cleanName(prefix)
-
 	var fis []iofs.DirEntry
 
 	seen := make(map[string]bool) // Prevent duplicate directories
 	level := strings.Count(prefix, filepathSeparator)
+
+	// special case requesting root of filesystem
+	if prefix == filepathSeparator {
+		prefix = ""
+		level = 0
+	}
 
 	collectDir := func(rm RootMapping, fi FileMetaInfo) error {
 		f, err := fi.Meta().Open()
@@ -833,7 +838,11 @@ func (f *rootMappingDir) Stat() (iofs.FileInfo, error) {
 }
 
 func (f *rootMappingDir) Readdir(count int) ([]os.FileInfo, error) {
-	panic("not supported: use ReadDir")
+	dirs, err := f.ReadDir(count)
+	if err != nil {
+		return nil, err
+	}
+	return dirEntriesToFileInfo(dirs)
 }
 
 // Note that Readdirnames preserves the order of the underlying filesystem(s),
@@ -844,6 +853,23 @@ func (f *rootMappingDir) Readdirnames(count int) ([]string, error) {
 		return nil, err
 	}
 	return dirEntriesToNames(dirs), nil
+}
+
+func dirEntriesToFileInfo(fis []iofs.DirEntry) ([]os.FileInfo, error) {
+	fileInfos := make([]os.FileInfo, len(fis))
+	for i, d := range fis {
+		v, ok := d.(*dirEntryMeta)
+		if ok {
+			fileInfos[i] = v
+		} else {
+			fileInfo, err := d.Info()
+			fileInfos[i] = fileInfo
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return fileInfos, nil
 }
 
 func dirEntriesToNames(fis []iofs.DirEntry) []string {
