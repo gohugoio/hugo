@@ -112,6 +112,10 @@ noVendor
 path
 : (`string`) The module path, either a valid Go module path (e.g., `github.com/gohugoio/myShortcodes`) or the directory name if stored in the [`themesDir`].
 
+version
+: {{< new-in 0.150.0 />}}
+: If set to a [version query](https://go.dev/ref/mod#version-queries), this import becomes a direct dependency, in contrast to dependencies managed by Go Modules. See [this issue](https://github.com/gohugoio/hugo/pull/13966) for more information.
+
 {{% include "/_common/gomodules-info.md" %}}
 
 ## Mounts
