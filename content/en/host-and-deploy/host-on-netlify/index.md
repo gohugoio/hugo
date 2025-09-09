@@ -23,108 +23,99 @@ Please complete the following tasks before continuing:
 
 ## Procedure
 
+<!-- Using "text" as the code block language because "toml" looks terrible. -->
+
 Step 1
-: Log in to your Netlify account, navigate to the Sites page, press the **Add new site** button, and choose "Import an existing project" from the dropdown menu.
+: Create a `netlify.toml` file in the root of your project.
+
+  ```text {file="netlify.toml" copy=true}
+  [build.environment]
+  DART_SASS_VERSION = "1.92.1"
+  GO_VERSION = "1.25.1"
+  HUGO_VERSION = "0.150.0"
+  NODE_VERSION = "22.18.0"
+  TZ = "Europe/Oslo"
+
+  [build]
+  publish = "public"
+  command = """\
+    git config core.quotepath false && \
+    hugo --gc --minify --baseURL "${URL}"
+    """
+  ```
+
+  If your site requires Dart Sass to transpile Sass to CSS, set the `DART_SASS_VERSION` and include the Dart Sass installation in the build step.
+
+  ```text {file="netlify.toml" copy=true}
+  [build.environment]
+  DART_SASS_VERSION = "1.92.1"
+  GO_VERSION = "1.25.1"
+  HUGO_VERSION = "0.150.0"
+  NODE_VERSION = "22.18.0"
+  TZ = "Europe/Oslo"
+
+  [build]
+  publish = "public"
+  command = """\
+    curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
+    tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
+    rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
+    export PATH="${HOME}/.local/dart-sass:${PATH}" && \
+    git config core.quotepath false && \
+    hugo --gc --minify --baseURL "${URL}"
+    """
+  ```
 
 Step 2
-: Select your deployment method.
-
-  ![screen capture](netlify-step-02.png)
+: Commit the changes to your local Git repository and push to your GitHub repository.
 
 Step 3
-: Authorize Netlify to connect with your GitHub account by pressing the **Authorize Netlify** button.
+: In the upper right corner of the Netlify dashboard, press the **Add new project** button and select “Import an existing project".
 
-  ![screen capture](netlify-step-03.png)
+  ![screen capture](netlify-01.png)
 
 Step 4
-: Press the **Configure Netlify on GitHub** button.
+: Connect to GitHub.
 
-  ![screen capture](netlify-step-04.png)
+  ![screen capture](netlify-02.png)
 
 Step 5
-: Install the Netlify app by selecting your GitHub account.
+: Press the "Authorize Netlify" button to allow the Netlify application to access your GitHub account.
 
-  ![screen capture](netlify-step-05.png)
+  ![screen capture](netlify-03.png)
 
 Step 6
-: Press the **Install** button.
-
-  ![screen capture](netlify-step-06.png)
+: Press the **Configure Netlify on GitHub** button.
+  
+  ![screen capture](netlify-04.png)
 
 Step 7
-: Click on the site's repository from the list.
+: Select the GitHub account where you want to install the Netlify application.
 
-  ![screen capture](netlify-step-07.png)
+  ![screen capture](netlify-05.png)
 
 Step 8
-: Set the site name and branch from which to deploy.
+: Authorize the Netlify application to access all repositories or only select repositories, then press the Install button.
 
-  ![screen capture](netlify-step-08.png)
+  ![screen capture](netlify-06.png)
+
+Your browser will be redirected to the Netlify dashboard.
 
 Step 9
-: Define the build settings, press the **Add environment variables** button, then press the **New variable** button.
+: Click on the name of the repository you wish to import.
 
-  ![screen capture](netlify-step-09.png)
+  ![screen capture](netlify-07.png)
 
 Step 10
-: Create a new environment variable named `HUGO_VERSION` and set the value to the [latest version](https://github.com/gohugoio/hugo/releases/latest).
+: On the "Review configuration" page, enter a project name, leave the settings at their default values, then press the **Deploy** button.
 
-  ![screen capture](netlify-step-10.png)
+  ![screen capture](netlify-08.png)
+
+  ![screen capture](netlify-09.png)
 
 Step 11
-: Press the "Deploy my new site" button at the bottom of the page.
+: When the deployment completes, click on the link to your published site.
 
-  ![screen capture](netlify-step-11.png)
+  ![screen capture](netlify-10.png)
 
-Step 12
-: At the bottom of the screen, wait for the deploy to complete, then click on the deploy log entry.
-
-  ![screen capture](netlify-step-12.png)
-
-Step 13
-: Press the **Open production deploy** button to view the live site.
-
-  ![screen capture](netlify-step-13.png)
-
-## Configuration file
-
-In the procedure above we configured our site using the Netlify user interface. Most site owners find it easier to use a configuration file checked into source control.
-
-Create a new file named `netlify.toml` in the root of your project directory. In its simplest form, the configuration file might look like this:
-
-```toml {file="netlify.toml"}
-[build.environment]
-GO_VERSION = "1.25.0"
-HUGO_VERSION = "0.149.0"
-NODE_VERSION = "22.18.0"
-TZ = "Europe/Oslo"
-
-[build]
-publish = "public"
-command = """\
-  git config core.quotepath false && \
-  hugo --gc --minify --baseURL "${URL}"
-  """
-```
-
-If your site requires Dart Sass to transpile Sass to CSS, the configuration file should look something like this:
-
-```toml {file="netlify.toml"}
-[build.environment]
-DART_SASS_VERSION = "1.91.0"
-GO_VERSION = "1.25.0"
-HUGO_VERSION = "0.149.0"
-NODE_VERSION = "22.18.0"
-TZ = "Europe/Oslo"
-
-[build]
-publish = "public"
-command = """\
-  curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
-  tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
-  rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
-  export PATH="${HOME}/.local/dart-sass:${PATH}" && \
-  git config core.quotepath false && \
-  hugo --gc --minify --baseURL "${URL}"
-  """
-```
+In the future, whenever you push a change from your local Git repository, Netlify will rebuild and deploy your site.

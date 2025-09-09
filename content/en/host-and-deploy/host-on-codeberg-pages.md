@@ -111,7 +111,7 @@ jobs:
     runs-on: codeberg-tiny-lazy
     container:
       # Specify "hugomods/hugo:exts" if you want to always use the latest version of Hugo for building.
-      image: "hugomods/hugo:exts-0.149.0"
+      image: "hugomods/hugo:exts-0.150.0"
     steps:
       - name: Clone the repository
         uses: https://code.forgejo.org/actions/checkout@v4
@@ -201,7 +201,7 @@ jobs:
     runs-on: codeberg-tiny-lazy
     container:
       # Specify "hugomods/hugo:exts" if you want to always use the latest version of Hugo for building.
-      image: "hugomods/hugo:exts-0.149.0"
+      image: "hugomods/hugo:exts-0.150.0"
     steps:
       - name: Clone the repository
         uses: https://code.forgejo.org/actions/checkout@v4
