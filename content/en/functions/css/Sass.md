@@ -131,22 +131,28 @@ There's one key exception where you can skip this step: you have committed your 
 
 By committing the `resources` directory, you're providing the pre-built CSS files directly to your CI/CD service, so it doesn't need to run the Sass compilation itself.
 
-For examples of how to install Dart Sass in a production environment, see the following workflow files:
+For examples of how to install Dart Sass in a production environment, see these hosting guides:
 
+- [Cloudflare]
 - [GitHub Pages]
 - [GitLab Pages]
 - [Netlify]
+- [Render]
+- [Vercel]
 
 [`publishDir`]: /configuration/all/#publishdir
 [`useResourceCacheWhen`]: /configuration/build/#useresourcecachewhen
 [brew.sh]: https://brew.sh/
 [chocolatey.org]: https://community.chocolatey.org/packages/sass
+[Cloudflare]: /host-and-deploy/host-on-cloudflare/
 [dart sass]: https://sass-lang.com/dart-sass
-[GitHub Pages]: /host-and-deploy/host-on-github-pages/#step-7
-[GitLab Pages]: /host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd
+[GitHub Pages]: /host-and-deploy/host-on-github-pages/
+[GitLab Pages]: /host-and-deploy/host-on-gitlab-pages/
 [libsass]: https://sass-lang.com/libsass
-[Netlify]: /host-and-deploy/host-on-netlify/#configuration-file
+[Netlify]: /host-and-deploy/host-on-netlify/
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
+[Render]: /host-and-deploy/host-on-render/
 [scoop.sh]: https://scoop.sh/#/apps?q=sass
 [snap package]: /installation/linux/#snap
 [snapcraft.io]: https://snapcraft.io/dart-sass
+[Vercel]: /host-and-deploy/host-on-vercel/
