@@ -45,6 +45,7 @@ type allPagesAssembler struct {
 	h   *HugoSites
 	m   *pageMap
 
+	isRebuild       bool
 	assembleChanges *WhatChanged
 
 	// Internal state.
@@ -72,6 +73,7 @@ func newAllPagesAssembler(
 		h:               h,
 		m:               m,
 		assembleChanges: assembleChanges,
+		isRebuild:       h.isRebuild(),
 
 		pw: pw,
 		rw: rw,
@@ -80,6 +82,7 @@ func newAllPagesAssembler(
 
 type sitePagesAssembler struct {
 	s               *Site
+	isRebuild       bool
 	assembleChanges *WhatChanged
 	ctx             context.Context
 }
@@ -88,8 +91,7 @@ func (a *allPagesAssembler) createAllPages() error {
 	var (
 		sites             = a.h.sitesVersionsRolesMap
 		h                 = a.h
-		isRebuild         = a.h.isRebuild()
-		printPathWarnings = !isRebuild && a.h.Configs.Base.PrintPathWarnings
+		printPathWarnings = !a.isRebuild && a.h.Configs.Base.PrintPathWarnings
 		lockType          = doctree.LockTypeWrite
 		treePages         = a.m.treePages
 		treeResources     = a.m.treeResources
@@ -205,7 +207,7 @@ func (a *allPagesAssembler) createAllPages() error {
 
 					// We receive cascade values from above. If this leads to a change compared
 					// to the previous value, we need to mark the page and its dependencies as changed.
-					if isRebuild && p.m.setMetaPostCascadeChanged {
+					if a.isRebuild && p.m.setMetaPostCascadeChanged {
 						a.assembleChanges.Add(p)
 					}
 
@@ -1256,6 +1258,13 @@ func (a *allPagesAssembler) createMissingTaxonomies() error {
 
 	for viewName, languages := range viewLanguages {
 		key := viewName.pluralTreeKey
+		if a.isRebuild {
+			if v := tree.Get(key); v != nil {
+				// Already there.
+				continue
+			}
+		}
+
 		matrixAllForLanguages := sitesmatrix.NewIntSetsBuilder(a.h.Conf.ConfiguredDimensions()).WithLanguageIndices(languages...).WithAllIfNotSet().Build()
 
 		pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
@@ -1354,8 +1363,11 @@ func (a *allPagesAssembler) createMissingPages() error {
 	if err := a.createMissingTaxonomies(); err != nil {
 		return err
 	}
-	if err := a.createMissingStandalonePages(); err != nil {
-		return err
+
+	if !a.isRebuild {
+		if err := a.createMissingStandalonePages(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
