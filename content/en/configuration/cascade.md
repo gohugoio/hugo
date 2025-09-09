@@ -14,7 +14,6 @@ You can configure your site to cascade front matter values to the home page and 
 For example, to cascade a "color" parameter to the home page and all its descendants:
 
 {{< code-toggle file=hugo >}}
-title = 'Home'
 [cascade.params]
 color = 'red'
 {{< /code-toggle >}}

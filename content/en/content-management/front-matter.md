@@ -47,7 +47,7 @@ build
 : (`map`) A map of [build options].
 
 cascade
-: (`map`) A map of front matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See the [cascade] section for details.
+: (`map`) A map (or a slice of maps) of front matter keys whose values are passed down to the page's descendants unless overwritten by self or a closer ancestor's cascade. See the [cascade] section for details.
 
 date
 : (`string`) The date associated with the page, typically the creation date. Note that the TOML format also supports unquoted date/time values. See the [dates](#dates) section for examples. Access this value from a template using the [`Date`] method on a `Page` object.
