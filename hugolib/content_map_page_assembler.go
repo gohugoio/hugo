@@ -196,10 +196,6 @@ func (a *allPagesAssembler) createAllPages() error {
 						return false
 					}
 
-					if s == "" {
-						site.home = p
-					}
-
 					// Combine the cascade map with front matter.
 					if err = p.setMetaPost(s, cascades); err != nil {
 						return true
@@ -297,7 +293,6 @@ func (a *allPagesAssembler) createAllPages() error {
 						return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 					}
 					return v, false, false, false, nil
-
 				default:
 					// Nothing to do.
 				}
@@ -316,7 +311,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		seenHome bool
 	)
 
-	foo := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+	transformPagesAndCreateMissingHome := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		level := strings.Count(s, "/")
 
 		if s != "" && !seenHome {
@@ -367,32 +362,37 @@ func (a *allPagesAssembler) createAllPages() error {
 			// We don't know yet what language, version, role combination that will
 			// be created below, so collect that information and create the missing pages
 			// on demand.
-			switch nn := n2.(type) {
-			case *pageState:
-				n2 = contentNodes[contentNodePage]{
-					nn.s.siteVector: nn,
-				}
-			}
-
-			nm := n2.(contentNodes[contentNodePage])
+			nm, replaced := contentNodeToContentNodesPage(n2)
 			missingVectors := sitesmatrix.Vectors{}
 
-			a.rw.WalkContext.AddEventListener(eventNameSitesMatrix, s,
-				func(e *doctree.Event[contentNode]) {
-					n := e.Source
-					e.StopPropagation()
-					n.forEeachContentNode(
-						func(vec sitesmatrix.Vector, nn contentNode) bool {
-							if _, found := nm[vec]; !found {
-								missingVectors[vec] = struct{}{}
-							}
-							return true
-						})
-				},
-			)
+			if s == "" {
+				// We need a complete set of home pages.
+				a.h.Conf.AllSitesMatrix().ForEeachVector(func(vec sitesmatrix.Vector) bool {
+					if _, found := nm[vec]; !found {
+						missingVectors[vec] = struct{}{}
+					}
+					return true
+				})
+			} else {
+				a.pw.WalkContext.AddEventListener(eventNameSitesMatrix, s,
+					func(e *doctree.Event[contentNode]) {
+						n := e.Source
+						e.StopPropagation()
+						n.forEeachContentNode(
+							func(vec sitesmatrix.Vector, nn contentNode) bool {
+								if _, found := nm[vec]; !found {
+									missingVectors[vec] = struct{}{}
+								}
+								return true
+							})
+					},
+				)
+			}
+
 			// We need to wait until after the walk to have a complete set.
-			a.rw.WalkContext.AddPostHook(
+			a.pw.WalkContext.AddPostHook(
 				func() error {
+					hdebug.Printf("home missingVectors: %v %d", s, len(missingVectors))
 					if i := len(missingVectors); i > 0 {
 						vec := missingVectors.One()
 						kind := kinds.KindSection
@@ -409,10 +409,15 @@ func (a *allPagesAssembler) createAllPages() error {
 							},
 						}
 						nm[vec] = pms
-						_, replaced, _, _, _ := transformPages(s, nm)
-						if replaced {
+
+						_, replaced2, _, _, _ := transformPages(s, nm)
+						if replaced2 {
 							// Should not happen.
 							panic(fmt.Sprintf("expected no replacement for %q", s))
+						}
+
+						if replaced {
+							a.pw.Tree.InsertRaw(s, nm)
 						}
 					}
 					return nil
@@ -428,7 +433,7 @@ func (a *allPagesAssembler) createAllPages() error {
 	}
 
 	transformPagesAndCreateMissingStructuralNodes := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		n2, replaced, skip, terminate, err = foo(s, n)
+		n2, replaced, skip, terminate, err = transformPagesAndCreateMissingHome(s, n)
 		if err != nil || skip || terminate {
 			return
 		}
@@ -587,6 +592,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		},
 	}
 
+	// Create  missing term pages.
 	a.pw.WalkContext.AddPostHook(
 		func() error {
 			for k, v := range seenTerms {
@@ -955,10 +961,10 @@ func (sa *sitePagesAssembler) assembleTerms() error {
 }
 
 func (sa *sitePagesAssembler) assemblePagesStepFinal() error {
-	return sa.assembleResources()
+	return sa.assembleResourcesAndSetHome()
 }
 
-func (sa *sitePagesAssembler) assembleResources() error {
+func (sa *sitePagesAssembler) assembleResourcesAndSetHome() error {
 	pagesTree := sa.s.pageMap.treePages
 
 	lockType := doctree.LockTypeWrite
@@ -967,6 +973,10 @@ func (sa *sitePagesAssembler) assembleResources() error {
 		LockType: lockType,
 		Handle: func(s string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
 			ps := n.(*pageState)
+
+			if s == "" {
+				ps.s.home = ps
+			}
 
 			// This is a little out of place, but is conveniently put here.
 			// Check if translationKey is set by user.
@@ -1138,100 +1148,6 @@ func (sa *sitePagesAssembler) removeShouldNotBuild() error {
 	}
 
 	sa.s.pageMap.DeletePageAndResourcesBelow(keys...)
-
-	return nil
-}
-
-func (sa *sitePagesAssembler) addMissingRootSections() error {
-	var hasHome bool
-
-	// Add missing root sections.
-	seen := map[string]bool{}
-	var w *doctree.NodeShiftTreeWalker[contentNode]
-	w = &doctree.NodeShiftTreeWalker[contentNode]{
-		LockType: doctree.LockTypeWrite,
-		Tree:     sa.s.pageMap.treePages,
-		Handle: func(s string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
-			if n == nil {
-				panic("n is nil")
-			}
-
-			ps := n.(*pageState)
-
-			if s == "" {
-				hasHome = true
-				sa.s.home = ps
-				return false, nil
-			}
-
-			switch ps.Kind() {
-			case kinds.KindPage, kinds.KindSection:
-				// OK
-			default:
-				// Skip taxonomy nodes etc.
-				return false, nil
-			}
-
-			p := ps.m.pathInfo
-			section := p.Section()
-			if section == "" || seen[section] {
-				return false, nil
-			}
-			seen[section] = true
-
-			// Try to preserve the original casing if possible.
-			sectionUnnormalized := p.Unnormalized().Section()
-			pth := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
-			nn := w.Tree.Get(pth.Base())
-			if nn == nil {
-				m := &pageMeta{
-					pageMetaSource: &pageMetaSource{
-						pathInfo: pth,
-					},
-				}
-				ps, err := sa.s.newPageNew(m)
-				if err != nil {
-					return false, err
-				}
-
-				w.Tree.InsertIntoCurrentDimension(ps.PathInfo().Base(), ps)
-			}
-
-			// /a/b, we don't need to walk deeper.
-			if strings.Count(s, "/") > 1 {
-				w.SkipPrefix(s + "/")
-			}
-
-			return false, nil
-		},
-	}
-
-	if err := w.Walk(sa.ctx); err != nil {
-		return err
-	}
-
-	if !hasHome {
-		p := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
-
-		m := &pageMeta{
-			pageMetaParams: &pageMetaParams{},
-			pageMetaSource: &pageMetaSource{
-				pathInfo: p,
-				pageConfigSource: &pagemeta.PageConfig{
-					PageConfigEarly: pagemeta.PageConfigEarly{
-						Kind: kinds.KindHome,
-					},
-				},
-			},
-		}
-		n, err := sa.s.newPageNew(m)
-		if err != nil {
-			return err
-		}
-
-		w.Tree.InsertIntoCurrentDimensionWithLock(n.PathInfo().Base(), n)
-		sa.s.home = n
-	}
 
 	return nil
 }

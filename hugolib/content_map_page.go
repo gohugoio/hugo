@@ -838,6 +838,17 @@ var (
 	_ contentNodeMap = (*contentNodes[contentNodePage])(nil)
 )
 
+func contentNodeToContentNodesPage(n contentNode) (contentNodes[contentNodePage], bool) {
+	switch v := n.(type) {
+	case contentNodes[contentNodePage]:
+		return v, false
+	case *pageState:
+		return contentNodes[contentNodePage]{v.s.siteVector: v}, true
+	default:
+		panic(fmt.Sprintf("contentNodeToContentNodesPage: unexpected type %T", n))
+	}
+}
+
 type contentNodes[V contentNode] map[sitesmatrix.Vector]V
 
 func (n contentNodes[V]) lookupContentNode(v sitesmatrix.Vector) contentNode {
