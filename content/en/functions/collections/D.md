@@ -49,7 +49,7 @@ Choosing an appropriate seed value depends on your objective.
 Objective|Seed example
 :--|:--
 Consistent result|`42`
-Different result on each call|`time.Now.UnixNano`
+Different result on each call|`int time.Now.UnixNano`
 Same result per day|`time.Now.YearDay`
 Same result per page|`hash.FNV32a .Path`
 Different result per page per day|`hash.FNV32a (print .Path time.Now.YearDay)`
