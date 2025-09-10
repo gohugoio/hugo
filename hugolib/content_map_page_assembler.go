@@ -116,8 +116,8 @@ func (a *allPagesAssembler) createAllPages() error {
 	newHomePageMetaSource := func() *pageMetaSource {
 		pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
 		return &pageMetaSource{
-			pathInfo:       pi,
-			siteMatrixBase: a.h.Conf.AllSitesMatrix(),
+			pathInfo:        pi,
+			sitesMatrixBase: a.h.Conf.AllSitesMatrix(),
 			pageConfigSource: &pagemeta.PageConfig{
 				PageConfigEarly: pagemeta.PageConfigEarly{
 					Kind: kinds.KindHome,
@@ -172,6 +172,17 @@ func (a *allPagesAssembler) createAllPages() error {
 			)
 			switch ms := v.(type) {
 			case *pageMetaSource:
+				seenVectors := sitesmatrix.Vectors{}
+				defer func() {
+					// Remove any vectors we did not see.
+					for vec := range is {
+						if _, found := seenVectors[vec]; !found {
+							hdebug.Printf("removing unseen vector: %v", vec)
+							delete(is, vec)
+						}
+					}
+				}()
+
 				if err := ms.initSitesMatrix(a.h, cascades); err != nil {
 					return false, false, err
 				}
@@ -189,6 +200,7 @@ func (a *allPagesAssembler) createAllPages() error {
 					if !found {
 						panic(fmt.Sprintf("site not found for %v", vec))
 					}
+					seenVectors[vec] = struct{}{}
 
 					var p *pageState
 					p, err = site.newPageFromPageMetasource(ms)
@@ -292,11 +304,14 @@ func (a *allPagesAssembler) createAllPages() error {
 					if err != nil {
 						return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 					}
-					return v, false, false, false, nil
+
 				default:
 					// Nothing to do.
 				}
 			}
+
+			return v, false, false, false, nil
+
 		default:
 			panic(fmt.Sprintf("unexpected type %T", n))
 		}
@@ -312,7 +327,12 @@ func (a *allPagesAssembler) createAllPages() error {
 	)
 
 	transformPagesAndCreateMissingHome := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+		hdebug.Printf("transformPagesAndCreateMissingHome: %q", s)
 		level := strings.Count(s, "/")
+
+		if s == "" {
+			seenHome = true
+		}
 
 		if s != "" && !seenHome {
 			homePages, _, _, _, _ := transformPages("", newHomePageMetaSource())
@@ -339,8 +359,8 @@ func (a *allPagesAssembler) createAllPages() error {
 				sectionUnnormalized := p.Unnormalized().Section()
 				rootSectionPath := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
 				rootSectionPages, _, _, _, _ := transformPages(rootSectionPath.Base(), &pageMetaSource{
-					pathInfo:       rootSectionPath,
-					siteMatrixBase: n2.(contentNodeForSites).siteVectors(),
+					pathInfo:        rootSectionPath,
+					sitesMatrixBase: n2.(contentNodeForSites).siteVectors(),
 					pageConfigSource: &pagemeta.PageConfig{
 						PageConfigEarly: pagemeta.PageConfigEarly{
 							Kind: kinds.KindSection, // TODO1 also handle taxonomies here.
@@ -354,15 +374,18 @@ func (a *allPagesAssembler) createAllPages() error {
 		const eventNameSitesMatrix = "sitesmatrix"
 
 		if s == "" || isRootSetion {
-			if s == "" {
-				seenHome = true
-			}
 
 			// Every page needs a home and a root section (.FirstSection).
 			// We don't know yet what language, version, role combination that will
 			// be created below, so collect that information and create the missing pages
 			// on demand.
 			nm, replaced := contentNodeToContentNodesPage(n2)
+			if s == "" {
+				n2.(contentNodeForSites).siteVectors().ForEeachVector(func(vec sitesmatrix.Vector) bool {
+					hdebug.Printf("home site vector: %v", vec)
+					return true
+				})
+			}
 			missingVectors := sitesmatrix.Vectors{}
 
 			if s == "" {
@@ -392,16 +415,19 @@ func (a *allPagesAssembler) createAllPages() error {
 			// We need to wait until after the walk to have a complete set.
 			a.pw.WalkContext.AddPostHook(
 				func() error {
-					hdebug.Printf("home missingVectors: %v %d", s, len(missingVectors))
 					if i := len(missingVectors); i > 0 {
 						vec := missingVectors.One()
+						hdebug.Printf("home missingVectors: %v %d %v", s, len(missingVectors), vec)
+
 						kind := kinds.KindSection
 						if s == "" {
 							kind = kinds.KindHome // TODO1 also handle taxonomies here.
 						}
+
 						pms := &pageMetaSource{
-							pathInfo:       n.PathInfo(),
-							siteMatrixBase: missingVectors,
+							pathInfo:            n.PathInfo(),
+							sitesMatrixBase:     missingVectors,
+							sitesMatrixBaseOnly: true,
 							pageConfigSource: &pagemeta.PageConfig{
 								PageConfigEarly: pagemeta.PageConfigEarly{
 									Kind: kind,
@@ -470,10 +496,10 @@ func (a *allPagesAssembler) createAllPages() error {
 							termKey := pi.Base()
 
 							term, _, _, _, _ := transformPages(termKey, &pageMetaSource{
-								pathInfo:       pi,
-								siteMatrixBase: vec,
-								term:           v,
-								singular:       viewName.singular,
+								pathInfo:        pi,
+								sitesMatrixBase: vec,
+								term:            v,
+								singular:        viewName.singular,
 								pageConfigSource: &pagemeta.PageConfig{
 									PageConfigEarly: pagemeta.PageConfigEarly{
 										Kind: kinds.KindTerm,
@@ -613,10 +639,10 @@ func (a *allPagesAssembler) createAllPages() error {
 
 				if len(v) > 0 {
 					p := &pageMetaSource{
-						pathInfo:       pi,
-						siteMatrixBase: v,
-						term:           k.term,
-						singular:       k.view.singular,
+						pathInfo:        pi,
+						sitesMatrixBase: v,
+						term:            k.term,
+						singular:        k.view.singular,
 						pageConfigSource: &pagemeta.PageConfig{
 							PageConfigEarly: pagemeta.PageConfigEarly{
 								Kind: kinds.KindTerm,
@@ -1185,9 +1211,9 @@ func (a *allPagesAssembler) createMissingTaxonomies() error {
 
 		pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, key+"/_index.md")
 		p := &pageMetaSource{
-			pathInfo:       pi,
-			singular:       viewName.singular,
-			siteMatrixBase: matrixAllForLanguages,
+			pathInfo:        pi,
+			singular:        viewName.singular,
+			sitesMatrixBase: matrixAllForLanguages,
 			pageConfigSource: &pagemeta.PageConfig{
 				PageConfigEarly: pagemeta.PageConfigEarly{
 					Kind: kinds.KindTaxonomy,

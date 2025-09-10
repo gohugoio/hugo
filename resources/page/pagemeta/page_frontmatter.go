@@ -298,6 +298,13 @@ func buildSitesFallbacksFromSitesConfig(
 	return sitesFallbacksPage.Build()
 }
 
+func buildSitesMatrixFromVectorIterator(
+	conf config.AllProvider,
+	sitesMatrix sitesmatrix.VectorIterator,
+) *sitesmatrix.IntSets {
+	return sitesmatrix.NewIntSetsBuilder(conf.ConfiguredDimensions()).WithDimensionsFromOtherIfNotSet(sitesMatrix).Build()
+}
+
 func buildSitesMatrixFromSitesConfig(
 	conf config.AllProvider,
 	sitesMatrixFile sitesmatrix.VectorIterator,
@@ -313,21 +320,29 @@ func buildSitesMatrixFromSitesConfig(
 	}
 	sitesMatrixPage.WithDefaultsIfNotSet()
 
-	return sitesMatrixPage.Build()
+	matrix := sitesMatrixPage.Build()
+
+	return matrix
 }
 
 // CompileEarly gets called early and before the cascade from content gets applied.
 // TODO1 remove me.
-func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.PageMatcherParamsConfig, conf config.AllProvider, fim *hugofs.FileMeta, siteMatrixBase sitesmatrix.VectorIterator) error {
+func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.PageMatcherParamsConfig,
+	conf config.AllProvider, fim *hugofs.FileMeta, sitesMatrixBase sitesmatrix.VectorIterator, sitesMatrixBaseOnly bool,
+) error {
 	if before {
 		return nil
 	}
 
-	p.SitesMatrix = buildSitesMatrixFromSitesConfig(
-		conf,
-		siteMatrixBase,
-		p.Sites,
-	)
+	if sitesMatrixBaseOnly {
+		p.SitesMatrix = buildSitesMatrixFromVectorIterator(conf, sitesMatrixBase)
+	} else {
+		p.SitesMatrix = buildSitesMatrixFromSitesConfig(
+			conf,
+			sitesMatrixBase,
+			p.Sites,
+		)
+	}
 
 	p.SitesFallbacks = buildSitesFallbacksFromSitesConfig(
 		conf,
@@ -354,11 +369,11 @@ func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.P
 
 	}
 
-	if !sitesMatrixBefore.Equal(p.Sites.Matrix) {
+	if !sitesMatrixBaseOnly && !sitesMatrixBefore.Equal(p.Sites.Matrix) {
 		// Matrix has changed, rebuild.
 		p.SitesMatrix = buildSitesMatrixFromSitesConfig(
 			conf,
-			siteMatrixBase,
+			sitesMatrixBase,
 			p.Sites,
 		)
 	}

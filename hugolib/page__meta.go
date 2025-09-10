@@ -101,10 +101,12 @@ func (m *pageMetaSource) MarkStale() {
 }
 
 type pageMetaSource struct {
-	pathInfo       *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
-	f              *source.File
-	pi             *contentParseInfo
-	siteMatrixBase sitesmatrix.VectorIterator
+	pathInfo            *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
+	f                   *source.File
+	pi                  *contentParseInfo
+	sitesMatrixBase     sitesmatrix.VectorIterator
+	sitesMatrixBaseOnly bool
+
 	// Set for standalone pages, e.g. robotsTXT.
 	standaloneOutputFormat output.Format
 	resource.Staler
@@ -148,9 +150,9 @@ type pageMeta struct {
 }
 
 func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatcherParamsConfig) error {
-	siteMatrixBase := m.siteMatrixBase
-	if siteMatrixBase == nil && m.f != nil {
-		siteMatrixBase = m.f.FileInfo().Meta().SitesMatrix
+	sitesMatrixBase := m.sitesMatrixBase
+	if sitesMatrixBase == nil && m.f != nil {
+		sitesMatrixBase = m.f.FileInfo().Meta().SitesMatrix
 	}
 
 	if m.pi != nil && m.pi.frontMatter != nil {
@@ -165,7 +167,7 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatch
 	if m.f != nil {
 		fim = m.f.FileInfo().Meta()
 	}
-	if err := m.pageConfigSource.CompileEarly(false, m.pathInfo, cascades, h.Conf, fim, siteMatrixBase); err != nil {
+	if err := m.pageConfigSource.CompileEarly(false, m.pathInfo, cascades, h.Conf, fim, sitesMatrixBase, m.sitesMatrixBaseOnly); err != nil {
 		return err
 	}
 
@@ -268,7 +270,7 @@ func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.Vec
 			if m.f != nil {
 				fim = m.f.FileInfo().Meta()
 			}
-			if err := m.pageConfigSource.CompileEarly(true, m.pathInfo, nil, h.Conf, fim, sitesMatrixFile); err != nil {
+			if err := m.pageConfigSource.CompileEarly(true, m.pathInfo, nil, h.Conf, fim, sitesMatrixFile, false); err != nil {
 				return err
 			}
 

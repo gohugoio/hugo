@@ -66,7 +66,7 @@ func (pt pageTree) CurrentSection() page.Page {
 
 	if dir == "/" {
 		if pt.p.s.home == nil {
-			panic(fmt.Sprintf("home page is nil for %q", pt.p.Path()))
+			panic(fmt.Sprintf("[%v] home page is nil for %q", pt.p.s.siteVector, pt.p.Path()))
 		}
 		return pt.p.s.home
 	}
