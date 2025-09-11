@@ -172,17 +172,6 @@ func (a *allPagesAssembler) createAllPages() error {
 			)
 			switch ms := v.(type) {
 			case *pageMetaSource:
-				seenVectors := sitesmatrix.Vectors{}
-				defer func() {
-					// Remove any vectors we did not see.
-					for vec := range is {
-						if _, found := seenVectors[vec]; !found {
-							hdebug.Printf("removing unseen vector: %v", vec)
-							delete(is, vec)
-						}
-					}
-				}()
-
 				if err := ms.initSitesMatrix(a.h, cascades); err != nil {
 					return false, false, err
 				}
@@ -200,7 +189,6 @@ func (a *allPagesAssembler) createAllPages() error {
 					if !found {
 						panic(fmt.Sprintf("site not found for %v", vec))
 					}
-					seenVectors[vec] = struct{}{}
 
 					var p *pageState
 					p, err = site.newPageFromPageMetasource(ms)
@@ -232,6 +220,17 @@ func (a *allPagesAssembler) createAllPages() error {
 				})
 				return true, replaced, err
 			case *pageState:
+				if a.isRebuild {
+					if err := ms.setMetaPost(s, cascades); err != nil {
+						return false, replaced, err
+					}
+
+					// We receive cascade values from above. If this leads to a change compared
+					// to the previous value, we need to mark the page and its dependencies as changed.
+					if ms.m.setMetaPostCascadeChanged {
+						a.assembleChanges.Add(ms)
+					}
+				}
 				is[ms.s.siteVector] = ms
 				return true, replaced, err
 			}
@@ -327,7 +326,6 @@ func (a *allPagesAssembler) createAllPages() error {
 	)
 
 	transformPagesAndCreateMissingHome := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		hdebug.Printf("transformPagesAndCreateMissingHome: %q", s)
 		level := strings.Count(s, "/")
 
 		if s == "" {
@@ -382,7 +380,6 @@ func (a *allPagesAssembler) createAllPages() error {
 			nm, replaced := contentNodeToContentNodesPage(n2)
 			if s == "" {
 				n2.(contentNodeForSites).siteVectors().ForEeachVector(func(vec sitesmatrix.Vector) bool {
-					hdebug.Printf("home site vector: %v", vec)
 					return true
 				})
 			}
@@ -417,7 +414,8 @@ func (a *allPagesAssembler) createAllPages() error {
 				func() error {
 					if i := len(missingVectors); i > 0 {
 						vec := missingVectors.One()
-						hdebug.Printf("home missingVectors: %v %d %v", s, len(missingVectors), vec)
+						_, has001 := missingVectors[sitesmatrix.Vector{0, 0, 1}]
+						hdebug.Printf("home missingVectors: %v %d %v %t", s, len(missingVectors), vec, has001)
 
 						kind := kinds.KindSection
 						if s == "" {
@@ -553,7 +551,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		return false, false
 	}
 
-	forEeachPage := func(fn func(p *pageState) bool) bool {
+	forEeachResourceOwnerPage := func(fn func(p *pageState) bool) bool {
 		switch nn := resourceOwnerInfo.n.(type) {
 		case *pageState:
 			return fn(nn)
@@ -587,7 +585,7 @@ func (a *allPagesAssembler) createAllPages() error {
 			nodes := make(contentNodes[contentNode])
 			n2 = nodes
 			replaced = true
-			forEeachPage(
+			forEeachResourceOwnerPage(
 				func(p *pageState) bool {
 					if _, found := nodes[p.s.siteVector]; !found {
 						var rs *resourceSource
@@ -609,7 +607,6 @@ func (a *allPagesAssembler) createAllPages() error {
 							}
 						}
 					}
-
 					return true
 				},
 			)
@@ -987,7 +984,29 @@ func (sa *sitePagesAssembler) assembleTerms() error {
 }
 
 func (sa *sitePagesAssembler) assemblePagesStepFinal() error {
-	return sa.assembleResourcesAndSetHome()
+	if err := sa.assembleResourcesAndSetHome(); err != nil {
+		return err
+	}
+	if err := sa.debugStep(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO1 remove me.
+func (sa *sitePagesAssembler) debugStep() error {
+	pagesTree := sa.s.pageMap.treePages
+
+	lockType := doctree.LockTypeWrite
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
+		Tree:     pagesTree,
+		LockType: lockType,
+		Handle: func(s string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+			return false, nil
+		},
+	}
+
+	return w.Walk(sa.ctx)
 }
 
 func (sa *sitePagesAssembler) assembleResourcesAndSetHome() error {
@@ -1232,29 +1251,33 @@ func (a *allPagesAssembler) createMissingTaxonomies() error {
 func (a *allPagesAssembler) createMissingStandalonePages() error {
 	m := a.m
 	tree := m.treePages
+	oneSiteStore := (sitesmatrix.Vectors{sitesmatrix.Vector{0, 0, 0}: struct{}{}}).ToVectorStore()
 
 	commit := tree.Lock(true)
 	defer commit()
 
 	addStandalone := func(key, kind string, f output.Format) {
+		if !a.h.Conf.IsKindEnabled(kind) || tree.Has(key) {
+			return
+		}
+
+		var sitesMatrixBase sitesmatrix.VectorIterator
+
 		if !a.h.Conf.IsMultihost() {
 			switch kind {
 			case kinds.KindSitemapIndex, kinds.KindRobotsTXT:
-				// Only one for all dimensions. TODO1
-				/*if !s.siteVector.IsFirst() {
-					return
-				}*/
+				// First site only.
+				sitesMatrixBase = oneSiteStore
+			default:
+				sitesMatrixBase = a.h.Conf.AllSitesMatrix()
 			}
 		}
-
-		// TODO1 per site.
-		/*if !sa.h.Conf.IsKindEnabled(kind) || tree.Has(key) {
-			return
-		}*/
 
 		p := &pageMetaSource{
 			pathInfo:               a.h.Conf.PathParser().Parse(files.ComponentFolderContent, key+f.MediaType.FirstSuffix.FullSuffix),
 			standaloneOutputFormat: f,
+			sitesMatrixBase:        sitesMatrixBase,
+			sitesMatrixBaseOnly:    true,
 			pageConfigSource: &pagemeta.PageConfig{
 				PageConfigEarly: pagemeta.PageConfigEarly{
 					Kind: kind,

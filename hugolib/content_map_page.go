@@ -974,8 +974,7 @@ func (t *contentNodeTransformerRaw) Append(n contentNode, ns ...contentNode) (co
 }
 
 type contentNodeShifter struct {
-	numLanguages int                // TODO1 remove.
-	conf         config.AllProvider // Used for logging/debugging.
+	conf config.AllProvider // Used for logging/debugging.
 }
 
 func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (contentNode, bool, bool) {

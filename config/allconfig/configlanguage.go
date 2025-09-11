@@ -103,6 +103,10 @@ func (c ConfigLanguage) IsLangDisabled(lang string) bool {
 	return c.config.C.DisabledLanguages[lang]
 }
 
+func (c ConfigLanguage) IsKindEnabled(kind string) bool {
+	return !c.config.C.DisabledKinds[kind]
+}
+
 func (c ConfigLanguage) IgnoredLogs() map[string]bool {
 	return c.config.C.IgnoredLogs
 }

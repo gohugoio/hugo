@@ -40,14 +40,21 @@ var (
 
 func newVectorStoreMap(cap int) *vectorStoreMap {
 	return &vectorStoreMap{
-		sets: make(map[Vector]struct{}, cap),
+		sets: make(Vectors, cap),
+		h:    &hashOnce{},
+	}
+}
+
+func newVectorStoreMapFromVectors(v Vectors) *vectorStoreMap {
+	return &vectorStoreMap{
+		sets: v,
 		h:    &hashOnce{},
 	}
 }
 
 // A vector store backed by a map.
 type vectorStoreMap struct {
-	sets map[Vector]struct{}
+	sets Vectors
 	h    *hashOnce
 }
 

@@ -973,7 +973,8 @@ roles = ["guest"]
 ---
 title: "Home"
 sites:
-  roles: ["member"]
+  matrix:
+    roles: ["guest"]
 ---
 -- layouts/all.html --
 All.
@@ -982,13 +983,24 @@ All.
 
 	b := Test(t, files)
 
-	s0 := b.H.sitesVersionsRolesMap[sitesmatrix.Vector{0, 1, 1}] // en, v2.0.0, member
+	s0 := b.H.sitesVersionsRolesMap[sitesmatrix.Vector{0, 0, 0}] // en, v2.1.0, guest
 	b.Assert(s0.home, qt.IsNotNil)
 	b.Assert(s0.home.File(), qt.IsNotNil)
 	b.Assert(s0.language.Name(), qt.Equals, "en")
-	b.Assert(s0.version.Name(), qt.Equals, "v2.0.0")
-	b.Assert(s0.role.Name(), qt.Equals, "member")
+	b.Assert(s0.version.Name(), qt.Equals, "v2.1.0")
+	b.Assert(s0.role.Name(), qt.Equals, "guest")
 	s0Pconfig := s0.Home().(*pageState).m.pageConfig
-	b.Assert(s0Pconfig.Sites.Matrix.Languages, qt.DeepEquals, []string{"en"})
-	b.Assert(s0Pconfig.Sites.Matrix.Versions, qt.DeepEquals, []string{"v2**"})
+	b.Assert(s0Pconfig.SitesMatrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)
+	b.Assert(s0Pconfig.SitesMatrix.LenVectors(), qt.Equals, 1)
+
+	s1 := b.H.sitesVersionsRolesMap[sitesmatrix.Vector{1, 2, 0}]
+	b.Assert(s1.home, qt.IsNotNil)
+	b.Assert(s1.home.File(), qt.IsNil)
+	b.Assert(s1.language.Name(), qt.Equals, "nn")
+	b.Assert(s1.version.Name(), qt.Equals, "v1.0.0")
+	b.Assert(s1.role.Name(), qt.Equals, "guest")
+	s1Pconfig := s1.Home().(*pageState).m.pageConfig
+	b.Assert(s1Pconfig.SitesMatrix.HasVector(sitesmatrix.Vector{1, 2, 0}), qt.IsTrue) // nn, v1.0.0, guest
+	// Every site needs a home page. This matrix adds the missing one, (3 * 3 * 2) - 1 = 17
+	b.Assert(s1Pconfig.SitesMatrix.LenVectors(), qt.Equals, 17)
 }

@@ -159,7 +159,9 @@ func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguag
 			return "", fmt.Errorf("default language %q is disabled", k)
 		}
 
-		ls.Sorted = append(ls.Sorted, LanguageInternal{Name: k, Default: isDefault, LanguageConfig: v})
+		if !v.Disabled {
+			ls.Sorted = append(ls.Sorted, LanguageInternal{Name: k, Default: isDefault, LanguageConfig: v})
+		}
 	}
 
 	// Sort by weight if set, then by name.

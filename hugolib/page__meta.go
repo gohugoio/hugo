@@ -597,6 +597,7 @@ func (ps *pageState) setMetaPost(s string, cascades []page.PageMatcherParamsConf
 	hdebug.AssertNotNil(ps.m.pageMetaParams)
 	ps.m.setMetaPostCount++
 	var cascadeHashPre uint64
+
 	if ps.m.setMetaPostCount > 1 {
 		cascadeHashPre = hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
 		ps.m.pageConfig.CascadeCompiled = slices.Clone(ps.m.cascadeOriginal) // TODO1 move.
@@ -604,6 +605,7 @@ func (ps *pageState) setMetaPost(s string, cascades []page.PageMatcherParamsConf
 
 	if ps.m.setMetaPostCount > 1 {
 		ps.m.setMetaPostCascadeChanged = cascadeHashPre != hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
+		hdebug.Printf("setMetaPost %q count %d %t", s, ps.m.setMetaPostCount, ps.m.setMetaPostCascadeChanged)
 		if !ps.m.setMetaPostCascadeChanged {
 
 			// No changes, restore any value that may be changed by aggregation.

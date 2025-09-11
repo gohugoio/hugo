@@ -207,8 +207,8 @@ type PageConfig struct {
 }
 
 type SitesMatrixFallbacks struct {
-	SitesMatrix    *sitesmatrix.IntSets `mapstructure:"-" json:"-"`
-	SitesFallbacks *sitesmatrix.IntSets `mapstructure:"-" json:"-"`
+	SitesMatrix    sitesmatrix.VectorStore `mapstructure:"-" json:"-"`
+	SitesFallbacks sitesmatrix.VectorStore `mapstructure:"-" json:"-"`
 }
 
 func (p PageConfig) shallowCloneForSite() *PageConfig {
@@ -299,10 +299,19 @@ func buildSitesFallbacksFromSitesConfig(
 }
 
 func buildSitesMatrixFromVectorIterator(
-	conf config.AllProvider,
 	sitesMatrix sitesmatrix.VectorIterator,
-) *sitesmatrix.IntSets {
-	return sitesmatrix.NewIntSetsBuilder(conf.ConfiguredDimensions()).WithDimensionsFromOtherIfNotSet(sitesMatrix).Build()
+) sitesmatrix.VectorStore {
+	switch v := sitesMatrix.(type) {
+	case sitesmatrix.VectorStore:
+		return v
+	case sitesmatrix.ToVectorStoreProvider:
+		return v.ToVectorStore()
+	default:
+		if v == nil {
+			return nil
+		}
+		panic(fmt.Sprintf("unsupported type %T", v))
+	}
 }
 
 func buildSitesMatrixFromSitesConfig(
@@ -335,7 +344,7 @@ func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades []page.P
 	}
 
 	if sitesMatrixBaseOnly {
-		p.SitesMatrix = buildSitesMatrixFromVectorIterator(conf, sitesMatrixBase)
+		p.SitesMatrix = buildSitesMatrixFromVectorIterator(sitesMatrixBase)
 	} else {
 		p.SitesMatrix = buildSitesMatrixFromSitesConfig(
 			conf,

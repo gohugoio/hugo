@@ -302,8 +302,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	var sites []*Site
 
 	ns := &contentNodeShifter{
-		numLanguages: len(confm.Languages),
-		conf:         conf,
+		conf: conf,
 	}
 
 	treeConfig := doctree.Config[contentNode]{
@@ -327,7 +326,6 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	pageTrees.createMutableTrees()
 
 	for i, confp := range confm.ConfigLangs() {
-
 		language := confp.Language().(*langs.Language)
 		if language.Disabled {
 			panic("TODO1 disable languages should not be here.") // Else we will need to adjust i.
@@ -1805,5 +1803,5 @@ func (s *Site) String() string {
 		return "Site (nil)"
 	}
 
-	return fmt.Sprintf("Site%s", s.debugResolveDimensionNames())
+	return fmt.Sprintf("Site %v: %s", s.siteVector, s.debugResolveDimensionNames())
 }

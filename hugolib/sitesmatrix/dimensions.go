@@ -146,6 +146,8 @@ func (v1 Vector) Weight() int {
 	return 0
 }
 
+var _ ToVectorStoreProvider = Vectors{}
+
 type Vectors map[Vector]struct{}
 
 func (vs Vectors) ForEeachVector(yield func(v Vector) bool) bool {
@@ -155,6 +157,10 @@ func (vs Vectors) ForEeachVector(yield func(v Vector) bool) bool {
 		}
 	}
 	return true
+}
+
+func (vs Vectors) ToVectorStore() VectorStore {
+	return newVectorStoreMapFromVectors(vs)
 }
 
 func (vs Vectors) One() Vector {
@@ -208,6 +214,10 @@ type VectorStore interface {
 	// Used in tests.
 	KeysSorted() ([]int, []int, []int)
 	Vectors() []Vector
+}
+
+type ToVectorStoreProvider interface {
+	ToVectorStore() VectorStore
 }
 
 type weightedVectorStore struct {
