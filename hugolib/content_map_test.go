@@ -367,7 +367,6 @@ p1-foo.txt
 	`
 
 	b := Test(t, files)
-	b.Build()
 
 	b.AssertFileExists("public/s1/index.html", true)
 	b.AssertFileExists("public/s1/foo.txt", true)

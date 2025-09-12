@@ -173,13 +173,6 @@ func (p *resourceSource) matchSiteVectorAll(siteVector sitesmatrix.Vector, fallb
 		}
 	}
 
-	/*if variant := p.getVariant(siteVector); variant != nil {
-	// TODO1 remove all the variant stuff.
-		return func(yield func(n contentNodeForSite) bool) {
-			yield(variant)
-		}
-	}*/
-
 	pc := p.rc
 
 	var found bool

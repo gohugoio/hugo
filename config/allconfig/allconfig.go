@@ -161,7 +161,7 @@ type Config struct {
 
 	// The cascade configuration section contains the top level front matter cascade configuration options,
 	// a slice of page matcher and params to apply to those pages.
-	Cascade *config.ConfigNamespace[[]page.PageMatcherParamsConfig, page.CascadeConfig] `mapstructure:"-"`
+	Cascade *page.PageMatcherParamsConfigs `mapstructure:"-"`
 
 	// The segments defines segments for the site. Used for partial/segmented builds.
 	Segments *config.ConfigNamespace[map[string]segments.SegmentConfig, segments.Segments] `mapstructure:"-"`
@@ -833,7 +833,7 @@ type Configs struct {
 }
 
 func (c *Configs) Validate(logger loggers.Logger) error {
-	for _, cascade := range c.Base.Cascade.Config.Cascades {
+	for cascade := range c.Base.Cascade.All() {
 		page.CheckCascadePattern(logger, cascade.Target)
 	}
 	return nil

@@ -359,7 +359,7 @@ var allDecoderSetups = map[string]decodeWeight{
 			p.c.Cascade, err = page.DecodeCascadeConfig(p.p.Get(d.key))
 			return err
 		},
-		getInitializer: func(c *Config) configInitializer { return &c.Cascade.Config },
+		getInitializer: func(c *Config) configInitializer { return c.Cascade },
 	},
 	"menus": {
 		key: "menus",

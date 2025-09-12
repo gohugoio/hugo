@@ -93,7 +93,8 @@ type HugoSites struct {
 	// be relatively rare and low volume.
 	translationKeyPages *maps.SliceCache[page.Page]
 
-	pageTrees *pageTrees
+	pageTrees                    *pageTrees
+	pageTreesPreviousWalkContext *doctree.WalkContext[contentNode] // Set for rebuilds only.
 
 	printUnusedTemplatesInit sync.Once
 	printPathWarningsInit    sync.Once
