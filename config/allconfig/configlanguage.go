@@ -166,7 +166,7 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 	case "build":
 		return c.config.Build
 	case "cascade":
-		return c.config.Cascade.Config
+		return c.config.Cascade
 	case "frontmatter":
 		return c.config.Frontmatter
 	case "caches":

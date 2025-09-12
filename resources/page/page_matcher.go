@@ -15,10 +15,12 @@ package page
 
 import (
 	"fmt"
+	"iter"
 	"path/filepath"
 	"slices"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -59,10 +61,10 @@ type PageMatcher struct {
 }
 
 func (m PageMatcher) Matches(p Page) bool {
-	return m.Match(p.Kind(), p.Language().Lang, p.Path(), p.Site().Hugo().Environment, nil)
+	return m.Match(p.Kind(), p.Path(), p.Site().Hugo().Environment, nil)
 }
 
-func (m PageMatcher) Match(kind, lang, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
+func (m PageMatcher) Match(kind, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
 	if sitesMatrix != nil {
 		if m.SitesMatrixCompiled != nil && !m.SitesMatrixCompiled.HasAnyVector(sitesMatrix) {
 			return false
@@ -122,7 +124,7 @@ func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
 	}
 }
 
-func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, CascadeConfig], error) {
+func DecodeCascadeConfig(in any) (*PageMatcherParamsConfigs, error) {
 	buildConfig := func(in any) (CascadeConfig, any, error) {
 		dec := cascadeConfigDecoder{}
 
@@ -176,7 +178,12 @@ func DecodeCascadeConfig(in any) (*config.ConfigNamespace[[]PageMatcherParamsCon
 		return CascadeConfig{Cascades: cfgs}, cfgs, nil
 	}
 
-	return config.DecodeNamespace[[]PageMatcherParamsConfig, CascadeConfig](in, buildConfig)
+	c, err := config.DecodeNamespace[[]PageMatcherParamsConfig](in, buildConfig)
+	if err != nil || len(c.Config.Cascades) == 0 {
+		return nil, err
+	}
+
+	return &PageMatcherParamsConfigs{c: []*config.ConfigNamespace[[]PageMatcherParamsConfig, CascadeConfig]{c}}, nil
 }
 
 type cascadeConfigDecoder struct{}
@@ -256,16 +263,6 @@ type CascadeConfig struct {
 	Cascades []PageMatcherParamsConfig
 }
 
-func (c *CascadeConfig) InitConfig(logger loggers.Logger, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
-	for i := range c.Cascades {
-		CheckCascadePattern(logger, c.Cascades[i].Target)
-		if err := c.Cascades[i].Target.compileSitesMatrix(defaultSitesMatrix, configuredDimensions); err != nil {
-			return fmt.Errorf("failed to compile cascade target %d: %w", i, err)
-		}
-	}
-	return nil
-}
-
 type PageMatcherParamsConfig struct {
 	// Apply Params to all Pages matching Target.
 	Params maps.Params
@@ -278,5 +275,83 @@ type PageMatcherParamsConfig struct {
 func (p *PageMatcherParamsConfig) init() error {
 	maps.PrepareParams(p.Params)
 	maps.PrepareParams(p.Fields)
+	return nil
+}
+
+type PageMatcherParamsConfigs struct {
+	c []*config.ConfigNamespace[[]PageMatcherParamsConfig, CascadeConfig]
+}
+
+func (c *PageMatcherParamsConfigs) Append(other *PageMatcherParamsConfigs) *PageMatcherParamsConfigs {
+	if c == nil || len(c.c) == 0 {
+		return other
+	}
+	if other == nil || len(other.c) == 0 {
+		return c
+	}
+	return &PageMatcherParamsConfigs{c: slices.Concat(c.c, other.c)}
+}
+
+func (c *PageMatcherParamsConfigs) Prepend(other *PageMatcherParamsConfigs) *PageMatcherParamsConfigs {
+	if c == nil || len(c.c) == 0 {
+		return other
+	}
+	if other == nil || len(other.c) == 0 {
+		return c
+	}
+	return &PageMatcherParamsConfigs{c: slices.Concat(other.c, c.c)}
+}
+
+func (c *PageMatcherParamsConfigs) All() iter.Seq[PageMatcherParamsConfig] {
+	return func(yield func(PageMatcherParamsConfig) bool) {
+		if c == nil {
+			return
+		}
+		for _, v := range c.c {
+			for _, vv := range v.Config.Cascades {
+				if !yield(vv) {
+					return
+				}
+			}
+		}
+	}
+}
+
+func (c *PageMatcherParamsConfigs) Len() int {
+	if c == nil {
+		return 0
+	}
+	var n int
+	for _, v := range c.c {
+		n += len(v.Config.Cascades)
+	}
+	return n
+}
+
+func (c *PageMatcherParamsConfigs) SourceHash() uint64 {
+	if c == nil {
+		return 0
+	}
+	h := hashing.XxHasher()
+	defer h.Close()
+
+	for _, v := range c.c {
+		h.WriteString(v.SourceHash)
+	}
+	return h.Sum64()
+}
+
+func (c *PageMatcherParamsConfigs) InitConfig(logger loggers.Logger, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+	if c == nil {
+		return nil
+	}
+	for _, cc := range c.c {
+		for i := range cc.Config.Cascades {
+			CheckCascadePattern(logger, cc.Config.Cascades[i].Target)
+			if err := cc.Config.Cascades[i].Target.compileSitesMatrix(defaultSitesMatrix, configuredDimensions); err != nil {
+				return fmt.Errorf("failed to compile cascade target %d: %w", i, err)
+			}
+		}
+	}
 	return nil
 }
