@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"path"
-	"slices"
 	"strings"
 	"time"
 
@@ -92,9 +91,6 @@ type PageConfigEarly struct {
 
 	// Content holds the content for this page.
 	Content Source
-
-	// Compiled/temporary values. TODO1 move this to source.
-	CascadeCompiled []page.PageMatcherParamsConfig `mapstructure:"-" json:"-"`
 }
 
 const (
@@ -136,22 +132,6 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[stri
 		}
 	}
 
-	return nil
-}
-
-func (pcfg *PageConfigEarly) SetCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions, logger loggers.Logger) error {
-	// Check for any cascade define on itself.
-	if cv, found := frontmatter[pageMetaKeyCascade]; found {
-		var err error
-		cascade, err := page.DecodeCascadeConfig(cv)
-		if err != nil {
-			return err
-		}
-		if err := cascade.Config.InitConfig(logger, defaultSitesMatrix, configuredDimensions); err != nil {
-			return err
-		}
-		pcfg.CascadeCompiled = cascade.Config.Cascades
-	}
 	return nil
 }
 
@@ -212,7 +192,6 @@ type SitesMatrixFallbacks struct {
 }
 
 func (p PageConfig) shallowCloneForSite() *PageConfig {
-	p.PageConfigEarly.CascadeCompiled = slices.Clone(p.PageConfigEarly.CascadeCompiled)
 	return &p
 }
 

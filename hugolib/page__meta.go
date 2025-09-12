@@ -41,6 +41,7 @@ import (
 	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
@@ -112,6 +113,7 @@ type pageMetaSource struct {
 	resource.Staler
 
 	pageConfigSource *pagemeta.PageConfig
+	cascadeCompiled  []page.PageMatcherParamsConfig // TODO1 unexport.
 
 	term     string // Set for kind == KindTerm.
 	singular string // Set for kind == KindTerm and kind == KindTaxonomy.
@@ -122,6 +124,21 @@ type pageMetaSource struct {
 	openSource    func() (hugio.ReadSeekCloser, error)
 
 	initEarlyInit sync.Once
+
+	// TODO1 clean up below.
+	setMetaPostSourceCount           int
+	setMetaPostSourcesCascadeChanged bool
+
+	// These are only set in watch mode.
+	cascadeOriginal []page.PageMatcherParamsConfig // contains the original cascade as defined in the front matter.
+
+	// TODO1 these 2 cannot be shared.
+	datesOriginal  pagemeta.Dates
+	paramsOriginal map[string]any // contains the original params as defined in the front matter.
+}
+
+func (m *pageMetaSource) isDirtyCascades(cascades []page.PageMatcherParamsConfig) bool {
+	return false
 }
 
 func (m *pageMetaSource) String() string {
@@ -135,14 +152,34 @@ func (m *pageMetaSource) nodeCategoryPage() {
 	// Marker method.
 }
 
+// TODO1 rework the signature here, all is internal state.
+func (pcfg *pageMetaSource) setCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions, logger loggers.Logger) error {
+	const (
+		pageMetaKeyCascade = "cascade"
+	)
+
+	hdebug.Printf("setCascadeFromMap: %q", pcfg.Path())
+
+	// Check for any cascade define on itself.
+	if cv, found := frontmatter[pageMetaKeyCascade]; found {
+		var err error
+		cascade, err := page.DecodeCascadeConfig(cv)
+		if err != nil {
+			return err
+		}
+		if err := cascade.Config.InitConfig(logger, defaultSitesMatrix, configuredDimensions); err != nil {
+			return err
+		}
+		pcfg.cascadeCompiled = cascade.Config.Cascades
+	}
+	return nil
+}
+
 type pageMeta struct {
 	// Shared between all dimensions of this page.
 	*pageMetaSource
 
 	pageConfig *pagemeta.PageConfig
-
-	// Per Page. TODO1, potentially share some.
-	*pageMetaParams
 
 	resource.Staler // TODO1 remove?
 
@@ -172,7 +209,7 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades []page.PageMatch
 	}
 
 	if m.pi != nil && m.pi.frontMatter != nil {
-		if err := m.pageConfigSource.SetCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Conf.ConfiguredDimensions(), h.Log); err != nil {
+		if err := m.setCascadeFromMap(m.pi.frontMatter, m.pageConfigSource.SitesMatrix, h.Conf.ConfiguredDimensions(), h.Log); err != nil {
 			return nil
 		}
 	}
@@ -281,10 +318,6 @@ func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.Vec
 }
 
 func (m *pageMeta) initLate(s *Site) error {
-	if m.pageMetaParams == nil {
-		m.pageMetaParams = &pageMetaParams{}
-	}
-
 	var sitesMatrixFile sitesmatrix.VectorStore
 	if m.f != nil {
 		sitesMatrixFile = m.f.FileInfo().Meta().SitesMatrix
@@ -418,7 +451,6 @@ func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, err
 	m := &pageMeta{
 		pageMetaSource: ms,
 		Staler:         &resources.AtomicStaler{},
-		pageMetaParams: &pageMetaParams{},
 	}
 
 	var sitesMatrixFile sitesmatrix.VectorStore
@@ -435,24 +467,14 @@ func (m *pageMeta) setMetaPostPrepareRebuild() {
 	m.pageConfig = pagemeta.ClonePageConfigForRebuild(m.pageConfig, params)
 }
 
-type pageMetaParams struct {
-	setMetaPostCount          int
-	setMetaPostCascadeChanged bool
-
-	// These are only set in watch mode.
-	datesOriginal   pagemeta.Dates
-	paramsOriginal  map[string]any                 // contains the original params as defined in the front matter.
-	cascadeOriginal []page.PageMatcherParamsConfig // contains the original cascade as defined in the front matter.
-}
-
-func (m *pageMeta) initPageMetaParams(preserveOriginal bool) {
+func (m *pageMetaSource) initPageMetaParams(preserveOriginal bool) {
 	if preserveOriginal {
-		if m.pageConfig.IsFromContentAdapter {
-			m.paramsOriginal = xmaps.Clone(m.pageConfig.ContentAdapterData)
+		if m.pageConfigSource.IsFromContentAdapter {
+			m.paramsOriginal = xmaps.Clone(m.pageConfigSource.ContentAdapterData)
 		} else {
-			m.paramsOriginal = xmaps.Clone(m.pageConfig.Params)
+			m.paramsOriginal = xmaps.Clone(m.pageConfigSource.Params)
 		}
-		m.cascadeOriginal = slices.Clone(m.pageConfig.CascadeCompiled)
+		m.cascadeOriginal = slices.Clone(m.cascadeCompiled)
 	}
 }
 
@@ -592,28 +614,30 @@ func (m *pageMeta) Weight() int {
 	return m.pageConfig.Weight
 }
 
-// TODO1 can we get rid of this method? Think about terms.
-func (ps *pageState) setMetaPost(s string, cascades []page.PageMatcherParamsConfig) error {
-	hdebug.AssertNotNil(ps.m.pageMetaParams)
-	ps.m.setMetaPostCount++
+func (ps *pageMetaSource) setMetaPostSource() error {
+	ps.setMetaPostSourceCount++
 	var cascadeHashPre uint64
 
-	if ps.m.setMetaPostCount > 1 {
-		cascadeHashPre = hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
-		ps.m.pageConfig.CascadeCompiled = slices.Clone(ps.m.cascadeOriginal) // TODO1 move.
+	if ps.setMetaPostSourceCount > 1 {
+		cascadeHashPre = hashing.HashUint64(ps.cascadeCompiled)
+		ps.cascadeCompiled = slices.Clone(ps.cascadeOriginal)
 	}
+	if ps.setMetaPostSourceCount > 1 {
+		ps.setMetaPostSourcesCascadeChanged = cascadeHashPre != hashing.HashUint64(ps.cascadeCompiled)
+		hdebug.Printf("setMetaPostSource: %q, count: %d, changed: %t", ps.Path(), ps.setMetaPostSourceCount, ps.setMetaPostSourcesCascadeChanged)
+	}
+	return nil
+}
 
-	if ps.m.setMetaPostCount > 1 {
-		ps.m.setMetaPostCascadeChanged = cascadeHashPre != hashing.HashUint64(ps.m.pageConfig.CascadeCompiled)
-		hdebug.Printf("setMetaPost %q count %d %t", s, ps.m.setMetaPostCount, ps.m.setMetaPostCascadeChanged)
-		if !ps.m.setMetaPostCascadeChanged {
-
+// TODO1 can we get rid of this method? Think about terms.
+func (ps *pageState) setMetaPost(cascades []page.PageMatcherParamsConfig) error {
+	if ps.m.setMetaPostSourceCount > 1 {
+		if !ps.m.setMetaPostSourcesCascadeChanged {
 			// No changes, restore any value that may be changed by aggregation.
 			ps.m.pageConfig.Dates = ps.m.datesOriginal
 			return nil
 		}
 		ps.m.setMetaPostPrepareRebuild()
-
 	}
 
 	for _, v := range cascades {

@@ -154,8 +154,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		return cascades
 	}
 
-	transformPages := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		cascades := getCascades(s)
+	transformPages2 := func(s string, n contentNode, cascades []page.PageMatcherParamsConfig) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		cascadesLen := len(cascades)
 
 		defer func() {
@@ -176,10 +175,14 @@ func (a *allPagesAssembler) createAllPages() error {
 					return false, false, err
 				}
 
-				if ms.isContentNodeBranch() && ms.pageConfigSource.CascadeCompiled != nil {
+				if err := ms.setMetaPostSource(); err != nil {
+					return false, false, err
+				}
+
+				if ms.isContentNodeBranch() && ms.cascadeCompiled != nil {
 					// Cascade on itself has higher priority than inherited ones,
 					// so insert it first.
-					cascades = slices.Insert(cascades, 0, ms.pageConfigSource.CascadeCompiled...)
+					cascades = slices.Insert(cascades, 0, ms.cascadeCompiled...)
 				}
 
 				sitesMatrix := ms.sitesMatrix()
@@ -197,14 +200,8 @@ func (a *allPagesAssembler) createAllPages() error {
 					}
 
 					// Combine the cascade map with front matter.
-					if err = p.setMetaPost(s, cascades); err != nil {
+					if err = p.setMetaPost(cascades); err != nil {
 						return true
-					}
-
-					// We receive cascade values from above. If this leads to a change compared
-					// to the previous value, we need to mark the page and its dependencies as changed.
-					if a.isRebuild && p.m.setMetaPostCascadeChanged {
-						a.assembleChanges.Add(p)
 					}
 
 					pp, found := is[vec]
@@ -220,17 +217,7 @@ func (a *allPagesAssembler) createAllPages() error {
 				})
 				return true, replaced, err
 			case *pageState:
-				if a.isRebuild {
-					if err := ms.setMetaPost(s, cascades); err != nil {
-						return false, replaced, err
-					}
 
-					// We receive cascade values from above. If this leads to a change compared
-					// to the previous value, we need to mark the page and its dependencies as changed.
-					if ms.m.setMetaPostCascadeChanged {
-						a.assembleChanges.Add(ms)
-					}
-				}
 				is[ms.s.siteVector] = ms
 				return true, replaced, err
 			}
@@ -239,7 +226,21 @@ func (a *allPagesAssembler) createAllPages() error {
 
 		switch v := n.(type) {
 		case *pageState:
-			// Nothing to do.
+			if a.isRebuild {
+				/*if err := ms.m.setMetaPostSource(); err != nil {
+					return false, false, err
+				}
+				if err := ms.setMetaPost(cascades); err != nil {
+					return false, replaced, err
+				}*/
+
+				// We receive cascade values from above. If this leads to a change compared
+				// to the previous value, we need to mark the page and its dependencies as changed.
+				hdebug.Printf("rebuild page: %q", v.Path())
+				if true || v.m.setMetaPostSourcesCascadeChanged {
+					a.assembleChanges.Add(v)
+				}
+			}
 		case contentNodeSlice:
 			var updated bool
 			is := make(contentNodes[contentNodePage])
@@ -325,7 +326,22 @@ func (a *allPagesAssembler) createAllPages() error {
 		seenHome bool
 	)
 
-	transformPagesAndCreateMissingHome := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+	transformPages := func(s string, n contentNode, cascades []page.PageMatcherParamsConfig) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
+		n2, replaced, skip, terminate, err = transformPages2(s, n, cascades)
+		if a.isRebuild {
+			n2.forEeachContentNode(
+				func(vec sitesmatrix.Vector, nn contentNode) bool {
+					if ps, ok := nn.(*pageState); ok {
+						hdebug.Printf(".  rebuild resources for page: %q %d %t", ps.Path(), len(cascades), ps.m.isDirtyCascades(cascades))
+					}
+					return true
+				},
+			)
+		}
+		return
+	}
+
+	transformPagesAndCreateMissingHome := func(s string, n contentNode, cascades []page.PageMatcherParamsConfig) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
 		level := strings.Count(s, "/")
 
 		if s == "" {
@@ -333,12 +349,12 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 
 		if s != "" && !seenHome {
-			homePages, _, _, _, _ := transformPages("", newHomePageMetaSource())
+			homePages, _, _, _, _ := transformPages("", newHomePageMetaSource(), cascades)
 			treePages.InsertRaw("", homePages)
 			seenHome = true
 		}
 
-		n2, replaced, skip, terminate, err = transformPages(s, n)
+		n2, replaced, skip, terminate, err = transformPages(s, n, cascades)
 		if err != nil || skip || terminate {
 			return
 		}
@@ -364,7 +380,7 @@ func (a *allPagesAssembler) createAllPages() error {
 							Kind: kinds.KindSection, // TODO1 also handle taxonomies here.
 						},
 					},
-				})
+				}, cascades)
 				treePages.InsertRaw(rootSectionPath.Base(), rootSectionPages)
 			}
 		}
@@ -434,7 +450,7 @@ func (a *allPagesAssembler) createAllPages() error {
 						}
 						nm[vec] = pms
 
-						_, replaced2, _, _, _ := transformPages(s, nm)
+						_, replaced2, _, _, _ := transformPages(s, nm, cascades)
 						if replaced2 {
 							// Should not happen.
 							panic(fmt.Sprintf("expected no replacement for %q", s))
@@ -457,7 +473,8 @@ func (a *allPagesAssembler) createAllPages() error {
 	}
 
 	transformPagesAndCreateMissingStructuralNodes := func(s string, n contentNode) (n2 contentNode, replaced bool, skip bool, terminate bool, err error) {
-		n2, replaced, skip, terminate, err = transformPagesAndCreateMissingHome(s, n)
+		cascades := getCascades(s)
+		n2, replaced, skip, terminate, err = transformPagesAndCreateMissingHome(s, n, cascades)
 		if err != nil || skip || terminate {
 			return
 		}
@@ -503,7 +520,7 @@ func (a *allPagesAssembler) createAllPages() error {
 										Kind: kinds.KindTerm,
 									},
 								},
-							})
+							}, cascades)
 							hdebug.Printf("add %q for %v => %T", termKey, vec, term)
 							a.pw.Tree.InsertRaw(termKey, term)
 						}
@@ -647,7 +664,7 @@ func (a *allPagesAssembler) createAllPages() error {
 						},
 					}
 					var n2 contentNode = contentNodeSlice{n, p}
-					n2, replace, _, _, err := transformPages(termKey, n2)
+					n2, replace, _, _, err := transformPages(termKey, n2, getCascades(termKey))
 					if err != nil {
 						return fmt.Errorf("failed to create term page %q: %w", termKey, err)
 					}
@@ -717,7 +734,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		}
 
 		if rebuild {
-			if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostCount > 0 {
+			if (pageBundle.IsHome() || pageBundle.IsSection()) && pageBundle.m.setMetaPostSourceCount > 0 {
 				oldDates := pageBundle.m.pageConfig.Dates
 
 				// We need to wait until after the walk to determine if any of the dates have changed.
@@ -836,9 +853,9 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 				p := n.(*pageState)
 				if p.Kind() != kinds.KindTerm {
 					// The other kinds were handled in applyAggregates.
-					if p.m.pageConfig.CascadeCompiled != nil {
+					if p.m.cascadeCompiled != nil {
 						// Pass it down.
-						pw.WalkContext.Data().Insert(s, p.m.pageConfig.CascadeCompiled)
+						pw.WalkContext.Data().Insert(s, p.m.cascadeCompiled)
 					}
 				}
 
@@ -1361,7 +1378,6 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 						},
 					},
 				},
-				pageMetaParams: &pageMetaParams{},
 			}
 			p, err := sa.s.newPageNew(m)
 			if err != nil {
