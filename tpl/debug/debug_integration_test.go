@@ -104,6 +104,8 @@ Slice: {{ debug.List (slice 1 2 3) }}
 
 	// Test that page struct returns field names and methods (should include common page fields)
 	b.AssertFileContent("public/index.html", "Page Fields:")
+	b.AssertFileContent("public/index.html", "Title")
+	b.AssertFileContent("public/index.html", "Content")
 
 	// Test edge cases
 	b.AssertFileContent("public/index.html", "Nil: []")
