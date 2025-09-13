@@ -24,6 +24,7 @@ myenv = "theproduction"
 -- config/development/params.toml --
 myenv = "thedevelopment"
 -- layouts/index.html --
+<!DOCTYPE html>
 <body>
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|ServerPort: {{ site.ServerPort }}|myenv: {{ .Site.Params.myenv }}|Env: {{ hugo.Environment }}|IsServer: {{ hugo.IsServer }}|
 </body>
