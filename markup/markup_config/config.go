@@ -86,20 +86,26 @@ func normalizeConfig(m map[string]any) {
 		}
 	}
 
-	// Changed from a bool in 0.112.0.
+	// Handle changes to the Goldmark configuration.
 	v, err = maps.GetNestedParam("goldmark.extensions", ".", m)
 	if err == nil {
 		vm := maps.ToStringMap(v)
-		const typographerKey = "typographer"
-		if vv, found := vm[typographerKey]; found {
-			if vvb, ok := vv.(bool); ok {
-				if !vvb {
-					vm[typographerKey] = goldmark_config.Typographer{
-						Disable: true,
-					}
-				} else {
-					delete(vm, typographerKey)
-				}
+
+		// We changed the typographer extension config from a bool to a struct in 0.112.0.
+		migrateGoldmarkConfig(vm, "typographer", goldmark_config.Typographer{Disable: true})
+
+		// We changed the footnote extension config from a bool to a struct in 0.151.0.
+		migrateGoldmarkConfig(vm, "footnote", goldmark_config.Footnote{Enable: false})
+	}
+}
+
+func migrateGoldmarkConfig(vm map[string]any, key string, falseVal any) {
+	if vv, found := vm[key]; found {
+		if vvb, ok := vv.(bool); ok {
+			if !vvb {
+				vm[key] = falseVal
+			} else {
+				delete(vm, key)
 			}
 		}
 	}

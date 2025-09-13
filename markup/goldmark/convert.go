@@ -176,8 +176,15 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, extension.DefinitionList)
 	}
 
-	if cfg.Extensions.Footnote {
-		extensions = append(extensions, extension.Footnote)
+	if cfg.Extensions.Footnote.Enable {
+		if cfg.Extensions.Footnote.EnableAutoIDPrefix {
+			extensions = append(extensions, extension.NewFootnote(extension.WithFootnoteIDPrefixFunction(func(n ast.Node) []byte {
+				documentID := n.OwnerDocument().Meta()["documentID"].(string)
+				return []byte("h" + documentID)
+			})))
+		} else {
+			extensions = append(extensions, extension.Footnote)
+		}
 	}
 
 	if cfg.Extensions.CJK.Enable {
@@ -262,6 +269,7 @@ func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.Result
 		reader,
 		parser.WithContext(pctx),
 	)
+	doc.OwnerDocument().AddMeta("documentID", c.ctx.DocumentID)
 
 	return parserResult{
 		doc: doc,
