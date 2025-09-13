@@ -124,10 +124,9 @@ func (ns *Namespace) VisualizeSpaces(val any) string {
 // List returns a string slice of field names and methods for structs/pointers,
 // or keys for maps. This function uses reflection and is non-recursive.
 // For structs and pointers to structs, it returns all exported field names and method names.
-// Note: Method names are collected using reflect.PointerTo(t), which includes both value and pointer receiver methods.
+// Method names include both value and pointer receiver methods.
 // For maps, it returns all keys converted to strings.
 // For other types, it returns an empty slice.
-func (ns *Namespace) List(val any) []string {
 func (ns *Namespace) List(val any) []string {
 	if val == nil {
 		return []string{}

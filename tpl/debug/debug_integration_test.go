@@ -94,8 +94,6 @@ Nil: {{ debug.List nil }}
 String: {{ debug.List "hello" }}
 Number: {{ debug.List 42 }}
 Slice: {{ debug.List (slice 1 2 3) }}
-
-
 `
 	b := hugolib.TestRunning(t, files)
 
