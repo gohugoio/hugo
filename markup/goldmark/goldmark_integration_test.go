@@ -897,7 +897,7 @@ title: "p1"
 ---
 # HTML comments
 
-## Simple 
+## Simple
 <!-- This is a comment -->
 
     <!-- This is a comment indented -->
@@ -918,7 +918,7 @@ title: "p1"
 <img border="0" src="pic_trulli.jpg" alt="Trulli">
 -->
 
-## XSS 
+## XSS
 
 <!-- --><script>alert("I just escaped the HTML comment")</script><!-- -->
 
@@ -931,10 +931,10 @@ This is a <!-- hidden--> word.
 
 This is a <!-- hidden --> word.
 
-This is a <!-- 
+This is a <!--
 hidden --> word.
 
-This is a <!-- 
+This is a <!--
 hidden
 --> word.
 
@@ -960,4 +960,60 @@ hidden
 		"<!-- This is a comment -->",
 	)
 	b.AssertLogContains("! WARN")
+}
+
+func TestFootnoteExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions.footnote]
+enable = false
+enableAutoIDPrefix = false
+-- layouts/all.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: P1
+---
+This sentence on page P1 has[^1] two footnote[^2] references.
+
+[^1]: This is the first footnote.
+[^2]: This is the second footnote.
+-- content/p2.md --
+---
+title: P2
+---
+This sentence on page P2 has[^1] two footnote[^2] references.
+
+[^1]: This is the first footnote.
+[^2]: This is the second footnote.
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>This sentence on page P1 has[^1] two footnote[^2] references.</p>\n<p>[^1]: This is the first footnote.\n[^2]: This is the second footnote.</p>",
+	)
+	b.AssertFileContent("public/p2/index.html",
+		"<p>This sentence on page P2 has[^1] two footnote[^2] references.</p>\n<p>[^1]: This is the first footnote.\n[^2]: This is the second footnote.</p>",
+	)
+
+	files = strings.ReplaceAll(files, "enable = false", "enable = true")
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>This sentence on page P1 has<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> two footnote<sup id=\"fnref:2\"><a href=\"#fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup> references.</p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\">\n<p>This is the first footnote.&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"fn:2\">\n<p>This is the second footnote.&#160;<a href=\"#fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p2/index.html",
+		"<p>This sentence on page P2 has<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> two footnote<sup id=\"fnref:2\"><a href=\"#fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup> references.</p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\">\n<p>This is the first footnote.&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"fn:2\">\n<p>This is the second footnote.&#160;<a href=\"#fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+
+	files = strings.ReplaceAll(files, "enableAutoIDPrefix = false", "enableAutoIDPrefix = true")
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>This sentence on page P1 has<sup id=\"h-94f62cc2c3ce4427-fnref:1\"><a href=\"#h-94f62cc2c3ce4427-fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> two footnote<sup id=\"h-94f62cc2c3ce4427-fnref:2\"><a href=\"#h-94f62cc2c3ce4427-fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup> references.</p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h-94f62cc2c3ce4427-fn:1\">\n<p>This is the first footnote.&#160;<a href=\"#h-94f62cc2c3ce4427-fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h-94f62cc2c3ce4427-fn:2\">\n<p>This is the second footnote.&#160;<a href=\"#h-94f62cc2c3ce4427-fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p2/index.html",
+		"<p>This sentence on page P2 has<sup id=\"h-7b20fb7ea64417e9-fnref:1\"><a href=\"#h-7b20fb7ea64417e9-fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> two footnote<sup id=\"h-7b20fb7ea64417e9-fnref:2\"><a href=\"#h-7b20fb7ea64417e9-fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup> references.</p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h-7b20fb7ea64417e9-fn:1\">\n<p>This is the first footnote.&#160;<a href=\"#h-7b20fb7ea64417e9-fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h-7b20fb7ea64417e9-fn:2\">\n<p>This is the second footnote.&#160;<a href=\"#h-7b20fb7ea64417e9-fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
 }
