@@ -16,6 +16,7 @@ package debug
 
 import (
 	"encoding/json"
+	"reflect"
 	"sort"
 	"sync"
 	"time"
@@ -118,6 +119,66 @@ func (ns *Namespace) Dump(val any) string {
 func (ns *Namespace) VisualizeSpaces(val any) string {
 	s := cast.ToString(val)
 	return string(util.VisualizeSpaces([]byte(s)))
+}
+
+// List returns a string slice of field names and methods for structs/pointers,
+// or keys for maps. This function uses reflection and is non-recursive.
+// For structs and pointers to structs, it returns all exported field names and method names.
+// For maps, it returns all keys converted to strings.
+// For other types, it returns an empty slice.
+func (ns *Namespace) List(val any) []string {
+	if val == nil {
+		return []string{}
+	}
+
+	v := reflect.ValueOf(val)
+	t := v.Type()
+
+	// Handle pointers by dereferencing them
+	if t.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return []string{}
+		}
+		v = v.Elem()
+		t = v.Type()
+	}
+
+	var names []string
+
+	switch t.Kind() {
+	case reflect.Struct:
+		// Get field names
+		for i := 0; i < t.NumField(); i++ {
+			field := t.Field(i)
+			if field.IsExported() {
+				names = append(names, field.Name)
+			}
+		}
+
+		// Get method names (use pointer type to get all methods)
+		ptrType := reflect.PointerTo(t)
+		for i := 0; i < ptrType.NumMethod(); i++ {
+			method := ptrType.Method(i)
+			if method.IsExported() {
+				names = append(names, method.Name)
+			}
+		}
+
+	case reflect.Map:
+		// Get map keys as strings
+		for _, key := range v.MapKeys() {
+			keyStr := cast.ToString(key.Interface())
+			names = append(names, keyStr)
+		}
+
+	default:
+		// For other types, return empty slice
+		return []string{}
+	}
+
+	// Sort the names for consistent output
+	sort.Strings(names)
+	return names
 }
 
 func (ns *Namespace) Timer(name string) Timer {

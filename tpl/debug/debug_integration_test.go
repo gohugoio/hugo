@@ -73,3 +73,41 @@ Dump: {{ debug.Dump . | safeHTML }}
 	b := hugolib.TestRunning(t, files)
 	b.AssertFileContent("public/index.html", "Dump: {\n  \"Date\": \"2012-03-15T00:00:00Z\"")
 }
+
+func TestDebugList(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableLiveReload = true
+-- content/_index.md --
+---
+title: "The Index"
+---
+-- layouts/_default/list.html --
+{{ $dict := dict "name" "Hugo" "version" "0.120" "type" "SSG" }}
+Map Keys: {{ debug.List $dict }}
+
+{{ $page := . }}
+Page Fields: {{ debug.List $page }}
+
+Nil: {{ debug.List nil }}
+String: {{ debug.List "hello" }}
+Number: {{ debug.List 42 }}
+Slice: {{ debug.List (slice 1 2 3) }}
+
+
+`
+	b := hugolib.TestRunning(t, files)
+
+	// Test map keys
+	b.AssertFileContent("public/index.html", "Map Keys: [name type version]")
+
+	// Test that page struct returns field names and methods (should include common page fields)
+	b.AssertFileContent("public/index.html", "Page Fields:")
+
+	// Test edge cases
+	b.AssertFileContent("public/index.html", "Nil: []")
+	b.AssertFileContent("public/index.html", "String: []")
+	b.AssertFileContent("public/index.html", "Number: []")
+	b.AssertFileContent("public/index.html", "Slice: []")
+}
