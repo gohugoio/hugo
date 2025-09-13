@@ -1238,7 +1238,9 @@ config:
             enable: false
           superscript:
             enable: false
-        footnote: true
+        footnote:
+          enable: true
+          enableAutoIDPrefix: false
         linkify: true
         linkifyProtocol: https
         passthrough:

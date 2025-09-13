@@ -794,11 +794,9 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 		return converter.NopConverter, fmt.Errorf("no content renderer found for markup %q, page: %s", markup, ps.getPageInfoForError())
 	}
 
-	var id string
 	var filename string
 	var path string
 	if p.f != nil {
-		id = p.f.UniqueID()
 		filename = p.f.Filename()
 		path = p.f.Path()
 	} else {
@@ -822,7 +820,7 @@ func (p *pageMeta) newContentConverter(ps *pageState, markup string) (converter.
 		converter.DocumentContext{
 			Document:       doc,
 			DocumentLookup: documentLookup,
-			DocumentID:     id,
+			DocumentID:     hashing.XxHashFromStringHexEncoded(p.Path()),
 			DocumentName:   path,
 			Filename:       filename,
 		},

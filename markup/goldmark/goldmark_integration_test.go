@@ -897,7 +897,7 @@ title: "p1"
 ---
 # HTML comments
 
-## Simple 
+## Simple
 <!-- This is a comment -->
 
     <!-- This is a comment indented -->
@@ -918,7 +918,7 @@ title: "p1"
 <img border="0" src="pic_trulli.jpg" alt="Trulli">
 -->
 
-## XSS 
+## XSS
 
 <!-- --><script>alert("I just escaped the HTML comment")</script><!-- -->
 
@@ -931,10 +931,10 @@ This is a <!-- hidden--> word.
 
 This is a <!-- hidden --> word.
 
-This is a <!-- 
+This is a <!--
 hidden --> word.
 
-This is a <!-- 
+This is a <!--
 hidden
 --> word.
 
@@ -960,4 +960,73 @@ hidden
 		"<!-- This is a comment -->",
 	)
 	b.AssertLogContains("! WARN")
+}
+
+func TestFootnoteExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions.footnote]
+enable = false
+enableAutoIDPrefix = false
+-- layouts/all.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: p1
+---
+foo[^1] and bar[^2]
+
+[^1]: footnote one
+[^2]: footnote two
+-- content/p2.md --
+---
+title: p2
+---
+foo[^1] and bar[^2]
+
+[^1]: footnote one
+[^2]: footnote two
+-- content/_content.gotmpl --
+{{ range slice 3 4 }}
+  {{ $page := dict
+    "content" (dict "mediaType" "text/markdown" "value" "foo[^1] and bar[^2]\n\n[^1]: footnote one\n[^2]: footnote two")
+    "path" (printf "p%d" .)
+    "title" (printf "p%d" .)
+  }}
+  {{ $.AddPage $page }}
+{{ end }}
+`
+
+	want := "<p>foo[^1] and bar[^2]</p>\n<p>[^1]: footnote one\n[^2]: footnote two</p>"
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", want)
+	b.AssertFileContent("public/p2/index.html", want)
+	b.AssertFileContent("public/p3/index.html", want)
+	b.AssertFileContent("public/p4/index.html", want)
+
+	files = strings.ReplaceAll(files, "enable = false", "enable = true")
+	want = "<p>foo<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"fnref:2\"><a href=\"#fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\">\n<p>footnote one&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"fn:2\">\n<p>footnote two&#160;<a href=\"#fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>"
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", want)
+	b.AssertFileContent("public/p2/index.html", want)
+	b.AssertFileContent("public/p3/index.html", want)
+	b.AssertFileContent("public/p4/index.html", want)
+
+	files = strings.ReplaceAll(files, "enableAutoIDPrefix = false", "enableAutoIDPrefix = true")
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p2/index.html",
+		"<p>foo<sup id=\"h58e8265a0c07b195fnref:1\"><a href=\"#h58e8265a0c07b195fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"h58e8265a0c07b195fnref:2\"><a href=\"#h58e8265a0c07b195fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h58e8265a0c07b195fn:1\">\n<p>footnote one&#160;<a href=\"#h58e8265a0c07b195fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h58e8265a0c07b195fn:2\">\n<p>footnote two&#160;<a href=\"#h58e8265a0c07b195fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p3/index.html",
+		"<p>foo<sup id=\"h0aab769290d7e233fnref:1\"><a href=\"#h0aab769290d7e233fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"h0aab769290d7e233fnref:2\"><a href=\"#h0aab769290d7e233fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h0aab769290d7e233fn:1\">\n<p>footnote one&#160;<a href=\"#h0aab769290d7e233fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h0aab769290d7e233fn:2\">\n<p>footnote two&#160;<a href=\"#h0aab769290d7e233fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p4/index.html",
+		"<p>foo<sup id=\"ha35b794ad6e8626cfnref:1\"><a href=\"#ha35b794ad6e8626cfn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"ha35b794ad6e8626cfnref:2\"><a href=\"#ha35b794ad6e8626cfn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"ha35b794ad6e8626cfn:1\">\n<p>footnote one&#160;<a href=\"#ha35b794ad6e8626cfnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"ha35b794ad6e8626cfn:2\">\n<p>footnote two&#160;<a href=\"#ha35b794ad6e8626cfnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
 }
