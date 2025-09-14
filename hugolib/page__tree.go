@@ -21,7 +21,6 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugolib/doctree"
-	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -168,7 +167,7 @@ func (pt pageTree) Sections() page.Pages {
 		Tree:   tree,
 		Prefix: prefix,
 	}
-	w.Handle = func(ss string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+	w.Handle = func(ss string, n contentNode) (bool, error) {
 		if !n.isContentNodeBranch() {
 			return false, nil
 		}

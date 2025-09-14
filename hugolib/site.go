@@ -965,7 +965,7 @@ func (s *Site) initRenderFormats() {
 
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			if p, ok := n.(*pageState); ok {
 				for _, f := range p.m.pageConfig.ConfiguredOutputFormats {
 					if !formatSet[f.Name] {

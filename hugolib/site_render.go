@@ -23,7 +23,6 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugolib/doctree"
-	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/config"
@@ -88,7 +87,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			if p, ok := n.(*pageState); ok {
 				if cfg.shouldRender(ctx.infol, p) {
 					select {
@@ -272,7 +271,7 @@ func (s *Site) renderPaginator(p *pageState, templ *tplimpl.TemplInfo) error {
 func (s *Site) renderAliases() error {
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			p := n.(*pageState)
 
 			// We cannot alias a page that's not rendered.

@@ -135,10 +135,10 @@ func TestDecodeCascadeConfig(t *testing.T) {
 	got, err := DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
-	c.Assert(got.Config.InitConfig(loggers.NewDefault(), nil, nil), qt.IsNil)
-	c.Assert(got.Config, qt.DeepEquals, []PageMatcher{{Kind: "page", Environment: "production"}, {Kind: "page"}})
+	c.Assert(got.InitConfig(loggers.NewDefault(), nil, nil), qt.IsNil)
+	c.Assert(got.c[0].Config, qt.DeepEquals, []PageMatcher{{Kind: "page", Environment: "production"}, {Kind: "page"}})
 
-	c.Assert(got.SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
+	c.Assert(got.c[0].SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
 		{
 			Params: maps.Params{"a": string("av")},
 			Fields: maps.Params{},
@@ -178,8 +178,8 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 	got, err := DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
-	c.Assert(got.Config.InitConfig(loggers.NewDefault(), nil, dims), qt.IsNil)
-	v := got.Config.Cascades[0]
+	c.Assert(got.InitConfig(loggers.NewDefault(), nil, dims), qt.IsNil)
+	v := got.c[0].Config.Cascades[0]
 	c.Assert(v.Target.Kind, qt.Equals, "page")
 	c.Assert(v.Target.Environment, qt.Equals, "production")
 
@@ -192,9 +192,9 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 	got, err = DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
-	c.Assert(got.Config.InitConfig(loggers.NewDefault(), defaultSitesMatrix, dims), qt.IsNil)
+	c.Assert(got.InitConfig(loggers.NewDefault(), defaultSitesMatrix, dims), qt.IsNil)
 
-	v = got.Config.Cascades[0]
+	v = got.c[0].Config.Cascades[0]
 
 	matrix = v.Target.SitesMatrixCompiled
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)  // en, v1, free

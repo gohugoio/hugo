@@ -58,7 +58,7 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
-	if h.buildCounter.Load() > 0 && !h.Conf.Running() {
+	if h.buildCounter.Load() > 0 && !h.Conf.Watching() {
 		return errors.New("hugo.Build may not be repeated unless in server or watch mode")
 	}
 	infol := h.Log.InfoCommand("build")
@@ -307,7 +307,7 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 		bcfg.WhatChanged,
 	)
 
-	if h.Conf.Running() {
+	if h.Conf.Watching() {
 		defer func() {
 			// Store previous walk context to detect cascade changes on next rebuild.
 			h.pageTreesPreviousWalkContext = apa.rw.WalkContext

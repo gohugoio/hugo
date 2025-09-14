@@ -341,7 +341,7 @@ type NodeShiftTreeWalker[T any] struct {
 	// Handle will be called for each node in the main tree.
 	// If the callback returns true, the walk will stop.
 	// The callback can optionally return a callback for the nested tree.
-	Handle func(s string, v T, exact sitesmatrix.Dimension) (terminate bool, err error)
+	Handle func(s string, v T) (terminate bool, err error)
 
 	// Optional prefix filter.
 	Prefix string
@@ -445,7 +445,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 		}
 
 		if r.Handle != nil {
-			terminate, err = r.Handle(s, t, sitesmatrix.Language)
+			terminate, err = r.Handle(s, t)
 			if terminate || err != nil {
 				return
 			}

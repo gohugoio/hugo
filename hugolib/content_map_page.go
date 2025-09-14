@@ -17,7 +17,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"iter"
 	"path"
 	"sort"
 	"strconv"
@@ -290,7 +289,7 @@ func (m *pageMap) forEachPage(include predicate.P[*pageState], fn func(p *pageSt
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     m.treePages,
 		LockType: doctree.LockTypeRead,
-		Handle: func(key string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			if p, ok := n.(*pageState); ok && include(p) {
 				if terminate, err := fn(p); terminate || err != nil {
 					return terminate, err
@@ -317,7 +316,7 @@ func (m *pageMap) forEeachPageIncludingBundledPages(include predicate.P[*pageSta
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     m.treeResources,
 		LockType: doctree.LockTypeRead,
-		Handle: func(key string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			if p, ok := n.(*pageState); ok && include(p) {
 				if terminate, err := fn(p); terminate || err != nil {
 					return terminate, err
@@ -362,7 +361,7 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 			Fallback: true,
 		}
 
-		w.Handle = func(key string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+		w.Handle = func(key string, n contentNode) (bool, error) {
 			if q.Recursive {
 				if p, ok := n.(*pageState); ok && include(p) {
 					pas = append(pas, p)
@@ -568,7 +567,7 @@ func (m *pageMap) forEachResourceInPage(
 	lockType doctree.LockType,
 	fallback bool,
 	transform func(resourceKey string, n contentNode) (n2 contentNode, replaced, skip, terminate bool, err error),
-	handle func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error),
+	handle func(resourceKey string, n contentNode) (bool, error),
 ) error {
 	keyPage := ps.Path()
 	if keyPage == "/" {
@@ -633,14 +632,14 @@ func (m *pageMap) forEachResourceInPage(
 		}
 	}
 
-	rwr.Handle = func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (terminate bool, err error) {
+	rwr.Handle = func(resourceKey string, n contentNode) (terminate bool, err error) {
 		if transform == nil {
 			var skip bool
 			if skip, terminate = shouldSkipOrTerminate(resourceKey); skip || terminate {
 				return
 			}
 		}
-		return handle(resourceKey, n, match)
+		return handle(resourceKey, n)
 	}
 
 	return rwr.Walk(context.Background())
@@ -648,7 +647,7 @@ func (m *pageMap) forEachResourceInPage(
 
 func (m *pageMap) getResourcesForPage(ps *pageState) (resource.Resources, error) {
 	var res resource.Resources
-	m.forEachResourceInPage(ps, doctree.LockTypeNone, true, nil, func(resourceKey string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+	m.forEachResourceInPage(ps, doctree.LockTypeNone, true, nil, func(resourceKey string, n contentNode) (bool, error) {
 		switch n := n.(type) {
 		case *resourceSource:
 			r := n.r
@@ -828,51 +827,6 @@ func absint(i int) int {
 	return i
 }
 
-// TODO1 check upsage
-func (s *contentNodeShifter) findNodeForSiteVector(q sitesmatrix.Vector, fallback bool, candidates iter.Seq[contentNode]) contentNodeForSite {
-	var (
-		best         contentNodeForSite = nil
-		bestDistance int
-	)
-
-	for n := range candidates {
-		// The order of candidates is unstable, so we need to compare the matches to
-		// get stable output. This compare will also make sure that we pick
-		// language, version and role according to their individual sort order:
-		// Closer is better, and matches above are better than matches below.
-		if m := n.(contentNodeMatcher).matchSiteVectorAll(q, fallback); m != nil {
-			for nn := range m {
-				vec := nn.siteVector()
-				if q == vec {
-					// Exact match.
-					return nn
-				}
-
-				distance := q.Distance(vec)
-
-				if best == nil {
-					best = nn
-					bestDistance = distance
-				} else {
-					distanceAbs := absint(distance)
-					bestDistanceAbs := absint(bestDistance)
-					if distanceAbs < bestDistanceAbs {
-						// Closer is better.
-						best = nn
-						bestDistance = distance
-					} else if distanceAbs == bestDistanceAbs && distance > 0 {
-						// Positive distance is better than negative.
-						best = nn
-						bestDistance = distance
-					}
-				}
-			}
-		}
-	}
-
-	return best
-}
-
 func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector, fallback bool) (contentNode, bool) {
 	switch v := n.(type) {
 	case contentNodeMap:
@@ -893,7 +847,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			}
 		}
 
-		if vvv := s.findNodeForSiteVector(siteVector, fallback, iter); vvv != nil {
+		if vvv := contentNodeHelper.findContentNodeForSiteVector(siteVector, fallback, iter); vvv != nil {
 			return vvv, true
 		}
 		return nil, false
@@ -924,7 +878,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 				}
 			}
 		}
-		if vv := s.findNodeForSiteVector(siteVector, fallback, iter); vv != nil {
+		if vv := contentNodeHelper.findContentNodeForSiteVector(siteVector, fallback, iter); vv != nil {
 			if !fallback && vv.siteVector() != siteVector {
 				rc := vv.(contentNodeVariantAdder)
 				return rc.addContentNodeVariant(siteVector), true
@@ -1123,7 +1077,17 @@ func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentN
 		default:
 			panic(fmt.Sprintf("Insert: unknown type %T", new))
 		}
-
+	case contentNodes[contentNode]:
+		newp, ok := new.(*resourceSource)
+		if !ok {
+			panic(fmt.Sprintf("unknown type %T", newp))
+		}
+		oldp := vv[newp.sv]
+		if oldp != newp {
+			resource.MarkStale(oldp)
+		}
+		vv[newp.sv] = newp
+		return vv, oldp, oldp != nil
 	case *resourceSource:
 		newp, ok := new.(*resourceSource)
 		if !ok {
@@ -1145,7 +1109,7 @@ func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentN
 		if !ok {
 			panic(fmt.Sprintf("unknown type %T", new))
 		}
-		oldp := vv[newp.sitesMatrix().FirstVector()] // TODO1
+		oldp := vv[newp.sv]
 		if oldp != newp {
 			resource.MarkStale(oldp)
 		}
@@ -1202,7 +1166,7 @@ func newPageMap(sitei, versioni, rolei int, s *Site, mcache *dynacache.Cache, pa
 		w := &doctree.NodeShiftTreeWalker[contentNode]{
 			Tree:     m.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+			Handle: func(s string, n contentNode) (bool, error) {
 				p := n.(*pageState)
 				if p.PathInfo() != nil {
 					add(p.PathInfo().BaseNameNoIdentifier(), p)
@@ -1256,7 +1220,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 	resourceWalker := pageWalker.Extend()
 	resourceWalker.Tree = m.treeResources
 
-	pageWalker.Handle = func(keyPage string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+	pageWalker.Handle = func(keyPage string, n contentNode) (bool, error) {
 		level := strings.Count(keyPage, "/")
 		if level > maxLevel {
 			return false, nil
@@ -1282,7 +1246,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 		isBranch := n.isContentNodeBranch()
 		resourceWalker.Prefix = keyPage + "/"
 
-		resourceWalker.Handle = func(ss string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+		resourceWalker.Handle = func(ss string, n contentNode) (bool, error) {
 			if isBranch {
 				ownerKey, _ := pageWalker.Tree.LongestPrefix(ss, false, nil)
 				if ownerKey != keyPage {
@@ -1637,7 +1601,7 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) error {
 			Tree:     m.treePages,
 			Prefix:   paths.AddTrailingSlash(key),
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+			Handle: func(s string, n contentNode) (bool, error) {
 				p := n.(*pageState)
 
 				switch p.Kind() {

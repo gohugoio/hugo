@@ -231,23 +231,24 @@ func (ps *pageState) matchSiteVector(siteVector sitesmatrix.Vector) bool {
 }
 
 func (ps *pageState) matchSiteVectorAll(dims sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
+	nop := func(yield func(n contentNodeForSite) bool) {}
 	pc := ps.m.pageConfigSource
 	if !fallback {
 		if !pc.MatchSiteVector(dims) {
-			return nil
+			return nop
 		}
 		return func(yield func(n contentNodeForSite) bool) {
 			yield(ps)
 		}
 	}
 	if !pc.MatchLanguageOrLanguageFallback(dims) {
-		return nil
+		return nop
 	}
 	if !pc.MatchVersionOrVersionFallback(dims) {
-		return nil
+		return nop
 	}
 	if !pc.MatchRoleOrRoleFallback(dims) {
-		return nil
+		return nop
 	}
 	return func(yield func(n contentNodeForSite) bool) {
 		yield(ps)

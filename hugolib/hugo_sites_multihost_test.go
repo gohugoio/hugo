@@ -212,7 +212,7 @@ title: mybundle-en
 	b.AssertFileExists("public/en/mybundle/pixel_hu_58204cbc58507d74.png", true)
 }
 
-func TestMultihostResourceOneBaseURLWithSuPath(t *testing.T) {
+func TestMultihostResourceOneBaseURLWithSubPath(t *testing.T) {
 	files := `
 -- hugo.toml --
 defaultContentLanguage = "en"

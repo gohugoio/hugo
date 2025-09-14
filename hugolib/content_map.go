@@ -64,12 +64,13 @@ const (
 )
 
 type resourceSource struct {
-	state  resourceSourceState
-	sv     sitesmatrix.Vector
-	path   *paths.Path
-	opener hugio.OpenReadSeekCloser
-	fi     hugofs.FileMetaInfo
-	rc     *pagemeta.ResourceConfig
+	state           resourceSourceState
+	sv              sitesmatrix.Vector
+	path            *paths.Path
+	opener          hugio.OpenReadSeekCloser
+	fi              hugofs.FileMetaInfo
+	rc              *pagemeta.ResourceConfig
+	targetBasePaths []string // Set in multihost mode.
 
 	r resource.Resource
 }
@@ -144,8 +145,8 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 }
 
 func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector) bool {
-	if p.state >= resourceStateAssigned && p.sv == siteVector {
-		return true
+	if p.state >= resourceStateAssigned {
+		return p.sv == siteVector
 	}
 
 	// A site has not been assigned yet.

@@ -86,7 +86,7 @@ func TestTreeData(t *testing.T) {
 	w := &doctree.NodeShiftTreeWalker[*testValue]{
 		Tree:        tree,
 		WalkContext: ctx,
-		Handle: func(s string, t *testValue, match sitesmatrix.Dimension) (bool, error) {
+		Handle: func(s string, t *testValue) (bool, error) {
 			ctx.Data().Insert(s, map[string]any{
 				"id": t.ID,
 			})
@@ -128,7 +128,7 @@ func TestTreeEvents(t *testing.T) {
 		WalkContext: &doctree.WalkContext[*testValue]{},
 	}
 
-	w.Handle = func(s string, t *testValue, match sitesmatrix.Dimension) (bool, error) {
+	w.Handle = func(s string, t *testValue) (bool, error) {
 		if t.IsBranch {
 			w.WalkContext.AddEventListener("weight", s, func(e *doctree.Event[*testValue]) {
 				if e.Source.Weight > t.Weight {
@@ -351,7 +351,7 @@ func BenchmarkWalk(b *testing.B) {
 		return tree
 	}
 
-	handle := func(s string, t *testValue, match sitesmatrix.Dimension) (bool, error) {
+	handle := func(s string, t *testValue) (bool, error) {
 		return false, nil
 	}
 

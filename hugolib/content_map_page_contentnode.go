@@ -18,6 +18,7 @@ import (
 	"iter"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -97,16 +98,23 @@ var (
 
 var contentNodeHelper helperContentNode
 
-func (helperContentNode) isPageNode(n contentNode) bool {
+func (h helperContentNode) isPageNode(n contentNode) bool {
+	n = h.one(n)
 	switch n.(type) {
 	case contentNodePage:
 		return true
-	case contentNodes[contentNodePage]:
-		return true
 	default:
 		return false
-
 	}
+}
+
+func (helperContentNode) one(n contentNode) contentNode {
+	var nn contentNode
+	n.forEeachContentNode(func(_ sitesmatrix.Vector, n contentNode) bool {
+		nn = n
+		return false
+	})
+	return nn
 }
 
 var (
@@ -125,6 +133,17 @@ func contentNodeToContentNodesPage(n contentNode) (contentNodes[contentNodePage]
 	}
 }
 
+func contentNodeToSeq(n contentNode) contentNodeSeq {
+	if nn, ok := n.(contentNodeSeq); ok {
+		return nn
+	}
+	return func(yield func(contentNode) bool) {
+		n.forEeachContentNode(func(_ sitesmatrix.Vector, nn contentNode) bool {
+			return yield(nn)
+		})
+	}
+}
+
 type contentNodes[V contentNode] map[sitesmatrix.Vector]V
 
 func (n contentNodes[V]) lookupContentNode(v sitesmatrix.Vector, fallback bool) contentNode {
@@ -138,6 +157,9 @@ func (n contentNodes[V]) lookupContentNode(v sitesmatrix.Vector, fallback bool) 
 
 	for _, nn := range n {
 		if m, ok := any(nn).(contentNodeMatcher); ok {
+			if types.IsNil(m) {
+				panic(fmt.Sprintf("nil contentNodeMatcher in %T", n))
+			}
 			for nn := range m.matchSiteVectorAll(v, true) {
 				return nn
 			}
@@ -307,4 +329,48 @@ func (n contentNodeSeq) one() contentNode {
 		return nn
 	}
 	return nil
+}
+
+func (h helperContentNode) findContentNodeForSiteVector(q sitesmatrix.Vector, fallback bool, candidates contentNodeSeq) contentNodeForSite {
+	var (
+		best         contentNodeForSite = nil
+		bestDistance int
+	)
+
+	for n := range candidates {
+		// The order of candidates is unstable, so we need to compare the matches to
+		// get stable output. This compare will also make sure that we pick
+		// language, version and role according to their individual sort order:
+		// Closer is better, and matches above are better than matches below.
+		if m := n.(contentNodeMatcher).matchSiteVectorAll(q, fallback); m != nil {
+			for nn := range m {
+				vec := nn.siteVector()
+				if q == vec {
+					// Exact match.
+					return nn
+				}
+
+				distance := q.Distance(vec)
+
+				if best == nil {
+					best = nn
+					bestDistance = distance
+				} else {
+					distanceAbs := absint(distance)
+					bestDistanceAbs := absint(bestDistance)
+					if distanceAbs < bestDistanceAbs {
+						// Closer is better.
+						best = nn
+						bestDistance = distance
+					} else if distanceAbs == bestDistanceAbs && distance > 0 {
+						// Positive distance is better than negative.
+						best = nn
+						bestDistance = distance
+					}
+				}
+			}
+		}
+	}
+
+	return best
 }

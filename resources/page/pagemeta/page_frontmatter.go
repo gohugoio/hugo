@@ -77,27 +77,20 @@ func (d Dates) IsAllDatesZero() bool {
 	return d.Date.IsZero() && d.Lastmod.IsZero() && d.PublishDate.IsZero() && d.ExpiryDate.IsZero()
 }
 
-// Page config that needs to be set early. These cannot be modified by cascade.
+// Page config that needs to be set early.
 type PageConfigEarly struct {
-	Kind string // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
-	Path string // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
-
-	// User defined params.
-	Params maps.Params
-
-	Sites sitesmatrix.Sites
-
+	Kind    string      // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
+	Path    string      // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
+	Params  maps.Params // User defined params.
+	Sites   sitesmatrix.Sites
 	Cascade []map[string]any
-
-	// Content holds the content for this page.
-	Content Source
+	Content Source // Content holds the content for this page.
 }
 
 const (
-	pageMetaKeySites   = "sites"
-	pageMetaKeyCascade = "cascade"
-	pageMetaKeyPath    = "path"
-	pageMetaKeyKind    = "kind"
+	pageMetaKeySites = "sites"
+	pageMetaKeyPath  = "path"
+	pageMetaKeyKind  = "kind"
 )
 
 // bookmark1
@@ -192,6 +185,7 @@ type SitesMatrixFallbacks struct {
 }
 
 func (p PageConfig) shallowCloneForSite() *PageConfig {
+	// TODO1 not so shallow.
 	return &p
 }
 

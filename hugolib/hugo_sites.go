@@ -447,7 +447,7 @@ func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
 		w := &doctree.NodeShiftTreeWalker[contentNode]{
 			Tree:     s.pageMap.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNode, match sitesmatrix.Dimension) (bool, error) {
+			Handle: func(s string, n contentNode) (bool, error) {
 				return fn(s, n.(*pageState)), nil
 			},
 		}
