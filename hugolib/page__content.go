@@ -605,7 +605,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 			var result contentSummary
 			if c.pi.hasSummaryDivider {
 				s := string(b)
-				summarized := page.ExtractSummaryFromHTMLWithDivider(cp.po.p.m.pageConfig.ContentMediaType, s, internalSummaryDividerBase)
+				summarized := page.ExtractSummaryFromHTMLWithDivider(cp.po.p.m.pageConfigSource.ContentMediaType, s, internalSummaryDividerBase)
 				result.summary = page.Summary{
 					Text:      template.HTML(summarized.Summary()),
 					Type:      page.SummaryTypeManual,
@@ -620,7 +620,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 			if !c.pi.hasSummaryDivider && cp.po.p.m.pageConfig.Summary == "" {
 				numWords := cp.po.p.s.conf.SummaryLength
 				isCJKLanguage := cp.po.p.m.pageConfig.IsCJKLanguage
-				summary := page.ExtractSummaryFromHTML(cp.po.p.m.pageConfig.ContentMediaType, string(result.content), numWords, isCJKLanguage)
+				summary := page.ExtractSummaryFromHTML(cp.po.p.m.pageConfigSource.ContentMediaType, string(result.content), numWords, isCJKLanguage)
 				result.summary = page.Summary{
 					Text:      template.HTML(summary.Summary()),
 					Type:      page.SummaryTypeAuto,
@@ -641,7 +641,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 			if err != nil {
 				return nil, err
 			}
-			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfig.Content.Markup)
+			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfigSource.Content.Markup)
 			rs.Value.summary = page.Summary{
 				Text: helpers.BytesToHTML(html),
 				Type: page.SummaryTypeFrontMatter,
@@ -728,7 +728,7 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 			p.incrPageOutputTemplateVariation()
 		}
 
-		isHTML := cp.po.p.m.pageConfig.ContentMediaType.IsHTML()
+		isHTML := cp.po.p.m.pageConfigSource.ContentMediaType.IsHTML()
 
 		if !isHTML {
 			createAndSetToC := func(tocProvider converter.TableOfContentsProvider) error {
@@ -951,7 +951,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 
 	conv := pco.po.p.getContentConverter()
 
-	if opts.Markup != "" && opts.Markup != pco.po.p.m.pageConfig.ContentMediaType.SubType {
+	if opts.Markup != "" && opts.Markup != pco.po.p.m.pageConfigSource.ContentMediaType.SubType {
 		var err error
 		conv, err = pco.po.p.m.newContentConverter(pco.po.p, opts.Markup)
 		if err != nil {
@@ -1047,7 +1047,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 	}
 
 	if opts.Display == "inline" {
-		markup := pco.po.p.m.pageConfig.Content.Markup
+		markup := pco.po.p.m.pageConfigSource.Content.Markup
 		if opts.Markup != "" {
 			markup = pco.po.p.s.ContentSpec.ResolveMarkup(opts.Markup)
 		}

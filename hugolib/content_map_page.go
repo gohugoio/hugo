@@ -479,7 +479,7 @@ func (m *pageMap) createResource(ps *pageState, n contentNode) (resource.Resourc
 	targetPaths := ps.targetPaths()
 	baseTarget := targetPaths.SubResourceBaseTarget
 	duplicateResourceFiles := true
-	if ps.m.pageConfig.ContentMediaType.IsMarkdown() {
+	if ps.m.pageConfigSource.ContentMediaType.IsMarkdown() {
 		duplicateResourceFiles = ps.s.ContentSpec.Converters.GetMarkupConfig().Goldmark.DuplicateResourceFiles
 	}
 

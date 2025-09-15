@@ -113,10 +113,8 @@ func (a *allPagesAssembler) createAllPages() error {
 		return &pageMetaSource{
 			pathInfo:        pi,
 			sitesMatrixBase: a.h.Conf.AllSitesMatrix(),
-			pageConfigSource: &pagemeta.PageConfig{
-				PageConfigEarly: pagemeta.PageConfigEarly{
-					Kind: kinds.KindHome,
-				},
+			pageConfigSource: &pagemeta.PageConfigEarly{
+				Kind: kinds.KindHome,
 			},
 		}
 	}
@@ -403,10 +401,8 @@ func (a *allPagesAssembler) createAllPages() error {
 				rootSectionPages, _, _, _, _ := transformPages(rootSectionPath.Base(), &pageMetaSource{
 					pathInfo:        rootSectionPath,
 					sitesMatrixBase: n2.(contentNodeForSites).siteVectors(),
-					pageConfigSource: &pagemeta.PageConfig{
-						PageConfigEarly: pagemeta.PageConfigEarly{
-							Kind: kinds.KindSection, // TODO1 also handle taxonomies here.
-						},
+					pageConfigSource: &pagemeta.PageConfigEarly{
+						Kind: kinds.KindSection, // TODO1 also handle taxonomies here.
 					},
 				}, cascades)
 				treePages.InsertRaw(rootSectionPath.Base(), rootSectionPages)
@@ -468,10 +464,8 @@ func (a *allPagesAssembler) createAllPages() error {
 							pathInfo:            n.PathInfo(),
 							sitesMatrixBase:     missingVectors,
 							sitesMatrixBaseOnly: true,
-							pageConfigSource: &pagemeta.PageConfig{
-								PageConfigEarly: pagemeta.PageConfigEarly{
-									Kind: kind,
-								},
+							pageConfigSource: &pagemeta.PageConfigEarly{
+								Kind: kind,
 							},
 						}
 						nm[vec] = pms
@@ -661,10 +655,8 @@ func (a *allPagesAssembler) createAllPages() error {
 						sitesMatrixBase: v,
 						term:            k.term,
 						singular:        k.view.singular,
-						pageConfigSource: &pagemeta.PageConfig{
-							PageConfigEarly: pagemeta.PageConfigEarly{
-								Kind: kinds.KindTerm,
-							},
+						pageConfigSource: &pagemeta.PageConfigEarly{
+							Kind: kinds.KindTerm,
 						},
 					}
 					var n2 contentNode = contentNodeSlice{n, p}
@@ -1251,10 +1243,8 @@ func (a *allPagesAssembler) createMissingTaxonomies() error {
 			pathInfo:        pi,
 			singular:        viewName.singular,
 			sitesMatrixBase: matrixAllForLanguages,
-			pageConfigSource: &pagemeta.PageConfig{
-				PageConfigEarly: pagemeta.PageConfigEarly{
-					Kind: kinds.KindTaxonomy,
-				},
+			pageConfigSource: &pagemeta.PageConfigEarly{
+				Kind: kinds.KindTaxonomy,
 			},
 		}
 		tree.AppendRaw(key, p)
@@ -1295,10 +1285,8 @@ func (a *allPagesAssembler) createMissingStandalonePages() error {
 			standaloneOutputFormat: f,
 			sitesMatrixBase:        sitesMatrixBase,
 			sitesMatrixBaseOnly:    true,
-			pageConfigSource: &pagemeta.PageConfig{
-				PageConfigEarly: pagemeta.PageConfigEarly{
-					Kind: kind,
-				},
+			pageConfigSource: &pagemeta.PageConfigEarly{
+				Kind: kind,
 			},
 		}
 
@@ -1372,10 +1360,8 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 				pageMetaSource: &pageMetaSource{
 					pathInfo: pi,
 					singular: viewName.singular,
-					pageConfigSource: &pagemeta.PageConfig{
-						PageConfigEarly: pagemeta.PageConfigEarly{
-							Kind: kinds.KindTaxonomy,
-						},
+					pageConfigSource: &pagemeta.PageConfigEarly{
+						Kind: kinds.KindTaxonomy,
 					},
 				},
 			}

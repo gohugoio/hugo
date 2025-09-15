@@ -261,7 +261,7 @@ func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks sitesmatrix.
 }
 
 func (s *IntegrationTestPageHelper) MatrixFromPageConfig() map[string]map[string][]string {
-	pc := s.p.m.pageConfig
+	pc := s.p.m.pageConfigSource
 	return s.siteIntsToMap(pc.SitesMatrix, pc.SitesFallbacks)
 }
 

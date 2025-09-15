@@ -77,16 +77,6 @@ func (d Dates) IsAllDatesZero() bool {
 	return d.Date.IsZero() && d.Lastmod.IsZero() && d.PublishDate.IsZero() && d.ExpiryDate.IsZero()
 }
 
-// Page config that needs to be set early.
-type PageConfigEarly struct {
-	Kind    string      // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
-	Path    string      // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
-	Params  maps.Params // User defined params.
-	Sites   sitesmatrix.Sites
-	Cascade []map[string]any
-	Content Source // Content holds the content for this page.
-}
-
 const (
 	pageMetaKeySites = "sites"
 	pageMetaKeyPath  = "path"
@@ -99,7 +89,7 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[stri
 	if before {
 		// Needed for case insensitive fetching of params values.
 		maps.PrepareParams(frontmatter)
-		pcfg.Params = frontmatter
+		pcfg.Frontmatter = frontmatter
 
 		// Look for path, lang, roles and kind, all of which values we need early on.
 		// TODO1 we onlu need path and kind here.
@@ -137,29 +127,52 @@ func (p *PageConfigEarly) setCascadeValueIfNotSet(key string, value any) (done b
 	return !p.Sites.Matrix.IsZero()
 }
 
+type PageConfig struct {
+	PageConfigEarly `mapstructure:",squash"`
+	PageConfigLate  `mapstructure:",squash"`
+}
+
+// Page config that needs to be set early.
+type PageConfigEarly struct {
+	Kind string // The kind of page, e.g. "page", "section", "home" etc. This is usually derived from the content path.
+	Path string // The canonical path to the page, e.g. /sect/mypage. Note: Leading slash, no trailing slash, no extensions or language identifiers.
+
+	Sites   sitesmatrix.Sites
+	Cascade []map[string]any
+	Content Source // Content holds the content for this page.
+
+	Frontmatter maps.Params `mapstructure:"-" json:"-"` // The original front matter.
+
+	// Compiled values.
+	SitesMatrixFallbacks `mapstructure:"-" json:"-"`
+	IsFromContentAdapter bool       `mapstructure:"-" json:"-"`
+	ContentMediaType     media.Type `mapstructure:"-" json:"-"`
+}
+
 // PageConfig configures a Page, typically from front matter.
 // Note that all the top level fields are reserved Hugo keywords.
 // Any custom configuration needs to be set in the Params map.
-type PageConfig struct {
+type PageConfigLate struct {
 	Dates Dates `json:"-"` // Dates holds the four core dates for this page.
 	DatesStrings
-	PageConfigEarly `mapstructure:",squash"`
-	Title           string   // The title of the page.
-	LinkTitle       string   // The link title of the page.
-	Type            string   // The content type of the page.
-	Layout          string   // The layout to use for to render this page.
-	Weight          int      // The weight of the page, used in sorting if set to a non-zero value.
-	URL             string   // The URL to the rendered page, e.g. /sect/mypage.html.
-	Slug            string   // The slug for this page.
-	Description     string   // The description for this page.
-	Summary         string   // The summary for this page.
-	Draft           bool     // Whether or not the content is a draft.
-	Headless        bool     `json:"-"` // Whether or not the page should be rendered.
-	IsCJKLanguage   bool     // Whether or not the content is in a CJK language.
-	TranslationKey  string   // The translation key for this page.
-	Keywords        []string // The keywords for this page.
-	Aliases         []string // The aliases for this page.
-	Outputs         []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
+	Params maps.Params // User defined params. TODO1 move.
+
+	Title          string   // The title of the page.
+	LinkTitle      string   // The link title of the page.
+	Type           string   // The content type of the page.
+	Layout         string   // The layout to use for to render this page.
+	Weight         int      // The weight of the page, used in sorting if set to a non-zero value.
+	URL            string   // The URL to the rendered page, e.g. /sect/mypage.html.
+	Slug           string   // The slug for this page.
+	Description    string   // The description for this page.
+	Summary        string   // The summary for this page.
+	Draft          bool     // Whether or not the content is a draft.
+	Headless       bool     `json:"-"` // Whether or not the page should be rendered.
+	IsCJKLanguage  bool     // Whether or not the content is in a CJK language.
+	TranslationKey string   // The translation key for this page.
+	Keywords       []string // The keywords for this page.
+	Aliases        []string // The aliases for this page.
+	Outputs        []string // The output formats to render this page in. If not set, the site's configured output formats for this page kind will be used.
 
 	FrontMatterOnlyValues `mapstructure:"-" json:"-"`
 
@@ -173,10 +186,6 @@ type PageConfig struct {
 
 	// Compiled values.
 	ConfiguredOutputFormats output.Formats `mapstructure:"-" json:"-"`
-	ContentMediaType        media.Type     `mapstructure:"-" json:"-"`
-	IsFromContentAdapter    bool           `mapstructure:"-" json:"-"`
-
-	SitesMatrixFallbacks `mapstructure:"-" json:"-"`
 }
 
 type SitesMatrixFallbacks struct {
@@ -184,7 +193,7 @@ type SitesMatrixFallbacks struct {
 	SitesFallbacks sitesmatrix.VectorStore `mapstructure:"-" json:"-"`
 }
 
-func (p PageConfig) shallowCloneForSite() *PageConfig {
+func (p PageConfigLate) shallowCloneForSite() *PageConfigLate {
 	// TODO1 not so shallow.
 	return &p
 }
@@ -208,26 +217,24 @@ func (p *SitesMatrixFallbacks) MatchVersionOrVersionFallback(siteVector sitesmat
 	return p.SitesMatrix.HasVersion(i) || p.SitesFallbacks.HasVersion(i)
 }
 
-func ClonePageConfigForRebuild(p *PageConfig, params map[string]any) *PageConfig {
-	pp := &PageConfig{
-		PageConfigEarly:      p.PageConfigEarly,
-		IsFromContentAdapter: p.IsFromContentAdapter,
-	}
-	if pp.IsFromContentAdapter {
+func ClonePageConfigForRebuild(pe *PageConfigEarly, pl *PageConfigLate, params map[string]any) *PageConfigLate {
+	pp := &PageConfigLate{}
+	if pe.IsFromContentAdapter {
 		pp.ContentAdapterData = params
 	} else {
 		pp.Params = params
 	}
-
 	return pp
 }
 
-func ClonePageConfigForSite(p *PageConfig) *PageConfig {
+func ClonePageConfigForSite(p *PageConfigLate) *PageConfigLate {
 	return p.shallowCloneForSite()
 }
 
 var DefaultPageConfig = PageConfig{
-	Build: DefaultBuildConfig,
+	PageConfigLate: PageConfigLate{
+		Build: DefaultBuildConfig,
+	},
 }
 
 func (p *PageConfig) Init(pagesFromData bool) error {
@@ -309,7 +316,7 @@ func buildSitesMatrixFromSitesConfig(
 
 // CompileEarly gets called early and before the cascade from content gets applied.
 // TODO1 remove me.
-func (p *PageConfig) CompileEarly(before bool, pi *paths.Path, cascades *page.PageMatcherParamsConfigs,
+func (p *PageConfigEarly) CompileEarly(before bool, pi *paths.Path, cascades *page.PageMatcherParamsConfigs,
 	conf config.AllProvider, fim *hugofs.FileMeta, sitesMatrixBase sitesmatrix.VectorIterator, sitesMatrixBaseOnly bool,
 ) error {
 	if before {
@@ -605,11 +612,11 @@ type FrontMatterDescriptor struct {
 	// May be set from the author date in Git.
 	GitAuthorDate time.Time
 
-	// The below will be modified.
-	PageConfig *PageConfig
+	PageConfigEarly *PageConfigEarly
 
-	// The Location to use to parse dates without time zone info.
-	Location *time.Location
+	// The below will be modified.
+	PageConfigLate *PageConfigLate
+	Location       *time.Location // The Location to use to parse dates without time zone info.
 }
 
 var dateFieldAliases = map[string][]string{
@@ -623,11 +630,11 @@ var dateFieldAliases = map[string][]string{
 // supplied front matter params. Note that this requires all lower-case keys
 // in the params map.
 func (f FrontMatterHandler) HandleDates(d *FrontMatterDescriptor) error {
-	if d.PageConfig == nil {
+	if d.PageConfigLate == nil {
 		panic("missing pageConfig")
 	}
 
-	if d.PageConfig.IsFromContentAdapter {
+	if d.PageConfigEarly.IsFromContentAdapter {
 		if f.contentAdapterDatesHandler == nil {
 			panic("missing content adapter date handler")
 		}
@@ -865,7 +872,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 
 	if f.dateHandler, err = f.createDateHandler(f.fmConfig.Date,
 		func(d *FrontMatterDescriptor, t time.Time) {
-			d.PageConfig.Dates.Date = t
+			d.PageConfigLate.Dates.Date = t
 			setParamIfNotSet(fmDate, t, d)
 		}); err != nil {
 		return err
@@ -874,7 +881,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.lastModHandler, err = f.createDateHandler(f.fmConfig.Lastmod,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmLastmod, t, d)
-			d.PageConfig.Dates.Lastmod = t
+			d.PageConfigLate.Dates.Lastmod = t
 		}); err != nil {
 		return err
 	}
@@ -882,7 +889,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.publishDateHandler, err = f.createDateHandler(f.fmConfig.PublishDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmPubDate, t, d)
-			d.PageConfig.Dates.PublishDate = t
+			d.PageConfigLate.Dates.PublishDate = t
 		}); err != nil {
 		return err
 	}
@@ -890,7 +897,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.expiryDateHandler, err = f.createDateHandler(f.fmConfig.ExpiryDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmExpiryDate, t, d)
-			d.PageConfig.Dates.ExpiryDate = t
+			d.PageConfigLate.Dates.ExpiryDate = t
 		}); err != nil {
 		return err
 	}
@@ -899,14 +906,14 @@ func (f *FrontMatterHandler) createHandlers() error {
 }
 
 func setParamIfNotSet(key string, value any, d *FrontMatterDescriptor) {
-	if _, found := d.PageConfig.Params[key]; found {
+	if _, found := d.PageConfigLate.Params[key]; found {
 		return
 	}
-	d.PageConfig.Params[key] = value
+	d.PageConfigLate.Params[key] = value
 }
 
 func (f FrontMatterHandler) createContentAdapterDatesHandler(fmcfg FrontmatterConfig) (func(d *FrontMatterDescriptor) error, error) {
-	setTime := func(key string, value time.Time, in *PageConfig) {
+	setTime := func(key string, value time.Time, in *PageConfigLate) {
 		switch key {
 		case fmDate:
 			in.Dates.Date = value
@@ -919,7 +926,7 @@ func (f FrontMatterHandler) createContentAdapterDatesHandler(fmcfg FrontmatterCo
 		}
 	}
 
-	getTime := func(key string, in *PageConfig) time.Time {
+	getTime := func(key string, in *PageConfigLate) time.Time {
 		switch key {
 		case fmDate:
 			return in.Dates.Date
@@ -933,33 +940,33 @@ func (f FrontMatterHandler) createContentAdapterDatesHandler(fmcfg FrontmatterCo
 		return time.Time{}
 	}
 
-	createSetter := func(identifiers []string, date string) func(pcfg *PageConfig) {
-		var getTimes []func(in *PageConfig) time.Time
+	createSetter := func(identifiers []string, date string) func(pcfg *PageConfigLate) {
+		var getTimes []func(in *PageConfigLate) time.Time
 		for _, identifier := range identifiers {
 			if strings.HasPrefix(identifier, ":") {
 				continue
 			}
 			switch identifier {
 			case fmDate:
-				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+				getTimes = append(getTimes, func(in *PageConfigLate) time.Time {
 					return getTime(fmDate, in)
 				})
 			case fmLastmod:
-				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+				getTimes = append(getTimes, func(in *PageConfigLate) time.Time {
 					return getTime(fmLastmod, in)
 				})
 			case fmPubDate:
-				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+				getTimes = append(getTimes, func(in *PageConfigLate) time.Time {
 					return getTime(fmPubDate, in)
 				})
 			case fmExpiryDate:
-				getTimes = append(getTimes, func(in *PageConfig) time.Time {
+				getTimes = append(getTimes, func(in *PageConfigLate) time.Time {
 					return getTime(fmExpiryDate, in)
 				})
 			}
 		}
 
-		return func(pcfg *PageConfig) {
+		return func(pcfg *PageConfigLate) {
 			for _, get := range getTimes {
 				if t := get(pcfg); !t.IsZero() {
 					setTime(date, t, pcfg)
@@ -975,7 +982,7 @@ func (f FrontMatterHandler) createContentAdapterDatesHandler(fmcfg FrontmatterCo
 	setExpiryDate := createSetter(fmcfg.ExpiryDate, fmExpiryDate)
 
 	fn := func(d *FrontMatterDescriptor) error {
-		pcfg := d.PageConfig
+		pcfg := d.PageConfigLate
 		setDate(pcfg)
 		setLastmod(pcfg)
 		setPublishDate(pcfg)
@@ -1009,7 +1016,7 @@ type frontmatterFieldHandlers int
 
 func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d *FrontMatterDescriptor, t time.Time)) frontMatterFieldHandler {
 	return func(d *FrontMatterDescriptor) (bool, error) {
-		v, found := d.PageConfig.Params[key]
+		v, found := d.PageConfigLate.Params[key]
 
 		if !found || v == "" || v == nil {
 			return false, nil
@@ -1024,7 +1031,7 @@ func (f *frontmatterFieldHandlers) newDateFieldHandler(key string, setter func(d
 			if err != nil {
 				return false, fmt.Errorf("the %q front matter field is not a parsable date: see %s", key, d.PathOrTitle)
 			}
-			d.PageConfig.Params[key] = date
+			d.PageConfigLate.Params[key] = date
 		}
 
 		// We map several date keys to one, so, for example,
@@ -1044,9 +1051,9 @@ func (f *frontmatterFieldHandlers) newDateFilenameHandler(setter func(d *FrontMa
 
 		setter(d, date)
 
-		if _, found := d.PageConfig.Params["slug"]; !found {
+		if _, found := d.PageConfigLate.Params["slug"]; !found {
 			// Use slug from filename
-			d.PageConfig.Slug = slug
+			d.PageConfigLate.Slug = slug
 		}
 
 		return true, nil

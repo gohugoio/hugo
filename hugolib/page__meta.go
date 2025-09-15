@@ -87,7 +87,7 @@ func (m *pageMetaSource) forEeachContentNode(f func(v sitesmatrix.Vector, n cont
 }
 
 func (m *pageMetaSource) sitesMatrix() sitesmatrix.VectorProvider {
-	return m.pageConfigSource.SitesMatrix
+	panic("not supported")
 }
 
 func (m *pageMetaSource) resetBuildState() {
@@ -109,7 +109,8 @@ type pageMetaSource struct {
 	standaloneOutputFormat output.Format
 	resource.Staler
 
-	pageConfigSource *pagemeta.PageConfig
+	pageConfigSource *pagemeta.PageConfigEarly
+	pageConfigLate   *pagemeta.PageConfigLate
 	cascadeCompiled  *page.PageMatcherParamsConfigs
 	cascadeHash      uint64
 
@@ -169,7 +170,7 @@ type pageMeta struct {
 	// Shared between all dimensions of this page.
 	*pageMetaSource
 
-	pageConfig *pagemeta.PageConfig
+	pageConfig *pagemeta.PageConfigLate
 
 	resource.Staler // TODO1 remove?
 
@@ -190,8 +191,6 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades *page.PageMatche
 		if err := m.pageConfigSource.SetMetaPreFromMap(false, m.pi.frontMatter, h.Log, h.Conf); err != nil {
 			return err
 		}
-	} else {
-		m.pageConfigSource.Params = make(maps.Params)
 	}
 
 	var fim *hugofs.FileMeta
@@ -275,7 +274,7 @@ func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.Vec
 				}
 			}
 			if m.pageConfigSource == nil {
-				m.pageConfigSource = &pagemeta.PageConfig{}
+				m.pageConfigSource = &pagemeta.PageConfigEarly{}
 			}
 
 			if m.Staler == nil {
@@ -293,8 +292,6 @@ func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.Vec
 				if err := m.pageConfigSource.SetMetaPreFromMap(true, m.pi.frontMatter, h.Log, h.Conf); err != nil {
 					return err
 				}
-			} else {
-				m.pageConfigSource.Params = make(maps.Params)
 			}
 
 			var fim *hugofs.FileMeta
@@ -321,11 +318,7 @@ func (m *pageMeta) initLate(s *Site) error {
 	}
 
 	if m.pageConfig == nil {
-		if len(s.h.sitesVersionsRolesMap) > 0 {
-			m.pageConfig = pagemeta.ClonePageConfigForSite(m.pageConfigSource)
-		} else {
-			m.pageConfig = m.pageConfigSource
-		}
+		m.pageConfig = &pagemeta.PageConfigLate{}
 	}
 
 	// Remove me. TODO1
@@ -336,28 +329,28 @@ func (m *pageMeta) initLate(s *Site) error {
 	h := s.h
 	var tc viewName
 
-	if m.pageConfig.Kind == "" {
+	if m.pageConfigSource.Kind == "" {
 		// Resolve page kind.
-		m.pageConfig.Kind = kinds.KindSection
+		m.pageConfigSource.Kind = kinds.KindSection
 		if m.pathInfo.Base() == "" {
-			m.pageConfig.Kind = kinds.KindHome
+			m.pageConfigSource.Kind = kinds.KindHome
 		} else if m.pathInfo.IsBranchBundle() {
 			// A section, taxonomy or term.
 			tc = s.pageMap.cfg.getTaxonomyConfig(m.Path())
 			if !tc.IsZero() {
 				// Either a taxonomy or a term.
 				if tc.pluralTreeKey == m.Path() {
-					m.pageConfig.Kind = kinds.KindTaxonomy
+					m.pageConfigSource.Kind = kinds.KindTaxonomy
 				} else {
-					m.pageConfig.Kind = kinds.KindTerm
+					m.pageConfigSource.Kind = kinds.KindTerm
 				}
 			}
 		} else if m.f != nil {
-			m.pageConfig.Kind = kinds.KindPage
+			m.pageConfigSource.Kind = kinds.KindPage
 		}
 	}
 
-	if m.pageConfig.Kind == kinds.KindTerm || m.pageConfig.Kind == kinds.KindTaxonomy {
+	if m.pageConfigSource.Kind == kinds.KindTerm || m.pageConfigSource.Kind == kinds.KindTaxonomy {
 		if tc.IsZero() {
 			tc = s.pageMap.cfg.getTaxonomyConfig(m.Path())
 		}
@@ -366,7 +359,7 @@ func (m *pageMeta) initLate(s *Site) error {
 		}
 		m.singular = tc.singular
 
-		if m.pageConfig.Kind == kinds.KindTerm {
+		if m.pageConfigSource.Kind == kinds.KindTerm {
 			m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
 		}
 	}
@@ -398,7 +391,7 @@ func (h *HugoSites) newPageMetaSourceFromFile(fi hugofs.FileMetaInfo) (*pageMeta
 			pathInfo:         fi.Meta().PathInfo,
 			openSource:       openSource,
 			Staler:           &resources.AtomicStaler{},
-			pageConfigSource: &pagemeta.PageConfig{},
+			pageConfigSource: &pagemeta.PageConfigEarly{},
 		}
 
 		return p, p.initEarly(h, fi.Meta().SitesMatrix)
@@ -415,7 +408,7 @@ func (h *HugoSites) newPageMetaSourceFromPathInfo(pi *paths.Path) (*pageMetaSour
 		pathInfo:         pi,
 		openSource:       nil,
 		Staler:           &resources.AtomicStaler{},
-		pageConfigSource: &pagemeta.PageConfig{},
+		pageConfigSource: &pagemeta.PageConfigEarly{},
 	}
 
 	return p, p.initEarly(h, nil)
@@ -426,7 +419,8 @@ func (h *HugoSites) newPageMetaSourceForContentAdapter(fi hugofs.FileMetaInfo, s
 		f:                source.NewFileInfo(fi),
 		noFrontMatter:    true,
 		Staler:           &resources.AtomicStaler{},
-		pageConfigSource: pc,
+		pageConfigSource: &pc.PageConfigEarly,
+		pageConfigLate:   &pc.PageConfigLate,
 		openSource:       pc.Content.ValueAsOpenReadSeekCloser(),
 	}
 
@@ -458,15 +452,15 @@ func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, err
 // Prepare for a rebuild of the data passed in from front matter.
 func (m *pageMeta) setMetaPostPrepareRebuild() {
 	params := xmaps.Clone(m.paramsOriginal)
-	m.pageConfig = pagemeta.ClonePageConfigForRebuild(m.pageConfig, params)
+	m.pageConfig = pagemeta.ClonePageConfigForRebuild(m.pageConfigSource, m.pageConfig, params)
 }
 
-func (m *pageMetaSource) initPageMetaParams(preserveOriginal bool) {
+func (m *pageMeta) initPageMetaParams(preserveOriginal bool) {
 	if preserveOriginal {
 		if m.pageConfigSource.IsFromContentAdapter {
-			m.paramsOriginal = xmaps.Clone(m.pageConfigSource.ContentAdapterData)
+			m.paramsOriginal = xmaps.Clone(m.pageConfig.ContentAdapterData)
 		} else {
-			m.paramsOriginal = xmaps.Clone(m.pageConfigSource.Params)
+			m.paramsOriginal = xmaps.Clone(m.pageConfigSource.Frontmatter)
 		}
 	}
 }
@@ -522,8 +516,8 @@ func (m *pageMeta) Keywords() []string {
 	return m.pageConfig.Keywords
 }
 
-func (m *pageMeta) Kind() string {
-	return m.pageConfig.Kind
+func (m *pageMetaSource) Kind() string {
+	return m.pageConfigSource.Kind
 }
 
 func (m *pageMeta) Layout() string {
@@ -542,7 +536,7 @@ func (m *pageMeta) Name() string {
 	if m.resourcePath != "" {
 		return m.resourcePath
 	}
-	if m.pageConfig.Kind == kinds.KindTerm {
+	if m.Kind() == kinds.KindTerm {
 		return m.pathInfo.Unnormalized().BaseNameNoIdentifier()
 	}
 	return m.Title()
@@ -629,7 +623,7 @@ func (ps *pageState) setMetaPost(cascades *page.PageMatcherParamsConfigs) error 
 			}
 		}
 		for kk, vv := range v.Fields {
-			if ps.m.pageConfig.IsFromContentAdapter {
+			if ps.m.pageConfigSource.IsFromContentAdapter {
 				if _, found := ps.m.pageConfig.ContentAdapterData[kk]; !found {
 					ps.m.pageConfig.ContentAdapterData[kk] = vv
 				}
@@ -678,12 +672,12 @@ func (ps *pageState) setMetaPostParams() error {
 	}
 
 	descriptor := &pagemeta.FrontMatterDescriptor{
-		PageConfig:    pm.pageConfig,
-		BaseFilename:  contentBaseName,
-		ModTime:       mtime,
-		GitAuthorDate: gitAuthorDate,
-		Location:      langs.GetLocation(ps.s.Language()),
-		PathOrTitle:   ps.pathOrTitle(),
+		PageConfigEarly: pm.pageConfig,
+		BaseFilename:    contentBaseName,
+		ModTime:         mtime,
+		GitAuthorDate:   gitAuthorDate,
+		Location:        langs.GetLocation(ps.s.Language()),
+		PathOrTitle:     ps.pathOrTitle(),
 	}
 
 	if isContentAdapter {

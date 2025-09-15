@@ -709,10 +709,10 @@ func (ps *pageState) getPageInfoForError() string {
 func (ps *pageState) getContentConverter() converter.Converter {
 	var err error
 	ps.contentConverterInit.Do(func() {
-		if ps.m.pageConfig.ContentMediaType.IsZero() {
+		if ps.m.pageConfigSource.ContentMediaType.IsZero() {
 			panic("ContentMediaType not set")
 		}
-		markup := ps.m.pageConfig.ContentMediaType.SubType
+		markup := ps.m.pageConfigSource.ContentMediaType.SubType
 
 		if markup == "html" {
 			// Only used for shortcode inner content.
