@@ -31,11 +31,11 @@ var (
 	pageSourceIDCounter atomic.Uint64
 )
 
-// TODO1 move/rename.
-func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
+func (s *Site) newPageFromPageMeta(m *pageMeta) (*pageState, error) {
 	if err := m.initLate(s); err != nil {
 		return nil, m.wrapError(err, s.SourceFs)
 	}
+	pid := pageIDCounter.Add(1)
 	// Parse the rest of the page content.
 	var err error
 	m.content, err = m.newCachedContent(s)
@@ -107,6 +107,10 @@ func (s *Site) doNewPageFromMeta(pid uint64, m *pageMeta) (*pageState, error) {
 	ps.TranslationKeyProvider = ps
 	ps.ShortcodeInfoProvider = ps
 	ps.AlternativeOutputFormatsProvider = ps
+
+	if err := ps.initLazyProviders(); err != nil {
+		return nil, ps.wrapError(err)
+	}
 
 	return ps, nil
 }

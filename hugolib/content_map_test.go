@@ -202,8 +202,10 @@ Home: {{ .Title }}|
 }
 
 // Issue #11840
-// Resource language fallback should be the default content language (if possible)?
+// Resource language fallback should be the closest language going up.
 func TestBundleResourceLanguageBestMatch(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- hugo.toml --
 defaultContentLanguage = "fr"
@@ -237,12 +239,14 @@ Data fr
 Data en
 
 `
-	b := Test(t, files)
+	for range 5 {
+		b := Test(t, files)
 
-	b.AssertFileContent("public/fr/index.html", "fr: /fr/bundle/data.fr.txt|Data fr")
-	b.AssertFileContent("public/en/index.html", "en: /en/bundle/data.en.txt|Data en")
+		b.AssertFileContent("public/fr/index.html", "fr: /fr/bundle/data.fr.txt|Data fr")
+		b.AssertFileContent("public/en/index.html", "en: /en/bundle/data.en.txt|Data en")
 
-	b.AssertFileContent("public/de/index.html", "de: /fr/bundle/data.fr.txt|Data fr")
+		b.AssertFileContent("public/de/index.html", "de: /fr/bundle/data.fr.txt|Data fr")
+	}
 }
 
 func TestBundleMultipleContentPageWithSamePath(t *testing.T) {

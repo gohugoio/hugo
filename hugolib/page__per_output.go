@@ -208,6 +208,7 @@ func (pco *pageContentOutput) FuzzyWordCount(ctx context.Context) int {
 }
 
 func (pco *pageContentOutput) Summary(ctx context.Context) template.HTML {
+	defer herrors.Recover()
 	summary, err := pco.mustRender(ctx).Summary(ctx)
 	if err != nil {
 		pco.fail(err)

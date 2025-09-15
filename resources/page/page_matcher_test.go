@@ -160,6 +160,11 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 			"params": map[string]any{
 				"a": "av",
 			},
+			"sites": map[string]any{
+				"matrix": map[string]any{
+					"roles": "pro",
+				},
+			},
 			"target": map[string]any{
 				"kind":        "page",
 				"Environment": "production",
@@ -185,7 +190,7 @@ func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
 
 	matrix := v.Target.SitesMatrixCompiled
 	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)  // en, v1, free
-	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 1, 0}), qt.IsFalse) // en, v2, pro
+	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 1, 0}), qt.IsFalse) // en, v2, free
 
 	defaultSitesMatrix := sitesmatrix.NewIntSetsBuilder(sitesmatrix.NewTestingDimensions([]string{"en"}, []string{"v1"}, []string{"free"})).WithAllIfNotSet().Build()
 

@@ -78,7 +78,7 @@ func (pt pageTree) CurrentSection() page.Page {
 		return n.(page.Page)
 	}
 
-	panic(fmt.Sprintf("CurrentSection not found for %q for %s", pt.p.Path(), pt.p.s.debugResolveDimensionNames()))
+	panic(fmt.Sprintf("CurrentSection not found for %q for %s", pt.p.Path(), pt.p.s.resolveDimensionNames()))
 }
 
 func (pt pageTree) FirstSection() page.Page {

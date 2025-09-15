@@ -20,7 +20,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/bep/logg"
@@ -87,7 +86,7 @@ func (m *pageMetaSource) forEeachContentNode(f func(v sitesmatrix.Vector, n cont
 }
 
 func (m *pageMetaSource) sitesMatrix() sitesmatrix.VectorProvider {
-	panic("not supported")
+	return m.pageConfigSource.SitesMatrix
 }
 
 func (m *pageMetaSource) resetBuildState() {
@@ -121,8 +120,6 @@ type pageMetaSource struct {
 	bundled       bool   // Set if this page is bundled inside another.
 	noFrontMatter bool
 	openSource    func() (hugio.ReadSeekCloser, error)
-
-	initEarlyInit sync.Once
 
 	// TODO1 clean up below.
 
@@ -172,12 +169,13 @@ type pageMeta struct {
 
 	pageConfig *pagemeta.PageConfigLate
 
-	resource.Staler // TODO1 remove?
-
 	content *cachedContent // The source and the parsed page content.
 }
 
-func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades *page.PageMatcherParamsConfigs) error {
+func (m *pageMetaSource) initEarly(h *HugoSites, cascades *page.PageMatcherParamsConfigs) error {
+	if err := m.initFrontMatter(h); err != nil {
+		return err
+	}
 	sitesMatrixBase := m.sitesMatrixBase
 	if sitesMatrixBase == nil && m.f != nil {
 		sitesMatrixBase = m.f.FileInfo().Meta().SitesMatrix
@@ -187,17 +185,11 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades *page.PageMatche
 		panic("sitesMatrixBaseOnly set, but no base sites matrix")
 	}
 
-	if m.pi != nil && m.pi.frontMatter != nil {
-		if err := m.pageConfigSource.SetMetaPreFromMap(false, m.pi.frontMatter, h.Log, h.Conf); err != nil {
-			return err
-		}
-	}
-
 	var fim *hugofs.FileMeta
 	if m.f != nil {
 		fim = m.f.FileInfo().Meta()
 	}
-	if err := m.pageConfigSource.CompileEarly(false, m.pathInfo, cascades, h.Conf, fim, sitesMatrixBase, m.sitesMatrixBaseOnly); err != nil {
+	if err := m.pageConfigSource.CompileEarly(m.pathInfo, cascades, h.Conf, fim, sitesMatrixBase, m.sitesMatrixBaseOnly); err != nil {
 		return err
 	}
 
@@ -206,6 +198,33 @@ func (m *pageMetaSource) initSitesMatrix(h *HugoSites, cascades *page.PageMatche
 			return nil
 		}
 	}
+	return nil
+}
+
+func (m *pageMetaSource) initFrontMatter(h *HugoSites) error {
+	if m.pathInfo == nil {
+		if err := m.initPathInfo(h); err != nil {
+			return err
+		}
+	}
+
+	if m.pageConfigSource == nil {
+		m.pageConfigSource = &pagemeta.PageConfigEarly{}
+	}
+
+	if m.Staler == nil {
+		m.Staler = &resources.AtomicStaler{}
+	}
+
+	// Read front matter.
+	if err := m.parseFrontMatter(h, pageSourceIDCounter.Add(1)); err != nil {
+		return err
+	}
+
+	if err := m.pageConfigSource.SetMetaPreFromMap(m.pi.frontMatter, h.Log, h.Conf); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -263,67 +282,11 @@ func (m *pageMetaSource) initPathInfo(h *HugoSites) error {
 	return nil
 }
 
-// initEarly may be called before we know which Site(s) this belongs to.
-func (m *pageMetaSource) initEarly(h *HugoSites, sitesMatrixFile sitesmatrix.VectorStore) error {
-	var initErr error
-	m.initEarlyInit.Do(func() {
-		initErr = func() error {
-			if m.pathInfo == nil {
-				if err := m.initPathInfo(h); err != nil {
-					return err
-				}
-			}
-			if m.pageConfigSource == nil {
-				m.pageConfigSource = &pagemeta.PageConfigEarly{}
-			}
-
-			if m.Staler == nil {
-				m.Staler = &resources.AtomicStaler{}
-			}
-
-			sid := pageSourceIDCounter.Add(1)
-
-			// Read front matter.
-			if err := m.parseFrontMatter(h, sid); err != nil {
-				return err
-			}
-
-			if m.pi.frontMatter != nil {
-				if err := m.pageConfigSource.SetMetaPreFromMap(true, m.pi.frontMatter, h.Log, h.Conf); err != nil {
-					return err
-				}
-			}
-
-			var fim *hugofs.FileMeta
-			if m.f != nil {
-				fim = m.f.FileInfo().Meta()
-			}
-			if err := m.pageConfigSource.CompileEarly(true, m.pathInfo, nil, h.Conf, fim, sitesMatrixFile, false); err != nil {
-				return err
-			}
-
-			return nil
-		}()
-	})
-	return initErr
-}
-
 func (m *pageMeta) initLate(s *Site) error {
-	var sitesMatrixFile sitesmatrix.VectorStore
-	if m.f != nil {
-		sitesMatrixFile = m.f.FileInfo().Meta().SitesMatrix
-	}
-	if err := m.initEarly(s.h, sitesMatrixFile); err != nil {
-		return err
-	}
-
 	if m.pageConfig == nil {
-		m.pageConfig = &pagemeta.PageConfigLate{}
-	}
-
-	// Remove me. TODO1
-	if m.Staler == nil {
-		m.Staler = &resources.AtomicStaler{}
+		m.pageConfig = &pagemeta.PageConfigLate{
+			Params: make(maps.Params), // TODO1 clean up all of this.
+		}
 	}
 
 	h := s.h
@@ -387,14 +350,12 @@ func (h *HugoSites) newPageMetaSourceFromFile(fi hugofs.FileMetaInfo) (*pageMeta
 		}
 
 		p := &pageMetaSource{
-			f:                source.NewFileInfo(fi),
-			pathInfo:         fi.Meta().PathInfo,
-			openSource:       openSource,
-			Staler:           &resources.AtomicStaler{},
-			pageConfigSource: &pagemeta.PageConfigEarly{},
+			f:          source.NewFileInfo(fi),
+			pathInfo:   fi.Meta().PathInfo,
+			openSource: openSource,
 		}
 
-		return p, p.initEarly(h, fi.Meta().SitesMatrix)
+		return p, nil
 	}()
 	if err != nil {
 		return nil, hugofs.AddFileInfoToError(err, fi, h.SourceFs)
@@ -403,28 +364,16 @@ func (h *HugoSites) newPageMetaSourceFromFile(fi hugofs.FileMetaInfo) (*pageMeta
 	return p, err
 }
 
-func (h *HugoSites) newPageMetaSourceFromPathInfo(pi *paths.Path) (*pageMetaSource, error) {
-	p := &pageMetaSource{
-		pathInfo:         pi,
-		openSource:       nil,
-		Staler:           &resources.AtomicStaler{},
-		pageConfigSource: &pagemeta.PageConfigEarly{},
-	}
-
-	return p, p.initEarly(h, nil)
-}
-
 func (h *HugoSites) newPageMetaSourceForContentAdapter(fi hugofs.FileMetaInfo, sitesMatrixFile sitesmatrix.VectorStore, pc *pagemeta.PageConfig) (*pageMetaSource, error) {
 	p := &pageMetaSource{
 		f:                source.NewFileInfo(fi),
 		noFrontMatter:    true,
-		Staler:           &resources.AtomicStaler{},
 		pageConfigSource: &pc.PageConfigEarly,
 		pageConfigLate:   &pc.PageConfigLate,
 		openSource:       pc.Content.ValueAsOpenReadSeekCloser(),
 	}
 
-	return p, p.initEarly(h, sitesMatrixFile)
+	return p, nil
 }
 
 func (s *Site) newPageFromPageMetasource(ms *pageMetaSource) (*pageState, error) {
@@ -432,21 +381,14 @@ func (s *Site) newPageFromPageMetasource(ms *pageMetaSource) (*pageState, error)
 	if err != nil {
 		return nil, err
 	}
-	return s.newPageNew(m)
+	return s.newPageFromPageMeta(m)
 }
 
 func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, error) {
 	m := &pageMeta{
 		pageMetaSource: ms,
-		Staler:         &resources.AtomicStaler{},
 	}
-
-	var sitesMatrixFile sitesmatrix.VectorStore
-	if ms.f != nil {
-		sitesMatrixFile = ms.f.FileInfo().Meta().SitesMatrix
-	}
-
-	return m, m.initEarly(s.h, sitesMatrixFile)
+	return m, nil
 }
 
 // Prepare for a rebuild of the data passed in from front matter.
@@ -612,6 +554,14 @@ func (ps *pageState) setMetaPost(cascades *page.PageMatcherParamsConfigs) error 
 		ps.m.setMetaPostPrepareRebuild()
 	}
 
+	if ps.m.pi.frontMatter != nil {
+		// TODO1 check this re params original. Try avoid multiple.
+		ps.m.pageConfig.Params = xmaps.Clone(ps.m.pi.frontMatter)
+	}
+	if ps.m.pageConfig.Params == nil {
+		ps.m.pageConfig.Params = make(maps.Params)
+	}
+
 	for v := range cascades.All() {
 		if !v.Target.Match(ps.Kind(), ps.Path(), ps.s.Conf.Environment(), ps.s.siteVector) {
 			continue
@@ -653,16 +603,12 @@ func (ps *pageState) setMetaPostParams() error {
 	pm := ps.m
 	var mtime time.Time
 	var contentBaseName string
-	var ext string
 	var isContentAdapter bool
 	if ps.File() != nil {
 		isContentAdapter = ps.File().IsContentAdapter()
 		contentBaseName = ps.File().ContentBaseName()
 		if ps.File().FileInfo() != nil {
 			mtime = ps.File().FileInfo().ModTime()
-		}
-		if !isContentAdapter {
-			ext = ps.File().Ext()
 		}
 	}
 
@@ -672,7 +618,8 @@ func (ps *pageState) setMetaPostParams() error {
 	}
 
 	descriptor := &pagemeta.FrontMatterDescriptor{
-		PageConfigEarly: pm.pageConfig,
+		PageConfigEarly: pm.pageConfigSource,
+		PageConfigLate:  pm.pageConfig,
 		BaseFilename:    contentBaseName,
 		ModTime:         mtime,
 		GitAuthorDate:   gitAuthorDate,
@@ -681,10 +628,12 @@ func (ps *pageState) setMetaPostParams() error {
 	}
 
 	if isContentAdapter {
-		if err := pm.pageConfig.Compile(ext, ps.s.Log, ps.s.conf.OutputFormats.Config, ps.s.conf.MediaTypes.Config); err != nil {
+		if err := pm.pageConfig.Compile(pm.pageConfigSource, ps.s.Log, ps.s.conf.OutputFormats.Config); err != nil {
 			return err
 		}
 	}
+
+	pcfg := pm.pageConfig
 
 	// Handle the date separately
 	// TODO(bep) we need to "do more" in this area so this can be split up and
@@ -699,13 +648,15 @@ func (ps *pageState) setMetaPostParams() error {
 		return nil
 	}
 
+	var sitemapSet bool
+
 	var buildConfig any
 	var isNewBuildKeyword bool
-	if v, ok := pm.pageConfig.Params["_build"]; ok {
+	if v, ok := pcfg.Params["_build"]; ok {
 		hugo.Deprecate("The \"_build\" front matter key", "Use \"build\" instead. See https://gohugo.io/content-management/build-options.", "0.145.0")
 		buildConfig = v
 	} else {
-		buildConfig = pm.pageConfig.Params["build"]
+		buildConfig = pcfg.Params["build"]
 		isNewBuildKeyword = true
 	}
 	pm.pageConfig.Build, err = pagemeta.DecodeBuildConfig(buildConfig)
@@ -723,14 +674,6 @@ params:
 `
 		}
 		return fmt.Errorf("failed to decode build config in front matter: %s%s", err, msgDetail)
-	}
-
-	var sitemapSet bool
-
-	pcfg := pm.pageConfig
-	params := pcfg.Params
-	if params == nil {
-		panic("params not set for " + ps.Path())
 	}
 
 	var draft, published, isCJKLanguage *bool
@@ -769,39 +712,39 @@ params:
 		switch loki {
 		case "title":
 			pcfg.Title = cast.ToString(v)
-			params[loki] = pcfg.Title
+			pcfg.Params[loki] = pcfg.Title
 		case "linktitle":
 			pcfg.LinkTitle = cast.ToString(v)
-			params[loki] = pcfg.LinkTitle
+			pcfg.Params[loki] = pcfg.LinkTitle
 		case "summary":
 			pcfg.Summary = cast.ToString(v)
-			params[loki] = pcfg.Summary
+			pcfg.Params[loki] = pcfg.Summary
 		case "description":
 			pcfg.Description = cast.ToString(v)
-			params[loki] = pcfg.Description
+			pcfg.Params[loki] = pcfg.Description
 		case "slug":
 			// Don't start or end with a -
 			pcfg.Slug = strings.Trim(cast.ToString(v), "-")
-			params[loki] = pm.Slug()
+			pcfg.Params[loki] = pm.Slug()
 		case "url":
 			url := cast.ToString(v)
 			if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("URLs with protocol (http*) not supported: %q. In page %q", url, ps.pathOrTitle())
 			}
 			pcfg.URL = url
-			params[loki] = url
+			pcfg.Params[loki] = url
 		case "type":
 			pcfg.Type = cast.ToString(v)
-			params[loki] = pcfg.Type
+			pcfg.Params[loki] = pcfg.Type
 		case "keywords":
 			pcfg.Keywords = cast.ToStringSlice(v)
-			params[loki] = pcfg.Keywords
+			pcfg.Params[loki] = pcfg.Keywords
 		case "headless":
 			// Legacy setting for leaf bundles.
 			// This is since Hugo 0.63 handled in a more general way for all
 			// pages.
 			isHeadless := cast.ToBool(v)
-			params[loki] = isHeadless
+			pcfg.Params[loki] = isHeadless
 			if isHeadless {
 				pm.pageConfig.Build.List = pagemeta.Never
 				pm.pageConfig.Build.Render = pagemeta.Never
@@ -818,13 +761,10 @@ params:
 			*draft = cast.ToBool(v)
 		case "layout":
 			pcfg.Layout = cast.ToString(v)
-			params[loki] = pcfg.Layout
-		case "markup":
-			pcfg.Content.Markup = cast.ToString(v)
-			params[loki] = pcfg.Content.Markup
+			pcfg.Params[loki] = pcfg.Layout
 		case "weight":
 			pcfg.Weight = cast.ToInt(v)
-			params[loki] = pcfg.Weight
+			pcfg.Params[loki] = pcfg.Weight
 		case "aliases":
 			pcfg.Aliases = cast.ToStringSlice(v)
 			for i, alias := range pcfg.Aliases {
@@ -833,7 +773,7 @@ params:
 				}
 				pcfg.Aliases[i] = filepath.ToSlash(alias)
 			}
-			params[loki] = pcfg.Aliases
+			pcfg.Params[loki] = pcfg.Aliases
 		case "sitemap":
 			pcfg.Sitemap, err = config.DecodeSitemap(ps.s.conf.Sitemap, maps.ToStringMap(v))
 			if err != nil {
@@ -845,7 +785,7 @@ params:
 			*isCJKLanguage = cast.ToBool(v)
 		case "translationkey":
 			pcfg.TranslationKey = cast.ToString(v)
-			params[loki] = pcfg.TranslationKey
+			pcfg.Params[loki] = pcfg.TranslationKey
 		case "resources":
 			var resources []map[string]any
 			handled := true
@@ -893,22 +833,22 @@ params:
 						for i, u := range vv {
 							a[i] = cast.ToString(u)
 						}
-						params[loki] = a
+						pcfg.Params[loki] = a
 					} else {
-						params[loki] = vv
+						pcfg.Params[loki] = vv
 					}
 				} else {
-					params[loki] = []string{}
+					pcfg.Params[loki] = []string{}
 				}
 
 			default:
-				params[loki] = vv
+				pcfg.Params[loki] = vv
 			}
 		}
 	}
 
 	for k, v := range userParams {
-		params[strings.ToLower(k)] = v
+		pcfg.Params[strings.ToLower(k)] = v
 	}
 
 	if !sitemapSet {
@@ -923,7 +863,7 @@ params:
 	} else if published != nil {
 		pcfg.Draft = !*published
 	}
-	params["draft"] = pcfg.Draft
+	pcfg.Params["draft"] = pcfg.Draft
 
 	if isCJKLanguage != nil {
 		pcfg.IsCJKLanguage = *isCJKLanguage
@@ -935,13 +875,17 @@ params:
 		}
 	}
 
-	params["iscjklanguage"] = pcfg.IsCJKLanguage
+	pcfg.Params["iscjklanguage"] = pcfg.IsCJKLanguage
 
-	if err := pcfg.Init(false); err != nil {
+	if err := pm.pageConfigSource.Init(false); err != nil {
 		return err
 	}
 
-	if err := pcfg.Compile(ext, ps.s.Log, ps.s.conf.OutputFormats.Config, ps.s.conf.MediaTypes.Config); err != nil {
+	if err := pcfg.Init(); err != nil {
+		return err
+	}
+
+	if err := pcfg.Compile(pm.pageConfigSource, ps.s.Log, ps.s.conf.OutputFormats.Config); err != nil {
 		return err
 	}
 
@@ -980,7 +924,7 @@ func (m *pageMeta) shouldBeCheckedForMenuDefinitions() bool {
 		return false
 	}
 
-	return m.pageConfig.Kind == kinds.KindHome || m.pageConfig.Kind == kinds.KindSection || m.pageConfig.Kind == kinds.KindPage
+	return m.Kind() == kinds.KindHome || m.Kind() == kinds.KindSection || m.Kind() == kinds.KindPage
 }
 
 func (m *pageMeta) noRender() bool {
@@ -1000,13 +944,13 @@ func (m *pageMeta) applyDefaultValues(s *Site) error {
 		(&m.pageConfig.Build).Disable()
 	}
 
-	if m.pageConfig.Content.Markup == "" {
+	if m.pageConfigSource.Content.Markup == "" {
 		if m.File() != nil {
 			// Fall back to file extension
-			m.pageConfig.Content.Markup = s.ContentSpec.ResolveMarkup(m.File().Ext())
+			m.pageConfigSource.Content.Markup = s.ContentSpec.ResolveMarkup(m.File().Ext())
 		}
-		if m.pageConfig.Content.Markup == "" {
-			m.pageConfig.Content.Markup = "markdown"
+		if m.pageConfigSource.Content.Markup == "" {
+			m.pageConfigSource.Content.Markup = "markdown"
 		}
 	}
 

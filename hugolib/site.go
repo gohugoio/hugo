@@ -127,20 +127,8 @@ func (s Site) cloneForVersionAndRole(version, role int) (*Site, error) {
 }
 
 // For debugging purposes only.
-func (s *Site) debugResolveDimensionNames() types.Strings3 {
+func (s *Site) resolveDimensionNames() types.Strings3 {
 	return s.Conf.ConfiguredDimensions().ResolveNames(s.siteVector)
-}
-
-func (s *Site) newPageNew(m *pageMeta) (*pageState, error) { // TODO1 rename.
-	pid := pageIDCounter.Add(1)
-	p, err := s.doNewPageFromMeta(pid, m)
-	if err != nil {
-		return nil, err
-	}
-	if err := p.initLazyProviders(); err != nil {
-		return nil, p.wrapError(err)
-	}
-	return p, nil
 }
 
 // TODO1 adjust all methods that uses the embedded siteLanguageVersionRole to use the siteLanguageVersionRole directly.
@@ -1803,5 +1791,5 @@ func (s *Site) String() string {
 		return "Site (nil)"
 	}
 
-	return fmt.Sprintf("Site %v: %s", s.siteVector, s.debugResolveDimensionNames())
+	return fmt.Sprintf("Site %v: %s", s.siteVector, s.resolveDimensionNames())
 }

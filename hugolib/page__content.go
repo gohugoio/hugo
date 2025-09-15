@@ -135,8 +135,8 @@ func (m *pageMetaSource) parseFrontMatter(
 }
 
 func (m *pageMeta) newCachedContent(s *Site) (*cachedContent, error) {
-	if m.pi == nil {
-		panic("pageMeta.pi must be set before creating cachedContent")
+	if m.pageMetaSource.pi == nil {
+		panic("pageMeta.pageMetaSource.pi must be set before creating cachedContent")
 	}
 
 	c := &cachedContent{

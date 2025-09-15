@@ -78,35 +78,45 @@ func (d Dates) IsAllDatesZero() bool {
 }
 
 const (
-	pageMetaKeySites = "sites"
-	pageMetaKeyPath  = "path"
-	pageMetaKeyKind  = "kind"
+	pageMetaKeySites  = "sites"
+	pageMetaKeyPath   = "path"
+	pageMetaKeyKind   = "kind"
+	pageMetaKeyMarkup = "markup"
 )
 
 // bookmark1
-// TODO1 revise this, path only.
-func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[string]any, logger loggers.Logger, conf config.AllProvider) error {
-	if before {
-		// Needed for case insensitive fetching of params values.
-		maps.PrepareParams(frontmatter)
-		pcfg.Frontmatter = frontmatter
-
-		// Look for path, lang, roles and kind, all of which values we need early on.
-		// TODO1 we onlu need path and kind here.
-		if v, found := frontmatter[pageMetaKeyPath]; found {
-			pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
+func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logger loggers.Logger, conf config.AllProvider) error {
+	if frontmatter != nil {
+		if err := pcfg.setFromFrontMatter(frontmatter); err != nil {
+			return err
 		}
+	}
+	return pcfg.resolveContentType("", conf.GetConfigSection("mediaTypes").(media.Types))
+}
 
-		if v, found := frontmatter[pageMetaKeyKind]; found {
-			s := cast.ToString(v)
-			if s != "" {
-				pcfg.Kind = kinds.GetKindMain(s)
-				if pcfg.Kind == "" {
-					return fmt.Errorf("unknown kind %q in front matter", s)
-				}
+func (pcfg *PageConfigEarly) setFromFrontMatter(frontmatter map[string]any) error {
+	// Needed for case insensitive fetching of params values.
+	maps.PrepareParams(frontmatter)
+	pcfg.Frontmatter = frontmatter
+
+	// Look for path, kind and markup, all of which are values we need early on.
+	// TODO1 kind, path vs front matter.
+	if v, found := frontmatter[pageMetaKeyPath]; found {
+		pcfg.Path = paths.ToSlashPreserveLeading(cast.ToString(v))
+	}
+
+	if v, found := frontmatter[pageMetaKeyKind]; found {
+		s := cast.ToString(v)
+		if s != "" {
+			pcfg.Kind = kinds.GetKindMain(s)
+			if pcfg.Kind == "" {
+				return fmt.Errorf("unknown kind %q in front matter", s)
 			}
 		}
-		return nil
+	}
+
+	if v, found := frontmatter[pageMetaKeyMarkup]; found {
+		pcfg.Content.Markup = cast.ToString(v)
 	}
 
 	if v, found := frontmatter[pageMetaKeySites]; found {
@@ -114,11 +124,10 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(before bool, frontmatter map[stri
 			return fmt.Errorf("failed to decode sites from front matter: %w", err)
 		}
 	}
-
 	return nil
 }
 
-func (p *PageConfigEarly) setCascadeValueIfNotSet(key string, value any) (done bool) {
+func (p *PageConfigEarly) setCascadeEarlyValueIfNotSet(key string, value any) (done bool) {
 	switch key {
 	case pageMetaKeySites:
 		p.Sites.SetFromParamsIfNotSet(value.(maps.Params))
@@ -155,7 +164,7 @@ type PageConfigEarly struct {
 type PageConfigLate struct {
 	Dates Dates `json:"-"` // Dates holds the four core dates for this page.
 	DatesStrings
-	Params maps.Params // User defined params. TODO1 move.
+	Params maps.Params // User defined params.
 
 	Title          string   // The title of the page.
 	LinkTitle      string   // The link title of the page.
@@ -238,6 +247,13 @@ var DefaultPageConfig = PageConfig{
 }
 
 func (p *PageConfig) Init(pagesFromData bool) error {
+	if err := p.PageConfigEarly.Init(pagesFromData); err != nil {
+		return err
+	}
+	return p.PageConfigLate.Init()
+}
+
+func (p *PageConfigEarly) Init(pagesFromData bool) error {
 	if pagesFromData {
 		p.Path = strings.TrimPrefix(p.Path, "/")
 
@@ -255,7 +271,10 @@ func (p *PageConfig) Init(pagesFromData bool) error {
 			return errors.New("cascade is only supported for branch nodes")
 		}
 	}
+	return nil
+}
 
+func (p *PageConfigLate) Init() error {
 	return nil
 }
 
@@ -316,13 +335,9 @@ func buildSitesMatrixFromSitesConfig(
 
 // CompileEarly gets called early and before the cascade from content gets applied.
 // TODO1 remove me.
-func (p *PageConfigEarly) CompileEarly(before bool, pi *paths.Path, cascades *page.PageMatcherParamsConfigs,
+func (p *PageConfigEarly) CompileEarly(pi *paths.Path, cascades *page.PageMatcherParamsConfigs,
 	conf config.AllProvider, fim *hugofs.FileMeta, sitesMatrixBase sitesmatrix.VectorIterator, sitesMatrixBaseOnly bool,
 ) error {
-	if before {
-		return nil
-	}
-
 	if sitesMatrixBaseOnly {
 		p.SitesMatrix = buildSitesMatrixFromVectorIterator(sitesMatrixBase)
 	} else {
@@ -346,12 +361,14 @@ func (p *PageConfigEarly) CompileEarly(before bool, pi *paths.Path, cascades *pa
 	sitesMatrixBefore := p.Sites.Matrix
 
 	for cascade := range cascades.All() {
+
+		// TODO1 make sur Kin is set here.
 		if !cascade.Target.Match(p.Kind, pi.Base(), conf.Environment(), p.SitesMatrix) {
 			continue
 		}
 
 		for ck, cv := range cascade.Fields {
-			if done := p.setCascadeValueIfNotSet(ck, cv); done {
+			if done := p.setCascadeEarlyValueIfNotSet(ck, cv); done {
 				break
 			}
 		}
@@ -365,6 +382,11 @@ func (p *PageConfigEarly) CompileEarly(before bool, pi *paths.Path, cascades *pa
 			sitesMatrixBase,
 			p.Sites,
 		)
+	}
+
+	mediaTypes := conf.GetConfigSection("mediaTypes").(media.Types)
+	if err := p.resolveContentType(pi.Ext(), mediaTypes); err != nil {
+		return err
 	}
 
 	return nil
@@ -401,10 +423,10 @@ func (p *PageConfig) CompileForPagesFromDataPre(basePath string, logger loggers.
 	// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
 	p.Path = paths.NormalizePathStringBasic(p.Path)
 
-	return p.compilePrePost("", mediaTypes)
+	return p.resolveContentType("", mediaTypes)
 }
 
-func (p *PageConfig) compilePrePost(ext string, mediaTypes media.Types) error {
+func (p *PageConfigEarly) resolveContentType(ext string, mediaTypes media.Types) error {
 	if p.Content.Markup == "" && p.Content.MediaType == "" {
 		if ext == "" {
 			ext = "md"
@@ -439,8 +461,8 @@ func (p *PageConfig) compilePrePost(ext string, mediaTypes media.Types) error {
 }
 
 // Compile sets up the page configuration after all fields have been set.
-func (p *PageConfig) Compile(ext string, logger loggers.Logger, outputFormats output.Formats, mediaTypes media.Types) error {
-	if p.IsFromContentAdapter {
+func (p *PageConfigLate) Compile(e *PageConfigEarly, logger loggers.Logger, outputFormats output.Formats) error {
+	if e.IsFromContentAdapter {
 		if err := mapstructure.WeakDecode(p.ContentAdapterData, p); err != nil {
 			err = fmt.Errorf("failed to decode page map: %w", err)
 			return err
@@ -453,10 +475,6 @@ func (p *PageConfig) Compile(ext string, logger loggers.Logger, outputFormats ou
 		p.Params = make(maps.Params)
 	} else {
 		maps.PrepareParams(p.Params)
-	}
-
-	if err := p.compilePrePost(ext, mediaTypes); err != nil {
-		return err
 	}
 
 	if len(p.Outputs) > 0 {

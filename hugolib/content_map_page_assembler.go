@@ -162,21 +162,22 @@ func (a *allPagesAssembler) createAllPages() error {
 			}
 		}()
 
-		var handlePageMetaSource func(v any, is contentNodes[contentNodePage], replaceVector bool) (updated bool, replaced bool, err error)
-		handlePageMetaSource = func(v any, is contentNodes[contentNodePage], replaceVector bool) (updated bool, replaced bool, err error) {
+		var handlePageMetaSource func(v contentNode, is contentNodes[contentNodePage], replaceVector bool) (updated bool, err error)
+		handlePageMetaSource = func(v contentNode, is contentNodes[contentNodePage], replaceVector bool) (updated bool, err error) {
 			switch ms := v.(type) {
 			case *pageMetaSource:
-				if err := ms.initSitesMatrix(a.h, cascades); err != nil {
-					return false, false, err
+
+				if err := ms.initEarly(a.h, cascades); err != nil {
+					return false, err
 				}
+
+				sitesMatrix := ms.sitesMatrix()
 
 				if ms.isContentNodeBranch() && ms.cascadeCompiled != nil {
 					// Cascade on itself has higher priority than inherited ones,
 					// so insert first.
 					cascades = cascades.Prepend(ms.cascadeCompiled)
 				}
-
-				sitesMatrix := ms.sitesMatrix()
 
 				sitesMatrix.ForEeachVector(func(vec sitesmatrix.Vector) bool {
 					site, found := sites[vec]
@@ -197,8 +198,6 @@ func (a *allPagesAssembler) createAllPages() error {
 
 					pp, found := is[vec]
 
-					replaced = replaced || found
-
 					if found && !replaceVector && pp.contentWeight() > p.contentWeight() {
 						return true
 					}
@@ -206,25 +205,25 @@ func (a *allPagesAssembler) createAllPages() error {
 					is[vec] = p
 					return true
 				})
-				return true, replaced, err
+
+				return true, err
 			case *pageState:
 				is[ms.s.siteVector] = ms
-				return true, replaced, err
+				return true, err
 			case contentNodes[contentNodePage]:
 				for _, vv := range ms {
-					b, r, err := handlePageMetaSource(vv, is, replaceVector)
+					b, err := handlePageMetaSource(vv, is, replaceVector)
 					if err != nil {
-						return false, false, err
+						return false, err
 					}
-					replaced = replaced || r
 					if !b {
 						panic("expected true")
 					}
 				}
 			default:
-				// panic(fmt.Sprintf("unexpected type %T", v))
+				panic(fmt.Sprintf("unexpected type %T", v))
 			}
-			return false, replaced, err
+			return false, err
 		}
 
 		switch v := n.(type) {
@@ -232,7 +231,7 @@ func (a *allPagesAssembler) createAllPages() error {
 			var updated bool
 			is := make(contentNodes[contentNodePage])
 			for ms := range v {
-				b, _, err := handlePageMetaSource(ms, is, false)
+				b, err := handlePageMetaSource(ms, is, false)
 				if err != nil {
 					return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 				}
@@ -243,14 +242,17 @@ func (a *allPagesAssembler) createAllPages() error {
 			var updated bool
 			is := make(contentNodes[contentNodePage])
 			for _, ms := range v {
-				b, r, err := handlePageMetaSource(ms, is, false)
+				if ms == nil {
+					panic("nil node")
+				}
+				b, err := handlePageMetaSource(ms, is, false)
 				if err != nil {
 					return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 				}
 
 				updated = updated || b
 
-				if r && printPathWarnings {
+				if false && printPathWarnings { // TODO1
 					// TODO1 I'm not sure this is practical when we get all the matrix in play.
 					hdebug.Printf("Duplicate content path: %q", n.Path())
 					/*if replaced && !m.s.h.isRebuild() && m.s.conf.PrintPathWarnings {
@@ -271,7 +273,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		case *pageMetaSource:
 			var updated bool
 			is := make(contentNodes[contentNodePage])
-			b, _, err := handlePageMetaSource(v, is, false)
+			b, err := handlePageMetaSource(v, is, false)
 			if err != nil {
 				return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 			}
@@ -282,7 +284,7 @@ func (a *allPagesAssembler) createAllPages() error {
 			if !found {
 				panic(fmt.Sprintf("site not found for %v", v))
 			}
-			p, err := site.newPageNew(v)
+			p, err := site.newPageFromPageMeta(v)
 			return p, true, false, false, err
 		case contentNodes[contentNodePage]:
 			for i, vv := range v {
@@ -293,12 +295,12 @@ func (a *allPagesAssembler) createAllPages() error {
 					if !found {
 						panic(fmt.Sprintf("site not found for %v", m))
 					}
-					v[i], err = site.newPageNew(m)
+					v[i], err = site.newPageFromPageMeta(m)
 					if err != nil {
 						return nil, false, false, false, fmt.Errorf("failed to create page %s: %w", s, err)
 					}
 				case *pageMetaSource:
-					_, _, err := handlePageMetaSource(m, v, true)
+					_, err := handlePageMetaSource(m, v, true)
 					if err != nil {
 						return nil, false, false, false, fmt.Errorf("failed to create page from pageMetaSource %s: %w", s, err)
 					}
@@ -363,6 +365,9 @@ func (a *allPagesAssembler) createAllPages() error {
 				n = unpackPageMetaSources(n)
 			}
 		}
+		if n == nil {
+			panic("nil node")
+		}
 		n2, replaced, skip, terminate, err = transformPages2(s, n, cascades)
 		return
 	}
@@ -375,7 +380,11 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 
 		if s != "" && !seenHome {
-			homePages, _, _, _, _ := transformPages("", newHomePageMetaSource(), cascades)
+			var homePages contentNode
+			homePages, _, _, _, err = transformPages("", newHomePageMetaSource(), cascades)
+			if err != nil {
+				return
+			}
 			treePages.InsertRaw("", homePages)
 			seenHome = true
 		}
@@ -398,13 +407,17 @@ func (a *allPagesAssembler) createAllPages() error {
 				// Try to preserve the original casing if possible.
 				sectionUnnormalized := p.Unnormalized().Section()
 				rootSectionPath := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
-				rootSectionPages, _, _, _, _ := transformPages(rootSectionPath.Base(), &pageMetaSource{
+				var rootSectionPages contentNode
+				rootSectionPages, _, _, _, err = transformPages(rootSectionPath.Base(), &pageMetaSource{
 					pathInfo:        rootSectionPath,
 					sitesMatrixBase: n2.(contentNodeForSites).siteVectors(),
 					pageConfigSource: &pagemeta.PageConfigEarly{
 						Kind: kinds.KindSection, // TODO1 also handle taxonomies here.
 					},
 				}, cascades)
+				if err != nil {
+					return
+				}
 				treePages.InsertRaw(rootSectionPath.Base(), rootSectionPages)
 			}
 		}
@@ -470,7 +483,10 @@ func (a *allPagesAssembler) createAllPages() error {
 						}
 						nm[vec] = pms
 
-						_, replaced2, _, _, _ := transformPages(s, nm, cascades)
+						_, replaced2, _, _, err := transformPages(s, nm, cascades)
+						if err != nil {
+							return err
+						}
 						if replaced2 {
 							// Should not happen.
 							panic(fmt.Sprintf("expected no replacement for %q", s))
@@ -599,6 +615,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		nodes := make(contentNodes[contentNode])
 		n2 = nodes
 		replaced = true
+
 		forEeachResourceOwnerPage(
 			func(p *pageState) bool {
 				if _, found := nodes[p.s.siteVector]; !found {
@@ -640,8 +657,6 @@ func (a *allPagesAssembler) createAllPages() error {
 					// Merge.
 					n.forEeachContentNode(
 						func(vec sitesmatrix.Vector, nn contentNode) bool {
-							hdebug.Printf("delete: %q %t %v", termKey, found, vec)
-
 							delete(v, vec)
 							return true
 						},
@@ -649,7 +664,6 @@ func (a *allPagesAssembler) createAllPages() error {
 				}
 
 				if len(v) > 0 {
-
 					p := &pageMetaSource{
 						pathInfo:        pi,
 						sitesMatrixBase: v,
@@ -659,7 +673,10 @@ func (a *allPagesAssembler) createAllPages() error {
 							Kind: kinds.KindTerm,
 						},
 					}
-					var n2 contentNode = contentNodeSlice{n, p}
+					var n2 contentNode = p
+					if found {
+						n2 = contentNodeSlice{n, p}
+					}
 					n2, replace, _, _, err := transformPages(termKey, n2, getCascades(a.pw.WalkContext, termKey))
 					if err != nil {
 						return fmt.Errorf("failed to create term page %q: %w", termKey, err)
@@ -847,13 +864,6 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 			WalkContext: walkContext,
 			Handle: func(s string, n contentNode) (bool, error) {
 				p := n.(*pageState)
-				if p.Kind() != kinds.KindTerm {
-					// The other kinds were handled in applyAggregates.
-					if p.m.cascadeCompiled != nil {
-						// Pass it down.
-						pw.WalkContext.Data().Insert(s, p.m.cascadeCompiled)
-					}
-				}
 
 				if p.Kind() != kinds.KindTerm && p.Kind() != kinds.KindTaxonomy {
 					// Already handled.
@@ -863,15 +873,6 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 				const eventName = "dates"
 
 				if p.Kind() == kinds.KindTerm {
-					// TODO1
-					/*var cascade *maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig]
-					_, data := pw.WalkContext.Data().LongestPrefix(s)
-					if data != nil {
-						cascade = data.(*maps.Ordered[page.PageMatcher, page.PageMatcherParamsConfig])
-					}
-					if err := p.setMetaPost(cascade); err != nil {
-						return false, err
-					}*/
 					if !p.s.shouldBuild(p) {
 						sa.s.pageMap.treePages.Delete(s)
 						sa.s.pageMap.treeTaxonomyEntries.DeletePrefix(paths.AddTrailingSlash(s))
@@ -968,7 +969,7 @@ func (sa *sitePagesAssembler) assembleTerms() error {
 					pi := sa.s.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
 					term := pages.Get(pi.Base())
 					if term == nil {
-						panic(fmt.Sprintf("missing term page for %q defined in page %q", pi.Base(), ps.Path()))
+						panic(fmt.Sprintf("%v missing term page for %q defined in page %q", ps.s.resolveDimensionNames(), pi.Base(), ps.Path()))
 					}
 
 					m := term.(*pageState).m
@@ -1067,9 +1068,12 @@ func (sa *sitePagesAssembler) assembleResourcesAndSetHome() error {
 					relPathOriginal := rs.path.Unnormalized().PathRel(ps.m.pathInfo.Unnormalized())
 					relPath := rs.path.BaseRel(ps.m.pathInfo)
 
-					targetBasePaths := rs.targetBasePaths
+					var targetBasePaths []string
 					if ps.s.Conf.IsMultihost() {
 						baseTarget = targetPaths.SubResourceBaseLink
+						// In multihost we need to publish to the lang sub folder.
+						targetBasePaths = []string{ps.s.GetTargetLanguageBasePath()} // TODO(bep) we don't need this as a slice anymore.
+
 					}
 
 					if rs.rc != nil && rs.rc.Content.IsResourceValue() {
@@ -1165,6 +1169,10 @@ func (sa *sitePagesAssembler) assemblePagesStep2() error {
 		return err
 	}
 	if err := sa.assembleTerms(); err != nil {
+		return err
+	}
+
+	if err := sa.applyAggregatesToTaxonomiesAndTerms(); err != nil {
 		return err
 	}
 
@@ -1365,7 +1373,7 @@ func (sa *sitePagesAssembler) addMissingTaxonomies() error {
 					},
 				},
 			}
-			p, err := sa.s.newPageNew(m)
+			p, err := sa.s.newPageFromPageMeta(m)
 			if err != nil {
 				return fmt.Errorf("failed to create taxonomy %s: %w", viewName.plural, err)
 			}

@@ -115,10 +115,7 @@ func isGlobWithExtension(s string) bool {
 	return strings.Count(last, ".") > 0
 }
 
-func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
-	if logger != nil && isGlobWithExtension(m.Path) {
-		logger.Erroridf("cascade-pattern-with-extension", "cascade target path %q looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/", m.Path)
-	}
+func checkCascadePattern(logger loggers.Logger, m PageMatcher) {
 	if m.Lang != "" {
 		hugo.Deprecate("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/content-management/front-matter/#target", "v0.150.0")
 	}
@@ -245,16 +242,12 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 }
 
 // DecodeCascadeConfigOptions
-func (v *PageMatcher) compileSitesMatrix(defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+func (v *PageMatcher) compileSitesMatrix(configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
 	intSetsCfg := sitesmatrix.IntSetsConfig{
 		Globs: v.Sites.Matrix,
 	}
-	b := sitesmatrix.NewIntSetsBuilder(configuredDimensions).WithConfig(intSetsCfg)
-	if defaultSitesMatrix != nil {
-		b = b.WithDimensionsFromOtherIfNotSet(defaultSitesMatrix)
-	} else {
-		b = b.WithAllIfNotSet()
-	}
+	b := sitesmatrix.NewIntSetsBuilder(configuredDimensions).WithConfig(intSetsCfg).WithAllIfNotSet()
+
 	v.SitesMatrixCompiled = b.Build()
 	return nil
 }
@@ -275,6 +268,7 @@ type PageMatcherParamsConfig struct {
 func (p *PageMatcherParamsConfig) init() error {
 	maps.PrepareParams(p.Params)
 	maps.PrepareParams(p.Fields)
+
 	return nil
 }
 
@@ -341,14 +335,14 @@ func (c *PageMatcherParamsConfigs) SourceHash() uint64 {
 	return h.Sum64()
 }
 
-func (c *PageMatcherParamsConfigs) InitConfig(logger loggers.Logger, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+func (c *PageMatcherParamsConfigs) InitConfig(logger loggers.Logger, _ sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
 	if c == nil {
 		return nil
 	}
 	for _, cc := range c.c {
 		for i := range cc.Config.Cascades {
-			CheckCascadePattern(logger, cc.Config.Cascades[i].Target)
-			if err := cc.Config.Cascades[i].Target.compileSitesMatrix(defaultSitesMatrix, configuredDimensions); err != nil {
+			checkCascadePattern(logger, cc.Config.Cascades[i].Target)
+			if err := cc.Config.Cascades[i].Target.compileSitesMatrix(configuredDimensions); err != nil {
 				return fmt.Errorf("failed to compile cascade target %d: %w", i, err)
 			}
 		}

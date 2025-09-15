@@ -833,9 +833,6 @@ type Configs struct {
 }
 
 func (c *Configs) Validate(logger loggers.Logger) error {
-	for cascade := range c.Base.Cascade.All() {
-		page.CheckCascadePattern(logger, cascade.Target)
-	}
 	return nil
 }
 

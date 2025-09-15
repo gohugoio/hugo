@@ -583,7 +583,7 @@ func (m *pageMap) forEachResourceInPage(
 		Fallback: fallback,
 	}
 
-	shouldSkipOrTerminate := func(s string) (skip, terminate bool) {
+	shouldSkipOrTerminate := func(resourceKey string) (skip, terminate bool) {
 		if !isBranch {
 			return false, false
 		}
@@ -592,6 +592,7 @@ func (m *pageMap) forEachResourceInPage(
 		// A page key points to the logical path of a page, which when sourced from the filesystem
 		// may represent a directory (bundles) or a single content file (e.g. p1.md).
 		// So, to avoid any overlapping ambiguity, we start looking from the owning directory.
+		s := resourceKey
 
 		for {
 			s = path.Dir(s)
@@ -830,7 +831,8 @@ func absint(i int) int {
 func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector, fallback bool) (contentNode, bool) {
 	switch v := n.(type) {
 	case contentNodeMap:
-		vv := v.lookupContentNode(siteVector, fallback)
+
+		vv := v.lookupContentNode(siteVector)
 		if vv != nil {
 			return vv, true
 		}
@@ -850,27 +852,11 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		if vvv := contentNodeHelper.findContentNodeForSiteVector(siteVector, fallback, iter); vvv != nil {
 			return vvv, true
 		}
+
 		return nil, false
 	case resourceSources: // TODO1 remove this type.
 		panic("TODO1 remove me")
-		vv := v[siteVector]
-		if vv != nil {
-			return vv, true
-		}
-		if !fallback {
-			return nil, false
-		}
-		// For non content resources, pick the first match.
-		for _, vv := range v {
-			if vv != nil {
-				if vv.isPage() {
-					return nil, false
-				}
-				return vv, true
-			}
-		}
 	case resourceSourcesSlice:
-		hdebug.Printf("Shift: resourceSourcesSlice: %d items", len(v))
 		iter := func(yield func(n contentNode) bool) {
 			for _, vv := range v {
 				if !yield(vv) {
@@ -904,7 +890,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			return v, true
 		}
 	default:
-		panic(fmt.Sprintf("Shift: unsupported type %T", n))
+		panic(fmt.Sprintf("Shift: unsupported type %T in %q", n, n.Path()))
 	}
 	return nil, false
 }

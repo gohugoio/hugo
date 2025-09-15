@@ -64,13 +64,12 @@ const (
 )
 
 type resourceSource struct {
-	state           resourceSourceState
-	sv              sitesmatrix.Vector
-	path            *paths.Path
-	opener          hugio.OpenReadSeekCloser
-	fi              hugofs.FileMetaInfo
-	rc              *pagemeta.ResourceConfig
-	targetBasePaths []string // Set in multihost mode.
+	state  resourceSourceState
+	sv     sitesmatrix.Vector
+	path   *paths.Path
+	opener hugio.OpenReadSeekCloser
+	fi     hugofs.FileMetaInfo
+	rc     *pagemeta.ResourceConfig
 
 	r resource.Resource
 }

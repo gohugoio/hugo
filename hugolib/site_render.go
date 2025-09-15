@@ -114,7 +114,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("%v failed to render pages: %w", s.debugResolveDimensionNames(), herrors.ImproveRenderErr(err))
+		return fmt.Errorf("%v failed to render pages: %w", s.resolveDimensionNames(), herrors.ImproveRenderErr(err))
 	}
 	return nil
 }

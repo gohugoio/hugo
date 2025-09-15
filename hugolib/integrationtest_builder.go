@@ -553,12 +553,17 @@ func (s *IntegrationTestBuilder) AssertRenderCountPageBetween(from, to int) {
 func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	s.Helper()
 	_, err := s.BuildE()
+
+	if err != nil && strings.Contains(err.Error(), "error(s)") {
+		err = fmt.Errorf("%w: %s", err, s.lastBuildLog)
+	}
+
 	if s.Cfg.Verbose || err != nil {
 		if s.H != nil && err == nil {
 			for s := range s.H.allSites() {
 				m := s.pageMap
 				var buff bytes.Buffer
-				fmt.Fprintf(&buff, "======= PageMap for site %q  =======\n\n", s.debugResolveDimensionNames())
+				fmt.Fprintf(&buff, "======= PageMap for site %q  =======\n\n", s.resolveDimensionNames())
 				m.debugPrint("", 999, &buff)
 				fmt.Println(buff.String())
 			}

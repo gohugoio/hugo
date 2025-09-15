@@ -18,7 +18,6 @@ import (
 	"iter"
 
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -82,7 +81,7 @@ type (
 
 	contentNodeMap interface {
 		// TODO1 names.
-		lookupContentNode(sitesmatrix.Vector, bool) contentNode
+		lookupContentNode(sitesmatrix.Vector) contentNode
 		allContentNodes() iter.Seq2[sitesmatrix.Vector, contentNode]
 	}
 
@@ -146,24 +145,9 @@ func contentNodeToSeq(n contentNode) contentNodeSeq {
 
 type contentNodes[V contentNode] map[sitesmatrix.Vector]V
 
-func (n contentNodes[V]) lookupContentNode(v sitesmatrix.Vector, fallback bool) contentNode {
+func (n contentNodes[V]) lookupContentNode(v sitesmatrix.Vector) contentNode {
 	if nn, ok := n[v]; ok {
 		return nn
-	}
-
-	if !fallback {
-		return nil
-	}
-
-	for _, nn := range n {
-		if m, ok := any(nn).(contentNodeMatcher); ok {
-			if types.IsNil(m) {
-				panic(fmt.Sprintf("nil contentNodeMatcher in %T", n))
-			}
-			for nn := range m.matchSiteVectorAll(v, true) {
-				return nn
-			}
-		}
 	}
 	return nil
 }

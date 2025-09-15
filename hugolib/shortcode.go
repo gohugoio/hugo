@@ -325,7 +325,7 @@ func prepareShortcode(
 
 	// Allow the caller to delay the rendering of the shortcode if needed.
 	var fn shortcodeRenderFunc = func(ctx context.Context) ([]byte, bool, error) {
-		if p.m.pageConfig.ContentMediaType.IsMarkdown() && sc.doMarkup {
+		if p.m.pageConfigSource.ContentMediaType.IsMarkdown() && sc.doMarkup {
 			// Signal downwards that the content rendered will be
 			// parsed and rendered by Goldmark.
 			ctx = tpl.Context.IsInGoldmark.Set(ctx, true)
@@ -476,7 +476,7 @@ func doRenderShortcode(
 			//     unchanged.
 			// 2   If inner does not have a newline, strip the wrapping <p> block and
 			//     the newline.
-			switch p.m.pageConfig.Content.Markup {
+			switch p.m.pageConfigSource.Content.Markup {
 			case "", "markdown":
 				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
 					cleaner, err := regexp.Compile(innerCleanupRegexp)

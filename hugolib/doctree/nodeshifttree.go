@@ -421,7 +421,8 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 			if r.LockType == LockTypeRead {
 				panic("Transform must be performed with a write lock or no lock")
 			}
-			if err, skip, terminate := func() (err error, skip bool, terminate bool) {
+			var skip bool
+			if err, skip, terminate = func() (err error, skip bool, terminate bool) {
 				if r.LockType == LockTypeNone {
 					unlock := r.Tree.Lock(true)
 					defer unlock()
@@ -440,7 +441,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 				}
 				return
 			}(); skip || terminate || err != nil {
-				return terminate, err
+				return
 			}
 		}
 
@@ -464,7 +465,9 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 
 		main := r.Tree
 
-		handleV := func(s string, v any) bool {
+		var err error
+
+		handleV := func(s string, v any) (terminate bool) {
 			if r.ShouldSkip(s, v.(T)) {
 				return false
 			}
@@ -478,8 +481,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 					return false
 				}
 			}
-
-			terminate, err := handleT(s, t)
+			terminate, err = handleT(s, t)
 			if terminate || err != nil {
 				return true
 			}
@@ -492,7 +494,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 			main.tree.Walk(handleV)
 		}
 
-		return nil
+		return err
 	}()
 }
 

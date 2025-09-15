@@ -722,101 +722,6 @@ subsect-content|
 	b.AssertFileContent("public/mysect/subsect/index.html", "Title: |")
 }
 
-// Issue 11977.
-func TestCascadeExtensionInPath(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-[languages]
-[languages.en]
-weight = 1
-[languages.de]
--- content/_index.de.md --
-+++
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/posts/post-1.de.md'
-+++
--- content/posts/post-1.de.md --
----
-title: "Post 1"
----
--- layouts/_default/single.html --
-{{ .Title }}|{{ .Params.foo }}$
-`
-	b, err := TestE(t, files)
-	b.Assert(err, qt.IsNotNil)
-	b.AssertLogContains(`cascade target path "/posts/post-1.de.md" looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/`)
-}
-
-func TestCascadeExtensionInPathIgnore(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-ignoreLogs   = ['cascade-pattern-with-extension']
-[languages]
-[languages.en]
-weight = 1
-[languages.de]
--- content/_index.de.md --
-+++
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/posts/post-1.de.md'
-+++
--- content/posts/post-1.de.md --
----
-title: "Post 1"
----
--- layouts/_default/single.html --
-{{ .Title }}|{{ .Params.foo }}$
-`
-	b := Test(t, files)
-	b.AssertLogContains(`! looks like a path with an extension`)
-}
-
-func TestCascadConfigExtensionInPath(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/p1.md'
-`
-	b, err := TestE(t, files)
-	b.Assert(err, qt.IsNotNil)
-	b.AssertLogContains(`looks like a path with an extension`)
-}
-
-func TestCascadConfigExtensionInPathIgnore(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-ignoreLogs   = ['cascade-pattern-with-extension']
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/p1.md'
-`
-	b := Test(t, files)
-	b.AssertLogContains(`! looks like a path with an extension`)
-}
-
 func TestCascadeIssue12172(t *testing.T) {
 	t.Parallel()
 
@@ -989,9 +894,8 @@ All.
 	b.Assert(s0.language.Name(), qt.Equals, "en")
 	b.Assert(s0.version.Name(), qt.Equals, "v2.1.0")
 	b.Assert(s0.role.Name(), qt.Equals, "guest")
-	s0Pconfig := s0.Home().(*pageState).m.pageConfig
-	b.Assert(s0Pconfig.SitesMatrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)
-	b.Assert(s0Pconfig.SitesMatrix.LenVectors(), qt.Equals, 1)
+	s0Pconfig := s0.Home().(*pageState).m.pageConfigSource
+	b.Assert(s0Pconfig.SitesMatrix.Vectors(), qt.DeepEquals, []sitesmatrix.Vector{{0, 0, 0}, {0, 1, 0}}) // en, v2.1.0, guest + en, v2.0.0, guest
 
 	s1 := b.H.sitesVersionsRolesMap[sitesmatrix.Vector{1, 2, 0}]
 	b.Assert(s1.home, qt.IsNotNil)
@@ -999,8 +903,8 @@ All.
 	b.Assert(s1.language.Name(), qt.Equals, "nn")
 	b.Assert(s1.version.Name(), qt.Equals, "v1.0.0")
 	b.Assert(s1.role.Name(), qt.Equals, "guest")
-	s1Pconfig := s1.Home().(*pageState).m.pageConfig
+	s1Pconfig := s1.Home().(*pageState).m.pageConfigSource
 	b.Assert(s1Pconfig.SitesMatrix.HasVector(sitesmatrix.Vector{1, 2, 0}), qt.IsTrue) // nn, v1.0.0, guest
-	// Every site needs a home page. This matrix adds the missing one, (3 * 3 * 2) - 1 = 17
-	b.Assert(s1Pconfig.SitesMatrix.LenVectors(), qt.Equals, 17)
+	// Every site needs a home page. This matrix adds the missing ones, (3 * 3 * 2) - 2 = 16
+	b.Assert(s1Pconfig.SitesMatrix.LenVectors(), qt.Equals, 16)
 }
