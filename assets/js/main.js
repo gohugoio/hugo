@@ -8,14 +8,6 @@ import focus from '@alpinejs/focus';
 
 var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 
-// Turbolinks init.
-(function () {
-	document.addEventListener('turbo:render', function (e) {
-		// This is also called right after the body start. This is added to prevent flicker on navigation.
-		initColorScheme();
-	});
-})();
-
 // Set up and start Alpine.
 (function () {
 	// Register AlpineJS plugins.
