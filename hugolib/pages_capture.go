@@ -334,7 +334,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			baseLang := hstrings.Strings2{pi.Base(), meta.Lang}
 			if fi2, ok := seen[baseLang]; ok {
 				if c.h.Configs.Base.PrintPathWarnings && !c.h.isRebuild() {
-					c.logger.Warnf("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
+					c.logger.Infof("Duplicate content path: %q file: %q file: %q", pi.Base(), fi2.Meta().Filename, meta.Filename)
 				}
 				continue
 			}

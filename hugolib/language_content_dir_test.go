@@ -175,3 +175,68 @@ title: "p4 theme (nl)"
 	b.AssertFileContent("public/de/index.html", `home (de): de: p1 (de)|p2 (en)|p3 (en)|:END`)
 	b.AssertFileContent("public/en/index.html", `home (en): en: p1 (en)|p2 (en)|p3 (en)|:END`)
 }
+
+// Issue 13993
+func TestIssue13993(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+printPathWarnings = true
+
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+contentDir = "content/en"
+weight = 1
+
+[languages.es]
+contentDir = "content/es"
+weight = 2
+
+# Default content mounts
+
+[[module.mounts]]
+source = "content/en"
+target = "content"
+lang = "en"
+
+[[module.mounts]]
+source = "content/es"
+target = "content"
+lang = "es"
+
+# Populate the missing es content with en content
+
+[[module.mounts]]
+source = "content/en"
+target = "content"
+lang = "es"
+-- layouts/all.html --
+{{ .Title }}
+-- content/en/p1.md --
+---
+title: p1 (en)
+---
+-- content/en/p2.md --
+---
+title: p2 (en)
+---
+-- content/es/p1.md --
+---
+title: p1 (es)
+---
+`
+
+	b := Test(t, files, TestOptInfo())
+
+	b.AssertFileExists("public/en/p1/index.html", true)
+	b.AssertFileExists("public/en/p2/index.html", true)
+	b.AssertFileExists("public/es/p1/index.html", true)
+	b.AssertFileExists("public/es/p2/index.html", true)
+
+	b.AssertLogContains("INFO  Duplicate")
+	b.AssertLogContains("! WARN  Duplicate")
+}
