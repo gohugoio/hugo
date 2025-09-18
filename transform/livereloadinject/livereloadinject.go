@@ -49,6 +49,10 @@ func New(baseURL *url.URL) transform.Transformer {
 			idx += len(ignoredSyntax.Find(b[idx:]))
 			idx += len(tag.Find(b[idx:]))
 		}
+		if idx == 0 {
+			loggers.Log().Debugf("Skip injection of LiveReload script: no tags found")
+			return nil
+		}
 
 		path := strings.TrimSuffix(baseURL.Path, "/")
 
