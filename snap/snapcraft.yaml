@@ -89,6 +89,7 @@ apps:
     plugs:
       - home
       - network-bind
+      - desktop
       - removable-media
       - etc-gitconfig
       - gitconfig
