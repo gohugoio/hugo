@@ -108,7 +108,7 @@ func BenchmarkTruncate(b *testing.B) {
 
 	b.Run("With link", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			ns.Truncate(10, template.HTML("I have a <a href='/markdown'>Markdown link</a> inside"))
+			ns.Truncate(10, "I have a <a href='/markdown'>Markdown link</a> inside")
 		}
 	})
 
@@ -152,7 +152,7 @@ Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatib
 
 	b.Run("HTML text (long)", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			ns.Truncate(1850, template.HTML(`Lorem ipsum dolor sit amet, <span>consectetur adipiscing elit</span>, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+			ns.Truncate(1850, `Lorem ipsum dolor sit amet, <span>consectetur adipiscing elit</span>, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 Ut enim ad minim veniam, <p>quis nostrud exercitation ullamco</p> laboris nisi ut aliquip ex ea commodo consequat.
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 Excepteur <code>sint occaecat cupidatat</code> non proident, <a href="#my-text">sunt in culpa qui officia deserunt mollit anim id est</a> laborum.
@@ -166,8 +166,7 @@ occaecati cupiditate non provident, <div class="my-text-class">similique sunt in
 Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat
 facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.
 Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe <h3>eveniet ut et voluptates repudiandae sint et molestiae non recusandae.</h3>
-Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.`))
+Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.`)
 		}
 	})
-
 }
