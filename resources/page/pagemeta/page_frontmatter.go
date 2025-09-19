@@ -85,13 +85,13 @@ const (
 )
 
 // bookmark1
-func (pcfg *PageConfigEarly) SetMetaPreFromMap(frontmatter map[string]any, logger loggers.Logger, conf config.AllProvider) error {
+func (pcfg *PageConfigEarly) SetMetaPreFromMap(ext string, frontmatter map[string]any, logger loggers.Logger, conf config.AllProvider) error {
 	if frontmatter != nil {
 		if err := pcfg.setFromFrontMatter(frontmatter); err != nil {
 			return err
 		}
 	}
-	return pcfg.resolveContentType("", conf.GetConfigSection("mediaTypes").(media.Types))
+	return pcfg.resolveContentType(ext, conf.GetConfigSection("mediaTypes").(media.Types))
 }
 
 func (pcfg *PageConfigEarly) setFromFrontMatter(frontmatter map[string]any) error {

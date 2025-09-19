@@ -709,11 +709,9 @@ baseURL = "https://example.org"
 
 `
 
-	b := Test(t, files, TestOptWithConfig(func(cfg *IntegrationTestConfig) {
+	Test(t, files, TestOptWithConfig(func(cfg *IntegrationTestConfig) {
 		cfg.WorkingDir = tempDir
 	}))
-
-	b.Build()
 }
 
 // https://github.com/gohugoio/hugo/issues/6622

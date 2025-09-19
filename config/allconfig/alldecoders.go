@@ -15,6 +15,7 @@ package allconfig
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -244,12 +245,14 @@ var allDecoderSetups = map[string]decodeWeight{
 			if err != nil {
 				return fmt.Errorf("failed to decode languages config: %w", err)
 			}
-			for _, v := range p.c.Languages.Config.Sorted {
+			for k, v := range p.c.Languages.Config.LanguageConfigs {
 				if v.Disabled {
-					p.c.RootConfig.DisableLanguages = append(p.c.RootConfig.DisableLanguages, v.Name)
+					p.c.RootConfig.DisableLanguages = append(p.c.RootConfig.DisableLanguages, k)
 				}
 			}
+
 			p.c.RootConfig.DisableLanguages = hstrings.UniqueStringsReuse(p.c.RootConfig.DisableLanguages)
+			sort.Strings(p.c.RootConfig.DisableLanguages)
 			p.c.RootConfig.DefaultContentLanguage = defaultContentLanguage
 			return nil
 		},

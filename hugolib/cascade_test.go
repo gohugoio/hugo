@@ -908,3 +908,36 @@ All.
 	// Every site needs a home page. This matrix adds the missing ones, (3 * 3 * 2) - 2 = 16
 	b.Assert(s1Pconfig.SitesMatrix.LenVectors(), qt.Equals, 16)
 }
+
+func TestCascadeBundledPage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- content/_index.md --
+---
+title: Home
+cascade:
+  params:
+    p1: v1
+---
+-- content/b1/index.md --
+---
+title: b1
+---
+-- content/b1/p2.md --
+---
+title: p2
+---
+-- layouts/all.html --
+Title: {{ .Title }}|p1: {{ .Params.p1 }}|
+{{ range .Resources }}
+Resource: {{ .Name }}|p1: {{ .Params.p1 }}|
+{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/b1/index.html", "Title: b1|p1: v1|", "Resource: p2.md|p1: v1|")
+}

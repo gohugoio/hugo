@@ -220,8 +220,14 @@ func (m *pageMetaSource) initFrontMatter(h *HugoSites) error {
 	if err := m.parseFrontMatter(h, pageSourceIDCounter.Add(1)); err != nil {
 		return err
 	}
+	var ext string
+	if m.f != nil {
+		if !m.f.IsContentAdapter() {
+			ext = m.f.Ext()
+		}
+	}
 
-	if err := m.pageConfigSource.SetMetaPreFromMap(m.pi.frontMatter, h.Log, h.Conf); err != nil {
+	if err := m.pageConfigSource.SetMetaPreFromMap(ext, m.pi.frontMatter, h.Log, h.Conf); err != nil {
 		return err
 	}
 

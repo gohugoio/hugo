@@ -64,7 +64,7 @@ type LanguageInternal struct {
 }
 
 type LanguagesInternal struct {
-	languageConfigs map[string]LanguageConfig
+	LanguageConfigs map[string]LanguageConfig
 	Sorted          []LanguageInternal
 }
 
@@ -120,23 +120,23 @@ func (ls LanguagesInternal) ForEachIndex() iter.Seq[int] {
 func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguages []string) (string, error) {
 	const en = "en"
 
-	if len(ls.languageConfigs) == 0 {
+	if len(ls.LanguageConfigs) == 0 {
 		// Add a default language.
 		if defaultContentLanguage == "" {
 			defaultContentLanguage = en
 		}
-		ls.languageConfigs[defaultContentLanguage] = LanguageConfig{}
+		ls.LanguageConfigs[defaultContentLanguage] = LanguageConfig{}
 	}
 
 	var (
 		defaultSeen bool
 		enIdx       int = -1
 	)
-	for k, v := range ls.languageConfigs {
+	for k, v := range ls.LanguageConfigs {
 		if !v.Disabled && slices.Contains(disabledLanguages, k) {
 			// This language is disabled.
 			v.Disabled = true
-			ls.languageConfigs[k] = v
+			ls.LanguageConfigs[k] = v
 		}
 
 		if k == "" {
@@ -198,7 +198,7 @@ func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguag
 		}
 		d := ls.Sorted[defaultIdx]
 		d.Default = true
-		ls.languageConfigs[d.Name] = d.LanguageConfig
+		ls.LanguageConfigs[d.Name] = d.LanguageConfig
 		ls.Sorted[defaultIdx] = d
 		defaultContentLanguage = d.Name
 
@@ -228,7 +228,7 @@ func DecodeConfig2(defaultContentLanguage string, disabledLanguages []string, m 
 		if err := mapstructure.Decode(m, &conf); err != nil {
 			return languages, nil, err
 		}
-		languages.languageConfigs = conf
+		languages.LanguageConfigs = conf
 		var err error
 		if defaultContentLanguage, err = languages.init(defaultContentLanguage, disabledLanguages); err != nil {
 			return languages, nil, err
