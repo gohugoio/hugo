@@ -1,0 +1,15 @@
+name: Lint markdown
+on:
+  workflow_dispatch:
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+    - name: Run Markdown linter
+      uses: DavidAnson/markdownlint-cli2-action@v20
+      with:
+        globs: # set to null to override default of *.{md,markdown}
+      continue-on-error: false

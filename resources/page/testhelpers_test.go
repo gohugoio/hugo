@@ -111,6 +111,7 @@ type testPage struct {
 
 	currentSection *testPage
 	sectionEntries []string
+	ancestors      Pages
 }
 
 func (p *testPage) Aliases() []string {
@@ -202,7 +203,12 @@ func (p *testPage) Filename() string {
 }
 
 func (p *testPage) FirstSection() Page {
-	panic("testpage: not implemented")
+	// Return the current section for regular pages
+	// For section pages, this would be the section itself
+	if p.currentSection != nil {
+		return p.currentSection
+	}
+	return p // If no current section, assume this page is the section
 }
 
 func (p *testPage) FuzzyWordCount(context.Context) int {
@@ -262,7 +268,7 @@ func (p *testPage) IsDraft() bool {
 }
 
 func (p *testPage) IsHome() bool {
-	panic("testpage: not implemented")
+	return p.kind == "home"
 }
 
 func (p *testPage) IsMenuCurrent(menuID string, inme *navigation.MenuEntry) bool {
@@ -278,7 +284,7 @@ func (p *testPage) IsPage() bool {
 }
 
 func (p *testPage) IsSection() bool {
-	panic("testpage: not implemented")
+	return p.kind == "section"
 }
 
 func (p *testPage) IsTranslated() bool {
@@ -286,7 +292,7 @@ func (p *testPage) IsTranslated() bool {
 }
 
 func (p *testPage) Ancestors() Pages {
-	panic("testpage: not implemented")
+	return p.ancestors
 }
 
 func (p *testPage) Keywords() []string {

@@ -20,7 +20,7 @@ Hugo's embedded shortcodes are pre-defined templates within the application. Ref
 
 ## Custom
 
-Create custom shortcodes to simplify and standardize content creation. For example, the following shortcode template generates an audio player using a [global resource](g):
+Create custom shortcodes to simplify and standardize content creation. For example, the following _shortcode_ template generates an audio player using a [global resource](g):
 
 ```go-html-template {file="layouts/_shortcodes/audio.html"}
 {{ with resources.Get (.Get "src") }}
@@ -38,11 +38,11 @@ Learn more about creating shortcodes in the [shortcode templates] section.
 
 ## Inline
 
-An inline shortcode is a shortcode template defined within content.
+An inline shortcode is a _shortcode_ template defined within content.
 
 Hugo's security model is based on the premise that template and configuration authors are trusted, but content authors are not. This model enables generation of HTML output safe against code injection.
 
-To conform with this security model, creating shortcode templates within content is disabled by default. If you trust your content authors, you can enable this functionality in your site's configuration:
+To conform with this security model, creating _shortcode_ templates within content is disabled by default. If you trust your content authors, you can enable this functionality in your site's configuration:
 
 {{< code-toggle file=hugo >}}
 [security]
@@ -69,7 +69,7 @@ In the example above, the inline shortcode is executed twice: once upon definiti
 <p>Today is Thursday, January 30, 2025</p>
 ```
 
-Inline shortcodes process their inner content within the same context as regular shortcode templates, allowing you to use any available [shortcode method].
+Inline shortcodes process their inner content within the same context as regular _shortcode_ templates, allowing you to use any available [shortcode method].
 
 > [!note]
 > You cannot [nest](#nesting) inline shortcodes.
@@ -179,7 +179,7 @@ Hugo processes the shortcode before the page content is rendered by the Markdown
 
 With standard notation, Hugo processes the shortcode separately, merging the output into the page content after Markdown rendering. This means, for instance, that Markdown headings inside a standard-notation shortcode will be excluded when invoking the `TableOfContents` method on the `Page` object.
 
-By way of example, with this shortcode template:
+By way of example, with this _shortcode_ template:
 
 ```go-html-template {file="layouts/_shortcodes/foo.html"}
 {{ .Inner }}

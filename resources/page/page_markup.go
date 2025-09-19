@@ -104,7 +104,7 @@ func (s HtmlSummary) trimSpace(ss string) string {
 
 func (s HtmlSummary) Content() string {
 	if s.Divider.IsZero() {
-		return s.source
+		return s.trimSpace(s.source)
 	}
 	ss := s.source[:s.Divider.Low]
 	ss += s.source[s.Divider.High:]
@@ -139,7 +139,7 @@ func (s HtmlSummary) ContentWithoutSummary() string {
 }
 
 func (s HtmlSummary) Truncated() bool {
-	return s.SummaryLowHigh.High < len(s.source)
+	return s.Summary() != s.Content()
 }
 
 func (s *HtmlSummary) resolveParagraphTagAndSetWrapper(mt media.Type) tagReStartEnd {

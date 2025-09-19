@@ -11,6 +11,7 @@ params:
 
 Conceptually, the `Taxonomies` method on a `Site` object returns a data structure such&nbsp;as:
 
+<!-- markdownlint-disable MD007 MD032 -->
 {{< code-toggle file=hugo >}}
 taxonomy a:
   - term 1:
@@ -25,6 +26,7 @@ taxonomy b:
     - page 1
     - page 2
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD007 MD032 -->
 
 For example, on a book review site you might create two taxonomies; one for genres and another for authors.
 
@@ -50,6 +52,7 @@ content/
 
 Conceptually, the taxonomies data structure looks like:
 
+<!-- markdownlint-disable MD007 MD032 -->
 {{< code-toggle file=hugo >}}
 genres:
   - suspense:
@@ -68,6 +71,7 @@ authors:
   - jausten:
     - Pride and Prejudice
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD007 MD032 -->
 
 To list the "suspense" books:
 
@@ -138,6 +142,7 @@ The following example displays all terms in a site's tags taxonomy:
   {{ end }}
 </ul>
 ```
+
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
 ```go-html-template {file="layouts/_partials/all-taxonomies.html"}

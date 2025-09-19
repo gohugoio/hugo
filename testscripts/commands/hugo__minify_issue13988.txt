@@ -1,0 +1,13 @@
+hugo --minify --logLevel=info
+
+! stderr 'deprecated'
+grep '<p>one</p><p>two</p>'  public/index.html
+
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- content/_index.md --
+one
+
+two
+-- layouts/all.html --
+{{ .Content }}

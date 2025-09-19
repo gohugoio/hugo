@@ -27,6 +27,7 @@ useResourceCacheWhen
 
 The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
 
+<!-- markdownlint-disable MD049 -->
 {{< code-toggle file=hugo >}}
 [build]
   [build.buildStats]
@@ -44,6 +45,7 @@ The `build.cachebusters` configuration option was added to support development u
     source = "assets/.*\\.(.*)$"
     target = "$1"
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD049 -->
 
 When `buildStats` is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
 

@@ -66,7 +66,7 @@ doas pkg_add hugo
 
 ## Comparison
 
-||Prebuilt binaries|Repository packages|Build from source
+&nbsp;|Prebuilt binaries|Repository packages|Build from source
 :--|:--:|:--:|:--:
 Easy to install?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
 Easy to upgrade?|:heavy_check_mark:|varies|:heavy_check_mark:

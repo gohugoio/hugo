@@ -21,8 +21,9 @@ import (
 	"sync"
 	"unicode"
 
+	"github.com/bep/helpers/contexthelpers"
 	bp "github.com/gohugoio/hugo/bufferpool"
-	"github.com/gohugoio/hugo/common/hcontext"
+
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 
@@ -56,18 +57,18 @@ const (
 
 // Context manages values passed in the context to templates.
 var Context = struct {
-	DependencyManagerScopedProvider    hcontext.ContextDispatcher[identity.DependencyManagerScopedProvider]
+	DependencyManagerScopedProvider    contexthelpers.ContextDispatcher[identity.DependencyManagerScopedProvider]
 	GetDependencyManagerInCurrentScope func(context.Context) identity.Manager
-	DependencyScope                    hcontext.ContextDispatcher[int]
-	Page                               hcontext.ContextDispatcher[page]
-	IsInGoldmark                       hcontext.ContextDispatcher[bool]
-	CurrentTemplate                    hcontext.ContextDispatcher[*CurrentTemplateInfo]
+	DependencyScope                    contexthelpers.ContextDispatcher[int]
+	Page                               contexthelpers.ContextDispatcher[page]
+	IsInGoldmark                       contexthelpers.ContextDispatcher[bool]
+	CurrentTemplate                    contexthelpers.ContextDispatcher[*CurrentTemplateInfo]
 }{
-	DependencyManagerScopedProvider: hcontext.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKeyDependencyManagerScopedProvider),
-	DependencyScope:                 hcontext.NewContextDispatcher[int](contextKeyDependencyScope),
-	Page:                            hcontext.NewContextDispatcher[page](contextKeyPage),
-	IsInGoldmark:                    hcontext.NewContextDispatcher[bool](contextKeyIsInGoldmark),
-	CurrentTemplate:                 hcontext.NewContextDispatcher[*CurrentTemplateInfo](cntextKeyCurrentTemplateInfo),
+	DependencyManagerScopedProvider: contexthelpers.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKeyDependencyManagerScopedProvider),
+	DependencyScope:                 contexthelpers.NewContextDispatcher[int](contextKeyDependencyScope),
+	Page:                            contexthelpers.NewContextDispatcher[page](contextKeyPage),
+	IsInGoldmark:                    contexthelpers.NewContextDispatcher[bool](contextKeyIsInGoldmark),
+	CurrentTemplate:                 contexthelpers.NewContextDispatcher[*CurrentTemplateInfo](cntextKeyCurrentTemplateInfo),
 }
 
 func init() {
@@ -161,6 +162,7 @@ type CurrentTemplateInfoCommonOps interface {
 type CurrentTemplateInfo struct {
 	Parent *CurrentTemplateInfo
 	Level  int
+	Key    string
 	CurrentTemplateInfoOps
 }
 

@@ -31,7 +31,7 @@ Each segment is defined by include and exclude filters:
 Available fields for filtering:
 
 kind
-: (`string`) A [glob](g) pattern matching the [page kind](g). For example: ` {taxonomy,term}`.
+: (`string`) A [glob](g) pattern matching the [page kind](g). For example: `{taxonomy,term}`.
 
 lang
 : (`string`) A [glob](g) pattern matching the [page language]. For example: `{en,de}`.

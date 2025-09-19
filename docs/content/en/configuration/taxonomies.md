@@ -17,8 +17,8 @@ When creating a taxonomy:
 
 Then use the value as the key in front matter:
 
+<!-- markdownlint-disable MD007 MD032 -->
 {{< code-toggle file=content/example.md fm=true >}}
----
 title: Example
 categories:
   - vegetarian
@@ -27,7 +27,7 @@ tags:
   - appetizer
   - main course
 {{< /code-toggle >}}
-
+<!-- markdownlint-enable MD007 MD032 -->
 If you do not expect to assign more than one [term](g) from a given taxonomy to a content page, you may use the singular form for both key and value:
 
 {{< code-toggle file=hugo >}}
@@ -37,12 +37,13 @@ taxonomies:
 
 Then in front matter:
 
+<!-- markdownlint-disable MD007 MD032 -->
 {{< code-toggle file=content/example.md fm=true >}}
----
 title: Example
 author:
   - Robert Smith
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD007 MD032 -->
 
 The example above illustrates that even with a single term, the value is still provided as an array.
 

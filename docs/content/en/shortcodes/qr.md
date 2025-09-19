@@ -104,4 +104,4 @@ title
 [QR code]: https://en.wikipedia.org/wiki/QR_code
 [related documentation]: /functions/images/qr/
 [source code]: {{% eturl qr %}}
-[vCard]: https://en.wikipedia.org/wiki/VCard
+[vCard]: <https://en.wikipedia.org/wiki/VCard>

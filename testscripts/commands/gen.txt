@@ -15,8 +15,15 @@ stdout 'Generated using: hugo gen chromastyles --style monokai'
 ! hugo gen chromastyles --style __invalid_style__
 stderr 'invalid style: __invalid_style__'
 
-# Issue 13475
+# Not empty classes.
+# From Hugo 0.149.0 empty classes are always removed, so no need for the omitEmpty flag.
 hugo gen chromastyles --style monokai
-stdout '{  }'
-hugo gen chromastyles --omitEmpty --style monokai
-! stdout '\{  \}'
+! stdout '{  }'
+hugo gen chromastyles --omitEmpty --style monokai --logLevel info
+stderr 'INFO  deprecated: --omitEmpty was deprecated'
+
+# Disable class comments.
+hugo gen chromastyles --style monokai
+stdout 'GenericSubheading'
+hugo gen chromastyles --omitClassComments --style monokai
+! stdout 'GenericSubheading'

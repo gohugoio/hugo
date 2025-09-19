@@ -22,46 +22,41 @@ params:
 
 Follow the steps below to transform CSS using any of the available [PostCSS plugins].
 
-### Step 1
+Step 1
+: Install [Node.js].
 
-Install [Node.js].
+Step 2
+: Install the required Node.js packages in the root of your project. For example, to add vendor prefixes to your CSS rules:
 
-### Step 2
+  ```sh
+  npm i -D postcss postcss-cli autoprefixer
+  ```
 
-Install the required Node.js packages in the root of your project. For example, to add vendor prefixes to your CSS rules:
+Step 3
+: Create a PostCSS configuration file in the root of your project.
 
-```sh
-npm i -D postcss postcss-cli autoprefixer
-```
+  ```js {file="postcss.config.js"}
+  module.exports = {
+    plugins: [
+      require('autoprefixer')
+    ]
+  };
+  ```
 
-### Step 3
+  > [!note]
+  > If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
 
-Create a PostCSS configuration file in the root of your project.
+Step 4
+: Place your CSS file within the `assets/css` directory.
 
-```js {file="postcss.config.js"}
-module.exports = {
-  plugins: [
-    require('autoprefixer')
-  ]
-};
-```
+Step 5
+: Process the resource with PostCSS:
 
-> [!note]
-> If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
-
-### Step 4
-
-Place your CSS file within the `assets/css` directory.
-
-### Step 5
-
-Process the resource with PostCSS:
-
-```go-html-template
-{{ with resources.Get "css/main.css" | postCSS }}
-  <link rel="stylesheet" href="{{ .RelPermalink }}">
-{{ end }}
-```
+  ```go-html-template
+  {{ with resources.Get "css/main.css" | postCSS }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}">
+  {{ end }}
+  ```
 
 ## Options
 

@@ -73,14 +73,14 @@ environment:
   # HUGO_SECURITY_EXEC_OSENV
   #
   # Default value:
-  #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$
+  #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$
   # Bundled applications require additional access:
   #   git:          GIT_EXEC_PATH and LD_LIBRARY_PATH
   #   npx:          npm_config_{cache,init_module,userconfig}
   #   pandoc:       pandoc_datadir
   #   rst2html:     PYTHONHOME and SNAP
   #   asciidoctor:  RUBYLIB
-  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
+  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
 
 apps:
   hugo:
@@ -89,6 +89,7 @@ apps:
     plugs:
       - home
       - network-bind
+      - desktop
       - removable-media
       - etc-gitconfig
       - gitconfig

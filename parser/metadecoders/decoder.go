@@ -36,6 +36,10 @@ import (
 
 // Decoder provides some configuration options for the decoders.
 type Decoder struct {
+	// Format specifies a specific format to decode from. If empty or
+	// unspecified, it's inferred from the contents or the filename.
+	Format string
+
 	// Delimiter is the field delimiter. Used in the CSV decoder. Default is
 	// ','.
 	Delimiter rune
@@ -57,6 +61,7 @@ type Decoder struct {
 // OptionsKey is used in cache keys.
 func (d Decoder) OptionsKey() string {
 	var sb strings.Builder
+	sb.WriteString(d.Format)
 	sb.WriteRune(d.Delimiter)
 	sb.WriteRune(d.Comment)
 	sb.WriteString(strconv.FormatBool(d.LazyQuotes))

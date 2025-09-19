@@ -43,22 +43,22 @@ From here:
 
 In new versions of Firebase, some other questions apply:
 
-6. Set up automatic builds and deploys with GitHub?
+1. Set up automatic builds and deploys with GitHub?
 
-Here you will be redirected to login in your GitHub account to get permissions. Confirm.
+    Here you will be redirected to login in your GitHub account to get permissions. Confirm.
 
-7. For which GitHub repository would you like to set up a GitHub workflow? (format: user/repository)
+1. For which GitHub repository would you like to set up a GitHub workflow? (format: user/repository)
 
-Include the repository you will use in the format above (Account/Repo)
-Firebase script with retrieve credentials, create a service account you can later manage in your GitHub settings.
+    Include the repository you will use in the format above (Account/Repo)
+    Firebase script with retrieve credentials, create a service account you can later manage in your GitHub settings.
 
-8. Set up the workflow to run a build script before every deploy?
+1. Set up the workflow to run a build script before every deploy?
 
-Here is your opportunity to include some commands before you run the deploy.
+    Here is your opportunity to include some commands before you run the deploy.
 
-9. Set up automatic deployment to your site's live channel when a PR is merged?
+1. Set up automatic deployment to your site's live channel when a PR is merged?
 
-You can let in the default option (main)
+    You can let in the default option (main)
 
 After that Firebase has been set in your project with [CI/CD](g). After that run:
 
@@ -66,7 +66,7 @@ After that Firebase has been set in your project with [CI/CD](g). After that run
 hugo && firebase deploy
 ```
 
-With this you will have the app initialized manually. After that you can manage and fix your GitHub workflow from: https://github.com/your-account/your-repo/actions
+With this you will have the app initialized manually. After that you can manage and fix your GitHub workflow from <https://github.com/your-account/your-repo/actions>.
 
 Don't forget to update your static pages before push!
 

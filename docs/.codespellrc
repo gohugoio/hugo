@@ -4,10 +4,10 @@
 [codespell]
 
 # Comma separated list of dirs to be skipped.
-skip = _vendor,.cspell.json,chroma.css,chroma_dark.css
+skip = *.ai,chroma.css,chroma_dark.css,.cspell.json
 
 # Comma separated list of words to be ignored. Words must be lowercased.
-ignore-words-list = abl,edn,te,ue,trys,januar,womens,crossreferences
+ignore-words-list = abl,edn,januar,te,trys,ue,womens
 
 # Check file names as well.
 check-filenames = true

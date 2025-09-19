@@ -15,11 +15,15 @@ package goldmark
 
 import (
 	"bytes"
+	"regexp"
+	"strings"
 
+	"github.com/microcosm-cc/bluemonday"
 	strikethroughAst "github.com/yuin/goldmark/extension/ast"
 
 	emojiAst "github.com/yuin/goldmark-emoji/ast"
 
+	"github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/yuin/goldmark"
@@ -61,7 +65,7 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 		s := ast.WalkStatus(ast.WalkContinue)
 		if n.Kind() == ast.KindHeading {
 			if inHeading && !entering {
-				tocHeading.Title = headingText.String()
+				tocHeading.Title = sanitizeTOCHeadingTitle(headingText.String())
 				headingText.Reset()
 				toc.AddAt(tocHeading, row, level-1)
 				tocHeading = &tableofcontents.Heading{}
@@ -96,7 +100,12 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			ast.KindImage,
 			ast.KindEmphasis,
 			strikethroughAst.KindStrikethrough,
-			emojiAst.KindEmoji:
+			emojiAst.KindEmoji,
+			extras.KindDelete,
+			extras.KindInsert,
+			extras.KindMark,
+			extras.KindSubscript,
+			extras.KindSuperscript:
 			err := t.r.Render(&headingText, reader.Source(), n)
 			if err != nil {
 				return s, err
@@ -138,4 +147,41 @@ func (e *tocExtension) Extend(m goldmark.Markdown) {
 	},
 		// This must run after the ID generation (priority 100).
 		110)))
+}
+
+var tocSanitizerPolicy = newTOCSanitizerPolicy()
+
+// newTOCSanitizerPolicy returns a bluemonday policy for sanitizing TOC heading
+// titles against an allowlist of inline HTML elements and attributes,
+// specifically excluding anchor elements to prevent links within TOC heading
+// titles.
+func newTOCSanitizerPolicy() *bluemonday.Policy {
+	p := bluemonday.NewPolicy()
+	p.AllowElements(
+		"abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "del", "dfn",
+		"em", "i", "ins", "kbd", "mark", "q", "rp", "rt", "ruby", "s", "samp",
+		"small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr",
+	)
+	p.AllowStandardAttributes()
+	p.AllowStyling()
+	p.AllowImages()
+	p.AllowAttrs("cite").OnElements("del", "ins", "q")
+	p.AllowAttrs("datetime").OnElements("del", "ins", "time")
+	p.AllowAttrs("value").OnElements("data")
+	return p
+}
+
+var whiteSpaceRe = regexp.MustCompile(`\s+`)
+
+// sanitizeTOCHeadingTitle sanitizes s for use as a TOC heading title.
+func sanitizeTOCHeadingTitle(s string) string {
+	if strings.IndexByte(s, '<') == -1 {
+		return s
+	}
+
+	// Sanitize the string.
+	ss := tocSanitizerPolicy.Sanitize(s)
+
+	// Remove extraneous whitespace.
+	return whiteSpaceRe.ReplaceAllString(strings.TrimSpace(ss), " ")
 }

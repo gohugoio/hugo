@@ -10,7 +10,11 @@ keywords: []
 > To override Hugo's embedded `relref` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
 
 > [!note]
-> When working with Markdown, this shortcode is obsolete. Instead, use a [link render hook] that resolves the link destination using the `GetPage` method on the `Page` object. You can either create your own, or simply enable the [embedded link render hook]. The embedded link render hook is automatically enabled for multilingual single-host projects.
+> When working with Markdown this shortcode is obsolete. Instead, to properly resolve Markdown link destinations, use the [embedded link render hook] or create your own.
+>
+> In its default configuration, Hugo automatically uses the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+>
+> You can also configure Hugo to `always` use the embedded link render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 
 ## Usage
 
@@ -55,8 +59,7 @@ Rendered:
 
 {{% include "_common/ref-and-relref-error-handling.md" %}}
 
-[content format]: /content-management/formats/
-[embedded link render hook]: /render-hooks/links/#default
-[link render hook]: /render-hooks/links/
+[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
+[embedded link render hook]: /render-hooks/links/#embedded
 [Markdown notation]: /content-management/shortcodes/#notation
 [source code]: {{% eturl relref %}}

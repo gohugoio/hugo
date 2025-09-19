@@ -230,11 +230,11 @@ An inline {{< highlight go "hl_inline=true" >}}fmt.Println("Value of i:", i)Hell
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "576ee13be18ddba2")
-	b.AssertFileContent("public/p2/index.html", "8774e8b4bf60aa9e")
+	b.AssertFileContent("public/p2/index.html", "a9a4ec6ce77d7a23")
 	b.AssertFileContent("public/p3/index.html", "7634b47df1859f58")
 	b.AssertFileContent("public/p4/index.html", "385a15e400df4e39")
-	b.AssertFileContent("public/p5/index.html", "b3a73f3eddc6e0c1")
-	b.AssertFileContent("public/p6/index.html", "b3a73f3eddc6e0c1")
+	b.AssertFileContent("public/p5/index.html", "f69c99d2d7f786d4")
+	b.AssertFileContent("public/p6/index.html", "f69c99d2d7f786d4")
 	b.AssertFileContent("public/p7/index.html", "f12eeaa4d6d9c7ac")
 }
 

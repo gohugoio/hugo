@@ -47,10 +47,10 @@ Extension|Documentation|Enabled
 :--|:--|:-:
 `cjk`|[Goldmark Extensions: CJK]|:heavy_check_mark:
 `definitionList`|[PHP Markdown Extra: Definition lists]|:heavy_check_mark:
-`extras`|[Hugo Goldmark Extensions: Extras]||
+`extras`|[Hugo Goldmark Extensions: Extras]|&nbsp;
 `footnote`|[PHP Markdown Extra: Footnotes]|:heavy_check_mark:
 `linkify`|[GitHub Flavored Markdown: Autolinks]|:heavy_check_mark:
-`passthrough`|[Hugo Goldmark Extensions: Passthrough]||
+`passthrough`|[Hugo Goldmark Extensions: Passthrough]|&nbsp;
 `strikethrough`|[GitHub Flavored Markdown: Strikethrough]|:heavy_check_mark:
 `table`|[GitHub Flavored Markdown: Tables]|:heavy_check_mark:
 `taskList`|[GitHub Flavored Markdown: Task list items]|:heavy_check_mark:
@@ -70,12 +70,19 @@ Mark text|`==baz==`|`<mark>baz</mark>`
 Subscript|`H~2~O`|`H<sub>2</sub>O`
 Superscript|`1^st^`|`1<sup>st</sup>`
 
-To avoid a conflict when enabling the "subscript" feature of the Extras extension, if you want to render subscript and strikethrough text concurrently you must:
+To avoid a conflict[^1], if you enable the "subscript" feature of the Extras extension, you must disable the Strikethrough extension:
 
-1. Disable the Strikethrough extension
-1. Enable the "deleted text" feature of the Extras extension
+[^1]: See [details](https://github.com/gohugoio/hugo-goldmark-extensions/commit/4d4fcd022fe45a9b51483df001c9e5f4e632d5a9).
 
-For example:
+{{< code-toggle file=hugo >}}
+[markup.goldmark.extensions]
+strikethrough = false
+
+[markup.goldmark.extensions.extras.subscript]
+enable = true
+{{< /code-toggle >}}
+
+If you still need to show deleted text after disabling the Strikethrough extension, enable the "deleted text" feature of the Extras extension:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.extensions]
@@ -83,10 +90,9 @@ strikethrough = false
 
 [markup.goldmark.extensions.extras.delete]
 enable = true
-
-[markup.goldmark.extensions.extras.subscript]
-enable = true
 {{< /code-toggle >}}
+
+With this configuration, to format text as deleted, wrap it with double-tildes.
 
 #### Passthrough
 
@@ -111,7 +117,7 @@ Markdown|Replaced by|Description
 `”`|`&rdquo;`|right double quote
 `’`|`&rsquo;`|right single quote
 
-### Settings explained
+### Goldmark settings explained
 
 Most of the Goldmark settings above are self-explanatory, but some require explanation.
 
@@ -133,13 +139,13 @@ parser.autoHeadingID
 : (`bool`) Whether to automatically add `id` attributes to headings (i.e., `h1`, `h2`, `h3`, `h4`, `h5`, and `h6` elements).
 
 parser.autoIDType
-: (`string`) The strategy used to automatically generate `id` attributes, one of `github`, `github-ascii` or `blackfriday`.
+: (`string`) The strategy used to automatically generate `id` attributes, one of `github`, `github-ascii` or `blackfriday`. Default is `github`.
 
-  - `github` produces GitHub-compatible `id` attributes
-  - `github-ascii` drops any non-ASCII characters after accent normalization
-  - `blackfriday` produces `id` attributes compatible with the Blackfriday Markdown renderer
+  - `github`: Generate GitHub-compatible `id` attributes
+  - `github-ascii`: Drop any non-ASCII characters after accent normalization
+  - `blackfriday`: Generate `id` attributes compatible with the Blackfriday Markdown renderer
 
-  This is also the strategy used by the [anchorize](/functions/urls/anchorize) template function. Default is `github`.
+  This is also the strategy used by the [anchorize] template function.
 
 parser.attribute.block
 : (`bool`) Whether to enable [Markdown attributes] for block elements. Default is `false`.
@@ -147,19 +153,33 @@ parser.attribute.block
 parser.attribute.title
 : (`bool`) Whether to enable [Markdown attributes] for headings. Default is `true`.
 
+<!-- TODO: delete this on or after July 1, 2027. -->
 renderHooks.image.enableDefault
 : {{< new-in 0.123.0 />}}
-: (`bool`) Whether to enable the [embedded image render hook]. Default is `false`.
+: Deprecated in v0.148.0. Use `renderHooks.image.useEmbedded` instead.
 
-  > [!note]
-  > The embedded image render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+renderHooks.image.useEmbedded
+: {{< new-in 0.148.0 />}}
+: (`string`) When to use the [embedded image render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
 
+  - `auto`: Automatically use the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `never`: Never use the embedded image render hook. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `always`: Always use the embedded image render hook, even if custom image render hooks are provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `fallback`: Use the embedded image render hook only if custom image render hooks are not provided by your project, modules, or themes. If custom image render hooks exist, these will be used instead.
+
+<!-- TODO: delete this on or after July 1, 2027. -->
 renderHooks.link.enableDefault
 : {{< new-in 0.123.0 />}}
-: (`bool`) Whether to enable the [embedded link render hook]. Default is `false`.
+: Deprecated in v0.148.0. Use `renderHooks.link.useEmbedded` instead.
 
-  > [!note]
-  > The embedded link render hook is automatically enabled for multilingual single-host sites if [duplication of shared page resources] is disabled. This is the default configuration for multilingual single-host sites.
+renderHooks.link.useEmbedded
+: {{< new-in 0.148.0 />}}
+: (`string`) When to use the [embedded link render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
+
+  - `auto`: Automatically use the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `never`: Never use the embedded link render hook. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `always`: Always use the embedded link render hook, even if custom link render hooks are provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `fallback`: Use the embedded link render hook only if custom link render hooks are not provided by your project, modules, or themes. If custom link render hooks exist, these will be used instead.
 
 renderer.hardWraps
 : (`bool`) Whether to replace newline characters within a paragraph with `br` elements. Default is `false`.
@@ -173,7 +193,7 @@ This is the default configuration for the AsciiDoc renderer:
 
 {{< code-toggle config=markup.asciidocExt />}}
 
-### Settings explained
+### AsciiDoc settings explained
 
 attributes
 : (`map`) A map of key-value pairs, each a document attribute. See Asciidoctor's [attributes].
@@ -226,49 +246,47 @@ workingFolderCurrent
 
 Follow the steps below to enable syntax highlighting.
 
-#### Step 1
+Step 1
+: Set the `source-highlighter` attribute in your site configuration. For example:
 
-Set the `source-highlighter` attribute in your site configuration. For example:
+  {{< code-toggle file=hugo >}}
+  [markup.asciidocExt.attributes]
+  source-highlighter = 'rouge'
+  {{< /code-toggle >}}
 
-{{< code-toggle file=hugo >}}
-[markup.asciidocExt.attributes]
-source-highlighter = 'rouge'
-{{< /code-toggle >}}
+Step 2
+: Generate the highlighter CSS. For example:
 
-#### Step 2
+  ```text
+  rougify style monokai.sublime > assets/css/syntax.css
+  ```
 
-Generate the highlighter CSS. For example:
+Step 3
+: In your base template add a link to the CSS file:
 
-```text
-rougify style monokai.sublime > assets/css/syntax.css
-```
+  ```go-html-template {file="layouts/baseof.html"}
+  <head>
+    ...
+    {{ with resources.Get "css/syntax.css" }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+    {{ end }}
+    ...
+  </head>
+  ```
 
-#### Step 3
+Step 4
+: Add the code to be highlighted to your markup:
 
-In your base template add a link to the CSS file:
+  ```text
+  [#hello,ruby]
+  ----
+  require 'sinatra'
 
-```go-html-template {file="layouts/baseof.html"}
-<head>
-  ...
-  {{ with resources.Get "css/syntax.css" }}
-    <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
-  {{ end }}
-  ...
-</head>
-```
-
-Then add the code to be highlighted to your markup:
-
-```text
-[#hello,ruby]
-----
-require 'sinatra'
-
-get '/hi' do
-  "Hello World!"
-end
-----
-```
+  get '/hi' do
+    "Hello World!"
+  end
+  ----
+  ```
 
 ### Troubleshooting
 
@@ -303,24 +321,24 @@ ordered
 
 [`Fragments.Identifiers`]: /methods/page/fragments/#identifiers
 [`TableOfContents`]: /methods/page/tableofcontents/
+[anchorize]: /functions/urls/anchorize
+[AsciiDoc]: https://asciidoc.org/
 [asciidoctor-diagram]: https://asciidoctor.org/docs/asciidoctor-diagram/
 [attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions
 [CommonMark]: https://spec.commonmark.org/current/
 [deleted text]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-[duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-[embedded image render hook]: /render-hooks/images/#default
-[embedded image render hook]: /render-hooks/images/#default
-[embedded link render hook]: /render-hooks/links/#default
-[embedded link render hook]: /render-hooks/links/#default
-[GitHub Flavored Markdown]: https://github.github.com/gfm/
+[Emacs Org Mode]: https://orgmode.org/
+[embedded image render hook]: /render-hooks/images/#embedded
+[embedded link render hook]: /render-hooks/links/#embedded
 [GitHub Flavored Markdown: Autolinks]: https://github.github.com/gfm/#autolinks-extension-
 [GitHub Flavored Markdown: Strikethrough]: https://github.github.com/gfm/#strikethrough-extension-
 [GitHub Flavored Markdown: Tables]: https://github.github.com/gfm/#tables-extension-
 [GitHub Flavored Markdown: Task list items]: https://github.github.com/gfm/#task-list-items-extension-
-[Goldmark]: https://github.com/yuin/goldmark/
+[GitHub Flavored Markdown]: https://github.github.com/gfm/
 [Goldmark Extensions: CJK]: https://github.com/yuin/goldmark?tab=readme-ov-file#cjk-extension
 [Goldmark Extensions: Typographer]: https://github.com/yuin/goldmark?tab=readme-ov-file#typographer-extension
+[Goldmark]: https://github.com/yuin/goldmark/
 [Hugo Goldmark Extensions: Extras]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#extras-extension
 [Hugo Goldmark Extensions: Passthrough]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#passthrough-extension
 [image render hook]: /render-hooks/images/
@@ -330,12 +348,10 @@ ordered
 [Markdown attributes]: /content-management/markdown-attributes/
 [mathematics in Markdown]: content-management/mathematics/
 [multilingual page resources]: /content-management/page-resources/#multilingual
+[Pandoc]: https://pandoc.org/
 [PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
 [PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
+[reStructuredText]: https://docutils.sourceforge.io/rst.html
 [security policy]: /configuration/security/
 [subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
 [superscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup
-[AsciiDoc]: https://asciidoc.org/
-[Emacs Org Mode]: https://orgmode.org/
-[Pandoc]: https://pandoc.org/
-[reStructuredText]: https://docutils.sourceforge.io/rst.html

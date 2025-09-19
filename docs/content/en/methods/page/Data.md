@@ -38,7 +38,7 @@ content/
 
 ## In a taxonomy template
 
-Use these methods on the `Data` object within a taxonomy template.
+Use these methods on the `Data` object within a _taxonomy_ template.
 
 Singular
 : (`string`) Returns the singular name of the taxonomy.
@@ -68,7 +68,7 @@ Learn more about [taxonomy templates].
 
 ## In a term template
 
-Use these methods on the `Data` object within a term template.
+Use these methods on the `Data` object within a _term_ template.
 
 Singular
 : (`string`) Returns the singular name of the taxonomy.

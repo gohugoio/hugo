@@ -170,10 +170,16 @@ func (l configLoader) applyDefaultConfig() error {
 }
 
 func (l configLoader) normalizeCfg(cfg config.Provider) error {
-	if b, ok := cfg.Get("minifyOutput").(bool); ok && b {
-		cfg.Set("minify.minifyOutput", true)
-	} else if b, ok := cfg.Get("minify").(bool); ok && b {
-		cfg.Set("minify", maps.Params{"minifyOutput": true})
+	if b, ok := cfg.Get("minifyOutput").(bool); ok {
+		hugo.Deprecate("site config minifyOutput", "Use minify.minifyOutput instead.", "v0.150.0")
+		if b {
+			cfg.Set("minify.minifyOutput", true)
+		}
+	} else if b, ok := cfg.Get("minify").(bool); ok {
+		hugo.Deprecate("site config minify", "Use minify.minifyOutput instead.", "v0.150.0")
+		if b {
+			cfg.Set("minify", maps.Params{"minifyOutput": true})
+		}
 	}
 
 	return nil
@@ -280,7 +286,14 @@ func (l *configLoader) envValToVal(k string, v any) any {
 
 func (l *configLoader) envStringToVal(k, v string) any {
 	switch k {
-	case "disablekinds", "disablelanguages":
+	case "disablekinds", "disablelanguages", "ignorefiles", "ignorelogs":
+		v = strings.TrimSpace(v)
+		if strings.HasPrefix(v, "[") && strings.HasSuffix(v, "]") {
+			if parsed, err := metadecoders.Default.UnmarshalStringTo(v, []any{}); err == nil {
+				return parsed
+			}
+		}
+
 		if strings.Contains(v, ",") {
 			return strings.Split(v, ",")
 		} else {

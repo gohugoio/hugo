@@ -8,6 +8,7 @@ params
   ```go-html-template
   {{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api")) }}
   ```
+  
   And then in your JS file:
 
   ```js
@@ -21,10 +22,10 @@ minify
 
 loaders
 : {{< new-in 0.140.0 />}}
-: (`map`) Configuring a loader for a given file type lets you load that file type with an `import` statement or a `require` call. For example, configuring the `.png` file extension to use the data URL loader means importing a `.png` file gives you a data URL containing the contents of that image. Loaders available are `none`, `base64`, `binary`, `copy`,  `css`,  `dataurl`, `default`, `empty`, `file`, `global-css`, `js`, `json`, `jsx`, `local-css`,  `text`, `ts`, `tsx`. See https://esbuild.github.io/api/#loader.
+: (`map`) Configuring a loader for a given file type lets you load that file type with an `import` statement or a `require` call. For example, configuring the `.png` file extension to use the data URL loader means importing a `.png` file gives you a data URL containing the contents of that image. Loaders available are `none`, `base64`, `binary`, `copy`,  `css`,  `dataurl`, `default`, `empty`, `file`, `global-css`, `js`, `json`, `jsx`, `local-css`,  `text`, `ts`, `tsx`. See <https://esbuild.github.io/api/#loader>.
 
 inject
-: (`slice`) This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`. See https://esbuild.github.io/api/#inject.
+: (`slice`) This option allows you to automatically replace a global variable with an import from another file. The path names must be relative to `assets`. See <https://esbuild.github.io/api/#inject>.
 
 shims
 : (`map`) This option allows swapping out a component with another. A common use case is to load dependencies like React from a CDN  (with _shims_) when in production, but running with the full bundled `node_modules` dependency during development:
@@ -58,10 +59,10 @@ target
 
 platform
 : {{< new-in 0.140.0 />}}
-: (`string`) One of `browser`, `node`, `neutral`. Default is `browser`. See https://esbuild.github.io/api/#platform.
+: (`string`) One of `browser`, `node`, `neutral`. Default is `browser`. See <https://esbuild.github.io/api/#platform>.
 
 externals
-: (`slice`) External dependencies. Use this to trim dependencies you know will never be executed. See https://esbuild.github.io/api/#external.
+: (`slice`) External dependencies. Use this to trim dependencies you know will never be executed. See <https://esbuild.github.io/api/#external>.
 
 defines
 : (`map`) This option allows you to define a set of string replacements to be performed when building. It must be a map where each key will be replaced by its value.
@@ -73,7 +74,7 @@ defines
 drop
 : {{< new-in 0.144.0 />}}
 : (`string`) Edit your source code before building to drop certain constructs: One of `debugger` or `console`.
-: See https://esbuild.github.io/api/#drop
+: See <https://esbuild.github.io/api/#drop>
 
 sourceMap
 : (`string`) Whether to generate `inline`, `linked`, or `external` source maps from esbuild. Linked and external source maps will be written to the target with the output file name + ".map". When `linked` a `sourceMappingURL` will also be written to the output file. By default, source maps are not created. Note that the `linked` option was added in Hugo 0.140.0.
@@ -84,11 +85,11 @@ sourcesContent
 
 JSX
 : {{< new-in 0.124.0 />}}
-: (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See https://esbuild.github.io/api/#jsx.
+: (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See <https://esbuild.github.io/api/#jsx>.
 
 JSXImportSource
 : {{< new-in 0.124.0 />}}
-: (`string`) Which library to use to automatically import its JSX helper functions from. This only works if `JSX` is set to `automatic`. The specified library needs to be installed through npm and expose certain exports. See https://esbuild.github.io/api/#jsx-import-source.
+: (`string`) Which library to use to automatically import its JSX helper functions from. This only works if `JSX` is set to `automatic`. The specified library needs to be installed through npm and expose certain exports. See <https://esbuild.github.io/api/#jsx-import-source>.
 
   The combination of `JSX` and `JSXImportSource` is helpful if you want to use a non-React JSX library like Preact, e.g.:
 

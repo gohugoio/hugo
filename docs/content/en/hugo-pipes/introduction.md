@@ -63,7 +63,7 @@ For improved readability, the Hugo Pipes examples of this documentation will be 
 
 ## Caching
 
-Hugo Pipes invocations are cached based on the entire *pipe chain*.
+Hugo Pipes invocations are cached based on the entire _pipe chain_.
 
 An example of a pipe chain is:
 

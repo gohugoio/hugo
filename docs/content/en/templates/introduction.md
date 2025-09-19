@@ -9,7 +9,6 @@ weight: 10
 
 {{< newtemplatesystem >}}
 
-
 {{% glossary-term template %}}
 
 Templates use [variables], [functions], and [methods] to transform your content, resources, and data into a published page.
@@ -35,7 +34,7 @@ While HTML templates are the most common, you can create templates for any [outp
 
 The most important concept to understand before creating a template is _context_, the data passed into each template. The data may be a simple value, or more commonly [objects](g) and associated [methods](g).
 
-For example, a template for a single page receives a `Page` object, and the `Page` object provides methods to return values or perform actions.
+For example, a _page_ template receives a `Page` object, and the `Page` object provides methods to return values or perform actions.
 
 ### Current context
 
@@ -343,7 +342,7 @@ Use the [`partial`] or [`partialCached`] function to include one or more [partia
 {{ partialCached "css.html" . }}
 ```
 
-Create your partial templates in the layouts/_partials directory.
+Create your _partial_ templates in the `layouts/_partials` directory.
 
 > [!note]
 > In the examples above, note that we are passing the current context (the dot) to each of the templates.
@@ -508,28 +507,23 @@ In the template example above, each of the keys is a valid identifier. For examp
 [`end`]: /functions/go-template/end/
 [`if`]: /functions/go-template/if/
 [`index`]: /functions/collections/indexfunction/
-[`index`]: /functions/collections/indexfunction/
 [`or`]: /functions/go-template/or
 [`Page`]: /methods/page/
 [`partial`]: /functions/partials/include/
 [`partialCached`]: /functions/partials/includecached/
-[`range`]: /functions/go-template/range/
 [`range`]: /functions/go-template/range/
 [`safeHTML`]: /functions/safe/html
 [`Site`]: /methods/site/
 [`template`]: /functions/go-template/template/
 [`Title`]: /methods/page/title
 [`with`]: /functions/go-template/with/
-[`with`]: /functions/go-template/with/
 [current context]: #current-context
 [embedded templates]: /templates/embedded/
 [front matter]: /content-management/front-matter/
 [front matter fields]: /content-management/front-matter/#fields
 [functions]: /functions/
-[functions]: /functions
 [go-templates]: /functions/go-template/
 [html/template]: https://pkg.go.dev/html/template
-[methods]: /methods/
 [methods]: /methods/
 [partial templates]: /templates/types/#partial
 [templates]: /templates/

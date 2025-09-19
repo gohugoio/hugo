@@ -80,7 +80,7 @@ Add multiple headers using a slice:
 
 ## Global resource alternative
 
-Consider using the [`resources.Get`] function with [`transform.Unmarshal`] when accessing a global resource.
+Consider using the [`resources.Get`](/functions/resources/get/) function with [`transform.Unmarshal`] when accessing a global resource.
 
 ```text
 my-project/
@@ -101,7 +101,7 @@ my-project/
 
 ## Page resource alternative
 
-Consider using the [`Resources.Get`] method with [`transform.Unmarshal`] when accessing a page resource.
+Consider using the [`Resources.Get`][/methods/page/resources/] method with [`transform.Unmarshal`] when accessing a page resource.
 
 ```text
 my-project/
@@ -140,7 +140,8 @@ Consider using the [`resources.GetRemote`] function with [`transform.Unmarshal`]
 {{ end }}
 ```
 
-[`Resources.Get`]: /methods/page/resources/
 [`resources.GetRemote`]: /functions/resources/getremote/
-[`resources.Get`]: /functions/resources/get/
+
+<!-- markdownlint-disable MD053 -->
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
+<!-- markdownlint-enable MD053 -->

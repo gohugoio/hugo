@@ -64,7 +64,7 @@ To visually mark where a template begins and ends execution:
 
 ### Call stack
 
-To display the chain of templates that led to the current one, create a partial template that iterates through its ancestors:
+To display the chain of templates that led to the current one, create a _partial_ template that iterates through its ancestors:
 
 ```go-html-template {file="layouts/_partials/template-call-stack.html" copy=true}
 {{ with templates.Current }}
@@ -113,7 +113,7 @@ To reverse the order of the entries, chain the `Reverse` method to the `Ancestor
 
 ### VS Code
 
-To render links that, when clicked, will open the template in Microsoft Visual Studio Code, create a partial template with anchor elements that use the `vscode` URI scheme:
+To render links that, when clicked, will open the template in Microsoft Visual Studio Code, create a _partial_ template with anchor elements that use the `vscode` URI scheme:
 
 ```go-html-template {file="layouts/_partials/template-open-in-vs-code.html" copy=true}
 {{ with templates.Current.Parent }}

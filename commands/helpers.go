@@ -76,7 +76,7 @@ func flagsToCfgWithAdditionalConfigBase(cd *simplecobra.Commandeer, cfg config.P
 
 	// Flags with a different name in the config.
 	keyMap := map[string]string{
-		"minify":      "minifyOutput",
+		"minify":      "minify.minifyOutput",
 		"destination": "publishDir",
 		"editor":      "newContentEditor",
 	}

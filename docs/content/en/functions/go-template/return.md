@@ -10,7 +10,7 @@ params:
     signatures: ['return [VALUE]']
 ---
 
-The `return` statement is a non-standard extension to Go's [text/template package]. Used within partial templates, the `return` statement terminates template execution and returns the given value, if any.
+The `return` statement is a non-standard extension to Go's [text/template package]. Used within _partial_ templates, the `return` statement terminates template execution and returns the given value, if any.
 
 The returned value may be of any data type including, but not limited to, [`bool`](g), [`float`](g), [`int`](g), [`map`](g), [`resource`](g), [`slice`](g), or [`string`](g).
 
@@ -21,7 +21,7 @@ A `return` statement without a value returns an empty string of type `template.H
 
 ## Example
 
-By way of example, let's create a partial template that _renders_ HTML, describing whether the given number is odd or even:
+By way of example, let's create a _partial_ template that _renders_ HTML, describing whether the given number is odd or even:
 
 ```go-html-template {file="layouts/_partials/odd-or-even.html"}
 {{ if math.ModBool . 2 }}

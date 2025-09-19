@@ -69,7 +69,7 @@ See the [features] section of the documentation for a comprehensive summary of H
 &nbsp;&nbsp;&nbsp;
   <a href="https://www.jetbrains.com/go/?utm_source=OSS&utm_medium=referral&utm_campaign=hugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/goland.svg" width="200" alt="The complete IDE crafted for professional Go developers."></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://pinme.eth.limo/?s=hugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/logo-pinme.svg" width="200" alt="PinMe."></a>
+    <a href="https://cloudcannon.com/hugo-cms/?utm_campaign=HugoSponsorship&utm_source=sponsor&utm_content=gohugo" target="_blank"><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/assets/images/sponsors/cloudcannon-cms-logo.svg" width="200" alt="CloudCannon"></a>
 </p>
 
 ## Editions
@@ -102,9 +102,9 @@ Install Hugo from a [prebuilt binary], package manager, or package repository. P
 
 Prerequisites to build Hugo from source:
 
-- Standard edition: Go 1.23.0 or later
-- Extended edition: Go 1.23.0 or later, and GCC
-- Extended/deploy edition: Go 1.23.0 or later, and GCC
+- Standard edition: Go 1.24.0 or later
+- Extended edition: Go 1.24.0 or later, and GCC
+- Extended/deploy edition: Go 1.24.0 or later, and GCC
 
 Build the standard edition:
 

@@ -102,9 +102,26 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if rendererOptions != nil {
 		copy(tocRendererOptions, rendererOptions)
 	}
+
 	tocRendererOptions = append(tocRendererOptions,
 		renderer.WithNodeRenderers(util.Prioritized(extension.NewStrikethroughHTMLRenderer(), 500)),
-		renderer.WithNodeRenderers(util.Prioritized(emoji.NewHTMLRenderer(), 200)))
+		renderer.WithNodeRenderers(util.Prioritized(emoji.NewHTMLRenderer(), 200)),
+	)
+
+	inlineTags := []extras.InlineTag{
+		extras.DeleteTag,
+		extras.InsertTag,
+		extras.MarkTag,
+		extras.SubscriptTag,
+		extras.SuperscriptTag,
+	}
+
+	for _, tag := range inlineTags {
+		tocRendererOptions = append(tocRendererOptions,
+			renderer.WithNodeRenderers(util.Prioritized(extras.NewInlineTagHTMLRenderer(tag), tag.RenderPriority)),
+		)
+	}
+
 	var (
 		extensions = []goldmark.Extender{
 			hugocontext.New(pcfg.Logger),

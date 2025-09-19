@@ -227,7 +227,7 @@ func TestClientConfigToEnv(t *testing.T) {
 
 	env := ccfg.toEnv()
 
-	c.Assert(env, qt.DeepEquals, []string{"PWD=/mywork", "GO111MODULE=on", "GOPATH=/mycache", "GOWORK=", filepath.FromSlash("GOCACHE=/mycache/pkg/mod")})
+	c.Assert(env, qt.DeepEquals, []string{"PWD=/mywork", "GO111MODULE=on", "GOFLAGS=-modcacherw", "GOPATH=/mycache", "GOWORK=", filepath.FromSlash("GOCACHE=/mycache/pkg/mod")})
 
 	ccfg = ClientConfig{
 		WorkingDir: "/mywork",
@@ -246,6 +246,7 @@ func TestClientConfigToEnv(t *testing.T) {
 	c.Assert(env, qt.DeepEquals, []string{
 		"PWD=/mywork",
 		"GO111MODULE=on",
+		"GOFLAGS=-modcacherw",
 		"GOPATH=/mycache",
 		"GOWORK=myworkspace",
 		filepath.FromSlash("GOCACHE=/mycache/pkg/mod"),

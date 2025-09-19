@@ -6,7 +6,7 @@ categories: []
 keywords: []
 ---
 
-Hugo's built-in security policy, which restricts access to `os/exec`, remote communication, and similar operations, is configured via allow lists. By default, access is restricted. If a build attempts to use a feature not included in the allow list, it will fail, providing a detailed message.
+Hugo's built-in security policy, which restricts access to `os/exec`, remote communication, and similar operations, is configured via allowlists. By default, access is restricted. If a build attempts to use a feature not included in the allowlist, it will fail, providing a detailed message.
 
 This is the default security configuration:
 
@@ -34,7 +34,7 @@ http.urls
 : (`[]string`) A slice of [regular expressions](g) matching the URLs that the `resources.GetRemote` function is allowed to access.
 
 > [!note]
-> Setting an allow list to the string `none` will completely disable the associated feature.
+> Setting an allowlist to the string `none` will completely disable the associated feature.
 
 You can also override the site configuration with environment variables. For example, to block `resources.GetRemote` from accessing any URL:
 

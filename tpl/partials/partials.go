@@ -126,7 +126,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 	if err != nil {
 		return includeResult{err: err}
 	}
-	return ns.doInclude(ctx, v, dataList...)
+	return ns.doInclude(ctx, "", v, dataList...)
 }
 
 func (ns *Namespace) lookup(name string) (*tplimpl.TemplInfo, error) {
@@ -144,7 +144,7 @@ func (ns *Namespace) lookup(name string) (*tplimpl.TemplInfo, error) {
 
 // include is a helper function that lookups and executes the named partial.
 // Returns the final template name and the rendered output.
-func (ns *Namespace) doInclude(ctx context.Context, templ *tplimpl.TemplInfo, dataList ...any) includeResult {
+func (ns *Namespace) doInclude(ctx context.Context, key string, templ *tplimpl.TemplInfo, dataList ...any) includeResult {
 	var data any
 	if len(dataList) > 0 {
 		data = dataList[0]
@@ -170,7 +170,7 @@ func (ns *Namespace) doInclude(ctx context.Context, templ *tplimpl.TemplInfo, da
 		w = b
 	}
 
-	if err := ns.deps.GetTemplateStore().ExecuteWithContext(ctx, templ, w, data); err != nil {
+	if err := ns.deps.GetTemplateStore().ExecuteWithContextAndKey(ctx, key, templ, w, data); err != nil {
 		return includeResult{err: err}
 	}
 
@@ -198,6 +198,8 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 		Name:     name,
 		Variants: variants,
 	}
+	keyString := key.Key()
+
 	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
 	ti, err := ns.lookup(name)
 	if err != nil {
@@ -206,7 +208,7 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 
 	if parent := tpl.Context.CurrentTemplate.Get(ctx); parent != nil {
 		for parent != nil {
-			if parent.CurrentTemplateInfoOps == ti {
+			if parent.CurrentTemplateInfoOps == ti && parent.Key == keyString {
 				// This will deadlock if we continue.
 				return nil, fmt.Errorf("circular call stack detected in partial %q", ti.Filename())
 			}
@@ -214,7 +216,7 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 		}
 	}
 
-	r, found, err := ns.cachedPartials.cache.GetOrCreate(key.Key(), func(string) (includeResult, error) {
+	r, found, err := ns.cachedPartials.cache.GetOrCreate(keyString, func(string) (includeResult, error) {
 		var depsManagerShared identity.Manager
 		if ns.deps.Conf.Watching() {
 			// We need to create a shared dependency manager to pass downwards
@@ -222,7 +224,7 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 			depsManagerShared = identity.NewManager("partials")
 			ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, depsManagerShared.(identity.DependencyManagerScopedProvider))
 		}
-		r := ns.doInclude(ctx, ti, context)
+		r := ns.doInclude(ctx, keyString, ti, context)
 		if ns.deps.Conf.Watching() {
 			r.mangager = depsManagerShared
 		}

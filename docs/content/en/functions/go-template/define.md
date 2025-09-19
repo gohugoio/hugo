@@ -43,21 +43,8 @@ Use with the [`template`] function:
 {{ end }}
 ```
 
-> [!warning]
-> Only [template comments] are allowed outside of the `define` and `end` statements. Avoid placing any other text, including HTML comments, outside of these boundaries. Doing so will cause rendering issues, potentially resulting in a blank page. See the example below.
-
-```go-html-template {file="layouts/do-not-do-this.html"}
-<div>This div element broke your template.</div>
-{{ define "main" }}
-  <h2>{{ .Title }}</h2>
-  {{ .Content }}
-{{ end }}
-<!-- An HTML comment will break your template too. -->
-```
-
 {{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`block`]: /functions/go-template/block/
 [`template`]: /functions/go-template/block/
 [`partial`]: /functions/partials/include/
-[template comments]: /templates/introduction/#comments

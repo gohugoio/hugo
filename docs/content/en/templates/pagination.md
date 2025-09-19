@@ -172,9 +172,9 @@ And this site configuration:
   path = 'page'
 {{< /code-toggle >}}
 
-And this section template:
+And this _section_ template:
 
-```go-html-template
+```go-html-template {file="layouts/section.html"}
 {{ range (.Paginate .Pages).Pages }}
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
@@ -236,6 +236,5 @@ public/
 [`Paginate`]: /methods/page/paginate/
 [`Paginator`]: /methods/page/paginator/
 [`partial`]: /functions/partials/include/
-[grouping methods]: /quick-reference/page-collections/#group
 [grouping methods]: /quick-reference/page-collections/#group
 [source code]: {{% eturl pagination %}}

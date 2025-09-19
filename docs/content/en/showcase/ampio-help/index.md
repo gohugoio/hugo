@@ -15,10 +15,10 @@ Over and above that, we could not overlook the fact that our internal team of ed
 
 We started our journey with the following requirements:
 
- - Ease of contribution
- - Efficient search capabilities
- - The possibility of deployment to simple shared hosting
- - Proper support for multilingualism
+- Ease of contribution
+- Efficient search capabilities
+- The possibility of deployment to simple shared hosting
+- Proper support for multilingualism
 
 ## Dark ages of WordPress
 

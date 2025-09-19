@@ -14,6 +14,8 @@
 package page_test
 
 import (
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -346,4 +348,75 @@ Summary Truncated: {{ .Truncated }}|
 		"ContentWithoutSummary: <div class=\"paragraph\">\n<p>This is content.</p>\n</div>|",
 		"Summary: <div class=\"paragraph\">\n<p>This is summary.</p>\n</div>|\nSummary Type: manual|\nSummary Truncated: true|",
 	)
+}
+
+func TestIssue13967(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- layouts/all.html --
+Title: {{ .Title }}|Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
+-- content/p1.md --
+---
+title: p1
+---
+<!--more--> one two three
+-- content/p2.md --
+---
+title: p2
+---
+one <!--more--> two three
+-- content/p3.md --
+---
+title: p3
+---
+one two <!--more--> three
+-- content/p4.md --
+---
+title: p4
+---
+one two three <!--more-->
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", `Title: p1|Summary: |Truncated: true|`)
+	b.AssertFileContent("public/p2/index.html", `Title: p2|Summary: <p>one</p>|Truncated: true|`)
+	b.AssertFileContent("public/p3/index.html", `Title: p3|Summary: <p>one two</p>|Truncated: true|`)
+	b.AssertFileContent("public/p4/index.html", `Title: p4|Summary: <p>one two three</p>|Truncated: false|`)
+}
+
+func TestIssue13968(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+summaryLength = SUMMARY_LENGTH
+-- layouts/all.html --
+Title: {{ .Title }}|Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
+-- content/_index.md --
+---
+title: home
+---
+one two three
+`
+
+	tests := []struct {
+		summaryLength int
+		want          string
+	}{
+		{0, "Title: home|Summary: |Truncated: true|"},
+		{1, "Title: home|Summary: <p>one two three</p>|Truncated: false|"},
+		{2, "Title: home|Summary: <p>one two three</p>|Truncated: false|"},
+		{3, "Title: home|Summary: <p>one two three</p>|Truncated: false|"},
+		{4, "Title: home|Summary: <p>one two three</p>|Truncated: false|"},
+	}
+
+	for _, tt := range tests {
+		f := strings.ReplaceAll(files, "SUMMARY_LENGTH", strconv.Itoa(tt.summaryLength))
+		b := hugolib.Test(t, f)
+		b.AssertFileContent("public/index.html", tt.want)
+	}
 }

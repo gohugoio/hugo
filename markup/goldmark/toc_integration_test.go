@@ -14,6 +14,7 @@
 package goldmark_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -90,6 +91,11 @@ title: p6 (strikethrough)
 title: p7 (emoji)
 ---
 ## A :snake: emoji
+-- content/p8.md --
+---
+title: p8 (link)
+---
+## A [link](https://example.org)
 `
 
 	b := hugolib.Test(t, files)
@@ -111,36 +117,41 @@ title: p7 (emoji)
 </nav>`)
 
 	// markdown
-	b.AssertFileContent("public/p2/index.html", `<nav id="TableOfContents">
-<li><a href="#">Some <em>emphasized</em> text</a></li>
-<li><a href="#">Some <code>inline</code> code</a></li>
-<li><a href="#">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>
-`)
+	b.AssertFileContent("public/p2/index.html",
+		`<li><a href="#">Some <em>emphasized</em> text</a></li>`,
+		`<li><a href="#">Some <code>inline</code> code</a></li>`,
+		`<li><a href="#">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>`,
+	)
 
 	// image
-	b.AssertFileContent("public/p3/index.html", `
-<li><a href="#">An image <img src="a.jpg" alt="kitten"></a></li>
-`)
+	b.AssertFileContent("public/p3/index.html",
+		`<li><a href="#">An image <img src="a.jpg" alt="kitten"></a></li>`,
+	)
 
 	// raw html
-	b.AssertFileContent("public/p4/index.html", `
-<li><a href="#">Some <!-- raw HTML omitted -->raw<!-- raw HTML omitted --> HTML</a></li>
-`)
+	b.AssertFileContent("public/p4/index.html",
+		`<li><a href="#">Some raw HTML</a></li>`,
+	)
 
 	// typographer
-	b.AssertFileContent("public/p5/index.html", `
-<li><a href="#">Some &quot;typographer&quot; markup</a></li>
-`)
+	b.AssertFileContent("public/p5/index.html",
+		`<li><a href="#">Some &quot;typographer&quot; markup</a></li>`,
+	)
 
 	// strikethrough
-	b.AssertFileContent("public/p6/index.html", `
-<li><a href="#">Some ~~deleted~~ text</a></li>
-	`)
+	b.AssertFileContent("public/p6/index.html",
+		`<li><a href="#">Some ~~deleted~~ text</a></li>`,
+	)
 
 	// emoji
-	b.AssertFileContent("public/p7/index.html", `
-<li><a href="#">A :snake: emoji</a></li>
-		`)
+	b.AssertFileContent("public/p7/index.html",
+		`<li><a href="#">A :snake: emoji</a></li>`,
+	)
+
+	// link
+	b.AssertFileContent("public/p8/index.html",
+		`<li><a href="#">A link</a></li>`,
+	)
 }
 
 func TestTableOfContentsAdvanced(t *testing.T) {
@@ -214,6 +225,11 @@ title: p6 (strikethrough)
 title: p7 (emoji)
 ---
 ## A :snake: emoji
+-- content/p8.md --
+---
+title: p8 (link)
+---
+## A [link](https://example.org)
 `
 
 	b := hugolib.Test(t, files)
@@ -231,37 +247,41 @@ title: p7 (emoji)
 </nav>`)
 
 	// markdown
-	b.AssertFileContent("public/p2/index.html", `<nav id="TableOfContents">
-<li><a href="#some-emphasized-text">Some <em>emphasized</em> text</a></li>
-<li><a href="#some-inline-code">Some <code>inline</code> code</a></li>
-<li><a href="#something-to-escape-a--b--c--b">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>
-`)
+	b.AssertFileContent("public/p2/index.html",
+		`<li><a href="#some-emphasized-text">Some <em>emphasized</em> text</a></li>`,
+		`<li><a href="#some-inline-code">Some <code>inline</code> code</a></li>`,
+		`<li><a href="#something-to-escape-a--b--c--b">Something to escape A &lt; B &amp;&amp; C &gt; B</a></li>`,
+	)
 
 	// image
-	b.AssertFileContent("public/p3/index.html", `
-<li><a href="#an-image-kitten">An image <img src="a.jpg" alt="kitten" /></a></li>
-`)
+	b.AssertFileContent("public/p3/index.html",
+		`<li><a href="#an-image-kitten">An image <img src="a.jpg" alt="kitten"/></a></li>`,
+	)
 
 	// raw html
-	b.AssertFileContent("public/p4/index.html", `
-<li><a href="#some-raw-html">Some <span>raw</span> HTML</a></li>
-`)
+	b.AssertFileContent("public/p4/index.html",
+		`<li><a href="#some-raw-html">Some <span>raw</span> HTML</a></li>`,
+	)
 
 	// typographer
-	b.AssertFileContent("public/p5/index.html", `
-<li><a href="#some-typographer-markup">Some &ldquo;typographer&rdquo; markup</a></li>
-`)
+	b.AssertFileContent("public/p5/index.html",
+		`<li><a href="#some-typographer-markup">Some &ldquo;typographer&rdquo; markup</a></li>`,
+	)
 
 	// strikethrough
-	b.AssertFileContent("public/p6/index.html", `
-<li><a href="#some-deleted-text">Some <del>deleted</del> text</a></li>
-`)
+	b.AssertFileContent("public/p6/index.html",
+		`<li><a href="#some-deleted-text">Some <del>deleted</del> text</a></li>`,
+	)
 
 	// emoji
+	b.AssertFileContent("public/p7/index.html",
+		`<li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>`,
+	)
 
-	b.AssertFileContent("public/p7/index.html", `
-<li><a href="#a-snake-emoji">A &#x1f40d; emoji</a></li>
-`)
+	// link
+	b.AssertFileContent("public/p8/index.html",
+		`<li><a href="#a-link">A link</a></li>`,
+	)
 }
 
 func TestIssue13416(t *testing.T) {
@@ -283,4 +303,64 @@ title: home
 	b := hugolib.Test(t, files)
 
 	b.AssertFileExists("public/index.html", true)
+}
+
+// Issue 12605
+func TestTableOfContentsWithGoldmarkExtras(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions]
+strikethrough = false
+[markup.goldmark.extensions.extras.delete]
+enable = true
+[markup.goldmark.extensions.extras.insert]
+enable = true
+[markup.goldmark.extensions.extras.mark]
+enable = true
+[markup.goldmark.extensions.extras.subscript]
+enable = true
+[markup.goldmark.extensions.extras.superscript]
+enable = true
+
+-- content/_index.md --
+---
+title: home
+---
+## ~~deleted~~
+
+## ++inserted++
+
+## ==marked==
+
+## H~2~O
+
+## 1^st^
+-- layouts/home.html --
+{{ .TableOfContents }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<li><a href="#deleted"><del>deleted</del></a></li>`,
+		`<li><a href="#inserted"><ins>inserted</ins></a></li>`,
+		`<li><a href="#marked"><mark>marked</mark></a></li>`,
+		`<li><a href="#h2o">H<sub>2</sub>O</a></li>`,
+		`<li><a href="#1st">1<sup>st</sup></a></li>`,
+	)
+
+	files = strings.ReplaceAll(files, "enable = true", "enable = false")
+
+	b = hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<li><a href="#deleted">~~deleted~~</a></li>`,
+		`<li><a href="#inserted">++inserted++</a></li>`,
+		`<li><a href="#marked">==marked==</a></li>`,
+		`<li><a href="#h2o">H~2~O</a></li>`,
+		`<li><a href="#1st">1^st^</a></li>`,
+	)
 }

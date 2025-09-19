@@ -190,6 +190,9 @@ chroma:
     - coq
     Name: Coq
   - Aliases:
+    - core
+    Name: Core
+  - Aliases:
     - cr
     - crystal
     Name: Crystal
@@ -235,6 +238,7 @@ chroma:
   - Aliases:
     - docker
     - dockerfile
+    - containerfile
     Name: Docker
   - Aliases:
     - dtd
@@ -297,6 +301,12 @@ chroma:
     - gdscript3
     - gd3
     Name: GDScript3
+  - Aliases:
+    - gemtext
+    - gmi
+    - gmni
+    - gemini
+    Name: Gemtext
   - Aliases:
     - genshi
     - kid
@@ -453,6 +463,8 @@ chroma:
   - Aliases:
     - llvm
     Name: LLVM
+  - Aliases: null
+    Name: lox
   - Aliases:
     - lua
     - luau
@@ -516,6 +528,10 @@ chroma:
     - monkeyc
     Name: MonkeyC
   - Aliases:
+    - moonscript
+    - moon
+    Name: MoonScript
+  - Aliases:
     - morrowind
     - mwscript
     Name: MorrowindScript
@@ -554,6 +570,9 @@ chroma:
     - nsi
     - nsh
     Name: NSIS
+  - Aliases:
+    - nu
+    Name: Nu
   - Aliases:
     - objective-c
     - objectivec
@@ -1253,8 +1272,10 @@ config:
       renderHooks:
         image:
           enableDefault: false
+          useEmbedded: auto
         link:
           enableDefault: false
+          useEmbedded: auto
       renderer:
         hardWraps: false
         unsafe: false
@@ -1469,8 +1490,9 @@ config:
     tdewolff:
       css:
         inline: false
-        keepCSS2: true
+        keepCSS2: false
         precision: 0
+        version: 0
       html:
         keepComments: false
         keepConditionalComments: false
@@ -1875,7 +1897,7 @@ config:
       - ^postcss$
       - ^tailwindcss$
       osEnv:
-      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$
+      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$
     funcs:
       getenv:
       - ^HUGO_
@@ -2084,6 +2106,11 @@ tpl:
         - - '{{ slice "a" "b" "c" "d" "e" "f" | complement (slice "b" "c") (slice
             "d" "e") }}'
           - '[a f]'
+      D:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Delimit:
         Aliases:
         - delimit

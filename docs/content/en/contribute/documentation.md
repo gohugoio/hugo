@@ -70,6 +70,22 @@ Link to the [glossary] as needed and use terms consistently. Pay particular atte
 - "Markdown" (capitalized)
 - "open-source" (hyphenated adjective)
 
+### Template types
+
+When you refer to a template type, italicize it:
+
+```text
+When creating a _taxonomy_ template, do this...
+```
+
+However, if the template type is also a link, do not italicize it to avoid distracting formatting:
+
+```text
+When creating a [taxonomy] template, do this...
+```
+
+Do not italicize the template type in a title, heading, or front matter description.
+
 ### Titles and headings
 
 - Use sentence-style capitalization.
@@ -154,25 +170,25 @@ If quotation marks are required, prefer single quotes to double quotes when poss
 
 Field|Description|Required
 :--|:--|:--
-`title`|The page title|:heavy_check_mark:|
-`linkTitle`|A short version of the page title||
-`description`|A complete sentence describing the page|:heavy_check_mark:|
-`categories`|An array of terms in the categories taxonomy|:heavy_check_mark: [^1]|
-`keywords`|An array of keywords used to identify related content|:heavy_check_mark: [^1]|
-`publishDate`|Applicable to news items: the publication date||
-`params.alt_title`|An alternate title: used in the "see also" panel if provided||
-`params.functions_and_methods.aliases`|Applicable to function and method pages: an array of alias names||
-`params.functions_and_methods.returnType`|Applicable to function and method pages: the data type returned||
-`params.functions_and_methods.signatures`|Applicable to function and method pages: an array of signatures||
-`params.hide_in_this_section`|Whether to hide the "in this section" panel||
-`params.minversion`|Applicable to the quick start page: the minimum Hugo version required||
-`params.permalink`|Reserved for use by the news content adapter||
-`params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information||
-`params.searchable`|Whether to add the content of this page to the search index. The default value is cascaded down from the site configuration; `true` if the page kind is `page`, and `false` if the page kind is one of `home`, `section`, `taxonomy`, or `term`. Add this field to override the default value.||
-`params.show_publish_date`|Whether to show the `publishDate` when rendering the page||
-`weight`|The page weight||
-`aliases`|Previous URLs used to access this page||
-`expirydate`|The expiration date||
+`title`|The page title|:heavy_check_mark:
+`linkTitle`|A short version of the page title|&nbsp;
+`description`|A complete sentence describing the page|:heavy_check_mark:
+`categories`|An array of terms in the categories taxonomy|:heavy_check_mark: [^1]
+`keywords`|An array of keywords used to identify related content|:heavy_check_mark: [^1]
+`publishDate`|Applicable to news items: the publication date|&nbsp;
+`params.alt_title`|An alternate title: used in the "see also" panel if provided|&nbsp;
+`params.functions_and_methods.aliases`|Applicable to function and method pages: an array of alias names|&nbsp;
+`params.functions_and_methods.returnType`|Applicable to function and method pages: the data type returned|&nbsp;
+`params.functions_and_methods.signatures`|Applicable to function and method pages: an array of signatures|&nbsp;
+`params.hide_in_this_section`|Whether to hide the "in this section" panel|&nbsp;
+`params.minversion`|Applicable to the quick start page: the minimum Hugo version required|&nbsp;
+`params.permalink`|Reserved for use by the news content adapter|&nbsp;
+`params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information|&nbsp;
+`params.searchable`|Whether to add the content of this page to the search index. The default value is cascaded down from the site configuration; `true` if the page kind is `page`, and `false` if the page kind is one of `home`, `section`, `taxonomy`, or `term`. Add this field to override the default value.|&nbsp;
+`params.show_publish_date`|Whether to show the `publishDate` when rendering the page|&nbsp;
+`weight`|The page weight|&nbsp;
+`aliases`|Previous URLs used to access this page|&nbsp;
+`expirydate`|The expiration date|&nbsp;
 
 [^1]: The field is required, but its data is not.
 
@@ -329,8 +345,6 @@ Limiting the number of callout types helps us to use them consistently.
 > [!important]
 > Key information users need to know to achieve their goal.
 
-
-
 ## Shortcodes
 
 These shortcodes are commonly used throughout the documentation. Other shortcodes are available for specialized use.
@@ -457,66 +471,56 @@ Set the `expiryDate` to two years from the date of deprecation, and add a brief 
 
 Use this workflow to create and submit pull requests.
 
-### Step 1
+Step 1
+: Fork the [documentation repository].
 
-Fork the [documentation repository].
+Step 2
+: Clone your fork.
 
-### Step 2
+Step 3
+: Create a new branch with a descriptive name that includes the corresponding issue number, if any:
 
-Clone your fork.
+  ```sh
+  git checkout -b restructure-foo-page-99999
+  ```
 
-### Step 3
+Step 4
+: Make changes.
 
-Create a new branch with a descriptive name that includes the corresponding issue number, if any:
+Step 5
+: Build the site locally to preview your changes.
 
-```sh
-git checkout -b restructure-foo-page-99999
-```
+Step 6
+: Commit your changes with a descriptive commit message:
 
-### Step 4
+  - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
+    - Begin the summary with one of `content`, `theme`, `config`, `all`, or `misc`, followed by a colon, a space, and a brief description of the change beginning with a capital letter
+    - Use imperative present tense
+  - Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
+  - Optionally, add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
 
-Make changes.
+  For example:
 
-### Step 5
+  ```text
+  git commit -m "content: Restructure the taxonomy page
 
-Build the site locally to preview your changes.
+  This restructures the taxonomy page by splitting topics into logical
+  sections, each with one or more examples.
 
-### Step 6
+  Fixes #9999
+  Closes #9998"
+  ```
 
-Commit your changes with a descriptive commit message:
+Step 7
+: Push the new branch to your fork of the documentation repository.
 
-- Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
-  - Begin the summary with one of `content`, `theme`, `config`, `all`, or `misc`, followed by a colon, a space, and a brief description of the change beginning with a capital letter
-  - Use imperative present tense
-- Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
-- Optionally, add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
+Step 8
+: Visit the [documentation repository] and create a pull request (PR).
 
-For example:
-
-```text
-git commit -m "content: Restructure the taxonomy page
-
-This restructures the taxonomy page by splitting topics into logical
-sections, each with one or more examples.
-
-Fixes #9999
-Closes #9998"
-```
-
-### Step 7
-
-Push the new branch to your fork of the documentation repository.
-
-### Step 8
-
-Visit the [documentation repository] and create a pull request (PR).
-
-### Step 9
-
-A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
+Step 9
+: A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
 [ATX]: https://spec.commonmark.org/current/#atx-headings
-[basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [developer documentation style guide]: https://developers.google.com/style
 [documentation repository]: https://github.com/gohugoio/hugoDocs/

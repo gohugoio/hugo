@@ -830,6 +830,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 
 	changedPaths := struct {
 		changedFiles []*paths.Path
+		addedFiles   []*paths.Path
 		changedDirs  []*paths.Path
 		deleted      []*paths.Path
 	}{}
@@ -896,13 +897,15 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			changedPaths.deleted = append(changedPaths.deleted, pss...)
 		} else if ev.isChangedDir {
 			changedPaths.changedDirs = append(changedPaths.changedDirs, pss...)
+		} else if ev.added {
+			changedPaths.addedFiles = append(changedPaths.addedFiles, pss...)
 		} else {
 			changedPaths.changedFiles = append(changedPaths.changedFiles, pss...)
 		}
 	}
 
 	// Find the most specific identity possible.
-	handleChange := func(pathInfo *paths.Path, delete, isDir bool) {
+	handleChange := func(pathInfo *paths.Path, delete, add, isDir bool) {
 		switch pathInfo.Component() {
 		case files.ComponentFolderContent:
 			logger.Println("Source changed", pathInfo.Path())
@@ -921,12 +924,14 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 						if err == nil {
 							f.Close()
 						}
+
 						if err != nil {
 							// Remove all pages and resources below.
-							prefix := pathInfo.Base() + "/"
+							prefix := paths.AddTrailingSlash(pathInfo.Base())
+
 							h.pageTrees.treePages.DeletePrefixAll(prefix)
 							h.pageTrees.resourceTrees.DeletePrefixAll(prefix)
-							changes = append(changes, identity.NewGlobIdentity(prefix+"*"))
+							changes = append(changes, identity.NewGlobIdentity(prefix+"**"))
 						}
 						return err != nil
 					})
@@ -961,7 +966,10 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 				}
 			}
 
-			addedOrChangedContent = append(addedOrChangedContent, pathChange{p: pathInfo, structural: delete, isDir: isDir})
+			structural := delete
+			structural = structural || (add && pathInfo.IsLeafBundle())
+
+			addedOrChangedContent = append(addedOrChangedContent, pathChange{p: pathInfo, structural: structural, isDir: isDir})
 
 		case files.ComponentFolderLayouts:
 			tmplChanged = true
@@ -1017,6 +1025,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 	}
 
 	changedPaths.deleted = removeDuplicatePaths(changedPaths.deleted)
+	changedPaths.addedFiles = removeDuplicatePaths(changedPaths.addedFiles)
 	changedPaths.changedFiles = removeDuplicatePaths(changedPaths.changedFiles)
 
 	h.Log.Trace(logg.StringFunc(func() string {
@@ -1024,6 +1033,11 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 		sb.WriteString("Resolved paths:\n")
 		sb.WriteString("Deleted:\n")
 		for _, p := range changedPaths.deleted {
+			sb.WriteString("path: " + p.Path())
+			sb.WriteString("\n")
+		}
+		sb.WriteString("Added:\n")
+		for _, p := range changedPaths.addedFiles {
 			sb.WriteString("path: " + p.Path())
 			sb.WriteString("\n")
 		}
@@ -1072,15 +1086,19 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 	}
 
 	for _, deleted := range changedPaths.deleted {
-		handleChange(deleted, true, false)
+		handleChange(deleted, true, false, false)
+	}
+
+	for _, id := range changedPaths.addedFiles {
+		handleChange(id, false, true, false)
 	}
 
 	for _, id := range changedPaths.changedFiles {
-		handleChange(id, false, false)
+		handleChange(id, false, false, false)
 	}
 
 	for _, id := range changedPaths.changedDirs {
-		handleChange(id, false, true)
+		handleChange(id, false, false, true)
 	}
 
 	for _, id := range changes {
