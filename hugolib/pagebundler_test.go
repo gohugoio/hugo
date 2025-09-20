@@ -262,6 +262,66 @@ Len Sites: {{ len .Site.Sites }}|
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 }
 
+func TestMultilingualDisableLanguageMounts(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = "nn"
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = "en"
+
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+disabled = true
+-- content/en/mysect/_index.md --
+---
+title: "My Sect En"
+---
+-- content/en/mysect/p1/index.md --
+---
+title: "P1"
+---
+P1
+-- content/nn/mysect/_index.md --
+---
+title: "My Sect Nn"
+---
+-- content/nn/mysect/p1/index.md --
+---
+title: "P1nn"
+---
+P1nn
+-- layouts/index.html --
+Len RegularPages: {{ len .Site.RegularPages }}|RegularPages: {{ range site.RegularPages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}|
+Len Pages: {{ len .Site.Pages }}|
+Len Sites: {{ len .Site.Sites }}|
+-- layouts/_default/single.html --
+{{ .Title }}|{{ .Content }}|{{ .Lang }}|
+
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "Len RegularPages: 1|")
+	b.AssertFileContent("public/en/mysect/p1/index.html", "P1|<p>P1</p>\n|en|")
+	b.AssertFileExists("public/public/nn/mysect/p1/index.html", false)
+	b.Assert(len(b.H.Sites), qt.Equals, 1)
+}
+
 func TestPageBundlerHeadless(t *testing.T) {
 	t.Parallel()
 

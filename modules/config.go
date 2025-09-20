@@ -464,5 +464,6 @@ func (m *Mount) init() error {
 	}
 
 	m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
+
 	return nil
 }

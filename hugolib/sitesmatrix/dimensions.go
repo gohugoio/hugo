@@ -170,16 +170,36 @@ func (vs Vectors) One() Vector {
 	panic("no vectors")
 }
 
-type VectorIterator interface {
-	// ForEeachVector iterates over all vectors in the provider.
-	// It returns false if the iteration was stopped early.
-	ForEeachVector(func(v Vector) bool) bool
-}
+type (
+	VectorIterator interface {
+		// ForEeachVector iterates over all vectors in the provider.
+		// It returns false if the iteration was stopped early.
+		ForEeachVector(func(v Vector) bool) bool
+	}
+)
 
 type VectorIteratorFunc func(func(v Vector) bool) bool
 
 func (f VectorIteratorFunc) ForEeachVector(yield func(v Vector) bool) bool {
 	return f(yield)
+}
+
+type DimensionsBool [3]bool
+
+func (d DimensionsBool) Language() bool {
+	return d[Language.Index()]
+}
+
+func (d DimensionsBool) Version() bool {
+	return d[Version.Index()]
+}
+
+func (d DimensionsBool) Role() bool {
+	return d[Role.Index()]
+}
+
+func (d DimensionsBool) IsZero() bool {
+	return !d[0] && !d[1] && !d[2]
 }
 
 type VectorProvider interface {

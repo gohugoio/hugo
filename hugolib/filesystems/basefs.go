@@ -733,9 +733,10 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 			if !v.Matrix.IsZero() {
 				matrixBuilder.WithConfig(intSetsCfg)
-				if err != nil {
-					return fmt.Errorf("failed to create dimension sets for %q: %w", filename, err)
+				if !matrixBuilder.GlobFilterMisses.IsZero() {
+					continue
 				}
+
 				if needsDefaultsIfNotset {
 					matrixBuilder.WithDefaultsIfNotSet()
 				}

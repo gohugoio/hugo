@@ -652,6 +652,9 @@ func (s *IntSets) setValuesInNilSets(vec Vector, setLang, setVer, setRole bool) 
 type IntSetsBuilder struct {
 	cfg *ConfiguredDimensions
 	s   *IntSets
+
+	// Set when a Glob (e.g. "en") filter is provided but no matches are found.
+	GlobFilterMisses DimensionsBool
 }
 
 func (b *IntSetsBuilder) Build() *IntSets {
@@ -712,7 +715,11 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 		panic(fmt.Errorf("failed to apply filters: %w", err))
 	}
 
-	// TODO1 defaults.if l == nil &&
+	b.GlobFilterMisses = DimensionsBool{
+		len(cfg.Globs.Languages) > 0 && l == nil,
+		len(cfg.Globs.Versions) > 0 && v == nil,
+		len(cfg.Globs.Roles) > 0 && r == nil,
+	}
 
 	b.s.languages = l
 	b.s.versions = v
