@@ -19,6 +19,7 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 )
@@ -27,35 +28,40 @@ type ConfigLanguage struct {
 	config     *Config
 	baseConfig config.BaseConfig
 
-	m        *Configs
-	language *langs.Language
+	m             *Configs
+	language      *langs.Language
+	languageIndex int
 }
 
-func (c ConfigLanguage) Language() *langs.Language {
+func (c ConfigLanguage) Language() any {
 	return c.language
 }
 
-func (c ConfigLanguage) Languages() langs.Languages {
+func (c ConfigLanguage) LanguageIndex() int {
+	return c.languageIndex
+}
+
+func (c ConfigLanguage) Languages() any {
 	return c.m.Languages
 }
 
-func (c ConfigLanguage) LanguagesDefaultFirst() langs.Languages {
+func (c ConfigLanguage) LanguagesDefaultFirst() any {
 	return c.m.LanguagesDefaultFirst
 }
 
-func (c ConfigLanguage) PathParser() *paths.PathParser {
+func (c ConfigLanguage) PathParser() *paths.PathHandler {
 	return c.m.ContentPathParser
 }
 
 func (c ConfigLanguage) LanguagePrefix() string {
-	if c.DefaultContentLanguageInSubdir() && c.DefaultContentLanguage() == c.Language().Lang {
-		return c.Language().Lang
+	if c.DefaultContentLanguageInSubdir() && c.DefaultContentLanguage() == c.language.Lang {
+		return c.language.Lang
 	}
 
-	if !c.IsMultilingual() || c.DefaultContentLanguage() == c.Language().Lang {
+	if !c.IsMultilingual() || c.DefaultContentLanguage() == c.language.Lang {
 		return ""
 	}
-	return c.Language().Lang
+	return c.language.Lang
 }
 
 func (c ConfigLanguage) BaseURL() urls.BaseURL {
@@ -95,6 +101,10 @@ func (c ConfigLanguage) TemplateMetricsHints() bool {
 
 func (c ConfigLanguage) IsLangDisabled(lang string) bool {
 	return c.config.C.DisabledLanguages[lang]
+}
+
+func (c ConfigLanguage) IsKindEnabled(kind string) bool {
+	return !c.config.C.DisabledKinds[kind]
 }
 
 func (c ConfigLanguage) IgnoredLogs() map[string]bool {
@@ -155,6 +165,8 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.config.Security
 	case "build":
 		return c.config.Build
+	case "cascade":
+		return c.config.Cascade
 	case "frontmatter":
 		return c.config.Frontmatter
 	case "caches":
@@ -165,6 +177,10 @@ func (c ConfigLanguage) GetConfigSection(s string) any {
 		return c.config.MediaTypes.Config
 	case "outputFormats":
 		return c.config.OutputFormats.Config
+	case "roles":
+		return c.config.Roles.Config
+	case "versions":
+		return c.config.Versions.Config
 	case "permalinks":
 		return c.config.Permalinks
 	case "minify":
@@ -210,6 +226,14 @@ func (c ConfigLanguage) DefaultContentLanguage() string {
 
 func (c ConfigLanguage) DefaultContentLanguageInSubdir() bool {
 	return c.config.DefaultContentLanguageInSubdir
+}
+
+func (c ConfigLanguage) DefaultContentRoleInSubdir() bool {
+	return c.config.DefaultContentRoleInSubdir
+}
+
+func (c ConfigLanguage) DefaultContentVersionInSubdir() bool {
+	return c.config.DefaultContentVersionInSubdir
 }
 
 func (c ConfigLanguage) SummaryLength() int {
@@ -258,4 +282,16 @@ func (c ConfigLanguage) StaticDirs() []string {
 
 func (c ConfigLanguage) EnableEmoji() bool {
 	return c.config.EnableEmoji
+}
+
+func (c ConfigLanguage) ConfiguredDimensions() *sitesmatrix.ConfiguredDimensions {
+	return c.m.ConfiguredDimensions
+}
+
+func (c ConfigLanguage) DefaultContentsitesMatrix() *sitesmatrix.IntSets {
+	return c.m.DefaultContentSitesMatrix
+}
+
+func (c ConfigLanguage) AllSitesMatrix() *sitesmatrix.IntSets {
+	return c.m.AllSitesMatrix
 }

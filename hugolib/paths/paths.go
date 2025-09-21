@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	hpaths "github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/modules"
@@ -65,8 +66,8 @@ func New(fs *hugofs.Fs, cfg config.AllProvider) (*Paths, error) {
 	}
 
 	var multihostTargetBasePaths []string
-	if cfg.IsMultihost() && len(cfg.Languages()) > 1 {
-		for _, l := range cfg.Languages() {
+	if cfg.IsMultihost() && len(cfg.Languages().(langs.Languages)) > 1 {
+		for _, l := range cfg.Languages().(langs.Languages) {
 			multihostTargetBasePaths = append(multihostTargetBasePaths, hpaths.ToSlashPreserveLeading(l.Lang))
 		}
 	}
@@ -96,17 +97,17 @@ func (p *Paths) GetBasePath(isRelativeURL bool) string {
 	return p.Cfg.BaseURL().BasePathNoTrailingSlash
 }
 
-func (p *Paths) Lang() string {
+func (p *Paths) Lang__() string { // TODO1
 	if p == nil || p.Cfg.Language() == nil {
 		return ""
 	}
-	return p.Cfg.Language().Lang
+	return p.Cfg.Language().(*langs.Language).Lang
 }
 
 func (p *Paths) GetTargetLanguageBasePath() string {
 	if p.Cfg.IsMultihost() {
 		// In a multihost configuration all assets will be published below the language code.
-		return p.Lang()
+		return p.Lang__()
 	}
 	return p.GetLanguagePrefix()
 }

@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"iter"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -26,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/fsnotify/fsnotify"
@@ -51,7 +53,15 @@ import (
 
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
+	// The current site slice.
+	// When rendering, this slice will be shifted out.
+	// TODO1 check that access of this isn't cached.
 	Sites []*Site
+
+	// All sites for all versions and roles.
+	sitesVersionsRoles    [][][]*Site
+	sitesVersionsRolesMap map[sitesmatrix.Vector]*Site
+	sitesLanguages        []*Site // sample set with all languages.
 
 	Configs *allconfig.Configs
 
@@ -83,7 +93,9 @@ type HugoSites struct {
 	// be relatively rare and low volume.
 	translationKeyPages *maps.SliceCache[page.Page]
 
-	pageTrees *pageTrees
+	pageTrees                    *pageTrees
+	previousPageTreesWalkContext *doctree.WalkContext[contentNode] // Set for rebuilds only.
+	previousSeenTerms            map[term]sitesmatrix.Vectors      // Set for rebuilds only.
 
 	printUnusedTemplatesInit sync.Once
 	printPathWarningsInit    sync.Once
@@ -104,6 +116,55 @@ type HugoSites struct {
 	buildCounter atomic.Uint64
 }
 
+// TODO1 check usage of this vs .Sites.
+func (h *HugoSites) allSites() iter.Seq[*Site] {
+	return func(yield func(s *Site) bool) {
+		for _, v := range h.sitesVersionsRoles {
+			for _, r := range v {
+				for _, s := range r {
+					if !yield(s) {
+						return
+					}
+				}
+			}
+		}
+	}
+}
+
+// allSiteLanguages will range over the first site in each language that's not skipped.
+func (h *HugoSites) allSiteLanguages(skip func(s *Site) bool) iter.Seq[*Site] {
+	return func(yield func(s *Site) bool) {
+	LOOP:
+		for _, v := range h.sitesVersionsRoles {
+			for _, r := range v {
+				for _, s := range r {
+					if skip != nil && skip(s) {
+						continue
+					}
+					if !yield(r[0]) {
+						return
+					}
+					continue LOOP
+				}
+			}
+		}
+	}
+}
+
+func (h *HugoSites) getFirstTaxonomyConfig(s string) (v viewName) {
+	for _, ss := range h.sitesLanguages {
+		if v = ss.pageMap.cfg.getTaxonomyConfig(s); !v.IsZero() {
+			return
+		}
+	}
+	return
+}
+
+// returns one of the sites with the language of the given vector.
+func (h *HugoSites) languageSiteForSiteVector(v sitesmatrix.Vector) *Site {
+	return h.sitesLanguages[v.Language()]
+}
+
 // ShouldSkipFileChangeEvent allows skipping filesystem event early before
 // the build is started.
 func (h *HugoSites) ShouldSkipFileChangeEvent(ev fsnotify.Event) bool {
@@ -120,18 +181,20 @@ func (h *HugoSites) isRebuild() bool {
 	return h.buildCounter.Load() > 0
 }
 
-func (h *HugoSites) resolveSite(lang string) *Site {
-	if lang == "" {
-		lang = h.Conf.DefaultContentLanguage()
-	}
-
-	for _, s := range h.Sites {
-		if s.Lang() == lang {
-			return s
+func (h *HugoSites) resolveFirstSite(matrix sitesmatrix.VectorStore) *Site {
+	var s *Site
+	var ok bool
+	matrix.ForEeachVector(func(v sitesmatrix.Vector) bool {
+		if s, ok = h.sitesVersionsRolesMap[v]; ok {
+			return false
 		}
+		return true
+	})
+	if s == nil {
+		panic(fmt.Sprintf("no site found for matrix %s", matrix))
 	}
 
-	return nil
+	return s
 }
 
 type buildCounters struct {
@@ -391,10 +454,10 @@ func (h *HugoSites) withSite(fn func(s *Site) error) error {
 
 func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
 	h.withSite(func(s *Site) error {
-		w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+		w := &doctree.NodeShiftTreeWalker[contentNode]{
 			Tree:     s.pageMap.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+			Handle: func(s string, n contentNode) (bool, error) {
 				return fn(s, n.(*pageState)), nil
 			},
 		}
@@ -502,7 +565,7 @@ func (h *HugoSites) loadData() error {
 			Fs:         h.PathSpec.BaseFs.Data.Fs,
 			IgnoreFile: h.SourceSpec.IgnoreFile,
 			PathParser: h.Conf.PathParser(),
-			WalkFn: func(path string, fi hugofs.FileMetaInfo) error {
+			WalkFn: func(ctx context.Context, path string, fi hugofs.FileMetaInfo) error {
 				if fi.IsDir() {
 					return nil
 				}

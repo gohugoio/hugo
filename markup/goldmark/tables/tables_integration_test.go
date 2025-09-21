@@ -56,18 +56,21 @@ Attributes: {{ .Attributes }}|
 {{ end }}
 
 `
-	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html",
-		"Attributes: map[class:foo foo:bar]|",
-		"table-0-thead: 0: 0: left: Item| 1: center: In Stock| 2: right: Price|$",
-		"table-0-tbody: 0: 0: left: Python Hat| 1: center: True| 2: right: 23.99| 1: 0: left: SQL <strong>Hat</strong>| 1: center: True| 2: right: 23.99| 2: 0: left: Codecademy Tee| 1: center: False| 2: right: 19.99| 3: 0: left: Codecademy Hoodie| 1: center: False| 2: right: 42.99|$",
-	)
+	for range 2 {
+		b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html",
-		"table-1-thead: 0: 0: : Month| 1: : Savings|$",
-		"table-1-tbody: 0: 0: : January| 1: : $250| 1: 0: : February| 1: : $80| 2: 0: : March| 1: : $420|$",
-	)
+		b.AssertFileContent("public/p1/index.html",
+			"Attributes: map[class:foo foo:bar]|",
+			"table-0-thead: 0: 0: left: Item| 1: center: In Stock| 2: right: Price|$",
+			"table-0-tbody: 0: 0: left: Python Hat| 1: center: True| 2: right: 23.99| 1: 0: left: SQL <strong>Hat</strong>| 1: center: True| 2: right: 23.99| 2: 0: left: Codecademy Tee| 1: center: False| 2: right: 19.99| 3: 0: left: Codecademy Hoodie| 1: center: False| 2: right: 42.99|$",
+		)
+
+		b.AssertFileContent("public/p1/index.html",
+			"table-1-thead: 0: 0: : Month| 1: : Savings|$",
+			"table-1-tbody: 0: 0: : January| 1: : $250| 1: 0: : February| 1: : $80| 2: 0: : March| 1: : $420|$",
+		)
+	}
 }
 
 func TestTableDefault(t *testing.T) {

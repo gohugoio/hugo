@@ -16,18 +16,20 @@ package hugolib
 import (
 	"context"
 	"fmt"
+	"iter"
 	"path"
 	"path/filepath"
 	"strings"
 	"unicode"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
@@ -52,25 +54,71 @@ type contentMapConfig struct {
 	isRebuild            bool
 }
 
-var _ contentNodeI = (*resourceSource)(nil)
+var _ contentNode = (*resourceSource)(nil)
+
+type resourceSourceState int
+
+const (
+	resourceStateNew resourceSourceState = iota
+	resourceStateAssigned
+)
 
 type resourceSource struct {
-	langIndex int
-	path      *paths.Path
-	opener    hugio.OpenReadSeekCloser
-	fi        hugofs.FileMetaInfo
-	rc        *pagemeta.ResourceConfig
+	state  resourceSourceState
+	sv     sitesmatrix.Vector
+	path   *paths.Path
+	opener hugio.OpenReadSeekCloser
+	fi     hugofs.FileMetaInfo
+	rc     *pagemeta.ResourceConfig
 
 	r resource.Resource
 }
 
+func (r *resourceSource) isEmpty() bool {
+	return false
+}
+
+func (r *resourceSource) assignSiteVector(vec sitesmatrix.Vector) *resourceSource {
+	if r.state == resourceStateAssigned {
+		panic("cannot assign site vector to a resourceSource that is already assigned")
+	}
+	r.sv = vec
+	r.state = resourceStateAssigned
+	return r
+}
+
 func (r resourceSource) clone() *resourceSource {
+	r.state = resourceStateNew
 	r.r = nil
 	return &r
 }
 
-func (r *resourceSource) LangIndex() int {
-	return r.langIndex
+func (r *resourceSource) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	return f(r.sv, r)
+}
+
+func (r *resourceSource) String() string {
+	var sb strings.Builder
+	if r.fi != nil {
+		sb.WriteString("filename: " + r.fi.Meta().Filename)
+		sb.WriteString(fmt.Sprintf(" matrix: %v", r.fi.Meta().SitesMatrix))
+		sb.WriteString(fmt.Sprintf(" fallbacks: %v", r.fi.Meta().SitesFallbacks))
+	}
+	if r.rc != nil {
+		sb.WriteString(fmt.Sprintf("rc matrix: %v", r.rc.SitesMatrix))
+		sb.WriteString(fmt.Sprintf("rc fallbacks: %v", r.rc.SitesFallbacks))
+	}
+	sb.WriteString(fmt.Sprintf(" sv: %v", r.sv))
+	return sb.String()
+}
+
+// TODO1 remove.
+func (r *resourceSource) sitesMatrix() sitesmatrix.VectorProvider {
+	return r.sv
+}
+
+func (r *resourceSource) siteVector() sitesmatrix.Vector {
+	return r.sv
 }
 
 func (r *resourceSource) MarkStale() {
@@ -88,6 +136,10 @@ func (r *resourceSource) isPage() bool {
 	return ok
 }
 
+func (r *resourceSource) contentWeight() int {
+	return 0
+}
+
 func (r *resourceSource) GetIdentity() identity.Identity {
 	if r.r != nil {
 		return r.r.(identity.IdentityProvider).GetIdentity()
@@ -95,21 +147,97 @@ func (r *resourceSource) GetIdentity() identity.Identity {
 	return r.path
 }
 
+func (p *resourceSource) matchSiteVector(siteVector sitesmatrix.Vector) bool {
+	if p.state >= resourceStateAssigned {
+		return p.sv == siteVector
+	}
+
+	// A site has not been assigned yet.
+
+	if p.rc != nil && p.rc.MatchSiteVector(siteVector) {
+		return true
+	}
+
+	if p.rc != nil && p.rc.SitesMatrix.LenVectors() > 0 {
+		// Do not consider file mount matrix if the resource config has its own.
+		return false
+	}
+
+	if p.fi != nil && p.fi.Meta().SitesMatrix.HasVector(siteVector) {
+		return true
+	}
+
+	return false
+}
+
+func (p *resourceSource) matchSiteVectorAll(siteVector sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
+	if siteVector == p.sv {
+		return func(yield func(n contentNodeForSite) bool) {
+			yield(p)
+		}
+	}
+
+	pc := p.rc
+
+	var found bool
+	if !fallback {
+		if pc != nil && pc.MatchSiteVector(siteVector) {
+			found = true
+		} else {
+			return nil
+		}
+	}
+
+	if !found && pc != nil {
+		if !pc.MatchLanguageOrLanguageFallback(siteVector) {
+			return nil
+		}
+		if !pc.MatchVersionOrVersionFallback(siteVector) {
+			return nil
+		}
+		if !pc.MatchRoleOrRoleFallback(siteVector) {
+			return nil
+		}
+	}
+
+	if !found && !fallback {
+		return nil
+	}
+
+	return func(yield func(n contentNodeForSite) bool) {
+		if !yield(p) {
+			return
+		}
+	}
+}
+
 func (r *resourceSource) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	return f(r.GetIdentity())
 }
 
 func (r *resourceSource) Path() string {
-	return r.path.Path()
+	return r.path.Base()
+}
+
+func (r *resourceSource) PathInfo() *paths.Path {
+	return r.path
 }
 
 func (r *resourceSource) isContentNodeBranch() bool {
 	return false
 }
 
-var _ contentNodeI = (*resourceSources)(nil)
+var _ contentNode = (*resourceSources)(nil)
 
-type resourceSources []*resourceSource
+type resourceSources map[sitesmatrix.Vector]*resourceSource
+
+func (r resourceSources) isEmpty() bool {
+	return len(r) == 0
+}
+
+func (r resourceSources) nodeLen() int {
+	return len(r)
+}
 
 func (n resourceSources) MarkStale() {
 	for _, r := range n {
@@ -119,7 +247,24 @@ func (n resourceSources) MarkStale() {
 	}
 }
 
+func (r resourceSources) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	for _, rs := range r {
+		if !f(rs.sv, rs) {
+			return false
+		}
+	}
+	return true
+}
+
+func (r resourceSources) contentWeight() int {
+	return 0
+}
+
 func (n resourceSources) Path() string {
+	panic("not supported")
+}
+
+func (r resourceSources) PathInfo() *paths.Path {
 	panic("not supported")
 }
 
@@ -133,6 +278,10 @@ func (n resourceSources) resetBuildState() {
 			r.resetBuildState()
 		}
 	}
+}
+
+func (n resourceSources) sitesMatrix() sitesmatrix.VectorProvider {
+	panic("not supported")
 }
 
 func (n resourceSources) GetIdentity() identity.Identity {
@@ -155,6 +304,161 @@ func (n resourceSources) ForEeachIdentity(f func(identity.Identity) bool) bool {
 	return false
 }
 
+type contentNodeSlice []contentNode
+
+func (m *contentNodeSlice) nodeCategoryPage() {
+	// Marker method.
+}
+
+func (m contentNodeSlice) isEmpty() bool {
+	return len(m) == 0
+}
+
+func (n contentNodeSlice) MarkStale() {
+	for _, nn := range n {
+		nn.MarkStale()
+	}
+}
+
+func (n contentNodeSlice) contentWeight() int {
+	return 0
+}
+
+func (n contentNodeSlice) Path() string {
+	return n.one().Path()
+}
+
+func (n contentNodeSlice) PathInfo() *paths.Path {
+	return n.one().PathInfo()
+}
+
+func (n contentNodeSlice) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	for _, nn := range n {
+		if !nn.forEeachContentNode(f) {
+			return false
+		}
+	}
+	return true
+}
+
+func (n contentNodeSlice) isContentNodeBranch() bool {
+	return false
+}
+
+func (n contentNodeSlice) resetBuildState() {
+	// Nothing to do for now.
+}
+
+func (n contentNodeSlice) sitesMatrix() sitesmatrix.VectorProvider {
+	panic("not supported")
+}
+
+func (n contentNodeSlice) one() contentNode {
+	if len(n) == 0 {
+		panic("pageMetaSourcesSlice is empty")
+	}
+	return n[0]
+}
+
+func (n contentNodeSlice) GetIdentity() identity.Identity {
+	return n.one().GetIdentity()
+}
+
+func (n contentNodeSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	for _, nn := range n {
+		if nn.ForEeachIdentity(f) {
+			return true
+		}
+	}
+	return false
+}
+
+type resourceSourcesSlice []*resourceSource
+
+func (n resourceSourcesSlice) MarkStale() {
+	for _, r := range n {
+		if r != nil {
+			r.MarkStale()
+		}
+	}
+}
+
+func (r resourceSourcesSlice) isEmpty() bool {
+	return len(r) == 0
+}
+
+func (r resourceSourcesSlice) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	for _, rs := range r {
+		if !f(rs.sv, rs) {
+			return false
+		}
+	}
+	return true
+}
+
+func (n resourceSourcesSlice) ForEeachInAllDimensions(f func(contentNode) bool) {
+	for _, nn := range n {
+		if f(nn) {
+			return
+		}
+	}
+}
+
+func (n resourceSourcesSlice) one() *resourceSource {
+	if len(n) == 0 {
+		panic("resourceSourcesSlice is empty")
+	}
+	return n[0]
+}
+
+func (n resourceSourcesSlice) Path() string {
+	return n.one().Path()
+}
+
+func (n resourceSourcesSlice) PathInfo() *paths.Path {
+	return n.one().PathInfo()
+}
+
+func (n resourceSourcesSlice) isContentNodeBranch() bool {
+	return false
+}
+
+func (m resourceSourcesSlice) contentWeight() int {
+	return 0
+}
+
+func (n resourceSourcesSlice) resetBuildState() {
+	for _, r := range n {
+		if r != nil {
+			r.resetBuildState()
+		}
+	}
+}
+
+func (n resourceSourcesSlice) sitesMatrix() sitesmatrix.VectorProvider {
+	panic("not supported")
+}
+
+func (n resourceSourcesSlice) GetIdentity() identity.Identity {
+	for _, r := range n {
+		if r != nil {
+			return r.GetIdentity()
+		}
+	}
+	return nil
+}
+
+func (n resourceSourcesSlice) ForEeachIdentity(f func(identity.Identity) bool) bool {
+	for _, r := range n {
+		if r != nil {
+			if f(r.GetIdentity()) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	for _, n := range cfg.taxonomyConfig.views {
 		if strings.HasPrefix(s, n.pluralTreeKey) {
@@ -164,10 +468,11 @@ func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	return
 }
 
-func (m *pageMap) insertPageWithLock(s string, p *pageState) (contentNodeI, contentNodeI, bool) {
-	u, n, replaced := m.treePages.InsertIntoValuesDimensionWithLock(s, p)
+func (m *pageMap) insertPageMetaSourceWithLock(p *pageMetaSource) (contentNode, contentNode, bool) {
+	u, n, replaced := m.treePages.InsertIntoValuesDimensionWithLock(p.pathInfo.Base(), p)
 
-	if replaced && !m.s.h.isRebuild() && m.s.conf.PrintPathWarnings {
+	// TODO1
+	/*if replaced && !m.s.h.isRebuild() && m.s.conf.PrintPathWarnings {
 		var messageDetail string
 		if p1, ok := n.(*pageState); ok && p1.File() != nil {
 			messageDetail = fmt.Sprintf(" file: %q", p1.File().Filename())
@@ -177,20 +482,21 @@ func (m *pageMap) insertPageWithLock(s string, p *pageState) (contentNodeI, cont
 		}
 
 		m.s.Log.Warnf("Duplicate content path: %q%s", s, messageDetail)
-	}
+	}*/
 
 	return u, n, replaced
 }
 
-func (m *pageMap) insertResourceWithLock(s string, r contentNodeI) (contentNodeI, contentNodeI, bool) {
+func (m *pageMap) insertResourceWithLock(s string, r contentNode) (contentNode, contentNode, bool) {
 	u, n, replaced := m.treeResources.InsertIntoValuesDimensionWithLock(s, r)
 	if replaced {
+		// TODO1
 		m.handleDuplicateResourcePath(s, r, n)
 	}
 	return u, n, replaced
 }
 
-func (m *pageMap) insertResource(s string, r contentNodeI) (contentNodeI, contentNodeI, bool) {
+func (m *pageMap) insertResource(s string, r contentNode) (contentNode, contentNode, bool) {
 	u, n, replaced := m.treeResources.InsertIntoValuesDimension(s, r)
 	if replaced {
 		m.handleDuplicateResourcePath(s, r, n)
@@ -198,7 +504,7 @@ func (m *pageMap) insertResource(s string, r contentNodeI) (contentNodeI, conten
 	return u, n, replaced
 }
 
-func (m *pageMap) handleDuplicateResourcePath(s string, updated, existing contentNodeI) {
+func (m *pageMap) handleDuplicateResourcePath(s string, updated, existing contentNode) {
 	if m.s.h.isRebuild() || !m.s.conf.PrintPathWarnings {
 		return
 	}
@@ -218,6 +524,12 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		return
 	}
 
+	if m == nil {
+		panic("nil pageMap")
+	}
+
+	h := m.s.h
+
 	insertResource := func(fim hugofs.FileMetaInfo) error {
 		resourceCount++
 		pi := fi.Meta().PathInfo
@@ -227,36 +539,22 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 		commit := tree.Lock(true)
 		defer commit()
 
-		r := func() (hugio.ReadSeekCloser, error) {
-			return fim.Meta().Open()
-		}
-
-		var rs *resourceSource
 		if pi.IsContent() {
-			// Create the page now as we need it at assembly time.
-			// The other resources are created if needed.
-			pageResource, pi, err := m.s.h.newPage(
-				&pageMeta{
-					f:        source.NewFileInfo(fim),
-					pathInfo: pi,
-					bundled:  true,
-				},
-			)
+			pm, err := h.newPageMetaSourceFromFile(fi)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create page from file %q: %w", fi.Meta().Filename, err)
 			}
-			if pageResource == nil {
-				// Disabled page.
-				return nil
-			}
-			key = pi.Base()
-
-			rs = &resourceSource{r: pageResource, langIndex: pageResource.s.languagei}
+			pm.bundled = true
+			_, _, _ = m.insertResource(key, pm)
 		} else {
-			rs = &resourceSource{path: pi, opener: r, fi: fim, langIndex: fim.Meta().LangIndex}
-		}
+			r := func() (hugio.ReadSeekCloser, error) {
+				return fim.Meta().Open()
+			}
 
-		_, _, _ = m.insertResource(key, rs)
+			// TODO1 siteVector vs matrix.
+			rs := &resourceSource{path: pi, opener: r, fi: fim, sv: fim.Meta().SitesMatrix.FirstVector()}
+			_, _, _ = m.insertResource(key, rs)
+		}
 
 		return nil
 	}
@@ -291,27 +589,15 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageCoun
 			},
 		))
 
-		pageCount++
+		pageCount++ // TODO1 this vs dims.
 
-		// A content file.
-		p, pi, err := m.s.h.newPage(
-			&pageMeta{
-				f:        source.NewFileInfo(fi),
-				pathInfo: pi,
-				bundled:  false,
-			},
-		)
+		pm, err := h.newPageMetaSourceFromFile(fi)
 		if err != nil {
-			addErr = err
-			return
-		}
-		if p == nil {
-			// Disabled page.
+			addErr = fmt.Errorf("failed to create page meta from file %q: %w", fi.Meta().Filename, err)
 			return
 		}
 
-		m.insertPageWithLock(pi.Base(), p)
-
+		m.insertPageMetaSourceWithLock(pm)
 	}
 	return
 }
@@ -331,8 +617,12 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 		return
 	}
 
-	s := m.s.h.resolveSite(fi.Meta().Lang)
-	f := source.NewFileInfo(fi)
+	sitesMatrix := fi.Meta().SitesMatrix
+
+	s := m.s.h.resolveFirstSite(sitesMatrix)
+	if s == nil {
+		panic("TODO1")
+	}
 	h := s.h
 
 	contentAdapter := s.pageMap.treePagesFromTemplateAdapters.Get(pi.Base())
@@ -354,21 +644,16 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 				},
 				DependencyManager: s.Conf.NewIdentityManager("pagesfromdata"),
 				Watching:          s.Conf.Watching(),
-				HandlePage: func(pt *pagesfromdata.PagesFromTemplate, pc *pagemeta.PageConfig) error {
+				HandlePage: func(pt *pagesfromdata.PagesFromTemplate, pe *pagemeta.PageConfigEarly) error {
+					defer herrors.Recover()
+
 					s := pt.Site.(*Site)
-					if err := pc.CompileForPagesFromDataPre(pt.GoTmplFi.Meta().PathInfo.Base(), m.s.Log, s.conf.MediaTypes.Config); err != nil {
+
+					if err := pe.CompileForPagesFromDataPre(pt.GoTmplFi.Meta().PathInfo.Base(), m.s.Log, s.conf.MediaTypes.Config); err != nil {
 						return err
 					}
 
-					ps, pi, err := h.newPage(
-						&pageMeta{
-							f: f,
-							s: s,
-							pageMetaParams: &pageMetaParams{
-								pageConfig: pc,
-							},
-						},
-					)
+					ps, err := s.h.newPageMetaSourceForContentAdapter(fi, s.siteVector, pe)
 					if err != nil {
 						return err
 					}
@@ -378,7 +663,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 						return nil
 					}
 
-					u, n, replaced := s.pageMap.insertPageWithLock(pi.Base(), ps)
+					u, n, replaced := s.pageMap.insertPageMetaSourceWithLock(ps)
 
 					if h.isRebuild() {
 						if replaced {
@@ -406,16 +691,23 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 					return nil
 				},
 				HandleResource: func(pt *pagesfromdata.PagesFromTemplate, rc *pagemeta.ResourceConfig) error {
+					// TODO1 we need to somehow take the current Site into account here, not sure how.
 					s := pt.Site.(*Site)
 					if err := rc.Compile(
 						pt.GoTmplFi.Meta().PathInfo.Base(),
-						s.Conf.PathParser(),
+						pt.GoTmplFi,
+						s.Conf,
 						s.conf.MediaTypes.Config,
 					); err != nil {
 						return err
 					}
 
-					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, langIndex: s.languagei}
+					// TODO1 dims vs ResourceConfig and file. Make this behave like page front matter.
+					// Also check the other place where resources are added.
+					// Assign this resource to the first site found. It will be lazily copied to the other sites
+					// when needed.
+					siteVector := rc.SitesMatrix.FirstVector()
+					rs := &resourceSource{path: rc.PathInfo, rc: rc, opener: nil, fi: pt.GoTmplFi, sv: siteVector}
 
 					_, n, replaced := s.pageMap.insertResourceWithLock(rc.PathInfo.Base(), rs)
 
@@ -444,18 +736,23 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 	}
 	handleBuildInfo(s, bi)
 
-	if !rebuild && bi.EnableAllLanguages {
+	if !rebuild && (bi.EnableAllLanguages || bi.EnableAllDimensions) {
 		// Clone and insert the adapter for the other sites.
-		for _, ss := range s.h.Sites {
-			if s == ss {
-				continue
+		iter := h.allSites()
+		if bi.EnableAllLanguages {
+			skip := func(ss *Site) bool {
+				return s == ss
 			}
+			iter = h.allSiteLanguages(skip)
+		}
 
+		for ss := range iter {
 			clone := contentAdapter.CloneForSite(ss)
 
 			// Make sure it gets executed for the first time.
 			bi, err := clone.Execute(context.Background())
 			if err != nil {
+
 				addErr = err
 				return
 			}
