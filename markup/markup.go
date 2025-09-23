@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/markup/goldmark"
 
 	"github.com/gohugoio/hugo/markup/org"
+	"github.com/gohugoio/hugo/markup/plaintext"
 
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/converter"
@@ -80,6 +81,9 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 		return nil, err
 	}
 	if err := add(org.Provider, contentTypes.EmacsOrgMode.SubType, contentTypes.EmacsOrgMode.Suffixes()...); err != nil {
+		return nil, err
+	}
+	if err := add(plaintext.Provider, contentTypes.PlainText.SubType, contentTypes.PlainText.Suffixes()...); err != nil {
 		return nil, err
 	}
 
