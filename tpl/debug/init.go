@@ -40,6 +40,14 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.List,
+			nil,
+			[][2]string{
+				{`{{ $s := dict "name" "Hugo" "type" "SSG" }}
+{{ debug.List $s }}`, `[name type]`},
+			},
+		)
+
 		return ns
 	}
 
