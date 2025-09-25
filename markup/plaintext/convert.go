@@ -2,8 +2,6 @@
 package plaintext
 
 import (
-	"html"
-
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/markup/converter"
 )
@@ -21,13 +19,9 @@ func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) 
 
 type plainConverter struct{}
 
-// Convert returns the input content HTML-escaped and wrapped in a <pre> tag
-// to preserve whitespace and line breaks. No additional markup processing
-// is performed.
+// Convert with no additional markup processing
 func (c *plainConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
-	escaped := html.EscapeString(string(ctx.Src))
-	out := []byte("<pre>" + escaped + "</pre>")
-	return converter.Bytes(out), nil
+	return converter.Bytes(ctx.Src), nil
 }
 
 func (c *plainConverter) Supports(feature identity.Identity) bool {
