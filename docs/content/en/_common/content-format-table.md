@@ -10,4 +10,5 @@ Emacs Org Mode|`text/org`|`org`|`org`
 AsciiDoc|`text/asciidoc`|`asciidoc`|`ad`, `adoc`, `asciidoc`
 Pandoc|`text/pandoc`|`pandoc`|`pandoc`, `pdc`
 reStructuredText|`text/rst`|`rst`|`rst`
+Plain Text|`text/plain`|`txt`|`txt`
 <!-- do not remove this comment -->

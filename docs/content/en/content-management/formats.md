@@ -121,6 +121,13 @@ Hugo passes these CLI flags when calling the rst2html executable:
 [Docutils]: https://docutils.sourceforge.io/
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
 
+### Plain Text
+
+Create your content in plain text preceded by front matter.
+
+Plain text is the simplest content format allowing for raw output / passthrough of the input content without further processing.
+
+
 ## Classification
 
 {{% include "/_common/content-format-table.md" %}}
