@@ -110,7 +110,7 @@ In the example above:
 
 Hugo renders the above to:
 
-```html
+```html {trim=false}
   
   
     <h2>my page title</h2>

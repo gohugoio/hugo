@@ -268,6 +268,18 @@ To wrap the code block within an initially-opened `details` element using a non-
 ```
 ````
 
+Whitespace trimming is enabled by default. To override this behavior and preserve leading and trailing spaces:
+
+````text
+```go-html-template {trim=false}
+
+{{ if eq $foo "bar" }}
+  {{ print "foo is bar" }}
+{{ end }}
+
+```
+````
+
 ### Shortcode calls
 
 Use this syntax :
