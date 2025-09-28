@@ -15,6 +15,7 @@ package math
 
 import (
 	"context"
+	"runtime"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
@@ -23,6 +24,13 @@ import (
 const name = "math"
 
 func init() {
+	mathAtan1 := "0.7853981633974483"
+	mathTan1 := "1.557407724654902"
+	if runtime.GOARCH == "s390x" {
+		mathAtan1 = "0.7853981633974484"
+		mathTan1 = "1.5574077246549018"
+	}
+
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
@@ -62,7 +70,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Atan,
 			nil,
 			[][2]string{
-				{"{{ math.Atan 1 }}", "0.7853981633974483"},
+				{"{{ math.Atan 1 }}", mathAtan1},
 			},
 		)
 
@@ -202,7 +210,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Tan,
 			nil,
 			[][2]string{
-				{"{{ math.Tan 1 }}", "1.557407724654902"},
+				{"{{ math.Tan 1 }}", mathTan1},
 			},
 		)
 
