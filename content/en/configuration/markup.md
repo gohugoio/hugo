@@ -94,6 +94,22 @@ enable = true
 
 With this configuration, to format text as deleted, wrap it with double-tildes.
 
+#### Footnote
+
+Enabled by default, the Footnote extension enables inclusion of footnotes in Markdown.
+
+enable
+: {{< new-in 0.151.0 />}}
+: (`bool`) Whether to enable the Footnotes extension. Default is `true`.
+
+backlinkHTML
+: {{< new-in 0.151.0 />}}
+: (`string`) The HTML to be displayed at the end of a footnote that links the user back to the corresponding reference in the main text. The default is &#x21a9;&#xfe0e; (a return arrow symbol).
+
+enableAutoIDPrefix
+: {{< new-in 0.151.0 />}}
+: (`bool`) Whether to prependsa unique prefix to footnote IDs, preventing clashes when multiple documents are rendered together. This prefix is unique to each logical path, which means that the prefix is not unique across content dimensions such as language. Default is `false`.
+
 #### Passthrough
 
 {{< new-in 0.122.0 />}}

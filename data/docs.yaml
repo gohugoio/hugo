@@ -1077,9 +1077,11 @@ config:
         - '**'
       high: 0s
       low: 0s
+    respectCacheControlNoStoreInRequest: true
+    respectCacheControlNoStoreInResponse: false
   archeTypeDir: archetypes
   assetDir: assets
-  author: null
+  author: {}
   baseURL: ""
   build:
     buildStats:
@@ -1238,7 +1240,10 @@ config:
             enable: false
           superscript:
             enable: false
-        footnote: true
+        footnote:
+          backlinkHTML: '&#x21a9;&#xfe0e;'
+          enable: true
+          enableAutoIDPrefix: false
         linkify: true
         linkifyProtocol: https
         passthrough:
@@ -1908,7 +1913,7 @@ config:
       - (?i)GET|POST
       urls:
       - .*
-  segments: null
+  segments: {}
   server:
     headers: null
     redirects:
@@ -1963,7 +1968,7 @@ config:
   timeout: 60s
   title: ""
   titleCaseStyle: AP
-  uglyURLs: null
+  uglyURLs: {}
   workingDir: ""
 config_helpers:
   mergeStrategy:
