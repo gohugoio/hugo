@@ -43,6 +43,7 @@ var Default = Config{
 		Footnote: Footnote{
 			Enable:             true,
 			EnableAutoIDPrefix: false,
+			BacklinkHTML:       "&#x21a9;&#xfe0e;",
 		},
 		DefinitionList:  true,
 		Table:           true,
@@ -173,6 +174,7 @@ type Extensions struct {
 type Footnote struct {
 	Enable             bool
 	EnableAutoIDPrefix bool
+	BacklinkHTML       string
 }
 
 // Typographer holds typographer configuration.

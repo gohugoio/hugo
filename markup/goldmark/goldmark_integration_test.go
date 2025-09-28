@@ -971,6 +971,7 @@ disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 [markup.goldmark.extensions.footnote]
 enable = false
 enableAutoIDPrefix = false
+TBD = 'back'
 -- layouts/all.html --
 {{ .Content }}
 -- content/p1.md --
@@ -1000,6 +1001,8 @@ foo[^1] and bar[^2]
 {{ end }}
 `
 
+	// test enableAutoIDPrefix
+
 	want := "<p>foo[^1] and bar[^2]</p>\n<p>[^1]: footnote one\n[^2]: footnote two</p>"
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/p1/index.html", want)
@@ -1028,5 +1031,13 @@ foo[^1] and bar[^2]
 	)
 	b.AssertFileContent("public/p4/index.html",
 		"<p>foo<sup id=\"ha35b794ad6e8626cfnref:1\"><a href=\"#ha35b794ad6e8626cfn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"ha35b794ad6e8626cfnref:2\"><a href=\"#ha35b794ad6e8626cfn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"ha35b794ad6e8626cfn:1\">\n<p>footnote one&#160;<a href=\"#ha35b794ad6e8626cfnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"ha35b794ad6e8626cfn:2\">\n<p>footnote two&#160;<a href=\"#ha35b794ad6e8626cfnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+
+	// test backlinkHTML
+
+	files = strings.ReplaceAll(files, "TBD", "backlinkHTML")
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n</ol>\n</div>",
 	)
 }

@@ -1239,6 +1239,7 @@ config:
           superscript:
             enable: false
         footnote:
+          backlinkHTML: '&#x21a9;&#xfe0e;'
           enable: true
           enableAutoIDPrefix: false
         linkify: true
