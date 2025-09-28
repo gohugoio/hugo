@@ -177,14 +177,17 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	}
 
 	if cfg.Extensions.Footnote.Enable {
+		opts := []extension.FootnoteOption{}
+		opts = append(opts, extension.WithFootnoteBacklinkHTML(cfg.Extensions.Footnote.BacklinkHTML))
 		if cfg.Extensions.Footnote.EnableAutoIDPrefix {
-			extensions = append(extensions, extension.NewFootnote(extension.WithFootnoteIDPrefixFunction(func(n ast.Node) []byte {
-				documentID := n.OwnerDocument().Meta()["documentID"].(string)
-				return []byte("h" + documentID)
-			})))
-		} else {
-			extensions = append(extensions, extension.Footnote)
+			opts = append(opts,
+				extension.WithFootnoteIDPrefixFunction(func(n ast.Node) []byte {
+					documentID := n.OwnerDocument().Meta()["documentID"].(string)
+					return []byte("h" + documentID)
+				}))
 		}
+		f := extension.NewFootnote(opts...)
+		extensions = append(extensions, f)
 	}
 
 	if cfg.Extensions.CJK.Enable {
