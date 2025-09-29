@@ -37,7 +37,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20230805085216-e63c13218d0e
 	github.com/gohugoio/hashstructure v0.5.0
-	github.com/gohugoio/httpcache v0.7.0
+	github.com/gohugoio/httpcache v0.8.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.5.0
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.1
 	github.com/gohugoio/locales v0.14.0

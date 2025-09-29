@@ -111,6 +111,19 @@ func New(rs *resources.Spec) *Client {
 				ShouldCache: func(req *http.Request, resp *http.Response, key string) bool {
 					return shouldCache(resp.StatusCode)
 				},
+				CanStore: func(reqCacheControl, respCacheControl httpcache.CacheControl) (canStore bool) {
+					if httpCacheConfig.Base.RespectCacheControlNoStoreInResponse {
+						if _, ok := respCacheControl["no-store"]; ok {
+							return false
+						}
+					}
+					if httpCacheConfig.Base.RespectCacheControlNoStoreInRequest {
+						if _, ok := reqCacheControl["no-store"]; ok {
+							return false
+						}
+					}
+					return true
+				},
 				MarkCachedResponses: true,
 				EnableETagPair:      true,
 				Transport: &transport{
