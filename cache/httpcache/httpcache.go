@@ -25,6 +25,8 @@ import (
 
 // DefaultConfig holds the default configuration for the HTTP cache.
 var DefaultConfig = Config{
+	RespectCacheControlNoStoreInRequest:  true,
+	RespectCacheControlNoStoreInResponse: false,
 	Cache: Cache{
 		For: GlobMatcher{
 			Excludes: []string{"**"},
@@ -42,7 +44,13 @@ var DefaultConfig = Config{
 
 // Config holds the configuration for the HTTP cache.
 type Config struct {
-	// Configures the HTTP cache behavior (RFC 9111).
+	// When enabled and there's a Cache-Control: no-store directive in the request, response will never be stored in disk cache.
+	RespectCacheControlNoStoreInRequest bool
+
+	// When enabled and there's a Cache-Control: no-store directive in the response, response will never be stored in disk cache.
+	RespectCacheControlNoStoreInResponse bool
+
+	// Enables HTTP cache behavior (RFC 9111) for these resources.
 	// When this is not enabled for a resource, Hugo will go straight to the file cache.
 	Cache Cache
 
@@ -57,7 +65,9 @@ type Cache struct {
 }
 
 func (c *Config) Compile() (ConfigCompiled, error) {
-	var cc ConfigCompiled
+	cc := ConfigCompiled{
+		Base: *c,
+	}
 
 	p, err := c.Cache.For.CompilePredicate()
 	if err != nil {
@@ -127,6 +137,7 @@ func (gm GlobMatcher) IsZero() bool {
 }
 
 type ConfigCompiled struct {
+	Base        Config
 	For         predicate.P[string]
 	PollConfigs []PollConfigCompiled
 }
