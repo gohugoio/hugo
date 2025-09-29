@@ -86,6 +86,18 @@ func IsSlice(v any) bool {
 
 var zeroType = reflect.TypeOf((*types.Zeroer)(nil)).Elem()
 
+var isZeroCache sync.Map
+
+func implementsIsZero(tp reflect.Type) bool {
+	v, ok := isZeroCache.Load(tp)
+	if ok {
+		return v.(bool)
+	}
+	implements := tp.Implements(zeroType)
+	isZeroCache.Store(tp, implements)
+	return implements
+}
+
 // IsTruthfulValue returns whether the given value has a meaningful truth value.
 // This is based on template.IsTrue in Go's stdlib, but also considers
 // IsZero and any interface value will be unwrapped before it's considered
@@ -105,7 +117,7 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 		return
 	}
 
-	if val.Type().Implements(zeroType) {
+	if implementsIsZero(val.Type()) {
 		return !val.Interface().(types.Zeroer).IsZero()
 	}
 
