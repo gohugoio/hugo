@@ -106,14 +106,26 @@ func BenchmarkIsContextType(b *testing.B) {
 	})
 }
 
-func BenchmarkIsTruthFul(b *testing.B) {
-	v := reflect.ValueOf("Hugo")
+func BenchmarkIsTruthFulValue(b *testing.B) {
+	var (
+		stringHugo  = reflect.ValueOf("Hugo")
+		stringEmpty = reflect.ValueOf("")
+		zero        = reflect.ValueOf(time.Time{})
+		timeNow     = reflect.ValueOf(time.Now())
+		boolTrue    = reflect.ValueOf(true)
+		boolFalse   = reflect.ValueOf(false)
+		nilPointer  = reflect.ValueOf((*zeroStruct)(nil))
+	)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if !IsTruthfulValue(v) {
-			b.Fatal("not truthful")
-		}
+		IsTruthfulValue(stringHugo)
+		IsTruthfulValue(stringEmpty)
+		IsTruthfulValue(zero)
+		IsTruthfulValue(timeNow)
+		IsTruthfulValue(boolTrue)
+		IsTruthfulValue(boolFalse)
+		IsTruthfulValue(nilPointer)
 	}
 }
 
