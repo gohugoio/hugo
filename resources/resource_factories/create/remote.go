@@ -220,6 +220,8 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 		if res.StatusCode == http.StatusNotFound {
 			// Not found. This matches how lookups for local resources work.
+			// To cache this, we need to make sure the body is read.
+			io.Copy(io.Discard, res.Body)
 			return nil, nil
 		}
 
