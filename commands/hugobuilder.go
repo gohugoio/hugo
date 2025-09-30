@@ -27,6 +27,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/bep/debounce"
 	"github.com/bep/simplecobra"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
@@ -513,6 +514,14 @@ func (c *hugoBuilder) doWithPublishDirs(f func(sourceFs *filesystems.SourceFiles
 	}
 
 	return langCount, nil
+}
+
+func (c *hugoBuilder) progressIntermediate() {
+	terminal.ReportProgress(c.r.StdOut, terminal.ProgressIntermediate, 0)
+}
+
+func (c *hugoBuilder) progressHidden() {
+	terminal.ReportProgress(c.r.StdOut, terminal.ProgressHidden, 0)
 }
 
 func (c *hugoBuilder) fullBuild(noBuildLock bool) error {
@@ -1027,6 +1036,17 @@ func (c *hugoBuilder) hugoTry() *hugolib.HugoSites {
 }
 
 func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error {
+	if terminal.PrintANSIColors(os.Stdout) {
+		defer c.progressHidden()
+		// If the configuration takes a while to load, we want to show some progress.
+		// This is typically loading of external modules.
+		d := debounce.New(500 * time.Millisecond)
+		d(func() {
+			c.progressIntermediate()
+		})
+		defer d(func() {})
+	}
+
 	cfg := config.New()
 	cfg.Set("renderToMemory", c.r.renderToMemory)
 	watch := c.r.buildWatch || (c.s != nil && c.s.serverWatch)

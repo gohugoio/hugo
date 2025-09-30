@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/debounce"
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
@@ -45,6 +46,7 @@ import (
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
+	"github.com/gohugoio/hugo/common/terminal"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/siteidentities"
@@ -58,9 +60,25 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+	if !h.isRebuild() && terminal.PrintANSIColors(os.Stdout) {
+		// Don't show progress for fast builds.
+		d := debounce.New(250 * time.Millisecond)
+		d(func() {
+			h.buildProgress.Start()
+			h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
+				// We don't know how many files to process below, so use the intermediate state as the first progress.
+				return terminal.ProgressIntermediate, 1.0
+			})
+		})
+		defer d(func() {})
+	}
+
 	infol := h.Log.InfoCommand("build")
 	defer loggers.TimeTrackf(infol, time.Now(), nil, "")
 	defer func() {
+		h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
+			return terminal.ProgressHidden, 1.0
+		})
 		h.buildCounter.Add(1)
 	}()
 
@@ -148,10 +166,15 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			if err := h.process(ctx, infol, conf, init, events...); err != nil {
 				return fmt.Errorf("process: %w", err)
 			}
-
+			h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
+				return terminal.ProgressNormal, 0.2
+			})
 			if err := h.assemble(ctx, infol, conf); err != nil {
 				return fmt.Errorf("assemble: %w", err)
 			}
+			h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
+				return terminal.ProgressNormal, 0.25
+			})
 
 			return nil
 		}

@@ -118,7 +118,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		logFilesProcessed(true)
 	}()
 
-	c.g = rungroup.Run[hugofs.FileMetaInfo](c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
+	c.g = rungroup.Run(c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
 		NumWorkers: numWorkers,
 		Handle: func(ctx context.Context, fi hugofs.FileMetaInfo) error {
 			numPages, numResources, err := c.m.AddFi(fi, c.buildConfig)
