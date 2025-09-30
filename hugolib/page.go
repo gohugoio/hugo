@@ -113,6 +113,17 @@ type pageState struct {
 	dependencyManager identity.Manager
 }
 
+// This is not accurate and only used for progress reporting.
+// We can do better, but this will do for now.
+func (p *pageState) hasRenderableOutput() bool {
+	for _, po := range p.pageOutputs {
+		if po.render {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *pageState) incrPageOutputTemplateVariation() {
 	p.pageOutputTemplateVariationsState.Add(1)
 }

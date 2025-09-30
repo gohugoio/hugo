@@ -1760,6 +1760,13 @@ func (sa *sitePagesAssembler) assembleResources() error {
 				duplicateResourceFiles = ps.s.ContentSpec.Converters.GetMarkupConfig().Goldmark.DuplicateResourceFiles
 			}
 
+			if !sa.h.isRebuild() {
+				if ps.hasRenderableOutput() {
+					// For multi output pages this will not be complete, but will have to do for now.
+					sa.h.buildProgress.numPagesToRender.Add(1)
+				}
+			}
+
 			duplicateResourceFiles = duplicateResourceFiles || ps.s.Conf.IsMultihost()
 
 			err := sa.pageMap.forEachResourceInPage(

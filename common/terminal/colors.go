@@ -16,6 +16,7 @@ package terminal
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -71,4 +72,28 @@ func doublePercent(str string) string {
 
 func singlePercent(str string) string {
 	return strings.Replace(str, "%%", "%", -1)
+}
+
+type ProgressState int
+
+const (
+	ProgressHidden ProgressState = iota
+	ProgressNormal
+	ProgressError
+	ProgressIntermediate
+	ProgressWarning
+)
+
+// ReportProgress writes OSC 9;4 sequence to w.
+func ReportProgress(w io.Writer, state ProgressState, progress float64) {
+	if progress < 0 {
+		progress = 0.0
+	}
+	if progress > 1 {
+		progress = 1.0
+	}
+
+	pi := int(progress * 100)
+
+	fmt.Fprintf(w, "\033]9;4;%d;%d\007", state, pi)
 }

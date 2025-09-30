@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/cache/dynacache"
@@ -33,9 +34,11 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/para"
+	"github.com/gohugoio/hugo/common/terminal"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -98,10 +101,27 @@ type HugoSites struct {
 	numWorkersSites int
 	numWorkers      int
 
+	buildProgress progressReporter
 	*fatalErrorHandler
 	*buildCounters
 	// Tracks invocations of the Build method.
 	buildCounter atomic.Uint64
+}
+
+type progressReporter struct {
+	mu                  sync.Mutex
+	t                   time.Time
+	progress            float64
+	queue               []func(*progressReporter) (state terminal.ProgressState, progress float64)
+	state               terminal.ProgressState
+	renderProgressStart float64
+	numPagesToRender    atomic.Uint64
+}
+
+func (p *progressReporter) Start() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.t = htime.Now()
 }
 
 // ShouldSkipFileChangeEvent allows skipping filesystem event early before
@@ -252,6 +272,52 @@ func (h *HugoSites) codeownersForPage(p page.Page) ([]string, error) {
 	}
 
 	return h.codeownerInfo.forPage(p), nil
+}
+
+func (h *HugoSites) reportProgress(f func(*progressReporter) (state terminal.ProgressState, progress float64)) {
+	h.buildProgress.mu.Lock()
+	defer h.buildProgress.mu.Unlock()
+
+	if h.buildProgress.t.IsZero() {
+		// Not started yet, queue it up and return.
+		h.buildProgress.queue = append(h.buildProgress.queue, f)
+		return
+	}
+
+	handleOne := func(ff func(*progressReporter) (state terminal.ProgressState, progress float64)) {
+		state, progress := ff(&h.buildProgress)
+
+		if h.buildProgress.progress > 0 && h.buildProgress.state == state && progress <= h.buildProgress.progress {
+			// Only report progress forward.
+			return
+		}
+
+		h.buildProgress.state = state
+		h.buildProgress.progress = progress
+		terminal.ReportProgress(h.Log.StdOut(), state, h.buildProgress.progress)
+	}
+
+	// Drain queue first.
+	for _, ff := range h.buildProgress.queue {
+		handleOne(ff)
+	}
+	h.buildProgress.queue = nil
+
+	handleOne(f)
+}
+
+func (h *HugoSites) onPageRender() {
+	pagesRendered := h.buildCounters.pageRenderCounter.Add(1)
+	if pagesRendered <= 100 || pagesRendered%10 == 0 {
+		h.reportProgress(func(pr *progressReporter) (terminal.ProgressState, float64) {
+			if pr.renderProgressStart == 0.0 && pr.state == terminal.ProgressNormal {
+				pr.renderProgressStart = h.buildProgress.progress
+			}
+			numPagesToRender := pr.numPagesToRender.Load()
+			pagesProgress := pr.renderProgressStart + float64(pagesRendered)/float64(numPagesToRender)*(1.0-pr.renderProgressStart)
+			return terminal.ProgressNormal, pagesProgress
+		})
+	}
 }
 
 func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {

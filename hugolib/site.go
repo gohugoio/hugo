@@ -1440,7 +1440,7 @@ const (
 )
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, d any, templ *tplimpl.TemplInfo) error {
-	s.h.buildCounters.pageRenderCounter.Add(1)
+	s.h.onPageRender()
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
