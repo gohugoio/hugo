@@ -535,3 +535,59 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b, err = hugolib.TestE(t, f)
 	b.Assert(err.Error(), qt.Contains, "invalid strict mode")
 }
+
+func TestHTMLToMarkdown(t *testing.T) {
+	t.Parallel()
+
+	markdown := `
+# Heading
+
+Some **bold** text.
+
+A [link](https://example.com).
+
+An image:
+
+![alt text](https://example.com/image.jpg "Image Title")
+
+A list:
+
+- Item 1
+- Item 2
+  - Item 2a
+  - Item 2b
+
+A table:
+
+| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |
+
+A blockquote:
+
+> This is a quote.
+	`
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+-- layouts/all.html --
+All html.
+-- layouts/all.markdown --
+{{ .Content | transform.HTMLToMarkdown | safeHTML }}
+-- content/p1.md --
+---
+title: p1
+outputs: ["html", "markdown"]
+---
+`
+
+	files += markdown
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", `All html.`)
+
+	// There are some white space differences, so we cannot do an exact match.
+	b.AssertFileContent("public/p1/index.md", markdown)
+}

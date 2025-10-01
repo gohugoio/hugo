@@ -27,6 +27,11 @@ import (
 	"strings"
 	"sync/atomic"
 
+	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2/converter"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/base"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/commonmark"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/table"
+
 	bp "github.com/gohugoio/hugo/bufferpool"
 
 	"github.com/bep/goportabletext"
@@ -323,4 +328,33 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 // For internal use.
 func (ns *Namespace) Reset() {
 	ns.cacheUnmarshal.Clear()
+}
+
+// This was added in Hugo v0.151.0 and should be considered experimental for now.
+// We need to test this out in the wild for a while before committing to this API,
+// and there will eventually be more options here.
+func (ns *Namespace) HTMLToMarkdown(ctx context.Context, args ...any) (string, error) {
+	if len(args) < 1 {
+		return "", errors.New("must provide at least one argument")
+	}
+	input, err := cast.ToStringE(args[0])
+	if err != nil {
+		return "", err
+	}
+
+	plugins := []htmltomarkdown.Plugin{
+		base.NewBasePlugin(),
+		commonmark.NewCommonmarkPlugin(),
+		table.NewTablePlugin(),
+	}
+
+	conv := htmltomarkdown.NewConverter(
+		htmltomarkdown.WithPlugins(plugins...),
+	)
+
+	markdown, err := conv.ConvertString(input)
+	if err != nil {
+		return "", err
+	}
+	return markdown, nil
 }
