@@ -64,8 +64,8 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		// Don't show progress for fast builds.
 		d := debounce.New(250 * time.Millisecond)
 		d(func() {
-			h.buildProgress.Start()
-			h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
+			h.progressReporter.Start()
+			h.reportProgress(func() (state terminal.ProgressState, progress float64) {
 				// We don't know how many files to process below, so use the intermediate state as the first progress.
 				return terminal.ProgressIntermediate, 1.0
 			})
@@ -76,7 +76,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	infol := h.Log.InfoCommand("build")
 	defer loggers.TimeTrackf(infol, time.Now(), nil, "")
 	defer func() {
-		h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
+		h.reportProgress(func() (state terminal.ProgressState, progress float64) {
 			return terminal.ProgressHidden, 1.0
 		})
 		h.buildCounter.Add(1)
@@ -166,14 +166,14 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			if err := h.process(ctx, infol, conf, init, events...); err != nil {
 				return fmt.Errorf("process: %w", err)
 			}
-			h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
-				return terminal.ProgressNormal, 0.2
+			h.reportProgress(func() (state terminal.ProgressState, progress float64) {
+				return terminal.ProgressNormal, 0.15
 			})
 			if err := h.assemble(ctx, infol, conf); err != nil {
 				return fmt.Errorf("assemble: %w", err)
 			}
-			h.reportProgress(func(*progressReporter) (state terminal.ProgressState, progress float64) {
-				return terminal.ProgressNormal, 0.25
+			h.reportProgress(func() (state terminal.ProgressState, progress float64) {
+				return terminal.ProgressNormal, 0.20
 			})
 
 			return nil

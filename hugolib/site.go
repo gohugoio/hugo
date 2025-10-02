@@ -360,6 +360,7 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 			data:    lazy.New(),
 			gitInfo: lazy.New(),
 		},
+		progressReporter: &progressReporter{},
 	}
 
 	// Assemble dependencies to be used in hugo.Deps.

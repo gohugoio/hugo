@@ -101,7 +101,7 @@ type HugoSites struct {
 	numWorkersSites int
 	numWorkers      int
 
-	buildProgress progressReporter
+	*progressReporter
 	*fatalErrorHandler
 	*buildCounters
 	// Tracks invocations of the Build method.
@@ -112,7 +112,7 @@ type progressReporter struct {
 	mu                  sync.Mutex
 	t                   time.Time
 	progress            float64
-	queue               []func(*progressReporter) (state terminal.ProgressState, progress float64)
+	queue               []func() (state terminal.ProgressState, progress float64)
 	state               terminal.ProgressState
 	renderProgressStart float64
 	numPagesToRender    atomic.Uint64
@@ -274,46 +274,58 @@ func (h *HugoSites) codeownersForPage(p page.Page) ([]string, error) {
 	return h.codeownerInfo.forPage(p), nil
 }
 
-func (h *HugoSites) reportProgress(f func(*progressReporter) (state terminal.ProgressState, progress float64)) {
-	h.buildProgress.mu.Lock()
-	defer h.buildProgress.mu.Unlock()
+func (h *HugoSites) reportProgress(f func() (state terminal.ProgressState, progress float64)) {
+	h.progressReporter.mu.Lock()
+	defer h.progressReporter.mu.Unlock()
 
-	if h.buildProgress.t.IsZero() {
+	if h.progressReporter.t.IsZero() {
 		// Not started yet, queue it up and return.
-		h.buildProgress.queue = append(h.buildProgress.queue, f)
+		h.progressReporter.queue = append(h.progressReporter.queue, f)
 		return
 	}
 
-	handleOne := func(ff func(*progressReporter) (state terminal.ProgressState, progress float64)) {
-		state, progress := ff(&h.buildProgress)
+	handleOne := func(skip func(state terminal.ProgressState, progress float64) bool, handle func() (state terminal.ProgressState, progress float64)) {
+		state, progress := handle()
+		if skip != nil && skip(state, progress) {
+			return
+		}
 
-		if h.buildProgress.progress > 0 && h.buildProgress.state == state && progress <= h.buildProgress.progress {
+		if h.progressReporter.progress > 0 && h.progressReporter.state == state && progress <= h.progressReporter.progress {
 			// Only report progress forward.
 			return
 		}
 
-		h.buildProgress.state = state
-		h.buildProgress.progress = progress
-		terminal.ReportProgress(h.Log.StdOut(), state, h.buildProgress.progress)
+		h.progressReporter.state = state
+		h.progressReporter.progress = progress
+		terminal.ReportProgress(h.Log.StdOut(), state, h.progressReporter.progress)
 	}
 
 	// Drain queue first.
-	for _, ff := range h.buildProgress.queue {
-		handleOne(ff)
+	skip := func(state terminal.ProgressState, progress float64) bool {
+		// Skip qued up intermediate states if we already are in normal state.
+		return h.progressReporter.state == terminal.ProgressNormal && state == terminal.ProgressIntermediate
 	}
-	h.buildProgress.queue = nil
+	for _, ff := range h.progressReporter.queue {
+		handleOne(skip, ff)
+	}
+	h.progressReporter.queue = nil
 
-	handleOne(f)
+	handleOne(nil, f)
 }
 
 func (h *HugoSites) onPageRender() {
 	pagesRendered := h.buildCounters.pageRenderCounter.Add(1)
-	if pagesRendered <= 100 || pagesRendered%10 == 0 {
-		h.reportProgress(func(pr *progressReporter) (terminal.ProgressState, float64) {
+	numPagesToRender := h.progressReporter.numPagesToRender.Load()
+	n := numPagesToRender / 30
+	if n == 0 {
+		n = 1
+	}
+	if pagesRendered%n == 0 {
+		h.reportProgress(func() (terminal.ProgressState, float64) {
+			pr := h.progressReporter
 			if pr.renderProgressStart == 0.0 && pr.state == terminal.ProgressNormal {
-				pr.renderProgressStart = h.buildProgress.progress
+				pr.renderProgressStart = pr.progress
 			}
-			numPagesToRender := pr.numPagesToRender.Load()
 			pagesProgress := pr.renderProgressStart + float64(pagesRendered)/float64(numPagesToRender)*(1.0-pr.renderProgressStart)
 			return terminal.ProgressNormal, pagesProgress
 		})
