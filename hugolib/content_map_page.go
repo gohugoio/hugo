@@ -1763,7 +1763,7 @@ func (sa *sitePagesAssembler) assembleResources() error {
 			if !sa.h.isRebuild() {
 				if ps.hasRenderableOutput() {
 					// For multi output pages this will not be complete, but will have to do for now.
-					sa.h.buildProgress.numPagesToRender.Add(1)
+					sa.h.progressReporter.numPagesToRender.Add(1)
 				}
 			}
 
