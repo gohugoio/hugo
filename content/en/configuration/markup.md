@@ -108,7 +108,7 @@ backlinkHTML
 
 enableAutoIDPrefix
 : {{< new-in 0.151.0 />}}
-: (`bool`) Whether to prependsa unique prefix to footnote IDs, preventing clashes when multiple documents are rendered together. This prefix is unique to each logical path, which means that the prefix is not unique across content dimensions such as language. Default is `false`.
+: (`bool`) Whether to prepend a unique prefix to footnote IDs, preventing clashes when multiple documents are rendered together. This prefix is unique to each logical path, which means that the prefix is not unique across content dimensions such as language. Default is `false`.
 
 #### Passthrough
 
