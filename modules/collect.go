@@ -371,6 +371,14 @@ func (c *collector) addAndRecurse(owner *moduleAdapter) error {
 			continue
 		}
 
+		// Validate the combination of module path and version.
+		if moduleImport.Version != "" {
+			err := module.Check(moduleImport.Path, moduleImport.Version)
+			if err != nil {
+				return err
+			}
+		}
+
 		// Prevent cyclic references.
 		if v := c.isPathSeen(moduleImport.Path, owner); v != nil && v != owner {
 			continue
