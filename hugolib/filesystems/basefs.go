@@ -97,6 +97,10 @@ func (f *fakeLockfileMutex) Lock() (func(), error) {
 	return func() { f.mu.Unlock() }, nil
 }
 
+func (b *BaseFs) OverlayMountsFs() (*overlayfs.OverlayFs) {
+	return b.theBigFs.overlayMounts
+}
+
 // Tries to acquire a build lock.
 func (b *BaseFs) LockBuild() (unlock func(), err error) {
 	return b.buildMu.Lock()
