@@ -19,8 +19,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/mitchellh/mapstructure"
@@ -127,21 +131,33 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 			}
 
 			var lang string
+			var sites sitesmatrix.Sites
+
 			if perLang && !dropLang {
-				lang = cfg.Language().Lang
+				l := cfg.Language().(*langs.Language)
+				lang = l.Lang
+				sites = sitesmatrix.Sites{
+					Matrix: sitesmatrix.StringSlices{
+						Languages: []string{l.Lang},
+					},
+				}
 			}
 
 			// Static mounts are a little special.
 			if component == files.ComponentFolderStatic {
 				staticDirs := cfg.StaticDirs()
 				for _, dir := range staticDirs {
-					mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+					mounts = append(mounts, Mount{Sites: sites, Source: dir, Target: component})
 				}
 				continue
 			}
 
 			if dir != "" {
-				mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+				mnt := Mount{Lang: lang, Source: dir, Target: component}
+				if err := mnt.init(); err != nil {
+					return fmt.Errorf("failed to init mount %d: %w", i, err)
+				}
+				mounts = append(mounts, mnt)
 			}
 		}
 	}
@@ -152,7 +168,7 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 	seen := make(map[string]bool)
 	var newMounts []Mount
 	for _, m := range moda.mounts {
-		key := m.Source + m.Target + m.Lang
+		key := m.Source + m.Target + m.Lang // TODO1
 		if seen[key] {
 			continue
 		}
@@ -220,6 +236,9 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 		for i, mnt := range c.Mounts {
 			mnt.Source = filepath.Clean(mnt.Source)
 			mnt.Target = filepath.Clean(mnt.Target)
+			if err := mnt.init(); err != nil {
+				return c, fmt.Errorf("failed to init mount %d: %w", i, err)
+			}
 			c.Mounts[i] = mnt
 		}
 
@@ -323,10 +342,10 @@ func (c Config) hasModuleImport() bool {
 // HugoVersion holds Hugo binary version requirements for a module.
 type HugoVersion struct {
 	// The minimum Hugo version that this module works with.
-	Min hugo.VersionString
+	Min version.VersionString
 
 	// The maximum Hugo version that this module works with.
-	Max hugo.VersionString
+	Max version.VersionString
 
 	// Set if the extended version is needed.
 	Extended bool
@@ -406,8 +425,13 @@ type Mount struct {
 	Target string
 
 	// Any file in this mount will be associated with this language.
+	// TODO1. Deprecate this in favour of Sites.
 	Lang string
 
+	// Sites defines which sites this mount applies to.
+	Sites sitesmatrix.Sites
+
+	// TODO1 replace these 2 with a Filter type that can handle both.
 	// Include only files matching the given Glob patterns (string or slice).
 	IncludeFiles any
 
@@ -430,4 +454,21 @@ func (m Mount) Component() string {
 func (m Mount) ComponentAndName() (string, string) {
 	c, n, _ := strings.Cut(m.Target, fileSeparator)
 	return c, n
+}
+
+func (m *Mount) init() error {
+	if m.Lang != "" {
+		// We moved this to a more flixeble setup in Hugo 0.148.0.
+		m.Sites.Matrix.Languages = append(m.Sites.Matrix.Languages, m.Lang)
+	}
+
+	if len(m.Sites.Matrix.Languages) == 0 {
+		if strings.HasPrefix(m.Target, files.ComponentFolderLayouts) || strings.HasPrefix(m.Target, files.ComponentFolderStatic) {
+			m.Sites.Matrix.Languages = []string{"**"} // TODO1 needed?
+		}
+	}
+
+	m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
+
+	return nil
 }

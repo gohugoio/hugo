@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"golang.org/x/text/unicode/norm"
@@ -217,6 +218,82 @@ type IntegrationTestBuilder struct {
 	builderInit sync.Once
 }
 
+type IntegrationTestSiteHelper struct {
+	*qt.C
+	b *IntegrationTestBuilder
+	S *Site
+}
+
+type IntegrationTestPageHelper struct {
+	*qt.C
+	b *IntegrationTestBuilder
+	p *pageState
+}
+
+func (s *IntegrationTestPageHelper) siteIntsToMap(matrix, fallbacks sitesmatrix.VectorStore) map[string]map[string][]string {
+	dconf := s.p.s.Conf.ConfiguredDimensions()
+	intSetsToMap := func(intSets sitesmatrix.VectorStore) map[string][]string {
+		var languages, versions, roles []string
+
+		keys1, keys2, keys3 := intSets.KeysSorted()
+
+		for _, v := range keys1 {
+			languages = append(languages, dconf.ConfiguredLanguages.ResolveName(v))
+		}
+		for _, v := range keys2 {
+			versions = append(versions, dconf.ConfiguredVersions.ResolveName(v))
+		}
+		for _, v := range keys3 {
+			roles = append(roles, dconf.ConfiguredRoles.ResolveName(v))
+		}
+
+		return map[string][]string{
+			"languages": languages,
+			"versions":  versions,
+			"roles":     roles,
+		}
+	}
+
+	return map[string]map[string][]string{
+		"matrix":    intSetsToMap(matrix),
+		"fallbacks": intSetsToMap(fallbacks),
+	}
+}
+
+func (s *IntegrationTestPageHelper) MatrixFromPageConfig() map[string]map[string][]string {
+	pc := s.p.m.pageConfigSource
+	return s.siteIntsToMap(pc.SitesMatrix, pc.SitesFallbacks)
+}
+
+func (s *IntegrationTestPageHelper) MatrixFromFile() map[string]map[string][]string {
+	if s.p.m.f == nil {
+		return nil
+	}
+	m := s.p.m.f.FileInfo().Meta()
+	return s.siteIntsToMap(m.SitesMatrix, m.SitesFallbacks)
+}
+
+func (s *IntegrationTestSiteHelper) PageHelper(path string) *IntegrationTestPageHelper {
+	p, err := s.S.GetPage(path)
+	s.Assert(err, qt.IsNil)
+	s.Assert(p, qt.Not(qt.IsNil), qt.Commentf("Page not found: %s", path))
+	ps, ok := p.(*pageState)
+	s.Assert(ok, qt.IsTrue, qt.Commentf("Expected pageState, got %T", p))
+	return &IntegrationTestPageHelper{
+		C: s.C,
+		b: s.b,
+		p: ps,
+	}
+}
+
+func (s *IntegrationTestSiteHelper) DimensionNames() types.Strings3 {
+	return types.Strings3{
+		s.S.Language().Name(),
+		s.S.Version().Name(),
+		s.S.Role().Name(),
+	}
+}
+
 type lockingBuffer struct {
 	sync.Mutex
 	buf bytes.Buffer
@@ -246,6 +323,26 @@ func (b *lockingBuffer) Write(p []byte) (n int, err error) {
 	n, err = b.buf.Write(p)
 	b.Unlock()
 	return
+}
+
+// SiteHelper returns a helper for the given language, version and role.
+// Note that a blank value for an argument will use the default value for that dimension.
+func (s *IntegrationTestBuilder) SiteHelper(language, version, role string) *IntegrationTestSiteHelper {
+	s.Helper()
+	if s.H == nil {
+		s.Fatal("SiteHelper: no sites available")
+	}
+	v := s.H.Conf.ConfiguredDimensions().ResolveVector(types.Strings3{language, version, role})
+	site, found := s.H.sitesVersionsRolesMap[v]
+	if !found {
+		s.Fatalf("SiteHelper: no site found for vector %v", v)
+	}
+
+	return &IntegrationTestSiteHelper{
+		C: s.C,
+		b: s,
+		S: site,
+	}
 }
 
 // AssertLogContains asserts that the last build log contains the given strings.
@@ -319,7 +416,7 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 	content := strings.TrimSpace(s.FileContent(filename))
 
 	for _, m := range matches {
-		cm := qt.Commentf("File: %s Match %s\nContent:\n%s", filename, m, content)
+		cm := qt.Commentf("File: %s Expect: %s Got: %s", filename, m, content)
 		lines := strings.Split(m, "\n")
 		for _, match := range lines {
 			match = strings.TrimSpace(match)
@@ -456,13 +553,17 @@ func (s *IntegrationTestBuilder) AssertRenderCountPageBetween(from, to int) {
 func (s *IntegrationTestBuilder) Build() *IntegrationTestBuilder {
 	s.Helper()
 	_, err := s.BuildE()
+
+	if err != nil && strings.Contains(err.Error(), "error(s)") {
+		err = fmt.Errorf("%w: %s", err, s.lastBuildLog)
+	}
+
 	if s.Cfg.Verbose || err != nil {
-		fmt.Println(s.lastBuildLog)
 		if s.H != nil && err == nil {
-			for _, s := range s.H.Sites {
+			for s := range s.H.allSites() {
 				m := s.pageMap
 				var buff bytes.Buffer
-				fmt.Fprintf(&buff, "PageMap for site %q\n\n", s.Language().Lang)
+				fmt.Fprintf(&buff, "======= PageMap for site %q  =======\n\n", s.resolveDimensionNames())
 				m.debugPrint("", 999, &buff)
 				fmt.Println(buff.String())
 			}
@@ -693,8 +794,8 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		var w io.Writer
-		if s.Cfg.LogLevel == logg.LevelTrace {
-			w = os.Stdout
+		if s.Cfg.Verbose || s.Cfg.LogLevel == logg.LevelTrace {
+			w = io.MultiWriter(os.Stdout, &s.logBuff)
 		} else {
 			w = &s.logBuff
 		}
@@ -939,7 +1040,7 @@ type IntegrationTestConfig struct {
 	// Note that the CLI for the server does allow for --watch=false, but that is not used in these test.
 	Watching bool
 
-	// Will print the log buffer after the build
+	// Enable verbose logging.
 	Verbose bool
 
 	// The log level to use.

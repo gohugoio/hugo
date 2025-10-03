@@ -16,6 +16,7 @@ package create
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -26,7 +27,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs/glob"
 
 	"github.com/gohugoio/hugo/common/hexec"
-	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -291,9 +291,7 @@ func (b *contentBuilder) applyArcheType(contentFilename string, archetypeFi hugo
 func (b *contentBuilder) mapArcheTypeDir() error {
 	var m archetypeMap
 
-	seen := map[hstrings.Strings2]bool{}
-
-	walkFn := func(path string, fim hugofs.FileMetaInfo) error {
+	walkFn := func(ctx context.Context, path string, fim hugofs.FileMetaInfo) error {
 		if fim.IsDir() {
 			return nil
 		}
@@ -301,15 +299,6 @@ func (b *contentBuilder) mapArcheTypeDir() error {
 		pi := fim.Meta().PathInfo
 
 		if pi.IsContent() {
-			pathLang := hstrings.Strings2{pi.PathBeforeLangAndOutputFormatAndExt(), fim.Meta().Lang}
-			if seen[pathLang] {
-				// Duplicate content file, e.g. page.md and page.html.
-				// In the regular build, we will filter out the duplicates, but
-				// for archetype folders these are ambiguous and we need to
-				// fail.
-				return fmt.Errorf("duplicate content file found in archetype folder: %q; having both e.g. %s.md and %s.html is ambigous", path, pi.BaseNameNoIdentifier(), pi.BaseNameNoIdentifier())
-			}
-			seen[pathLang] = true
 			m.contentFiles = append(m.contentFiles, fim)
 			if !m.siteUsed {
 				var err error
