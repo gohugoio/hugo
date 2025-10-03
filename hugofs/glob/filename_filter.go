@@ -42,9 +42,9 @@ func normalizeFilenameGlobPattern(s string) string {
 
 // NewFilenameFilter creates a new Glob where the Match method will
 // return true if the file should be included.
-// Note that the inclusions will be checked first.
+// Note that the exclusions will be checked first.
 func NewFilenameFilter(inclusions, exclusions []string) (*FilenameFilter, error) {
-	if inclusions == nil && exclusions == nil {
+	if len(inclusions) == 0 && len(exclusions) == 0 {
 		return nil, nil
 	}
 	filter := &FilenameFilter{isWindows: isWindows}
@@ -158,6 +158,12 @@ func (f *FilenameFilter) doMatch(filename string, isDir bool) bool {
 
 	}
 
+	for _, exclusion := range f.exclusions {
+		if exclusion.Match(filename) {
+			return false
+		}
+	}
+
 	for _, inclusion := range f.inclusions {
 		if inclusion.Match(filename) {
 			return true
@@ -169,12 +175,6 @@ func (f *FilenameFilter) doMatch(filename string, isDir bool) bool {
 			if inclusion.Match(filename) {
 				return true
 			}
-		}
-	}
-
-	for _, exclusion := range f.exclusions {
-		if exclusion.Match(filename) {
-			return false
 		}
 	}
 

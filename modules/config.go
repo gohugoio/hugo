@@ -17,10 +17,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/mitchellh/mapstructure"
@@ -127,21 +133,33 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 			}
 
 			var lang string
+			var sites sitesmatrix.Sites
+
 			if perLang && !dropLang {
-				lang = cfg.Language().Lang
+				l := cfg.Language().(*langs.Language)
+				lang = l.Lang
+				sites = sitesmatrix.Sites{
+					Matrix: sitesmatrix.StringSlices{
+						Languages: []string{l.Lang},
+					},
+				}
 			}
 
 			// Static mounts are a little special.
 			if component == files.ComponentFolderStatic {
 				staticDirs := cfg.StaticDirs()
 				for _, dir := range staticDirs {
-					mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+					mounts = append(mounts, Mount{Sites: sites, Source: dir, Target: component})
 				}
 				continue
 			}
 
 			if dir != "" {
-				mounts = append(mounts, Mount{Lang: lang, Source: dir, Target: component})
+				mnt := Mount{Lang: lang, Source: dir, Target: component}
+				if err := mnt.init(); err != nil {
+					return fmt.Errorf("failed to init mount %d: %w", i, err)
+				}
+				mounts = append(mounts, mnt)
 			}
 		}
 	}
@@ -152,7 +170,7 @@ func ApplyProjectConfigDefaults(mod Module, cfgs ...config.AllProvider) error {
 	seen := make(map[string]bool)
 	var newMounts []Mount
 	for _, m := range moda.mounts {
-		key := m.Source + m.Target + m.Lang
+		key := m.Source + m.Target + m.Lang // TODO1
 		if seen[key] {
 			continue
 		}
@@ -220,6 +238,9 @@ func decodeConfig(cfg config.Provider, pathReplacements map[string]string) (Conf
 		for i, mnt := range c.Mounts {
 			mnt.Source = filepath.Clean(mnt.Source)
 			mnt.Target = filepath.Clean(mnt.Target)
+			if err := mnt.init(); err != nil {
+				return c, fmt.Errorf("failed to init mount %d: %w", i, err)
+			}
 			c.Mounts[i] = mnt
 		}
 
@@ -323,10 +344,10 @@ func (c Config) hasModuleImport() bool {
 // HugoVersion holds Hugo binary version requirements for a module.
 type HugoVersion struct {
 	// The minimum Hugo version that this module works with.
-	Min hugo.VersionString
+	Min version.VersionString
 
 	// The maximum Hugo version that this module works with.
-	Max hugo.VersionString
+	Max version.VersionString
 
 	// Set if the extended version is needed.
 	Extended bool
@@ -406,21 +427,104 @@ type Mount struct {
 	Target string
 
 	// Any file in this mount will be associated with this language.
+	// TODO1. Deprecate this in favour of Sites.
 	Lang string
 
+	// Sites defines which sites this mount applies to.
+	Sites sitesmatrix.Sites
+
+	// A slice of Glob patterns (string or slice) to exclude or include in this mount.
+	// To exclude, prefix with "! ".
+	Files []string
+
 	// Include only files matching the given Glob patterns (string or slice).
+	// Deprecated, use Files instead.
 	IncludeFiles any
 
 	// Exclude all files matching the given Glob patterns (string or slice).
+	// Deprecated, use Files instead.
 	ExcludeFiles any
 
 	// Disable watching in watch mode for this mount.
 	DisableWatch bool
 }
 
+func (m Mount) Equal(o Mount) bool {
+	if m.Lang != o.Lang {
+		return false
+	}
+	if m.Source != o.Source {
+		return false
+	}
+	if m.Target != o.Target {
+		return false
+	}
+	if m.DisableWatch != o.DisableWatch {
+		return false
+	}
+
+	if !m.Sites.Equal(o.Sites) {
+		return false
+	}
+
+	incl, hasLegacy := m.FilesToInclude()
+	oincl, ohasLegacy := o.FilesToInclude()
+	if hasLegacy != ohasLegacy || !slices.Equal(incl, oincl) {
+		return false
+	}
+
+	excl, hasLegacy := m.FilesToExclude()
+	oexcl, ohasLegacy := o.FilesToExclude()
+	if hasLegacy != ohasLegacy || !slices.Equal(excl, oexcl) {
+		return false
+	}
+
+	return true
+}
+
 // Used as key to remove duplicates.
 func (m Mount) key() string {
 	return strings.Join([]string{m.Lang, m.Source, m.Target}, "/")
+}
+
+func (m Mount) FilesToExclude() (patterns []string, hasLegacy bool) {
+	var excl []string
+	for _, pattern := range m.Files {
+		pattern = strings.TrimSpace(pattern)
+		if strings.HasPrefix(pattern, "! ") {
+			excl = append(excl, strings.TrimSpace(strings.TrimPrefix(pattern, "! ")))
+		}
+	}
+
+	// Legacy config.
+	for _, pattern := range types.ToStringSlicePreserveString(m.ExcludeFiles) {
+		hasLegacy = true
+		excl = append(excl, strings.TrimSpace(pattern))
+	}
+
+	excl = hstrings.UniqueStringsReuse(excl)
+
+	return excl, hasLegacy
+}
+
+func (m Mount) FilesToInclude() (patterns []string, hasLegacy bool) {
+	var incl []string
+	for _, pattern := range m.Files {
+		pattern = strings.TrimSpace(pattern)
+		if !strings.HasPrefix(pattern, "! ") {
+			incl = append(incl, strings.TrimSpace(pattern))
+		}
+	}
+
+	// Legacy config.
+	for _, pattern := range types.ToStringSlicePreserveString(m.IncludeFiles) {
+		hasLegacy = true
+		incl = append(incl, strings.TrimSpace(pattern))
+	}
+
+	incl = hstrings.UniqueStringsReuse(incl)
+
+	return incl, hasLegacy
 }
 
 func (m Mount) Component() string {
@@ -430,4 +534,21 @@ func (m Mount) Component() string {
 func (m Mount) ComponentAndName() (string, string) {
 	c, n, _ := strings.Cut(m.Target, fileSeparator)
 	return c, n
+}
+
+func (m *Mount) init() error {
+	if m.Lang != "" {
+		// We moved this to a more flixeble setup in Hugo 0.148.0.
+		m.Sites.Matrix.Languages = append(m.Sites.Matrix.Languages, m.Lang)
+	}
+
+	if len(m.Sites.Matrix.Languages) == 0 {
+		if strings.HasPrefix(m.Target, files.ComponentFolderLayouts) || strings.HasPrefix(m.Target, files.ComponentFolderStatic) {
+			m.Sites.Matrix.Languages = []string{"**"} // TODO1 needed?
+		}
+	}
+
+	m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
+
+	return nil
 }

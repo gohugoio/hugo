@@ -109,7 +109,7 @@ title: "Shortcodes Galore!"
 
 			p, err := pageparser.ParseMain(strings.NewReader(test.input), pageparser.Config{})
 			c.Assert(err, qt.IsNil)
-			handler := newShortcodeHandler("", s)
+			handler := newShortcodeHandler("", s.Deps)
 			iter := p.Iterator()
 
 			short, err := handler.extractShortcode(0, 0, p.Input(), iter)

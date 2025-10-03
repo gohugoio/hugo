@@ -14,6 +14,7 @@
 package hugofs
 
 import (
+	"context"
 	"errors"
 	"path/filepath"
 	"strings"
@@ -47,7 +48,7 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	// Signals that we're done.
 	done := errors.New("done")
 
-	wfn := func(p string, info FileMetaInfo) error {
+	wfn := func(ctx context.Context, p string, info FileMetaInfo) error {
 		p = glob.NormalizePath(p)
 		if info.IsDir() {
 			if !hasSuperAsterisk {

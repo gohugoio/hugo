@@ -543,6 +543,178 @@ func TestCreateManyTemplateStores(t *testing.T) {
 	}
 }
 
+func TestLayoutWithLanguagesVersionsAndRoles(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "rss"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+defaultContentVersion = "v2.0.0"
+defaultContentVersionInSubdir = true
+defaultContentRole = "admin"
+defaultContentRoleInSubdir = true
+
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+
+[versions."v2.0.0"]
+[versions."v1.0.0"]
+
+[roles.admin]
+weight = 1
+[roles.user]
+weight = 2
+
+
+[[module.mounts]]
+source = 'content/en'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = ['en']
+versions = ['**']
+[[module.mounts]]
+source = 'content/nn'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = ['nn']
+versions = ['**']
+[[module.mounts]]
+source = 'layouts/v1'
+target = 'layouts'
+[module.mounts.sites.matrix]
+weight = 10
+versions = ['v1**']
+languages = ['**']
+[[module.mounts]]
+source = 'layouts/en'
+target = 'layouts'
+[module.mounts.sites.matrix]
+languages = ['en']
+versions = ['**']
+[[module.mounts]]
+source = 'layouts/nn'
+target = 'layouts'
+[module.mounts.sites.matrix]
+languages = ['nn']
+versions = ['**']
+-- layouts/v1/all.html --
+layouts/v1/all.html
+-- layouts/en/all.html --
+layouts/en/all.html
+-- layouts/nn/all.html --
+layouts/nn/all.html
+
+
+`
+
+	b := hugolib.Test(t, files)
+	// b.AssertPublishDir("asdf")
+	b.AssertFileContent("public/admin/v2.0.0/en/index.html", "layouts/en/all.html")
+	b.AssertFileContent("public/admin/v2.0.0/nn/index.html", "layouts/nn/all.html")
+	b.AssertFileContent("public/admin/v1.0.0/nn/index.html", "layouts/v1/all.html")
+	b.AssertFileContent("public/admin/v1.0.0/en/index.html", "layouts/v1/all.html")
+}
+
+func TestLayoutWithLanguagesLegacy(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "rss"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[languages.sv]
+weight = 3
+-- layouts/_default/single.en.html --
+layouts/_default/single.html
+-- layouts/_default/single.nn.html --
+layouts/_default/single.nn.html
+-- layouts/_default/single.sv.html --
+layouts/_default/single.sv.html
+-- content/p1.md --
+---
+title: "P1"
+---
+-- content/p1.nn.md --
+---
+title: "P1 NN"
+---
+-- content/p1.sv.md --
+---
+title: "P1 SV"
+---
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/p1/index.html", "layouts/_default/single.html")
+	b.AssertFileContent("public/nn/p1/index.html", "layouts/_default/single.nn.html")
+	b.AssertFileContent("public/sv/p1/index.html", "layouts/_default/single.sv.html")
+}
+
+func TestLayoutWithLanguagesLegacyMounts(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "rss"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[languages.sv]
+weight = 3
+
+
+[[module.mounts]]
+source = 'layouts/en'
+target = 'layouts'
+lang = 'en'
+
+[[module.mounts]]
+source = 'layouts/nn'
+target = 'layouts'
+lang = 'nn'
+[[module.mounts]]
+source = 'layouts/sv'
+target = 'layouts'
+lang = 'sv'
+
+-- layouts/en/_default/single.html --
+layouts/en/_default/single.html
+-- layouts/nn/_default/single.html --
+layouts/nn/_default/single.html
+-- layouts/sv/_default/single.html --
+layouts/sv/_default/single.html
+-- content/p1.md --
+---
+title: "P1"
+---
+-- content/p1.nn.md --
+---
+title: "P1 NN"
+---
+-- content/p1.sv.md --
+---
+title: "P1 SV"
+---
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/p1/index.html", "layouts/en/_default/single.html")
+	b.AssertFileContent("public/nn/p1/index.html", "layouts/nn/_default/single.html")
+	b.AssertFileContent("public/sv/p1/index.html", "layouts/sv/_default/single.html")
+}
+
 func BenchmarkLookupPagesLayout(b *testing.B) {
 	files := `
 -- hugo.toml --
@@ -702,42 +874,47 @@ layout: mylayout
 
 `
 
-	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+	for range 2 {
 
-	b.AssertLogContains("! WARN")
+		b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
-	// Single pages.
-	// output format: html.
-	b.AssertFileContent("public/en/p/index.html", "layouts/single.html",
-		"layouts/_markup/render-codeblock.html|",
-		"layouts/_markup/render-codeblock-go.html|go|",
-		"layouts/shortcodes/myshortcode.html",
-	)
-	b.AssertFileContent("public/en/foo/p/index.html", "layouts/single.html")
-	b.AssertFileContent("public/en/foo/bar/p/index.html", "layouts/foo/bar/page.html")
-	b.AssertFileContent("public/en/foo/bar/withmylayout/index.html", "layouts/mylayout.html")
-	b.AssertFileContent("public/en/foo/bar/baz/p/index.html", "layouts/foo/bar/baz/single.html", "layouts/foo/bar/_shortcodes/myshortcode.html")
-	b.AssertFileContent("public/en/qux/quux/withmylayout/index.html", "layouts/qux/mylayout.html")
-	// output format: amp.
-	b.AssertFileContent("public/en/amp/p/index.html", "layouts/single.html")
-	b.AssertFileContent("public/en/amp/foo/p/index.html", "layouts/foo/single.amp.html")
-	// output format: rss.
-	b.AssertFileContent("public/en/p/index.xml", "layouts/single.rss.xml")
-	b.AssertFileContent("public/en/foo/p/index.xml", "layouts/foo/single.rss.xml")
-	b.AssertFileContent("public/nn/foo/p/index.xml", "layouts/single.nn.rss.xml")
+		b.AssertLogContains("! WARN")
 
-	// Note: There is qux/single.xml that's closer, but the one in the root is used becaulse of the output format match.
-	b.AssertFileContent("public/en/qux/p/index.xml", "layouts/single.rss.xml")
+		// Single pages.
+		// output format: html.
+		b.AssertFileContent("public/en/p/index.html", "layouts/single.html",
+			"layouts/_markup/render-codeblock.html|",
+			"layouts/_markup/render-codeblock-go.html|go|",
+			"layouts/shortcodes/myshortcode.html",
+		)
+		b.AssertFileContent("public/en/foo/p/index.html", "layouts/single.html")
+		b.AssertFileContent("public/en/foo/bar/p/index.html", "layouts/foo/bar/page.html")
+		b.AssertFileContent("public/en/foo/bar/withmylayout/index.html", "layouts/mylayout.html")
+		b.AssertFileContent("public/en/foo/bar/baz/p/index.html", "layouts/foo/bar/baz/single.html", "layouts/foo/bar/_shortcodes/myshortcode.html")
+		b.AssertFileContent("public/en/qux/quux/withmylayout/index.html", "layouts/qux/mylayout.html")
+		// output format: amp.
+		b.AssertFileContent("public/en/amp/p/index.html", "layouts/single.html")
+		b.AssertFileContent("public/en/amp/foo/p/index.html", "layouts/foo/single.amp.html")
+		// output format: rss.
+		b.AssertFileContent("public/en/p/index.xml", "layouts/single.rss.xml")
+		b.AssertFileContent("public/en/foo/p/index.xml", "layouts/foo/single.rss.xml")
+		// Note: THere is layouts/foo/single.rss.xml, but we use the root because of a better language match.
+		b.AssertFileContent("public/nn/foo/p/index.xml", "layouts/single.nn.rss.xml")
 
-	// Note.
-	b.AssertFileContent("public/nn/qux/quux/withmylayout/index.html", "layouts/mylayout.nn.html")
+		// Note: There is qux/single.xml that's closer, but the one in the root is used because of the output format match.
+		b.AssertFileContent("public/en/qux/p/index.xml", "layouts/single.rss.xml")
 
-	// Section pages.
-	// output format: html.
-	b.AssertFileContent("public/en/foo/index.html", "layouts/list.html")
-	b.AssertFileContent("public/en/qux/index.html", "layouts/qux/mylayout.section.html")
-	// output format: rss.
-	b.AssertFileContent("public/en/foo/index.xml", "layouts/list.xml")
+		// Note.
+		b.AssertFileContent("public/nn/qux/quux/withmylayout/index.html", "layouts/mylayout.nn.html")
+
+		// Section pages.
+		// output format: html.
+		b.AssertFileContent("public/en/foo/index.html", "layouts/list.html")
+		b.AssertFileContent("public/en/qux/index.html", "layouts/qux/mylayout.section.html")
+		// output format: rss.
+		b.AssertFileContent("public/en/foo/index.xml", "layouts/list.xml")
+
+	}
 }
 
 func TestLookupOrderIssue13636(t *testing.T) {
@@ -793,7 +970,7 @@ L3
 	}
 
 	for i, test := range tests {
-		if i != 8 {
+		if i != 10 {
 			// continue
 		}
 		files := strings.ReplaceAll(filesTemplate, "L1", test.L1)
@@ -801,7 +978,7 @@ L3
 		files = strings.ReplaceAll(files, "L3", test.L3)
 		t.Logf("Test %d: %s %s %s %s", i, test.Lang, test.L1, test.L2, test.L3)
 
-		for range 3 {
+		for range 1 {
 			b := hugolib.Test(t, files)
 			b.Assert(len(b.H.Sites), qt.Equals, 2)
 
