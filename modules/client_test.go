@@ -24,7 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config/security"
-	"github.com/gohugoio/hugo/hugofs/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/hglob"
 
 	"github.com/gohugoio/hugo/htesting"
 
@@ -156,7 +156,7 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 			c, func(cfg *ClientConfig) {
 				cfg.ModuleConfig = mcfg
 				s := "github.com/gohugoio/hugoTestModules1_darwin/modh1_1v"
-				g, _ := glob.GetGlob(s)
+				g, _ := hglob.GetGlob(s)
 				cfg.IgnoreVendor = g
 			}, "modh1v")
 		defer clean()
@@ -202,7 +202,7 @@ project github.com/gohugoio/hugoTestModules1_darwin/modh2_2_2@v1.3.0+vendor
 	})
 }
 
-var globAll, _ = glob.GetGlob("**")
+var globAll, _ = hglob.GetGlob("**")
 
 func TestGetModlineSplitter(t *testing.T) {
 	c := qt.New(t)

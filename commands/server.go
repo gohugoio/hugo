@@ -49,6 +49,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/common/types"
@@ -627,7 +628,7 @@ func (c *serverCommand) setServerInfoInConfig() error {
 		panic("no server ports set")
 	}
 	return c.withConfE(func(conf *commonConfig) error {
-		for i, language := range conf.configs.LanguagesDefaultFirst {
+		for i, language := range conf.configs.Languages {
 			isMultihost := conf.configs.IsMultihost
 			var serverPort int
 			if isMultihost {
@@ -879,7 +880,7 @@ func (c *serverCommand) serve() error {
 		if isMultihost {
 			for _, l := range conf.configs.ConfigLangs() {
 				baseURLs = append(baseURLs, l.BaseURL())
-				roots = append(roots, l.Language().Lang)
+				roots = append(roots, l.Language().(*langs.Language).Lang)
 			}
 		} else {
 			l := conf.configs.GetFirstLanguageConfig()

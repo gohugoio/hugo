@@ -20,13 +20,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/spf13/afero"
 )
 
 var _ FilesystemUnwrapper = (*filenameFilterFs)(nil)
 
-func newFilenameFilterFs(fs afero.Fs, base string, filter *glob.FilenameFilter) afero.Fs {
+func newFilenameFilterFs(fs afero.Fs, base string, filter *hglob.FilenameFilter) afero.Fs {
 	return &filenameFilterFs{
 		fs:     fs,
 		base:   base,
@@ -39,7 +39,7 @@ type filenameFilterFs struct {
 	base string
 	fs   afero.Fs
 
-	filter *glob.FilenameFilter
+	filter *hglob.FilenameFilter
 }
 
 func (fs *filenameFilterFs) UnwrapFilesystem() afero.Fs {
@@ -90,7 +90,7 @@ func (fs *filenameFilterFs) Stat(name string) (os.FileInfo, error) {
 type filenameFilterDir struct {
 	afero.File
 	base   string
-	filter *glob.FilenameFilter
+	filter *hglob.FilenameFilter
 }
 
 func (f *filenameFilterDir) ReadDir(n int) ([]fs.DirEntry, error) {

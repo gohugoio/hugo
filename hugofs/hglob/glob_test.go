@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package glob
+package hglob
 
 import (
 	"path/filepath"
@@ -66,7 +66,7 @@ func TestNormalizePath(t *testing.T) {
 }
 
 func TestGetGlob(t *testing.T) {
-	for _, cache := range []*globCache{defaultGlobCache} {
+	for _, cache := range []*pathGlobCache{defaultGlobCache} {
 		c := qt.New(t)
 		g, err := cache.GetGlob("**.JSON")
 		c.Assert(err, qt.IsNil)
@@ -75,7 +75,7 @@ func TestGetGlob(t *testing.T) {
 }
 
 func BenchmarkGetGlob(b *testing.B) {
-	runBench := func(name string, cache *globCache, search string) {
+	runBench := func(name string, cache *pathGlobCache, search string) {
 		b.Run(name, func(b *testing.B) {
 			g, err := GetGlob("**/foo")
 			if err != nil {

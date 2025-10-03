@@ -31,7 +31,7 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
-	hglob "github.com/gohugoio/hugo/hugofs/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/afero"
@@ -87,7 +87,7 @@ func LoadConfig(d ConfigSourceDescriptor) (*Configs, error) {
 	configs.Modules = moduleConfig.AllModules
 	configs.ModulesClient = modulesClient
 
-	if err := configs.Init(); err != nil {
+	if err := configs.Init(d.Logger); err != nil {
 		return nil, fmt.Errorf("failed to init config: %w", err)
 	}
 

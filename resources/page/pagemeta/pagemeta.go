@@ -28,7 +28,6 @@ var DefaultBuildConfig = BuildConfig{
 	List:             Always,
 	Render:           Always,
 	PublishResources: true,
-	set:              true,
 }
 
 // BuildConfig holds configuration options about how to handle a Page in Hugo's
@@ -52,8 +51,6 @@ type BuildConfig struct {
 	// but enabling this can be useful if the originals (e.g. images) are
 	// never used.
 	PublishResources bool
-
-	set bool // BuildCfg is non-zero if this is set to true.
 }
 
 // Disable sets all options to their off value.
@@ -61,11 +58,10 @@ func (b *BuildConfig) Disable() {
 	b.List = Never
 	b.Render = Never
 	b.PublishResources = false
-	b.set = true
 }
 
 func (b BuildConfig) IsZero() bool {
-	return !b.set
+	return b == BuildConfig{}
 }
 
 func DecodeBuildConfig(m any) (BuildConfig, error) {

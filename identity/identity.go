@@ -41,10 +41,9 @@ const (
 var NopManager = new(nopManager)
 
 // NewIdentityManager creates a new Manager.
-func NewManager(name string, opts ...ManagerOption) Manager {
+func NewManager(opts ...ManagerOption) Manager {
 	idm := &identityManager{
 		Identity: Anonymous,
-		name:     name,
 		ids:      Identities{},
 	}
 
@@ -94,9 +93,6 @@ func FirstIdentity(v any) Identity {
 func PrintIdentityInfo(v any) {
 	WalkIdentitiesDeep(v, func(level int, id Identity) bool {
 		var s string
-		if idm, ok := id.(*identityManager); ok {
-			s = " " + idm.name
-		}
 		fmt.Printf("%s%s (%T)%s\n", strings.Repeat("  ", level), id.IdentifierBase(), id, s)
 		return false
 	})
@@ -296,9 +292,6 @@ func (s StringIdentity) IdentifierBase() string {
 type identityManager struct {
 	Identity
 
-	// Only used for debugging.
-	name string
-
 	// mu protects _changes_ to this manager,
 	// reads currently assumes no concurrent writes.
 	mu         sync.RWMutex
@@ -361,10 +354,6 @@ func (im *identityManager) GetDependencyManagerForScope(int) Manager {
 
 func (im *identityManager) GetDependencyManagerForScopesAll() []Manager {
 	return []Manager{im}
-}
-
-func (im *identityManager) String() string {
-	return fmt.Sprintf("IdentityManager(%s)", im.name)
 }
 
 func (im *identityManager) forEeachIdentity(fn func(id Identity) bool) bool {
