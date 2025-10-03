@@ -169,6 +169,7 @@ func (t *templateNamespace) applyBaseTemplate(overlay *TemplInfo, base keyTempla
 		PathInfo: overlay.PathInfo,
 		Fi:       overlay.Fi,
 		D:        overlay.D,
+		matrix:   overlay.matrix,
 		noBaseOf: true,
 	}
 

@@ -21,16 +21,19 @@ import (
 	"os"
 	"regexp"
 	"runtime"
-	"runtime/debug"
 	"strings"
 	"time"
 )
 
 // PrintStackTrace prints the current stacktrace to w.
 func PrintStackTrace(w io.Writer) {
-	buf := make([]byte, 1<<16)
-	runtime.Stack(buf, true)
-	fmt.Fprintf(w, "%s", buf)
+	fmt.Fprintf(w, "%s", stack())
+}
+
+func stack() []byte {
+	b := make([]byte, 64<<10)
+	runtime.Stack(b, true)
+	return b
 }
 
 // ErrorSender is a, typically, non-blocking error handler.
@@ -42,10 +45,14 @@ type ErrorSender interface {
 // Put this at the top of a method/function that crashes in a template:
 //
 //	defer herrors.Recover()
+//
+// TODO1 remove usage.
 func Recover(args ...any) {
 	if r := recover(); r != nil {
 		fmt.Println("ERR:", r)
-		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
+		buf := make([]byte, 64<<10)
+		buf = buf[:runtime.Stack(buf, false)]
+		args = append(args, "stacktrace from panic: \n"+string(buf), "\n")
 		fmt.Println(args...)
 	}
 }
@@ -184,4 +191,18 @@ func improveIfNilPointerMsg(inErr error) string {
 	receiver := strings.Join(parts[:len(parts)-1], ".")
 	s := fmt.Sprintf("– %s is nil; wrap it in if or with: {{ with %s }}{{ .%s }}{{ end }}", receiverName, receiver, field)
 	return nilPointerErrRe.ReplaceAllString(inErr.Error(), s)
+}
+
+// ErrFromPanic converts a recovered panic to an error.
+func ErrFromPanic(r any) error {
+	switch rr := r.(type) {
+	case nil:
+		return nil
+	case string:
+		return fmt.Errorf("panic: %v\n%s", rr, stack())
+	case error:
+		return fmt.Errorf("panic: %v\n%s", rr, stack())
+	default:
+		return fmt.Errorf("unknown panic: %+v\n%s", rr, stack())
+	}
 }

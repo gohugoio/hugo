@@ -21,14 +21,15 @@ import (
 
 // LanguageDirsMerger implements the overlayfs.DirsMerger func, which is used
 // to merge two directories.
+// TODO1 remove me.
 var LanguageDirsMerger overlayfs.DirsMerger = func(lofi, bofi []fs.DirEntry) []fs.DirEntry {
 	for _, fi1 := range bofi {
-		fim1 := fi1.(FileMetaInfo)
+		// fim1 := fi1.(FileMetaInfo).Meta()
 		var found bool
 		for _, fi2 := range lofi {
-			fim2 := fi2.(FileMetaInfo)
-			if fi1.Name() == fi2.Name() && fim1.Meta().Lang == fim2.Meta().Lang {
-				found = true
+			//	fim2 := fi2.(FileMetaInfo).Meta()
+			if fi1.Name() == fi2.Name() { //  && fim1.Meta().Lang == fim2.Meta().Lang {
+				found = false // TODO1
 				break
 			}
 		}

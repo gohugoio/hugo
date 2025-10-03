@@ -86,23 +86,24 @@ func (p *pagesFromDataTemplateContext) AddPage(v any) (string, error) {
 		return "", nil
 	}
 
-	pd := pagemeta.DefaultPageConfig
-	pd.IsFromContentAdapter = true
-	pd.ContentAdapterData = m
+	pe := &pagemeta.PageConfigEarly{
+		IsFromContentAdapter: true,
+		Frontmatter:          m,
+	}
 
 	// The rest will be handled after the cascade is calculated and applied.
-	if err := mapstructure.WeakDecode(pd.ContentAdapterData, &pd.PageConfigEarly); err != nil {
+	if err := mapstructure.WeakDecode(pe.Frontmatter, pe); err != nil {
 		err = fmt.Errorf("failed to decode page map: %w", err)
 		return "", err
 	}
 
-	if err := pd.Init(true); err != nil {
+	if err := pe.Init(true); err != nil {
 		return "", err
 	}
 
 	p.p.buildState.NumPagesAdded++
 
-	return "", p.p.HandlePage(p.p, &pd)
+	return "", p.p.HandlePage(p.p, pe)
 }
 
 func (p *pagesFromDataTemplateContext) AddResource(v any) (string, error) {
@@ -142,6 +143,11 @@ func (p *pagesFromDataTemplateContext) EnableAllLanguages() string {
 	return ""
 }
 
+func (p *pagesFromDataTemplateContext) EnableAllDimensions() string {
+	p.p.buildState.EnableAllDimensions = true
+	return ""
+}
+
 func NewPagesFromTemplate(opts PagesFromTemplateOptions) *PagesFromTemplate {
 	return &PagesFromTemplate{
 		PagesFromTemplateOptions: opts,
@@ -161,7 +167,7 @@ type PagesFromTemplateOptions struct {
 
 	Watching bool
 
-	HandlePage     func(pt *PagesFromTemplate, p *pagemeta.PageConfig) error
+	HandlePage     func(pt *PagesFromTemplate, p *pagemeta.PageConfigEarly) error
 	HandleResource func(pt *PagesFromTemplate, p *pagemeta.ResourceConfig) error
 
 	GoTmplFi hugofs.FileMetaInfo
@@ -193,18 +199,20 @@ func (b *PagesFromTemplate) StaleVersion() uint32 {
 }
 
 type BuildInfo struct {
-	NumPagesAdded      uint64
-	NumResourcesAdded  uint64
-	EnableAllLanguages bool
-	ChangedIdentities  []identity.Identity
-	DeletedPaths       []string
-	Path               *paths.Path
+	NumPagesAdded       uint64
+	NumResourcesAdded   uint64
+	EnableAllLanguages  bool
+	EnableAllDimensions bool
+	ChangedIdentities   []identity.Identity
+	DeletedPaths        []string
+	Path                *paths.Path
 }
 
 type BuildState struct {
 	StaleVersion uint32
 
-	EnableAllLanguages bool
+	EnableAllLanguages  bool
+	EnableAllDimensions bool
 
 	// Paths deleted in the current build.
 	DeletedPaths []string
@@ -323,12 +331,13 @@ func (p *PagesFromTemplate) Execute(ctx context.Context) (BuildInfo, error) {
 	}
 
 	bi := BuildInfo{
-		NumPagesAdded:      p.buildState.NumPagesAdded,
-		NumResourcesAdded:  p.buildState.NumResourcesAdded,
-		EnableAllLanguages: p.buildState.EnableAllLanguages,
-		ChangedIdentities:  p.buildState.ChangedIdentities,
-		DeletedPaths:       p.buildState.DeletedPaths,
-		Path:               p.GoTmplFi.Meta().PathInfo,
+		NumPagesAdded:       p.buildState.NumPagesAdded,
+		NumResourcesAdded:   p.buildState.NumResourcesAdded,
+		EnableAllLanguages:  p.buildState.EnableAllLanguages,
+		EnableAllDimensions: p.buildState.EnableAllDimensions,
+		ChangedIdentities:   p.buildState.ChangedIdentities,
+		DeletedPaths:        p.buildState.DeletedPaths,
+		Path:                p.GoTmplFi.Meta().PathInfo,
 	}
 
 	return bi, nil
