@@ -20,7 +20,7 @@ stderr 'invalid style: __invalid_style__'
 hugo gen chromastyles --style monokai
 ! stdout '{  }'
 hugo gen chromastyles --omitEmpty --style monokai --logLevel info
-stderr 'INFO  deprecated: --omitEmpty was deprecated'
+stderr 'deprecated: --omitEmpty was deprecated'
 
 # Disable class comments.
 hugo gen chromastyles --style monokai
