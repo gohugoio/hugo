@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"unicode"
 	"unicode/utf8"
+	"unique"
 )
 
 const eof = -1
@@ -78,7 +79,7 @@ func newPageLexer(input []byte, stateStart stateFunc, cfg Config) *pageLexer {
 		lexerShortcodeState: lexerShortcodeState{
 			currLeftDelimItem:  tLeftDelimScNoMarkup,
 			currRightDelimItem: tRightDelimScNoMarkup,
-			openShortcodes:     make(map[string]bool),
+			openShortcodes:     make(map[unique.Handle[string]]bool),
 		},
 		items: make([]Item, 0, 5),
 	}
