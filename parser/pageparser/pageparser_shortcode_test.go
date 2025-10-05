@@ -27,6 +27,7 @@ var (
 	tstRightMD   = nti(tRightDelimScWithMarkup, "%}}")
 	tstSCClose   = nti(tScClose, "/")
 	tstSC1       = nti(tScName, "sc1")
+	tstSCAnother = nti(tScName, "another")
 	tstSC1Inline = nti(tScNameInline, "sc1.inline")
 	tstSC2Inline = nti(tScNameInline, "sc2.inline")
 	tstSC2       = nti(tScName, "sc2")
@@ -72,6 +73,10 @@ var shortCodeLexerTests = []lexerTest{
 	}, nil},
 	{"close wrong", `{{< sc1 >}}{{< /another >}}`, []typeText{
 		tstLeftNoMD, tstSC1, tstRightNoMD, tstLeftNoMD, tstSCClose,
+		nti(tError, "closing tag for shortcode 'another' does not match start tag"),
+	}, nil},
+	{"close wrong, repeated", `{{< sc1 >}}{{< another >}}{{< /another >}}{{< /another >}}`, []typeText{
+		tstLeftNoMD, tstSC1, tstRightNoMD, tstLeftNoMD, tstSCAnother, tstRightNoMD, tstLeftNoMD, tstSCClose, tstSCAnother, tstRightNoMD, tstLeftNoMD, tstSCClose,
 		nti(tError, "closing tag for shortcode 'another' does not match start tag"),
 	}, nil},
 	{"close, but no open, more", `{{< sc1 >}}{{< /sc1 >}}{{< /another >}}`, []typeText{

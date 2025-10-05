@@ -255,16 +255,18 @@ Loop:
 		default:
 			l.backup()
 			word := string(l.input[l.start:l.pos])
-			if l.closingState > 0 && !l.openShortcodes[word] {
-				return l.errorf("closing tag for shortcode '%s' does not match start tag", word)
-			} else if l.closingState > 0 {
+			if l.closingState > 0 {
+				if !l.openShortcodes[word] {
+					return l.errorf("closing tag for shortcode '%s' does not match start tag", word)
+				}
 				l.openShortcodes[word] = false
 				lookForEnd = true
+			} else {
+				l.openShortcodes[word] = true
 			}
 
 			l.closingState = 0
 			l.currShortcodeName = word
-			l.openShortcodes[word] = true
 			l.elementStepNum++
 			if l.isInline {
 				l.emit(tScNameInline)
