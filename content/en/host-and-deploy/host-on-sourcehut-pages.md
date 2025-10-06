@@ -29,9 +29,9 @@ The [`baseURL`] in your site configuration must reflect the full URL provided by
 
 ## Manual deployment
 
-This method does not require a paid account. To proceed you will need to create a [SourceHut personal access token] and install and configure the [hut]CLI tool:
+This method does not require a paid account. To proceed you will need to create a [SourceHut personal access token] and install and configure the [hut] CLI tool:
 
-[SourceHut personal access token]: https://meta.sr.ht/oauth2/personal-token/
+[SourceHut personal access token]: https://meta.sr.ht/oauth2/personal-token
 [hut]: https://sr.ht/~xenrox/hut/
 
 ```sh
