@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
@@ -346,7 +347,7 @@ func (s *IntegrationTestBuilder) SiteHelper(language, version, role string) *Int
 }
 
 // AssertLogContains asserts that the last build log contains the given strings.
-// Each string can be negated with a "! " prefix.
+// Each string can be negated with a glob.NegationPrefix prefix.
 func (s *IntegrationTestBuilder) AssertLogContains(els ...string) {
 	s.Helper()
 	for _, el := range els {
@@ -361,7 +362,7 @@ func (s *IntegrationTestBuilder) AssertLogContains(els ...string) {
 }
 
 // AssertLogMatches asserts that the last build log matches the given regular expressions.
-// The regular expressions can be negated with a "! " prefix.
+// The regular expressions can be negated with a glob.NegationPrefix prefix.
 func (s *IntegrationTestBuilder) AssertLogMatches(expression string) {
 	s.Helper()
 	var negate bool
@@ -394,9 +395,9 @@ func (s *IntegrationTestBuilder) AssertFileCount(dirname string, expected int) {
 
 func (s *IntegrationTestBuilder) negate(match string) (string, bool) {
 	var negate bool
-	if strings.HasPrefix(match, "! ") {
+	if strings.HasPrefix(match, glob.NegationPrefix) {
 		negate = true
-		match = strings.TrimPrefix(match, "! ")
+		match = strings.TrimPrefix(match, glob.NegationPrefix)
 	}
 	return match, negate
 }
@@ -466,9 +467,9 @@ func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
 		for _, match := range lines {
 			match = strings.TrimSpace(match)
 			var negate bool
-			if strings.HasPrefix(match, "! ") {
+			if strings.HasPrefix(match, glob.NegationPrefix) {
 				negate = true
-				match = strings.TrimPrefix(match, "! ")
+				match = strings.TrimPrefix(match, glob.NegationPrefix)
 			}
 			if negate {
 				s.Assert(content, qt.Not(qt.Contains), match, cm)

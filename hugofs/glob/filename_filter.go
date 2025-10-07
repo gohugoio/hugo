@@ -16,6 +16,7 @@ package glob
 import (
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gobwas/glob"
@@ -23,12 +24,28 @@ import (
 
 type FilenameFilter struct {
 	shouldInclude func(filename string) bool
-	inclusions    []glob.Glob
-	dirInclusions []glob.Glob
-	exclusions    []glob.Glob
-	isWindows     bool
+
+	entries []globFilenameFilterEntry
+
+	isWindows bool
 
 	nested []*FilenameFilter
+}
+
+type globFilenameFilterEntryType int
+
+const (
+	globFilenameFilterEntryTypeInclusion globFilenameFilterEntryType = iota
+	globFilenameFilterEntryTypeInclusionDir
+	globFilenameFilterEntryTypeExclusion
+)
+
+// NegationPrefix is the prefix that makes a pattern an exclusion.
+const NegationPrefix = "! "
+
+type globFilenameFilterEntry struct {
+	g glob.Glob
+	t globFilenameFilterEntryType
 }
 
 func normalizeFilenameGlobPattern(s string) string {
@@ -40,53 +57,62 @@ func normalizeFilenameGlobPattern(s string) string {
 	return s
 }
 
-// NewFilenameFilter creates a new Glob where the Match method will
-// return true if the file should be included.
-// Note that the exclusions will be checked first.
-func NewFilenameFilter(inclusions, exclusions []string) (*FilenameFilter, error) {
-	if len(inclusions) == 0 && len(exclusions) == 0 {
+func NewFilenameFilter(patterns []string) (*FilenameFilter, error) {
+	if len(patterns) == 0 {
 		return nil, nil
 	}
 	filter := &FilenameFilter{isWindows: isWindows}
-
-	for _, include := range inclusions {
-		include = normalizeFilenameGlobPattern(include)
-		g, err := GetGlob(include)
+	for _, p := range patterns {
+		var t globFilenameFilterEntryType
+		if strings.HasPrefix(p, NegationPrefix) {
+			t = globFilenameFilterEntryTypeExclusion
+			p = strings.TrimPrefix(p, NegationPrefix)
+		} else {
+			t = globFilenameFilterEntryTypeInclusion
+		}
+		p = normalizeFilenameGlobPattern(p)
+		g, err := GetGlob(p)
 		if err != nil {
 			return nil, err
 		}
-		filter.inclusions = append(filter.inclusions, g)
-
-		// For mounts that do directory walking (e.g. content) we
-		// must make sure that all directories up to this inclusion also
-		// gets included.
-		dir := path.Dir(include)
-		parts := strings.Split(dir, "/")
-		for i := range parts {
-			pattern := "/" + filepath.Join(parts[:i+1]...)
-			g, err := GetGlob(pattern)
-			if err != nil {
-				return nil, err
+		filter.entries = append(filter.entries, globFilenameFilterEntry{t: t, g: g})
+		if t == globFilenameFilterEntryTypeInclusion {
+			// For mounts that do directory walking (e.g. content) we
+			// must make sure that all directories up to this inclusion also
+			// gets included.
+			dir := path.Dir(p)
+			parts := strings.Split(dir, "/")
+			for i := range parts {
+				pattern := "/" + filepath.Join(parts[:i+1]...)
+				g, err := GetGlob(pattern)
+				if err != nil {
+					return nil, err
+				}
+				filter.entries = append(filter.entries, globFilenameFilterEntry{t: globFilenameFilterEntryTypeInclusionDir, g: g})
 			}
-			filter.dirInclusions = append(filter.dirInclusions, g)
 		}
-	}
 
-	for _, exclude := range exclusions {
-		exclude = normalizeFilenameGlobPattern(exclude)
-		g, err := GetGlob(exclude)
-		if err != nil {
-			return nil, err
-		}
-		filter.exclusions = append(filter.exclusions, g)
 	}
 
 	return filter, nil
 }
 
+// NewFilenameFilterOld creates a new Glob where the Match method will
+// return true if the file should be included.
+// Note that the exclusions will be checked first.
+func NewFilenameFilterOld(inclusions, exclusions []string) (*FilenameFilter, error) {
+	for i, p := range exclusions {
+		if !strings.HasPrefix(p, NegationPrefix) {
+			exclusions[i] = NegationPrefix + p
+		}
+	}
+	all := slices.Concat(inclusions, exclusions)
+	return NewFilenameFilter(all)
+}
+
 // MustNewFilenameFilter invokes NewFilenameFilter and panics on error.
 func MustNewFilenameFilter(inclusions, exclusions []string) *FilenameFilter {
-	filter, err := NewFilenameFilter(inclusions, exclusions)
+	filter, err := NewFilenameFilterOld(inclusions, exclusions)
 	if err != nil {
 		panic(err)
 	}
@@ -155,28 +181,26 @@ func (f *FilenameFilter) doMatch(filename string, isDir bool) bool {
 				}
 			}
 		}
-
 	}
 
-	for _, exclusion := range f.exclusions {
-		if exclusion.Match(filename) {
-			return false
-		}
-	}
-
-	for _, inclusion := range f.inclusions {
-		if inclusion.Match(filename) {
-			return true
-		}
-	}
-
-	if isDir && f.inclusions != nil {
-		for _, inclusion := range f.dirInclusions {
-			if inclusion.Match(filename) {
+	var hasInclude bool
+	for _, entry := range f.entries {
+		switch entry.t {
+		case globFilenameFilterEntryTypeExclusion:
+			if entry.g.Match(filename) {
+				return false
+			}
+		case globFilenameFilterEntryTypeInclusion:
+			if entry.g.Match(filename) {
+				return true
+			}
+			hasInclude = true
+		case globFilenameFilterEntryTypeInclusionDir:
+			if isDir && entry.g.Match(filename) {
 				return true
 			}
 		}
 	}
 
-	return f.inclusions == nil && f.shouldInclude == nil
+	return !hasInclude && f.shouldInclude == nil
 }

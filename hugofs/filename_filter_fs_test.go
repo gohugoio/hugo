@@ -43,7 +43,7 @@ func TestFilenameFilterFs(t *testing.T) {
 
 	fs = NewBasePathFs(fs, base)
 
-	filter, err := glob.NewFilenameFilter(nil, []string{"/b/**.txt"})
+	filter, err := glob.NewFilenameFilterOld(nil, []string{"/b/**.txt"})
 	c.Assert(err, qt.IsNil)
 
 	fs = newFilenameFilterFs(fs, base, filter)

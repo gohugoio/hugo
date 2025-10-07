@@ -22,13 +22,15 @@ import (
 func TestModulesFiltersFiles(t *testing.T) {
 	t.Parallel()
 
+	// TODO1 check that the ordering of the patterns matters and works like the below for matrix
+
 	files := `
 -- hugo.toml --
 [module]
 [[module.mounts]]
 source = "content"
 target = "content"
-files = ["**.md", "! **b.md"]
+files = ["! **b.md", "**.md"] # The order matters here.
 -- content/a.md --
 +++
 title = "A"

@@ -707,8 +707,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			// the first entry wins.
 			mountWeight := (10 + md.ordinal) * (len(md.Mounts()) - i)
 
-			includes, hasLegacyIncludes := mount.FilesToInclude()
-			excludes, hasLegacyExcludes := mount.FilesToExclude()
+			patterns, hasLegacyIncludes, hasLegacyExcludes := mount.FilesToFilter()
 			if hasLegacyIncludes {
 				hugo.Deprecate("module.mounts.includeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/configuration/module/#files", "v0.152.0")
 			}
@@ -716,10 +715,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				hugo.Deprecate("module.mounts.excludeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/configuration/module/#files", "v0.152.0")
 			}
 
-			inclusionFilter, err := glob.NewFilenameFilter(
-				includes,
-				excludes,
-			)
+			inclusionFilter, err := glob.NewFilenameFilter(patterns)
 			if err != nil {
 				return err
 			}

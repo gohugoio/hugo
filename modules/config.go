@@ -25,6 +25,7 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugofs/glob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/langs"
 
@@ -467,19 +468,14 @@ func (m Mount) Equal(o Mount) bool {
 		return false
 	}
 
-	incl, hasLegacy := m.FilesToInclude()
-	oincl, ohasLegacy := o.FilesToInclude()
-	if hasLegacy != ohasLegacy || !slices.Equal(incl, oincl) {
+	paterns1, hasLegacy11, hasLegacy12 := m.FilesToFilter()
+	paterns2, hasLegacy21, hasLegacy22 := o.FilesToFilter()
+
+	if hasLegacy11 != hasLegacy21 || hasLegacy12 != hasLegacy22 {
 		return false
 	}
 
-	excl, hasLegacy := m.FilesToExclude()
-	oexcl, ohasLegacy := o.FilesToExclude()
-	if hasLegacy != ohasLegacy || !slices.Equal(excl, oexcl) {
-		return false
-	}
-
-	return true
+	return slices.Equal(paterns1, paterns2)
 }
 
 // Used as key to remove duplicates.
@@ -487,44 +483,21 @@ func (m Mount) key() string {
 	return strings.Join([]string{m.Lang, m.Source, m.Target}, "/")
 }
 
-func (m Mount) FilesToExclude() (patterns []string, hasLegacy bool) {
-	var excl []string
-	for _, pattern := range m.Files {
-		pattern = strings.TrimSpace(pattern)
-		if strings.HasPrefix(pattern, "! ") {
-			excl = append(excl, strings.TrimSpace(strings.TrimPrefix(pattern, "! ")))
-		}
-	}
+func (m Mount) FilesToFilter() (patterns []string, hasLegacyIncludeFiles, hasLegacyExcludeFiles bool) {
+	patterns = m.Files
 
-	// Legacy config.
-	for _, pattern := range types.ToStringSlicePreserveString(m.ExcludeFiles) {
-		hasLegacy = true
-		excl = append(excl, strings.TrimSpace(pattern))
-	}
-
-	excl = hstrings.UniqueStringsReuse(excl)
-
-	return excl, hasLegacy
-}
-
-func (m Mount) FilesToInclude() (patterns []string, hasLegacy bool) {
-	var incl []string
-	for _, pattern := range m.Files {
-		pattern = strings.TrimSpace(pattern)
-		if !strings.HasPrefix(pattern, "! ") {
-			incl = append(incl, strings.TrimSpace(pattern))
-		}
-	}
-
-	// Legacy config.
+	// Legacy config, add IncludeFiles first.
 	for _, pattern := range types.ToStringSlicePreserveString(m.IncludeFiles) {
-		hasLegacy = true
-		incl = append(incl, strings.TrimSpace(pattern))
+		hasLegacyIncludeFiles = true
+		patterns = append(patterns, pattern)
 	}
 
-	incl = hstrings.UniqueStringsReuse(incl)
+	for _, pattern := range types.ToStringSlicePreserveString(m.ExcludeFiles) {
+		hasLegacyExcludeFiles = true
+		patterns = append(patterns, glob.NegationPrefix+pattern)
+	}
 
-	return incl, hasLegacy
+	return patterns, hasLegacyIncludeFiles, hasLegacyExcludeFiles
 }
 
 func (m Mount) Component() string {

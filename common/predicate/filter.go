@@ -4,6 +4,8 @@ import (
 	"iter"
 	"strings"
 
+	hglob "github.com/gohugoio/hugo/hugofs/glob"
+
 	"github.com/gobwas/glob"
 )
 
@@ -34,7 +36,7 @@ func NewFilterFromGlobs(patterns []string, getGlob func(pattern string) (glob.Gl
 		if p == "" {
 			continue
 		}
-		if strings.HasPrefix(p, "! ") {
+		if strings.HasPrefix(p, hglob.NegationPrefix) {
 			p = p[2:]
 			g, err := getGlob(p)
 			if err != nil {

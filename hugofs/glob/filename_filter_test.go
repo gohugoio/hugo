@@ -24,7 +24,7 @@ import (
 func TestFilenameFilter(t *testing.T) {
 	c := qt.New(t)
 
-	excludeAlmostAllJSON, err := NewFilenameFilter([]string{"/a/b/c/foo.json"}, []string{"**.json"})
+	excludeAlmostAllJSON, err := NewFilenameFilterOld([]string{"/a/b/c/foo.json"}, []string{"**.json"})
 	c.Assert(err, qt.IsNil)
 	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("/data/my.json"), false), qt.Equals, false)
 	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("/a/b/c/foo.json"), false), qt.Equals, true)
@@ -35,7 +35,7 @@ func TestFilenameFilter(t *testing.T) {
 	c.Assert(excludeAlmostAllJSON.Match(filepath.FromSlash("/"), true), qt.Equals, true)
 	c.Assert(excludeAlmostAllJSON.Match("", true), qt.Equals, true)
 
-	excludeAllButFooJSON, err := NewFilenameFilter([]string{"/a/**/foo.json"}, []string{"**.json"})
+	excludeAllButFooJSON, err := NewFilenameFilterOld([]string{"/a/**/foo.json"}, []string{"**.json"})
 	c.Assert(err, qt.IsNil)
 	c.Assert(excludeAllButFooJSON.Match(filepath.FromSlash("/data/my.json"), false), qt.Equals, false)
 	c.Assert(excludeAllButFooJSON.Match(filepath.FromSlash("/a/b/c/d/e/foo.json"), false), qt.Equals, true)
@@ -44,23 +44,23 @@ func TestFilenameFilter(t *testing.T) {
 	c.Assert(excludeAllButFooJSON.Match(filepath.FromSlash("/"), true), qt.Equals, true)
 	c.Assert(excludeAllButFooJSON.Match(filepath.FromSlash("/b"), true), qt.Equals, false)
 
-	excludeAllButFooJSONMixedCasePattern, err := NewFilenameFilter([]string{"/**/Foo.json"}, nil)
+	excludeAllButFooJSONMixedCasePattern, err := NewFilenameFilterOld([]string{"/**/Foo.json"}, nil)
 	c.Assert(excludeAllButFooJSONMixedCasePattern.Match(filepath.FromSlash("/a/b/c/d/e/foo.json"), false), qt.Equals, true)
 	c.Assert(excludeAllButFooJSONMixedCasePattern.Match(filepath.FromSlash("/a/b/c/d/e/FOO.json"), false), qt.Equals, true)
 
 	c.Assert(err, qt.IsNil)
 
-	nopFilter, err := NewFilenameFilter(nil, nil)
+	nopFilter, err := NewFilenameFilterOld(nil, nil)
 	c.Assert(err, qt.IsNil)
 	c.Assert(nopFilter.Match("ab.txt", false), qt.Equals, true)
 
-	includeOnlyFilter, err := NewFilenameFilter([]string{"**.json", "**.jpg"}, nil)
+	includeOnlyFilter, err := NewFilenameFilterOld([]string{"**.json", "**.jpg"}, nil)
 	c.Assert(err, qt.IsNil)
 	c.Assert(includeOnlyFilter.Match("ab.json", false), qt.Equals, true)
 	c.Assert(includeOnlyFilter.Match("ab.jpg", false), qt.Equals, true)
 	c.Assert(includeOnlyFilter.Match("ab.gif", false), qt.Equals, false)
 
-	excludeOnlyFilter, err := NewFilenameFilter(nil, []string{"**.json", "**.jpg"})
+	excludeOnlyFilter, err := NewFilenameFilterOld(nil, []string{"**.json", "**.jpg"})
 	c.Assert(err, qt.IsNil)
 	c.Assert(excludeOnlyFilter.Match("ab.json", false), qt.Equals, false)
 	c.Assert(excludeOnlyFilter.Match("ab.jpg", false), qt.Equals, false)
