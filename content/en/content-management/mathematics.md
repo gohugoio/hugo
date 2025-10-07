@@ -86,7 +86,8 @@ Step 2
 : Create a _partial_ template to load MathJax or KaTeX. The example below loads MathJax, or you can use KaTeX as described in the [engines](#engines) section.
 
   ```go-html-template {file="layouts/_partials/math.html" copy=true}
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
   <script>
     MathJax = {
       tex: {
@@ -169,7 +170,7 @@ I will give you \\$2 if you can solve $y = x^2$.
 
 ## Engines
 
-MathJax and KaTeX are open-source JavaScript display engines. Both engines are fast, but at the time of this writing MathJax v3.2.2 is slightly faster than KaTeX v0.16.11.
+MathJax and KaTeX are open-source JavaScript display engines.
 
 > [!note]
 > If you use the `$...$` delimiter pair for inline equations, and occasionally use the&nbsp;`$`&nbsp;symbol outside of math contexts, you must use MathJax instead of KaTeX to avoid unintended formatting caused by [this KaTeX limitation](https://github.com/KaTeX/KaTeX/issues/437).
