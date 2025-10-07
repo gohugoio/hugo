@@ -63,7 +63,7 @@ output
   With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your base template.
 
   ```html
-  <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/katex.min.css" rel="stylesheet">
 
 strict
 : {{< new-in 0.147.6 />}}
@@ -132,7 +132,7 @@ Step 3
   <head>
     {{ $noop := .WordCount }}
     {{ if .Page.Store.Get "hasMath" }}
-      <link href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/katex.min.css" rel="stylesheet">
     {{ end }}
   </head>
   ```

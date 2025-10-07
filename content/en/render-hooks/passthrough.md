@@ -104,7 +104,7 @@ Then, in your base template, conditionally include the KaTeX CSS within the head
 <head>
   {{ $noop := .WordCount }}
   {{ if .Page.Store.Get "hasMath" }}
-    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/katex.min.css" rel="stylesheet">
   {{ end }}
 </head>
 ```
