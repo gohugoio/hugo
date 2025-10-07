@@ -45,6 +45,6 @@ Ensure you run this within the root directory of your site.
 
 * [hugo](/commands/hugo/)	 - Build your site
 * [hugo new content](/commands/hugo_new_content/)	 - Create new content
-* [hugo new site](/commands/hugo_new_site/)	 - Create a new site (skeleton)
-* [hugo new theme](/commands/hugo_new_theme/)	 - Create a new theme (skeleton)
+* [hugo new site](/commands/hugo_new_site/)	 - Create a new site
+* [hugo new theme](/commands/hugo_new_theme/)	 - Create a new theme
 
