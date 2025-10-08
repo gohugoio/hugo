@@ -36,6 +36,7 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/types"
 
@@ -198,16 +199,22 @@ func (ps *pageState) resetBuildState() {
 }
 
 func (ps *pageState) skipRender() bool {
-	b := ps.s.conf.C.SegmentFilter.ShouldExcludeFine(
-		segments.SegmentMatcherFields{
-			Path:   ps.Path(),
-			Kind:   ps.Kind(),
-			Lang:   ps.Lang(),
-			Output: ps.pageOutput.f.Name,
+	dodebug := ps.Path() == "/docs/section1/page1"
+	b := ps.s.conf.Segments.Config.IncludeSegment(
+		// Do not include the site and output format in this query,
+		// as these are already been filtered.
+		segments.SegmentMatcherQuery{
+			Path:    ps.Path(),
+			Kind:    ps.Kind(),
+			Dodebug: dodebug,
 		},
 	)
 
-	return b
+	if !b {
+		hdebug.Printf("Skip %q", ps.Path())
+	}
+
+	return !b
 }
 
 func (ps *pageState) isRenderedAny() bool {

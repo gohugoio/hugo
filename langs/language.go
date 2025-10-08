@@ -223,7 +223,7 @@ func IndexDefault(languages Languages) int {
 func IndexMatch(languages Languages, filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, l := range languages {
-			if !filter.ShouldExcludeFine(l.Lang) {
+			if !filter.ShouldExclude(l.Lang) {
 				if !yield(i) {
 					return
 				}

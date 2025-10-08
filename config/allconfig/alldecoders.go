@@ -147,8 +147,11 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "segments",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Segments, err = segments.DecodeSegments(p.p.GetStringMap(d.key))
+			p.c.Segments, err = segments.DecodeSegments(p.p.GetStringMap(d.key), p.c.RenderSegments)
 			return err
+		},
+		getInitializer: func(c *Config) configInitializer {
+			return c.Segments.Config
 		},
 	},
 	"server": {

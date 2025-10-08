@@ -4,112 +4,54 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
 
 func TestCompileSegments(t *testing.T) {
 	c := qt.New(t)
-
-	c.Run("excludes", func(c *qt.C) {
-		fields := []SegmentMatcherFields{
-			{
-				Lang:   "n*",
-				Output: "rss",
-			},
-		}
-
-		match, err := compileSegments(fields)
-		c.Assert(err, qt.IsNil)
-
-		check := func() {
-			c.Assert(match, qt.IsNotNil)
-			c.Assert(match(SegmentMatcherFields{Lang: "no"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Kind: "page"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "rss"}), qt.Equals, true)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "html"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Kind: "page"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "rss", Kind: "page"}), qt.Equals, true)
-		}
-
-		check()
-
-		fields = []SegmentMatcherFields{
-			{
-				Path: "/blog/**",
-			},
-			{
-				Lang:   "n*",
-				Output: "rss",
-			},
-		}
-
-		match, err = compileSegments(fields)
-		c.Assert(err, qt.IsNil)
-		check()
-		c.Assert(match(SegmentMatcherFields{Path: "/blog/foo"}), qt.Equals, true)
-	})
-
-	c.Run("includes", func(c *qt.C) {
-		fields := []SegmentMatcherFields{
-			{
-				Path: "/docs/**",
-			},
-			{
-				Lang:   "no",
-				Output: "rss",
-			},
-		}
-
-		match, err := compileSegments(fields)
-		c.Assert(err, qt.IsNil)
-		c.Assert(match, qt.IsNotNil)
-		c.Assert(match(SegmentMatcherFields{Lang: "no"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page", Path: "/blog/foo"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Lang: "en"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "rss"}), qt.Equals, true)
-		c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "html"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page", Path: "/docs/foo"}), qt.Equals, true)
-	})
-
-	c.Run("includes variant1", func(c *qt.C) {
-		c.Skip()
-
-		fields := []SegmentMatcherFields{
-			{
-				Kind: "home",
-			},
-			{
-				Path: "{/docs,/docs/**}",
-			},
-		}
-
-		match, err := compileSegments(fields)
-		c.Assert(err, qt.IsNil)
-		c.Assert(match, qt.IsNotNil)
-		c.Assert(match(SegmentMatcherFields{Path: "/blog/foo"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page", Path: "/docs/foo"}), qt.Equals, true)
-		c.Assert(match(SegmentMatcherFields{Kind: "home", Path: "/"}), qt.Equals, true)
-	})
-}
-
-func BenchmarkSegmentsMatch(b *testing.B) {
-	fields := []SegmentMatcherFields{
-		{
-			Path: "/docs/**",
-		},
-		{
-			Lang:   "no",
-			Output: "rss",
+	dims := sitesmatrix.NewTestingDimensions([]string{"no", "en"}, []string{"v1.0.0", "v1.2.0", "v2.0.0"}, []string{"guest", "member"})
+	sitesNotNo := sitesmatrix.Sites{
+		Matrix: sitesmatrix.StringSlices{
+			Languages: []string{"! no"},
 		},
 	}
-
-	match, err := compileSegments(fields)
-	if err != nil {
-		b.Fatal(err)
+	if sitesNotNo.IsZero() {
 	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		match(SegmentMatcherFields{Lang: "no", Output: "rss"})
+	segments := Segments{
+		builder: &segmentsBuilder{
+			configuredDimensions: dims,
+			segmentsToRender:     []string{"docs"},
+			segmentCfg: map[string]SegmentConfig{
+				"docs": {
+					Rules: []SegmentMatcherRules{
+						{
+							Sites: sitesNotNo,
+							Path:  []string{"! /bar/**", "{/docs,/docs/**}"},
+						},
+						{
+							Kind: []string{"! {home,term}", "section"},
+						},
+						{
+							Kind: []string{"page"},
+							Path: []string{"/regularpages/**"},
+						},
+					},
+				},
+			},
+		},
 	}
+	c.Assert(segments.compile(), qt.IsNil)
+
+	include := segments.IncludeSegment
+	no := &sitesmatrix.Vector{0, 0, 0}
+	en := &sitesmatrix.Vector{1, 0, 0}
+
+	// c.Assert(filter((SegmentMatcherQuery{Output: "rss"}), qt.Equals, true)
+	c.Assert(include(SegmentMatcherQuery{Kind: "section"}), qt.Equals, true)
+
+	c.Assert(include(SegmentMatcherQuery{Kind: "term"}), qt.Equals, false)
+	c.Assert(include(SegmentMatcherQuery{Path: "/docs", Site: no}), qt.Equals, false)
+	c.Assert(include(SegmentMatcherQuery{Path: "/docs", Site: en}), qt.Equals, true)
+	c.Assert(include(SegmentMatcherQuery{Site: en}), qt.Equals, true)
+	c.Assert(include(SegmentMatcherQuery{Kind: "page"}), qt.Equals, true)
 }

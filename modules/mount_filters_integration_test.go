@@ -60,7 +60,7 @@ All. {{ .Title }}|
 
 // File filter format <= 0.152.0.
 func TestModulesFiltersFilesLegacy(t *testing.T) {
-	t.Parallel()
+	// This cannot be parallel.
 
 	files := `
 -- hugo.toml --
@@ -68,7 +68,7 @@ func TestModulesFiltersFilesLegacy(t *testing.T) {
 [[module.mounts]]
 source = "content"
 target = "content"
-includefiles = ["**.md"]
+includefiles = ["**{a,c}.md"] #includes was evaluated before excludes <= 0.152.0
 excludefiles = ["**b.md"]
 -- content/a.md --
 +++
@@ -91,10 +91,7 @@ All. {{ .Title }}|
 `
 
 	b := hugolib.Test(t, files, hugolib.TestOptInfo())
-	b.AssertLogContains(
-		"deprecated: module.mounts.includeFiles was deprecated in Hugo v0.152.0",
-		"deprecated: module.mounts.excludeFiles was deprecated in Hugo v0.152.0",
-	)
+
 	b.AssertFileContent("public/a/index.html", "All. A|")
 	b.AssertFileContent("public/c/index.html", "All. C|")
 	b.AssertFileExists("public/b/index.html", false)

@@ -41,6 +41,7 @@ import (
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/para"
@@ -424,17 +425,18 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 
 	// TODO1 h.Sites = r
 	for s := range h.allSites(nil) {
-		segmentFilter := s.conf.C.SegmentFilter
-		// TODO1 revise vs versions and roles and new Glob setup.
-		if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
-			l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
+		include := s.conf.Segments.Config.IncludeSegment
+		if !include(segments.SegmentMatcherQuery{Site: &s.siteVector}) {
+			hdebug.Printf("Skip %q", s.resolveDimensionNames())
+			l.Logf("skip site %s not matching segments set in --renderSegments", s.resolveDimensionNames())
 			continue
 		}
 		siteRenderContext.languageIdx = s.siteVector.Language()
 		h.currentSite = s
 		for siteOutIdx, renderFormat := range s.renderFormats {
-			if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
-				l.Logf("skip output format %q for language %q not matching segments set in --renderSegments", renderFormat.Name, s.language.Lang)
+			if !include(segments.SegmentMatcherQuery{Output: renderFormat.Name, Site: &s.siteVector}) {
+				hdebug.Printf("Skip %q %q", renderFormat.Name, s.resolveDimensionNames())
+				l.Logf("skip output format %q for site %s not matching segments set in --renderSegments", renderFormat.Name, s.resolveDimensionNames())
 				continue
 			}
 

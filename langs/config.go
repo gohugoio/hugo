@@ -97,7 +97,7 @@ func (ls LanguagesInternal) ResolveIndex(name string) int {
 func (ls LanguagesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, l := range ls.Sorted {
-			if !filter.ShouldExcludeFine(l.Name) {
+			if !filter.ShouldExclude(l.Name) {
 				if !yield(i) {
 					return
 				}

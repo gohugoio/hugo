@@ -164,7 +164,7 @@ type Config struct {
 	Cascade *page.PageMatcherParamsConfigs `mapstructure:"-"`
 
 	// The segments defines segments for the site. Used for partial/segmented builds.
-	Segments *config.ConfigNamespace[map[string]segments.SegmentConfig, segments.Segments] `mapstructure:"-"`
+	Segments *config.ConfigNamespace[map[string]segments.SegmentConfig, *segments.Segments] `mapstructure:"-"`
 
 	// Menu configuration.
 	// <docsmeta>{"refs": ["config:languages:menus"] }</docsmeta>
@@ -491,7 +491,6 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		CreateTitle:         helpers.GetTitleFunc(c.TitleCaseStyle),
 		IsUglyURLSection:    isUglyURL,
 		IgnoreFile:          ignoreFile,
-		SegmentFilter:       c.Segments.Config.Get(func(s string) { logger.Warnf("Render segment %q not found in configuration", s) }, c.RootConfig.RenderSegments...),
 		MainSections:        c.MainSections,
 		Clock:               clock,
 		HTTPCache:           httpCache,
@@ -531,7 +530,6 @@ type ConfigCompiled struct {
 	CreateTitle         func(s string) string
 	IsUglyURLSection    func(section string) bool
 	IgnoreFile          func(filename string) bool
-	SegmentFilter       segments.SegmentFilter
 	MainSections        []string
 	Clock               time.Time
 	HTTPCache           httpcache.ConfigCompiled
@@ -911,6 +909,8 @@ func (c *Configs) Init(logger loggers.Logger) error {
 
 	c.configLangs = make([]config.AllProvider, len(c.Languages))
 
+	// Config can be shared between languages,
+	// avoid initializing the same config more than once.
 	for i, l := range c.Languages {
 		langConfig := c.LanguageConfigMap[l.Lang]
 		sitesMatrix := sitesmatrix.NewIntSetsBuilder(c.ConfiguredDimensions).WithLanguageIndices(i).WithAllIfNotSet().Build()

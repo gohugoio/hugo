@@ -118,7 +118,7 @@ func (r VersionsInternal) ResolveIndex(name string) int {
 func (r VersionsInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, version := range r.Sorted {
-			if !filter.ShouldExcludeFine(version.Name) {
+			if !filter.ShouldExclude(version.Name) {
 				if !yield(i) {
 					return
 				}

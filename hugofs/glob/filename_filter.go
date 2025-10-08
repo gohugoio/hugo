@@ -57,7 +57,7 @@ func normalizeFilenameGlobPattern(s string) string {
 	return s
 }
 
-func NewFilenameFilter(patterns []string) (*FilenameFilter, error) {
+func NewFilenameFilterV2(patterns []string) (*FilenameFilter, error) {
 	if len(patterns) == 0 {
 		return nil, nil
 	}
@@ -97,22 +97,24 @@ func NewFilenameFilter(patterns []string) (*FilenameFilter, error) {
 	return filter, nil
 }
 
-// NewFilenameFilterOld creates a new Glob where the Match method will
+// NewFilenameFilter creates a new Glob where the Match method will
 // return true if the file should be included.
 // Note that the exclusions will be checked first.
-func NewFilenameFilterOld(inclusions, exclusions []string) (*FilenameFilter, error) {
+// Deprecated: Use NewFilenameFilterV2.
+func NewFilenameFilter(inclusions, exclusions []string) (*FilenameFilter, error) {
 	for i, p := range exclusions {
 		if !strings.HasPrefix(p, NegationPrefix) {
 			exclusions[i] = NegationPrefix + p
 		}
 	}
 	all := slices.Concat(inclusions, exclusions)
-	return NewFilenameFilter(all)
+	return NewFilenameFilterV2(all)
 }
 
 // MustNewFilenameFilter invokes NewFilenameFilter and panics on error.
+// Deprecated: Use NewFilenameFilterV2.
 func MustNewFilenameFilter(inclusions, exclusions []string) *FilenameFilter {
-	filter, err := NewFilenameFilterOld(inclusions, exclusions)
+	filter, err := NewFilenameFilter(inclusions, exclusions)
 	if err != nil {
 		panic(err)
 	}

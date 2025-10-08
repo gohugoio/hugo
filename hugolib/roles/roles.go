@@ -116,7 +116,7 @@ func (r RolesInternal) ResolveIndex(name string) int {
 func (r RolesInternal) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, role := range r.Sorted {
-			if !filter.ShouldExcludeFine(role.Name) {
+			if !filter.ShouldExclude(role.Name) {
 				if !yield(i) {
 					return
 				}

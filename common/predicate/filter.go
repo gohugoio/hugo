@@ -14,8 +14,9 @@ type Filter[T any] struct {
 	include P[T]
 }
 
-func (f Filter[T]) ShouldExcludeCoarse(v T) bool {
-	return f.exclude != nil && f.exclude(v)
+// TODO1 remove this filter.
+func (f Filter[T]) ShouldExclude(v T) bool {
+	return f.ShouldExcludeFine(v)
 }
 
 func (f Filter[T]) ShouldExcludeFine(v T) bool {
@@ -29,7 +30,7 @@ func NewFilter[T any](include, exclude P[T]) Filter[T] {
 	return Filter[T]{exclude: exclude, include: include}
 }
 
-func NewFilterFromGlobs(patterns []string, getGlob func(pattern string) (glob.Glob, error)) (Filter[string], error) {
+func NewStringFilterFromGlobs(patterns []string, getGlob func(pattern string) (glob.Glob, error)) (Filter[string], error) {
 	var filter Filter[string]
 	for _, p := range patterns {
 		p = strings.TrimSpace(p)

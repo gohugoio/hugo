@@ -715,7 +715,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				hugo.Deprecate("module.mounts.excludeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/configuration/module/#files", "v0.152.0")
 			}
 
-			inclusionFilter, err := glob.NewFilenameFilter(patterns)
+			inclusionFilter, err := glob.NewFilenameFilterV2(patterns)
 			if err != nil {
 				return err
 			}

@@ -687,7 +687,7 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 		}
 
 		// Dot separated globs.
-		filter, err := predicate.NewFilterFromGlobs(values, glob.GetGlobDot)
+		filter, err := predicate.NewStringFilterFromGlobs(values, glob.GetGlobDot)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create filter for %s: %w", what, err)
 		}
@@ -898,7 +898,7 @@ func (m *testDimension) ForEachIndex() iter.Seq[int] {
 func (m *testDimension) IndexMatch(filter predicate.Filter[string]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, n := range m.names {
-			if !filter.ShouldExcludeFine(n) {
+			if !filter.ShouldExclude(n) {
 				if !yield(i) {
 					return
 				}
