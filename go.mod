@@ -2,6 +2,7 @@ module github.com/gohugoio/hugo
 
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
+	github.com/JohannesKaufmann/html-to-markdown/v2 v2.4.0
 	github.com/alecthomas/chroma/v2 v2.20.0
 	github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c
 	github.com/aws/aws-sdk-go-v2 v1.39.2
@@ -76,7 +77,7 @@ require (
 	gocloud.dev v0.43.0
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b
 	golang.org/x/image v0.30.0
-	golang.org/x/mod v0.28.0
+	golang.org/x/mod v0.29.0
 	golang.org/x/net v0.44.0
 	golang.org/x/sync v0.17.0
 	golang.org/x/text v0.29.0
@@ -106,7 +107,6 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.53.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.53.0 // indirect
 	github.com/JohannesKaufmann/dom v0.2.0 // indirect
-	github.com/JohannesKaufmann/html-to-markdown/v2 v2.4.0 // indirect
 	github.com/aws/aws-sdk-go v1.55.7 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.11 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.29.17 // indirect
