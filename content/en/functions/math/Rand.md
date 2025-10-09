@@ -10,8 +10,6 @@ params:
     signatures: [math.Rand]
 ---
 
-{{< new-in 0.121.2 />}}
-
 The `math.Rand` function returns a pseudo-random number in the half-open [interval](g) [0.0, 1.0).
 
 ```go-html-template
