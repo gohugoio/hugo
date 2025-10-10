@@ -1,0 +1,1 @@
+  gobench --bench BenchmarkSitesMatrixContent/n100/mdtrue --package ./hugolib/sitesmatrix

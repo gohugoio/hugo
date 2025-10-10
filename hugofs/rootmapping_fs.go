@@ -323,7 +323,7 @@ func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 type ComponentPath struct {
 	Component string
 	Path      string
-	Lang      string
+	Lang      string // TODO1
 	Watch     bool
 }
 
@@ -377,7 +377,6 @@ func (fs *RootMappingFs) ReverseLookupComponent(component, filename string) ([]C
 		cps = append(cps, ComponentPath{
 			Component: first.FromBase,
 			Path:      paths.ToSlashTrimLeading(filename),
-			Lang:      first.Meta.Lang,
 			Watch:     first.Meta.Watch,
 		})
 	}
@@ -407,7 +406,7 @@ func (fs *RootMappingFs) getRoot(key string) []RootMapping {
 func (fs *RootMappingFs) getRoots(key string) (string, []RootMapping) {
 	tree := fs.rootMapToReal
 	levels := strings.Count(key, filepathSeparator)
-	seen := make(map[RootMapping]bool)
+	seen := make(map[RootMapping]bool) // TODO1 lang vs langugages etc.
 
 	var roots []RootMapping
 	var s string

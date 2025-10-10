@@ -94,7 +94,7 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 			resolvedm = rr.MediaType()
 		}
 
-		idm := c.rs.Cfg.NewIdentityManager("concat")
+		idm := c.rs.Cfg.NewIdentityManager()
 
 		// Re-create on structural changes.
 		idm.AddIdentity(identity.StructuralChangeAdd, identity.StructuralChangeRemove)

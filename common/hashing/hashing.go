@@ -23,6 +23,7 @@ import (
 
 	"github.com/cespare/xxhash/v2"
 	"github.com/gohugoio/hashstructure"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/identity"
 )
 
@@ -36,6 +37,34 @@ func XXHashFromReader(r io.Reader) (uint64, int64, error) {
 		return 0, 0, err
 	}
 	return h.Sum64(), size, nil
+}
+
+type Hasher interface {
+	io.StringWriter
+	io.Writer
+	io.ReaderFrom
+	Sum64() uint64
+}
+
+type HashCloser interface {
+	Hasher
+	io.Closer
+}
+
+// XxHasher returns a Hasher that uses xxHash.
+// Remember to call Close when done.
+func XxHasher() HashCloser {
+	h := getXxHashReadFrom()
+	return struct {
+		Hasher
+		io.Closer
+	}{
+		Hasher: h,
+		Closer: hugio.CloserFunc(func() error {
+			putXxHashReadFrom(h)
+			return nil
+		}),
+	}
 }
 
 // XxHashFromReaderHexEncoded calculates the xxHash for the given reader

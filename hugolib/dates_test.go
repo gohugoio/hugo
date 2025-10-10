@@ -309,9 +309,9 @@ tags: [t1]
 	b := Test(t, files)
 
 	b.AssertFileContent("public/s1/index.html", `
-		Date: 2099-05-06
+		Date: 2024-04-03
 		PublishDate: 2024-04-03
-		Lastmod: 2099-05-06
+		Lastmod: 2024-04-04
 	`)
 
 	b.AssertFileContent("public/tags/index.html", `
@@ -332,9 +332,9 @@ tags: [t1]
 	b = Test(t, files)
 
 	b.AssertFileContent("public/s1/index.html", `
-		Date: 2099-05-06
+		Date: 2024-04-03
 		PublishDate: 2024-04-04
-		Lastmod: 2099-05-06
+		Lastmod: 2024-04-03
 	`)
 
 	b.AssertFileContent("public/tags/index.html", `

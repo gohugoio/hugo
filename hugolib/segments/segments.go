@@ -15,114 +15,240 @@ package segments
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/config"
 	hglob "github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/mitchellh/mapstructure"
 )
 
 // Segments is a collection of named segments.
 type Segments struct {
-	s map[string]excludeInclude
+	builder *segmentsBuilder
+
+	// IncludeSegment is the compiled filter for all segments to render.
+	IncludeSegment predicate.P[SegmentMatcherQuery]
 }
 
-type excludeInclude struct {
-	exclude predicate.P[SegmentMatcherFields]
-	include predicate.P[SegmentMatcherFields]
+type segmentsBuilder struct {
+	isConfigInit         bool
+	configuredDimensions *sitesmatrix.ConfiguredDimensions
+	segmentCfg           map[string]SegmentConfig
+	segmentsToRender     []string
+	compiled             map[string]predicate.P[SegmentMatcherQuery]
 }
 
-// ShouldExcludeCoarse returns whether the given fields should be excluded.
-// This is used for the coarser grained checks, e.g. language and output format.
-// Note that ShouldExcludeCoarse(fields) == ShouldExcludeFine(fields) may
-// not always be true, but ShouldExcludeCoarse(fields) == true == ShouldExcludeFine(fields)
-// will always be truthful.
-func (e excludeInclude) ShouldExcludeCoarse(fields SegmentMatcherFields) bool {
-	return e.exclude != nil && e.exclude(fields)
-}
-
-// ShouldExcludeFine returns whether the given fields should be excluded.
-// This is used for the finer grained checks, e.g. on individual pages.
-func (e excludeInclude) ShouldExcludeFine(fields SegmentMatcherFields) bool {
-	if e.exclude != nil && e.exclude(fields) {
-		return true
+func (b *Segments) compile() error {
+	filter, err := b.builder.build()
+	if err != nil {
+		return err
 	}
-	return e.include != nil && !e.include(fields)
+	b.IncludeSegment = filter
+	b.builder = nil
+	return nil
 }
 
-type SegmentFilter interface {
-	// ShouldExcludeCoarse returns whether the given fields should be excluded on a coarse level.
-	ShouldExcludeCoarse(SegmentMatcherFields) bool
+func (s *segmentsBuilder) build() (predicate.P[SegmentMatcherQuery], error) {
+	s.compiled = make(map[string]predicate.P[SegmentMatcherQuery], len(s.segmentCfg))
 
-	// ShouldExcludeFine returns whether the given fields should be excluded on a fine level.
-	ShouldExcludeFine(SegmentMatcherFields) bool
+	var hasLegacyExcludesOrIncludes bool
+	for k, v := range s.segmentCfg {
+		// In Hugo v0.152.0 we reworked excludes and includes to use rules instead.
+		// To make that backwards compatible, we convert the old fields to rules here.
+		// We need to start with the excludes, then the includes.
+		hasLegacyExcludesOrIncludes = hasLegacyExcludesOrIncludes || len(v.Excludes) > 0 || len(v.Includes) > 0
+
+		// Grouped per rule set.
+		var rules []func(q SegmentMatcherQuery) (bool, bool)
+		for _, r := range v.Rules {
+			incl, err := compileShouldIncludeFilter(r, s.configuredDimensions)
+			if err != nil {
+				return nil, fmt.Errorf("failed to compile segment %q: %w", k, err)
+			}
+			rules = append(rules, incl)
+		}
+
+		include := func(q SegmentMatcherQuery) bool {
+			for _, shouldInclude := range rules {
+				ok, terminate := shouldInclude(q)
+				if ok || terminate {
+					return ok
+				}
+			}
+			return false
+		}
+
+		s.compiled[k] = include
+	}
+
+	if hasLegacyExcludesOrIncludes {
+		// I tried my best, but it's not poossible/practical to make this a warning.
+		// The upside is that the new setup should be much easier to understand.
+		return nil, fmt.Errorf("the use of segments.[id].{excludes,includes} was deprecated and removed in v0.152.0 to add support for multidimensional filtering; use segments.[id].rules instead, see https://gohugo.io/configuration/segments/#segment-definition")
+	}
+	return s.compileSegmentFilter()
 }
 
-type segmentFilter struct {
-	coarse predicate.P[SegmentMatcherFields]
-	fine   predicate.P[SegmentMatcherFields]
-}
-
-func (f segmentFilter) ShouldExcludeCoarse(field SegmentMatcherFields) bool {
-	return f.coarse(field)
-}
-
-func (f segmentFilter) ShouldExcludeFine(fields SegmentMatcherFields) bool {
-	return f.fine(fields)
+func (b *Segments) InitConfig(logger loggers.Logger, _ sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+	if b.builder == nil || b.builder.isConfigInit {
+		return nil
+	}
+	b.builder.isConfigInit = true
+	b.builder.configuredDimensions = configuredDimensions
+	return b.compile()
 }
 
 var (
-	matchAll     = func(SegmentMatcherFields) bool { return true }
-	matchNothing = func(SegmentMatcherFields) bool { return false }
+	matchAll     = func(SegmentMatcherQuery) bool { return true }
+	matchNothing = func(SegmentMatcherQuery) bool { return false }
 )
 
-// Get returns a SegmentFilter for the given segments.
-func (sms Segments) Get(onNotFound func(s string), ss ...string) SegmentFilter {
-	if ss == nil {
-		return segmentFilter{coarse: matchNothing, fine: matchNothing}
+func (b *segmentsBuilder) compileSegmentFilter() (predicate.P[SegmentMatcherQuery], error) {
+	if b.segmentsToRender == nil {
+		return matchAll, nil
 	}
-	var sf segmentFilter
-	for _, s := range ss {
-		if seg, ok := sms.s[s]; ok {
-			if sf.coarse == nil {
-				sf.coarse = seg.ShouldExcludeCoarse
+
+	var sf predicate.P[SegmentMatcherQuery]
+	for _, s := range b.segmentsToRender {
+		if seg, ok := b.compiled[s]; ok {
+			if sf == nil {
+				sf = seg
 			} else {
-				sf.coarse = sf.coarse.Or(seg.ShouldExcludeCoarse)
+				sf = sf.Or(seg)
 			}
-			if sf.fine == nil {
-				sf.fine = seg.ShouldExcludeFine
-			} else {
-				sf.fine = sf.fine.Or(seg.ShouldExcludeFine)
-			}
-		} else if onNotFound != nil {
-			onNotFound(s)
 		}
 	}
 
-	if sf.coarse == nil {
-		sf.coarse = matchAll
-	}
-	if sf.fine == nil {
-		sf.fine = matchAll
+	if sf == nil {
+		sf = matchNothing
 	}
 
-	return sf
+	return sf, nil
 }
 
 type SegmentConfig struct {
-	Excludes []SegmentMatcherFields
-	Includes []SegmentMatcherFields
+	Excludes []SegmentMatcherFields `json:"-"` // Deprecated: Use Rules.
+	Includes []SegmentMatcherFields `json:"-"` // Deprecated: Use Rules.
+
+	Rules []SegmentMatcherRules
 }
 
 // SegmentMatcherFields is a matcher for a segment include or exclude.
 // All of these are Glob patterns.
+// Deprecated: Use SegmentMatcherRules and SegmentMatcherQuery.
 type SegmentMatcherFields struct {
 	Kind   string
 	Path   string
 	Lang   string
 	Output string
+}
+
+type SegmentMatcherQuery struct {
+	Kind   string
+	Path   string
+	Output string
+	Site   *sitesmatrix.Vector // May be nil.
+
+	// TODO1 remove
+	Dodebug bool
+}
+
+// SegmentMatcherRules holds string slices of ordered filters for segment matching.
+// The Glob patterns can be negated by prefixing with "! ".
+// The first match wins (either include or exclude).
+type SegmentMatcherRules struct {
+	Kind   []string
+	Path   []string
+	Output []string
+	Sites  sitesmatrix.Sites // Note that we only use Sites.Matrix for now.
+}
+
+func (r SegmentMatcherRules) compile(configuredDimensions *sitesmatrix.ConfiguredDimensions) (segmentMatcherRulesCompiled, error) {
+	compileStringPredicate := func(what string, ss []string) (func(string) (bool, bool), error) {
+		if ss == nil {
+			return nil, nil
+		}
+		type globExclude struct {
+			glob    glob.Glob
+			s       string
+			exclude bool
+		}
+		var patterns []globExclude
+		for _, s := range ss {
+			var exclude bool
+			if strings.HasPrefix(s, hglob.NegationPrefix) {
+				exclude = true
+				s = strings.TrimPrefix(s, hglob.NegationPrefix)
+			}
+			g, err := getGlob(s)
+			if err != nil {
+				return nil, err
+			}
+
+			patterns = append(patterns, globExclude{glob: g, exclude: exclude, s: s})
+
+		}
+
+		matcher := func(s string) (bool, bool) {
+			if s == "" {
+				return false, false
+			}
+
+			for _, pe := range patterns {
+				g := pe.glob
+				m := g.Match(s)
+				if m {
+					return !pe.exclude, m && pe.exclude
+				}
+			}
+			return false, false
+		}
+
+		return matcher, nil
+	}
+
+	filter := segmentMatcherRulesCompiled{}
+
+	var err error
+	filter.Kind, err = compileStringPredicate("kind", r.Kind)
+	if err != nil {
+		return filter, err
+	}
+	filter.Path, err = compileStringPredicate("path", r.Path)
+	if err != nil {
+		return filter, err
+	}
+	filter.Output, err = compileStringPredicate("output", r.Output)
+	if err != nil {
+		return filter, err
+	}
+	if !r.Sites.Matrix.IsZero() {
+		intSetsCfg := sitesmatrix.IntSetsConfig{
+			Globs: r.Sites.Matrix,
+		}
+		matrix := sitesmatrix.NewIntSetsBuilder(configuredDimensions).WithConfig(intSetsCfg).WithAllIfNotSet().Build()
+
+		filter.Sites = func(vec sitesmatrix.Vector) (bool, bool) {
+			return matrix.HasVector(vec), true
+		}
+	} else {
+		// Match all.
+		filter.Sites = func(sitesmatrix.Vector) (bool, bool) { return true, false }
+	}
+
+	return filter, nil
+}
+
+type segmentMatcherRulesCompiled struct {
+	Kind   func(string) (bool, bool)
+	Path   func(string) (bool, bool)
+	Output func(string) (bool, bool)
+	Sites  func(sitesmatrix.Vector) (bool, bool)
 }
 
 func getGlob(s string) (glob.Glob, error) {
@@ -136,114 +262,66 @@ func getGlob(s string) (glob.Glob, error) {
 	return g, nil
 }
 
-func compileSegments(f []SegmentMatcherFields) (predicate.P[SegmentMatcherFields], error) {
-	if f == nil {
-		return func(SegmentMatcherFields) bool { return false }, nil
-	}
-	var (
-		result  predicate.P[SegmentMatcherFields]
-		section predicate.P[SegmentMatcherFields]
-	)
-
-	addToSection := func(matcherFields SegmentMatcherFields, f func(fields SegmentMatcherFields) string) error {
-		s1 := f(matcherFields)
-		g, err := getGlob(s1)
-		if err != nil {
-			return err
-		}
-		matcher := func(fields SegmentMatcherFields) bool {
-			s2 := f(fields)
-			if s2 == "" {
-				return false
-			}
-			return g.Match(s2)
-		}
-		if section == nil {
-			section = matcher
-		} else {
-			section = section.And(matcher)
-		}
-		return nil
+func compileShouldIncludeFilter(rules SegmentMatcherRules, configuredDimensions *sitesmatrix.ConfiguredDimensions) (func(q SegmentMatcherQuery) (include bool, terminate bool), error) {
+	c, err := rules.compile(configuredDimensions)
+	if err != nil {
+		return nil, err
 	}
 
-	for _, fields := range f {
-		if fields.Kind != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Kind }); err != nil {
-				return result, err
+	return func(q SegmentMatcherQuery) (include bool, terminate bool) {
+		if q.Kind != "" && c.Kind != nil {
+			if b, terminate := c.Kind(q.Kind); !b || terminate {
+				return b, terminate
 			}
-		}
-		if fields.Path != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Path }); err != nil {
-				return result, err
-			}
-		}
-		if fields.Lang != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Lang }); err != nil {
-				return result, err
-			}
-		}
-		if fields.Output != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Output }); err != nil {
-				return result, err
-			}
+			include = true
 		}
 
-		if result == nil {
-			result = section
-		} else {
-			result = result.Or(section)
+		if q.Path != "" && c.Path != nil {
+			if b, terminate := c.Path(q.Path); !b || terminate {
+				return b, terminate
+			}
+			include = true
 		}
-		section = nil
 
-	}
+		if q.Output != "" && c.Output != nil {
+			if b, terminate := c.Output(q.Output); !b || terminate {
+				return b, terminate
+			}
+			include = true
+		}
 
-	return result, nil
+		if q.Site != nil && c.Sites != nil {
+			if b, terminate := c.Sites(*q.Site); !b || terminate {
+				return b, terminate
+			}
+			include = true
+		}
+
+		return
+	}, nil
 }
 
-func DecodeSegments(in map[string]any) (*config.ConfigNamespace[map[string]SegmentConfig, Segments], error) {
-	buildConfig := func(in any) (Segments, any, error) {
-		sms := Segments{
-			s: map[string]excludeInclude{},
-		}
+func DecodeSegments(in map[string]any, segmentsToRender []string) (*config.ConfigNamespace[map[string]SegmentConfig, *Segments], error) {
+	buildConfig := func(in any) (*Segments, any, error) {
 		m, err := maps.ToStringMapE(in)
 		if err != nil {
-			return sms, nil, err
+			return nil, nil, err
 		}
 		if m == nil {
 			m = map[string]any{}
 		}
 		m = maps.CleanConfigStringMap(m)
 
-		var scfgm map[string]SegmentConfig
-		if err := mapstructure.Decode(m, &scfgm); err != nil {
-			return sms, nil, err
+		var segmentCfg map[string]SegmentConfig
+		if err := mapstructure.WeakDecode(m, &segmentCfg); err != nil {
+			return nil, nil, err
 		}
 
-		for k, v := range scfgm {
-			var (
-				include predicate.P[SegmentMatcherFields]
-				exclude predicate.P[SegmentMatcherFields]
-				err     error
-			)
-			if v.Excludes != nil {
-				exclude, err = compileSegments(v.Excludes)
-				if err != nil {
-					return sms, nil, err
-				}
-			}
-			if v.Includes != nil {
-				include, err = compileSegments(v.Includes)
-				if err != nil {
-					return sms, nil, err
-				}
-			}
-
-			ei := excludeInclude{
-				exclude: exclude,
-				include: include,
-			}
-			sms.s[k] = ei
-
+		sms := &Segments{
+			builder: &segmentsBuilder{
+				segmentCfg:       segmentCfg,
+				segmentsToRender: segmentsToRender,
+			},
 		}
 
 		return sms, nil, nil

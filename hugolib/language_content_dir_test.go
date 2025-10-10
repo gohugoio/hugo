@@ -237,6 +237,6 @@ title: p1 (es)
 	b.AssertFileExists("public/es/p1/index.html", true)
 	b.AssertFileExists("public/es/p2/index.html", true)
 
-	b.AssertLogContains("INFO  Duplicate")
-	b.AssertLogContains("! WARN  Duplicate")
+	// This assertion was changed for 0.152.0. It was no longer possible/practical to warn about duplicate content paths.
+	b.AssertLogContains("! Duplicate")
 }

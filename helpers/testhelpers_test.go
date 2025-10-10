@@ -23,7 +23,7 @@ func newTestPathSpecFromCfgAndLang(cfg config.Provider, lang string) *helpers.Pa
 		}
 	}
 	fs := hugofs.NewFrom(mfs, conf.BaseConfig())
-	ps, err := helpers.NewPathSpec(fs, conf, loggers.NewDefault())
+	ps, err := helpers.NewPathSpec(fs, conf, loggers.NewDefault(), nil)
 	if err != nil {
 		panic(err)
 	}

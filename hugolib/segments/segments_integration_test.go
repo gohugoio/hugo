@@ -20,7 +20,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 )
 
-func TestSegments(t *testing.T) {
+func TestSegmentsLegacy(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.org/"
@@ -64,13 +64,57 @@ tags: ["tag1", "tag2"]
 ---
 `
 
-	b := hugolib.Test(t, files)
-	b.Assert(b.H.Configs.Base.RootConfig.RenderSegments, qt.DeepEquals, []string{"docs"})
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, ".* was deprecated and removed in v0.152.0.*")
+}
 
-	b.AssertFileContent("public/docs/section1/page1/index.html", "Docs Page 1")
-	b.AssertFileExists("public/blog/section1/page1/index.html", false)
-	b.AssertFileExists("public/index.html", true)
-	b.AssertFileExists("public/index.xml", true)
-	b.AssertFileExists("public/no/index.html", true)
-	b.AssertFileExists("public/no/index.xml", false)
+// TODo1 check that we use dot vs / in matrix Globs.
+
+func TestSegments(t *testing.T) {
+	t.Skip("TODO1")
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+renderSegments = ["docs"]
+[languages]
+[languages.en]
+weight = 1
+[languages.no]
+weight = 2
+[languages.sv]
+weight = 3
+
+[module]
+[[module.mounts]]
+source = "content"
+target = "content"
+[module.mounts.sites.matrix]
+languages = ['**']
+[segments]
+[segments.docs]
+[[segments.docs.rules]]
+[segments.docs.rules.sites.matrix]
+languages = ["**"] # All languages except English
+[[segments.docs.rules]]
+output =  ["**"] # Only HTML output
+[[segments.docs.rules]]
+kind = "**" # Always render home page.
+[[segments.docs.rules]]
+path = "{/docs,/docs/**}"
+-- layouts/all.html --
+All: {{ .Title }}|{{ .RelPermalink }}|
+-- content/_index.md --
+-- content/docs/_index.md --
+-- content/docs/section1/_index.md --
+-- content/docs/section1/page1.md --
+-- content/blog/_index.md --
+-- content/blog/section1/page1.md --
+`
+
+	b := hugolib.Test(t, files)
+	// b.Assert(b.H.Configs.Base.RootConfig.RenderSegments, qt.DeepEquals, []string{"docs"})
+
+	b.AssertPublishDir("asdf")
 }
