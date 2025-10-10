@@ -111,7 +111,11 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 		if unicode.IsSpace(r) {
 			lastWordIndex = lastNonSpace
 		} else if unicode.In(r, unicode.Han, unicode.Hangul, unicode.Hiragana, unicode.Katakana) {
-			lastWordIndex = i
+			lastWordIndex = lastNonSpace
+			lastNonSpace = i + utf8.RuneLen(r)
+			if currentLen <= length {
+				lastWordIndex = lastNonSpace
+			}
 		} else {
 			lastNonSpace = i + utf8.RuneLen(r)
 		}
