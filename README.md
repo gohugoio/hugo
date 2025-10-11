@@ -134,6 +134,15 @@ Hugo's [documentation] includes installation instructions, a quick start guide, 
 
 Please submit documentation issues and pull requests to the [documentation repository].
 
+### How does `hugo` work under the hood?
+
+Check out this interactive walkthrough of the `hugo` codebase on CodeCanvas [here](https://www.code-canvas.com/?session=unauthenticatedGithub&repo=hugo&owner=gohugoio&branch=master&OnboardingTutorial=true).
+
+To refine existing dataflow simulation or create new ones, follow the quick tutorial [here](https://docs.code-canvas.com/updating-diagram).
+
+<img width="1916" alt="CodeCanvas Screenshot" src="https://codecanvas-media-public.s3.amazonaws.com/images/codecanvas-readme-screenshot.png" />
+
+
 ## Support
 
 Please **do not use the issue queue** for questions or troubleshooting. Unless you are certain that your issue is a software defect, use the [forum].
