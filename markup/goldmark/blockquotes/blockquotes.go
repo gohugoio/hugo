@@ -69,7 +69,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 		return ast.WalkContinue, nil
 	}
 
-	text := strings.TrimSpace(ctx.PopRenderedString())
+	text := ctx.PopRenderedString()
 
 	ordinal := ctx.GetAndIncrementOrdinal(ast.KindBlockquote)
 
@@ -90,7 +90,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 		// tag if the first line of the blockquote content does not have a
 		// closing p tag. At some point we might want to move this to the
 		// parser.
-		before, after, found := strings.Cut(text, "\n")
+		before, after, found := strings.Cut(strings.TrimSpace(text), "\n")
 		if found {
 			if strings.HasSuffix(before, "</p>") {
 				text = after
@@ -173,7 +173,7 @@ func (c *blockquoteContext) Text() hstring.HTML {
 var blockQuoteAlertRe = regexp.MustCompile(`^<p>\[!([a-zA-Z]+)\](-|\+)?[^\S\r\n]?([^\n]*)\n?`)
 
 func resolveBlockQuoteAlert(s string) blockQuoteAlert {
-	m := blockQuoteAlertRe.FindStringSubmatch(s)
+	m := blockQuoteAlertRe.FindStringSubmatch(strings.TrimSpace(s))
 	if len(m) == 4 {
 		title := strings.TrimSpace(m[3])
 		title = strings.TrimSuffix(title, "</p>")

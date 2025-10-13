@@ -15,6 +15,7 @@ package blockquotes_test
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -76,7 +77,7 @@ title: "p1"
 		"Blockquote Alert: |<p>This is a note with some whitespace after the alert type.</p>|alert|",
 		"Blockquote Alert: |<p>This is a tip.</p>",
 		"Blockquote Alert: |<p>This is a caution with some whitespace before the alert type.</p>|alert|",
-		"Blockquote: |<p>A regular blockquote.</p>|regular|",
+		"Blockquote: |<p>A regular blockquote.</p>\n|regular|",
 		"Blockquote Alert Attributes: |<p>This is a tip with attributes.</p>|map[class:foo bar id:baz]|",
 		filepath.FromSlash("/content/p1.md:19:3"),
 		"Blockquote Alert Page: |<p>This is a tip with attributes.</p>|p1|p1|",
@@ -248,6 +249,37 @@ title: home
 		"AlertType: fourteen|AlertTitle: title|Text: <p><img src=\"a.jpg\" alt=\"alt\"></p>|",
 		"AlertType: fifteen|AlertTitle: <em>title</em>|Text: |",
 		"AlertType: sixteen|AlertTitle: <em>title</em>|Text: <p>line one</p>|",
-		"AlertType: |AlertTitle: |Text: <p>seventeen</p>|",
+		"AlertType: |AlertTitle: |Text: <p>seventeen</p>\n|",
 	)
+}
+
+// Issue14046
+func TestBlockquoteDefaultOutput(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+---
+> foo
+-- layouts/page.html --
+|{{ .Content }}|
+-- xxx --
+<blockquote>
+{{ .Text }}
+</blockquote>
+`
+
+	want := "|<blockquote>\n<p>foo</p>\n</blockquote>\n|"
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", want) // fail
+
+	files = strings.ReplaceAll(files, "xxx", "layouts/_markup/render-blockquote.html")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", want)
 }
