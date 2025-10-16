@@ -5,8 +5,13 @@ hugo server --renderToMemory &
 
 waitServer
 
+# Assert home page.
 httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0
 httpget $HUGOTEST_BASEURL_1 'Title: Hugo Serveur Test' $HUGOTEST_BASEURL_1
+
+# Assert static mount.
+httpget ${HUGOTEST_BASEURL_0}mystatic/mytext.txt 'en_mytext'
+httpget ${HUGOTEST_BASEURL_1}mystatic/mytext.txt 'fr_mytext'
 
 stopServer
 ! stderr .
@@ -15,6 +20,16 @@ stopServer
 title = "Hugo Server Test"
 baseURL = "https://example.org/"
 disableKinds = ["taxonomy", "term", "sitemap"]
+
+[[module.mounts]]
+source = 'static/en'
+target = 'static'
+lang = 'en'
+[[module.mounts]]
+source = 'static/fr'
+target = 'static'
+lang = 'fr'
+
 [languages]
 [languages.en]
 baseURL = "https://en.example.org/"
@@ -28,5 +43,9 @@ languageName = "Français"
 weight = 2
 -- layouts/index.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
+-- static/en/mystatic/mytext.txt --
+en_mytext
+-- static/fr/mystatic/mytext.txt --
+fr_mytext
 
 
