@@ -5,8 +5,8 @@ hugo server --renderToMemory --renderStaticToDisk &
 
 waitServer
 
-httpget $HUGOTEST_BASEURL_0 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0
-httpget ${HUGOTEST_BASEURL_0}mystatic.txt 'This is a static file.'
+httpget ${HUGOTEST_BASEURL_0}en/ 'Title: Hugo Server Test' $HUGOTEST_BASEURL_0
+httpget ${HUGOTEST_BASEURL_0}mystatic.txt 'This is a static file in English.'
 
 ! exists public/index.html
 exists public/mystatic.txt
@@ -18,8 +18,32 @@ stopServer
 title = "Hugo Server Test"
 baseURL = "https://example.org/"
 disableKinds = ["taxonomy", "term", "sitemap"]
--- static/mystatic.txt --
-This is a static file.
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[[module.mounts]]
+source = 'static/en'
+target = 'static'
+lang = 'en'
+[[module.mounts]]
+source = 'static/fr'
+target = 'static'
+lang = 'fr'
+
+
+[languages]
+[languages.en]
+languageName = "English"
+title = "Hugo Server Test"
+weight = 1
+[languages.fr]
+title = "Hugo Serveur Test"
+languageName = "Français"
+weight = 2
+
+-- static/en/mystatic.txt --
+This is a static file in English.
+-- static/en/mystatic.txt --
+This is a static file in English.
 -- layouts/index.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
 
