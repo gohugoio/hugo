@@ -142,6 +142,12 @@ var shortCodeLexerTests = []lexerTest{
 		tstLeftNoMD, tstSC2, tstRightNoMD,
 		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD, tstEOF,
 	}, nil},
+	{"nested same", `{{< sc1 >}}{{< sc1 >}}{{< /sc1 >}}{{< /sc1 >}}`, []typeText{
+		tstLeftNoMD, tstSC1, tstRightNoMD,
+		tstLeftNoMD, tstSC1, tstRightNoMD,
+		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD,
+		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD, tstEOF,
+	}, nil},
 	{"nested complex", `{{< sc1 >}}ab{{% sc2 param1 %}}cd{{< sc3 >}}ef{{< /sc3 >}}gh{{% /sc2 %}}ij{{< /sc1 >}}kl`, []typeText{
 		tstLeftNoMD, tstSC1, tstRightNoMD,
 		nti(tText, "ab"),
