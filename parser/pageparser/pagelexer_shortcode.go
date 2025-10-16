@@ -263,12 +263,11 @@ Loop:
 				}
 				l.openShortcodes[word] = false
 				lookForEnd = true
-			} else {
-				l.openShortcodes[word] = true
 			}
 
 			l.closingState = 0
 			l.currShortcodeName = word.Value()
+			l.openShortcodes[word] = true
 			l.elementStepNum++
 			if l.isInline {
 				l.emit(tScNameInline)
