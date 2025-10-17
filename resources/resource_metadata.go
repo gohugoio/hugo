@@ -19,16 +19,17 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/spf13/cast"
 
+	maps0 "maps"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	maps0 "maps"
 )
 
 var (
@@ -161,7 +162,7 @@ func assignMetadata(metadata []map[string]any, ma *metaResource) error {
 
 		srcKey := strings.ToLower(cast.ToString(src))
 
-		glob, err := glob.GetGlob(srcKey)
+		glob, err := hglob.GetGlob(srcKey)
 		if err != nil {
 			return fmt.Errorf("failed to match resource with metadata: %w", err)
 		}

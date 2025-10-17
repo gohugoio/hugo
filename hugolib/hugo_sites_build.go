@@ -31,7 +31,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
 	"github.com/gohugoio/hugo/hugolib/segments"
@@ -41,6 +41,7 @@ import (
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/para"
@@ -60,6 +61,9 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+	if h.isRebuild() && !h.Conf.Watching() {
+		return errors.New("Build called multiple times when not in watch or server mode (typically with hugolib.Test(t, files).Build(); Build() is already called once by Test)")
+	}
 	if !h.isRebuild() && terminal.PrintANSIColors(os.Stdout) {
 		// Don't show progress for fast builds.
 		d := debounce.New(250 * time.Millisecond)
@@ -184,7 +188,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		}
 	}
 
-	for _, s := range h.Sites {
+	for s := range h.allSites(nil) {
 		s.state = siteStateReady
 	}
 
@@ -258,7 +262,7 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 		return errors.New("rebuild called when not in watch mode")
 	}
 
-	h.pageTrees.treePagesResources.WalkPrefixRaw("", func(key string, n contentNodeI) bool {
+	h.pageTrees.treePagesResources.WalkPrefixRaw("", func(key string, n contentNode) bool {
 		n.resetBuildState()
 		return false
 	})
@@ -309,22 +313,43 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	h.translationKeyPages.Reset()
-	assemblers := make([]*sitePagesAssembler, len(h.Sites))
-	// Changes detected during assembly (e.g. aggregate date changes)
 
-	for i, s := range h.Sites {
-		assemblers[i] = &sitePagesAssembler{
-			Site:            s,
+	var assemblers []*sitePagesAssembler
+	// Changes detected during assembly (e.g. aggregate date changes)
+	for s := range h.allSites(nil) {
+		assemblers = append(assemblers, &sitePagesAssembler{
+			s:               s,
 			assembleChanges: bcfg.WhatChanged,
 			ctx:             ctx,
-		}
+		})
+	}
+
+	apa := newAllPagesAssembler(
+		ctx,
+		h,
+		assemblers[0].s.pageMap,
+		bcfg.WhatChanged,
+	)
+	for _, s := range assemblers {
+		s.a = apa
+	}
+
+	if h.Conf.Watching() {
+		defer func() {
+			// Store previous walk context to detect cascade changes on next rebuild.
+			h.previousPageTreesWalkContext = apa.rw.WalkContext
+		}()
+	}
+
+	if err := apa.createAllPages(); err != nil {
+		return err
 	}
 
 	g, _ := h.workersSite.Start(ctx)
 	for _, s := range assemblers {
 		s := s
 		g.Run(func() error {
-			return s.assemblePagesStep1(ctx)
+			return s.assemblePagesStep1()
 		})
 	}
 	if err := g.Wait(); err != nil {
@@ -356,8 +381,8 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	}
 
 	h.renderFormats = output.Formats{}
-	for _, s := range h.Sites {
-		s.s.initRenderFormats()
+	for s := range h.allSites(nil) {
+		s.initRenderFormats()
 		h.renderFormats = append(h.renderFormats, s.renderFormats...)
 	}
 
@@ -397,18 +422,18 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 	}
 
 	i := 0
-	for _, s := range h.Sites {
-		segmentFilter := s.conf.C.SegmentFilter
-		if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Lang: s.language.Lang}) {
-			l.Logf("skip language %q not matching segments set in --renderSegments", s.language.Lang)
+
+	for s := range h.allSites(nil) {
+		if s.conf.Segments.Config.SegmentFilter.ShouldExcludeCoarse(segments.SegmentQuery{Site: s.siteVector}) {
+			hdebug.Printf("skip site %v", s.siteVector)
+			l.Logf("skip site %s not matching segments set in --renderSegments", s.resolveDimensionNames())
 			continue
 		}
-
-		siteRenderContext.languageIdx = s.languagei
+		siteRenderContext.languageIdx = s.siteVector.Language()
 		h.currentSite = s
 		for siteOutIdx, renderFormat := range s.renderFormats {
-			if segmentFilter.ShouldExcludeCoarse(segments.SegmentMatcherFields{Output: renderFormat.Name, Lang: s.language.Lang}) {
-				l.Logf("skip output format %q for language %q not matching segments set in --renderSegments", renderFormat.Name, s.language.Lang)
+			if s.conf.Segments.Config.SegmentFilter.ShouldExcludeCoarse(segments.SegmentQuery{Output: renderFormat.Name, Site: s.siteVector}) {
+				l.Logf("skip output format %q for site %s not matching segments set in --renderSegments", renderFormat.Name, s.resolveDimensionNames())
 				continue
 			}
 
@@ -425,7 +450,7 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 				case <-h.Done():
 					return nil
 				default:
-					for _, s2 := range h.Sites {
+					for s2 := range h.allSites(nil) {
 						if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
 							return err
 						}
@@ -455,6 +480,7 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 			}
 
 		}
+
 	}
 
 	return nil
@@ -902,7 +928,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			}
 
 			// Compile cache buster.
-			np := glob.NormalizePath(path.Join(cps.Component, cps.Path))
+			np := hglob.NormalizePath(path.Join(cps.Component, cps.Path))
 			g, err := h.ResourceSpec.BuildConfig().MatchCacheBuster(h.Log, np)
 			if err == nil && g != nil {
 				cacheBusters = append(cacheBusters, g)
@@ -952,9 +978,9 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 							// Remove all pages and resources below.
 							prefix := paths.AddTrailingSlash(pathInfo.Base())
 
-							h.pageTrees.treePages.DeletePrefixAll(prefix)
-							h.pageTrees.resourceTrees.DeletePrefixAll(prefix)
-							changes = append(changes, identity.NewGlobIdentity(prefix+"**"))
+							h.pageTrees.treePages.DeletePrefixRaw(prefix)
+							h.pageTrees.resourceTrees.DeletePrefixRaw(prefix)
+							changes = append(changes, hglob.NewGlobIdentity(prefix+"**"))
 						}
 						return err != nil
 					})
@@ -977,15 +1003,15 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			if delete && !isContentDataFile {
 				_, ok := h.pageTrees.treePages.LongestPrefixAll(pathInfo.Base())
 				if ok {
-					h.pageTrees.treePages.DeleteAll(pathInfo.Base())
-					h.pageTrees.resourceTrees.DeleteAll(pathInfo.Base())
+					h.pageTrees.treePages.DeletePrefixRaw(pathInfo.Base())
+					h.pageTrees.resourceTrees.DeletePrefixRaw(pathInfo.Base())
 					if pathInfo.IsBundle() {
 						// Assume directory removed.
-						h.pageTrees.treePages.DeletePrefixAll(pathInfo.Base() + "/")
-						h.pageTrees.resourceTrees.DeletePrefixAll(pathInfo.Base() + "/")
+						h.pageTrees.treePages.DeletePrefixRaw(pathInfo.Base() + "/")
+						h.pageTrees.resourceTrees.DeletePrefixRaw(pathInfo.Base() + "/")
 					}
 				} else {
-					h.pageTrees.resourceTrees.DeleteAll(pathInfo.Base())
+					h.pageTrees.resourceTrees.DeletePrefixRaw(pathInfo.Base())
 				}
 			}
 
@@ -1011,7 +1037,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 					changes = append(changes, identity.GenghisKhan)
 				}
 				if strings.Contains(base, "shortcodes") {
-					changes = append(changes, identity.NewGlobIdentity(fmt.Sprintf("shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
+					changes = append(changes, hglob.NewGlobIdentity(fmt.Sprintf("shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
 				} else {
 					changes = append(changes, pathInfo)
 				}
