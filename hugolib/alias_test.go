@@ -172,3 +172,26 @@ func TestTargetPathHTMLRedirectAlias(t *testing.T) {
 		}
 	}
 }
+
+func TestAliasNIssue14053(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com"
+-- layouts/all.html --
+All.
+-- content/page.md --
+---
+title: "Page"
+aliases:
+- n
+- y
+- no
+- yes
+---
+`
+	b := Test(t, files)
+
+	b.AssertPublishDir("n/index.html", "yes/index.html", "no/index.html", "yes/index.html")
+}

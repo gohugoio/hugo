@@ -19,8 +19,6 @@ import (
 	"fmt"
 	"io"
 
-	gyaml "github.com/ghodss/yaml"
-
 	kopenapi3 "github.com/getkin/kin-openapi/openapi3"
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/deps"
@@ -80,7 +78,7 @@ func (ns *Namespace) Unmarshal(r resource.UnmarshableResource) (*OpenAPIDocument
 		s := &kopenapi3.T{}
 		switch f {
 		case metadecoders.YAML:
-			err = gyaml.Unmarshal(b, s)
+			err = metadecoders.UnmarshalYaml(b, s)
 		default:
 			err = metadecoders.Default.UnmarshalTo(b, f, s)
 		}

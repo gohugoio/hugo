@@ -19,10 +19,10 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
-	yaml "gopkg.in/yaml.v2"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
 	"github.com/gohugoio/hugo/helpers"
@@ -53,8 +53,8 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 	bundle := i18n.NewBundle(defaultLangTag)
 
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
-	bundle.RegisterUnmarshalFunc("yml", yaml.Unmarshal)
+	bundle.RegisterUnmarshalFunc("yaml", metadecoders.UnmarshalYaml)
+	bundle.RegisterUnmarshalFunc("yml", metadecoders.UnmarshalYaml)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	w := hugofs.NewWalkway(

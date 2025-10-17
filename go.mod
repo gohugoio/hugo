@@ -33,9 +33,9 @@ require (
 	github.com/frankban/quicktest v1.14.6
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/getkin/kin-openapi v0.133.0
-	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
+	github.com/goccy/go-yaml v1.18.0
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20230805085216-e63c13218d0e
 	github.com/gohugoio/hashstructure v0.6.0
 	github.com/gohugoio/httpcache v0.8.0
@@ -83,7 +83,6 @@ require (
 	golang.org/x/text v0.30.0
 	golang.org/x/tools v0.38.0
 	google.golang.org/api v0.251.0
-	gopkg.in/yaml.v2 v2.4.0
 	rsc.io/qr v0.2.0
 )
 
@@ -188,6 +187,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
 	google.golang.org/grpc v1.75.1 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	howett.net/plist v1.0.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
