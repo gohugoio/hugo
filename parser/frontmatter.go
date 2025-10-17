@@ -22,8 +22,6 @@ import (
 
 	toml "github.com/pelletier/go-toml/v2"
 
-	yaml "gopkg.in/yaml.v2"
-
 	xml "github.com/clbanning/mxj/v2"
 )
 
@@ -39,7 +37,7 @@ func InterfaceToConfig(in any, format metadecoders.Format, w io.Writer) error {
 
 	switch format {
 	case metadecoders.YAML:
-		b, err := yaml.Marshal(in)
+		b, err := metadecoders.MarshalYAML(in)
 		if err != nil {
 			return err
 		}

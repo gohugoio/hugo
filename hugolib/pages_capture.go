@@ -123,7 +123,7 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		Handle: func(ctx context.Context, fi hugofs.FileMetaInfo) error {
 			numPages, numResources, err := c.m.AddFi(fi, c.buildConfig)
 			if err != nil {
-				return hugofs.AddFileInfoToError(err, fi, c.fs)
+				return hugofs.AddFileInfoToError(err, fi, c.h.SourceFs)
 			}
 			numFilesProcessedTotal.Add(1)
 			numPagesProcessedTotal.Add(numPages)

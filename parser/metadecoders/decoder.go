@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,16 +22,17 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unsafe"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/niklasfasching/go-org/org"
 
 	xml "github.com/clbanning/mxj/v2"
+	yaml "github.com/goccy/go-yaml"
 	toml "github.com/pelletier/go-toml/v2"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	yaml "gopkg.in/yaml.v2"
 )
 
 // Decoder provides some configuration options for the decoders.
@@ -153,6 +154,117 @@ func (d Decoder) Unmarshal(data []byte, f Format) (any, error) {
 	return v, err
 }
 
+// UnmarshalYaml unmarshals data in YAML format into v.
+func UnmarshalYaml(data []byte, v any) error {
+	if err := yaml.Unmarshal(data, v); err != nil {
+		return err
+	}
+	if err := validateAliasLimitForCollections(v, calculateCollectionAliasLimit(len(data))); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// The Billion Laughs YAML example is about 500 bytes in size,
+// but even halving that when converted to JSON would produce a file of about 4 MB in size,
+// which, when repeated enough times, could be disruptive.
+// For large data files where every row shares a common map via aliases,
+// a large number of aliases could make sense.
+// The primary goal here is to catch the small but malicious files.
+func calculateCollectionAliasLimit(sizeInBytes int) int {
+	sizeInKB := sizeInBytes / 1024
+	if sizeInKB == 0 {
+		sizeInKB = 1
+	}
+	if sizeInKB < 2 {
+		// This should allow at most "thousand laughs",
+		// which should be plenty of room for legitimate uses.
+		return 100
+	}
+
+	// The numbers below are somewhat arbitrary, but should provide
+	// a reasonable trade-off between safety and usability.
+	if sizeInKB < 10 {
+		return 5000
+	}
+	return 10000
+}
+
+// Used in benchmarks.
+func unmarshalYamlNoValidation(data []byte, v any) error {
+	if err := yaml.Unmarshal(data, v); err != nil {
+		return err
+	}
+	return nil
+}
+
+// See https://github.com/goccy/go-yaml/issues/461
+// While it's true that yaml.Unmarshal isn't vulnerable to the Billion Laughs attack,
+// we can easily get a delayed laughter when we try to render this very big structure later,
+// e.g. via RenderString.
+func validateAliasLimitForCollections(v any, limit int) error {
+	if limit <= 0 {
+		limit = 1000
+	}
+
+	collectionRefCounts := make(map[uintptr]int)
+
+	checkCollectionRef := func(v *any) error {
+		// Conversion of a Pointer to a uintptr (but not back to Pointer) is considered safe.
+		// See https://pkg.go.dev/unsafe#pkg-functions
+		ptr := uintptr(unsafe.Pointer(v))
+		if ptr == 0 {
+			return nil
+		}
+		collectionRefCounts[ptr]++
+		if collectionRefCounts[ptr] > limit {
+			return fmt.Errorf("too many YAML aliases for non-scalar nodes")
+		}
+		return nil
+	}
+
+	var validate func(v any) error
+	validate = func(v any) error {
+		switch vv := v.(type) {
+		case *map[string]any:
+			if err := checkCollectionRef(&v); err != nil {
+				return err
+			}
+			for _, vvv := range *vv {
+				if err := validate(vvv); err != nil {
+					return err
+				}
+			}
+		case map[string]any:
+			if err := checkCollectionRef(&v); err != nil {
+				return err
+			}
+			for _, vvv := range vv {
+				if err := validate(vvv); err != nil {
+					return err
+				}
+			}
+		case []any:
+			if err := checkCollectionRef(&v); err != nil {
+				return err
+			}
+			for _, vvv := range vv {
+				if err := validate(vvv); err != nil {
+					return err
+				}
+			}
+		case *any:
+			return validate(*vv)
+		default:
+			// ok
+		}
+		return nil
+	}
+
+	return validate(v)
+}
+
 // UnmarshalTo unmarshals data in format f into v.
 func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 	var err error
@@ -196,35 +308,7 @@ func (d Decoder) UnmarshalTo(data []byte, f Format, v any) error {
 	case TOML:
 		err = toml.Unmarshal(data, v)
 	case YAML:
-		err = yaml.Unmarshal(data, v)
-		if err != nil {
-			return toFileError(f, data, fmt.Errorf("failed to unmarshal YAML: %w", err))
-		}
-
-		// To support boolean keys, the YAML package unmarshals maps to
-		// map[interface{}]interface{}. Here we recurse through the result
-		// and change all maps to map[string]interface{} like we would've
-		// gotten from `json`.
-		var ptr any
-		switch vv := v.(type) {
-		case *map[string]any:
-			ptr = *vv
-		case *any:
-			ptr = *vv
-		default:
-			// Not a map.
-		}
-
-		if ptr != nil {
-			if mm, changed := stringifyMapKeys(ptr); changed {
-				switch vv := v.(type) {
-				case *map[string]any:
-					*vv = mm.(map[string]any)
-				case *any:
-					*vv = mm
-				}
-			}
-		}
+		return UnmarshalYaml(data, v)
 	case CSV:
 		return d.unmarshalCSV(data, v)
 
@@ -330,51 +414,4 @@ func (d Decoder) unmarshalORG(data []byte, v any) error {
 
 func toFileError(f Format, data []byte, err error) error {
 	return herrors.NewFileErrorFromName(err, fmt.Sprintf("_stream.%s", f)).UpdateContent(bytes.NewReader(data), nil)
-}
-
-// stringifyMapKeys recurses into in and changes all instances of
-// map[interface{}]interface{} to map[string]interface{}. This is useful to
-// work around the impedance mismatch between JSON and YAML unmarshaling that's
-// described here: https://github.com/go-yaml/yaml/issues/139
-//
-// Inspired by https://github.com/stripe/stripe-mock, MIT licensed
-func stringifyMapKeys(in any) (any, bool) {
-	switch in := in.(type) {
-	case []any:
-		for i, v := range in {
-			if vv, replaced := stringifyMapKeys(v); replaced {
-				in[i] = vv
-			}
-		}
-	case map[string]any:
-		for k, v := range in {
-			if vv, changed := stringifyMapKeys(v); changed {
-				in[k] = vv
-			}
-		}
-	case map[any]any:
-		res := make(map[string]any)
-		var (
-			ok  bool
-			err error
-		)
-		for k, v := range in {
-			var ks string
-
-			if ks, ok = k.(string); !ok {
-				ks, err = cast.ToStringE(k)
-				if err != nil {
-					ks = fmt.Sprintf("%v", k)
-				}
-			}
-			if vv, replaced := stringifyMapKeys(v); replaced {
-				res[ks] = vv
-			} else {
-				res[ks] = v
-			}
-		}
-		return res, true
-	}
-
-	return nil, false
 }

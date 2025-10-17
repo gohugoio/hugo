@@ -40,7 +40,7 @@ Strings: {{ printf "%T" .Params.strings }} {{ range .Params.strings }}Strings: {
 
 	b.Build()
 
-	b.AssertFileContent("public/post/one/index.html", "Ints: []interface {} Int: 1 (int)|Int: 2 (int)|Int: 3 (int)|")
-	b.AssertFileContent("public/post/one/index.html", "Mixed: []interface {} Mixed: 1 (string)|Mixed: 2 (int)|Mixed: 3 (int)|")
+	b.AssertFileContent("public/post/one/index.html", "Ints: []interface {} Int: 1 (uint64)|Int: 2 (uint64)|Int: 3 (uint64)|")
+	b.AssertFileContent("public/post/one/index.html", "Mixed: []interface {} Mixed: 1 (string)|Mixed: 2 (uint64)|Mixed: 3 (uint64)|")
 	b.AssertFileContent("public/post/one/index.html", "Strings: []string Strings: 1 (string)|Strings: 2 (string)|Strings: 3 (string)|")
 }

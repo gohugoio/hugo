@@ -14,7 +14,6 @@
 package metadecoders
 
 import (
-	"reflect"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -91,8 +90,8 @@ func TestUnmarshalToMap(t *testing.T) {
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
 		// Make sure we get all string keys, even for YAML
-		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": 2, "d": []any{3, 4}}}},
-		{"a:\n  true: 1\n  false: 2", YAML, map[string]any{"a": map[string]any{"true": 1, "false": 2}}},
+		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": uint64(2), "d": []any{uint64(3), uint64(4)}}}},
+		{"a:\n  true: 1\n  false: 2", YAML, map[string]any{"a": map[string]any{"true": uint64(1), "false": uint64(2)}}},
 		{`{ "a": "b" }`, JSON, expect},
 		{`<root><a>b</a></root>`, XML, expect},
 		{`#+a: b`, ORG, expect},
@@ -140,7 +139,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{[]byte(`a: "b"`), YAML, expect},
 		{[]byte(`<root><a>b</a></root>`), XML, expect},
 		{[]byte(`a,b,c`), CSV, [][]string{{"a", "b", "c"}}},
-		{[]byte("a: Easy!\nb:\n  c: 2\n  d: [3, 4]"), YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": 2, "d": []any{3, 4}}}},
+		{[]byte("a: Easy!\nb:\n  c: 2\n  d: [3, 4]"), YAML, map[string]any{"a": "Easy!", "b": map[string]any{"c": uint64(2), "d": []any{uint64(3), uint64(4)}}}},
 		// errors
 		{[]byte(`a = "`), TOML, false},
 	} {
@@ -173,7 +172,7 @@ func TestUnmarshalStringTo(t *testing.T) {
 		{"32", int64(1234), int64(32)},
 		{"32", int(1234), int(32)},
 		{"3.14159", float64(1), float64(3.14159)},
-		{"[3,7,9]", []any{}, []any{3, 7, 9}},
+		{"[3,7,9]", []any{}, []any{uint64(3), uint64(7), uint64(9)}},
 		{"[3.1,7.2,9.3]", []any{}, []any{3.1, 7.2, 9.3}},
 	} {
 		msg := qt.Commentf("%d: %T", i, test.to)
@@ -188,126 +187,18 @@ func TestUnmarshalStringTo(t *testing.T) {
 	}
 }
 
-func TestStringifyYAMLMapKeys(t *testing.T) {
-	cases := []struct {
-		input    any
-		want     any
-		replaced bool
-	}{
-		{
-			map[any]any{"a": 1, "b": 2},
-			map[string]any{"a": 1, "b": 2},
-			true,
-		},
-		{
-			map[any]any{"a": []any{1, map[any]any{"b": 2}}},
-			map[string]any{"a": []any{1, map[string]any{"b": 2}}},
-			true,
-		},
-		{
-			map[any]any{true: 1, "b": false},
-			map[string]any{"true": 1, "b": false},
-			true,
-		},
-		{
-			map[any]any{1: "a", 2: "b"},
-			map[string]any{"1": "a", "2": "b"},
-			true,
-		},
-		{
-			map[any]any{"a": map[any]any{"b": 1}},
-			map[string]any{"a": map[string]any{"b": 1}},
-			true,
-		},
-		{
-			map[string]any{"a": map[string]any{"b": 1}},
-			map[string]any{"a": map[string]any{"b": 1}},
-			false,
-		},
-		{
-			[]any{map[any]any{1: "a", 2: "b"}},
-			[]any{map[string]any{"1": "a", "2": "b"}},
-			false,
-		},
-	}
+func TestCalculateAliasLimit(t *testing.T) {
+	c := qt.New(t)
 
-	for i, c := range cases {
-		res, replaced := stringifyMapKeys(c.input)
+	const kb = 1024
 
-		if c.replaced != replaced {
-			t.Fatalf("[%d] Replaced mismatch: %t", i, replaced)
-		}
-		if !c.replaced {
-			res = c.input
-		}
-		if !reflect.DeepEqual(res, c.want) {
-			t.Errorf("[%d] given %q\nwant: %q\n got: %q", i, c.input, c.want, res)
-		}
-	}
-}
-
-func BenchmarkStringifyMapKeysStringsOnlyInterfaceMaps(b *testing.B) {
-	maps := make([]map[any]any, b.N)
-	for i := 0; i < b.N; i++ {
-		maps[i] = map[any]any{
-			"a": map[any]any{
-				"b": 32,
-				"c": 43,
-				"d": map[any]any{
-					"b": 32,
-					"c": 43,
-				},
-			},
-			"b": []any{"a", "b"},
-			"c": "d",
-		}
-	}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		stringifyMapKeys(maps[i])
-	}
-}
-
-func BenchmarkStringifyMapKeysStringsOnlyStringMaps(b *testing.B) {
-	m := map[string]any{
-		"a": map[string]any{
-			"b": 32,
-			"c": 43,
-			"d": map[string]any{
-				"b": 32,
-				"c": 43,
-			},
-		},
-		"b": []any{"a", "b"},
-		"c": "d",
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		stringifyMapKeys(m)
-	}
-}
-
-func BenchmarkStringifyMapKeysIntegers(b *testing.B) {
-	maps := make([]map[any]any, b.N)
-	for i := 0; i < b.N; i++ {
-		maps[i] = map[any]any{
-			1: map[any]any{
-				4: 32,
-				5: 43,
-				6: map[any]any{
-					7: 32,
-					8: 43,
-				},
-			},
-			2: []any{"a", "b"},
-			3: "d",
-		}
-	}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		stringifyMapKeys(maps[i])
-	}
+	c.Assert(calculateCollectionAliasLimit(0), qt.Equals, 100)
+	c.Assert(calculateCollectionAliasLimit(500), qt.Equals, 100)
+	c.Assert(calculateCollectionAliasLimit(1*kb), qt.Equals, 100)
+	c.Assert(calculateCollectionAliasLimit(2*kb), qt.Equals, 5000)
+	c.Assert(calculateCollectionAliasLimit(8*kb), qt.Equals, 5000)
+	c.Assert(calculateCollectionAliasLimit(12*kb), qt.Equals, 10000)
+	c.Assert(calculateCollectionAliasLimit(10000*kb), qt.Equals, 10000)
 }
 
 func BenchmarkDecodeYAMLToMap(b *testing.B) {
@@ -330,5 +221,63 @@ c: "d"
 		if err != nil {
 			b.Fatal(err)
 		}
+	}
+}
+
+func BenchmarkUnmarshalBillionLaughs(b *testing.B) {
+	yamlBillionLaughs := []byte(`
+a: &a [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]
+b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]
+c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
+d: &d [*c, *c, *c, *c, *c, *c, *c, *c, *c, *c]
+e: &e [*d, *d, *d, *d, *d, *d, *d, *d, *d, *d]
+f: &f [*e, *e, *e, *e, *e, *e, *e, *e, *e, *e]
+g: &g [*f, *f, *f, *f, *f, *f, *f, *f, *f, *f]
+h: &h [*g, *g, *g, *g, *g, *g, *g, *g, *g, *g]
+i: &i [*h, *h, *h, *h, *h, *h, *h, *h, *h, *h]
+`)
+
+	yamlFrontMatter := []byte(`
+title: mysect
+tags: [tag1, tag2]
+params:
+  color: blue
+`)
+
+	yamlTests := []struct {
+		Title                      string
+		Content                    []byte
+		IsExpectedToFailValidation bool
+	}{
+		{"Billion Laughs", yamlBillionLaughs, true},
+		{"YAML Front Matter", yamlFrontMatter, false},
+	}
+
+	for _, tt := range yamlTests {
+
+		b.Run(tt.Title+" no validation", func(b *testing.B) {
+			for range b.N {
+				var v any
+				if err := unmarshalYamlNoValidation(tt.Content, &v); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+
+		b.Run(tt.Title+" with validation", func(b *testing.B) {
+			for range b.N {
+				var v any
+				err := UnmarshalYaml(tt.Content, &v)
+				if tt.IsExpectedToFailValidation {
+					if err == nil {
+						b.Fatal("expected to fail validation but did not")
+					}
+				} else {
+					if err != nil {
+						b.Fatal(err)
+					}
+				}
+			}
+		})
 	}
 }

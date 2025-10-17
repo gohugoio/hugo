@@ -201,3 +201,73 @@ a = "b"
 		c.Assert(err, qt.Not(qt.IsNil))
 	})
 }
+
+func TestRemarshaBillionLaughs(t *testing.T) {
+	t.Parallel()
+
+	yamlBillionLaughs := `
+a: &a [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]
+b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]
+c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
+d: &d [*c, *c, *c, *c, *c, *c, *c, *c, *c, *c]
+e: &e [*d, *d, *d, *d, *d, *d, *d, *d, *d, *d]
+f: &f [*e, *e, *e, *e, *e, *e, *e, *e, *e, *e]
+g: &g [*f, *f, *f, *f, *f, *f, *f, *f, *f, *f]
+h: &h [*g, *g, *g, *g, *g, *g, *g, *g, *g, *g]
+i: &i [*h, *h, *h, *h, *h, *h, *h, *h, *h, *h]
+`
+
+	yamlMillionLaughs := `
+a: &a [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]
+b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]
+c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
+d: &d [*c, *c, *c, *c, *c, *c, *c, *c, *c, *c]
+e: &e [*d, *d, *d, *d, *d, *d, *d, *d, *d, *d]
+f: &f [*e, *e, *e, *e, *e, *e, *e, *e, *e, *e]
+`
+
+	yamlTenThousandLaughs := `
+a: &a [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]
+b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]
+c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
+d: &d [*c, *c, *c, *c, *c, *c, *c, *c, *c, *c]
+
+`
+
+	yamlThousandLaughs := `
+a: &a [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]
+b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]
+c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
+
+`
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{T: t},
+	).Build()
+
+	ns := transform.New(b.H.Deps)
+
+	for _, test := range []struct {
+		name string
+		data string
+	}{
+		{"10k", yamlTenThousandLaughs},
+		{"1M", yamlMillionLaughs},
+		{"1B", yamlBillionLaughs},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			c := qt.New(t)
+			_, err := ns.Remarshal("json", test.data)
+			c.Assert(err, qt.Not(qt.IsNil))
+		})
+	}
+
+	// Thousand laughs should be ok.
+	// It produces about 29KB of JSON,
+	// which is still a large output for such a large input,
+	// but there may be use cases for this.
+	_, err := ns.Remarshal("json", yamlThousandLaughs)
+	c := qt.New(t)
+	c.Assert(err, qt.IsNil)
+}

@@ -1,0 +1,27 @@
+// Copyright 2025 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package metadecoders
+
+import yaml "github.com/goccy/go-yaml"
+
+var yamlEncodeOptions = []yaml.EncodeOption{
+	yaml.UseSingleQuote(true),
+	// This prevents excessively large objects, see https://github.com/goccy/go-yaml/issues/461
+	yaml.WithSmartAnchor(),
+}
+
+// MarshalYAML marshals the given value to YAML.
+var MarshalYAML = func(v any) ([]byte, error) {
+	return yaml.MarshalWithOptions(v, yamlEncodeOptions...)
+}
