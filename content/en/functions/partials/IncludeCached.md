@@ -1,13 +1,13 @@
 ---
 title: partials.IncludeCached
-description: Executes the given template and caches the result, optionally passing context. If the partial template contains a return statement, returns the given value, else returns the rendered output.
+description: Executes the given template and caches the result, optionally passing one or more variant keys. If the partial template contains a return statement, returns the given value, else returns the rendered output.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [partialCached]
     returnType: any
-    signatures: ['partials.IncludeCached LAYOUT [CONTEXT] [VARIANT...]']
+    signatures: ['partials.IncludeCached LAYOUT CONTEXT [VARIANT...]']
 aliases: [/functions/partialcached]
 ---
 
