@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [partialCached]
     returnType: any
-    signatures: ['partials.IncludeCached LAYOUT CONTEXT [VARIANT...]']
+    signatures: ['partials.IncludeCached LAYOUT [CONTEXT] [VARIANT...]']
 aliases: [/functions/partialcached]
 ---
 
