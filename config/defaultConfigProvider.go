@@ -14,11 +14,13 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 
-	xmaps "golang.org/x/exp/maps"
+	xmaps "maps"
 
 	"github.com/spf13/cast"
 
@@ -237,12 +239,16 @@ func (c *defaultConfigProvider) Merge(k string, v any) {
 func (c *defaultConfigProvider) Keys() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	return xmaps.Keys(c.root)
+	return slices.Collect(xmaps.Keys(c.root))
 }
 
 func (c *defaultConfigProvider) WalkParams(walkFn func(params ...maps.KeyParams) bool) {
-	var walk func(params ...maps.KeyParams)
-	walk = func(params ...maps.KeyParams) {
+	maxDepth := 1000
+	var walk func(depth int, params ...maps.KeyParams)
+	walk = func(depth int, params ...maps.KeyParams) {
+		if depth > maxDepth {
+			panic(errors.New("max depth exceeded"))
+		}
 		if walkFn(params...) {
 			return
 		}
@@ -253,11 +259,11 @@ func (c *defaultConfigProvider) WalkParams(walkFn func(params ...maps.KeyParams)
 				paramsplus1 := make([]maps.KeyParams, i+1)
 				copy(paramsplus1, params)
 				paramsplus1[i] = maps.KeyParams{Key: k, Params: p2}
-				walk(paramsplus1...)
+				walk(depth+1, paramsplus1...)
 			}
 		}
 	}
-	walk(maps.KeyParams{Key: "", Params: c.root})
+	walk(0, maps.KeyParams{Key: "", Params: c.root})
 }
 
 func (c *defaultConfigProvider) determineMergeStrategy(params ...maps.KeyParams) maps.ParamsMergeStrategy {

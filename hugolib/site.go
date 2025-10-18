@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -48,9 +49,10 @@ import (
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/resources"
 
+	xmaps "maps"
+
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 	"github.com/gohugoio/hugo/tpl/tplimplinit"
-	xmaps "golang.org/x/exp/maps"
 
 	// Loads the template funcs namespaces.
 
@@ -999,7 +1001,7 @@ func (w *WhatChanged) Changes() []identity.Identity {
 	if w == nil || w.ids == nil {
 		return nil
 	}
-	return xmaps.Keys(w.ids)
+	return slices.Collect(xmaps.Keys(w.ids))
 }
 
 func (w *WhatChanged) Drain() []identity.Identity {

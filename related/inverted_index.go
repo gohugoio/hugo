@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	xmaps "golang.org/x/exp/maps"
+	xmaps "maps"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/maps"
