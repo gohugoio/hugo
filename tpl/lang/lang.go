@@ -30,6 +30,20 @@ import (
 	"github.com/spf13/cast"
 )
 
+var reservedTranslationIDs = map[string]string{
+	"id":          "",
+	"description": "",
+	"hash":        "",
+	"leftdelim":   "",
+	"rightdelim":  "",
+	"zero":        "",
+	"one":         "",
+	"two":         "",
+	"few":         "",
+	"many":        "",
+	"other":       "",
+}
+
 // New returns a new instance of the lang-namespaced template functions.
 func New(deps *deps.Deps, translator locales.Translator) *Namespace {
 	return &Namespace{
@@ -58,6 +72,12 @@ func (ns *Namespace) Translate(ctx context.Context, id any, args ...any) (string
 	sid, err := cast.ToStringE(id)
 	if err != nil {
 		return "", err
+	}
+
+	sidParts := strings.Split(sid, ".")
+	translationKey := sidParts[len(sidParts)-1]
+	if _, found := reservedTranslationIDs[translationKey]; found {
+		return "", fmt.Errorf("the key %q is reserved and cannot be used for translation lookups; please consult the lang.Translate documentation for a list of reserved keys", translationKey)
 	}
 
 	return ns.deps.Translate(ctx, sid, templateData), nil
