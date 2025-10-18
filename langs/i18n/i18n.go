@@ -26,7 +26,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/gohugoio/go-i18n/v2/i18n"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type translateFunc func(ctx context.Context, translationID string, templateData any) string
