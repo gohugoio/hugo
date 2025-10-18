@@ -114,7 +114,11 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 				return nil
 			}
 		}
-		return errWithFileContext(fmt.Errorf("failed to load translations: %w", err), r)
+		var guidance string
+		if strings.Contains(err.Error(), "mixed with unreserved keys") {
+			guidance = ": see the lang.Translate documentation for a list of reserved keys"
+		}
+		return errWithFileContext(fmt.Errorf("failed to load translations: %w%s", err, guidance), r)
 	}
 
 	return nil
