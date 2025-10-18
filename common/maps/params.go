@@ -14,7 +14,9 @@
 package maps
 
 import (
+	"errors"
 	"fmt"
+	xmaps "maps"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -101,7 +103,6 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 	noUpdate = noUpdate || (ps != "" && ps == ParamsMergeStrategyShallow)
 
 	for k, v := range pp {
-
 		if k == MergeStrategyKey {
 			continue
 		}
@@ -115,6 +116,9 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 				}
 			}
 		} else if !noUpdate {
+			if vvv, ok := v.(Params); ok {
+				v = xmaps.Clone(vvv)
+			}
 			p[k] = v
 		}
 
@@ -266,8 +270,16 @@ func CleanConfigStringMapString(m map[string]string) map[string]string {
 // CleanConfigStringMap is the same as CleanConfigStringMapString but for
 // map[string]any.
 func CleanConfigStringMap(m map[string]any) map[string]any {
+	return doCleanConfigStringMap(m, 0)
+}
+
+func doCleanConfigStringMap(m map[string]any, depth int) map[string]any {
 	if len(m) == 0 {
 		return m
+	}
+	const maxDepth = 1000
+	if depth > maxDepth {
+		panic(errors.New("max depth exceeded"))
 	}
 	if _, found := m[MergeStrategyKey]; !found {
 		return m
@@ -280,9 +292,9 @@ func CleanConfigStringMap(m map[string]any) map[string]any {
 		}
 		switch v2 := v.(type) {
 		case map[string]any:
-			m2[k] = CleanConfigStringMap(v2)
+			m2[k] = doCleanConfigStringMap(v2, depth+1)
 		case Params:
-			var p Params = CleanConfigStringMap(v2)
+			var p Params = doCleanConfigStringMap(v2, depth+1)
 			m2[k] = p
 		case map[string]string:
 			m2[k] = CleanConfigStringMapString(v2)

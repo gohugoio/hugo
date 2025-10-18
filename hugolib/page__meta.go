@@ -21,11 +21,12 @@ import (
 	"strings"
 	"time"
 
+	xmaps "maps"
+
 	"github.com/bep/logg"
 	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/markup/converter"
-	xmaps "golang.org/x/exp/maps"
 
 	"github.com/gohugoio/hugo/source"
 

@@ -56,7 +56,7 @@ import (
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/spf13/afero"
 
-	xmaps "golang.org/x/exp/maps"
+	xmaps "maps"
 )
 
 // InternalConfig is the internal configuration for Hugo, not read from any user provided config file.
@@ -1054,6 +1054,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 		mergedConfig := config.New()
 		var differentRootKeys []string
 		switch x := v.(type) {
+		case nil:
 		case maps.Params:
 			_, found := x["params"]
 			if !found {
@@ -1129,6 +1130,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 
 			langConfigMap[k] = clone
 		case maps.ParamsMergeStrategy:
+
 		default:
 			panic(fmt.Sprintf("unknown type in languages config: %T", v))
 

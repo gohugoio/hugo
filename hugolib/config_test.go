@@ -1570,3 +1570,82 @@ title: "P1 us"
 `
 	Test(t, files)
 }
+
+func TestConfigYAMLAnchorsMerge(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yaml --
+definitions:
+  params: &params
+    p1: p1alias
+
+theme: "mytheme"
+defaultContentLanguage: en
+defaultContentLanguageInSubdir: true
+
+params:
+    <<: *params
+
+languages:
+  en:
+    weight: 1
+  no:
+    weight: 2
+    params:
+      <<: *params
+      p2: p2no
+  sv:
+    weight: 3
+    params: *params
+     
+-- layouts/all.html --
+Params: {{ site.Params }}|
+-- themes/mytheme/hugo.yaml --
+definitions:
+  params: &params
+    p1: p1aliastheme
+    p2: p2aliastheme
+
+params: *params
+ 
+  
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "Params: map[p1:p1alias p2:p2aliastheme]|")
+	b.AssertFileContent("public/no/index.html", "Params: map[p1:p1alias p2:p2no]|")
+	b.AssertFileContent("public/sv/index.html", "Params: map[p1:p1alias p2:p2aliastheme]|")
+}
+
+func TestConfigYAMLAnchorsCyclicReference(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yaml --
+definitions:
+  params: &params
+    p1: p1alias
+
+params:
+    p3: *params
+
+languages:
+  en:
+    weight: 1
+  sv:
+    weight: 2
+    params: *params
+     
+-- layouts/all.html --
+Params: {{ site.Params }}|
+
+`
+
+	for range 3 {
+		b := Test(t, files)
+		b.AssertFileContent("public/index.html", "Params: map[p3:map[p1:p1alias]]|")
+		b.AssertFileContent("public/sv/index.html", "Params: map[p1:p1alias p3:map[p1:p1alias]]|")
+
+	}
+}
