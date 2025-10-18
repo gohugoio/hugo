@@ -126,3 +126,21 @@ title: home_es
 	b.AssertFileContent("public/es/index.html", `home_es_gato`)
 	b.AssertFileContent("public/fr/index.html", `home_fr_gato`)
 }
+
+// See issue #14061
+func TestI18nReservedKeyMap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+-- i18n/en.toml --
+[description]
+other = 'This is a description from i18n.'
+-- layouts/all.html --
+description: {{ T "description" }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `description: This is a description from i18n.|`)
+}
