@@ -26,7 +26,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/gohugoio/go-i18n/v2/i18n"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type translateFunc func(ctx context.Context, translationID string, templateData any) string
@@ -38,8 +38,8 @@ type Translator struct {
 	logger         loggers.Logger
 }
 
-// NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *i18n.Bundle, cfg config.AllProvider, logger loggers.Logger) Translator {
+// newTranslator creates a new Translator for the given language bundle and configuration.
+func newTranslator(b *bundle, cfg config.AllProvider, logger loggers.Logger) Translator {
 	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
 	t.initFuncs(b)
 	return t
@@ -62,14 +62,21 @@ func (t Translator) Func(lang string) translateFunc {
 	}
 }
 
-func (t Translator) initFuncs(bndl *i18n.Bundle) {
+func (t Translator) initFuncs(bndl *bundle) {
 	enableMissingTranslationPlaceholders := t.cfg.EnableMissingTranslationPlaceholders()
-	for _, lang := range bndl.LanguageTags() {
-		currentLang := lang
-		currentLangStr := currentLang.String()
-		// This may be pt-BR; make it case insensitive.
-		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
-		localizer := i18n.NewLocalizer(bndl, currentLangStr)
+	for _, lang := range bndl.b.LanguageTags() {
+		currentLangTag := lang
+		currentLangTagStr := currentLangTag.String()
+
+		var currentLangKey string
+		if undefinedLangKey, found := bndl.undefinedLangs[currentLangTag]; found {
+			currentLangKey = strings.ToLower(undefinedLangKey)
+		} else {
+			// This may be pt-BR; make it case insensitive.
+			currentLangKey = strings.ToLower(currentLangTagStr)
+		}
+
+		localizer := i18n.NewLocalizer(bndl.b, currentLangTagStr)
 		t.translateFuncs[currentLangKey] = func(ctx context.Context, translationID string, templateData any) string {
 			pluralCount := getPluralCount(templateData)
 
@@ -99,7 +106,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 				PluralCount:  pluralCount,
 			})
 
-			sameLang := currentLang == translatedLang
+			sameLang := currentLangTag == translatedLang
 
 			if err == nil && sameLang {
 				return translated
@@ -116,11 +123,11 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 			}
 
 			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
-				t.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
+				t.logger.Warnf("Failed to get translated string for language %q and ID %q: %s", currentLangTagStr, translationID, err)
 			}
 
 			if t.cfg.PrintI18nWarnings() {
-				t.logger.Warnf("i18n|MISSING_TRANSLATION|%s|%s", currentLangStr, translationID)
+				t.logger.Warnf("i18n|MISSING_TRANSLATION|%s|%s", currentLangTagStr, translationID)
 			}
 
 			if enableMissingTranslationPlaceholders {
