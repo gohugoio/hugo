@@ -710,7 +710,10 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 		mnt.Target = filepath.Clean(mnt.Target)
 		var sourceDir string
 
-		if owner.projectMod && filepath.IsAbs(mnt.Source) {
+		if !owner.projectMod && !filepath.IsLocal(mnt.Source) {
+			return nil, fmt.Errorf("%s: %q: mount source must be a local path for modules/themes", errMsg, mnt.Source)
+		}
+		if filepath.IsAbs(mnt.Source) {
 			// Abs paths in the main project is allowed.
 			sourceDir = mnt.Source
 		} else {
