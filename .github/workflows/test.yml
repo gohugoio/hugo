@@ -131,3 +131,10 @@ jobs:
         env:
           GOARCH: amd64
           GOOS: dragonfly
+      - if: matrix.os == 'ubuntu-latest'
+        name: Build for RISC-V 64bits
+        run: |
+          go install
+        env:
+          GOARCH: riscv64
+          GOOS: linux

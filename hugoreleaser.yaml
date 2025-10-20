@@ -123,6 +123,7 @@ builds:
               env:
                 - CGO_ENABLED=0
                 - GOARM=7
+          - goarch: riscv64
       - goos: dragonfly
         archs:
           - goarch: amd64
@@ -303,7 +304,7 @@ archives:
       name_template: *name_template_extended_withdeploy
       <<: *archive_type_zip
   - paths:
-      - builds/**/regular/linux/{arm64,amd64}
+      - builds/**/regular/linux/{arm64,amd64,riscv64}
     archive_settings: *archive_deb
   - paths:
       - builds/**/extended/linux/{arm64,amd64}
