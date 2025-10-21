@@ -7,6 +7,8 @@ keywords: []
 aliases: [/hugo-modules/configuration/]
 ---
 
+{{% include "/_common/gomodules-info.md" %}}
+
 ## Top-level options
 
 This is the default configuration:
@@ -61,8 +63,6 @@ export HUGO_MODULE_REPLACEMENTS="github.com/bep/my-theme -> ../.."
 export HUGO_MODULE_WORKSPACE="/my/hugo.work"
 ```
 
-{{% include "/_common/gomodules-info.md" %}}
-
 ## Hugo version
 
 You can specify a required Hugo version for your module in the `module` section. Users will then receive a warning if their Hugo version is incompatible.
@@ -116,30 +116,30 @@ version
 : {{< new-in 0.150.0 />}}
 : If set to a [version query](https://go.dev/ref/mod#version-queries), this import becomes a direct dependency, in contrast to dependencies managed by Go Modules. See [this issue](https://github.com/gohugoio/hugo/pull/13966) for more information.
 
-{{% include "/_common/gomodules-info.md" %}}
-
 ## Mounts
 
-Before Hugo v0.56.0, custom component paths could only be configured by setting [`archetypeDir`], [`assetDir`], [`contentDir`], [`dataDir`], [`i18nDir`], [`layoutDi`], or [`staticDir`] in the site configuration. Module mounts offer greater flexibility than these legacy settings, but
-you cannot use both.
+{{% glossary-term mount %}}
+
+> [!important]
+> If you define one or more mounts to map a file system path to a component path, do not use these legacy configuration settings: [`archetypeDir`], [`assetDir`], [`contentDir`], [`dataDir`], [`i18nDir`], [`layoutDir`], or [`staticDir`].
 
 [`archetypeDir`]: /configuration/all/
 [`assetDir`]: /configuration/all/
 [`contentDir`]: /configuration/all/
 [`dataDir`]: /configuration/all/
 [`i18nDir`]: /configuration/all/
-[`layoutDi`]: /configuration/all/
+[`layoutDir`]: /configuration/all/
 [`staticDir`]: /configuration/all/
-
-> [!note]
-> If you use module mounts do not use the legacy settings.
 
 ### Default mounts
 
-> [!note]
-> Adding a new mount to a target root will cause the existing default mount for that root to be ignored. If you still need the default mount, you must explicitly add it along with the new mount.
+Within a project, if you define a mount to map a file system path to a component path, the corresponding default mount for that component will be removed. This action essentially overwrites the standard, automatic mapping for that specific component with your custom one.
 
-The are the default mounts:
+Within a module, if you define a mount to map a file system path to a component path, all of the default mounts will be removed. Defining a mount at the module level is a more sweeping change, causing all default mappings within that module to be discarded.
+
+In either case, if you still need one of the default mounts, you must explicitly add it along with the new mount. Because custom mounts override defaults, any necessary default mappings must be re-added manually after you introduce your custom configuration.
+
+These are the default mounts:
 
 {{< code-toggle config=module.mounts />}}
 
@@ -147,7 +147,7 @@ source
 : (`string`) The source directory of the mount. For the main project, this can be either project-relative or absolute. For other modules it must be project-relative.
 
 target
-: (`string`) Where the mount will reside within Hugo's virtual file system. It must begin with one of Hugo's component directories: `archetypes`, `assets`, `content`, `data`, `i18n`, `layouts`, or `static`. For example, `content/blog`.
+: (`string`) Where the mount will reside within Hugo's [unified file system](g). It must begin with one of Hugo's [component](g) directories: archetypes, assets, content, data, i18n, layouts, or static. For example, content/blog.
 
 disableWatch
 : {{< new-in 0.128.0 />}}
