@@ -112,8 +112,6 @@ enableAutoIDPrefix
 
 #### Passthrough
 
-{{< new-in 0.122.0 />}}
-
 Enable the Passthrough extension to include mathematical equations and expressions in Markdown using LaTeX markup. See [mathematics in Markdown] for details.
 
 #### Typographer

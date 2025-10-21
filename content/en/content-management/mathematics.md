@@ -6,8 +6,6 @@ categories: []
 keywords: []
 ---
 
-{{< new-in 0.122.0 />}}
-
 ## Overview
 
 Mathematical equations and expressions written in [LaTeX][] are common in academic and scientific publications. Your browser typically renders this mathematical markup using an open-source JavaScript display engine such as [MathJax][] or [KaTeX][].
