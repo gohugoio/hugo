@@ -1619,7 +1619,6 @@ params: *params
 }
 
 func TestConfigYAMLAnchorsCyclicReference(t *testing.T) {
-	t.Skip("Skip flaky test for now, will be fixed in issue 14072.")
 	t.Parallel()
 
 	files := `
@@ -1643,7 +1642,7 @@ Params: {{ site.Params }}|
 
 `
 
-	for range 3 {
+	for range 4 {
 		b := Test(t, files)
 		b.AssertFileContent("public/index.html", "Params: map[p3:map[p1:p1alias]]|")
 		b.AssertFileContent("public/sv/index.html", "Params: map[p1:p1alias p3:map[p1:p1alias]]|")

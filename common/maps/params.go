@@ -16,7 +16,6 @@ package maps
 import (
 	"errors"
 	"fmt"
-	xmaps "maps"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -42,6 +41,14 @@ func (p Params) GetNested(indices ...string) any {
 // SetParams overwrites values in dst with values in src for common or new keys.
 // This is done recursively.
 func SetParams(dst, src Params) {
+	setParams(dst, src, 0)
+}
+
+func setParams(dst, src Params, depth int) {
+	const maxDepth = 1000
+	if depth > maxDepth {
+		panic(errors.New("max depth exceeded"))
+	}
 	for k, v := range src {
 		vv, found := dst[k]
 		if !found {
@@ -50,7 +57,7 @@ func SetParams(dst, src Params) {
 			switch vvv := vv.(type) {
 			case Params:
 				if pv, ok := v.(Params); ok {
-					SetParams(vvv, pv)
+					setParams(vvv, pv, depth+1)
 				} else {
 					dst[k] = v
 				}
@@ -116,9 +123,6 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 				}
 			}
 		} else if !noUpdate {
-			if vvv, ok := v.(Params); ok {
-				v = xmaps.Clone(vvv)
-			}
 			p[k] = v
 		}
 
@@ -354,6 +358,29 @@ func PrepareParams(m Params) {
 			m[lKey] = v
 		}
 	}
+}
+
+// CloneParamsDeep does a deep clone of the given Params,
+// meaning that any nested Params will be cloned as well.
+func CloneParamsDeep(m Params) Params {
+	return cloneParamsDeep(m, 0)
+}
+
+func cloneParamsDeep(m Params, depth int) Params {
+	const maxDepth = 1000
+	if depth > maxDepth {
+		panic(errors.New("max depth exceeded"))
+	}
+	m2 := make(Params)
+	for k, v := range m {
+		switch vv := v.(type) {
+		case Params:
+			m2[k] = cloneParamsDeep(vv, depth+1)
+		default:
+			m2[k] = v
+		}
+	}
+	return m2
 }
 
 // PrepareParamsClone is like PrepareParams, but it does not modify the input.
