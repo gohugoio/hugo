@@ -55,8 +55,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/spf13/afero"
-
-	xmaps "maps"
 )
 
 // InternalConfig is the internal configuration for Hugo, not read from any user provided config file.
@@ -1071,6 +1069,14 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					// baseURL configure don the language level is a multihost setup.
 					isMultihost = true
 				}
+
+				if p, ok := vv.(maps.Params); ok {
+					// With the introduction of YAML anchor and alias support, language config entries
+					// may be contain shared references.
+					// This also break potential cycles.
+					vv = maps.CloneParamsDeep(p)
+				}
+
 				mergedConfig.Set(kk, vv)
 				rootv := cfg.Get(kk)
 				if rootv != nil && cfg.IsSet(kk) {
@@ -1081,7 +1087,8 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 							differentRootKeys = append(differentRootKeys, kk)
 
 							// Use the language value as base.
-							mergedConfigEntry := xmaps.Clone(vvv)
+							// Note that this is already cloned above.
+							mergedConfigEntry := vvv
 							// Merge in the root value.
 							maps.MergeParams(mergedConfigEntry, rootv.(maps.Params))
 
