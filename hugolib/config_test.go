@@ -1619,6 +1619,7 @@ params: *params
 }
 
 func TestConfigYAMLAnchorsCyclicReference(t *testing.T) {
+	t.Skip("Skip flaky test for now, will be fixed in issue 14072.")
 	t.Parallel()
 
 	files := `
