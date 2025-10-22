@@ -717,12 +717,13 @@ func (c *Client) runGo(
 		return nil
 	}
 
-	stderr := new(bytes.Buffer)
+	stdErrBuf := new(bytes.Buffer)
+	stdOutBuf := new(bytes.Buffer)
 
 	argsv := collections.StringSliceToInterfaceSlice(args)
 	argsv = append(argsv, hexec.WithEnviron(c.environ))
-	argsv = append(argsv, hexec.WithStderr(goOutputReplacerWriter{w: io.MultiWriter(stderr, os.Stderr)}))
-	argsv = append(argsv, hexec.WithStdout(stdout))
+	argsv = append(argsv, hexec.WithStderr(goOutputReplacerWriter{w: io.MultiWriter(stdErrBuf, os.Stderr)}))
+	argsv = append(argsv, hexec.WithStdout(goOutputReplacerWriter{w: io.MultiWriter(stdOutBuf, stdout)}))
 	argsv = append(argsv, hexec.WithDir(c.ccfg.WorkingDir))
 	argsv = append(argsv, hexec.WithContext(ctx))
 
@@ -737,7 +738,15 @@ func (c *Client) runGo(
 			return nil
 		}
 
-		if strings.Contains(stderr.String(), "invalid version: unknown revision") {
+		var stdOutMap map[string]any
+		err2 := json.Unmarshal(stdOutBuf.Bytes(), &stdOutMap)
+		if err2 == nil {
+			if stdOutMap["Error"] != "" {
+				return fmt.Errorf("%s", stdOutMap["Error"])
+			}
+		}
+
+		if strings.Contains(stdErrBuf.String(), "invalid version: unknown revision") {
 			// See https://github.com/gohugoio/hugo/issues/6825
 			c.logger.Println(`An unknown revision most likely means that someone has deleted the remote ref (e.g. with a force push to GitHub).
 To resolve this, you need to manually edit your go.mod file and replace the version for the module in question with a valid ref.
@@ -755,12 +764,12 @@ If you then run 'hugo mod graph' it should resolve itself to the most recent ver
 		}
 
 		// Too old Go version
-		if strings.Contains(stderr.String(), "flag provided but not defined") {
+		if strings.Contains(stdErrBuf.String(), "flag provided but not defined") {
 			c.goBinaryStatus = goBinaryStatusTooOld
 			return nil
 		}
 
-		return fmt.Errorf("go command failed: %s", stderr)
+		return fmt.Errorf("go command failed: %s", stdErrBuf.String())
 
 	}
 
