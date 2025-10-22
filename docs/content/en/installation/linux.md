@@ -81,7 +81,7 @@ doas apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/
 
 ### Arch Linux
 
-Derivatives of the [Arch Linux] distribution of Linux include [EndeavourOS], [Garuda Linux], [Manjaro], and others. To install the extended edition of Hugo:
+Derivatives of the [Arch Linux] distribution of Linux include [CachyOS], [EndeavourOS], [Garuda Linux], [Manjaro], and others. To install the extended edition of Hugo:
 
 ```sh
 sudo pacman -S hugo
@@ -116,7 +116,7 @@ To install the extended edition of Hugo on [Exherbo]:
 
 ### Fedora
 
-Derivatives of the [Fedora] distribution of Linux include [CentOS], [Red Hat Enterprise Linux], and others. To install the extended edition of Hugo:
+Derivatives of the [Fedora] distribution of Linux include [CentOS], [Nobara], [Red Hat Enterprise Linux], and others. To install the extended edition of Hugo:
 
 ```sh
 sudo dnf install hugo
@@ -187,6 +187,7 @@ Latest version available?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_ch
 
 [Alpine Linux]: https://alpinelinux.org/
 [Arch Linux]: https://archlinux.org/
+[CachyOS]: https://cachyos.org/
 [Calculate Linux]: https://www.calculate-linux.org/
 [CentOS]: https://www.centos.org/
 [Debian]: https://www.debian.org/
@@ -206,6 +207,7 @@ Latest version available?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_ch
 [Manjaro]: https://manjaro.org/
 [most distributions]: https://snapcraft.io/docs/installing-snapd
 [MX Linux]: https://mxlinux.org/
+[Nobara]: https://nobaraproject.org/
 [openSUSE]: https://www.opensuse.org/
 [Pop!_OS]: https://pop.system76.com/
 [Red Hat Enterprise Linux]: https://www.redhat.com/
