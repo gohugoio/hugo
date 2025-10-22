@@ -315,3 +315,23 @@ MyPartial.
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "P1: true|P1: true|")
 }
+
+func TestYAMLAddDateIssue14079(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "RSS"]
+-- assets/mydata.yaml --
+myinteger: 2
+-- layouts/all.html --
+{{ $date := "2023-10-15T13:18:50-07:00" | time }}
+{{ $mydata := resources.Get "mydata.yaml" | transform.Unmarshal }}
+date: {{ $date | time.Format "2006-01-06" }}|
+date+2y: {{ $date.AddDate $mydata.myinteger 0 0 | time.Format "2006-01-06" }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "date: 2023-10-23|", "date+2y: 2025-10-25|")
+}
