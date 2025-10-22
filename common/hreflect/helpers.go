@@ -315,6 +315,7 @@ func IsContextType(tp reflect.Type) bool {
 // This is currently only implemented for int kinds,
 // added to handle the move to a new YAML library which produces uint64 for unsigned integers.
 // We can expand on this later if needed.
+// This conversion is lossless.
 // See Issue 14079.
 func ConvertIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value, bool) {
 	if IsInt(typ.Kind()) {
@@ -329,6 +330,21 @@ func ConvertIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value, bool
 				return reflect.Value{}, false
 			}
 			if typ.OverflowInt(int64(val.Uint())) {
+				return reflect.Value{}, false
+			}
+			return val.Convert(typ), true
+		}
+		if IsFloat(val.Kind()) {
+			f := val.Float()
+			if f < float64(math.MinInt64) || f > float64(math.MaxInt64) {
+				return reflect.Value{}, false
+			}
+			i := int64(f)
+			if typ.OverflowInt(i) {
+				return reflect.Value{}, false
+			}
+			// Check for lossless conversion.
+			if float64(i) != f {
 				return reflect.Value{}, false
 			}
 			return val.Convert(typ), true
