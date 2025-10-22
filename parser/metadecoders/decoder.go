@@ -86,6 +86,15 @@ func (d Decoder) UnmarshalToMap(data []byte, f Format) (map[string]any, error) {
 
 	err := d.UnmarshalTo(data, f, &m)
 
+	if m == nil {
+		// We migrated to github.com/goccy/go-yaml in v0.152.0,
+		// which produces nil maps for empty YAML files (and empty map nodes), unlike gopkg.in/yaml.v2.
+		//
+		// To prevent crashes when trying to handle empty config files etc., we ensure we always return a non-nil map here.
+		// See issue 14074.
+		m = make(map[string]any)
+	}
+
 	return m, err
 }
 

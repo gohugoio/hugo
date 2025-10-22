@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 
 	"github.com/gobwas/glob"
@@ -44,6 +45,7 @@ func LoadConfig(d ConfigSourceDescriptor) (configs *Configs, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("failed to load config: %v", r)
+			debug.PrintStack()
 		}
 	}()
 

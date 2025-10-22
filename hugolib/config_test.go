@@ -1649,3 +1649,16 @@ Params: {{ site.Params }}|
 
 	}
 }
+
+func TestConfigYAMLNilMapIssue14074(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config/_default/taxonomies.yaml --
+# empty on purpose
+-- hugo.yaml --
+
+`
+
+	Test(t, files)
+}

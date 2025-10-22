@@ -17,21 +17,12 @@ package herrors
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"regexp"
-	"runtime"
 	"runtime/debug"
 	"strings"
 	"time"
 )
-
-// PrintStackTrace prints the current stacktrace to w.
-func PrintStackTrace(w io.Writer) {
-	buf := make([]byte, 1<<16)
-	runtime.Stack(buf, true)
-	fmt.Fprintf(w, "%s", buf)
-}
 
 // ErrorSender is a, typically, non-blocking error handler.
 type ErrorSender interface {
