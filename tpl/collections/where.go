@@ -100,6 +100,11 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			ivp = &iv
 			imv := mv.Int()
 			imvp = &imv
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			iv := int64(v.Uint())
+			ivp = &iv
+			imv := int64(mv.Uint())
+			imvp = &imv
 		case reflect.String:
 			sv := v.String()
 			svp = &sv
@@ -494,6 +499,8 @@ func toFloat(v reflect.Value) (float64, error) {
 	case reflect.Float32, reflect.Float64:
 		return v.Float(), nil
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Convert(reflect.TypeOf(float64(0))).Float(), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return v.Convert(reflect.TypeOf(float64(0))).Float(), nil
 	case reflect.Interface:
 		return toFloat(v.Elem())
