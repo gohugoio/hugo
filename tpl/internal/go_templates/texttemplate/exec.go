@@ -889,7 +889,7 @@ func canBeNil(typ reflect.Type) bool {
 }
 
 // validateType guarantees that the value is valid and assignable to the type.
-func (s *state) validateType(value reflect.Value, typ reflect.Type) reflect.Value {
+func (s *state) _validateType(value reflect.Value, typ reflect.Type) reflect.Value {
 	if !value.IsValid() {
 		if typ == nil {
 			// An untyped nil interface{}. Accept as a proper nil value.

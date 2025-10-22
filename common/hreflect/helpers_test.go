@@ -15,6 +15,7 @@ package hreflect
 
 import (
 	"context"
+	"math"
 	"reflect"
 	"testing"
 	"time"
@@ -175,4 +176,67 @@ func BenchmarkGetMethodByNamePara(b *testing.B) {
 			}
 		}
 	})
+}
+
+func TestCastIfPossible(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		name     string
+		value    any
+		typ      any
+		expected any
+		ok       bool
+	}{
+		// From uint to int.
+		{
+			name:  "uint64(math.MaxUint64) to int16",
+			value: uint64(math.MaxUint64),
+			typ:   int16(0),
+			ok:    false, // overflow
+		},
+
+		{
+			name:  "uint64(math.MaxUint64) to int64",
+			value: uint64(math.MaxUint64),
+			typ:   int64(0),
+			ok:    false, // overflow
+		},
+		{
+			name:     "uint64(math.MaxInt16) to int16",
+			value:    uint64(math.MaxInt16),
+			typ:      int64(0),
+			ok:       true,
+			expected: int64(math.MaxInt16),
+		},
+		// From int to int.
+		{
+			name:  "int64(math.MaxInt64) to int16",
+			value: int64(math.MaxInt64),
+			typ:   int16(0),
+			ok:    false, // overflow
+		},
+		{
+			name:     "int64(math.MaxInt16) to int",
+			value:    int64(math.MaxInt16),
+			typ:      int(0),
+			ok:       true,
+			expected: int(math.MaxInt16),
+		},
+
+		{
+			name:     "int64(math.MaxInt16) to int",
+			value:    int64(math.MaxInt16),
+			typ:      int(0),
+			ok:       true,
+			expected: int(math.MaxInt16),
+		},
+	} {
+
+		v, ok := ConvertIfPossible(reflect.ValueOf(test.value), reflect.TypeOf(test.typ))
+		c.Assert(ok, qt.Equals, test.ok, qt.Commentf("test case: %s", test.name))
+		if test.ok {
+			c.Assert(v.Interface(), qt.Equals, test.expected, qt.Commentf("test case: %s", test.name))
+		}
+	}
 }

@@ -431,6 +431,55 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	return vv
 }
 
+// validateType guarantees that the value is valid and assignable to the type.
+func (s *state) validateType(value reflect.Value, typ reflect.Type) reflect.Value {
+	if !value.IsValid() {
+		if typ == nil {
+			// An untyped nil interface{}. Accept as a proper nil value.
+			return reflect.ValueOf(nil)
+		}
+		if canBeNil(typ) {
+			// Like above, but use the zero value of the non-nil type.
+			return reflect.Zero(typ)
+		}
+		s.errorf("invalid value; expected %s", typ)
+	}
+	if typ == reflectValueType && value.Type() != typ {
+		return reflect.ValueOf(value)
+	}
+	if typ != nil && !value.Type().AssignableTo(typ) {
+		if value.Kind() == reflect.Interface && !value.IsNil() {
+			value = value.Elem()
+			if value.Type().AssignableTo(typ) {
+				return value
+			}
+			// fallthrough
+		}
+		// Does one dereference or indirection work? We could do more, as we
+		// do with method receivers, but that gets messy and method receivers
+		// are much more constrained, so it makes more sense there than here.
+		// Besides, one is almost always all you need.
+		switch {
+		case value.Kind() == reflect.Pointer && value.Type().Elem().AssignableTo(typ):
+			value = value.Elem()
+			if !value.IsValid() {
+				s.errorf("dereference of nil pointer of type %s", typ)
+			}
+		case reflect.PointerTo(value.Type()).AssignableTo(typ) && value.CanAddr():
+			value = value.Addr()
+		default:
+			// Added for Hugo.
+			if v, ok := hreflect.ConvertIfPossible(value, typ); ok {
+				value = v
+			} else {
+				s.errorf("wrong type for value; expected %s; got %s", typ, value.Type())
+			}
+
+		}
+	}
+	return value
+}
+
 func isTrue(val reflect.Value) (truth, ok bool) {
 	return hreflect.IsTruthfulValue(val), true
 }
