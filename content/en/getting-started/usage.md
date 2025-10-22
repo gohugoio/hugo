@@ -18,7 +18,7 @@ hugo version
 You should see something like:
 
 ```text
-hugo v0.152.0-06bc2c16c0c0bbff7e662fbeef7ead6f9c55ea0d+extended linux/amd64 BuildDate=2025-10-21T16:29:49Z VendorInfo=gohugoio
+hugo v0.152.1-5869cbddd88590563c2b7b400e804ccc7d2cb697+extended linux/amd64 BuildDate=2025-10-22T19:10:44Z VendorInfo=gohugoio
 ```
 
 ## Display available commands

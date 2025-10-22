@@ -39,7 +39,7 @@ Step 1
         - key: GO_VERSION
           value: 1.25.3
         - key: HUGO_VERSION
-          value: 0.152.0
+          value: 0.152.1
         - key: NODE_VERSION
           value: 22.20.0
         - key: TZ
