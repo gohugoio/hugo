@@ -231,6 +231,33 @@ func TestCastIfPossible(t *testing.T) {
 			ok:       true,
 			expected: int(math.MaxInt16),
 		},
+		// From float to int.
+		{
+			name:  "float64(1.5) to int",
+			value: float64(1.5),
+			typ:   int(0),
+			ok:    false, // loss of precision
+		},
+		{
+			name:     "float64(1.0) to int",
+			value:    float64(1.0),
+			typ:      int(0),
+			ok:       true,
+			expected: int(1),
+		},
+		{
+			name:  "float64(math.MaxFloat64) to int16",
+			value: float64(math.MaxFloat64),
+			typ:   int16(0),
+			ok:    false, // overflow
+		},
+		{
+			name:     "float64(32767) to int16",
+			value:    float64(32767),
+			typ:      int16(0),
+			ok:       true,
+			expected: int16(32767),
+		},
 	} {
 
 		v, ok := ConvertIfPossible(reflect.ValueOf(test.value), reflect.TypeOf(test.typ))

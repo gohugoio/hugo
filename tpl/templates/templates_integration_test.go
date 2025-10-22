@@ -327,11 +327,53 @@ myinteger: 2
 -- layouts/all.html --
 {{ $date := "2023-10-15T13:18:50-07:00" | time }}
 {{ $mydata := resources.Get "mydata.yaml" | transform.Unmarshal }}
-date: {{ $date | time.Format "2006-01-06" }}|
-date+2y: {{ $date.AddDate $mydata.myinteger 0 0 | time.Format "2006-01-06" }}|
+date: {{ $date | time.Format "2006-01-02" }}|
+date+2y: {{ $date.AddDate $mydata.myinteger 0 0 | time.Format "2006-01-02" }}|
 `
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html", "date: 2023-10-23|", "date+2y: 2025-10-25|")
+	b.AssertFileContent("public/index.html", "date: 2023-10-15", "date+2y: 2025-10-15")
+}
+
+func TestTOMLAddDateIssue14079(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "RSS"]
+-- assets/mydata.toml --
+myinteger = 2
+-- layouts/all.html --
+{{ $date := "2023-10-15T13:18:50-07:00" | time }}
+{{ $mydata := resources.Get "mydata.toml" | transform.Unmarshal }}
+date: {{ $date | time.Format "2006-01-02" }}|
+date+2y: {{ $date.AddDate $mydata.myinteger 0 0 | time.Format "2006-01-02" }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "date: 2023-10-15", "date+2y: 2025-10-15")
+}
+
+func TestJSONAddDateIssue14079(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "RSS"]
+-- assets/mydata.json --
+{
+  "myinteger": 2
+}
+-- layouts/all.html --
+{{ $date := "2023-10-15T13:18:50-07:00" | time }}
+{{ $mydata := resources.Get "mydata.json" | transform.Unmarshal }}
+date: {{ $date | time.Format "2006-01-02" }}|
+date+2y: {{ $date.AddDate $mydata.myinteger 0 0 | time.Format "2006-01-02" }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "date: 2023-10-15", "date+2y: 2025-10-15")
 }
