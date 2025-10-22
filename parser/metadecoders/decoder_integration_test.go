@@ -33,6 +33,7 @@ t:
 
 -- layouts/all.html --
 {{ $mydata := resources.Get "mydata.yaml" | transform.Unmarshal }}
+Type: {{ printf "%T" $mydata.a.weight }}|
 Sorted: {{ sort $mydata "weight" }}|
 
 `

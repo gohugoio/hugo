@@ -244,11 +244,11 @@ func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
 
 func (ns *Namespace) compareTwoUints(a uint64, b uint64) (float64, float64) {
 	if a < b {
-		return 1, 0
+		return 0, 1
 	} else if a == b {
 		return 0, 0
 	} else {
-		return 0, 1
+		return 1, 0
 	}
 }
 
