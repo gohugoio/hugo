@@ -54,7 +54,6 @@ func TestSymDiff(t *testing.T) {
 	} {
 
 		errMsg := qt.Commentf("[%d]", i)
-
 		result, err := ns.SymDiff(test.s2, test.s1)
 
 		if b, ok := test.expected.(bool); ok && !b {

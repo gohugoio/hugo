@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
@@ -574,13 +575,13 @@ func (i *intersector) appendIfNotSeen(v reflect.Value) {
 func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 	switch kind := l1vv.Kind(); {
 	case kind == reflect.String:
-		l2t, err := toString(l2vv)
+		l2t, err := hreflect.ToStringE(l2vv)
 		if err == nil && l1vv.String() == l2t {
 			i.appendIfNotSeen(l1vv)
 		}
-	case isNumber(kind):
-		f1, err1 := numberToFloat(l1vv)
-		f2, err2 := numberToFloat(l2vv)
+	case hreflect.IsNumber(kind):
+		f1, err1 := hreflect.ToFloat64E(l1vv)
+		f2, err2 := hreflect.ToFloat64E(l2vv)
 		if err1 == nil && err2 == nil && f1 == f2 {
 			i.appendIfNotSeen(l1vv)
 		}
@@ -650,16 +651,17 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 
 			for j := range l2v.Len() {
 				l2vv := l2v.Index(j)
+				typ := l1vv.Type()
 
 				switch kind := l1vv.Kind(); {
 				case kind == reflect.String:
-					l2t, err := toString(l2vv)
+					l2t, err := hreflect.ToStringE(l2vv)
 					if err == nil {
 						ins.appendIfNotSeen(reflect.ValueOf(l2t))
 					}
-				case isNumber(kind):
+				case hreflect.IsNumber(kind):
 					var err error
-					l2vv, err = convertNumber(l2vv, kind)
+					l2vv, err = convertNumber(l2vv, typ)
 					if err == nil {
 						ins.appendIfNotSeen(l2vv)
 					}

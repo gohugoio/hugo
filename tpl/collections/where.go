@@ -126,13 +126,13 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			slv = v.Interface()
 			slmv = mv.Interface()
 		}
-	} else if isNumber(v.Kind()) && isNumber(mv.Kind()) {
-		fv, err := toFloat(v)
+	} else if hreflect.IsNumber(v.Kind()) && hreflect.IsNumber(mv.Kind()) {
+		fv, err := hreflect.ToFloat64E(v)
 		if err != nil {
 			return false, err
 		}
 		fvp = &fv
-		fmv, err := toFloat(mv)
+		fmv, err := hreflect.ToFloat64E(mv)
 		if err != nil {
 			return false, err
 		}
@@ -157,7 +157,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			iv := v.Int()
 			ivp = &iv
 			for i := range mv.Len() {
-				if anInt, err := toInt(mv.Index(i)); err == nil {
+				if anInt, err := hreflect.ToInt64E(mv.Index(i)); err == nil {
 					ima = append(ima, anInt)
 				}
 			}
@@ -165,7 +165,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			sv := v.String()
 			svp = &sv
 			for i := range mv.Len() {
-				if aString, err := toString(mv.Index(i)); err == nil {
+				if aString, err := hreflect.ToStringE(mv.Index(i)); err == nil {
 					sma = append(sma, aString)
 				}
 			}
@@ -173,7 +173,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			fv := v.Float()
 			fvp = &fv
 			for i := range mv.Len() {
-				if aFloat, err := toFloat(mv.Index(i)); err == nil {
+				if aFloat, err := hreflect.ToFloat64E(mv.Index(i)); err == nil {
 					fma = append(fma, aFloat)
 				}
 			}
@@ -493,53 +493,7 @@ func (ns *Namespace) checkWhereMap(ctxv, seqv, kv, mv reflect.Value, path []stri
 	return rv.Interface(), nil
 }
 
-// toFloat returns the float value if possible.
-func toFloat(v reflect.Value) (float64, error) {
-	switch v.Kind() {
-	case reflect.Float32, reflect.Float64:
-		return v.Float(), nil
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Convert(reflect.TypeOf(float64(0))).Float(), nil
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return v.Convert(reflect.TypeOf(float64(0))).Float(), nil
-	case reflect.Interface:
-		return toFloat(v.Elem())
-	}
-	return -1, errors.New("unable to convert value to float")
-}
-
-// toInt returns the int value if possible, -1 if not.
-// TODO(bep) consolidate all these reflect funcs.
-func toInt(v reflect.Value) (int64, error) {
-	switch v.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int(), nil
-	case reflect.Interface:
-		return toInt(v.Elem())
-	}
-	return -1, errors.New("unable to convert value to int")
-}
-
-func toUint(v reflect.Value) (uint64, error) {
-	switch v.Kind() {
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return v.Uint(), nil
-	case reflect.Interface:
-		return toUint(v.Elem())
-	}
-	return 0, errors.New("unable to convert value to uint")
-}
-
 // toString returns the string value if possible, "" if not.
-func toString(v reflect.Value) (string, error) {
-	switch v.Kind() {
-	case reflect.String:
-		return v.String(), nil
-	case reflect.Interface:
-		return toString(v.Elem())
-	}
-	return "", errors.New("unable to convert value to string")
-}
 
 func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
 	t, ok := hreflect.AsTime(v, ns.loc)
