@@ -44,6 +44,46 @@ var IsSameFloat64 = qt.CmpEquals(cmp.Comparer(func(a, b float64) bool {
 	return math.Abs(a-b) < 0.0001
 }))
 
+// IsSameNumber asserts that two number values are equal within a small delta.
+var IsSameNumber = qt.CmpEquals(
+	cmp.Comparer(func(a, b float64) bool {
+		return math.Abs(a-b) < 0.0001
+	}),
+	cmp.Comparer(func(a, b float32) bool {
+		return math.Abs(float64(a)-float64(b)) < 0.0001
+	}),
+	cmp.Comparer(func(a, b int) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b int8) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b int16) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b int32) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b int64) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b uint) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b uint8) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b uint16) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b uint32) bool {
+		return a == b
+	}),
+	cmp.Comparer(func(a, b uint64) bool {
+		return a == b
+	}),
+)
+
 type argNames []string
 
 func (a argNames) ArgNames() []string {

@@ -28,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/navigation"
 
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -414,11 +415,11 @@ func (p *nopPage) Resources() resource.Resources {
 	return nil
 }
 
-func (p *nopPage) Scratch() *maps.Scratch {
+func (p *nopPage) Scratch() *hstore.Scratch {
 	return nil
 }
 
-func (p *nopPage) Store() *maps.Scratch {
+func (p *nopPage) Store() *hstore.Scratch {
 	return nil
 }
 

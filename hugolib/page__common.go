@@ -16,7 +16,7 @@ package hugolib
 import (
 	"sync"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/markup/converter"
@@ -52,7 +52,7 @@ type pageCommon struct {
 	init *lazy.Init
 
 	// Store holds state that survives server rebuilds.
-	store *maps.Scratch
+	store *hstore.Scratch
 
 	// All of these represents the common parts of a page.Page
 	navigation.PageMenusProvider
@@ -103,11 +103,11 @@ type pageCommon struct {
 	contentConverter     converter.Converter
 }
 
-func (p *pageCommon) Store() *maps.Scratch {
+func (p *pageCommon) Store() *hstore.Scratch {
 	return p.store
 }
 
 // See issue 13016.
-func (p *pageCommon) Scratch() *maps.Scratch {
+func (p *pageCommon) Scratch() *hstore.Scratch {
 	return p.Store()
 }

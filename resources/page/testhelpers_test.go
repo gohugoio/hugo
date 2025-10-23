@@ -27,6 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/navigation"
 
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -493,11 +494,11 @@ func (p *testPage) Resources() resource.Resources {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) Scratch() *maps.Scratch {
+func (p *testPage) Scratch() *hstore.Scratch {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) Store() *maps.Scratch {
+func (p *testPage) Store() *hstore.Scratch {
 	panic("testpage: not implemented")
 }
 

@@ -34,7 +34,7 @@ func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any
 	}
 
 	seqv := reflect.ValueOf(c)
-	seqv, isNil := indirect(seqv)
+	seqv, isNil := hreflect.Indirect(seqv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
@@ -134,29 +134,4 @@ func (ns *Namespace) lookupFunc(ctx context.Context, fname string) (reflect.Valu
 		return reflect.Value{}, false
 	}
 	return m, true
-}
-
-// indirect is borrowed from the Go stdlib: 'text/template/exec.go'
-func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
-	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
-		if v.IsNil() {
-			return v, true
-		}
-		if v.Kind() == reflect.Interface && v.NumMethod() > 0 {
-			break
-		}
-	}
-	return v, false
-}
-
-func indirectInterface(v reflect.Value) (rv reflect.Value, isNil bool) {
-	for ; v.Kind() == reflect.Interface; v = v.Elem() {
-		if v.IsNil() {
-			return v, true
-		}
-		if v.Kind() == reflect.Interface && v.NumMethod() > 0 {
-			break
-		}
-	}
-	return v, false
 }

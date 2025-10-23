@@ -1,6 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
-// Some functions in this file (see comments) is based on the Go source code,
-// copyright The Go Authors and  governed by a BSD-style license.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +16,6 @@ package hreflect
 
 import (
 	"context"
-	"math"
 	"reflect"
 	"sync"
 	"time"
@@ -27,6 +24,11 @@ import (
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 )
+
+// IsInterfaceOrPointer returns whether the given kind is an interface or a pointer.
+func IsInterfaceOrPointer(kind reflect.Kind) bool {
+	return kind == reflect.Interface || kind == reflect.Ptr
+}
 
 // TODO(bep) replace the private versions in /tpl with these.
 // IsNumber returns whether the given kind is a number.
@@ -62,6 +64,11 @@ func IsFloat(kind reflect.Kind) bool {
 	default:
 		return false
 	}
+}
+
+// IsString returns whether the given kind is a string.
+func IsString(kind reflect.Kind) bool {
+	return kind == reflect.String
 }
 
 // IsTruthful returns whether in represents a truthful value.
@@ -107,14 +114,14 @@ func implementsIsZero(tp reflect.Type) bool {
 // Based on:
 // https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L306
 func IsTruthfulValue(val reflect.Value) (truth bool) {
-	val = indirectInterface(val)
+	val, isNil := Indirect(val)
 
 	if !val.IsValid() {
-		// Something like var x interface{}, never set. It's a form of nil.
+		// Something like: var x any, never set. It's a form of nil.
 		return
 	}
 
-	if val.Kind() == reflect.Pointer && val.IsNil() {
+	if val.Kind() == reflect.Pointer && isNil {
 		return
 	}
 
@@ -260,6 +267,7 @@ func ToSliceAny(v any) ([]any, bool) {
 	return nil, false
 }
 
+// CallMethodByName calls the method with the given name on v.
 func CallMethodByName(cxt context.Context, name string, v reflect.Value) []reflect.Value {
 	fn := v.MethodByName(name)
 	var args []reflect.Value
@@ -277,15 +285,39 @@ func CallMethodByName(cxt context.Context, name string, v reflect.Value) []refle
 	return fn.Call(args)
 }
 
-// Based on: https://github.com/golang/go/blob/178a2c42254166cffed1b25fb1d3c7a5727cada6/src/text/template/exec.go#L931
-func indirectInterface(v reflect.Value) reflect.Value {
-	if v.Kind() != reflect.Interface {
-		return v
+// Indirect unwraps interfaces and pointers until it finds a non-interface/pointer value.
+// If a nil is encountered, the second return value is true.
+// If a pointer to a struct is encountered, it is not unwrapped.
+func Indirect(v reflect.Value) (vv reflect.Value, isNil bool) {
+	for ; IsInterfaceOrPointer(v.Kind()); v = v.Elem() {
+		if IsNil(v) {
+			return v, true
+		}
+		if v.Kind() != reflect.Interface {
+			// A pointer.
+			if v.NumMethod() > 0 {
+				break
+			}
+			if v.Elem().Kind() == reflect.Struct {
+				// Avoid unwrapping pointers to structs.
+				break
+			}
+		}
 	}
-	if v.IsNil() {
-		return reflect.Value{}
+	return v, false
+}
+
+// IsNil reports whether v is nil.
+// Based on reflect.Value.IsNil, but also considers invalid values as nil.
+func IsNil(v reflect.Value) bool {
+	if !v.IsValid() {
+		return true
 	}
-	return v.Elem()
+	switch v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+		return v.IsNil()
+	}
+	return false
 }
 
 var contextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
@@ -309,46 +341,4 @@ func IsContextType(tp reflect.Type) bool {
 		return tp.Implements(contextInterface), nil
 	})
 	return isContext
-}
-
-// ConvertIfPossible tries to convert val to typ if possible.
-// This is currently only implemented for int kinds,
-// added to handle the move to a new YAML library which produces uint64 for unsigned integers.
-// We can expand on this later if needed.
-// This conversion is lossless.
-// See Issue 14079.
-func ConvertIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value, bool) {
-	if IsInt(typ.Kind()) {
-		if IsInt(val.Kind()) {
-			if typ.OverflowInt(val.Int()) {
-				return reflect.Value{}, false
-			}
-			return val.Convert(typ), true
-		}
-		if IsUint(val.Kind()) {
-			if val.Uint() > uint64(math.MaxInt64) {
-				return reflect.Value{}, false
-			}
-			if typ.OverflowInt(int64(val.Uint())) {
-				return reflect.Value{}, false
-			}
-			return val.Convert(typ), true
-		}
-		if IsFloat(val.Kind()) {
-			f := val.Float()
-			if f < float64(math.MinInt64) || f > float64(math.MaxInt64) {
-				return reflect.Value{}, false
-			}
-			i := int64(f)
-			if typ.OverflowInt(i) {
-				return reflect.Value{}, false
-			}
-			// Check for lossless conversion.
-			if float64(i) != f {
-				return reflect.Value{}, false
-			}
-			return val.Convert(typ), true
-		}
-	}
-	return reflect.Value{}, false
 }

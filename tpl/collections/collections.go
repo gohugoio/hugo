@@ -25,6 +25,8 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
@@ -75,7 +77,7 @@ func (ns *Namespace) After(n any, l any) (any, error) {
 	}
 
 	lv := reflect.ValueOf(l)
-	lv, isNil := indirect(lv)
+	lv, isNil := hreflect.Indirect(lv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
@@ -114,7 +116,7 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (stri
 	}
 
 	lv := reflect.ValueOf(l)
-	lv, isNil := indirect(lv)
+	lv, isNil := hreflect.Indirect(lv)
 	if isNil {
 		return "", errors.New("can't iterate over a nil value")
 	}
@@ -207,7 +209,7 @@ func (ns *Namespace) First(limit any, l any) (any, error) {
 	}
 
 	lv := reflect.ValueOf(l)
-	lv, isNil := indirect(lv)
+	lv, isNil := hreflect.Indirect(lv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
@@ -240,7 +242,7 @@ func (ns *Namespace) In(l any, v any) (bool, error) {
 	switch lv.Kind() {
 	case reflect.Array, reflect.Slice:
 		for i := range lv.Len() {
-			lvv, isNil := indirectInterface(lv.Index(i))
+			lvv, isNil := hreflect.Indirect(lv.Index(i))
 			if isNil {
 				continue
 			}
@@ -367,7 +369,7 @@ func (ns *Namespace) Last(limit any, l any) (any, error) {
 	}
 
 	seqv := reflect.ValueOf(l)
-	seqv, isNil := indirect(seqv)
+	seqv, isNil := hreflect.Indirect(seqv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
@@ -497,7 +499,7 @@ func (ns *Namespace) Shuffle(l any) (any, error) {
 	}
 
 	lv := reflect.ValueOf(l)
-	lv, isNil := indirect(lv)
+	lv, isNil := hreflect.Indirect(lv)
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
@@ -574,13 +576,13 @@ func (i *intersector) appendIfNotSeen(v reflect.Value) {
 func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 	switch kind := l1vv.Kind(); {
 	case kind == reflect.String:
-		l2t, err := toString(l2vv)
+		l2t, err := hreflect.ToStringE(l2vv)
 		if err == nil && l1vv.String() == l2t {
 			i.appendIfNotSeen(l1vv)
 		}
-	case isNumber(kind):
-		f1, err1 := numberToFloat(l1vv)
-		f2, err2 := numberToFloat(l2vv)
+	case hreflect.IsNumber(kind):
+		f1, err1 := hreflect.ToFloat64E(l1vv)
+		f2, err2 := hreflect.ToFloat64E(l2vv)
 		if err1 == nil && err2 == nil && f1 == f2 {
 			i.appendIfNotSeen(l1vv)
 		}
@@ -629,7 +631,7 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 			)
 
 			for i := range l1v.Len() {
-				l1vv, isNil = indirectInterface(l1v.Index(i))
+				l1vv, isNil = hreflect.Indirect(l1v.Index(i))
 
 				if !l1vv.Type().Comparable() {
 					return []any{}, errors.New("union does not support slices or arrays of uncomparable types")
@@ -650,16 +652,17 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 
 			for j := range l2v.Len() {
 				l2vv := l2v.Index(j)
+				typ := l1vv.Type()
 
 				switch kind := l1vv.Kind(); {
 				case kind == reflect.String:
-					l2t, err := toString(l2vv)
+					l2t, err := hreflect.ToStringE(l2vv)
 					if err == nil {
 						ins.appendIfNotSeen(reflect.ValueOf(l2t))
 					}
-				case isNumber(kind):
+				case hreflect.IsNumber(kind):
 					var err error
-					l2vv, err = convertNumber(l2vv, kind)
+					l2vv, err = convertNumber(l2vv, typ)
 					if err == nil {
 						ins.appendIfNotSeen(l2vv)
 					}
@@ -700,7 +703,7 @@ func (ns *Namespace) Uniq(l any) (any, error) {
 	seen := make(map[any]bool)
 
 	for i := range v.Len() {
-		ev, _ := indirectInterface(v.Index(i))
+		ev, _ := hreflect.Indirect(v.Index(i))
 
 		key := normalize(ev)
 
@@ -720,6 +723,6 @@ func (ns *Namespace) KeyVals(key any, values ...any) (types.KeyValues, error) {
 
 // NewScratch creates a new Scratch which can be used to store values in a
 // thread safe way.
-func (ns *Namespace) NewScratch() *maps.Scratch {
-	return maps.NewScratch()
+func (ns *Namespace) NewScratch() *hstore.Scratch {
+	return hstore.NewScratch()
 }

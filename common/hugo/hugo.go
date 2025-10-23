@@ -30,8 +30,8 @@ import (
 	"github.com/bep/godartsass/v2"
 
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/bep/helpers/contexthelpers"
@@ -55,7 +55,7 @@ var (
 	vendorInfo string
 )
 
-var _ maps.StoreProvider = (*HugoInfo)(nil)
+var _ hstore.StoreProvider = (*HugoInfo)(nil)
 
 // HugoInfo contains information about the current Hugo environment
 type HugoInfo struct {
@@ -74,7 +74,7 @@ type HugoInfo struct {
 	conf ConfigProvider
 	deps []*Dependency
 
-	store *maps.Scratch
+	store *hstore.Scratch
 
 	// Context gives access to some of the context scoped variables.
 	Context Context
@@ -120,7 +120,7 @@ func (i HugoInfo) Deps() []*Dependency {
 	return i.deps
 }
 
-func (i HugoInfo) Store() *maps.Scratch {
+func (i HugoInfo) Store() *hstore.Scratch {
 	return i.store
 }
 
@@ -197,7 +197,7 @@ func NewInfo(conf ConfigProvider, deps []*Dependency) HugoInfo {
 		Environment: conf.Environment(),
 		conf:        conf,
 		deps:        deps,
-		store:       maps.NewScratch(),
+		store:       hstore.NewScratch(),
 		GoVersion:   goVersion,
 	}
 }

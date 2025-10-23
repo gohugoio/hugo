@@ -31,6 +31,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
@@ -103,7 +104,7 @@ type Site struct {
 	language  *langs.Language
 	languagei int
 	pageMap   *pageMap
-	store     *maps.Scratch
+	store     *hstore.Scratch
 
 	// The owning container.
 	h *HugoSites
@@ -267,7 +268,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			language:           language,
 			languagei:          i,
 			frontmatterHandler: frontmatterHandler,
-			store:              maps.NewScratch(),
+			store:              hstore.NewScratch(),
 		}
 
 		if i == 0 {
@@ -639,7 +640,7 @@ func (s *Site) AllRegularPages() page.Pages {
 	return s.h.RegularPages()
 }
 
-func (s *Site) Store() *maps.Scratch {
+func (s *Site) Store() *hstore.Scratch {
 	return s.store
 }
 

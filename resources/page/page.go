@@ -25,7 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/compare"
 
@@ -384,9 +384,9 @@ type PageWithoutContent interface {
 	// Note that this Scratch gets reset on server rebuilds. See Store() for a variant that survives.
 	// Scratch returns a "scratch pad" that can be used to store state.
 	// Deprecated: From Hugo v0.138.0 this is just an alias for Store.
-	Scratch() *maps.Scratch
+	Scratch() *hstore.Scratch
 
-	maps.StoreProvider
+	hstore.StoreProvider
 
 	RelatedKeywordsProvider
 
