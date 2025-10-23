@@ -20,6 +20,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
@@ -32,7 +33,7 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 		return nil, errors.New("sequence must be provided")
 	}
 
-	seqv, isNil := indirect(reflect.ValueOf(l))
+	seqv, isNil := hreflect.Indirect(reflect.ValueOf(l))
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}

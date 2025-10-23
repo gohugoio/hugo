@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/helpers"
@@ -48,7 +49,7 @@ type PagesFromDataTemplateContext interface {
 
 	// The same template may be executed multiple times for multiple languages.
 	// The Store can be used to store state between these invocations.
-	Store() *maps.Scratch
+	Store() *hstore.Scratch
 
 	// By default, the template will be executed for the language
 	// defined by the _content.gotmpl file (e.g. its mount definition).
@@ -133,7 +134,7 @@ func (p *pagesFromDataTemplateContext) Site() page.Site {
 	return p.p.Site
 }
 
-func (p *pagesFromDataTemplateContext) Store() *maps.Scratch {
+func (p *pagesFromDataTemplateContext) Store() *hstore.Scratch {
 	return p.p.store
 }
 
@@ -149,7 +150,7 @@ func NewPagesFromTemplate(opts PagesFromTemplateOptions) *PagesFromTemplate {
 		buildState: &BuildState{
 			sourceInfosCurrent: maps.NewCache[string, *sourceInfo](),
 		},
-		store: maps.NewScratch(),
+		store: hstore.NewScratch(),
 	}
 }
 
@@ -177,7 +178,7 @@ type PagesFromTemplate struct {
 	PagesFromTemplateOptions
 	PagesFromTemplateDeps
 	buildState *BuildState
-	store      *maps.Scratch
+	store      *hstore.Scratch
 }
 
 func (b *PagesFromTemplate) AddChange(id identity.Identity) {

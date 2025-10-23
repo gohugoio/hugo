@@ -28,13 +28,13 @@ import (
 	"sync"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/common/urls"
 
@@ -43,10 +43,10 @@ import (
 )
 
 var (
-	_ urls.RefLinker     = (*ShortcodeWithPage)(nil)
-	_ types.Unwrapper    = (*ShortcodeWithPage)(nil)
-	_ text.Positioner    = (*ShortcodeWithPage)(nil)
-	_ maps.StoreProvider = (*ShortcodeWithPage)(nil)
+	_ urls.RefLinker       = (*ShortcodeWithPage)(nil)
+	_ types.Unwrapper      = (*ShortcodeWithPage)(nil)
+	_ text.Positioner      = (*ShortcodeWithPage)(nil)
+	_ hstore.StoreProvider = (*ShortcodeWithPage)(nil)
 )
 
 // ShortcodeWithPage is the "." context in a shortcode template.
@@ -73,7 +73,7 @@ type ShortcodeWithPage struct {
 	posOffset int
 	pos       text.Position
 
-	store *maps.Scratch
+	store *hstore.Scratch
 }
 
 // InnerDeindent returns the (potentially de-indented) inner content of the shortcode.
@@ -126,9 +126,9 @@ func (scp *ShortcodeWithPage) RelRef(args map[string]any) (string, error) {
 }
 
 // Store returns this shortcode's Store.
-func (scp *ShortcodeWithPage) Store() *maps.Scratch {
+func (scp *ShortcodeWithPage) Store() *hstore.Scratch {
 	if scp.store == nil {
-		scp.store = maps.NewScratch()
+		scp.store = hstore.NewScratch()
 	}
 	return scp.store
 }
@@ -136,7 +136,7 @@ func (scp *ShortcodeWithPage) Store() *maps.Scratch {
 // Scratch returns a scratch-pad scoped for this shortcode. This can be used
 // as a temporary storage for variables, counters etc.
 // Deprecated: Use Store instead. Note that from the templates this should be considered a "soft deprecation".
-func (scp *ShortcodeWithPage) Scratch() *maps.Scratch {
+func (scp *ShortcodeWithPage) Scratch() *hstore.Scratch {
 	return scp.Store()
 }
 

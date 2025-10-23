@@ -16,6 +16,7 @@ package page
 import (
 	"time"
 
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
@@ -122,7 +123,7 @@ type Site interface {
 	// LanguagePrefix returns the language prefix for this site.
 	LanguagePrefix() string
 
-	maps.StoreProvider
+	hstore.StoreProvider
 
 	// For internal use only.
 	// This will panic if the site is not fully initialized.
@@ -296,7 +297,7 @@ func (s *siteWrapper) LanguagePrefix() string {
 	return s.s.LanguagePrefix()
 }
 
-func (s *siteWrapper) Store() *maps.Scratch {
+func (s *siteWrapper) Store() *hstore.Scratch {
 	return s.s.Store()
 }
 
@@ -444,8 +445,8 @@ func (s testSite) Param(key any) (any, error) {
 	return nil, nil
 }
 
-func (s testSite) Store() *maps.Scratch {
-	return maps.NewScratch()
+func (s testSite) Store() *hstore.Scratch {
+	return hstore.NewScratch()
 }
 
 func (s testSite) CheckReady() {

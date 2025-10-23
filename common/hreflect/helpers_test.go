@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@ package hreflect
 
 import (
 	"context"
-	"math"
 	"reflect"
 	"testing"
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting/hqt"
 )
 
 type zeroStruct struct {
@@ -78,6 +78,77 @@ func TestToSliceAny(t *testing.T) {
 
 	checkOK([]any{1, 2, 3}, []any{1, 2, 3})
 	checkOK([]int{1, 2, 3}, []any{1, 2, 3})
+}
+
+type testIndirectStruct struct {
+	S string
+}
+
+func (t *testIndirectStruct) GetS() string {
+	return t.S
+}
+
+func (t testIndirectStruct) Foo() string {
+	return "bar"
+}
+
+type testIndirectStructNoMethods struct {
+	S string
+}
+
+func TestIsNil(t *testing.T) {
+	c := qt.New(t)
+
+	var (
+		nilPtr      *testIndirectStruct
+		nilIface    any = nil
+		nonNilIface any = &testIndirectStruct{S: "hello"}
+	)
+
+	c.Assert(IsNil(reflect.ValueOf(nilPtr)), qt.Equals, true)
+	c.Assert(IsNil(reflect.ValueOf(nilIface)), qt.Equals, true)
+	c.Assert(IsNil(reflect.ValueOf(nonNilIface)), qt.Equals, false)
+}
+
+func TestIndirectInterface(t *testing.T) {
+	c := qt.New(t)
+
+	var (
+		structWithMethods               = testIndirectStruct{S: "hello"}
+		structWithMethodsPointer        = &testIndirectStruct{S: "hello"}
+		structWithMethodsPointerAny any = structWithMethodsPointer
+		structPointerToPointer          = &structWithMethodsPointer
+		structNoMethodsPtr              = &testIndirectStructNoMethods{S: "no methods"}
+		structNoMethods                 = testIndirectStructNoMethods{S: "no methods"}
+		intValue                        = 32
+		intPtr                          = &intValue
+		nilPtr                      *testIndirectStruct
+		nilIface                    any = nil
+	)
+
+	ind := func(v any) any {
+		c.Helper()
+		vv, isNil := Indirect(reflect.ValueOf(v))
+		c.Assert(isNil, qt.IsFalse)
+		return vv.Interface()
+	}
+
+	c.Assert(ind(intValue), hqt.IsSameType, 32)
+	c.Assert(ind(intPtr), hqt.IsSameType, 32)
+	c.Assert(ind(structNoMethodsPtr), hqt.IsSameType, structNoMethodsPtr)
+	c.Assert(ind(structWithMethods), hqt.IsSameType, structWithMethods)
+	c.Assert(ind(structNoMethods), hqt.IsSameType, structNoMethods)
+	c.Assert(ind(structPointerToPointer), hqt.IsSameType, &testIndirectStruct{})
+	c.Assert(ind(structWithMethodsPointer), hqt.IsSameType, &testIndirectStruct{})
+	c.Assert(ind(structWithMethodsPointerAny), hqt.IsSameType, structWithMethodsPointer)
+
+	vv, isNil := Indirect(reflect.ValueOf(nilPtr))
+	c.Assert(isNil, qt.IsTrue)
+	c.Assert(vv, qt.Equals, reflect.ValueOf(nilPtr))
+
+	vv, isNil = Indirect(reflect.ValueOf(nilIface))
+	c.Assert(isNil, qt.IsFalse)
+	c.Assert(vv, qt.Equals, reflect.ValueOf(nilIface))
 }
 
 func BenchmarkIsContextType(b *testing.B) {
@@ -176,94 +247,4 @@ func BenchmarkGetMethodByNamePara(b *testing.B) {
 			}
 		}
 	})
-}
-
-func TestCastIfPossible(t *testing.T) {
-	c := qt.New(t)
-
-	for _, test := range []struct {
-		name     string
-		value    any
-		typ      any
-		expected any
-		ok       bool
-	}{
-		// From uint to int.
-		{
-			name:  "uint64(math.MaxUint64) to int16",
-			value: uint64(math.MaxUint64),
-			typ:   int16(0),
-			ok:    false, // overflow
-		},
-
-		{
-			name:  "uint64(math.MaxUint64) to int64",
-			value: uint64(math.MaxUint64),
-			typ:   int64(0),
-			ok:    false, // overflow
-		},
-		{
-			name:     "uint64(math.MaxInt16) to int16",
-			value:    uint64(math.MaxInt16),
-			typ:      int64(0),
-			ok:       true,
-			expected: int64(math.MaxInt16),
-		},
-		// From int to int.
-		{
-			name:  "int64(math.MaxInt64) to int16",
-			value: int64(math.MaxInt64),
-			typ:   int16(0),
-			ok:    false, // overflow
-		},
-		{
-			name:     "int64(math.MaxInt16) to int",
-			value:    int64(math.MaxInt16),
-			typ:      int(0),
-			ok:       true,
-			expected: int(math.MaxInt16),
-		},
-
-		{
-			name:     "int64(math.MaxInt16) to int",
-			value:    int64(math.MaxInt16),
-			typ:      int(0),
-			ok:       true,
-			expected: int(math.MaxInt16),
-		},
-		// From float to int.
-		{
-			name:  "float64(1.5) to int",
-			value: float64(1.5),
-			typ:   int(0),
-			ok:    false, // loss of precision
-		},
-		{
-			name:     "float64(1.0) to int",
-			value:    float64(1.0),
-			typ:      int(0),
-			ok:       true,
-			expected: int(1),
-		},
-		{
-			name:  "float64(math.MaxFloat64) to int16",
-			value: float64(math.MaxFloat64),
-			typ:   int16(0),
-			ok:    false, // overflow
-		},
-		{
-			name:     "float64(32767) to int16",
-			value:    float64(32767),
-			typ:      int16(0),
-			ok:       true,
-			expected: int16(32767),
-		},
-	} {
-
-		v, ok := ConvertIfPossible(reflect.ValueOf(test.value), reflect.TypeOf(test.typ))
-		c.Assert(ok, qt.Equals, test.ok, qt.Commentf("test case: %s", test.name))
-		if test.ok {
-			c.Assert(v.Interface(), qt.Equals, test.expected, qt.Commentf("test case: %s", test.name))
-		}
-	}
 }

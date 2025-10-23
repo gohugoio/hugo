@@ -23,7 +23,6 @@ import (
 	"testing"
 	"time"
 
-	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/maps"
 )
 
@@ -863,32 +862,6 @@ func TestEvaluateSubElem(t *testing.T) {
 	}
 }
 
-func TestToFloat(t *testing.T) {
-	t.Parallel()
-
-	c := qt.New(t)
-
-	to := func(v any) float64 {
-		f, err := toFloat(reflect.ValueOf(v))
-		c.Assert(err, qt.IsNil)
-		return f
-	}
-
-	c.Assert(to(uint64(32)), qt.Equals, 32.0)
-	c.Assert(to(int64(32)), qt.Equals, 32.0)
-	c.Assert(to(uint32(32)), qt.Equals, 32.0)
-	c.Assert(to(int32(32)), qt.Equals, 32.0)
-
-	c.Assert(to(uint16(32)), qt.Equals, 32.0)
-	c.Assert(to(int16(32)), qt.Equals, 32.0)
-
-	c.Assert(to(uint8(32)), qt.Equals, 32.0)
-	c.Assert(to(int8(32)), qt.Equals, 32.0)
-
-	c.Assert(to(uint(32)), qt.Equals, 32.0)
-	c.Assert(to(int(32)), qt.Equals, 32.0)
-}
-
 func BenchmarkWhereOps(b *testing.B) {
 	ns := newNs()
 	var seq []map[string]string
@@ -941,6 +914,26 @@ func BenchmarkWhereMap(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		_, err := ns.Where(context.Background(), seq, "key", "eq", "value")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkWhereSliceOfStructPointersWithMethod(b *testing.B) {
+	// TstRv2
+	ns := newNs()
+	seq := []*TstX{}
+
+	for i := range 1000 {
+		seq = append(seq, &TstX{A: "foo", B: "bar"})
+		if i%2 == 0 {
+			seq = append(seq, &TstX{A: "baz", B: "qux"})
+		}
+	}
+	b.ResetTimer()
+	for range b.N {
+		_, err := ns.Where(context.Background(), seq, "TstRv2", "eq", "bar")
 		if err != nil {
 			b.Fatal(err)
 		}

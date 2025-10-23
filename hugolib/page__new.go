@@ -22,6 +22,7 @@ import (
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/common/constants"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 
@@ -202,7 +203,7 @@ func (h *HugoSites) doNewPage(m *pageMeta) (*pageState, *paths.Path, error) {
 			dependencyManager:                 m.s.Conf.NewIdentityManager(m.Path()),
 			pageCommon: &pageCommon{
 				FileProvider:              m,
-				store:                     maps.NewScratch(),
+				store:                     hstore.NewScratch(),
 				Positioner:                page.NopPage,
 				InSectionPositioner:       page.NopPage,
 				ResourceNameTitleProvider: m,

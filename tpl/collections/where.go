@@ -27,7 +27,7 @@ import (
 
 // Where returns a filtered subset of collection c.
 func (ns *Namespace) Where(ctx context.Context, c, key any, args ...any) (any, error) {
-	seqv, isNil := indirect(reflect.ValueOf(c))
+	seqv, isNil := hreflect.Indirect(reflect.ValueOf(c))
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value of type " + reflect.ValueOf(c).Type().String())
 	}
@@ -56,12 +56,12 @@ func (ns *Namespace) Where(ctx context.Context, c, key any, args ...any) (any, e
 }
 
 func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error) {
-	v, vIsNil := indirect(v)
+	v, vIsNil := hreflect.Indirect(v)
 	if !v.IsValid() {
 		vIsNil = true
 	}
 
-	mv, mvIsNil := indirect(mv)
+	mv, mvIsNil := hreflect.Indirect(mv)
 	if !mv.IsValid() {
 		mvIsNil = true
 	}
@@ -126,13 +126,13 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			slv = v.Interface()
 			slmv = mv.Interface()
 		}
-	} else if isNumber(v.Kind()) && isNumber(mv.Kind()) {
-		fv, err := toFloat(v)
+	} else if hreflect.IsNumber(v.Kind()) && hreflect.IsNumber(mv.Kind()) {
+		fv, err := hreflect.ToFloat64E(v)
 		if err != nil {
 			return false, err
 		}
 		fvp = &fv
-		fmv, err := toFloat(mv)
+		fmv, err := hreflect.ToFloat64E(mv)
 		if err != nil {
 			return false, err
 		}
@@ -157,7 +157,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			iv := v.Int()
 			ivp = &iv
 			for i := range mv.Len() {
-				if anInt, err := toInt(mv.Index(i)); err == nil {
+				if anInt, err := hreflect.ToInt64E(mv.Index(i)); err == nil {
 					ima = append(ima, anInt)
 				}
 			}
@@ -165,7 +165,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			sv := v.String()
 			svp = &sv
 			for i := range mv.Len() {
-				if aString, err := toString(mv.Index(i)); err == nil {
+				if aString, err := hreflect.ToStringE(mv.Index(i)); err == nil {
 					sma = append(sma, aString)
 				}
 			}
@@ -173,7 +173,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			fv := v.Float()
 			fvp = &fv
 			for i := range mv.Len() {
-				if aFloat, err := toFloat(mv.Index(i)); err == nil {
+				if aFloat, err := hreflect.ToFloat64E(mv.Index(i)); err == nil {
 					fma = append(fma, aFloat)
 				}
 			}
@@ -304,21 +304,13 @@ func evaluateSubElem(ctx, obj reflect.Value, elemName string) (reflect.Value, er
 	}
 
 	typ := obj.Type()
-	obj, isNil := indirect(obj)
-
-	if obj.Kind() == reflect.Interface {
-		// If obj is an interface, we need to inspect the value it contains
-		// to see the full set of methods and fields.
-		// Indirect returns the value that it points to, which is what's needed
-		// below to be able to reflect on its fields.
-		obj = reflect.Indirect(obj.Elem())
-	}
+	obj, isNil := hreflect.Indirect(obj)
 
 	// first, check whether obj has a method. In this case, obj is
 	// a struct or its pointer. If obj is a struct,
 	// to check all T and *T method, use obj pointer type Value
 	objPtr := obj
-	if objPtr.Kind() != reflect.Interface && objPtr.CanAddr() {
+	if !hreflect.IsInterfaceOrPointer(objPtr.Kind()) && objPtr.CanAddr() {
 		objPtr = objPtr.Addr()
 	}
 
@@ -360,6 +352,7 @@ func evaluateSubElem(ctx, obj reflect.Value, elemName string) (reflect.Value, er
 	if isNil {
 		return zero, fmt.Errorf("can't evaluate a nil pointer of type %s by a struct field or map key name %s", typ, elemName)
 	}
+	obj = reflect.Indirect(obj)
 	switch obj.Kind() {
 	case reflect.Struct:
 		ft, ok := obj.Type().FieldByName(elemName)
@@ -431,7 +424,7 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 				}
 			}
 		} else {
-			vv, _ := indirect(rvv)
+			vv, _ := hreflect.Indirect(rvv)
 			if vv.Kind() == reflect.Map && kv.Type().AssignableTo(vv.Type().Key()) {
 				vvv = vv.MapIndex(kv)
 			}
@@ -469,7 +462,7 @@ func (ns *Namespace) checkWhereMap(ctxv, seqv, kv, mv reflect.Value, path []stri
 				}
 			}
 		case reflect.Interface:
-			elemvv, isNil := indirect(elemv)
+			elemvv, isNil := hreflect.Indirect(elemv)
 			if isNil {
 				continue
 			}
@@ -493,53 +486,7 @@ func (ns *Namespace) checkWhereMap(ctxv, seqv, kv, mv reflect.Value, path []stri
 	return rv.Interface(), nil
 }
 
-// toFloat returns the float value if possible.
-func toFloat(v reflect.Value) (float64, error) {
-	switch v.Kind() {
-	case reflect.Float32, reflect.Float64:
-		return v.Float(), nil
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Convert(reflect.TypeOf(float64(0))).Float(), nil
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return v.Convert(reflect.TypeOf(float64(0))).Float(), nil
-	case reflect.Interface:
-		return toFloat(v.Elem())
-	}
-	return -1, errors.New("unable to convert value to float")
-}
-
-// toInt returns the int value if possible, -1 if not.
-// TODO(bep) consolidate all these reflect funcs.
-func toInt(v reflect.Value) (int64, error) {
-	switch v.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int(), nil
-	case reflect.Interface:
-		return toInt(v.Elem())
-	}
-	return -1, errors.New("unable to convert value to int")
-}
-
-func toUint(v reflect.Value) (uint64, error) {
-	switch v.Kind() {
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return v.Uint(), nil
-	case reflect.Interface:
-		return toUint(v.Elem())
-	}
-	return 0, errors.New("unable to convert value to uint")
-}
-
 // toString returns the string value if possible, "" if not.
-func toString(v reflect.Value) (string, error) {
-	switch v.Kind() {
-	case reflect.String:
-		return v.String(), nil
-	case reflect.Interface:
-		return toString(v.Elem())
-	}
-	return "", errors.New("unable to convert value to string")
-}
 
 func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
 	t, ok := hreflect.AsTime(v, ns.loc)
