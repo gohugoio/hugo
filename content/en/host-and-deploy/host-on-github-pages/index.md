@@ -79,7 +79,7 @@ Step 4
       env:
         DART_SASS_VERSION: 1.93.2
         GO_VERSION: 1.25.3
-        HUGO_VERSION: 0.152.1
+        HUGO_VERSION: 0.152.2
         NODE_VERSION: 22.20.0
         TZ: Europe/Oslo
       steps:

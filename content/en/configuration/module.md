@@ -77,7 +77,7 @@ extended
 : (`bool`) Whether the extended edition of Hugo is required, satisfied by installing either the extended or extended/deploy edition.
 
 max
-: (`string`) The maximum Hugo version supported, for example `0.152.1`.
+: (`string`) The maximum Hugo version supported, for example `0.152.2`.
 
 min
 : (`string`) The minimum Hugo version supported, for example `0.102.0`.
