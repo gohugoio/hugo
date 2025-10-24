@@ -14,6 +14,7 @@
 package hugofs_test
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -43,4 +44,43 @@ All.
 	b, err := hugolib.TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "mount source must be a local path for modules/themes")
+}
+
+// Issue 14089.
+func TestMountNodeMoudulesFromTheme(t *testing.T) {
+	filesTemplate := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss"]
+theme = "mytheme"
+-- node_modules/bootstrap/foo.txt --
+foo project.
+-- layouts/all.html --
+{{ $foo := resources.Get "vendor/bootstrap/foo.txt" }}
+Foo: {{ with $foo }}{{ .Content }}{{ else }}Fail{{ end }}
+-- themes/mytheme/hugo.toml --
+[[module.mounts]]
+source = 'NODE_MODULES_SOURCE' # tries first in theme, then in project root
+target = 'assets/vendor/bootstrap'
+
+`
+	runFiles := func(files string) *hugolib.IntegrationTestBuilder {
+		return hugolib.Test(t, files, hugolib.TestOptOsFs())
+	}
+	files := strings.ReplaceAll(filesTemplate, "NODE_MODULES_SOURCE", "node_modules/bootstrap")
+	b := runFiles(files)
+	b.AssertFileContent("public/index.html", "Foo: foo project.")
+
+	// This is for backwards compatibility. ../../node_modules/bootstrap works exactly the same as node_modules/bootstrap.
+	files = strings.ReplaceAll(filesTemplate, "NODE_MODULES_SOURCE", "../../node_modules/bootstrap")
+	b = runFiles(files)
+	b.AssertFileContent("public/index.html", "Foo: foo project.")
+
+	files = strings.ReplaceAll(filesTemplate, "NODE_MODULES_SOURCE", "node_modules/bootstrap")
+	files += `
+-- themes/mytheme/node_modules/bootstrap/foo.txt --
+foo theme.
+`
+
+	b = runFiles(files)
+	b.AssertFileContent("public/index.html", "Foo: foo theme.")
 }
