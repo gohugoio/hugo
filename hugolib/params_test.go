@@ -52,7 +52,7 @@ Summary: {{ .Summary }}|
 	b := Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
-		"Params: a: p1-a|b: home-b|background: yosemite.jpg|draft: false|iscjklanguage: false|summary: params.summary|title: P1|$",
+		"Params: a: p1-a|b: home-b|background: yosemite.jpg|draft: false|summary: params.summary|title: P1|$",
 		"Summary: frontmatter.summary|",
 	)
 }
