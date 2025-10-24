@@ -74,10 +74,10 @@ func TestSecurityPolicies(t *testing.T) {
 		testVariant(c, cb, "")
 	})
 
-	c.Run("Asciidoc, denied", func(c *qt.C) {
+	c.Run("AsciiDoc, denied", func(c *qt.C) {
 		c.Parallel()
-		if !asciidocext.Supports() {
-			c.Skip()
+		if ok, err := asciidocext.Supports(); !ok {
+			c.Skip(err)
 		}
 
 		cb := func(b *sitesBuilder) {
