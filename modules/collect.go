@@ -695,6 +695,19 @@ func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([
 	return mounts, nil
 }
 
+func (c *collector) nodeModulesRoot(s string) string {
+	s = filepath.ToSlash(s)
+	if strings.HasPrefix(s, "node_modules/") {
+		return s
+	}
+	if strings.HasPrefix(s, "../../node_modules/") {
+		// See #14083. This was a common construct to mount node_modules from the project root.
+		// This started failing in v0.152.0 when we tightened the validation.
+		return strings.TrimPrefix(s, "../../")
+	}
+	return ""
+}
+
 func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {
 	var out []Mount
 	dir := owner.Dir()
@@ -704,6 +717,17 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 
 		if mnt.Source == "" || mnt.Target == "" {
 			return nil, errors.New(errMsg + ": both source and target must be set")
+		}
+
+		// Special case for node_modules imports in themes/modules.
+		// See #14089.
+		var isModuleNodeModulesImport bool
+		if !owner.projectMod {
+			nodeModulesImportSource := c.nodeModulesRoot(mnt.Source)
+			if nodeModulesImportSource != "" {
+				isModuleNodeModulesImport = true
+				mnt.Source = nodeModulesImportSource
+			}
 		}
 
 		mnt.Source = filepath.Clean(mnt.Source)
@@ -741,9 +765,18 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 				}
 				f.Close()
 			} else {
-				// TODO(bep) commenting out for now, as this will create to much noise.
-				// c.logger.Warnf("module %q: mount source %q does not exist", owner.Path(), sourceDir)
-				continue
+				if isModuleNodeModulesImport {
+					// A module imported a path inside node_modules, but it didn't exist.
+					// Make this a special case and also try relative to the project root.
+					sourceDir = filepath.Join(c.ccfg.WorkingDir, mnt.Source)
+					_, err := c.fs.Stat(sourceDir)
+					if err != nil {
+						continue
+					}
+					mnt.Source = sourceDir
+				} else {
+					continue
+				}
 			}
 		}
 
