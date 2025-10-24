@@ -79,6 +79,7 @@ type AllProvider interface {
 	WorkingDir() string
 	EnableEmoji() bool
 	ConfiguredDimensions() *sitesmatrix.ConfiguredDimensions
+	CacheDirMisc() string
 }
 
 // We cannot import the media package as that would create a circular dependency.
