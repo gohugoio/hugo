@@ -51,9 +51,16 @@ const (
 
 type Configs map[string]FileCacheConfig
 
+// CacheDirModules returns the compiled path to the modules cache.
 // For internal use.
 func (c Configs) CacheDirModules() string {
 	return c[CacheKeyModules].DirCompiled
+}
+
+// CacheDirMisc returns the compiled path to the misc cache.
+// For internal use.
+func (c Configs) CacheDirMisc() string {
+	return c[CacheKeyMisc].DirCompiled
 }
 
 var defaultCacheConfigs = Configs{

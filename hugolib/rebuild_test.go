@@ -1927,9 +1927,9 @@ Myotherpartial Inline.|{{ .Title }}|
 	b.AssertFileContent("public/index.html", "My inline partial in all Edited.")
 }
 
-func TestRebuildEditAsciidocContentFile(t *testing.T) {
-	if !asciidocext.Supports() {
-		t.Skip("skip asciidoc")
+func TestRebuildEditAsciiDocContentFile(t *testing.T) {
+	if ok, err := asciidocext.Supports(); !ok {
+		t.Skip(err)
 	}
 	files := `
 -- hugo.toml --

@@ -37,8 +37,8 @@ type Config struct {
 	// Configuration for the Goldmark markdown engine.
 	Goldmark goldmark_config.Config
 
-	// Configuration for the Asciidoc external markdown engine.
-	AsciidocExt asciidocext_config.Config
+	// Configuration for the AsciiDoc external markdown engine.
+	AsciiDocExt asciidocext_config.Config
 }
 
 func (c *Config) Init() error {
@@ -118,5 +118,5 @@ var Default = Config{
 	Highlight:       highlight.DefaultConfig,
 
 	Goldmark:    goldmark_config.Default,
-	AsciidocExt: asciidocext_config.Default,
+	AsciiDocExt: asciidocext_config.Default,
 }
