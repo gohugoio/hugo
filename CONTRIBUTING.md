@@ -54,7 +54,7 @@ If it is of some complexity, the contributor is expected to maintain and support
 
 Any non-trivial code change needs to update an open [issue](https://github.com/gohugoio/hugo/issues). A non-trivial code change without an issue reference with one of the labels `bug` or `enhancement` will not be merged.
 
-Note that we do not accept new features that require [CGO](https://github.com/golang/go/wiki/cgo).
+Note that we do not accept new features that require [CGO](https://go.dev/wiki/cgo).
 We have one exception to this rule which is LibSASS.
 
 **Bug fixes are, of course, always welcome.**
