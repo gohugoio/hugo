@@ -48,8 +48,8 @@ func TestConfig(t *testing.T) {
 		c.Assert(conf.Goldmark.Parser.Attribute.Title, qt.Equals, true)
 		c.Assert(conf.Goldmark.Parser.Attribute.Block, qt.Equals, false)
 
-		c.Assert(conf.AsciidocExt.WorkingFolderCurrent, qt.Equals, true)
-		c.Assert(conf.AsciidocExt.Extensions[0], qt.Equals, "asciidoctor-html5s")
+		c.Assert(conf.AsciiDocExt.WorkingFolderCurrent, qt.Equals, true)
+		c.Assert(conf.AsciiDocExt.Extensions[0], qt.Equals, "asciidoctor-html5s")
 	})
 
 	// We changed the typographer extension config from a bool to a struct in 0.112.0.

@@ -29,21 +29,38 @@ type provider struct{}
 
 func (p provider) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 	return converter.NewProvider("asciidocext", func(ctx converter.DocumentContext) (converter.Converter, error) {
-		return &internal.AsciidocConverter{
+		return &internal.AsciiDocConverter{
 			Ctx: ctx,
 			Cfg: cfg,
 		}, nil
 	}), nil
 }
 
-// Supports returns whether Asciidoctor is installed on this computer.
-func Supports() bool {
-	hasBin := internal.HasAsciiDoc()
+// Supports reports whether the AsciiDoc converter is installed. Only used in
+// tests.
+func Supports() (bool, error) {
+	hasAsciiDoc, err := internal.HasAsciiDoc()
 	if htesting.SupportsAll() {
-		if !hasBin {
-			panic("asciidoctor not installed")
+		if !hasAsciiDoc {
+			panic(err)
 		}
-		return true
+		return true, nil
+
 	}
-	return hasBin
+
+	return hasAsciiDoc, err
+}
+
+// SupportsGoATDiagrams reports whether the AsciiDoc converter can render GoAT
+// diagrams. Only used in tests.
+func SupportsGoATDiagrams() (bool, error) {
+	supportsGoATDiagrams, err := internal.CanRenderGoATDiagrams()
+	if htesting.SupportsAll() {
+		if !supportsGoATDiagrams {
+			panic(err)
+		}
+		return true, nil
+	}
+
+	return supportsGoATDiagrams, err
 }
