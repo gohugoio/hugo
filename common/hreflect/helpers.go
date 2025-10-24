@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 // Some functions in this file (see comments) is based on the Go source code,
 // copyright The Go Authors and  governed by a BSD-style license.
 //
@@ -18,7 +18,6 @@ package hreflect
 
 import (
 	"context"
-	"math"
 	"reflect"
 	"sync"
 	"time"
@@ -309,46 +308,4 @@ func IsContextType(tp reflect.Type) bool {
 		return tp.Implements(contextInterface), nil
 	})
 	return isContext
-}
-
-// ConvertIfPossible tries to convert val to typ if possible.
-// This is currently only implemented for int kinds,
-// added to handle the move to a new YAML library which produces uint64 for unsigned integers.
-// We can expand on this later if needed.
-// This conversion is lossless.
-// See Issue 14079.
-func ConvertIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value, bool) {
-	if IsInt(typ.Kind()) {
-		if IsInt(val.Kind()) {
-			if typ.OverflowInt(val.Int()) {
-				return reflect.Value{}, false
-			}
-			return val.Convert(typ), true
-		}
-		if IsUint(val.Kind()) {
-			if val.Uint() > uint64(math.MaxInt64) {
-				return reflect.Value{}, false
-			}
-			if typ.OverflowInt(int64(val.Uint())) {
-				return reflect.Value{}, false
-			}
-			return val.Convert(typ), true
-		}
-		if IsFloat(val.Kind()) {
-			f := val.Float()
-			if f < float64(math.MinInt64) || f > float64(math.MaxInt64) {
-				return reflect.Value{}, false
-			}
-			i := int64(f)
-			if typ.OverflowInt(i) {
-				return reflect.Value{}, false
-			}
-			// Check for lossless conversion.
-			if float64(i) != f {
-				return reflect.Value{}, false
-			}
-			return val.Convert(typ), true
-		}
-	}
-	return reflect.Value{}, false
 }
