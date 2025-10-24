@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"net/url"
 	"path/filepath"
 	"strings"
 
@@ -110,7 +111,10 @@ func (a *AsciidocConverter) ParseArgs(ctx converter.DocumentContext) []string {
 			postDir := ""
 			page, ok := ctx.Document.(pageSubset)
 			if ok {
-				postDir = filepath.Base(page.RelPermalink())
+				postDir, err = url.PathUnescape(page.RelPermalink())
+				if err != nil {
+					a.Cfg.Logger.Errorln("unable to unescape the relative permalink")
+				}
 			} else {
 				a.Cfg.Logger.Errorln("unable to cast interface to pageSubset")
 			}
