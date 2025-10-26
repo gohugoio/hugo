@@ -42,7 +42,7 @@ proxy
 : (`string`) The proxy server to use to download remote modules. Default is `direct`, which means `git clone` and similar.
 
 replacements
-: (`string`) Primarily useful for local module development, a comma-separated list of mappings from module paths to directories. Paths may be absolute or relative to the [`themesDir`].
+: (`string`) Primarily useful for local module development, a comma-separated list of mappings from module paths to directories. Paths may be absolute or relative to the [`themesDir`][].
 
   {{< code-toggle file=hugo >}}
   [module]
@@ -110,7 +110,7 @@ noVendor
 : (`bool`) Whether to disable vendoring for this import. This setting is restricted to the main project. Default is `false`.
 
 path
-: (`string`) The module path, either a valid Go module path (e.g., `github.com/gohugoio/myShortcodes`) or the directory name if stored in the [`themesDir`].
+: (`string`) The module path, either a valid Go module path (e.g., `github.com/gohugoio/myShortcodes`) or the directory name if stored in the [`themesDir`][].
 
 version
 : {{< new-in 0.150.0 />}}
@@ -121,15 +121,15 @@ version
 {{% glossary-term mount %}}
 
 > [!important]
-> If you define one or more mounts to map a file system path to a component path, do not use these legacy configuration settings: [`archetypeDir`], [`assetDir`], [`contentDir`], [`dataDir`], [`i18nDir`], [`layoutDir`], or [`staticDir`].
+> If you define one or more mounts to map a file system path to a component path, do not use these legacy configuration settings: [`archetypeDir`][], [`assetDir`][], [`contentDir`][], [`dataDir`][], [`i18nDir`][], [`layoutDir`][], or [`staticDir`][].
 
-[`archetypeDir`]: /configuration/all/
-[`assetDir`]: /configuration/all/
-[`contentDir`]: /configuration/all/
-[`dataDir`]: /configuration/all/
-[`i18nDir`]: /configuration/all/
-[`layoutDir`]: /configuration/all/
-[`staticDir`]: /configuration/all/
+[`archetypeDir`]: /configuration/all/#archetypedir
+[`assetDir`]: /configuration/all/#assetdir
+[`contentDir`]: /configuration/all/#contentdir
+[`dataDir`]: /configuration/all/#datadir
+[`i18nDir`]: /configuration/all/#i18ndir
+[`layoutDir`]: /configuration/all/#layoutdir
+[`staticDir`]: /configuration/all/#staticdir
 
 ### Default mounts
 
