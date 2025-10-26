@@ -158,12 +158,11 @@ func getPluralCount(v any) any {
 			}
 		}
 	default:
-		vv := reflect.Indirect(reflect.ValueOf(v))
-		if vv.Kind() == reflect.Interface && !vv.IsNil() {
-			vv = vv.Elem()
+		vv, isNil := hreflect.IndirectElem(reflect.ValueOf(v))
+		if isNil {
+			return nil
 		}
 		tp := vv.Type()
-
 		if tp.Kind() == reflect.Struct {
 			f := vv.FieldByName(countFieldName)
 			if f.IsValid() {

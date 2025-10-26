@@ -223,6 +223,18 @@ func (t *testStruct) Method5() string {
 	return "Hugo"
 }
 
+func BenchmarkGetMethodByNameForType(b *testing.B) {
+	tp := reflect.TypeFor[*testStruct]()
+	methods := []string{"Method1", "Method2", "Method3", "Method4", "Method5"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, method := range methods {
+			_ = GetMethodByNameForType(tp, method)
+		}
+	}
+}
+
 func BenchmarkGetMethodByName(b *testing.B) {
 	v := reflect.ValueOf(&testStruct{})
 	methods := []string{"Method1", "Method2", "Method3", "Method4", "Method5"}
