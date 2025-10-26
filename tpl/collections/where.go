@@ -314,14 +314,14 @@ func evaluateSubElem(ctx, obj reflect.Value, elemName string) (reflect.Value, er
 		objPtr = objPtr.Addr()
 	}
 
-	index := hreflect.GetMethodIndexByName(objPtr.Type(), elemName)
-	if index != -1 {
-		var args []reflect.Value
-		mt := objPtr.Type().Method(index)
+	mt := hreflect.GetMethodByNameForType(objPtr.Type(), elemName)
+	if mt.Func.IsValid() {
+		// Receiver is the first argument.
+		args := []reflect.Value{objPtr}
 		num := mt.Type.NumIn()
 		maxNumIn := 1
 		if num > 1 && hreflect.IsContextType(mt.Type.In(1)) {
-			args = []reflect.Value{ctx}
+			args = append(args, ctx)
 			maxNumIn = 2
 		}
 
@@ -339,7 +339,7 @@ func evaluateSubElem(ctx, obj reflect.Value, elemName string) (reflect.Value, er
 		case mt.Type.NumOut() == 2 && !mt.Type.Out(1).Implements(errorType):
 			return zero, fmt.Errorf("%s is a method of type %s returning two values but the second value is not an error type", elemName, typ)
 		}
-		res := objPtr.Method(mt.Index).Call(args)
+		res := mt.Func.Call(args)
 		if len(res) == 2 && !res[1].IsNil() {
 			return zero, fmt.Errorf("error at calling a method %s of type %s: %s", elemName, typ, res[1].Interface().(error))
 		}

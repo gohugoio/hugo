@@ -158,10 +158,31 @@ type methodKey struct {
 	name string
 }
 
-var methodCache sync.Map
+var (
+	methodIndexCache sync.Map
+	methodCache      sync.Map
+)
 
-// GetMethodByName is the same as reflect.Value.MethodByName, but it caches the
-// type lookup.
+// GetMethodByNameForType returns the method with the given name for the given type,
+// or a zero Method if no such method exists.
+// It panics if tp is an interface type.
+// It caches the lookup.
+func GetMethodByNameForType(tp reflect.Type, name string) reflect.Method {
+	if tp.Kind() == reflect.Interface {
+		// Func field is nil for interface types.
+		panic("not supported for interface types")
+	}
+	k := methodKey{tp, name}
+	v, found := methodCache.Load(k)
+	if found {
+		return v.(reflect.Method)
+	}
+	m, _ := tp.MethodByName(name)
+	methodCache.Store(k, m)
+	return m
+}
+
+// GetMethodByName is the same as reflect.Value.MethodByName, but it caches the lookup.
 func GetMethodByName(v reflect.Value, name string) reflect.Value {
 	index := GetMethodIndexByName(v.Type(), name)
 
@@ -176,7 +197,7 @@ func GetMethodByName(v reflect.Value, name string) reflect.Value {
 // -1 if no such method exists.
 func GetMethodIndexByName(tp reflect.Type, name string) int {
 	k := methodKey{tp, name}
-	v, found := methodCache.Load(k)
+	v, found := methodIndexCache.Load(k)
 	if found {
 		return v.(int)
 	}
@@ -185,7 +206,7 @@ func GetMethodIndexByName(tp reflect.Type, name string) int {
 	if !ok {
 		index = -1
 	}
-	methodCache.Store(k, index)
+	methodIndexCache.Store(k, index)
 
 	if !ok {
 		return -1
@@ -305,6 +326,18 @@ func Indirect(v reflect.Value) (vv reflect.Value, isNil bool) {
 		}
 	}
 	return v, false
+}
+
+// IndirectElem is like Indirect, but if the final value is a pointer, it unwraps it.
+func IndirectElem(v reflect.Value) (vv reflect.Value, isNil bool) {
+	vv, isNil = Indirect(v)
+	if isNil {
+		return vv, isNil
+	}
+	if vv.Kind() == reflect.Pointer {
+		vv = vv.Elem()
+	}
+	return vv, isNil
 }
 
 // IsNil reports whether v is nil.
