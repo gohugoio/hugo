@@ -375,7 +375,7 @@ Hello <b>world</b>. Some **bold** text. Some Unicode: 神真美好.
 	b := TestRunning(t, files, TestOptWarn())
 
 	b.AssertNoRenderShortcodesArtifacts()
-	b.AssertLogContains(filepath.ToSlash("WARN  .RenderShortcodes detected inside HTML block in \"/content/p1.md\"; this may not be what you intended, see https://gohugo.io/methods/page/rendershortcodes/#limitations\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-rendershortcodes-in-html']"))
+	b.AssertLogContains(filepath.ToSlash("WARN  .RenderShortcodes detected inside HTML block in \"/content/p1.md\"; this may not be what you intended, see https://gohugo.io/docs/reference/methods/page/rendershortcodes/#limitations\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-rendershortcodes-in-html']"))
 	b.AssertFileContent("public/p1/index.html", "<div>Hello <b>world</b>. Some **bold** text. Some Unicode: 神真美好.\n</div>")
 	b.EditFileReplaceAll("content/p2.md", "Hello", "Hello Edited").Build()
 	b.AssertNoRenderShortcodesArtifacts()
