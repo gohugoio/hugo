@@ -289,7 +289,7 @@ Content Tag 1.
 
 	b.AssertFileContent("public/en/posts/p1/index.html",
 		"Single: en|page|/en/posts/p1/|Post 1|<p>Content 1.</p>\n|Len Resources: 2|",
-		"Resources: text|/en/posts/p1/f1.txt|text/plain|map[icon:enicon] - page||application/octet-stream|map[draft:false iscjklanguage:false title:Post Sub 1] -",
+		"Resources: text|/en/posts/p1/f1.txt|text/plain|map[icon:enicon] - page||application/octet-stream|map[draft:false title:Post Sub 1] -",
 		"Icon: enicon",
 		"Icon fingerprinted: enicon|/en/posts/p1/f1.e5746577af5cbfc4f34c558051b7955a9a5a795a84f1c6ab0609cb3473a924cb.txt|",
 		"NextInSection: |\nPrevInSection: /en/posts/p2/|Post 2|",
