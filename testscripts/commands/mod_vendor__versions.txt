@@ -3,15 +3,15 @@ dostounix golden/vendor.txt
 hugo mod vendor
 cmp _vendor/modules.txt golden/vendor.txt
 lsr _vendor
-stdout 'github.com/bep/hugo-mod-misc/dummy-content@%3C%3Dv0.1.0/config.toml'
+stdout 'github.com/bep/hugo-mod-misc/dummy-content@v0.1.0/config.toml'
 stdout 'github.com/bep/hugo-mod-misc/dummy-content@v0.2.0/config.toml'
 stdout 'github.com/bep/hugo-mod-misc/dummy-content@v0.2.0/content/blog/music/all-of-me/index.md'
 stdout 'github.com/bep/hugo-mod-misc/dummy-content@v0.2.0/content/blog/music/blue-bossa/index.md'
-stdout 'github.com/bep/hugo-mod-misc/dummy-content@%3C%3Dv0.1.0/content/blog/music/all-of-me/index.md'
-! stdout 'github.com/bep/hugo-mod-misc/dummy-content@%3C%3Dv0.1.0/content/blog/music/blue-bossa/index.md' # not mounted
+stdout 'github.com/bep/hugo-mod-misc/dummy-content@v0.1.0/content/blog/music/all-of-me/index.md'
+! stdout 'github.com/bep/hugo-mod-misc/dummy-content@v0.1.0/content/blog/music/blue-bossa/index.md' # not mounted
 
 hugo mod graph
-stdout 'project github.com/bep/hugo-mod-misc/dummy-content@v0.2.0' 
+stdout 'project github.com/bep/hugo-mod-misc/dummy-content@v0.2.0'
 stdout 'project github.com/bep/hugo-mod-misc/dummy-content@v0.1.0'
 
 hugo config mounts
@@ -24,7 +24,7 @@ path    = "github.com/bep/hugo-mod-misc/dummy-content"
 version = "v0.2.0"
 [[module.imports]]
 path    = "github.com/bep/hugo-mod-misc/dummy-content"
-version = "<=v0.1.0"
+version = "v0.1.0"
 [[module.imports.mounts]]
 source = "content/blog/music/all-of-me"
 target = "content/all"
@@ -35,7 +35,7 @@ Deps: {{ range hugo.Deps}}{{ printf "%s@%s" .Path .Version }}|{{ end }}$
 
 -- golden/vendor.txt --
 # github.com/bep/hugo-mod-misc/dummy-content@v0.2.0 v0.2.0
-# github.com/bep/hugo-mod-misc/dummy-content@%3C%3Dv0.1.0 v0.1.0
+# github.com/bep/hugo-mod-misc/dummy-content@v0.1.0 v0.1.0
 -- golden/mounts.json --
 {
    "path": "project",
@@ -92,7 +92,7 @@ Deps: {{ range hugo.Deps}}{{ printf "%s@%s" .Path .Version }}|{{ end }}$
    "version": "v0.1.0",
    "time": "0001-01-01T00:00:00Z",
    "owner": "project",
-   "dir": "$WORK/_vendor/github.com/bep/hugo-mod-misc/dummy-content@%3C%3Dv0.1.0/",
+   "dir": "$WORK/_vendor/github.com/bep/hugo-mod-misc/dummy-content@v0.1.0/",
    "mounts": [
       {
          "source": "content/blog/music/all-of-me",
