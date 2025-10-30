@@ -14,15 +14,19 @@
 package hugofs
 
 import (
+	"context"
 	iofs "io/fs"
 	"os"
 	"path"
 	"runtime"
 	"sort"
 
+	"github.com/bep/helpers/contexthelpers"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/spf13/afero"
 	"golang.org/x/text/unicode/norm"
 )
@@ -39,7 +43,10 @@ func NewComponentFs(opts ComponentFsOptions) *componentFs {
 	return &componentFs{Fs: bfs, opts: opts}
 }
 
-var _ FilesystemUnwrapper = (*componentFs)(nil)
+var (
+	_ FilesystemUnwrapper   = (*componentFs)(nil)
+	_ ReadDirWithContextDir = (*componentFsDir)(nil)
+)
 
 // componentFs is a filesystem that holds one of the Hugo components, e.g. content, layouts etc.
 type componentFs struct {
@@ -59,12 +66,24 @@ type componentFsDir struct {
 	fs   *componentFs
 }
 
-// ReadDir reads count entries from this virtual directory and
-// sorts the entries according to the component filesystem rules.
-func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
+type (
+	contextKey uint8
+)
+
+const (
+	contextKeyIsInLeafBundle contextKey = iota
+)
+
+var componentFsContext = struct {
+	IsInLeafBundle contexthelpers.ContextDispatcher[bool]
+}{
+	IsInLeafBundle: contexthelpers.NewContextDispatcher[bool](contextKeyIsInLeafBundle),
+}
+
+func (f *componentFsDir) ReadDirWithContext(ctx context.Context, count int) ([]iofs.DirEntry, context.Context, error) {
 	fis, err := f.DirOnlyOps.(iofs.ReadDirFile).ReadDir(-1)
 	if err != nil {
-		return nil, err
+		return nil, ctx, err
 	}
 
 	// Filter out any symlinks.
@@ -79,7 +98,7 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 				if herrors.IsNotExist(err) {
 					continue
 				}
-				return nil, err
+				return nil, ctx, err
 			}
 			if info.Mode()&os.ModeSymlink == 0 {
 				keep = true
@@ -92,8 +111,8 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 	}
 
 	fis = fis[:n]
-
 	n = 0
+
 	for _, fi := range fis {
 		s := path.Join(f.name, fi.Name())
 		if _, ok := f.fs.applyMeta(fi, s); ok {
@@ -101,7 +120,9 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 			n++
 		}
 	}
+
 	fis = fis[:n]
+	n = 0
 
 	sort.Slice(fis, func(i, j int) bool {
 		fimi, fimj := fis[i].(FileMetaInfo), fis[j].(FileMetaInfo)
@@ -109,6 +130,16 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 			return fimi.IsDir()
 		}
 		fimim, fimjm := fimi.Meta(), fimj.Meta()
+
+		bi, bj := fimim.PathInfo.Base(), fimjm.PathInfo.Base()
+		if bi == bj {
+			matrixi, matrixj := fimim.SitesMatrix, fimjm.SitesMatrix
+			l1, l2 := matrixi.LenVectors(), matrixj.LenVectors()
+			if l1 != l2 {
+				// Pull the ones with the least number of sites defined to the top.
+				return l1 < l2
+			}
+		}
 
 		if fimim.ModuleOrdinal != fimjm.ModuleOrdinal {
 			switch f.fs.opts.Component {
@@ -133,7 +164,6 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 			}
 
 			if exti != extj {
-				// This pulls .md above .html.
 				return exti > extj
 			}
 
@@ -149,7 +179,108 @@ func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
 		return fimi.Name() < fimj.Name()
 	})
 
-	return fis, nil
+	if f.fs.opts.Component == files.ComponentFolderContent {
+		isInLeafBundle := componentFsContext.IsInLeafBundle.Get(ctx)
+		var isCurrentLeafBundle bool
+		for _, fi := range fis {
+			if fi.IsDir() {
+				continue
+			}
+
+			pi := fi.(FileMetaInfo).Meta().PathInfo
+
+			if pi.IsLeafBundle() {
+				isCurrentLeafBundle = true
+				break
+			}
+		}
+
+		if !isInLeafBundle && isCurrentLeafBundle {
+			ctx = componentFsContext.IsInLeafBundle.Set(ctx, true)
+		}
+
+		if isInLeafBundle || isCurrentLeafBundle {
+			for _, fi := range fis {
+				if fi.IsDir() {
+					continue
+				}
+				pi := fi.(FileMetaInfo).Meta().PathInfo
+
+				// Everything below a leaf bundle is a resource.
+				isResource := isInLeafBundle && pi.Type() > paths.TypeFile
+				// Every sibling of a leaf bundle is a resource.
+				isResource = isResource || (isCurrentLeafBundle && !pi.IsLeafBundle())
+
+				if isResource {
+					paths.ModifyPathBundleTypeResource(pi)
+				}
+			}
+		}
+
+	}
+
+	type typeBase struct {
+		Type paths.Type
+		Base string
+	}
+
+	variants := make(map[typeBase][]sitesmatrix.VectorProvider)
+
+	for _, fi := range fis {
+
+		if !fi.IsDir() {
+			meta := fi.(FileMetaInfo).Meta()
+
+			pi := meta.PathInfo
+
+			if pi.Component() == files.ComponentFolderLayouts || pi.Component() == files.ComponentFolderContent {
+
+				var base string
+				switch pi.Component() {
+				case files.ComponentFolderContent:
+					base = pi.Base() + pi.Custom()
+				default:
+					base = pi.PathNoLang()
+				}
+
+				baseName := typeBase{pi.Type(), base}
+
+				// There may be multiple languge/version/role combinations for the same file.
+				// The most important come early.
+				matrixes, found := variants[baseName]
+
+				if found {
+					complement := meta.SitesMatrix.Complement(matrixes...)
+					if complement == nil || complement.LenVectors() == 0 {
+						continue
+					}
+					matrixes = append(matrixes, meta.SitesMatrix)
+					meta.SitesMatrix = complement
+
+					variants[baseName] = matrixes
+
+				} else {
+					matrixes = []sitesmatrix.VectorProvider{meta.SitesMatrix}
+					variants[baseName] = matrixes
+
+				}
+			}
+		}
+
+		fis[n] = fi
+		n++
+
+	}
+	fis = fis[:n]
+
+	return fis, ctx, nil
+}
+
+// ReadDir reads count entries from this virtual directory and
+// sorts the entries according to the component filesystem rules.
+func (f *componentFsDir) ReadDir(count int) ([]iofs.DirEntry, error) {
+	v, _, err := ReadDirWithContext(context.Background(), f.DirOnlyOps, count)
+	return v, err
 }
 
 func (f *componentFsDir) Stat() (iofs.FileInfo, error) {
@@ -176,34 +307,36 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 	}
 	fim := fi.(FileMetaInfo)
 	meta := fim.Meta()
-	pi := fs.opts.PathParser.Parse(fs.opts.Component, name)
+	pi := fs.opts.Cfg.PathParser().Parse(fs.opts.Component, name)
 	if pi.Disabled() {
 		return fim, false
 	}
-	if meta.Lang != "" {
-		if isLangDisabled := fs.opts.PathParser.IsLangDisabled; isLangDisabled != nil && isLangDisabled(meta.Lang) {
-			return fim, false
-		}
-	}
+
 	meta.PathInfo = pi
 	if !fim.IsDir() {
 		if fileLang := meta.PathInfo.Lang(); fileLang != "" {
-			// A valid lang set in filename.
-			// Give priority to myfile.sv.txt inside the sv filesystem.
-			meta.Weight++
-			meta.Lang = fileLang
+			if idx, ok := fs.opts.Cfg.PathParser().LanguageIndex[fileLang]; ok {
+				// A valid lang set in filename.
+				// Give priority to myfile.sv.txt inside the sv filesystem.
+				meta.Weight++
+				meta.SitesMatrix = meta.SitesMatrix.WithLanguageIndices(idx)
+				if idx > 0 {
+					// Not the default language, add some weight.
+					meta.SitesMatrix = sitesmatrix.NewWeightedVectorStore(meta.SitesMatrix, 10)
+				}
+
+			}
 		}
-	}
+		switch meta.Component {
+		case files.ComponentFolderLayouts:
+			// Eg. index.fr.html when French isn't defined,
+			// we want e.g. index.html to be used instead.
+			if len(pi.IdentifiersUnknown()) > 0 {
+				meta.Weight--
+			}
+		}
 
-	if meta.Lang == "" {
-		meta.Lang = fs.opts.DefaultContentLanguage
 	}
-
-	langIdx, found := fs.opts.PathParser.LanguageIndex[meta.Lang]
-	if !found {
-		panic("no language found for " + meta.Lang)
-	}
-	meta.LangIndex = langIdx
 
 	if fi.IsDir() {
 		meta.OpenFunc = func() (afero.File, error) {
@@ -238,10 +371,7 @@ type ComponentFsOptions struct {
 	// The component name, e.g. "content", "layouts" etc.
 	Component string
 
-	DefaultContentLanguage string
-
-	// The parser used to parse paths provided by this filesystem.
-	PathParser *paths.PathParser
+	Cfg config.AllProvider
 }
 
 func (fs *componentFs) Open(name string) (afero.File, error) {

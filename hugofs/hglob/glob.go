@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package glob
+package hglob
 
 import (
 	"os"
@@ -19,20 +19,22 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/gobwas/glob"
 	"github.com/gobwas/glob/syntax"
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/identity"
 )
 
 const filepathSeparator = string(os.PathSeparator)
 
 var (
 	isWindows        = runtime.GOOS == "windows"
-	defaultGlobCache = &globCache{
+	defaultGlobCache = &pathGlobCache{
 		isWindows: isWindows,
-		cache:     make(map[string]globErr),
+		cache:     maps.NewCache[string, globErr](),
 	}
+	dotGlobCache = maps.NewCache[string, globErr]()
 )
 
 type globErr struct {
@@ -40,45 +42,47 @@ type globErr struct {
 	err  error
 }
 
-type globCache struct {
+type pathGlobCache struct {
 	// Config
 	isWindows bool
 
 	// Cache
-	sync.RWMutex
-	cache map[string]globErr
+	cache *maps.Cache[string, globErr]
 }
 
-func (gc *globCache) GetGlob(pattern string) (glob.Glob, error) {
-	var eg globErr
-
-	gc.RLock()
-	var found bool
-	eg, found = gc.cache[pattern]
-	gc.RUnlock()
-	if found {
-		return eg.glob, eg.err
+// GetGlobDot returns a glob.Glob that matches the given pattern, using '.' as the path separator.
+func GetGlobDot(pattern string) (glob.Glob, error) {
+	v, err := dotGlobCache.GetOrCreate(pattern, func() (globErr, error) {
+		g, err := glob.Compile(pattern, '.')
+		return globErr{
+			glob: g,
+			err:  err,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	var g glob.Glob
-	var err error
+	return v.glob, v.err
+}
 
-	pattern = filepath.ToSlash(pattern)
-	g, err = glob.Compile(strings.ToLower(pattern), '/')
-
-	eg = globErr{
-		globDecorator{
-			g:         g,
-			isWindows: gc.isWindows,
-		},
-		err,
+func (gc *pathGlobCache) GetGlob(pattern string) (glob.Glob, error) {
+	v, err := gc.cache.GetOrCreate(pattern, func() (globErr, error) {
+		pattern = filepath.ToSlash(pattern)
+		g, err := glob.Compile(strings.ToLower(pattern), '/')
+		return globErr{
+			glob: globDecorator{
+				isWindows: gc.isWindows,
+				g:         g,
+			},
+			err: err,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	gc.Lock()
-	gc.cache[pattern] = eg
-	gc.Unlock()
-
-	return eg.glob, eg.err
+	return v.glob, v.err
 }
 
 // Or creates a new Glob from the given globs.
@@ -172,4 +176,20 @@ func HasGlobChar(s string) bool {
 		}
 	}
 	return false
+}
+
+// NewGlobIdentity creates a new Identity that
+// is probably dependent on any other Identity
+// that matches the given pattern.
+func NewGlobIdentity(pattern string) identity.Identity {
+	glob, err := GetGlob(pattern)
+	if err != nil {
+		panic(err)
+	}
+
+	predicate := func(other identity.Identity) bool {
+		return glob.Match(other.IdentifierBase())
+	}
+
+	return identity.NewPredicateIdentity(predicate, nil)
 }

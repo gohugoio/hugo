@@ -24,13 +24,17 @@ import (
 
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
 )
 
+var _ sitesmatrix.DimensionInfo = (*Language)(nil)
+
 type Language struct {
 	// The language code, e.g. "en" or "no".
-	// This is currently only settable as the key in the language map in the config.
+	// This is the key used in the languages map in the configuration,
+	// and currently only settable as the key in the language map in the config.
 	Lang string
 
 	// Fields from the language config.
@@ -41,14 +45,25 @@ type Language struct {
 	translator    locales.Translator
 	timeFormatter htime.TimeFormatter
 	tag           language.Tag
+
 	// collator1 and collator2 are the same, we have 2 to prevent deadlocks.
 	collator1 *Collator
 	collator2 *Collator
 
-	location *time.Location
+	location  *time.Location
+	isDefault bool
 
 	// This is just an alias of Site.Params.
 	params maps.Params
+}
+
+// Name is an alias for Lang.
+func (l *Language) Name() string {
+	return l.Lang
+}
+
+func (l *Language) IsDefault() bool {
+	return l.isDefault
 }
 
 // NewLanguage creates a new language.
@@ -87,6 +102,7 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 		tag:            tag,
 		collator1:      coll1,
 		collator2:      coll2,
+		isDefault:      lang == defaultContentLanguage,
 	}
 
 	return l, l.loadLocation(timeZone)
@@ -186,4 +202,14 @@ type Collator struct {
 // to acquire a lock on it before calling this method.
 func (c *Collator) CompareStrings(a, b string) int {
 	return c.c.CompareString(a, b)
+}
+
+// IndexDefault returns the index of the default language.
+func IndexDefault(languages Languages) int {
+	for i, l := range languages {
+		if l.isDefault {
+			return i
+		}
+	}
+	panic("no default lang found")
 }

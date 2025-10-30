@@ -30,14 +30,14 @@ import (
 
 // pageFinder provides ways to find a Page in a Site.
 type pageFinder struct {
-	pageMap *pageMap
+	pm *pageMap
 }
 
 func newPageFinder(m *pageMap) *pageFinder {
 	if m == nil {
 		panic("must provide a pageMap")
 	}
-	c := &pageFinder{pageMap: m}
+	c := &pageFinder{pm: m}
 	return c
 }
 
@@ -115,7 +115,7 @@ func (c *pageFinder) getPageForRefs(ref ...string) (page.Page, error) {
 
 const defaultContentExt = ".md"
 
-func (c *pageFinder) getContentNode(context page.Page, isReflink bool, ref string) (contentNodeI, error) {
+func (c *pageFinder) getContentNode(context page.Page, isReflink bool, ref string) (contentNode, error) {
 	ref = paths.ToSlashTrimTrailing(ref)
 	inRef := ref
 	if ref == "" {
@@ -148,8 +148,8 @@ func (c *pageFinder) getContentNode(context page.Page, isReflink bool, ref strin
 	return nil, nil
 }
 
-func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExtension bool, inRef, ref string) (contentNodeI, error) {
-	s := c.pageMap.s
+func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExtension bool, inRef, ref string) (contentNode, error) {
+	s := c.pm.s
 	contentPathParser := s.Conf.PathParser()
 
 	if context != nil && !strings.HasPrefix(ref, "/") {
@@ -171,7 +171,7 @@ func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExten
 
 		relPath, _ := contentPathParser.ParseBaseAndBaseNameNoIdentifier(files.ComponentFolderContent, rel)
 
-		n, err := c.getContentNodeFromPath(relPath, ref)
+		n, err := c.getContentNodeFromPath(relPath)
 		if n != nil || err != nil {
 			return n, err
 		}
@@ -191,7 +191,7 @@ func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExten
 
 	relPath, nameNoIdentifier := contentPathParser.ParseBaseAndBaseNameNoIdentifier(files.ComponentFolderContent, ref)
 
-	n, err := c.getContentNodeFromPath(relPath, ref)
+	n, err := c.getContentNodeFromPath(relPath)
 
 	if n != nil || err != nil {
 		return n, err
@@ -213,7 +213,7 @@ func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExten
 		return nil, nil
 	}
 
-	n = c.pageMap.pageReverseIndex.Get(nameNoIdentifier)
+	n = c.pm.pageReverseIndex.Get(nameNoIdentifier)
 	if n == ambiguousContentNode {
 		return nil, fmt.Errorf("page reference %q is ambiguous", inRef)
 	}
@@ -221,8 +221,8 @@ func (c *pageFinder) getContentNodeForRef(context page.Page, isReflink, hadExten
 	return n, nil
 }
 
-func (c *pageFinder) getContentNodeFromRefReverseLookup(ref string, fi hugofs.FileMetaInfo) (contentNodeI, error) {
-	s := c.pageMap.s
+func (c *pageFinder) getContentNodeFromRefReverseLookup(ref string, fi hugofs.FileMetaInfo) (contentNode, error) {
+	s := c.pm.s
 	meta := fi.Meta()
 	dir := meta.Filename
 	if !fi.IsDir() {
@@ -239,15 +239,15 @@ func (c *pageFinder) getContentNodeFromRefReverseLookup(ref string, fi hugofs.Fi
 	// There may be multiple matches, but we will only use the first one.
 	for _, pc := range pcs {
 		pi := s.Conf.PathParser().Parse(pc.Component, pc.Path)
-		if n := c.pageMap.treePages.Get(pi.Base()); n != nil {
+		if n := c.pm.treePages.Get(pi.Base()); n != nil {
 			return n, nil
 		}
 	}
 	return nil, nil
 }
 
-func (c *pageFinder) getContentNodeFromPath(s string, ref string) (contentNodeI, error) {
-	n := c.pageMap.treePages.Get(s)
+func (c *pageFinder) getContentNodeFromPath(s string) (contentNode, error) {
+	n := c.pm.treePages.Get(s)
 	if n != nil {
 		return n, nil
 	}

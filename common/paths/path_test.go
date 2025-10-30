@@ -311,3 +311,39 @@ func TestIsSameFilePath(t *testing.T) {
 		c.Assert(IsSameFilePath(filepath.FromSlash(this.a), filepath.FromSlash(this.b)), qt.Equals, this.expected, qt.Commentf("a: %s b: %s", this.a, this.b))
 	}
 }
+
+func BenchmarkAddLeadingSlash(b *testing.B) {
+	const (
+		noLeadingSlash   = "a/b/c"
+		withLeadingSlash = "/a/b/c"
+	)
+
+	// This should not allocate any memory.
+	b.Run("With leading slash", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got := AddLeadingSlash(withLeadingSlash)
+			if got != withLeadingSlash {
+				b.Fatal(got)
+			}
+		}
+	})
+
+	// This will allocate some memory.
+	b.Run("Without leading slash", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got := AddLeadingSlash(noLeadingSlash)
+			if got != "/a/b/c" {
+				b.Fatal(got)
+			}
+		}
+	})
+
+	b.Run("Blank string", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			got := AddLeadingSlash("")
+			if got != "/" {
+				b.Fatal(got)
+			}
+		}
+	})
+}

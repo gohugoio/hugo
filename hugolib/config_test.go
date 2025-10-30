@@ -93,20 +93,21 @@ myparam = "svParamValue"
 `
 		b := Test(t, files)
 
-		enSite := b.H.Sites[0]
-		svSite := b.H.Sites[1]
-		b.Assert(enSite.Title(), qt.Equals, "English Title")
-		b.Assert(enSite.Home().Title(), qt.Equals, "English Title")
-		b.Assert(enSite.Params()["myparam"], qt.Equals, "enParamValue")
-		b.Assert(enSite.Params()["p1"], qt.Equals, "p1en")
-		b.Assert(enSite.Params()["p2"], qt.Equals, "p2base")
-		b.Assert(svSite.Params()["p1"], qt.Equals, "p1base")
-		b.Assert(enSite.conf.StaticDir[0], qt.Equals, "mystatic")
+		b.Assert(len(b.H.Sites), qt.Equals, 2)
+		enSiteH := b.SiteHelper("en", "", "")
+		svSiteH := b.SiteHelper("sv", "", "")
+		b.Assert(enSiteH.S.Title(), qt.Equals, "English Title")
+		b.Assert(enSiteH.S.Home().Title(), qt.Equals, "English Title")
+		b.Assert(enSiteH.S.Params()["myparam"], qt.Equals, "enParamValue")
+		b.Assert(enSiteH.S.Params()["p1"], qt.Equals, "p1en")
+		b.Assert(enSiteH.S.Params()["p2"], qt.Equals, "p2base")
+		b.Assert(svSiteH.S.Params()["p1"], qt.Equals, "p1base")
+		b.Assert(enSiteH.S.conf.StaticDir[0], qt.Equals, "mystatic")
 
-		b.Assert(svSite.Title(), qt.Equals, "Svensk Title")
-		b.Assert(svSite.Home().Title(), qt.Equals, "Svensk Title")
-		b.Assert(svSite.Params()["myparam"], qt.Equals, "svParamValue")
-		b.Assert(svSite.conf.StaticDir[0], qt.Equals, "mysvstatic")
+		b.Assert(svSiteH.S.Title(), qt.Equals, "Svensk Title")
+		b.Assert(svSiteH.S.Home().Title(), qt.Equals, "Svensk Title")
+		b.Assert(svSiteH.S.Params()["myparam"], qt.Equals, "svParamValue")
+		b.Assert(svSiteH.S.conf.StaticDir[0], qt.Equals, "mysvstatic")
 	})
 
 	t.Run("disable default language", func(t *testing.T) {
@@ -132,7 +133,7 @@ weight = 2
 		).BuildE()
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "cannot disable default content language")
+		b.Assert(err.Error(), qt.Contains, `default language "sv" is disabled`)
 	})
 
 	t.Run("no internal config from outside", func(t *testing.T) {
@@ -263,7 +264,7 @@ Home.
 		).Build()
 
 		conf := b.H.Configs.Base
-		b.Assert(conf.DisableLanguages, qt.DeepEquals, []string{"sv", "no"})
+		b.Assert(conf.DisableLanguages, qt.DeepEquals, []string{"no", "sv"})
 		b.Assert(conf.DisableKinds, qt.DeepEquals, []string{"taxonomy", "term"})
 	}
 }
@@ -923,9 +924,8 @@ LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Lang
 		},
 	).Build()
 
-	{
-		b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 1)
-	}
+	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 1)
+
 	b.AssertFileContent("public/index.html", `
 AllPages: 4|
 Sections: true|
@@ -983,7 +983,7 @@ WorkingDir: myworkingdir|
 `)
 }
 
-func TestConfigMergeLanguageDeepEmptyLefSide(t *testing.T) {
+func TestConfigMergeLanguageDeepEmptyLeftSide(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -1188,7 +1188,7 @@ Foo: {{ site.Params.foo }}|
 		).BuildE()
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "no languages")
+		b.Assert(err.Error(), qt.Contains, "invalid language configuration ")
 	})
 
 	// Issue 11044
@@ -1215,7 +1215,7 @@ weight = 1
 		).BuildE()
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "defaultContentLanguage does not match any language definition")
+		b.Assert(err.Error(), qt.Contains, `defaultContentLanguage "sv" not found in languages configuration`)
 	})
 }
 
@@ -1235,7 +1235,9 @@ Home.
 	b := Test(t, files)
 
 	b.Assert(b.H.Configs.Base.Module.Mounts, qt.HasLen, 7)
-	b.Assert(b.H.Configs.LanguageConfigSlice[0].Module.Mounts, qt.HasLen, 7)
+	b.Assert(b.H.Configs.Base.Languages.Config.Sorted[0].Name, qt.Equals, "en")
+	firstLang := b.H.Configs.Base.Languages.Config.Sorted[0].Name
+	b.Assert(b.H.Configs.LanguageConfigMap[firstLang].Module.Mounts, qt.HasLen, 7)
 }
 
 func TestDefaultContentLanguageInSubdirOnlyOneLanguage(t *testing.T) {
@@ -1556,14 +1558,21 @@ func TestDisableKindsIssue12144(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["page"]
-defaultContentLanguage = "pt-br"
+defaultContentLanguage = "pt"
+[languages]
+[languages.en]
+weight = 1
+title = "English"
+[languages.pt]
+weight = 2
+title = "Portuguese"
 -- layouts/index.html --
 Home.
--- content/custom/index.pt-br.md --
+-- content/custom/index.br.md --
 ---
 title: "P1 pt"
 ---
--- content/custom/index.en-us.md --
+-- content/custom/index.en.md --
 ---
 title: "P1 us"
 ---

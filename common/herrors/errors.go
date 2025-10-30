@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"runtime/debug"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -33,10 +33,14 @@ type ErrorSender interface {
 // Put this at the top of a method/function that crashes in a template:
 //
 //	defer herrors.Recover()
+//
+// TODO1 pri2 remove usage.
 func Recover(args ...any) {
 	if r := recover(); r != nil {
 		fmt.Println("ERR:", r)
-		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
+		buf := make([]byte, 64<<10)
+		buf = buf[:runtime.Stack(buf, false)]
+		args = append(args, "stacktrace from panic: \n"+string(buf), "\n")
 		fmt.Println(args...)
 	}
 }
