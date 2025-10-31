@@ -186,7 +186,6 @@ func TestTemplateLookupOrder(t *testing.T) {
 		},
 	} {
 
-		this := this
 		if this.name != "Variant 1" {
 			continue
 		}

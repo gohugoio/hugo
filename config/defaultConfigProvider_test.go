@@ -334,7 +334,6 @@ func TestDefaultConfigProvider(t *testing.T) {
 		}
 
 		for i := range 20 {
-			i := i
 			r.Run(func() error {
 				const v = 42
 				k := fmt.Sprintf("k%d", i)

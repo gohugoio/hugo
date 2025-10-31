@@ -101,8 +101,6 @@ title: "Shortcodes Galore!"
 		{"inline", `{{< my.inline >}}Hi{{< /my.inline >}}`, regexpCheck("my.inline;inline:true;closing:true;inner:{Hi};")},
 	} {
 
-		test := test
-
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			c := qt.New(t)
@@ -644,7 +642,6 @@ String: {{ . | safeHTML }}
 
 func TestInlineShortcodes(t *testing.T) {
 	for _, enableInlineShortcodes := range []bool{true, false} {
-		enableInlineShortcodes := enableInlineShortcodes
 		t.Run(fmt.Sprintf("enableInlineShortcodes=%t", enableInlineShortcodes),
 			func(t *testing.T) {
 				t.Parallel()

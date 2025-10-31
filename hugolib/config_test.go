@@ -720,7 +720,6 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 `
 
 	for _, configName := range []string{"hugo.toml", "config.toml"} {
-		configName := configName
 		t.Run(configName, func(t *testing.T) {
 			t.Parallel()
 

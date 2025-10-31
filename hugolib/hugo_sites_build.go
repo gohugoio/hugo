@@ -322,7 +322,6 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 
 	g, _ := h.workersSite.Start(ctx)
 	for _, s := range assemblers {
-		s := s
 		g.Run(func() error {
 			return s.assemblePagesStep1(ctx)
 		})
@@ -727,7 +726,6 @@ func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 
 	filenames := h.Deps.BuildState.GetFilenamesWithPostPrefix()
 	for _, filename := range filenames {
-		filename := filename
 		g.Run(func() error {
 			return handleFile(filename)
 		})

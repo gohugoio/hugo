@@ -74,7 +74,6 @@ tabspace
 	}
 
 	for i, input := range testlines {
-		input := input
 		expect := expectlines[i]
 		c.Run(input, func(c *qt.C) {
 			b := []byte(input)

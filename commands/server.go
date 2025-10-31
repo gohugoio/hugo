@@ -1034,7 +1034,6 @@ func (c *serverCommand) serve() error {
 	defer cancel()
 	wg2, ctx := errgroup.WithContext(ctx)
 	for _, srv := range servers {
-		srv := srv
 		wg2.Go(func() error {
 			return srv.Shutdown(ctx)
 		})

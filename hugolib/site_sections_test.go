@@ -286,7 +286,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	home := s.getPageOldVersion(kinds.KindHome)
 
 	for _, test := range tests {
-		test := test
 		tt.Run(fmt.Sprintf("sections %s", test.sections), func(c *qt.C) {
 			c.Parallel()
 			sections := strings.Split(test.sections, ",")
