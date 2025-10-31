@@ -63,12 +63,12 @@ type descriptorHandler struct {
 
 // Note that this in this setup is usually a descriptor constructed from a page,
 // so we want to find the best match for that page.
-func (s descriptorHandler) compareDescriptors(category Category, this, other TemplateDescriptor, dimsThis, dimsOther sitesmatrix.VectorProvider) weight {
+func (s descriptorHandler) compareDescriptors(category Category, this, other TemplateDescriptor, sitesMatrixThis, sitesMatrixOther sitesmatrix.VectorProvider) weight {
 	if this.LayoutFromUserMustMatch && this.LayoutFromUser != other.LayoutFromTemplate {
 		return weightNoMatch
 	}
 
-	w := this.doCompare(category, s.opts.DefaultContentLanguage, other, dimsThis, dimsOther)
+	w := this.doCompare(category, other, sitesMatrixThis, sitesMatrixOther)
 
 	if w.w1 <= 0 {
 		if category == CategoryMarkup && (this.Variant1 == other.Variant1) && (this.Variant2 == other.Variant2 || this.Variant2 != "" && other.Variant2 == "") {
@@ -91,7 +91,7 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 }
 
 //lint:ignore ST1006 this vs other makes it easier to reason about.
-func (this TemplateDescriptor) doCompare(category Category, defaultContentLanguage string, other TemplateDescriptor, dimsThis, dimsOther sitesmatrix.VectorProvider) weight {
+func (this TemplateDescriptor) doCompare(category Category, other TemplateDescriptor, sitesMatrixThis, sitesMatrixOther sitesmatrix.VectorProvider) weight {
 	w := weightNoMatch
 
 	if !this.AlwaysAllowPlainText {
@@ -113,11 +113,11 @@ func (this TemplateDescriptor) doCompare(category Category, defaultContentLangua
 		}
 	}
 
-	if dimsOther != nil {
-		// dimsThis is usually a Site, i.e. a single vector.
+	if sitesMatrixOther != nil {
+		// sitesMatrixThis is usually a single Site.
 		// But we also use this method to find all base template variants for a given template,
 		// and in that case we may get multiple vectors (e.g. multiple languages).
-		if dimsThis == nil || !dimsOther.HasAnyVector(dimsThis) {
+		if sitesMatrixThis == nil || !sitesMatrixOther.HasAnyVector(sitesMatrixThis) {
 			return w
 		}
 	}
@@ -164,7 +164,7 @@ func (this TemplateDescriptor) doCompare(category Category, defaultContentLangua
 		weightLayoutAll      = 2 // the "all" layout
 		weightOutputFormat   = 4 // a configured output format (e.g. rss, html, json)
 		weightMediaType      = 1 // a configured media type (e.g. text/html, text/plain)
-		weightDims           = 1 // a configured language (e.g. en, nn, fr, ...)
+		weightSitesMatrix    = 1 // a configured language (e.g. en, nn, fr, ...)
 		weightVariant1       = 6 // currently used for render hooks, e.g. "link", "image"
 		weightVariant2       = 4 // currently used for render hooks, e.g. the language "go" in code blocks.
 
@@ -204,11 +204,11 @@ func (this TemplateDescriptor) doCompare(category Category, defaultContentLangua
 		w.w2 = weight2Group2
 	}
 
-	if dimsOther != nil {
-		// dimsThis is usually a Site, i.e. a single vector.
-		if dimsThis != nil && dimsOther.HasAnyVector(dimsThis) {
-			w.w1 += weightDims
-			if wp, ok := dimsOther.(types.WeightProvider); ok {
+	if sitesMatrixOther != nil {
+		// sitesMatrixThis is usually a single Site.
+		if sitesMatrixThis != nil && sitesMatrixOther.HasAnyVector(sitesMatrixThis) {
+			w.w1 += weightSitesMatrix
+			if wp, ok := sitesMatrixOther.(types.WeightProvider); ok {
 				w.wdim = wp.Weight()
 			} else {
 				w.wdim = weight3

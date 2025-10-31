@@ -934,7 +934,7 @@ func (c *Configs) Init(logger loggers.Logger) error {
 	}
 
 	// Apply default project mounts.
-	if err := modules.ApplyProjectConfigDefaults(c.Modules[0], c.configLangs...); err != nil {
+	if err := modules.ApplyProjectConfigDefaults(logger.Logger(), c.Modules[0], c.configLangs...); err != nil {
 		return err
 	}
 

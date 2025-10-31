@@ -390,10 +390,12 @@ func (p *pagePathBuilder) Path(upperOffset int) string {
 	}
 	p.b.Reset()
 
+	var hadTrailingSlash bool
 	for _, el := range p.els[:upper] {
-		if !strings.HasPrefix(el, "/") {
+		if !hadTrailingSlash && !strings.HasPrefix(el, "/") {
 			p.b.WriteByte('/')
 		}
+		hadTrailingSlash = strings.HasSuffix(el, "/")
 		p.b.WriteString(el)
 	}
 	return p.b.String()

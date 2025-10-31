@@ -182,7 +182,7 @@ type StoreOptions struct {
 	Log loggers.Logger
 
 	// The path handler to use.
-	PathHandler *paths.PathParser
+	PathParser *paths.PathParser
 
 	// Set when --enableTemplateMetrics is set.
 	Metrics metrics.Provider
@@ -192,9 +192,6 @@ type StoreOptions struct {
 
 	// All configured media types.
 	MediaTypes media.Types
-
-	// The default content language.
-	DefaultContentLanguage string
 
 	// The default output format.
 	DefaultOutputFormat string
@@ -600,7 +597,7 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 
 func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 	ti, _ := s.cacheLookupPartials.GetOrCreate(pth, func() (*TemplInfo, error) {
-		pi := s.opts.PathHandler.Parse(files.ComponentFolderLayouts, pth).ForType(paths.TypePartial)
+		pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth).ForType(paths.TypePartial)
 		k1, _, _, desc, matrix, err := s.toKeyCategoryAndDescriptor(pi, nil)
 		if err != nil {
 			return nil, err
@@ -991,7 +988,7 @@ func (s *TemplateStore) extractInlinePartials(rebuild bool) error {
 		if !strings.HasPrefix(name, "_") {
 			name = "_" + name
 		}
-		pi := s.opts.PathHandler.Parse(files.ComponentFolderLayouts, name)
+		pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
 		ti, err := s.insertTemplate(pi, nil, SubCategoryInline, false, s.treeMain)
 		if err != nil {
 			return err
@@ -1059,7 +1056,7 @@ func (s *TemplateStore) insertEmbedded() error {
 		name := strings.TrimPrefix(filepath.ToSlash(tpath), "embedded/templates/")
 
 		insertOne := func(name, content string) error {
-			pi := s.opts.PathHandler.Parse(files.ComponentFolderLayouts, name)
+			pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
 			var (
 				ti  *TemplInfo
 				err error
@@ -1336,7 +1333,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 			if p == pi.Path() {
 				return pi
 			}
-			return s.opts.PathHandler.Parse(files.ComponentFolderLayouts, p)
+			return s.opts.PathParser.Parse(files.ComponentFolderLayouts, p)
 		}
 
 		pi := piOrig
@@ -1733,7 +1730,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 	if fi != nil {
 		vactorStore = fi.Meta().SitesMatrix
 	} else {
-		vactorStore = s.opts.PathHandler.SitesMatrixFromPath(p)
+		vactorStore = s.opts.PathParser.SitesMatrixFromPath(p)
 	}
 
 	d := TemplateDescriptor{

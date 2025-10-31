@@ -523,9 +523,8 @@ func newHugoSites(
 						tplimpl.StoreOptions{
 							Fs:                     s.BaseFs.Layouts.Fs,
 							Log:                    s.Log,
-							DefaultContentLanguage: s.Conf.DefaultContentLanguage(),
 							Watching:               s.Conf.Watching(),
-							PathHandler:            s.Conf.PathParser(),
+							PathParser:             s.Conf.PathParser(),
 							Metrics:                d.Metrics,
 							OutputFormats:          s.conf.OutputFormats.Config,
 							MediaTypes:             s.conf.MediaTypes.Config,

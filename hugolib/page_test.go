@@ -1403,6 +1403,41 @@ Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ .Content }}|{{ end }}|
 	)
 }
 
+func TestTranslationKeyRotate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.pt]
+weight = 2
+-- content/foo.md --
+---
+title: Foo
+translationkey: "mykey"
+---
+-- content/bar.md --
+---
+title: Bar
+translationkey: "mykey"
+---
+-- layouts/all.html --
+Rotate(language): {{ with .Rotate "language" }}{{ range . }}{{ template "printp" . }}|{{ end }}{{ end }}$
+{{ define "printp" }}{{ .RelPermalink }}:{{ with .Site }}{{ template "prints" . }}{{ end }}{{ end }}
+{{ define "prints" }}/l:{{ .Language.Name }}/v:{{ .Version.Name }}/r:{{ .Role.Name }}{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/foo/index.html", "Rotate(language): /en/bar/:/l:en/v:v1/r:guest|/en/foo/:/l:en/v:v1/r:guest|$")
+	b.AssertFileContent("public/en/bar/index.html", "Rotate(language): /en/bar/:/l:en/v:v1/r:guest|/en/foo/:/l:en/v:v1/r:guest|$")
+}
+
 func TestChompBOM(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

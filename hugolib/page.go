@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"iter"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -495,8 +496,7 @@ func (ps *pageState) AllTranslations() page.Pages {
 		if ps.m.pageConfig.TranslationKey != "" {
 			// translationKey set by user.
 			pas, _ := ps.s.h.translationKeyPages.Get(ps.m.pageConfig.TranslationKey)
-			pasc := make(page.Pages, len(pas))
-			copy(pasc, pas)
+			pasc := slices.Clone(pas)
 			page.SortByLanguage(pasc)
 			return pasc, nil
 		}
@@ -537,7 +537,6 @@ func (ps *pageState) siteVectors() sitesmatrix.VectorIterator {
 
 // TODO1 name.
 func (ps *pageState) Rotate(dimensionStr string) (page.Pages, error) {
-	// TODO1: For language, consider the special case with translationKey.
 	dimensionStr = strings.ToLower(dimensionStr)
 	key := ps.Path() + "/" + "rotate-" + dimensionStr
 	d, err := sitesmatrix.ParseDimension(dimensionStr)
@@ -556,6 +555,17 @@ func (ps *pageState) Rotate(dimensionStr string) (page.Pages, error) {
 				return false
 			},
 		)
+
+		if dimensionStr == "language" && ps.m.pageConfig.TranslationKey != "" {
+			// translationKey set by user.
+			// This is an old construct back from when languages were introduced.
+			// We keep it for backward compatibility.
+			// ALso see AllTranslations.
+			pas, _ := ps.s.h.translationKeyPages.Get(ps.m.pageConfig.TranslationKey)
+			pasc := slices.Clone(pas)
+			page.SortByLanguage(pasc)
+			return pasc, nil
+		}
 
 		pas = pagePredicates.ShouldLink.Filter(pas)
 		page.SortByDims(pas)
@@ -858,7 +868,6 @@ func (ps *pageState) posOffset(offset int) text.Position {
 // shiftToOutputFormat is serialized. The output format idx refers to the
 // full set of output formats for all sites.
 // This is serialized.
-// TODO1 with the added dimensions, we need to compress the pageOutputs slice.
 func (ps *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	if err := ps.initPage(); err != nil {
 		return err

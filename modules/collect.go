@@ -531,7 +531,7 @@ LOOP:
 		}
 	}
 
-	config, err := decodeConfig(tc.cfg, c.moduleConfig.replacementsMap)
+	config, err := decodeConfig(c.logger.Logger(), tc.cfg, c.moduleConfig.replacementsMap)
 	if err != nil {
 		return err
 	}
@@ -796,7 +796,7 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 			return nil, fmt.Errorf("%s: mount target must be one of: %v", errMsg, files.ComponentFolders)
 		}
 
-		if err := mnt.init(); err != nil {
+		if err := mnt.init(c.logger.Logger()); err != nil {
 			return nil, fmt.Errorf("%s: %w", errMsg, err)
 		}
 

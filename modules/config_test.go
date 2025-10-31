@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/version"
 
 	"github.com/gohugoio/hugo/config"
@@ -77,7 +78,7 @@ lang="en"
 		cfg, err := config.FromConfigString(fmt.Sprintf(tomlConfig, tempDir), "toml")
 		c.Assert(err, qt.IsNil)
 
-		mcfg, err := DecodeConfig(cfg)
+		mcfg, err := DecodeConfig(loggers.NewDefault().Logger(), cfg)
 		c.Assert(err, qt.IsNil)
 
 		v056 := version.VersionString("0.56.0")
@@ -119,7 +120,7 @@ path="github.com/bep/mycomponent"
 			cfg, err := config.FromConfigString(tomlConfig, "toml")
 			c.Assert(err, qt.IsNil)
 
-			mcfg, err := DecodeConfig(cfg)
+			mcfg, err := DecodeConfig(loggers.NewDefault().Logger(), cfg)
 			c.Assert(err, qt.IsNil)
 			c.Assert(mcfg.Replacements, qt.DeepEquals, []string{"a->b", "github.com/bep/mycomponent->c"})
 			c.Assert(mcfg.replacementsMap, qt.DeepEquals, map[string]string{
@@ -147,7 +148,7 @@ path="a"
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
 
-	modCfg, err := DecodeConfig(cfg)
+	modCfg, err := DecodeConfig(loggers.NewDefault().Logger(), cfg)
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(modCfg.Imports), qt.Equals, 3)
 	c.Assert(modCfg.Imports[0].Path, qt.Equals, "a")
@@ -163,7 +164,7 @@ theme = ["a", "b"]
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)
 
-	mcfg, err := DecodeConfig(cfg)
+	mcfg, err := DecodeConfig(loggers.NewDefault().Logger(), cfg)
 	c.Assert(err, qt.IsNil)
 
 	c.Assert(len(mcfg.Imports), qt.Equals, 2)

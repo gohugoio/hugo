@@ -309,7 +309,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "module",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Module, err = modules.DecodeConfig(p.p)
+			p.c.Module, err = modules.DecodeConfig(p.logger.Logger(), p.p)
 			return err
 		},
 	},

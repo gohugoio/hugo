@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"net/url"
+	"path"
 	"strings"
 
 	"github.com/gohugoio/hugo/output"
@@ -185,11 +186,7 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 
 	if opath != "" {
 		opath, _ = url.QueryUnescape(opath)
-		if strings.HasSuffix(opath, "//") {
-			// When rewriting the _index of the section the permalink config is applied to,
-			// we get double slashes at the end sometimes; clear them up here
-			opath = strings.TrimSuffix(opath, "/")
-		}
+		opath = path.Clean(opath)
 
 		desc.ExpandedPermalink = opath
 
