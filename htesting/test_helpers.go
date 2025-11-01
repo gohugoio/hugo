@@ -121,7 +121,7 @@ func IsGitHubAction() bool {
 }
 
 // SupportsAll reports whether the running system supports all Hugo features,
-// e.g. Asciidoc, Pandoc etc.
+// e.g. AsciiDoc, Pandoc etc.
 func SupportsAll() bool {
 	return IsGitHubAction() || os.Getenv("CI_LOCAL") != ""
 }

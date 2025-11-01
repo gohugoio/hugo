@@ -11,14 +11,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package asciidocext converts AsciiDoc to HTML using Asciidoctor
+// Package asciidocext converts AsciiDoc to HTML using the Asciidoctor
 // external binary. The `asciidoc` module is reserved for a future golang
 // implementation.
 
 package asciidocext_test
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/collections"
@@ -28,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/config/testconfig"
 	"github.com/gohugoio/hugo/markup/asciidocext"
+	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
 	"github.com/gohugoio/hugo/markup/asciidocext/internal"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/markup_config"
@@ -35,6 +35,12 @@ import (
 
 	qt "github.com/frankban/quicktest"
 )
+
+func resetAsciiDocConfig(cfg asciidocext_config.Config) {
+	markup_config.Default.AsciiDocExt = cfg
+	markup_config.Default.AsciiDocExt.Extensions = []string{}
+	markup_config.Default.AsciiDocExt.Attributes = map[string]string{}
+}
 
 func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c := qt.New(t)
@@ -52,24 +58,31 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 
-	ac := conv.(*internal.AsciidocConverter)
+	ac := conv.(*internal.AsciiDocConverter)
 	c.Assert(ac, qt.Not(qt.IsNil))
 
-	args := ac.ParseArgs(converter.DocumentContext{})
+	args, err := ac.ParseArgs(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
 	expected := []string{"--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
 func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	c := qt.New(t)
+
+	defaultAsciiDocConfig := markup_config.Default.AsciiDocExt // shallow copy
+	t.Cleanup(func() {
+		resetAsciiDocConfig(defaultAsciiDocConfig)
+	})
+
 	mconf := markup_config.Default
-	mconf.AsciidocExt.Backend = "manpage"
-	mconf.AsciidocExt.NoHeaderOrFooter = false
-	mconf.AsciidocExt.SafeMode = "safe"
-	mconf.AsciidocExt.SectionNumbers = true
-	mconf.AsciidocExt.Verbose = true
-	mconf.AsciidocExt.Trace = false
-	mconf.AsciidocExt.FailureLevel = "warn"
+	mconf.AsciiDocExt.Backend = "manpage"
+	mconf.AsciiDocExt.NoHeaderOrFooter = false
+	mconf.AsciiDocExt.SafeMode = "safe"
+	mconf.AsciiDocExt.SectionNumbers = true
+	mconf.AsciiDocExt.Verbose = true
+	mconf.AsciiDocExt.Trace = false
+	mconf.AsciiDocExt.FailureLevel = "warn"
 
 	conf := testconfig.GetTestConfigSectionFromStruct("markup", mconf)
 
@@ -84,22 +97,29 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 
-	ac := conv.(*internal.AsciidocConverter)
+	ac := conv.(*internal.AsciiDocConverter)
 	c.Assert(ac, qt.Not(qt.IsNil))
 
-	args := ac.ParseArgs(converter.DocumentContext{})
+	args, err := ac.ParseArgs(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
 	expected := []string{"-b", "manpage", "--section-numbers", "--verbose", "--failure-level", "warn", "--safe-mode", "safe"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
 func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c := qt.New(t)
+
+	defaultAsciiDocConfig := markup_config.Default.AsciiDocExt // shallow copy
+	t.Cleanup(func() {
+		resetAsciiDocConfig(defaultAsciiDocConfig)
+	})
+
 	mconf := markup_config.Default
-	mconf.AsciidocExt.Backend = "disallowed-backend"
-	mconf.AsciidocExt.Extensions = []string{"./disallowed-extension"}
-	mconf.AsciidocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
-	mconf.AsciidocExt.SafeMode = "disallowed-safemode"
-	mconf.AsciidocExt.FailureLevel = "disallowed-failurelevel"
+	mconf.AsciiDocExt.Backend = "disallowed-backend"
+	mconf.AsciiDocExt.Extensions = []string{"./disallowed-extension"}
+	mconf.AsciiDocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
+	mconf.AsciiDocExt.SafeMode = "disallowed-safemode"
+	mconf.AsciiDocExt.FailureLevel = "disallowed-failurelevel"
 
 	conf := testconfig.GetTestConfigSectionFromStruct("markup", mconf)
 
@@ -114,18 +134,25 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 
-	ac := conv.(*internal.AsciidocConverter)
+	ac := conv.(*internal.AsciiDocConverter)
 	c.Assert(ac, qt.Not(qt.IsNil))
 
-	args := ac.ParseArgs(converter.DocumentContext{})
+	args, err := ac.ParseArgs(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
 	expected := []string{"--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
 func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	c := qt.New(t)
+
+	defaultAsciiDocConfig := markup_config.Default.AsciiDocExt // shallow copy
+	t.Cleanup(func() {
+		resetAsciiDocConfig(defaultAsciiDocConfig)
+	})
+
 	mconf := markup_config.Default
-	mconf.AsciidocExt.Extensions = []string{"arbitrary-extension"}
+	mconf.AsciiDocExt.Extensions = []string{"arbitrary-extension"}
 	conf := testconfig.GetTestConfigSectionFromStruct("markup", mconf)
 	p, err := asciidocext.Provider.New(
 		converter.ProviderConfig{
@@ -138,16 +165,22 @@ func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 
-	ac := conv.(*internal.AsciidocConverter)
+	ac := conv.(*internal.AsciiDocConverter)
 	c.Assert(ac, qt.Not(qt.IsNil))
 
-	args := ac.ParseArgs(converter.DocumentContext{})
+	args, err := ac.ParseArgs(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
 	expected := []string{"-r", "arbitrary-extension", "--no-header-footer"}
 	c.Assert(args, qt.DeepEquals, expected)
 }
 
 func TestAsciidoctorDisallowedExtension(t *testing.T) {
 	c := qt.New(t)
+
+	defaultAsciiDocConfig := markup_config.Default.AsciiDocExt // shallow copy
+	t.Cleanup(func() {
+		resetAsciiDocConfig(defaultAsciiDocConfig)
+	})
 
 	for _, disallowedExtension := range []string{
 		`foo-bar//`,
@@ -159,7 +192,7 @@ func TestAsciidoctorDisallowedExtension(t *testing.T) {
 		`foo.bar`,
 	} {
 		mconf := markup_config.Default
-		mconf.AsciidocExt.Extensions = []string{disallowedExtension}
+		mconf.AsciiDocExt.Extensions = []string{disallowedExtension}
 		conf := testconfig.GetTestConfigSectionFromStruct("markup", mconf)
 		p, err := asciidocext.Provider.New(
 			converter.ProviderConfig{
@@ -172,94 +205,24 @@ func TestAsciidoctorDisallowedExtension(t *testing.T) {
 		conv, err := p.New(converter.DocumentContext{})
 		c.Assert(err, qt.IsNil)
 
-		ac := conv.(*internal.AsciidocConverter)
+		ac := conv.(*internal.AsciiDocConverter)
 		c.Assert(ac, qt.Not(qt.IsNil))
 
-		args := ac.ParseArgs(converter.DocumentContext{})
+		args, err := ac.ParseArgs(converter.DocumentContext{})
+		c.Assert(err, qt.IsNil)
 		expected := []string{"--no-header-footer"}
 		c.Assert(args, qt.DeepEquals, expected)
 	}
 }
 
-func TestAsciidoctorWorkingFolderCurrent(t *testing.T) {
-	c := qt.New(t)
-	cfg := config.FromTOMLConfigString(`
-[markup]
-[markup.asciidocext]
-workingFolderCurrent = true
-trace = false
-`)
-
-	conf := testconfig.GetTestConfig(afero.NewMemMapFs(), cfg)
-
-	p, err := asciidocext.Provider.New(
-		converter.ProviderConfig{
-			Conf:   conf,
-			Logger: loggers.NewDefault(),
-		},
-	)
-	c.Assert(err, qt.IsNil)
-
-	ctx := converter.DocumentContext{Filename: "/tmp/hugo_asciidoc_ddd/docs/chapter2/index.adoc", DocumentName: "chapter2/index.adoc"}
-	conv, err := p.New(ctx)
-	c.Assert(err, qt.IsNil)
-
-	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
-
-	args := ac.ParseArgs(ctx)
-	c.Assert(len(args), qt.Equals, 5)
-	c.Assert(args[0], qt.Equals, "--base-dir")
-	c.Assert(filepath.ToSlash(args[1]), qt.Matches, "/tmp/hugo_asciidoc_ddd/docs/chapter2")
-	c.Assert(args[2], qt.Equals, "-a")
-	c.Assert(args[3], qt.Matches, `outdir=.*chapter2`)
-	c.Assert(args[4], qt.Equals, "--no-header-footer")
-}
-
-func TestAsciidoctorWorkingFolderCurrentAndExtensions(t *testing.T) {
-	c := qt.New(t)
-	cfg := config.FromTOMLConfigString(`
-[markup]
-[markup.asciidocext]
-backend = "html5s"
-workingFolderCurrent = true
-trace = false
-noHeaderOrFooter = true
-extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
-`)
-	conf := testconfig.GetTestConfig(afero.NewMemMapFs(), cfg)
-
-	p, err := asciidocext.Provider.New(
-		converter.ProviderConfig{
-			Conf:   conf,
-			Logger: loggers.NewDefault(),
-		},
-	)
-	c.Assert(err, qt.IsNil)
-
-	conv, err := p.New(converter.DocumentContext{})
-	c.Assert(err, qt.IsNil)
-
-	ac := conv.(*internal.AsciidocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
-
-	args := ac.ParseArgs(converter.DocumentContext{})
-	c.Assert(len(args), qt.Equals, 11)
-	c.Assert(args[0], qt.Equals, "-b")
-	c.Assert(args[1], qt.Equals, "html5s")
-	c.Assert(args[2], qt.Equals, "-r")
-	c.Assert(args[3], qt.Equals, "asciidoctor-html5s")
-	c.Assert(args[4], qt.Equals, "-r")
-	c.Assert(args[5], qt.Equals, "asciidoctor-diagram")
-	c.Assert(args[6], qt.Equals, "--base-dir")
-	c.Assert(args[7], qt.Equals, ".")
-	c.Assert(args[8], qt.Equals, "-a")
-	c.Assert(args[9], qt.Contains, "outdir=")
-	c.Assert(args[10], qt.Equals, "--no-header-footer")
-}
-
 func TestAsciidoctorAttributes(t *testing.T) {
 	c := qt.New(t)
+
+	defaultAsciiDocConfig := markup_config.Default.AsciiDocExt // shallow copy
+	t.Cleanup(func() {
+		resetAsciiDocConfig(defaultAsciiDocConfig)
+	})
+
 	cfg := config.FromTOMLConfigString(`
 [markup]
 [markup.asciidocext]
@@ -280,7 +243,7 @@ my-attribute-name = "my value"
 	conv, err := p.New(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
 
-	ac := conv.(*internal.AsciidocConverter)
+	ac := conv.(*internal.AsciiDocConverter)
 	c.Assert(ac, qt.Not(qt.IsNil))
 
 	expectedValues := map[string]bool{
@@ -288,7 +251,8 @@ my-attribute-name = "my value"
 		"my-attribute-name=my value":     true,
 	}
 
-	args := ac.ParseArgs(converter.DocumentContext{})
+	args, err := ac.ParseArgs(converter.DocumentContext{})
+	c.Assert(err, qt.IsNil)
 	c.Assert(len(args), qt.Equals, 5)
 	c.Assert(args[0], qt.Equals, "-a")
 	c.Assert(expectedValues[args[1]], qt.Equals, true)
@@ -321,8 +285,8 @@ allow = ['asciidoctor']
 }
 
 func TestConvert(t *testing.T) {
-	if !asciidocext.Supports() {
-		t.Skip("asciidoctor not installed")
+	if ok, err := asciidocext.Supports(); !ok {
+		t.Skip(err)
 	}
 	c := qt.New(t)
 
@@ -337,8 +301,8 @@ func TestConvert(t *testing.T) {
 }
 
 func TestTableOfContents(t *testing.T) {
-	if !asciidocext.Supports() {
-		t.Skip("asciidoctor not installed")
+	if ok, err := asciidocext.Supports(); !ok {
+		t.Skip(err)
 	}
 	c := qt.New(t)
 	p := getProvider(c, "")
@@ -379,8 +343,8 @@ testContent
 }
 
 func TestTableOfContentsWithCode(t *testing.T) {
-	if !asciidocext.Supports() {
-		t.Skip("asciidoctor not installed")
+	if ok, err := asciidocext.Supports(); !ok {
+		t.Skip(err)
 	}
 	c := qt.New(t)
 	p := getProvider(c, "")
@@ -398,8 +362,8 @@ func TestTableOfContentsWithCode(t *testing.T) {
 }
 
 func TestTableOfContentsPreserveTOC(t *testing.T) {
-	if !asciidocext.Supports() {
-		t.Skip("asciidoctor not installed")
+	if ok, err := asciidocext.Supports(); !ok {
+		t.Skip(err)
 	}
 	c := qt.New(t)
 	confStr := `
