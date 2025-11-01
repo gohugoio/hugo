@@ -146,7 +146,8 @@ func (vs Vectors) ToVectorStore() VectorStore {
 	return newVectorStoreMapFromVectors(vs)
 }
 
-func (vs Vectors) One() Vector {
+// Sample returns one of the vectors in the set.
+func (vs Vectors) Sample() Vector {
 	for v := range vs {
 		return v
 	}

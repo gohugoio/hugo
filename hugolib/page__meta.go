@@ -74,23 +74,19 @@ func (m *pageMetaSource) PathInfo() *paths.Path {
 	return m.pathInfo
 }
 
-func (m *pageMetaSource) isContentNodeBranch() bool {
-	return m.pathInfo.IsBranchBundle()
-}
-
 func (m *pageMetaSource) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
 	return f(sitesmatrix.Vector{}, m)
 }
 
 func (m *pageMetaSource) resetBuildState() {
-	panic("not implemented") // TODO: Implement
+	// Nothing to do.
 }
 
 type pageMetaSource struct {
 	pathInfo                      *paths.Path // Always set. This the canonical path to the Page. // TODO1 remove.
 	f                             *source.File
 	pi                            *contentParseInfo
-	contentAdapterSourceEntryHash uint64 // TODO1 resource.
+	contentAdapterSourceEntryHash uint64
 
 	sitesMatrixBase     sitesmatrix.VectorIterator
 	sitesMatrixBaseOnly bool
@@ -134,7 +130,6 @@ func (m *pageMetaSource) nodeSourceEntryID() any {
 	return m.contentAdapterSourceEntryHash
 }
 
-// TODO1 rework the signature here, all is internal state.
 func (m *pageMetaSource) setCascadeFromMap(frontmatter map[string]any, defaultSitesMatrix sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions, logger loggers.Logger) error {
 	const (
 		pageMetaKeyCascade = "cascade"
@@ -226,7 +221,7 @@ func (m *pageMetaSource) doInitEarly(h *HugoSites, cascades *page.PageMatcherPar
 		return err
 	}
 
-	if m.isContentNodeBranch() && m.pageConfigSource.Frontmatter != nil {
+	if contentNodeHelper.isBranchNode(m) && m.pageConfigSource.Frontmatter != nil {
 		if err := m.setCascadeFromMap(m.pageConfigSource.Frontmatter, m.pageConfigSource.SitesMatrix, h.Conf.ConfiguredDimensions(), h.Log); err != nil {
 			return err
 		}
@@ -318,12 +313,6 @@ func (m *pageMetaSource) initPathInfo(h *HugoSites) error {
 }
 
 func (m *pageMeta) initLate(s *Site) error {
-	if m.pageConfig == nil {
-		m.pageConfig = &pagemeta.PageConfigLate{
-			Params: make(maps.Params), // TODO1 clean up all of this.
-		}
-	}
-
 	var tc viewName
 
 	if m.pageConfigSource.Kind == kinds.KindTerm || m.pageConfigSource.Kind == kinds.KindTaxonomy {
@@ -399,6 +388,9 @@ func (s *Site) newPageFromPageMetasource(ms *pageMetaSource, cascades *page.Page
 func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, error) {
 	m := &pageMeta{
 		pageMetaSource: ms,
+		pageConfig: &pagemeta.PageConfigLate{
+			Params: make(maps.Params),
+		},
 	}
 	return m, nil
 }
@@ -1094,16 +1086,8 @@ func (m *pageMeta) ForEeachIdentity(cb func(id identity.Identity) bool) bool {
 	panic("not supported")
 }
 
-func (m *pageMeta) isContentNodeBranch() bool {
-	panic("not supported")
-}
-
 func (m *pageMeta) resetBuildState() {
 	panic("not supported")
-}
-
-func (m *pageMeta) MarkStale() {
-	// panic("not supported")
 }
 
 func getParamToLower(m resource.ResourceParamsProvider, key string) any {

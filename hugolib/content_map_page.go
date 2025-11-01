@@ -149,7 +149,7 @@ func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Iden
 		if n == nil {
 			return false
 		}
-		n.MarkStale()
+		contentNodeHelper.markStale(n)
 		if nCount > 0 {
 			return true
 		}
@@ -370,7 +370,7 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 				pas = append(pas, p)
 			}
 
-			if n.isContentNodeBranch() {
+			if contentNodeHelper.isBranchNode(n) {
 				currentBranch := key + "/"
 				if otherBranch == "" || otherBranch != currentBranch {
 					w.SkipPrefix(currentBranch)
@@ -801,7 +801,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 			)
 		}
 
-		isBranch := n.isContentNodeBranch()
+		isBranch := contentNodeHelper.isBranchNode(n)
 		resourceWalker.Prefix = keyPage + "/"
 
 		resourceWalker.Handle = func(ss string, n contentNode) (bool, error) {

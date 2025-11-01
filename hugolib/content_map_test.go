@@ -464,14 +464,7 @@ func (n *testContentNode) forEeachContentNode(f func(v sitesmatrix.Vector, n con
 	panic("not supported")
 }
 
-func (n *testContentNode) isContentNodeBranch() bool {
-	return false
-}
-
 func (n *testContentNode) resetBuildState() {
-}
-
-func (n *testContentNode) MarkStale() {
 }
 
 // Issue 12274.

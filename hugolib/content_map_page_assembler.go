@@ -466,7 +466,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 
 		isTaxonomy := !a.h.getFirstTaxonomyConfig(s).IsZero()
-		isRootSetion := !isTaxonomy && level == 1 && n.isContentNodeBranch()
+		isRootSetion := !isTaxonomy && level == 1 && contentNodeHelper.isBranchNode(n)
 
 		if isRootSetion {
 			// This is a root section.
@@ -535,7 +535,7 @@ func (a *allPagesAssembler) createAllPages() error {
 				func() error {
 					if i := len(missingVectorsForHomeOrRootSection); i > 0 {
 						// Pick one, the rest will be created later.
-						vec := missingVectorsForHomeOrRootSection.One()
+						vec := missingVectorsForHomeOrRootSection.Sample()
 
 						kind := kinds.KindSection
 						if s == "" {
@@ -625,7 +625,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		if owner == nil {
 			return doctree.NodeTransformStateTerminate
 		}
-		if !owner.isContentNodeBranch() {
+		if !contentNodeHelper.isBranchNode(owner) {
 			return
 		}
 
@@ -849,7 +849,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		}
 
 		const eventName = "dates"
-		if n.isContentNodeBranch() {
+		if contentNodeHelper.isBranchNode(n) {
 			wasZeroDates := pageBundle.m.pageConfig.Dates.IsAllDatesZero()
 			if wasZeroDates || pageBundle.IsHome() {
 				pw.WalkContext.AddEventListener(eventName, keyPage, func(e *doctree.Event[contentNode]) {
@@ -877,7 +877,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		// Send the date info up the tree.
 		pw.WalkContext.SendEvent(&doctree.Event[contentNode]{Source: n, Path: keyPage, Name: eventName})
 
-		isBranch := n.isContentNodeBranch()
+		isBranch := contentNodeHelper.isBranchNode(n)
 		rw.Prefix = keyPage + "/"
 		rw.IncludeRawFilter = func(s string, n contentNode) bool {
 			// Only page nodes.

@@ -71,7 +71,7 @@ func (pt pageTree) CurrentSection() page.Page {
 	}
 
 	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, false, func(n contentNode) bool {
-		return n.isContentNodeBranch()
+		return contentNodeHelper.isBranchNode(n)
 	})
 
 	if n != nil {
@@ -88,7 +88,7 @@ func (pt pageTree) FirstSection() page.Page {
 	}
 
 	for {
-		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, false, func(n contentNode) bool { return n.isContentNodeBranch() })
+		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, false, func(n contentNode) bool { return contentNodeHelper.isBranchNode(n) })
 		if n == nil {
 			return nil
 		}
@@ -136,7 +136,7 @@ func (pt pageTree) Parent() page.Page {
 		if n == nil {
 			return pt.p.s.home
 		}
-		if pt.p.m.bundled || n.isContentNodeBranch() {
+		if pt.p.m.bundled || contentNodeHelper.isBranchNode(n) {
 			return n.(page.Page)
 		}
 		dir = paths.Dir(dir)
@@ -168,7 +168,7 @@ func (pt pageTree) Sections() page.Pages {
 		Prefix: prefix,
 	}
 	w.Handle = func(ss string, n contentNode) (bool, error) {
-		if !n.isContentNodeBranch() {
+		if !contentNodeHelper.isBranchNode(n) {
 			return false, nil
 		}
 		if currentBranchPrefix == "" || !strings.HasPrefix(ss, currentBranchPrefix) {

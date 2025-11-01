@@ -224,10 +224,6 @@ func (ps *pageState) forEeachContentNode(f func(v sitesmatrix.Vector, n contentN
 	return f(ps.s.siteVector, ps)
 }
 
-func (ps *pageState) isContentNodeBranch() bool {
-	return ps.IsNode()
-}
-
 func (ps *pageState) contentWeight() int {
 	if ps.m.f == nil {
 		return 0

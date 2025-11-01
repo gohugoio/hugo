@@ -220,10 +220,6 @@ func (r *resourceSource) PathInfo() *paths.Path {
 	return r.path
 }
 
-func (r *resourceSource) isContentNodeBranch() bool {
-	return false
-}
-
 func (cfg contentMapConfig) getTaxonomyConfig(s string) (v viewName) {
 	for _, n := range cfg.taxonomyConfig.views {
 		if strings.HasPrefix(s, n.pluralTreeKey) {
@@ -333,9 +329,6 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 	sitesMatrix := fi.Meta().SitesMatrix
 
 	s := m.s.h.resolveFirstSite(sitesMatrix)
-	if s == nil {
-		panic("TODO1")
-	}
 	h := s.h
 
 	contentAdapter := s.pageMap.treePagesFromTemplateAdapters.Get(pi.Base())
