@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.24.x, 1.25.x]
-        os: [ubuntu-latest, windows-latest] # macos disabled for now because of disk space issues.
+        os: [ubuntu-latest, windows-latest, macos-26]
     runs-on: ${{ matrix.os }}
     steps:
       - if: matrix.os == 'ubuntu-latest'
@@ -74,7 +74,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y pandoc
-      - if: matrix.os == 'macos-latest'
+      - if: matrix.os == 'macos-26'
         run: |
           brew install pandoc
       - if: matrix.os == 'windows-latest'
@@ -93,7 +93,7 @@ jobs:
           tar -xvf "dart-sass-${SASS_VERSION}-linux-x64.tar.gz";
           echo "$GOBIN"
           echo "$GITHUB_WORKSPACE/dart-sass/" >> $GITHUB_PATH
-      - if: matrix.os == 'macos-latest'
+      - if: matrix.os == 'macos-26'
         name: Install dart-sass MacOS
         run: |
           echo "Install Dart Sass version ${SASS_VERSION} ..."
