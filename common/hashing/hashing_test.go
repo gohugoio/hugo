@@ -38,7 +38,6 @@ func TestXxHashFromReaderPara(t *testing.T) {
 
 	var wg sync.WaitGroup
 	for i := range 10 {
-		i := i
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

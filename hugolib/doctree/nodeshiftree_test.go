@@ -194,7 +194,6 @@ func TestTreePara(t *testing.T) {
 	)
 
 	for i := range 8 {
-		i := i
 		r.Run(func() error {
 			a := &testValue{ID: "/a"}
 			lock := tree.Lock(true)

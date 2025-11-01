@@ -43,7 +43,6 @@ func TestHexStringToColor(t *testing.T) {
 		{"777", color.RGBA{R: 0x77, G: 0x77, B: 0x77, A: 0xff}},
 	} {
 
-		test := test
 		c.Run(test.arg, func(c *qt.C) {
 			c.Parallel()
 
@@ -78,7 +77,6 @@ func TestColorToHexString(t *testing.T) {
 		{color.RGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0x80}, "#4287f580"},
 	} {
 
-		test := test
 		c.Run(test.expect, func(c *qt.C) {
 			c.Parallel()
 

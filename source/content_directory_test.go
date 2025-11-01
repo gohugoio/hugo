@@ -56,7 +56,6 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		test := test
 		c.Run(fmt.Sprintf("[%d] %s", i, test.path), func(c *qt.C) {
 			c.Parallel()
 			v := config.New()

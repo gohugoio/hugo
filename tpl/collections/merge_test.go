@@ -137,9 +137,6 @@ func TestMerge(t *testing.T) {
 		{"all nil", []any{nil, nil}, nil, true},
 	} {
 
-		test := test
-		i := i
-
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			errMsg := qt.Commentf("[%d] %v", i, test)

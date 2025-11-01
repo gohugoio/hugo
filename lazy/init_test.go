@@ -204,7 +204,6 @@ func TestInitBranchOrder(t *testing.T) {
 	ctx := context.Background()
 
 	for _, v := range inits {
-		v := v
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

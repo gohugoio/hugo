@@ -545,7 +545,6 @@ Path: {{ .Path }}|{{.Kind }}
 `
 
 	for _, format := range []string{"toml", "yaml", "json"} {
-		format := format
 		t.Run(format, func(t *testing.T) {
 			t.Parallel()
 

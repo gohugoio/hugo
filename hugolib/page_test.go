@@ -1090,7 +1090,6 @@ func TestPageWithDate(t *testing.T) {
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
 	for _, dateHandler := range []string{":filename", ":fileModTime"} {
-		dateHandler := dateHandler
 		t.Run(fmt.Sprintf("dateHandler=%q", dateHandler), func(t *testing.T) {
 			t.Parallel()
 			c := qt.New(t)

@@ -332,7 +332,6 @@ Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
 `
 
 	for _, enabled := range []bool{true, false} {
-		enabled := enabled
 		t.Run(fmt.Sprint(enabled), func(t *testing.T) {
 			t.Parallel()
 			b := Test(t, strings.ReplaceAll(files, "ENABLE", fmt.Sprint(enabled)))
