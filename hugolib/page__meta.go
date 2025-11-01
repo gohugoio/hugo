@@ -221,7 +221,7 @@ func (m *pageMetaSource) doInitEarly(h *HugoSites, cascades *page.PageMatcherPar
 		return err
 	}
 
-	if contentNodeHelper.isBranchNode(m) && m.pageConfigSource.Frontmatter != nil {
+	if cnh.isBranchNode(m) && m.pageConfigSource.Frontmatter != nil {
 		if err := m.setCascadeFromMap(m.pageConfigSource.Frontmatter, m.pageConfigSource.SitesMatrix, h.Conf.ConfiguredDimensions(), h.Log); err != nil {
 			return err
 		}

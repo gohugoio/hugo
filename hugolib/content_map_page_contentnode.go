@@ -43,21 +43,10 @@ var (
 	_ contentNodeSingle                = (*resourceSource)(nil)
 )
 
-var contentNodeHelper helperContentNode
-
 var (
 	_ contentNode    = (*contentNodesMap)(nil)
 	_ contentNodeMap = (*contentNodesMap)(nil)
 )
-
-func (n contentNodesMap) ForEeachIdentity(f func(identity.Identity) bool) bool {
-	for _, nn := range n {
-		if nn.ForEeachIdentity(f) {
-			return true
-		}
-	}
-	return false
-}
 
 func (n contentNodesMap) ForEeachInAllDimensions(f func(contentNode) bool) {
 	for _, nn := range n {
@@ -67,28 +56,14 @@ func (n contentNodesMap) ForEeachInAllDimensions(f func(contentNode) bool) {
 	}
 }
 
-func (n contentNodesMap) GetIdentity() identity.Identity {
-	return n.sample().GetIdentity()
-}
-
 func (n contentNodesMap) Path() string {
 	return n.sample().Path()
-}
-
-func (n contentNodesMap) PathInfo() *paths.Path {
-	return n.sample().PathInfo()
 }
 
 type (
 	contentNode interface {
 		Path() string
 		contentNodeForEach
-
-		contentNodeBuildStateResetter
-		identity.ForEeachIdentityProvider
-		identity.IdentityProvider
-
-		PathInfo() *paths.Path
 	}
 
 	contentNodeBuildStateResetter interface {
@@ -170,25 +145,8 @@ func (n contentNodeSeq) ForEeach(f func(n contentNode) bool) bool {
 	return true
 }
 
-func (n contentNodeSeq) ForEeachIdentity(f func(identity.Identity) bool) bool {
-	for nn := range n {
-		if nn.ForEeachIdentity(f) {
-			return true
-		}
-	}
-	return false
-}
-
-func (n contentNodeSeq) GetIdentity() identity.Identity {
-	return n.sample().GetIdentity()
-}
-
 func (n contentNodeSeq) Path() string {
 	return n.sample().Path()
-}
-
-func (n contentNodeSeq) PathInfo() *paths.Path {
-	return n.sample().PathInfo()
 }
 
 func (n contentNodeSeq) isEmpty() bool {
@@ -214,12 +172,6 @@ func (n contentNodeSeq) sample() contentNode {
 	return nil
 }
 
-func (n contentNodeSeq) resetBuildState() {
-	for nn := range n {
-		nn.resetBuildState()
-	}
-}
-
 func (n contentNodeSeq2) forEeachContentNode(f func(sitesmatrix.Vector, contentNode) bool) bool {
 	for _, nn := range n {
 		if !nn.forEeachContentNode(f) {
@@ -231,25 +183,8 @@ func (n contentNodeSeq2) forEeachContentNode(f func(sitesmatrix.Vector, contentN
 
 type contentNodes []contentNode
 
-func (n contentNodes) ForEeachIdentity(f func(identity.Identity) bool) bool {
-	for _, nn := range n {
-		if nn.ForEeachIdentity(f) {
-			return true
-		}
-	}
-	return false
-}
-
-func (n contentNodes) GetIdentity() identity.Identity {
-	return n.sample().GetIdentity()
-}
-
 func (n contentNodes) Path() string {
 	return n.sample().Path()
-}
-
-func (n contentNodes) PathInfo() *paths.Path {
-	return n.sample().PathInfo()
 }
 
 func (m contentNodes) isEmpty() bool {
@@ -290,6 +225,8 @@ func (n contentNodes) resetBuildState() {
 }
 
 type contentNodesMap map[sitesmatrix.Vector]contentNode
+
+var cnh helperContentNode
 
 type helperContentNode struct{}
 
@@ -346,6 +283,17 @@ func (h helperContentNode) markStale(n contentNode) {
 	)
 }
 
+func (h helperContentNode) resetBuildState(n contentNode) {
+	n.forEeachContentNode(
+		func(_ sitesmatrix.Vector, nn contentNode) bool {
+			if nnn := nn.(contentNodeBuildStateResetter); nnn != nil {
+				nnn.resetBuildState()
+			}
+			return true
+		},
+	)
+}
+
 func (h helperContentNode) isBranchNode(n contentNode) bool {
 	switch nn := n.(type) {
 	case *pageMetaSource:
@@ -382,7 +330,29 @@ func (helperContentNode) one(n contentNode) (nn contentNode, hasMore bool) {
 	return
 }
 
-func (helperContentNode) toForEachIdentityProvider(n contentNode) identity.ForEeachIdentityProvider {
+func (h helperContentNode) GetIdentity(n contentNode) identity.Identity {
+	switch nn := n.(type) {
+	case identity.IdentityProvider:
+		return nn.GetIdentity()
+	case contentNodeSampleProvider:
+		return h.GetIdentity(nn.sample())
+	default:
+		return identity.Anonymous
+	}
+}
+
+func (h helperContentNode) PathInfo(n contentNode) *paths.Path {
+	switch nn := n.(type) {
+	case interface{ PathInfo() *paths.Path }:
+		return nn.PathInfo()
+	case contentNodeSampleProvider:
+		return h.PathInfo(nn.sample())
+	default:
+		return nil
+	}
+}
+
+func (h helperContentNode) toForEachIdentityProvider(n contentNode) identity.ForEeachIdentityProvider {
 	return identity.ForEeachIdentityProviderFunc(
 		func(cb func(id identity.Identity) bool) bool {
 			n.forEeachContentNode(
@@ -391,14 +361,12 @@ func (helperContentNode) toForEachIdentityProvider(n contentNode) identity.ForEe
 					// Currently
 					// *  forEeachContentNode terminates on false.
 					// *  ForEeachIdentity terminates on true.
-					return !cb(nn.GetIdentity())
+					return !cb(h.GetIdentity(n))
 				},
 			)
 			return false
 		})
 }
-
-// ForEeachIdentity(cb func(id Identity) bool) bool
 
 type weightedContentNode struct {
 	n      contentNode
@@ -471,12 +439,6 @@ func (n contentNodesMap) sample() contentNode {
 		return nn
 	}
 	return nil
-}
-
-func (n contentNodesMap) resetBuildState() {
-	for _, nn := range n {
-		nn.resetBuildState()
-	}
 }
 
 func (n contentNodesMap) siteVectors() sitesmatrix.VectorIterator {

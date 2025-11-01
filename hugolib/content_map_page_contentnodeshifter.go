@@ -154,7 +154,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		return nil, false
 	}
 
-	if vvv := contentNodeHelper.findContentNodeForSiteVector(siteVector, fallback, contentNodeToSeq(n)); vvv != nil {
+	if vvv := cnh.findContentNodeForSiteVector(siteVector, fallback, contentNodeToSeq(n)); vvv != nil {
 		return vvv, true
 	}
 

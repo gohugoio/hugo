@@ -128,7 +128,7 @@ func (a *allPagesAssembler) createAllPages() error {
 					if _, found := a.h.previousSeenTerms[t]; !found {
 						// This term is new.
 						if n, ok := a.pw.Tree.GetRaw(t.view.pluralTreeKey); ok {
-							a.assembleChanges.Add(n.GetIdentity())
+							a.assembleChanges.Add(cnh.GetIdentity(n))
 						}
 					}
 				}
@@ -466,13 +466,13 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 
 		isTaxonomy := !a.h.getFirstTaxonomyConfig(s).IsZero()
-		isRootSetion := !isTaxonomy && level == 1 && contentNodeHelper.isBranchNode(n)
+		isRootSetion := !isTaxonomy && level == 1 && cnh.isBranchNode(n)
 
 		if isRootSetion {
 			// This is a root section.
-			seenRootSections[n.PathInfo().Section()] = true
+			seenRootSections[cnh.PathInfo(n).Section()] = true
 		} else if !isTaxonomy {
-			p := n.PathInfo()
+			p := cnh.PathInfo(n)
 			rootSection := p.Section()
 			if !seenRootSections[rootSection] {
 				seenRootSections[rootSection] = true
@@ -543,7 +543,7 @@ func (a *allPagesAssembler) createAllPages() error {
 						}
 
 						pms := &pageMetaSource{
-							pathInfo:            n.PathInfo(),
+							pathInfo:            cnh.PathInfo(n),
 							sitesMatrixBase:     missingVectorsForHomeOrRootSection,
 							sitesMatrixBaseOnly: true,
 							pageConfigSource: &pagemeta.PageConfigEarly{
@@ -625,7 +625,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		if owner == nil {
 			return doctree.NodeTransformStateTerminate
 		}
-		if !contentNodeHelper.isBranchNode(owner) {
+		if !cnh.isBranchNode(owner) {
 			return
 		}
 
@@ -676,7 +676,7 @@ func (a *allPagesAssembler) createAllPages() error {
 			return
 		}
 
-		if contentNodeHelper.isPageNode(n) {
+		if cnh.isPageNode(n) {
 			return transformPagesAndCreateMissingStructuralNodes(s, n, true)
 		}
 
@@ -693,7 +693,7 @@ func (a *allPagesAssembler) createAllPages() error {
 
 				if _, found := nodes[p.s.siteVector]; !found {
 					var rs *resourceSource
-					match := contentNodeHelper.findContentNodeForSiteVector(p.s.siteVector, duplicateResourceFiles, contentNodeToSeq(n))
+					match := cnh.findContentNodeForSiteVector(p.s.siteVector, duplicateResourceFiles, contentNodeToSeq(n))
 					if match == nil {
 						return true
 					}
@@ -849,7 +849,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		}
 
 		const eventName = "dates"
-		if contentNodeHelper.isBranchNode(n) {
+		if cnh.isBranchNode(n) {
 			wasZeroDates := pageBundle.m.pageConfig.Dates.IsAllDatesZero()
 			if wasZeroDates || pageBundle.IsHome() {
 				pw.WalkContext.AddEventListener(eventName, keyPage, func(e *doctree.Event[contentNode]) {
@@ -877,11 +877,11 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		// Send the date info up the tree.
 		pw.WalkContext.SendEvent(&doctree.Event[contentNode]{Source: n, Path: keyPage, Name: eventName})
 
-		isBranch := contentNodeHelper.isBranchNode(n)
+		isBranch := cnh.isBranchNode(n)
 		rw.Prefix = keyPage + "/"
 		rw.IncludeRawFilter = func(s string, n contentNode) bool {
 			// Only page nodes.
-			return contentNodeHelper.isPageNode(n)
+			return cnh.isPageNode(n)
 		}
 
 		rw.IncludeFilter = func(s string, n contentNode) bool {

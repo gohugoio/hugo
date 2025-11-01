@@ -149,12 +149,13 @@ func (t *pageTrees) collectAndMarkStaleIdentities(p *paths.Path) []identity.Iden
 		if n == nil {
 			return false
 		}
-		contentNodeHelper.markStale(n)
+		cnh.markStale(n)
 		if nCount > 0 {
 			return true
 		}
 		nCount++
-		n.ForEeachIdentity(func(id identity.Identity) bool {
+
+		cnh.toForEachIdentityProvider(n).ForEeachIdentity(func(id identity.Identity) bool {
 			ids = append(ids, id)
 			return false
 		})
@@ -198,7 +199,7 @@ func (t *pageTrees) collectIdentitiesSurroundingIn(key string, maxSamples int, t
 			if level != strings.Count(s, "/") {
 				return false
 			}
-			n.ForEeachIdentity(func(id identity.Identity) bool {
+			cnh.toForEachIdentityProvider(n).ForEeachIdentity(func(id identity.Identity) bool {
 				ids = append(ids, id)
 				return false
 			})
@@ -370,7 +371,7 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 				pas = append(pas, p)
 			}
 
-			if contentNodeHelper.isBranchNode(n) {
+			if cnh.isBranchNode(n) {
 				currentBranch := key + "/"
 				if otherBranch == "" || otherBranch != currentBranch {
 					w.SkipPrefix(currentBranch)
@@ -801,7 +802,7 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 			)
 		}
 
-		isBranch := contentNodeHelper.isBranchNode(n)
+		isBranch := cnh.isBranchNode(n)
 		resourceWalker.Prefix = keyPage + "/"
 
 		resourceWalker.Handle = func(ss string, n contentNode) (bool, error) {

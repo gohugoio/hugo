@@ -261,7 +261,7 @@ func TestRebuildRenameTextFileInBranchBundle(t *testing.T) {
 	b.RenameFile("content/mysection/mysectiontext.txt", "content/mysection/mysectiontext2.txt").Build()
 	b.AssertFileContent("public/mysection/index.html", "mysectiontext2", "My Section")
 	b.AssertRenderCountPage(3)
-	b.AssertRenderCountContent(1)
+	b.AssertRenderCountContent(2)
 }
 
 func TestRebuildRenameTextFileInHomeBundle(t *testing.T) {

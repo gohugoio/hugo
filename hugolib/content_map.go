@@ -373,9 +373,9 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 
 					if h.isRebuild() {
 						if replaced {
-							pt.AddChange(n.GetIdentity())
+							pt.AddChange(cnh.GetIdentity(n))
 						} else {
-							pt.AddChange(u.GetIdentity())
+							pt.AddChange(cnh.GetIdentity(u))
 							// New content not in use anywhere.
 							// To make sure that these gets listed in any site.RegularPages ranges or similar
 							// we could invalidate everything, but first try to collect a sample set
@@ -413,7 +413,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 					_, n, updated := s.pageMap.treeResources.InsertWithLock(rs.path.Base(), rs)
 
 					if h.isRebuild() && updated {
-						pt.AddChange(n.GetIdentity())
+						pt.AddChange(cnh.GetIdentity(n))
 					}
 					return nil
 				},

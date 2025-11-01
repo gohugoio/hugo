@@ -262,7 +262,7 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 	}
 
 	h.pageTrees.treePagesResources.WalkPrefixRaw("", func(key string, n contentNode) bool {
-		n.resetBuildState()
+		cnh.resetBuildState(n)
 		return false
 	})
 
@@ -1292,14 +1292,14 @@ func (s *Site) handleContentAdapterChanges(bi pagesfromdata.BuildInfo, buildConf
 		}
 
 		if v, count := s.pageMap.treePages.DeleteFuncRaw(pp, df); count > 0 {
-			buildConfig.WhatChanged.Add(v.GetIdentity())
+			buildConfig.WhatChanged.Add(cnh.GetIdentity(v))
 		}
 		if v, count := s.pageMap.treeResources.DeleteFuncRaw(pp, df); count > 0 {
-			buildConfig.WhatChanged.Add(v.GetIdentity())
+			buildConfig.WhatChanged.Add(cnh.GetIdentity(v))
 
 			// A deleted resource may affect its parent page.
 			if _, v := s.pageMap.treePages.LongestPrefiValueRaw(pp); v != nil {
-				buildConfig.WhatChanged.Add(v.GetIdentity())
+				buildConfig.WhatChanged.Add(cnh.GetIdentity(v))
 			}
 		}
 	}
