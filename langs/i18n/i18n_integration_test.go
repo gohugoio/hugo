@@ -14,6 +14,8 @@
 package i18n_test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -164,4 +166,35 @@ b = 'b translated'
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "failed to load translations: reserved keys [description] mixed with unreserved keys [a b]: see the lang.Translate documentation for a list of reserved keys")
+}
+
+func TestPrivateUseSubTagsLength(t *testing.T) {
+	t.Parallel()
+	filesTemplate := `
+-- hugo.toml --
+[languages."LANG"]
+weight = 1
+-- i18n/LANG.toml --
+[hello]
+other = "Hello World"
+-- layouts/index.html --
+{{ T "hello" }}
+`
+
+	doTest := func(lang string, ok bool) {
+		files := strings.ReplaceAll(filesTemplate, "LANG", lang)
+		b, err := hugolib.TestE(t, files)
+		if ok {
+			b.Assert(err, qt.IsNil)
+			b.AssertFileContent("public/index.html", `Hello World`)
+		} else {
+			b.Assert(err, qt.IsNotNil)
+			b.Assert(err.Error(), qt.Contains, fmt.Sprintf(`%q: language: tag is not well-formed`, lang))
+		}
+	}
+
+	doTest("art-x-12345678", true)
+	doTest("12345678", true)
+	doTest("art-x-123456789", false)
+	doTest("123456789", false)
 }
