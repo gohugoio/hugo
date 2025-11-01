@@ -37,7 +37,7 @@ import (
 
 // New returns a new instance of the collections-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
-	language := deps.Conf.Language()
+	language := deps.Conf.Language().(*langs.Language)
 	if language == nil {
 		panic("language must be set")
 	}

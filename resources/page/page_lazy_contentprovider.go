@@ -17,7 +17,7 @@ import (
 	"context"
 	"html/template"
 
-	"github.com/gohugoio/hugo/lazy"
+	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 )
@@ -48,26 +48,16 @@ type OutputFormatPageContentProvider interface {
 // Used in cases where we cannot guarantee whether the content provider
 // will be needed. Must create via NewLazyContentProvider.
 type LazyContentProvider struct {
-	init *lazy.Init
-	cp   OutputFormatContentProvider
+	init hsync.ValueResetter[OutputFormatContentProvider]
 }
 
 // NewLazyContentProvider returns a LazyContentProvider initialized with
 // function f. The resulting LazyContentProvider calls f in order to
 // retrieve a ContentProvider
-func NewLazyContentProvider(f func() (OutputFormatContentProvider, error)) *LazyContentProvider {
+func NewLazyContentProvider(f func(ctx context.Context) OutputFormatContentProvider) *LazyContentProvider {
 	lcp := LazyContentProvider{
-		init: lazy.New(),
-		cp:   NopCPageContentRenderer,
+		init: hsync.OnceMoreValue(f),
 	}
-	lcp.init.Add(func(context.Context) (any, error) {
-		cp, err := f()
-		if err != nil {
-			return nil, err
-		}
-		lcp.cp = cp
-		return nil, nil
-	})
 	return &lcp
 }
 
@@ -76,91 +66,73 @@ func (lcp *LazyContentProvider) Reset() {
 }
 
 func (lcp *LazyContentProvider) Markup(opts ...any) Markup {
-	lcp.init.Do(context.Background())
-	return lcp.cp.Markup(opts...)
+	return lcp.init.Value(context.Background()).Markup(opts...)
 }
 
 func (lcp *LazyContentProvider) TableOfContents(ctx context.Context) template.HTML {
-	lcp.init.Do(ctx)
-	return lcp.cp.TableOfContents(ctx)
+	return lcp.init.Value(ctx).TableOfContents(ctx)
 }
 
 func (lcp *LazyContentProvider) Fragments(ctx context.Context) *tableofcontents.Fragments {
-	lcp.init.Do(ctx)
-	return lcp.cp.Fragments(ctx)
+	return lcp.init.Value(ctx).Fragments(ctx)
 }
 
 func (lcp *LazyContentProvider) Content(ctx context.Context) (any, error) {
-	lcp.init.Do(ctx)
-	return lcp.cp.Content(ctx)
+	return lcp.init.Value(ctx).Content(ctx)
 }
 
 func (lcp *LazyContentProvider) ContentWithoutSummary(ctx context.Context) (template.HTML, error) {
-	lcp.init.Do(ctx)
-	return lcp.cp.ContentWithoutSummary(ctx)
+	return lcp.init.Value(ctx).ContentWithoutSummary(ctx)
 }
 
 func (lcp *LazyContentProvider) Plain(ctx context.Context) string {
-	lcp.init.Do(ctx)
-	return lcp.cp.Plain(ctx)
+	return lcp.init.Value(ctx).Plain(ctx)
 }
 
 func (lcp *LazyContentProvider) PlainWords(ctx context.Context) []string {
-	lcp.init.Do(ctx)
-	return lcp.cp.PlainWords(ctx)
+	return lcp.init.Value(ctx).PlainWords(ctx)
 }
 
 func (lcp *LazyContentProvider) Summary(ctx context.Context) template.HTML {
-	lcp.init.Do(ctx)
-	return lcp.cp.Summary(ctx)
+	return lcp.init.Value(ctx).Summary(ctx)
 }
 
 func (lcp *LazyContentProvider) Truncated(ctx context.Context) bool {
-	lcp.init.Do(ctx)
-	return lcp.cp.Truncated(ctx)
+	return lcp.init.Value(ctx).Truncated(ctx)
 }
 
 func (lcp *LazyContentProvider) FuzzyWordCount(ctx context.Context) int {
-	lcp.init.Do(ctx)
-	return lcp.cp.FuzzyWordCount(ctx)
+	return lcp.init.Value(ctx).FuzzyWordCount(ctx)
 }
 
 func (lcp *LazyContentProvider) WordCount(ctx context.Context) int {
-	lcp.init.Do(ctx)
-	return lcp.cp.WordCount(ctx)
+	return lcp.init.Value(ctx).WordCount(ctx)
 }
 
 func (lcp *LazyContentProvider) ReadingTime(ctx context.Context) int {
-	lcp.init.Do(ctx)
-	return lcp.cp.ReadingTime(ctx)
+	return lcp.init.Value(ctx).ReadingTime(ctx)
 }
 
 func (lcp *LazyContentProvider) Len(ctx context.Context) int {
-	lcp.init.Do(ctx)
-	return lcp.cp.Len(ctx)
+	return lcp.init.Value(ctx).Len(ctx)
 }
 
 func (lcp *LazyContentProvider) Render(ctx context.Context, layout ...string) (template.HTML, error) {
-	lcp.init.Do(ctx)
-	return lcp.cp.Render(ctx, layout...)
+	return lcp.init.Value(ctx).Render(ctx, layout...)
 }
 
 func (lcp *LazyContentProvider) RenderString(ctx context.Context, args ...any) (template.HTML, error) {
-	lcp.init.Do(ctx)
-	return lcp.cp.RenderString(ctx, args...)
+	return lcp.init.Value(ctx).RenderString(ctx, args...)
 }
 
 func (lcp *LazyContentProvider) ParseAndRenderContent(ctx context.Context, content []byte, renderTOC bool) (converter.ResultRender, error) {
-	lcp.init.Do(ctx)
-	return lcp.cp.ParseAndRenderContent(ctx, content, renderTOC)
+	return lcp.init.Value(ctx).ParseAndRenderContent(ctx, content, renderTOC)
 }
 
 func (lcp *LazyContentProvider) ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error) {
-	lcp.init.Do(ctx)
-	return lcp.cp.ParseContent(ctx, content)
+	return lcp.init.Value(ctx).ParseContent(ctx, content)
 }
 
 func (lcp *LazyContentProvider) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
-	lcp.init.Do(ctx)
-	return lcp.cp.RenderContent(ctx, content, doc)
+	return lcp.init.Value(ctx).RenderContent(ctx, content, doc)
 }

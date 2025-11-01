@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
+	"sort"
 	"strings"
 	"sync"
 
@@ -128,7 +129,61 @@ func ToString(v any) (string, bool) {
 	return "", false
 }
 
-type (
-	Strings2 [2]string
-	Strings3 [3]string
-)
+// UniqueStrings returns a new slice with any duplicates removed.
+func UniqueStrings(s []string) []string {
+	unique := make([]string, 0, len(s))
+	for i, val := range s {
+		var seen bool
+		for j := range i {
+			if s[j] == val {
+				seen = true
+				break
+			}
+		}
+		if !seen {
+			unique = append(unique, val)
+		}
+	}
+	return unique
+}
+
+// UniqueStringsReuse returns a slice with any duplicates removed.
+// It will modify the input slice.
+func UniqueStringsReuse(s []string) []string {
+	result := s[:0]
+	for i, val := range s {
+		var seen bool
+
+		for j := range i {
+			if s[j] == val {
+				seen = true
+				break
+			}
+		}
+
+		if !seen {
+			result = append(result, val)
+		}
+	}
+	return result
+}
+
+// UniqueStringsSorted returns a sorted slice with any duplicates removed.
+// It will modify the input slice.
+func UniqueStringsSorted(s []string) []string {
+	if len(s) == 0 {
+		return nil
+	}
+	ss := sort.StringSlice(s)
+	ss.Sort()
+	i := 0
+	for j := 1; j < len(s); j++ {
+		if !ss.Less(i, j) {
+			continue
+		}
+		i++
+		s[i] = s[j]
+	}
+
+	return s[:i+1]
+}

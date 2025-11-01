@@ -17,14 +17,14 @@ package resource
 import (
 	"fmt"
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/spf13/cast"
-	"slices"
 )
 
 var _ ResourceFinder = (*Resources)(nil)
@@ -155,7 +155,7 @@ func (r Resources) GetMatch(pattern any) Resource {
 		panic(err)
 	}
 
-	g, err := glob.GetGlob(paths.AddLeadingSlash(patternstr))
+	g, err := hglob.GetGlob(paths.AddLeadingSlash(patternstr))
 	if err != nil {
 		panic(err)
 	}
@@ -193,7 +193,7 @@ func (r Resources) Match(pattern any) Resources {
 		panic(err)
 	}
 
-	g, err := glob.GetGlob(paths.AddLeadingSlash(patternstr))
+	g, err := hglob.GetGlob(paths.AddLeadingSlash(patternstr))
 	if err != nil {
 		panic(err)
 	}

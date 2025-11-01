@@ -427,7 +427,7 @@ func (c *importCommand) importFromJekyll(args []string) error {
 	c.r.Println("Importing...")
 
 	fileCount := 0
-	callback := func(path string, fi hugofs.FileMetaInfo) error {
+	callback := func(ctx context.Context, path string, fi hugofs.FileMetaInfo) error {
 		if fi.IsDir() {
 			return nil
 		}

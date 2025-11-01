@@ -421,3 +421,23 @@ baseURL = "https://example.com/"
 	b.AssertFileContent("public/docs/logs/sdk/index.html", "/docs/logs/sdk/|/docs/logs/|")
 	b.AssertFileContent("public/docs/logs/sdk_exporters/stdout/index.html", "/docs/logs/sdk_exporters/stdout/|/docs/logs/|")
 }
+
+func TestNestedSectionsEmpty(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+-- content/a/b/c/_index.md --
+---
+title: "C"
+---
+-- layouts/all.html --
+All: {{ .Title }}|{{ .Kind }}|
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/a/index.html", "All: As|section|")
+	b.AssertFileExists("public/a/b/index.html", false)
+	b.AssertFileContent("public/a/b/c/index.html", "All: C|section|")
+}

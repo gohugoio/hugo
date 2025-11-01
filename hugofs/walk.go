@@ -14,8 +14,8 @@
 package hugofs
 
 import (
+	"context"
 	"fmt"
-	"io/fs"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -29,8 +29,8 @@ import (
 )
 
 type (
-	WalkFunc func(path string, info FileMetaInfo) error
-	WalkHook func(dir FileMetaInfo, path string, readdir []FileMetaInfo) ([]FileMetaInfo, error)
+	WalkFunc func(ctx context.Context, path string, info FileMetaInfo) error
+	WalkHook func(ctx context.Context, dir FileMetaInfo, path string, readdir []FileMetaInfo) ([]FileMetaInfo, error)
 )
 
 type Walkway struct {
@@ -55,8 +55,10 @@ type WalkwayConfig struct {
 	PathParser *paths.PathParser
 
 	// One or both of these may be pre-set.
-	Info       FileMetaInfo               // The start info.
-	DirEntries []FileMetaInfo             // The start info's dir entries.
+	Info       FileMetaInfo    // The start info.
+	DirEntries []FileMetaInfo  // The start info's dir entries.
+	Ctx        context.Context // Optional starting context.
+
 	IgnoreFile func(filename string) bool // Optional
 
 	// Will be called in order.
@@ -99,7 +101,12 @@ func (w *Walkway) Walk() error {
 		return nil
 	}
 
-	return w.walk(w.cfg.Root, w.cfg.Info, w.cfg.DirEntries)
+	ctx := w.cfg.Ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	return w.walk(ctx, w.cfg.Root, w.cfg.Info, w.cfg.DirEntries)
 }
 
 // checkErr returns true if the error is handled.
@@ -116,7 +123,7 @@ func (w *Walkway) checkErr(filename string, err error) bool {
 }
 
 // walk recursively descends path, calling walkFn.
-func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo) error {
+func (w *Walkway) walk(ctx context.Context, path string, info FileMetaInfo, dirEntries []FileMetaInfo) error {
 	pathRel := strings.TrimPrefix(path, w.cfg.Root)
 
 	if info == nil {
@@ -134,7 +141,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 		info = fi.(FileMetaInfo)
 	}
 
-	err := w.cfg.WalkFn(path, info)
+	err := w.cfg.WalkFn(ctx, path, info)
 	if err != nil {
 		if info.IsDir() && err == filepath.SkipDir {
 			return nil
@@ -154,7 +161,8 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 			}
 			return fmt.Errorf("walk: open: path: %q filename: %q: %s", path, info.Meta().Filename, err)
 		}
-		fis, err := f.(fs.ReadDirFile).ReadDir(-1)
+		fis, newCtx, err := ReadDirWithContext(ctx, f, -1)
+		ctx = newCtx
 
 		f.Close()
 		if err != nil {
@@ -192,7 +200,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 
 	if w.cfg.HookPre != nil {
 		var err error
-		dirEntries, err = w.cfg.HookPre(info, path, dirEntries)
+		dirEntries, err = w.cfg.HookPre(ctx, info, path, dirEntries)
 		if err != nil {
 			if err == filepath.SkipDir {
 				return nil
@@ -203,7 +211,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 
 	for _, fim := range dirEntries {
 		nextPath := filepath.Join(path, fim.Name())
-		err := w.walk(nextPath, fim, nil)
+		err := w.walk(ctx, nextPath, fim, nil)
 		if err != nil {
 			if !fim.IsDir() || err != filepath.SkipDir {
 				return err
@@ -213,7 +221,7 @@ func (w *Walkway) walk(path string, info FileMetaInfo, dirEntries []FileMetaInfo
 
 	if w.cfg.HookPost != nil {
 		var err error
-		dirEntries, err = w.cfg.HookPost(info, path, dirEntries)
+		dirEntries, err = w.cfg.HookPost(ctx, info, path, dirEntries)
 		if err != nil {
 			if err == filepath.SkipDir {
 				return nil

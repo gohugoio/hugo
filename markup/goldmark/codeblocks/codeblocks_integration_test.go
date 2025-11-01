@@ -87,9 +87,11 @@ echo "l8";
 §§§
 `
 
-	b := hugolib.Test(t, files)
+	for range 6 {
 
-	b.AssertFileContent("public/p1/index.html", `
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/p1/index.html", `
 Goat SVG:<svg class='diagram'
 Goat Attribute: 600|
 
@@ -101,12 +103,13 @@ Go Language: go|
 
 
 	`,
-		"Goat SVG:<svg class='diagram' xmlns='http://www.w3.org/2000/svg' version='1.1' height='25' width='40'",
-		"Goat Attribute: 600|",
-		"<h2 id=\"go-code\">Go Code</h2>\nGo Code: fmt.Println(\"Hello, World!\");\n|\nGo Language: go|",
-		"<h2 id=\"golang-code\">Golang Code</h2>\nGo Code: fmt.Println(\"Hello, Golang!\");\n|\nGo Language: go|",
-		"<h2 id=\"bash-code\">Bash Code</h2>\n<div class=\"highlight blue\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"ln\">32</span><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s2\">&#34;l1&#34;</span><span class=\"p\">;</span>\n</span></span><span class=\"line hl\"><span class=\"ln\">33</span>",
-	)
+			"Goat SVG:<svg class='diagram' xmlns='http://www.w3.org/2000/svg' version='1.1' height='25' width='40'",
+			"Goat Attribute: 600|",
+			"<h2 id=\"go-code\">Go Code</h2>\nGo Code: fmt.Println(\"Hello, World!\");\n|\nGo Language: go|",
+			"<h2 id=\"golang-code\">Golang Code</h2>\nGo Code: fmt.Println(\"Hello, Golang!\");\n|\nGo Language: go|",
+			"<h2 id=\"bash-code\">Bash Code</h2>\n<div class=\"highlight blue\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"ln\">32</span><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s2\">&#34;l1&#34;</span><span class=\"p\">;</span>\n</span></span><span class=\"line hl\"><span class=\"ln\">33</span>",
+		)
+	}
 }
 
 func TestHighlightCodeblock(t *testing.T) {

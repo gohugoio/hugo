@@ -32,6 +32,7 @@ import (
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/bep/helpers/contexthelpers"
@@ -81,7 +82,7 @@ type HugoInfo struct {
 }
 
 // Version returns the current version as a comparable version string.
-func (i HugoInfo) Version() VersionString {
+func (i HugoInfo) Version() version.VersionString {
 	return CurrentVersion.Version()
 }
 
@@ -452,7 +453,7 @@ func deprecateLevelWithLogger(item, alternative, version string, level logg.Leve
 // We want people to run at least the current and previous version without any warnings.
 // We want people who don't update Hugo that often to see the warnings and errors before we remove the feature.
 func deprecationLogLevelFromVersion(ver string) logg.Level {
-	from := MustParseVersion(ver)
+	from := version.MustParseVersion(ver)
 	to := CurrentVersion
 	minorDiff := to.Minor - from.Minor
 	switch {
@@ -465,4 +466,47 @@ func deprecationLogLevelFromVersion(ver string) logg.Level {
 	default:
 		return logg.LevelInfo
 	}
+}
+
+// BuildVersionString creates a version string. This is what you see when
+// running "hugo version".
+func BuildVersionString() string {
+	// program := "Hugo Static Site Generator"
+	program := "hugo"
+
+	version := "v" + CurrentVersion.String()
+
+	bi := getBuildInfo()
+	if bi == nil {
+		return version
+	}
+	if bi.Revision != "" {
+		version += "-" + bi.Revision
+	}
+	if IsExtended {
+		version += "+extended"
+	}
+	if IsWithdeploy {
+		version += "+withdeploy"
+	}
+
+	osArch := bi.GoOS + "/" + bi.GoArch
+
+	date := bi.RevisionTime
+	if date == "" {
+		// Accept vendor-specified build date if .git/ is unavailable.
+		date = buildDate
+	}
+	if date == "" {
+		date = "unknown"
+	}
+
+	versionString := fmt.Sprintf("%s %s %s BuildDate=%s",
+		program, version, osArch, date)
+
+	if vendorInfo != "" {
+		versionString += " VendorInfo=" + vendorInfo
+	}
+
+	return versionString
 }

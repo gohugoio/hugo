@@ -29,13 +29,13 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/version"
 	"golang.org/x/mod/module"
 
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/maps"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -64,7 +64,7 @@ func (h *Client) Collect() (ModulesConfig, error) {
 		}
 	}
 
-	if err := (&mc).finalize(h.logger); err != nil {
+	if err := (&mc).finalize(); err != nil {
 		return mc, err
 	}
 
@@ -134,25 +134,31 @@ func (m *ModulesConfig) setActiveMods(logger loggers.Logger) error {
 	return nil
 }
 
-func (m *ModulesConfig) finalize(logger loggers.Logger) error {
+func (m *ModulesConfig) finalize() error {
 	for _, mod := range m.AllModules {
 		m := mod.(*moduleAdapter)
-		m.mounts = filterUnwantedMounts(m.mounts)
+		m.mounts = filterDuplicateMounts(m.mounts)
 	}
 	return nil
 }
 
-func filterUnwantedMounts(mounts []Mount) []Mount {
-	// Remove duplicates
-	seen := make(map[string]bool)
-	tmp := mounts[:0]
-	for _, m := range mounts {
-		if !seen[m.key()] {
-			tmp = append(tmp, m)
+// filterDuplicateMounts removes duplicate mounts while preserving order.
+// The input slice will not be modified.
+func filterDuplicateMounts(mounts []Mount) []Mount {
+	var x []Mount
+	for _, m1 := range mounts {
+		var found bool
+		for _, m2 := range x {
+			if m1.Equal(m2) {
+				found = true
+				break
+			}
 		}
-		seen[m.key()] = true
+		if !found {
+			x = append(x, m1)
+		}
 	}
-	return tmp
+	return x
 }
 
 type pathVersionKey struct {
@@ -525,7 +531,7 @@ LOOP:
 		}
 	}
 
-	config, err := decodeConfig(tc.cfg, c.moduleConfig.replacementsMap)
+	config, err := decodeConfig(c.logger.Logger(), tc.cfg, c.moduleConfig.replacementsMap)
 	if err != nil {
 		return err
 	}
@@ -537,7 +543,7 @@ LOOP:
 		// Merge old with new
 		if minVersion, found := themeCfg[oldVersionKey]; found {
 			if config.HugoVersion.Min == "" {
-				config.HugoVersion.Min = hugo.VersionString(cast.ToString(minVersion))
+				config.HugoVersion.Min = version.VersionString(cast.ToString(minVersion))
 			}
 		}
 
@@ -788,6 +794,10 @@ func (c *collector) normalizeMounts(owner *moduleAdapter, mounts []Mount) ([]Mou
 		}
 		if !files.IsComponentFolder(targetBase) {
 			return nil, fmt.Errorf("%s: mount target must be one of: %v", errMsg, files.ComponentFolders)
+		}
+
+		if err := mnt.init(c.logger.Logger()); err != nil {
+			return nil, fmt.Errorf("%s: %w", errMsg, err)
 		}
 
 		out = append(out, mnt)

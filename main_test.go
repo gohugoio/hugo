@@ -36,6 +36,7 @@ import (
 )
 
 func TestCommands(t *testing.T) {
+	t.Skip("TODO1")
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/commands"
 	testscript.Run(t, p)

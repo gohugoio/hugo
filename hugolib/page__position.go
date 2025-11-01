@@ -16,8 +16,8 @@ package hugolib
 import (
 	"context"
 
+	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -30,7 +30,7 @@ func newPagePositionInSection(n *nextPrev) pagePositionInSection {
 }
 
 type nextPrev struct {
-	init     *lazy.Init
+	init     hsync.FuncResetter
 	prevPage page.Page
 	nextPage page.Page
 }

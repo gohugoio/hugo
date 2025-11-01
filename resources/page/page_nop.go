@@ -21,6 +21,7 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/gohugoio/hugo/hugolib/roles"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -252,6 +253,10 @@ func (p *nopPage) Lang() string {
 }
 
 func (p *nopPage) Language() *langs.Language {
+	return nil
+}
+
+func (p *nopPage) Role() roles.Role {
 	return nil
 }
 

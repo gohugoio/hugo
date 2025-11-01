@@ -64,55 +64,62 @@ type pagesFromDataTemplateContext struct {
 	p *PagesFromTemplate
 }
 
-func (p *pagesFromDataTemplateContext) toPathMap(v any) (string, map[string]any, error) {
+func (p *pagesFromDataTemplateContext) toPathSitesMap(v any) (string, map[string]any, map[string]any, error) {
 	m, err := maps.ToStringMapE(v)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 
 	path, err := cast.ToStringE(m["path"])
 	if err != nil {
-		return "", nil, fmt.Errorf("invalid path %q", path)
+		return "", nil, nil, fmt.Errorf("invalid path %q", path)
 	}
-	return path, m, nil
+
+	sites := maps.ToStringMap(m["sites"])
+
+	return path, sites, m, nil
 }
 
 func (p *pagesFromDataTemplateContext) AddPage(v any) (string, error) {
-	path, m, err := p.toPathMap(v)
+	path, sites, m, err := p.toPathSitesMap(v)
 	if err != nil {
 		return "", err
 	}
 
-	if !p.p.buildState.checkHasChangedAndSetSourceInfo(path, m) {
+	hash, hasChanged := p.p.buildState.checkHasChangedAndSetSourceInfo(path, sites, m)
+	if !hasChanged {
 		return "", nil
 	}
 
-	pd := pagemeta.DefaultPageConfig
-	pd.IsFromContentAdapter = true
-	pd.ContentAdapterData = m
+	pe := &pagemeta.PageConfigEarly{
+		IsFromContentAdapter: true,
+		Frontmatter:          m,
+		SourceEntryHash:      hash,
+	}
 
 	// The rest will be handled after the cascade is calculated and applied.
-	if err := mapstructure.WeakDecode(pd.ContentAdapterData, &pd.PageConfigEarly); err != nil {
+	if err := mapstructure.WeakDecode(pe.Frontmatter, pe); err != nil {
 		err = fmt.Errorf("failed to decode page map: %w", err)
 		return "", err
 	}
 
-	if err := pd.Init(true); err != nil {
+	if err := pe.Init(true); err != nil {
 		return "", err
 	}
 
 	p.p.buildState.NumPagesAdded++
 
-	return "", p.p.HandlePage(p.p, &pd)
+	return "", p.p.HandlePage(p.p, pe)
 }
 
 func (p *pagesFromDataTemplateContext) AddResource(v any) (string, error) {
-	path, m, err := p.toPathMap(v)
+	path, sites, m, err := p.toPathSitesMap(v)
 	if err != nil {
 		return "", err
 	}
 
-	if !p.p.buildState.checkHasChangedAndSetSourceInfo(path, m) {
+	hash, hasChanged := p.p.buildState.checkHasChangedAndSetSourceInfo(path, sites, m)
+	if !hasChanged {
 		return "", nil
 	}
 
@@ -120,6 +127,7 @@ func (p *pagesFromDataTemplateContext) AddResource(v any) (string, error) {
 	if err := mapstructure.WeakDecode(m, &rd); err != nil {
 		return "", err
 	}
+	rd.ContentAdapterSourceEntryHash = hash
 
 	p.p.buildState.NumResourcesAdded++
 
@@ -143,6 +151,11 @@ func (p *pagesFromDataTemplateContext) EnableAllLanguages() string {
 	return ""
 }
 
+func (p *pagesFromDataTemplateContext) EnableAllDimensions() string {
+	p.p.buildState.EnableAllDimensions = true
+	return ""
+}
+
 func NewPagesFromTemplate(opts PagesFromTemplateOptions) *PagesFromTemplate {
 	return &PagesFromTemplate{
 		PagesFromTemplateOptions: opts,
@@ -162,7 +175,7 @@ type PagesFromTemplateOptions struct {
 
 	Watching bool
 
-	HandlePage     func(pt *PagesFromTemplate, p *pagemeta.PageConfig) error
+	HandlePage     func(pt *PagesFromTemplate, p *pagemeta.PageConfigEarly) error
 	HandleResource func(pt *PagesFromTemplate, p *pagemeta.ResourceConfig) error
 
 	GoTmplFi hugofs.FileMetaInfo
@@ -194,21 +207,23 @@ func (b *PagesFromTemplate) StaleVersion() uint32 {
 }
 
 type BuildInfo struct {
-	NumPagesAdded      uint64
-	NumResourcesAdded  uint64
-	EnableAllLanguages bool
-	ChangedIdentities  []identity.Identity
-	DeletedPaths       []string
-	Path               *paths.Path
+	NumPagesAdded       uint64
+	NumResourcesAdded   uint64
+	EnableAllLanguages  bool
+	EnableAllDimensions bool
+	ChangedIdentities   []identity.Identity
+	DeletedPaths        []PathHashes
+	Path                *paths.Path
 }
 
 type BuildState struct {
 	StaleVersion uint32
 
-	EnableAllLanguages bool
+	EnableAllLanguages  bool
+	EnableAllDimensions bool
 
-	// Paths deleted in the current build.
-	DeletedPaths []string
+	// PathHashes deleted in the current build.
+	DeletedPaths []PathHashes
 
 	// Changed identities in the current build.
 	ChangedIdentities []identity.Identity
@@ -224,20 +239,40 @@ func (b *BuildState) hash(v any) uint64 {
 	return hashing.HashUint64(v)
 }
 
-func (b *BuildState) checkHasChangedAndSetSourceInfo(changedPath string, v any) bool {
-	h := b.hash(v)
-	si, found := b.sourceInfosPrevious.Get(changedPath)
-	if found {
-		b.sourceInfosCurrent.Set(changedPath, si)
-		if si.hash == h {
-			return false
-		}
-	} else {
-		si = &sourceInfo{}
-		b.sourceInfosCurrent.Set(changedPath, si)
+type sourceInfo struct {
+	siteHashes map[uint64]uint64
+}
+
+func (b *BuildState) checkHasChangedAndSetSourceInfo(changedPath string, sites map[string]any, v any) (uint64, bool) {
+	hv := b.hash(v)
+	hsites := b.hash(sites)
+
+	si, _ := b.sourceInfosCurrent.GetOrCreate(changedPath, func() (*sourceInfo, error) {
+		return &sourceInfo{
+			siteHashes: make(map[uint64]uint64),
+		}, nil
+	})
+
+	if h, found := si.siteHashes[hsites]; found && h == hv {
+		return hv, false
 	}
-	si.hash = h
-	return true
+
+	if psi, found := b.sourceInfosPrevious.Get(changedPath); found {
+		if h, found := psi.siteHashes[hsites]; found && h == hv {
+			// Not changed.
+			si.siteHashes[hsites] = hv
+			return hv, false
+		}
+	}
+
+	// It has changed.
+	si.siteHashes[hsites] = hv
+	return hv, true
+}
+
+type PathHashes struct {
+	Path   string
+	Hashes map[uint64]struct{}
 }
 
 func (b *BuildState) resolveDeletedPaths() {
@@ -245,15 +280,26 @@ func (b *BuildState) resolveDeletedPaths() {
 		b.DeletedPaths = nil
 		return
 	}
-	var paths []string
-	b.sourceInfosPrevious.ForEeach(func(k string, _ *sourceInfo) bool {
-		if _, found := b.sourceInfosCurrent.Get(k); !found {
-			paths = append(paths, k)
+	var pathsHashes []PathHashes
+	b.sourceInfosPrevious.ForEeach(func(k string, pv *sourceInfo) bool {
+		if cv, found := b.sourceInfosCurrent.Get(k); !found {
+			pathsHashes = append(pathsHashes, PathHashes{Path: k, Hashes: map[uint64]struct{}{}})
+		} else {
+			deleted := map[uint64]struct{}{}
+			for k, ph := range pv.siteHashes {
+				ch, found := cv.siteHashes[k]
+				if !found || ch != ph {
+					deleted[ph] = struct{}{}
+				}
+			}
+			if len(deleted) > 0 {
+				pathsHashes = append(pathsHashes, PathHashes{Path: k, Hashes: deleted})
+			}
 		}
 		return true
 	})
 
-	b.DeletedPaths = paths
+	b.DeletedPaths = pathsHashes
 }
 
 func (b *BuildState) PrepareNextBuild() {
@@ -264,10 +310,6 @@ func (b *BuildState) PrepareNextBuild() {
 	b.ChangedIdentities = nil
 	b.NumPagesAdded = 0
 	b.NumResourcesAdded = 0
-}
-
-type sourceInfo struct {
-	hash uint64
 }
 
 func (p PagesFromTemplate) CloneForSite(s page.Site) *PagesFromTemplate {
@@ -324,12 +366,13 @@ func (p *PagesFromTemplate) Execute(ctx context.Context) (BuildInfo, error) {
 	}
 
 	bi := BuildInfo{
-		NumPagesAdded:      p.buildState.NumPagesAdded,
-		NumResourcesAdded:  p.buildState.NumResourcesAdded,
-		EnableAllLanguages: p.buildState.EnableAllLanguages,
-		ChangedIdentities:  p.buildState.ChangedIdentities,
-		DeletedPaths:       p.buildState.DeletedPaths,
-		Path:               p.GoTmplFi.Meta().PathInfo,
+		NumPagesAdded:       p.buildState.NumPagesAdded,
+		NumResourcesAdded:   p.buildState.NumResourcesAdded,
+		EnableAllLanguages:  p.buildState.EnableAllLanguages,
+		EnableAllDimensions: p.buildState.EnableAllDimensions,
+		ChangedIdentities:   p.buildState.ChangedIdentities,
+		DeletedPaths:        p.buildState.DeletedPaths,
+		Path:                p.GoTmplFi.Meta().PathInfo,
 	}
 
 	return bi, nil

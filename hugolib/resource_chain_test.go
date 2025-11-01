@@ -49,8 +49,10 @@ func TestResourceChainBasic(t *testing.T) {
 		ts.Close()
 	})
 
-	b := newTestSitesBuilder(t)
-	b.WithTemplatesAdded("index.html", fmt.Sprintf(`
+	for i := range 2 {
+
+		b := newTestSitesBuilder(t)
+		b.WithTemplatesAdded("index.html", fmt.Sprintf(`
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | fingerprint "sha512" | minify  | fingerprint }}
 {{ $cssFingerprinted1 := "body {  background-color: lightblue; }" | resources.FromString "styles.css" |  minify  | fingerprint }}
 {{ $cssFingerprinted2 := "body {  background-color: orange; }" | resources.FromString "styles2.css" |  minify  | fingerprint }}
@@ -85,21 +87,20 @@ PRINT PROTOCOL ERROR DETAILS: {{ with $gopherprotocol }}{{ with .Err }}Err: {{ .
 FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg }}{{ with .Err }}{{ with .Cause }}{{ . }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}|ContentLength: {{ .ContentLength }}|ContentType: {{ .ContentType }}{{ end }}{{ end }}{{ end }}{{ end }}|
 `, ts.URL))
 
-	fs := b.Fs.Source
+		fs := b.Fs.Source
 
-	imageDir := filepath.Join("assets", "images")
-	b.Assert(os.MkdirAll(imageDir, 0o777), qt.IsNil)
-	src, err := os.Open("testdata/sunset.jpg")
-	b.Assert(err, qt.IsNil)
-	out, err := fs.Create(filepath.Join(imageDir, "sunset.jpg"))
-	b.Assert(err, qt.IsNil)
-	_, err = io.Copy(out, src)
-	b.Assert(err, qt.IsNil)
-	out.Close()
+		imageDir := filepath.Join("assets", "images")
+		b.Assert(os.MkdirAll(imageDir, 0o777), qt.IsNil)
+		src, err := os.Open("testdata/sunset.jpg")
+		b.Assert(err, qt.IsNil)
+		out, err := fs.Create(filepath.Join(imageDir, "sunset.jpg"))
+		b.Assert(err, qt.IsNil)
+		_, err = io.Copy(out, src)
+		b.Assert(err, qt.IsNil)
+		out.Close()
 
-	b.Running()
+		b.Running()
 
-	for i := range 2 {
 		b.Logf("Test run %d", i)
 		b.Build(BuildCfg{})
 

@@ -794,3 +794,67 @@ myshortcode.en.html
 	b.AssertFileContent("public/pl/index.html", "myshortcode.html")
 	b.AssertFileContent("public/en/index.html", "myshortcode.en.html")
 }
+
+func TestHasShortcodeSamePageSourceDifferentShortcodes(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term', '404']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+markup.goldmark.renderer.unsafe = true
+
+[languages]
+[languages.en]
+weight = 1
+[languages.sv]
+weight = 2
+-- content/inc/i1.md --
+---
+headless: true
+sites:
+  matrix:
+    languages:
+      - '**'	
+---
+{{% sc1 %}}
+-- content/inc/i2.md --
+---
+headless: true
+sites:
+  matrix:
+    languages:
+      - '**'	
+---
+{{% sc2 %}}
+-- content/p1.md --
+---
+title: p1
+---
+P1.
+{{% inc %}}
+-- content/p1.sv.md --
+---
+title: p1 sv
+---
+P1.
+{{% inc %}}
+-- layouts/_shortcodes/sc1.html --
+sc1
+-- layouts/_shortcodes/sc2.html --
+sc2
+-- layouts/_shortcodes/inc.html --
+{{ with site.GetPage "inc/i1.md" }}i1.RenderShortcodes: {{ .RenderShortcodes }}{{ end }}
+-- layouts/_shortcodes/inc.sv.html --
+{{ with site.GetPage "inc/i2.md" }}i1.RenderShortcodes: {{ .RenderShortcodes }}{{ end }}
+-- layouts/all.html --
+Content: {{ .Content }}|sc1: {{ .HasShortcode "sc1" }}|sc2: {{ .HasShortcode "sc2" }}|inc: {{ .HasShortcode "inc" }}|
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/p1/index.html", " |sc1: true|sc2: false|inc: true|")
+	b.AssertFileContent("public/sv/p1/index.html", " |sc1: false|sc2: true|inc: true|")
+}

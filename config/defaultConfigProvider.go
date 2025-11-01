@@ -16,11 +16,9 @@ package config
 import (
 	"errors"
 	"fmt"
-	"slices"
+	"sort"
 	"strings"
 	"sync"
-
-	xmaps "maps"
 
 	"github.com/spf13/cast"
 
@@ -239,7 +237,12 @@ func (c *defaultConfigProvider) Merge(k string, v any) {
 func (c *defaultConfigProvider) Keys() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	return slices.Collect(xmaps.Keys(c.root))
+	var keys []string
+	for k := range c.root {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func (c *defaultConfigProvider) WalkParams(walkFn func(params ...maps.KeyParams) bool) {

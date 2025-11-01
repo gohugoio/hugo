@@ -28,7 +28,7 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/httpcache"
 	hhttpcache "github.com/gohugoio/hugo/cache/httpcache"
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -206,8 +206,8 @@ func (c *Client) getOrCreateFileResource(info hugofs.FileMetaInfo) (resource.Res
 }
 
 func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource) bool, firstOnly bool) (resource.Resources, error) {
-	pattern = glob.NormalizePath(pattern)
-	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
+	pattern = hglob.NormalizePath(pattern)
+	partitions := hglob.FilterGlobParts(strings.Split(pattern, "/"))
 	key := path.Join(name, path.Join(partitions...))
 	key = path.Join(key, pattern)
 
