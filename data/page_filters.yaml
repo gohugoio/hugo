@@ -78,13 +78,6 @@ methods_pages_group:
   - /methods/pages/groupbyparam
   - /methods/pages/groupbyparamdate
   - /methods/pages/groupbypublishdate
-  - /methods/pages/groupbydate
-  - /methods/pages/groupbydate
-  - /methods/pages/groupbydate
-  - /methods/pages/groupbydate
-  - /methods/pages/groupbydate
-  - /methods/pages/groupbydate
-  - /methods/pages/reverse
 methods_pages_navigation:
   - /methods/pages/next
   - /methods/pages/prev
