@@ -110,9 +110,6 @@ environment
 frontmatter
 : See [configure front matter](/configuration/front-matter/).
 
-hasCJKLanguage
-: (`bool`) Whether to automatically detect [CJK](g) languages in content. Affects the values returned by the [`WordCount`] and [`FuzzyWordCount`] methods. Default is `false`.
-
 HTTPCache
 : See [configure HTTP cache](/configuration/http-cache/).
 

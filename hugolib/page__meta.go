@@ -17,7 +17,6 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -45,8 +44,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/cast"
 )
-
-var cjkRe = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 
 type pageMeta struct {
 	term     string // Set for kind == KindTerm.
@@ -472,7 +469,7 @@ params:
 		panic("params not set for " + p.Title())
 	}
 
-	var draft, published, isCJKLanguage *bool
+	var draft, published *bool
 	var userParams map[string]any
 	for k, v := range pcfg.Params {
 		loki := strings.ToLower(k)
@@ -579,9 +576,6 @@ params:
 				return fmt.Errorf("failed to decode sitemap config in front matter: %s", err)
 			}
 			sitemapSet = true
-		case "iscjklanguage":
-			isCJKLanguage = new(bool)
-			*isCJKLanguage = cast.ToBool(v)
 		case "translationkey":
 			pcfg.TranslationKey = cast.ToString(v)
 			params[loki] = pcfg.TranslationKey
@@ -663,18 +657,6 @@ params:
 		pcfg.Draft = !*published
 	}
 	params["draft"] = pcfg.Draft
-
-	if isCJKLanguage != nil {
-		pcfg.IsCJKLanguage = *isCJKLanguage
-	} else if p.s.conf.HasCJKLanguage && p.m.content.pi.openSource != nil {
-		if cjkRe.Match(p.m.content.mustSource()) {
-			pcfg.IsCJKLanguage = true
-		} else {
-			pcfg.IsCJKLanguage = false
-		}
-	}
-
-	params["iscjklanguage"] = pcfg.IsCJKLanguage
 
 	if err := pcfg.Init(false); err != nil {
 		return err
