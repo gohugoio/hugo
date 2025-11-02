@@ -286,7 +286,7 @@ Execute the _partial_ template by calling the [`partial`] or [`partialCached`] f
 ```
 
 <!-- https://github.com/gohugoio/hugo/pull/13614#issuecomment-2805977008 -->
-Unlike other template types, Hugo does not consider the current page kind, content type, logical path, language, or output format when searching for a matching _partial_ template. However, it _does_ apply the same name matching logic it uses for other template types. This means it tries to find the most specific match first, then progressively looks for more general versions if the specific one isn't found.
+Unlike other template types, Hugo does not consider the current page kind, content type, logical path, language, or output format when searching for a matching _partial_ template. However, it _does_ apply the same _name_ matching logic it uses for other template types. This means it tries to find the most specific match first, then progressively looks for more general versions if the specific one isn't found.
 
 For example, with this call:
 
