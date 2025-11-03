@@ -24,38 +24,36 @@ import (
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the os-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	var readFileFs, workFs afero.Fs
+	var mountsFs afero.Fs
 
 	// The docshelper script does not have or need all the dependencies set up.
 	if d.PathSpec != nil {
-		readFileFs = overlayfs.New(overlayfs.Options{
+		mountsFs = overlayfs.New(overlayfs.Options{
 			Fss: []afero.Fs{
-				d.PathSpec.BaseFs.Work,
-				d.PathSpec.BaseFs.Content.Fs,
+				d.PathSpec.BaseFs.WorkDir,
+				d.PathSpec.BaseFs.OverlayMountsFs().WithDirsMerger(hugofs.AppendDirsMerger),
 			},
 		})
-		// See #9599
-		workFs = d.PathSpec.BaseFs.WorkDir
 	}
 
 	return &Namespace{
-		readFileFs: readFileFs,
-		workFs:     workFs,
-		deps:       d,
+		mountsFs: mountsFs,
+		deps:     d,
 	}
 }
 
 // Namespace provides template functions for the "os" namespace.
 type Namespace struct {
-	readFileFs afero.Fs
-	workFs     afero.Fs
-	deps       *deps.Deps
+	mountsFs afero.Fs
+	deps     *deps.Deps
 }
 
 // Getenv retrieves the value of the environment variable named by the key.
@@ -80,7 +78,13 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 	if filename == "" || filename == "." || filename == string(_os.PathSeparator) {
 		return "", errors.New("invalid filename")
 	}
-
+	stat, err := fs.Stat(filename)
+	if err != nil {
+		return "", err
+	}
+	if stat.IsDir() {
+		return "", errors.New("invalid filename")
+	}
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		return "", err
@@ -93,16 +97,27 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 // It returns the contents as a string.
 // There is an upper size limit set at 1 megabytes.
 func (ns *Namespace) ReadFile(i any) (string, error) {
-	s, err := cast.ToStringE(i)
+	path, err := cast.ToStringE(i)
 	if err != nil {
 		return "", err
 	}
 
 	if ns.deps.PathSpec != nil {
-		s = ns.deps.PathSpec.RelPathify(s)
+		path = ns.deps.PathSpec.RelPathify(path)
 	}
 
-	s, err = readFile(ns.readFileFs, s)
+	s, err := readFile(ns.mountsFs, path)
+	if err != nil {
+		path = filepath.Join(files.ComponentFolderContent, path)
+		sContent, errContent := readFile(ns.mountsFs, path)
+		if errContent != nil && !herrors.IsNotExist(errContent) {
+			err = errContent
+		}
+		if errContent == nil {
+			err = nil
+			s = sContent
+		}
+	}
 	if err != nil && herrors.IsNotExist(err) {
 		return "", nil
 	}
@@ -116,7 +131,7 @@ func (ns *Namespace) ReadDir(i any) ([]_os.FileInfo, error) {
 		return nil, err
 	}
 
-	list, err := afero.ReadDir(ns.workFs, path)
+	list, err := afero.ReadDir(ns.mountsFs, path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)
 	}
@@ -134,8 +149,18 @@ func (ns *Namespace) FileExists(i any) (bool, error) {
 	if path == "" {
 		return false, errors.New("fileExists needs a path to a file")
 	}
-
-	status, err := afero.Exists(ns.readFileFs, path)
+	status, err := afero.Exists(ns.mountsFs, path)
+	if (err != nil) || (status == false) {
+		path = filepath.Join(files.ComponentFolderContent, path)
+		statusContent, errContent := afero.Exists(ns.mountsFs, path)
+		if errContent != nil && !herrors.IsNotExist(errContent) {
+			err = errContent
+		}
+		if errContent == nil {
+			err = nil
+			status = statusContent
+		}
+	}
 	if err != nil {
 		return false, err
 	}
@@ -153,8 +178,19 @@ func (ns *Namespace) Stat(i any) (_os.FileInfo, error) {
 	if path == "" {
 		return nil, errors.New("fileStat needs a path to a file")
 	}
+	r, err := ns.mountsFs.Stat(path)
+	if err != nil {
+		path = filepath.Join(files.ComponentFolderContent, path)
+		rContent, errContent := ns.mountsFs.Stat(path)
+		if errContent != nil && !herrors.IsNotExist(errContent) {
+			err = errContent
+		}
+		if errContent == nil {
+			err = nil
+			r = rContent
+		}
 
-	r, err := ns.readFileFs.Stat(path)
+	}
 	if err != nil {
 		return nil, err
 	}

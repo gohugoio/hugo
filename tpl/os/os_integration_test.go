@@ -75,3 +75,108 @@ func TestReadFileNotExists(t *testing.T) {
 OK
 `)
 }
+
+func TestReadDirMountsVirtualDirectorySizeIsZero(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+[module]
+[[module.imports]]
+path = "module1"
+[[module.imports.mounts]]
+source = "assets"
+target = "assets/virtual"
+[[module.imports.mounts]]
+source = "assets/file.json"
+target = "assets/testing.json"
+-- themes/module1/assets/file.json --
+{}
+-- layouts/index.html --
+{{ $entries := readDir "assets" }}
+START:|{{ range $entry := $entries }}{{ $entry.Name }}={{ $entry.Size }}|{{ end }}:END:
+{{ $entries = readDir "assets/virtual" }}
+START:|{{ range $entry := $entries }}{{ $entry.Name }}={{ $entry.Size }}|{{ end }}:END:
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+START:|file.json=2|virtual=0|:END:
+`)
+}
+
+func TestReadDirMountsTopDirectory(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+	[[module.imports]]
+		path = "module1"
+		[[module.imports.mounts]]
+			source = "assets"
+			target = "assets"
+
+-- myproject.txt --
+Hello project!
+-- themes/module1/assets/file.json --
+{}
+-- layouts/index.html --
+{{ $entries := (readDir "") }}
+START:|{{ range $entry := $entries }}{{ $entry.Name }}|{{ end }}:END:
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+START:|assets|hugo.toml|layouts|myproject.txt|themes|:END:
+`)
+}
+
+func TestReadDirMergeContents(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+[[module.imports]]
+path = "module1"
+[[module.imports]]
+path = "module2"
+
+-- myproject.txt --
+Hello project!
+-- themes/module1/assets/file1.json --
+{}
+-- themes/module2/assets/files/raw.txt --
+Nothing here
+-- themes/module2/assets/file2.json --
+{}
+-- layouts/index.html --
+{{ $entries := (readDir "assets") }}
+START:|{{ range $entry := $entries }}{{ $entry.Name }}|{{ end }}:END:
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			NeedsOsFS:   true,
+		},
+	).Build()
+
+	b.AssertFileContent("public/index.html", `
+START:|file1.json|file2.json|files|:END:
+`)
+}

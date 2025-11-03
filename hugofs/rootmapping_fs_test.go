@@ -26,6 +26,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
 )
 
@@ -162,10 +163,16 @@ func TestRootMappingFsDirnames(t *testing.T) {
 	fifm := fif.(FileMetaInfo).Meta()
 	c.Assert(fifm.Filename, qt.Equals, filepath.FromSlash("f2t/myfile.txt"))
 
-	root, err := rfs.Open("static")
+	root, err := rfs.Open(".")
 	c.Assert(err, qt.IsNil)
 
 	dirnames, err := root.Readdirnames(-1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(dirnames, qt.DeepEquals, []string{"static"})
+
+	static, err := rfs.Open("static")
+	c.Assert(err, qt.IsNil)
+	dirnames, err = static.Readdirnames(-1)
 	c.Assert(err, qt.IsNil)
 	c.Assert(dirnames, qt.DeepEquals, []string{"af3", "bf1", "cf2"})
 }
@@ -296,6 +303,88 @@ func TestRootMappingFsMount(t *testing.T) {
 	})
 }
 
+func TestReaddirRootMappingFsMountOverlap(t *testing.T) {
+	c := qt.New(t)
+	fs := NewBaseFileDecorator(afero.NewMemMapFs())
+
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("da/a.txt"), []byte("some no content"), 0o755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("db/b.txt"), []byte("some no content"), 0o755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("dc/c.txt"), []byte("some no content"), 0o755), qt.IsNil)
+	c.Assert(afero.WriteFile(fs, filepath.FromSlash("de/e.txt"), []byte("some no content"), 0o755), qt.IsNil)
+
+	rm := []RootMapping{
+		{
+			From: "static",
+			To:   "da",
+		},
+		{
+			From: "static/b",
+			To:   "db",
+		},
+		{
+			From: "static/b/c",
+			To:   "dc",
+		},
+		{
+			From: "/static/e/",
+			To:   "de",
+		},
+		{
+			From: "/static/file.txt",
+			To:   "de/e.txt",
+		},
+	}
+
+	rfs, err := NewRootMappingFs(fs, rm...)
+	c.Assert(err, qt.IsNil)
+
+	checkBasicFileInfos := func(name string, expect []string) {
+		c.Helper()
+		name = filepath.FromSlash(name)
+		f, err := rfs.Open(name)
+		c.Assert(err, qt.IsNil)
+		defer f.Close()
+		infos, err := f.Readdir(-1)
+		c.Assert(err, qt.IsNil)
+		sortOrderFileInfo := func(i, j int) bool {
+			return infos[i].Name() < infos[j].Name()
+		}
+		sort.Slice(infos, sortOrderFileInfo)
+		actualNames := make([]string, len(infos))
+		for i, info := range infos {
+			actualNames[i] = info.Name()
+		}
+		expectNames := make([]string, len(expect))
+		expectInfos := make([]iofs.FileInfo, len(expect))
+		for i, name := range expect {
+			name = filepath.FromSlash(name)
+			fileInfo, err := rfs.Stat(name)
+			c.Assert(err, qt.IsNil)
+			expectInfos[i] = fileInfo
+
+			_, name = filepath.Split(name)
+			expectNames[i] = name
+		}
+
+		// check names
+		c.Assert(actualNames, qt.DeepEquals, expectNames, qt.Commentf(fmt.Sprintf("%#v", actualNames)))
+		// check other props
+		comp := func(x iofs.FileInfo, y iofs.FileInfo) bool {
+			if x == nil && y == nil {
+				return true
+			}
+			return x != nil && y != nil &&
+				x.Mode() == y.Mode() &&
+				x.ModTime() == y.ModTime() &&
+				x.Size() == y.Size() &&
+				x.Sys() == y.Sys()
+		}
+		c.Assert(infos, qt.CmpEquals(cmp.Comparer(comp)), expectInfos, qt.Commentf(fmt.Sprintf("%#v", infos)))
+	}
+	checkBasicFileInfos("static", []string{"static/a.txt", "static/b", "static/e", "static/file.txt"})
+	checkBasicFileInfos("", []string{"static"})
+}
+
 func TestRootMappingFsMountOverlap(t *testing.T) {
 	c := qt.New(t)
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
@@ -338,6 +427,7 @@ func TestRootMappingFsMountOverlap(t *testing.T) {
 		c.Assert(names, qt.DeepEquals, expect, qt.Commentf(fmt.Sprintf("%#v", names)))
 	}
 
+	checkDirnames(".", []string{"static"})
 	checkDirnames("static", []string{"a.txt", "b", "e"})
 	checkDirnames("static/b", []string{"b.txt", "c"})
 	checkDirnames("static/b/c", []string{"c.txt"})
