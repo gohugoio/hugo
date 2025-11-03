@@ -10,7 +10,7 @@ keywords: []
 
 Mathematical equations and expressions written in [LaTeX][] are common in academic and scientific publications. Your browser typically renders this mathematical markup using an open-source JavaScript display engine such as [MathJax][] or [KaTeX][].
 
-For example, with this LaTeX markup:
+For example, this LaTeX markup:
 
 ```text
 \[
@@ -21,7 +21,7 @@ JS(\hat{y} || y) &= \frac{1}{2}(KL(y||\frac{y+\hat{y}}{2}) + KL(\hat{y}||\frac{y
 \]
 ```
 
-The MathJax display engine renders this:
+Is rendered to:
 
 \[
 \begin{aligned}
@@ -195,7 +195,7 @@ To use KaTeX instead of MathJax, replace the _partial_ template from [Step 2][] 
   src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous"
-    onload="renderMathInElement(document.body);">
+  onload="renderMathInElement(document.body);">
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
