@@ -180,22 +180,22 @@ To use KaTeX instead of MathJax, replace the _partial_ template from [Step 2][] 
 ```go-html-template {file="layouts/_partials/math.html" copy=true}
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/katex.min.css"
-  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib"
+  href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css"
+  integrity="sha384-WcoG4HRXMzYzfCgiyfrySxx90XSl2rxY5mnVY5TwtWE6KLrArNKn0T/mOgNL0Mmi"
   crossorigin="anonymous"
 >
 <script
   defer
-  src="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/katex.min.js"
-  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh"
+  src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"
+  integrity="sha384-J+9dG2KMoiR9hqcFao0IBLwxt6zpcyN68IgwzsCSkbreXUjmNVRhPFTssqdSGjwQ"
   crossorigin="anonymous">
 </script>
 <script
   defer
-  src="https://cdn.jsdelivr.net/npm/katex@0.16.23/dist/contrib/auto-render.min.js"
+  src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/contrib/auto-render.min.js"
   integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
   crossorigin="anonymous"
-  onload="renderMathInElement(document.body);">
+    onload="renderMathInElement(document.body);">
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
