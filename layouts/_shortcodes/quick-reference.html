@@ -20,7 +20,8 @@ immediate descendants.
     {{ .Content }}
     {{ with .Pages }}
       {{ range . }}
-[{{ .LinkTitle }}]({{ .RelPermalink }}){{/* Do not indent. */}}
+{{/* Use page Path as the link destination for render hook to resolve correctly. */}}
+[{{ .LinkTitle }}]({{ .Path }}){{/* Do not indent. */}}
 : {{ .Description }}{{/* Do not indent. */}}
       {{ end }}
     {{ end }}
