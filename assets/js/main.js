@@ -47,9 +47,6 @@ var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 	bridgeTurboAndAlpine(Alpine);
 
 	{
-		// Minimal Analytics does not support SPA out of the box, so we need to manually track page views on Turbo navigation.
-		addEventListener('turbo:visit', () => window.track('page_view'));
-
 		let containerScrollTops = {};
 
 		// To preserve scroll position in scrolling elements on navigation add data-turbo-preserve-scroll-container="somename" to the scrolling container.
@@ -60,6 +57,13 @@ var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 		});
 
 		addEventListener('turbo:render', () => {
+			if (document.documentElement.hasAttribute('data-turbo-preview')) {
+				// Minimal Analytics does not support SPA out of the box, so we need to manually track page views on Turbo navigation.
+				// Render may be called twice, once for preview and once for the real render.
+				// Track only on the real render.
+				window.track('page_view');
+			}
+
 			document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((ele) => {
 				const containerScrollTop = containerScrollTops[ele.dataset.turboPreserveScrollContainer];
 				if (containerScrollTop) {
