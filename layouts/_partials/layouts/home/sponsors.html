@@ -15,13 +15,9 @@
             {{ $url = printf "%s?%s%s" .link $query_params (querify "utm_source" (.utm_source | default $utmSource ) "utm_medium" (.utm_medium | default "banner") "utm_campaign" (.utm_campaign | default "hugosponsor") "utm_content" (.utm_content | default "gohugoio")) | safeURL }}
           {{ end }}
           {{ $logo := resources.Get .logo }}
-          {{ $gtagID := printf "Sponsor %s %s" .name $gtag | title }}
           <a
             href="{{ $url }}"
             title="{{ .title | default .name }}"
-            {{ if hugo.IsProduction }}
-              onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }});"
-            {{ end }}
             class="group inline-block w-full h-full shadow-md dark:shadow-gray-600"
             {{ with .link_attr }}{{ . | safeHTMLAttr }}{{ end }}>
             <div

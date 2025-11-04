@@ -10,3 +10,5 @@ node_modules/
 nohup.out
 package-lock.json
 trace.out
+assets/jsconfig.json
+

@@ -47,6 +47,9 @@ var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 	bridgeTurboAndAlpine(Alpine);
 
 	{
+		// Minimal Analytics does not support SPA out of the box, so we need to manually track page views on Turbo navigation.
+		addEventListener('turbo:visit', () => window.track('page_view'));
+
 		let containerScrollTops = {};
 
 		// To preserve scroll position in scrolling elements on navigation add data-turbo-preserve-scroll-container="somename" to the scrolling container.

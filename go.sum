@@ -1,2 +1,4 @@
-github.com/gohugoio/gohugoioTheme v0.0.0-20250116152525-2d382cae7743 h1:gjoqq8+RnGwpuU/LQVYGGR/LsDplrfUjOabWwoROYsM=
-github.com/gohugoio/gohugoioTheme v0.0.0-20250116152525-2d382cae7743/go.mod h1:GOYeAPQJ/ok8z7oz1cjfcSlsFpXrmx6VkzQ5RpnyhZM=
+github.com/bep/hugo-mod-minimalanalytics v0.3.0 h1:fctZN3nFOFrapX1dhPBszyCUKOGjEpBJmp1jBf3YkJE=
+github.com/bep/hugo-mod-minimalanalytics v0.3.0/go.mod h1:3QVkKqSikBRTI+hS3dm/zCAfGukd+opSfAwfjkyxqIw=
+github.com/jahilldev/minimal-analytics v0.0.0-20220825110705-ee335ed38334 h1:r8/jLqGw5uwSmgJ4eSGbxa1XBaSIkp3MY99GhY61NeE=
+github.com/jahilldev/minimal-analytics v0.0.0-20220825110705-ee335ed38334/go.mod h1:w4l2fXZWGxmcVQfLLBdTqUT6HpSIA9FhmUtVArJFLYw=

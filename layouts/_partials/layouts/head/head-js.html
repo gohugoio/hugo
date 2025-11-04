@@ -1,3 +1,6 @@
+{{ if or hugo.IsProduction (not hugo.IsDevelopment) }}
+  {{ partial "minimalanalytics.html" . }}
+{{ end }}
 {{ $githubInfo := partialCached "helpers/funcs/get-github-info.html" . "-" }}
 {{ $opts := dict "minify" true }}
 {{ with resources.Get "js/head-early.js" | js.Build $opts }}
