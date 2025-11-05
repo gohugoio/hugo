@@ -265,7 +265,7 @@ func TestSort(t *testing.T) {
 func BenchmarkSortMap(b *testing.B) {
 	ns := newNs()
 	m := map[string]int{"1": 10, "2": 20, "3": 30, "4": 40, "5": 50}
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		ns.Sort(context.Background(), m)
 	}
 }

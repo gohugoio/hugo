@@ -278,7 +278,7 @@ func TestConvertIfPossibleMisc(t *testing.T) {
 
 func BenchmarkToInt64(b *testing.B) {
 	v := reflect.ValueOf(int(42))
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		ToInt64(v)
 	}
 }

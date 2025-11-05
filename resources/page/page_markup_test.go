@@ -172,10 +172,10 @@ func TestIsProbablyHTMLToken(t *testing.T) {
 }
 
 func BenchmarkSummaryFromHTML(b *testing.B) {
-	b.StopTimer()
+
 	input := "<p>First paragraph</p><p>Second paragraph</p>"
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		summary := ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 2, false)
 		if s := summary.Content(); s != input {
 			b.Fatalf("unexpected content: %q", s)
@@ -190,10 +190,10 @@ func BenchmarkSummaryFromHTML(b *testing.B) {
 }
 
 func BenchmarkSummaryFromHTMLWithDivider(b *testing.B) {
-	b.StopTimer()
+
 	input := "<p>First paragraph</p><p>FOOO</p><p>Second paragraph</p>"
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		summary := ExtractSummaryFromHTMLWithDivider(media.Builtin.MarkdownType, input, "FOOO")
 		if s := summary.Content(); s != "<p>First paragraph</p><p>Second paragraph</p>" {
 			b.Fatalf("unexpected content: %q", s)

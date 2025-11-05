@@ -54,8 +54,8 @@ func TestTrimShortHTML(t *testing.T) {
 
 func BenchmarkTrimShortHTML(b *testing.B) {
 	c := newTestContentSpec(nil)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		c.TrimShortHTML([]byte("<p>Simple paragraph</p>"), "markdown")
 	}
 }
@@ -134,8 +134,8 @@ func TestTotalWords(t *testing.T) {
 }
 
 func BenchmarkTotalWords(b *testing.B) {
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		wordCount := helpers.TotalWords(totalWordsBenchmarkString)
 		if wordCount != 400 {
 			b.Fatal("Wordcount error")

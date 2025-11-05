@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/url"
 	"reflect"
 	"strings"
@@ -103,9 +104,7 @@ func addValueFuncs(out map[string]reflect.Value, in FuncMap) {
 // addFuncs adds to values the functions in funcs. It does no checking of the input -
 // call addValueFuncs first.
 func addFuncs(out, in FuncMap) {
-	for name, fn := range in {
-		out[name] = fn
-	}
+	maps.Copy(out, in)
 }
 
 // goodFunc reports whether the function or method has the right result signature.

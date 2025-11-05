@@ -195,7 +195,6 @@ func TestTreePara(t *testing.T) {
 	)
 
 	for i := range 8 {
-		i := i
 		r.Run(func() error {
 			a := &testValue{ID: "/a"}
 			lock := tree.Lock(true)
@@ -302,7 +301,7 @@ type testValue struct {
 
 func BenchmarkTreeInsert(b *testing.B) {
 	runBench := func(b *testing.B, numElements int) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			tree := doctree.New(
 				doctree.Config[*testValue]{
 					Shifter: &testShifter{},
@@ -360,7 +359,7 @@ func BenchmarkWalk(b *testing.B) {
 		b.Run(fmt.Sprintf("Walk one dimension %d", numElements), func(b *testing.B) {
 			tree := createTree()
 			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				w := &doctree.NodeShiftTreeWalker[*testValue]{
 					Tree:   tree,
 					Handle: handle,
@@ -374,7 +373,7 @@ func BenchmarkWalk(b *testing.B) {
 		b.Run(fmt.Sprintf("Walk all dimensions %d", numElements), func(b *testing.B) {
 			base := createTree()
 			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				for d1 := range 1 {
 					for d2 := range 2 {
 						tree := base.Shape(sitesmatrix.Vector{d1, d2, 0})

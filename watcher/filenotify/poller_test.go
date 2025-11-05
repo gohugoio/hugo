@@ -185,7 +185,7 @@ func TestCheckChange(t *testing.T) {
 func BenchmarkPoller(b *testing.B) {
 	runBench := func(b *testing.B, item *itemToWatch) {
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			evs, err := item.checkForChanges()
 			if err != nil {
 				b.Fatal(err)

@@ -637,7 +637,7 @@ func TestHasExt(t *testing.T) {
 
 func BenchmarkParseIdentity(b *testing.B) {
 	parser := newTestParser()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		parser.ParseIdentity(files.ComponentFolderAssets, "/a/b.css")
 	}
 }
@@ -656,7 +656,7 @@ func TestSitesMatrixFromPath(t *testing.T) {
 func BenchmarkSitesMatrixFromPath(b *testing.B) {
 	parser := newTestParser()
 	p := parser.Parse(files.ComponentFolderContent, "/a/b/c.fr.md")
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		parser.SitesMatrixFromPath(p)
 	}
 }

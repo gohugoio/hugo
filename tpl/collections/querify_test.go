@@ -85,8 +85,7 @@ func BenchmarkQuerify(b *testing.B) {
 	ns := newNs()
 	params := []any{"a", "b", "c", "d", "f", " &"}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := ns.Querify(params...)
 		if err != nil {
 			b.Fatal(err)
@@ -98,8 +97,7 @@ func BenchmarkQuerifySlice(b *testing.B) {
 	ns := newNs()
 	params := []string{"a", "b", "c", "d", "f", " &"}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := ns.Querify(params)
 		if err != nil {
 			b.Fatal(err)
@@ -111,8 +109,7 @@ func BenchmarkQuerifyMap(b *testing.B) {
 	ns := newNs()
 	params := map[string]any{"a": "b", "c": "d", "f": " &"}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := ns.Querify(params)
 		if err != nil {
 			b.Fatal(err)

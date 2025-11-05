@@ -85,8 +85,8 @@ func (scp *ShortcodeWithPage) InnerDeindent() template.HTML {
 	scp.innerDeindentInit.Do(func() {
 		b := bp.GetBuffer()
 		text.VisitLinesAfter(string(scp.Inner), func(s string) {
-			if strings.HasPrefix(s, scp.indentation) {
-				b.WriteString(strings.TrimPrefix(s, scp.indentation))
+			if after, ok := strings.CutPrefix(s, scp.indentation); ok {
+				b.WriteString(after)
 			} else {
 				b.WriteString(s)
 			}

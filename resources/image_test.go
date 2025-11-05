@@ -469,7 +469,7 @@ func BenchmarkImageExif(b *testing.B) {
 	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []images.ImageResource {
 		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
 		imgs := make([]images.ImageResource, b.N)
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			imgs[i] = fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(images.ImageResource)
 		}
 		return imgs
@@ -487,7 +487,7 @@ func BenchmarkImageExif(b *testing.B) {
 		images := getImages(c, b, afero.NewMemMapFs())
 
 		b.StartTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			getAndCheckExif(c, images[i])
 		}
 	})
@@ -498,7 +498,7 @@ func BenchmarkImageExif(b *testing.B) {
 		images := getImages(c, b, afero.NewMemMapFs())
 
 		b.StartTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			for range 10 {
 				getAndCheckExif(c, images[i])
 			}
@@ -510,14 +510,14 @@ func BenchmarkImageExif(b *testing.B) {
 		c := qt.New(b)
 		fs := afero.NewMemMapFs()
 		images := getImages(c, b, fs)
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			getAndCheckExif(c, images[i])
 		}
 
 		images = getImages(c, b, fs)
 
 		b.StartTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			getAndCheckExif(c, images[i])
 		}
 	})

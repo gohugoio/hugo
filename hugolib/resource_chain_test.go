@@ -198,7 +198,7 @@ relPermalink": "/hello.min.a2d1cb24f24b322a7dad520414c523e9.html"
 }
 
 func BenchmarkResourceChainPostProcess(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		b.StopTimer()
 		s := newTestSitesBuilder(b)
 		for i := range 300 {
@@ -579,7 +579,6 @@ XML: {{ $xml.body }}
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			if !test.shouldRun() {
 				t.Skip()

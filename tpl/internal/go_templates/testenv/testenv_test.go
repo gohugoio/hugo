@@ -172,8 +172,8 @@ func TestCleanCmdEnvPWD(t *testing.T) {
 	cmd = testenv.CleanCmdEnv(cmd)
 
 	for _, env := range cmd.Env {
-		if strings.HasPrefix(env, "PWD=") {
-			pwd := strings.TrimPrefix(env, "PWD=")
+		if after, ok := strings.CutPrefix(env, "PWD="); ok {
+			pwd := after
 			if pwd != dir {
 				t.Errorf("unexpected PWD: want %s, got %s", dir, pwd)
 			}

@@ -197,7 +197,7 @@ func parseHighlightOptions(in string) (map[string]any, error) {
 		return opts, nil
 	}
 
-	for _, v := range strings.Split(in, ",") {
+	for v := range strings.SplitSeq(in, ",") {
 		keyVal := strings.Split(v, "=")
 		key := strings.Trim(keyVal[0], " ")
 		if len(keyVal) != 2 {
@@ -265,8 +265,8 @@ func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 	// 1-2 3
 	// 1 3-4
 	// 1    3-4
-	fields := strings.Split(s, " ")
-	for _, field := range fields {
+	fields := strings.SplitSeq(s, " ")
+	for field := range fields {
 		field = strings.TrimSpace(field)
 		if field == "" {
 			continue

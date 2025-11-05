@@ -73,8 +73,8 @@ func MakeTitle(inpath string) string {
 // MakeTitleInPath converts the path given to a suitable title, trimming whitespace
 func MakePathRelative(inPath string, possibleDirectories ...string) (string, error) {
 	for _, currentPath := range possibleDirectories {
-		if strings.HasPrefix(inPath, currentPath) {
-			return strings.TrimPrefix(inPath, currentPath), nil
+		if after, ok := strings.CutPrefix(inPath, currentPath); ok {
+			return after, nil
 		}
 	}
 	return inPath, errors.New("can't extract relative path, unknown prefix")
@@ -226,8 +226,8 @@ func ExtractRootPaths(paths []string) []string {
 	r := make([]string, len(paths))
 	for i, p := range paths {
 		root := filepath.ToSlash(p)
-		sections := strings.Split(root, "/")
-		for _, section := range sections {
+		sections := strings.SplitSeq(root, "/")
+		for section := range sections {
 			if section != "" {
 				root = section
 				break

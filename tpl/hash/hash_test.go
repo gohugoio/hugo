@@ -43,7 +43,7 @@ func BenchmarkXxHash(b *testing.B) {
 
 	runBench := func(name, input string, b *testing.B, fn func(v any)) {
 		b.Run(fmt.Sprintf("%s_%d", name, len(input)), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				fn(input)
 			}
 		})

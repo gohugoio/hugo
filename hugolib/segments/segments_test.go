@@ -144,8 +144,7 @@ func BenchmarkSegmentsMatch(b *testing.B) {
 
 	match := compileSegments(c, fields...)
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		match(SegmentQuery{Site: no, Output: "rss"})
 	}
 }

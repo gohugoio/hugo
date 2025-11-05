@@ -32,7 +32,7 @@ func BenchmarkTreeShiftTreeSlice(b *testing.B) {
 	v := sitesmatrix.Vector{10, 10, 10}
 	t := doctree.NewTreeShiftTree[string](v)
 	b.Run("New", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			for l1 := 0; l1 < v[0]; l1++ {
 				for l2 := 0; l2 < v[1]; l2++ {
 					for l3 := 0; l3 < v[2]; l3++ {
@@ -43,7 +43,7 @@ func BenchmarkTreeShiftTreeSlice(b *testing.B) {
 		}
 	})
 	b.Run("Shape", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			for l1 := 0; l1 < v[0]; l1++ {
 				for l2 := 0; l2 < v[1]; l2++ {
 					for l3 := 0; l3 < v[2]; l3++ {

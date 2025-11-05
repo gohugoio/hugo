@@ -24,7 +24,7 @@ func TestCacheSize(t *testing.T) {
 
 	cache := NewCacheWithOptions[string, string](CacheOptions{Size: 10})
 
-	for i := 0; i < 30; i++ {
+	for i := range 30 {
 		cache.Set(string(rune('a'+i)), "value")
 	}
 

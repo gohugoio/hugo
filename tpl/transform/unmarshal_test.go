@@ -206,8 +206,7 @@ func BenchmarkUnmarshalString(b *testing.B) {
 
 	ctx := context.Background()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		result, err := ns.Unmarshal(ctx, jsons[rand.Intn(numJsons)])
 		if err != nil {
 			b.Fatal(err)
@@ -235,8 +234,7 @@ func BenchmarkUnmarshalResource(b *testing.B) {
 
 	ctx := context.Background()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		result, err := ns.Unmarshal(ctx, jsons[rand.Intn(numJsons)])
 		if err != nil {
 			b.Fatal(err)

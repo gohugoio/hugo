@@ -405,7 +405,7 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	}
 
 	// Added for Hugo
-	for i := 0; i < len(first); i++ {
+	for i := range first {
 		argv[i] = s.validateType(first[i], typ.In(i))
 	}
 

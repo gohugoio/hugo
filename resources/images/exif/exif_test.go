@@ -99,8 +99,7 @@ func BenchmarkDecodeExif(b *testing.B) {
 	d, err := NewDecoder()
 	c.Assert(err, qt.IsNil)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err = d.Decode("", imagemeta.JPEG, f)
 		c.Assert(err, qt.IsNil)
 		f.Seek(0, 0)

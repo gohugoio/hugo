@@ -96,10 +96,10 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 	// Calculate lines, consider and include linebreaks
 	finalLines := []string{}
 	f.text = strings.ReplaceAll(f.text, "\r", "")
-	for _, line := range strings.Split(f.text, "\n") {
+	for line := range strings.SplitSeq(f.text, "\n") {
 		currentLine := ""
 		// Break each line at the maximum width.
-		for _, str := range strings.Fields(line) {
+		for str := range strings.FieldsSeq(line) {
 			fieldStrWidth := font.MeasureString(face, str)
 			currentLineStrWidth := font.MeasureString(face, currentLine)
 

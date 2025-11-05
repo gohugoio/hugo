@@ -36,7 +36,7 @@ func BenchmarkPagePathsBuilderPath(b *testing.B) {
 	defer putPagePathBuilder(pb)
 	pb.Add("foo", "bar")
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = pb.Path(0)
 	}
 }
@@ -48,7 +48,7 @@ func BenchmarkPagePathsBuilderPathDir(b *testing.B) {
 	pb.Add("foo", "bar")
 	pb.prefixPath = "foo/"
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = pb.PathDir()
 	}
 }

@@ -248,7 +248,7 @@ func BenchmarkInWithCaching(b *testing.B) {
 
 	ns := time.New(htime.NewTimeFormatter(translators.GetTranslator("en")), gtime.UTC, bb.H.Deps)
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		timeZoneName := timeZoneNames[i%len(timeZoneNames)]
 		_, err := ns.In(timeZoneName, gtime.Now())
 		if err != nil {
@@ -258,7 +258,7 @@ func BenchmarkInWithCaching(b *testing.B) {
 }
 
 func BenchmarkInWithoutCaching(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		timeZoneName := timeZoneNames[i%len(timeZoneNames)]
 		location, err := gtime.LoadLocation(timeZoneName)
 		if err != nil {

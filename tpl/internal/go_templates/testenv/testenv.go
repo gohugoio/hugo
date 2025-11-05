@@ -121,7 +121,7 @@ func GoToolPath(t testing.TB) string {
 	// Add all environment variables that affect the Go command to test metadata.
 	// Cached test results will be invalidate when these variables change.
 	// See golang.org/issue/32285.
-	for _, envVar := range strings.Fields(cfg.KnownEnv) {
+	for envVar := range strings.FieldsSeq(cfg.KnownEnv) {
 		os.Getenv(envVar)
 	}
 	return path
@@ -415,7 +415,7 @@ func WriteImportcfg(t testing.TB, dstPath string, packageFiles map[string]string
 			t.Fatalf("%v: %v\n%s", cmd, err, cmd.Stderr)
 		}
 
-		for _, line := range strings.Split(string(out), "\n") {
+		for line := range strings.SplitSeq(string(out), "\n") {
 			if line == "" {
 				continue
 			}

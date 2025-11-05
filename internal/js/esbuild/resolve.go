@@ -186,8 +186,8 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 		isStdin := importer == stdinImporter
 		var relDir string
 		if !isStdin {
-			if strings.HasPrefix(importer, PrefixHugoVirtual) {
-				relDir = filepath.Dir(strings.TrimPrefix(importer, PrefixHugoVirtual))
+			if after, ok := strings.CutPrefix(importer, PrefixHugoVirtual); ok {
+				relDir = filepath.Dir(after)
 			} else {
 				rel, found := fs.MakePathRelative(importer, true)
 

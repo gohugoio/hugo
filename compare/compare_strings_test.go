@@ -67,12 +67,12 @@ func BenchmarkStringSort(b *testing.B) {
 	prototype := []string{"b", "Bz", "zz", "ba", "αβδ αβδ αβδ", "A", "Ba", "ba", "nnnnasdfnnn", "AAgæåz", "αβδC"}
 	b.Run("LessStrings", func(b *testing.B) {
 		ss := make([][]string, b.N)
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			ss[i] = make([]string, len(prototype))
 			copy(ss[i], prototype)
 		}
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			sss := ss[i]
 			sort.Slice(sss, func(i, j int) bool {
 				return LessStrings(sss[i], sss[j])

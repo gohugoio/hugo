@@ -1125,11 +1125,11 @@ func BenchmarkSitesMatrixContent(b *testing.B) {
 		for _, multipleDimensions := range []bool{false, true} {
 			b.Run(fmt.Sprintf("n%d/md%t", numPages, multipleDimensions), func(b *testing.B) {
 				builders := make([]*hugolib.IntegrationTestBuilder, b.N)
-				for i := 0; i < b.N; i++ {
+				for i := 0; b.Loop(); i++ {
 					builders[i] = newSitesMatrixContentBenchmarkBuilder(b, numPages, true, true)
 				}
 				b.ResetTimer()
-				for i := 0; i < b.N; i++ {
+				for i := 0; b.Loop(); i++ {
 					builders[i].Build()
 				}
 			})

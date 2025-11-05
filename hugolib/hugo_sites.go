@@ -674,9 +674,9 @@ func (h *HugoSites) handleDataFile(r *source.File) error {
 	// Crawl in data tree to insert data
 	current = h.data
 	dataPath := r.FileInfo().Meta().PathInfo.Unnormalized().Dir()[1:]
-	keyParts := strings.Split(dataPath, "/")
+	keyParts := strings.SplitSeq(dataPath, "/")
 
-	for _, key := range keyParts {
+	for key := range keyParts {
 		if key != "" {
 			if _, ok := current[key]; !ok {
 				current[key] = make(map[string]any)

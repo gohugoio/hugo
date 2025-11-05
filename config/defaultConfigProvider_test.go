@@ -334,7 +334,6 @@ func TestDefaultConfigProvider(t *testing.T) {
 		}
 
 		for i := range 20 {
-			i := i
 			r.Run(func() error {
 				const v = 42
 				k := fmt.Sprintf("k%d", i)
@@ -478,7 +477,7 @@ func BenchmarkDefaultConfigProvider(b *testing.B) {
 
 	b.Run("Custom", func(b *testing.B) {
 		cfg := New()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runMethods(b, cfg)
 		}
 	})

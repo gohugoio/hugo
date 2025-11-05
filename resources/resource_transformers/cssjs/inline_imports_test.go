@@ -158,7 +158,7 @@ LOCAL_STYLE
 
 	logger := loggers.NewDefault()
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		b.StopTimer()
 		imp := newImportResolver(
 			strings.NewReader(mainStyles),

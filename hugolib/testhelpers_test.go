@@ -750,8 +750,8 @@ func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 	s.T.Helper()
 	content := s.FileContent(filename)
 	for _, m := range matches {
-		lines := strings.Split(m, "\n")
-		for _, match := range lines {
+		lines := strings.SplitSeq(m, "\n")
+		for match := range lines {
 			match = strings.TrimSpace(match)
 			if match == "" {
 				continue

@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"fmt"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -821,10 +822,8 @@ func (t *Tree) popVars(n int) {
 // variable is not defined.
 func (t *Tree) useVar(pos Pos, name string) Node {
 	v := t.newVariable(pos, name)
-	for _, varName := range t.vars {
-		if varName == v.Ident[0] {
-			return v
-		}
+	if slices.Contains(t.vars, v.Ident[0]) {
+		return v
 	}
 	t.errorf("undefined variable %q", v.Ident[0])
 	return nil

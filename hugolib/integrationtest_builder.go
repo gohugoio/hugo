@@ -408,8 +408,8 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 
 	for _, m := range matches {
 		cm := qt.Commentf("File: %s Expect: %s Got: %s", filename, m, content)
-		lines := strings.Split(m, "\n")
-		for _, match := range lines {
+		lines := strings.SplitSeq(m, "\n")
+		for match := range lines {
 			match = strings.TrimSpace(match)
 			if match == "" || strings.HasPrefix(match, "#") {
 				continue
@@ -463,8 +463,8 @@ func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
 	content := strings.TrimSpace((strings.Join(printFsLines, "\n")))
 	for _, m := range matches {
 		cm := qt.Commentf("Match: %q\nIn:\n%s", m, content)
-		lines := strings.Split(m, "\n")
-		for _, match := range lines {
+		lines := strings.SplitSeq(m, "\n")
+		for match := range lines {
 			match = strings.TrimSpace(match)
 			var negate bool
 			if strings.HasPrefix(match, hglob.NegationPrefix) {

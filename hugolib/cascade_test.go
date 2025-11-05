@@ -36,12 +36,12 @@ func BenchmarkCascade(b *testing.B) {
 			c := qt.New(b)
 			b.StopTimer()
 			builders := make([]*sitesBuilder, b.N)
-			for i := 0; i < b.N; i++ {
+			for i := 0; b.Loop(); i++ {
 				builders[i] = newCascadeTestBuilder(b, langs)
 			}
 			b.StartTimer()
 
-			for i := 0; i < b.N; i++ {
+			for i := 0; b.Loop(); i++ {
 				builder := builders[i]
 				err := builder.BuildE(BuildCfg{})
 				c.Assert(err, qt.IsNil)
@@ -83,7 +83,7 @@ kind = '{section,term}'
 
 		b.ResetTimer()
 
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			builders[i].Build()
 		}
 	})

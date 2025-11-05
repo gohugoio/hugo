@@ -52,7 +52,6 @@ func TestPara(t *testing.T) {
 		var result []int
 		var mu sync.Mutex
 		for i := range n {
-			i := i
 			r.Run(func() error {
 				mu.Lock()
 				defer mu.Unlock()

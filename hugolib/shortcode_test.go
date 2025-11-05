@@ -101,8 +101,6 @@ title: "Shortcodes Galore!"
 		{"inline", `{{< my.inline >}}Hi{{< /my.inline >}}`, regexpCheck("my.inline;inline:true;closing:true;inner:{Hi};")},
 	} {
 
-		test := test
-
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			c := qt.New(t)
@@ -266,7 +264,7 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 
 	cnt := 0
 	in := make([]input, b.N*len(data))
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		for _, this := range data {
 			replacements := make(map[string]shortcodeRenderer)
 			for k, v := range this.replacements {
@@ -280,10 +278,9 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 		}
 	}
 
-	b.ResetTimer()
 	cnt = 0
 	ctx := context.Background()
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		for j := range data {
 			currIn := in[cnt]
 			cnt++
@@ -345,9 +342,7 @@ title: "Markdown Shortcode"
 		builders[i] = NewIntegrationTestBuilder(cfg)
 	}
 
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		builders[i].Build()
 	}
 }
@@ -644,7 +639,6 @@ String: {{ . | safeHTML }}
 
 func TestInlineShortcodes(t *testing.T) {
 	for _, enableInlineShortcodes := range []bool{true, false} {
-		enableInlineShortcodes := enableInlineShortcodes
 		t.Run(fmt.Sprintf("enableInlineShortcodes=%t", enableInlineShortcodes),
 			func(t *testing.T) {
 				t.Parallel()

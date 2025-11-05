@@ -236,8 +236,7 @@ func TestPageSortByParamNumeric(t *testing.T) {
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
 	p := createSortTestPages(300)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		p = p.ByWeight().Reverse()
 	}
 }

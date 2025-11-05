@@ -194,7 +194,7 @@ func TestToJSON(t *testing.T) {
 func BenchmarkTypeOps(b *testing.B) {
 	mt := Builtin.MPEGType
 	mts := DefaultTypes
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		ff := mt.FirstSuffix
 		_ = ff.FullSuffix
 		_ = mt.IsZero()

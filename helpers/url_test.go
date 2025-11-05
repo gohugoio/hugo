@@ -259,8 +259,8 @@ func BenchmarkRelURL(b *testing.B) {
 	v := config.New()
 	v.Set("baseURL", "https://base/")
 	p := newTestPathSpecFromCfgAndLang(v, "")
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		_ = p.RelURL("https://base/foo/bar", false)
 	}
 }
@@ -271,12 +271,12 @@ func BenchmarkAbsURL(b *testing.B) {
 	p := newTestPathSpecFromCfgAndLang(v, "")
 	b.ResetTimer()
 	b.Run("relurl", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = p.AbsURL("foo/bar", false)
 		}
 	})
 	b.Run("absurl", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = p.AbsURL("https://base/foo/bar", false)
 		}
 	})

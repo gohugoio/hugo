@@ -182,8 +182,7 @@ func BenchmarkWalk(b *testing.B) {
 		return nil
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		w := NewWalkway(WalkwayConfig{Fs: fs, Root: "root", WalkFn: walkFn})
 
 		if err := w.Walk(); err != nil {

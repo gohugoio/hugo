@@ -187,7 +187,7 @@ func BenchmarkMergeByLanguage(b *testing.B) {
 	enSite := h.Sites[0]
 	nnSite := h.Sites[2]
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		merged := nnSite.RegularPages().MergeByLanguage(enSite.RegularPages())
 		if len(merged) != count {
 			b.Fatal("Count mismatch")

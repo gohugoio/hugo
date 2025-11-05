@@ -81,7 +81,7 @@ func BenchmarkGetGlob(b *testing.B) {
 			if err != nil {
 				b.Fatal(err)
 			}
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				_ = g.Match(search)
 			}
 		})
@@ -92,7 +92,7 @@ func BenchmarkGetGlob(b *testing.B) {
 	runBench("Filenames cache, mixed case searches", defaultGlobCache, "abCDe")
 
 	b.Run("GetGlob", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_, err := GetGlob("**/foo")
 			if err != nil {
 				b.Fatal(err)

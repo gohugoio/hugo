@@ -284,9 +284,7 @@ D.
 		builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
 	}
 
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		builders[i].Build()
 	}
 }
@@ -345,7 +343,7 @@ FENCE
 
 		b.ResetTimer()
 
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			builders[i].Build()
 		}
 	}

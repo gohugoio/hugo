@@ -214,8 +214,8 @@ func TestScratchGetSortedMapValues(t *testing.T) {
 func BenchmarkScratchGet(b *testing.B) {
 	scratch := NewScratch()
 	scratch.Add("A", 1)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		scratch.Get("A")
 	}
 }

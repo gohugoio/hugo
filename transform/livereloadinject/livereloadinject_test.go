@@ -136,8 +136,7 @@ func BenchmarkLiveReloadInject(b *testing.B) {
 	}
 	tr := transform.New(New(lrurl))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		in.Seek(0, 0)
 		tr.Apply(io.Discard, in)
 	}

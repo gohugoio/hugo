@@ -339,37 +339,37 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 
 	b.ResetTimer()
 	b.Run("sub set", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets2.Complement(sets1)
 		}
 	})
 
 	b.Run("super set", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.Complement(sets2)
 		}
 	})
 
 	b.Run("self", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.Complement(sets1)
 		}
 	})
 
 	b.Run("self multiple", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.Complement(sets1, sets1, sets1, sets1, sets1, sets1, sets1)
 		}
 	})
 
 	b.Run("same", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.Complement(sets1Copy)
 		}
 	})
 
 	b.Run("one overlapping language", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = setsLanguage1.Complement(sets1)
 		}
 	})
@@ -399,7 +399,7 @@ func BenchmarkSets(b *testing.B) {
 
 	b.ResetTimer()
 	b.Run("Build", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 				maps.NewOrderedIntSet(1, 2),
 				maps.NewOrderedIntSet(1, 2, 3),
@@ -408,32 +408,32 @@ func BenchmarkSets(b *testing.B) {
 		}
 	})
 	b.Run("HasVector", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.HasVector(v1)
 			_ = sets1.HasVector(v2)
 		}
 	})
 
 	b.Run("HasAnyVector", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.HasAnyVector(sets2)
 		}
 	})
 
 	b.Run("FirstVector", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.VectorSample()
 		}
 	})
 
 	b.Run("LenVectors", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.LenVectors()
 		}
 	})
 
 	b.Run("ForEachVector", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			allCount := 0
 			ok := sets1.ForEachVector(func(v sitesmatrix.Vector) bool {
 				allCount++
@@ -452,7 +452,7 @@ func BenchmarkSets(b *testing.B) {
 	})
 
 	b.Run("EqualsVector pointer equal", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			if !sets1.EqualsVector(sets1) {
 				b.Fatal("Expected sets1 to equal itself")
 			}
@@ -460,7 +460,7 @@ func BenchmarkSets(b *testing.B) {
 	})
 
 	b.Run("EqualsVector equal copy", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			if !sets1.EqualsVector(sets1Copy) {
 				b.Fatal("Expected sets1 to equal its copy")
 			}
@@ -468,7 +468,7 @@ func BenchmarkSets(b *testing.B) {
 	})
 
 	b.Run("EqualsVector different sets", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			if sets1.EqualsVector(sets2) {
 				b.Fatal("Expected sets1 to not equal sets2")
 			}
@@ -476,7 +476,7 @@ func BenchmarkSets(b *testing.B) {
 	})
 
 	b.Run("Distance", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = sets1.VectorSample().Distance(v1)
 			_ = sets1.VectorSample().Distance(v2)
 		}

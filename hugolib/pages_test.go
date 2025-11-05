@@ -77,7 +77,7 @@ func BenchmarkPagesPrevNext(b *testing.B) {
 					pages = variant.preparePages(pages)
 				}
 				b.StartTimer()
-				for i := 0; i < b.N; i++ {
+				for b.Loop() {
 					p := pages[rand.Intn(len(pages))]
 					variant.run(p, pages)
 				}
@@ -109,7 +109,7 @@ func BenchmarkPagePageCollections(b *testing.B) {
 					}
 				}
 				b.StartTimer()
-				for i := 0; i < b.N; i++ {
+				for b.Loop() {
 					p := pages[rand.Intn(len(pages))]
 					variant.run(p)
 				}

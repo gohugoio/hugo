@@ -195,7 +195,6 @@ func TestDictionary(t *testing.T) {
 		{[]any{5, "b"}, false},
 		{[]any{"a", "b", "c"}, false},
 	} {
-		i := i
 		test := test
 		c.Run(fmt.Sprint(i), func(c *qt.C) {
 			c.Parallel()
@@ -812,7 +811,7 @@ func BenchmarkD2(b *testing.B) {
 	runBenchmark := func(seed, n, max int) {
 		name := fmt.Sprintf("n=%d,max=%d", n, max)
 		b.Run(name, func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				ns.D(seed, n, max)
 			}
 		})

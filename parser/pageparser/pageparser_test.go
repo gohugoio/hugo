@@ -40,8 +40,7 @@ This is some summary. This is some summary. This is some summary. This is some s
 	input := []byte(start + strings.Repeat(strings.Repeat("this is text", 30)+"{{< myshortcode >}}This is some inner content.{{< /myshortcode >}}", 10))
 	cfg := Config{}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		if _, err := parseBytes(input, cfg, lexIntroSection); err != nil {
 			b.Fatal(err)
 		}
@@ -90,13 +89,13 @@ func BenchmarkHasShortcode(b *testing.B) {
 	withShortcode := strings.Repeat("this is text", 30) + "{{< myshortcode >}}This is some inner content.{{< /myshortcode >}}" + strings.Repeat("this is text", 30)
 	withoutShortcode := strings.Repeat("this is text", 30) + "This is some inner content." + strings.Repeat("this is text", 30)
 	b.Run("Match", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			HasShortcode(withShortcode)
 		}
 	})
 
 	b.Run("NoMatch", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			HasShortcode(withoutShortcode)
 		}
 	})

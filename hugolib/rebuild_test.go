@@ -102,7 +102,7 @@ My Other Text: {{ $r.Content }}|{{ $r.Permalink }}|
 
 func TestRebuildEditLeafBundleHeaderOnly(t *testing.T) {
 	t.Parallel()
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		b := TestRunning(t, rebuildFilesSimple)
 		b.AssertFileContent("public/mysection/mysectionbundle/index.html",
 			"My Section Bundle Content Content.")
@@ -1797,8 +1797,7 @@ func BenchmarkRebuildContentFileChange(b *testing.B) {
 		builders[i].Build()
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		bb := builders[i]
 		bb.EditFileReplaceFunc("content/mysect/p123/index.md", func(s string) string {
 			return s + "... Edited"

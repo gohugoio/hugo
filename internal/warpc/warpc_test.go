@@ -263,8 +263,7 @@ func BenchmarkExecuteKatex(b *testing.B) {
 
 	input := katexInputTemplate
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		message := Message[KatexInput]{
 			Header: Header{
 				Version: currentVersion,
@@ -293,7 +292,7 @@ func BenchmarkKatexStartStop(b *testing.B) {
 	}
 
 	runBench := func(b *testing.B, opts Options) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			d, err := Start[KatexInput, KatexOutput](opts)
 			if err != nil {
 				b.Fatal(err)
@@ -389,8 +388,7 @@ func BenchmarkExecuteGreet(b *testing.B) {
 		Name: "Person",
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		message := Message[person]{
 			Header: Header{
 				Version: currentVersion,

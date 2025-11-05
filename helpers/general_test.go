@@ -214,8 +214,8 @@ func TestGetTitleFunc(t *testing.T) {
 }
 
 func BenchmarkReaderContains(b *testing.B) {
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		for i, this := range containsBenchTestData {
 			result := helpers.ReaderContains(strings.NewReader(this.v1), this.v2)
 			if result != this.expect {

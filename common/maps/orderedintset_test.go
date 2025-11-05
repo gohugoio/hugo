@@ -68,31 +68,31 @@ func BenchmarkOrderedIntSet(b *testing.B) {
 	}
 
 	b.Run("New", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			NewOrderedIntSet(1, 2, 3, 4, 5, 6, 7, 8)
 		}
 	})
 
 	b.Run("Has small", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			smallSet.Has(i % 32)
 		}
 	})
 
 	b.Run("Has medium", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			mediumSet.Has(i % 32)
 		}
 	})
 
 	b.Run("Next", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			mediumSet.Next(i % 32)
 		}
 	})
 
 	b.Run("ForEachKey small", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			smallSet.ForEachKey(func(key int) bool {
 				return true
 			})
@@ -100,7 +100,7 @@ func BenchmarkOrderedIntSet(b *testing.B) {
 	})
 
 	b.Run("ForEachKey medium", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			mediumSet.ForEachKey(func(key int) bool {
 				return true
 			})
@@ -108,7 +108,7 @@ func BenchmarkOrderedIntSet(b *testing.B) {
 	})
 
 	b.Run("ForEachKey large", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			largeSet.ForEachKey(func(key int) bool {
 				return true
 			})

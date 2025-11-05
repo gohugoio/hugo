@@ -740,7 +740,7 @@ baseof: {{ block "main" . }}{{ end }}
 			Category: tplimpl.CategoryLayout,
 			Desc:     tplimpl.TemplateDescriptor{Kind: kinds.KindPage, LayoutFromTemplate: "single", OutputFormat: "html"},
 		}
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			store.LookupPagesLayout(q)
 		}
 	})
@@ -751,7 +751,7 @@ baseof: {{ block "main" . }}{{ end }}
 			Category: tplimpl.CategoryLayout,
 			Desc:     tplimpl.TemplateDescriptor{Kind: kinds.KindPage, LayoutFromTemplate: "single", OutputFormat: "html"},
 		}
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			store.LookupPagesLayout(q)
 		}
 	})
@@ -761,8 +761,7 @@ func BenchmarkNewTemplateStore(b *testing.B) {
 	bb := hugolib.Test(b, newSetupTestSites)
 	store := bb.H.TemplateStore
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		newStore, err := store.NewFromOpts()
 		if err != nil {
 			b.Fatal(err)
@@ -1416,8 +1415,7 @@ p3
 	p := bb.H.Sites[0].RegularPages()[0]
 	bb.Assert(p, qt.Not(qt.IsNil))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		err := store.ExecuteWithContext(context.Background(), ti, io.Discard, p)
 		if err != nil {
 			b.Fatal(err)
@@ -1440,7 +1438,7 @@ disableKinds = ["taxonomy", "term", "home"]
 
 	store := bb.H.TemplateStore
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		fi := store.LookupPartial("p3.html")
 		if fi == nil {
 			b.Fatal("not found")
@@ -1486,14 +1484,14 @@ s2.
 
 	b.Run("toplevelpage", func(b *testing.B) {
 		toplevelpage, _ := bb.H.Sites[0].GetPage("/toplevelpage")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOne(toplevelpage)
 		}
 	})
 
 	b.Run("nestedpage", func(b *testing.B) {
 		toplevelpage, _ := bb.H.Sites[0].GetPage("/a/b/c/nested")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOne(toplevelpage)
 		}
 	})

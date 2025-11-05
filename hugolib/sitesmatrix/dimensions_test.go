@@ -49,7 +49,7 @@ func BenchmarkCompare(b *testing.B) {
 	b.Run("Equal", func(b *testing.B) {
 		v1 := Vector{1, 2, 3}
 		v2 := Vector{1, 2, 3}
-		for range b.N {
+		for b.Loop() {
 			v1.Compare(v2)
 		}
 	})
@@ -57,7 +57,7 @@ func BenchmarkCompare(b *testing.B) {
 	b.Run("First different", func(b *testing.B) {
 		v1 := Vector{1, 2, 3}
 		v2 := Vector{2, 2, 3}
-		for range b.N {
+		for b.Loop() {
 			v1.Compare(v2)
 		}
 	})
@@ -65,7 +65,7 @@ func BenchmarkCompare(b *testing.B) {
 	b.Run("Last different", func(b *testing.B) {
 		v1 := Vector{1, 2, 3}
 		v2 := Vector{1, 2, 4}
-		for range b.N {
+		for b.Loop() {
 			v1.Compare(v2)
 		}
 	})

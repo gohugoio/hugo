@@ -43,8 +43,7 @@ func BenchmarkHashImage(b *testing.B) {
 	}
 	defer f.Close()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, _, err := hashImage(f)
 		if err != nil {
 			b.Fatal(err)

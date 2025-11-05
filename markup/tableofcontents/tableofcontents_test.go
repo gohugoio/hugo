@@ -204,12 +204,12 @@ func BenchmarkToc(b *testing.B) {
 
 	b.Run("Build", func(b *testing.B) {
 		var builders []Builder
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			builders = append(builders, newTestTocBuilder())
 		}
 		b.ResetTimer()
 
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			b := builders[i]
 			b.Build()
 		}
@@ -218,7 +218,7 @@ func BenchmarkToc(b *testing.B) {
 	b.Run("ToHTML", func(b *testing.B) {
 		tocs := newTocs(b.N)
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			toc := tocs[i]
 			toc.ToHTML(1, -1, false)
 		}

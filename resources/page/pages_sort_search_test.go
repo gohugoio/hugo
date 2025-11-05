@@ -99,7 +99,7 @@ func BenchmarkSearchPage(b *testing.B) {
 					pages = variant.preparePages(pages)
 				}
 				b.StartTimer()
-				for i := 0; i < b.N; i++ {
+				for b.Loop() {
 					j := rand.Intn(numPages)
 					k := variant.search(pages[j], pages)
 					if k != j {

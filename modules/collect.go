@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
@@ -148,11 +149,8 @@ func filterDuplicateMounts(mounts []Mount) []Mount {
 	var x []Mount
 	for _, m1 := range mounts {
 		var found bool
-		for _, m2 := range x {
-			if m1.Equal(m2) {
-				found = true
-				break
-			}
+		if slices.ContainsFunc(x, m1.Equal) {
+			found = true
 		}
 		if !found {
 			x = append(x, m1)

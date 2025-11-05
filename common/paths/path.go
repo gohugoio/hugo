@@ -115,8 +115,8 @@ func ReplaceExtension(path string, newExt string) string {
 
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
 	for _, currentPath := range possibleDirectories {
-		if strings.HasPrefix(inPath, currentPath) {
-			return strings.TrimPrefix(inPath, currentPath), nil
+		if after, ok := strings.CutPrefix(inPath, currentPath); ok {
+			return after, nil
 		}
 	}
 	return inPath, errors.New("can't extract relative path, unknown prefix")

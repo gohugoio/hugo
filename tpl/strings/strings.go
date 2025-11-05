@@ -87,7 +87,7 @@ func (ns *Namespace) CountWords(s any) (int, error) {
 	}
 
 	counter := 0
-	for _, word := range strings.Fields(tpl.StripHTML(ss)) {
+	for word := range strings.FieldsSeq(tpl.StripHTML(ss)) {
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			counter++

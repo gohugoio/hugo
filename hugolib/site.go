@@ -363,7 +363,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	sitesVersionsRoles := make([][][]*Site, len(sites))
 	for i := 0; i < len(sites); i++ {
 		sitesVersionsRoles[i] = make([][]*Site, len(versionsSorted))
-		for j := 0; j < len(versionsSorted); j++ {
+		for j := range versionsSorted {
 			sitesVersionsRoles[i][j] = make([]*Site, len(rolesSorted))
 		}
 	}

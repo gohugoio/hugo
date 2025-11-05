@@ -886,19 +886,19 @@ func BenchmarkWhereOps(b *testing.B) {
 	}
 
 	b.Run("eq", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOps(b, "eq", "bar")
 		}
 	})
 
 	b.Run("ne", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOps(b, "ne", "baz")
 		}
 	})
 
 	b.Run("like", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOps(b, "like", "^bar")
 		}
 	})
@@ -912,7 +912,7 @@ func BenchmarkWhereMap(b *testing.B) {
 		seq[fmt.Sprintf("key%d", i)] = "value"
 	}
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := ns.Where(context.Background(), seq, "key", "eq", "value")
 		if err != nil {
 			b.Fatal(err)
@@ -931,8 +931,8 @@ func BenchmarkWhereSliceOfStructPointersWithMethod(b *testing.B) {
 			seq = append(seq, &TstX{A: "baz", B: "qux"})
 		}
 	}
-	b.ResetTimer()
-	for range b.N {
+
+	for b.Loop() {
 		_, err := ns.Where(context.Background(), seq, "TstRv2", "eq", "bar")
 		if err != nil {
 			b.Fatal(err)

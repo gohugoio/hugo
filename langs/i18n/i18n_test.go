@@ -507,7 +507,7 @@ func BenchmarkI18nTranslate(b *testing.B) {
 		b.Run(test.name, func(b *testing.B) {
 			tp := prepareTranslationProvider(b, test, v)
 			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				f := tp.t.Func(test.lang)
 				actual := f(context.Background(), test.id, test.args)
 				if actual != test.expected {

@@ -74,7 +74,6 @@ tabspace
 	}
 
 	for i, input := range testlines {
-		input := input
 		expect := expectlines[i]
 		c.Run(input, func(c *qt.C) {
 			b := []byte(input)
@@ -100,8 +99,8 @@ func TestSanitizeAnchorNameBlackfriday(t *testing.T) {
 
 func BenchmarkSanitizeAnchorName(b *testing.B) {
 	input := []byte("God is good: 神真美好")
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		result := sanitizeAnchorName(input, goldmark_config.AutoIDTypeGitHub)
 		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))
@@ -111,8 +110,8 @@ func BenchmarkSanitizeAnchorName(b *testing.B) {
 
 func BenchmarkSanitizeAnchorNameAsciiOnly(b *testing.B) {
 	input := []byte("God is good: 神真美好")
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		result := sanitizeAnchorName(input, goldmark_config.AutoIDTypeGitHubAscii)
 		if len(result) != 12 {
 			b.Fatalf("got %d", len(result))
@@ -122,8 +121,8 @@ func BenchmarkSanitizeAnchorNameAsciiOnly(b *testing.B) {
 
 func BenchmarkSanitizeAnchorNameBlackfriday(b *testing.B) {
 	input := []byte("God is good: 神真美好")
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		result := sanitizeAnchorName(input, goldmark_config.AutoIDTypeBlackfriday)
 		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))
@@ -133,8 +132,8 @@ func BenchmarkSanitizeAnchorNameBlackfriday(b *testing.B) {
 
 func BenchmarkSanitizeAnchorNameString(b *testing.B) {
 	input := "God is good: 神真美好"
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		result := sanitizeAnchorNameString(input, goldmark_config.AutoIDTypeGitHub)
 		if len(result) != 24 {
 			b.Fatalf("got %d", len(result))

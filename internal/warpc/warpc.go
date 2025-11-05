@@ -435,7 +435,6 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	run := func() error {
 		g, ctx := errgroup.WithContext(ctx)
 		for _, c := range inOuts {
-			c := c
 			g.Go(func() error {
 				var errBuff bytes.Buffer
 				ctx := context.WithoutCancel(ctx)

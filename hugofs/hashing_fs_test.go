@@ -59,9 +59,7 @@ func BenchmarkHashingFs(b *testing.B) {
 	ofs := NewHashingFs(fs, observer)
 	content := []byte(strings.Repeat("lorem ipsum ", 1000))
 
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		f, err := ofs.Create(fmt.Sprintf("file%d", i))
 		if err != nil {
 			b.Fatal(err)

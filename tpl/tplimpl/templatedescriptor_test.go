@@ -95,8 +95,7 @@ func BenchmarkCompareDescriptors(b *testing.B) {
 		},
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		for _, pair := range pairs {
 			_ = dh.compareDescriptors(CategoryLayout, pair.d1, pair.d2, nil, nil)
 		}

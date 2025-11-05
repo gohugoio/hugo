@@ -280,8 +280,8 @@ func BenchmarkShortcodeLexer(b *testing.B) {
 		testInputs[i] = []byte(input.input)
 	}
 	var cfg Config
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		for _, input := range testInputs {
 			_, err := collectWithConfig(input, true, lexMainSection, cfg)
 			if err != nil {

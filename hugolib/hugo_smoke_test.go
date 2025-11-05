@@ -330,7 +330,7 @@ Single: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {
 
 `
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		b := Test(t, files)
 		b.AssertFileContent("public/index.html", `List: |/|html: /|rss: /index.xml|$`)
 		b.AssertFileContent("public/index.xml", `List xml: |/|html: /|rss: /index.xml|$`)
@@ -749,8 +749,7 @@ func BenchmarkBaseline(b *testing.B) {
 		builders[i] = NewIntegrationTestBuilder(cfg)
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		builders[i].Build()
 	}
 }

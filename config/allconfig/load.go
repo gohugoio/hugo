@@ -220,8 +220,8 @@ func (l configLoader) applyOsEnvOverrides(environ []string) error {
 	var hugoEnv []types.KeyValueStr
 	for _, v := range environ {
 		key, val := config.SplitEnvVar(v)
-		if strings.HasPrefix(key, hugoEnvPrefix) {
-			delimiterAndKey := strings.TrimPrefix(key, hugoEnvPrefix)
+		if after, ok := strings.CutPrefix(key, hugoEnvPrefix); ok {
+			delimiterAndKey := after
 			if len(delimiterAndKey) < 2 {
 				continue
 			}

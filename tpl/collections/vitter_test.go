@@ -42,7 +42,7 @@ func TestInspectCounts(t *testing.T) {
 	const k = 10
 	const iters = 10000
 	counts := make([]int, max)
-	for i := 0; i < iters; i++ {
+	for range iters {
 		testD(prng, t, k, max, func(n int) {
 			counts[n]++
 		})
@@ -87,7 +87,7 @@ func BenchmarkD(b *testing.B) {
 	// TODO: count rng calls?
 	for _, want := range []int{1, 100, 10000} {
 		b.Run(fmt.Sprintf("want=%d", want), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				_d(prng, want, 1000000, func(int) {})
 			}
 		})

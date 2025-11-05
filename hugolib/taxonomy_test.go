@@ -877,7 +877,7 @@ GetTerms.tags: {{ range .GetTerms "tags" }}{{ .Title }}|{{ end }}
 	for _, numPages := range []int{100, 1000, 10000, 20000} {
 		b.Run(fmt.Sprintf("pages_%d", numPages), func(b *testing.B) {
 			builders := createBuilders(b, numPages)
-			for i := 0; i < b.N; i++ {
+			for i := 0; b.Loop(); i++ {
 				builders[i].Build()
 			}
 		})

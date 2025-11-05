@@ -67,7 +67,7 @@ func BenchmarkOnceMoreValue(b *testing.B) {
 		return counter
 	}
 
-	for range b.N {
+	for b.Loop() {
 		omf := OnceMoreValue(f)
 		for range 10 {
 			omf.Value(context.Background())

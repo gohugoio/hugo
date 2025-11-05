@@ -33,7 +33,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 	}
 
 	b.Run("identity.NewManager", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			m := identity.NewManager()
 			if m == nil {
 				b.Fatal("manager is nil")
@@ -46,7 +46,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 		im := identity.NewManager()
 
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			im.AddIdentity(ids[i])
 		}
 
@@ -58,7 +58,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 		im := identity.NewManager()
 
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			im.AddIdentity(id)
 		}
 
@@ -67,33 +67,33 @@ func BenchmarkIdentityManager(b *testing.B) {
 
 	b.Run("Nop StringIdentity const", func(b *testing.B) {
 		const id = identity.StringIdentity("test")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(id)
 		}
 	})
 
 	b.Run("Nop StringIdentity const other package", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(identitytesting.TestIdentity)
 		}
 	})
 
 	b.Run("Nop StringIdentity var", func(b *testing.B) {
 		id := identity.StringIdentity("test")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(id)
 		}
 	})
 
 	b.Run("Nop pointer identity", func(b *testing.B) {
 		id := &testIdentity{base: "a", name: "b"}
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(id)
 		}
 	})
 
 	b.Run("Nop Anonymous", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(identity.Anonymous)
 		}
 	})
@@ -101,7 +101,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 
 func BenchmarkIsNotDependent(b *testing.B) {
 	runBench := func(b *testing.B, id1, id2 identity.Identity) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			isNotDependent(id1, id2)
 		}
 	}

@@ -37,7 +37,7 @@ func ExternallyRenderContent(
 
 	// Most external helpers exit w/ non-zero exit code only if severe, i.e.
 	// halting errors occurred. -> log stderr output regardless of state of err
-	for _, item := range strings.Split(cmderr.String(), "\n") {
+	for item := range strings.SplitSeq(cmderr.String(), "\n") {
 		item := strings.TrimSpace(item)
 		if item != "" {
 			if err == nil {

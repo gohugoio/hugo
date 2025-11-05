@@ -183,8 +183,8 @@ func (b *BaseFs) AbsProjectContentDir(filename string) (string, string, error) {
 		} else {
 			contentDir := strings.TrimPrefix(strings.TrimPrefix(meta.Filename, meta.BaseDir), filePathSeparator) + filePathSeparator
 
-			if strings.HasPrefix(filename, contentDir) {
-				relFilename := strings.TrimPrefix(filename, contentDir)
+			if after, ok := strings.CutPrefix(filename, contentDir); ok {
+				relFilename := after
 				absFilename := filepath.Join(meta.Filename, relFilename)
 				return relFilename, absFilename, nil
 			}

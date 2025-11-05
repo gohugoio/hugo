@@ -216,7 +216,7 @@ c: "d"
 
 `)
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := d.UnmarshalToMap(data, YAML)
 		if err != nil {
 			b.Fatal(err)
@@ -256,7 +256,7 @@ params:
 	for _, tt := range yamlTests {
 
 		b.Run(tt.Title+" no validation", func(b *testing.B) {
-			for range b.N {
+			for b.Loop() {
 				var v any
 				if err := unmarshalYamlNoValidation(tt.Content, &v); err != nil {
 					b.Fatal(err)
@@ -265,7 +265,7 @@ params:
 		})
 
 		b.Run(tt.Title+" with validation", func(b *testing.B) {
-			for range b.N {
+			for b.Loop() {
 				var v any
 				err := UnmarshalYaml(tt.Content, &v)
 				if tt.IsExpectedToFailValidation {

@@ -137,7 +137,6 @@ func TestMerge(t *testing.T) {
 		{"all nil", []any{nil, nil}, nil, true},
 	} {
 
-		test := test
 		i := i
 
 		t.Run(test.name, func(t *testing.T) {
@@ -162,7 +161,7 @@ func TestMerge(t *testing.T) {
 func BenchmarkMerge(b *testing.B) {
 	ns := newNs()
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		ns.Merge(
 			map[string]any{"a": 42, "c": 3, "e": 11},
 			map[string]any{"a": 1, "b": 2},

@@ -80,8 +80,7 @@ func BenchmarkPageCache(b *testing.B) {
 	}
 	key := "key"
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		cache.getP(key, nil, pages)
 	}
 }

@@ -804,7 +804,7 @@ func count(n int) chan string {
 	}
 	c := make(chan string)
 	go func() {
-		for i := 0; i < n; i++ {
+		for i := range n {
 			c <- "abcdefghijklmnop"[i : i+1]
 		}
 		close(c)
@@ -1714,8 +1714,8 @@ func TestInterfaceValues(t *testing.T) {
 			"Nil":   nil,
 			"Zero":  0,
 		})
-		if strings.HasPrefix(tt.out, "ERROR:") {
-			e := strings.TrimSpace(strings.TrimPrefix(tt.out, "ERROR:"))
+		if after, ok := strings.CutPrefix(tt.out, "ERROR:"); ok {
+			e := strings.TrimSpace(after)
 			if err == nil || !strings.Contains(err.Error(), e) {
 				t.Errorf("%s: Execute: %v, want error %q", tt.text, err, e)
 			}
@@ -1940,7 +1940,7 @@ func TestIssue39807(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for j := 0; j < numTemplates; j++ {
+			for range numTemplates {
 				_, err := tplFoo.AddParseTree(tplBar.Name(), tplBar.Tree)
 				if err != nil {
 					t.Error(err)

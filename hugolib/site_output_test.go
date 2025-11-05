@@ -30,7 +30,6 @@ import (
 
 func TestSiteWithPageOutputs(t *testing.T) {
 	for _, outputs := range [][]string{{"html", "json", "calendar"}, {"json"}} {
-		outputs := outputs
 		t.Run(fmt.Sprintf("%v", outputs), func(t *testing.T) {
 			t.Parallel()
 			doTestSiteWithPageOutputs(t, outputs)

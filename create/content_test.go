@@ -74,7 +74,6 @@ func TestNewContentFromFile(t *testing.T) {
 	c := qt.New(t)
 
 	for i, cas := range cases {
-		cas := cas
 
 		c.Run(cas.name, func(c *qt.C) {
 			c.Parallel()

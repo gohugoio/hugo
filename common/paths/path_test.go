@@ -225,7 +225,7 @@ func BenchmarkSanitize(b *testing.B) {
 
 	// This should not allocate any memory.
 	b.Run("All allowed", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := Sanitize(allAlowedPath)
 			if got != allAlowedPath {
 				b.Fatal(got)
@@ -235,7 +235,7 @@ func BenchmarkSanitize(b *testing.B) {
 
 	// This will allocate some memory.
 	b.Run("Spaces", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := Sanitize(spacePath)
 			if got != "foo-bar" {
 				b.Fatal(got)
@@ -320,7 +320,7 @@ func BenchmarkAddLeadingSlash(b *testing.B) {
 
 	// This should not allocate any memory.
 	b.Run("With leading slash", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := AddLeadingSlash(withLeadingSlash)
 			if got != withLeadingSlash {
 				b.Fatal(got)
@@ -330,7 +330,7 @@ func BenchmarkAddLeadingSlash(b *testing.B) {
 
 	// This will allocate some memory.
 	b.Run("Without leading slash", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := AddLeadingSlash(noLeadingSlash)
 			if got != "/a/b/c" {
 				b.Fatal(got)
@@ -339,7 +339,7 @@ func BenchmarkAddLeadingSlash(b *testing.B) {
 	})
 
 	b.Run("Blank string", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := AddLeadingSlash("")
 			if got != "/" {
 				b.Fatal(got)

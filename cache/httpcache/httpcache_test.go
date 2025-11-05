@@ -52,7 +52,7 @@ func TestDefaultConfig(t *testing.T) {
 func TestDecodeConfigInjectsDefaultAndCompiles(t *testing.T) {
 	c := qt.New(t)
 
-	cfg, err := DecodeConfig(config.BaseConfig{}, map[string]interface{}{})
+	cfg, err := DecodeConfig(config.BaseConfig{}, map[string]any{})
 	c.Assert(err, qt.IsNil)
 	c.Assert(cfg, qt.DeepEquals, DefaultConfig)
 

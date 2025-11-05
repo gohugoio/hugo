@@ -344,7 +344,7 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 	}
 
 	b.Run("singles", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			idx := NewInvertedIndex(cfg)
 			for _, doc := range pages {
 				idx.Add(context.Background(), doc)
@@ -353,7 +353,7 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 	})
 
 	b.Run("all", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			idx := NewInvertedIndex(cfg)
 			docs := make([]Document, len(pages))
 			for i := range pages {
@@ -401,9 +401,8 @@ func BenchmarkRelatedMatchesIn(b *testing.B) {
 		idx.Add(context.Background(), newTestDoc(index, allKeywords[start:end]...))
 	}
 
-	b.ResetTimer()
 	ctx := context.Background()
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		if i%10 == 0 {
 			idx.search(ctx, q2)
 		} else {

@@ -150,7 +150,7 @@ func BenchmarkPredicate(b *testing.B) {
 	b.Run("and or no match", func(b *testing.B) {
 		var p predicate.PR[int] = intP1
 		p = p.And(intP2).Or(intP3)
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			_ = p(3).OK()
 		}
 	})
@@ -158,7 +158,7 @@ func BenchmarkPredicate(b *testing.B) {
 	b.Run("and and no match", func(b *testing.B) {
 		var p predicate.PR[int] = intP1
 		p = p.And(intP2)
-		for range b.N {
+		for b.Loop() {
 			_ = p(3).OK()
 		}
 	})
@@ -166,7 +166,7 @@ func BenchmarkPredicate(b *testing.B) {
 	b.Run("and and match", func(b *testing.B) {
 		var p predicate.PR[int] = intP1
 		p = p.And(intP2)
-		for range b.N {
+		for b.Loop() {
 			_ = p(10).OK()
 		}
 	})
@@ -174,7 +174,7 @@ func BenchmarkPredicate(b *testing.B) {
 	b.Run("or or match", func(b *testing.B) {
 		var p predicate.PR[int] = intP1
 		p = p.Or(intP2).Or(intP3)
-		for range b.N {
+		for b.Loop() {
 			_ = p(2).OK()
 		}
 	})

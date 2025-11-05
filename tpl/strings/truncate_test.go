@@ -114,13 +114,13 @@ func TestTruncate(t *testing.T) {
 
 func BenchmarkTruncate(b *testing.B) {
 	b.Run("Plain text", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			ns.Truncate(10, "I am a test sentence")
 		}
 	})
 
 	b.Run("With link", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			ns.Truncate(10, "I have a <a href='/markdown'>Markdown link</a> inside")
 		}
 	})

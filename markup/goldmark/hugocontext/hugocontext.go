@@ -77,8 +77,8 @@ func (n *HugoContext) Dump(source []byte, level int) {
 }
 
 func (n *HugoContext) parseAttrs(attrBytes []byte) {
-	keyPairs := bytes.Split(attrBytes, []byte(" "))
-	for _, keyPair := range keyPairs {
+	keyPairs := bytes.SplitSeq(attrBytes, []byte(" "))
+	for keyPair := range keyPairs {
 		kv := bytes.Split(keyPair, []byte("="))
 		if len(kv) != 2 {
 			continue

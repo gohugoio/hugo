@@ -57,7 +57,7 @@ func BenchmarkCollator(b *testing.B) {
 
 	b.Run("Single", func(b *testing.B) {
 		coll := &Collator{c: collate.New(language.English, collate.Loose)}
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			doWork(coll)
 		}
 	})

@@ -38,7 +38,6 @@ func TestXxHashFromReaderPara(t *testing.T) {
 
 	var wg sync.WaitGroup
 	for i := range 10 {
-		i := i
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -75,8 +74,8 @@ func TestXxHashFromStringHexEncoded(t *testing.T) {
 
 func BenchmarkXXHashFromReader(b *testing.B) {
 	r := strings.NewReader("Hello World")
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		XXHashFromReader(r)
 		r.Seek(0, 0)
 	}
@@ -84,16 +83,16 @@ func BenchmarkXXHashFromReader(b *testing.B) {
 
 func BenchmarkXXHashFromString(b *testing.B) {
 	s := "Hello World"
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		XXHashFromString(s)
 	}
 }
 
 func BenchmarkXXHashFromStringHexEncoded(b *testing.B) {
 	s := "The quick brown fox jumps over the lazy dog"
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		XxHashFromStringHexEncoded(s)
 	}
 }
@@ -136,7 +135,7 @@ func BenchmarkHashString(b *testing.B) {
 
 	for _, test := range tests {
 		b.Run(fmt.Sprintf("n%d", len(test)), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				HashString(test)
 			}
 		})
@@ -149,9 +148,7 @@ func BenchmarkHashMap(b *testing.B) {
 		m[fmt.Sprintf("key%d", i)] = i
 	}
 
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		HashString(m)
 	}
 }

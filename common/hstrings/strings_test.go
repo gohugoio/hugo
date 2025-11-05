@@ -75,7 +75,7 @@ func BenchmarkUniqueStrings(b *testing.B) {
 	input := []string{"a", "b", "d", "e", "d", "h", "a", "i"}
 
 	b.Run("Safe", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			result := UniqueStrings(input)
 			if len(result) != 6 {
 				b.Fatalf("invalid count: %d", len(result))
@@ -86,13 +86,13 @@ func BenchmarkUniqueStrings(b *testing.B) {
 	b.Run("Reuse slice", func(b *testing.B) {
 		b.StopTimer()
 		inputs := make([][]string, b.N)
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			inputc := make([]string, len(input))
 			copy(inputc, input)
 			inputs[i] = inputc
 		}
 		b.StartTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			inputc := inputs[i]
 
 			result := UniqueStringsReuse(inputc)
@@ -105,13 +105,13 @@ func BenchmarkUniqueStrings(b *testing.B) {
 	b.Run("Reuse slice sorted", func(b *testing.B) {
 		b.StopTimer()
 		inputs := make([][]string, b.N)
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			inputc := make([]string, len(input))
 			copy(inputc, input)
 			inputs[i] = inputc
 		}
 		b.StartTimer()
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			inputc := inputs[i]
 
 			result := UniqueStringsSorted(inputc)
@@ -123,13 +123,13 @@ func BenchmarkUniqueStrings(b *testing.B) {
 }
 
 func BenchmarkGetOrCompileRegexp(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		GetOrCompileRegexp(`\d+`)
 	}
 }
 
 func BenchmarkCompileRegexp(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		regexp.MustCompile(`\d+`)
 	}
 }
