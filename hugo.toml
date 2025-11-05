@@ -98,8 +98,6 @@ ignoreLogs = ['warning-frontmatter-params-overrides']
     disableWatch = true
     source       = "hugo_stats.json"
     target       = "assets/notwatching/hugo_stats.json"
-  [[module.imports]]
-    path = "github.com/bep/hugo-mod-minimalanalytics"
 
 [outputFormats]
   [outputFormats.redir]
@@ -122,11 +120,6 @@ ignoreLogs = ['warning-frontmatter-params-overrides']
 [params]
   description = "The world’s fastest framework for building websites"
   ghrepo      = "https://github.com/gohugoio/hugoDocs/"
-
-  [params.minimalanalytics]
-      # GA4 tracking ID
-      tracking_id = "G-MBZGKNMDWC"
-
   [params.render_hooks.link]
     errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
   [params.social.mastodon]
@@ -154,6 +147,10 @@ ignoreLogs = ['warning-frontmatter-params-overrides']
       Referrer-Policy        = "no-referrer"
   [[server.headers]]
     for = "/**.{css,js}"
+
+[services]
+  [services.googleAnalytics]
+    ID = 'G-MBZGKNMDWC'
 
 [taxonomies]
   category = 'categories'

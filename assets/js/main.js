@@ -48,21 +48,12 @@ var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 
 	{
 		let containerScrollTops = {};
-		let turboLoaded = false;
 
 		// To preserve scroll position in scrolling elements on navigation add data-turbo-preserve-scroll-container="somename" to the scrolling container.
 		addEventListener('turbo:click', () => {
 			document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((el2) => {
 				containerScrollTops[el2.dataset.turboPreserveScrollContainer] = el2.scrollTop;
 			});
-		});
-
-		addEventListener('turbo:load', () => {
-			if (turboLoaded) {
-				// Minimal Analytics does not support SPA out of the box, so we need to manually track page views on Turbo navigation.
-				window.track('page_view');
-			}
-			turboLoaded = true;
 		});
 
 		addEventListener('turbo:render', () => {
