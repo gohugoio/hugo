@@ -32,6 +32,13 @@ type ReadSeekCloser interface {
 	io.Closer
 }
 
+// CloserFunc is an adapter to allow the use of ordinary functions as io.Closers.
+type CloserFunc func() error
+
+func (f CloserFunc) Close() error {
+	return f()
+}
+
 // ReadSeekCloserProvider provides a ReadSeekCloser.
 type ReadSeekCloserProvider interface {
 	ReadSeekCloser() (ReadSeekCloser, error)

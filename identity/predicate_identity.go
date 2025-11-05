@@ -17,25 +17,7 @@ package identity
 import (
 	"fmt"
 	"sync/atomic"
-
-	hglob "github.com/gohugoio/hugo/hugofs/glob"
 )
-
-// NewGlobIdentity creates a new Identity that
-// is probably dependent on any other Identity
-// that matches the given pattern.
-func NewGlobIdentity(pattern string) Identity {
-	glob, err := hglob.GetGlob(pattern)
-	if err != nil {
-		panic(err)
-	}
-
-	predicate := func(other Identity) bool {
-		return glob.Match(other.IdentifierBase())
-	}
-
-	return NewPredicateIdentity(predicate, nil)
-}
 
 var predicateIdentityCounter = &atomic.Uint32{}
 

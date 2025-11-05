@@ -31,7 +31,7 @@ type pageTree struct {
 }
 
 func (pt pageTree) IsAncestor(other any) bool {
-	n, ok := other.(contentNodeI)
+	n, ok := other.(contentNode)
 	if !ok {
 		return false
 	}
@@ -44,7 +44,7 @@ func (pt pageTree) IsAncestor(other any) bool {
 }
 
 func (pt pageTree) IsDescendant(other any) bool {
-	n, ok := other.(contentNodeI)
+	n, ok := other.(contentNode)
 	if !ok {
 		return false
 	}
@@ -62,16 +62,23 @@ func (pt pageTree) CurrentSection() page.Page {
 	}
 
 	dir := pt.p.m.pathInfo.Dir()
+
 	if dir == "/" {
+		if pt.p.s.home == nil {
+			panic(fmt.Sprintf("[%v] home page is nil for %q", pt.p.s.siteVector, pt.p.Path()))
+		}
 		return pt.p.s.home
 	}
 
-	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+	_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, false, func(n contentNode) bool {
+		return cnh.isBranchNode(n)
+	})
+
 	if n != nil {
 		return n.(page.Page)
 	}
 
-	panic(fmt.Sprintf("CurrentSection not found for %q in lang %s", pt.p.Path(), pt.p.Lang()))
+	panic(fmt.Sprintf("CurrentSection not found for %q for %s", pt.p.Path(), pt.p.s.resolveDimensionNames()))
 }
 
 func (pt pageTree) FirstSection() page.Page {
@@ -81,7 +88,7 @@ func (pt pageTree) FirstSection() page.Page {
 	}
 
 	for {
-		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, true, func(n contentNodeI) bool { return n.isContentNodeBranch() })
+		k, n := pt.p.s.pageMap.treePages.LongestPrefix(s, false, func(n contentNode) bool { return cnh.isBranchNode(n) })
 		if n == nil {
 			return nil
 		}
@@ -125,11 +132,11 @@ func (pt pageTree) Parent() page.Page {
 	}
 
 	for {
-		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, true, nil)
+		_, n := pt.p.s.pageMap.treePages.LongestPrefix(dir, false, nil)
 		if n == nil {
 			return pt.p.s.home
 		}
-		if pt.p.m.bundled || n.isContentNodeBranch() {
+		if pt.p.m.bundled || cnh.isBranchNode(n) {
 			return n.(page.Page)
 		}
 		dir = paths.Dir(dir)
@@ -142,6 +149,7 @@ func (pt pageTree) Ancestors() page.Pages {
 	for parent != nil {
 		ancestors = append(ancestors, parent)
 		parent = parent.Parent()
+
 	}
 	return ancestors
 }
@@ -155,12 +163,12 @@ func (pt pageTree) Sections() page.Pages {
 		tree                = pt.p.s.pageMap.treePages
 	)
 
-	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:   tree,
 		Prefix: prefix,
 	}
-	w.Handle = func(ss string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
-		if !n.isContentNodeBranch() {
+	w.Handle = func(ss string, n contentNode) (bool, error) {
+		if !cnh.isBranchNode(n) {
 			return false, nil
 		}
 		if currentBranchPrefix == "" || !strings.HasPrefix(ss, currentBranchPrefix) {

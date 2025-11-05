@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,9 +13,11 @@
 
 package hugo
 
+import "github.com/gohugoio/hugo/common/version"
+
 // CurrentVersion represents the current build version.
 // This should be the only one.
-var CurrentVersion = Version{
+var CurrentVersion = version.Version{
 	Major:      0,
 	Minor:      153,
 	PatchLevel: 0,

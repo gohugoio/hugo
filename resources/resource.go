@@ -24,11 +24,11 @@ import (
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/media"
@@ -185,7 +185,7 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 	fd.MediaType = mediaType
 
 	if fd.DependencyManager == nil {
-		fd.DependencyManager = r.Cfg.NewIdentityManager("resource")
+		fd.DependencyManager = r.Cfg.NewIdentityManager()
 	}
 
 	return nil
@@ -358,7 +358,7 @@ func GetTestInfoForResource(r resource.Resource) GenericResourceTestInfo {
 
 // genericResource represents a generic linkable resource.
 type genericResource struct {
-	publishInit *lazy.OnceMore
+	publishInit *hsync.OnceMore
 
 	key     string
 	keyInit *sync.Once
@@ -636,7 +636,7 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 }
 
 func (l genericResource) clone() *genericResource {
-	l.publishInit = &lazy.OnceMore{}
+	l.publishInit = &hsync.OnceMore{}
 	l.keyInit = &sync.Once{}
 	return &l
 }

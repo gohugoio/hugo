@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
@@ -276,26 +277,40 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
-type shortcodeHandler struct {
-	filename string
-	s        *Site
+// shared between all pages from the same source file.
+type shortcodeParseInfo struct {
+	filename           string
+	firstTemplateStore *tplimpl.TemplateStore // This represents the first site and must not be used for execution.
 
-	// Ordered list of shortcodes for a page.
+	// Ordered list of shortcodes.
 	shortcodes []*shortcode
 
 	// All the shortcode names in this set.
-	nameSet   map[string]bool
 	nameSetMu sync.RWMutex
+	nameSet   map[string]bool
 
 	// Configuration
 	enableInlineShortcodes bool
 }
 
-func newShortcodeHandler(filename string, s *Site) *shortcodeHandler {
-	sh := &shortcodeHandler{
+func (s *shortcodeParseInfo) addName(name string) {
+	s.nameSetMu.Lock()
+	defer s.nameSetMu.Unlock()
+	s.nameSet[name] = true
+}
+
+func (s *shortcodeParseInfo) hasName(name string) bool {
+	s.nameSetMu.RLock()
+	defer s.nameSetMu.RUnlock()
+	_, ok := s.nameSet[name]
+	return ok
+}
+
+func newShortcodeHandler(filename string, d *deps.Deps) *shortcodeParseInfo {
+	sh := &shortcodeParseInfo{
 		filename:               filename,
-		s:                      s,
-		enableInlineShortcodes: s.ExecHelper.Sec().EnableInlineShortcodes,
+		firstTemplateStore:     d.TemplateStore,
+		enableInlineShortcodes: d.ExecHelper.Sec().EnableInlineShortcodes,
 		shortcodes:             make([]*shortcode, 0, 4),
 		nameSet:                make(map[string]bool),
 	}
@@ -310,9 +325,7 @@ const (
 )
 
 func prepareShortcode(
-	ctx context.Context,
 	level int,
-	s *Site,
 	sc *shortcode,
 	parent *ShortcodeWithPage,
 	po *pageOutput,
@@ -326,12 +339,12 @@ func prepareShortcode(
 
 	// Allow the caller to delay the rendering of the shortcode if needed.
 	var fn shortcodeRenderFunc = func(ctx context.Context) ([]byte, bool, error) {
-		if p.m.pageConfig.ContentMediaType.IsMarkdown() && sc.doMarkup {
+		if p.m.pageConfigSource.ContentMediaType.IsMarkdown() && sc.doMarkup {
 			// Signal downwards that the content rendered will be
 			// parsed and rendered by Goldmark.
 			ctx = tpl.Context.IsInGoldmark.Set(ctx, true)
 		}
-		r, err := doRenderShortcode(ctx, level, s, sc, parent, po, isRenderString)
+		r, err := doRenderShortcode(ctx, level, po.p.s.TemplateStore, sc, parent, po, isRenderString)
 		if err != nil {
 			return nil, false, toParseErr(err)
 		}
@@ -349,7 +362,7 @@ func prepareShortcode(
 func doRenderShortcode(
 	ctx context.Context,
 	level int,
-	s *Site,
+	ts *tplimpl.TemplateStore,
 	sc *shortcode,
 	parent *ShortcodeWithPage,
 	po *pageOutput,
@@ -372,7 +385,7 @@ func doRenderShortcode(
 			templStr := sc.innerString()
 
 			var err error
-			tmpl, err = s.TemplateStore.TextParse(templatePath, templStr)
+			tmpl, err = ts.TextParse(templatePath, templStr)
 			if err != nil {
 				if isRenderString {
 					return zeroShortcode, p.wrapError(err)
@@ -386,7 +399,7 @@ func doRenderShortcode(
 
 		} else {
 			// Re-use of shortcode defined earlier in the same page.
-			tmpl = s.TemplateStore.TextLookup(templatePath)
+			tmpl = ts.TextLookup(templatePath)
 			if tmpl == nil {
 				return zeroShortcode, fmt.Errorf("no earlier definition of shortcode %q found", sc.name)
 			}
@@ -407,9 +420,10 @@ func doRenderShortcode(
 			Name:     sc.name,
 			Category: tplimpl.CategoryShortcode,
 			Desc:     layoutDescriptor,
+			Sites:    p.s.siteVector,
 			Consider: include,
 		}
-		v, err := s.TemplateStore.LookupShortcode(q)
+		v, err := ts.LookupShortcode(q)
 		if v == nil {
 			return zeroShortcode, err
 		}
@@ -438,7 +452,7 @@ func doRenderShortcode(
 			case string:
 				inner += innerData
 			case *shortcode:
-				s, err := prepareShortcode(ctx, level+1, s, innerData, data, po, isRenderString)
+				s, err := prepareShortcode(level+1, innerData, data, po, isRenderString)
 				if err != nil {
 					return zeroShortcode, err
 				}
@@ -449,7 +463,7 @@ func doRenderShortcode(
 				}
 				inner += ss
 			default:
-				s.Log.Errorf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
+				po.p.s.Log.Errorf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
 					sc.name, p.File().Path(), reflect.TypeOf(innerData))
 				return zeroShortcode, nil
 			}
@@ -476,7 +490,7 @@ func doRenderShortcode(
 			//     unchanged.
 			// 2   If inner does not have a newline, strip the wrapping <p> block and
 			//     the newline.
-			switch p.m.pageConfig.Content.Markup {
+			switch p.m.pageConfigSource.Content.Markup {
 			case "", "markdown":
 				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
 					cleaner, err := regexp.Compile(innerCleanupRegexp)
@@ -495,7 +509,7 @@ func doRenderShortcode(
 
 	}
 
-	result, err := renderShortcodeWithPage(ctx, s.GetTemplateStore(), tmpl, data)
+	result, err := renderShortcodeWithPage(ctx, ts, tmpl, data)
 
 	if err != nil && sc.isInline {
 		fe := herrors.NewFileErrorFromName(err, p.File().Filename())
@@ -524,37 +538,15 @@ func doRenderShortcode(
 	return prerenderedShortcode{s: result, hasVariants: hasVariants}, err
 }
 
-func (s *shortcodeHandler) addName(name string) {
-	s.nameSetMu.Lock()
-	defer s.nameSetMu.Unlock()
-	s.nameSet[name] = true
-}
-
-func (s *shortcodeHandler) transferNames(in *shortcodeHandler) {
-	s.nameSetMu.Lock()
-	defer s.nameSetMu.Unlock()
-	for k := range in.nameSet {
-		s.nameSet[k] = true
-	}
-}
-
-func (s *shortcodeHandler) hasName(name string) bool {
-	s.nameSetMu.RLock()
-	defer s.nameSetMu.RUnlock()
-	_, ok := s.nameSet[name]
-	return ok
-}
-
-func (s *shortcodeHandler) prepareShortcodesForPage(ctx context.Context, po *pageOutput, isRenderString bool) (map[string]shortcodeRenderer, error) {
+func (s *shortcodeParseInfo) prepareShortcodesForPage(po *pageOutput, isRenderString bool) (map[string]shortcodeRenderer, error) {
 	rendered := make(map[string]shortcodeRenderer)
 
 	for _, v := range s.shortcodes {
-		s, err := prepareShortcode(ctx, 0, s.s, v, nil, po, isRenderString)
+		s, err := prepareShortcode(0, v, nil, po, isRenderString)
 		if err != nil {
 			return nil, err
 		}
 		rendered[v.placeholder] = s
-
 	}
 
 	return rendered, nil
@@ -582,7 +574,7 @@ func posFromInput(filename string, input []byte, offset int) text.Position {
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
-func (s *shortcodeHandler) extractShortcode(ordinal, level int, source []byte, pt *pageparser.Iterator) (*shortcode, error) {
+func (s *shortcodeParseInfo) extractShortcode(ordinal, level int, source []byte, pt *pageparser.Iterator) (*shortcode, error) {
 	if s == nil {
 		panic("handler nil")
 	}
@@ -670,7 +662,6 @@ Loop:
 				sc.isClosing = true
 				pt.Consume(2)
 			}
-
 			return sc, nil
 		case currItem.IsText():
 			sc.inner = append(sc.inner, currItem.ValStr(source))
@@ -680,7 +671,7 @@ Loop:
 
 			// Used to check if the template expects inner content,
 			// so just pick one arbitrarily with the same name.
-			templ := s.s.TemplateStore.LookupShortcodeByName(sc.name)
+			templ := s.firstTemplateStore.LookupShortcodeByName(sc.name)
 			if templ == nil {
 				return nil, fmt.Errorf("%s: template for shortcode %q not found", errorPrefix, sc.name)
 			}

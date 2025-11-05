@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bep/logg"
 	"github.com/fortytw2/leaktest"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/types"
@@ -744,6 +745,103 @@ Prev: {{ with  .NextInSection }}{{ .Title }}{{ end }}|
 	b.AssertFileContent("public/s/p6/index.html", "Next: P7 Edited|")
 }
 
+const rebuildBasicFiles = `
+-- hugo.toml --
+baseURL = "https://example.com/"
+disableLiveReload = true
+disableKinds = ["sitemap", "robotstxt", "404", "rss"]
+-- content/_index.md --
+---
+title: "Home"
+cascade:
+  target:
+    kind: "page"
+  date: 2019-05-06
+  params:
+    myparam: "myvalue"
+---
+-- content/mysection/_index.md --
+---
+title: "My Section"
+date: 2024-02-01
+---
+-- content/mysection/p1.md --
+---
+title: "P1"
+date: 2020-01-01
+---
+-- content/mysection/p2.md --
+---
+title: "P2"
+date: 2021-02-01
+---
+-- content/mysection/p3.md --
+---
+title: "P3"
+---
+-- layouts/all.html --
+all. {{ .Title }}|Param: {{ .Params.myparam }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
+`
+
+func TestRebuildEditPageTitle(t *testing.T) {
+	t.Parallel()
+	b := TestRunning(t, rebuildBasicFiles)
+	b.AssertFileContent("public/index.html", "all. Home|Param: |Lastmod: 2024-02-01|")
+	b.AssertFileContent("public/mysection/p1/index.html", "P1|Param: myvalue|", "Lastmod: 2020-01-01|")
+	b.EditFileReplaceAll("content/mysection/p1.md", "P1", "P1edit").Build()
+	b.AssertRenderCountPage(2)
+	b.AssertFileContent("public/mysection/p1/index.html", "all. P1edit|Param: myvalue|")
+}
+
+func TestRebuildEditPageDate(t *testing.T) {
+	t.Parallel()
+	b := TestRunning(t, rebuildBasicFiles)
+	b.AssertFileContent("public/index.html", "all. Home|Param: |Lastmod: 2024-02-01|")
+	b.EditFileReplaceAll("content/mysection/p2.md", "2021-02-01", "2025-04-02").Build()
+	b.AssertRenderCountPage(2)
+	b.AssertFileContent("public/index.html", "all. Home|Param: |Lastmod: 2025-04-02|")
+	b.AssertFileContent("public/mysection/p2/index.html", "all. P2|Param: myvalue|Lastmod: 2025-04-02|")
+}
+
+func TestRebuildEditHomeCascadeEditParam(t *testing.T) {
+	t.Parallel()
+	b := TestRunning(t, rebuildBasicFiles)
+	b.AssertRenderCountPage(7)
+	b.EditFileReplaceAll("content/_index.md", "myvalue", "myvalue-edit").Build()
+	b.AssertRenderCountPage(7)
+	b.AssertFileContent("public/mysection/p1/index.html", "all. P1|Param: myvalue-edit|")
+}
+
+func TestRebuildEditHomeCascadeRemoveParam(t *testing.T) {
+	t.Parallel()
+	b := TestRunning(t, rebuildBasicFiles)
+	b.AssertRenderCountPage(7)
+	b.EditFileReplaceAll("content/_index.md", `myparam: "myvalue"`, "").Build()
+	b.AssertRenderCountPage(7)
+	b.AssertFileContent("public/mysection/p1/index.html", "all. P1|Param: |")
+}
+
+func TestRebuildEditHomeCascadeEditDate(t *testing.T) {
+	t.Parallel()
+	b := TestRunning(t, rebuildBasicFiles)
+	b.AssertRenderCountPage(7)
+	b.AssertFileContent("public/mysection/p3/index.html", "all. P3|Param: myvalue|Lastmod: 2019-05-06")
+	b.EditFileReplaceAll("content/_index.md", "2019-05-06", "2025-05-06").Build()
+	b.AssertRenderCountPage(7)
+	b.AssertFileContent("public/index.html", "all. Home|Param: |Lastmod: 2025-05-06|")
+	b.AssertFileContent("public/mysection/index.html", "all. My Section|Param: |Lastmod: 2024-02-01|")
+	b.AssertFileContent("public/mysection/p3/index.html", "all. P3|Param: myvalue|Lastmod: 2025-05-06")
+}
+
+func TestRebuildEditSectionRemoveDate(t *testing.T) {
+	t.Parallel()
+	b := TestRunning(t, rebuildBasicFiles)
+	b.AssertFileContent("public/mysection/index.html", "all. My Section|Param: |Lastmod: 2024-02-01|")
+	b.EditFileReplaceAll("content/mysection/_index.md", "date: 2024-02-01", "").Build()
+	b.AssertRenderCountPage(5)
+	b.AssertFileContent("public/mysection/index.html", "all. My Section|Param: |Lastmod: 2021-02-01|")
+}
+
 func TestRebuildVariations(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	// This leaktest seems to be a little bit shaky on Travis.
@@ -828,6 +926,7 @@ Len RegularPagesRecursive: {{ len .RegularPagesRecursive }}
 Site.Lastmod: {{ .Site.Lastmod.Format "2006-01-02" }}|
 Paginate: {{ range (.Paginate .Site.RegularPages).Pages }}{{ .RelPermalink }}|{{ .Title }}|{{ end }}$
 -- layouts/_default/single.html --
+Single: .Site: {{ .Site }} 
 Single: {{ .Title }}|{{ .Content }}|
 Single Partial Cached: {{ partialCached "pcached" . }}|
 Page.Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
@@ -846,6 +945,7 @@ Partial P1.
 Partial Pcached.
 -- layouts/shortcodes/include.html --
 {{ $p := site.GetPage (.Get 0)}}
+.Page.Site: {{ .Page.Site }} :: site: {{ site }}
 {{ with $p }}
 Shortcode Include: {{ .Title }}|
 {{ end }}
@@ -857,8 +957,6 @@ Shortcode Partial P1: {{ partial "p1" . }}|
 Codeblock Include: {{ .Title }}|
 {{ end }}
 
-
-
 `
 
 	b := NewIntegrationTestBuilder(
@@ -866,11 +964,11 @@ Codeblock Include: {{ .Title }}|
 			T:           t,
 			TxtarString: files,
 			Running:     true,
+			Verbose:     false,
 			BuildCfg: BuildCfg{
 				testCounters: &buildCounters{},
 			},
-			// Verbose:     true,
-			// LogLevel: logg.LevelTrace,
+			LogLevel: logg.LevelWarn,
 		},
 	).Build()
 
@@ -1545,17 +1643,17 @@ title: "B nn"
 B nn.
 -- content/p1/f1.nn.txt --
 F1 nn
--- layouts/_default/single.html --
-Single: {{ .Title }}|{{ .Content }}|Bundled File: {{ with .Resources.GetMatch "f1.*" }}{{ .Content }}{{ end }}|Bundled Page: {{ with .Resources.GetMatch "b.*" }}{{ .Content }}{{ end }}|
+-- layouts/_default/all.html --
+All: {{ .Title }}|{{ .Kind }}|{{ .Content }}|Bundled File: {{ with .Resources.GetMatch "f1.*" }}{{ .Content }}{{ end }}|Bundled Page: {{ with .Resources.GetMatch "b.*" }}{{ .Content }}{{ end }}|
 `
 
 	b := TestRunning(t, files)
 
-	b.AssertFileContent("public/nn/p1/index.html", "Single: P1 nn|<p>P1 nn.</p>", "F1 nn|")
+	b.AssertFileContent("public/nn/p1/index.html", "All: P1 nn|page|<p>P1 nn.</p>", "F1 nn|")
 	b.EditFileReplaceAll("content/p1/index.nn.md", "P1 nn.", "P1 nn edit.").Build()
-	b.AssertFileContent("public/nn/p1/index.html", "Single: P1 nn|<p>P1 nn edit.</p>\n|")
+	b.AssertFileContent("public/nn/p1/index.html", "All: P1 nn|page|<p>P1 nn edit.</p>")
 	b.EditFileReplaceAll("content/p1/f1.nn.txt", "F1 nn", "F1 nn edit.").Build()
-	b.AssertFileContent("public/nn/p1/index.html", "Bundled File: F1 nn edit.")
+	b.AssertFileContent("public/nn/p1/index.html", "All: P1 nn|page|<p>P1 nn edit.</p>\n|Bundled File: F1 nn edit.|")
 	b.EditFileReplaceAll("content/p1/b.nn.md", "B nn.", "B nn edit.").Build()
 	b.AssertFileContent("public/nn/p1/index.html", "B nn edit.")
 }
@@ -1590,7 +1688,6 @@ Single: {{ .Title }}|{{ .Content }}|
 `
 
 	b := TestRunning(t, files)
-
 	b.AssertFileContent("public/nn/p1nn/index.html", "Single: P1 nn|<p>P1 nn.</p>")
 	b.EditFileReplaceAll("content/nn/p1nn/index.md", "P1 nn.", "P1 nn edit.").Build()
 	b.AssertFileContent("public/nn/p1nn/index.html", "Single: P1 nn|<p>P1 nn edit.</p>\n|")
@@ -1946,7 +2043,7 @@ func TestRebuildEditTagIssue13648(t *testing.T) {
 baseURL = "https://example.com"
 disableLiveReload = true
 -- layouts/all.html --
-All. {{ range .Pages }}{{ .Title }}|{{ end }}
+All. {{ range .Pages }}{{ .Title }}|{{ end }}$
 -- content/p1.md --
 ---
 title: "P1"
@@ -1959,10 +2056,7 @@ tags: ["tag1"]
 	b.AssertFileContent("public/tags/index.html", "All. Tag1|")
 	b.EditFileReplaceAll("content/p1.md", "tag1", "tag2").Build()
 
-	// Note that the below is still not correct, as this is effectively a rename, and
-	// Tag2 should be removed from the list.
-	// But that is a harder problem to tackle.
-	b.AssertFileContent("public/tags/index.html", "All. Tag1|Tag2|")
+	b.AssertFileContent("public/tags/index.html", "All. Tag1|$")
 }
 
 func TestRebuildEditNonReferencedResourceIssue13748(t *testing.T) {

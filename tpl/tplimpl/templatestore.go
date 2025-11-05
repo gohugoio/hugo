@@ -36,6 +36,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -43,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
 	gc "github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/media"
@@ -179,7 +181,7 @@ type StoreOptions struct {
 	// The logger to use.
 	Log loggers.Logger
 
-	// The path parser to use.
+	// The path handler to use.
 	PathParser *paths.PathParser
 
 	// Set when --enableTemplateMetrics is set.
@@ -190,9 +192,6 @@ type StoreOptions struct {
 
 	// All configured media types.
 	MediaTypes media.Types
-
-	// The default content language.
-	DefaultContentLanguage string
 
 	// The default output format.
 	DefaultOutputFormat string
@@ -250,6 +249,8 @@ type TemplInfo struct {
 
 	// The descriptior that this template represents.
 	D TemplateDescriptor
+
+	matrix sitesmatrix.VectorProvider // language, version, role.
 
 	// Parser state.
 	ParseInfo ParseInfo
@@ -323,7 +324,7 @@ func (ti *TemplInfo) String() string {
 	return ti.PathInfo.String()
 }
 
-func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, d1 TemplateDescriptor, k1 string, slashCountK1 int, best *bestMatch) {
+func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, d1 TemplateDescriptor, dims1 sitesmatrix.VectorProvider, k1 string, slashCountK1 int, best *bestMatch) {
 	if ti.baseVariants == nil {
 		return
 	}
@@ -336,7 +337,9 @@ func (ti *TemplInfo) findBestMatchBaseof(s *TemplateStore, d1 TemplateDescriptor
 		distance := slashCountK1 - slashCountK2
 
 		for d2, vv := range v {
-			weight := s.dh.compareDescriptors(CategoryBaseof, false, d1, d2)
+
+			weight := s.dh.compareDescriptors(CategoryBaseof, d1, d2, dims1, vv.Base.matrix)
+
 			weight.distance = distance
 			if best.isBetter(weight, vv.Template) {
 				best.updateValues(weight, k2, d2, vv.Template)
@@ -389,6 +392,9 @@ type TemplateQuery struct {
 
 	// The category to look in.
 	Category Category
+
+	// The sites variants to consider.
+	Sites sitesmatrix.VectorProvider
 
 	// The template descriptor to match against.
 	Desc TemplateDescriptor
@@ -459,22 +465,22 @@ func (s *TemplateStore) NewFromOpts() (*TemplateStore, error) {
 }
 
 // In the previous implementation of base templates in Hugo, we parsed and applied these base templates on
-// request, e.g. in the middle of rendering. The idea was that we coulnd't know upfront which layoyt/base template
+// request, e.g. in the middle of rendering. The idea was that we couldn't know upfront which layoyt/base template
 // combination that would be used.
 // This, however, added a lot of complexity involving a careful dance of template cloning and parsing
 // (Go HTML tenplates cannot be parsed after any of the templates in the tree have been executed).
 // FindAllBaseTemplateCandidates finds all base template candidates for the given descriptor so we can apply them upfront.
 // In this setup we may end up with unused base templates, but not having to do the cloning should more than make up for that.
-func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, desc TemplateDescriptor) []keyTemplateInfo {
+func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, d1 TemplateDescriptor, dims1 sitesmatrix.VectorProvider) []keyTemplateInfo {
 	var result []keyTemplateInfo
-	descBaseof := desc
+
 	s.treeMain.Walk(func(k string, v map[nodeKey]*TemplInfo) (bool, error) {
 		for _, vv := range v {
 			if vv.category != CategoryBaseof {
 				continue
 			}
 
-			if vv.D.isKindInLayout(desc.LayoutFromTemplate) && s.dh.compareDescriptors(CategoryBaseof, false, descBaseof, vv.D).w1 > 0 {
+			if vv.D.isKindInLayout(d1.LayoutFromTemplate) && s.dh.compareDescriptors(CategoryBaseof, d1, vv.D, dims1, vv.matrix).w1 > 0 {
 				result = append(result, keyTemplateInfo{Key: k, Info: vv})
 			}
 		}
@@ -581,17 +587,18 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 		return m
 	}
 	best1.reset()
-	m.findBestMatchBaseof(s, q.Desc, key, slashCountKey, best1)
+	m.findBestMatchBaseof(s, q.Desc, q.Sites, key, slashCountKey, best1)
 	if best1.w.w1 <= 0 {
 		return nil
 	}
+
 	return best1.templ
 }
 
 func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 	ti, _ := s.cacheLookupPartials.GetOrCreate(pth, func() (*TemplInfo, error) {
 		pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, pth).ForType(paths.TypePartial)
-		k1, _, _, desc, err := s.toKeyCategoryAndDescriptor(pi)
+		k1, _, _, desc, matrix, err := s.toKeyCategoryAndDescriptor(pi, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -604,7 +611,7 @@ func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 
 		best := s.getBest()
 		defer s.putBest(best)
-		s.findBestMatchGet(s.key(path.Join(containerPartials, k1)), CategoryPartial, nil, desc, best)
+		s.findBestMatchGet(s.key(path.Join(containerPartials, k1)), CategoryPartial, nil, desc, matrix, best)
 		return best.templ, nil
 	})
 
@@ -647,7 +654,7 @@ func (s *TemplateStore) LookupShortcode(q TemplateQuery) (*TemplInfo, error) {
 				continue
 			}
 
-			weight := s.dh.compareDescriptors(q.Category, vv.subCategory == SubCategoryEmbedded, q.Desc, k)
+			weight := s.dh.compareDescriptors(q.Category, q.Desc, k, q.Sites, vv.matrix)
 			weight.distance = distance
 			isBetter := best.isBetter(weight, vv)
 			if isBetter {
@@ -687,7 +694,7 @@ func (s *TemplateStore) PrintDebug(prefix string, category Category, w io.Writer
 			return
 		}
 		s := strings.ReplaceAll(strings.TrimSpace(vv.content), "\n", " ")
-		ts := fmt.Sprintf("kind: %q layout: %q lang: %q content: %.30s", vv.D.Kind, vv.D.LayoutFromTemplate, vv.D.Lang, s)
+		ts := fmt.Sprintf("kind: %q layout: %q content: %.30s", vv.D.Kind, vv.D.LayoutFromTemplate, s)
 		fmt.Fprintf(w, "%s%s %s\n", strings.Repeat(" ", level), key, ts)
 	}
 	s.treeMain.WalkPrefix(prefix, func(key string, v map[nodeKey]*TemplInfo) (bool, error) {
@@ -794,7 +801,9 @@ func (s TemplateStore) WithSiteOpts(opts SiteOptions) *TemplateStore {
 	return &s
 }
 
-func (s *TemplateStore) findBestMatchGet(key string, category Category, consider func(candidate *TemplInfo) bool, desc TemplateDescriptor, best *bestMatch) {
+func (s *TemplateStore) findBestMatchGet(key string, category Category,
+	consider func(candidate *TemplInfo) bool, d1 TemplateDescriptor, dims1 sitesmatrix.VectorProvider, best *bestMatch,
+) {
 	key = strings.ToLower(key)
 
 	v := s.treeMain.Get(key)
@@ -811,7 +820,8 @@ func (s *TemplateStore) findBestMatchGet(key string, category Category, consider
 			continue
 		}
 
-		weight := s.dh.compareDescriptors(category, vv.subCategory == SubCategoryEmbedded, desc, k.d)
+		weight := s.dh.compareDescriptors(category, d1, k.d, dims1, vv.matrix)
+
 		if best.isBetter(weight, vv) {
 			best.updateValues(weight, key, k.d, vv)
 		}
@@ -842,7 +852,7 @@ func (s *TemplateStore) findBestMatchWalkPath(q TemplateQuery, k1 string, slashC
 				continue
 			}
 
-			weight := s.dh.compareDescriptors(q.Category, vv.subCategory == SubCategoryEmbedded, q.Desc, k.d)
+			weight := s.dh.compareDescriptors(q.Category, q.Desc, k.d, q.Sites, vv.matrix)
 
 			weight.distance = distance
 			isBetter := best.isBetter(weight, vv)
@@ -1107,10 +1117,11 @@ func (s *TemplateStore) setTemplateByPath(p string, ti *TemplInfo) {
 }
 
 func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, replace bool, tree doctree.Tree[map[string]map[TemplateDescriptor]*TemplInfo]) (*TemplInfo, error) {
-	k1, k2, _, d, err := s.toKeyCategoryAndDescriptor(pi)
+	k1, k2, _, d, matrix, err := s.toKeyCategoryAndDescriptor(pi, fi)
 	if err != nil {
 		return nil, err
 	}
+
 	m := tree.Get(k1)
 	if m == nil {
 		m = make(map[string]map[TemplateDescriptor]*TemplInfo)
@@ -1133,6 +1144,7 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 		PathInfo: pi,
 		Fi:       fi,
 		D:        d,
+		matrix:   matrix,
 		category: CategoryShortcode,
 		noBaseOf: true,
 	}
@@ -1152,7 +1164,7 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 }
 
 func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, subCategory SubCategory, replace bool, tree doctree.Tree[map[nodeKey]*TemplInfo]) (*TemplInfo, error) {
-	key, _, category, d, err := s.toKeyCategoryAndDescriptor(pi)
+	key, _, category, d, matrix, err := s.toKeyCategoryAndDescriptor(pi, fi)
 	// See #13577. Warn for now.
 	if err != nil {
 		var loc string
@@ -1165,7 +1177,7 @@ func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, s
 		return nil, nil
 	}
 
-	return s.insertTemplate2(pi, fi, key, category, subCategory, d, replace, false, tree)
+	return s.insertTemplate2(pi, fi, key, category, subCategory, d, matrix, replace, false, tree)
 }
 
 func (s *TemplateStore) insertTemplate2(
@@ -1175,6 +1187,7 @@ func (s *TemplateStore) insertTemplate2(
 	category Category,
 	subCategory SubCategory,
 	d TemplateDescriptor,
+	matrix sitesmatrix.VectorStore,
 	replace, isLegacyMapped bool,
 	tree doctree.Tree[map[nodeKey]*TemplInfo],
 ) (*TemplInfo, error) {
@@ -1196,7 +1209,27 @@ func (s *TemplateStore) insertTemplate2(
 		tree.Insert(key, m)
 	}
 
-	nkExisting, existingFound := m[nk]
+	var (
+		nkExisting    *TemplInfo
+		existingFound bool
+	)
+
+	if d.SitesHash == 0 {
+		// inline partials.
+		for k, v := range m {
+			d2 := v.D
+			d2.SitesHash = 0
+			if d == d2 {
+				nkExisting = v
+				nk = k
+				existingFound = true
+				break
+			}
+		}
+	} else {
+		nkExisting, existingFound = m[nk]
+	}
+
 	if !replace && existingFound && fi != nil && nkExisting.Fi != nil {
 		// See issue #13715.
 		// We do the merge on the file system level, but from Hugo v0.146.0 we have a situation where
@@ -1223,6 +1256,7 @@ func (s *TemplateStore) insertTemplate2(
 		PathInfo:       pi,
 		Fi:             fi,
 		D:              d,
+		matrix:         matrix,
 		category:       category,
 		noBaseOf:       category > CategoryLayout,
 		isLegacyMapped: isLegacyMapped,
@@ -1256,7 +1290,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 
 	legacyOrdinalMappings := map[legacyTargetPathIdentifiers]legacyOrdinalMappingFi{}
 
-	walker := func(pth string, fi hugofs.FileMetaInfo) error {
+	walker := func(ctx context.Context, pth string, fi hugofs.FileMetaInfo) error {
 		if fi.IsDir() {
 			return nil
 		}
@@ -1318,7 +1352,6 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 					targetPath:     m1.mapping.targetPath,
 					targetCategory: m1.mapping.targetCategory,
 					kind:           m1.mapping.targetDesc.Kind,
-					lang:           pi.Lang(),
 					ext:            pi.Ext(),
 					outputFormat:   pi.OutputFormat(),
 				}
@@ -1374,7 +1407,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 				identifiers = append(identifiers, pi.Section())
 			}
 
-			identifiers = helpers.UniqueStrings(identifiers)
+			identifiers = hstrings.UniqueStrings(identifiers)
 
 			// Tokens on e.g. form /SECTIONKIND/THESECTION
 			insertSectionTokens := func(section string) []string {
@@ -1396,7 +1429,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 					ss = append(ss, s1)
 				}
 
-				helpers.UniqueStringsReuse(ss)
+				hstrings.UniqueStringsReuse(ss)
 
 				return ss
 			}
@@ -1482,12 +1515,12 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		category := m.targetCategory
 		desc := m.targetDesc
 		desc.Kind = k.kind
-		desc.Lang = k.lang
 		desc.OutputFormat = outputFormat.Name
 		desc.IsPlainText = outputFormat.IsPlainText
 		desc.MediaType = mediaType.Type
+		desc.SitesHash = fi.Meta().SitesMatrix.MustHash()
 
-		ti, err := s.insertTemplate2(pi, fi, targetPath, category, SubCategoryMain, desc, true, true, s.treeMain)
+		ti, err := s.insertTemplate2(pi, fi, targetPath, category, SubCategoryMain, desc, fi.Meta().SitesMatrix, true, true, s.treeMain)
 		if err != nil {
 			return err
 		}
@@ -1556,7 +1589,7 @@ func (s *TemplateStore) parseTemplates(replace bool) error {
 				if !vv.noBaseOf {
 					d := vv.D
 					// Find all compatible base templates.
-					baseTemplates := s.FindAllBaseTemplateCandidates(key, d)
+					baseTemplates := s.FindAllBaseTemplateCandidates(key, d, vv.matrix)
 					if len(baseTemplates) == 0 {
 						// The regular expression used to detect if a template needs a base template has some
 						// rare false positives. Assume we don't need one.
@@ -1686,15 +1719,22 @@ func (s *TemplateStore) templates() iter.Seq[*TemplInfo] {
 	}
 }
 
-func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, string, Category, TemplateDescriptor, error) {
+func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.FileMetaInfo) (string, string, Category, TemplateDescriptor, sitesmatrix.VectorStore, error) {
 	k1 := p.Dir()
 	k2 := ""
 
 	outputFormat, mediaType := s.resolveOutputFormatAndOrMediaType(p.OutputFormat(), p.Ext())
 	nameNoIdentifier := p.NameNoIdentifier()
 
+	var vactorStore sitesmatrix.VectorStore
+	if fi != nil {
+		vactorStore = fi.Meta().SitesMatrix
+	} else {
+		vactorStore = s.opts.PathParser.SitesMatrixFromPath(p)
+	}
+
 	d := TemplateDescriptor{
-		Lang:               p.Lang(),
+		SitesHash:          vactorStore.MustHash(),
 		OutputFormat:       p.OutputFormat(),
 		MediaType:          mediaType.Type,
 		Kind:               p.Kind(),
@@ -1769,7 +1809,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 		k1 = strings.TrimSuffix(k1, "/_markup")
 		v, found := strings.CutPrefix(d.LayoutFromTemplate, "render-")
 		if !found {
-			return "", "", 0, TemplateDescriptor{}, fmt.Errorf("unrecognized render hook template")
+			return "", "", 0, TemplateDescriptor{}, nil, fmt.Errorf("unrecognized render hook template")
 		}
 		hyphenIdx := strings.Index(v, "-")
 
@@ -1782,7 +1822,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path) (string, strin
 		d.LayoutFromTemplate = "" // This allows using page layout as part of the key for lookups.
 	}
 
-	return k1, k2, category, d, nil
+	return k1, k2, category, d, vactorStore, nil
 }
 
 func (s *TemplateStore) transformTemplates() error {
@@ -1956,7 +1996,7 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	}
 
 	// Note that for render hook templates, we need to make
-	// the embedded render hook template wih if they're a better match,
+	// the embedded render hook template win if they're a better match,
 	// e.g. render-codeblock-goat.html.
 	if best.templ.category != CategoryMarkup && best.w.w1 > 0 {
 		currentBestIsEmbedded := best.templ.subCategory == SubCategoryEmbedded
@@ -1973,9 +2013,13 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	}
 
 	if w.distance < best.w.distance {
+		if w.wsm < best.w.wsm {
+			return false
+		}
 		if w.w2 < best.w.w2 {
 			return false
 		}
+
 		if w.w3 < best.w.w3 {
 			return false
 		}
@@ -1986,7 +2030,10 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	}
 
 	if w.isEqualWeights(best.w) {
-		// Tie breakers.
+		if ti.subCategory != SubCategoryEmbedded && best.templ.subCategory == SubCategoryEmbedded {
+			return true
+		}
+
 		if w.distance < best.w.distance {
 			return true
 		}
@@ -2036,6 +2083,7 @@ type weight struct {
 	w1       int
 	w2       int
 	w3       int
+	wsm      int
 	distance int
 }
 

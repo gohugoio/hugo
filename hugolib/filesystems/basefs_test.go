@@ -14,6 +14,7 @@
 package filesystems_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -656,7 +657,7 @@ func countFilesAndGetFilenames(fs afero.Fs, dirname string) (int, []string, erro
 	counter := 0
 	var filenames []string
 
-	wf := func(path string, info hugofs.FileMetaInfo) error {
+	wf := func(ctx context.Context, path string, info hugofs.FileMetaInfo) error {
 		if !info.IsDir() {
 			counter++
 		}

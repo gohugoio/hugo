@@ -20,6 +20,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -28,6 +29,8 @@ func TestPageMatcher(t *testing.T) {
 	c := qt.New(t)
 	developmentTestSite := testSite{h: hugo.NewInfo(testConfig{environment: "development"}, nil)}
 	productionTestSite := testSite{h: hugo.NewInfo(testConfig{environment: "production"}, nil)}
+
+	dec := cascadeConfigDecoder{}
 
 	p1, p2, p3 := &testPage{path: "/p1", kind: "section", lang: "en", site: developmentTestSite},
 		&testPage{path: "p2", kind: "page", lang: "no", site: productionTestSite},
@@ -54,11 +57,6 @@ func TestPageMatcher(t *testing.T) {
 		c.Assert(m.Matches(p2), qt.Equals, true)
 		c.Assert(m.Matches(p3), qt.Equals, true)
 
-		m = PageMatcher{Lang: "en"}
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, false)
-		c.Assert(m.Matches(p3), qt.Equals, true)
-
 		m = PageMatcher{Environment: "development"}
 		c.Assert(m.Matches(p1), qt.Equals, true)
 		c.Assert(m.Matches(p2), qt.Equals, false)
@@ -72,19 +70,19 @@ func TestPageMatcher(t *testing.T) {
 
 	c.Run("Decode", func(c *qt.C) {
 		var v PageMatcher
-		c.Assert(decodePageMatcher(map[string]any{"kind": "foo"}, &v), qt.Not(qt.IsNil))
-		c.Assert(decodePageMatcher(map[string]any{"kind": "{foo,bar}"}, &v), qt.Not(qt.IsNil))
-		c.Assert(decodePageMatcher(map[string]any{"kind": "taxonomy"}, &v), qt.IsNil)
-		c.Assert(decodePageMatcher(map[string]any{"kind": "{taxonomy,foo}"}, &v), qt.IsNil)
-		c.Assert(decodePageMatcher(map[string]any{"kind": "{taxonomy,term}"}, &v), qt.IsNil)
-		c.Assert(decodePageMatcher(map[string]any{"kind": "*"}, &v), qt.IsNil)
-		c.Assert(decodePageMatcher(map[string]any{"kind": "home", "path": filepath.FromSlash("/a/b/**")}, &v), qt.IsNil)
-		c.Assert(v, qt.Equals, PageMatcher{Kind: "home", Path: "/a/b/**"})
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "foo"}, &v), qt.Not(qt.IsNil))
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "{foo,bar}"}, &v), qt.Not(qt.IsNil))
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "taxonomy"}, &v), qt.IsNil)
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "{taxonomy,foo}"}, &v), qt.IsNil)
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "{taxonomy,term}"}, &v), qt.IsNil)
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "*"}, &v), qt.IsNil)
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "home", "path": filepath.FromSlash("/a/b/**")}, &v), qt.IsNil)
+		c.Assert(v, qt.DeepEquals, PageMatcher{Kind: "home", Path: "/a/b/**"})
 	})
 
 	c.Run("mapToPageMatcherParamsConfig", func(c *qt.C) {
 		fn := func(m map[string]any) PageMatcherParamsConfig {
-			v, err := mapToPageMatcherParamsConfig(m)
+			v, err := dec.mapToPageMatcherParamsConfig(m)
 			c.Assert(err, qt.IsNil)
 			return v
 		}
@@ -129,13 +127,25 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		},
 	}
 
-	got, err := DecodeCascadeConfig(loggers.NewDefault(), true, in)
-
+	got, err := DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
-	c.Assert(got.Config.Keys(), qt.DeepEquals, []PageMatcher{{Kind: "page", Environment: "production"}, {Kind: "page"}})
+	c.Assert(got.InitConfig(loggers.NewDefault(), nil, nil), qt.IsNil)
+	c.Assert(got.c[0].Config.Cascades, qt.HasLen, 2)
+	first := got.c[0].Config.Cascades[0]
+	c.Assert(first, qt.DeepEquals, PageMatcherParamsConfig{
+		Params: maps.Params{
+			"a": "av",
+		},
+		Fields: maps.Params{},
+		Target: PageMatcher{
+			Kind:        "page",
+			Sites:       sitesmatrix.Sites{},
+			Environment: "production",
+		},
+	})
 
-	c.Assert(got.SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
+	c.Assert(got.c[0].SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
 		{
 			Params: maps.Params{"a": string("av")},
 			Fields: maps.Params{},
@@ -144,9 +154,51 @@ func TestDecodeCascadeConfig(t *testing.T) {
 		{Params: maps.Params{"b": string("bv")}, Fields: maps.Params{}, Target: PageMatcher{Kind: "page"}},
 	})
 
-	got, err = DecodeCascadeConfig(loggers.NewDefault(), true, nil)
+	got, err = DecodeCascadeConfig(nil)
+	c.Assert(err, qt.IsNil)
+	c.Assert(got.InitConfig(loggers.NewDefault(), nil, nil), qt.IsNil)
+	c.Assert(got.Len(), qt.Equals, 0)
+}
+
+func TestDecodeCascadeConfigWithSitesMatrix(t *testing.T) {
+	c := qt.New(t)
+
+	in := []map[string]any{
+		{
+			"params": map[string]any{
+				"a": "av",
+			},
+			"sites": map[string]any{
+				"matrix": map[string]any{
+					"roles": "pro",
+				},
+			},
+			"target": map[string]any{
+				"kind":        "page",
+				"Environment": "production",
+				"sites": map[string]any{
+					"matrix": map[string]any{
+						"languages": []string{"en", "{no,sv}"},
+						"versions":  "v1**",
+					},
+				},
+			},
+		},
+	}
+
+	dims := sitesmatrix.NewTestingDimensions([]string{"en", "no", "sv"}, []string{"v1", "v2"}, []string{"free", "pro"})
+
+	got, err := DecodeCascadeConfig(in)
 	c.Assert(err, qt.IsNil)
 	c.Assert(got, qt.IsNotNil)
+	c.Assert(got.InitConfig(loggers.NewDefault(), nil, dims), qt.IsNil)
+	v := got.c[0].Config.Cascades[0]
+	c.Assert(v.Target.Kind, qt.Equals, "page")
+	c.Assert(v.Target.Environment, qt.Equals, "production")
+
+	matrix := v.Target.SitesMatrixCompiled
+	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 0, 0}), qt.IsTrue)  // en, v1, free
+	c.Assert(matrix.HasVector(sitesmatrix.Vector{0, 1, 0}), qt.IsFalse) // en, v2, free
 }
 
 type testConfig struct {

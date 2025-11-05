@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,27 +11,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package doctree
+package versions_test
 
 import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/hugolib"
 )
 
-func TestDimensionFlag(t *testing.T) {
-	c := qt.New(t)
+func TestDefaultContentVersionDoesNotExist(t *testing.T) {
+	t.Parallel()
 
-	var zero DimensionFlag
-	var d DimensionFlag
-	var o DimensionFlag = 1
-	var p DimensionFlag = 12
-
-	c.Assert(d.Has(o), qt.Equals, false)
-	d = d.Set(o)
-	c.Assert(d.Has(o), qt.Equals, true)
-	c.Assert(d.Has(d), qt.Equals, true)
-	c.Assert(func() { zero.Index() }, qt.PanicMatches, "dimension flag not set")
-	c.Assert(DimensionLanguage.Index(), qt.Equals, 0)
-	c.Assert(p.Index(), qt.Equals, 11)
+	files := `
+-- hugo.toml --
+disableKinds = ["rss", "sitemap", "section", "taxonomy", "term"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+defaultContentVersion = "doesnotexist"
+[versions]
+[versions."v1.0.0"]
+`
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, `.*failed to decode "versions": the configured defaultContentVersion "doesnotexist" does not exist`)
 }

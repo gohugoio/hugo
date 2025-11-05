@@ -21,9 +21,9 @@ import (
 )
 
 func BenchmarkFinder(b *testing.B) {
-	m1 := identity.NewManager("")
-	m2 := identity.NewManager("")
-	m3 := identity.NewManager("")
+	m1 := identity.NewManager()
+	m2 := identity.NewManager()
+	m3 := identity.NewManager()
 	m1.AddIdentity(
 		testIdentity{"base", "id1", "", "pe1"},
 		testIdentity{"base2", "id2", "eq1", ""},

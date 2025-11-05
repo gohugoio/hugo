@@ -46,38 +46,32 @@ publishResources = true`
 				Render:           Always,
 				List:             Always,
 				PublishResources: true,
-				set:              true,
 			},
 		},
 		{[]any{"true", "false"}, BuildConfig{
 			Render:           Always,
 			List:             Never,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"always"`, `"always"`}, BuildConfig{
 			Render:           Always,
 			List:             Always,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"never"`, `"never"`}, BuildConfig{
 			Render:           Never,
 			List:             Never,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"link"`, `"local"`}, BuildConfig{
 			Render:           Link,
 			List:             ListLocally,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"always"`, `"asdfadf"`}, BuildConfig{
 			Render:           Always,
 			List:             Always,
 			PublishResources: true,
-			set:              true,
 		}},
 	} {
 		cfg, err := config.FromConfigString(fmt.Sprintf(configTempl, test.args...), "toml")

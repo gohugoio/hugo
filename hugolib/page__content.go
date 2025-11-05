@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"path/filepath"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"unicode/utf8"
 
 	maps0 "maps"
@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/markup"
@@ -64,107 +65,84 @@ type pageContentReplacement struct {
 	source pageparser.Item
 }
 
-func (m *pageMeta) parseFrontMatter(h *HugoSites, pid uint64) (*contentParseInfo, error) {
-	var (
-		sourceKey            string
-		openSource           hugio.OpenReadSeekCloser
-		isFromContentAdapter = m.pageConfig.IsFromContentAdapter
-	)
-
-	if m.f != nil && !isFromContentAdapter {
-		sourceKey = filepath.ToSlash(m.f.Filename())
-		if !isFromContentAdapter {
-			meta := m.f.FileInfo().Meta()
-			openSource = func() (hugio.ReadSeekCloser, error) {
-				r, err := meta.Open()
-				if err != nil {
-					return nil, fmt.Errorf("failed to open file %q: %w", meta.Filename, err)
-				}
-				return r, nil
-			}
-		}
-	} else if isFromContentAdapter {
-		openSource = m.pageConfig.Content.ValueAsOpenReadSeekCloser()
-	}
+func (m *pageMetaSource) parseFrontMatter(
+	h *HugoSites,
+	sid uint64,
+) error {
+	var sourceKey string
 
 	if sourceKey == "" {
-		sourceKey = strconv.FormatUint(pid, 10)
+		sourceKey = strconv.FormatUint(sid, 10)
 	}
 
-	pi := &contentParseInfo{
-		h:          h,
-		pid:        pid,
-		sourceKey:  sourceKey,
-		openSource: openSource,
-	}
-
-	source, err := pi.contentSource(m)
-	if err != nil {
-		return nil, err
-	}
-
-	items, err := pageparser.ParseBytes(
-		source,
-		pageparser.Config{
-			NoFrontMatter: isFromContentAdapter,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	pi.itemsStep1 = items
-
-	if isFromContentAdapter {
-		// No front matter.
-		return pi, nil
-	}
-
-	if err := pi.mapFrontMatter(source); err != nil {
-		return nil, err
-	}
-
-	return pi, nil
-}
-
-func (m *pageMeta) newCachedContent(h *HugoSites, pi *contentParseInfo) (*cachedContent, error) {
 	var filename string
 	if m.f != nil {
 		filename = m.f.Filename()
 	}
 
-	c := &cachedContent{
-		pm:             m.s.pageMap,
-		StaleInfo:      m,
-		shortcodeState: newShortcodeHandler(filename, m.s),
-		pi:             pi,
-		enableEmoji:    m.s.conf.EnableEmoji,
-		scopes:         maps.NewCache[string, *cachedContentScope](),
+	m.pi = &contentParseInfo{
+		h:                  h,
+		sid:                sid,
+		sourceKey:          sourceKey,
+		openSource:         m.openSource,
+		shortcodeParseInfo: newShortcodeHandler(filename, h.Deps),
 	}
 
-	source, err := c.pi.contentSource(m)
+	source, err := m.pi.contentSource(m)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if err := c.parseContentFile(source); err != nil {
-		return nil, err
+	items, err := pageparser.ParseBytes(
+		source,
+		pageparser.Config{
+			NoFrontMatter: m.noFrontMatter,
+		},
+	)
+	if err != nil {
+		return err
 	}
+
+	m.pi.itemsStep1 = items
+
+	if err := m.pi.parseSource(source, m.noFrontMatter); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *pageMeta) newCachedContent(s *Site) (*cachedContent, error) {
+	if m.pageMetaSource.pi == nil {
+		panic("pageMeta.pageMetaSource.pi must be set before creating cachedContent")
+	}
+
+	c := &cachedContent{
+		pm:          s.pageMap,
+		StaleInfo:   m,
+		pi:          m.pi,
+		enableEmoji: s.conf.EnableEmoji,
+		scopes:      maps.NewCache[string, *cachedContentScope](),
+	}
+	var hasName predicate.P[string] = m.pi.shortcodeParseInfo.hasName
+	c.hasShortcode.Store(&hasName)
 
 	return c, nil
 }
 
+// Content cached for a page instance.
 type cachedContent struct {
 	pm *pageMap
 
 	resource.StaleInfo
 
-	shortcodeState *shortcodeHandler
-
 	// Parsed content.
 	pi *contentParseInfo
 
 	enableEmoji bool
+
+	// Whether the content has a given shortcode name.
+	hasShortcode atomic.Pointer[predicate.P[string]]
 
 	scopes *maps.Cache[string, *cachedContentScope]
 }
@@ -181,10 +159,11 @@ func (c *cachedContent) getOrCreateScope(scope string, pco *pageContentOutput) *
 	return cs
 }
 
+// contentParseInfo is shared between all Page instances created from the same source.
 type contentParseInfo struct {
 	h *HugoSites
 
-	pid       uint64
+	sid       uint64
 	sourceKey string
 
 	// The source bytes.
@@ -207,20 +186,23 @@ type contentParseInfo struct {
 
 	//  *shortcode, pageContentReplacement or pageparser.Item
 	itemsStep2 []any
+
+	// The shortcode handler.
+	shortcodeParseInfo *shortcodeParseInfo
 }
 
-func (p *contentParseInfo) AddBytes(item pageparser.Item) {
-	p.itemsStep2 = append(p.itemsStep2, item)
+func (pi *contentParseInfo) AddBytes(item pageparser.Item) {
+	pi.itemsStep2 = append(pi.itemsStep2, item)
 }
 
-func (p *contentParseInfo) AddReplacement(val []byte, source pageparser.Item) {
-	p.itemsStep2 = append(p.itemsStep2, pageContentReplacement{val: val, source: source})
+func (pi *contentParseInfo) AddReplacement(val []byte, source pageparser.Item) {
+	pi.itemsStep2 = append(pi.itemsStep2, pageContentReplacement{val: val, source: source})
 }
 
-func (p *contentParseInfo) AddShortcode(s *shortcode) {
-	p.itemsStep2 = append(p.itemsStep2, s)
+func (pi *contentParseInfo) AddShortcode(s *shortcode) {
+	pi.itemsStep2 = append(pi.itemsStep2, s)
 	if s.insertPlaceholder() {
-		p.hasNonMarkdownShortcode = true
+		pi.hasNonMarkdownShortcode = true
 	}
 }
 
@@ -268,22 +250,117 @@ func (c *cachedContent) IsZero() bool {
 	return len(c.pi.itemsStep2) == 0
 }
 
-func (c *cachedContent) parseContentFile(source []byte) error {
-	if source == nil || c.pi.openSource == nil {
+func (pi *contentParseInfo) parseSource(source []byte, skipFrontMatter bool) error {
+	if len(pi.itemsStep1) == 0 {
 		return nil
 	}
 
-	return c.pi.mapItemsAfterFrontMatter(source, c.shortcodeState)
+	s := pi.shortcodeParseInfo
+
+	fail := func(err error, i pageparser.Item) error {
+		if fe, ok := err.(herrors.FileError); ok {
+			return fe
+		}
+
+		pos := posFromInput("", source, i.Pos())
+
+		return herrors.NewFileErrorFromPos(err, pos)
+	}
+
+	iter := pageparser.NewIterator(pi.itemsStep1)
+
+	// the parser is guaranteed to return items in proper order or fail, so …
+	// … it's safe to keep some "global" state
+	var ordinal int
+
+Loop:
+	for {
+		it := iter.Next()
+
+		switch {
+		case it.Type == pageparser.TypeIgnore:
+		case it.IsFrontMatter():
+			if !skipFrontMatter {
+				if err := pi.parseFrontMatter(it, iter, source); err != nil {
+					return err
+				}
+			}
+			next := iter.Peek()
+			if !next.IsDone() {
+				pi.posMainContent = next.Pos()
+			}
+		case it.Type == pageparser.TypeLeadSummaryDivider:
+			posBody := -1
+			f := func(item pageparser.Item) bool {
+				if posBody == -1 && !item.IsDone() {
+					posBody = item.Pos()
+				}
+
+				if item.IsNonWhitespace(source) {
+					// Done
+					return false
+				}
+				return true
+			}
+			iter.PeekWalk(f)
+
+			pi.hasSummaryDivider = true
+
+			// The content may be rendered by Goldmark or similar,
+			// and we need to track the summary.
+			pi.AddReplacement(internalSummaryDividerPre, it)
+
+		// Handle shortcode
+		case it.IsLeftShortcodeDelim():
+			// let extractShortcode handle left delim (will do so recursively)
+			iter.Backup()
+
+			currShortcode, err := s.extractShortcode(ordinal, 0, source, iter)
+			if err != nil {
+				return fail(err, it)
+			}
+
+			currShortcode.pos = it.Pos()
+			currShortcode.length = iter.Current().Pos() - it.Pos()
+			if currShortcode.placeholder == "" {
+				currShortcode.placeholder = createShortcodePlaceholder("s", pi.sid, currShortcode.ordinal)
+			}
+
+			if currShortcode.name != "" {
+				s.addName(currShortcode.name)
+			}
+
+			if currShortcode.params == nil {
+				var s []string
+				currShortcode.params = s
+			}
+
+			currShortcode.placeholder = createShortcodePlaceholder("s", pi.sid, ordinal)
+			ordinal++
+			s.shortcodes = append(s.shortcodes, currShortcode)
+
+			pi.AddShortcode(currShortcode)
+
+		case it.IsEOF():
+			break Loop
+		case it.IsError():
+			return fail(it.Err, it)
+		default:
+			pi.AddBytes(it)
+		}
+	}
+
+	return nil
 }
 
-func (c *contentParseInfo) parseFrontMatter(it pageparser.Item, iter *pageparser.Iterator, source []byte) error {
-	if c.frontMatter != nil {
+func (pi *contentParseInfo) parseFrontMatter(it pageparser.Item, iter *pageparser.Iterator, source []byte) error {
+	if pi.frontMatter != nil {
 		return nil
 	}
 
 	f := pageparser.FormatFromFrontMatterType(it.Type)
 	var err error
-	c.frontMatter, err = metadecoders.Default.UnmarshalToMap(it.Val(source), f)
+	pi.frontMatter, err = metadecoders.Default.UnmarshalToMap(it.Val(source), f)
 	if err != nil {
 		fe := herrors.UnwrapFileError(err)
 		if fe == nil {
@@ -304,144 +381,6 @@ func (c *contentParseInfo) parseFrontMatter(it pageparser.Item, iter *pageparser
 	return nil
 }
 
-func (rn *contentParseInfo) failMap(source []byte, err error, i pageparser.Item) error {
-	if fe, ok := err.(herrors.FileError); ok {
-		return fe
-	}
-
-	pos := posFromInput("", source, i.Pos())
-
-	return herrors.NewFileErrorFromPos(err, pos)
-}
-
-func (rn *contentParseInfo) mapFrontMatter(source []byte) error {
-	if len(rn.itemsStep1) == 0 {
-		return nil
-	}
-	iter := pageparser.NewIterator(rn.itemsStep1)
-
-Loop:
-	for {
-		it := iter.Next()
-		switch {
-		case it.IsFrontMatter():
-			if err := rn.parseFrontMatter(it, iter, source); err != nil {
-				return err
-			}
-			next := iter.Peek()
-			if !next.IsDone() {
-				rn.posMainContent = next.Pos()
-			}
-			// Done.
-			break Loop
-		case it.IsEOF():
-			break Loop
-		case it.IsError():
-			return rn.failMap(source, it.Err, it)
-		default:
-
-		}
-	}
-
-	return nil
-}
-
-func (rn *contentParseInfo) mapItemsAfterFrontMatter(
-	source []byte,
-	s *shortcodeHandler,
-) error {
-	if len(rn.itemsStep1) == 0 {
-		return nil
-	}
-
-	fail := func(err error, i pageparser.Item) error {
-		if fe, ok := err.(herrors.FileError); ok {
-			return fe
-		}
-
-		pos := posFromInput("", source, i.Pos())
-
-		return herrors.NewFileErrorFromPos(err, pos)
-	}
-
-	iter := pageparser.NewIterator(rn.itemsStep1)
-
-	// the parser is guaranteed to return items in proper order or fail, so …
-	// … it's safe to keep some "global" state
-	var ordinal int
-
-Loop:
-	for {
-		it := iter.Next()
-
-		switch {
-		case it.Type == pageparser.TypeIgnore:
-		case it.IsFrontMatter():
-			// Ignore.
-		case it.Type == pageparser.TypeLeadSummaryDivider:
-			posBody := -1
-			f := func(item pageparser.Item) bool {
-				if posBody == -1 && !item.IsDone() {
-					posBody = item.Pos()
-				}
-
-				if item.IsNonWhitespace(source) {
-					// Done
-					return false
-				}
-				return true
-			}
-			iter.PeekWalk(f)
-
-			rn.hasSummaryDivider = true
-
-			// The content may be rendered by Goldmark or similar,
-			// and we need to track the summary.
-			rn.AddReplacement(internalSummaryDividerPre, it)
-
-		// Handle shortcode
-		case it.IsLeftShortcodeDelim():
-			// let extractShortcode handle left delim (will do so recursively)
-			iter.Backup()
-
-			currShortcode, err := s.extractShortcode(ordinal, 0, source, iter)
-			if err != nil {
-				return fail(err, it)
-			}
-
-			currShortcode.pos = it.Pos()
-			currShortcode.length = iter.Current().Pos() - it.Pos()
-			if currShortcode.placeholder == "" {
-				currShortcode.placeholder = createShortcodePlaceholder("s", rn.pid, currShortcode.ordinal)
-			}
-
-			if currShortcode.name != "" {
-				s.addName(currShortcode.name)
-			}
-
-			if currShortcode.params == nil {
-				var s []string
-				currShortcode.params = s
-			}
-
-			currShortcode.placeholder = createShortcodePlaceholder("s", rn.pid, ordinal)
-			ordinal++
-			s.shortcodes = append(s.shortcodes, currShortcode)
-
-			rn.AddShortcode(currShortcode)
-
-		case it.IsEOF():
-			break Loop
-		case it.IsError():
-			return fail(it.Err, it)
-		default:
-			rn.AddBytes(it)
-		}
-	}
-
-	return nil
-}
-
 func (c *cachedContent) mustSource() []byte {
 	source, err := c.pi.contentSource(c)
 	if err != nil {
@@ -450,12 +389,12 @@ func (c *cachedContent) mustSource() []byte {
 	return source
 }
 
-func (c *contentParseInfo) contentSource(s resource.StaleInfo) ([]byte, error) {
-	key := c.sourceKey
+func (pi *contentParseInfo) contentSource(s resource.StaleInfo) ([]byte, error) {
+	key := pi.sourceKey
 	versionv := s.StaleVersion()
 
-	v, err := c.h.cacheContentSource.GetOrCreate(key, func(string) (*resources.StaleValue[[]byte], error) {
-		b, err := c.readSourceAll()
+	v, err := pi.h.cacheContentSource.GetOrCreate(key, func(string) (*resources.StaleValue[[]byte], error) {
+		b, err := pi.readSourceAll()
 		if err != nil {
 			return nil, err
 		}
@@ -474,11 +413,11 @@ func (c *contentParseInfo) contentSource(s resource.StaleInfo) ([]byte, error) {
 	return v.Value, nil
 }
 
-func (c *contentParseInfo) readSourceAll() ([]byte, error) {
-	if c.openSource == nil {
+func (pi *contentParseInfo) readSourceAll() ([]byte, error) {
+	if pi.openSource == nil {
 		return []byte{}, nil
 	}
-	r, err := c.openSource()
+	r, err := pi.openSource()
 	if err != nil {
 		return nil, err
 	}
@@ -525,6 +464,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 	cp := c.pco
 	ctx = tpl.Context.DependencyScope.Set(ctx, pageDependencyScopeGlobal)
 	key := c.pi.sourceKey + "/" + c.keyScope(ctx)
+
 	versionv := c.version(cp)
 
 	v, err := c.pm.cacheContentRendered.GetOrCreate(key, func(string) (*resources.StaleValue[contentSummary], error) {
@@ -604,7 +544,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 			var result contentSummary
 			if c.pi.hasSummaryDivider {
 				s := string(b)
-				summarized := page.ExtractSummaryFromHTMLWithDivider(cp.po.p.m.pageConfig.ContentMediaType, s, internalSummaryDividerBase)
+				summarized := page.ExtractSummaryFromHTMLWithDivider(cp.po.p.m.pageConfigSource.ContentMediaType, s, internalSummaryDividerBase)
 				result.summary = page.Summary{
 					Text:      template.HTML(summarized.Summary()),
 					Type:      page.SummaryTypeManual,
@@ -619,7 +559,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 			if !c.pi.hasSummaryDivider && cp.po.p.m.pageConfig.Summary == "" {
 				numWords := cp.po.p.s.conf.SummaryLength
 				isCJKLanguage := cp.po.p.m.pageConfig.IsCJKLanguage
-				summary := page.ExtractSummaryFromHTML(cp.po.p.m.pageConfig.ContentMediaType, string(result.content), numWords, isCJKLanguage)
+				summary := page.ExtractSummaryFromHTML(cp.po.p.m.pageConfigSource.ContentMediaType, string(result.content), numWords, isCJKLanguage)
 				result.summary = page.Summary{
 					Text:      template.HTML(summary.Summary()),
 					Type:      page.SummaryTypeAuto,
@@ -640,7 +580,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 			if err != nil {
 				return nil, err
 			}
-			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfig.Content.Markup)
+			html := cp.po.p.s.ContentSpec.TrimShortHTML(b.Bytes(), cp.po.p.m.pageConfigSource.Content.Markup)
 			rs.Value.summary = page.Summary{
 				Text:      helpers.BytesToHTML(html),
 				Type:      page.SummaryTypeFrontMatter,
@@ -691,7 +631,7 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 		}
 		po := cp.po
 		p := po.p
-		ct.contentPlaceholders, err = c.shortcodeState.prepareShortcodesForPage(ctx, po, false)
+		ct.contentPlaceholders, err = c.pi.shortcodeParseInfo.prepareShortcodesForPage(po, false)
 		if err != nil {
 			return nil, err
 		}
@@ -704,13 +644,14 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 			maps0.Copy(ct.contentPlaceholders, ct2.contentPlaceholders)
 
 			if p.s.conf.Internal.Watch {
-				for _, s := range cp2.po.p.m.content.shortcodeState.shortcodes {
+				for _, s := range cp2.po.p.m.content.pi.shortcodeParseInfo.shortcodes {
 					cp.trackDependency(s.templ)
 				}
 			}
 
 			// Transfer shortcode names so HasShortcode works for shortcodes from included pages.
-			cp.po.p.m.content.shortcodeState.transferNames(cp2.po.p.m.content.shortcodeState)
+			combined := cp.po.p.m.content.hasShortcode.Load().Or(*cp2.po.p.m.content.hasShortcode.Load())
+			cp.po.p.m.content.hasShortcode.Store(&combined)
 			if cp2.po.p.pageOutputTemplateVariationsState.Load() > 0 {
 				cp.po.p.incrPageOutputTemplateVariation()
 			}
@@ -728,7 +669,7 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 			p.incrPageOutputTemplateVariation()
 		}
 
-		isHTML := cp.po.p.m.pageConfig.ContentMediaType.IsHTML()
+		isHTML := cp.po.p.m.pageConfigSource.ContentMediaType.IsHTML()
 
 		if !isHTML {
 			createAndSetToC := func(tocProvider converter.TableOfContentsProvider) error {
@@ -951,7 +892,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 
 	conv := pco.po.p.getContentConverter()
 
-	if opts.Markup != "" && opts.Markup != pco.po.p.m.pageConfig.ContentMediaType.SubType {
+	if opts.Markup != "" && opts.Markup != pco.po.p.m.pageConfigSource.ContentMediaType.SubType {
 		var err error
 		conv, err = pco.po.p.m.newContentConverter(pco.po.p, opts.Markup)
 		if err != nil {
@@ -963,7 +904,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 
 	parseInfo := &contentParseInfo{
 		h:   pco.po.p.s.h,
-		pid: pco.po.p.pid,
+		sid: pco.po.p.pid,
 	}
 
 	if pageparser.HasShortcode(contentToRender) {
@@ -977,12 +918,12 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 			return "", err
 		}
 
-		s := newShortcodeHandler(pco.po.p.pathOrTitle(), pco.po.p.s)
-		if err := parseInfo.mapItemsAfterFrontMatter(contentToRenderb, s); err != nil {
+		parseInfo.shortcodeParseInfo = newShortcodeHandler(pco.po.p.pathOrTitle(), pco.po.p.s.h.Deps)
+		if err := parseInfo.parseSource(contentToRenderb, true); err != nil {
 			return "", err
 		}
 
-		placeholders, err := s.prepareShortcodesForPage(ctx, pco.po, true)
+		placeholders, err := parseInfo.shortcodeParseInfo.prepareShortcodesForPage(pco.po, true)
 		if err != nil {
 			return "", err
 		}
@@ -1022,7 +963,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 					return repl, nil
 				}
 				// This should not happen.
-				return nil, fmt.Errorf("unknown shortcode token %q", token)
+				return nil, fmt.Errorf("RenderString: unknown shortcode token %q", token)
 			}
 
 			rendered, err = expandShortcodeTokens(ctx, rendered, tokenHandler)
@@ -1035,7 +976,8 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 		}
 
 		// We need a consolidated view in $page.HasShortcode
-		pco.po.p.m.content.shortcodeState.transferNames(s)
+		combined := pco.po.p.m.content.hasShortcode.Load().Or(parseInfo.shortcodeParseInfo.hasName)
+		pco.po.p.m.content.hasShortcode.Store(&combined)
 
 	} else {
 		c, err := pco.renderContentWithConverter(ctx, conv, []byte(contentToRender), false)
@@ -1047,7 +989,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 	}
 
 	if opts.Display == "inline" {
-		markup := pco.po.p.m.pageConfig.Content.Markup
+		markup := pco.po.p.m.pageConfigSource.Content.Markup
 		if opts.Markup != "" {
 			markup = pco.po.p.s.ContentSpec.ResolveMarkup(opts.Markup)
 		}

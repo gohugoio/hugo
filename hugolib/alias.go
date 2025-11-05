@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resources/page"
@@ -47,7 +48,7 @@ type aliasPage struct {
 	page.Page
 }
 
-func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, error) {
+func (a aliasHandler) renderAlias(permalink string, p page.Page, matrix sitesmatrix.VectorProvider) (io.Reader, error) {
 	var templateDesc tplimpl.TemplateDescriptor
 	var base string = ""
 	if ps, ok := p.(*pageState); ok {
@@ -62,6 +63,7 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page) (io.Reader, err
 		Path:     base,
 		Category: tplimpl.CategoryLayout,
 		Desc:     templateDesc,
+		Sites:    matrix,
 	}
 
 	t := a.ts.LookupPagesLayout(q)
@@ -96,7 +98,7 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 		return err
 	}
 
-	aliasContent, err := handler.renderAlias(permalink, p)
+	aliasContent, err := handler.renderAlias(permalink, p, s.siteVector)
 	if err != nil {
 		return err
 	}

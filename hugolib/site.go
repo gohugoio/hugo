@@ -32,6 +32,7 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hstore"
+	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
@@ -44,6 +45,9 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/pagesfromdata"
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/internal/js/esbuild"
 	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/langs/i18n"
@@ -79,8 +83,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page/siteidentities"
 	"github.com/gohugoio/hugo/resources/resource"
 
-	"github.com/gohugoio/hugo/lazy"
-
 	"github.com/fsnotify/fsnotify"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/helpers"
@@ -99,22 +101,55 @@ const (
 )
 
 type Site struct {
-	state     siteState
-	conf      *allconfig.Config
-	language  *langs.Language
-	languagei int
-	pageMap   *pageMap
-	store     *hstore.Scratch
+	state       siteState
+	conf        *allconfig.Config
+	language    *langs.Language
+	store       *hstore.Scratch
+	siteWrapped page.Site
 
 	// The owning container.
 	h *HugoSites
 
 	*deps.Deps
+	*siteLanguageVersionRole
+
+	relatedDocsHandler *page.RelatedDocsHandler
+
+	publisher          publisher.Publisher
+	frontmatterHandler pagemeta.FrontMatterHandler
+}
+
+func (s Site) cloneForVersionAndRole(version, role int) (*Site, error) {
+	s.siteLanguageVersionRole = s.siteLanguageVersionRole.cloneForVersionAndRole(version, role)
+	d, err := s.Deps.Clone(&s, s.Conf)
+	if err != nil {
+		return nil, err
+	}
+	s.Deps = d
+	ss := &s
+	ss.siteWrapped = page.WrapSite(ss)
+	return ss, nil
+}
+
+// For debugging purposes only.
+func (s *Site) resolveDimensionNames() types.Strings3 {
+	return s.Conf.ConfiguredDimensions().ResolveNames(s.siteVector)
+}
+
+type siteLanguageVersionRole struct {
+	siteVector sitesmatrix.Vector
+
+	roleInternal roles.RoleInternal
+	role         roles.Role
+
+	versionInternal versions.VersionInternal
+	version         versions.Version
+
+	pageMap *pageMap
 
 	// Page navigation.
 	*pageFinder
-	taxonomies page.TaxonomyList
-	menus      navigation.Menus
+	siteRefLinker siteRefLinker
 
 	// Shortcut to the home page. Note that this may be nil if
 	// home page, for some odd reason, is disabled.
@@ -123,19 +158,31 @@ type Site struct {
 	// The last modification date of this site.
 	lastmod time.Time
 
-	relatedDocsHandler *page.RelatedDocsHandler
-	siteRefLinker
-	publisher          publisher.Publisher
-	frontmatterHandler pagemeta.FrontMatterHandler
+	// Lazily loaded site dependencies
+	init *siteInit
 
 	// The output formats that we need to render this site in. This slice
 	// will be fixed once set.
 	// This will be the union of Site.Pages' outputFormats.
 	// This slice will be sorted.
 	renderFormats output.Formats
+}
 
-	// Lazily loaded site dependencies
-	init *siteInit
+func (s siteLanguageVersionRole) cloneForVersionAndRole(version, role int) *siteLanguageVersionRole {
+	s.siteVector[sitesmatrix.Version] = version
+	s.siteVector[sitesmatrix.Role] = role
+	s.home = nil
+	s.lastmod = time.Time{}
+	s.init = &siteInit{}
+	return &s
+}
+
+func (s siteLanguageVersionRole) Role() roles.Role {
+	return s.role
+}
+
+func (s siteLanguageVersionRole) Version() versions.Version {
+	return s.version
 }
 
 func (s *Site) Debug() {
@@ -146,6 +193,8 @@ func (s *Site) Debug() {
 // NewHugoSites creates HugoSites from the given config.
 func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	conf := cfg.Configs.GetFirstLanguageConfig()
+	rolesSorted := cfg.Configs.Base.Roles.Config.Sorted
+	versionsSorted := cfg.Configs.Base.Versions.Config.Sorted
 
 	var logger loggers.Logger
 	if cfg.TestLogger != nil {
@@ -229,12 +278,15 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	var sites []*Site
 
 	ns := &contentNodeShifter{
-		numLanguages: len(confm.Languages),
+		conf: conf,
 	}
 
-	treeConfig := doctree.Config[contentNodeI]{
-		Shifter: ns,
+	treeConfig := doctree.Config[contentNode]{
+		Shifter:        ns,
+		TransformerRaw: &contentNodeTransformerRaw{},
 	}
+
+	dimensionLengths := sitesmatrix.Vector{len(confm.Languages), len(versionsSorted), len(rolesSorted)}
 
 	pageTrees := &pageTrees{
 		treePages: doctree.New(
@@ -243,16 +295,16 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		treeResources: doctree.New(
 			treeConfig,
 		),
-		treeTaxonomyEntries:           doctree.NewTreeShiftTree[*weightedContentNode](doctree.DimensionLanguage.Index(), len(confm.Languages)),
-		treePagesFromTemplateAdapters: doctree.NewTreeShiftTree[*pagesfromdata.PagesFromTemplate](doctree.DimensionLanguage.Index(), len(confm.Languages)),
+		treeTaxonomyEntries:           doctree.NewTreeShiftTree[*weightedContentNode](dimensionLengths),
+		treePagesFromTemplateAdapters: doctree.NewTreeShiftTree[*pagesfromdata.PagesFromTemplate](dimensionLengths),
 	}
 
 	pageTrees.createMutableTrees()
 
 	for i, confp := range confm.ConfigLangs() {
-		language := confp.Language()
+		language := confp.Language().(*langs.Language)
 		if language.Disabled {
-			continue
+			panic("cannot create site for disabled language: " + language.Lang)
 		}
 		k := language.Lang
 		conf := confm.LanguageConfigMap[k]
@@ -266,10 +318,14 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		s := &Site{
 			conf:               conf,
 			language:           language,
-			languagei:          i,
 			frontmatterHandler: frontmatterHandler,
 			store:              hstore.NewScratch(),
+			siteLanguageVersionRole: &siteLanguageVersionRole{
+				siteVector: sitesmatrix.Vector{i, 0, 0},
+			},
 		}
+
+		s.siteWrapped = page.WrapSite(s)
 
 		if i == 0 {
 			firstSiteDeps.Site = s
@@ -282,13 +338,6 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			s.Deps = d
 		}
 
-		s.pageMap = newPageMap(i, s, memCache, pageTrees)
-
-		s.pageFinder = newPageFinder(s.pageMap)
-		s.siteRefLinker, err = newSiteRefLinker(s)
-		if err != nil {
-			return nil, err
-		}
 		// Set up the main publishing chain.
 		pub, err := publisher.NewDestinationPublisher(
 			firstSiteDeps.ResourceSpec,
@@ -303,34 +352,54 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		s.relatedDocsHandler = page.NewRelatedDocsHandler(s.conf.Related)
 		// Site deps end.
 
-		s.prepareInits()
 		sites = append(sites, s)
+
 	}
 
 	if len(sites) == 0 {
 		return nil, errors.New("no sites to build")
 	}
 
-	// Pull the default content language to the top, then sort the sites by language weight (if set) or lang.
-	defaultContentLanguage := confm.Base.DefaultContentLanguage
-	sort.Slice(sites, func(i, j int) bool {
-		li := sites[i].language
-		lj := sites[j].language
-		if li.Lang == defaultContentLanguage {
-			return true
+	sitesVersionsRoles := make([][][]*Site, len(sites))
+	for i := 0; i < len(sites); i++ {
+		sitesVersionsRoles[i] = make([][]*Site, len(versionsSorted))
+		for j := 0; j < len(versionsSorted); j++ {
+			sitesVersionsRoles[i][j] = make([]*Site, len(rolesSorted))
 		}
+	}
 
-		if lj.Lang == defaultContentLanguage {
-			return false
+	siteVersionRoles := map[types.Ints2][]roles.Role{}
+	siteRoleVersions := map[types.Ints2][]versions.Version{}
+	// i = site, j = version, k = role
+	for i, v1 := range sitesVersionsRoles {
+		for j, v2 := range v1 {
+			for k := range v2 {
+				var vrs *Site
+				if j == 0 && k == 0 {
+					vrs = sites[i]
+				} else {
+					prototype := sites[i]
+					vrs, err = prototype.cloneForVersionAndRole(j, k)
+					if err != nil {
+						return nil, err
+					}
+				}
+				vrs.roleInternal = rolesSorted[k]
+				vrs.role = roles.NewRole(rolesSorted[k])
+				vrs.versionInternal = versionsSorted[j]
+				vrs.version = versions.NewVersion(versionsSorted[j])
+				siteRoleVersions[types.Ints2{i, k}] = append(siteRoleVersions[types.Ints2{i, k}], vrs.version)
+				siteVersionRoles[types.Ints2{i, j}] = append(siteVersionRoles[types.Ints2{i, j}], vrs.role)
+				vrs.pageMap = newPageMap(vrs, memCache, pageTrees)
+				vrs.pageFinder = newPageFinder(vrs.pageMap)
+				vrs.siteRefLinker = newSiteRefLinker(vrs)
+				vrs.prepareInits()
+				v2[k] = vrs
+			}
 		}
+	}
 
-		if li.Weight != lj.Weight {
-			return li.Weight < lj.Weight
-		}
-		return li.Lang < lj.Lang
-	})
-
-	h, err = newHugoSites(cfg, firstSiteDeps, pageTrees, sites)
+	h, err = newHugoSites(cfg, firstSiteDeps, pageTrees, sitesVersionsRoles)
 	if err == nil && h == nil {
 		panic("hugo: newHugoSitesNew returned nil error and nil HugoSites")
 	}
@@ -338,32 +407,56 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	return h, err
 }
 
-func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []*Site) (*HugoSites, error) {
+func newHugoSites(
+	cfg deps.DepsCfg,
+	d *deps.Deps,
+	pageTrees *pageTrees,
+	sitesVersionsRoles [][][]*Site,
+) (*HugoSites, error) {
+	first := make([]*Site, len(sitesVersionsRoles))
+	for i, v := range sitesVersionsRoles {
+		first[i] = v[0][0]
+	}
+
+	sitesVersionsRolesMap := map[sitesmatrix.Vector]*Site{}
+	for _, v1 := range sitesVersionsRoles {
+		for _, v2 := range v1 {
+			for _, s := range v2 {
+				sitesVersionsRolesMap[s.siteVector] = s
+			}
+		}
+	}
+
 	numWorkers := config.GetNumWorkerMultiplier()
-	numWorkersSite := min(numWorkers, len(sites))
+	numWorkersSite := min(numWorkers, len(sitesVersionsRolesMap))
 	workersSite := para.New(numWorkersSite)
 
+	var sitesLanguages []*Site
+	for _, v := range sitesVersionsRoles {
+		sitesLanguages = append(sitesLanguages, v[0][0])
+	}
+
 	h := &HugoSites{
-		Sites:           sites,
-		Deps:            sites[0].Deps,
-		Configs:         cfg.Configs,
-		workersSite:     workersSite,
-		numWorkersSites: numWorkers,
-		numWorkers:      numWorkers,
-		pageTrees:       pageTrees,
+		Sites:                 first,
+		sitesVersionsRoles:    sitesVersionsRoles,
+		sitesVersionsRolesMap: sitesVersionsRolesMap,
+		sitesLanguages:        sitesLanguages,
+		Deps:                  first[0].Deps,
+		Configs:               cfg.Configs,
+		workersSite:           workersSite,
+		numWorkersSites:       numWorkers,
+		numWorkers:            numWorkers,
+		pageTrees:             pageTrees,
 		cachePages: dynacache.GetOrCreatePartition[string,
 			page.Pages](d.MemCache, "/pags/all",
 			dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild},
 		),
 		cacheContentSource:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[[]byte]](d.MemCache, "/cont/src", dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		translationKeyPages:     maps.NewSliceCache[page.Page](),
-		currentSite:             sites[0],
+		currentSite:             first[0],
 		skipRebuildForFilenames: make(map[string]bool),
-		init: &hugoSitesInit{
-			data:    lazy.New(),
-			gitInfo: lazy.New(),
-		},
-		progressReporter: &progressReporter{},
+		init:                    &hugoSitesInit{},
+		progressReporter:        &progressReporter{},
 	}
 
 	// Assemble dependencies to be used in hugo.Deps.
@@ -394,43 +487,50 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 	h.hugoInfo = hugo.NewInfo(h.Configs.GetFirstLanguageConfig(), dependencies)
 
 	var prototype *deps.Deps
-	for i, s := range sites {
-		s.h = h
-		// The template store needs to be initialized after the h container is set on s.
-		if i == 0 {
-			templateStore, err := tplimpl.NewStore(
-				tplimpl.StoreOptions{
-					Fs:                     s.BaseFs.Layouts.Fs,
-					Log:                    s.Log,
-					DefaultContentLanguage: s.Conf.DefaultContentLanguage(),
-					Watching:               s.Conf.Watching(),
-					PathParser:             s.Conf.PathParser(),
-					Metrics:                d.Metrics,
-					OutputFormats:          s.conf.OutputFormats.Config,
-					MediaTypes:             s.conf.MediaTypes.Config,
-					DefaultOutputFormat:    s.conf.DefaultOutputFormat,
-					TaxonomySingularPlural: s.conf.Taxonomies,
-					RenderHooks:            s.conf.Markup.Goldmark.RenderHooks,
-				}, tplimpl.SiteOptions{
-					Site:          s,
-					TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
-				})
-			if err != nil {
-				return nil, err
+
+	var i int
+	for _, v := range sitesVersionsRoles {
+		for _, r := range v {
+			for _, s := range r {
+				s.h = h
+				// The template store needs to be initialized after the h container is set on s.
+				if i == 0 {
+					templateStore, err := tplimpl.NewStore(
+						tplimpl.StoreOptions{
+							Fs:                     s.BaseFs.Layouts.Fs,
+							Log:                    s.Log,
+							Watching:               s.Conf.Watching(),
+							PathParser:             s.Conf.PathParser(),
+							Metrics:                d.Metrics,
+							OutputFormats:          s.conf.OutputFormats.Config,
+							MediaTypes:             s.conf.MediaTypes.Config,
+							DefaultOutputFormat:    s.conf.DefaultOutputFormat,
+							TaxonomySingularPlural: s.conf.Taxonomies,
+							RenderHooks:            s.conf.Markup.Goldmark.RenderHooks,
+						}, tplimpl.SiteOptions{
+							Site:          s,
+							TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
+						})
+					if err != nil {
+						return nil, err
+					}
+					s.Deps.TemplateStore = templateStore
+				} else {
+					s.Deps.TemplateStore = prototype.TemplateStore.WithSiteOpts(
+						tplimpl.SiteOptions{
+							Site:          s,
+							TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
+						})
+				}
+				if err := s.Deps.Compile(prototype); err != nil {
+					return nil, err
+				}
+				if i == 0 {
+					prototype = s.Deps
+				}
+
+				i++
 			}
-			s.Deps.TemplateStore = templateStore
-		} else {
-			s.Deps.TemplateStore = prototype.TemplateStore.WithSiteOpts(
-				tplimpl.SiteOptions{
-					Site:          s,
-					TemplateFuncs: tplimplinit.CreateFuncMap(s.Deps),
-				})
-		}
-		if err := s.Deps.Compile(prototype); err != nil {
-			return nil, err
-		}
-		if i == 0 {
-			prototype = s.Deps
 		}
 	}
 
@@ -439,23 +539,30 @@ func newHugoSites(cfg deps.DepsCfg, d *deps.Deps, pageTrees *pageTrees, sites []
 		donec: make(chan bool),
 	}
 
-	h.init.data.Add(func(context.Context) (any, error) {
-		err := h.loadData()
-		if err != nil {
-			return nil, fmt.Errorf("failed to load data: %w", err)
-		}
-		return nil, nil
+	h.init.data = hsync.OnceMoreFunc(func(ctx context.Context) error {
+		return h.loadData()
 	})
 
-	h.init.gitInfo.Add(func(context.Context) (any, error) {
-		err := h.loadGitInfo()
-		if err != nil {
-			return nil, fmt.Errorf("failed to load Git info: %w", err)
-		}
-		return nil, nil
+	h.init.gitInfo = hsync.OnceMoreFunc(func(ctx context.Context) error {
+		return h.loadGitInfo()
 	})
 
 	return h, nil
+}
+
+// GetSiteDimension returns the value of the specified site dimension (such as language, version, or role)
+// based on the provided dimension name string. If the dimension name is unknown, it panics.
+func (s *Site) Dimension(d string) page.SiteDimension {
+	switch d {
+	case sitesmatrix.DimensionName(sitesmatrix.Language):
+		return s.language
+	case sitesmatrix.DimensionName(sitesmatrix.Version):
+		return s.version
+	case sitesmatrix.DimensionName(sitesmatrix.Role):
+		return s.role
+	default:
+		panic(fmt.Sprintf("unknown dimension %q", d))
+	}
 }
 
 // Returns the server port.
@@ -470,6 +577,10 @@ func (s *Site) Title() string {
 
 func (s *Site) Copyright() string {
 	return s.conf.Copyright
+}
+
+func (s *Site) Lang() string {
+	return s.language.Lang
 }
 
 func (s *Site) Config() page.SiteConfig {
@@ -562,7 +673,7 @@ func (s *Site) Param(key any) (any, error) {
 
 // Returns a map of all the data inside /data.
 func (s *Site) Data() map[string]any {
-	return s.s.h.Data()
+	return s.h.Data()
 }
 
 func (s *Site) BuildDrafts() bool {
@@ -604,7 +715,7 @@ func (s *Site) Pages() page.Pages {
 			pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
 				Path:    "",
 				KeyPart: "global",
-				Include: pagePredicates.ShouldListGlobal,
+				Include: pagePredicates.ShouldListGlobal.BoolFunc(),
 			},
 			Recursive:   true,
 			IncludeSelf: true,
@@ -621,7 +732,7 @@ func (s *Site) RegularPages() page.Pages {
 			pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
 				Path:    "",
 				KeyPart: "global",
-				Include: pagePredicates.ShouldListGlobal.And(pagePredicates.KindPage),
+				Include: pagePredicates.ShouldListGlobal.And(pagePredicates.KindPage).BoolFunc(),
 			},
 			Recursive: true,
 		},
@@ -652,8 +763,7 @@ func (s *Site) CheckReady() {
 
 func (s *Site) Taxonomies() page.TaxonomyList {
 	s.CheckReady()
-	s.init.taxonomies.Do(context.Background())
-	return s.taxonomies
+	return s.init.taxonomies.Value(context.Background())
 }
 
 type (
@@ -686,10 +796,11 @@ func (t taxonomiesConfig) Values() taxonomiesConfigValues {
 
 // Lazily loaded site dependencies.
 type siteInit struct {
-	prevNext          *lazy.Init
-	prevNextInSection *lazy.Init
-	menus             *lazy.Init
-	taxonomies        *lazy.Init
+	prevNext          hsync.FuncResetter
+	prevNextInSection hsync.FuncResetter
+
+	menus      hsync.ValueResetter[navigation.Menus]
+	taxonomies hsync.ValueResetter[page.TaxonomyList]
 }
 
 func (init *siteInit) Reset() {
@@ -702,9 +813,7 @@ func (init *siteInit) Reset() {
 func (s *Site) prepareInits() {
 	s.init = &siteInit{}
 
-	var init lazy.Init
-
-	s.init.prevNext = init.Branch(func(context.Context) (any, error) {
+	s.init.prevNext = hsync.OnceMoreFunc(func(ctx context.Context) error {
 		regularPages := s.RegularPages()
 		if s.conf.Page.NextPrevSortOrder == "asc" {
 			regularPages = regularPages.Reverse()
@@ -731,10 +840,10 @@ func (s *Site) prepareInits() {
 				pos.prevPage = regularPages[i+1]
 			}
 		}
-		return nil, nil
+		return nil
 	})
 
-	s.init.prevNextInSection = init.Branch(func(context.Context) (any, error) {
+	s.init.prevNextInSection = hsync.OnceMoreFunc(func(ctx context.Context) error {
 		setNextPrev := func(pas page.Pages) {
 			for i, p := range pas {
 				np, ok := p.(nextPrevInSectionProvider)
@@ -765,7 +874,7 @@ func (s *Site) prepareInits() {
 				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
 					Path:    "",
 					KeyPart: "sectionorhome",
-					Include: pagePredicates.KindSection.Or(pagePredicates.KindHome),
+					Include: pagePredicates.KindSection.Or(pagePredicates.KindHome).BoolFunc(),
 				},
 				IncludeSelf: true,
 				Recursive:   true,
@@ -780,35 +889,38 @@ func (s *Site) prepareInits() {
 			setNextPrev(ps)
 		}
 
-		return nil, nil
+		return nil
 	})
 
-	s.init.menus = init.Branch(func(context.Context) (any, error) {
-		err := s.assembleMenus()
-		return nil, err
-	})
-
-	s.init.taxonomies = init.Branch(func(ctx context.Context) (any, error) {
-		if err := s.pageMap.CreateSiteTaxonomies(ctx); err != nil {
-			return nil, err
+	s.init.menus = hsync.OnceMoreValue(func(ctx context.Context) navigation.Menus {
+		m, err := s.assembleMenus()
+		if err != nil {
+			panic(err)
 		}
-		return s.taxonomies, nil
+		return m
+	})
+
+	s.init.taxonomies = hsync.OnceMoreValue(func(ctx context.Context) page.TaxonomyList {
+		taxonomies, err := s.pageMap.CreateSiteTaxonomies(ctx)
+		if err != nil {
+			panic(err)
+		}
+		return taxonomies
 	})
 }
 
 func (s *Site) Menus() navigation.Menus {
 	s.CheckReady()
-	s.init.menus.Do(context.Background())
-	return s.menus
+	return s.init.menus.Value(context.Background())
 }
 
 func (s *Site) initRenderFormats() {
 	formatSet := make(map[string]bool)
 	formats := output.Formats{}
 
-	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			if p, ok := n.(*pageState); ok {
 				for _, f := range p.m.pageConfig.ConfiguredOutputFormats {
 					if !formatSet[f.Name] {
@@ -860,7 +972,7 @@ type siteRefLinker struct {
 	notFoundURL string
 }
 
-func newSiteRefLinker(s *Site) (siteRefLinker, error) {
+func newSiteRefLinker(s *Site) siteRefLinker {
 	logger := s.Log.Error()
 
 	notFoundURL := s.conf.RefLinksNotFoundURL
@@ -868,7 +980,7 @@ func newSiteRefLinker(s *Site) (siteRefLinker, error) {
 	if strings.EqualFold(errLevel, "warning") {
 		logger = s.Log.Warn()
 	}
-	return siteRefLinker{s: s, errorLogger: logger, notFoundURL: notFoundURL}, nil
+	return siteRefLinker{s: s, errorLogger: logger, notFoundURL: notFoundURL}
 }
 
 func (s siteRefLinker) logNotFound(ref, what string, p page.Page, position text.Position) {
@@ -1226,7 +1338,7 @@ func (h *HugoSites) fileEventsContentPaths(p []pathChange) []pathChange {
 // SitemapAbsURL is a convenience method giving the absolute URL to the sitemap.
 func (s *Site) SitemapAbsURL() string {
 	base := ""
-	if len(s.conf.Languages) > 1 || s.Conf.DefaultContentLanguageInSubdir() {
+	if s.Conf.IsMultilingual() || s.Conf.DefaultContentLanguageInSubdir() {
 		base = s.Language().Lang
 	}
 	p := s.AbsURL(base, false)
@@ -1243,15 +1355,15 @@ func (s *Site) createNodeMenuEntryURL(in string) string {
 	}
 	// make it match the nodes
 	menuEntryURL := in
-	menuEntryURL = s.s.PathSpec.URLize(menuEntryURL)
+	menuEntryURL = s.PathSpec.URLize(menuEntryURL)
 	if !s.conf.CanonifyURLs {
-		menuEntryURL = paths.AddContextRoot(s.s.PathSpec.Cfg.BaseURL().String(), menuEntryURL)
+		menuEntryURL = paths.AddContextRoot(s.PathSpec.Cfg.BaseURL().String(), menuEntryURL)
 	}
 	return menuEntryURL
 }
 
-func (s *Site) assembleMenus() error {
-	s.menus = make(navigation.Menus)
+func (s *Site) assembleMenus() (navigation.Menus, error) {
+	menus := make(navigation.Menus)
 
 	type twoD struct {
 		MenuName, EntryName string
@@ -1308,7 +1420,7 @@ func (s *Site) assembleMenus() error {
 			flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 			return false, nil
 		}); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -1324,7 +1436,7 @@ func (s *Site) assembleMenus() error {
 		}
 		return false, nil
 	}); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Create Children Menus First
@@ -1351,15 +1463,15 @@ func (s *Site) assembleMenus() error {
 	// Assembling Top Level of Tree
 	for menu, e := range flat {
 		if e.Parent == "" {
-			_, ok := s.menus[menu.MenuName]
+			_, ok := menus[menu.MenuName]
 			if !ok {
-				s.menus[menu.MenuName] = navigation.Menu{}
+				menus[menu.MenuName] = navigation.Menu{}
 			}
-			s.menus[menu.MenuName] = s.menus[menu.MenuName].Add(e)
+			menus[menu.MenuName] = menus[menu.MenuName].Add(e)
 		}
 	}
 
-	return nil
+	return menus, nil
 }
 
 // get any language code to prefix the target file path with.
@@ -1382,6 +1494,28 @@ func (s *Site) getLanguagePermalinkLang(alwaysInSubDir bool) string {
 	}
 
 	return s.GetLanguagePrefix()
+}
+
+func (s *Site) getPrefixRole() string {
+	role := s.roleInternal
+	if role.Default {
+		if s.conf.DefaultContentRoleInSubdir {
+			return role.Name
+		}
+		return ""
+	}
+	return role.Name
+}
+
+func (s *Site) getPrefixVersion() string {
+	version := s.versionInternal
+	if version.Default {
+		if s.conf.DefaultContentVersionInSubdir {
+			return version.Name
+		}
+		return ""
+	}
+	return version.Name
 }
 
 // Prepare site for a new full build.
@@ -1411,7 +1545,7 @@ func (s *Site) errorCollator(results <-chan error, errs chan<- error) {
 // i.e. 2 arguments, so we test for that.
 func (s *Site) GetPage(ref ...string) (page.Page, error) {
 	s.CheckReady()
-	p, err := s.s.getPageForRefs(ref...)
+	p, err := s.getPageForRefs(ref...)
 
 	if p == nil {
 		// The nil struct has meaning in some situations, mostly to avoid breaking
@@ -1443,7 +1577,7 @@ const (
 	pageDependencyScopeGlobal
 )
 
-func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *pageState, d any, templ *tplimpl.TemplInfo) error {
+func (s *Site) renderAndWritePage(statCounter *uint64, targetPath string, p *pageState, d any, templ *tplimpl.TemplInfo) error {
 	s.h.onPageRender()
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
@@ -1616,4 +1750,12 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 	}
 
 	return
+}
+
+func (s *Site) String() string {
+	if s == nil {
+		return "Site (nil)"
+	}
+
+	return fmt.Sprintf("Site %v: %s", s.siteVector, s.resolveDimensionNames())
 }

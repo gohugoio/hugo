@@ -167,3 +167,35 @@ func TestParamsIsZero(t *testing.T) {
 	c.Assert(Params{"_merge": "foo", "foo": "bar"}.IsZero(), qt.IsFalse)
 	c.Assert(Params{"_merge": "foo"}.IsZero(), qt.IsTrue)
 }
+
+func TestSetNestedParamIfNotSet(t *testing.T) {
+	c := qt.New(t)
+
+	m := Params{}
+
+	SetNestedParamIfNotSet("a.b.c", ".", "value", m)
+	c.Assert(m, qt.DeepEquals, Params{
+		"a": Params{
+			"b": Params{
+				"c": "value",
+			},
+		},
+	})
+
+	m = Params{
+		"a": Params{
+			"b": Params{
+				"c": "existingValue",
+			},
+		},
+	}
+
+	SetNestedParamIfNotSet("a.b.c", ".", "value", m)
+	c.Assert(m, qt.DeepEquals, Params{
+		"a": Params{
+			"b": Params{
+				"c": "existingValue",
+			},
+		},
+	})
+}

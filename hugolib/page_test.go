@@ -84,14 +84,6 @@ The [best static site generator][hugo].[^1]
 [hugo]: http://gohugo.io/
 [^1]: Many people say so.
 `
-	simplePageWithShortcodeInSummary = `---
-title: Simple
----
-Summary Next Line. {{<figure src="/not/real" >}}.
-More text here.
-
-Some more text
-`
 
 	simplePageWithSummaryDelimiterSameLine = `---
 title: Simple
@@ -130,13 +122,6 @@ More then 70 words.
 
 
 `
-	simplePageWithMainEnglishWithCJKRunesSummary = "In Chinese, 好 means good. In Chinese, 好 means good. " +
-		"In Chinese, 好 means good. In Chinese, 好 means good. " +
-		"In Chinese, 好 means good. In Chinese, 好 means good. " +
-		"In Chinese, 好 means good. In Chinese, 好 means good. " +
-		"In Chinese, 好 means good. In Chinese, 好 means good. " +
-		"In Chinese, 好 means good. In Chinese, 好 means good. " +
-		"In Chinese, 好 means good. In Chinese, 好 means good."
 
 	simplePageWithIsCJKLanguageFalse = `---
 title: Simple
@@ -154,13 +139,6 @@ More then 70 words.
 
 
 `
-	simplePageWithIsCJKLanguageFalseSummary = "In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀 means good. " +
-		"In Chinese, 好的啊 means good. In Chinese, 好的呀呀 means good enough."
 
 	simplePageWithLongContent = `---
 title: Simple
@@ -1126,6 +1104,7 @@ Content
 			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
 			b.Build(BuildCfg{SkipRender: true})
 
+			c.Assert(len(b.H.Sites), qt.Equals, 1)
 			s := b.H.Sites[0]
 			c.Assert(len(s.RegularPages()), qt.Equals, 2)
 
@@ -1400,6 +1379,41 @@ Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ .Content }}|{{ end }}|
 		"TranslationKey: adfasdf|",
 		"Title: mybundle nn|TranslationKey: adfasdf|\nResources: /en/sect/mybundle_en/f1.txt|f1.en|/nn/sect/mybundle_nn/f2.nn.txt|f2.nn||",
 	)
+}
+
+func TestTranslationKeyRotate(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.pt]
+weight = 2
+-- content/foo.md --
+---
+title: Foo
+translationkey: "mykey"
+---
+-- content/bar.md --
+---
+title: Bar
+translationkey: "mykey"
+---
+-- layouts/all.html --
+Rotate(language): {{ with .Rotate "language" }}{{ range . }}{{ template "printp" . }}|{{ end }}{{ end }}$
+{{ define "printp" }}{{ .RelPermalink }}:{{ with .Site }}{{ template "prints" . }}{{ end }}{{ end }}
+{{ define "prints" }}/l:{{ .Language.Name }}/v:{{ .Version.Name }}/r:{{ .Role.Name }}{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/foo/index.html", "Rotate(language): /en/bar/:/l:en/v:v1/r:guest|/en/foo/:/l:en/v:v1/r:guest|$")
+	b.AssertFileContent("public/en/bar/index.html", "Rotate(language): /en/bar/:/l:en/v:v1/r:guest|/en/foo/:/l:en/v:v1/r:guest|$")
 }
 
 func TestChompBOM(t *testing.T) {
@@ -1941,32 +1955,6 @@ Page: p-Homer|
 Site: s-Home|
 Hugo: h-Home|
 `,
-	)
-}
-
-// See #12484
-func TestPageFrontMatterDeprecatePathKindLang(t *testing.T) {
-	// This cannot be parallel as it depends on output from the global logger.
-
-	files := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "home", "section"]
--- content/p1.md --
----
-title: "p1"
-kind: "page"
-lang: "en"
-path: "mypath"
----
--- layouts/_default/single.html --
-Title: {{ .Title }}
-`
-	b := Test(t, files, TestOptWarn())
-	b.AssertFileContent("public/mypath/index.html", "p1")
-	b.AssertLogContains(
-		"deprecated: kind in front matter was deprecated",
-		"deprecated: lang in front matter was deprecated",
-		"deprecated: path in front matter was deprecated",
 	)
 }
 

@@ -20,8 +20,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
-
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/spf13/afero"
 
 	qt "github.com/frankban/quicktest"
@@ -43,7 +42,7 @@ func TestFilenameFilterFs(t *testing.T) {
 
 	fs = NewBasePathFs(fs, base)
 
-	filter, err := glob.NewFilenameFilter(nil, []string{"/b/**.txt"})
+	filter, err := hglob.NewFilenameFilter(nil, []string{"/b/**.txt"})
 	c.Assert(err, qt.IsNil)
 
 	fs = newFilenameFilterFs(fs, base, filter)

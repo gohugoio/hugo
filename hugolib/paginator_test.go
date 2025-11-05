@@ -178,7 +178,7 @@ Paginator: {{ .Paginator }}
 `
 	b, err := TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
-	b.Assert(err.Error(), qt.Contains, `error calling Paginator: pagination not supported for this page: kind: "page"`)
+	b.Assert(err.Error(), qt.Contains, `error calling Paginator: pagination not supported for this page`)
 }
 
 func TestNilPointerErrorMessage(t *testing.T) {

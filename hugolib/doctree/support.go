@@ -15,8 +15,12 @@ package doctree
 
 import (
 	"fmt"
+	"iter"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
 
 var _ MutableTrees = MutableTrees{}
@@ -45,7 +49,7 @@ func (ctx *WalkContext[T]) AddEventListener(event, path string, handler func(*Ev
 	ctx.eventHandlers[event] = append(
 		ctx.eventHandlers[event], func(e *Event[T]) {
 			// Propagate events up the tree only.
-			if strings.HasPrefix(e.Path, path) {
+			if e.Path != path && strings.HasPrefix(e.Path, path) {
 				handler(e)
 			}
 		},
@@ -63,6 +67,29 @@ func (ctx *WalkContext[T]) Data() *SimpleThreadSafeTree[any] {
 		ctx.data = NewSimpleThreadSafeTree[any]()
 	})
 	return ctx.data
+}
+
+func (ctx *WalkContext[T]) initDataRaw() {
+	ctx.dataRawInit.Do(func() {
+		ctx.dataRaw = maps.NewCache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]()
+	})
+}
+
+func (ctx *WalkContext[T]) DataRaw(vec sitesmatrix.Vector) *SimpleThreadSafeTree[any] {
+	ctx.initDataRaw()
+	v, _ := ctx.dataRaw.GetOrCreate(vec, func() (*SimpleThreadSafeTree[any], error) {
+		return NewSimpleThreadSafeTree[any](), nil
+	})
+	return v
+}
+
+func (ctx *WalkContext[T]) DataRawForEeach() iter.Seq2[sitesmatrix.Vector, *SimpleThreadSafeTree[any]] {
+	ctx.initDataRaw()
+	return func(yield func(vec sitesmatrix.Vector, data *SimpleThreadSafeTree[any]) bool) {
+		ctx.dataRaw.ForEeach(func(vec sitesmatrix.Vector, data *SimpleThreadSafeTree[any]) bool {
+			return yield(vec, data)
+		})
+	}
 }
 
 // SendEvent sends an event up the tree.
@@ -110,9 +137,8 @@ type LockType int
 // MutableTree is a tree that can be modified.
 type MutableTree interface {
 	DeleteRaw(key string)
-	DeleteAll(key string)
 	DeletePrefix(prefix string) int
-	DeletePrefixAll(prefix string) int
+	DeletePrefixRaw(prefix string) int
 	Lock(writable bool) (commit func())
 	CanLock() bool // Used for troubleshooting only.
 }
@@ -142,12 +168,6 @@ func (t MutableTrees) DeleteRaw(key string) {
 	}
 }
 
-func (t MutableTrees) DeleteAll(key string) {
-	for _, tree := range t {
-		tree.DeleteAll(key)
-	}
-}
-
 func (t MutableTrees) DeletePrefix(prefix string) int {
 	var count int
 	for _, tree := range t {
@@ -156,10 +176,10 @@ func (t MutableTrees) DeletePrefix(prefix string) int {
 	return count
 }
 
-func (t MutableTrees) DeletePrefixAll(prefix string) int {
+func (t MutableTrees) DeletePrefixRaw(prefix string) int {
 	var count int
 	for _, tree := range t {
-		count += tree.DeletePrefixAll(prefix)
+		count += tree.DeletePrefixRaw(prefix)
 	}
 	return count
 }
@@ -187,8 +207,12 @@ func (t MutableTrees) CanLock() bool {
 
 // WalkContext is passed to the Walk callback.
 type WalkContext[T any] struct {
-	data          *SimpleThreadSafeTree[any]
-	dataInit      sync.Once
+	data     *SimpleThreadSafeTree[any]
+	dataInit sync.Once
+
+	dataRaw     *maps.Cache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]
+	dataRawInit sync.Once
+
 	eventHandlers eventHandlers[T]
 	events        []*Event[T]
 

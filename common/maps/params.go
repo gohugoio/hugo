@@ -187,6 +187,56 @@ func getNested(m map[string]any, indices []string) (any, string, map[string]any)
 	}
 }
 
+// CreateNestedParamsFromSegements creates empty nested maps for the given keySegments in the target map.
+func CreateNestedParamsFromSegements(target Params, keySegments ...string) Params {
+	if len(keySegments) == 0 {
+		return target
+	}
+
+	m := target
+	for i, key := range keySegments {
+		v, found := m[key]
+		if !found {
+			nm := Params{}
+			m[key] = nm
+			m = nm
+			if i == len(keySegments)-1 {
+				return nm
+			}
+			continue
+		}
+		m = v.(Params)
+	}
+
+	return m
+}
+
+// CreateNestedParamsSepString creates empty nested maps for the given keyStr in the target map
+// It returns the last map created.
+func CreateNestedParamsSepString(keyStr, separator string, target Params) Params {
+	keySegments := strings.Split(keyStr, separator)
+	return CreateNestedParamsFromSegements(target, keySegments...)
+}
+
+// SetNestedParamIfNotSet sets the value for the given keyStr in the target map if it does not exist.
+// It assumes that all but the last key in keyStr is a Params map or should be one.
+func SetNestedParamIfNotSet(keyStr, separator string, value any, target Params) Params {
+	keySegments := strings.Split(keyStr, separator)
+	if len(keySegments) == 0 {
+		return target
+	}
+	base := keySegments[:len(keySegments)-1]
+	last := keySegments[len(keySegments)-1]
+
+	m := CreateNestedParamsFromSegements(target, base...)
+
+	if _, ok := m[last]; !ok {
+		m[last] = value
+	}
+
+	return target
+}
+
 // GetNestedParam gets the first match of the keyStr in the candidates given.
 // It will first try the exact match and then try to find it as a nested map value,
 // using the given separator, e.g. "mymap.name".

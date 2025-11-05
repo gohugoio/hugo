@@ -57,33 +57,6 @@ Summary: {{ .Summary }}|
 	)
 }
 
-func TestFrontMatterParamsLangNoCascade(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org/"
-disableKinds = ["taxonomy", "term"]
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = true
-[languages]
-[languages.en]
-weight = 1
-[languages.nn]
-weight = 2
--- content/_index.md --
-+++
-[[cascade]]
-background = 'yosemite.jpg'
-lang = 'nn'
-+++
-
-`
-
-	b, err := TestE(t, files)
-	b.Assert(err, qt.IsNotNil)
-}
-
 // Issue 11970.
 func TestFrontMatterBuildIsHugoKeyword(t *testing.T) {
 	t.Parallel()

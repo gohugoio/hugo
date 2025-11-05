@@ -15,7 +15,9 @@
 package hugofs
 
 import (
+	"context"
 	"fmt"
+	iofs "io/fs"
 	"os"
 	"strings"
 
@@ -249,4 +251,19 @@ type filesystemsWrapper struct {
 
 func (w filesystemsWrapper) UnwrapFilesystem() afero.Fs {
 	return w.content
+}
+
+type ReadDirWithContextDir interface {
+	ReadDirWithContext(context context.Context, count int) ([]iofs.DirEntry, context.Context, error)
+}
+
+func ReadDirWithContext(ctx context.Context, f DirOnlyOps, count int) ([]iofs.DirEntry, context.Context, error) {
+	if ff, ok := f.(ReadDirWithContextDir); ok {
+		return ff.ReadDirWithContext(ctx, count)
+	}
+	v, err := f.(iofs.ReadDirFile).ReadDir(count)
+	if err != nil {
+		return nil, ctx, err
+	}
+	return v, ctx, nil
 }

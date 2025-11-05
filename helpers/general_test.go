@@ -14,7 +14,6 @@
 package helpers_test
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 
@@ -224,84 +223,6 @@ func BenchmarkReaderContains(b *testing.B) {
 			}
 		}
 	}
-}
-
-func TestUniqueStrings(t *testing.T) {
-	in := []string{"a", "b", "a", "b", "c", "", "a", "", "d"}
-	output := helpers.UniqueStrings(in)
-	expected := []string{"a", "b", "c", "", "d"}
-	if !reflect.DeepEqual(output, expected) {
-		t.Errorf("Expected %#v, got %#v\n", expected, output)
-	}
-}
-
-func TestUniqueStringsReuse(t *testing.T) {
-	in := []string{"a", "b", "a", "b", "c", "", "a", "", "d"}
-	output := helpers.UniqueStringsReuse(in)
-	expected := []string{"a", "b", "c", "", "d"}
-	if !reflect.DeepEqual(output, expected) {
-		t.Errorf("Expected %#v, got %#v\n", expected, output)
-	}
-}
-
-func TestUniqueStringsSorted(t *testing.T) {
-	c := qt.New(t)
-	in := []string{"a", "a", "b", "c", "b", "", "a", "", "d"}
-	output := helpers.UniqueStringsSorted(in)
-	expected := []string{"", "a", "b", "c", "d"}
-	c.Assert(output, qt.DeepEquals, expected)
-	c.Assert(helpers.UniqueStringsSorted(nil), qt.IsNil)
-}
-
-func BenchmarkUniqueStrings(b *testing.B) {
-	input := []string{"a", "b", "d", "e", "d", "h", "a", "i"}
-
-	b.Run("Safe", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			result := helpers.UniqueStrings(input)
-			if len(result) != 6 {
-				b.Fatalf("invalid count: %d", len(result))
-			}
-		}
-	})
-
-	b.Run("Reuse slice", func(b *testing.B) {
-		b.StopTimer()
-		inputs := make([][]string, b.N)
-		for i := 0; i < b.N; i++ {
-			inputc := make([]string, len(input))
-			copy(inputc, input)
-			inputs[i] = inputc
-		}
-		b.StartTimer()
-		for i := 0; i < b.N; i++ {
-			inputc := inputs[i]
-
-			result := helpers.UniqueStringsReuse(inputc)
-			if len(result) != 6 {
-				b.Fatalf("invalid count: %d", len(result))
-			}
-		}
-	})
-
-	b.Run("Reuse slice sorted", func(b *testing.B) {
-		b.StopTimer()
-		inputs := make([][]string, b.N)
-		for i := 0; i < b.N; i++ {
-			inputc := make([]string, len(input))
-			copy(inputc, input)
-			inputs[i] = inputc
-		}
-		b.StartTimer()
-		for i := 0; i < b.N; i++ {
-			inputc := inputs[i]
-
-			result := helpers.UniqueStringsSorted(inputc)
-			if len(result) != 6 {
-				b.Fatalf("invalid count: %d", len(result))
-			}
-		}
-	})
 }
 
 func TestStringSliceToList(t *testing.T) {

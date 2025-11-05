@@ -35,7 +35,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 
-	hglob "github.com/gohugoio/hugo/hugofs/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/hglob"
 
 	"github.com/gobwas/glob"
 

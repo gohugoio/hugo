@@ -32,19 +32,11 @@ type PathSpec struct {
 
 	// The file systems to use
 	Fs *hugofs.Fs
-
-	// The config provider to use
-	Cfg config.AllProvider
 }
 
 // NewPathSpec creates a new PathSpec from the given filesystems and language.
-func NewPathSpec(fs *hugofs.Fs, cfg config.AllProvider, logger loggers.Logger) (*PathSpec, error) {
-	return NewPathSpecWithBaseBaseFsProvided(fs, cfg, logger, nil)
-}
-
-// NewPathSpecWithBaseBaseFsProvided creates a new PathSpec from the given filesystems and language.
 // If an existing BaseFs is provided, parts of that is reused.
-func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.AllProvider, logger loggers.Logger, baseBaseFs *filesystems.BaseFs) (*PathSpec, error) {
+func NewPathSpec(fs *hugofs.Fs, cfg config.AllProvider, logger loggers.Logger, baseBaseFs *filesystems.BaseFs) (*PathSpec, error) {
 	p, err := paths.New(fs, cfg)
 	if err != nil {
 		return nil, err
@@ -65,7 +57,6 @@ func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.AllProvider, lo
 		Paths:           p,
 		BaseFs:          bfs,
 		Fs:              fs,
-		Cfg:             cfg,
 		ProcessingStats: NewProcessingStats(p.Lang()),
 	}
 

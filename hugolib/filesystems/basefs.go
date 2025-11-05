@@ -16,6 +16,7 @@
 package filesystems
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -26,21 +27,23 @@ import (
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/htesting"
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/rogpeppe/go-internal/lockedfile"
 
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 
 	"github.com/gohugoio/hugo/modules"
 
 	hpaths "github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/spf13/afero"
 )
 
@@ -127,7 +130,7 @@ func (b *BaseFs) WatchFilenames() []string {
 				w := hugofs.NewWalkway(hugofs.WalkwayConfig{
 					Fs:   sourceFs,
 					Root: meta.Filename,
-					WalkFn: func(path string, fi hugofs.FileMetaInfo) error {
+					WalkFn: func(ctx context.Context, path string, fi hugofs.FileMetaInfo) error {
 						if !fi.IsDir() {
 							return nil
 						}
@@ -555,10 +558,9 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 		fs := hugofs.NewComponentFs(
 			hugofs.ComponentFsOptions{
-				Fs:                     overlayFs,
-				Component:              componentID,
-				DefaultContentLanguage: b.p.Cfg.DefaultContentLanguage(),
-				PathParser:             b.p.Cfg.PathParser(),
+				Fs:        overlayFs,
+				Component: componentID,
+				Cfg:       b.p.Cfg,
 			},
 		)
 
@@ -579,10 +581,9 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 	contentFs := hugofs.NewComponentFs(
 		hugofs.ComponentFsOptions{
-			Fs:                     b.theBigFs.overlayMountsContent,
-			Component:              files.ComponentFolderContent,
-			DefaultContentLanguage: b.p.Cfg.DefaultContentLanguage(),
-			PathParser:             b.p.Cfg.PathParser(),
+			Fs:        b.theBigFs.overlayMountsContent,
+			Component: files.ComponentFolderContent,
+			Cfg:       b.p.Cfg,
 		},
 	)
 
@@ -611,7 +612,7 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesystemsCollector, error) {
 	var staticFsMap map[string]*overlayfs.OverlayFs
 	if b.p.Cfg.IsMultihost() {
-		languages := b.p.Cfg.Languages()
+		languages := b.p.Cfg.Languages().(langs.Languages)
 		staticFsMap = make(map[string]*overlayfs.OverlayFs)
 		for _, l := range languages {
 			staticFsMap[l.Lang] = overlayfs.New(overlayfs.Options{})
@@ -624,8 +625,8 @@ func (b *sourceFilesystemsBuilder) createMainOverlayFs(p *paths.Paths) (*filesys
 		staticPerLanguage: staticFsMap,
 
 		overlayMounts:        overlayfs.New(overlayfs.Options{}),
-		overlayMountsContent: overlayfs.New(overlayfs.Options{DirsMerger: hugofs.LanguageDirsMerger}),
-		overlayMountsStatic:  overlayfs.New(overlayfs.Options{DirsMerger: hugofs.LanguageDirsMerger}),
+		overlayMountsContent: overlayfs.New(overlayfs.Options{DirsMerger: hugofs.AppendDirsMerger}),
+		overlayMountsStatic:  overlayfs.New(overlayfs.Options{}),
 		overlayFull:          overlayfs.New(overlayfs.Options{}),
 		overlayResources:     overlayfs.New(overlayfs.Options{FirstWritable: true}),
 	}
@@ -661,6 +662,10 @@ func (b *sourceFilesystemsBuilder) isStaticMount(mnt modules.Mount) bool {
 	return strings.HasPrefix(mnt.Target, files.ComponentFolderStatic)
 }
 
+func (b *sourceFilesystemsBuilder) isLayoutsMount(mnt modules.Mount) bool {
+	return strings.HasPrefix(mnt.Target, files.ComponentFolderLayouts)
+}
+
 func (b *sourceFilesystemsBuilder) createOverlayFs(
 	collector *filesystemsCollector,
 	mounts []mountsDescriptor,
@@ -684,9 +689,9 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 
 	for _, md := range mounts {
 		var (
-			fromTo        []hugofs.RootMapping
-			fromToContent []hugofs.RootMapping
-			fromToStatic  []hugofs.RootMapping
+			fromTo        []*hugofs.RootMapping
+			fromToContent []*hugofs.RootMapping
+			fromToStatic  []*hugofs.RootMapping
 		)
 
 		absPathify := func(path string) (string, string) {
@@ -702,17 +707,73 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 			// the first entry wins.
 			mountWeight := (10 + md.ordinal) * (len(md.Mounts()) - i)
 
-			inclusionFilter, err := glob.NewFilenameFilter(
-				types.ToStringSlicePreserveString(mount.IncludeFiles),
-				types.ToStringSlicePreserveString(mount.ExcludeFiles),
-			)
+			patterns, hasLegacyIncludes, hasLegacyExcludes := mount.FilesToFilter()
+			if hasLegacyIncludes {
+				hugo.Deprecate("module.mounts.includeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/configuration/module/#files", "v0.153.0")
+			}
+			if hasLegacyExcludes {
+				hugo.Deprecate("module.mounts.excludeFiles", "Replaced by the simpler 'files' setting, see https://gohugo.io/configuration/module/#files", "v0.153.0")
+			}
+
+			inclusionFilter, err := hglob.NewFilenameFilterV2(patterns)
 			if err != nil {
 				return err
 			}
 
 			base, filename := absPathify(mount.Source)
 
-			rm := hugofs.RootMapping{
+			var matrix *sitesmatrix.IntSets
+			v := mount.Sites
+
+			needsDefaultsIfNotset := b.isContentMount(mount)
+			needsDefaultsAndAllLanguagesIfNotSet := b.isStaticMount(mount)
+			needsAllIfNotSet := b.isLayoutsMount(mount)
+
+			intSetsCfg := sitesmatrix.IntSetsConfig{
+				ApplyDefaults: 0,
+				Globs:         v.Matrix,
+			}
+
+			matrixBuilder := sitesmatrix.NewIntSetsBuilder(b.p.Cfg.ConfiguredDimensions())
+
+			if !v.Matrix.IsZero() {
+				matrixBuilder.WithConfig(intSetsCfg)
+				if !matrixBuilder.GlobFilterMisses.IsZero() {
+					continue
+				}
+
+				if needsDefaultsIfNotset {
+					matrixBuilder.WithDefaultsIfNotSet()
+				}
+				if needsAllIfNotSet {
+					matrixBuilder.WithAllIfNotSet()
+				}
+
+				matrix = matrixBuilder.Build()
+			} else if needsAllIfNotSet {
+				matrixBuilder.WithAllIfNotSet()
+				matrix = matrixBuilder.Build()
+			} else if needsDefaultsAndAllLanguagesIfNotSet {
+				matrixBuilder.WithDefaultsAndAllLanguagesIfNotSet()
+				matrix = matrixBuilder.Build()
+			} else if needsDefaultsIfNotset {
+				matrix = b.p.Cfg.DefaultContentsitesMatrix()
+			} else {
+				if needsDefaultsIfNotset {
+					matrixBuilder.WithDefaultsIfNotSet()
+				}
+				matrix = matrixBuilder.Build()
+			}
+
+			var complements *sitesmatrix.IntSets
+			if !v.Complements.IsZero() {
+				intSetsCfg.Globs = v.Complements
+				intSetsCfg.ApplyDefaults = 0
+				matrixBuilder = sitesmatrix.NewIntSetsBuilder(b.p.Cfg.ConfiguredDimensions()).WithConfig(intSetsCfg).WithAllIfNotSet()
+				complements = matrixBuilder.Build()
+			}
+
+			rm := &hugofs.RootMapping{
 				From:          mount.Target,
 				To:            filename,
 				ToBase:        base,
@@ -720,20 +781,15 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				ModuleOrdinal: md.ordinal,
 				IsProject:     md.isMainProject,
 				Meta: &hugofs.FileMeta{
-					Watch:           !mount.DisableWatch && md.Watch(),
-					Weight:          mountWeight,
-					InclusionFilter: inclusionFilter,
+					Watch:            !mount.DisableWatch && md.Watch(),
+					Weight:           mountWeight,
+					InclusionFilter:  inclusionFilter,
+					SitesMatrix:      matrix,
+					SitesComplements: complements,
 				},
 			}
 
 			isContentMount := b.isContentMount(mount)
-
-			lang := mount.Lang
-			if lang == "" && isContentMount {
-				lang = b.p.Cfg.DefaultContentLanguage()
-			}
-
-			rm.Meta.Lang = lang
 
 			if isContentMount {
 				fromToContent = append(fromToContent, rm)
@@ -770,12 +826,11 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 		collector.addRootFs(rmfsStatic)
 
 		if collector.staticPerLanguage != nil {
-			for _, l := range b.p.Cfg.Languages() {
+			for i, l := range b.p.Cfg.Languages().(langs.Languages) {
 				lang := l.Lang
 
-				lfs := rmfsStatic.Filter(func(rm hugofs.RootMapping) bool {
-					rlang := rm.Meta.Lang
-					return rlang == "" || rlang == lang
+				lfs := rmfsStatic.Filter(func(rm *hugofs.RootMapping) bool {
+					return rm.Meta.SitesMatrix.HasLanguage(i)
 				})
 				bfs := hugofs.NewBasePathFs(lfs, files.ComponentFolderStatic)
 				collector.staticPerLanguage[lang] = collector.staticPerLanguage[lang].Append(bfs)

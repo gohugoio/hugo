@@ -98,6 +98,8 @@ func ToSliceStringMap(in any) ([]map[string]any, error) {
 		return v, nil
 	case Params:
 		return []map[string]any{v}, nil
+	case map[string]any:
+		return []map[string]any{v}, nil
 	case []any:
 		var s []map[string]any
 		for _, entry := range v {

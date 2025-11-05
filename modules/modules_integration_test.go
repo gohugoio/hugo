@@ -38,10 +38,9 @@ target = "content/v1"
 Title: {{ .Title }}|Summary: {{ .Summary }}|
 Deps: {{ range hugo.Deps}}{{ printf "%s@%s" .Path .Version }}|{{ end }}$
 
-
 `
 
-	b := hugolib.Test(t, files, hugolib.TestOptWithOSFs()).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptWithOSFs())
 
 	b.AssertFileContent("public/index.html", "Deps: project@|github.com/bep/hugo-mod-misc/dummy-content@v0.2.0|github.com/bep/hugo-mod-misc/dummy-content@v0.1.0|$")
 

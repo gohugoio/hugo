@@ -24,7 +24,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/version"
 )
 
 const commitPrefix = "releaser:"
@@ -135,7 +135,7 @@ func (r *ReleaseHandler) Run() error {
 	return nil
 }
 
-func (r *ReleaseHandler) bumpVersions(ver hugo.Version) error {
+func (r *ReleaseHandler) bumpVersions(ver version.Version) error {
 	toDev := ""
 
 	if ver.Suffix != "" {
@@ -166,8 +166,8 @@ func (r *ReleaseHandler) bumpVersions(ver hugo.Version) error {
 	return nil
 }
 
-func (r ReleaseHandler) calculateVersions() (hugo.Version, hugo.Version) {
-	newVersion := hugo.MustParseVersion(r.branchVersion)
+func (r ReleaseHandler) calculateVersions() (version.Version, version.Version) {
+	newVersion := version.MustParseVersion(r.branchVersion)
 	finalVersion := newVersion.Next()
 	finalVersion.PatchLevel = 0
 

@@ -24,8 +24,8 @@ import (
 
 	"golang.org/x/net/html"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/helpers"
 )
 
 const eof = -1
@@ -77,9 +77,9 @@ func (h *HTMLElements) Merge(other HTMLElements) {
 	h.Classes = append(h.Classes, other.Classes...)
 	h.IDs = append(h.IDs, other.IDs...)
 
-	h.Tags = helpers.UniqueStringsReuse(h.Tags)
-	h.Classes = helpers.UniqueStringsReuse(h.Classes)
-	h.IDs = helpers.UniqueStringsReuse(h.IDs)
+	h.Tags = hstrings.UniqueStringsReuse(h.Tags)
+	h.Classes = hstrings.UniqueStringsReuse(h.Classes)
+	h.IDs = hstrings.UniqueStringsReuse(h.IDs)
 }
 
 func (h *HTMLElements) Sort() {
@@ -122,9 +122,9 @@ func (c *htmlElementsCollector) getHTMLElements() HTMLElements {
 		}
 	}
 
-	classes = helpers.UniqueStringsSorted(classes)
-	ids = helpers.UniqueStringsSorted(ids)
-	tags = helpers.UniqueStringsSorted(tags)
+	classes = hstrings.UniqueStringsSorted(classes)
+	ids = hstrings.UniqueStringsSorted(ids)
+	tags = hstrings.UniqueStringsSorted(tags)
 
 	els := HTMLElements{
 		Classes: classes,

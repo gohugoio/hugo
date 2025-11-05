@@ -18,6 +18,7 @@ import (
 	"sync"
 
 	"github.com/bep/gitmap"
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
@@ -61,8 +62,9 @@ func (fi *File) Ext() string { return fi.p().Ext() }
 // Lang returns a file's language (e.g. "sv").
 // Deprecated: Use .Page.Language.Lang instead.
 func (fi *File) Lang() string {
-	hugo.Deprecate(".Page.File.Lang", "Use .Page.Language.Lang instead.", "v0.123.0")
-	return fi.fim.Meta().Lang
+	// From Hugo 0.149.0 a file may have multiple languages.
+	hugo.DeprecateLevelMin(".File.Lang", "Use e.g. Page.Site.Language.Lang", "v0.149.0", logg.LevelError)
+	return ""
 }
 
 // LogicalName returns a file's name and extension (e.g. "page.sv.md").

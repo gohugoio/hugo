@@ -352,10 +352,12 @@ func (pco *pageContentOutput) initRenderHooks() error {
 					Path:     base,
 					Category: tplimpl.CategoryMarkup,
 					Desc:     layoutDescriptor,
+					Sites:    pco.po.p.s.siteVector,
 					Consider: consider,
 				}
 
 				v := pco.po.p.s.TemplateStore.LookupPagesLayout(q)
+
 				return v, v != nil
 			}
 

@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"net/url"
+	"path"
 	"strings"
 
 	"github.com/gohugoio/hugo/output"
@@ -37,7 +38,7 @@ func newPagePaths(ps *pageState) (pagePaths, error) {
 	if ps.m.isStandalone() {
 		outputFormats = output.Formats{ps.m.standaloneOutputFormat}
 	} else {
-		outputFormats = pm.outputFormats()
+		outputFormats = ps.outputFormats()
 		if len(outputFormats) == 0 {
 			return pagePaths{}, nil
 		}
@@ -113,8 +114,8 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 	d := s.Deps
 	pm := p.m
 	alwaysInSubDir := p.Kind() == kinds.KindSitemap
-
 	pageInfoPage := p.PathInfo()
+
 	pageInfoCurrentSection := p.CurrentSection().PathInfo()
 	if p.s.Conf.DisablePathToLower() {
 		pageInfoPage = pageInfoPage.Unnormalized()
@@ -139,8 +140,31 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 		desc.BaseName = pageInfoPage.BaseNameNoIdentifier()
 	}
 
-	desc.PrefixFilePath = s.getLanguageTargetPathLang(alwaysInSubDir)
-	desc.PrefixLink = s.getLanguagePermalinkLang(alwaysInSubDir)
+	addPrefix := func(filePath, link string) {
+		if filePath != "" {
+			if desc.PrefixFilePath != "" {
+				desc.PrefixFilePath += "/" + filePath
+			} else {
+				desc.PrefixFilePath += filePath
+			}
+		}
+
+		if link != "" {
+			if desc.PrefixLink != "" {
+				desc.PrefixLink += "/" + link
+			} else {
+				desc.PrefixLink += link
+			}
+		}
+	}
+
+	// Add path prefixes.
+	// Add any role first, as that is a natural candidate for external ACL checks.
+	rolePrefix := s.getPrefixRole()
+	addPrefix(rolePrefix, rolePrefix)
+	versionPrefix := s.getPrefixVersion()
+	addPrefix(versionPrefix, versionPrefix)
+	addPrefix(s.getLanguageTargetPathLang(alwaysInSubDir), s.getLanguagePermalinkLang(alwaysInSubDir))
 
 	if desc.URL != "" && strings.IndexByte(desc.URL, ':') >= 0 {
 		// Attempt to parse and expand an url
@@ -162,11 +186,7 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 
 	if opath != "" {
 		opath, _ = url.QueryUnescape(opath)
-		if strings.HasSuffix(opath, "//") {
-			// When rewriting the _index of the section the permalink config is applied to,
-			// we get double slashes at the end sometimes; clear them up here
-			opath = strings.TrimSuffix(opath, "/")
-		}
+		opath = path.Clean(opath)
 
 		desc.ExpandedPermalink = opath
 

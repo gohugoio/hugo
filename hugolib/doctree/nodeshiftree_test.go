@@ -24,6 +24,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -47,17 +48,17 @@ func TestTree(t *testing.T) {
 	)
 
 	a := &testValue{ID: "/a"}
-	zeroZero.InsertIntoValuesDimension("/a", a)
+	zeroZero.Insert("/a", a)
 	ab := &testValue{ID: "/a/b"}
-	zeroZero.InsertIntoValuesDimension("/a/b", ab)
+	zeroZero.Insert("/a/b", ab)
 
 	c.Assert(zeroZero.Get("/a"), eq, &testValue{ID: "/a", Lang: 0})
-	s, v := zeroZero.LongestPrefix("/a/b/c", true, nil)
+	s, v := zeroZero.LongestPrefix("/a/b/c", false, nil)
 	c.Assert(v, eq, ab)
 	c.Assert(s, eq, "/a/b")
 
 	// Change language.
-	oneZero := zeroZero.Increment(0)
+	oneZero := zeroZero.Shape(sitesmatrix.Vector{1, 0, 0})
 	c.Assert(zeroZero.Get("/a"), eq, &testValue{ID: "/a", Lang: 0})
 	c.Assert(oneZero.Get("/a"), eq, &testValue{ID: "/a", Lang: 1})
 }
@@ -71,12 +72,12 @@ func TestTreeData(t *testing.T) {
 		},
 	)
 
-	tree.InsertIntoValuesDimension("", &testValue{ID: "HOME"})
-	tree.InsertIntoValuesDimension("/a", &testValue{ID: "/a"})
-	tree.InsertIntoValuesDimension("/a/b", &testValue{ID: "/a/b"})
-	tree.InsertIntoValuesDimension("/b", &testValue{ID: "/b"})
-	tree.InsertIntoValuesDimension("/b/c", &testValue{ID: "/b/c"})
-	tree.InsertIntoValuesDimension("/b/c/d", &testValue{ID: "/b/c/d"})
+	tree.Insert("", &testValue{ID: "HOME"})
+	tree.Insert("/a", &testValue{ID: "/a"})
+	tree.Insert("/a/b", &testValue{ID: "/a/b"})
+	tree.Insert("/b", &testValue{ID: "/b"})
+	tree.Insert("/b/c", &testValue{ID: "/b/c"})
+	tree.Insert("/b/c/d", &testValue{ID: "/b/c/d"})
 
 	var values []string
 
@@ -85,7 +86,7 @@ func TestTreeData(t *testing.T) {
 	w := &doctree.NodeShiftTreeWalker[*testValue]{
 		Tree:        tree,
 		WalkContext: ctx,
-		Handle: func(s string, t *testValue, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(s string, t *testValue) (bool, error) {
 			ctx.Data().Insert(s, map[string]any{
 				"id": t.ID,
 			})
@@ -112,22 +113,22 @@ func TestTreeEvents(t *testing.T) {
 		},
 	)
 
-	tree.InsertIntoValuesDimension("/a", &testValue{ID: "/a", Weight: 2, IsBranch: true})
-	tree.InsertIntoValuesDimension("/a/p1", &testValue{ID: "/a/p1", Weight: 5})
-	tree.InsertIntoValuesDimension("/a/p", &testValue{ID: "/a/p2", Weight: 6})
-	tree.InsertIntoValuesDimension("/a/s1", &testValue{ID: "/a/s1", Weight: 5, IsBranch: true})
-	tree.InsertIntoValuesDimension("/a/s1/p1", &testValue{ID: "/a/s1/p1", Weight: 8})
-	tree.InsertIntoValuesDimension("/a/s1/p1", &testValue{ID: "/a/s1/p2", Weight: 9})
-	tree.InsertIntoValuesDimension("/a/s1/s2", &testValue{ID: "/a/s1/s2", Weight: 6, IsBranch: true})
-	tree.InsertIntoValuesDimension("/a/s1/s2/p1", &testValue{ID: "/a/s1/s2/p1", Weight: 8})
-	tree.InsertIntoValuesDimension("/a/s1/s2/p2", &testValue{ID: "/a/s1/s2/p2", Weight: 7})
+	tree.Insert("/a", &testValue{ID: "/a", Weight: 2, IsBranch: true})
+	tree.Insert("/a/p1", &testValue{ID: "/a/p1", Weight: 5})
+	tree.Insert("/a/p", &testValue{ID: "/a/p2", Weight: 6})
+	tree.Insert("/a/s1", &testValue{ID: "/a/s1", Weight: 5, IsBranch: true})
+	tree.Insert("/a/s1/p1", &testValue{ID: "/a/s1/p1", Weight: 8})
+	tree.Insert("/a/s1/p1", &testValue{ID: "/a/s1/p2", Weight: 9})
+	tree.Insert("/a/s1/s2", &testValue{ID: "/a/s1/s2", Weight: 6, IsBranch: true})
+	tree.Insert("/a/s1/s2/p1", &testValue{ID: "/a/s1/s2/p1", Weight: 8})
+	tree.Insert("/a/s1/s2/p2", &testValue{ID: "/a/s1/s2/p2", Weight: 7})
 
 	w := &doctree.NodeShiftTreeWalker[*testValue]{
 		Tree:        tree,
 		WalkContext: &doctree.WalkContext[*testValue]{},
 	}
 
-	w.Handle = func(s string, t *testValue, match doctree.DimensionFlag) (bool, error) {
+	w.Handle = func(s string, t *testValue) (bool, error) {
 		if t.IsBranch {
 			w.WalkContext.AddEventListener("weight", s, func(e *doctree.Event[*testValue]) {
 				if e.Source.Weight > t.Weight {
@@ -165,19 +166,19 @@ func TestTreeInsert(t *testing.T) {
 	)
 
 	a := &testValue{ID: "/a"}
-	tree.InsertIntoValuesDimension("/a", a)
+	tree.Insert("/a", a)
 	ab := &testValue{ID: "/a/b"}
-	tree.InsertIntoValuesDimension("/a/b", ab)
+	tree.Insert("/a/b", ab)
 
 	c.Assert(tree.Get("/a"), eq, &testValue{ID: "/a", Lang: 0})
 	c.Assert(tree.Get("/notfound"), qt.IsNil)
 
 	ab2 := &testValue{ID: "/a/b", Lang: 0}
-	v, _, ok := tree.InsertIntoValuesDimension("/a/b", ab2)
+	v, _, ok := tree.Insert("/a/b", ab2)
 	c.Assert(ok, qt.IsTrue)
 	c.Assert(v, qt.DeepEquals, ab2)
 
-	tree1 := tree.Increment(0)
+	tree1 := tree.Shape(sitesmatrix.Vector{1, 0, 0})
 	c.Assert(tree1.Get("/a/b"), qt.DeepEquals, &testValue{ID: "/a/b", Lang: 1})
 }
 
@@ -199,13 +200,13 @@ func TestTreePara(t *testing.T) {
 			a := &testValue{ID: "/a"}
 			lock := tree.Lock(true)
 			defer lock()
-			tree.InsertIntoValuesDimension("/a", a)
+			tree.Insert("/a", a)
 			ab := &testValue{ID: "/a/b"}
-			tree.InsertIntoValuesDimension("/a/b", ab)
+			tree.Insert("/a/b", ab)
 
 			key := fmt.Sprintf("/a/b/c/%d", i)
 			val := &testValue{ID: key}
-			tree.InsertIntoValuesDimension(key, val)
+			tree.Insert(key, val)
 			c.Assert(tree.Get(key), eq, val)
 			// s, _ := tree.LongestPrefix(key, nil)
 			// c.Assert(s, eq, "/a/b")
@@ -232,38 +233,57 @@ type testShifter struct {
 	echo bool
 }
 
-func (s *testShifter) ForEeachInDimension(n *testValue, d int, f func(n *testValue) bool) {
-	if d != doctree.DimensionLanguage.Index() {
+func (s *testShifter) ForEeachInDimension(n *testValue, v sitesmatrix.Vector, d int, f func(n *testValue) bool) {
+	if d != sitesmatrix.Language {
 		panic("not implemented")
 	}
 	f(n)
+}
+
+func (s *testShifter) ForEeachInAllDimensions(n *testValue, f func(*testValue) bool) {
+	if n == nil {
+		return
+	}
+	if !f(n) {
+		return
+	}
+	for _, v := range s.All(n) {
+		if v != n && !f(v) {
+			return
+		}
+	}
 }
 
 func (s *testShifter) Insert(old, new *testValue) (*testValue, *testValue, bool) {
 	return new, old, true
 }
 
-func (s *testShifter) InsertInto(old, new *testValue, dimension doctree.Dimension) (*testValue, *testValue, bool) {
-	return new, old, true
-}
-
-func (s *testShifter) Delete(n *testValue, dimension doctree.Dimension) (*testValue, bool, bool) {
+func (s *testShifter) Delete(n *testValue, dimension sitesmatrix.Vector) (*testValue, bool, bool) {
 	return nil, true, true
 }
 
-func (s *testShifter) Shift(n *testValue, dimension doctree.Dimension, exact bool) (*testValue, bool, doctree.DimensionFlag) {
+func (s *testShifter) DeleteFunc(v *testValue, f func(*testValue) bool) bool {
+	return f(v)
+}
+
+func (s *testShifter) Shift(n *testValue, dimension sitesmatrix.Vector, fallback bool) (v *testValue, ok bool) {
+	ok = true
+	v = n
 	if s.echo {
-		return n, true, doctree.DimensionLanguage
+		return
 	}
 	if n.NoCopy {
 		if n.Lang == dimension[0] {
-			return n, true, doctree.DimensionLanguage
+			return
 		}
-		return nil, false, doctree.DimensionLanguage
+		v = nil
+		ok = false
+		return
 	}
 	c := *n
 	c.Lang = dimension[0]
-	return &c, true, doctree.DimensionLanguage
+	v = &c
+	return
 }
 
 func (s *testShifter) All(n *testValue) []*testValue {
@@ -291,7 +311,7 @@ func BenchmarkTreeInsert(b *testing.B) {
 
 			for i := range numElements {
 				lang := rand.Intn(2)
-				tree.InsertIntoValuesDimension(fmt.Sprintf("/%d", i), &testValue{ID: fmt.Sprintf("/%d", i), Lang: lang, Weight: i, NoCopy: true})
+				tree.Insert(fmt.Sprintf("/%d", i), &testValue{ID: fmt.Sprintf("/%d", i), Lang: lang, Weight: i, NoCopy: true})
 			}
 		}
 	}
@@ -325,13 +345,13 @@ func BenchmarkWalk(b *testing.B) {
 
 		for i := range numElements {
 			lang := rand.Intn(2)
-			tree.InsertIntoValuesDimension(fmt.Sprintf("/%d", i), &testValue{ID: fmt.Sprintf("/%d", i), Lang: lang, Weight: i, NoCopy: true})
+			tree.Insert(fmt.Sprintf("/%d", i), &testValue{ID: fmt.Sprintf("/%d", i), Lang: lang, Weight: i, NoCopy: true})
 		}
 
 		return tree
 	}
 
-	handle := func(s string, t *testValue, match doctree.DimensionFlag) (bool, error) {
+	handle := func(s string, t *testValue) (bool, error) {
 		return false, nil
 	}
 
@@ -357,7 +377,7 @@ func BenchmarkWalk(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for d1 := range 1 {
 					for d2 := range 2 {
-						tree := base.Shape(d1, d2)
+						tree := base.Shape(sitesmatrix.Vector{d1, d2, 0})
 						w := &doctree.NodeShiftTreeWalker[*testValue]{
 							Tree:   tree,
 							Handle: handle,

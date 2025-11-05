@@ -34,7 +34,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 
 	b.Run("identity.NewManager", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			m := identity.NewManager("")
+			m := identity.NewManager()
 			if m == nil {
 				b.Fatal("manager is nil")
 			}
@@ -43,7 +43,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 
 	b.Run("Add unique", func(b *testing.B) {
 		ids := createIds(b.N)
-		im := identity.NewManager("")
+		im := identity.NewManager()
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -55,7 +55,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 
 	b.Run("Add duplicates", func(b *testing.B) {
 		id := &testIdentity{base: "a", name: "b"}
-		im := identity.NewManager("")
+		im := identity.NewManager()
 
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -107,9 +107,9 @@ func BenchmarkIsNotDependent(b *testing.B) {
 	}
 
 	newNestedManager := func(depth, count int) identity.Manager {
-		m1 := identity.NewManager("")
+		m1 := identity.NewManager()
 		for range depth {
-			m2 := identity.NewManager("")
+			m2 := identity.NewManager()
 			m1.AddIdentity(m2)
 			for j := range count {
 				id := fmt.Sprintf("id%d", j)
@@ -139,9 +139,9 @@ func TestIdentityManager(t *testing.T) {
 	c := qt.New(t)
 
 	newNestedManager := func() identity.Manager {
-		m1 := identity.NewManager("")
-		m2 := identity.NewManager("")
-		m3 := identity.NewManager("")
+		m1 := identity.NewManager()
+		m2 := identity.NewManager()
+		m3 := identity.NewManager()
 		m1.AddIdentity(
 			testIdentity{"base", "id1", "", "pe1"},
 			testIdentity{"base2", "id2", "eq1", ""},

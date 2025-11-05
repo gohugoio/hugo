@@ -18,7 +18,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/compare"
-	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/navigation"
 	"github.com/gohugoio/hugo/resources/page"
@@ -43,16 +42,14 @@ func (p *pageCommon) getNextPrevInSection() *nextPrev {
 }
 
 type pageCommon struct {
-	s *Site
+	s *Site // TODO(bep) get rid of this.
 	m *pageMeta
 
-	sWrapped page.Site
-
 	// Lazily initialized dependencies.
-	init *lazy.Init
+	pageInit sync.Once
 
 	// Store holds state that survives server rebuilds.
-	store *hstore.Scratch
+	store func() *hstore.Scratch
 
 	// All of these represents the common parts of a page.Page
 	navigation.PageMenusProvider
@@ -99,12 +96,16 @@ type pageCommon struct {
 	// Internal use
 	page.RelatedDocsHandlerProvider
 
+	pageContentConverter
+}
+
+type pageContentConverter struct {
 	contentConverterInit sync.Once
 	contentConverter     converter.Converter
 }
 
 func (p *pageCommon) Store() *hstore.Scratch {
-	return p.store
+	return p.store()
 }
 
 // See issue 13016.

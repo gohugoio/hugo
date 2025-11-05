@@ -14,6 +14,7 @@
 package page
 
 import (
+	"bytes"
 	"path"
 	"path/filepath"
 	"strings"
@@ -295,6 +296,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 // When adding state here, remember to update putPagePathBuilder.
 type pagePathBuilder struct {
 	els []string
+	b   bytes.Buffer
 
 	d TargetPathDescriptor
 
@@ -386,8 +388,17 @@ func (p *pagePathBuilder) Path(upperOffset int) string {
 	if upperOffset > 0 {
 		upper -= upperOffset
 	}
-	pth := path.Join(p.els[:upper]...)
-	return paths.AddLeadingSlash(pth)
+	p.b.Reset()
+
+	var hadTrailingSlash bool
+	for _, el := range p.els[:upper] {
+		if !hadTrailingSlash && !strings.HasPrefix(el, "/") {
+			p.b.WriteByte('/')
+		}
+		hadTrailingSlash = strings.HasSuffix(el, "/")
+		p.b.WriteString(el)
+	}
+	return p.b.String()
 }
 
 func (p *pagePathBuilder) PathDir() string {

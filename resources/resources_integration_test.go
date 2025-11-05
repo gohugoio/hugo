@@ -134,7 +134,6 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 
 		b.AssertFileCount("resources/_gen/images", 6)
 		b.AssertFileCount("public/images", 1)
-		b.Build()
 	}
 }
 

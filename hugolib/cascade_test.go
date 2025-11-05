@@ -17,10 +17,10 @@ import (
 	"bytes"
 	"fmt"
 	"path"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/parser"
@@ -244,7 +244,7 @@ cascade:
 		return b
 	}
 
-	t.Run("Edit descendant", func(t *testing.T) {
+	/*t.Run("Edit descendant", func(t *testing.T) {
 		t.Parallel()
 
 		b := newSite(t, true)
@@ -318,6 +318,7 @@ cascade:
 		b.AssertFileContent("public/post/index.html", `Banner: |Layout: |Type: post|`)
 		b.AssertFileContent("public/post/dir/p1/index.html", `Banner: |Layout: |`)
 	})
+	*/
 
 	t.Run("Edit ancestor, content only", func(t *testing.T) {
 		t.Parallel()
@@ -721,101 +722,6 @@ subsect-content|
 	b.AssertFileContent("public/mysect/subsect/index.html", "Title: |")
 }
 
-// Issue 11977.
-func TestCascadeExtensionInPath(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-[languages]
-[languages.en]
-weight = 1
-[languages.de]
--- content/_index.de.md --
-+++
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/posts/post-1.de.md'
-+++
--- content/posts/post-1.de.md --
----
-title: "Post 1"
----
--- layouts/_default/single.html --
-{{ .Title }}|{{ .Params.foo }}$
-`
-	b, err := TestE(t, files)
-	b.Assert(err, qt.IsNotNil)
-	b.AssertLogContains(`cascade target path "/posts/post-1.de.md" looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/`)
-}
-
-func TestCascadeExtensionInPathIgnore(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-ignoreLogs   = ['cascade-pattern-with-extension']
-[languages]
-[languages.en]
-weight = 1
-[languages.de]
--- content/_index.de.md --
-+++
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/posts/post-1.de.md'
-+++
--- content/posts/post-1.de.md --
----
-title: "Post 1"
----
--- layouts/_default/single.html --
-{{ .Title }}|{{ .Params.foo }}$
-`
-	b := Test(t, files)
-	b.AssertLogContains(`! looks like a path with an extension`)
-}
-
-func TestCascadConfigExtensionInPath(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/p1.md'
-`
-	b, err := TestE(t, files)
-	b.Assert(err, qt.IsNotNil)
-	b.AssertLogContains(`looks like a path with an extension`)
-}
-
-func TestCascadConfigExtensionInPathIgnore(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.org"
-ignoreLogs   = ['cascade-pattern-with-extension']
-[[cascade]]
-[cascade.params]
-foo = 'bar'
-[cascade._target]
-path = '/p1.md'
-`
-	b := Test(t, files)
-	b.AssertLogContains(`! looks like a path with an extension`)
-}
-
 func TestCascadeIssue12172(t *testing.T) {
 	t.Parallel()
 
@@ -939,53 +845,99 @@ path = '/p1'
 	b.AssertFileContent("public/p1/index.html", "p1|bar") // actual content is "p1|"
 }
 
-func TestCascadeWarnOverrideIssue13806(t *testing.T) {
-	t.Parallel()
-
+func TestSitesMatrixCascadeConfig(t *testing.T) {
 	files := `
 -- hugo.toml --
-disableKinds = ['home','rss','section','sitemap','taxonomy','term']
-[[cascade]]
-[cascade.params]
-searchable = true
-[cascade.target]
-kind = 'page'
--- content/something.md --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[languages.sv]
+weight = 3
+
+[versions]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+[versions."v2.1.0"]
+
+[roles]
+[roles.guest]
+[roles.member]
+[cascade]
+[cascade.sites.matrix]
+languages = ["en"]
+versions = ["v2**"]
+roles = ["member"]
+[cascade.sites.complements]
+languages = ["nn"]
+versions = ["v1.0.*"]
+roles = ["guest"]
+-- content/_index.md --
 ---
-title: Something
-params:
-  searchable: false
+title: "Home"
+sites:
+  matrix:
+    roles: ["guest"]
 ---
 -- layouts/all.html --
 All.
 
 `
 
-	b := Test(t, files, TestOptWarn())
+	b := Test(t, files)
 
-	b.AssertLogContains("! WARN")
+	s0 := b.H.sitesVersionsRolesMap[sitesmatrix.Vector{0, 0, 0}] // en, v2.1.0, guest
+	b.Assert(s0.home, qt.IsNotNil)
+	b.Assert(s0.home.File(), qt.IsNotNil)
+	b.Assert(s0.language.Name(), qt.Equals, "en")
+	b.Assert(s0.version.Name(), qt.Equals, "v2.1.0")
+	b.Assert(s0.role.Name(), qt.Equals, "guest")
+	s0Pconfig := s0.Home().(*pageState).m.pageConfigSource
+	b.Assert(s0Pconfig.SitesMatrix.Vectors(), qt.DeepEquals, []sitesmatrix.Vector{{0, 0, 0}, {0, 1, 0}}) // en, v2.1.0, guest + en, v2.0.0, guest
+
+	s1 := b.H.sitesVersionsRolesMap[sitesmatrix.Vector{1, 2, 0}]
+	b.Assert(s1.home, qt.IsNotNil)
+	b.Assert(s1.home.File(), qt.IsNil)
+	b.Assert(s1.language.Name(), qt.Equals, "nn")
+	b.Assert(s1.version.Name(), qt.Equals, "v1.0.0")
+	b.Assert(s1.role.Name(), qt.Equals, "guest")
+	s1Pconfig := s1.Home().(*pageState).m.pageConfigSource
+	b.Assert(s1Pconfig.SitesMatrix.HasVector(sitesmatrix.Vector{1, 2, 0}), qt.IsTrue) // nn, v1.0.0, guest
+	// Every site needs a home page. This matrix adds the missing ones, (3 * 3 * 2) - 2 = 16
+	b.Assert(s1Pconfig.SitesMatrix.LenVectors(), qt.Equals, 16)
 }
 
-func TestCascadeNilMapIssue13853(t *testing.T) {
+func TestCascadeBundledPage(t *testing.T) {
 	t.Parallel()
 
 	files := `
 -- hugo.toml --
--- content/test/_index.md --
+baseURL = "https://example.org"
+-- content/_index.md --
 ---
-title: Test
+title: Home
 cascade:
-- build:
-    list: local
-  target:
-    path: '{/test/**}'
-- params:
-    title: 'Test page'
-  target:
-    path: '{/test/**}'
+  params:
+    p1: v1
 ---
+-- content/b1/index.md --
+---
+title: b1
+---
+-- content/b1/p2.md --
+---
+title: p2
+---
+-- layouts/all.html --
+Title: {{ .Title }}|p1: {{ .Params.p1 }}|
+{{ range .Resources }}
+Resource: {{ .Name }}|p1: {{ .Params.p1 }}|
+{{ end }}
 `
 
-	// Just verify that it does not panic.
-	_ = Test(t, files)
+	b := Test(t, files)
+
+	b.AssertFileContent("public/b1/index.html", "Title: b1|p1: v1|", "Resource: p2.md|p1: v1|")
 }

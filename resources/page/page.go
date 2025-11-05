@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
@@ -185,6 +187,11 @@ type PageMetaResource interface {
 	resource.Resource
 }
 
+type PageMetaLanguageResource interface {
+	PageMetaResource
+	resource.LanguageProvider
+}
+
 // PageMetaProvider provides page metadata, typically provided via front matter.
 type PageMetaProvider interface {
 	// The 4 page dates
@@ -224,18 +231,12 @@ type PageMetaProvider interface {
 	// IsPage returns whether this is a regular content
 	IsPage() bool
 
-	// Param looks for a param in Page and then in Site config.
-	Param(key any) (any, error)
-
 	// Path gets the relative path, including file name and extension if relevant,
 	// to the source of this Page. It will be relative to any content root.
 	Path() string
 
 	// The slug, typically defined in front matter.
 	Slug() string
-
-	// This page's language code. Will be the same as the site's.
-	Lang() string
 
 	// IsSection returns whether this is a section
 	IsSection() bool
@@ -260,7 +261,7 @@ type PageMetaProvider interface {
 // This is currently only used to generate keywords for related content.
 // If nameLower is not one of the metadata interface methods, we
 // look in Params.
-func NamedPageMetaValue(p PageMetaResource, nameLower string) (any, bool, error) {
+func NamedPageMetaValue(p PageMetaLanguageResource, nameLower string) (any, bool, error) {
 	var (
 		v   any
 		err error
@@ -344,7 +345,10 @@ type PageWithoutContent interface {
 	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
+
+	Param(key any) (any, error)
 	PageMetaInternalProvider
+
 	resource.LanguageProvider
 
 	// For pages backed by a file.
@@ -398,6 +402,10 @@ type PageWithoutContent interface {
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
+}
+
+type SiteDimensionProvider interface {
+	Role() roles.Role
 }
 
 // Positioner provides next/prev navigation.
@@ -529,6 +537,19 @@ type TreeProvider interface {
 
 	// SectionsPath is SectionsEntries joined with a /.
 	SectionsPath() string
+}
+
+// SiteVectorProvider provides the dimensions of a Page.
+type SiteVectorProvider interface {
+	SiteVector() sitesmatrix.Vector
+}
+
+// GetSiteVector returns the site vector for a Page.
+func GetSiteVector(p Page) sitesmatrix.Vector {
+	if sp, ok := p.(SiteVectorProvider); ok {
+		return sp.SiteVector()
+	}
+	return sitesmatrix.Vector{}
 }
 
 // PageWithContext is a Page with a context.Context.

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugo
+package version
 
 import (
 	"fmt"
@@ -55,7 +55,7 @@ func (v Version) Version() VersionString {
 
 // Compare implements the compare.Comparer interface.
 func (h Version) Compare(other any) int {
-	return compareVersions(h, other)
+	return CompareVersions(h, other)
 }
 
 // VersionString represents a Hugo version string.
@@ -67,7 +67,7 @@ func (h VersionString) String() string {
 
 // Compare implements the compare.Comparer interface.
 func (h VersionString) Compare(other any) int {
-	return compareVersions(h.Version(), other)
+	return CompareVersions(h.Version(), other)
 }
 
 func (h VersionString) Version() Version {
@@ -83,18 +83,24 @@ func (h VersionString) Eq(other any) bool {
 	return s == h.String()
 }
 
-var versionSuffixes = []string{"-test", "-DEV"}
-
 // ParseVersion parses a version string.
 func ParseVersion(s string) (Version, error) {
+	s = strings.TrimPrefix(strings.TrimSpace(s), "v")
 	var vv Version
-	for _, suffix := range versionSuffixes {
-		if strings.HasSuffix(s, suffix) {
-			vv.Suffix = suffix
-			s = strings.TrimSuffix(s, suffix)
+	hyphen := strings.Index(s, "-")
+	if hyphen > 0 {
+		suffix := s[hyphen:]
+		if len(suffix) > 1 {
+			if suffix[0] == '-' {
+				suffix = suffix[1:]
+			}
+			if len(suffix) > 0 {
+				vv.Suffix = suffix
+				s = s[:hyphen]
+			}
 		}
+		vv.Suffix = suffix
 	}
-
 	vv.Major, vv.Minor, vv.PatchLevel = parseVersion(s)
 
 	return vv, nil
@@ -134,98 +140,55 @@ func (v Version) NextPatchLevel(level int) Version {
 	return prev
 }
 
-// BuildVersionString creates a version string. This is what you see when
-// running "hugo version".
-func BuildVersionString() string {
-	// program := "Hugo Static Site Generator"
-	program := "hugo"
-
-	version := "v" + CurrentVersion.String()
-
-	bi := getBuildInfo()
-	if bi == nil {
-		return version
-	}
-	if bi.Revision != "" {
-		version += "-" + bi.Revision
-	}
-	if IsExtended {
-		version += "+extended"
-	}
-	if IsWithdeploy {
-		version += "+withdeploy"
-	}
-
-	osArch := bi.GoOS + "/" + bi.GoArch
-
-	date := bi.RevisionTime
-	if date == "" {
-		// Accept vendor-specified build date if .git/ is unavailable.
-		date = buildDate
-	}
-	if date == "" {
-		date = "unknown"
-	}
-
-	versionString := fmt.Sprintf("%s %s %s BuildDate=%s",
-		program, version, osArch, date)
-
-	if vendorInfo != "" {
-		versionString += " VendorInfo=" + vendorInfo
-	}
-
-	return versionString
-}
-
 func version(major, minor, patch int, suffix string) string {
+	if suffix != "" {
+		if suffix[0] != '-' {
+			suffix = "-" + suffix
+		}
+	}
 	if patch > 0 || minor > 53 {
 		return fmt.Sprintf("%d.%d.%d%s", major, minor, patch, suffix)
 	}
 	return fmt.Sprintf("%d.%d%s", major, minor, suffix)
 }
 
-// CompareVersion compares the given version string or number against the
-// running Hugo version.
-// It returns -1 if the given version is less than, 0 if equal and 1 if greater than
-// the running version.
-func CompareVersion(version any) int {
-	return compareVersions(CurrentVersion, version)
-}
-
-func compareVersions(inVersion Version, in any) int {
+// CompareVersion compares v1 with v2.
+// It returns -1 if the v2 is less than, 0 if equal and 1 if greater than
+// v1.
+func CompareVersions(v1 Version, v2 any) int {
 	var c int
-	switch d := in.(type) {
+	switch d := v2.(type) {
 	case float64:
-		c = compareFloatWithVersion(d, inVersion)
+		c = compareFloatWithVersion(d, v1)
 	case float32:
-		c = compareFloatWithVersion(float64(d), inVersion)
+		c = compareFloatWithVersion(float64(d), v1)
 	case int:
-		c = compareFloatWithVersion(float64(d), inVersion)
+		c = compareFloatWithVersion(float64(d), v1)
 	case int32:
-		c = compareFloatWithVersion(float64(d), inVersion)
+		c = compareFloatWithVersion(float64(d), v1)
 	case int64:
-		c = compareFloatWithVersion(float64(d), inVersion)
+		c = compareFloatWithVersion(float64(d), v1)
 	case Version:
-		if d.Major == inVersion.Major && d.Minor == inVersion.Minor && d.PatchLevel == inVersion.PatchLevel {
-			return strings.Compare(inVersion.Suffix, d.Suffix)
+		if d.Major == v1.Major && d.Minor == v1.Minor && d.PatchLevel == v1.PatchLevel {
+			return strings.Compare(v1.Suffix, d.Suffix)
 		}
-		if d.Major > inVersion.Major {
+		if d.Major > v1.Major {
 			return 1
-		} else if d.Major < inVersion.Major {
+		} else if d.Major < v1.Major {
 			return -1
 		}
-		if d.Minor > inVersion.Minor {
+		if d.Minor > v1.Minor {
 			return 1
-		} else if d.Minor < inVersion.Minor {
+		} else if d.Minor < v1.Minor {
 			return -1
 		}
-		if d.PatchLevel > inVersion.PatchLevel {
+		if d.PatchLevel > v1.PatchLevel {
 			return 1
-		} else if d.PatchLevel < inVersion.PatchLevel {
+		} else if d.PatchLevel < v1.PatchLevel {
 			return -1
 		}
 	default:
-		s, err := cast.ToStringE(in)
+		s, err := cast.ToStringE(v2)
 		if err != nil {
 			return -1
 		}
@@ -234,7 +197,7 @@ func compareVersions(inVersion Version, in any) int {
 		if err != nil {
 			return -1
 		}
-		return inVersion.Compare(v)
+		return v1.Compare(v)
 
 	}
 

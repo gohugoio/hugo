@@ -31,6 +31,7 @@ import (
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
@@ -38,7 +39,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/internal/js"
-	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -123,8 +123,7 @@ func (o *opts[K, C]) Key() K {
 }
 
 func (o *opts[K, C]) Reset() {
-	mu := o.once.ResetWithLock()
-	defer mu.Unlock()
+	o.once.Reset()
 	o.h.resetCounter++
 }
 
@@ -220,7 +219,7 @@ func (c *BatcherClient) New(id string) (js.Batcher, error) {
 		return nil, initErr
 	}
 
-	dependencyManager := c.d.Conf.NewIdentityManager("jsbatch_" + id)
+	dependencyManager := c.d.Conf.NewIdentityManager()
 	configID := "config_" + id
 
 	b := &batcher{
@@ -362,7 +361,7 @@ func (b *batcher) Group(ctx context.Context, id string) js.BatcherGroup {
 
 	group, found := b.scriptGroups[id]
 	if !found {
-		idm := b.client.d.Conf.NewIdentityManager("jsbatch_" + id)
+		idm := b.client.d.Conf.NewIdentityManager()
 		b.dependencyManager.AddIdentity(idm)
 
 		group = &scriptGroup{
@@ -864,7 +863,7 @@ type optionsMap[K key, C any] map[K]optionsGetSetter[K, C]
 type opts[K any, C optionsCompiler[C]] struct {
 	key  K
 	h    *optsHolder[C]
-	once lazy.OnceMore
+	once hsync.OnceMore
 }
 
 type optsHolder[C optionsCompiler[C]] struct {

@@ -22,6 +22,10 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
+var paginatorNotSupported = page.PaginatorNotSupportedFunc(func() error {
+	return fmt.Errorf("pagination not supported for this page")
+})
+
 func newPageOutput(
 	ps *pageState,
 	pp pagePaths,
@@ -46,9 +50,7 @@ func newPageOutput(
 		pag = newPagePaginator(ps)
 		paginatorProvider = pag
 	} else {
-		paginatorProvider = page.PaginatorNotSupportedFunc(func() error {
-			return fmt.Errorf("pagination not supported for this page: %s", ps.getPageInfoForError())
-		})
+		paginatorProvider = paginatorNotSupported
 	}
 
 	providers := struct {
@@ -71,7 +73,7 @@ func newPageOutput(
 		TableOfContentsProvider: page.NopPage,
 		render:                  render,
 		paginator:               pag,
-		dependencyManagerOutput: ps.s.Conf.NewIdentityManager((ps.Path() + "/" + f.Name)),
+		dependencyManagerOutput: ps.s.Conf.NewIdentityManager(),
 	}
 
 	return po

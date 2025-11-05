@@ -173,17 +173,6 @@ type TransientIdentifier interface {
 	TransientKey() string
 }
 
-// WeightProvider provides a weight.
-type WeightProvider interface {
-	Weight() int
-}
-
-// Weight0Provider provides a weight that's considered before the WeightProvider in sorting.
-// This allows the weight set on a given term to win.
-type Weight0Provider interface {
-	Weight0() int
-}
-
 // ContentResource represents a Resource that provides a way to get to its content.
 // Most Resource types in Hugo implements this interface, including Page.
 type ContentResource interface {
@@ -219,6 +208,7 @@ type LengthProvider interface {
 // LanguageProvider is a Resource in a language.
 type LanguageProvider interface {
 	Language() *langs.Language
+	Lang() string
 }
 
 // TranslationKeyProvider connects translations of the same Resource.

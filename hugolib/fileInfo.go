@@ -23,8 +23,6 @@ import (
 
 type fileInfo struct {
 	*source.File
-
-	overriddenLang string
 }
 
 func (fi *fileInfo) Open() (afero.File, error) {
@@ -37,9 +35,6 @@ func (fi *fileInfo) Open() (afero.File, error) {
 }
 
 func (fi *fileInfo) Lang() string {
-	if fi.overriddenLang != "" {
-		return fi.overriddenLang
-	}
 	return fi.File.Lang()
 }
 

@@ -20,7 +20,7 @@ import (
 
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/config"
-	hglob "github.com/gohugoio/hugo/hugofs/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/mitchellh/mapstructure"
 )
 

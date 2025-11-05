@@ -14,11 +14,13 @@
 package i18n
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -62,7 +64,7 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 			Fs:         dst.BaseFs.I18n.Fs,
 			IgnoreFile: dst.SourceSpec.IgnoreFile,
 			PathParser: dst.SourceSpec.Cfg.PathParser(),
-			WalkFn: func(path string, info hugofs.FileMetaInfo) error {
+			WalkFn: func(ctx context.Context, path string, info hugofs.FileMetaInfo) error {
 				if info.IsDir() {
 					return nil
 				}
@@ -76,7 +78,7 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 
 	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
 
-	dst.Translate = tp.t.Func(dst.Conf.Language().Lang)
+	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
 
 	return nil
 }
@@ -126,7 +128,7 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 
 // CloneResource sets the language func for the new language.
 func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
-	dst.Translate = tp.t.Func(dst.Conf.Language().Lang)
+	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
 	return nil
 }
 

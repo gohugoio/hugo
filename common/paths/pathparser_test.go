@@ -18,27 +18,33 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/kinds"
 
 	qt "github.com/frankban/quicktest"
 )
 
-var testParser = &PathParser{
-	LanguageIndex: map[string]int{
-		"no": 0,
-		"en": 1,
-		"fr": 2,
-	},
-	IsContentExt: func(ext string) bool {
-		return ext == "md"
-	},
-	IsOutputFormat: func(name, ext string) bool {
-		switch name {
-		case "html", "amp", "csv", "rss":
-			return true
-		}
-		return false
-	},
+func newTestParser() *PathParser {
+	dims := sitesmatrix.NewTestingDimensions([]string{"en", "no", "fr"}, []string{"v1", "v2", "v3"}, []string{"admin", "editor", "viewer", "guest"})
+
+	return &PathParser{
+		LanguageIndex: map[string]int{
+			"no": 0,
+			"en": 1,
+			"fr": 2,
+		},
+		IsContentExt: func(ext string) bool {
+			return ext == "md"
+		},
+		IsOutputFormat: func(name, ext string) bool {
+			switch name {
+			case "html", "amp", "csv", "rss":
+				return true
+			}
+			return false
+		},
+		ConfiguredDimensions: dims,
+	}
 }
 
 func TestParse(t *testing.T) {
@@ -190,7 +196,7 @@ func TestParse(t *testing.T) {
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md"})
 				c.Assert(p.IsBranchBundle(), qt.IsTrue)
 				c.Assert(p.IsBundle(), qt.IsTrue)
-				c.Assert(p.Base(), qt.Equals, "/")
+				c.Assert(p.Base(), qt.Equals, "")
 				c.Assert(p.BaseReTyped("foo"), qt.Equals, "/foo")
 				c.Assert(p.Path(), qt.Equals, "/_index.md")
 				c.Assert(p.Container(), qt.Equals, "")
@@ -266,7 +272,7 @@ func TestParse(t *testing.T) {
 			"Index root no slash",
 			"_index.md",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Base(), qt.Equals, "/")
+				c.Assert(p.Base(), qt.Equals, "")
 				c.Assert(p.Ext(), qt.Equals, "md")
 				c.Assert(p.Name(), qt.Equals, "_index.md")
 			},
@@ -275,7 +281,7 @@ func TestParse(t *testing.T) {
 			"Index root",
 			"/_index.md",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Base(), qt.Equals, "/")
+				c.Assert(p.Base(), qt.Equals, "")
 				c.Assert(p.Ext(), qt.Equals, "md")
 				c.Assert(p.Name(), qt.Equals, "_index.md")
 			},
@@ -373,13 +379,24 @@ func TestParse(t *testing.T) {
 				c.Assert(p.IsContentData(), qt.IsFalse)
 			},
 		},
+		{
+			"Custom identifier",
+			"/a/b/p1._myid_.no.md",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
+				c.Assert(p.Lang(), qt.Equals, "no")
+				c.Assert(p.Ext(), qt.Equals, "md")
+				c.Assert(p.Custom(), qt.Equals, "myid")
+			},
+		},
 	}
+	parser := newTestParser()
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-			if test.name != "Home branch cundle" {
-				// return
+			if test.name != "Caret up identifier" {
+				//	return
 			}
-			test.assert(c, testParser.Parse(files.ComponentFolderContent, test.path))
+			test.assert(c, parser.Parse(files.ComponentFolderContent, test.path))
 		})
 	}
 }
@@ -437,8 +454,8 @@ func TestParseLayouts(t *testing.T) {
 			"/mylayout.list.section.no.html",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Layout(), qt.Equals, "mylayout")
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "list", "mylayout"})
-				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "no", "section", "mylayout"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"list"})
 				c.Assert(p.Base(), qt.Equals, "/mylayout.html")
 				c.Assert(p.Lang(), qt.Equals, "no")
 			},
@@ -461,7 +478,8 @@ func TestParseLayouts(t *testing.T) {
 			"Lang and output format",
 			"/list.no.amp.not.html",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "not", "amp", "no", "list"})
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "list", "amp", "no"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"not"})
 				c.Assert(p.OutputFormat(), qt.Equals, "amp")
 				c.Assert(p.Ext(), qt.Equals, "html")
 				c.Assert(p.Lang(), qt.Equals, "no")
@@ -583,14 +601,27 @@ func TestParseLayouts(t *testing.T) {
 				c.Assert(p.NameNoIdentifier(), qt.Equals, "myshortcode")
 			},
 		},
+		{
+			"Not lang",
+			"/foo/index.xy.html",
+			func(c *qt.C, p *Path) {
+				c.Assert(p.Lang(), qt.Equals, "")
+				c.Assert(p.Layout(), qt.Equals, "index")
+				c.Assert(p.NameNoLang(), qt.Equals, "index.xy.html")
+				c.Assert(p.PathNoLang(), qt.Equals, "/foo/index.xy.html")
+				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "index"})
+				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"xy"})
+			},
+		},
 	}
 
+	parser := newTestParser()
 	for _, test := range tests {
 		c.Run(test.name, func(c *qt.C) {
-			if test.name != "Shortcode lang layout" {
-				// return
+			if test.name != "Not lang" {
+				return
 			}
-			test.assert(c, testParser.Parse(files.ComponentFolderLayouts, test.path))
+			test.assert(c, parser.Parse(files.ComponentFolderLayouts, test.path))
 		})
 	}
 }
@@ -605,7 +636,27 @@ func TestHasExt(t *testing.T) {
 }
 
 func BenchmarkParseIdentity(b *testing.B) {
+	parser := newTestParser()
 	for i := 0; i < b.N; i++ {
-		testParser.ParseIdentity(files.ComponentFolderAssets, "/a/b.css")
+		parser.ParseIdentity(files.ComponentFolderAssets, "/a/b.css")
+	}
+}
+
+func TestSitesMatrixFromPath(t *testing.T) {
+	c := qt.New(t)
+
+	parser := newTestParser()
+	p := parser.Parse(files.ComponentFolderContent, "/a/b/c.fr.md")
+	v := parser.SitesMatrixFromPath(p)
+	c.Assert(v.HasLanguage(2), qt.IsTrue)
+	c.Assert(v.LenVectors(), qt.Equals, 1)
+	c.Assert(v.VectorSample(), qt.Equals, sitesmatrix.Vector{2, 0, 0})
+}
+
+func BenchmarkSitesMatrixFromPath(b *testing.B) {
+	parser := newTestParser()
+	p := parser.Parse(files.ComponentFolderContent, "/a/b/c.fr.md")
+	for i := 0; i < b.N; i++ {
+		parser.SitesMatrixFromPath(p)
 	}
 }

@@ -40,7 +40,6 @@ For some moments the old man did not reply. He stood with bowed head, buried in 
 
 const (
 	basicTemplate = "<html><body>{{.Content}}</body></html>"
-	aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
 )
 
 func TestAlias(t *testing.T) {

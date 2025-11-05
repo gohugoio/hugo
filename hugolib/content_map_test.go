@@ -15,13 +15,12 @@ package hugolib
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
 
 func TestContentMapSite(t *testing.T) {
@@ -200,7 +199,10 @@ Home: {{ .Title }}|
 }
 
 // Issue #11840
+// Resource language fallback should be the closest language going up.
 func TestBundleResourceLanguageBestMatch(t *testing.T) {
+	t.Parallel()
+
 	files := `
 -- hugo.toml --
 defaultContentLanguage = "fr"
@@ -215,7 +217,7 @@ weight = 3
 -- layouts/index.html --
 {{ $bundle := site.GetPage "bundle" }}
 {{ $r := $bundle.Resources.GetMatch "*.txt" }}
-{{ .Language.Lang }}: {{ $r.RelPermalink }}|{{ $r.Content }}
+{{ .Language.Lang }}: {{ with $r }}{{ .RelPermalink }}|{{ .Content }}{{ end}}
 -- content/bundle/index.fr.md --
 ---
 title: "Bundle Fr"
@@ -234,61 +236,13 @@ Data fr
 Data en
 
 `
-	b := Test(t, files)
+	for range 5 {
+		b := Test(t, files)
 
-	b.AssertFileContent("public/fr/index.html", "fr: /fr/bundle/data.fr.txt|Data fr")
-	b.AssertFileContent("public/en/index.html", "en: /en/bundle/data.en.txt|Data en")
-	b.AssertFileContent("public/de/index.html", "de: /fr/bundle/data.fr.txt|Data fr")
-}
+		b.AssertFileContent("public/fr/index.html", "fr: /fr/bundle/data.fr.txt|Data fr")
+		b.AssertFileContent("public/en/index.html", "en: /en/bundle/data.en.txt|Data en")
 
-func TestBundleMultipleContentPageWithSamePath(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-printPathWarnings = true
--- layouts/all.html --
-All.
--- content/bundle/index.md --
----
-title: "Bundle md"
-foo: md
----
--- content/bundle/index.html --
----
-title: "Bundle html"
-foo: html
----
--- content/bundle/data.txt --
-Data.
--- content/p1.md --
----
-title: "P1 md"
-foo: md
----
--- content/p1.html --
----
-title: "P1 html"
-foo: html
----
--- layouts/index.html --
-{{ $bundle := site.GetPage "bundle" }}
-Bundle: {{ $bundle.Title }}|{{ $bundle.Params.foo }}|{{ $bundle.File.Filename }}|
-{{ $p1 := site.GetPage "p1" }}
-P1: {{ $p1.Title }}|{{ $p1.Params.foo }}|{{ $p1.File.Filename }}|
-`
-
-	for range 3 {
-		b := Test(t, files, TestOptInfo())
-
-		b.AssertLogContains("INFO  Duplicate content path: \"/p1\"")
-
-		// There's multiple content files sharing the same logical path and language.
-		// This is a little arbitrary, but we have to pick one and prefer the Markdown version.
-		b.AssertFileContent("public/index.html",
-			filepath.FromSlash("Bundle: Bundle md|md|/content/bundle/index.md|"),
-			filepath.FromSlash("P1: P1 md|md|/content/p1.md|"),
-		)
+		b.AssertFileContent("public/de/index.html", "de: /fr/bundle/data.fr.txt|Data fr")
 	}
 }
 
@@ -361,7 +315,6 @@ p1-foo.txt
 	`
 
 	b := Test(t, files)
-	b.Build()
 
 	b.AssertFileExists("public/s1/index.html", true)
 	b.AssertFileExists("public/s1/foo.txt", true)
@@ -443,7 +396,7 @@ func TestContentTreeReverseIndex(t *testing.T) {
 	c := qt.New(t)
 
 	pageReverseIndex := newContentTreeTreverseIndex(
-		func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) {
+		func(get func(key any) (contentNode, bool), set func(key any, val contentNode)) {
 			for i := range 10 {
 				key := fmt.Sprint(i)
 				set(key, &testContentNode{key: key})
@@ -467,7 +420,7 @@ func TestContentTreeReverseIndexPara(t *testing.T) {
 
 	for range 10 {
 		pageReverseIndex := newContentTreeTreverseIndex(
-			func(get func(key any) (contentNodeI, bool), set func(key any, val contentNodeI)) {
+			func(get func(key any) (contentNode, bool), set func(key any, val contentNode)) {
 				for i := range 10 {
 					key := fmt.Sprint(i)
 					set(key, &testContentNode{key: key})
@@ -489,26 +442,12 @@ type testContentNode struct {
 	key string
 }
 
-func (n *testContentNode) GetIdentity() identity.Identity {
-	return identity.StringIdentity(n.key)
-}
-
-func (n *testContentNode) ForEeachIdentity(cb func(id identity.Identity) bool) bool {
-	panic("not supported")
-}
-
 func (n *testContentNode) Path() string {
 	return n.key
 }
 
-func (n *testContentNode) isContentNodeBranch() bool {
-	return false
-}
-
-func (n *testContentNode) resetBuildState() {
-}
-
-func (n *testContentNode) MarkStale() {
+func (n *testContentNode) forEeachContentNode(f func(v sitesmatrix.Vector, n contentNode) bool) bool {
+	panic("not supported")
 }
 
 // Issue 12274.

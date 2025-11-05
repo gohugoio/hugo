@@ -20,14 +20,14 @@ func TestTemplateDescriptorCompare(t *testing.T) {
 
 	less := func(category Category, this, other1, other2 TemplateDescriptor) {
 		c.Helper()
-		result1 := dh.compareDescriptors(category, false, this, other1)
-		result2 := dh.compareDescriptors(category, false, this, other2)
+		result1 := dh.compareDescriptors(category, this, other1, nil, nil)
+		result2 := dh.compareDescriptors(category, this, other2, nil, nil)
 		c.Assert(result1.w1 < result2.w1, qt.IsTrue, qt.Commentf("%d < %d", result1, result2))
 	}
 
 	check := func(category Category, this, other TemplateDescriptor, less bool) {
 		c.Helper()
-		result := dh.compareDescriptors(category, false, this, other)
+		result := dh.compareDescriptors(category, this, other, nil, nil)
 		if less {
 			c.Assert(result.w1 < 0, qt.IsTrue, qt.Commentf("%d", result))
 		} else {
@@ -38,15 +38,15 @@ func TestTemplateDescriptorCompare(t *testing.T) {
 	check(
 
 		CategoryBaseof,
-		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", Lang: "", OutputFormat: "404", MediaType: "text/html"},
-		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", Lang: "", OutputFormat: "html", MediaType: "text/html"},
+		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "404", MediaType: "text/html"},
+		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "html", MediaType: "text/html"},
 		false,
 	)
 
 	check(
 		CategoryLayout,
-		TemplateDescriptor{Kind: "", Lang: "en", OutputFormat: "404", MediaType: "text/html"},
-		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", Lang: "", OutputFormat: "alias", MediaType: "text/html"},
+		TemplateDescriptor{Kind: "", OutputFormat: "404", MediaType: "text/html"},
+		TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "alias", MediaType: "text/html"},
 		true,
 	)
 
@@ -78,27 +78,27 @@ func BenchmarkCompareDescriptors(b *testing.B) {
 		d1, d2 TemplateDescriptor
 	}{
 		{
-			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "404", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "404", MediaType: "text/html", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "rss", MediaType: "application/rss+xml", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 		{
-			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "html", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", LayoutFromTemplate: "list", OutputFormat: "", MediaType: "application/rss+xml", Lang: "", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "html", MediaType: "text/html", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "list", OutputFormat: "", MediaType: "application/rss+xml", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 		{
-			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "html", MediaType: "text/html", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "alias", MediaType: "text/html", Lang: "", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "html", MediaType: "text/html", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "", OutputFormat: "alias", MediaType: "text/html", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 		{
-			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "en", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
-			TemplateDescriptor{Kind: "", LayoutFromTemplate: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Lang: "nn", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "page", LayoutFromTemplate: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
+			TemplateDescriptor{Kind: "", LayoutFromTemplate: "single", OutputFormat: "rss", MediaType: "application/rss+xml", Variant1: "", Variant2: "", LayoutFromUserMustMatch: false, IsPlainText: false},
 		},
 	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, pair := range pairs {
-			_ = dh.compareDescriptors(CategoryLayout, false, pair.d1, pair.d2)
+			_ = dh.compareDescriptors(CategoryLayout, pair.d1, pair.d2, nil, nil)
 		}
 	}
 }

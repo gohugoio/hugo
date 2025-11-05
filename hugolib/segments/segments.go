@@ -15,114 +15,252 @@ package segments
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/config"
-	hglob "github.com/gohugoio/hugo/hugofs/glob"
+	hglob "github.com/gohugoio/hugo/hugofs/hglob"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/mitchellh/mapstructure"
 )
 
 // Segments is a collection of named segments.
 type Segments struct {
-	s map[string]excludeInclude
-}
+	builder *segmentsBuilder
 
-type excludeInclude struct {
-	exclude predicate.P[SegmentMatcherFields]
-	include predicate.P[SegmentMatcherFields]
-}
-
-// ShouldExcludeCoarse returns whether the given fields should be excluded.
-// This is used for the coarser grained checks, e.g. language and output format.
-// Note that ShouldExcludeCoarse(fields) == ShouldExcludeFine(fields) may
-// not always be true, but ShouldExcludeCoarse(fields) == true == ShouldExcludeFine(fields)
-// will always be truthful.
-func (e excludeInclude) ShouldExcludeCoarse(fields SegmentMatcherFields) bool {
-	return e.exclude != nil && e.exclude(fields)
-}
-
-// ShouldExcludeFine returns whether the given fields should be excluded.
-// This is used for the finer grained checks, e.g. on individual pages.
-func (e excludeInclude) ShouldExcludeFine(fields SegmentMatcherFields) bool {
-	if e.exclude != nil && e.exclude(fields) {
-		return true
-	}
-	return e.include != nil && !e.include(fields)
+	// SegmentFilter is the compiled filter for all segments to render.
+	SegmentFilter SegmentFilter
 }
 
 type SegmentFilter interface {
 	// ShouldExcludeCoarse returns whether the given fields should be excluded on a coarse level.
-	ShouldExcludeCoarse(SegmentMatcherFields) bool
+	ShouldExcludeCoarse(SegmentQuery) bool
 
 	// ShouldExcludeFine returns whether the given fields should be excluded on a fine level.
-	ShouldExcludeFine(SegmentMatcherFields) bool
+	ShouldExcludeFine(SegmentQuery) bool
 }
 
 type segmentFilter struct {
-	coarse predicate.P[SegmentMatcherFields]
-	fine   predicate.P[SegmentMatcherFields]
+	exclude predicate.PR[SegmentQuery]
+	include predicate.PR[SegmentQuery]
 }
 
-func (f segmentFilter) ShouldExcludeCoarse(field SegmentMatcherFields) bool {
-	return f.coarse(field)
+func (f segmentFilter) ShouldExcludeCoarse(q SegmentQuery) bool {
+	return f.exclude(q).OK()
 }
 
-func (f segmentFilter) ShouldExcludeFine(fields SegmentMatcherFields) bool {
-	return f.fine(fields)
+func (f segmentFilter) ShouldExcludeFine(q SegmentQuery) bool {
+	return f.exclude(q).OK() || !f.include(q).OK()
 }
 
-var (
-	matchAll     = func(SegmentMatcherFields) bool { return true }
-	matchNothing = func(SegmentMatcherFields) bool { return false }
-)
+type segmentsBuilder struct {
+	logger               loggers.Logger
+	isConfigInit         bool
+	configuredDimensions *sitesmatrix.ConfiguredDimensions
+	segmentCfg           map[string]SegmentConfig
+	segmentsToRender     []string
+}
 
-// Get returns a SegmentFilter for the given segments.
-func (sms Segments) Get(onNotFound func(s string), ss ...string) SegmentFilter {
-	if ss == nil {
-		return segmentFilter{coarse: matchNothing, fine: matchNothing}
+func (b *Segments) compile() error {
+	filter, err := b.builder.build()
+	if err != nil {
+		return err
 	}
-	var sf segmentFilter
-	for _, s := range ss {
-		if seg, ok := sms.s[s]; ok {
-			if sf.coarse == nil {
-				sf.coarse = seg.ShouldExcludeCoarse
-			} else {
-				sf.coarse = sf.coarse.Or(seg.ShouldExcludeCoarse)
-			}
-			if sf.fine == nil {
-				sf.fine = seg.ShouldExcludeFine
-			} else {
-				sf.fine = sf.fine.Or(seg.ShouldExcludeFine)
-			}
-		} else if onNotFound != nil {
-			onNotFound(s)
+	b.SegmentFilter = filter
+	b.builder = nil
+	return nil
+}
+
+func (s *segmentsBuilder) buildOne(f []SegmentMatcherFields) (predicate.PR[SegmentQuery], error) {
+	if f == nil {
+		return matchNothing, nil
+	}
+	var (
+		result  predicate.PR[SegmentQuery]
+		section predicate.PR[SegmentQuery]
+	)
+
+	addSectionMatcher := func(matcher predicate.PR[SegmentQuery]) {
+		if section == nil {
+			section = matcher
+		} else {
+			section = section.And(matcher)
 		}
 	}
 
-	if sf.coarse == nil {
-		sf.coarse = matchAll
-	}
-	if sf.fine == nil {
-		sf.fine = matchAll
+	addToSection := func(matcherFields SegmentMatcherFields, f1 func(fields SegmentMatcherFields) []string, f2 func(q SegmentQuery) string) error {
+		s1 := f1(matcherFields)
+		if s1 == nil {
+			// Nothing to match against.
+			return nil
+		}
+		var sliceMatcher predicate.PR[SegmentQuery]
+
+		for _, s := range s1 {
+			negate := strings.HasPrefix(s, hglob.NegationPrefix)
+			if negate {
+				s = strings.TrimPrefix(s, hglob.NegationPrefix)
+			}
+
+			g, err := getGlob(s)
+			if err != nil {
+				return err
+			}
+
+			m := func(fields SegmentQuery) predicate.Match {
+				s2 := f2(fields)
+				if s2 == "" {
+					return predicate.False
+				}
+				return predicate.BoolMatch(g.Match(s2) != negate)
+			}
+
+			if negate {
+				sliceMatcher = sliceMatcher.And(m)
+			} else {
+				sliceMatcher = sliceMatcher.Or(m)
+			}
+		}
+
+		if sliceMatcher != nil {
+			addSectionMatcher(sliceMatcher)
+		}
+
+		return nil
 	}
 
-	return sf
+	for _, fields := range f {
+		if len(fields.Kind) > 0 {
+			if err := addToSection(fields,
+				func(fields SegmentMatcherFields) []string { return fields.Kind },
+				func(fields SegmentQuery) string { return fields.Kind },
+			); err != nil {
+				return result, err
+			}
+		}
+		if len(fields.Path) > 0 {
+			if err := addToSection(fields,
+				func(fields SegmentMatcherFields) []string { return fields.Path },
+				func(fields SegmentQuery) string { return fields.Path },
+			); err != nil {
+				return result, err
+			}
+		}
+		if fields.Lang != "" {
+			hugo.DeprecateWithLogger("config segments.[...]lang ", "Use sites.matrix instead, see https://gohugo.io/configuration/segments/#segment-definition", "v0.153.0", s.logger.Logger())
+			fields.Sites.Matrix.Languages = []string{fields.Lang}
+		}
+		if !fields.Sites.Matrix.IsZero() {
+			intSetsCfg := sitesmatrix.IntSetsConfig{
+				Globs: fields.Sites.Matrix,
+			}
+			matrix := sitesmatrix.NewIntSetsBuilder(s.configuredDimensions).WithConfig(intSetsCfg).WithAllIfNotSet().Build()
+
+			addSectionMatcher(
+				func(fields SegmentQuery) predicate.Match {
+					return predicate.BoolMatch(matrix.HasVector(fields.Site))
+				},
+			)
+		}
+		if len(fields.Output) > 0 {
+			if err := addToSection(fields,
+				func(fields SegmentMatcherFields) []string { return fields.Output },
+				func(fields SegmentQuery) string { return fields.Output },
+			); err != nil {
+				return result, err
+			}
+		}
+
+		if result == nil {
+			result = section
+		} else {
+			result = result.Or(section)
+		}
+		section = nil
+
+	}
+	return result, nil
 }
+
+func (s *segmentsBuilder) build() (SegmentFilter, error) {
+	var sf segmentFilter
+
+	for _, segID := range s.segmentsToRender {
+		segCfg, ok := s.segmentCfg[segID]
+		if !ok {
+			continue
+		}
+
+		include, err := s.buildOne(segCfg.Includes)
+		if err != nil {
+			return nil, err
+		}
+
+		exclude, err := s.buildOne(segCfg.Excludes)
+		if err != nil {
+			return nil, err
+		}
+		if sf.include == nil {
+			sf.include = include
+		} else {
+			sf.include = sf.include.Or(include)
+		}
+		if sf.exclude == nil {
+			sf.exclude = exclude
+		} else {
+			sf.exclude = sf.exclude.Or(exclude)
+		}
+	}
+
+	if sf.exclude == nil {
+		sf.exclude = matchNothing
+	}
+	if sf.include == nil {
+		sf.include = matchAll
+	}
+
+	return sf, nil
+}
+
+func (b *Segments) InitConfig(logger loggers.Logger, _ sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+	if b.builder == nil || b.builder.isConfigInit {
+		return nil
+	}
+	b.builder.isConfigInit = true
+	b.builder.configuredDimensions = configuredDimensions
+	return b.compile()
+}
+
+var (
+	matchAll     = func(SegmentQuery) predicate.Match { return predicate.True }
+	matchNothing = func(SegmentQuery) predicate.Match { return predicate.False }
+)
 
 type SegmentConfig struct {
 	Excludes []SegmentMatcherFields
 	Includes []SegmentMatcherFields
 }
 
-// SegmentMatcherFields is a matcher for a segment include or exclude.
-// All of these are Glob patterns.
-type SegmentMatcherFields struct {
+type SegmentQuery struct {
 	Kind   string
 	Path   string
-	Lang   string
 	Output string
+	Site   sitesmatrix.Vector
+}
+
+// SegmentMatcherFields holds string slices of ordered filters for segment matching.
+// The Glob patterns can be negated by prefixing with "! ".
+// The first match wins (either include or exclude).
+type SegmentMatcherFields struct {
+	Kind   []string
+	Path   []string
+	Output []string
+	Lang   string            // Deprecated: use Sites.Matrix instead.
+	Sites  sitesmatrix.Sites // Note that we only use Sites.Matrix for now.
 }
 
 func getGlob(s string) (glob.Glob, error) {
@@ -136,114 +274,28 @@ func getGlob(s string) (glob.Glob, error) {
 	return g, nil
 }
 
-func compileSegments(f []SegmentMatcherFields) (predicate.P[SegmentMatcherFields], error) {
-	if f == nil {
-		return func(SegmentMatcherFields) bool { return false }, nil
-	}
-	var (
-		result  predicate.P[SegmentMatcherFields]
-		section predicate.P[SegmentMatcherFields]
-	)
-
-	addToSection := func(matcherFields SegmentMatcherFields, f func(fields SegmentMatcherFields) string) error {
-		s1 := f(matcherFields)
-		g, err := getGlob(s1)
-		if err != nil {
-			return err
-		}
-		matcher := func(fields SegmentMatcherFields) bool {
-			s2 := f(fields)
-			if s2 == "" {
-				return false
-			}
-			return g.Match(s2)
-		}
-		if section == nil {
-			section = matcher
-		} else {
-			section = section.And(matcher)
-		}
-		return nil
-	}
-
-	for _, fields := range f {
-		if fields.Kind != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Kind }); err != nil {
-				return result, err
-			}
-		}
-		if fields.Path != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Path }); err != nil {
-				return result, err
-			}
-		}
-		if fields.Lang != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Lang }); err != nil {
-				return result, err
-			}
-		}
-		if fields.Output != "" {
-			if err := addToSection(fields, func(fields SegmentMatcherFields) string { return fields.Output }); err != nil {
-				return result, err
-			}
-		}
-
-		if result == nil {
-			result = section
-		} else {
-			result = result.Or(section)
-		}
-		section = nil
-
-	}
-
-	return result, nil
-}
-
-func DecodeSegments(in map[string]any) (*config.ConfigNamespace[map[string]SegmentConfig, Segments], error) {
-	buildConfig := func(in any) (Segments, any, error) {
-		sms := Segments{
-			s: map[string]excludeInclude{},
-		}
+func DecodeSegments(in map[string]any, segmentsToRender []string, logger loggers.Logger) (*config.ConfigNamespace[map[string]SegmentConfig, *Segments], error) {
+	buildConfig := func(in any) (*Segments, any, error) {
 		m, err := maps.ToStringMapE(in)
 		if err != nil {
-			return sms, nil, err
+			return nil, nil, err
 		}
 		if m == nil {
 			m = map[string]any{}
 		}
 		m = maps.CleanConfigStringMap(m)
 
-		var scfgm map[string]SegmentConfig
-		if err := mapstructure.Decode(m, &scfgm); err != nil {
-			return sms, nil, err
+		var segmentCfg map[string]SegmentConfig
+		if err := mapstructure.WeakDecode(m, &segmentCfg); err != nil {
+			return nil, nil, err
 		}
 
-		for k, v := range scfgm {
-			var (
-				include predicate.P[SegmentMatcherFields]
-				exclude predicate.P[SegmentMatcherFields]
-				err     error
-			)
-			if v.Excludes != nil {
-				exclude, err = compileSegments(v.Excludes)
-				if err != nil {
-					return sms, nil, err
-				}
-			}
-			if v.Includes != nil {
-				include, err = compileSegments(v.Includes)
-				if err != nil {
-					return sms, nil, err
-				}
-			}
-
-			ei := excludeInclude{
-				exclude: exclude,
-				include: include,
-			}
-			sms.s[k] = ei
-
+		sms := &Segments{
+			builder: &segmentsBuilder{
+				logger:           logger,
+				segmentCfg:       segmentCfg,
+				segmentsToRender: segmentsToRender,
+			},
 		}
 
 		return sms, nil, nil

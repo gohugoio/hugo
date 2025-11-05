@@ -23,11 +23,14 @@ func Test404(t *testing.T) {
 
 	files := `
 -- hugo.toml --
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
 baseURL = "http://example.com/"	
+-- layouts/all.html --
+All. {{ .Kind }}. {{ .Title }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
 -- layouts/404.html --
 {{ $home := site.Home }}
 404: 
-Parent: {{ .Parent.Kind }}
+Parent: {{ .Parent.Kind }}|{{ .Parent.Path }}|
 IsAncestor: {{ .IsAncestor $home }}/{{ $home.IsAncestor . }}
 IsDescendant: {{ .IsDescendant $home }}/{{ $home.IsDescendant . }}
 CurrentSection: {{ .CurrentSection.Kind }}|
@@ -42,10 +45,10 @@ Data: {{ len .Data }}|
 		IntegrationTestConfig{
 			T:           t,
 			TxtarString: files,
-			// LogLevel:    logg.LevelTrace,
-			// Verbose:     true,
 		},
 	).Build()
+
+	b.AssertFileContent("public/index.html", "All. home. |")
 
 	// Note: We currently have only 1 404 page. One might think that we should have
 	// multiple, to follow the Custom Output scheme, but I don't see how that would work

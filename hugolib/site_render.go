@@ -85,9 +85,9 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	cfg := ctx.cfg
 
-	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			if p, ok := n.(*pageState); ok {
 				if cfg.shouldRender(ctx.infol, p) {
 					select {
@@ -114,7 +114,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("failed to render pages: %w", herrors.ImproveRenderErr(err))
+		return fmt.Errorf("%v failed to render pages: %w", s.resolveDimensionNames(), herrors.ImproveRenderErr(err))
 	}
 	return nil
 }
@@ -129,6 +129,7 @@ func pageRenderer(
 	defer wg.Done()
 
 	for p := range pages {
+
 		if p.m.isStandalone() && !ctx.shouldRenderStandalonePage(p.Kind()) {
 			continue
 		}
@@ -178,7 +179,7 @@ func pageRenderer(
 			d = s.h.Sites
 		}
 
-		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+p.Title(), targetPath, p, d, templ); err != nil {
+		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, targetPath, p, d, templ); err != nil {
 			results <- err
 		}
 
@@ -256,7 +257,6 @@ func (s *Site) renderPaginator(p *pageState, templ *tplimpl.TemplInfo) error {
 
 		if err := s.renderAndWritePage(
 			&s.PathSpec.ProcessingStats.PaginatorPages,
-			p.Title(),
 			targetPaths.TargetFilename, p, p, templ); err != nil {
 			return err
 		}
@@ -268,9 +268,9 @@ func (s *Site) renderPaginator(p *pageState, templ *tplimpl.TemplInfo) error {
 
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
-	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			p := n.(*pageState)
 
 			// We cannot alias a page that's not rendered.

@@ -15,14 +15,19 @@ package page
 
 import (
 	"fmt"
+	"iter"
 	"path/filepath"
 	"slices"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hstrings"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/mitchellh/mapstructure"
 )
@@ -40,32 +45,42 @@ type PageMatcher struct {
 	Kind string
 
 	// A Glob pattern matching the Page's language, e.g. "{en,sv}".
+	// Deprecated: use Sites.Matrix instead.
 	Lang string
+
+	// The sites to apply this to.
+	// Note that we currently only use the Matrix field for cascade matching.
+	Sites sitesmatrix.Sites
 
 	// A Glob pattern matching the Page's Environment, e.g. "{production,development}".
 	Environment string
+
+	// Compiled values.
+	// The site vectors to apply this to.
+	SitesMatrixCompiled sitesmatrix.VectorProvider `mapstructure:"-"`
 }
 
-// Matches returns whether p matches this matcher.
 func (m PageMatcher) Matches(p Page) bool {
-	if m.Kind != "" {
-		g, err := glob.GetGlob(m.Kind)
-		if err == nil && !g.Match(p.Kind()) {
+	return m.Match(p.Kind(), p.Path(), p.Site().Hugo().Environment, nil)
+}
+
+func (m PageMatcher) Match(kind, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
+	if sitesMatrix != nil {
+		if m.SitesMatrixCompiled != nil && !m.SitesMatrixCompiled.HasAnyVector(sitesMatrix) {
 			return false
 		}
 	}
-
-	if m.Lang != "" {
-		g, err := glob.GetGlob(m.Lang)
-		if err == nil && !g.Match(p.Lang()) {
+	if m.Kind != "" {
+		g, err := hglob.GetGlob(m.Kind)
+		if err == nil && !g.Match(kind) {
 			return false
 		}
 	}
 
 	if m.Path != "" {
-		g, err := glob.GetGlob(m.Path)
+		g, err := hglob.GetGlob(m.Path)
 		// TODO(bep) Path() vs filepath vs leading slash.
-		p := strings.ToLower(filepath.ToSlash(p.Path()))
+		p := strings.ToLower(filepath.ToSlash(path))
 		if !(strings.HasPrefix(p, "/")) {
 			p = "/" + p
 		}
@@ -75,8 +90,8 @@ func (m PageMatcher) Matches(p Page) bool {
 	}
 
 	if m.Environment != "" {
-		g, err := glob.GetGlob(m.Environment)
-		if err == nil && !g.Match(p.Site().Hugo().Environment) {
+		g, err := hglob.GetGlob(m.Environment)
+		if err == nil && !g.Match(environment) {
 			return false
 		}
 	}
@@ -87,9 +102,10 @@ func (m PageMatcher) Matches(p Page) bool {
 var disallowedCascadeKeys = map[string]bool{
 	// These define the structure of the page tree and cannot
 	// currently be set in the cascade.
-	"kind": true,
-	"path": true,
-	"lang": true,
+	"kind":    true,
+	"path":    true,
+	"lang":    true,
+	"cascade": true,
 }
 
 // See issue 11977.
@@ -99,21 +115,27 @@ func isGlobWithExtension(s string) bool {
 	return strings.Count(last, ".") > 0
 }
 
-func CheckCascadePattern(logger loggers.Logger, m PageMatcher) {
-	if logger != nil && isGlobWithExtension(m.Path) {
-		logger.Erroridf("cascade-pattern-with-extension", "cascade target path %q looks like a path with an extension; since Hugo v0.123.0 this will not match anything, see  https://gohugo.io/methods/page/path/", m.Path)
+func checkCascadePattern(logger loggers.Logger, m PageMatcher) {
+	if m.Lang != "" {
+		hugo.Deprecate("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/content-management/front-matter/#target", "v0.150.0")
 	}
 }
 
-func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any) (*config.ConfigNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, PageMatcherParamsConfig]], error) {
-	buildConfig := func(in any) (*maps.Ordered[PageMatcher, PageMatcherParamsConfig], any, error) {
-		cascade := maps.NewOrdered[PageMatcher, PageMatcherParamsConfig]()
+func AddLangToCascadeTargetMap(lang string, m maps.Params) {
+	maps.SetNestedParamIfNotSet("target.sites.matrix.languages", ".", lang, m)
+}
+
+func DecodeCascadeConfig(in any) (*PageMatcherParamsConfigs, error) {
+	buildConfig := func(in any) (CascadeConfig, any, error) {
+		dec := cascadeConfigDecoder{}
+
 		if in == nil {
-			return cascade, []map[string]any{}, nil
+			return CascadeConfig{}, []map[string]any{}, nil
 		}
+
 		ms, err := maps.ToSliceStringMap(in)
 		if err != nil {
-			return nil, nil, err
+			return CascadeConfig{}, nil, err
 		}
 
 		var cfgs []PageMatcherParamsConfig
@@ -124,55 +146,50 @@ func DecodeCascadeConfig(logger loggers.Logger, handleLegacyFormat bool, in any)
 				c   PageMatcherParamsConfig
 				err error
 			)
-			c, err = mapToPageMatcherParamsConfig(m)
+			c, err = dec.mapToPageMatcherParamsConfig(m)
 			if err != nil {
-				return nil, nil, err
+				return CascadeConfig{}, nil, err
 			}
 			for k := range m {
 				if disallowedCascadeKeys[k] {
-					return nil, nil, fmt.Errorf("key %q not allowed in cascade config", k)
+					return CascadeConfig{}, nil, fmt.Errorf("key %q not allowed in cascade config", k)
 				}
 			}
 			cfgs = append(cfgs, c)
 		}
 
+		if len(cfgs) == 0 {
+			return CascadeConfig{}, nil, nil
+		}
+
+		var n int
 		for _, cfg := range cfgs {
-			m := cfg.Target
-			CheckCascadePattern(logger, m)
-			c, found := cascade.Get(m)
-			if found {
-				// Merge
-				for k, v := range cfg.Params {
-					if _, found := c.Params[k]; !found {
-						c.Params[k] = v
-					}
-				}
-				for k, v := range cfg.Fields {
-					if _, found := c.Fields[k]; !found {
-						c.Fields[k] = v
-					}
-				}
-			} else {
-				cascade.Set(m, cfg)
+			if len(cfg.Params) > 0 || len(cfg.Fields) > 0 {
+				cfgs[n] = cfg
+				n++
 			}
 		}
 
-		return cascade, cfgs, nil
+		if n == 0 {
+			return CascadeConfig{}, nil, nil
+		}
+
+		cfgs = cfgs[:n]
+
+		return CascadeConfig{Cascades: cfgs}, cfgs, nil
 	}
 
-	return config.DecodeNamespace[[]PageMatcherParamsConfig, *maps.Ordered[PageMatcher, PageMatcherParamsConfig]](in, buildConfig)
-}
-
-// DecodeCascade decodes in which could be either a map or a slice of maps.
-func DecodeCascade(logger loggers.Logger, handleLegacyFormat bool, in any) (*maps.Ordered[PageMatcher, PageMatcherParamsConfig], error) {
-	conf, err := DecodeCascadeConfig(logger, handleLegacyFormat, in)
-	if err != nil {
+	c, err := config.DecodeNamespace[[]PageMatcherParamsConfig](in, buildConfig)
+	if err != nil || len(c.Config.Cascades) == 0 {
 		return nil, err
 	}
-	return conf.Config, nil
+
+	return &PageMatcherParamsConfigs{c: []*config.ConfigNamespace[[]PageMatcherParamsConfig, CascadeConfig]{c}}, nil
 }
 
-func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, error) {
+type cascadeConfigDecoder struct{}
+
+func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, error) {
 	var pcfg PageMatcherParamsConfig
 	if pcfg.Fields == nil {
 		pcfg.Fields = make(maps.Params)
@@ -180,11 +197,12 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 	if pcfg.Params == nil {
 		pcfg.Params = make(maps.Params)
 	}
+
 	for k, v := range m {
 		switch strings.ToLower(k) {
 		case "_target", "target":
 			var target PageMatcher
-			if err := decodePageMatcher(v, &target); err != nil {
+			if err := d.decodePageMatcher(v, &target); err != nil {
 				return pcfg, err
 			}
 			pcfg.Target = target
@@ -203,14 +221,14 @@ func mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, er
 }
 
 // decodePageMatcher decodes m into v.
-func decodePageMatcher(m any, v *PageMatcher) error {
+func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 	if err := mapstructure.WeakDecode(m, v); err != nil {
 		return err
 	}
 
 	v.Kind = strings.ToLower(v.Kind)
 	if v.Kind != "" {
-		g, _ := glob.GetGlob(v.Kind)
+		g, _ := hglob.GetGlob(v.Kind)
 		found := slices.ContainsFunc(kinds.AllKindsInPages, g.Match)
 		if !found {
 			return fmt.Errorf("%q did not match a valid Page Kind", v.Kind)
@@ -219,7 +237,32 @@ func decodePageMatcher(m any, v *PageMatcher) error {
 
 	v.Path = filepath.ToSlash(strings.ToLower(v.Path))
 
+	if v.Lang != "" {
+		v.Sites.Matrix.Languages = append(v.Sites.Matrix.Languages, v.Lang)
+		v.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(v.Sites.Matrix.Languages)
+	}
+
 	return nil
+}
+
+// DecodeCascadeConfigOptions
+func (v *PageMatcher) compileSitesMatrix(configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+	if v.Sites.Matrix.IsZero() {
+		// Nothing to do.
+		v.SitesMatrixCompiled = nil
+		return nil
+	}
+	intSetsCfg := sitesmatrix.IntSetsConfig{
+		Globs: v.Sites.Matrix,
+	}
+	b := sitesmatrix.NewIntSetsBuilder(configuredDimensions).WithConfig(intSetsCfg).WithAllIfNotSet()
+
+	v.SitesMatrixCompiled = b.Build()
+	return nil
+}
+
+type CascadeConfig struct {
+	Cascades []PageMatcherParamsConfig
 }
 
 type PageMatcherParamsConfig struct {
@@ -234,5 +277,87 @@ type PageMatcherParamsConfig struct {
 func (p *PageMatcherParamsConfig) init() error {
 	maps.PrepareParams(p.Params)
 	maps.PrepareParams(p.Fields)
+
+	return nil
+}
+
+type PageMatcherParamsConfigs struct {
+	c []*config.ConfigNamespace[[]PageMatcherParamsConfig, CascadeConfig]
+}
+
+func (c *PageMatcherParamsConfigs) Append(other *PageMatcherParamsConfigs) *PageMatcherParamsConfigs {
+	if c == nil || len(c.c) == 0 {
+		return other
+	}
+	if other == nil || len(other.c) == 0 {
+		return c
+	}
+	return &PageMatcherParamsConfigs{c: slices.Concat(c.c, other.c)}
+}
+
+func (c *PageMatcherParamsConfigs) Prepend(other *PageMatcherParamsConfigs) *PageMatcherParamsConfigs {
+	if c == nil || len(c.c) == 0 {
+		return other
+	}
+	if other == nil || len(other.c) == 0 {
+		return c
+	}
+	return &PageMatcherParamsConfigs{c: slices.Concat(other.c, c.c)}
+}
+
+func (c *PageMatcherParamsConfigs) All() iter.Seq[PageMatcherParamsConfig] {
+	if c == nil {
+		return func(func(PageMatcherParamsConfig) bool) {}
+	}
+	return func(yield func(PageMatcherParamsConfig) bool) {
+		if c == nil {
+			return
+		}
+		for _, v := range c.c {
+			for _, vv := range v.Config.Cascades {
+				if !yield(vv) {
+					return
+				}
+			}
+		}
+	}
+}
+
+func (c *PageMatcherParamsConfigs) Len() int {
+	if c == nil {
+		return 0
+	}
+	var n int
+	for _, v := range c.c {
+		n += len(v.Config.Cascades)
+	}
+	return n
+}
+
+func (c *PageMatcherParamsConfigs) SourceHash() uint64 {
+	if c == nil {
+		return 0
+	}
+	h := hashing.XxHasher()
+	defer h.Close()
+
+	for _, v := range c.c {
+		h.WriteString(v.SourceHash)
+	}
+	return h.Sum64()
+}
+
+func (c *PageMatcherParamsConfigs) InitConfig(logger loggers.Logger, _ sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+	if c == nil {
+		return nil
+	}
+	for _, cc := range c.c {
+		for i := range cc.Config.Cascades {
+			checkCascadePattern(logger, cc.Config.Cascades[i].Target)
+			if err := cc.Config.Cascades[i].Target.compileSitesMatrix(configuredDimensions); err != nil {
+				return fmt.Errorf("failed to compile cascade target %d: %w", i, err)
+			}
+		}
+	}
 	return nil
 }

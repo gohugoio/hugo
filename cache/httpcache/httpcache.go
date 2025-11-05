@@ -173,16 +173,16 @@ func (gm *GlobMatcher) CompilePredicate() (func(string) bool, error) {
 	if gm.IsZero() {
 		panic("no includes or excludes")
 	}
-	var p predicate.P[string]
+	var b predicate.PR[string]
 	for _, include := range gm.Includes {
 		g, err := glob.Compile(include, '/')
 		if err != nil {
 			return nil, err
 		}
-		fn := func(s string) bool {
-			return g.Match(s)
+		fn := func(s string) predicate.Match {
+			return predicate.BoolMatch(g.Match(s))
 		}
-		p = p.Or(fn)
+		b = b.Or(fn)
 	}
 
 	for _, exclude := range gm.Excludes {
@@ -190,13 +190,13 @@ func (gm *GlobMatcher) CompilePredicate() (func(string) bool, error) {
 		if err != nil {
 			return nil, err
 		}
-		fn := func(s string) bool {
-			return !g.Match(s)
+		fn := func(s string) predicate.Match {
+			return predicate.BoolMatch(!g.Match(s))
 		}
-		p = p.And(fn)
+		b = b.And(fn)
 	}
 
-	return p, nil
+	return b.BoolFunc(), nil
 }
 
 func DecodeConfig(_ config.BaseConfig, m map[string]any) (Config, error) {

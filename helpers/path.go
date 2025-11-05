@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/htesting"
 
@@ -188,7 +189,7 @@ func ExtractAndGroupRootPaths(paths []string) []NamedSlice {
 		groupsStr[i] = strings.Join(g, "/")
 	}
 
-	groupsStr = UniqueStringsSorted(groupsStr)
+	groupsStr = hstrings.UniqueStringsSorted(groupsStr)
 
 	var result []NamedSlice
 
@@ -209,7 +210,7 @@ func ExtractAndGroupRootPaths(paths []string) []NamedSlice {
 			}
 		}
 
-		ns.Slice = UniqueStrings(ExtractRootPaths(ns.Slice))
+		ns.Slice = hstrings.UniqueStrings(ExtractRootPaths(ns.Slice))
 
 		result = append(result, ns)
 	}
