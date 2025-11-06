@@ -63,6 +63,7 @@ func TestLexicographicSort(t *testing.T) {
 	c.Assert(s, qt.DeepEquals, []string{"A", "b", "Ba", "ba", "ba", "Bz"})
 }
 
+// // Note that this cannot use b.Loop() because of golang/go#27217.
 func BenchmarkStringSort(b *testing.B) {
 	prototype := []string{"b", "Bz", "zz", "ba", "αβδ αβδ αβδ", "A", "Ba", "ba", "nnnnasdfnnn", "AAgæåz", "αβδC"}
 	b.Run("LessStrings", func(b *testing.B) {

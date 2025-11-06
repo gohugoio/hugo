@@ -195,7 +195,6 @@ func TestDictionary(t *testing.T) {
 		{[]any{5, "b"}, false},
 		{[]any{"a", "b", "c"}, false},
 	} {
-		test := test
 		c.Run(fmt.Sprint(i), func(c *qt.C) {
 			c.Parallel()
 			errMsg := qt.Commentf("[%d] %v", i, test.values)
