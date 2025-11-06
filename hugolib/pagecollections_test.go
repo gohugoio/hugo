@@ -37,17 +37,16 @@ categories:
 `
 
 func BenchmarkGetPage(b *testing.B) {
-	var (
-		cfg, fs = newTestCfg()
-		r       = rand.New(rand.NewSource(time.Now().UnixNano()))
-	)
+	cfg, fs := newTestCfg()
 
 	configs, err := loadTestConfigFromProvider(cfg)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	for i := range 10 {
+	const size = 10
+
+	for i := range size {
 		for j := range 100 {
 			writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), "CONTENT")
 		}
@@ -55,19 +54,18 @@ func BenchmarkGetPage(b *testing.B) {
 
 	s := buildSingleSite(b, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
 
-	pagePaths := make([]string, b.N)
-
-	for i := 0; b.Loop(); i++ {
-		pagePaths[i] = fmt.Sprintf("sect%d", r.Intn(10))
+	pagePaths := make([]string, size)
+	for i := range size {
+		pagePaths[i] = fmt.Sprintf("sect%d", i)
 	}
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		home, _ := s.getPage(nil, "/")
 		if home == nil {
 			b.Fatal("Home is nil")
 		}
 
-		p, _ := s.getPage(nil, pagePaths[i])
+		p, _ := s.getPage(nil, pagePaths[i%size])
 		if p == nil {
 			b.Fatal("Section is nil")
 		}
@@ -113,20 +111,21 @@ func TestBenchmarkGetPageRegular(t *testing.T) {
 
 func BenchmarkGetPageRegular(b *testing.B) {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	const size = 100
 
 	b.Run("From root", func(b *testing.B) {
 		s := createGetPageRegularBenchmarkSite(b)
 		c := qt.New(b)
 
-		pagePaths := make([]string, b.N)
+		pagePaths := make([]string, size)
 
-		for i := 0; i < b.N; i++ {
-			pagePaths[i] = path.Join(fmt.Sprintf("/sect%d", r.Intn(10)), fmt.Sprintf("page%d.md", r.Intn(100)))
+		for i := range size {
+			pagePaths[i] = path.Join(fmt.Sprintf("/sect%d", r.Intn(10)), fmt.Sprintf("page%d.md", i))
 		}
 
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			page, _ := s.getPage(nil, pagePaths[i])
+		for i := 0; b.Loop(); i++ {
+			page, _ := s.getPage(nil, pagePaths[i%size])
 			c.Assert(page, qt.Not(qt.IsNil))
 		}
 	})
@@ -136,17 +135,15 @@ func BenchmarkGetPageRegular(b *testing.B) {
 		c := qt.New(b)
 		allPages := s.RegularPages()
 
-		pagePaths := make([]string, b.N)
-		pages := make([]page.Page, b.N)
+		pagePaths := make([]string, size)
+		pages := allPages[:size]
 
-		for i := 0; i < b.N; i++ {
-			pagePaths[i] = fmt.Sprintf("page%d.md", r.Intn(100))
-			pages[i] = allPages[r.Intn(len(allPages)/3)]
+		for i := range size {
+			pagePaths[i] = fmt.Sprintf("page%d.md", i)
 		}
 
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			page, _ := s.getPage(pages[i], pagePaths[i])
+		for i := 0; b.Loop(); i++ {
+			page, _ := s.getPage(pages[i%size], pagePaths[i%size])
 			c.Assert(page, qt.Not(qt.IsNil))
 		}
 	})

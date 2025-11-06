@@ -242,6 +242,7 @@ CSV: {{< myShort >}}
 	)
 }
 
+// Note that this cannot use b.Loop() because of golang/go#27217.
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 	type input struct {
 		in           []byte
@@ -263,7 +264,7 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 
 	cnt := 0
 	in := make([]input, b.N*len(data))
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		for _, this := range data {
 			replacements := make(map[string]shortcodeRenderer)
 			for k, v := range this.replacements {
@@ -279,7 +280,8 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 
 	cnt = 0
 	ctx := context.Background()
-	for i := 0; b.Loop(); i++ {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
 		for j := range data {
 			currIn := in[cnt]
 			cnt++
@@ -335,14 +337,12 @@ title: "Markdown Shortcode"
 		T:           b,
 		TxtarString: files,
 	}
-	builders := make([]*IntegrationTestBuilder, b.N)
 
-	for i := range builders {
-		builders[i] = NewIntegrationTestBuilder(cfg)
-	}
-
-	for i := 0; i < b.N; i++ {
-		builders[i].Build()
+	for b.Loop() {
+		b.StopTimer()
+		builder := NewIntegrationTestBuilder(cfg)
+		b.StartTimer()
+		builder.Build()
 	}
 }
 

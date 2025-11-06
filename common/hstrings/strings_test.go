@@ -71,6 +71,7 @@ func TestUniqueStringsSorted(t *testing.T) {
 	c.Assert(UniqueStringsSorted(nil), qt.IsNil)
 }
 
+// Note that these cannot use b.Loop() because of golang/go#27217.
 func BenchmarkUniqueStrings(b *testing.B) {
 	input := []string{"a", "b", "d", "e", "d", "h", "a", "i"}
 
@@ -84,15 +85,14 @@ func BenchmarkUniqueStrings(b *testing.B) {
 	})
 
 	b.Run("Reuse slice", func(b *testing.B) {
-		b.StopTimer()
 		inputs := make([][]string, b.N)
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			inputc := make([]string, len(input))
 			copy(inputc, input)
 			inputs[i] = inputc
 		}
-		b.StartTimer()
-		for i := 0; b.Loop(); i++ {
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
 			inputc := inputs[i]
 
 			result := UniqueStringsReuse(inputc)
@@ -103,14 +103,13 @@ func BenchmarkUniqueStrings(b *testing.B) {
 	})
 
 	b.Run("Reuse slice sorted", func(b *testing.B) {
-		b.StopTimer()
 		inputs := make([][]string, b.N)
 		for i := 0; i < b.N; i++ {
 			inputc := make([]string, len(input))
 			copy(inputc, input)
 			inputs[i] = inputc
 		}
-		b.StartTimer()
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			inputc := inputs[i]
 

@@ -743,14 +743,12 @@ func BenchmarkBaseline(b *testing.B) {
 		T:           b,
 		TxtarString: benchmarkBaselineFiles(false),
 	}
-	builders := make([]*IntegrationTestBuilder, b.N)
 
-	for i := range builders {
-		builders[i] = NewIntegrationTestBuilder(cfg)
-	}
-
-	for i := 0; i < b.N; i++ {
-		builders[i].Build()
+	for b.Loop() {
+		b.StopTimer()
+		builder := NewIntegrationTestBuilder(cfg)
+		b.StartTimer()
+		builder.Build()
 	}
 }
 

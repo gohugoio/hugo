@@ -1787,22 +1787,15 @@ func BenchmarkRebuildContentFileChange(b *testing.B) {
 		T:           b,
 		TxtarString: files,
 		Running:     true,
-		// Verbose:     true,
-		// LogLevel: logg.LevelInfo,
-	}
-	builders := make([]*IntegrationTestBuilder, b.N)
-
-	for i := range builders {
-		builders[i] = NewIntegrationTestBuilder(cfg)
-		builders[i].Build()
 	}
 
-	for i := 0; i < b.N; i++ {
-		bb := builders[i]
+	for b.Loop() {
+		b.StopTimer()
+		bb := NewIntegrationTestBuilder(cfg).Build()
+		b.StartTimer()
 		bb.EditFileReplaceFunc("content/mysect/p123/index.md", func(s string) string {
 			return s + "... Edited"
 		}).Build()
-		// fmt.Println(bb.LogString())
 	}
 }
 
