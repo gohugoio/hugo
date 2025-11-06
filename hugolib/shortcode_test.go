@@ -100,7 +100,6 @@ title: "Shortcodes Galore!"
 		{"closed without content", `{{< inner param1 >}}{{< / inner >}}`, regexpCheck("inner.*inner:{}")},
 		{"inline", `{{< my.inline >}}Hi{{< /my.inline >}}`, regexpCheck("my.inline;inline:true;closing:true;inner:{Hi};")},
 	} {
-
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			c := qt.New(t)
@@ -342,7 +341,7 @@ title: "Markdown Shortcode"
 		builders[i] = NewIntegrationTestBuilder(cfg)
 	}
 
-	for i := 0; b.Loop(); i++ {
+	for i := 0; i < b.N; i++ {
 		builders[i].Build()
 	}
 }
@@ -715,7 +714,6 @@ TOC: {{ .TableOfContents }}
 					)
 				}
 			})
-
 	}
 }
 

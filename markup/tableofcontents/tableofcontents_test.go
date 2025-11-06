@@ -218,7 +218,7 @@ func BenchmarkToc(b *testing.B) {
 	b.Run("ToHTML", func(b *testing.B) {
 		tocs := newTocs(b.N)
 		b.ResetTimer()
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			toc := tocs[i]
 			toc.ToHTML(1, -1, false)
 		}

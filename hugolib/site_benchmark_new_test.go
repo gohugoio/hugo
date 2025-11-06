@@ -504,7 +504,7 @@ func BenchmarkSiteNew(b *testing.B) {
 			}
 			b.Run(name, func(b *testing.B) {
 				sites := make([]*sitesBuilder, b.N)
-				for i := 0; b.Loop(); i++ {
+				for i := 0; i < b.N; i++ {
 					sites[i] = bm.create(b)
 					if edit {
 						sites[i].Running()

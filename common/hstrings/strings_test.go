@@ -105,13 +105,13 @@ func BenchmarkUniqueStrings(b *testing.B) {
 	b.Run("Reuse slice sorted", func(b *testing.B) {
 		b.StopTimer()
 		inputs := make([][]string, b.N)
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			inputc := make([]string, len(input))
 			copy(inputc, input)
 			inputs[i] = inputc
 		}
 		b.StartTimer()
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			inputc := inputs[i]
 
 			result := UniqueStringsSorted(inputc)

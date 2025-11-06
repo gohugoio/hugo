@@ -1797,7 +1797,7 @@ func BenchmarkRebuildContentFileChange(b *testing.B) {
 		builders[i].Build()
 	}
 
-	for i := 0; b.Loop(); i++ {
+	for i := 0; i < b.N; i++ {
 		bb := builders[i]
 		bb.EditFileReplaceFunc("content/mysect/p123/index.md", func(s string) string {
 			return s + "... Edited"

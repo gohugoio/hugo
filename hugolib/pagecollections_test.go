@@ -61,7 +61,7 @@ func BenchmarkGetPage(b *testing.B) {
 		pagePaths[i] = fmt.Sprintf("sect%d", r.Intn(10))
 	}
 
-	for i := 0; b.Loop(); i++ {
+	for i := 0; i < b.N; i++ {
 		home, _ := s.getPage(nil, "/")
 		if home == nil {
 			b.Fatal("Home is nil")
@@ -120,12 +120,12 @@ func BenchmarkGetPageRegular(b *testing.B) {
 
 		pagePaths := make([]string, b.N)
 
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			pagePaths[i] = path.Join(fmt.Sprintf("/sect%d", r.Intn(10)), fmt.Sprintf("page%d.md", r.Intn(100)))
 		}
 
 		b.ResetTimer()
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			page, _ := s.getPage(nil, pagePaths[i])
 			c.Assert(page, qt.Not(qt.IsNil))
 		}
@@ -139,13 +139,13 @@ func BenchmarkGetPageRegular(b *testing.B) {
 		pagePaths := make([]string, b.N)
 		pages := make([]page.Page, b.N)
 
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			pagePaths[i] = fmt.Sprintf("page%d.md", r.Intn(100))
 			pages[i] = allPages[r.Intn(len(allPages)/3)]
 		}
 
 		b.ResetTimer()
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			page, _ := s.getPage(pages[i], pagePaths[i])
 			c.Assert(page, qt.Not(qt.IsNil))
 		}

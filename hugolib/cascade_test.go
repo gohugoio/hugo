@@ -83,7 +83,7 @@ kind = '{section,term}'
 
 		b.ResetTimer()
 
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			builders[i].Build()
 		}
 	})

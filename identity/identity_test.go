@@ -46,7 +46,7 @@ func BenchmarkIdentityManager(b *testing.B) {
 		im := identity.NewManager()
 
 		b.ResetTimer()
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			im.AddIdentity(ids[i])
 		}
 

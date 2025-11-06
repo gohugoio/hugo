@@ -161,7 +161,7 @@ func BenchmarkIsContextType(b *testing.B) {
 		}
 
 		b.ResetTimer()
-		for i := 0; b.Loop(); i++ {
+		for i := 0; i < b.N; i++ {
 			if !IsContextType(ctxs[i]) {
 				b.Fatal("not context")
 			}

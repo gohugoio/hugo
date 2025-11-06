@@ -749,7 +749,7 @@ func BenchmarkBaseline(b *testing.B) {
 		builders[i] = NewIntegrationTestBuilder(cfg)
 	}
 
-	for i := 0; b.Loop(); i++ {
+	for i := 0; i < b.N; i++ {
 		builders[i].Build()
 	}
 }
