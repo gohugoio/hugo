@@ -466,13 +466,9 @@ func TestImageColorsLuminance(t *testing.T) {
 }
 
 func BenchmarkImageExif(b *testing.B) {
-	getImages := func(c *qt.C, b *testing.B, fs afero.Fs) []images.ImageResource {
+	getImage := func(i int, c *qt.C, b *testing.B, fs afero.Fs) images.ImageResource {
 		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
-		imgs := make([]images.ImageResource, b.N)
-		for i := 0; i < b.N; i++ {
-			imgs[i] = fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(images.ImageResource)
-		}
-		return imgs
+		return fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(images.ImageResource)
 	}
 
 	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
@@ -482,43 +478,45 @@ func BenchmarkImageExif(b *testing.B) {
 	}
 
 	b.Run("Cold cache", func(b *testing.B) {
-		b.StopTimer()
 		c := qt.New(b)
-		images := getImages(c, b, afero.NewMemMapFs())
-
-		b.StartTimer()
+		fs := afero.NewMemMapFs()
 		for i := 0; b.Loop(); i++ {
-			getAndCheckExif(c, images[i])
+			b.StopTimer()
+			image := getImage(i, c, b, fs)
+			b.StartTimer()
+			getAndCheckExif(c, image)
 		}
 	})
 
 	b.Run("Cold cache, 10", func(b *testing.B) {
-		b.StopTimer()
 		c := qt.New(b)
-		images := getImages(c, b, afero.NewMemMapFs())
-
-		b.StartTimer()
+		fs := afero.NewMemMapFs()
 		for i := 0; b.Loop(); i++ {
+			b.StopTimer()
+			image := getImage(i, c, b, fs)
+			b.StartTimer()
 			for range 10 {
-				getAndCheckExif(c, images[i])
+				getAndCheckExif(c, image)
 			}
 		}
 	})
 
 	b.Run("Warm cache", func(b *testing.B) {
-		b.StopTimer()
 		c := qt.New(b)
 		fs := afero.NewMemMapFs()
-		images := getImages(c, b, fs)
-		for i := 0; b.Loop(); i++ {
-			getAndCheckExif(c, images[i])
+		// Prime the cache
+		for i := 0; i < b.N; i++ {
+			image := getImage(i, c, b, fs)
+			getAndCheckExif(c, image)
 		}
 
-		images = getImages(c, b, fs)
-
-		b.StartTimer()
-		for i := 0; b.Loop(); i++ {
-			getAndCheckExif(c, images[i])
+		// Start the real benchmark,
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			b.StopTimer()
+			image := getImage(i, c, b, fs)
+			b.StartTimer()
+			getAndCheckExif(c, image)
 		}
 	})
 }

@@ -152,17 +152,18 @@ func TestIndirectInterface(t *testing.T) {
 }
 
 func BenchmarkIsContextType(b *testing.B) {
+	const size = 1000
 	type k string
 	b.Run("value", func(b *testing.B) {
 		ctx := context.Background()
-		ctxs := make([]reflect.Type, b.N)
-		for i := 0; b.Loop(); i++ {
+		ctxs := make([]reflect.Type, size)
+		for i := range size {
 			ctxs[i] = reflect.TypeOf(context.WithValue(ctx, k("key"), i))
 		}
 
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			if !IsContextType(ctxs[i]) {
+		for i := 0; b.Loop(); i++ {
+			idx := i % size
+			if !IsContextType(ctxs[idx]) {
 				b.Fatal("not context")
 			}
 		}

@@ -830,7 +830,9 @@ title: p1
 }
 
 func BenchmarkTaxonomiesGetTerms(b *testing.B) {
-	createBuilders := func(b *testing.B, numPages int) []*IntegrationTestBuilder {
+	createBuilder := func(b *testing.B, numPages int) *IntegrationTestBuilder {
+		b.StopTimer()
+
 		files := `
 -- hugo.toml --
 baseURL = "https://example.com"
@@ -859,26 +861,23 @@ GetTerms.tags: {{ range .GetTerms "tags" }}{{ .Title }}|{{ end }}
 			tags := tagsVariants[i%len(tagsVariants)]
 			files += fmt.Sprintf("\n-- content/posts/p%d.md --\n---\n%s\n---", i+1, tags)
 		}
+
 		cfg := IntegrationTestConfig{
 			T:           b,
 			TxtarString: files,
 		}
-		builders := make([]*IntegrationTestBuilder, b.N)
 
-		for i := range builders {
-			builders[i] = NewIntegrationTestBuilder(cfg)
-		}
+		bb := NewIntegrationTestBuilder(cfg)
 
-		b.ResetTimer()
+		b.StartTimer()
 
-		return builders
+		return bb
 	}
 
 	for _, numPages := range []int{100, 1000, 10000, 20000} {
 		b.Run(fmt.Sprintf("pages_%d", numPages), func(b *testing.B) {
-			builders := createBuilders(b, numPages)
 			for i := 0; b.Loop(); i++ {
-				builders[i].Build()
+				createBuilder(b, numPages).Build()
 			}
 		})
 	}

@@ -34,15 +34,11 @@ func BenchmarkCascade(b *testing.B) {
 		langs := allLangs[0:i]
 		b.Run(fmt.Sprintf("langs-%d", len(langs)), func(b *testing.B) {
 			c := qt.New(b)
-			b.StopTimer()
-			builders := make([]*sitesBuilder, b.N)
-			for i := 0; b.Loop(); i++ {
-				builders[i] = newCascadeTestBuilder(b, langs)
-			}
-			b.StartTimer()
 
-			for i := 0; b.Loop(); i++ {
-				builder := builders[i]
+			for b.Loop() {
+				b.StopTimer()
+				builder := newCascadeTestBuilder(b, langs)
+				b.StartTimer()
 				err := builder.BuildE(BuildCfg{})
 				c.Assert(err, qt.IsNil)
 				first := builder.H.Sites[0]
@@ -75,16 +71,13 @@ kind = '{section,term}'
 			T:           b,
 			TxtarString: files,
 		}
-		builders := make([]*IntegrationTestBuilder, b.N)
-
-		for i := range builders {
-			builders[i] = NewIntegrationTestBuilder(cfg)
-		}
-
 		b.ResetTimer()
 
-		for i := 0; i < b.N; i++ {
-			builders[i].Build()
+		for b.Loop() {
+			b.StopTimer()
+			builder := NewIntegrationTestBuilder(cfg)
+			b.StartTimer()
+			builder.Build()
 		}
 	})
 }

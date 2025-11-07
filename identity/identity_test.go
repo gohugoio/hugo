@@ -41,25 +41,14 @@ func BenchmarkIdentityManager(b *testing.B) {
 		}
 	})
 
-	b.Run("Add unique", func(b *testing.B) {
-		ids := createIds(b.N)
+	b.Run("Add many", func(b *testing.B) {
+		const size = 1000
+		ids := createIds(size)
 		im := identity.NewManager()
 
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			im.AddIdentity(ids[i])
-		}
-
-		b.StopTimer()
-	})
-
-	b.Run("Add duplicates", func(b *testing.B) {
-		id := &testIdentity{base: "a", name: "b"}
-		im := identity.NewManager()
-
-		b.ResetTimer()
-		for b.Loop() {
-			im.AddIdentity(id)
+		for i := 0; b.Loop(); i++ {
+			im.AddIdentity(ids[i%size])
 		}
 
 		b.StopTimer()
