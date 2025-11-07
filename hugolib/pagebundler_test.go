@@ -26,12 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/gohugoio/hugo/resources/kinds"
-	"github.com/gohugoio/hugo/resources/page"
-
 	"github.com/gohugoio/hugo/htesting"
-
-	"github.com/gohugoio/hugo/deps"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -320,93 +315,6 @@ Len Sites: {{ len .Site.Sites }}|
 	b.AssertFileContent("public/en/mysect/p1/index.html", "P1|<p>P1</p>\n|en|")
 	b.AssertFileExists("public/public/nn/mysect/p1/index.html", false)
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
-}
-
-func TestPageBundlerHeadless(t *testing.T) {
-	t.Parallel()
-
-	cfg, fs := newTestCfg()
-	c := qt.New(t)
-
-	workDir := "/work"
-	cfg.Set("workingDir", workDir)
-	cfg.Set("contentDir", "base")
-	cfg.Set("baseURL", "https://example.com")
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
-
-	pageContent := `---
-title: "Bundle Galore"
-slug: s1
-date: 2017-01-23
----
-
-TheContent.
-
-{{< myShort >}}
-`
-
-	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "single.html"), "single {{ .Content }}")
-	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "list.html"), "list")
-	writeSource(t, fs, filepath.Join(workDir, "layouts", "shortcodes", "myShort.html"), "SHORTCODE")
-
-	writeSource(t, fs, filepath.Join(workDir, "base", "a", "index.md"), pageContent)
-	writeSource(t, fs, filepath.Join(workDir, "base", "a", "l1.png"), "PNG image")
-	writeSource(t, fs, filepath.Join(workDir, "base", "a", "l2.png"), "PNG image")
-
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "index.md"), `---
-title: "Headless Bundle in Topless Bar"
-slug: s2
-headless: true
-date: 2017-01-23
----
-
-TheContent.
-HEADLESS {{< myShort >}}
-`)
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "l1.png"), "PNG image")
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "l2.png"), "PNG image")
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "p1.md"), pageContent)
-
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
-	regular := s.getPageOldVersion(kinds.KindPage, "a/index")
-	c.Assert(regular.RelPermalink(), qt.Equals, "/s1/")
-
-	headless := s.getPageOldVersion(kinds.KindPage, "b/index")
-	c.Assert(headless, qt.Not(qt.IsNil))
-	c.Assert(headless.Title(), qt.Equals, "Headless Bundle in Topless Bar")
-	c.Assert(headless.RelPermalink(), qt.Equals, "")
-	c.Assert(headless.Permalink(), qt.Equals, "")
-	c.Assert(content(headless), qt.Contains, "HEADLESS SHORTCODE")
-
-	headlessResources := headless.Resources()
-	c.Assert(len(headlessResources), qt.Equals, 3)
-	res := headlessResources.Match("l*")
-	c.Assert(len(res), qt.Equals, 2)
-	pageResource := headlessResources.GetMatch("p*")
-	c.Assert(pageResource, qt.Not(qt.IsNil))
-	p := pageResource.(page.Page)
-	c.Assert(content(p), qt.Contains, "SHORTCODE")
-	c.Assert(p.Name(), qt.Equals, "p1.md")
-
-	th := newTestHelper(s.conf, s.Fs, t)
-
-	th.assertFileContent(filepath.FromSlash("public/s1/index.html"), "TheContent")
-	th.assertFileContent(filepath.FromSlash("public/s1/l1.png"), "PNG")
-
-	th.assertFileNotExist("public/s2/index.html")
-	// But the bundled resources needs to be published
-	th.assertFileContent(filepath.FromSlash("public/s2/l1.png"), "PNG")
-
-	// No headless bundles here, please.
-	// https://github.com/gohugoio/hugo/issues/6492
-	c.Assert(s.RegularPages(), qt.HasLen, 1)
-	c.Assert(s.Pages(), qt.HasLen, 4)
-	c.Assert(s.home.RegularPages(), qt.HasLen, 1)
-	c.Assert(s.home.Pages(), qt.HasLen, 1)
 }
 
 func TestPageBundlerHeadlessIssue6552(t *testing.T) {

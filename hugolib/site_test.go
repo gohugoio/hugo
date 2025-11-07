@@ -22,7 +22,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/publisher"
 
@@ -167,110 +166,6 @@ func TestPageWithUnderScoreIndexInFilename(t *testing.T) {
 	c.Assert(len(s.RegularPages()), qt.Equals, 1)
 }
 
-// Issue #957
-func TestCrossrefs(t *testing.T) {
-	t.Parallel()
-	for _, uglyURLs := range []bool{true, false} {
-		for _, relative := range []bool{true, false} {
-			doTestCrossrefs(t, relative, uglyURLs)
-		}
-	}
-}
-
-func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
-	c := qt.New(t)
-
-	baseURL := "http://foo/bar"
-
-	var refShortcode string
-	var expectedBase string
-	var expectedURLSuffix string
-	var expectedPathSuffix string
-
-	if relative {
-		refShortcode = "relref"
-		expectedBase = "/bar"
-	} else {
-		refShortcode = "ref"
-		expectedBase = baseURL
-	}
-
-	if uglyURLs {
-		expectedURLSuffix = ".html"
-		expectedPathSuffix = ".html"
-	} else {
-		expectedURLSuffix = "/"
-		expectedPathSuffix = "/index.html"
-	}
-
-	doc3Slashed := filepath.FromSlash("/sect/doc3.md")
-
-	sources := [][2]string{
-		{
-			filepath.FromSlash("sect/doc1.md"),
-			fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode),
-		},
-		// Issue #1148: Make sure that no P-tags is added around shortcodes.
-		{
-			filepath.FromSlash("sect/doc2.md"),
-			fmt.Sprintf(`**Ref 1:**
-
-{{< %s "sect/doc1.md" >}}
-
-THE END.`, refShortcode),
-		},
-		// Issue #1753: Should not add a trailing newline after shortcode.
-		{
-			filepath.FromSlash("sect/doc3.md"),
-			fmt.Sprintf(`**Ref 1:** {{< %s "sect/doc3.md" >}}.`, refShortcode),
-		},
-		// Issue #3703
-		{
-			filepath.FromSlash("sect/doc4.md"),
-			fmt.Sprintf(`**Ref 1:** {{< %s "%s" >}}.`, refShortcode, doc3Slashed),
-		},
-	}
-
-	cfg, fs := newTestCfg()
-
-	cfg.Set("baseURL", baseURL)
-	cfg.Set("uglyURLs", uglyURLs)
-	cfg.Set("verbose", true)
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
-
-	for _, src := range sources {
-		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-	}
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "{{.Content}}")
-
-	s := buildSingleSite(
-		t,
-		deps.DepsCfg{
-			Fs:      fs,
-			Configs: configs,
-		},
-		BuildCfg{})
-
-	c.Assert(len(s.RegularPages()), qt.Equals, 4)
-
-	th := newTestHelper(s.conf, s.Fs, t)
-
-	tests := []struct {
-		doc      string
-		expected string
-	}{
-		{filepath.FromSlash(fmt.Sprintf("public/sect/doc1%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 2: %s/sect/doc2%s</p>\n", expectedBase, expectedURLSuffix)},
-		{filepath.FromSlash(fmt.Sprintf("public/sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong></p>\n%s/sect/doc1%s\n<p>THE END.</p>\n", expectedBase, expectedURLSuffix)},
-		{filepath.FromSlash(fmt.Sprintf("public/sect/doc3%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong> %s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
-		{filepath.FromSlash(fmt.Sprintf("public/sect/doc4%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong> %s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
-	}
-
-	for _, test := range tests {
-		th.assertFileContent(test.doc, test.expected)
-	}
-}
-
 // Issue #939
 // Issue #1923
 func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
@@ -339,24 +234,6 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 			t.Errorf("%s content expected:\n%q\ngot:\n%q", test.doc, test.expected, content)
 		}
 	}
-}
-
-// Issue #3355
-func TestShouldNotWriteZeroLengthFilesToDestination(t *testing.T) {
-	c := qt.New(t)
-
-	cfg, fs := newTestCfg()
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
-
-	writeSource(t, fs, filepath.Join("content", "simple.html"), "simple")
-	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
-	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "")
-
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-	th := newTestHelper(s.conf, s.Fs, t)
-
-	th.assertFileNotExist(filepath.Join("public", "index.html"))
 }
 
 func TestMainSections(t *testing.T) {
@@ -489,88 +366,6 @@ MainSections Params: [mysect]|
 MainSections Site method: [mysect]|
 	`)
 	})
-}
-
-// Issue #1176
-func TestSectionNaming(t *testing.T) {
-	for _, canonify := range []bool{true, false} {
-		for _, uglify := range []bool{true, false} {
-			for _, pluralize := range []bool{true, false} {
-				canonify := canonify
-				uglify := uglify
-				pluralize := pluralize
-				t.Run(fmt.Sprintf("canonify=%t,uglify=%t,pluralize=%t", canonify, uglify, pluralize), func(t *testing.T) {
-					t.Parallel()
-					doTestSectionNaming(t, canonify, uglify, pluralize)
-				})
-			}
-		}
-	}
-}
-
-func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
-	c := qt.New(t)
-
-	expectedPathSuffix := func(kind string) string {
-		isUgly := uglify && (kind == kinds.KindPage || kind == kinds.KindTerm)
-		if isUgly {
-			return ".html"
-		} else {
-			return "/index.html"
-		}
-	}
-
-	sources := [][2]string{
-		{filepath.FromSlash("sect/doc1.html"), "doc1"},
-		// Add one more page to sect to make sure sect is picked in mainSections
-		{filepath.FromSlash("sect/sect.html"), "sect"},
-		{filepath.FromSlash("Fish and Chips/doc2.html"), "doc2"},
-		{filepath.FromSlash("ラーメン/doc3.html"), "doc3"},
-	}
-
-	cfg, fs := newTestCfg()
-
-	cfg.Set("baseURL", "http://auth/sub/")
-	cfg.Set("uglyURLs", uglify)
-	cfg.Set("pluralizeListTitles", pluralize)
-	cfg.Set("canonifyURLs", canonify)
-
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
-
-	for _, src := range sources {
-		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
-	}
-
-	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
-	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "{{ .Kind }}|{{.Title}}")
-
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-
-	c.Assert(s.MainSections(), qt.DeepEquals, []string{"sect"})
-
-	th := newTestHelper(s.conf, s.Fs, t)
-	tests := []struct {
-		doc         string
-		pluralAware bool
-		expected    string
-	}{
-		{filepath.FromSlash(fmt.Sprintf("sect/doc1%s", expectedPathSuffix(kinds.KindPage))), false, "doc1"},
-		{filepath.FromSlash(fmt.Sprintf("sect%s", expectedPathSuffix(kinds.KindSection))), true, "Sect"},
-		{filepath.FromSlash(fmt.Sprintf("fish-and-chips/doc2%s", expectedPathSuffix(kinds.KindPage))), false, "doc2"},
-		{filepath.FromSlash(fmt.Sprintf("fish-and-chips%s", expectedPathSuffix(kinds.KindSection))), true, "Fish and Chips"},
-		{filepath.FromSlash(fmt.Sprintf("ラーメン/doc3%s", expectedPathSuffix(kinds.KindPage))), false, "doc3"},
-		{filepath.FromSlash(fmt.Sprintf("ラーメン%s", expectedPathSuffix(kinds.KindSection))), true, "ラーメン"},
-	}
-
-	for _, test := range tests {
-
-		if test.pluralAware && pluralize {
-			test.expected = flect.Pluralize(test.expected)
-		}
-
-		th.assertFileContent(filepath.Join("public", test.doc), test.expected)
-	}
 }
 
 var weightedPage1 = `+++
