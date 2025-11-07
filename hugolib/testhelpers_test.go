@@ -38,8 +38,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 
-	"github.com/gohugoio/hugo/helpers"
-
 	"github.com/gohugoio/hugo/resources/resource"
 
 	qt "github.com/frankban/quicktest"
@@ -844,57 +842,6 @@ func (s *sitesBuilder) NpmInstall() hexec.Runner {
 	return command
 }
 
-func newTestHelperFromProvider(cfg config.Provider, fs *hugofs.Fs, t testing.TB) (testHelper, *allconfig.Configs) {
-	res, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{
-		Flags: cfg,
-		Fs:    fs.Source,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	return newTestHelper(res.Base, fs, t), res
-}
-
-func newTestHelper(cfg *allconfig.Config, fs *hugofs.Fs, t testing.TB) testHelper {
-	return testHelper{
-		Cfg: cfg,
-		Fs:  fs,
-		C:   qt.New(t),
-	}
-}
-
-type testHelper struct {
-	Cfg *allconfig.Config
-	Fs  *hugofs.Fs
-	*qt.C
-}
-
-func (th testHelper) assertFileContent(filename string, matches ...string) {
-	th.Helper()
-	filename = th.replaceDefaultContentLanguageValue(filename)
-	content := readWorkingDir(th, th.Fs, filename)
-	for _, match := range matches {
-		match = th.replaceDefaultContentLanguageValue(match)
-		th.Assert(strings.Contains(content, match), qt.Equals, true, qt.Commentf(match+" not in: \n"+content))
-	}
-}
-
-func (th testHelper) assertFileNotExist(filename string) {
-	exists, err := helpers.Exists(filename, th.Fs.PublishDir)
-	th.Assert(err, qt.IsNil)
-	th.Assert(exists, qt.Equals, false)
-}
-
-func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
-	defaultInSubDir := th.Cfg.DefaultContentLanguageInSubdir
-	replace := th.Cfg.DefaultContentLanguage + "/"
-
-	if !defaultInSubDir {
-		value = strings.Replace(value, replace, "", 1)
-	}
-	return value
-}
-
 func loadTestConfigFromProvider(cfg config.Provider) (*allconfig.Configs, error) {
 	workingDir := cfg.GetString("workingDir")
 	fs := afero.NewMemMapFs()
@@ -905,7 +852,7 @@ func loadTestConfigFromProvider(cfg config.Provider) (*allconfig.Configs, error)
 	return res, err
 }
 
-func newTestCfg(withConfig ...func(cfg config.Provider) error) (config.Provider, *hugofs.Fs) {
+func newTestCfg() (config.Provider, *hugofs.Fs) {
 	mm := afero.NewMemMapFs()
 	cfg := config.New()
 	cfg.Set("defaultContentLanguageInSubdir", false)
@@ -914,33 +861,6 @@ func newTestCfg(withConfig ...func(cfg config.Provider) error) (config.Provider,
 	fs := hugofs.NewFromOld(hugofs.NewBaseFileDecorator(mm), cfg)
 
 	return cfg, fs
-}
-
-func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
-	if len(layoutPathContentPairs)%2 != 0 {
-		t.Fatalf("Layouts must be provided in pairs")
-	}
-
-	c := qt.New(t)
-
-	writeToFs(t, afs, filepath.Join("content", ".gitkeep"), "")
-	writeToFs(t, afs, "config.toml", tomlConfig)
-
-	cfg, err := allconfig.LoadConfig(allconfig.ConfigSourceDescriptor{Fs: afs})
-	c.Assert(err, qt.IsNil)
-
-	fs := hugofs.NewFrom(afs, cfg.LoadingInfo.BaseConfig)
-	th := newTestHelper(cfg.Base, fs, t)
-
-	for i := 0; i < len(layoutPathContentPairs); i += 2 {
-		writeSource(t, fs, layoutPathContentPairs[i], layoutPathContentPairs[i+1])
-	}
-
-	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Configs: cfg})
-
-	c.Assert(err, qt.IsNil)
-
-	return th, h
 }
 
 // TODO(bep) replace these with the builder
@@ -981,14 +901,6 @@ func writeSourcesToSource(t *testing.T, base string, fs *hugofs.Fs, sources ...[
 	for _, src := range sources {
 		writeSource(t, fs, filepath.Join(base, src[0]), src[1])
 	}
-}
-
-func getPage(in page.Page, ref string) page.Page {
-	p, err := in.GetPage(ref)
-	if err != nil {
-		panic(err)
-	}
-	return p
 }
 
 func content(c resource.ContentProvider) string {

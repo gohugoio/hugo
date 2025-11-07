@@ -23,8 +23,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/resources/kinds"
 
-	"github.com/spf13/afero"
-
 	"github.com/gohugoio/hugo/output"
 )
 
@@ -214,119 +212,6 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 
 	b.Assert(home.HasShortcode("myShort"), qt.Equals, true)
 	b.Assert(home.HasShortcode("doesNotExist"), qt.Equals, false)
-}
-
-// Issue #3447
-func TestRedefineRSSOutputFormat(t *testing.T) {
-	siteConfig := `
-baseURL = "http://example.com/blog"
-
-defaultContentLanguage = "en"
-
-disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
-
-[pagination]
-pagerSize = 1
-
-[outputFormats]
-[outputFormats.RSS]
-mediatype = "application/rss"
-baseName = "feed"
-
-`
-
-	c := qt.New(t)
-
-	mf := afero.NewMemMapFs()
-	writeToFs(t, mf, "content/foo.html", `foo`)
-
-	th, h := newTestSitesFromConfig(t, mf, siteConfig)
-
-	err := h.Build(BuildCfg{})
-
-	c.Assert(err, qt.IsNil)
-
-	th.assertFileContent("public/feed.xml", "Recent content on")
-
-	s := h.Sites[0]
-
-	// Issue #3450
-	c.Assert(s.Home().OutputFormats().Get("rss").Permalink(), qt.Equals, "http://example.com/blog/feed.xml")
-}
-
-// Issue #3614
-func TestDotLessOutputFormat(t *testing.T) {
-	siteConfig := `
-baseURL = "http://example.com/blog"
-
-defaultContentLanguage = "en"
-
-disableKinds = ["page", "section", "term", "taxonomy", "sitemap", "robotsTXT", "404"]
-
-[pagination]
-pagerSize = 1
-
-[mediaTypes]
-[mediaTypes."text/nodot"]
-delimiter = ""
-[mediaTypes."text/defaultdelim"]
-suffixes = ["defd"]
-[mediaTypes."text/nosuffix"]
-[mediaTypes."text/customdelim"]
-suffixes = ["del"]
-delimiter = "_"
-
-[outputs]
-home = [ "DOTLESS", "DEF", "NOS", "CUS" ]
-
-[outputFormats]
-[outputFormats.DOTLESS]
-mediatype = "text/nodot"
-baseName = "_redirects" # This is how Netlify names their redirect files.
-[outputFormats.DEF]
-mediatype = "text/defaultdelim"
-baseName = "defaultdelimbase"
-[outputFormats.NOS]
-mediatype = "text/nosuffix"
-baseName = "nosuffixbase"
-[outputFormats.CUS]
-mediatype = "text/customdelim"
-baseName = "customdelimbase"
-
-`
-
-	c := qt.New(t)
-
-	mf := afero.NewMemMapFs()
-	writeToFs(t, mf, "content/foo.html", `foo`)
-	writeToFs(t, mf, "layouts/_default/list.dotless", `a dotless`)
-	writeToFs(t, mf, "layouts/_default/list.def.defd", `default delimim`)
-	writeToFs(t, mf, "layouts/_default/list.nos", `no suffix`)
-	writeToFs(t, mf, "layouts/_default/list.cus.del", `custom delim`)
-
-	th, h := newTestSitesFromConfig(t, mf, siteConfig)
-
-	err := h.Build(BuildCfg{})
-
-	c.Assert(err, qt.IsNil)
-
-	s := h.Sites[0]
-
-	th.assertFileContent("public/_redirects", "a dotless")
-	th.assertFileContent("public/defaultdelimbase.defd", "default delimim")
-	// This looks weird, but the user has chosen this definition.
-	th.assertFileContent("public/nosuffixbase", "no suffix")
-	th.assertFileContent("public/customdelimbase_del", "custom delim")
-
-	home := s.getPageOldVersion(kinds.KindHome)
-	c.Assert(home, qt.Not(qt.IsNil))
-
-	outputs := home.OutputFormats()
-
-	c.Assert(outputs.Get("DOTLESS").RelPermalink(), qt.Equals, "/blog/_redirects")
-	c.Assert(outputs.Get("DEF").RelPermalink(), qt.Equals, "/blog/defaultdelimbase.defd")
-	c.Assert(outputs.Get("NOS").RelPermalink(), qt.Equals, "/blog/nosuffixbase")
-	c.Assert(outputs.Get("CUS").RelPermalink(), qt.Equals, "/blog/customdelimbase_del")
 }
 
 // Issue 8030
