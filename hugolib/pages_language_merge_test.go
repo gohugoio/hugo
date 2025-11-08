@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/google/go-cmp/cmp"
 )
 
-// TODO(bep) move and rewrite in resource/page.
+var deepEqualsPages = qt.CmpEquals(cmp.Comparer(func(p1, p2 *pageState) bool { return p1 == p2 }))
 
 func TestMergeLanguages(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	b := newTestSiteForLanguageMerge(t, 30)
-	b.CreateSites()
-
-	b.Build(BuildCfg{SkipRender: true})
+	files := generateLanguageMergeTxtar(30)
+	b := Test(t, files)
 
 	h := b.H
 
@@ -90,8 +90,8 @@ func TestMergeLanguages(t *testing.T) {
 func TestMergeLanguagesTemplate(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSiteForLanguageMerge(t, 15)
-	b.WithTemplates("home.html", `
+	files := generateLanguageMergeTxtar(15) + `
+-- layouts/home.html --
 {{ $pages := .Site.RegularPages }}
 {{ .Scratch.Set "pages" $pages }}
 {{ $enSite := index .Sites 0 }}
@@ -109,15 +109,12 @@ Pages2: {{ range $i, $p := $pages2 }}{{ add $i 1 }}: {{ .Title }} {{ .Language.L
 {{ $nil := resources.Get "asdfasdfasdf" }}
 Pages3: {{ $frSite.RegularPages | lang.Merge  $nil }}
 Pages4: {{  $nil | lang.Merge $frSite.RegularPages }}
-
-
-`,
-		"shortcodes/shortcode.html", "MyShort",
-		"shortcodes/lingo.html", "MyLingo",
-	)
-
-	b.CreateSites()
-	b.Build(BuildCfg{})
+-- layouts/shortcodes/shortcode.html --
+MyShort
+-- layouts/shortcodes/lingo.html --
+MyLingo
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/nn/index.html", "Pages1: 1: p1.md en | 2: p2.nn.md nn | 3: p3.nn.md nn | 4: p4.md en | 5: p5.fr.md fr | 6: p6.nn.md nn | 7: p7.md en | 8: p8.md en | 9: p9.nn.md nn | 10: p10.fr.md fr | 11: p11.md en | 12: p12.nn.md nn | 13: p13.md en | 14: p14.md en | 15: p15.nn.md nn")
 	b.AssertFileContent("public/nn/index.html", "Pages2: 1: doc100 en | 2: doc101 nn | 3: doc102 nn | 4: doc103 en | 5: doc104 en | 6: doc105 en")
@@ -127,7 +124,31 @@ Pages4: Pages(3)
 	`)
 }
 
-func newTestSiteForLanguageMerge(t testing.TB, count int) *sitesBuilder {
+func generateLanguageMergeTxtar(count int) string {
+	var b strings.Builder
+
+	// hugo.toml for multisite configuration
+	b.WriteString(`
+-- hugo.toml --
+baseURL = "https://example.org"
+defaultContentLanguage = "en"
+
+[languages]
+[languages.en]
+title = "English"
+weight = 1
+[languages.fr]
+title = "French"
+weight = 2
+[languages.nn]
+title = "Nynorsk"
+weight = 3
+[languages.no]
+title = "Norwegian"
+weight = 4
+
+`)
+
 	contentTemplate := `---
 title: doc%d
 weight: %d
@@ -141,47 +162,45 @@ date: "2018-02-28"
 {{< lingo >}}
 `
 
-	builder := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
-
-	// We need some content with some missing translations.
-	// "en" is the main language, so add some English content + some Norwegian (nn, nynorsk) content.
-	var contentPairs []string
+	// Generate content files
 	for i := 1; i <= count; i++ {
 		content := fmt.Sprintf(contentTemplate, i, i)
-		contentPairs = append(contentPairs, []string{fmt.Sprintf("p%d.md", i), content}...)
+		b.WriteString(fmt.Sprintf("\n-- content/p%d.md --\n%s", i, content))
 		if i == 2 || i%3 == 0 {
-			// Add page 2,3, 6, 9 ... to both languages
-			contentPairs = append(contentPairs, []string{fmt.Sprintf("p%d.nn.md", i), content}...)
+			b.WriteString(fmt.Sprintf("\n-- content/p%d.nn.md --\n%s", i, content))
 		}
 		if i%5 == 0 {
-			// Add some French content, too.
-			contentPairs = append(contentPairs, []string{fmt.Sprintf("p%d.fr.md", i), content}...)
+			b.WriteString(fmt.Sprintf("\n-- content/p%d.fr.md --\n%s", i, content))
 		}
 	}
 
-	// See https://github.com/gohugoio/hugo/issues/4644
 	// Add a bundles
 	j := 100
-	contentPairs = append(contentPairs, []string{"bundle/index.md", fmt.Sprintf(contentTemplate, j, j)}...)
+	b.WriteString(fmt.Sprintf("\n-- content/bundle/index.md --\n%s", fmt.Sprintf(contentTemplate, j, j)))
 	for i := range 6 {
-		contentPairs = append(contentPairs, []string{fmt.Sprintf("bundle/pb%d.md", i), fmt.Sprintf(contentTemplate, i+j, i+j)}...)
+		b.WriteString(fmt.Sprintf("\n-- content/bundle/pb%d.md --\n%s", i, fmt.Sprintf(contentTemplate, i+j, i+j)))
 	}
-	contentPairs = append(contentPairs, []string{"bundle/index.nn.md", fmt.Sprintf(contentTemplate, j, j)}...)
+	b.WriteString(fmt.Sprintf("\n-- content/bundle/index.nn.md --\n%s", fmt.Sprintf(contentTemplate, j, j)))
 	for i := 1; i < 3; i++ {
-		contentPairs = append(contentPairs, []string{fmt.Sprintf("bundle/pb%d.nn.md", i), fmt.Sprintf(contentTemplate, i+j, i+j)}...)
+		b.WriteString(fmt.Sprintf("\n-- content/bundle/pb%d.nn.md --\n%s", i, fmt.Sprintf(contentTemplate, i+j, i+j)))
 	}
 
-	builder.WithContent(contentPairs...)
-	return builder
+	// Add shortcode templates
+	b.WriteString(`
+-- layouts/shortcodes/shortcode.html --
+MyShort
+-- layouts/shortcodes/lingo.html --
+MyLingo
+`)
+
+	return b.String()
 }
 
 func BenchmarkMergeByLanguage(b *testing.B) {
 	const count = 100
 
-	// newTestSiteForLanguageMerge creates count+1 pages.
-	builder := newTestSiteForLanguageMerge(b, count-1)
-	builder.CreateSites()
-	builder.Build(BuildCfg{SkipRender: true})
+	files := generateLanguageMergeTxtar(count - 1)
+	builder := Test(b, files)
 	h := builder.H
 
 	enSite := h.Sites[0]

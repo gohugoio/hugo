@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,48 +30,28 @@ import (
 func TestSecurityPolicies(t *testing.T) {
 	c := qt.New(t)
 
-	testVariant := func(c *qt.C, withBuilder func(b *sitesBuilder), expectErr string) {
-		c.Helper()
-		b := newTestSitesBuilder(c)
-		withBuilder(b)
-
-		if expectErr != "" {
-			err := b.BuildE(BuildCfg{})
-			b.Assert(err, qt.IsNotNil)
-			b.Assert(err, qt.ErrorMatches, expectErr)
-		} else {
-			b.Build(BuildCfg{})
-		}
-	}
-
-	httpTestVariant := func(c *qt.C, templ, expectErr string, withBuilder func(b *sitesBuilder)) {
-		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
-		c.Cleanup(func() {
-			ts.Close()
-		})
-		cb := func(b *sitesBuilder) {
-			b.WithTemplatesAdded("index.html", fmt.Sprintf(templ, ts.URL))
-			if withBuilder != nil {
-				withBuilder(b)
-			}
-		}
-		testVariant(c, cb, expectErr)
-	}
-
 	c.Run("os.GetEnv, denied", func(c *qt.C) {
 		c.Parallel()
-		cb := func(b *sitesBuilder) {
-			b.WithTemplatesAdded("index.html", `{{ os.Getenv "FOOBAR" }}`)
-		}
-		testVariant(c, cb, `(?s).*"FOOBAR" is not whitelisted in policy "security\.funcs\.getenv".*`)
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/index.html --
+{{ os.Getenv "FOOBAR" }}
+`
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*"FOOBAR" is not whitelisted in policy "security\.funcs\.getenv".*`)
 	})
 
 	c.Run("os.GetEnv, OK", func(c *qt.C) {
 		c.Parallel()
-		cb := func(b *sitesBuilder) {
-			b.WithTemplatesAdded("index.html", `{{ os.Getenv "HUGO_FOO" }}`)
-		}
-		testVariant(c, cb, "")
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/index.html --
+		{{ os.Getenv "HUGO_FOO" }}
+`
+		Test(c, files)
 	})
 
 	c.Run("Asciidoc, denied", func(c *qt.C) {
@@ -80,11 +60,15 @@ func TestSecurityPolicies(t *testing.T) {
 			c.Skip()
 		}
 
-		cb := func(b *sitesBuilder) {
-			b.WithContent("page.ad", "foo")
-		}
-
-		testVariant(c, cb, `(?s).*"asciidoctor" is not whitelisted in policy "security\.exec\.allow".*`)
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- content/page.ad --
+foo
+`
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*"asciidoctor" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
 	c.Run("RST, denied", func(c *qt.C) {
@@ -93,14 +77,18 @@ func TestSecurityPolicies(t *testing.T) {
 			c.Skip()
 		}
 
-		cb := func(b *sitesBuilder) {
-			b.WithContent("page.rst", "foo")
-		}
-
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- content/page.rst --
+foo
+`
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
 		if runtime.GOOS == "windows" {
-			testVariant(c, cb, `(?s).*python(\.exe)?" is not whitelisted in policy "security\.exec\.allow".*`)
+			c.Assert(err, qt.ErrorMatches, `(?s).*python(\.exe)?" is not whitelisted in policy "security\.exec\.allow".*`)
 		} else {
-			testVariant(c, cb, `(?s).*"rst2html(\.py)?" is not whitelisted in policy "security\.exec\.allow".*`)
+			c.Assert(err, qt.ErrorMatches, `(?s).*"rst2html(\.py)?" is not whitelisted in policy "security\.exec\.allow".*`)
 		}
 	})
 
@@ -110,11 +98,15 @@ func TestSecurityPolicies(t *testing.T) {
 			c.Skip()
 		}
 
-		cb := func(b *sitesBuilder) {
-			b.WithContent("page.pdc", "foo")
-		}
-
-		testVariant(c, cb, `(?s).*pandoc" is not whitelisted in policy "security\.exec\.allow".*`)
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- content/page.pdc --
+foo
+`
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*pandoc" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
 	c.Run("Dart SASS, OK", func(c *qt.C) {
@@ -122,10 +114,13 @@ func TestSecurityPolicies(t *testing.T) {
 		if !dartsass.Supports() {
 			c.Skip()
 		}
-		cb := func(b *sitesBuilder) {
-			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}`)
-		}
-		testVariant(c, cb, "")
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/index.html --
+{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}
+`
+		Test(c, files)
 	})
 
 	c.Run("Dart SASS, denied", func(c *qt.C) {
@@ -133,59 +128,105 @@ func TestSecurityPolicies(t *testing.T) {
 		if !dartsass.Supports() {
 			c.Skip()
 		}
-		cb := func(b *sitesBuilder) {
-			b.WithConfigFile("toml", `
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
 [security]
 [security.exec]
 allow="none"
-
-			`)
-			b.WithTemplatesAdded("index.html", `{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}`)
-		}
-		testVariant(c, cb, `(?s).*sass(-embedded)?" is not whitelisted in policy "security\.exec\.allow".*`)
+-- layouts/index.html --
+{{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}
+		`
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*sass(-embedded)?" is not whitelisted in policy "security\.exec\.allow".*`)
 	})
 
 	c.Run("resources.GetRemote, OK", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fruits.json" }}{{ $json.Content }}`, "", nil)
+		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+		c.Cleanup(func() {
+			ts.Close()
+		})
+		files := fmt.Sprintf(`
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/index.html --
+{{ $json := resources.GetRemote "%s/fruits.json" }}{{ $json.Content }}
+`, ts.URL)
+		Test(c, files)
 	})
 
 	c.Run("resources.GetRemote, denied method", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fruits.json" (dict "method" "DELETE" ) }}{{ $json.Content }}`, `(?s).*"DELETE" is not whitelisted in policy "security\.http\.method".*`, nil)
+		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+		c.Cleanup(func() {
+			ts.Close()
+		})
+		files := fmt.Sprintf(`
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/index.html --
+{{ $json := resources.GetRemote "%s/fruits.json" (dict "method" "DELETE" ) }}{{ $json.Content }}
+`, ts.URL)
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*"DELETE" is not whitelisted in policy "security\.http\.method".*`)
 	})
 
 	c.Run("resources.GetRemote, denied URL", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fruits.json" }}{{ $json.Content }}`, `(?s).*is not whitelisted in policy "security\.http\.urls".*`,
-			func(b *sitesBuilder) {
-				b.WithConfigFile("toml", `
+		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+		c.Cleanup(func() {
+			ts.Close()
+		})
+		files := fmt.Sprintf(`
+-- hugo.toml --
+baseURL = "https://example.org"
 [security]
 [security.http]
 urls="none"
-`)
-			})
+-- layouts/index.html --
+{{ $json := resources.GetRemote "%s/fruits.json" }}{{ $json.Content }}
+`, ts.URL)
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`)
 	})
 
 	c.Run("resources.GetRemote, fake JSON", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fakejson.json" }}{{ $json.Content }}`, `(?s).*failed to resolve media type.*`,
-			func(b *sitesBuilder) {
-				b.WithConfigFile("toml", `
-`)
-			})
+		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+		c.Cleanup(func() {
+			ts.Close()
+		})
+		files := fmt.Sprintf(`
+-- hugo.toml --
+baseURL = "https://example.org"
+[security]
+-- layouts/index.html --
+{{ $json := resources.GetRemote "%s/fakejson.json" }}{{ $json.Content }}
+`, ts.URL)
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*failed to resolve media type.*`)
 	})
 
 	c.Run("resources.GetRemote, fake JSON whitelisted", func(c *qt.C) {
 		c.Parallel()
-		httpTestVariant(c, `{{ $json := resources.GetRemote "%[1]s/fakejson.json" }}{{ $json.Content }}`, ``,
-			func(b *sitesBuilder) {
-				b.WithConfigFile("toml", `
+		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+		c.Cleanup(func() {
+			ts.Close()
+		})
+		files := fmt.Sprintf(`
+-- hugo.toml --
+baseURL = "https://example.org"
 [security]
 [security.http]
 mediaTypes=["application/json"]
-
-`)
-			})
+-- layouts/index.html --
+{{ $json := resources.GetRemote "%s/fakejson.json" }}{{ $json.Content }}
+`, ts.URL)
+		Test(c, files)
 	})
 }

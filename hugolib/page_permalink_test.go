@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-
-	"github.com/gohugoio/hugo/config"
 )
 
 func TestPermalink(t *testing.T) {
@@ -67,13 +65,12 @@ func TestPermalink(t *testing.T) {
 		t.Run(fmt.Sprintf("%s-%d", test.file, i), func(t *testing.T) {
 			t.Parallel()
 			c := qt.New(t)
-			cfg := config.New()
-			cfg.Set("uglyURLs", test.uglyURLs)
-			cfg.Set("canonifyURLs", test.canonifyURLs)
 
 			files := fmt.Sprintf(`
 -- hugo.toml --
 baseURL = %q
+uglyURLs = %t
+canonifyURLs = %t
 -- content/%s --
 ---
 title: Page
@@ -81,21 +78,9 @@ slug: %q
 url: %q	
 output: ["HTML"]
 ---
-`, test.base, test.file, test.slug, test.url)
+`, test.base, test.uglyURLs, test.canonifyURLs, test.file, test.slug, test.url)
 
-			if i > 0 {
-				t.Skip()
-			}
-
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-					BaseCfg:     cfg,
-				},
-			)
-
-			b.Build()
+			b := Test(t, files)
 			s := b.H.Sites[0]
 			c.Assert(len(s.RegularPages()), qt.Equals, 1)
 			p := s.RegularPages()[0]
@@ -117,7 +102,10 @@ output: ["HTML"]
 }
 
 func TestRelativeURLInFrontMatter(t *testing.T) {
-	config := `
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
 baseURL = "https://example.com"
 defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = false
@@ -129,26 +117,54 @@ contentDir = "content/en"
 [Languages.nn]
 weight = 20
 contentDir = "content/nn"
-
-`
-
-	pageTempl := `---
+-- layouts/_default/single.html --
+Single: {{ .Title }}|Hello|{{ .Lang }}|RelPermalink: {{ .RelPermalink }}|Permalink: {{ .Permalink }}|
+-- layouts/_default/list.html --
+List Page 1|{{ .Title }}|Hello|{{ .Permalink }}|
+-- content/en/blog/page1.md --
+---
 title: "A page"
-url: %q
+url: "myblog/p1/"
+---
+
+Some content.
+-- content/en/blog/page2.md --
+---
+title: "A page"
+url: "../../../../../myblog/p2/"
+---
+
+Some content.
+-- content/en/blog/page3.md --
+---
+title: "A page"
+url: "../myblog/../myblog/p3/"
+---
+
+Some content.
+-- content/en/blog/_index.md --
+---
+title: "A page"
+url: "this-is-my-english-blog"
+---
+
+Some content.
+-- content/nn/blog/page1.md --
+---
+title: "A page"
+url: "myblog/p1/"
+---
+
+Some content.
+-- content/nn/blog/_index.md --
+---
+title: "A page"
+url: "this-is-my-blog"
 ---
 
 Some content.
 `
-
-	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-	b.WithContent("content/en/blog/page1.md", fmt.Sprintf(pageTempl, "myblog/p1/"))
-	b.WithContent("content/en/blog/page2.md", fmt.Sprintf(pageTempl, "../../../../../myblog/p2/"))
-	b.WithContent("content/en/blog/page3.md", fmt.Sprintf(pageTempl, "../myblog/../myblog/p3/"))
-	b.WithContent("content/en/blog/_index.md", fmt.Sprintf(pageTempl, "this-is-my-english-blog"))
-	b.WithContent("content/nn/blog/page1.md", fmt.Sprintf(pageTempl, "myblog/p1/"))
-	b.WithContent("content/nn/blog/_index.md", fmt.Sprintf(pageTempl, "this-is-my-blog"))
-
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/nn/myblog/p1/index.html", "Single: A page|Hello|nn|RelPermalink: /nn/myblog/p1/|")
 	b.AssertFileContent("public/nn/this-is-my-blog/index.html", "List Page 1|A page|Hello|https://example.com/nn/this-is-my-blog/|")

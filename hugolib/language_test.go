@@ -1,4 +1,4 @@
-// Copyright 2020 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@ package hugolib
 
 import (
 	"fmt"
-	"strings"
 	"testing"
-
-	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -26,33 +23,42 @@ import (
 func TestI18n(t *testing.T) {
 	c := qt.New(t)
 
-	// https://github.com/gohugoio/hugo/issues/7804
-	c.Run("pt-br should be case insensitive", func(c *qt.C) {
-		b := newTestSitesBuilder(c)
-		langCode := func() string {
-			c := "pt-br"
-			if htesting.RandBool() {
-				c = strings.ToUpper(c)
-			}
-			return c
-		}
+	testCases := []struct {
+		name     string
+		langCode string
+	}{
+		{
+			name:     "pt-br lowercase",
+			langCode: "pt-br",
+		},
+		{
+			name:     "pt-br uppercase",
+			langCode: "PT-BR",
+		},
+	}
 
-		b.WithConfigFile(`toml`, fmt.Sprintf(`
+	for _, tc := range testCases {
+		tc := tc
+		c.Run(tc.name, func(c *qt.C) {
+			files := fmt.Sprintf(`
+-- hugo.toml --
 baseURL = "https://example.com"
 defaultContentLanguage = "%s"
 
 [languages]
 [languages.%s]
 weight = 1
-`, langCode(), langCode()))
+-- i18n/%s.toml --
+hello.one = "Hello"
+-- layouts/index.html --
+Hello: {{ i18n "hello" 1 }}
+-- content/p1.md --
+`, tc.langCode, tc.langCode, tc.langCode)
 
-		b.WithI18n(fmt.Sprintf("i18n/%s.toml", langCode()), `hello.one = "Hello"`)
-		b.WithTemplates("index.html", `Hello: {{ i18n "hello" 1 }}`)
-		b.WithContent("p1.md", "")
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html", "Hello: Hello")
-	})
+			b := Test(c, files)
+			b.AssertFileContent("public/index.html", "Hello: Hello")
+		})
+	}
 }
 
 func TestLanguageBugs(t *testing.T) {
@@ -60,19 +66,16 @@ func TestLanguageBugs(t *testing.T) {
 
 	// Issue #8672
 	c.Run("Config with language, menu in root only", func(c *qt.C) {
-		b := newTestSitesBuilder(c)
-		b.WithConfigFile("toml", `
+		files := `
+-- hugo.toml --
 theme = "test-theme"
 [[menus.foo]]
 name = "foo-a"
 [languages.en]
-
-`,
-		)
-
-		b.WithThemeConfigFile("toml", `[languages.en]`)
-
-		b.Build(BuildCfg{})
+-- themes/test-theme/hugo.toml --
+[languages.en]
+`
+		b := Test(c, files)
 
 		menus := b.H.Sites[0].Menus()
 		c.Assert(menus, qt.HasLen, 1)
@@ -80,8 +83,8 @@ name = "foo-a"
 }
 
 func TestLanguageNumberFormatting(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", `
+	files := `
+-- hugo.toml --
 baseURL = "https://example.org"
 
 defaultContentLanguage = "en"
@@ -93,24 +96,17 @@ timeZone="UTC"
 weight=10
 [languages.nn]
 weight=20
-	
-`)
-
-	b.WithTemplates("index.html", `
+-- layouts/index.html --
 
 FormatNumber: {{ 512.5032 | lang.FormatNumber 2 }}
 FormatPercent: {{ 512.5032 | lang.FormatPercent 2 }}
 FormatCurrency: {{ 512.5032 | lang.FormatCurrency 2 "USD" }}
 FormatAccounting: {{ 512.5032 | lang.FormatAccounting 2 "NOK" }}
 FormatNumberCustom: {{ lang.FormatNumberCustom 2 12345.6789 }}
+-- content/p1.md --
+`
 
-
-
-	
-`)
-	b.WithContent("p1.md", "")
-
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/en/index.html", `
 FormatNumber: 512.50
@@ -118,7 +114,6 @@ FormatPercent: 512.50%
 FormatCurrency: $512.50
 FormatAccounting: NOK512.50
 FormatNumberCustom: 12,345.68
-        
 `,
 	)
 
@@ -135,7 +130,7 @@ FormatNumberCustom: 12,345.68
 // Issue 11993.
 func TestI18nDotFile(t *testing.T) {
 	files := `
--- hugo.toml --{}
+-- hugo.toml --
 baseURL = "https://example.com"
 -- i18n/.keep --
 -- data/.keep --

@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 )
 
 func TestContentMapSite(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
 	pageTempl := `
 ---
@@ -51,39 +51,10 @@ draft: true
 
 `
 
-	b.WithContent("_index.md", `
----
-title: "Hugo Home"
-cascade:
-    description: "Common Description"
----
-
-Home Content.
-`)
-
-	b.WithContent("blog/page1.md", createPage(1))
-	b.WithContent("blog/page2.md", createPage(2))
-	b.WithContent("blog/page3.md", createPage(3))
-	b.WithContent("blog/bundle/index.md", createPage(4))
-	b.WithContent("blog/bundle/data.json", "data")
-	b.WithContent("blog/bundle/page.md", createPage(5))
-	b.WithContent("blog/subsection/_index.md", createPage(6))
-	b.WithContent("blog/subsection/subdata.json", "data")
-	b.WithContent("blog/subsection/page4.md", createPage(7))
-	b.WithContent("blog/subsection/page5.md", createPage(8))
-	b.WithContent("blog/subsection/draft/index.md", draftTemplate)
-	b.WithContent("blog/subsection/draft/data.json", "data")
-	b.WithContent("blog/draftsection/_index.md", draftTemplate)
-	b.WithContent("blog/draftsection/page/index.md", createPage(9))
-	b.WithContent("blog/draftsection/page/folder/data.json", "data")
-	b.WithContent("blog/draftsection/sub/_index.md", createPage(10))
-	b.WithContent("blog/draftsection/sub/page.md", createPage(11))
-	b.WithContent("docs/page6.md", createPage(12))
-	b.WithContent("tags/_index.md", createPageInCategory(13, "sad"))
-	b.WithContent("overlap/_index.md", createPageInCategory(14, "sad"))
-	b.WithContent("overlap2/_index.md", createPage(15))
-
-	b.WithTemplatesAdded("layouts/index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com"
+-- layouts/index.html --
 Num Regular: {{ len .Site.RegularPages }}|{{ range .Site.RegularPages }}{{ .RelPermalink }}|{{ end }}$
 Main Sections: {{ .Site.Params.mainSections }}
 Pag Num Pages: {{ len .Paginator.Pages }}
@@ -131,9 +102,59 @@ Draft4: {{ if (.Site.GetPage "blog/draftsection/sub") }}FOUND{{ end }}|
 Draft5: {{ if (.Site.GetPage "blog/draftsection/sub/page") }}FOUND{{ end }}|
 
 {{ define "print-page" }}{{ .Title }}|{{ .RelPermalink }}|{{ .Date.Format "2006-01-02" }}|Current Section: {{ with .CurrentSection }}{{ .Path }}{{ else }}NIL{{ end }}|Resources: {{ range .Resources }}{{ .ResourceType }}: {{ .RelPermalink }}|{{ end }}{{ end }}
-`)
+-- content/_index.md --
+---
+title: "Hugo Home"
+cascade:
+    description: "Common Description"
+---
 
-	b.Build(BuildCfg{})
+Home Content.
+-- content/blog/page1.md --
+` + createPage(1) + `
+-- content/blog/page2.md --
+` + createPage(2) + `
+-- content/blog/page3.md --
+` + createPage(3) + `
+-- content/blog/bundle/index.md --
+` + createPage(4) + `
+-- content/blog/bundle/data.json --
+data
+-- content/blog/bundle/page.md --
+` + createPage(5) + `
+-- content/blog/subsection/_index.md --
+` + createPage(6) + `
+-- content/blog/subsection/subdata.json --
+data
+-- content/blog/subsection/page4.md --
+` + createPage(7) + `
+-- content/blog/subsection/page5.md --
+` + createPage(8) + `
+-- content/blog/subsection/draft/index.md --
+` + draftTemplate + `
+-- content/blog/subsection/draft/data.json --
+data
+-- content/blog/draftsection/_index.md --
+` + draftTemplate + `
+-- content/blog/draftsection/page/index.md --
+` + createPage(9) + `
+-- content/blog/draftsection/page/folder/data.json --
+data
+-- content/blog/draftsection/sub/_index.md --
+` + createPage(10) + `
+-- content/blog/draftsection/sub/page.md --
+` + createPage(11) + `
+-- content/docs/page6.md --
+` + createPage(12) + `
+-- content/tags/_index.md --
+` + createPageInCategory(13, "sad") + `
+-- content/overlap/_index.md --
+` + createPageInCategory(14, "sad") + `
+-- content/overlap2/_index.md --
+` + createPage(15) + `
+`
+
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 

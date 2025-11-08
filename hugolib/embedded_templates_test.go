@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,46 +18,42 @@ import (
 )
 
 func TestInternalTemplatesImage(t *testing.T) {
-	config := `
+	files := `
+-- hugo.toml --
 baseURL = "https://example.org"
 
 [params]
 images=["siteimg1.jpg", "siteimg2.jpg"]
-
-`
-	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
-
-	b.WithContent("mybundle/index.md", `---
+-- content/mybundle/index.md --
+---
 title: My Bundle
 date: 2021-02-26T18:02:00-01:00
 lastmod: 2021-05-22T19:25:00-01:00
 ---
-`)
-
-	b.WithContent("mypage/index.md", `---
+-- content/mypage/index.md --
+---
 title: My Page
 images: ["pageimg1.jpg", "pageimg2.jpg", "https://example.local/logo.png", "sample.jpg"]
 date: 2021-02-26T18:02:00+01:00
 lastmod: 2021-05-22T19:25:00+01:00
 ---
-`)
-
-	b.WithContent("mysite.md", `---
+-- content/mysite.md --
+---
 title: My Site
 ---
-`)
-
-	b.WithTemplatesAdded("_default/single.html", `
+-- layouts/_default/single.html --
 
 {{ template "_internal/twitter_cards.html" . }}
 {{ template "_internal/opengraph.html" . }}
 {{ template "_internal/schema.html" . }}
 
-`)
+-- content/mybundle/featured-sunset.jpg --
+/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAD/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AAT8AAAAA//Z
+-- content/mypage/sample.jpg --
+/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAD/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AAT8AAAAA//Z
+`
 
-	b.WithSunset("content/mybundle/featured-sunset.jpg")
-	b.WithSunset("content/mypage/sample.jpg")
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/mybundle/index.html", `
 <meta name="twitter:image" content="https://example.org/mybundle/featured-sunset.jpg">
@@ -99,22 +95,53 @@ func TestEmbeddedPaginationTemplate(t *testing.T) {
 	t.Parallel()
 
 	test := func(variant string, expectedOutput string) {
-		b := newTestSitesBuilder(t)
-		b.WithConfigFile("toml", `pagination.pagerSize = 1`)
-		b.WithContent(
-			"s1/p01.md", "---\ntitle: p01\n---",
-			"s1/p02.md", "---\ntitle: p02\n---",
-			"s1/p03.md", "---\ntitle: p03\n---",
-			"s1/p04.md", "---\ntitle: p04\n---",
-			"s1/p05.md", "---\ntitle: p05\n---",
-			"s1/p06.md", "---\ntitle: p06\n---",
-			"s1/p07.md", "---\ntitle: p07\n---",
-			"s1/p08.md", "---\ntitle: p08\n---",
-			"s1/p09.md", "---\ntitle: p09\n---",
-			"s1/p10.md", "---\ntitle: p10\n---",
-		)
-		b.WithTemplates("index.html", `{{ .Paginate (where site.RegularPages "Section" "s1") }}`+variant)
-		b.Build(BuildCfg{})
+		files := `
+-- hugo.toml --
+pagination.pagerSize = 1
+-- content/s1/p01.md --
+---
+title: p01
+---
+-- content/s1/p02.md --
+---
+title: p02
+---
+-- content/s1/p03.md --
+---
+title: p03
+---
+-- content/s1/p04.md --
+---
+title: p04
+---
+-- content/s1/p05.md --
+---
+title: p05
+---
+-- content/s1/p06.md --
+---
+title: p06
+---
+-- content/s1/p07.md --
+---
+title: p07
+---
+-- content/s1/p08.md --
+---
+title: p08
+---
+-- content/s1/p09.md --
+---
+title: p09
+---
+-- content/s1/p10.md --
+---
+title: p10
+---
+-- layouts/index.html --
+{{ .Paginate (where site.RegularPages "Section" "s1") }}` + variant + `
+`
+		b := Test(t, files)
 		b.AssertFileContent("public/index.html", expectedOutput)
 	}
 

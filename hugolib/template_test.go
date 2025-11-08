@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,99 +15,113 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 	"testing"
-
-	qt "github.com/frankban/quicktest"
 )
 
 // https://github.com/gohugoio/hugo/issues/4895
 func TestTemplateBOM(t *testing.T) {
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	t.Parallel()
+
 	bom := "\ufeff"
 
-	b.WithTemplatesAdded(
-		"_default/baseof.html", bom+`
-		Base: {{ block "main" . }}base main{{ end }}`,
-		"_default/single.html", bom+`{{ define "main" }}Hi!?{{ end }}`)
-
-	b.WithContent("page.md", `---
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/_default/baseof.html --
+` + bom + `
+		Base: {{ block "main" . }}base main{{ end }}
+-- layouts/_default/single.html --
+` + bom + `{{ define "main" }}Hi!?{{ end }}
+-- content/page.md --
+---
 title: "Page"
 ---
 
 Page Content
-`)
-
-	b.CreateSites().Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/page/index.html", "Base: Hi!?")
 }
 
 func TestTemplateManyBaseTemplates(t *testing.T) {
 	t.Parallel()
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
-	numPages := 100 // To get some parallelism
+	numPages := 100
 
-	pageTemplate := `---
+	var b strings.Builder
+	b.WriteString("-- hugo.toml --\n")
+	b.WriteString("baseURL = \"http://example.com/\"\n")
+
+	for i := range numPages {
+		id := i + 1
+		b.WriteString(fmt.Sprintf("-- content/page%d.md --\n", id))
+		b.WriteString(fmt.Sprintf(`---
 title: "Page %d"
 layout: "layout%d"
 ---
 
 Content.
-`
+`, id, id))
 
-	singleTemplate := `
+		b.WriteString(fmt.Sprintf("-- layouts/_default/layout%d.html --\n", id))
+		b.WriteString(fmt.Sprintf(`
 {{ define "main" }}%d{{ end }}
-`
-	baseTemplate := `
-Base %d: {{ block "main" . }}FOO{{ end }}
-`
+`, id))
 
-	for i := range numPages {
-		id := i + 1
-		b.WithContent(fmt.Sprintf("page%d.md", id), fmt.Sprintf(pageTemplate, id, id))
-		b.WithTemplates(fmt.Sprintf("_default/layout%d.html", id), fmt.Sprintf(singleTemplate, id))
-		b.WithTemplates(fmt.Sprintf("_default/layout%d-baseof.html", id), fmt.Sprintf(baseTemplate, id))
+		b.WriteString(fmt.Sprintf("-- layouts/_default/layout%d-baseof.html --\n", id))
+		b.WriteString(fmt.Sprintf(`
+Base %d: {{ block "main" . }}FOO{{ end }}
+`, id))
 	}
 
-	b.Build(BuildCfg{})
+	files := b.String()
+
+	builder := Test(t, files)
+
 	for i := range numPages {
 		id := i + 1
-		b.AssertFileContent(fmt.Sprintf("public/page%d/index.html", id), fmt.Sprintf(`Base %d: %d`, id, id))
+		builder.AssertFileContent(fmt.Sprintf("public/page%d/index.html", id), fmt.Sprintf(`Base %d: %d`, id, id))
 	}
 }
 
 // https://github.com/gohugoio/hugo/issues/6790
 func TestTemplateNoBasePlease(t *testing.T) {
 	t.Parallel()
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
-	b.WithTemplates("_default/list.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/_default/list.html --
 {{ define "main" }}
   Bonjour
 {{ end }}
 
 {{ printf "list" }}
-
-
-	`)
-
-	b.WithTemplates(
-		"_default/single.html", `
+-- layouts/_default/single.html --
 {{ printf "single" }}
 {{ define "main" }}
   Bonjour
 {{ end }}
-
-
-`)
-
-	b.WithContent("blog/p1.md", `---
+-- content/blog/p1.md --
+---
 title: The Page
 ---
-`)
-
-	b.Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/blog/p1/index.html", `single`)
 	b.AssertFileContent("public/blog/index.html", `list`)
@@ -116,19 +130,26 @@ title: The Page
 // https://github.com/gohugoio/hugo/issues/6816
 func TestTemplateBaseWithComment(t *testing.T) {
 	t.Parallel()
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
-	b.WithTemplatesAdded(
-		"baseof.html", `Base: {{ block "main" . }}{{ end }}`,
-		"index.html", `
-	{{/*  A comment */}}
-	{{ define "main" }}
-	  Bonjour
-	{{ end }}
 
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/baseof.html --
+Base: {{ block "main" . }}{{ end }}
+-- layouts/index.html --
+{{/*  A comment */}}
+{{ define "main" }}
+  Bonjour
+{{ end }}
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
-	`)
-
-	b.Build(BuildCfg{})
 	b.AssertFileContent("public/index.html", `Base:
 Bonjour`)
 }
@@ -136,52 +157,78 @@ Bonjour`)
 func TestTemplateLookupSite(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
-		b := newTestSitesBuilder(t).WithSimpleConfigFile()
-		b.WithTemplates(
-			"_default/single.html", `Single: {{ .Title }}`,
-			"_default/list.html", `List: {{ .Title }}`,
-		)
 
-		createContent := func(title string) string {
-			return fmt.Sprintf(`---
-title: %s
----`, title)
-		}
+		files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/_default/single.html --
+Single: {{ .Title }}
+-- layouts/_default/list.html --
+List: {{ .Title }}
+-- content/_index.md --
+---
+title: Home Sweet Home
+---
+-- content/p1.md --
+---
+title: P1
+---
+`
+		b := NewIntegrationTestBuilder(
+			IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+				BuildCfg:    BuildCfg{},
+			},
+		).Build()
 
-		b.WithContent(
-			"_index.md", createContent("Home Sweet Home"),
-			"p1.md", createContent("P1"))
-
-		b.CreateSites().Build(BuildCfg{})
 		b.AssertFileContent("public/index.html", `List: Home Sweet Home`)
 		b.AssertFileContent("public/p1/index.html", `Single: P1`)
 	})
-
-	{
-	}
 }
 
 func TestTemplateLookupSitBaseOf(t *testing.T) {
 	t.Parallel()
-	b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
 
-	b.WithTemplatesAdded(
-		"index.html", `{{ define "main" }}Main Home En{{ end }}`,
-		"index.fr.html", `{{ define "main" }}Main Home Fr{{ end }}`,
-		"baseof.html", `Baseof en: {{ block "main" . }}main block{{ end }}`,
-		"baseof.fr.html", `Baseof fr: {{ block "main" . }}main block{{ end }}`,
-		"mysection/baseof.html", `Baseof mysection: {{ block "main" .  }}mysection block{{ end }}`,
-		"_default/single.html", `{{ define "main" }}Main Default Single{{ end }}`,
-		"_default/list.html", `{{ define "main" }}Main Default List{{ end }}`,
-	)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/blog"
+disablePathToLower = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
 
-	b.WithContent("mysection/p1.md", `---
+[languages]
+[languages.en]
+weight = 10
+[languages.fr]
+weight = 20
+
+-- layouts/index.html --
+{{ define "main" }}Main Home En{{ end }}
+-- layouts/index.fr.html --
+{{ define "main" }}Main Home Fr{{ end }}
+-- layouts/baseof.html --
+Baseof en: {{ block "main" . }}main block{{ end }}
+-- layouts/baseof.fr.html --
+Baseof fr: {{ block "main" . }}main block{{ end }}
+-- layouts/mysection/baseof.html --
+Baseof mysection: {{ block "main" .  }}mysection block{{ end }}
+-- layouts/_default/single.html --
+{{ define "main" }}Main Default Single{{ end }}
+-- layouts/_default/list.html --
+{{ define "main" }}Main Default List{{ end }}
+-- content/mysection/p1.md --
+---
 title: My Page
 ---
-
-`)
-
-	b.CreateSites().Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/en/index.html", `Baseof en: Main Home En`)
 	b.AssertFileContent("public/fr/index.html", `Baseof fr: Main Home Fr`)
@@ -190,19 +237,37 @@ title: My Page
 }
 
 func TestTemplateFuncs(t *testing.T) {
-	b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
+	t.Parallel()
 
-	homeTpl := `Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/blog"
+disablePathToLower = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+
+[languages]
+[languages.en]
+weight = 10
+[languages.fr]
+weight = 20
+
+-- layouts/index.html --
+Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
+Sites: {{ site.Sites.Default.Home.Language.Lang }}
+Hugo: {{ hugo.Generator }}
+-- layouts/index.fr.html --
+Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
 Sites: {{ site.Sites.Default.Home.Language.Lang }}
 Hugo: {{ hugo.Generator }}
 `
-
-	b.WithTemplatesAdded(
-		"index.html", homeTpl,
-		"index.fr.html", homeTpl,
-	)
-
-	b.CreateSites().Build(BuildCfg{})
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/en/index.html",
 		"Site: en / en / http://example.com/blog",
@@ -216,40 +281,26 @@ Hugo: {{ hugo.Generator }}
 }
 
 func TestPartialWithReturn(t *testing.T) {
-	c := qt.New(t)
+	t.Parallel()
 
-	newBuilder := func(t testing.TB) *sitesBuilder {
-		b := newTestSitesBuilder(t).WithSimpleConfigFile()
-		b.WithTemplatesAdded(
-			"partials/add42.tpl", `
-		{{ $v := add . 42 }}
-		{{ return $v }}
-		`,
-			"partials/dollarContext.tpl", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/partials/add42.tpl --
+{{ $v := add . 42 }}
+{{ return $v }}
+-- layouts/partials/dollarContext.tpl --
 {{ $v := add $ 42 }}
 {{ return $v }}
-`,
-			"partials/dict.tpl", `
+-- layouts/partials/dict.tpl --
 {{ $v := add $.adder 42 }}
 {{ return $v }}
-`,
-			"partials/complex.tpl", `
+-- layouts/partials/complex.tpl --
 {{ return add . 42 }}
-`, "partials/hello.tpl", `
-		{{ $v := printf "hello %s" . }}
-		{{ return $v }}
-		`,
-		)
-
-		return b
-	}
-
-	c.Run("Return", func(c *qt.C) {
-		for range 2 {
-			b := newBuilder(c)
-
-			b.WithTemplatesAdded(
-				"index.html", `
+-- layouts/partials/hello.tpl --
+{{ $v := printf "hello %s" . }}
+{{ return $v }}
+-- layouts/index.html --
 Test Partials With Return Values:
 
 add42: 50: {{ partial "add42.tpl" 8 }}
@@ -257,28 +308,32 @@ hello world: {{ partial "hello.tpl" "world" }}
 dollarContext: 60: {{ partial "dollarContext.tpl" 18 }}
 adder: 70: {{ partial "dict.tpl" (dict "adder" 28) }}
 complex: 80: {{ partial "complex.tpl" 38 }}
-`,
-			)
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
-			b.CreateSites().Build(BuildCfg{})
-
-			b.AssertFileContent("public/index.html", `
+	b.AssertFileContent("public/index.html", `
 add42: 50: 50
 hello world: hello world
 dollarContext: 60: 60
 adder: 70: 70
 complex: 80: 80
-`,
-			)
-		}
-	})
+`)
 }
 
 // Issue 7528
 func TestPartialWithZeroedArgs(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithTemplatesAdded("index.html",
-		`
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.html --
 X{{ partial "retval" dict }}X
 X{{ partial "retval" slice }}X
 X{{ partial "retval" "" }}X
@@ -286,10 +341,17 @@ X{{ partial "retval" false }}X
 X{{ partial "retval" 0 }}X
 {{ define "partials/retval" }}
   {{ return 123 }}
-{{ end }}`)
+{{ end }}
+-- content/p.md --
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
-	b.WithContentAdded("p.md", ``)
-	b.Build(BuildCfg{})
 	b.AssertFileContent("public/index.html",
 		`
 X123X
@@ -301,21 +363,27 @@ X123X
 }
 
 func TestPartialCached(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithTemplatesAdded(
-		"index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.html --
 {{ $key1 := (dict "a" "av" ) }}
 {{ $key2 := (dict "a" "av2" ) }}
 Partial cached1: {{ partialCached "p1" "input1" $key1 }}
 Partial cached2: {{ partialCached "p1" "input2" $key1 }}
 Partial cached3: {{ partialCached "p1" "input3" $key2 }}
-`,
-
-		"partials/p1.html", `partial: {{ . }}`,
-	)
-
-	b.Build(BuildCfg{})
+-- layouts/partials/p1.html --
+partial: {{ . }}
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `
  Partial cached1: partial: input1
@@ -326,8 +394,12 @@ Partial cached3: {{ partialCached "p1" "input3" $key2 }}
 
 // https://github.com/gohugoio/hugo/issues/6615
 func TestTemplateTruth(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithTemplatesAdded("index.html", `
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.html --
 {{ $p := index site.RegularPages 0 }}
 {{ $zero := $p.ExpiryDate }}
 {{ $notZero := time.Now }}
@@ -338,10 +410,18 @@ not: Zero: {{ if not $zero }}OK{{ else }}FAIL{{ end }}
 not: Not Zero: {{ if not $notZero }}FAIL{{ else }}OK{{ end }}
 
 with: Zero {{ with $zero }}FAIL{{ else }}OK{{ end }}
-
-`)
-
-	b.Build(BuildCfg{})
+-- content/p1.md --
+---
+title: p1
+---
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `
 if: Zero: OK
@@ -353,10 +433,12 @@ with: Zero OK
 }
 
 func TestTemplateGoIssues(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithTemplatesAdded(
-		"index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.html --
 {{ $title := "a & b" }}
 <script type="application/ld+json">{"@type":"WebPage","headline":"{{$title}}"}</script>
 
@@ -378,11 +460,14 @@ Population in Norway is {{
 	| lower
 	| upper
 }}
-
-`,
-	)
-
-	b.Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `
 <script type="application/ld+json">{"@type":"WebPage","headline":"a \u0026 b"}</script>
@@ -392,13 +477,13 @@ Population in Norway is 5 MILLIONS
 }
 
 func TestPartialInline(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithContent("p1.md", "")
-
-	b.WithTemplates(
-		"index.html", `
-
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/p1.md --
+-- layouts/index.html --
 {{ $p1 := partial "p1" . }}
 {{ $p2 := partial "p2" . }}
 
@@ -411,12 +496,14 @@ P2: {{ $p2 }}
 {{ $value := 32 }}
 {{ return $value }}
 {{ end }}
-
-
-`,
-	)
-
-	b.CreateSites().Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -426,14 +513,16 @@ P2: 32`,
 }
 
 func TestPartialInlineBase(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithContent("p1.md", "")
-
-	b.WithTemplates(
-		"baseof.html", `{{ $p3 := partial "p3" . }}P3: {{ $p3 }}
-{{ block "main" . }}{{ end }}{{ define "partials/p3" }}Inline: p3{{ end }}`,
-		"index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/p1.md --
+-- layouts/baseof.html --
+{{ $p3 := partial "p3" . }}P3: {{ $p3 }}
+{{ block "main" . }}{{ end }}{{ define "partials/p3" }}Inline: p3{{ end }}
+-- layouts/index.html --
 {{ define "main" }}
 
 {{ $p1 := partial "p1" . }}
@@ -451,12 +540,14 @@ P2: {{ $p2 }}
 {{ $value := 32 }}
 {{ return $value }}
 {{ end }}
-
-
-`,
-	)
-
-	b.CreateSites().Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -469,31 +560,38 @@ P3: Inline: p3
 
 // https://github.com/gohugoio/hugo/issues/7478
 func TestBaseWithAndWithoutDefine(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithContent("p1.md", "---\ntitle: P\n---\nContent")
-
-	b.WithTemplates(
-		"_default/baseof.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/p1.md --
+---
+title: P
+---
+Content
+-- layouts/_default/baseof.html --
 ::Header Start:{{ block "header" . }}{{ end }}:Header End:
 ::{{ block "main" . }}Main{{ end }}::
-`, "index.html", `
+-- layouts/index.html --
 {{ define "header" }}
 Home Header
 {{ end }}
 {{ define "main" }}
 This is home main
 {{ end }}
-`,
-
-		"_default/single.html", `
+-- layouts/_default/single.html --
 {{ define "main" }}
 This is single main
 {{ end }}
-`,
-	)
-
-	b.CreateSites().Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `
 Home Header
@@ -510,17 +608,24 @@ This is single main
 
 // Issue 9393.
 func TestApplyWithNamespace(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithTemplates(
-		"index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/p1.md --
+-- layouts/index.html --
 {{ $b := slice " a " "     b "   "       c" }}
 {{ $a := apply $b "strings.Trim" "." " " }}
 a: {{ $a }}
-`,
-	).WithContent("p1.md", "")
-
-	b.Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `a: [a b c]`)
 }

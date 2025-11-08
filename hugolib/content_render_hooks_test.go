@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -141,28 +141,24 @@ xml-heading: Heading in p2|
 
 // https://github.com/gohugoio/hugo/issues/6629
 func TestRenderLinkWithMarkupInText(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", `
+	t.Parallel()
 
+	files := `
+-- hugo.toml --
 baseURL="https://example.org"
-
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
-
-`)
-
-	b.WithTemplates("index.html", `
+-- layouts/index.html --
 {{ $p := site.GetPage "p1.md" }}
 P1: {{ $p.Content }}
-
-	`,
-		"_default/_markup/render-link.html", `html-link: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}`,
-		"_default/_markup/render-image.html", `html-image: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}`,
-	)
-
-	b.WithContent("p1.md", `---
+-- layouts/_default/_markup/render-link.html --
+html-link: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}
+-- layouts/_default/_markup/render-image.html --
+html-image: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}
+-- content/p1.md --
+---
 title: "p1"
 ---
 
@@ -173,10 +169,9 @@ Some regular **markup**.
 Image:
 
 ![Hello<br> Goodbye](image.jpg)END
+`
 
-`)
-
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
   P1: <p>START: html-link: https://gohugo.io|Text: <strong>should be bold</strong>|Plain: should be boldEND</p>

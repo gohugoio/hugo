@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,10 +27,13 @@ import (
 func TestRSSKind(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("index.rss.xml", `RSS Kind: {{ .Kind }}`)
-
-	b.Build(BuildCfg{})
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.rss.xml --
+RSS Kind: {{ .Kind }}
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.xml", "RSS Kind: home")
 }
@@ -38,20 +41,21 @@ func TestRSSKind(t *testing.T) {
 func TestRSSCanonifyURLs(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("index.rss.xml", `<rss>{{ range .Pages }}<item>{{ .Content | html }}</item>{{ end }}</rss>`)
-	b.WithContent("page.md", `---
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.rss.xml --
+<rss>{{ range .Pages }}<item>{{ .Content | html }}</item>{{ end }}</rss>
+-- content/page.md --
+---
 Title: My Page
 ---
 
 Figure:
 
 {{< figure src="/images/sunset.jpg" title="Sunset" >}}
-
-
-
-`)
-	b.Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.xml", "img src=&#34;http://example.com/images/sunset.jpg")
 }

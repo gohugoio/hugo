@@ -86,6 +86,15 @@ func TestOptWarn() TestOpt {
 	}
 }
 
+// TestOptSkipRender will skip the render phase in integration tests.
+func TestOptSkipRender() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.BuildCfg = BuildCfg{
+			SkipRender: true,
+		}
+	}
+}
+
 // TestOptOsFs will enable the real file system in integration tests.
 func TestOptOsFs() TestOpt {
 	return func(c *IntegrationTestConfig) {

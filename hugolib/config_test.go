@@ -1,4 +1,4 @@
-// Copyright 2016-present The Hugo Authors. All rights reserved.
+// Copyright 2025-present The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -410,14 +409,12 @@ name = "menu-main-theme"
 name = "menu-theme"
 
 `
-
-	buildForConfig := func(t testing.TB, mainConfig, themeConfig string) *sitesBuilder {
-		b := newTestSitesBuilder(t)
-		b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
-		return b.Build(BuildCfg{})
+	buildForConfig := func(t testing.TB, mainConfig, themeConfig string) *IntegrationTestBuilder {
+		files := "-- hugo.toml --\n" + mainConfig + "\n-- themes/test-theme/hugo.toml --\n" + themeConfig
+		return Test(t, files)
 	}
 
-	buildForStrategy := func(t testing.TB, s string) *sitesBuilder {
+	buildForStrategy := func(t testing.TB, s string) *IntegrationTestBuilder {
 		mainConfig := strings.ReplaceAll(mainConfigTemplate, "MERGE_PARAMS", s)
 		return buildForConfig(t, mainConfig, themeConfig)
 	}
@@ -425,7 +422,7 @@ name = "menu-theme"
 	c.Run("Merge default", func(c *qt.C) {
 		b := buildForStrategy(c, "")
 
-		got := b.Configs.Base
+		got := b.H.Configs.Base
 
 		b.Assert(got.Params, qt.DeepEquals, maps.Params{
 			"b": maps.Params{
@@ -447,7 +444,7 @@ name = "menu-theme"
 	c.Run("Merge shallow", func(c *qt.C) {
 		b := buildForStrategy(c, fmt.Sprintf("_merge=%q", "shallow"))
 
-		got := b.Configs.Base.Params
+		got := b.H.Configs.Base.Params
 
 		// Shallow merge, only add new keys to params.
 		b.Assert(got, qt.DeepEquals, maps.Params{
@@ -469,7 +466,7 @@ name = "menu-theme"
 			"[params]\np1 = \"p1 theme\"\n",
 		)
 
-		got := b.Configs.Base.Params
+		got := b.H.Configs.Base.Params
 
 		b.Assert(got, qt.DeepEquals, maps.Params{
 			"p1": "p1 theme",
@@ -490,7 +487,7 @@ name = "menu-theme"
 				"baseURL=\"http://example.com\"\n"+fmt.Sprintf(smapConfigTempl, "monthly"),
 			)
 
-			got := b.Configs.Base
+			got := b.H.Configs.Base
 
 			if mergeStrategy == "none" {
 				b.Assert(got.Sitemap, qt.DeepEquals, config.SitemapConfig{ChangeFreq: "", Disable: false, Priority: -1, Filename: "sitemap.xml"})
@@ -506,101 +503,75 @@ name = "menu-theme"
 func TestLoadConfigFromThemeDir(t *testing.T) {
 	t.Parallel()
 
-	mainConfig := `
+	files := `
+-- hugo.toml --
 theme = "test-theme"
-
 [params]
 m1 = "mv1"
-`
-
-	themeConfig := `
+-- themes/test-theme/hugo.toml --
 [params]
 t1 = "tv1"
 t2 = "tv2"
-`
-
-	themeConfigDir := filepath.Join("themes", "test-theme", "config")
-	themeConfigDirDefault := filepath.Join(themeConfigDir, "_default")
-	themeConfigDirProduction := filepath.Join(themeConfigDir, "production")
-
-	projectConfigDir := "config"
-
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
-	b.Assert(b.Fs.Source.MkdirAll(themeConfigDirDefault, 0o777), qt.IsNil)
-	b.Assert(b.Fs.Source.MkdirAll(themeConfigDirProduction, 0o777), qt.IsNil)
-	b.Assert(b.Fs.Source.MkdirAll(projectConfigDir, 0o777), qt.IsNil)
-
-	b.WithSourceFile(filepath.Join(projectConfigDir, "config.toml"), `[params]
+-- config/_default/config.toml --
+[params]
 m2 = "mv2"
-`)
-	b.WithSourceFile(filepath.Join(themeConfigDirDefault, "config.toml"), `[params]
+-- themes/test-theme/config/_default/config.toml --
+[params]
 t2 = "tv2d"
 t3 = "tv3d"
-`)
-
-	b.WithSourceFile(filepath.Join(themeConfigDirProduction, "config.toml"), `[params]
+-- themes/test-theme/config/production/config.toml --
+[params]
 t3 = "tv3p"
-`)
+-- layouts/index.html --
+m1: {{ .Site.Params.m1 }}
+m2: {{ .Site.Params.m2 }}
+t1: {{ .Site.Params.t1 }}
+t2: {{ .Site.Params.t2 }}
+t3: {{ .Site.Params.t3 }}
+`
 
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
-	got := b.Configs.Base.Params
+	got := b.H.Configs.Base.Params
 
 	b.Assert(got, qt.DeepEquals, maps.Params{
-		"t3": "tv3p",
 		"m1": "mv1",
+		"m2": "mv2",
 		"t1": "tv1",
 		"t2": "tv2d",
+		"t3": "tv3p",
 	})
 }
 
 func TestPrivacyConfig(t *testing.T) {
 	t.Parallel()
 
-	c := qt.New(t)
-
-	tomlConfig := `
-
+	files := `
+-- hugo.toml --
 someOtherValue = "foo"
-
-[privacy]
 [privacy.youtube]
 privacyEnhanced = true
+-- layouts/index.html --
+Privacy Enhanced: {{ .Site.Config.Privacy.YouTube.PrivacyEnhanced }}
 `
-
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", tomlConfig)
-	b.Build(BuildCfg{SkipRender: true})
-
-	c.Assert(b.H.Sites[0].Config().Privacy.YouTube.PrivacyEnhanced, qt.Equals, true)
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html", "Privacy Enhanced: true")
 }
 
 func TestLoadConfigModules(t *testing.T) {
 	t.Parallel()
 
-	c := qt.New(t)
-
-	// https://github.com/gohugoio/hugoThemes#themetoml
-
 	const (
-		// Before Hugo 0.56 each theme/component could have its own theme.toml
-		// with some settings, mostly used on the Hugo themes site.
-		// To preserve combability we read these files into the new "modules"
-		// section in config.toml.
 		o1t = `
 name = "Component o1"
 license = "MIT"
 min_version = 0.38
 `
-		// This is the component's config.toml, using the old theme syntax.
 		o1c = `
 theme = ["n2"]
 `
-
 		n1 = `
 title = "Component n1"
-
 [module]
 description = "Component n1 description"
 [module.hugoVersion]
@@ -611,64 +582,58 @@ extended = true
 path="o1"
 [[module.imports]]
 path="n3"
-
-
 `
-
 		n2 = `
 title = "Component n2"
 `
-
 		n3 = `
 title = "Component n3"
 `
-
 		n4 = `
 title = "Component n4"
 `
 	)
 
-	b := newTestSitesBuilder(t)
-
-	writeThemeFiles := func(name, configTOML, themeTOML string) {
-		b.WithSourceFile(filepath.Join("themes", name, "data", "module.toml"), fmt.Sprintf("name=%q", name))
-		if configTOML != "" {
-			b.WithSourceFile(filepath.Join("themes", name, "config.toml"), configTOML)
-		}
-		if themeTOML != "" {
-			b.WithSourceFile(filepath.Join("themes", name, "theme.toml"), themeTOML)
-		}
-	}
-
-	writeThemeFiles("n1", n1, "")
-	writeThemeFiles("n2", n2, "")
-	writeThemeFiles("n3", n3, "")
-	writeThemeFiles("n4", n4, "")
-	writeThemeFiles("o1", o1c, o1t)
-
-	b.WithConfigFile("toml", `
+	files := `
+-- hugo.toml --
 [module]
 [[module.imports]]
 path="n1"
 [[module.imports]]
 path="n4"
+-- themes/n1/hugo.toml --
+` + n1 + `
+-- themes/n2/hugo.toml --
+` + n2 + `
+-- themes/n3/hugo.toml --
+` + n3 + `
+-- themes/n4/hugo.toml --
+` + n4 + `
+-- themes/o1/hugo.toml --
+` + o1c + `
+-- themes/o1/theme.toml --
+` + o1t + `
+-- themes/n1/data/module.toml --
+name="n1"
+-- themes/n2/data/module.toml --
+name="n2"
+-- themes/n3/data/module.toml --
+name="n3"
+-- themes/n4/data/module.toml --
+name="n4"
+-- themes/o1/data/module.toml --
+name="o1"
+`
 
-`)
-
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	modulesClient := b.H.Configs.ModulesClient
 	var graphb bytes.Buffer
 	modulesClient.Graph(&graphb)
 
-	expected := `project n1
-n1 o1
-o1 n2
-n1 n3
-project n4
-`
+	expected := "project n1\nn1 o1\no1 n2\nn1 n3\nproject n4\n"
 
-	c.Assert(graphb.String(), qt.Equals, expected)
+	b.Assert(graphb.String(), qt.Equals, expected)
 }
 
 func TestInvalidDefaultMarkdownHandler(t *testing.T) {

@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,18 +27,17 @@ import (
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/rst"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/htime"
-	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/deps"
 )
 
 const (
@@ -405,29 +404,30 @@ allow = ['^python$', '^rst2html.*', '^asciidoctor$']
 // Issue #1076
 func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	t.Parallel()
-	cfg, fs := newTestCfg()
 
-	c := qt.New(t)
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/simple.md --
+` + simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder + `
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{SkipRender: true},
+		},
+	).Build()
 
-	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
+	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
+	p := b.H.Sites[0].RegularPages()[0]
 
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
-	p := s.RegularPages()[0]
-
-	if p.Summary(context.Background()) != template.HTML(
-		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>") {
-		t.Fatalf("Got summary:\n%q", p.Summary(context.Background()))
-	}
+	b.Assert(p.Summary(context.Background()), qt.Equals, template.HTML(
+		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>"))
 
 	cnt := content(p)
-	if cnt != "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\">\n<p>Many people say so.&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>" {
-		t.Fatalf("Got content:\n%q", cnt)
-	}
+	b.Assert(cnt, qt.Equals, "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\">\n<p>Many people say so.&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>")
 }
 
 func TestPageDatesTerms(t *testing.T) {
@@ -480,11 +480,16 @@ categories: ["cool stuff"]
 ---
 `
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("page.md", pageContent)
-	b.WithContent("blog/page.md", pageContent)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/page.md --
+` + pageContent + `
+-- content/blog/page.md --
+` + pageContent + `
+`
 
-	b.CreateSites().Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
@@ -508,45 +513,45 @@ categories: ["cool stuff"]
 func TestPageDatesSections(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("no-index/page.md", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/no-index/page.md --
 ---
 title: Page
 date: 2017-01-15
 ---
-`, "with-index-no-date/_index.md", `---
+-- content/with-index-no-date/_index.md --
+---
 title: No Date
 ---
-
-`,
-		// https://github.com/gohugoio/hugo/issues/5854
-		"with-index-date/_index.md", `---
+-- content/with-index-date/_index.md --
+---
 title: Date
 date: 2018-01-15
 ---
-
-`, "with-index-date/p1.md", `---
+-- content/with-index-date/p1.md --
+---
 title: Date
 date: 2018-01-15
 ---
-
-`, "with-index-date/p1.md", `---
+-- content/with-index-date/p2.md --
+---
 title: Date
 date: 2018-01-15
 ---
-
-`)
-
+`
 	for i := 1; i <= 20; i++ {
-		b.WithContent(fmt.Sprintf("main-section/p%d.md", i), `---
+		files += fmt.Sprintf(`
+-- content/main-section/p%d.md --
+---
 title: Date
 date: 2012-01-12
 ---
-
-`)
+`, i)
 	}
 
-	b.CreateSites().Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
@@ -668,18 +673,25 @@ title: "empty"
 }
 
 func TestTableOfContents(t *testing.T) {
-	c := qt.New(t)
-	cfg, fs := newTestCfg()
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
+	t.Parallel()
 
-	writeSource(t, fs, filepath.Join("content", "tocpage.md"), pageWithToC)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/tocpage.md --
+` + pageWithToC + `
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{SkipRender: true},
+		},
+	).Build()
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
+	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
-	p := s.RegularPages()[0]
+	p := b.H.Sites[0].RegularPages()[0]
 
 	checkPageContent(t, p, "<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p><h2 id=\"aa\">AA</h2> <p>I have no idea, of course, how long it took me to reach the limit of the plain, but at last I entered the foothills, following a pretty little canyon upward toward the mountains. Beside me frolicked a laughing brooklet, hurrying upon its noisy way down to the silent sea. In its quieter pools I discovered many small fish, of four-or five-pound weight I should imagine. In appearance, except as to size and color, they were not unlike the whale of our own seas. As I watched them playing about I discovered, not only that they suckled their young, but that at intervals they rose to the surface to breathe as well as to feed upon certain grasses and a strange, scarlet lichen which grew upon the rocks just above the water line.</p><h3 id=\"aaa\">AAA</h3> <p>I remember I felt an extraordinary persuasion that I was being played with, that presently, when I was upon the very verge of safety, this mysterious death&ndash;as swift as the passage of light&ndash;would leap after me from the pit about the cylinder and strike me down. ## BB</p><h3 id=\"bbb\">BBB</h3> <p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>")
 	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n  <ul>\n    <li><a href=\"#aa\">AA</a>\n      <ul>\n        <li><a href=\"#aaa\">AAA</a></li>\n        <li><a href=\"#bbb\">BBB</a></li>\n      </ul>\n    </li>\n  </ul>\n</nav>")
@@ -809,12 +821,11 @@ Here is the last report for commits in the year 2016. It covers hrev50718-hrev50
 
 // Issue 9383
 func TestRenderStringForRegularPageTranslations(t *testing.T) {
-	c := qt.New(t)
-	b := newTestSitesBuilder(t)
-	b.WithLogger(loggers.NewDefault())
+	t.Parallel()
 
-	b.WithConfigFile("toml",
-		`baseurl = "https://example.org/"
+	files := `
+-- hugo.toml --
+baseurl = "https://example.org/"
 title = "My Site"
 
 defaultContentLanguage = "ru"
@@ -829,30 +840,22 @@ weight = 2
 contentDir = 'content/en'
 
 [outputs]
-home = ["HTML", "JSON"]`)
-
-	b.WithTemplates("index.html", `
+home = ["HTML", "JSON"]
+-- layouts/index.html --
 {{- range .Site.Home.Translations -}}
 	<p>{{- .RenderString "foo" -}}</p>
 {{- end -}}
 {{- range .Site.Home.AllTranslations -}}
 	<p>{{- .RenderString "bar" -}}</p>
 {{- end -}}
-`, "_default/single.html",
-		`{{ .Content }}`,
-		"index.json",
-		`{"Title": "My Site"}`,
-	)
-
-	b.WithContent(
-		"ru/a.md",
-		"",
-		"en/a.md",
-		"",
-	)
-
-	err := b.BuildE(BuildCfg{})
-	c.Assert(err, qt.Equals, nil)
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/index.json --
+{"Title": "My Site"}
+-- content/ru/a.md --
+-- content/en/a.md --
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/ru/index.html", `
 <p>foo</p>
@@ -871,9 +874,11 @@ home = ["HTML", "JSON"]`)
 
 // Issue 8919
 func TestContentProviderWithCustomOutputFormat(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithLogger(loggers.NewDefault())
-	b.WithConfigFile("toml", `baseURL = 'http://example.org/'
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.org/'
 title = 'My New Hugo Site'
 
 timeout = 600000 # ten minutes in case we want to pause and debug
@@ -899,9 +904,9 @@ defaultContentLanguage = "en"
 	notAlternative = true
 
 [outputs]
-	home = ["HTML", "metadata"]`)
-
-	b.WithTemplates("home.metadata.html", `<h2>Translations metadata</h2>
+	home = ["HTML", "metadata"]
+-- layouts/home.metadata.html --
+<h2>Translations metadata</h2>
 <ul>
 {{ $p := .Page }}
 {{ range $p.Translations}}
@@ -915,17 +920,17 @@ defaultContentLanguage = "en"
 <li>ReadingTime: {{ .ReadingTime }}</li>
 <li>Len: {{ .Len }}</li>
 {{ end }}
-</ul>`)
-
-	b.WithTemplates("_default/baseof.html", `<html>
+</ul>
+-- layouts/_default/baseof.html --
+<html>
 
 <body>
 	{{ block "main" . }}{{ end }}
 </body>
 
-</html>`)
-
-	b.WithTemplates("_default/home.html", `{{ define "main" }}
+</html>
+-- layouts/_default/home.html --
+{{ define "main" }}
 <h2>Translations</h2>
 <ul>
 {{ $p := .Page }}
@@ -941,25 +946,23 @@ defaultContentLanguage = "en"
 <li>Len: {{ .Len }}</li>
 {{ end }}
 </ul>
-{{ end }}`)
-
-	b.WithContent("en/_index.md", `---
+{{ end }}
+-- content/en/_index.md --
+---
 title: Title (en)
 summary: Summary (en)
 ---
 
 Here is some content.
-`)
-
-	b.WithContent("zh_CN/_index.md", `---
+-- content/zh_CN/_index.md --
+---
 title: Title (zh)
 summary: Summary (zh)
 ---
 
 这是一些内容
-`)
-
-	b.Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `<html>
 
@@ -1049,18 +1052,24 @@ summary: Summary (zh)
 
 func TestPageWithDate(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
-	cfg, fs := newTestCfg()
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
 
-	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageRFC3339Date)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/simple.md --
+` + simplePageRFC3339Date + `
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{SkipRender: true},
+		},
+	).Build()
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
+	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
-	p := s.RegularPages()[0]
+	p := b.H.Sites[0].RegularPages()[0]
 	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
 
 	checkPageDate(t, p, d)
@@ -1070,8 +1079,6 @@ func TestPageWithFrontMatterConfig(t *testing.T) {
 	for _, dateHandler := range []string{":filename", ":fileModTime"} {
 		t.Run(fmt.Sprintf("dateHandler=%q", dateHandler), func(t *testing.T) {
 			t.Parallel()
-			c := qt.New(t)
-			cfg, fs := newTestCfg()
 
 			pageTemplate := `
 ---
@@ -1082,51 +1089,59 @@ lastMod: 2018-02-28
 ---
 Content
 `
+			files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+[frontmatter]
+date = ["` + dateHandler + `", "date"]
+-- content/section/2012-02-21-noslug.md --
+` + fmt.Sprintf(pageTemplate, 1, "") + `
+-- content/section/2012-02-22-slug.md --
+` + fmt.Sprintf(pageTemplate, 2, "slug: aslug") + `
+`
+			b := NewIntegrationTestBuilder(
+				IntegrationTestConfig{
+					T:           t,
+					TxtarString: files,
+					NeedsOsFS:   true, // Needed for fileModTime
+				},
+			).Build()
 
-			cfg.Set("frontmatter", map[string]any{
-				"date": []string{dateHandler, "date"},
-			})
-			configs, err := loadTestConfigFromProvider(cfg)
-			c.Assert(err, qt.IsNil)
-
-			c1 := filepath.Join("content", "section", "2012-02-21-noslug.md")
-			c2 := filepath.Join("content", "section", "2012-02-22-slug.md")
-
-			writeSource(t, fs, c1, fmt.Sprintf(pageTemplate, 1, ""))
-			writeSource(t, fs, c2, fmt.Sprintf(pageTemplate, 2, "slug: aslug"))
-
-			c1fi, err := fs.Source.Stat(c1)
-			c.Assert(err, qt.IsNil)
-			c2fi, err := fs.Source.Stat(c2)
-			c.Assert(err, qt.IsNil)
-
-			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Configs: configs}).WithNothingAdded()
-			b.Build(BuildCfg{SkipRender: true})
-
-			c.Assert(len(b.H.Sites), qt.Equals, 1)
 			s := b.H.Sites[0]
-			c.Assert(len(s.RegularPages()), qt.Equals, 2)
+			b.Assert(len(s.RegularPages()), qt.Equals, 2)
 
 			noSlug := s.RegularPages()[0]
 			slug := s.RegularPages()[1]
 
-			c.Assert(noSlug.Lastmod().Day(), qt.Equals, 28)
+			b.Assert(noSlug.Lastmod().Day(), qt.Equals, 28)
 
 			switch strings.ToLower(dateHandler) {
 			case ":filename":
-				c.Assert(noSlug.Date().IsZero(), qt.Equals, false)
-				c.Assert(slug.Date().IsZero(), qt.Equals, false)
-				c.Assert(noSlug.Date().Year(), qt.Equals, 2012)
-				c.Assert(slug.Date().Year(), qt.Equals, 2012)
-				c.Assert(noSlug.Slug(), qt.Equals, "noslug")
-				c.Assert(slug.Slug(), qt.Equals, "aslug")
+				b.Assert(noSlug.Date().IsZero(), qt.Equals, false)
+				b.Assert(slug.Date().IsZero(), qt.Equals, false)
+				b.Assert(noSlug.Date().Year(), qt.Equals, 2012)
+				b.Assert(slug.Date().Year(), qt.Equals, 2012)
+				b.Assert(noSlug.Slug(), qt.Equals, "noslug")
+				b.Assert(slug.Slug(), qt.Equals, "aslug")
 			case ":filemodtime":
-				c.Assert(noSlug.Date().Year(), qt.Equals, c1fi.ModTime().Year())
-				c.Assert(slug.Date().Year(), qt.Equals, c2fi.ModTime().Year())
+				// For fileModTime, we need to get the actual file mod time.
+				// The IntegrationTestBuilder creates a temporary directory.
+				// We need to get the path to the created files.
+				// The `b.Fs` field gives access to the file system.
+				c1Path := filepath.Join(b.Cfg.WorkingDir, "content", "section", "2012-02-21-noslug.md")
+				c2Path := filepath.Join(b.Cfg.WorkingDir, "content", "section", "2012-02-22-slug.md")
+
+				c1fi, err := b.fs.Source.Stat(c1Path)
+				b.Assert(err, qt.IsNil)
+				c2fi, err := b.fs.Source.Stat(c2Path)
+				b.Assert(err, qt.IsNil)
+
+				b.Assert(noSlug.Date().Year(), qt.Equals, c1fi.ModTime().Year())
+				b.Assert(slug.Date().Year(), qt.Equals, c2fi.ModTime().Year())
 				fallthrough
 			default:
-				c.Assert(noSlug.Slug(), qt.Equals, "")
-				c.Assert(slug.Slug(), qt.Equals, "aslug")
+				b.Assert(noSlug.Slug(), qt.Equals, "")
+				b.Assert(slug.Slug(), qt.Equals, "aslug")
 
 			}
 		})
@@ -1210,11 +1225,11 @@ func TestWordCount(t *testing.T) {
 
 func TestPagePaths(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
 
-	siteParmalinksSetting := map[string]string{
-		"post": ":year/:month/:day/:title/",
-	}
+	siteParmalinksSetting := `
+[permalinks]
+post = ":year/:month/:day/:title/"
+`
 
 	tests := []struct {
 		content      string
@@ -1222,30 +1237,45 @@ func TestPagePaths(t *testing.T) {
 		hasPermalink bool
 		expected     string
 	}{
-		{simplePage, "post/x.md", false, "post/x.html"},
-		{simplePageWithURL, "post/x.md", false, "simple/url/index.html"},
-		{simplePageWithSlug, "post/x.md", false, "post/simple-slug.html"},
-		{simplePageWithDate, "post/x.md", true, "2013/10/15/simple/index.html"},
-		{UTF8Page, "post/x.md", false, "post/x.html"},
-		{UTF8PageWithURL, "post/x.md", false, "ラーメン/url/index.html"},
-		{UTF8PageWithSlug, "post/x.md", false, "post/ラーメン-slug.html"},
-		{UTF8PageWithDate, "post/x.md", true, "2013/10/15/ラーメン/index.html"},
+		{simplePage, "post/x.md", false, "/post/x/"},
+		{simplePageWithURL, "post/x.md", false, "/simple/url/"},
+		{simplePageWithSlug, "post/x.md", false, "/post/simple-slug/"},
+		{simplePageWithDate, "post/x.md", true, "/2013/10/15/simple/"},
+		{UTF8Page, "post/x.md", false, "/post/x/"},
+		{UTF8PageWithURL, "post/x.md", false, "/%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3/url/"},
+		{UTF8PageWithSlug, "post/x.md", false, "/post/%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3-slug/"},
+		{UTF8PageWithDate, "post/x.md", true, "/2013/10/15/%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3/"},
 	}
 
-	for _, test := range tests {
-		cfg, fs := newTestCfg()
-		configs, err := loadTestConfigFromProvider(cfg)
-		c.Assert(err, qt.IsNil)
+	for i, test := range tests {
+		test := test
+		t.Run(fmt.Sprintf("Test%d", i), func(t *testing.T) {
+			t.Parallel()
 
-		if test.hasPermalink {
-			cfg.Set("permalinks", siteParmalinksSetting)
-		}
+			configContent := `baseURL = "http://example.com/"`
+			if test.hasPermalink {
+				configContent += siteParmalinksSetting
+			}
 
-		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.path)), test.content)
+			files := `
+-- hugo.toml --
+` + configContent + `
+-- content/` + test.path + ` --
+` + test.content + `
+`
+			b := NewIntegrationTestBuilder(
+				IntegrationTestConfig{
+					T:           t,
+					TxtarString: files,
+					BuildCfg:    BuildCfg{SkipRender: true},
+				},
+			).Build()
 
-		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
-		c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
+			s := b.H.Sites[0]
+			b.Assert(len(s.RegularPages()), qt.Equals, 1)
+			p := s.RegularPages()[0]
+			b.Assert(p.RelPermalink(), qt.Equals, test.expected)
+		})
 	}
 }
 
@@ -1417,82 +1447,82 @@ Rotate(language): {{ with .Rotate "language" }}{{ range . }}{{ template "printp"
 
 func TestChompBOM(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
 	const utf8BOM = "\xef\xbb\xbf"
 
-	cfg, fs := newTestCfg()
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/simple.md --
+` + utf8BOM + simplePage + `
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{SkipRender: true},
+		},
+	).Build()
 
-	writeSource(t, fs, filepath.Join("content", "simple.md"), utf8BOM+simplePage)
+	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
-
-	c.Assert(len(s.RegularPages()), qt.Equals, 1)
-
-	p := s.RegularPages()[0]
+	p := b.H.Sites[0].RegularPages()[0]
 
 	checkPageTitle(t, p, "Simple")
 }
 
 // https://github.com/gohugoio/hugo/issues/5381
 func TestPageManualSummary(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile()
+	t.Parallel()
 
-	b.WithContent("page-md-shortcode.md", `---
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/page-md-shortcode.md --
+---
 title: "Hugo"
 ---
 This is a {{< sc >}}.
 <!--more-->
 Content.
-`)
-
-	// https://github.com/gohugoio/hugo/issues/5464
-	b.WithContent("page-md-only-shortcode.md", `---
+-- content/page-md-only-shortcode.md --
+---
 title: "Hugo"
 ---
 {{< sc >}}
 <!--more-->
 {{< sc >}}
-`)
-
-	b.WithContent("page-md-shortcode-same-line.md", `---
+-- content/page-md-shortcode-same-line.md --
+---
 title: "Hugo"
 ---
 This is a {{< sc >}}<!--more-->Same line.
-`)
-
-	b.WithContent("page-md-shortcode-same-line-after.md", `---
+-- content/page-md-shortcode-same-line-after.md --
+---
 title: "Hugo"
 ---
 Summary<!--more-->{{< sc >}}
-`)
-
-	b.WithContent("page-org-shortcode.org", `#+TITLE: T1
+-- content/page-org-shortcode.org --
+#+TITLE: T1
 #+AUTHOR: A1
 #+DESCRIPTION: D1
 This is a {{< sc >}}.
 # more
 Content.
-`)
-
-	b.WithContent("page-org-variant1.org", `#+TITLE: T1
+-- content/page-org-variant1.org --
+#+TITLE: T1
 Summary.
 
 # more
 
 Content.
-`)
-
-	b.WithTemplatesAdded("layouts/shortcodes/sc.html", "a shortcode")
-	b.WithTemplatesAdded("layouts/_default/single.html", `
+-- layouts/shortcodes/sc.html --
+a shortcode
+-- layouts/_default/single.html --
 SUMMARY:{{ .Summary }}:END
 --------------------------
 CONTENT:{{ .Content }}
-`)
-
-	b.CreateSites().Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/page-md-shortcode/index.html",
 		"SUMMARY:<p>This is a a shortcode.</p>:END",
@@ -1525,18 +1555,23 @@ CONTENT:{{ .Content }}
 }
 
 func TestHomePageWithNoTitle(t *testing.T) {
-	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
 title = "Site Title"
-`)
-	b.WithTemplatesAdded("index.html", "Title|{{ with .Title }}{{ . }}{{ end }}|")
-	b.WithContent("_index.md", `---
+-- layouts/index.html --
+Title|{{ with .Title }}{{ . }}{{ end }}|
+-- content/_index.md --
+---
 description: "No title for you!"
 ---
 
 Content.
-`)
+`
+	b := Test(t, files)
 
-	b.Build(BuildCfg{})
 	b.AssertFileContent("public/index.html", "Title||")
 }
 
@@ -1678,25 +1713,33 @@ Single: {{ .Title}}|{{ .RelPermalink }}|{{ .Path }}|
 func TestScratch(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.html --
 {{ .Scratch.Set "b" "bv" }}
 B: {{ .Scratch.Get "b" }}
-`,
-		"shortcodes/scratch.html", `
+-- layouts/shortcodes/scratch.html --
 {{ .Scratch.Set "c" "cv" }}
 C: {{ .Scratch.Get "c" }}
-`,
-	)
-
-	b.WithContentAdded("scratchme.md", `
+-- layouts/_default/single.html --
+{{ .Content }}
+-- content/scratchme.md --
 ---
 title: Scratch Me!
 ---
 
 {{< scratch >}}
-`)
-	b.Build(BuildCfg{})
+`
+	b, err := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).BuildE()
+
+	b.Assert(err, qt.IsNil)
 
 	b.AssertFileContent("public/index.html", "B: bv")
 	b.AssertFileContent("public/scratchme/index.html", "C: cv")
@@ -1731,16 +1774,14 @@ c: {{ .Scratch.Get "c" }}
 func TestPageParam(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t).WithConfigFile("toml", `
-
+	files := `
+-- hugo.toml --
 baseURL = "https://example.org"
 
 [params]
 [params.author]
   name = "Kurt Vonnegut"
-
-`)
-	b.WithTemplatesAdded("index.html", `
+-- layouts/index.html --
 
 {{ $withParam := .Site.GetPage "withparam" }}
 {{ $noParam := .Site.GetPage "noparam" }}
@@ -1751,32 +1792,31 @@ Author name page string: {{ $withStringParam.Param "author.name" }}|
 Author page string: {{ $withStringParam.Param "author" }}|
 Author site config:  {{ $noParam.Param "author.name" }}
 
-`,
-	)
-
-	b.WithContent("withparam.md", `
+-- content/withparam.md --
 +++
 title = "With Param!"
 [author]
   name = "Ernest Miller Hemingway"
 
 +++
-
-`,
-
-		"noparam.md", `
+-- content/noparam.md --
 ---
 title: "No Param!"
 ---
-`, "withstringparam.md", `
+-- content/withstringparam.md --
 +++
 title = "With string Param!"
 author = "Jo Nesbø"
 
 +++
-
-`)
-	b.Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html",
 		"Author page: Ernest Miller Hemingway",
@@ -1787,28 +1827,6 @@ author = "Jo Nesbø"
 
 func TestGoldmark(t *testing.T) {
 	t.Parallel()
-
-	b := newTestSitesBuilder(t).WithConfigFile("toml", `
-baseURL = "https://example.org"
-
-[markup]
-defaultMarkdownHandler="goldmark"
-[markup.goldmark]
-[markup.goldmark.renderer]
-unsafe = false
-[markup.highlight]
-noClasses=false
-
-
-`)
-	b.WithTemplatesAdded("_default/single.html", `
-Title: {{ .Title }}
-ToC: {{ .TableOfContents }}
-Content: {{ .Content }}
-
-`, "shortcodes/t.html", `T-SHORT`, "shortcodes/s.html", `## Code
-{{ .Inner }}
-`)
 
 	content := `
 +++
@@ -1839,9 +1857,36 @@ Link with URL as text
 `
 	content = strings.ReplaceAll(content, "$$$", "```")
 
-	b.WithContent("page.md", content)
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
 
-	b.Build(BuildCfg{})
+[markup]
+defaultMarkdownHandler="goldmark"
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = false
+[markup.highlight]
+noClasses=false
+-- layouts/_default/single.html --
+Title: {{ .Title }}
+ToC: {{ .TableOfContents }}
+Content: {{ .Content }}
+-- layouts/shortcodes/t.html --
+T-SHORT
+-- layouts/shortcodes/s.html --
+## Code
+{{ .Inner }}
+-- content/page.md --
+` + content + `
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/page/index.html",
 		`<nav id="TableOfContents">
@@ -1987,4 +2032,17 @@ title: home en
 	b.AssertFileContent("public/en/index.html", "home en")
 	b.AssertLogContains("Using index.de.md in your content's root directory is usually incorrect for your home page. You should use _index.de.md instead.")
 	b.AssertLogContains("Using index.en.org in your content's root directory is usually incorrect for your home page. You should use _index.en.org instead.")
+}
+
+func content(c resource.ContentProvider) string {
+	cc, err := c.Content(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	ccs, err := cast.ToStringE(cc)
+	if err != nil {
+		panic(err)
+	}
+	return ccs
 }

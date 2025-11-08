@@ -1603,7 +1603,7 @@ func (s *TemplateStore) parseTemplates(replace bool) error {
 
 					for _, base := range baseTemplates {
 						if err := s.tns.applyBaseTemplate(vv, base); err != nil {
-							return err
+							return s.addFileContext(base.Info, "apply base template failed", err)
 						}
 					}
 

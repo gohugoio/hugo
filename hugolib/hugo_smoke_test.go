@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package hugolib
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"testing"
 
 	"github.com/bep/logg"
@@ -688,39 +689,64 @@ title: "Heim"
 
 // https://github.com/golang/go/issues/30286
 func TestDataRace(t *testing.T) {
-	const page = `
----
-title: "The Page"
-outputs: ["HTML", "JSON"]
----
+	var filesBuilder strings.Builder
 
-The content.
+	filesBuilder.WriteString(`
+-- hugo.toml --
+baseURL = "https://example.org"
+defaultContentLanguage = "en"
 
+[outputs]
+home = ["HTML", "JSON", "CSV", "RSS"]
+page = ["HTML", "JSON"]
 
-	`
+[mediaTypes]
+[mediaTypes."application/json"]
+suffixes = ["json"]
+[mediaTypes."text/csv"]
+suffixes = ["csv"]
 
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
-	for i := 1; i <= 50; i++ {
-		b.WithContent(fmt.Sprintf("blog/page%d.md", i), page)
-	}
+[outputFormats.JSON]
+mediaType = "application/json"
+isPlainText = true
+isHTML = false
 
-	b.WithContent("_index.md", `
+[outputFormats.CSV]
+mediaType = "text/csv"
+isPlainText = true
+isHTML = false
+
+-- layouts/_default/single.html --
+HTML Single: {{ .Data.Pages }}
+-- layouts/_default/list.html --
+HTML List: {{ .Data.Pages }}
+-- content/_index.md --
 ---
 title: "The Home"
 outputs: ["HTML", "JSON", "CSV", "RSS"]
 ---
-
 The content.
-
-
 `)
 
-	commonTemplate := `{{ .Data.Pages }}`
+	const pageContent = `
+---
+title: "The Page"
+outputs: ["HTML", "JSON"]
+---
+The content.
+`
 
-	b.WithTemplatesAdded("_default/single.html", "HTML Single: "+commonTemplate)
-	b.WithTemplatesAdded("_default/list.html", "HTML List: "+commonTemplate)
+	for i := 1; i <= 50; i++ {
+		filesBuilder.WriteString(fmt.Sprintf("\n-- content/blog/page%d.md --\n%s", i, pageContent))
+	}
 
-	b.CreateSites().Build(BuildCfg{})
+	files := filesBuilder.String()
+
+	_ = Test(t, files)
+
+	// Assertions can be added here if needed, but the original test only builds.
+	// The primary purpose of TestDataRace is to check for race conditions during the build process.
+	// If the build completes without race detector errors, the test passes.
 }
 
 // This is just a test to verify that BenchmarkBaseline is working as intended.

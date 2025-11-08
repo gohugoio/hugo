@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,39 +14,49 @@
 package hugolib
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestNextInSectionNested(t *testing.T) {
 	t.Parallel()
 
-	pageContent := `---
-title: "The Page"
-weight: %d
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+-- content/blog/page1.md --
 ---
-Some content.
-`
-	createPageContent := func(weight int) string {
-		return fmt.Sprintf(pageContent, weight)
-	}
-
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile()
-	b.WithTemplates("_default/single.html", `
+weight: 1
+---
+-- content/blog/page2.md --
+---
+weight: 2
+---
+-- content/blog/cool/_index.md --
+---
+weight: 1
+---
+-- content/blog/cool/cool1.md --
+---
+weight: 1
+---
+-- content/blog/cool/cool2.md --
+---
+weight: 2
+---
+-- content/root1.md --
+---
+weight: 1
+---
+-- content/root2.md --
+---
+weight: 2
+---
+-- layouts/single.html --
 Prev: {{ with .PrevInSection }}{{ .RelPermalink }}{{ end }}|
 Next: {{ with .NextInSection }}{{ .RelPermalink }}{{ end }}|
-`)
+`
 
-	b.WithContent("blog/page1.md", createPageContent(1))
-	b.WithContent("blog/page2.md", createPageContent(2))
-	b.WithContent("blog/cool/_index.md", createPageContent(1))
-	b.WithContent("blog/cool/cool1.md", createPageContent(1))
-	b.WithContent("blog/cool/cool2.md", createPageContent(2))
-	b.WithContent("root1.md", createPageContent(1))
-	b.WithContent("root2.md", createPageContent(2))
-
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/root1/index.html",
 		"Prev: /root2/|", "Next: |")

@@ -164,12 +164,7 @@ title: "p4 theme (nl)"
 ---
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/nl/index.html", `home (nl): nl: p1 (nl)|p2 (en)|p3 (nl)|p4 theme (nl)|:END`)
 	b.AssertFileContent("public/de/index.html", `home (de): de: p1 (de)|p2 (en)|p3 (en)|:END`)
