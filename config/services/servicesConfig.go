@@ -26,12 +26,12 @@ const (
 	rssLimitKey        = "rssLimit"
 )
 
-// Config is a privacy configuration for all the relevant services in Hugo.
+// Config is a services configuration for all the relevant services in Hugo.
 type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
-	Instagram       Instagram
-	Twitter         Twitter // deprecated in favor of X in v0.141.0
+	Instagram       Instagram `json:"-"` // the embedded instagram shortcode no longer uses this
+	Twitter         Twitter   `json:"-"` // deprecated in favor of X in v0.141.0
 	X               X
 	RSS             RSS
 }
@@ -53,12 +53,12 @@ type Instagram struct {
 	// The Simple variant of the Instagram is decorated with Bootstrap 4 card classes.
 	// This means that if you use Bootstrap 4 or want to provide your own CSS, you want
 	// to disable the inline CSS provided by Hugo.
-	DisableInlineCSS bool
+	DisableInlineCSS bool // this is no longer used by the embedded instagram shortcode
 
 	// App or Client Access Token.
 	// If you are using a Client Access Token, remember that you must combine it with your App ID
 	// using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail.
-	AccessToken string
+	AccessToken string // this is no longer used by the embedded instagram shortcode
 }
 
 // Twitter holds the functional configuration settings related to the Twitter shortcodes.

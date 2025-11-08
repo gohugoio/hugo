@@ -30,7 +30,7 @@ type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
-	Twitter         Twitter // deprecated in favor of X in v0.141.0
+	Twitter         Twitter `json:"-"` // deprecated in favor of X in v0.141.0
 	Vimeo           Vimeo
 	YouTube         YouTube
 	X               X
