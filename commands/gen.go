@@ -249,7 +249,7 @@ url: %s
 					return err
 				}
 				defer f.Close()
-				yamlEnc := yaml.NewEncoder(f)
+				yamlEnc := yaml.NewEncoder(f, yaml.AutoInt())
 				if err := yamlEnc.Encode(m); err != nil {
 					return err
 				}
