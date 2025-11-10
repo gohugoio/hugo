@@ -336,6 +336,11 @@ func (l PermalinkExpander) pageToPermalinkSectionSlugs(p Page, attr string) (str
 
 // pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
 func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (string, error) {
+	// For section pages with _index.md files, return empty string to match the behavior of pageToPermalinkFilename.
+	// Sections without files should use their directory name.
+	if p.PathInfo().IsBranchBundle() && p.File() != nil {
+		return "", nil
+	}
 	return l.urlize(p.PathInfo().Unnormalized().BaseNameNoIdentifier()), nil
 }
 
