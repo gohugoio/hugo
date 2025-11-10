@@ -457,3 +457,39 @@ title: aBc
 	b = hugolib.Test(t, files)
 	b.AssertFileExists("public/aBc/index.html", true)
 }
+
+// Issue 14104
+func TestIssue14104(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[permalinks.page]
+foo = "/:sections[1:]/:slugorcontentbasename/"
+[permalinks.section]
+foo = "/:sections[1:]/:slugorcontentbasename/"
+-- content/foo/_index.md --
+---
+title: Foo
+---
+-- content/foo/bar/_index.md --
+---
+title: Bar
+---
+-- content/foo/bar/somepage.md --
+---
+title: Some Page
+---
+-- layouts/_default/list.html --
+List|{{ .Kind }}|{{ .RelPermalink }}|
+-- layouts/_default/single.html --
+Single|{{ .Kind }}|{{ .RelPermalink }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	// Section page should be at /bar/index.html, not /bar/bar/index.html
+	b.AssertFileContent("public/bar/index.html", "List|section|/bar/|")
+	// Regular page should be at /bar/somepage/index.html
+	b.AssertFileContent("public/bar/somepage/index.html", "Single|page|/bar/somepage/|")
+}
