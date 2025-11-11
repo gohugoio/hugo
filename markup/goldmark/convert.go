@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/goldmark/passthrough"
 	"github.com/gohugoio/hugo/markup/goldmark/tables"
+	cjkFriendly "github.com/tats-u/goldmark-cjk-friendly/v2"
 	"github.com/yuin/goldmark/util"
 
 	"github.com/yuin/goldmark"
@@ -153,7 +154,7 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		extensions = append(extensions, tables.New())
 	}
 
-	if cfg.Extensions.Strikethrough {
+	if cfg.Extensions.Strikethrough && !cfg.Extensions.CJKFriendly.Emphasis {
 		extensions = append(extensions, extension.Strikethrough)
 	}
 
@@ -205,6 +206,14 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		}
 		c := extension.NewCJK(opts...)
 		extensions = append(extensions, c)
+	}
+
+	if cfg.Extensions.CJKFriendly.Emphasis {
+		if cfg.Extensions.Strikethrough {
+			extensions = append(extensions, cjkFriendly.CJKFriendlyEmphasisAndStrikethrough)
+		} else {
+			extensions = append(extensions, cjkFriendly.CJKFriendlyEmphasis)
+		}
 	}
 
 	if cfg.Extensions.Passthrough.Enable {
