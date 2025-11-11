@@ -418,7 +418,8 @@ type Mount struct {
 	Target string
 
 	// Any file in this mount will be associated with this language.
-	Lang string
+	// Deprecated, use Sites instead.
+	Lang string `json:"-"`
 
 	// Sites defines which sites this mount applies to.
 	Sites sitesmatrix.Sites
@@ -429,11 +430,11 @@ type Mount struct {
 
 	// Include only files matching the given Glob patterns (string or slice).
 	// Deprecated, use Files instead.
-	IncludeFiles any
+	IncludeFiles any `json:"-"`
 
 	// Exclude all files matching the given Glob patterns (string or slice).
 	// Deprecated, use Files instead.
-	ExcludeFiles any
+	ExcludeFiles any `json:"-"`
 
 	// Disable watching in watch mode for this mount.
 	DisableWatch bool

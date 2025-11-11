@@ -206,6 +206,6 @@ func DecodeConfig(defaultContentVersion string, m map[string]any) (*config.Confi
 		if err := versions.init(defaultContentVersion); err != nil {
 			return versions, nil, err
 		}
-		return versions, nil, nil
+		return versions, versions.versionConfigs, nil
 	})
 }

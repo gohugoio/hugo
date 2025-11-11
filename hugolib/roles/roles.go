@@ -206,7 +206,7 @@ func DecodeConfig(defaultContentRole string, m map[string]any) (*config.ConfigNa
 		if defaultContentRole, err = roles.init(defaultContentRole); err != nil {
 			return roles, nil, err
 		}
-		return roles, nil, nil
+		return roles, roles.roleConfigs, nil
 	})
 
 	return v, defaultContentRole, err
