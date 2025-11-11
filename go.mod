@@ -62,7 +62,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/rogpeppe/go-internal v1.14.1
-	github.com/sanity-io/litter v1.5.8
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.9.1
@@ -70,7 +69,7 @@ require (
 	github.com/spf13/pflag v1.0.7
 	github.com/tdewolff/minify/v2 v2.24.5
 	github.com/tdewolff/parse/v2 v2.8.5-0.20251020133559-0efcf90bef1a
-	github.com/tetratelabs/wazero v1.9.0
+	github.com/tetratelabs/wazero v1.10.0
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3
