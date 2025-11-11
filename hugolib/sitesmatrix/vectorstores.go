@@ -813,9 +813,9 @@ type IntSetsConfig struct {
 // Sites holds configuration about which sites a file/content/page/resource belongs to.
 type Sites struct {
 	// Matrix defines what sites to build this content for.
-	Matrix StringSlices `mapstructure:"matrix" json:"matrix,omitzero"`
+	Matrix StringSlices `mapstructure:"matrix" json:"matrix"`
 	// Complements defines what sites to complement with this content.
-	Complements StringSlices `mapstructure:"complements" json:"complements,omitzero"`
+	Complements StringSlices `mapstructure:"complements" json:"complements"`
 }
 
 func (s *Sites) Equal(other Sites) bool {

@@ -216,7 +216,7 @@ func DecodeConfig(defaultContentLanguage string, disabledLanguages []string, m m
 		if defaultContentLanguage, err = languages.init(defaultContentLanguage, disabledLanguages); err != nil {
 			return languages, nil, err
 		}
-		return languages, nil, nil
+		return languages, languages.LanguageConfigs, nil
 	})
 
 	return v, defaultContentLanguage, err

@@ -14,6 +14,7 @@
 package sitesmatrix_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -1098,6 +1099,87 @@ title: "P%d"
 			},
 		})
 	return b
+}
+
+// See #14132. We recently reworked the config structs for languages, versions, and roles,
+// which made them incomplete when generating the docshelper YAML file.
+// Add a test here to ensure we don't regress.
+func TestUnmarshalSitesMatrixConfig(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+defaultCOntentVersionInSubDir = true
+defaultContentVersion = "v1.0.0"
+defaultContentRole = "guest"
+defaultContentRoleInSubDir = true
+
+[moule.mounts]
+source = 'content'
+target = 'content'
+
+
+[languages]
+[languages.en]
+
+[versions]
+[versions."v1.0.0"]
+
+[roles]
+[roles.guest]
+
+`
+
+	b := hugolib.Test(t, files)
+
+	toJSONAndMap := func(v any) map[string]any {
+		bb, err := json.Marshal(v)
+		b.Assert(err, qt.IsNil)
+		var m map[string]any
+		err = json.Unmarshal(bb, &m)
+		b.Assert(err, qt.IsNil)
+		return m
+	}
+
+	conf := b.H.Configs.Base
+
+	b.Assert(toJSONAndMap(conf.Languages), qt.DeepEquals,
+		map[string]any{
+			"en": map[string]any{
+				"Disabled":          bool(false),
+				"LanguageCode":      "",
+				"LanguageDirection": "",
+				"LanguageName":      "",
+				"Title":             "",
+				"Weight":            float64(0),
+			},
+		})
+
+	b.Assert(toJSONAndMap(conf.Versions), qt.DeepEquals, map[string]any{
+		"v1.0.0": map[string]any{
+			"Weight": float64(0),
+		},
+	})
+
+	b.Assert(toJSONAndMap(conf.Roles), qt.DeepEquals, map[string]any{
+		"guest": map[string]any{
+			"Weight": float64(0),
+		},
+	})
+
+	firstMount := conf.Module.Mounts[0]
+	b.Assert(toJSONAndMap(firstMount.Sites.Matrix), qt.DeepEquals, map[string]any{
+		"languages": nil,
+		"versions":  nil,
+		"roles":     nil,
+	})
+	b.Assert(toJSONAndMap(firstMount.Sites.Complements), qt.DeepEquals, map[string]any{
+		"languages": nil,
+		"versions":  nil,
+		"roles":     nil,
+	})
 }
 
 func TestSitesMatrixContentBenchmark(t *testing.T) {
