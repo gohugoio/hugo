@@ -1,10 +1,13 @@
 package hugolib
 
 import (
+	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/resources/kinds"
 
 	"github.com/spf13/afero"
@@ -89,4 +92,120 @@ func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
 	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0o755); err != nil {
 		t.Fatalf("Failed to write file: %s", err)
 	}
+}
+
+func TestBenchmarkAssembleDeepSiteWithManySections(t *testing.T) {
+	t.Parallel()
+
+	b := createBenchmarkAssembleDeepSiteWithManySectionsBuilder(t, false, 2, 3, 4).Build()
+	b.AssertFileContent("public/index.html", "Num regular pages recursive: 48|")
+}
+
+func createBenchmarkAssembleDeepSiteWithManySectionsBuilder(t testing.TB, skipRender bool, sectionDepth, sectionsPerLevel, pagesPerSection int) *IntegrationTestBuilder {
+	t.Helper()
+
+	const contentTemplate = `---
+title: P%d
+---
+
+## A title
+
+Some content with a shortcode: {{< foo >}}.
+
+Some more content and then another shortcode: {{< foo >}}.
+
+Some final content.
+`
+
+	const filesTemplate = `
+-- hugo.toml --
+baseURL = "http://example.org/"
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
+-- layouts/all.html --
+All.{{ .Title }}|{{ .Content }}|Num pages: {{ len .Pages }}|Num sections: {{ len .Sections }}|Num regular pages recursive: {{ len .RegularPagesRecursive }}|
+Sections: {{ range .Sections }}{{ .Title }}|{{ end }}|
+RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .RelPermalink }}|{{ end }}|
+-- layouts/_shortcodes/foo.html --
+`
+	page := func(section string, i int) string {
+		return fmt.Sprintf("\n-- content/%s/p%d.md --\n"+contentTemplate, section, i, i)
+	}
+
+	section := func(section string, i int) string {
+		if section != "" {
+			section = paths.AddTrailingSlash(section)
+		}
+		return fmt.Sprintf("\n-- content/%ss%d/_index.md --\n"+contentTemplate, section, i, i)
+	}
+
+	var sb strings.Builder
+
+	// s0
+	// s0/s0
+	// s0/s1
+	// etc.
+	var (
+		pageCount    int
+		sectionCount int
+	)
+	var createSections func(currentSection string, currentDepth int)
+	createSections = func(currentSection string, currentDepth int) {
+		if currentDepth > sectionDepth {
+			return
+		}
+
+		for i := 0; i < sectionsPerLevel; i++ {
+			sectionCount++
+			sectionName := fmt.Sprintf("s%d", i)
+			sectionPath := sectionName
+			if currentSection != "" {
+				sectionPath = currentSection + "/" + sectionName
+			}
+			sb.WriteString(section(currentSection, i))
+
+			// Pages in this section
+			for j := 0; j < pagesPerSection; j++ {
+				pageCount++
+				sb.WriteString(page(sectionPath, j))
+			}
+
+			// Recurse
+			createSections(sectionPath, currentDepth+1)
+		}
+	}
+
+	createSections("", 1)
+
+	sb.WriteString(filesTemplate)
+
+	files := sb.String()
+
+	return NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg: BuildCfg{
+				SkipRender: skipRender,
+			},
+		},
+	)
+}
+
+func BenchmarkAssembleDeepSiteWithManySections(b *testing.B) {
+	runOne := func(sectionDepth, sectionsPerLevel, pagesPerSection int) {
+		name := fmt.Sprintf("depth=%d/sectionsPerLevel=%d/pagesPerSection=%d", sectionDepth, sectionsPerLevel, pagesPerSection)
+		b.Run(name, func(b *testing.B) {
+			for b.Loop() {
+				b.StopTimer()
+				bt := createBenchmarkAssembleDeepSiteWithManySectionsBuilder(b, true, sectionDepth, sectionsPerLevel, pagesPerSection)
+				b.StartTimer()
+				bt.Build()
+			}
+		})
+	}
+
+	runOne(1, 6, 100)
+	runOne(2, 2, 100)
+	runOne(2, 6, 100)
+	runOne(3, 2, 100)
 }
