@@ -52,8 +52,8 @@ jobs:
         run: |
           gem install asciidoctor -v "2.0.26"
           gem install asciidoctor-diagram -v "3.0.1"
-          gem install asciidoctor-diagram-plantuml -v "1.2025.3"
-      - name: Install Java # required by asciidoctor-diagram-plantuml
+          gem install asciidoctor-diagram-ditaamini -v "1.0.3"
+      - name: Install Java # required by asciidoctor-diagram-ditaamini
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           distribution: temurin
