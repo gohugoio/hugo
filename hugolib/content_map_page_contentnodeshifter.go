@@ -146,7 +146,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 			return vv, true
 		}
 	default:
-		panic(fmt.Sprintf("Shift: unknown type %T", n))
+		panic(fmt.Sprintf("Shift: unknown type %T for %q", n, n.Path()))
 	}
 
 	if !fallback {

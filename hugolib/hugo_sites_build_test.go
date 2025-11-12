@@ -204,6 +204,7 @@ func BenchmarkAssembleDeepSiteWithManySections(b *testing.B) {
 		})
 	}
 
+	runOne(1, 1, 20)
 	runOne(1, 6, 100)
 	runOne(2, 2, 100)
 	runOne(2, 6, 100)

@@ -13,9 +13,13 @@
 
 package collections
 
-import "slices"
+import (
+	"iter"
+	"slices"
+	"sync"
 
-import "sync"
+	"github.com/gohugoio/hugo/common/hiter"
+)
 
 // Stack is a simple LIFO stack that is safe for concurrent use.
 type Stack[T any] struct {
@@ -58,6 +62,11 @@ func (s *Stack[T]) Len() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.items)
+}
+
+// All returns all items in the stack, from bottom to top.
+func (s *Stack[T]) All() iter.Seq2[int, T] {
+	return hiter.Lock2(slices.All(s.items), s.mu.RLock, s.mu.RUnlock)
 }
 
 func (s *Stack[T]) Drain() []T {

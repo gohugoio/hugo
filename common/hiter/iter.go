@@ -38,3 +38,29 @@ func Concat2[K, V any](seqs ...iter.Seq2[K, V]) iter.Seq2[K, V] {
 		}
 	}
 }
+
+// Lock returns an iterator that locks before iterating and unlocks after.
+func Lock[V any](seq iter.Seq[V], lock, unlock func()) iter.Seq[V] {
+	return func(yield func(V) bool) {
+		lock()
+		defer unlock()
+		for e := range seq {
+			if !yield(e) {
+				return
+			}
+		}
+	}
+}
+
+// Lock2 returns an iterator that locks before iterating and unlocks after.
+func Lock2[K, V any](seq iter.Seq2[K, V], lock, unlock func()) iter.Seq2[K, V] {
+	return func(yield func(K, V) bool) {
+		lock()
+		defer unlock()
+		for k, v := range seq {
+			if !yield(k, v) {
+				return
+			}
+		}
+	}
+}

@@ -381,6 +381,9 @@ type NodeShiftTreeWalker[T any] struct {
 	// the third bool indicates if the walk should terminate.
 	Transform func(s string, v1 T) (v2 T, state NodeTransformState, err error)
 
+	// When set, will add inserts to WalkContext.HooksPost1 to be performed after the walk.
+	TransformDelayInsert bool
+
 	// Handle will be called for each node in the main tree.
 	// If the callback returns true, the walk will stop.
 	// The callback can optionally return a callback for the nested tree.
@@ -405,8 +408,8 @@ type NodeShiftTreeWalker[T any] struct {
 	// When set, no dimension shifting will be performed.
 	NoShift bool
 
-	// WHen set, will try to fall back to alternative match,
-	// typically a shared resoures common for all languages.
+	// When set, will try to fall back to alternative match,
+	// typically a shared resource common for all languages.
 	Fallback bool
 
 	// Used in development only.
@@ -423,12 +426,19 @@ type NodeShiftTreeWalker[T any] struct {
 	skipPrefixes []string
 }
 
-// Extend returns a new NodeShiftTreeWalker with the same configuration as the
+// Extend returns a new NodeShiftTreeWalker with the same configuration
 // and the same WalkContext as the original.
 // Any local state is reset.
 func (r NodeShiftTreeWalker[T]) Extend() *NodeShiftTreeWalker[T] {
-	r.resetLocalState()
+	r.skipPrefixes = nil
 	return &r
+}
+
+// WithPrefix returns a new NodeShiftTreeWalker with the given prefix.
+func (r *NodeShiftTreeWalker[T]) WithPrefix(prefix string) *NodeShiftTreeWalker[T] {
+	r2 := r.Extend()
+	r2.Prefix = prefix
+	return r2
 }
 
 // SkipPrefix adds a prefix to be skipped in the walk.
@@ -474,7 +484,18 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 
 				switch ns {
 				case NodeTransformStateReplaced:
-					r.Tree.tree.Insert(s, t)
+					// Delay insert until after the walk to
+					// avoid locking issues.
+					if r.TransformDelayInsert {
+						r.WalkContext.HooksPost1().Push(
+							func() error {
+								r.Tree.InsertRaw(s, t)
+								return nil
+							},
+						)
+					} else {
+						r.Tree.InsertRaw(s, t)
+					}
 				case NodeTransformStateDeleted:
 					// Delay delete until after the walk.
 					deletes = append(deletes, s)

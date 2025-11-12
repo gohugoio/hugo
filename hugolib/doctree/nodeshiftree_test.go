@@ -147,7 +147,7 @@ func TestTreeEvents(t *testing.T) {
 	}
 
 	c.Assert(w.Walk(context.Background()), qt.IsNil)
-	c.Assert(w.WalkContext.HandleEventsAndHooks(), qt.IsNil)
+	c.Assert(w.WalkContext.HandleHooks1AndEventsAndHooks2(), qt.IsNil)
 
 	c.Assert(tree.Get("/a").Weight, eq, 9)
 	c.Assert(tree.Get("/a/s1").Weight, eq, 9)

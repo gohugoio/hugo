@@ -14,14 +14,18 @@
 package hugolib
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -41,14 +45,18 @@ type allPagesAssembler struct {
 	ctx context.Context
 	h   *HugoSites
 	m   *pageMap
+	r   para.Runner
 
-	assembleChanges *WhatChanged
-	seenTerms       map[term]sitesmatrix.Vectors
-	droppedPages    map[*Site][]string // e.g. drafts, expired, future.
+	assembleChanges            *WhatChanged
+	seenTerms                  map[term]sitesmatrix.Vectors
+	droppedPages               map[*Site][]string // e.g. drafts, expired, future.
+	seenRootSections           *maps.Cache[string, bool]
+	seenHome                   bool
+	assembleSectionsInParallel bool
 
 	// Internal state.
-	pw *doctree.NodeShiftTreeWalker[contentNode] // walks pages.
-	rw *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
+	pwRoot *doctree.NodeShiftTreeWalker[contentNode] // walks pages.
+	rwRoot *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
 }
 
 func newAllPagesAssembler(
@@ -66,16 +74,20 @@ func newAllPagesAssembler(
 	pw := rw.Extend()
 	pw.Tree = m.treePages
 
-	return &allPagesAssembler{
-		ctx:             ctx,
-		h:               h,
-		m:               m,
-		assembleChanges: assembleChanges,
-		seenTerms:       map[term]sitesmatrix.Vectors{},
-		droppedPages:    map[*Site][]string{},
+	seenRootSections := maps.NewCache[string, bool]()
+	seenRootSections.Set("", true) // home.
 
-		pw: pw,
-		rw: rw,
+	return &allPagesAssembler{
+		ctx:                        ctx,
+		h:                          h,
+		m:                          m,
+		assembleChanges:            assembleChanges,
+		seenTerms:                  map[term]sitesmatrix.Vectors{},
+		droppedPages:               map[*Site][]string{},
+		seenRootSections:           seenRootSections,
+		assembleSectionsInParallel: true,
+		pwRoot:                     pw,
+		rwRoot:                     rw,
 	}
 }
 
@@ -86,23 +98,7 @@ type sitePagesAssembler struct {
 	ctx             context.Context
 }
 
-// No locking.
 func (a *allPagesAssembler) createAllPages() error {
-	var (
-		sites     = a.h.sitesVersionsRolesMap
-		h         = a.h
-		treePages = a.m.treePages
-
-		getViews = func(vec sitesmatrix.Vector) []viewName {
-			return h.languageSiteForSiteVector(vec).pageMap.cfg.taxonomyConfig.views
-		}
-	)
-
-	resourceOwnerInfo := struct {
-		n contentNode
-		s string
-	}{}
-
 	defer func() {
 		for site, dropped := range a.droppedPages {
 			for _, s := range dropped {
@@ -119,15 +115,15 @@ func (a *allPagesAssembler) createAllPages() error {
 				for t := range a.h.previousSeenTerms {
 					if _, found := a.seenTerms[t]; !found {
 						// This term has been removed.
-						a.pw.Tree.Delete(t.view.pluralTreeKey)
-						a.rw.Tree.DeletePrefix(t.view.pluralTreeKey + "/")
+						a.pwRoot.Tree.Delete(t.view.pluralTreeKey)
+						a.rwRoot.Tree.DeletePrefix(t.view.pluralTreeKey + "/")
 					}
 				}
 				// Find new terms.
 				for t := range a.seenTerms {
 					if _, found := a.h.previousSeenTerms[t]; !found {
 						// This term is new.
-						if n, ok := a.pw.Tree.GetRaw(t.view.pluralTreeKey); ok {
+						if n, ok := a.pwRoot.Tree.GetRaw(t.view.pluralTreeKey); ok {
 							a.assembleChanges.Add(cnh.GetIdentity(n))
 						}
 					}
@@ -136,6 +132,52 @@ func (a *allPagesAssembler) createAllPages() error {
 			a.h.previousSeenTerms = a.seenTerms
 		}()
 	}
+	workers := para.New(config.GetNumWorkerMultiplier())
+	a.r, _ = workers.Start(context.Background())
+	if err := cmp.Or(a.doCreatePages(""), a.r.Wait()); err != nil {
+		return err
+	}
+	if err := a.pwRoot.WalkContext.HandleHooks1AndEventsAndHooks2(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *allPagesAssembler) doCreatePages(prefix string) error {
+	var (
+		sites     = a.h.sitesVersionsRolesMap
+		h         = a.h
+		treePages = a.m.treePages
+
+		getViews = func(vec sitesmatrix.Vector) []viewName {
+			return h.languageSiteForSiteVector(vec).pageMap.cfg.taxonomyConfig.views
+		}
+
+		pw *doctree.NodeShiftTreeWalker[contentNode] // walks pages.
+		rw *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
+
+		isRootWalk = prefix == ""
+	)
+
+	if isRootWalk {
+		pw = a.pwRoot
+		rw = a.rwRoot
+	} else {
+		// Sub-walkers for a specific prefix.
+		pw = a.pwRoot.Extend()
+		pw.Prefix = prefix + "/"
+
+		rw = a.rwRoot.Extend() // rw will get its prefix(es) set later.
+
+		pw.TransformDelayInsert = true
+		rw.TransformDelayInsert = true
+
+	}
+
+	resourceOwnerInfo := struct {
+		n contentNode
+		s string
+	}{}
 
 	newHomePageMetaSource := func() *pageMetaSource {
 		pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/_index.md")
@@ -149,14 +191,16 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 	}
 
-	if err := a.createMissingPages(); err != nil {
-		return err
-	}
+	if isRootWalk {
+		if err := a.createMissingPages(); err != nil {
+			return err
+		}
 
-	if treePages.Len() == 0 {
-		// No pages, insert a home page to get something to walk on.
-		p := newHomePageMetaSource()
-		treePages.InsertRaw(p.pathInfo.Base(), p)
+		if treePages.Len() == 0 {
+			// No pages, insert a home page to get something to walk on.
+			p := newHomePageMetaSource()
+			treePages.InsertRaw(p.pathInfo.Base(), p)
+		}
 	}
 
 	getCascades := func(wctx *doctree.WalkContext[contentNode], s string) *page.PageMatcherParamsConfigs {
@@ -201,7 +245,7 @@ func (a *allPagesAssembler) createAllPages() error {
 
 			if s == "" || cascades.Len() > cascadesLen {
 				// New cascade values added, pass them downwards.
-				a.rw.WalkContext.Data().Insert(paths.AddTrailingSlash(s), cascades)
+				rw.WalkContext.Data().Insert(paths.AddTrailingSlash(s), cascades)
 			}
 		}()
 
@@ -351,13 +395,6 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 	}
 
-	var (
-		seenRootSections = map[string]bool{
-			"": true, // The home section.
-		}
-		seenHome bool
-	)
-
 	var unpackPageMetaSources func(n contentNode) contentNode
 	unpackPageMetaSources = func(n contentNode) contentNode {
 		switch nn := n.(type) {
@@ -430,18 +467,17 @@ func (a *allPagesAssembler) createAllPages() error {
 		level := strings.Count(s, "/")
 
 		if s == "" {
-			seenHome = true
+			a.seenHome = true
 		}
 
-		if !isResource && s != "" && !seenHome {
-
+		if !isResource && s != "" && !a.seenHome {
 			var homePages contentNode
 			homePages, ns, err = transformPages("", newHomePageMetaSource(), cascades)
 			if err != nil {
 				return
 			}
 			treePages.InsertRaw("", homePages)
-			seenHome = true
+			a.seenHome = true
 		}
 
 		n2, ns, err = transformPages(s, n, cascades)
@@ -460,16 +496,15 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 
 		isTaxonomy := !a.h.getFirstTaxonomyConfig(s).IsZero()
-		isRootSetion := !isTaxonomy && level == 1 && cnh.isBranchNode(n)
+		isRootSection := !isTaxonomy && level == 1 && cnh.isBranchNode(n)
 
-		if isRootSetion {
+		if isRootSection {
 			// This is a root section.
-			seenRootSections[cnh.PathInfo(n).Section()] = true
+			a.seenRootSections.SetIfAbsent(cnh.PathInfo(n).Section(), true)
 		} else if !isTaxonomy {
 			p := cnh.PathInfo(n)
 			rootSection := p.Section()
-			if !seenRootSections[rootSection] {
-				seenRootSections[rootSection] = true
+			_, err := a.seenRootSections.GetOrCreate(rootSection, func() (bool, error) {
 				// Try to preserve the original casing if possible.
 				sectionUnnormalized := p.Unnormalized().Section()
 				rootSectionPath := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
@@ -482,15 +517,20 @@ func (a *allPagesAssembler) createAllPages() error {
 					},
 				}, cascades)
 				if err != nil {
-					return
+					return true, err
 				}
 				treePages.InsertRaw(rootSectionPath.Base(), rootSectionPages)
+				return true, nil
+			})
+			if err != nil {
+				return nil, 0, err
 			}
+
 		}
 
 		const eventNameSitesMatrix = "sitesmatrix"
 
-		if s == "" || isRootSetion {
+		if s == "" || isRootSection {
 
 			// Every page needs a home and a root section (.FirstSection).
 			// We don't know yet what language, version, role combination that will
@@ -509,7 +549,7 @@ func (a *allPagesAssembler) createAllPages() error {
 					return true
 				})
 			} else {
-				a.pw.WalkContext.AddEventListener(eventNameSitesMatrix, s,
+				pw.WalkContext.AddEventListener(eventNameSitesMatrix, s,
 					func(e *doctree.Event[contentNode]) {
 						n := e.Source
 						e.StopPropagation()
@@ -525,7 +565,7 @@ func (a *allPagesAssembler) createAllPages() error {
 			}
 
 			// We need to wait until after the walk to have a complete set.
-			a.pw.WalkContext.AddPostHook(
+			pw.WalkContext.HooksPost2().Push(
 				func() error {
 					if i := len(missingVectorsForHomeOrRootSection); i > 0 {
 						// Pick one, the rest will be created later.
@@ -556,7 +596,7 @@ func (a *allPagesAssembler) createAllPages() error {
 						}
 
 						if replaced {
-							a.pw.Tree.InsertRaw(s, nm)
+							pw.Tree.InsertRaw(s, nm)
 						}
 					}
 					return nil
@@ -565,14 +605,14 @@ func (a *allPagesAssembler) createAllPages() error {
 		}
 
 		if s != "" {
-			a.rw.WalkContext.SendEvent(&doctree.Event[contentNode]{Source: n2, Path: s, Name: eventNameSitesMatrix})
+			rw.WalkContext.SendEvent(&doctree.Event[contentNode]{Source: n2, Path: s, Name: eventNameSitesMatrix})
 		}
 
 		return
 	}
 
 	transformPagesAndCreateMissingStructuralNodes := func(s string, n contentNode, isResource bool) (n2 contentNode, ns doctree.NodeTransformState, err error) {
-		cascades := getCascades(a.pw.WalkContext, s)
+		cascades := getCascades(pw.WalkContext, s)
 		n2, ns, err = transformPagesAndCreateMissingHome(s, n, isResource, cascades)
 		if err != nil || ns >= doctree.NodeTransformStateSkip {
 			return
@@ -643,7 +683,7 @@ func (a *allPagesAssembler) createAllPages() error {
 			}
 
 			// Stop walking downwards, someone else owns this resource.
-			a.rw.SkipPrefix(ownerKey + "/")
+			rw.SkipPrefix(ownerKey + "/")
 			return doctree.NodeTransformStateSkip
 		}
 		return
@@ -665,7 +705,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		return true
 	}
 
-	a.rw.Transform = func(s string, n contentNode) (n2 contentNode, ns doctree.NodeTransformState, err error) {
+	rw.Transform = func(s string, n contentNode) (n2 contentNode, ns doctree.NodeTransformState, err error) {
 		if ns = shouldSkipOrTerminate(s); ns >= doctree.NodeTransformStateSkip {
 			return
 		}
@@ -710,7 +750,7 @@ func (a *allPagesAssembler) createAllPages() error {
 	}
 
 	// Create  missing term pages.
-	a.pw.WalkContext.AddPostHook(
+	pw.WalkContext.HooksPost2().Push(
 		func() error {
 			for k, v := range a.seenTerms {
 				viewTermKey := "/" + k.view.plural + "/" + k.term
@@ -718,7 +758,7 @@ func (a *allPagesAssembler) createAllPages() error {
 				pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")
 				termKey := pi.Base()
 
-				n, found := a.pw.Tree.GetRaw(termKey)
+				n, found := pw.Tree.GetRaw(termKey)
 
 				if found {
 					// Merge.
@@ -742,14 +782,14 @@ func (a *allPagesAssembler) createAllPages() error {
 					if found {
 						n2 = contentNodes{n, p}
 					}
-					n2, ns, err := transformPages(termKey, n2, getCascades(a.pw.WalkContext, termKey))
+					n2, ns, err := transformPages(termKey, n2, getCascades(pw.WalkContext, termKey))
 					if err != nil {
 						return fmt.Errorf("failed to create term page %q: %w", termKey, err)
 					}
 
 					switch ns {
 					case doctree.NodeTransformStateReplaced:
-						a.pw.Tree.InsertRaw(termKey, n2)
+						pw.Tree.InsertRaw(termKey, n2)
 					}
 
 				}
@@ -758,7 +798,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		},
 	)
 
-	a.pw.Transform = func(s string, n contentNode) (n2 contentNode, ns doctree.NodeTransformState, err error) {
+	pw.Transform = func(s string, n contentNode) (n2 contentNode, ns doctree.NodeTransformState, err error) {
 		n2, ns, err = transformPagesAndCreateMissingStructuralNodes(s, n, false)
 
 		if err != nil || ns >= doctree.NodeTransformStateSkip {
@@ -776,21 +816,25 @@ func (a *allPagesAssembler) createAllPages() error {
 		// Walk nested resources.
 		resourceOwnerInfo.s = s
 		resourceOwnerInfo.n = n2
-		a.rw.Prefix = s + "/"
-		if err := a.rw.Walk(a.ctx); err != nil {
+		rw = rw.WithPrefix(s + "/")
+		if err := rw.Walk(a.ctx); err != nil {
 			return nil, 0, err
+		}
+
+		if a.assembleSectionsInParallel && prefix == "" && s != "" && cnh.isBranchNode(n) && a.h.getFirstTaxonomyConfig(s).IsZero() {
+			// Handle this branch's descendants in its own goroutine.
+			pw.SkipPrefix(s + "/")
+			a.r.Run(func() error {
+				return a.doCreatePages(s)
+			})
 		}
 
 		return
 	}
 
-	a.pw.Handle = nil
+	pw.Handle = nil
 
-	if err := a.pw.Walk(a.ctx); err != nil {
-		return err
-	}
-
-	if err := a.pw.WalkContext.HandleEventsAndHooks(); err != nil {
+	if err := pw.Walk(a.ctx); err != nil {
 		return err
 	}
 
@@ -829,7 +873,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 				oldDates := pageBundle.m.pageConfig.Dates
 
 				// We need to wait until after the walk to determine if any of the dates have changed.
-				pw.WalkContext.AddPostHook(
+				pw.WalkContext.HooksPost2().Push(
 					func() error {
 						if oldDates != pageBundle.m.pageConfig.Dates {
 							sa.assembleChanges.Add(pageBundle)
@@ -910,7 +954,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 		return err
 	}
 
-	if err := pw.WalkContext.HandleEventsAndHooks(); err != nil {
+	if err := pw.WalkContext.HandleHooks1AndEventsAndHooks2(); err != nil {
 		return err
 	}
 
@@ -997,7 +1041,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 		}
 	}
 
-	if err := walkContext.HandleEventsAndHooks(); err != nil {
+	if err := walkContext.HandleHooks1AndEventsAndHooks2(); err != nil {
 		return err
 	}
 

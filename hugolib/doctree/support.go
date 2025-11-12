@@ -19,6 +19,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
@@ -34,6 +35,9 @@ const (
 // AddEventListener adds an event listener to the tree.
 // Note that the handler func may not add listeners.
 func (ctx *WalkContext[T]) AddEventListener(event, path string, handler func(*Event[T])) {
+	ctx.eventHandlersMu.Lock()
+	defer ctx.eventHandlersMu.Unlock()
+
 	if ctx.eventHandlers == nil {
 		ctx.eventHandlers = make(eventHandlers[T])
 	}
@@ -54,12 +58,6 @@ func (ctx *WalkContext[T]) AddEventListener(event, path string, handler func(*Ev
 			}
 		},
 	)
-}
-
-// AddPostHook adds a post hook to the tree.
-// This will be run after the tree has been walked.
-func (ctx *WalkContext[T]) AddPostHook(handler func() error) {
-	ctx.HooksPost = append(ctx.HooksPost, handler)
 }
 
 func (ctx *WalkContext[T]) Data() *SimpleThreadSafeTree[any] {
@@ -94,6 +92,8 @@ func (ctx *WalkContext[T]) DataRawForEeach() iter.Seq2[sitesmatrix.Vector, *Simp
 
 // SendEvent sends an event up the tree.
 func (ctx *WalkContext[T]) SendEvent(event *Event[T]) {
+	ctx.eventMu.Lock()
+	defer ctx.eventMu.Unlock()
 	ctx.events = append(ctx.events, event)
 }
 
@@ -213,10 +213,16 @@ type WalkContext[T any] struct {
 	dataRaw     *maps.Cache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]
 	dataRawInit sync.Once
 
-	eventHandlers eventHandlers[T]
-	events        []*Event[T]
+	eventHandlersMu sync.Mutex
+	eventHandlers   eventHandlers[T]
+	eventMu         sync.Mutex
+	events          []*Event[T]
 
-	HooksPost []func() error
+	hooksPost1Init sync.Once
+	hooksPost1     *collections.Stack[func() error]
+
+	hooksPost2Init sync.Once
+	hooksPost2     *collections.Stack[func() error]
 }
 
 type eventHandlers[T any] map[string][]func(*Event[T])
@@ -233,6 +239,9 @@ func cleanKey(key string) string {
 }
 
 func (ctx *WalkContext[T]) HandleEvents() error {
+	ctx.eventHandlersMu.Lock()
+	defer ctx.eventHandlersMu.Unlock()
+
 	for len(ctx.events) > 0 {
 		event := ctx.events[0]
 		ctx.events = ctx.events[1:]
@@ -250,12 +259,32 @@ func (ctx *WalkContext[T]) HandleEvents() error {
 	return nil
 }
 
-func (ctx *WalkContext[T]) HandleEventsAndHooks() error {
+func (ctx *WalkContext[T]) HooksPost1() *collections.Stack[func() error] {
+	ctx.hooksPost1Init.Do(func() {
+		ctx.hooksPost1 = collections.NewStack[func() error]()
+	})
+	return ctx.hooksPost1
+}
+
+func (ctx *WalkContext[T]) HooksPost2() *collections.Stack[func() error] {
+	ctx.hooksPost2Init.Do(func() {
+		ctx.hooksPost2 = collections.NewStack[func() error]()
+	})
+	return ctx.hooksPost2
+}
+
+func (ctx *WalkContext[T]) HandleHooks1AndEventsAndHooks2() error {
+	for _, hook := range ctx.HooksPost1().All() {
+		if err := hook(); err != nil {
+			return err
+		}
+	}
+
 	if err := ctx.HandleEvents(); err != nil {
 		return err
 	}
 
-	for _, hook := range ctx.HooksPost {
+	for _, hook := range ctx.HooksPost2().All() {
 		if err := hook(); err != nil {
 			return err
 		}

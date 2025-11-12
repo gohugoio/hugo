@@ -336,7 +336,7 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 	if h.Conf.Watching() {
 		defer func() {
 			// Store previous walk context to detect cascade changes on next rebuild.
-			h.previousPageTreesWalkContext = apa.rw.WalkContext
+			h.previousPageTreesWalkContext = apa.rwRoot.WalkContext
 		}()
 	}
 

@@ -1231,3 +1231,27 @@ func BenchmarkSitesMatrixContent(b *testing.B) {
 		}
 	}
 }
+
+// Just a test to test the development of concurrency in page assembly.
+func TestCreateAllPagesPartitionSections(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
+-- content/_index.md --
+-- content/s1/_index.md --
+-- content/s1/p1.md --
+-- content/s1/p2.md --
+-- content/s2/_index.md --
+-- content/s2/p1.md --
+-- content/s2_1/_index.md --
+-- content/s2_1/p1.md --
+-- layouts/all.html --
+{{ .Kind }}|{{ .RelPermalink }}|
+`
+
+	for range 3 {
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/s1/index.html", "section|/s1/|")
+	}
+}
