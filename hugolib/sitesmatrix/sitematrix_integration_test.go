@@ -481,8 +481,8 @@ title = "Scandinavian p1"
 {{ .Title }}|{{ .Site.Language.Name }}|{{ .Site.Version.Name }}|p1: {{ .Params.p1 }}|
 `
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|p1: p1cascade|")
-	b.AssertFileContent("public/sv/mysection/scandinavianpages/p1/index.html", "Scandinavian p1|sv|v1|p1: p1cascadescandinavian|")
+	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1.0.0|p1: p1cascade|")
+	b.AssertFileContent("public/sv/mysection/scandinavianpages/p1/index.html", "Scandinavian p1|sv|v1.0.0|p1: p1cascadescandinavian|")
 }
 
 func TestCascadeMatrixConfigPerLanguage(t *testing.T) {
@@ -522,8 +522,8 @@ title: "Nynorsk p1"
 
 `
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1|p1: p1cascadeen|p2: p2cascadeall|")
-	b.AssertFileContent("public/nn/mysection/p1/index.html", "Nynorsk p1|nn|v1|p1: p1cascadenn|p2: p2cascadeall|")
+	b.AssertFileContent("public/en/mysection/p1/index.html", "English p1|en|v1.0.0|p1: p1cascadeen|p2: p2cascadeall|")
+	b.AssertFileContent("public/nn/mysection/p1/index.html", "Nynorsk p1|nn|v1.0.0|p1: p1cascadenn|p2: p2cascadeall|")
 }
 
 func TestCascadeMatrixNoHomeContent(t *testing.T) {
@@ -543,9 +543,9 @@ p2 = "p2cascadeall"
 `
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/en/index.html", "|home|en|v1|p1: p1cascadeall|p2: p2cascadeall|")
-	b.AssertFileContent("public/en/mysection/index.html", "Mysections|section|en|v1|p1: p1cascadeall|p2: p2cascadeall|")
-	b.AssertFileContent("public/en/mysection/p1/index.html", "|page|en|v1|p1: p1cascadeall|p2: p2cascadeall|")
+	b.AssertFileContent("public/en/index.html", "|home|en|v1.0.0|p1: p1cascadeall|p2: p2cascadeall|")
+	b.AssertFileContent("public/en/mysection/index.html", "Mysections|section|en|v1.0.0|p1: p1cascadeall|p2: p2cascadeall|")
+	b.AssertFileContent("public/en/mysection/p1/index.html", "|page|en|v1.0.0|p1: p1cascadeall|p2: p2cascadeall|")
 }
 
 func TestMountCascadeFrontMatterSitesMatrixAndComplementsShouldBeMerged(t *testing.T) {
@@ -707,11 +707,11 @@ title: "Theme p1"
 	sEn := b.SiteHelper("en", "", "")
 	sNN := b.SiteHelper("nn", "", "guest")
 
-	b.Assert(sEn.PageHelper("/p1").MatrixFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{"languages": {"en"}, "roles": {"guest"}, "versions": {"v1"}})
+	b.Assert(sEn.PageHelper("/p1").MatrixFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{"languages": {"en"}, "roles": {"guest"}, "versions": {"v1.0.0"}})
 	b.Assert(sEn.PageHelper("/p2").MatrixFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
 		"languages": {"en", "nn"},
 		"roles":     {"guest"},
-		"versions":  {"v1"},
+		"versions":  {"v1.0.0"},
 	})
 
 	p1NN := sNN.PageHelper("/p1")
@@ -720,13 +720,13 @@ title: "Theme p1"
 	b.Assert(p2NN.MatrixFromPageConfig()["matrix"], qt.DeepEquals, map[string][]string{
 		"languages": {"en", "nn"},
 		"roles":     {"guest"},
-		"versions":  {"v1"},
+		"versions":  {"v1.0.0"},
 	})
 
 	b.Assert(p1NN.MatrixFromFile()["matrix"], qt.DeepEquals, map[string][]string{
 		"languages": {"nn"}, // It's defined as ** in the mount.
 		"roles":     {"guest"},
-		"versions":  {"v1"},
+		"versions":  {"v1.0.0"},
 	})
 }
 
@@ -1017,6 +1017,21 @@ All.{{ .Title }}|
 	b.AssertFileContent("public/sv/p1/index.html", "All.P1 scandinavian|")
 	b.AssertFileContent("public/da/p1/index.html", "All.P1 scandinavian|")
 	b.AssertFileContent("public/de/p1/index.html", "All.P1 de|")
+}
+
+func TestSitesMatrixDefaultValues(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["rss", "sitemap", "section", "taxonomy", "term"]
+-- layouts/all.html --
+All. {{ .Title }}|Lang: {{ .Site.Language.Name }}|Ver: {{ .Site.Version.Name }}|Role: {{ .Site.Role.Name }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "All. |Lang: en|Ver: v1.0.0|Role: guest|")
 }
 
 func newSitesMatrixContentBenchmarkBuilder(t testing.TB, numPages int, skipRender, multipleDimensions bool) *hugolib.IntegrationTestBuilder {

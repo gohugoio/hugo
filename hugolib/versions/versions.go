@@ -127,7 +127,7 @@ func (r VersionsInternal) ForEachIndex() iter.Seq[int] {
 	}
 }
 
-const defaultContentVersionFallback = "v1"
+const defaultContentVersionFallback = "v1.0.0"
 
 func (r *VersionsInternal) init(defaultContentVersion string) error {
 	if r.versionConfigs == nil {
