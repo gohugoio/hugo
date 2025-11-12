@@ -1441,8 +1441,8 @@ Rotate(language): {{ with .Rotate "language" }}{{ range . }}{{ template "printp"
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/en/foo/index.html", "Rotate(language): /en/bar/:/l:en/v:v1/r:guest|/en/foo/:/l:en/v:v1/r:guest|$")
-	b.AssertFileContent("public/en/bar/index.html", "Rotate(language): /en/bar/:/l:en/v:v1/r:guest|/en/foo/:/l:en/v:v1/r:guest|$")
+	b.AssertFileContent("public/en/foo/index.html", "Rotate(language): /en/bar/:/l:en/v:v1.0.0/r:guest|/en/foo/:/l:en/v:v1.0.0/r:guest|$")
+	b.AssertFileContent("public/en/bar/index.html", "Rotate(language): /en/bar/:/l:en/v:v1.0.0/r:guest|/en/foo/:/l:en/v:v1.0.0/r:guest|$")
 }
 
 func TestChompBOM(t *testing.T) {
