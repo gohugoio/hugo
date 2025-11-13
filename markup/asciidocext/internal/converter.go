@@ -11,6 +11,7 @@ import (
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/internal"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
+	"github.com/spf13/cast"
 	"golang.org/x/net/html"
 )
 
@@ -89,7 +90,18 @@ func (a *AsciidocConverter) ParseArgs(ctx converter.DocumentContext) []string {
 			continue
 		}
 
-		args = append(args, "-a", attributeKey+"="+attributeValue)
+		// To set a document attribute to true: -a attributeKey
+		// To set a document attribute to false: -a '!attributeKey'
+		// For other types: -a attributeKey=attributeValue
+		if b, ok := attributeValue.(bool); ok {
+			arg := attributeKey
+			if !b {
+				arg = "'!" + attributeKey + "'"
+			}
+			args = append(args, "-a", arg)
+		} else {
+			args = append(args, "-a", attributeKey+"="+cast.ToString(attributeValue))
+		}
 	}
 
 	if cfg.WorkingFolderCurrent {
