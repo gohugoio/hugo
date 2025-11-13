@@ -97,7 +97,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	mconf := markup_config.Default
 	mconf.AsciidocExt.Backend = "disallowed-backend"
 	mconf.AsciidocExt.Extensions = []string{"./disallowed-extension"}
-	mconf.AsciidocExt.Attributes = map[string]string{"outdir": "disallowed-attribute"}
+	mconf.AsciidocExt.Attributes = map[string]any{"outdir": "disallowed-attribute"}
 	mconf.AsciidocExt.SafeMode = "disallowed-safemode"
 	mconf.AsciidocExt.FailureLevel = "disallowed-failurelevel"
 
@@ -267,6 +267,8 @@ trace = false
 [markup.asciidocext.attributes]
 my-base-url = "https://gohugo.io/"
 my-attribute-name = "my value"
+my-attribute-true = true
+my-attribute-false = false
 `)
 	conf := testconfig.GetTestConfig(nil, cfg)
 	p, err := asciidocext.Provider.New(
@@ -286,15 +288,21 @@ my-attribute-name = "my value"
 	expectedValues := map[string]bool{
 		"my-base-url=https://gohugo.io/": true,
 		"my-attribute-name=my value":     true,
+		"my-attribute-true":              true,
+		"'!my-attribute-false'":          true,
 	}
 
 	args := ac.ParseArgs(converter.DocumentContext{})
-	c.Assert(len(args), qt.Equals, 5)
+	c.Assert(len(args), qt.Equals, 9)
 	c.Assert(args[0], qt.Equals, "-a")
 	c.Assert(expectedValues[args[1]], qt.Equals, true)
 	c.Assert(args[2], qt.Equals, "-a")
 	c.Assert(expectedValues[args[3]], qt.Equals, true)
-	c.Assert(args[4], qt.Equals, "--no-header-footer")
+	c.Assert(args[4], qt.Equals, "-a")
+	c.Assert(expectedValues[args[5]], qt.Equals, true)
+	c.Assert(args[6], qt.Equals, "-a")
+	c.Assert(expectedValues[args[7]], qt.Equals, true)
+	c.Assert(args[8], qt.Equals, "--no-header-footer")
 }
 
 func getProvider(c *qt.C, mConfStr string) converter.Provider {
