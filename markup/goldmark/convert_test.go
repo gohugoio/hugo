@@ -746,6 +746,140 @@ escapedSpace=true
 	c.Assert(got, qt.Contains, "<p>私は太郎です。\nプログラミングが好きです。運動が苦手です。</p>\n")
 }
 
+func TestConvertCJKFriendlyWithExtensionEmphasisWithExtensionStrikethrough(t *testing.T) {
+	c := qt.New(t)
+
+	content := "Git **（ギット）**Hub\n~~（真美好）~~"
+
+	tests := []struct {
+		name                string
+		strikethrough       bool
+		cjkFriendlyEmphasis bool
+		expect              string
+	}{
+		{"noFriendly_noStrike", false, false, "<p>Git **（ギット）**Hub\n~~（真美好）~~</p>\n"},
+		{"friendly_noStrike", false, true, "<p>Git <strong>（ギット）</strong>Hub\n~~（真美好）~~</p>\n"},
+		{"noFriendly_strike", true, false, "<p>Git **（ギット）**Hub\n<del>（真美好）</del></p>\n"},
+		{"friendly_strike", true, true, "<p>Git <strong>（ギット）</strong>Hub\n<del>（真美好）</del></p>\n"},
+	}
+
+	for _, tt := range tests {
+		c.Run(tt.name, func(c *qt.C) {
+			confStr := fmt.Sprintf(`
+[markup]
+[markup.goldmark]
+[markup.goldmark.extensions]
+strikethrough=%v
+[markup.goldmark.extensions.CJKFriendly]
+emphasis=%v
+`, tt.strikethrough, tt.cjkFriendlyEmphasis)
+
+			cfg := config.FromTOMLConfigString(confStr)
+			conf := testconfig.GetTestConfig(nil, cfg)
+
+			b := convert(c, conf, content)
+			got := string(b.Bytes())
+
+			c.Assert(got, qt.Contains, tt.expect)
+		})
+	}
+}
+
+func TestConvertCJKFriendlyWithExtensionEmphasisWithExtensionStrikethroughWithCJKEscapedSpace(t *testing.T) {
+	c := qt.New(t)
+
+	content := "a\\ **()**\\ a𩸽**（）**𩸽~~（真美好）~~"
+
+	tests := []struct {
+		name                string
+		strikethrough       bool
+		escapedSpace        bool
+		cjkFriendlyEmphasis bool
+		expect              string
+	}{
+		{
+			name:                "noFriendly_noStrike_noEscaped",
+			strikethrough:       false,
+			escapedSpace:        false,
+			cjkFriendlyEmphasis: false,
+			expect:              "<p>a\\ <strong>()</strong>\\ a𩸽**（）**𩸽~~（真美好）~~</p>\n",
+		},
+		{
+			name:                "noFriendly_noStrike_escaped",
+			strikethrough:       false,
+			escapedSpace:        true,
+			cjkFriendlyEmphasis: false,
+			expect:              "<p>a<strong>()</strong>a𩸽**（）**𩸽~~（真美好）~~</p>\n",
+		},
+		{
+			name:                "noFriendly_strike_noEscaped",
+			strikethrough:       true,
+			escapedSpace:        false,
+			cjkFriendlyEmphasis: false,
+			expect:              "<p>a\\ <strong>()</strong>\\ a𩸽**（）**𩸽~~（真美好）~~</p>\n",
+		},
+		{
+			name:                "noFriendly_strike_escaped",
+			strikethrough:       true,
+			escapedSpace:        true,
+			cjkFriendlyEmphasis: false,
+			expect:              "<p>a<strong>()</strong>a𩸽**（）**𩸽~~（真美好）~~</p>\n",
+		},
+		{
+			name:                "friendly_noStrike_noEscaped",
+			strikethrough:       false,
+			escapedSpace:        false,
+			cjkFriendlyEmphasis: true,
+			expect:              "<p>a\\ <strong>()</strong>\\ a𩸽<strong>（）</strong>𩸽~~（真美好）~~</p>\n",
+		},
+		{
+			name:                "friendly_noStrike_escaped",
+			strikethrough:       false,
+			escapedSpace:        true,
+			cjkFriendlyEmphasis: true,
+			expect:              "<p>a<strong>()</strong>a𩸽<strong>（）</strong>𩸽~~（真美好）~~</p>\n",
+		},
+		{
+			name:                "friendly_strike_noEscaped",
+			strikethrough:       true,
+			escapedSpace:        false,
+			cjkFriendlyEmphasis: true,
+			expect:              "<p>a\\ <strong>()</strong>\\ a𩸽<strong>（）</strong>𩸽<del>（真美好）</del></p>\n",
+		},
+		{
+			name:                "friendly_strike_escaped",
+			strikethrough:       true,
+			escapedSpace:        true,
+			cjkFriendlyEmphasis: true,
+			expect:              "<p>a<strong>()</strong>a𩸽<strong>（）</strong>𩸽<del>（真美好）</del></p>\n",
+		},
+	}
+
+	for _, tt := range tests {
+		c.Run(tt.name, func(c *qt.C) {
+			confStr := fmt.Sprintf(`
+[markup]
+[markup.goldmark]
+[markup.goldmark.extensions]
+strikethrough=%v
+[markup.goldmark.extensions.CJK]
+enable=true
+escapedSpace=%v
+[markup.goldmark.extensions.CJKFriendly]
+emphasis=%v
+`, tt.strikethrough, tt.escapedSpace, tt.cjkFriendlyEmphasis)
+
+			cfg := config.FromTOMLConfigString(confStr)
+			conf := testconfig.GetTestConfig(nil, cfg)
+
+			b := convert(c, conf, content)
+			got := string(b.Bytes())
+
+			c.Assert(got, qt.Contains, tt.expect)
+		})
+	}
+}
+
 type tableRenderer int
 
 func (hr tableRenderer) RenderTable(cctx context.Context, w hugio.FlexiWriter, ctx hooks.TableContext) error {
