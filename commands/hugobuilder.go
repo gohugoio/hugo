@@ -464,7 +464,15 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 		infol.Logf("removing all files from destination that don't exist in static dirs")
 
 		syncer.DeleteFilter = func(f fsync.FileInfo) bool {
-			return f.IsDir() && strings.HasPrefix(f.Name(), ".")
+			name := f.Name()
+
+			// Keep .gitignore and .gitattributes anywhere
+			if name == ".gitignore" || name == ".gitattributes" {
+				return true
+			}
+
+			// Keep Hugo's original dot-directory behavior
+			return f.IsDir() && strings.HasPrefix(name, ".")
 		}
 	}
 	start := time.Now()
