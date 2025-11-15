@@ -132,7 +132,7 @@ docs/p1/sub/mymixcasetext2.txt
 	b.AssertFileContent("public/docs/p3/index.html", "<strong>Hello World Default</strong>")
 }
 
-func TestPagesFromGoTmplAsciidocAndSimilar(t *testing.T) {
+func TestPagesFromGoTmplAsciiDocAndSimilar(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
@@ -153,7 +153,7 @@ allow = ['asciidoctor', 'pandoc','rst2html', 'python']
 
 	b := hugolib.Test(t, files)
 
-	if asciidocext.Supports() {
+	if ok, _ := asciidocext.Supports(); ok {
 		b.AssertFileContent("public/docs/asciidoc/index.html",
 			"Mark my words, <mark>automation is essential</mark>",
 			"Path: /docs/asciidoc|",
@@ -503,7 +503,7 @@ baseURL = "https://example.com"
 func TestPagesFromGoTmplCascade(t *testing.T) {
 	t.Parallel()
 
-	files := ` 
+	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
@@ -523,7 +523,7 @@ baseURL = "https://example.com"
 func TestPagesFromGoBuildOptions(t *testing.T) {
 	t.Parallel()
 
-	files := ` 
+	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
@@ -644,11 +644,11 @@ func TestPagesFromGoTmplMenusMap(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['rss','section','sitemap','taxonomy','term']
 -- content/_content.gotmpl --
-{{ $menu1 := dict 
+{{ $menu1 := dict
     "parent" "main-page"
     "identifier" "id1"
 }}
-{{ $menu2 := dict 
+{{ $menu2 := dict
     "parent" "main-page"
     "identifier" "id2"
 }}
@@ -859,7 +859,7 @@ Title: {{ .Title }}|Content: {{ .Content }}|
 func TestPagesFromGoTmplHome(t *testing.T) {
 	t.Parallel()
 
-	files := ` 
+	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
