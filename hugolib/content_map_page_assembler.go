@@ -48,15 +48,16 @@ type allPagesAssembler struct {
 	r   para.Runner
 
 	assembleChanges            *WhatChanged
-	seenTerms                  map[term]sitesmatrix.Vectors
-	droppedPages               map[*Site][]string // e.g. drafts, expired, future.
-	seenRootSections           *maps.Cache[string, bool]
-	seenHome                   bool
 	assembleSectionsInParallel bool
 
-	// Internal state.
 	pwRoot *doctree.NodeShiftTreeWalker[contentNode] // walks pages.
 	rwRoot *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
+
+	// Walking state.
+	seenTerms        *maps.Map[term, sitesmatrix.Vectors]
+	droppedPages     *maps.Map[*Site, []string] // e.g. drafts, expired, future.
+	seenRootSections *maps.Map[string, bool]
+	seenHome         bool // set before we fan out to multiple goroutines.
 }
 
 func newAllPagesAssembler(
@@ -74,7 +75,7 @@ func newAllPagesAssembler(
 	pw := rw.Extend()
 	pw.Tree = m.treePages
 
-	seenRootSections := maps.NewCache[string, bool]()
+	seenRootSections := maps.NewMap[string, bool]()
 	seenRootSections.Set("", true) // home.
 
 	return &allPagesAssembler{
@@ -82,8 +83,8 @@ func newAllPagesAssembler(
 		h:                          h,
 		m:                          m,
 		assembleChanges:            assembleChanges,
-		seenTerms:                  map[term]sitesmatrix.Vectors{},
-		droppedPages:               map[*Site][]string{},
+		seenTerms:                  maps.NewMap[term, sitesmatrix.Vectors](),
+		droppedPages:               maps.NewMap[*Site, []string](),
 		seenRootSections:           seenRootSections,
 		assembleSectionsInParallel: true,
 		pwRoot:                     pw,
@@ -100,7 +101,7 @@ type sitePagesAssembler struct {
 
 func (a *allPagesAssembler) createAllPages() error {
 	defer func() {
-		for site, dropped := range a.droppedPages {
+		for site, dropped := range a.droppedPages.All() {
 			for _, s := range dropped {
 				site.pageMap.treePages.Delete(s)
 				site.pageMap.resourceTrees.DeletePrefix(paths.AddTrailingSlash(s))
@@ -112,16 +113,16 @@ func (a *allPagesAssembler) createAllPages() error {
 		defer func() {
 			if a.h.isRebuild() && a.h.previousSeenTerms != nil {
 				// Find removed terms.
-				for t := range a.h.previousSeenTerms {
-					if _, found := a.seenTerms[t]; !found {
+				for t := range a.h.previousSeenTerms.All() {
+					if _, found := a.seenTerms.Lookup(t); !found {
 						// This term has been removed.
 						a.pwRoot.Tree.Delete(t.view.pluralTreeKey)
 						a.rwRoot.Tree.DeletePrefix(t.view.pluralTreeKey + "/")
 					}
 				}
 				// Find new terms.
-				for t := range a.seenTerms {
-					if _, found := a.h.previousSeenTerms[t]; !found {
+				for t := range a.seenTerms.All() {
+					if _, found := a.h.previousSeenTerms.Lookup(t); !found {
 						// This term is new.
 						if n, ok := a.pwRoot.Tree.GetRaw(t.view.pluralTreeKey); ok {
 							a.assembleChanges.Add(cnh.GetIdentity(n))
@@ -284,7 +285,12 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 							(&p.m.pageConfig.Build).Disable()
 						default:
 							// Skip this page.
-							a.droppedPages[site] = append(a.droppedPages[site], v.Path())
+							a.droppedPages.WithWriteLock(
+								func(m map[*Site][]string) {
+									m[site] = append(m[site], s)
+								},
+							)
+
 							drop = true
 						}
 					}
@@ -471,13 +477,13 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 		}
 
 		if !isResource && s != "" && !a.seenHome {
+			a.seenHome = true
 			var homePages contentNode
 			homePages, ns, err = transformPages("", newHomePageMetaSource(), cascades)
 			if err != nil {
 				return
 			}
 			treePages.InsertRaw("", homePages)
-			a.seenHome = true
 		}
 
 		n2, ns, err = transformPages(s, n, cascades)
@@ -633,17 +639,16 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 								continue
 							}
 							t := term{view: viewName, term: v}
-							if vectors, found := a.seenTerms[t]; found {
-								if _, found := vectors[vec]; found {
-									continue
+							a.seenTerms.WithWriteLock(func(m map[term]sitesmatrix.Vectors) {
+								vectors, found := m[t]
+								if !found {
+									m[t] = sitesmatrix.Vectors{
+										vec: struct{}{},
+									}
+									return
 								}
 								vectors[vec] = struct{}{}
-							} else {
-								a.seenTerms[t] = sitesmatrix.Vectors{
-									vec: struct{}{},
-								}
-							}
-
+							})
 						}
 					}
 				}
@@ -752,7 +757,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 	// Create  missing term pages.
 	pw.WalkContext.HooksPost2().Push(
 		func() error {
-			for k, v := range a.seenTerms {
+			for k, v := range a.seenTerms.All() {
 				viewTermKey := "/" + k.view.plural + "/" + k.term
 
 				pi := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, viewTermKey+"/_index.md")

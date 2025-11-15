@@ -429,9 +429,21 @@ type NodeShiftTreeWalker[T any] struct {
 // Extend returns a new NodeShiftTreeWalker with the same configuration
 // and the same WalkContext as the original.
 // Any local state is reset.
-func (r NodeShiftTreeWalker[T]) Extend() *NodeShiftTreeWalker[T] {
-	r.skipPrefixes = nil
-	return &r
+func (r *NodeShiftTreeWalker[T]) Extend() *NodeShiftTreeWalker[T] {
+	return &NodeShiftTreeWalker[T]{
+		Tree:                 r.Tree,
+		Transform:            r.Transform,
+		TransformDelayInsert: r.TransformDelayInsert,
+		Handle:               r.Handle,
+		Prefix:               r.Prefix,
+		IncludeFilter:        r.IncludeFilter,
+		IncludeRawFilter:     r.IncludeRawFilter,
+		LockType:             r.LockType,
+		NoShift:              r.NoShift,
+		Fallback:             r.Fallback,
+		Debug:                r.Debug,
+		WalkContext:          r.WalkContext,
+	}
 }
 
 // WithPrefix returns a new NodeShiftTreeWalker with the given prefix.

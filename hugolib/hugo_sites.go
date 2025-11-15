@@ -96,8 +96,8 @@ type HugoSites struct {
 	translationKeyPages *maps.SliceCache[page.Page]
 
 	pageTrees                    *pageTrees
-	previousPageTreesWalkContext *doctree.WalkContext[contentNode] // Set for rebuilds only.
-	previousSeenTerms            map[term]sitesmatrix.Vectors      // Set for rebuilds only.
+	previousPageTreesWalkContext *doctree.WalkContext[contentNode]    // Set for rebuilds only.
+	previousSeenTerms            *maps.Map[term, sitesmatrix.Vectors] // Set for rebuilds only.
 
 	printUnusedTemplatesInit sync.Once
 	printPathWarningsInit    sync.Once
