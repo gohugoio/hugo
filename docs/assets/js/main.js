@@ -6,84 +6,79 @@ import { bridgeTurboAndAlpine } from './helpers/index';
 import persist from '@alpinejs/persist';
 import focus from '@alpinejs/focus';
 
-var debug = 0 ? console.log.bind(console, '[index]') : function () {};
+// ---------------------------------------------------------
+// PREVENT MULTIPLE INITIALIZATIONS (important for Turbo)
+// ---------------------------------------------------------
+if (!window.__ALPINE_ALREADY_INIT__) {
+	window.__ALPINE_ALREADY_INIT__ = true;
 
-// Turbolinks init.
-(function () {
-	document.addEventListener('turbo:render', function (e) {
-		// This is also called right after the body start. This is added to prevent flicker on navigation.
-		initColorScheme();
-	});
-})();
+	// Alpine plugins
+	Alpine.plugin(persist);
+	Alpine.plugin(focus);
 
-// Set up and start Alpine.
-(function () {
-	// Register AlpineJS plugins.
-	{
-		Alpine.plugin(focus);
-		Alpine.plugin(persist);
-	}
-	// Register AlpineJS magics and directives.
-	{
-		// Handles copy to clipboard etc.
-		registerMagics(Alpine);
-	}
+	// Magic functions (copy, tooltip, etc.)
+	registerMagics(Alpine);
 
-	// Register AlpineJS controllers.
-	{
-		// Register AlpineJS data controllers.
-		let searchConfig = {
-			index: 'hugodocs',
-			app_id: 'D1BPLZHGYQ',
-			api_key: '6df94e1e5d55d258c56f60d974d10314',
-		};
+	// Alpine data components
+	Alpine.data('navbar', () => navbar(Alpine));
 
-		Alpine.data('navbar', () => navbar(Alpine));
-		Alpine.data('search', () => search(Alpine, searchConfig));
-		Alpine.data('toc', () => toc(Alpine));
-	}
+	// DON'T hardcode keys directly in source code
+	const searchConfig = {
+		index: 'hugodocs',
+		app_id: import.meta.env.VITE_SEARCH_APP_ID,
+		api_key: import.meta.env.VITE_SEARCH_API_KEY,
+	};
 
-	// Register AlpineJS stores.
-	{
-		Alpine.store('nav', navStore(Alpine));
-	}
+	Alpine.data('search', () => search(Alpine, searchConfig));
+	Alpine.data('toc', () => toc(Alpine));
 
-	// Start AlpineJS.
-	Alpine.start();
+	// Stores
+	Alpine.store('nav', navStore(Alpine));
 
-	// Start the Turbo-Alpine bridge.
+	// Connect Turbo + Alpine BEFORE start
 	bridgeTurboAndAlpine(Alpine);
 
-	{
-		let containerScrollTops = {};
+	Alpine.start();
+}
 
-		// To preserve scroll position in scrolling elements on navigation add data-turbo-preserve-scroll-container="somename" to the scrolling container.
-		addEventListener('turbo:click', () => {
-			document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((el2) => {
-				containerScrollTops[el2.dataset.turboPreserveScrollContainer] = el2.scrollTop;
-			});
+// ---------------------------------------------------------
+// COLOR SCHEME FIX FOR TURBO PAGE LOADS
+// ---------------------------------------------------------
+document.addEventListener('turbo:render', () => {
+	initColorScheme();
+});
+
+// ---------------------------------------------------------
+// ROBUST SCROLL PRESERVATION (supports multiple containers)
+// ---------------------------------------------------------
+(() => {
+	let scrollCache = new Map();
+
+	// Store scroll positions before navigation
+	addEventListener('turbo:before-visit', () => {
+		document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((el) => {
+			scrollCache.set(el.dataset.turboPreserveScrollContainer, el.scrollTop);
+		});
+	});
+
+	// Restore scroll positions after navigation
+	addEventListener('turbo:render', () => {
+		document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((el) => {
+			const key = el.dataset.turboPreserveScrollContainer;
+
+			if (scrollCache.has(key)) {
+				el.scrollTop = scrollCache.get(key);
+				return;
+			}
+
+			// Fallback: scroll to first element marked as active
+			const active = el.querySelector('.scroll-active');
+			if (active) {
+				const activePos = active.offsetTop - el.offsetTop;
+				el.scrollTop = Math.max(activePos, 0);
+			}
 		});
 
-		addEventListener('turbo:render', () => {
-			document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((ele) => {
-				const containerScrollTop = containerScrollTops[ele.dataset.turboPreserveScrollContainer];
-				if (containerScrollTop) {
-					ele.scrollTop = containerScrollTop;
-				} else {
-					let els = ele.querySelectorAll('.scroll-active');
-					if (els.length) {
-						els.forEach((el) => {
-							// Avoid scrolling if el is already in view.
-							if (el.offsetTop >= ele.scrollTop && el.offsetTop <= ele.scrollTop + ele.clientHeight) {
-								return;
-							}
-							ele.scrollTop = el.offsetTop - ele.offsetTop;
-						});
-					}
-				}
-			});
-
-			containerScrollTops = {};
-		});
-	}
+		scrollCache.clear();
+	});
 })();
