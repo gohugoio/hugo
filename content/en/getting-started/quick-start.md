@@ -201,7 +201,6 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [demonstration site]: https://gohugo-ananke-theme-demo.netlify.app/
 [directory structure]: /getting-started/directory-structure/
 [documentation]: https://github.com/theNewDynamic/gohugo-theme-ananke#readme
-[draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
 [draft, future, or expired content]: /getting-started/usage/#draft-future-and-expired-content
 [forum]: https://discourse.gohugo.io/
 [front matter]: /content-management/front-matter/
