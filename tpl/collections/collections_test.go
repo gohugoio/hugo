@@ -788,30 +788,73 @@ func TestUniq(t *testing.T) {
 
 func TestD(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
 	ns := newNs()
 
-	c.Assert(ns.D(42, 5, 100), qt.DeepEquals, []int{24, 34, 66, 82, 96})
-	c.Assert(ns.D(31, 5, 100), qt.DeepEquals, []int{12, 37, 38, 69, 98})
-	c.Assert(ns.D(42, 9, 10), qt.DeepEquals, []int{0, 1, 2, 3, 4, 6, 7, 8, 9})
-	c.Assert(ns.D(42, 10, 10), qt.DeepEquals, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
-	c.Assert(ns.D(42, 11, 10), qt.IsNil) // n > hi
-	c.Assert(ns.D(42, -5, 100), qt.IsNil)
-	c.Assert(ns.D(42, 0, 100), qt.IsNil)
-	c.Assert(ns.D(42, 5, 0), qt.IsNil)
-	c.Assert(ns.D(42, 5, -10), qt.IsNil)
-	c.Assert(ns.D(42, 5, 3000000), qt.DeepEquals, []int{720363, 1041693, 2009179, 2489106, 2873969})
-	c.Assert(func() { ns.D(31, 2000000, 3000000) }, qt.PanicMatches, "size of result exceeds limit")
+	const (
+		errNumberOfRequestedValuesRegexPattern = `.*the number of requested values.*`
+		errMaximumRequestedValueRegexPattern   = `.*the maximum requested value.*`
+		errSeedValueRegexPattern               = `.*the seed value.*`
+	)
+
+	tests := []struct {
+		name        string
+		seed        any
+		n           any
+		hi          any
+		wantResult  []int
+		wantErrText string
+	}{
+		// n <= hi
+		{"seed_eq_42", 42, 5, 100, []int{24, 34, 66, 82, 96}, ""},
+		{"seed_eq_31", 31, 5, 100, []int{12, 37, 38, 69, 98}, ""},
+		{"n_lt_hi", 42, 9, 10, []int{0, 1, 2, 3, 4, 6, 7, 8, 9}, ""},
+		{"n_eq_hi", 42, 10, 10, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, ""},
+		{"hi_eq_max_size", 42, 5, maxSeqSize, []int{240121, 347230, 669726, 829701, 957989}, ""},
+		// n > hi
+		{"n_gt_hi", 42, 11, 10, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, ""},
+		// zero values
+		{"seed_eq_0", 0, 5, 100, []int{0, 2, 29, 50, 72}, ""},
+		{"n_eq_0", 42, 0, 100, []int{}, ""},
+		{"hi_eq_0", 42, 5, 0, []int{}, ""},
+		// errors: values < 0
+		{"seed_lt_0", -42, 5, 100, nil, errSeedValueRegexPattern},
+		{"n_lt_0", 42, -1, 100, nil, errNumberOfRequestedValuesRegexPattern},
+		{"hi_lt_0", 42, 5, -100, nil, errMaximumRequestedValueRegexPattern},
+		// errors: values that can't be cast to int
+		{"seed_invalid_type", "foo", 5, 100, nil, errSeedValueRegexPattern},
+		{"n_invalid_type", 42, "bar", 100, nil, errNumberOfRequestedValuesRegexPattern},
+		{"hi_invalid_type", 42, 5, "baz", nil, errMaximumRequestedValueRegexPattern},
+		// errors: values that exceed maxSeqSize
+		{"n_gt_max_size", 42, maxSeqSize + 1, 10, nil, errNumberOfRequestedValuesRegexPattern},
+		{"hi_gt_max_size", 42, 5, maxSeqSize + 1, nil, errMaximumRequestedValueRegexPattern},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			c := qt.New(t)
+
+			got, err := ns.D(tt.seed, tt.n, tt.hi)
+
+			if tt.wantErrText != "" {
+				c.Assert(err, qt.ErrorMatches, tt.wantErrText, qt.Commentf("n=%d, hi=%d", tt.n, tt.hi))
+				c.Assert(got, qt.IsNil, qt.Commentf("Expected nil result on error"))
+				return
+			}
+
+			c.Assert(err, qt.IsNil, qt.Commentf("Did not expect an error, but got: %v", err))
+			c.Assert(got, qt.DeepEquals, tt.wantResult)
+		})
+	}
 }
 
 func BenchmarkD2(b *testing.B) {
 	ns := newNs()
-
-	runBenchmark := func(seed, n, max int) {
+	runBenchmark := func(seed, n, max any) {
 		name := fmt.Sprintf("n=%d,max=%d", n, max)
 		b.Run(name, func(b *testing.B) {
 			for b.Loop() {
-				ns.D(seed, n, max)
+				_, _ = ns.D(seed, n, max)
 			}
 		})
 	}
