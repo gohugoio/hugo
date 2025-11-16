@@ -4,7 +4,7 @@ parameters:
 defaults: &defaults
   resource_class: large
   docker:
-      - image: bepsays/ci-hugoreleaser:1.22200.20201
+      - image: bepsays/ci-hugoreleaser:1.22500.20300
 environment: &buildenv
       GOMODCACHE: /root/project/gomodcache
 version: 2
@@ -14,9 +14,7 @@ jobs:
     environment: &buildenv
         GOMODCACHE: /root/project/gomodcache
     steps:
-      - &remote-docker
-        setup_remote_docker: 
-          version: 20.10.14
+      - setup_remote_docker
       - checkout: 
           path: hugo
       - &git-config
@@ -60,7 +58,7 @@ jobs:
     environment:
         <<: [*buildenv]
     docker:
-    - image: bepsays/ci-hugoreleaser-linux-arm64:1.22200.20201
+    - image: bepsays/ci-hugoreleaser-linux-arm64:1.22500.20300
     steps:
       - *restore-cache
       - &attach-workspace

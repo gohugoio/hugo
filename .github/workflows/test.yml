@@ -6,23 +6,23 @@ name: Test
 env:
   GOPROXY: https://proxy.golang.org
   GO111MODULE: on
-  SASS_VERSION: 1.63.2
-  DART_SASS_SHA_LINUX: 3ea33c95ad5c35fda6e9a0956199eef38a398f496cfb8750e02479d7d1dd42af
-  DART_SASS_SHA_MACOS: 11c70f259836b250b44a9cb57fed70e030f21f45069b467d371685855f1eb4f0
-  DART_SASS_SHA_WINDOWS: cd8cd36a619dd8e27f93d3186c52d70eb7d69472aa6c85f5094b29693e773f64
+  SASS_VERSION: 1.80.3
+  DART_SASS_SHA_LINUX: 7c933edbad0a7d389192c5b79393485c088bd2c4398e32f5754c32af006a9ffd
+  DART_SASS_SHA_MACOS: 79e060b0e131c3bb3c16926bafc371dc33feab122bfa8c01aa337a072097967b
+  DART_SASS_SHA_WINDOWS: 0bc4708b37cd1bac4740e83ac5e3176e66b774f77fd5dd364da5b5cfc9bfb469
 permissions:
   contents: read
 jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.21.x, 1.22.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        go-version: [1.24.x, 1.25.x]
+        os: [ubuntu-latest, windows-latest] # macos disabled for now because of disk space issues.
     runs-on: ${{ matrix.os }}
     steps:
       - if: matrix.os == 'ubuntu-latest'
         name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
@@ -34,9 +34,9 @@ jobs:
           docker-images: true
           swap-storage: true
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Install Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
         with:
           go-version: ${{ matrix.go-version }}
           check-latest: true
@@ -45,18 +45,26 @@ jobs:
             **/go.sum
             **/go.mod
       - name: Install Ruby
-        uses: ruby/setup-ruby@5f19ec79cedfadb78ab837f95b87734d0003c899
+        uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
         with:
-          ruby-version: "2.7"
-          bundler-cache: true #
+          ruby-version: "3.4.5"
+      - name: Install gems
+        run: |
+          gem install asciidoctor -v "2.0.26"
+          gem install asciidoctor-diagram -v "3.0.1"
+          gem install asciidoctor-diagram-ditaamini -v "1.0.3"
+      - name: Install Java # required by asciidoctor-diagram-ditaamini
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          distribution: temurin
+          java-version: "25"
+          java-package: jre
       - name: Install Python
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
         with:
           python-version: "3.x"
       - name: Install Mage
         run: go install github.com/magefile/mage@v1.15.0
-      - name: Install asciidoctor
-        uses: reitzig/actions-asciidoctor@03fcc74cd74880b697950c4930c9ec8a67c69ecc
       - name: Install docutils
         run: |
           pip install docutils
@@ -112,17 +120,17 @@ jobs:
           sass --version;
           mage -v check;
         env:
-          HUGO_BUILD_TAGS: extended
+          HUGO_BUILD_TAGS: extended,withdeploy
       - if: matrix.os == 'windows-latest'
         # See issue #11052. We limit the build to regular test (no -race flag) on Windows for now.
         name: Test
         run: |
           mage -v test;
         env:
-          HUGO_BUILD_TAGS: extended
+          HUGO_BUILD_TAGS: extended,withdeploy
       - name: Build tags
         run: |
-          go install -tags extended,nodeploy
+          go install -tags extended
       - if: matrix.os == 'ubuntu-latest'
         name: Build for dragonfly
         run: |

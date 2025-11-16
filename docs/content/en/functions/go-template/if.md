@@ -3,18 +3,14 @@ title: if
 description: Executes the block if the expression is truthy.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/with
-    - functions/go-template/else
-    - functions/go-template/end
-    - functions/collections/IsSet
-  returnType:
-  signatures: [if EXPR]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType:
+    signatures: [if EXPR]
 ---
 
-{{% include "functions/go-template/_common/truthy-falsy.md" %}}
+{{% include "/_common/functions/truthy-falsy.md" %}}
 
 ```go-html-template
 {{ $var := "foo" }}
@@ -34,7 +30,7 @@ Use with the [`else`] statement:
 {{ end }}
 ```
 
-Use `else if` to check multiple conditions.
+Use `else if` to check multiple conditions:
 
 ```go-html-template
 {{ $var := 12 }}
@@ -49,6 +45,6 @@ Use `else if` to check multiple conditions.
 {{ end }}
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}
 
-[`else`]: /functions/go-template/else
+[`else`]: /functions/go-template/else/

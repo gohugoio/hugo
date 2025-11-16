@@ -3,12 +3,10 @@ title: Round
 description: Returns the result of rounding DURATION1 to the nearest multiple of DURATION2.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/Duration
-    - functions/time/ParseDuration
-  returnType:
-  signatures: [DURATION1.Round DURATION2]
+params:
+  functions_and_methods:
+    returnType:
+    signatures: [DURATION1.Round DURATION2]
 ---
 
 ```go-html-template

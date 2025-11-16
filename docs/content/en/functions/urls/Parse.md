@@ -3,11 +3,11 @@ title: urls.Parse
 description: Parses a URL into a URL structure.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: url.URL
-  signatures: [urls.Parse URL]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: url.URL
+    signatures: [urls.Parse URL]
 aliases: [/functions/urls.parse]
 ---
 
@@ -19,12 +19,14 @@ The `urls.Parse` function parses a URL into a [URL structure](https://godoc.org/
 {{ $url := "https://example.org:123/foo?a=6&b=7#bar" }}
 {{ $u := urls.Parse $url }}
 
+{{ $u.String }} → https://example.org:123/foo?a=6&b=7#bar
 {{ $u.IsAbs }} → true
 {{ $u.Scheme }} → https
 {{ $u.Host }} → example.org:123
 {{ $u.Hostname }} → example.org
 {{ $u.RequestURI }} → /foo?a=6&b=7
 {{ $u.Path }} → /foo
+{{ $u.RawQuery }} → a=6&b=7
 {{ $u.Query }} → map[a:[6] b:[7]]
 {{ $u.Query.a }} → [6]
 {{ $u.Query.Get "a" }} → 6

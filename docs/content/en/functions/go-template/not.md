@@ -3,13 +3,11 @@ title: not
 description: Returns the boolean negation of its single argument.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/and
-    - functions/go-template/or
-  returnType: bool
-  signatures: [not VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: bool
+    signatures: [not VALUE]
 ---
 
 Unlike the `and` and `or` operators, the `not` operator always returns a boolean value.
@@ -32,4 +30,4 @@ Use the `not` operator, twice in succession, to cast any value to a boolean valu
 {{ "" | not | not }} → false
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

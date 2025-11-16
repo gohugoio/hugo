@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package blackfriday holds some compability functions for the old Blackfriday v1 Markdown engine.
+// Package blackfriday holds some compatibility functions for the old Blackfriday v1 Markdown engine.
 package blackfriday
 
 import "unicode"

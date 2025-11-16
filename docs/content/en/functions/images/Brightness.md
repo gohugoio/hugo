@@ -3,14 +3,11 @@ title: images.Brightness
 description: Returns an image filter that changes the brightness of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Brightness PERCENTAGE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Brightness PERCENTAGE]
 ---
 
 The percentage must be in the range [-100, 100] where 0 has no effect. A value of `-100` produces a solid black image, and a value of `100` produces a solid white image.
@@ -23,7 +20,7 @@ Create the image filter:
 {{ $filter := images.Brightness 12 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

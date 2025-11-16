@@ -36,7 +36,6 @@ var chromaHighlightProcessingAttributes = map[string]bool{
 	"lineNoStart":        true,
 	"lineNumbersInTable": true,
 	"noClasses":          true,
-	"nohl":               true,
 	"style":              true,
 	"tabWidth":           true,
 }

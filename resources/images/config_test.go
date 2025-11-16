@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/hashing"
 )
 
 func TestDecodeConfig(t *testing.T) {
@@ -106,7 +107,8 @@ func TestDecodeImageConfig(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		result, err := DecodeImageConfig(this.action, strings.Fields(this.in), cfg, PNG)
+		options := append([]string{this.action}, strings.Fields(this.in)...)
+		result, err := DecodeImageConfig(options, cfg, PNG)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] parseImageConfig didn't return an expected error", i)
@@ -115,15 +117,19 @@ func TestDecodeImageConfig(t *testing.T) {
 			if err != nil {
 				t.Fatalf("[%d] err: %s", i, err)
 			}
-			if fmt.Sprint(result) != fmt.Sprint(this.expect) {
-				t.Fatalf("[%d] got\n%v\n but expected\n%v", i, result, this.expect)
+			expect := this.expect.(ImageConfig)
+			expect.Key = hashing.HashStringHex(options)
+
+			if fmt.Sprint(result) != fmt.Sprint(expect) {
+				t.Fatalf("[%d] got\n%v\n but expected\n%v", i, result, expect)
 			}
 		}
 	}
 }
 
 func newImageConfig(action string, width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
-	var c ImageConfig = GetDefaultImageConfig(action, nil)
+	var c ImageConfig = GetDefaultImageConfig(nil)
+	c.Action = action
 	c.TargetFormat = PNG
 	c.Hint = 2
 	c.Width = width
@@ -131,26 +137,20 @@ func newImageConfig(action string, width, height, quality, rotate int, filter, a
 	c.Quality = quality
 	c.qualitySetForImage = quality != 75
 	c.Rotate = rotate
-	c.BgColorStr = bgColor
 	c.BgColor, _ = hexStringToColorGo(bgColor)
+	c.Anchor = SmartCropAnchor
 
 	if filter != "" {
 		filter = strings.ToLower(filter)
 		if v, ok := imageFilters[filter]; ok {
 			c.Filter = v
-			c.FilterStr = filter
 		}
 	}
 
 	if anchor != "" {
-		if anchor == smartCropIdentifier {
-			c.AnchorStr = anchor
-		} else {
-			anchor = strings.ToLower(anchor)
-			if v, ok := anchorPositions[anchor]; ok {
-				c.Anchor = v
-				c.AnchorStr = anchor
-			}
+		anchor = strings.ToLower(anchor)
+		if v, ok := anchorPositions[anchor]; ok {
+			c.Anchor = v
 		}
 	}
 

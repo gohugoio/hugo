@@ -5,7 +5,7 @@ url: /commands/hugo_server/
 ---
 ## hugo server
 
-A high performance webserver
+Start the embedded web server
 
 ### Synopsis
 
@@ -49,11 +49,11 @@ hugo server [command] [flags]
   -l, --layoutDir string         filesystem path to layout directory
       --liveReloadPort int       port for live reloading (i.e. 443 in HTTPS proxy situations) (default -1)
       --minify                   minify any supported output format (HTML, XML etc.)
-      --navigateToChanged        navigate to changed content file on live browser reload
-      --noBuildLock              don't create .hugo_build.lock file
+  -N, --navigateToChanged        navigate to changed content file on live browser reload
       --noChmod                  don't sync permission mode of files
       --noHTTPCache              prevent HTTP caching
       --noTimes                  don't sync modification time of files
+  -O, --openBrowser              open the site in a browser after server startup
       --panicOnWarning           panic on first WARNING log
       --poll string              set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int                 port on which the server will listen (default 1313)
@@ -80,20 +80,19 @@ hugo server [command] [flags]
       --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
-      --debug                      debug output
   -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --logLevel string            log level (debug|info|warn|error)
+      --noBuildLock                don't create .hugo_build.lock file
       --quiet                      build in quiet mode
-      --renderToMemory             render to memory (mostly useful when running the server)
+  -M, --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
-  -v, --verbose                    verbose output
 ```
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
-* [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store.
+* [hugo](/commands/hugo/)	 - Build your site
+* [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store
 

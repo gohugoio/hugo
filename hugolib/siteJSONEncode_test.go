@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,22 +23,21 @@ import (
 func TestEncodePage(t *testing.T) {
 	t.Parallel()
 
-	templ := `Page: |{{ index .Site.RegularPages 0 | jsonify }}|
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/index.html --
+Page: |{{ index .Site.RegularPages 0 | jsonify }}|
 Site: {{ site | jsonify }}
-`
-
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("index.html", templ)
-	b.WithContent("page.md", `---
+-- content/page.md --
+---
 title: "Page"
 date: 2019-02-28
 ---
 
 Content.
-
-`)
-
-	b.Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `"Date":"2019-02-28T00:00:00Z"`)
 }

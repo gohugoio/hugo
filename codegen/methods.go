@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -102,7 +103,7 @@ func (c *Inspector) MethodsFromTypes(include []reflect.Type, exclude []reflect.T
 	}
 
 	for _, t := range include {
-		for i := 0; i < t.NumMethod(); i++ {
+		for i := range t.NumMethod() {
 
 			m := t.Method(i)
 			if excludes[m.Name] || seen[m.Name] {
@@ -122,7 +123,7 @@ func (c *Inspector) MethodsFromTypes(include []reflect.Type, exclude []reflect.T
 
 			method := Method{Owner: t, OwnerName: ownerName, Name: m.Name}
 
-			for i := 0; i < numIn; i++ {
+			for i := range numIn {
 				in := m.Type.In(i)
 
 				name, pkg := nameAndPackage(in)
@@ -137,7 +138,7 @@ func (c *Inspector) MethodsFromTypes(include []reflect.Type, exclude []reflect.T
 			numOut := m.Type.NumOut()
 
 			if numOut > 0 {
-				for i := 0; i < numOut; i++ {
+				for i := range numOut {
 					out := m.Type.Out(i)
 					name, pkg := nameAndPackage(out)
 
@@ -304,7 +305,7 @@ func (m Method) inOutStr() string {
 	}
 
 	args := make([]string, len(m.In))
-	for i := 0; i < len(args); i++ {
+	for i := range args {
 		args[i] = fmt.Sprintf("arg%d", i)
 	}
 	return "(" + strings.Join(args, ", ") + ")"
@@ -316,7 +317,7 @@ func (m Method) inStr() string {
 	}
 
 	args := make([]string, len(m.In))
-	for i := 0; i < len(args); i++ {
+	for i := range args {
 		args[i] = fmt.Sprintf("arg%d %s", i, m.In[i])
 	}
 	return "(" + strings.Join(args, ", ") + ")"
@@ -339,7 +340,7 @@ func (m Method) outStrNamed() string {
 	}
 
 	outs := make([]string, len(m.Out))
-	for i := 0; i < len(outs); i++ {
+	for i := range outs {
 		outs[i] = fmt.Sprintf("o%d %s", i, m.Out[i])
 	}
 
@@ -435,7 +436,7 @@ func (m Methods) ToMarshalJSON(receiver, pkgPath string, excludes ...string) (st
 		// Exclude self
 		for i, pkgImp := range pkgImports {
 			if pkgImp == pkgPath {
-				pkgImports = append(pkgImports[:i], pkgImports[i+1:]...)
+				pkgImports = slices.Delete(pkgImports, i, i+1)
 			}
 		}
 	}

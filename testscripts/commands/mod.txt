@@ -18,7 +18,8 @@ hugo mod clean
 ! stderr .
 stdout 'hugo: removed 1 dirs in module cache for \"github.com/bep/empty-hugo-module\"'
 hugo mod clean --all
-stdout 'Deleted 2\d{2} files from module cache\.'
+# Currently this is 299 on MacOS and 301 on Linux.
+stdout 'Deleted (2|3)\d{2} files from module cache\.'
 cd submod
 hugo mod init testsubmod
 cmpenv go.mod $WORK/golden/go.mod.testsubmod

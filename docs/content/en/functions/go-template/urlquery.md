@@ -3,12 +3,11 @@ title: urlquery
 description: Returns the escaped value of the textual representation of its arguments in a form suitable for embedding in a URL query.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/collections/Querify
-  returnType: string
-  signatures: ['urlquery VALUE [VALUE...]']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: ['urlquery VALUE [VALUE...]']
 aliases: [/functions/urlquery]
 ---
 
@@ -25,4 +24,4 @@ Is rendered to:
 <a href="https://example.org?url=https%3A%2F%2Fexample.com">Link</a>
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+{{% include "/_common/functions/go-template/text-template.md" %}}

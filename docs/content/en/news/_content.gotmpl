@@ -1,0 +1,31 @@
+{{/* Get releases from GitHub. */}}
+{{ $u := "https://api.github.com/repos/gohugoio/hugo/releases" }}
+{{ $releases := partial "helpers/funcs/get-remote-data.html" $u }}
+{{ $releases = where $releases "draft" false }}
+{{ $releases = where $releases "prerelease" false }}
+
+{{/* Add pages. */}}
+{{ range $releases | first 24 }}
+  {{ $publishDate := .published_at | time.AsTime }}
+
+  {{/* Correct the v0.138.0 release date. See https://github.com/gohugoio/hugo/issues/13066. */}}
+  {{ if eq .name "v0.138.0" }}
+    {{ $publishDate = "2024-11-06T11:22:34Z" }}
+  {{ end }}
+
+  {{ $content := dict "mediaType" "text/markdown" "value" "" }}
+  {{ $dates := dict "publishDate" (time.AsTime $publishDate) }}
+  {{ $params := dict "permalink" .html_url }}
+  {{ $build := dict "render" "never" "list" "local" }}
+  {{ $page := dict
+    "build" $build
+    "content" $content
+    "dates" $dates
+    "kind" "page"
+    "params" $params
+    "path" (strings.Replace .name "." "-")
+    "slug" .name
+    "title" (printf "Release %s" .name)
+  }}
+  {{ $.AddPage $page }}
+{{ end }}

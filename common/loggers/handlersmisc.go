@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	"github.com/bep/logg"
-	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/common/hashing"
 )
 
 // PanicOnWarningHook panics on warnings.
@@ -85,7 +85,7 @@ func (h *logOnceHandler) HandleLog(e *logg.Entry) error {
 	}
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	hash := identity.HashUint64(e.Level, e.Message, e.Fields)
+	hash := hashing.HashUint64(e.Level, e.Message, e.Fields)
 	if h.seen[hash] {
 		return errStop
 	}

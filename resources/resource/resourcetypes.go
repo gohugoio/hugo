@@ -43,6 +43,9 @@ type OriginProvider interface {
 
 // NewResourceError creates a new ResourceError.
 func NewResourceError(err error, data any) ResourceError {
+	if data == nil {
+		data = map[string]any{}
+	}
 	return &resourceError{
 		error: err,
 		data:  data,
@@ -65,13 +68,6 @@ type ResourceError interface {
 	ResourceDataProvider
 }
 
-// ErrProvider provides an Err.
-type ErrProvider interface {
-	// Err returns an error if this resource is in an error state.
-	// This will currently only be set for resources obtained from resources.GetRemote.
-	Err() ResourceError
-}
-
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
 	ResourceWithoutMeta
@@ -83,12 +79,6 @@ type ResourceWithoutMeta interface {
 	MediaTypeProvider
 	ResourceLinksProvider
 	ResourceDataProvider
-	ErrProvider
-}
-
-type ResourceWrapper interface {
-	UnwrappedResource() Resource
-	WrapResource(Resource) ResourceWrapper
 }
 
 type ResourceTypeProvider interface {
@@ -170,20 +160,17 @@ type ResourcesLanguageMerger interface {
 
 // Identifier identifies a resource.
 type Identifier interface {
-	// Key is is mostly for internal use and should be considered opaque.
+	// Key is mostly for internal use and should be considered opaque.
 	// This value may change between Hugo versions.
 	Key() string
 }
 
-// WeightProvider provides a weight.
-type WeightProvider interface {
-	Weight() int
-}
-
-// Weight0Provider provides a weight that's considered before the WeightProvider in sorting.
-// This allows the weight set on a given term to win.
-type Weight0Provider interface {
-	Weight0() int
+// TransientIdentifier identifies a transient resource.
+type TransientIdentifier interface {
+	// TransientKey is mostly for internal use and should be considered opaque.
+	// This value is implemented by transient resources where pointers may be short lived and
+	// not suitable for use as a map keys.
+	TransientKey() string
 }
 
 // ContentResource represents a Resource that provides a way to get to its content.
@@ -221,6 +208,7 @@ type LengthProvider interface {
 // LanguageProvider is a Resource in a language.
 type LanguageProvider interface {
 	Language() *langs.Language
+	Lang() string
 }
 
 // TranslationKeyProvider connects translations of the same Resource.
@@ -297,4 +285,12 @@ func (r resourceTypesHolder) ResourceType() string {
 
 func NewResourceTypesProvider(mediaType media.Type, resourceType string) ResourceTypesProvider {
 	return resourceTypesHolder{mediaType: mediaType, resourceType: resourceType}
+}
+
+// NameNormalizedOrName returns the normalized name if available, otherwise the name.
+func NameNormalizedOrName(r Resource) string {
+	if nn, ok := r.(NameNormalizedProvider); ok {
+		return nn.NameNormalized()
+	}
+	return r.Name()
 }

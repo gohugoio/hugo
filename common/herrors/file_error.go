@@ -20,8 +20,6 @@ import (
 	"io"
 	"path/filepath"
 
-	godartsassv1 "github.com/bep/godartsass"
-
 	"github.com/bep/godartsass/v2"
 	"github.com/bep/golibsass/libsass/libsasserrors"
 	"github.com/gohugoio/hugo/common/paths"
@@ -112,11 +110,11 @@ func (fe *fileError) UpdateContent(r io.Reader, linematcher LineMatcherFn) FileE
 
 	fe.errorContext = ectx
 
-	if ectx.Position.LineNumber > 0 {
+	if ectx.Position.LineNumber > 0 && ectx.Position.LineNumber > fe.position.LineNumber {
 		fe.position.LineNumber = ectx.Position.LineNumber
 	}
 
-	if ectx.Position.ColumnNumber > 0 {
+	if ectx.Position.ColumnNumber > 0 && ectx.Position.ColumnNumber > fe.position.ColumnNumber {
 		fe.position.ColumnNumber = ectx.Position.ColumnNumber
 	}
 
@@ -153,8 +151,6 @@ func (e *fileError) causeString() string {
 	// Avoid repeating the file info in the error message.
 	case godartsass.SassError:
 		return v.Message
-	case godartsassv1.SassError:
-		return v.Message
 	case libsasserrors.Error:
 		return v.Message
 	default:
@@ -181,6 +177,7 @@ func NewFileErrorFromName(err error, name string) FileError {
 	// Filetype is used to determine the Chroma lexer to use.
 	fileType, pos := extractFileTypePos(err)
 	pos.Filename = name
+
 	if fileType == "" {
 		_, fileType = paths.FileAndExtNoDelimiter(filepath.Clean(name))
 	}
@@ -238,7 +235,9 @@ func NewFileErrorFromFile(err error, filename string, fs afero.Fs, linematcher L
 		return NewFileErrorFromName(err, realFilename)
 	}
 	defer f.Close()
-	return NewFileErrorFromName(err, realFilename).UpdateContent(f, linematcher)
+	fe := NewFileErrorFromName(err, realFilename)
+	fe = fe.UpdateContent(f, linematcher)
+	return fe
 }
 
 func openFile(filename string, fs afero.Fs) (afero.File, string, error) {
@@ -262,8 +261,27 @@ func openFile(filename string, fs afero.Fs) (afero.File, string, error) {
 	return f, realFilename, nil
 }
 
-// Cause returns the underlying error or itself if it does not implement Unwrap.
+// Cause returns the underlying error, that is,
+// it unwraps errors until it finds one that does not implement
+// the Unwrap method.
+// For a shallow variant, see Unwrap.
 func Cause(err error) error {
+	type unwrapper interface {
+		Unwrap() error
+	}
+
+	for err != nil {
+		cause, ok := err.(unwrapper)
+		if !ok {
+			break
+		}
+		err = cause.Unwrap()
+	}
+	return err
+}
+
+// Unwrap returns the underlying error or itself if it does not implement Unwrap.
+func Unwrap(err error) error {
 	if u := errors.Unwrap(err); u != nil {
 		return u
 	}
@@ -271,7 +289,7 @@ func Cause(err error) error {
 }
 
 func extractFileTypePos(err error) (string, text.Position) {
-	err = Cause(err)
+	err = Unwrap(err)
 
 	var fileType string
 
@@ -306,13 +324,9 @@ func extractFileTypePos(err error) (string, text.Position) {
 	}
 
 	// Look in the error message for the line number.
-	for _, handle := range lineNumberExtractors {
-		lno, col := handle(err)
-		if lno > 0 {
-			pos.ColumnNumber = col
-			pos.LineNumber = lno
-			break
-		}
+	if lno, col := commonLineNumberExtractor(err); lno > 0 {
+		pos.ColumnNumber = col
+		pos.LineNumber = lno
 	}
 
 	if fileType == "" && pos.Filename != "" {
@@ -388,14 +402,7 @@ func extractPosition(e error) (pos text.Position) {
 	case godartsass.SassError:
 		span := v.Span
 		start := span.Start
-		filename, _ := paths.UrlToFilename(span.Url)
-		pos.Filename = filename
-		pos.Offset = start.Offset
-		pos.ColumnNumber = start.Column
-	case godartsassv1.SassError:
-		span := v.Span
-		start := span.Start
-		filename, _ := paths.UrlToFilename(span.Url)
+		filename, _ := paths.UrlStringToFilename(span.Url)
 		pos.Filename = filename
 		pos.Offset = start.Offset
 		pos.ColumnNumber = start.Column

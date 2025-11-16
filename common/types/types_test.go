@@ -27,3 +27,25 @@ func TestKeyValues(t *testing.T) {
 	c.Assert(kv.KeyString(), qt.Equals, "key")
 	c.Assert(kv.Values, qt.DeepEquals, []any{"a1", "a2"})
 }
+
+func TestLowHigh(t *testing.T) {
+	c := qt.New(t)
+
+	lh := LowHigh[string]{
+		Low:  2,
+		High: 10,
+	}
+
+	s := "abcdefghijklmnopqrstuvwxyz"
+	c.Assert(lh.IsZero(), qt.IsFalse)
+	c.Assert(lh.Value(s), qt.Equals, "cdefghij")
+
+	lhb := LowHigh[[]byte]{
+		Low:  2,
+		High: 10,
+	}
+
+	sb := []byte(s)
+	c.Assert(lhb.IsZero(), qt.IsFalse)
+	c.Assert(lhb.Value(sb), qt.DeepEquals, []byte("cdefghij"))
+}

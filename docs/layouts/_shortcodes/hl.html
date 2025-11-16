@@ -1,0 +1,14 @@
+{{/* prettier-ignore-start */ -}}
+{{- /*
+Returns syntax-highlighted code from the given text.
+
+This is useful as a terse way to highlight inline code snippets. Calling the
+highlight shortcode for inline snippets is verbose.
+
+@example This is {{< hl python >}}inline{{< /hl >}} code.
+*/ -}}
+{{/* prettier-ignore-end */ -}}
+{{- $code := .Inner | strings.TrimSpace }}
+{{- $lang := or (.Get 0) "go" }}
+{{- $opts := dict "hl_inline" true "noClasses" true }}
+{{- transform.Highlight $code $lang $opts }}

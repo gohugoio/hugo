@@ -14,6 +14,7 @@
 package page
 
 import (
+	"slices"
 	"sync"
 )
 
@@ -92,7 +93,7 @@ func (c *pageCache) getP(key string, apply func(p *Pages), pageLists ...Pages) (
 	}
 
 	p := pageLists[0]
-	pagesCopy := append(Pages(nil), p...)
+	pagesCopy := slices.Clone(p)
 
 	if apply != nil {
 		apply(&pagesCopy)
@@ -126,7 +127,7 @@ func pagesEqual(p1, p2 Pages) bool {
 		return true
 	}
 
-	for i := 0; i < len(p1); i++ {
+	for i := range p1 {
 		if p1[i] != p2[i] {
 			return false
 		}

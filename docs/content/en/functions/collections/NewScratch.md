@@ -3,36 +3,29 @@ title: collections.NewScratch
 description: Returns a locally scoped "scratch pad" to store and manipulate data.
 categories: []
 keywords: []
-action:
-  aliases: [newScratch]
-  related:
-    - methods/page/scratch
-    - methods/page/store
-    - methods/shortcode/scratch
-  returnType: maps.Scratch
-  signatures: [collections.NewScratch ]
+params:
+  functions_and_methods:
+    aliases: [newScratch]
+    returnType: maps.Scratch
+    signatures: [collections.NewScratch ]
 ---
 
-The `collections.NewScratch` function creates a locally scoped [scratch pad] to store and manipulate data. To create a scratch pad that is attached to a `Page` object, use the [`Scratch`] or [`Store`] method.
-
-[`Scratch`]: /methods/page/scratch
-[`Store`]: /methods/page/store
-[scratch pad]: /getting-started/glossary/#scratch-pad
+Use the `collections.NewScratch` function to create a locally scoped [scratch pad](g) to store and manipulate data. To create a scratch pad with a different [scope](g), refer to the [scope](#scope) section below.
 
 ## Methods
 
-###### Set
+### Set
 
-Sets the value of a given key.
+Sets the value of the given key.
 
 ```go-html-template
 {{ $s := newScratch }}
 {{ $s.Set "greeting" "Hello" }}
 ```
 
-###### Get
+### Get
 
-Gets the value of a given key.
+Gets the value of the given key.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -40,9 +33,9 @@ Gets the value of a given key.
 {{ $s.Get "greeting" }} → Hello
 ```
 
-###### Add
+### Add
 
-Adds a given value to existing value(s) of the given key.
+Adds the given value to existing value(s) of the given key.
 
 For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
@@ -67,7 +60,7 @@ For single values, `Add` accepts values that support Go's `+` operator. If the f
 {{ $s.Get "greetings" }} → [Hello Welcome Cheers]
 ```
 
-###### SetInMap
+### SetInMap
 
 Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to the given `key`.
 
@@ -78,7 +71,7 @@ Takes a `key`, `mapKey` and `value` and adds a map of `mapKey` and `value` to th
 {{ $s.Get "greetings" }} → map[english:Hello french:Bonjour]
 ```
 
-###### DeleteInMap
+### DeleteInMap
 
 Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 
@@ -90,7 +83,7 @@ Takes a `key` and `mapKey` and removes the map of `mapKey` from the given `key`.
 {{ $s.Get "greetings" }} → map[french:Bonjour]
 ```
 
-###### GetSortedMapValues
+### GetSortedMapValues
 
 Returns an array of values from `key` sorted by `mapKey`.
 
@@ -101,7 +94,7 @@ Returns an array of values from `key` sorted by `mapKey`.
 {{ $s.GetSortedMapValues "greetings" }} → [Hello Bonjour]
 ```
 
-###### Delete
+### Delete
 
 Removes the given key.
 
@@ -111,9 +104,9 @@ Removes the given key.
 {{ $s.Delete "greeting" }}
 ```
 
-###### Values
+### Values
 
-Returns the raw backing map. Do not use with `Scratch` or `Store` methods on a `Page` object due to concurrency issues.
+Returns the raw backing map. Do not use with `Store` methods on a `Page` object due to concurrency issues.
 
 ```go-html-template
 {{ $s := newScratch }}
@@ -122,3 +115,5 @@ Returns the raw backing map. Do not use with `Scratch` or `Store` methods on a `
 
 {{ $map := $s.Values }}
 ```
+
+{{% include "_common/scratch-pad-scope.md" %}}

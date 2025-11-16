@@ -69,7 +69,7 @@ func ToStringSlicePreserveStringE(v any) ([]string, error) {
 	switch vv.Kind() {
 	case reflect.Slice, reflect.Array:
 		result = make([]string, vv.Len())
-		for i := 0; i < vv.Len(); i++ {
+		for i := range vv.Len() {
 			s, err := cast.ToStringE(vv.Index(i).Interface())
 			if err != nil {
 				return nil, err

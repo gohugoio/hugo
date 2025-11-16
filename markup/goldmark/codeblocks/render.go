@@ -18,7 +18,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	htext "github.com/gohugoio/hugo/common/text"
@@ -44,11 +43,6 @@ func New() goldmark.Extender {
 }
 
 func (e *codeBlocksExtension) Extend(m goldmark.Markdown) {
-	m.Parser().AddOptions(
-		parser.WithASTTransformers(
-			util.Prioritized(&Transformer{}, 100),
-		),
-	)
 	m.Renderer().AddOptions(renderer.WithNodeRenderers(
 		util.Prioritized(newHTMLRenderer(), 100),
 	))
@@ -60,7 +54,7 @@ func newHTMLRenderer() renderer.NodeRenderer {
 }
 
 func (r *htmlRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(KindCodeBlock, r.renderCodeBlock)
+	reg.Register(ast.KindFencedCodeBlock, r.renderCodeBlock)
 }
 
 func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
@@ -70,28 +64,29 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		return ast.WalkContinue, nil
 	}
 
-	n := node.(*codeBlock)
-	lang := getLang(n.b, src)
+	n := node.(*ast.FencedCodeBlock)
+
+	lang := getLang(n, src)
 	renderer := ctx.RenderContext().GetRenderer(hooks.CodeBlockRendererType, lang)
 	if renderer == nil {
 		return ast.WalkStop, fmt.Errorf("no code renderer found for %q", lang)
 	}
 
-	ordinal := n.ordinal
+	ordinal := ctx.GetAndIncrementOrdinal(ast.KindFencedCodeBlock)
 
 	var buff bytes.Buffer
 
-	l := n.b.Lines().Len()
-	for i := 0; i < l; i++ {
-		line := n.b.Lines().At(i)
+	l := n.Lines().Len()
+	for i := range l {
+		line := n.Lines().At(i)
 		buff.Write(line.Value(src))
 	}
 
 	s := htext.Chomp(buff.String())
 
 	var info []byte
-	if n.b.Info != nil {
-		info = n.b.Info.Segment.Value(src)
+	if n.Info != nil {
+		info = n.Info.Segment.Value(src)
 	}
 
 	attrtp := attributes.AttributesOwnerCodeBlockCustom
@@ -101,29 +96,16 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		attrtp = attributes.AttributesOwnerCodeBlockChroma
 	}
 
-	// IsDefaultCodeBlockRendererProvider
-	attrs, attrStr, err := getAttributes(n.b, info)
+	attrs, attrStr, err := getAttributes(n, info)
 	if err != nil {
 		return ast.WalkStop, &herrors.TextSegmentError{Err: err, Segment: attrStr}
 	}
+
 	cbctx := &codeBlockContext{
-		page:             ctx.DocumentContext().Document,
-		pageInner:        r.getPageInner(ctx),
+		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, func() []byte { return []byte(s) }, ordinal),
 		lang:             lang,
 		code:             s,
-		ordinal:          ordinal,
 		AttributesHolder: attributes.New(attrs, attrtp),
-	}
-
-	cbctx.createPos = func() htext.Position {
-		if resolver, ok := renderer.(hooks.ElementPositionResolver); ok {
-			return resolver.ResolvePosition(cbctx)
-		}
-		return htext.Position{
-			Filename:     ctx.DocumentContext().Filename,
-			LineNumber:   1,
-			ColumnNumber: 1,
-		}
 	}
 
 	cr := renderer.(hooks.CodeBlockRenderer)
@@ -134,46 +116,18 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		cbctx,
 	)
 	if err != nil {
-		return ast.WalkContinue, herrors.NewFileErrorFromPos(err, cbctx.createPos())
+		return ast.WalkContinue, herrors.NewFileErrorFromPos(err, cbctx.Position())
 	}
 
 	return ast.WalkContinue, nil
 }
 
-func (r *htmlRenderer) getPageInner(rctx *render.Context) any {
-	pid := rctx.PeekPid()
-	if pid > 0 {
-		if lookup := rctx.DocumentContext().DocumentLookup; lookup != nil {
-			if v := rctx.DocumentContext().DocumentLookup(pid); v != nil {
-				return v
-			}
-		}
-	}
-	return rctx.DocumentContext().Document
-}
-
 type codeBlockContext struct {
-	page      any
-	pageInner any
-	lang      string
-	code      string
-	ordinal   int
-
-	// This is only used in error situations and is expensive to create,
-	// to delay creation until needed.
-	pos       htext.Position
-	posInit   sync.Once
-	createPos func() htext.Position
+	hooks.BaseContext
+	lang string
+	code string
 
 	*attributes.AttributesHolder
-}
-
-func (c *codeBlockContext) Page() any {
-	return c.page
-}
-
-func (c *codeBlockContext) PageInner() any {
-	return c.pageInner
 }
 
 func (c *codeBlockContext) Type() string {
@@ -182,17 +136,6 @@ func (c *codeBlockContext) Type() string {
 
 func (c *codeBlockContext) Inner() string {
 	return c.code
-}
-
-func (c *codeBlockContext) Ordinal() int {
-	return c.ordinal
-}
-
-func (c *codeBlockContext) Position() htext.Position {
-	c.posInit.Do(func() {
-		c.pos = c.createPos()
-	})
-	return c.pos
 }
 
 func getLang(node *ast.FencedCodeBlock, src []byte) string {

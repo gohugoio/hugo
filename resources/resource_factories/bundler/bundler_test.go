@@ -31,7 +31,7 @@ func TestMultiReadSeekCloser(t *testing.T) {
 		hugio.NewReadSeekerNoOpCloserFromString("C"),
 	)
 
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		s1 := helpers.ReaderToString(rc)
 		c.Assert(s1, qt.Equals, "ABC")
 		_, err := rc.Seek(0, 0)

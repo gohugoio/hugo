@@ -3,18 +3,17 @@ title: collections.Append
 description: Appends one or more elements to a slice and returns the resulting slice.
 categories: []
 keywords: []
-action:
-  aliases: [append]
-  related:
-    - functions/collections/Merge
-  returnType: any
-  signatures:
-    - collections.Append ELEMENT [ELEMENT...] COLLECTION
-    - collections.Append COLLECTION1 COLLECTION2
+params:
+  functions_and_methods:
+    aliases: [append]
+    returnType: any
+    signatures:
+      - collections.Append ELEMENT [ELEMENT...] COLLECTION
+      - collections.Append COLLECTION1 COLLECTION2
 aliases: [/functions/append]
 ---
 
-This function appends all elements, excluding the last, to the last element. This allows [pipe](/getting-started/glossary/#pipeline) constructs as shown below.
+This function appends all elements, excluding the last, to the last element. This allows [pipe](g) constructs as shown below.
 
 Append a single element to a slice:
 

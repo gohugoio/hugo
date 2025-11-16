@@ -1,14 +1,15 @@
 ---
 title: Section
-description: Returns the name of the top level section in which the given page resides.
+description: Returns the name of the top-level section in which the given page resides.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Type
-  returnType: string
-  signatures: [PAGE.Section]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.Section]
 ---
+
+{{% glossary-term section %}}
 
 With this content structure:
 
@@ -29,7 +30,7 @@ When rendering lesson-1.md:
 {{ .Section }} → lessons
 ```
 
-In the example above "lessons" is the top level section.
+In the example above "lessons" is the top-level section.
 
 The `Section` method is often used with the [`where`] function to build a page collection.
 
@@ -49,6 +50,5 @@ This is similar to using the [`Type`] method with the `where` function
 
 However, if the `type` field in front matter has been defined on one or more pages, the page collection based on `Type` will be different than the page collection based on `Section`.
 
-
-[`where`]: /functions/collections/where
-[`Type`]: /methods/page/type
+[`where`]: /functions/collections/where/
+[`Type`]: /methods/page/type/

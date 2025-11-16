@@ -3,21 +3,21 @@ title: resources.Concat
 description: Returns a concatenated slice of resources.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: resource.Resource
-  signatures: ['resources.Concat TARGETPATH [RESOURCE...]']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: resource.Resource
+    signatures: ['resources.Concat TARGETPATH [RESOURCE...]']
 ---
 
 The `resources.Concat` function returns a concatenated slice of resources, caching the result using the target path as its cache key. Each resource must have the same [media type].
 
-Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods. 
+Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] method.
 
 [media type]: https://en.wikipedia.org/wiki/Media_type
-[`publish`]: /methods/resource/publish
-[`permalink`]: /methods/resource/permalink
-[`relpermalink`]: /methods/resource/relpermalink
+[`publish`]: /methods/resource/publish/
+[`permalink`]: /methods/resource/permalink/
+[`relpermalink`]: /methods/resource/relpermalink/
 
 ```go-html-template
 {{ $plugins := resources.Get "js/plugins.js" }}

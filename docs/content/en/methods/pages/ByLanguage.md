@@ -3,10 +3,10 @@ title: ByLanguage
 description: Returns the given page collection sorted by language in ascending order.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Pages
-  signatures: [PAGES.ByLanguage]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGES.ByLanguage]
 ---
 
 ```go-html-template

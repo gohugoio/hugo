@@ -20,11 +20,12 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugolib/doctree"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
@@ -32,6 +33,8 @@ import (
 
 type siteRenderContext struct {
 	cfg *BuildCfg
+
+	infol logg.LevelLogger
 
 	// languageIdx is the zero based index of the site.
 	languageIdx int
@@ -54,7 +57,7 @@ func (s siteRenderContext) shouldRenderStandalonePage(kind string) bool {
 		return s.outIdx == 0
 	}
 
-	if kind == kinds.KindStatus404 {
+	if kind == kinds.KindTemporary || kind == kinds.KindStatus404 {
 		// 1 for all output formats
 		return s.outIdx == 0
 	}
@@ -75,18 +78,18 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	wg := &sync.WaitGroup{}
 
-	for i := 0; i < numWorkers; i++ {
+	for range numWorkers {
 		wg.Add(1)
 		go pageRenderer(ctx, s, pages, results, wg)
 	}
 
 	cfg := ctx.cfg
 
-	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			if p, ok := n.(*pageState); ok {
-				if cfg.shouldRender(p) {
+				if cfg.shouldRender(ctx.infol, p) {
 					select {
 					case <-s.h.Done():
 						return true, nil
@@ -111,7 +114,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("failed to render pages: %w", herrors.ImproveIfNilPointer(err))
+		return fmt.Errorf("%v failed to render pages: %w", s.resolveDimensionNames(), herrors.ImproveRenderErr(err))
 	}
 	return nil
 }
@@ -126,6 +129,7 @@ func pageRenderer(
 	defer wg.Done()
 
 	for p := range pages {
+
 		if p.m.isStandalone() && !ctx.shouldRenderStandalonePage(p.Kind()) {
 			continue
 		}
@@ -175,7 +179,7 @@ func pageRenderer(
 			d = s.h.Sites
 		}
 
-		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+p.Title(), targetPath, p, d, templ); err != nil {
+		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, targetPath, p, d, templ); err != nil {
 			results <- err
 		}
 
@@ -222,18 +226,18 @@ func (s *Site) logMissingLayout(name, layout, kind, outputFormat string) {
 }
 
 // renderPaginator must be run after the owning Page has been rendered.
-func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
-	paginatePath := s.conf.PaginatePath
+func (s *Site) renderPaginator(p *pageState, templ *tplimpl.TemplInfo) error {
+	paginatePath := s.Conf.Pagination().Path
 
 	d := p.targetPathDescriptor
-	f := p.s.rc.Format
+	f := p.outputFormat()
 	d.Type = f
 
 	if p.paginator.current == nil || p.paginator.current != p.paginator.current.First() {
 		panic(fmt.Sprintf("invalid paginator state for %q", p.pathOrTitle()))
 	}
 
-	if f.IsHTML {
+	if f.IsHTML && !s.Conf.Pagination().DisableAliases {
 		// Write alias for page 1
 		d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)
 		targetPaths := page.CreateTargetPaths(d)
@@ -253,7 +257,6 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 
 		if err := s.renderAndWritePage(
 			&s.PathSpec.ProcessingStats.PaginatorPages,
-			p.Title(),
 			targetPaths.TargetFilename, p, p, templ); err != nil {
 			return err
 		}
@@ -265,9 +268,9 @@ func (s *Site) renderPaginator(p *pageState, templ tpl.Template) error {
 
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
-	w := &doctree.NodeShiftTreeWalker[contentNodeI]{
+	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNodeI, match doctree.DimensionFlag) (bool, error) {
+		Handle: func(key string, n contentNode) (bool, error) {
 			p := n.(*pageState)
 
 			// We cannot alias a page that's not rendered.
@@ -334,6 +337,9 @@ func (s *Site) renderAliases() error {
 // renderMainLanguageRedirect creates a redirect to the main language home,
 // depending on if it lives in sub folder (e.g. /en) or not.
 func (s *Site) renderMainLanguageRedirect() error {
+	if s.conf.DisableDefaultLanguageRedirect {
+		return nil
+	}
 	if s.h.Conf.IsMultihost() || !(s.h.Conf.DefaultContentLanguageInSubdir() || s.h.Conf.IsMultilingual()) {
 		// No need for a redirect
 		return nil

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !extended
-// +build !extended
 
 package scss
 

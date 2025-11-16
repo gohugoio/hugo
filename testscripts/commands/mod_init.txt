@@ -1,0 +1,15 @@
+# Test the hugo init command.
+dostounix golden/go.mod.testsubmod
+
+hugo mod init testsubmod
+cmpenv go.mod $WORK/golden/go.mod.testsubmod
+
+-- hugo.toml --
+title = "Hugo Modules Test"
+[module]
+[[module.imports]]
+path="github.com/bep/empty-hugo-module"
+-- golden/go.mod.testsubmod --
+module testsubmod
+
+go ${GOVERSION}

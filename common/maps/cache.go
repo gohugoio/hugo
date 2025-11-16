@@ -13,17 +13,34 @@
 
 package maps
 
-import "sync"
+import (
+	"sync"
+)
 
 // Cache is a simple thread safe cache backed by a map.
 type Cache[K comparable, T any] struct {
-	m map[K]T
+	m                  map[K]T
+	opts               CacheOptions
+	hasBeenInitialized bool
 	sync.RWMutex
 }
 
-// NewCache creates a new Cache.
+// CacheOptions are the options for the Cache.
+type CacheOptions struct {
+	// If set, the cache will not grow beyond this size.
+	Size uint64
+}
+
+var defaultCacheOptions = CacheOptions{}
+
+// NewCache creates a new Cache with default options.
 func NewCache[K comparable, T any]() *Cache[K, T] {
-	return &Cache[K, T]{m: make(map[K]T)}
+	return &Cache[K, T]{m: make(map[K]T), opts: defaultCacheOptions}
+}
+
+// NewCacheWithOptions creates a new Cache with the given options.
+func NewCacheWithOptions[K comparable, T any](opts CacheOptions) *Cache[K, T] {
+	return &Cache[K, T]{m: make(map[K]T), opts: opts}
 }
 
 // Delete deletes the given key from the cache.
@@ -34,44 +51,141 @@ func (c *Cache[K, T]) Get(key K) (T, bool) {
 		return zero, false
 	}
 	c.RLock()
-	v, found := c.m[key]
+	v, found := c.get(key)
 	c.RUnlock()
 	return v, found
 }
 
+func (c *Cache[K, T]) get(key K) (T, bool) {
+	v, found := c.m[key]
+	return v, found
+}
+
 // GetOrCreate gets the value for the given key if it exists, or creates it if not.
-func (c *Cache[K, T]) GetOrCreate(key K, create func() T) T {
+func (c *Cache[K, T]) GetOrCreate(key K, create func() (T, error)) (T, error) {
 	c.RLock()
 	v, found := c.m[key]
 	c.RUnlock()
 	if found {
-		return v
+		return v, nil
 	}
 	c.Lock()
 	defer c.Unlock()
 	v, found = c.m[key]
 	if found {
-		return v
+		return v, nil
 	}
-	v = create()
+	v, err := create()
+	if err != nil {
+		return v, err
+	}
+	c.clearIfNeeded()
 	c.m[key] = v
-	return v
+	return v, nil
+}
+
+// Contains returns whether the given key exists in the cache.
+func (c *Cache[K, T]) Contains(key K) bool {
+	c.RLock()
+	_, found := c.m[key]
+	c.RUnlock()
+	return found
+}
+
+// InitAndGet initializes the cache if not already done and returns the value for the given key.
+// The init state will be reset on Reset or Drain.
+func (c *Cache[K, T]) InitAndGet(key K, init func(get func(key K) (T, bool), set func(key K, value T)) error) (T, error) {
+	var v T
+	c.RLock()
+	if !c.hasBeenInitialized {
+		c.RUnlock()
+		if err := func() error {
+			c.Lock()
+			defer c.Unlock()
+			// Double check in case another goroutine has initialized it in the meantime.
+			if !c.hasBeenInitialized {
+				err := init(c.get, c.set)
+				if err != nil {
+					return err
+				}
+				c.hasBeenInitialized = true
+			}
+			return nil
+		}(); err != nil {
+			return v, err
+		}
+		// Reacquire the read lock.
+		c.RLock()
+	}
+
+	v = c.m[key]
+	c.RUnlock()
+
+	return v, nil
 }
 
 // Set sets the given key to the given value.
 func (c *Cache[K, T]) Set(key K, value T) {
 	c.Lock()
-	c.m[key] = value
+	c.set(key, value)
 	c.Unlock()
 }
 
+// SetIfAbsent sets the given key to the given value if the key does not already exist in the cache.
+func (c *Cache[K, T]) SetIfAbsent(key K, value T) {
+	c.RLock()
+	if _, found := c.get(key); !found {
+		c.RUnlock()
+		c.Set(key, value)
+	} else {
+		c.RUnlock()
+	}
+}
+
+func (c *Cache[K, T]) clearIfNeeded() {
+	if c.opts.Size > 0 && uint64(len(c.m)) >= c.opts.Size {
+		// clear the map
+		clear(c.m)
+	}
+}
+
+func (c *Cache[K, T]) set(key K, value T) {
+	c.clearIfNeeded()
+	c.m[key] = value
+}
+
 // ForEeach calls the given function for each key/value pair in the cache.
-func (c *Cache[K, T]) ForEeach(f func(K, T)) {
+// If the function returns false, the iteration stops.
+func (c *Cache[K, T]) ForEeach(f func(K, T) bool) {
 	c.RLock()
 	defer c.RUnlock()
 	for k, v := range c.m {
-		f(k, v)
+		if !f(k, v) {
+			return
+		}
 	}
+}
+
+func (c *Cache[K, T]) Drain() map[K]T {
+	c.Lock()
+	m := c.m
+	c.m = make(map[K]T)
+	c.hasBeenInitialized = false
+	c.Unlock()
+	return m
+}
+
+func (c *Cache[K, T]) Len() int {
+	c.RLock()
+	defer c.RUnlock()
+	return len(c.m)
+}
+
+func (c *Cache[K, T]) Reset() {
+	c.Lock()
+	clear(c.m)
+	c.hasBeenInitialized = false
+	c.Unlock()
 }
 
 // SliceCache is a simple thread safe cache backed by a map.

@@ -104,9 +104,9 @@ func (p PagesGroup) Reverse() PagesGroup {
 }
 
 var (
-	errorType   = reflect.TypeOf((*error)(nil)).Elem()
-	pagePtrType = reflect.TypeOf((*Page)(nil)).Elem()
-	pagesType   = reflect.TypeOf(Pages{})
+	errorType   = reflect.TypeFor[error]()
+	pagePtrType = reflect.TypeFor[Page]()
+	pagesType   = reflect.TypeFor[Pages]()
 )
 
 // GroupBy groups by the value in the given field or method name and with the given order.
@@ -205,7 +205,7 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 		}
 	}
 	if !tmp.IsValid() {
-		return nil, errors.New("there is no such param")
+		return nil, nil
 	}
 
 	for _, e := range p {

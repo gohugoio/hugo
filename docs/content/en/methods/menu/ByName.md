@@ -3,10 +3,10 @@ title: ByName
 description: Returns the given menu with its entries sorted by name.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: navigation.Menu
-  signatures: [MENU.ByName]
+params:
+  functions_and_methods:
+    returnType: navigation.Menu
+    signatures: [MENU.ByName]
 ---
 
 The `Sort` method returns the given menu with its entries sorted by `name`.
@@ -62,4 +62,4 @@ You can also sort menu entries using the [`sort`] function. For example, to sort
 
 When using the sort function with menu entries, specify any of the following keys: `Identifier`, `Name`, `Parent`, `Post`, `Pre`, `Title`, `URL`, or `Weight`.
 
-[`sort`]: /functions/collections/sort
+[`sort`]: /functions/collections/sort/

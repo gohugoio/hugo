@@ -18,11 +18,10 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
-
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 )
 
 // SourceSpec abstracts language-specific file creation.
@@ -36,7 +35,7 @@ type SourceSpec struct {
 }
 
 // NewSourceSpec initializes SourceSpec using languages the given filesystem and PathSpec.
-func NewSourceSpec(ps *helpers.PathSpec, inclusionFilter *glob.FilenameFilter, fs afero.Fs) *SourceSpec {
+func NewSourceSpec(ps *helpers.PathSpec, inclusionFilter *hglob.FilenameFilter, fs afero.Fs) *SourceSpec {
 	shouldInclude := func(filename string) bool {
 		if !inclusionFilter.Match(filename, false) {
 			return false

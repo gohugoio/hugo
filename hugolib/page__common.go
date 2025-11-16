@@ -16,12 +16,10 @@ package hugolib
 import (
 	"sync"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/compare"
-	"github.com/gohugoio/hugo/lazy"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/navigation"
-	"github.com/gohugoio/hugo/output/layouts"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/source"
@@ -44,21 +42,17 @@ func (p *pageCommon) getNextPrevInSection() *nextPrev {
 }
 
 type pageCommon struct {
-	s *Site
+	s *Site // TODO(bep) get rid of this.
 	m *pageMeta
 
-	sWrapped page.Site
-
 	// Lazily initialized dependencies.
-	init *lazy.Init
+	pageInit sync.Once
 
 	// Store holds state that survives server rebuilds.
-	store *maps.Scratch
+	store func() *hstore.Scratch
 
 	// All of these represents the common parts of a page.Page
-	maps.Scratcher
 	navigation.PageMenusProvider
-	page.AuthorProvider
 	page.AlternativeOutputFormatsProvider
 	page.ChildCareProvider
 	page.FileProvider
@@ -70,7 +64,6 @@ type pageCommon struct {
 	page.PageMetaInternalProvider
 	page.Positioner
 	page.RawContentProvider
-	page.RelatedKeywordsProvider
 	page.RefProvider
 	page.ShortcodeInfoProvider
 	page.SitesProvider
@@ -89,11 +82,8 @@ type pageCommon struct {
 	// should look like.
 	targetPathDescriptor page.TargetPathDescriptor
 
-	layoutDescriptor     layouts.LayoutDescriptor
-	layoutDescriptorInit sync.Once
-
 	// Set if feature enabled and this is in a Git repo.
-	gitInfo    source.GitInfo
+	gitInfo    *source.GitInfo
 	codeowners []string
 
 	// Positional navigation
@@ -104,12 +94,21 @@ type pageCommon struct {
 	pageMenus *pageMenus
 
 	// Internal use
-	page.InternalDependencies
+	page.RelatedDocsHandlerProvider
 
+	pageContentConverter
+}
+
+type pageContentConverter struct {
 	contentConverterInit sync.Once
 	contentConverter     converter.Converter
 }
 
-func (p *pageCommon) Store() *maps.Scratch {
-	return p.store
+func (p *pageCommon) Store() *hstore.Scratch {
+	return p.store()
+}
+
+// See issue 13016.
+func (p *pageCommon) Scratch() *hstore.Scratch {
+	return p.Store()
 }

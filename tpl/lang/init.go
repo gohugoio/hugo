@@ -25,7 +25,7 @@ const name = "lang"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New(d, langs.GetTranslator(d.Conf.Language()))
+		ctx := New(d, langs.GetTranslator(d.Conf.Language().(*langs.Language)))
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,

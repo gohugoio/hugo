@@ -3,11 +3,10 @@ title: Nanosecond
 description: Returns the nanosecond offset within the second of the given time.Time value, in the range [0, 999999999].
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-  returnType: int
-  signatures: [TIME.Nanosecond]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [TIME.Nanosecond]
 ---
 
 ```go-html-template

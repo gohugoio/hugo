@@ -14,11 +14,13 @@
 package tableofcontents
 
 import (
+	"fmt"
 	"html/template"
 	"sort"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/spf13/cast"
 )
 
 // Empty is an empty ToC.
@@ -29,7 +31,8 @@ var Empty = &Fragments{
 
 // Builder is used to build the ToC data structure.
 type Builder struct {
-	toc *Fragments
+	identifiersSet bool
+	toc            *Fragments
 }
 
 // AddAt adds the heading to the ToC.
@@ -38,6 +41,16 @@ func (b *Builder) AddAt(h *Heading, row, level int) {
 		b.toc = &Fragments{}
 	}
 	b.toc.addAt(h, row, level)
+}
+
+// SetIdentifiers sets the identifiers in the ToC.
+func (b *Builder) SetIdentifiers(ids []string) {
+	if b.toc == nil {
+		b.toc = &Fragments{}
+	}
+	b.identifiersSet = true
+	sort.Strings(ids)
+	b.toc.Identifiers = ids
 }
 
 // Build returns the ToC.
@@ -49,7 +62,9 @@ func (b Builder) Build() *Fragments {
 	b.toc.walk(func(h *Heading) {
 		if h.ID != "" {
 			b.toc.HeadingsMap[h.ID] = h
-			b.toc.Identifiers = append(b.toc.Identifiers, h.ID)
+			if !b.identifiersSet {
+				b.toc.Identifiers = append(b.toc.Identifiers, h.ID)
+			}
 		}
 	})
 	sort.Strings(b.toc.Identifiers)
@@ -133,19 +148,30 @@ func (toc *Fragments) addAt(h *Heading, row, level int) {
 }
 
 // ToHTML renders the ToC as HTML.
-func (toc *Fragments) ToHTML(startLevel, stopLevel int, ordered bool) template.HTML {
+func (toc *Fragments) ToHTML(startLevel, stopLevel any, ordered bool) (template.HTML, error) {
 	if toc == nil {
-		return ""
+		return "", nil
 	}
+
+	iStartLevel, err := cast.ToIntE(startLevel)
+	if err != nil {
+		return "", fmt.Errorf("startLevel: %w", err)
+	}
+
+	iStopLevel, err := cast.ToIntE(stopLevel)
+	if err != nil {
+		return "", fmt.Errorf("stopLevel: %w", err)
+	}
+
 	b := &tocBuilder{
 		s:          strings.Builder{},
 		h:          toc.Headings,
-		startLevel: startLevel,
-		stopLevel:  stopLevel,
+		startLevel: iStartLevel,
+		stopLevel:  iStopLevel,
 		ordered:    ordered,
 	}
 	b.Build()
-	return template.HTML(b.s.String())
+	return template.HTML(b.s.String()), nil
 }
 
 func (toc Fragments) walk(fn func(*Heading)) {
@@ -224,7 +250,7 @@ func (b *tocBuilder) writeHeading(level, indent int, h *Heading) {
 }
 
 func (b *tocBuilder) indent(n int) {
-	for i := 0; i < n; i++ {
+	for range n {
 		b.s.WriteString("  ")
 	}
 }

@@ -59,12 +59,12 @@ func TestLiveReloadInject(t *testing.T) {
 		c.Assert(apply("<!doctype html>after"), qt.Equals, "<!doctype html>"+expectBase+"after")
 	})
 
-	c.Run("Inject before other elements if all else omitted", func(c *qt.C) {
-		c.Assert(apply("<title>after</title>"), qt.Equals, expectBase+"<title>after</title>")
+	c.Run("Inject nothing if no doctype, html or head found", func(c *qt.C) {
+		c.Assert(apply("<title>after</title>"), qt.Equals, "<title>after</title>")
 	})
 
-	c.Run("Inject before text content if all else omitted", func(c *qt.C) {
-		c.Assert(apply("after"), qt.Equals, expectBase+"after")
+	c.Run("Inject nothing if no tag found", func(c *qt.C) {
+		c.Assert(apply("after"), qt.Equals, "after")
 	})
 
 	c.Run("Inject after HeAd tag MiXed CaSe", func(c *qt.C) {
@@ -136,8 +136,7 @@ func BenchmarkLiveReloadInject(b *testing.B) {
 	}
 	tr := transform.New(New(lrurl))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		in.Seek(0, 0)
 		tr.Apply(io.Discard, in)
 	}

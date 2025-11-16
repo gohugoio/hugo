@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ package tplimpl_test
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -24,6 +25,9 @@ import (
 )
 
 func TestTemplateFuncsExamples(t *testing.T) {
+	if runtime.GOARCH == "s390x" {
+		t.Skip("Skip on s390x, see https://github.com/gohugoio/hugo/issues/13204")
+	}
 	t.Parallel()
 
 	files := `

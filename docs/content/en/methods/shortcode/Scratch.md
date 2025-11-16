@@ -1,24 +1,21 @@
 ---
 title: Scratch
-description: Creates a "scratch pad" scoped to the shortcode to store and manipulate data. 
+description: Returns a "scratch pad" to store and manipulate data, scoped to the current shortcode.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/collections/NewScratch
-  returnType: maps.Scratch
-  signatures: [SHORTCODE.Scratch]
+params:
+  functions_and_methods:
+    returnType: maps.Scratch
+    signatures: [SHORTCODE.Scratch]
+expiryDate: 2026-11-18 # deprecated 2024-11-18 (soft)
 ---
 
-The `Scratch` method within a shortcode creates a [scratch pad] to store and manipulate data. The scratch pad is scoped to the shortcode, and is reset on server rebuilds.
+{{< deprecated-in 0.139.0 >}}
+Use the [`SHORTCODE.Store`] method instead.
 
-{{% note %}}
-With the introduction of the [`newScratch`] function, and the ability to [assign values to template variables] after initialization, the `Scratch` method within a shortcode is obsolete.
+This is a soft deprecation. This method will be removed in a future release, but the removal date has not been established. Although Hugo will not emit a warning if you continue to use this method, you should begin using `SHORTCODE.Store` as soon as possible.
 
-[assign values to template variables]: https://go.dev/doc/go1.11#text/template
-[`newScratch`]: functions/collections/newscratch
-{{% /note %}}
+Beginning with v0.139.0 the `SHORTCODE.Scratch` method is aliased to `SHORTCODE.Store`.
 
-[scratch pad]: /getting-started/glossary/#scratch-pad
-
-{{% include "methods/page/_common/scratch-methods.md" %}}
+[`SHORTCODE.Store`]: /methods/shortcode/store/
+{{< /deprecated-in >}}

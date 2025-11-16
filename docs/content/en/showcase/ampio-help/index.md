@@ -1,7 +1,6 @@
 ---
 title: Ampio Knowledge Base
 date: 2022-10-30
-
 description: "Knowledge base for the Ampio building automation system."
 siteURL: https://help.ampio.com/
 ---
@@ -16,10 +15,10 @@ Over and above that, we could not overlook the fact that our internal team of ed
 
 We started our journey with the following requirements:
 
- - Ease of contribution
- - Efficient search capabilities
- - The possibility of deployment to simple shared hosting
- - Proper support for multilingualism
+- Ease of contribution
+- Efficient search capabilities
+- The possibility of deployment to simple shared hosting
+- Proper support for multilingualism
 
 ## Dark ages of WordPress
 
@@ -39,7 +38,7 @@ Hugo was our first choice of SSG. The multilingualism support was the primary fe
 
 The rich functionalities of WordPress WYSIWYG editors soon turned out to be a curse. It became burdensome to maintain formatting consistency across documents prepared by multiple contributors. When we considered Markdown, we knew that it would give us a lot less flexibility. In our case, it proved to be a blessing in disguise---the constraints imposed by the notation ensured that each document was prepared in the same way. And in the cases where Markdown was not enough, Hugo shortcodes gave us all that we needed to get the results we anticipated.
 
-In terms of PDF generation, we utilized [custom output formats](/templates/output-formats/) to produce intermediary document representations, which are consumed by our custom tool transforming them to TeX documents, which are finally used to produce PDF files.
+In terms of PDF generation, we utilized [custom output formats](/configuration/output-formats/) to produce intermediary document representations, which are consumed by our custom tool transforming them to TeX documents, which are finally used to produce PDF files.
 
 Custom output formats were also used to create search indexes. The search functionality is built on the brilliant [TNTSearch](https://github.com/teamtnt/tntsearch) library. The search queries and results are handled by PHP snippets embedded into static documents handled by Hugo.
 
@@ -66,9 +65,9 @@ Total in 1096 ms
 
 Very quickly it became apparent that our initial concerns about the adaptation of the workflow among contributors were grossly exaggerated. Markdown is fairly straightforward and did not cause any trouble for the contributors.
 
-We recommended that our colleagues use Visual Studio Code as a tool for content creation. The project’s repository tracks project-scoped configuration of the editor, which includes a set of _tasks_ allowing to run a live server from the GUI level. This is very useful for those who are easily frightened when faced with the mighty terminal.
+We recommended that our colleagues use Visual Studio Code as a tool for content creation. The project's repository tracks project-scoped configuration of the editor, which includes a set of _tasks_ allowing to run a live server from the GUI level. This is very useful for those who are easily frightened when faced with the mighty terminal.
 
-The basic skills of the Git workflow were also easily acquired. At the end of the day, builds and deployments are fully managed by CI/CD processes, so the administration of the service drills down to reviewing and accepting merge requests in the Git frontend. As a side effect, we receive a full and clear history of contributions, which is well appreciated by our quality assurance auditors.
+The basic skills of the Git workflow were also easily acquired. At the end of the day, builds and deployments are fully managed by [CI/CD](g) processes, so the administration of the service drills down to reviewing and accepting merge requests in the Git frontend. As a side effect, we receive a full and clear history of contributions, which is well appreciated by our quality assurance auditors.
 
 We could even say that our experiment spread the love for Git among non-programmers in our organization!
 

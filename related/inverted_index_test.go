@@ -21,6 +21,7 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/config"
 )
 
 type testDoc struct {
@@ -64,7 +65,7 @@ func (d *testDoc) addKeywords(name string, keywords ...string) *testDoc {
 
 	for k, v := range keywordm {
 		keywords := make([]Keyword, len(v))
-		for i := 0; i < len(v); i++ {
+		for i := range v {
 			keywords[i] = StringKeyword(v[i])
 		}
 		d.keywords[k] = keywords
@@ -220,7 +221,7 @@ func TestSearch(t *testing.T) {
 		doc := newTestDocWithDate("keywords", date, "a", "b")
 		doc.name = "thedoc"
 
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			docc := *doc
 			docc.name = fmt.Sprintf("doc%d", i)
 			idx.Add(context.Background(), &docc)
@@ -229,7 +230,7 @@ func TestSearch(t *testing.T) {
 		m, err := idx.Search(context.Background(), SearchOpts{Document: doc, Indices: []string{"keywords"}})
 		c.Assert(err, qt.IsNil)
 		c.Assert(len(m), qt.Equals, 10)
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			c.Assert(m[i].Name(), qt.Equals, fmt.Sprintf("doc%d", i))
 		}
 	})
@@ -249,6 +250,50 @@ func TestToKeywordsToLower(t *testing.T) {
 	})
 }
 
+func TestDecodeConfig(t *testing.T) {
+	c := qt.New(t)
+
+	configToml := `
+[related]
+  includeNewer = true
+  threshold = 32
+  toLower = false
+  [[related.indices]]
+    applyFilter = false
+    cardinalityThreshold = 0
+    name = 'KeyworDs'
+    pattern = ''
+    toLower = false
+    type = 'basic'
+    weight = 100
+  [[related.indices]]
+    applyFilter = true
+    cardinalityThreshold = 32
+    name = 'date'
+    pattern = ''
+    toLower = false
+    type = 'basic'
+    weight = 10
+  [[related.indices]]
+    applyFilter = false
+    cardinalityThreshold = 0
+    name = 'tags'
+    pattern = ''
+    toLower = false
+    type = 'fragments'
+    weight = 80
+`
+
+	m, err := config.FromConfigString(configToml, "toml")
+	c.Assert(err, qt.IsNil)
+	conf, err := DecodeConfig(m.GetParams("related"))
+
+	c.Assert(err, qt.IsNil)
+	c.Assert(conf.IncludeNewer, qt.IsTrue)
+	first := conf.Indices[0]
+	c.Assert(first.Name, qt.Equals, "keywords")
+}
+
 func TestToKeywordsAnySlice(t *testing.T) {
 	c := qt.New(t)
 	var config IndexConfig
@@ -266,11 +311,11 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 	pages := make([]*testDoc, 100)
 	numkeywords := 30
 	allKeywords := make([]string, numkeywords)
-	for i := 0; i < numkeywords; i++ {
+	for i := range numkeywords {
 		allKeywords[i] = fmt.Sprintf("keyword%d", i+1)
 	}
 
-	for i := 0; i < len(pages); i++ {
+	for i := range pages {
 		start := rand.Intn(len(allKeywords))
 		end := start + 3
 		if end >= len(allKeywords) {
@@ -299,7 +344,7 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 	}
 
 	b.Run("singles", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			idx := NewInvertedIndex(cfg)
 			for _, doc := range pages {
 				idx.Add(context.Background(), doc)
@@ -308,10 +353,10 @@ func BenchmarkRelatedNewIndex(b *testing.B) {
 	})
 
 	b.Run("all", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			idx := NewInvertedIndex(cfg)
 			docs := make([]Document, len(pages))
-			for i := 0; i < len(pages); i++ {
+			for i := range pages {
 				docs[i] = pages[i]
 			}
 			idx.Add(context.Background(), docs...)
@@ -327,7 +372,7 @@ func BenchmarkRelatedMatchesIn(b *testing.B) {
 	docs := make([]*testDoc, 1000)
 	numkeywords := 20
 	allKeywords := make([]string, numkeywords)
-	for i := 0; i < numkeywords; i++ {
+	for i := range numkeywords {
 		allKeywords[i] = fmt.Sprintf("keyword%d", i+1)
 	}
 
@@ -341,7 +386,7 @@ func BenchmarkRelatedMatchesIn(b *testing.B) {
 
 	idx := NewInvertedIndex(cfg)
 
-	for i := 0; i < len(docs); i++ {
+	for i := range docs {
 		start := rand.Intn(len(allKeywords))
 		end := start + 3
 		if end >= len(allKeywords) {
@@ -356,9 +401,8 @@ func BenchmarkRelatedMatchesIn(b *testing.B) {
 		idx.Add(context.Background(), newTestDoc(index, allKeywords[start:end]...))
 	}
 
-	b.ResetTimer()
 	ctx := context.Background()
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		if i%10 == 0 {
 			idx.search(ctx, q2)
 		} else {

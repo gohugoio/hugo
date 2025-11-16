@@ -3,16 +3,11 @@ title: resources.Minify
 description: Minifies the given resource.
 categories: []
 keywords: []
-action:
-  aliases: [minify]
-  related:
-    - functions/js/Build
-    - functions/resources/Babel
-    - functions/resources/Fingerprint
-    - functions/resources/PostCSS
-    - functions/resources/ToCSS
-  returnType: resource.Resource
-  signatures: [resources.Minify RESOURCE]
+params:
+  functions_and_methods:
+    aliases: [minify]
+    returnType: resource.Resource
+    signatures: [resources.Minify RESOURCE]
 ---
 
 ```go-html-template

@@ -16,8 +16,8 @@ package terminal
 
 import (
 	"fmt"
+	"io"
 	"os"
-	"runtime"
 	"strings"
 
 	isatty "github.com/mattn/go-isatty"
@@ -41,10 +41,6 @@ func PrintANSIColors(f *os.File) bool {
 // IsTerminal return true if the file descriptor is terminal and the TERM
 // environment variable isn't a dumb one.
 func IsTerminal(f *os.File) bool {
-	if runtime.GOOS == "windows" {
-		return false
-	}
-
 	fd := f.Fd()
 	return os.Getenv("TERM") != "dumb" && (isatty.IsTerminal(fd) || isatty.IsCygwinTerminal(fd))
 }
@@ -76,4 +72,28 @@ func doublePercent(str string) string {
 
 func singlePercent(str string) string {
 	return strings.Replace(str, "%%", "%", -1)
+}
+
+type ProgressState int
+
+const (
+	ProgressHidden ProgressState = iota
+	ProgressNormal
+	ProgressError
+	ProgressIntermediate
+	ProgressWarning
+)
+
+// ReportProgress writes OSC 9;4 sequence to w.
+func ReportProgress(w io.Writer, state ProgressState, progress float64) {
+	if progress < 0 {
+		progress = 0.0
+	}
+	if progress > 1 {
+		progress = 1.0
+	}
+
+	pi := int(progress * 100)
+
+	fmt.Fprintf(w, "\033]9;4;%d;%d\007", state, pi)
 }

@@ -14,6 +14,10 @@
 package template
 
 import (
+	"fmt"
+	"iter"
+
+	"github.com/gohugoio/hugo/common/types"
 	template "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
 
@@ -35,7 +39,56 @@ func (t *Template) Prepare() (*template.Template, error) {
 	return t.text, nil
 }
 
+func (t *Template) All() iter.Seq[*Template] {
+	return func(yield func(t *Template) bool) {
+		ns := t.nameSpace
+		ns.mu.Lock()
+		defer ns.mu.Unlock()
+		for _, v := range ns.set {
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
 // See https://github.com/golang/go/issues/5884
 func StripTags(html string) string {
 	return stripTags(html)
+}
+
+func indirect(a any) any {
+	in := doIndirect(a)
+
+	// We have a special Result type that we want to unwrap when printed.
+	if pp, ok := in.(types.PrintableValueProvider); ok {
+		return pp.PrintableValue()
+	}
+
+	return in
+}
+
+// CloneShallow creates a shallow copy of the template. It does not clone  or copy the nested templates.
+func (t *Template) CloneShallow() (*Template, error) {
+	t.nameSpace.mu.Lock()
+	defer t.nameSpace.mu.Unlock()
+	if t.escapeErr != nil {
+		return nil, fmt.Errorf("html/template: cannot Clone %q after it has executed", t.Name())
+	}
+	textClone, err := t.text.Clone()
+	if err != nil {
+		return nil, err
+	}
+	ns := &nameSpace{set: make(map[string]*Template)}
+	ns.esc = makeEscaper(ns)
+	ret := &Template{
+		nil,
+		textClone,
+		textClone.Tree,
+		ns,
+	}
+	ret.set[ret.Name()] = ret
+
+	// Return the template associated with the name of this template.
+	return ret.set[ret.Name()], nil
 }

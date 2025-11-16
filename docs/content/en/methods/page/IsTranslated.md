@@ -3,13 +3,10 @@ title: IsTranslated
 description: Reports whether the given page has one or more translations.
 categories: []
 keywords: []
-action:
-  related:
-   - methods/page/Translations
-   - methods/page/AllTranslations
-   - methods/page/TranslationKey
-  returnType: bool
-  signatures: [PAGE.IsTranslated]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE.IsTranslated]
 ---
 
 With this site configuration:
@@ -46,13 +43,13 @@ content/
 └── _index.md
 ```
 
-When rendering content/en/books/book-1.md:
+When rendering `content/en/books/book-1.md`:
 
 ```go-html-template
 {{ .IsTranslated }} → true
 ```
 
-When rendering content/en/books/book-2.md:
+When rendering `content/en/books/book-2.md`:
 
 ```go-html-template
 {{ .IsTranslated }} → false

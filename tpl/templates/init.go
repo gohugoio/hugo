@@ -39,6 +39,16 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Defer,
+			nil, // No aliases to keep the AST parsing simple.
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.DoDefer,
+			[]string{"doDefer"},
+			[][2]string{},
+		)
+
 		return ns
 	}
 

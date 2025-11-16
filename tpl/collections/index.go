@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/cast"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 )
 
@@ -52,7 +53,7 @@ func (ns *Namespace) doIndex(item any, args ...any) (any, error) {
 	if len(args) == 1 {
 		v := reflect.ValueOf(args[0])
 		if v.Kind() == reflect.Slice {
-			for i := 0; i < v.Len(); i++ {
+			for i := range v.Len() {
 				indices = append(indices, v.Index(i).Interface())
 			}
 		} else {
@@ -70,7 +71,7 @@ func (ns *Namespace) doIndex(item any, args ...any) (any, error) {
 	for _, i := range indices {
 		index := reflect.ValueOf(i)
 		var isNil bool
-		if v, isNil = indirect(v); isNil {
+		if v, isNil = hreflect.Indirect(v); isNil {
 			// See issue 10489
 			// This used to be an error.
 			return nil, nil

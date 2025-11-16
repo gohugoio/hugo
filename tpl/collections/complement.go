@@ -17,6 +17,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/gohugoio/hugo/common/hreflect"
 )
 
 // Complement gives the elements in the last element of ls that are not in
@@ -44,8 +46,8 @@ func (ns *Namespace) Complement(ls ...any) (any, error) {
 	switch v.Kind() {
 	case reflect.Array, reflect.Slice:
 		sl := reflect.MakeSlice(v.Type(), 0, 0)
-		for i := 0; i < v.Len(); i++ {
-			ev, _ := indirectInterface(v.Index(i))
+		for i := range v.Len() {
+			ev, _ := hreflect.Indirect(v.Index(i))
 			if _, found := aset[normalize(ev)]; !found {
 				sl = reflect.Append(sl, ev)
 			}

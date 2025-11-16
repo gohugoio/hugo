@@ -117,7 +117,12 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 		case reflect.Float32, reflect.Float64:
 			return vv.Float()
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return vv.Uint()
+			i := vv.Uint()
+			// If it can fit in an int, convert it.
+			if i <= math.MaxInt64 {
+				return int64(i)
+			}
+			return i
 		case reflect.String:
 			return vv.String()
 		default:
@@ -226,8 +231,8 @@ func (n *Namespace) checkComparisonArgCount(min int, others ...any) bool {
 // Conditional can be used as a ternary operator.
 //
 // It returns v1 if cond is true, else v2.
-func (n *Namespace) Conditional(cond bool, v1, v2 any) any {
-	if cond {
+func (n *Namespace) Conditional(cond any, v1, v2 any) any {
+	if hreflect.IsTruthful(cond) {
 		return v1
 	}
 	return v2
@@ -235,6 +240,16 @@ func (n *Namespace) Conditional(cond bool, v1, v2 any) any {
 
 func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
 	return ns.compareGetWithCollator(nil, a, b)
+}
+
+func (ns *Namespace) compareTwoUints(a uint64, b uint64) (float64, float64) {
+	if a < b {
+		return 0, 1
+	} else if a == b {
+		return 0, 0
+	} else {
+		return 1, 0
+	}
 }
 
 func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b any) (float64, float64) {
@@ -263,12 +278,22 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	var left, right float64
 	var leftStr, rightStr *string
 	av := reflect.ValueOf(a)
+	bv := reflect.ValueOf(b)
 
 	switch av.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
 		left = float64(av.Len())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if hreflect.IsUint(bv.Kind()) {
+			return ns.compareTwoUints(uint64(av.Int()), bv.Uint())
+		}
 		left = float64(av.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
+		left = float64(av.Uint())
+	case reflect.Uint64:
+		if hreflect.IsUint(bv.Kind()) {
+			return ns.compareTwoUints(av.Uint(), bv.Uint())
+		}
 	case reflect.Float32, reflect.Float64:
 		left = av.Float()
 	case reflect.String:
@@ -290,13 +315,20 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 		}
 	}
 
-	bv := reflect.ValueOf(b)
-
 	switch bv.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
 		right = float64(bv.Len())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if hreflect.IsUint(av.Kind()) {
+			return ns.compareTwoUints(av.Uint(), uint64(bv.Int()))
+		}
 		right = float64(bv.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
+		right = float64(bv.Uint())
+	case reflect.Uint64:
+		if hreflect.IsUint(av.Kind()) {
+			return ns.compareTwoUints(av.Uint(), bv.Uint())
+		}
 	case reflect.Float32, reflect.Float64:
 		right = bv.Float()
 	case reflect.String:

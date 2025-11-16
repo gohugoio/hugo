@@ -1,6 +1,6 @@
 hugo  --printPathWarnings
 
-stdout 'Duplicate target paths: .index.html \(2\)'
+stderr 'Duplicate target paths: .index.html \(2\)'
 
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404", "section"]

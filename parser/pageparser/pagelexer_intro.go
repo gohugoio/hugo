@@ -91,13 +91,13 @@ func lexFrontMatterOrgMode(l *pageLexer) stateFunc {
 		#+DESCRIPTION: Just another golang parser for org content!
 	*/
 
-	l.summaryDivider = summaryDividerOrg
-
 	l.backup()
 
 	if !l.hasPrefix(delimOrg) {
 		return lexMainSection
 	}
+
+	l.summaryDivider = summaryDividerOrg
 
 	// Read lines until we no longer see a #+ prefix
 LOOP:
@@ -123,7 +123,7 @@ LOOP:
 
 // Handle YAML or TOML front matter.
 func (l *pageLexer) lexFrontMatterSection(tp ItemType, delimr rune, name string, delim []byte) stateFunc {
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		if r := l.next(); r != delimr {
 			return l.errorf("invalid %s delimiter", name)
 		}

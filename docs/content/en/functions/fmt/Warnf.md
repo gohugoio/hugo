@@ -3,17 +3,15 @@ title: fmt.Warnf
 description: Log a WARNING from a template.
 categories: []
 keywords: []
-action:
-  aliases: [warnf]
-  related:
-    - functions/fmt/Errorf
-    - functions/fmt/Erroridf
-  returnType: string
-  signatures: ['fmt.Warnf FORMAT [INPUT]']
+params:
+  functions_and_methods:
+    aliases: [warnf]
+    returnType: string
+    signatures: ['fmt.Warnf FORMAT [INPUT]']
 aliases: [/functions/warnf]
 ---
 
-{{% include "functions/fmt/_common/fmt-layout.md" %}}
+{{% include "/_common/functions/fmt/format-string.md" %}}
 
 The `warnf` function evaluates the format string, then prints the result to the WARNING log. Hugo prints each unique message once to avoid flooding the log with duplicate warnings.
 
@@ -21,8 +19,9 @@ The `warnf` function evaluates the format string, then prints the result to the 
 {{ warnf "The %q shortcode was unable to find %s. See %s" .Name $file .Position }}
 ```
 
-To prevent suppression of duplicate messages when using `warnf` for debugging, make each message unique with the [`math.Counter`] function. For example:
+Use the [`warnidf`] function to allow optional suppression of specific warnings.
 
+To prevent suppression of duplicate messages when using `warnf` for debugging, make each message unique with the [`math.Counter`] function. For example:
 
 ```go-html-template
 {{ range site.RegularPages }}
@@ -30,4 +29,6 @@ To prevent suppression of duplicate messages when using `warnf` for debugging, m
 {{ end }}
 ```
 
-[`math.Counter`]: /functions/math/counter
+[`math.Counter`]: /functions/math/counter/
+
+[`warnidf`]: /functions/fmt/warnidf/

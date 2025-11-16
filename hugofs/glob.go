@@ -14,29 +14,29 @@
 package hugofs
 
 import (
+	"context"
 	"errors"
 	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
-
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/spf13/afero"
 )
 
 // Glob walks the fs and passes all matches to the handle func.
 // The handle func can return true to signal a stop.
 func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error)) error {
-	pattern = glob.NormalizePathNoLower(pattern)
+	pattern = hglob.NormalizePathNoLower(pattern)
 	if pattern == "" {
 		return nil
 	}
-	root := glob.ResolveRootDir(pattern)
+	root := hglob.ResolveRootDir(pattern)
 	if !strings.HasPrefix(root, "/") {
 		root = "/" + root
 	}
 	pattern = strings.ToLower(pattern)
 
-	g, err := glob.GetGlob(pattern)
+	g, err := hglob.GetGlob(pattern)
 	if err != nil {
 		return err
 	}
@@ -47,8 +47,8 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	// Signals that we're done.
 	done := errors.New("done")
 
-	wfn := func(p string, info FileMetaInfo) error {
-		p = glob.NormalizePath(p)
+	wfn := func(ctx context.Context, p string, info FileMetaInfo) error {
+		p = hglob.NormalizePath(p)
 		if info.IsDir() {
 			if !hasSuperAsterisk {
 				// Avoid walking to the bottom if we can avoid it.

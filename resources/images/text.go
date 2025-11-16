@@ -35,6 +35,8 @@ type textFilter struct {
 	text        string
 	color       color.Color
 	x, y        int
+	alignx      string
+	aligny      string
 	size        float64
 	linespacing int
 	fontSource  hugio.ReadSeekCloserProvider
@@ -77,30 +79,69 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 
 	gift.New().Draw(dst, src)
 
-	// Draw text, consider and include linebreaks
 	maxWidth := dst.Bounds().Dx() - 20
+
+	var availableWidth int
+	switch f.alignx {
+	case "right":
+		availableWidth = f.x
+	case "center":
+		availableWidth = min((maxWidth-f.x), f.x) * 2
+	case "left":
+		availableWidth = maxWidth - f.x
+	}
+
 	fontHeight := face.Metrics().Ascent.Ceil()
 
-	// Correct y position based on font and size
-	f.y = f.y + fontHeight
-
-	// Start position
-	y := f.y
-	d.Dot = fixed.P(f.x, f.y)
-
-	// Draw text line by line, breaking each line at the maximum width.
+	// Calculate lines, consider and include linebreaks
+	finalLines := []string{}
 	f.text = strings.ReplaceAll(f.text, "\r", "")
-	for _, line := range strings.Split(f.text, "\n") {
-		for _, str := range strings.Fields(line) {
-			strWidth := font.MeasureString(face, str)
-			if (d.Dot.X.Ceil() + strWidth.Ceil()) >= maxWidth {
-				y = y + fontHeight + f.linespacing
-				d.Dot = fixed.P(f.x, y)
+	for line := range strings.SplitSeq(f.text, "\n") {
+		currentLine := ""
+		// Break each line at the maximum width.
+		for str := range strings.FieldsSeq(line) {
+			fieldStrWidth := font.MeasureString(face, str)
+			currentLineStrWidth := font.MeasureString(face, currentLine)
+
+			if (currentLineStrWidth.Ceil() + fieldStrWidth.Ceil()) >= availableWidth {
+				finalLines = append(finalLines, currentLine)
+				currentLine = ""
 			}
-			d.DrawString(str + " ")
+			currentLine += str + " "
 		}
+		finalLines = append(finalLines, currentLine)
+	}
+	// Total height of the text from the top of the first line to the baseline of the last line
+	totalHeight := len(finalLines)*fontHeight + (len(finalLines)-1)*f.linespacing
+
+	// Correct y position based on font and size
+	y := f.y + fontHeight
+	switch f.aligny {
+	case "top":
+		// Do nothing
+	case "center":
+		y = y - totalHeight/2
+	case "bottom":
+		y = y - totalHeight
+	}
+
+	// Draw text line by line
+	for _, line := range finalLines {
+		line = strings.TrimSpace(line)
+		strWidth := font.MeasureString(face, line)
+		var x int
+		switch f.alignx {
+		case "right":
+			x = f.x - strWidth.Ceil()
+		case "center":
+			x = f.x - (strWidth.Ceil() / 2)
+
+		case "left":
+			x = f.x
+		}
+		d.Dot = fixed.P(x, y)
+		d.DrawString(line)
 		y = y + fontHeight + f.linespacing
-		d.Dot = fixed.P(f.x, y)
 	}
 }
 

@@ -14,6 +14,7 @@
 package filesystems_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -57,14 +58,14 @@ func TestNewBaseFs(t *testing.T) {
 			filenameTheme := filepath.Join(base, fmt.Sprintf("theme-file-%s.txt", theme))
 			filenameOverlap := filepath.Join(base, "f3.txt")
 			afs.Mkdir(base, 0o755)
-			content := []byte(fmt.Sprintf("content:%s:%s", theme, dir))
+			content := fmt.Appendf(nil, "content:%s:%s", theme, dir)
 			afero.WriteFile(afs, filenameTheme, content, 0o755)
 			afero.WriteFile(afs, filenameOverlap, content, 0o755)
 		}
 		// Write some files to the root of the theme
 		base := filepath.Join(workingDir, "themes", theme)
-		afero.WriteFile(afs, filepath.Join(base, fmt.Sprintf("theme-root-%s.txt", theme)), []byte(fmt.Sprintf("content:%s", theme)), 0o755)
-		afero.WriteFile(afs, filepath.Join(base, "file-theme-root.txt"), []byte(fmt.Sprintf("content:%s", theme)), 0o755)
+		afero.WriteFile(afs, filepath.Join(base, fmt.Sprintf("theme-root-%s.txt", theme)), fmt.Appendf(nil, "content:%s", theme), 0o755)
+		afero.WriteFile(afs, filepath.Join(base, "file-theme-root.txt"), fmt.Appendf(nil, "content:%s", theme), 0o755)
 	}
 
 	afero.WriteFile(afs, filepath.Join(workingDir, "file-root.txt"), []byte("content-project"), 0o755)
@@ -220,6 +221,18 @@ target = 'content'
 source = 'content2'
 target = 'content/c2'
 [[module.mounts]]
+source = 'content3'
+target = 'content/watchdisabled'
+disableWatch = true
+[[module.mounts]]
+source = 'content4'
+target = 'content/excludedsome'
+excludeFiles = 'p1.md'
+[[module.mounts]]
+source = 'content5'
+target = 'content/excludedall'
+excludeFiles = '/**'
+[[module.mounts]]
 source = "hugo_stats.json"
 target = "assets/watching/hugo_stats.json"
 -- hugo_stats.json --
@@ -230,12 +243,27 @@ foo
 -- themes/t1/layouts/_default/single.html --
 {{ .Content }}
 -- themes/t1/static/f1.txt --
+-- content3/p1.md --
+-- content4/p1.md --
+-- content4/p2.md --
+-- content5/p3.md --
+-- content5/p4.md --
 `
 	b := hugolib.Test(t, files)
 	bfs := b.H.BaseFs
-	watchFilenames := bfs.WatchFilenames()
-	//   []string{"/hugo_stats.json", "/content", "/content2", "/themes/t1/layouts", "/themes/t1/layouts/_default", "/themes/t1/static"}
-	b.Assert(watchFilenames, qt.HasLen, 6)
+	watchFilenames := toSlashes(bfs.WatchFilenames())
+
+	// content3 has disableWatch = true
+	// content5 has excludeFiles = '/**'
+	b.Assert(watchFilenames, qt.DeepEquals, []string{"/hugo_stats.json", "/content", "/content2", "/content4", "/themes/t1/layouts", "/themes/t1/layouts/_default", "/themes/t1/static"})
+}
+
+func toSlashes(in []string) []string {
+	out := make([]string, len(in))
+	for i, s := range in {
+		out[i] = filepath.ToSlash(s)
+	}
+	return out
 }
 
 func TestNoSymlinks(t *testing.T) {
@@ -629,7 +657,7 @@ func countFilesAndGetFilenames(fs afero.Fs, dirname string) (int, []string, erro
 	counter := 0
 	var filenames []string
 
-	wf := func(path string, info hugofs.FileMetaInfo) error {
+	wf := func(ctx context.Context, path string, info hugofs.FileMetaInfo) error {
 		if !info.IsDir() {
 			counter++
 		}
@@ -656,8 +684,8 @@ func setConfigAndWriteSomeFilesTo(fs afero.Fs, v config.Provider, key, val strin
 	workingDir := v.GetString("workingDir")
 	v.Set(key, val)
 	fs.Mkdir(val, 0o755)
-	for i := 0; i < num; i++ {
+	for i := range num {
 		filename := filepath.Join(workingDir, val, fmt.Sprintf("f%d.txt", i+1))
-		afero.WriteFile(fs, filename, []byte(fmt.Sprintf("content:%s:%d", key, i+1)), 0o755)
+		afero.WriteFile(fs, filename, fmt.Appendf(nil, "content:%s:%d", key, i+1), 0o755)
 	}
 }

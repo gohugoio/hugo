@@ -36,6 +36,8 @@ id = "ga_id"
 disableInlineCSS = true
 [services.twitter]
 disableInlineCSS = true
+[services.x]
+disableInlineCSS = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	c.Assert(err, qt.IsNil)

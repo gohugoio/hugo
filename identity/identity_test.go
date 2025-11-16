@@ -25,7 +25,7 @@ import (
 func BenchmarkIdentityManager(b *testing.B) {
 	createIds := func(num int) []identity.Identity {
 		ids := make([]identity.Identity, num)
-		for i := 0; i < num; i++ {
+		for i := range num {
 			name := fmt.Sprintf("id%d", i)
 			ids[i] = &testIdentity{base: name, name: name}
 		}
@@ -33,33 +33,22 @@ func BenchmarkIdentityManager(b *testing.B) {
 	}
 
 	b.Run("identity.NewManager", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			m := identity.NewManager("")
+		for b.Loop() {
+			m := identity.NewManager()
 			if m == nil {
 				b.Fatal("manager is nil")
 			}
 		}
 	})
 
-	b.Run("Add unique", func(b *testing.B) {
-		ids := createIds(b.N)
-		im := identity.NewManager("")
+	b.Run("Add many", func(b *testing.B) {
+		const size = 1000
+		ids := createIds(size)
+		im := identity.NewManager()
 
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			im.AddIdentity(ids[i])
-		}
-
-		b.StopTimer()
-	})
-
-	b.Run("Add duplicates", func(b *testing.B) {
-		id := &testIdentity{base: "a", name: "b"}
-		im := identity.NewManager("")
-
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			im.AddIdentity(id)
+		for i := 0; b.Loop(); i++ {
+			im.AddIdentity(ids[i%size])
 		}
 
 		b.StopTimer()
@@ -67,33 +56,33 @@ func BenchmarkIdentityManager(b *testing.B) {
 
 	b.Run("Nop StringIdentity const", func(b *testing.B) {
 		const id = identity.StringIdentity("test")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(id)
 		}
 	})
 
 	b.Run("Nop StringIdentity const other package", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(identitytesting.TestIdentity)
 		}
 	})
 
 	b.Run("Nop StringIdentity var", func(b *testing.B) {
 		id := identity.StringIdentity("test")
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(id)
 		}
 	})
 
 	b.Run("Nop pointer identity", func(b *testing.B) {
 		id := &testIdentity{base: "a", name: "b"}
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(id)
 		}
 	})
 
 	b.Run("Nop Anonymous", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			identity.NopManager.AddIdentity(identity.Anonymous)
 		}
 	})
@@ -101,17 +90,17 @@ func BenchmarkIdentityManager(b *testing.B) {
 
 func BenchmarkIsNotDependent(b *testing.B) {
 	runBench := func(b *testing.B, id1, id2 identity.Identity) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			isNotDependent(id1, id2)
 		}
 	}
 
 	newNestedManager := func(depth, count int) identity.Manager {
-		m1 := identity.NewManager("")
-		for i := 0; i < depth; i++ {
-			m2 := identity.NewManager("")
+		m1 := identity.NewManager()
+		for range depth {
+			m2 := identity.NewManager()
 			m1.AddIdentity(m2)
-			for j := 0; j < count; j++ {
+			for j := range count {
 				id := fmt.Sprintf("id%d", j)
 				m2.AddIdentity(&testIdentity{id, id, "", ""})
 			}
@@ -139,9 +128,9 @@ func TestIdentityManager(t *testing.T) {
 	c := qt.New(t)
 
 	newNestedManager := func() identity.Manager {
-		m1 := identity.NewManager("")
-		m2 := identity.NewManager("")
-		m3 := identity.NewManager("")
+		m1 := identity.NewManager()
+		m2 := identity.NewManager()
+		m3 := identity.NewManager()
 		m1.AddIdentity(
 			testIdentity{"base", "id1", "", "pe1"},
 			testIdentity{"base2", "id2", "eq1", ""},

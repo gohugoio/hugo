@@ -3,20 +3,15 @@ title: range
 description: Iterates over a non-empty collection, binds context (the dot) to successive elements, and executes the block.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/break
-    - functions/go-template/continue
-    - functions/go-template/else
-    - functions/go-template/end
-  returnType: 
-  signatures: [range COLLECTION]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: 
+    signatures: [range COLLECTION]
 aliases: [/functions/range]
-toc: true
 ---
 
-{{% include "functions/go-template/_common/truthy-falsy.md" %}}
+The collection may be a slice, a map, or an integer.
 
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
@@ -43,42 +38,45 @@ Within a range block:
 
 ## Understanding context
 
-At the top of a page template, the [context] (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
+See the [context] section in the introduction to templating.
 
-With this contrived example that uses the [`seq`] function to generate a slice of integers:
+For example, at the top of a _page_ template, the [context](g) (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
+
+With this contrived example:
 
 ```go-html-template
-{{ range seq 3 }}
-  {{ .Title }}
+{{ $s := slice "foo" "bar" "baz" }}
+{{ range $s }}
+  {{ .Title }} 
 {{ end }}
 ```
 
 Hugo will throw an error:
 
-    can't evaluate field Title in type int
+```text
+can't evaluate field Title in type int
+```
 
-The error occurs because we are trying to use the `.Title` method on an integer instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
+The error occurs because we are trying to use the `.Title` method on a string instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
 
-{{% note %}}
-Use the `$` to get the context passed into the template.
-{{% /note %}}
+> [!note]
+> Use the `$` to get the context passed into the template.
 
 This template will render the page title three times:
 
 ```go-html-template
-{{ range seq 3 }}
-  {{ $.Title }}
+{{ $s := slice "foo" "bar" "baz" }}
+{{ range $s }}
+  {{ $.Title }} 
 {{ end }}
 ```
 
-{{% note %}}
-Gaining a thorough understanding of context is critical for anyone writing template code.
-{{% /note %}}
+> [!note]
+> Gaining a thorough understanding of context is critical for anyone writing template code.
 
-[`seq`]: functions/collections/seq/
-[context]: /getting-started/glossary/#context
+## Examples
 
-## Array or slice of scalars
+### Slice of scalars
 
 This template code:
 
@@ -131,7 +129,7 @@ Is rendered to:
 <p>2: baz</p>
 ```
 
-## Array or slice of maps
+### Slice of maps
 
 This template code:
 
@@ -154,7 +152,7 @@ Is rendered to:
 <p>Joey is 24</p>
 ```
 
-## Array or slice of pages
+### Slice of pages
 
 This template code:
 
@@ -172,7 +170,7 @@ Is rendered to:
 <h2><a href="/articles/article-1/">Article 1</a></h2>
 ```
 
-## Maps
+### Maps
 
 This template code:
 
@@ -192,8 +190,33 @@ Is rendered to:
 
 Unlike ranging over an array or slice, Hugo sorts by key when ranging over a map.
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+### Integers
 
-[`else`]: /functions/go-template/else
-[`break`]: /functions/go-template/break
-[`continue`]: /functions/go-template/continue
+{{< new-in 0.123.0 />}}
+
+Ranging over a positive integer `n` executes the block `n` times, with the context starting at zero and incrementing by one in each iteration.
+
+```go-html-template
+{{ $s := slice }}
+{{ range 1 }}
+  {{ $s = $s | append . }}
+{{ end }}
+{{ $s }} → [0]
+```
+
+```go-html-template
+{{ $s := slice }}
+{{ range 3 }}
+  {{ $s = $s | append . }}
+{{ end }}
+{{ $s }} → [0 1 2]
+```
+
+Ranging over a non-positive integer executes the block zero times.
+
+{{% include "/_common/functions/go-template/text-template.md" %}}
+
+[`break`]: /functions/go-template/break/
+[`continue`]: /functions/go-template/continue/
+[`else`]: /functions/go-template/else/
+[context]: /templates/introduction/#context

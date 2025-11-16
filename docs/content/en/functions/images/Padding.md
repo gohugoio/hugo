@@ -3,17 +3,14 @@ title: images.Padding
 description: Returns an image filter that resizes the image canvas without resizing the image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: ['images.Padding V1 [V2] [V3] [V4] [COLOR]']
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: ['images.Padding V1 [V2] [V3] [V4] [COLOR]']
 ---
 
-{{< new-in 0.120.0 >}}
+{{< new-in 0.120.0 />}}
 
 The last argument is the canvas color, expressed as an RGB or RGBA [hexadecimal color]. The default value is `ffffffff` (opaque white). The preceding arguments are the padding values, in pixels, using the CSS [shorthand property] syntax. Negative padding values will crop the image.
 
@@ -28,11 +25,11 @@ Create the filter:
 {{ $filter := images.Padding 20 40 "#976941" }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 Combine with the [`Colors`] method to create a border with one of the image's most dominant colors:
 
-[`Colors`]: /methods/resource/colors
+[`Colors`]: /methods/resource/colors/
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}

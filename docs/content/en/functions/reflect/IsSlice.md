@@ -3,12 +3,11 @@ title: reflect.IsSlice
 description: Reports whether the given value is a slice.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/reflect/IsMap
-  returnType: bool
-  signatures: [reflect.IsSlice INPUT]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: bool
+    signatures: [reflect.IsSlice INPUT]
 aliases: [/functions/reflect.isslice]
 ---
 

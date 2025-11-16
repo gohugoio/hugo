@@ -15,17 +15,21 @@ package resources
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/spf13/cast"
 
+	maps0 "maps"
+
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/paths"
 )
 
 var (
@@ -83,11 +87,9 @@ func (r *metaResource) setName(name string) {
 
 func (r *metaResource) updateParams(params map[string]any) {
 	if r.params == nil {
-		r.params = make(map[string]interface{})
+		r.params = make(map[string]any)
 	}
-	for k, v := range params {
-		r.params[k] = v
-	}
+	maps0.Copy(r.params, params)
 	r.changed = true
 }
 
@@ -160,7 +162,7 @@ func assignMetadata(metadata []map[string]any, ma *metaResource) error {
 
 		srcKey := strings.ToLower(cast.ToString(src))
 
-		glob, err := glob.GetGlob(srcKey)
+		glob, err := hglob.GetGlob(srcKey)
 		if err != nil {
 			return fmt.Errorf("failed to match resource with metadata: %w", err)
 		}
@@ -172,6 +174,8 @@ func assignMetadata(metadata []map[string]any, ma *metaResource) error {
 				name, found := meta["name"]
 				if found {
 					name := cast.ToString(name)
+					// Bundled resources in sub folders are relative paths with forward slashes. Make sure any renames also matches that format:
+					name = paths.TrimLeading(filepath.ToSlash(name))
 					if !nameCounterFound {
 						nameCounterFound = strings.Contains(name, counterPlaceHolder)
 					}

@@ -15,23 +15,21 @@ package helpers
 
 import (
 	"bytes"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
+	bp "github.com/gohugoio/hugo/bufferpool"
+
 	"github.com/spf13/afero"
 
 	"github.com/jdkato/prose/transform"
-
-	bp "github.com/gohugoio/hugo/bufferpool"
 )
 
 // FilePathSeparator as defined by os.Separator.
@@ -58,65 +56,6 @@ func FirstUpper(s string) string {
 	}
 	r, n := utf8.DecodeRuneInString(s)
 	return string(unicode.ToUpper(r)) + s[n:]
-}
-
-// UniqueStrings returns a new slice with any duplicates removed.
-func UniqueStrings(s []string) []string {
-	unique := make([]string, 0, len(s))
-	for i, val := range s {
-		var seen bool
-		for j := 0; j < i; j++ {
-			if s[j] == val {
-				seen = true
-				break
-			}
-		}
-		if !seen {
-			unique = append(unique, val)
-		}
-	}
-	return unique
-}
-
-// UniqueStringsReuse returns a slice with any duplicates removed.
-// It will modify the input slice.
-func UniqueStringsReuse(s []string) []string {
-	result := s[:0]
-	for i, val := range s {
-		var seen bool
-
-		for j := 0; j < i; j++ {
-			if s[j] == val {
-				seen = true
-				break
-			}
-		}
-
-		if !seen {
-			result = append(result, val)
-		}
-	}
-	return result
-}
-
-// UniqueStringsSorted returns a sorted slice with any duplicates removed.
-// It will modify the input slice.
-func UniqueStringsSorted(s []string) []string {
-	if len(s) == 0 {
-		return nil
-	}
-	ss := sort.StringSlice(s)
-	ss.Sort()
-	i := 0
-	for j := 1; j < len(s); j++ {
-		if !ss.Less(i, j) {
-			continue
-		}
-		i++
-		s[i] = s[j]
-	}
-
-	return s[:i+1]
 }
 
 // ReaderToBytes takes an io.Reader argument, reads from it
@@ -230,17 +169,7 @@ func compareStringSlices(a, b []string) bool {
 		return false
 	}
 
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-
-	return true
+	return slices.Equal(a, b)
 }
 
 // SliceToLower goes through the source slice and lowers all values.
@@ -257,62 +186,25 @@ func SliceToLower(s []string) []string {
 	return l
 }
 
-// MD5String takes a string and returns its MD5 hash.
-func MD5String(f string) string {
-	h := md5.New()
-	h.Write([]byte(f))
-	return hex.EncodeToString(h.Sum([]byte{}))
-}
+// StringSliceToList formats a string slice into a human-readable list.
+// It joins the elements of the slice s with commas, using an Oxford comma,
+// and precedes the final element with the conjunction c.
+func StringSliceToList(s []string, c string) string {
+	const defaultConjunction = "and"
 
-// MD5FromReaderFast creates a MD5 hash from the given file. It only reads parts of
-// the file for speed, so don't use it if the files are very subtly different.
-// It will not close the file.
-// It will return the MD5 hash and the size of r in bytes.
-func MD5FromReaderFast(r io.ReadSeeker) (string, int64, error) {
-	const (
-		// Do not change once set in stone!
-		maxChunks = 8
-		peekSize  = 64
-		seek      = 2048
-	)
-
-	h := md5.New()
-	buff := make([]byte, peekSize)
-
-	for i := 0; i < maxChunks; i++ {
-		if i > 0 {
-			_, err := r.Seek(seek, 0)
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
-				return "", 0, err
-			}
-		}
-
-		_, err := io.ReadAtLeast(r, buff, peekSize)
-		if err != nil {
-			if err == io.EOF || err == io.ErrUnexpectedEOF {
-				h.Write(buff)
-				break
-			}
-			return "", 0, err
-		}
-		h.Write(buff)
+	if c == "" {
+		c = defaultConjunction
 	}
-
-	size, _ := r.Seek(0, io.SeekEnd)
-
-	return hex.EncodeToString(h.Sum(nil)), size, nil
-}
-
-// MD5FromReader creates a MD5 hash from the given reader.
-func MD5FromReader(r io.Reader) (string, error) {
-	h := md5.New()
-	if _, err := io.Copy(h, r); err != nil {
-		return "", nil
+	if len(s) == 0 {
+		return ""
 	}
-	return hex.EncodeToString(h.Sum(nil)), nil
+	if len(s) == 1 {
+		return s[0]
+	}
+	if len(s) == 2 {
+		return fmt.Sprintf("%s %s %s", s[0], c, s[1])
+	}
+	return fmt.Sprintf("%s, %s %s", strings.Join(s[:len(s)-1], ", "), c, s[len(s)-1])
 }
 
 // IsWhitespace determines if the given rune is whitespace.

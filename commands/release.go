@@ -32,7 +32,7 @@ func newReleaseCommand() simplecobra.Commander {
 
 	return &simpleCommand{
 		name:  "release",
-		short: "Release a new version of Hugo.",
+		short: "Release a new version of Hugo",
 		run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 			rel, err := releaser.New(skipPush, try, step)
 			if err != nil {

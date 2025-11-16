@@ -1,0 +1,11 @@
+{{ $githubInfo := partialCached "helpers/funcs/get-github-info.html" . "-" }}
+{{ $opts := dict "minify" true }}
+{{ with resources.Get "js/head-early.js" | js.Build $opts }}
+  {{ partial "helpers/linkjs.html" (dict "r" . "attributes" (dict "async" "")) }}
+{{ end }}
+{{ with resources.Get "js/main.js" | js.Build $opts }}
+  {{ partial "helpers/linkjs.html" (dict "r" . "attributes" (dict "defer" "")) }}
+{{ end }}
+{{ with resources.Get "js/turbo.js" | js.Build $opts }}
+  {{ partial "helpers/linkjs.html" (dict "r" . "attributes" (dict "defer" "")) }}
+{{ end }}

@@ -15,6 +15,7 @@ package math
 
 import (
 	"context"
+	"runtime"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
@@ -23,8 +24,15 @@ import (
 const name = "math"
 
 func init() {
+	mathAtan1 := "0.7853981633974483"
+	mathTan1 := "1.557407724654902"
+	if runtime.GOARCH == "s390x" {
+		mathAtan1 = "0.7853981633974484"
+		mathTan1 = "1.5574077246549018"
+	}
+
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New()
+		ctx := New(d)
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
@@ -38,6 +46,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Acos,
+			nil,
+			[][2]string{
+				{"{{ math.Acos 1 }}", "0"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Add,
 			[]string{"add"},
 			[][2]string{
@@ -45,10 +60,38 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Asin,
+			nil,
+			[][2]string{
+				{"{{ math.Asin 1 }}", "1.5707963267948966"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Atan,
+			nil,
+			[][2]string{
+				{"{{ math.Atan 1 }}", mathAtan1},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Atan2,
+			nil,
+			[][2]string{
+				{"{{ math.Atan2 1 2 }}", "0.4636476090008061"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Ceil,
 			nil,
 			[][2]string{
 				{"{{ math.Ceil 2.1 }}", "3"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Cos,
+			nil,
+			[][2]string{
+				{"{{ math.Cos 1 }}", "0.5403023058681398"},
 			},
 		)
 
@@ -80,6 +123,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.MaxInt64,
+			nil,
+			[][2]string{
+				{"{{ math.MaxInt64 }}", "9223372036854775807"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Min,
 			nil,
 			[][2]string{
@@ -108,6 +158,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Pi,
+			nil,
+			[][2]string{
+				{"{{ math.Pi }}", "3.141592653589793"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Pow,
 			[]string{"pow"},
 			[][2]string{
@@ -129,6 +186,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Sin,
+			nil,
+			[][2]string{
+				{"{{ math.Sin 1 }}", "0.8414709848078965"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Sqrt,
 			nil,
 			[][2]string{
@@ -140,6 +204,27 @@ func init() {
 			[]string{"sub"},
 			[][2]string{
 				{"{{ sub 3 2 }}", "1"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Tan,
+			nil,
+			[][2]string{
+				{"{{ math.Tan 1 }}", mathTan1},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ToDegrees,
+			nil,
+			[][2]string{
+				{"{{ math.ToDegrees 1.5707963267948966 }}", "90"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ToRadians,
+			nil,
+			[][2]string{
+				{"{{ math.ToRadians 90 }}", "1.5707963267948966"},
 			},
 		)
 

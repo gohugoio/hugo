@@ -74,7 +74,6 @@ func TestNewContentFromFile(t *testing.T) {
 	c := qt.New(t)
 
 	for i, cas := range cases {
-		cas := cas
 
 		c.Run(cas.name, func(c *qt.C) {
 			c.Parallel()
@@ -129,30 +128,34 @@ site RegularPages: {{ len site.RegularPages  }}
 
 `
 
-	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0o755), qt.IsNil)
+	c.Assert(afero.WriteFile(mm, filepath.Join(archetypeDir, "index.md"), fmt.Appendf(nil, contentFile, "index.md"), 0o755), qt.IsNil)
 	c.Assert(afero.WriteFile(mm, filepath.Join(defaultArchetypeDir, "index.md"), []byte("default archetype index.md"), 0o755), qt.IsNil)
 
 	c.Assert(initFs(mm), qt.IsNil)
 	cfg, fs := newTestCfg(c, mm)
 
 	conf := testconfig.GetTestConfigs(fs.Source, cfg)
-	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
-	c.Assert(err, qt.IsNil)
-	c.Assert(len(h.Sites), qt.Equals, 2)
 
-	c.Assert(create.NewContent(h, "my-bundle", "post/my-post", false), qt.IsNil)
+	h := func() *hugolib.HugoSites {
+		h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
+		c.Assert(err, qt.IsNil)
+		c.Assert(len(h.Sites), qt.Equals, 2)
+		return h
+	}
+
+	c.Assert(create.NewContent(h(), "my-bundle", "post/my-post", false), qt.IsNil)
 	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.md")), `site RegularPages: 10`)
 
 	// Default bundle archetype
-	c.Assert(create.NewContent(h, "", "post/my-post2", false), qt.IsNil)
+	c.Assert(create.NewContent(h(), "", "post/my-post2", false), qt.IsNil)
 	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post2/index.md")), `default archetype index.md`)
 
 	// Regular file with bundle kind.
-	c.Assert(create.NewContent(h, "my-bundle", "post/foo.md", false), qt.IsNil)
+	c.Assert(create.NewContent(h(), "my-bundle", "post/foo.md", false), qt.IsNil)
 	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "post/foo.md")), `draft: true`)
 
 	// Regular files should fall back to the default archetype (we have no regular file archetype).
-	c.Assert(create.NewContent(h, "my-bundle", "mypage.md", false), qt.IsNil)
+	c.Assert(create.NewContent(h(), "my-bundle", "mypage.md", false), qt.IsNil)
 	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "mypage.md")), `draft: true`)
 }
 

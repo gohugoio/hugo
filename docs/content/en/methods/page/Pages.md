@@ -3,15 +3,13 @@ title: Pages
 description: Returns a collection of regular pages within the current section, and section pages of immediate descendant sections.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/RegularPages
-    - methods/page/RegularPagesRecursive
-  returnType: page.Pages
-  signatures: [PAGE.Pages]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.Pages]
 ---
 
-The `Pages` method on a `Page` object is available to these [page kinds]: `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection] in [context].
+The `Pages` method on a `Page` object is available to these [page kinds](g): `home`, `section`, `taxonomy`, and `term`. The templates for these page kinds receive a page [collection](g) in [context](g), in the [default sort order](g).
 
 Range through the page collection in your template:
 
@@ -70,13 +68,10 @@ When rendering lesson-2, the `Pages` method returns:
     lessons/lesson-2/resources/task-list.md
     lessons/lesson-2/resources/worksheet.md
 
-In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section]---it does not contain an _index.md file. Its contents are part of the lesson-2 section.
+In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section](g)---it does not contain an&nbsp;`_index.md`&nbsp;file. Its contents are part of the lesson-2 section.
 
-{{% note %}}
-When used with a `Site` object, the `Pages` method recursively returns all pages within the site. See&nbsp;[details].
-
-[details]: /methods/site/pages
-{{% /note %}}
+> [!note]
+> When used with a `Site` object, the `Pages` method recursively returns all pages within the site. See&nbsp;[details].
 
 ```go-html-template
 {{ range .Site.Pages.ByTitle }}
@@ -84,7 +79,4 @@ When used with a `Site` object, the `Pages` method recursively returns all pages
 {{ end }}
 ```
 
-[collection]: /getting-started/glossary/#collection
-[context]: /getting-started/glossary/#context
-[page kinds]: /getting-started/glossary/#page-kind
-[section]: /getting-started/glossary/#section
+[details]: /methods/site/pages/

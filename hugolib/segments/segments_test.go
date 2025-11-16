@@ -4,112 +4,147 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/predicate"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
+
+var (
+	testDims    = sitesmatrix.NewTestingDimensions([]string{"no", "en"}, []string{"v1.0.0", "v1.2.0", "v2.0.0"}, []string{"guest", "member"})
+	no          = sitesmatrix.Vector{0, 0, 0}
+	en          = sitesmatrix.Vector{1, 0, 0}
+	sitesNoStar = sitesmatrix.Sites{
+		Matrix: sitesmatrix.StringSlices{
+			Languages: []string{"n*"},
+		},
+	}
+	sitesNo = sitesmatrix.Sites{
+		Matrix: sitesmatrix.StringSlices{
+			Languages: []string{"no"},
+		},
+	}
+
+	sitesNotNo = sitesmatrix.Sites{
+		Matrix: sitesmatrix.StringSlices{
+			Languages: []string{"! no"},
+		},
+	}
+)
+
+var compileSegments = func(c *qt.C, includes ...SegmentMatcherFields) predicate.P[SegmentQuery] {
+	segments := Segments{
+		builder: &segmentsBuilder{
+			logger:               loggers.NewDefault(),
+			configuredDimensions: testDims,
+			segmentsToRender:     []string{"docs"},
+			segmentCfg: map[string]SegmentConfig{
+				"docs": {
+					Includes: includes,
+				},
+			},
+		},
+	}
+	c.Assert(segments.compile(), qt.IsNil)
+	return segments.SegmentFilter.ShouldExcludeFine
+}
 
 func TestCompileSegments(t *testing.T) {
 	c := qt.New(t)
 
-	c.Run("excludes", func(c *qt.C) {
+	c.Run("variants1", func(c *qt.C) {
 		fields := []SegmentMatcherFields{
 			{
-				Lang:   "n*",
-				Output: "rss",
+				Sites:  sitesNoStar,
+				Output: []string{"rss"},
 			},
 		}
 
-		match, err := compileSegments(fields)
-		c.Assert(err, qt.IsNil)
+		shouldExclude := compileSegments(c, fields...)
 
 		check := func() {
-			c.Assert(match, qt.IsNotNil)
-			c.Assert(match(SegmentMatcherFields{Lang: "no"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Kind: "page"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "rss"}), qt.Equals, true)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "html"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Kind: "page"}), qt.Equals, false)
-			c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "rss", Kind: "page"}), qt.Equals, true)
+			c.Assert(shouldExclude, qt.IsNotNil)
+			c.Assert(shouldExclude(SegmentQuery{Site: no}), qt.Equals, true)
+			c.Assert(shouldExclude(SegmentQuery{Site: no, Kind: "page"}), qt.Equals, true)
+			c.Assert(shouldExclude(SegmentQuery{Site: no, Output: "rss"}), qt.Equals, false)
+			c.Assert(shouldExclude(SegmentQuery{Site: no, Output: "html"}), qt.Equals, true)
+			c.Assert(shouldExclude(SegmentQuery{Kind: "page"}), qt.Equals, true)
+			c.Assert(shouldExclude(SegmentQuery{Site: no, Output: "rss", Kind: "page"}), qt.Equals, false)
 		}
 
 		check()
 
 		fields = []SegmentMatcherFields{
 			{
-				Path: "/blog/**",
+				Path: []string{"/blog/**"},
 			},
 			{
-				Lang:   "n*",
-				Output: "rss",
+				Sites:  sitesNoStar,
+				Output: []string{"rss"},
 			},
 		}
 
-		match, err = compileSegments(fields)
-		c.Assert(err, qt.IsNil)
+		shouldExclude = compileSegments(c, fields...)
 		check()
-		c.Assert(match(SegmentMatcherFields{Path: "/blog/foo"}), qt.Equals, true)
+		c.Assert(shouldExclude(SegmentQuery{Path: "/blog/foo"}), qt.Equals, false)
 	})
 
-	c.Run("includes", func(c *qt.C) {
+	c.Run("variants2", func(c *qt.C) {
 		fields := []SegmentMatcherFields{
 			{
-				Path: "/docs/**",
+				Path: []string{"/docs/**"},
 			},
 			{
-				Lang:   "no",
-				Output: "rss",
+				Sites:  sitesNo,
+				Output: []string{"rss", "json"},
 			},
 		}
 
-		match, err := compileSegments(fields)
-		c.Assert(err, qt.IsNil)
-		c.Assert(match, qt.IsNotNil)
-		c.Assert(match(SegmentMatcherFields{Lang: "no"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page", Path: "/blog/foo"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Lang: "en"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "rss"}), qt.Equals, true)
-		c.Assert(match(SegmentMatcherFields{Lang: "no", Output: "html"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page", Path: "/docs/foo"}), qt.Equals, true)
-	})
-
-	c.Run("includes variant1", func(c *qt.C) {
-		c.Skip()
-
-		fields := []SegmentMatcherFields{
-			{
-				Kind: "home",
-			},
-			{
-				Path: "{/docs,/docs/**}",
-			},
-		}
-
-		match, err := compileSegments(fields)
-		c.Assert(err, qt.IsNil)
-		c.Assert(match, qt.IsNotNil)
-		c.Assert(match(SegmentMatcherFields{Path: "/blog/foo"}), qt.Equals, false)
-		c.Assert(match(SegmentMatcherFields{Kind: "page", Path: "/docs/foo"}), qt.Equals, true)
-		c.Assert(match(SegmentMatcherFields{Kind: "home", Path: "/"}), qt.Equals, true)
+		shouldExclude := compileSegments(c, fields...)
+		c.Assert(shouldExclude, qt.IsNotNil)
+		c.Assert(shouldExclude(SegmentQuery{Site: no}), qt.Equals, true)
+		c.Assert(shouldExclude(SegmentQuery{Kind: "page"}), qt.Equals, true)
+		c.Assert(shouldExclude(SegmentQuery{Kind: "page", Path: "/blog/foo"}), qt.Equals, true)
+		c.Assert(shouldExclude(SegmentQuery{Site: en}), qt.Equals, true)
+		c.Assert(shouldExclude(SegmentQuery{Site: no, Output: "rss"}), qt.Equals, false)
+		c.Assert(shouldExclude(SegmentQuery{Site: no, Output: "json"}), qt.Equals, false)
+		c.Assert(shouldExclude(SegmentQuery{Site: no, Output: "html"}), qt.Equals, true)
+		c.Assert(shouldExclude(SegmentQuery{Kind: "page", Path: "/docs/foo"}), qt.Equals, false)
 	})
 }
 
-func BenchmarkSegmentsMatch(b *testing.B) {
+func TestCompileSegmentsNegate(t *testing.T) {
+	c := qt.New(t)
+
 	fields := []SegmentMatcherFields{
 		{
-			Path: "/docs/**",
+			Sites:  sitesNotNo,
+			Output: []string{"! r**", "rem", "html"},
+		},
+	}
+
+	shouldExclude := compileSegments(c, fields...)
+	c.Assert(shouldExclude, qt.IsNotNil)
+	c.Assert(shouldExclude(SegmentQuery{Site: no, Output: "html"}), qt.Equals, true)
+	c.Assert(shouldExclude(SegmentQuery{Site: en, Output: "html"}), qt.Equals, false)
+	c.Assert(shouldExclude(SegmentQuery{Site: en, Output: "rss"}), qt.Equals, true)
+	c.Assert(shouldExclude(SegmentQuery{Site: en, Output: "rem"}), qt.Equals, true)
+}
+
+func BenchmarkSegmentsMatch(b *testing.B) {
+	c := qt.New(b)
+	fields := []SegmentMatcherFields{
+		{
+			Path: []string{"/docs/**"},
 		},
 		{
-			Lang:   "no",
-			Output: "rss",
+			Sites:  sitesNo,
+			Output: []string{"rss"},
 		},
 	}
 
-	match, err := compileSegments(fields)
-	if err != nil {
-		b.Fatal(err)
-	}
+	match := compileSegments(c, fields...)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		match(SegmentMatcherFields{Lang: "no", Output: "rss"})
+	for b.Loop() {
+		match(SegmentQuery{Site: no, Output: "rss"})
 	}
 }

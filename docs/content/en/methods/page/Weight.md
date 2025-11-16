@@ -3,15 +3,13 @@ title: Weight
 description: Returns the weight of the given page as defined in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: int
-  signatures: [PAGE.Weight]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [PAGE.Weight]
 ---
 
-The `Weight` method on a `Page` object returns the [weight] of the given page as defined in front matter.
-
-[weight]: /getting-started/glossary/#weight
+The `Weight` method on a `Page` object returns the [weight](g) of the given page as defined in front matter.
 
 {{< code-toggle file=content/recipes/sushi.md fm=true >}}
 title = 'How to make spicy tuna hand rolls'

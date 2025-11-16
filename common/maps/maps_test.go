@@ -73,9 +73,13 @@ func TestPrepareParams(t *testing.T) {
 	for i, test := range tests {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {
 			// PrepareParams modifies input.
+			prepareClone := PrepareParamsClone(test.input)
 			PrepareParams(test.input)
 			if !reflect.DeepEqual(test.expected, test.input) {
 				t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
+			}
+			if !reflect.DeepEqual(test.expected, prepareClone) {
+				t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, prepareClone)
 			}
 		})
 	}

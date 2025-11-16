@@ -20,6 +20,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
@@ -32,7 +33,7 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 		return nil, errors.New("sequence must be provided")
 	}
 
-	seqv, isNil := indirect(reflect.ValueOf(l))
+	seqv, isNil := hreflect.Indirect(reflect.ValueOf(l))
 	if isNil {
 		return nil, errors.New("can't iterate over a nil value")
 	}
@@ -49,7 +50,7 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 		return nil, errors.New("can't sort " + reflect.ValueOf(l).Type().String())
 	}
 
-	collator := langs.GetCollator1(ns.deps.Conf.Language())
+	collator := langs.GetCollator1(ns.deps.Conf.Language().(*langs.Language))
 
 	// Create a list of pairs that will be used to do the sort
 	p := pairList{Collator: collator, sortComp: ns.sortComp, SortAsc: true, SliceType: sliceType}
@@ -73,7 +74,7 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
-		for i := 0; i < seqv.Len(); i++ {
+		for i := range seqv.Len() {
 			p.Pairs[i].Value = seqv.Index(i)
 			if sortByField == "" || sortByField == "value" {
 				p.Pairs[i].Key = p.Pairs[i].Value
@@ -99,18 +100,21 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 		}
 
 	case reflect.Map:
-		keys := seqv.MapKeys()
-		for i := 0; i < seqv.Len(); i++ {
-			p.Pairs[i].Value = seqv.MapIndex(keys[i])
 
+		iter := seqv.MapRange()
+		i := 0
+		for iter.Next() {
+			key := iter.Key()
+			value := iter.Value()
+			p.Pairs[i].Value = value
 			if sortByField == "" {
-				p.Pairs[i].Key = keys[i]
+				p.Pairs[i].Key = key
 			} else if sortByField == "value" {
 				p.Pairs[i].Key = p.Pairs[i].Value
 			} else {
 				v := p.Pairs[i].Value
 				var err error
-				for i, elemName := range path {
+				for j, elemName := range path {
 					v, err = evaluateSubElem(ctxv, v, elemName)
 					if err != nil {
 						return nil, err
@@ -120,12 +124,13 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 					}
 					// Special handling of lower cased maps.
 					if params, ok := v.Interface().(maps.Params); ok {
-						v = reflect.ValueOf(params.GetNested(path[i+1:]...))
+						v = reflect.ValueOf(params.GetNested(path[j+1:]...))
 						break
 					}
 				}
 				p.Pairs[i].Key = v
 			}
+			i++
 		}
 	}
 

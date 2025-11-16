@@ -10,7 +10,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func newPagesPrevNextTestSite(t testing.TB, numPages int) *sitesBuilder {
+func newPagesPrevNextTestSite(t testing.TB, numPages int) *IntegrationTestBuilder {
 	categories := []string{"blue", "green", "red", "orange", "indigo", "amber", "lime"}
 	cat1, cat2 := categories[rand.Intn(len(categories))], categories[rand.Intn(len(categories))]
 	categoriesSlice := fmt.Sprintf("[%q,%q]", cat1, cat2)
@@ -22,18 +22,21 @@ categories: %s
 ---
 
 `
-	b := newTestSitesBuilder(t)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+
+`
 
 	for i := 1; i <= numPages; i++ {
-		b.WithContent(fmt.Sprintf("page%d.md", i), fmt.Sprintf(pageTemplate, i, rand.Intn(numPages), categoriesSlice))
+		files += fmt.Sprintf("-- content/page%d.md --%s\n", i, fmt.Sprintf(pageTemplate, i, rand.Intn(numPages), categoriesSlice))
 	}
 
-	return b
+	return Test(t, files, TestOptSkipRender())
 }
 
 func TestPagesPrevNext(t *testing.T) {
 	b := newPagesPrevNextTestSite(t, 100)
-	b.Build(BuildCfg{SkipRender: true})
 
 	pages := b.H.Sites[0].RegularPages()
 
@@ -71,13 +74,12 @@ func BenchmarkPagesPrevNext(b *testing.B) {
 			b.Run(fmt.Sprintf("%s-pages-%d", variant.name, numPages), func(b *testing.B) {
 				b.StopTimer()
 				builder := newPagesPrevNextTestSite(b, numPages)
-				builder.Build(BuildCfg{SkipRender: true})
 				pages := builder.H.Sites[0].RegularPages()
 				if variant.preparePages != nil {
 					pages = variant.preparePages(pages)
 				}
 				b.StartTimer()
-				for i := 0; i < b.N; i++ {
+				for b.Loop() {
 					p := pages[rand.Intn(len(pages))]
 					variant.run(p, pages)
 				}
@@ -101,7 +103,7 @@ func BenchmarkPagePageCollections(b *testing.B) {
 			b.Run(fmt.Sprintf("%s-%d", variant.name, numPages), func(b *testing.B) {
 				b.StopTimer()
 				builder := newPagesPrevNextTestSite(b, numPages)
-				builder.Build(BuildCfg{SkipRender: true})
+				builder.Build()
 				var pages page.Pages
 				for _, p := range builder.H.Sites[0].Pages() {
 					if !p.IsPage() {
@@ -109,7 +111,7 @@ func BenchmarkPagePageCollections(b *testing.B) {
 					}
 				}
 				b.StartTimer()
-				for i := 0; i < b.N; i++ {
+				for b.Loop() {
 					p := pages[rand.Intn(len(pages))]
 					variant.run(p)
 				}

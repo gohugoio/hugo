@@ -3,16 +3,10 @@ title: Hour
 description: Returns the hour within the day of the given time.Time value, in the range [0, 23].
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Year
-    - methods/time/Month
-    - methods/time/Day
-    - methods/time/Minute
-    - methods/time/Second
-    - functions/time/AsTime
-  returnType: int
-  signatures: [TIME.Hour]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [TIME.Hour]
 ---
 
 ```go-html-template

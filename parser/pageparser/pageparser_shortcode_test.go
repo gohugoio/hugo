@@ -126,6 +126,9 @@ var shortCodeLexerTests = []lexerTest{
 	{"self-closing with param", `{{< sc1 param1 />}}`, []typeText{
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF,
 	}, nil},
+	{"self-closing with extra keyword", `{{< sc1 / keyword>}}`, []typeText{
+		tstLeftNoMD, tstSC1, tstSCClose, nti(tError, "closing tag for shortcode 'keyword' does not match start tag"),
+	}, nil},
 	{"multiple self-closing with param", `{{< sc1 param1 />}}{{< sc1 param1 />}}`, []typeText{
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD,
 		tstLeftNoMD, tstSC1, tstParam1, tstSCClose, tstRightNoMD, tstEOF,
@@ -137,6 +140,12 @@ var shortCodeLexerTests = []lexerTest{
 	{"nested simple", `{{< sc1 >}}{{< sc2 >}}{{< /sc1 >}}`, []typeText{
 		tstLeftNoMD, tstSC1, tstRightNoMD,
 		tstLeftNoMD, tstSC2, tstRightNoMD,
+		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD, tstEOF,
+	}, nil},
+	{"nested same", `{{< sc1 >}}{{< sc1 >}}{{< /sc1 >}}{{< /sc1 >}}`, []typeText{
+		tstLeftNoMD, tstSC1, tstRightNoMD,
+		tstLeftNoMD, tstSC1, tstRightNoMD,
+		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD,
 		tstLeftNoMD, tstSCClose, tstSC1, tstRightNoMD, tstEOF,
 	}, nil},
 	{"nested complex", `{{< sc1 >}}ab{{% sc2 param1 %}}cd{{< sc3 >}}ef{{< /sc3 >}}gh{{% /sc2 %}}ij{{< /sc1 >}}kl`, []typeText{
@@ -271,8 +280,8 @@ func BenchmarkShortcodeLexer(b *testing.B) {
 		testInputs[i] = []byte(input.input)
 	}
 	var cfg Config
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		for _, input := range testInputs {
 			_, err := collectWithConfig(input, true, lexMainSection, cfg)
 			if err != nil {

@@ -14,6 +14,7 @@
 package navigation
 
 import (
+	"slices"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -23,7 +24,7 @@ import (
 
 func createSortTestMenu(num int) Menu {
 	menu := make(Menu, num)
-	for i := 0; i < num; i++ {
+	for i := range num {
 		m := &MenuEntry{}
 		menu[i] = m
 	}
@@ -49,11 +50,11 @@ func TestMenuCache(t *testing.T) {
 
 	var testMenuSets []Menu
 
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		testMenuSets = append(testMenuSets, createSortTestMenu(i+1))
 	}
 
-	for j := 0; j < 100; j++ {
+	for range 100 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -64,8 +65,8 @@ func TestMenuCache(t *testing.T) {
 				l1.Unlock()
 				m2, c2 := c1.get("k1", nil, m)
 				c.Assert(c2, qt.Equals, true)
-				c.Assert(menuEqual(m, m2), qt.Equals, true)
-				c.Assert(menuEqual(m, menu), qt.Equals, true)
+				c.Assert(slices.Equal(m, m2), qt.Equals, true)
+				c.Assert(slices.Equal(m, menu), qt.Equals, true)
 				c.Assert(m, qt.Not(qt.IsNil))
 
 				l2.Lock()

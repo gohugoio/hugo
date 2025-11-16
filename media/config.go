@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 
@@ -46,7 +47,7 @@ func init() {
 	// Initialize the Builtin types with values from DefaultTypes.
 	v := reflect.ValueOf(&Builtin).Elem()
 
-	for i := 0; i < v.NumField(); i++ {
+	for i := range v.NumField() {
 		f := v.Field(i)
 		fieldName := v.Type().Field(i).Name
 		builtinType := f.Interface().(Type)
@@ -71,10 +72,14 @@ func init() {
 		EmacsOrgMode:     Builtin.EmacsOrgModeType,
 	}
 
-	DefaultContentTypes.init()
+	DefaultContentTypes.init(nil)
 }
 
 var DefaultContentTypes ContentTypes
+
+type ContentTypeConfig struct {
+	// Empty for now.
+}
 
 // ContentTypes holds the media types that are considered content in Hugo.
 type ContentTypes struct {
@@ -85,13 +90,36 @@ type ContentTypes struct {
 	ReStructuredText Type
 	EmacsOrgMode     Type
 
+	types Types
+
 	// Created in init().
-	types        Types
 	extensionSet map[string]bool
 }
 
-func (t *ContentTypes) init() {
-	t.types = Types{t.HTML, t.Markdown, t.AsciiDoc, t.Pandoc, t.ReStructuredText, t.EmacsOrgMode}
+func (t *ContentTypes) init(types Types) {
+	sort.Slice(t.types, func(i, j int) bool {
+		return t.types[i].Type < t.types[j].Type
+	})
+
+	if tt, ok := types.GetByType(t.HTML.Type); ok {
+		t.HTML = tt
+	}
+	if tt, ok := types.GetByType(t.Markdown.Type); ok {
+		t.Markdown = tt
+	}
+	if tt, ok := types.GetByType(t.AsciiDoc.Type); ok {
+		t.AsciiDoc = tt
+	}
+	if tt, ok := types.GetByType(t.Pandoc.Type); ok {
+		t.Pandoc = tt
+	}
+	if tt, ok := types.GetByType(t.ReStructuredText.Type); ok {
+		t.ReStructuredText = tt
+	}
+	if tt, ok := types.GetByType(t.EmacsOrgMode.Type); ok {
+		t.EmacsOrgMode = tt
+	}
+
 	t.extensionSet = make(map[string]bool)
 	for _, mt := range t.types {
 		for _, suffix := range mt.Suffixes() {
@@ -122,43 +150,12 @@ func (t ContentTypes) IsIndexContentFile(filename string) bool {
 
 // IsHTMLSuffix returns whether the given suffix is a HTML media type.
 func (t ContentTypes) IsHTMLSuffix(suffix string) bool {
-	for _, s := range t.HTML.Suffixes() {
-		if s == suffix {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(t.HTML.Suffixes(), suffix)
 }
 
 // Types is a slice of media types.
 func (t ContentTypes) Types() Types {
 	return t.types
-}
-
-// FromTypes creates a new ContentTypes updated with the values from the given Types.
-func (t ContentTypes) FromTypes(types Types) ContentTypes {
-	if tt, ok := types.GetByType(t.HTML.Type); ok {
-		t.HTML = tt
-	}
-	if tt, ok := types.GetByType(t.Markdown.Type); ok {
-		t.Markdown = tt
-	}
-	if tt, ok := types.GetByType(t.AsciiDoc.Type); ok {
-		t.AsciiDoc = tt
-	}
-	if tt, ok := types.GetByType(t.Pandoc.Type); ok {
-		t.Pandoc = tt
-	}
-	if tt, ok := types.GetByType(t.ReStructuredText.Type); ok {
-		t.ReStructuredText = tt
-	}
-	if tt, ok := types.GetByType(t.EmacsOrgMode.Type); ok {
-		t.EmacsOrgMode = tt
-	}
-
-	t.init()
-
-	return t
 }
 
 // Hold the configuration for a given media type.
@@ -167,6 +164,58 @@ type MediaTypeConfig struct {
 	Suffixes []string
 	// Delimiter used before suffix.
 	Delimiter string
+}
+
+var defaultContentTypesConfig = map[string]ContentTypeConfig{
+	Builtin.HTMLType.Type:             {},
+	Builtin.MarkdownType.Type:         {},
+	Builtin.AsciiDocType.Type:         {},
+	Builtin.PandocType.Type:           {},
+	Builtin.ReStructuredTextType.Type: {},
+	Builtin.EmacsOrgModeType.Type:     {},
+}
+
+// DecodeContentTypes decodes the given map of content types.
+func DecodeContentTypes(in map[string]any, types Types) (*config.ConfigNamespace[map[string]ContentTypeConfig, ContentTypes], error) {
+	buildConfig := func(v any) (ContentTypes, any, error) {
+		var s map[string]ContentTypeConfig
+		c := DefaultContentTypes
+		m, err := maps.ToStringMapE(v)
+		if err != nil {
+			return c, nil, err
+		}
+		if len(m) == 0 {
+			s = defaultContentTypesConfig
+		} else {
+			s = make(map[string]ContentTypeConfig)
+			m = maps.CleanConfigStringMap(m)
+			for k, v := range m {
+				var ctc ContentTypeConfig
+				if err := mapstructure.WeakDecode(v, &ctc); err != nil {
+					return c, nil, err
+				}
+				s[k] = ctc
+			}
+		}
+
+		for k := range s {
+			mediaType, found := types.GetByType(k)
+			if !found {
+				return c, nil, fmt.Errorf("unknown media type %q", k)
+			}
+			c.types = append(c.types, mediaType)
+		}
+
+		c.init(types)
+
+		return c, s, nil
+	}
+
+	ns, err := config.DecodeNamespace[map[string]ContentTypeConfig](in, buildConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode media types: %w", err)
+	}
+	return ns, nil
 }
 
 // DecodeTypes decodes the given map of media types.
@@ -220,6 +269,9 @@ func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTyp
 // TODO(bep) get rid of this.
 var DefaultPathParser = &paths.PathParser{
 	IsContentExt: func(ext string) bool {
-		return DefaultContentTypes.IsContentSuffix(ext)
+		panic("not supported")
+	},
+	IsOutputFormat: func(name, ext string) bool {
+		panic("DefaultPathParser: not supported")
 	},
 }

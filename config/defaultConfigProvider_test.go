@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -332,8 +333,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 			return nil
 		}
 
-		for i := 0; i < 20; i++ {
-			i := i
+		for i := range 20 {
 			r.Run(func() error {
 				const v = 42
 				k := fmt.Sprintf("k%d", i)
@@ -352,6 +352,90 @@ func TestDefaultConfigProvider(t *testing.T) {
 		}
 
 		c.Assert(r.Wait(), qt.IsNil)
+	})
+
+	c.Run("GetBool", func(c *qt.C) {
+		cfg := New()
+
+		var k string
+		var v bool
+
+		k, v = "foo", true
+
+		cfg.Set(k, v)
+		c.Assert(cfg.Get(k), qt.Equals, v)
+		c.Assert(cfg.GetBool(k), qt.Equals, v)
+	})
+
+	c.Run("GetParams", func(c *qt.C) {
+		cfg := New()
+		k := "foo"
+
+		cfg.Set(k, maps.Params{k: true})
+		c.Assert(cfg.GetParams(k), qt.DeepEquals, maps.Params{
+			k: true,
+		})
+
+		c.Assert(cfg.GetParams("bar"), qt.IsNil)
+	})
+
+	c.Run("Keys", func(c *qt.C) {
+		cfg := New()
+		k := "foo"
+		k2 := "bar"
+
+		cfg.Set(k, maps.Params{k: struct{}{}})
+		cfg.Set(k2, maps.Params{k2: struct{}{}})
+
+		c.Assert(len(cfg.Keys()), qt.Equals, 2)
+
+		got := cfg.Keys()
+		slices.Sort(got)
+
+		want := []string{k, k2}
+		slices.Sort(want)
+
+		c.Assert(got, qt.DeepEquals, want)
+	})
+
+	c.Run("WalkParams", func(c *qt.C) {
+		cfg := New()
+
+		cfg.Set("x", maps.Params{})
+		cfg.Set("y", maps.Params{})
+
+		var got []string
+		cfg.WalkParams(func(params ...maps.KeyParams) bool {
+			got = append(got, params[len(params)-1].Key)
+			return false
+		})
+
+		want := []string{"", "x", "y"}
+		slices.Sort(got)
+		slices.Sort(want)
+
+		c.Assert(got, qt.DeepEquals, want)
+
+		cfg = New()
+		cfg.WalkParams(func(params ...maps.KeyParams) bool {
+			return true
+		})
+
+		got = []string{""}
+		want = []string{""}
+		c.Assert(got, qt.DeepEquals, want)
+	})
+
+	c.Run("SetDefaults", func(c *qt.C) {
+		cfg := New()
+
+		cfg.SetDefaults(maps.Params{
+			"foo": "bar",
+			"bar": "baz",
+		})
+
+		c.Assert(cfg.Get("foo"), qt.Equals, "bar")
+		c.Assert(cfg.Get("bar"), qt.Equals, "baz")
 	})
 }
 
@@ -393,7 +477,7 @@ func BenchmarkDefaultConfigProvider(b *testing.B) {
 
 	b.Run("Custom", func(b *testing.B) {
 		cfg := New()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runMethods(b, cfg)
 		}
 	})

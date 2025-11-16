@@ -3,15 +3,11 @@ title: collections.SymDiff
 description: Returns the symmetric difference of two collections.
 categories: []
 keywords: []
-action:
-  aliases: [symdiff]
-  related:
-    - functions/collections/Complement
-    - functions/collections/Intersect
-    - functions/collections/SymDiff
-    - functions/collections/Union
-  returnType: any
-  signatures: [COLLECTION | collections.SymDiff COLLECTION]
+params:
+  functions_and_methods:
+    aliases: [symdiff]
+    returnType: any
+    signatures: [COLLECTION | collections.SymDiff COLLECTION]
 aliases: [/functions/symdiff]
 ---
 

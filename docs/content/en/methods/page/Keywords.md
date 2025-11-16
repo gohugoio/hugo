@@ -3,15 +3,15 @@ title: Keywords
 description: Returns a slice of keywords as defined in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: '[]string'
-  signatures: [PAGE.Keywords]
+params:
+  functions_and_methods:
+    returnType: '[]string'
+    signatures: [PAGE.Keywords]
 ---
 
 By default, Hugo evaluates the keywords when creating collections of [related content].
 
-[related content]: /content-management/related
+[related content]: /content-management/related-content/
 
 {{< code-toggle file=content/recipes/sushi.md fm=true >}}
 title = 'How to make spicy tuna hand rolls'
@@ -32,7 +32,7 @@ Or use the [delimit] function:
 {{ delimit .Keywords ", " ", and " }} → tuna, sriracha, nori, and rice
 ```
 
-[delimit]: /functions/collections/delimit
+[delimit]: /functions/collections/delimit/
 
 Keywords are also a useful [taxonomy]:
 
@@ -43,4 +43,4 @@ keyword = 'keywords'
 category = 'categories'
 {{< /code-toggle >}}
 
-[taxonomy]: /content-management/taxonomies
+[taxonomy]: /content-management/taxonomies/

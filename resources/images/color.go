@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hstrings"
+	"slices"
 )
 
 type colorGoProvider interface {
@@ -91,11 +92,8 @@ func (c Color) toSRGB(i uint8) float64 {
 // that the palette is valid for the relevant format.
 func AddColorToPalette(c color.Color, p color.Palette) color.Palette {
 	var found bool
-	for _, cc := range p {
-		if c == cc {
-			found = true
-			break
-		}
+	if slices.Contains(p, c) {
+		found = true
 	}
 
 	if !found {

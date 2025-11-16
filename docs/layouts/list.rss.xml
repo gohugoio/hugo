@@ -1,0 +1,33 @@
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Hugo News</title>
+    <description>Recent news about Hugo, a static site generator written in Go, optimized for speed and designed for flexibility.</description>
+    <link>{{ .Permalink }}</link>
+    <generator>Hugo {{ hugo.Version }}</generator>
+    <language>{{ or site.Language.LanguageCode site.Language.Lang }}</language>
+    {{- with site.Copyright }}
+      <copyright>{{ . }}</copyright>
+    {{- end }}
+    {{- with .OutputFormats.Get "rss" }}
+      {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{- end }}
+    {{- $limit := cond (gt site.Config.Services.RSS.Limit 0) site.Config.Services.RSS.Limit 999 }}
+    {{- $pages := "" }}
+    {{- with site.GetPage "/news" }}
+      {{- $pages = .Pages.ByPublishDate.Reverse | first $limit }}
+    {{- else }}
+      {{- errorf "The list.rss.xml layout was unable to find the 'news' page." }}
+    {{- end }}
+    <lastBuildDate>{{ (index $pages 0).PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
+    {{- range $pages }}
+      <item>
+        <title>{{ .Title }}</title>
+        <link>{{ or .Params.permalink .Permalink }}</link>
+        <pubDate>{{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+        <guid>{{ or .Params.permalink .Permalink }}</guid>
+        <description>{{ .Summary | transform.XMLEscape | safeHTML }}</description>
+      </item>
+    {{- end }}
+  </channel>
+</rss>

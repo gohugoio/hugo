@@ -72,12 +72,12 @@ func (f ContentFactory) ApplyArchetypeTemplate(w io.Writer, p page.Page, archety
 
 	templateSource = f.shortcodeReplacerPre.Replace(templateSource)
 
-	templ, err := ps.s.TextTmpl().Parse("archetype.md", string(templateSource))
+	templ, err := ps.s.TemplateStore.TextParse("archetype.md", templateSource)
 	if err != nil {
 		return fmt.Errorf("failed to parse archetype template: %s: %w", err, err)
 	}
 
-	result, err := executeToString(context.Background(), ps.s.Tmpl(), templ, d)
+	result, err := executeToString(context.Background(), ps.s.GetTemplateStore(), templ, d)
 	if err != nil {
 		return fmt.Errorf("failed to execute archetype template: %s: %w", err, err)
 	}
@@ -114,7 +114,7 @@ func (f ContentFactory) CreateContentPlaceHolder(filename string, force bool) (s
 	// the paths correct.
 	placeholder := `---
 title: "Content Placeholder"
-_build:
+build:
   render: never
   list: never
   publishResources: false

@@ -23,7 +23,7 @@ import (
 func TestEvictingStringQueue(t *testing.T) {
 	c := qt.New(t)
 
-	queue := NewEvictingStringQueue(3)
+	queue := NewEvictingQueue[string](3)
 
 	c.Assert(queue.Peek(), qt.Equals, "")
 	queue.Add("a")
@@ -53,9 +53,9 @@ func TestEvictingStringQueueConcurrent(t *testing.T) {
 	var wg sync.WaitGroup
 	val := "someval"
 
-	queue := NewEvictingStringQueue(3)
+	queue := NewEvictingQueue[string](3)
 
-	for j := 0; j < 100; j++ {
+	for range 100 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

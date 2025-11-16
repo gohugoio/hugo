@@ -3,32 +3,24 @@ title: collections.Union
 description: Given two arrays or slices, returns a new array that contains the elements that belong to either or both arrays/slices.
 categories: []
 keywords: []
-action:
-  aliases: [union]
-  related:
-    - functions/collections/Complement
-    - functions/collections/Intersect
-    - functions/collections/SymDiff
-    - functions/collections/Union
-  returnType: any
-  signatures: [collections.Union SET1 SET2]
+params:
+  functions_and_methods:
+    aliases: [union]
+    returnType: any
+    signatures: [collections.Union SET1 SET2]
 aliases: [/functions/union] 
 ---
 
 Given two arrays (or slices) A and B, this function will return a new array that contains the elements or objects that belong to either A or to B or to both.
 
 ```go-html-template
-{{ union (slice 1 2 3) (slice 3 4 5) }}
-<!-- returns [1 2 3 4 5] -->
+{{ union (slice 1 2 3) (slice 3 4 5) }} → [1 2 3 4 5]
 
-{{ union (slice 1 2 3) nil }}
-<!-- returns [1 2 3] -->
+{{ union (slice 1 2 3) nil }} → [1 2 3]
 
-{{ union nil (slice 1 2 3) }}
-<!-- returns [1 2 3] -->
+{{ union nil (slice 1 2 3) }} → [1 2 3]
 
-{{ union nil nil }}
-<!-- returns an error because both arrays/slices have to be of the same type -->
+{{ union nil nil }} → []
 ```
 
 ## OR filter in where query

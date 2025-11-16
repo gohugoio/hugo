@@ -1,0 +1,39 @@
+{{/* prettier-ignore-start */ -}}
+{{- /*
+Renders the given image using the given process specification.
+
+@param {string} path The path to the image, either a page resource or a global resource.
+@param {string} spec The image processing specification.
+@param {string} alt The alt attribute of the img element.
+
+@example {{< imgproc path="sunset.jpg" spec="resize 300x" alt="A sunset" >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
+{{- with $.Get "path" }}
+  {{- with $i := or ($.Page.Resources.Get .) (resources.Get .) }}
+    {{- with $spec := $.Get "spec" }}
+      {{- with $i.Process . }}
+        <figure>
+          <img
+            src="{{ .RelPermalink }}"
+            width="{{ .Width }}"
+            height="{{ .Height }}"
+            alt="{{ $.Get `alt` }}">
+          <figcaption class="not-prose text-sm">
+            {{- with $.Inner }}
+              {{ . }}
+            {{- else }}
+              {{ $spec }}
+            {{- end }}
+          </figcaption>
+        </figure>
+      {{- end }}
+    {{- else }}
+      {{- errorf "The %q shortcode requires a 'spec' argument containing the image processing specification. See %s" $.Name $.Position }}
+    {{- end }}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find %q. See %s" $.Name . $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a 'path' argument indicating the image path. The image must be a page resource or a global resource. See %s" $.Name $.Position }}
+{{- end }}

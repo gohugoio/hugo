@@ -16,6 +16,8 @@ package collections
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/gohugoio/hugo/common/hreflect"
 )
 
 // SymDiff returns the symmetric difference of s1 and s2.
@@ -44,8 +46,8 @@ func (ns *Namespace) SymDiff(s2, s1 any) (any, error) {
 				slice = reflect.MakeSlice(sliceType, 0, 0)
 			}
 
-			for i := 0; i < v.Len(); i++ {
-				ev, _ := indirectInterface(v.Index(i))
+			for i := range v.Len() {
+				ev, _ := hreflect.Indirect(v.Index(i))
 				key := normalize(ev)
 
 				// Append if the key is not in their intersection.

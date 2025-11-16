@@ -1,20 +1,15 @@
 ---
 title: Deprecation
 description: The Hugo project follows a formal and consistent process to deprecate functions, methods, and configuration settings.
-categories: [troubleshooting]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: troubleshooting
-    weight: 50
-weight: 50
 ---
 
 When a project _deprecates_ something, they are telling its users:
 
 1. Don't use Thing One anymore.
-2. Use Thing Two instead.
-3. We're going to remove Thing One at some point in the future.
+1. Use Thing Two instead.
+1. We're going to remove Thing One at some point in the future.
 
 [reasons for deprecation]: https://en.wikipedia.org/wiki/Deprecation
 
@@ -29,9 +24,15 @@ Common [reasons for deprecation]:
 
 After the project team deprecates something in code, Hugo will:
 
-1. Log an INFO message for 6 minor releases[^1]
-2. Log a WARN message for another 6 minor releases
-3. Log an ERROR message and fail the build thereafter
+1. Log an INFO message for 3 minor releases[^1]
+1. Log a WARN message for another 12 minor releases
+1. Log an ERROR message and fail the build thereafter
+
+The project team will:
+
+1. On the deprecation date, update the documentation with a note describing the deprecation and any relevant alternatives.
+1. Remove the code six or more minor releases after Hugo begins logging ERROR messages and failing the build. At that point, Hugo will throw an error, but the error message will no longer mention the deprecation.
+1. Remove the corresponding documentation two years after the deprecation date.
 
 To see the INFO messages, you must use the `--logLevel` command line flag:
 

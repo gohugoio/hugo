@@ -11,8 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nodeploy
-// +build !nodeploy
+//go:build withdeploy
 
 package deploy
 
@@ -216,8 +215,9 @@ func TestFindDiffs(t *testing.T) {
 
 func TestWalkLocal(t *testing.T) {
 	tests := map[string]struct {
-		Given  []string
-		Expect []string
+		Given   []string
+		Expect  []string
+		MapPath func(string) string
 	}{
 		"Empty": {
 			Given:  []string{},
@@ -234,6 +234,11 @@ func TestWalkLocal(t *testing.T) {
 		"Well Known": {
 			Given:  []string{"file.txt", ".hidden_dir/file.txt", ".well-known/file.txt"},
 			Expect: []string{"file.txt", ".well-known/file.txt"},
+		},
+		"StripIndexHTML": {
+			Given:   []string{"index.html", "file.txt", "dir/index.html", "dir/file.txt"},
+			Expect:  []string{"index.html", "file.txt", "dir/", "dir/file.txt"},
+			MapPath: stripIndexHTML,
 		},
 	}
 
@@ -254,7 +259,7 @@ func TestWalkLocal(t *testing.T) {
 				}
 			}
 			d := newDeployer()
-			if got, err := d.walkLocal(fs, nil, nil, nil, media.DefaultTypes); err != nil {
+			if got, err := d.walkLocal(fs, nil, nil, nil, media.DefaultTypes, tc.MapPath); err != nil {
 				t.Fatal(err)
 			} else {
 				expect := map[string]any{}
@@ -271,6 +276,63 @@ func TestWalkLocal(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestStripIndexHTML(t *testing.T) {
+	tests := map[string]struct {
+		Input  string
+		Output string
+	}{
+		"Unmapped": {Input: "normal_file.txt", Output: "normal_file.txt"},
+		"Stripped": {Input: "directory/index.html", Output: "directory/"},
+		"NoSlash":  {Input: "prefix_index.html", Output: "prefix_index.html"},
+		"Root":     {Input: "index.html", Output: "index.html"},
+	}
+	for desc, tc := range tests {
+		t.Run(desc, func(t *testing.T) {
+			got := stripIndexHTML(tc.Input)
+			if got != tc.Output {
+				t.Errorf("got %q, expect %q", got, tc.Output)
+			}
+		})
+	}
+}
+
+func TestStripIndexHTMLMatcher(t *testing.T) {
+	// StripIndexHTML should not affect matchers.
+	fs := afero.NewMemMapFs()
+	if err := fs.Mkdir("dir", 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"index.html", "dir/index.html", "file.txt"} {
+		if fd, err := fs.Create(name); err != nil {
+			t.Fatal(err)
+		} else {
+			fd.Close()
+		}
+	}
+	d := newDeployer()
+	const pattern = `\.html$`
+	matcher := &deployconfig.Matcher{Pattern: pattern, Gzip: true, Re: regexp.MustCompile(pattern)}
+	if got, err := d.walkLocal(fs, []*deployconfig.Matcher{matcher}, nil, nil, media.DefaultTypes, stripIndexHTML); err != nil {
+		t.Fatal(err)
+	} else {
+		for _, name := range []string{"index.html", "dir/"} {
+			lf := got[name]
+			if lf == nil {
+				t.Errorf("missing file %q", name)
+			} else if lf.matcher == nil {
+				t.Errorf("file %q has nil matcher, expect %q", name, pattern)
+			}
+		}
+		const name = "file.txt"
+		lf := got[name]
+		if lf == nil {
+			t.Errorf("missing file %q", name)
+		} else if lf.matcher != nil {
+			t.Errorf("file %q has matcher %q, expect nil", name, lf.matcher.Pattern)
+		}
 	}
 }
 
@@ -561,7 +623,7 @@ func TestEndToEndSync(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1},
 			}
 
 			// Initial deployment should sync remote with local.
@@ -644,7 +706,7 @@ func TestMaxDeletes(t *testing.T) {
 				localFs:    test.fs,
 				bucket:     test.bucket,
 				mediaTypes: media.DefaultTypes,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1},
 			}
 
 			// Sync remote with local.
@@ -774,7 +836,7 @@ func TestIncludeExclude(t *testing.T) {
 			}
 			deployer := &Deployer{
 				localFs: fsTest.fs,
-				cfg:     deployconfig.DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
+				cfg:     deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1}, bucket: fsTest.bucket,
 				target:     tgt,
 				mediaTypes: media.DefaultTypes,
 			}
@@ -831,7 +893,7 @@ func TestIncludeExcludeRemoteDelete(t *testing.T) {
 			}
 			deployer := &Deployer{
 				localFs: fsTest.fs,
-				cfg:     deployconfig.DeployConfig{MaxDeletes: -1}, bucket: fsTest.bucket,
+				cfg:     deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1}, bucket: fsTest.bucket,
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -883,7 +945,7 @@ func TestCompression(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: ".*", Gzip: true, Re: regexp.MustCompile(".*")}}},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: ".*", Gzip: true, Re: regexp.MustCompile(".*")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -938,7 +1000,7 @@ func TestMatching(t *testing.T) {
 			deployer := &Deployer{
 				localFs:    test.fs,
 				bucket:     test.bucket,
-				cfg:        deployconfig.DeployConfig{MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: "^subdir/aaa$", Force: true, Re: regexp.MustCompile("^subdir/aaa$")}}},
+				cfg:        deployconfig.DeployConfig{Workers: 2, MaxDeletes: -1, Matchers: []*deployconfig.Matcher{{Pattern: "^subdir/aaa$", Force: true, Re: regexp.MustCompile("^subdir/aaa$")}}},
 				mediaTypes: media.DefaultTypes,
 			}
 
@@ -1035,5 +1097,6 @@ func verifyRemote(ctx context.Context, bucket *blob.Bucket, local []*fileData) (
 func newDeployer() *Deployer {
 	return &Deployer{
 		logger: loggers.NewDefault(),
+		cfg:    deployconfig.DeployConfig{Workers: 2},
 	}
 }

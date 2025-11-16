@@ -3,13 +3,11 @@ title: math.Round
 description: Returns the nearest integer, rounding half away from zero.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/math/Ceil
-    - functions/math/Floor
-  returnType: float64
-  signatures: [math.Round VALUE]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: float64
+    signatures: [math.Round VALUE]
 ---
 
 ```go-html-template

@@ -125,8 +125,7 @@ var (
 func BenchmarkAbsURL(b *testing.B) {
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		apply(b.Errorf, tr, absURLlBenchTests)
 	}
 }
@@ -134,8 +133,7 @@ func BenchmarkAbsURL(b *testing.B) {
 func BenchmarkAbsURLSrcset(b *testing.B) {
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		apply(b.Errorf, tr, srcsetTests)
 	}
 }
@@ -143,8 +141,7 @@ func BenchmarkAbsURLSrcset(b *testing.B) {
 func BenchmarkXMLAbsURLSrcset(b *testing.B) {
 	tr := transform.New(NewAbsURLInXMLTransformer(testBaseURL))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		apply(b.Errorf, tr, srcsetXMLTests)
 	}
 }
@@ -191,8 +188,7 @@ func TestAbsXMLURLSrcSet(t *testing.T) {
 func BenchmarkXMLAbsURL(b *testing.B) {
 	tr := transform.New(NewAbsURLInXMLTransformer(testBaseURL))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		apply(b.Errorf, tr, xmlAbsURLBenchTests)
 	}
 }

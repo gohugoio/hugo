@@ -14,6 +14,7 @@
 package maps
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -40,6 +41,14 @@ func (p Params) GetNested(indices ...string) any {
 // SetParams overwrites values in dst with values in src for common or new keys.
 // This is done recursively.
 func SetParams(dst, src Params) {
+	setParams(dst, src, 0)
+}
+
+func setParams(dst, src Params, depth int) {
+	const maxDepth = 1000
+	if depth > maxDepth {
+		panic(errors.New("max depth exceeded"))
+	}
 	for k, v := range src {
 		vv, found := dst[k]
 		if !found {
@@ -48,7 +57,7 @@ func SetParams(dst, src Params) {
 			switch vvv := vv.(type) {
 			case Params:
 				if pv, ok := v.(Params); ok {
-					SetParams(vvv, pv)
+					setParams(vvv, pv, depth+1)
 				} else {
 					dst[k] = v
 				}
@@ -101,7 +110,6 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 	noUpdate = noUpdate || (ps != "" && ps == ParamsMergeStrategyShallow)
 
 	for k, v := range pp {
-
 		if k == MergeStrategyKey {
 			continue
 		}
@@ -177,6 +185,56 @@ func getNested(m map[string]any, indices []string) (any, string, map[string]any)
 	default:
 		return nil, "", nil
 	}
+}
+
+// CreateNestedParamsFromSegements creates empty nested maps for the given keySegments in the target map.
+func CreateNestedParamsFromSegements(target Params, keySegments ...string) Params {
+	if len(keySegments) == 0 {
+		return target
+	}
+
+	m := target
+	for i, key := range keySegments {
+		v, found := m[key]
+		if !found {
+			nm := Params{}
+			m[key] = nm
+			m = nm
+			if i == len(keySegments)-1 {
+				return nm
+			}
+			continue
+		}
+		m = v.(Params)
+	}
+
+	return m
+}
+
+// CreateNestedParamsSepString creates empty nested maps for the given keyStr in the target map
+// It returns the last map created.
+func CreateNestedParamsSepString(keyStr, separator string, target Params) Params {
+	keySegments := strings.Split(keyStr, separator)
+	return CreateNestedParamsFromSegements(target, keySegments...)
+}
+
+// SetNestedParamIfNotSet sets the value for the given keyStr in the target map if it does not exist.
+// It assumes that all but the last key in keyStr is a Params map or should be one.
+func SetNestedParamIfNotSet(keyStr, separator string, value any, target Params) Params {
+	keySegments := strings.Split(keyStr, separator)
+	if len(keySegments) == 0 {
+		return target
+	}
+	base := keySegments[:len(keySegments)-1]
+	last := keySegments[len(keySegments)-1]
+
+	m := CreateNestedParamsFromSegements(target, base...)
+
+	if _, ok := m[last]; !ok {
+		m[last] = value
+	}
+
+	return target
 }
 
 // GetNestedParam gets the first match of the keyStr in the candidates given.
@@ -266,8 +324,16 @@ func CleanConfigStringMapString(m map[string]string) map[string]string {
 // CleanConfigStringMap is the same as CleanConfigStringMapString but for
 // map[string]any.
 func CleanConfigStringMap(m map[string]any) map[string]any {
+	return doCleanConfigStringMap(m, 0)
+}
+
+func doCleanConfigStringMap(m map[string]any, depth int) map[string]any {
 	if len(m) == 0 {
 		return m
+	}
+	const maxDepth = 1000
+	if depth > maxDepth {
+		panic(errors.New("max depth exceeded"))
 	}
 	if _, found := m[MergeStrategyKey]; !found {
 		return m
@@ -280,9 +346,9 @@ func CleanConfigStringMap(m map[string]any) map[string]any {
 		}
 		switch v2 := v.(type) {
 		case map[string]any:
-			m2[k] = CleanConfigStringMap(v2)
+			m2[k] = doCleanConfigStringMap(v2, depth+1)
 		case Params:
-			var p Params = CleanConfigStringMap(v2)
+			var p Params = doCleanConfigStringMap(v2, depth+1)
 			m2[k] = p
 		case map[string]string:
 			m2[k] = CleanConfigStringMapString(v2)
@@ -303,7 +369,7 @@ func toMergeStrategy(v any) ParamsMergeStrategy {
 }
 
 // PrepareParams
-// * makes all the keys in the given map lower cased and will do so
+// * makes all the keys in the given map lower cased and will do so recursively.
 // * This will modify the map given.
 // * Any nested map[interface{}]interface{}, map[string]interface{},map[string]string  will be converted to Params.
 // * Any _merge value will be converted to proper type and value.
@@ -342,4 +408,66 @@ func PrepareParams(m Params) {
 			m[lKey] = v
 		}
 	}
+}
+
+// CloneParamsDeep does a deep clone of the given Params,
+// meaning that any nested Params will be cloned as well.
+func CloneParamsDeep(m Params) Params {
+	return cloneParamsDeep(m, 0)
+}
+
+func cloneParamsDeep(m Params, depth int) Params {
+	const maxDepth = 1000
+	if depth > maxDepth {
+		panic(errors.New("max depth exceeded"))
+	}
+	m2 := make(Params)
+	for k, v := range m {
+		switch vv := v.(type) {
+		case Params:
+			m2[k] = cloneParamsDeep(vv, depth+1)
+		default:
+			m2[k] = v
+		}
+	}
+	return m2
+}
+
+// PrepareParamsClone is like PrepareParams, but it does not modify the input.
+func PrepareParamsClone(m Params) Params {
+	m2 := make(Params)
+	for k, v := range m {
+		var retyped bool
+		lKey := strings.ToLower(k)
+		if lKey == MergeStrategyKey {
+			v = toMergeStrategy(v)
+			retyped = true
+		} else {
+			switch vv := v.(type) {
+			case map[any]any:
+				var p Params = cast.ToStringMap(v)
+				v = PrepareParamsClone(p)
+				retyped = true
+			case map[string]any:
+				var p Params = v.(map[string]any)
+				v = PrepareParamsClone(p)
+				retyped = true
+			case map[string]string:
+				p := make(Params)
+				for k, v := range vv {
+					p[k] = v
+				}
+				v = p
+				PrepareParams(p)
+				retyped = true
+			}
+		}
+
+		if retyped || k != lKey {
+			m2[lKey] = v
+		} else {
+			m2[k] = v
+		}
+	}
+	return m2
 }

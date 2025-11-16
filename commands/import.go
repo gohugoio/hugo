@@ -90,8 +90,8 @@ func (c *importCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 func (c *importCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "Import your site from others."
-	cmd.Long = `Import your site from other web site generators like Jekyll.
+	cmd.Short = "Import a site from another system"
+	cmd.Long = `Import a site from another system.
 
 Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`."
 
@@ -427,7 +427,7 @@ func (c *importCommand) importFromJekyll(args []string) error {
 	c.r.Println("Importing...")
 
 	fileCount := 0
-	callback := func(path string, fi hugofs.FileMetaInfo) error {
+	callback := func(ctx context.Context, path string, fi hugofs.FileMetaInfo) error {
 		if fi.IsDir() {
 			return nil
 		}

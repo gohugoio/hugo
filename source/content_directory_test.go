@@ -56,7 +56,6 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		test := test
 		c.Run(fmt.Sprintf("[%d] %s", i, test.path), func(c *qt.C) {
 			c.Parallel()
 			v := config.New()
@@ -65,7 +64,7 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 			afs := afero.NewMemMapFs()
 			conf := testconfig.GetTestConfig(afs, v)
 			fs := hugofs.NewFromOld(afs, v)
-			ps, err := helpers.NewPathSpec(fs, conf, nil)
+			ps, err := helpers.NewPathSpec(fs, conf, nil, nil)
 			c.Assert(err, qt.IsNil)
 
 			s := source.NewSourceSpec(ps, nil, fs.Source)

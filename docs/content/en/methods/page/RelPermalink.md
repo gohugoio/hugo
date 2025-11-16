@@ -3,11 +3,10 @@ title: RelPermalink
 description: Returns the relative permalink of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Permalink
-  returnType: string
-  signatures: [PAGE.RelPermalink]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.RelPermalink]
 ---
 
 Site configuration:

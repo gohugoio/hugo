@@ -51,6 +51,9 @@ type TemplateFuncsNamespace struct {
 	// This is the method receiver.
 	Context func(ctx context.Context, v ...any) (any, error)
 
+	// OnCreated is called when all the namespaces are ready.
+	OnCreated func(namespaces map[string]any)
+
 	// Additional info, aliases and examples, per method name.
 	MethodMappings map[string]TemplateFuncMethodMapping
 }
@@ -210,7 +213,7 @@ func (t *TemplateFuncsNamespace) toJSON(ctx context.Context) ([]byte, error) {
 		return nil, nil
 	}
 	ctxType := reflect.TypeOf(tctx)
-	for i := 0; i < ctxType.NumMethod(); i++ {
+	for i := range ctxType.NumMethod() {
 		method := ctxType.Method(i)
 		if ignoreFuncs[method.Name] {
 			continue

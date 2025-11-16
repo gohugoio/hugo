@@ -3,13 +3,13 @@ title: Filter
 description: Applicable to images, applies one or more image filters to the given image resource.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/images/Filter
-  returnType: resources.resourceAdapter
-  signatures: [RESOURCE.Filter FILTER...]
-toc: true
+params:
+  functions_and_methods:
+    returnType: images.ImageResource
+    signatures: [RESOURCE.Filter FILTER...]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 Apply one or more [image filters](#image-filters) to the given image.
 
@@ -39,9 +39,7 @@ To apply two or more filters, executing from left to right:
 
 You can also apply image filters using the [`images.Filter`] function.
 
-[`images.Filter`]: /functions/images/filter
-
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
+[`images.Filter`]: /functions/images/filter/
 
 ## Example
 
@@ -65,4 +63,4 @@ You can also apply image filters using the [`images.Filter`] function.
 
 Use any of these filters with the `Filter` method.
 
-{{< list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude >}}
+{{% list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude %}}

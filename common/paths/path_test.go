@@ -225,7 +225,7 @@ func BenchmarkSanitize(b *testing.B) {
 
 	// This should not allocate any memory.
 	b.Run("All allowed", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := Sanitize(allAlowedPath)
 			if got != allAlowedPath {
 				b.Fatal(got)
@@ -235,7 +235,7 @@ func BenchmarkSanitize(b *testing.B) {
 
 	// This will allocate some memory.
 	b.Run("Spaces", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := Sanitize(spacePath)
 			if got != "foo-bar" {
 				b.Fatal(got)
@@ -261,4 +261,89 @@ func TestFieldsSlash(t *testing.T) {
 	c.Assert(FieldsSlash("a/b/c/"), qt.DeepEquals, []string{"a", "b", "c"})
 	c.Assert(FieldsSlash("/"), qt.DeepEquals, []string{})
 	c.Assert(FieldsSlash(""), qt.DeepEquals, []string{})
+}
+
+func TestCommonDirPath(t *testing.T) {
+	c := qt.New(t)
+
+	for _, this := range []struct {
+		a, b, expected string
+	}{
+		{"/a/b/c", "/a/b/d", "/a/b"},
+		{"/a/b/c", "a/b/d", "/a/b"},
+		{"a/b/c", "/a/b/d", "/a/b"},
+		{"a/b/c", "a/b/d", "a/b"},
+		{"/a/b/c", "/a/b/c", "/a/b/c"},
+		{"/a/b/c", "/a/b/c/d", "/a/b/c"},
+		{"/a/b/c", "/a/b", "/a/b"},
+		{"/a/b/c", "/a", "/a"},
+		{"/a/b/c", "/d/e/f", ""},
+	} {
+		c.Assert(CommonDirPath(this.a, this.b), qt.Equals, this.expected, qt.Commentf("a: %s b: %s", this.a, this.b))
+	}
+}
+
+func TestIsSameFilePath(t *testing.T) {
+	c := qt.New(t)
+
+	for _, this := range []struct {
+		a, b     string
+		expected bool
+	}{
+		{"/a/b/c", "/a/b/c", true},
+		{"/a/b/c", "/a/b/c/", true},
+		{"/a/b/c", "/a/b/d", false},
+		{"/a/b/c", "/a/b", false},
+		{"/a/b/c", "/a/b/c/d", false},
+		{"/a/b/c", "/a/b/cd", false},
+		{"/a/b/c", "/a/b/cc", false},
+		{"/a/b/c", "/a/b/c/", true},
+		{"/a/b/c", "/a/b/c//", true},
+		{"/a/b/c", "/a/b/c/.", true},
+		{"/a/b/c", "/a/b/c/./", true},
+		{"/a/b/c", "/a/b/c/./.", true},
+		{"/a/b/c", "/a/b/c/././", true},
+		{"/a/b/c", "/a/b/c/././.", true},
+		{"/a/b/c", "/a/b/c/./././", true},
+		{"/a/b/c", "/a/b/c/./././.", true},
+		{"/a/b/c", "/a/b/c/././././", true},
+	} {
+		c.Assert(IsSameFilePath(filepath.FromSlash(this.a), filepath.FromSlash(this.b)), qt.Equals, this.expected, qt.Commentf("a: %s b: %s", this.a, this.b))
+	}
+}
+
+func BenchmarkAddLeadingSlash(b *testing.B) {
+	const (
+		noLeadingSlash   = "a/b/c"
+		withLeadingSlash = "/a/b/c"
+	)
+
+	// This should not allocate any memory.
+	b.Run("With leading slash", func(b *testing.B) {
+		for b.Loop() {
+			got := AddLeadingSlash(withLeadingSlash)
+			if got != withLeadingSlash {
+				b.Fatal(got)
+			}
+		}
+	})
+
+	// This will allocate some memory.
+	b.Run("Without leading slash", func(b *testing.B) {
+		for b.Loop() {
+			got := AddLeadingSlash(noLeadingSlash)
+			if got != "/a/b/c" {
+				b.Fatal(got)
+			}
+		}
+	})
+
+	b.Run("Blank string", func(b *testing.B) {
+		for b.Loop() {
+			got := AddLeadingSlash("")
+			if got != "/" {
+				b.Fatal(got)
+			}
+		}
+	})
 }

@@ -3,16 +3,13 @@ title: IsPage
 description: Reports whether the given page is a regular page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/IsHome
-    - methods/page/IsNode
-    - methods/page/IsSection
-  returnType: bool
-  signatures: [PAGE.IsPage]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE.IsPage]
 ---
 
-The `IsPage` method on a `Page` object returns `true` if the [page kind] is `page`.
+The `IsPage` method on a `Page` object returns `true` if the [page kind](g) is `page`.
 
 ```text
 content/
@@ -27,5 +24,3 @@ content/
 ```go-html-template
 {{ .IsPage }}
 ```
-
-[page kind]: /getting-started/glossary/#page-kind

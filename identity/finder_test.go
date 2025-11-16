@@ -21,9 +21,9 @@ import (
 )
 
 func BenchmarkFinder(b *testing.B) {
-	m1 := identity.NewManager("")
-	m2 := identity.NewManager("")
-	m3 := identity.NewManager("")
+	m1 := identity.NewManager()
+	m2 := identity.NewManager()
+	m3 := identity.NewManager()
 	m1.AddIdentity(
 		testIdentity{"base", "id1", "", "pe1"},
 		testIdentity{"base2", "id2", "eq1", ""},
@@ -39,7 +39,7 @@ func BenchmarkFinder(b *testing.B) {
 	f := identity.NewFinder(identity.FinderConfig{})
 
 	b.Run("Find one", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			r := f.Contains(b4, m1, -1)
 			if r == 0 {
 				b.Fatal("not found")
@@ -48,7 +48,7 @@ func BenchmarkFinder(b *testing.B) {
 	})
 
 	b.Run("Find none", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			r := f.Contains(b5, m1, -1)
 			if r > 0 {
 				b.Fatal("found")

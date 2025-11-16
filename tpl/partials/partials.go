@@ -24,12 +24,13 @@ import (
 	"time"
 
 	"github.com/bep/lazycache"
-
+	"github.com/gohugoio/hugo/common/constants"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/identity"
-
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
@@ -50,14 +51,7 @@ func (k partialCacheKey) Key() string {
 	if k.Variants == nil {
 		return k.Name
 	}
-	return identity.HashString(append([]any{k.Name}, k.Variants...)...)
-}
-
-func (k partialCacheKey) templateName() string {
-	if !strings.HasPrefix(k.Name, "partials/") {
-		return "partials/" + k.Name
-	}
-	return k.Name
+	return hashing.HashString(append([]any{k.Name}, k.Variants...)...)
 }
 
 // partialCache represents a LRU cache of partials.
@@ -80,8 +74,9 @@ func New(deps *deps.Deps) *Namespace {
 
 	cache := &partialCache{cache: lru}
 	deps.BuildStartListeners.Add(
-		func() {
+		func(...any) bool {
 			cache.clear()
+			return false
 		})
 
 	return &Namespace{
@@ -114,7 +109,7 @@ func (c *contextWrapper) Set(in any) string {
 // A string if the partial is a text/template, or template.HTML when html/template.
 // Note that ctx is provided by Hugo, not the end user.
 func (ns *Namespace) Include(ctx context.Context, name string, contextList ...any) (any, error) {
-	res := ns.includWithTimeout(ctx, name, contextList...)
+	res := ns.include(ctx, name, contextList...)
 	if res.err != nil {
 		return nil, res.err
 	}
@@ -126,63 +121,41 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 	return res.result, nil
 }
 
-func (ns *Namespace) includWithTimeout(ctx context.Context, name string, dataList ...any) includeResult {
-	// Create a new context with a timeout not connected to the incoming context.
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), ns.deps.Conf.Timeout())
-	defer cancel()
-
-	res := make(chan includeResult, 1)
-
-	go func() {
-		res <- ns.include(ctx, name, dataList...)
-	}()
-
-	select {
-	case r := <-res:
-		return r
-	case <-timeoutCtx.Done():
-		err := timeoutCtx.Err()
-		if err == context.DeadlineExceeded {
-			//lint:ignore ST1005 end user message.
-			err = fmt.Errorf("partial %q timed out after %s. This is most likely due to infinite recursion. If this is just a slow template, you can try to increase the 'timeout' config setting.", name, ns.deps.Conf.Timeout())
-		}
+func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) includeResult {
+	v, err := ns.lookup(name)
+	if err != nil {
 		return includeResult{err: err}
 	}
+	return ns.doInclude(ctx, "", v, dataList...)
+}
+
+func (ns *Namespace) lookup(name string) (*tplimpl.TemplInfo, error) {
+	if strings.HasPrefix(name, "partials/") {
+		// This is most likely not what the user intended.
+		// This worked before Hugo 0.146.0.
+		ns.deps.Log.Warnidf(constants.WarnPartialSuperfluousPrefix, "Doubtful use of partial function in {{ partial \"%s\"}}), this is most likely not what you want. Consider removing superfluous prefix \"partials/\" from template name given as first function argument.", name)
+	}
+	v := ns.deps.TemplateStore.LookupPartial(name)
+	if v == nil {
+		return nil, fmt.Errorf("partial %q not found", name)
+	}
+	return v, nil
 }
 
 // include is a helper function that lookups and executes the named partial.
 // Returns the final template name and the rendered output.
-func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) includeResult {
+func (ns *Namespace) doInclude(ctx context.Context, key string, templ *tplimpl.TemplInfo, dataList ...any) includeResult {
 	var data any
 	if len(dataList) > 0 {
 		data = dataList[0]
 	}
 
-	var n string
-	if strings.HasPrefix(name, "partials/") {
-		n = name
-	} else {
-		n = "partials/" + name
-	}
-
-	templ, found := ns.deps.Tmpl().Lookup(n)
-	if !found {
-		// For legacy reasons.
-		templ, found = ns.deps.Tmpl().Lookup(n + ".html")
-	}
-
-	if !found {
-		return includeResult{err: fmt.Errorf("partial %q not found", name)}
-	}
-
-	var info tpl.ParseInfo
-	if ip, ok := templ.(tpl.Info); ok {
-		info = ip.ParseInfo()
-	}
+	info := templ.ParseInfo
 
 	var w io.Writer
 
 	if info.HasReturn {
+
 		// Wrap the context sent to the template to capture the return value.
 		// Note that the template is rewritten to make sure that the dot (".")
 		// and the $ variable points to Arg.
@@ -198,7 +171,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 		w = b
 	}
 
-	if err := ns.deps.Tmpl().ExecuteWithContext(ctx, templ, w, data); err != nil {
+	if err := ns.deps.GetTemplateStore().ExecuteWithContextAndKey(ctx, key, templ, w, data); err != nil {
 		return includeResult{err: err}
 	}
 
@@ -206,7 +179,7 @@ func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) 
 
 	if ctx, ok := data.(*contextWrapper); ok {
 		result = ctx.Result
-	} else if _, ok := templ.(*texttemplate.Template); ok {
+	} else if _, ok := templ.Template.(*texttemplate.Template); ok {
 		result = w.(fmt.Stringer).String()
 	} else {
 		result = template.HTML(w.(fmt.Stringer).String())
@@ -226,17 +199,33 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 		Name:     name,
 		Variants: variants,
 	}
-	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
+	keyString := key.Key()
 
-	r, found, err := ns.cachedPartials.cache.GetOrCreate(key.Key(), func(string) (includeResult, error) {
+	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
+	ti, err := ns.lookup(name)
+	if err != nil {
+		return nil, err
+	}
+
+	if parent := tpl.Context.CurrentTemplate.Get(ctx); parent != nil {
+		for parent != nil {
+			if parent.CurrentTemplateInfoOps == ti && parent.Key == keyString {
+				// This will deadlock if we continue.
+				return nil, fmt.Errorf("circular call stack detected in partial %q", ti.Filename())
+			}
+			parent = parent.Parent
+		}
+	}
+
+	r, found, err := ns.cachedPartials.cache.GetOrCreate(keyString, func(string) (includeResult, error) {
 		var depsManagerShared identity.Manager
 		if ns.deps.Conf.Watching() {
 			// We need to create a shared dependency manager to pass downwards
 			// and add those same dependencies to any cached invocation of this partial.
-			depsManagerShared = identity.NewManager("partials")
+			depsManagerShared = identity.NewManager()
 			ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, depsManagerShared.(identity.DependencyManagerScopedProvider))
 		}
-		r := ns.includWithTimeout(ctx, key.Name, context)
+		r := ns.doInclude(ctx, keyString, ti, context)
 		if ns.deps.Conf.Watching() {
 			r.mangager = depsManagerShared
 		}
@@ -251,9 +240,9 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 			// The templates that gets executed is measured in Execute.
 			// We need to track the time spent in the cache to
 			// get the totals correct.
-			ns.deps.Metrics.MeasureSince(key.templateName(), start)
+			ns.deps.Metrics.MeasureSince(r.name, start)
 		}
-		ns.deps.Metrics.TrackValue(key.templateName(), r.result, found)
+		ns.deps.Metrics.TrackValue(r.name, r.result, found)
 	}
 
 	if r.mangager != nil && depsManagerIn != nil {

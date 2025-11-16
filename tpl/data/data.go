@@ -36,6 +36,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/deps"
+	"slices"
 )
 
 // New returns a new instance of the data-namespaced template functions.
@@ -170,12 +171,7 @@ func hasHeaderValue(m http.Header, key, value string) bool {
 		return false
 	}
 
-	for _, v := range s {
-		if v == value {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s, value)
 }
 
 func hasHeaderKey(m http.Header, key string) bool {

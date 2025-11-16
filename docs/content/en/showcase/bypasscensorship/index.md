@@ -1,10 +1,9 @@
 ---
 title: Bypass Censorship
 date: 2019-06-16
-description: "Showcase: Bypass Censorship find and promote tools that provide Internet access to everyone."
+description: 'Showcase: "Bypass Censorship find and promote tools that provide Internet access to everyone."'
 siteURL: https://www.bypasscensorship.org/
 byline: "[Fredrik Jonsson](https://xdeb.net/), Web developer & Linux sysadmin"
-
 ---
 
 The British Broadcasting Corporation (BBC) (UK), Deutsche Welle (DW) (Germany), France Médias Monde (FMM) (France), the U.S. Agency for Global Media (USAGM) (US) and the Open Technology Fund (OTF) (US) co-sponsor the Bypass Censorship website.

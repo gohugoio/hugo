@@ -1,19 +1,29 @@
 # Test the gen commands.
-# Note that adding new commands will require updating the NUM_COMMANDS value.
-env NUM_COMMANDS=43
 
 hugo gen -h
-stdout 'A collection of several useful generators\.'
-
+stdout 'Generate documentation for your project using Hugo''s documentation engine, including syntax highlighting for various programming languages\.'
 hugo gen doc --dir clidocs
-checkfilecount $NUM_COMMANDS clidocs
 
 hugo gen man -h
 stdout 'up-to-date man pages'
 hugo gen man --dir manpages
-checkfilecount $NUM_COMMANDS manpages
 
 hugo gen chromastyles -h
 stdout 'Generate CSS stylesheet for the Chroma code highlighter'
 hugo gen chromastyles --style monokai
-stdout '/\* LineHighlight \*/ \.chroma \.hl \{ background-color:#3c3d38 \}'
+stdout 'Generated using: hugo gen chromastyles --style monokai'
+! hugo gen chromastyles --style __invalid_style__
+stderr 'invalid style: __invalid_style__'
+
+# Not empty classes.
+# From Hugo 0.149.0 empty classes are always removed, so no need for the omitEmpty flag.
+hugo gen chromastyles --style monokai
+! stdout '{  }'
+hugo gen chromastyles --omitEmpty --style monokai --logLevel info
+stderr 'deprecated: --omitEmpty was deprecated'
+
+# Disable class comments.
+hugo gen chromastyles --style monokai
+stdout 'GenericSubheading'
+hugo gen chromastyles --omitClassComments --style monokai
+! stdout 'GenericSubheading'

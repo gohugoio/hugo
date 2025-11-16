@@ -36,6 +36,11 @@ func newResourceCache(rs *Spec, memCache *dynacache.Cache) *ResourceCache {
 			"/res1",
 			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 40},
 		),
+		cacheResourceFile: dynacache.GetOrCreatePartition[string, resource.Resource](
+			memCache,
+			"/res2",
+			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 40},
+		),
 		CacheResourceRemote: dynacache.GetOrCreatePartition[string, resource.Resource](
 			memCache,
 			"/resr",
@@ -58,6 +63,7 @@ type ResourceCache struct {
 	sync.RWMutex
 
 	cacheResource               *dynacache.Partition[string, resource.Resource]
+	cacheResourceFile           *dynacache.Partition[string, resource.Resource]
 	CacheResourceRemote         *dynacache.Partition[string, resource.Resource]
 	cacheResources              *dynacache.Partition[string, resource.Resources]
 	cacheResourceTransformation *dynacache.Partition[string, *resourceAdapterInner]
@@ -75,6 +81,12 @@ func (c *ResourceCache) Get(ctx context.Context, key string) (resource.Resource,
 
 func (c *ResourceCache) GetOrCreate(key string, f func() (resource.Resource, error)) (resource.Resource, error) {
 	return c.cacheResource.GetOrCreate(key, func(key string) (resource.Resource, error) {
+		return f()
+	})
+}
+
+func (c *ResourceCache) GetOrCreateFile(key string, f func() (resource.Resource, error)) (resource.Resource, error) {
+	return c.cacheResourceFile.GetOrCreate(key, func(key string) (resource.Resource, error) {
 		return f()
 	})
 }

@@ -87,7 +87,7 @@ func (ns *Namespace) CountWords(s any) (int, error) {
 	}
 
 	counter := 0
-	for _, word := range strings.Fields(tpl.StripHTML(ss)) {
+	for word := range strings.FieldsSeq(tpl.StripHTML(ss)) {
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			counter++
@@ -448,6 +448,17 @@ func (ns *Namespace) Trim(s, cutset any) (string, error) {
 	}
 
 	return strings.Trim(ss, sc), nil
+}
+
+// TrimSpace returns the given string, removing leading and trailing whitespace
+// as defined by Unicode.
+func (ns *Namespace) TrimSpace(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(ss), nil
 }
 
 // TrimLeft returns a slice of the string s with all leading characters

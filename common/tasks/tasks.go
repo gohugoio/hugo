@@ -103,10 +103,7 @@ func (r *RunEvery) Add(name string, f Func) {
 		f.IntervalHigh = 20 * time.Second
 	}
 
-	start := f.IntervalHigh / 3
-	if start < f.IntervalLow {
-		start = f.IntervalLow
-	}
+	start := max(f.IntervalHigh/3, f.IntervalLow)
 	f.interval = start
 	f.last = time.Now()
 

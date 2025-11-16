@@ -1,0 +1,12 @@
+# We use the front matter keywords field to determine related content. To
+# ensure consistency, during site build we validate each keyword against the
+# entries in data/keywords.yaml.
+
+# As of March 5, 2025, this feature is experimental, pending usability
+# assessment. We anticipate that the number of additions to data/keywords.yaml
+# will decrease over time, though the initial implementation will require some
+# effort.
+
+- menu
+- resource
+- highlight

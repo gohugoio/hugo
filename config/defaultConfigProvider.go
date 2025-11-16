@@ -14,53 +14,16 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
 	"sync"
 
-	xmaps "golang.org/x/exp/maps"
-
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/maps"
 )
-
-var (
-
-	// ConfigRootKeysSet contains all of the config map root keys.
-	ConfigRootKeysSet = map[string]bool{
-		"build":         true,
-		"caches":        true,
-		"cascade":       true,
-		"frontmatter":   true,
-		"languages":     true,
-		"imaging":       true,
-		"markup":        true,
-		"mediatypes":    true,
-		"menus":         true,
-		"minify":        true,
-		"module":        true,
-		"outputformats": true,
-		"params":        true,
-		"permalinks":    true,
-		"related":       true,
-		"sitemap":       true,
-		"privacy":       true,
-		"security":      true,
-		"taxonomies":    true,
-	}
-
-	// ConfigRootKeys is a sorted version of ConfigRootKeysSet.
-	ConfigRootKeys []string
-)
-
-func init() {
-	for k := range ConfigRootKeysSet {
-		ConfigRootKeys = append(ConfigRootKeys, k)
-	}
-	sort.Strings(ConfigRootKeys)
-}
 
 // New creates a Provider backed by an empty maps.Params.
 func New() Provider {
@@ -274,12 +237,21 @@ func (c *defaultConfigProvider) Merge(k string, v any) {
 func (c *defaultConfigProvider) Keys() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	return xmaps.Keys(c.root)
+	var keys []string
+	for k := range c.root {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func (c *defaultConfigProvider) WalkParams(walkFn func(params ...maps.KeyParams) bool) {
-	var walk func(params ...maps.KeyParams)
-	walk = func(params ...maps.KeyParams) {
+	maxDepth := 1000
+	var walk func(depth int, params ...maps.KeyParams)
+	walk = func(depth int, params ...maps.KeyParams) {
+		if depth > maxDepth {
+			panic(errors.New("max depth exceeded"))
+		}
 		if walkFn(params...) {
 			return
 		}
@@ -290,11 +262,11 @@ func (c *defaultConfigProvider) WalkParams(walkFn func(params ...maps.KeyParams)
 				paramsplus1 := make([]maps.KeyParams, i+1)
 				copy(paramsplus1, params)
 				paramsplus1[i] = maps.KeyParams{Key: k, Params: p2}
-				walk(paramsplus1...)
+				walk(depth+1, paramsplus1...)
 			}
 		}
 	}
-	walk(maps.KeyParams{Key: "", Params: c.root})
+	walk(0, maps.KeyParams{Key: "", Params: c.root})
 }
 
 func (c *defaultConfigProvider) determineMergeStrategy(params ...maps.KeyParams) maps.ParamsMergeStrategy {
@@ -382,7 +354,7 @@ func (c *defaultConfigProvider) getNestedKeyAndMap(key string, create bool) (str
 		c.keyCache.Store(key, parts)
 	}
 	current := c.root
-	for i := 0; i < len(parts)-1; i++ {
+	for i := range len(parts) - 1 {
 		next, found := current[parts[i]]
 		if !found {
 			if create {

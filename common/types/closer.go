@@ -19,6 +19,13 @@ type Closer interface {
 	Close() error
 }
 
+// CloserFunc is a convenience type to create a Closer from a function.
+type CloserFunc func() error
+
+func (f CloserFunc) Close() error {
+	return f()
+}
+
 type CloseAdder interface {
 	Add(Closer)
 }

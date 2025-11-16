@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,18 +15,17 @@ package hugolib
 
 import (
 	"testing"
-
-	"github.com/gohugoio/hugo/config"
 )
 
 func TestMinifyPublisher(t *testing.T) {
 	t.Parallel()
 
-	v := config.New()
-	v.Set("minify", true)
-	v.Set("baseURL", "https://example.org/")
-
-	htmlTemplate := `
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+[minify]
+minifyOutput = true
+-- layouts/index.html --
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,10 +45,7 @@ func TestMinifyPublisher(t *testing.T) {
 </body>
 </html>
 `
-
-	b := newTestSitesBuilder(t)
-	b.WithViper(v).WithTemplatesAdded("layouts/index.html", htmlTemplate)
-	b.CreateSites().Build(BuildCfg{})
+	b := Test(t, files)
 
 	// Check minification
 	// HTML

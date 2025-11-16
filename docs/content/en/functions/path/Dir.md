@@ -3,17 +3,11 @@ title: path.Dir
 description: Replaces path separators with slashes (/) and returns all but the last element of the given path.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/path/Base
-    - functions/path/BaseName
-    - functions/path/Clean
-    - functions/path/Ext
-    - functions/path/Join
-    - functions/path/Split
-  returnType: string
-  signatures: [path.Dir PATH]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [path.Dir PATH]
 aliases: [/functions/path.dir]
 ---
 

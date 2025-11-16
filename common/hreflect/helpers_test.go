@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,15 +20,32 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting/hqt"
 )
+
+type zeroStruct struct {
+	zero bool
+}
+
+func (z zeroStruct) IsZero() bool {
+	return z.zero
+}
 
 func TestIsTruthful(t *testing.T) {
 	c := qt.New(t)
+
+	var nilpointerZero *zeroStruct
 
 	c.Assert(IsTruthful(true), qt.Equals, true)
 	c.Assert(IsTruthful(false), qt.Equals, false)
 	c.Assert(IsTruthful(time.Now()), qt.Equals, true)
 	c.Assert(IsTruthful(time.Time{}), qt.Equals, false)
+	c.Assert(IsTruthful(&zeroStruct{zero: false}), qt.Equals, true)
+	c.Assert(IsTruthful(&zeroStruct{zero: true}), qt.Equals, false)
+	c.Assert(IsTruthful(zeroStruct{zero: false}), qt.Equals, true)
+	c.Assert(IsTruthful(zeroStruct{zero: true}), qt.Equals, false)
+	c.Assert(IsTruthful(nil), qt.Equals, false)
+	c.Assert(IsTruthful(nilpointerZero), qt.Equals, false)
 }
 
 func TestGetMethodByName(t *testing.T) {
@@ -50,18 +67,103 @@ func TestIsContextType(t *testing.T) {
 	c.Assert(IsContextType(reflect.TypeOf(valueCtx)), qt.IsTrue)
 }
 
+func TestToSliceAny(t *testing.T) {
+	c := qt.New(t)
+
+	checkOK := func(in any, expected []any) {
+		out, ok := ToSliceAny(in)
+		c.Assert(ok, qt.Equals, true)
+		c.Assert(out, qt.DeepEquals, expected)
+	}
+
+	checkOK([]any{1, 2, 3}, []any{1, 2, 3})
+	checkOK([]int{1, 2, 3}, []any{1, 2, 3})
+}
+
+type testIndirectStruct struct {
+	S string
+}
+
+func (t *testIndirectStruct) GetS() string {
+	return t.S
+}
+
+func (t testIndirectStruct) Foo() string {
+	return "bar"
+}
+
+type testIndirectStructNoMethods struct {
+	S string
+}
+
+func TestIsNil(t *testing.T) {
+	c := qt.New(t)
+
+	var (
+		nilPtr      *testIndirectStruct
+		nilIface    any = nil
+		nonNilIface any = &testIndirectStruct{S: "hello"}
+	)
+
+	c.Assert(IsNil(reflect.ValueOf(nilPtr)), qt.Equals, true)
+	c.Assert(IsNil(reflect.ValueOf(nilIface)), qt.Equals, true)
+	c.Assert(IsNil(reflect.ValueOf(nonNilIface)), qt.Equals, false)
+}
+
+func TestIndirectInterface(t *testing.T) {
+	c := qt.New(t)
+
+	var (
+		structWithMethods               = testIndirectStruct{S: "hello"}
+		structWithMethodsPointer        = &testIndirectStruct{S: "hello"}
+		structWithMethodsPointerAny any = structWithMethodsPointer
+		structPointerToPointer          = &structWithMethodsPointer
+		structNoMethodsPtr              = &testIndirectStructNoMethods{S: "no methods"}
+		structNoMethods                 = testIndirectStructNoMethods{S: "no methods"}
+		intValue                        = 32
+		intPtr                          = &intValue
+		nilPtr                      *testIndirectStruct
+		nilIface                    any = nil
+	)
+
+	ind := func(v any) any {
+		c.Helper()
+		vv, isNil := Indirect(reflect.ValueOf(v))
+		c.Assert(isNil, qt.IsFalse)
+		return vv.Interface()
+	}
+
+	c.Assert(ind(intValue), hqt.IsSameType, 32)
+	c.Assert(ind(intPtr), hqt.IsSameType, 32)
+	c.Assert(ind(structNoMethodsPtr), hqt.IsSameType, structNoMethodsPtr)
+	c.Assert(ind(structWithMethods), hqt.IsSameType, structWithMethods)
+	c.Assert(ind(structNoMethods), hqt.IsSameType, structNoMethods)
+	c.Assert(ind(structPointerToPointer), hqt.IsSameType, &testIndirectStruct{})
+	c.Assert(ind(structWithMethodsPointer), hqt.IsSameType, &testIndirectStruct{})
+	c.Assert(ind(structWithMethodsPointerAny), hqt.IsSameType, structWithMethodsPointer)
+
+	vv, isNil := Indirect(reflect.ValueOf(nilPtr))
+	c.Assert(isNil, qt.IsTrue)
+	c.Assert(vv, qt.Equals, reflect.ValueOf(nilPtr))
+
+	vv, isNil = Indirect(reflect.ValueOf(nilIface))
+	c.Assert(isNil, qt.IsFalse)
+	c.Assert(vv, qt.Equals, reflect.ValueOf(nilIface))
+}
+
 func BenchmarkIsContextType(b *testing.B) {
+	const size = 1000
 	type k string
 	b.Run("value", func(b *testing.B) {
 		ctx := context.Background()
-		ctxs := make([]reflect.Type, b.N)
-		for i := 0; i < b.N; i++ {
+		ctxs := make([]reflect.Type, size)
+		for i := range size {
 			ctxs[i] = reflect.TypeOf(context.WithValue(ctx, k("key"), i))
 		}
 
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			if !IsContextType(ctxs[i]) {
+		for i := 0; b.Loop(); i++ {
+			idx := i % size
+			if !IsContextType(ctxs[idx]) {
 				b.Fatal("not context")
 			}
 		}
@@ -69,7 +171,7 @@ func BenchmarkIsContextType(b *testing.B) {
 
 	b.Run("background", func(b *testing.B) {
 		var ctxt reflect.Type = reflect.TypeOf(context.Background())
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			if !IsContextType(ctxt) {
 				b.Fatal("not context")
 			}
@@ -77,14 +179,25 @@ func BenchmarkIsContextType(b *testing.B) {
 	})
 }
 
-func BenchmarkIsTruthFul(b *testing.B) {
-	v := reflect.ValueOf("Hugo")
+func BenchmarkIsTruthFulValue(b *testing.B) {
+	var (
+		stringHugo  = reflect.ValueOf("Hugo")
+		stringEmpty = reflect.ValueOf("")
+		zero        = reflect.ValueOf(time.Time{})
+		timeNow     = reflect.ValueOf(time.Now())
+		boolTrue    = reflect.ValueOf(true)
+		boolFalse   = reflect.ValueOf(false)
+		nilPointer  = reflect.ValueOf((*zeroStruct)(nil))
+	)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if !IsTruthfulValue(v) {
-			b.Fatal("not truthful")
-		}
+	for b.Loop() {
+		IsTruthfulValue(stringHugo)
+		IsTruthfulValue(stringEmpty)
+		IsTruthfulValue(zero)
+		IsTruthfulValue(timeNow)
+		IsTruthfulValue(boolTrue)
+		IsTruthfulValue(boolFalse)
+		IsTruthfulValue(nilPointer)
 	}
 }
 
@@ -110,14 +223,38 @@ func (t *testStruct) Method5() string {
 	return "Hugo"
 }
 
+func BenchmarkGetMethodByNameForType(b *testing.B) {
+	tp := reflect.TypeFor[*testStruct]()
+	methods := []string{"Method1", "Method2", "Method3", "Method4", "Method5"}
+
+	for b.Loop() {
+		for _, method := range methods {
+			_ = GetMethodByNameForType(tp, method)
+		}
+	}
+}
+
 func BenchmarkGetMethodByName(b *testing.B) {
 	v := reflect.ValueOf(&testStruct{})
 	methods := []string{"Method1", "Method2", "Method3", "Method4", "Method5"}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		for _, method := range methods {
 			_ = GetMethodByName(v, method)
 		}
 	}
+}
+
+func BenchmarkGetMethodByNamePara(b *testing.B) {
+	v := reflect.ValueOf(&testStruct{})
+	methods := []string{"Method1", "Method2", "Method3", "Method4", "Method5"}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			for _, method := range methods {
+				_ = GetMethodByName(v, method)
+			}
+		}
+	})
 }

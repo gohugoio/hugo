@@ -3,16 +3,15 @@ title: Get
 description: Returns a slice of weighted pages to which the given term has been assigned.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.WeightedPages
-  signatures: [TAXONOMY.Get TERM]
-toc: true
+params:
+  functions_and_methods:
+    returnType: page.WeightedPages
+    signatures: [TAXONOMY.Get TERM]
 ---
 
-The `Get` method on a `Taxonomy` object returns a slice of [weighted pages] to which the given [term] has been assigned.
+The `Get` method on a `Taxonomy` object returns a slice of [weighted pages](g) to which the given [term](g) has been assigned.
 
-{{% include "methods/taxonomy/_common/get-a-taxonomy-object.md" %}}
+{{% include "/_common/methods/taxonomy/get-a-taxonomy-object.md" %}}
 
 ## Get the weighted pages
 
@@ -28,7 +27,7 @@ The above is equivalent to:
 {{ $weightedPages := $taxonomyObject.suspense }}
 ```
 
-But, if the term is not a valid [identifier], you cannot use the [chaining] syntax. For example, this will throw an error because the identifier contains a hyphen:
+But, if the term is not a valid [identifier](g), you cannot use the [chaining](g) syntax. For example, this will throw an error because the identifier contains a hyphen:
 
 ```go-html-template
 {{ $weightedPages := $taxonomyObject.my-genre }}
@@ -43,7 +42,7 @@ You could also use the [`index`] function, but the syntax is more verbose:
 To inspect the data structure:
 
 ```go-html-template
-<pre>{{ jsonify (dict "indent" "  ") $weightedPages }}</pre>
+<pre>{{ debug.Dump $weightedPages }}</pre>
 ```
 
 ## Example
@@ -65,8 +64,4 @@ Hugo renders:
 <h2><a href="/books/and-then-there-were-none/">And then there were none</a></h2>
 ```
 
-[chaining]: /getting-started/glossary/#chain
-[`index`]: /functions/collections/indexfunction
-[identifier]: /getting-started/glossary/#identifier
-[term]: /getting-started/glossary/#term
-[weighted pages]: /getting-started/glossary/#weighted-page
+[`index`]: /functions/collections/indexfunction/

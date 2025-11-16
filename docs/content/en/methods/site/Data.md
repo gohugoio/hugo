@@ -3,27 +3,18 @@ title: Data
 description: Returns a data structure composed from the files in the data directory.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/collections/IndexFunction
-    - functions/transform/Unmarshal
-    - functions/collections/Where
-    - functions/collections/Sort
-  returnType: map
-  signatures: [SITE.Data]
+params:
+  functions_and_methods:
+    returnType: map
+    signatures: [SITE.Data]
 ---
 
-Use the `Data` method on a `Site` object to access data within the data directory, or within any directory [mounted] to the data directory. Supported data formats include JSON, TOML, YAML, and XML.
+Use the `Data` method on a `Site` object to access data within the `data` directory, or within any directory [mounted] to the `data` directory. Supported data formats include JSON, TOML, YAML, and XML.
 
-[mounted]: /hugo-modules/configuration/#module-configuration-mounts
+> [!note]
+> Although Hugo can unmarshal CSV files with the [`transform.Unmarshal`] function, do not place CSV files in the `data` directory. You cannot access data within CSV files using this method.
 
-{{% note %}}
-Although Hugo can unmarshal CSV files with the [`transform.Unmarshal`] function, do not place CSV files in the data directory. You cannot access data within CSV files using this method.
-
-[`transform.Unmarshal`]: /functions/transform/unmarshal
-{{% /note %}}
-
-Consider this data directory:
+Consider this `data` directory:
 
 ```text
 data/
@@ -37,25 +28,25 @@ data/
 
 And these data files:
 
-{{< code file=data/books/fiction.yaml lang=yaml >}}
+```yaml {file="data/books/fiction.yaml"}
 - title: The Hunchback of Notre Dame
   author: Victor Hugo
   isbn: 978-0140443530
 - title: Les Misérables
   author: Victor Hugo
   isbn: 978-0451419439
-{{< /code >}}
+```
 
-{{< code file=data/books/nonfiction.yaml lang=yaml >}}
+```yaml {file="data/books/nonfiction.yaml"}
 - title: The Ancien Régime and the Revolution
   author: Alexis de Tocqueville
   isbn: 978-0141441641
 - title: Interpreting the French Revolution
   author: François Furet
   isbn: 978-0521280495
-{{< /code >}}
+```
 
-Access the data by [chaining] the [identifiers]:
+Access the data by [chaining](g) the [identifiers](g):
 
 ```go-html-template
 {{ range $category, $books := .Site.Data.books }}
@@ -101,8 +92,12 @@ To find a fiction book by ISBN:
 {{ end }}
 ```
 
-In the template examples above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
+In the template examples above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function. For example:
 
-[`index`]: /functions/collections/indexfunction
-[chaining]: /getting-started/glossary/#chain
-[identifiers]: /getting-started/glossary/#identifier
+```go-html-template
+{{ index .Site.Data.books "historical-fiction" }}
+```
+
+[`index`]: /functions/collections/indexfunction/
+[`transform.Unmarshal`]: /functions/transform/unmarshal/
+[mounted]: /configuration/module/#mounts

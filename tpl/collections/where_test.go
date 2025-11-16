@@ -761,6 +761,7 @@ func TestCheckCondition(t *testing.T) {
 			expect{true, false},
 		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{45, 678}), "not in", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf([]int{}), "not in", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"bar", "baz"}), "not in", expect{true, false}},
 		{
 			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
@@ -865,10 +866,10 @@ func BenchmarkWhereOps(b *testing.B) {
 	ns := newNs()
 	var seq []map[string]string
 	ctx := context.Background()
-	for i := 0; i < 500; i++ {
+	for range 500 {
 		seq = append(seq, map[string]string{"foo": "bar"})
 	}
-	for i := 0; i < 500; i++ {
+	for range 500 {
 		seq = append(seq, map[string]string{"foo": "baz"})
 	}
 	// Shuffle the sequence.
@@ -885,20 +886,56 @@ func BenchmarkWhereOps(b *testing.B) {
 	}
 
 	b.Run("eq", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOps(b, "eq", "bar")
 		}
 	})
 
 	b.Run("ne", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOps(b, "ne", "baz")
 		}
 	})
 
 	b.Run("like", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			runOps(b, "like", "^bar")
 		}
 	})
+}
+
+func BenchmarkWhereMap(b *testing.B) {
+	ns := newNs()
+	seq := map[string]string{}
+
+	for i := range 1000 {
+		seq[fmt.Sprintf("key%d", i)] = "value"
+	}
+
+	for b.Loop() {
+		_, err := ns.Where(context.Background(), seq, "key", "eq", "value")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkWhereSliceOfStructPointersWithMethod(b *testing.B) {
+	// TstRv2
+	ns := newNs()
+	seq := []*TstX{}
+
+	for i := range 1000 {
+		seq = append(seq, &TstX{A: "foo", B: "bar"})
+		if i%2 == 0 {
+			seq = append(seq, &TstX{A: "baz", B: "qux"})
+		}
+	}
+
+	for b.Loop() {
+		_, err := ns.Where(context.Background(), seq, "TstRv2", "eq", "bar")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
 }

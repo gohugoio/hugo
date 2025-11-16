@@ -43,11 +43,7 @@ func Emojify(source []byte) []byte {
 
 		j := start + k
 
-		upper := j + emojiMaxSize
-
-		if upper > len(source) {
-			upper = len(source)
-		}
+		upper := min(j+emojiMaxSize, len(source))
 
 		endEmoji := bytes.Index(source[j+1:upper], emojiDelim)
 		nextWordDelim := bytes.Index(source[j:upper], emojiWordDelim)

@@ -1,16 +1,12 @@
 ---
 title: UnixMilli
-description: Returns the given time.Time value expressed as the number of milliseconds elapsed since January 1, 1970 UTC. 
+description: Returns the given time.Time value expressed as the number of milliseconds elapsed since January 1, 1970 UTC.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/Unix
-    - methods/time/UnixMicro
-    - methods/time/UnixNano
-    - functions/time/AsTime
-  returnType: int64
-  signatures: [TIME.UnixMilli]
+params:
+  functions_and_methods:
+    returnType: int64
+    signatures: [TIME.UnixMilli]
 ---
 
 See [Unix epoch](https://en.wikipedia.org/wiki/Unix_time).

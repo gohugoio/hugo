@@ -1,16 +1,15 @@
 ---
 title: Sections
-description: Returns a collection of first level section pages.
+description: Returns a collection of top-level section pages.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/site/AllPages
-    - methods/site/Pages
-    - methods/site/RegularPages
-  returnType: page.Pages
-  signatures: [SITE.Sections]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [SITE.Sections]
 ---
+
+The `Sections` method on a `Site` object returns a collection of top-level [section pages](g), in the [default sort order](g).
 
 Given this content structure:
 

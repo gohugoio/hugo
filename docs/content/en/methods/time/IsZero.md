@@ -3,11 +3,10 @@ title: IsZero
 description: Reports whether the given time.Time value represents the zero time instant, January 1, year 1, 00:00:00 UTC.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-  returnType: bool
-  signatures: [TIME.IsZero]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [TIME.IsZero]
 ---
 
 ````go-html-template

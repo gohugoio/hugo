@@ -24,11 +24,11 @@ func TestWrap(t *testing.T) {
 
 	b := []byte("test")
 
-	c.Assert(Wrap(b, 42), qt.Equals, "{{__hugo_ctx pid=42}}\ntest{{__hugo_ctx/}}\n")
+	c.Assert(Wrap(b, 42), qt.Equals, "{{__hugo_ctx pid=42}}\ntest\n{{__hugo_ctx/}}\n")
 }
 
 func BenchmarkWrap(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		Wrap([]byte("test"), 42)
 	}
 }

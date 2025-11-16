@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/markup/pandoc"
 	"github.com/gohugoio/hugo/markup/rst"
+	"github.com/gohugoio/hugo/related"
 )
 
 const filesPagesFromDataTempleBasic = `
@@ -73,10 +74,11 @@ Pfile Content
 {{ $title := printf "%s:%s" $pd $pp }}
 {{ $date := "2023-03-01" | time.AsTime }}
 {{ $dates := dict "date" $date }}
+{{ $keywords := slice "foo" "Bar"}}
 {{ $contentMarkdown := dict "value" "**Hello World**"  "mediaType" "text/markdown" }}
 {{ $contentMarkdownDefault := dict "value" "**Hello World Default**" }}
 {{ $contentHTML := dict "value" "<b>Hello World!</b> No **markdown** here." "mediaType" "text/html" }}
-{{ $.AddPage  (dict "kind" "page" "path" "P1" "title" $title "dates" $dates "content" $contentMarkdown "params" (dict "param1" "param1v" ) ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "P1" "title" $title "dates" $dates "keywords" $keywords "content" $contentMarkdown "params" (dict "param1" "param1v" ) ) }}
 {{ $.AddPage  (dict "kind" "page" "path" "p2" "title" "p2title" "dates" $dates "content" $contentHTML ) }}
 {{ $.AddPage  (dict "kind" "page" "path" "p3" "title" "p3title" "dates" $dates "content" $contentMarkdownDefault "draft" false ) }}
 {{ $.AddPage  (dict "kind" "page" "path" "p4" "title" "p4title" "dates" $dates "content" $contentMarkdownDefault "draft" $data.draft ) }}
@@ -96,7 +98,8 @@ ADD_MORE_PLACEHOLDER
 
 func TestPagesFromGoTmplMisc(t *testing.T) {
 	t.Parallel()
-	b := hugolib.Test(t, filesPagesFromDataTempleBasic)
+	b := hugolib.Test(t, filesPagesFromDataTempleBasic, hugolib.TestOptWarn())
+	b.AssertLogContains("! WARN")
 	b.AssertPublishDir(`
 docs/p1/mytext.txt
 docs/p1/sub/mytex2.tx
@@ -119,7 +122,7 @@ docs/p1/sub/mymixcasetext2.txt
 		"RelPermalink: /docs/p1/sub/mymixcasetext2.txt|Name: sub/mymixcasetext2.txt|",
 		"RelPermalink: /mydata.yaml|Name: sub/data1.yaml|Title: Sub data|Params: map[]|",
 		"Featured Image: /a/pixel.png|featured.png|",
-		"Resized Featured Image: /a/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_10x10_resize_box_3.png|10|",
+		"Resized Featured Image: /a/pixel_hu_a32b3e361d55df1.png|10|",
 		// Resource from string
 		"RelPermalink: /docs/p1/mytext.txt|Name: textresource|Title: My Text Resource|Params: map[param1:param1v]|",
 		// Dates
@@ -192,22 +195,7 @@ baseURL = "https://example.com"
 		b, err := hugolib.TestE(t, files)
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, "_content.gotmpl:1:4")
-		b.Assert(err.Error(), qt.Contains, "error calling AddPage: path not set")
-	})
-
-	t.Run("AddPage, path starting with slash", func(t *testing.T) {
-		files := strings.ReplaceAll(filesTemplate, "DICT", `(dict "kind" "page" "title" "p1" "path" "/foo")`)
-		b, err := hugolib.TestE(t, files)
-		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, `path "/foo" must not start with a /`)
-	})
-
-	t.Run("AddPage, lang set", func(t *testing.T) {
-		files := strings.ReplaceAll(filesTemplate, "DICT", `(dict "kind" "page" "path" "p1" "lang" "en")`)
-		b, err := hugolib.TestE(t, files)
-		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "_content.gotmpl:1:4")
-		b.Assert(err.Error(), qt.Contains, "error calling AddPage: lang must not be set")
+		b.Assert(err.Error(), qt.Contains, "error calling AddPage: empty path is reserved for the home page")
 	})
 
 	t.Run("Site methods not ready", func(t *testing.T) {
@@ -227,23 +215,6 @@ baseURL = "https://example.com"
 				b.Assert(err.Error(), qt.Contains, fmt.Sprintf("error calling %s: this method cannot be called before the site is fully initialized", method))
 			})
 		}
-	})
-}
-
-func TestPagesFromGoTmplAddResourceErrors(t *testing.T) {
-	filesTemplate := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "rss", "sitemap"]
-baseURL = "https://example.com"
--- content/docs/_content.gotmpl --
-{{ $.AddResource  DICT }}
-`
-
-	t.Run("missing Path", func(t *testing.T) {
-		files := strings.ReplaceAll(filesTemplate, "DICT", `(dict "name" "r1")`)
-		b, err := hugolib.TestE(t, files)
-		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "error calling AddResource: path not set")
 	})
 }
 
@@ -329,6 +300,63 @@ func TestPagesFromGoTmplRemoveGoTmpl(t *testing.T) {
 	b.AssertFileContent("public/docs/index.html", "RegularPagesRecursive: pfile:/docs/pfile|$")
 }
 
+func TestPagesFromGoTmplEditOverlappingContentFile(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+-- layouts/all.html --
+All: {{ .Content }}|{{ .Title }}|
+-- layouts/section.html --
+Title: {{ .Title}}|
+RegularPages: {{ range .RegularPages }}{{ .Title }}:{{ .Path }}|{{ end }}|
+-- content/mysection/_index.md --
+---
+title: "My Section"
+---
+-- content/mysection/p1.md --
+---
+title: "p1 content file"
+---
+Content of p1
+-- content/_content.gotmpl --
+{{ $.AddPage (dict "kind" "page" "path" "mysection/p2" "title" "p2 content adapter") }}
+`
+	b := hugolib.TestRunning(t, files)
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section|", "RegularPages: p1 content file:/mysection/p1|p2 content adapter:/mysection/p2|")
+
+	b.EditFileReplaceAll("content/mysection/p1.md", `"p1 content file"`, `"p1 content file edited"`).Build()
+	b.AssertFileContent("public/mysection/index.html", "RegularPages: p1 content file edited:/mysection/p1|p2 content adapter:/mysection/p2|")
+
+	b.EditFileReplaceAll("content/mysection/_index.md", "My Section", "My Section edited").Build()
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section edited|", "RegularPages: p1 content file edited:/mysection/p1|p2 content adapter:/mysection/p2|")
+
+	b.RemoveFiles("content/mysection/p1.md").Build()
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section edited|\nRegularPages: p2 content adapter:/mysection/p2|")
+
+	b.RemoveFiles("content/_content.gotmpl", "public/mysection/index.html").Build()
+	b.AssertFileContent("public/mysection/index.html", "Title: My Section edited|\nRegularPages: |")
+}
+
+// Issue #13443.
+func TestPagesFromGoRelatedKeywords(t *testing.T) {
+	t.Parallel()
+	b := hugolib.Test(t, filesPagesFromDataTempleBasic)
+
+	p1 := b.H.Sites[0].RegularPages()[0]
+	icfg := related.IndexConfig{
+		Name: "keywords",
+	}
+	k, err := p1.RelatedKeywords(icfg)
+	b.Assert(err, qt.IsNil)
+	b.Assert(k, qt.DeepEquals, icfg.StringsToKeywords("foo", "Bar"))
+	icfg.Name = "title"
+	k, err = p1.RelatedKeywords(icfg)
+	b.Assert(err, qt.IsNil)
+	b.Assert(k, qt.DeepEquals, icfg.StringsToKeywords("p1:p1"))
+}
+
 func TestPagesFromGoTmplLanguagePerFile(t *testing.T) {
 	filesTemplate := `
 -- hugo.toml --
@@ -360,6 +388,28 @@ Single: {{ .Title }}|{{ .Content }}|
 			}
 		})
 	}
+}
+
+func TestPagesFromGoTmplDefaultPageSort(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+-- layouts/index.html --
+{{ range site.RegularPages }}{{ .RelPermalink }}|{{ end}}
+-- content/_content.gotmpl --
+{{ $.AddPage  (dict "kind" "page" "path" "docs/_p22" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "docs/p12" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "docs/_p12" "title" "A" ) }}
+-- content/docs/_content.gotmpl --
+{{ $.AddPage  (dict "kind" "page" "path" "_p21" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "p11" "title" "A" ) }}
+{{ $.AddPage  (dict "kind" "page" "path" "_p11" "title" "A" ) }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "/docs/_p11/|/docs/_p12/|/docs/_p21/|/docs/_p22/|/docs/p11/|/docs/p12/|")
 }
 
 func TestPagesFromGoTmplEnableAllLanguages(t *testing.T) {
@@ -533,73 +583,6 @@ disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 	)
 }
 
-func TestPagesFromGoTmplPathWarningsPathPage(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.com"
-disableKinds = ['home','section','rss','sitemap','taxonomy','term']
-printPathWarnings = true
--- content/_content.gotmpl --
-{{ .AddPage (dict "path" "p1" "title" "p1" ) }}
-{{ .AddPage (dict "path" "p2" "title" "p2" ) }}
--- content/p1.md --
----
-title: "p1"
----
--- layouts/_default/single.html --
-{{ .Title }}|
-`
-
-	b := hugolib.Test(t, files, hugolib.TestOptWarn())
-
-	b.AssertFileContent("public/p1/index.html", "p1|")
-
-	b.AssertLogContains("Duplicate content path")
-
-	files = strings.ReplaceAll(files, `"path" "p1"`, `"path" "p1new"`)
-
-	b = hugolib.Test(t, files, hugolib.TestOptWarn())
-
-	b.AssertLogNotContains("WARN")
-}
-
-func TestPagesFromGoTmplPathWarningsPathResource(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-baseURL = "https://example.com"
-disableKinds = ['home','section','rss','sitemap','taxonomy','term']
-printPathWarnings = true
--- content/_content.gotmpl --
-{{ .AddResource (dict "path" "p1/data1.yaml" "content" (dict "value" "data1" ) ) }}
-{{ .AddResource (dict "path" "p1/data2.yaml" "content" (dict "value" "data2" ) ) }}
-
--- content/p1/index.md --
----
-title: "p1"
----
--- content/p1/data1.yaml --
-value: data1
--- layouts/_default/single.html --
-{{ .Title }}|
-`
-
-	b := hugolib.Test(t, files, hugolib.TestOptWarn())
-
-	b.AssertFileContent("public/p1/index.html", "p1|")
-
-	b.AssertLogContains("Duplicate resource path")
-
-	files = strings.ReplaceAll(files, `"path" "p1/data1.yaml"`, `"path" "p1/data1new.yaml"`)
-
-	b = hugolib.Test(t, files, hugolib.TestOptWarn())
-
-	b.AssertLogNotContains("WARN")
-}
-
 func TestPagesFromGoTmplShortcodeNoPreceddingCharacterIssue12544(t *testing.T) {
 	t.Parallel()
 
@@ -653,6 +636,34 @@ Footer: {{ range index site.Menus.footer }}{{ .Name }}|{{ end }}|
 	)
 }
 
+// Issue 13384.
+func TestPagesFromGoTmplMenusMap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+-- content/_content.gotmpl --
+{{ $menu1 := dict 
+    "parent" "main-page"
+    "identifier" "id1"
+}}
+{{ $menu2 := dict 
+    "parent" "main-page"
+    "identifier" "id2"
+}}
+{{ $menus := dict "m1" $menu1 "m2" $menu2 }}
+{{ .AddPage (dict "path" "p1" "title" "p1" "menus" $menus ) }}
+
+-- layouts/index.html --
+Menus: {{ range $k, $v := site.Menus }}{{ $k }}|{{ end }}
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Menus: m1|m2|")
+}
+
 func TestPagesFromGoTmplMore(t *testing.T) {
 	t.Parallel()
 
@@ -677,4 +688,188 @@ summary: {{ .Summary }}|content: {{ .Content}}
 	b.AssertFileContent("public/s1/p1/index.html",
 		"<p>aaa</p>|content: <p>aaa</p>\n<p>bbb</p>",
 	)
+}
+
+// Issue 13063.
+func TestPagesFromGoTmplTermIsEmpty(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ['section', 'home', 'rss','sitemap']
+printPathWarnings = true
+[taxonomies]
+tag = "tags"
+-- content/mypost.md --
+---
+title: "My Post"
+tags: ["mytag"]
+---
+-- content/tags/_content.gotmpl --
+{{ .AddPage (dict "path" "mothertag" "title" "My title" "kind" "term") }}
+--
+-- layouts/_default/taxonomy.html --
+Terms: {{ range .Data.Terms.ByCount }}{{ .Name }}: {{ .Count }}|{{ end }}§s
+-- layouts/_default/single.html --
+Single.
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/tags/index.html", "Terms: mytag: 1|§s")
+}
+
+func TestContentAdapterOutputsIssue13689(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[outputs]
+page = ['html','json']
+-- layouts/page.html --
+html: {{ .Title }}
+-- layouts/page.json --
+json: {{ .Title }}
+-- content/p1.md --
+---
+title: p1
+---
+-- content/p2.md --
+---
+title: p2
+outputs:
+  - html
+---
+-- content/_content.gotmpl --
+{{ $page := dict "path" "p3" "title" "p3" }}
+{{ $.AddPage $page }}
+
+{{ $page := dict "path" "p4" "title" "p4" "outputs" (slice "html") }}
+{{ $.AddPage $page }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/p1/index.html", true)
+	b.AssertFileExists("public/p1/index.json", true)
+	b.AssertFileExists("public/p2/index.html", true)
+	b.AssertFileExists("public/p2/index.json", false)
+	b.AssertFileExists("public/p3/index.html", true)
+	b.AssertFileExists("public/p3/index.json", true)
+	b.AssertFileExists("public/p4/index.html", true)
+	b.AssertFileExists("public/p4/index.json", false) // currently returns true
+}
+
+func TestContentAdapterOutputsIssue13692(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','home','sitemap','taxonomy','term']
+[[cascade]]
+outputs = ['html','json']
+[cascade.target]
+path = '{/s2,/s4}'
+-- layouts/section.html --
+html: {{ .Title }}
+-- layouts/section.json --
+json: {{ .Title }}
+-- content/s1/_index.md --
+---
+title: s1
+---
+-- content/s2/_index.md --
+---
+title: s2
+---
+-- content/_content.gotmpl --
+{{ $page := dict "path" "s3" "title" "s3" "kind" "section" }}
+{{ $.AddPage $page }}
+
+{{ $page := dict "path" "s4" "title" "s4" "kind" "section" }}
+{{ $.AddPage $page }}
+
+{{ $page := dict "path" "s5" "title" "s5" "kind" "section" "outputs" (slice "html") }}
+ {{ $.AddPage $page }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/s1/index.html", true)
+	b.AssertFileExists("public/s1/index.json", false)
+	b.AssertFileExists("public/s1/index.xml", true)
+
+	b.AssertFileExists("public/s2/index.html", true)
+	b.AssertFileExists("public/s2/index.json", true)
+	b.AssertFileExists("public/s2/index.xml", false)
+
+	b.AssertFileExists("public/s3/index.html", true)
+	b.AssertFileExists("public/s3/index.json", false)
+	b.AssertFileExists("public/s3/index.xml", true)
+
+	b.AssertFileExists("public/s4/index.html", true)
+	b.AssertFileExists("public/s4/index.json", true)
+	b.AssertFileExists("public/s4/index.xml", false)
+
+	b.AssertFileExists("public/s5/index.html", true)
+	b.AssertFileExists("public/s5/index.json", false)
+	b.AssertFileExists("public/s5/index.xml", false)
+}
+
+func TestContentAdapterCascadeBasic(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+-- content/_index.md --
+---
+cascade:
+  - title: foo
+    target:
+      path: "**"
+---
+-- layouts/all.html --
+Title: {{ .Title }}|Content: {{ .Content }}|
+-- content/_content.gotmpl --
+{{ $content := dict
+  "mediaType" "text/markdown"
+  "value" "The _Hunchback of Notre Dame_ was written by Victor Hugo."
+}}
+
+{{ $page := dict "path" "s1"  "kind" "page" }}
+{{ $.AddPage $page }}
+ {{ $page := dict "path" "s2"  "kind" "page" "title" "bar" "content" $content }}
+{{ $.AddPage $page }}
+
+`
+
+	b := hugolib.TestRunning(t, files)
+
+	b.AssertFileContent("public/s1/index.html", "Title: foo|")
+	b.AssertFileContent("public/s2/index.html", "Title: bar|", "Content: <p>The <em>Hunchback of Notre Dame</em> was written by Victor Hugo.</p>")
+
+	b.EditFileReplaceAll("content/_index.md", "foo", "baz").Build()
+
+	b.AssertFileContent("public/s1/index.html", "Title: baz|")
+}
+
+func TestPagesFromGoTmplHome(t *testing.T) {
+	t.Parallel()
+
+	files := ` 
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+baseURL = "https://example.com"
+-- layouts/all.html --
+{{ .Kind }}: {{ .Title }}|
+-- content/_content.gotmpl --
+{{ $.AddPage (dict  "title" "My Home!" "kind" "home" ) }}
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "home: My Home!|")
 }

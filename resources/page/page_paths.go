@@ -14,6 +14,7 @@
 package page
 
 import (
+	"bytes"
 	"path"
 	"path/filepath"
 	"strings"
@@ -140,12 +141,18 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	pb.isUgly = (d.UglyURLs || d.Type.Ugly) && !d.Type.NoUgly
 	pb.baseNameSameAsType = !d.Path.IsBundle() && d.BaseName != "" && d.BaseName == d.Type.BaseName
+	indexIsUglyKind := d.Kind == kinds.KindHome || d.Kind == kinds.KindSection || d.Kind == kinds.KindTaxonomy
+	indexIsUglyKind = indexIsUglyKind && pb.isUgly
 
 	if d.ExpandedPermalink == "" && pb.baseNameSameAsType {
 		pb.isUgly = true
 	}
 
-	if d.Type == output.HTTPStatusHTMLFormat || d.Type == output.SitemapFormat || d.Type == output.RobotsTxtFormat {
+	if d.Type.Path != "" {
+		pb.Add(d.Type.Path)
+	}
+
+	if d.Type == output.HTTPStatus404HTMLFormat || d.Type == output.SitemapFormat || d.Type == output.RobotsTxtFormat {
 		pb.noSubResources = true
 	} else if d.Kind != kinds.KindPage && d.URL == "" && d.Section.Base() != "/" {
 		if d.ExpandedPermalink != "" {
@@ -154,10 +161,6 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 			pb.Add(d.Section.Base())
 		}
 		needsBase = false
-	}
-
-	if d.Type.Path != "" {
-		pb.Add(d.Type.Path)
 	}
 
 	if d.Kind != kinds.KindHome && d.URL != "" {
@@ -233,13 +236,13 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 		needsBase = needsBase && d.Addends == ""
 
-		if needsBase || !pb.isUgly {
+		if needsBase || (!pb.isUgly || indexIsUglyKind) {
 			pb.Add(d.Type.BaseName + pb.fullSuffix)
 		} else {
 			pb.ConcatLast(pb.fullSuffix)
 		}
 
-		if pb.IsHtmlIndex() {
+		if !indexIsUglyKind && pb.IsHtmlIndex() {
 			pb.linkUpperOffset = 1
 		}
 
@@ -254,13 +257,14 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	// if page URL is explicitly set in frontmatter,
 	// preserve its value without sanitization
-	if d.Kind != kinds.KindPage || d.URL == "" {
+	if d.URL == "" {
 		// Note: MakePathSanitized will lower case the path if
 		// disablePathToLower isn't set.
 		pb.Sanitize()
 	}
 
 	link := pb.Link()
+
 	pagePath := pb.PathFile()
 
 	tp.TargetFilename = filepath.FromSlash(pagePath)
@@ -292,6 +296,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 // When adding state here, remember to update putPagePathBuilder.
 type pagePathBuilder struct {
 	els []string
+	b   bytes.Buffer
 
 	d TargetPathDescriptor
 
@@ -383,8 +388,17 @@ func (p *pagePathBuilder) Path(upperOffset int) string {
 	if upperOffset > 0 {
 		upper -= upperOffset
 	}
-	pth := path.Join(p.els[:upper]...)
-	return paths.AddLeadingSlash(pth)
+	p.b.Reset()
+
+	var hadTrailingSlash bool
+	for _, el := range p.els[:upper] {
+		if !hadTrailingSlash && !strings.HasPrefix(el, "/") {
+			p.b.WriteByte('/')
+		}
+		hadTrailingSlash = strings.HasSuffix(el, "/")
+		p.b.WriteString(el)
+	}
+	return p.b.String()
 }
 
 func (p *pagePathBuilder) PathDir() string {

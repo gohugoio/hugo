@@ -14,6 +14,7 @@
 package pagemeta_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -42,4 +43,100 @@ Date: 2024-03-13 06:00:00 &#43;0000 GMT
 Lastmod: 2024-03-13 06:00:00 &#43;0000 GMT
 Eq: true
 `)
+}
+
+func TestDateValidation(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- content/_index.md --
+FRONT_MATTER
+-- layouts/index.html --
+{{ .Date.UTC.Format "2006-01-02" }}
+--
+`
+	errorMsg := `ERROR the "date" front matter field is not a parsable date`
+
+	// TOML: unquoted date/time (valid)
+	f := strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = 2024-10-01
++++
+	`)
+	b := hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "2024-10-01")
+
+	// TOML: string (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = "2024-10-01"
++++
+	`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "2024-10-01")
+
+	// TOML: empty string (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = ""
++++
+	`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "0001-01-01")
+
+	// TOML: int (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = 0
++++
+	`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "1970-01-01")
+
+	// TOML: string (invalid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = "2024-42-42"
++++
+	`)
+	b, _ = hugolib.TestE(t, f)
+	b.AssertLogContains(errorMsg)
+
+	// TOML: bool (invalid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = true
++++
+	`)
+	b, _ = hugolib.TestE(t, f)
+	b.AssertLogContains(errorMsg)
+
+	// TOML: float (invalid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
++++
+date = 6.7
++++
+	`)
+	b, _ = hugolib.TestE(t, f)
+	b.AssertLogContains(errorMsg)
+
+	// JSON: null (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
+{
+  "date": null
+}
+	`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "0001-01-01")
+
+	// YAML: null (valid)
+	f = strings.ReplaceAll(files, "FRONT_MATTER", `
+---
+date:
+---
+	`)
+	b = hugolib.Test(t, f)
+	b.AssertFileContent("public/index.html", "0001-01-01")
 }

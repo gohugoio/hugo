@@ -1,0 +1,8 @@
+{{ if or .IsSection .IsPage }}
+  <div class="hidden print:flex justify-between border-b-1 border-b-gray-400 mb-4">
+    <p class="flex flex-col justify-end text-4xl mb-3">Hugo Documentation</p>
+    {{ with images.QR .Permalink (dict "targetDir" "images/qr") }}
+      <img class="mb-2 -mr-2" src="{{ .RelPermalink }}" width="{{ .Width | mul 0.75 | int }}" height="{{ .Height | mul 0.75 | int }}" alt="Link to {{ $.Permalink }}">
+    {{ end }}
+  </div>
+{{end }}

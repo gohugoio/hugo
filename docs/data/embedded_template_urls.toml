@@ -1,0 +1,42 @@
+# Used by the embedded template URL (eturl.html) shortcode.
+# Quoted all keys because some are not valid identifiers.
+
+# BaseURL
+'base_url' = 'https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/embedded/templates'
+
+# Partials
+'disqus' = '_partials/disqus.html'
+'google_analytics' = '_partials/google_analytics.html'
+'opengraph' = '_partials/opengraph.html'
+'pagination' = '_partials/pagination.html'
+'schema' = '_partials/schema.html'
+'twitter_cards' = '_partials/twitter_cards.html'
+
+# Render hooks
+'render-codeblock-goat' = '_markup/render-codeblock-goat.html'
+'render-image' = '_markup/render-image.html'
+'render-link' = '_markup/render-link.html'
+'render-table' = '_markup/render-table.html'
+
+# Shortcodes
+'details' = '_shortcodes/details.html'
+'figure' = '_shortcodes/figure.html'
+'gist' = '_shortcodes/gist.html'
+'highlight' = '_shortcodes/highlight.html'
+'instagram' = '_shortcodes/instagram.html'
+'param' = '_shortcodes/param.html'
+'qr' = '_shortcodes/qr.html'
+'ref' = '_shortcodes/ref.html'
+'relref' = '_shortcodes/relref.html'
+'vimeo' = '_shortcodes/vimeo.html'
+'vimeo_simple' = '_shortcodes/vimeo_simple.html'
+'x' = '_shortcodes/x.html'
+'x_simple' = '_shortcodes/x_simple.html'
+'youtube' = '_shortcodes/youtube.html'
+
+# Other
+'alias' = 'alias.html'
+'robots' = 'robots.txt'
+'rss' = 'rss.xml'
+'sitemap' = 'sitemap.xml'
+'sitemapindex' = 'sitemapindex.xml'

@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,7 +64,8 @@ tags: ["tag1", "tag2"]
 ---
 `
 
-	b := hugolib.Test(t, files)
+	b := hugolib.Test(t, files, hugolib.TestOptInfo())
+	b.AssertLogContains("deprecated") // lang => sites.matrix in v0.152.0
 	b.Assert(b.H.Configs.Base.RootConfig.RenderSegments, qt.DeepEquals, []string{"docs"})
 
 	b.AssertFileContent("public/docs/section1/page1/index.html", "Docs Page 1")

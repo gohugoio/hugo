@@ -1,0 +1,29 @@
+{{- $pc := site.Config.Privacy.X -}}
+{{- if not $pc.Disable -}}
+  {{- if $pc.Simple -}}
+    {{- template "_shortcodes/x_simple.html" . -}}
+  {{- else -}}
+    {{- $id := or (.Get "id") "" -}}
+    {{- $user := or (.Get "user") "" -}}
+    {{- if and $id $user -}}
+      {{- template "render-x" (dict "id" $id "user" $user "dnt" $pc.EnableDNT "ctx" .) -}}
+    {{- else -}}
+      {{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "render-x" -}}
+  {{- $url := printf "https://x.com/%v/status/%v" .user .id -}}
+  {{- $query := querify "url" $url "dnt" .dnt -}}
+  {{- $request := printf "https://publish.x.com/oembed?%s" $query -}}
+  {{- with try (resources.GetRemote $request) -}}
+    {{- with .Err -}}
+      {{- warnidf "shortcode-x-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
+    {{- else with .Value -}}
+      {{- (. | transform.Unmarshal).html | safeHTML -}}
+    {{- else -}}
+      {{- warnidf "shortcode-x-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

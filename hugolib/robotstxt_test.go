@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,27 +15,22 @@ package hugolib
 
 import (
 	"testing"
-
-	"github.com/gohugoio/hugo/config"
 )
-
-const robotTxtTemplate = `User-agent: Googlebot
-  {{ range .Data.Pages }}
-	Disallow: {{.RelPermalink}}
-	{{ end }}
-`
 
 func TestRobotsTXTOutput(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.New()
-	cfg.Set("baseURL", "http://auth/bub/")
-	cfg.Set("enableRobotsTXT", true)
-
-	b := newTestSitesBuilder(t).WithViper(cfg)
-	b.WithTemplatesAdded("layouts/robots.txt", robotTxtTemplate)
-
-	b.Build(BuildCfg{})
+	files := `
+-- hugo.toml --
+baseURL = "http://auth/bub/"
+enableRobotsTXT = true
+-- layouts/robots.txt --
+User-agent: Googlebot
+  {{ range .Data.Pages }}
+	Disallow: {{.RelPermalink}}
+	{{ end }}
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/robots.txt", "User-agent: Googlebot")
 }

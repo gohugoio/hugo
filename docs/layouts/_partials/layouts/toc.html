@@ -1,0 +1,46 @@
+{{ with .Fragments }}
+  {{ with .Headings }}
+    <div
+      x-data="toc"
+      class="sticky top-[8rem] h-screen overflow-y-auto overflow-x-hidden">
+      <h2
+        class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
+        On this page
+      </h2>
+      <nav class="w-56 mt-2">
+        <ul>
+          {{ template "render-toc-level" (dict "h" . "p" $) }}
+        </ul>
+      </nav>
+    </div>
+  {{ end }}
+{{ end }}
+
+{{ define "render-toc-level" }}
+  {{ range .h }}
+    {{ if and .ID (and (ge .Level 2) (le .Level 4)) }}
+      {{ $indentation := "ml-0" }}
+      {{ if eq .Level 3 }}
+        {{ $indentation = "ml-2 lg:ml-3" }}
+      {{ else if eq .Level 4 }}
+        {{ $indentation = "ml-4 lg:ml-6" }}
+      {{ end }}
+      {{ $.p.Store.Set "hasToc" true }}
+      <li>
+        <a
+          href="#{{ .ID }}"
+          x-ref="{{ .ID }}"
+          @click.stop="setActive('{{ .ID }}')"
+          class="block pb-1 text-blue-600 hover:text-blue-500 dark:text-blue-500 dark:hover:text-blue-400 text-sm {{ $indentation }}"
+          :class="{'font-bold dark:text-blue-200 dark:hover:text-blue-300' : activeHeading === '{{ .ID }}'}">
+          {{ .Title | safeHTML }}
+        </a>
+      </li>
+    {{ end }}
+    {{ with .Headings }}
+      <ul>
+        {{ template "render-toc-level"  (dict "h" . "p" $.p) }}
+      </ul>
+    {{ end }}
+  {{ end }}
+{{ end }}

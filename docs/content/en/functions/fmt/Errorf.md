@@ -3,24 +3,22 @@ title: fmt.Errorf
 description: Log an ERROR from a template.
 categories: []
 keywords: []
-action:
-  aliases: [errorf]
-  related:
-    - functions/fmt/Erroridf
-    - functions/fmt/Warnf
-  returnType: string
-  signatures: ['fmt.Errorf FORMAT [INPUT]']
+params:
+  functions_and_methods:
+    aliases: [errorf]
+    returnType: string
+    signatures: ['fmt.Errorf FORMAT [INPUT]']
 aliases: [/functions/errorf]
 ---
 
-{{% include "functions/fmt/_common/fmt-layout.md" %}}
+{{% include "/_common/functions/fmt/format-string.md" %}}
 
 The `errorf` function evaluates the format string, then prints the result to the ERROR log and fails the build.
 
 ```go-html-template
-{{ errorf "The %q shortcode requires a src parameter. See %s" .Name .Position }}
+{{ errorf "The %q shortcode requires a src argument. See %s" .Name .Position }}
 ```
 
 Use the [`erroridf`] function to allow optional suppression of specific errors.
 
-[`erroridf`]: /functions/fmt/erroridf
+[`erroridf`]: /functions/fmt/erroridf/

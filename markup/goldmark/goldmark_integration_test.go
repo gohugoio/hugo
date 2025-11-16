@@ -76,7 +76,7 @@ title: "p1"
   {{- range $k, $v := .Attributes -}}
     {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
   {{- end -}}
->{{ .Text | safeHTML }}</h{{ .Level }}>
+>{{ .Text }}</h{{ .Level }}>
 `
 
 	b := hugolib.Test(t, files)
@@ -146,18 +146,18 @@ title: "p1"
 {{ .Content }}
 -- layouts/_default/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
-  {{ .Text | safeHTML }}
+  {{ .Text }}
   <a class="anchor" href="#{{ .Anchor | safeURL }}">#</a>
 </h{{ .Level }}>
 -- layouts/_default/_markup/render-link.html --
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}</a>
 
 `
 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
-		"<h2 id=\"hello-testhttpsexamplecom\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-testhttpsexamplecom\">#</a>\n</h2>",
+		"<h2 id=\"hello-test\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-test\">#</a>\n</h2>",
 	)
 }
 
@@ -236,11 +236,11 @@ func BenchmarkRenderHooks(b *testing.B) {
 -- config.toml --
 -- layouts/_default/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
-	{{ .Text | safeHTML }}
+	{{ .Text }}
 	<a class="anchor" href="#{{ .Anchor | safeURL }}">#</a>
 </h{{ .Level }}>
 -- layouts/_default/_markup/render-link.html --
-<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+<a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}</a>
 -- layouts/_default/single.html --
 {{ .Content }}
 `
@@ -278,16 +278,12 @@ D.
 		T:           b,
 		TxtarString: files,
 	}
-	builders := make([]*hugolib.IntegrationTestBuilder, b.N)
 
-	for i := range builders {
-		builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
-	}
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		builders[i].Build()
+	for b.Loop() {
+		b.StopTimer()
+		bb := hugolib.NewIntegrationTestBuilder(cfg)
+		b.StartTimer()
+		bb.Build()
 	}
 }
 
@@ -337,16 +333,12 @@ FENCE
 			T:           b,
 			TxtarString: files,
 		}
-		builders := make([]*hugolib.IntegrationTestBuilder, b.N)
 
-		for i := range builders {
-			builders[i] = hugolib.NewIntegrationTestBuilder(cfg)
-		}
-
-		b.ResetTimer()
-
-		for i := 0; i < b.N; i++ {
-			builders[i].Build()
+		for b.Loop() {
+			b.StopTimer()
+			bb := hugolib.NewIntegrationTestBuilder(cfg)
+			b.StartTimer()
+			bb.Build()
 		}
 	}
 
@@ -452,7 +444,7 @@ Link https procol: https://www.example.org
 
 		if withHook {
 			files += `-- layouts/_default/_markup/render-link.html --
-<a href="{{ .Destination | safeURL }}">{{ .Text | safeHTML }}</a>`
+<a href="{{ .Destination | safeURL }}">{{ .Text }}</a>`
 		}
 
 		return hugolib.NewIntegrationTestBuilder(
@@ -524,6 +516,39 @@ a <!-- b --> c
 		"<p>a <!-- b --> c</p>",
 		// Issue 9658 (crash)
 		"<li>This is a list item <!-- Comment: an innocent-looking comment --></li>",
+	)
+}
+
+// Issue 13286
+func TestImageAltApostrophesWithTypographer(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[markup.goldmark.extensions.typographer]
+disable = false
+ [markup.goldmark.renderHooks.image]
+ enableDefault = true
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Image
+
+![A's is > than B's](some-image.png)
+
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentExact("public/p1/index.html",
+		// Note that this markup is slightly different than the one produced by the default Goldmark renderer,
+		// see issue 13292.
+		"alt=\"A’s is &gt; than B’s\">",
 	)
 }
 
@@ -751,6 +776,10 @@ func TestExtrasExtension(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions]
+strikethrough = false
+[markup.goldmark.extensions.extras.delete]
+enable = false
 [markup.goldmark.extensions.extras.insert]
 enable = false
 [markup.goldmark.extensions.extras.mark]
@@ -765,6 +794,8 @@ enable = false
 ---
 title: home
 ---
+~~delete~~
+
 ++insert++
 
 ==mark==
@@ -777,6 +808,7 @@ H~2~0
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
+		"<p>~~delete~~</p>",
 		"<p>++insert++</p>",
 		"<p>==mark==</p>",
 		"<p>H~2~0</p>",
@@ -788,9 +820,216 @@ H~2~0
 	b = hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
+		"<p><del>delete</del></p>",
 		"<p><ins>insert</ins></p>",
 		"<p><mark>mark</mark></p>",
 		"<p>H<sub>2</sub>0</p>",
 		"<p>1<sup>st</sup></p>",
+	)
+}
+
+// Issue 12997.
+func TestGoldmarkRawHTMLWarningBlocks(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+markup.goldmark.renderer.unsafe = false
+-- content/p1.md --
+---
+title: "p1"
+---
+<div>Some raw HTML</div>
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/p1/index.html", "<!-- raw HTML omitted -->")
+	b.AssertLogContains("WARN  Raw HTML omitted while rendering \"/content/p1.md\"; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-goldmark-raw-html']")
+
+	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
+	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
+	b.AssertLogContains("! WARN")
+}
+
+func TestGoldmarkRawHTMLWarningInline(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+markup.goldmark.renderer.unsafe = false
+-- content/p1.md --
+---
+title: "p1"
+---
+<em>raw HTML</em>
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/p1/index.html", "<!-- raw HTML omitted -->")
+	b.AssertLogContains("WARN  Raw HTML omitted while rendering \"/content/p1.md\"; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe\nYou can suppress this warning by adding the following to your site configuration:\nignoreLogs = ['warning-goldmark-raw-html']")
+
+	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
+	b.AssertFileContent("public/p1/index.html", "! <!-- raw HTML omitted -->")
+	b.AssertLogContains("! WARN")
+}
+
+// See https://github.com/gohugoio/hugo/issues/13278#issuecomment-2603280548
+func TestGoldmarkRawHTMLCommentNoWarning(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+markup.goldmark.renderer.unsafe = false
+-- content/p1.md --
+---
+title: "p1"
+---
+# HTML comments
+
+## Simple
+<!-- This is a comment -->
+
+    <!-- This is a comment indented -->
+
+	**Hello**<!-- This is a comment indented with markup surrounding. -->_world_.
+## With HTML
+
+<!-- <p>This is another paragraph </p> -->
+
+## With HTML and JS
+
+<!-- <script>alert('hello');</script> -->
+
+## With Block
+
+<!--
+<p>Look at this cool image:</p>
+<img border="0" src="pic_trulli.jpg" alt="Trulli">
+-->
+
+## XSS
+
+<!-- --><script>alert("I just escaped the HTML comment")</script><!-- -->
+
+
+## More
+
+This is a <!--hidden--> word.
+
+This is a <!-- hidden--> word.
+
+This is a <!-- hidden --> word.
+
+This is a <!--
+hidden --> word.
+
+This is a <!--
+hidden
+--> word.
+
+
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/p1/index.html",
+		"! <!-- raw HTML omitted -->",
+		"! <!-- hidden -->",
+		"! <!-- This is a comment -->",
+		"! script",
+	)
+	b.AssertLogContains("! WARN")
+
+	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
+	b.AssertFileContent("public/p1/index.html",
+		"! <!-- raw HTML omitted -->",
+		"<!-- hidden -->",
+		"<!-- This is a comment -->",
+	)
+	b.AssertLogContains("! WARN")
+}
+
+func TestFootnoteExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions.footnote]
+enable = false
+enableAutoIDPrefix = false
+TBD = 'back'
+-- layouts/all.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: p1
+---
+foo[^1] and bar[^2]
+
+[^1]: footnote one
+[^2]: footnote two
+-- content/p2.md --
+---
+title: p2
+---
+foo[^1] and bar[^2]
+
+[^1]: footnote one
+[^2]: footnote two
+-- content/_content.gotmpl --
+{{ range slice 3 4 }}
+  {{ $page := dict
+    "content" (dict "mediaType" "text/markdown" "value" "foo[^1] and bar[^2]\n\n[^1]: footnote one\n[^2]: footnote two")
+    "path" (printf "p%d" .)
+    "title" (printf "p%d" .)
+  }}
+  {{ $.AddPage $page }}
+{{ end }}
+`
+
+	// test enableAutoIDPrefix
+
+	want := "<p>foo[^1] and bar[^2]</p>\n<p>[^1]: footnote one\n[^2]: footnote two</p>"
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", want)
+	b.AssertFileContent("public/p2/index.html", want)
+	b.AssertFileContent("public/p3/index.html", want)
+	b.AssertFileContent("public/p4/index.html", want)
+
+	files = strings.ReplaceAll(files, "enable = false", "enable = true")
+	want = "<p>foo<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"fnref:2\"><a href=\"#fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\">\n<p>footnote one&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"fn:2\">\n<p>footnote two&#160;<a href=\"#fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>"
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html", want)
+	b.AssertFileContent("public/p2/index.html", want)
+	b.AssertFileContent("public/p3/index.html", want)
+	b.AssertFileContent("public/p4/index.html", want)
+
+	files = strings.ReplaceAll(files, "enableAutoIDPrefix = false", "enableAutoIDPrefix = true")
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p2/index.html",
+		"<p>foo<sup id=\"h58e8265a0c07b195fnref:1\"><a href=\"#h58e8265a0c07b195fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"h58e8265a0c07b195fnref:2\"><a href=\"#h58e8265a0c07b195fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h58e8265a0c07b195fn:1\">\n<p>footnote one&#160;<a href=\"#h58e8265a0c07b195fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h58e8265a0c07b195fn:2\">\n<p>footnote two&#160;<a href=\"#h58e8265a0c07b195fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p3/index.html",
+		"<p>foo<sup id=\"h0aab769290d7e233fnref:1\"><a href=\"#h0aab769290d7e233fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"h0aab769290d7e233fnref:2\"><a href=\"#h0aab769290d7e233fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h0aab769290d7e233fn:1\">\n<p>footnote one&#160;<a href=\"#h0aab769290d7e233fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h0aab769290d7e233fn:2\">\n<p>footnote two&#160;<a href=\"#h0aab769290d7e233fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+	b.AssertFileContent("public/p4/index.html",
+		"<p>foo<sup id=\"ha35b794ad6e8626cfnref:1\"><a href=\"#ha35b794ad6e8626cfn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"ha35b794ad6e8626cfnref:2\"><a href=\"#ha35b794ad6e8626cfn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"ha35b794ad6e8626cfn:1\">\n<p>footnote one&#160;<a href=\"#ha35b794ad6e8626cfnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"ha35b794ad6e8626cfn:2\">\n<p>footnote two&#160;<a href=\"#ha35b794ad6e8626cfnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
+	)
+
+	// test backlinkHTML
+
+	files = strings.ReplaceAll(files, "TBD", "backlinkHTML")
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n</ol>\n</div>",
 	)
 }

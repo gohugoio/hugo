@@ -1,0 +1,11 @@
+.highlight {
+  @apply bg-light dark:bg-dark rounded-none;
+}
+
+.highlight pre {
+  @apply m-0 p-3 w-full h-full overflow-x-auto dark:border-black rounded-none;
+}
+
+.highlight pre code {
+  @apply m-0 p-0 w-full h-full;
+}

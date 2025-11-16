@@ -21,19 +21,18 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-type pageData struct {
-	*pageState
+type dataFunc func() any
 
-	dataInit sync.Once
-	data     page.Data
+func (f dataFunc) Data() any {
+	return f()
 }
 
-func (p *pageData) Data() any {
-	p.dataInit.Do(func() {
-		p.data = make(page.Data)
+func newDataFunc(p *pageState) dataFunc {
+	return sync.OnceValue(func() any {
+		data := make(page.Data)
 
 		if p.Kind() == kinds.KindPage {
-			return
+			return data
 		}
 
 		switch p.Kind() {
@@ -41,23 +40,23 @@ func (p *pageData) Data() any {
 			path := p.Path()
 			name := p.s.pageMap.cfg.getTaxonomyConfig(path)
 			term := p.s.Taxonomies()[name.plural].Get(strings.TrimPrefix(path, name.pluralTreeKey))
-			p.data[name.singular] = term
-			p.data["Singular"] = name.singular
-			p.data["Plural"] = name.plural
-			p.data["Term"] = p.m.term
+			data[name.singular] = term
+			data["Singular"] = name.singular
+			data["Plural"] = name.plural
+			data["Term"] = p.m.term
 		case kinds.KindTaxonomy:
 			viewCfg := p.s.pageMap.cfg.getTaxonomyConfig(p.Path())
-			p.data["Singular"] = viewCfg.singular
-			p.data["Plural"] = viewCfg.plural
-			p.data["Terms"] = p.s.Taxonomies()[viewCfg.plural]
+			data["Singular"] = viewCfg.singular
+			data["Plural"] = viewCfg.plural
+			data["Terms"] = p.s.Taxonomies()[viewCfg.plural]
 			// keep the following just for legacy reasons
-			p.data["OrderedIndex"] = p.data["Terms"]
-			p.data["Index"] = p.data["Terms"]
+			data["OrderedIndex"] = data["Terms"]
+			data["Index"] = data["Terms"]
 		}
 
 		// Assign the function to the map to make sure it is lazily initialized
-		p.data["pages"] = p.Pages
-	})
+		data["pages"] = p.Pages
 
-	return p.data
+		return data
+	})
 }

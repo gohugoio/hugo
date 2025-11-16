@@ -3,16 +3,13 @@ title: IsNode
 description: Reports whether the given page is a node.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/IsHome
-    - methods/page/IsPage
-    - methods/page/IsSection
-  returnType: bool
-  signatures: [PAGE.IsNode]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE.IsNode]
 ---
 
-The `IsNode` method on a `Page` object returns `true` if the [page kind] is `home`, `section`, `taxonomy`, or `term`.
+The `IsNode` method on a `Page` object returns `true` if the [page kind](g) is `home`, `section`, `taxonomy`, or `term`.
 
 It returns `false` is the page kind is `page`.
 
@@ -33,4 +30,3 @@ content/
 ```go-html-template
 {{ .IsNode }}
 ```
-[page kind]: /getting-started/glossary/#page-kind

@@ -3,46 +3,49 @@ title: time.Format
 description: Returns the given date/time as a formatted and localized string.
 categories: []
 keywords: []
-action:
-  aliases: [dateFormat]
-  related:
-    - functions/time/AsTime
-    - functions/time/Duration
-    - functions/time/Now
-    - functions/time/ParseDuration
-  returnType: string
-  signatures: [time.Format LAYOUT INPUT]
+params:
+  functions_and_methods:
+    aliases: [dateFormat]
+    returnType: string
+    signatures: [time.Format LAYOUT INPUT]
 aliases: [/functions/dateformat]
-toc: true
 ---
 
 Use the `time.Format` function with `time.Time` values:
 
 ```go-html-template
-{{ $t := time.AsTime "2023-02-27T23:44:58-08:00" }}
-{{ time.Format "2 Jan 2006" $t }} → 27 Feb 2023
+{{ $t := time.AsTime "2023-10-15T13:18:50-07:00" }}
+{{ time.Format "2 Jan 2006" $t }} → 15 Oct 2023
 ```
 
-Or use `time.Format` with a *parsable* string representation of a date/time value:
+Or use `time.Format` with a parsable string representation of a date/time value:
 
 ```go-html-template
-{{ $t := "27 Feb 2023" }}
-{{ time.Format "January 2, 2006" $t }} → February 27, 2023
+{{ $t := "15 Oct 2023" }}
+{{ time.Format "January 2, 2006" $t }} → October 15, 2023
 ```
 
 Examples of parsable string representations:
 
-{{% include "functions/time/_common/parsable-date-time-strings.md" %}}
+{{% include "/_common/parsable-date-time-strings.md" %}}
+
+To override the default time zone, set the [`timeZone`] in your site configuration. The order of precedence for determining the time zone is:
+
+1. The time zone offset in the date/time string
+1. The time zone specified in your site configuration
+1. The `Etc/UTC` time zone
+
+[`timeZone`]: /configuration/all/#timezone
 
 ## Layout string
 
-{{% include "functions/_common/time-layout-string.md" %}}
+{{% include "/_common/time-layout-string.md" %}}
 
 ## Localization
 
 Use the `time.Format` function to localize `time.Time` values for the current language and region.
 
-{{% include "functions/_common/locales.md" %}}
+{{% include "/_common/functions/locales.md" %}}
 
 Use the layout string as described above, or one of the tokens below. For example:
 

@@ -55,7 +55,7 @@ func TestWalkRootMappingFs(t *testing.T) {
 		c.Assert(afero.WriteFile(fs, filepath.Join("c/d", testfile), []byte("some content"), 0o755), qt.IsNil)
 		c.Assert(afero.WriteFile(fs, filepath.Join("e/f", testfile), []byte("some content"), 0o755), qt.IsNil)
 
-		rm := []RootMapping{
+		rm := []*RootMapping{
 			{
 				From: "static/b",
 				To:   "e/f",
@@ -91,7 +91,7 @@ func TestWalkRootMappingFs(t *testing.T) {
 		p := para.New(4)
 		r, _ := p.Start(context.Background())
 
-		for i := 0; i < 8; i++ {
+		for range 8 {
 			r.Run(func() error {
 				_, err := collectPaths(bfs, "")
 				if err != nil {
@@ -116,7 +116,7 @@ func TestWalkRootMappingFs(t *testing.T) {
 func collectPaths(fs afero.Fs, root string) ([]string, error) {
 	var names []string
 
-	walkFn := func(path string, info FileMetaInfo) error {
+	walkFn := func(ctx context.Context, path string, info FileMetaInfo) error {
 		if info.IsDir() {
 			return nil
 		}
@@ -135,7 +135,7 @@ func collectPaths(fs afero.Fs, root string) ([]string, error) {
 func collectFileinfos(fs afero.Fs, root string) ([]FileMetaInfo, error) {
 	var fis []FileMetaInfo
 
-	walkFn := func(path string, info FileMetaInfo) error {
+	walkFn := func(ctx context.Context, path string, info FileMetaInfo) error {
 		fis = append(fis, info)
 
 		return nil
@@ -153,7 +153,7 @@ func BenchmarkWalk(b *testing.B) {
 	fs := NewBaseFileDecorator(afero.NewMemMapFs())
 
 	writeFiles := func(dir string, numfiles int) {
-		for i := 0; i < numfiles; i++ {
+		for i := range numfiles {
 			filename := filepath.Join(dir, fmt.Sprintf("file%d.txt", i))
 			c.Assert(afero.WriteFile(fs, filename, []byte("content"), 0o777), qt.IsNil)
 		}
@@ -169,7 +169,7 @@ func BenchmarkWalk(b *testing.B) {
 	writeFiles("root/l1_2/l2_1", numFilesPerDir)
 	writeFiles("root/l1_3", numFilesPerDir)
 
-	walkFn := func(path string, info FileMetaInfo) error {
+	walkFn := func(ctx context.Context, path string, info FileMetaInfo) error {
 		if info.IsDir() {
 			return nil
 		}
@@ -182,8 +182,7 @@ func BenchmarkWalk(b *testing.B) {
 		return nil
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		w := NewWalkway(WalkwayConfig{Fs: fs, Root: "root", WalkFn: walkFn})
 
 		if err := w.Walk(); err != nil {

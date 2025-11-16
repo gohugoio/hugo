@@ -33,7 +33,6 @@ const (
 	lineNosKey     = "linenos"
 	hlLinesKey     = "hl_lines"
 	linosStartKey  = "linenostart"
-	noHlKey        = "nohl"
 )
 
 var DefaultConfig = Config{
@@ -45,18 +44,20 @@ var DefaultConfig = Config{
 	NoClasses:          true,
 	LineNumbersInTable: true,
 	TabWidth:           4,
+	WrapperClass:       "highlight",
 }
 
 type Config struct {
 	Style string
 
+	// Enable syntax highlighting of fenced code blocks.
 	CodeFences bool
+
+	// The class or classes to use for the outermost element of the highlighted code.
+	WrapperClass string
 
 	// Use inline CSS styles.
 	NoClasses bool
-
-	// No highlighting.
-	NoHl bool
 
 	// When set, line numbers will be printed.
 	LineNos            bool
@@ -196,7 +197,7 @@ func parseHighlightOptions(in string) (map[string]any, error) {
 		return opts, nil
 	}
 
-	for _, v := range strings.Split(in, ",") {
+	for v := range strings.SplitSeq(in, ",") {
 		keyVal := strings.Split(v, "=")
 		key := strings.Trim(keyVal[0], " ")
 		if len(keyVal) != 2 {
@@ -229,8 +230,6 @@ func normalizeHighlightOptions(m map[string]any) {
 
 	for k, v := range m {
 		switch k {
-		case noHlKey:
-			m[noHlKey] = cast.ToBool(v)
 		case lineNosKey:
 			if v == "table" || v == "inline" {
 				m["lineNumbersInTable"] = v == "table"
@@ -266,8 +265,8 @@ func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 	// 1-2 3
 	// 1 3-4
 	// 1    3-4
-	fields := strings.Split(s, " ")
-	for _, field := range fields {
+	fields := strings.SplitSeq(s, " ")
+	for field := range fields {
 		field = strings.TrimSpace(field)
 		if field == "" {
 			continue

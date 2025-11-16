@@ -3,12 +3,10 @@ title: ByParam
 description: Returns the given page collection sorted by the given parameter in ascending order.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pages/ByTitle
-    - methods/pages/ByLinkTitle
-  returnType: page.Pages
-  signatures: [PAGES.ByParam PARAM]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGES.ByParam PARAM]
 ---
 
 If the given parameter is not present in front matter, Hugo will use the matching parameter in your site configuration if present.

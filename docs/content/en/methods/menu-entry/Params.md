@@ -3,10 +3,10 @@ title: Params
 description: Returns the `params` property of the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: maps.Params
-  signatures: [MENUENTRY.Params]
+params:
+  functions_and_methods:
+    returnType: maps.Params
+    signatures: [MENUENTRY.Params]
 ---
 
 When you define menu entries [in site configuration] or [in front matter], you can include a `params` key to attach additional information to the entry. For example:
@@ -32,7 +32,6 @@ weight = 30
 
 With this template:
 
-
 ```go-html-template
 <ul>
   {{ range .Site.Menus.main }}
@@ -57,6 +56,6 @@ Hugo renders:
 
 See the [menu templates] section for more information.
 
-[menu templates]: /templates/menu-templates/#menu-entry-parameters
+[menu templates]: /templates/menu/#menu-entry-parameters
 [in front matter]: /content-management/menus/#define-in-front-matter
 [in site configuration]: /content-management/menus/

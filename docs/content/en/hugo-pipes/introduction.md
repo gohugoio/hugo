@@ -2,14 +2,9 @@
 title: Hugo Pipes
 linkTitle: Introduction
 description: Hugo Pipes is Hugo's asset processing set of functions.
-categories: [asset management]
+categories: []
 keywords: []
-menu:
-  docs:
-    parent: hugo-pipes
-    weight: 20
-weight: 20
-toc: true
+weight: 10
 aliases: [/assets/]
 ---
 
@@ -18,14 +13,14 @@ aliases: [/assets/]
 This is about global and remote resources.
 
 global resource
-: A file within the assets directory, or within any directory [mounted] to the assets directory.
+: A file within the `assets` directory, or within any directory [mounted] to the `assets` directory.
 
 remote resource
 : A file on a remote server, accessible via HTTP or HTTPS.
 
 For `.Page` scoped resources, see the [page resources] section.
 
-[mounted]: /hugo-modules/configuration/#module-configuration-mounts
+[mounted]: /configuration/module/#mounts
 [page resources]: /content-management/page-resources/
 
 ## Get a resource
@@ -51,7 +46,7 @@ See the [`resources.Copy`](/functions/resources/copy/) function.
 
 ## Asset directory
 
-Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
+Asset files must be stored in the asset directory. This is `assets` by default, but can be configured via the configuration file's `assetDir` key.
 
 ## Asset publishing
 
@@ -62,13 +57,13 @@ Hugo publishes assets to the `publishDir` (typically `public`) when you invoke `
 For improved readability, the Hugo Pipes examples of this documentation will be written using [Go Pipes](/templates/introduction/#pipes):
 
 ```go-html-template
-{{ $style := resources.Get "sass/main.scss" | resources.ToCSS | resources.Minify | resources.Fingerprint }}
+{{ $style := resources.Get "sass/main.scss" | css.Sass | resources.Minify | resources.Fingerprint }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
 ```
 
 ## Caching
 
-Hugo Pipes invocations are cached based on the entire *pipe chain*.
+Hugo Pipes invocations are cached based on the entire _pipe chain_.
 
 An example of a pipe chain is:
 

@@ -59,7 +59,7 @@ dir = "/path/to/c4"
 	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 6)
+	c.Assert(len(decoded), qt.Equals, 7)
 
 	c2 := decoded["getcsv"]
 	c.Assert(c2.MaxAge.String(), qt.Equals, "11h0m0s")
@@ -106,7 +106,7 @@ dir = "/path/to/c4"
 	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 6)
+	c.Assert(len(decoded), qt.Equals, 7)
 
 	for _, v := range decoded {
 		c.Assert(v.MaxAge, qt.Equals, time.Duration(0))
@@ -129,7 +129,7 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 6)
+	c.Assert(len(decoded), qt.Equals, 7)
 
 	imgConfig := decoded[filecache.CacheKeyImages]
 	jsonConfig := decoded[filecache.CacheKeyGetJSON]

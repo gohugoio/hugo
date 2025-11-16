@@ -58,7 +58,7 @@ weight = 4
 		Filename: configFilename,
 	}
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, err := LoadConfig(d)
 		if err != nil {
 			b.Fatal(err)

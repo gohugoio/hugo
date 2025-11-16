@@ -3,17 +3,13 @@ title: Params
 description: Returns a map of resource parameters as defined in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: map
-  signatures: [RESOURCE.Params]
+params:
+  functions_and_methods:
+    returnType: map
+    signatures: [RESOURCE.Params]
 ---
 
-Use the `Params` method with [page resources]. It is not applicable to either [global] or [remote] resources.
-
-[global]: /getting-started/glossary/#global-resource
-[page resources]: /getting-started/glossary/#page-resource
-[remote]: /getting-started/glossary/#remote-resource
+Use the `Params` method with [page resources](g). It is not applicable to either [global resources](g) or [remote resources](g).
 
 With this content structure:
 
@@ -62,4 +58,4 @@ Hugo renders:
 
 See the [page resources] section for more information.
 
-[page resources]: /content-management/page-resources
+[page resources]: /content-management/page-resources/

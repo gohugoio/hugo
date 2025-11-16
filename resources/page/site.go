@@ -14,12 +14,14 @@
 package page
 
 import (
-	"html/template"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/versions"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/config"
@@ -33,6 +35,15 @@ import (
 type Site interface {
 	// Returns the Language configured for this Site.
 	Language() *langs.Language
+
+	// Returns the Site in one of dimensions language, version or role.
+	Dimension(string) SiteDimension
+
+	// Returns the role configured for this Site.
+	Role() roles.Role
+
+	// Returns the version configured for this Site.
+	Version() versions.Version
 
 	// Returns all the languages configured for all sites.
 	Languages() langs.Languages
@@ -53,9 +64,6 @@ type Site interface {
 
 	// A shortcut to the home
 	Home() Page
-
-	// Deprecated: Use hugo.IsServer instead.
-	IsServer() bool
 
 	// Returns the server port.
 	ServerPort() int
@@ -109,19 +117,13 @@ type Site interface {
 	Config() SiteConfig
 
 	// Deprecated: Use taxonomies instead.
-	Author() map[string]interface{}
+	Author() map[string]any
 
 	// Deprecated: Use taxonomies instead.
 	Authors() AuthorList
 
 	// Deprecated: Use .Site.Params instead.
 	Social() map[string]string
-
-	// Deprecated: Use Config().Services.GoogleAnalytics instead.
-	GoogleAnalytics() string
-
-	// Deprecated: Use Config().Privacy.Disqus instead.
-	DisqusShortname() string
 
 	// BuildDrafts is deprecated and will be removed in a future release.
 	BuildDrafts() bool
@@ -132,8 +134,21 @@ type Site interface {
 	// LanguagePrefix returns the language prefix for this site.
 	LanguagePrefix() string
 
-	// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
-	RSSLink() template.URL
+	hstore.StoreProvider
+	// String returns a string representation of the site.
+	// Note that this represenetation may change in the future.
+	String() string
+
+	// For internal use only.
+	// This will panic if the site is not fully initialized.
+	// This is typically used to inform the user in the content adapter templates,
+	// as these are executed before all the page collections etc. are ready to use.
+	CheckReady()
+}
+
+// SiteDimension represents a dimension of the site.
+type SiteDimension interface {
+	Name() string
 }
 
 // Sites represents an ordered list of sites (languages).
@@ -150,6 +165,11 @@ func (s Sites) First() Site {
 func (s Sites) Default() Site {
 	if len(s) == 0 {
 		return nil
+	}
+	for _, site := range s {
+		if site.Language().IsDefault() {
+			return site
+		}
 	}
 	return s[0]
 }
@@ -178,18 +198,13 @@ func (s *siteWrapper) Social() map[string]string {
 }
 
 // Deprecated: Use taxonomies instead.
-func (s *siteWrapper) Author() map[string]interface{} {
+func (s *siteWrapper) Author() map[string]any {
 	return s.s.Author()
 }
 
 // Deprecated: Use taxonomies instead.
 func (s *siteWrapper) Authors() AuthorList {
 	return s.s.Authors()
-}
-
-// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
-func (s *siteWrapper) GoogleAnalytics() string {
-	return s.s.GoogleAnalytics()
 }
 
 func (s *siteWrapper) GetPage(ref ...string) (Page, error) {
@@ -202,6 +217,18 @@ func (s *siteWrapper) Language() *langs.Language {
 
 func (s *siteWrapper) Languages() langs.Languages {
 	return s.s.Languages()
+}
+
+func (s *siteWrapper) Role() roles.Role {
+	return s.s.Role()
+}
+
+func (s *siteWrapper) Dimension(d string) SiteDimension {
+	return s.s.Dimension(d)
+}
+
+func (s *siteWrapper) Version() versions.Version {
+	return s.s.Version()
 }
 
 func (s *siteWrapper) AllPages() Pages {
@@ -222,11 +249,6 @@ func (s *siteWrapper) Sections() Pages {
 
 func (s *siteWrapper) Home() Page {
 	return s.s.Home()
-}
-
-// Deprecated: Use hugo.IsServer instead.
-func (s *siteWrapper) IsServer() bool {
-	return s.s.IsServer()
 }
 
 func (s *siteWrapper) ServerPort() int {
@@ -307,23 +329,26 @@ func (s *siteWrapper) IsMultiLingual() bool {
 	return s.s.IsMultiLingual()
 }
 
-// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead.
-func (s *siteWrapper) DisqusShortname() string {
-	return s.s.DisqusShortname()
-}
-
 func (s *siteWrapper) LanguagePrefix() string {
 	return s.s.LanguagePrefix()
 }
 
-// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
-func (s *siteWrapper) RSSLink() template.URL {
-	return s.s.RSSLink()
+func (s *siteWrapper) Store() *hstore.Scratch {
+	return s.s.Store()
+}
+
+func (s *siteWrapper) String() string {
+	return s.s.String()
 }
 
 // For internal use only.
 func (s *siteWrapper) ForEeachIdentityByName(name string, f func(identity.Identity) bool) {
 	s.s.(identity.ForEeachIdentityByNameProvider).ForEeachIdentityByName(name, f)
+}
+
+// For internal use only.
+func (s *siteWrapper) CheckReady() {
+	s.s.CheckReady()
 }
 
 type testSite struct {
@@ -332,7 +357,7 @@ type testSite struct {
 }
 
 // Deprecated: Use taxonomies instead.
-func (s testSite) Author() map[string]interface{} {
+func (s testSite) Author() map[string]any {
 	return nil
 }
 
@@ -399,22 +424,24 @@ func (t testSite) Languages() langs.Languages {
 	return nil
 }
 
-// Deprecated: Use .Site.Config.Services.GoogleAnalytics.ID instead.
-func (t testSite) GoogleAnalytics() string {
-	return ""
+func (t testSite) Dimension(d string) SiteDimension {
+	return nil
 }
 
 func (t testSite) MainSections() []string {
 	return nil
 }
 
-// Deprecated: Use hugo.IsServer instead.
-func (t testSite) IsServer() bool {
-	return false
-}
-
 func (t testSite) Language() *langs.Language {
 	return t.l
+}
+
+func (t testSite) Role() roles.Role {
+	return nil
+}
+
+func (t testSite) Version() versions.Version {
+	return nil
 }
 
 func (t testSite) Home() Page {
@@ -457,11 +484,6 @@ func (s testSite) Config() SiteConfig {
 	return SiteConfig{}
 }
 
-// Deprecated: Use .Site.Config.Services.Disqus.Shortname instead.
-func (testSite) DisqusShortname() string {
-	return ""
-}
-
 func (s testSite) BuildDrafts() bool {
 	return false
 }
@@ -475,9 +497,15 @@ func (s testSite) Param(key any) (any, error) {
 	return nil, nil
 }
 
-// Deprecated: Use .Site.Home.OutputFormats.Get "rss" instead.
-func (s testSite) RSSLink() template.URL {
-	return ""
+func (s testSite) Store() *hstore.Scratch {
+	return hstore.NewScratch()
+}
+
+func (s testSite) String() string {
+	return "testSite"
+}
+
+func (s testSite) CheckReady() {
 }
 
 // NewDummyHugoSite creates a new minimal test site.

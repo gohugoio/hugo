@@ -1,0 +1,71 @@
+{{/* prettier-ignore-start */ -}}
+{{- /*
+Renders a responsive grid of the configuration keys that can be defined
+separately for each language.
+*/ -}}
+{{/* prettier-ignore-end */ -}}
+{{- $siteConfigKeys := slice
+  (dict "baseURL" "/configuration/all/#baseurl")
+  (dict "buildDrafts" "/configuration/all/#builddrafts")
+  (dict "buildExpired" "/configuration/all/#buildexpired")
+  (dict "buildFuture" "/configuration/all/#buildfuture")
+  (dict "canonifyURLs" "/configuration/all/#canonifyurls")
+  (dict "capitalizeListTitles" "/configuration/all/#capitalizelisttitles")
+  (dict "contentDir" "/configuration/all/#contentdir")
+  (dict "copyright" "/configuration/all/#copyright")
+  (dict "disableAliases" "/configuration/all/#disablealiases")
+  (dict "disableHugoGeneratorInject" "/configuration/all/#disablehugogeneratorinject")
+  (dict "disableKinds" "/configuration/all/#disablekinds")
+  (dict "disableLiveReload" "/configuration/all/#disablelivereload")
+  (dict "disablePathToLower" "/configuration/all/#disablepathtolower")
+  (dict "enableEmoji " "/configuration/all/#enableemoji")
+  (dict "frontmatter" "/configuration/front-matter/")
+  (dict "hasCJKLanguage" "/configuration/all/#hascjklanguage")
+  (dict "languageCode" "/configuration/all/#languagecode")
+  (dict "mainSections" "/configuration/all/#mainsections")
+  (dict "markup" "/configuration/markup/")
+  (dict "mediaTypes" "/configuration/media-types/")
+  (dict "menus" "/configuration/menus/")
+  (dict "outputFormats" "/configuration/output-formats")
+  (dict "outputs" "/configuration/outputs/")
+  (dict "page" "/configuration/page/")
+  (dict "pagination" "/configuration/pagination/")
+  (dict "params" "/configuration/params/")
+  (dict "permalinks" "/configuration/permalinks/")
+  (dict "pluralizeListTitles" "/configuration/all/#pluralizelisttitles")
+  (dict "privacy" "/configuration/privacy/")
+  (dict "refLinksErrorLevel" "/configuration/all/#reflinkserrorlevel")
+  (dict "refLinksNotFoundURL" "/configuration/all/#reflinksnotfoundurl")
+  (dict "related" "/configuration/related-content/")
+  (dict "relativeURLs" "/configuration/all/#relativeurls")
+  (dict "removePathAccents" "/configuration/all/#removepathaccents")
+  (dict "renderSegments" "/configuration/all/#rendersegments")
+  (dict "sectionPagesMenu" "/configuration/all/#sectionpagesmenu")
+  (dict "security" "/configuration/security/")
+  (dict "services" "/configuration/services/")
+  (dict "sitemap" "/configuration/sitemap/")
+  (dict "staticDir" "/configuration/all/#staticdir")
+  (dict "summaryLength" "/configuration/all/#summarylength")
+  (dict "taxonomies" "/configuration/taxonomies/")
+  (dict "timeZone" "/configuration/all/#timezone")
+  (dict "title" "/configuration/all/#title")
+  (dict "titleCaseStyle" "/configuration/all/#titlecasestyle")
+}}
+
+{{- $a := len $siteConfigKeys }}
+{{- $b := math.Ceil (div $a 2.) }}
+{{- $c := math.Ceil (div $a 3.) }}
+
+
+<div
+  class="grid grid-flow-col grid-rows-{{ $a }} sm:grid-rows-{{ $b }} md:grid-rows-{{ $c }} gap-1">
+  {{- range $siteConfigKeys }}
+    {{ range $k, $v := . }}
+      {{ $u := urls.Parse $v }}
+      {{ if not (site.GetPage $u.Path) }}
+        {{ errorf "The %q shorcode was unable to find %s. See %s." $.Name $u.Path $.Position }}
+      {{ end }}
+      <a href="{{ $v | relLangURL }}"><code>{{ $k }}</code></a>
+    {{ end }}
+  {{- end }}
+</div>

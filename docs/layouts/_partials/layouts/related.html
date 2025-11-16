@@ -1,0 +1,22 @@
+{{- $heading := "See also" }}
+{{- $related := site.Pages.Related . }}
+{{- $related = $related | complement .CurrentSection.Pages | first 7 }}
+
+{{- with $related }}
+  {{ $.Store.Set "hasRelated" true }}
+  <h2
+    class="text-base font-semibold tracking-tight text-gray-600  dark:text-gray-400">
+    {{ $heading }}
+  </h2>
+  <ul class="mt-2 mb-8">
+    {{- range . }}
+      <li>
+        <a
+          class="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-500 dark:hover:text-blue-400"
+          href="{{ .RelPermalink }}"
+          >{{ or .Params.alt_title .Title }}</a
+        >
+      </li>
+    {{- end }}
+  </ul>
+{{- end }}

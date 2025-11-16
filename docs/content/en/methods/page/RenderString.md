@@ -3,12 +3,10 @@ title: RenderString
 description: Renders markup to HTML.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/RenderShortcodes
-    - functions/transform/Markdownify
-  returnType: template.HTML
-  signatures: ['PAGE.RenderString [OPTIONS] MARKUP']
+params:
+  functions_and_methods:
+    returnType: template.HTML
+    signatures: ['PAGE.RenderString [OPTIONS] MARKUP']
 aliases: [/functions/renderstring]
 ---
 
@@ -47,5 +45,5 @@ Render with [Pandoc]:
 {{ .RenderString $opts $s }} → <p>H<sub>2</sub>O</p>
 ```
 
-[markup identifier]: /content-management/formats/#list-of-content-formats
-[pandoc]: https://www.pandoc.org/
+[markup identifier]: /content-management/formats/#classification
+[pandoc]: https://pandoc.org/

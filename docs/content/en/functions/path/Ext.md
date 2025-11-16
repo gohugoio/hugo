@@ -3,17 +3,11 @@ title: path.Ext
 description: Replaces path separators with slashes (`/`) and returns the file name extension of the given path.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/path/Base
-    - functions/path/BaseName
-    - functions/path/Clean
-    - functions/path/Dir
-    - functions/path/Join
-    - functions/path/Split
-  returnType: string
-  signatures: [path.Ext PATH]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: string
+    signatures: [path.Ext PATH]
 aliases: [/functions/path.ext]
 ---
 

@@ -1,17 +1,18 @@
 ---
 title: Taxonomies
-description: Returns a data structure containing the site's taxonomy objects, the terms within each taxonomy object, and the pages to which the terms are assigned.
+description: Returns a data structure containing the site's Taxonomy objects, the terms within each Taxonomy object, and the pages to which the terms are assigned.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.TaxonomyList
-  signatures: [SITE.Taxonomies]
+params:
+  functions_and_methods:
+    returnType: page.TaxonomyList
+    signatures: [SITE.Taxonomies]
 ---
 
 Conceptually, the `Taxonomies` method on a `Site` object returns a data structure such&nbsp;as:
 
-{{< code-toggle >}}
+<!-- markdownlint-disable MD007 MD032 -->
+{{< code-toggle file=hugo >}}
 taxonomy a:
   - term 1:
     - page 1
@@ -25,6 +26,7 @@ taxonomy b:
     - page 1
     - page 2
 {{< /code-toggle >}}
+<!-- markdownlint-enable MD007 MD032 -->
 
 For example, on a book review site you might create two taxonomies; one for genres and another for authors.
 
@@ -50,7 +52,8 @@ content/
 
 Conceptually, the taxonomies data structure looks like:
 
-{{< code-toggle >}}
+<!-- markdownlint-disable MD007 MD032 -->
+{{< code-toggle file=hugo >}}
 genres:
   - suspense:
     - And Then There Were None
@@ -68,7 +71,7 @@ authors:
   - jausten:
     - Pride and Prejudice
 {{< /code-toggle >}}
-
+<!-- markdownlint-enable MD007 MD032 -->
 
 To list the "suspense" books:
 
@@ -90,10 +93,89 @@ Hugo renders this to:
 </ul>
 ```
 
-{{% note %}}
-Hugo's taxonomy system is powerful, allowing you to classify content and create relationships between pages.
+> [!note]
+> Hugo's taxonomy system is powerful, allowing you to classify content and create relationships between pages.
+>
+> Please see the [taxonomies] section for a complete explanation and examples.
 
-Please see the [taxonomies] section for a complete explanation and examples.
+## Examples
 
-[taxonomies]: content-management/taxonomies/
-{{% /note %}}
+### List content with the same taxonomy term
+
+If you are using a taxonomy for something like a series of posts, you can list individual pages associated with the same term. For example:
+
+```go-html-template
+<ul>
+  {{ range .Site.Taxonomies.series.golang }}
+    <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a></li>
+  {{ end }}
+</ul>
+```
+
+### List all content in a given taxonomy
+
+This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
+
+```go-html-template
+<section id="menu">
+  <ul>
+    {{ range $term, $taxonomy := .Site.Taxonomies.featured }}
+      <li>{{ $term }}</li>
+      <ul>
+        {{ range $taxonomy.Pages }}
+          <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+        {{ end }}
+      </ul>
+    {{ end }}
+  </ul>
+</section>
+```
+
+### Render a site's taxonomies
+
+The following example displays all terms in a site's tags taxonomy:
+
+```go-html-template
+<ul>
+  {{ range .Site.Taxonomies.tags }}
+    <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
+  {{ end }}
+</ul>
+```
+
+This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
+
+```go-html-template {file="layouts/_partials/all-taxonomies.html"}
+{{ with .Site.Taxonomies }}
+  {{ $numberOfTerms := 0 }}
+  {{ range $taxonomy, $terms := . }}
+    {{ $numberOfTerms = len . | add $numberOfTerms }}
+  {{ end }}
+
+  {{ if gt $numberOfTerms 0 }}
+    <ul>
+      {{ range $taxonomy, $terms := . }}
+        {{ with $terms }}
+          <li>
+            <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
+            <ul>
+              {{ range $term, $weightedPages := . }}
+                <li>
+                  <a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>
+                  <ul>
+                    {{ range $weightedPages }}
+                      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+                    {{ end }}
+                  </ul>
+                </li>
+              {{ end }}
+            </ul>
+          </li>
+        {{ end }}
+      {{ end }}
+    </ul>
+  {{ end }}
+{{ end }}
+```
+
+[taxonomies]: /content-management/taxonomies/

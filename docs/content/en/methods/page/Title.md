@@ -3,11 +3,10 @@ title: Title
 description: Returns the title of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/LinkTitle
-  returnType: string
-  signatures: [PAGE.Title]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.Title]
 ---
 
 With pages backed by a file, the `Title` method returns the `title` field as defined in front matter:
@@ -20,19 +19,28 @@ title = 'About us'
 {{ .Title }} → About us
 ```
 
-With section pages not backed by a file, the `Title` method returns the section name, pluralized and converted to title case.
+When a page is not backed by a file, the value returned by the `Title` method depends on the page [kind](g).
 
-To disable [pluralization]:
+Page kind|Page title when the page is not backed by a file
+:--|:--
+home|site title
+section|section name (capitalized and pluralized)
+taxonomy|taxonomy name (capitalized and pluralized)
+term|term name (capitalized and pluralized)
+
+You can disable automatic capitalization and pluralization in your site configuration:
 
 {{< code-toggle file=hugo >}}
+capitalizeListTitles = false
 pluralizeListTitles = false
 {{< /code-toggle >}}
 
-To change the [title case style], specify one of `ap`, `chicago`, `go`, `firstupper`, or `none`:
+You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. For example:
 
 {{< code-toggle file=hugo >}}
-titleCaseStyle = "ap"
+titleCaseStyle = "firstupper"
 {{< /code-toggle >}}
 
-[pluralization]: /functions/inflect/pluralize
-[title case style]: /getting-started/configuration/#configure-title-case
+See&nbsp;[details].
+
+[details]: /configuration/all/#title-case-style

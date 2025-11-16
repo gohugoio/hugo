@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"github.com/alecthomas/chroma/v2/lexers"
+	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/gohugoio/hugo/docshelper"
 )
 
@@ -30,7 +31,10 @@ func init() {
 
 		}
 
-		return docshelper.DocProvider{"chroma": map[string]any{"lexers": chromaLexers}}
+		return docshelper.DocProvider{"chroma": map[string]any{
+			"lexers": chromaLexers,
+			"styles": styles.Names(),
+		}}
 	}
 
 	docshelper.AddDocProviderFunc(docsProvider)

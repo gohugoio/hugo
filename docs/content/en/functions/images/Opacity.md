@@ -3,17 +3,14 @@ title: images.Opacity
 description: Returns an image filter that changes the opacity of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Opacity OPACITY]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Opacity OPACITY]
 ---
 
-{{< new-in 0.119.0 >}}
+{{< new-in 0.119.0 />}}
 
 The opacity value must be in the range [0, 1]. A value of `0` produces a transparent image, and a value of `1` produces an opaque image (no transparency).
 
@@ -25,7 +22,7 @@ Create the filter:
 {{ $filter := images.Opacity 0.65 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 The `images.Opacity` filter is most useful for target formats such as PNG and WebP that support transparency. If the source image does not support transparency, combine this filter with the `images.Process` filter:
 

@@ -207,7 +207,7 @@ func TestTransform(t *testing.T) {
 
 		fs := afero.NewMemMapFs()
 
-		for i := 0; i < 2; i++ {
+		for i := range 2 {
 			spec := newTestResourceSpec(specDescriptor{c: c, fs: fs})
 
 			r := createTransformer(c, spec, "f1.txt", "color is blue")
@@ -337,12 +337,12 @@ func TestTransform(t *testing.T) {
 		const count = 26 // A-Z
 
 		transformations := make([]resources.ResourceTransformation, count)
-		for i := 0; i < count; i++ {
+		for i := range count {
 			transformations[i] = createContentReplacer(fmt.Sprintf("t%d", i), fmt.Sprint(i), string(rune(i+65)))
 		}
 
 		var countstr strings.Builder
-		for i := 0; i < count; i++ {
+		for i := range count {
 			countstr.WriteString(fmt.Sprint(i))
 		}
 
@@ -386,22 +386,15 @@ func TestTransform(t *testing.T) {
 		resizedPublished1, err := img.Resize("40x40")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resizedPublished1.Height(), qt.Equals, 40)
-		c.Assert(resizedPublished1.RelPermalink(), qt.Equals, "/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_40x40_resize_linear_3.png")
-		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_40x40_resize_linear_3.png", true)
+		c.Assert(resizedPublished1.RelPermalink(), qt.Equals, "/gopher.changed_hu_85920388a7ff96fa.png")
+		assertShouldExist(c, spec, "public/gopher.changed_hu_85920388a7ff96fa.png", true)
 
 		// Permalink called.
 		resizedPublished2, err := img.Resize("30x30")
 		c.Assert(err, qt.IsNil)
 		c.Assert(resizedPublished2.Height(), qt.Equals, 30)
-		c.Assert(resizedPublished2.Permalink(), qt.Equals, "https://example.com/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_30x30_resize_linear_3.png")
-		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_30x30_resize_linear_3.png", true)
-
-		// Not published because none of RelPermalink or Permalink was called.
-		resizedNotPublished, err := img.Resize("50x50")
-		c.Assert(err, qt.IsNil)
-		c.Assert(resizedNotPublished.Height(), qt.Equals, 50)
-		// c.Assert(resized.RelPermalink(), qt.Equals, "/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_2.png")
-		assertShouldExist(c, spec, "public/gopher.changed_hu2e827f5a78333ebc04166dd643235dea_1462_50x50_resize_linear_3.png", false)
+		c.Assert(resizedPublished2.Permalink(), qt.Equals, "https://example.com/gopher.changed_hu_c8d8163c08643a7f.png")
+		assertShouldExist(c, spec, "public/gopher.changed_hu_c8d8163c08643a7f.png", true)
 
 		assertNoDuplicateWrites(c, spec)
 	})
@@ -412,18 +405,18 @@ func TestTransform(t *testing.T) {
 		transformers := make([]resources.Transformer, 10)
 		transformations := make([]resources.ResourceTransformation, 10)
 
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			transformers[i] = createTransformer(c, spec, fmt.Sprintf("f%d.txt", i), fmt.Sprintf("color is %d", i))
 			transformations[i] = createContentReplacer("test", strconv.Itoa(i), "blue")
 		}
 
 		var wg sync.WaitGroup
 
-		for i := 0; i < 13; i++ {
+		for i := range 13 {
 			wg.Add(1)
 			go func(i int) {
 				defer wg.Done()
-				for j := 0; j < 23; j++ {
+				for j := range 23 {
 					id := (i + j) % 10
 					tr, err := transformers[id].Transform(transformations[id])
 					c.Assert(err, qt.IsNil)

@@ -3,26 +3,14 @@ title: template
 description: Executes the given template, optionally passing context.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/define
-    - functions/partials/Include
-    - functions/partials/IncludeCached
-  returnType: 
-  signatures: ['template NAME [CONTEXT]']
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: 
+    signatures: ['template NAME [CONTEXT]']
 ---
 
-Use the `template` function to execute [internal templates]. For example:
-
-```go-html-template
-{{ range (.Paginate .Pages).Pages }}
-  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-{{ end }}
-{{ template "_internal/pagination.html" . }}
-```
-
-You can also use the `template` function to execute a defined template:
+Use the `template` function to execute a defined template:
 
 ```go-html-template
 {{ template "foo" (dict "answer" 42) }}
@@ -32,18 +20,23 @@ You can also use the `template` function to execute a defined template:
 {{ end }}
 ```
 
-The example above can be rewritten using an [inline partial] template:
+The example above can be rewritten using an inline _partial_ template:
 
 ```go-html-template
 {{ partial "inline/foo.html" (dict "answer" 42) }}
 
-{{ define "partials/inline/foo.html" }}
+{{ define "_partials/inline/foo.html" }}
   {{ printf "The answer is %v." .answer }}
 {{ end }}
 ```
 
-{{% include "functions/go-template/_common/text-template.md" %}}
+The key distinctions between the preceding two examples are:
 
-[`partial`]: /functions/partials/include/
-[inline partial]: /templates/partials/#inline-partials
-[internal templates]: /templates/internal
+1. Inline partials are globally scoped. That means that an inline partial defined in _one_ template may be called from _any_ template.
+1. Leveraging the [`partialCached`] function when calling an inline partial allows for performance optimization through result caching.
+1. An inline partial can [`return`] a value of any data type instead of rendering a string.
+
+{{% include "/_common/functions/go-template/text-template.md" %}}
+
+[`partialCached`]: /functions/partials/includecached/
+[`return`]: /functions/go-template/return/

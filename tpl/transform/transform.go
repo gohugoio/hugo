@@ -17,17 +17,35 @@ package transform
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
+	"errors"
+	"fmt"
 	"html"
 	"html/template"
+	"io"
 	"strings"
+	"sync/atomic"
+
+	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2/converter"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/base"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/commonmark"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/table"
+
+	bp "github.com/gohugoio/hugo/bufferpool"
+
+	"github.com/bep/goportabletext"
 
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -42,18 +60,26 @@ func New(deps *deps.Deps) *Namespace {
 
 	return &Namespace{
 		deps: deps,
-		cache: dynacache.GetOrCreatePartition[string, *resources.StaleValue[any]](
+		cacheUnmarshal: dynacache.GetOrCreatePartition[string, *resources.StaleValue[any]](
 			deps.MemCache,
-			"/tmpl/transform",
+			"/tmpl/transform/unmarshal",
 			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearOnChange},
+		),
+		cacheMath: dynacache.GetOrCreatePartition[string, template.HTML](
+			deps.MemCache,
+			"/tmpl/transform/math",
+			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearNever},
 		),
 	}
 }
 
 // Namespace provides template functions for the "transform" namespace.
 type Namespace struct {
-	cache *dynacache.Partition[string, *resources.StaleValue[any]]
-	deps  *deps.Deps
+	cacheUnmarshal *dynacache.Partition[string, *resources.StaleValue[any]]
+	cacheMath      *dynacache.Partition[string, template.HTML]
+
+	id   atomic.Uint32
+	deps *deps.Deps
 }
 
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.
@@ -173,16 +199,162 @@ func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, err
 }
 
 // Plainify returns a copy of s with all HTML tags removed.
-func (ns *Namespace) Plainify(s any) (string, error) {
+func (ns *Namespace) Plainify(s any) (template.HTML, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return tpl.StripHTML(ss), nil
+	return template.HTML(tpl.StripHTML(ss)), nil
+}
+
+// PortableText converts the portable text in v to Markdown.
+// We may add more options in the future.
+func (ns *Namespace) PortableText(v any) (string, error) {
+	buf := bp.GetBuffer()
+	defer bp.PutBuffer(buf)
+	opts := goportabletext.ToMarkdownOptions{
+		Dst: buf,
+		Src: v,
+	}
+	if err := goportabletext.ToMarkdown(opts); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+// ToMath converts a LaTeX string to math in the given format, default MathML.
+// This uses KaTeX to render the math, see https://katex.org/.
+func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, error) {
+	if len(args) < 1 {
+		return "", errors.New("must provide at least one argument")
+	}
+	expression, err := cast.ToStringE(args[0])
+	if err != nil {
+		return "", err
+	}
+
+	katexInput := warpc.KatexInput{
+		Expression: expression,
+		Options: warpc.KatexOptions{
+			Output:           "mathml",
+			MinRuleThickness: 0.04,
+			ErrorColor:       "#cc0000",
+			ThrowOnError:     true,
+			Strict:           "error",
+		},
+	}
+
+	if len(args) > 1 {
+		if err := mapstructure.WeakDecode(args[1], &katexInput.Options); err != nil {
+			return "", err
+		}
+	}
+
+	switch katexInput.Options.Strict {
+	case "error", "ignore", "warn":
+		// Valid strict mode, continue
+	default:
+		return "", fmt.Errorf("invalid strict mode; expected one of error, ignore, or warn; received %s", katexInput.Options.Strict)
+	}
+
+	type fileCacheEntry struct {
+		Version  string   `json:"version"`
+		Output   string   `json:"output"`
+		Warnings []string `json:"warnings,omitempty"`
+	}
+
+	const fileCacheEntryVersion = "v1" // Increment on incompatible changes.
+
+	s := hashing.HashString(args...)
+	key := "tomath/" + fileCacheEntryVersion + "/" + s[:2] + "/" + s[2:]
+	fileCache := ns.deps.ResourceSpec.FileCaches.MiscCache()
+
+	v, err := ns.cacheMath.GetOrCreate(key, func(string) (template.HTML, error) {
+		_, r, err := fileCache.GetOrCreate(key, func() (io.ReadCloser, error) {
+			message := warpc.Message[warpc.KatexInput]{
+				Header: warpc.Header{
+					Version: 1,
+					ID:      ns.id.Add(1),
+				},
+				Data: katexInput,
+			}
+
+			k, err := ns.deps.WasmDispatchers.Katex()
+			if err != nil {
+				return nil, err
+			}
+			result, err := k.Execute(ctx, message)
+			if err != nil {
+				return nil, err
+			}
+
+			e := fileCacheEntry{
+				Version:  fileCacheEntryVersion,
+				Output:   result.Data.Output,
+				Warnings: result.Header.Warnings,
+			}
+
+			buf := &bytes.Buffer{}
+			enc := json.NewEncoder(buf)
+			enc.SetEscapeHTML(false)
+			if err := enc.Encode(e); err != nil {
+				return nil, fmt.Errorf("failed to encode file cache entry: %w", err)
+			}
+			return hugio.NewReadSeekerNoOpCloserFromBytes(buf.Bytes()), nil
+		})
+		if err != nil {
+			return "", err
+		}
+
+		var e fileCacheEntry
+		if err := json.NewDecoder(r).Decode(&e); err != nil {
+			return "", fmt.Errorf("failed to decode file cache entry: %w", err)
+		}
+
+		for _, warning := range e.Warnings {
+			ns.deps.Log.Warnf("transform.ToMath: %s", warning)
+		}
+
+		return template.HTML(e.Output), err
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return v, nil
 }
 
 // For internal use.
 func (ns *Namespace) Reset() {
-	ns.cache.Clear()
+	ns.cacheUnmarshal.Clear()
+}
+
+// This was added in Hugo v0.151.0 and should be considered experimental for now.
+// We need to test this out in the wild for a while before committing to this API,
+// and there will eventually be more options here.
+func (ns *Namespace) HTMLToMarkdown(ctx context.Context, args ...any) (string, error) {
+	if len(args) < 1 {
+		return "", errors.New("must provide at least one argument")
+	}
+	input, err := cast.ToStringE(args[0])
+	if err != nil {
+		return "", err
+	}
+
+	plugins := []htmltomarkdown.Plugin{
+		base.NewBasePlugin(),
+		commonmark.NewCommonmarkPlugin(),
+		table.NewTablePlugin(),
+	}
+
+	conv := htmltomarkdown.NewConverter(
+		htmltomarkdown.WithPlugins(plugins...),
+	)
+
+	markdown, err := conv.ConvertString(input)
+	if err != nil {
+		return "", err
+	}
+	return markdown, nil
 }

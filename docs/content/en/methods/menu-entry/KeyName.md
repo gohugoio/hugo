@@ -1,12 +1,12 @@
 ---
 title: KeyName
-description: Returns the `identifier` property of the given menu entry, falling back to its `name` property. 
+description: Returns the `identifier` property of the given menu entry, falling back to its `name` property.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [MENUENTRY.KeyName]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [MENUENTRY.KeyName]
 ---
 
 In this menu definition, the second entry does not contain an `identifier`, so the `Identifier` method returns its `name` property instead:
@@ -36,4 +36,4 @@ This example uses the `KeyName` method when querying the translation table on a 
 
 In the example above, we need to pass the value returned by `.KeyName` through the [`lower`] function because the keys in the translation table are lowercase.
 
-[`lower`]: functions/strings/tolower
+[`lower`]: /functions/strings/tolower/

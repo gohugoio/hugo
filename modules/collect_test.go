@@ -32,7 +32,7 @@ func TestPathKey(t *testing.T) {
 		{"github.com/foo/v3d", "github.com/foo/v3d"},
 		{"MyTheme", "mytheme"},
 	} {
-		c.Assert(pathKey(test.in), qt.Equals, test.expect)
+		c.Assert(pathBase(test.in), qt.Equals, test.expect)
 	}
 }
 
@@ -43,7 +43,7 @@ func TestFilterUnwantedMounts(t *testing.T) {
 		{Source: "b", Target: "c", Lang: "en"},
 	}
 
-	filtered := filterUnwantedMounts(mounts)
+	filtered := filterDuplicateMounts(mounts)
 
 	c := qt.New(t)
 	c.Assert(len(filtered), qt.Equals, 2)

@@ -3,26 +3,21 @@ title: GroupByDate
 description: Returns the given page collection grouped by date in descending order.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/pages/GroupByExpiryDate
-    - methods/pages/GroupByLastMod
-    - methods/pages/GroupByParamDate
-    - methods/pages/GroupByPublishDate
-  returnType: page.PagesGroup
-  signatures: ['PAGES.GroupByDate LAYOUT [SORT]']
+params:
+  functions_and_methods:
+    returnType: page.PagesGroup
+    signatures: ['PAGES.GroupByDate LAYOUT [SORT]']
 ---
 
 When grouping by date, the value is determined by your [site configuration], defaulting to the `date` field in front matter.
 
-The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized] for language and region.
+The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized](g) for language and region.
 
 [`time.Format`]: /functions/time/format/
 [layout string]: #layout-string
-[localized]: /getting-started/glossary/#localization
-[site configuration]: /getting-started/configuration/#configure-dates
+[site configuration]: /configuration/front-matter/#dates
 
-{{% include "methods/pages/_common/group-sort-order.md" %}}
+{{% include "/_common/methods/pages/group-sort-order.md" %}}
 
 To group content by year and month:
 
@@ -65,4 +60,4 @@ The pages within each group will also be sorted by date, either ascending or des
 
 ## Layout string
 
-{{% include "functions/_common/time-layout-string.md" %}}
+{{% include "/_common/time-layout-string.md" %}}

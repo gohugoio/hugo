@@ -65,7 +65,7 @@ func BenchmarkVisitLinesAfter(b *testing.B) {
 	
 	line 3`
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		VisitLinesAfter(lines, func(s string) {
 		})
 	}

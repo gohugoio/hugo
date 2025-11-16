@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,21 +14,14 @@
 package hugolib
 
 import (
-	"fmt"
+	"encoding/base64"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
-	qt "github.com/frankban/quicktest"
-
-	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
@@ -49,8 +42,12 @@ func TestResourceChainBasic(t *testing.T) {
 		ts.Close()
 	})
 
-	b := newTestSitesBuilder(t)
-	b.WithTemplatesAdded("index.html", fmt.Sprintf(`
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- assets/images/sunset.jpg --
+` + getTestSunset(t) + `
+-- layouts/index.html --
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | fingerprint "sha512" | minify  | fingerprint }}
 {{ $cssFingerprinted1 := "body {  background-color: lightblue; }" | resources.FromString "styles.css" |  minify  | fingerprint }}
 {{ $cssFingerprinted2 := "body {  background-color: orange; }" | resources.FromString "styles2.css" |  minify  | fingerprint }}
@@ -67,11 +64,11 @@ FIT: {{ $fit.Name }}|{{ $fit.RelPermalink }}|{{ $fit.Width }}
 CSS integrity Data first: {{ $cssFingerprinted1.Data.Integrity }} {{ $cssFingerprinted1.RelPermalink }}
 CSS integrity Data last:  {{ $cssFingerprinted2.RelPermalink }} {{ $cssFingerprinted2.Data.Integrity }}
 
-{{ $failedImg := resources.GetRemote "%[1]s/fail.jpg" }}
-{{ $rimg := resources.GetRemote "%[1]s/sunset.jpg" }}
-{{ $remotenotfound := resources.GetRemote "%[1]s/notfound.jpg" }}
+{{ $failedImg := try (resources.GetRemote "HTTPTEST_SERVER_URL/fail.jpg") }}
+{{ $rimg := resources.GetRemote "HTTPTEST_SERVER_URL/sunset.jpg" }}
+{{ $remotenotfound := resources.GetRemote "HTTPTEST_SERVER_URL/notfound.jpg" }}
 {{ $localnotfound := resources.Get "images/notfound.jpg" }}
-{{ $gopherprotocol := resources.GetRemote "gopher://example.org" }}
+{{ $gopherprotocol := try (resources.GetRemote "gopher://example.org") }}
 {{ $rfit := $rimg.Fit "200x200" }}
 {{ $rfit2 := $rfit.Fit "100x200" }}
 {{ $rimg = $rimg | fingerprint }}
@@ -79,86 +76,67 @@ SUNSET REMOTE: {{ $rimg.Name }}|{{ $rimg.RelPermalink }}|{{ $rimg.Width }}|{{ le
 FIT REMOTE: {{ $rfit.Name }}|{{ $rfit.RelPermalink }}|{{ $rfit.Width }}
 REMOTE NOT FOUND: {{ if $remotenotfound }}FAILED{{ else}}OK{{ end }}
 LOCAL NOT FOUND: {{ if $localnotfound }}FAILED{{ else}}OK{{ end }}
-PRINT PROTOCOL ERROR1: {{ with $gopherprotocol }}{{ . | safeHTML }}{{ end }}
+PRINT PROTOCOL ERROR1: {{ with $gopherprotocol }}{{ .Value | safeHTML }}{{ end }}
 PRINT PROTOCOL ERROR2: {{ with $gopherprotocol }}{{ .Err | safeHTML }}{{ end }}
-PRINT PROTOCOL ERROR DETAILS: {{ with $gopherprotocol }}Err: {{ .Err | safeHTML }}{{ with .Err }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}{{ end }}|{{ end }}{{ end }}
-FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg.Err }}|{{ . }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}|ContentLength: {{ .ContentLength }}|ContentType: {{ .ContentType }}{{ end }}{{ end }}|
-`, ts.URL))
+PRINT PROTOCOL ERROR DETAILS: {{ with $gopherprotocol }}{{ with .Err }}Err: {{ . | safeHTML }}{{ with .Cause }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}{{ end }}|{{ end }}{{ end }}{{ end }}
+FAILED REMOTE ERROR DETAILS CONTENT: {{ with $failedImg }}{{ with .Err }}{{ with .Cause }}{{ . }}|{{ with .Data }}Body: {{ .Body }}|StatusCode: {{ .StatusCode }}|ContentLength: {{ .ContentLength }}|ContentType: {{ .ContentType }}{{ end }}{{ end }}{{ end }}{{ end }}|
+`
+	files = strings.ReplaceAll(files, "HTTPTEST_SERVER_URL", ts.URL)
 
-	fs := b.Fs.Source
+	b := Test(t, files)
 
-	imageDir := filepath.Join("assets", "images")
-	b.Assert(os.MkdirAll(imageDir, 0o777), qt.IsNil)
-	src, err := os.Open("testdata/sunset.jpg")
-	b.Assert(err, qt.IsNil)
-	out, err := fs.Create(filepath.Join(imageDir, "sunset.jpg"))
-	b.Assert(err, qt.IsNil)
-	_, err = io.Copy(out, src)
-	b.Assert(err, qt.IsNil)
-	out.Close()
+	b.AssertFileContent("public/index.html", "HELLO: /hello.html")
+	b.AssertFileContent("public/index.html", "SUNSET: /images/sunset.jpg")
+	b.AssertFileContent("public/index.html", "FIT: /images/sunset.jpg")
+	b.AssertFileContent("public/index.html", "CSS integrity Data first:")
+	b.AssertFileContent("public/index.html", "CSS integrity Data last:")
+	b.AssertFileContent("public/index.html", "SUNSET REMOTE:")
+	b.AssertFileContent("public/index.html", "FIT REMOTE:")
+	b.AssertFileContent("public/index.html", "REMOTE NOT FOUND: OK")
+	b.AssertFileContent("public/index.html", "LOCAL NOT FOUND: OK")
+	b.AssertFileContent("public/index.html", "PRINT PROTOCOL ERROR DETAILS:")
+	b.AssertFileContent("public/index.html", "FAILED REMOTE ERROR DETAILS CONTENT:")
 
-	b.Running()
+	b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
+	b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
+}
 
-	for i := 0; i < 2; i++ {
-		b.Logf("Test run %d", i)
-		b.Build(BuildCfg{})
-
-		b.AssertFileContent("public/index.html",
-			fmt.Sprintf(`
-SUNSET: /images/sunset.jpg|/images/sunset.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
-FIT: /images/sunset.jpg|/images/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
-CSS integrity Data first: sha256-od9YaHw8nMOL8mUy97Sy8sKwMV3N4hI3aVmZXATxH&#43;8= /styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css
-CSS integrity Data last:  /styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css sha256-HPxSmGg2QF03&#43;ZmKY/1t2GCOjEEOXj2x2qow94vCc7o=
-
-SUNSET REMOTE: /sunset_%[1]s.jpg|/sunset_%[1]s.a9bf1d944e19c0f382e0d8f51de690f7d0bc8fa97390c4242a86c3e5c0737e71.jpg|900|90587
-FIT REMOTE: /sunset_%[1]s.jpg|/sunset_%[1]s_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x200_fit_q75_box.jpg|200
-REMOTE NOT FOUND: OK
-LOCAL NOT FOUND: OK
-PRINT PROTOCOL ERROR DETAILS: Err: error calling resources.GetRemote: Get "gopher://example.org": unsupported protocol scheme "gopher"||
-FAILED REMOTE ERROR DETAILS CONTENT: |failed to fetch remote resource: Not Implemented|Body: { msg: failed }
-|StatusCode: 501|ContentLength: 16|ContentType: text/plain; charset=utf-8|
-
-
-`, identity.HashString(ts.URL+"/sunset.jpg", map[string]any{})))
-
-		b.AssertFileContent("public/styles.min.a1df58687c3c9cc38bf26532f7b4b2f2c2b0315dcde212376959995c04f11fef.css", "body{background-color:#add8e6}")
-		b.AssertFileContent("public//styles2.min.1cfc52986836405d37f9998a63fd6dd8608e8c410e5e3db1daaa30f78bc273ba.css", "body{background-color:orange}")
-
-		b.EditFiles("content/_index.md", `
----
-title: "Home edit"
-summary: "Edited summary"
----
-
-Edited content.
-
-`)
-
+// getTestSunset reads the sunset.jpg file from testdata and returns its content as a string.
+// This is used to embed the image content directly into the txtar string.
+func getTestSunset(t testing.TB) string {
+	t.Helper()
+	b, err := os.ReadFile("testdata/sunset.jpg")
+	if err != nil {
+		t.Fatal(err)
 	}
+	return base64.StdEncoding.EncodeToString(b)
 }
 
 func TestResourceChainPostProcess(t *testing.T) {
 	t.Parallel()
 
-	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	b := newTestSitesBuilder(t)
-	b.WithConfigFile("toml", `
+	files := `
+-- hugo.toml --
 disableLiveReload = true
 [minify]
   minifyOutput = true
   [minify.tdewolff]
     [minify.tdewolff.html]
       keepQuotes = false
-      keepWhitespace = false`)
-	b.WithContent("page1.md", "---\ntitle: Page1\n---")
-	b.WithContent("page2.md", "---\ntitle: Page2\n---")
-
-	b.WithTemplates(
-		"_default/single.html", `{{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
+      keepWhitespace = false
+-- content/page1.md --
+---
+title: Page1
+---
+-- content/page2.md --
+---
+title: Page2
+---
+-- layouts/_default/single.html --
+{{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
 HELLO: {{ $hello.RelPermalink }}	
-`,
-		"index.html", `Start.
+-- layouts/index.html --
+Start.
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
 
 HELLO: {{ $hello.RelPermalink }}|Integrity: {{ $hello.Data.Integrity }}|MediaType: {{ $hello.MediaType.Type }}
@@ -172,19 +150,23 @@ JSON: {{ $json.RelPermalink }}
 // Issue #8884
 <a href="hugo.rocks">foo</a>
 <a href="{{ $hello.RelPermalink }}" integrity="{{ $hello.Data.Integrity}}">Hello</a>
-`+strings.Repeat("a b", rnd.Intn(10)+1)+`
+a b a b a b
 
 
-End.`)
+End.
+`
 
-	b.Running()
-	b.Build(BuildCfg{})
+	b := Test(t, files)
+
 	b.AssertFileContent("public/index.html",
 		`Start.
 HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html|Integrity: md5-otHLJPJLMip9rVIEFMUj6Q==|MediaType: text/html
 HELLO2: Name: /hello.html|Content: <h1>Hello World!</h1>|Title: /hello.html|ResourceType: text
 <a href=hugo.rocks>foo</a>
 <a href="/hello.min.a2d1cb24f24b322a7dad520414c523e9.html" integrity="md5-otHLJPJLMip9rVIEFMUj6Q==">Hello</a>
+a b a b a b
+
+
 End.`)
 
 	b.AssertFileContent("public/page1/index.html", `HELLO: /hello.min.a2d1cb24f24b322a7dad520414c523e9.html`)
@@ -196,45 +178,8 @@ relPermalink": "/hello.min.a2d1cb24f24b322a7dad520414c523e9.html"
 `)
 }
 
-func BenchmarkResourceChainPostProcess(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		b.StopTimer()
-		s := newTestSitesBuilder(b)
-		for i := 0; i < 300; i++ {
-			s.WithContent(fmt.Sprintf("page%d.md", i+1), "---\ntitle: Page\n---")
-		}
-		s.WithTemplates("_default/single.html", `Start.
-Some text.
-
-
-{{ $hello1 := "<h1>     Hello World 2!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
-{{ $hello2 := "<h1>     Hello World 2!   </h1>" | resources.FromString (printf "%s.html" .Path) | minify  | fingerprint "md5" | resources.PostProcess }}
-
-Some more text.
-
-HELLO: {{ $hello1.RelPermalink }}|Integrity: {{ $hello1.Data.Integrity }}|MediaType: {{ $hello1.MediaType.Type }}
-
-Some more text.
-
-HELLO2: Name: {{ $hello2.Name }}|Content: {{ $hello2.Content }}|Title: {{ $hello2.Title }}|ResourceType: {{ $hello2.ResourceType }}
-
-Some more text.
-
-HELLO2_2: Name: {{ $hello2.Name }}|Content: {{ $hello2.Content }}|Title: {{ $hello2.Title }}|ResourceType: {{ $hello2.ResourceType }}
-
-End.
-`)
-
-		b.StartTimer()
-		s.Build(BuildCfg{})
-
-	}
-}
-
 func TestResourceChains(t *testing.T) {
 	t.Parallel()
-
-	c := qt.New(t)
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -323,11 +268,73 @@ func TestResourceChains(t *testing.T) {
 	tests := []struct {
 		name      string
 		shouldRun func() bool
-		prepare   func(b *sitesBuilder)
-		verify    func(b *sitesBuilder)
+		files     string
+		assert    func(b *IntegrationTestBuilder)
 	}{
-		{"tocss", func() bool { return scss.Supports() }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+		{"tocss", func() bool { return scss.Supports() }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $scss := resources.Get "scss/styles2.scss" | toCSS }}
 {{ $sass := resources.Get "sass/styles3.sass" | toCSS }}
 {{ $scssCustomTarget := resources.Get "scss/styles2.scss" | toCSS (dict "targetPath" "styles/main.css") }}
@@ -341,8 +348,7 @@ T3: Content: {{ len $scssCustomTarget.Content }}|RelPermalink: {{ $scssCustomTar
 T4: Content: {{ len $scssCustomTargetString.Content }}|RelPermalink: {{ $scssCustomTargetString.RelPermalink }}|MediaType: {{ $scssCustomTargetString.MediaType.Type }}
 T5: Content: {{ $sass.Content }}|T5 RelPermalink: {{ $sass.RelPermalink }}|
 T6: {{ $bundle1.Permalink }}
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `T1: Len Content: 24|RelPermalink: /scss/styles2.css|Permalink: http://example.com/scss/styles2.css|MediaType: text/css`)
 			b.AssertFileContent("public/index.html", `T2: Content: body{color:#333}|RelPermalink: /scss/styles2.min.css`)
 			b.AssertFileContent("public/index.html", `T3: Content: 24|RelPermalink: /styles/main.css|MediaType: text/css`)
@@ -351,32 +357,92 @@ T6: {{ $bundle1.Permalink }}
 			b.AssertFileContent("public/index.html", `T5 RelPermalink: /sass/styles3.css|`)
 			b.AssertFileContent("public/index.html", `T6: http://example.com/styles/bundle1.css`)
 
-			c.Assert(b.CheckExists("public/styles/templ.min.css"), qt.Equals, false)
+			b.AssertFileExists("public/styles/templ.min.css", false)
 			b.AssertFileContent("public/styles/bundle1.css", `.home{color:blue}body{color:#333}`)
 		}},
 
-		{"minify", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithConfigFile("toml", `[minify]
+		{"minify", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+[minify]
   [minify.tdewolff]
     [minify.tdewolff.html]
       keepWhitespace = false
-`)
-			b.WithTemplates("home.html", fmt.Sprintf(`
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 Min CSS: {{ ( resources.Get "css/styles1.css" | minify ).Content }}
-Min CSS Remote: {{ ( resources.GetRemote "%[1]s/css/styles1.css" | minify ).Content }}
+Min CSS Remote: {{ ( resources.GetRemote "HTTPTEST_SERVER_URL/css/styles1.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
-Min JS Remote: {{ ( resources.GetRemote "%[1]s/js/script1.js" | minify ).Content }}
+Min JS Remote: {{ ( resources.GetRemote "HTTPTEST_SERVER_URL/js/script1.js" | minify ).Content }}
 Min JSON: {{ ( resources.Get "mydata/json1.json" | resources.Minify ).Content | safeHTML }}
-Min JSON Remote: {{ ( resources.GetRemote "%[1]s/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
+Min JSON Remote: {{ ( resources.GetRemote "HTTPTEST_SERVER_URL/mydata/json1.json" | resources.Minify ).Content | safeHTML }}
 Min XML: {{ ( resources.Get "mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
-Min XML Remote: {{ ( resources.GetRemote "%[1]s/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
+Min XML Remote: {{ ( resources.GetRemote "HTTPTEST_SERVER_URL/mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
 Min SVG: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
-Min SVG Remote: {{ ( resources.GetRemote "%[1]s/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
+Min SVG Remote: {{ ( resources.GetRemote "HTTPTEST_SERVER_URL/mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min SVG again: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | safeHTML }}
-Min HTML Remote: {{ ( resources.GetRemote "%[1]s/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
-`, ts.URL))
-		}, func(b *sitesBuilder) {
+Min HTML Remote: {{ ( resources.GetRemote "HTTPTEST_SERVER_URL/mydata/html1.html" | resources.Minify ).Content | safeHTML }}
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
 			b.AssertFileContent("public/index.html", `Min CSS Remote: h1{font-style:bold}`)
 			b.AssertFileContent("public/index.html", `Min JS: var x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10`)
@@ -392,26 +458,149 @@ Min HTML Remote: {{ ( resources.GetRemote "%[1]s/mydata/html1.html" | resources.
 			b.AssertFileContent("public/index.html", `Min HTML Remote: <html><a href=#>Cool</a></html>`)
 		}},
 
-		{"remote", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", fmt.Sprintf(`
-{{$js := resources.GetRemote "%[1]s/js/script1.js" }}
+		{"remote", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
+{{$js := resources.GetRemote "HTTPTEST_SERVER_URL/js/script1.js" }}
 Remote Filename: {{ $js.RelPermalink }}
-{{$svg := resources.GetRemote "%[1]s/mydata/svg1.svg" }}
+{{$svg := resources.GetRemote "HTTPTEST_SERVER_URL/mydata/svg1.svg" }}
 Remote Content-Disposition: {{ $svg.RelPermalink }}
-{{$auth := resources.GetRemote "%[1]s/authenticated/" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
+{{$auth := resources.GetRemote "HTTPTEST_SERVER_URL/authenticated/" (dict "headers" (dict "Authorization" "Bearer abcd")) }}
 Remote Authorization: {{ $auth.Content }}
-{{$post := resources.GetRemote "%[1]s/post" (dict "method" "post" "body" "Request body") }}
+{{$post := resources.GetRemote "HTTPTEST_SERVER_URL/post" (dict "method" "post" "body" "Request body") }}
 Remote POST: {{ $post.Content }}
-`, ts.URL))
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `Remote Filename: /script1_`)
 			b.AssertFileContent("public/index.html", `Remote Content-Disposition: /image_`)
 			b.AssertFileContent("public/index.html", `Remote Authorization: Welcome`)
 			b.AssertFileContent("public/index.html", `Remote POST: Request body`)
 		}},
 
-		{"concat", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+		{"concat", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $a := "A" | resources.FromString "a.txt"}}
 {{ $b := "B" | resources.FromString "b.txt"}}
 {{ $c := "C" | resources.FromString "c.txt"}}
@@ -425,7 +614,7 @@ T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 {{/* https://github.com/gohugoio/hugo/issues/5269 */}}
 {{ $css := "body { color: blue; }" | resources.FromString "styles.css" }}
 {{ $minified := resources.Get "css/styles1.css" | minify }}
-{{ slice $css $minified | resources.Concat "bundle/mixed.css" }} 
+{{ slice $css $minified | resources.Concat "bundle/mixed.css" }}
 {{/* https://github.com/gohugoio/hugo/issues/5403 */}}
 {{ $d := "function D {} // A comment" | resources.FromString "d.js"}}
 {{ $e := "(function E {})" | resources.FromString "e.js"}}
@@ -433,8 +622,7 @@ T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 {{ $jsResources := .Resources.Match "*.js" }}
 {{ $combinedJs := slice $d $e $f | resources.Concat "bundle/concatjs.js" }}
 T3: Content: {{ $combinedJs.Content }}|{{ $combinedJs.RelPermalink }}
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `T1: Content: ABC|RelPermalink: /bundle/concat.txt|Permalink: http://example.com/bundle/concat.txt|MediaType: text/plain`)
 			b.AssertFileContent("public/bundle/concat.txt", "ABC")
 
@@ -453,33 +641,219 @@ T3: Content: {{ $combinedJs.Content }}|{{ $combinedJs.RelPermalink }}
 (function F {})()`)
 		}},
 
-		{"concat and fingerprint", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
-{{ $a := "A" | resources.FromString "a.txt"}}
-{{ $b := "B" | resources.FromString "b.txt"}}
-{{ $c := "C" | resources.FromString "c.txt"}}
-{{ $combined := slice $a $b $c | resources.Concat "bundle/concat.txt" }}
-{{ $fingerprinted := $combined | fingerprint }}
-Fingerprinted: {{ $fingerprinted.RelPermalink }}
-`)
-		}, func(b *sitesBuilder) {
-			b.AssertFileContent("public/index.html", "Fingerprinted: /bundle/concat.b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78.txt")
-			b.AssertFileContent("public/bundle/concat.b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78.txt", "ABC")
-		}},
+		{
+			"concat and fingerprint", func() bool { return true }, `
+		-- hugo.toml --
+		baseURL = "http://example.com/"
+		-- content/_index.md --
+		---
+		title: Home
+		---
+		Home.
+		-- content/page1.md --
+		---
+		title: Hello1
+		---
+		Hello1
+		-- content/page2.md --
+		---
+		title: Hello2
+		---
+		Hello2
+		-- content/t1.txt --
+		t1t|
+		-- content/t2.txt --
+		t2t|
+		-- assets/css/styles1.css --
+		h1 {
+			 font-style: bold;
+		}
+		-- assets/js/script1.js --
+		var x;
+		x = 5;
+		document.getElementById("demo").innerHTML = x * 10;
+		-- assets/mydata/json1.json --
+		{
+		"employees":[
+		    {"firstName":"John", "lastName":"Doe"},
+		    {"firstName":"Anna", "lastName":"Smith"},
+		    {"firstName":"Peter", "lastName":"Jones"}
+		]
+		}
+		-- assets/mydata/svg1.svg --
+		<svg height="100" width="100">
+		  <path d="M 100 100 L 300 100 L 200 100 z"/>
+		</svg>
+		-- assets/mydata/xml1.xml --
+		<hello>
+		<world>Hugo Rocks!</<world>
+		</hello>
+		-- assets/mydata/html1.html --
+		<html>
+		<a  href="#">
+		Cool
+		</a >
+		</html>
+		-- assets/scss/styles2.scss --
+		$color: #333;
+		
+		body {
+		  color: $color;
+		}
+		-- assets/sass/styles3.sass --
+		$color: #333;
+		
+		.content-navigation
+		  border-color: $color
+-- layouts/index.html --
+		{{ $a := "A" | resources.FromString "a.txt"}}
+		{{ $b := "B" | resources.FromString "b.txt"}}
+		{{ $c := "C" | resources.FromString "c.txt"}}
+		{{ $combined := slice $a $b $c | resources.Concat "bundle/concat.txt" }}
+		{{ $fingerprinted := $combined | fingerprint }}
+		Fingerprinted: {{ $fingerprinted.RelPermalink }}
+		`,
+			func(b *IntegrationTestBuilder) {
+				b.AssertFileContent("public/index.html", "Fingerprinted: /bundle/concat.b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78.txt")
+				b.AssertFileContent("public/bundle/concat.b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78.txt", "ABC")
+			},
+		},
+		{"fromstring", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
 
-		{"fromstring", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $r := "Hugo Rocks!" | resources.FromString "rocks/hugo.txt" }}
 {{ $r.Content }}|{{ $r.RelPermalink }}|{{ $r.Permalink }}|{{ $r.MediaType.Type }}
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `Hugo Rocks!|/rocks/hugo.txt|http://example.com/rocks/hugo.txt|text/plain`)
 			b.AssertFileContent("public/rocks/hugo.txt", "Hugo Rocks!")
 		}},
 		{"execute-as-template", func() bool {
 			return true
-		}, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+		}, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $var := "Hugo Page" }}
 {{ if .IsHome }}
 {{ $var = "Hugo Home" }}
@@ -487,12 +861,73 @@ Fingerprinted: {{ $fingerprinted.RelPermalink }}
 T1: {{ $var }}
 {{ $result := "{{ .Kind | upper }}" | resources.FromString "mytpl.txt" | resources.ExecuteAsTemplate "result.txt" . }}
 T2: {{ $result.Content }}|{{ $result.RelPermalink}}|{{$result.MediaType.Type }}
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `T2: HOME|/result.txt|text/plain`, `T1: Hugo Home`)
 		}},
-		{"fingerprint", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+		{"fingerprint", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $r := "ab" | resources.FromString "rocks/hugo.txt" }}
 {{ $result := $r | fingerprint }}
 {{ $result512 := $r | fingerprint "sha512" }}
@@ -503,29 +938,148 @@ T3: {{ $resultMD5.Content }}|{{ $resultMD5.RelPermalink}}|{{$resultMD5.MediaType
 {{ $r2 := "bc" | resources.FromString "rocks/hugo2.txt" | fingerprint }}
 {{/* https://github.com/gohugoio/hugo/issues/5296 */}}
 T4: {{ $r2.Data.Integrity }}|
-
-
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `T1: ab|/rocks/hugo.fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603.txt|text/plain|sha256-&#43;44g/C5MPySMYMOb1lLzwTRymLuXe4tNWQO4UFViBgM=|`)
 			b.AssertFileContent("public/index.html", `T2: ab|/rocks/hugo.2d408a0717ec188158278a796c689044361dc6fdde28d6f04973b80896e1823975cdbf12eb63f9e0591328ee235d80e9b5bf1aa6a44f4617ff3caf6400eb172d.txt|text/plain|sha512-LUCKBxfsGIFYJ4p5bGiQRDYdxv3eKNbwSXO4CJbhgjl1zb8S62P54FkTKO4jXYDptb8apqRPRhf/PK9kAOsXLQ==|`)
 			b.AssertFileContent("public/index.html", `T3: ab|/rocks/hugo.187ef4436122d1cc2f40dc2b92f0eba0.txt|text/plain|md5-GH70Q2Ei0cwvQNwrkvDroA==|`)
 			b.AssertFileContent("public/index.html", `T4: sha256-Hgu9bGhroFC46wP/7txk/cnYCUf86CGrvl1tyNJSxaw=|`)
 		}},
 		// https://github.com/gohugoio/hugo/issues/5226
-		{"baseurl-path", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithSimpleConfigFileAndBaseURL("https://example.com/hugo/")
-			b.WithTemplates("home.html", `
+		{"baseurl-path", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "https://example.com/hugo/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $r1 := "ab" | resources.FromString "rocks/hugo.txt" }}
 T1: {{ $r1.Permalink }}|{{ $r1.RelPermalink }}
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", `T1: https://example.com/hugo/rocks/hugo.txt|/hugo/rocks/hugo.txt`)
 		}},
 
 		// https://github.com/gohugoio/hugo/issues/4944
-		{"Prevent resource publish on .Content only", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+		{"Prevent resource publish on .Content only", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $cssInline := "body { color: green; }" | resources.FromString "inline.css" | minify }}
 {{ $cssPublish1 := "body { color: blue; }" | resources.FromString "external1.css" | minify }}
 {{ $cssPublish2 := "body { color: orange; }" | resources.FromString "external2.css" | minify }}
@@ -533,22 +1087,83 @@ T1: {{ $r1.Permalink }}|{{ $r1.RelPermalink }}
 Inline: {{ $cssInline.Content }}
 Publish 1: {{ $cssPublish1.Content }} {{ $cssPublish1.RelPermalink }}
 Publish 2: {{ $cssPublish2.Permalink }}
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html",
 				`Inline: body{color:green}`,
 				"Publish 1: body{color:blue} /external1.min.css",
 				"Publish 2: http://example.com/external2.min.css",
 			)
-			b.Assert(b.CheckExists("public/external2.css"), qt.Equals, false)
-			b.Assert(b.CheckExists("public/external1.css"), qt.Equals, false)
-			b.Assert(b.CheckExists("public/external2.min.css"), qt.Equals, true)
-			b.Assert(b.CheckExists("public/external1.min.css"), qt.Equals, true)
-			b.Assert(b.CheckExists("public/inline.min.css"), qt.Equals, false)
+			b.AssertFileExists("public/external2.css", false)
+			b.AssertFileExists("public/external1.css", false)
+			b.AssertFileExists("public/external2.min.css", true)
+			b.AssertFileExists("public/external1.min.css", true)
+			b.AssertFileExists("public/inline.min.css", false)
 		}},
 
-		{"unmarshal", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+		{"unmarshal", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
 {{ $toml := "slogan = \"Hugo Rocks!\"" | resources.FromString "slogan.toml" | transform.Unmarshal }}
 {{ $csv1 := "\"Hugo Rocks\",\"Hugo is Fast!\"" | resources.FromString "slogans.csv" | transform.Unmarshal }}
 {{ $csv2 := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
@@ -558,8 +1173,7 @@ Slogan: {{ $toml.slogan }}
 CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
 CSV2: {{ $csv2 }}		
 XML: {{ $xml.body }}
-`)
-		}, func(b *sitesBuilder) {
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html",
 				`Slogan: Hugo Rocks!`,
 				`[[Hugo Rocks Hugo is Fast!]] 2`,
@@ -567,13 +1181,142 @@ XML: {{ $xml.body }}
 				`XML: Do not forget XML`,
 			)
 		}},
-		{"resources.Get", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `NOT FOUND: {{ if (resources.Get "this-does-not-exist") }}FAILED{{ else }}OK{{ end }}`)
-		}, func(b *sitesBuilder) {
+		{"resources.Get", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
+NOT FOUND: {{ if (resources.Get "this-does-not-exist") }}FAILED{{ else }}OK{{ end }}
+`, func(b *IntegrationTestBuilder) {
 			b.AssertFileContent("public/index.html", "NOT FOUND: OK")
 		}},
 
-		{"template", func() bool { return true }, func(b *sitesBuilder) {}, func(b *sitesBuilder) {
+		{"template", func() bool { return true }, `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- content/_index.md --
+---
+title: Home
+---
+Home.
+-- content/page1.md --
+---
+title: Hello1
+---
+Hello1
+-- content/page2.md --
+---
+title: Hello2
+---
+Hello2
+-- content/t1.txt --
+t1t|
+-- content/t2.txt --
+t2t|
+-- assets/css/styles1.css --
+h1 {
+	 font-style: bold;
+}
+-- assets/js/script1.js --
+var x;
+x = 5;
+document.getElementById("demo").innerHTML = x * 10;
+-- assets/mydata/json1.json --
+{
+"employees":[
+    {"firstName":"John", "lastName":"Doe"},
+    {"firstName":"Anna", "lastName":"Smith"},
+    {"firstName":"Peter", "lastName":"Jones"}
+]
+}
+-- assets/mydata/svg1.svg --
+<svg height="100" width="100">
+  <path d="M 100 100 L 300 100 L 200 100 z"/>
+</svg>
+-- assets/mydata/xml1.xml --
+<hello>
+<world>Hugo Rocks!</<world>
+</hello>
+-- assets/mydata/html1.html --
+<html>
+<a  href="#">
+Cool
+</a >
+</html>
+-- assets/scss/styles2.scss --
+$color: #333;
+
+body {
+  color: $color;
+}
+-- assets/sass/styles3.sass --
+$color: #333;
+
+.content-navigation
+  border-color: $color
+-- layouts/home.html --
+Template test.
+`, func(b *IntegrationTestBuilder) {
+			b.AssertFileContent("public/index.html", "Template test.")
 		}},
 	}
 
@@ -585,94 +1328,17 @@ XML: {{ $xml.body }}
 			}
 			t.Parallel()
 
-			b := newTestSitesBuilder(t).WithLogger(loggers.NewDefault())
-			b.WithContent("_index.md", `
----
-title: Home
----
+			files := test.files
+			files = strings.ReplaceAll(files, "HTTPTEST_SERVER_URL", ts.URL)
 
-Home.
+			b := NewIntegrationTestBuilder(
+				IntegrationTestConfig{
+					T:           t,
+					TxtarString: files,
+				},
+			).Build()
 
-`,
-				"page1.md", `
----
-title: Hello1
----
-
-Hello1
-`,
-				"page2.md", `
----
-title: Hello2
----
-
-Hello2
-`,
-				"t1.txt", "t1t|",
-				"t2.txt", "t2t|",
-			)
-
-			b.WithSourceFile(filepath.Join("assets", "css", "styles1.css"), `
-h1 {
-	 font-style: bold;
-}
-`)
-
-			b.WithSourceFile(filepath.Join("assets", "js", "script1.js"), `
-var x;
-x = 5;
-document.getElementById("demo").innerHTML = x * 10;
-`)
-
-			b.WithSourceFile(filepath.Join("assets", "mydata", "json1.json"), `
-{
-"employees":[
-    {"firstName":"John", "lastName":"Doe"}, 
-    {"firstName":"Anna", "lastName":"Smith"},
-    {"firstName":"Peter", "lastName":"Jones"}
-]
-}
-`)
-
-			b.WithSourceFile(filepath.Join("assets", "mydata", "svg1.svg"), `
-<svg height="100" width="100">
-  <path d="M 100 100 L 300 100 L 200 100 z"/>
-</svg> 
-`)
-
-			b.WithSourceFile(filepath.Join("assets", "mydata", "xml1.xml"), `
-<hello>
-<world>Hugo Rocks!</<world>
-</hello>
-`)
-
-			b.WithSourceFile(filepath.Join("assets", "mydata", "html1.html"), `
-<html>
-<a  href="#">
-Cool
-</a >
-</html>
-`)
-
-			b.WithSourceFile(filepath.Join("assets", "scss", "styles2.scss"), `
-$color: #333;
-
-body {
-  color: $color;
-}
-`)
-
-			b.WithSourceFile(filepath.Join("assets", "sass", "styles3.sass"), `
-$color: #333;
-
-.content-navigation
-  border-color: $color
-
-`)
-
-			test.prepare(b)
-			b.Build(BuildCfg{})
-			test.verify(b)
+			test.assert(b)
 		})
 	}
 }
@@ -680,19 +1346,19 @@ $color: #333;
 func TestResourcesMatch(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-
-	b.WithContent("page.md", "")
-
-	b.WithSourceFile(
-		"assets/images/img1.png", "png",
-		"assets/images/img2.jpg", "jpg",
-		"assets/jsons/data1.json", "json1 content",
-		"assets/jsons/data2.json", "json2 content",
-		"assets/jsons/data3.xml", "xml content",
-	)
-
-	b.WithTemplates("index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- assets/images/img1.png --
+-- assets/images/img2.jpg --
+-- assets/jsons/data1.json --
+json1 content
+-- assets/jsons/data2.json --
+json2 content
+-- assets/jsons/data3.xml --
+xml content
+-- content/page.md --
+-- layouts/index.html --
 {{ $jsons := (resources.Match "jsons/*.json") }}
 {{ $json := (resources.GetMatch "jsons/*.json") }}
 {{ printf "jsonsMatch: %d"  (len $jsons) }}
@@ -702,9 +1368,8 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 {{ range $jsons }}
 {{- .RelPermalink }}: {{ .Content }}
 {{ end }}
-`)
-
-	b.Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		"JSON: /jsons/data1.json: json1 content",
@@ -717,27 +1382,19 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 func TestResourceMinifyDisabled(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+	files := `
+-- hugo.toml --
 baseURL = "https://example.org"
-
 [minify]
 disableXML=true
-
-
-`)
-
-	b.WithContent("page.md", "")
-
-	b.WithSourceFile(
-		"assets/xml/data.xml", "<root>   <foo> asdfasdf </foo> </root>",
-	)
-
-	b.WithTemplates("index.html", `
+-- assets/xml/data.xml --
+<root>   <foo> asdfasdf </foo> </root>
+-- content/page.md --
+-- layouts/index.html --
 {{ $xml := resources.Get "xml/data.xml" | minify | fingerprint }}
 XML: {{ $xml.Content | safeHTML }}|{{ $xml.RelPermalink }}
-`)
-
-	b.Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 XML: <root>   <foo> asdfasdf </foo> </root>|/xml/data.min.3be4fddd19aaebb18c48dd6645215b822df74701957d6d36e59f203f9c30fd9f.xml

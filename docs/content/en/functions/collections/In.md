@@ -3,24 +3,15 @@ title: collections.In
 description: Reports whether the given value is a member of the given set.
 categories: []
 keywords: []
-action:
-  aliases: [in]
-  related:
-    - functions/strings/Contains
-    - functions/strings/ContainsAny
-    - functions/strings/ContainsNonSpace
-    - functions/strings/HasPrefix
-    - functions/strings/HasSuffix
-  returnType: bool
-  signatures: [collections.In SET VALUE]
+params:
+  functions_and_methods:
+    aliases: [in]
+    returnType: bool
+    signatures: [collections.In SET VALUE]
 aliases: [/functions/in]
 ---
 
-The `SET` can be an [array], [slice], or [string].
-
-[array]: /getting-started/glossary/#array
-[slice]: /getting-started/glossary/#slice
-[string]: /getting-started/glossary/#string
+The `SET` can be an [array](g), [slice](g), or [string](g).
 
 ```go-html-template
 {{ $s := slice "a" "b" "c" }}

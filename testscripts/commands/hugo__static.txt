@@ -1,0 +1,39 @@
+hugo --quiet
+ls public/files
+stdout 'f1.txt'
+stdout 'f2.txt'
+
+grep 'enf1' public/files/f1.txt # en mount is last.
+grep 'frf2'  public/files/f2.txt
+
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+
+[languages]
+[languages.en]
+languageName = "English"
+weight = 1
+[languages.fr]
+languageName = "Français"
+weight = 2
+[module]
+[[module.mounts]]
+source = "static/fr"
+target = "static"
+lang = "fr"
+[[module.mounts]]
+source = "static/en"
+target = "static"
+lang = "en"
+
+-- static/en/files/f1.txt --
+enf1
+-- static/fr/files/f1.txt --
+frf1
+-- static/fr/files/f2.txt --
+frf2
+-- layouts/home.html --
+Home.
+

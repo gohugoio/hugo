@@ -112,7 +112,7 @@ func BenchmarkTimeFormatter(b *testing.B) {
 	june06, _ := time.Parse("2006-Jan-02", "2018-Jun-06")
 
 	b.Run("Native", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := june06.Format("Monday Jan 2 2006")
 			if got != "Wednesday Jun 6 2018" {
 				b.Fatalf("invalid format, got %q", got)
@@ -123,7 +123,7 @@ func BenchmarkTimeFormatter(b *testing.B) {
 	b.Run("Localized", func(b *testing.B) {
 		f := NewTimeFormatter(translators.GetTranslator("nn"))
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := f.Format(june06, "Monday Jan 2 2006")
 			if got != "onsdag juni 6 2018" {
 				b.Fatalf("invalid format, got %q", got)
@@ -134,7 +134,7 @@ func BenchmarkTimeFormatter(b *testing.B) {
 	b.Run("Localized Custom", func(b *testing.B) {
 		f := NewTimeFormatter(translators.GetTranslator("nn"))
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			got := f.Format(june06, ":date_medium")
 			if got != "6. juni 2018" {
 				b.Fatalf("invalid format, got %q", got)

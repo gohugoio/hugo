@@ -44,16 +44,16 @@ func newModCommands() *modCommands {
 
 	npmCommand := &simpleCommand{
 		name:  "npm",
-		short: "Various npm helpers.",
+		short: "Various npm helpers",
 		long:  `Various npm (Node package manager) helpers.`,
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "pack",
-				short: "Experimental: Prepares and writes a composite package.json file for your project.",
+				short: "Experimental: Prepares and writes a composite package.json file for your project",
 				long: `Prepares and writes a composite package.json file for your project.
 
 On first run it creates a "package.hugo.json" in the project root if not already there. This file will be used as a template file
-with the base dependency set. 
+with the base dependency set.
 
 This set will be merged with all "package.hugo.json" files found in the dependency tree, picking the version closest to the project.
 
@@ -80,12 +80,12 @@ so this may/will change in future versions of Hugo.
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "init",
-				short: "Initialize this project as a Hugo Module.",
+				short: "Initialize this project as a Hugo Module",
 				long: `Initialize this project as a Hugo Module.
 	It will try to guess the module path, but you may help by passing it as an argument, e.g:
-	
+
 		hugo mod init github.com/gohugoio/testshortcodes
-	
+
 	Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
 	inside a subfolder on GitHub, as one example.
 	`,
@@ -94,7 +94,7 @@ so this may/will change in future versions of Hugo.
 					applyLocalFlagsBuildConfig(cmd, r)
 				},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					h, err := r.Hugo(flagsToCfg(cd, nil))
+					h, err := r.getOrCreateHugo(flagsToCfg(cd, nil), true)
 					if err != nil {
 						return err
 					}
@@ -102,12 +102,16 @@ so this may/will change in future versions of Hugo.
 					if len(args) >= 1 {
 						initPath = args[0]
 					}
-					return h.Configs.ModulesClient.Init(initPath)
+					c := h.Configs.ModulesClient
+					if err := c.Init(initPath); err != nil {
+						return err
+					}
+					return nil
 				},
 			},
 			&simpleCommand{
 				name:  "verify",
-				short: "Verify dependencies.",
+				short: "Verify dependencies",
 				long:  `Verify checks that the dependencies of the current module, which are stored in a local downloaded source cache, have not been modified since being downloaded.`,
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
@@ -115,7 +119,7 @@ so this may/will change in future versions of Hugo.
 					cmd.Flags().BoolVarP(&clean, "clean", "", false, "delete module cache for dependencies that fail verification")
 				},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+					conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, nil))
 					if err != nil {
 						return err
 					}
@@ -125,7 +129,7 @@ so this may/will change in future versions of Hugo.
 			},
 			&simpleCommand{
 				name:  "graph",
-				short: "Print a module dependency graph.",
+				short: "Print a module dependency graph",
 				long: `Print a module dependency graph with information about module status (disabled, vendored).
 Note that for vendored modules, that is the version listed and not the one from go.mod.
 `,
@@ -135,7 +139,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 					cmd.Flags().BoolVarP(&clean, "clean", "", false, "delete module cache for dependencies that fail verification")
 				},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+					conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, nil))
 					if err != nil {
 						return err
 					}
@@ -145,7 +149,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 			},
 			&simpleCommand{
 				name:  "clean",
-				short: "Delete the Hugo Module cache for the current project.",
+				short: "Delete the Hugo Module cache for the current project",
 				long:  `Delete the Hugo Module cache for the current project.`,
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
@@ -171,7 +175,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 			},
 			&simpleCommand{
 				name:  "tidy",
-				short: "Remove unused entries in go.mod and go.sum.",
+				short: "Remove unused entries in go.mod and go.sum",
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
 					applyLocalFlagsBuildConfig(cmd, r)
@@ -186,7 +190,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 			},
 			&simpleCommand{
 				name:  "vendor",
-				short: "Vendor all module dependencies into the _vendor directory.",
+				short: "Vendor all module dependencies into the _vendor directory",
 				long: `Vendor all module dependencies into the _vendor directory.
 	If a module is vendored, that is where Hugo will look for it's dependencies.
 	`,
@@ -205,16 +209,16 @@ Note that for vendored modules, that is the version listed and not the one from 
 
 			&simpleCommand{
 				name:  "get",
-				short: "Resolves dependencies in your current Hugo Project.",
+				short: "Resolves dependencies in your current Hugo project",
 				long: `
-Resolves dependencies in your current Hugo Project.
+Resolves dependencies in your current Hugo project.
 
 Some examples:
 
 Install the latest version possible for a given module:
 
     hugo mod get github.com/gohugoio/testshortcodes
-    
+
 Install a specific version:
 
     hugo mod get github.com/gohugoio/testshortcodes@v0.3.0
@@ -268,13 +272,14 @@ Run "go help get" for more information. All flags available for "go get" is also
 							if info.Name() == "go.mod" {
 								// Found a module.
 								dir := filepath.Dir(path)
-								r.Println("Update module in", dir)
+
 								cfg := config.New()
 								cfg.Set("workingDir", dir)
-								conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, cfg))
+								conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Add(1)}, flagsToCfg(cd, cfg))
 								if err != nil {
 									return err
 								}
+								r.Println("Update module in", conf.configs.Base.WorkingDir)
 								client := conf.configs.ModulesClient
 								return client.Get(args...)
 
@@ -283,7 +288,7 @@ Run "go help get" for more information. All flags available for "go get" is also
 						})
 						return nil
 					} else {
-						conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+						conf, err := r.ConfigFromProvider(configKey{counter: r.configVersionID.Load()}, flagsToCfg(cd, nil))
 						if err != nil {
 							return err
 						}
@@ -312,7 +317,7 @@ func (c *modCommands) Name() string {
 }
 
 func (c *modCommands) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-	_, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), nil)
+	_, err := c.r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, nil)
 	if err != nil {
 		return err
 	}
@@ -323,7 +328,7 @@ func (c *modCommands) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 
 func (c *modCommands) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "Various Hugo Modules helpers."
+	cmd.Short = "Manage modules"
 	cmd.Long = `Various helpers to help manage the modules in your project's dependency graph.
 Most operations here requires a Go version installed on your system (>= Go 1.12) and the relevant VCS client (typically Git).
 This is not needed if you only operate on modules inside /themes or if you have vendored them via "hugo mod vendor".

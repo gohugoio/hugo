@@ -94,7 +94,11 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 			resolvedm = rr.MediaType()
 		}
 
-		idm := c.rs.Cfg.NewIdentityManager("concat")
+		idm := c.rs.Cfg.NewIdentityManager()
+
+		// Re-create on structural changes.
+		idm.AddIdentity(identity.StructuralChangeAdd, identity.StructuralChangeRemove)
+
 		// Add the concatenated resources as dependencies to the composite resource
 		// so that we can track changes to the individual resources.
 		idm.AddIdentityForEach(identity.ForEeachIdentityProviderFunc(
@@ -137,7 +141,7 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 			if resolvedm.MainType == media.Builtin.JavascriptType.MainType && resolvedm.SubType == media.Builtin.JavascriptType.SubType {
 				readers := make([]hugio.ReadSeekCloser, 2*len(rcsources)-1)
 				j := 0
-				for i := 0; i < len(rcsources); i++ {
+				for i := range rcsources {
 					if i > 0 {
 						readers[j] = hugio.NewReadSeekerNoOpCloserFromString("\n;\n")
 						j++

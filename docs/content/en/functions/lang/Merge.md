@@ -3,11 +3,11 @@ title: lang.Merge
 description: Merge missing translations from other languages.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related: []
-  returnType: any
-  signatures: [lang.Merge FROM TO]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: any
+    signatures: [lang.Merge FROM TO]
 aliases: [/functions/lang.merge]
 ---
 
@@ -24,6 +24,6 @@ A more practical example is to fill in the missing translations from the other l
 ```sh
 {{ $pages := .Site.RegularPages }}
 {{ range .Site.Home.Translations }}
-{{ $pages = $pages | lang.Merge .Site.RegularPages }}
+  {{ $pages = $pages | lang.Merge .Site.RegularPages }}
 {{ end }}
  ```

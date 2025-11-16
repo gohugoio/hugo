@@ -14,8 +14,11 @@
 package dynacache
 
 import (
+	"errors"
+	"fmt"
 	"path/filepath"
 	"testing"
+	"time"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -144,13 +147,13 @@ func TestClear(t *testing.T) {
 
 	c.Assert(cache.Keys(predicateAll), qt.HasLen, 4)
 
-	cache.ClearOnRebuild()
+	cache.ClearOnRebuild(nil)
 
 	// Stale items are always cleared.
 	c.Assert(cache.Keys(predicateAll), qt.HasLen, 2)
 
 	cache = newTestCache(t)
-	cache.ClearOnRebuild(identity.StringIdentity("changed"))
+	cache.ClearOnRebuild(nil, identity.StringIdentity("changed"))
 
 	c.Assert(cache.Keys(nil), qt.HasLen, 1)
 
@@ -163,6 +166,58 @@ func TestClear(t *testing.T) {
 	c.Assert(cache.Keys(predicateAll), qt.HasLen, 3)
 
 	cache.adjustCurrentMaxSize()
+}
+
+func TestPanicInCreate(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	cache := newTestCache(t)
+
+	p1 := GetOrCreatePartition[string, testItem](cache, "/aaaa/bbbb", OptionsPartition{Weight: 30, ClearWhen: ClearOnRebuild})
+
+	willPanic := func(i int) func() {
+		return func() {
+			p1.GetOrCreate(fmt.Sprintf("panic-%d", i), func(key string) (testItem, error) {
+				panic(errors.New(key))
+			})
+		}
+	}
+
+	// GetOrCreateWitTimeout needs to recover from panics in the create func.
+	willErr := func(i int) error {
+		_, err := p1.GetOrCreateWitTimeout(fmt.Sprintf("error-%d", i), 10*time.Second, func(key string) (testItem, error) {
+			return testItem{}, errors.New(key)
+		})
+		return err
+	}
+
+	for i := range 3 {
+		for range 3 {
+			c.Assert(willPanic(i), qt.PanicMatches, fmt.Sprintf("panic-%d", i))
+			c.Assert(willErr(i), qt.ErrorMatches, fmt.Sprintf("error-%d", i))
+		}
+	}
+
+	// Test the same keys again without the panic.
+	for i := range 3 {
+		for range 3 {
+			v, err := p1.GetOrCreate(fmt.Sprintf("panic-%d", i), func(key string) (testItem, error) {
+				return testItem{
+					name: key,
+				}, nil
+			})
+			c.Assert(err, qt.IsNil)
+			c.Assert(v.name, qt.Equals, fmt.Sprintf("panic-%d", i))
+
+			v, err = p1.GetOrCreateWitTimeout(fmt.Sprintf("error-%d", i), 10*time.Second, func(key string) (testItem, error) {
+				return testItem{
+					name: key,
+				}, nil
+			})
+			c.Assert(err, qt.IsNil)
+			c.Assert(v.name, qt.Equals, fmt.Sprintf("error-%d", i))
+		}
+	}
 }
 
 func TestAdjustCurrentMaxSize(t *testing.T) {

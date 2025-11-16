@@ -1,20 +1,13 @@
 ---
 title: Diagrams
-description: Use fenced code blocks and markdown render hooks to display diagrams.
-categories: [content management]
-keywords: [diagrams,drawing]
-menu:
-  docs:
-    parent: content-management
-    weight: 50
-weight: 50
-toc: true
+description: Use fenced code blocks and Markdown render hooks to include diagrams in your content.
+categories: []
+keywords: []
 ---
-{{< new-in 0.93.0 >}}
 
 ## GoAT diagrams (ASCII)
 
-Hugo supports [GoAT](https://github.com/bep/goat) natively. This means that this code block:
+Hugo natively supports [GoAT] diagrams with an [embedded code block render hook]. This means that this code block:
 
 ````txt
 ```goat
@@ -44,19 +37,19 @@ Will be rendered as:
 
 ## Mermaid diagrams
 
-Hugo currently does not provide default templates for Mermaid diagrams. But you can easily add your own. One way to do it would be to create `layouts/_default/_markup/render-codeblock-mermaid.html`:
+Hugo does not provide a built-in template for Mermaid diagrams. Create your own using a [code block render hook]:
 
-```go-html-template
+```go-html-template {file="layouts/_markup/render-codeblock-mermaid.html" copy=true}
 <pre class="mermaid">
-  {{- .Inner | safeHTML }}
+  {{ .Inner | htmlEscape | safeHTML }}
 </pre>
 {{ .Page.Store.Set "hasMermaid" true }}
 ```
 
-And then include this snippet at the bottom of the content template (**Note**: below `.Content` as the render hook is not processed until `.Content` is executed):
+Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
 
-```go-html-template
-{{ if .Page.Store.Get "hasMermaid" }}
+```go-html-template {file="layouts/baseof.html" copy=true}
+{{ if .Store.Get "hasMermaid" }}
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true });
@@ -66,7 +59,7 @@ And then include this snippet at the bottom of the content template (**Note**: b
 
 With that you can use the `mermaid` language in Markdown code blocks:
 
-````text
+````text {copy=true}
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -154,7 +147,7 @@ sequenceDiagram
 
 Created from <https://arthursonzogni.com/Diagon/#Tree>
 
-```goat  { width=300  color="orange" }
+```goat  {width=300 color="orange"}
 ───Linux─┬─Android
          ├─Debian─┬─Ubuntu─┬─Lubuntu
          │        │        ├─Kubuntu
@@ -169,7 +162,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 
 <https://arthursonzogni.com/Diagon/#Sequence>
 
-```goat { class="w-40" }
+```goat {class="w-40"}
 ┌─────┐       ┌───┐
 │Alice│       │Bob│
 └──┬──┘       └─┬─┘
@@ -234,7 +227,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 
 <https://arthursonzogni.com/Diagon/#Table>
 
-```goat { class="w-80 dark-blue" }
+```goat {class="w-80 dark-blue"}
 ┌────────────────────────────────────────────────┐
 │                                                │
 ├────────────────────────────────────────────────┤
@@ -261,3 +254,7 @@ Created from <https://arthursonzogni.com/Diagon/#Tree>
 │LITERAL    = """" character { character } """" .│
 └────────────────────────────────────────────────┘
 ```
+
+[code block render hook]: /render-hooks/code-blocks/
+[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+[GoAT]: https://github.com/bep/goat

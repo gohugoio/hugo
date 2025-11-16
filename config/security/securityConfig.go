@@ -37,12 +37,14 @@ var DefaultConfig = Config{
 		Allow: MustNewWhitelist(
 			"^(dart-)?sass(-embedded)?$", // sass, dart-sass, dart-sass-embedded.
 			"^go$",                       // for Go Modules
+			"^git$",                      // For Git info
 			"^npx$",                      // used by all Node tools (Babel, PostCSS).
 			"^postcss$",
+			"^tailwindcss$",
 		),
 		// These have been tested to work with Hugo's external programs
 		// on Windows, Linux and MacOS.
-		OsEnv: MustNewWhitelist(`(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$`),
+		OsEnv: MustNewWhitelist(`(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$`),
 	},
 	Funcs: Funcs{
 		Getenv: MustNewWhitelist("^HUGO_", "^CI$"),

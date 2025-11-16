@@ -23,8 +23,6 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config/testconfig"
 
-	"github.com/gohugoio/hugo/tpl/tplimpl"
-
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/afero"
 
@@ -472,7 +470,6 @@ func prepareTranslationProvider(t testing.TB, test i18nTest, cfg config.Provider
 func prepareDeps(afs afero.Fs, cfg config.Provider) (*deps.Deps, *TranslationProvider) {
 	d := testconfig.GetTestDeps(afs, cfg)
 	translationProvider := NewTranslationProvider()
-	d.TemplateProvider = tplimpl.DefaultTemplateProvider
 	d.TranslationProvider = translationProvider
 	d.Site = page.NewDummyHugoSite(d.Conf)
 	if err := d.Compile(nil); err != nil {
@@ -510,7 +507,7 @@ func BenchmarkI18nTranslate(b *testing.B) {
 		b.Run(test.name, func(b *testing.B) {
 			tp := prepareTranslationProvider(b, test, v)
 			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				f := tp.t.Func(test.lang)
 				actual := f(context.Background(), test.id, test.args)
 				if actual != test.expected {

@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/yuin/goldmark/ast"
+	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/util"
 
@@ -43,11 +44,11 @@ func sanitizeAnchorName(b []byte, idType string) []byte {
 func sanitizeAnchorNameWithHook(b []byte, idType string, hook func(buf *bytes.Buffer)) []byte {
 	buf := bp.GetBuffer()
 
-	if idType == goldmark_config.AutoHeadingIDTypeBlackfriday {
+	if idType == goldmark_config.AutoIDTypeBlackfriday {
 		// TODO(bep) make it more efficient.
 		buf.WriteString(blackfriday.SanitizedAnchorName(string(b)))
 	} else {
-		asciiOnly := idType == goldmark_config.AutoHeadingIDTypeGitHubAscii
+		asciiOnly := idType == goldmark_config.AutoIDTypeGitHubAscii
 
 		if asciiOnly {
 			// Normalize it to preserve accents if possible.
@@ -90,8 +91,9 @@ func isAlphaNumeric(r rune) bool {
 var _ parser.IDs = (*idFactory)(nil)
 
 type idFactory struct {
-	idType string
-	vals   map[string]struct{}
+	idType     string
+	vals       map[string]struct{}
+	duplicates []string
 }
 
 func newIDFactory(idType string) *idFactory {
@@ -101,11 +103,28 @@ func newIDFactory(idType string) *idFactory {
 	}
 }
 
+type stringValuesProvider interface {
+	StringValues() []string
+}
+
+var _ stringValuesProvider = (*idFactory)(nil)
+
+func (ids *idFactory) StringValues() []string {
+	values := make([]string, 0, len(ids.vals))
+	for k := range ids.vals {
+		values = append(values, k)
+	}
+	values = append(values, ids.duplicates...)
+	return values
+}
+
 func (ids *idFactory) Generate(value []byte, kind ast.NodeKind) []byte {
 	return sanitizeAnchorNameWithHook(value, ids.idType, func(buf *bytes.Buffer) {
 		if buf.Len() == 0 {
 			if kind == ast.KindHeading {
 				buf.WriteString("heading")
+			} else if kind == east.KindDefinitionTerm {
+				buf.WriteString("term")
 			} else {
 				buf.WriteString("id")
 			}
@@ -123,11 +142,18 @@ func (ids *idFactory) Generate(value []byte, kind ast.NodeKind) []byte {
 				buf.Truncate(pos)
 			}
 		}
-
-		ids.vals[buf.String()] = struct{}{}
+		ids.put(buf.String())
 	})
 }
 
+func (ids *idFactory) put(s string) {
+	if _, found := ids.vals[s]; found {
+		ids.duplicates = append(ids.duplicates, s)
+	} else {
+		ids.vals[s] = struct{}{}
+	}
+}
+
 func (ids *idFactory) Put(value []byte) {
-	ids.vals[util.BytesToReadOnlyString(value)] = struct{}{}
+	ids.put(string(value))
 }

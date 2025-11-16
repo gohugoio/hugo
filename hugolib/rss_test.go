@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,49 +14,8 @@
 package hugolib
 
 import (
-	"path/filepath"
-	"strings"
 	"testing"
-
-	"github.com/gohugoio/hugo/deps"
 )
-
-func TestRSSOutput(t *testing.T) {
-	t.Parallel()
-
-	rssLimit := len(weightedSources) - 1
-
-	cfg, fs := newTestCfg()
-	cfg.Set("baseURL", "http://auth/bub/")
-	cfg.Set("title", "RSSTest")
-	cfg.Set("rssLimit", rssLimit)
-	th, configs := newTestHelperFromProvider(cfg, fs, t)
-
-	rssURI := "index.xml"
-
-	for _, src := range weightedSources {
-		writeSource(t, fs, filepath.Join("content", "sect", src[0]), src[1])
-	}
-
-	buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{})
-
-	// Home RSS
-	th.assertFileContent(filepath.Join("public", rssURI), "<?xml", "rss version", "RSSTest")
-	// Section RSS
-	th.assertFileContent(filepath.Join("public", "sect", rssURI), "<?xml", "rss version", "Sects on RSSTest")
-	// Taxonomy RSS
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "Hugo on RSSTest")
-
-	// RSS Item Limit
-	content := readWorkingDir(t, fs, filepath.Join("public", rssURI))
-	c := strings.Count(content, "<item>")
-	if c != rssLimit {
-		t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)
-	}
-
-	// Encoded summary
-	th.assertFileContent(filepath.Join("public", rssURI), "<?xml", "description", "A &lt;em&gt;custom&lt;/em&gt; summary")
-}
 
 // Before Hugo 0.49 we set the pseudo page kind RSS on the page when output to RSS.
 // This had some unintended side effects, esp. when the only output format for that page
@@ -68,10 +27,13 @@ func TestRSSOutput(t *testing.T) {
 func TestRSSKind(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("index.rss.xml", `RSS Kind: {{ .Kind }}`)
-
-	b.Build(BuildCfg{})
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.rss.xml --
+RSS Kind: {{ .Kind }}
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.xml", "RSS Kind: home")
 }
@@ -79,20 +41,69 @@ func TestRSSKind(t *testing.T) {
 func TestRSSCanonifyURLs(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded("index.rss.xml", `<rss>{{ range .Pages }}<item>{{ .Content | html }}</item>{{ end }}</rss>`)
-	b.WithContent("page.md", `---
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.rss.xml --
+<rss>{{ range .Pages }}<item>{{ .Content | html }}</item>{{ end }}</rss>
+-- content/page.md --
+---
 Title: My Page
 ---
 
 Figure:
 
 {{< figure src="/images/sunset.jpg" title="Sunset" >}}
-
-
-
-`)
-	b.Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.xml", "img src=&#34;http://example.com/images/sunset.jpg")
+}
+
+// Issue 13332.
+func TestRSSCanonifyURLsSubDir(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/subdir'
+disableKinds = ['section','sitemap','taxonomy','term']
+[markup.goldmark.renderHooks.image]
+enableDefault = true
+[markup.goldmark.renderHooks.link]
+enableDefault = true
+-- layouts/_default/_markup/render-image.html --
+{{- $u := urls.Parse .Destination -}}
+{{- $src := $u.String | relURL -}}
+<img srcset="{{ $src }}" src="{{ $src }} 2x">
+<img src="{{ $src }}">
+{{- /**/ -}}
+-- layouts/_default/home.html --
+{{ .Content }}|
+-- layouts/_default/single.html --
+{{ .Content }}|
+-- layouts/_default/rss.xml --
+{{ with site.GetPage "/s1/p2" }}
+  {{ .Content | transform.XMLEscape | safeHTML }}
+{{ end }}
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- content/s1/p2/index.md --
+---
+title: p2
+---
+![alt](a.jpg)
+
+[p1](/s1/p1)
+-- content/s1/p2/a.jpg --
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.xml", "https://example.org/subdir/s1/p1/")
+	b.AssertFileContent("public/index.xml",
+		"img src=&#34;https://example.org/subdir/a.jpg",
+		"img srcset=&#34;https://example.org/subdir/a.jpg&#34; src=&#34;https://example.org/subdir/a.jpg 2x")
 }

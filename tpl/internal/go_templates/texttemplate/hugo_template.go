@@ -15,9 +15,12 @@ package template
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"iter"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hreflect"
 
 	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
@@ -255,18 +258,61 @@ func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, 
 	panic("not reached")
 }
 
+// newErrorWithCause creates a new error with the given cause.
+func newErrorWithCause(err error) *TryError {
+	return &TryError{Err: err, Cause: herrors.Cause(err)}
+}
+
+// TryError wraps an error with a cause.
+type TryError struct {
+	Err   error
+	Cause error
+}
+
+func (e *TryError) Error() string {
+	return e.Err.Error()
+}
+
+func (e *TryError) Unwrap() error {
+	return e.Err
+}
+
+// TryValue is what gets returned when using the "try" keyword.
+type TryValue struct {
+	// Value is the value returned by the function or method wrapped with "try".
+	// This will always be nil if Err is set.
+	Value any
+
+	// Err is the error returned by the function or method wrapped with "try".
+	// This will always be nil if Value is set.
+	Err *TryError
+}
+
 // evalCall executes a function or method call. If it's a method, fun already has the receiver bound, so
 // it looks just like a function call. The arg list, if non-nil, includes (in the manner of the shell), arg[0]
 // as the function itself.
-func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node, name string, args []parse.Node, final reflect.Value, first ...reflect.Value) reflect.Value {
+func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node, name string, args []parse.Node, final reflect.Value, first ...reflect.Value) (val reflect.Value) {
+	// Added for Hugo.
+	if name == "try" {
+		defer func() {
+			if r := recover(); r != nil {
+				// Cause: herrors.Cause(err)
+				if err, ok := r.(error); ok {
+					val = reflect.ValueOf(TryValue{Value: nil, Err: newErrorWithCause(err)})
+				} else {
+					val = reflect.ValueOf(TryValue{Value: nil, Err: newErrorWithCause(fmt.Errorf("%v", r))})
+				}
+			}
+		}()
+	}
+
 	if args != nil {
 		args = args[1:] // Zeroth arg is function name/node; not passed to function.
 	}
-
 	typ := fun.Type()
-	numFirst := len(first)
+	numFirst := len(first)        // Added for Hugo
 	numIn := len(args) + numFirst // Added for Hugo
-	if final != missingVal {
+	if !isMissing(final) {
 		numIn++
 	}
 	numFixed := len(args) + len(first) // Adjusted for Hugo
@@ -278,9 +324,8 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	} else if numIn != typ.NumIn() {
 		s.errorf("wrong number of args for %s: want %d got %d", name, typ.NumIn(), numIn)
 	}
-	if !goodFunc(typ) {
-		// TODO: This could still be a confusing error; maybe goodFunc should provide info.
-		s.errorf("can't call method/function %q with %d results", name, typ.NumOut())
+	if err := goodFunc(name, typ); err != nil {
+		s.errorf("%v", err)
 	}
 
 	unwrap := func(v reflect.Value) reflect.Value {
@@ -302,7 +347,7 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 				return v
 			}
 		}
-		if final != missingVal {
+		if !final.Equal(missingVal) {
 			// The last argument to and/or is coming from
 			// the pipeline. We didn't short circuit on an earlier
 			// argument, so we are going to return this one.
@@ -329,7 +374,7 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 		}
 	}
 	// Add final value if necessary.
-	if final != missingVal {
+	if !isMissing(final) {
 		t := typ.In(typ.NumIn() - 1)
 		if typ.IsVariadic() {
 			if numIn-1 < numFixed {
@@ -345,8 +390,22 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 		argv[i] = s.validateType(final, t)
 	}
 
+	// Special case for the "call" builtin.
+	// Insert the name of the callee function as the first argument.
+	if isBuiltin && name == "call" {
+		var calleeName string
+		if len(args) == 0 {
+			// final must be present or we would have errored out above.
+			calleeName = final.String()
+		} else {
+			calleeName = args[0].String()
+		}
+		argv = append([]reflect.Value{reflect.ValueOf(calleeName)}, argv...)
+		fun = reflect.ValueOf(call)
+	}
+
 	// Added for Hugo
-	for i := 0; i < len(first); i++ {
+	for i := range first {
 		argv[i] = s.validateType(first[i], typ.In(i))
 	}
 
@@ -364,9 +423,78 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 		s.helper.OnCalled(s.ctx, s.prep, name, argv, vv)
 	}
 
+	// Added for Hugo.
+	if name == "try" {
+		return reflect.ValueOf(TryValue{Value: vv.Interface()})
+	}
+
 	return vv
+}
+
+// validateType guarantees that the value is valid and assignable to the type.
+func (s *state) validateType(value reflect.Value, typ reflect.Type) reflect.Value {
+	if !value.IsValid() {
+		if typ == nil {
+			// An untyped nil interface{}. Accept as a proper nil value.
+			return reflect.ValueOf(nil)
+		}
+		if canBeNil(typ) {
+			// Like above, but use the zero value of the non-nil type.
+			return reflect.Zero(typ)
+		}
+		s.errorf("invalid value; expected %s", typ)
+	}
+	if typ == reflectValueType && value.Type() != typ {
+		return reflect.ValueOf(value)
+	}
+	if typ != nil && !value.Type().AssignableTo(typ) {
+		if value.Kind() == reflect.Interface && !value.IsNil() {
+			value = value.Elem()
+			if value.Type().AssignableTo(typ) {
+				return value
+			}
+			// fallthrough
+		}
+		// Does one dereference or indirection work? We could do more, as we
+		// do with method receivers, but that gets messy and method receivers
+		// are much more constrained, so it makes more sense there than here.
+		// Besides, one is almost always all you need.
+		switch {
+		case value.Kind() == reflect.Pointer && value.Type().Elem().AssignableTo(typ):
+			value = value.Elem()
+			if !value.IsValid() {
+				s.errorf("dereference of nil pointer of type %s", typ)
+			}
+		case reflect.PointerTo(value.Type()).AssignableTo(typ) && value.CanAddr():
+			value = value.Addr()
+		default:
+			// Added for Hugo.
+			if v, ok := hreflect.ConvertIfPossible(value, typ); ok {
+				value = v
+			} else {
+				s.errorf("wrong type for value; expected %s; got %s", typ, value.Type())
+			}
+
+		}
+	}
+	return value
 }
 
 func isTrue(val reflect.Value) (truth, ok bool) {
 	return hreflect.IsTruthfulValue(val), true
+}
+
+func (t *Template) All() iter.Seq[*Template] {
+	return func(yield func(t *Template) bool) {
+		if t.common == nil {
+			return
+		}
+		t.muTmpl.RLock()
+		defer t.muTmpl.RUnlock()
+		for _, v := range t.tmpl {
+			if !yield(v) {
+				return
+			}
+		}
+	}
 }

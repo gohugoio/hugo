@@ -3,17 +3,15 @@ title: fmt.Printf
 description: Formats a string using the standard `fmt.Sprintf` function.
 categories: []
 keywords: []
-action:
-  aliases: [printf]
-  related:
-    - functions/fmt/Print
-    - functions/fmt/Println
-  returnType: string
-  signatures: ['fmt.Printf FORMAT [INPUT]']
+params:
+  functions_and_methods:
+    aliases: [printf]
+    returnType: string
+    signatures: ['fmt.Printf FORMAT [INPUT]']
 aliases: [/functions/printf]
 ---
 
-{{% include "functions/fmt/_common/fmt-layout.md" %}}
+{{% include "/_common/functions/fmt/format-string.md" %}}
 
 ```go-html-template
 {{ $var := "world" }}

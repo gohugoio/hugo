@@ -244,6 +244,6 @@ func TestPlainify(t *testing.T) {
 		}
 
 		b.Assert(err, qt.IsNil)
-		b.Assert(result, qt.Equals, test.expect)
+		b.Assert(result, qt.Equals, template.HTML(test.expect.(string)))
 	}
 }

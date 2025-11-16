@@ -87,7 +87,7 @@ func (p pageRef) ref(argsm map[string]any, source any) (string, error) {
 		return "", nil
 	}
 
-	return s.refLink(args.Path, source, false, args.OutputFormat)
+	return s.siteRefLinker.refLink(args.Path, source, false, args.OutputFormat)
 }
 
 func (p pageRef) relRef(argsm map[string]any, source any) (string, error) {
@@ -104,7 +104,7 @@ func (p pageRef) relRef(argsm map[string]any, source any) (string, error) {
 		return "", nil
 	}
 
-	return s.refLink(args.Path, source, true, args.OutputFormat)
+	return s.siteRefLinker.refLink(args.Path, source, true, args.OutputFormat)
 }
 
 type refArgs struct {

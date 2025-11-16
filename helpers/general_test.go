@@ -14,15 +14,11 @@
 package helpers_test
 
 import (
-	"fmt"
-	"reflect"
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/helpers"
-
 	qt "github.com/frankban/quicktest"
-	"github.com/spf13/afero"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 func TestResolveMarkup(t *testing.T) {
@@ -218,8 +214,8 @@ func TestGetTitleFunc(t *testing.T) {
 }
 
 func BenchmarkReaderContains(b *testing.B) {
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+
+	for b.Loop() {
 		for i, this := range containsBenchTestData {
 			result := helpers.ReaderContains(strings.NewReader(this.v1), this.v2)
 			if result != this.expect {
@@ -229,167 +225,25 @@ func BenchmarkReaderContains(b *testing.B) {
 	}
 }
 
-func TestUniqueStrings(t *testing.T) {
-	in := []string{"a", "b", "a", "b", "c", "", "a", "", "d"}
-	output := helpers.UniqueStrings(in)
-	expected := []string{"a", "b", "c", "", "d"}
-	if !reflect.DeepEqual(output, expected) {
-		t.Errorf("Expected %#v, got %#v\n", expected, output)
-	}
-}
-
-func TestUniqueStringsReuse(t *testing.T) {
-	in := []string{"a", "b", "a", "b", "c", "", "a", "", "d"}
-	output := helpers.UniqueStringsReuse(in)
-	expected := []string{"a", "b", "c", "", "d"}
-	if !reflect.DeepEqual(output, expected) {
-		t.Errorf("Expected %#v, got %#v\n", expected, output)
-	}
-}
-
-func TestUniqueStringsSorted(t *testing.T) {
-	c := qt.New(t)
-	in := []string{"a", "a", "b", "c", "b", "", "a", "", "d"}
-	output := helpers.UniqueStringsSorted(in)
-	expected := []string{"", "a", "b", "c", "d"}
-	c.Assert(output, qt.DeepEquals, expected)
-	c.Assert(helpers.UniqueStringsSorted(nil), qt.IsNil)
-}
-
-func TestFastMD5FromFile(t *testing.T) {
-	fs := afero.NewMemMapFs()
-
-	if err := afero.WriteFile(fs, "small.txt", []byte("abc"), 0o777); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := afero.WriteFile(fs, "small2.txt", []byte("abd"), 0o777); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := afero.WriteFile(fs, "bigger.txt", []byte(strings.Repeat("a bc d e", 100)), 0o777); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := afero.WriteFile(fs, "bigger2.txt", []byte(strings.Repeat("c d e f g", 100)), 0o777); err != nil {
-		t.Fatal(err)
-	}
-
-	c := qt.New(t)
-
-	sf1, err := fs.Open("small.txt")
-	c.Assert(err, qt.IsNil)
-	sf2, err := fs.Open("small2.txt")
-	c.Assert(err, qt.IsNil)
-
-	bf1, err := fs.Open("bigger.txt")
-	c.Assert(err, qt.IsNil)
-	bf2, err := fs.Open("bigger2.txt")
-	c.Assert(err, qt.IsNil)
-
-	defer sf1.Close()
-	defer sf2.Close()
-	defer bf1.Close()
-	defer bf2.Close()
-
-	m1, _, err := helpers.MD5FromReaderFast(sf1)
-	c.Assert(err, qt.IsNil)
-	c.Assert(m1, qt.Equals, "e9c8989b64b71a88b4efb66ad05eea96")
-
-	m2, _, err := helpers.MD5FromReaderFast(sf2)
-	c.Assert(err, qt.IsNil)
-	c.Assert(m2, qt.Not(qt.Equals), m1)
-
-	m3, _, err := helpers.MD5FromReaderFast(bf1)
-	c.Assert(err, qt.IsNil)
-	c.Assert(m3, qt.Not(qt.Equals), m2)
-
-	m4, _, err := helpers.MD5FromReaderFast(bf2)
-	c.Assert(err, qt.IsNil)
-	c.Assert(m4, qt.Not(qt.Equals), m3)
-
-	m5, err := helpers.MD5FromReader(bf2)
-	c.Assert(err, qt.IsNil)
-	c.Assert(m5, qt.Not(qt.Equals), m4)
-}
-
-func BenchmarkMD5FromFileFast(b *testing.B) {
-	fs := afero.NewMemMapFs()
-
-	for _, full := range []bool{false, true} {
-		b.Run(fmt.Sprintf("full=%t", full), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				b.StopTimer()
-				if err := afero.WriteFile(fs, "file.txt", []byte(strings.Repeat("1234567890", 2000)), 0o777); err != nil {
-					b.Fatal(err)
-				}
-				f, err := fs.Open("file.txt")
-				if err != nil {
-					b.Fatal(err)
-				}
-				b.StartTimer()
-				if full {
-					if _, err := helpers.MD5FromReader(f); err != nil {
-						b.Fatal(err)
-					}
-				} else {
-					if _, _, err := helpers.MD5FromReaderFast(f); err != nil {
-						b.Fatal(err)
-					}
-				}
-				f.Close()
-			}
-		})
-	}
-}
-
-func BenchmarkUniqueStrings(b *testing.B) {
-	input := []string{"a", "b", "d", "e", "d", "h", "a", "i"}
-
-	b.Run("Safe", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			result := helpers.UniqueStrings(input)
-			if len(result) != 6 {
-				b.Fatalf("invalid count: %d", len(result))
-			}
+func TestStringSliceToList(t *testing.T) {
+	for _, tt := range []struct {
+		slice       []string
+		conjunction string
+		want        string
+	}{
+		{[]string{}, "", ""},
+		{[]string{"foo"}, "", "foo"},
+		{[]string{"foo"}, "and", "foo"},
+		{[]string{"foo", "bar"}, "", "foo and bar"},
+		{[]string{"foo", "bar"}, "and", "foo and bar"},
+		{[]string{"foo", "bar"}, "or", "foo or bar"},
+		{[]string{"foo", "bar", "baz"}, "", "foo, bar, and baz"},
+		{[]string{"foo", "bar", "baz"}, "and", "foo, bar, and baz"},
+		{[]string{"foo", "bar", "baz"}, "or", "foo, bar, or baz"},
+	} {
+		got := helpers.StringSliceToList(tt.slice, tt.conjunction)
+		if got != tt.want {
+			t.Errorf("StringSliceToList() got: %q, want: %q", got, tt.want)
 		}
-	})
-
-	b.Run("Reuse slice", func(b *testing.B) {
-		b.StopTimer()
-		inputs := make([][]string, b.N)
-		for i := 0; i < b.N; i++ {
-			inputc := make([]string, len(input))
-			copy(inputc, input)
-			inputs[i] = inputc
-		}
-		b.StartTimer()
-		for i := 0; i < b.N; i++ {
-			inputc := inputs[i]
-
-			result := helpers.UniqueStringsReuse(inputc)
-			if len(result) != 6 {
-				b.Fatalf("invalid count: %d", len(result))
-			}
-		}
-	})
-
-	b.Run("Reuse slice sorted", func(b *testing.B) {
-		b.StopTimer()
-		inputs := make([][]string, b.N)
-		for i := 0; i < b.N; i++ {
-			inputc := make([]string, len(input))
-			copy(inputc, input)
-			inputs[i] = inputc
-		}
-		b.StartTimer()
-		for i := 0; i < b.N; i++ {
-			inputc := inputs[i]
-
-			result := helpers.UniqueStringsSorted(inputc)
-			if len(result) != 6 {
-				b.Fatalf("invalid count: %d", len(result))
-			}
-		}
-	})
+	}
 }

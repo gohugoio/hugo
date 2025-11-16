@@ -5,11 +5,11 @@ url: /commands/hugo_config/
 ---
 ## hugo config
 
-Print the site configuration
+Display site configuration
 
 ### Synopsis
 
-Print the site configuration, both default and custom settings.
+Display site configuration, both default and custom settings.
 
 ```
 hugo config [command] [flags]
@@ -24,6 +24,7 @@ hugo config [command] [flags]
       --format string            preferred file format (toml, yaml or json) (default "toml")
   -h, --help                     help for config
       --lang string              the language to display config for. Defaults to the first language defined.
+      --printZero                include config options with zero values (e.g. false, 0, "") in the output
       --renderSegments strings   named segments to render (configured in the segments config)
   -t, --theme strings            themes to use (located in /themes/THEMENAME/)
 ```
@@ -34,20 +35,19 @@ hugo config [command] [flags]
       --clock string               set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
-      --debug                      debug output
   -d, --destination string         filesystem path to write files to
   -e, --environment string         build environment
       --ignoreVendorPaths string   ignores any _vendor for module paths matching the given Glob pattern
       --logLevel string            log level (debug|info|warn|error)
+      --noBuildLock                don't create .hugo_build.lock file
       --quiet                      build in quiet mode
-      --renderToMemory             render to memory (mostly useful when running the server)
+  -M, --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --themesDir string           filesystem path to themes directory
-  -v, --verbose                    verbose output
 ```
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - hugo builds your site
+* [hugo](/commands/hugo/)	 - Build your site
 * [hugo config mounts](/commands/hugo_config_mounts/)	 - Print the configured file mounts
 

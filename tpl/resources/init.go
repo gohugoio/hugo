@@ -17,7 +17,9 @@ import (
 	"context"
 
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/tpl/css"
 	"github.com/gohugoio/hugo/tpl/internal"
+	"github.com/gohugoio/hugo/tpl/js"
 )
 
 const name = "resources"
@@ -33,6 +35,22 @@ func init() {
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
+			OnCreated: func(m map[string]any) {
+				for _, v := range m {
+					switch v := v.(type) {
+					case *css.Namespace:
+						ctx.cssNs = v
+					case *js.Namespace:
+						ctx.jsNs = v
+					}
+				}
+				if ctx.cssNs == nil {
+					panic("css namespace not found")
+				}
+				if ctx.jsNs == nil {
+					panic("js namespace not found")
+				}
+			},
 		}
 
 		ns.AddMethodMapping(ctx.Get,
@@ -54,21 +72,6 @@ func init() {
 
 		ns.AddMethodMapping(ctx.Minify,
 			[]string{"minify"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.ToCSS,
-			[]string{"toCSS"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.PostCSS,
-			[]string{"postCSS"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.Babel,
-			[]string{"babel"},
 			[][2]string{},
 		)
 

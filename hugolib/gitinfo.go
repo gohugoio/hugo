@@ -14,11 +14,13 @@
 package hugolib
 
 import (
+	"io"
 	"path/filepath"
 	"strings"
 
 	"github.com/bep/gitmap"
-	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/source"
 )
@@ -28,20 +30,34 @@ type gitInfo struct {
 	repo       *gitmap.GitRepo
 }
 
-func (g *gitInfo) forPage(p page.Page) source.GitInfo {
+func (g *gitInfo) forPage(p page.Page) *source.GitInfo {
 	name := strings.TrimPrefix(filepath.ToSlash(p.File().Filename()), g.contentDir)
 	name = strings.TrimPrefix(name, "/")
 	gi, found := g.repo.Files[name]
 	if !found {
-		return source.GitInfo{}
+		return nil
 	}
-	return source.NewGitInfo(*gi)
+	return gi
 }
 
-func newGitInfo(conf config.AllProvider) (*gitInfo, error) {
-	workingDir := conf.BaseConfig().WorkingDir
+func newGitInfo(d *deps.Deps) (*gitInfo, error) {
+	opts := gitmap.Options{
+		Repository: d.Conf.BaseConfig().WorkingDir,
+		GetGitCommandFunc: func(stdout, stderr io.Writer, args ...string) (gitmap.Runner, error) {
+			var argsv []any
+			for _, arg := range args {
+				argsv = append(argsv, arg)
+			}
+			argsv = append(
+				argsv,
+				hexec.WithStdout(stdout),
+				hexec.WithStderr(stderr),
+			)
+			return d.ExecHelper.New("git", argsv...)
+		},
+	}
 
-	gitRepo, err := gitmap.Map(workingDir, "")
+	gitRepo, err := gitmap.Map(opts)
 	if err != nil {
 		return nil, err
 	}

@@ -1,19 +1,15 @@
 ---
 title: Fit
-description: Applicable to images, returns an image resource downscaled to fit the given dimensions while maintaining aspect ratio. 
+description: Applicable to images, returns an image resource downscaled to fit the given dimensions while maintaining aspect ratio.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/resource/Crop
-    - methods/resource/Fill
-    - methods/resource/Resize
-    - methods/resource/Process
-    - functions/images/Process
-  returnType: images.ImageResource
-  signatures: [RESOURCE.Fit SPEC]
-toc: true
+params:
+  functions_and_methods:
+    returnType: images.ImageResource
+    signatures: [RESOURCE.Fit SPEC]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 Downscale an image to fit the given dimensions while maintaining aspect ratio. You must provide both width and height.
 
@@ -25,9 +21,7 @@ Downscale an image to fit the given dimensions while maintaining aspect ratio. Y
 {{ end }}
 ```
 
-{{% include "methods/resource/_common/global-page-remote-resources.md" %}}
-
-{{% include "/methods/resource/_common/processing-spec.md" %}}
+{{% include "/_common/methods/resource/processing-spec.md" %}}
 
 ## Example
 

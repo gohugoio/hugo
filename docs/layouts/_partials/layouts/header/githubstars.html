@@ -1,0 +1,16 @@
+{{ with partialCached "helpers/funcs/get-github-info.html" . "-" }}
+  <a
+    href="{{ .html_url | safeURL }}"
+    target="_blank"
+    class="font-normal font-mono  tracking-tighter	flex items-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-700 text-sm text-black dark:text-white h-10 border-none cursor-pointer relative py-1 px-2 rounded-md"
+    aria-label="Star on GitHub">
+    <svg class="mr-[4px] fill-gray-800 dark:fill-gray-100 w-6 h-6">
+      <use href="#icon--github"></use>
+    </svg>
+    <span class="hidden md:inline mr-[3px]">Star</span>
+    <span class="hidden md:inline">{{ .stargazers_count }}</span>
+    <span class="inline md:hidden">
+      {{ printf "%0.1fk" (div .stargazers_count 1000) }}
+    </span>
+  </a>
+{{ end }}

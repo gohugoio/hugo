@@ -3,15 +3,11 @@ title: strings.Count
 description: Returns the number of non-overlapping instances of the given substring within the given string.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/go-template/len
-    - functions/strings/CountRunes
-    - functions/strings/CountWords
-    - functions/strings/RuneCount
-  returnType: int
-  signatures: [strings.Count SUBSTR STRING]
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: int
+    signatures: [strings.Count SUBSTR STRING]
 aliases: [/functions/strings.count]
 ---
 

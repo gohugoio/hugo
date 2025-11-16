@@ -3,12 +3,11 @@ title: transform.HTMLUnescape
 description: Returns the given string, replacing each HTML entity with its corresponding character.
 categories: []
 keywords: []
-action:
-  aliases: [htmlUnescape]
-  related:
-    - functions/transform/HTMLEscape
-  returnType: string
-  signatures: [transform.HTMLUnescape INPUT]
+params:
+  functions_and_methods:
+    aliases: [htmlUnescape]
+    returnType: string
+    signatures: [transform.HTMLUnescape INPUT]
 aliases: [/functions/htmlunescape]
 ---
 
@@ -25,6 +24,6 @@ In most contexts Go's [html/template] package will escape special characters. To
 {{ htmlUnescape "Lilo &amp; Stitch" | safeHTML }}
 ```
 
-[`safehtml`]: /functions/safe/html
+[`safehtml`]: /functions/safe/html/
 [html entities]: https://developer.mozilla.org/en-us/docs/glossary/entity
 [html/template]: https://pkg.go.dev/html/template

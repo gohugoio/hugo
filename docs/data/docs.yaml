@@ -55,6 +55,9 @@ chroma:
     - armasm
     Name: ArmAsm
   - Aliases:
+    - atl
+    Name: ATL
+  - Aliases:
     - autohotkey
     - ahk
     Name: AutoHotkey
@@ -88,6 +91,9 @@ chroma:
     - dosbatch
     - winbatch
     Name: Batchfile
+  - Aliases:
+    - beef
+    Name: Beef
   - Aliases:
     - bib
     - bibtex
@@ -184,12 +190,18 @@ chroma:
     - coq
     Name: Coq
   - Aliases:
+    - core
+    Name: Core
+  - Aliases:
     - cr
     - crystal
     Name: Crystal
   - Aliases:
     - css
     Name: CSS
+  - Aliases:
+    - csv
+    Name: CSV
   - Aliases:
     - cue
     Name: CUE
@@ -226,6 +238,7 @@ chroma:
   - Aliases:
     - docker
     - dockerfile
+    - containerfile
     Name: Docker
   - Aliases:
     - dtd
@@ -289,6 +302,12 @@ chroma:
     - gd3
     Name: GDScript3
   - Aliases:
+    - gemtext
+    - gmi
+    - gmni
+    - gemini
+    Name: Gemtext
+  - Aliases:
     - genshi
     - kid
     - xml+genshi
@@ -307,6 +326,9 @@ chroma:
     - gherkin
     - Gherkin
     Name: Gherkin
+  - Aliases:
+    - gleam
+    Name: Gleam
   - Aliases:
     - glsl
     Name: GLSL
@@ -402,6 +424,9 @@ chroma:
     - j
     Name: J
   - Aliases:
+    - janet
+    Name: Janet
+  - Aliases:
     - java
     Name: Java
   - Aliases:
@@ -411,6 +436,12 @@ chroma:
   - Aliases:
     - json
     Name: JSON
+  - Aliases:
+    - jsonata
+    Name: JSONata
+  - Aliases:
+    - jsonnet
+    Name: Jsonnet
   - Aliases:
     - julia
     - jl
@@ -422,14 +453,21 @@ chroma:
     - kotlin
     Name: Kotlin
   - Aliases:
+    - lean4
+    - lean
+    Name: Lean4
+  - Aliases:
     - lighty
     - lighttpd
     Name: Lighttpd configuration file
   - Aliases:
     - llvm
     Name: LLVM
+  - Aliases: null
+    Name: lox
   - Aliases:
     - lua
+    - luau
     Name: Lua
   - Aliases:
     - make
@@ -461,7 +499,8 @@ chroma:
     Name: Matlab
   - Aliases:
     - mcfunction
-    Name: mcfunction
+    - mcf
+    Name: MCFunction
   - Aliases:
     - meson
     - meson.build
@@ -482,8 +521,16 @@ chroma:
     - m2
     Name: Modula-2
   - Aliases:
+    - mojo
+    - "\U0001F525"
+    Name: Mojo
+  - Aliases:
     - monkeyc
     Name: MonkeyC
+  - Aliases:
+    - moonscript
+    - moon
+    Name: MoonScript
   - Aliases:
     - morrowind
     - mwscript
@@ -518,6 +565,14 @@ chroma:
     - nixos
     - nix
     Name: Nix
+  - Aliases:
+    - nsis
+    - nsi
+    - nsh
+    Name: NSIS
+  - Aliases:
+    - nu
+    Name: Nu
   - Aliases:
     - objective-c
     - objectivec
@@ -700,6 +755,10 @@ chroma:
     - arexx
     Name: Rexx
   - Aliases:
+    - SQLRPGLE
+    - RPG IV
+    Name: RPGLE
+  - Aliases:
     - spec
     Name: RPMSpec
   - Aliases:
@@ -749,6 +808,9 @@ chroma:
   - Aliases:
     - smarty
     Name: Smarty
+  - Aliases:
+    - snbt
+    Name: SNBT
   - Aliases:
     - snobol
     Name: Snobol
@@ -817,6 +879,7 @@ chroma:
   - Aliases:
     - terraform
     - tf
+    - hcl
     Name: Terraform
   - Aliases:
     - tex
@@ -859,6 +922,9 @@ chroma:
   - Aliases:
     - typoscripthtmldata
     Name: TypoScriptHtmlData
+  - Aliases:
+    - typst
+    Name: Typst
   - Aliases: null
     Name: ucode
   - Aliases:
@@ -902,6 +968,9 @@ chroma:
     - wgsl
     Name: WebGPU Shading Language
   - Aliases:
+    - vtt
+    Name: WebVTT
+  - Aliases:
     - whiley
     Name: Whiley
   - Aliases:
@@ -925,10 +994,92 @@ chroma:
   - Aliases:
     - zig
     Name: Zig
+  styles:
+  - RPGLE
+  - abap
+  - algol
+  - algol_nu
+  - arduino
+  - autumn
+  - average
+  - base16-snazzy
+  - borland
+  - bw
+  - catppuccin-frappe
+  - catppuccin-latte
+  - catppuccin-macchiato
+  - catppuccin-mocha
+  - colorful
+  - doom-one
+  - doom-one2
+  - dracula
+  - emacs
+  - evergarden
+  - friendly
+  - fruity
+  - github
+  - github-dark
+  - gruvbox
+  - gruvbox-light
+  - hr_high_contrast
+  - hrdark
+  - igor
+  - lovelace
+  - manni
+  - modus-operandi
+  - modus-vivendi
+  - monokai
+  - monokailight
+  - murphy
+  - native
+  - nord
+  - nordic
+  - onedark
+  - onesenterprise
+  - paraiso-dark
+  - paraiso-light
+  - pastie
+  - perldoc
+  - pygments
+  - rainbow_dash
+  - rose-pine
+  - rose-pine-dawn
+  - rose-pine-moon
+  - rrt
+  - solarized-dark
+  - solarized-dark256
+  - solarized-light
+  - swapoff
+  - tango
+  - tokyonight-day
+  - tokyonight-moon
+  - tokyonight-night
+  - tokyonight-storm
+  - trac
+  - vim
+  - vs
+  - vulcan
+  - witchhazel
+  - xcode
+  - xcode-dark
 config:
+  HTTPCache:
+    cache:
+      for:
+        excludes:
+        - '**'
+        includes: null
+    polls:
+    - disable: true
+      for:
+        excludes: null
+        includes:
+        - '**'
+      high: 0s
+      low: 0s
   archeTypeDir: archetypes
   assetDir: assets
-  author: {}
+  author: null
   baseURL: ""
   build:
     buildStats:
@@ -961,6 +1112,9 @@ config:
     images:
       dir: :resourceDir/_gen
       maxAge: -1
+    misc:
+      dir: :cacheDir/:project
+      maxAge: -1
     modules:
       dir: :cacheDir/modules
       maxAge: -1
@@ -969,10 +1123,18 @@ config:
   cascade: []
   cleanDestinationDir: false
   contentDir: content
+  contentTypes:
+    text/asciidoc: {}
+    text/html: {}
+    text/markdown: {}
+    text/org: {}
+    text/pandoc: {}
+    text/rst: {}
   copyright: ""
   dataDir: data
   defaultContentLanguage: en
   defaultContentLanguageInSubdir: false
+  defaultOutputFormat: html
   deployment:
     confirm: false
     dryRun: false
@@ -985,6 +1147,7 @@ config:
     targets: null
     workers: 10
   disableAliases: false
+  disableDefaultLanguageRedirect: false
   disableHugoGeneratorInject: false
   disableKinds: null
   disableLanguages: null
@@ -1022,7 +1185,7 @@ config:
   hasCJKLanguage: false
   i18nDir: i18n
   ignoreCache: false
-  ignoreFiles: []
+  ignoreFiles: null
   ignoreLogs: null
   ignoreVendorPaths: ""
   imaging:
@@ -1065,6 +1228,8 @@ config:
           escapedSpace: false
         definitionList: true
         extras:
+          delete:
+            enable: false
           insert:
             enable: false
           mark:
@@ -1073,7 +1238,10 @@ config:
             enable: false
           superscript:
             enable: false
-        footnote: true
+        footnote:
+          backlinkHTML: '&#x21a9;&#xfe0e;'
+          enable: true
+          enableAutoIDPrefix: false
         linkify: true
         linkifyProtocol: https
         passthrough:
@@ -1100,14 +1268,17 @@ config:
         attribute:
           block: false
           title: true
+        autoDefinitionTermID: false
         autoHeadingID: true
-        autoHeadingIDType: github
+        autoIDType: github
         wrapStandAloneImageWithinParagraph: true
       renderHooks:
         image:
           enableDefault: false
+          useEmbedded: auto
         link:
           enableDefault: false
+          useEmbedded: auto
       renderer:
         hardWraps: false
         unsafe: false
@@ -1123,9 +1294,9 @@ config:
       lineNos: false
       lineNumbersInTable: true
       noClasses: true
-      noHl: false
       style: monokai
       tabWidth: 4
+      wrapperClass: highlight
     tableOfContents:
       endLevel: 3
       ordered: false
@@ -1272,6 +1443,10 @@ config:
       delimiter: .
       suffixes:
       - ts
+    text/x-gotmpl:
+      delimiter: .
+      suffixes:
+      - gotmpl
     text/x-sass:
       delimiter: .
       suffixes:
@@ -1317,8 +1492,10 @@ config:
     minifyOutput: false
     tdewolff:
       css:
-        keepCSS2: true
+        inline: false
+        keepCSS2: false
         precision: 0
+        version: 0
       html:
         keepComments: false
         keepConditionalComments: false
@@ -1339,48 +1516,57 @@ config:
         keepNumbers: false
         precision: 0
       svg:
+        inline: false
         keepComments: false
         precision: 0
       xml:
         keepWhitespace: false
   module:
+    auth: ""
     hugoVersion:
       extended: false
       max: ""
       min: ""
     imports: null
     mounts:
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: content
       target: content
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: data
       target: data
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: layouts
       target: layouts
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: i18n
       target: i18n
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: archetypes
       target: archetypes
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: assets
       target: assets
-    - excludeFiles: null
+    - disableWatch: false
+      excludeFiles: null
       includeFiles: null
       lang: ""
       source: static
@@ -1398,6 +1584,34 @@ config:
   noChmod: false
   noTimes: false
   outputFormats:
+    "404":
+      baseName: ""
+      isHTML: true
+      isPlainText: false
+      mediaType: text/html
+      noUgly: false
+      notAlternative: true
+      path: ""
+      permalinkable: true
+      protocol: ""
+      rel: ""
+      root: false
+      ugly: true
+      weight: 0
+    alias:
+      baseName: ""
+      isHTML: true
+      isPlainText: false
+      mediaType: text/html
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: ""
+      root: false
+      ugly: true
+      weight: 0
     amp:
       baseName: index
       isHTML: true
@@ -1451,6 +1665,20 @@ config:
       permalinkable: false
       protocol: ""
       rel: alternate
+      root: false
+      ugly: false
+      weight: 0
+    gotmpl:
+      baseName: ""
+      isHTML: false
+      isPlainText: true
+      mediaType: text/x-gotmpl
+      noUgly: false
+      notAlternative: true
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: ""
       root: false
       ugly: false
       weight: 0
@@ -1538,6 +1766,20 @@ config:
       root: false
       ugly: true
       weight: 0
+    sitemapindex:
+      baseName: sitemap
+      isHTML: false
+      isPlainText: false
+      mediaType: application/xml
+      noUgly: false
+      notAlternative: false
+      path: ""
+      permalinkable: false
+      protocol: ""
+      rel: sitemap
+      root: true
+      ugly: true
+      weight: 0
     webappmanifest:
       baseName: manifest
       isHTML: false
@@ -1569,8 +1811,15 @@ config:
     term:
     - html
     - rss
-  paginate: 10
-  paginatePath: page
+  page:
+    nextPrevInSectionSortOrder: desc
+    nextPrevSortOrder: desc
+  paginate: 0
+  paginatePath: ""
+  pagination:
+    disableAliases: false
+    pagerSize: 10
+    path: page
   panicOnWarning: false
   params: {}
   permalinks:
@@ -1596,6 +1845,10 @@ config:
       enableDNT: false
       simple: false
     vimeo:
+      disable: false
+      enableDNT: false
+      simple: false
+    x:
       disable: false
       enableDNT: false
       simple: false
@@ -1642,10 +1895,12 @@ config:
       allow:
       - ^(dart-)?sass(-embedded)?$
       - ^go$
+      - ^git$
       - ^npx$
       - ^postcss$
+      - ^tailwindcss$
       osEnv:
-      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE)$
+      - (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$
     funcs:
       getenv:
       - ^HUGO_
@@ -1656,12 +1911,14 @@ config:
       - (?i)GET|POST
       urls:
       - .*
-  segments: {}
+  segments: null
   server:
     headers: null
     redirects:
     - force: false
-      from: '**'
+      from: /**
+      fromHeaders: null
+      fromRe: ""
       status: 404
       to: /404.html
   services:
@@ -1675,6 +1932,8 @@ config:
     rss:
       limit: -1
     twitter:
+      disableInlineCSS: false
+    x:
       disableInlineCSS: false
   sitemap:
     changeFreq: ""
@@ -1704,10 +1963,10 @@ config:
   theme: null
   themesDir: themes
   timeZone: ""
-  timeout: 30s
+  timeout: 60s
   title: ""
   titleCaseStyle: AP
-  uglyURLs: false
+  uglyURLs: null
   workingDir: ""
 config_helpers:
   mergeStrategy:
@@ -1717,9 +1976,13 @@ config_helpers:
       _merge: none
     cascade:
       _merge: none
+    contenttypes:
+      _merge: none
     deployment:
       _merge: none
     frontmatter:
+      _merge: none
+    httpcache:
       _merge: none
     imaging:
       _merge: none
@@ -1745,6 +2008,10 @@ config_helpers:
       _merge: shallow
     outputs:
       _merge: none
+    page:
+      _merge: none
+    pagination:
+      _merge: none
     params:
       _merge: deep
     permalinks:
@@ -1766,535 +2033,7 @@ config_helpers:
     taxonomies:
       _merge: none
 output:
-  layouts:
-  - Example: Single page in "posts" section
-    Kind: page
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/single.html.html
-    - layouts/posts/single.html
-    - layouts/_default/single.html.html
-    - layouts/_default/single.html
-  - Example: Base template for single page in "posts" section
-    Kind: page
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/single-baseof.html.html
-    - layouts/posts/baseof.html.html
-    - layouts/posts/single-baseof.html
-    - layouts/posts/baseof.html
-    - layouts/_default/single-baseof.html.html
-    - layouts/_default/baseof.html.html
-    - layouts/_default/single-baseof.html
-    - layouts/_default/baseof.html
-  - Example: Single page in "posts" section with layout set to "demolayout"
-    Kind: page
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/demolayout.html.html
-    - layouts/posts/single.html.html
-    - layouts/posts/demolayout.html
-    - layouts/posts/single.html
-    - layouts/_default/demolayout.html.html
-    - layouts/_default/single.html.html
-    - layouts/_default/demolayout.html
-    - layouts/_default/single.html
-  - Example: Base template for single page in "posts" section with layout set to "demolayout"
-    Kind: page
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/demolayout-baseof.html.html
-    - layouts/posts/single-baseof.html.html
-    - layouts/posts/baseof.html.html
-    - layouts/posts/demolayout-baseof.html
-    - layouts/posts/single-baseof.html
-    - layouts/posts/baseof.html
-    - layouts/_default/demolayout-baseof.html.html
-    - layouts/_default/single-baseof.html.html
-    - layouts/_default/baseof.html.html
-    - layouts/_default/demolayout-baseof.html
-    - layouts/_default/single-baseof.html
-    - layouts/_default/baseof.html
-  - Example: AMP single page
-    Kind: page
-    OutputFormat: amp
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/single.amp.html
-    - layouts/posts/single.html
-    - layouts/_default/single.amp.html
-    - layouts/_default/single.html
-  - Example: AMP single page, French language
-    Kind: page
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/single.fr.html.html
-    - layouts/posts/single.html.html
-    - layouts/posts/single.fr.html
-    - layouts/posts/single.html
-    - layouts/_default/single.fr.html.html
-    - layouts/_default/single.html.html
-    - layouts/_default/single.fr.html
-    - layouts/_default/single.html
-  - Example: Home page
-    Kind: home
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/index.html.html
-    - layouts/home.html.html
-    - layouts/list.html.html
-    - layouts/index.html
-    - layouts/home.html
-    - layouts/list.html
-    - layouts/_default/index.html.html
-    - layouts/_default/home.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/index.html
-    - layouts/_default/home.html
-    - layouts/_default/list.html
-  - Example: Base template for home page
-    Kind: home
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/index-baseof.html.html
-    - layouts/home-baseof.html.html
-    - layouts/list-baseof.html.html
-    - layouts/baseof.html.html
-    - layouts/index-baseof.html
-    - layouts/home-baseof.html
-    - layouts/list-baseof.html
-    - layouts/baseof.html
-    - layouts/_default/index-baseof.html.html
-    - layouts/_default/home-baseof.html.html
-    - layouts/_default/list-baseof.html.html
-    - layouts/_default/baseof.html.html
-    - layouts/_default/index-baseof.html
-    - layouts/_default/home-baseof.html
-    - layouts/_default/list-baseof.html
-    - layouts/_default/baseof.html
-  - Example: Home page with type set to "demotype"
-    Kind: home
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/demotype/index.html.html
-    - layouts/demotype/home.html.html
-    - layouts/demotype/list.html.html
-    - layouts/demotype/index.html
-    - layouts/demotype/home.html
-    - layouts/demotype/list.html
-    - layouts/index.html.html
-    - layouts/home.html.html
-    - layouts/list.html.html
-    - layouts/index.html
-    - layouts/home.html
-    - layouts/list.html
-    - layouts/_default/index.html.html
-    - layouts/_default/home.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/index.html
-    - layouts/_default/home.html
-    - layouts/_default/list.html
-  - Example: Base template for home page with type set to "demotype"
-    Kind: home
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/demotype/index-baseof.html.html
-    - layouts/demotype/home-baseof.html.html
-    - layouts/demotype/list-baseof.html.html
-    - layouts/demotype/baseof.html.html
-    - layouts/demotype/index-baseof.html
-    - layouts/demotype/home-baseof.html
-    - layouts/demotype/list-baseof.html
-    - layouts/demotype/baseof.html
-    - layouts/index-baseof.html.html
-    - layouts/home-baseof.html.html
-    - layouts/list-baseof.html.html
-    - layouts/baseof.html.html
-    - layouts/index-baseof.html
-    - layouts/home-baseof.html
-    - layouts/list-baseof.html
-    - layouts/baseof.html
-    - layouts/_default/index-baseof.html.html
-    - layouts/_default/home-baseof.html.html
-    - layouts/_default/list-baseof.html.html
-    - layouts/_default/baseof.html.html
-    - layouts/_default/index-baseof.html
-    - layouts/_default/home-baseof.html
-    - layouts/_default/list-baseof.html
-    - layouts/_default/baseof.html
-  - Example: Home page with layout set to "demolayout"
-    Kind: home
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/demolayout.html.html
-    - layouts/index.html.html
-    - layouts/home.html.html
-    - layouts/list.html.html
-    - layouts/demolayout.html
-    - layouts/index.html
-    - layouts/home.html
-    - layouts/list.html
-    - layouts/_default/demolayout.html.html
-    - layouts/_default/index.html.html
-    - layouts/_default/home.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/demolayout.html
-    - layouts/_default/index.html
-    - layouts/_default/home.html
-    - layouts/_default/list.html
-  - Example: AMP home, French language
-    Kind: home
-    OutputFormat: amp
-    Suffix: html
-    Template Lookup Order:
-    - layouts/index.fr.amp.html
-    - layouts/home.fr.amp.html
-    - layouts/list.fr.amp.html
-    - layouts/index.amp.html
-    - layouts/home.amp.html
-    - layouts/list.amp.html
-    - layouts/index.fr.html
-    - layouts/home.fr.html
-    - layouts/list.fr.html
-    - layouts/index.html
-    - layouts/home.html
-    - layouts/list.html
-    - layouts/_default/index.fr.amp.html
-    - layouts/_default/home.fr.amp.html
-    - layouts/_default/list.fr.amp.html
-    - layouts/_default/index.amp.html
-    - layouts/_default/home.amp.html
-    - layouts/_default/list.amp.html
-    - layouts/_default/index.fr.html
-    - layouts/_default/home.fr.html
-    - layouts/_default/list.fr.html
-    - layouts/_default/index.html
-    - layouts/_default/home.html
-    - layouts/_default/list.html
-  - Example: JSON home
-    Kind: home
-    OutputFormat: json
-    Suffix: json
-    Template Lookup Order:
-    - layouts/index.json.json
-    - layouts/home.json.json
-    - layouts/list.json.json
-    - layouts/index.json
-    - layouts/home.json
-    - layouts/list.json
-    - layouts/_default/index.json.json
-    - layouts/_default/home.json.json
-    - layouts/_default/list.json.json
-    - layouts/_default/index.json
-    - layouts/_default/home.json
-    - layouts/_default/list.json
-  - Example: RSS home
-    Kind: home
-    OutputFormat: rss
-    Suffix: xml
-    Template Lookup Order:
-    - layouts/index.rss.xml
-    - layouts/home.rss.xml
-    - layouts/rss.xml
-    - layouts/list.rss.xml
-    - layouts/index.xml
-    - layouts/home.xml
-    - layouts/list.xml
-    - layouts/_default/index.rss.xml
-    - layouts/_default/home.rss.xml
-    - layouts/_default/rss.xml
-    - layouts/_default/list.rss.xml
-    - layouts/_default/index.xml
-    - layouts/_default/home.xml
-    - layouts/_default/list.xml
-    - layouts/_internal/_default/rss.xml
-  - Example: Section list for "posts"
-    Kind: section
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/posts.html.html
-    - layouts/posts/section.html.html
-    - layouts/posts/list.html.html
-    - layouts/posts/posts.html
-    - layouts/posts/section.html
-    - layouts/posts/list.html
-    - layouts/section/posts.html.html
-    - layouts/section/section.html.html
-    - layouts/section/list.html.html
-    - layouts/section/posts.html
-    - layouts/section/section.html
-    - layouts/section/list.html
-    - layouts/_default/posts.html.html
-    - layouts/_default/section.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/posts.html
-    - layouts/_default/section.html
-    - layouts/_default/list.html
-  - Example: Section list for "posts" with type set to "blog"
-    Kind: section
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/blog/posts.html.html
-    - layouts/blog/section.html.html
-    - layouts/blog/list.html.html
-    - layouts/blog/posts.html
-    - layouts/blog/section.html
-    - layouts/blog/list.html
-    - layouts/posts/posts.html.html
-    - layouts/posts/section.html.html
-    - layouts/posts/list.html.html
-    - layouts/posts/posts.html
-    - layouts/posts/section.html
-    - layouts/posts/list.html
-    - layouts/section/posts.html.html
-    - layouts/section/section.html.html
-    - layouts/section/list.html.html
-    - layouts/section/posts.html
-    - layouts/section/section.html
-    - layouts/section/list.html
-    - layouts/_default/posts.html.html
-    - layouts/_default/section.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/posts.html
-    - layouts/_default/section.html
-    - layouts/_default/list.html
-  - Example: Section list for "posts" with layout set to "demolayout"
-    Kind: section
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/posts/demolayout.html.html
-    - layouts/posts/posts.html.html
-    - layouts/posts/section.html.html
-    - layouts/posts/list.html.html
-    - layouts/posts/demolayout.html
-    - layouts/posts/posts.html
-    - layouts/posts/section.html
-    - layouts/posts/list.html
-    - layouts/section/demolayout.html.html
-    - layouts/section/posts.html.html
-    - layouts/section/section.html.html
-    - layouts/section/list.html.html
-    - layouts/section/demolayout.html
-    - layouts/section/posts.html
-    - layouts/section/section.html
-    - layouts/section/list.html
-    - layouts/_default/demolayout.html.html
-    - layouts/_default/posts.html.html
-    - layouts/_default/section.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/demolayout.html
-    - layouts/_default/posts.html
-    - layouts/_default/section.html
-    - layouts/_default/list.html
-  - Example: Section list for "posts"
-    Kind: section
-    OutputFormat: rss
-    Suffix: xml
-    Template Lookup Order:
-    - layouts/posts/section.rss.xml
-    - layouts/posts/rss.xml
-    - layouts/posts/list.rss.xml
-    - layouts/posts/section.xml
-    - layouts/posts/list.xml
-    - layouts/section/section.rss.xml
-    - layouts/section/rss.xml
-    - layouts/section/list.rss.xml
-    - layouts/section/section.xml
-    - layouts/section/list.xml
-    - layouts/_default/section.rss.xml
-    - layouts/_default/rss.xml
-    - layouts/_default/list.rss.xml
-    - layouts/_default/section.xml
-    - layouts/_default/list.xml
-    - layouts/_internal/_default/rss.xml
-  - Example: Taxonomy list for "categories"
-    Kind: taxonomy
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/categories/category.terms.html.html
-    - layouts/categories/terms.html.html
-    - layouts/categories/taxonomy.html.html
-    - layouts/categories/list.html.html
-    - layouts/categories/category.terms.html
-    - layouts/categories/terms.html
-    - layouts/categories/taxonomy.html
-    - layouts/categories/list.html
-    - layouts/category/category.terms.html.html
-    - layouts/category/terms.html.html
-    - layouts/category/taxonomy.html.html
-    - layouts/category/list.html.html
-    - layouts/category/category.terms.html
-    - layouts/category/terms.html
-    - layouts/category/taxonomy.html
-    - layouts/category/list.html
-    - layouts/taxonomy/category.terms.html.html
-    - layouts/taxonomy/terms.html.html
-    - layouts/taxonomy/taxonomy.html.html
-    - layouts/taxonomy/list.html.html
-    - layouts/taxonomy/category.terms.html
-    - layouts/taxonomy/terms.html
-    - layouts/taxonomy/taxonomy.html
-    - layouts/taxonomy/list.html
-    - layouts/_default/category.terms.html.html
-    - layouts/_default/terms.html.html
-    - layouts/_default/taxonomy.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/category.terms.html
-    - layouts/_default/terms.html
-    - layouts/_default/taxonomy.html
-    - layouts/_default/list.html
-  - Example: Taxonomy list for "categories"
-    Kind: taxonomy
-    OutputFormat: rss
-    Suffix: xml
-    Template Lookup Order:
-    - layouts/categories/category.terms.rss.xml
-    - layouts/categories/terms.rss.xml
-    - layouts/categories/taxonomy.rss.xml
-    - layouts/categories/rss.xml
-    - layouts/categories/list.rss.xml
-    - layouts/categories/category.terms.xml
-    - layouts/categories/terms.xml
-    - layouts/categories/taxonomy.xml
-    - layouts/categories/list.xml
-    - layouts/category/category.terms.rss.xml
-    - layouts/category/terms.rss.xml
-    - layouts/category/taxonomy.rss.xml
-    - layouts/category/rss.xml
-    - layouts/category/list.rss.xml
-    - layouts/category/category.terms.xml
-    - layouts/category/terms.xml
-    - layouts/category/taxonomy.xml
-    - layouts/category/list.xml
-    - layouts/taxonomy/category.terms.rss.xml
-    - layouts/taxonomy/terms.rss.xml
-    - layouts/taxonomy/taxonomy.rss.xml
-    - layouts/taxonomy/rss.xml
-    - layouts/taxonomy/list.rss.xml
-    - layouts/taxonomy/category.terms.xml
-    - layouts/taxonomy/terms.xml
-    - layouts/taxonomy/taxonomy.xml
-    - layouts/taxonomy/list.xml
-    - layouts/_default/category.terms.rss.xml
-    - layouts/_default/terms.rss.xml
-    - layouts/_default/taxonomy.rss.xml
-    - layouts/_default/rss.xml
-    - layouts/_default/list.rss.xml
-    - layouts/_default/category.terms.xml
-    - layouts/_default/terms.xml
-    - layouts/_default/taxonomy.xml
-    - layouts/_default/list.xml
-    - layouts/_internal/_default/rss.xml
-  - Example: Term list for "categories"
-    Kind: term
-    OutputFormat: html
-    Suffix: html
-    Template Lookup Order:
-    - layouts/categories/term.html.html
-    - layouts/categories/category.html.html
-    - layouts/categories/taxonomy.html.html
-    - layouts/categories/list.html.html
-    - layouts/categories/term.html
-    - layouts/categories/category.html
-    - layouts/categories/taxonomy.html
-    - layouts/categories/list.html
-    - layouts/term/term.html.html
-    - layouts/term/category.html.html
-    - layouts/term/taxonomy.html.html
-    - layouts/term/list.html.html
-    - layouts/term/term.html
-    - layouts/term/category.html
-    - layouts/term/taxonomy.html
-    - layouts/term/list.html
-    - layouts/taxonomy/term.html.html
-    - layouts/taxonomy/category.html.html
-    - layouts/taxonomy/taxonomy.html.html
-    - layouts/taxonomy/list.html.html
-    - layouts/taxonomy/term.html
-    - layouts/taxonomy/category.html
-    - layouts/taxonomy/taxonomy.html
-    - layouts/taxonomy/list.html
-    - layouts/category/term.html.html
-    - layouts/category/category.html.html
-    - layouts/category/taxonomy.html.html
-    - layouts/category/list.html.html
-    - layouts/category/term.html
-    - layouts/category/category.html
-    - layouts/category/taxonomy.html
-    - layouts/category/list.html
-    - layouts/_default/term.html.html
-    - layouts/_default/category.html.html
-    - layouts/_default/taxonomy.html.html
-    - layouts/_default/list.html.html
-    - layouts/_default/term.html
-    - layouts/_default/category.html
-    - layouts/_default/taxonomy.html
-    - layouts/_default/list.html
-  - Example: Term list for "categories"
-    Kind: term
-    OutputFormat: rss
-    Suffix: xml
-    Template Lookup Order:
-    - layouts/categories/term.rss.xml
-    - layouts/categories/category.rss.xml
-    - layouts/categories/taxonomy.rss.xml
-    - layouts/categories/rss.xml
-    - layouts/categories/list.rss.xml
-    - layouts/categories/term.xml
-    - layouts/categories/category.xml
-    - layouts/categories/taxonomy.xml
-    - layouts/categories/list.xml
-    - layouts/term/term.rss.xml
-    - layouts/term/category.rss.xml
-    - layouts/term/taxonomy.rss.xml
-    - layouts/term/rss.xml
-    - layouts/term/list.rss.xml
-    - layouts/term/term.xml
-    - layouts/term/category.xml
-    - layouts/term/taxonomy.xml
-    - layouts/term/list.xml
-    - layouts/taxonomy/term.rss.xml
-    - layouts/taxonomy/category.rss.xml
-    - layouts/taxonomy/taxonomy.rss.xml
-    - layouts/taxonomy/rss.xml
-    - layouts/taxonomy/list.rss.xml
-    - layouts/taxonomy/term.xml
-    - layouts/taxonomy/category.xml
-    - layouts/taxonomy/taxonomy.xml
-    - layouts/taxonomy/list.xml
-    - layouts/category/term.rss.xml
-    - layouts/category/category.rss.xml
-    - layouts/category/taxonomy.rss.xml
-    - layouts/category/rss.xml
-    - layouts/category/list.rss.xml
-    - layouts/category/term.xml
-    - layouts/category/category.xml
-    - layouts/category/taxonomy.xml
-    - layouts/category/list.xml
-    - layouts/_default/term.rss.xml
-    - layouts/_default/category.rss.xml
-    - layouts/_default/taxonomy.rss.xml
-    - layouts/_default/rss.xml
-    - layouts/_default/list.rss.xml
-    - layouts/_default/term.xml
-    - layouts/_default/category.xml
-    - layouts/_default/taxonomy.xml
-    - layouts/_default/list.xml
-    - layouts/_internal/_default/rss.xml
+  layouts: {}
 tpl:
   funcs:
     cast:
@@ -2370,6 +2109,11 @@ tpl:
         - - '{{ slice "a" "b" "c" "d" "e" "f" | complement (slice "b" "c") (slice
             "d" "e") }}'
           - '[a f]'
+      D:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Delimit:
         Aliases:
         - delimit
@@ -2394,19 +2138,6 @@ tpl:
           treating values as key-value pairs.  The number of values must be even.
           The keys can be string slices, which will create the needed nested structure.
         Examples: []
-      EchoParam:
-        Aliases:
-        - echoParam
-        Args:
-        - c
-        - k
-        Description: |-
-          EchoParam returns the value in the collection c with key k if is set; otherwise, it returns an
-          empty string.
-          Deprecated: Use the index function instead.
-        Examples:
-        - - '{{ echoParam .Params "langCode" }}'
-          - en
       First:
         Aliases:
         - first
@@ -2527,8 +2258,9 @@ tpl:
         - querify
         Args:
         - params
-        Description: Querify encodes the given params in URL-encoded form ("bar=baz&foo=quux")
-          sorted by key.
+        Description: |-
+          Querify returns a URL query string composed of the given key-value pairs,
+          encoded and sorted by key.
         Examples:
         - - '{{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those")
             | safeHTML }}'
@@ -2722,14 +2454,9 @@ tpl:
     crypto:
       FNV32a:
         Aliases: null
-        Args:
-        - v
-        Description: |-
-          FNV32a hashes v using fnv32a algorithm.
-          <docsmeta>{"newIn": "0.98.0" }</docsmeta>
-        Examples:
-        - - '{{ crypto.FNV32a "Hugo Rocks!!" }}'
-          - "1515779328"
+        Args: null
+        Description: ""
+        Examples: null
       HMAC:
         Aliases:
         - hmac
@@ -2772,7 +2499,26 @@ tpl:
         - - '{{ sha256 "Hello world, gophers!" }}'
           - 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
     css:
+      PostCSS:
+        Aliases:
+        - postCSS
+        Args:
+        - args
+        Description: PostCSS processes the given Resource with PostCSS.
+        Examples: []
       Quoted:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Sass:
+        Aliases:
+        - toCSS
+        Args:
+        - args
+        Description: Sass processes the given Resource with SASS.
+        Examples: []
+      TailwindCSS:
         Aliases: null
         Args: null
         Description: ""
@@ -2997,6 +2743,24 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+    hash:
+      FNV32a:
+        Aliases: null
+        Args:
+        - v
+        Description: FNV32a hashes v using fnv32a algorithm.
+        Examples:
+        - - '{{ hash.FNV32a "Hugo Rocks!!" }}'
+          - "1515779328"
+      XxHash:
+        Aliases:
+        - xxhash
+        Args:
+        - v
+        Description: XxHash returns the xxHash of the input string.
+        Examples:
+        - - '{{ hash.XxHash "The quick brown fox jumps over the lazy dog" }}'
+          - 0b242d361fda71bc
     hugo:
       Deps:
         Aliases: null
@@ -3039,6 +2803,11 @@ tpl:
         Description: ""
         Examples: null
       IsServer:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Store:
         Aliases: null
         Args: null
         Description: ""
@@ -3123,6 +2892,11 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Mask:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Opacity:
         Aliases: null
         Args: null
@@ -3144,6 +2918,11 @@ tpl:
         Description: ""
         Examples: null
       Process:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      QR:
         Aliases: null
         Args: null
         Description: ""
@@ -3212,6 +2991,18 @@ tpl:
         - - '{{ "cats" | singularize }}'
           - cat
     js:
+      Babel:
+        Aliases:
+        - babel
+        Args:
+        - args
+        Description: Babel processes the given Resource with Babel.
+        Examples: []
+      Batch:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Build:
         Aliases: null
         Args: null
@@ -3301,11 +3092,6 @@ tpl:
         Args: null
         Description: ""
         Examples: null
-      NumFmt:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
       Translate:
         Aliases:
         - i18n
@@ -3325,6 +3111,14 @@ tpl:
         Examples:
         - - '{{ math.Abs -2.1 }}'
           - "2.1"
+      Acos:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Acos returns the arccosine, in radians, of n.
+        Examples:
+        - - '{{ math.Acos 1 }}'
+          - "0"
       Add:
         Aliases:
         - add
@@ -3334,6 +3128,32 @@ tpl:
         Examples:
         - - '{{ add 1 2 }}'
           - "3"
+      Asin:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Asin returns the arcsine, in radians, of n.
+        Examples:
+        - - '{{ math.Asin 1 }}'
+          - "1.5707963267948966"
+      Atan:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Atan returns the arctangent, in radians, of n.
+        Examples:
+        - - '{{ math.Atan 1 }}'
+          - "0.7853981633974483"
+      Atan2:
+        Aliases: null
+        Args:
+        - "n"
+        - m
+        Description: Atan2 returns the arc tangent of n/m, using the signs of the
+          two to determine the quadrant of the return value.
+        Examples:
+        - - '{{ math.Atan2 1 2 }}'
+          - "0.4636476090008061"
       Ceil:
         Aliases: null
         Args:
@@ -3343,6 +3163,14 @@ tpl:
         Examples:
         - - '{{ math.Ceil 2.1 }}'
           - "3"
+      Cos:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Cos returns the cosine of the radian argument n.
+        Examples:
+        - - '{{ math.Cos 1 }}'
+          - "0.5403023058681398"
       Counter:
         Aliases: null
         Args: null
@@ -3383,6 +3211,13 @@ tpl:
         Examples:
         - - '{{ math.Max 1 2 }}'
           - "2"
+      MaxInt64:
+        Aliases: null
+        Args: null
+        Description: MaxInt64 returns the maximum value for a signed 64-bit integer.
+        Examples:
+        - - '{{ math.MaxInt64 }}'
+          - "9223372036854775807"
       Min:
         Aliases: null
         Args:
@@ -3422,6 +3257,13 @@ tpl:
         Examples:
         - - '{{ mul 2 3 }}'
           - "6"
+      Pi:
+        Aliases: null
+        Args: null
+        Description: Pi returns the mathematical constant pi.
+        Examples:
+        - - '{{ math.Pi }}'
+          - "3.141592653589793"
       Pow:
         Aliases:
         - pow
@@ -3454,6 +3296,14 @@ tpl:
         Examples:
         - - '{{ math.Round 1.5 }}'
           - "2"
+      Sin:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Sin returns the sine of the radian argument n.
+        Examples:
+        - - '{{ math.Sin 1 }}'
+          - "0.8414709848078965"
       Sqrt:
         Aliases: null
         Args:
@@ -3476,6 +3326,30 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      Tan:
+        Aliases: null
+        Args:
+        - "n"
+        Description: Tan returns the tangent of the radian argument n.
+        Examples:
+        - - '{{ math.Tan 1 }}'
+          - "1.557407724654902"
+      ToDegrees:
+        Aliases: null
+        Args:
+        - "n"
+        Description: ToDegrees converts radians into degrees.
+        Examples:
+        - - '{{ math.ToDegrees 1.5707963267948966 }}'
+          - "90"
+      ToRadians:
+        Aliases: null
+        Args:
+        - "n"
+        Description: ToRadians converts degrees into radians.
+        Examples:
+        - - '{{ math.ToRadians 90 }}'
+          - "1.5707963267948966"
     openapi3:
       Unmarshal:
         Aliases: null
@@ -3641,12 +3515,10 @@ tpl:
           - Slice
     resources:
       Babel:
-        Aliases:
-        - babel
-        Args:
-        - args
-        Description: Babel processes the given Resource with Babel.
-        Examples: []
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       ByType:
         Aliases: null
         Args: null
@@ -3722,27 +3594,20 @@ tpl:
           minifier.
         Examples: []
       PostCSS:
-        Aliases:
-        - postCSS
-        Args:
-        - args
-        Description: PostCSS processes the given Resource with PostCSS
-        Examples: []
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       PostProcess:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       ToCSS:
-        Aliases:
-        - toCSS
-        Args:
-        - args
-        Description: |-
-          ToCSS converts the given Resource to CSS. You can optional provide an Options object
-          as second argument. As an option, you can e.g. specify e.g. the target path (string)
-          for the converted CSS resource.
-        Examples: []
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
     safe:
       CSS:
         Aliases:
@@ -3822,6 +3687,11 @@ tpl:
         Args: null
         Description: ""
         Examples: null
+      CheckReady:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Config:
         Aliases: null
         Args: null
@@ -3842,22 +3712,12 @@ tpl:
         Args: null
         Description: ""
         Examples: null
-      DisqusShortname:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
       ForEeachIdentityByName:
         Aliases: null
         Args: null
         Description: ""
         Examples: null
       GetPage:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
-      GoogleAnalytics:
         Aliases: null
         Args: null
         Description: ""
@@ -3873,11 +3733,6 @@ tpl:
         Description: ""
         Examples: null
       IsMultiLingual:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
-      IsServer:
         Aliases: null
         Args: null
         Description: ""
@@ -3942,11 +3797,6 @@ tpl:
         Args: null
         Description: ""
         Examples: null
-      RSSLink:
-        Aliases: null
-        Args: null
-        Description: ""
-        Examples: null
       RegularPages:
         Aliases: null
         Args: null
@@ -3968,6 +3818,11 @@ tpl:
         Description: ""
         Examples: null
       Social:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Store:
         Aliases: null
         Args: null
         Description: ""
@@ -4297,6 +4152,11 @@ tpl:
         Examples:
         - - '{{ "aabbaa" | strings.TrimRight "a" }}'
           - aabb
+      TrimSpace:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       TrimSuffix:
         Aliases: null
         Args:
@@ -4323,6 +4183,28 @@ tpl:
         - - '{{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}'
           - With <a href="/markdown">Markdown …</a>
     templates:
+      Current:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
+      Defer:
+        Aliases: null
+        Args:
+        - args
+        Description: Defer defers the execution of a template block.
+        Examples: []
+      DoDefer:
+        Aliases:
+        - doDefer
+        Args:
+        - ctx
+        - id
+        - optsv
+        Description: |-
+          DoDefer defers the execution of a template block.
+          For internal use only.
+        Examples: []
       Exists:
         Aliases: null
         Args:
@@ -4373,6 +4255,11 @@ tpl:
         Examples:
         - - 'dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}'
           - 'dateFormat: Wednesday, Jan 21, 2015'
+      In:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Now:
         Aliases:
         - now
@@ -4483,6 +4370,11 @@ tpl:
         Examples:
         - - '{{ plainify  "Hello <strong>world</strong>, gophers!" }}'
           - Hello world, gophers!
+      PortableText:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Remarshal:
         Aliases: null
         Args:
@@ -4502,6 +4394,11 @@ tpl:
             {
                "title": "Hello World"
             }
+      ToMath:
+        Aliases: null
+        Args: null
+        Description: ""
+        Examples: null
       Unmarshal:
         Aliases:
         - unmarshal

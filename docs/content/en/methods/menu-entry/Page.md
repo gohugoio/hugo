@@ -3,10 +3,10 @@ title: Page
 description: Returns the Page object associated with the given menu entry.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: page.Page
-  signatures: [MENUENTRY.Page]
+params:
+  functions_and_methods:
+    returnType: page.Page
+    signatures: [MENUENTRY.Page]
 ---
 
 Regardless of how you [define menu entries], an entry associated with a page has access to its [methods].
@@ -46,8 +46,8 @@ If the entry is not associated with a page, we use its `url` and `name` properti
 
 See the [menu templates] section for more information.
 
-[`LinkTitle`]: /methods/page/linktitle
-[`RelPermalink`]: /methods/page/relpermalink
+[`LinkTitle`]: /methods/page/linktitle/
+[`RelPermalink`]: /methods/page/relpermalink/
 [define menu entries]: /content-management/menus/
-[menu templates]: /templates/menu-templates/#page-references
-[methods]: /methods/page
+[menu templates]: /templates/menu/#page-references
+[methods]: /methods/page/

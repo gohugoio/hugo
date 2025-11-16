@@ -52,14 +52,16 @@ func TestConfig(t *testing.T) {
 		c.Assert(conf.AsciidocExt.Extensions[0], qt.Equals, "asciidoctor-html5s")
 	})
 
-	c.Run("Decode legacy typographer", func(c *qt.C) {
+	// We changed the typographer extension config from a bool to a struct in 0.112.0.
+	// We changed the footnote extension config from a bool to a struct in 0.151.0.
+	c.Run("Decode legacy Goldmark configs", func(c *qt.C) {
 		c.Parallel()
 		v := config.New()
 
-		// typographer was changed from a bool to a struct in 0.112.0.
 		v.Set("markup", map[string]any{
 			"goldmark": map[string]any{
 				"extensions": map[string]any{
+					"footnote":    false,
 					"typographer": false,
 				},
 			},
@@ -68,11 +70,13 @@ func TestConfig(t *testing.T) {
 		conf, err := Decode(v)
 
 		c.Assert(err, qt.IsNil)
+		c.Assert(conf.Goldmark.Extensions.Footnote.Enable, qt.Equals, false)
 		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.Equals, true)
 
 		v.Set("markup", map[string]any{
 			"goldmark": map[string]any{
 				"extensions": map[string]any{
+					"footnote":    true,
 					"typographer": true,
 				},
 			},
@@ -81,6 +85,7 @@ func TestConfig(t *testing.T) {
 		conf, err = Decode(v)
 
 		c.Assert(err, qt.IsNil)
+		c.Assert(conf.Goldmark.Extensions.Footnote.Enable, qt.Equals, true)
 		c.Assert(conf.Goldmark.Extensions.Typographer.Disable, qt.Equals, false)
 		c.Assert(conf.Goldmark.Extensions.Typographer.Ellipsis, qt.Equals, "&hellip;")
 	})

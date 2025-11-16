@@ -3,14 +3,14 @@ title: collections.Seq
 description: Returns a slice of integers.
 categories: []
 keywords: []
-action:
-  aliases: [seq]
-  related: []
-  returnType: '[]int'
-  signatures:
-    - collections.Seq LAST
-    - collections.Seq FIRST LAST
-    - collections.Seq FIRST INCREMENT LAST
+params:
+  functions_and_methods:
+    aliases: [seq]
+    returnType: '[]int'
+    signatures:
+      - collections.Seq LAST
+      - collections.Seq FIRST LAST
+      - collections.Seq FIRST INCREMENT LAST
 aliases: [/functions/seq]
 ---
 
@@ -31,6 +31,5 @@ A contrived example of iterating over a sequence of integers:
 {{ $product }} → 24
 ```
 
-{{% note %}}
-The slice created by the `seq` function is limited to 2000 elements.
-{{% /note %}}
+> [!note]
+> The slice created by the `seq` function is limited to 2000 elements.

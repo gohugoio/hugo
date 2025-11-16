@@ -110,6 +110,11 @@ func IsCI() bool {
 	return (os.Getenv("CI") != "" || os.Getenv("CI_LOCAL") != "") && os.Getenv("CIRCLE_BRANCH") == ""
 }
 
+// IsRealCI reports whether we're running in a CI server, but not in a local CI setup.
+func IsRealCI() bool {
+	return IsCI() && os.Getenv("CI_LOCAL") == ""
+}
+
 // IsGitHubAction reports whether we're running in a GitHub Action.
 func IsGitHubAction() bool {
 	return os.Getenv("GITHUB_ACTION") != ""

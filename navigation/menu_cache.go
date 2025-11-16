@@ -14,6 +14,7 @@
 package navigation
 
 import (
+	"slices"
 	"sync"
 )
 
@@ -27,7 +28,7 @@ func (entry menuCacheEntry) matches(menuList []Menu) bool {
 		return false
 	}
 	for i, m := range menuList {
-		if !menuEqual(m, entry.in[i]) {
+		if !slices.Equal(m, entry.in[i]) {
 			return false
 		}
 	}
@@ -43,21 +44,6 @@ func newMenuCache() *menuCache {
 type menuCache struct {
 	sync.RWMutex
 	m map[string][]menuCacheEntry
-}
-
-// menuEqual checks if two menus are equal.
-func menuEqual(m1, m2 Menu) bool {
-	if len(m1) != len(m2) {
-		return false
-	}
-
-	for i := range m1 {
-		if m1[i] != m2[i] {
-			return false
-		}
-	}
-
-	return true
 }
 
 // get retrieves a menu from the cache based on the provided key and menuLists.
@@ -84,7 +70,7 @@ func (c *menuCache) getP(key string, apply func(m *Menu), menuLists ...Menu) (Me
 	}
 
 	m := menuLists[0]
-	menuCopy := append(Menu(nil), m...)
+	menuCopy := slices.Clone(m)
 
 	if apply != nil {
 		apply(&menuCopy)

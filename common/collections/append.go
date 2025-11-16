@@ -16,6 +16,8 @@ package collections
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/gohugoio/hugo/common/hreflect"
 )
 
 // Append appends from to a slice to and returns the resulting slice.
@@ -25,7 +27,7 @@ func Append(to any, from ...any) (any, error) {
 	if len(from) == 0 {
 		return to, nil
 	}
-	tov, toIsNil := indirect(reflect.ValueOf(to))
+	tov, toIsNil := hreflect.Indirect(reflect.ValueOf(to))
 
 	toIsNil = toIsNil || to == nil
 	var tot reflect.Type
@@ -100,7 +102,7 @@ func Append(to any, from ...any) (any, error) {
 		fv := reflect.ValueOf(f)
 		if !fv.IsValid() || !fv.Type().AssignableTo(tot) {
 			// Fall back to a []interface{} slice.
-			tov, _ := indirect(reflect.ValueOf(to))
+			tov, _ := hreflect.Indirect(reflect.ValueOf(to))
 			return appendToInterfaceSlice(tov, from...)
 		}
 		tov = reflect.Append(tov, fv)
@@ -117,7 +119,7 @@ func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]any, erro
 			tos = append(tos, nil)
 			continue
 		}
-		for i := 0; i < slice.Len(); i++ {
+		for i := range slice.Len() {
 			tos = append(tos, slice.Index(i).Interface())
 		}
 	}
@@ -128,25 +130,11 @@ func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]any, erro
 func appendToInterfaceSlice(tov reflect.Value, from ...any) ([]any, error) {
 	var tos []any
 
-	for i := 0; i < tov.Len(); i++ {
+	for i := range tov.Len() {
 		tos = append(tos, tov.Index(i).Interface())
 	}
 
 	tos = append(tos, from...)
 
 	return tos, nil
-}
-
-// indirect is borrowed from the Go stdlib: 'text/template/exec.go'
-// TODO(bep) consolidate
-func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
-	for ; v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface; v = v.Elem() {
-		if v.IsNil() {
-			return v, true
-		}
-		if v.Kind() == reflect.Interface && v.NumMethod() > 0 {
-			break
-		}
-	}
-	return v, false
 }

@@ -29,8 +29,9 @@ func TestThatPageIsAvailableEverywhere(t *testing.T) {
 baseURL = 'http://example.com/'
 disableKinds = ["taxonomy", "term"]
 enableInlineShortcodes = true
-paginate = 1
 enableRobotsTXT = true
+[pagination]
+pagerSize = 1
 LANG_CONFIG
 -- content/_index.md --
 ---
@@ -120,7 +121,7 @@ Bundled page: {{ $p2_1.Content }}
 
   `
 
-	for _, multilingual := range []bool{false, true} {
+	for _, multilingual := range []bool{true, false} {
 		t.Run(fmt.Sprintf("multilingual-%t", multilingual), func(t *testing.T) {
 			// Fenced code blocks.
 			files := strings.ReplaceAll(filesTemplate, "$$$", "```")
@@ -137,14 +138,16 @@ weight = 2
 				files = strings.ReplaceAll(files, "LANG_CONFIG", "")
 			}
 
-			b := hugolib.NewIntegrationTestBuilder(
-				hugolib.IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-				},
-			).Build()
+			for range 1 {
 
-			b.AssertFileContent("public/index.html", `
+				b := hugolib.NewIntegrationTestBuilder(
+					hugolib.IntegrationTestConfig{
+						T:           t,
+						TxtarString: files,
+					},
+				).Build()
+
+				b.AssertFileContent("public/index.html", `
 Heading OK.
 Image OK.
 Link OK.
@@ -161,15 +164,16 @@ Render OK.
 Shortcode in bundled page OK.
 	`)
 
-			b.AssertFileContent("public/404.html", `404 Page OK.`)
-			b.AssertFileContent("public/robots.txt", `Robots OK.`)
-			b.AssertFileContent("public/homealias/index.html", `Alias OK.`)
-			b.AssertFileContent("public/page/1/index.html", `Alias OK.`)
-			b.AssertFileContent("public/page/2/index.html", `Page OK.`)
-			if multilingual {
-				b.AssertFileContent("public/sitemap.xml", `SitemapIndex OK: sitemapindex`)
-			} else {
-				b.AssertFileContent("public/sitemap.xml", `Sitemap OK.`)
+				b.AssertFileContent("public/404.html", `404 Page OK.`)
+				b.AssertFileContent("public/robots.txt", `Robots OK.`)
+				b.AssertFileContent("public/homealias/index.html", `Alias OK.`)
+				b.AssertFileContent("public/page/1/index.html", `Alias OK.`)
+				b.AssertFileContent("public/page/2/index.html", `Page OK.`)
+				if multilingual {
+					b.AssertFileContent("public/sitemap.xml", `SitemapIndex OK: sitemapindex`)
+				} else {
+					b.AssertFileContent("public/sitemap.xml", `Sitemap OK.`)
+				}
 			}
 		})
 	}
@@ -191,7 +195,7 @@ title: "P1"
 
 # Heading 1
 -- layouts/shortcodes/toc.html --
-{{ page.TableOfContents }} 
+{{ page.TableOfContents }}
 -- layouts/_default/single.html --
 {{ .Content }}
 `
@@ -218,4 +222,24 @@ disableLiveReload = true
 	b := hugolib.TestRunning(t, files)
 
 	b.AssertFileContent("public/index.html", "1\n2\n3")
+}
+
+func TestThatPageGitInfoShouldBeNil(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/all.html --
+GitInfo: {{ with .GitInfo }}FAIL{{ end }}
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "! FAIL")
 }

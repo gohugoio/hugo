@@ -3,12 +3,10 @@ title: Local
 description: Returns the given time.Time value with the location set to local time.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/time/UTC
-    - functions/time/AsTime
-  returnType: time.Time
-  signatures: [TIME.Local]
+params:
+  functions_and_methods:
+    returnType: time.Time
+    signatures: [TIME.Local]
 ---
 
 ```go-html-template

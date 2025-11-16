@@ -25,6 +25,8 @@ import (
 
 // DefaultConfig holds the default configuration for the HTTP cache.
 var DefaultConfig = Config{
+	RespectCacheControlNoStoreInRequest:  true,
+	RespectCacheControlNoStoreInResponse: false,
 	Cache: Cache{
 		For: GlobMatcher{
 			Excludes: []string{"**"},
@@ -42,7 +44,13 @@ var DefaultConfig = Config{
 
 // Config holds the configuration for the HTTP cache.
 type Config struct {
-	// Configures the HTTP cache behaviour (RFC 9111).
+	// When enabled and there's a Cache-Control: no-store directive in the request, response will never be stored in disk cache.
+	RespectCacheControlNoStoreInRequest bool
+
+	// When enabled and there's a Cache-Control: no-store directive in the response, response will never be stored in disk cache.
+	RespectCacheControlNoStoreInResponse bool
+
+	// Enables HTTP cache behavior (RFC 9111) for these resources.
 	// When this is not enabled for a resource, Hugo will go straight to the file cache.
 	Cache Cache
 
@@ -52,12 +60,14 @@ type Config struct {
 }
 
 type Cache struct {
-	// Enable HTTP cache behaviour (RFC 9111) for these rsources.
+	// Enable HTTP cache behavior (RFC 9111) for these resources.
 	For GlobMatcher
 }
 
 func (c *Config) Compile() (ConfigCompiled, error) {
-	var cc ConfigCompiled
+	cc := ConfigCompiled{
+		Base: *c,
+	}
 
 	p, err := c.Cache.For.CompilePredicate()
 	if err != nil {
@@ -83,7 +93,6 @@ func (c *Config) Compile() (ConfigCompiled, error) {
 }
 
 // PollConfig holds the configuration for polling remote resources to detect changes in watch mode.
-// TODO1 make sure this enabled only in watch mode.
 type PollConfig struct {
 	// What remote resources to apply this configuration to.
 	For GlobMatcher
@@ -123,7 +132,12 @@ type GlobMatcher struct {
 	Includes []string
 }
 
+func (gm GlobMatcher) IsZero() bool {
+	return len(gm.Includes) == 0 && len(gm.Excludes) == 0
+}
+
 type ConfigCompiled struct {
+	Base        Config
 	For         predicate.P[string]
 	PollConfigs []PollConfigCompiled
 }
@@ -156,16 +170,19 @@ func (p PollConfigCompiled) IsZero() bool {
 }
 
 func (gm *GlobMatcher) CompilePredicate() (func(string) bool, error) {
-	var p predicate.P[string]
+	if gm.IsZero() {
+		panic("no includes or excludes")
+	}
+	var b predicate.PR[string]
 	for _, include := range gm.Includes {
 		g, err := glob.Compile(include, '/')
 		if err != nil {
 			return nil, err
 		}
-		fn := func(s string) bool {
-			return g.Match(s)
+		fn := func(s string) predicate.Match {
+			return predicate.BoolMatch(g.Match(s))
 		}
-		p = p.Or(fn)
+		b = b.Or(fn)
 	}
 
 	for _, exclude := range gm.Excludes {
@@ -173,16 +190,16 @@ func (gm *GlobMatcher) CompilePredicate() (func(string) bool, error) {
 		if err != nil {
 			return nil, err
 		}
-		fn := func(s string) bool {
-			return !g.Match(s)
+		fn := func(s string) predicate.Match {
+			return predicate.BoolMatch(!g.Match(s))
 		}
-		p = p.And(fn)
+		b = b.And(fn)
 	}
 
-	return p, nil
+	return b.BoolFunc(), nil
 }
 
-func DecodeConfig(bcfg config.BaseConfig, m map[string]any) (Config, error) {
+func DecodeConfig(_ config.BaseConfig, m map[string]any) (Config, error) {
 	if len(m) == 0 {
 		return DefaultConfig, nil
 	}
@@ -202,6 +219,21 @@ func DecodeConfig(bcfg config.BaseConfig, m map[string]any) (Config, error) {
 
 	if err := decoder.Decode(m); err != nil {
 		return c, err
+	}
+
+	if c.Cache.For.IsZero() {
+		c.Cache.For = DefaultConfig.Cache.For
+	}
+
+	for pci := range c.Polls {
+		if c.Polls[pci].For.IsZero() {
+			c.Polls[pci].For = DefaultConfig.Cache.For
+			c.Polls[pci].Disable = true
+		}
+	}
+
+	if len(c.Polls) == 0 {
+		c.Polls = DefaultConfig.Polls
 	}
 
 	return c, nil

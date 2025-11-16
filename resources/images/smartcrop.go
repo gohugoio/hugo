@@ -25,10 +25,10 @@ import (
 const (
 	// Do not change.
 	smartCropIdentifier = "smart"
-
-	// This is just a increment, starting on 1. If Smart Crop improves its cropping, we
+	SmartCropAnchor     = 1000
+	// This is just a increment, starting on 0. If Smart Crop improves its cropping, we
 	// need a way to trigger a re-generation of the crops in the wild, so increment this.
-	smartCropVersionNumber = 1
+	smartCropVersionNumber = 0
 )
 
 func (p *ImageProcessor) newSmartCropAnalyzer(filter gift.Resampling) smartcrop.Analyzer {
@@ -81,7 +81,7 @@ func (p *ImageProcessor) smartCrop(img image.Image, width, height int, filter gi
 	return img.Bounds().Intersect(rect), nil
 }
 
-// Calculates scaling factors using old and new image dimensions.
+// Calculates scaling factors using old and new image sitesmatrix.
 // Code borrowed from https://github.com/nfnt/resize/blob/83c6a9932646f83e3267f353373d47347b6036b2/resize.go#L593
 func calcFactorsNfnt(width, height uint, oldWidth, oldHeight float64) (scaleX, scaleY float64) {
 	if width == 0 {

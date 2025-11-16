@@ -11,11 +11,13 @@ func TestMultihost(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-paginate = 1
 defaultContentLanguage = "fr"
 defaultContentLanguageInSubdir = false
 staticDir = ["s1", "s2"]
 enableRobotsTXT = true
+
+[pagination]
+pagerSize = 1
 
 [permalinks]
 other = "/somewhere/else/:filename"
@@ -105,9 +107,11 @@ robots|{{ site.Language.Lang }}
 	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "Foo: https://example.fr/mysect/mybundle/foo.1cbec737f863e4922cee63cc2ebbfaafcd1cff8b790d8cfd2e6a5d550b648afa.txt|")
 
 	// Assets CSS fingerprinted
-	b.AssertFileContent("public/en/mysect/mybundle/index.html", "CSS: https://example.fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
+	// Note that before Hugo v0.149.0 we rendered the project starting with defaultContentLanguage,
+	// now with a more complex matrix, we have one sort order.
+	b.AssertFileContent("public/en/mysect/mybundle/index.html", "CSS: https://example.com/docs/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
 	b.AssertFileContent("public/en/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css", "body { color: red; }")
-	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "CSS: https://example.fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
+	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "CSS: https://example.com/docs/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
 	b.AssertFileContent("public/fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css", "body { color: red; }")
 }
 
@@ -203,12 +207,12 @@ title: mybundle-en
 	b.AssertFileExists("public/de/mybundle/pixel.png", true)
 	b.AssertFileExists("public/en/mybundle/pixel.png", true)
 
-	b.AssertFileExists("public/de/mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x2_resize_box_3.png", true)
+	b.AssertFileExists("public/de/mybundle/pixel_hu_58204cbc58507d74.png", true)
 	// failing test below
-	b.AssertFileExists("public/en/mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x2_resize_box_3.png", true)
+	b.AssertFileExists("public/en/mybundle/pixel_hu_58204cbc58507d74.png", true)
 }
 
-func TestMultihostResourceOneBaseURLWithSuPath(t *testing.T) {
+func TestMultihostResourceOneBaseURLWithSubPath(t *testing.T) {
 	files := `
 -- hugo.toml --
 defaultContentLanguage = "en"

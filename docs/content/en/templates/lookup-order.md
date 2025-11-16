@@ -1,15 +1,13 @@
 ---
 title: Template lookup order
+linkTitle: Lookup order
 description: Hugo uses the rules below to select a template for a given page, starting from the most specific.
-categories: [templates,fundamentals]
-keywords: [templates]
-menu:
-  docs:
-    parent: templates
-    weight: 30
-weight: 30
-toc: true
+categories: []
+keywords: []
+weight: 20
 ---
+
+{{< newtemplatesystem >}}
 
 ## Lookup rules
 
@@ -22,7 +20,7 @@ Layout
 : Can be set in front matter.
 
 Output Format
-: See [Custom Output Formats](/templates/output-formats). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`), but look for less specific templates.
+: See [configure output formats](/configuration/output-formats/). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`), but look for less specific templates.
 
 Note that if the output format's Media Type has more than one suffix defined, only the first is considered.
 
@@ -35,9 +33,8 @@ Type
 Section
 : Is relevant for `section`, `taxonomy` and `term` types.
 
-{{% note %}}
-Templates can live in either the project's or the themes' layout folders, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
-{{% /note %}}
+> [!note]
+> Templates can live in either the project's or the themes' `layout` directories, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
 
 ## Target a template
 
@@ -51,9 +48,7 @@ content/
 └── contact.md
 ```
 
-Files in the root of the content directory have a [content type] of `page`. To render these pages with a unique template, create a matching subdirectory:
-
-[content type]: /getting-started/glossary/#content-type
+Files in the root of the `content` directory have a [content type](g) of `page`. To render these pages with a unique template, create a matching subdirectory:
 
 ```text
 layouts/
@@ -63,7 +58,7 @@ layouts/
 
 But the contact page probably has a form and requires a different template. In the front matter specify `layout`:
 
-{{< code-toggle file=content/contact.md >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 layout = 'contact'
 {{< /code-toggle >}}
@@ -79,12 +74,12 @@ layouts/
 
 As a content type, the word `page` is vague. Perhaps `miscellaneous` would be better. Add `type` to the front matter of each page:
 
-{{< code-toggle file=content/about.md >}}
+{{< code-toggle file=content/about.md fm=true >}}
 title = 'About'
 type = 'miscellaneous'
 {{< /code-toggle >}}
 
-{{< code-toggle file=content/contact.md >}}
+{{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
 type = 'miscellaneous'
 layout = 'contact'
@@ -98,39 +93,3 @@ layouts/
     └── contact.html  <-- renders contact.md
     └── single.html   <-- renders about.md
 ```
-
-## Home page
-
-{{< datatable-filtered "output" "layouts" "Kind == home" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Single pages
-
-{{< datatable-filtered "output" "layouts" "Kind == page" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Section pages
-
-A section page is a list of pages within a given section.
-
-{{< datatable-filtered "output" "layouts" "Kind == section" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Taxonomy pages
-
-A taxonomy page is a list of terms within a given taxonomy. The examples below assume the following site configuration:
-
-{{< code-toggle file=hugo >}}
-[taxonomies]
-category = 'categories'
-{{< /code-toggle >}}
-
-{{< datatable-filtered "output" "layouts" "Kind == taxonomy" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
-
-## Term pages
-
-A term page is a list of pages associated with a given term. The examples below assume the following site configuration:
-
-{{< code-toggle file=hugo >}}
-[taxonomies]
-category = 'categories'
-{{< /code-toggle >}}
-
-{{< datatable-filtered "output" "layouts" "Kind == term" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}

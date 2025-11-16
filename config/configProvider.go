@@ -20,15 +20,15 @@ import (
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/langs"
 )
 
 // AllProvider is a sub set of all config settings.
 type AllProvider interface {
-	Language() *langs.Language
-	Languages() langs.Languages
-	LanguagesDefaultFirst() langs.Languages
+	Language() any
+	LanguageIndex() int
+	Languages() any
 	LanguagePrefix() string
 	BaseURL() urls.BaseURL
 	BaseURLLiveReload() urls.BaseURL
@@ -50,16 +50,20 @@ type AllProvider interface {
 	IsUglyURLs(section string) bool
 	DefaultContentLanguage() string
 	DefaultContentLanguageInSubdir() bool
+	DefaultContentRoleInSubdir() bool
+	DefaultContentVersionInSubdir() bool
+	DefaultContentsitesMatrix() *sitesmatrix.IntSets
+	AllSitesMatrix() *sitesmatrix.IntSets
+	IsKindEnabled(string) bool
 	IsLangDisabled(string) bool
 	SummaryLength() int
-	Paginate() int
-	PaginatePath() string
+	Pagination() Pagination
 	BuildExpired() bool
 	BuildFuture() bool
 	BuildDrafts() bool
 	Running() bool
 	Watching() bool
-	NewIdentityManager(name string) identity.Manager
+	NewIdentityManager(opts ...identity.ManagerOption) identity.Manager
 	FastRenderMode() bool
 	PrintUnusedTemplates() bool
 	EnableMissingTranslationPlaceholders() bool
@@ -74,10 +78,11 @@ type AllProvider interface {
 	IgnoredLogs() map[string]bool
 	WorkingDir() string
 	EnableEmoji() bool
+	ConfiguredDimensions() *sitesmatrix.ConfiguredDimensions
 }
 
 // We cannot import the media package as that would create a circular dependency.
-// This interface defineds a sub set of what media.ContentTypes provides.
+// This interface defines a subset of what media.ContentTypes provides.
 type ContentTypesProvider interface {
 	IsContentSuffix(suffix string) bool
 	IsContentFile(filename string) bool
@@ -111,3 +116,6 @@ func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	sd := cfg.Get(key)
 	return types.ToStringSlicePreserveString(sd)
 }
+
+/*func (cd ConfiguredDimensions) Language(v sitesmatrix.Vector) ConfiguredDimension {
+}*/

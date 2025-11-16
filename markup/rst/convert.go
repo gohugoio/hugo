@@ -100,10 +100,7 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 
 	bodyEnd := bytes.Index(result, []byte("\n</body>"))
 	if bodyEnd < 0 || bodyEnd >= len(result) {
-		bodyEnd = len(result) - 1
-		if bodyEnd < 0 {
-			bodyEnd = 0
-		}
+		bodyEnd = max(len(result)-1, 0)
 	}
 
 	return result[bodyStart+7 : bodyEnd], err

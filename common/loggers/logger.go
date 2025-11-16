@@ -38,8 +38,8 @@ var (
 // Options defines options for the logger.
 type Options struct {
 	Level              logg.Level
-	Stdout             io.Writer
-	Stderr             io.Writer
+	StdOut             io.Writer
+	StdErr             io.Writer
 	DistinctLevel      logg.Level
 	StoreErrors        bool
 	HandlerPost        func(e *logg.Entry) error
@@ -48,21 +48,22 @@ type Options struct {
 
 // New creates a new logger with the given options.
 func New(opts Options) Logger {
-	if opts.Stdout == nil {
-		opts.Stdout = os.Stdout
+	if opts.StdOut == nil {
+		opts.StdOut = os.Stdout
 	}
-	if opts.Stderr == nil {
-		opts.Stderr = os.Stdout
+	if opts.StdErr == nil {
+		opts.StdErr = os.Stderr
 	}
+
 	if opts.Level == 0 {
 		opts.Level = logg.LevelWarn
 	}
 
 	var logHandler logg.Handler
-	if terminal.PrintANSIColors(os.Stdout) {
-		logHandler = newDefaultHandler(opts.Stdout, opts.Stderr)
+	if terminal.PrintANSIColors(os.Stderr) {
+		logHandler = newDefaultHandler(opts.StdErr, opts.StdErr)
 	} else {
-		logHandler = newNoColoursHandler(opts.Stdout, opts.Stderr, false, nil)
+		logHandler = newNoAnsiEscapeHandler(opts.StdErr, opts.StdErr, false, nil)
 	}
 
 	errorsw := &strings.Builder{}
@@ -95,7 +96,7 @@ func New(opts Options) Logger {
 	}
 
 	if opts.StoreErrors {
-		h := newNoColoursHandler(io.Discard, errorsw, true, func(e *logg.Entry) bool {
+		h := newNoAnsiEscapeHandler(io.Discard, errorsw, true, func(e *logg.Entry) bool {
 			return e.Level >= logg.LevelError
 		})
 
@@ -110,7 +111,7 @@ func New(opts Options) Logger {
 		logHandler = newStopHandler(logOnce, logHandler)
 	}
 
-	if opts.SuppressStatements != nil && len(opts.SuppressStatements) > 0 {
+	if len(opts.SuppressStatements) > 0 {
 		logHandler = newStopHandler(newSuppressStatementsHandler(opts.SuppressStatements), logHandler)
 	}
 
@@ -137,7 +138,8 @@ func New(opts Options) Logger {
 		logCounters: logCounters,
 		errors:      errorsw,
 		reset:       reset,
-		out:         opts.Stdout,
+		stdOut:      opts.StdOut,
+		stdErr:      opts.StdErr,
 		level:       opts.Level,
 		logger:      logger,
 		tracel:      l.WithLevel(logg.LevelTrace),
@@ -153,8 +155,6 @@ func NewDefault() Logger {
 	opts := Options{
 		DistinctLevel: logg.LevelWarn,
 		Level:         logg.LevelWarn,
-		Stdout:        os.Stdout,
-		Stderr:        os.Stdout,
 	}
 	return New(opts)
 }
@@ -163,8 +163,6 @@ func NewTrace() Logger {
 	opts := Options{
 		DistinctLevel: logg.LevelWarn,
 		Level:         logg.LevelTrace,
-		Stdout:        os.Stdout,
-		Stderr:        os.Stdout,
 	}
 	return New(opts)
 }
@@ -189,7 +187,8 @@ type Logger interface {
 	Level() logg.Level
 	LoggCount(logg.Level) int
 	Logger() logg.Logger
-	Out() io.Writer
+	StdOut() io.Writer
+	StdErr() io.Writer
 	Printf(format string, v ...any)
 	Println(v ...any)
 	PrintTimerIfDelayed(start time.Time, name string)
@@ -207,7 +206,8 @@ type logAdapter struct {
 	logCounters *logLevelCounter
 	errors      *strings.Builder
 	reset       func()
-	out         io.Writer
+	stdOut      io.Writer
+	stdErr      io.Writer
 	level       logg.Level
 	logger      logg.Logger
 	tracel      logg.LevelLogger
@@ -259,8 +259,12 @@ func (l *logAdapter) Logger() logg.Logger {
 	return l.logger
 }
 
-func (l *logAdapter) Out() io.Writer {
-	return l.out
+func (l *logAdapter) StdOut() io.Writer {
+	return l.stdOut
+}
+
+func (l *logAdapter) StdErr() io.Writer {
+	return l.stdErr
 }
 
 // PrintTimerIfDelayed prints a time statement to the FEEDBACK logger
@@ -271,7 +275,7 @@ func (l *logAdapter) PrintTimerIfDelayed(start time.Time, name string) {
 	if milli < 500 {
 		return
 	}
-	l.Printf("%s in %v ms", name, milli)
+	fmt.Fprintf(l.stdErr, "%s in %v ms", name, milli)
 }
 
 func (l *logAdapter) Printf(format string, v ...any) {
@@ -279,11 +283,11 @@ func (l *logAdapter) Printf(format string, v ...any) {
 	if !strings.HasSuffix(format, "\n") {
 		format += "\n"
 	}
-	fmt.Fprintf(l.out, format, v...)
+	fmt.Fprintf(l.stdOut, format, v...)
 }
 
 func (l *logAdapter) Println(v ...any) {
-	fmt.Fprintln(l.out, v...)
+	fmt.Fprintln(l.stdOut, v...)
 }
 
 func (l *logAdapter) Reset() {
@@ -323,11 +327,13 @@ func (l *logAdapter) Errors() string {
 }
 
 func (l *logAdapter) Erroridf(id, format string, v ...any) {
+	id = strings.ToLower(id)
 	format += l.idfInfoStatement("error", id, format)
 	l.errorl.WithField(FieldNameStatementID, id).Logf(format, v...)
 }
 
 func (l *logAdapter) Warnidf(id, format string, v ...any) {
+	id = strings.ToLower(id)
 	format += l.idfInfoStatement("warning", id, format)
 	l.warnl.WithField(FieldNameStatementID, id).Logf(format, v...)
 }

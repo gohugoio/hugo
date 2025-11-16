@@ -14,16 +14,16 @@
 package compare
 
 import (
+	"math"
 	"path"
 	"reflect"
 	"runtime"
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/htesting/hqt"
-
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/version"
+	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/spf13/cast"
 )
 
@@ -199,6 +199,21 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b any)
 		{5, 5, 0},
 		{int(5), int64(5), 0},
 		{int32(5), int(5), 0},
+		{int16(4), 4, 0},
+		{uint8(4), 4, 0},
+		{uint16(4), 4, 0},
+		{uint16(4), 4, 0},
+		{uint32(4), uint16(4), 0},
+		{uint32(4), uint16(3), 1},
+		{uint64(4), 4, 0},
+		{4, uint64(4), 0},
+		{uint64(4), 5, -1},
+		{5, uint64(4), 1},
+		{uint64(5), uint64(4), 1},
+		{uint64(4), uint64(5), -1},
+		{uint64(5), uint64(5), 0},
+		{uint64(math.MaxUint32), uint32(math.MaxUint32), 0},
+		{uint64(math.MaxUint16), int(math.MaxUint16), 0},
 		{int16(4), int(5), -1},
 		{uint(15), uint64(15), 0},
 		{-2, 1, -1},
@@ -223,17 +238,17 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b any)
 		{tstEqerType1("a"), tstEqerType2("a"), 0},
 		{tstEqerType2("a"), tstEqerType1("a"), 0},
 		{tstEqerType2("a"), tstEqerType1("b"), -1},
-		{hugo.MustParseVersion("0.32.1").Version(), hugo.MustParseVersion("0.32").Version(), 1},
-		{hugo.MustParseVersion("0.35").Version(), hugo.MustParseVersion("0.32").Version(), 1},
-		{hugo.MustParseVersion("0.36").Version(), hugo.MustParseVersion("0.36").Version(), 0},
-		{hugo.MustParseVersion("0.32").Version(), hugo.MustParseVersion("0.36").Version(), -1},
-		{hugo.MustParseVersion("0.32").Version(), "0.36", -1},
-		{"0.36", hugo.MustParseVersion("0.32").Version(), 1},
-		{"0.36", hugo.MustParseVersion("0.36").Version(), 0},
-		{"0.37", hugo.MustParseVersion("0.37-DEV").Version(), 1},
-		{"0.37-DEV", hugo.MustParseVersion("0.37").Version(), -1},
-		{"0.36", hugo.MustParseVersion("0.37-DEV").Version(), -1},
-		{"0.37-DEV", hugo.MustParseVersion("0.37-DEV").Version(), 0},
+		{version.MustParseVersion("0.32.1").Version(), version.MustParseVersion("0.32").Version(), 1},
+		{version.MustParseVersion("0.35").Version(), version.MustParseVersion("0.32").Version(), 1},
+		{version.MustParseVersion("0.36").Version(), version.MustParseVersion("0.36").Version(), 0},
+		{version.MustParseVersion("0.32").Version(), version.MustParseVersion("0.36").Version(), -1},
+		{version.MustParseVersion("0.32").Version(), "0.36", -1},
+		{"0.36", version.MustParseVersion("0.32").Version(), 1},
+		{"0.36", version.MustParseVersion("0.36").Version(), 0},
+		{"0.37", version.MustParseVersion("0.37-DEV").Version(), 1},
+		{"0.37-DEV", version.MustParseVersion("0.37").Version(), -1},
+		{"0.36", version.MustParseVersion("0.37-DEV").Version(), -1},
+		{"0.37-DEV", version.MustParseVersion("0.37-DEV").Version(), 0},
 		// https://github.com/gohugoio/hugo/issues/5905
 		{nil, nil, 0},
 		{testT.NonEmptyInterfaceNil, nil, 0},
@@ -436,12 +451,35 @@ func TestTimeUnix(t *testing.T) {
 }
 
 func TestConditional(t *testing.T) {
+	t.Parallel()
 	c := qt.New(t)
-	n := New(time.UTC, false)
-	a, b := "a", "b"
+	ns := New(time.UTC, false)
 
-	c.Assert(n.Conditional(true, a, b), qt.Equals, a)
-	c.Assert(n.Conditional(false, a, b), qt.Equals, b)
+	type args struct {
+		cond any
+		v1   any
+		v2   any
+	}
+	tests := []struct {
+		name string
+		args args
+		want any
+	}{
+		{"a", args{cond: true, v1: "true", v2: "false"}, "true"},
+		{"b", args{cond: false, v1: "true", v2: "false"}, "false"},
+		{"c", args{cond: 1, v1: "true", v2: "false"}, "true"},
+		{"d", args{cond: 0, v1: "true", v2: "false"}, "false"},
+		{"e", args{cond: "foo", v1: "true", v2: "false"}, "true"},
+		{"f", args{cond: "", v1: "true", v2: "false"}, "false"},
+		{"g", args{cond: []int{6, 7}, v1: "true", v2: "false"}, "true"},
+		{"h", args{cond: []int{}, v1: "true", v2: "false"}, "false"},
+		{"i", args{cond: nil, v1: "true", v2: "false"}, "false"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c.Assert(ns.Conditional(tt.args.cond, tt.args.v1, tt.args.v2), qt.Equals, tt.want)
+		})
+	}
 }
 
 // Issue 9462

@@ -1,0 +1,29 @@
+{{/* prettier-ignore-start */ -}}
+{{- /*
+Renders a callout indicating the version in which a feature was deprecated.
+
+Include descriptive text between the opening and closing tags, or omit the
+descriptive text and call the shortcode with a self-closing tag.
+
+@param {string} 0 The semantic version string, with or without a leading v.
+
+@example  {{< deprecated-in 0.144.0 />}}
+
+@example  {{< deprecated-in 0.144.0 >}}
+          Some descriptive text here.
+          {{< /deprecated-in >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
+{{- with $version := .Get 0 | strings.TrimLeft "vV" }}
+  {{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}
+  {{- $inner := strings.TrimSpace $.Inner }}
+  {{- $text := printf "Deprecated in [v%s](%s)\n\n%s" $version $href $inner | $.Page.RenderString (dict "display" "block") }}
+  {{- partial "layouts/blocks/alert.html" (dict
+    "color" "orange"
+    "icon" "exclamation"
+    "text" $text
+    )
+  }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a single positional parameter indicating version. See %s" .Name .Position }}
+{{- end }}

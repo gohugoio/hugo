@@ -31,7 +31,7 @@ func TestDecodeBuildConfig(t *testing.T) {
 	c := qt.New(t)
 
 	configTempl := `
-[_build]
+[build]
 render = %s
 list = %s
 publishResources = true`
@@ -46,43 +46,37 @@ publishResources = true`
 				Render:           Always,
 				List:             Always,
 				PublishResources: true,
-				set:              true,
 			},
 		},
 		{[]any{"true", "false"}, BuildConfig{
 			Render:           Always,
 			List:             Never,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"always"`, `"always"`}, BuildConfig{
 			Render:           Always,
 			List:             Always,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"never"`, `"never"`}, BuildConfig{
 			Render:           Never,
 			List:             Never,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"link"`, `"local"`}, BuildConfig{
 			Render:           Link,
 			List:             ListLocally,
 			PublishResources: true,
-			set:              true,
 		}},
 		{[]any{`"always"`, `"asdfadf"`}, BuildConfig{
 			Render:           Always,
 			List:             Always,
 			PublishResources: true,
-			set:              true,
 		}},
 	} {
 		cfg, err := config.FromConfigString(fmt.Sprintf(configTempl, test.args...), "toml")
 		c.Assert(err, qt.IsNil)
-		bcfg, err := DecodeBuildConfig(cfg.Get("_build"))
+		bcfg, err := DecodeBuildConfig(cfg.Get("build"))
 		c.Assert(err, qt.IsNil)
 
 		eq := qt.CmpEquals(hqt.DeepAllowUnexported(BuildConfig{}))
@@ -102,27 +96,46 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 		date string
 		slug string
 	}{
-		{"page.md", "0001-01-01", ""},
-		{"2012-09-12-page.md", "2012-09-12", "page"},
-		{"2018-02-28-page.md", "2018-02-28", "page"},
-		{"2018-02-28_page.md", "2018-02-28", "page"},
-		{"2018-02-28 page.md", "2018-02-28", "page"},
-		{"2018-02-28page.md", "2018-02-28", "page"},
-		{"2018-02-28-.md", "2018-02-28", ""},
-		{"2018-02-28-.md", "2018-02-28", ""},
-		{"2018-02-28.md", "2018-02-28", ""},
-		{"2018-02-28-page", "2018-02-28", "page"},
-		{"2012-9-12-page.md", "0001-01-01", ""},
-		{"asdfasdf.md", "0001-01-01", ""},
+		// date
+		{"2025-07-04 page.md", "2025-07-04T00:00:00+02:00", "page"},
+		{"2025-07-04-page.md", "2025-07-04T00:00:00+02:00", "page"},
+		{"2025-07-04_page.md", "2025-07-04T00:00:00+02:00", "page"},
+		{"2025-07-04page.md", "2025-07-04T00:00:00+02:00", "page"},
+		{"2025-07-04", "2025-07-04T00:00:00+02:00", ""},
+		{"2025-07-04-.md", "2025-07-04T00:00:00+02:00", ""},
+		{"2025-07-04.md", "2025-07-04T00:00:00+02:00", ""},
+		// date and time
+		{"2025-07-04-22-17-13 page.md", "2025-07-04T22:17:13+02:00", "page"},
+		{"2025-07-04-22-17-13-page.md", "2025-07-04T22:17:13+02:00", "page"},
+		{"2025-07-04-22-17-13_page.md", "2025-07-04T22:17:13+02:00", "page"},
+		{"2025-07-04-22-17-13page.md", "2025-07-04T22:17:13+02:00", "page"},
+		{"2025-07-04-22-17-13", "2025-07-04T22:17:13+02:00", ""},
+		{"2025-07-04-22-17-13-.md", "2025-07-04T22:17:13+02:00", ""},
+		{"2025-07-04-22-17-13.md", "2025-07-04T22:17:13+02:00", ""},
+		// date and time with other separators between the two
+		{"2025-07-04T22-17-13.md", "2025-07-04T22:17:13+02:00", ""},
+		{"2025-07-04 22-17-13.md", "2025-07-04T22:17:13+02:00", ""},
+		// no date or time
+		{"something.md", "0001-01-01T00:00:00+00:00", ""},                // 9 chars
+		{"some-thing-.md", "0001-01-01T00:00:00+00:00", ""},              // 10 chars
+		{"somethingsomething.md", "0001-01-01T00:00:00+00:00", ""},       // 18 chars
+		{"something-something.md", "0001-01-01T00:00:00+00:00", ""},      // 19 chars
+		{"something-something-else.md", "0001-01-01T00:00:00+00:00", ""}, // 27 chars
+		// invalid
+		{"2025-07-4-page.md", "0001-01-01T00:00:00+00:00", ""},
+		{"2025-07-4-22-17-13-page.md", "0001-01-01T00:00:00+00:00", ""},
+		{"asdfasdf.md", "0001-01-01T00:00:00+00:00", ""},
 	}
 
+	location, err := time.LoadLocation("Europe/Oslo")
+	if err != nil {
+		t.Error("Unable to determine location from given time zone")
+	}
 	for _, test := range tests {
-		expecteFDate, err := time.Parse("2006-01-02", test.date)
-		c.Assert(err, qt.IsNil)
 
-		gotDate, gotSlug := dateAndSlugFromBaseFilename(time.UTC, test.name)
+		gotDate, gotSlug := dateAndSlugFromBaseFilename(location, test.name)
 
-		c.Assert(gotDate, qt.Equals, expecteFDate)
+		c.Assert(gotDate.Format("2006-01-02T15:04:05-07:00"), qt.Equals, test.date)
 		c.Assert(gotSlug, qt.Equals, test.slug)
 
 	}

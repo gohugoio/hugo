@@ -14,7 +14,7 @@
 package reflect
 
 import (
-	"reflect"
+	"github.com/gohugoio/hugo/common/hreflect"
 )
 
 // New returns a new instance of the reflect-namespaced template functions.
@@ -27,10 +27,10 @@ type Namespace struct{}
 
 // IsMap reports whether v is a map.
 func (ns *Namespace) IsMap(v any) bool {
-	return reflect.ValueOf(v).Kind() == reflect.Map
+	return hreflect.IsMap(v)
 }
 
 // IsSlice reports whether v is a slice.
 func (ns *Namespace) IsSlice(v any) bool {
-	return reflect.ValueOf(v).Kind() == reflect.Slice
+	return hreflect.IsSlice(v)
 }

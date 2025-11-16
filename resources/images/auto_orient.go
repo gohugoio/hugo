@@ -19,6 +19,7 @@ import (
 
 	"github.com/disintegration/gift"
 	"github.com/gohugoio/hugo/resources/images/exif"
+	"github.com/spf13/cast"
 )
 
 var _ gift.Filter = (*autoOrientFilter)(nil)
@@ -49,7 +50,8 @@ func (f autoOrientFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {
 
 func (f autoOrientFilter) AutoOrient(exifInfo *exif.ExifInfo) gift.Filter {
 	if exifInfo != nil {
-		if orientation, ok := exifInfo.Tags["Orientation"].(int); ok {
+		if v, ok := exifInfo.Tags["Orientation"]; ok {
+			orientation := cast.ToInt(v)
 			if filter, ok := transformationFilters[orientation]; ok {
 				return filter
 			}

@@ -3,14 +3,11 @@ title: images.Hue
 description: Returns an image filter that rotates the hue of an image.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-  returnType: images.filter
-  signatures: [images.Hue SHIFT]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Hue SHIFT]
 ---
 
 The hue angle shift is typically in the range [-180, 180] where 0 has no effect.
@@ -23,7 +20,7 @@ Create the filter:
 {{ $filter := images.Hue -15 }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

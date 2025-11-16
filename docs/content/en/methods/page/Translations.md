@@ -1,15 +1,12 @@
 ---
 title: Translations
-description: Returns all translation of the given page, excluding the current language.  
+description: Returns all translations of the given page, excluding the current language, sorted by language weight.
 categories: []
 keywords: []
-action:
-  related:
-   - methods/page/AllTranslations
-   - methods/page/IsTranslated
-   - methods/page/TranslationKey
-  returnType: page.Pages
-  signatures: [PAGE.Translations]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.Translations]
 ---
 
 With this site configuration:
@@ -63,9 +60,9 @@ And this template:
 {{ with .Translations }}
   <ul>
     {{ range . }}
-      {{ $langName := or .Language.LanguageName .Language.Lang }}
-      {{ $langCode := or .Language.LanguageCode .Language.Lang }}
-      <li><a href="{{ .RelPermalink }}" hreflang="{{ $langCode }}">{{ .LinkTitle }} ({{ $langName }})</a></li>
+      <li>
+        <a href="{{ .RelPermalink }}" hreflang="{{ .Language.LanguageCode }}">{{ .LinkTitle }} ({{ or .Language.LanguageName .Language.Lang }})</a>
+      </li>
     {{ end }}
   </ul>
 {{ end }}

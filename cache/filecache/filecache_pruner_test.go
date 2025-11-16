@@ -59,7 +59,7 @@ dir = ":resourceDir/_gen"
 		caches, err := filecache.NewCaches(p)
 		c.Assert(err, qt.IsNil)
 		cache := caches[name]
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			id := fmt.Sprintf("i%d", i)
 			cache.GetOrCreateBytes(id, func() ([]byte, error) {
 				return []byte("abc"), nil
@@ -74,7 +74,7 @@ dir = ":resourceDir/_gen"
 		c.Assert(err, qt.IsNil)
 		c.Assert(count, qt.Equals, 5, msg)
 
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			id := fmt.Sprintf("i%d", i)
 			v := cache.GetString(id)
 			if i < 5 {
@@ -97,7 +97,7 @@ dir = ":resourceDir/_gen"
 		c.Assert(count, qt.Equals, 4)
 
 		// Now only the i5 should be left.
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			id := fmt.Sprintf("i%d", i)
 			v := cache.GetString(id)
 			if i != 5 {

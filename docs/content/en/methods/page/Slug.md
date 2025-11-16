@@ -3,10 +3,10 @@ title: Slug
 description: Returns the URL slug of the given page as defined in front matter.
 categories: []
 keywords: []
-action:
-  related: []
-  returnType: string
-  signatures: [PAGE.Slug]
+params:
+  functions_and_methods:
+    returnType: string
+    signatures: [PAGE.Slug]
 ---
 
 {{< code-toggle file=content/recipes/spicy-tuna-hand-rolls.md fm=true >}}

@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/spf13/afero"
 )
 
@@ -44,7 +44,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (b
 
 	var headers bytes.Buffer
 	req.Header.Write(&headers)
-	id := helpers.MD5String(url + headers.String())
+	id := hashing.MD5FromStringHexEncoded(url + headers.String())
 	var handled bool
 	var retry bool
 

@@ -32,6 +32,13 @@ type ReadSeekCloser interface {
 	io.Closer
 }
 
+// CloserFunc is an adapter to allow the use of ordinary functions as io.Closers.
+type CloserFunc func() error
+
+func (f CloserFunc) Close() error {
+	return f()
+}
+
 // ReadSeekCloserProvider provides a ReadSeekCloser.
 type ReadSeekCloserProvider interface {
 	ReadSeekCloser() (ReadSeekCloser, error)
@@ -74,13 +81,13 @@ type StringReader interface {
 	ReadString() string
 }
 
-// NewReadSeekerNoOpCloserFromString uses strings.NewReader to create a new ReadSeekerNoOpCloser
+// NewReadSeekerNoOpCloserFromBytes uses bytes.NewReader to create a new ReadSeekerNoOpCloser
 // from the given bytes slice.
 func NewReadSeekerNoOpCloserFromBytes(content []byte) readSeekerNopCloser {
 	return readSeekerNopCloser{bytes.NewReader(content)}
 }
 
-// NewReadSeekCloser creates a new ReadSeekCloser from the given ReadSeeker.
+// NewOpenReadSeekCloser creates a new ReadSeekCloser from the given ReadSeeker.
 // The ReadSeeker will be seeked to the beginning before returned.
 func NewOpenReadSeekCloser(r ReadSeekCloser) OpenReadSeekCloser {
 	return func() (ReadSeekCloser, error) {

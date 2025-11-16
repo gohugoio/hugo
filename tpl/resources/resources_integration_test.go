@@ -18,6 +18,8 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
 func TestCopy(t *testing.T) {
@@ -58,7 +60,7 @@ Copy3: {{ $copy3.RelPermalink}}|{{ $copy3.MediaType }}|{{ $copy3.Content | safeJ
 
 	b.AssertFileContent("public/index.html", `
 Image Orig:  /blog/images/pixel.png|image/png|1|1|
-Image Copy1:  /blog/images/copy_hu8aa3346827e49d756ff4e630147c42b5_70_3x4_resize_box_3.png|image/png|3|4|
+Image Copy1:  /blog/images/copy_hu_1d9addfff177f388.png|image/png|3|4|
 Image Copy2:  /blog/images/copy2.png|image/png|3|4
 Image Copy3:  image/png|3|4|
 Orig: /blog/js/foo.js|text/javascript|let foo;|
@@ -237,4 +239,46 @@ match /files/C*: 2|
 	b.AssertFileContent("public/files/a.txt", "I am a.txt")
 	b.AssertFileContent("public/files/b.txt", "I am b.txt")
 	b.AssertFileContent("public/files/C.txt", "I am C.txt")
+}
+
+// Issue #12961
+func TestDartSassVars(t *testing.T) {
+	t.Parallel()
+
+	if !scss.Supports() || !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+-- layouts/index.html --
+{{ $opts := dict "transpiler" "dartsass" "outputStyle" "compressed" "vars" (dict "color" "red") }}
+{{ with resources.Get "dartsass.scss" | css.Sass $opts }}
+  {{ .Content }}
+{{ end }}
+
+{{ $opts := dict "transpiler" "libsass" "outputStyle" "compressed" "vars" (dict "color" "blue") }}
+{{ with resources.Get "libsass.scss" | css.Sass $opts }}
+  {{ .Content }}
+{{ end }}
+-- assets/dartsass.scss --
+@use "hugo:vars" as v;
+.dartsass {
+  color: v.$color;
+}
+-- assets/libsass.scss --
+@import "hugo:vars";
+.libsass {
+  color: $color;
+}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertFileContent("public/index.html",
+		".dartsass{color:red}",
+		".libsass{color:blue}",
+	)
+	b.AssertLogContains("! WARN  Dart Sass: hugo:vars")
 }

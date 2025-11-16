@@ -1,23 +1,21 @@
 ---
 title: Scratch
-description: Creates a "scratch pad" on the given page to store and manipulate data.
+description: Returns a "scratch pad" to store and manipulate data, scoped to the current page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Store
-    - functions/collections/NewScratch
-  returnType: maps.Scratch
-  signatures: [PAGE.Scratch]
-aliases: [/extras/scratch/,/doc/scratch/,/functions/scratch]
+params:
+  functions_and_methods:
+    returnType: maps.Scratch
+    signatures: [PAGE.Scratch]
+expiryDate: 2026-11-18 # deprecated 2024-11-18 (soft)
 ---
 
-The `Scratch` method on a `Page` object creates a [scratch pad] to store and manipulate data. To create a scratch pad that is not reset on server rebuilds, use the [`Store`] method instead.
+{{< deprecated-in 0.138.0 >}}
+Use the [`PAGE.Store`] method instead.
 
-To create a locally scoped scratch pad that is not attached to a `Page` object, use the [`newScratch`] function.
+This is a soft deprecation. This method will be removed in a future release, but the removal date has not been established. Although Hugo will not emit a warning if you continue to use this method, you should begin using `PAGE.Store` as soon as possible.
 
-[`Store`]: /methods/page/store
-[`newScratch`]: functions/collections/newscratch
-[scratch pad]: /getting-started/glossary/#scratch-pad
+Beginning with v0.138.0 the `PAGE.Scratch` method is aliased to `PAGE.Store`.
 
-{{% include "methods/page/_common/scratch-methods.md" %}}
+[`PAGE.Store`]: /methods/page/store/
+{{< /deprecated-in >}}

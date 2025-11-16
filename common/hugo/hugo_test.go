@@ -14,11 +14,13 @@
 package hugo
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/version"
 )
 
 func TestHugoInfo(t *testing.T) {
@@ -28,7 +30,7 @@ func TestHugoInfo(t *testing.T) {
 	hugoInfo := NewInfo(conf, nil)
 
 	c.Assert(hugoInfo.Version(), qt.Equals, CurrentVersion.Version())
-	c.Assert(fmt.Sprintf("%T", VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
+	c.Assert(fmt.Sprintf("%T", version.VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
 	c.Assert(hugoInfo.WorkingDir(), qt.Equals, "/mywork")
 
 	bi := getBuildInfo()
@@ -56,12 +58,29 @@ func TestDeprecationLogLevelFromVersion(t *testing.T) {
 	c.Assert(deprecationLogLevelFromVersion("0.55.0"), qt.Equals, logg.LevelError)
 	ver := CurrentVersion
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelInfo)
-	ver.Minor -= 1
-	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelInfo)
-	ver.Minor -= 6
+	ver.Minor -= 3
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelWarn)
-	ver.Minor -= 6
+	ver.Minor -= 4
+	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelWarn)
+	ver.Minor -= 13
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelError)
+
+	// Added just to find the threshold for where we can remove deprecated items.
+	// Subtract 5 from the minor version of the first ERRORed version => 0.122.0.
+	c.Assert(deprecationLogLevelFromVersion("0.127.0"), qt.Equals, logg.LevelError)
+}
+
+func TestMarkupScope(t *testing.T) {
+	c := qt.New(t)
+
+	conf := testConfig{environment: "production", workingDir: "/mywork", running: false}
+	info := NewInfo(conf, nil)
+
+	ctx := context.Background()
+
+	ctx = SetMarkupScope(ctx, "foo")
+
+	c.Assert(info.Context.MarkupScope(ctx), qt.Equals, "foo")
 }
 
 type testConfig struct {

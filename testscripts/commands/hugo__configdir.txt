@@ -4,3 +4,4 @@ hugo
 
 -- config/_default/hugo.toml --
 baseURL = "https://example.com/"
+disableKinds = ["RSS", "page", "sitemap", "robotsTXT", "404", "taxonomy", "term", "home"]

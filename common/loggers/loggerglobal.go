@@ -21,7 +21,15 @@ import (
 	"github.com/bep/logg"
 )
 
-func InitGlobalLogger(level logg.Level, panicOnWarnings bool) {
+// SetGlobalLogger sets the global logger.
+// This is used in a few places in Hugo, e.g. deprecated functions.
+func SetGlobalLogger(logger Logger) {
+	logMu.Lock()
+	defer logMu.Unlock()
+	log = logger
+}
+
+func initGlobalLogger(level logg.Level, panicOnWarnings bool) {
 	logMu.Lock()
 	defer logMu.Unlock()
 	var logHookLast func(e *logg.Entry) error
@@ -50,5 +58,5 @@ func Log() Logger {
 var log Logger
 
 func init() {
-	InitGlobalLogger(logg.LevelWarn, false)
+	initGlobalLogger(logg.LevelWarn, false)
 }

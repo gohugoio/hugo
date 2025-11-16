@@ -13,15 +13,17 @@
 
 package pageparser
 
+import "unique"
+
 type lexerShortcodeState struct {
 	currLeftDelimItem  ItemType
 	currRightDelimItem ItemType
 	isInline           bool
-	currShortcodeName  string          // is only set when a shortcode is in opened state
-	closingState       int             // > 0 = on its way to be closed
-	elementStepNum     int             // step number in element
-	paramElements      int             // number of elements (name + value = 2) found first
-	openShortcodes     map[string]bool // set of shortcodes in open state
+	currShortcodeName  string                         // is only set when a shortcode is in opened state
+	closingState       int                            // > 0 = on its way to be closed
+	elementStepNum     int                            // step number in element
+	paramElements      int                            // number of elements (name + value = 2) found first
+	openShortcodes     map[unique.Handle[string]]bool // set of shortcodes in open state
 }
 
 // Shortcode syntax
@@ -254,16 +256,17 @@ Loop:
 			}
 		default:
 			l.backup()
-			word := string(l.input[l.start:l.pos])
-			if l.closingState > 0 && !l.openShortcodes[word] {
-				return l.errorf("closing tag for shortcode '%s' does not match start tag", word)
-			} else if l.closingState > 0 {
+			word := unique.Make(string(l.input[l.start:l.pos]))
+			if l.closingState > 0 {
+				if !l.openShortcodes[word] {
+					return l.errorf("closing tag for shortcode '%s' does not match start tag", word.Value())
+				}
 				l.openShortcodes[word] = false
 				lookForEnd = true
 			}
 
 			l.closingState = 0
-			l.currShortcodeName = word
+			l.currShortcodeName = word.Value()
 			l.openShortcodes[word] = true
 			l.elementStepNum++
 			if l.isInline {
@@ -322,6 +325,7 @@ func lexInsideShortcode(l *pageLexer) stateFunc {
 		}
 		l.closingState++
 		l.isInline = false
+		l.elementStepNum = 0
 		l.emit(tScClose)
 	case r == '\\':
 		l.ignore()

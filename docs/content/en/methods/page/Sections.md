@@ -3,20 +3,13 @@ title: Sections
 description: Returns a collection of section pages, one for each immediate descendant section of the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/CurrentSection
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/IsDescendant
-    - methods/page/Parent
-  returnType: page.Pages
-  signatures: [PAGE.Sections]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.Sections]
 ---
 
-{{% include "methods/page/_common/definition-of-section.md" %}}
+The `Sections` method on a `Page` object is available to these [page kinds](g): `home`, `section`, and `taxonomy`. The templates for these page kinds receive a page [collection](g) in [context](g), in the [default sort order](g).
 
 With this content structure:
 
@@ -35,11 +28,11 @@ content/
 │   ├── bidding.md
 │   └── payment.md
 ├── books/
-│   ├── _index.md         <-- front matter: weight = 10
+│   ├── _index.md         <-- front matter: weight = 20
 │   ├── book-1.md
 │   └── book-2.md
 ├── films/
-│   ├── _index.md         <-- front matter: weight = 20
+│   ├── _index.md         <-- front matter: weight = 10
 │   ├── film-1.md
 │   └── film-2.md
 └── _index.md

@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/bep/logg"
-	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
 	"github.com/spf13/afero"
@@ -84,13 +83,13 @@ type pagesCollector struct {
 // It may be restricted by filenames set on the collector (partial build).
 func (c *pagesCollector) Collect() (collectErr error) {
 	var (
-		numWorkers             = c.h.numWorkers
-		numFilesProcessedTotal atomic.Uint64
-		numPagesProcessedTotal atomic.Uint64
-		numResourcesProcessed  atomic.Uint64
-		numFilesProcessedLast  uint64
-		fileBatchTimer         = time.Now()
-		fileBatchTimerMu       sync.Mutex
+		numWorkers                   = c.h.numWorkers
+		numFilesProcessedTotal       atomic.Uint64
+		numPageSourcesProcessedTotal atomic.Uint64
+		numResourceSourcesProcessed  atomic.Uint64
+		numFilesProcessedLast        uint64
+		fileBatchTimer               = time.Now()
+		fileBatchTimerMu             sync.Mutex
 	)
 
 	l := c.infoLogger.WithField("substep", "collect")
@@ -104,8 +103,8 @@ func (c *pagesCollector) Collect() (collectErr error) {
 				logg.Fields{
 					logg.Field{Name: "files", Value: numFilesProcessedBatch},
 					logg.Field{Name: "files_total", Value: numFilesProcessedTotal.Load()},
-					logg.Field{Name: "pages_total", Value: numPagesProcessedTotal.Load()},
-					logg.Field{Name: "resources_total", Value: numResourcesProcessed.Load()},
+					logg.Field{Name: "pagesources_total", Value: numPageSourcesProcessedTotal.Load()},
+					logg.Field{Name: "resourcesources_total", Value: numResourceSourcesProcessed.Load()},
 				},
 				"",
 			)
@@ -118,19 +117,20 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		logFilesProcessed(true)
 	}()
 
-	c.g = rungroup.Run[hugofs.FileMetaInfo](c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
+	c.g = rungroup.Run(c.ctx, rungroup.Config[hugofs.FileMetaInfo]{
 		NumWorkers: numWorkers,
 		Handle: func(ctx context.Context, fi hugofs.FileMetaInfo) error {
-			numPages, numResources, err := c.m.AddFi(fi, c.buildConfig)
+			numPageSources, numResourceSources, err := c.m.AddFi(fi, c.buildConfig)
 			if err != nil {
-				return hugofs.AddFileInfoToError(err, fi, c.fs)
+				return hugofs.AddFileInfoToError(err, fi, c.h.SourceFs)
 			}
 			numFilesProcessedTotal.Add(1)
-			numPagesProcessedTotal.Add(numPages)
-			numResourcesProcessed.Add(numResources)
+			numPageSourcesProcessedTotal.Add(numPageSources)
+			numResourceSourcesProcessed.Add(numResourceSources)
 			if numFilesProcessedTotal.Load()%1000 == 0 {
 				logFilesProcessed(false)
 			}
+
 			return nil
 		},
 	})
@@ -143,13 +143,29 @@ func (c *pagesCollector) Collect() (collectErr error) {
 			s.pageMap.cfg.isRebuild = true
 		}
 
+		var hasStructuralChange bool
+		for _, id := range c.ids {
+			if id.isStructuralChange() {
+				hasStructuralChange = true
+				break
+			}
+		}
+
 		for _, id := range c.ids {
 			if id.p.IsLeafBundle() {
 				collectErr = c.collectDir(
 					id.p,
 					false,
 					func(fim hugofs.FileMetaInfo) bool {
-						return true
+						if hasStructuralChange {
+							return true
+						}
+						fimp := fim.Meta().PathInfo
+						if fimp == nil {
+							return true
+						}
+
+						return fimp.Path() == id.p.Path()
 					},
 				)
 			} else if id.p.IsBranchBundle() {
@@ -176,10 +192,14 @@ func (c *pagesCollector) Collect() (collectErr error) {
 							return strings.HasPrefix(fim.Meta().PathInfo.Path(), paths.AddTrailingSlash(id.p.Path()))
 						}
 
+						if id.p.IsContentData() {
+							return strings.HasPrefix(fim.Meta().PathInfo.Path(), paths.AddTrailingSlash(id.p.Dir()))
+						}
+
 						return id.p.Dir() == fim.Meta().PathInfo.Dir()
 					}
 
-					if fim.Meta().PathInfo.IsLeafBundle() && id.p.BundleType() == paths.PathTypeContentSingle {
+					if fim.Meta().PathInfo.IsLeafBundle() && id.p.Type() == paths.TypeContentSingle {
 						return id.p.Dir() == fim.Meta().PathInfo.Dir()
 					}
 
@@ -235,6 +255,8 @@ func (c *pagesCollector) collectDir(dirPath *paths.Path, isDir bool, inFilter fu
 }
 
 func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, inFilter func(fim hugofs.FileMetaInfo) bool) error {
+	ctx := context.Background()
+
 	filter := func(fim hugofs.FileMetaInfo) bool {
 		if inFilter != nil {
 			return inFilter(fim)
@@ -242,7 +264,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 		return true
 	}
 
-	preHook := func(dir hugofs.FileMetaInfo, path string, readdir []hugofs.FileMetaInfo) ([]hugofs.FileMetaInfo, error) {
+	preHook := func(ctx context.Context, dir hugofs.FileMetaInfo, path string, readdir []hugofs.FileMetaInfo) ([]hugofs.FileMetaInfo, error) {
 		filtered := readdir[:0]
 		for _, fi := range readdir {
 			if filter(fi) {
@@ -292,13 +314,13 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 		}
 
 		if firstPi.IsLeafBundle() {
-			if err := c.handleBundleLeaf(dir, first, path, readdir); err != nil {
+			if err := c.handleBundleLeaf(ctx, dir, path, readdir); err != nil {
 				return nil, err
 			}
 			return nil, filepath.SkipDir
 		}
 
-		seen := map[hstrings.Tuple]bool{}
+		// seen := map[types.Strings2]hugofs.FileMetaInfo{}
 		for _, fi := range readdir {
 			if fi.IsDir() {
 				continue
@@ -307,22 +329,8 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			pi := fi.Meta().PathInfo
 			meta := fi.Meta()
 
-			// Filter out duplicate page or resource.
-			// These would eventually have been filtered out as duplicates when
-			// inserting them into the document store,
-			// but doing it here will preserve a consistent ordering.
-			baseLang := hstrings.Tuple{First: pi.Base(), Second: meta.Lang}
-			if seen[baseLang] {
-				continue
-			}
-			seen[baseLang] = true
-
 			if pi == nil {
 				panic(fmt.Sprintf("no path info for %q", meta.Filename))
-			}
-
-			if meta.Lang == "" {
-				panic("lang not set")
 			}
 
 			if err := c.g.Enqueue(fi); err != nil {
@@ -336,7 +344,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 
 	var postHook hugofs.WalkHook
 
-	wfn := func(path string, fi hugofs.FileMetaInfo) error {
+	wfn := func(ctx context.Context, path string, fi hugofs.FileMetaInfo) error {
 		return nil
 	}
 
@@ -347,6 +355,7 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 			Info:       root,
 			Fs:         c.fs,
 			IgnoreFile: c.h.SourceSpec.IgnoreFile,
+			Ctx:        ctx,
 			PathParser: c.h.Conf.PathParser(),
 			HookPre:    preHook,
 			HookPost:   postHook,
@@ -356,35 +365,11 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 	return w.Walk()
 }
 
-func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
-	bundlePi := bundle.Meta().PathInfo
-	seen := map[hstrings.Tuple]bool{}
-
-	walk := func(path string, info hugofs.FileMetaInfo) error {
+func (c *pagesCollector) handleBundleLeaf(ctx context.Context, dir hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
+	walk := func(ctx context.Context, path string, info hugofs.FileMetaInfo) error {
 		if info.IsDir() {
 			return nil
 		}
-
-		pi := info.Meta().PathInfo
-
-		if info != bundle {
-			// Everything inside a leaf bundle is a Resource,
-			// even the content pages.
-			// Note that we do allow index.md as page resources, but not in the bundle root.
-			if !pi.IsLeafBundle() || pi.Dir() != bundlePi.Dir() {
-				paths.ModifyPathBundleTypeResource(pi)
-			}
-		}
-
-		// Filter out duplicate page or resource.
-		// These would eventually have been filtered out as duplicates when
-		// inserting them into the document store,
-		// but doing it here will preserve a consistent ordering.
-		baseLang := hstrings.Tuple{First: pi.Base(), Second: info.Meta().Lang}
-		if seen[baseLang] {
-			return nil
-		}
-		seen[baseLang] = true
 
 		return c.g.Enqueue(info)
 	}
@@ -397,6 +382,7 @@ func (c *pagesCollector) handleBundleLeaf(dir, bundle hugofs.FileMetaInfo, inPat
 			Logger:     c.logger,
 			Info:       dir,
 			DirEntries: readdir,
+			Ctx:        ctx,
 			IgnoreFile: c.h.SourceSpec.IgnoreFile,
 			PathParser: c.h.Conf.PathParser(),
 			WalkFn:     walk,

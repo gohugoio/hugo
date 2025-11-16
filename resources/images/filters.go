@@ -36,10 +36,11 @@ type Filters struct{}
 
 // Process creates a filter that processes an image using the given specification.
 func (*Filters) Process(spec any) gift.Filter {
+	specs := strings.ToLower(cast.ToString(spec))
 	return filter{
-		Options: newFilterOpts(spec),
+		Options: newFilterOpts(specs),
 		Filter: processFilter{
-			spec: cast.ToString(spec),
+			spec: specs,
 		},
 	}
 }
@@ -49,6 +50,14 @@ func (*Filters) Overlay(src ImageSource, x, y any) gift.Filter {
 	return filter{
 		Options: newFilterOpts(src.Key(), x, y),
 		Filter:  overlayFilter{src: src, x: cast.ToInt(x), y: cast.ToInt(y)},
+	}
+}
+
+// Mask creates a filter that applies a mask image to the source image.
+func (*Filters) Mask(mask ImageSource) gift.Filter {
+	return filter{
+		Options: newFilterOpts(mask.Key()),
+		Filter:  maskFilter{mask: mask},
 	}
 }
 
@@ -69,6 +78,8 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 		size:        20,
 		x:           10,
 		y:           10,
+		alignx:      "left",
+		aligny:      "top",
 		linespacing: 2,
 	}
 
@@ -87,6 +98,17 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 				tf.x = cast.ToInt(v)
 			case "y":
 				tf.y = cast.ToInt(v)
+			case "alignx":
+				tf.alignx = cast.ToString(v)
+				if tf.alignx != "left" && tf.alignx != "center" && tf.alignx != "right" {
+					panic("alignx must be one of left, center, right")
+				}
+			case "aligny":
+				tf.aligny = cast.ToString(v)
+				if tf.aligny != "top" && tf.aligny != "center" && tf.aligny != "bottom" {
+					panic("aligny must be one of top, center, bottom")
+				}
+
 			case "linespacing":
 				tf.linespacing = cast.ToInt(v)
 			case "font":

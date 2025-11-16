@@ -29,9 +29,8 @@ import (
 	color_extractor "github.com/marekm4/color-extractor"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/hstrings"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/identity"
 
 	"github.com/disintegration/gift"
 
@@ -40,7 +39,6 @@ import (
 
 	"github.com/gohugoio/hugo/resources/resource"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/images"
 
 	// Blind import for image.Decode
@@ -52,6 +50,7 @@ var (
 	_ resource.Source                 = (*imageResource)(nil)
 	_ resource.Cloner                 = (*imageResource)(nil)
 	_ resource.NameNormalizedProvider = (*imageResource)(nil)
+	_ targetPathProvider              = (*imageResource)(nil)
 )
 
 // imageResource represents an image resource.
@@ -82,8 +81,9 @@ func (i *imageResource) Exif() *exif.ExifInfo {
 
 func (i *imageResource) getExif() *exif.ExifInfo {
 	i.metaInit.Do(func() {
-		supportsExif := i.Format == images.JPEG || i.Format == images.TIFF
-		if !supportsExif {
+		mf := i.Format.ToImageMetaImageFormatFormat()
+		if mf == -1 {
+			// No Exif support for this format.
 			return
 		}
 
@@ -114,7 +114,8 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 			}
 			defer f.Close()
 
-			x, err := i.getSpec().imaging.DecodeExif(f)
+			filename := i.getResourcePaths().Path()
+			x, err := i.getSpec().imaging.DecodeExif(filename, mf, f)
 			if err != nil {
 				i.getSpec().Logger.Warnf("Unable to decode Exif metadata from image: %s", i.Key())
 				return nil
@@ -159,6 +160,10 @@ func (i *imageResource) Colors() ([]images.Color, error) {
 	return i.dominantColors, nil
 }
 
+func (i *imageResource) targetPath() string {
+	return i.TargetPath()
+}
+
 // Clone is for internal use.
 func (i *imageResource) Clone() resource.Resource {
 	gr := i.baseResource.Clone().(baseResource)
@@ -199,15 +204,12 @@ func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource,
 	}, nil
 }
 
-var imageActions = []string{images.ActionResize, images.ActionCrop, images.ActionFit, images.ActionFill}
-
 // Process processes the image with the given spec.
 // The spec can contain an optional action, one of "resize", "crop", "fit" or "fill".
 // This makes this method a more flexible version that covers all of Resize, Crop, Fit and Fill,
 // but it also supports e.g. format conversions without any resize action.
 func (i *imageResource) Process(spec string) (images.ImageResource, error) {
-	action, options := i.resolveActionOptions(spec)
-	return i.processActionOptions(action, options)
+	return i.processActionSpec("", spec)
 }
 
 // Resize resizes the image to the specified width and height using the specified resampling
@@ -237,7 +239,7 @@ func (i *imageResource) Fill(spec string) (images.ImageResource, error) {
 }
 
 func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
-	var conf images.ImageConfig
+	var confMain images.ImageConfig
 
 	var gfilters []gift.Filter
 
@@ -245,47 +247,30 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 		gfilters = append(gfilters, images.ToFilters(f)...)
 	}
 
-	var (
-		targetFormat images.Format
-		configSet    bool
-	)
+	var options []string
+
 	for _, f := range gfilters {
 		f = images.UnwrapFilter(f)
 		if specProvider, ok := f.(images.ImageProcessSpecProvider); ok {
-			action, options := i.resolveActionOptions(specProvider.ImageProcessSpec())
-			var err error
-			conf, err = images.DecodeImageConfig(action, options, i.Proc.Cfg, i.Format)
-			if err != nil {
-				return nil, err
-			}
-			configSet = true
-			if conf.TargetFormat != 0 {
-				targetFormat = conf.TargetFormat
-				// We only support one target format, but prefer the last one,
-				// so we keep going.
-			}
+			options = append(options, strings.Fields(specProvider.ImageProcessSpec())...)
 		}
 	}
 
-	if !configSet {
-		conf = images.GetDefaultImageConfig("filter", i.Proc.Cfg)
+	confMain, err := images.DecodeImageConfig(options, i.Proc.Cfg, i.Format)
+	if err != nil {
+		return nil, err
 	}
 
-	conf.Action = "filter"
-	conf.Key = identity.HashString(gfilters)
-	conf.TargetFormat = targetFormat
-	if conf.TargetFormat == 0 {
-		conf.TargetFormat = i.Format
-	}
+	confMain.Action = "filter"
+	confMain.Key = hashing.HashString(gfilters)
 
-	return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
+	return i.doWithImageConfig(confMain, func(src image.Image) (image.Image, error) {
 		var filters []gift.Filter
 		for _, f := range gfilters {
 			f = images.UnwrapFilter(f)
 			if specProvider, ok := f.(images.ImageProcessSpecProvider); ok {
-				processSpec := specProvider.ImageProcessSpec()
-				action, options := i.resolveActionOptions(processSpec)
-				conf, err := images.DecodeImageConfig(action, options, i.Proc.Cfg, i.Format)
+				options := strings.Fields(specProvider.ImageProcessSpec())
+				conf, err := images.DecodeImageConfig(options, i.Proc.Cfg, i.Format)
 				if err != nil {
 					return nil, err
 				}
@@ -307,25 +292,13 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 	})
 }
 
-func (i *imageResource) resolveActionOptions(spec string) (string, []string) {
-	var action string
-	options := strings.Fields(spec)
-	for i, p := range options {
-		if hstrings.InSlicEqualFold(imageActions, p) {
-			action = p
-			options = append(options[:i], options[i+1:]...)
-			break
-		}
-	}
-	return action, options
-}
-
 func (i *imageResource) processActionSpec(action, spec string) (images.ImageResource, error) {
-	return i.processActionOptions(action, strings.Fields(spec))
+	options := append([]string{action}, strings.Fields(strings.ToLower(spec))...)
+	return i.processOptions(options)
 }
 
-func (i *imageResource) processActionOptions(action string, options []string) (images.ImageResource, error) {
-	conf, err := images.DecodeImageConfig(action, options, i.Proc.Cfg, i.Format)
+func (i *imageResource) processOptions(options []string) (images.ImageResource, error) {
+	conf, err := images.DecodeImageConfig(options, i.Proc.Cfg, i.Format)
 	if err != nil {
 		return nil, err
 	}
@@ -337,13 +310,12 @@ func (i *imageResource) processActionOptions(action string, options []string) (i
 		return nil, err
 	}
 
-	if action == images.ActionFill {
-		if conf.Anchor == 0 && img.Width() == 0 || img.Height() == 0 {
+	if conf.Action == images.ActionFill {
+		if conf.Anchor == images.SmartCropAnchor && img.Width() == 0 || img.Height() == 0 {
 			// See https://github.com/gohugoio/hugo/issues/7955
 			// Smartcrop fails silently in some rare cases.
 			// Fall back to a center fill.
-			conf.Anchor = gift.CenterAnchor
-			conf.AnchorStr = "center"
+			conf = conf.Reanchor(gift.CenterAnchor)
 			return i.doWithImageConfig(conf, func(src image.Image) (image.Image, error) {
 				return i.Proc.ApplyFiltersFromConfig(src, conf)
 			})
@@ -411,7 +383,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 		}
 
 		ci := i.clone(converted)
-		targetPath := i.relTargetPathFromConfig(conf)
+		targetPath := i.relTargetPathFromConfig(conf, i.getSpec().imaging.Cfg.SourceHash)
 		ci.setTargetPath(targetPath)
 		ci.Format = conf.TargetFormat
 		ci.setMediaType(conf.TargetFormat.MediaType())
@@ -471,52 +443,38 @@ func (i *imageResource) clone(img image.Image) *imageResource {
 }
 
 func (i *imageResource) getImageMetaCacheTargetPath() string {
-	const imageMetaVersionNumber = 1 // Increment to invalidate the meta cache
+	// Increment to invalidate the meta cache
+	// Last increment: v0.130.0 when change to the new imagemeta library for Exif.
+	const imageMetaVersionNumber = 2
 
 	cfgHash := i.getSpec().imaging.Cfg.SourceHash
 	df := i.getResourcePaths()
 	p1, _ := paths.FileAndExt(df.File)
 	h := i.hash()
-	idStr := identity.HashString(h, i.size(), imageMetaVersionNumber, cfgHash)
+	idStr := hashing.HashStringHex(h, i.size(), imageMetaVersionNumber, cfgHash)
 	df.File = fmt.Sprintf("%s_%s.json", p1, idStr)
 	return df.TargetPath()
 }
 
-func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig) internal.ResourcePaths {
+func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig, imagingConfigSourceHash string) internal.ResourcePaths {
 	p1, p2 := paths.FileAndExt(i.getResourcePaths().File)
 	if conf.TargetFormat != i.Format {
 		p2 = conf.TargetFormat.DefaultExtension()
 	}
 
-	h := i.hash()
-	idStr := fmt.Sprintf("_hu%s_%d", h, i.size())
+	// Do not change.
+	const imageHashPrefix = "_hu_"
 
-	// Do not change for no good reason.
-	const md5Threshold = 100
-
-	key := conf.GetKey(i.Format)
-
-	// It is useful to have the key in clear text, but when nesting transforms, it
-	// can easily be too long to read, and maybe even too long
-	// for the different OSes to handle.
-	if len(p1)+len(idStr)+len(p2) > md5Threshold {
-		key = helpers.MD5String(p1 + key + p2)
-		huIdx := strings.Index(p1, "_hu")
-		if huIdx != -1 {
-			p1 = p1[:huIdx]
-		} else {
-			// This started out as a very long file name. Making it even longer
-			// could melt ice in the Arctic.
-			p1 = ""
-		}
-	} else if strings.Contains(p1, idStr) {
-		// On scaling an already scaled image, we get the file info from the original.
-		// Repeating the same info in the filename makes it stuttery for no good reason.
-		idStr = ""
+	huIdx := strings.LastIndex(p1, imageHashPrefix)
+	incomingID := ""
+	if huIdx > -1 {
+		incomingID = p1[huIdx+len(imageHashPrefix):]
+		p1 = p1[:huIdx]
 	}
 
+	hash := hashing.HashStringHex(incomingID, i.hash(), conf.Key, imagingConfigSourceHash)
 	rp := i.getResourcePaths()
-	rp.File = fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2)
+	rp.File = fmt.Sprintf("%s%s%s%s", p1, imageHashPrefix, hash, p2)
 
 	return rp
 }

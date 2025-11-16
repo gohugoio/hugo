@@ -17,21 +17,12 @@ package herrors
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"regexp"
 	"runtime"
-	"runtime/debug"
 	"strings"
 	"time"
 )
-
-// PrintStackTrace prints the current stacktrace to w.
-func PrintStackTrace(w io.Writer) {
-	buf := make([]byte, 1<<16)
-	runtime.Stack(buf, true)
-	fmt.Fprintf(w, "%s", buf)
-}
 
 // ErrorSender is a, typically, non-blocking error handler.
 type ErrorSender interface {
@@ -45,7 +36,9 @@ type ErrorSender interface {
 func Recover(args ...any) {
 	if r := recover(); r != nil {
 		fmt.Println("ERR:", r)
-		args = append(args, "stacktrace from panic: \n"+string(debug.Stack()), "\n")
+		buf := make([]byte, 64<<10)
+		buf = buf[:runtime.Stack(buf, false)]
+		args = append(args, "stacktrace from panic: \n"+string(buf), "\n")
 		fmt.Println(args...)
 	}
 }
@@ -66,6 +59,20 @@ func (e *TimeoutError) Error() string {
 func (e *TimeoutError) Is(target error) bool {
 	_, ok := target.(*TimeoutError)
 	return ok
+}
+
+// errMessage wraps an error with a message.
+type errMessage struct {
+	msg string
+	err error
+}
+
+func (e *errMessage) Error() string {
+	return e.msg
+}
+
+func (e *errMessage) Unwrap() error {
+	return e.err
 }
 
 // IsFeatureNotAvailableError returns true if the given error is or contains a FeatureNotAvailableError.
@@ -119,21 +126,55 @@ func IsNotExist(err error) bool {
 	return false
 }
 
+// IsExist returns true if the error is a file exists error.
+// Unlike os.IsExist, this also considers wrapped errors.
+func IsExist(err error) bool {
+	if os.IsExist(err) {
+		return true
+	}
+
+	// os.IsExist does not consider wrapped errors.
+	if os.IsExist(errors.Unwrap(err)) {
+		return true
+	}
+
+	return false
+}
+
 var nilPointerErrRe = regexp.MustCompile(`at <(.*)>: error calling (.*?): runtime error: invalid memory address or nil pointer dereference`)
 
-func ImproveIfNilPointer(inErr error) (outErr error) {
-	outErr = inErr
+const deferredPrefix = "__hdeferred/"
 
+var deferredStringToRemove = regexp.MustCompile(`executing "__hdeferred/.*?" `)
+
+// ImproveRenderErr improves the error message for rendering errors.
+func ImproveRenderErr(inErr error) (outErr error) {
+	outErr = inErr
+	msg := improveIfNilPointerMsg(inErr)
+	if msg != "" {
+		outErr = &errMessage{msg: msg, err: outErr}
+	}
+
+	if strings.Contains(inErr.Error(), deferredPrefix) {
+		msg := deferredStringToRemove.ReplaceAllString(inErr.Error(), "executing ")
+		outErr = &errMessage{msg: msg, err: outErr}
+	}
+	return
+}
+
+func improveIfNilPointerMsg(inErr error) string {
 	m := nilPointerErrRe.FindStringSubmatch(inErr.Error())
 	if len(m) == 0 {
-		return
+		return ""
 	}
 	call := m[1]
 	field := m[2]
 	parts := strings.Split(call, ".")
+	if len(parts) < 2 {
+		return ""
+	}
 	receiverName := parts[len(parts)-2]
 	receiver := strings.Join(parts[:len(parts)-1], ".")
 	s := fmt.Sprintf("– %s is nil; wrap it in if or with: {{ with %s }}{{ .%s }}{{ end }}", receiverName, receiver, field)
-	outErr = errors.New(nilPointerErrRe.ReplaceAllString(inErr.Error(), s))
-	return
+	return nilPointerErrRe.ReplaceAllString(inErr.Error(), s)
 }

@@ -1,13 +1,12 @@
 ---
 title: Weekday
-description:  Returns the day of the week of the given time.Time value.
+description: Returns the day of the week of the given time.Time value.
 categories: []
 keywords: []
-action:
-  related:
-    - functions/time/AsTime
-  returnType: time.Weekday
-  signatures: [TIME.Weekday]
+params:
+  functions_and_methods:
+    returnType: time.Weekday
+    signatures: [TIME.Weekday]
 ---
 
 To convert the `time.Weekday` value to a string:

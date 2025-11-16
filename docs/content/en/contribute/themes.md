@@ -1,13 +1,8 @@
 ---
 title: Themes
 description: If you've built a Hugo theme and want to contribute back to the Hugo Community, please share it with us.
-categories: [contribute]
-keywords: [themes]
-menu:
-  docs:
-    parent: contribute
-    weight: 40
-weight: 40
+categories: []
+keywords: []
 aliases: [/contribute/theme/]
 ---
 
@@ -16,7 +11,7 @@ Visit [themes.gohugo.io] to browse a collection of themes created by the Hugo co
 To submit your theme:
 
 1. Read the [submission guidelines]
-2. Open a pull request in the [themes repository]
+1. Open a pull request in the [themes repository]
 
 Other useful theme directories:
 

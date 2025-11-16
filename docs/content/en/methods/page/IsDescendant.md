@@ -1,22 +1,13 @@
 ---
 title: IsDescendant
-description: Reports whether PAGE1 in a descendant of PAGE2.
+description: Reports whether PAGE1 is a descendant of PAGE2.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/Ancestors
-    - methods/page/CurrentSection
-    - methods/page/FirstSection
-    - methods/page/InSection
-    - methods/page/IsAncestor
-    - methods/page/Parent
-    - methods/page/Sections
-  returnType: bool
-  signatures: [PAGE1.IsDescendant PAGE2]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE1.IsDescendant PAGE2]
 ---
-
-{{% include "methods/page/_common/definition-of-section.md" %}}
 
 With this content structure:
 
@@ -70,7 +61,7 @@ In the examples above we are coding defensively using the [`with`] statement, re
 
 ## Understanding context
 
-Inside of the `with` block, the [context] (the dot) is the section `Page` object, not the `Page` object passed into the template. If we were to use this syntax:
+Inside of the `with` block, the [context](g) (the dot) is the section `Page` object, not the `Page` object passed into the template. If we were to use this syntax:
 
 ```go-html-template
 {{ with .Site.GetPage "/auctions" }}
@@ -80,9 +71,8 @@ Inside of the `with` block, the [context] (the dot) is the section `Page` object
 
 The result would be wrong when rendering the "auction-1" page because we are comparing the section page to itself.
 
-{{% note %}}
-Use the `$` to get the context passed into the template.
-{{% /note %}}
+> [!note]
+> Use the `$` to get the context passed into the template.
 
 ```go-html-template
 {{ with .Site.GetPage "/auctions" }}
@@ -90,10 +80,8 @@ Use the `$` to get the context passed into the template.
 {{ end }}
 ```
 
-{{% note %}}
-Gaining a thorough understanding of context is critical for anyone writing template code.
-{{% /note %}}
+> [!note]
+> Gaining a thorough understanding of context is critical for anyone writing template code.
 
-[context]: /getting-started/glossary/#context
-[`with`]: /functions/go-template/with
-[`else`]: /functions/go-template/else
+[`else`]: /functions/go-template/else/
+[`with`]: /functions/go-template/with/

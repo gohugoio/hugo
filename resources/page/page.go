@@ -17,14 +17,17 @@ package page
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 
+	"github.com/gohugoio/hugo/hugolib/roles"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/compare"
 
@@ -50,14 +53,6 @@ type AlternativeOutputFormatsProvider interface {
 	AlternativeOutputFormats() OutputFormats
 }
 
-// AuthorProvider provides author information.
-type AuthorProvider interface {
-	// Deprecated: Use taxonomies instead.
-	Author() Author
-	// Deprecated: Use taxonomies instead.
-	Authors() AuthorList
-}
-
 // ChildCareProvider provides accessors to child resources.
 type ChildCareProvider interface {
 	// Pages returns a list of pages of all kinds.
@@ -70,13 +65,19 @@ type ChildCareProvider interface {
 	// section.
 	RegularPagesRecursive() Pages
 
-	// Resources returns a list of all resources.
-	Resources() resource.Resources
+	resource.ResourcesProvider
+}
+
+type MarkupProvider interface {
+	Markup(opts ...any) Markup
 }
 
 // ContentProvider provides the content related values for a Page.
 type ContentProvider interface {
 	Content(context.Context) (any, error)
+
+	// ContentWithoutSummary returns the Page Content stripped of the summary.
+	ContentWithoutSummary(ctx context.Context) (template.HTML, error)
 
 	// Plain returns the Page Content stripped of HTML markup.
 	Plain(context.Context) string
@@ -136,7 +137,7 @@ type GetPageProvider interface {
 // GitInfoProvider provides Git info.
 type GitInfoProvider interface {
 	// GitInfo returns the Git info for this object.
-	GitInfo() source.GitInfo
+	GitInfo() *source.GitInfo
 	// CodeOwners returns the code owners for this object.
 	CodeOwners() []string
 }
@@ -149,10 +150,10 @@ type InSectionPositioner interface {
 	PrevInSection() Page
 }
 
-// InternalDependencies is considered an internal interface.
-type InternalDependencies interface {
-	// GetRelatedDocsHandler is for internal use only.
-	GetRelatedDocsHandler() *RelatedDocsHandler
+// RelatedDocsHandlerProvider is considered an internal interface.
+type RelatedDocsHandlerProvider interface {
+	// GetInternalRelatedDocsHandler is for internal use only.
+	GetInternalRelatedDocsHandler() *RelatedDocsHandler
 }
 
 // OutputFormatsProvider provides the OutputFormats of a Page.
@@ -169,14 +170,26 @@ type PageProvider interface {
 
 // Page is the core interface in Hugo and what you get as the top level data context in your templates.
 type Page interface {
+	MarkupProvider
 	ContentProvider
 	TableOfContentsProvider
 	PageWithoutContent
+	fmt.Stringer
 }
 
 type PageFragment interface {
 	resource.ResourceLinksProvider
 	resource.ResourceNameTitleProvider
+}
+
+type PageMetaResource interface {
+	PageMetaProvider
+	resource.Resource
+}
+
+type PageMetaLanguageResource interface {
+	PageMetaResource
+	resource.LanguageProvider
 }
 
 // PageMetaProvider provides page metadata, typically provided via front matter.
@@ -218,18 +231,12 @@ type PageMetaProvider interface {
 	// IsPage returns whether this is a regular content
 	IsPage() bool
 
-	// Param looks for a param in Page and then in Site config.
-	Param(key any) (any, error)
-
 	// Path gets the relative path, including file name and extension if relevant,
 	// to the source of this Page. It will be relative to any content root.
 	Path() string
 
 	// The slug, typically defined in front matter.
 	Slug() string
-
-	// This page's language code. Will be the same as the site's.
-	Lang() string
 
 	// IsSection returns whether this is a section
 	IsSection() bool
@@ -250,6 +257,68 @@ type PageMetaProvider interface {
 	Weight() int
 }
 
+// NamedPageMetaValue returns a named metadata value from a PageMetaResource.
+// This is currently only used to generate keywords for related content.
+// If nameLower is not one of the metadata interface methods, we
+// look in Params.
+func NamedPageMetaValue(p PageMetaLanguageResource, nameLower string) (any, bool, error) {
+	var (
+		v   any
+		err error
+	)
+
+	switch nameLower {
+	case "kind":
+		v = p.Kind()
+	case "bundletype":
+		v = p.BundleType()
+	case "mediatype":
+		v = p.MediaType()
+	case "section":
+		v = p.Section()
+	case "lang":
+		v = p.Lang()
+	case "aliases":
+		v = p.Aliases()
+	case "name":
+		v = p.Name()
+	case "keywords":
+		v = p.Keywords()
+	case "description":
+		v = p.Description()
+	case "title":
+		v = p.Title()
+	case "linktitle":
+		v = p.LinkTitle()
+	case "slug":
+		v = p.Slug()
+	case "date":
+		v = p.Date()
+	case "publishdate":
+		v = p.PublishDate()
+	case "expirydate":
+		v = p.ExpiryDate()
+	case "lastmod":
+		v = p.Lastmod()
+	case "draft":
+		v = p.Draft()
+	case "type":
+		v = p.Type()
+	case "layout":
+		v = p.Layout()
+	case "weight":
+		v = p.Weight()
+	default:
+		// Try params.
+		v, err = resource.Param(p, nil, nameLower)
+		if v == nil {
+			return nil, false, nil
+		}
+	}
+
+	return v, err == nil, err
+}
+
 // PageMetaInternalProvider provides internal page metadata.
 type PageMetaInternalProvider interface {
 	// This is for internal use only.
@@ -260,7 +329,7 @@ type PageMetaInternalProvider interface {
 type PageRenderProvider interface {
 	// Render renders the given layout with this Page as context.
 	Render(ctx context.Context, layout ...string) (template.HTML, error)
-	// RenderString renders the first value in args with tPaginatorhe content renderer defined
+	// RenderString renders the first value in args with the content renderer defined
 	// for this Page.
 	// It takes an optional map as a second argument:
 	//
@@ -276,7 +345,10 @@ type PageWithoutContent interface {
 	RenderShortcodesProvider
 	resource.Resource
 	PageMetaProvider
+
+	Param(key any) (any, error)
 	PageMetaInternalProvider
+
 	resource.LanguageProvider
 
 	// For pages backed by a file.
@@ -299,9 +371,6 @@ type PageWithoutContent interface {
 	Positioner
 	navigation.PageMenusProvider
 
-	// TODO(bep)
-	AuthorProvider
-
 	// Page lookups/refs
 	GetPageProvider
 	RefProvider
@@ -317,11 +386,11 @@ type PageWithoutContent interface {
 
 	// Scratch returns a Scratch that can be used to store temporary state.
 	// Note that this Scratch gets reset on server rebuilds. See Store() for a variant that survives.
-	maps.Scratcher
+	// Scratch returns a "scratch pad" that can be used to store state.
+	// Deprecated: From Hugo v0.138.0 this is just an alias for Store.
+	Scratch() *hstore.Scratch
 
-	// Store returns a Scratch that can be used to store temporary state.
-	// In contrast to Scratch(), this Scratch is not reset on server rebuilds.
-	Store() *maps.Scratch
+	hstore.StoreProvider
 
 	RelatedKeywordsProvider
 
@@ -333,6 +402,10 @@ type PageWithoutContent interface {
 	// This is currently only triggered with the Related content feature
 	// and the "fragments" type of index.
 	HeadingsFiltered(context.Context) tableofcontents.Headings
+}
+
+type SiteDimensionProvider interface {
+	Role() roles.Role
 }
 
 // Positioner provides next/prev navigation.
@@ -464,6 +537,19 @@ type TreeProvider interface {
 
 	// SectionsPath is SectionsEntries joined with a /.
 	SectionsPath() string
+}
+
+// SiteVectorProvider provides the dimensions of a Page.
+type SiteVectorProvider interface {
+	SiteVector() sitesmatrix.Vector
+}
+
+// GetSiteVector returns the site vector for a Page.
+func GetSiteVector(p Page) sitesmatrix.Vector {
+	if sp, ok := p.(SiteVectorProvider); ok {
+		return sp.SiteVector()
+	}
+	return sitesmatrix.Vector{}
 }
 
 // PageWithContext is a Page with a context.Context.

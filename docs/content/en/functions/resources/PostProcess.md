@@ -3,41 +3,23 @@ title: resources.PostProcess
 description: Processes the given resource after the build.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/resources/Fingerprint
-    - functions/resources/Minify
-    - functions/resources/PostCSS
-    - functions/resources/ToCSS
-  returnType: postpub.PostPublishedResource
-  signatures: [resources.PostProcess RESOURCE]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: postpub.PostPublishedResource
+    signatures: [resources.PostProcess RESOURCE]
 ---
 
-```go-html-template
-{{ with resources.Get "css/main.css" }}
-  {{ if hugo.IsDevelopment }}
-    <link rel="stylesheet" href="{{ .RelPermalink }}">
-  {{ else }}
-    {{ with . | postCSS | minify | fingerprint | resources.PostProcess }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
-    {{ end }}
-  {{ end }}
-{{ end }}
-```
+The `resources.PostProcess` function delays resource transformation steps until the build is complete, primarily for tasks like removing unused CSS rules.
 
-Marking a resource with `resources.PostProcess` postpones transformations until the build has finished.
+## Example
 
-Call `resources.PostProcess` when one or more of the steps in the transformation chain depends on the result of the build.
+In this example, after the build is complete, Hugo will:
 
-A prime use case for this is purging unused CSS rules using the [PurgeCSS] plugin for the PostCSS Node.js package.
-
-## CSS Purging
-
-{{% note %}}
-There are several ways to set up CSS purging with PostCSS in Hugo. If you have a simple project, you should consider going the simpler route and drop the use of `resources.PostProcess` and just extract keywords from the templates. See the [Tailwind documentation](https://tailwindcss.com/docs/controlling-file-size/#app) for examples.
-{{% /note %}}
+1. Purge unused CSS using the [PurgeCSS] plugin for [PostCSS]
+1. Add vendor prefixes to CSS rules using the [Autoprefixer] plugin for PostCSS
+1. [Minify] the CSS
+1. [Fingerprint] the CSS
 
 Step 1
 : Install [Node.js].
@@ -45,50 +27,51 @@ Step 1
 Step 2
 : Install the required Node.js packages in the root of your project:
 
-```sh
-npm i -D postcss postcss-cli autoprefixer @fullhuman/postcss-purgecss
-```
+  ```sh {copy=true}
+  npm i -D postcss postcss-cli autoprefixer @fullhuman/postcss-purgecss
+  ```
 
 Step 3
-: Create a PostCSS configuration file in the root of your project. You must name this file `postcss.config.js` or another [supported file name]. For example:
+: Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [`config/production`].
 
-```js
-const autoprefixer = require('autoprefixer');
-const purgecss = require('@fullhuman/postcss-purgecss')({
-  content: ['./hugo_stats.json'],
-  defaultExtractor: content => {
-    const els = JSON.parse(content).htmlElements;
-    return [
-      ...(els.tags || []),
-      ...(els.classes || []),
-      ...(els.ids || []),
-    ];
-  },
-  // https://purgecss.com/safelisting.html
-  safelist: []
-});
+  {{< code-toggle file=hugo copy=true >}}
+  [build.buildStats]
+  enable = true
+  {{< /code-toggle >}}
 
-module.exports = {
-  plugins: [
-    autoprefixer,
-    process.env.HUGO_ENVIRONMENT !== 'development' ? purgecss : null
-  ]
-};
-```
-
-{{% note %}}
-{{% include "functions/resources/_common/postcss-windows-warning.md" %}}
-{{% /note %}}
+  See the [configure build] documentation for details and options.
 
 Step 4
-: Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [config/production].
+: Create a PostCSS configuration file in the root of your project.
 
-{{< code-toggle file=hugo >}}
-[build.buildStats]
-enable = true
-{{< /code-toggle >}}
+  ```js {file="postcss.config.js" copy=true}
+  const autoprefixer = require('autoprefixer');
+  const purgeCSSPlugin = require('@fullhuman/postcss-purgecss').default;
 
-See the [configure build] documentation for details and options.
+  const purgecss = purgeCSSPlugin({
+    content: ['./hugo_stats.json'],
+    defaultExtractor: content => {
+      const els = JSON.parse(content).htmlElements;
+      return [
+        ...(els.tags || []),
+        ...(els.classes || []),
+        ...(els.ids || []),
+      ];
+    },
+    // https://purgecss.com/safelisting.html
+    safelist: []
+  });
+
+  module.exports = {
+    plugins: [
+      process.env.HUGO_ENVIRONMENT !== 'development' ? purgecss : null,
+      autoprefixer,
+    ]
+  };
+  ```
+
+  > [!note]
+  > If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
 
 Step 5
 : Place your CSS file within the `assets/css` directory.
@@ -96,24 +79,24 @@ Step 5
 Step 6
 : If the current environment is not `development`, process the resource with PostCSS:
 
-```go-html-template
-{{ with resources.Get "css/main.css" }}
-  {{ if hugo.IsDevelopment }}
-    <link rel="stylesheet" href="{{ .RelPermalink }}">
-  {{ else }}
-    {{ with . | postCSS | minify | fingerprint | resources.PostProcess }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+  ```go-html-template {copy=true}
+  {{ with resources.Get "css/main.css" }}
+    {{ if hugo.IsDevelopment }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ else }}
+      {{ with . | postCSS | minify | fingerprint | resources.PostProcess }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+      {{ end }}
     {{ end }}
   {{ end }}
-{{ end }}
-```
+  ```
 
 ## Environment variables
 
-Hugo passes these environment variables to PostCSS, which allows you to do something like:
+Hugo passes the environment variables below to PostCSS, allowing you to do something like:
 
 ```js
-process.env.HUGO_ENVIRONMENT === 'production' ? [autoprefixer] : []
+process.env.HUGO_ENVIRONMENT !== 'development' ? purgecss : null,
 ```
 
 PWD
@@ -124,16 +107,16 @@ HUGO_ENVIRONMENT
 Default is `production` for `hugo` and `development` for `hugo server`.
 
 HUGO_PUBLISHDIR
-: The absolute path to the publish directory (the `public` directory). Note that the value will always point to a directory on disk even when running `hugo server` in memory mode. If you write to this folder from PostCSS when running the server, you could run the server with one of these flags:
+: The absolute path to the publish directory, typically `public`. This value points to a directory on disk, even when rendering to memory with the `--renderToMemory` command line flag.
 
-```sh
-hugo server --renderToDisk
-hugo server --renderStaticToDisk
-```
+HUGO_FILE_X
+: Hugo automatically mounts the following files from your project's root directory under `assets/_jsconfig`:
 
-Also, Hugo will add environment variables for all files mounted below `assets/_jsconfig`. A default mount will be set up with files in the project root matching this regexp: `(babel|postcss|tailwind)\.config\.js`.
+- `babel.config.js`
+- `postcss.config.js`
+- `tailwind.config.js`
 
-These will get environment variables named on the form `HUGO_FILE_:filename:` where `:filename:` is all upper case with periods replaced with underscore. This allows you to do something like:
+For each file, Hugo creates a corresponding environment variable named `HUGO_FILE_:filename:`, where `:filename:` is the uppercase version of the filename with periods replaced by underscores. This allows you to access these files within your JavaScript, for example:
 
 ```js
 let tailwindConfig = process.env.HUGO_FILE_TAILWIND_CONFIG_JS || './tailwind.config.js';
@@ -141,20 +124,25 @@ let tailwindConfig = process.env.HUGO_FILE_TAILWIND_CONFIG_JS || './tailwind.con
 
 ## Limitations
 
-Do not use `resources.PostProcess` when running Hugo's built-in development server. The examples above specifically prevent this by verifying that the current environment is not "development".
+Do not use `resources.PostProcess` when running Hugo's built-in development server. The examples above specifically prevent this by verifying that the current environment is not `development`.
 
 The `resources.PostProcess` function only works within templates that produce HTML files.
 
-You cannot manipulate the values returned from the resource’s methods. For example, the `strings.ToUpper` function in this example will not work as expected:
+You cannot manipulate the values returned from the resource's methods. For example, the `strings.ToUpper` function in this example will not work as expected:
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}
-{{ $css = $css | resources.PostCSS | minify | fingerprint | resources.PostProcess }}
+{{ $css = $css | css.PostCSS | minify | fingerprint | resources.PostProcess }}
 {{ $css.RelPermalink | strings.ToUpper }}
 ```
 
-[node.js]: https://nodejs.org/en/download
-[supported file name]: https://github.com/postcss/postcss-load-config#usage
-[config/production]: /getting-started/configuration/#configuration-directory
-[configure build]: /getting-started/configuration/#configure-build
-[purgecss]: https://github.com/FullHuman/purgecss#readme
+[#7333]: https://github.com/gohugoio/hugo/issues/7333
+[`config/production`]: /configuration/introduction/#configuration-directory
+[Autoprefixer]: https://github.com/postcss/autoprefixer
+[configure build]: /configuration/build/
+[Fingerprint]: /functions/resources/fingerprint/
+[Minify]: /functions/resources/minify/
+[Node.js]: https://nodejs.org/en
+[PostCSS]: https://postcss.org/
+[PurgeCSS]: https://github.com/FullHuman/purgecss
+[this example]: https://github.com/postcss/postcss-load-config#packagejson

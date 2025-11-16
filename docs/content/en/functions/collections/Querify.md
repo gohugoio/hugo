@@ -1,32 +1,48 @@
 ---
 title: collections.Querify
-description: Takes a set or slice of key-value pairs and returns a query string to be appended to URLs.
+description: Returns a URL query string composed of the given key-value pairs, encoded and sorted by key.
 categories: []
 keywords: []
-action:
-  aliases: [querify]
-  related:
-    - functions/go-template/urlquery.md
-  returnType: string
-  signatures:
-    - collections.Querify VALUE [VALUE...]
-    - collections.Querify COLLECTION
+params:
+  functions_and_methods:
+    aliases: [querify]
+    returnType: string
+    signatures: ['collections.Querify [VALUE...]']
 aliases: [/functions/querify]
 ---
 
-`querify` takes a set or slice of key-value pairs and returns a [query string](https://en.wikipedia.org/wiki/Query_string) that can be appended to a URL.
-
-The following examples create a link to a search results page on Google.
+Specify the key-value pairs as a map, a slice, or a sequence of scalar values. For example, the following are equivalent:
 
 ```go-html-template
-<a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>
-
-{{ $qs := slice "q" "test" "page" 3 }}
-<a href="https://www.google.com?{{ (querify $qs) | safeURL }}">Search</a>
+{{ collections.Querify (dict "a" 1 "b" 2) }}
+{{ collections.Querify (slice "a" 1 "b" 2) }}
+{{ collections.Querify "a" 1 "b" 2 }}
 ```
 
-Both of these examples render the following HTML:
+To append a query string to a URL:
+
+```go-html-template
+{{ $qs := collections.Querify (dict "a" 1 "b" 2) }}
+{{ $href := printf "https://example.org?%s" $qs }}
+
+<a href="{{ $href }}">Link</a>
+```
+
+Hugo renders this to:
 
 ```html
-<a href="https://www.google.com?page=3&q=test">Search</a>
+<a href="https://example.org?a=1&amp;b=2">Link</a>
+```
+
+You can also pass in a map from your site configuration or front matter. For example:
+
+{{< code-toggle file=content/example.md fm=true >}}
+title = 'Example'
+[params.query]
+a = 1
+b = 2
+{{< /code-toggle >}}
+
+```go-html-template
+{{ collections.Querify .Params.query }}
 ```

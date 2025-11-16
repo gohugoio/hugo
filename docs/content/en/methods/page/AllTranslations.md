@@ -1,15 +1,12 @@
 ---
 title: AllTranslations
-description: Returns all translation of the given page, including the given page. 
+description: Returns all translations of the given page, including the current language, sorted by language weight.
 categories: []
 keywords: []
-action:
-  related:
-   - methods/page/Translations
-   - methods/page/IsTranslated
-   - methods/page/TranslationKey
-  returnType: page.Pages
-  signatures: [PAGE.AllTranslations]
+params:
+  functions_and_methods:
+    returnType: page.Pages
+    signatures: [PAGE.AllTranslations]
 ---
 
 With this site configuration:
@@ -63,9 +60,9 @@ And this template:
 {{ with .AllTranslations }}
   <ul>
     {{ range . }}
-      {{ $langName := or .Language.LanguageName .Language.Lang }}
-      {{ $langCode := or .Language.LanguageCode .Language.Lang }}
-      <li><a href="{{ .RelPermalink }}" hreflang="{{ $langCode }}">{{ .LinkTitle }} ({{ $langName }})</a></li>
+      <li>
+        <a href="{{ .RelPermalink }}" hreflang="{{ .Language.LanguageCode }}">{{ .LinkTitle }} ({{ or .Language.LanguageName .Language.Lang }})</a>
+      </li>
     {{ end }}
   </ul>
 {{ end }}

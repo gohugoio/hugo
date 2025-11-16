@@ -103,3 +103,29 @@ xəx := 0
 		<span class="nx">xəx</span>
 	`)
 }
+
+func TestHighlightClass(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- config.toml --
+[markup.highlight]
+noClasses = false
+wrapperClass = "highlight no-prose"
+-- content/_index.md --
+---
+title: home
+---
+§§§go
+xəx := 0
+§§§
+-- layouts/index.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `
+		 <div class="highlight no-prose"><pre
+	`)
+}

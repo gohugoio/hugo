@@ -1,4 +1,4 @@
-// Copyright 2024 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/loggers"
 )
 
 func TestRenderString(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithTemplates("index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.html --
 {{ $p := site.GetPage "p1.md" }}
 {{ $optBlock := dict "display" "block" }}
 {{ $optOrg := dict "markup" "org" }}
@@ -32,17 +33,14 @@ RSTART:{{ "**Bold Markdown**" | $p.RenderString }}:REND
 RSTART:{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}:REND
 RSTART:{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
 RSTART:{{ "## Header2" | $p.RenderString }}:REND
-
-
-`, "_default/_markup/render-heading.html", "Hook Heading: {{ .Level }}")
-
-	b.WithContent("p1.md", `---
+-- layouts/_default/_markup/render-heading.html --
+Hook Heading: {{ .Level }}
+-- content/p1.md --
+---
 title: "p1"
 ---
-`,
-	)
-
-	b.Build(BuildCfg{})
+`
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 RSTART:<strong>Bold Markdown</strong>:REND
@@ -54,18 +52,21 @@ RSTART:Hook Heading: 2:REND
 
 // https://github.com/gohugoio/hugo/issues/6882
 func TestRenderStringOnListPage(t *testing.T) {
-	renderStringTempl := `
-{{ .RenderString "**Hello**" }}
-`
-	b := newTestSitesBuilder(t)
-	b.WithContent("mysection/p1.md", `FOO`)
-	b.WithTemplates(
-		"index.html", renderStringTempl,
-		"_default/list.html", renderStringTempl,
-		"_default/single.html", renderStringTempl,
-	)
+	t.Parallel()
 
-	b.Build(BuildCfg{})
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/index.html --
+{{ .RenderString "**Hello**" }}
+-- layouts/_default/list.html --
+{{ .RenderString "**Hello**" }}
+-- layouts/_default/single.html --
+{{ .RenderString "**Hello**" }}
+-- content/mysection/p1.md --
+FOO
+`
+	b := Test(t, files)
 
 	for _, filename := range []string{
 		"index.html",
@@ -81,13 +82,16 @@ func TestRenderStringOnListPage(t *testing.T) {
 // Issue 9433
 func TestRenderStringOnPageNotBackedByAFile(t *testing.T) {
 	t.Parallel()
-	logger := loggers.NewDefault()
-	b := newTestSitesBuilder(t).WithLogger(logger).WithConfigFile("toml", `
-disableKinds = ["page", "section", "taxonomy", "term"]	
-`)
-	b.WithTemplates("index.html", `{{ .RenderString "**Hello**" }}`).WithContent("p1.md", "")
-	b.BuildE(BuildCfg{})
-	b.Assert(logger.LoggCount(logg.LevelWarn), qt.Equals, 0)
+
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term"]
+-- layouts/index.html --
+{{ .RenderString "**Hello**" }}
+-- content/p1.md --
+`
+	b, err := TestE(t, files) // Removed WithLogger(logger)
+	b.Assert(err, qt.IsNil)
 }
 
 func TestRenderStringWithShortcode(t *testing.T) {

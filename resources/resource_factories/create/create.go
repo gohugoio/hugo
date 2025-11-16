@@ -23,18 +23,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/helpers/contexthelpers"
+
 	"github.com/bep/logg"
 	"github.com/gohugoio/httpcache"
 	hhttpcache "github.com/gohugoio/hugo/cache/httpcache"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs/glob"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/hcontext"
+	"github.com/gohugoio/hugo/common/hashing"
+
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/tasks"
 	"github.com/gohugoio/hugo/resources"
@@ -48,19 +50,23 @@ type Client struct {
 	httpClient           *http.Client
 	httpCacheConfig      hhttpcache.ConfigCompiled
 	cacheGetResource     *filecache.Cache
-	resourceIDDispatcher hcontext.ContextDispatcher[string]
+	resourceIDDispatcher contexthelpers.ContextDispatcher[string]
 
 	// Set when watching.
 	remoteResourceChecker *tasks.RunEvery
 	remoteResourceLogger  logg.LevelLogger
 }
 
-type contextKey string
+type contextKey uint8
+
+const (
+	contextKeyResourceID contextKey = iota
+)
 
 // New creates a new Client with the given specification.
 func New(rs *resources.Spec) *Client {
 	fileCache := rs.FileCaches.GetResourceCache()
-	resourceIDDispatcher := hcontext.NewContextDispatcher[string](contextKey("resourceID"))
+	resourceIDDispatcher := contexthelpers.NewContextDispatcher[string](contextKeyResourceID)
 	httpCacheConfig := rs.Cfg.GetConfigSection("httpCacheCompiled").(hhttpcache.ConfigCompiled)
 	var remoteResourceChecker *tasks.RunEvery
 	if rs.Cfg.Watching() && !httpCacheConfig.IsPollingDisabled() {
@@ -105,6 +111,19 @@ func New(rs *resources.Spec) *Client {
 				ShouldCache: func(req *http.Request, resp *http.Response, key string) bool {
 					return shouldCache(resp.StatusCode)
 				},
+				CanStore: func(reqCacheControl, respCacheControl httpcache.CacheControl) (canStore bool) {
+					if httpCacheConfig.Base.RespectCacheControlNoStoreInResponse {
+						if _, ok := respCacheControl["no-store"]; ok {
+							return false
+						}
+					}
+					if httpCacheConfig.Base.RespectCacheControlNoStoreInRequest {
+						if _, ok := reqCacheControl["no-store"]; ok {
+							return false
+						}
+					}
+					return true
+				},
 				MarkCachedResponses: true,
 				EnableETagPair:      true,
 				Transport: &transport{
@@ -143,17 +162,7 @@ func (c *Client) Get(pathname string) (resource.Resource, error) {
 			return nil, err
 		}
 
-		pi := fi.(hugofs.FileMetaInfo).Meta().PathInfo
-
-		return c.rs.NewResource(resources.ResourceSourceDescriptor{
-			LazyPublish: true,
-			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-				return c.rs.BaseFs.Assets.Fs.Open(filename)
-			},
-			Path:          pi,
-			GroupIdentity: pi,
-			TargetPath:    pathname,
-		})
+		return c.getOrCreateFileResource(fi.(hugofs.FileMetaInfo))
 	})
 }
 
@@ -179,9 +188,26 @@ func (c *Client) GetMatch(pattern string) (resource.Resource, error) {
 	return res[0], err
 }
 
+func (c *Client) getOrCreateFileResource(info hugofs.FileMetaInfo) (resource.Resource, error) {
+	meta := info.Meta()
+	return c.rs.ResourceCache.GetOrCreateFile(filepath.ToSlash(meta.Filename), func() (resource.Resource, error) {
+		return c.rs.NewResource(resources.ResourceSourceDescriptor{
+			LazyPublish: true,
+			OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
+				return meta.Open()
+			},
+			NameNormalized:       meta.PathInfo.Path(),
+			NameOriginal:         meta.PathInfo.Unnormalized().Path(),
+			GroupIdentity:        meta.PathInfo,
+			TargetPath:           meta.PathInfo.Unnormalized().Path(),
+			SourceFilenameOrPath: meta.Filename,
+		})
+	})
+}
+
 func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource) bool, firstOnly bool) (resource.Resources, error) {
-	pattern = glob.NormalizePath(pattern)
-	partitions := glob.FilterGlobParts(strings.Split(pattern, "/"))
+	pattern = hglob.NormalizePath(pattern)
+	partitions := hglob.FilterGlobParts(strings.Split(pattern, "/"))
 	key := path.Join(name, path.Join(partitions...))
 	key = path.Join(key, pattern)
 
@@ -189,18 +215,7 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 		var res resource.Resources
 
 		handle := func(info hugofs.FileMetaInfo) (bool, error) {
-			meta := info.Meta()
-
-			r, err := c.rs.NewResource(resources.ResourceSourceDescriptor{
-				LazyPublish: true,
-				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-					return meta.Open()
-				},
-				NameNormalized: meta.PathInfo.Path(),
-				NameOriginal:   meta.PathInfo.Unnormalized().Path(),
-				GroupIdentity:  meta.PathInfo,
-				TargetPath:     meta.PathInfo.Unnormalized().Path(),
-			})
+			r, err := c.getOrCreateFileResource(info)
 			if err != nil {
 				return true, err
 			}
@@ -222,22 +237,83 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 	})
 }
 
-// FromString creates a new Resource from a string with the given relative target path.
-// TODO(bep) see #10912; we currently emit a warning for this config scenario.
-func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
-	targetPath = path.Clean(targetPath)
-	key := dynacache.CleanKey(targetPath) + helpers.MD5String(content)
+type Options struct {
+	// The target path relative to the publish directory.
+	// Unix style path, i.e. "images/logo.png".
+	TargetPath string
+
+	// Whether the TargetPath has a hash in it which will change if the resource changes.
+	// If not, we will calculate a hash from the content.
+	TargetPathHasHash bool
+
+	// The content to create the Resource from.
+	CreateContent func() (func() (hugio.ReadSeekCloser, error), error)
+}
+
+// FromOpts creates a new Resource from the given Options.
+// Make sure to set optis.TargetPathHasHash if the TargetPath already contains a hash,
+// as this avoids the need to calculate it.
+// To create a new ReadSeekCloser from a string, use hugio.NewReadSeekerNoOpCloserFromString,
+// or hugio.NewReadSeekerNoOpCloserFromBytes for a byte slice.
+// See FromString.
+func (c *Client) FromOpts(opts Options) (resource.Resource, error) {
+	opts.TargetPath = path.Clean(opts.TargetPath)
+	var hash string
+	var newReadSeeker func() (hugio.ReadSeekCloser, error) = nil
+	if !opts.TargetPathHasHash {
+		var err error
+		newReadSeeker, err = opts.CreateContent()
+		if err != nil {
+			return nil, err
+		}
+		if err := func() error {
+			r, err := newReadSeeker()
+			if err != nil {
+				return err
+			}
+			defer r.Close()
+
+			hash, err = hashing.XxHashFromReaderHexEncoded(r)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return nil, err
+		}
+	}
+
+	key := dynacache.CleanKey(opts.TargetPath) + hash
 	r, err := c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
+		if newReadSeeker == nil {
+			var err error
+			newReadSeeker, err = opts.CreateContent()
+			if err != nil {
+				return nil, err
+			}
+		}
 		return c.rs.NewResource(
 			resources.ResourceSourceDescriptor{
 				LazyPublish:   true,
 				GroupIdentity: identity.Anonymous, // All usage of this resource are tracked via its string content.
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
-					return hugio.NewReadSeekerNoOpCloserFromString(content), nil
+					return newReadSeeker()
 				},
-				TargetPath: targetPath,
+				TargetPath: opts.TargetPath,
 			})
 	})
 
 	return r, err
+}
+
+// FromString creates a new Resource from a string with the given relative target path.
+func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
+	return c.FromOpts(Options{
+		TargetPath: targetPath,
+		CreateContent: func() (func() (hugio.ReadSeekCloser, error), error) {
+			return func() (hugio.ReadSeekCloser, error) {
+				return hugio.NewReadSeekerNoOpCloserFromString(content), nil
+			}, nil
+		},
+	})
 }

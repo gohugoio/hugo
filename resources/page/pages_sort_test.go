@@ -139,7 +139,7 @@ func TestLimit(t *testing.T) {
 	p := createSortTestPages(10)
 	firstFive := p.Limit(5)
 	c.Assert(len(firstFive), qt.Equals, 5)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		c.Assert(firstFive[i], qt.Equals, p[i])
 	}
 	c.Assert(p.Limit(10), eq, p)
@@ -197,7 +197,7 @@ func TestPageSortByParamNumeric(t *testing.T) {
 
 	n := 10
 	unsorted := createSortTestPages(n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		v := 100 - i
 		if i%2 == 0 {
 			v = 100.0 - i
@@ -236,8 +236,7 @@ func TestPageSortByParamNumeric(t *testing.T) {
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
 	p := createSortTestPages(300)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		p = p.ByWeight().Reverse()
 	}
 }
@@ -269,7 +268,7 @@ func setSortVals(dates [4]time.Time, titles [4]string, weights [4]int, pages Pag
 func createSortTestPages(num int) Pages {
 	pages := make(Pages, num)
 
-	for i := 0; i < num; i++ {
+	for i := range num {
 		p := newTestPage()
 		p.path = fmt.Sprintf("/x/y/p%d.md", i)
 		p.title = fmt.Sprintf("Title %d", i%((num+1)/2))

@@ -3,22 +3,18 @@ title: images.Process
 description: Returns an image filter that processes the given image using the given specification.
 categories: []
 keywords: []
-action:
-  aliases: []
-  related:
-    - functions/images/Filter
-    - methods/resource/Filter
-    - methods/resource/Process
-  returnType: images.filter
-  signatures: [images.Process SPEC]
-toc: true
+params:
+  functions_and_methods:
+    aliases: []
+    returnType: images.filter
+    signatures: [images.Process SPEC]
 ---
 
-{{< new-in 0.119.0 >}}
+{{< new-in 0.119.0 />}}
 
 This filter has the same options as the [`Process`] method on a `Resource` object, but using it as a filter may be more effective if you need to apply multiple filters to an image.
 
-[`Process`]: /methods/resource/process
+[`Process`]: /methods/resource/process/
 
 The process specification is a space-delimited, case-insensitive list of one or more of the following in any sequence:
 
@@ -72,7 +68,6 @@ hint
 
 [`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
 
-
 ```go-html-template
 {{ $filter := images.Process "webp" "icon" }}
 {{ $filter := images.Process "crop 200x200 center r90 webp q50 icon" }}
@@ -102,7 +97,7 @@ Create a filter:
 {{ $filter := images.Process "resize 256x q40 webp" }}
 ```
 
-{{% include "functions/images/_common/apply-image-filter.md" %}}
+{{% include "/_common/functions/images/apply-image-filter.md" %}}
 
 ## Example
 

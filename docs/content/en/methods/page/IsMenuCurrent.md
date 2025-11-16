@@ -1,13 +1,12 @@
 ---
 title: IsMenuCurrent
-description: Reports whether the given page object matches the page object associated with the given menu entry in the given menu.
+description: Reports whether the given Page object matches the Page object associated with the given menu entry in the given menu.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/HasMenuCurrent
-  returnType: bool
-  signatures: [PAGE.IsMenuCurrent MENU MENUENTRY]
+params:
+  functions_and_methods:
+    returnType: bool
+    signatures: [PAGE.IsMenuCurrent MENU MENUENTRY]
 aliases: [/functions/ismenucurrent]
 ---
 
@@ -26,4 +25,7 @@ aliases: [/functions/ismenucurrent]
 
 See [menu templates] for a complete example.
 
-[menu templates]: /templates/menu-templates/#example
+> [!note]
+> When using this method you must either define the menu entry in front matter, or specify a `pageRef` property when defining the menu entry in your site configuration.
+
+[menu templates]: /templates/menu/#example

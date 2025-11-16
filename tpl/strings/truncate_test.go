@@ -41,6 +41,19 @@ func TestTruncate(t *testing.T) {
 		{10, template.HTML("<p>IamanextremelylongwordthatjustgoesonandonandonjusttoannoyyoualmostasifIwaswritteninGermanActuallyIbettheresagermanwordforthis</p>"), nil, template.HTML("<p>Iamanextre …</p>"), false},
 		{13, template.HTML("With <a href=\"/markdown\">Markdown</a> inside."), nil, template.HTML("With <a href=\"/markdown\">Markdown …</a>"), false},
 		{14, "Hello中国 Good 好的", nil, template.HTML("Hello中国 Good 好 …"), false},
+		{12, "", "日本語でHugoを使います", template.HTML("日本語でHugoを使いま"), false},
+		{12, "", "日本語で Hugo を使います", template.HTML("日本語で Hugo を使"), false},
+		{8, "", "日本語でHugoを使います", template.HTML("日本語でHugo"), false},
+		{10, "", "日本語で Hugo を使います", template.HTML("日本語で Hugo"), false},
+		{9, "", "日本語で Hugo を使います", template.HTML("日本語で Hugo"), false},
+		{7, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
+		{7, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
+		{6, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
+		{6, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
+		{5, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
+		{5, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
+		{4, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
+		{4, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
 		{15, "", template.HTML("A <br> tag that's not closed"), template.HTML("A <br> tag that's"), false},
 		{14, template.HTML("<p>Hello中国 Good 好的</p>"), nil, template.HTML("<p>Hello中国 Good 好 …</p>"), false},
 		{2, template.HTML("<p>P1</p><p>P2</p>"), nil, template.HTML("<p>P1 …</p>"), false},
@@ -101,13 +114,13 @@ func TestTruncate(t *testing.T) {
 
 func BenchmarkTruncate(b *testing.B) {
 	b.Run("Plain text", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			ns.Truncate(10, "I am a test sentence")
 		}
 	})
 
 	b.Run("With link", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			ns.Truncate(10, "I have a <a href='/markdown'>Markdown link</a> inside")
 		}
 	})

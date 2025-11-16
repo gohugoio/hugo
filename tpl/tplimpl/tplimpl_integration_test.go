@@ -1,65 +1,27 @@
+// Copyright 2025 The Hugo Authors. All rights reserved.
+//
+// Portions Copyright The Go Authors.
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package tplimpl_test
 
 import (
-	"path/filepath"
 	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
-	"github.com/gohugoio/hugo/tpl"
 )
-
-func TestPrintUnusedTemplates(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- config.toml --
-baseURL = 'http://example.com/'
-printUnusedTemplates=true
--- content/p1.md --
----
-title: "P1"
----
-{{< usedshortcode >}}
--- layouts/baseof.html --
-{{ block "main" . }}{{ end }}
--- layouts/baseof.json --
-{{ block "main" . }}{{ end }}
--- layouts/index.html --
-{{ define "main" }}FOO{{ end }}
--- layouts/_default/single.json --
--- layouts/_default/single.html --
-{{ define "main" }}MAIN{{ end }}
--- layouts/post/single.html --
-{{ define "main" }}MAIN{{ end }}
--- layouts/partials/usedpartial.html --
--- layouts/partials/unusedpartial.html --
--- layouts/shortcodes/usedshortcode.html --
-{{ partial "usedpartial.html" }}
--- layouts/shortcodes/unusedshortcode.html --
-
-	`
-
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		},
-	)
-	b.Build()
-
-	unused := b.H.Tmpl().(tpl.UnusedTemplatesProvider).UnusedTemplates()
-
-	var names []string
-	for _, tmpl := range unused {
-		names = append(names, tmpl.Name())
-	}
-
-	b.Assert(names, qt.DeepEquals, []string{"_default/single.json", "baseof.json", "partials/unusedpartial.html", "post/single.html", "shortcodes/unusedshortcode.html"})
-	b.Assert(unused[0].Filename(), qt.Equals, filepath.Join(b.Cfg.WorkingDir, "layouts/_default/single.json"))
-}
 
 // Verify that the new keywords in Go 1.18 is available.
 func TestGo18Constructs(t *testing.T) {
@@ -114,6 +76,20 @@ and2: true
 or2: true
 counter2: 3
 `)
+}
+
+func TestGo23ElseWith(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+title = "Hugo"
+-- layouts/index.html --
+{{ with false }}{{ else with .Site }}{{ .Title }}{{ end }}|
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Hugo|")
 }
 
 // Issue 10495
@@ -569,4 +545,53 @@ title: p5
 	b.AssertFileContent("public/s1/p5/index.html",
 		`<meta name="twitter:description" content="m n and **o** can&#39;t.">`,
 	)
+}
+
+// Issue 12963
+func TestEditBaseofParseAfterExecute(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "rss", "404", "sitemap"]
+[internal]
+fastRenderMode = true
+-- layouts/_default/baseof.html --
+Baseof!
+{{ block "main" . }}default{{ end }}
+{{ with (templates.Defer (dict "key" "global")) }}
+Now. {{ now }}
+{{ end }}
+-- layouts/_default/single.html --
+{{ define "main" }}
+Single.
+{{ end }}
+-- layouts/_default/list.html --
+{{ define "main" }}
+List.
+{{ .Content }}
+{{ range .Pages }}{{ .Title }}{{ end }}|
+{{ end }}
+-- content/mybundle1/index.md --
+---
+title: "My Bundle 1"
+---
+-- content/mybundle2/index.md --
+---
+title: "My Bundle 2"
+---
+-- content/_index.md --
+---
+title: "Home"
+---
+Home!
+`
+
+	b := hugolib.TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "Home!")
+	b.EditFileReplaceAll("layouts/_default/baseof.html", "baseof", "Baseof!").Build()
+	b.BuildPartial("/")
+	b.AssertFileContent("public/index.html", "Baseof!")
+	b.BuildPartial("/mybundle1/")
+	b.AssertFileContent("public/mybundle1/index.html", "Baseof!")
 }

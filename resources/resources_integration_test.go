@@ -27,6 +27,7 @@ func TestImageCache(t *testing.T) {
 
 	files := `
 -- config.toml --
+disableLiveReload = true
 baseURL = "https://example.org"
 -- content/mybundle/index.md --
 ---
@@ -61,9 +62,9 @@ anigif: {{ $anigif.RelPermalink }}|{{ $anigif.Width }}|{{ $anigif.Height }}|{{ $
 
 	assertImages := func() {
 		b.AssertFileContent("public/index.html", `
-		gif: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_1x2_resize_box_3.gif|}|1|2|image/gif|
-		bmp: /mybundle/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_2x3_resize_box_3.bmp|}|2|3|image/bmp|
-		anigif: /mybundle/giphy_hu3eafc418e52414ace6236bf1d31f82e1_52213_4x5_resize_box_1.gif|4|5|image/gif|
+ gif: /mybundle/pixel_hu_93429543fc146fce.gif|}|1|2|image/gif|
+bmp: /mybundle/pixel_hu_f9bf2acd6578e2c6.bmp|}|2|3|image/bmp|
+anigif: /mybundle/giphy_hu_652d28653068b48f.gif|4|5|image/gif|
 		`)
 	}
 
@@ -121,7 +122,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 
 `
 
-	for i := 0; i < 3; i++ {
+	for range 3 {
 
 		b := hugolib.NewIntegrationTestBuilder(
 			hugolib.IntegrationTestConfig{
@@ -133,7 +134,6 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 
 		b.AssertFileCount("resources/_gen/images", 6)
 		b.AssertFileCount("public/images", 1)
-		b.Build()
 	}
 }
 
@@ -159,9 +159,9 @@ resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		"jpg|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_17010532266664966692.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
-		"resize 1|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_6707036659822075562.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
-		"resize 2|RelPermalink: /images/pixel_hu8aa3346827e49d756ff4e630147c42b5_70_filter_6707036659822075562.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"jpg|RelPermalink: /images/pixel_hu_38c3f257174fc757.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
+		"resize 1|RelPermalink: /images/pixel_hu_b5c2a3d88991f65a.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"resize 2|RelPermalink: /images/pixel_hu_b5c2a3d88991f65a.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
 	)
 }
 

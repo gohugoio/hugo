@@ -49,6 +49,15 @@ func New(baseURL *url.URL) transform.Transformer {
 			idx += len(ignoredSyntax.Find(b[idx:]))
 			idx += len(tag.Find(b[idx:]))
 		}
+		if idx == 0 {
+			// doctype is required for HTML5, we did not find it,
+			// and neither did we find html or head tags, so
+			// skip injection.
+			// This allows us to render partial HTML documents to be used in
+			// e.g. JS frameworks.
+			ft.To().Write(b)
+			return nil
+		}
 
 		path := strings.TrimSuffix(baseURL.Path, "/")
 
@@ -56,7 +65,7 @@ func New(baseURL *url.URL) transform.Transformer {
 		src += "&port=" + baseURL.Port()
 		src += "&path=" + strings.TrimPrefix(path+"/livereload", "/")
 
-		script := []byte(fmt.Sprintf(`<script src="%s" data-no-instant defer></script>`, html.EscapeString(src)))
+		script := fmt.Appendf(nil, `<script src="%s" data-no-instant defer></script>`, html.EscapeString(src))
 
 		c := make([]byte, len(b)+len(script))
 		copy(c, b[:idx])

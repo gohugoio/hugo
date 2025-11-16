@@ -22,11 +22,11 @@ import (
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/spf13/cast"
@@ -71,10 +71,18 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 			key += decoder.OptionsKey()
 		}
 
-		v, err := ns.cache.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
-			f := metadecoders.FormatFromStrings(r.MediaType().Suffixes()...)
-			if f == "" {
-				return nil, fmt.Errorf("MIME %q not supported", r.MediaType())
+		v, err := ns.cacheUnmarshal.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
+			var f metadecoders.Format
+			if decoder.Format != "" {
+				f = metadecoders.FormatFromString(decoder.Format)
+				if f == "" {
+					return nil, fmt.Errorf("format %q not supported", decoder.Format)
+				}
+			} else {
+				f = metadecoders.FormatFromStrings(r.MediaType().Suffixes()...)
+				if f == "" {
+					return nil, fmt.Errorf("MIME %q not supported", r.MediaType())
+				}
 			}
 
 			reader, err := r.ReadSeekCloser()
@@ -113,16 +121,28 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 		return nil, fmt.Errorf("type %T not supported", data)
 	}
 
-	if dataStr == "" {
-		return nil, errors.New("no data to transform")
+	if strings.TrimSpace(dataStr) == "" {
+		return nil, nil
 	}
 
-	key := helpers.MD5String(dataStr)
+	key := hashing.MD5FromStringHexEncoded(dataStr)
 
-	v, err := ns.cache.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
-		f := decoder.FormatFromContentString(dataStr)
-		if f == "" {
-			return nil, errors.New("unknown format")
+	if decoder != metadecoders.Default {
+		key += decoder.OptionsKey()
+	}
+
+	v, err := ns.cacheUnmarshal.GetOrCreate(key, func(string) (*resources.StaleValue[any], error) {
+		var f metadecoders.Format
+		if decoder.Format != "" {
+			f = metadecoders.FormatFromString(decoder.Format)
+			if f == "" {
+				return nil, fmt.Errorf("format %q not supported", decoder.Format)
+			}
+		} else {
+			f = decoder.FormatFromContentString(dataStr)
+			if f == "" {
+				return nil, errors.New("unknown format")
+			}
 		}
 
 		v, err := decoder.Unmarshal([]byte(dataStr), f)

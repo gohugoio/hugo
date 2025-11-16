@@ -25,6 +25,7 @@ import (
 	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -43,8 +44,9 @@ func newConfigCommand() *configCommand {
 type configCommand struct {
 	r *rootCommand
 
-	format string
-	lang   string
+	format    string
+	lang      string
+	printZero bool
 
 	commands []simplecobra.Commander
 }
@@ -58,7 +60,7 @@ func (c *configCommand) Name() string {
 }
 
 func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
-	conf, err := c.r.ConfigFromProvider(c.r.configVersionID.Load(), flagsToCfg(cd, nil))
+	conf, err := c.r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, flagsToCfg(cd, nil))
 	if err != nil {
 		return err
 	}
@@ -70,7 +72,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 			return fmt.Errorf("language %q not found", c.lang)
 		}
 	} else {
-		config = conf.configs.LanguageConfigSlice[0]
+		config = conf.configs.LanguageConfigMap[conf.configs.Base.DefaultContentLanguage]
 	}
 
 	var buf bytes.Buffer
@@ -78,7 +80,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 	dec.SetIndent("", "  ")
 	dec.SetEscapeHTML(false)
 
-	if err := dec.Encode(parser.ReplacingJSONMarshaller{Value: config, KeysToLower: true, OmitEmpty: true}); err != nil {
+	if err := dec.Encode(parser.ReplacingJSONMarshaller{Value: config, KeysToLower: true, OmitEmpty: !c.printZero}); err != nil {
 		return err
 	}
 
@@ -89,7 +91,7 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 		os.Stdout.Write(buf.Bytes())
 	default:
 		// Decode the JSON to a map[string]interface{} and then unmarshal it again to the correct format.
-		var m map[string]interface{}
+		var m map[string]any
 		if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
 			return err
 		}
@@ -110,11 +112,12 @@ func (c *configCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 func (c *configCommand) Init(cd *simplecobra.Commandeer) error {
 	c.r = cd.Root.Command.(*rootCommand)
 	cmd := cd.CobraCommand
-	cmd.Short = "Print the site configuration"
-	cmd.Long = `Print the site configuration, both default and custom settings.`
+	cmd.Short = "Display site configuration"
+	cmd.Long = `Display site configuration, both default and custom settings.`
 	cmd.Flags().StringVar(&c.format, "format", "toml", "preferred file format (toml, yaml or json)")
 	_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions([]string{"toml", "yaml", "json"}, cobra.ShellCompDirectiveNoFileComp))
 	cmd.Flags().StringVar(&c.lang, "lang", "", "the language to display config for. Defaults to the first language defined.")
+	cmd.Flags().BoolVar(&c.printZero, "printZero", false, `include config options with zero values (e.g. false, 0, "") in the output`)
 	_ = cmd.RegisterFlagCompletionFunc("lang", cobra.NoFileCompletions)
 	applyLocalFlagsBuildConfig(cmd, c.r)
 
@@ -126,9 +129,9 @@ func (c *configCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 }
 
 type configModMount struct {
-	Source string `json:"source"`
-	Target string `json:"target"`
-	Lang   string `json:"lang,omitempty"`
+	Source string            `json:"source"`
+	Target string            `json:"target"`
+	Sites  sitesmatrix.Sites `json:"sites,omitzero"`
 }
 
 type configModMounts struct {
@@ -144,7 +147,7 @@ func (m *configModMounts) MarshalJSON() ([]byte, error) {
 		mounts = append(mounts, configModMount{
 			Source: mount.Source,
 			Target: mount.Target,
-			Lang:   mount.Lang,
+			Sites:  mount.Sites,
 		})
 	}
 
@@ -209,7 +212,7 @@ func (c *configMountsCommand) Name() string {
 
 func (c *configMountsCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args []string) error {
 	r := c.configCmd.r
-	conf, err := r.ConfigFromProvider(r.configVersionID.Load(), flagsToCfg(cd, nil))
+	conf, err := r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, flagsToCfg(cd, nil))
 	if err != nil {
 		return err
 	}

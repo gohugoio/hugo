@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,38 +14,17 @@
 package hugolib
 
 import (
-	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
-	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/loggers"
-)
-
-const pageWithAlias = `---
-title: Has Alias
-aliases: ["/foo/bar/", "rel"]
----
-For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
-`
-
-const pageWithAliasMultipleOutputs = `---
-title: Has Alias for HTML and AMP
-aliases: ["/foo/bar/"]
-outputs: ["HTML", "AMP", "JSON"]
----
-For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
-`
-
-const (
-	basicTemplate = "<html><body>{{.Content}}</body></html>"
-	aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
+	"github.com/gohugoio/hugo/config"
 )
 
 func TestAlias(t *testing.T) {
 	t.Parallel()
-	c := qt.New(t)
 
 	tests := []struct {
 		fileSuffix string
@@ -61,15 +40,26 @@ func TestAlias(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := newTestSitesBuilder(t)
-		b.WithSimpleConfigFileAndSettings(test.settings).WithContent("blog/page.md", pageWithAlias)
-		b.CreateSites().Build(BuildCfg{})
+		files := `
+-- hugo.toml --
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
+CONFIG
+-- content/blog/page.md --
+---
+title: Has Alias
+aliases: ["/foo/bar/", "rel"]
+---
+For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
+-- layouts/all.html --
+Title: {{ .Title }}|Content: {{ .Content }}|
+`
+		files = strings.Replace(files, "CONFIG", config.FromMapToTOMLString(test.settings), 1)
 
-		c.Assert(len(b.H.Sites), qt.Equals, 1)
-		c.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
+		b := Test(t, files)
 
 		// the real page
 		b.AssertFileContent("public/blog/page"+test.fileSuffix, "For some moments the old man")
+
 		// the alias redirectors
 		b.AssertFileContent("public/foo/bar"+test.fileSuffix, "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page"+test.urlSuffix+"\">")
 		b.AssertFileContent("public/blog/rel"+test.fileSuffix, "<meta http-equiv=\"refresh\" content=\"0; url="+test.urlPrefix+"/blog/page"+test.urlSuffix+"\">")
@@ -79,19 +69,25 @@ func TestAlias(t *testing.T) {
 func TestAliasMultipleOutputFormats(t *testing.T) {
 	t.Parallel()
 
-	c := qt.New(t)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com"
+-- layouts/_default/single.html --
+{{ .Content }}
+-- layouts/_default/single.amp.html --
+{{ .Content }}
+-- layouts/_default/single.json --
+{{ .Content }}
+-- content/blog/page.md --
+---
+title: Has Alias for HTML and AMP
+aliases: ["/foo/bar/"]
+outputs: ["html", "amp", "json"]
+---
+For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
+`
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAliasMultipleOutputs)
-
-	b.WithTemplates(
-		"_default/single.html", basicTemplate,
-		"_default/single.amp.html", basicTemplate,
-		"_default/single.json", basicTemplate)
-
-	b.CreateSites().Build(BuildCfg{})
-
-	b.H.Sites[0].pageMap.debugPrint("", 999, os.Stdout)
+	b := Test(t, files)
 
 	// the real pages
 	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
@@ -101,19 +97,32 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 	// the alias redirectors
 	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
 	b.AssertFileContent("public/amp/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
-	c.Assert(b.CheckExists("public/foo/bar/index.json"), qt.Equals, false)
+	b.AssertFileExists("public/foo/bar/index.json", false)
 }
 
 func TestAliasTemplate(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("page.md", pageWithAlias).WithTemplatesAdded("alias.html", aliasTemplate)
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com"
+-- layouts/single.html --
+Single.
+-- layouts/home.html --
+Home.
+-- layouts/alias.html --
+ALIASTEMPLATE
+-- content/page.md --
+---
+title: "Page"
+aliases: ["/foo/bar/"]
+---
+`
 
-	b.CreateSites().Build(BuildCfg{})
+	b := Test(t, files)
 
 	// the real page
-	b.AssertFileContent("public/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/page/index.html", "Single.")
 	// the alias redirector
 	b.AssertFileContent("public/foo/bar/index.html", "ALIASTEMPLATE")
 }
@@ -158,4 +167,27 @@ func TestTargetPathHTMLRedirectAlias(t *testing.T) {
 			t.Errorf("Expected: %q, got: %q", test.expected, path)
 		}
 	}
+}
+
+func TestAliasNIssue14053(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com"
+-- layouts/all.html --
+All.
+-- content/page.md --
+---
+title: "Page"
+aliases:
+- n
+- y
+- no
+- yes
+---
+`
+	b := Test(t, files)
+
+	b.AssertPublishDir("n/index.html", "yes/index.html", "no/index.html", "yes/index.html")
 }

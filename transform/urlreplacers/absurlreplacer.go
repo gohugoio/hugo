@@ -16,9 +16,11 @@ package urlreplacers
 import (
 	"bytes"
 	"io"
+	"net/url"
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/transform"
 )
 
@@ -30,6 +32,9 @@ type absurllexer struct {
 
 	// path may be set to a "." relative path
 	path []byte
+
+	// The root path, without leading slash.
+	root []byte
 
 	pos   int // input position
 	start int // item start position
@@ -119,6 +124,9 @@ func checkCandidateBase(l *absurllexer) {
 	}
 	l.pos += relURLPrefixLen
 	l.w.Write(l.path)
+	if len(l.root) > 0 && bytes.HasPrefix(l.content[l.pos:], l.root) {
+		l.pos += len(l.root)
+	}
 	l.start = l.pos
 }
 
@@ -174,7 +182,11 @@ func checkCandidateSrcset(l *absurllexer) {
 	for i, f := range fields {
 		if f[0] == '/' {
 			l.w.Write(l.path)
-			l.w.Write(f[1:])
+			n := 1
+			if len(l.root) > 0 && bytes.HasPrefix(f[n:], l.root) {
+				n += len(l.root)
+			}
+			l.w.Write(f[n:])
 
 		} else {
 			l.w.Write(f)
@@ -229,10 +241,15 @@ func (l *absurllexer) replace() {
 }
 
 func doReplace(path string, ct transform.FromTo, quotes [][]byte) {
+	var root string
+	if u, err := url.Parse(path); err == nil {
+		root = paths.TrimLeading(u.Path)
+	}
 	lexer := &absurllexer{
 		content: ct.From().Bytes(),
 		w:       ct.To(),
 		path:    []byte(path),
+		root:    []byte(root),
 		quotes:  quotes,
 	}
 

@@ -3,12 +3,10 @@ title: ReadingTime
 description: Returns the estimated reading time, in minutes, for the given page.
 categories: []
 keywords: []
-action:
-  related:
-    - methods/page/WordCount
-    - methods/page/FuzzyWordCount
-  returnType: int
-  signatures: [PAGE.ReadingTime]
+params:
+  functions_and_methods:
+    returnType: int
+    signatures: [PAGE.ReadingTime]
 ---
 
 The estimated reading time is calculated by dividing the number of words in the content by the reading speed.

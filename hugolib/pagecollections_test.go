@@ -1,4 +1,4 @@
-// Copyright 2019 The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,143 +15,13 @@ package hugolib
 
 import (
 	"fmt"
-	"math/rand"
-	"path"
 	"path/filepath"
 	"testing"
-	"time"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
-
-	"github.com/gohugoio/hugo/deps"
 )
-
-const pageCollectionsPageTemplate = `---
-title: "%s"
-categories:
-- Hugo
----
-# Doc
-`
-
-func BenchmarkGetPage(b *testing.B) {
-	var (
-		cfg, fs = newTestCfg()
-		r       = rand.New(rand.NewSource(time.Now().UnixNano()))
-	)
-
-	configs, err := loadTestConfigFromProvider(cfg)
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 100; j++ {
-			writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), "CONTENT")
-		}
-	}
-
-	s := buildSingleSite(b, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
-
-	pagePaths := make([]string, b.N)
-
-	for i := 0; i < b.N; i++ {
-		pagePaths[i] = fmt.Sprintf("sect%d", r.Intn(10))
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		home, _ := s.getPage(nil, "/")
-		if home == nil {
-			b.Fatal("Home is nil")
-		}
-
-		p, _ := s.getPage(nil, pagePaths[i])
-		if p == nil {
-			b.Fatal("Section is nil")
-		}
-
-	}
-}
-
-func createGetPageRegularBenchmarkSite(t testing.TB) *Site {
-	var (
-		c       = qt.New(t)
-		cfg, fs = newTestCfg()
-	)
-
-	configs, err := loadTestConfigFromProvider(cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	pc := func(title string) string {
-		return fmt.Sprintf(pageCollectionsPageTemplate, title)
-	}
-
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 100; j++ {
-			content := pc(fmt.Sprintf("Title%d_%d", i, j))
-			writeSource(c, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), content)
-		}
-	}
-
-	return buildSingleSite(c, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
-}
-
-func TestBenchmarkGetPageRegular(t *testing.T) {
-	c := qt.New(t)
-	s := createGetPageRegularBenchmarkSite(t)
-
-	for i := 0; i < 10; i++ {
-		pp := path.Join("/", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i))
-		page, _ := s.getPage(nil, pp)
-		c.Assert(page, qt.Not(qt.IsNil), qt.Commentf(pp))
-	}
-}
-
-func BenchmarkGetPageRegular(b *testing.B) {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	b.Run("From root", func(b *testing.B) {
-		s := createGetPageRegularBenchmarkSite(b)
-		c := qt.New(b)
-
-		pagePaths := make([]string, b.N)
-
-		for i := 0; i < b.N; i++ {
-			pagePaths[i] = path.Join(fmt.Sprintf("/sect%d", r.Intn(10)), fmt.Sprintf("page%d.md", r.Intn(100)))
-		}
-
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			page, _ := s.getPage(nil, pagePaths[i])
-			c.Assert(page, qt.Not(qt.IsNil))
-		}
-	})
-
-	b.Run("Page relative", func(b *testing.B) {
-		s := createGetPageRegularBenchmarkSite(b)
-		c := qt.New(b)
-		allPages := s.RegularPages()
-
-		pagePaths := make([]string, b.N)
-		pages := make([]page.Page, b.N)
-
-		for i := 0; i < b.N; i++ {
-			pagePaths[i] = fmt.Sprintf("page%d.md", r.Intn(100))
-			pages[i] = allPages[r.Intn(len(allPages)/3)]
-		}
-
-		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
-			page, _ := s.getPage(pages[i], pagePaths[i])
-			c.Assert(page, qt.Not(qt.IsNil))
-		}
-	})
-}
 
 type getPageTest struct {
 	name          string
@@ -180,55 +50,175 @@ func (t *getPageTest) check(p page.Page, err error, errorMsg string, c *qt.C) {
 }
 
 func TestGetPage(t *testing.T) {
-	var (
-		cfg, fs = newTestCfg()
-		c       = qt.New(t)
-	)
+	t.Parallel()
 
-	configs, err := loadTestConfigFromProvider(cfg)
-	c.Assert(err, qt.IsNil)
+	files := `
+-- hugo.toml --
+-- layouts/_default/single.html --
+{{ .Title }}
+-- layouts/_default/list.html --
+{{ .Title }}
 
-	pc := func(title string) string {
-		return fmt.Sprintf(pageCollectionsPageTemplate, title)
-	}
+-- content/_index.md --
+---
+title: "home page"
+categories:
+- Hugo
+---
+# Doc
 
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 10; j++ {
-			content := pc(fmt.Sprintf("Title%d_%d", i, j))
-			writeSource(t, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), content)
-		}
-	}
+-- content/about.md --
+---
+title: "about page"
+categories:
+- Hugo
+---
+# Doc
 
-	content := pc("home page")
-	writeSource(t, fs, filepath.Join("content", "_index.md"), content)
+-- content/sect0/page1.md --
+---
+title: "Title0_1"
+categories:
+- Hugo
+---
+# Doc
 
-	content = pc("about page")
-	writeSource(t, fs, filepath.Join("content", "about.md"), content)
+-- content/sect1/page1.md --
+---
+title: "Title1_1"
+categories:
+- Hugo
+---
+# Doc
 
-	content = pc("section 3")
-	writeSource(t, fs, filepath.Join("content", "sect3", "_index.md"), content)
+-- content/sect2/_index.md --
+---
+title: "Section 2"
+categories:
+- Hugo
+---
+# Doc
 
-	writeSource(t, fs, filepath.Join("content", "sect3", "unique.md"), pc("UniqueBase"))
-	writeSource(t, fs, filepath.Join("content", "sect3", "Unique2.md"), pc("UniqueBase2"))
+-- content/sect3/_index.md --
+---
+title: "section 3"
+categories:
+- Hugo
+---
+# Doc
 
-	content = pc("another sect7")
-	writeSource(t, fs, filepath.Join("content", "sect3", "sect7", "_index.md"), content)
+-- content/sect3/page1.md --
+---
+title: "Title3_1"
+categories:
+- Hugo
+---
+# Doc
 
-	content = pc("deep page")
-	writeSource(t, fs, filepath.Join("content", "sect3", "subsect", "deep.md"), content)
+-- content/sect3/unique.md --
+---
+title: "UniqueBase"
+categories:
+- Hugo
+---
+# Doc
 
-	// Bundle variants
-	writeSource(t, fs, filepath.Join("content", "sect3", "b1", "index.md"), pc("b1 bundle"))
-	writeSource(t, fs, filepath.Join("content", "sect3", "index", "index.md"), pc("index bundle"))
+-- content/sect3/Unique2.md --
+---
+title: "UniqueBase2"
+categories:
+- Hugo
+---
+# Doc
 
-	writeSource(t, fs, filepath.Join("content", "section_bundle_overlap", "_index.md"), pc("index overlap section"))
-	writeSource(t, fs, filepath.Join("content", "section_bundle_overlap_bundle", "index.md"), pc("index overlap bundle"))
+-- content/sect3/sect7/_index.md --
+---
+title: "another sect7"
+categories:
+- Hugo
+---
+# Doc
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Configs: configs}, BuildCfg{SkipRender: true})
+-- content/sect3/subsect/deep.md --
+---
+title: "deep page"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/sect3/b1/index.md --
+---
+title: "b1 bundle"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/sect3/index/index.md --
+---
+title: "index bundle"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/sect4/page2.md --
+---
+title: "Title4_2"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/sect5/page3.md --
+---
+title: "Title5_3"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/sect7/somesubpage.md --
+---
+title: "Some Sub Page in Sect7"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/sect7/page9.md --
+---
+title: "Title7_9"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/section_bundle_overlap/_index.md --
+---
+title: "index overlap section"
+categories:
+- Hugo
+---
+# Doc
+
+-- content/section_bundle_overlap_bundle/index.md --
+---
+title: "index overlap bundle"
+categories:
+- Hugo
+---
+# Doc
+`
+
+	b := Test(t, files)
+
+	s := b.H.Sites[0]
 
 	sec3, err := s.getPage(nil, "/sect3")
-	c.Assert(err, qt.IsNil)
-	c.Assert(sec3, qt.Not(qt.IsNil))
+	b.Assert(err, qt.IsNil)
+	b.Assert(sec3, qt.Not(qt.IsNil))
 
 	tests := []getPageTest{
 		// legacy content root relative paths
@@ -301,7 +291,7 @@ func TestGetPage(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		c.Run(test.name, func(c *qt.C) {
+		b.Run(test.name, func(c *qt.C) {
 			errorMsg := fmt.Sprintf("Test case %v %v -> %s", test.context, test.pathVariants, test.expectedTitle)
 
 			// test legacy public Site.GetPage (which does not support page context relative queries)
@@ -345,24 +335,38 @@ GetPage 2: {{ with site.GetPage "mysect/index" }}{{ .Title }}|{{ .RelPermalink }
 
 // https://github.com/gohugoio/hugo/issues/6034
 func TestGetPageRelative(t *testing.T) {
-	b := newTestSitesBuilder(t)
-	for i, section := range []string{"what", "where", "who"} {
-		isDraft := i == 2
-		b.WithContent(
-			section+"/_index.md", fmt.Sprintf("---title: %s\n---", section),
-			section+"/members.md", fmt.Sprintf("---title: members %s\ndraft: %t\n---", section, isDraft),
-		)
-	}
-
-	b.WithTemplates("_default/list.html", `
+	files := `
+-- hugo.toml --
+-- content/what/_index.md --
+---title: what
+---
+-- content/what/members.md --
+---title: members what
+draft: false
+---
+-- content/where/_index.md --
+---title: where
+---
+-- content/where/members.md --
+---title: members where
+draft: false
+---
+-- content/who/_index.md --
+---title: who
+---
+-- content/who/members.md --
+---title: members who
+draft: true
+---
+-- layouts/_default/list.html --
 {{ with .GetPage "members.md" }}
     Members: {{ .Title }}
 {{ else }}
 NOT FOUND
 {{ end }}
-`)
+`
 
-	b.Build(BuildCfg{})
+	b := Test(t, files)
 
 	b.AssertFileContent("public/what/index.html", `Members: members what`)
 	b.AssertFileContent("public/where/index.html", `Members: members where`)
@@ -411,6 +415,35 @@ layout: p2
 	b := Test(t, files)
 	b.AssertFileContent("public/s1/p1/index.html", "p2") // failing test
 	b.AssertFileContent("public/s1/p2/index.html", "p1")
+}
+
+func TestGetPageNewsVsTagsNewsIssue12638(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','section','sitemap']
+[taxonomies]
+  tag = "tags"
+-- content/p1.md --
+---
+title: p1
+tags: [news]
+---
+-- layouts/index.html --
+/tags/news: {{ with .Site.GetPage "/tags/news" }}{{ .Title }}{{ end }}|
+news: {{ with .Site.GetPage "news" }}{{ .Title }}{{ end }}|
+/news: {{ with .Site.GetPage "/news" }}{{ .Title }}{{ end }}|
+
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"/tags/news: News|",
+		"news: News|",
+		"/news: |",
+	)
 }
 
 func TestGetPageBundleToRegular(t *testing.T) {
@@ -501,9 +534,24 @@ p1/index.md: p1|
 }
 
 func TestPageGetPageMountsReverseLookup(t *testing.T) {
-	tempDir := t.TempDir()
+	t.Parallel()
 
 	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+[[module.mounts]]
+source = "layouts"
+target = "layouts"
+[[module.mounts]]
+source = "README.md"
+target = "content/_index.md"
+[[module.mounts]]
+source = "blog"
+target = "content/posts"
+[[module.mounts]]
+source = "docs"
+target = "content/mydocs"
 -- README.md --
 ---
 title: README
@@ -522,21 +570,6 @@ title: b2
 ---
 title: d1
 ---
--- hugo.toml --
-baseURL = "https://example.com/"
-[module]
-[[module.mounts]]
-source = "layouts"
-target = "layouts"
-[[module.mounts]]
-source = "README.md"
-target = "content/_index.md"
-[[module.mounts]]
-source = "blog"
-target = "content/posts"
-[[module.mounts]]
-source = "docs"
-target = "content/mydocs"
 -- layouts/shortcodes/ref.html --
 {{ $ref := .Get 0 }}
 .Page.GetPage({{ $ref }}).Title: {{ with .Page.GetPage $ref }}{{ .Title }}{{ end }}|
@@ -550,10 +583,14 @@ Home.
 Single.
 /README.md: {{ with .GetPage "/README.md" }}{{ .Title }}{{ end }}|
 {{ .Content }}
-
-
 `
-	b := Test(t, files, TestOptWithConfig(func(cfg *IntegrationTestConfig) { cfg.WorkingDir = tempDir }))
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -572,72 +609,117 @@ Single.
 
 // https://github.com/gohugoio/hugo/issues/7016
 func TestGetPageMultilingual(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithConfigFile("yaml", `
-baseURL: "http://example.org/"
-languageCode: "en-us"
-defaultContentLanguage: ru
-title: "My New Hugo Site"
-uglyurls: true
+	files := `
+-- hugo.toml --
+baseURL = "http://example.org/"
+languageCode = "en-us"
+defaultContentLanguage = "ru"
+title = "My New Hugo Site"
+uglyurls = true
 
-languages:
-  ru: {}
-  en: {}
-`)
-
-	b.WithContent(
-		"docs/1.md", "\n---title: p1\n---",
-		"news/1.md", "\n---title: p1\n---",
-		"news/1.en.md", "\n---title: p1en\n---",
-		"news/about/1.md", "\n---title: about1\n---",
-		"news/about/1.en.md", "\n---title: about1en\n---",
-	)
-
-	b.WithTemplates("index.html", `
+[languages]
+[languages.ru]
+[languages.en]
+-- content/docs/1.md --
+---
+title: p1
+---
+-- content/news/1.md --
+---
+title: p1
+---
+-- content/news/1.en.md --
+---
+title: p1en
+---
+-- content/news/about/1.md --
+---
+title: about1
+---
+-- content/news/about/1.en.md --
+---
+title: about1en
+---
+-- layouts/index.html --
 {{ with site.GetPage "docs/1" }}
     Docs p1: {{ .Title }}
 {{ else }}
 NOT FOUND
 {{ end }}
-`)
-
-	b.Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `Docs p1: p1`)
 	b.AssertFileContent("public/en/index.html", `NOT FOUND`)
 }
 
 func TestRegularPagesRecursive(t *testing.T) {
-	b := newTestSitesBuilder(t)
+	t.Parallel()
 
-	b.WithConfigFile("yaml", `
-baseURL: "http://example.org/"
-title: "My New Hugo Site"
-
-`)
-
-	b.WithContent(
-		"docs/1.md", "\n---title: docs1\n---",
-		"docs/sect1/_index.md", "\n---title: docs_sect1\n---",
-		"docs/sect1/ps1.md", "\n---title: docs_sect1_ps1\n---",
-		"docs/sect1/ps2.md", "\n---title: docs_sect1_ps2\n---",
-		"docs/sect1/sect1_s2/_index.md", "\n---title: docs_sect1_s2\n---",
-		"docs/sect1/sect1_s2/ps2_1.md", "\n---title: docs_sect1_s2_1\n---",
-		"docs/sect2/_index.md", "\n---title: docs_sect2\n---",
-		"docs/sect2/ps1.md", "\n---title: docs_sect2_ps1\n---",
-		"docs/sect2/ps2.md", "\n---title: docs_sect2_ps2\n---",
-		"news/1.md", "\n---title: news1\n---",
-	)
-
-	b.WithTemplates("index.html", `
+	files := `
+-- hugo.toml --
+baseURL = "http://example.org/"
+title = "My New Hugo Site"
+-- content/docs/1.md --
+---
+title: docs1
+---
+-- content/docs/sect1/_index.md --
+---
+title: docs_sect1
+---
+-- content/docs/sect1/ps1.md --
+---
+title: docs_sect1_ps1
+---
+-- content/docs/sect1/ps2.md --
+---
+title: docs_sect1_ps2
+---
+-- content/docs/sect1/sect1_s2/_index.md --
+---
+title: docs_sect1_s2
+---
+-- content/docs/sect1/sect1_s2/ps2_1.md --
+---
+title: docs_sect1_s2_1
+---
+-- content/docs/sect2/_index.md --
+---
+title: docs_sect2
+---
+-- content/docs/sect2/ps1.md --
+---
+title: docs_sect2_ps1
+---
+-- content/docs/sect2/ps2.md --
+---
+title: docs_sect2_ps2
+---
+-- content/news/1.md --
+---
+title: news1
+---
+-- layouts/index.html --
 {{ $sect1 := site.GetPage "sect1" }}
 
 Sect1 RegularPagesRecursive: {{ range $sect1.RegularPagesRecursive }}{{ .Kind }}:{{ .RelPermalink}}|{{ end }}|End.
-
-`)
-
-	b.Build(BuildCfg{})
+`
+	b := NewIntegrationTestBuilder(
+		IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+			BuildCfg:    BuildCfg{},
+		},
+	).Build()
 
 	b.AssertFileContent("public/index.html", `
 Sect1 RegularPagesRecursive: page:/docs/sect1/ps1/|page:/docs/sect1/ps2/|page:/docs/sect1/sect1_s2/ps2_1/||End.

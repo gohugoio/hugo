@@ -1,0 +1,28 @@
+{{/* prettier-ignore-start */ -}}
+{{- /*
+Renders an HTML template of Chroma lexers and their aliases.
+
+@example {{< chroma-lexers >}}
+*/ -}}
+{{/* prettier-ignore-end */ -}}
+<div class="overflow-x-auto">
+  <table>
+    <thead>
+      <th>Language</th>
+      <th>Identifiers</th>
+    </thead>
+    <tbody>
+      {{- range site.Data.docs.chroma.lexers }}
+        <tr>
+          <td>{{ .Name }}</td>
+          <td>
+            {{- range $k, $_ := .Aliases }}
+              {{- if $k }},{{ end }}
+              <code>{{ . }}</code>
+            {{- end }}
+          </td>
+        </tr>
+      {{- end }}
+    </tbody>
+  </table>
+</div>

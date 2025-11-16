@@ -5,7 +5,7 @@ url: /commands/hugo/
 ---
 ## hugo
 
-hugo builds your site
+Build your site
 
 ### Synopsis
 
@@ -33,7 +33,6 @@ hugo [flags]
       --config string              config file (default is hugo.yaml|json|toml)
       --configDir string           config dir (default "config")
   -c, --contentDir string          filesystem path to content directory
-      --debug                      debug output
   -d, --destination string         filesystem path to write files to
       --disableKinds strings       disable different kind of pages (home, RSS etc.)
       --enableGitInfo              add Git revision, date, author, and CODEOWNERS info to the pages
@@ -57,29 +56,29 @@ hugo [flags]
       --printUnusedTemplates       print warnings on unused templates.
       --quiet                      build in quiet mode
       --renderSegments strings     named segments to render (configured in the segments config)
-      --renderToMemory             render to memory (mostly useful when running the server)
+  -M, --renderToMemory             render to memory (mostly useful when running the server)
   -s, --source string              filesystem path to read files relative from
       --templateMetrics            display metrics about template executions
       --templateMetricsHints       calculate some improvement hints when combined with --templateMetrics
   -t, --theme strings              themes to use (located in /themes/THEMENAME/)
       --themesDir string           filesystem path to themes directory
       --trace file                 write trace to file (not useful in general)
-  -v, --verbose                    verbose output
   -w, --watch                      watch filesystem for changes and recreate as needed
 ```
 
 ### SEE ALSO
 
+* [hugo build](/commands/hugo_build/)	 - Build your site
 * [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
-* [hugo config](/commands/hugo_config/)	 - Print the site configuration
-* [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats
-* [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a Cloud provider.
-* [hugo env](/commands/hugo_env/)	 - Print Hugo version and environment info
-* [hugo gen](/commands/hugo_gen/)	 - A collection of several useful generators.
-* [hugo import](/commands/hugo_import/)	 - Import your site from others.
-* [hugo list](/commands/hugo_list/)	 - Listing out various types of content
-* [hugo mod](/commands/hugo_mod/)	 - Various Hugo Modules helpers.
-* [hugo new](/commands/hugo_new/)	 - Create new content for your site
-* [hugo server](/commands/hugo_server/)	 - A high performance webserver
-* [hugo version](/commands/hugo_version/)	 - Print Hugo version and environment info
+* [hugo config](/commands/hugo_config/)	 - Display site configuration
+* [hugo convert](/commands/hugo_convert/)	 - Convert front matter to another format
+* [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a cloud provider
+* [hugo env](/commands/hugo_env/)	 - Display version and environment info
+* [hugo gen](/commands/hugo_gen/)	 - Generate documentation and syntax highlighting styles
+* [hugo import](/commands/hugo_import/)	 - Import a site from another system
+* [hugo list](/commands/hugo_list/)	 - List content
+* [hugo mod](/commands/hugo_mod/)	 - Manage modules
+* [hugo new](/commands/hugo_new/)	 - Create new content
+* [hugo server](/commands/hugo_server/)	 - Start the embedded web server
+* [hugo version](/commands/hugo_version/)	 - Display version
 

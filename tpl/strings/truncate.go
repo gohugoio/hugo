@@ -67,9 +67,7 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 	default:
 		return "", errors.New("too many arguments passed to truncate")
 	}
-	if err != nil {
-		return "", errors.New("text to truncate must be a string")
-	}
+
 	text, err := cast.ToStringE(textParam)
 	if err != nil {
 		return "", errors.New("text must be a string")
@@ -113,7 +111,11 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 		if unicode.IsSpace(r) {
 			lastWordIndex = lastNonSpace
 		} else if unicode.In(r, unicode.Han, unicode.Hangul, unicode.Hiragana, unicode.Katakana) {
-			lastWordIndex = i
+			lastWordIndex = lastNonSpace
+			lastNonSpace = i + utf8.RuneLen(r)
+			if currentLen <= length {
+				lastWordIndex = lastNonSpace
+			}
 		} else {
 			lastNonSpace = i + utf8.RuneLen(r)
 		}
