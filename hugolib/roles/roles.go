@@ -76,6 +76,10 @@ type RolesInternal struct {
 	Sorted      []RoleInternal
 }
 
+func (r RolesInternal) Len() int {
+	return len(r.Sorted)
+}
+
 func (r RolesInternal) IndexDefault() int {
 	for i, role := range r.Sorted {
 		if role.Default {

@@ -54,7 +54,7 @@ type PathParser struct {
 
 	// Below gets created on demand.
 	initOnce         sync.Once
-	sitesMatrixCache *maps.Cache[string, sitesmatrix.VectorStore] // Maps language code to sites matrix vector store.
+	sitesMatrixCache *maps.Cache[string, sitesmatrix.VectorStore] // Maps language index to sites matrix vector store.
 }
 
 func (pp *PathParser) init() {

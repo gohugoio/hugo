@@ -426,12 +426,25 @@ func (n contentNodesMap) sample() contentNode {
 }
 
 func (n contentNodesMap) siteVectors() sitesmatrix.VectorIterator {
-	return sitesmatrix.VectorIteratorFunc(func(yield func(v sitesmatrix.Vector) bool) bool {
-		for k := range n {
-			if !yield(k) {
-				return false
-			}
+	return n
+}
+
+func (n contentNodesMap) ForEachVector(yield func(v sitesmatrix.Vector) bool) bool {
+	for v := range n {
+		if !yield(v) {
+			return false
 		}
-		return true
-	})
+	}
+	return true
+}
+
+func (n contentNodesMap) LenVectors() int {
+	return len(n)
+}
+
+func (n contentNodesMap) VectorSample() sitesmatrix.Vector {
+	for v := range n {
+		return v
+	}
+	panic("no vectors")
 }

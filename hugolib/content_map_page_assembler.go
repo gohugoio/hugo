@@ -575,7 +575,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 				func() error {
 					if i := len(missingVectorsForHomeOrRootSection); i > 0 {
 						// Pick one, the rest will be created later.
-						vec := missingVectorsForHomeOrRootSection.Sample()
+						vec := missingVectorsForHomeOrRootSection.VectorSample()
 
 						kind := kinds.KindSection
 						if s == "" {

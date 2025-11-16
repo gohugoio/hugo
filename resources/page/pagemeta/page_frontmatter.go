@@ -245,7 +245,13 @@ func buildSitesComplementsFromSitesConfig(
 	conf config.AllProvider,
 	fim *hugofs.FileMeta,
 	sitesConfig sitesmatrix.Sites,
-) *sitesmatrix.IntSets {
+) sitesmatrix.VectorStore {
+	if sitesConfig.Complements.IsZero() {
+		if fim != nil && fim.SitesComplements != nil {
+			return fim.SitesComplements
+		}
+		return sitesmatrix.NilStore
+	}
 	intsetsCfg := sitesmatrix.IntSetsConfig{
 		Globs: sitesConfig.Complements,
 	}
@@ -259,27 +265,22 @@ func buildSitesComplementsFromSitesConfig(
 	return sitesComplements.Build()
 }
 
-func buildSitesMatrixFromVectorIterator(
-	sitesMatrix sitesmatrix.VectorIterator,
-) sitesmatrix.VectorStore {
-	switch v := sitesMatrix.(type) {
-	case sitesmatrix.VectorStore:
-		return v
-	case sitesmatrix.ToVectorStoreProvider:
-		return v.ToVectorStore()
-	default:
-		if v == nil {
-			return nil
-		}
-		panic(fmt.Sprintf("unsupported type %T", v))
-	}
-}
-
 func buildSitesMatrixFromSitesConfig(
 	conf config.AllProvider,
 	sitesMatrixBase sitesmatrix.VectorIterator,
 	sitesConfig sitesmatrix.Sites,
-) *sitesmatrix.IntSets {
+) sitesmatrix.VectorStore {
+	if sitesConfig.Matrix.IsZero() && sitesMatrixBase != nil {
+		if sitesMatrixBase.LenVectors() == 1 {
+			return conf.ConfiguredDimensions().GetOrCreateSingleVectorStore(sitesMatrixBase.VectorSample())
+		}
+		return sitesmatrix.VectorIteratorToStore(sitesMatrixBase)
+	}
+
+	if conf.ConfiguredDimensions().IsSingleVector() {
+		return conf.ConfiguredDimensions().CommonSitesMatrix.DefaultSite
+	}
+
 	intsetsCfg := sitesmatrix.IntSetsConfig{
 		Globs: sitesConfig.Matrix,
 	}
@@ -317,7 +318,7 @@ func (p *PageConfigEarly) CompileEarly(pi *paths.Path, cascades *page.PageMatche
 	}
 
 	if sitesMatrixBaseOnly {
-		p.SitesMatrix = buildSitesMatrixFromVectorIterator(sitesMatrixBase)
+		p.SitesMatrix = sitesmatrix.VectorIteratorToStore(sitesMatrixBase)
 	} else {
 		p.SitesMatrix = buildSitesMatrixFromSitesConfig(
 			conf,

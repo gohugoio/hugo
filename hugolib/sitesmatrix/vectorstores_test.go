@@ -14,20 +14,21 @@
 package sitesmatrix_test
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/bits-and-blooms/bitset"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
 
-var testDims = sitesmatrix.NewTestingDimensions([]string{"en", "no"}, []string{"v1", "v2", "v3"}, []string{"admin", "editor", "viewer", "guest"})
+func newTestDims() *sitesmatrix.ConfiguredDimensions {
+	return sitesmatrix.NewTestingDimensions([]string{"en", "no"}, []string{"v1", "v2", "v3"}, []string{"admin", "editor", "viewer", "guest"})
+}
 
 func TestIntSets(t *testing.T) {
 	c := qt.New(t)
+	testDims := newTestDims()
 
 	sets := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2),
@@ -103,31 +104,6 @@ func TestIntSets(t *testing.T) {
 	c.Assert(allCount, qt.Equals, 18)
 }
 
-func TestBitSetExperiments(t *testing.T) {
-	c := qt.New(t)
-
-	a, b, d := bitset.New(10), bitset.New(10), bitset.New(10)
-
-	ints := func(v *bitset.BitSet) []uint {
-		var ints []uint
-		for i := range v.EachSet() {
-			ints = append(ints, i)
-		}
-		return ints
-	}
-
-	a.Set(3).Set(4)
-	b.Set(4).Set(5).Set(6).Set(7)
-	d.Set(3).Set(4)
-
-	c.Assert(b.Test(5), qt.Equals, true)
-
-	fmt.Println("a:", ints(a), "==>", ints(b), "=> Intersection:", ints(a.Intersection(b)), "=> Symdiff:", ints(a.SymmetricDifference(b)))
-	fmt.Println("===>", ints(a.Difference(b)))
-	fmt.Println("===>", ints(b.Difference(a)))
-	fmt.Println("===> d", d.Difference(a).Count())
-}
-
 func TestIntSetsComplement(t *testing.T) {
 	c := qt.New(t)
 
@@ -146,6 +122,8 @@ func TestIntSetsComplement(t *testing.T) {
 
 	runOne := func(c *qt.C, test test) {
 		c.Helper()
+
+		testDims := newTestDims()
 
 		self := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 			maps.NewOrderedIntSet(test.left.v0...),
@@ -281,6 +259,8 @@ func TestIntSetsComplement(t *testing.T) {
 func TestIntSetsComplementOfComplement(t *testing.T) {
 	c := qt.New(t)
 
+	testDims := newTestDims()
+
 	sets1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1),
 		maps.NewOrderedIntSet(1),
@@ -313,6 +293,8 @@ func TestIntSetsComplementOfComplement(t *testing.T) {
 }
 
 func BenchmarkIntSetsComplement(b *testing.B) {
+	testDims := newTestDims()
+
 	sets1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2, 3),
 		maps.NewOrderedIntSet(1, 2, 3),
@@ -376,6 +358,8 @@ func BenchmarkIntSetsComplement(b *testing.B) {
 }
 
 func BenchmarkSets(b *testing.B) {
+	testDims := newTestDims()
+
 	sets1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
 		maps.NewOrderedIntSet(1, 2),
 		maps.NewOrderedIntSet(1, 2, 3),
@@ -485,6 +469,7 @@ func BenchmarkSets(b *testing.B) {
 
 func TestVectorStoreMap(t *testing.T) {
 	c := qt.New(t)
+	testDims := newTestDims()
 
 	c.Run("Complement", func(c *qt.C) {
 		v1 := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
@@ -508,4 +493,19 @@ func TestVectorStoreMap(t *testing.T) {
 			{3, 1, 3},
 		})
 	})
+}
+
+func BenchmarkHasAnyVectorSingle(b *testing.B) {
+	testDims := newTestDims()
+	set := sitesmatrix.NewIntSetsBuilder(testDims).WithSets(
+		maps.NewOrderedIntSet(0),
+		maps.NewOrderedIntSet(0),
+		maps.NewOrderedIntSet(0),
+	).Build()
+
+	v := sitesmatrix.Vector{0, 0, 0}
+
+	for b.Loop() {
+		_ = set.HasAnyVector(v)
+	}
 }
