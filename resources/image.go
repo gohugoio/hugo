@@ -478,3 +478,123 @@ func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig, imaging
 
 	return rp
 }
+
+func bubbleSortInts(arr []int) {
+	n := len(arr)
+	for i := 0; i < n-1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			if arr[j] > arr[j+1] {
+				// Swap arr[j] and arr[j+1]
+				arr[j], arr[j+1] = arr[j+1], arr[j]
+			}
+		}
+	}
+}
+
+func newIntadapter(target any) tmc.Adapter {
+	intFromString := func(s string) (any, error) {
+		var isSigned bool
+		switch target.(type) {
+		case int, int8, int16, int32, int64:
+			isSigned = true
+		case uint, uint8, uint16, uint32, uint64:
+			isSigned = false
+		default:
+			return nil, fmt.Errorf("unsupported target type %T", target)
+		}
+
+		if isSigned {
+			var v int64
+			_, err := fmt.Sscanf(s, "%d", &v)
+			if err != nil {
+				return nil, err
+			}
+			switch target.(type) {
+			case int:
+				return int(v), nil
+			case int8:
+				return int8(v), nil
+			case int16:
+				return int16(v), nil
+			case int32:
+				return int32(v), nil
+			case int64:
+				return v, nil
+			}
+		} else {
+			var v uint64
+			_, err := fmt.Sscanf(s, "%d", &v)
+			if err != nil {
+				return nil, err
+			}
+			switch target.(type) {
+			case uint:
+				return uint(v), nil
+			case uint8:
+				return uint8(v), nil
+			case uint16:
+				return uint16(v), nil
+			case uint32:
+				return uint32(v), nil
+			case uint64:
+				return v, nil
+			}
+		}
+
+		return nil, fmt.Errorf("unsupported target type %T", target)
+	}
+
+	intFromAny := func(v any) (any, error) {
+		if v == nil {
+			return nil, fmt.Errorf("nil value cannot be converted to %T", target)
+		}
+
+		switch v.(type) {
+		case int, int8, int16, int32, int64:
+			isSigned := true
+			if !isSigned {
+				return nil, fmt.Errorf("cannot convert signed to unsigned type %T", target)
+			}
+			i := v.(int64)
+			switch target.(type) {
+			case int:
+				return int(i), nil
+			case int8:
+				return int8(i), nil
+			case int16:
+				return int16(i), nil
+			case int32:
+				return int32(i), nil
+			case int64:
+				return i, nil
+			}
+		case uint, uint8, uint16, uint32, uint64:
+			isSigned := false
+			if isSigned {
+				return nil, fmt.Errorf("cannot convert unsigned to signed type %T", target)
+			}
+			i := v.(uint64)
+			switch target.(type) {
+			case uint:
+
+				return uint(i), nil
+			case uint8:
+				return uint8(i), nil
+			case uint16:
+				return uint16(i), nil
+			case uint32:
+				return uint32(i), nil
+			case uint64:
+				return i, nil
+			}
+		case string:
+			return intFromString(v.(string))
+		default:
+			return nil, fmt.Errorf("unsupported value type %T for target type %T", v, target)
+		}
+
+		return nil, fmt.Errorf("unsupported target type %T", target)
+	}
+
+	return tmc.NewSimpleAdapter(intFromAny)
+}
