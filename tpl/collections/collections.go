@@ -537,27 +537,62 @@ type dKey struct {
 	hi   int
 }
 
-// D returns a slice of n unique random numbers in the range [0, hi) using the provded seed,
-// using  J. S. Vitter's Method D for sequential random sampling, from Vitter, J.S.
-// - An Efficient Algorithm for Sequential Random Sampling - ACM Trans. Math. Software 11 (1985), 37-57.
-// See  https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
-func (ns *Namespace) D(seed, n, hi int) []int {
-	key := dKey{seed: cast.ToUint64(seed), n: n, hi: hi}
-	if key.n <= 0 || key.hi <= 0 || key.n > key.hi {
-		return nil
+// D returns a sorted slice of unique random integers in the half-open interval
+// [0, hi) using the provided seed value. The number of elements in the
+// resulting slice is n or hi, whichever is less.
+//
+// If n <= hi, it returns a sorted random sample of size n using J. S. Vitter’s
+// Method D for sequential random sampling.
+//
+// If n > hi, it returns the full, sorted range [0, hi) of size hi.
+//
+// If n == 0 or hi == 0, it returns an empty slice.
+//
+// Reference:
+//
+//	J. S. Vitter, "An efficient algorithm for sequential random sampling," ACM Trans. Math. Softw., vol. 11, no. 1, pp. 37–57, 1985.
+//	See also: https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
+func (ns *Namespace) D(seed, n, hi any) ([]int, error) {
+	seedInt, err := cast.ToInt64E(seed)
+	if err != nil || seedInt < 0 {
+		return nil, fmt.Errorf("the seed value (%v) must be a non-negative integer", seed)
 	}
-	if key.n > maxSeqSize {
-		panic(errSeqSizeExceedsLimit)
+
+	nInt, err := cast.ToIntE(n)
+	if err != nil || nInt < 0 || nInt > maxSeqSize {
+		return nil, fmt.Errorf("the number of requested values (%v) must be a non-negative integer <= %d", n, maxSeqSize)
 	}
-	v, _ := ns.dCache.GetOrCreate(key, func() ([]int, error) {
+
+	hiInt, err := cast.ToIntE(hi)
+	if err != nil || hiInt < 0 || hiInt > maxSeqSize {
+		return nil, fmt.Errorf("the maximum requested value (%v) must be a non-negative integer <= %d", hi, maxSeqSize)
+	}
+
+	if nInt == 0 || hiInt == 0 {
+		return []int{}, nil
+	}
+
+	key := dKey{seed: uint64(seedInt), n: nInt, hi: hiInt}
+
+	v, err := ns.dCache.GetOrCreate(key, func() ([]int, error) {
+		if key.n > key.hi {
+			result := make([]int, key.hi)
+			for i := 0; i < key.hi; i++ {
+				result[i] = i
+			}
+			return result, nil
+		}
+
 		prng := rand.New(rand.NewPCG(key.seed, 0))
 		result := make([]int, 0, key.n)
 		_d(prng, key.n, key.hi, func(i int) {
 			result = append(result, i)
 		})
+
 		return result, nil
 	})
-	return v
+
+	return v, err
 }
 
 type intersector struct {
