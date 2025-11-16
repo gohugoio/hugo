@@ -135,94 +135,74 @@ var (
 
 // Filename is only used for logging.
 func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Reader) (ex *ExifInfo, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("exif failed: %v", r)
-		}
-	}()
+	ex = &ExifInfo{}
+	ex.Tags = make(Tags)
 
-	var tagInfos imagemeta.Tags
-	handleTag := func(ti imagemeta.TagInfo) error {
-		tagInfos.Add(ti)
-		return nil
+	metadata, err := imagemeta.Decode(r, format)
+	if err != nil {
+		return nil, err
 	}
 
-	shouldInclude := func(ti imagemeta.TagInfo) bool {
-		if ti.Source == imagemeta.EXIF {
-			if !d.noDate {
-				// We need the time tags to calculate the date.
-				if isTimeTag(ti.Tag) {
-					return true
-				}
-			}
-			if !d.noLatLong {
-				// We need to GPS tags to calculate the lat/long.
-				if isGPSTag(ti.Tag) {
-					return true
-				}
-			}
-
-			if !strings.HasPrefix(ti.Namespace, "IFD0") {
-				// Drop thumbnail tags.
-				return false
-			}
+	for k, v := range metadata.Tags {
+		if d.shouldInclude(k) && !d.shouldExclude(k) {
+			ex.Tags[k] = v
 		}
-
-		if d.shouldExclude(ti.Tag) {
-			return false
-		}
-
-		return d.shouldInclude(ti.Tag)
-	}
-
-	var warnf func(string, ...any)
-	if d.warnl != nil {
-		// There should be very little warnings (fingers crossed!),
-		// but this will typically be unrecognized formats.
-		// To be able to possibly get rid of these warnings,
-		// we need to know what images are causing them.
-		warnf = func(format string, args ...any) {
-			format = fmt.Sprintf("%q: %s: ", filename, format)
-			d.warnl.Logf(format, args...)
-		}
-	}
-
-	err = imagemeta.Decode(
-		imagemeta.Options{
-			R:               r.(io.ReadSeeker),
-			ImageFormat:     format,
-			ShouldHandleTag: shouldInclude,
-			HandleTag:       handleTag,
-			Sources:         imagemeta.EXIF, // For now. TODO(bep)
-			Warnf:           warnf,
-		},
-	)
-
-	var tm time.Time
-	var lat, long float64
-
-	if !d.noDate {
-		tm, _ = tagInfos.GetDateTime()
 	}
 
 	if !d.noLatLong {
-		lat, long, _ = tagInfos.GetLatLong()
+		ex.Lat, ex.Long, err = d.extractGPS(metadata)
+		if err != nil && d.warnl != nil {
+			d.warnl.Warnf("failed to extract GPS: %v", err)
+		}
 	}
 
-	tags := make(map[string]any)
-	for k, v := range tagInfos.All() {
-		if d.shouldExclude(k) {
-			continue
+	if !d.noDate {
+		ex.Date, err = d.extractDate(metadata)
+		if err != nil && d.warnl != nil {
+			d.warnl.Warnf("failed to extract date: %v", err)
 		}
-		if !d.shouldInclude(k) {
-			continue
-		}
-		tags[k] = v.Value
 	}
 
-	ex = &ExifInfo{Lat: lat, Long: long, Date: tm, Tags: tags}
+	return ex, nil
+}
 
-	return
+func (d *Decoder) extractGPS(metadata *imagemeta.Metadata) (lat, long float64, err error) {
+	latRef, ok := metadata.Tags["GPSLatitudeRef"].(string)
+	if !ok {
+		return 0, 0, fmt.Errorf("missing GPSLatitudeRef")
+	}
+	latVals, ok := metadata.Tags["GPSLatitude"].([]imagemeta.Rat[uint32])
+	if !ok || len(latVals) != 3 {
+		return 0, 0, fmt.Errorf("invalid GPSLatitude")
+	}
+	lat = float64(latVals[0].Num)/float64(latVals[0].Den) + float64(latVals[1].Num)/float64(latVals[1].Den)/60 + float64(latVals[2].Num)/float64(latVals[2].Den)/3600
+	if latRef == "S" {
+		lat = -lat
+	}
+
+	longRef, ok := metadata.Tags["GPSLongitudeRef"].(string)
+	if !ok {
+		return 0, 0, fmt.Errorf("missing GPSLongitudeRef")
+	}
+	longVals, ok := metadata.Tags["GPSLongitude"].([]imagemeta.Rat[uint32])
+	if !ok || len(longVals) != 3 {
+		return 0, 0, fmt.Errorf("invalid GPSLongitude")
+	}
+	long = float64(longVals[0].Num)/float64(longVals[0].Den) + float64(longVals[1].Num)/float64(longVals[1].Den)/60 + float64(longVals[2].Num)/float64(longVals[2].Den)/3600
+	if longRef == "W" {
+		long = -long
+	}
+
+	return lat, long, nil
+}
+
+func (d *Decoder) extractDate(metadata *imagemeta.Metadata) (t time.Time, err error) {
+	dateStr, ok := metadata.Tags["DateTime"].(string)
+	if !ok {
+		return time.Time{}, fmt.Errorf("missing DateTime")
+	}
+	// Assume format "2006:01:02 15:04:05"
+	return time.Parse("2006:01:02 15:04:05", dateStr)
 }
 
 var tcodec *tmc.Codec
