@@ -105,7 +105,7 @@ func (p Pages) Len() int {
 // or -1 if the page is not found.
 func (p Pages) IndexOf(page Page) int {
     for i, pg := range p {
-        if pg == page {
+        if pg.Eq(page) {
             return i
         }
     }
