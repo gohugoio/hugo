@@ -1,4 +1,4 @@
->**Note:** We would appreciate if you hold on with any big refactoring (like renaming deprecated Go packages), mainly because of potential for extra merge work for future coming in in the near future.
+> **Note:** We would appreciate if you hold on with any big refactoring (like renaming deprecated Go packages), mainly because of potential for extra merge work for future coming in in the near future.
 
 # Contributing to Hugo
 
@@ -9,20 +9,20 @@ helping to manage issues, etc.
 
 The Hugo community and maintainers are [very active](https://github.com/gohugoio/hugo/pulse/monthly) and helpful, and the project benefits greatly from this activity. We created a [step by step guide](https://gohugo.io/tutorials/how-to-contribute-to-hugo/) if you're unfamiliar with GitHub or contributing to open source projects in general.
 
-*Note that this repository only contains the actual source code of Hugo. For **only** documentation-related pull requests / issues please refer to the [hugoDocs](https://github.com/gohugoio/hugoDocs) repository.*
+_Note that this repository only contains the actual source code of Hugo. For **only** documentation-related pull requests / issues please refer to the [hugoDocs](https://github.com/gohugoio/hugoDocs) repository._
 
-*Changes to the codebase **and** related documentation, e.g. for a new feature, should still use a single pull request.*
+_Changes to the codebase **and** related documentation, e.g. for a new feature, should still use a single pull request._
 
 ## Table of Contents
 
-* [Asking Support Questions](#asking-support-questions)
-* [Reporting Issues](#reporting-issues)
-* [Submitting Patches](#submitting-patches)
-  * [Code Contribution Guidelines](#code-contribution-guidelines)
-  * [AI Assistance Notice](#ai-assistance-notice)
-  * [Git Commit Message Guidelines](#git-commit-message-guidelines)
-  * [Fetching the Sources From GitHub](#fetching-the-sources-from-github)
-  * [Building Hugo with Your Changes](#building-hugo-with-your-changes)
+- [Asking Support Questions](#asking-support-questions)
+- [Reporting Issues](#reporting-issues)
+- [Submitting Patches](#submitting-patches)
+  - [Code Contribution Guidelines](#code-contribution-guidelines)
+  - [AI Assistance Notice](#ai-assistance-notice)
+  - [Git Commit Message Guidelines](#git-commit-message-guidelines)
+  - [Fetching the Sources From GitHub](#fetching-the-sources-from-github)
+  - [Building Hugo with Your Changes](#building-hugo-with-your-changes)
 
 ## Asking Support Questions
 
@@ -46,10 +46,10 @@ version`) and your operating system.
 
 Hugo has become a fully featured static site generator, so any new functionality must:
 
-* be useful to many.
-* fit naturally into _what Hugo does best._
-* strive not to break existing sites.
-* close or update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
+- be useful to many.
+- fit naturally into _what Hugo does best._
+- strive not to break existing sites.
+- close or update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
 
 If it is of some complexity, the contributor is expected to maintain and support the new feature in the future (answer questions on the forum, fix any bugs etc.).
 
@@ -70,15 +70,15 @@ Because we want to create the best possible product for our users and the best c
 
 To make the contribution process as seamless as possible, we ask for the following:
 
-* Go ahead and fork the project and make your changes.  We encourage pull requests to allow for review and discussion of code changes.
-* When you’re ready to create a pull request, be sure to:
-    * Sign the [CLA](https://cla-assistant.io/gohugoio/hugo).
-    * Have test cases for the new code. If you have questions about how to do this, please ask in your pull request.
-    * Run `go fmt`.
-    * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
-    * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
-    * Ensure that `mage check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Windows, Linux and macOS) will fail the build if `mage check` fails.
-    * Follow the **Git Commit Message Guidelines** below.
+- Go ahead and fork the project and make your changes. We encourage pull requests to allow for review and discussion of code changes.
+- When you’re ready to create a pull request, be sure to:
+  - Sign the [CLA](https://cla-assistant.io/gohugoio/hugo).
+  - Have test cases for the new code. If you have questions about how to do this, please ask in your pull request.
+  - Run `go fmt`.
+  - Add documentation if you are adding new features or changing functionality. The docs site lives in `/docs`.
+  - Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
+  - Ensure that `mage check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Windows, Linux and macOS) will fail the build if `mage check` fails.
+  - Follow the **Git Commit Message Guidelines** below.
 
 ## AI Assistance Notice
 
@@ -94,20 +94,20 @@ When using AI assistance, we expect contributors to understand the code that is 
 
 This [blog article](https://cbea.ms/git-commit/) is a good resource for learning how to write good commit messages,
 the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period:
-*"js: Return error when option x is not set"*, **NOT** *"returning some error."*
+_"js: Return error when option x is not set"_, **NOT** _"returning some error."_
 
 Most title/subjects should have a lower-cased prefix with a colon and one whitespace. The prefix can be:
 
-* The name of the package where (most of) the changes are made (e.g. `media: Add text/calendar`)
-* If the package name is deeply nested/long, try to shorten it from the left side, e.g. `markup/goldmark` is OK, `resources/resource_transformers/js` can be shortened to `js`.
-* If this commit touches several packages with a common functional topic, use that as a prefix, e.g. `errors: Resolve correct line numbers`)
-* If this commit touches many packages without a common functional topic, prefix with `all:` (e.g. `all: Reformat Go code`)
-* If this is a documentation update, prefix with `docs:`.
-* If nothing of the above applies, just leave the prefix out.
-* Note that the above excludes nouns seen in other repositories, e.g. "chore:".
+- The name of the package where (most of) the changes are made (e.g. `media: Add text/calendar`)
+- If the package name is deeply nested/long, try to shorten it from the left side, e.g. `markup/goldmark` is OK, `resources/resource_transformers/js` can be shortened to `js`.
+- If this commit touches several packages with a common functional topic, use that as a prefix, e.g. `errors: Resolve correct line numbers`)
+- If this commit touches many packages without a common functional topic, prefix with `all:` (e.g. `all: Reformat Go code`)
+- If this is a documentation update, prefix with `docs:`.
+- If nothing of the above applies, just leave the prefix out.
+- Note that the above excludes nouns seen in other repositories, e.g. "chore:".
 
-Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*.
-Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
+Also, if your commit references one or more GitHub issues, always end your commit message body with _See #1234_ or _Fixes #1234_.
+Replace _1234_ with the GitHub issue ID. The last example will close the issue when the commit is merged into _master_.
 
 An example:
 
@@ -122,7 +122,7 @@ new default function more useful for Hugo users.
 Fixes #1949
 ```
 
-###  Fetching the Sources From GitHub
+### Fetching the Sources From GitHub
 
 Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
 
@@ -144,29 +144,29 @@ Now, to make a change to Hugo's source:
 
 1. Create a new branch for your changes (the branch name is arbitrary):
 
-    ```bash
-    git checkout -b iss1234
-    ```
+   ```bash
+   git checkout -b iss1234
+   ```
 
 1. After making your changes, commit them to your new branch:
 
-    ```bash
-    git commit -a -v
-    ```
+   ```bash
+   git commit -a -v
+   ```
 
 1. Fork Hugo in GitHub.
 
 1. Add your fork as a new remote (the remote name, "fork" in this example, is arbitrary):
 
-    ```bash
-    git remote add fork git@github.com:USERNAME/hugo.git
-    ```
+   ```bash
+   git remote add fork git@github.com:USERNAME/hugo.git
+   ```
 
 1. Push the changes to your new remote:
 
-    ```bash
-    git push --set-upstream fork iss1234
-    ```
+   ```bash
+   git push --set-upstream fork iss1234
+   ```
 
 1. You're now ready to submit a PR based upon the new branch in your forked repository.
 
@@ -207,4 +207,30 @@ mage -l
 
 ```bash
 HUGO_BUILD_TAGS=extended mage install
-````
+```
+
+### Using Docker for Development
+
+If you prefer to work within a Docker container to ensure a clean and consistent build environment, follow these steps. This uses the `Dockerfile.dev` provided in the repository root.
+
+1.  **Build the Docker Image:**
+    From the root of the Hugo repository, build the development image.
+
+    ```bash
+    docker build -f Dockerfile.dev -t hugo-dev .
+    ```
+
+2.  **Run the Development Container:**
+    Start the container, mounting your local Hugo repository into the container's `/src` directory. This allows changes made locally to be reflected instantly inside the container.
+
+    ```bash
+    docker run -it --rm -v "$(pwd):/src" -w /src hugo-dev bash
+    ```
+
+3.  **Build and Test Hugo inside the Container:**
+    Once inside the container shell, install Hugo from source:
+    ```bash
+    go install
+    # The 'hugo' binary is now available in your path for testing:
+    /go/bin/hugo version
+    ```
