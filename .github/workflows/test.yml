@@ -51,8 +51,10 @@ jobs:
       - name: Install gems
         run: |
           gem install asciidoctor -v "2.0.26"
-          gem install asciidoctor-diagram -v "3.0.1"
+          gem install asciidoctor-diagram -v "3.1.0"
           gem install asciidoctor-diagram-ditaamini -v "1.0.3"
+      - name: Install GoAT
+        run: go install github.com/blampe/goat/cmd/goat@177de93b192b8ffae608e5d9ec421cc99bf68402
       - name: Install Java # required by asciidoctor-diagram-ditaamini
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
