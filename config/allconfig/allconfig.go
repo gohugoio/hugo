@@ -878,6 +878,10 @@ func (c *Configs) Init(logger loggers.Logger) error {
 		ConfiguredRoles:     c.Base.Roles.Config,
 	}
 
+	if err := c.ConfiguredDimensions.Init(); err != nil {
+		return err
+	}
+
 	intSetsCfg := sitesmatrix.IntSetsConfig{
 		ApplyDefaults: sitesmatrix.IntSetsConfigApplyDefaultsIfNotSet,
 	}

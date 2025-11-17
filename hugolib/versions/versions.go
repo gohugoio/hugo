@@ -78,6 +78,10 @@ type VersionsInternal struct {
 	Sorted []VersionInternal
 }
 
+func (r VersionsInternal) Len() int {
+	return len(r.Sorted)
+}
+
 func (r VersionsInternal) IndexDefault() int {
 	for i, version := range r.Sorted {
 		if version.Default {

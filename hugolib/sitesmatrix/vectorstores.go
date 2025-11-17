@@ -71,10 +71,6 @@ func (s *vectorStoreMap) setVector(vec Vector) {
 	s.sets[vec] = struct{}{}
 }
 
-func (s *vectorStoreMap) Ordinal() int {
-	return 0
-}
-
 func (s *vectorStoreMap) KeysSorted() ([]int, []int, []int) {
 	var k0, k1, k2 []int
 	for v := range s.sets {
@@ -271,12 +267,45 @@ type ConfiguredDimension interface {
 	ResolveIndex(string) int
 	ResolveName(int) string
 	ForEachIndex() iter.Seq[int]
+	Len() int
 }
 
+// ConfiguredDimensions holds the configured dimensions for the site matrix.
 type ConfiguredDimensions struct {
 	ConfiguredLanguages ConfiguredDimension
 	ConfiguredVersions  ConfiguredDimension
 	ConfiguredRoles     ConfiguredDimension
+	CommonSitesMatrix   CommonSitestMatrix
+
+	singleVectorStoreCache *maps.Cache[Vector, *IntSets]
+}
+
+func (c *ConfiguredDimensions) IsSingleVector() bool {
+	return c.ConfiguredLanguages.Len() == 1 && c.ConfiguredRoles.Len() == 1 && c.ConfiguredVersions.Len() == 1
+}
+
+// GetOrCreateSingleVectorStore returns a VectorStore for the given vector.
+func (c *ConfiguredDimensions) GetOrCreateSingleVectorStore(vec Vector) *IntSets {
+	store, _ := c.singleVectorStoreCache.GetOrCreate(vec, func() (*IntSets, error) {
+		is := &IntSets{}
+		is.setValuesInNilSets(vec, true, true, true)
+		return is, nil
+	})
+	return store
+}
+
+func (c *ConfiguredDimensions) Init() error {
+	c.singleVectorStoreCache = maps.NewCache[Vector, *IntSets]()
+	b := NewIntSetsBuilder(c).WithDefaultsIfNotSet().Build()
+	defaultVec := b.VectorSample()
+	c.singleVectorStoreCache.Set(defaultVec, b)
+	c.CommonSitesMatrix.DefaultSite = b
+
+	return nil
+}
+
+type CommonSitestMatrix struct {
+	DefaultSite VectorStore
 }
 
 func (c *ConfiguredDimensions) ResolveNames(v Vector) types.Strings3 {
@@ -316,6 +345,8 @@ type IntSets struct {
 
 	h *hashOnce
 }
+
+var NilStore *IntSets = nil
 
 type hashOnce struct {
 	once sync.Once
@@ -363,7 +394,7 @@ func (s *IntSets) Intersects(other *IntSets) bool {
 // Complement returns a new VectorStore that contains all vectors in s that are not in any of ss.
 func (s *IntSets) Complement(ss ...VectorProvider) VectorStore {
 	if len(ss) == 0 || (len(ss) == 1 && ss[0] == s) {
-		return nil
+		return NilStore
 	}
 
 	for _, v := range ss {
@@ -372,8 +403,7 @@ func (s *IntSets) Complement(ss ...VectorProvider) VectorStore {
 			continue
 		}
 		if vv.IsSuperSet(s) {
-			var s *IntSets
-			return s
+			return NilStore
 		}
 	}
 
@@ -484,6 +514,9 @@ func (s *IntSets) HasLanguage(lang int) bool {
 	return s.languages.Has(lang)
 }
 
+// LenVectors returns the total number of vectors represented by the IntSets.
+// This is the Cartesian product of the lengths of the individual sets.
+// This will be 0 if s is nil or any of the sets is empty.
 func (s *IntSets) LenVectors() int {
 	if s == nil {
 		return 0
@@ -525,6 +558,10 @@ func (s *IntSets) HasAnyVector(v VectorProvider) bool {
 	}
 	if s.LenVectors() == 0 || v.LenVectors() == 0 {
 		return false
+	}
+	if v.LenVectors() == 1 {
+		// Fast path.
+		return s.HasVector(v.VectorSample())
 	}
 
 	if vs, ok := v.(*IntSets); ok {
@@ -688,6 +725,14 @@ type IntSetsBuilder struct {
 
 func (b *IntSetsBuilder) Build() *IntSets {
 	b.s.init()
+
+	if b.s.LenVectors() == 1 {
+		// Cache it or use the existing cached version, which will allow b.s to be GCed.
+		bb, _ := b.cfg.singleVectorStoreCache.GetOrCreate(b.s.VectorSample(), func() (*IntSets, error) {
+			return b.s, nil
+		})
+		return bb
+	}
 	return b.s
 }
 
@@ -889,6 +934,10 @@ type testDimension struct {
 	names []string
 }
 
+func (m testDimension) Len() int {
+	return len(m.names)
+}
+
 func (m testDimension) IndexDefault() int {
 	return 0
 }
@@ -933,9 +982,13 @@ func (m *testDimension) IndexMatch(match predicate.P[string]) (iter.Seq[int], er
 
 // NewTestingDimensions creates a new ConfiguredDimensions for testing.
 func NewTestingDimensions(languages, versions, roles []string) *ConfiguredDimensions {
-	return &ConfiguredDimensions{
+	c := &ConfiguredDimensions{
 		ConfiguredLanguages: &testDimension{names: languages},
 		ConfiguredVersions:  &testDimension{names: versions},
 		ConfiguredRoles:     &testDimension{names: roles},
 	}
+	if err := c.Init(); err != nil {
+		panic(err)
+	}
+	return c
 }

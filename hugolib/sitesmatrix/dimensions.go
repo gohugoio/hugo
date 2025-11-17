@@ -76,8 +76,12 @@ func (v1 Vector) HasVector(v2 Vector) bool {
 }
 
 func (v1 Vector) HasAnyVector(vp VectorProvider) bool {
-	if vp.LenVectors() == 0 {
+	n := vp.LenVectors()
+	if n == 0 {
 		return false
+	}
+	if n == 1 {
+		return v1 == vp.VectorSample()
 	}
 
 	return !vp.ForEachVector(func(v2 Vector) bool {
@@ -144,12 +148,16 @@ func (vs Vectors) ForEachVector(yield func(v Vector) bool) bool {
 	return true
 }
 
+func (vs Vectors) LenVectors() int {
+	return len(vs)
+}
+
 func (vs Vectors) ToVectorStore() VectorStore {
 	return newVectorStoreMapFromVectors(vs)
 }
 
-// Sample returns one of the vectors in the set.
-func (vs Vectors) Sample() Vector {
+// VectorSample returns one of the vectors in the set.
+func (vs Vectors) VectorSample() Vector {
 	for v := range vs {
 		return v
 	}
@@ -161,14 +169,15 @@ type (
 		// ForEachVector iterates over all vectors in the provider.
 		// It returns false if the iteration was stopped early.
 		ForEachVector(func(v Vector) bool) bool
+
+		// LenVectors returns the number of vectors in the provider.
+		LenVectors() int
+
+		// VectorSample returns one of the vectors in the provider, usually the first or the only one.
+		// This will panic if the provider is empty.
+		VectorSample() Vector
 	}
 )
-
-type VectorIteratorFunc func(func(v Vector) bool) bool
-
-func (f VectorIteratorFunc) ForEachVector(yield func(v Vector) bool) bool {
-	return f(yield)
-}
 
 // Bools holds boolean values for each dimension in the Hugo build matrix.
 type Bools [3]bool
@@ -198,13 +207,6 @@ type VectorProvider interface {
 	// HasAnyVector returns true if any of the vectors in the provider matches any of the vectors in v.
 	HasAnyVector(v VectorProvider) bool
 
-	// LenVectors returns the number of vectors in the provider.
-	LenVectors() int
-
-	// VectorSample returns one of the vectors in the provider, usually the first or the only one.
-	// This will panic if the provider is empty.
-	VectorSample() Vector
-
 	// Equals returns true if this provider is equal to the other provider.
 	EqualsVector(other VectorProvider) bool
 }
@@ -225,6 +227,22 @@ type VectorStore interface {
 
 type ToVectorStoreProvider interface {
 	ToVectorStore() VectorStore
+}
+
+func VectorIteratorToStore(vi VectorIterator) VectorStore {
+	switch v := vi.(type) {
+	case VectorStore:
+		return v
+	case ToVectorStoreProvider:
+		return v.ToVectorStore()
+	}
+
+	vectors := make(Vectors)
+	vi.ForEachVector(func(v Vector) bool {
+		vectors[v] = struct{}{}
+		return true
+	})
+	return vectors.ToVectorStore()
 }
 
 type weightedVectorStore struct {
