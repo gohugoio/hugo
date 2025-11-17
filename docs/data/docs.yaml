@@ -1926,9 +1926,6 @@ config:
       shortname: ""
     googleAnalytics:
       id: ""
-    instagram:
-      accessToken: ""
-      disableInlineCSS: false
     rss:
       limit: -1
     twitter:
