@@ -49,7 +49,27 @@ func init() {
 	for _, ext := range ValidConfigFileExtensions {
 		validConfigFileExtensionsMap[ext] = true
 	}
+}// validateTopLevelConfigKeys ensures only known top-level keys are allowed.
+func validateTopLevelConfigKeys(m map[string]any) error {
+    allowed := map[string]bool{
+        "baseurl": true, "title": true, "theme": true, "params": true,
+        "languages": true, "markup": true, "module": true, "caches": true,
+        "build": true, "server": true, "privacy": true, "security": true,
+        "services": true, "pagination": true, "outputs": true, "permalinks": true,
+        "taxonomies": true, "related": true, "sitemap": true, "minify": true,
+        "menus": true, "frontmatter": true, "deployment": true,
+    }
+
+    for key := range m {
+        lk := strings.ToLower(key)
+        if !allowed[lk] {
+            return fmt.Errorf("unknown top-level config key %q", key)
+        }
+    }
+
+    return nil
 }
+
 
 // IsValidConfigFilename returns whether filename is one of the supported
 // config formats in Hugo.
@@ -116,7 +136,15 @@ func readConfig(format metadecoders.Format, data []byte) (map[string]any, error)
 
 	RenameKeys(m)
 
-	return m, nil
+
+// Strict validation
+     if err := validateTopLevelConfigKeys(m); err != nil {
+         return nil, err
+    }
+
+    return m, nil
+
+
 }
 
 func loadConfigFromFile(fs afero.Fs, filename string) (map[string]any, error) {
@@ -125,7 +153,14 @@ func loadConfigFromFile(fs afero.Fs, filename string) (map[string]any, error) {
 		return nil, err
 	}
 	RenameKeys(m)
-	return m, nil
+
+// Strict validation
+if err := validateTopLevelConfigKeys(m); err != nil {
+    return nil, err
+}
+
+return m, nil
+
 }
 
 func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provider, []string, error) {
