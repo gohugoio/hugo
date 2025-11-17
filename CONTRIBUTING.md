@@ -208,3 +208,65 @@ mage -l
 ```bash
 HUGO_BUILD_TAGS=extended mage install
 ````
+
+
+# 🚀 Hugo – Docker Development Environment (Contribution Setup)
+
+This document contains **all the exact steps** followed to set up the Docker-based development environment for contributing to the Hugo repository.
+
+---
+
+## ✅ Prerequisites
+
+Before beginning, ensure you have:
+
+- Docker installed  
+- BuildKit enabled  
+- Docker Buildx installed  
+
+---
+
+## 🔧 Step 1 — Enable BuildKit
+
+Enable BuildKit for the current terminal session:
+
+```sh
+export DOCKER_BUILDKIT=1
+
+BuildKit is required because the Dockerfile uses advanced features such as --mount, cross-compilation, and multi-platform builds.
+
+🛠️ Step 2 — Install & Bootstrap Buildx
+
+Check your current Buildx status:
+
+docker buildx ls
+
+If Buildx is missing or broken, you will see an error like:
+
+ERROR: BuildKit is enabled but the buildx component is missing or broken.
+
+Install Buildx:
+
+docker buildx install
+
+Create and bootstrap the builder:
+
+docker buildx create --use
+docker buildx inspect --bootstrap
+
+🌐 Step 3 — Fix Network Issues (If Any)
+
+If build commands fail due to network issues, wait until connectivity is stable and retry.
+🏗️ Step 4 — Build the Hugo Docker Image
+
+Build the development image:
+
+docker build -t hugo-dev .
+
+▶️ Step 5 — Run the Container
+
+Run an interactive shell inside the Hugo dev image:
+
+docker run --rm -it hugo-dev sh
+
+You can now run Hugo commands or test code changes inside this development container.
