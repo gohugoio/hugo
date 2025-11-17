@@ -168,8 +168,9 @@ func (l configLoader) applyConfigAliases() error {
 func (l configLoader) applyDefaultConfig() error {
 	defaultSettings := maps.Params{
 		// These dirs are used early/before we build the config struct.
-		"themesDir": "themes",
-		"configDir": "config",
+		"themesDir":   "themes",
+		"configDir":   "config",
+		"resourceDir": "resources",
 	}
 
 	l.cfg.SetDefaults(defaultSettings)
@@ -400,9 +401,10 @@ func (l *configLoader) loadConfigMain(d ConfigSourceDescriptor) (config.LoadConf
 	workingDir := filepath.Clean(l.cfg.GetString("workingDir"))
 
 	l.BaseConfig = config.BaseConfig{
-		WorkingDir: workingDir,
-		CacheDir:   l.cfg.GetString("cacheDir"),
-		ThemesDir:  paths.AbsPathify(workingDir, l.cfg.GetString("themesDir")),
+		WorkingDir:  workingDir,
+		CacheDir:    l.cfg.GetString("cacheDir"),
+		ThemesDir:   paths.AbsPathify(workingDir, l.cfg.GetString("themesDir")),
+		ResourceDir: paths.AbsPathify(workingDir, l.cfg.GetString("resourceDir")),
 	}
 
 	var err error

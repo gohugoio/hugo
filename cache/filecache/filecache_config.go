@@ -236,7 +236,7 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 func resolveDirPlaceholder(fs afero.Fs, bcfg config.BaseConfig, placeholder string) (cacheDir string, isResource bool, err error) {
 	switch strings.ToLower(placeholder) {
 	case ":resourcedir":
-		return "", true, nil
+		return bcfg.ResourceDir, true, nil
 	case ":cachedir":
 		return bcfg.CacheDir, false, nil
 	case ":project":

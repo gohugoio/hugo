@@ -32,10 +32,11 @@ import (
 )
 
 type BaseConfig struct {
-	WorkingDir string
-	CacheDir   string
-	ThemesDir  string
-	PublishDir string
+	WorkingDir  string
+	CacheDir    string
+	ThemesDir   string
+	PublishDir  string
+	ResourceDir string
 }
 
 type CommonDirs struct {

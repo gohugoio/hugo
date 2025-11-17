@@ -14,6 +14,7 @@
 package filecache_test
 
 import (
+	"fmt"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -143,4 +144,47 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	c.Assert(imgConfig.IsResourceDir, qt.Equals, true)
 	c.Assert(jsonConfig.IsResourceDir, qt.Equals, false)
+}
+
+// Issue 14165
+func TestDecodeConfigDirTokens(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	type testCase struct {
+		name                          string
+		cacheDir                      string
+		resourceDir                   string
+		cachesMiscDir                 string
+		expectedCachesMiscDirCompiled string
+	}
+
+	tempDir := t.TempDir()
+
+	configWithPlacehoders := `
+cacheDir = "%s"
+resourceDir = "%s"
+caches.misc.dir = "%s"
+	`
+
+	tests := []testCase{
+		{"A", tempDir, "", ":cacheDir", filepath.Join(tempDir, "filecache/misc")},
+		{"B", "my_cache_dir", "", ":cacheDir", filepath.FromSlash("my_cache_dir/filecache/misc")},
+		{"C", "", tempDir, ":resourceDir", filepath.Join(tempDir, "filecache/misc")},
+		{"D", "", "my_resource_dir", ":resourceDir", filepath.FromSlash("my_resource_dir/filecache/misc")},
+		{"E", "", "", "foo", filepath.FromSlash("foo/filecache/misc")},
+	}
+
+	for _, tt := range tests {
+		c.Run(tt.name, func(c *qt.C) {
+			c.Parallel()
+
+			configStr := fmt.Sprintf(configWithPlacehoders, tt.cacheDir, tt.resourceDir, tt.cachesMiscDir)
+			cfg, err := config.FromConfigString(configStr, "toml")
+			c.Assert(err, qt.IsNil, qt.Commentf("Failed to decode config string: %s", configStr))
+
+			miscCache := testconfig.GetTestConfigs(afero.NewMemMapFs(), cfg).Base.Caches["misc"]
+			c.Assert(miscCache.DirCompiled, qt.Equals, tt.expectedCachesMiscDirCompiled)
+		})
+	}
 }
