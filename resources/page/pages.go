@@ -100,7 +100,18 @@ func (p Pages) Group(key any, in any) (any, error) {
 // Len returns the number of pages in the list.
 func (p Pages) Len() int {
 	return len(p)
+} 
+// IndexOf returns the index of a given page in the Pages collection,
+// or -1 if the page is not found.
+func (p Pages) IndexOf(page Page) int {
+    for i, pg := range p {
+        if pg == page {
+            return i
+        }
+    }
+    return -1
 }
+
 
 // ProbablyEq wraps compare.ProbablyEqer
 // For internal use.

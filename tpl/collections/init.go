@@ -202,6 +202,13 @@ func init() {
 			},
 		)
 
+		// Register indexOf template function
+		ns.AddMethodMapping(ctx.IndexOf,
+    		[]string{"indexOf"},
+    		[][2]string{},
+		)
+
+
 		return ns
 	}
 

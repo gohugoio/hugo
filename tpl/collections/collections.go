@@ -33,6 +33,8 @@ import (
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
+	"github.com/gohugoio/hugo/resources/page"
+
 )
 
 // New returns a new instance of the collections-namespaced template functions.
@@ -725,4 +727,24 @@ func (ns *Namespace) KeyVals(key any, values ...any) (types.KeyValues, error) {
 // thread safe way.
 func (ns *Namespace) NewScratch() *hstore.Scratch {
 	return hstore.NewScratch()
+}
+
+// IndexOf returns the index of a Page inside a Pages collection.
+// Usage in templates: {{ indexOf $pages . }}
+func (ns *Namespace) IndexOf(seq any, item any) (int, error) {
+
+    // Convert first argument into Pages
+    pages, err := page.ToPages(seq)
+    if err != nil {
+        return -1, err
+    }
+
+    // Convert second argument into a Page
+    p, ok := item.(page.Page)
+    if !ok {
+        return -1, fmt.Errorf("indexOf: second argument must be a Page")
+    }
+
+    // Use Hugo's index function
+    return pages.IndexOf(p), nil
 }
