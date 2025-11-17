@@ -1,6 +1,7 @@
 {{- $imgs := slice }}
 {{- $imgParams := .Params.images }}
 {{- $resources := .Resources.ByType "image" -}}
+
 {{/* Find featured image resources if the images parameter is empty. */}}
 {{- if not $imgParams }}
   {{- $featured := $resources.GetMatch "*feature*" -}}
@@ -12,20 +13,29 @@
       "Permalink" .Permalink) }}
   {{- end }}
 {{- end }}
-{{/* Use the first one of site images as the fallback. */}}
+
+{{/* Fallback: Use the first one of site images if no page images found */}}
 {{- if and (not $imgParams) (not $imgs) }}
-  {{- with site.Params.images }}
-    {{- $imgParams = first 1 . }}
+  {{- $siteResources := .Site.Resources.ByType "image" -}}
+  {{- with first 1 $siteResources }}
+    {{- $imgs = $imgs | append (dict
+      "Image" .
+      "RelPermalink" .RelPermalink
+      "Permalink" .Permalink) }}
+  {{- else }}
+    {{- with site.Params.images }}
+      {{- $imgParams = first 1 . }}
+    {{- end }}
   {{- end }}
 {{- end }}
-{{/* Parse page's images parameter. */}}
+
+{{/* Parse page's images parameter */}}
 {{- range $imgParams }}
   {{- $img := . }}
   {{- $url := urls.Parse $img }}
   {{- if eq $url.Scheme "" }}
-    {{/* Internal image. */}}
+    {{/* Internal image */}}
     {{- with $resources.GetMatch $img -}}
-      {{/* Image resource. */}}
       {{- $imgs = $imgs | append (dict
         "Image" .
         "RelPermalink" .RelPermalink
@@ -44,4 +54,5 @@
     ) }}
   {{- end }}
 {{- end }}
+
 {{- return $imgs }}
