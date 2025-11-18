@@ -1,5 +1,11 @@
 name: AI Detection
-on: [pull_request]
+on:
+  # Use pull_request_target instead of pull_request (we need the secrets.OPENAI_API_KEY to be available for forks)
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize]
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   detect-ai:
     runs-on: ubuntu-latest
