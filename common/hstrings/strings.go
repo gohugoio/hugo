@@ -187,3 +187,38 @@ func UniqueStringsSorted(s []string) []string {
 
 	return s[:i+1]
 }
+
+// QuickSortStrings sorts a slice of strings in place using the QuickSort algorithm.
+// This is a simple implementation for educational purposes; for production use,
+// consider using sort.Strings from the standard library.
+func QuickSortStrings(s []string) {
+	if len(s) < 2 {
+		return
+	}
+	// Choose a pivot element
+	pivot := s[len(s)/2]
+	left := 0
+	right := len(s) - 1
+
+	// Partitioning step
+	for left <= right {
+		for s[left] < pivot {
+			left++
+		}
+		for s[right] > pivot {
+			right--
+		}
+		if left <= right {
+			s[left], s[right] = s[right], s[left]
+			left++
+			right--
+		}
+	}
+
+	// Recursively sort the partitions
+	if right > 0 {
+		QuickSortStrings(s[:right+1])
+	}
+	// Note: left is always less than len(s) here
+	QuickSortStrings(s[left:])
+}
