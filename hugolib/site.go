@@ -451,7 +451,7 @@ func newHugoSites(
 			page.Pages](d.MemCache, "/pags/all",
 			dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild},
 		),
-		cacheContentSource:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[[]byte]](d.MemCache, "/cont/src", dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
+		cacheContentSource:      dynacache.GetOrCreatePartition[uint64, *resources.StaleValue[[]byte]](d.MemCache, "/cont/src", dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		translationKeyPages:     maps.NewSliceCache[page.Page](),
 		currentSite:             first[0],
 		skipRebuildForFilenames: make(map[string]bool),

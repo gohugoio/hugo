@@ -86,7 +86,7 @@ type HugoSites struct {
 	// Cache for page listings.
 	cachePages *dynacache.Partition[string, page.Pages]
 	// Cache for content sources.
-	cacheContentSource *dynacache.Partition[string, *resources.StaleValue[[]byte]]
+	cacheContentSource *dynacache.Partition[uint64, *resources.StaleValue[[]byte]]
 
 	// Before Hugo 0.122.0 we managed all translations in a map using a translationKey
 	// that could be overridden in front matter.

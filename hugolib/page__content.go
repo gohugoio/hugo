@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"strconv"
 	"strings"
 	"sync/atomic"
 	"unicode/utf8"
@@ -69,12 +68,6 @@ func (m *pageMetaSource) parseFrontMatter(
 	h *HugoSites,
 	sid uint64,
 ) error {
-	var sourceKey string
-
-	if sourceKey == "" {
-		sourceKey = strconv.FormatUint(sid, 10)
-	}
-
 	var filename string
 	if m.f != nil {
 		filename = m.f.Filename()
@@ -83,7 +76,6 @@ func (m *pageMetaSource) parseFrontMatter(
 	m.pi = &contentParseInfo{
 		h:                  h,
 		sid:                sid,
-		sourceKey:          sourceKey,
 		openSource:         m.openSource,
 		shortcodeParseInfo: newShortcodeHandler(filename, h.Deps),
 	}
@@ -163,8 +155,7 @@ func (c *cachedContent) getOrCreateScope(scope string, pco *pageContentOutput) *
 type contentParseInfo struct {
 	h *HugoSites
 
-	sid       uint64
-	sourceKey string
+	sid uint64
 
 	// The source bytes.
 	openSource hugio.OpenReadSeekCloser
@@ -323,7 +314,7 @@ Loop:
 			currShortcode.pos = it.Pos()
 			currShortcode.length = iter.Current().Pos() - it.Pos()
 			if currShortcode.placeholder == "" {
-				currShortcode.placeholder = createShortcodePlaceholder("s", pi.sid, currShortcode.ordinal)
+				currShortcode.placeholder = createShortcodePlaceholder("s", pi.sid, uint64(currShortcode.ordinal))
 			}
 
 			if currShortcode.name != "" {
@@ -335,7 +326,7 @@ Loop:
 				currShortcode.params = s
 			}
 
-			currShortcode.placeholder = createShortcodePlaceholder("s", pi.sid, ordinal)
+			currShortcode.placeholder = createShortcodePlaceholder("s", pi.sid, uint64(ordinal))
 			ordinal++
 			s.shortcodes = append(s.shortcodes, currShortcode)
 
@@ -390,10 +381,10 @@ func (c *cachedContent) mustSource() []byte {
 }
 
 func (pi *contentParseInfo) contentSource(s resource.StaleInfo) ([]byte, error) {
-	key := pi.sourceKey
+	key := pi.sid
 	versionv := s.StaleVersion()
 
-	v, err := pi.h.cacheContentSource.GetOrCreate(key, func(string) (*resources.StaleValue[[]byte], error) {
+	v, err := pi.h.cacheContentSource.GetOrCreate(key, func(uint64) (*resources.StaleValue[[]byte], error) {
 		b, err := pi.readSourceAll()
 		if err != nil {
 			return nil, err
@@ -457,13 +448,13 @@ type contentPlainPlainWords struct {
 }
 
 func (c *cachedContentScope) keyScope(ctx context.Context) string {
-	return hugo.GetMarkupScope(ctx) + c.pco.po.f.Name
+	return hugo.GetMarkupScope(ctx) + c.pco.po.f.Name + fmt.Sprintf("_%d", c.pi.sid)
 }
 
 func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummary, error) {
 	cp := c.pco
 	ctx = tpl.Context.DependencyScope.Set(ctx, pageDependencyScopeGlobal)
-	key := c.pi.sourceKey + "/" + c.keyScope(ctx)
+	key := c.keyScope(ctx)
 
 	versionv := c.version(cp)
 
@@ -616,7 +607,7 @@ var setGetContentCallbackInContext = contexthelpers.NewContextDispatcher[func(*p
 
 func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfContents, error) {
 	cp := c.pco
-	key := c.pi.sourceKey + "/" + c.keyScope(ctx)
+	key := c.keyScope(ctx)
 	versionv := c.version(cp)
 
 	v, err := c.pm.contentTableOfContents.GetOrCreate(key, func(string) (*resources.StaleValue[contentTableOfContents], error) {
@@ -737,7 +728,7 @@ func (c *cachedContent) version(cp *pageContentOutput) uint32 {
 
 func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlainWords, error) {
 	cp := c.pco
-	key := c.pi.sourceKey + "/" + c.keyScope(ctx)
+	key := c.keyScope(ctx)
 
 	versionv := c.version(cp)
 

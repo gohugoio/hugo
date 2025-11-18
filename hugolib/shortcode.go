@@ -192,8 +192,8 @@ func (scp *ShortcodeWithPage) Unwrapv() any {
 // Note - this value must not contain any markup syntax
 const shortcodePlaceholderPrefix = "HAHAHUGOSHORTCODE"
 
-func createShortcodePlaceholder(sid string, id uint64, ordinal int) string {
-	return shortcodePlaceholderPrefix + strconv.FormatUint(id, 10) + sid + strconv.Itoa(ordinal) + "HBHB"
+func createShortcodePlaceholder(sid string, id, ordinal uint64) string {
+	return shortcodePlaceholderPrefix + strconv.FormatUint(id, 10) + sid + strconv.FormatUint(ordinal, 10) + "HBHB"
 }
 
 type shortcode struct {
