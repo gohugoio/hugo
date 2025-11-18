@@ -398,9 +398,20 @@ func BenchmarkSets(b *testing.B) {
 		}
 	})
 
-	b.Run("HasAnyVector", func(b *testing.B) {
+	b.Run("HasAnyVector(Sets)", func(b *testing.B) {
 		for b.Loop() {
 			_ = sets1.HasAnyVector(sets2)
+		}
+	})
+	b.Run("HasAnyVector(Vector)", func(b *testing.B) {
+		for b.Loop() {
+			_ = sets1.HasAnyVector(v1)
+		}
+	})
+
+	b.Run("HasAnyVector(&Vector)", func(b *testing.B) {
+		for b.Loop() {
+			_ = sets1.HasAnyVector(&v1)
 		}
 	})
 
