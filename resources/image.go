@@ -478,3 +478,33 @@ func (i *imageResource) relTargetPathFromConfig(conf images.ImageConfig, imaging
 
 	return rp
 }
+
+// quickSort sorts colors in place by count in descending order.
+// It uses the QuickSort algorithm.
+func quickSort(colors []images.Color, low, high int) {
+	if low < high {
+		pi := partition(colors, low, high)
+
+		quickSort(colors, low, pi-1)
+		quickSort(colors, pi+1, high)
+	}
+}
+
+// partition is a helper function for quickSort.
+// It partitions the colors slice and returns the pivot index.
+// Colors with counts greater than the pivot are moved to the left,
+// and those with counts less than or equal to the pivot are moved to the right.
+// It sorts in descending order.
+func partition(colors []images.Color, low, high int) int {
+	pivot := colors[high].Count
+	i := low - 1
+
+	for j := low; j < high; j++ {
+		if colors[j].Count > pivot {
+			i++
+			colors[i], colors[j] = colors[j], colors[i]
+		}
+	}
+	colors[i+1], colors[high] = colors[high], colors[i+1]
+	return i + 1
+}
