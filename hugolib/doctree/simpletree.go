@@ -127,33 +127,16 @@ func NewSimpleThreadSafeTree[T any]() *SimpleThreadSafeTree[T] {
 
 // SimpleThreadSafeTree is a thread safe radix tree that holds T.
 type SimpleThreadSafeTree[T any] struct {
-	mu     *sync.RWMutex
-	noLock bool
-	tree   *radix.Tree
-	zero   T
+	mu   *sync.RWMutex
+	tree *radix.Tree
+	zero T
 }
 
 var noopFunc = func() {}
 
-func (tree *SimpleThreadSafeTree[T]) readLock() func() {
-	if tree.noLock {
-		return noopFunc
-	}
-	tree.mu.RLock()
-	return tree.mu.RUnlock
-}
-
-func (tree *SimpleThreadSafeTree[T]) writeLock() func() {
-	if tree.noLock {
-		return noopFunc
-	}
-	tree.mu.Lock()
-	return tree.mu.Unlock
-}
-
 func (tree *SimpleThreadSafeTree[T]) Get(s string) T {
-	unlock := tree.readLock()
-	defer unlock()
+	tree.mu.RLock()
+	defer tree.mu.RUnlock()
 
 	if v, ok := tree.tree.Get(s); ok {
 		return v.(T)
@@ -162,8 +145,8 @@ func (tree *SimpleThreadSafeTree[T]) Get(s string) T {
 }
 
 func (tree *SimpleThreadSafeTree[T]) LongestPrefix(s string) (string, T) {
-	unlock := tree.readLock()
-	defer unlock()
+	tree.mu.RLock()
+	defer tree.mu.RUnlock()
 
 	if s, v, ok := tree.tree.LongestPrefix(s); ok {
 		return s, v.(T)
@@ -172,8 +155,8 @@ func (tree *SimpleThreadSafeTree[T]) LongestPrefix(s string) (string, T) {
 }
 
 func (tree *SimpleThreadSafeTree[T]) Insert(s string, v T) T {
-	unlock := tree.writeLock()
-	defer unlock()
+	tree.mu.Lock()
+	defer tree.mu.Unlock()
 
 	tree.tree.Insert(s, v)
 	return v
@@ -191,12 +174,6 @@ func (tree *SimpleThreadSafeTree[T]) Lock(lockType LockType) func() {
 		return tree.mu.Unlock
 	}
 	return noopFunc
-}
-
-func (tree SimpleThreadSafeTree[T]) LockTree(lockType LockType) (TreeThreadSafe[T], func()) {
-	unlock := tree.Lock(lockType)
-	tree.noLock = true
-	return &tree, unlock // create a copy of tree with the noLock flag set to true.
 }
 
 func (tree *SimpleThreadSafeTree[T]) WalkPrefix(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
