@@ -189,6 +189,7 @@ func UniqueStringsSorted(s []string) []string {
 }
 
 // ReverseStrings reverses a slice of strings in place.
+// This is a optimized version of generic slice reversal.
 func ReverseStrings(s []string) {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
