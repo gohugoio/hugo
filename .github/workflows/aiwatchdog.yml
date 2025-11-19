@@ -12,6 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
       - name: AI Watchdog
-        uses: Citric-Sheep/ai-watchdog@0db4a635d309db0f8d82642130dfc33e91cf33fa # v0.2.3
+        uses: bep/ai-watchdog@bba1162398125dfc3c9b97cbc018b70543708ee1 # temporary fork (probably)
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          pr-label: AI Suspect
+          fail-when-confident: false
