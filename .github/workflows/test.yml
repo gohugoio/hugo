@@ -113,7 +113,10 @@ jobs:
         name: Check
         run: |
           sass --version;
-          mage -v check;
+          mage -v test386;
+          go clean;
+          mage -v testrace;
+          go clean;
         env:
           HUGO_BUILD_TAGS: extended,withdeploy
       - if: matrix.os == 'windows-latest'
