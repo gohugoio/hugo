@@ -2,13 +2,14 @@ name: AI Detection
 on:
   # Use pull_request_target instead of pull_request (we need the secrets.OPENAI_API_KEY to be available for forks)
   pull_request_target:
-    types: [ready_for_review]
+    types: [open, ready_for_review]
 permissions:
   contents: read
   pull-requests: write
 jobs:
   detect-ai:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
       - name: AI Watchdog
