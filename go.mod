@@ -23,7 +23,7 @@ require (
 	github.com/bep/overlayfs v0.10.0
 	github.com/bep/simplecobra v0.6.1
 	github.com/bep/tmc v0.5.1
-	github.com/bits-and-blooms/bitset v1.22.0
+	github.com/bits-and-blooms/bitset v1.24.4
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
 	github.com/disintegration/gift v1.2.1
