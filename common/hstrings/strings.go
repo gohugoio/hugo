@@ -187,3 +187,84 @@ func UniqueStringsSorted(s []string) []string {
 
 	return s[:i+1]
 }
+
+// ReverseStrings reverses a slice of strings in place.
+func ReverseStrings(s []string) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+}
+
+// HasPrefixAny reports whether s starts with any of the provided prefixes.
+func HasPrefixAny(s string, prefixes ...string) bool {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(s, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+// HasSuffixAny reports whether s ends with any of the provided suffixes.
+func HasSuffixAny(s string, suffixes ...string) bool {
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(s, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+// TrimPrefixAny trims any of the provided prefixes from s.
+func TrimPrefixAny(s string, prefixes ...string) string {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(s, prefix) {
+			return strings.TrimPrefix(s, prefix)
+		}
+	}
+	return s
+}
+
+// TrimSuffixAny trims any of the provided suffixes from s.
+func TrimSuffixAny(s string, suffixes ...string) string {
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(s, suffix) {
+			return strings.TrimSuffix(s, suffix)
+		}
+	}
+	return s
+}
+
+// CommonPrefix returns the longest common prefix of a and b.
+func CommonPrefix(a, b string) string {
+	minLen := len(a)
+	if len(b) < minLen {
+		minLen = len(b)
+	}
+
+	var i int
+	for i = 0; i < minLen; i++ {
+		if a[i] != b[i] {
+			break
+		}
+	}
+
+	return a[:i]
+}
+
+// CommonSuffix returns the longest common suffix of a and b.
+func CommonSuffix(a, b string) string {
+	minLen := len(a)
+	if len(b) < minLen {
+		minLen = len(b)
+	}
+
+	var i int
+	for i = 0; i < minLen; i++ {
+		if a[len(a)-1-i] != b[len(b)-1-i] {
+			break
+		}
+	}
+
+	return a[len(a)-i:]
+}
