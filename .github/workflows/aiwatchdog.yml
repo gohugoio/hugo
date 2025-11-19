@@ -2,7 +2,7 @@ name: AI Detection
 on:
   # Use pull_request_target instead of pull_request (we need the secrets.OPENAI_API_KEY to be available for forks)
   pull_request_target:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [ready_for_review]
 permissions:
   contents: read
   pull-requests: write
