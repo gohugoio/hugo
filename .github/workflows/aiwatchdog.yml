@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
       - name: AI Watchdog
-        uses: bep/ai-watchdog@819bdd4eeb93a21edfd52e018113b3b2c99e5c39 # temporary fork (probably)
+        uses: bep/ai-watchdog@a775a75362de86cce1182e54db207cf2c68cb34b # temporary fork (probably)
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           pr-label: AI Suspect
