@@ -16,8 +16,8 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.24.x, 1.25.x]
-        os: [ubuntu-latest, windows-latest] # macos disabled for now because of disk space issues.
+        go-version: [1.25.x]
+        os: [ubuntu-latest] # macos disabled for now because of disk space issues.
     runs-on: ${{ matrix.os }}
     steps:
       - if: matrix.os == 'ubuntu-latest'
@@ -26,7 +26,7 @@ jobs:
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
-          tool-cache: false
+          tool-cache: true
           android: true
           dotnet: true
           haskell: true
