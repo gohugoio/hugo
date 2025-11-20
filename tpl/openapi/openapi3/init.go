@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
+	resourcestpl "github.com/gohugoio/hugo/tpl/resources"
 )
 
 const name = "openapi3"
@@ -29,6 +30,17 @@ func init() {
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
+			OnCreated: func(m map[string]any) {
+				for _, v := range m {
+					switch v := v.(type) {
+					case *resourcestpl.Namespace:
+						ctx.resourcesNs = v
+					}
+				}
+				if ctx.resourcesNs == nil {
+					panic("resources namespace not found")
+				}
+			},
 		}
 
 		ns.AddMethodMapping(ctx.Unmarshal,
