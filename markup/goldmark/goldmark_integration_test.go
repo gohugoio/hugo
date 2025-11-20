@@ -828,6 +828,136 @@ H~2~0
 	)
 }
 
+func TestExtrasExtensionWithCJKFriendlyEmphasis(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions]
+strikethrough = false
+[markup.goldmark.extensions.extras.delete]
+enable = false
+[markup.goldmark.extensions.extras.insert]
+enable = false
+[markup.goldmark.extensions.extras.mark]
+enable = false
+[markup.goldmark.extensions.extras.subscript]
+enable = false
+[markup.goldmark.extensions.extras.superscript]
+enable = false
+[markup.goldmark.extensions.CJKFriendly]
+emphasis = false
+-- layouts/index.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+~~削除~~
+
+++挿入++
+
+==マーク==
+
+（H~2~O）
+
+面積は1^乗^です
+
+（~~削除~~）
+
+~~（挿入）~~
+
+混合 **（強）**~~削除~~
+
+空 ~~ ~~
+
+++CJK**「ハロー」**Test++
+
+Mark**==マーク==**Test
+
+MarkParen**（==マーク==）**Test
+`
+
+	b := hugolib.Test(t, files)
+
+	// CJKFriendlyEmphasis disabled, Extras disabled.
+	b.AssertFileContent("public/index.html",
+		"<p>~~削除~~</p>",
+		"<p>++挿入++</p>",
+		"<p>==マーク==</p>",
+		"<p>（H~2~O）</p>",
+		"<p>面積は1^乗^です</p>",
+		"<p>（~~削除~~）</p>",
+		"<p>~~（挿入）~~</p>",
+		"<p>混合 <strong>（強）</strong>~~削除~~</p>",
+		"<p>空 ~~ ~~</p>",
+		"<p>++CJK**「ハロー」**Test++</p>",
+		"<p>Mark**==マーク==**Test</p>",
+		"<p>MarkParen**（==マーク==）**Test</p>",
+	)
+
+	files = strings.ReplaceAll(files, "enable = false", "enable = true")
+
+	b = hugolib.Test(t, files)
+
+	// CJKFriendlyEmphasis disabled, Extras enabled.
+	b.AssertFileContent("public/index.html",
+		"<p><del>削除</del></p>",
+		"<p><ins>挿入</ins></p>",
+		"<p><mark>マーク</mark></p>",
+		"<p>（H<sub>2</sub>O）</p>",
+		"<p>面積は1<sup>乗</sup>です</p>",
+		"<p>（<del>削除</del>）</p>",
+		"<p><del>（挿入）</del></p>",
+		"<p>混合 <strong>（強）</strong><del>削除</del></p>",
+		"<p>空 ~~ ~~</p>",
+		"<p><ins>CJK**「ハロー」**Test</ins></p>",
+		"<p>Mark**<mark>マーク</mark>**Test</p>",
+		"<p>MarkParen**（<mark>マーク</mark>）**Test</p>",
+	)
+
+	filesCJKEnabled := strings.Replace(files, "emphasis = false", "emphasis = true", 1)
+
+	b = hugolib.Test(t, filesCJKEnabled)
+
+	// CJKFriendlyEmphasis enabled, Extras enabled.
+	b.AssertFileContent("public/index.html",
+		"<p><del>削除</del></p>",
+		"<p><ins>挿入</ins></p>",
+		"<p><mark>マーク</mark></p>",
+		"<p>（H<sub>2</sub>O）</p>",
+		"<p>面積は1<sup>乗</sup>です</p>",
+		"<p>（<del>削除</del>）</p>",
+		"<p><del>（挿入）</del></p>",
+		"<p>混合 <strong>（強）</strong><del>削除</del></p>",
+		"<p>空 ~~ ~~</p>",
+		"<p><ins>CJK<strong>「ハロー」</strong>Test</ins></p>",
+		"<p>Mark**<mark>マーク</mark>**Test</p>",
+		"<p>MarkParen<strong>（<mark>マーク</mark>）</strong>Test</p>",
+	)
+
+	filesCJKEnabledExtrasDisabled := strings.ReplaceAll(filesCJKEnabled, "enable = true", "enable = false")
+
+	b = hugolib.Test(t, filesCJKEnabledExtrasDisabled)
+
+	// CJKFriendlyEmphasis enabled, Extras disabled.
+	b.AssertFileContent("public/index.html",
+		"<p>~~削除~~</p>",
+		"<p>++挿入++</p>",
+		"<p>==マーク==</p>",
+		"<p>（H~2~O）</p>",
+		"<p>面積は1^乗^です</p>",
+		"<p>（~~削除~~）</p>",
+		"<p>~~（挿入）~~</p>",
+		"<p>混合 <strong>（強）</strong>~~削除~~</p>",
+		"<p>空 ~~ ~~</p>",
+		"<p>++CJK<strong>「ハロー」</strong>Test++</p>",
+		"<p>Mark**==マーク==**Test</p>",
+		"<p>MarkParen<strong>（==マーク==）</strong>Test</p>",
+	)
+}
+
 // Issue 12997.
 func TestGoldmarkRawHTMLWarningBlocks(t *testing.T) {
 	files := `
