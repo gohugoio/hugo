@@ -70,6 +70,10 @@ func flagEnv() map[string]string {
 	}
 }
 
+func emptyEnv() map[string]string {
+	return map[string]string{}
+}
+
 // Generate autogen packages
 func Generate() error {
 	generatorPackages := []string{
@@ -138,6 +142,9 @@ func Docker() error {
 func Check() {
 	if runtime.GOARCH == "amd64" && runtime.GOOS != "darwin" {
 		mg.Deps(Test386)
+		if isCI() {
+			mg.Deps(CleanTest)
+		}
 	} else {
 		fmt.Printf("Skip Test386 on %s and/or %s\n", runtime.GOARCH, runtime.GOOS)
 	}
@@ -151,6 +158,9 @@ func Check() {
 	// don't run two tests in parallel, they saturate the CPUs anyway, and running two
 	// causes memory issues in CI.
 	mg.Deps(TestRace)
+	if isCI() {
+		mg.Deps(CleanTest)
+	}
 }
 
 func testGoFlags() string {
@@ -159,6 +169,11 @@ func testGoFlags() string {
 	}
 
 	return "-timeout=1m"
+}
+
+// Clean Go's test cache.
+func CleanTest() error {
+	return runCmd(emptyEnv(), goexe, "clean", "-testcache")
 }
 
 // Run tests in 32-bit mode
