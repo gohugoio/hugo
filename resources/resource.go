@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/herrors"
@@ -701,6 +702,18 @@ func InternalResourceSourcePath(r resource.Resource) string {
 		}
 	}
 	return ""
+}
+
+// InternalResourceSourceContent is used internally to get the source content for a Resource.
+func InternalResourceSourceContent(ctx context.Context, r resource.Resource) (string, error) {
+	if cp, ok := r.(resource.ContentProvider); ok {
+		c, err := cp.Content(ctx)
+		if err != nil {
+			return "", err
+		}
+		return cast.ToStringE(c)
+	}
+	return "", nil
 }
 
 // InternalResourceSourcePathBestEffort is used internally to get the source path for a Resource.

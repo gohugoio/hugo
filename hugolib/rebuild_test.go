@@ -845,7 +845,7 @@ func TestRebuildEditSectionRemoveDate(t *testing.T) {
 func TestRebuildVariations(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	// This leaktest seems to be a little bit shaky on Travis.
-	if !htesting.IsCI() {
+	if !htesting.IsRealCI() {
 		defer leaktest.CheckTimeout(t, 10*time.Second)()
 	}
 

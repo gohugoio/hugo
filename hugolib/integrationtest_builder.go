@@ -35,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"golang.org/x/text/unicode/norm"
@@ -838,7 +839,11 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		s.Assert(err, qt.IsNil)
 
-		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), StdErr: logger.StdErr()}
+		// changes received from Hugo in watch mode.
+		// In the full setup, this channel is created in the commands package.
+		changesFromBuild := make(chan []identity.Identity, 10)
+
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), StdErr: logger.StdErr(), ChangesFromBuild: changesFromBuild, IsIntegrationTest: true}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err
@@ -848,6 +853,20 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			initErr = errors.New("no sites")
 			return
 		}
+
+		go func() {
+			for id := range changesFromBuild {
+				whatChanged := &WhatChanged{}
+				for _, v := range id {
+					whatChanged.Add(v)
+				}
+				bcfg := s.Cfg.BuildCfg
+				bcfg.WhatChanged = whatChanged
+				if err := s.build(bcfg); err != nil {
+					s.Fatalf("Build failed after change: %s", err)
+				}
+			}
+		}()
 
 		s.H = sites
 		s.fs = fs

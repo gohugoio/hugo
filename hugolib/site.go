@@ -265,6 +265,14 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		return nil, err
 	}
 
+	// Prevent leaking goroutines in tests.
+	if cfg.IsIntegrationTest && cfg.ChangesFromBuild != nil {
+		firstSiteDeps.BuildClosers.Add(types.CloserFunc(func() error {
+			close(cfg.ChangesFromBuild)
+			return nil
+		}))
+	}
+
 	batcherClient, err := esbuild.NewBatcherClient(firstSiteDeps)
 	if err != nil {
 		return nil, err

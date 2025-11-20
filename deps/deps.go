@@ -417,6 +417,9 @@ type DepsCfg struct {
 	// i18n handling.
 	TranslationProvider ResourceProvider
 
+	// Build triggered by the IntegrationTest framework.
+	IsIntegrationTest bool
+
 	// ChangesFromBuild for changes passed back to the server/watch process.
 	ChangesFromBuild chan []identity.Identity
 }
