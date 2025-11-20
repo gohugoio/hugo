@@ -140,7 +140,11 @@ func TestAsciiDocDiagrams(t *testing.T) {
 
 			f := files + replacer.Replace(configFileWithPlaceholders)
 
-			tempDir := t.TempDir()
+			tempDir, err := os.MkdirTemp("", "asciidocintegrationtest") // t.TempDir()
+			if err != nil {
+				t.Fatalf("unable to create temp dir: %v", err)
+			}
+			defer os.RemoveAll(tempDir)
 			t.Chdir(tempDir)
 
 			b := hugolib.Test(t, f, hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
@@ -150,7 +154,7 @@ func TestAsciiDocDiagrams(t *testing.T) {
 
 			// Verify that asciidoctor-diagram is caching in the correct
 			// location. Checking one file is sufficient.
-			err := fileExistsOsFs(filepath.Join(diagramCacheDir, "filecache/misc/asciidoctor-diagram/home_en.svg"))
+			err = fileExistsOsFs(filepath.Join(diagramCacheDir, "filecache/misc/asciidoctor-diagram/home_en.svg"))
 			if err != nil {
 				t.Fatalf("unable to locate file in diagram cache: %v", err.Error())
 			}
