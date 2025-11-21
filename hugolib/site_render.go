@@ -21,6 +21,7 @@ import (
 	"sync"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
@@ -87,18 +88,18 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNode) (bool, error) {
+		Handle: func(key string, n contentNode) (radix.WalkFlag, error) {
 			if p, ok := n.(*pageState); ok {
 				if cfg.shouldRender(ctx.infol, p) {
 					select {
 					case <-s.h.Done():
-						return true, nil
+						return radix.WalkStop, nil
 					default:
 						pages <- p
 					}
 				}
 			}
-			return false, nil
+			return radix.WalkContinue, nil
 		},
 	}
 
@@ -270,16 +271,16 @@ func (s *Site) renderPaginator(p *pageState, templ *tplimpl.TemplInfo) error {
 func (s *Site) renderAliases() error {
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNode) (bool, error) {
+		Handle: func(key string, n contentNode) (radix.WalkFlag, error) {
 			p := n.(*pageState)
 
 			// We cannot alias a page that's not rendered.
 			if p.m.noLink() || p.skipRender() {
-				return false, nil
+				return radix.WalkContinue, nil
 			}
 
 			if len(p.Aliases()) == 0 {
-				return false, nil
+				return radix.WalkContinue, nil
 			}
 
 			pathSeen := make(map[string]bool)
@@ -324,11 +325,11 @@ func (s *Site) renderAliases() error {
 
 					err := s.writeDestAlias(a, plink, f, p)
 					if err != nil {
-						return true, err
+						return radix.WalkStop, err
 					}
 				}
 			}
-			return false, nil
+			return radix.WalkContinue, nil
 		},
 	}
 	return w.Walk(context.TODO())

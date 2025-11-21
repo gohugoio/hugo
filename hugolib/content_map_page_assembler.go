@@ -21,11 +21,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/common/maps"
-	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
-	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -36,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/page/pagemeta"
 	"github.com/spf13/cast"
+	"golang.org/x/sync/errgroup"
 )
 
 // Handles the flow of creating all the pages and resources for all sites.
@@ -45,7 +45,7 @@ type allPagesAssembler struct {
 	ctx context.Context
 	h   *HugoSites
 	m   *pageMap
-	r   para.Runner
+	g   errgroup.Group
 
 	assembleChanges            *WhatChanged
 	assembleSectionsInParallel bool
@@ -133,18 +133,17 @@ func (a *allPagesAssembler) createAllPages() error {
 			a.h.previousSeenTerms = a.seenTerms
 		}()
 	}
-	workers := para.New(config.GetNumWorkerMultiplier())
-	a.r, _ = workers.Start(context.Background())
-	if err := cmp.Or(a.doCreatePages(""), a.r.Wait()); err != nil {
+
+	if err := cmp.Or(a.doCreatePages("", 0), a.g.Wait()); err != nil {
 		return err
 	}
-	if err := a.pwRoot.WalkContext.HandleHooks1AndEventsAndHooks2(); err != nil {
+	if err := a.pwRoot.WalkContext.HandleEventsAndHooks(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (a *allPagesAssembler) doCreatePages(prefix string) error {
+func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 	var (
 		sites     = a.h.sitesVersionsRolesMap
 		h         = a.h
@@ -157,7 +156,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 		pw *doctree.NodeShiftTreeWalker[contentNode] // walks pages.
 		rw *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
 
-		isRootWalk = prefix == ""
+		isRootWalk = depth == 0
 	)
 
 	if isRootWalk {
@@ -169,9 +168,6 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 		pw.Prefix = prefix + "/"
 
 		rw = a.rwRoot.Extend() // rw will get its prefix(es) set later.
-
-		pw.TransformDelayInsert = true
-		rw.TransformDelayInsert = true
 
 	}
 
@@ -571,7 +567,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 			}
 
 			// We need to wait until after the walk to have a complete set.
-			pw.WalkContext.HooksPost2().Push(
+			pw.WalkContext.HooksPost().Push(
 				func() error {
 					if i := len(missingVectorsForHomeOrRootSection); i > 0 {
 						// Pick one, the rest will be created later.
@@ -755,7 +751,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 	}
 
 	// Create  missing term pages.
-	pw.WalkContext.HooksPost2().Push(
+	pw.WalkContext.HooksPost().Push(
 		func() error {
 			for k, v := range a.seenTerms.All() {
 				viewTermKey := "/" + k.view.plural + "/" + k.term
@@ -825,13 +821,14 @@ func (a *allPagesAssembler) doCreatePages(prefix string) error {
 		if err := rw.Walk(a.ctx); err != nil {
 			return nil, 0, err
 		}
-
-		if a.assembleSectionsInParallel && prefix == "" && s != "" && cnh.isBranchNode(n) && a.h.getFirstTaxonomyConfig(s).IsZero() {
-			// Handle this branch's descendants in its own goroutine.
+		const maxDepth = 3
+		if a.assembleSectionsInParallel && s != "" && depth < maxDepth && cnh.isBranchNode(n) && a.h.getFirstTaxonomyConfig(s).IsZero() {
+			// Handle this branch in its own goroutine.
 			pw.SkipPrefix(s + "/")
-			a.r.Run(func() error {
-				return a.doCreatePages(s)
+			a.g.Go(func() error {
+				return a.doCreatePages(s, depth+1)
 			})
+
 		}
 
 		return
@@ -860,12 +857,12 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 	sa.s.lastmod = time.Time{}
 	rebuild := sa.s.h.isRebuild()
 
-	pw.Handle = func(keyPage string, n contentNode) (bool, error) {
+	pw.Handle = func(keyPage string, n contentNode) (radix.WalkFlag, error) {
 		pageBundle := n.(*pageState)
 
 		if pageBundle.Kind() == kinds.KindTerm {
 			// Delay this until they're created.
-			return false, nil
+			return radix.WalkContinue, nil
 		}
 
 		if pageBundle.IsPage() {
@@ -878,7 +875,7 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 				oldDates := pageBundle.m.pageConfig.Dates
 
 				// We need to wait until after the walk to determine if any of the dates have changed.
-				pw.WalkContext.HooksPost2().Push(
+				pw.WalkContext.HooksPost().Push(
 					func() error {
 						if oldDates != pageBundle.m.pageConfig.Dates {
 							sa.assembleChanges.Add(pageBundle)
@@ -935,13 +932,13 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 			}
 		}
 
-		rw.Handle = func(resourceKey string, n contentNode) (bool, error) {
+		rw.Handle = func(resourceKey string, n contentNode) (radix.WalkFlag, error) {
 			if isBranch {
 				ownerKey, _ := pw.Tree.LongestPrefix(resourceKey, false, nil)
 				if ownerKey != keyPage {
 					// Stop walking downwards, someone else owns this resource.
 					rw.SkipPrefix(ownerKey + "/")
-					return false, nil
+					return radix.WalkContinue, nil
 				}
 			}
 			switch rs := n.(type) {
@@ -950,16 +947,19 @@ func (sa *sitePagesAssembler) applyAggregates() error {
 				rs.m.resourcePath = relPath
 			}
 
-			return false, nil
+			return radix.WalkContinue, nil
 		}
-		return false, rw.Walk(sa.ctx)
+		if err := rw.Walk(sa.ctx); err != nil {
+			return radix.WalkStop, err
+		}
+		return radix.WalkContinue, nil
 	}
 
 	if err := pw.Walk(sa.ctx); err != nil {
 		return err
 	}
 
-	if err := pw.WalkContext.HandleHooks1AndEventsAndHooks2(); err != nil {
+	if err := pw.WalkContext.HandleEventsAndHooks(); err != nil {
 		return err
 	}
 
@@ -989,12 +989,12 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 			Prefix:      key, // We also want to include the root taxonomy nodes, so no trailing slash.
 			LockType:    doctree.LockTypeRead,
 			WalkContext: walkContext,
-			Handle: func(s string, n contentNode) (bool, error) {
+			Handle: func(s string, n contentNode) (radix.WalkFlag, error) {
 				p := n.(*pageState)
 
 				if p.Kind() != kinds.KindTerm && p.Kind() != kinds.KindTaxonomy {
 					// Already handled.
-					return false, nil
+					return radix.WalkContinue, nil
 				}
 
 				const eventName = "dates"
@@ -1012,7 +1012,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 							return false, nil
 						},
 					); err != nil {
-						return false, err
+						return radix.WalkStop, err
 					}
 				}
 
@@ -1030,7 +1030,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 					})
 				}
 
-				return false, nil
+				return radix.WalkContinue, nil
 			},
 		}
 
@@ -1046,7 +1046,7 @@ func (sa *sitePagesAssembler) applyAggregatesToTaxonomiesAndTerms() error {
 		}
 	}
 
-	if err := walkContext.HandleHooks1AndEventsAndHooks2(); err != nil {
+	if err := walkContext.HandleEventsAndHooks(); err != nil {
 		return err
 	}
 
@@ -1068,11 +1068,11 @@ func (sa *sitePagesAssembler) assembleTerms() error {
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     pages,
 		LockType: lockType,
-		Handle: func(s string, n contentNode) (bool, error) {
+		Handle: func(s string, n contentNode) (radix.WalkFlag, error) {
 			ps := n.(*pageState)
 
 			if ps.m.noLink() {
-				return false, nil
+				return radix.WalkContinue, nil
 			}
 
 			for _, viewName := range views {
@@ -1118,7 +1118,7 @@ func (sa *sitePagesAssembler) assembleTerms() error {
 				}
 			}
 
-			return false, nil
+			return radix.WalkContinue, nil
 		},
 	}
 
@@ -1143,7 +1143,7 @@ func (sa *sitePagesAssembler) assembleResourcesAndSetHome() error {
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     pagesTree,
 		LockType: lockType,
-		Handle: func(s string, n contentNode) (bool, error) {
+		Handle: func(s string, n contentNode) (radix.WalkFlag, error) {
 			ps := n.(*pageState)
 
 			if s == "" {
@@ -1253,7 +1253,7 @@ func (sa *sitePagesAssembler) assembleResourcesAndSetHome() error {
 				},
 			)
 
-			return false, err
+			return radix.WalkContinue, err
 		},
 	}
 

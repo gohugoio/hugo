@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugofs/hglob"
@@ -536,8 +537,11 @@ func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
 		w := &doctree.NodeShiftTreeWalker[contentNode]{
 			Tree:     s.pageMap.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNode) (bool, error) {
-				return fn(s, n.(*pageState)), nil
+			Handle: func(s string, n contentNode) (radix.WalkFlag, error) {
+				if fn(s, n.(*pageState)) {
+					return radix.WalkStop, nil
+				}
+				return radix.WalkContinue, nil
 			},
 		}
 		return w.Walk(context.Background())

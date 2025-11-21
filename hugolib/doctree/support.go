@@ -19,6 +19,7 @@ import (
 	"strings"
 	"sync"
 
+	radix "github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -139,23 +140,27 @@ type MutableTree interface {
 	DeleteRaw(key string)
 	DeletePrefix(prefix string) int
 	DeletePrefixRaw(prefix string) int
-	Lock(writable bool) (commit func())
+	Lock(writable bool)
+	Unlock(writable bool)
 	CanLock() bool // Used for troubleshooting only.
 }
 
 // WalkableTree is a tree that can be walked.
 type WalkableTree[T any] interface {
-	WalkPrefixRaw(prefix string, walker func(key string, value T) bool)
+	WalkPrefixRaw(prefix string, walker radix.WalkFn[T]) error
 }
 
 var _ WalkableTree[any] = (*WalkableTrees[any])(nil)
 
 type WalkableTrees[T any] []WalkableTree[T]
 
-func (t WalkableTrees[T]) WalkPrefixRaw(prefix string, walker func(key string, value T) bool) {
+func (t WalkableTrees[T]) WalkPrefixRaw(prefix string, walker radix.WalkFn[T]) error {
 	for _, tree := range t {
-		tree.WalkPrefixRaw(prefix, walker)
+		if err := tree.WalkPrefixRaw(prefix, walker); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 var _ MutableTree = MutableTrees(nil)
@@ -184,15 +189,15 @@ func (t MutableTrees) DeletePrefixRaw(prefix string) int {
 	return count
 }
 
-func (t MutableTrees) Lock(writable bool) (commit func()) {
-	commits := make([]func(), len(t))
-	for i, tree := range t {
-		commits[i] = tree.Lock(writable)
+func (t MutableTrees) Lock(writable bool) {
+	for _, tree := range t {
+		tree.Lock(writable)
 	}
-	return func() {
-		for _, commit := range commits {
-			commit()
-		}
+}
+
+func (t MutableTrees) Unlock(writable bool) {
+	for _, tree := range t {
+		tree.Unlock(writable)
 	}
 }
 
@@ -218,11 +223,8 @@ type WalkContext[T any] struct {
 	eventMu         sync.Mutex
 	events          []*Event[T]
 
-	hooksPost1Init sync.Once
-	hooksPost1     *collections.Stack[func() error]
-
-	hooksPost2Init sync.Once
-	hooksPost2     *collections.Stack[func() error]
+	hooksPostInit sync.Once
+	hooksPost     *collections.Stack[func() error]
 }
 
 type eventHandlers[T any] map[string][]func(*Event[T])
@@ -259,32 +261,19 @@ func (ctx *WalkContext[T]) HandleEvents() error {
 	return nil
 }
 
-func (ctx *WalkContext[T]) HooksPost1() *collections.Stack[func() error] {
-	ctx.hooksPost1Init.Do(func() {
-		ctx.hooksPost1 = collections.NewStack[func() error]()
+func (ctx *WalkContext[T]) HooksPost() *collections.Stack[func() error] {
+	ctx.hooksPostInit.Do(func() {
+		ctx.hooksPost = collections.NewStack[func() error]()
 	})
-	return ctx.hooksPost1
+	return ctx.hooksPost
 }
 
-func (ctx *WalkContext[T]) HooksPost2() *collections.Stack[func() error] {
-	ctx.hooksPost2Init.Do(func() {
-		ctx.hooksPost2 = collections.NewStack[func() error]()
-	})
-	return ctx.hooksPost2
-}
-
-func (ctx *WalkContext[T]) HandleHooks1AndEventsAndHooks2() error {
-	for _, hook := range ctx.HooksPost1().All() {
-		if err := hook(); err != nil {
-			return err
-		}
-	}
-
+func (ctx *WalkContext[T]) HandleEventsAndHooks() error {
 	if err := ctx.HandleEvents(); err != nil {
 		return err
 	}
 
-	for _, hook := range ctx.HooksPost2().All() {
+	for _, hook := range ctx.HooksPost().All() {
 		if err := hook(); err != nil {
 			return err
 		}

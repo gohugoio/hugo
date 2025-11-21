@@ -30,7 +30,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugofs/hglob"
 
-	radix "github.com/armon/go-radix"
+	radix "github.com/gohugoio/go-radix"
 	"github.com/spf13/afero"
 )
 
@@ -42,17 +42,12 @@ var _ ReverseLookupProvder = (*RootMappingFs)(nil)
 // root mappings with some optional metadata about the root.
 // Note that From represents a virtual root that maps to the actual filename in To.
 func NewRootMappingFs(fs afero.Fs, rms ...*RootMapping) (*RootMappingFs, error) {
-	rootMapToReal := radix.New()
-	realMapToRoot := radix.New()
+	rootMapToReal := radix.New[[]*RootMapping]()
+	realMapToRoot := radix.New[[]*RootMapping]()
 	id := fmt.Sprintf("rfs-%d", rootMappingFsCounter.Add(1))
 
-	addMapping := func(key string, rm *RootMapping, to *radix.Tree) {
-		var mappings []*RootMapping
-		v, found := to.Get(key)
-		if found {
-			// There may be more than one language pointing to the same root.
-			mappings = v.([]*RootMapping)
-		}
+	addMapping := func(key string, rm *RootMapping, to *radix.Tree[[]*RootMapping]) {
+		mappings, _ := to.Get(key)
 		mappings = append(mappings, rm)
 		to.Insert(key, mappings)
 	}
@@ -232,8 +227,8 @@ var _ FilesystemUnwrapper = (*RootMappingFs)(nil)
 type RootMappingFs struct {
 	id string
 	afero.Fs
-	rootMapToReal *radix.Tree
-	realMapToRoot *radix.Tree
+	rootMapToReal *radix.Tree[[]*RootMapping]
+	realMapToRoot *radix.Tree[[]*RootMapping]
 }
 
 var rootMappingFsCounter atomic.Int32
@@ -279,9 +274,8 @@ func (fs *RootMappingFs) UnwrapFilesystem() afero.Fs {
 
 // Filter creates a copy of this filesystem with only mappings matching a filter.
 func (fs RootMappingFs) Filter(f func(m *RootMapping) bool) *RootMappingFs {
-	rootMapToReal := radix.New()
-	fs.rootMapToReal.Walk(func(b string, v any) bool {
-		rms := v.([]*RootMapping)
+	rootMapToReal := radix.New[[]*RootMapping]()
+	var walkFn radix.WalkFn[[]*RootMapping] = func(b string, rms []*RootMapping) (radix.WalkFlag, []*RootMapping, error) {
 		var nrms []*RootMapping
 		for _, rm := range rms {
 			if f(rm) {
@@ -291,8 +285,9 @@ func (fs RootMappingFs) Filter(f func(m *RootMapping) bool) *RootMappingFs {
 		if len(nrms) != 0 {
 			rootMapToReal.Insert(b, nrms)
 		}
-		return false
-	})
+		return radix.WalkContinue, nil, nil
+	}
+	fs.rootMapToReal.Walk(walkFn)
 
 	fs.rootMapToReal = rootMapToReal
 
@@ -385,21 +380,18 @@ func (fs *RootMappingFs) ReverseLookupComponent(component, filename string) ([]C
 
 func (fs *RootMappingFs) hasPrefix(prefix string) bool {
 	hasPrefix := false
-	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v any) bool {
+	var walkFn radix.WalkFn[[]*RootMapping] = func(b string, rms []*RootMapping) (radix.WalkFlag, []*RootMapping, error) {
 		hasPrefix = true
-		return true
-	})
+		return radix.WalkStop, nil, nil
+	}
+	fs.rootMapToReal.WalkPrefix(prefix, walkFn)
 
 	return hasPrefix
 }
 
 func (fs *RootMappingFs) getRoot(key string) []*RootMapping {
-	v, found := fs.rootMapToReal.Get(key)
-	if !found {
-		return nil
-	}
-
-	return v.([]*RootMapping)
+	v, _ := fs.rootMapToReal.Get(key)
+	return v
 }
 
 func (fs *RootMappingFs) getRoots(key string) (string, []*RootMapping) {
@@ -418,7 +410,7 @@ func (fs *RootMappingFs) getRoots(key string) (string, []*RootMapping) {
 			break
 		}
 
-		for _, rm := range vv.([]*RootMapping) {
+		for _, rm := range vv {
 			if !seen[rm] {
 				seen[rm] = true
 				roots = append(roots, rm)
@@ -439,34 +431,33 @@ func (fs *RootMappingFs) getRoots(key string) (string, []*RootMapping) {
 
 func (fs *RootMappingFs) getRootsReverse(key string) (string, []*RootMapping) {
 	tree := fs.realMapToRoot
-	s, v, found := tree.LongestPrefix(key)
-	if !found {
-		return "", nil
-	}
-	return s, v.([]*RootMapping)
+	s, v, _ := tree.LongestPrefix(key)
+	return s, v
 }
 
 func (fs *RootMappingFs) getRootsWithPrefix(prefix string) []*RootMapping {
 	var roots []*RootMapping
-	fs.rootMapToReal.WalkPrefix(prefix, func(b string, v any) bool {
-		roots = append(roots, v.([]*RootMapping)...)
-		return false
-	})
+	var walkFn radix.WalkFn[[]*RootMapping] = func(b string, v []*RootMapping) (radix.WalkFlag, []*RootMapping, error) {
+		roots = append(roots, v...)
+		return radix.WalkContinue, nil, nil
+	}
+	fs.rootMapToReal.WalkPrefix(prefix, walkFn)
 
 	return roots
 }
 
 func (fs *RootMappingFs) getAncestors(prefix string) []keyRootMappings {
 	var roots []keyRootMappings
-	fs.rootMapToReal.WalkPath(prefix, func(s string, v any) bool {
+	var walkFn radix.WalkFn[[]*RootMapping] = func(s string, v []*RootMapping) (radix.WalkFlag, []*RootMapping, error) {
 		if strings.HasPrefix(prefix, s+filepathSeparator) {
 			roots = append(roots, keyRootMappings{
 				key:   s,
-				roots: v.([]*RootMapping),
+				roots: v,
 			})
 		}
-		return false
-	})
+		return radix.WalkContinue, nil, nil
+	}
+	fs.rootMapToReal.WalkPath(prefix, walkFn)
 
 	return roots
 }
@@ -593,7 +584,7 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 
 	// Next add any file mounts inside the given directory.
 	prefixInside := prefix + filepathSeparator
-	rfs.rootMapToReal.WalkPrefix(prefixInside, func(s string, v any) bool {
+	var walkFn radix.WalkFn[[]*RootMapping] = func(s string, rms []*RootMapping) (radix.WalkFlag, []*RootMapping, error) {
 		if (strings.Count(s, filepathSeparator) - level) != 1 {
 			// This directory is not part of the current, but we
 			// need to include the first name part to make it
@@ -603,7 +594,7 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 			name := parts[0]
 
 			if seen[name] {
-				return false
+				return radix.WalkContinue, nil, nil
 			}
 			seen[name] = true
 			opener := func() (afero.File, error) {
@@ -613,10 +604,9 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 			fi := newDirNameOnlyFileInfo(name, nil, opener)
 			fis = append(fis, fi)
 
-			return false
+			return radix.WalkContinue, nil, nil
 		}
 
-		rms := v.([]*RootMapping)
 		for _, rm := range rms {
 			name := filepath.Base(rm.From)
 			if seen[name] {
@@ -630,8 +620,9 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 			fis = append(fis, fi)
 		}
 
-		return false
-	})
+		return radix.WalkContinue, nil, nil
+	}
+	rfs.rootMapToReal.WalkPrefix(prefixInside, walkFn)
 
 	// Finally add any ancestor dirs with files in this directory.
 	ancestors := rfs.getAncestors(prefix)

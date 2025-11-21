@@ -27,6 +27,7 @@ import (
 
 	"github.com/bep/debounce"
 	"github.com/bep/logg"
+	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
@@ -261,9 +262,9 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 		return errors.New("rebuild called when not in watch mode")
 	}
 
-	h.pageTrees.treePagesResources.WalkPrefixRaw("", func(key string, n contentNode) bool {
+	h.pageTrees.treePagesResources.WalkPrefixRaw("", func(key string, n contentNode) (radix.WalkFlag, contentNode, error) {
 		cnh.resetBuildState(n)
-		return false
+		return radix.WalkContinue, nil, nil
 	})
 
 	for _, s := range h.Sites {

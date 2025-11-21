@@ -17,7 +17,7 @@ import (
 	"iter"
 	"sync"
 
-	radix "github.com/armon/go-radix"
+	radix "github.com/gohugoio/go-radix"
 )
 
 // Tree is a non thread safe radix tree that holds T.
@@ -43,28 +43,24 @@ type TreeCommon[T any] interface {
 }
 
 func NewSimpleTree[T any]() *SimpleTree[T] {
-	return &SimpleTree[T]{tree: radix.New()}
+	return &SimpleTree[T]{tree: radix.New[T]()}
 }
 
 // SimpleTree is a radix tree that holds T.
 // This tree is not thread safe.
 type SimpleTree[T any] struct {
-	tree *radix.Tree
+	tree *radix.Tree[T]
 	zero T
 }
 
 func (tree *SimpleTree[T]) Get(s string) T {
-	if v, ok := tree.tree.Get(s); ok {
-		return v.(T)
-	}
-	return tree.zero
+	v, _ := tree.tree.Get(s)
+	return v
 }
 
 func (tree *SimpleTree[T]) LongestPrefix(s string) (string, T) {
-	if s, v, ok := tree.tree.LongestPrefix(s); ok {
-		return s, v.(T)
-	}
-	return "", tree.zero
+	s, v, _ := tree.tree.LongestPrefix(s)
+	return s, v
 }
 
 func (tree *SimpleTree[T]) Insert(s string, v T) T {
@@ -73,85 +69,79 @@ func (tree *SimpleTree[T]) Insert(s string, v T) T {
 }
 
 func (tree *SimpleTree[T]) Walk(f func(s string, v T) (bool, error)) error {
-	var err error
-	tree.tree.Walk(func(s string, v any) bool {
+	var walkFn radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
 		var b bool
-		b, err = f(s, v.(T))
-		if err != nil {
-			return true
+		b, err := f(s, v)
+		if b || err != nil {
+			return radix.WalkStop, tree.zero, err
 		}
-		return b
-	})
-	return err
+		return radix.WalkContinue, tree.zero, nil
+	}
+	return tree.tree.Walk(walkFn)
 }
 
 func (tree *SimpleTree[T]) WalkPrefix(s string, f func(s string, v T) (bool, error)) error {
-	var err error
-	tree.tree.WalkPrefix(s, func(s string, v any) bool {
-		var b bool
-		b, err = f(s, v.(T))
-		if err != nil {
-			return true
+	var walkFn radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
+		b, err := f(s, v)
+		if b || err != nil {
+			return radix.WalkStop, tree.zero, err
 		}
-		return b
-	})
-
-	return err
+		return radix.WalkContinue, tree.zero, nil
+	}
+	return tree.tree.WalkPrefix(s, walkFn)
 }
 
 func (tree *SimpleTree[T]) WalkPath(s string, f func(s string, v T) (bool, error)) error {
 	var err error
-	tree.tree.WalkPath(s, func(s string, v any) bool {
+	var walkFn radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
 		var b bool
-		b, err = f(s, v.(T))
-		if err != nil {
-			return true
+		b, err = f(s, v)
+		if b || err != nil {
+			return radix.WalkStop, tree.zero, err
 		}
-		return b
-	})
+		return radix.WalkContinue, tree.zero, nil
+	}
+	tree.tree.WalkPath(s, walkFn)
 	return err
 }
 
 func (tree *SimpleTree[T]) All() iter.Seq2[string, T] {
 	return func(yield func(s string, v T) bool) {
-		tree.tree.Walk(func(s string, v any) bool {
-			return !yield(s, v.(T))
-		})
+		var walkFn radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
+			if !yield(s, v) {
+				return radix.WalkStop, tree.zero, nil
+			}
+			return radix.WalkContinue, tree.zero, nil
+		}
+		tree.tree.Walk(walkFn)
 	}
 }
 
 // NewSimpleThreadSafeTree creates a new SimpleTree.
 func NewSimpleThreadSafeTree[T any]() *SimpleThreadSafeTree[T] {
-	return &SimpleThreadSafeTree[T]{tree: radix.New(), mu: new(sync.RWMutex)}
+	return &SimpleThreadSafeTree[T]{tree: radix.New[T](), mu: new(sync.RWMutex)}
 }
 
 // SimpleThreadSafeTree is a thread safe radix tree that holds T.
 type SimpleThreadSafeTree[T any] struct {
 	mu   *sync.RWMutex
-	tree *radix.Tree
+	tree *radix.Tree[T]
 	zero T
 }
-
-var noopFunc = func() {}
 
 func (tree *SimpleThreadSafeTree[T]) Get(s string) T {
 	tree.mu.RLock()
 	defer tree.mu.RUnlock()
-
-	if v, ok := tree.tree.Get(s); ok {
-		return v.(T)
-	}
-	return tree.zero
+	v, _ := tree.tree.Get(s)
+	return v
 }
 
 func (tree *SimpleThreadSafeTree[T]) LongestPrefix(s string) (string, T) {
 	tree.mu.RLock()
 	defer tree.mu.RUnlock()
 
-	if s, v, ok := tree.tree.LongestPrefix(s); ok {
-		return s, v.(T)
-	}
-	return "", tree.zero
+	s, v, _ := tree.tree.LongestPrefix(s)
+	return s, v
 }
 
 func (tree *SimpleThreadSafeTree[T]) Insert(s string, v T) T {
@@ -162,60 +152,65 @@ func (tree *SimpleThreadSafeTree[T]) Insert(s string, v T) T {
 	return v
 }
 
-func (tree *SimpleThreadSafeTree[T]) Lock(lockType LockType) func() {
+func (tree *SimpleThreadSafeTree[T]) Lock(lockType LockType) {
 	switch lockType {
-	case LockTypeNone:
-		return noopFunc
 	case LockTypeRead:
 		tree.mu.RLock()
-		return tree.mu.RUnlock
 	case LockTypeWrite:
 		tree.mu.Lock()
-		return tree.mu.Unlock
 	}
-	return noopFunc
+}
+
+func (tree *SimpleThreadSafeTree[T]) Unlock(lockType LockType) {
+	switch lockType {
+	case LockTypeRead:
+		tree.mu.RUnlock()
+	case LockTypeWrite:
+		tree.mu.Unlock()
+	}
 }
 
 func (tree *SimpleThreadSafeTree[T]) WalkPrefix(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
-	commit := tree.Lock(lockType)
-	defer commit()
-	var err error
-	tree.tree.WalkPrefix(s, func(s string, v any) bool {
+	tree.Lock(lockType)
+	defer tree.Unlock(lockType)
+	var walkFn radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
 		var b bool
-		b, err = f(s, v.(T))
-		if err != nil {
-			return true
+		b, err := f(s, v)
+		if b || err != nil {
+			return radix.WalkStop, tree.zero, err
 		}
-		return b
-	})
-
-	return err
+		return radix.WalkContinue, tree.zero, nil
+	}
+	return tree.tree.WalkPrefix(s, walkFn)
 }
 
 func (tree *SimpleThreadSafeTree[T]) WalkPath(lockType LockType, s string, f func(s string, v T) (bool, error)) error {
-	commit := tree.Lock(lockType)
-	defer commit()
+	tree.Lock(lockType)
+	defer tree.Unlock(lockType)
 	var err error
-	tree.tree.WalkPath(s, func(s string, v any) bool {
+	var walkFn radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
 		var b bool
-		b, err = f(s, v.(T))
-		if err != nil {
-			return true
+		b, err = f(s, v)
+		if b || err != nil {
+			return radix.WalkStop, tree.zero, err
 		}
-		return b
-	})
+		return radix.WalkContinue, tree.zero, nil
+	}
+	tree.tree.WalkPath(s, walkFn)
 
 	return err
 }
 
 func (tree *SimpleThreadSafeTree[T]) All(lockType LockType) iter.Seq2[string, T] {
-	commit := tree.Lock(lockType)
-	defer commit()
 	return func(yield func(s string, v T) bool) {
-		tree.tree.Walk(func(s string, v any) bool {
-			return !yield(s, v.(T))
-		})
+		tree.Lock(lockType)
+		defer tree.Unlock(lockType)
+		var walkFn radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
+			if !yield(s, v) {
+				return radix.WalkStop, tree.zero, nil
+			}
+			return radix.WalkContinue, tree.zero, nil
+		}
+		tree.tree.Walk(walkFn)
 	}
 }
-
-// iter.Seq[*TemplWithBaseApplied]

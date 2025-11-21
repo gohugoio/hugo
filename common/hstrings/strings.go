@@ -97,6 +97,16 @@ func GetOrCompileRegexp(pattern string) (re *regexp.Regexp, err error) {
 	return reCache.getOrCompileRegexp(pattern)
 }
 
+// HasAnyPrefix checks if the string s has any of the prefixes given.
+func HasAnyPrefix(s string, prefixes ...string) bool {
+	for _, p := range prefixes {
+		if strings.HasPrefix(s, p) {
+			return true
+		}
+	}
+	return false
+}
+
 // InSlice checks if a string is an element of a slice of strings
 // and returns a boolean value.
 func InSlice(arr []string, el string) bool {

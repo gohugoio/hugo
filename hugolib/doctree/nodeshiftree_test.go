@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	radix "github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -86,7 +87,7 @@ func TestTreeData(t *testing.T) {
 	w := &doctree.NodeShiftTreeWalker[*testValue]{
 		Tree:        tree,
 		WalkContext: ctx,
-		Handle: func(s string, t *testValue) (bool, error) {
+		Handle: func(s string, t *testValue) (radix.WalkFlag, error) {
 			ctx.Data().Insert(s, map[string]any{
 				"id": t.ID,
 			})
@@ -95,7 +96,7 @@ func TestTreeData(t *testing.T) {
 				p, v := ctx.Data().LongestPrefix(path.Dir(s))
 				values = append(values, fmt.Sprintf("%s:%s:%v", s, p, v))
 			}
-			return false, nil
+			return radix.WalkContinue, nil
 		},
 	}
 
@@ -128,7 +129,7 @@ func TestTreeEvents(t *testing.T) {
 		WalkContext: &doctree.WalkContext[*testValue]{},
 	}
 
-	w.Handle = func(s string, t *testValue) (bool, error) {
+	w.Handle = func(s string, t *testValue) (radix.WalkFlag, error) {
 		if t.IsBranch {
 			w.WalkContext.AddEventListener("weight", s, func(e *doctree.Event[*testValue]) {
 				if e.Source.Weight > t.Weight {
@@ -143,11 +144,11 @@ func TestTreeEvents(t *testing.T) {
 			w.WalkContext.SendEvent(&doctree.Event[*testValue]{Source: t, Path: s, Name: "weight"})
 		}
 
-		return false, nil
+		return radix.WalkContinue, nil
 	}
 
 	c.Assert(w.Walk(context.Background()), qt.IsNil)
-	c.Assert(w.WalkContext.HandleHooks1AndEventsAndHooks2(), qt.IsNil)
+	c.Assert(w.WalkContext.HandleEventsAndHooks(), qt.IsNil)
 
 	c.Assert(tree.Get("/a").Weight, eq, 9)
 	c.Assert(tree.Get("/a/s1").Weight, eq, 9)
@@ -197,8 +198,8 @@ func TestTreePara(t *testing.T) {
 	for i := range 8 {
 		r.Run(func() error {
 			a := &testValue{ID: "/a"}
-			lock := tree.Lock(true)
-			defer lock()
+			tree.Lock(true)
+			defer tree.Unlock(true)
 			tree.Insert("/a", a)
 			ab := &testValue{ID: "/a/b"}
 			tree.Insert("/a/b", ab)
@@ -350,8 +351,8 @@ func BenchmarkWalk(b *testing.B) {
 		return tree
 	}
 
-	handle := func(s string, t *testValue) (bool, error) {
-		return false, nil
+	handle := func(s string, t *testValue) (radix.WalkFlag, error) {
+		return radix.WalkContinue, nil
 	}
 
 	for _, numElements := range []int{1000, 10000, 100000} {

@@ -241,8 +241,8 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageSour
 		key := pi.Base()
 		tree := m.treeResources
 
-		commit := tree.Lock(true)
-		defer commit()
+		tree.Lock(true)
+		defer tree.Unlock(true)
 
 		if pi.IsContent() {
 			pm, err := h.newPageMetaSourceFromFile(fi)

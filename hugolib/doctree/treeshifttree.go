@@ -93,8 +93,12 @@ func (t *TreeShiftTreeSlice[T]) Insert(s string, v T) T {
 	return t.tree().Insert(s, v)
 }
 
-func (t *TreeShiftTreeSlice[T]) Lock(lockType LockType) func() {
-	return t.tree().Lock(lockType)
+func (t *TreeShiftTreeSlice[T]) Lock(lockType LockType) {
+	t.tree().Lock(lockType)
+}
+
+func (t *TreeShiftTreeSlice[T]) Unlock(lockType LockType) {
+	t.tree().Unlock(lockType)
 }
 
 func (t *TreeShiftTreeSlice[T]) WalkPrefix(lockType LockType, s string, f func(s string, v T) (bool, error)) error {

@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugolib/doctree"
@@ -167,9 +168,9 @@ func (pt pageTree) Sections() page.Pages {
 		Tree:   tree,
 		Prefix: prefix,
 	}
-	w.Handle = func(ss string, n contentNode) (bool, error) {
+	w.Handle = func(ss string, n contentNode) (radix.WalkFlag, error) {
 		if !cnh.isBranchNode(n) {
-			return false, nil
+			return radix.WalkContinue, nil
 		}
 		if currentBranchPrefix == "" || !strings.HasPrefix(ss, currentBranchPrefix) {
 			if p, ok := n.(*pageState); ok && p.IsSection() && p.m.shouldList(false) && p.Parent() == pt.p {
@@ -179,7 +180,7 @@ func (pt pageTree) Sections() page.Pages {
 			}
 		}
 		currentBranchPrefix = ss + "/"
-		return false, nil
+		return radix.WalkContinue, nil
 	}
 
 	if err := w.Walk(context.Background()); err != nil {

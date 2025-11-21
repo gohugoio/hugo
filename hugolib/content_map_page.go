@@ -24,6 +24,7 @@ import (
 	"sync/atomic"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
@@ -195,16 +196,19 @@ func (t *pageTrees) collectIdentitiesSurroundingIn(key string, maxSamples int, t
 		count := 0
 		prefix := section + "/"
 		level := strings.Count(prefix, "/")
-		tree.WalkPrefixRaw(prefix, func(s string, n contentNode) bool {
+		tree.WalkPrefixRaw(prefix, func(s string, n contentNode) (radix.WalkFlag, contentNode, error) {
 			if level != strings.Count(s, "/") {
-				return false
+				return radix.WalkContinue, nil, nil
 			}
 			cnh.toForEachIdentityProvider(n).ForEeachIdentity(func(id identity.Identity) bool {
 				ids = append(ids, id)
 				return false
 			})
 			count++
-			return count > maxSamples
+			if count > maxSamples {
+				return radix.WalkStop, nil, nil
+			}
+			return radix.WalkContinue, nil, nil
 		})
 	}
 
@@ -212,10 +216,10 @@ func (t *pageTrees) collectIdentitiesSurroundingIn(key string, maxSamples int, t
 }
 
 func (t *pageTrees) DeletePageAndResourcesBelow(ss ...string) {
-	commit1 := t.resourceTrees.Lock(true)
-	defer commit1()
-	commit2 := t.treePages.Lock(true)
-	defer commit2()
+	t.resourceTrees.Lock(true)
+	defer t.resourceTrees.Unlock(true)
+	t.treePages.Lock(true)
+	defer t.treePages.Unlock(true)
 	for _, s := range ss {
 		t.resourceTrees.DeletePrefix(paths.AddTrailingSlash(s))
 		t.treePages.Delete(s)
@@ -287,13 +291,13 @@ func (m *pageMap) forEachPage(include predicate.PR[*pageState], fn func(p *pageS
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     m.treePages,
 		LockType: doctree.LockTypeRead,
-		Handle: func(key string, n contentNode) (bool, error) {
+		Handle: func(key string, n contentNode) (radix.WalkFlag, error) {
 			if p, ok := n.(*pageState); ok && include(p).OK() {
 				if terminate, err := fn(p); terminate || err != nil {
-					return terminate, err
+					return radix.WalkStop, err
 				}
 			}
-			return false, nil
+			return radix.WalkContinue, nil
 		},
 	}
 
@@ -314,13 +318,13 @@ func (m *pageMap) forEeachPageIncludingBundledPages(include predicate.PR[*pageSt
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     m.treeResources,
 		LockType: doctree.LockTypeRead,
-		Handle: func(key string, n contentNode) (bool, error) {
+		Handle: func(key string, n contentNode) (radix.WalkFlag, error) {
 			if p, ok := n.(*pageState); ok && include(p).OK() {
 				if terminate, err := fn(p); terminate || err != nil {
-					return terminate, err
+					return radix.WalkStop, err
 				}
 			}
-			return false, nil
+			return radix.WalkContinue, nil
 		},
 	}
 
@@ -359,12 +363,12 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 			Fallback: true,
 		}
 
-		w.Handle = func(key string, n contentNode) (bool, error) {
+		w.Handle = func(key string, n contentNode) (radix.WalkFlag, error) {
 			if q.Recursive {
 				if p, ok := n.(*pageState); ok && include(p) {
 					pas = append(pas, p)
 				}
-				return false, nil
+				return radix.WalkContinue, nil
 			}
 
 			if p, ok := n.(*pageState); ok && include(p) {
@@ -378,7 +382,7 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 				}
 				otherBranch = currentBranch
 			}
-			return false, nil
+			return radix.WalkContinue, nil
 		}
 
 		err := w.Walk(context.Background())
@@ -537,13 +541,20 @@ func (m *pageMap) forEachResourceInPage(
 		}
 	}
 
-	rwr.Handle = func(resourceKey string, n contentNode) (terminate bool, err error) {
+	rwr.Handle = func(resourceKey string, n contentNode) (radix.WalkFlag, error) {
 		if transform == nil {
 			if ns := shouldSkipOrTerminate(resourceKey); ns >= doctree.NodeTransformStateSkip {
-				return ns == doctree.NodeTransformStateTerminate, nil
+				if ns == doctree.NodeTransformStateTerminate {
+					return radix.WalkStop, nil
+				}
+				return radix.WalkContinue, nil
 			}
 		}
-		return handle(resourceKey, n)
+		b, err := handle(resourceKey, n)
+		if b || err != nil {
+			return radix.WalkStop, err
+		}
+		return radix.WalkContinue, nil
 	}
 
 	return rwr.Walk(context.Background())
@@ -725,12 +736,12 @@ func newPageMap(s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *pageMap
 		w := &doctree.NodeShiftTreeWalker[contentNode]{
 			Tree:     m.treePages,
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNode) (bool, error) {
+			Handle: func(s string, n contentNode) (radix.WalkFlag, error) {
 				p := n.(*pageState)
 				if p.PathInfo() != nil {
 					add(p.PathInfo().BaseNameNoIdentifier(), p)
 				}
-				return false, nil
+				return radix.WalkContinue, nil
 			},
 		}
 
@@ -779,10 +790,10 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 	resourceWalker := pageWalker.Extend()
 	resourceWalker.Tree = m.treeResources
 
-	pageWalker.Handle = func(keyPage string, n contentNode) (bool, error) {
+	pageWalker.Handle = func(keyPage string, n contentNode) (radix.WalkFlag, error) {
 		level := strings.Count(keyPage, "/")
 		if level > maxLevel {
-			return false, nil
+			return radix.WalkContinue, nil
 		}
 		const indentStr = " "
 		p := n.(*pageState)
@@ -805,21 +816,25 @@ func (m *pageMap) debugPrint(prefix string, maxLevel int, w io.Writer) {
 		isBranch := cnh.isBranchNode(n)
 		resourceWalker.Prefix = keyPage + "/"
 
-		resourceWalker.Handle = func(ss string, n contentNode) (bool, error) {
+		resourceWalker.Handle = func(ss string, n contentNode) (radix.WalkFlag, error) {
 			if isBranch {
 				ownerKey, _ := pageWalker.Tree.LongestPrefix(ss, false, nil)
 				if ownerKey != keyPage {
 					// Stop walking downwards, someone else owns this resource.
 					pageWalker.SkipPrefix(ownerKey + "/")
-					return false, nil
+					return radix.WalkContinue, nil
 				}
 			}
 			fmt.Fprint(w, strings.Repeat(indentStr, lenIndent+8))
 			fmt.Fprintln(w, ss+" (resource)")
-			return false, nil
+			return radix.WalkContinue, nil
 		}
 
-		return false, resourceWalker.Walk(context.Background())
+		if err := resourceWalker.Walk(context.Background()); err != nil {
+			return radix.WalkStop, err
+		}
+
+		return radix.WalkContinue, nil
 	}
 
 	err := pageWalker.Walk(context.Background())
@@ -1160,17 +1175,17 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) (page.TaxonomyList, 
 			Tree:     m.treePages,
 			Prefix:   paths.AddTrailingSlash(key),
 			LockType: doctree.LockTypeRead,
-			Handle: func(s string, n contentNode) (bool, error) {
+			Handle: func(s string, n contentNode) (radix.WalkFlag, error) {
 				p := n.(*pageState)
 
 				switch p.Kind() {
 				case kinds.KindTerm:
 					if !p.m.shouldList(true) {
-						return false, nil
+						return radix.WalkContinue, nil
 					}
 					taxonomy := taxonomies[viewName.plural]
 					if taxonomy == nil {
-						return true, fmt.Errorf("missing taxonomy: %s", viewName.plural)
+						return radix.WalkStop, fmt.Errorf("missing taxonomy: %s", viewName.plural)
 					}
 					if p.m.term == "" {
 						panic("term is empty")
@@ -1186,14 +1201,14 @@ func (m *pageMap) CreateSiteTaxonomies(ctx context.Context) (page.TaxonomyList, 
 						},
 					)
 					if err != nil {
-						return true, err
+						return radix.WalkStop, err
 					}
 
 				default:
-					return false, nil
+					return radix.WalkContinue, nil
 				}
 
-				return false, nil
+				return radix.WalkContinue, nil
 			},
 		}
 

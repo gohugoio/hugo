@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hsync"
@@ -928,7 +929,7 @@ func (s *Site) initRenderFormats() {
 
 	w := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNode) (bool, error) {
+		Handle: func(key string, n contentNode) (radix.WalkFlag, error) {
 			if p, ok := n.(*pageState); ok {
 				for _, f := range p.m.pageConfig.ConfiguredOutputFormats {
 					if !formatSet[f.Name] {
@@ -937,7 +938,7 @@ func (s *Site) initRenderFormats() {
 					}
 				}
 			}
-			return false, nil
+			return radix.WalkContinue, nil
 		},
 	}
 

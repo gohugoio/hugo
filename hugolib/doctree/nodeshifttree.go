@@ -17,10 +17,10 @@ import (
 	"context"
 	"fmt"
 	"path"
-	"strings"
 	"sync"
 
-	radix "github.com/armon/go-radix"
+	radix "github.com/gohugoio/go-radix"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -73,7 +73,7 @@ type (
 // Note that multiplied shapes of the same tree is meant to be used concurrently,
 // so use the applicable locking when needed.
 type NodeShiftTree[T any] struct {
-	tree *radix.Tree
+	tree *radix.Tree[T]
 
 	// [language, version, role].
 	siteVector     sitesmatrix.Vector
@@ -93,7 +93,7 @@ func New[T any](cfg Config[T]) *NodeShiftTree[T] {
 
 		shifter:        cfg.Shifter,
 		transformerRaw: cfg.TransformerRaw,
-		tree:           radix.New(),
+		tree:           radix.New[T](),
 	}
 }
 
@@ -118,7 +118,7 @@ func (r *NodeShiftTree[T]) DeleteFuncRaw(key string, f func(T) bool) (T, int) {
 		return lastDeleted, count
 	}
 
-	isEmpty := r.shifter.DeleteFunc(v.(T), func(n T) bool {
+	isEmpty := r.shifter.DeleteFunc(v, func(n T) bool {
 		if f(n) {
 			count++
 			lastDeleted = n
@@ -143,10 +143,12 @@ func (r *NodeShiftTree[T]) DeleteRaw(key string) {
 func (r *NodeShiftTree[T]) DeletePrefix(prefix string) int {
 	count := 0
 	var keys []string
-	r.tree.WalkPrefix(prefix, func(key string, value any) bool {
+	var zero T
+	var walkFn radix.WalkFn[T] = func(key string, value T) (radix.WalkFlag, T, error) {
 		keys = append(keys, key)
-		return false
-	})
+		return radix.WalkContinue, zero, nil
+	}
+	r.tree.WalkPrefix(prefix, walkFn)
 	for _, key := range keys {
 		if _, ok := r.delete(key); ok {
 			count++
@@ -160,7 +162,7 @@ func (r *NodeShiftTree[T]) delete(key string) (T, bool) {
 	var deleted T
 	if v, ok := r.tree.Get(key); ok {
 		var isEmpty bool
-		deleted, wasDeleted, isEmpty = r.shifter.Delete(v.(T), r.siteVector)
+		deleted, wasDeleted, isEmpty = r.shifter.Delete(v, r.siteVector)
 		if isEmpty {
 			r.tree.Delete(key)
 		}
@@ -170,14 +172,15 @@ func (r *NodeShiftTree[T]) delete(key string) (T, bool) {
 
 func (t *NodeShiftTree[T]) DeletePrefixRaw(prefix string) int {
 	count := 0
-
-	t.tree.WalkPrefix(prefix, func(key string, value any) bool {
+	var zero T
+	var walkFn radix.WalkFn[T] = func(key string, value T) (radix.WalkFlag, T, error) {
 		if v, ok := t.tree.Delete(key); ok {
 			resource.MarkStale(v)
 			count++
 		}
-		return false
-	})
+		return radix.WalkContinue, zero, nil
+	}
+	t.tree.WalkPrefix(prefix, walkFn)
 
 	return count
 }
@@ -192,27 +195,23 @@ func (r *NodeShiftTree[T]) Insert(s string, v T) (T, T, bool) {
 		existing T
 	)
 	if vv, ok := r.tree.Get(s); ok {
-		v, existing, updated = r.shifter.Insert(vv.(T), v)
+		v, existing, updated = r.shifter.Insert(vv, v)
 	}
 	r.insert(s, v)
 	return v, existing, updated
 }
 
-func (r *NodeShiftTree[T]) insert(s string, v any) (any, bool) {
-	if v == nil {
-		panic("nil value")
-	}
+func (r *NodeShiftTree[T]) insert(s string, v T) (T, bool) {
 	n, updated := r.tree.Insert(s, v)
-
 	return n, updated
 }
 
 // InsertRaw inserts v into the tree at the given key without any shifting or transformation.
-func (r *NodeShiftTree[T]) InsertRaw(s string, v any) (any, bool) {
+func (r *NodeShiftTree[T]) InsertRaw(s string, v T) (T, bool) {
 	return r.insert(s, v)
 }
 
-func (r *NodeShiftTree[T]) InsertRawWithLock(s string, v any) (any, bool) {
+func (r *NodeShiftTree[T]) InsertRawWithLock(s string, v T) (T, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.insert(s, v)
@@ -237,19 +236,23 @@ func (t *NodeShiftTree[T]) CanLock() bool {
 	return ok
 }
 
-// Lock locks the data store for read or read/write access until commit is invoked.
+// Lock locks the data store for read or read/write access.
 // Note that NodeShiftTree is not thread-safe outside of this transaction construct.
-func (t *NodeShiftTree[T]) Lock(writable bool) (commit func()) {
+func (t *NodeShiftTree[T]) Lock(writable bool) {
 	if writable {
 		t.mu.Lock()
 	} else {
 		t.mu.RLock()
 	}
+}
 
+// Unlock unlocks the data store.
+func (t *NodeShiftTree[T]) Unlock(writable bool) {
 	if writable {
-		return t.mu.Unlock
+		t.mu.Unlock()
+	} else {
+		t.mu.RUnlock()
 	}
-	return t.mu.RUnlock
 }
 
 // LongestPrefix finds the longest prefix of s that exists in the tree that also matches the predicate (if set).
@@ -259,7 +262,7 @@ func (r *NodeShiftTree[T]) LongestPrefix(s string, fallback bool, predicate func
 		longestPrefix, v, found := r.tree.LongestPrefix(s)
 
 		if found {
-			if v, ok := r.shift(v.(T), fallback); ok && (predicate == nil || predicate(v)) {
+			if v, ok := r.shift(v, fallback); ok && (predicate == nil || predicate(v)) {
 				return longestPrefix, v
 			}
 		}
@@ -282,7 +285,7 @@ func (r *NodeShiftTree[T]) LongestPrefiValueRaw(s string) (string, T) {
 		var t T
 		return s, t
 	}
-	return s, v.(T)
+	return s, v
 }
 
 // LongestPrefixRaw returns the longest prefix considering all dimensions.
@@ -298,7 +301,7 @@ func (r *NodeShiftTree[T]) GetRaw(s string) (T, bool) {
 		var t T
 		return t, false
 	}
-	return v.(T), true
+	return v, true
 }
 
 // AppendRaw appends ts to the node at the given key without any shifting or transformation.
@@ -315,11 +318,8 @@ func (r *NodeShiftTree[T]) AppendRaw(s string, ts ...T) (T, bool) {
 }
 
 // WalkPrefixRaw walks all nodes with the given prefix in the tree without any shifting or transformation.
-func (r *NodeShiftTree[T]) WalkPrefixRaw(prefix string, walker func(key string, value T) bool) {
-	walker2 := func(key string, value any) bool {
-		return walker(key, value.(T))
-	}
-	r.tree.WalkPrefix(prefix, walker2)
+func (r *NodeShiftTree[T]) WalkPrefixRaw(prefix string, fn radix.WalkFn[T]) error {
+	return r.tree.WalkPrefix(prefix, fn)
 }
 
 // Shape returns a new NodeShiftTree shaped to the given dimension.
@@ -344,7 +344,7 @@ func (r *NodeShiftTree[T]) ForEeachInDimension(s string, dims sitesmatrix.Vector
 	if !ok {
 		return
 	}
-	r.shifter.ForEeachInDimension(v.(T), dims, d, f)
+	r.shifter.ForEeachInDimension(v, dims, d, f)
 }
 
 func (r *NodeShiftTree[T]) ForEeachInAllDimensions(s string, f func(T) bool) {
@@ -353,7 +353,7 @@ func (r *NodeShiftTree[T]) ForEeachInAllDimensions(s string, f func(T) bool) {
 	if !ok {
 		return
 	}
-	r.shifter.ForEeachInAllDimensions(v.(T), f)
+	r.shifter.ForEeachInAllDimensions(v, f)
 }
 
 type WalkFunc[T any] func(string, T) (bool, error)
@@ -375,19 +375,11 @@ type NodeShiftTreeWalker[T any] struct {
 	Tree *NodeShiftTree[T]
 
 	// Transform will be called for each node in the main tree.
-	// v2 will replace v1 in the tree.
-	// The first bool indicates if the value was replaced and needs to be re-inserted into the tree.
-	// the second bool indicates if the walk should skip this node.
-	// the third bool indicates if the walk should terminate.
+	// v2 will replace v1 in the tree if state returned is NodeTransformStateReplaced.
 	Transform func(s string, v1 T) (v2 T, state NodeTransformState, err error)
 
-	// When set, will add inserts to WalkContext.HooksPost1 to be performed after the walk.
-	TransformDelayInsert bool
-
 	// Handle will be called for each node in the main tree.
-	// If the callback returns true, the walk will stop.
-	// The callback can optionally return a callback for the nested tree.
-	Handle func(s string, v T) (terminate bool, err error)
+	Handle func(s string, v T) (f radix.WalkFlag, err error)
 
 	// Optional prefix filter.
 	Prefix string
@@ -431,18 +423,17 @@ type NodeShiftTreeWalker[T any] struct {
 // Any local state is reset.
 func (r *NodeShiftTreeWalker[T]) Extend() *NodeShiftTreeWalker[T] {
 	return &NodeShiftTreeWalker[T]{
-		Tree:                 r.Tree,
-		Transform:            r.Transform,
-		TransformDelayInsert: r.TransformDelayInsert,
-		Handle:               r.Handle,
-		Prefix:               r.Prefix,
-		IncludeFilter:        r.IncludeFilter,
-		IncludeRawFilter:     r.IncludeRawFilter,
-		LockType:             r.LockType,
-		NoShift:              r.NoShift,
-		Fallback:             r.Fallback,
-		Debug:                r.Debug,
-		WalkContext:          r.WalkContext,
+		Tree:             r.Tree,
+		Transform:        r.Transform,
+		Handle:           r.Handle,
+		Prefix:           r.Prefix,
+		IncludeFilter:    r.IncludeFilter,
+		IncludeRawFilter: r.IncludeRawFilter,
+		LockType:         r.LockType,
+		NoShift:          r.NoShift,
+		Fallback:         r.Fallback,
+		Debug:            r.Debug,
+		WalkContext:      r.WalkContext,
 	}
 }
 
@@ -458,13 +449,12 @@ func (r *NodeShiftTreeWalker[T]) SkipPrefix(prefix ...string) {
 	r.skipPrefixes = append(r.skipPrefixes, prefix...)
 }
 
-// ShouldSkip returns whether the given key should be skipped in the walk.
-func (r *NodeShiftTreeWalker[T]) ShouldSkip(s string, v T) bool {
-	for _, prefix := range r.skipPrefixes {
-		if strings.HasPrefix(s, prefix) {
-			return true
-		}
-	}
+func (r *NodeShiftTreeWalker[T]) ShouldSkipKey(s string) bool {
+	return hstrings.HasAnyPrefix(s, r.skipPrefixes...)
+}
+
+// ShouldSkip returns whether the given value should be skipped in the walk.
+func (r *NodeShiftTreeWalker[T]) ShouldSkipValue(s string, v T) bool {
 	if r.IncludeRawFilter != nil {
 		if !r.IncludeRawFilter(s, v) {
 			return true
@@ -473,106 +463,148 @@ func (r *NodeShiftTreeWalker[T]) ShouldSkip(s string, v T) bool {
 	return false
 }
 
-func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
-	if r.Tree == nil {
-		panic("Tree is required")
-	}
+type walkHandler[T any] struct {
+	r      *NodeShiftTreeWalker[T]
+	handle func(s string, v T) (radix.WalkFlag, T, error)
+}
 
+func (h *walkHandler[T]) Check(s string) (radix.WalkFlag, error) {
+	if h.r == nil {
+		return radix.WalkContinue, nil
+	}
+	if h.r.ShouldSkipKey(s) {
+		return radix.WalkSkip, nil
+	}
+	return radix.WalkContinue, nil
+}
+
+func (h *walkHandler[T]) Handle(s string, v T) (radix.WalkFlag, T, error) {
+	if h.handle == nil {
+		return radix.WalkContinue, v, nil
+	}
+	return h.handle(s, v)
+}
+
+func (r *NodeShiftTreeWalker[T]) lock() {
+	switch r.LockType {
+	case LockTypeRead:
+		r.Tree.mu.RLock()
+	case LockTypeWrite:
+		r.Tree.mu.Lock()
+	default:
+		// No lock
+	}
+}
+
+func (r *NodeShiftTreeWalker[T]) unlock() {
+	switch r.LockType {
+	case LockTypeRead:
+		r.Tree.mu.RUnlock()
+	case LockTypeWrite:
+		r.Tree.mu.Unlock()
+	default:
+		// No lock
+	}
+}
+
+func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 	var deletes []string
 
-	handleT := func(s string, t T) (ns NodeTransformState, err error) {
-		if r.IncludeFilter != nil && !r.IncludeFilter(s, t) {
-			return
-		}
-		if r.Transform != nil {
-			if !r.NoShift {
-				panic("Transform must be performed with NoShift=true")
-			}
-			if ns, err = func() (ns NodeTransformState, err error) {
-				t, ns, err = r.Transform(s, t)
-				if ns >= NodeTransformStateSkip || err != nil {
-					return
-				}
-
-				switch ns {
-				case NodeTransformStateReplaced:
-					// Delay insert until after the walk to
-					// avoid locking issues.
-					if r.TransformDelayInsert {
-						r.WalkContext.HooksPost1().Push(
-							func() error {
-								r.Tree.InsertRaw(s, t)
-								return nil
-							},
-						)
-					} else {
-						r.Tree.InsertRaw(s, t)
-					}
-				case NodeTransformStateDeleted:
-					// Delay delete until after the walk.
-					deletes = append(deletes, s)
-					ns = NodeTransformStateSkip
-				}
-				return
-			}(); ns >= NodeTransformStateSkip || err != nil {
-				return
-			}
-		}
-
-		if r.Handle != nil {
-			var terminate bool
-			terminate, err = r.Handle(s, t)
-			if terminate || err != nil {
-				return
-			}
-		}
-
-		return
-	}
-
 	return func() error {
-		if r.LockType > LockTypeNone {
-			unlock := r.Tree.Lock(r.LockType == LockTypeWrite)
-			defer unlock()
-		}
+		r.lock()
+		defer r.unlock()
 
 		r.resetLocalState()
 
 		main := r.Tree
 
-		var err error
-
-		handleV := func(s string, v any) (terminate bool) {
+		var handleV radix.WalkFn[T] = func(s string, v T) (radix.WalkFlag, T, error) {
+			var zero T
 			// Context cancellation check.
 			if ctx != nil && ctx.Err() != nil {
-				err = ctx.Err()
-				return true
+				return radix.WalkStop, zero, ctx.Err()
 			}
-			if r.ShouldSkip(s, v.(T)) {
-				return false
+			if r.ShouldSkipValue(s, v) {
+				return radix.WalkContinue, zero, nil
 			}
 			var t T
 			if r.NoShift {
-				t = v.(T)
+				t = v
 			} else {
 				var ok bool
 				t, ok = r.toT(r.Tree, v)
 				if !ok {
-					return false
+					return radix.WalkContinue, zero, nil
 				}
 			}
-			var ns NodeTransformState
-			ns, err = handleT(s, t)
-			if ns == NodeTransformStateTerminate || err != nil {
-				return true
+			var (
+				ns NodeTransformState
+				t2 T
+			)
+			if r.IncludeFilter != nil && !r.IncludeFilter(s, t) {
+				return radix.WalkContinue, zero, nil
 			}
-			return false
+			if r.Transform != nil {
+				if !r.NoShift {
+					panic("Transform must be performed with NoShift=true")
+				}
+				var err error
+				ns, err = func() (ns NodeTransformState, err error) {
+					t2, ns, err = r.Transform(s, t)
+					if ns >= NodeTransformStateSkip || err != nil {
+						return
+					}
+					switch ns {
+					case NodeTransformStateReplaced:
+					case NodeTransformStateDeleted:
+						// Delay delete until after the walk.
+						deletes = append(deletes, s)
+						ns = NodeTransformStateSkip
+					}
+					return
+				}()
+
+				if ns == NodeTransformStateTerminate || err != nil {
+					return radix.WalkStop, zero, err
+				}
+
+				if ns == NodeTransformStateSkip {
+					return radix.WalkContinue, zero, nil
+				}
+
+			}
+
+			if r.Handle != nil {
+				f, err := r.Handle(s, t)
+				if f.ShouldSet() {
+					panic("Handle cannot replace nodes in the tree, use Transform for that")
+				}
+				if f.ShouldStop() || err != nil {
+					return f, zero, err
+				}
+			}
+			if ns == NodeTransformStateTerminate {
+				return radix.WalkStop, zero, nil
+			}
+			if ns == NodeTransformStateReplaced {
+				return radix.WalkSet | radix.WalkContinue, t2, nil
+			}
+			return radix.WalkContinue, zero, nil
+		}
+
+		handle := &walkHandler[T]{
+			r:      r,
+			handle: handleV,
 		}
 
 		if r.Prefix != "" {
-			main.tree.WalkPrefix(r.Prefix, handleV)
+			if err := main.tree.WalkPrefix(r.Prefix, handle); err != nil {
+				return err
+			}
 		} else {
-			main.tree.Walk(handleV)
+			if err := main.tree.Walk(handle); err != nil {
+				return err
+			}
 		}
 
 		// This is currently only performed with no shift.
@@ -580,7 +612,7 @@ func (r *NodeShiftTreeWalker[T]) Walk(ctx context.Context) error {
 			main.tree.Delete(s)
 		}
 
-		return err
+		return nil
 	}()
 }
 
@@ -588,8 +620,8 @@ func (r *NodeShiftTreeWalker[T]) resetLocalState() {
 	r.skipPrefixes = nil
 }
 
-func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v any) (T, bool) {
-	return tree.shift(v.(T), r.Fallback)
+func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v T) (T, bool) {
+	return tree.shift(v, r.Fallback)
 }
 
 func (r *NodeShiftTree[T]) Has(s string) bool {
@@ -613,7 +645,7 @@ func (r *NodeShiftTree[T]) get(s string) (T, bool) {
 		var t T
 		return t, false
 	}
-	if v, ok := r.shift(v.(T), false); ok {
+	if v, ok := r.shift(v, false); ok {
 		return v, true
 	}
 

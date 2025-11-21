@@ -269,14 +269,13 @@ func (ti *TemplInfo) SubCategory() SubCategory {
 
 func (ti *TemplInfo) BaseVariantsSeq() iter.Seq[*TemplWithBaseApplied] {
 	return func(yield func(*TemplWithBaseApplied) bool) {
-		ti.baseVariants.Walk(func(key string, v map[TemplateDescriptor]*TemplWithBaseApplied) (bool, error) {
+		for _, v := range ti.baseVariants.All() {
 			for _, vv := range v {
 				if !yield(vv) {
-					return true, nil
+					return
 				}
 			}
-			return false, nil
-		})
+		}
 	}
 }
 

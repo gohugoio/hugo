@@ -202,63 +202,6 @@ func (t *templateNamespace) templatesIn(in tpl.Template) iter.Seq[tpl.Template] 
 	}
 }
 
-/*
-
-
-func (t *templateHandler) applyBaseTemplate(overlay, base templateInfo) (tpl.Template, error) {
-	if overlay.isText {
-		var (
-			templ = t.main.getPrototypeText(prototypeCloneIDBaseof).New(overlay.name)
-			err   error
-		)
-
-		if !base.IsZero() {
-			templ, err = templ.Parse(base.template)
-			if err != nil {
-				return nil, base.errWithFileContext("text: base: parse failed", err)
-			}
-		}
-
-		templ, err = texttemplate.Must(templ.Clone()).Parse(overlay.template)
-		if err != nil {
-			return nil, overlay.errWithFileContext("text: overlay: parse failed", err)
-		}
-
-		// The extra lookup is a workaround, see
-		// * https://github.com/golang/go/issues/16101
-		// * https://github.com/gohugoio/hugo/issues/2549
-		// templ = templ.Lookup(templ.Name())
-
-		return templ, nil
-	}
-
-	var (
-		templ = t.main.getPrototypeHTML(prototypeCloneIDBaseof).New(overlay.name)
-		err   error
-	)
-
-	if !base.IsZero() {
-		templ, err = templ.Parse(base.template)
-		if err != nil {
-			return nil, base.errWithFileContext("html: base: parse failed", err)
-		}
-	}
-
-	templ, err = htmltemplate.Must(templ.Clone()).Parse(overlay.template)
-	if err != nil {
-		return nil, overlay.errWithFileContext("html: overlay: parse failed", err)
-	}
-
-	// The extra lookup is a workaround, see
-	// * https://github.com/golang/go/issues/16101
-	// * https://github.com/gohugoio/hugo/issues/2549
-	templ = templ.Lookup(templ.Name())
-
-	return templ, err
-}
-
-*/
-
 var baseTemplateDefineRe = regexp.MustCompile(`^{{-?\s*define`)
 
 // needsBaseTemplate returns true if the first non-comment template block is a
