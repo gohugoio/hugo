@@ -78,7 +78,7 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 
 	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
 
-	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
+	dst.Translate = tp.getTranslateFunc(dst)
 
 	return nil
 }
@@ -128,8 +128,23 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 
 // CloneResource sets the language func for the new language.
 func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
-	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
+	dst.Translate = tp.getTranslateFunc(dst)
 	return nil
+}
+
+// getTranslateFunc returns the translation function for the given site context.
+// If languageCode is set, it uses languageCode for translation file lookup;
+// otherwise fallback to default behavior.
+func (tp *TranslationProvider) getTranslateFunc(dst *deps.Deps) func(ctx context.Context, translationID string, templateData any) string {
+	lang := dst.Conf.Language().(*langs.Language)
+	langKey := lang.Lang
+	languageCode := strings.ToLower(lang.LanguageCode())
+
+	// Use languageCode if set and different from Lang
+	if languageCode != "" && languageCode != strings.ToLower(langKey) {
+		langKey = languageCode
+	}
+	return tp.t.Func(langKey)
 }
 
 func errWithFileContext(inerr error, r *source.File) error {
