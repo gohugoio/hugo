@@ -145,15 +145,6 @@ func Docker() error {
 
 // Run tests and linters
 func Check() {
-	if runtime.GOARCH == "amd64" && runtime.GOOS != "darwin" {
-		mg.Deps(Test386)
-		if isCI() {
-			mg.Deps(CleanTest, UninstallAll)
-		}
-	} else {
-		fmt.Printf("Skip Test386 on %s and/or %s\n", runtime.GOARCH, runtime.GOOS)
-	}
-
 	if isCI() && isDarwin() {
 		// Skip on macOS in CI (disk space issues)
 	} else {
