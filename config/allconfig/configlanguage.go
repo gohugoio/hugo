@@ -135,6 +135,10 @@ func (c ConfigLanguage) WorkingDir() string {
 	return c.m.Base.WorkingDir
 }
 
+func (c ConfigLanguage) CacheDirMisc() string {
+	return c.config.Caches.CacheDirMisc()
+}
+
 func (c ConfigLanguage) Quiet() bool {
 	return c.m.Base.Internal.Quiet
 }

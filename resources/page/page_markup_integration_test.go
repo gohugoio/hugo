@@ -297,10 +297,10 @@ Summary Truncated: {{ .Truncated }}|
 	)
 }
 
-func TestPageMarkupWithoutSummaryAsciidoc(t *testing.T) {
+func TestPageMarkupWithoutSummaryAsciiDoc(t *testing.T) {
 	t.Parallel()
-	if !asciidocext.Supports() {
-		t.Skip("Skip asiidoc test as not supported")
+	if ok, err := asciidocext.Supports(); !ok {
+		t.Skip(err)
 	}
 
 	files := `
