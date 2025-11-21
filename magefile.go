@@ -61,6 +61,11 @@ func Uninstall() error {
 	return sh.Run(goexe, "clean", "-i", packageName)
 }
 
+// Uninstall all installed binaries (including test binaries)
+func UninstallAll() error {
+	return sh.Run(goexe, "clean", "-i", "./...")
+}
+
 func flagEnv() map[string]string {
 	hash, _ := sh.Output("git", "rev-parse", "--short", "HEAD")
 	return map[string]string{
@@ -143,7 +148,7 @@ func Check() {
 	if runtime.GOARCH == "amd64" && runtime.GOOS != "darwin" {
 		mg.Deps(Test386)
 		if isCI() {
-			mg.Deps(CleanTest)
+			mg.Deps(CleanTest, UninstallAll)
 		}
 	} else {
 		fmt.Printf("Skip Test386 on %s and/or %s\n", runtime.GOARCH, runtime.GOOS)
@@ -159,7 +164,7 @@ func Check() {
 	// causes memory issues in CI.
 	mg.Deps(TestRace)
 	if isCI() {
-		mg.Deps(CleanTest)
+		mg.Deps(CleanTest, UninstallAll)
 	}
 }
 
