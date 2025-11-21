@@ -501,6 +501,168 @@ func TestI18nTranslate(t *testing.T) {
 	}
 }
 
+// TestI18nLanguageCode: when languageCode is set, use it for translation file lookup.
+func TestI18nLanguageCode(t *testing.T) {
+	c := qt.New(t)
+
+	afs := afero.NewMemMapFs()
+
+	// Create only pt-br.toml (no pt.toml)
+	err := afero.WriteFile(afs, filepath.Join("i18n", "pt-br.toml"), []byte("hello = \"Olá\""), 0o755)
+	c.Assert(err, qt.IsNil)
+
+	// Set up config with pt language and languageCode pt-BR
+	cfg := config.New()
+	cfg.Set("defaultContentLanguage", "pt")
+	cfg.Set("languages", map[string]any{
+		"pt": map[string]any{
+			"languageCode": "pt-BR",
+		},
+	})
+
+	d, _ := prepareDeps(afs, cfg)
+
+	ctx := context.Background()
+	actual := d.Translate(ctx, "hello", nil)
+
+	c.Assert(actual, qt.Equals, "Olá", qt.Commentf("Expected translation from pt-br.toml when languageCode is pt-BR"))
+}
+
+// TestI18nLanguageCodePreference: when both Lang.toml and languageCode.toml exist, prefer languageCode.
+func TestI18nLanguageCodePreference(t *testing.T) {
+	c := qt.New(t)
+
+	afs := afero.NewMemMapFs()
+
+	// Create both pt.toml and pt-br.toml with different values
+	err := afero.WriteFile(afs, filepath.Join("i18n", "pt.toml"), []byte("hello = \"Olá (PT)\""), 0o755)
+	c.Assert(err, qt.IsNil)
+	err = afero.WriteFile(afs, filepath.Join("i18n", "pt-br.toml"), []byte("hello = \"Olá (PT-BR)\""), 0o755)
+	c.Assert(err, qt.IsNil)
+
+	// Set up config with pt language and languageCode pt-BR
+	cfg := config.New()
+	cfg.Set("defaultContentLanguage", "pt")
+	cfg.Set("languages", map[string]any{
+		"pt": map[string]any{
+			"languageCode": "pt-BR",
+		},
+	})
+
+	d, _ := prepareDeps(afs, cfg)
+
+	// Should use pt-br.toml (languageCode) not pt.toml (Lang)
+	ctx := context.Background()
+	actual := d.Translate(ctx, "hello", nil)
+
+	c.Assert(actual, qt.Equals, "Olá (PT-BR)", qt.Commentf("Expected translation from pt-br.toml when both pt.toml and pt-br.toml exist"))
+}
+
+// TestI18nLanguageCodeEqualsLang: when languageCode equals Lang (case-insensitive), use Lang file.
+func TestI18nLanguageCodeEqualsLang(t *testing.T) {
+	c := qt.New(t)
+
+	afs := afero.NewMemMapFs()
+
+	err := afero.WriteFile(afs, filepath.Join("i18n", "pt.toml"), []byte("hello = \"Olá (PT)\""), 0o755)
+	c.Assert(err, qt.IsNil)
+	err = afero.WriteFile(afs, filepath.Join("i18n", "pt-br.toml"), []byte("hello = \"Olá\""), 0o755)
+	c.Assert(err, qt.IsNil)
+
+	// Set up config with pt-br language and languageCode pt-BR (same as Lang)
+	cfg := config.New()
+	cfg.Set("defaultContentLanguage", "pt-br")
+	cfg.Set("languages", map[string]any{
+		"pt-br": map[string]any{
+			"languageCode": "pt-BR", // Same as Lang
+		},
+	})
+
+	d, _ := prepareDeps(afs, cfg)
+
+	// Should use pt-br.toml (Lang) since languageCode equals Lang
+	ctx := context.Background()
+	actual := d.Translate(ctx, "hello", nil)
+
+	c.Assert(actual, qt.Equals, "Olá", qt.Commentf("Expected translation from pt-br.toml when languageCode equals Lang"))
+}
+
+// TestI18nLanguageCodeFallback: when languageCode file doesn't exist, should fall back to default language.
+func TestI18nLanguageCodeFallback(t *testing.T) {
+	c := qt.New(t)
+
+	afs := afero.NewMemMapFs()
+
+	// Create only en.toml (default language), no pt-br.toml
+	err := afero.WriteFile(afs, filepath.Join("i18n", "en.toml"), []byte("hello = \"Hello\""), 0o755)
+	c.Assert(err, qt.IsNil)
+
+	// Set up config with pt language and languageCode pt-BR, but default is en
+	// Note: defaultContentLanguage must be in the languages map
+	cfg := config.New()
+	cfg.Set("defaultContentLanguage", "en")
+	cfg.Set("languages", map[string]any{
+		"en": map[string]any{}, // Default language must be in languages map
+		"pt": map[string]any{
+			"languageCode": "pt-BR",
+		},
+	})
+
+	d, _ := prepareDeps(afs, cfg)
+
+	// Should fall back to default language (en) since pt-br.toml doesn't exist
+	ctx := context.Background()
+	actual := d.Translate(ctx, "hello", nil)
+
+	c.Assert(actual, qt.Equals, "Hello", qt.Commentf("Expected fallback to default language (en) when pt-br.toml doesn't exist"))
+}
+
+// TestI18nLanguageCodeMultipleLanguages: test multiple languages with different languageCode settings.
+func TestI18nLanguageCodeMultipleLanguages(t *testing.T) {
+	c := qt.New(t)
+
+	afs := afero.NewMemMapFs()
+
+	// Create translation files for different language codes
+	err := afero.WriteFile(afs, filepath.Join("i18n", "en.toml"), []byte("hello = \"Hello\""), 0o755)
+	c.Assert(err, qt.IsNil)
+	err = afero.WriteFile(afs, filepath.Join("i18n", "en-us.toml"), []byte("hello = \"Hello (US)\""), 0o755)
+	c.Assert(err, qt.IsNil)
+	err = afero.WriteFile(afs, filepath.Join("i18n", "zh-cn.toml"), []byte("hello = \"你好\""), 0o755)
+	c.Assert(err, qt.IsNil)
+
+	// Set up config with multiple languages
+	cfg := config.New()
+	cfg.Set("defaultContentLanguage", "en")
+	cfg.Set("languages", map[string]any{
+		"en": map[string]any{
+			"languageCode": "en-US",
+		},
+		"zh": map[string]any{
+			"languageCode": "zh-CN",
+		},
+	})
+
+	// Test English with languageCode en-US
+	dEn, _ := prepareDeps(afs, cfg)
+	ctx := context.Background()
+	actualEn := dEn.Translate(ctx, "hello", nil)
+	c.Assert(actualEn, qt.Equals, "Hello (US)", qt.Commentf("Expected translation from en-us.toml"))
+
+	// Test Chinese with languageCode zh-CN
+	// We need to create a new Deps for zh language
+	cfgZh := config.New()
+	cfgZh.Set("defaultContentLanguage", "zh")
+	cfgZh.Set("languages", map[string]any{
+		"zh": map[string]any{
+			"languageCode": "zh-CN",
+		},
+	})
+	dZh, _ := prepareDeps(afs, cfgZh)
+	actualZh := dZh.Translate(ctx, "hello", nil)
+	c.Assert(actualZh, qt.Equals, "你好", qt.Commentf("Expected translation from zh-cn.toml"))
+}
+
 func BenchmarkI18nTranslate(b *testing.B) {
 	v := config.New()
 	for _, test := range i18nTests {
