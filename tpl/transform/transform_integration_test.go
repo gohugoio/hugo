@@ -214,7 +214,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 		b, err := hugolib.TestE(t, files, hugolib.TestOptWarn())
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, "the return type of transform.ToMath was changed in Hugo v0.141.0 and the error handling replaced with a new try keyword, see https://gohugo.io/functions/go-template/try/")
+		b.Assert(err.Error(), qt.Contains, "the return type of transform.ToMath was changed in Hugo v0.141.0 and the error handling replaced with a new try keyword, see https://gohugo.io/docs/reference/functions/go-template/try/")
 	})
 }
 
