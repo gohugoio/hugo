@@ -196,9 +196,6 @@ func TestRace() error {
 			return err
 		}
 		for _, pkg := range pkgs {
-			if pkg == "." {
-				continue
-			}
 			if err := runCmd(env, goexe, "test", "-p", "2", "-race", pkg, "-tags", buildTags()); err != nil {
 				return err
 			}
