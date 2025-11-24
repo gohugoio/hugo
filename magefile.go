@@ -188,7 +188,27 @@ func Test() error {
 // Run tests with race detector
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "-p", "2", "-race", "./...", "-tags", buildTags())
+	if isCI() {
+		// We have space issues on GitHub Actions (lots tests, incresing usage of Go generics).
+		// Test each package separately and clean up in between.
+		pkgs, err := hugoPackages()
+		if err != nil {
+			return err
+		}
+		for _, pkg := range pkgs {
+			if pkg == "." {
+				continue
+			}
+			if err := runCmd(env, goexe, "test", "-p", "2", "-race", pkg, "-tags", buildTags()); err != nil {
+				return err
+			}
+			mg.Deps(CleanTest, UninstallAll)
+		}
+		return nil
+
+	} else {
+		return runCmd(env, goexe, "test", "-p", "2", "-race", "./...", "-tags", buildTags())
+	}
 }
 
 // Run gofmt linter
