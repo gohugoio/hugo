@@ -492,9 +492,7 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 		watchGroups := helpers.ExtractAndGroupRootPaths(watchDirs)
 
-		for _, group := range watchGroups {
-			c.r.Printf("Watching for changes in %s\n", group)
-		}
+		c.r.Printf("Watching for changes in %s\n", strings.Join(watchGroups, ", "))
 		watcher, err := c.newWatcher(c.r.poll, watchDirs...)
 		if err != nil {
 			return err
