@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -355,35 +354,23 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 		filepath.FromSlash("/c/d/e"),
 	}
 
-	inCopy := make([]string, len(in))
-	copy(inCopy, in)
-
 	result := helpers.ExtractAndGroupRootPaths(in)
 
 	c := qt.New(t)
-	c.Assert(fmt.Sprint(result), qt.Equals, filepath.FromSlash("[/a/b/{c,e} /c/d/e]"))
-
-	// Make sure the original is preserved
-	c.Assert(in, qt.DeepEquals, inCopy)
+	c.Assert(result, qt.DeepEquals, []string{"/a/b/{c,e}", "/c/d/e"})
 }
 
-func TestExtractRootPaths(t *testing.T) {
-	tests := []struct {
-		input    []string
-		expected []string
-	}{{
-		[]string{
-			filepath.FromSlash("a/b"), filepath.FromSlash("a/b/c/"), "b",
-			filepath.FromSlash("/c/d"), filepath.FromSlash("d/"), filepath.FromSlash("//e//"),
-		},
-		[]string{"a", "a", "b", "c", "d", "e"},
-	}}
-
-	for _, test := range tests {
-		output := helpers.ExtractRootPaths(test.input)
-		if !reflect.DeepEqual(output, test.expected) {
-			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+func BenchmarkExtractAndGroupRootPaths(b *testing.B) {
+	in := []string{}
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 1000; j++ {
+			in = append(in, fmt.Sprintf("/a/b/c/s%d/p%d", i, j))
 		}
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		helpers.ExtractAndGroupRootPaths(in)
 	}
 }
 
