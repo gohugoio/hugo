@@ -221,3 +221,24 @@ func (ns *Namespace) JoinPath(elements ...any) (string, error) {
 	}
 	return result, nil
 }
+
+// PathEscape returns the given string, applying percent-encoding to special
+// characters and reserved delimiters so it can be safely used as a segment
+// within a URL path.
+func (ns *Namespace) PathEscape(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+	return url.PathEscape(ss), nil
+}
+
+// PathUnescape returns the given string, replacing all percent-encoded
+// sequences with the corresponding unescaped characters.
+func (ns *Namespace) PathUnescape(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+	return url.PathUnescape(ss)
+}
