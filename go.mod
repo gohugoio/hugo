@@ -5,7 +5,7 @@ require (
 	github.com/JohannesKaufmann/html-to-markdown/v2 v2.4.0
 	github.com/alecthomas/chroma/v2 v2.20.0
 	github.com/aws/aws-sdk-go-v2 v1.40.0
-	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.57.0
+	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.58.0
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.9.0
