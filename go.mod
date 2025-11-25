@@ -37,7 +37,6 @@ require (
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.18.0
-	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20251018145728-cfcc22d823c6
 	github.com/gohugoio/hashstructure v0.6.0
 	github.com/gohugoio/httpcache v0.8.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.5.0
@@ -56,6 +55,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/mitchellh/mapstructure v1.5.1-0.20231216201459-8508981c8b6c
 	github.com/muesli/smartcrop v0.3.0
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/niklasfasching/go-org v1.9.1
 	github.com/olekukonko/tablewriter v1.1.1
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
