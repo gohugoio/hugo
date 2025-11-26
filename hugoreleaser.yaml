@@ -2,6 +2,22 @@ project: hugo
 
 # Common definitions.
 definitions:
+  archive_type_macos: &archive_type_macos
+    extra_files: []
+    type:
+      format: _plugin
+      extension: .pkg
+    plugin:
+      id: macospkgremote
+      type: gorun
+      command: github.com/gohugoio/hugoreleaser-archive-plugins/macospkgremote@latest
+    custom_settings:
+      package_identifier: io.gohugo.hugo
+      package_version: ${HUGORELEASER_TAG}
+      bucket: s3fptest
+      queue: https://sqs.eu-north-1.amazonaws.com/656975317043/s3fptest_client
+      access_key_id: ${S3RPC_CLIENT_ACCESS_KEY_ID}
+      secret_access_key: ${S3RPC_CLIENT_SECRET_ACCESS_KEY}
   archive_type_zip: &archive_type_zip
     type:
       format: zip
@@ -94,9 +110,6 @@ release_settings:
 builds:
   - path: container1/unix/regular
     os:
-      - goos: darwin
-        archs:
-          - goarch: universal
       - goos: linux
         archs:
           - goarch: amd64
@@ -131,11 +144,6 @@ builds:
       env:
         - CGO_ENABLED=1
     os:
-      - goos: darwin
-        build_settings:
-          env: *env_extended_darwin
-        archs:
-          - goarch: universal
       - goos: linux
         archs:
           - goarch: amd64
@@ -149,11 +157,6 @@ builds:
       env:
         - CGO_ENABLED=1
     os:
-      - goos: darwin
-        build_settings:
-          env: *env_extended_darwin
-        archs:
-          - goarch: universal
       - goos: linux
         archs:
           - goarch: amd64
@@ -183,6 +186,35 @@ builds:
           env: *env_extended_linux
         archs:
           - goarch: arm64
+  - path: container1/macos/regular
+    os:
+      - goos: darwin
+        archs:
+          - goarch: universal
+  - path: container1/macos/extended
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended
+      env: *env_extended_darwin
+    os:
+      - goos: darwin
+        archs:
+          - goarch: universal
+  - path: container1/macos/extended-withdeploy
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - extended,withdeploy
+      env: *env_extended_darwin
+    os:
+      - goos: darwin
+        archs:
+          - goarch: universal
   - path: container1/windows/regular
     os:
       - goos: windows
@@ -240,6 +272,19 @@ archives:
       - builds/container2/*/extended-withdeploy/**
     archive_settings:
       name_template: *name_template_extended_withdeploy
+  - paths:
+      - builds/**/macos/regular/**
+    archive_settings: *archive_type_macos
+  - paths:
+      - builds/**/macos/extended/**
+    archive_settings:
+      name_template: *name_template_extended
+      <<: *archive_type_macos
+  - paths:
+      - builds/**/macos/extended-withdeploy/**
+    archive_settings:
+      name_template: *name_template_extended_withdeploy
+      <<: *archive_type_macos
   - paths:
       - builds/**/windows/regular/**
     archive_settings: *archive_type_zip
