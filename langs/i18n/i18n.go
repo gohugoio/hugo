@@ -33,15 +33,21 @@ type translateFunc func(ctx context.Context, translationID string, templateData 
 
 // Translator handles i18n translations.
 type Translator struct {
-	translateFuncs map[string]translateFunc
-	cfg            config.AllProvider
-	logger         loggers.Logger
+	translateFuncs                map[string]translateFunc // keys are normalized language tags
+	cfg                           config.AllProvider
+	logger                        loggers.Logger
+	defaultLangHasTranslationFile bool
+}
+
+func NormalizeLang(lang string) string {
+	return strings.ToLower(strings.TrimPrefix(lang, artificialLangTagPrefix))
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *i18n.Bundle, cfg config.AllProvider, logger loggers.Logger) Translator {
+func NewTranslator(b *bundle, cfg config.AllProvider, logger loggers.Logger) Translator {
 	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
-	t.initFuncs(b)
+	t.initFuncs(b.i18n)
+	t.defaultLangHasTranslationFile = b.defaultLangHasTranslationFile
 	return t
 }
 
@@ -68,7 +74,7 @@ func (t Translator) initFuncs(bndl *i18n.Bundle) {
 		currentLang := lang
 		currentLangStr := currentLang.String()
 		// This may be pt-BR; make it case insensitive.
-		currentLangKey := strings.ToLower(strings.TrimPrefix(currentLangStr, artificialLangTagPrefix))
+		currentLangKey := NormalizeLang(currentLangStr)
 		localizer := i18n.NewLocalizer(bndl, currentLangStr)
 		t.translateFuncs[currentLangKey] = func(ctx context.Context, translationID string, templateData any) string {
 			pluralCount := getPluralCount(templateData)

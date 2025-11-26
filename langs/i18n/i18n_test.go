@@ -27,6 +27,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
@@ -516,4 +517,124 @@ func BenchmarkI18nTranslate(b *testing.B) {
 			}
 		})
 	}
+}
+
+func setupHelperForDefaultLanguageWithOrWithoutTranslationFile(defaultLang string, c *qt.C, withTranslationFile bool) (*deps.Deps, *TranslationProvider) {
+	afs := afero.NewMemMapFs()
+	cfg := config.New()
+	cfg.Set("defaultContentLanguage", defaultLang)
+	cfg.Set("languages", map[string]any{
+		defaultLang: map[string]any{
+			"weight": -1, // Ensure Language.Lang is defaultLang
+		},
+		"en": map[string]any{
+			"title": "English",
+		},
+		"pt": map[string]any{
+			"languageCode": "pt-BR",
+		},
+		"zh-CN": map[string]any{},
+	})
+
+	// Create translation files: es.toml, en.toml and pt-br.toml (but NOT pt.toml)
+	err := afero.WriteFile(afs, filepath.Join("i18n", "en.yml"), []byte("hello: Hello"), 0o755)
+	c.Assert(err, qt.IsNil)
+	err = afero.WriteFile(afs, filepath.Join("i18n", "pt-br.toml"), []byte("hello = 'Olá'"), 0o755)
+	c.Assert(err, qt.IsNil)
+	err = afero.WriteFile(afs, filepath.Join("i18n", "zh-cn.json"), []byte(`{"hello": "Hello from zh-cn"}`), 0o755)
+	c.Assert(err, qt.IsNil)
+	if withTranslationFile {
+		err = afero.WriteFile(afs, filepath.Join("i18n", defaultLang+".yml"), []byte("hello: Hello from "+defaultLang), 0o755)
+		c.Assert(err, qt.IsNil)
+	}
+
+	d, tp := prepareDeps(afs, cfg)
+
+	return d, tp
+}
+
+func TestI18nDefaultHasNoTranslationFile(t *testing.T) {
+	c := qt.New(t)
+	d, tp := setupHelperForDefaultLanguageWithOrWithoutTranslationFile("es", c, false)
+
+	defaultLang := d.Conf.DefaultContentLanguage()
+	c.Assert(defaultLang, qt.Equals, "es")
+
+	ctx := context.Background()
+	defaultHello := tp.t.Func(defaultLang)(ctx, "hello", nil)
+	expectedDefaultGreeting := ""
+	c.Assert(defaultHello, qt.Equals, expectedDefaultGreeting, qt.Commentf("Expected empty greeting because default language has no translation file"))
+
+	// Validate that the default language is in translateFuncs
+	fnDefault := tp.t.Func("es")
+	c.Assert(fnDefault, qt.IsNotNil, qt.Commentf("default language should be in translateFuncs"))
+	c.Assert(tp.t.defaultLangHasTranslationFile, qt.IsFalse, qt.Commentf("default language 'es' should not have a translation file"))
+
+	// Validate that "pt-BR" is in translateFuncs (because it has a translation file)
+	fnPTBR := tp.t.Func("pt-br")
+	c.Assert(fnPTBR, qt.IsNotNil, qt.Commentf("file-backed language 'pt-br' should be in translateFuncs"))
+	c.Assert(fnPTBR(ctx, "hello", nil), qt.Equals, "Olá", qt.Commentf("pt-br translation should return 'Olá'"))
+
+	// Validate that "pt" (parent language) is NOT in translateFuncs (because it has no translation file)
+	_, ok := tp.t.translateFuncs["pt"]
+	c.Assert(ok, qt.IsFalse, qt.Commentf("parent language 'pt' should NOT be in translateFuncs when only pt-BR.toml exists"))
+	ptHello := tp.t.Func("pt")(ctx, "hello", nil)
+	c.Assert(ptHello, qt.Equals, "", qt.Commentf("parent language 'pt' should return '' when only pt-BR.toml exists"))
+
+	// Validate that "zh-cn" is in translateFuncs (because it has a translation file)
+	_, ok = tp.t.translateFuncs["zh-cn"]
+	c.Assert(ok, qt.IsTrue, qt.Commentf("language 'zh-cn' should be in translateFuncs"))
+	zhCNHello := tp.t.Func("zh-cn")(ctx, "hello", nil)
+	c.Assert(zhCNHello, qt.Equals, "Hello from zh-cn", qt.Commentf("zh-cn translation should return 'Hello from zh-cn'"))
+}
+
+func TestI18nDefaultWithTranslationFile(t *testing.T) {
+	c := qt.New(t)
+
+	d, tp := setupHelperForDefaultLanguageWithOrWithoutTranslationFile("es", c, true)
+
+	defaultLang := d.Conf.DefaultContentLanguage()
+	c.Assert(defaultLang, qt.Equals, "es")
+
+	ctx := context.Background()
+	defaultHello := tp.t.Func(defaultLang)(ctx, "hello", nil)
+	expectedDefaultGreeting := "Hello from es"
+	c.Assert(defaultHello, qt.Equals, expectedDefaultGreeting, qt.Commentf("Expected greeting from translation file for the default language"))
+
+	// Validate that the default language is in translateFuncs
+	fnDefault := tp.t.Func("es")
+	c.Assert(fnDefault, qt.IsNotNil, qt.Commentf("default language should be in translateFuncs"))
+	c.Assert(tp.t.defaultLangHasTranslationFile, qt.IsTrue, qt.Commentf("default language 'es' should not have a translation file"))
+
+	// Validate that "pt-BR" is in translateFuncs (because it has a translation file)
+	fnPTBR := tp.t.Func("pt-br")
+	c.Assert(fnPTBR, qt.IsNotNil, qt.Commentf("file-backed language 'pt-br' should be in translateFuncs"))
+	c.Assert(fnPTBR(ctx, "hello", nil), qt.Equals, "Olá", qt.Commentf("pt-br translation should return 'Olá'"))
+
+	// Validate that "pt" (parent language) is NOT in translateFuncs (because it has no translation file)
+	_, ok := tp.t.translateFuncs["pt"]
+	c.Assert(ok, qt.IsFalse, qt.Commentf("parent language 'pt' should NOT be in translateFuncs when only pt-BR.toml exists"))
+	ptHello := tp.t.Func("pt")(ctx, "hello", nil)
+	c.Assert(ptHello, qt.Equals, expectedDefaultGreeting, qt.Commentf("Expected default greeting when only pt-BR.toml exists"))
+
+	// Validate that "zh-cn" is in translateFuncs (because it has a translation file)
+	_, ok = tp.t.translateFuncs["zh-cn"]
+	c.Assert(ok, qt.IsTrue, qt.Commentf("language 'zh-cn' should be in translateFuncs"))
+	zhCNHello := tp.t.Func("zh-cn")(ctx, "hello", nil)
+	c.Assert(zhCNHello, qt.Equals, "Hello from zh-cn", qt.Commentf("zh-cn translation should return 'Hello from zh-cn'"))
+}
+
+func TestI18nDefaultConfigLanguageGetsNormalized(t *testing.T) {
+	c := qt.New(t)
+	cfgDefaultLang := "ES"
+	d, _ := setupHelperForDefaultLanguageWithOrWithoutTranslationFile(cfgDefaultLang, c, false)
+
+	defaultLang := d.Conf.DefaultContentLanguage()
+	c.Assert(defaultLang, qt.Equals, "es")
+	c.Assert(defaultLang, qt.Equals, NormalizeLang(cfgDefaultLang), qt.Commentf("default language from config should be normalized to 'es'"))
+
+	lang := d.Conf.Language().(*langs.Language)
+	c.Assert(lang, qt.IsNotNil)
+	c.Assert(lang.Lang, qt.Equals, "es")
+	c.Assert(lang.Lang, qt.Equals, NormalizeLang(cfgDefaultLang), qt.Commentf("Language .Lang should be normalized to 'es'"))
 }

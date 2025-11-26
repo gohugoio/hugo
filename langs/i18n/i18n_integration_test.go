@@ -165,3 +165,68 @@ b = 'b translated'
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "failed to load translations: reserved keys [description] mixed with unreserved keys [a b]: see the lang.Translate documentation for a list of reserved keys")
 }
+
+func TestI18nPrefersLangTranslationBeforeLanguageCode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yaml --
+languages:
+  en:
+    languageCode: en-US
+-- i18n/en.yml --
+hello: Greetings from en!
+-- i18n/en-us.yml --
+hello: Greetings from en-us!
+-- layouts/all.html --
+{{ T "hello" }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentEquals("public/index.html", `Greetings from en!`)
+}
+
+func TestI18nUsesLanguageCodeWhenLangFileMissing(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yaml --
+languages:
+  en:
+    title: English
+  pt:
+    languageCode: pt-BR
+-- i18n/en.yml --
+hello: Greetings from en!
+-- i18n/pt-br.yml --
+hello: Greetings from pt-br!
+-- layouts/all.html --
+{{ T "hello" }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentEquals("public/pt/index.html", `Greetings from pt-br!`)
+}
+
+func TestI18nFallsBackToDefaultLanguage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yaml --
+languages:
+  en:
+    title: English
+  pt:
+    languageCode: pt-BR
+-- i18n/en.yml --
+hello: Greetings from en!
+-- layouts/all.html --
+{{ T "hello" }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentEquals("public/pt/index.html", `Greetings from en!`)
+}

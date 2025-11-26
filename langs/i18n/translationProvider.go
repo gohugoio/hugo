@@ -35,6 +35,20 @@ import (
 	"github.com/gohugoio/hugo/source"
 )
 
+type bundle struct {
+	i18n                          *i18n.Bundle
+	defaultLang                   string // normalized
+	defaultLangHasTranslationFile bool
+}
+
+func newBundle(defaultLangTag language.Tag) *bundle {
+	return &bundle{
+		i18n:                          i18n.NewBundle(defaultLangTag),
+		defaultLang:                   defaultLangTag.String(),
+		defaultLangHasTranslationFile: false,
+	}
+}
+
 // TranslationProvider provides translation handling, i.e. loading
 // of bundles etc.
 type TranslationProvider struct {
@@ -52,12 +66,12 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 	if err != nil {
 		defaultLangTag = language.English
 	}
-	bundle := i18n.NewBundle(defaultLangTag)
+	bundle := newBundle(defaultLangTag)
 
-	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-	bundle.RegisterUnmarshalFunc("yaml", metadecoders.UnmarshalYaml)
-	bundle.RegisterUnmarshalFunc("yml", metadecoders.UnmarshalYaml)
-	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
+	bundle.i18n.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	bundle.i18n.RegisterUnmarshalFunc("yaml", metadecoders.UnmarshalYaml)
+	bundle.i18n.RegisterUnmarshalFunc("yml", metadecoders.UnmarshalYaml)
+	bundle.i18n.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	w := hugofs.NewWalkway(
 		hugofs.WalkwayConfig{
@@ -78,14 +92,14 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 
 	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
 
-	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
+	dst.Translate = tp.getTranslateFunc(dst)
 
 	return nil
 }
 
 const artificialLangTagPrefix = "art-x-"
 
-func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
+func addTranslationFile(bundle *bundle, r *source.File) error {
 	f, err := r.FileInfo().Meta().Open()
 	if err != nil {
 		return fmt.Errorf("failed to open translations file %q:: %w", r.LogicalName(), err)
@@ -97,6 +111,9 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 	name := r.LogicalName()
 	lang := paths.Filename(name)
 	tag := language.Make(lang)
+	if bundle.defaultLang == NormalizeLang(tag.String()) {
+		bundle.defaultLangHasTranslationFile = true
+	}
 	if tag == language.Und {
 		try := artificialLangTagPrefix + lang
 		_, err = language.Parse(try)
@@ -106,12 +123,12 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 		name = artificialLangTagPrefix + name
 	}
 
-	_, err = bundle.ParseMessageFileBytes(b, name)
+	_, err = bundle.i18n.ParseMessageFileBytes(b, name)
 	if err != nil {
 		if strings.Contains(err.Error(), "no plural rule") {
 			// https://github.com/gohugoio/hugo/issues/7798
 			name = artificialLangTagPrefix + name
-			_, err = bundle.ParseMessageFileBytes(b, name)
+			_, err = bundle.i18n.ParseMessageFileBytes(b, name)
 			if err == nil {
 				return nil
 			}
@@ -128,8 +145,25 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 
 // CloneResource sets the language func for the new language.
 func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
-	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
+	dst.Translate = tp.getTranslateFunc(dst)
 	return nil
+}
+
+// getTranslateFunc returns the translation function for the language in Deps
+func (tp *TranslationProvider) getTranslateFunc(dst *deps.Deps) func(ctx context.Context, translationID string, templateData any) string {
+	lang := dst.Conf.Language().(*langs.Language)
+	langKey := lang.Lang
+
+	_, ok := tp.t.translateFuncs[langKey]
+	if !ok || langKey == tp.t.cfg.DefaultContentLanguage() && !tp.t.defaultLangHasTranslationFile {
+		if languageCode := lang.LanguageCode(); languageCode != "" {
+			if fn := tp.t.Func(strings.ToLower(languageCode)); fn != nil {
+				return fn
+			}
+		}
+	}
+
+	return tp.t.Func(langKey)
 }
 
 func errWithFileContext(inerr error, r *source.File) error {
