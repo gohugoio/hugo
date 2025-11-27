@@ -19,4 +19,4 @@ jobs:
           pr-label: AI Suspect
           fail-when-confident: false
           # CSV list.
-          pr-user-logins-skip: dependabot
+          pr-user-logins-skip: dependabot[bot]
