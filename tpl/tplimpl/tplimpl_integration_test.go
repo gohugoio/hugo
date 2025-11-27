@@ -35,9 +35,9 @@ disableKinds = ["section", "home", "rss", "taxonomy",  "term", "rss"]
 ---
 title: "P1"
 ---
--- layouts/partials/counter.html --
+-- layouts/_partials/counter.html --
 {{ if .Scratch.Get "counter" }}{{ .Scratch.Add "counter" 1 }}{{ else }}{{ .Scratch.Set "counter" 1 }}{{ end }}{{ return true }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 continue:{{ range seq 5 }}{{ if eq . 2 }}{{continue}}{{ end }}{{ . }}{{ end }}:END:
 break:{{ range seq 5 }}{{ if eq . 2 }}{{break}}{{ end }}{{ . }}{{ end }}:END:
 continue2:{{ range seq 5 }}{{ if eq . 2 }}{{ continue }}{{ end }}{{ . }}{{ end }}:END:
@@ -84,7 +84,7 @@ func TestGo23ElseWith(t *testing.T) {
 	files := `
 -- hugo.toml --
 title = "Hugo"
--- layouts/index.html --
+-- layouts/home.html --
 {{ with false }}{{ else with .Site }}{{ .Title }}{{ end }}|
 `
 	b := hugolib.Test(t, files)
@@ -111,7 +111,7 @@ title: "S2P1"
 ---
 title: "S3P1"
 ---
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 {{ block "main" . }}{{ end }}
 -- layouts/s1/single.html --
 {{/* foo */}}
@@ -143,7 +143,7 @@ func TestGoTemplateBugs(t *testing.T) {
 
 		files := `
 -- config.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $m := dict "key" "value" }}
 {{ $k := "" }}
 {{ $v := "" }}
@@ -168,7 +168,7 @@ func TestSecurityAllowActionJSTmpl(t *testing.T) {
 	filesTemplate := `
 -- config.toml --
 SECURITYCONFIG
--- layouts/index.html --
+-- layouts/home.html --
 <script>
 var a = §§{{.Title }}§§;
 </script>
@@ -237,7 +237,7 @@ disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 shortname = 'foo'
 [privacy.disqus]
 disable = false
--- layouts/index.html --
+-- layouts/home.html --
 {{ template "_internal/disqus.html" . }}
 `
 
@@ -267,7 +267,7 @@ sitemap:
 title: p2
 
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 `
 
@@ -317,9 +317,9 @@ facebook_admin = 'foo'
 [taxonomies]
 series = 'series'
 tag = 'tags'
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ template "_internal/opengraph.html" . }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ template "_internal/opengraph.html" . }}
 -- content/s1/p1.md --
 ---
@@ -419,9 +419,9 @@ unsafe = true
 description = "m <em>n</em> and **o** can't."
 [taxonomies]
 tag = 'tags'
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ template "_internal/schema.html" . }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ template "_internal/schema.html" . }}
 -- content/s1/p1.md --
 ---
@@ -501,9 +501,9 @@ unsafe = true
 description = "m <em>n</em> and **o** can't."
 [params.social]
 twitter = 'foo'
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ template "_internal/twitter_cards.html" . }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ template "_internal/twitter_cards.html" . }}
 -- content/s1/p1.md --
 ---
@@ -573,17 +573,17 @@ disableLiveReload = true
 disableKinds = ["taxonomy", "term", "rss", "404", "sitemap"]
 [internal]
 fastRenderMode = true
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Baseof!
 {{ block "main" . }}default{{ end }}
 {{ with (templates.Defer (dict "key" "global")) }}
 Now. {{ now }}
 {{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ define "main" }}
 Single.
 {{ end }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ define "main" }}
 List.
 {{ .Content }}
@@ -606,7 +606,7 @@ Home!
 
 	b := hugolib.TestRunning(t, files)
 	b.AssertFileContent("public/index.html", "Home!")
-	b.EditFileReplaceAll("layouts/_default/baseof.html", "baseof", "Baseof!").Build()
+	b.EditFileReplaceAll("layouts/baseof.html", "baseof", "Baseof!").Build()
 	b.BuildPartial("/")
 	b.AssertFileContent("public/index.html", "Baseof!")
 	b.BuildPartial("/mybundle1/")

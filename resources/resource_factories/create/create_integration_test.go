@@ -31,7 +31,7 @@ func TestGetRemoteHead(t *testing.T) {
   [security.http]
     methods = ['(?i)GET|POST|HEAD']
     urls = ['.*gohugo\.io.*']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $url := "https://gohugo.io/img/hugo.png" }}
 {{ $opts := dict "method" "head" }}
 {{ with try (resources.GetRemote $url $opts) }}
@@ -67,7 +67,7 @@ func TestGetRemoteResponseHeaders(t *testing.T) {
   [security.http]
     methods = ['(?i)GET|POST|HEAD']
     urls = ['.*gohugo\.io.*']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $url := "https://gohugo.io/img/hugo.png" }}
 {{ $opts := dict "method" "head" "responseHeaders" (slice "X-Frame-Options" "Server") }}
 {{ with try (resources.GetRemote $url $opts) }}
@@ -121,7 +121,7 @@ timeout = "TIMEOUT"
 [security.http]
 urls = ['.*']
 mediaTypes = ['text/plain']
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ $url := printf "%s%s" "URL" .RelPermalink}}
 {{ $opts := dict }}
 {{ with try (resources.GetRemote $url $opts) }}

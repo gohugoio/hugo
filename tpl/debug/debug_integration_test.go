@@ -25,7 +25,7 @@ func TestTimer(t *testing.T) {
 -- hugo.toml --
 baseURL = "https://example.org/"
 disableKinds = ["taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 {{ range seq 5 }}
 {{ $t := debug.Timer "foo" }}
 {{ seq 1 1000 }}
@@ -61,11 +61,11 @@ date: 2012-03-15
 title: "The First"
 tags: ["a", "b"]
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 Dump: {{ debug.Dump . | safeHTML }}
 Dump Site: {{ debug.Dump site }}
 Dum site.Taxonomies: {{ debug.Dump site.Taxonomies | safeHTML }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Dump: {{ debug.Dump . | safeHTML }}
 
 

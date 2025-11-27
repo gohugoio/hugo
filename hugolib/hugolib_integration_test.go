@@ -52,9 +52,9 @@ tags: ['T1']
 title: P1
 tags: ['T1']
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 <ul>{{ range .AllTranslations }}<li>{{ .Title }}-{{ .Lang }}</li>{{ end }}</ul>
--- layouts/_default/list.html --
+-- layouts/list.html --
 <ul>{{ range .AllTranslations }}<li>{{ .Title }}-{{ .Lang }}</li>{{ end }}</ul>
 	`
 
@@ -93,7 +93,7 @@ func TestRenderStringBadMarkupOpt(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- layouts/index.html --
+-- layouts/home.html --
 {{ $opts := dict "markup" "foo" }}
 {{ "something" | .RenderString $opts }}
 	`
@@ -129,7 +129,7 @@ tags: [fiction]
 ---
 title: Films
 ---
--- layouts/index.html --
+-- layouts/home.html --
 {{ (site.GetPage "/tags").Title }}
 {{ (site.GetPage "/tags/fiction").Title }}
 {{ (site.GetPage "/books").Title }}

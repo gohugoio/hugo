@@ -41,14 +41,14 @@ func TestCodeblocks(t *testing.T) {
     noClasses = false
     style = 'monokai'
     tabWidth = 4
--- layouts/_default/_markup/render-codeblock-goat.html --
+-- layouts/_markup/render-codeblock-goat.html --
 {{ $diagram := diagrams.Goat .Inner }}
 Goat SVG:{{ substr $diagram.Wrapped 0 100 | safeHTML }}  }}|
 Goat Attribute: {{ .Attributes.width}}|
--- layouts/_default/_markup/render-codeblock-go.html --
+-- layouts/_markup/render-codeblock-go.html --
 Go Code: {{ .Inner | safeHTML }}|
 Go Language: {{ .Type }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- content/p1.md --
 ---
@@ -130,11 +130,11 @@ lineNumbersInTable = true
 noClasses = false
 style = 'monokai'
 tabWidth = 4
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 {{ $result := transform.HighlightCodeBlock . }}
 Inner: |{{ $result.Inner | safeHTML }}|
 Wrapped: |{{ $result.Wrapped | safeHTML }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- content/p1.md --
 ---
@@ -162,9 +162,9 @@ func TestCodeblocksBugs(t *testing.T) {
 
 	files := `
 -- config.toml --
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 {{ .Position | safeHTML }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- content/p1.md --
 ---
@@ -201,9 +201,9 @@ title: "p1"
 §§§bash
 echo "p1";
 §§§
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 |{{ .Inner | safeHTML }}|
 
 `
@@ -228,9 +228,9 @@ title: "p1"
 §§§
 echo "p1";
 §§§
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 Position: {{ .Position | safeHTML }}
 
 
@@ -258,9 +258,9 @@ title: "p1"
 Hello, World!
 §§§
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 `
 
@@ -285,9 +285,9 @@ title: "p1"
 §§§LANGUAGE {style=monokai}
 echo "p1";
 §§§
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 
 
@@ -327,7 +327,7 @@ BLOCK
 
 Common
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 
 
@@ -371,10 +371,10 @@ title: "p1"
 Hello, World!
 §§§
 
--- layouts/index.html --
--- layouts/_default/single.html --
+-- layouts/home.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 `
 

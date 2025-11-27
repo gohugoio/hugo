@@ -54,9 +54,9 @@ title: "My Bundle en"
 My Bundle
 -- content/mysect/mybundle/foo.txt --
 Foo
--- layouts/_default/list.html --
+-- layouts/list.html --
 List|{{ .Title }}|{{ .Lang }}|{{ .Permalink}}|{{ .RelPermalink }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single|{{ .Title }}|{{ .Lang }}|{{ .Permalink}}|{{ .RelPermalink }}|
 {{ $foo := .Resources.Get "foo.txt" | fingerprint }}
 Foo: {{ $foo.Permalink }}|
@@ -147,7 +147,7 @@ title: "Mybundle fr"
 .body {
 	color: french;
 }
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ $data := .Resources.GetMatch "styles*" | minify }}
 {{ .Lang }}: {{ $data.Content}}|{{ $data.RelPermalink }}|
 
@@ -191,7 +191,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 ---
 title: mybundle-en
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ with .Resources.Get "pixel.png" }}
   {{ with .Resize "2x2" }}
     {{ .RelPermalink }}|
@@ -240,7 +240,7 @@ File 1 fr.
 File 1 en.
 -- content/en/section/mybundle/file2.txt --
 File 2 en.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ $files := .Resources.Match "file*" }}
 Files: {{ range $files }}{{ .Permalink }}|{{ end }}$
 
@@ -274,7 +274,7 @@ baseURL = "https://example.fr"
 weight = 2
 --  assets/css/main.css --
 body { color: red; }
--- layouts/index.html --
+-- layouts/home.html --
 {{ $css := resources.Get "css/main.css" | minify }}
 CSS: {{ $css.Permalink }}|{{ $css.RelPermalink }}|
 `

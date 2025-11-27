@@ -46,7 +46,7 @@ title: "p1"
 ~~~bash {id="c" onmouseover="alert('code fence')" LINENOS=true}
 foo
 ~~~
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -69,9 +69,9 @@ func TestAttributeExclusionWithRenderHook(t *testing.T) {
 title: "p1"
 ---
 ## Heading {onclick="alert('renderhook')" data-foo="bar"}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 <h{{ .Level }}
   {{- range $k, $v := .Attributes -}}
     {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
@@ -95,7 +95,7 @@ func TestAttributesDefaultRenderer(t *testing.T) {
 title: "p1"
 ---
 ## Heading Attribute Which Needs Escaping { class="a < b" }
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -116,10 +116,10 @@ func TestAttributesHookNoEscape(t *testing.T) {
 title: "p1"
 ---
 ## Heading Attribute Which Needs Escaping { class="Smith & Wesson" }
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 plain: |{{- range $k, $v := .Attributes -}}{{ $k }}: {{ $v }}|{{ end }}|
 safeHTML: |{{- range $k, $v := .Attributes -}}{{ $k }}: {{ $v | safeHTML }}|{{ end }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -142,14 +142,14 @@ func TestLinkInTitle(t *testing.T) {
 title: "p1"
 ---
 ## Hello [Test](https://example.com)
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
   {{ .Text }}
   <a class="anchor" href="#{{ .Anchor | safeURL }}">#</a>
 </h{{ .Level }}>
--- layouts/_default/_markup/render-link.html --
+-- layouts/_markup/render-link.html --
 <a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}</a>
 
 `
@@ -179,7 +179,7 @@ lineNumbersInTable = true
 noClasses = false
 style = 'monokai'
 tabWidth = 4
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- content/p1.md --
 ---
@@ -234,14 +234,14 @@ LINE8
 func BenchmarkRenderHooks(b *testing.B) {
 	files := `
 -- config.toml --
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
 	{{ .Text }}
 	<a class="anchor" href="#{{ .Anchor | safeURL }}">#</a>
 </h{{ .Level }}>
--- layouts/_default/_markup/render-link.html --
+-- layouts/_markup/render-link.html --
 <a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}</a>
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -303,7 +303,7 @@ func BenchmarkCodeblocks(b *testing.B) {
     noClasses = true
     style = 'monokai'
     tabWidth = 4
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -348,7 +348,7 @@ FENCE
 
 	b.Run("Hook no higlight", func(b *testing.B) {
 		files := filesTemplate + `
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 {{ .Inner }}
 `
 
@@ -364,9 +364,9 @@ func TestHookInfiniteRecursion(t *testing.T) {
 		t.Run(renderFunc, func(t *testing.T) {
 			files := `
 -- config.toml --
--- layouts/_default/_markup/render-link.html --
+-- layouts/_markup/render-link.html --
 <a href="{{ .Destination | safeURL }}">{{ .Text | RENDERFUNC }}</a>
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- content/p1.md --
 ---
@@ -408,7 +408,7 @@ func TestQuotesInImgAltAttr(t *testing.T) {
 title: "p1"
 ---
 !["a"](b.jpg)
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -437,13 +437,13 @@ Link no procol: www.example.org
 Link http procol: http://www.example.org
 Link https procol: https://www.example.org
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 		files = strings.ReplaceAll(files, "PROTOCOL", protocol)
 
 		if withHook {
-			files += `-- layouts/_default/_markup/render-link.html --
+			files += `-- layouts/_markup/render-link.html --
 <a href="{{ .Destination | safeURL }}">{{ .Text }}</a>`
 		}
 
@@ -505,7 +505,7 @@ a <!-- b --> c
 - This is a list item <!-- Comment: an innocent-looking comment -->
 
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -539,7 +539,7 @@ title: "p1"
 ![A's is > than B's](some-image.png)
 
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -581,16 +581,16 @@ title: "p1"
 title: "p2"
 ---
 :heavy_check_mark:
--- layouts/shortcodes/include.html --
+-- layouts/_shortcodes/include.html --
 {{ $p := site.GetPage (.Get 0) }}
 {{ $p.RenderShortcodes }}
--- layouts/shortcodes/sc1.html --
+-- layouts/_shortcodes/sc1.html --
 sc1_begin|{{ .Inner }}|sc1_end
--- layouts/shortcodes/sc2.html --
+-- layouts/_shortcodes/sc2.html --
 sc2_begin|{{ .Inner | .Page.RenderString }}|sc2_end
--- layouts/shortcodes/sc3.html --
+-- layouts/_shortcodes/sc3.html --
 sc3_begin|{{ .Inner }}|sc3_end
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -621,7 +621,7 @@ enableEmoji = false
 title: "p1"
 ---
 :x:
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -639,7 +639,7 @@ func TestEmojiDefaultConfig(t *testing.T) {
 title: "p1"
 ---
 :x:
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -658,7 +658,7 @@ func TestGoldmarkTemplateDelims(t *testing.T) {
   minifyOutput = true
 [minify.tdewolff.html]
   templateDelims = ["<?php","?>"]
--- layouts/index.html --
+-- layouts/home.html --
 <div class="foo">
 {{ safeHTML "<?php" }}
 echo "hello";
@@ -688,7 +688,7 @@ title: "p1"
 
 Inline equation that would be mangled by default parser: $a^*=x-b^*$
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -717,7 +717,7 @@ Block equation that would be mangled by default parser:
 
 $$a^*=x-b^*$$
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -752,7 +752,7 @@ Block equation that would be mangled by default parser:
 a^*=x-b^*
 %!%
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -788,7 +788,7 @@ enable = false
 enable = false
 [markup.goldmark.extensions.extras.superscript]
 enable = false
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 -- content/_index.md --
 ---
@@ -839,7 +839,7 @@ markup.goldmark.renderer.unsafe = false
 title: "p1"
 ---
 <div>Some raw HTML</div>
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -863,7 +863,7 @@ markup.goldmark.renderer.unsafe = false
 title: "p1"
 ---
 <em>raw HTML</em>
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -931,7 +931,7 @@ hidden
 --> word.
 
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 

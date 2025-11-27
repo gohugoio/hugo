@@ -52,7 +52,7 @@ disablekinds = ['taxonomy', 'term', 'page']
 [security]
 	[security.exec]
 	allow = ['^npx$', '^babel$']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $options := dict "noComments" true }}
 {{ $transpiled := resources.Get "js/main.js" | babel -}}
 Transpiled: {{ $transpiled.Content | safeJS }}

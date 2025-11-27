@@ -29,7 +29,7 @@ timeZone = "Europe/London"
 title: p1
 date: 2024-03-13T06:00:00
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Date: {{ .Date }}
 Lastmod: {{ .Lastmod }}
 Eq: {{ eq .Date .Lastmod }}
@@ -53,7 +53,7 @@ func TestDateValidation(t *testing.T) {
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- content/_index.md --
 FRONT_MATTER
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Date.UTC.Format "2006-01-02" }}
 --
 `

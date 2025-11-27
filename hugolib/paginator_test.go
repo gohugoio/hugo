@@ -58,7 +58,7 @@ Content.
 	}
 
 	files += `
--- layouts/index.html --
+-- layouts/home.html --
 {{ $pag := $.Paginator }}
 Total: {{ $pag.TotalPages }}
 First: {{ $pag.First.URL }}
@@ -179,7 +179,7 @@ func TestPaginatorEmptyPageGroups(t *testing.T) {
 baseURL = "https://example.com/"
 -- content/p1.md --
 -- content/p2.md --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $empty := site.RegularPages | complement site.RegularPages }}
 Len: {{ len $empty }}: Type: {{ printf "%T" $empty }}
 {{ $pgs := $empty.GroupByPublishDate "January 2006" }}
@@ -197,7 +197,7 @@ func TestPaginatorNodePagesOnly(t *testing.T) {
 [pagination]
 pagerSize = 1
 -- content/p1.md --
--- layouts/_default/single.html --
+-- layouts/single.html --
 Paginator: {{ .Paginator }}
 `
 	b, err := TestE(t, files)
@@ -209,7 +209,7 @@ func TestNilPointerErrorMessage(t *testing.T) {
 	files := `
 -- hugo.toml --	
 -- content/p1.md --
--- layouts/_default/single.html --
+-- layouts/single.html --
 Home Filename: {{ site.Home.File.Filename }}
 `
 	b, err := TestE(t, files)

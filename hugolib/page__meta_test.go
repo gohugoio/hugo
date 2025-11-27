@@ -35,9 +35,9 @@ tag = 'tags'
 title: page-1
 tags: 'tag-a'
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 	`
 
@@ -73,7 +73,7 @@ weight = 2
 title: "p2"
 draft: true
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 `
 	b := Test(t, files)

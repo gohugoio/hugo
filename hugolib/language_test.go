@@ -50,7 +50,7 @@ defaultContentLanguage = "%s"
 weight = 1
 -- i18n/%s.toml --
 hello.one = "Hello"
--- layouts/index.html --
+-- layouts/home.html --
 Hello: {{ i18n "hello" 1 }}
 -- content/p1.md --
 `, tc.langCode, tc.langCode, tc.langCode)
@@ -96,7 +96,7 @@ timeZone="UTC"
 weight=10
 [languages.nn]
 weight=20
--- layouts/index.html --
+-- layouts/home.html --
 
 FormatNumber: {{ 512.5032 | lang.FormatNumber 2 }}
 FormatPercent: {{ 512.5032 | lang.FormatPercent 2 }}

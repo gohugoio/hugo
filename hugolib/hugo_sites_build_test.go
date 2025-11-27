@@ -33,7 +33,7 @@ title: doc1 en
 title: doc1 fr
 slug: doc1-fr
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Lang }}|{{ .RelPermalink }}|
 
 `

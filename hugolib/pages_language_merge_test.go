@@ -109,9 +109,9 @@ Pages2: {{ range $i, $p := $pages2 }}{{ add $i 1 }}: {{ .Title }} {{ .Language.L
 {{ $nil := resources.Get "asdfasdfasdf" }}
 Pages3: {{ $frSite.RegularPages | lang.Merge  $nil }}
 Pages4: {{  $nil | lang.Merge $frSite.RegularPages }}
--- layouts/shortcodes/shortcode.html --
+-- layouts/_shortcodes/shortcode.html --
 MyShort
--- layouts/shortcodes/lingo.html --
+-- layouts/_shortcodes/lingo.html --
 MyLingo
 `
 	b := Test(t, files)
@@ -187,9 +187,9 @@ date: "2018-02-28"
 
 	// Add shortcode templates
 	b.WriteString(`
--- layouts/shortcodes/shortcode.html --
+-- layouts/_shortcodes/shortcode.html --
 MyShort
--- layouts/shortcodes/lingo.html --
+-- layouts/_shortcodes/lingo.html --
 MyLingo
 `)
 

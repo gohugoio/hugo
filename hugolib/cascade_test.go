@@ -83,9 +83,9 @@ title: P1
 title: P2
 tags: [t1, t2]
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ len .Pages }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: Tags: {{ site.Taxonomies.tags }}|
 `
 
@@ -105,9 +105,9 @@ func TestCascadeEditIssue12449(t *testing.T) {
 baseURL = "https://example.com"
 disableKinds = ['sitemap','rss', 'home', 'taxonomy','term']
 disableLiveReload = true
--- layouts/_default/list.html --
+-- layouts/list.html --
 Title: {{ .Title }}|{{ .Content }}|cascadeparam: {{ .Params.cascadeparam }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}|{{ .Content }}|cascadeparam: {{ .Params.cascadeparam }}|
 -- content/mysect/_index.md --
 ---
@@ -160,9 +160,9 @@ path = '/s1**'
 ---
 title: p1
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|
   `
 	b := Test(t, files)
@@ -195,9 +195,9 @@ cascade:
 ---
 title: p1
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Background: {{ .Params.background }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|
   `
 
@@ -214,9 +214,9 @@ func TestCascadeOverlap(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['home','rss','sitemap','taxonomy','term']
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 -- content/s/_index.md --
 ---

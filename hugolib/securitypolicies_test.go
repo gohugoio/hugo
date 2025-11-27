@@ -35,7 +35,7 @@ func TestSecurityPolicies(t *testing.T) {
 		files := `
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/index.html --
+-- layouts/home.html --
 {{ os.Getenv "FOOBAR" }}
 `
 		_, err := TestE(c, files)
@@ -48,7 +48,7 @@ baseURL = "https://example.org"
 		files := `
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/index.html --
+-- layouts/home.html --
 		{{ os.Getenv "HUGO_FOO" }}
 `
 		Test(c, files)
@@ -117,7 +117,7 @@ foo
 		files := `
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}
 `
 		Test(c, files)
@@ -134,7 +134,7 @@ baseURL = "https://example.org"
 [security]
 [security.exec]
 allow="none"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $scss := "body { color: #333; }" | resources.FromString "foo.scss"  | css.Sass (dict "transpiler" "dartsass") }}
 		`
 		_, err := TestE(c, files)
@@ -151,7 +151,7 @@ allow="none"
 		files := fmt.Sprintf(`
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fruits.json" }}{{ $json.Content }}
 `, ts.URL)
 		Test(c, files)
@@ -166,7 +166,7 @@ baseURL = "https://example.org"
 		files := fmt.Sprintf(`
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fruits.json" (dict "method" "DELETE" ) }}{{ $json.Content }}
 `, ts.URL)
 		_, err := TestE(c, files)
@@ -186,7 +186,7 @@ baseURL = "https://example.org"
 [security]
 [security.http]
 urls="none"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fruits.json" }}{{ $json.Content }}
 `, ts.URL)
 		_, err := TestE(c, files)
@@ -204,7 +204,7 @@ urls="none"
 -- hugo.toml --
 baseURL = "https://example.org"
 [security]
--- layouts/index.html --
+-- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fakejson.json" }}{{ $json.Content }}
 `, ts.URL)
 		_, err := TestE(c, files)
@@ -224,7 +224,7 @@ baseURL = "https://example.org"
 [security]
 [security.http]
 mediaTypes=["application/json"]
--- layouts/index.html --
+-- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fakejson.json" }}{{ $json.Content }}
 `, ts.URL)
 		Test(c, files)

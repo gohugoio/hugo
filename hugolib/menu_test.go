@@ -27,7 +27,7 @@ func TestMenusSectionPagesMenu(t *testing.T) {
 baseurl = "http://example.com/"
 title = "Section Menu"
 sectionPagesMenu = "sect"
--- layouts/partials/menu.html --
+-- layouts/_partials/menu.html --
 {{- $p := .page -}}
 {{- $m := .menu -}}
 {{ range (index $p.Site.Menus $m) -}}
@@ -35,11 +35,11 @@ sectionPagesMenu = "sect"
 {{- if $p.IsMenuCurrent $m . }}IsMenuCurrent{{ else }}-{{ end -}}|
 {{- if $p.HasMenuCurrent $m . }}HasMenuCurrent{{ else }}-{{ end -}}|
 {{- end -}}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single|{{ .Title }}
 Menu Sect:  {{ partial "menu.html" (dict "page" . "menu" "sect") }}
 Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 List|{{ .Title }}|{{ .Content }}
 -- content/sect1/p1.md --
 ---
@@ -143,7 +143,7 @@ func TestMenusFrontMatter(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 Main: {{ len .Site.Menus.main }}
 Other: {{ len .Site.Menus.other }}
 {{ range .Site.Menus.main }}
@@ -193,7 +193,7 @@ baseURL = "https://example.com"
 mediaType = "text/html"
 path = "damp"
 
--- layouts/index.html --
+-- layouts/home.html --
 {{ range .Site.Menus.main }}{{ .Title }}|{{ .URL }}|{{ end }}
 -- content/_index.md --
 ---
@@ -235,7 +235,7 @@ func TestMenusPageSortByDate(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 {{ range .Site.Menus.main }}{{ .Title }}|Children:
 {{- $children := sort .Children ".Page.Date" "desc" }}{{ range $children }}{{ .Title }}|{{ end }}{{ end }}
 
@@ -288,7 +288,7 @@ weight = 300
 foo = "foo_config"
 key2 = "key2_config"
 camelCase = "camelCase_config"
--- layouts/index.html --
+-- layouts/home.html --
 Main: {{ len .Site.Menus.main }}
 {{ range .Site.Menus.main }}
 foo: {{ .Params.foo }}
@@ -337,13 +337,13 @@ pageRef = "/blog/post3"
 title = "My Post 3"
 url = "/blog/post3"
 
--- layouts/index.html --
+-- layouts/home.html --
 Main: {{ len .Site.Menus.main }}
 {{ range .Site.Menus.main }}
 {{ .Title }}|HasMenuCurrent: {{ $.HasMenuCurrent "main" . }}|Page: {{ .Page.Path }}
 {{ .Title }}|IsMenuCurrent: {{ $.IsMenuCurrent "main" . }}|Page: {{ .Page.Path }}
 {{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Main: {{ len .Site.Menus.main }}
 {{ range .Site.Menus.main }}
 {{ .Title }}|HasMenuCurrent: {{ $.HasMenuCurrent "main" . }}|Page: {{ .Page.Path }}
@@ -444,7 +444,7 @@ weight = 1
 ---
 title: "Test 1"
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ range site.Menus.main }}
 {{ .Name }}|{{ .URL }}|IsMenuCurrent = {{ $.IsMenuCurrent "main" . }}|HasMenuCurrent = {{ $.HasMenuCurrent "main" . }}|
 {{ range .Children }}
@@ -491,7 +491,7 @@ url = "/"
 pre = "<span>"
 post = "</span>"
 weight = 1
--- layouts/index.html --
+-- layouts/home.html --
 {{ range $i, $e := site.Menus.main }}
 Menu Item: {{ $i }}: {{ .Pre }}{{ .Name }}{{ .Post }}|{{ .URL }}|
 {{ end }}
@@ -517,7 +517,7 @@ title = "Hugo Menu Test"
 name = "Posts"
 url = "/posts"
 weight = 1
--- layouts/index.html --
+-- layouts/home.html --
 {{ range $i, $e := site.Menus.main }}
 Menu Item: {{ $i }}|{{ .URL }}|
 {{ end }}
@@ -540,11 +540,11 @@ defaultContentLanguageInSubdir = true
 sectionPagesMenu = "main"
 [languages.en]
 [languages.fr]
--- layouts/_default/home.html --
+-- layouts/home.html --
 {{- range site.Menus.main -}}
   <a href="{{ .URL }}">{{ .Name }}</a>
 {{- end -}}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 -- content/p1.en.md --
 ---
@@ -592,9 +592,9 @@ menus: main
 ---
 title: p3
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ range site.Menus.main }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 `
 
@@ -659,11 +659,11 @@ title: S2_Title
 title: S3_Title
 linkTitle: S3_LinkTitle
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Content }}
--- layouts/_default/home.html --
+-- layouts/home.html --
 {{- range site.Menus.main }}
 URL: {{ .URL }}| Name: {{ .Name }}| Title: {{ .Title }}| PageRef: {{ .PageRef }}| Page.Title: {{ .Page.Title }}| Page.LinkTitle: {{ .Page.LinkTitle }}|
 {{- end }}

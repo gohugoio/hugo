@@ -30,13 +30,13 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 {.b}
 
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
 	t.Run("With Hook, no wrap", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "CONFIG_VALUE", "false")
-		files = files + `-- layouts/_default/_markup/render-image.html --
+		files = files + `-- layouts/_markup/render-image.html --
 {{ if .IsBlock }}
 <figure class="{{ .Attributes.class }}">
 	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}|{{ .Ordinal }}" />
@@ -55,7 +55,7 @@ This is an inline image: ![Inline Image](/inline.jpg). Some more text.
 
 	t.Run("With Hook, wrap", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "CONFIG_VALUE", "true")
-		files = files + `-- layouts/_default/_markup/render-image.html --
+		files = files + `-- layouts/_markup/render-image.html --
 {{ if .IsBlock }}
 <figure class="{{ .Attributes.class }}">
 	<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" />

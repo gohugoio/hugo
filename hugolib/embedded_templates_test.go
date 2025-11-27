@@ -41,7 +41,7 @@ lastmod: 2021-05-22T19:25:00+01:00
 ---
 title: My Site
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 
 {{ template "_internal/twitter_cards.html" . }}
 {{ template "_internal/opengraph.html" . }}
@@ -138,7 +138,7 @@ title: p09
 ---
 title: p10
 ---
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Paginate (where site.RegularPages "Section" "s1") }}` + variant + `
 `
 		b := Test(t, files)

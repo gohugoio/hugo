@@ -1,3 +1,16 @@
+// Copyright 2025 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package tplimpl_test
 
 import (
@@ -12,149 +25,6 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
-
-// Old as in before Hugo v0.146.0.
-func TestLayoutsOldSetup(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = true
-[languages]
-[languages.en]
-title = "Title in English"
-weight = 1
-[languages.nn]
-title = "Tittel på nynorsk"
-weight = 2
--- layouts/index.html --
-Home.
-{{ template "_internal/twitter_cards.html" . }}
--- layouts/_default/single.html --
-Single.
--- layouts/_default/single.nn.html --
-Single NN.
--- layouts/_default/list.html --
-List HTML.
--- layouts/docs/list-baseof.html --
-Docs Baseof List HTML.
-{{ block "main" . }}Docs Baseof List HTML main block.{{ end }}
--- layouts/docs/list.section.html --
-{{ define "main" }}
-Docs List HTML.
-{{ end }}
--- layouts/_default/list.json --
-List JSON.
--- layouts/_default/list.rss.xml --
-List RSS.
--- layouts/_default/list.nn.rss.xml --
-List NN RSS.
--- layouts/_default/baseof.html --
-Base.
--- layouts/partials/mypartial.html --
-Partial.
--- layouts/shortcodes/myshortcode.html --
-Shortcode.
--- content/docs/p1.md --
----
-title: "P1"
----
-
-	`
-
-	b := hugolib.Test(t, files)
-
-	//	b.DebugPrint("", tplimpl.CategoryBaseof)
-
-	b.AssertFileContent("public/en/docs/index.html", "Docs Baseof List HTML.\n\nDocs List HTML.")
-}
-
-func TestLayoutsOldSetupBaseofPrefix(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
--- layouts/_default/layout1-baseof.html --
-Baseof layout1. {{ block "main" . }}{{ end }}
--- layouts/_default/layout2-baseof.html --
-Baseof layout2. {{ block "main" . }}{{ end }}
--- layouts/_default/layout1.html --
-{{ define "main" }}Layout1. {{ .Title }}{{ end }}
--- layouts/_default/layout2.html --
-{{ define "main" }}Layout2. {{ .Title }}{{ end }}
--- content/p1.md --
----
-title: "P1"
-layout: "layout1"
----
--- content/p2.md --
----
-title: "P2"
-layout: "layout2"
----
-`
-
-	b := hugolib.Test(t, files)
-
-	b.AssertFileContent("public/p1/index.html", "Baseof layout1. Layout1. P1")
-	b.AssertFileContent("public/p2/index.html", "Baseof layout2. Layout2. P2")
-}
-
-func TestLayoutsOldSetupTaxonomyAndTerm(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-[taxonomies]
-cat = 'cats'
-dog = 'dogs'
-# Templates for term taxonomy, old setup.
--- layouts/dogs/terms.html --
-Dogs Terms. Most specific taxonomy template.
--- layouts/taxonomy/terms.html --
-Taxonomy Terms. Down the list.
-# Templates for term term, old setup.
--- layouts/dogs/term.html --
-Dogs Term. Most specific term template.
--- layouts/term/term.html --
-Term Term. Down the list.
--- layouts/dogs/max/list.html --
-max: {{ .Title }}
--- layouts/_default/list.html --
-Default list.
--- layouts/_default/single.html --
-Default single.
--- content/p1.md --
----
-title: "P1"
-dogs: ["luna", "daisy", "max"]
----
-
-`
-	b := hugolib.Test(t, files, hugolib.TestOptWarn())
-
-	b.AssertLogContains("! WARN")
-
-	b.AssertFileContent("public/dogs/index.html", "Dogs Terms. Most specific taxonomy template.")
-	b.AssertFileContent("public/dogs/luna/index.html", "Dogs Term. Most specific term template.")
-	b.AssertFileContent("public/dogs/max/index.html", "max: Max") // layouts/dogs/max/list.html wins over layouts/term/term.html because of distance.
-}
-
-func TestLayoutsOldSetupCustomRSS(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "page"]
-[outputs]
-home = ["rss"]
--- layouts/_default/list.rss.xml --
-List RSS.
-`
-	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.xml", "List RSS.")
-}
 
 var newSetupTestSites = `
 -- hugo.toml --
@@ -237,15 +107,15 @@ Base fr.{{ block "main" . }}{{ end }}
 Base term.
 -- layouts/baseof.section.fr.amp.html --
 Base with identifiers.{{ block "main" . }}{{ end }}
--- layouts/partials/mypartial.html --
+-- layouts/_partials/mypartial.html --
 Partial. {{ partial "_inline/my-inline-partial-in-partial-with-no-ext" . }}
 {{ define "partials/_inline/my-inline-partial-in-partial-with-no-ext" }}
 Partial in partial.
 {{ end }}
--- layouts/partials/returnfoo.html --
+-- layouts/_partials/returnfoo.html --
 {{ $v := "foo" }}
 {{ return $v }}
--- layouts/shortcodes/myshortcode.html --
+-- layouts/_shortcodes/myshortcode.html --
 Shortcode. {{ partial "mypartial.html" . }}|return:{{ partial "returnfoo.html" . }}|
 -- content/_index.md --
 ---
@@ -348,7 +218,7 @@ home = ["html", "rss"]
 Home: {{ .Title }}|{{ .Content }}|
 -- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
--- layouts/shortcodes/myshortcode.html --
+-- layouts/_shortcodes/myshortcode.html --
 Myshortcode: Count: {{ math.Counter }}|
 -- content/p1.md --
 ---
@@ -493,10 +363,10 @@ title: "P1"
 {{ block "main" . }}{{ end }}
 -- layouts/baseof.json --
 {{ block "main" . }}{{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}FOO{{ end }}
--- layouts/_default/single.json --
--- layouts/_default/single.html --
+-- layouts/single.json --
+-- layouts/single.html --
 {{ define "main" }}MAIN /_default/single.html{{ end }}
 -- layouts/post/single.html --
 {{ define "main" }}MAIN{{ end }}
@@ -504,7 +374,7 @@ title: "P1"
 -- layouts/_partials/unusedpartial.html --
 -- layouts/_shortcodes/usedshortcode.html --
 {{ partial "usedpartial.html" }}
--- layouts/shortcodes/unusedshortcode.html --
+-- layouts/_shortcodes/unusedshortcode.html --
 
 	`
 
@@ -527,7 +397,7 @@ title: "P1"
 		}
 	}
 
-	b.Assert(names, qt.DeepEquals, []string{"_partials/unusedpartial.html", "shortcodes/unusedshortcode.html", "baseof.json", "post/single.html", "_default/single.json"})
+	b.Assert(names, qt.DeepEquals, []string{"_partials/unusedpartial.html", "_shortcodes/unusedshortcode.html", "baseof.json", "post/single.html", "single.json"})
 	b.Assert(len(unused), qt.Equals, 5, qt.Commentf("%#v", names))
 }
 
@@ -619,102 +489,6 @@ layouts/nn/all.html
 	b.AssertFileContent("public/admin/v1.0.0/en/index.html", "layouts/v1/all.html")
 }
 
-func TestLayoutWithLanguagesLegacy(t *testing.T) {
-	t.Parallel()
-	files := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "sitemap", "rss"]
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = true
-[languages]
-[languages.en]
-weight = 1
-[languages.nn]
-weight = 2
-[languages.sv]
-weight = 3
--- layouts/_default/single.en.html --
-layouts/_default/single.html
--- layouts/_default/single.nn.html --
-layouts/_default/single.nn.html
--- layouts/_default/single.sv.html --
-layouts/_default/single.sv.html
--- content/p1.md --
----
-title: "P1"
----
--- content/p1.nn.md --
----
-title: "P1 NN"
----
--- content/p1.sv.md --
----
-title: "P1 SV"
----
-`
-	b := hugolib.Test(t, files)
-
-	b.AssertFileContent("public/en/p1/index.html", "layouts/_default/single.html")
-	b.AssertFileContent("public/nn/p1/index.html", "layouts/_default/single.nn.html")
-	b.AssertFileContent("public/sv/p1/index.html", "layouts/_default/single.sv.html")
-}
-
-func TestLayoutWithLanguagesLegacyMounts(t *testing.T) {
-	t.Parallel()
-	files := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "sitemap", "rss"]
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = true
-[languages]
-[languages.en]
-weight = 1
-[languages.nn]
-weight = 2
-[languages.sv]
-weight = 3
-
-
-[[module.mounts]]
-source = 'layouts/en'
-target = 'layouts'
-lang = 'en'
-
-[[module.mounts]]
-source = 'layouts/nn'
-target = 'layouts'
-lang = 'nn'
-[[module.mounts]]
-source = 'layouts/sv'
-target = 'layouts'
-lang = 'sv'
-
--- layouts/en/_default/single.html --
-layouts/en/_default/single.html
--- layouts/nn/_default/single.html --
-layouts/nn/_default/single.html
--- layouts/sv/_default/single.html --
-layouts/sv/_default/single.html
--- content/p1.md --
----
-title: "P1"
----
--- content/p1.nn.md --
----
-title: "P1 NN"
----
--- content/p1.sv.md --
----
-title: "P1 SV"
----
-`
-	b := hugolib.Test(t, files)
-
-	b.AssertFileContent("public/en/p1/index.html", "layouts/en/_default/single.html")
-	b.AssertFileContent("public/nn/p1/index.html", "layouts/nn/_default/single.html")
-	b.AssertFileContent("public/sv/p1/index.html", "layouts/sv/_default/single.html")
-}
-
 func BenchmarkLookupPagesLayout(b *testing.B) {
 	files := `
 -- hugo.toml --
@@ -794,7 +568,7 @@ weight = 2
 -- layouts/list.xml --
 layouts/list.xml
 -- layouts/_shortcodes/myshortcode.html --
-layouts/shortcodes/myshortcode.html
+layouts/_shortcodes/myshortcode.html
 -- layouts/foo/bar/_shortcodes/myshortcode.html --
 layouts/foo/bar/_shortcodes/myshortcode.html
 -- layouts/_markup/render-codeblock.html --
@@ -884,7 +658,7 @@ layout: mylayout
 		b.AssertFileContent("public/en/p/index.html", "layouts/single.html",
 			"layouts/_markup/render-codeblock.html|",
 			"layouts/_markup/render-codeblock-go.html|go|",
-			"layouts/shortcodes/myshortcode.html",
+			"layouts/_shortcodes/myshortcode.html",
 		)
 		b.AssertFileContent("public/en/foo/p/index.html", "layouts/single.html")
 		b.AssertFileContent("public/en/foo/bar/p/index.html", "layouts/foo/bar/page.html")
@@ -1142,7 +916,7 @@ func TestPartialHTML(t *testing.T) {
 {{ partial "css.html" .}}
 </head>
 </html>
--- layouts/partials/css.html --
+-- layouts/_partials/css.html --
 <link rel="stylesheet" href="/css/style.css">
 `
 
@@ -1162,7 +936,7 @@ func TestPartialPlainTextInHTML(t *testing.T) {
 {{ partial "mypartial.txt" . }}
 </head>
 </html>
--- layouts/partials/mypartial.txt --
+-- layouts/_partials/mypartial.txt --
 My <div>partial</div>.
 `
 
@@ -1330,7 +1104,7 @@ printPathWarnings = true
 -- content/v0.123.0.md --
 -- layouts/all.html --
 All.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|
 `
 
@@ -1758,7 +1532,7 @@ title: home
 a|b
 :--|:--
 1|2
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 -- layouts/index.json --
 {{ .Content }}

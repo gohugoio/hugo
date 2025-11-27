@@ -30,7 +30,7 @@ theme = "mytheme"
 Hello project!
 -- themes/mytheme/mytheme.txt --
 Hello theme!
--- layouts/index.html --
+-- layouts/home.html --
 {{ $entries := (readDir ".") }}
 START:|{{ range $entry := $entries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|{{ end }}{{ end }}:END:
 
@@ -56,7 +56,7 @@ func TestReadFileNotExists(t *testing.T) {
 
 	files := `
 -- config.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $fi := (readFile "doesnotexist") }}
 {{ if $fi }}Failed{{ else }}OK{{ end }}
 

@@ -26,7 +26,7 @@ func TestApplyWithContext(t *testing.T) {
 	files := `
 -- config.toml --
 defaultContentLanguage = 'it'
--- layouts/index.html --
+-- layouts/home.html --
 {{ $dates := slice
   "2022-01-03"
   "2022-02-01"

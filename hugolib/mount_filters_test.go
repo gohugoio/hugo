@@ -49,7 +49,7 @@ target = 'i18n'
 [[module.mounts]]
 source = 'archetypes'
 target = 'archetypes'
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single page.
 -- content/a/b/p1.md --
 ---
@@ -63,7 +63,7 @@ title: Exclude
 b1='bval'
 -- data/nodata/c.toml --
 c1='bval'
--- layouts/partials/foo.html --
+-- layouts/_partials/foo.html --
 foo
 -- assets/exclude.txt --
 foo
@@ -71,7 +71,7 @@ foo
 foo
 -- assets/js/include.js --
 foo
--- layouts/index.html --
+-- layouts/home.html --
 Data: {{ site.Data }}:END
 
 Template: {{ templates.Exists "partials/foo.html" }}:END

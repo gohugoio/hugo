@@ -42,7 +42,7 @@ moo {
   color: $moolor;
 }
 -- config.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
 T1: {{ $r.Content }}
@@ -85,7 +85,7 @@ moo {
 -- assets/scss/regular.css --
 
 -- config.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $r := resources.Get "scss/main.scss" |  toCSS }}
 T1: {{ $r.Content | safeHTML }}
 
@@ -138,7 +138,7 @@ moo {
 }
 -- config.toml --
 theme = 'mytheme'
--- layouts/index.html --
+-- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
 T1: {{ $r.Content }}
@@ -208,7 +208,7 @@ body {
 	color: $maincolor;
 }
 
--- layouts/index.html --
+-- layouts/home.html --
 {{ $cssOpts := dict }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
 T1: {{ $r.Content }}
@@ -273,7 +273,7 @@ p {
 b {
 	color: $color2;
 }
--- layouts/index.html --
+-- layouts/home.html --
 {{ $image := "images/hero.jpg" }}
 {{ $font := "Hugo's New Roman" }}
 {{ $vars := dict "$color1" "blue" "$color2" "green" "font_size" "24px" "image" $image "font" $font }}
@@ -312,7 +312,7 @@ path="github.com/gohugoio/hugo-mod-bootstrap-scss/v5"
 module github.com/gohugoio/tests/testHugoModules
 -- assets/scss/main.scss --
 @import "bootstrap/bootstrap";
--- layouts/index.html --
+-- layouts/home.html --
 {{ $cssOpts := (dict "transpiler" "libsass" ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
 Styles: {{ $r.RelPermalink }}
@@ -340,7 +340,7 @@ func TestRebuildAssetGetMatch(t *testing.T) {
 b {
 	color: red;
 }
--- layouts/index.html --
+-- layouts/home.html --
 {{ $r := resources.GetMatch "scss/main.scss" |  toCSS  }}
 T1: {{ $r.Content }}
 	`
@@ -382,7 +382,7 @@ h2 {
 h3 {
 	color: green;
 }
--- layouts/index.html --
+-- layouts/home.html --
 {{ $a := slice (resources.Get "a.scss") }}
 {{ $b := resources.Match "dir/*.scss" }}
 
@@ -435,7 +435,7 @@ target = 'assets'
 [[module.mounts]]
 source = "miscellaneous/sass"
 target = "assets/sass"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $opts := dict "transpiler" "libsass" "outputStyle" "compressed" }}
 {{ (resources.Get "sass/main.scss" | toCSS $opts).Content }}
 -- assets/sass/main.scss --

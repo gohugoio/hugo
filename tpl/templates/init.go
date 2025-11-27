@@ -34,8 +34,8 @@ func init() {
 		ns.AddMethodMapping(ctx.Exists,
 			nil,
 			[][2]string{
-				{`{{ if (templates.Exists "partials/header.html") }}Yes!{{ end }}`, `Yes!`},
-				{`{{ if not (templates.Exists "partials/doesnotexist.html") }}No!{{ end }}`, `No!`},
+				{`{{ if (templates.Exists "_partials/header.html") }}Yes!{{ end }}`, `Yes!`},
+				{`{{ if not (templates.Exists "_partials/doesnotexist.html") }}No!{{ end }}`, `No!`},
 			},
 		)
 

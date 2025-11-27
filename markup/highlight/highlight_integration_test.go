@@ -59,11 +59,11 @@ Not sure if this makes sense, but add a test for it:
 §§§
 
 
--- layouts/_default/_markup/render-codeblock-html.html --
+-- layouts/_markup/render-codeblock-html.html --
 {{ $opts := dict "hl_inline" true }}
 {{ $result := transform.HighlightCodeBlock . $opts }}
 HighlightCodeBlock: Wrapped:{{ $result.Wrapped  }}|Inner:{{ $result.Inner }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 
@@ -93,7 +93,7 @@ title: home
 §§§go
 xəx := 0
 §§§
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 `
 
@@ -119,7 +119,7 @@ title: home
 §§§go
 xəx := 0
 §§§
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 `
 

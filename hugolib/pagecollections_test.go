@@ -54,9 +54,9 @@ func TestGetPage(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}
 
 -- content/_index.md --
@@ -321,7 +321,7 @@ disableKinds = ["taxonomy", "term"]
 ---
 title: "Mysect Index"
 ---
--- layouts/index.html --
+-- layouts/home.html --
 GetPage 1: {{ with site.GetPage "mysect/index/index.md" }}{{ .Title }}|{{ .RelPermalink }}|{{ .Path }}{{ end }}|
 GetPage 2: {{ with site.GetPage "mysect/index" }}{{ .Title }}|{{ .RelPermalink }}|{{ .Path }}{{ end }}|
 `
@@ -358,7 +358,7 @@ draft: false
 ---title: members who
 draft: true
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ with .GetPage "members.md" }}
     Members: {{ .Title }}
 {{ else }}
@@ -382,7 +382,7 @@ title: p1
 ---
 -- p1/p1.xyz --
 xyz.
--- layouts/index.html --
+-- layouts/home.html --
 Home. {{ with .Page.GetPage "p1.xyz" }}{{ else }}OK 1{{ end }} {{ with .Site.GetPage "p1.xyz" }}{{ else }}OK 2{{ end }}
 `
 
@@ -406,9 +406,9 @@ layout: p1
 title: p2
 layout: p2
 ---
--- layouts/_default/p1.html --
+-- layouts/p1.html --
 {{ (.GetPage "p2.md").Title }}|
--- layouts/_default/p2.html --
+-- layouts/p2.html --
 {{ (.GetPage "p1").Title }}|
 `
 
@@ -430,7 +430,7 @@ disableKinds = ['rss','section','sitemap']
 title: p1
 tags: [news]
 ---
--- layouts/index.html --
+-- layouts/home.html --
 /tags/news: {{ with .Site.GetPage "/tags/news" }}{{ .Title }}{{ end }}|
 news: {{ with .Site.GetPage "news" }}{{ .Title }}{{ end }}|
 /news: {{ with .Site.GetPage "/news" }}{{ .Title }}{{ end }}|
@@ -457,7 +457,7 @@ title: p1
 ---
 title: p2
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ with .GetPage "p2" }}
   OK: {{ .LinkTitle }}
 {{ else }}
@@ -493,14 +493,14 @@ title: p3
 ---
 title: p2_root
 ---
--- layouts/index.html --
+-- layouts/home.html --
 /s1: {{ with .GetPage "/s1" }}{{ .Title }}{{ end }}|
 /s1/: {{ with .GetPage "/s1/" }}{{ .Title }}{{ end }}|
 /s1/p2.md: {{ with .GetPage "/s1/p2.md" }}{{ .Title }}{{ end }}|
 /s1/p2: {{ with .GetPage "/s1/p2" }}{{ .Title }}{{ end }}|
 /s1/p1/index.md: {{ with .GetPage "/s1/p1/index.md" }}{{ .Title }}{{ end }}|
 /s1/p1: {{ with .GetPage "/s1/p1" }}{{ .Title }}{{ end }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 ../p2: {{ with .GetPage "../p2" }}{{ .Title }}{{ end }}|
 ../p2.md: {{ with .GetPage "../p2.md" }}{{ .Title }}{{ end }}|
 p1/index.md: {{ with .GetPage "p1/index.md" }}{{ .Title }}{{ end }}|
@@ -570,16 +570,16 @@ title: b2
 ---
 title: d1
 ---
--- layouts/shortcodes/ref.html --
+-- layouts/_shortcodes/ref.html --
 {{ $ref := .Get 0 }}
 .Page.GetPage({{ $ref }}).Title: {{ with .Page.GetPage $ref }}{{ .Title }}{{ end }}|
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 /blog/b1.md: {{ with .GetPage "/blog/b1.md" }}{{ .Title }}{{ end }}|
 /blog/b2/index.md: {{ with .GetPage "/blog/b2/index.md" }}{{ .Title }}{{ end }}|
 /docs/d1.md: {{ with .GetPage "/docs/d1.md" }}{{ .Title }}{{ end }}|
 /README.md: {{ with .GetPage "/README.md" }}{{ .Title }}{{ end }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 /README.md: {{ with .GetPage "/README.md" }}{{ .Title }}{{ end }}|
 {{ .Content }}
@@ -642,7 +642,7 @@ title: about1
 ---
 title: about1en
 ---
--- layouts/index.html --
+-- layouts/home.html --
 {{ with site.GetPage "docs/1" }}
     Docs p1: {{ .Title }}
 {{ else }}
@@ -708,7 +708,7 @@ title: docs_sect2_ps2
 ---
 title: news1
 ---
--- layouts/index.html --
+-- layouts/home.html --
 {{ $sect1 := site.GetPage "sect1" }}
 
 Sect1 RegularPagesRecursive: {{ range $sect1.RegularPagesRecursive }}{{ .Kind }}:{{ .RelPermalink}}|{{ end }}|End.
@@ -733,7 +733,7 @@ func TestRegularPagesRecursiveHome(t *testing.T) {
 -- hugo.toml --
 -- content/p1.md --
 -- content/post/p2.md --
--- layouts/index.html --
+-- layouts/home.html --
 RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .Kind }}:{{ .RelPermalink}}|{{ end }}|End.
 `
 
@@ -764,7 +764,7 @@ draft: true
 -- content/s1-foo/s2/p3.md --
 -- content/s1-foo/s2-foo/_index.md --
 -- content/s1-foo/s2-foo/p4.md --
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .RelPermalink }}: Pages: {{ range .Pages }}{{ .RelPermalink }}|{{ end }}$
 
 `
@@ -782,12 +782,12 @@ func TestGetPageContentAdapterBaseIssue12561(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 Test A: {{ (site.GetPage "/s1/p1").Title }}
 Test B: {{ (site.GetPage "p1").Title }}
 Test C: {{ (site.GetPage "/s2/p2").Title }}
 Test D: {{ (site.GetPage "p2").Title }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 -- content/s1/p1.md --
 ---

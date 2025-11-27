@@ -72,11 +72,11 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/single.amp.html --
+-- layouts/single.amp.html --
 {{ .Content }}
--- layouts/_default/single.json --
+-- layouts/single.json --
 {{ .Content }}
 -- content/blog/page.md --
 ---

@@ -32,7 +32,7 @@ disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 [markup.goldmark.parser.attribute]
 title = true
 block = true
--- layouts/_default/single.html --
+-- layouts/single.html --
 _{{ markdownify .RawContent }}_
 -- content/p1.md --
 ---
@@ -96,7 +96,7 @@ func TestHighlightError(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ highlight "a" "b" 0 }}
   `
 	b := hugolib.NewIntegrationTestBuilder(
@@ -124,7 +124,7 @@ Rover,"a big dog",5
 Felix,a "malicious" cat,7
 Bella,"an "evil" cat",9
 Scar,"a "dead cat",11
--- layouts/index.html --
+-- layouts/home.html --
 {{ $opts := dict "lazyQuotes" true }}
 {{ $data := resources.Get "pets.csv" | transform.Unmarshal $opts }}
 {{ printf "%v" $data | safeHTML }}
@@ -140,7 +140,7 @@ func TestToMath(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
   `
 	b := hugolib.Test(t, files)
@@ -155,7 +155,7 @@ func TestToMathError(t *testing.T) {
 		files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{  transform.ToMath "c = \\foo{a^2 + b^2}" }}
   `
 		b, err := hugolib.TestE(t, files, hugolib.TestOptWarn())
@@ -168,7 +168,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 		files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $opts := dict "throwOnError" false }}
 {{  transform.ToMath "c = \\foo{a^2 + b^2}" $opts }}
   `
@@ -182,7 +182,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 		files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ with try (transform.ToMath "c = \\foo{a^2 + b^2}") }}
 	{{ with .Err }}
 	 	{{ warnf "error: %s" . }}
@@ -194,7 +194,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 		b, err := hugolib.TestE(t, files, hugolib.TestOptWarn())
 
 		b.Assert(err, qt.IsNil)
-		b.AssertLogContains("WARN  error: template: index.html:1:22: executing \"index.html\" at <transform.ToMath>: error calling ToMath: KaTeX parse error: Undefined control sequence: \\foo at position 5: c = \\̲f̲o̲o̲{a^2 + b^2}")
+		b.AssertLogContains("WARN  error: template: home.html:1:22: executing \"home.html\" at <transform.ToMath>: error calling ToMath: KaTeX parse error: Undefined control sequence: \\foo at position 5: c = \\̲f̲o̲o̲{a^2 + b^2}")
 	})
 
 	// See issue 13239.
@@ -202,7 +202,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 		files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ with transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
 	{{ with .Err }}
 	 	{{ warnf "error: %s" . }}
@@ -229,11 +229,11 @@ block  = [['\[', '\]'], ['$$', '$$']]
 inline = [['\(', '\)'], ['$', '$']]
 -- content/p1.md --
 P1_CONTENT
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content }}|
--- layouts/_default/_markup/render-passthrough.html --
+-- layouts/_markup/render-passthrough.html --
 {{ $opts := dict "throwOnError" false "displayMode" true }}
 {{ transform.ToMath .Inner $opts }}
   `
@@ -284,11 +284,11 @@ $$1+2$$
 
 Some inline $1+3$ math.
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content }}|
--- layouts/_default/_markup/render-passthrough.html --
+-- layouts/_markup/render-passthrough.html --
 {{ $opts := dict "throwOnError" true "displayMode" true }}
 {{- with try (transform.ToMath .Inner $opts ) }}
   {{- with .Err }}
@@ -317,7 +317,7 @@ func TestToMathMacros(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $macros := dict
     "\\addBar" "\\bar{#1}"
 	"\\bold" "\\mathbf{#1}"
@@ -339,7 +339,7 @@ func TestUnmarshalWithIndentedYAML(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $yaml := "\n  a:\n    b: 1\n  c:\n    d: 2\n" }}
 {{ $yaml | transform.Unmarshal | encoding.Jsonify }}
 `
@@ -370,7 +370,7 @@ func TestPortableText(t *testing.T) {
     "style": "h2"
   }
 ]
--- layouts/index.html --
+-- layouts/home.html --
 {{ $markdown := resources.Get "sample.json" | transform.Unmarshal | transform.PortableText }}
 Markdown: {{ $markdown }}|
 

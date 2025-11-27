@@ -243,9 +243,9 @@ func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
 	t.Parallel()
 
 	basefiles := `
--- layouts/index.html --
+-- layouts/home.html --
 Home Sweet {{ if.IsHome  }}Home{{ end }}.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{.Content}}{{ if.IsHome  }}This is not home!{{ end }}
 -- layouts/404.html --
 Page Not Found.{{ if.IsHome  }}This is not home!{{ end }}
@@ -331,7 +331,7 @@ disableKinds = ['RSS','sitemap','taxonomy','term']
 [params]
 mainSections=["a", "b"]
 -- content/mysect/page1.md --
--- layouts/index.html --
+-- layouts/home.html --
 {{/* Behaviour before Hugo 0.112.0. */}}
 MainSections Params: {{ site.Params.mainSections }}|
 MainSections Site method: {{ site.MainSections }}|
@@ -358,7 +358,7 @@ mainSections=["a", "b"]
 [params.sub]
 mainSections=["c", "d"]
 -- content/mysect/page1.md --
--- layouts/index.html --
+-- layouts/home.html --
 {{/* Behaviour before Hugo 0.112.0. */}}
 MainSections Params: {{ site.Params.mainSections }}|
 MainSections Param sub: {{ site.Params.sub.mainSections }}|
@@ -383,7 +383,7 @@ MainSections Site method: [a b]|
 -- config.toml --
 disableKinds = ['RSS','sitemap','taxonomy','term']
 -- content/mysect/page1.md --
--- layouts/index.html --
+-- layouts/home.html --
 MainSections Params: {{ site.Params.mainSections }}|
 MainSections Site method: {{ site.MainSections }}|
 
@@ -446,9 +446,9 @@ title: ca
 ---
 title: ca
 ---
--- layouts/index.html --
+-- layouts/home.html --
 Home
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content }}
 `
 
@@ -470,7 +470,7 @@ minify = %t
 
 [build]
   writeStats = true
--- layouts/index.html --
+-- layouts/home.html --
 
 <div id="el1" class="a b c">Foo</div>
 
@@ -527,7 +527,7 @@ func TestClassCollectorConfigWriteStats(t *testing.T) {
 		files := `
 -- hugo.toml --
 ` + writeStatsConfig + `
--- layouts/_default/list.html --
+-- layouts/list.html --
 <div id="myid" class="myclass">Foo</div>
 
 `

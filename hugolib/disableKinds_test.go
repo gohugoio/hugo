@@ -28,7 +28,7 @@ baseURL = "http://example.com/blog"
 enableRobotsTXT = true
 ignoreErrors = ["error-disable-taxonomy"]
 disableKinds = ["%s"]
--- layouts/_default/single.html --
+-- layouts/single.html --
 single
 -- content/sect/page.md --
 ---
@@ -209,7 +209,7 @@ func TestDisableRSSWithRSSInCustomOutputs(t *testing.T) {
 disableKinds = ["term", "taxonomy", "RSS"]
 [outputs]
 home = [ "HTML", "RSS" ]
--- layouts/index.html --
+-- layouts/home.html --
 Home
 `
 	b := Test(t, files)
@@ -224,7 +224,7 @@ func TestBundleNoPublishResources(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $bundle := site.GetPage "section/bundle-false" }}
 {{ $data1 := $bundle.Resources.GetMatch "data1*" }}
 Data1: {{ $data1.RelPermalink }}
@@ -256,7 +256,7 @@ func TestNoRenderAndNoPublishResources(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $page := site.GetPage "sect/no-render" }}
 {{ $sect := site.GetPage "sect-no-render" }}
 
@@ -321,7 +321,7 @@ title: "Page 1 en"
 ---
 title: "Page 2 nn"
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 `
 	b := Test(t, files)

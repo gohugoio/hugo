@@ -72,7 +72,7 @@ baseURL = "http://example.com/"
 disableLiveReload = true
 [internal]
 fastRenderMode = true
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Base: {{ block "main" . }}{{ end }}
 -- layouts/404.html --
 {{ define "main" }}

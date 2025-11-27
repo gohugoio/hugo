@@ -31,12 +31,12 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds=["home", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
 ignoreErrors = ["my-err-id"]
 [outputs]
 home=["HTML"]
--- layouts/partials/header.html --
+-- layouts/_partials/header.html --
 <title>Hugo Rocks!</title>
 -- files/README.txt --
 Hugo Rocks!
@@ -77,7 +77,7 @@ title: "**BatMan**"
 		}
 	}
 
-	files += fmt.Sprintf("-- layouts/_default/single.html --\n%s\n", strings.Join(templates, "\n"))
+	files += fmt.Sprintf("-- layouts/single.html --\n%s\n", strings.Join(templates, "\n"))
 	b = hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           t,

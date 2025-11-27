@@ -44,7 +44,7 @@ file 1 en
 file 2 en
 -- content/nn/myfiles/file1.txt --
 file 1 nn
--- layouts/index.html --
+-- layouts/home.html --
 Title: {{ .Title }}|
 Len Resources: {{ len .Resources }}|
 {{ range $i, $e := .Resources }}

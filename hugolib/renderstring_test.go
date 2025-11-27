@@ -25,7 +25,7 @@ func TestRenderString(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $p := site.GetPage "p1.md" }}
 {{ $optBlock := dict "display" "block" }}
 {{ $optOrg := dict "markup" "org" }}
@@ -33,7 +33,7 @@ RSTART:{{ "**Bold Markdown**" | $p.RenderString }}:REND
 RSTART:{{  "**Bold Block Markdown**" | $p.RenderString  $optBlock }}:REND
 RSTART:{{  "/italic org mode/" | $p.RenderString  $optOrg }}:REND
 RSTART:{{ "## Header2" | $p.RenderString }}:REND
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 Hook Heading: {{ .Level }}
 -- content/p1.md --
 ---
@@ -57,11 +57,11 @@ func TestRenderStringOnListPage(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 {{ .RenderString "**Hello**" }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .RenderString "**Hello**" }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .RenderString "**Hello**" }}
 -- content/mysection/p1.md --
 FOO
@@ -86,7 +86,7 @@ func TestRenderStringOnPageNotBackedByAFile(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["page", "section", "taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 {{ .RenderString "**Hello**" }}
 -- content/p1.md --
 `
@@ -106,18 +106,18 @@ enableInlineShortcodes = true
 title: "P1"
 ---
 ## First
--- layouts/shortcodes/mark1.md --
+-- layouts/_shortcodes/mark1.md --
 {{ .Inner }}
--- layouts/shortcodes/mark2.md --
+-- layouts/_shortcodes/mark2.md --
 1. Item Mark2 1
 1. Item Mark2 2
    1. Item Mark2 2-1
 1. Item Mark2 3
--- layouts/shortcodes/myhthml.html --
+-- layouts/_shortcodes/myhthml.html --
 Title: {{ .Page.Title }}
 TableOfContents: {{ .Page.TableOfContents }}
 Page Type: {{ printf "%T" .Page }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .RenderString "Markdown: {{% mark2 %}}|HTML: {{< myhthml >}}|Inline: {{< foo.inline >}}{{ site.Title }}{{< /foo.inline >}}|" }}
 HasShortcode: mark2:{{ .HasShortcode "mark2" }}:true
 HasShortcode: foo:{{ .HasShortcode "foo" }}:false
@@ -153,7 +153,7 @@ Page Type: *hugolib.pageForShortcode`,
 			},
 		).Build()
 
-		b.EditFiles("layouts/shortcodes/myhthml.html", "Edit shortcode").Build()
+		b.EditFiles("layouts/_shortcodes/myhthml.html", "Edit shortcode").Build()
 
 		b.AssertFileContent("public/p1/index.html",
 			`Edit shortcode`,
@@ -167,9 +167,9 @@ func TestRenderStringWithShortcodeInPageWithNoContentFile(t *testing.T) {
 
 	files := `
 -- config.toml --
--- layouts/shortcodes/myshort.html --
+-- layouts/_shortcodes/myshort.html --
 Page Kind: {{ .Page.Kind }}
--- layouts/index.html --
+-- layouts/home.html --
 Short: {{ .RenderString "{{< myshort >}}" }}
 Has myshort: {{ .HasShortcode "myshort" }}
 Has other: {{ .HasShortcode "other" }}
@@ -204,11 +204,11 @@ title: "P1"
      {{ not a shortcode
 {{< /noop >}}
 }
--- layouts/shortcodes/noop.html --
+-- layouts/_shortcodes/noop.html --
 {{ .Inner | $.Page.RenderString }}
--- layouts/shortcodes/toc.html --
+-- layouts/_shortcodes/toc.html --
 {{ .Page.TableOfContents }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 `
 

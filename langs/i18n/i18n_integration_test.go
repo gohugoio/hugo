@@ -40,7 +40,7 @@ other = 'l1theme'
 other = 'l2theme'
 [l3]
 other = 'l3theme'
--- layouts/index.html --
+-- layouts/home.html --
 l1: {{ i18n "l1"  }}|l2: {{ i18n "l2"  }}|l3: {{ i18n "l3"  }}
 
 `
@@ -83,7 +83,7 @@ Irure excepteur ex occaecat ipsum laboris fugiat exercitation. Exercitation adip
 -- i18n/en.toml --
 [a]
 other = 'Reading time: {{ .ReadingTime }}'
--- layouts/index.html --
+-- layouts/home.html --
 i18n: {{ i18n "a" . }}|
 
 `
@@ -110,7 +110,7 @@ defaultContentLanguageInSubdir = true
 cat = 'gato'
 -- i18n/fr.toml --
 # this file intentionally empty
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Title }}_{{ T "cat" }}
 -- content/_index.fr.md --
 ---

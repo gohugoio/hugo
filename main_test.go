@@ -36,6 +36,12 @@ import (
 )
 
 func TestCommands(t *testing.T) {
+	// These are somewhat flakey and takes some time,
+	// so usefule to have a way to skip them when developing.
+	const skipEnv = "HUGOTESTING_SKIP_COMMANDS"
+	if os.Getenv(skipEnv) != "" {
+		t.Skipf("skip because %s set in env", skipEnv)
+	}
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/commands"
 	testscript.Run(t, p)

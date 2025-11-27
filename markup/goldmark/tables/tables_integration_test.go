@@ -45,9 +45,9 @@ title = true
 | February | $80 |
 | March | $420 |
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-table.html --
+-- layouts/_markup/render-table.html --
 Attributes: {{ .Attributes }}|
 {{ template "print" (dict "what" (printf "table-%d-thead" $.Ordinal) "rows" .THead) }}
 {{ template "print" (dict "what" (printf "table-%d-tbody" $.Ordinal)  "rows" .TBody) }}
@@ -99,7 +99,7 @@ a|b
 1|2
 {id="\"><script>alert()</script>"}
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 Summary: {{ .Summary }}
 Content: {{ .Content }}
 
@@ -135,13 +135,13 @@ output: ["rss", "html"]
 
 {{< foo >}}
 
--- layouts/index.html --
+-- layouts/home.html --
 Content: {{ .Content }}
 -- layouts/index.xml --
 Content: {{ .Content }}
--- layouts/shortcodes/foo.xml --
+-- layouts/_shortcodes/foo.xml --
 foo xml
--- layouts/shortcodes/foo.html --
+-- layouts/_shortcodes/foo.html --
 foo html
 
 `

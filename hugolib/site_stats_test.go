@@ -120,7 +120,7 @@ date: 2023-03-01
 ---
 date: 2023-04-01
 ---
--- layouts/index.html --
+-- layouts/home.html --
 site.Lastmod: {{ .Site.Lastmod.Format "2006-01-02" }}
 home.Lastmod: {{ site.Home.Lastmod.Format "2006-01-02" }}
 

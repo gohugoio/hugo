@@ -34,7 +34,7 @@ weight = 1
 [languages.de]
 languageName = 'Deutsch'
 weight = 2
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Site.Sites.Default.Language.LanguageName }}
 `
 

@@ -54,7 +54,7 @@ draft: true
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/index.html --
+-- layouts/home.html --
 Num Regular: {{ len .Site.RegularPages }}|{{ range .Site.RegularPages }}{{ .RelPermalink }}|{{ end }}$
 Main Sections: {{ .Site.Params.mainSections }}
 Pag Num Pages: {{ len .Paginator.Pages }}
@@ -205,7 +205,7 @@ func TestIntegrationTestTemplate(t *testing.T) {
 -- config.toml --
 title = "Integration Test"
 disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "RSS"]
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ .Title }}|
 
 	`
@@ -235,7 +235,7 @@ weight = 1
 weight = 2
 [languages.de]
 weight = 3
--- layouts/index.html --
+-- layouts/home.html --
 {{ $bundle := site.GetPage "bundle" }}
 {{ $r := $bundle.Resources.GetMatch "*.txt" }}
 {{ .Language.Lang }}: {{ with $r }}{{ .RelPermalink }}|{{ .Content }}{{ end}}
@@ -276,7 +276,7 @@ disableKinds = ["taxonomy", "term"]
 -- content/bundle/index.md --
 -- content/bundle/data with Spaces.txt --
 Data.
--- layouts/index.html --
+-- layouts/home.html --
 {{ $bundle := site.GetPage "bundle" }}
 {{ $r := $bundle.Resources.Get "data with Spaces.txt" }}
 R: {{ with $r }}{{ .Content }}{{ end }}|
@@ -300,7 +300,7 @@ data 1.txt
 Data 1.txt
 -- content/bundle/Data-1.txt --
 Data-1.txt
--- layouts/index.html --
+-- layouts/home.html --
 {{ $bundle := site.GetPage "bundle" }}
 {{ $r := $bundle.Resources.Get "data-1.txt" }}
 R: {{ with $r }}{{ .Content }}{{ end }}|Len: {{ len $bundle.Resources }}|$
@@ -329,9 +329,9 @@ foo.txt
 p1.txt
 -- content/s1/p1-foo.txt --
 p1-foo.txt
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{.Title }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{.Title }}|
 	`
 
@@ -361,7 +361,7 @@ title: s1
 ---
 -- content/s1x/a.txt --
 a.txt
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ range .Resources.Match "**" }}
   {{ .Name }}|
@@ -386,7 +386,7 @@ defaultContentLanguageInSubdir = true
 [languages.en]
 [sitemap]
 filename = 'foo.xml'
--- layouts/index.html --
+-- layouts/home.html --
 irrelevant
 `
 
@@ -497,7 +497,7 @@ title: p1
 <p>b</p>
 -- content/p1/c.html --
 <p>c</p>
--- layouts/_default/single.html --
+-- layouts/single.html --
 Path: {{ .Path }}|{{.Kind }}
 |{{ (.Resources.Get "a.html").RelPermalink -}}
 |{{ (.Resources.Get "b.html").RelPermalink -}}

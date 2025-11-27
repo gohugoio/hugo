@@ -34,7 +34,7 @@ disableKinds = ["term", "taxonomy", "section", "page"]
 ---
 title: Page
 ---
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ .Title }}
 `
 
@@ -135,9 +135,9 @@ Rotate(language): {{ range .Rotate "language" }}{{ .Lang }}|{{ .Title }}|{{ end 
 mytext.txt: {{ with .Resources.GetMatch "**.txt" }}{{ .Content }}|{{ .RelPermalink }}{{ end }}|
 mypage.md: {{ with .Resources.GetMatch "**.md" }}{{ .Content }}|{{ .RelPermalink }}{{ end }}|
 RenderString with shortcode: {{ .RenderString "{{< myshortcode >}}" }}|
--- layouts/shortcodes/myshortcode.html --
+-- layouts/_shortcodes/myshortcode.html --
 myshortcode.html
--- layouts/shortcodes/myshortcode.en.html --
+-- layouts/_shortcodes/myshortcode.en.html --
 myshortcode.en.html
 `
 
@@ -322,11 +322,11 @@ title: Page
 ---
 Page.
 
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {{ .RelPermalink }}|{{ end }}$
--- layouts/_default/list.xml --
+-- layouts/list.xml --
 List xml: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {{ .RelPermalink }}|{{ end }}$
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .RelPermalink}}|{{ range .OutputFormats }}{{ .Name }}: {{ .RelPermalink }}|{{ end }}$
 
 `
@@ -387,7 +387,7 @@ hugo = "Rules!"
 
 [outputs]
   home = ["html", "json", "rss"]
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|HTML
 Resources: {{ range .Resources }}{{ .ResourceType }}|{{ .RelPermalink }}|{{ .MediaType }} - {{ end }}|
 Site last mod: {{ site.Lastmod.Format "2006-02-01" }}|
@@ -403,7 +403,7 @@ RenderString with shortcode: {{ .RenderString "{{% hello %}}" }}|
 Paginate: {{ .Paginator.PageNumber }}/{{ .Paginator.TotalPages }}|
 -- layouts/index.json --
 Home:{{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|JSON
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|
 Resources: {{ range .Resources }}{{ .ResourceType }}|{{ .RelPermalink }}|{{ .MediaType }} - {{ end }}
 Pages Length: {{ len .Pages }}
@@ -414,7 +414,7 @@ Background: {{ .Params.background }}|
 Kind: {{ .Kind }}
 Type: {{ .Type }}
 Paginate: {{ .Paginator.PageNumber }}/{{ .Paginator.TotalPages }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Lang}}|{{ .Kind }}|{{ .RelPermalink }}|{{ .Title }}|{{ .Content }}|Len Resources: {{ len .Resources }}|Background: {{ .Params.background }}|
 Resources: {{ range .Resources }}{{ .ResourceType }}|{{ .RelPermalink }}|{{ .MediaType }}|{{ .Params }} - {{ end }}
 {{ $textResource := .Resources.GetMatch "**.txt" }}
@@ -426,7 +426,7 @@ Icon fingerprinted: {{ with $textResourceFingerprinted }}{{ .Params.icon }}|{{ .
 NextInSection: {{ with .NextInSection }}{{ .RelPermalink }}|{{ .Title }}{{ end }}|
 PrevInSection: {{ with .PrevInSection }}{{ .RelPermalink }}|{{ .Title }}{{ end }}|
 GetTerms: {{ range .GetTerms "tags" }}name: {{ .Name }}, title: {{ .Title }}|{{ end }}
--- layouts/shortcodes/hello.html --
+-- layouts/_shortcodes/hello.html --
 Hello.
 -- content/_index.md --
 ---
@@ -630,7 +630,7 @@ target = "content"
 lang = "nn"
 [[module.imports]]
 path = "mytheme"
--- layouts/index.html --
+-- layouts/home.html --
 i18n s1: {{ i18n "s1" }}|
 i18n s2: {{ i18n "s2" }}|
 data s1: {{ site.Data.d1.s1 }}|
@@ -716,9 +716,9 @@ mediaType = "text/csv"
 isPlainText = true
 isHTML = false
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 HTML Single: {{ .Data.Pages }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 HTML List: {{ .Data.Pages }}
 -- content/_index.md --
 ---
@@ -820,13 +820,13 @@ weight = 3
 [languages.sv]
 title = "Svenska"
 weight = 4
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}
 {{ .Content }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 {{ .Content }}
--- layouts/shortcodes/myshort.html --
+-- layouts/_shortcodes/myshort.html --
 {{ .Inner }}
 `
 

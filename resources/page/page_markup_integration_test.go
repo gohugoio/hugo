@@ -35,7 +35,7 @@ title: "Post 1"
 date: "2020-01-01"
 ---
 {{% foo %}}
--- layouts/shortcodes/foo.html --
+-- layouts/_shortcodes/foo.html --
 Two *words*.
 {{/* Test that markup scope is set in all relevant constructs. */}}
 {{ if eq hugo.Context.MarkupScope "foo" }}
@@ -45,10 +45,10 @@ Sint ad mollit qui Lorem ut occaecat culpa officia. Et consectetur aute voluptat
 ### Heading 2
 Exercitation quis est consectetur occaecat nostrud. Ullamco aute mollit aliqua est amet. Exercitation ullamco consectetur dolor labore et non irure eu cillum Lorem.
 {{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ .Content }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 Page.ContentWithoutSummmary: {{ .ContentWithoutSummary }}|
 {{ template "render-scope" (dict "page" . "scope" "main") }}
@@ -134,28 +134,28 @@ date: "2020-01-03"
 
 {{< foo >}}
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ with site.GetPage "p1" }}
 	{{ with .Markup "home" }}
 	 	{{ .Render.Content }}
 	{{ end }}
 {{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 {{ with .Markup  }}
 	{{ with .Render }}
 	 	{{ .Content }}
 	{{ end }}
 {{ end }}
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 Render heading: title: {{ .Text}} scope: {{ hugo.Context.MarkupScope }}|
--- layouts/shortcodes/foo.html --
+-- layouts/_shortcodes/foo.html --
 Foo scope: {{ hugo.Context.MarkupScope }}|
--- layouts/shortcodes/includerendershortcodes.html --
+-- layouts/_shortcodes/includerendershortcodes.html --
 {{ $p := site.GetPage (.Get 0) }}
 includerendershortcodes: {{ hugo.Context.MarkupScope }}|{{ $p.Markup.RenderShortcodes }}|
--- layouts/shortcodes/includecontent.html --
+-- layouts/_shortcodes/includecontent.html --
 {{ $p := site.GetPage (.Get 0) }}
 includecontent: {{ hugo.Context.MarkupScope }}|{{ $p.Markup.Render.Content }}|
 
@@ -204,7 +204,7 @@ date: "2020-01-01"
 summary: "This is summary in front matter."
 ---
 This is content.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 Page.Summary: {{ .Summary }}|
 {{ with .Markup.Render }}
@@ -265,7 +265,7 @@ Another paragraph.
 This is summary.
 <!--more-->
 This is content.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 Page.Summary: {{ .Summary }}|
 {{ with .Markup.Render }}
@@ -317,7 +317,7 @@ Another paragraph.
 This is summary.
 <!--more-->
 This is content.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 Page.Summary: {{ .Summary }}|
 {{ with .Markup.Render }}

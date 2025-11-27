@@ -54,7 +54,7 @@ date: "2020-01-01"
 title: "Post 2"
 date: "2020-02-01"
 ---
--- layouts/index.html --
+-- layouts/home.html --
 {{ range $k, $v := site.RegularPages.GroupByDate "January, 2006" }}{{ $k }}|{{ $v.Key }}|{{ $v.Pages }}{{ end }}
 
 	`
@@ -104,7 +104,7 @@ title: "alpha"
 date: "2020-01-01"
 param1: "éclair"
 ---
--- layouts/index.html --
+-- layouts/home.html --
 ByTitle: {{ range site.RegularPages.ByTitle }}{{ .Title }}|{{ end }}
 ByLinkTitle: {{ range site.RegularPages.ByLinkTitle }}{{ .Title }}|{{ end }}
 ByParam: {{ range site.RegularPages.ByParam "param1" }}{{ .Params.param1 }}|{{ end }}
@@ -159,7 +159,7 @@ title: "D"
 slug: "d"
 ---
 D
--- layouts/_default/single.html --
+-- layouts/single.html --
 RelPermalink: {{ .RelPermalink }}
 
 `

@@ -37,9 +37,9 @@ P1.
 title: "P2"
 ---
 P2.
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ $css := resources.Get "css/main.css" | resources.Minify  }}
 CSS: {{ $css.Content }}
 `

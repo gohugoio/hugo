@@ -92,10 +92,10 @@ title: "This is T5"
 ---
 title: "This is S3s"
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 Taxonomy List Page 1|{{ .Title }}|Hello|{{ .Permalink }}|
--- layouts/_default/terms.html --
-Taxonomy Term Page 1|{{ .Title }}|Hello|{{ .Permalink }}|
+-- layouts/taxonomy.html --
+Taxonomy Page 1|{{ .Title }}|Hello|{{ .Permalink }}|
 `
 
 	b := Test(t, files)
@@ -125,9 +125,9 @@ Taxonomy Term Page 1|{{ .Title }}|Hello|{{ .Permalink }}|
 	b.AssertFileContent("public/t1/t2/t3s/t4/t5/index.html", "Taxonomy List Page 1|This is T5|Hello|https://example.com/t1/t2/t3s/t4/t5/|")
 	b.AssertFileContent("public/t1/t2/t3s/t4/t5/t6/index.html", "Taxonomy List Page 1|t4/t5/t6|Hello|https://example.com/t1/t2/t3s/t4/t5/t6/|")
 
-	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|categories|Hello|https://example.com/news/categories/|")
-	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Term Page 1|t3s|Hello|https://example.com/t1/t2/t3s/|")
-	b.AssertFileContent("public/s1/s2/s3s/index.html", "Taxonomy Term Page 1|This is S3s|Hello|https://example.com/s1/s2/s3s/|")
+	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Page 1|categories|Hello|https://example.com/news/categories/|")
+	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Page 1|t3s|Hello|https://example.com/t1/t2/t3s/|")
+	b.AssertFileContent("public/s1/s2/s3s/index.html", "Taxonomy Page 1|This is S3s|Hello|https://example.com/s1/s2/s3s/|")
 }
 
 // https://github.com/gohugoio/hugo/issues/5719
@@ -147,14 +147,14 @@ Content.
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/index.html --
+-- layouts/home.html --
 <h1>Tags</h1>
 <ul>
     {{ range .Site.Taxonomies.tags }}
             <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
     {{ end }}
 </ul>
--- layouts/_default/terms.html --
+-- layouts/taxonomy.html --
 <h1>Terms</h1>
 <ul>
     {{ range .Data.Terms.Alphabetical }}
@@ -181,7 +181,7 @@ func TestTaxonomiesNotForDrafts(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/_default/list.html --
+-- layouts/list.html --
 List page.
 -- content/draft.md --
 ---
@@ -228,7 +228,7 @@ categories: ["cool"]
 ---
 
 Content.
--- layouts/index.html --
+-- layouts/home.html --
 {{ range .Site.Pages }}
 {{ .RelPermalink }}|{{ .Title }}|{{ .WordCount }}|{{ .Content }}|
 {{ end }}
@@ -267,7 +267,7 @@ categories: ["cool"]
 ---
 
 Content.
--- layouts/index.html --
+-- layouts/home.html --
 NO HOME FOR YOU
 `
 
@@ -285,7 +285,7 @@ func TestTaxonomiesWithBundledResources(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/_default/list.html --
+-- layouts/list.html --
 List {{ .Title }}:
 {{ range .Resources }}
 Resource: {{ .RelPermalink }}|{{ .MediaType }}
@@ -319,7 +319,7 @@ func TestTaxonomiesRemoveOne(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableLiveReload = true
--- layouts/index.html --
+-- layouts/home.html --
 {{ $cats := .Site.Taxonomies.categories.cats }}
 {{ if $cats }}
 Len cats: {{ len $cats }}
@@ -380,7 +380,7 @@ func TestTaxonomiesListPages(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ template "print-taxo" "categories.cats" }}
 {{ template "print-taxo" "categories.funny" }}
 
@@ -432,7 +432,7 @@ func TestTaxonomiesPageCollections(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $home := site.Home }}
 {{ $section := site.GetPage "section" }}
 {{ $categories := site.GetPage "categories" }}
@@ -510,7 +510,7 @@ titleCaseStyle = "none"
   abcdef = "abcdefs"
   abcdefg = "abcdefgs"
   abcdefghi = "abcdefghis"
--- layouts/index.html --
+-- layouts/home.html --
 {{ range site.Pages }}Page: {{ template "print-page" . }}
 {{ end }}
 {{ $abc := site.GetPage "abcdefgs/abc" }}
@@ -563,7 +563,7 @@ title: "abcdefghijk"
 
 func TestTaxonomiesWeightSort(t *testing.T) {
 	files := `
--- layouts/index.html --
+-- layouts/home.html --
 {{ $a := site.GetPage "tags/a"}}
 :{{ range $a.Pages }}{{ .RelPermalink }}|{{ end }}:
 -- content/p1.md --
@@ -606,7 +606,7 @@ tag = 'tags'
 title = "P1"
 tags = ''
 +++
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 
 `
@@ -627,7 +627,7 @@ book authors:
   - Neil Gaiman
   - Terry Pratchett
 ---
--- layouts/index.html --
+-- layouts/home.html --
 {{- $taxonomy := "book authors" }}
 Len Book Authors: {{ len (index .Site.Taxonomies $taxonomy) }}
 `
@@ -686,7 +686,7 @@ tag = "tags"
 title: "Home"
 tags: ["hellO world"]
 ---
--- layouts/_default/term.html --
+-- layouts/term.html --
 {{ .Title }}|{{ .Kind }}|{{ .Data.Singular }}|{{ .Data.Plural }}|{{ .Page.Data.Term }}|
 `
 
@@ -699,7 +699,7 @@ func TestTermDraft(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- layouts/_default/list.html --
+-- layouts/list.html --
 |{{ .Title }}|
 -- content/p1.md --
 ---
@@ -722,7 +722,7 @@ func TestTermBuildNeverRenderNorList(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- layouts/index.html --
+-- layouts/home.html --
 |{{ len site.Taxonomies.tags }}|
 -- content/p1.md --
 ---
@@ -779,10 +779,10 @@ func TestTaxonomyLookupIssue12193(t *testing.T) {
 disableKinds = ['page','rss','section','sitemap']
 [taxonomies]
 author = 'authors'
--- layouts/_default/list.html --
-{{ .Title }}|
--- layouts/_default/author.terms.html --
-layouts/_default/author.terms.html
+-- layouts/list.html --
+list.html
+-- layouts/authors/taxonomy.html --
+authors/taxonomy.html
 -- content/authors/_index.md --
 ---
 title: Authors Page
@@ -793,7 +793,7 @@ title: Authors Page
 
 	b.AssertFileExists("public/index.html", true)
 	b.AssertFileExists("public/authors/index.html", true)
-	b.AssertFileContent("public/authors/index.html", "layouts/_default/author.terms.html") // failing test
+	b.AssertFileContent("public/authors/index.html", "authors/taxonomy.html")
 }
 
 func TestTaxonomyNestedEmptySectionsIssue12188(t *testing.T) {
@@ -810,9 +810,9 @@ weight = 1
 weight = 2
 [taxonomies]
 's1/category' = 's1/category'
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|
 -- content/s1/p1.en.md --
 ---
@@ -840,9 +840,9 @@ baseURL = "https://example.com"
 disableKinds = ["RSS", "sitemap", "section"]
 [taxononomies]
 tag = "tags"
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
--- layouts/_default/single.html --
+-- layouts/single.html --
 GetTerms.tags: {{ range .GetTerms "tags" }}{{ .Title }}|{{ end }}
 -- content/_index.md --
 `

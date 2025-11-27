@@ -35,7 +35,7 @@ baseURL = 'https://en.example.org/'
 ---
 title: home
 ---
--- layouts/index.html --
+-- layouts/home.html --
 multilingual={{ hugo.IsMultilingual }}
 multihost={{ hugo.IsMultihost }}
   `

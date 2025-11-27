@@ -44,7 +44,7 @@ date: 2021-07-18
 title: Page
 date: 2021-07-18
 ---
--- layouts/index.html --
+-- layouts/home.html --
 Date: {{ .Date | time.Format ":date_long" }}
 `
 
@@ -111,7 +111,7 @@ weight=10
 [languages.nn]
 timeZone="America/Antigua"
 weight=20
--- layouts/_default/single.html --
+-- layouts/single.html --
 Date: {{ .Date | safeHTML  }}
 Lastmod: {{ .Lastmod | safeHTML  }}
 PublishDate: {{ .PublishDate | safeHTML  }}
@@ -192,7 +192,7 @@ func TestTimeOnError(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 time: {{ time "2020-10-20" "invalid-timezone" }}
 -- content/p1.md --
 `
@@ -228,7 +228,7 @@ talks = [
 	{ date = 2050-02-12, name = "Future talk 1" },
 	{ date = 2050-02-13, name = "Future talk 2" },
 ]
--- layouts/index.html --
+-- layouts/home.html --
 {{ $futureTalks := where site.Data.mydata.talks "date" ">" now }}
 {{ $pastTalks := where site.Data.mydata.talks "date" "<" now }}
 
@@ -266,11 +266,11 @@ func TestPublisDateRollupIssue12438(t *testing.T) {
 disableKinds = ['home','rss','sitemap']
 [taxonomies]
 tag = 'tags'
--- layouts/_default/list.html --
+-- layouts/list.html --
 Date: {{ .Date.Format "2006-01-02" }}
 PublishDate: {{ .PublishDate.Format "2006-01-02" }}
 Lastmod: {{ .Lastmod.Format "2006-01-02" }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 -- content/s1/p1.md --
 ---

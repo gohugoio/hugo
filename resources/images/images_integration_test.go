@@ -24,7 +24,7 @@ func TestAutoOrient(t *testing.T) {
 -- hugo.toml --
 -- assets/rotate270.jpg --
 sourcefilename: ../testdata/exif/orientation6.jpg
--- layouts/index.html --
+-- layouts/home.html --
 {{ $img := resources.Get "rotate270.jpg" }}
 W/H original: {{ $img.Width }}/{{ $img.Height }}
 {{ $rotated := $img.Filter images.AutoOrient }}
@@ -41,7 +41,7 @@ func TestOrientationEq(t *testing.T) {
 -- hugo.toml --
 -- assets/rotate270.jpg --
 sourcefilename: ../testdata/exif/orientation6.jpg
--- layouts/index.html --
+-- layouts/home.html --
 {{ $img := resources.Get "rotate270.jpg" }}
 {{ $orientation := $img.Exif.Tags.Orientation }}
 Orientation: {{ $orientation }}|eq 6: {{ eq $orientation 6 }}|Type: {{ printf "%T" $orientation }}|

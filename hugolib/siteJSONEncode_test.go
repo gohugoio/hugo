@@ -26,7 +26,7 @@ func TestEncodePage(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/index.html --
+-- layouts/home.html --
 Page: |{{ index .Site.RegularPages 0 | jsonify }}|
 Site: {{ site | jsonify }}
 -- content/page.md --

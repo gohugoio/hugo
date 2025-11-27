@@ -53,7 +53,7 @@ outputs: ["html", "amp"]
 Hello.
 -- layouts/baseof.html --
 HTML|{{ block "main" . }}{{ end }}$
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}
 EDIT_COUNTER_OUTSIDE_0
 {{ .Store.Set "hello" "Hello" }}
@@ -76,7 +76,7 @@ func TestDeferNoBaseof(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ with (templates.Defer (dict "key" "foo")) }}
  Defer
@@ -103,7 +103,7 @@ func TestDeferBaseof(t *testing.T) {
 Defer
 {{ end }}
 Block:{{ block "main" . }}{{ end }}$
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}
 Home.
 {{ end }}
@@ -127,7 +127,7 @@ func TestDeferMain(t *testing.T) {
 -- layouts/baseof.html --
 
 Block:{{ block "main" . }}{{ end }}$
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}
 Home.
 {{ with (templates.Defer (dict "key" "foo")) }}
@@ -165,7 +165,7 @@ func TestDeferRepeatedBuildsEditOutside(t *testing.T) {
 	for i := range 5 {
 		old := fmt.Sprintf("EDIT_COUNTER_OUTSIDE_%d", i)
 		new := fmt.Sprintf("EDIT_COUNTER_OUTSIDE_%d", i+1)
-		b.EditFileReplaceAll("layouts/index.html", old, new).Build()
+		b.EditFileReplaceAll("layouts/home.html", old, new).Build()
 		b.AssertFileContent("public/index.html", new)
 	}
 }
@@ -178,7 +178,7 @@ func TestDeferRepeatedBuildsEditDefer(t *testing.T) {
 	for i := range 8 {
 		old := fmt.Sprintf("EDIT_COUNTER_DEFER_%d", i)
 		new := fmt.Sprintf("EDIT_COUNTER_DEFER_%d", i+1)
-		b.EditFileReplaceAll("layouts/index.html", old, new).Build()
+		b.EditFileReplaceAll("layouts/home.html", old, new).Build()
 		b.AssertFileContent("public/index.html", new)
 	}
 }
@@ -207,7 +207,7 @@ func TestDeferEditDeferBlock(t *testing.T) {
 
 	b := hugolib.TestRunning(t, deferFilesCommon)
 	b.AssertRenderCountPage(4)
-	b.EditFileReplaceAll("layouts/index.html", "REPLACE_ME", "Edited.").Build()
+	b.EditFileReplaceAll("layouts/home.html", "REPLACE_ME", "Edited.").Build()
 	b.AssertFileContent("public/index.html", "Edited.")
 	b.AssertRenderCountPage(2)
 }
@@ -240,7 +240,7 @@ target = "layouts"
 source = 'public'
 target = 'assets/public'
 disableWatch = true
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $mydata := dict "v1" "v1value" }}
 {{ $json := resources.FromString "mydata/data.json" ($mydata | jsonify ) }}
@@ -283,7 +283,7 @@ func TestDeferPostProcessShouldThrowAnError(t *testing.T) {
 -- hugo.toml --
 -- assets/mytext.txt --
 ABCD.
--- layouts/index.html --
+-- layouts/home.html --
 Home
 {{ with (templates.Defer (dict "key" "foo")) }}
 {{ $mytext := resources.Get "mytext.txt" | minify | resources.PostProcess }}
@@ -302,7 +302,7 @@ func TestDeferMultipleInSameTemplate(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 ...
 {{ with (templates.Defer (dict "data" (dict "a" "b") )) }}

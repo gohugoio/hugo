@@ -35,7 +35,7 @@ ignoreErrors = ["error-missing-instagram-accesstoken"]
 a = "a1"
 b = "b1"
 c = "c1"
--- layouts/index.html --
+-- layouts/home.html --
 Params: {{ site.Params}}
 `
 	b := Test(t, files)

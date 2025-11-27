@@ -64,7 +64,7 @@ disableKinds = ["taxonomy", "term"]
 ---
 title: "Root"
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Basic: {{ .Title }}|{{ .Kind }}|{{ .BundleType }}|{{ .RelPermalink }}|
 Tree: Section: {{ .Section }}|CurrentSection: {{ .CurrentSection.RelPermalink }}|Parent: {{ .Parent.RelPermalink }}|FirstSection: {{ .FirstSection.RelPermalink }}
 `
@@ -95,9 +95,9 @@ P1 content.
 
 {{< myShort >}}
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 Bundled page: {{ .RelPermalink}}|{{ with .Resources.Get "p1.md" }}Title: {{ .Title }}|Content: {{ .Content }}{{ end }}|
--- layouts/shortcodes/myShort.html --
+-- layouts/_shortcodes/myShort.html --
 MyShort.
 
 `
@@ -133,14 +133,14 @@ P1.
 
 {{< hello >}}
 
--- layouts/shortcodes/hello.html --
+-- layouts/_shortcodes/hello.html --
 Hello HTML.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Basic: {{ .Title }}|{{ .Kind }}|{{ .BundleType }}|{{ .RelPermalink }}|
 Resources: {{ range .Resources }}RelPermalink: {{ .RelPermalink }}|Content: {{ .Content }}|{{ end }}|
--- layouts/shortcodes/hello.cpath --
+-- layouts/_shortcodes/hello.cpath --
 Hello CPATH.
--- layouts/_default/single.cpath --
+-- layouts/single.cpath --
 Basic: {{ .Title }}|{{ .Kind }}|{{ .BundleType }}|{{ .RelPermalink }}|
 Resources: {{ range .Resources }}RelPermalink: {{ .RelPermalink }}|Content: {{ .Content }}|{{ end }}|
 `
@@ -185,7 +185,7 @@ F1
 F2
 -- content/mybundle/f2.nn.txt --
 F2 nn.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .RelPermalink }}|{{ .Lang }}|
 Resources: {{ range .Resources }}RelPermalink: {{ .RelPermalink }}|Content: {{ .Content }}|{{ end }}|
 
@@ -229,11 +229,11 @@ title: "My Sect Nn"
 title: "P1nn"
 ---
 P1nn
--- layouts/index.html --
+-- layouts/home.html --
 Len RegularPages: {{ len .Site.RegularPages }}|RegularPages: {{ range site.RegularPages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}|
 Len Pages: {{ len .Site.Pages }}|
 Len Sites: {{ len .Site.Sites }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .Content }}|{{ .Lang }}|
 
 `
@@ -289,11 +289,11 @@ title: "My Sect Nn"
 title: "P1nn"
 ---
 P1nn
--- layouts/index.html --
+-- layouts/home.html --
 Len RegularPages: {{ len .Site.RegularPages }}|RegularPages: {{ range site.RegularPages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}|
 Len Pages: {{ len .Site.Pages }}|
 Len Sites: {{ len .Site.Sites }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .Content }}|{{ .Lang }}|
 
 `
@@ -325,7 +325,7 @@ title: P1
 title: My Headless Bundle2
 headless: true
 ---
--- layouts/index.html --
+-- layouts/home.html --
 {{ $headless1 := .Site.GetPage "headless/h1" }}
 {{ $headless2 := .Site.GetPage "headless/h2" }}
 
@@ -395,9 +395,9 @@ Date: 2018-02-01
 ---
 
 Single content.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .Content }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|{{ .Content }}
 `
 	b := Test(t, files)
@@ -458,10 +458,10 @@ F1 en.
 F2 en.
 -- content/mybundle/f2.nn.txt --
 F2 nn.
--- layouts/shortcodes/getresource.html --
+-- layouts/_shortcodes/getresource.html --
 {{ $r := .Page.Resources.Get (.Get 0)}}
 Resource: {{ (.Get 0) }}|{{ with $r }}{{ .RelPermalink }}|{{ .Content }}|{{ else }}Not found.{{ end}}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .RelPermalink }}|{{ .Lang }}|{{ .Content }}|
 `
 	b := Test(t, files)
@@ -507,7 +507,7 @@ title: Page
 ---
 -- content/mybundle/data.json --
 MyData
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ range .Resources }}
 {{ .ResourceType }}|{{ .Title }}|
 {{ end }}
@@ -549,7 +549,7 @@ title: "Bundled page en"
 title: "Bundled page nn"
 ---
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 Bundled page: {{ .RelPermalink}}|Len resources: {{ len .Resources }}|
 
 
@@ -570,7 +570,7 @@ func TestBundleIndexInSubFolder(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.com"
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ range .Resources }}
 {{ .ResourceType }}|{{ .Title }}|
 {{ end }}
@@ -616,9 +616,9 @@ title: Home
 ![Alt text](image.jpg)
 -- content/data.json --
 DATA
--- layouts/index.html --
+-- layouts/home.html --
 Title: {{ .Title }}|First Resource: {{ index .Resources 0 }}|Content: {{ .Content }}
--- layouts/_default/_markup/render-image.html --
+-- layouts/_markup/render-image.html --
 Hook Len Page Resources {{ len .Page.Resources }}
 `
 	b := Test(t, files)
@@ -675,9 +675,9 @@ title: "HTML with commented out frontmatter"
 ---
 -->
 <html>hello</html>
--- layouts/index.html --
+-- layouts/home.html --
 {{ range site.RegularPages }}{{ .RelPermalink }}|{{ end }}$
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .RelPermalink }}Resources: {{ range .Resources }}{{ .Name }}|{{ end }}$
 
 `
@@ -731,9 +731,9 @@ Section data TXT.
 -- content/mysection/p2.md --
 -- content/mysection/p2.html --
 -- content/mysection/foo/p2.md --
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single:{{ .Title }}|{{ .Path }}|File LogicalName: {{ with .File }}{{ .LogicalName }}{{ end }}||{{ .RelPermalink }}|{{ .Kind }}|Resources: {{ range .Resources}}{{ .Name }}: {{ .Content }}|{{ end }}$
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}|{{ .Path }}|File LogicalName: {{ with .File }}{{ .LogicalName }}{{ end }}|{{ .RelPermalink }}|{{ .Kind }}|Resources: {{ range .Resources}}{{ .Name }}: {{ .Content }}|{{ end }}$
 RegularPages: {{ range .RegularPages }}{{ .RelPermalink }}|File LogicalName: {{ with .File }}{{ .LogicalName }}|{{ end }}{{ end }}$
 `
@@ -754,7 +754,7 @@ baseURL = "https://example.com"
 -- content/mybundle/index.md --
 -- content/mybundle/f1.en.txt --
 F1.
--- layouts/_default/single.html --
+-- layouts/single.html --
 GetMatch: {{ with .Resources.GetMatch "f1.en.*" }}{{ .Name }}: {{ .Content }}|{{ end }}
 Match: {{ range .Resources.Match "f1.En.*" }}{{ .Name }}: {{ .Content }}|{{ end }}
 `
@@ -781,7 +781,7 @@ draft: true
 ---
 -- content/mybundle/f1.en.txt --
 F1.
--- layouts/_default/single.html --
+-- layouts/single.html --
 GetMatch: {{ with .Resources.GetMatch "f1.*" }}{{ .Name }}: {{ .Content }}|{{ end }}$
 `
 
@@ -812,9 +812,9 @@ title: p1
 ---
 p1.txt
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|
 `
 

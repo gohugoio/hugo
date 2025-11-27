@@ -68,7 +68,7 @@ hello:
 -- i18n/fr.yaml --
 hello:
    other: "Bonjour"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $options := dict "inlineImports" true }}
 {{ $styles := resources.Get "css/styles.css" | css.PostCSS $options }}
 Styles RelPermalink: {{ $styles.RelPermalink }}

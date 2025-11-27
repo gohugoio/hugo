@@ -53,7 +53,7 @@ Second line
 
 ## Example [hyperlink](https://example.com/) in a header
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}|Identifiers: {{ .Fragments.Identifiers }}|
 `
 
@@ -83,7 +83,7 @@ func TestSolitaryAttributesCrash(t *testing.T) {
 -- hugo.toml --
 [markup.goldmark.parser.attribute]
 block = true
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content }}
 -- content/p1.md --
 ---

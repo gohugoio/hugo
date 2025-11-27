@@ -39,7 +39,7 @@ title: "p1"
 ---
 title: "p1"
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}
 	`
 
@@ -141,7 +141,7 @@ disableKinds = ["taxonomy", "term"]
 [pagination]
 disableAliases = true
 pagerSize = 2
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ $paginator := .Paginate  site.RegularPages }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
@@ -191,7 +191,7 @@ func TestInvalidOutputFormat(t *testing.T) {
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 [outputs]
 home = ['html','foo']
--- layouts/index.html --
+-- layouts/home.html --
 x
 `
 

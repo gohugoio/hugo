@@ -480,7 +480,7 @@ target = "content/posts"
 [[module.mounts]]
 source = "docs"
 target = "content/mydocs"
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 
 `
@@ -554,7 +554,7 @@ JS.
 body { color: red; }
 -- assets/scss/app.scss --
 body { color: blue; }
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 SCSS: {{ with resources.Get "scss/app.scss" }}{{ .RelPermalink }}|{{ .Content }}{{ end }}|
 # Note that the pattern below will match 2 resources, which doesn't make much sense,

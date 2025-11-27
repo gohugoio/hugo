@@ -46,7 +46,7 @@ autoHeadingIDType = 'github'
 [markup.goldmark.renderer]
 unsafe = false
 xhtml = false
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .TableOfContents }}
 -- content/p1.md --
 ---
@@ -180,7 +180,7 @@ autoHeadingIDType = 'github'
 [markup.goldmark.renderer]
 unsafe = true
 xhtml = true
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .TableOfContents }}
 -- content/p1.md --
 ---
@@ -290,9 +290,9 @@ func TestIssue13416(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 Content:{{ .Content }}|
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 -- content/_index.md --
 ---
 title: home

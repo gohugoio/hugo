@@ -62,13 +62,13 @@ func TestSiteBuildErrors(t *testing.T) {
 		return `
 -- hugo.toml --
 baseURL = "https://example.com"
--- layouts/shortcodes/sc.html --
+-- layouts/_shortcodes/sc.html --
 ` + f(shortcode, `SHORTCODE L1
 SHORTCODE L2
 SHORTCODE L3:
 SHORTCODE L4: {{ .Page.Title }}
 `) + `
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 ` + f(base, `BASEOF L1
 BASEOF L2
 BASEOF L3
@@ -76,7 +76,7 @@ BASEOF L4{{ if .Title }}{{ end }}
 {{block "main" .}}This is the main content.{{end}}
 BASEOF L6
 `) + `
--- layouts/_default/single.html --
+-- layouts/single.html --
 ` + f(single, `{{ define "main" }}
 SINGLE L2:
 SINGLE L3:
@@ -169,7 +169,7 @@ Some content.
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
-				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
+				a.assertErrorMessage("\"layouts/single.html:5:14\": execute of template failed", fe.Error())
 			},
 		},
 		{
@@ -182,7 +182,7 @@ Some content.
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 14)
-				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
+				a.assertErrorMessage("\"layouts/single.html:5:14\": execute of template failed", fe.Error())
 			},
 		},
 		{
@@ -204,7 +204,7 @@ Some content.
 			assertErr: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
 				// Make sure that it contains both the content file and template
-				a.assertErrorMessage(`"content/myyaml.md:7:10": failed to render shortcode "sc": failed to process shortcode: "layouts/shortcodes/sc.html:4:22": execute of template failed: template: shortcodes/sc.html:4:22: executing "shortcodes/sc.html" at <.Page.Titles>: can't evaluate field Titles in type page.Page`, fe.Error())
+				a.assertErrorMessage(`"content/myyaml.md:7:10": failed to render shortcode "sc": failed to process shortcode: "layouts/_shortcodes/sc.html:4:22": execute of template failed: template: shortcodes/sc.html:4:22: executing "shortcodes/sc.html" at <.Page.Titles>: can't evaluate field Titles in type page.Page`, fe.Error())
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 7)
 			},
 		},
@@ -309,7 +309,7 @@ func TestErrorMinify(t *testing.T) {
 [minify]
 minifyOutput = true
 
--- layouts/index.html --
+-- layouts/home.html --
 <body>
 <script>=;</script>
 </body>
@@ -338,16 +338,16 @@ func TestErrorNestedRender(t *testing.T) {
 ---
 title: "Home"
 ---
--- layouts/index.html --
+-- layouts/home.html --
 line 1
 line 2
 1{{ .Render "myview" }}
--- layouts/_default/myview.html --
+-- layouts/myview.html --
 line 1
 12{{ partial "foo.html" . }}
 line 4
 line 5
--- layouts/partials/foo.html --
+-- layouts/_partials/foo.html --
 line 1
 line 2
 123{{ .ThisDoesNotExist }}
@@ -361,7 +361,7 @@ line 4
 	b.Assert(errors, qt.HasLen, 4)
 	b.Assert(errors[0].Position().LineNumber, qt.Equals, 3)
 	b.Assert(errors[0].Position().ColumnNumber, qt.Equals, 4)
-	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/layouts/index.html:3:4": execute of template failed`))
+	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/layouts/home.html:3:4": execute of template failed`))
 	b.Assert(errors[0].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "line 2", "1{{ .Render \"myview\" }}"})
 	b.Assert(errors[2].Position().LineNumber, qt.Equals, 2)
 	b.Assert(errors[2].Position().ColumnNumber, qt.Equals, 5)
@@ -385,17 +385,17 @@ title: "Home"
 ## Hello
 {{< hello >}}
 
--- layouts/index.html --
+-- layouts/home.html --
 line 1
 line 2
 {{ .Content }}
 line 5
--- layouts/shortcodes/hello.html --
+-- layouts/_shortcodes/hello.html --
 line 1
 12{{ partial "foo.html" . }}
 line 4
 line 5
--- layouts/partials/foo.html --
+-- layouts/_partials/foo.html --
 line 1
 line 2
 123{{ .ThisDoesNotExist }}
@@ -412,7 +412,7 @@ line 4
 	b.Assert(errors[1].Position().LineNumber, qt.Equals, 6)
 	b.Assert(errors[1].Position().ColumnNumber, qt.Equals, 1)
 	b.Assert(errors[1].ErrorContext().ChromaLexer, qt.Equals, "md")
-	b.Assert(errors[1].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:6:1": failed to render shortcode "hello": failed to process shortcode: "/layouts/shortcodes/hello.html:2:5":`))
+	b.Assert(errors[1].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:6:1": failed to render shortcode "hello": failed to process shortcode: "/layouts/_shortcodes/hello.html:2:5":`))
 	b.Assert(errors[1].ErrorContext().Lines, qt.DeepEquals, []string{"", "## Hello", "{{< hello >}}", ""})
 	b.Assert(errors[2].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "12{{ partial \"foo.html\" . }}", "line 4", "line 5"})
 	b.Assert(errors[3].Position().LineNumber, qt.Equals, 3)
@@ -432,12 +432,12 @@ title: "Home"
 
 ## Hello
 
--- layouts/index.html --
+-- layouts/home.html --
 line 1
 line 2
 {{ .Content }}
 line 5
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 line 1
 12{{ .Levels }}
 line 4
@@ -450,7 +450,7 @@ line 5
 	errors := herrors.UnwrapFileErrorsWithErrorContext(err)
 
 	b.Assert(errors, qt.HasLen, 3)
-	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:2:5": "/layouts/_default/_markup/render-heading.html:2:5": execute of template failed`))
+	b.Assert(errors[0].Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:2:5": "/layouts/_markup/render-heading.html:2:5": execute of template failed`))
 }
 
 func TestErrorRenderHookCodeblock(t *testing.T) {
@@ -470,12 +470,12 @@ bar
 §§§
 
 
--- layouts/index.html --
+-- layouts/home.html --
 line 1
 line 2
 {{ .Content }}
 line 5
--- layouts/_default/_markup/render-codeblock-foo.html --
+-- layouts/_markup/render-codeblock-foo.html --
 line 1
 12{{ .Foo }}
 line 4
@@ -489,7 +489,7 @@ line 5
 
 	b.Assert(errors, qt.HasLen, 3)
 	first := errors[0]
-	b.Assert(first.Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:7:1": "/layouts/_default/_markup/render-codeblock-foo.html:2:5": execute of template failed`))
+	b.Assert(first.Error(), qt.Contains, filepath.FromSlash(`"/content/_index.md:7:1": "/layouts/_markup/render-codeblock-foo.html:2:5": execute of template failed`))
 }
 
 func TestErrorInBaseTemplate(t *testing.T) {
@@ -507,7 +507,7 @@ line 2 base
 {{ block "main" . }}empty{{ end }}
 line 4 base
 {{ block "toc" . }}empty{{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}
 line 2 index
 line 3 index
@@ -516,7 +516,7 @@ line 4 index
 {{ define "toc" }}
 TOC: {{ partial "toc.html" . }}
 {{ end }}
--- layouts/partials/toc.html --
+-- layouts/_partials/toc.html --
 toc line 1
 toc line 2
 toc line 3
@@ -534,13 +534,13 @@ toc line 4
 		b.Assert(err.Error(), qt.Contains, `baseof.html:4:6`)
 	})
 
-	t.Run("index template", func(t *testing.T) {
+	t.Run("home template", func(t *testing.T) {
 		files := strings.Replace(filesTemplate, "line 3 index", "1234{{ .ThisDoesNotExist \"abc\" }}", 1)
 
 		b, err := TestE(t, files)
 
 		b.Assert(err, qt.IsNotNil)
-		b.Assert(err.Error(), qt.Contains, `index.html:3:7"`)
+		b.Assert(err.Error(), qt.Contains, `home.html:3:7"`)
 	})
 
 	t.Run("partial from define", func(t *testing.T) {
@@ -561,9 +561,9 @@ func TestSiteBuildTimeout(t *testing.T) {
 	filesBuilder.WriteString(`
 -- hugo.toml --
 timeout = 5
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .WordCount }}
--- layouts/shortcodes/c.html --
+-- layouts/_shortcodes/c.html --
 {{ range .Page.Site.RegularPages }}
 {{ .WordCount }}
 {{ end }}
@@ -591,7 +591,7 @@ func TestErrorTemplateRuntime(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ .ThisDoesNotExist }}
  `
@@ -599,7 +599,7 @@ Home.
 	b, err := TestE(t, files)
 
 	b.Assert(err, qt.Not(qt.IsNil))
-	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`/layouts/index.html:2:3`))
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`/layouts/home.html:2:3`))
 	b.Assert(err.Error(), qt.Contains, `can't evaluate field ThisDoesNotExist`)
 }
 

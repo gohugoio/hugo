@@ -40,7 +40,7 @@ sourcefilename: ../testdata/exif/orientation6.jpg
 sourcefilename: ../testdata/sunset.jpg
 -- assets/gopher.png --
 sourcefilename: ../testdata/gopher-hero8.png
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $sunset := (resources.Get "sunset.jpg").Resize "x300" }}
 {{ $sunsetGrayscale := $sunset.Filter (images.Grayscale) }}
@@ -120,7 +120,7 @@ sourcefilename: ../testdata/sunset.jpg
 -- assets/mask.png --
 sourcefilename: ../testdata/mask.png
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $sunset := resources.Get "sunset.jpg" }}
 {{ $mask := resources.Get "mask.png" }}
@@ -184,7 +184,7 @@ sourcefilename: ../testdata/sunset.jpg
 -- assets/mask.png --
 sourcefilename: ../testdata/mask.png
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $sunset := resources.Get "sunset.jpg" }}
 {{ $mask := resources.Get "mask.png" }}
@@ -244,7 +244,7 @@ func TestImagesGoldenFiltersText(t *testing.T) {
 -- assets/sunset.jpg --
 sourcefilename: ../testdata/sunset.jpg
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $sunset := resources.Get "sunset.jpg" }}
 {{ $textOpts := dict
@@ -308,7 +308,7 @@ sourcefilename: ../testdata/giphy.gif
 sourcefilename: ../testdata/sunset.jpg
 -- assets/gopher.png --
 sourcefilename: ../testdata/gopher-hero8.png
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $sunset := resources.Get "sunset.jpg" }}
 {{ $sunsetGrayscale := $sunset.Filter (images.Grayscale) }}
@@ -364,7 +364,7 @@ sourcefilename: ../testdata/sunset.jpg
 -- assets/gopher.png --
 sourcefilename: ../testdata/gopher-hero8.png
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $sunset := resources.Get "sunset.jpg" }}
 {{ $gopher := resources.Get "gopher.png" }}

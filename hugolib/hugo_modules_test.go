@@ -82,7 +82,7 @@ languageName = "French"
 weight = 4
 title = "French Title"
 
--- layouts/index.html --
+-- layouts/home.html --
 {{ range .Site.RegularPages }}
 |{{ .Title }}|{{ .RelPermalink }}|{{ .Plain }}
 {{ end }}
@@ -158,7 +158,7 @@ ignoreConfig=true
 -- themes/a/config.toml --
 [params]
 a = "Should Be Ignored!"
--- layouts/index.html --
+-- layouts/home.html --
 Params: {{ .Site.Params }}
 `
 	Test(t, files).AssertFileContent("public/index.html", "! Ignored")
@@ -182,7 +182,7 @@ a = "A param"
 -- themes/b/config.toml --
 [params]
 b = "B param"
--- layouts/index.html --
+-- layouts/home.html --
 Params: {{ .Site.Params }}
 `
 	Test(t, files).AssertFileContent("public/index.html", "A param", "! B param")
@@ -236,7 +236,7 @@ baseURL="https://example.org"
 [[module.mounts]]
 source="mycontent"
 target="content"
--- layouts/_default/single.html --
+-- layouts/single.html --
 Permalink: {{ .Permalink }}|
 -- mycontent/mypage.md --
 ---
@@ -260,7 +260,7 @@ source = "README.md"
 target = "content/_index.md"	
 -- README.md --
 # Hello World
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ .Title }}|{{ .Content }}|
 `
 	b := Test(t, files)
@@ -303,7 +303,7 @@ target = "content/resources-a"
 [[module.mounts]]
 source = "extra-content"
 target = "content/resources-b"
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single
 -- content/p1.md --
 -- extra-content/_index.md --
@@ -332,7 +332,7 @@ source = "extra-data"
 target = "data/extra"
 -- extra-data/test.yaml --
 message: Hugo Rocks
--- layouts/index.html --
+-- layouts/home.html --
 {{ site.Data.extra.test.message }}
 `
 

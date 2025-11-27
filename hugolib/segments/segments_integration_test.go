@@ -45,9 +45,9 @@ lang = "n*"
 output = "rss"
 [[segments.docs.excludes]]
 output = "json"
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .RelPermalink }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}|{{ .RelPermalink }}|
 -- content/docs/_index.md --
 -- content/docs/section1/_index.md --

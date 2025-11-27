@@ -26,9 +26,9 @@ func TestApplyWithContext(t *testing.T) {
 	files := `
 -- config.toml --
 baseURL = 'http://example.com/'
--- layouts/index.html --
+-- layouts/home.html --
 {{ apply (seq 3) "partial" "foo.html"}}
--- layouts/partials/foo.html --
+-- layouts/_partials/foo.html --
 {{ return "foo"}}
   `
 
@@ -45,7 +45,7 @@ func TestSortStable(t *testing.T) {
 
 	files := `
 -- config.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $values := slice (dict "a" 1 "b" 2) (dict "a" 3 "b" 1) (dict "a" 2 "b" 0) (dict "a" 1 "b" 0) (dict "a" 3 "b" 1) (dict "a" 2 "b" 2) (dict "a" 2 "b" 1) (dict "a" 0 "b" 3) (dict "a" 3 "b" 3) (dict "a" 0 "b" 0) (dict "a" 0 "b" 0) (dict "a" 2 "b" 0) (dict "a" 1 "b" 2) (dict "a" 1 "b" 1) (dict "a" 3 "b" 0) (dict "a" 2 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 1) }}
 Asc:  {{ sort (sort $values "b" "asc") "a" "asc" }}
 Desc: {{ sort (sort $values "b" "desc") "a" "desc" }}
@@ -75,7 +75,7 @@ func TestAppendSliceToASliceOfSlices(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $obj := slice (slice "a") }}
 {{ $obj = $obj | append (slice "b") }}
 {{ $obj = $obj | append (slice "c") }}
@@ -94,7 +94,7 @@ func TestAppendNilToSlice(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $obj := (slice "a") }}
 {{ $obj = $obj | append nil }}
 
@@ -113,7 +113,7 @@ func TestAppendNilsToSliceWithNils(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $obj := (slice "a" nil "c") }}
 {{ $obj = $obj | append nil }}
 
@@ -143,9 +143,9 @@ func TestWhereWithWordCount(t *testing.T) {
 	files := `
 -- config.toml --
 baseURL = 'http://example.com/'
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ range where site.RegularPages "WordCount" "gt" 50 }}{{ .Title }}|{{ end }}
--- layouts/shortcodes/lorem.html --
+-- layouts/_shortcodes/lorem.html --
 {{ "ipsum " | strings.Repeat (.Get 0 | int) }}
 
 -- content/p1.md --
@@ -191,7 +191,7 @@ foo: abc
 title: P3
 foo: bc
 ---
--- layouts/index.html --
+-- layouts/home.html --
 <ul>
   {{- range where site.RegularPages "Params.foo" "like" "^ab" -}}
     <li>{{ .Title }}</li>
@@ -227,7 +227,7 @@ title: p3
 categories: [cat-a]
 tags: ['tag-b']
 ---
--- layouts/_default/term.html --
+-- layouts/term.html --
 {{ $list1 := .Pages }}
 {{ range $i, $e := site.Taxonomies.tags.ByCount }}
 {{ $list2 := .Pages }}
@@ -257,7 +257,7 @@ func TestUnionResourcesMatch(t *testing.T) {
 	files := `
 -- config.toml --
 disableKinds = ['rss','sitemap', 'taxonomy', 'term', 'page']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $a := resources.Match "*a*" }}
 {{ $b := resources.Match "*b*" }}
 {{ $union := $a | union $b }}

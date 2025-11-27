@@ -43,11 +43,11 @@ $$a^*=x-b^*$$
 
 Some inline LaTeX 2: $a^*=x-b^*$.
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
--- layouts/_default/_markup/render-passthrough-block.html --
+-- layouts/_markup/render-passthrough-block.html --
 Passthrough block: {{ .Inner | safeHTML }}|{{ .Type }}|{{ .Ordinal }}:END
--- layouts/_default/_markup/render-passthrough-inline.html --
+-- layouts/_markup/render-passthrough-inline.html --
 Passthrough inline: {{ .Inner | safeHTML }}|{{ .Type }}|{{ .Ordinal }}:END
 
 `

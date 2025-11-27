@@ -38,7 +38,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 -- content/mybundle/giphy.gif --
 sourcefilename: testdata/giphy.gif
 -- layouts/foo.html --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $p := site.GetPage "mybundle"}}
 {{ $img := $p.Resources.Get "pixel.png" }}
 {{ $giphy := $p.Resources.Get "giphy.gif" }}
@@ -83,7 +83,7 @@ func TestSVGError(t *testing.T) {
 -- config.toml --
 -- assets/circle.svg --
 <svg height="100" width="100"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /></svg>
--- layouts/index.html --
+-- layouts/home.html --
 {{ $svg := resources.Get "circle.svg" }}
 Width: {{ $svg.Width }}
 `
@@ -109,7 +109,7 @@ func TestNoPublishOfUnusedProcessedImage(t *testing.T) {
 	files := `
 -- assets/images/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/index.html --
+-- layouts/home.html --
 {{ $image := resources.Get "images/pixel.png" }}
 {{ $image = $image.Resize "400x" }}
 {{ $image = $image.Resize "300x" }}
@@ -143,7 +143,7 @@ func TestProcessFilter(t *testing.T) {
 	files := `
 -- assets/images/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/index.html --
+-- layouts/home.html --
 {{ $pixel := resources.Get "images/pixel.png" }}
 {{ $filters := slice (images.GaussianBlur 6) (images.Pixelate 8) (images.Process "jpg") }}
 {{ $image := $pixel.Filter $filters }}
@@ -172,7 +172,7 @@ func TestGroupByParamDate(t *testing.T) {
 	files := `
 -- config.toml --
 disableKinds = ['section','rss','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{- range site.RegularPages.GroupByParamDate "eventDate" "2006-01" }}
 	{{- .Key }}|{{ range .Pages }}{{ .Title }}|{{ end }}
 {{- end }}
@@ -237,7 +237,7 @@ func TestImageTransformThenCopy(t *testing.T) {
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- assets/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/index.html --
+-- layouts/home.html --
 {{- with resources.Get "pixel.png" }}
   {{- with .Resize "200x" | resources.Copy "pixel.png" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}">|{{ .Key }}
@@ -262,7 +262,7 @@ func TestUseDifferentCacheKeyForResourceCopy(t *testing.T) {
 disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 -- assets/a.txt --
 This was assets/a.txt
--- layouts/index.html --
+-- layouts/home.html --
 {{ $nilResource := resources.Get "/p1/b.txt" }}
 {{ $r := resources.Get "a.txt" }}
 {{ $r = resources.Copy "/p1/b.txt" $r }}

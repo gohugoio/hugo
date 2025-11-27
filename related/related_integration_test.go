@@ -90,7 +90,7 @@ keywords: ['foo']
 
 ## Common p3, p4, p5
 
--- layouts/shortcodes/see-also.html --
+-- layouts/_shortcodes/see-also.html --
 {{ $p1 := site.GetPage "p1" }}
 {{ $p2 := site.GetPage "p2" }}
 {{ $p3 := site.GetPage "p3" }}
@@ -108,7 +108,7 @@ Related 2: {{ template "list-related" $related2 }}
 
 {{ define "list-related" }}{{ range $i, $e := . }} {{ $i }}: {{ .Title }}: {{ with .HeadingsFiltered}}{{ range $i, $e := .}}h{{ $i }}: {{ .Title }}|{{ .ID }}|{{ end }}{{ end }}::END{{ end }}{{ end }}
 
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content }}
 
 	
@@ -149,7 +149,7 @@ disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
   name = 'pagerefs'
   type = 'fragments'
   weight = 30	
--- layouts/_default/single.html --
+-- layouts/single.html --
 Len related: {{ site.RegularPages.Related . | len }}
 `
 

@@ -80,21 +80,21 @@ Assets My Text.
 Assets My Shortcode Text.
 -- assets/myothertext.txt --
 Assets My Other Text.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}$
 Resources: {{ range $i, $e := .Resources }}{{ $i }}:{{ .RelPermalink }}|{{ .Content }}|{{ end }}$
 Len Resources: {{ len .Resources }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}|{{ .Content }}$
 Len Resources: {{ len .Resources }}|
 Resources: {{ range $i, $e := .Resources }}{{ $i }}:{{ .RelPermalink }}|{{ .Content }}|{{ end }}$
--- layouts/shortcodes/foo.html --
+-- layouts/_shortcodes/foo.html --
 Foo.
--- layouts/shortcodes/myshortcodetext.html --
+-- layouts/_shortcodes/myshortcodetext.html --
 {{ warnf "mytext %s" now}}
 {{ $r := resources.Get "myshortcodetext.txt" }}
 My Shortcode Text: {{ $r.Content }}|{{ $r.Permalink }}|
--- layouts/_default/_markup/render-codeblock-myothertext.html --
+-- layouts/_markup/render-codeblock-myothertext.html --
 {{ $r := resources.Get "myothertext.txt" }}
 My Other Text: {{ $r.Content }}|{{ $r.Permalink }}|
 
@@ -181,7 +181,7 @@ disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404", "rss"]
 -- content/mybundle/index.md --
 -- content/mybundle/mydata.yml --
 foo: bar
--- layouts/_default/single.html --
+-- layouts/single.html --
 MyData: {{ .Resources.Get "mydata.yml" | transform.Unmarshal }}|
 `
 	b := TestRunning(t, files)
@@ -298,7 +298,7 @@ disableLiveReload = true
 ---
 title: "P1"
 ---
--- layouts/index.html --
+-- layouts/home.html --
 Pages: {{ range .Site.RegularPages }}{{ .RelPermalink }}|{{ end }}$
 `
 	b := TestRunning(t, files)
@@ -357,7 +357,7 @@ weight = 13
 -- content/foo/p1.h.md --
 -- content/foo/p1.i.md --
 -- content/foo/p1.j.md --
--- layouts/index.html --
+-- layouts/home.html --
 RegularPages: {{ range .Site.RegularPages }}{{ .RelPermalink }}|{{ end }}$
 `
 	b := TestRunning(t, files)
@@ -410,9 +410,9 @@ disableLiveReload = true
 title: "P1"
 weight: 1
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
--- layouts/index.html --
+-- layouts/home.html --
 Pages: {{ range .RegularPages }}{{ .RelPermalink }}|{{ end }}$
 `
 
@@ -433,9 +433,9 @@ disableLiveReload = true
 title: "P1"
 weight: 1
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
--- layouts/index.html --
+-- layouts/home.html --
 Pages: {{ range .RegularPages }}{{ .RelPermalink }}|{{ end }}$
 `
 
@@ -459,11 +459,11 @@ outputs: ["html", "json"]
 P1 Content.
 
 {{< myshort >}}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single HTML: {{ .Title }}|{{ .Content }}|
--- layouts/_default/single.json --
+-- layouts/single.json --
 Single JSON: {{ .Title }}|{{ .Content }}|
--- layouts/shortcodes/myshort.html --
+-- layouts/_shortcodes/myshort.html --
 My short.
 `
 	b := Test(t, files, TestOptRunning())
@@ -471,12 +471,12 @@ My short.
 	b.AssertRenderCountContent(1)
 	b.AssertFileContent("public/p1/index.html", "Single HTML: P1|<p>P1 Content.</p>\n")
 	b.AssertFileContent("public/p1/index.json", "Single JSON: P1|<p>P1 Content.</p>\n")
-	b.EditFileReplaceAll("layouts/_default/single.html", "Single HTML", "Single HTML Edited").Build()
+	b.EditFileReplaceAll("layouts/single.html", "Single HTML", "Single HTML Edited").Build()
 	b.AssertFileContent("public/p1/index.html", "Single HTML Edited: P1|<p>P1 Content.</p>\n")
 	b.AssertRenderCountPage(1)
 
 	// Edit shortcode. Note that this is reused across all output formats.
-	b.EditFileReplaceAll("layouts/shortcodes/myshort.html", "My short", "My short edited").Build()
+	b.EditFileReplaceAll("layouts/_shortcodes/myshort.html", "My short", "My short edited").Build()
 	b.AssertFileContent("public/p1/index.html", "My short edited")
 	b.AssertFileContent("public/p1/index.json", "My short edited")
 	b.AssertRenderCountPage(3) // rss (uses .Content) + 2 single pages.
@@ -489,17 +489,17 @@ title = "Hugo Site"
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Baseof: {{ .Title }}|
 {{ block "main" . }}default{{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}
 Home: {{ .Title }}|{{ .Content }}|
 {{ end }}
 `
 	testRebuildBothWatchingAndRunning(t, files, func(b *IntegrationTestBuilder) {
 		b.AssertFileContent("public/index.html", "Baseof: Hugo Site|", "Home: Hugo Site||")
-		b.EditFileReplaceFunc("layouts/_default/baseof.html", func(s string) string {
+		b.EditFileReplaceFunc("layouts/baseof.html", func(s string) string {
 			return strings.Replace(s, "Baseof", "Baseof Edited", 1)
 		}).Build()
 		b.AssertFileContent("public/index.html", "Baseof Edited: Hugo Site|", "Home: Hugo Site||")
@@ -520,7 +520,7 @@ disableLiveReload = true
 title: "P1"
 ---
 P1 Content.
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 -- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
@@ -557,22 +557,22 @@ title: "P1"
 ---
 P1 Content.
 [foo](/foo)
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Baseof: {{ .Title }}|
 {{ block "main" . }}default{{ end }}
 {{ with (templates.Defer (dict "foo" "bar")) }}
 Defer.
 {{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ define "main" }}
 Single: {{ .Title }}|{{ .Content }}|
 {{ end }}
 `
 	b := Test(t, files, TestOptRunning())
 	b.AssertFileContent("public/p1/index.html", "Single: P1|")
-	b.EditFileReplaceFunc("layouts/_default/single.html", func(s string) string {
+	b.EditFileReplaceFunc("layouts/single.html", func(s string) string {
 		return strings.Replace(s, "Single", "Single Edited", 1)
 	}).Build()
 	b.AssertFileContent("public/p1/index.html", "Single Edited")
@@ -593,15 +593,15 @@ title: "P1"
 ---
 P1 Content.
 [foo](/foo)
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Baseof: {{ .Title }}|
 {{ block "main" . }}default{{ end }}
 {{ with (templates.Defer (dict "foo" "bar")) }}
 Defer.
 {{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ define "main" }}
 Single: {{ .Title }}|{{ .Content }}|
 {{ end }}
@@ -609,7 +609,7 @@ Single: {{ .Title }}|{{ .Content }}|
 	b := Test(t, files, TestOptRunning())
 	b.AssertFileContent("public/p1/index.html", "Single: P1|")
 	fmt.Println("===============")
-	b.EditFileReplaceAll("layouts/_default/baseof.html", "Baseof", "Baseof Edited").Build()
+	b.EditFileReplaceAll("layouts/baseof.html", "Baseof", "Baseof Edited").Build()
 	b.AssertFileContent("public/p1/index.html", "Baseof Edited")
 }
 
@@ -628,7 +628,7 @@ title: "P1"
 ---
 P1 Content.
 [foo](/foo)
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Baseof: {{ .Title }}|
 {{ block "main" . }}default{{ end }}
  {{ with (templates.Defer (dict "foo" "bar")) }}
@@ -638,12 +638,12 @@ Defer.
 {{ define "main" }}
 Single: {{ .Title }}|{{ .Content }}|
 {{ end }}
--- layouts/_default/_markup/render-link.html --
+-- layouts/_markup/render-link.html --
 Render Link.
 `
 	b := Test(t, files, TestOptRunning())
 	// Edit render hook.
-	b.EditFileReplaceAll("layouts/_default/_markup/render-link.html", "Render Link", "Render Link Edited").Build()
+	b.EditFileReplaceAll("layouts/_markup/render-link.html", "Render Link", "Render Link Edited").Build()
 
 	b.AssertFileContent("public/p1/index.html", "Render Link Edited")
 }
@@ -668,12 +668,12 @@ layout: "l2"
 P2 Content.
 -- assets/mytext.txt --
 My Text
--- layouts/_default/l1.html --
+-- layouts/l1.html --
 {{ $r := partial "get-resource.html" . }}
 L1: {{ .Title }}|{{ .Content }}|R: {{ $r.Content }}|
--- layouts/_default/l2.html --
+-- layouts/l2.html --
 L2.
--- layouts/partials/get-resource.html --
+-- layouts/_partials/get-resource.html --
 {{ $mytext := resources.Get "mytext.txt" }}
 {{ $txt := printf "Text: %s" $mytext.Content }}
 {{ $r := resources.FromString "r.txt"  $txt }}
@@ -727,11 +727,11 @@ title: "P6"
 ---
 title: "P7"
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Next: {{ with  .PrevInSection }}{{ .Title }}{{ end }}|
 Prev: {{ with  .NextInSection }}{{ .Title }}{{ end }}|
 
@@ -919,19 +919,19 @@ P7 EN Content.
 title: "P7 NN"
 ---
 P7 NN Content.
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ .Title }}|{{ .Content }}|
 RegularPages: {{ range .RegularPages }}{{ .RelPermalink }}|{{ end }}$
 Len RegularPagesRecursive: {{ len .RegularPagesRecursive }}
 Site.Lastmod: {{ .Site.Lastmod.Format "2006-01-02" }}|
 Paginate: {{ range (.Paginate .Site.RegularPages).Pages }}{{ .RelPermalink }}|{{ .Title }}|{{ end }}$
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: .Site: {{ .Site }} 
 Single: {{ .Title }}|{{ .Content }}|
 Single Partial Cached: {{ partialCached "pcached" . }}|
 Page.Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
 Cascade param: {{ .Params.cascadeparam }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}|{{ .Content }}|
 RegularPages: {{ range .RegularPages }}{{ .Title }}|{{ end }}$
 Len RegularPagesRecursive: {{ len .RegularPagesRecursive }}
@@ -939,11 +939,11 @@ RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .RelPermalink }}|{{ 
 List Partial P1: {{ partial "p1" . }}|
 Page.Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
 Cascade param: {{ .Params.cascadeparam }}|
--- layouts/partials/p1.html --
+-- layouts/_partials/p1.html --
 Partial P1.
--- layouts/partials/pcached.html --
+-- layouts/_partials/pcached.html --
 Partial Pcached.
--- layouts/shortcodes/include.html --
+-- layouts/_shortcodes/include.html --
 {{ $p := site.GetPage (.Get 0)}}
 .Page.Site: {{ .Page.Site }} :: site: {{ site }}
 {{ with $p }}
@@ -951,7 +951,7 @@ Shortcode Include: {{ .Title }}|
 {{ end }}
 Shortcode .Page.Title: {{ .Page.Title }}|
 Shortcode Partial P1: {{ partial "p1" . }}|
--- layouts/_default/_markup/render-codeblock.html --
+-- layouts/_markup/render-codeblock.html --
 {{ $p := site.GetPage (.Attributes.page)}}
 {{ with $p }}
 Codeblock Include: {{ .Title }}|
@@ -1046,26 +1046,26 @@ Codeblock Include: {{ .Title }}|
 	b.AssertFileContent("public/en/translations/index.html", "RegularPagesRecursive: /en/translations/p7/")
 
 	// Edit shortcode
-	editFile("layouts/shortcodes/include.html", func(s string) string {
+	editFile("layouts/_shortcodes/include.html", func(s string) string {
 		return s + "\nShortcode Include Edited."
 	})
 	b.AssertFileContent("public/mysect/p1/index.html", "Shortcode Include Edited.")
 
 	// Edit render hook
-	editFile("layouts/_default/_markup/render-codeblock.html", func(s string) string {
+	editFile("layouts/_markup/render-codeblock.html", func(s string) string {
 		return s + "\nCodeblock Include Edited."
 	})
 	b.AssertFileContent("public/mysect/p1/index.html", "Codeblock Include Edited.")
 
 	// Edit partial p1
-	editFile("layouts/partials/p1.html", func(s string) string {
+	editFile("layouts/_partials/p1.html", func(s string) string {
 		return strings.Replace(s, "Partial P1", "Partial P1 Edited", 1)
 	})
 	b.AssertFileContent("public/mysect/index.html", "List Partial P1: Partial P1 Edited.")
 	b.AssertFileContent("public/mysect/p1/index.html", "Shortcode Partial P1: Partial P1 Edited.")
 
 	// Edit partial cached.
-	editFile("layouts/partials/pcached.html", func(s string) string {
+	editFile("layouts/_partials/pcached.html", func(s string) string {
 		return strings.Replace(s, "Partial Pcached", "Partial Pcached Edited", 1)
 	})
 	b.AssertFileContent("public/mysect/p1/index.html", "Pcached Edited.")
@@ -1142,7 +1142,7 @@ body {
 }
 -- layouts/default/list.html --
 List.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 {{ $css := resources.Get "main.css" | minify }}
 RelPermalink: {{ $css.RelPermalink }}|
@@ -1192,13 +1192,13 @@ title: "P4"
 P4.
 -- assets/js/main.js --
 console.log("Hello");
--- layouts/_default/list.html --
+-- layouts/list.html --
 List. {{ partial "head.html" . }}$
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single. {{ partial "head.html" . }}$
--- layouts/partials/head.html --
+-- layouts/_partials/head.html --
 {{ partialCached "js.html" . }}$
--- layouts/partials/js.html --
+-- layouts/_partials/js.html --
 {{ $js := resources.Get "js/main.js" | js.Build | fingerprint }}
 RelPermalink: {{ $js.RelPermalink }}|
 `
@@ -1227,14 +1227,14 @@ disableKinds = ["term", "taxonomy", "sitemap", "robotsTXT", "404", "rss"]
 disableLiveReload = true
 -- assets/js/main.js --
 console.log("Hello");
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Base. {{ partial "common/head.html" . }}$
 {{ block "main" . }}default{{ end }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ define "main" }}main{{ end }}
--- layouts/partials/common/head.html --
+-- layouts/_partials/common/head.html --
 {{ partial "myfiles/js.html" . }}$
--- layouts/partials/myfiles/js.html --
+-- layouts/_partials/myfiles/js.html --
 {{ $js := resources.Get "js/main.js" | js.Build | fingerprint }}
 RelPermalink: {{ $js.RelPermalink }}|
 `
@@ -1280,24 +1280,24 @@ layout: "plain"
 console.log("Hello");
 -- content/foo.js --
 console.log("Foo");
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $js := site.Home.Resources.Get "main.js"  }}
 {{ with $js }}
 <script src="{{ .RelPermalink }}"></script>
 {{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single. Deliberately no .Content in here.
--- layouts/_default/plain.html --
+-- layouts/plain.html --
 Content: {{ .Content }}|
--- layouts/_default/main.html --
+-- layouts/main.html --
 {{ $js := site.Home.Resources.Get "main.js"  }}
 {{ with $js }}
 <script>
 {{ .Content }}
 </script>
 {{ end }}
--- layouts/shortcodes/jsfingerprinted.html --
+-- layouts/_shortcodes/jsfingerprinted.html --
 {{ $js := site.Home.Resources.Get "foo.js" | fingerprint  }}
 <script src="{{ $js.RelPermalink }}"></script>
 `
@@ -1368,13 +1368,13 @@ title: "P1"
 ---
 
 Foo inline: {{< foo.inline >}}{{ site.Data.mydata.foo }}|{{< /foo.inline >}}
--- layouts/shortcodes/data.html --
+-- layouts/_shortcodes/data.html --
 {{ $path := split (.Get 0) "." }}
 {{ $data := index site.Data $path }}
 Foo: {{ $data }}|
--- layouts/index.html --
+-- layouts/home.html --
 Content: {{ .Content }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Content }}|
 `
 	b := TestRunning(t, files)
@@ -1400,7 +1400,7 @@ disableLiveReload = true
 title: "Home"
 ---
 Home.
--- layouts/index.html --
+-- layouts/home.html --
 Content: {{ .Content }}
 `
 	b := TestRunning(t, files)
@@ -1436,9 +1436,9 @@ disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404"]
 title: "Home"
 ---
 Home.
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/index.searchindex.txt --
+-- layouts/index.searchindex.txt --
 Text. {{ .Title }}|{{ .RelPermalink }}|
 
 `
@@ -1446,7 +1446,7 @@ Text. {{ .Title }}|{{ .RelPermalink }}|
 
 	b.AssertFileContent("public/search.txt", "Text.")
 
-	b.EditFileReplaceAll("layouts/_default/index.searchindex.txt", "Text.", "Text Edited.").Build()
+	b.EditFileReplaceAll("layouts/index.searchindex.txt", "Text.", "Text Edited.").Build()
 
 	b.BuildPartial("/docs/search.txt")
 
@@ -1460,7 +1460,7 @@ func TestRebuildVariationsAssetsJSImport(t *testing.T) {
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
--- layouts/index.html --
+-- layouts/home.html --
 Home. {{ now }}
 {{ with (resources.Get "js/main.js" | js.Build | fingerprint) }}
 <script>{{ .Content | safeJS }}</script>
@@ -1529,28 +1529,28 @@ title: "P3"
 layout: "foo"
 ---
 {{< notfingerprinted >}}
--- layouts/shortcodes/fingerprinted.html --
+-- layouts/_shortcodes/fingerprinted.html --
 Fingerprinted.
 {{ $opts := dict "inlineImports" true "noMap" true }}
 {{ with (resources.Get "css/main.css" | postCSS $opts | fingerprint) }}
 <style src="{{ .RelPermalink }}"></style>
 {{ end }}
--- layouts/shortcodes/notfingerprinted.html --
+-- layouts/_shortcodes/notfingerprinted.html --
 Fingerprinted.
 {{ $opts := dict "inlineImports" true "noMap" true }}
 {{ with (resources.Get "css/main.css" | postCSS $opts) }}
 <style src="{{ .RelPermalink }}"></style>
 {{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $opts := dict "inlineImports" true "noMap" true }}
 {{ with (resources.Get "css/main.css" | postCSS $opts) }}
 <style>{{ .Content | safeCSS }}</style>
 {{ end }}
--- layouts/_default/foo.html --
+-- layouts/foo.html --
 Foo.
 {{ .Title }}|{{ .Content }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 {{ $opts := dict "inlineImports" true "noMap" true }}
 {{ with (resources.Get "css/main.css" | postCSS $opts) }}
@@ -1592,7 +1592,7 @@ baseURL = "https://example.com"
 disableLiveReload = true
 -- i18n/en.toml --
 hello = "Hello"
--- layouts/index.html --
+-- layouts/home.html --
 Hello: {{ i18n "hello" }}
 `
 
@@ -1643,7 +1643,7 @@ title: "B nn"
 B nn.
 -- content/p1/f1.nn.txt --
 F1 nn
--- layouts/_default/all.html --
+-- layouts/all.html --
 All: {{ .Title }}|{{ .Kind }}|{{ .Content }}|Bundled File: {{ with .Resources.GetMatch "f1.*" }}{{ .Content }}{{ end }}|Bundled Page: {{ with .Resources.GetMatch "b.*" }}{{ .Content }}{{ end }}|
 `
 
@@ -1683,7 +1683,7 @@ title: "P1 en"
 title: "P1 nn"
 ---
 P1 nn.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
 `
 
@@ -1710,7 +1710,7 @@ body {
 }
 -- assets/css/main.scss --
 @import "lib/foo";
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $opts := dict "transpiler" "TRANSPILER" }}
 {{ with (resources.Get "css/main.scss" | toCSS $opts) }}
@@ -1756,9 +1756,9 @@ func benchmarkFilesEdit(count int) string {
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}|{{ .Content }}|
 -- content/mysect/_index.md --
 ---
@@ -1815,7 +1815,7 @@ c
 c1
 -- assets/common/c2.css --
 c2
--- layouts/index.html --
+-- layouts/home.html --
 {{ $a := resources.Get "a.css" }}
 {{ $b := resources.Get "b.css" }}
 {{ $common := resources.Match "common/*.css" | resources.Concat "common.css" | minify }}
@@ -1856,9 +1856,9 @@ func TestRebuildEditMixedCaseTemplateFileIssue12165(t *testing.T) {
 -- hugo.toml --
 baseURL = "https://example.com"
 disableLiveReload = true
--- layouts/partials/MyTemplate.html --
+-- layouts/_partials/MyTemplate.html --
 MyTemplate
--- layouts/index.html --
+-- layouts/home.html --
 MyTemplate: {{ partial "MyTemplate.html" . }}|
 
 
@@ -1868,7 +1868,7 @@ MyTemplate: {{ partial "MyTemplate.html" . }}|
 
 	b.AssertFileContent("public/index.html", "MyTemplate: MyTemplate")
 
-	b.EditFileReplaceAll("layouts/partials/MyTemplate.html", "MyTemplate", "MyTemplate Edited").Build()
+	b.EditFileReplaceAll("layouts/_partials/MyTemplate.html", "MyTemplate", "MyTemplate Edited").Build()
 
 	b.AssertFileContent("public/index.html", "MyTemplate: MyTemplate Edited")
 }
@@ -1949,7 +1949,7 @@ P1 Content.
 title: "P2"
 ---
 P2 Content.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
 `
 	b := TestRunning(t, files)
@@ -1972,9 +1972,9 @@ func TestRebuildEditSingleListChangeUbuntuIssue12362(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['rss','section','sitemap','taxonomy','term']
 disableLiveReload = true
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ range .Pages }}{{ .Title }}|{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 -- content/p1.md --
 ---
@@ -1997,9 +1997,9 @@ func TestRebuildHomeThenPageIssue12436(t *testing.T) {
 baseURL = "https://example.com"
 disableKinds = ['sitemap','taxonomy','term']
 disableLiveReload = true
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Content }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- content/_index.md --
 ---

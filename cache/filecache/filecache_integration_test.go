@@ -67,7 +67,7 @@ title: "Home"
 ---
 -- assets/a/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/index.html --
+-- layouts/home.html --
 {{ warnf "HOME!" }}
 {{ $img := resources.GetMatch "**.png" }}
 {{ $img = $img.Resize "3x3" }}

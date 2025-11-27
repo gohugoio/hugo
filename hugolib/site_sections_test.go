@@ -92,9 +92,9 @@ C
 ---
 title: "My Bundle"
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 Kind: {{ .Kind }}|RelPermalink: {{ .RelPermalink }}|SectionsPath: {{ .SectionsPath }}|SectionsEntries: {{ .SectionsEntries }}|Len: {{ len .SectionsEntries }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Kind: {{ .Kind }}|RelPermalink: {{ .RelPermalink }}|SectionsPath: {{ .SectionsPath }}|SectionsEntries: {{ .SectionsEntries }}|Len: {{ len .SectionsEntries }}|
 `
 
@@ -114,9 +114,9 @@ baseURL = "https://example.com/"
 -- content/docs/logs/_index.md --
 -- content/docs/logs/sdk.md --
 -- content/docs/logs/sdk_exporters/stdout.md --
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .RelPermalink }}|{{ with .Parent}}{{ .RelPermalink }}{{ end }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .RelPermalink }}|{{ with .Parent}}{{ .RelPermalink }}{{ end }}|
 
 `

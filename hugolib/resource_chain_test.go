@@ -47,7 +47,7 @@ func TestResourceChainBasic(t *testing.T) {
 baseURL = "http://example.com/"
 -- assets/images/sunset.jpg --
 ` + getTestSunset(t) + `
--- layouts/index.html --
+-- layouts/home.html --
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | fingerprint "sha512" | minify  | fingerprint }}
 {{ $cssFingerprinted1 := "body {  background-color: lightblue; }" | resources.FromString "styles.css" |  minify  | fingerprint }}
 {{ $cssFingerprinted2 := "body {  background-color: orange; }" | resources.FromString "styles2.css" |  minify  | fingerprint }}
@@ -132,10 +132,10 @@ title: Page1
 ---
 title: Page2
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
 HELLO: {{ $hello.RelPermalink }}	
--- layouts/index.html --
+-- layouts/home.html --
 Start.
 {{ $hello := "<h1>     Hello World!   </h1>" | resources.FromString "hello.html" | minify  | fingerprint "md5" | resources.PostProcess }}
 
@@ -705,7 +705,7 @@ T3: Content: {{ $combinedJs.Content }}|{{ $combinedJs.RelPermalink }}
 		
 		.content-navigation
 		  border-color: $color
--- layouts/index.html --
+-- layouts/home.html --
 		{{ $a := "A" | resources.FromString "a.txt"}}
 		{{ $b := "B" | resources.FromString "b.txt"}}
 		{{ $c := "C" | resources.FromString "c.txt"}}
@@ -1358,7 +1358,7 @@ json2 content
 -- assets/jsons/data3.xml --
 xml content
 -- content/page.md --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $jsons := (resources.Match "jsons/*.json") }}
 {{ $json := (resources.GetMatch "jsons/*.json") }}
 {{ printf "jsonsMatch: %d"  (len $jsons) }}
@@ -1390,7 +1390,7 @@ disableXML=true
 -- assets/xml/data.xml --
 <root>   <foo> asdfasdf </foo> </root>
 -- content/page.md --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $xml := resources.Get "xml/data.xml" | minify | fingerprint }}
 XML: {{ $xml.Content | safeHTML }}|{{ $xml.RelPermalink }}
 `

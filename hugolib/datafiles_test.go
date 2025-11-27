@@ -36,7 +36,7 @@ v1: c_d_v1
 v1 = "a_v1_theme"
 -- themes/mytheme/data/d.toml --
 v1 = "d_v1_theme"
--- layouts/index.html --
+-- layouts/home.html --
 a: {{  site.Data.a.v1 }}|
 b: {{  site.Data.b.v1 }}|
 cd: {{ site.Data.c.d.v1 }}|
@@ -56,7 +56,7 @@ func TestDataMixedCaseFolders(t *testing.T) {
 baseURL = "https://example.com"
 -- data/MyFolder/MyData.toml --
 v1 = "my_v1"
--- layouts/index.html --
+-- layouts/home.html --
 {{ site.Data }}
 v1: {{  site.Data.MyFolder.MyData.v1 }}|
 `
@@ -74,7 +74,7 @@ func TestDataNoAssets(t *testing.T) {
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- assets/data/foo.toml --
 content = "I am assets/data/foo.toml"
--- layouts/index.html --
+-- layouts/home.html --
 |{{ site.Data.foo.content }}|
 	`
 

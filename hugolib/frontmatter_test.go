@@ -26,7 +26,7 @@ ints: [1, 2, 3]
 mixed: ["1", 2, 3]
 strings: ["1", "2","3"]
 ---	
--- layouts/_default/single.html --
+-- layouts/single.html --
 Ints: {{ printf "%T" .Params.ints }} {{ range .Params.ints }}Int: {{ fmt.Printf "%[1]v (%[1]T)" . }}|{{ end }}
 Mixed: {{ printf "%T" .Params.mixed }} {{ range .Params.mixed }}Mixed: {{ fmt.Printf "%[1]v (%[1]T)" . }}|{{ end }}
 Strings: {{ printf "%T" .Params.strings }} {{ range .Params.strings }}Strings: {{ fmt.Printf "%[1]v (%[1]T)" . }}|{{ end }}

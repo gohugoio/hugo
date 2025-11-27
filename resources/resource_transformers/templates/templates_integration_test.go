@@ -42,14 +42,14 @@ other = "Hello"
 -- i18n/fr.toml --
 [hello]
 other = "Bonjour"
--- layouts/index.fr.html --
+-- layouts/home.fr.html --
 Lang: {{ site.Language.Lang }}
 {{ $templ := "{{T \"hello\"}}" | resources.FromString "f1.html" }}
 {{ $helloResource := $templ | resources.ExecuteAsTemplate (print "f%s.html" .Lang) . }}
 Hello1: {{T "hello"}}
 Hello2: {{ $helloResource.Content }}
 LangURL: {{ relLangURL "foo" }}
--- layouts/index.html --
+-- layouts/home.html --
 Lang: {{ site.Language.Lang }}
 {{ $templ := "{{T \"hello\"}}" | resources.FromString "f1.html" }}
 {{ $helloResource := $templ | resources.ExecuteAsTemplate (print "f%s.html" .Lang) . }}

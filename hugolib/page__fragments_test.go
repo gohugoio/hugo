@@ -43,9 +43,9 @@ outputs: ["HTML", "JSON"]
 ---
 
 ## Heading 1 FR
--- layouts/_default/single.html --
+-- layouts/single.html --
 HTML
--- layouts/_default/single.json --
+-- layouts/single.json --
 {{ $secondSite := index .Sites 1 }}
 {{ $p1 := $secondSite.GetPage "p1" }}
 ToC: {{ $p1.TableOfContents }}
@@ -89,9 +89,9 @@ title: "P2"
 ### Heading P2 1
 ### Heading P2 2
 
--- layouts/shortcodes/include.html --
+-- layouts/_shortcodes/include.html --
 {{ with site.GetPage (.Get 0) }}{{ .RawContent }}{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Fragments: {{ .Fragments.Identifiers }}|
 
 

@@ -33,7 +33,7 @@ theme = ["mytheme"]
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 -- themes/mytheme/static/images/pixel2.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/index.html --
+-- layouts/home.html --
 {{ $path := "static/images/pixel1.png" }}
 fileExists OK: {{ fileExists $path }}|
 imageConfig OK: {{ (imageConfig $path).Width }}|
@@ -59,7 +59,7 @@ func TestQR(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{- $text := "https://gohugo.io" }}
 {{- $optionMaps := slice
     (dict)
@@ -117,7 +117,7 @@ func TestImagesGoldenFuncs(t *testing.T) {
 -- assets/sunset.jpg --
 sourcefilename: ../../resources/testdata/sunset.jpg
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 
 {{ template "copy" (dict "name" "qr-default.png" "img" (images.QR "https://gohugo.io"))  }}

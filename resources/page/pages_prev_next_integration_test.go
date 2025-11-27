@@ -38,7 +38,7 @@ weight: 20
 title: "Page 3"
 weight: 30
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|Next: {{ with .Next}}{{ .Title}}{{ end }}|Prev: {{ with .Prev}}{{ .Title}}{{ end }}|NextInSection: {{ with .NextInSection}}{{ .Title}}{{ end }}|PrevInSection: {{ with .PrevInSection}}{{ .Title}}{{ end }}|
 
 `

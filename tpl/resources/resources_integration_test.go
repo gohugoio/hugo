@@ -30,7 +30,7 @@ func TestCopy(t *testing.T) {
 baseURL = "http://example.com/blog"
 -- assets/images/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/index.html --
+-- layouts/home.html --
 {{/* Image resources */}}
 {{ $img := resources.Get "images/pixel.png" }}
 {{ $imgCopy1 := $img | resources.Copy "images/copy.png"  }}
@@ -80,7 +80,7 @@ func TestCopyPageShouldFail(t *testing.T) {
 
 	files := `
 -- config.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{/* This is currently not supported. */}}
 {{ $copy := .Copy "copy.md" }}
 
@@ -103,7 +103,7 @@ func TestGet(t *testing.T) {
 baseURL = "http://example.com/blog"
 -- assets/images/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/index.html --
+-- layouts/home.html --
 {{ with resources.Get "images/pixel.png" }}Image OK{{ else }}Image not found{{ end }}
 {{ with resources.Get "" }}Failed{{ else }}Empty string not found{{ end }}
 
@@ -127,7 +127,7 @@ func TestResourcesGettersShouldNotNormalizePermalinks(t *testing.T) {
 baseURL = "http://example.com/"
 -- assets/401K Prospectus.txt --
 Prospectus.
--- layouts/index.html --
+-- layouts/home.html --
 {{ $name := "401K Prospectus.txt" }}
 Get: {{ with resources.Get $name }}{{ .RelPermalink }}|{{ .Permalink }}|{{ end }}
 GetMatch: {{ with resources.GetMatch $name }}{{ .RelPermalink }}|{{ .Permalink }}|{{ end }}
@@ -156,7 +156,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 I am a.txt
 -- assets/b.txt --
 I am b.txt
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ with resources.ByType "text" }}
   {{ with .Get "a.txt" }}
@@ -188,7 +188,7 @@ I am b.txt
 I am c.txt
 -- assets/files/C.txt --
 I am C.txt
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ with resources.ByType "text" }}
   {{ with .Get "files/a.txt" }}
@@ -252,7 +252,7 @@ func TestDartSassVars(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','section','rss','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ $opts := dict "transpiler" "dartsass" "outputStyle" "compressed" "vars" (dict "color" "red") }}
 {{ with resources.Get "dartsass.scss" | css.Sass $opts }}
   {{ .Content }}

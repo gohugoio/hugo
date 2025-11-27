@@ -27,22 +27,22 @@ func TestExists(t *testing.T) {
 	files := `
 -- config.toml --
 baseURL = 'http://example.com/'
--- layouts/index.html --
-index.html: {{ templates.Exists "index.html" }}
+-- layouts/home.html --
+home.html: {{ templates.Exists "home.html" }}
 post/single.html: {{ templates.Exists "post/single.html" }}
-partials/foo.html: {{ templates.Exists "partials/foo.html" }}
-partials/doesnotexist.html: {{ templates.Exists "partials/doesnotexist.html" }}
+_partials/foo.html: {{ templates.Exists "_partials/foo.html" }}
+_partials/doesnotexist.html: {{ templates.Exists "_partials/doesnotexist.html" }}
 -- layouts/post/single.html --
--- layouts/partials/foo.html --
+-- layouts/_partials/foo.html --
   `
 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
-index.html: true
+home.html: true
 post/single.html: true
-partials/foo.html: true
-partials/doesnotexist.html: false  
+_partials/foo.html: true
+_partials/doesnotexist.html: false  
 `)
 }
 
@@ -54,9 +54,9 @@ func TestExistsWithBaseOf(t *testing.T) {
 baseURL = 'http://example.com/'
 -- layouts/baseof.html --
 {{ block "main" . }}{{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}
-index.html: {{ templates.Exists "index.html" }}
+index.html: {{ templates.Exists "home.html" }}
 post/single.html: {{ templates.Exists "post/single.html" }}
 post/doesnotexist.html: {{ templates.Exists "post/doesnotexist.html" }}
 {{ end }}
@@ -83,7 +83,7 @@ func TestPageFunctionExists(t *testing.T) {
 	files := `
 -- config.toml --
 baseURL = 'http://example.com/'
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ page.IsHome }}
 
 `
@@ -102,7 +102,7 @@ func TestTry(t *testing.T) {
 	files := `
 -- config.toml --
 baseURL = 'http://example.com/'
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $g :=  try ("hello = \"Hello Hugo\"" | transform.Unmarshal)   }}
 {{ with $g.Err }}
@@ -124,7 +124,7 @@ Try printf: {{ (try (printf "hello %s" "world")).Value }}
 
 	b.AssertFileContent("public/index.html",
 		"Value1: Hello Hugo|",
-		"Err2: template: index.html:",
+		"Err2: template: home.html:",
 		"Try upper: HELLO",
 		"Try printf: hello world",
 	)

@@ -72,17 +72,17 @@ disableKinds = ['section','sitemap','taxonomy','term']
 enableDefault = true
 [markup.goldmark.renderHooks.link]
 enableDefault = true
--- layouts/_default/_markup/render-image.html --
+-- layouts/_markup/render-image.html --
 {{- $u := urls.Parse .Destination -}}
 {{- $src := $u.String | relURL -}}
 <img srcset="{{ $src }}" src="{{ $src }} 2x">
 <img src="{{ $src }}">
 {{- /**/ -}}
--- layouts/_default/home.html --
+-- layouts/home.html --
 {{ .Content }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}|
--- layouts/_default/rss.xml --
+-- layouts/rss.xml --
 {{ with site.GetPage "/s1/p2" }}
   {{ .Content | transform.XMLEscape | safeHTML }}
 {{ end }}

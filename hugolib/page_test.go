@@ -454,7 +454,7 @@ tags: ["a", "c"]
 categories: ["c", "e"]
 ---
 p2
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|Date: {{ .Date.Format "2006-01-02" }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|
 
 `
@@ -662,7 +662,7 @@ title: "basic"
 ---
 title: "empty"
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 |{{ .RawContent }}|
 `
 
@@ -720,7 +720,7 @@ title: Simple
 summary: "Front **matter** summary"
 ---
 Simple Page
--- layouts/_default/single.html --
+-- layouts/single.html --
 Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
 
 `).AssertFileContent("public/simple/index.html", "Summary: Front <strong>matter</strong> summary|", "Truncated: false")
@@ -737,7 +737,7 @@ title: Simple
 This is **summary**.
 <!--more-->
 This is **content**.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
 Content: {{ .Content }}|
 
@@ -763,7 +763,7 @@ This is <b>summary</b>.
 <div>
 This is <b>content</b>.
 </div>
--- layouts/_default/single.html --
+-- layouts/single.html --
 Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
 Content: {{ .Content }}|
 
@@ -785,7 +785,7 @@ This is *even more summary**.
 This is **more summary**.
 
 This is **content**.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
 Content: {{ .Content }}|
 
@@ -841,14 +841,14 @@ contentDir = 'content/en'
 
 [outputs]
 home = ["HTML", "JSON"]
--- layouts/index.html --
+-- layouts/home.html --
 {{- range .Site.Home.Translations -}}
 	<p>{{- .RenderString "foo" -}}</p>
 {{- end -}}
 {{- range .Site.Home.AllTranslations -}}
 	<p>{{- .RenderString "bar" -}}</p>
 {{- end -}}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- layouts/index.json --
 {"Title": "My Site"}
@@ -921,7 +921,7 @@ defaultContentLanguage = "en"
 <li>Len: {{ .Len }}</li>
 {{ end }}
 </ul>
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 <html>
 
 <body>
@@ -929,7 +929,7 @@ defaultContentLanguage = "en"
 </body>
 
 </html>
--- layouts/_default/home.html --
+-- layouts/home.html --
 {{ define "main" }}
 <h2>Translations</h2>
 <ul>
@@ -1300,7 +1300,7 @@ title: "p1 en"
 translationkey: "adfasdf"
 title: "p1 nn"
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}|TranslationKey: {{ .TranslationKey }}|
 Translations: {{ range .Translations }}{{ .Language.Lang }}|{{ end }}|
 AllTranslations: {{ range .AllTranslations }}{{ .Language.Lang }}|{{ end }}|
@@ -1334,9 +1334,9 @@ weight = 1
 weight = 2
 [taxonomies]
 category = 'categories'
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .IsTranslated }}|{{ range .Translations }}{{ .RelPermalink }}|{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|
 -- content/p1.en.md --
 ---
@@ -1393,7 +1393,7 @@ title: "mybundle nn"
 ---
 -- content/sect/mybundle_nn/f2.nn.txt --
 f2.nn
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}|TranslationKey: {{ .TranslationKey }}|
 Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ .Content }}|{{ end }}|
 
@@ -1515,9 +1515,9 @@ Summary.
 # more
 
 Content.
--- layouts/shortcodes/sc.html --
+-- layouts/_shortcodes/sc.html --
 a shortcode
--- layouts/_default/single.html --
+-- layouts/single.html --
 SUMMARY:{{ .Summary }}:END
 --------------------------
 CONTENT:{{ .Content }}
@@ -1561,7 +1561,7 @@ func TestHomePageWithNoTitle(t *testing.T) {
 -- hugo.toml --
 baseURL = "http://example.com/"
 title = "Site Title"
--- layouts/index.html --
+-- layouts/home.html --
 Title|{{ with .Title }}{{ . }}{{ end }}|
 -- content/_index.md --
 ---
@@ -1700,7 +1700,7 @@ title: "Pag.E4"
 slug: "PaGe4"
 ---
 p4.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title}}|{{ .RelPermalink }}|{{ .Path }}|
 `
 	b := Test(t, files)
@@ -1716,13 +1716,13 @@ func TestScratch(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Scratch.Set "b" "bv" }}
 B: {{ .Scratch.Get "b" }}
--- layouts/shortcodes/scratch.html --
+-- layouts/_shortcodes/scratch.html --
 {{ .Scratch.Set "c" "cv" }}
 C: {{ .Scratch.Get "c" }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content }}
 -- content/scratchme.md --
 ---
@@ -1753,7 +1753,7 @@ func TestScratchAliasToStore(t *testing.T) {
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "page", "section"]
 disableLiveReload = true
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Scratch.Set "a" "b" }}
 {{ .Store.Set "c" "d" }}
 .Scratch eq .Store: {{ eq .Scratch .Store }}
@@ -1781,7 +1781,7 @@ baseURL = "https://example.org"
 [params]
 [params.author]
   name = "Kurt Vonnegut"
--- layouts/index.html --
+-- layouts/home.html --
 
 {{ $withParam := .Site.GetPage "withparam" }}
 {{ $noParam := .Site.GetPage "noparam" }}
@@ -1868,13 +1868,13 @@ defaultMarkdownHandler="goldmark"
 unsafe = false
 [markup.highlight]
 noClasses=false
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}
 ToC: {{ .TableOfContents }}
 Content: {{ .Content }}
--- layouts/shortcodes/t.html --
+-- layouts/_shortcodes/t.html --
 T-SHORT
--- layouts/shortcodes/s.html --
+-- layouts/_shortcodes/s.html --
 ## Code
 {{ .Inner }}
 -- content/page.md --
@@ -1939,7 +1939,7 @@ func TestRenderWithoutArgument(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Render }}
 `
 
@@ -1966,10 +1966,10 @@ disableLiveReload = true
 title: "Home"
 ---
 {{< s >}}
--- layouts/shortcodes/s.html --
+-- layouts/_shortcodes/s.html --
 {{ if not (.Store.Get "Shortcode") }}{{ .Store.Set "Shortcode" (printf "sh-%s" $.Page.Title) }}{{ end }}
 Shortcode: {{ .Store.Get "Shortcode" }}|
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 {{ if not (.Store.Get "Page") }}{{ .Store.Set "Page" (printf "p-%s" $.Title) }}{{ end }}
 {{ if not (hugo.Store.Get "Hugo") }}{{ hugo.Store.Set "Hugo" (printf "h-%s" $.Title) }}{{ end }}

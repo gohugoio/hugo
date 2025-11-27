@@ -28,7 +28,7 @@ func TestErroridf(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 ignoreErrors = ['error-b','error-C']
--- layouts/index.html --
+-- layouts/home.html --
 {{ erroridf "error-a" "%s" "a"}}
 {{ erroridf "error-b" "%s" "b"}}
 {{ erroridf "error-C" "%s" "C"}}
@@ -52,7 +52,7 @@ func TestWarnidf(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 ignoreLogs = ['warning-b', 'WarniNg-C']
--- layouts/index.html --
+-- layouts/home.html --
 {{ warnidf "warning-a" "%s" "a"}}
 {{ warnidf "warning-b" "%s" "b"}}
 {{ warnidf "warNing-C" "%s" "c"}}

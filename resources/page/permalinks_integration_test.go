@@ -27,9 +27,9 @@ func TestPermalinks(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- layouts/_default/list.html --
+-- layouts/list.html --
 List|{{ .Kind }}|{{ .RelPermalink }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single|{{ .Kind }}|{{ .RelPermalink }}|
 -- hugo.toml --
 [taxonomies]
@@ -148,9 +148,9 @@ func TestPermalinksOldSetup(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- layouts/_default/list.html --
+-- layouts/list.html --
 List|{{ .Kind }}|{{ .RelPermalink }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single|{{ .Kind }}|{{ .RelPermalink }}|
 -- hugo.toml --
 [permalinks]
@@ -212,9 +212,9 @@ title: 2023
 ---
 title: Book 1
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
 `
 
@@ -261,9 +261,9 @@ title: 2023
 ---
 title: Book One
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
 `
 
@@ -287,9 +287,9 @@ func TestPermalinksUrlCascade(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- layouts/_default/list.html --
+-- layouts/list.html --
 List|{{ .Kind }}|{{ .RelPermalink }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single|{{ .Kind }}|{{ .RelPermalink }}|
 -- hugo.toml --
 -- content/cooking/delicious-recipes/_index.md --
@@ -350,9 +350,9 @@ url: "/a\\:b/:slug/"
 ---
 title: p2
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}
 `
 
@@ -380,7 +380,7 @@ b = "/:sections/:contentbasename/"
 {{ $.AddPage (dict "kind" "page" "path" "a/b/contentbasename2" "slug" "myslug"  "title" "My A Page With Slug")  }}
  {{ $.AddPage  (dict "kind" "section" "path" "b/c" "title" "My B Section")  }}
 {{ $.AddPage  (dict "kind" "page" "path" "b/c/contentbasename3" "title" "My B Page No Slug")  }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|
 `
 	b := hugolib.Test(t, files)
@@ -414,9 +414,9 @@ categories: ["c1", "c2"]
 title: "C2"
 slug: "c2slug"
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|
 `
 	b := hugolib.Test(t, files)
@@ -480,9 +480,9 @@ title: Bar
 ---
 title: Some Page
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 List|{{ .Kind }}|{{ .RelPermalink }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single|{{ .Kind }}|{{ .RelPermalink }}|
 `
 

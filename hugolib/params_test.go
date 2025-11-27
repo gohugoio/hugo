@@ -44,7 +44,7 @@ params:
    a: "p1-a"
    summary: "params.summary"
 ---	
--- layouts/_default/single.html --
+-- layouts/single.html --
 Params: {{ range $k, $v := .Params }}{{ $k }}: {{ $v }}|{{ end }}$
 Summary: {{ .Summary }}|
 `
@@ -69,7 +69,7 @@ baseURL = "https://example.org/"
 title: "P1"
 build: "foo"
 ---
--- layouts/_default/single.html --
+-- layouts/single.html --
 Params: {{ range $k, $v := .Params }}{{ $k }}: {{ $v }}|{{ end }}$
 `
 	b, err := TestE(t, files)

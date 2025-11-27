@@ -31,9 +31,9 @@ func TestHashSignInPermalink(t *testing.T) {
 disableKinds = ['section','rss','sitemap','taxonomy']
 [permalinks]
 s1 = '/:section/:slug'
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ range site.Pages }}{{ .RelPermalink }}|{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 -- content/s1/p1.md --
 ---

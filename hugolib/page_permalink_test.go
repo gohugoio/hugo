@@ -117,9 +117,9 @@ contentDir = "content/en"
 [Languages.nn]
 weight = 20
 contentDir = "content/nn"
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|Hello|{{ .Lang }}|RelPermalink: {{ .RelPermalink }}|Permalink: {{ .Permalink }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 List Page 1|{{ .Title }}|Hello|{{ .Permalink }}|
 -- content/en/blog/page1.md --
 ---

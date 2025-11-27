@@ -35,9 +35,9 @@ weight = 2
 removePathAccents = true
 -- content/διακριτικός.md --
 -- content/διακριτικός.fr.md --
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Language.Lang }}|Single.
--- layouts/_default/list.html --
+-- layouts/list.html --
 List
 `
 	b := hugolib.Test(t, files)
@@ -64,9 +64,9 @@ disablePathToLower = true
 -- content/MySection/MyPage.fr.md --
 -- content/MySection/MyBundle/index.md --
 -- content/MySection/MyBundle/index.fr.md --
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Language.Lang }}|Single.
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Language.Lang }}|List.
 `
 	b := hugolib.Test(t, files)

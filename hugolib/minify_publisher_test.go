@@ -25,7 +25,7 @@ func TestMinifyPublisher(t *testing.T) {
 baseURL = "https://example.org/"
 [minify]
 minifyOutput = true
--- layouts/index.html --
+-- layouts/home.html --
 <!DOCTYPE html>
 <html lang="en">
 <head>

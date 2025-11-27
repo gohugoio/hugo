@@ -28,10 +28,10 @@ func TestTemplateBOM(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 ` + bom + `
 		Base: {{ block "main" . }}base main{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 ` + bom + `{{ define "main" }}Hi!?{{ end }}
 -- content/page.md --
 ---
@@ -71,12 +71,12 @@ layout: "layout%d"
 Content.
 `, id, id))
 
-		b.WriteString(fmt.Sprintf("-- layouts/_default/layout%d.html --\n", id))
+		b.WriteString(fmt.Sprintf("-- layouts/layout%d.html --\n", id))
 		b.WriteString(fmt.Sprintf(`
 {{ define "main" }}%d{{ end }}
 `, id))
 
-		b.WriteString(fmt.Sprintf("-- layouts/_default/layout%d-baseof.html --\n", id))
+		b.WriteString(fmt.Sprintf("-- layouts/layout%d-baseof.html --\n", id))
 		b.WriteString(fmt.Sprintf(`
 Base %d: {{ block "main" . }}FOO{{ end }}
 `, id))
@@ -99,13 +99,13 @@ func TestTemplateNoBasePlease(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ define "main" }}
   Bonjour
 {{ end }}
 
 {{ printf "list" }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ printf "single" }}
 {{ define "main" }}
   Bonjour
@@ -136,7 +136,7 @@ func TestTemplateBaseWithComment(t *testing.T) {
 baseURL = "http://example.com/"
 -- layouts/baseof.html --
 Base: {{ block "main" . }}{{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 {{/*  A comment */}}
 {{ define "main" }}
   Bonjour
@@ -161,9 +161,9 @@ func TestTemplateLookupSite(t *testing.T) {
 		files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}
 -- content/_index.md --
 ---
@@ -203,9 +203,9 @@ weight = 10
 [languages.fr]
 weight = 20
 
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}Main Home En{{ end }}
--- layouts/index.fr.html --
+-- layouts/home.fr.html --
 {{ define "main" }}Main Home Fr{{ end }}
 -- layouts/baseof.html --
 Baseof en: {{ block "main" . }}main block{{ end }}
@@ -213,9 +213,9 @@ Baseof en: {{ block "main" . }}main block{{ end }}
 Baseof fr: {{ block "main" . }}main block{{ end }}
 -- layouts/mysection/baseof.html --
 Baseof mysection: {{ block "main" .  }}mysection block{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ define "main" }}Main Default Single{{ end }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ define "main" }}Main Default List{{ end }}
 -- content/mysection/p1.md --
 ---
@@ -252,11 +252,11 @@ weight = 10
 [languages.fr]
 weight = 20
 
--- layouts/index.html --
+-- layouts/home.html --
 Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
 Sites: {{ site.Sites.Default.Home.Language.Lang }}
 Hugo: {{ hugo.Generator }}
--- layouts/index.fr.html --
+-- layouts/home.fr.html --
 Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
 Sites: {{ site.Sites.Default.Home.Language.Lang }}
 Hugo: {{ hugo.Generator }}
@@ -286,21 +286,21 @@ func TestPartialWithReturn(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/partials/add42.tpl --
+-- layouts/_partials/add42.tpl --
 {{ $v := add . 42 }}
 {{ return $v }}
--- layouts/partials/dollarContext.tpl --
+-- layouts/_partials/dollarContext.tpl --
 {{ $v := add $ 42 }}
 {{ return $v }}
--- layouts/partials/dict.tpl --
+-- layouts/_partials/dict.tpl --
 {{ $v := add $.adder 42 }}
 {{ return $v }}
--- layouts/partials/complex.tpl --
+-- layouts/_partials/complex.tpl --
 {{ return add . 42 }}
--- layouts/partials/hello.tpl --
+-- layouts/_partials/hello.tpl --
 {{ $v := printf "hello %s" . }}
 {{ return $v }}
--- layouts/index.html --
+-- layouts/home.html --
 Test Partials With Return Values:
 
 add42: 50: {{ partial "add42.tpl" 8 }}
@@ -333,7 +333,7 @@ func TestPartialWithZeroedArgs(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 X{{ partial "retval" dict }}X
 X{{ partial "retval" slice }}X
 X{{ partial "retval" "" }}X
@@ -368,13 +368,13 @@ func TestPartialCached(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $key1 := (dict "a" "av" ) }}
 {{ $key2 := (dict "a" "av2" ) }}
 Partial cached1: {{ partialCached "p1" "input1" $key1 }}
 Partial cached2: {{ partialCached "p1" "input2" $key1 }}
 Partial cached3: {{ partialCached "p1" "input3" $key2 }}
--- layouts/partials/p1.html --
+-- layouts/_partials/p1.html --
 partial: {{ . }}
 `
 	b := NewIntegrationTestBuilder(
@@ -399,7 +399,7 @@ func TestTemplateTruth(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $p := index site.RegularPages 0 }}
 {{ $zero := $p.ExpiryDate }}
 {{ $notZero := time.Now }}
@@ -438,7 +438,7 @@ func TestTemplateGoIssues(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $title := "a & b" }}
 <script type="application/ld+json">{"@type":"WebPage","headline":"{{$title}}"}</script>
 
@@ -483,7 +483,7 @@ func TestPartialInline(t *testing.T) {
 -- hugo.toml --
 baseURL = "http://example.com/"
 -- content/p1.md --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $p1 := partial "p1" . }}
 {{ $p2 := partial "p2" . }}
 
@@ -522,7 +522,7 @@ baseURL = "http://example.com/"
 -- layouts/baseof.html --
 {{ $p3 := partial "p3" . }}P3: {{ $p3 }}
 {{ block "main" . }}{{ end }}{{ define "partials/p3" }}Inline: p3{{ end }}
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "main" }}
 
 {{ $p1 := partial "p1" . }}
@@ -570,17 +570,17 @@ baseURL = "http://example.com/"
 title: P
 ---
 Content
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 ::Header Start:{{ block "header" . }}{{ end }}:Header End:
 ::{{ block "main" . }}Main{{ end }}::
--- layouts/index.html --
+-- layouts/home.html --
 {{ define "header" }}
 Home Header
 {{ end }}
 {{ define "main" }}
 This is home main
 {{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ define "main" }}
 This is single main
 {{ end }}
@@ -614,7 +614,7 @@ func TestApplyWithNamespace(t *testing.T) {
 -- hugo.toml --
 baseURL = "http://example.com/"
 -- content/p1.md --
--- layouts/index.html --
+-- layouts/home.html --
 {{ $b := slice " a " "     b "   "       c" }}
 {{ $a := apply $b "strings.Trim" "." " " }}
 a: {{ $a }}
@@ -635,7 +635,7 @@ func TestOverrideInternalTemplate(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/index.html --
+-- layouts/home.html --
 {{ template "_internal/google_analytics_async.html" . }}
 -- layouts/_internal/google_analytics_async.html --
 Overridden.

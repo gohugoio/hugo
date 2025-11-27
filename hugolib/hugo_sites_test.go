@@ -27,7 +27,7 @@ weight = 1
 weight = 2
 [languages.de]
 weight = 3
--- layouts/index.html --
+-- layouts/home.html --
 {{ $bundle := site.GetPage "bundle" }}
 Bundle all translations: {{ range $bundle.AllTranslations }}{{ .Lang }}|{{ end }}$
 Bundle translations: {{ range $bundle.Translations }}{{ .Lang }}|{{ end }}$

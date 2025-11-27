@@ -22,7 +22,7 @@ func TestSectionsEntries(t *testing.T) {
 -- hugo.toml --
 -- content/withfile/_index.md --
 -- content/withoutfile/p1.md --
--- layouts/_default/list.html --
+-- layouts/list.html --
 SectionsEntries: {{ .SectionsEntries }}
 
 

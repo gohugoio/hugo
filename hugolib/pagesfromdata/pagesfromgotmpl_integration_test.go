@@ -36,13 +36,13 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 -- assets/mydata.yaml --
 p1: "p1"
 draft: false
--- layouts/partials/get-value.html --
+-- layouts/_partials/get-value.html --
 {{ $val := "p1" }}
 {{ return $val }}
--- layouts/_default/baseof.html --
+-- layouts/baseof.html --
 Baseof:
 {{ block "main" . }}{{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ define "main" }}
 Single: {{ .Title }}|{{ .Content }}|Params: {{ .Params.param1 }}|Path: {{ .Path }}|
 Dates: Date: {{ .Date.Format "2006-01-02" }}|Lastmod: {{ .Lastmod.Format "2006-01-02" }}|PublishDate: {{ .PublishDate.Format "2006-01-02" }}|ExpiryDate: {{ .ExpiryDate.Format "2006-01-02" }}|
@@ -55,7 +55,7 @@ Resized Featured Image: {{ .RelPermalink }}|{{ .Width }}|
 {{ end}}
 {{ end }}
 {{ end }}
--- layouts/_default/list.html --
+-- layouts/list.html --
 List: {{ .Title }}|{{ .Content }}|
 RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .Title }}:{{ .Path }}|{{ end }}$
 Sections: {{ range .Sections }}{{ .Title }}:{{ .Path }}|{{ end }}$
@@ -140,7 +140,7 @@ baseURL = "https://example.com"
 [security]
 [security.exec]
 allow = ['asciidoctor', 'pandoc','rst2html', 'python']
--- layouts/_default/single.html --
+-- layouts/single.html --
 |Content: {{ .Content }}|Title: {{ .Title }}|Path: {{ .Path }}|
 -- content/docs/_content.gotmpl --
 {{ $.AddPage (dict "path" "asciidoc" "content" (dict "value" "Mark my words, #automation is essential#." "mediaType" "text/asciidoc" )) }}
@@ -239,7 +239,7 @@ func TestPagesFromGoTmplEditDataResource(t *testing.T) {
 func TestPagesFromGoTmplEditPartial(t *testing.T) {
 	t.Parallel()
 	b := hugolib.TestRunning(t, filesPagesFromDataTempleBasic)
-	b.EditFileReplaceAll("layouts/partials/get-value.html", "p1", "p1edited").Build()
+	b.EditFileReplaceAll("layouts/_partials/get-value.html", "p1", "p1edited").Build()
 	b.AssertFileContent("public/docs/p1/index.html", "Single: p1:p1edited|")
 	b.AssertFileContent("public/docs/index.html", "p1edited")
 }
@@ -370,7 +370,7 @@ title = "Title"
 weight = 2
 title = "Titre"
 disabled = DISABLE
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single: {{ .Title }}|{{ .Content }}|
 -- content/docs/_content.gotmpl --
 {{ $.AddPage  (dict "kind" "page" "path" "p1" "title" "Title" ) }}
@@ -395,7 +395,7 @@ func TestPagesFromGoTmplDefaultPageSort(t *testing.T) {
 	files := `
 -- hugo.toml --
 defaultContentLanguage = "en"
--- layouts/index.html --
+-- layouts/home.html --
 {{ range site.RegularPages }}{{ .RelPermalink }}|{{ end}}
 -- content/_content.gotmpl --
 {{ $.AddPage  (dict "kind" "page" "path" "docs/_p22" "title" "A" ) }}
@@ -464,7 +464,7 @@ func TestPagesFromGoTmplMarkdownify(t *testing.T) {
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
--- layouts/_default/single.html --
+-- layouts/single.html --
 |Content: {{ .Content }}|Title: {{ .Title }}|Path: {{ .Path }}|
 -- content/docs/_content.gotmpl --
 {{ $content := "**Hello World**" | markdownify }}
@@ -485,7 +485,7 @@ func TestPagesFromGoTmplResourceWithoutExtensionWithMediaTypeProvided(t *testing
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
--- layouts/_default/single.html --
+-- layouts/single.html --
 |Content: {{ .Content }}|Title: {{ .Title }}|Path: {{ .Path }}|
 {{ range .Resources }}
 |RelPermalink: {{ .RelPermalink }}|Name: {{ .Name }}|Title: {{ .Title }}|Params: {{ .Params }}|MediaType: {{ .MediaType }}|
@@ -507,7 +507,7 @@ func TestPagesFromGoTmplCascade(t *testing.T) {
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
--- layouts/_default/single.html --
+-- layouts/single.html --
 |Content: {{ .Content }}|Title: {{ .Title }}|Path: {{ .Path }}|Params: {{ .Params }}|
 -- content/_content.gotmpl --
 {{ $cascade := dict "params" (dict "cascadeparam1" "cascadeparam1value" ) }}
@@ -527,7 +527,7 @@ func TestPagesFromGoBuildOptions(t *testing.T) {
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
--- layouts/_default/single.html --
+-- layouts/single.html --
 |Content: {{ .Content }}|Title: {{ .Title }}|Path: {{ .Path }}|Params: {{ .Params }}|
 -- content/_content.gotmpl --
 {{ $.AddPage (dict "path" "docs/p1" "content" (dict "value" "**Hello World**" "mediaType" "text/markdown" )) }}
@@ -550,7 +550,7 @@ func TestPagesFromGoPathsWithDotsIssue12493(t *testing.T) {
 disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 -- content/_content.gotmpl --
 {{ .AddPage (dict "path" "s-1.2.3/p-4.5.6" "title" "p-4.5.6") }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 `
 
@@ -568,7 +568,7 @@ disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 -- content/_content.gotmpl --
 {{ .AddPage (dict "path" "p1" "title" "p1" "params" (dict "paraM1" "param1v" )) }}
 {{ .AddResource (dict "path" "p1/data1.yaml" "content" (dict "value" "data1" ) "params" (dict "paraM1" "param1v" )) }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .Params.paraM1 }}
 {{ range .Resources }}
 {{ .Name }}|{{ .Params.paraM1 }}
@@ -595,9 +595,9 @@ disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 
 {{ $content := dict "mediaType" "text/html" "value" "{{< sc >}}" }}
 {{ .AddPage (dict "content" $content "path" "b") }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 |{{ .Content }}|
--- layouts/shortcodes/sc.html --
+-- layouts/_shortcodes/sc.html --
 foo
 {{- /**/ -}}
 `
@@ -623,7 +623,7 @@ name = "Footer"
 -- content/_content.gotmpl --
 {{ .AddPage (dict "path" "p1" "title" "p1" "menus" "main" ) }}
 {{ .AddPage (dict "path" "p2" "title" "p2" "menus" (slice "main" "footer")) }}
--- layouts/index.html --
+-- layouts/home.html --
 Main: {{ range index site.Menus.main }}{{ .Name }}|{{ end }}|
 Footer: {{ range index site.Menus.footer }}{{ .Name }}|{{ end }}|
 
@@ -655,7 +655,7 @@ disableKinds = ['rss','section','sitemap','taxonomy','term']
 {{ $menus := dict "m1" $menu1 "m2" $menu2 }}
 {{ .AddPage (dict "path" "p1" "title" "p1" "menus" $menus ) }}
 
--- layouts/index.html --
+-- layouts/home.html --
 Menus: {{ range $k, $v := site.Menus }}{{ $k }}|{{ end }}
 
 `
@@ -679,7 +679,7 @@ unsafe = true
 	"path" "p1"
   }}
   {{ .AddPage $page }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 summary: {{ .Summary }}|content: {{ .Content}}
 `
 
@@ -709,9 +709,9 @@ tags: ["mytag"]
 -- content/tags/_content.gotmpl --
 {{ .AddPage (dict "path" "mothertag" "title" "My title" "kind" "term") }}
 --
--- layouts/_default/taxonomy.html --
+-- layouts/taxonomy.html --
 Terms: {{ range .Data.Terms.ByCount }}{{ .Name }}: {{ .Count }}|{{ end }}§s
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 `
 

@@ -32,9 +32,9 @@ func TestBlockquoteHook(t *testing.T) {
       [markup.goldmark.parser.attribute]
         block = true
         title = true
--- layouts/_default/_markup/render-blockquote.html --
+-- layouts/_markup/render-blockquote.html --
 Blockquote: |{{ .Text }}|{{ .Type }}|
--- layouts/_default/_markup/render-blockquote-alert.html --
+-- layouts/_markup/render-blockquote-alert.html --
 {{ $text := .Text }}
 Blockquote Alert: |{{ $text }}|{{ .Type }}|
 Blockquote Alert Attributes: |{{ $text }}|{{ .Attributes }}|
@@ -42,7 +42,7 @@ Blockquote Alert Page: |{{ $text }}|{{ .Page.Title }}|{{ .PageInner.Title }}|
 {{ if .Attributes.showpos }}
 Blockquote Alert Position: |{{ $text }}|{{ .Position | safeHTML }}|
 {{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content }}
 -- content/p1.md --
 ---
@@ -98,7 +98,7 @@ title: "p1"
 ---
 
 >
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content }}
 
 `
@@ -135,9 +135,9 @@ title: "Home"
 > > [!important] Yes!, they can.
 > > > [!tip] You can even use multiple layers of nesting.
 
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
--- layouts/_default/_markup/render-blockquote.html --
+-- layouts/_markup/render-blockquote.html --
 AlertType: {{ .AlertType }}|AlertTitle: {{ .AlertTitle }}|AlertSign: {{ .AlertSign | safeHTML }}|Text: {{ .Text }}|
 
 	`
@@ -163,9 +163,9 @@ func TestBlockquoteRenderHookTextParsing(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
--- layouts/_default/_markup/render-blockquote.html --
+-- layouts/_markup/render-blockquote.html --
 AlertType: {{ .AlertType }}|AlertTitle: {{ .AlertTitle }}|Text: {{ .Text }}|
 -- content/_index.md --
 ---

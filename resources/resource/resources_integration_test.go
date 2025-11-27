@@ -38,7 +38,7 @@ title: "My Bundle"
 Text 1.
 -- content/mybundle/sub/txt2.txt --
 Text 1.
--- layouts/index.html --
+-- layouts/home.html --
 {{ $mybundle := site.GetPage "mybundle" }}
 {{ $subResources := resources.Match "/text/sub/*.*"  }}
 {{ $subResourcesMount :=  $subResources.Mount "/text/sub" "/newroot" }}
@@ -83,7 +83,7 @@ resources:
 Text 1.
 -- content/mybundle/foo/txt2.txt --
 Text 2.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 {{ $mybundle := site.GetPage "mybundle" }}
 Resources:{{ range $mybundle.Resources }}Name: {{ .Name }}|{{ end }}$

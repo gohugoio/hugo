@@ -163,7 +163,7 @@ p2 = "p2base"
 [params.pm2]
 pm21 = "pm21base"
 pm22 = "pm22base"
--- layouts/index.html --
+-- layouts/home.html --
 p1: {{ .Site.Params.p1 }}
 p2: {{ .Site.Params.p2 }}
 pm21: {{ .Site.Params.pm2.pm21 }}
@@ -212,7 +212,7 @@ p2 = "p2en"
 sub1 = "sub1en"
 [languages.sv]
 title = "Svensk Title Theme"
--- layouts/index.html --
+-- layouts/home.html --
 title: {{ .Title }}|
 p1: {{ .Site.Params.p1 }}|
 p2: {{ .Site.Params.p2 }}|
@@ -244,7 +244,7 @@ weight = 2
 [languages.no]
 weight = 3
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 `
 
@@ -522,7 +522,7 @@ t3 = "tv3d"
 -- themes/test-theme/config/production/config.toml --
 [params]
 t3 = "tv3p"
--- layouts/index.html --
+-- layouts/home.html --
 m1: {{ .Site.Params.m1 }}
 m2: {{ .Site.Params.m2 }}
 t1: {{ .Site.Params.t1 }}
@@ -551,7 +551,7 @@ func TestPrivacyConfig(t *testing.T) {
 someOtherValue = "foo"
 [privacy.youtube]
 privacyEnhanced = true
--- layouts/index.html --
+-- layouts/home.html --
 Privacy Enhanced: {{ .Site.Config.Privacy.YouTube.PrivacyEnhanced }}
 `
 	b := Test(t, files)
@@ -645,7 +645,7 @@ func TestInvalidDefaultMarkdownHandler(t *testing.T) {
 defaultMarkdownHandler = 'blackfriday'
 -- content/_index.md --
 ## Foo
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 
 `
@@ -677,7 +677,7 @@ themeconfigdirparam = "themeconfigdirvalue"
 -- themes/mytheme/hugo.toml --
 [params]
 themeparam = "themevalue"
--- layouts/index.html --
+-- layouts/home.html --
 rootparam: {{ site.Params.rootparam }}
 rootconfigparam: {{ site.Params.rootconfigparam }}
 themeparam: {{ site.Params.themeparam }}
@@ -725,9 +725,9 @@ weigHt = WEIGHT_EN
 title = "Swedish"
 wEight =  WEIGHT_SV
 disableKinds = ["page"]
--- layouts/index.html --
+-- layouts/home.html --
 Home: {{ .Lang}}|{{ len site.RegularPages }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 -- content/p1.en.md --
 -- content/p2.en.md --
@@ -792,7 +792,7 @@ mediaType = 'text/html'
 [outputFormats.myformat]
 baseName = 'myindex'
 mediaType = 'text/html'
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 
 
@@ -827,7 +827,7 @@ myparam = "enParamValue"
 title = "Svensk Title"
 [languages.sv.params]
 myparam = "svParamValue"
--- layouts/index.html --
+-- layouts/home.html --
 MyParam: {{ site.Params.myparam }}
 ThisIsAParam: {{ site.Params.thisIsAParam }}
 
@@ -873,7 +873,7 @@ title: "My English Section"
 ---
 title: "My Swedish Section"
 ---
--- layouts/index.html --
+-- layouts/home.html --
 LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Language.LanguageCode }}|
 {{ range $i, $e := (slice site .Site) }}
 {{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}|BuildDrafts: {{ .BuildDrafts }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
@@ -914,7 +914,7 @@ params:
   mainSections:
 -- content/mysection/_index.md --
 -- content/mysection/mycontent.md --
--- layouts/index.html --
+-- layouts/home.html --
 mainSections: {{ site.Params.mainSections }}
 
 `
@@ -930,7 +930,7 @@ func TestConfigHugoWorkingDir(t *testing.T) {
 
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 WorkingDir: {{ hugo.WorkingDir }}|
 
 `
@@ -971,7 +971,7 @@ p1 = "p1de"
 [languages.de.markup.goldmark.extensions.typographer]
 leftDoubleQuote = '&laquo;'   # default &ldquo;
 rightDoubleQuote = '&raquo;'  # default &rdquo;
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 p1: {{ site.Params.p1 }}|
 -- content/_index.en.md --
@@ -1002,7 +1002,7 @@ func TestConfigLegacyValues(t *testing.T) {
 # taxonomyTerm was renamed to taxonomy in Hugo 0.60.0.
 disableKinds = ["taxonomyTerm"]
 
--- layouts/index.html --
+-- layouts/home.html --
 Home
 
 `
@@ -1042,9 +1042,9 @@ notAlternative = true
 ---
 outputs: ["html", "htaccess"]
 ---
--- layouts/index.html --
+-- layouts/home.html --
 HTML.
--- layouts/_default/list.htaccess --
+-- layouts/list.htaccess --
 HTACCESS.
 
 
@@ -1061,7 +1061,7 @@ func TestConfigLanguageCodeTopLevel(t *testing.T) {
 	files := `
 -- hugo.toml --
 languageCode = "en-US"
--- layouts/index.html --
+-- layouts/home.html --
 LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
 
 
@@ -1087,7 +1087,7 @@ path = "foo"
 [languages.sv.mediatypes."text/html"]
 suffixes = ["bar"]
 
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 
 
@@ -1115,7 +1115,7 @@ func TestConfigMiscPanics(t *testing.T) {
 		files := `
 -- hugo.yaml --
 params:
--- layouts/index.html --
+-- layouts/home.html --
 Foo: {{ site.Params.foo }}|
 
 
@@ -1139,7 +1139,7 @@ defaultContentLanguage = "en"
 	lang = "en"
 	languageName = "English"
 	weight = 1
--- layouts/index.html --
+-- layouts/home.html --
 Foo: {{ site.Params.foo }}|
 
 
@@ -1191,7 +1191,7 @@ func TestConfigModuleDefaultMountsInConfig(t *testing.T) {
 -- hugo.toml --
 baseURL = "https://example.org"
 contentDir = "mycontent"
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 
 
@@ -1216,7 +1216,7 @@ defaultContentLanguageInSubdir = true
 disableKinds = ["taxonomy", "term", "page", "section"]
 -- content/foo/bar.txt --
 Foo.
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 `
 		b := Test(t, files)
@@ -1244,7 +1244,7 @@ title = "English Title"
 title = "Swedish Title"
 -- content/foo/bar.txt --
 Foo.
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 `
 		b := Test(t, files)
@@ -1272,7 +1272,7 @@ title = "English Title"
 title = "Swedish Title"
 -- content/foo/bar.txt --
 Foo.
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 `
 		b := Test(t, files)
@@ -1295,7 +1295,7 @@ title = "English Title"
 [languages.sv]
 title = "Swedish Title"
 disabled = true
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 
 
@@ -1317,7 +1317,7 @@ disableDefaultLanguageRedirect = true
 title = "English Title"
 [languages.sv]
 title = "Swedish Title"
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 
 
@@ -1450,9 +1450,9 @@ category = 'categories'
 title: "P1"
 categories: ["c1"]
 ---
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
 
 
@@ -1473,7 +1473,7 @@ func TestKindsUnknown(t *testing.T) {
 disableKinds = ['foo', 'home']
 [outputs]
 foo = ['HTML', 'AMP', 'RSS']
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
 
 
@@ -1499,7 +1499,7 @@ func TestDeprecateTaxonomyTerm(t *testing.T) {
 disableKinds = ['taxonomyTerm']
 [outputs]
 taxonomyterm = ['HTML', 'AMP', 'RSS']
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
 
 
@@ -1530,7 +1530,7 @@ title = "English"
 [languages.pt]
 weight = 2
 title = "Portuguese"
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 -- content/custom/index.br.md --
 ---

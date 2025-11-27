@@ -27,7 +27,7 @@ func TestHeadingsLevel(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/index.html --
+-- layouts/home.html --
 {{ range .Fragments.HeadingsMap }}
 	{{ printf "%s|%d|%s" .ID .Level .Title }}
 {{ end }}
@@ -52,7 +52,7 @@ func TestToHTMLArgTypes(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['home','section','rss','sitemap','taxonomy','term']
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Fragments.ToHTML .Params.toc.startLevel .Params.toc.endLevel false }}
 -- content/json.md --
 {

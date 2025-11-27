@@ -157,7 +157,7 @@ func TestSitemapAndContentBundleNamedSitemap(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['home','rss','section','taxonomy','term']
--- layouts/_default/single.html --
+-- layouts/single.html --
 layouts/_default/single.html
 -- layouts/sitemap/single.html --
 layouts/sitemap/single.html

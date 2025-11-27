@@ -26,7 +26,7 @@ func TestRenderHooksRSS(t *testing.T) {
 -- hugo.toml --
 baseURL = "https://example.org"
 disableKinds = ["taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 {{ $p := site.GetPage "p1.md" }}
 {{ $p2 := site.GetPage "p2.md" }}
 P1: {{ $p.Content }}
@@ -36,13 +36,13 @@ P2: {{ $p2.Content }}
 {{ $p3 := site.GetPage "p3.md" }}
 P2: {{ $p2.Content }}
 P3: {{ $p3.Content }}
--- layouts/_default/_markup/render-link.html --
+-- layouts/_markup/render-link.html --
 html-link: {{ .Destination | safeURL }}|
--- layouts/_default/_markup/render-link.rss.xml --
+-- layouts/_markup/render-link.rss.xml --
 xml-link: {{ .Destination | safeURL }}|
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 html-heading: {{ .Text }}|
--- layouts/_default/_markup/render-heading.rss.xml --
+-- layouts/_markup/render-heading.rss.xml --
 xml-heading: {{ .Text }}|
 -- content/p1.md --
 ---
@@ -87,7 +87,7 @@ func TestRenderHooksRSSOnly(t *testing.T) {
 -- hugo.toml --
 baseURL = "https://example.org"
 disableKinds = ["taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 {{ $p := site.GetPage "p1.md" }}
 {{ $p2 := site.GetPage "p2.md" }}
 P1: {{ $p.Content }}
@@ -97,9 +97,9 @@ P2: {{ $p2.Content }}
 {{ $p3 := site.GetPage "p3.md" }}
 P2: {{ $p2.Content }}
 P3: {{ $p3.Content }}
--- layouts/_default/_markup/render-link.rss.xml --
+-- layouts/_markup/render-link.rss.xml --
 xml-link: {{ .Destination | safeURL }}|
--- layouts/_default/_markup/render-heading.rss.xml --
+-- layouts/_markup/render-heading.rss.xml --
 xml-heading: {{ .Text }}|
 -- content/p1.md --
 ---
@@ -150,12 +150,12 @@ baseURL="https://example.org"
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
--- layouts/index.html --
+-- layouts/home.html --
 {{ $p := site.GetPage "p1.md" }}
 P1: {{ $p.Content }}
--- layouts/_default/_markup/render-link.html --
+-- layouts/_markup/render-link.html --
 html-link: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}
--- layouts/_default/_markup/render-image.html --
+-- layouts/_markup/render-image.html --
 html-image: {{ .Destination | safeURL }}|Text: {{ .Text }}|Plain: {{ .PlainText | safeHTML }}
 -- content/p1.md --
 ---
@@ -203,7 +203,7 @@ title: "p2"
 ## E
 ## F
 
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 Heading: {{ .Text }}|
 {{ with .Page }}
 Self Fragments: {{ .Fragments.Identifiers }}|
@@ -211,7 +211,7 @@ Self Fragments: {{ .Fragments.Identifiers }}|
 {{ with (site.GetPage "p1.md") }}
 P1 Fragments: {{ .Fragments.Identifiers }}|
 {{ end }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Content}}
 `
 
@@ -276,7 +276,7 @@ title: "p2 en"
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 -- content/p2/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|{{ .Content }}|$
 
 `
@@ -322,7 +322,7 @@ Link: [text-"<>&](/destination-"<> 'title-"<>&')
 Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
 {class="><script>alert()</script>" id="baz"}
 
--- layouts/index.html --
+-- layouts/home.html --
 {{ .Content }}
 `
 
@@ -362,9 +362,9 @@ title: "p1"
 First line.
 Second line.
 ----------------
--- layouts/_default/_markup/render-heading.html --
+-- layouts/_markup/render-heading.html --
 Plain text: {{ .PlainText }}|Text: {{ .Text }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Content: {{ .Content}}|
 }
 `
@@ -379,13 +379,13 @@ Content: {{ .Content}}|
 func TestContentOutputReuseRenderHooksAndShortcodesHTMLOnly(t *testing.T) {
 	files := `
 -- hugo.toml --
--- layouts/index.html --
+-- layouts/home.html --
 HTML: {{ .Title }}|{{ .Content }}|
 -- layouts/index.xml --
 XML: {{ .Title }}|{{ .Content }}|
 -- layouts/_markup/render-heading.html --
 Render heading.
--- layouts/shortcodes/myshortcode.html --
+-- layouts/_shortcodes/myshortcode.html --
 My shortcode.
 -- content/_index.md --
 ---
@@ -407,7 +407,7 @@ func TestContentOutputNoReuseRenderHooksInBothHTMLAnXML(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 HTML: {{ .Title }}|{{ .Content }}|
 -- layouts/index.xml --
 XML: {{ .Title }}|{{ .Content }}|
@@ -435,16 +435,16 @@ func TestContentOutputNoReuseShortcodesInBothHTMLAnXML(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 HTML: {{ .Title }}|{{ .Content }}|
 -- layouts/index.xml --
 XML: {{ .Title }}|{{ .Content }}|
 -- layouts/_markup/render-heading.html --
 Render heading.
 
--- layouts/shortcodes/myshortcode.html --
+-- layouts/_shortcodes/myshortcode.html --
 My shortcode HTML.
--- layouts/shortcodes/myshortcode.xml --
+-- layouts/_shortcodes/myshortcode.xml --
 My shortcode XML.
 -- content/_index.md --
 ---

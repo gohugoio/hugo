@@ -27,12 +27,12 @@ func TestTaxonomiesGetAndCount(t *testing.T) {
 disableKinds = ['rss','sitemap']
 [taxonomies]
 author = 'authors'
--- layouts/_default/home.html --
+-- layouts/home.html --
 John Smith count: {{ site.Taxonomies.authors.Count "John Smith" }}
 Robert Jones count: {{ (site.Taxonomies.authors.Get "Robert Jones").Pages.Len }}
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}|
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{ .Title }}|
 -- content/p1.md --
 ---
@@ -68,10 +68,10 @@ category = 'categories'
 title: p1
 tags: [tag-a]
 ---
--- layouts/_default/list.html --
+-- layouts/list.html --
 {{- with site.Taxonomies.tags.Page }}{{ .RelPermalink }}{{ end }}|
 {{- with site.Taxonomies.categories.Page }}{{ .RelPermalink }}{{ end }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ .Title }}
 `
 

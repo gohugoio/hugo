@@ -49,7 +49,7 @@ export function hello2() {
 export function hello3() {
 	return 'efgh';
 }
--- layouts/index.html --
+-- layouts/home.html --
 {{ $js := resources.Get "js/main.js" | js.Build }}
 JS Content:{{ $js.Content }}:End:
 
@@ -175,7 +175,7 @@ hello:
 -- i18n/fr.yaml --
 hello:
    other: "Bonjour"
--- layouts/index.html --
+-- layouts/home.html --
 {{ $options := dict "minify" false "externals" (slice "react" "react-dom")  "sourcemap" "linked" }}
 {{ $js := resources.Get "js/main.js" | js.Build $options }}
 JS:  {{ template "print" $js }}
@@ -257,7 +257,7 @@ export function hello2() {
 export function hello3() {
 	return 'efgh';
 }
--- layouts/index.html --
+-- layouts/home.html --
 {{ $js := resources.Get "js/main.js" | js.Build }}
 JS Content:{{ $js.Content }}:End:
 
@@ -297,7 +297,7 @@ console.log("IMPORT_SRC_DIR:imp3/foo.ts");
 import 'imp1/index.js';
 import 'imp2/index.js';
 import 'imp3/foo.js';
--- layouts/index.html --
+-- layouts/home.html --
 {{ $js := resources.Get "js/main.js" | js.Build }}
 {{ $js.RelPermalink }}
 			`
@@ -343,7 +343,7 @@ console.log("Hello 1");
 -- assets/js/utils/util2.js --
 //! License util2  */
 console.log("Hello 2");
--- layouts/index.html --
+-- layouts/home.html --
 {{ $js := resources.Get "js/main.js" | js.Build (dict "minify" false) }}
 {{ $js.RelPermalink }}
 `
@@ -379,7 +379,7 @@ disableKinds = ['RSS','sitemap','taxonomy','term']
 function addFoo(target: any) {target.prototype.foo = 'bar'}
 @addFoo
 class A {}
--- layouts/index.html --
+-- layouts/home.html --
 {{ $opts := dict "target" "es2020" "targetPath" "js/main.js" }}
 {{ (resources.Get "ts/main.ts" | js.Build $opts).Publish }}
 `
@@ -409,7 +409,7 @@ import { hello2 } from './util2.js';
 
 hello1();
 hello2();
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 {{ $js := resources.Get "js/main.js" | js.Build (dict "externals" (slice "./util1.js")) }}
 {{ $js.Publish }}
