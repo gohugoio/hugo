@@ -10,10 +10,14 @@ definitions:
     plugin:
       id: macospkgremote
       type: gorun
-      command: github.com/gohugoio/hugoreleaser-archive-plugins/macospkgremote@latest
+      command: github.com/gohugoio/hugoreleaser-archive-plugins/macospkgremote@4a5b6981ba006743eede18b41325695a23cb6c07
     custom_settings:
       package_identifier: io.gohugo.hugo
-      package_version: ${HUGORELEASER_TAG}
+      package_version:
+        ${HUGORELEASER_TAG}
+        # Needed by Wazero (currently only used when transform.ToMath is used)
+        # Note that we pass this map to s3 which takes metadata as a map of strings.
+      package_entitlements: "com.apple.security.cs.allow-jit,com.apple.security.cs.allow-unsigned-executable-memory"
       bucket: s3fptest
       queue: https://sqs.eu-north-1.amazonaws.com/656975317043/s3fptest_client
       access_key_id: ${S3RPC_CLIENT_ACCESS_KEY_ID}
