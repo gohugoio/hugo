@@ -202,7 +202,7 @@ func TestIntegrationTestTemplate(t *testing.T) {
 	c := qt.New(t)
 
 	files := `
--- config.toml --
+-- hugo.toml --
 title = "Integration Test"
 disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "RSS"]
 -- layouts/home.html --

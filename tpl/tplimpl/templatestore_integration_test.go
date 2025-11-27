@@ -351,7 +351,7 @@ func TestPrintUnusedTemplates(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 printUnusedTemplates=true
 -- content/p1.md --

@@ -27,7 +27,7 @@ func TestCodeblocks(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup]
   [markup.highlight]
     anchorLineNos = false
@@ -116,7 +116,7 @@ func TestHighlightCodeblock(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup]
 [markup.highlight]
 anchorLineNos = false
@@ -161,7 +161,7 @@ func TestCodeblocksBugs(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- layouts/_markup/render-codeblock.html --
 {{ .Position | safeHTML }}
 -- layouts/single.html --
@@ -192,7 +192,7 @@ func TestCodeChomp(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- content/p1.md --
 ---
 title: "p1"
@@ -217,7 +217,7 @@ func TestCodePosition(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- content/p1.md --
 ---
 title: "p1"
@@ -246,7 +246,7 @@ func TestAttributes(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- content/p1.md --
 ---
 title: "p1"
@@ -274,7 +274,7 @@ func TestAttributesChroma(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- content/p1.md --
 ---
 title: "p1"
@@ -309,7 +309,7 @@ Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 
 func TestPanics(t *testing.T) {
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup]
 [markup.goldmark]
 [markup.goldmark.parser]

@@ -326,7 +326,7 @@ func TestMainSectionsMoveToSite(t *testing.T) {
 		t.Parallel()
 
 		files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['RSS','sitemap','taxonomy','term']
 [params]
 mainSections=["a", "b"]
@@ -351,7 +351,7 @@ MainSections Site method: [a b]|
 		t.Parallel()
 
 		files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['RSS','sitemap','taxonomy','term']
 mainSections=["a", "b"]
 [params]
@@ -380,7 +380,7 @@ MainSections Site method: [a b]|
 		t.Parallel()
 
 		files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['RSS','sitemap','taxonomy','term']
 -- content/mysect/page1.md --
 -- layouts/home.html --

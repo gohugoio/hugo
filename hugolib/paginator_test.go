@@ -175,7 +175,7 @@ func TestPaginatorEmptyPageGroups(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "https://example.com/"
 -- content/p1.md --
 -- content/p2.md --

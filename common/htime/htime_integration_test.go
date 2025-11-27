@@ -24,7 +24,7 @@ func TestApplyWithContext(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 defaultContentLanguage = 'it'
 -- layouts/home.html --
 {{ $dates := slice

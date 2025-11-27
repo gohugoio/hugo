@@ -28,7 +28,7 @@ func TestAttributeExclusion(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark.renderer]
 	unsafe = false
 [markup.goldmark.parser.attribute]
@@ -136,7 +136,7 @@ func TestLinkInTitle(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- content/p1.md --
 ---
 title: "p1"
@@ -165,7 +165,7 @@ func TestHighlight(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup]
 [markup.highlight]
 anchorLineNos = false
@@ -233,7 +233,7 @@ LINE8
 
 func BenchmarkRenderHooks(b *testing.B) {
 	files := `
--- config.toml --
+-- hugo.toml --
 -- layouts/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
 	{{ .Text }}
@@ -289,7 +289,7 @@ D.
 
 func BenchmarkCodeblocks(b *testing.B) {
 	filesTemplate := `
--- config.toml --
+-- hugo.toml --
 [markup]
   [markup.highlight]
     anchorLineNos = false
@@ -363,7 +363,7 @@ func TestHookInfiniteRecursion(t *testing.T) {
 	for _, renderFunc := range []string{"markdownify", ".Page.RenderString"} {
 		t.Run(renderFunc, func(t *testing.T) {
 			files := `
--- config.toml --
+-- hugo.toml --
 -- layouts/_markup/render-link.html --
 <a href="{{ .Destination | safeURL }}">{{ .Text | RENDERFUNC }}</a>
 -- layouts/single.html --
@@ -400,7 +400,7 @@ func TestQuotesInImgAltAttr(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark.extensions]
   typographer = false
 -- content/p1.md --
@@ -424,7 +424,7 @@ func TestLinkifyProtocol(t *testing.T) {
 
 	runTest := func(protocol string, withHook bool) *hugolib.IntegrationTestBuilder {
 		files := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark]
 [markup.goldmark.extensions]
 linkify = true
@@ -488,7 +488,7 @@ func TestGoldmarkBugs(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark.renderer]
 unsafe = true
 -- content/p1.md --
@@ -558,7 +558,7 @@ func TestGoldmarkEmojiExtension(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 enableEmoji = true
 -- content/p1.md --
 ---
@@ -614,7 +614,7 @@ func TestEmojiDisabled(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 enableEmoji = false
 -- content/p1.md --
 ---
@@ -653,7 +653,7 @@ func TestGoldmarkTemplateDelims(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [minify]
   minifyOutput = true
 [minify.tdewolff.html]
@@ -675,7 +675,7 @@ func TestPassthroughInlineFences(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark.extensions.passthrough]
 enable = true
 [markup.goldmark.extensions.passthrough.delimiters]
@@ -702,7 +702,7 @@ func TestPassthroughBlockFences(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark.extensions.passthrough]
 enable = true
 [markup.goldmark.extensions.passthrough.delimiters]
@@ -731,7 +731,7 @@ func TestPassthroughWithAlternativeFences(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark.extensions.passthrough]
 enable = true
 [markup.goldmark.extensions.passthrough.delimiters]

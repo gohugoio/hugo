@@ -1899,7 +1899,7 @@ T-SHORT
 
 func TestPageHashString(t *testing.T) {
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "https://example.org"
 [languages]
 [languages.en]

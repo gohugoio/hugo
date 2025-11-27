@@ -1,4 +1,4 @@
-// Copyright 2025-present The Hugo Authors. All rights reserved.
+// Copyright 2025 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -640,7 +640,7 @@ func TestInvalidDefaultMarkdownHandler(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup]
 defaultMarkdownHandler = 'blackfriday'
 -- content/_index.md --

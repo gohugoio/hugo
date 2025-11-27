@@ -47,7 +47,7 @@ console.error("Hugo Environment:", process.env.HUGO_ENVIRONMENT );
 module.exports = {
 	presets: ["@babel/preset-env"],
 };
--- config.toml --
+-- hugo.toml --
 disablekinds = ['taxonomy', 'term', 'page']
 [security]
 	[security.exec]

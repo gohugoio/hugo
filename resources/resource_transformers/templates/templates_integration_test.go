@@ -23,7 +23,7 @@ func TestExecuteAsTemplateMultipleLanguages(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "http://example.com/blog"
 defaultContentLanguage = "fr"
 defaultContentLanguageInSubdir = true

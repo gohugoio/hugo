@@ -27,7 +27,7 @@ func TestMarkdownifyIssue11698(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 [markup.goldmark.parser.attribute]
 title = true
@@ -73,7 +73,7 @@ func TestXMLEscape(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['section','sitemap','taxonomy','term']
 -- content/p1.md --
 ---

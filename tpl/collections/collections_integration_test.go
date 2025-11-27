@@ -24,7 +24,7 @@ func TestApplyWithContext(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 {{ apply (seq 3) "partial" "foo.html"}}
@@ -44,7 +44,7 @@ func TestSortStable(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $values := slice (dict "a" 1 "b" 2) (dict "a" 3 "b" 1) (dict "a" 2 "b" 0) (dict "a" 1 "b" 0) (dict "a" 3 "b" 1) (dict "a" 2 "b" 2) (dict "a" 2 "b" 1) (dict "a" 0 "b" 3) (dict "a" 3 "b" 3) (dict "a" 0 "b" 0) (dict "a" 0 "b" 0) (dict "a" 2 "b" 0) (dict "a" 1 "b" 2) (dict "a" 1 "b" 1) (dict "a" 3 "b" 0) (dict "a" 2 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 0) (dict "a" 3 "b" 1) }}
 Asc:  {{ sort (sort $values "b" "asc") "a" "asc" }}
@@ -141,7 +141,7 @@ func TestWhereWithWordCount(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 Home: {{ range where site.RegularPages "WordCount" "gt" 50 }}{{ .Title }}|{{ end }}
@@ -255,7 +255,7 @@ func TestUnionResourcesMatch(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['rss','sitemap', 'taxonomy', 'term', 'page']
 -- layouts/home.html --
 {{ $a := resources.Match "*a*" }}

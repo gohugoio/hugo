@@ -26,7 +26,7 @@ func TestImageCache(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableLiveReload = true
 baseURL = "https://example.org"
 -- content/mybundle/index.md --
@@ -80,7 +80,7 @@ func TestSVGError(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- assets/circle.svg --
 <svg height="100" width="100"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /></svg>
 -- layouts/home.html --
@@ -170,7 +170,7 @@ func TestGroupByParamDate(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['section','rss','sitemap','taxonomy','term']
 -- layouts/home.html --
 {{- range site.RegularPages.GroupByParamDate "eventDate" "2006-01" }}

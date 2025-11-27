@@ -25,7 +25,7 @@ func TestPageTranslationsMap(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'https://example.org/'
 title = 'Issue-9073'
 defaultContentLanguageInSubdir = true
@@ -118,7 +118,7 @@ func TestTitleCaseStyleWithAutomaticSectionPages(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 titleCaseStyle = 'none'
 -- content/books/book-1.md --
 ---

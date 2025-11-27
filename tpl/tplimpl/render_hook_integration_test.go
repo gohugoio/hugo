@@ -143,7 +143,7 @@ func TestEmbeddedImageRenderHook(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'https://example.org/dir/'
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 [markup.goldmark.extensions.typographer]

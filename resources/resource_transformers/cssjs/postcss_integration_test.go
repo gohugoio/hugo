@@ -54,7 +54,7 @@ h1 {
 	@apply text-2xl font-bold;
 }
 
--- config.toml --
+-- hugo.toml --
 disablekinds = ['taxonomy', 'term', 'page']
 baseURL = "https://example.com"
 [build]

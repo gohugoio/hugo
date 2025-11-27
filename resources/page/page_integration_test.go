@@ -21,7 +21,7 @@ import (
 
 func TestGroupByLocalizedDate(t *testing.T) {
 	files := `
--- config.toml --
+-- hugo.toml --
 defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = true
 [languages]
@@ -72,7 +72,7 @@ date: "2020-02-01"
 
 func TestPagesSortCollation(t *testing.T) {
 	files := `
--- config.toml --
+-- hugo.toml --
 defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = true
 [languages]

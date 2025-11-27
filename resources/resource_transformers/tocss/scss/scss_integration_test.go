@@ -41,7 +41,7 @@ $moolor: #fff;
 moo {
   color: $moolor;
 }
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
@@ -84,7 +84,7 @@ moo {
 /* foo */
 -- assets/scss/regular.css --
 
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $r := resources.Get "scss/main.scss" |  toCSS }}
 T1: {{ $r.Content | safeHTML }}
@@ -136,7 +136,7 @@ $moolor: #ccc;
 moo {
 	color: $moolor;
 }
--- config.toml --
+-- hugo.toml --
 theme = 'mytheme'
 -- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
@@ -187,7 +187,7 @@ func TestTransformErrors(t *testing.T) {
 	c := qt.New(t)
 
 	const filesTemplate = `
--- config.toml --
+-- hugo.toml --
 theme = 'mytheme'
 -- assets/scss/components/_foo.scss --
 /* comment line 1 */

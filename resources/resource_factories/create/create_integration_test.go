@@ -26,7 +26,7 @@ import (
 
 func TestGetRemoteHead(t *testing.T) {
 	files := `
--- config.toml --
+-- hugo.toml --
 [security]
   [security.http]
     methods = ['(?i)GET|POST|HEAD']
@@ -62,7 +62,7 @@ func TestGetRemoteHead(t *testing.T) {
 
 func TestGetRemoteResponseHeaders(t *testing.T) {
 	files := `
--- config.toml --
+-- hugo.toml --
 [security]
   [security.http]
     methods = ['(?i)GET|POST|HEAD']

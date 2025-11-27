@@ -26,7 +26,7 @@ func TestCopy(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "http://example.com/blog"
 -- assets/images/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
@@ -79,7 +79,7 @@ func TestCopyPageShouldFail(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{/* This is currently not supported. */}}
 {{ $copy := .Copy "copy.md" }}
@@ -99,7 +99,7 @@ func TestGet(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "http://example.com/blog"
 -- assets/images/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
@@ -123,7 +123,7 @@ func TestResourcesGettersShouldNotNormalizePermalinks(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "http://example.com/"
 -- assets/401K Prospectus.txt --
 Prospectus.

@@ -782,7 +782,7 @@ func benchmarkBaselineFiles(leafBundles bool) string {
 	rnd := rand.New(rand.NewSource(32))
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "https://example.com"
 defaultContentLanguage = 'en'
 

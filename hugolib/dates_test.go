@@ -205,7 +205,7 @@ func TestTOMLDates(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 timeZone = "America/Los_Angeles"
 -- content/_index.md --
 ---

@@ -25,7 +25,7 @@ func TestExists(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 home.html: {{ templates.Exists "home.html" }}
@@ -50,7 +50,7 @@ func TestExistsWithBaseOf(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/baseof.html --
 {{ block "main" . }}{{ end }}
@@ -81,7 +81,7 @@ func TestPageFunctionExists(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 Home: {{ page.IsHome }}
@@ -100,7 +100,7 @@ func TestTry(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 Home.

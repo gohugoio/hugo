@@ -24,7 +24,7 @@ func TestI18nFromTheme(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [module]
 [[module.imports]]
 path = "mytheme"
@@ -56,7 +56,7 @@ func TestPassPageToI18n(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- content/_index.md --
 ---
 title: "Home"
@@ -100,7 +100,7 @@ func TestI18nDefaultContentLanguage(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['RSS','sitemap','taxonomy','term','page','section']
 defaultContentLanguage = 'es'
 defaultContentLanguageInSubdir = true
@@ -133,7 +133,7 @@ func TestI18nReservedKeyMap(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- i18n/en.toml --
 [description]
 other = 'This is a description from i18n.'

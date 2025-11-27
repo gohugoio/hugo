@@ -28,7 +28,7 @@ func TestGo18Constructs(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 disableKinds = ["section", "home", "rss", "taxonomy",  "term", "rss"]
 -- content/p1.md --
@@ -97,7 +97,7 @@ func TestCommentsBeforeBlockDefinition(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- content/s1/p1.md --
 ---
@@ -142,7 +142,7 @@ func TestGoTemplateBugs(t *testing.T) {
 		t.Parallel()
 
 		files := `
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $m := dict "key" "value" }}
 {{ $k := "" }}
@@ -166,7 +166,7 @@ func TestGoTemplateBugs(t *testing.T) {
 
 func TestSecurityAllowActionJSTmpl(t *testing.T) {
 	filesTemplate := `
--- config.toml --
+-- hugo.toml --
 SECURITYCONFIG
 -- layouts/home.html --
 <script>

@@ -30,7 +30,7 @@ func TestBuildVariants(t *testing.T) {
 	c := qt.New(t)
 
 	mainWithImport := `
--- config.toml --
+-- hugo.toml --
 disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
 disableLiveReload = true
 -- assets/js/main.js --
@@ -86,7 +86,7 @@ func TestBuildWithModAndNpm(t *testing.T) {
 	c := qt.New(t)
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "https://example.org"
 disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
 [module]
@@ -163,7 +163,7 @@ function greeter(person: string) {
 }
 let user = [0, 1, 2];
 document.body.textContent = greeter(user);
--- config.toml --
+-- hugo.toml --
 disablekinds = ['taxonomy', 'term', 'page']
 -- content/p1.md --
 Content.
@@ -235,7 +235,7 @@ func TestBuildError(t *testing.T) {
 	c := qt.New(t)
 
 	filesTemplate := `
--- config.toml --
+-- hugo.toml --
 disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
 -- assets/js/main.js --
 // A comment.

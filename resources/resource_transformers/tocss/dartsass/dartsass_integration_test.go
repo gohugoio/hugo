@@ -39,7 +39,7 @@ $moolor: #fff;
 moo {
   color: $moolor;
 }
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") "transpiler" "dartsass" ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
@@ -80,7 +80,7 @@ moo {
 /* foo */
 -- assets/scss/regular.css --
 
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $r := resources.Get "scss/main.scss" |  toCSS (dict "transpiler" "dartsass")  }}
 T1: {{ $r.Content | safeHTML }}
@@ -124,7 +124,7 @@ func TestTransformImportIndentedSASS(t *testing.T) {
 @import "moo";
 
 /* foo */
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $r := resources.Get "scss/main.scss" |  toCSS (dict "transpiler" "dartsass")  }}
 T1: {{ $r.Content | safeHTML }}
@@ -167,7 +167,7 @@ a {color: import-this-mounted-file-css;}
 -- layouts/home.html --
 {{- $opts := dict "transpiler" "dartsass" }}
 {{- with resources.Get "main.scss" | toCSS $opts }}{{ .Content | safeHTML }}{{ end }}
--- config.toml --
+-- hugo.toml --
 disableKinds = ['RSS','sitemap','taxonomy','term','page','section']
 
 [[module.mounts]]
@@ -222,7 +222,7 @@ $moolor: #ccc;
 moo {
 	color: $moolor;
 }
--- config.toml --
+-- hugo.toml --
 theme = 'mytheme'
 -- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) "transpiler" "dartsass" ) }}
@@ -276,7 +276,7 @@ func TestTransformLogging(t *testing.T) {
 @warn "foo";
 @debug "bar";
 
--- config.toml --
+-- hugo.toml --
 disableKinds = ["term", "taxonomy", "section", "page"]
 -- layouts/home.html --
 {{ $cssOpts := (dict  "transpiler" "dartsass" ) }}
@@ -305,7 +305,7 @@ func TestTransformErrors(t *testing.T) {
 	c := qt.New(t)
 
 	const filesTemplate = `
--- config.toml --
+-- hugo.toml --
 -- assets/scss/components/_foo.scss --
 /* comment line 1 */
 $foocolor: #ccc;
@@ -418,7 +418,7 @@ func TestOptionVarsParams(t *testing.T) {
 	}
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [params]
 [params.sassvars]
 color1 = "blue"
@@ -466,7 +466,7 @@ func TestVarsCasting(t *testing.T) {
 	}
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ["term", "taxonomy", "section", "page"]
 
 [params]
@@ -625,7 +625,7 @@ $moolor: #fff;
 moo {
   color: $moolor;
 }
--- config.toml --
+-- hugo.toml --
 -- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") "transpiler" "dartsass" ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}

@@ -135,7 +135,7 @@ Related 2: 2
 
 func BenchmarkRelatedSite(b *testing.B) {
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = "http://example.com/"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
 [related]

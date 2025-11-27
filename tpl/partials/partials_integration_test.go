@@ -31,7 +31,7 @@ func TestInclude(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 partial: {{ partials.Include "foo.html" . }}
@@ -50,7 +50,7 @@ func TestIncludeCached(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 partialCached: {{ partials.IncludeCached "foo.html" . }}
@@ -72,7 +72,7 @@ func TestIncludeCachedRecursion(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 {{ partials.IncludeCached "p1.html" . }}
@@ -95,7 +95,7 @@ func TestIncludeCachedRecursionShortcode(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- content/_index.md --
 ---
@@ -127,7 +127,7 @@ func TestIncludeCacheHints(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 templateMetrics=true
 templateMetricsHints=true
@@ -205,7 +205,7 @@ D1
 // gobench --package ./tpl/partials
 func BenchmarkIncludeCached(b *testing.B) {
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 -- layouts/single.html --
@@ -250,7 +250,7 @@ func TestIncludeTimeout(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 {{ partials.Include "foo.html" . }}
@@ -273,7 +273,7 @@ func TestIncludeCachedTimeout(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 timeout = '200ms'
 -- layouts/home.html --
@@ -300,7 +300,7 @@ func TestIncludeCachedDifferentKey(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 timeout = '200ms'
 -- layouts/home.html --
@@ -326,7 +326,7 @@ func TestReturnExecuteFromTemplateInPartial(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
 {{ $r :=  partial "foo" }}

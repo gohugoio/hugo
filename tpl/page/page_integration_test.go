@@ -25,7 +25,7 @@ func TestThatPageIsAvailableEverywhere(t *testing.T) {
 	t.Parallel()
 
 	filesTemplate := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 disableKinds = ["taxonomy", "term"]
 enableInlineShortcodes = true
@@ -184,7 +184,7 @@ func TestPageTableOfContentsInShortcode(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL = 'http://example.com/'
 disableKinds = ["taxonomy", "term"]
 -- content/p1.md --

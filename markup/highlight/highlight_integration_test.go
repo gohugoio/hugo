@@ -23,7 +23,7 @@ func TestHighlightInline(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup]
 [markup.highlight]
 codeFences = true
@@ -83,7 +83,7 @@ func TestIssue11311(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.highlight]
 noClasses = false
 -- content/_index.md --
@@ -108,7 +108,7 @@ func TestHighlightClass(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 [markup.highlight]
 noClasses = false
 wrapperClass = "highlight no-prose"

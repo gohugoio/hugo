@@ -98,7 +98,7 @@ func TestRenderStringWithShortcode(t *testing.T) {
 	t.Parallel()
 
 	filesTemplate := `
--- config.toml --
+-- hugo.toml --
 title = "Hugo Rocks!"
 enableInlineShortcodes = true
 -- content/p1/index.md --
@@ -166,7 +166,7 @@ func TestRenderStringWithShortcodeInPageWithNoContentFile(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 -- layouts/_shortcodes/myshort.html --
 Page Kind: {{ .Page.Kind }}
 -- layouts/home.html --
@@ -190,7 +190,7 @@ func TestRenderStringWithShortcodeIssue10654(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 timeout = '300ms'
 -- content/p1.md --
 ---

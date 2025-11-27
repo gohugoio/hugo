@@ -11,7 +11,7 @@ func TestDisableWrapStandAloneImageWithinParagraph(t *testing.T) {
 	t.Parallel()
 
 	filesTemplate := `
--- config.toml --
+-- hugo.toml --
 [markup.goldmark.renderer]
 	unsafe = false
 [markup.goldmark.parser]

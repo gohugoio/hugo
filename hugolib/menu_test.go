@@ -423,7 +423,7 @@ func TestMenuHasMenuCurrentSection(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 disableKinds = ['RSS','sitemap','taxonomy','term']
 [[menu.main]]
 name = 'Home'

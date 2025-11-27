@@ -229,7 +229,7 @@ func TestMountsProject(t *testing.T) {
 	t.Parallel()
 
 	files := `
--- config.toml --
+-- hugo.toml --
 baseURL="https://example.org"
 
 [module]
