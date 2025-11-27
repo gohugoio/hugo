@@ -11,7 +11,7 @@ stopServer
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
 disableLiveReload = true
--- layouts/index.html --
+-- layouts/home.html --
 <html>
 <head>
 </head>

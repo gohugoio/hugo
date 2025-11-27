@@ -20,7 +20,7 @@ baseURL = "https://example.org/"
 disableKinds = ["taxonomy", "term", "sitemap"]
 -- static/mystatic.txt --
 This is a static file.
--- layouts/index.html --
+-- layouts/home.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
 
 

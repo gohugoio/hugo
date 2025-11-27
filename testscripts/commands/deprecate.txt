@@ -12,7 +12,7 @@ stderr 'ERROR deprecated: item was deprecated in Hugo'
 -- hugo.toml --
 baseURL = "https://example.com/"
 disableKinds = ["taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 Deprecate:
 {{ if eq hugo.Environment "info" }}
     {{ debug.TestDeprecationInfo "item" "alternative" }}

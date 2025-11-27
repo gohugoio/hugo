@@ -18,9 +18,9 @@ stop
 -- hugo.toml --
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}| {{ .Content }}
 -- content/p1.md --
 ---

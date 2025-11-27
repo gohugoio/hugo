@@ -32,9 +32,9 @@ stopServer
 title = "Hugo Server Test"
 baseURL = "https://example.org/"
 disableKinds = ["taxonomy", "term", "sitemap"]
--- layouts/index.html --
+-- layouts/home.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
 -- content/_index.md --
 ---

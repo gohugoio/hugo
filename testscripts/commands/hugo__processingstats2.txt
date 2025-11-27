@@ -9,8 +9,8 @@ stdout 'Non-page files.*/| 2\s'
 -- content/posts/post-1/index.md --
 -- hugo.toml --
 baseURL = "https://example.com/"
--- layouts/_default/list.html --
+-- layouts/list.html --
 List.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 

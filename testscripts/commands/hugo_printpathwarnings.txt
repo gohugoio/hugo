@@ -5,9 +5,9 @@ stderr 'Duplicate target paths: .index.html \(2\)'
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404", "section"]
 baseURL = "https://example.org/"
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
--- layouts/index.html --
+-- layouts/home.html --
 Home.
 -- content/p1.md --
 ---
