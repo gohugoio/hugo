@@ -7,7 +7,7 @@ stderr 'warning'
 -- hugo.toml --
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "page", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 Home
 {{ warnf "This is a warning" }}
 

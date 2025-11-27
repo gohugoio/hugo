@@ -6,7 +6,7 @@ hugo --printPathWarnings
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- assets/foo.txt --
 foo
--- layouts/index.html --
+-- layouts/home.html --
 A: {{ (resources.Get "foo.txt").RelPermalink }}
 B: {{ (resources.GetMatch "foo.txt").RelPermalink }}
 C: {{ (index (resources.Match "foo.txt") 0).RelPermalink }}

@@ -41,7 +41,7 @@ baseURL = "https://fr.example.org/"
 title = "Hugo Serveur Test"
 languageName = "Français"
 weight = 2
--- layouts/index.html --
+-- layouts/home.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
 -- static/en/mystatic/mytext.txt --
 en_mytext

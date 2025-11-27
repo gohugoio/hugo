@@ -10,7 +10,7 @@ stopServer
 -- hugo.toml --
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 <html>
 <head>
 </head>

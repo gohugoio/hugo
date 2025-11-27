@@ -19,8 +19,8 @@ url: /p1/
 ---
 url: /p1/
 ---
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 

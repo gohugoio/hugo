@@ -10,9 +10,9 @@ body {
 -- content/p1.md --
 -- content/p2.md --
 -- content/p3.md --
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 {{ $css := resources.Get "css/styles.css" }}
 {{ $css := $css | minify | fingerprint | resources.PostProcess  }}
 CSS: {{ $css.RelPermalink }}

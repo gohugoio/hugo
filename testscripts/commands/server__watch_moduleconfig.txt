@@ -12,7 +12,7 @@ title = "Hugo Server Test"
 baseURL = "https://example.org/"
 disableKinds = ["section", "page", "taxonomy", "term", "RSS", "sitemap", "robotsTXT", "404"]
 theme = "mytheme"
--- layouts/index.html --
+-- layouts/home.html --
 foo: {{ .Site.Params.foo }}
 -- themes/mytheme/hugo.toml --
 [params]

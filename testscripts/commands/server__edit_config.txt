@@ -37,7 +37,7 @@ languageName = "Nynorsk"
 title = "Hugo Nynorsk Server Test"
 weight = 2
 
--- layouts/index.html --
+-- layouts/home.html --
 Title: {{ .Title }}|BaseURL: {{ .Permalink }}|
 
 

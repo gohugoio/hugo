@@ -8,5 +8,5 @@ grep 'Home' newpublic/index.html
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
 publishDir = "newpublic"
--- layouts/index.html --
+-- layouts/home.html --
 Home.

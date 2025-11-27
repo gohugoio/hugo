@@ -7,9 +7,9 @@ grep 'myparam: dev§'  public/index.html
 -- hugo.toml --
 baseURL = "http://example.org/"
 disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
--- layouts/index.html --
+-- layouts/home.html --
 myparam: {{ site.Params.myparam }}§
--- layouts/_default/single.html --
+-- layouts/single.html --
 Title: {{ .Title }}
 -- config/development/params.toml --
 myparam = "dev"

@@ -14,5 +14,5 @@ disableKinds = ["taxonomy", "term", "sitemap"]
 [[module.mounts]]
 source = "hugo_stats.json"
 target = "assets/watching/hugo_stats.json"
--- layouts/index.html --
+-- layouts/home.html --
 <body>Home</body>

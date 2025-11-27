@@ -39,9 +39,9 @@ baseURL = "https://example.com/"
         weight = 2
         title = "French Title"
         contentDir = "content/fr"
--- layouts/index.html --
+-- layouts/home.html --
 Home.
--- layouts/_default/single.html --
+-- layouts/single.html --
 Single.
 {{ range .Resources }}
 {{ $img := .Resize "3x" }}

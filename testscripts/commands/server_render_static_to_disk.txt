@@ -44,7 +44,7 @@ weight = 2
 This is a static file in English.
 -- static/en/mystatic.txt --
 This is a static file in English.
--- layouts/index.html --
+-- layouts/home.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
 
 
