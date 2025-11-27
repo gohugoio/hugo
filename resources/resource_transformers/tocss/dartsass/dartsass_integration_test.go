@@ -645,6 +645,9 @@ T1: {{ $r.Content }}
 
 func TestSilenceDependencyDeprecations(t *testing.T) {
 	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
 
 	files := `
 -- hugo.toml --
