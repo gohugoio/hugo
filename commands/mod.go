@@ -30,7 +30,7 @@ Note that Hugo will always start out by resolving the components defined in the 
 configuration, provided by a _vendor directory (if no --ignoreVendorPaths flag provided),
 Go Modules, or a folder inside the themes directory, in that order.
 
-See https://gohugo.io/hugo-modules/ for more information.
+See https://gohugo.io/docs/concepts/modules/ for more information.
 
 `
 
@@ -82,12 +82,12 @@ so this may/will change in future versions of Hugo.
 				name:  "init",
 				short: "Initialize this project as a Hugo Module",
 				long: `Initialize this project as a Hugo Module.
-	It will try to guess the module path, but you may help by passing it as an argument, e.g:
+It will try to guess the module path, but you may help by passing it as an argument, e.g.:
 
-		hugo mod init github.com/gohugoio/testshortcodes
+	hugo mod init github.com/gohugoio/testshortcodes
 
-	Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
-	inside a subfolder on GitHub, as one example.
+Note that Hugo Modules supports multi-module projects, so you can initialize a Hugo Module
+inside a subfolder on GitHub, as one example.
 	`,
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
@@ -154,7 +154,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
 					applyLocalFlagsBuildConfig(cmd, r)
-					cmd.Flags().StringVarP(&pattern, "pattern", "", "", `pattern matching module paths to clean (all if not set), e.g. "**hugo*"`)
+					cmd.Flags().StringVarP(&pattern, "pattern", "", "", `pattern matching module paths to clean (all if not set), e.g., "**hugo*"`)
 					_ = cmd.RegisterFlagCompletionFunc("pattern", cobra.NoFileCompletions)
 					cmd.Flags().BoolVarP(&all, "all", "", false, "clean entire module cache")
 				},
@@ -330,7 +330,7 @@ func (c *modCommands) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
 	cmd.Short = "Manage modules"
 	cmd.Long = `Various helpers to help manage the modules in your project's dependency graph.
-Most operations here requires a Go version installed on your system (>= Go 1.12) and the relevant VCS client (typically Git).
+Most operations here require a Go version installed on your system (>= Go 1.18) and the relevant VCS client (typically Git).
 This is not needed if you only operate on modules inside /themes or if you have vendored them via "hugo mod vendor".
 
 ` + commonUsageMod
