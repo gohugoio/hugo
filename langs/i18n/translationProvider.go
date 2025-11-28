@@ -78,7 +78,7 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 
 	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
 
-	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
+	dst.Translate = tp.getTranslateFunc(dst)
 
 	return nil
 }
@@ -128,8 +128,21 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 
 // CloneResource sets the language func for the new language.
 func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
-	dst.Translate = tp.t.Func(dst.Conf.Language().(*langs.Language).Lang)
+	dst.Translate = tp.getTranslateFunc(dst)
 	return nil
+}
+
+// getTranslateFunc returns the translation function for the language in Deps.
+// We first try the language code (e.g. "en-US"), then the language key (e.g. "en").
+func (tp *TranslationProvider) getTranslateFunc(dst *deps.Deps) func(ctx context.Context, translationID string, templateData any) string {
+	l := dst.Conf.Language().(*langs.Language)
+	if lc := l.LanguageCode(); lc != "" {
+		if fn, ok := tp.t.Lookup(strings.ToLower(lc)); ok {
+			return fn
+		}
+	}
+	// Func will fall back to the default language if not found.
+	return tp.t.Func(l.Lang)
 }
 
 func errWithFileContext(inerr error, r *source.File) error {
