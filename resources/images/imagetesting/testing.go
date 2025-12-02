@@ -15,12 +15,10 @@ package imagetesting
 
 import (
 	"image"
-	"image/gif"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -28,6 +26,7 @@ import (
 
 	"github.com/disintegration/gift"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/himage"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
@@ -92,6 +91,9 @@ func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 		conf.NeedsOsFS = true
 		conf.WorkingDir = opts.WorkingDir
 	}))
+
+	codec := c.H.ResourceSpec.Imaging.Codec
+
 	c.AssertFileContent("public/index.html", "Home.")
 
 	outputDir := filepath.Join(c.H.Conf.WorkingDir(), "public", "images")
@@ -118,20 +120,14 @@ func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 
 	decodeAll := func(f *os.File) []image.Image {
 		c.Helper()
-
 		var images []image.Image
+		v, err := codec.Decode(f)
+		c.Assert(err, qt.IsNil, qt.Commentf(f.Name()))
 
-		if strings.HasSuffix(f.Name(), ".gif") {
-			gif, err := gif.DecodeAll(f)
-			c.Assert(err, qt.IsNil, qt.Commentf(f.Name()))
-			images = make([]image.Image, len(gif.Image))
-			for i, img := range gif.Image {
-				images[i] = img
-			}
+		if anim, ok := v.(himage.AnimatedImage); ok {
+			images = anim.GetFrames()
 		} else {
-			img, _, err := image.Decode(f)
-			c.Assert(err, qt.IsNil, qt.Commentf(f.Name()))
-			images = append(images, img)
+			images = append(images, v)
 		}
 		return images
 	}

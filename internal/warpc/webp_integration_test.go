@@ -1,0 +1,111 @@
+// Copyright 2025 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package warpc_test
+
+import (
+	"testing"
+
+	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/hugolib"
+)
+
+func TestWebPMisc(t *testing.T) {
+	files := `
+-- assets/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- layouts/home.html --
+{{ $image := resources.Get "sunrise.webp" }}
+{{ $resized := $image.Resize "123x456" }}
+Original Width/Height: {{ $image.Width }}/{{ $image.Height }}|
+Resized Width:/Height {{ $resized.Width }}/{{ $resized.Height }}|
+Resized RelPermalink: {{ $resized.RelPermalink }}|
+{{ $ic := images.Config "/assets/sunrise.webp" }}
+ImageConfig: {{ printf "%d/%d" $ic.Width $ic.Height }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.ImageHelper("public/sunrise_hu_8dd1706a77fb35ce.webp").AssertFormat("webp").AssertIsAnimated(false)
+
+	b.AssertFileContent("public/index.html",
+		"Original Width/Height: 1024/640|",
+		"Resized Width:/Height 123/456|",
+		"Resized RelPermalink: /sunrise_hu_8dd1706a77fb35ce.webp|",
+		"ImageConfig: 1024/640|",
+	)
+}
+
+func TestWebPEncodeGrayscale(t *testing.T) {
+	files := `
+-- assets/gopher.png --
+sourcefilename: ../../resources/testdata/bw-gopher.png
+-- layouts/home.html --
+{{ $image := resources.Get "gopher.png" }}
+{{ $resized := $image.Resize "123x456 webp" }}
+Resized RelPermalink: {{ $resized.RelPermalink }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.ImageHelper("public/gopher_hu_f8d20fe200599f16.webp").AssertFormat("webp")
+}
+
+func TestWebPInvalid(t *testing.T) {
+	files := `
+-- assets/invalid.webp --
+sourcefilename: ../../resources/testdata/webp/invalid.webp
+-- layouts/home.html --
+{{ $image := resources.Get "invalid.webp" }}
+{{ $resized := $image.Resize "123x456 webp" }}
+Resized RelPermalink: {{ $resized.RelPermalink }}|
+`
+
+	b, err := hugolib.TestE(t, files)
+
+	b.Assert(err, qt.IsNotNil)
+}
+
+// This test isn't great, but we have golden tests to verify the output itself.
+func TestWebPAnimation(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "404"]
+-- assets/anim.webp --
+sourcefilename: ../../resources/testdata/webp/anim.webp
+-- assets/giphy.gif --
+sourcefilename: ../../resources/testdata/giphy.gif
+-- layouts/home.html --
+{{ $webpAnim := resources.Get "anim.webp" }}
+{{ $gifAnim := resources.Get "giphy.gif" }}
+{{ ($webpAnim.Resize "100x100 webp").Publish }}
+{{ ($webpAnim.Resize "100x100 gif").Publish }}
+{{ ($gifAnim.Resize "100x100 gif").Publish }}
+{{ ($gifAnim.Resize "100x100 webp").Publish }}
+
+`
+
+	b := hugolib.Test(t, files)
+
+	// Source animated gif:
+	// Frame durations in ms.
+	giphyFrameDurations := []int{200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200}
+	b.ImageHelper("public/giphy_hu_e4a5984f8835d617.webp").AssertFormat("webp").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
+	b.ImageHelper("public/giphy_hu_87010e943ffb23b4.gif").AssertFormat("gif").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
+	b.ImageHelper("public/giphy_hu_e4a5984f8835d617.webp").AssertFormat("webp").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
+
+	// Source animated webp:
+	animFrameDurations := []int{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}
+	b.ImageHelper("public/anim_hu_edc2f24aaad2cee6.webp").AssertFormat("webp").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(animFrameDurations)
+	b.ImageHelper("public/anim_hu_58eb49733894e7ce.gif").AssertFormat("gif").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(animFrameDurations)
+}

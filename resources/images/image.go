@@ -19,25 +19,20 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"io"
 	"sync"
 
-	"github.com/bep/gowebp/libwebp/webpoptions"
 	"github.com/bep/imagemeta"
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/resources/images/webp"
+	"github.com/gohugoio/hugo/internal/warpc"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
 
 	"github.com/disintegration/gift"
-	"golang.org/x/image/bmp"
-	"golang.org/x/image/tiff"
 
+	"github.com/gohugoio/hugo/common/himage"
 	"github.com/gohugoio/hugo/common/hugio"
 )
 
@@ -64,54 +59,7 @@ type Image struct {
 }
 
 func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
-	switch conf.TargetFormat {
-	case JPEG:
-
-		var rgba *image.RGBA
-		quality := conf.Quality
-
-		if nrgba, ok := img.(*image.NRGBA); ok {
-			if nrgba.Opaque() {
-				rgba = &image.RGBA{
-					Pix:    nrgba.Pix,
-					Stride: nrgba.Stride,
-					Rect:   nrgba.Rect,
-				}
-			}
-		}
-		if rgba != nil {
-			return jpeg.Encode(w, rgba, &jpeg.Options{Quality: quality})
-		}
-		return jpeg.Encode(w, img, &jpeg.Options{Quality: quality})
-	case PNG:
-		encoder := png.Encoder{CompressionLevel: png.DefaultCompression}
-		return encoder.Encode(w, img)
-
-	case GIF:
-		if giphy, ok := img.(Giphy); ok {
-			g := giphy.GIF()
-			return gif.EncodeAll(w, g)
-		}
-		return gif.Encode(w, img, &gif.Options{
-			NumColors: 256,
-		})
-	case TIFF:
-		return tiff.Encode(w, img, &tiff.Options{Compression: tiff.Deflate, Predictor: true})
-
-	case BMP:
-		return bmp.Encode(w, img)
-	case WEBP:
-		return webp.Encode(
-			w,
-			img, webpoptions.EncodingOptions{
-				Quality:        conf.Quality,
-				EncodingPreset: webpoptions.EncodingPreset(conf.Hint),
-				UseSharpYuv:    true,
-			},
-		)
-	default:
-		return errors.New("format not supported")
-	}
+	return i.Proc.Codec.EncodeTo(conf, w, img)
 }
 
 // Height returns i's height.
@@ -146,7 +94,7 @@ func (i Image) WithSpec(s Spec) *Image {
 func (i *Image) InitConfig(r io.Reader) error {
 	var err error
 	i.configInit.Do(func() {
-		i.config, _, err = image.DecodeConfig(r)
+		i.config, _, err = i.Proc.Codec.DecodeConfig(r)
 	})
 	return err
 }
@@ -166,7 +114,7 @@ func (i *Image) initConfig() error {
 		}
 		defer f.Close()
 
-		i.config, _, err = image.DecodeConfig(f)
+		i.config, _, err = i.Proc.Codec.DecodeConfig(f)
 	})
 
 	if err != nil {
@@ -176,7 +124,7 @@ func (i *Image) initConfig() error {
 	return nil
 }
 
-func NewImageProcessor(warnl logg.LevelLogger, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
+func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatchers, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
 	e := cfg.Config.Imaging.Exif
 	exifDecoder, err := exif.NewDecoder(
 		exif.WithDateDisabled(e.DisableDate),
@@ -189,15 +137,26 @@ func NewImageProcessor(warnl logg.LevelLogger, cfg *config.ConfigNamespace[Imagi
 		return nil, err
 	}
 
+	webpCodec, err := wasmDispatchers.NewWepCodec(cfg.Config.Imaging.Quality, cfg.Config.Imaging.Hint)
+	if err != nil {
+		return nil, err
+	}
+	if webpCodec == nil {
+		return nil, errors.New("webp codec is not available")
+	}
+	imageCodec := newCodec(webpCodec)
+
 	return &ImageProcessor{
 		Cfg:         cfg,
 		exifDecoder: exifDecoder,
+		Codec:       imageCodec,
 	}, nil
 }
 
 type ImageProcessor struct {
 	Cfg         *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
 	exifDecoder *exif.Decoder
+	Codec       *Codec
 }
 
 // Filename is only used for logging.
@@ -276,10 +235,11 @@ func (p *ImageProcessor) Filter(src image.Image, filters ...gift.Filter) (image.
 }
 
 func (p *ImageProcessor) resolveSrc(src image.Image, targetFormat Format) image.Image {
-	if giph, ok := src.(Giphy); ok {
-		g := giph.GIF()
-		if len(g.Image) < 2 || (targetFormat == 0 || targetFormat != GIF) {
-			src = g.Image[0]
+	if animatedImage, ok := src.(himage.AnimatedImage); ok {
+		frames := animatedImage.GetFrames()
+		// If e.g. converting an animated GIF to JPEG, we only want the first frame.
+		if len(frames) < 2 || !targetFormat.SupportsAnimation() {
+			src = frames[0]
 		}
 	}
 	return src
@@ -288,25 +248,31 @@ func (p *ImageProcessor) resolveSrc(src image.Image, targetFormat Format) image.
 func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters ...gift.Filter) (image.Image, error) {
 	filter := gift.New(filters...)
 
-	if giph, ok := src.(Giphy); ok {
-		g := giph.GIF()
-		if len(g.Image) < 2 || (targetFormat == 0 || targetFormat != GIF) {
-			src = g.Image[0]
+	if anim, ok := src.(himage.AnimatedImage); ok {
+		frames := anim.GetFrames()
+		if len(frames) < 2 || !targetFormat.SupportsAnimation() {
+			src = frames[0]
 		} else {
 			var bounds image.Rectangle
-			firstFrame := g.Image[0]
+			firstFrame := frames[0]
 			tmp := image.NewNRGBA(firstFrame.Bounds())
-			for i := range g.Image {
-				gift.New().DrawAt(tmp, g.Image[i], g.Image[i].Bounds().Min, gift.OverOperator)
+			for i, frame := range frames {
+				gift.New().DrawAt(tmp, frame, frame.Bounds().Min, gift.OverOperator)
 				bounds = filter.Bounds(tmp.Bounds())
-				dst := image.NewPaletted(bounds, g.Image[i].Palette)
+				var dst draw.Image
+				if paletted, ok := frame.(*image.Paletted); ok {
+					// Gif.
+					dst = image.NewPaletted(bounds, paletted.Palette)
+				} else {
+					dst = image.NewNRGBA(bounds)
+				}
 				filter.Draw(dst, tmp)
-				g.Image[i] = dst
+				frames[i] = dst
 			}
-			g.Config.Width = bounds.Dx()
-			g.Config.Height = bounds.Dy()
+			anim.SetWidthHeight(bounds.Dx(), bounds.Dy())
+			anim.SetFrames(frames)
 
-			return giph, nil
+			return anim, nil
 		}
 
 	}
@@ -335,7 +301,7 @@ func GetDefaultImageConfig(defaults *config.ConfigNamespace[ImagingConfig, Imagi
 	}
 	return ImageConfig{
 		Anchor:  -1, // The real values start at 0.
-		Hint:    defaults.Config.Hint,
+		Hint:    "photo",
 		Quality: defaults.Config.Imaging.Quality,
 	}
 }
@@ -383,6 +349,11 @@ func (f Format) SupportsTransparency() bool {
 	return f != JPEG
 }
 
+// SupportsAnimation reports whether the format supports animation.
+func (f Format) SupportsAnimation() bool {
+	return f == GIF || f == WEBP
+}
+
 // DefaultExtension returns the default file extension of this format, starting with a dot.
 // For example: .jpg for JPEG
 func (f Format) DefaultExtension() string {
@@ -416,8 +387,8 @@ type imageConfig struct {
 }
 
 func imageConfigFromImage(img image.Image) image.Config {
-	if giphy, ok := img.(Giphy); ok {
-		return giphy.GIF().Config
+	if cp, ok := img.(himage.ImageConfigProvider); ok {
+		return cp.GetImageConfig()
 	}
 	b := img.Bounds()
 	return image.Config{Width: b.Max.X, Height: b.Max.Y}
@@ -465,10 +436,4 @@ func IsOpaque(img image.Image) bool {
 type ImageSource interface {
 	DecodeImage() (image.Image, error)
 	Key() string
-}
-
-// Giphy represents a GIF Image that may be animated.
-type Giphy interface {
-	image.Image    // The first frame.
-	GIF() *gif.GIF // All frames.
 }

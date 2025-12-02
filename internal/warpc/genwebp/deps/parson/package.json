@@ -1,0 +1,12 @@
+{
+  "name": "parson",
+  "version": "1.0.2",
+  "repo": "clibs/parson",
+  "description": "Small json parser and reader",
+  "keywords": [ "json", "parser" ],
+  "license": "MIT",
+  "src": [
+    "parson.c",
+    "parson.h"
+  ]
+}

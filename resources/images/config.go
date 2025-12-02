@@ -26,8 +26,6 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/bep/gowebp/libwebp/webpoptions"
-
 	"github.com/disintegration/gift"
 )
 
@@ -73,7 +71,7 @@ var (
 	// re-generation.
 	imageFormatsVersions = map[Format]int{
 		PNG:  0,
-		WEBP: 0,
+		WEBP: 1, //  Moved to WASM-based WebP encoder and decoder.
 		GIF:  0,
 	}
 
@@ -96,12 +94,12 @@ var anchorPositions = map[string]gift.Anchor{
 }
 
 // These encoding hints are currently only relevant for Webp.
-var hints = map[string]webpoptions.EncodingPreset{
-	"picture": webpoptions.EncodingPresetPicture,
-	"photo":   webpoptions.EncodingPresetPhoto,
-	"drawing": webpoptions.EncodingPresetDrawing,
-	"icon":    webpoptions.EncodingPresetIcon,
-	"text":    webpoptions.EncodingPresetText,
+var hints = map[string]bool{
+	"picture": true,
+	"photo":   true,
+	"drawing": true,
+	"icon":    true,
+	"text":    true,
 }
 
 var imageFilters = map[string]gift.Resampling{
@@ -234,8 +232,8 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			c.Anchor = pos
 		} else if filter, ok := imageFilters[part]; ok {
 			c.Filter = filter
-		} else if hint, ok := hints[part]; ok {
-			c.Hint = hint
+		} else if _, ok := hints[part]; ok {
+			c.Hint = part
 		} else if part[0] == '#' {
 			c.BgColor, err = hexStringToColorGo(part[1:])
 			if err != nil {
@@ -302,8 +300,8 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		c.Filter = defaults.Config.ResampleFilter
 	}
 
-	if c.Hint == 0 {
-		c.Hint = webpoptions.EncodingPresetPhoto
+	if c.Hint == "" {
+		c.Hint = "photo"
 	}
 
 	if c.Action != "" && c.Anchor == -1 {
@@ -372,7 +370,7 @@ type ImageConfig struct {
 
 	// Hint about what type of picture this is. Used to optimize encoding
 	// when target is set to webp.
-	Hint webpoptions.EncodingPreset
+	Hint string
 
 	Width  int
 	Height int
@@ -390,7 +388,6 @@ func (cfg ImageConfig) Reanchor(a gift.Anchor) ImageConfig {
 
 type ImagingConfigInternal struct {
 	BgColor        color.Color
-	Hint           webpoptions.EncodingPreset
 	ResampleFilter gift.Resampling
 	Anchor         gift.Anchor
 
@@ -424,7 +421,7 @@ func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
 // ImagingConfig contains default image processing configuration. This will be fetched
 // from site (or language) config.
 type ImagingConfig struct {
-	// Default image quality setting (1-100). Only used for JPEG images.
+	// Default image quality setting (1-100). Only used for JPEG and WebP images.
 	Quality int
 
 	// Resample filter to use in resize operations.

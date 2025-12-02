@@ -62,8 +62,9 @@ func TestMap(t *testing.T) {
 	c.Assert(found, qt.Equals, true)
 	c.Assert(v, qt.Equals, 300)
 
-	m.WithWriteLock(func(m map[string]int) {
+	m.WithWriteLock(func(m map[string]int) error {
 		m["f"] = 500
+		return nil
 	})
 	v, found = m.Lookup("f")
 	c.Assert(found, qt.Equals, true)

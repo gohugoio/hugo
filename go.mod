@@ -13,7 +13,6 @@ require (
 	github.com/bep/godartsass/v2 v2.5.0
 	github.com/bep/golibsass v1.2.0
 	github.com/bep/goportabletext v0.1.0
-	github.com/bep/gowebp v0.3.0
 	github.com/bep/helpers v0.6.0
 	github.com/bep/imagemeta v0.12.0
 	github.com/bep/lazycache v0.8.0
@@ -21,6 +20,7 @@ require (
 	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.10.0
 	github.com/bep/simplecobra v0.6.1
+	github.com/bep/textandbinarywriter v0.0.0-20251212174530-cd9f0732f60f
 	github.com/bep/tmc v0.5.1
 	github.com/bits-and-blooms/bitset v1.24.4
 	github.com/cespare/xxhash/v2 v2.3.0

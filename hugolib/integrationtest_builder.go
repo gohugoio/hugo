@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"image"
 	"io"
 	"math/rand"
 	"os"
@@ -23,6 +24,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/himage"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
@@ -460,6 +462,63 @@ func (s *IntegrationTestBuilder) AssertNoRenderShortcodesArtifacts() {
 	}
 }
 
+type IntegrationTestImageHelper struct {
+	*qt.C
+	b *IntegrationTestBuilder
+
+	img        image.Image
+	formatName string
+	congig     image.Config
+}
+
+func (h *IntegrationTestImageHelper) AssertFormat(formatName string) *IntegrationTestImageHelper {
+	h.Assert(h.formatName, qt.Equals, formatName, qt.Commentf("Expected format %q, got %q", formatName, h.formatName))
+	return h
+}
+
+func (h *IntegrationTestImageHelper) AssertFrameDurations(expect []int) *IntegrationTestImageHelper {
+	anim, ok := h.img.(himage.AnimatedImage)
+	h.Assert(ok, qt.IsTrue, qt.Commentf("Image is not animated"))
+	h.Assert(anim.GetFrameDurations(), qt.DeepEquals, expect, qt.Commentf("Frame durations do not match"))
+	return h
+}
+
+func (h *IntegrationTestImageHelper) AssertLoopCount(expect int) *IntegrationTestImageHelper {
+	anim, ok := h.img.(himage.AnimatedImage)
+	h.Assert(ok, qt.IsTrue, qt.Commentf("Image is not animated"))
+	h.Assert(anim.GetLoopCount(), qt.Equals, expect, qt.Commentf("Loop count does not match"))
+	return h
+}
+
+func (h *IntegrationTestImageHelper) AssertIsAnimated(b bool) *IntegrationTestImageHelper {
+	_, ok := h.img.(himage.AnimatedImage)
+	if b {
+		h.Assert(ok, qt.IsTrue, qt.Commentf("Image is not animated"))
+		return h
+	}
+	h.Assert(ok, qt.IsFalse, qt.Commentf("Image is animated"))
+	return h
+}
+
+func (s *IntegrationTestBuilder) ImageHelper(filename string) *IntegrationTestImageHelper {
+	filename = filepath.Clean(filename)
+	fs := s.fs.WorkingDirReadOnly
+	b, err := afero.ReadFile(fs, filename)
+	s.Assert(err, qt.IsNil)
+	conf, format, err := s.H.ResourceSpec.Imaging.Codec.DecodeConfig(bytes.NewReader(b))
+	s.Assert(err, qt.IsNil)
+	img, err := s.H.ResourceSpec.Imaging.Codec.Decode(bytes.NewReader(b))
+	s.Assert(err, qt.IsNil)
+
+	return &IntegrationTestImageHelper{
+		C:          s.C,
+		b:          s,
+		img:        img,
+		formatName: format,
+		congig:     conf,
+	}
+}
+
 func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
 	s.AssertFs(s.fs.PublishDir, matches...)
 }
@@ -503,7 +562,9 @@ func (s *IntegrationTestBuilder) printAndCheckFs(fs afero.Fs, path string, w io.
 		if path == "" {
 			path = "."
 		}
+		var size int64
 		if !info.IsDir() {
+			size = info.Size()
 			f, err := fs.Open(path)
 			if err != nil {
 				return fmt.Errorf("error: path %q: %s", path, err)
@@ -513,7 +574,7 @@ func (s *IntegrationTestBuilder) printAndCheckFs(fs afero.Fs, path string, w io.
 			var buf [1]byte
 			io.ReadFull(f, buf[:])
 		}
-		fmt.Fprintln(w, path, info.IsDir())
+		fmt.Fprintf(w, "%06d %s %t\n", size, path, info.IsDir())
 		return nil
 	})
 }

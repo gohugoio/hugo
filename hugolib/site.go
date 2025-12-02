@@ -240,6 +240,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		}
 	}
 
+	compilationCacheDir := filepath.Join(conf.Dirs().CacheDir, "_warpc")
+
 	firstSiteDeps := &deps.Deps{
 		Fs:   cfg.Fs,
 		Log:  logger,
@@ -251,13 +253,21 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		MemCache:            memCache,
 		TranslationProvider: i18n.NewTranslationProvider(),
 		WasmDispatchers: warpc.AllDispatchers(
+			// Katex options.
 			warpc.Options{
-				CompilationCacheDir: filepath.Join(conf.Dirs().CacheDir, "_warpc"),
+				CompilationCacheDir: compilationCacheDir,
 
 				// Katex is relatively slow.
 				PoolSize: 8,
-				Infof:    logger.InfoCommand("wasm").Logf,
-				Warnf:    logger.WarnCommand("wasm").Logf,
+				Infof:    logger.InfoCommand("katex").Logf,
+				Warnf:    logger.WarnCommand("katex").Logf,
+			},
+			// WebP options.
+			warpc.Options{
+				CompilationCacheDir: compilationCacheDir,
+				PoolSize:            2,
+				Infof:               logger.InfoCommand("webp").Logf,
+				Warnf:               logger.WarnCommand("webp").Logf,
 			},
 		),
 	}
