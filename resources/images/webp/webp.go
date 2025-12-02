@@ -11,22 +11,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build extended
-
 package webp
 
 import (
 	"image"
 	"io"
 
-	"github.com/bep/gowebp/libwebp"
+	webp "github.com/bep/webptemp"
+
 	"github.com/bep/gowebp/libwebp/webpoptions"
 )
 
 // Encode writes the Image m to w in Webp format with the given
 // options.
 func Encode(w io.Writer, m image.Image, o webpoptions.EncodingOptions) error {
-	return libwebp.Encode(w, m, o)
+	oo := webp.Options{
+		Lossless: false,
+		Quality:  o.Quality,
+		Method:   4,
+		Exact:    false,
+	}
+	return webp.Encode(w, m, oo)
 }
 
 // Supports returns whether webp encoding is supported in this build.
