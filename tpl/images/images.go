@@ -34,9 +34,6 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	// Import webp codec
-	_ "golang.org/x/image/webp"
-
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"

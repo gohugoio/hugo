@@ -40,9 +40,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/resources/images"
-
-	// Blind import for image.Decode
-	_ "golang.org/x/image/webp"
 )
 
 var (

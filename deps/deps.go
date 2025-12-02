@@ -252,7 +252,11 @@ func (d *Deps) Init() error {
 		return fmt.Errorf("failed to create file caches from configuration: %w", err)
 	}
 
-	resourceSpec, err := resources.NewSpec(d.PathSpec, common, fileCaches, d.MemCache, d.BuildState, d.Log, d, d.ExecHelper, d.BuildClosers, d.BuildState)
+	if d.WasmDispatchers == nil {
+		panic("warpc Dispatchers is nil")
+	}
+
+	resourceSpec, err := resources.NewSpec(d.PathSpec, common, d.WasmDispatchers, fileCaches, d.MemCache, d.BuildState, d.Log, d, d.ExecHelper, d.BuildClosers, d.BuildState)
 	if err != nil {
 		return fmt.Errorf("failed to create resource spec: %w", err)
 	}

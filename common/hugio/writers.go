@@ -88,6 +88,20 @@ type ReadWriteCloser interface {
 	io.Closer
 }
 
+// ReplaceReader creates a new ReadWriteCloser with the given reader
+// and the existing writer and closer. TODO1 remove me.
+func (r PipeReadWriteCloser) ReplaceReader(newr io.Reader) ReadWriteCloser {
+	return struct {
+		io.Reader
+		io.Writer
+		io.Closer
+	}{
+		newr,
+		r.PipeWriter,
+		r,
+	}
+}
+
 // PipeReadWriteCloser is a convenience type to create a pipe with a ReadCloser and a WriteCloser.
 type PipeReadWriteCloser struct {
 	*io.PipeReader

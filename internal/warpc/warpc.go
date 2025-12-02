@@ -15,24 +15,38 @@ package warpc
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
 	"io"
+	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/bep/gowebpw/webpwasm"
+	"github.com/bep/textandbinarywriter"
+
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/common/maps"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/experimental"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+)
+
+const (
+	MessageKindJSON string = "json"
+	MessageKindBlob string = "blob"
 )
 
 const currentVersion = 1
@@ -49,11 +63,52 @@ type Header struct {
 	// Note that this only needs to be unique within the current request set time window.
 	ID uint32 `json:"id"`
 
+	// Command is the command to execute.
+	Command string `json:"command"`
+
+	// RequestKinds is a list of kinds in this RPC request,
+	// e.g. {"json", "blob"}, or {"json"}.
+	RequestKinds []string `json:"requestKinds"`
+	// ResponseKinds is a list of kinds expected in the response,
+	// e.g. {"json", "blob"}, or {"json"}.
+	ResponseKinds []string `json:"responseKinds"`
+
 	// Set in the response if there was an error.
 	Err string `json:"err"`
 
 	// Warnings is a list of warnings that may be returned in the response.
 	Warnings []string `json:"warnings,omitempty"`
+}
+
+func (m *Header) init() error {
+	if m.ID == 0 {
+		return errors.New("ID must not be 0 (note that this must be unique within the current request set time window)")
+	}
+	if m.Version == 0 {
+		m.Version = currentVersion
+	}
+	if len(m.RequestKinds) == 0 {
+		m.RequestKinds = []string{string(MessageKindJSON)}
+	}
+	if len(m.ResponseKinds) == 0 {
+		m.ResponseKinds = []string{string(MessageKindJSON)}
+	}
+	if m.Version != currentVersion {
+		return fmt.Errorf("unsupported version: %d", m.Version)
+	}
+	for range 2 {
+		if len(m.RequestKinds) > 2 {
+			return fmt.Errorf("invalid number of request kinds: %d", len(m.RequestKinds))
+		}
+		if len(m.ResponseKinds) > 2 {
+			return fmt.Errorf("invalid number of response kinds: %d", len(m.ResponseKinds))
+		}
+		m.RequestKinds = hstrings.UniqueStringsReuse(m.RequestKinds)
+		m.ResponseKinds = hstrings.UniqueStringsReuse(m.ResponseKinds)
+
+	}
+
+	return nil
 }
 
 type Message[T any] struct {
@@ -63,6 +118,19 @@ type Message[T any] struct {
 
 func (m Message[T]) GetID() uint32 {
 	return m.Header.ID
+}
+
+func (m *Message[T]) init() error {
+	return m.Header.init()
+}
+
+type SourceProvider interface {
+	GetSource() io.Reader
+	GetSourceLength() uint32
+}
+
+type DestinationProvider interface {
+	GetDestination() io.Writer
 }
 
 type Dispatcher[Q, R any] interface {
@@ -80,7 +148,8 @@ func (p *dispatcherPool[Q, R]) Close() error {
 }
 
 type dispatcher[Q, R any] struct {
-	zero Message[R]
+	zeroQ Message[Q]
+	zeroR Message[R]
 
 	mu    sync.RWMutex
 	encMu sync.Mutex
@@ -95,10 +164,23 @@ type dispatcher[Q, R any] struct {
 
 type inOut struct {
 	sync.Mutex
-	stdin  hugio.ReadWriteCloser
-	stdout hugio.ReadWriteCloser
-	dec    *json.Decoder
-	enc    *json.Encoder
+	stdin        hugio.ReadWriteCloser
+	stdout       io.WriteCloser
+	stdoutBinary hugio.ReadWriteCloser
+	dec          *json.Decoder
+	enc          *json.Encoder
+}
+
+func (p *inOut) Close() error {
+	if err := p.stdin.Close(); err != nil {
+		return err
+	}
+
+	// This will also close the underlying writers.
+	if err := p.stdout.Close(); err != nil {
+		return err
+	}
+	return nil
 }
 
 var ErrShutdown = fmt.Errorf("dispatcher is shutting down")
@@ -127,17 +209,14 @@ func putTimer(t *time.Timer) {
 // Execute sends a request to the dispatcher and waits for the response.
 func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Message[R], error) {
 	d := p.getDispatcher()
-	if q.GetID() == 0 {
-		return d.zero, errors.New("ID must not be 0 (note that this must be unique within the current request set time window)")
-	}
 
 	call, err := d.newCall(q)
 	if err != nil {
-		return d.zero, err
+		return d.zeroR, err
 	}
 
 	if err := d.send(call); err != nil {
-		return d.zero, err
+		return d.zeroR, err
 	}
 
 	timer := getTimer(30 * time.Second)
@@ -146,15 +225,15 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 	select {
 	case call = <-call.donec:
 	case <-p.donec:
-		return d.zero, p.Err()
+		return d.zeroR, p.Err()
 	case <-ctx.Done():
-		return d.zero, ctx.Err()
+		return d.zeroR, ctx.Err()
 	case <-timer.C:
-		return d.zero, errors.New("timeout")
+		return d.zeroR, errors.New("timeout")
 	}
 
 	if call.err != nil {
-		return d.zero, call.err
+		return d.zeroR, call.err
 	}
 
 	resp, err := call.response, p.Err()
@@ -162,13 +241,22 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 	if err == nil && resp.Header.Err != "" {
 		err = errors.New(resp.Header.Err)
 	}
+
 	return resp, err
 }
 
 func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
+	if err := q.init(); err != nil {
+		return nil, err
+	}
+	responseKinds := maps.NewMap[string, bool]()
+	for _, rk := range q.Header.ResponseKinds {
+		responseKinds.Set(rk, true)
+	}
 	call := &call[Q, R]{
-		donec:   make(chan *call[Q, R], 1),
-		request: q,
+		donec:         make(chan *call[Q, R], 1),
+		request:       q,
+		responseKinds: responseKinds,
 	}
 
 	if d.shutdown || d.closing {
@@ -198,35 +286,109 @@ func (d *dispatcher[Q, R]) send(call *call[Q, R]) error {
 	if err != nil {
 		return err
 	}
+	if sp, ok := any(call.request.Data).(SourceProvider); ok {
+		if sp.GetSourceLength() == 0 {
+			panic(fmt.Sprintf("source length must be greater than 0, header: %+v", call.request.Header))
+		}
+
+		if err := textandbinarywriter.WriteBlobHeader(d.inOut.stdin, call.request.GetID(), sp.GetSourceLength()); err != nil {
+			return err
+		}
+		_, err := io.Copy(d.inOut.stdin, sp.GetSource())
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func (d *dispatcher[Q, R]) input() {
+func (d *dispatcher[Q, R]) inputBlobs() {
+	var inputErr error
+	for {
+		id, length, err := textandbinarywriter.ReadBlobHeader(d.inOut.stdoutBinary)
+		if err != nil {
+			inputErr = err
+			break
+		}
+
+		lr := &io.LimitedReader{
+			R: d.inOut.stdoutBinary,
+			N: int64(length),
+		}
+
+		call := d.pendingCall(id)
+
+		if err := call.handleBlob(lr); err != nil {
+			inputErr = err
+			break
+		}
+		if lr.N != 0 {
+			inputErr = fmt.Errorf("blob %d: expected to read %d more bytes", id, lr.N)
+			break
+		}
+		if err := call.responseKinds.WithWriteLock(
+			func(m map[string]bool) error {
+				if _, ok := m[MessageKindBlob]; !ok {
+					return fmt.Errorf("unexpected blob response for %q call ID %d", call.request.Header.Command, id)
+				}
+				delete(m, MessageKindBlob)
+				if len(m) == 0 {
+					// Message exchange is complete.
+					d.mu.Lock()
+					delete(d.pending, id)
+					d.mu.Unlock()
+					call.done()
+				}
+				return nil
+			}); err != nil {
+			inputErr = err
+			break
+		}
+	}
+
+	if inputErr != nil {
+		// panic(inputErr) // TODO1 fix me, consolidate with JSON error handling.
+	}
+}
+
+func (d *dispatcher[Q, R]) inputJSON() {
 	var inputErr error
 
 	for d.inOut.dec.More() {
 		var r Message[R]
 		if err := d.inOut.dec.Decode(&r); err != nil {
-			inputErr = fmt.Errorf("decoding response: %w", err)
+			inputErr = err
 			break
 		}
 
-		d.mu.Lock()
-		call, found := d.pending[r.GetID()]
-		if !found {
-			d.mu.Unlock()
-			panic(fmt.Errorf("call with ID %d not found", r.GetID()))
+		call := d.pendingCall(r.GetID())
+
+		if err := call.responseKinds.WithWriteLock(
+			func(m map[string]bool) error {
+				call.response = r
+				if _, ok := m[MessageKindJSON]; !ok {
+					return fmt.Errorf("unexpected JSON response for call ID %d", r.GetID())
+				}
+				delete(m, MessageKindJSON)
+				if len(m) == 0 {
+					// Message exchange is complete.
+					d.mu.Lock()
+					delete(d.pending, r.GetID())
+					d.mu.Unlock()
+					call.done()
+				}
+				return nil
+			}); err != nil {
+			inputErr = err
+			break
 		}
-		delete(d.pending, r.GetID())
-		d.mu.Unlock()
-		call.response = r
-		call.done()
+
 	}
 
 	// Terminate pending calls.
 	d.shutdown = true
 	if inputErr != nil {
-		isEOF := inputErr == io.EOF || strings.Contains(inputErr.Error(), "already closed")
+		isEOF := inputErr == io.EOF || inputErr == io.ErrClosedPipe || strings.Contains(inputErr.Error(), "already closed")
 		if isEOF {
 			if d.closing {
 				inputErr = ErrShutdown
@@ -244,11 +406,31 @@ func (d *dispatcher[Q, R]) input() {
 	}
 }
 
+func (d *dispatcher[Q, R]) pendingCall(id uint32) *call[Q, R] {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	c, ok := d.pending[id]
+	if !ok {
+		panic(fmt.Errorf("call with ID %d not found", id))
+	}
+	return c
+}
+
 type call[Q, R any] struct {
-	request  Message[Q]
-	response Message[R]
-	err      error
-	donec    chan *call[Q, R]
+	request       Message[Q]
+	response      Message[R]
+	responseKinds *maps.Map[string, bool]
+	err           error
+	donec         chan *call[Q, R]
+}
+
+func (c *call[Q, R]) handleBlob(r io.Reader) error {
+	dest := any(c.request.Data).(DestinationProvider).GetDestination()
+	if dest == nil {
+		panic("blob destination is not set")
+	}
+	_, err := io.Copy(dest, r)
+	return err
 }
 
 func (call *call[Q, R]) done() {
@@ -268,6 +450,13 @@ type Binary struct {
 	// THe wasm binary.
 	Data []byte
 }
+
+type ProtocolType int
+
+const (
+	ProtocolJSON          ProtocolType = iota + 1
+	ProtocolJSONAndBinary              = iota
+)
 
 type Options struct {
 	Ctx context.Context
@@ -395,18 +584,33 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 		return nil, err
 	}
 
+	dispatchers := make([]*dispatcher[Q, R], opts.PoolSize)
+
 	inOuts := make([]*inOut, opts.PoolSize)
 	for i := range opts.PoolSize {
-		var stdin, stdout hugio.ReadWriteCloser
+		var stdinPipe, stdoutBinary hugio.ReadWriteCloser
+		var stdout io.WriteCloser
+		var jsonr io.Reader
 
-		stdin = hugio.NewPipeReadWriteCloser()
-		stdout = hugio.NewPipeReadWriteCloser()
+		stdinPipe = hugio.NewPipeReadWriteCloser()
+		stdoutPipe := hugio.NewPipeReadWriteCloser()
+		stdout = stdoutPipe
+
+		var zero Q
+		if _, ok := any(zero).(DestinationProvider); ok {
+			stdoutBinary = hugio.NewPipeReadWriteCloser()
+			jsonr = stdoutPipe
+			stdout = textandbinarywriter.NewWriter(stdout, stdoutBinary)
+		} else {
+			jsonr = stdoutPipe
+		}
 
 		inOuts[i] = &inOut{
-			stdin:  stdin,
-			stdout: stdout,
-			dec:    json.NewDecoder(stdout),
-			enc:    json.NewEncoder(stdin),
+			stdin:        stdinPipe,
+			stdout:       stdout,
+			stdoutBinary: stdoutBinary,
+			dec:          json.NewDecoder(jsonr),
+			enc:          json.NewEncoder(stdinPipe),
 		}
 	}
 
@@ -417,13 +621,13 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	)
 
 	if opts.Runtime.Data != nil {
-		runtimeModule, err = r.CompileModule(ctx, opts.Runtime.Data)
+		runtimeModule, err = r.CompileModule(experimental.WithCompilationWorkers(ctx, runtime.GOMAXPROCS(0)/4), opts.Runtime.Data)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	mainModule, err = r.CompileModule(ctx, opts.Main.Data)
+	mainModule, err = r.CompileModule(experimental.WithCompilationWorkers(ctx, runtime.GOMAXPROCS(0)/4), opts.Main.Data)
 	if err != nil {
 		return nil, err
 	}
@@ -437,8 +641,10 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 		for _, c := range inOuts {
 			g.Go(func() error {
 				var errBuff bytes.Buffer
+				stderr := io.MultiWriter(&errBuff, os.Stderr)
 				ctx := context.WithoutCancel(ctx)
-				configBase := wazero.NewModuleConfig().WithStderr(&errBuff).WithStdout(c.stdout).WithStdin(c.stdin).WithStartFunctions()
+				// WithStartFunctions allows us to call the _start function manually.
+				configBase := wazero.NewModuleConfig().WithStderr(stderr).WithStdout(c.stdout).WithStdin(c.stdin).WithStartFunctions()
 				if opts.Runtime.Data != nil {
 					// This needs to be anonymous, it will be resolved in the import resolver below.
 					runtimeInstance, err := r.InstantiateModule(ctx, runtimeModule, configBase.WithName(""))
@@ -476,7 +682,7 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	}
 
 	dp := &dispatcherPool[Q, R]{
-		dispatchers: make([]*dispatcher[Q, R], len(inOuts)),
+		dispatchers: dispatchers,
 		opts:        opts,
 
 		errc:  make(chan error, 10),
@@ -495,17 +701,17 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 			pending: make(map[uint32]*call[Q, R]),
 			inOut:   inOuts[i],
 		}
-		go d.input()
+		go d.inputJSON()
+		if d.inOut.stdoutBinary != nil {
+			go d.inputBlobs()
+		}
 		dp.dispatchers[i] = d
 	}
 
 	dp.close = func() error {
 		for _, d := range dp.dispatchers {
 			d.closing = true
-			if err := d.inOut.stdin.Close(); err != nil {
-				return err
-			}
-			if err := d.inOut.stdout.Close(); err != nil {
+			if err := d.inOut.Close(); err != nil {
 				return err
 			}
 		}
@@ -545,17 +751,28 @@ func (d *lazyDispatcher[Q, R]) start() (Dispatcher[Q, R], error) {
 
 // Dispatchers holds all the dispatchers for the warpc package.
 type Dispatchers struct {
+	id    atomic.Uint32
 	katex *lazyDispatcher[KatexInput, KatexOutput]
+	webp  *lazyDispatcher[WebpInput, WebpOutput]
 }
 
 func (d *Dispatchers) Katex() (Dispatcher[KatexInput, KatexOutput], error) {
 	return d.katex.start()
 }
 
+func (d *Dispatchers) Webp() (Dispatcher[WebpInput, WebpOutput], error) {
+	return d.webp.start()
+}
+
 func (d *Dispatchers) Close() error {
 	var errs []error
 	if d.katex.started {
 		if err := d.katex.dispatcher.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if d.webp.started {
+		if err := d.webp.dispatcher.Close(); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -568,7 +785,13 @@ func (d *Dispatchers) Close() error {
 // AllDispatchers creates all the dispatchers for the warpc package.
 // Note that the individual dispatchers are started lazily.
 // Remember to call Close on the returned Dispatchers when done.
-func AllDispatchers(katexOpts Options) *Dispatchers {
+func AllDispatchers(opts Options) *Dispatchers {
+	if opts.Infof == nil {
+		opts.Infof = func(format string, v ...any) {
+			// noop
+		}
+	}
+	katexOpts := opts
 	if katexOpts.Runtime.Data == nil {
 		katexOpts.Runtime = Binary{Name: "javy_quickjs_provider_v2", Data: quickjsWasm}
 	}
@@ -581,8 +804,23 @@ func AllDispatchers(katexOpts Options) *Dispatchers {
 			// noop
 		}
 	}
-
-	return &Dispatchers{
-		katex: &lazyDispatcher[KatexInput, KatexOutput]{opts: katexOpts},
+	webOpts := opts
+	r, err := gzip.NewReader(bytes.NewReader(webpwasm.Binary))
+	if err != nil {
+		panic(err)
 	}
+	defer r.Close()
+	var data bytes.Buffer
+	_, err = data.ReadFrom(r)
+	webOpts.Main = Binary{Name: "webp", Data: data.Bytes()}
+
+	dispatchers := &Dispatchers{
+		katex: &lazyDispatcher[KatexInput, KatexOutput]{opts: katexOpts},
+		webp:  &lazyDispatcher[WebpInput, WebpOutput]{opts: webOpts},
+	}
+
+	// TODO1 find a non-global way to do this.
+	image.RegisterFormat("webp", "RIFF????WEBPVP8", dispatchers.DecodeWebp, dispatchers.DecodeWebpConfig)
+
+	return dispatchers
 }

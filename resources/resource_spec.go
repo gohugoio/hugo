@@ -20,6 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/jsconfig"
@@ -48,6 +49,7 @@ import (
 func NewSpec(
 	s *helpers.PathSpec,
 	common *SpecCommon, // may be nil
+	wasmDispatchers *warpc.Dispatchers,
 	fileCaches filecache.Caches,
 	memCache *dynacache.Cache,
 	incr identity.Incrementer,
@@ -62,7 +64,7 @@ func NewSpec(
 
 	imagesWarnl := logger.WarnCommand("images")
 
-	imaging, err := images.NewImageProcessor(imagesWarnl, imgConfig)
+	imaging, err := images.NewImageProcessor(imagesWarnl, wasmDispatchers, imgConfig)
 	if err != nil {
 		return nil, err
 	}

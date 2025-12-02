@@ -282,8 +282,9 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 						default:
 							// Skip this page.
 							a.droppedPages.WithWriteLock(
-								func(m map[*Site][]string) {
+								func(m map[*Site][]string) error {
 									m[site] = append(m[site], s)
+									return nil
 								},
 							)
 
@@ -635,15 +636,16 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 								continue
 							}
 							t := term{view: viewName, term: v}
-							a.seenTerms.WithWriteLock(func(m map[term]sitesmatrix.Vectors) {
+							a.seenTerms.WithWriteLock(func(m map[term]sitesmatrix.Vectors) error {
 								vectors, found := m[t]
 								if !found {
 									m[t] = sitesmatrix.Vectors{
 										vec: struct{}{},
 									}
-									return
+									return nil
 								}
 								vectors[vec] = struct{}{}
+								return nil
 							})
 						}
 					}

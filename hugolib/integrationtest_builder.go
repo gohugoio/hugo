@@ -513,7 +513,7 @@ func (s *IntegrationTestBuilder) printAndCheckFs(fs afero.Fs, path string, w io.
 			var buf [1]byte
 			io.ReadFull(f, buf[:])
 		}
-		fmt.Fprintln(w, path, info.IsDir())
+		fmt.Fprintf(w, "%06d %s %t\n", info.Size(), path, info.IsDir())
 		return nil
 	})
 }

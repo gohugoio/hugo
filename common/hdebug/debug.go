@@ -15,6 +15,7 @@ package hdebug
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/types"
@@ -40,6 +41,19 @@ func AssertNotNil(a ...any) {
 			panic("hdebug.AssertNotNil: value is nil")
 		}
 	}
+}
+
+// Printr returns an io.TeeReader that prints the content read to stdout.
+func Printr(r io.Reader) io.Reader {
+	return io.TeeReader(r, &printWriter{})
+}
+
+type printWriter struct{}
+
+func (pw *printWriter) Write(p []byte) (n int, err error) {
+	panicIfRealCI()
+	fmt.Print(string(p))
+	return len(p), nil
 }
 
 func Panicf(format string, args ...any) {

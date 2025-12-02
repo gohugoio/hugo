@@ -14,6 +14,7 @@ require (
 	github.com/bep/golibsass v1.2.0
 	github.com/bep/goportabletext v0.1.0
 	github.com/bep/gowebp v0.3.0
+	github.com/bep/gowebpw v0.0.0-20251204214548-088f8f8da1e3
 	github.com/bep/helpers v0.6.0
 	github.com/bep/imagemeta v0.12.0
 	github.com/bep/lazycache v0.8.0
@@ -21,6 +22,7 @@ require (
 	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.10.0
 	github.com/bep/simplecobra v0.6.1
+	github.com/bep/textandbinaryreader v0.0.0-20251206192711-c7bc3fa7f114
 	github.com/bep/tmc v0.5.1
 	github.com/bits-and-blooms/bitset v1.24.4
 	github.com/cespare/xxhash/v2 v2.3.0
@@ -77,7 +79,7 @@ require (
 	golang.org/x/image v0.33.0
 	golang.org/x/mod v0.30.0
 	golang.org/x/net v0.47.0
-	golang.org/x/sync v0.18.0
+	golang.org/x/sync v0.19.0
 	golang.org/x/text v0.31.0
 	golang.org/x/tools v0.39.0
 	google.golang.org/api v0.255.0
@@ -124,6 +126,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.34.0 // indirect
 	github.com/aws/smithy-go v1.24.0 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/bep/textandbinarywriter v0.0.0-20251212174530-cd9f0732f60f // indirect
+	github.com/bep/webptemp v0.0.0-20251203095454-9ec7e7749338 // indirect
 	github.com/clipperhouse/displaywidth v0.6.0 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
@@ -196,3 +200,7 @@ require (
 )
 
 go 1.24.0
+
+replace github.com/bep/gowebpw => /Users/bep/dev/go/bep/gowebpw
+
+replace github.com/bep/textandbinaryreader => /Users/bep/dev/go/bep/textandbinaryreader

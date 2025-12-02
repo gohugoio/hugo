@@ -25,11 +25,10 @@ import (
 	"io"
 	"sync"
 
-	"github.com/bep/gowebp/libwebp/webpoptions"
 	"github.com/bep/imagemeta"
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/resources/images/webp"
+	"github.com/gohugoio/hugo/internal/warpc"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/exif"
@@ -101,13 +100,15 @@ func (i *Image) EncodeTo(conf ImageConfig, img image.Image, w io.Writer) error {
 	case BMP:
 		return bmp.Encode(w, img)
 	case WEBP:
-		return webp.Encode(
+		return i.Proc.encodeWebp(
 			w,
-			img, webpoptions.EncodingOptions{
+			img,
+
+			/* webpoptions.EncodingOptions{ TODO1
 				Quality:        conf.Quality,
 				EncodingPreset: webpoptions.EncodingPreset(conf.Hint),
 				UseSharpYuv:    true,
-			},
+			}*/
 		)
 	default:
 		return errors.New("format not supported")
@@ -176,7 +177,7 @@ func (i *Image) initConfig() error {
 	return nil
 }
 
-func NewImageProcessor(warnl logg.LevelLogger, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
+func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatchers, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
 	e := cfg.Config.Imaging.Exif
 	exifDecoder, err := exif.NewDecoder(
 		exif.WithDateDisabled(e.DisableDate),
@@ -192,12 +193,14 @@ func NewImageProcessor(warnl logg.LevelLogger, cfg *config.ConfigNamespace[Imagi
 	return &ImageProcessor{
 		Cfg:         cfg,
 		exifDecoder: exifDecoder,
+		encodeWebp:  wasmDispatchers.EncodeWebp,
 	}, nil
 }
 
 type ImageProcessor struct {
 	Cfg         *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
 	exifDecoder *exif.Decoder
+	encodeWebp  func(w io.Writer, m image.Image) error // TODO1 options.
 }
 
 // Filename is only used for logging.

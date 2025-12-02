@@ -310,13 +310,12 @@ func GetDependencyList() []string {
 
 // GetDependencyListNonGo returns a list of non-Go dependencies.
 func GetDependencyListNonGo() []string {
-	var deps []string
+	deps := []string{formatDep("github.com/webmproject/libwebp", "v1.6.0")} // via WASM. TODO(bep) get versions from the plugin setup.
 
 	if IsExtended {
 		deps = append(
 			deps,
 			formatDep("github.com/sass/libsass", "3.6.6"),
-			formatDep("github.com/webmproject/libwebp", "v1.3.2"),
 		)
 	}
 
