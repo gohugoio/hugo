@@ -68,7 +68,7 @@ environment:
   npm_config_userconfig: $SNAP_USER_DATA/.npmrc
   pandoc_datadir: $SNAP/usr/share/pandoc
   PYTHONHOME: /usr:$SNAP/usr
-  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/ruby/3.0.0
+  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/3.0.0
 
   # HUGO_SECURITY_EXEC_OSENV
   #
@@ -177,7 +177,7 @@ parts:
     override-build: |
       set -ex
       craftctl default
-      case "$CRAFT_TARGET_ARCH" in
+      case "$CRAFT_ARCH_BUILD_FOR" in
         amd64)  arch=x64    ;;
         arm64)  arch=arm64  ;;
         armhf)  arch=arm    ;;
