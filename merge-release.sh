@@ -12,6 +12,12 @@ v=$1
 git merge "release-${v}" || die;
 git push || die;
 
+# If $v contains -alpha, -beta or -rc, skip the remaining steps.
+if [[ "${v}" == *"-alpha"* ||  "${v}" == *"-beta"* ||  "${v}" == *"-rc"* ]]; then
+  echo "Pre-release version detected; skipping stable and docs update."
+  exit 0
+fi
+
 git checkout stable || die;
 git reset --hard "v${v}" || die;
 git push -f || die;
