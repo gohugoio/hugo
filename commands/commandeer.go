@@ -523,7 +523,7 @@ func (r *rootCommand) initRootCommand(subCommandName string, cd *simplecobra.Com
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
 
-Complete documentation is available at https://gohugo.io/.`
+Complete documentation is available at https://gohugo.io/docs/.`
 
 	cmd.Long = strings.ReplaceAll(cmd.Long, "COMMAND_NAME", commandName)
 
