@@ -1,0 +1,25 @@
+# Issue 14240.
+
+hugo server &
+
+waitServer
+
+httpget ${HUGOTEST_BASEURL_0}tags/%E6%AC%A2%E8%BF%8E/ '_P1_'
+
+replace $WORK/content/p1.md 'P1' 'P1 New'
+
+httpget ${HUGOTEST_BASEURL_0}tags/%E6%AC%A2%E8%BF%8E/ '_P1 New_'
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- layouts/all.html --
+All. {{ range .Pages }}_{{ .Title }}_{{ end }}$
+-- content/p1.md --
+---
+title: "P1"
+tags: ["欢迎"]
+---

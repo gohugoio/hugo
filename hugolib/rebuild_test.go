@@ -2051,6 +2051,29 @@ tags: ["tag1"]
 	b.AssertFileContent("public/tags/index.html", "All. Tag1|$")
 }
 
+func TestRebuildPageWithChineseTag14240(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- layouts/all.html --
+All. {{ range .Pages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}$
+-- content/p1.md --
+---
+title: "P1"
+tags: ["欢迎"]
+---
+
+`
+	b := TestRunning(t, files)
+
+	b.AssertFileContent("public/tags/欢迎/index.html", "All. /p1/: P1|$")
+	b.EditFileReplaceAll("content/p1.md", "P1", "P1 edit").Build()
+	b.AssertFileContent("public/tags/欢迎/index.html", "All. /p1/: P1 edit|$")
+}
+
 func TestRebuildEditNonReferencedResourceIssue13748(t *testing.T) {
 	t.Parallel()
 
