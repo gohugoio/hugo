@@ -35,7 +35,7 @@ import (
 	_ "image/png"
 
 	// Import webp codec
-	_ "golang.org/x/image/webp"
+	_ "github.com/bep/webptemp"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"
