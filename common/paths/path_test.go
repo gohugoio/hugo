@@ -347,3 +347,25 @@ func BenchmarkAddLeadingSlash(b *testing.B) {
 		}
 	})
 }
+
+func TestPathEscape(t *testing.T) {
+	c := qt.New(t)
+
+	for _, this := range []struct {
+		input    string
+		expected string
+	}{
+		{"/tags/欢迎", "/tags/%E6%AC%A2%E8%BF%8E"},
+		{"/path with spaces", "/path%20with%20spaces"},
+		{"/simple-path", "/simple-path"},
+		{"/path/with/slash", "/path/with/slash"},
+		{"/path/with special&chars", "/path/with%20special&chars"},
+	} {
+		in := this.input
+		for range 2 {
+			result := PathEscape(in)
+			c.Assert(result, qt.Equals, this.expected, qt.Commentf("input: %q", this.input))
+			in = result // test idempotency
+		}
+	}
+}

@@ -248,7 +248,7 @@ var commonTestScriptsParam = testscript.Params{
 		// httpget checks that a HTTP resource's body matches (if it compiles as a regexp) or contains all of the strings given as arguments.
 		"httpget": func(ts *testscript.TestScript, neg bool, args []string) {
 			if len(args) < 2 {
-				ts.Fatalf("usage: httpgrep URL STRING...")
+				ts.Fatalf("usage: httpget URL STRING...")
 			}
 
 			tryget := func() error {
@@ -375,7 +375,7 @@ var commonTestScriptsParam = testscript.Params{
 			// The server will write a .ready file when ready.
 			// We wait for that.
 			readyFilename := ts.MkAbs(".ready")
-			limit := time.Now().Add(5 * time.Second)
+			limit := time.Now().Add(10 * time.Second)
 			for {
 				_, err := os.Stat(readyFilename)
 				if err != nil {

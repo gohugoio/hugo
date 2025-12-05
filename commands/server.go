@@ -49,6 +49,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
@@ -370,6 +371,12 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 
 			if f.c.fastRenderMode && f.c.errState.buildErr() == nil {
 				if isNavigation(requestURI, r) {
+					// See issue 14240.
+					// Hugo escapes the URL paths when generating them,
+					// that may not be the case when we receive it back from the browser.
+					// PathEscape will escape if it is not already escaped.
+					requestURI = paths.PathEscape(requestURI)
+
 					if !f.c.visitedURLs.Contains(requestURI) {
 						// If not already on stack, re-render that single page.
 						if err := f.c.partialReRender(requestURI); err != nil {
