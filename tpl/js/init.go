@@ -39,6 +39,16 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Batch,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Build,
+			nil,
+			[][2]string{},
+		)
+
 		return ns
 	}
 
