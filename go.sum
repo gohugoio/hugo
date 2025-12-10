@@ -176,6 +176,8 @@ github.com/bep/simplecobra v0.6.1 h1:ORBAC5CSar99/NPZ5fCthCx/uvlm7ry58wwDsZ23a20
 github.com/bep/simplecobra v0.6.1/go.mod h1:hmtjyHv6xwD637ScIRP++0NKkR5szrHuMw5BxMUH66s=
 github.com/bep/tmc v0.5.1 h1:CsQnSC6MsomH64gw0cT5f+EwQDcvZz4AazKunFwTpuI=
 github.com/bep/tmc v0.5.1/go.mod h1:tGYHN8fS85aJPhDLgXETVKp+PR382OvFi2+q2GkGsq0=
+github.com/bep/webptemp v0.0.0-20251203095454-9ec7e7749338 h1:cFaJIvnMaH0LcwfrxMD96tFUdhVo6tqA/q27xmxVTSc=
+github.com/bep/webptemp v0.0.0-20251203095454-9ec7e7749338/go.mod h1:GYVQBekB+ttPTrAWlNum7pJwhLpTbOYl42n/9uFU+/s=
 github.com/bep/workers v1.0.0 h1:U+H8YmEaBCEaFZBst7GcRVEoqeRC9dzH2dWOwGmOchg=
 github.com/bep/workers v1.0.0/go.mod h1:7kIESOB86HfR2379pwoMWNy8B50D7r99fRLUyPSNyCs=
 github.com/bits-and-blooms/bitset v1.24.4 h1:95H15Og1clikBrKr/DuzMXkQzECs1M6hhoGXLwLQOZE=
