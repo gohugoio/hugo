@@ -412,9 +412,9 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 		// with the more general try.
 		if strings.Contains(err.Error(), "can't evaluate field Err in type") {
 			if strings.Contains(err.Error(), "resource.Resource") {
-				return fmt.Errorf("%s: Resource.Err was removed in Hugo v0.141.0 and replaced with a new try keyword, see https://gohugo.io/functions/go-template/try/", err)
+				return fmt.Errorf("%s: Resource.Err was removed in Hugo v0.141.0 and replaced with a new try keyword, see https://gohugo.io/docs/reference/functions/go-template/try/", err)
 			} else if strings.Contains(err.Error(), "template.HTML") {
-				return fmt.Errorf("%s: the return type of transform.ToMath was changed in Hugo v0.141.0 and the error handling replaced with a new try keyword, see https://gohugo.io/functions/go-template/try/", err)
+				return fmt.Errorf("%s: the return type of transform.ToMath was changed in Hugo v0.141.0 and the error handling replaced with a new try keyword, see https://gohugo.io/docs/reference/functions/go-template/try/", err)
 			}
 		}
 		return err

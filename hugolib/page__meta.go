@@ -631,7 +631,7 @@ func (ps *pageState) setMetaPostParams() error {
 	var buildConfig any
 	var isNewBuildKeyword bool
 	if v, ok := pcfg.Params["_build"]; ok {
-		hugo.Deprecate("The \"_build\" front matter key", "Use \"build\" instead. See https://gohugo.io/content-management/build-options.", "0.145.0")
+		hugo.Deprecate("The \"_build\" front matter key", "Use \"build\" instead. See https://gohugo.io/docs/guides/build-options/.", "0.145.0")
 		buildConfig = v
 	} else {
 		buildConfig = pcfg.Params["build"]
