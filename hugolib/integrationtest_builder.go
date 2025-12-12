@@ -438,15 +438,43 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 func (s *IntegrationTestBuilder) AssertFileContentEquals(filename string, match string) {
 	s.Helper()
 	content := s.FileContent(filename)
-	s.Assert(content, qt.Equals, match, qt.Commentf(match))
+	var negate bool
+	match, negate = s.negate(match)
+	if negate {
+		s.Assert(content, qt.Not(qt.Equals), match, qt.Commentf(match))
+	} else {
+		s.Assert(content, qt.Equals, match, qt.Commentf(match))
+	}
 }
 
 func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches ...string) {
 	s.Helper()
 	content := s.FileContent(filename)
-	for _, m := range matches {
-		cm := qt.Commentf("File: %s Match %s\nContent:\n%s", filename, m, content)
-		s.Assert(content, qt.Contains, m, cm)
+	for _, match := range matches {
+		var negate bool
+		match, negate = s.negate(match)
+		cm := qt.Commentf("File: %s Match %s\nContent:\n%s", filename, match, content)
+		if negate {
+			s.Assert(content, qt.Not(qt.Contains), match, cm)
+		} else {
+			s.Assert(content, qt.Contains, match, cm)
+		}
+	}
+}
+
+func (s *IntegrationTestBuilder) AssertFileContentRe(filename string, expressions ...string) {
+	s.Helper()
+	content := s.FileContent(filename)
+	for _, e := range expressions {
+		var negate bool
+		e, negate = s.negate(e)
+		re := regexp.MustCompile(e)
+		cm := qt.Commentf("File: %s Expression %s\nContent:\n%s", filename, e, content)
+		if negate {
+			s.Assert(re.MatchString(content), qt.IsFalse, cm)
+		} else {
+			s.Assert(re.MatchString(content), qt.IsTrue, cm)
+		}
 	}
 }
 
