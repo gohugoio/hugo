@@ -36,6 +36,16 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Filter,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.QR,
+			nil,
+			[][2]string{},
+		)
+
 		return ns
 	}
 

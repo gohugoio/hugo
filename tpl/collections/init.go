@@ -36,6 +36,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Append,
+			[]string{"append"},
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Apply,
 			[]string{"apply"},
 			[][2]string{},
@@ -48,11 +53,9 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.SymDiff,
-			[]string{"symdiff"},
-			[][2]string{
-				{`{{ slice 1 2 3 | symdiff (slice 3 4) }}`, `[1 2 4]`},
-			},
+		ns.AddMethodMapping(ctx.D,
+			nil,
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Delimit,
@@ -72,11 +75,9 @@ func init() {
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.KeyVals,
-			[]string{"keyVals"},
-			[][2]string{
-				{`{{ keyVals "key" "a" "b" }}`, `key: [a b]`},
-			},
+		ns.AddMethodMapping(ctx.Group,
+			[]string{"group"},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.In,
@@ -101,9 +102,41 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.KeyVals,
+			[]string{"keyVals"},
+			[][2]string{
+				{`{{ keyVals "key" "a" "b" }}`, `key: [a b]`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Last,
 			[]string{"last"},
 			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Merge,
+			[]string{"merge"},
+			[][2]string{
+				{
+					`{{ dict "title" "Hugo Rocks!" | collections.Merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") | sort }}`,
+					`[Yes, Hugo Rocks! Hugo Rocks!]`,
+				},
+				{
+					`{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") | sort }}`,
+					`[Yes, Hugo Rocks! Hugo Rocks!]`,
+				},
+				{
+					`{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") (dict "extra" "For reals!") | sort }}`,
+					`[Yes, Hugo Rocks! For reals! Hugo Rocks!]`,
+				},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.NewScratch,
+			[]string{"newScratch"},
+			[][2]string{
+				{`{{ $scratch := newScratch }}{{ $scratch.Add "b" 2 }}{{ $scratch.Add "b" 2 }}{{ $scratch.Get "b" }}`, `4`},
+			},
 		)
 
 		ns.AddMethodMapping(ctx.Querify,
@@ -124,6 +157,18 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Reverse,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Seq,
+			[]string{"seq"},
+			[][2]string{
+				{`{{ seq 3 }}`, `[1 2 3]`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Shuffle,
 			[]string{"shuffle"},
 			[][2]string{},
@@ -141,39 +186,17 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.SymDiff,
+			[]string{"symdiff"},
+			[][2]string{
+				{`{{ slice 1 2 3 | symdiff (slice 3 4) }}`, `[1 2 4]`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Union,
 			[]string{"union"},
 			[][2]string{
 				{`{{ union (slice 1 2 3) (slice 3 4 5) }}`, `[1 2 3 4 5]`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.Where,
-			[]string{"where"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.Append,
-			[]string{"append"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.Group,
-			[]string{"group"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.Seq,
-			[]string{"seq"},
-			[][2]string{
-				{`{{ seq 3 }}`, `[1 2 3]`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.NewScratch,
-			[]string{"newScratch"},
-			[][2]string{
-				{`{{ $scratch := newScratch }}{{ $scratch.Add "b" 2 }}{{ $scratch.Add "b" 2 }}{{ $scratch.Get "b" }}`, `4`},
 			},
 		)
 
@@ -184,22 +207,9 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Merge,
-			[]string{"merge"},
-			[][2]string{
-				{
-					`{{ dict "title" "Hugo Rocks!" | collections.Merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") | sort }}`,
-					`[Yes, Hugo Rocks! Hugo Rocks!]`,
-				},
-				{
-					`{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") | sort }}`,
-					`[Yes, Hugo Rocks! Hugo Rocks!]`,
-				},
-				{
-					`{{ merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") (dict "extra" "For reals!") | sort }}`,
-					`[Yes, Hugo Rocks! For reals! Hugo Rocks!]`,
-				},
-			},
+		ns.AddMethodMapping(ctx.Where,
+			[]string{"where"},
+			[][2]string{},
 		)
 
 		return ns

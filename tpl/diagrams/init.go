@@ -34,6 +34,11 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.Goat,
+			nil,
+			[][2]string{},
+		)
+
 		return ns
 	}
 

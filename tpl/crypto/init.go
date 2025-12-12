@@ -31,6 +31,19 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		// Deprecated. Use hash.FNV32a instead.
+		ns.AddMethodMapping(ctx.FNV32a,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.HMAC,
+			[]string{"hmac"},
+			[][2]string{
+				{`{{ hmac "sha256" "Secret key" "Hello world, gophers!" }}`, `b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.MD5,
 			[]string{"md5"},
 			[][2]string{
@@ -50,13 +63,6 @@ func init() {
 			[]string{"sha256"},
 			[][2]string{
 				{`{{ sha256 "Hello world, gophers!" }}`, `6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.HMAC,
-			[]string{"hmac"},
-			[][2]string{
-				{`{{ hmac "sha256" "Secret key" "Hello world, gophers!" }}`, `b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40`},
 			},
 		)
 

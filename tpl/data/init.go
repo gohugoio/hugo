@@ -31,11 +31,13 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		// Deprecated. Use resources.GetRemote instead.
 		ns.AddMethodMapping(ctx.GetCSV,
 			[]string{"getCSV"},
 			[][2]string{},
 		)
 
+		// Deprecated. Use resources.GetRemote instead.
 		ns.AddMethodMapping(ctx.GetJSON,
 			[]string{"getJSON"},
 			[][2]string{},

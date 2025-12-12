@@ -31,6 +31,13 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.FileExists,
+			[]string{"fileExists"},
+			[][2]string{
+				{`{{ fileExists "foo.txt" }}`, `false`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Getenv,
 			[]string{"getenv"},
 			[][2]string{},
@@ -50,11 +57,9 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.FileExists,
-			[]string{"fileExists"},
-			[][2]string{
-				{`{{ fileExists "foo.txt" }}`, `false`},
-			},
+		ns.AddMethodMapping(ctx.Stat,
+			nil,
+			[][2]string{},
 		)
 
 		return ns

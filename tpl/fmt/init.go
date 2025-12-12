@@ -31,27 +31,6 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
-		ns.AddMethodMapping(ctx.Print,
-			[]string{"print"},
-			[][2]string{
-				{`{{ print "works!" }}`, `works!`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.Println,
-			[]string{"println"},
-			[][2]string{
-				{`{{ println "works!" }}`, "works!\n"},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.Printf,
-			[]string{"printf"},
-			[][2]string{
-				{`{{ printf "%s!" "works" }}`, `works!`},
-			},
-		)
-
 		ns.AddMethodMapping(ctx.Errorf,
 			[]string{"errorf"},
 			[][2]string{
@@ -66,10 +45,30 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Warnidf,
-			[]string{"warnidf"},
+		// Experimental. Not documented.
+		ns.AddMethodMapping(ctx.Errormf,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Print,
+			[]string{"print"},
 			[][2]string{
-				{`{{ warnidf "my-warn-id" "%s." "warning" }}`, ``},
+				{`{{ print "works!" }}`, `works!`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Printf,
+			[]string{"printf"},
+			[][2]string{
+				{`{{ printf "%s!" "works" }}`, `works!`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Println,
+			[]string{"println"},
+			[][2]string{
+				{`{{ println "works!" }}`, "works!\n"},
 			},
 		)
 
@@ -79,6 +78,20 @@ func init() {
 				{`{{ warnf "%s." "warning" }}`, ``},
 			},
 		)
+
+		ns.AddMethodMapping(ctx.Warnidf,
+			[]string{"warnidf"},
+			[][2]string{
+				{`{{ warnidf "my-warn-id" "%s." "warning" }}`, ``},
+			},
+		)
+
+		// Experimental. Not documented.
+		ns.AddMethodMapping(ctx.Warnmf,
+			nil,
+			[][2]string{},
+		)
+
 		return ns
 	}
 

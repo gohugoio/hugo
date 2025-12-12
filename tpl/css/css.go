@@ -162,13 +162,28 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.PostCSS,
+			[]string{"postCSS"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Quoted,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Sass,
 			[]string{"toCSS"},
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.PostCSS,
-			[]string{"postCSS"},
+		ns.AddMethodMapping(ctx.TailwindCSS,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Unquoted,
+			nil,
 			[][2]string{},
 		)
 

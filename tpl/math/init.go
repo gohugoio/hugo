@@ -95,6 +95,11 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Counter,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Div,
 			[]string{"div"},
 			[][2]string{
@@ -172,6 +177,11 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Product,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Rand,
 			nil,
 			[][2]string{
@@ -205,6 +215,11 @@ func init() {
 			[][2]string{
 				{"{{ sub 3 2 }}", "1"},
 			},
+		)
+
+		ns.AddMethodMapping(ctx.Sum,
+			nil,
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Tan,

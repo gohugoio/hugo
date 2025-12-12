@@ -1499,7 +1499,6 @@ config:
     tdewolff:
       css:
         inline: false
-        keepCSS2: false
         precision: 0
         version: 0
       html:
@@ -1522,7 +1521,6 @@ config:
         keepNumbers: false
         precision: 0
       svg:
-        inline: false
         keepComments: false
         precision: 0
       xml:
@@ -1891,7 +1889,7 @@ config:
       disable: false
     googleAnalytics:
       disable: false
-      respectDoNotTrack: false
+      respectDoNotTrack: true
     instagram:
       disable: false
       simple: false
@@ -2174,9 +2172,12 @@ tpl:
           - '[a f]'
       D:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - seed
+        - 'n'
+        - hi
+        Description: 'D returns a sorted slice of unique random integers in the half-open interval\n[0, hi) using the provided seed value. The number of elements in the\nresulting slice is n or hi, whichever is less.\n\nIf n <= hi, it returns a sorted random sample of size n using J. S. Vitter’s\nMethod D for sequential random sampling.\n\nIf n > hi, it returns the full, sorted range [0, hi) of size hi.\n\nIf n == 0 or hi == 0, it returns an empty slice.\n\nReference:\n\n\tJ. S. Vitter, "An efficient algorithm for sequential random sampling," ACM Trans. Math. Softw., vol. 11, no. 1, pp. 37–57, 1985.\n\tSee also: https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/'
+        Examples: []
       Delimit:
         Aliases:
         - delimit
@@ -2327,9 +2328,10 @@ tpl:
           - bar=2&foo=1
       Reverse:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - l
+        Description: Reverse creates a copy of the list l and reverses it.
+        Examples: []
       Seq:
         Aliases:
         - seq
@@ -2495,9 +2497,15 @@ tpl:
         Examples: []
       LtCollate:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - collator
+        - first
+        - others
+        Description: |-
+          LtCollate returns the boolean truth of arg1 < arg2 && arg1 < arg3 && arg1 < arg4.
+          The provided collator will be used for string comparisons.
+          This is for internal use.
+        Examples: []
       Ne:
         Aliases:
         - ne
@@ -2509,9 +2517,10 @@ tpl:
     crypto:
       FNV32a:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - v
+        Description: 'FNV32a hashes v using fnv32a algorithm.\n<docsmeta>{"newIn": "0.98.0" }</docsmeta>'
+        Examples: []
       HMAC:
         Aliases:
         - hmac
@@ -2563,9 +2572,10 @@ tpl:
         Examples: []
       Quoted:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - v
+        Description: Quoted returns a string that needs to be quoted in CSS.
+        Examples: []
       Sass:
         Aliases:
         - toCSS
@@ -2575,14 +2585,16 @@ tpl:
         Examples: []
       TailwindCSS:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - args
+        Description: TailwindCSS processes the given Resource with tailwindcss.
+        Examples: []
       Unquoted:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - v
+        Description: Unquoted returns a string that does not need to be quoted in CSS.
+        Examples: []
     data:
       GetCSV:
         Aliases:
@@ -2627,35 +2639,44 @@ tpl:
           - '{\n  "Hugo": "Rocks!"\n}'
       TestDeprecationErr:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - item
+        - alternative
+        Description: Internal template func, used in tests only.
+        Examples: []
       TestDeprecationInfo:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - item
+        - alternative
+        Description: Internal template func, used in tests only.
+        Examples: []
       TestDeprecationWarn:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - item
+        - alternative
+        Description: Internal template func, used in tests only.
+        Examples: []
       Timer:
         Aliases: null
-        Args: null
+        Args:
+        - name
         Description: ''
-        Examples: null
+        Examples: []
       VisualizeSpaces:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - val
+        Description: VisualizeSpaces returns a string with spaces replaced by a visible string.
+        Examples: []
     diagrams:
       Goat:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - v
+        Description: Goat creates a new SVG diagram from input v.
+        Examples: []
     encoding:
       Base64Decode:
         Aliases:
@@ -2722,9 +2743,12 @@ tpl:
           - ''
       Errormf:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - m
+        - format
+        - args
+        Description: Errormf is experimental and subject to change at any time.
+        Examples: []
       Print:
         Aliases:
         - print
@@ -2782,9 +2806,12 @@ tpl:
           - ''
       Warnmf:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - m
+        - format
+        - args
+        Description: Warnmf is experimental and subject to change at any time.
+        Examples: []
     hash:
       FNV32a:
         Aliases: null
@@ -2906,9 +2933,10 @@ tpl:
         Examples: null
       Filter:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - args
+        Description: Filter applies the given filters to the image given as the last element in args.
+        Examples: []
       Gamma:
         Aliases: null
         Args: null
@@ -2966,9 +2994,12 @@ tpl:
         Examples: null
       QR:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - args
+        Description: |-
+          QR encodes the given text into a QR code using the specified options,
+          returning an image resource.
+        Examples: []
       Saturation:
         Aliases: null
         Args: null
@@ -3042,14 +3073,20 @@ tpl:
         Examples: []
       Batch:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - id
+        Description: |-
+          Batch creates a new Batcher with the given ID.
+          Repeated calls with the same ID will return the same Batcher.
+          The ID will be used to name the root directory of the batch.
+          Forward slashes in the ID is allowed.
+        Examples: []
       Build:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - args
+        Description: Build processes the given Resource with ESBuild.
+        Examples: []
     lang:
       FormatAccounting:
         Aliases: null
@@ -3121,9 +3158,11 @@ tpl:
           - 512.50%
       Merge:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - p2
+        - p1
+        Description: Merge creates a union of pages from two languages.
+        Examples: []
       Translate:
         Aliases:
         - i18n
@@ -3204,8 +3243,8 @@ tpl:
       Counter:
         Aliases: null
         Args: null
-        Description: ''
-        Examples: null
+        Description: 'Counter increments and returns a global counter.\nThis was originally added to be used in tests where now.UnixNano did not\nhave the needed precision (especially on Windows).\nNote that given the parallel nature of Hugo, you cannot use this to get sequences of numbers,\nand the counter will reset on new builds.\n<docsmeta>{"identifiers": ["now.UnixNano"] }</docsmeta>'
+        Examples: []
       Div:
         Aliases:
         - div
@@ -3302,9 +3341,10 @@ tpl:
           - '8'
       Product:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - inputs
+        Description: Product returns the product of all numbers in inputs. Any slices in inputs are flattened.
+        Examples: []
       Rand:
         Aliases: null
         Args: null
@@ -3347,9 +3387,10 @@ tpl:
           - '1'
       Sum:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - inputs
+        Description: Sum returns the sum of all numbers in inputs. Any slices in inputs are flattened.
+        Examples: []
       Tan:
         Aliases: null
         Args:
@@ -3422,9 +3463,10 @@ tpl:
           - Hugo Rocks!
       Stat:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - i
+        Description: Stat returns the os.FileInfo structure describing file.
+        Examples: []
     partials:
       Include:
         Aliases:
@@ -3457,29 +3499,63 @@ tpl:
     path:
       Base:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - path
+        Description: |-
+          Base returns the last element of path.
+          Trailing slashes are removed before extracting the last element.
+          If the path is empty, Base returns ".".
+          If the path consists entirely of slashes, Base returns "/".
+          The input path is passed into filepath.ToSlash converting any Windows slashes
+          to forward slashes.
+        Examples: []
       BaseName:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - path
+        Description: |-
+          BaseName returns the last element of path, removing the extension if present.
+          Trailing slashes are removed before extracting the last element.
+          If the path is empty, Base returns ".".
+          If the path consists entirely of slashes, Base returns "/".
+          The input path is passed into filepath.ToSlash converting any Windows slashes
+          to forward slashes.
+        Examples: []
       Clean:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - path
+        Description: |-
+          Clean replaces the separators used with standard slashes and then
+          extraneous slashes are removed.
+        Examples: []
       Dir:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - path
+        Description: |-
+          Dir returns all but the last element of path, typically the path's directory.
+          After dropping the final element using Split, the path is Cleaned and trailing
+          slashes are removed.
+          If the path is empty, Dir returns ".".
+          If the path consists entirely of slashes followed by non-slash bytes, Dir
+          returns a single slash. In any other case, the returned path does not end in a
+          slash.
+          The input path is passed into filepath.ToSlash converting any Windows slashes
+          to forward slashes.
+        Examples: []
       Ext:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - path
+        Description: |-
+          Ext returns the file name extension used by path.
+          The extension is the suffix beginning at the final dot
+          in the final slash-separated element of path;
+          it is empty if there is no dot.
+          The input path is passed into filepath.ToSlash converting any Windows slashes
+          to forward slashes.
+        Examples: []
       Join:
         Aliases: null
         Args:
@@ -3539,29 +3615,41 @@ tpl:
     resources:
       Babel:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - args
+        Description: 'Babel processes the given Resource with Babel.\nDeprecated: Moved to the js namespace in Hugo 0.128.0.'
+        Examples: []
       ByType:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - typ
+        Description: ByType returns resources of a given resource type (e.g. "image").
+        Examples: []
       Concat:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - targetPathIn
+        - r
+        Description: |-
+          Concat concatenates a slice of Resource objects. These resources must
+          (currently) be of the same Media Type.
+        Examples: []
       Copy:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - s
+        - r
+        Description: Copy copies r to the new targetPath in s.
+        Examples: []
       ExecuteAsTemplate:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - ctx
+        - args
+        Description: |-
+          ExecuteAsTemplate creates a Resource from a Go template, parsed and executed with
+          the given data, and published to the relative target path.
+        Examples: []
       Fingerprint:
         Aliases:
         - fingerprint
@@ -3573,9 +3661,11 @@ tpl:
         Examples: []
       FromString:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - targetPathIn
+        - contentIn
+        Description: FromString creates a Resource from a string published to the relative target path.
+        Examples: []
       Get:
         Aliases: null
         Args:
@@ -3597,9 +3687,26 @@ tpl:
         Examples: []
       Match:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - pattern
+        Description: |-
+          Match gets all resources matching the given base path prefix, e.g
+          "*.png" will match all png files. The "*" does not match path delimiters (/),
+          so if you organize your resources in sub-folders, you need to be explicit about it, e.g.:
+          "images/*.png". To match any PNG image anywhere in the bundle you can do "**.png", and
+          to match all PNG images below the images folder, use "images/**.jpg".
+          
+          The matching is case insensitive.
+          
+          Match matches by using the files name with path relative to the file system root
+          with Unix style slashes (/) and no leading slash, e.g. "images/logo.png".
+          
+          See https://github.com/gobwas/glob for the full rules set.
+          
+          It looks for files in the assets file system.
+          
+          See Match for a more complete explanation about the rules used.
+        Examples: []
       Minify:
         Aliases:
         - minify
@@ -3611,19 +3718,22 @@ tpl:
         Examples: []
       PostCSS:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - args
+        Description: 'PostCSS processes the given Resource with PostCSS.\nDeprecated: Moved to the css namespace in Hugo 0.128.0.'
+        Examples: []
       PostProcess:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - r
+        Description: PostProcess processes r after the build.
+        Examples: []
       ToCSS:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - args
+        Description: 'ToCSS converts the given Resource to CSS. You can optional provide an Options object\nas second argument. As an option, you can e.g. specify e.g. the target path (string)\nfor the converted CSS resource.\nDeprecated: Moved to the css namespace in Hugo 0.128.0.'
+        Examples: []
     safe:
       CSS:
         Aliases:
@@ -3907,9 +4017,10 @@ tpl:
           - 'false'
       ContainsNonSpace:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - s
+        Description: 'ContainsNonSpace reports whether s contains any non-space characters as defined\nby Unicode''s White Space property,\n<docsmeta>{"newIn": "0.111.0" }</docsmeta>'
+        Examples: []
       Count:
         Aliases: null
         Args:
@@ -3937,9 +4048,15 @@ tpl:
         Examples: []
       Diff:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - oldname
+        - old
+        - newname
+        - new
+        Description: |-
+          Diff returns an anchored diff of the two texts old and new in the “unified
+          diff” format. If old and new are identical, Diff returns an empty string.
+        Examples: []
       FindRE:
         Aliases:
         - findRE
@@ -4172,9 +4289,12 @@ tpl:
           - aabb
       TrimSpace:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - s
+        Description: |-
+          TrimSpace returns the given string, removing leading and trailing whitespace
+          as defined by Unicode.
+        Examples: []
       TrimSuffix:
         Aliases: null
         Args:
@@ -4203,9 +4323,10 @@ tpl:
     templates:
       Current:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - ctx
+        Description: Get information about the currently executing template.
+        Examples: []
       Defer:
         Aliases: null
         Args:
@@ -4232,9 +4353,9 @@ tpl:
           Note that this is the Unix-styled relative path including filename suffix,
           e.g. partials/header.html
         Examples:
-        - - '{{ if (templates.Exists "partials/header.html") }}Yes!{{ end }}'
+        - - '{{ if (templates.Exists "_partials/header.html") }}Yes!{{ end }}'
           - Yes!
-        - - '{{ if not (templates.Exists "partials/doesnotexist.html") }}No!{{ end }}'
+        - - '{{ if not (templates.Exists "_partials/doesnotexist.html") }}No!{{ end }}'
           - No!
     time:
       AsTime:
@@ -4274,9 +4395,15 @@ tpl:
           - 'dateFormat: Wednesday, Jan 21, 2015'
       In:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - timeZoneName
+        - t
+        Description: |-
+          In returns the time t in the IANA time zone specified by timeZoneName.
+          If timeZoneName is "" or "UTC", the time is returned in UTC.
+          If timeZoneName is "Local", the time is returned in the system's local time zone.
+          Otherwise, timeZoneName must be a valid IANA location name (e.g., "Europe/Oslo").
+        Examples: []
       Now:
         Aliases:
         - now
@@ -4294,9 +4421,10 @@ tpl:
     transform:
       CanHighlight:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - language
+        Description: CanHighlight returns whether the given code language is supported by the Chroma highlighter.
+        Examples: []
       Emojify:
         Aliases:
         - emojify
@@ -4324,9 +4452,14 @@ tpl:
           - Cathal Garvey & The Sunshine Band <cathal@foo.bar>
       HTMLToMarkdown:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - ctx
+        - args
+        Description: |-
+          This was added in Hugo v0.151.0 and should be considered experimental for now.
+          We need to test this out in the wild for a while before committing to this API,
+          and there will eventually be more options here.
+        Examples: []
       HTMLUnescape:
         Aliases:
         - htmlUnescape
@@ -4357,9 +4490,11 @@ tpl:
         Examples: []
       HighlightCodeBlock:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - ctx
+        - opts
+        Description: HighlightCodeBlock highlights a code block on the form received in the codeblock render hooks.
+        Examples: []
       Markdownify:
         Aliases:
         - markdownify
@@ -4381,9 +4516,12 @@ tpl:
           - Hello world, gophers!
       PortableText:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - v
+        Description: |-
+          PortableText converts the portable text in v to Markdown.
+          We may add more options in the future.
+        Examples: []
       Remarshal:
         Aliases: null
         Args:
@@ -4401,9 +4539,13 @@ tpl:
           - '{\n   "title": "Hello World"\n}\n'
       ToMath:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - ctx
+        - args
+        Description: |-
+          ToMath converts a LaTeX string to math in the given format, default MathML.
+          This uses KaTeX to render the math, see https://katex.org/.
+        Examples: []
       Unmarshal:
         Aliases:
         - unmarshal
@@ -4472,9 +4614,29 @@ tpl:
           - a/b
       Parse:
         Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
+        Args:
+        - rawurl
+        Description: |-
+          Parse parses rawurl into a URL structure. The rawurl may be relative or
+          absolute.
+        Examples: []
+      PathEscape:
+        Aliases: null
+        Args:
+        - s
+        Description: |-
+          PathEscape returns the given string, applying percent-encoding to special
+          characters and reserved delimiters so it can be safely used as a segment
+          within a URL path.
+        Examples: []
+      PathUnescape:
+        Aliases: null
+        Args:
+        - s
+        Description: |-
+          PathUnescape returns the given string, replacing all percent-encoded
+          sequences with the corresponding unescaped characters.
+        Examples: []
       Ref:
         Aliases:
         - ref

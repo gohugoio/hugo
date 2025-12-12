@@ -37,6 +37,13 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.Conditional,
+			[]string{"cond"},
+			[][2]string{
+				{`{{ cond (eq (add 2 2) 4) "2+2 is 4" "what?" | safeHTML }}`, `2+2 is 4`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Default,
 			[]string{"default"},
 			[][2]string{
@@ -74,16 +81,15 @@ func init() {
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Ne,
-			[]string{"ne"},
+		// For internal use only.
+		ns.AddMethodMapping(ctx.LtCollate,
+			nil,
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Conditional,
-			[]string{"cond"},
-			[][2]string{
-				{`{{ cond (eq (add 2 2) 4) "2+2 is 4" "what?" | safeHTML }}`, `2+2 is 4`},
-			},
+		ns.AddMethodMapping(ctx.Ne,
+			[]string{"ne"},
+			[][2]string{},
 		)
 
 		return ns
