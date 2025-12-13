@@ -93,7 +93,7 @@ func (d *Dispatchers) DecodeWebp(r io.Reader) (image.Image, error) {
 	start := time.Now()
 	defer d.stopClock("DecodeWebp", start)
 
-	source, err := hugio.NewSizeReader(r)
+	source, err := hugio.ToSizeReader(r)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func (d *Dispatchers) EncodeWebp(w io.Writer, src image.Image) error {
 
 	// Commands:
 	// encodeNRGBA
-	// encodeGray
+	// encodeGray TODO1
 	// decode
 	// config
 	message := Message[WebpInput]{

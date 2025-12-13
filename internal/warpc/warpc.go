@@ -150,12 +150,13 @@ type dispatcher[Q, R any] struct {
 	zeroQ Message[Q]
 	zeroR Message[R]
 
-	mu    sync.RWMutex
-	encMu sync.Mutex
+	mu       sync.Mutex
+	encodeMu sync.Mutex
 
 	pending map[uint32]*call[Q, R]
 
-	inOut *inOut
+	inOut   *inOut
+	inGroup *errgroup.Group
 
 	shutdown bool
 	closing  bool
@@ -272,15 +273,15 @@ func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
 }
 
 func (d *dispatcher[Q, R]) send(call *call[Q, R]) error {
-	d.mu.RLock()
+	d.mu.Lock()
 	if d.closing || d.shutdown {
-		d.mu.RUnlock()
+		d.mu.Unlock()
 		return ErrShutdown
 	}
-	d.mu.RUnlock()
+	d.mu.Unlock()
 
-	d.encMu.Lock()
-	defer d.encMu.Unlock()
+	d.encodeMu.Lock()
+	defer d.encodeMu.Unlock()
 	err := d.inOut.enc.Encode(call.request)
 	if err != nil {
 		return err
@@ -302,7 +303,7 @@ func (d *dispatcher[Q, R]) send(call *call[Q, R]) error {
 	return nil
 }
 
-func (d *dispatcher[Q, R]) inputBlobs() {
+func (d *dispatcher[Q, R]) inputBlobs() error {
 	var inputErr error
 	for {
 		id, length, err := textandbinarywriter.ReadBlobHeader(d.inOut.stdoutBinary)
@@ -346,12 +347,10 @@ func (d *dispatcher[Q, R]) inputBlobs() {
 		}
 	}
 
-	if inputErr != nil {
-		// panic(inputErr) // TODO1 fix me, consolidate with JSON error handling.
-	}
+	return inputErr
 }
 
-func (d *dispatcher[Q, R]) inputJSON() {
+func (d *dispatcher[Q, R]) inputJSON() error {
 	var inputErr error
 
 	for d.inOut.dec.More() {
@@ -404,11 +403,13 @@ func (d *dispatcher[Q, R]) inputJSON() {
 		call.err = inputErr
 		call.done()
 	}
+
+	return inputErr
 }
 
 func (d *dispatcher[Q, R]) pendingCall(id uint32) *call[Q, R] {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
+	d.mu.Lock()
+	defer d.mu.Unlock()
 	c, ok := d.pending[id]
 	if !ok {
 		panic(fmt.Errorf("call with ID %d not found", id))
@@ -697,13 +698,20 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	}()
 
 	for i := range inOuts {
+		ing, _ := errgroup.WithContext(ctx)
 		d := &dispatcher[Q, R]{
 			pending: make(map[uint32]*call[Q, R]),
 			inOut:   inOuts[i],
+			inGroup: ing,
 		}
-		go d.inputJSON()
+		d.inGroup.Go(func() error {
+			return d.inputJSON()
+		})
+
 		if d.inOut.stdoutBinary != nil {
-			go d.inputBlobs()
+			d.inGroup.Go(func() error {
+				return d.inputBlobs()
+			})
 		}
 		dp.dispatchers[i] = d
 	}
@@ -712,6 +720,12 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 		for _, d := range dp.dispatchers {
 			d.closing = true
 			if err := d.inOut.Close(); err != nil {
+				return err
+			}
+		}
+
+		for _, d := range dp.dispatchers {
+			if err := d.inGroup.Wait(); err != nil {
 				return err
 			}
 		}

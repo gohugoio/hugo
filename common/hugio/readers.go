@@ -43,9 +43,9 @@ type SizeReader interface {
 	Sizer
 }
 
-// NewSizeReader creates a SizeReader from the given io.Reader.
+// ToSizeReader creates a SizeReader from the given io.Reader.
 // Note that if r is not a SizeReader, the entire content will be read into memory
-func NewSizeReader(r io.Reader) (SizeReader, error) {
+func ToSizeReader(r io.Reader) (SizeReader, error) {
 	if sr, ok := r.(SizeReader); ok {
 		return sr, nil
 	}
