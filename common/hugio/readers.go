@@ -32,10 +32,28 @@ type ReadSeekCloser interface {
 	io.Closer
 }
 
-// SizeProvider provides the size of, typically, a io.Reader.
+// Sizer provides the size of, typically, a io.Reader.
 // As implemented by e.g. os.File and io.SectionReader.
-type SizeProvider interface {
+type Sizer interface {
 	Size() int64
+}
+
+type SizeReader interface {
+	io.Reader
+	Sizer
+}
+
+// NewSizeReader creates a SizeReader from the given io.Reader.
+// Note that if r is not a SizeReader, the entire content will be read into memory
+func NewSizeReader(r io.Reader) (SizeReader, error) {
+	if sr, ok := r.(SizeReader); ok {
+		return sr, nil
+	}
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(b), nil
 }
 
 // CloserFunc is an adapter to allow the use of ordinary functions as io.Closers.

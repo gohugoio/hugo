@@ -125,8 +125,7 @@ func (m *Message[T]) init() error {
 }
 
 type SourceProvider interface {
-	GetSource() io.Reader
-	GetSourceLength() uint32
+	GetSource() hugio.SizeReader
 }
 
 type DestinationProvider interface {
@@ -287,14 +286,15 @@ func (d *dispatcher[Q, R]) send(call *call[Q, R]) error {
 		return err
 	}
 	if sp, ok := any(call.request.Data).(SourceProvider); ok {
-		if sp.GetSourceLength() == 0 {
+		source := sp.GetSource()
+		if source.Size() == 0 {
 			panic(fmt.Sprintf("source length must be greater than 0, header: %+v", call.request.Header))
 		}
 
-		if err := textandbinarywriter.WriteBlobHeader(d.inOut.stdin, call.request.GetID(), sp.GetSourceLength()); err != nil {
+		if err := textandbinarywriter.WriteBlobHeader(d.inOut.stdin, call.request.GetID(), uint32(source.Size())); err != nil {
 			return err
 		}
-		_, err := io.Copy(d.inOut.stdin, sp.GetSource())
+		_, err := io.Copy(d.inOut.stdin, source)
 		if err != nil {
 			return err
 		}

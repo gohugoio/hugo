@@ -22,8 +22,8 @@ import (
 	"io"
 	"time"
 
-	webp "github.com/bep/webptemp"
 	"github.com/gohugoio/hugo/common/hdebug"
+	"github.com/gohugoio/hugo/common/hugio"
 )
 
 var (
@@ -54,22 +54,19 @@ at least for WebP, the difference is negligible, see below output from a test ru
 [streams] DecodeWebp took 17.192917ms
 [streams] EncodeWebp took 14.084792ms
 [streams] DecodeWebpConfig took 54.334µs
+
+Also note that the placement of this code in this internal package is also temporary. We 1. Need to get the WASM RPC plugin infrastructure in place, and 2. Need to decide on the final API shape for image processing plugins.
 */
 type WebpInput struct {
-	Source       io.Reader      `json:"-"` // Will be sent in a separate stream.
-	SourceLength uint32         `json:"-"`
-	Destination  io.Writer      `json:"-"` // Will be used to write the result to.
-	Options      map[string]any `json:"options"`
+	Source      hugio.SizeReader `json:"-"` // Will be sent in a separate stream.
+	Destination io.Writer        `json:"-"` // Will be used to write the result to.
+	Options     map[string]any   `json:"options"`
 
-	// TODO1 config options.
+	// TODO1 config optioGetSourcens.
 }
 
-func (w WebpInput) GetSource() io.Reader {
+func (w WebpInput) GetSource() hugio.SizeReader {
 	return w.Source
-}
-
-func (w WebpInput) GetSourceLength() uint32 {
-	return w.SourceLength
 }
 
 func (w WebpInput) GetDestination() io.Writer {
@@ -81,11 +78,7 @@ type WebpOutput struct {
 }
 
 func (d *Dispatchers) stopClock(what string, start time.Time) {
-	lib := "streams"
-	if useOther {
-		lib = "pointers"
-	}
-	hdebug.Printf("[%s] %s took %s", lib, what, time.Since(start))
+	hdebug.Printf("%s took %s", what, time.Since(start))
 }
 
 // TODO1 in webp wasm scrip, do a bare clone of libwebp.
@@ -99,16 +92,13 @@ func (d *Dispatchers) DecodeWebp(r io.Reader) (image.Image, error) {
 	}
 	start := time.Now()
 	defer d.stopClock("DecodeWebp", start)
-	if useOther {
-		return webp.Decode(r)
-	}
 
-	b, err := io.ReadAll(r)
+	source, err := hugio.NewSizeReader(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var imageBytesBuf bytes.Buffer
+	var destination bytes.Buffer
 
 	// Commands:
 	// encodeNRGBA
@@ -125,10 +115,9 @@ func (d *Dispatchers) DecodeWebp(r io.Reader) (image.Image, error) {
 		},
 
 		Data: WebpInput{
-			Source:       bytes.NewReader(b),
-			SourceLength: uint32(len(b)),
-			Destination:  &imageBytesBuf,
-			Options:      map[string]any{
+			Source:      source,
+			Destination: &destination,
+			Options:     map[string]any{
 				// TODO1
 			},
 		},
@@ -145,7 +134,7 @@ func (d *Dispatchers) DecodeWebp(r io.Reader) (image.Image, error) {
 	}
 
 	img := &image.RGBA{
-		Pix:    imageBytesBuf.Bytes(),
+		Pix:    destination.Bytes(),
 		Stride: stride,
 		Rect:   image.Rect(0, 0, w, h),
 	}
@@ -160,9 +149,6 @@ func (d *Dispatchers) DecodeWebpConfig(r io.Reader) (image.Config, error) {
 	}
 	start := time.Now()
 	defer d.stopClock("DecodeWebpConfig", start)
-	if useOther {
-		return webp.DecodeConfig(r)
-	}
 
 	// Avoid reading the entire image for config only.
 	const webpMaxHeaderSize = 32
@@ -182,8 +168,7 @@ func (d *Dispatchers) DecodeWebpConfig(r io.Reader) (image.Config, error) {
 		},
 
 		Data: WebpInput{
-			Source:       bytes.NewReader(b),
-			SourceLength: uint32(len(b)),
+			Source: bytes.NewReader(b),
 		},
 	}
 
@@ -198,8 +183,6 @@ func (d *Dispatchers) DecodeWebpConfig(r io.Reader) (image.Config, error) {
 	}, nil
 }
 
-var useOther bool = false
-
 func (d *Dispatchers) EncodeWebp(w io.Writer, src image.Image) error {
 	dd, err := d.Webp()
 	if err != nil {
@@ -207,9 +190,6 @@ func (d *Dispatchers) EncodeWebp(w io.Writer, src image.Image) error {
 	}
 	start := time.Now()
 	defer d.stopClock("EncodeWebp", start)
-	if useOther {
-		return webp.Encode(w, src)
-	}
 
 	var (
 		bounds     = src.Bounds()
@@ -244,9 +224,8 @@ func (d *Dispatchers) EncodeWebp(w io.Writer, src image.Image) error {
 		},
 
 		Data: WebpInput{
-			Source:       bytes.NewReader(imageBytes),
-			SourceLength: uint32(len(imageBytes)),
-			Destination:  w,
+			Source:      bytes.NewReader(imageBytes),
+			Destination: w,
 			Options: map[string]any{
 				"width":  bounds.Max.X,
 				"height": bounds.Max.Y,
