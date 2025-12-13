@@ -57,18 +57,6 @@ func init() {
 			},
 		}
 
-		ns.AddMethodMapping(ctx.Format,
-			[]string{"dateFormat"},
-			[][2]string{
-				{`dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}`, `dateFormat: Wednesday, Jan 21, 2015`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.Now,
-			[]string{"now"},
-			[][2]string{},
-		)
-
 		ns.AddMethodMapping(ctx.AsTime,
 			nil,
 			[][2]string{
@@ -81,6 +69,23 @@ func init() {
 			[][2]string{
 				{`{{ mul 60 60 | duration "second" }}`, `1h0m0s`},
 			},
+		)
+
+		ns.AddMethodMapping(ctx.Format,
+			[]string{"dateFormat"},
+			[][2]string{
+				{`dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}`, `dateFormat: Wednesday, Jan 21, 2015`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.In,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Now,
+			[]string{"now"},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.ParseDuration,

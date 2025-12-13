@@ -64,17 +64,17 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
-		ns.AddMethodMapping(ctx.XxHash,
-			[]string{"xxhash"},
-			[][2]string{
-				{`{{ hash.XxHash "The quick brown fox jumps over the lazy dog" }}`, `0b242d361fda71bc`},
-			},
-		)
-
 		ns.AddMethodMapping(ctx.FNV32a,
 			nil,
 			[][2]string{
 				{`{{ hash.FNV32a "Hugo Rocks!!" }}`, `1515779328`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.XxHash,
+			[]string{"xxhash"},
+			[][2]string{
+				{`{{ hash.XxHash "The quick brown fox jumps over the lazy dog" }}`, `0b242d361fda71bc`},
 			},
 		)
 

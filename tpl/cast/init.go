@@ -31,6 +31,13 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.ToFloat,
+			[]string{"float"},
+			[][2]string{
+				{`{{ "1234" | float | printf "%T" }}`, `float64`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.ToInt,
 			[]string{"int"},
 			[][2]string{
@@ -42,13 +49,6 @@ func init() {
 			[]string{"string"},
 			[][2]string{
 				{`{{ 1234 | string | printf "%T" }}`, `string`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.ToFloat,
-			[]string{"float"},
-			[][2]string{
-				{`{{ "1234" | float | printf "%T" }}`, `float64`},
 			},
 		)
 
