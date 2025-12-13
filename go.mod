@@ -204,3 +204,5 @@ go 1.24.0
 replace github.com/bep/gowebpw => /Users/bep/dev/go/bep/gowebpw
 
 replace github.com/bep/textandbinaryreader => /Users/bep/dev/go/bep/textandbinaryreader
+
+replace github.com/bep/webptemp => /Users/bep/dev/go/bep/webptemp

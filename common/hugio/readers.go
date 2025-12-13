@@ -32,6 +32,12 @@ type ReadSeekCloser interface {
 	io.Closer
 }
 
+// SizeProvider provides the size of, typically, a io.Reader.
+// As implemented by e.g. os.File and io.SectionReader.
+type SizeProvider interface {
+	Size() int64
+}
+
 // CloserFunc is an adapter to allow the use of ordinary functions as io.Closers.
 type CloserFunc func() error
 

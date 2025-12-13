@@ -22,6 +22,7 @@ import (
 	"io"
 	"time"
 
+	webp "github.com/bep/webptemp"
 	"github.com/gohugoio/hugo/common/hdebug"
 )
 
@@ -36,6 +37,24 @@ type CommonImageProcessingOptions struct {
 	Stride int `json:"stride,omitempty"`
 }
 
+/*
+If you're reading this and questioning the protocol on top of WASM using JSON and streams instead of WAS Call's with pointers written to linear memory:
+
+- The goal of this is to eventually make it into one or more RPC plugin APIs.
+- Passing pointers around has a number of challenges in that context.
+- One would be that it's not possible to pass pointers to child processes (e.g. non-WASM plugins).
+
+Also, you would think that this JSON/streams approach would be significantly slower than using pointers directly, but in practice,
+at least for WebP, the difference is negligible, see below output from a test run:
+
+[pointers] DecodeWebp took 18.168375ms
+[pointers] EncodeWebp took 13.959458ms
+[pointers] DecodeWebpConfig took 93.083µs
+
+[streams] DecodeWebp took 17.192917ms
+[streams] EncodeWebp took 14.084792ms
+[streams] DecodeWebpConfig took 54.334µs
+*/
 type WebpInput struct {
 	Source       io.Reader      `json:"-"` // Will be sent in a separate stream.
 	SourceLength uint32         `json:"-"`
@@ -62,8 +81,14 @@ type WebpOutput struct {
 }
 
 func (d *Dispatchers) stopClock(what string, start time.Time) {
-	// hdebug.Printf("%s took %s", what, time.Since(start))
+	lib := "streams"
+	if useOther {
+		lib = "pointers"
+	}
+	hdebug.Printf("[%s] %s took %s", lib, what, time.Since(start))
 }
+
+// TODO1 in webp wasm scrip, do a bare clone of libwebp.
 
 // Decode reads a WEBP image from r and returns it as an image.Image.
 // TODO1 remember to increment the webp hash id so people get new wasm versions.
@@ -74,6 +99,9 @@ func (d *Dispatchers) DecodeWebp(r io.Reader) (image.Image, error) {
 	}
 	start := time.Now()
 	defer d.stopClock("DecodeWebp", start)
+	if useOther {
+		return webp.Decode(r)
+	}
 
 	b, err := io.ReadAll(r)
 	if err != nil {
@@ -132,6 +160,9 @@ func (d *Dispatchers) DecodeWebpConfig(r io.Reader) (image.Config, error) {
 	}
 	start := time.Now()
 	defer d.stopClock("DecodeWebpConfig", start)
+	if useOther {
+		return webp.DecodeConfig(r)
+	}
 
 	// Avoid reading the entire image for config only.
 	const webpMaxHeaderSize = 32
@@ -167,6 +198,8 @@ func (d *Dispatchers) DecodeWebpConfig(r io.Reader) (image.Config, error) {
 	}, nil
 }
 
+var useOther bool = false
+
 func (d *Dispatchers) EncodeWebp(w io.Writer, src image.Image) error {
 	dd, err := d.Webp()
 	if err != nil {
@@ -174,6 +207,9 @@ func (d *Dispatchers) EncodeWebp(w io.Writer, src image.Image) error {
 	}
 	start := time.Now()
 	defer d.stopClock("EncodeWebp", start)
+	if useOther {
+		return webp.Encode(w, src)
+	}
 
 	var (
 		bounds     = src.Bounds()
