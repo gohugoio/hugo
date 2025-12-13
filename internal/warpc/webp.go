@@ -77,7 +77,7 @@ type WebpOutput struct {
 	Options CommonImageProcessingOptions
 }
 
-func (d *Dispatchers) stopClock(what string, start time.Time) {
+func stopClock(what string, start time.Time) {
 	hdebug.Printf("%s took %s", what, time.Since(start))
 }
 
@@ -91,7 +91,7 @@ func (d *Dispatchers) DecodeWebp(r io.Reader) (image.Image, error) {
 		return nil, err
 	}
 	start := time.Now()
-	defer d.stopClock("DecodeWebp", start)
+	defer stopClock("DecodeWebp", start)
 
 	source, err := hugio.ToSizeReader(r)
 	if err != nil {
@@ -148,7 +148,7 @@ func (d *Dispatchers) DecodeWebpConfig(r io.Reader) (image.Config, error) {
 		return image.Config{}, err
 	}
 	start := time.Now()
-	defer d.stopClock("DecodeWebpConfig", start)
+	defer stopClock("DecodeWebpConfig", start)
 
 	// Avoid reading the entire image for config only.
 	const webpMaxHeaderSize = 32
@@ -189,7 +189,7 @@ func (d *Dispatchers) EncodeWebp(w io.Writer, src image.Image) error {
 		return err
 	}
 	start := time.Now()
-	defer d.stopClock("EncodeWebp", start)
+	defer stopClock("EncodeWebp", start)
 
 	var (
 		bounds     = src.Bounds()

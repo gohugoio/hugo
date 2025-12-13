@@ -15,7 +15,6 @@ package warpc
 
 import (
 	"bytes"
-	"compress/gzip"
 	"context"
 	_ "embed"
 	"encoding/json"
@@ -30,9 +29,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/bep/gowebpw/webpwasm"
 	"github.com/bep/textandbinarywriter"
 
+	"github.com/gohugoio/hugo/common/hdebug"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/maps"
@@ -53,6 +52,9 @@ const currentVersion = 1
 
 //go:embed wasm/quickjs.wasm
 var quickjsWasm []byte
+
+//go:embed wasm/webp.wasm
+var webpWasm []byte
 
 // Header is in both the request and response.
 type Header struct {
@@ -759,6 +761,7 @@ func (d *lazyDispatcher[Q, R]) start() (Dispatcher[Q, R], error) {
 		d.dispatcher, d.startErr = Start[Q, R](d.opts)
 		d.started = true
 		d.opts.Infof("started dispatcher in %s", time.Since(start))
+		hdebug.Printf("Started %q in %s", d.opts.Main.Name, time.Since(start))
 	})
 	return d.dispatcher, d.startErr
 }
@@ -800,6 +803,8 @@ func (d *Dispatchers) Close() error {
 // Note that the individual dispatchers are started lazily.
 // Remember to call Close on the returned Dispatchers when done.
 func AllDispatchers(opts Options) *Dispatchers {
+	start := time.Now()
+	defer stopClock("AllDispatchers", start)
 	if opts.Infof == nil {
 		opts.Infof = func(format string, v ...any) {
 			// noop
@@ -819,14 +824,8 @@ func AllDispatchers(opts Options) *Dispatchers {
 		}
 	}
 	webOpts := opts
-	r, err := gzip.NewReader(bytes.NewReader(webpwasm.Binary))
-	if err != nil {
-		panic(err)
-	}
-	defer r.Close()
-	var data bytes.Buffer
-	_, err = data.ReadFrom(r)
-	webOpts.Main = Binary{Name: "webp", Data: data.Bytes()}
+
+	webOpts.Main = Binary{Name: "webp", Data: webpWasm}
 
 	dispatchers := &Dispatchers{
 		katex: &lazyDispatcher[KatexInput, KatexOutput]{opts: katexOpts},
