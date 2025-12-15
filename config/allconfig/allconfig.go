@@ -471,10 +471,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		gc.RenderHookUseEmbeddedNever,
 	}
 	if !slices.Contains(renderHookUseEmbeddedModes, c.Markup.Goldmark.RenderHooks.Image.UseEmbedded) {
-		return fmt.Errorf("site config markup.goldmark.renderHooks.image must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
+		return fmt.Errorf("site config markup.goldmark.renderHooks.image.useEmbedded must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
 	}
 	if !slices.Contains(renderHookUseEmbeddedModes, c.Markup.Goldmark.RenderHooks.Link.UseEmbedded) {
-		return fmt.Errorf("site config markup.goldmark.renderHooks.link must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
+		return fmt.Errorf("site config markup.goldmark.renderHooks.link.useEmbedded must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
 	}
 
 	c.C = &ConfigCompiled{
