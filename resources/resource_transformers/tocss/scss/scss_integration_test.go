@@ -462,3 +462,26 @@ target = "assets/sass"
 
 	b.AssertFileContent("public/index.html", ".foo1{color:red}.bar1{color:blue}.foo2{color:red}.bar2{color:blue}")
 }
+
+func TestLibsassDeprecatedIssue14261(t *testing.T) {
+	// This cannot be run in parallel because of global state in log deprecation handling.
+	if !scss.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/main.scss --
+body {
+	background-color: #fff;
+}
+-- hugo.toml --
+-- layouts/home.html --
+{{ $cssOpts := (dict  "transpiler" "libsass") }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  }}
+{{ $r.RelPermalink }}
+	`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptInfo())
+
+	b.AssertLogContains("deprecated: css.Sass: libsass was deprecated in Hugo v0.153.0")
+}
