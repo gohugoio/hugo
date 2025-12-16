@@ -378,6 +378,7 @@ Home.
 {{/* These are sorted. The end file name will be created from the spec + extension, so make sure these are unique. */}}
 {{ template "process" (dict "spec" "crop 300x300 gif" "img" $animWebp) }}
 {{ template "process" (dict "spec" "crop 300x300 smart" "img" $fuzzyCircle) }}
+ {{ template "process" (dict "spec" "crop 300x300 smart #ff9999" "img" $fuzzyCircle) }}
 {{ template "process" (dict "spec" "crop 300x300" "img" $animWebp) }}
 {{ template "process" (dict "spec" "crop 500x200 smart webp" "img" $sunset) }}
 {{ template "process" (dict "spec" "crop 500x200 smart webp" "img" $sunset) }}
