@@ -319,7 +319,9 @@ minifyOutput = true
 	b, err := TestE(t, files)
 
 	b.Assert(err, qt.IsNotNil)
-	fe := herrors.UnwrapFileError(err)
+	fes := herrors.UnwrapFileErrors(err)
+	b.Assert(len(fes), qt.Equals, 1)
+	fe := fes[0]
 	b.Assert(fe, qt.IsNotNil)
 	b.Assert(fe.Position().LineNumber, qt.Equals, 2)
 	b.Assert(fe.Position().ColumnNumber, qt.Equals, 9)
@@ -626,7 +628,9 @@ line3: 'value3'
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "[2:1] non-map value is specified")
-	fe := herrors.UnwrapFileError(err)
+	fes := herrors.UnwrapFileErrors(err)
+	b.Assert(len(fes), qt.Equals, 1)
+	fe := fes[0]
 	b.Assert(fe, qt.Not(qt.IsNil))
 	pos := fe.Position()
 	b.Assert(pos.Filename, qt.Contains, filepath.FromSlash("content/_index.md"))

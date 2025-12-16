@@ -1546,13 +1546,18 @@ func (s *Site) resetBuildState(sourceChanged bool) {
 
 func (s *Site) errorCollator(results <-chan error, errs chan<- error) {
 	var errors []error
+	defer func() {
+		errs <- s.h.filterAndJoinErrors(errors)
+		close(errs)
+	}()
+	const maxErrors = 10
 	for e := range results {
 		errors = append(errors, e)
+		if len(errors) >= maxErrors {
+			s.h.Stop()
+			break
+		}
 	}
-
-	errs <- s.h.pickOneAndLogTheRest(errors)
-
-	close(errs)
 }
 
 // GetPage looks up a page of a given type for the given ref.
