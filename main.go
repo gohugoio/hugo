@@ -17,6 +17,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/gohugoio/hugo/commands"
 )
 
@@ -24,6 +27,9 @@ func main() {
 	log.SetFlags(0)
 	err := commands.Execute(os.Args[1:])
 	if err != nil {
-		log.Fatalf("Error: %s", err)
+		for _, e := range herrors.Errors(err) {
+			loggers.Log().Errorf("%s", e)
+		}
+		os.Exit(1)
 	}
 }

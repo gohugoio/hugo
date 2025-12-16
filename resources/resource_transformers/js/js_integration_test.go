@@ -420,3 +420,21 @@ Home.
 	b.AssertFileContent("public/js/main.js", "efgh")
 	b.AssertFileContent("public/js/main.js", "! abcd")
 }
+
+func TestBuildErrorStack(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+-- assets/js/main.js --
+import { hello1, hello2 } from './util1';
+hello1();
+-- layouts/home.html --
+{{ $js := resources.Get "js/main.js" | js.Build }}
+JS Content:{{ $js.Content }}:End:
+`
+
+	b, err := hugolib.TestE(t, files, hugolib.TestOptOsFs())
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, `execute of template failed: template: home.html:2:17`)
+	b.Assert(err.Error(), qt.Contains, `main.js:1:31": Could not resolve "./util1"`)
+}

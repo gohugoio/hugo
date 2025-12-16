@@ -593,11 +593,6 @@ func (s *IntegrationTestBuilder) AssertFileExists(filename string, b bool) {
 	s.Assert(err, checker)
 }
 
-func (s *IntegrationTestBuilder) AssertIsFileError(err error) herrors.FileError {
-	s.Assert(err, qt.ErrorAs, new(herrors.FileError))
-	return herrors.UnwrapFileError(err)
-}
-
 func (s *IntegrationTestBuilder) AssertRenderCountContent(count int) {
 	s.Helper()
 	s.Assert(s.counters.contentRenderCounter.Load(), qt.Equals, uint64(count))

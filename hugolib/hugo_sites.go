@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"iter"
@@ -254,6 +255,16 @@ func (f *fatalErrorHandler) FatalError(err error) {
 	f.err = err
 }
 
+// Stop stops the fatal error handler without setting an error.
+func (f *fatalErrorHandler) Stop() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if !f.done {
+		f.done = true
+		close(f.donec)
+	}
+}
+
 func (f *fatalErrorHandler) getErr() error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -397,38 +408,35 @@ func (h *HugoSites) onPageRender() {
 	}
 }
 
-func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
-	if len(errors) == 0 {
+func (h *HugoSites) filterAndJoinErrors(errs []error) error {
+	if len(errs) == 0 {
 		return nil
 	}
 
-	var i int
-
-	for j, err := range errors {
-		// If this is in server mode, we want to return an error to the client
-		// with a file context, if possible.
-		if herrors.UnwrapFileError(err) != nil {
-			i = j
-			break
-		}
-	}
-
-	// Log the rest, but add a threshold to avoid flooding the log.
-	const errLogThreshold = 5
-
-	for j, err := range errors {
-		if j == i || err == nil {
+	seen := map[string]bool{}
+	var n int
+	for _, err := range errs {
+		if err == nil {
 			continue
 		}
-
-		if j >= errLogThreshold {
-			break
+		errMsg := herrors.Cause(err).Error() // We don't need to see many "Could not resolve "@alpinejs/persists""
+		if !seen[errMsg] {
+			seen[errMsg] = true
+			errs[n] = err
+			n++
 		}
+	}
+	errs = errs[:n]
 
-		h.Log.Errorln(err)
+	for i, err := range errs {
+		errs[i] = herrors.ImproveRenderErr(err)
 	}
 
-	return errors[i]
+	const limit = 10
+	if len(errs) > limit {
+		errs = errs[:limit]
+	}
+	return errors.Join(errs...)
 }
 
 func (h *HugoSites) isMultilingual() bool {

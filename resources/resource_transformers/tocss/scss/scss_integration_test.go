@@ -20,6 +20,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
@@ -225,7 +226,9 @@ T1: {{ $r.Content }}
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`themes/mytheme/assets/scss/main.scss:6:1": expected ':' after $maincolor in assignment statement`))
-		fe := b.AssertIsFileError(err)
+		ferrs := herrors.UnwrapFileErrors(err)
+		c.Assert(len(ferrs), qt.Equals, 2)
+		fe := ferrs[1]
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 4 */", "", "$maincolor #eee;", "", "body {"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
@@ -241,7 +244,9 @@ T1: {{ $r.Content }}
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `assets/scss/components/_foo.scss:2:1": expected ':' after $foocolor in assignment statement`)
-		fe := b.AssertIsFileError(err)
+		ferrs := herrors.UnwrapFileErrors(err)
+		c.Assert(len(ferrs), qt.Equals, 2)
+		fe := ferrs[1]
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")

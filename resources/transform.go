@@ -639,10 +639,13 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 }
 
 func (r *resourceAdapter) init(publish, setContent bool) {
-	r.initTransform(publish, setContent)
+	if err := r.doInit(publish, setContent); err != nil {
+		// The panic will be handled and converted to an error by the template framework.
+		panic(err)
+	}
 }
 
-func (r *resourceAdapter) initTransform(publish, setContent bool) {
+func (r *resourceAdapter) doInit(publish, setContent bool) error {
 	r.transformationsInit.Do(func() {
 		if len(r.transformations) == 0 {
 			// Nothing to do.
@@ -656,18 +659,13 @@ func (r *resourceAdapter) initTransform(publish, setContent bool) {
 		}
 
 		r.transformationsErr = r.getOrTransform(publish, setContent)
-		if r.transformationsErr != nil {
-			if r.spec.ErrorSender != nil {
-				r.spec.ErrorSender.SendError(r.transformationsErr)
-			} else {
-				r.spec.Logger.Errorf("Transformation failed: %s", r.transformationsErr)
-			}
-		}
 	})
 
 	if publish && r.publishOnce != nil {
 		r.publish()
 	}
+
+	return r.transformationsErr
 }
 
 type resourceAdapterInner struct {

@@ -22,7 +22,6 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/go-radix"
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
@@ -115,7 +114,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("%v failed to render pages: %w", s.resolveDimensionNames(), herrors.ImproveRenderErr(err))
+		return fmt.Errorf("%v failed to render pages: %w", s.resolveDimensionNames(), err)
 	}
 	return nil
 }
@@ -129,6 +128,15 @@ func pageRenderer(
 ) {
 	defer wg.Done()
 
+	sendErr := func(err error) bool {
+		select {
+		case results <- err:
+			return true
+		case <-s.h.Done():
+			return false
+		}
+	}
+
 	for p := range pages {
 
 		if p.m.isStandalone() && !ctx.shouldRenderStandalonePage(p.Kind()) {
@@ -137,8 +145,11 @@ func pageRenderer(
 
 		if p.m.pageConfig.Build.PublishResources {
 			if err := p.renderResources(); err != nil {
-				s.SendError(p.errorf(err, "failed to render page resources"))
-				continue
+				if sendErr(p.errorf(err, "failed to render resources")) {
+					continue
+				} else {
+					return
+				}
 			}
 		}
 
@@ -149,8 +160,11 @@ func pageRenderer(
 
 		templ, found, err := p.resolveTemplate()
 		if err != nil {
-			s.SendError(p.errorf(err, "failed to resolve template"))
-			continue
+			if sendErr(p.errorf(err, "failed to resolve template")) {
+				continue
+			} else {
+				return
+			}
 		}
 
 		if !found {
@@ -181,12 +195,20 @@ func pageRenderer(
 		}
 
 		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, targetPath, p, d, templ); err != nil {
-			results <- err
+			if sendErr(err) {
+				continue
+			} else {
+				return
+			}
 		}
 
 		if p.paginator != nil && p.paginator.current != nil {
 			if err := s.renderPaginator(p, templ); err != nil {
-				results <- err
+				if sendErr(err) {
+					continue
+				} else {
+					return
+				}
 			}
 		}
 	}

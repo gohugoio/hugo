@@ -288,6 +288,50 @@ func Unwrap(err error) error {
 	return err
 }
 
+// UnwrapFileErrors returns all FileError contained in err.
+func UnwrapFileErrors(err error) []FileError {
+	if err == nil {
+		return nil
+	}
+	errs := Errors(err)
+	var fileErrors []FileError
+	for _, e := range errs {
+		if v, ok := e.(FileError); ok {
+			fileErrors = append(fileErrors, v)
+		}
+		fileErrors = append(fileErrors, UnwrapFileErrors(errors.Unwrap(e))...)
+	}
+	return fileErrors
+}
+
+// UnwrapFileErrorsWithErrorContext tries to unwrap all FileError in err that has an ErrorContext.
+func UnwrapFileErrorsWithErrorContext(err error) []FileError {
+	errs := UnwrapFileErrors(err)
+	var n int
+	for _, e := range errs {
+		if e.ErrorContext() != nil {
+			errs[n] = e
+			n++
+		}
+	}
+	return errs[:n]
+}
+
+// Errors returns the list of errors contained in err.
+func Errors(err error) []error {
+	if err == nil {
+		return nil
+	}
+
+	type unwrapper interface {
+		Unwrap() []error
+	}
+	if u, ok := err.(unwrapper); ok {
+		return u.Unwrap()
+	}
+	return []error{err}
+}
+
 func extractFileTypePos(err error) (string, text.Position) {
 	err = Unwrap(err)
 
@@ -348,30 +392,6 @@ func UnwrapFileError(err error) FileError {
 		}
 	}
 	return nil
-}
-
-// UnwrapFileErrors tries to unwrap all FileError.
-func UnwrapFileErrors(err error) []FileError {
-	var errs []FileError
-	for err != nil {
-		if v, ok := err.(FileError); ok {
-			errs = append(errs, v)
-		}
-		err = errors.Unwrap(err)
-	}
-	return errs
-}
-
-// UnwrapFileErrorsWithErrorContext tries to unwrap all FileError in err that has an ErrorContext.
-func UnwrapFileErrorsWithErrorContext(err error) []FileError {
-	var errs []FileError
-	for err != nil {
-		if v, ok := err.(FileError); ok && v.ErrorContext() != nil {
-			errs = append(errs, v)
-		}
-		err = errors.Unwrap(err)
-	}
-	return errs
 }
 
 func extractOffsetAndType(e error) (int, string) {
