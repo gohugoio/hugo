@@ -74,10 +74,10 @@ func (m *Map[K, T]) Set(key K, value T) {
 }
 
 // WithWriteLock executes the given function with a write lock on the map.
-func (m *Map[K, T]) WithWriteLock(f func(m map[K]T)) {
+func (m *Map[K, T]) WithWriteLock(f func(m map[K]T) error) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	f(m.m)
+	return f(m.m)
 }
 
 // SetIfAbsent sets the given key to the given value if the key does not already exist in the map.

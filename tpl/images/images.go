@@ -29,14 +29,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"rsc.io/qr"
 
-	// Importing image codecs for image.DecodeConfig
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
-
-	// Import webp codec
-	_ "golang.org/x/image/webp"
-
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
@@ -102,7 +94,7 @@ func (ns *Namespace) Config(path any) (image.Config, error) {
 	}
 	defer f.Close()
 
-	config, _, err = image.DecodeConfig(f)
+	config, _, err = ns.deps.ResourceSpec.Imaging.Codec.DecodeConfig(f)
 	if err != nil {
 		return config, err
 	}
