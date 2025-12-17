@@ -164,7 +164,7 @@ func TestTransformPostCSSError(t *testing.T) {
 		}).BuildE()
 
 	ferrs := herrors.UnwrapFileErrors(err)
-	b.Assert(len(ferrs), qt.Equals, 1)
+	b.Assert(len(ferrs), qt.Equals, 2)
 	b.Assert(err.Error(), qt.Contains, "a.css:4:2")
 }
 

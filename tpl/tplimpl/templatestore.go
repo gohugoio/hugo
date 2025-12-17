@@ -907,52 +907,57 @@ func (s *TemplateStore) addFileContext(ti *TemplInfo, what string, inerr error) 
 
 	identifiers := s.extractIdentifiers(inerr.Error())
 
-	checkFilename := func(fi hugofs.FileMetaInfo, inErr error) (error, bool) {
+	checkFilename := func(fi hugofs.FileMetaInfo, inErr error) (int, error) {
+		var matchWeight int
 		lineMatcher := func(m herrors.LineMatcher) int {
 			if m.Position.LineNumber != m.LineNumber {
 				return -1
 			}
 
+			matchWeight++
 			for _, id := range identifiers {
 				if strings.Contains(m.Line, id) {
 					// We found the line, but return a 0 to signal to
 					// use the column from the error message.
+					matchWeight++
 					return 0
 				}
 			}
-			return -1
+			return 0
 		}
 
 		f, err := fi.Meta().Open()
 		if err != nil {
-			return inErr, false
+			return -1, inErr
 		}
 		defer f.Close()
 
 		fe := herrors.NewFileErrorFromName(inErr, fi.Meta().Filename)
 		fe.UpdateContent(f, lineMatcher)
 
-		return fe, fe.ErrorContext().Position.IsValid()
+		return matchWeight, fe
 	}
 
 	inerr = fmt.Errorf("%s: %w", what, inerr)
 
 	var (
-		currentErr error
-		ok         bool
+		err1    error
+		weight1 int
+		err2    error
+		weight2 int
 	)
 
-	if currentErr, ok = checkFilename(ti.Fi, inerr); ok {
-		return currentErr
-	}
+	weight1, err1 = checkFilename(ti.Fi, inerr)
 
 	if ti.base != nil {
-		if currentErr, ok = checkFilename(ti.base.Fi, inerr); ok {
-			return currentErr
-		}
+		weight2, err2 = checkFilename(ti.base.Fi, inerr)
 	}
 
-	return currentErr
+	if err2 != nil && weight2 > weight1 {
+		return err2
+	}
+
+	return err1
 }
 
 func (s *TemplateStore) extractIdentifiers(line string) []string {
