@@ -118,7 +118,8 @@ func (imp *importResolver) importRecursive(
 					LineNumber:   offset + 1,
 					ColumnNumber: column + 1,
 				}
-				return 0, "", herrors.NewFileErrorFromFileInPos(fmt.Errorf("failed to resolve CSS @import \"%s\"", filename), pos, imp.fs, nil)
+				msgDetail := "if this import's source lives in node_modules, enable the skipInlineImportsNotFound option, see https://gohugo.io/functions/css/postcss/#skipinlineimportsnotfound"
+				return 0, "", herrors.NewFileErrorFromFileInPos(fmt.Errorf("failed to resolve CSS @import \"%s\"; %s", filename, msgDetail), pos, imp.fs, nil)
 			}
 
 			i--
