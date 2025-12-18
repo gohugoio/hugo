@@ -31,6 +31,11 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.CanHighlight,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Emojify,
 			[]string{"emojify"},
 			[][2]string{
@@ -40,6 +45,11 @@ func init() {
 
 		ns.AddMethodMapping(ctx.Highlight,
 			[]string{"highlight"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.HighlightCodeBlock,
+			nil,
 			[][2]string{},
 		)
 
@@ -59,6 +69,11 @@ func init() {
 					`Cathal Garvey & The Sunshine Band <cathal@foo.bar>`,
 				},
 			},
+		)
+
+		ns.AddMethodMapping(ctx.HTMLToMarkdown,
+			nil,
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.HTMLUnescape,
@@ -97,11 +112,21 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.PortableText,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Remarshal,
 			nil,
 			[][2]string{
 				{`{{ "title = \"Hello World\"" | transform.Remarshal "json" | safeHTML }}`, "{\n   \"title\": \"Hello World\"\n}\n"},
 			},
+		)
+
+		ns.AddMethodMapping(ctx.ToMath,
+			nil,
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Unmarshal,

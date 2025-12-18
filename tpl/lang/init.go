@@ -32,22 +32,10 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
-		ns.AddMethodMapping(ctx.Translate,
-			[]string{"i18n", "T"},
-			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.FormatNumber,
+		ns.AddMethodMapping(ctx.FormatAccounting,
 			nil,
 			[][2]string{
-				{`{{ 512.5032 | lang.FormatNumber 2 }}`, `512.50`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.FormatPercent,
-			nil,
-			[][2]string{
-				{`{{ 512.5032 | lang.FormatPercent 2 }}`, `512.50%`},
+				{`{{ 512.5032 | lang.FormatAccounting 2 "NOK" }}`, `NOK512.50`},
 			},
 		)
 
@@ -58,10 +46,10 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.FormatAccounting,
+		ns.AddMethodMapping(ctx.FormatNumber,
 			nil,
 			[][2]string{
-				{`{{ 512.5032 | lang.FormatAccounting 2 "NOK" }}`, `NOK512.50`},
+				{`{{ 512.5032 | lang.FormatNumber 2 }}`, `512.50`},
 			},
 		)
 
@@ -75,6 +63,23 @@ func init() {
 				{`{{ lang.FormatNumberCustom 0 -12345.6789 "-|.| " "|" }}`, `-12 346`},
 				{`{{ -98765.4321 | lang.FormatNumberCustom 2 }}`, `-98,765.43`},
 			},
+		)
+
+		ns.AddMethodMapping(ctx.FormatPercent,
+			nil,
+			[][2]string{
+				{`{{ 512.5032 | lang.FormatPercent 2 }}`, `512.50%`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Merge,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Translate,
+			[]string{"i18n", "T"},
+			[][2]string{},
 		)
 
 		return ns

@@ -22,6 +22,7 @@ import (
 
 	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib"
@@ -154,7 +155,7 @@ func TestTransformPostCSSError(t *testing.T) {
 
 	c := qt.New(t)
 
-	s, err := hugolib.NewIntegrationTestBuilder(
+	b, err := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:               c,
 			NeedsOsFS:       true,
@@ -162,8 +163,9 @@ func TestTransformPostCSSError(t *testing.T) {
 			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, "color: blue;", "@apply foo;"), // Syntax error
 		}).BuildE()
 
-	s.AssertIsFileError(err)
-	c.Assert(err.Error(), qt.Contains, "a.css:4:2")
+	ferrs := herrors.UnwrapFileErrors(err)
+	b.Assert(len(ferrs), qt.Equals, 2)
+	b.Assert(err.Error(), qt.Contains, "a.css:4:2")
 }
 
 func TestTransformPostCSSNotInstalledError(t *testing.T) {
@@ -173,14 +175,15 @@ func TestTransformPostCSSNotInstalledError(t *testing.T) {
 
 	c := qt.New(t)
 
-	s, err := hugolib.NewIntegrationTestBuilder(
+	_, err := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           c,
 			NeedsOsFS:   true,
 			TxtarString: postCSSIntegrationTestFiles,
 		}).BuildE()
 
-	s.AssertIsFileError(err)
+	ferrs := herrors.UnwrapFileErrors(err)
+	c.Assert(len(ferrs), qt.Equals, 1)
 	c.Assert(err.Error(), qt.Contains, `binary with name "postcss" not found using npx`)
 }
 
@@ -192,7 +195,7 @@ func TestTransformPostCSSImportError(t *testing.T) {
 
 	c := qt.New(t)
 
-	s, err := hugolib.NewIntegrationTestBuilder(
+	_, err := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:               c,
 			NeedsOsFS:       true,
@@ -200,8 +203,8 @@ func TestTransformPostCSSImportError(t *testing.T) {
 			LogLevel:        logg.LevelInfo,
 			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`),
 		}).BuildE()
-
-	s.AssertIsFileError(err)
+	ferrs := herrors.UnwrapFileErrors(err)
+	c.Assert(len(ferrs), qt.Equals, 2)
 	c.Assert(err.Error(), qt.Contains, "styles.css:4:3")
 	c.Assert(err.Error(), qt.Contains, filepath.FromSlash(`failed to resolve CSS @import "/css/components/doesnotexist.css"`))
 }

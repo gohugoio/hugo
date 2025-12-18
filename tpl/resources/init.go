@@ -53,7 +53,48 @@ func init() {
 			},
 		}
 
+		// Deprecated. Use js.Babel instead.
+		ns.AddMethodMapping(ctx.Babel,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.ByType,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Concat,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Copy,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.ExecuteAsTemplate,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Fingerprint,
+			[]string{"fingerprint"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.FromString,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Get,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Match,
 			nil,
 			[][2]string{},
 		)
@@ -63,15 +104,30 @@ func init() {
 			[][2]string{},
 		)
 
-		// Add aliases for the most common transformations.
-
-		ns.AddMethodMapping(ctx.Fingerprint,
-			[]string{"fingerprint"},
+		ns.AddMethodMapping(ctx.Match,
+			nil,
 			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Minify,
 			[]string{"minify"},
+			[][2]string{},
+		)
+
+		// Deprecated. Use css.PostCSS instead.
+		ns.AddMethodMapping(ctx.PostCSS,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.PostProcess,
+			nil,
+			[][2]string{},
+		)
+
+		// Deprecated. Use css.Sass instead.
+		ns.AddMethodMapping(ctx.ToCSS,
+			nil,
 			[][2]string{},
 		)
 

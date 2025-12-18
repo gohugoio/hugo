@@ -20,6 +20,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
@@ -225,7 +226,9 @@ T1: {{ $r.Content }}
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`themes/mytheme/assets/scss/main.scss:6:1": expected ':' after $maincolor in assignment statement`))
-		fe := b.AssertIsFileError(err)
+		ferrs := herrors.UnwrapFileErrors(err)
+		c.Assert(len(ferrs), qt.Equals, 2)
+		fe := ferrs[1]
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 4 */", "", "$maincolor #eee;", "", "body {"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
@@ -241,7 +244,9 @@ T1: {{ $r.Content }}
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `assets/scss/components/_foo.scss:2:1": expected ':' after $foocolor in assignment statement`)
-		fe := b.AssertIsFileError(err)
+		ferrs := herrors.UnwrapFileErrors(err)
+		c.Assert(len(ferrs), qt.Equals, 2)
+		fe := ferrs[1]
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})
 		b.Assert(fe.ErrorContext().ChromaLexer, qt.Equals, "scss")
@@ -461,4 +466,27 @@ target = "assets/sass"
 		}).Build()
 
 	b.AssertFileContent("public/index.html", ".foo1{color:red}.bar1{color:blue}.foo2{color:red}.bar2{color:blue}")
+}
+
+func TestLibsassDeprecatedIssue14261(t *testing.T) {
+	// This cannot be run in parallel because of global state in log deprecation handling.
+	if !scss.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/main.scss --
+body {
+	background-color: #fff;
+}
+-- hugo.toml --
+-- layouts/home.html --
+{{ $cssOpts := (dict  "transpiler" "libsass") }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  }}
+{{ $r.RelPermalink }}
+	`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptInfo())
+
+	b.AssertLogContains("deprecated: css.Sass: libsass was deprecated in Hugo v0.153.0")
 }

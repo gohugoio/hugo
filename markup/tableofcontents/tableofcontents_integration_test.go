@@ -17,6 +17,7 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -118,8 +119,9 @@ CONTENT
 
 	files = strings.ReplaceAll(files, `2`, `"x"`)
 
-	b, _ = hugolib.TestE(t, files)
-	b.AssertLogMatches(`error calling ToHTML: startLevel: unable to cast "x" of type string`)
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, `error calling ToHTML: startLevel: unable to cast "x" of type string`)
 }
 
 func TestHeadingsNilpointerIssue11843(t *testing.T) {

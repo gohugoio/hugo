@@ -58,34 +58,45 @@ weight = 200
 -- content/_index.en.md --
 ---
 title: "Home"
-roles: ["**"]
-versions: ["**"]
+sites:
+  matrix:
+    roles: ["**"]
+    versions: ["**"]
 ---
 -- content/_index.nn.md --
 ---
 title: "Heim"
-roles: ["**"]
-versions: ["**"]
+sites:
+  matrix:
+    roles: ["**"]
+    versions: ["**"]
 ---
 -- content/memberonlypost.md --
 ---
 title: "Member Only"
-roles: ["member"]
-languages: ["**"]
+sites:
+  matrix:
+    roles: ["member"]
+    languages: ["**"]
 ---
 Member content.
 -- content/publicpost.md --
 ---
 title: "Public"
-versions: ["v1.2.3", "v2.**", "! v2.1.*"]
-versionDelegees: ["v3**"]
+sites:
+  matrix:
+    versions: ["! v2.1.*", "v1.2.3", "v2.**"]
+  complements:
+    versions: ["v3**"]
 ---
 Users with guest role will see this.
 -- content/v3publicpost.md --
 ---
 title: "Public v3"
-versions: ["v3**"]
-languages: ["**"]
+sites:
+  matrix:
+    versions: ["v3**"]
+    languages: ["**"]
 ---
 Users with guest role will see this.
 -- layouts/all.html --
@@ -103,6 +114,12 @@ Rotate(role): {{ with .Rotate "role" }}{{ range . }}{{ template "printp" . }}|{{
 
 	for range 3 {
 		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/guest/v2.0.0/en/publicpost/index.html",
+			"Rotate(language): /guest/v2.0.0/en/publicpost/:/l:en/v:v2.0.0/r:guest|$",
+			"Rotate(version): /guest/v4.0.0/en/publicpost/:/l:en/v:v4.0.0/r:guest|/guest/v3.0.0/en/publicpost/:/l:en/v:v3.0.0/r:guest|/guest/v2.0.0/en/publicpost/:/l:en/v:v2.0.0/r:guest|/guest/v1.2.3/en/publicpost/:/l:en/v:v1.2.3/r:guest|$",
+			"Rotate(role): /guest/v2.0.0/en/publicpost/:/l:en/v:v2.0.0/r:guest|$",
+		)
 
 		b.AssertFileContent("public/guest/v3.0.0/en/index.html",
 			"Rotate(language): /guest/v3.0.0/en/:/l:en/v:v3.0.0/r:guest|/guest/v3.0.0/nn/:/l:nn/v:v3.0.0/r:guest|$",

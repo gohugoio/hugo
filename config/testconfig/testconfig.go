@@ -22,6 +22,7 @@ import (
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/internal/warpc"
 	toml "github.com/pelletier/go-toml/v2"
 	"github.com/spf13/afero"
 )
@@ -60,6 +61,14 @@ func GetTestDeps(fs afero.Fs, cfg config.Provider, beforeInit ...func(*deps.Deps
 	d := &deps.Deps{
 		Conf: conf,
 		Fs:   hugofs.NewFrom(fs, conf.BaseConfig()),
+		WasmDispatchers: warpc.AllDispatchers(
+			warpc.Options{
+				PoolSize: 1,
+			},
+			warpc.Options{
+				PoolSize: 1,
+			},
+		),
 	}
 	for _, f := range beforeInit {
 		f(d)

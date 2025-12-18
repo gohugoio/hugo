@@ -19,8 +19,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"image/gif"
-	_ "image/png"
 	"io"
 	"os"
 	"strings"
@@ -30,6 +28,7 @@ import (
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/disintegration/gift"
@@ -40,9 +39,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/resources/images"
-
-	// Blind import for image.Decode
-	_ "golang.org/x/image/webp"
 )
 
 var (
@@ -115,7 +111,7 @@ func (i *imageResource) getExif() *exif.ExifInfo {
 			defer f.Close()
 
 			filename := i.getResourcePaths().Path()
-			x, err := i.getSpec().imaging.DecodeExif(filename, mf, f)
+			x, err := i.getSpec().Imaging.DecodeExif(filename, mf, f)
 			if err != nil {
 				i.getSpec().Logger.Warnf("Unable to decode Exif metadata from image: %s", i.Key())
 				return nil
@@ -216,6 +212,7 @@ func (i *imageResource) Process(spec string) (images.ImageResource, error) {
 // filter and returns the transformed image. If one of width or height is 0, the image aspect
 // ratio is preserved.
 func (i *imageResource) Resize(spec string) (images.ImageResource, error) {
+	defer herrors.Recover()
 	return i.processActionSpec(images.ActionResize, spec)
 }
 
@@ -383,7 +380,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 		}
 
 		ci := i.clone(converted)
-		targetPath := i.relTargetPathFromConfig(conf, i.getSpec().imaging.Cfg.SourceHash)
+		targetPath := i.relTargetPathFromConfig(conf, i.getSpec().Imaging.Cfg.SourceHash)
 		ci.setTargetPath(targetPath)
 		ci.Format = conf.TargetFormat
 		ci.setMediaType(conf.TargetFormat.MediaType())
@@ -396,15 +393,6 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 	return img, nil
 }
 
-type giphy struct {
-	image.Image
-	gif *gif.GIF
-}
-
-func (g *giphy) GIF() *gif.GIF {
-	return g.gif
-}
-
 // DecodeImage decodes the image source into an Image.
 // This for internal use only.
 func (i *imageResource) DecodeImage() (image.Image, error) {
@@ -414,15 +402,7 @@ func (i *imageResource) DecodeImage() (image.Image, error) {
 	}
 	defer f.Close()
 
-	if i.Format == images.GIF {
-		g, err := gif.DecodeAll(f)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode gif: %w", err)
-		}
-		return &giphy{gif: g, Image: g.Image[0]}, nil
-	}
-	img, _, err := image.Decode(f)
-	return img, err
+	return i.getSpec().Imaging.Codec.DecodeFormat(i.Format, f)
 }
 
 func (i *imageResource) clone(img image.Image) *imageResource {
@@ -447,7 +427,7 @@ func (i *imageResource) getImageMetaCacheTargetPath() string {
 	// Last increment: v0.130.0 when change to the new imagemeta library for Exif.
 	const imageMetaVersionNumber = 2
 
-	cfgHash := i.getSpec().imaging.Cfg.SourceHash
+	cfgHash := i.getSpec().Imaging.Cfg.SourceHash
 	df := i.getResourcePaths()
 	p1, _ := paths.FileAndExt(df.File)
 	h := i.hash()

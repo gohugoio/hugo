@@ -131,7 +131,6 @@ func newImageConfig(action string, width, height, quality, rotate int, filter, a
 	var c ImageConfig = GetDefaultImageConfig(nil)
 	c.Action = action
 	c.TargetFormat = PNG
-	c.Hint = 2
 	c.Width = width
 	c.Height = height
 	c.Quality = quality

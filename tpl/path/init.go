@@ -33,12 +33,29 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
-		ns.AddMethodMapping(ctx.Split,
+		ns.AddMethodMapping(ctx.Base,
 			nil,
-			[][2]string{
-				{`{{ "/my/path/filename.txt" | path.Split }}`, `/my/path/|filename.txt`},
-				{fmt.Sprintf(`{{ %q | path.Split }}`, filepath.FromSlash("/my/path/filename.txt")), `/my/path/|filename.txt`},
-			},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.BaseName,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Clean,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Dir,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Ext,
+			nil,
+			[][2]string{},
 		)
 
 		testDir := filepath.Join("my", "path")
@@ -52,6 +69,14 @@ func init() {
 				{fmt.Sprintf(`{{ %q | path.Ext }}`, testFile), `.txt`},
 				{fmt.Sprintf(`{{ %q | path.Base }}`, testFile), `filename.txt`},
 				{fmt.Sprintf(`{{ %q | path.Dir }}`, testFile), `my/path`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Split,
+			nil,
+			[][2]string{
+				{`{{ "/my/path/filename.txt" | path.Split }}`, `/my/path/|filename.txt`},
+				{fmt.Sprintf(`{{ %q | path.Split }}`, filepath.FromSlash("/my/path/filename.txt")), `/my/path/|filename.txt`},
 			},
 		)
 

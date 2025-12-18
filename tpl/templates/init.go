@@ -31,12 +31,9 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
-		ns.AddMethodMapping(ctx.Exists,
+		ns.AddMethodMapping(ctx.Current,
 			nil,
-			[][2]string{
-				{`{{ if (templates.Exists "_partials/header.html") }}Yes!{{ end }}`, `Yes!`},
-				{`{{ if not (templates.Exists "_partials/doesnotexist.html") }}No!{{ end }}`, `No!`},
-			},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Defer,
@@ -44,9 +41,18 @@ func init() {
 			[][2]string{},
 		)
 
+		// For internal use only.
 		ns.AddMethodMapping(ctx.DoDefer,
 			[]string{"doDefer"},
 			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Exists,
+			nil,
+			[][2]string{
+				{`{{ if (templates.Exists "_partials/header.html") }}Yes!{{ end }}`, `Yes!`},
+				{`{{ if not (templates.Exists "_partials/doesnotexist.html") }}No!{{ end }}`, `No!`},
+			},
 		)
 
 		return ns

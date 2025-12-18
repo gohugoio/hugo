@@ -117,7 +117,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			}
 			errors = append(errors, e)
 		}
-		to <- h.pickOneAndLogTheRest(errors)
+		to <- h.filterAndJoinErrors(errors)
 
 		close(to)
 	}(errCollector, errs)

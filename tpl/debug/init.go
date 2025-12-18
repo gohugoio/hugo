@@ -40,6 +40,34 @@ func init() {
 			},
 		)
 
+		// For internal use only. Used in tests.
+		ns.AddMethodMapping(ctx.TestDeprecationErr,
+			nil,
+			[][2]string{},
+		)
+
+		// For internal use only. Used in tests.
+		ns.AddMethodMapping(ctx.TestDeprecationInfo,
+			nil,
+			[][2]string{},
+		)
+
+		// For internal use only. Used in tests.
+		ns.AddMethodMapping(ctx.TestDeprecationWarn,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Timer,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.VisualizeSpaces,
+			nil,
+			[][2]string{},
+		)
+
 		return ns
 	}
 

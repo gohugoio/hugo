@@ -240,6 +240,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		}
 	}
 
+	compilationCacheDir := filepath.Join(conf.Dirs().CacheDir, "_warpc")
+
 	firstSiteDeps := &deps.Deps{
 		Fs:   cfg.Fs,
 		Log:  logger,
@@ -251,13 +253,21 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 		MemCache:            memCache,
 		TranslationProvider: i18n.NewTranslationProvider(),
 		WasmDispatchers: warpc.AllDispatchers(
+			// Katex options.
 			warpc.Options{
-				CompilationCacheDir: filepath.Join(conf.Dirs().CacheDir, "_warpc"),
+				CompilationCacheDir: compilationCacheDir,
 
 				// Katex is relatively slow.
 				PoolSize: 8,
-				Infof:    logger.InfoCommand("wasm").Logf,
-				Warnf:    logger.WarnCommand("wasm").Logf,
+				Infof:    logger.InfoCommand("katex").Logf,
+				Warnf:    logger.WarnCommand("katex").Logf,
+			},
+			// WebP options.
+			warpc.Options{
+				CompilationCacheDir: compilationCacheDir,
+				PoolSize:            2,
+				Infof:               logger.InfoCommand("webp").Logf,
+				Warnf:               logger.WarnCommand("webp").Logf,
 			},
 		),
 	}
@@ -1536,13 +1546,18 @@ func (s *Site) resetBuildState(sourceChanged bool) {
 
 func (s *Site) errorCollator(results <-chan error, errs chan<- error) {
 	var errors []error
+	defer func() {
+		errs <- s.h.filterAndJoinErrors(errors)
+		close(errs)
+	}()
+	const maxErrors = 10
 	for e := range results {
 		errors = append(errors, e)
+		if len(errors) >= maxErrors {
+			s.h.Stop()
+			break
+		}
 	}
-
-	errs <- s.h.pickOneAndLogTheRest(errors)
-
-	close(errs)
 }
 
 // GetPage looks up a page of a given type for the given ref.

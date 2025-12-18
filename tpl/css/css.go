@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types/css"
@@ -91,7 +92,7 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 		targetPath string
 		err        error
 		ok         bool
-		transpiler = sass.TranspilerLibSass
+		transpiler = sass.TranspilerLibSass // Deprecated default. Will be dartsass in future versions. See below.
 	)
 
 	r, targetPath, ok = resourcehelpers.ResolveIfFirstArgIsString(args)
@@ -106,7 +107,10 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 	if m != nil {
 		if t, _, found := maps.LookupEqualFold(m, "transpiler"); found {
 			switch t {
-			case sass.TranspilerDart, sass.TranspilerLibSass:
+			case sass.TranspilerDart:
+				transpiler = cast.ToString(t)
+			case sass.TranspilerLibSass:
+				hugo.Deprecate("css.Sass: libsass", "Use dartsass instead. See https://gohugo.io/functions/css/sass/#dart-sass", "v0.153.0")
 				transpiler = cast.ToString(t)
 			default:
 				return nil, fmt.Errorf("unsupported transpiler %q; valid values are %q or %q", t, sass.TranspilerLibSass, sass.TranspilerDart)
@@ -162,13 +166,28 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
+		ns.AddMethodMapping(ctx.PostCSS,
+			[]string{"postCSS"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Quoted,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Sass,
 			[]string{"toCSS"},
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.PostCSS,
-			[]string{"postCSS"},
+		ns.AddMethodMapping(ctx.TailwindCSS,
+			nil,
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Unquoted,
+			nil,
 			[][2]string{},
 		)
 
