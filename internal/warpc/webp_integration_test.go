@@ -14,6 +14,8 @@
 package warpc_test
 
 import (
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -70,10 +72,19 @@ sourcefilename: ../../resources/testdata/webp/invalid.webp
 {{ $resized := $image.Resize "123x456 webp" }}
 Resized RelPermalink: {{ $resized.RelPermalink }}|
 `
+	tempDir := t.TempDir()
 
-	b, err := hugolib.TestE(t, files)
-
+	b, err := hugolib.TestE(t, files, hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+		cfg.NeedsOsFS = true
+		cfg.WorkingDir = tempDir
+	}))
 	b.Assert(err, qt.IsNotNil)
+
+	if runtime.GOOS != "windows" {
+		// Make sure the full image filename is in the error message.
+		filename := filepath.Join(tempDir, "assets/invalid.webp")
+		b.Assert(err.Error(), qt.Contains, filename)
+	}
 }
 
 // This test isn't great, but we have golden tests to verify the output itself.

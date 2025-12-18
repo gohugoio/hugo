@@ -242,6 +242,7 @@ type baseResourceInternal interface {
 	resource.Source
 	resource.NameNormalizedProvider
 
+	sourcePath() string
 	fileInfo
 	mediaTypeAssigner
 	targetPather
