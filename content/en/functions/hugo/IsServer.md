@@ -10,8 +10,6 @@ params:
     signatures: [hugo.IsServer]
 ---
 
-{{< new-in 0.120.0 />}}
-
 ```go-html-template
 {{ hugo.IsServer }} → true/false
 ```

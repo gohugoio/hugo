@@ -1,6 +1,5 @@
 {{- $heading := "See also" }}
-{{- $related := site.Pages.Related . }}
-{{- $related = $related | complement .CurrentSection.Pages | first 7 }}
+{{- $related := site.Pages.Related . | first 7}}
 
 {{- with $related }}
   {{ $.Store.Set "hasRelated" true }}

@@ -32,7 +32,7 @@ For a complete guide to contributing to Hugo, see the [Contribution Guide].
 To build the extended or extended/deploy edition from source you must:
 
 1. Install [Git]
-1. Install [Go] version 1.23.0 or later
+1. Install [Go] version 1.24.0 or later
 1. Install a C compiler, either [GCC] or [Clang]
 1. Update your `PATH` environment variable as described in the [Go documentation]
 
@@ -102,7 +102,7 @@ Step 7
 : Commit your changes with a descriptive commit message:
 
   - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
-    - Begin the summary with one of content, theme, config, all, or misc, followed by a colon, a space, and a brief description of the change beginning with a capital letter
+    - Begin the summary with the name of the package, followed by a colon, a space, and a brief description of the change beginning with a capital letter
     - Use imperative present tense
     - See the [commit message guidelines] for requirements
   - Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
@@ -143,7 +143,7 @@ CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 To build and install a specific release:
 
 ```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.148.0
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.152.2
 ```
 
 To build and install at the latest commit on the master branch:

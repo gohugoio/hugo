@@ -235,18 +235,15 @@ The alias from the previous URL to the new URL is a client-side redirect:
   <head>
     <title>https://example.org/posts/new-file-name/</title>
     <link rel="canonical" href="https://example.org/posts/new-file-name/">
-    <meta name="robots" content="noindex">
     <meta charset="utf-8">
     <meta http-equiv="refresh" content="0; url=https://example.org/posts/new-file-name/">
   </head>
 </html>
 ```
 
-Collectively, the elements in the `head` section:
+The `link rel="canonical"` tag informs search engines that the new URL is the preferred or "canonical" version of the page. This is crucial for SEO, as it prevents issues with duplicate content by consolidating all ranking signals to a single URL.
 
-- Tell search engines that the new URL is canonical
-- Tell search engines not to index the previous URL
-- Tell the browser to redirect to the new URL
+The `http-equiv="refresh"` meta tag instructs the web browser to automatically redirect the user to the new URL. This ensures that anyone who accesses the old alias URL is seamlessly taken to the correct, updated page.
 
 Hugo renders alias files before rendering pages. A new page with the previous file name will overwrite the alias, as expected.
 
@@ -263,4 +260,4 @@ Page
 [`baseURL`]: /configuration/all/#baseurl
 [removed in a future release]: https://github.com/gohugoio/hugo/issues/4733
 [reserved characters]: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions
-[source code]: {{% eturl alias %}}
+[source code]: <{{% eturl alias %}}>

@@ -29,6 +29,11 @@ weight: 10
 [Syntax Highlighting for Hugo Shortcodes](https://marketplace.visualstudio.com/items?itemName=kaellarkin.hugo-shortcode-syntax)
 : This extension adds some syntax highlighting for Shortcodes, making visual identification of individual pieces easier.
 
+## JetBrains IDEs
+
+[Smart Hugo](https://smarthugo.dev)
+: Plugin for IntelliJ IDEA, WebStorm, PhpStorm, and other JetBrains IDEs that adds Hugo template support including syntax highlighting, actions completion, code formatting, and optional advanced features.
+
 ## Emacs
 
 [emacs-easy-hugo](https://github.com/masasam/emacs-easy-hugo)

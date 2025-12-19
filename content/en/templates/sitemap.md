@@ -49,6 +49,6 @@ disableKinds = ['sitemap']
 {{</ code-toggle >}}
 
 [`publishDir`]: /configuration/all/#publishdir
-[embedded sitemap template]: {{% eturl sitemap %}}
-[embedded sitemapindex template]: {{% eturl sitemapindex %}}
+[embedded sitemap template]: <{{% eturl sitemap %}}>
+[embedded sitemapindex template]: <{{% eturl sitemapindex %}}>
 [sitemap protocol]: https://www.sitemaps.org/protocol.html

@@ -5,14 +5,12 @@ url: /commands/hugo_new_theme/
 ---
 ## hugo new theme
 
-Create a new theme (skeleton)
+Create a new theme
 
 ### Synopsis
 
-Create a new theme (skeleton) called [name] in ./themes.
-New theme is a skeleton. Please add content to the touched files. Add your
-name to the copyright line in the license and adjust the theme.toml file
-according to your needs.
+Create a new theme with the specified name in the ./themes directory.
+This generates a functional theme including template examples and sample content.
 
 ```
 hugo new theme [name] [flags]
@@ -21,7 +19,8 @@ hugo new theme [name] [flags]
 ### Options
 
 ```
-  -h, --help   help for theme
+      --format string   preferred file format (toml, yaml or json) (default "toml")
+  -h, --help            help for theme
 ```
 
 ### Options inherited from parent commands

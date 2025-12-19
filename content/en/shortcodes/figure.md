@@ -106,4 +106,4 @@ source = 'static'
 target = 'assets'
 {{< /code-toggle >}}
 
-[source code]: {{% eturl figure %}}
+[source code]: <{{% eturl figure %}}>

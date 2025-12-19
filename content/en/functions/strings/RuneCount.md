@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: []
     returnType: int
-    signatures: [strings.RuneCount INPUT]
+    signatures: [strings.RuneCount STRING]
 aliases: [/functions/strings.runecount]
 ---
 

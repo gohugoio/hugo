@@ -71,4 +71,4 @@ details > summary > * { }
 details > :not(summary) { }
 ```
 
-[source code]: {{% eturl details %}}
+[source code]: <{{% eturl details %}}>

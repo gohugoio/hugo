@@ -129,3 +129,8 @@ body {
   text-decoration: none;
   padding-left: .0625em;
 }
+
+/* Code spans within paragraphs, tables cells, list items, etc. */
+:not(pre) > code {
+  white-space: nowrap;
+}

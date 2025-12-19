@@ -9,7 +9,7 @@ aliases: [/content/sections/]
 
 ## Page bundles
 
-Hugo `0.32` announced page-relative images and other resources packaged into `Page Bundles`.
+Hugo supports page-relative images and other resources packaged into `Page Bundles`.
 
 These terms are connected, and you also need to read about [Page Resources](/content-management/page-resources) and [Image Processing](/content-management/image-processing) to get the full picture.
 

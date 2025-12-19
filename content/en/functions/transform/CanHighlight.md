@@ -2,7 +2,7 @@
 title: transform.CanHighlight
 description: Reports whether the given code language is supported by the Chroma highlighter.
 categories: []
-keywords: []
+keywords: [highlight]
 params:
   functions_and_methods:
     aliases: []

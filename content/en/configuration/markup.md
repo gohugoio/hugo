@@ -94,9 +94,23 @@ enable = true
 
 With this configuration, to format text as deleted, wrap it with double-tildes.
 
-#### Passthrough
+#### Footnote
 
-{{< new-in 0.122.0 />}}
+Enabled by default, the Footnote extension enables inclusion of footnotes in Markdown.
+
+enable
+: {{< new-in 0.151.0 />}}
+: (`bool`) Whether to enable the Footnotes extension. Default is `true`.
+
+backlinkHTML
+: {{< new-in 0.151.0 />}}
+: (`string`) The HTML to be displayed at the end of a footnote that links the user back to the corresponding reference in the main text. The default is &#x21a9;&#xfe0e; (a return arrow symbol).
+
+enableAutoIDPrefix
+: {{< new-in 0.151.0 />}}
+: (`bool`) Whether to prepend a unique prefix to footnote IDs, preventing clashes when multiple documents are rendered together. This prefix is unique to each logical path, which means that the prefix is not unique across content dimensions such as language. Default is `false`.
+
+#### Passthrough
 
 Enable the Passthrough extension to include mathematical equations and expressions in Markdown using LaTeX markup. See [mathematics in Markdown] for details.
 
@@ -202,7 +216,7 @@ backend
 : (`string`) The backend output file format. Default is `html5`.
 
 extensions
-: (`string array`) An array of enabled extensions, one or more of `asciidoctor-html5s`, `asciidoctor-bibtex`, `asciidoctor-diagram`, `asciidoctor-interdoc-reftext`, `asciidoctor-katex`, `asciidoctor-latex`, `asciidoctor-mathematical`, or `asciidoctor-question`.
+: (`string array`) An array of enabled extensions, such as `asciidoctor-html5s`, `asciidoctor-bibtex`, or `asciidoctor-diagram`.
 
   > [!note]
   > To mitigate security risks, entries in the extension array may not contain forward slashes (`/`), backslashes (`\`), or periods. Due to this restriction, extensions must be in Ruby's `$LOAD_PATH`.

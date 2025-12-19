@@ -35,4 +35,4 @@ Access nested values by [chaining](g) the [identifiers](g):
 {{%/* param my.nested.param */%}}
 ```
 
-[source code]: {{% eturl param %}}
+[source code]: <{{% eturl param %}}>

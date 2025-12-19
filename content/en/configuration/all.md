@@ -47,7 +47,7 @@ cascade
 : See [configure cascade](/configuration/cascade/).
 
 cleanDestinationDir
-: (`bool`) Whether to remove files from the site's destination directory that do not have corresponding files in the `static` directory during the build. Default is `false`.
+: (`bool`) Whether to remove files from the [`publishDir`](#publishdir) that do not exist in the [`staticDir`](#staticdir) when building the site. This setting will not take effect if the `staticDir` does not exist. Note that `.gitignore` and `.gitattributes` files, along with directories named `.git`, are always preserved in the `publishDir`. Default is `false`.
 
 contentDir
 : (`string`) The designated directory for content files. Default is `content`. {{% module-mounts-note %}}
@@ -262,7 +262,7 @@ staticDir
 : (`string`) The designated directory for static files. Default is `static`. {{% module-mounts-note %}}
 
 summaryLength
-: (`int`) Applicable to [automatic summaries], the minimum number of words returned by the [`Summary`] method on a `Page` object. The `Summary` method will return content truncated at the paragraph boundary closest to the specified `summaryLength`, but at least this minimum number of words.
+: (`int`) Applicable to [automatic summaries], the minimum number of words returned by the [`Summary`] method on a `Page` object. The `Summary` method will return content truncated at the paragraph boundary closest to the specified `summaryLength`, but at least this minimum number of words. Default is `70`.
 
 taxonomies
 : See [configure taxonomies](/configuration/taxonomies/).
@@ -350,9 +350,9 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
 [default front matter configuration]: /configuration/front-matter/
 [duration]: https://pkg.go.dev/time#Duration
-[embedded alias template]: {{% eturl alias %}}
-[embedded Open Graph template]: {{% eturl opengraph %}}
-[embedded RSS template]: {{% eturl rss %}}
+[embedded alias template]: <{{% eturl alias %}}>
+[embedded Open Graph template]: <{{% eturl opengraph %}}>
+[embedded RSS template]: <{{% eturl rss %}}>
 [IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 [module mounts]: /configuration/module/#mounts
 [os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir

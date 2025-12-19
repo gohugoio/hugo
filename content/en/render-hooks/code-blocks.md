@@ -119,7 +119,7 @@ Hugo includes an [embedded code block render hook] to render [GoAT diagrams].
 [Chroma]: https://github.com/alecthomas/chroma/
 [code fence]: https://spec.commonmark.org/current/#code-fence
 [diagrams]: /content-management/diagrams/#mermaid-diagrams
-[embedded code block render hook]: {{% eturl render-codeblock-goat %}}
+[embedded code block render hook]: <{{% eturl render-codeblock-goat %}}>
 [GoAT diagrams]: /content-management/diagrams/#goat-diagrams-ascii
 [highlighting options]: /functions/transform/highlight/#options
 [info string]: https://spec.commonmark.org/current/#info-string

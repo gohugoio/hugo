@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [lower]
     returnType: string
-    signatures: [strings.ToLower INPUT]
+    signatures: [strings.ToLower STRING]
 aliases: [/functions/lower]
 ---
 

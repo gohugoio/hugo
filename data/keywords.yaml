@@ -7,6 +7,7 @@
 # will decrease over time, though the initial implementation will require some
 # effort.
 
-- menu
-- resource
 - highlight
+- menu
+- random
+- resource

@@ -59,7 +59,7 @@ View your site at the URL displayed in your terminal. Press `Ctrl + C` to stop H
 
 ### Explanation of commands
 
-Create the [directory structure] for your project in the `quickstart` directory.
+Create the [site skeleton] for your project in the `quickstart` directory.
 
 ```text
 hugo new site quickstart
@@ -199,7 +199,7 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
 [are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
 [demonstration site]: https://gohugo-ananke-theme-demo.netlify.app/
-[directory structure]: /getting-started/directory-structure/
+[site skeleton]: /getting-started/directory-structure/#site-skeleton
 [documentation]: https://github.com/theNewDynamic/gohugo-theme-ananke#readme
 [draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
 [draft, future, or expired content]: /getting-started/usage/#draft-future-and-expired-content

@@ -5,13 +5,11 @@ url: /commands/hugo_new_site/
 ---
 ## hugo new site
 
-Create a new site (skeleton)
+Create a new site
 
 ### Synopsis
 
-Create a new site in the provided directory.
-The new site will have the correct structure, but no content or theme yet.
-Use `hugo new [contentPath]` to create new content.
+Create a new site at the specified path.
 
 ```
 hugo new site [path] [flags]

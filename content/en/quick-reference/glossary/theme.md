@@ -2,4 +2,4 @@
 title: theme
 ---
 
-A _theme_ is a packaged combination of [_archetypes_](g), assets, content, data, [_templates_](g), translation tables, static files, or configuration settings. A theme may serve as the basis for a new site, or to augment an existing site.
+A _theme_ is a [_module_](g) that delivers a complete set of [components](g) defining a site's layout, presentation, and behavior. While every theme is a module, not every module is a theme.

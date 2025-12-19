@@ -103,5 +103,5 @@ title
 [`publishDir`]: /configuration/all/#publishdir
 [QR code]: https://en.wikipedia.org/wiki/QR_code
 [related documentation]: /functions/images/qr/
-[source code]: {{% eturl qr %}}
+[source code]: <{{% eturl qr %}}>
 [vCard]: <https://en.wikipedia.org/wiki/VCard>

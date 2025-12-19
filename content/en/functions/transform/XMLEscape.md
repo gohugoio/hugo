@@ -10,8 +10,6 @@ params:
     signatures: [transform.XMLEscape INPUT]
 ---
 
-{{< new-in 0.121.0 />}}
-
 The `transform.XMLEscape` function removes [disallowed characters] as defined in the XML specification, then escapes the result by replacing the following characters with [HTML entities]:
 
 - `"` → `&#34;`
