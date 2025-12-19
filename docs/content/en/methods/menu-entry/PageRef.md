@@ -9,9 +9,9 @@ params:
     signatures: [MENUENTRY.PageRef]
 ---
 
-The use case for this method is rare.
-
-In almost also scenarios you should use the [`URL`] method instead.
+> [!note]
+> The use case for this method is rare.
+> In almost also scenarios you should use the [`URL`] method instead.
 
 ## Explanation
 

@@ -40,9 +40,9 @@ Step 2
   env:
     variables:
       # Application versions
-      DART_SASS_VERSION: 1.90.0
-      GO_VERSION: 1.24.5
-      HUGO_VERSION: 0.148.2
+      DART_SASS_VERSION: 1.96.0
+      GO_VERSION: 1.25.5
+      HUGO_VERSION: 0.152.2
       # Time zone
       TZ: Europe/Oslo
       # Cache

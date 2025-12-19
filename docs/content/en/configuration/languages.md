@@ -185,9 +185,9 @@ public
 [`Language.LanguageName`]: /methods/site/language/#languagename
 [`Language.Weight`]: /methods/site/language/#weight
 [`Title`]: /methods/site/title/
-[embedded alias template]: {{% eturl alias %}}
-[embedded OpenGraph template]: {{% eturl opengraph %}}
-[embedded RSS template]: {{% eturl rss %}}
+[embedded alias template]: <{{% eturl alias %}}>
+[embedded OpenGraph template]: <{{% eturl opengraph %}}>
+[embedded RSS template]: <{{% eturl rss %}}>
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
 [translating by file name]: /content-management/multilingual/#translation-by-file-name

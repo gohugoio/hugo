@@ -90,10 +90,11 @@ Consider this site configuration:
 {{< code-toggle file=hugo >}}
 [frontmatter]
 date = [':filename', ':default']
+publishDate = [':filename', ':default']
 lastmod = ['lastmod', ':fileModTime']
 {{< /code-toggle >}}
 
-To determine `date`, Hugo tries to extract the date from the file name, falling back to the default ordered sequence of date fields.
+To determine `date` and `publishDate`, Hugo tries to extract the value from the file name, falling back to the default ordered sequence of date fields.
 
 To determine `lastmod`, Hugo looks for a `lastmod` field in front matter, falling back to the file's last modification timestamp.
 

@@ -41,7 +41,7 @@ The `default` function returns the first argument if the second argument is not 
 {{ default 42 "" }} → 42
 {{ default 42 dict }} → 42
 {{ default 42 slice }} → 42
-{{ default 42 <nil> }} → 42
+{{ default 42 nil }} → 42
 ```
 
 [`or`]: /functions/go-template/or/

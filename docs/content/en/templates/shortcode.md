@@ -63,10 +63,10 @@ foo|html|en|`layouts/_shortcodes/foo.html.en.html`
 
 Shortcode name|Output format|Language|Template path
 :--|:--|:--|:--
-foo|json|en|`layouts/_shortcodes/foo.en.json`
-foo|json|en|`layouts/_shortcodes/foo.json`
-foo|json|en|`layouts/_shortcodes/foo.json.json`
-foo|json|en|`layouts/_shortcodes/foo.json.en.json`
+foo|rss|en|`layouts/_shortcodes/foo.en.rss.xml`
+foo|rss|en|`layouts/_shortcodes/foo.rss.xml`
+foo|rss|en|`layouts/_shortcodes/foo.en.xml`
+foo|rss|en|`layouts/_shortcodes/foo.xml`
 
 ## Methods
 

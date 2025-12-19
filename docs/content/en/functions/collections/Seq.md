@@ -32,4 +32,4 @@ A contrived example of iterating over a sequence of integers:
 ```
 
 > [!note]
-> The slice created by the `seq` function is limited to 2000 elements.
+> The slice created by this function is limited to 1 million elements.

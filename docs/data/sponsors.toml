@@ -12,3 +12,10 @@
   link            = "https://www.jetbrains.com/go/?utm_source=OSS&utm_medium=referral&utm_campaign=hugo"
   logo            = "images/sponsors/goland.svg"
   bgcolor         = "#f4f4f4"
+
+[[banners]]
+  name            = "CloudCannon"
+  link            = "https://cloudcannon.com/hugo-cms/?utm_campaign=HugoSponsorship&utm_content=gohugo&utm_medium=banner&utm_source=sponsor"
+  logo            = "images/sponsors/cloudcannon-cms-logo.svg"
+  no_query_params = true
+  bgcolor         = "#ffffff"

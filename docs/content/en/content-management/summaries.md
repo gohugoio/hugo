@@ -33,6 +33,35 @@ This is the first paragraph.
 This is the second paragraph.
 ```
 
+> [!NOTE]
+> Place the summary divider on its own line. Do not place it inline with other content.
+
+Correct placement:
+
+```text {file="content/example.md"}
+---
+title: 'Example'
+---
+
+This is an example of **strong text** in a sentence. This is another sentence.
+
+<!--more-->
+
+This is another paragraph.
+```
+
+Incorrect placement:
+
+```text {file="content/example.md"}
+---
+title: 'Example'
+---
+
+This is an example of **strong text** <!--more--> in a sentence. This is another sentence.
+
+This is another paragraph.
+```
+
 When using the Emacs Org Mode [content format], use a `# more` divider to indicate the end of the summary.
 
 [content format]: /content-management/formats/
@@ -79,6 +108,9 @@ For example, with a `summaryLength` of 7, the automatic summary will be:
 <p>This is the second paragraph.</p>
 ```
 
+> [!warning]
+> Automatic `.Summary` may cut block tags (e.g., `blockquote`) in the middle when `summaryLength` is reached, causing the browser to recover the end tag (the end tag will be inserted before the parent's end tag), resulting in unexpected rendering behavior. To avoid this, wrap `.Summary` in a `<div>`; alternatively, wrap it together with the heading tag using `<section>`. You can avoid this entirely by using a manual summary. See issue [#14044] for details.
+
 ## Comparison
 
 Each summary type has different characteristics:
@@ -121,3 +153,5 @@ Instead of calling the `Summary` method on a `Page` object, use the [`strings.Tr
   </div>
 {{ end }}
 ```
+
+[#14044]: https://github.com/gohugoio/hugo/issues/14044

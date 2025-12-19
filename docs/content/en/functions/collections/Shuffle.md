@@ -2,7 +2,7 @@
 title: collections.Shuffle
 description: Returns a random permutation of a given array or slice.
 categories: []
-keywords: []
+keywords: [random]
 params:
   functions_and_methods:
     aliases: [shuffle]
@@ -27,3 +27,9 @@ To render an unordered list of 5 random pages from a page collection:
   {{ end }}
 </ul>
 ```
+
+{{< new-in 0.149.0 />}}
+
+Using the [`collections.D`][] function for the same task is significantly faster.
+
+[`collections.D`]: /functions/collections/D/

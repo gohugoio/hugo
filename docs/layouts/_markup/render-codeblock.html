@@ -10,6 +10,7 @@ may also specify the following parameters:
 @param {bool} [details=false] Whether to wrap the highlighted code block within a details element.
 @param {bool} [open=false] Whether to initially display the content of the details element.
 @param {string} [summary=Details] The content of the details summary element rendered from Markdown to HTML.
+@param {bool} [trim=true] Whether to trim leading and trailing whitespace from the content of the code block.
 
 @returns {template.HTML}
 
@@ -30,6 +31,7 @@ may also specify the following parameters:
 {{- $details := false }}
 {{- $open := "" }}
 {{- $summary := or .Attributes.summary "Details" | .Page.RenderString }}
+{{- $trim := true }}
 {{- $ext := strings.TrimPrefix "." (path.Ext $file) }}
 {{- $lang := or .Type $ext "text" }}
 {{- if in (slice "html" "gotmpl") $lang }}
@@ -39,27 +41,35 @@ may also specify the following parameters:
   {{- $lang = "text" }}
 {{- end }}
 
-{{- with .Attributes.copy }}
-  {{- if in (slice true "true" 1) . }}
+{{- if collections.IsSet .Attributes "copy" }}
+  {{- if in (slice true "true" 1) .Attributes.copy }}
     {{- $copy = true }}
-  {{- else if in (slice false "false" 0) . }}
+  {{- else if in (slice false "false" 0) .Attributes.copy }}
     {{- $copy = false }}
   {{- end }}
 {{- end }}
 
-{{- with .Attributes.details }}
-  {{- if in (slice true "true" 1) . }}
+{{- if collections.IsSet .Attributes "details" }}
+  {{- if in (slice true "true" 1) .Attributes.details }}
     {{- $details = true }}
-  {{- else if in (slice false "false" 0) . }}
+  {{- else if in (slice false "false" 0) .Attributes.details }}
     {{- $details = false }}
   {{- end }}
 {{- end }}
 
-{{- with .Attributes.open }}
-  {{- if in (slice true "true" 1) . }}
+{{- if collections.IsSet .Attributes "open" }}
+  {{- if in (slice true "true" 1) .Attributes.open }}
     {{- $open = "open" }}
-  {{- else if in (slice false "false" 0) . }}
+  {{- else if in (slice false "false" 0) .Attributes.open }}
     {{- $open = "" }}
+  {{- end }}
+{{- end }}
+
+{{- if collections.IsSet .Attributes "trim" }}
+  {{- if in (slice true "true" 1) .Attributes.trim }}
+    {{- $trim = true }}
+  {{- else if in (slice false "false" 0) .Attributes.trim }}
+    {{- $trim = false }}
   {{- end }}
 {{- end }}
 
@@ -89,7 +99,11 @@ may also specify the following parameters:
   {{- end }}
 
   <div x-ref="code">
-    {{- transform.Highlight (strings.TrimSpace .Inner) $lang .Options }}
+    {{- $content := .Inner }}
+    {{- if $trim }}
+      {{- $content = strings.TrimSpace .Inner }}
+    {{- end }}
+    {{- transform.Highlight $content $lang .Options }}
   </div>
 </div>
 

@@ -1,6 +1,10 @@
 import { scrollToActive } from 'js/helpers/index';
+import { initColorScheme } from './alpinejs/stores/index';
 
 (function () {
+	// This allows us to initialize the color scheme before AlpineJS etc. is loaded.
+	initColorScheme();
+
 	// Now we know that the browser has JS enabled.
 	document.documentElement.classList.remove('no-js');
 

@@ -14,9 +14,9 @@ if any of the pages in the filter do not exist.
 @param {string} [filterType=""] The type of filter, either include or exclude.
 @param {string} [titlePrefix=""] The string to prepend to the link title.
 
-@example {{< list-pages-in-section path=/methods/resources >}}
-@example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude >}}
-@example {{< list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo >}}
+@example {{% list-pages-in-section path=/methods/resources %}}
+@example {{% list-pages-in-section path=/functions/images filter=some_filter filterType=exclude %}}
+@example {{% list-pages-in-section path=/functions/images filter=some_filter filterType=exclude titlePrefix=foo %}}
 */}}
 
 {{/* Initialize. */}}
@@ -54,7 +54,8 @@ if any of the pages in the filter do not exist.
             {{ with $titlePrefix }}
               {{ $linkTitle = printf "%s%s" . $linkTitle }}
             {{ end }}
-[{{ $linkTitle }}]({{ $page.RelPermalink }}){{/* Do not indent. */}}
+{{/* Use page Path as the link destination for render hook to resolve correctly. */}}
+[{{ $linkTitle }}]({{ $page.Path }}){{/* Do not indent. */}}
 : {{ $page.Description }}{{/* Do not indent. */}}
           {{ end }}
         {{ end }}

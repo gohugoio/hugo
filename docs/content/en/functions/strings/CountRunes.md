@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [countrunes]
     returnType: int
-    signatures: [strings.CountRunes INPUT]
+    signatures: [strings.CountRunes STRING]
 aliases: [/functions/countrunes]
 ---
 

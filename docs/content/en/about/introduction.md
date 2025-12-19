@@ -28,7 +28,7 @@ Learn more about Hugo's [features], [privacy protections], and [security model].
 [Hugo Modules]: /hugo-modules/
 [static site generator]: https://en.wikipedia.org/wiki/Static_site_generator
 [features]: /about/features/
-[security model]: about/security/
+[security model]: /about/security/
 [privacy protections]: /configuration/privacy
 
 {{< youtube 0RKpf3rK57I >}}

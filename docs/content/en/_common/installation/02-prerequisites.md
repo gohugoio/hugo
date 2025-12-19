@@ -29,6 +29,7 @@ Please refer to the relevant documentation for installation instructions:
 
 [cloudcannon]: https://cloudcannon.com/
 [cloudflare pages]: https://pages.cloudflare.com/
+[commit information]: /methods/page/GitInfo
 [dart sass install]: /functions/css/sass/#dart-sass
 [dart sass]: https://sass-lang.com/dart-sass
 [git install]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
@@ -37,4 +38,5 @@ Please refer to the relevant documentation for installation instructions:
 [gitlab pages]: https://docs.gitlab.com/ee/user/project/pages/
 [go install]: https://go.dev/doc/install
 [go]: https://go.dev/
+[hugo modules]: /hugo-modules/
 [netlify]: https://www.netlify.com/

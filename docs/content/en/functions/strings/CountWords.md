@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [countwords]
     returnType: int
-    signatures: [strings.CountWords INPUT]
+    signatures: [strings.CountWords STRING]
 aliases: [/functions/countwords]
 ---
 

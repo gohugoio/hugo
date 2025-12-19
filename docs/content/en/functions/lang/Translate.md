@@ -13,27 +13,27 @@ aliases: [/functions/i18n]
 
 The `lang.Translate` function returns the value associated with given key as defined in the translation table for the current language.
 
-If the key is not found in the translation table for the current language, the `lang.Translate` function falls back to the translation table for the [`defaultContentLanguage`].
+If the key is not found in the translation table for the current language, the `lang.Translate` function falls back to the translation table for the [`defaultContentLanguage`][].
 
 If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
 
 > [!note]
 > To list missing and fallback translations, use the `--printI18nWarnings` flag when building your site.
 >
-> To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`] to `true` in your site configuration.
+> To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`][] to `true` in your site configuration.
 
 ## Translation tables
 
-Create translation tables in the `i18n` directory, naming each file according to [RFC 5646]. Translation tables may be JSON, TOML, or YAML. For example:
+Create translation tables in the `i18n` directory, naming each file according to [RFC 5646][]. Translation tables may be JSON, TOML, or YAML. For example:
 
 ```text
 i18n/en.toml
 i18n/en-US.toml
 ```
 
-The base name must match the [language key] as defined in your site configuration.
+The base name must match the [language key][] as defined in your site configuration.
 
-Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7] are also supported. You may omit the `art-x-` prefix for brevity. For example:
+Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7][] are also supported. You may omit the `art-x-` prefix for brevity. For example:
 
 ```text
 i18n/art-x-hugolang.toml
@@ -94,7 +94,7 @@ i18n/
 └── pl.toml
 ```
 
-The Unicode [CLDR Plural Rules chart] describes the pluralization categories for each language.
+The Unicode [CLDR Plural Rules chart][CLDR] describes the pluralization categories for each language.
 
 The English translation table:
 
@@ -177,7 +177,7 @@ Template code:
 
 ## Reserved keys
 
-Hugo uses the [go-i18n] package to look up values in translation tables. This package reserves the following keys for internal use:
+Hugo uses the [go-i18n][] package to look up values in translation tables. This package reserves the following keys for internal use:
 
 id
 : (`string`) Uniquely identifies the message.
@@ -195,22 +195,22 @@ rightdelim
 : (`string`) The right Go template delimiter.
 
 zero
-: (`string`) The content of the message for the [CLDR] plural form "zero".
+: (`string`) The content of the message for the [CLDR][] plural form "zero".
 
 one
-: (`string`) The content of the message for the [CLDR] plural form "one".
+: (`string`) The content of the message for the [CLDR][] plural form "one".
 
 two
-: (`string`) The content of the message for the [CLDR] plural form "two".
+: (`string`) The content of the message for the [CLDR][] plural form "two".
 
 few
-: (`string`) The content of the message for the [CLDR] plural form "few".
+: (`string`) The content of the message for the [CLDR][] plural form "few".
 
 many
-: (`string`) The content of the message for the [CLDR] plural form "many".
+: (`string`) The content of the message for the [CLDR][] plural form "many".
 
 other
-: (`string`) The content of the message for the [CLDR] plural form "other".
+: (`string`) The content of the message for the [CLDR][] plural form "other".
 
 If you need to provide a translation for one of the reserved keys, you can prepend the word with an underscore. For example:
 
@@ -238,8 +238,7 @@ Then in your templates:
 
 [`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
 [`enableMissingTranslationPlaceholders`]: /configuration/all/#enablemissingtranslationplaceholders
-[CLDR]: https://www.unicode.org/cldr/charts/43/supplemental/language_plural_rules.html
-[CLDR Plural Rules chart]: https://www.unicode.org/cldr/charts/43/supplemental/language_plural_rules.html
+[CLDR]: https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
 [go-i18n]: https://github.com/nicksnyder/go-i18n
 [language key]: /configuration/languages/#language-keys
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
