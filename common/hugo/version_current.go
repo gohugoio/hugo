@@ -21,5 +21,5 @@ var CurrentVersion = version.Version{
 	Major:      0,
 	Minor:      153,
 	PatchLevel: 0,
-	Suffix:     "-DEV",
+	Suffix:     "",
 }
