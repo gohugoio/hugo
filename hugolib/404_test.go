@@ -92,3 +92,24 @@ Not found.
 
 	b.AssertFileContent("public/404.html", `Not found. Updated.`)
 }
+
+func Test404Panic14283(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/all.html --
+All. {{ .Kind }}. {{ .Title }}|
+-- content/404/_index.md --
+---
+title: "404 branch"
+---
+This is the 404 branch.
+
+`
+
+	b := Test(t, files) // panic.
+
+	b.AssertFileContent("public/404/index.html", "All. section. 404 branch|")
+}
