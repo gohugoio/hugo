@@ -150,7 +150,7 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		}
 		s := errBuf.String()
 		if options.InlineImports.DisableInlineImports && strings.Contains(s, "Can't resolve") {
-			s += "You may want to set the 'disableInlineImports' option to false to inline imports, see https://gohugo.io/functions/css/tailwindcss/#disableinlineimports"
+			s += "You may want to set the 'disableInlineImports' option to false to inline imports, see https://gohugo.io/docs/reference/functions/css/tailwindcss/#disableinlineimports"
 		}
 		return imp.toFileError(s)
 	}

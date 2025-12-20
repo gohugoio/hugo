@@ -30,8 +30,7 @@ func newDeployCommand() simplecobra.Commander {
 		short: "Deploy your site to a cloud provider",
 		long: `Deploy your site to a cloud provider
 
-See https://gohugo.io/hosting-and-deployment/hugo-deploy/ for detailed
-documentation.
+See https://gohugo.io/docs/guides/host-and-deploy/deploy-with-hugo-deploy/ for detailed documentation.
 `,
 		run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 			h, err := r.Hugo(flagsToCfgWithAdditionalConfigBase(cd, nil, "deployment"))

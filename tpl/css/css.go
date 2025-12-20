@@ -110,7 +110,7 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 			case sass.TranspilerDart:
 				transpiler = cast.ToString(t)
 			case sass.TranspilerLibSass:
-				hugo.Deprecate("css.Sass: libsass", "Use dartsass instead. See https://gohugo.io/functions/css/sass/#dart-sass", "v0.153.0")
+				hugo.Deprecate("css.Sass: libsass", "Use dartsass instead. See https://gohugo.io/docs/reference/functions/css/sass/#dart-sass", "v0.153.0")
 				transpiler = cast.ToString(t)
 			default:
 				return nil, fmt.Errorf("unsupported transpiler %q; valid values are %q or %q", t, sass.TranspilerLibSass, sass.TranspilerDart)

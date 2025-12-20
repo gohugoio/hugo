@@ -157,7 +157,7 @@ func (r *hugoContextRenderer) stripHugoCtx(b []byte) ([]byte, bool) {
 }
 
 func (r *hugoContextRenderer) logRawHTMLEmittedWarn(w util.BufWriter) {
-	r.logger.Warnidf(constants.WarnGoldmarkRawHTML, "Raw HTML omitted while rendering %q; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe", r.getPage(w))
+	r.logger.Warnidf(constants.WarnGoldmarkRawHTML, "Raw HTML omitted while rendering %q; see https://gohugo.io/docs/reference/configuration/markup/#rendererunsafe", r.getPage(w))
 }
 
 func (r *hugoContextRenderer) getPage(w util.BufWriter) any {
@@ -188,7 +188,7 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 				var stripped bool
 				linev, stripped = r.stripHugoCtx(linev)
 				if stripped {
-					r.logger.Warnidf(constants.WarnRenderShortcodesInHTML, ".RenderShortcodes detected inside HTML block in %q; this may not be what you intended, see https://gohugo.io/methods/page/rendershortcodes/#limitations", r.getPage(w))
+					r.logger.Warnidf(constants.WarnRenderShortcodesInHTML, ".RenderShortcodes detected inside HTML block in %q; this may not be what you intended, see https://gohugo.io/docs/reference/methods/page/rendershortcodes/#limitations", r.getPage(w))
 				}
 				r.Writer.SecureWrite(w, linev)
 			}
