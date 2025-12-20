@@ -142,3 +142,26 @@ Home.
 
 	imagetesting.RunGolden(opts)
 }
+
+func TestPNGIssue14288(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- assets/qr.png --
+sourcefilename: testdata/images_golden/funcs/qr-level-high_scale-6.png
+-- layouts/home.html --
+{{ $img := resources.Get "qr.png" }}
+images.Config: {{ (images.Config "assets/qr.png").Width }}
+Resize to 100x100: {{ ($img.Resize "100x100" ).Width }}
+Brightnes method: {{ ($img.Filter (images.Brightness 12) ).RelPermalink }}
+Brightnes func: {{ ($img | images.Filter (images.Brightness 12) ).RelPermalink }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", `
+images.Config: 222
+Resize to 100x100: 100
+Brightnes method: /qr_hu_d5f06fd7594d0594.png
+Brightnes func: /qr_hu_d5f06fd7594d0594.png
+`)
+}
