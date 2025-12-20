@@ -17,27 +17,32 @@ import (
 	"bytes"
 	"image"
 	"image/color"
-	"image/png"
 	"path/filepath"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/testconfig"
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
 
 type tstNoStringer struct{}
 
+type widthHeight struct {
+	Width  int
+	Height int
+}
+
 var configTests = []struct {
 	path   any
-	input  []byte
+	input  widthHeight
 	expect any
 }{
 	{
 		path:  "a.png",
-		input: blankImage(10, 10),
+		input: widthHeight{10, 10},
 		expect: image.Config{
 			Width:      10,
 			Height:     10,
@@ -46,7 +51,7 @@ var configTests = []struct {
 	},
 	{
 		path:  "a.png",
-		input: blankImage(10, 10),
+		input: widthHeight{10, 10},
 		expect: image.Config{
 			Width:      10,
 			Height:     10,
@@ -55,7 +60,7 @@ var configTests = []struct {
 	},
 	{
 		path:  "b.png",
-		input: blankImage(20, 15),
+		input: widthHeight{20, 15},
 		expect: image.Config{
 			Width:      20,
 			Height:     15,
@@ -64,7 +69,7 @@ var configTests = []struct {
 	},
 	{
 		path:  "a.png",
-		input: blankImage(20, 15),
+		input: widthHeight{20, 15},
 		expect: image.Config{
 			Width:      10,
 			Height:     10,
@@ -101,7 +106,8 @@ func TestNSConfig(t *testing.T) {
 		// cast path to string for afero.WriteFile
 		sp, err := cast.ToStringE(test.path)
 		c.Assert(err, qt.IsNil)
-		afero.WriteFile(ns.deps.Fs.Source, filepath.Join(bcfg.WorkingDir(), sp), test.input, 0o755)
+		img := blankImage(d.ResourceSpec.Imaging.Codec, test.input.Width, test.input.Height)
+		afero.WriteFile(ns.deps.Fs.Source, filepath.Join(bcfg.WorkingDir(), sp), img, 0o755)
 
 		result, err := ns.Config(test.path)
 
@@ -111,10 +117,13 @@ func TestNSConfig(t *testing.T) {
 	}
 }
 
-func blankImage(width, height int) []byte {
+func blankImage(codec *images.Codec, width, height int) []byte {
 	var buf bytes.Buffer
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	if err := png.Encode(&buf, img); err != nil {
+	cfg := images.ImageConfig{
+		TargetFormat: images.PNG,
+	}
+	if err := codec.EncodeTo(cfg, &buf, img); err != nil {
 		panic(err)
 	}
 	return buf.Bytes()
