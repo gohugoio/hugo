@@ -265,7 +265,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			// WebP options.
 			warpc.Options{
 				CompilationCacheDir: compilationCacheDir,
-				PoolSize:            2,
+				PoolSize:            1,
+				Memory:              256, // 256 MiB (4096 MiB Max)
 				Infof:               logger.InfoCommand("webp").Logf,
 				Warnf:               logger.WarnCommand("webp").Logf,
 			},
