@@ -132,7 +132,7 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 func (d *Codec) DecodeFormat(f Format, r io.Reader) (image.Image, error) {
 	switch f {
 	case JPEG, PNG:
-		// TODO(bep) we reworked this decode/encode setup to get full WebP support in v0.153.0.
+		// We reworked this decode/encode setup to get full WebP support in v0.153.0.
 		// In the first take of that we used f to decide whether to call png.Decode or jpeg.Decode here,
 		// but testing it on some sites, it seems that it's not uncommon to store JPEGs with PNG extensions and vice versa.
 		// So, to reduce some noise in that release, we fallback to the standard library here,
@@ -153,7 +153,25 @@ func (d *Codec) DecodeFormat(f Format, r io.Reader) (image.Image, error) {
 	case BMP:
 		return bmp.Decode(r)
 	case WEBP:
-		return d.webp.Decode(r)
+		img, err := d.webp.Decode(r)
+		if err == nil {
+			return img, nil
+		}
+		if rs, ok := r.(io.ReadSeeker); ok {
+			// See issue 14288. Turns out it's not uncommon to e.g. name their PNG files with a WEBP extension.
+			// With the old Go's webp decoder, this didn't fail (it looked for the file header),
+			// but now some error has surfaced.
+			// To reduce some noise, we try to reset and decode again using the standard library.
+			_, err2 := rs.Seek(0, io.SeekStart)
+			if err2 != nil {
+				return nil, err
+			}
+			img, _, err2 = image.Decode(rs)
+			if err2 == nil {
+				return img, nil
+			}
+		}
+		return nil, err
 	default:
 		return nil, errors.New("format not supported")
 	}
