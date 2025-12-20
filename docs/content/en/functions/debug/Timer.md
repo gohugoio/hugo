@@ -10,8 +10,6 @@ params:
     signatures: [debug.Timer NAME] 
 ---
 
-{{< new-in 0.120.0 />}}
-
 Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottlenecks in templates.
 
 The timer starts when you instantiate it, and stops when you call its `Stop` method.

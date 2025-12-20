@@ -25,8 +25,6 @@ Step 1
 : Create a `wrangler.toml` file in the root of your project.
 
   ```toml {file="wrangler.toml" copy=true}
-  # Configure Cloudflare Worker
-
   name = "hosting-cloudflare-worker"
   compatibility_date = "2025-07-31"
 
@@ -35,7 +33,7 @@ Step 1
 
   [assets]
   directory = "./public"
-  not_found_handling = "404"
+  not_found_handling = "404-page"
   ```
 
 Step 2
@@ -53,10 +51,10 @@ Step 2
 
   main() {
 
-    DART_SASS_VERSION=1.90.0
-    GO_VERSION=1.24.5
-    HUGO_VERSION=0.148.2
-    NODE_VERSION=22.18.0
+    DART_SASS_VERSION=1.96.0
+    GO_VERSION=1.25.5
+    HUGO_VERSION=0.152.2
+    NODE_VERSION=24.12.0
 
     export TZ=Europe/Oslo
 

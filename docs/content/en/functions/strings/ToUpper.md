@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [upper]
     returnType: string
-    signatures: [strings.ToUpper INPUT]
+    signatures: [strings.ToUpper STRING]
 aliases: [/functions/upper]
 ---
 

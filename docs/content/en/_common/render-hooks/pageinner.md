@@ -43,5 +43,5 @@ As a practical example, Hugo's embedded link and image render hooks use the `Pag
 
 [`RenderShortcodes`]: /methods/page/rendershortcodes/
 [Markdown notation]: /content-management/shortcodes/#notation
-[Embedded link render hook]: {{% eturl render-link %}}
-[Embedded image render hook]: {{% eturl render-image %}}
+[Embedded link render hook]: <{{% eturl render-link %}}>
+[Embedded image render hook]: <{{% eturl render-image %}}>

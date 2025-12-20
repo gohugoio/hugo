@@ -10,8 +10,6 @@ params:
     signatures: [images.AutoOrient]
 ---
 
-{{< new-in 0.121.2 />}}
-
 ## Usage
 
 Create the filter:

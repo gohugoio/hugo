@@ -62,4 +62,4 @@ Rendered:
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
 [embedded link render hook]: /render-hooks/links/#embedded
 [Markdown notation]: /content-management/shortcodes/#notation
-[source code]: {{% eturl relref %}}
+[source code]: <{{% eturl relref %}}>

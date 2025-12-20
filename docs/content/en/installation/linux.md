@@ -95,7 +95,7 @@ Derivatives of the [Debian] distribution of Linux include [elementary OS], [KDE 
 sudo apt install hugo
 ```
 
-You can also download Debian packages from the [latest release] page.
+You can also download Debian packages from the [latest release][] page.
 
 ### Exherbo
 
@@ -199,6 +199,7 @@ Latest version available?|:heavy_check_mark:|:heavy_check_mark:|varies|:heavy_ch
 [GeckoLinux]: https://geckolinux.github.io/
 [Gentoo]: https://www.gentoo.org/
 [KDE neon]: https://neon.kde.org/
+[latest release]: https://github.com/gohugoio/hugo/releases/latest
 [latest version]: https://github.com/gohugoio/hugo/releases/latest
 [Linux Karmada]: https://linuxkamarada.com/
 [Linux Lite]: https://www.linuxliteos.com/

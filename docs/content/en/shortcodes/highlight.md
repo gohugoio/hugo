@@ -103,5 +103,5 @@ Pass the options when calling the shortcode. You can set their default values in
 [content format]: /content-management/formats/
 [highlighting styles]: /quick-reference/syntax-highlighting-styles/
 [site configuration]: /configuration/markup/#highlight
-[source code]: {{% eturl highlight %}}
+[source code]: <{{% eturl highlight %}}>
 [supported languages]: /content-management/syntax-highlighting/#languages

@@ -131,10 +131,14 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 
 func (d *Codec) DecodeFormat(f Format, r io.Reader) (image.Image, error) {
 	switch f {
-	case JPEG:
-		return jpeg.Decode(r)
-	case PNG:
-		return png.Decode(r)
+	case JPEG, PNG:
+		// TODO(bep) we reworked this decode/encode setup to get full WebP support in v0.153.0.
+		// In the first take of that we used f to decide whether to call png.Decode or jpeg.Decode here,
+		// but testing it on some sites, it seems that it's not uncommon to store JPEGs with PNG extensions and vice versa.
+		// So, to reduce some noise in that release, we fallback to the standard library here,
+		// which will read the magic bytes and decode accordingly.
+		img, _, err := image.Decode(r)
+		return img, err
 	case GIF:
 		g, err := gif.DecodeAll(r)
 		if err != nil {

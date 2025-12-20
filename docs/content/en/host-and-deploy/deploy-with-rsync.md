@@ -73,7 +73,7 @@ Now that you can log in with your SSH key, let's create a script to automate dep
 
 ## Shell script
 
-Create a new script called `deploy` the root of your Hugo tree:
+Create a new script called `deploy` at the root of your Hugo tree:
 
 ```txt
 ~/websites/topologix.fr$ editor deploy

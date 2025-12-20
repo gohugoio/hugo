@@ -28,7 +28,6 @@ import (
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/disintegration/gift"
@@ -212,7 +211,6 @@ func (i *imageResource) Process(spec string) (images.ImageResource, error) {
 // filter and returns the transformed image. If one of width or height is 0, the image aspect
 // ratio is preserved.
 func (i *imageResource) Resize(spec string) (images.ImageResource, error) {
-	defer herrors.Recover()
 	return i.processActionSpec(images.ActionResize, spec)
 }
 
@@ -291,7 +289,14 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 
 func (i *imageResource) processActionSpec(action, spec string) (images.ImageResource, error) {
 	options := append([]string{action}, strings.Fields(strings.ToLower(spec))...)
-	return i.processOptions(options)
+	ir, err := i.processOptions(options)
+	if err != nil {
+		if sourcePath := i.sourcePath(); sourcePath != "" {
+			err = fmt.Errorf("failed to %s image %q: %w", action, sourcePath, err)
+		}
+		return nil, err
+	}
+	return ir, nil
 }
 
 func (i *imageResource) processOptions(options []string) (images.ImageResource, error) {

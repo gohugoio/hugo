@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [trim]
     returnType: string
-    signatures: [strings.Trim INPUT CUTSET]
+    signatures: [strings.Trim STRING CUTSET]
 aliases: [/functions/trim]
 ---
 

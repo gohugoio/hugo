@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: []
     returnType: string
-    signatures: [strings.Repeat COUNT INPUT]
+    signatures: [strings.Repeat COUNT STRING]
 aliases: [/functions/strings.repeat]
 ---
 

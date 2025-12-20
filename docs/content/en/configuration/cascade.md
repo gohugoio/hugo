@@ -14,7 +14,6 @@ You can configure your site to cascade front matter values to the home page and 
 For example, to cascade a "color" parameter to the home page and all its descendants:
 
 {{< code-toggle file=hugo >}}
-title = 'Home'
 [cascade.params]
 color = 'red'
 {{< /code-toggle >}}
@@ -61,14 +60,14 @@ Define an array of cascade parameters to apply different values to different tar
 [cascade.params]
 color = 'red'
 [cascade.target]
-path = '{/books/**}'
+path = '/books/**'
 kind = 'page'
 lang = '{en,de}'
 [[cascade]]
 [cascade.params]
 color = 'blue'
 [cascade.target]
-path = '{/films/**}'
+path = '/films/**'
 kind = 'page'
 environment = 'production'
 {{< /code-toggle >}}

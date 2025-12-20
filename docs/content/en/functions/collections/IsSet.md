@@ -18,7 +18,7 @@ For example, consider this site configuration:
 showHeroImage = false
 {{< /code-toggle >}}
 
-It the value of `showHeroImage` is `true`, we can detect that it exists using either `if` or `with`:
+If the value of `showHeroImage` is `true`, we can detect that it exists using either `if` or `with`:
 
 ```go-html-template
 {{ if site.Params.showHeroImage }}

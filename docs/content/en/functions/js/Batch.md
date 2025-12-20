@@ -150,8 +150,8 @@ Returns an [OptionsSetter] that can be used to set [build options] for the batch
 These are mostly the same as for `js.Build`, but note that:
 
 - `targetPath` is set automatically (there may be multiple outputs).
-- ``format` must be `esm`, currently the only format supporting [code splitting].
-- ``params` will be available in the `@params/config` namespace in the scripts. This way you can import both the [script] or [runner] params and the [config] params with:
+- `format` must be `esm`, currently the only format supporting [code splitting].
+- `params` will be available in the `@params/config` namespace in the scripts. This way you can import both the [script] or [runner] params and the [config] params with:
 
 ```js
 import * as params from "@params";
@@ -295,6 +295,8 @@ console.log('entrypoints-workaround.js');
 [code splitting]: https://esbuild.github.io/api/#splitting
 [config]: #config
 [ESBuild]: https://github.com/evanw/esbuild
+[group]: #group
+[instance]: #instance
 [JavaScript import]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
 [js.Batch Demo Repo]: https://github.com/bep/hugojsbatchdemo/
 [OptionsSetter]: #optionssetter

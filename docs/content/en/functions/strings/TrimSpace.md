@@ -6,7 +6,7 @@ keywords: []
 params:
   functions_and_methods:
     returnType: string
-    signatures: [strings.TrimSpace INPUT]
+    signatures: [strings.TrimSpace STRING]
 ---
 
 {{< new-in 0.136.3 />}}

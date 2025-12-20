@@ -9,7 +9,7 @@ params:
     signatures: [TAXONOMY.ByCount]
 ---
 
-The `ByCount` method on a `Taxonomy` object returns an [ordered taxonomy](g), sorted by the number of pages associated with each [term](g).
+The `ByCount` method on a `Taxonomy` object returns an [ordered taxonomy](g), sorted by the number of pages associated with each [term](g), then sorted alphabetically by term in the event of a tie.
 
 While a `Taxonomy` object is a [map](g), an ordered taxonomy is a [slice](g), where each element is an object that contains the term and a slice of its [weighted pages](g).
 

@@ -3,7 +3,7 @@ module github.com/gohugoio/hugo
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.0
-	github.com/alecthomas/chroma/v2 v2.21.0
+	github.com/alecthomas/chroma/v2 v2.21.1
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.58.3
 	github.com/bep/clocks v0.5.0
@@ -35,7 +35,7 @@ require (
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
-	github.com/goccy/go-yaml v1.19.0
+	github.com/goccy/go-yaml v1.19.1
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20251018145728-cfcc22d823c6
 	github.com/gohugoio/go-radix v1.2.0
 	github.com/gohugoio/hashstructure v0.6.0

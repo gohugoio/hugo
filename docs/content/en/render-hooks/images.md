@@ -133,5 +133,5 @@ Note that the embedded image render hook does not perform image processing. Its 
 [`RenderShortcodes`]: /methods/page/rendershortcodes
 [CommonMark specification]: https://spec.commonmark.org/current/
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
-[embedded image render hook]: {{% eturl render-image %}}
+[embedded image render hook]: <{{% eturl render-image %}}>
 [Markdown attributes]: /content-management/markdown-attributes/

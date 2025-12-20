@@ -39,7 +39,7 @@ shortcode.
           {{- $destination = $u.String }}
         {{- else }}
           {{- with site.GetPage $u.Path }}
-            {{- $destination = .RelPermalink }}
+            {{- $destination = .Path }}
           {{- else }}
             {{- errorf "The %q shortcode was unable to find the reference link %s: see %s" $.Name . $p.String }}
           {{- end }}
