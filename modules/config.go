@@ -157,7 +157,7 @@ func ApplyProjectConfigDefaults(logger logg.Logger, mod Module, cfgs ...config.A
 			}
 
 			if dir != "" {
-				mnt := Mount{Lang: lang, Source: dir, Target: component}
+				mnt := Mount{Source: dir, Target: component, Sites: sites}
 				if err := mnt.init(logger); err != nil {
 					return fmt.Errorf("failed to init mount %q %d: %w", lang, i, err)
 				}
@@ -501,6 +501,7 @@ func (m *Mount) init(logger logg.Logger) error {
 		m.Lang = ""
 
 		hugo.DeprecateWithLogger("module.mounts.lang", "Replaced by the more powerful 'sites.matrix' setting, see https://gohugo.io/configuration/module/#mounts", "v0.153.0", logger)
+
 	}
 
 	m.Sites.Matrix.Languages = hstrings.UniqueStringsReuse(m.Sites.Matrix.Languages)
