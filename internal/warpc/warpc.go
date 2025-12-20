@@ -575,8 +575,8 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	}
 
 	if opts.Memory <= 0 {
-		// 32 MiB
-		opts.Memory = 32
+		// 256 MiB (4096 MiB Max)
+		opts.Memory = 256
 	}
 
 	ctx := opts.Ctx
