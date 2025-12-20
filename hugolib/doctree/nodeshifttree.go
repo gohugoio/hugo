@@ -625,7 +625,7 @@ func (r *NodeShiftTreeWalker[T]) toT(tree *NodeShiftTree[T], v T) (T, bool) {
 }
 
 func (r *NodeShiftTree[T]) Has(s string) bool {
-	_, ok := r.get(s)
+	_, ok := r.GetRaw(s)
 	return ok
 }
 

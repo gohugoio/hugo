@@ -198,6 +198,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 			p := newHomePageMetaSource()
 			treePages.InsertRaw(p.pathInfo.Base(), p)
 		}
+
 	}
 
 	getCascades := func(wctx *doctree.WalkContext[contentNode], s string) *page.PageMatcherParamsConfigs {
