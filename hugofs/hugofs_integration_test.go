@@ -118,3 +118,32 @@ product2/tutorials/tutorial1/index.html
 product2/tutorials/tutorial2/index.html
 `)
 }
+
+func TestContentDirPerLangNoDeprecationPleaseIssue14287(t *testing.T) {
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+contentDir = "content/en"
+[languages.fr]
+contentDir = "content/fr"
+-- content/en/page.md --
+---
+title: "English Page"
+---
+-- content/fr/page.md --
+---
+title: "Page Française"
+---
+-- layouts/all.html --
+Title: {{ .Title }}|
+-- 
+`
+	b := hugolib.Test(t, files, hugolib.TestOptInfo())
+
+	b.AssertFileContent("public/en/page/index.html", "Title: English Page|")
+	b.AssertFileContent("public/fr/page/index.html", "Title: Page Française|")
+	b.AssertLogContains("! deprecated")
+}
