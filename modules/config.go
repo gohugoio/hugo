@@ -369,21 +369,16 @@ func (v HugoVersion) String() string {
 // Hugo binary.
 func (v HugoVersion) IsValid() bool {
 	current := hugo.CurrentVersion.Version()
-	if v.Extended && !hugo.IsExtended {
+
+	if v.Min != "" && current.Compare(v.Min) > 0 {
 		return false
 	}
 
-	isValid := true
-
-	if v.Min != "" && current.Compare(v.Min) > 0 {
-		isValid = false
-	}
-
 	if v.Max != "" && current.Compare(v.Max) < 0 {
-		isValid = false
+		return false
 	}
 
-	return isValid
+	return true
 }
 
 type Import struct {
