@@ -67,17 +67,9 @@ var (
 		media.Builtin.WEBPType.SubType: WEBP,
 	}
 
-	// Add or increment if changes to an image format's processing requires
-	// re-generation.
-	imageFormatsVersions = map[Format]int{
-		PNG:  0,
-		WEBP: 1, //  Moved to WASM-based WebP encoder and decoder.
-		GIF:  0,
-	}
-
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
-	// See the finer grained smartCropVersionNumber and imageFormatsVersions.
-	mainImageVersionNumber = 0
+	// See the finer grained smartCropVersionNumber.
+	mainImageVersionNumber = 1
 )
 
 var anchorPositions = map[string]gift.Anchor{
@@ -326,10 +318,6 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 
 	if mainImageVersionNumber > 0 {
 		options = append(options, strconv.Itoa(mainImageVersionNumber))
-	}
-
-	if v, ok := imageFormatsVersions[sourceFormat]; ok && v > 0 {
-		options = append(options, strconv.Itoa(v))
 	}
 
 	if smartCropVersionNumber > 0 && c.Anchor == SmartCropAnchor {

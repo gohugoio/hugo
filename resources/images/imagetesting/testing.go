@@ -125,7 +125,7 @@ func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 	shouldSkip := func(d fs.DirEntry) bool {
 		if runtime.GOARCH == "arm64" {
 			// TODO(bep) figure out why this fails on arm64. I have inspected the images, and they look identical.
-			if d.Name() == "giphy_hu_e4a5984f8835d617.webp" {
+			if d.Name() == "giphy_hu_bb052284cc220165.webp" {
 				c.Logf("skipping %s on %s", d.Name(), runtime.GOARCH)
 				return true
 			}

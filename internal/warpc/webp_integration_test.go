@@ -60,7 +60,7 @@ Resized RelPermalink: {{ $resized.RelPermalink }}|
 
 	b := hugolib.Test(t, files)
 
-	b.ImageHelper("public/gopher_hu_f8d20fe200599f16.webp").AssertFormat("webp")
+	b.ImageHelper("public/gopher_hu_cc98ebaf742cba8e.webp").AssertFormat("webp")
 }
 
 func TestWebPInvalid(t *testing.T) {
@@ -111,9 +111,9 @@ sourcefilename: ../../resources/testdata/giphy.gif
 	// Source animated gif:
 	// Frame durations in ms.
 	giphyFrameDurations := []int{200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200}
-	b.ImageHelper("public/giphy_hu_e4a5984f8835d617.webp").AssertFormat("webp").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
-	b.ImageHelper("public/giphy_hu_87010e943ffb23b4.gif").AssertFormat("gif").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
-	b.ImageHelper("public/giphy_hu_e4a5984f8835d617.webp").AssertFormat("webp").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
+
+	b.ImageHelper("public/giphy_hu_bb052284cc220165.webp").AssertFormat("webp").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
+	b.ImageHelper("public/giphy_hu_c6b8060edf0363b1.gif").AssertFormat("gif").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(giphyFrameDurations)
 
 	// Source animated webp:
 	animFrameDurations := []int{80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80}

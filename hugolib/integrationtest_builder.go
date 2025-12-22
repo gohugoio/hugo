@@ -720,6 +720,16 @@ func (s *IntegrationTestBuilder) EditFileReplaceFunc(filename string, replacemen
 	return s
 }
 
+func (s *IntegrationTestBuilder) EditFileAppend(filename, contnt string) *IntegrationTestBuilder {
+	absFilename := s.absFilename(filename)
+	b, err := afero.ReadFile(s.fs.Source, absFilename)
+	s.Assert(err, qt.IsNil)
+	s.changedFiles = append(s.changedFiles, absFilename)
+	oldContent := string(b)
+	s.writeSource(absFilename, oldContent+contnt)
+	return s
+}
+
 func (s *IntegrationTestBuilder) EditFiles(filenameContent ...string) *IntegrationTestBuilder {
 	for i := 0; i < len(filenameContent); i += 2 {
 		filename, content := filepath.FromSlash(filenameContent[i]), filenameContent[i+1]
