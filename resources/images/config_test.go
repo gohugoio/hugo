@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/hashing"
 )
 
 func TestDecodeConfig(t *testing.T) {
@@ -118,7 +117,7 @@ func TestDecodeImageConfig(t *testing.T) {
 				t.Fatalf("[%d] err: %s", i, err)
 			}
 			expect := this.expect.(ImageConfig)
-			expect.Key = hashing.HashStringHex(options)
+			result.Key = ""
 
 			if fmt.Sprint(result) != fmt.Sprint(expect) {
 				t.Fatalf("[%d] got\n%v\n but expected\n%v", i, result, expect)

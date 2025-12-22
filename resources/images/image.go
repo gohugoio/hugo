@@ -380,6 +380,25 @@ func (f Format) MediaType() media.Type {
 	}
 }
 
+func (f Format) String() string {
+	switch f {
+	case JPEG:
+		return "JPEG"
+	case PNG:
+		return "PNG"
+	case GIF:
+		return "GIF"
+	case TIFF:
+		return "TIFF"
+	case BMP:
+		return "BMP"
+	case WEBP:
+		return "WEBP"
+	default:
+		return "Unknown"
+	}
+}
+
 type imageConfig struct {
 	config       image.Config
 	configInit   sync.Once

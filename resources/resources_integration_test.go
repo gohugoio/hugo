@@ -62,9 +62,9 @@ anigif: {{ $anigif.RelPermalink }}|{{ $anigif.Width }}|{{ $anigif.Height }}|{{ $
 
 	assertImages := func() {
 		b.AssertFileContent("public/index.html", `
- gif: /mybundle/pixel_hu_93429543fc146fce.gif|}|1|2|image/gif|
-bmp: /mybundle/pixel_hu_f9bf2acd6578e2c6.bmp|}|2|3|image/bmp|
-anigif: /mybundle/giphy_hu_652d28653068b48f.gif|4|5|image/gif|
+gif: /mybundle/pixel_hu_d6bad5e71f783c98.gif|}|1|2|image/gif|
+bmp: /mybundle/pixel_hu_a8812c9bf8812b53.bmp|}|2|3|image/bmp|
+anigif: /mybundle/giphy_hu_7f64f85f904209d4.gif|4|5|image/gif|
 		`)
 	}
 

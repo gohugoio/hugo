@@ -188,3 +188,33 @@ Brightnes method: /qr_hu_d5f06fd7594d0594.webp
 Brightnes func: /qr_hu_d5f06fd7594d0594.webp
 `)
 }
+
+// Note that this test doesn't really reproduce the original issue,
+// but keep it as a regression test for WebP decoding in general.
+// TODO(bep) I fixed the failing site, but I don't really understand why it failed. But now it's Christmas.
+func TestPNGIssue14295(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableLiveReload = true
+-- assets/qr.png --
+sourcefilename: testdata/images_golden/funcs/qr-level-high_scale-6.png
+-- layouts/home.html --
+{{ $img := resources.Get "qr.png" }}
+{{ $img = $img.Resize "200x webp" | images.Filter (images.GaussianBlur 5) }}
+Image: {{ $img.RelPermalink }}
+
+`
+
+	tempDir := t.TempDir()
+
+	for range 2 {
+		b := hugolib.Test(t, files, hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.NeedsOsFS = true
+			cfg.WorkingDir = tempDir
+		}))
+		b.AssertFileContent("public/index.html", `Image: /qr_hu_6b5f59be9c4d3b3a.webp`)
+
+	}
+}
