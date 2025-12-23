@@ -73,6 +73,18 @@ func (m *Map[K, T]) Set(key K, value T) {
 	m.mu.Unlock()
 }
 
+// Delete deletes the given key from the map.
+// It returns true if the key was found and deleted, false otherwise.
+func (m *Map[K, T]) Delete(key K) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, found := m.m[key]; found {
+		delete(m.m, key)
+		return true
+	}
+	return false
+}
+
 // WithWriteLock executes the given function with a write lock on the map.
 func (m *Map[K, T]) WithWriteLock(f func(m map[K]T) error) error {
 	m.mu.Lock()

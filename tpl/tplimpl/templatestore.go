@@ -35,6 +35,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -487,6 +488,15 @@ func (s *TemplateStore) FindAllBaseTemplateCandidates(overlayKey string, d1 Temp
 	})
 
 	return result
+}
+
+// PrepareTopLevelRenderCtx prepares a context for top-level rendering of a page.
+func (t *TemplateStore) PrepareTopLevelRenderCtx(ctx context.Context, p page.Page) context.Context {
+	if p != nil {
+		ctx = tpl.Context.Page.Set(ctx, p)
+	}
+	ctx = tpl.Context.PartialDecoratorIDStack.Set(ctx, collections.NewStack[*tpl.StringBool]())
+	return ctx
 }
 
 func (t *TemplateStore) ExecuteWithContext(ctx context.Context, ti *TemplInfo, wr io.Writer, data any) error {
@@ -1262,6 +1272,7 @@ func (s *TemplateStore) insertTemplate2(
 		D:              d,
 		matrix:         matrix,
 		category:       category,
+		subCategory:    subCategory,
 		noBaseOf:       category > CategoryLayout,
 		isLegacyMapped: isLegacyMapped,
 	}
@@ -1570,6 +1581,24 @@ func (s *TemplateStore) createTemplatesSnapshot() error {
 	return nil
 }
 
+func (s *TemplateStore) addTransformedTemplateInsert(name string, subCategory SubCategory) (*TemplInfo, error) {
+	pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
+	ti, err := s.insertTemplate(pi, nil, subCategory, true, s.treeMain)
+	if err != nil {
+		return nil, err
+	}
+	return ti, nil
+}
+
+func (s *TemplateStore) addTransformedTemplateSetTree(this *TemplInfo, root *parse.ListNode) (*parse.Tree, error) {
+	templ := s.tns.newBlankTemplate(this)
+	tree := getParseTree(templ)
+	tree.Root = root
+	this.Template = templ
+	this.state = processingStateTransformed
+	return tree, nil
+}
+
 func (s *TemplateStore) parseTemplates(replace bool) error {
 	if err := func() error {
 		// Read and parse all templates.
@@ -1858,7 +1887,7 @@ func (s *TemplateStore) transformTemplates() error {
 		if vv.category == CategoryBaseof {
 			continue
 		}
-		tctx, err := applyTemplateTransformers(vv, lookup)
+		tctx, err := applyTemplateTransformers(vv, s, lookup)
 		if err != nil {
 			return err
 		}

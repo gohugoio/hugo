@@ -23,6 +23,7 @@ import (
 
 	"github.com/bep/helpers/contexthelpers"
 	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/common/collections"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
@@ -53,6 +54,7 @@ const (
 	contextKeyPage
 	contextKeyIsInGoldmark
 	cntextKeyCurrentTemplateInfo
+	contextKeyPartialDecoratorIDStack
 )
 
 // Context manages values passed in the context to templates.
@@ -63,12 +65,14 @@ var Context = struct {
 	Page                               contexthelpers.ContextDispatcher[page]
 	IsInGoldmark                       contexthelpers.ContextDispatcher[bool]
 	CurrentTemplate                    contexthelpers.ContextDispatcher[*CurrentTemplateInfo]
+	PartialDecoratorIDStack            contexthelpers.ContextDispatcher[*collections.Stack[*StringBool]]
 }{
 	DependencyManagerScopedProvider: contexthelpers.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKeyDependencyManagerScopedProvider),
 	DependencyScope:                 contexthelpers.NewContextDispatcher[int](contextKeyDependencyScope),
 	Page:                            contexthelpers.NewContextDispatcher[page](contextKeyPage),
 	IsInGoldmark:                    contexthelpers.NewContextDispatcher[bool](contextKeyIsInGoldmark),
 	CurrentTemplate:                 contexthelpers.NewContextDispatcher[*CurrentTemplateInfo](cntextKeyCurrentTemplateInfo),
+	PartialDecoratorIDStack:         contexthelpers.NewContextDispatcher[*collections.Stack[*StringBool]](contextKeyPartialDecoratorIDStack),
 }
 
 func init() {
@@ -79,6 +83,12 @@ func init() {
 		}
 		return nil
 	}
+}
+
+// StringBool is a helper struct to hold a string and a bool value.
+type StringBool struct {
+	Str  string
+	Bool bool
 }
 
 type page interface {
