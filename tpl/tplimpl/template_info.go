@@ -21,6 +21,9 @@ type ParseInfo struct {
 	// Set for shortcode templates with any {{ .Inner }}
 	IsInner bool
 
+	// Set for partial templates with any {{ inner }} or {{ templates.Inner }}
+	HasPartialInner bool
+
 	// Set for partials with a return statement.
 	HasReturn bool
 

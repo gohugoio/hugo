@@ -145,6 +145,15 @@ func (ns *Namespace) lookup(name string) (*tplimpl.TemplInfo, error) {
 // include is a helper function that lookups and executes the named partial.
 // Returns the final template name and the rendered output.
 func (ns *Namespace) doInclude(ctx context.Context, key string, templ *tplimpl.TemplInfo, dataList ...any) includeResult {
+	if templ.ParseInfo.HasPartialInner {
+		stack := tpl.Context.PartialDecoratorIDStack.Get(ctx)
+		if stack != nil {
+			if id, ok := stack.Peek(); ok {
+				// Signal that inner exists.
+				id.Bool = true
+			}
+		}
+	}
 	var data any
 	if len(dataList) > 0 {
 		data = dataList[0]

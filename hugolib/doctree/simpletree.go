@@ -117,6 +117,10 @@ func (tree *SimpleTree[T]) All() iter.Seq2[string, T] {
 	}
 }
 
+func (tree *SimpleTree[T]) Len() int {
+	return tree.tree.Len()
+}
+
 // NewSimpleThreadSafeTree creates a new SimpleTree.
 func NewSimpleThreadSafeTree[T any]() *SimpleThreadSafeTree[T] {
 	return &SimpleThreadSafeTree[T]{tree: radix.New[T](), mu: new(sync.RWMutex)}

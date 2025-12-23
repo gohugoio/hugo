@@ -29,7 +29,6 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resources/page"
-	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
 
@@ -76,7 +75,7 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page, matrix sitesmat
 		p,
 	}
 
-	ctx := tpl.Context.Page.Set(context.Background(), p)
+	ctx := a.ts.PrepareTopLevelRenderCtx(context.Background(), p)
 
 	buffer := new(bytes.Buffer)
 	err := a.ts.ExecuteWithContext(ctx, t, buffer, data)

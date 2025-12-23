@@ -224,7 +224,7 @@ type WalkContext[T any] struct {
 	events          []*Event[T]
 
 	hooksPostInit sync.Once
-	hooksPost     *collections.Stack[func() error]
+	hooksPost     *collections.StackThreadSafe[func() error]
 }
 
 type eventHandlers[T any] map[string][]func(*Event[T])
@@ -261,9 +261,9 @@ func (ctx *WalkContext[T]) HandleEvents() error {
 	return nil
 }
 
-func (ctx *WalkContext[T]) HooksPost() *collections.Stack[func() error] {
+func (ctx *WalkContext[T]) HooksPost() *collections.StackThreadSafe[func() error] {
 	ctx.hooksPostInit.Do(func() {
-		ctx.hooksPost = collections.NewStack[func() error]()
+		ctx.hooksPost = collections.NewStackThreadSafe[func() error]()
 	})
 	return ctx.hooksPost
 }

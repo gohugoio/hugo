@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/bep/logg"
+	"github.com/yuin/goldmark/util"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/fsnotify/fsnotify"
@@ -419,7 +420,7 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 	content := strings.TrimSpace(s.FileContent(filename))
 
 	for _, m := range matches {
-		cm := qt.Commentf("File: %s Expect: %s Got: %s", filename, m, content)
+		cm := qt.Commentf("File: %s Expect:\n%s Got:\n%s\nWith Space Visuals:\n%s", filename, m, content, util.VisualizeSpaces([]byte(content)))
 		lines := strings.SplitSeq(m, "\n")
 		for match := range lines {
 			match = strings.TrimSpace(match)

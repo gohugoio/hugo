@@ -1610,7 +1610,7 @@ func (s *Site) renderAndWritePage(statCounter *uint64, targetPath string, p *pag
 	of := p.outputFormat()
 	p.incrRenderState()
 
-	ctx := tpl.Context.Page.Set(context.Background(), p)
+	ctx := s.TemplateStore.PrepareTopLevelRenderCtx(context.Background(), p)
 	ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, p)
 
 	if err := s.renderForTemplate(ctx, p.Kind(), of.Name, d, renderBuffer, templ); err != nil {
