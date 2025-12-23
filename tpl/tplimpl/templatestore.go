@@ -1570,6 +1570,21 @@ func (s *TemplateStore) createTemplatesSnapshot() error {
 	return nil
 }
 
+func (s *TemplateStore) addTransformedTemplateRoot(owner *TemplInfo, name string, subCategory SubCategory, root *parse.ListNode) error {
+	templ := s.tns.newBlankTemplate(owner, name)
+	tree := getParseTree(templ)
+
+	tree.Root = root
+	pi := s.opts.PathParser.Parse(files.ComponentFolderLayouts, name)
+	ti, err := s.insertTemplate(pi, nil, subCategory, true, s.treeMain)
+	if err != nil {
+		return err
+	}
+	ti.Template = templ
+	ti.state = processingStateTransformed
+	return nil
+}
+
 func (s *TemplateStore) parseTemplates(replace bool) error {
 	if err := func() error {
 		// Read and parse all templates.
@@ -1858,7 +1873,7 @@ func (s *TemplateStore) transformTemplates() error {
 		if vv.category == CategoryBaseof {
 			continue
 		}
-		tctx, err := applyTemplateTransformers(vv, lookup)
+		tctx, err := applyTemplateTransformers(vv, s, lookup)
 		if err != nil {
 			return err
 		}

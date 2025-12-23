@@ -20,9 +20,11 @@ import (
 	"strconv"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl/partials"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -37,7 +39,8 @@ func New(deps *deps.Deps) *Namespace {
 
 // Namespace provides template functions for the "templates" namespace.
 type Namespace struct {
-	deps *deps.Deps
+	deps       *deps.Deps
+	partialsNs *partials.Namespace
 }
 
 // Exists returns whether the template with the given name exists.
@@ -68,6 +71,66 @@ type DeferOpts struct {
 
 	// Optional data context to use when executing the deferred block.
 	Data any
+}
+
+type errContext struct {
+	context.Context
+	error
+}
+
+// A trick to satisfy the error interface without being an error (to make Go templates happy).
+func (e errContext) Error() string {
+	return ""
+}
+
+// Inner executes the inner content of a partial decorator.
+// Note that there is only one inner block per partial decorator, but inner may be called multiple times with, typically, different data.
+func (ns *Namespace) Inner(ctx context.Context, data any) (any, error) {
+	stack := tpl.Context.PartialDecoratorIDStack.Get(ctx)
+	if stack == nil || stack.Len() == 0 {
+		// Fail silently for now.
+		return "", nil
+	}
+	id, ok := stack.Peek()
+	if !ok {
+		// Fail silently for now.
+		return "", nil
+	}
+
+	// Mark as used.
+	id.Bool = true
+
+	partialName := fmt.Sprintf("_internal/decorator_%s", id.Str)
+
+	v, err := ns.partialsNs.Include(ctx, partialName, data)
+
+	return v, err
+}
+
+// For internal use only.
+func (ns *Namespace) _PushPartialDecorator(ctx context.Context, id string) (any, error) {
+	stack := tpl.Context.PartialDecoratorIDStack.Get(ctx)
+	if stack == nil {
+		stack = collections.NewStack[*tpl.StringBool]()
+		ctx = tpl.Context.PartialDecoratorIDStack.Set(ctx, stack)
+	}
+	stack.Push(&tpl.StringBool{Str: id, Bool: false})
+	return "", errContext{Context: ctx}
+}
+
+// For internal use only.
+func (ns *Namespace) _PopPartialDecorator(ctx context.Context, id string) bool {
+	stack := tpl.Context.PartialDecoratorIDStack.Get(ctx)
+	if stack == nil || stack.Len() == 0 {
+		panic("decorator stack is nil or empty")
+	}
+
+	// The stack is tied to the context, so no data race.
+	top, ok := stack.Pop()
+	if !ok || top.Str != id {
+		panic("partial decorator ID mismatch")
+	}
+	return top.Bool // return whether inner was called.
 }
 
 // DoDefer defers the execution of a template block.

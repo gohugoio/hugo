@@ -69,7 +69,7 @@ func New(opts Options) *Cache {
 
 	infol := opts.Log.InfoCommand("dynacache")
 
-	evictedIdentities := collections.NewStack[KeyIdentity]()
+	evictedIdentities := collections.NewStackThreadSafe[KeyIdentity]()
 
 	onEvict := func(k, v any) {
 		if !opts.Watching {
@@ -129,7 +129,7 @@ type Cache struct {
 	partitions map[string]PartitionManager
 
 	onEvict           func(k, v any)
-	evictedIdentities *collections.Stack[KeyIdentity]
+	evictedIdentities *collections.StackThreadSafe[KeyIdentity]
 
 	opts  Options
 	infol logg.LevelLogger

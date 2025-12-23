@@ -53,6 +53,22 @@ func (s *TemplateStore) parseTemplate(ti *TemplInfo, replace bool) error {
 	return err
 }
 
+func (t *templateNamespace) newBlankTemplate(ti *TemplInfo, name string) tpl.Template {
+	if ti.D.IsPlainText {
+		tt, err := t.parseText.New(name).Parse("")
+		if err != nil {
+			panic(err)
+		}
+		return tt
+
+	}
+	tt, err := t.parseHTML.New(name).Parse("")
+	if err != nil {
+		panic(err)
+	}
+	return tt
+}
+
 func (t *templateNamespace) doParseTemplate(ti *TemplInfo, replace bool) error {
 	if !ti.noBaseOf || ti.category == CategoryBaseof {
 		// Delay parsing until we have the base template.
