@@ -14,6 +14,8 @@
 package page
 
 import (
+	"context"
+	"html/template"
 	"time"
 
 	"github.com/gohugoio/hugo/common/hstore"
@@ -75,7 +77,7 @@ type Site interface {
 	LanguageCode() string
 
 	// Returns the configured copyright information for this Site.
-	Copyright() string
+	Copyright(context.Context) (template.HTML, error)
 
 	// Returns all Sites for all languages.
 	Sites() Sites
@@ -263,8 +265,8 @@ func (s *siteWrapper) LanguageCode() string {
 	return s.s.LanguageCode()
 }
 
-func (s *siteWrapper) Copyright() string {
-	return s.s.Copyright()
+func (s *siteWrapper) Copyright(ctx context.Context) (template.HTML, error) {
+	return s.s.Copyright(ctx)
 }
 
 func (s *siteWrapper) Sites() Sites {
@@ -396,8 +398,8 @@ func (t testSite) LanguageCode() string {
 	return t.l.Lang
 }
 
-func (t testSite) Copyright() string {
-	return ""
+func (t testSite) Copyright(context.Context) (template.HTML, error) {
+	return "", nil
 }
 
 func (t testSite) Sites() Sites {

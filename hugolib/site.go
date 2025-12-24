@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"mime"
 	"net/url"
@@ -595,8 +596,8 @@ func (s *Site) Title() string {
 	return s.conf.Title
 }
 
-func (s *Site) Copyright() string {
-	return s.conf.Copyright
+func (s *Site) Copyright(ctx context.Context) (template.HTML, error) {
+	return s.home.RenderString(ctx, s.conf.Copyright)
 }
 
 func (s *Site) Lang() string {

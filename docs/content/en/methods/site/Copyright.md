@@ -12,11 +12,11 @@ params:
 Site configuration:
 
 {{< code-toggle file=hugo >}}
-copyright = '© 2023 ABC Widgets, Inc.'
+copyright = '&copy; 2023-{{ now.Year }} ABC Widgets, Inc.'
 {{< /code-toggle >}}
 
 Template:
 
 ```go-html-template
-{{ .Site.Copyright }} → © 2023 ABC Widgets, Inc.
+{{ .Site.Copyright }} → © 2023-2025 ABC Widgets, Inc.
 ```
