@@ -206,13 +206,15 @@ func (f *componentFsDir) ReadDirWithContext(ctx context.Context, count int) ([]i
 				}
 				pi := fi.(FileMetaInfo).Meta().PathInfo
 
-				// Everything below a leaf bundle is a resource.
-				isResource := isInLeafBundle && pi.Type() > paths.TypeFile
-				// Every sibling of a leaf bundle is a resource.
-				isResource = isResource || (isCurrentLeafBundle && !pi.IsLeafBundle())
+				if pi.Type() != paths.TypeContentData {
+					// Everything below a leaf bundle is a resource.
+					isResource := isInLeafBundle && pi.Type() > paths.TypeFile
+					// Every sibling of a leaf bundle is a resource.
+					isResource = isResource || (isCurrentLeafBundle && !pi.IsLeafBundle())
 
-				if isResource {
-					paths.ModifyPathBundleTypeResource(pi)
+					if isResource {
+						paths.ModifyPathBundleTypeResource(pi)
+					}
 				}
 			}
 		}
