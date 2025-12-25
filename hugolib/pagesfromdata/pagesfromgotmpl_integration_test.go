@@ -873,3 +873,23 @@ baseURL = "https://example.com"
 
 	b.AssertFileContent("public/index.html", "home: My Home!|")
 }
+
+func TestPagesFromGoTmplIssue14299(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+baseURL = "https://example.com"
+-- layouts/all.html --
+{{ .Kind }}: {{ .Title }}|
+-- content/_content.gotmpl --
+{{ $a := "foo" }}
+-- content/_index.md --
+-- content/bar/_content.gotmpl --
+{{ $a := "bar" }}
+-- content/bar/index.md --
+`
+	// _content.gotmpl which was siblings of index.md (leaf bundles) was mistakingly classified as a content resource.
+	hugolib.Test(t, files)
+}
