@@ -55,7 +55,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 	opts.OutDir = c.rs.AbsPublishDir
 	opts.ResolveDir = c.rs.Cfg.BaseConfig().WorkingDir // where node_modules gets resolved
 	opts.AbsWorkingDir = opts.ResolveDir
-	opts.TsConfig = c.rs.ResolveJSConfigFile("tsconfig.json")
+	opts.TsConfig, _ = c.rs.ResolveJSConfigFile("tsconfig.json")
 	assetsResolver := newFSResolver(c.rs.Assets.Fs)
 
 	if err := opts.validate(); err != nil {
