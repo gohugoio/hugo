@@ -19,7 +19,7 @@ import "github.com/gohugoio/hugo/common/version"
 // This should be the only one.
 var CurrentVersion = version.Version{
 	Major:      0,
-	Minor:      153,
-	PatchLevel: 3,
-	Suffix:     "",
+	Minor:      154,
+	PatchLevel: 0,
+	Suffix:     "-DEV",
 }
