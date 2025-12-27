@@ -15,6 +15,9 @@ package reflect
 
 import (
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 )
 
 // New returns a new instance of the reflect-namespaced template functions.
@@ -33,4 +36,28 @@ func (ns *Namespace) IsMap(v any) bool {
 // IsSlice reports whether v is a slice.
 func (ns *Namespace) IsSlice(v any) bool {
 	return hreflect.IsSlice(v)
+}
+
+// IsPage reports whether v is a Hugo Page.
+func (ns *Namespace) IsPage(v any) bool {
+	_, ok := v.(page.Page)
+	return ok
+}
+
+// IsResource reports whether v is a Hugo Resource.
+func (ns *Namespace) IsResource(v any) bool {
+	_, ok := v.(resource.Resource)
+	return ok
+}
+
+// IsSite reports whether v is a Hugo Site.
+func (ns *Namespace) IsSite(v any) bool {
+	_, ok := v.(page.Site)
+	return ok
+}
+
+// IsImageResource reports whether v is an Hugo Image Resource.
+// If this returns true, you may process it and get information about its width, height, etc.
+func (ns *Namespace) IsImageResource(v any) bool {
+	return resources.IsImage(v)
 }

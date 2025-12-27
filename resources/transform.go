@@ -400,6 +400,16 @@ func (r *resourceAdapter) getImageOps() images.ImageResourceOps {
 	return img
 }
 
+// IsImage reports whether the given resource is an image that can be processed.
+func IsImage(v any) bool {
+	r, ok := v.(*resourceAdapter)
+	if ok {
+		_, ok := r.target.(images.ImageResourceOps)
+		return ok
+	}
+	return false
+}
+
 func (r *resourceAdapter) publish() {
 	if r.publishOnce == nil {
 		return
