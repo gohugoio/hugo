@@ -56,7 +56,7 @@ func (ns *Namespace) IsSite(v any) bool {
 	return ok
 }
 
-// IsImageResource reports whether v is an Hugo Image Resource.
+// IsImageResource reports whether v is a Hugo Image Resource.
 // If this returns true, you may process it and get information about its width, height, etc.
 func (ns *Namespace) IsImageResource(v any) bool {
 	return resources.IsImage(v)
