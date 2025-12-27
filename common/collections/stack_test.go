@@ -10,7 +10,7 @@ func TestNewStack(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	s := NewStack[int]()
+	s := NewStackThreadSafe[int]()
 
 	c.Assert(s, qt.IsNotNil)
 }
@@ -19,7 +19,7 @@ func TestStackBasic(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	s := NewStack[int]()
+	s := NewStackThreadSafe[int]()
 
 	c.Assert(s.Len(), qt.Equals, 0)
 
@@ -50,7 +50,7 @@ func TestStackDrain(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	s := NewStack[string]()
+	s := NewStackThreadSafe[string]()
 	s.Push("a")
 	s.Push("b")
 
@@ -64,7 +64,7 @@ func TestStackDrainMatching(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	s := NewStack[int]()
+	s := NewStackThreadSafe[int]()
 	s.Push(1)
 	s.Push(2)
 	s.Push(3)

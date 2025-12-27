@@ -21,24 +21,24 @@ import (
 	"github.com/gohugoio/hugo/common/hiter"
 )
 
-// Stack is a simple LIFO stack that is safe for concurrent use.
-type Stack[T any] struct {
+// StackThreadSafe is a simple LIFO stack that is safe for concurrent use.
+type StackThreadSafe[T any] struct {
 	items []T
 	zero  T
 	mu    sync.RWMutex
 }
 
-func NewStack[T any]() *Stack[T] {
-	return &Stack[T]{}
+func NewStackThreadSafe[T any]() *StackThreadSafe[T] {
+	return &StackThreadSafe[T]{}
 }
 
-func (s *Stack[T]) Push(item T) {
+func (s *StackThreadSafe[T]) Push(item T) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.items = append(s.items, item)
 }
 
-func (s *Stack[T]) Pop() (T, bool) {
+func (s *StackThreadSafe[T]) Pop() (T, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if len(s.items) == 0 {
@@ -49,7 +49,7 @@ func (s *Stack[T]) Pop() (T, bool) {
 	return item, true
 }
 
-func (s *Stack[T]) Peek() (T, bool) {
+func (s *StackThreadSafe[T]) Peek() (T, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if len(s.items) == 0 {
@@ -58,18 +58,18 @@ func (s *Stack[T]) Peek() (T, bool) {
 	return s.items[len(s.items)-1], true
 }
 
-func (s *Stack[T]) Len() int {
+func (s *StackThreadSafe[T]) Len() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.items)
 }
 
 // All returns all items in the stack, from bottom to top.
-func (s *Stack[T]) All() iter.Seq2[int, T] {
+func (s *StackThreadSafe[T]) All() iter.Seq2[int, T] {
 	return hiter.Lock2(slices.All(s.items), s.mu.RLock, s.mu.RUnlock)
 }
 
-func (s *Stack[T]) Drain() []T {
+func (s *StackThreadSafe[T]) Drain() []T {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	items := s.items
@@ -77,7 +77,7 @@ func (s *Stack[T]) Drain() []T {
 	return items
 }
 
-func (s *Stack[T]) DrainMatching(predicate func(T) bool) []T {
+func (s *StackThreadSafe[T]) DrainMatching(predicate func(T) bool) []T {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	var items []T
@@ -87,5 +87,49 @@ func (s *Stack[T]) DrainMatching(predicate func(T) bool) []T {
 			s.items = slices.Delete(s.items, i, i+1)
 		}
 	}
+	return items
+}
+
+// Stack is a simple LIFO stack that is not safe for concurrent use.
+type Stack[T any] struct {
+	items []T
+	zero  T
+}
+
+func NewStack[T any]() *Stack[T] {
+	return &Stack[T]{}
+}
+
+func (s *Stack[T]) Push(item T) {
+	s.items = append(s.items, item)
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+	if len(s.items) == 0 {
+		return s.zero, false
+	}
+	item := s.items[len(s.items)-1]
+	s.items = s.items[:len(s.items)-1]
+	return item, true
+}
+
+func (s *Stack[T]) Peek() (T, bool) {
+	if len(s.items) == 0 {
+		return s.zero, false
+	}
+	return s.items[len(s.items)-1], true
+}
+
+func (s *Stack[T]) Len() int {
+	return len(s.items)
+}
+
+func (s *Stack[T]) All() iter.Seq2[int, T] {
+	return slices.All(s.items)
+}
+
+func (s *Stack[T]) Drain() []T {
+	items := s.items
+	s.items = nil
 	return items
 }

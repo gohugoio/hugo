@@ -22,6 +22,9 @@ type templateTransformContext struct {
 	templateNotFound map[string]bool
 	deferNodes       map[string]*parse.ListNode
 	lookupFn         func(name string, in *TemplInfo) *TemplInfo
+	store            *TemplateStore
+
+	dodebug bool
 
 	// The last error encountered.
 	err error
@@ -53,11 +56,13 @@ func (c templateTransformContext) getIfNotVisited(name string) *TemplInfo {
 
 func newTemplateTransformContext(
 	t *TemplInfo,
+	store *TemplateStore,
 	lookupFn func(name string, in *TemplInfo) *TemplInfo,
 ) *templateTransformContext {
 	return &templateTransformContext{
 		t:                t,
 		lookupFn:         lookupFn,
+		store:            store,
 		visited:          make(map[string]bool),
 		templateNotFound: make(map[string]bool),
 		deferNodes:       make(map[string]*parse.ListNode),
@@ -66,13 +71,14 @@ func newTemplateTransformContext(
 
 func applyTemplateTransformers(
 	t *TemplInfo,
+	store *TemplateStore,
 	lookupFn func(name string, in *TemplInfo) *TemplInfo,
 ) (*templateTransformContext, error) {
 	if t == nil {
 		return nil, errors.New("expected template, but none provided")
 	}
 
-	c := newTemplateTransformContext(t, lookupFn)
+	c := newTemplateTransformContext(t, store, lookupFn)
 	c.t.ParseInfo = defaultParseInfo
 	tree := getParseTree(t.Template)
 	if tree == nil {
@@ -85,6 +91,10 @@ func applyTemplateTransformers(
 		// This is a partial with a return statement.
 		c.t.ParseInfo.HasReturn = true
 		tree.Root = c.wrapInPartialReturnWrapper(tree.Root)
+	}
+
+	if c.dodebug {
+		// hdebug.Printf("Transformed template %q:\n%s\n", t.Name(), tree.Root.String())
 	}
 
 	return c, err
@@ -105,11 +115,17 @@ const (
 	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ range (slice .Arg) }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
 
 	doDeferTempl = `{{ doDefer ("PLACEHOLDER1") ("PLACEHOLDER2") }}`
+
+	// _pushPartialDecorator is always falsy.
+	pushPartialDecoratorTempl = `{{ if or (_pushPartialDecorator ("PLACEHOLDER")) }}{{ end }}`
+	popPartialDecoratorTempl  = `{{ if (_popPartialDecorator ("PLACEHOLDER1")) }}{{ . }}{{ else }}("PLACEHOLDER2"){{ end }}`
 )
 
 var (
 	partialReturnWrapper *parse.ListNode
 	doDefer              *parse.ListNode
+	popPartialDecorator  *parse.ListNode
+	pushPartialDecorator *parse.ListNode
 )
 
 func init() {
@@ -119,11 +135,24 @@ func init() {
 	}
 	partialReturnWrapper = templ.Tree.Root
 
+	// TODO1 add underscore.
 	templ, err = texttemplate.New("").Funcs(texttemplate.FuncMap{"doDefer": func(string, string) string { return "" }}).Parse(doDeferTempl)
 	if err != nil {
 		panic(err)
 	}
 	doDefer = templ.Tree.Root
+
+	templ, err = texttemplate.New("").Funcs(texttemplate.FuncMap{"_popPartialDecorator": func(string, string) string { return "" }}).Parse(popPartialDecoratorTempl)
+	if err != nil {
+		panic(err)
+	}
+	popPartialDecorator = templ.Tree.Root
+
+	templ, err = texttemplate.New("").Funcs(texttemplate.FuncMap{"_pushPartialDecorator": func(string, string) string { return "" }}).Parse(pushPartialDecoratorTempl)
+	if err != nil {
+		panic(err)
+	}
+	pushPartialDecorator = templ.Tree.Root
 }
 
 // wrapInPartialReturnWrapper copies and modifies the parsed nodes of a
@@ -156,7 +185,7 @@ func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, err
 	case *parse.IfNode:
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
 	case *parse.WithNode:
-		c.handleDefer(x)
+		c.handleWith(x)
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
 	case *parse.RangeNode:
 		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
@@ -178,7 +207,8 @@ func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, err
 		if x == nil {
 			return true, nil
 		}
-		c.collectInner(x)
+		c.collectInnerInShortcode(x)
+		c.collectInnerInPartial(x)
 		keep := c.collectReturnNode(x)
 
 		for _, elem := range x.Args {
@@ -193,14 +223,77 @@ func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, err
 	return true, c.err
 }
 
-func (c *templateTransformContext) handleDefer(withNode *parse.WithNode) {
+func (c *templateTransformContext) isWithPartial(args []parse.Node) bool {
+	if len(args) == 0 {
+		return false
+	}
+	if id, ok := args[0].(*parse.IdentifierNode); ok && id.Ident == "partial" { // TODO1 other variants.
+		return true
+	}
+	return false
+}
+
+func (c *templateTransformContext) isWithDefer(idArg parse.Node) bool {
+	id, ok := idArg.(*parse.ChainNode)
+	if !ok || len(id.Field) != 1 || id.Field[0] != "Defer" {
+		return false
+	}
+	if id2, ok := id.Node.(*parse.IdentifierNode); !ok || id2.Ident != "templates" {
+		return false
+	}
+	return true
+}
+
+func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
+	innerCopy := withNode.List.CopyList()
+	innerHash := hashing.XxHashFromStringHexEncoded(innerCopy.String())
+	internalPartialName := fmt.Sprintf("_partials/_internal/decorator_%s", innerHash) // Move this to a common func.
+
+	if _, err := c.applyTransformations(innerCopy); err != nil {
+		c.err = fmt.Errorf("failed to transform internal partial decorator template %q: %w", internalPartialName, err)
+		return
+	}
+	if err := c.store.addTransformedTemplateRoot(c.t, internalPartialName, SubCategoryInline, innerCopy); err != nil {
+		c.err = fmt.Errorf("failed to add internal partial decorator template %q: %w", internalPartialName, err)
+		return
+	}
+
+	newInner := popPartialDecorator.CopyList()
+	ifNode := newInner.Nodes[0].(*parse.IfNode)
+
+	placeholderPipe := ifNode.Pipe.Cmds[0].Args[0].(*parse.PipeNode)
+
+	// Set PLACEHOLDER1 to the unique ID for this partial decorator.
+	sn1 := placeholderPipe.Cmds[0].Args[1].(*parse.PipeNode).Cmds[0].Args[0].(*parse.StringNode)
+	sn1.Text = innerHash
+	sn1.Quoted = fmt.Sprintf("%q", sn1.Text)
+
+	ifNode.ElseList = withNode.List.CopyList()
+
+	newPipe := pushPartialDecorator.CopyList()
+	orNode := newPipe.Nodes[0].(*parse.IfNode)
+	setContext := orNode.Pipe.Cmds[0].Args[1]
+	// Replace PLACEHOLDER with the unique ID for this partial decorator.
+	sn2 := setContext.(*parse.PipeNode).Cmds[0].Args[1].(*parse.PipeNode).Cmds[0].Args[0].(*parse.StringNode)
+	sn2.Text = innerHash
+	sn2.Quoted = fmt.Sprintf("%q", sn2.Text)
+	withNode.Pipe.Cmds = append(orNode.Pipe.Cmds, withNode.Pipe.Cmds...)
+
+	withNode.List = newInner
+
+	c.dodebug = true
+}
+
+func (c *templateTransformContext) handleWith(withNode *parse.WithNode) {
 	if len(withNode.Pipe.Cmds) != 1 {
 		return
 	}
 	cmd := withNode.Pipe.Cmds[0]
-	if len(cmd.Args) != 1 {
+	if c.isWithPartial(cmd.Args) {
+		c.handleWithPartial(withNode)
 		return
 	}
+
 	idArg := cmd.Args[0]
 
 	p, ok := idArg.(*parse.PipeNode)
@@ -220,11 +313,7 @@ func (c *templateTransformContext) handleDefer(withNode *parse.WithNode) {
 
 	idArg = cmd.Args[0]
 
-	id, ok := idArg.(*parse.ChainNode)
-	if !ok || len(id.Field) != 1 || id.Field[0] != "Defer" {
-		return
-	}
-	if id2, ok := id.Node.(*parse.IdentifierNode); !ok || id2.Ident != "templates" {
+	if !c.isWithDefer(idArg) {
 		return
 	}
 
@@ -304,9 +393,9 @@ func (c *templateTransformContext) collectConfig(n *parse.PipeNode) {
 	}
 }
 
-// collectInner determines if the given CommandNode represents a
+// collectInnerInShortcode determines if the given CommandNode represents a
 // shortcode call to its .Inner.
-func (c *templateTransformContext) collectInner(n *parse.CommandNode) {
+func (c *templateTransformContext) collectInnerInShortcode(n *parse.CommandNode) {
 	if c.t.category != CategoryShortcode {
 		return
 	}
@@ -326,6 +415,30 @@ func (c *templateTransformContext) collectInner(n *parse.CommandNode) {
 		if c.hasIdent(idents, "Inner") || c.hasIdent(idents, "InnerDeindent") {
 			c.t.ParseInfo.IsInner = true
 			break
+		}
+	}
+}
+
+func (c *templateTransformContext) collectInnerInPartial(n *parse.CommandNode) {
+	// TODO1 revise/test vs internal partials.
+	if c.t.category != CategoryPartial {
+		return
+	}
+
+	if c.t.ParseInfo.HasPartialInner || len(n.Args) == 0 {
+		return
+	}
+
+	switch v := n.Args[0].(type) {
+	case *parse.IdentifierNode:
+		if v.Ident == "inner" {
+			c.t.ParseInfo.HasPartialInner = true
+		}
+	case *parse.ChainNode:
+		if v.Field[0] == "Inner" {
+			if id, ok := v.Node.(*parse.IdentifierNode); ok && id.Ident == "templates" {
+				c.t.ParseInfo.HasPartialInner = true
+			}
 		}
 	}
 }

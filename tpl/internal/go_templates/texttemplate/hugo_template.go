@@ -409,7 +409,21 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 		argv[i] = s.validateType(first[i], typ.In(i))
 	}
 
-	v, err := safeCall(fun, argv)
+	var (
+		v   reflect.Value
+		err error
+	)
+
+	// Added for Hugo.
+	if name == "_pushPartialDecorator" {
+		// Special case: this function need to update the context.
+		var ctx context.Context
+		v, ctx, err = safeCallContext(fun, argv)
+		s.ctx = ctx
+	} else {
+		v, err = safeCall(fun, argv)
+	}
+
 	// If we have an error that is not nil, stop execution and return that
 	// error to the caller.
 	if err != nil {
@@ -429,6 +443,24 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	}
 
 	return vv
+}
+
+func safeCallContext(fun reflect.Value, args []reflect.Value) (val reflect.Value, ctx context.Context, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if e, ok := r.(error); ok {
+				err = e
+			} else {
+				err = fmt.Errorf("%v", r)
+			}
+		}
+	}()
+	ret := fun.Call(args)
+	if len(ret) != 2 {
+		err = fmt.Errorf("expected 2 return values, got %d", len(ret))
+	}
+	ctx = ret[1].Interface().(context.Context)
+	return ret[0], ctx, err
 }
 
 // validateType guarantees that the value is valid and assignable to the type.
