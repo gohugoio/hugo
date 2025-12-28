@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
@@ -58,7 +59,24 @@ func (t Translator) Func(lang string) translateFunc {
 		return f
 	}
 	t.logger.Infof("Translation func for language %v not found, use default.", lang)
-	if f, ok := t.translateFuncs[t.cfg.DefaultContentLanguage()]; ok {
+
+	// Try the LanguageCode of the defaultContentLanguage first (e.g., "en-US"),
+	// then fall back to the language key (e.g., "en").
+	defaultLang := t.cfg.DefaultContentLanguage()
+	if languages, ok := t.cfg.Languages().(langs.Languages); ok {
+		for _, l := range languages {
+			if l.Lang == defaultLang {
+				if languageCode := l.LanguageCode(); languageCode != l.Lang {
+					if f, ok := t.translateFuncs[strings.ToLower(languageCode)]; ok {
+						return f
+					}
+				}
+				break
+			}
+		}
+	}
+
+	if f, ok := t.translateFuncs[defaultLang]; ok {
 		return f
 	}
 
