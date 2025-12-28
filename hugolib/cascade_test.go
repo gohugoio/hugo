@@ -365,3 +365,48 @@ Resource: {{ .Name }}|p1: {{ .Params.p1 }}|
 
 	b.AssertFileContent("public/b1/index.html", "Title: b1|p1: v1|", "Resource: p2.md|p1: v1|")
 }
+
+// Issue 14310
+func TestCascadeIssue14310(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap','taxonomy','term']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+-- layouts/all.html --
+{{ .Params.color }}
+-- content/s1/_index.de.md --
+---
+title: s1 (de)
+cascade:
+  params:
+    color: red (de)
+---
+-- content/s1/_index.en.md --
+---
+title: s1 (en)
+cascade:
+  params:
+    color: red (en)
+---
+-- content/s1/p1.de.md --
+---
+title: p1 (de)
+---
+-- content/s1/p1.en.md --
+---
+title: p1 (en)
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/s1/p1/index.html", "red (en)")
+	b.AssertFileContent("public/de/s1/p1/index.html", "red (de)") // fails: file contains "red (en)"
+}

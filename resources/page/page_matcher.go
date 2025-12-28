@@ -246,8 +246,8 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 }
 
 // DecodeCascadeConfigOptions
-func (v *PageMatcher) compileSitesMatrix(configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
-	if v.Sites.Matrix.IsZero() {
+func (v *PageMatcher) compileSitesMatrix(defaults sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+	if v.Sites.Matrix.IsZero() && defaults == nil {
 		// Nothing to do.
 		v.SitesMatrixCompiled = nil
 		return nil
@@ -255,8 +255,12 @@ func (v *PageMatcher) compileSitesMatrix(configuredDimensions *sitesmatrix.Confi
 	intSetsCfg := sitesmatrix.IntSetsConfig{
 		Globs: v.Sites.Matrix,
 	}
-	b := sitesmatrix.NewIntSetsBuilder(configuredDimensions).WithConfig(intSetsCfg).WithAllIfNotSet()
 
+	b := sitesmatrix.NewIntSetsBuilder(configuredDimensions).WithConfig(intSetsCfg)
+	if defaults != nil && v.Sites.Matrix.IsZero() {
+		b = b.WithDimensionsFromOtherIfNotSet(defaults)
+	}
+	b = b.WithAllIfNotSet()
 	v.SitesMatrixCompiled = b.Build()
 	return nil
 }
@@ -279,6 +283,17 @@ func (p *PageMatcherParamsConfig) init() error {
 	maps.PrepareParams(p.Fields)
 
 	return nil
+}
+
+func (p *PageMatcherParamsConfig) hasSitesMatrix() bool {
+	if m, ok := p.Fields["sites"]; ok {
+		mm := maps.ToStringMap(m)
+		if sm, found := mm["matrix"]; found {
+			mmm := maps.ToStringMap(sm)
+			return len(mmm) > 0
+		}
+	}
+	return false
 }
 
 type PageMatcherParamsConfigs struct {
@@ -347,16 +362,23 @@ func (c *PageMatcherParamsConfigs) SourceHash() uint64 {
 	return h.Sum64()
 }
 
-func (c *PageMatcherParamsConfigs) InitConfig(logger loggers.Logger, _ sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+func (c *PageMatcherParamsConfigs) InitConfig(logger loggers.Logger, defaultsIn sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
 	if c == nil {
 		return nil
 	}
 	for _, cc := range c.c {
 		for i := range cc.Config.Cascades {
-			checkCascadePattern(logger, cc.Config.Cascades[i].Target)
-			if err := cc.Config.Cascades[i].Target.compileSitesMatrix(configuredDimensions); err != nil {
+			ccc := cc.Config.Cascades[i]
+			checkCascadePattern(logger, ccc.Target)
+			defaults := defaultsIn
+			hasSitesMatrix := ccc.hasSitesMatrix()
+			if hasSitesMatrix {
+				defaults = nil
+			}
+			if err := ccc.Target.compileSitesMatrix(defaults, configuredDimensions); err != nil {
 				return fmt.Errorf("failed to compile cascade target %d: %w", i, err)
 			}
+			cc.Config.Cascades[i] = ccc
 		}
 	}
 	return nil
