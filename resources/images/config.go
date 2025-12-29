@@ -226,6 +226,7 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			c.Filter = filter
 		} else if _, ok := hints[part]; ok {
 			c.Hint = part
+			c.hintSetForImage = true
 		} else if part[0] == '#' {
 			c.BgColor, err = hexStringToColorGo(part[1:])
 			if err != nil {
@@ -236,8 +237,8 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			if err != nil {
 				return c, err
 			}
-			if c.Quality < 1 || c.Quality > 100 {
-				return c, errors.New("quality ranges from 1 to 100 inclusive")
+			if c.Quality < 0 || c.Quality > 100 {
+				return c, errors.New("quality ranges from 0 to 100 inclusive")
 			}
 			c.qualitySetForImage = true
 		} else if part[0] == 'r' {
@@ -305,8 +306,9 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		c.TargetFormat = sourceFormat
 	}
 
-	if c.Quality <= 0 && c.TargetFormat.RequiresDefaultQuality() {
-		// We need a quality setting for all JPEGs and WEBPs.
+	if !c.qualitySetForImage && c.Quality <= 0 && c.TargetFormat.RequiresDefaultQuality() {
+		// We need a quality setting for all JPEGs and WEBPs,
+		// unless the user explicitly set quality (e.g., q0 for lossless WebP).
 		c.Quality = defaults.Config.Imaging.Quality
 	}
 
@@ -358,7 +360,8 @@ type ImageConfig struct {
 
 	// Hint about what type of picture this is. Used to optimize encoding
 	// when target is set to webp.
-	Hint string
+	Hint            string
+	hintSetForImage bool // Whether the above is set for this image.
 
 	Width  int
 	Height int

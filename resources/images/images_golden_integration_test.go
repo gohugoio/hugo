@@ -388,6 +388,14 @@ Home.
 {{ template "process" (dict "spec" "png" "img" $highContrast) }}
 {{ template "process" (dict "spec" "resize 300x300" "img" $giphy) }}
 {{ template "process" (dict "spec" "resize 300x300 webp" "img" $giphy) }}
+{{ template "process" (dict "spec" "resize 300x300 webp q0" "img" $sunset) }}
+{{ template "process" (dict "spec" "resize 300x300 webp q1" "img" $sunset) }}
+{{ template "process" (dict "spec" "resize 300x300 webp q33" "img" $sunset) }}
+{{ template "process" (dict "spec" "resize 300x300 webp q75" "img" $sunset) }}
+{{ template "process" (dict "spec" "resize 300x300 webp q100" "img" $sunset) }}
+{{ template "process" (dict "spec" "resize 300x300 webp drawing" "img" $sunset) }}
+{{ template "process" (dict "spec" "resize 300x300 webp icon" "img" $sunset) }}
+{{ template "process" (dict "spec" "resize 300x300 webp q50 drawing" "img" $sunset) }}
 {{ template "process" (dict "spec" "resize 400x" "img" $highContrast) }}
 
 {{ define "process"}}
