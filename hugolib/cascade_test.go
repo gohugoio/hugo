@@ -367,20 +367,26 @@ Resource: {{ .Name }}|p1: {{ .Params.p1 }}|
 }
 
 // Issue 14310
+// Issue 14321
 func TestCascadeIssue14310(t *testing.T) {
 	t.Parallel()
 
 	files := `
 -- hugo.toml --
-disableKinds = ['home','rss','sitemap','taxonomy','term']
+disableKinds = ['home', 'rss', 'sitemap', 'taxonomy', 'term']
 defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = true
 [languages.en]
-weight = 1
+  weight = 1
 [languages.de]
-weight = 2
+  weight = 2
+[[cascade]]
+  [cascade.params]
+    size = 'medium'
+  [cascade.target]
+    kind = 'page'
 -- layouts/all.html --
-{{ .Params.color }}
+|color: {{ .Params.color }}|size: {{ .Params.size }}|
 -- content/s1/_index.de.md --
 ---
 title: s1 (de)
@@ -407,6 +413,6 @@ title: p1 (en)
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/en/s1/p1/index.html", "red (en)")
-	b.AssertFileContent("public/de/s1/p1/index.html", "red (de)") // fails: file contains "red (en)"
+	b.AssertFileContent("public/en/s1/p1/index.html", "|color: red (en)|size: medium|") // fails: file contains "|color: red (en)|size: |"
+	b.AssertFileContent("public/de/s1/p1/index.html", "|color: red (de)|size: medium|")
 }

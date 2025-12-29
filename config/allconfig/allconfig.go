@@ -915,10 +915,9 @@ func (c *Configs) Init(logger loggers.Logger) error {
 	// avoid initializing the same config more than once.
 	for i, l := range c.Languages {
 		langConfig := c.LanguageConfigMap[l.Lang]
-		sitesMatrix := sitesmatrix.NewIntSetsBuilder(c.ConfiguredDimensions).WithLanguageIndices(i).WithAllIfNotSet().Build()
 		for _, s := range allDecoderSetups {
 			if getInitializer := s.getInitializer; getInitializer != nil {
-				if err := getInitializer(langConfig).InitConfig(logger, sitesMatrix, c.ConfiguredDimensions); err != nil {
+				if err := getInitializer(langConfig).InitConfig(logger, nil, c.ConfiguredDimensions); err != nil {
 					return err
 				}
 			}
