@@ -202,6 +202,10 @@ func (d *WebpCodec) DecodeConfig(r io.Reader) (image.Config, error) {
 }
 
 func (d *WebpCodec) Encode(w io.Writer, img image.Image) error {
+	return d.EncodeOptions(w, img, nil)
+}
+
+func (d *WebpCodec) EncodeOptions(w io.Writer, img image.Image, options map[string]any) error {
 	b := img.Bounds()
 	if b.Dx() >= 1<<16 || b.Dy() >= 1<<16 {
 		return errors.New("webp: image is too large to encode")
@@ -299,6 +303,20 @@ func (d *WebpCodec) Encode(w io.Writer, img image.Image) error {
 	// encodeGray
 	// decode
 	// config
+
+	opts := map[string]any{
+		"quality":     d.quality, // a number between 0 and 100. Set to 0 for lossless.
+		"hint":        d.hint,    // drawing, icon, photo, picture, or text
+		"useSharpYuv": true,      // Use sharp (and slow) RGB->YUV conversion.
+	}
+
+	// Override with per-image options if provided.
+	for _, key := range []string{"quality", "hint"} {
+		if v, ok := options[key]; ok {
+			opts[key] = v
+		}
+	}
+
 	message := Message[WebpInput]{
 		Header: Header{
 			Version:       1,
@@ -310,11 +328,7 @@ func (d *WebpCodec) Encode(w io.Writer, img image.Image) error {
 		Data: WebpInput{
 			Source:      bytes.NewReader(imageBytes),
 			Destination: w,
-			Options: map[string]any{
-				"quality":     d.quality, // a number between 0 and 100. Set to 0 for lossless.
-				"hint":        d.hint,    // drawing, icon, photo, picture, or text
-				"useSharpYuv": true,      // Use sharp (and slow) RGB->YUV conversion.
-			},
+			Options:     opts,
 			Params: map[string]any{
 				"width":          bounds.Max.X,
 				"height":         bounds.Max.Y,

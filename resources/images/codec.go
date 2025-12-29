@@ -46,6 +46,14 @@ type ToEncoder interface {
 	EncodeTo(conf ImageConfig, w io.Writer, src image.Image) error
 }
 
+// EncoderWithOptions defines the encoding of an image format with options.
+// This is currently only used for WebP and the options are passed as a map
+// to match the internal WASM API. The options map may be nil when no options
+// need to be overridden.
+type EncoderWithOptions interface {
+	EncodeOptions(w io.Writer, src image.Image, options map[string]any) error
+}
+
 // CodecStdlib defines both decoding and encoding of an image format as defined by the standard library.
 type CodecStdlib interface {
 	Decoder
@@ -123,6 +131,19 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 	case BMP:
 		return bmp.Encode(w, img)
 	case WEBP:
+		if enc, ok := d.webp.(EncoderWithOptions); ok {
+			var opts map[string]any
+			if conf.qualitySetForImage || conf.hintSetForImage {
+				opts = make(map[string]any)
+				if conf.qualitySetForImage {
+					opts["quality"] = conf.Quality
+				}
+				if conf.hintSetForImage {
+					opts["hint"] = conf.Hint
+				}
+			}
+			return enc.EncodeOptions(w, img, opts)
+		}
 		return d.webp.Encode(w, img)
 	default:
 		return errors.New("format not supported")
