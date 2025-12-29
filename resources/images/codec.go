@@ -37,35 +37,27 @@ type Decoder interface {
 	DecodeConfig(r io.Reader) (image.Config, error)
 }
 
-// Encoder defines the encoding of an image format.
-type Encoder interface {
-	Encode(w io.Writer, src image.Image) error
-}
-
 type ToEncoder interface {
 	EncodeTo(conf ImageConfig, w io.Writer, src image.Image) error
 }
 
-// EncoderWithOptions defines the encoding of an image format with options.
-// This is currently only used for WebP and the options are passed as a map
-// to match the internal WASM API. The options map may be nil when no options
-// need to be overridden.
-type EncoderWithOptions interface {
-	EncodeOptions(w io.Writer, src image.Image, options map[string]any) error
+// EncoderWithOptions defines the encoding of an image format with the given options.
+type Encoder interface {
+	Encode(w io.Writer, src image.Image, options map[string]any) error
 }
 
-// CodecStdlib defines both decoding and encoding of an image format as defined by the standard library.
-type CodecStdlib interface {
+// EncodeDecoder defines both decoding and encoding of an image format as defined by the standard library.
+type EncodeDecoder interface {
 	Decoder
 	Encoder
 }
 
 // Codec is a generic image codec supporting multiple formats.
 type Codec struct {
-	webp CodecStdlib
+	webp EncodeDecoder
 }
 
-func newCodec(webp CodecStdlib) *Codec {
+func newCodec(webp EncodeDecoder) *Codec {
 	return &Codec{webp: webp}
 }
 
@@ -131,20 +123,12 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 	case BMP:
 		return bmp.Encode(w, img)
 	case WEBP:
-		if enc, ok := d.webp.(EncoderWithOptions); ok {
-			var opts map[string]any
-			if conf.qualitySetForImage || conf.hintSetForImage {
-				opts = make(map[string]any)
-				if conf.qualitySetForImage {
-					opts["quality"] = conf.Quality
-				}
-				if conf.hintSetForImage {
-					opts["hint"] = conf.Hint
-				}
-			}
-			return enc.EncodeOptions(w, img, opts)
+		opts := map[string]any{
+			"compression": conf.Compression,
+			"quality":     conf.Quality,
+			"hint":        conf.Hint,
 		}
-		return d.webp.Encode(w, img)
+		return d.webp.Encode(w, img, opts)
 	default:
 		return errors.New("format not supported")
 	}

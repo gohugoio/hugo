@@ -73,9 +73,10 @@ typedef struct
 
 typedef struct
 {
-    float quality; // between 0 and 100. Set to 0 for lossless.
-    char hint[64]; // drawing, icon, photo, picture, or text. Default is photo.
-    int preset;    // preset to use; resolved from hint.
+    float quality;        // between 1 and 100.
+    char compression[32]; // "lossy" or "lossless"
+    char hint[64];        // drawing, icon, photo, picture, or text. Default is photo.
+    int preset;           // preset to use; resolved from hint.
 
     bool useSharpYuv; // use sharp YUV for better quality.
 
@@ -302,7 +303,7 @@ static uint8_t initEncoderConfig(WebPConfig *config, InputOptions opts)
         return 0;
     }
 
-    if (opts.quality == 0)
+    if (strcmp(opts.compression, "lossless") == 0)
     {
         // Activate the lossless compression mode with the desired efficiency level
         // between 0 (fastest, lowest compression) and 9 (slower, best compression).
@@ -396,6 +397,12 @@ InputMessage parse_input_message(const char *line)
         if (options_object != NULL)
         {
             msg.data.options.quality = (int)json_object_get_number(options_object, "quality");
+            const char *compression_str = json_object_get_string(options_object, "compression");
+            if (compression_str != NULL)
+            {
+                strncpy(msg.data.options.compression, compression_str, sizeof(msg.data.options.compression) - 1);
+                msg.data.options.compression[sizeof(msg.data.options.compression) - 1] = '\0';
+            }
             const char *hint_str = json_object_get_string(options_object, "hint");
             if (hint_str != NULL)
             {

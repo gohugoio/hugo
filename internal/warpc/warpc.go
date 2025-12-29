@@ -792,11 +792,9 @@ func (d *Dispatchers) Webp() (Dispatcher[WebpInput, WebpOutput], error) {
 	return d.webp.start()
 }
 
-func (d *Dispatchers) NewWepCodec(quality int, hint string) (*WebpCodec, error) {
+func (d *Dispatchers) NewWepCodec() (*WebpCodec, error) {
 	return &WebpCodec{
-		d:       d.Webp,
-		quality: quality,
-		hint:    hint,
+		d: d.Webp,
 	}, nil
 }
 
