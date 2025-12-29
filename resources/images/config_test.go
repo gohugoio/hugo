@@ -133,7 +133,6 @@ func newImageConfig(action string, width, height, quality, rotate int, filter, a
 	c.Width = width
 	c.Height = height
 	c.Quality = quality
-	c.qualitySetForImage = quality != 75
 	c.Rotate = rotate
 	c.BgColor, _ = hexStringToColorGo(bgColor)
 	c.Anchor = SmartCropAnchor

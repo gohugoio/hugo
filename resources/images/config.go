@@ -85,6 +85,11 @@ var anchorPositions = map[string]gift.Anchor{
 	smartCropIdentifier:            SmartCropAnchor,
 }
 
+var compressionMethods = map[string]bool{
+	"lossy":    true,
+	"lossless": true,
+}
+
 // These encoding hints are currently only relevant for Webp.
 var hints = map[string]bool{
 	"picture": true,
@@ -127,6 +132,7 @@ const (
 	defaultResampleFilter = "box"
 	defaultBgColor        = "#ffffff"
 	defaultHint           = "photo"
+	defaultCompression    = "lossy"
 )
 
 var (
@@ -135,6 +141,7 @@ var (
 		"bgColor":        defaultBgColor,
 		"hint":           defaultHint,
 		"quality":        defaultJPEGQuality,
+		"compression":    defaultCompression,
 	}
 
 	defaultImageConfig *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
@@ -226,7 +233,8 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			c.Filter = filter
 		} else if _, ok := hints[part]; ok {
 			c.Hint = part
-			c.hintSetForImage = true
+		} else if _, ok := compressionMethods[part]; ok {
+			c.Compression = part
 		} else if part[0] == '#' {
 			c.BgColor, err = hexStringToColorGo(part[1:])
 			if err != nil {
@@ -237,10 +245,9 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			if err != nil {
 				return c, err
 			}
-			if c.Quality < 0 || c.Quality > 100 {
-				return c, errors.New("quality ranges from 0 to 100 inclusive")
+			if c.Quality < 1 || c.Quality > 100 {
+				return c, errors.New("quality ranges from 1 to 100 inclusive")
 			}
-			c.qualitySetForImage = true
 		} else if part[0] == 'r' {
 			c.Rotate, err = strconv.Atoi(part[1:])
 			if err != nil {
@@ -306,10 +313,14 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		c.TargetFormat = sourceFormat
 	}
 
-	if !c.qualitySetForImage && c.Quality <= 0 && c.TargetFormat.RequiresDefaultQuality() {
+	if c.Quality <= 0 && c.TargetFormat.RequiresDefaultQuality() {
 		// We need a quality setting for all JPEGs and WEBPs,
-		// unless the user explicitly set quality (e.g., q0 for lossless WebP).
+		// unless the user explicitly set quality.
 		c.Quality = defaults.Config.Imaging.Quality
+	}
+
+	if c.Compression == "" {
+		c.Compression = defaults.Config.Imaging.Compression
 	}
 
 	if c.BgColor == nil && c.TargetFormat != sourceFormat {
@@ -341,11 +352,11 @@ type ImageConfig struct {
 	// If set, this will be used as the key in filenames etc.
 	Key string
 
-	// Quality ranges from 1 to 100 inclusive, higher is better.
+	// Quality ranges from 0 to 100 inclusive, higher is better.
 	// This is only relevant for JPEG and WEBP images.
+	// For WebP, 0 means lossless.
 	// Default is 75.
-	Quality            int
-	qualitySetForImage bool // Whether the above is set for this image.
+	Quality int
 
 	// Rotate rotates an image by the given angle counter-clockwise.
 	// The rotation will be performed first.
@@ -360,8 +371,9 @@ type ImageConfig struct {
 
 	// Hint about what type of picture this is. Used to optimize encoding
 	// when target is set to webp.
-	Hint            string
-	hintSetForImage bool // Whether the above is set for this image.
+	Hint string
+
+	Compression string
 
 	Width  int
 	Height int
@@ -415,6 +427,11 @@ type ImagingConfig struct {
 	// Default image quality setting (1-100). Only used for JPEG and WebP images.
 	Quality int
 
+	// Compression method to use.
+	// One of "lossy" or "lossless".
+	// Note that lossless is currently only supported for WebP.
+	Compression string
+
 	// Resample filter to use in resize operations.
 	ResampleFilter string
 
@@ -434,7 +451,7 @@ type ImagingConfig struct {
 }
 
 func (cfg *ImagingConfig) init() error {
-	if cfg.Quality < 0 || cfg.Quality > 100 {
+	if cfg.Quality < 1 || cfg.Quality > 100 {
 		return errors.New("image quality must be a number between 1 and 100")
 	}
 
@@ -442,6 +459,7 @@ func (cfg *ImagingConfig) init() error {
 	cfg.Anchor = strings.ToLower(cfg.Anchor)
 	cfg.ResampleFilter = strings.ToLower(cfg.ResampleFilter)
 	cfg.Hint = strings.ToLower(cfg.Hint)
+	cfg.Compression = strings.ToLower(cfg.Compression)
 
 	if cfg.Anchor == "" {
 		cfg.Anchor = smartCropIdentifier

@@ -22,6 +22,7 @@ import (
 	"image/color"
 	"image/draw"
 	"io"
+	"maps"
 
 	"github.com/gohugoio/hugo/common/himage"
 	"github.com/gohugoio/hugo/common/hugio"
@@ -82,9 +83,7 @@ type WebpOutput struct {
 }
 
 type WebpCodec struct {
-	d       func() (Dispatcher[WebpInput, WebpOutput], error)
-	quality int
-	hint    string
+	d func() (Dispatcher[WebpInput, WebpOutput], error)
 }
 
 // Decode reads a WEBP image from r and returns it as an image.Image.
@@ -201,11 +200,7 @@ func (d *WebpCodec) DecodeConfig(r io.Reader) (image.Config, error) {
 	}, nil
 }
 
-func (d *WebpCodec) Encode(w io.Writer, img image.Image) error {
-	return d.EncodeOptions(w, img, nil)
-}
-
-func (d *WebpCodec) EncodeOptions(w io.Writer, img image.Image, options map[string]any) error {
+func (d *WebpCodec) Encode(w io.Writer, img image.Image, opts map[string]any) error {
 	b := img.Bounds()
 	if b.Dx() >= 1<<16 || b.Dy() >= 1<<16 {
 		return errors.New("webp: image is too large to encode")
@@ -298,24 +293,8 @@ func (d *WebpCodec) EncodeOptions(w io.Writer, img image.Image, options map[stri
 		return fmt.Errorf("no image bytes extracted from %T", img)
 	}
 
-	// Commands:
-	// encodeNRGBA
-	// encodeGray
-	// decode
-	// config
-
-	opts := map[string]any{
-		"quality":     d.quality, // a number between 0 and 100. Set to 0 for lossless.
-		"hint":        d.hint,    // drawing, icon, photo, picture, or text
-		"useSharpYuv": true,      // Use sharp (and slow) RGB->YUV conversion.
-	}
-
-	// Override with per-image options if provided.
-	for _, key := range []string{"quality", "hint"} {
-		if v, ok := options[key]; ok {
-			opts[key] = v
-		}
-	}
+	opts = maps.Clone(opts)
+	opts["useSharpYuv"] = true // Use sharp (and slow) RGB->YUV conversion.
 
 	message := Message[WebpInput]{
 		Header: Header{

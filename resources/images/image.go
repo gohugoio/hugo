@@ -137,7 +137,7 @@ func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatcher
 		return nil, err
 	}
 
-	webpCodec, err := wasmDispatchers.NewWepCodec(cfg.Config.Imaging.Quality, cfg.Config.Imaging.Hint)
+	webpCodec, err := wasmDispatchers.NewWepCodec()
 	if err != nil {
 		return nil, err
 	}
@@ -300,9 +300,10 @@ func GetDefaultImageConfig(defaults *config.ConfigNamespace[ImagingConfig, Imagi
 		defaults = defaultImageConfig
 	}
 	return ImageConfig{
-		Anchor:  -1, // The real values start at 0.
-		Hint:    "photo",
-		Quality: defaults.Config.Imaging.Quality,
+		Anchor:      -1, // The real values start at 0.
+		Hint:        "photo",
+		Quality:     defaults.Config.Imaging.Quality,
+		Compression: defaults.Config.Imaging.Compression,
 	}
 }
 
