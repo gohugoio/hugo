@@ -137,6 +137,7 @@ func ExtractAndGroupRootPaths(in []string) []string {
 		return nil
 	}
 	const maxGroups = 5
+	const maxRootGroups = 10
 	sort.Strings(in)
 	var groups []string
 	tree := radix.New[[]string]()
@@ -185,6 +186,13 @@ LOOP:
 	}
 
 	tree.Walk(collect)
+
+	// Limit the total number of root groups to keep output manageable
+	if len(groups) > maxRootGroups {
+		remaining := len(groups) - maxRootGroups
+		groups = groups[:maxRootGroups]
+		groups = append(groups, fmt.Sprintf("... and %d more", remaining))
+	}
 
 	return groups
 }

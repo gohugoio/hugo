@@ -345,19 +345,34 @@ func TestAbsPathify(t *testing.T) {
 }
 
 func TestExtractAndGroupRootPaths(t *testing.T) {
-	in := []string{
-		filepath.FromSlash("/a/b/c/d"),
-		filepath.FromSlash("/a/b/c/e"),
-		filepath.FromSlash("/a/b/e/f"),
-		filepath.FromSlash("/a/b"),
-		filepath.FromSlash("/a/b/c/b/g"),
-		filepath.FromSlash("/c/d/e"),
-	}
-
-	result := helpers.ExtractAndGroupRootPaths(in)
-
 	c := qt.New(t)
-	c.Assert(result, qt.DeepEquals, []string{"/a/b/{c,e}", "/c/d/e"})
+
+	t.Run("Basic grouping", func(t *testing.T) {
+		in := []string{
+			filepath.FromSlash("/a/b/c/d"),
+			filepath.FromSlash("/a/b/c/e"),
+			filepath.FromSlash("/a/b/e/f"),
+			filepath.FromSlash("/a/b"),
+			filepath.FromSlash("/a/b/c/b/g"),
+			filepath.FromSlash("/c/d/e"),
+		}
+
+		result := helpers.ExtractAndGroupRootPaths(in)
+		c.Assert(result, qt.DeepEquals, []string{"/a/b/{c,e}", "/c/d/e"})
+	})
+
+	t.Run("Limits number of root groups", func(t *testing.T) {
+		in := []string{}
+		// Create 15 different root paths to exceed maxRootGroups (10)
+		for i := 0; i < 15; i++ {
+			in = append(in, filepath.FromSlash(fmt.Sprintf("/path%d/subdir", i)))
+		}
+
+		result := helpers.ExtractAndGroupRootPaths(in)
+		// Should have 10 paths + 1 "... and X more" message
+		c.Assert(len(result), qt.Equals, 11)
+		c.Assert(result[10], qt.Matches, `\.\.\. and \d+ more`)
+	})
 }
 
 func BenchmarkExtractAndGroupRootPaths(b *testing.B) {
