@@ -58,7 +58,8 @@ var (
 		".webp": WEBP,
 	}
 
-	imageFormatsBySubType = map[string]Format{
+	// These are the image types we can process.
+	processableImageSubTypes = map[string]Format{
 		media.Builtin.JPEGType.SubType: JPEG,
 		media.Builtin.PNGType.SubType:  PNG,
 		media.Builtin.TIFFType.SubType: TIFF,
@@ -123,7 +124,7 @@ func ImageFormatFromExt(ext string) (Format, bool) {
 }
 
 func ImageFormatFromMediaSubType(sub string) (Format, bool) {
-	f, found := imageFormatsBySubType[sub]
+	f, found := processableImageSubTypes[sub]
 	return f, found
 }
 
