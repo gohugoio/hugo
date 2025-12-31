@@ -195,7 +195,7 @@ parts:
   node:
     plugin: nil
     stage-snaps:
-      - node/22/stable
+      - node/24/stable
     organize:
       "LICENSE": "LICENSE_NODE"     # rename to prevent conflict with Go snap
       "README.md": "README_NODE.md" # rename to prevent conflict with Go snap
