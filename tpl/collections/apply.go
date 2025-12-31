@@ -64,6 +64,8 @@ func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any
 	}
 }
 
+var typeOfReflectValue = reflect.TypeOf(reflect.Value{})
+
 func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (reflect.Value, error) {
 	num := fn.Type().NumIn()
 	if num > 0 && hreflect.IsContextType(fn.Type().In(0)) {
@@ -91,7 +93,11 @@ func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (re
 	}*/
 
 	for i := range num {
-		// AssignableTo reports whether xt is assignable to type targ.
+		// Go's built-in template funcs (e.g. len) use reflect.Value as argument type.
+		if fn.Type().In(i) == typeOfReflectValue && n[i].Type() != typeOfReflectValue {
+			n[i] = reflect.ValueOf(n[i])
+		}
+
 		if xt, targ := n[i].Type(), fn.Type().In(i); !xt.AssignableTo(targ) {
 			return reflect.ValueOf(nil), errors.New("called apply using " + xt.String() + " as type " + targ.String())
 		}

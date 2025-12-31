@@ -39,6 +39,21 @@ baseURL = 'http://example.com/'
 `)
 }
 
+func TestApplyBuiltInIssue13418(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+-- layouts/home.html --
+len: {{ apply (slice "hello") "len" "." }}
+not: {{ apply (slice "hello") "not" "." }}
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "len: [5]", "not: [false]")
+}
+
 // Issue 9865
 func TestSortStable(t *testing.T) {
 	t.Parallel()
