@@ -1,0 +1,21 @@
+[binaries]
+c       = '/opt/wasi-sdk/bin/clang'
+cpp     = '/opt/wasi-sdk/bin/clang++'
+ar      = '/opt/wasi-sdk/bin/llvm-ar'
+strip   = '/opt/wasi-sdk/bin/llvm-strip'
+
+[built-in options]
+# _POSIX_C_SOURCE exposes clock_gettime in wasi-libc's <time.h>.
+# dav1d's atomics get translated to WASM atomic ops; we enable wazero's
+# experimental threads feature on the Go side to accept them at runtime.
+# -msimd128 / -mnontrapping-fptoint let clang auto-vectorize hot loops;
+# both features are in wazero's CoreFeaturesV2 set.
+c_args          = ['--target=wasm32-wasip1', '--sysroot=/opt/wasi-sdk/share/wasi-sysroot', '-D_POSIX_C_SOURCE=200112L', '-msimd128', '-mnontrapping-fptoint']
+c_link_args     = ['--target=wasm32-wasip1', '--sysroot=/opt/wasi-sdk/share/wasi-sysroot']
+default_library = 'static'
+
+[host_machine]
+system     = 'wasi'
+cpu_family = 'wasm32'
+cpu        = 'wasm32'
+endian     = 'little'

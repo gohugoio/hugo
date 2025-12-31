@@ -43,6 +43,23 @@ type ImageConfigProvider interface {
 	GetImageConfig() image.Config
 }
 
+// ColorPropertiesProvider provides access to CICP color properties (for HDR images).
+// Images implementing this interface preserve color space information through processing.
+type ColorPropertiesProvider interface {
+	GetColorPrimaries() int
+	GetTransferCharacteristics() int
+	GetMatrixCoefficients() int
+}
+
+// HasColorProperties returns true if the image has non-zero color properties that should be preserved.
+func HasColorProperties(img image.Image) bool {
+	if cpp, ok := img.(ColorPropertiesProvider); ok {
+		// Consider it as having properties if any value is non-zero.
+		return cpp.GetColorPrimaries() > 0 || cpp.GetTransferCharacteristics() > 0 || cpp.GetMatrixCoefficients() > 0
+	}
+	return false
+}
+
 // FrameDurationsToGifDelays converts frame durations in milliseconds to
 // GIF delays in 100ths of a second.
 func FrameDurationsToGifDelays(frameDurations []int) []int {
