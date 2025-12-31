@@ -19,7 +19,7 @@
 #include <webp/decode.h>
 #include "webp/demux.h"
 #include <webp/mux.h>
-#include "deps/parson/parson.h"
+#include "../deps/parson/parson.h"
 
 void handle_commands(FILE *stream);
 

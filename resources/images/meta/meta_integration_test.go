@@ -294,7 +294,7 @@ $ic.Width/Height: 900x562
 
 IsImageResource AVIF: true
 IsImageResourceWithMeta AVIF: true
-IsImageResourceProcessable AVIF: false
+IsImageResourceProcessable AVIF: true
 Has width AVIF: true
 Has meta AVIF: true
 

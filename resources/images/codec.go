@@ -15,6 +15,8 @@ package images
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"image"
@@ -60,11 +62,12 @@ type EncodeDecoder interface {
 // Codec is a generic image codec supporting multiple formats.
 type Codec struct {
 	webp   EncodeDecoder
+	avif   EncodeDecoder
 	debugl logg.LevelLogger
 }
 
-func newCodec(webp EncodeDecoder, debugl logg.LevelLogger) *Codec {
-	return &Codec{webp: webp, debugl: debugl}
+func newCodec(webp, avif EncodeDecoder, debugl logg.LevelLogger) *Codec {
+	return &Codec{webp: webp, avif: avif, debugl: debugl}
 }
 
 func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
@@ -136,6 +139,13 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 		return tiff.Encode(w, img, &tiff.Options{Compression: tiff.Deflate, Predictor: true})
 	case BMP:
 		return bmp.Encode(w, img)
+	case AVIF:
+		opts := map[string]any{
+			"compression":  conf.Compression,
+			"quality":      conf.Quality,
+			"encoderSpeed": conf.EncoderSpeed,
+		}
+		return d.avif.Encode(w, img, opts)
 	case WEBP:
 		// Convert bool to int because the C code reads it as a number.
 		useSharpYuvInt := 0
@@ -151,7 +161,7 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 		}
 		return d.webp.Encode(w, img, opts)
 	default:
-		return errors.New("format not supported")
+		return fmt.Errorf("format %q not supported", conf.TargetFormat)
 	}
 }
 
@@ -185,6 +195,8 @@ func (d *Codec) DecodeFormat(f Format, r io.Reader) (image.Image, error) {
 		return tiff.Decode(r)
 	case BMP:
 		return bmp.Decode(r)
+	case AVIF:
+		return d.avif.Decode(r)
 	case WEBP:
 		img, err := d.webp.Decode(r)
 		if err == nil {
@@ -296,6 +308,12 @@ const (
 	magicGif = "GIF8???"
 )
 
+var (
+	avifBrandAvis = []byte("avis")
+	avifBrandAvif = []byte("avif")
+	avifFtyp      = []byte("ftyp")
+)
+
 type magicFormat struct {
 	magic  string
 	format Format
@@ -308,7 +326,7 @@ var magicFormats = []magicFormat{
 
 // formatFromImage determines the image format from the magic bytes.
 // Note that this is only a partial implementation,
-// as we currently only need WebP and GIF detection.
+// as we currently only need WebP, GIF and AVIF detection.
 // The others can be handled by the standard library.
 func formatFromImage(r peekReader) (Format, error) {
 	for _, mf := range magicFormats {
@@ -318,7 +336,37 @@ func formatFromImage(r peekReader) (Format, error) {
 			return mf.format, nil
 		}
 	}
+	if isAvif(r) {
+		return AVIF, nil
+	}
 	return 0, nil
+}
+
+// isAvif reports whether r begins with an ISOBMFF ftyp box that identifies
+// the file as AVIF, either via the major brand ("avif"/"avis") or the
+// compatible brands list (e.g. major "mif1" with "avif" as a compatible brand).
+func isAvif(r peekReader) bool {
+	b, _ := r.Peek(12)
+	if len(b) < 12 || !bytes.Equal(b[4:8], avifFtyp) {
+		return false
+	}
+	if brand := b[8:12]; bytes.Equal(brand, avifBrandAvif) || bytes.Equal(brand, avifBrandAvis) {
+		return true
+	}
+	b, _ = r.Peek(64)
+	if len(b) < 16 {
+		return false
+	}
+	end := int(binary.BigEndian.Uint32(b[:4]))
+	if end < 16 || end > len(b) {
+		end = len(b)
+	}
+	for i := 16; i+4 <= end; i += 4 {
+		if brand := b[i : i+4]; bytes.Equal(brand, avifBrandAvif) || bytes.Equal(brand, avifBrandAvis) {
+			return true
+		}
+	}
+	return false
 }
 
 func match(magic string, b []byte) bool {

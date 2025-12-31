@@ -76,6 +76,37 @@ func TestDecodeConfig(t *testing.T) {
 	conf = imagingConfig.Config
 	c.Assert(conf.Imaging.Exif.DisableLatLong, qt.Equals, true)
 	c.Assert(conf.Imaging.Exif.ExcludeFields, qt.Equals, "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance")
+
+	// AVIF: default is speed 10.
+	imagingConfig, err = DecodeConfig(map[string]any{})
+	c.Assert(err, qt.IsNil)
+	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, defaultAvifEncoderSpeed)
+
+	// AVIF: override via config.
+	imagingConfig, err = DecodeConfig(map[string]any{
+		"avif": map[string]any{"encoderSpeed": 5},
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, 5)
+
+	// AVIF: out-of-range rejected.
+	_, err = DecodeConfig(map[string]any{
+		"avif": map[string]any{"encoderSpeed": 11},
+	})
+	c.Assert(err, qt.ErrorMatches, ".*encoderSpeed must be between.*")
+
+	// AVIF: minimum is 1; 0 is treated as unset and falls back to the default.
+	imagingConfig, err = DecodeConfig(map[string]any{
+		"avif": map[string]any{"encoderSpeed": 0},
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, defaultAvifEncoderSpeed)
+
+	imagingConfig, err = DecodeConfig(map[string]any{
+		"avif": map[string]any{"encoderSpeed": 1},
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, 1)
 }
 
 func TestDecodeImageConfig(t *testing.T) {
