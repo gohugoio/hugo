@@ -156,6 +156,16 @@ If there is sufficient interest, [create a proposal]. Do not submit a pull reque
 
 For a complete guide to contributing to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
 
+## License
+
+For the Hugo source code, see [LICENSE](/LICENSE).
+
+We also bundle some libraries in binary/WASM form:
+
+* [libwebp](https://github.com/webmproject/libwebp), [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
+* [Katex](https://github.com/KaTeX/KaTeX), [MIT license](https://github.com/KaTeX/KaTeX?tab=MIT-1-ov-file#readme)
+* [QuickJS](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme), [License](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme)
+
 ## Dependencies
 
 Hugo stands on the shoulders of great open source libraries. Run `hugo env --logLevel info` to display a list of dependencies.
