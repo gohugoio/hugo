@@ -367,3 +367,89 @@ This construct creates a loop: {{PLACEHOLDER . }}
 		b.Assert(err.Error(), qt.Contains, "inner cannot be used inside a with block that wraps a partial decorator")
 	}
 }
+
+func TestPartialDecoratorInParens(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+Home.
+{{ define "_partials/b.html" }}
+<b>{{ inner . }}</b>
+{{ end }}
+{{ with (partial "b.html" "Important!") }}Notice: {{ . }}{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "<b>Notice: Important!</b>")
+}
+
+func TestPartialDecoratorBreakInWith(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+-- layouts/home.html --
+Home.
+{{ define "_partials/b.html" }}
+<b>{{ inner . }}</b>
+{{ end }}
+{{ with (partial "b.html" "Important!") }}
+{{ range seq 1 5 }}
+{{ if eq . 3 }}
+PLACEHOLDER
+{{ end }}
+Notice: {{ . }}
+{{ end }}
+{{ end }}
+`
+
+	for _, placeholder := range []string{"{{ break }}", "{{ continue }}"} {
+		files := strings.ReplaceAll(filesTemplate, "PLACEHOLDER", placeholder)
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/index.html", "Notice: 1", "Notice: 2", "! Notice: 3")
+		if strings.Contains(placeholder, "continue") {
+			b.AssertFileContent("public/index.html", "Notice: 4", "Notice: 5")
+		} else {
+			b.AssertFileContent("public/index.html", "! Notice: 4", "! Notice: 5")
+		}
+	}
+}
+
+func TestPartialWithBreakOutsideRange14333(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+-- layouts/home.html --
+Home. {{ partial "a" }}:Done.
+{{- define "_partials/a" }}
+  {{- $items := slice "a" "b" "c" }}
+  {{- range $items }}
+    {{- with partial "b" . -}}
+	 PLACEHOLDER
+	{{- else }}
+	  else: {{ . -}}
+	{{- end }}
+  {{- end }}
+{{- end }}
+{{- define "_partials/b" }}
+{{ $b := true }}
+{{ if ne . "b" }}
+{{ $b = false }}
+{{ end }}
+{{ return $b }}
+{{ end }}
+`
+	for _, placeholder := range []string{"{{ break }}", "{{ continue }}", "{{- break }}"} {
+		files := strings.ReplaceAll(filesTemplate, "PLACEHOLDER", placeholder)
+		b := hugolib.Test(t, files)
+		if strings.Contains(placeholder, "continue") {
+			b.AssertFileContent("public/index.html", "else: c:Done.")
+		} else {
+			b.AssertFileContent("public/index.html", "else: a:Done.")
+		}
+	}
+}
