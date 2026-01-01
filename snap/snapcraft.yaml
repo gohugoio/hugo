@@ -1,5 +1,5 @@
 name: hugo
-base: core22
+base: core24
 confinement: strict
 adopt-info: hugo
 title: Hugo
@@ -28,6 +28,15 @@ issues: https://github.com/gohugoio/hugo/issues
 license: "Apache-2.0"
 source-code: https://github.com/gohugoio/hugo.git
 website: https://gohugo.io/
+
+lint:
+  ignore:
+    - library:
+        - usr/lib/**/libform.so.*
+        - usr/lib/**/liblua*.so.*
+        - usr/lib/**/libmenu.so.*
+        - usr/lib/**/libpanel.so.*
+        - usr/lib/**/libperl.so.*
 
 plugs:
   etc-gitconfig:
@@ -68,12 +77,13 @@ environment:
   npm_config_userconfig: $SNAP_USER_DATA/.npmrc
   pandoc_datadir: $SNAP/usr/share/pandoc
   PYTHONHOME: /usr:$SNAP/usr
-  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/vendor_ruby/3.0.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.0.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/3.0.0
+  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/3.2.0
 
   # HUGO_SECURITY_EXEC_OSENV
   #
   # Default value:
   #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$
+  #
   # Bundled applications require additional access:
   #   git:          GIT_EXEC_PATH and LD_LIBRARY_PATH
   #   npx:          npm_config_{cache,init_module,userconfig}
@@ -123,6 +133,8 @@ parts:
     after:
       - git
       - go
+    build-packages:
+      - git
     override-pull: |
       craftctl default
       craftctl set version=$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')
@@ -140,7 +152,7 @@ parts:
 
       HUGO_BUILD_TAGS="extended"
       echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
-      go build -v -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(git describe --tags --always --match 'v[0-9]*' | sed 's/^v//; s/-/+git/; s/-g/./')" -tags "$HUGO_BUILD_TAGS"
+      go build -v -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(craftctl get version)" -tags "$HUGO_BUILD_TAGS"
       ./hugo version
       ldd hugo || :
 
@@ -181,7 +193,6 @@ parts:
         amd64)  arch=x64    ;;
         arm64)  arch=arm64  ;;
         armhf)  arch=arm    ;;
-        i386)   arch=ia32   ;;
         *)      arch=""     ;;
       esac
       if [[ -n $arch ]]; then
@@ -195,7 +206,7 @@ parts:
   node:
     plugin: nil
     stage-snaps:
-      - node/22/stable
+      - node/24/stable
     organize:
       "LICENSE": "LICENSE_NODE"     # rename to prevent conflict with Go snap
       "README.md": "README_NODE.md" # rename to prevent conflict with Go snap
