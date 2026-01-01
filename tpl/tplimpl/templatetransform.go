@@ -231,11 +231,20 @@ func (c *templateTransformContext) isWithPartial(args []parse.Node) bool {
 		return false
 	}
 
-	if id1, ok := args[0].(*parse.IdentifierNode); ok && (id1.Ident == "partial" || id1.Ident == "partialCached") {
+	first := args[0]
+
+	if pn, ok := first.(*parse.PipeNode); ok {
+		if len(pn.Cmds) == 0 || pn.Cmds[0] == nil {
+			return false
+		}
+		return c.isWithPartial(pn.Cmds[0].Args)
+	}
+
+	if id1, ok := first.(*parse.IdentifierNode); ok && (id1.Ident == "partial" || id1.Ident == "partialCached") {
 		return true
 	}
 
-	if chain, ok := args[0].(*parse.ChainNode); ok {
+	if chain, ok := first.(*parse.ChainNode); ok {
 		if id2, ok := chain.Node.(*parse.IdentifierNode); !ok || (id2.Ident != "partials") {
 			return false
 		}
@@ -266,10 +275,50 @@ const PartialDecoratorPrefix = "_internal/decorator_"
 
 var templatesInnerRe = regexp.MustCompile(`{{\s*(templates\.Inner\b|inner\b)`)
 
+// hasBreakOrContinueOutsideRange returns true if the given list node contains a break or continue statement without being nested in a range.
+func (c *templateTransformContext) hasBreakOrContinueOutsideRange(n *parse.ListNode) bool {
+	if n == nil {
+		return false
+	}
+	for _, node := range n.Nodes {
+		switch x := node.(type) {
+		case *parse.ListNode:
+			if c.hasBreakOrContinueOutsideRange(x) {
+				return true
+			}
+		case *parse.RangeNode:
+			// skip
+		case *parse.IfNode:
+			if c.hasBreakOrContinueOutsideRange(x.List) {
+				return true
+			}
+			if c.hasBreakOrContinueOutsideRange(x.ElseList) {
+				return true
+			}
+		case *parse.WithNode:
+			if c.hasBreakOrContinueOutsideRange(x.List) {
+				return true
+			}
+			if c.hasBreakOrContinueOutsideRange(x.ElseList) {
+				return true
+			}
+		case *parse.BreakNode, *parse.ContinueNode:
+			return true
+
+		}
+	}
+	return false
+}
+
 func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
 	withNodeInnerString := withNode.List.String()
 	if templatesInnerRe.MatchString(withNodeInnerString) {
 		c.err = fmt.Errorf("inner cannot be used inside a with block that wraps a partial decorator")
+		return
+	}
+
+	// See #14333. That is a very odd construct, but we need to guard against it.
+	if c.hasBreakOrContinueOutsideRange(withNode.List) {
 		return
 	}
 	innerHash := hashing.XxHashFromStringHexEncoded(c.t.Name() + withNodeInnerString)
@@ -321,6 +370,9 @@ func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
 	sn2 := setContext.(*parse.PipeNode).Cmds[0].Args[1].(*parse.PipeNode).Cmds[0].Args[0].(*parse.StringNode)
 	sn2.Text = innerHash
 	sn2.Quoted = fmt.Sprintf("%q", sn2.Text)
+	if pn, ok := withNode.Pipe.Cmds[0].Args[0].(*parse.PipeNode); ok {
+		withNode.Pipe.Cmds[0].Args = pn.Cmds[0].Args
+	}
 	withNode.Pipe.Cmds = append(orNode.Pipe.Cmds, withNode.Pipe.Cmds...)
 
 	withNode.List = newInner
