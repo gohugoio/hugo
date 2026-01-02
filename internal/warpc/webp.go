@@ -142,7 +142,7 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 		frames := make([]image.Image, len(destination.Bytes())/frameSize)
 		for i := 0; i < len(frames); i++ {
 			frameBytes := destination.Bytes()[i*frameSize : (i+1)*frameSize]
-			frameImg := &image.RGBA{
+			frameImg := &image.NRGBA{
 				Pix:    frameBytes,
 				Stride: stride,
 				Rect:   image.Rect(0, 0, w, h),
@@ -153,7 +153,7 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 		return img, nil
 	}
 
-	img := &image.RGBA{
+	img := &image.NRGBA{
 		Pix:    destination.Bytes(),
 		Stride: stride,
 		Rect:   image.Rect(0, 0, w, h),
