@@ -1,7 +1,7 @@
 name: hugo
 base: core24
-confinement: strict
 adopt-info: hugo
+confinement: strict
 title: Hugo
 icon: snap/local/logo.png
 summary: Fast and Flexible Static Site Generator
@@ -12,7 +12,6 @@ description: |
 
   Due to its flexible framework, multilingual support, and powerful taxonomy
   system, Hugo is widely used to create:
-
   * Corporate, government, nonprofit, education, news, event, and project sites
   * Documentation sites
   * Image portfolios
@@ -20,14 +19,17 @@ description: |
   * Business, professional, and personal blogs
   * Resumes and CVs
 
-  Use Hugo's embedded web server during development to instantly see changes to
-  content, structure, behavior, and presentation. Then deploy the site to your
-  host, or push changes to your Git provider for automated builds and
-  deployment.
+# Project links
 issues: https://github.com/gohugoio/hugo/issues
 license: "Apache-2.0"
 source-code: https://github.com/gohugoio/hugo.git
 website: https://gohugo.io/
+
+platforms:
+  amd64:
+  arm64:
+  ppc64el:
+  s390x:
 
 lint:
   ignore:
@@ -38,17 +40,8 @@ lint:
         - usr/lib/**/libpanel.so.*
         - usr/lib/**/libperl.so.*
 
+# Interfaces
 plugs:
-  etc-gitconfig:
-    interface: system-files
-    read:
-      - /etc/gitconfig
-  gitconfig:
-    interface: personal-files
-    read:
-      - $HOME/.gitconfig
-      - $HOME/.config/git
-      - $HOME/.gitconfig.local
   dot-aws:
     interface: personal-files
     read:
@@ -57,59 +50,103 @@ plugs:
     interface: personal-files
     read:
       - $HOME/.azure
-  dot-config-gcloud:
-    interface: personal-files
-    read:
-      - $HOME/.config/gcloud
   dot-cache-hugo:
     interface: personal-files
     write:
       - $HOME/.cache/hugo_cache
+  dot-config-gcloud:
+    interface: personal-files
+    read:
+      - $HOME/.config/gcloud
+  etc-gitconfig:
+    interface: system-files
+    read:
+      - /etc/gitconfig
+  gitconfig:
+    interface: personal-files
+    read:
+      - $HOME/.config/git
+      - $HOME/.gitconfig
+      - $HOME/.gitconfig.local
   ssh-keys:
     interface: ssh-keys
 
+# Runtime environment
 environment:
-  HOME: $SNAP_REAL_HOME
-  GIT_EXEC_PATH: $SNAP/usr/lib/git-core
-  GOCACHE: $SNAP_USER_DATA/.cache/go-build
+  # Ruby
+  GEM_HOME: $SNAP_USER_DATA/gems
+  GEM_PATH: $SNAP/usr/share/rubygems-integration/all:$SNAP/usr/lib/ruby/gems/3.2.0:$SNAP/var/lib/gems/3.2.0
+  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/3.2.0
+
+  # Node
   npm_config_cache: $SNAP_USER_DATA/.npm
   npm_config_init_module: $SNAP_USER_DATA/.npm-init.js
   npm_config_userconfig: $SNAP_USER_DATA/.npmrc
-  pandoc_datadir: $SNAP/usr/share/pandoc
+
+  # Other
   PYTHONHOME: /usr:$SNAP/usr
-  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/3.2.0
+  pandoc_datadir: $SNAP/usr/share/pandoc
+  GIT_EXEC_PATH: $SNAP/usr/lib/git-core
+  GOCACHE: $SNAP_USER_DATA/.cache/go-build
 
-  # HUGO_SECURITY_EXEC_OSENV
-  #
-  # Default value:
-  #   (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$
-  #
-  # Bundled applications require additional access:
-  #   git:          GIT_EXEC_PATH and LD_LIBRARY_PATH
-  #   npx:          npm_config_{cache,init_module,userconfig}
-  #   pandoc:       pandoc_datadir
-  #   rst2html:     PYTHONHOME and SNAP
-  #   asciidoctor:  RUBYLIB
-  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|RUBYLIB)$
+  # Allowlist for environment variables
+  # Default:                (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$
+  HUGO_SECURITY_EXEC_OSENV: (?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA|GIT_EXEC_PATH|LD_LIBRARY_PATH|npm_config_(cache|init_module|userconfig)|pandoc_datadir|PYTHONHOME|SNAP|GEM_HOME|GEM_PATH|RUBYLIB)$
 
+# App definition
 apps:
   hugo:
     command: bin/hugo
     completer: hugo-completion
     plugs:
-      - home
-      - network-bind
       - desktop
-      - removable-media
-      - etc-gitconfig
-      - gitconfig
       - dot-aws
       - dot-azure
-      - dot-config-gcloud
       - dot-cache-hugo
+      - dot-config-gcloud
+      - etc-gitconfig
+      - gitconfig
+      - home
+      - network-bind
+      - removable-media
       - ssh-keys
 
+# Build parts
 parts:
+  asciidoctor:
+    plugin: nil
+    stage-packages:
+      - asciidoctor
+      - ruby-asciidoctor
+      - rubygems-integration
+    override-build: |
+      set -ex
+      craftctl default
+      # Use env ruby to ensure the snap's ruby interpreter is used
+      sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $CRAFT_PART_INSTALL/usr/bin/asciidoctor
+      # Patch rubygems to avoid flock() errors in strict confinement
+      sed -i 's|!solaris_platform|win_platform|' $CRAFT_PART_INSTALL/usr/lib/ruby/vendor_ruby/rubygems.rb
+
+  dart-sass:
+    plugin: nil
+    build-packages:
+      - curl
+    override-build: |
+      set -ex
+      craftctl default
+      case "$CRAFT_ARCH_BUILD_FOR" in
+        amd64)  arch=x64    ;;
+        arm64)  arch=arm64  ;;
+        *)      arch=""     ;;
+      esac
+      if [[ -n $arch ]]; then
+        url=$(curl -s https://api.github.com/repos/sass/dart-sass/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
+        curl -LO --retry-connrefused --retry 10 "${url}"
+        tar xf dart-sass-*-linux-${arch}.tar.gz
+        install -d $CRAFT_PART_INSTALL/bin
+        cp -av dart-sass/* $CRAFT_PART_INSTALL/bin/
+      fi
+
   git:
     plugin: nil
     stage-packages:
@@ -126,6 +163,30 @@ parts:
       - bin/go
       - pkg/tool
       - -pkg/tool/*
+
+  node:
+    plugin: nil
+    stage-snaps:
+      - node/24/stable
+    organize:
+      "LICENSE": "LICENSE_NODE"
+      "README.md": "README_NODE.md"
+
+  pandoc:
+    plugin: nil
+    stage-packages:
+      - pandoc
+
+  rst2html:
+    plugin: nil
+    stage-packages:
+      - python3-docutils
+    override-build: |
+      set -ex
+      craftctl default
+      sed -i "s|'/usr/share/docutils/'|os.path.expandvars('\$SNAP/usr/share/docutils/')|" $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages/docutils/__init__.py
+    organize:
+      usr/share/docutils/scripts/python3: usr/bin
 
   hugo:
     plugin: nil
@@ -144,85 +205,21 @@ parts:
         craftctl set grade=devel
       fi
     override-build: |
-      echo "\nStarting override-build:"
       set -ex
-
       export GOPATH=$(realpath ../go)
       export PATH=$GOPATH/bin:$PATH
-
       HUGO_BUILD_TAGS="extended"
-      echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
-      go build -v -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(craftctl get version)" -tags "$HUGO_BUILD_TAGS"
-      ./hugo version
-      ldd hugo || :
 
-      echo " * Building shell completion..."
+      echo "Building Hugo (extended)..."
+      go build -v -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(craftctl get version)" -tags "$HUGO_BUILD_TAGS"
+
+      echo "Generating Shell Completion..."
       ./hugo completion bash > hugo-completion
 
-      echo " * Installing to ${CRAFT_PART_INSTALL}..."
+      echo "Installing Binaries..."
       install -d $CRAFT_PART_INSTALL/bin
       cp -av hugo $CRAFT_PART_INSTALL/bin/
       mv -v hugo-completion $CRAFT_PART_INSTALL/
 
-      echo " * Stripping binary..."
-      ls -l $CRAFT_PART_INSTALL/bin/hugo
+      echo "Stripping Binary..."
       strip --remove-section=.comment --remove-section=.note $CRAFT_PART_INSTALL/bin/hugo
-      ls -l $CRAFT_PART_INSTALL/bin/hugo
-
-  asciidoctor:
-    plugin: nil
-    stage-packages:
-      - asciidoctor
-    override-build: |
-      set -ex
-      craftctl default
-      sed -i '1s|#!/usr/bin/ruby|#!/usr/bin/env ruby|' $CRAFT_PART_INSTALL/usr/bin/asciidoctor
-      # don't try and flock() gemspecs since this is blocked by AppArmor - see
-      # https://github.com/rubygems/rubygems/pull/5278 in particular
-      # https://github.com/rubygems/rubygems/pull/5278/commits/27b682c81226838b1254ac5843a3f5b1cb20f076
-      sed -i 's|!solaris_platform|win_platform|' $CRAFT_PART_INSTALL/usr/lib/ruby/vendor_ruby/rubygems.rb
-
-  dart-sass:
-    plugin: nil
-    build-packages:
-      - curl
-    override-build: |
-      set -ex
-      craftctl default
-      case "$CRAFT_ARCH_BUILD_FOR" in
-        amd64)  arch=x64    ;;
-        arm64)  arch=arm64  ;;
-        armhf)  arch=arm    ;;
-        *)      arch=""     ;;
-      esac
-      if [[ -n $arch ]]; then
-        url=$(curl -s https://api.github.com/repos/sass/dart-sass/releases/latest | awk -F\" "/browser_download_url.*-linux-${arch}.tar.gz/{print \$(NF-1)}")
-        curl -LO --retry-connrefused --retry 10 "${url}"
-        tar xf dart-sass-*-linux-${arch}.tar.gz
-        install -d $CRAFT_PART_INSTALL/bin
-        cp -av dart-sass/* $CRAFT_PART_INSTALL/bin/
-      fi
-
-  node:
-    plugin: nil
-    stage-snaps:
-      - node/24/stable
-    organize:
-      "LICENSE": "LICENSE_NODE"     # rename to prevent conflict with Go snap
-      "README.md": "README_NODE.md" # rename to prevent conflict with Go snap
-
-  pandoc:
-    plugin: nil
-    stage-packages:
-      - pandoc
-
-  rst2html:
-    plugin: nil
-    stage-packages:
-      - python3-docutils
-    override-build: |
-      set -ex
-      craftctl default
-      sed -i "s|'/usr/share/docutils/'|os.path.expandvars('\$SNAP/usr/share/docutils/')|" $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages/docutils/__init__.py
-    organize:
-      usr/share/docutils/scripts/python3: usr/bin
