@@ -372,7 +372,7 @@ sourcefilename: ../testdata/giphy.gif
 sourcefilename: ../testdata/sunset.jpg
 -- layouts/home.html --
 Home.
-{{ $fuzzyCircle := resources.Get "fuzzycircle.png" }}
+{{ $fuzzyCircle := resources.Get "fuzzycircle.webp" }}
 {{ $highContrast := resources.Get "highcontrast.webp" }}
 {{ $sunset := resources.Get "sunset.jpg" }}
 {{ $sunsetGrayscale := $sunset.Filter (images.Grayscale) }}
