@@ -1,6 +1,10 @@
 {{- $imgs := slice }}
 {{- $imgParams := .Params.images }}
 {{- $resources := .Resources.ByType "image" -}}
+{{/* Check for singular image param */}}
+{{- if and (not $imgParams) .Params.image }}
+  {{- $imgParams = slice .Params.image }}
+{{- end }}
 {{/* Find featured image resources if the images parameter is empty. */}}
 {{- if not $imgParams }}
   {{- $featured := $resources.GetMatch "*feature*" -}}
