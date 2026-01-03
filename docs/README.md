@@ -25,3 +25,8 @@ hugo server
 ```
 
 **Note:** We're working on removing the need to run `npm i` for local development. Stay tuned.
+
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
