@@ -304,3 +304,38 @@ custom image render hook: {{ .Text }}|{{ .Destination }}
 		})
 	}
 }
+
+func TestRenderHookMultilingual(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+defaultContentLanguage = 'en'
+[markup.goldmark.renderHooks.image]
+enableDefault = false
+[languages.en]
+weight = 1
+[languages.tr]
+weight = 2
+-- content/p1.en.md --
+---
+title: p1
+---
+![alt](img.jpg)
+-- content/p1.tr.md --
+---
+title: p1
+---
+![alt](img.jpg)
+-- layouts/_markup/render-image.tr.html --
+TR-IMAGE
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "<img src=\"img.jpg\" alt=\"alt\">")
+	b.AssertFileContent("public/tr/p1/index.html", "TR-IMAGE")
+}

@@ -858,3 +858,89 @@ Content: {{ .Content }}|sc1: {{ .HasShortcode "sc1" }}|sc2: {{ .HasShortcode "sc
 	b.AssertFileContent("public/en/p1/index.html", " |sc1: true|sc2: false|inc: true|")
 	b.AssertFileContent("public/sv/p1/index.html", " |sc1: false|sc2: true|inc: true|")
 }
+
+func TestShortcodeMultilingualHTML(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+defaultContentLanguage = 'tr'
+defaultContentLanguageInSubdir = true
+[languages.tr]
+weight = 1
+[languages.en]
+weight = 2
+-- content/posts/test-post.tr.md --
++++
+title = 'Test Post TR'
++++
+
+{{< myhtml >}}
+-- content/posts/test-post.en.md --
++++
+title = 'Test Post EN'
++++
+
+{{< myhtml >}}
+-- layouts/_shortcodes/myhtml.en.html --
+HTML-EN
+-- layouts/_shortcodes/myhtml.tr.html --
+HTML-TR
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/tr/posts/test-post/index.html",
+		"HTML-TR",
+	)
+
+	b.AssertFileContent("public/en/posts/test-post/index.html",
+		"HTML-EN",
+	)
+}
+
+func TestShortcodeMultilingualMarkdown(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+defaultContentLanguage = 'tr'
+defaultContentLanguageInSubdir = true
+[languages.tr]
+weight = 1
+[languages.en]
+weight = 2
+-- content/posts/test-post.tr.md --
++++
+title = 'Test Post TR'
++++
+
+{{% mymd %}}
+-- content/posts/test-post.en.md --
++++
+title = 'Test Post EN'
++++
+
+{{% mymd %}}
+-- layouts/_shortcodes/mymd.en.md --
+MD-EN
+-- layouts/_shortcodes/mymd.tr.md --
+MD-TR
+-- layouts/_default/single.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/tr/posts/test-post/index.html",
+		"MD-TR",
+	)
+
+	b.AssertFileContent("public/en/posts/test-post/index.html",
+		"MD-EN",
+	)
+}
