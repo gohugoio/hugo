@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="{{ site.Language.LanguageCode }}">
   <head>
     <title>{{ .Permalink }}</title>
-    <link rel="canonical" href="{{ .Permalink }}">
-    <meta charset="utf-8">
+    {{ with .OutputFormats.Canonical }}<link rel="{{ .Rel }}" href="{{ .Permalink }}">{{ end }}
+    <meta charset="utf-8" />
     <meta http-equiv="refresh" content="0; url={{ .Permalink }}">
   </head>
 </html>

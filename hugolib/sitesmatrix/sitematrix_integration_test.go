@@ -1272,3 +1272,115 @@ disableKinds = ["rss", "sitemap", "taxonomy", "term"]
 		b.AssertFileContent("public/s1/index.html", "section|/s1/|")
 	}
 }
+
+const defaultContentDimensionRedirectsFiletemplate = `
+-- hugo.toml --
+baseURL = "BASE_URL_PLACEHOLDER"
+disableKinds = ["sitemap", "taxonomy", "term"]
+defaultContentLanguageInSubDir = true
+defaultContentVersionInSubDir = true
+defaultContentRoleInSubDir = true
+disableDefaultLanguageRedirect = false
+disableDefaultDimensionRedirect = false
+defaultContentLanguage = "en"
+[outputs]
+home = [ 'rss', 'amp', 'html']
+-- layouts/home.html --
+Home.
+`
+
+// Issue 14354
+func TestSitesMatrixRedirects(t *testing.T) {
+	t.Parallel()
+
+	files := strings.ReplaceAll(defaultContentDimensionRedirectsFiletemplate, "BASE_URL_PLACEHOLDER", "https://example.org/")
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "url=https://example.org/guest/v1.0.0/en/\"", `<link rel="canonical" href="https://example.org/guest/v1.0.0/en/">`)
+	b.AssertFileContent("public/amp/index.html", "url=https://example.org/guest/v1.0.0/en/amp/\"", `<link rel="canonical" href="https://example.org/guest/v1.0.0/en/">`)
+	b.AssertFileContent("public/guest/index.html", "url=https://example.org/guest/v1.0.0/en/\"")
+	b.AssertFileContent("public/guest/v1.0.0/index.html", "url=https://example.org/guest/v1.0.0/en/\"")
+	b.AssertFileContent("public/guest/v1.0.0/en/index.html", "Home.")
+	b.AssertFileContent("public/guest/v1.0.0/en/amp/index.html", "Home.")
+}
+
+func TestSitesMatrixRedirectsBasePathInBaseURL(t *testing.T) {
+	t.Parallel()
+
+	files := strings.ReplaceAll(defaultContentDimensionRedirectsFiletemplate, "BASE_URL_PLACEHOLDER", "https://example.org/docs/")
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "url=https://example.org/docs/guest/v1.0.0/en/\"")
+	b.AssertFileContent("public/amp/index.html", "url=https://example.org/docs/guest/v1.0.0/en/amp/\"", `<link rel="canonical" href="https://example.org/docs/guest/v1.0.0/en/">`)
+	b.AssertFileContent("public/guest/index.html", "url=https://example.org/docs/guest/v1.0.0/en/\"")
+	b.AssertFileContent("public/guest/v1.0.0/index.html", "url=https://example.org/docs/guest/v1.0.0/en/\"")
+	b.AssertFileContent("public/guest/v1.0.0/en/index.html", "Home.")
+}
+
+func TestSitesMatrixRedirectsDisableDefaultLanguageRedirect(t *testing.T) {
+	t.Parallel()
+
+	files := strings.ReplaceAll(defaultContentDimensionRedirectsFiletemplate, "BASE_URL_PLACEHOLDER", "https://example.org/")
+
+	runTest := func(files string) {
+		b := hugolib.Test(t, files)
+
+		b.AssertFileExists("public/index.html", false)
+		b.AssertFileExists("public/guest/index.html", false)
+		b.AssertFileExists("public/guest/v1.0.0/index.html", false)
+		b.AssertFileContent("public/guest/v1.0.0/en/index.html", "Home.")
+	}
+
+	runTest(strings.ReplaceAll(files, "disableDefaultLanguageRedirect = false", "disableDefaultLanguageRedirect = true"))
+	runTest(strings.ReplaceAll(files, "disableDefaultDimensionRedirect = false", "disableDefaultDimensionRedirect = true"))
+}
+
+func TestSitesMatrixRedirectsDefaultContentVersionInBase(t *testing.T) {
+	t.Parallel()
+
+	files := strings.ReplaceAll(defaultContentDimensionRedirectsFiletemplate, "BASE_URL_PLACEHOLDER", "https://example.org/")
+	files = strings.ReplaceAll(files, "defaultContentVersionInSubDir = true", "defaultContentVersionInSubDir = false")
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "url=https://example.org/guest/en/\"")
+	b.AssertFileContent("public/guest/index.html", "url=https://example.org/guest/en/\"")
+	b.AssertFileExists("public/guest/v1.0.0/index.html", false)
+	b.AssertFileContent("public/guest/en/index.html", "Home.")
+}
+
+func TestSitesMatrixRedirectsMultiHost(t *testing.T) {
+	t.Parallel()
+	//
+	files := `
+-- hugo.toml --
+disableKinds = ["sitemap", "taxonomy", "term"]
+defaultContentLanguageInSubDir = true
+defaultContentVersionInSubDir = true
+defaultContentRoleInSubDir = true
+disableDefaultLanguageRedirect = false
+disableDefaultDimensionRedirect = false
+defaultContentLanguage = "en"
+[languages]
+[languages.en]
+weight = 1
+baseURL = "https://en.example.org/"
+[languages.nn]
+weight = 2
+baseURL = "https://nn.example.org/"
+[outputs]
+home = [ 'rss', 'amp', 'html']
+-- layouts/home.html --
+Home.
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "url=https://en.example.org/guest/v1.0.0/\"", `<link rel="canonical" href="https://en.example.org/guest/v1.0.0/">`)
+	b.AssertFileContent("public/en/amp/index.html", "url=https://en.example.org/guest/v1.0.0/amp/\"", `<link rel="canonical" href="https://en.example.org/guest/v1.0.0/">`)
+	b.AssertFileContent("public/en/guest/index.html", "url=https://en.example.org/guest/v1.0.0/\"")
+	b.AssertFileContent("public/en/guest/v1.0.0/index.html", "Home.")
+	b.AssertFileContent("public/en/guest/v1.0.0/amp/index.html", "Home.")
+}

@@ -22,6 +22,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/go-radix"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugolib/doctree"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
@@ -202,6 +203,16 @@ func pageRenderer(
 			}
 		}
 
+		if p.IsHome() && p.outputFormat().IsHTML && s.siteVector.IsFirst() {
+			if err = s.renderDefaultDimensionRedirect(p); err != nil {
+				if sendErr(err) {
+					continue
+				} else {
+					return
+				}
+			}
+		}
+
 		if p.paginator != nil && p.paginator.current != nil {
 			if err := s.renderPaginator(p, templ); err != nil {
 				if sendErr(err) {
@@ -357,32 +368,51 @@ func (s *Site) renderAliases() error {
 	return w.Walk(context.TODO())
 }
 
-// renderMainLanguageRedirect creates a redirect to the main language home,
+// renderDefaultDimensionRedirect creates a redirect to the main dimension's home,
 // depending on if it lives in sub folder (e.g. /en) or not.
-func (s *Site) renderMainLanguageRedirect() error {
-	if s.conf.DisableDefaultLanguageRedirect {
-		return nil
-	}
-	if s.h.Conf.IsMultihost() || !(s.h.Conf.DefaultContentLanguageInSubdir() || s.h.Conf.IsMultilingual()) {
-		// No need for a redirect
+func (s *Site) renderDefaultDimensionRedirect(home *pageState) error {
+	if s.conf.DisableDefaultLanguageRedirect || s.conf.DisableDefaultDimensionRedirect {
 		return nil
 	}
 
-	html, found := s.conf.OutputFormats.Config.GetByName("html")
-	if found {
-		mainLang := s.conf.DefaultContentLanguage
-		if s.conf.DefaultContentLanguageInSubdir {
-			mainLangURL := s.PathSpec.AbsURL(mainLang+"/", false)
-			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(true, "/", mainLangURL, html, nil); err != nil {
-				return err
-			}
-		} else {
-			mainLangURL := s.PathSpec.AbsURL("", false)
-			s.Log.Debugf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(true, mainLang, mainLangURL, html, nil); err != nil {
-				return err
-			}
+	shouldAdd := s.conf.DefaultContentLanguageInSubdir && !s.Conf.IsMultihost()
+	shouldAdd = shouldAdd || s.conf.DefaultContentVersionInSubdir || s.conf.DefaultContentRoleInSubdir
+	if !shouldAdd {
+		return nil
+	}
+
+	homeLink := home.pageOutput.targetPaths().Link // This doesn't have any baseURL paths in it.
+
+	of := home.outputFormat()
+	homePermalink := home.Permalink()
+
+	var ps []string
+	if of.Path != "" {
+		// For OutputFormats with a path, creating more than one alias will easily create path clashes without much value.
+		ps = []string{paths.AddLeadingAndTrailingSlash(of.Path)}
+	} else {
+		ps = []string{"/"}
+		// /guest/v1.0.0/en/
+		//    /,/guest/,/guest/v1.0.0  = /guest/v1.0.0/en/
+		// /guest/v1.0.0/
+		//    /,/guest/ =  /guest/v1.0.0/
+		parts := strings.Split(strings.Trim(homeLink, "/"), "/")
+
+		for i := 0; i < len(parts)-1; i++ {
+			ps = append(ps, paths.AddLeadingAndTrailingSlash(strings.Join(parts[0:i+1], "/")))
+		}
+	}
+
+	if s.h.Configs.IsMultihost {
+		prefix := "/" + s.LanguagePrefix()
+		for i, p := range ps {
+			ps[i] = path.Join(prefix, p)
+		}
+	}
+
+	for _, p := range ps {
+		if err := s.publishDestAlias(true, p, homePermalink, of, home); err != nil {
+			return err
 		}
 	}
 
