@@ -160,11 +160,19 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 
 	// Add path prefixes.
 	// Add any role first, as that is a natural candidate for external ACL checks.
+	// For multihost sites, the file path needs to start with the language code.
+	if s.h.Conf.IsMultihost() {
+		addPrefix(s.getLanguageTargetPathLang(true), "")
+	}
 	rolePrefix := s.getPrefixRole()
 	addPrefix(rolePrefix, rolePrefix)
 	versionPrefix := s.getPrefixVersion()
 	addPrefix(versionPrefix, versionPrefix)
-	addPrefix(s.getLanguageTargetPathLang(alwaysInSubDir), s.getLanguagePermalinkLang(alwaysInSubDir))
+	if s.h.Conf.IsMultihost() {
+		addPrefix("", s.getLanguagePermalinkLang(alwaysInSubDir))
+	} else {
+		addPrefix(s.getLanguageTargetPathLang(alwaysInSubDir), s.getLanguagePermalinkLang(alwaysInSubDir))
+	}
 
 	if desc.URL != "" && strings.IndexByte(desc.URL, ':') >= 0 {
 		// Attempt to parse and expand an url

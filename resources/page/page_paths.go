@@ -432,6 +432,7 @@ func (p *pagePathBuilder) PathDirBase() string {
 
 func (p *pagePathBuilder) PathFile() string {
 	dir := p.Path(0)
+
 	if p.prefixPath != "" {
 		dir = "/" + p.prefixPath + dir
 	}

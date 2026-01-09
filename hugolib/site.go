@@ -1056,7 +1056,7 @@ func (s *siteRefLinker) refLink(ref string, source any, relative bool, outputFor
 		if outputFormat != "" {
 			o := target.OutputFormats().Get(outputFormat)
 
-			if o == nil {
+			if o.IsZero() {
 				s.logNotFound(refURL.Path, fmt.Sprintf("output format %q", outputFormat), p, pos)
 				return s.notFoundURL, nil
 			}
@@ -1767,10 +1767,6 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 	}
 
 	if !ctx.shouldRenderStandalonePage("") {
-		return
-	}
-
-	if err = s.renderMainLanguageRedirect(); err != nil {
 		return
 	}
 

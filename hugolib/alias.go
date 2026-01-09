@@ -70,6 +70,10 @@ func (a aliasHandler) renderAlias(permalink string, p page.Page, matrix sitesmat
 		return nil, errors.New("no alias template found")
 	}
 
+	if p == nil {
+		p = page.NopPage
+	}
+
 	data := aliasPage{
 		permalink,
 		p,

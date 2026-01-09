@@ -18,12 +18,15 @@ package page
 import (
 	"strings"
 
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
 )
 
 // OutputFormats holds a list of the relevant output formats for a given page.
 type OutputFormats []OutputFormat
+
+var _ types.Zeroer = OutputFormat{}
 
 // OutputFormat links to a representation of a resource.
 type OutputFormat struct {
@@ -65,6 +68,11 @@ func (o OutputFormat) RelPermalink() string {
 	return o.relPermalink
 }
 
+// IsZero checks whether this OutputFormat is the zero value.
+func (o OutputFormat) IsZero() bool {
+	return o.Format.Name == ""
+}
+
 func NewOutputFormat(relPermalink, permalink string, isCanonical bool, f output.Format) OutputFormat {
 	isUserConfigured := true
 	for _, d := range output.DefaultFormats {
@@ -84,12 +92,24 @@ func NewOutputFormat(relPermalink, permalink string, isCanonical bool, f output.
 }
 
 // Get gets a OutputFormat given its name, i.e. json, html etc.
-// It returns nil if none found.
-func (o OutputFormats) Get(name string) *OutputFormat {
+// It returns a zero OutputFormat if not found.
+func (o OutputFormats) Get(name string) OutputFormat {
 	for _, f := range o {
 		if strings.EqualFold(f.Format.Name, name) {
-			return &f
+			return f
 		}
 	}
-	return nil
+	return OutputFormat{}
+}
+
+// Canonical returns the first canonical OutputFormat for this page,
+// or a zero OutputFormat if not found.
+func (o OutputFormats) Canonical() OutputFormat {
+	const canonical = "canonical"
+	for _, f := range o {
+		if strings.EqualFold(f.Rel, canonical) {
+			return f
+		}
+	}
+	return OutputFormat{}
 }
