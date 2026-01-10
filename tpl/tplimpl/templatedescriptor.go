@@ -71,6 +71,12 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 	w := this.doCompare(category, other, sitesMatrixThis, sitesMatrixOther)
 
 	if w.w1 <= 0 {
+		if sitesMatrixOther != nil {
+			if sitesMatrixThis == nil || !sitesMatrixOther.HasAnyVector(sitesMatrixThis) {
+				return w
+			}
+		}
+
 		if category == CategoryMarkup && (this.Variant1 == other.Variant1) && (this.Variant2 == other.Variant2 || this.Variant2 != "" && other.Variant2 == "") {
 			// See issue 13242.
 			if this.OutputFormat != other.OutputFormat && this.OutputFormat == s.opts.DefaultOutputFormat {
