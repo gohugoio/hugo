@@ -1214,6 +1214,59 @@ target = 'content'
 	})
 }
 
+func TestSitesMatrixMountsMergeIssue14357(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentVersionInSubDir = true
+defaultContentVersion = "v1.0.0"
+[[module.mounts]]
+source = 'content/v1'
+target = 'content'
+[module.mounts.sites.matrix]
+versions = '**'
+[[module.mounts]]
+source = 'content/v2'
+target = 'content'
+[module.mounts.sites.matrix]
+versions = 'v2.0.0'
+[[module.mounts]]
+source = 'content/v3'
+target = 'content'
+[module.mounts.sites.matrix]
+versions = 'v3.0.0'
+[versions]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+[versions."v3.0.0"]
+-- content/v1/p1.md --
+---
+title: "Version 1 P1"
+---
+-- content/v2/p1.md --
+---
+title: "Version 2 P1"
+---
+-- content/v2/p2.md --
+---
+title: "Version 2 P2"
+---
+-- content/v3/p2.md --
+---
+title: "Version 3 P2"
+---
+-- layouts/all.html --
+All. {{ .Title }}|Ver: {{ .Site.Version.Name }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/v1.0.0/p1/index.html", "All. Version 1 P1|Ver: v1.0.0|")
+	b.AssertFileContent("public/v2.0.0/p1/index.html", "All. Version 2 P1|Ver: v2.0.0|")
+	b.AssertFileContent("public/v3.0.0/p1/index.html", "All. Version 2 P2|Ver: v3.0.0|")
+}
+
 func TestSitesMatrixContentBenchmark(t *testing.T) {
 	const numPages = 3
 	b := newSitesMatrixContentBenchmarkBuilder(t, numPages, false, true)
