@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="no-js" lang="">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <title>Hugo Server: Error</title>
     <style type="text/css">
       body {
@@ -65,7 +65,7 @@
       <div class="error">
         {{ highlight .Error "apl" (printf "linenos=false,noclasses=true,style=%s" $codeStyle ) }}
       </div>
-      <hr />
+      <hr>
       {{ range $i, $e := .Files }}
         {{ if not .ErrorContext }}
           {{ continue }}
@@ -78,7 +78,7 @@
           >
         {{ end }}
         {{ highlight (delimit .ErrorContext.Lines "\n") $lexer $params }}
-        <hr />
+        <hr>
       {{ end }}
       <p class="version">{{ .Version }}</p>
       <a href="">Reload Page</a>
