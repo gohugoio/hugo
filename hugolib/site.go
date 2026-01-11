@@ -138,7 +138,8 @@ func (s *Site) resolveDimensionNames() types.Strings3 {
 }
 
 type siteLanguageVersionRole struct {
-	siteVector sitesmatrix.Vector
+	siteVector        sitesmatrix.Vector
+	isDefaultLanguage bool
 
 	roleInternal roles.RoleInternal
 	role         roles.Role
@@ -184,6 +185,10 @@ func (s siteLanguageVersionRole) Role() roles.Role {
 
 func (s siteLanguageVersionRole) Version() versions.Version {
 	return s.version
+}
+
+func (s siteLanguageVersionRole) isDefault() bool {
+	return s.isDefaultLanguage && s.roleInternal.Default && s.versionInternal.Default
 }
 
 func (s *Site) Debug() {
@@ -341,7 +346,8 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			frontmatterHandler: frontmatterHandler,
 			store:              hstore.NewScratch(),
 			siteLanguageVersionRole: &siteLanguageVersionRole{
-				siteVector: sitesmatrix.Vector{i, 0, 0},
+				isDefaultLanguage: language.IsDefault(),
+				siteVector:        sitesmatrix.Vector{i, 0, 0},
 			},
 		}
 

@@ -607,12 +607,13 @@ type RootConfig struct {
 	DefaultOutputFormat string
 
 	// Disable generation of redirect to the default language when DefaultContentLanguageInSubdir is enabled.
-	// Note that this currently is an alias for DisableDefaultDimensionRedirect introduced in v0.154.4.
+	// Note that this currently is an alias for DisableDefaultSiteRedirect introduced in v0.154.5.
 	// It's not obvious how a more fine grained setup would work.
 	DisableDefaultLanguageRedirect bool
 
-	// Disable generation of redirect to the default dimension when DefaultContentRoleInSubdir or DefaultContentVersionInSubdir or DefaultContentLanguageInSubdir is enabled.
-	DisableDefaultDimensionRedirect bool
+	// Disable generation of redirects to the default site when DefaultContentRoleInSubdir or DefaultContentVersionInSubdir or DefaultContentLanguageInSubdir is enabled.
+	// The default site is the site is the combination of defaultContentLanguage, defaultContentVersion and defaultContentRole.
+	DisableDefaultSiteRedirect bool
 
 	// Disable creation of alias redirect pages.
 	DisableAliases bool
