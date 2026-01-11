@@ -203,8 +203,8 @@ func pageRenderer(
 			}
 		}
 
-		if p.IsHome() && p.outputFormat().IsHTML && s.siteVector.IsFirst() {
-			if err = s.renderDefaultDimensionRedirect(p); err != nil {
+		if p.IsHome() && p.outputFormat().IsHTML && s.isDefault() {
+			if err = s.renderDefaultSiteRedirect(p); err != nil {
 				if sendErr(err) {
 					continue
 				} else {
@@ -368,18 +368,17 @@ func (s *Site) renderAliases() error {
 	return w.Walk(context.TODO())
 }
 
-// renderDefaultDimensionRedirect creates a redirect to the main dimension's home,
+// renderDefaultSiteRedirect creates a redirect to the default site's home,
 // depending on if it lives in sub folder (e.g. /en) or not.
-func (s *Site) renderDefaultDimensionRedirect(home *pageState) error {
-	if s.conf.DisableDefaultLanguageRedirect || s.conf.DisableDefaultDimensionRedirect {
+// The default site is the site is the combination of defaultContentLanguage,
+// defaultContentVersion and defaultContentRole.
+func (s *Site) renderDefaultSiteRedirect(home *pageState) error {
+	if s.conf.DisableDefaultLanguageRedirect || s.conf.DisableDefaultSiteRedirect {
 		return nil
 	}
 
-	shouldAdd := s.conf.DefaultContentLanguageInSubdir && !s.Conf.IsMultihost()
-	shouldAdd = shouldAdd || s.conf.DefaultContentVersionInSubdir || s.conf.DefaultContentRoleInSubdir
-	if !shouldAdd {
-		return nil
-	}
+	addRedirectInRoot := s.conf.DefaultContentLanguageInSubdir && !s.Conf.IsMultihost()
+	addRedirectInRoot = addRedirectInRoot || s.conf.DefaultContentVersionInSubdir || s.conf.DefaultContentRoleInSubdir
 
 	homeLink := home.pageOutput.targetPaths().Link // This doesn't have any baseURL paths in it.
 
@@ -388,10 +387,20 @@ func (s *Site) renderDefaultDimensionRedirect(home *pageState) error {
 
 	var ps []string
 	if of.Path != "" {
-		// For OutputFormats with a path, creating more than one alias will easily create path clashes without much value.
-		ps = []string{paths.AddLeadingAndTrailingSlash(of.Path)}
+		if addRedirectInRoot {
+			// For OutputFormats with a path, creating more than one alias will easily create path clashes without much value.
+			ps = []string{paths.AddLeadingAndTrailingSlash(of.Path)}
+		}
 	} else {
-		ps = []string{"/"}
+		if addRedirectInRoot {
+			ps = append(ps, "/")
+		}
+
+		if s.Conf.IsMultilingual() && !s.conf.DefaultContentLanguageInSubdir && !s.Conf.IsMultihost() {
+			// Create redirect from e.g. /en => /
+			ps = append(ps, homeLink+s.Lang()+"/")
+		}
+
 		// /guest/v1.0.0/en/
 		//    /,/guest/,/guest/v1.0.0  = /guest/v1.0.0/en/
 		// /guest/v1.0.0/

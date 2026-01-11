@@ -1281,8 +1281,23 @@ defaultContentLanguageInSubDir = true
 defaultContentVersionInSubDir = true
 defaultContentRoleInSubDir = true
 disableDefaultLanguageRedirect = false
-disableDefaultDimensionRedirect = false
+disableDefaultSiteRedirect = false
 defaultContentLanguage = "en"
+defaultContentVersion = "v1.0.0"
+defaultContentRole = "guest"
+[languages]
+[languages.en]
+weight = 2
+[languages.nn]
+weight = 1
+[versions]
+[versions."v1.0.0"]
+weight = 2
+[versions."v2.0.0"]
+weight = 1
+[roles]
+[roles.guest]
+[roles.member]
 [outputs]
 home = [ 'rss', 'amp', 'html']
 -- layouts/home.html --
@@ -1334,7 +1349,7 @@ func TestSitesMatrixRedirectsDisableDefaultLanguageRedirect(t *testing.T) {
 	}
 
 	runTest(strings.ReplaceAll(files, "disableDefaultLanguageRedirect = false", "disableDefaultLanguageRedirect = true"))
-	runTest(strings.ReplaceAll(files, "disableDefaultDimensionRedirect = false", "disableDefaultDimensionRedirect = true"))
+	runTest(strings.ReplaceAll(files, "disableDefaultSiteRedirect = false", "disableDefaultSiteRedirect = true"))
 }
 
 func TestSitesMatrixRedirectsDefaultContentVersionInBase(t *testing.T) {
@@ -1361,7 +1376,7 @@ defaultContentLanguageInSubDir = true
 defaultContentVersionInSubDir = true
 defaultContentRoleInSubDir = true
 disableDefaultLanguageRedirect = false
-disableDefaultDimensionRedirect = false
+disableDefaultSiteRedirect = false
 defaultContentLanguage = "en"
 [languages]
 [languages.en]
@@ -1383,4 +1398,35 @@ Home.
 	b.AssertFileContent("public/en/guest/index.html", "url=https://en.example.org/guest/v1.0.0/\"")
 	b.AssertFileContent("public/en/guest/v1.0.0/index.html", "Home.")
 	b.AssertFileContent("public/en/guest/v1.0.0/amp/index.html", "Home.")
+}
+
+func TestSitesMatrixRedirectsDefaultContentLanguageInBase(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.yml --
+baseURL: https://example.org
+disableKinds: [taxonomy]
+defaultContentVersionInSubDir: true
+defaultContentRoleInSubDir: true
+defaultContentLanguage: en
+languages:
+  en:
+    languageName: English
+  bn:
+    languageName: Bengali
+  fr:
+    languageName: French
+-- layouts/all.html --
+All.
+
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/guest/v1.0.0/en/index.html", "url=https://example.org/guest/v1.0.0/\"", `lang="en"`)
+
+	files = strings.ReplaceAll(files, "defaultContentVersionInSubDir: true", "defaultContentVersionInSubDir: false")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/guest/en/index.html", "url=https://example.org/guest/\"")
 }
