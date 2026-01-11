@@ -1034,7 +1034,9 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 					changes = append(changes, identity.GenghisKhan)
 				}
 				if strings.Contains(base, "shortcodes") {
-					changes = append(changes, hglob.NewGlobIdentity(fmt.Sprintf("shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
+					// Add both the shortcode file itself (for template refresh) and a glob for dependent content
+					changes = append(changes, pathInfo)
+					changes = append(changes, hglob.NewGlobIdentity(fmt.Sprintf("/_shortcodes/%s*", pathInfo.BaseNameNoIdentifier())))
 				} else {
 					changes = append(changes, pathInfo)
 				}

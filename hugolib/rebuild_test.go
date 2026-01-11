@@ -2093,3 +2093,39 @@ All.
 	b.EditFileReplaceAll("content/mybundle/resource.txt", "This is a resource file.", "This is an edited resource file.").Build()
 	b.AssertFileContent("public/mybundle/resource.txt", "This is an edited resource file.")
 }
+
+// Issue #14207
+func TestRebuildAddShortcodeThenEditContentUsingIt(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- layouts/single.html --
+Single: {{ .Title }}|{{ .Content }}|
+-- content/p1.md --
+---
+title: "P1"
+---
+Content before shortcode.
+`
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/p1/index.html", "Single: P1|", "Content before shortcode.")
+
+	// Add a new shortcode file
+	b.AddFiles(
+		"layouts/_shortcodes/year.html", `{{- now.Format "2006" -}}`,
+	).Build()
+
+	// Verify shortcode was registered
+	ts := b.H.Sites[0].Deps.TemplateStore
+	if ti := ts.LookupShortcodeByName("year"); ti == nil {
+		t.Fatal("shortcode 'year' not found in cache after adding")
+	}
+
+	// Now edit content to use the shortcode - this should find the shortcode
+	currentYear := time.Now().Format("2006")
+	b.EditFileReplaceAll("content/p1.md", "Content before shortcode.", "This is {{< year >}} wow.").Build()
+	b.AssertFileContent("public/p1/index.html", "Single: P1|", fmt.Sprintf("This is %s wow.", currentYear))
+}
