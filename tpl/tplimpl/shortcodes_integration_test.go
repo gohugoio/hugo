@@ -229,12 +229,12 @@ An inline {{< highlight go "hl_inline=true" >}}fmt.Println("Value of i:", i)Hell
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", "576ee13be18ddba2")
+	b.AssertFileContent("public/p1/index.html", "4f7e70e3bc7702fc")
 	b.AssertFileContent("public/p2/index.html", "3f97c98e654f23a2")
-	b.AssertFileContent("public/p3/index.html", "7634b47df1859f58")
-	b.AssertFileContent("public/p4/index.html", "385a15e400df4e39")
-	b.AssertFileContent("public/p5/index.html", "f26685017f358cd8")
-	b.AssertFileContent("public/p6/index.html", "f26685017f358cd8")
+	b.AssertFileContent("public/p3/index.html", "21d109753ff1b086")
+	b.AssertFileContent("public/p4/index.html", "a6df524f21db7044")
+	b.AssertFileContent("public/p5/index.html", "db2d5cc19d163217")
+	b.AssertFileContent("public/p6/index.html", "db2d5cc19d163217")
 	b.AssertFileContent("public/p7/index.html", "f12eeaa4d6d9c7ac")
 }
 
@@ -768,7 +768,7 @@ defaultContentLanguageInSubdir = true
 [languages.pl]
 weight = 1
 [languages.en]
-weight = 2	
+weight = 2
 -- content/_index.md --
 ---
 title: dom
@@ -816,7 +816,7 @@ headless: true
 sites:
   matrix:
     languages:
-      - '**'	
+      - '**'
 ---
 {{% sc1 %}}
 -- content/inc/i2.md --
@@ -825,7 +825,7 @@ headless: true
 sites:
   matrix:
     languages:
-      - '**'	
+      - '**'
 ---
 {{% sc2 %}}
 -- content/p1.md --
