@@ -14,7 +14,7 @@ require (
 	github.com/bep/golibsass v1.2.0
 	github.com/bep/goportabletext v0.1.0
 	github.com/bep/helpers v0.6.0
-	github.com/bep/imagemeta v0.12.1
+	github.com/bep/imagemeta v0.13.0
 	github.com/bep/lazycache v0.8.0
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20400.20402
@@ -78,7 +78,7 @@ require (
 	golang.org/x/mod v0.31.0
 	golang.org/x/net v0.48.0
 	golang.org/x/sync v0.19.0
-	golang.org/x/text v0.32.0
+	golang.org/x/text v0.33.0
 	golang.org/x/tools v0.40.0
 	google.golang.org/api v0.255.0
 	rsc.io/qr v0.2.0

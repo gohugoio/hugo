@@ -187,7 +187,7 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 		}
 	}
 
-	err = imagemeta.Decode(
+	_, err = imagemeta.Decode(
 		imagemeta.Options{
 			R:               r.(io.ReadSeeker),
 			ImageFormat:     format,
