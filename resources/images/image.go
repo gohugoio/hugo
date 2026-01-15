@@ -28,7 +28,7 @@ import (
 	"github.com/gohugoio/hugo/internal/warpc"
 
 	"github.com/gohugoio/hugo/media"
-	"github.com/gohugoio/hugo/resources/images/exif"
+	"github.com/gohugoio/hugo/resources/images/meta"
 
 	"github.com/disintegration/gift"
 
@@ -126,12 +126,24 @@ func (i *Image) initConfig() error {
 
 func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatchers, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
 	e := cfg.Config.Imaging.Exif
-	exifDecoder, err := exif.NewDecoder(
-		exif.WithDateDisabled(e.DisableDate),
-		exif.WithLatLongDisabled(e.DisableLatLong),
-		exif.ExcludeFields(e.ExcludeFields),
-		exif.IncludeFields(e.IncludeFields),
-		exif.WithWarnLogger(warnl),
+	exifDecoder, err := meta.NewDecoder(
+		meta.WithDateDisabled(e.DisableDate),
+		meta.WithLatLongDisabled(e.DisableLatLong),
+		meta.ExcludeFields(e.ExcludeFields),
+		meta.IncludeFields(e.IncludeFields),
+		meta.WithWarnLogger(warnl),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	m := cfg.Config.Imaging.Meta
+	metaDecoder, err := meta.NewDecoder(
+		meta.WithDateDisabled(m.DisableDate),
+		meta.WithLatLongDisabled(m.DisableLatLong),
+		meta.WithFields(m.Fields),
+		meta.WithSources(m.Sources...),
+		meta.WithWarnLogger(warnl),
 	)
 	if err != nil {
 		return nil, err
@@ -149,19 +161,27 @@ func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatcher
 	return &ImageProcessor{
 		Cfg:         cfg,
 		exifDecoder: exifDecoder,
+		metaDecoder: metaDecoder,
 		Codec:       imageCodec,
 	}, nil
 }
 
 type ImageProcessor struct {
 	Cfg         *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
-	exifDecoder *exif.Decoder
+	exifDecoder *meta.Decoder
+	metaDecoder *meta.Decoder
 	Codec       *Codec
 }
 
 // Filename is only used for logging.
-func (p *ImageProcessor) DecodeExif(filename string, format imagemeta.ImageFormat, r io.Reader) (*exif.ExifInfo, error) {
+func (p *ImageProcessor) DecodeExif(filename string, format imagemeta.ImageFormat, r io.Reader) (*meta.ExifInfo, error) {
 	return p.exifDecoder.Decode(filename, format, r)
+}
+
+// DecodeMeta decodes metadata from configured sources.
+// Filename is only used for logging.
+func (p *ImageProcessor) DecodeMeta(filename string, format imagemeta.ImageFormat, r io.Reader) (*meta.MetaInfo, error) {
+	return p.metaDecoder.DecodeMeta(filename, format, r)
 }
 
 func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([]gift.Filter, error) {

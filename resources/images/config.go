@@ -17,6 +17,8 @@ import (
 	"errors"
 	"fmt"
 	"image/color"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -203,7 +205,7 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 
 	ns, err := config.DecodeNamespace[ImagingConfig](in, buildConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode media types: %w", err)
+		return nil, err
 	}
 	return ns, nil
 }
@@ -449,6 +451,13 @@ type ImagingConfig struct {
 	BgColor string
 
 	Exif ExifConfig
+	Meta MetaConfig
+}
+
+var validMetaSources = map[string]bool{
+	"exif": true,
+	"iptc": true,
+	"xmp":  true,
 }
 
 func (cfg *ImagingConfig) init() error {
@@ -469,6 +478,27 @@ func (cfg *ImagingConfig) init() error {
 	if strings.TrimSpace(cfg.Exif.IncludeFields) == "" && strings.TrimSpace(cfg.Exif.ExcludeFields) == "" {
 		// Don't change this for no good reason. Please don't.
 		cfg.Exif.ExcludeFields = "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance"
+	}
+
+	if len(cfg.Meta.Fields) == 0 {
+		// Default: include all fields except technical metadata.
+		// Don't change this for no good reason. Please don't.
+		cfg.Meta.Fields = []string{
+			"! *{GPS,Exif,Exposure[MPB],Contrast,Resolution,Sharp,JPEG,Metering,Sensing,Saturation,ColorSpace,Flash,WhiteBalance}*",
+		}
+	}
+
+	if len(cfg.Meta.Sources) == 0 {
+		// Default to EXIF and IPTC (XMP is slower to decode).
+		cfg.Meta.Sources = []string{"exif", "iptc"}
+	} else {
+		// Normalize to lowercase.
+		for i, s := range cfg.Meta.Sources {
+			cfg.Meta.Sources[i] = strings.ToLower(s)
+			if !validMetaSources[cfg.Meta.Sources[i]] {
+				return fmt.Errorf("invalid metadata source %q in imaging.meta.sources config; must be one of %s", s, slices.Collect(maps.Keys(validMetaSources)))
+			}
+		}
 	}
 
 	return nil
@@ -494,4 +524,26 @@ type ExifConfig struct {
 	// Hugo extracts the "photo taken where" (GPS latitude and longitude) into
 	// .Long and .Lat. Set this to true to turn it off.
 	DisableLatLong bool
+}
+
+type MetaConfig struct {
+	// Glob patterns for which metadata fields to include.
+	// Use "! " prefix to exclude patterns (e.g., "! *GPS*" excludes GPS fields).
+	// Patterns are OR'd together for inclusion, AND'd for exclusion.
+	// If empty, a default set excluding technical metadata is used.
+	// Use ["**"] to include all fields.
+	Fields []string
+
+	// Hugo extracts the "photo taken" date/time into .Date by default.
+	// Set this to true to turn it off.
+	DisableDate bool
+
+	// Hugo extracts the "photo taken where" (GPS latitude and longitude) into
+	// .Long and .Lat. Set this to true to turn it off.
+	DisableLatLong bool
+
+	// Which metadata sources to include.
+	// Valid values are "exif", "iptc", "xmp".
+	// Default is ["exif", "iptc"] (XMP is excluded for performance reasons).
+	Sources []string
 }

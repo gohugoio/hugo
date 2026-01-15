@@ -30,7 +30,7 @@ import (
 	"github.com/gohugoio/hugo/identity"
 
 	"github.com/gohugoio/hugo/resources/images"
-	"github.com/gohugoio/hugo/resources/images/exif"
+	"github.com/gohugoio/hugo/resources/images/meta"
 	"github.com/spf13/afero"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -265,8 +265,12 @@ func (r *resourceAdapter) Height() int {
 	return r.getImageOps().Height()
 }
 
-func (r *resourceAdapter) Exif() *exif.ExifInfo {
+func (r *resourceAdapter) Exif() *meta.ExifInfo {
 	return r.getImageOps().Exif()
+}
+
+func (r *resourceAdapter) Meta() *meta.MetaInfo {
+	return r.getImageOps().Meta()
 }
 
 func (r *resourceAdapter) Colors() ([]images.Color, error) {

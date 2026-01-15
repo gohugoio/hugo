@@ -28,11 +28,12 @@ import (
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/disintegration/gift"
 
-	"github.com/gohugoio/hugo/resources/images/exif"
+	"github.com/gohugoio/hugo/resources/images/meta"
 	"github.com/gohugoio/hugo/resources/internal"
 
 	"github.com/gohugoio/hugo/resources/resource"
@@ -56,103 +57,160 @@ type imageResource struct {
 	// original (first).
 	root *imageResource
 
-	metaInit    sync.Once
-	metaInitErr error
-	meta        *imageMeta
+	// These are only set for the root imageResource.
+	exifInfoFn func() (*meta.ExifInfo, error)
+	metaInfoFn func() (*meta.MetaInfo, error)
 
-	dominantColorInit sync.Once
-	dominantColors    []images.Color
+	colorsFn func() ([]images.Color, error)
 
 	baseResource
 }
 
-type imageMeta struct {
-	Exif *exif.ExifInfo
+func newImageResource(img *images.Image, base baseResource) *imageResource {
+	ir := &imageResource{
+		Image:        img,
+		baseResource: base,
+	}
+	ir.root = ir
+	ir.exifInfoFn = ir.newExifInfoFn()
+	ir.metaInfoFn = ir.newMetaInfoFn()
+	ir.colorsFn = ir.newColorsFn()
+	return ir
 }
 
-func (i *imageResource) Exif() *exif.ExifInfo {
-	return i.root.getExif()
-}
-
-func (i *imageResource) getExif() *exif.ExifInfo {
-	i.metaInit.Do(func() {
+func (i *imageResource) newExifInfoFn() func() (*meta.ExifInfo, error) {
+	return sync.OnceValues(func() (*meta.ExifInfo, error) {
+		hugo.Deprecate("Image.Exif", "Use Image.Meta, see https://gohugo.io/content-management/image-processing/#meta", "v0.155.0")
 		mf := i.Format.ToImageMetaImageFormatFormat()
 		if mf == -1 {
-			// No Exif support for this format.
-			return
+			return nil, nil
 		}
 
+		var result *meta.ExifInfo
 		key := i.getImageMetaCacheTargetPath()
 
 		read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
-			meta := &imageMeta{}
 			data, err := io.ReadAll(r)
 			if err != nil {
 				return err
 			}
-
-			if err = json.Unmarshal(data, &meta); err != nil {
-				return err
-			}
-
-			i.meta = meta
-
-			return nil
+			return json.Unmarshal(data, &result)
 		}
 
 		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
 			defer w.Close()
-			f, err := i.root.ReadSeekCloser()
+			f, err := i.ReadSeekCloser()
 			if err != nil {
-				i.metaInitErr = err
-				return
+				return err
 			}
 			defer f.Close()
 
 			filename := i.getResourcePaths().Path()
-			x, err := i.getSpec().Imaging.DecodeExif(filename, mf, f)
+			result, err = i.getSpec().Imaging.DecodeExif(filename, mf, f)
 			if err != nil {
 				i.getSpec().Logger.Warnf("Unable to decode Exif metadata from image: %s", i.Key())
 				return nil
 			}
 
-			i.meta = &imageMeta{Exif: x}
-
-			// Also write it to cache
 			enc := json.NewEncoder(w)
-			return enc.Encode(i.meta)
+			return enc.Encode(result)
 		}
 
-		_, i.metaInitErr = i.getSpec().ImageCache.fcache.ReadOrCreate(key, read, create)
+		_, err := i.getSpec().ImageCache.fcache.ReadOrCreate(key, read, create)
+		return result, err
 	})
+}
 
-	if i.metaInitErr != nil {
-		panic(fmt.Sprintf("metadata init failed: %s", i.metaInitErr))
+func (i *imageResource) newMetaInfoFn() func() (*meta.MetaInfo, error) {
+	return sync.OnceValues(func() (*meta.MetaInfo, error) {
+		mf := i.Format.ToImageMetaImageFormatFormat()
+		if mf == -1 {
+			return nil, nil
+		}
+
+		var result *meta.MetaInfo
+		key := i.getImageMetaInfoCacheTargetPath()
+
+		read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
+			data, err := io.ReadAll(r)
+			if err != nil {
+				return err
+			}
+			return json.Unmarshal(data, &result)
+		}
+
+		create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
+			defer w.Close()
+			f, err := i.ReadSeekCloser()
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			filename := i.getResourcePaths().Path()
+			result, err = i.getSpec().Imaging.DecodeMeta(filename, mf, f)
+			if err != nil {
+				i.getSpec().Logger.Warnf("Unable to decode metadata from image: %s", i.Key())
+				return nil
+			}
+
+			enc := json.NewEncoder(w)
+			return enc.Encode(result)
+		}
+
+		_, err := i.getSpec().ImageCache.fcache.ReadOrCreate(key, read, create)
+		return result, err
+	})
+}
+
+func (i *imageResource) newColorsFn() func() ([]images.Color, error) {
+	return sync.OnceValues(func() ([]images.Color, error) {
+		img, err := i.DecodeImage()
+		if err != nil {
+			return nil, err
+		}
+		colors := color_extractor.ExtractColors(img)
+		result := make([]images.Color, len(colors))
+		for j, c := range colors {
+			result[j] = images.ColorGoToColor(c)
+		}
+		return result, nil
+	})
+}
+
+func (i *imageResource) Exif() *meta.ExifInfo {
+	x, err := i.root.exifInfoFn()
+	if err != nil {
+		panic(fmt.Sprintf("exif init failed: %s", err))
 	}
+	return x
+}
 
-	if i.meta == nil {
-		return nil
+func (i *imageResource) Meta() *meta.MetaInfo {
+	m, err := i.root.metaInfoFn()
+	if err != nil {
+		panic(fmt.Sprintf("meta init failed: %s", err))
 	}
+	return m
+}
 
-	return i.meta.Exif
+func (i *imageResource) getImageMetaInfoCacheTargetPath() string {
+	// Increment to invalidate the meta cache
+	const imageMetaInfoVersionNumber = 1
+
+	cfgHash := i.getSpec().Imaging.Cfg.SourceHash
+	df := i.getResourcePaths()
+	p1, _ := paths.FileAndExt(df.File)
+	h := i.hash()
+	idStr := hashing.HashStringHex(h, i.size(), imageMetaInfoVersionNumber, cfgHash)
+	df.File = fmt.Sprintf("%s_%s_meta.json", p1, idStr)
+	return df.TargetPath()
 }
 
 // Colors returns a slice of the most dominant colors in an image
 // using a simple histogram method.
 func (i *imageResource) Colors() ([]images.Color, error) {
-	var err error
-	i.dominantColorInit.Do(func() {
-		var img image.Image
-		img, err = i.DecodeImage()
-		if err != nil {
-			return
-		}
-		colors := color_extractor.ExtractColors(img)
-		for _, c := range colors {
-			i.dominantColors = append(i.dominantColors, images.ColorGoToColor(c))
-		}
-	})
-	return i.dominantColors, nil
+	return i.colorsFn()
 }
 
 func (i *imageResource) targetPath() string {
@@ -162,20 +220,24 @@ func (i *imageResource) targetPath() string {
 // Clone is for internal use.
 func (i *imageResource) Clone() resource.Resource {
 	gr := i.baseResource.Clone().(baseResource)
-	return &imageResource{
+	ir := &imageResource{
 		root:         i.root,
 		Image:        i.WithSpec(gr),
 		baseResource: gr,
 	}
+	ir.colorsFn = ir.newColorsFn()
+	return ir
 }
 
 func (i *imageResource) cloneTo(targetPath string) resource.Resource {
 	gr := i.baseResource.cloneTo(targetPath).(baseResource)
-	return &imageResource{
+	ir := &imageResource{
 		root:         i.root,
 		Image:        i.WithSpec(gr),
 		baseResource: gr,
 	}
+	ir.colorsFn = ir.newColorsFn()
+	return ir
 }
 
 func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource, error) {
@@ -192,11 +254,13 @@ func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource,
 		img = i.Image
 	}
 
-	return &imageResource{
+	ir := &imageResource{
 		root:         i.root,
 		Image:        img,
 		baseResource: base,
-	}, nil
+	}
+	ir.colorsFn = ir.newColorsFn()
+	return ir, nil
 }
 
 // Process processes the image with the given spec.
@@ -275,8 +339,11 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 				}
 				filters = append(filters, pFilters...)
 			} else if orientationProvider, ok := f.(images.ImageFilterFromOrientationProvider); ok {
-				tf := orientationProvider.AutoOrient(i.Exif())
-				if tf != nil {
+				var orientation int
+				if meta := i.Meta(); meta != nil {
+					orientation = meta.Orientation
+				}
+				if tf := orientationProvider.AutoOrient(orientation); tf != nil {
 					filters = append(filters, tf)
 				}
 			} else {
@@ -420,11 +487,13 @@ func (i *imageResource) clone(img image.Image) *imageResource {
 		image = i.WithSpec(spec)
 	}
 
-	return &imageResource{
+	ir := &imageResource{
 		Image:        image,
 		root:         i.root,
 		baseResource: spec,
 	}
+	ir.colorsFn = ir.newColorsFn()
+	return ir
 }
 
 func (i *imageResource) getImageMetaCacheTargetPath() string {

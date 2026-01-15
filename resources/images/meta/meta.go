@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package exif
+package meta
 
 import (
 	"fmt"
@@ -24,7 +24,31 @@ import (
 	"github.com/bep/imagemeta"
 	"github.com/bep/logg"
 	"github.com/bep/tmc"
+	"github.com/gohugoio/hugo/common/predicate"
+	"github.com/gohugoio/hugo/hugofs/hglob"
+	"github.com/spf13/cast"
 )
+
+// MetaInfo holds the decoded metadata for an Image; what you get in $image.Meta.
+// Note by default, only EXIF and IPTC data is decoded, unless configured otherwise.
+// If you want a consolidated view of the different tag sections, use the merge template func, e.g. {{ $m := merge .Exif .IPTC .XMP }}.
+type MetaInfo struct {
+	// GPS latitude in degrees.
+	Lat float64
+
+	// GPS longitude in degrees.
+	Long float64
+
+	// Image creation date/time.
+	Date time.Time
+
+	// Orientation tag value.
+	Orientation int
+
+	Exif Tags
+	IPTC Tags
+	XMP  Tags
+}
 
 // ExifInfo holds the decoded Exif data for an Image.
 type ExifInfo struct {
@@ -42,21 +66,32 @@ type ExifInfo struct {
 }
 
 type Decoder struct {
+	// For ExifConfig (legacy, regexp-based)
 	includeFieldsRe  *regexp.Regexp
 	excludeFieldsrRe *regexp.Regexp
-	noDate           bool
-	noLatLong        bool
-	warnl            logg.LevelLogger
+
+	// For MetaConfig (glob-based)
+	fieldsPredicate predicate.P[string]
+
+	noDate    bool
+	noLatLong bool
+	sources   imagemeta.Source
+	warnl     logg.LevelLogger
 }
 
-func (d *Decoder) shouldInclude(s string) bool {
-	return (d.includeFieldsRe == nil || d.includeFieldsRe.MatchString(s))
+func (d *Decoder) shouldIncludeField(s string) bool {
+	// Glob-based predicate takes precedence (used by MetaConfig)
+	if d.fieldsPredicate != nil {
+		return d.fieldsPredicate(strings.ToLower(s))
+	}
+	// Fall back to regexp-based filtering (used by ExifConfig)
+	if d.excludeFieldsrRe != nil && d.excludeFieldsrRe.MatchString(s) {
+		return false
+	}
+	return d.includeFieldsRe == nil || d.includeFieldsRe.MatchString(s)
 }
 
-func (d *Decoder) shouldExclude(s string) bool {
-	return d.excludeFieldsrRe != nil && d.excludeFieldsrRe.MatchString(s)
-}
-
+// IncludeFields sets a regexp for fields to include (legacy, for ExifConfig).
 func IncludeFields(expression string) func(*Decoder) error {
 	return func(d *Decoder) error {
 		re, err := compileRegexp(expression)
@@ -68,6 +103,7 @@ func IncludeFields(expression string) func(*Decoder) error {
 	}
 }
 
+// ExcludeFields sets a regexp for fields to exclude (legacy, for ExifConfig).
 func ExcludeFields(expression string) func(*Decoder) error {
 	return func(d *Decoder) error {
 		re, err := compileRegexp(expression)
@@ -75,6 +111,31 @@ func ExcludeFields(expression string) func(*Decoder) error {
 			return err
 		}
 		d.excludeFieldsrRe = re
+		return nil
+	}
+}
+
+// WithFields sets glob patterns for field filtering (for MetaConfig).
+// Patterns starting with "! " are exclusions.
+func WithFields(patterns []string) func(*Decoder) error {
+	return func(d *Decoder) error {
+		if len(patterns) == 0 {
+			return nil
+		}
+		// Lowercase patterns for case-insensitive matching
+		lowered := make([]string, len(patterns))
+		for i, p := range patterns {
+			if after, found := strings.CutPrefix(p, hglob.NegationPrefix); found {
+				lowered[i] = hglob.NegationPrefix + strings.ToLower(after)
+			} else {
+				lowered[i] = strings.ToLower(p)
+			}
+		}
+		p, err := predicate.NewStringPredicateFromGlobs(lowered, hglob.GetGlobDot)
+		if err != nil {
+			return err
+		}
+		d.fieldsPredicate = p
 		return nil
 	}
 }
@@ -96,6 +157,24 @@ func WithDateDisabled(disabled bool) func(*Decoder) error {
 func WithWarnLogger(warnl logg.LevelLogger) func(*Decoder) error {
 	return func(d *Decoder) error {
 		d.warnl = warnl
+		return nil
+	}
+}
+
+func WithSources(sources ...string) func(*Decoder) error {
+	return func(d *Decoder) error {
+		var s imagemeta.Source
+		for _, source := range sources {
+			switch source {
+			case "exif":
+				s |= imagemeta.EXIF
+			case "iptc":
+				s |= imagemeta.IPTC
+			case "xmp":
+				s |= imagemeta.XMP
+			}
+		}
+		d.sources = s
 		return nil
 	}
 }
@@ -147,7 +226,7 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 		return nil
 	}
 
-	shouldInclude := func(ti imagemeta.TagInfo) bool {
+	shouldHandleTag := func(ti imagemeta.TagInfo) bool {
 		if ti.Source == imagemeta.EXIF {
 			if !d.noDate {
 				// We need the time tags to calculate the date.
@@ -168,11 +247,7 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 			}
 		}
 
-		if d.shouldExclude(ti.Tag) {
-			return false
-		}
-
-		return d.shouldInclude(ti.Tag)
+		return d.shouldIncludeField(ti.Tag)
 	}
 
 	var warnf func(string, ...any)
@@ -191,7 +266,7 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 		imagemeta.Options{
 			R:               r.(io.ReadSeeker),
 			ImageFormat:     format,
-			ShouldHandleTag: shouldInclude,
+			ShouldHandleTag: shouldHandleTag,
 			HandleTag:       handleTag,
 			Sources:         imagemeta.EXIF, // For now. TODO(bep)
 			Warnf:           warnf,
@@ -211,16 +286,122 @@ func (d *Decoder) Decode(filename string, format imagemeta.ImageFormat, r io.Rea
 
 	tags := make(map[string]any)
 	for k, v := range tagInfos.All() {
-		if d.shouldExclude(k) {
-			continue
-		}
-		if !d.shouldInclude(k) {
+		if !d.shouldIncludeField(k) {
 			continue
 		}
 		tags[k] = v.Value
 	}
 
 	ex = &ExifInfo{Lat: lat, Long: long, Date: tm, Tags: tags}
+
+	return
+}
+
+// DecodeMeta decodes metadata from all sources (EXIF, IPTC, XMP).
+// Filename is only used for logging.
+func (d *Decoder) DecodeMeta(filename string, format imagemeta.ImageFormat, r io.Reader) (m *MetaInfo, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("metadata decoding failed: %v", r)
+		}
+	}()
+
+	var tagInfos imagemeta.Tags
+	handleTag := func(ti imagemeta.TagInfo) error {
+		tagInfos.Add(ti)
+		return nil
+	}
+
+	shouldHandleTag := func(ti imagemeta.TagInfo) bool {
+		// Always include time and GPS tags (needed for Date, Lat, Long extraction).
+		// These may be in EXIF, XMP, or IPTC depending on the image.
+		if !d.noDate && isTimeTag(ti.Tag) {
+			return true
+		}
+		if !d.noLatLong && isGPSTag(ti.Tag) {
+			return true
+		}
+
+		// For EXIF, only include tags from IFD0 (skip thumbnail data).
+		if ti.Source == imagemeta.EXIF {
+			if !strings.HasPrefix(ti.Namespace, "IFD0") {
+				return false
+			}
+		}
+
+		return d.shouldIncludeField(ti.Tag)
+	}
+
+	var warnf func(string, ...any)
+	if d.warnl != nil {
+		warnf = func(format string, args ...any) {
+			format = fmt.Sprintf("%q: %s: ", filename, format)
+			d.warnl.Logf(format, args...)
+		}
+	}
+
+	sources := d.sources
+	if sources.IsZero() {
+		sources = imagemeta.EXIF | imagemeta.IPTC | imagemeta.XMP
+	}
+
+	_, err = imagemeta.Decode(
+		imagemeta.Options{
+			R:               r.(io.ReadSeeker),
+			ImageFormat:     format,
+			ShouldHandleTag: shouldHandleTag,
+			HandleTag:       handleTag,
+			Sources:         sources,
+			Warnf:           warnf,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var tm time.Time
+	var lat, long float64
+
+	if !d.noDate {
+		tm, _ = tagInfos.GetDateTime()
+	}
+
+	if !d.noLatLong {
+		lat, long, _ = tagInfos.GetLatLong()
+	}
+
+	exifTags := make(map[string]any)
+	iptcTags := make(map[string]any)
+	xmpTags := make(map[string]any)
+
+	for k, v := range tagInfos.All() {
+		if !d.shouldIncludeField(k) {
+			continue
+		}
+		switch v.Source {
+		case imagemeta.EXIF:
+			exifTags[k] = v.Value
+		case imagemeta.IPTC:
+			iptcTags[k] = v.Value
+		case imagemeta.XMP:
+			xmpTags[k] = v.Value
+		}
+	}
+
+	var orientation int
+	if v, ok := exifTags["Orientation"]; ok {
+		orientation = cast.ToInt(v)
+	}
+
+	m = &MetaInfo{
+		Lat:         lat,
+		Long:        long,
+		Date:        tm,
+		Orientation: orientation,
+		Exif:        exifTags,
+		IPTC:        iptcTags,
+		XMP:         xmpTags,
+	}
 
 	return
 }

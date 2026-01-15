@@ -204,13 +204,8 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 	}
 
 	if isImage {
-		ir := &imageResource{
-			Image:        images.NewImage(imgFormat, r.Imaging, nil, gr),
-			baseResource: gr,
-		}
-		ir.root = ir
+		ir := newImageResource(images.NewImage(imgFormat, r.Imaging, nil, gr), gr)
 		return newResourceAdapter(gr.spec, rd.LazyPublish, ir), nil
-
 	}
 
 	return newResourceAdapter(gr.spec, rd.LazyPublish, gr), nil
