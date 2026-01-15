@@ -21,8 +21,8 @@ import (
 	"html/template"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/common/hmaps"
 
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 )
@@ -76,7 +76,7 @@ func (ns *Namespace) Jsonify(args ...any) (template.HTML, error) {
 		obj = args[0]
 	case 2:
 		var m map[string]any
-		m, err = maps.ToStringMapE(args[0])
+		m, err = hmaps.ToStringMapE(args[0])
 		if err != nil {
 			break
 		}

@@ -17,14 +17,14 @@ import (
 	"cmp"
 	"fmt"
 	"iter"
-	xmaps "maps"
+	"maps"
 	"slices"
 	"sort"
 	"sync"
 
 	"github.com/gohugoio/hashstructure"
 	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/hglob"
@@ -250,7 +250,7 @@ func (s *vectorStoreMap) HasRole(i int) bool {
 func (s *vectorStoreMap) clone() *vectorStoreMap {
 	c := *s
 	c.h = &hashOnce{}
-	c.sets = xmaps.Clone(s.sets)
+	c.sets = maps.Clone(s.sets)
 	return &c
 }
 
@@ -277,7 +277,7 @@ type ConfiguredDimensions struct {
 	ConfiguredRoles     ConfiguredDimension
 	CommonSitesMatrix   CommonSitestMatrix
 
-	singleVectorStoreCache *maps.Cache[Vector, *IntSets]
+	singleVectorStoreCache *hmaps.Cache[Vector, *IntSets]
 }
 
 func (c *ConfiguredDimensions) IsSingleVector() bool {
@@ -295,7 +295,7 @@ func (c *ConfiguredDimensions) GetOrCreateSingleVectorStore(vec Vector) *IntSets
 }
 
 func (c *ConfiguredDimensions) Init() error {
-	c.singleVectorStoreCache = maps.NewCache[Vector, *IntSets]()
+	c.singleVectorStoreCache = hmaps.NewCache[Vector, *IntSets]()
 	b := NewIntSetsBuilder(c).WithDefaultsIfNotSet().Build()
 	defaultVec := b.VectorSample()
 	c.singleVectorStoreCache.Set(defaultVec, b)
@@ -339,9 +339,9 @@ func (c *ConfiguredDimensions) ResolveVector(names types.Strings3) Vector {
 // IntSets holds the ordered sets of integers for the dimensions,
 // which is used for fast membership testing of files, resources and pages.
 type IntSets struct {
-	languages *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	versions  *maps.OrderedIntSet `mapstructure:"-" json:"-"`
-	roles     *maps.OrderedIntSet `mapstructure:"-" json:"-"`
+	languages *hmaps.OrderedIntSet `mapstructure:"-" json:"-"`
+	versions  *hmaps.OrderedIntSet `mapstructure:"-" json:"-"`
+	roles     *hmaps.OrderedIntSet `mapstructure:"-" json:"-"`
 
 	h *hashOnce
 }
@@ -592,7 +592,7 @@ func (s IntSets) shallowClone() *IntSets {
 // WithLanguageIndices replaces the current language set with a single language index.
 func (s *IntSets) WithLanguageIndices(i int) VectorStore {
 	c := s.shallowClone()
-	c.languages = maps.NewOrderedIntSet(i)
+	c.languages = hmaps.NewOrderedIntSet(i)
 	return c.init()
 }
 
@@ -615,22 +615,22 @@ func (s *IntSets) MustHash() uint64 {
 // setDefaultsIfNotSet applies default values to the IntSets if they are not already set.
 func (s *IntSets) setDefaultsIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
-		s.languages = maps.NewOrderedIntSet()
+		s.languages = hmaps.NewOrderedIntSet()
 		s.languages.Set(cfg.ConfiguredLanguages.IndexDefault())
 	}
 	if s.versions == nil {
-		s.versions = maps.NewOrderedIntSet()
+		s.versions = hmaps.NewOrderedIntSet()
 		s.versions.Set(cfg.ConfiguredVersions.IndexDefault())
 	}
 	if s.roles == nil {
-		s.roles = maps.NewOrderedIntSet()
+		s.roles = hmaps.NewOrderedIntSet()
 		s.roles.Set(cfg.ConfiguredRoles.IndexDefault())
 	}
 }
 
 func (s *IntSets) setDefaultsAndAllLAnguagesIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
-		s.languages = maps.NewOrderedIntSet()
+		s.languages = hmaps.NewOrderedIntSet()
 		for i := range cfg.ConfiguredLanguages.ForEachIndex() {
 			s.languages.Set(i)
 		}
@@ -640,19 +640,19 @@ func (s *IntSets) setDefaultsAndAllLAnguagesIfNotSet(cfg *ConfiguredDimensions) 
 
 func (s *IntSets) setAllIfNotSet(cfg *ConfiguredDimensions) {
 	if s.languages == nil {
-		s.languages = maps.NewOrderedIntSet()
+		s.languages = hmaps.NewOrderedIntSet()
 		for i := range cfg.ConfiguredLanguages.ForEachIndex() {
 			s.languages.Set(i)
 		}
 	}
 	if s.versions == nil {
-		s.versions = maps.NewOrderedIntSet()
+		s.versions = hmaps.NewOrderedIntSet()
 		for i := range cfg.ConfiguredVersions.ForEachIndex() {
 			s.versions.Set(i)
 		}
 	}
 	if s.roles == nil {
-		s.roles = maps.NewOrderedIntSet()
+		s.roles = hmaps.NewOrderedIntSet()
 		for i := range cfg.ConfiguredRoles.ForEachIndex() {
 			s.roles.Set(i)
 		}
@@ -696,20 +696,20 @@ func (s *IntSets) setDimensionsFromOtherIfNotSet(other VectorIterator) {
 func (s *IntSets) setValuesInNilSets(vec Vector, setLang, setVer, setRole bool) {
 	if setLang {
 		if s.languages == nil {
-			s.languages = maps.NewOrderedIntSet()
+			s.languages = hmaps.NewOrderedIntSet()
 		}
 		s.languages.Set(vec.Language())
 	}
 	if setVer {
 		if s.versions == nil {
-			s.versions = maps.NewOrderedIntSet()
+			s.versions = hmaps.NewOrderedIntSet()
 		}
 		s.versions.Set(vec.Version())
 	}
 
 	if setRole {
 		if s.roles == nil {
-			s.roles = maps.NewOrderedIntSet()
+			s.roles = hmaps.NewOrderedIntSet()
 		}
 		s.roles.Set(vec.Role())
 	}
@@ -737,12 +737,12 @@ func (b *IntSetsBuilder) Build() *IntSets {
 }
 
 func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
-	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*maps.OrderedIntSet, error) {
-		var result *maps.OrderedIntSet
+	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*hmaps.OrderedIntSet, error) {
+		var result *hmaps.OrderedIntSet
 		if len(values) == 0 {
 
 			if cfg.ApplyDefaults > 0 {
-				result = maps.NewOrderedIntSet()
+				result = hmaps.NewOrderedIntSet()
 			}
 			switch cfg.ApplyDefaults {
 			case IntSetsConfigApplyDefaultsIfNotSet:
@@ -772,7 +772,7 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 			}
 			for i := range iter {
 				if result == nil {
-					result = maps.NewOrderedIntSet()
+					result = hmaps.NewOrderedIntSet()
 				}
 				result.Set(i)
 			}
@@ -807,7 +807,7 @@ func (s *IntSetsBuilder) WithLanguageIndices(idxs ...int) *IntSetsBuilder {
 		return s
 	}
 	if s.s.languages == nil {
-		s.s.languages = maps.NewOrderedIntSet()
+		s.s.languages = hmaps.NewOrderedIntSet()
 	}
 	for _, i := range idxs {
 		s.s.languages.Set(i)
@@ -835,7 +835,7 @@ func (s *IntSetsBuilder) WithDimensionsFromOtherIfNotSet(other VectorIterator) *
 	return s
 }
 
-func (b *IntSetsBuilder) WithSets(languages, versions, roles *maps.OrderedIntSet) *IntSetsBuilder {
+func (b *IntSetsBuilder) WithSets(languages, versions, roles *hmaps.OrderedIntSet) *IntSetsBuilder {
 	b.s.languages = languages
 	b.s.versions = versions
 	b.s.roles = roles
@@ -867,17 +867,17 @@ func (s *Sites) Equal(other Sites) bool {
 	return s.Matrix.Equal(other.Matrix) && s.Complements.Equal(other.Complements)
 }
 
-func (s *Sites) SetFromParamsIfNotSet(params maps.Params) {
+func (s *Sites) SetFromParamsIfNotSet(params hmaps.Params) {
 	const (
 		matrixKey      = "matrix"
 		complementsKey = "complements"
 	)
 
 	if m, ok := params[matrixKey]; ok {
-		s.Matrix.SetFromParamsIfNotSet(m.(maps.Params))
+		s.Matrix.SetFromParamsIfNotSet(m.(hmaps.Params))
 	}
 	if f, ok := params[complementsKey]; ok {
-		s.Complements.SetFromParamsIfNotSet(f.(maps.Params))
+		s.Complements.SetFromParamsIfNotSet(f.(hmaps.Params))
 	}
 }
 
@@ -899,7 +899,7 @@ func (d StringSlices) Equal(other StringSlices) bool {
 		slices.Equal(d.Roles, other.Roles)
 }
 
-func (d *StringSlices) SetFromParamsIfNotSet(params maps.Params) {
+func (d *StringSlices) SetFromParamsIfNotSet(params hmaps.Params) {
 	const (
 		languagesKey = "languages"
 		versionsKey  = "versions"

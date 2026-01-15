@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types/css"
 	"github.com/gohugoio/hugo/deps"
@@ -105,7 +105,7 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 	}
 
 	if m != nil {
-		if t, _, found := maps.LookupEqualFold(m, "transpiler"); found {
+		if t, _, found := hmaps.LookupEqualFold(m, "transpiler"); found {
 			switch t {
 			case sass.TranspilerDart:
 				transpiler = cast.ToString(t)

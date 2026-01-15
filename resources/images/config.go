@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
@@ -162,12 +162,12 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 	}
 
 	buildConfig := func(in any) (ImagingConfigInternal, any, error) {
-		m, err := maps.ToStringMapE(in)
+		m, err := hmaps.ToStringMapE(in)
 		if err != nil {
 			return ImagingConfigInternal{}, nil, err
 		}
 		// Merge in the defaults.
-		maps.MergeShallow(m, defaultImaging)
+		hmaps.MergeShallow(m, defaultImaging)
 
 		var i ImagingConfigInternal
 		if err := mapstructure.Decode(m, &i.Imaging); err != nil {

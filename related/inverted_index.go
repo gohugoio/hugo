@@ -18,16 +18,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"math"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
-	xmaps "maps"
-
 	"github.com/gohugoio/hugo/common/collections"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/spf13/cast"
@@ -557,7 +556,7 @@ func norm(num, min, max int) int {
 }
 
 // DecodeConfig decodes a slice of map into Config.
-func DecodeConfig(m maps.Params) (Config, error) {
+func DecodeConfig(m hmaps.Params) (Config, error) {
 	if m == nil {
 		return Config{}, errors.New("no related config provided")
 	}
@@ -590,7 +589,7 @@ func DecodeConfig(m maps.Params) (Config, error) {
 			c.Indices[i].Type = TypeBasic
 		}
 		if !validTypes[c.Indices[i].Type] {
-			return c, fmt.Errorf("invalid index type %q. Must be one of %v", c.Indices[i].Type, xmaps.Keys(validTypes))
+			return c, fmt.Errorf("invalid index type %q. Must be one of %v", c.Indices[i].Type, maps.Keys(validTypes))
 		}
 		if icfg.CardinalityThreshold < 0 || icfg.CardinalityThreshold > 100 {
 			return Config{}, errors.New("cardinalityThreshold threshold must be between 0 and 100")

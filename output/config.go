@@ -19,7 +19,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
@@ -42,11 +42,11 @@ func DecodeConfig(mediaTypes media.Types, in any) (*config.ConfigNamespace[map[s
 		f := make(Formats, len(DefaultFormats))
 		copy(f, DefaultFormats)
 		if in != nil {
-			m, err := maps.ToStringMapE(in)
+			m, err := hmaps.ToStringMapE(in)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed convert config to map: %s", err)
 			}
-			m = maps.CleanConfigStringMap(m)
+			m = hmaps.CleanConfigStringMap(m)
 
 			for k, v := range m {
 				found := false

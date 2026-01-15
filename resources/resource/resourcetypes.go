@@ -16,7 +16,7 @@ package resource
 import (
 	"context"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
@@ -139,7 +139,7 @@ type NameNormalizedProvider interface {
 
 type ResourceParamsProvider interface {
 	// Params set in front matter for this resource.
-	Params() maps.Params
+	Params() hmaps.Params
 }
 
 type ResourceDataProvider interface {

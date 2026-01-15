@@ -28,8 +28,8 @@ import (
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
@@ -173,8 +173,8 @@ func (d *Deps) Init() error {
 			d.BuildState.DeferredExecutionsGroupedByRenderingContext = make(map[tpl.RenderingContext]*DeferredExecutions)
 		}
 		d.BuildState.DeferredExecutions = &DeferredExecutions{
-			Executions:              maps.NewCache[string, *tpl.DeferredExecution](),
-			FilenamesWithPostPrefix: maps.NewCache[string, bool](),
+			Executions:              hmaps.NewCache[string, *tpl.DeferredExecution](),
+			FilenamesWithPostPrefix: hmaps.NewCache[string, bool](),
 		}
 	}
 
@@ -464,10 +464,10 @@ type Counters struct {
 type DeferredExecutions struct {
 	// A set of filenames in /public that
 	// contains a post-processing prefix.
-	FilenamesWithPostPrefix *maps.Cache[string, bool]
+	FilenamesWithPostPrefix *hmaps.Cache[string, bool]
 
 	// Maps a placeholder to a deferred execution.
-	Executions *maps.Cache[string, *tpl.DeferredExecution]
+	Executions *hmaps.Cache[string, *tpl.DeferredExecution]
 }
 
 var _ identity.SignalRebuilder = (*BuildState)(nil)
@@ -480,8 +480,8 @@ func (b *BuildState) StartStageRender(stage tpl.RenderingContext) {
 func (b *BuildState) StopStageRender(stage tpl.RenderingContext) {
 	b.DeferredExecutionsGroupedByRenderingContext[stage] = b.DeferredExecutions
 	b.DeferredExecutions = &DeferredExecutions{
-		Executions:              maps.NewCache[string, *tpl.DeferredExecution](),
-		FilenamesWithPostPrefix: maps.NewCache[string, bool](),
+		Executions:              hmaps.NewCache[string, *tpl.DeferredExecution](),
+		FilenamesWithPostPrefix: hmaps.NewCache[string, bool](),
 	}
 }
 

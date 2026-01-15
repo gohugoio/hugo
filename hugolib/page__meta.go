@@ -15,12 +15,11 @@ package hugolib
 
 import (
 	"fmt"
+	"maps"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
-
-	xmaps "maps"
 
 	"github.com/bep/logg"
 	"github.com/gobuffalo/flect"
@@ -36,10 +35,10 @@ import (
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hiter"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -373,7 +372,7 @@ func (s *Site) newPageMetaFromPageMetasource(ms *pageMetaSource) (*pageMeta, err
 	m := &pageMeta{
 		pageMetaSource: ms,
 		pageConfig: &pagemeta.PageConfigLate{
-			Params: make(maps.Params),
+			Params: make(hmaps.Params),
 		},
 	}
 	return m, nil
@@ -470,7 +469,7 @@ func (m *pageMeta) IsPage() bool {
 	return m.Kind() == kinds.KindPage
 }
 
-func (m *pageMeta) Params() maps.Params {
+func (m *pageMeta) Params() hmaps.Params {
 	return m.pageConfig.Params
 }
 
@@ -524,17 +523,17 @@ func (m *pageMeta) Weight() int {
 func (ps *pageState) setMetaPost(cascades *page.PageMatcherParamsConfigs) error {
 	if ps.m.pageConfigSource.Frontmatter != nil {
 		if ps.m.pageConfigSource.IsFromContentAdapter {
-			ps.m.pageConfig.ContentAdapterData = xmaps.Clone(ps.m.pageConfigSource.Frontmatter)
+			ps.m.pageConfig.ContentAdapterData = maps.Clone(ps.m.pageConfigSource.Frontmatter)
 		} else {
-			ps.m.pageConfig.Params = xmaps.Clone(ps.m.pageConfigSource.Frontmatter)
+			ps.m.pageConfig.Params = maps.Clone(ps.m.pageConfigSource.Frontmatter)
 		}
 	}
 
 	if ps.m.pageConfig.Params == nil {
-		ps.m.pageConfig.Params = make(maps.Params)
+		ps.m.pageConfig.Params = make(hmaps.Params)
 	}
 	if ps.m.pageConfigSource.IsFromContentAdapter && ps.m.pageConfig.ContentAdapterData == nil {
-		ps.m.pageConfig.ContentAdapterData = make(maps.Params)
+		ps.m.pageConfig.ContentAdapterData = make(hmaps.Params)
 	}
 
 	// Cascade defined on itself has higher priority than inherited ones.
@@ -660,7 +659,7 @@ params:
 		loki := strings.ToLower(k)
 
 		if loki == "params" {
-			vv, err := maps.ToStringMapE(v)
+			vv, err := hmaps.ToStringMapE(v)
 			if err != nil {
 				return err
 			}
@@ -753,7 +752,7 @@ params:
 			}
 			pcfg.Params[loki] = pcfg.Aliases
 		case "sitemap":
-			pcfg.Sitemap, err = config.DecodeSitemap(ps.s.conf.Sitemap, maps.ToStringMap(v))
+			pcfg.Sitemap, err = config.DecodeSitemap(ps.s.conf.Sitemap, hmaps.ToStringMap(v))
 			if err != nil {
 				return fmt.Errorf("failed to decode sitemap config in front matter: %s", err)
 			}
@@ -771,7 +770,7 @@ params:
 			switch vv := v.(type) {
 			case []map[any]any:
 				for _, vvv := range vv {
-					resources = append(resources, maps.ToStringMap(vvv))
+					resources = append(resources, hmaps.ToStringMap(vvv))
 				}
 			case []map[string]any:
 				resources = append(resources, vv...)
@@ -779,7 +778,7 @@ params:
 				for _, vvv := range vv {
 					switch vvvv := vvv.(type) {
 					case map[any]any:
-						resources = append(resources, maps.ToStringMap(vvvv))
+						resources = append(resources, hmaps.ToStringMap(vvvv))
 					case map[string]any:
 						resources = append(resources, vvvv)
 					}

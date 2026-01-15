@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"mime"
 	"net/url"
 	"os"
@@ -32,13 +33,13 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
@@ -54,8 +55,6 @@ import (
 	"github.com/gohugoio/hugo/langs/i18n"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/resources"
-
-	xmaps "maps"
 
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 	"github.com/gohugoio/hugo/tpl/tplimplinit"
@@ -478,7 +477,7 @@ func newHugoSites(
 			dynacache.OptionsPartition{Weight: 10, ClearWhen: dynacache.ClearOnRebuild},
 		),
 		cacheContentSource:      dynacache.GetOrCreatePartition[uint64, *resources.StaleValue[[]byte]](d.MemCache, "/cont/src", dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
-		translationKeyPages:     maps.NewSliceCache[page.Page](),
+		translationKeyPages:     hmaps.NewSliceCache[page.Page](),
 		currentSite:             first[0],
 		skipRebuildForFilenames: make(map[string]bool),
 		init:                    &hugoSitesInit{},
@@ -669,7 +668,7 @@ func (s *Site) Lastmod() time.Time {
 }
 
 // Returns the Params configured for this site.
-func (s *Site) Params() maps.Params {
+func (s *Site) Params() hmaps.Params {
 	return s.conf.Params
 }
 
@@ -1140,7 +1139,7 @@ func (w *WhatChanged) Changes() []identity.Identity {
 	if w == nil || w.ids == nil {
 		return nil
 	}
-	return slices.Collect(xmaps.Keys(w.ids))
+	return slices.Collect(maps.Keys(w.ids))
 }
 
 func (w *WhatChanged) Drain() []identity.Identity {

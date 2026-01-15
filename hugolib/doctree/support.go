@@ -21,7 +21,7 @@ import (
 
 	radix "github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/common/collections"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 )
 
@@ -70,7 +70,7 @@ func (ctx *WalkContext[T]) Data() *SimpleThreadSafeTree[any] {
 
 func (ctx *WalkContext[T]) initDataRaw() {
 	ctx.dataRawInit.Do(func() {
-		ctx.dataRaw = maps.NewCache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]()
+		ctx.dataRaw = hmaps.NewCache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]()
 	})
 }
 
@@ -215,7 +215,7 @@ type WalkContext[T any] struct {
 	data     *SimpleThreadSafeTree[any]
 	dataInit sync.Once
 
-	dataRaw     *maps.Cache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]
+	dataRaw     *hmaps.Cache[sitesmatrix.Vector, *SimpleThreadSafeTree[any]]
 	dataRawInit sync.Once
 
 	eventHandlersMu sync.Mutex

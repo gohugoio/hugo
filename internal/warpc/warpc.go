@@ -30,9 +30,9 @@ import (
 
 	"github.com/bep/textandbinarywriter"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/tetratelabs/wazero"
@@ -253,7 +253,7 @@ func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
 	if err := q.init(); err != nil {
 		return nil, err
 	}
-	responseKinds := maps.NewMap[string, bool]()
+	responseKinds := hmaps.NewMap[string, bool]()
 	for _, rk := range q.Header.ResponseKinds {
 		responseKinds.Set(rk, true)
 	}
@@ -424,7 +424,7 @@ func (d *dispatcher[Q, R]) pendingCall(id uint32) *call[Q, R] {
 type call[Q, R any] struct {
 	request       Message[Q]
 	response      Message[R]
-	responseKinds *maps.Map[string, bool]
+	responseKinds *hmaps.Map[string, bool]
 	err           error
 	donec         chan *call[Q, R]
 }

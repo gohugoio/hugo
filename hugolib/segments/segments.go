@@ -18,9 +18,9 @@ import (
 	"strings"
 
 	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/config"
 	hglob "github.com/gohugoio/hugo/hugofs/hglob"
@@ -276,14 +276,14 @@ func getGlob(s string) (glob.Glob, error) {
 
 func DecodeSegments(in map[string]any, segmentsToRender []string, logger loggers.Logger) (*config.ConfigNamespace[map[string]SegmentConfig, *Segments], error) {
 	buildConfig := func(in any) (*Segments, any, error) {
-		m, err := maps.ToStringMapE(in)
+		m, err := hmaps.ToStringMapE(in)
 		if err != nil {
 			return nil, nil, err
 		}
 		if m == nil {
 			m = map[string]any{}
 		}
-		m = maps.CleanConfigStringMap(m)
+		m = hmaps.CleanConfigStringMap(m)
 
 		var segmentCfg map[string]SegmentConfig
 		if err := mapstructure.WeakDecode(m, &segmentCfg); err != nil {

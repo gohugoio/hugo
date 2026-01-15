@@ -17,7 +17,7 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/spf13/cast"
 )
 
@@ -37,7 +37,7 @@ func (ns *Namespace) Querify(params ...any) (string, error) {
 		switch v := params[0].(type) {
 		case map[string]any: // created with collections.Dictionary
 			return mapToQueryString(v)
-		case maps.Params: // site configuration or page parameters
+		case hmaps.Params: // site configuration or page parameters
 			return mapToQueryString(v)
 		case []string:
 			return stringSliceToQueryString(v)
@@ -66,7 +66,7 @@ func (ns *Namespace) Querify(params ...any) (string, error) {
 // mapToQueryString returns a URL query string derived from the given string
 // map, encoded and sorted by key. The function returns an error if it cannot
 // convert an element value to a string.
-func mapToQueryString[T map[string]any | maps.Params](m T) (string, error) {
+func mapToQueryString[T map[string]any | hmaps.Params](m T) (string, error) {
 	if len(m) == 0 {
 		return "", nil
 	}

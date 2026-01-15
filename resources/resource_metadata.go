@@ -28,7 +28,7 @@ import (
 
 	maps0 "maps"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/paths"
 )
 
@@ -60,7 +60,7 @@ type metaResource struct {
 	changed bool
 	title   string
 	name    string
-	params  maps.Params
+	params  hmaps.Params
 }
 
 func (r *metaResource) Name() string {
@@ -71,7 +71,7 @@ func (r *metaResource) Title() string {
 	return r.title
 }
 
-func (r *metaResource) Params() maps.Params {
+func (r *metaResource) Params() hmaps.Params {
 	return r.params
 }
 
@@ -209,9 +209,9 @@ func assignMetadata(metadata []map[string]any, ma *metaResource) error {
 
 			params, found := meta["params"]
 			if found {
-				m := maps.ToStringMap(params)
+				m := hmaps.ToStringMap(params)
 				// Needed for case insensitive fetching of params values
-				maps.PrepareParams(m)
+				hmaps.PrepareParams(m)
 				ma.updateParams(m)
 			}
 		}

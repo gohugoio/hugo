@@ -29,9 +29,9 @@ import (
 	"unicode"
 
 	"github.com/bep/simplecobra"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/parser"
@@ -190,7 +190,7 @@ func (c *importCommand) createSiteFromJekyll(jekyllRoot, targetDir string, jekyl
 }
 
 func (c *importCommand) convertJekyllContent(m any, content string) (string, error) {
-	metadata, _ := maps.ToStringMapE(m)
+	metadata, _ := hmaps.ToStringMapE(m)
 
 	lines := strings.Split(content, "\n")
 	var resultLines []string
@@ -246,7 +246,7 @@ func (c *importCommand) convertJekyllContent(m any, content string) (string, err
 }
 
 func (c *importCommand) convertJekyllMetaData(m any, postName string, postDate time.Time, draft bool) (any, error) {
-	metadata, err := maps.ToStringMapE(m)
+	metadata, err := hmaps.ToStringMapE(m)
 	if err != nil {
 		return nil, err
 	}

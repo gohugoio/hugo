@@ -21,7 +21,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -54,12 +54,12 @@ type PathParser struct {
 
 	// Below gets created on demand.
 	initOnce         sync.Once
-	sitesMatrixCache *maps.Cache[string, sitesmatrix.VectorStore] // Maps language index to sites matrix vector store.
+	sitesMatrixCache *hmaps.Cache[string, sitesmatrix.VectorStore] // Maps language index to sites matrix vector store.
 }
 
 func (pp *PathParser) init() {
 	pp.initOnce.Do(func() {
-		pp.sitesMatrixCache = maps.NewCache[string, sitesmatrix.VectorStore]()
+		pp.sitesMatrixCache = hmaps.NewCache[string, sitesmatrix.VectorStore]()
 	})
 }
 

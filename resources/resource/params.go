@@ -14,20 +14,19 @@
 package resource
 
 import (
-	"github.com/gohugoio/hugo/common/maps"
-
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/spf13/cast"
 )
 
-func Param(r ResourceParamsProvider, fallback maps.Params, key any) (any, error) {
+func Param(r ResourceParamsProvider, fallback hmaps.Params, key any) (any, error) {
 	keyStr, err := cast.ToStringE(key)
 	if err != nil {
 		return nil, err
 	}
 
 	if fallback == nil {
-		return maps.GetNestedParam(keyStr, ".", r.Params())
+		return hmaps.GetNestedParam(keyStr, ".", r.Params())
 	}
 
-	return maps.GetNestedParam(keyStr, ".", r.Params(), fallback)
+	return hmaps.GetNestedParam(keyStr, ".", r.Params(), fallback)
 }

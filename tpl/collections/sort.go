@@ -20,8 +20,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
@@ -89,8 +89,8 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 					if !v.IsValid() {
 						continue
 					}
-					// Special handling of lower cased maps.
-					if params, ok := v.Interface().(maps.Params); ok {
+					// Special handling of lower cased hmaps.
+					if params, ok := v.Interface().(hmaps.Params); ok {
 						v = reflect.ValueOf(params.GetNested(path[i+1:]...))
 						break
 					}
@@ -122,8 +122,8 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 					if !v.IsValid() {
 						continue
 					}
-					// Special handling of lower cased maps.
-					if params, ok := v.Interface().(maps.Params); ok {
+					// Special handling of lower cased hmaps.
+					if params, ok := v.Interface().(hmaps.Params); ok {
 						v = reflect.ValueOf(params.GetNested(path[j+1:]...))
 						break
 					}

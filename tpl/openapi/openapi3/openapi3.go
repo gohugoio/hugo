@@ -27,7 +27,7 @@ import (
 	kopenapi3 "github.com/getkin/kin-openapi/openapi3"
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -81,7 +81,7 @@ func (ns *Namespace) Unmarshal(ctx context.Context, args ...any) (*OpenAPIDocume
 
 	var opts unmarshalOptions
 	if len(args) > 1 {
-		optsm, err := maps.ToStringMapE(args[1])
+		optsm, err := hmaps.ToStringMapE(args[1])
 		if err != nil {
 			return nil, err
 		}

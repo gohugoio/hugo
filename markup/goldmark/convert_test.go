@@ -31,9 +31,9 @@ import (
 
 	"github.com/gohugoio/hugo/markup/markup_config"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/markup/converter"
 
@@ -398,7 +398,7 @@ func TestConvertAttributes(t *testing.T) {
 			}
 			data, err := toml.Marshal(mconf)
 			c.Assert(err, qt.IsNil)
-			m := maps.Params{
+			m := hmaps.Params{
 				"markup": config.FromTOMLConfigString(string(data)).Get(""),
 			}
 			conf := testconfig.GetTestConfig(nil, config.NewFrom(m))

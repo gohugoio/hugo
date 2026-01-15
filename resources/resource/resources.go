@@ -20,8 +20,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/spf13/cast"
@@ -330,7 +330,7 @@ func NewCachedResourceGetter(os ...any) *cachedResourceGetter {
 	}
 
 	return &cachedResourceGetter{
-		cache:    maps.NewCache[string, Resource](),
+		cache:    hmaps.NewCache[string, Resource](),
 		delegate: getters,
 	}
 }
@@ -352,7 +352,7 @@ var (
 )
 
 type cachedResourceGetter struct {
-	cache    *maps.Cache[string, Resource]
+	cache    *hmaps.Cache[string, Resource]
 	delegate ResourceGetter
 }
 

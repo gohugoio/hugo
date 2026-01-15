@@ -18,7 +18,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
@@ -78,24 +78,24 @@ func TestMerge(t *testing.T) {
 			"params dst",
 			[]any{
 				map[string]any{"a": 42, "c": 3},
-				maps.Params{"a": 1, "b": 2},
+				hmaps.Params{"a": 1, "b": 2},
 			},
-			maps.Params{"a": int(1), "b": int(2), "c": int(3)},
+			hmaps.Params{"a": int(1), "b": int(2), "c": int(3)},
 			false,
 		},
 		{
 			"params dst, upper case src",
 			[]any{
 				map[string]any{"a": 42, "C": 3},
-				maps.Params{"a": 1, "b": 2},
+				hmaps.Params{"a": 1, "b": 2},
 			},
-			maps.Params{"a": int(1), "b": int(2), "c": int(3)},
+			hmaps.Params{"a": int(1), "b": int(2), "c": int(3)},
 			false,
 		},
 		{
 			"params src",
 			[]any{
-				maps.Params{"a": 42, "c": 3},
+				hmaps.Params{"a": 42, "c": 3},
 				map[string]any{"a": 1, "c": 2},
 			},
 			map[string]any{"a": int(1), "c": int(2)},
@@ -104,7 +104,7 @@ func TestMerge(t *testing.T) {
 		{
 			"params src, upper case dst",
 			[]any{
-				maps.Params{"a": 42, "c": 3},
+				hmaps.Params{"a": 42, "c": 3},
 				map[string]any{"a": 1, "C": 2},
 			},
 			map[string]any{"a": int(1), "C": int(2)},
@@ -114,9 +114,9 @@ func TestMerge(t *testing.T) {
 			"nested, params dst",
 			[]any{
 				map[string]any{"a": 42, "c": 3, "b": map[string]any{"d": 55, "e": 66, "f": 3}},
-				maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2}},
+				hmaps.Params{"a": 1, "b": hmaps.Params{"d": 1, "e": 2}},
 			},
-			maps.Params{"a": 1, "b": maps.Params{"d": 1, "e": 2, "f": 3}, "c": 3},
+			hmaps.Params{"a": 1, "b": hmaps.Params{"d": 1, "e": 2, "f": 3}, "c": 3},
 			false,
 		},
 		{
@@ -136,7 +136,6 @@ func TestMerge(t *testing.T) {
 		{"different map types", []any{map[int]any{32: "a"}, simpleMap}, nil, true},
 		{"all nil", []any{nil, nil}, nil, true},
 	} {
-
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			errMsg := qt.Commentf("[%d] %v", i, test)

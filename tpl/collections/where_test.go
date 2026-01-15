@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 )
 
 func TestWhere(t *testing.T) {
@@ -176,35 +176,35 @@ func TestWhere(t *testing.T) {
 				{1: "a", 2: "m"},
 			},
 		},
-		// Case insensitive maps.Params
+		// Case insensitive hmaps.Params
 		// Slice of structs
 		{
-			seq: []TstParams{{params: maps.Params{"i": 0, "color": "indigo"}}, {params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 2, "color": "green"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+			seq: []TstParams{{params: hmaps.Params{"i": 0, "color": "indigo"}}, {params: hmaps.Params{"i": 1, "color": "blue"}}, {params: hmaps.Params{"i": 2, "color": "green"}}, {params: hmaps.Params{"i": 3, "color": "blue"}}},
 			key: ".Params.COLOR", match: "blue",
-			expect: []TstParams{{params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+			expect: []TstParams{{params: hmaps.Params{"i": 1, "color": "blue"}}, {params: hmaps.Params{"i": 3, "color": "blue"}}},
 		},
 		{
-			seq: []TstParams{{params: maps.Params{"nested": map[string]any{"color": "indigo"}}}, {params: maps.Params{"nested": map[string]any{"color": "blue"}}}},
+			seq: []TstParams{{params: hmaps.Params{"nested": map[string]any{"color": "indigo"}}}, {params: hmaps.Params{"nested": map[string]any{"color": "blue"}}}},
 			key: ".Params.NEsTED.COLOR", match: "blue",
-			expect: []TstParams{{params: maps.Params{"nested": map[string]any{"color": "blue"}}}},
+			expect: []TstParams{{params: hmaps.Params{"nested": map[string]any{"color": "blue"}}}},
 		},
 		{
-			seq: []TstParams{{params: maps.Params{"i": 0, "color": "indigo"}}, {params: maps.Params{"i": 1, "color": "blue"}}, {params: maps.Params{"i": 2, "color": "green"}}, {params: maps.Params{"i": 3, "color": "blue"}}},
+			seq: []TstParams{{params: hmaps.Params{"i": 0, "color": "indigo"}}, {params: hmaps.Params{"i": 1, "color": "blue"}}, {params: hmaps.Params{"i": 2, "color": "green"}}, {params: hmaps.Params{"i": 3, "color": "blue"}}},
 			key: ".Params", match: "blue",
 			expect: []TstParams{},
 		},
 		// Slice of maps
 		{
-			seq: []maps.Params{
+			seq: []hmaps.Params{
 				{"a": "a1", "b": "b1"}, {"a": "a2", "b": "b2"},
 			},
 			key: "B", match: "b2",
-			expect: []maps.Params{
+			expect: []hmaps.Params{
 				{"a": "a2", "b": "b2"},
 			},
 		},
 		{
-			seq: []maps.Params{
+			seq: []hmaps.Params{
 				{
 					"a": map[string]any{
 						"b": "b1",
@@ -217,7 +217,7 @@ func TestWhere(t *testing.T) {
 				},
 			},
 			key: "A.B", match: "b2",
-			expect: []maps.Params{
+			expect: []hmaps.Params{
 				{
 					"a": map[string]any{
 						"b": "b2",
@@ -622,14 +622,14 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			seq: map[string]any{
-				"foo": []any{maps.Params{"a": 1, "b": 2}},
-				"bar": []any{maps.Params{"a": 3, "b": 4}},
-				"zap": []any{maps.Params{"a": 5, "b": 6}},
+				"foo": []any{hmaps.Params{"a": 1, "b": 2}},
+				"bar": []any{hmaps.Params{"a": 3, "b": 4}},
+				"zap": []any{hmaps.Params{"a": 5, "b": 6}},
 			},
 			key: "B", op: ">", match: 3,
 			expect: map[string]any{
-				"bar": []any{maps.Params{"a": 3, "b": 4}},
-				"zap": []any{maps.Params{"a": 5, "b": 6}},
+				"bar": []any{hmaps.Params{"a": 3, "b": 4}},
+				"zap": []any{hmaps.Params{"a": 5, "b": 6}},
 			},
 		},
 	} {

@@ -16,8 +16,8 @@ package page
 import (
 	"time"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/hugolib/roles"
@@ -105,7 +105,7 @@ type Site interface {
 	MainSections() []string
 
 	// Returns the Params configured for this site.
-	Params() maps.Params
+	Params() hmaps.Params
 
 	// Param is a convenience method to do lookups in Params.
 	Param(key any) (any, error)
@@ -308,7 +308,7 @@ func (s *siteWrapper) MainSections() []string {
 	return s.s.MainSections()
 }
 
-func (s *siteWrapper) Params() maps.Params {
+func (s *siteWrapper) Params() hmaps.Params {
 	return s.s.Params()
 }
 
@@ -472,7 +472,7 @@ func (t testSite) BaseURL() string {
 	return ""
 }
 
-func (t testSite) Params() maps.Params {
+func (t testSite) Params() hmaps.Params {
 	return nil
 }
 

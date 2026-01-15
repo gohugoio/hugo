@@ -16,7 +16,7 @@ package navigation
 import (
 	"fmt"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/mitchellh/mapstructure"
 
@@ -74,7 +74,7 @@ func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
 	}
 
 	// Could be a structured menu entry
-	menus, err := maps.ToStringMapE(ms)
+	menus, err := hmaps.ToStringMapE(ms)
 	if err != nil {
 		return pm, wrapErr(err)
 	}
@@ -82,7 +82,7 @@ func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
 	for name, menu := range menus {
 		menuEntry := MenuEntry{Menu: name}
 		if menu != nil {
-			ime, err := maps.ToStringMapE(menu)
+			ime, err := hmaps.ToStringMapE(menu)
 			if err != nil {
 				return pm, wrapErr(err)
 			}

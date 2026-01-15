@@ -19,8 +19,8 @@ import (
 	"image/color"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/makeworld-the-better-one/dither/v2"
 	"github.com/mitchellh/mapstructure"
@@ -83,9 +83,9 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 		linespacing: 2,
 	}
 
-	var opt maps.Params
+	var opt hmaps.Params
 	if len(options) > 0 {
-		opt = maps.MustToParamsAndPrepare(options[0])
+		opt = hmaps.MustToParamsAndPrepare(options[0])
 		for option, v := range opt {
 			switch option {
 			case "color":

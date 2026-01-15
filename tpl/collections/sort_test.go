@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 )
 
 type stringsSlice []string
@@ -103,17 +103,17 @@ func TestSort(t *testing.T) {
 		},
 		// Lower case Params, slice
 		{
-			[]TstParams{{params: maps.Params{"color": "indigo"}}, {params: maps.Params{"color": "blue"}}, {params: maps.Params{"color": "green"}}},
+			[]TstParams{{params: hmaps.Params{"color": "indigo"}}, {params: hmaps.Params{"color": "blue"}}, {params: hmaps.Params{"color": "green"}}},
 			".Params.COLOR",
 			"asc",
-			[]TstParams{{params: maps.Params{"color": "blue"}}, {params: maps.Params{"color": "green"}}, {params: maps.Params{"color": "indigo"}}},
+			[]TstParams{{params: hmaps.Params{"color": "blue"}}, {params: hmaps.Params{"color": "green"}}, {params: hmaps.Params{"color": "indigo"}}},
 		},
 		// Lower case Params, map
 		{
-			map[string]TstParams{"1": {params: maps.Params{"color": "indigo"}}, "2": {params: maps.Params{"color": "blue"}}, "3": {params: maps.Params{"color": "green"}}},
+			map[string]TstParams{"1": {params: hmaps.Params{"color": "indigo"}}, "2": {params: hmaps.Params{"color": "blue"}}, "3": {params: hmaps.Params{"color": "green"}}},
 			".Params.CoLoR",
 			"asc",
-			[]TstParams{{params: maps.Params{"color": "blue"}}, {params: maps.Params{"color": "green"}}, {params: maps.Params{"color": "indigo"}}},
+			[]TstParams{{params: hmaps.Params{"color": "blue"}}, {params: hmaps.Params{"color": "green"}}, {params: hmaps.Params{"color": "indigo"}}},
 		},
 		// test map sorting by struct's method
 		{

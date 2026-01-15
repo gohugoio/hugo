@@ -31,9 +31,9 @@ import (
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -74,8 +74,8 @@ func NewBatcherClient(deps *deps.Deps) (js.BatcherClient, error) {
 		d:            deps,
 		buildClient:  NewBuildClient(deps.BaseFs.Assets, deps.ResourceSpec),
 		createClient: create.New(deps.ResourceSpec),
-		batcherStore: maps.NewCache[string, js.Batcher](),
-		bundlesStore: maps.NewCache[string, js.BatchPackage](),
+		batcherStore: hmaps.NewCache[string, js.Batcher](),
+		bundlesStore: hmaps.NewCache[string, js.BatchPackage](),
 	}
 
 	deps.BuildEndListeners.Add(func(...any) bool {
@@ -196,8 +196,8 @@ type BatcherClient struct {
 	createClient *create.Client
 	buildClient  *BuildClient
 
-	batcherStore *maps.Cache[string, js.Batcher]
-	bundlesStore *maps.Cache[string, js.BatchPackage]
+	batcherStore *hmaps.Cache[string, js.Batcher]
+	bundlesStore *hmaps.Cache[string, js.BatchPackage]
 }
 
 // New creates a new Batcher with the given ID.
@@ -279,7 +279,7 @@ func (c *BatcherClient) New(id string) (js.Batcher, error) {
 	return b, nil
 }
 
-func (c *BatcherClient) Store() *maps.Cache[string, js.Batcher] {
+func (c *BatcherClient) Store() *hmaps.Cache[string, js.Batcher] {
 	return c.batcherStore
 }
 
@@ -435,15 +435,15 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 	}
 
 	state := struct {
-		importResource        *maps.Cache[string, resource.Resource]
-		resultResource        *maps.Cache[string, resource.Resource]
-		importerImportContext *maps.Cache[string, importContext]
-		pathGroup             *maps.Cache[string, string]
+		importResource        *hmaps.Cache[string, resource.Resource]
+		resultResource        *hmaps.Cache[string, resource.Resource]
+		importerImportContext *hmaps.Cache[string, importContext]
+		pathGroup             *hmaps.Cache[string, string]
 	}{
-		importResource:        maps.NewCache[string, resource.Resource](),
-		resultResource:        maps.NewCache[string, resource.Resource](),
-		importerImportContext: maps.NewCache[string, importContext](),
-		pathGroup:             maps.NewCache[string, string](),
+		importResource:        hmaps.NewCache[string, resource.Resource](),
+		resultResource:        hmaps.NewCache[string, resource.Resource](),
+		importerImportContext: hmaps.NewCache[string, importContext](),
+		pathGroup:             hmaps.NewCache[string, string](),
 	}
 
 	multihostBasePaths := b.client.d.ResourceSpec.MultihostTargetBasePaths

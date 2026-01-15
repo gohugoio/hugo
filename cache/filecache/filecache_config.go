@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/mitchellh/mapstructure"
@@ -154,7 +154,7 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 	_, isOsFs := fs.(*afero.OsFs)
 
 	for k, v := range m {
-		if _, ok := v.(maps.Params); !ok {
+		if _, ok := v.(hmaps.Params); !ok {
 			continue
 		}
 		cc := defaultCacheConfig

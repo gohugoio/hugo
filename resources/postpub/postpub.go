@@ -22,8 +22,8 @@ import (
 
 	"github.com/spf13/cast"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -169,7 +169,7 @@ func (r *PostPublishResource) Title() string {
 	return r.field("Title")
 }
 
-func (r *PostPublishResource) Params() maps.Params {
+func (r *PostPublishResource) Params() hmaps.Params {
 	panic(r.fieldNotSupported("Params"))
 }
 

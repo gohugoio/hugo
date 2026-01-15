@@ -17,9 +17,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/maps"
-
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/hmaps"
 )
 
 func TestIndex(t *testing.T) {
@@ -47,8 +46,8 @@ func TestIndex(t *testing.T) {
 		{map[string]map[string]string{"a": {"b": "c"}}, []any{"a", "b"}, "c", false},
 		{[]map[string]map[string]string{{"a": {"b": "c"}}}, []any{0, "a", "b"}, "c", false},
 		{map[string]map[string]any{"a": {"b": []string{"c", "d"}}}, []any{"a", "b", 1}, "d", false},
-		{maps.Params{"a": "av"}, []any{"A"}, "av", false},
-		{maps.Params{"a": map[string]any{"b": "bv"}}, []any{"A", "B"}, "bv", false},
+		{hmaps.Params{"a": "av"}, []any{"A"}, "av", false},
+		{hmaps.Params{"a": map[string]any{"b": "bv"}}, []any{"A", "B"}, "bv", false},
 
 		// These used to be errors.
 		// See issue 10489.

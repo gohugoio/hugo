@@ -29,9 +29,9 @@ import (
 
 	"github.com/gohugoio/hugo/navigation"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/source"
 
@@ -320,7 +320,7 @@ func (p *nopPage) Param(key any) (any, error) {
 	return nil, nil
 }
 
-func (p *nopPage) Params() maps.Params {
+func (p *nopPage) Params() hmaps.Params {
 	return nil
 }
 

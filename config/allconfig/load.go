@@ -25,9 +25,9 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
@@ -166,7 +166,7 @@ func (l configLoader) applyConfigAliases() error {
 }
 
 func (l configLoader) applyDefaultConfig() error {
-	defaultSettings := maps.Params{
+	defaultSettings := hmaps.Params{
 		// These dirs are used early/before we build the config struct.
 		"themesDir": "themes",
 		"configDir": "config",
@@ -186,7 +186,7 @@ func (l configLoader) normalizeCfg(cfg config.Provider) error {
 	} else if b, ok := cfg.Get("minify").(bool); ok {
 		hugo.Deprecate("site config minify", "Use minify.minifyOutput instead.", "v0.150.0")
 		if b {
-			cfg.Set("minify", maps.Params{"minifyOutput": true})
+			cfg.Set("minify", hmaps.Params{"minifyOutput": true})
 		}
 	}
 
@@ -240,7 +240,7 @@ func (l configLoader) applyOsEnvOverrides(environ []string) error {
 	}
 
 	for _, env := range hugoEnv {
-		existing, nestedKey, owner, err := maps.GetNestedParamFn(env.Key, delim, l.cfg.Get)
+		existing, nestedKey, owner, err := hmaps.GetNestedParamFn(env.Key, delim, l.cfg.Get)
 		if err != nil {
 			return err
 		}
@@ -547,7 +547,7 @@ func (l configLoader) loadConfig(configName string) (string, error) {
 }
 
 func (l configLoader) deleteMergeStrategies() (err error) {
-	l.cfg.WalkParams(func(params ...maps.KeyParams) bool {
+	l.cfg.WalkParams(func(params ...hmaps.KeyParams) bool {
 		params[len(params)-1].Params.DeleteMergeStrategy()
 		return false
 	})

@@ -20,11 +20,11 @@ import (
 	"testing"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/spf13/afero"
 )
 
@@ -53,8 +53,8 @@ title = "English Comments Title"
 	enSite := b.H.Sites[0]
 	b.Assert(enSite.Title(), qt.Equals, "English Title")
 	b.Assert(enSite.Home().Title(), qt.Equals, "English Title")
-	b.Assert(enSite.Params(), qt.DeepEquals, maps.Params{
-		"comments": maps.Params{
+	b.Assert(enSite.Params(), qt.DeepEquals, hmaps.Params{
+		"comments": hmaps.Params{
 			"color": "blue",
 			"title": "English Comments Title",
 		},
@@ -424,13 +424,13 @@ name = "menu-theme"
 
 		got := b.H.Configs.Base
 
-		b.Assert(got.Params, qt.DeepEquals, maps.Params{
-			"b": maps.Params{
+		b.Assert(got.Params, qt.DeepEquals, hmaps.Params{
+			"b": hmaps.Params{
 				"b1": "b1 main",
-				"c": maps.Params{
+				"c": hmaps.Params{
 					"bc1": "bc1 main",
 					"bc2": "bc2 theme",
-					"d":   maps.Params{"bcd1": string("bcd1 theme")},
+					"d":   hmaps.Params{"bcd1": string("bcd1 theme")},
 				},
 				"b2": "b2 theme",
 			},
@@ -447,11 +447,11 @@ name = "menu-theme"
 		got := b.H.Configs.Base.Params
 
 		// Shallow merge, only add new keys to params.
-		b.Assert(got, qt.DeepEquals, maps.Params{
+		b.Assert(got, qt.DeepEquals, hmaps.Params{
 			"p1": "p1 main",
-			"b": maps.Params{
+			"b": hmaps.Params{
 				"b1": "b1 main",
-				"c": maps.Params{
+				"c": hmaps.Params{
 					"bc1": "bc1 main",
 				},
 			},
@@ -468,7 +468,7 @@ name = "menu-theme"
 
 		got := b.H.Configs.Base.Params
 
-		b.Assert(got, qt.DeepEquals, maps.Params{
+		b.Assert(got, qt.DeepEquals, hmaps.Params{
 			"p1": "p1 theme",
 		})
 	})
@@ -534,7 +534,7 @@ t3: {{ .Site.Params.t3 }}
 
 	got := b.H.Configs.Base.Params
 
-	b.Assert(got, qt.DeepEquals, maps.Params{
+	b.Assert(got, qt.DeepEquals, hmaps.Params{
 		"m1": "mv1",
 		"m2": "mv2",
 		"t1": "tv1",

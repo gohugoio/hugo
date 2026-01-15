@@ -19,8 +19,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
 
@@ -299,7 +299,7 @@ func (opts *Options) compile() (err error) {
 
 	var defines map[string]string
 	if opts.Defines != nil {
-		defines = maps.ToStringMapString(opts.Defines)
+		defines = hmaps.ToStringMapString(opts.Defines)
 	}
 
 	var drop api.Drop

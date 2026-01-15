@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 
@@ -180,7 +180,7 @@ func DecodeContentTypes(in map[string]any, types Types) (*config.ConfigNamespace
 	buildConfig := func(v any) (ContentTypes, any, error) {
 		var s map[string]ContentTypeConfig
 		c := DefaultContentTypes
-		m, err := maps.ToStringMapE(v)
+		m, err := hmaps.ToStringMapE(v)
 		if err != nil {
 			return c, nil, err
 		}
@@ -188,7 +188,7 @@ func DecodeContentTypes(in map[string]any, types Types) (*config.ConfigNamespace
 			s = defaultContentTypesConfig
 		} else {
 			s = make(map[string]ContentTypeConfig)
-			m = maps.CleanConfigStringMap(m)
+			m = hmaps.CleanConfigStringMap(m)
 			for k, v := range m {
 				var ctc ContentTypeConfig
 				if err := mapstructure.WeakDecode(v, &ctc); err != nil {
@@ -221,16 +221,16 @@ func DecodeContentTypes(in map[string]any, types Types) (*config.ConfigNamespace
 // DecodeTypes decodes the given map of media types.
 func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTypeConfig, Types], error) {
 	buildConfig := func(v any) (Types, any, error) {
-		m, err := maps.ToStringMapE(v)
+		m, err := hmaps.ToStringMapE(v)
 		if err != nil {
 			return nil, nil, err
 		}
 		if m == nil {
 			m = map[string]any{}
 		}
-		m = maps.CleanConfigStringMap(m)
+		m = hmaps.CleanConfigStringMap(m)
 		// Merge with defaults.
-		maps.MergeShallow(m, defaultMediaTypesConfig)
+		hmaps.MergeShallow(m, defaultMediaTypesConfig)
 
 		var types Types
 
@@ -242,8 +242,8 @@ func DecodeTypes(in map[string]any) (*config.ConfigNamespace[map[string]MediaTyp
 			if err := mapstructure.WeakDecode(v, &mediaType); err != nil {
 				return nil, nil, err
 			}
-			mm := maps.ToStringMap(v)
-			suffixes, _, found := maps.LookupEqualFold(mm, "suffixes")
+			mm := hmaps.ToStringMap(v)
+			suffixes, _, found := hmaps.LookupEqualFold(mm, "suffixes")
 			if found {
 				mediaType.SuffixesCSV = strings.TrimSpace(strings.ToLower(strings.Join(cast.ToStringSlice(suffixes), ",")))
 			}

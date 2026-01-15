@@ -38,10 +38,10 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/terminal"
 	"github.com/gohugoio/hugo/common/types"
@@ -95,11 +95,11 @@ type HugoSites struct {
 	// Now the different page dimensions (e.g. language) are built-in to the page trees above.
 	// But we sill need to support the overridden translationKey, but that should
 	// be relatively rare and low volume.
-	translationKeyPages *maps.SliceCache[page.Page]
+	translationKeyPages *hmaps.SliceCache[page.Page]
 
 	pageTrees                    *pageTrees
-	previousPageTreesWalkContext *doctree.WalkContext[contentNode]    // Set for rebuilds only.
-	previousSeenTerms            *maps.Map[term, sitesmatrix.Vectors] // Set for rebuilds only.
+	previousPageTreesWalkContext *doctree.WalkContext[contentNode]     // Set for rebuilds only.
+	previousSeenTerms            *hmaps.Map[term, sitesmatrix.Vectors] // Set for rebuilds only.
 
 	printUnusedTemplatesInit sync.Once
 	printPathWarningsInit    sync.Once
