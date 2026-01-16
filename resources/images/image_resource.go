@@ -16,7 +16,7 @@ package images
 import (
 	"image"
 
-	"github.com/gohugoio/hugo/resources/images/exif"
+	"github.com/gohugoio/hugo/resources/images/meta"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
@@ -59,7 +59,11 @@ type ImageResourceOps interface {
 	Filter(filters ...any) (ImageResource, error)
 
 	// Exif returns an ExifInfo object containing Image metadata.
-	Exif() *exif.ExifInfo
+	// Deprecated: Use Meta() instead.
+	Exif() *meta.ExifInfo
+
+	// Meta returns a MetaInfo object containing Image metadata from all sources (EXIF, IPTC, XMP).
+	Meta() *meta.MetaInfo
 
 	// Colors returns a slice of the most dominant colors in an image
 	// using a simple histogram method.
