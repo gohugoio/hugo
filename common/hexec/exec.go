@@ -27,8 +27,8 @@ import (
 	"sync"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/security"
 )
@@ -102,7 +102,7 @@ func New(cfg security.Config, workingDir string, log loggers.Logger) *Exec {
 		workingDir:        workingDir,
 		infol:             log.InfoCommand("exec"),
 		baseEnviron:       baseEnviron,
-		newNPXRunnerCache: maps.NewCache[string, func(arg ...any) (Runner, error)](),
+		newNPXRunnerCache: hmaps.NewCache[string, func(arg ...any) (Runner, error)](),
 	}
 }
 
@@ -121,7 +121,7 @@ type Exec struct {
 	// os.Environ filtered by the Exec.OsEnviron whitelist filter.
 	baseEnviron []string
 
-	newNPXRunnerCache *maps.Cache[string, func(arg ...any) (Runner, error)]
+	newNPXRunnerCache *hmaps.Cache[string, func(arg ...any) (Runner, error)]
 	npxInit           sync.Once
 	npxAvailable      bool
 }

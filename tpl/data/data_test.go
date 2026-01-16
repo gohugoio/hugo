@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	"github.com/bep/logg"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -241,7 +241,7 @@ func TestHeaders(t *testing.T) {
 		},
 		{
 			`Params`,
-			maps.Params{
+			hmaps.Params{
 				"Accept-Charset": "utf-8",
 			},
 			func(c *qt.C, headers string) {

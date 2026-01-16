@@ -28,14 +28,13 @@ import (
 
 	"github.com/bep/debounce"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/version"
 	"golang.org/x/mod/module"
 
 	"github.com/spf13/cast"
-
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
@@ -494,7 +493,7 @@ LOOP:
 		if err != nil {
 			c.logger.Warnf("Failed to read module config for %q in %q: %s", tc.Path(), themeTOML, err)
 		} else {
-			maps.PrepareParams(themeCfg)
+			hmaps.PrepareParams(themeCfg)
 		}
 	}
 

@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cast"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/maps"
 )
 
 // Index returns the result of indexing its first argument by the following
@@ -63,7 +63,7 @@ func (ns *Namespace) doIndex(item any, args ...any) (any, error) {
 		indices = args
 	}
 
-	lowerm, ok := item.(maps.Params)
+	lowerm, ok := item.(hmaps.Params)
 	if ok {
 		return lowerm.GetNested(cast.ToStringSlice(indices)...), nil
 	}

@@ -17,7 +17,7 @@ package testconfig
 import (
 	_ "unsafe"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/deps"
@@ -84,7 +84,7 @@ func GetTestConfigSectionFromStruct(section string, v any) config.AllProvider {
 	if err != nil {
 		panic(err)
 	}
-	p := maps.Params{
+	p := hmaps.Params{
 		section: config.FromTOMLConfigString(string(data)).Get(""),
 	}
 	cfg := config.NewFrom(p)

@@ -26,8 +26,8 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/himage"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
@@ -858,12 +858,12 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		if s.Cfg.Running {
-			flags.Set("internal", maps.Params{
+			flags.Set("internal", hmaps.Params{
 				"running": s.Cfg.Running,
 				"watch":   s.Cfg.Running,
 			})
 		} else if s.Cfg.Watching {
-			flags.Set("internal", maps.Params{
+			flags.Set("internal", hmaps.Params{
 				"watch": s.Cfg.Watching,
 			})
 		}

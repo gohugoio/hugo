@@ -22,8 +22,8 @@ import (
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/htime"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
@@ -54,7 +54,7 @@ type Language struct {
 	isDefault bool
 
 	// This is just an alias of Site.Params.
-	params maps.Params
+	params hmaps.Params
 }
 
 // Name is an alias for Lang.
@@ -114,7 +114,7 @@ var DeprecationFunc = func(item, alternative string, err bool) {}
 // Params returns the language params.
 // Note that this is the same as the Site.Params, but we keep it here for legacy reasons.
 // Deprecated: Use the site.Params instead.
-func (l *Language) Params() maps.Params {
+func (l *Language) Params() hmaps.Params {
 	// TODO(bep) Remove this for now as it created a little too much noise. Need to think about this.
 	// See https://github.com/gohugoio/hugo/issues/11025
 	// DeprecationFunc(".Language.Params", paramsDeprecationWarning, false)
@@ -167,7 +167,7 @@ func (l Languages) AsIndexSet() map[string]int {
 // Internal access to unexported Language fields.
 // This construct is to prevent them from leaking to the templates.
 
-func SetParams(l *Language, params maps.Params) {
+func SetParams(l *Language, params hmaps.Params) {
 	l.params = params
 }
 

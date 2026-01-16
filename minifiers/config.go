@@ -16,8 +16,8 @@ package minifiers
 import (
 	"fmt"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/spf13/cast"
 
 	"github.com/mitchellh/mapstructure"
@@ -88,17 +88,17 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 		return
 	}
 
-	m := maps.ToStringMap(v)
+	m := hmaps.ToStringMap(v)
 
 	// Handle deprecations.
 	if td, found := m["tdewolff"]; found {
-		tdm := maps.ToStringMap(td)
+		tdm := hmaps.ToStringMap(td)
 
 		// Decimals was renamed to Precision in tdewolff/minify v2.7.0.
 		// https://github.com/tdewolff/minify/commit/2fed4401348ce36bd6c20e77335a463e69d94386
 		for _, key := range []string{"css", "svg"} {
 			if v, found := tdm[key]; found {
-				vm := maps.ToStringMap(v)
+				vm := hmaps.ToStringMap(v)
 				ko := "decimals"
 				kn := "precision"
 				if vv, found := vm[ko]; found {
@@ -121,7 +121,7 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 		// KeepConditionalComments was renamed to KeepSpecialComments in tdewolff/minify v2.20.13.
 		// https://github.com/tdewolff/minify/commit/342cbc1974162db0ad3327f7a42a623b2cd3ebbc
 		if v, found := tdm["html"]; found {
-			vm := maps.ToStringMap(v)
+			vm := hmaps.ToStringMap(v)
 			ko := "keepconditionalcomments"
 			kn := "keepspecialcomments"
 			if vv, found := vm[ko]; found {
@@ -140,7 +140,7 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 		// KeepCSS2 was deprecated in favor of Version in tdewolff/minify v2.24.1.
 		// https://github.com/tdewolff/minify/commit/57e3ebe0e6914b82c9ab0849a14f86bc29cd2ebf
 		if v, found := tdm["css"]; found {
-			vm := maps.ToStringMap(v)
+			vm := hmaps.ToStringMap(v)
 			ko := "keepcss2"
 			kn := "version"
 			if vv, found := vm[ko]; found {

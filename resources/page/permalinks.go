@@ -24,8 +24,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/kinds"
 )
@@ -41,7 +41,7 @@ type PermalinkExpander struct {
 
 	urlize func(uri string) string
 
-	patternCache *maps.Cache[string, func(Page) (string, error)]
+	patternCache *hmaps.Cache[string, func(Page) (string, error)]
 }
 
 // Time for checking date formats. Every field is different than the
@@ -83,7 +83,7 @@ func (p PermalinkExpander) callback(attr string) (pageToPermaAttribute, bool) {
 func NewPermalinkExpander(urlize func(uri string) string, patterns map[string]map[string]string) (PermalinkExpander, error) {
 	p := PermalinkExpander{
 		urlize:       urlize,
-		patternCache: maps.NewCache[string, func(Page) (string, error)](),
+		patternCache: hmaps.NewCache[string, func(Page) (string, error)](),
 	}
 
 	p.knownPermalinkAttributes = map[string]pageToPermaAttribute{
@@ -494,7 +494,7 @@ func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, err
 	permalinksConfig[kinds.KindTaxonomy] = make(map[string]string)
 	permalinksConfig[kinds.KindTerm] = make(map[string]string)
 
-	config := maps.CleanConfigStringMap(m)
+	config := hmaps.CleanConfigStringMap(m)
 	for k, v := range config {
 		switch v := v.(type) {
 		case string:
@@ -505,7 +505,7 @@ func DecodePermalinksConfig(m map[string]any) (map[string]map[string]string, err
 			permalinksConfig[kinds.KindPage][k] = v
 			permalinksConfig[kinds.KindTerm][k] = v
 
-		case maps.Params:
+		case hmaps.Params:
 			// [permalinks.key]
 			//   xyz = ???
 

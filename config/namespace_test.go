@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -32,7 +32,7 @@ func TestNamespace(t *testing.T) {
 		map[string]any{"foo": "bar"},
 		func(v any) (*tstNsExt, any, error) {
 			t := &tstNsExt{}
-			m, err := maps.ToStringMapE(v)
+			m, err := hmaps.ToStringMapE(v)
 			if err != nil {
 				return nil, nil, err
 			}

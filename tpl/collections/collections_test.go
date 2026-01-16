@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config/testconfig"
 
 	qt "github.com/frankban/quicktest"
@@ -912,10 +912,10 @@ type TstX struct {
 }
 
 type TstParams struct {
-	params maps.Params
+	params hmaps.Params
 }
 
-func (x TstParams) Params() maps.Params {
+func (x TstParams) Params() hmaps.Params {
 	return x.params
 }
 

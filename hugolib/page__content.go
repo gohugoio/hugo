@@ -29,9 +29,9 @@ import (
 	"github.com/bep/logg"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/helpers"
@@ -114,7 +114,7 @@ func (m *pageMeta) newCachedContent(s *Site) (*cachedContent, error) {
 		StaleInfo:   m,
 		pi:          m.pi,
 		enableEmoji: s.conf.EnableEmoji,
-		scopes:      maps.NewCache[string, *cachedContentScope](),
+		scopes:      hmaps.NewCache[string, *cachedContentScope](),
 	}
 	var hasName predicate.P[string] = m.pi.shortcodeParseInfo.hasName
 	c.hasShortcode.Store(&hasName)
@@ -136,7 +136,7 @@ type cachedContent struct {
 	// Whether the content has a given shortcode name.
 	hasShortcode atomic.Pointer[predicate.P[string]]
 
-	scopes *maps.Cache[string, *cachedContentScope]
+	scopes *hmaps.Cache[string, *cachedContentScope]
 }
 
 func (c *cachedContent) getOrCreateScope(scope string, pco *pageContentOutput) *cachedContentScope {

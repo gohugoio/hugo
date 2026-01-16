@@ -25,9 +25,9 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/hstore"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/langs"
@@ -43,7 +43,7 @@ func New(deps *deps.Deps) *Namespace {
 	}
 	loc := langs.GetLocation(language)
 
-	dCache := maps.NewCacheWithOptions[dKey, []int](maps.CacheOptions{Size: 100})
+	dCache := hmaps.NewCacheWithOptions[dKey, []int](hmaps.CacheOptions{Size: 100})
 
 	return &Namespace{
 		loc:      loc,
@@ -57,7 +57,7 @@ func New(deps *deps.Deps) *Namespace {
 type Namespace struct {
 	loc      *time.Location
 	sortComp *compare.Namespace
-	dCache   *maps.Cache[dKey, []int]
+	dCache   *hmaps.Cache[dKey, []int]
 	deps     *deps.Deps
 }
 

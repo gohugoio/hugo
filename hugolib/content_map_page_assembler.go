@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/go-radix"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -54,9 +54,9 @@ type allPagesAssembler struct {
 	rwRoot *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
 
 	// Walking state.
-	seenTerms        *maps.Map[term, sitesmatrix.Vectors]
-	droppedPages     *maps.Map[*Site, []string] // e.g. drafts, expired, future.
-	seenRootSections *maps.Map[string, bool]
+	seenTerms        *hmaps.Map[term, sitesmatrix.Vectors]
+	droppedPages     *hmaps.Map[*Site, []string] // e.g. drafts, expired, future.
+	seenRootSections *hmaps.Map[string, bool]
 	seenHome         bool // set before we fan out to multiple goroutines.
 }
 
@@ -75,7 +75,7 @@ func newAllPagesAssembler(
 	pw := rw.Extend()
 	pw.Tree = m.treePages
 
-	seenRootSections := maps.NewMap[string, bool]()
+	seenRootSections := hmaps.NewMap[string, bool]()
 	seenRootSections.Set("", true) // home.
 
 	return &allPagesAssembler{
@@ -83,8 +83,8 @@ func newAllPagesAssembler(
 		h:                          h,
 		m:                          m,
 		assembleChanges:            assembleChanges,
-		seenTerms:                  maps.NewMap[term, sitesmatrix.Vectors](),
-		droppedPages:               maps.NewMap[*Site, []string](),
+		seenTerms:                  hmaps.NewMap[term, sitesmatrix.Vectors](),
+		droppedPages:               hmaps.NewMap[*Site, []string](),
 		seenRootSections:           seenRootSections,
 		assembleSectionsInParallel: true,
 		pwRoot:                     pw,

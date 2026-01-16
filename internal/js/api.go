@@ -16,14 +16,14 @@ package js
 import (
 	"context"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
 // BatcherClient is used to do JS batch operations.
 type BatcherClient interface {
 	New(id string) (Batcher, error)
-	Store() *maps.Cache[string, Batcher]
+	Store() *hmaps.Cache[string, Batcher]
 }
 
 // BatchPackage holds a group of JavaScript resources.

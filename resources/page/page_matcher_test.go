@@ -17,9 +17,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 
 	qt "github.com/frankban/quicktest"
@@ -87,18 +87,18 @@ func TestPageMatcher(t *testing.T) {
 			return v
 		}
 		c.Assert(fn(map[string]any{"_target": map[string]any{"kind": "page"}, "foo": "bar"}), qt.DeepEquals, PageMatcherParamsConfig{
-			Params: maps.Params{},
-			Fields: maps.Params{
+			Params: hmaps.Params{},
+			Fields: hmaps.Params{
 				"foo": "bar",
 			},
 			Target: PageMatcher{Path: "", Kind: "page", Lang: "", Environment: ""},
 		})
 
 		c.Assert(fn(map[string]any{"target": map[string]any{"kind": "page"}, "params": map[string]any{"foo": "bar"}}), qt.DeepEquals, PageMatcherParamsConfig{
-			Params: maps.Params{
+			Params: hmaps.Params{
 				"foo": "bar",
 			},
-			Fields: maps.Params{},
+			Fields: hmaps.Params{},
 			Target: PageMatcher{Path: "", Kind: "page", Lang: "", Environment: ""},
 		})
 	})
@@ -134,10 +134,10 @@ func TestDecodeCascadeConfig(t *testing.T) {
 	c.Assert(got.c[0].Config.Cascades, qt.HasLen, 2)
 	first := got.c[0].Config.Cascades[0]
 	c.Assert(first, qt.DeepEquals, PageMatcherParamsConfig{
-		Params: maps.Params{
+		Params: hmaps.Params{
 			"a": "av",
 		},
-		Fields: maps.Params{},
+		Fields: hmaps.Params{},
 		Target: PageMatcher{
 			Kind:        "page",
 			Sites:       sitesmatrix.Sites{},
@@ -147,11 +147,11 @@ func TestDecodeCascadeConfig(t *testing.T) {
 
 	c.Assert(got.c[0].SourceStructure, qt.DeepEquals, []PageMatcherParamsConfig{
 		{
-			Params: maps.Params{"a": string("av")},
-			Fields: maps.Params{},
+			Params: hmaps.Params{"a": string("av")},
+			Fields: hmaps.Params{},
 			Target: PageMatcher{Kind: "page", Environment: "production"},
 		},
-		{Params: maps.Params{"b": string("bv")}, Fields: maps.Params{}, Target: PageMatcher{Kind: "page"}},
+		{Params: hmaps.Params{"b": string("bv")}, Fields: hmaps.Params{}, Target: PageMatcher{Kind: "page"}},
 	})
 
 	got, err = DecodeCascadeConfig(nil)

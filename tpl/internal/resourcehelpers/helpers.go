@@ -19,7 +19,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/resources"
 )
 
@@ -60,7 +60,7 @@ func ResolveArgs(args []any) (resources.ResourceTransformer, map[string]any, err
 		return nil, nil, fmt.Errorf("type %T not supported in Resource transformations", args[0])
 	}
 
-	m, err := maps.ToStringMapE(args[0])
+	m, err := hmaps.ToStringMapE(args[0])
 	if err != nil {
 		return nil, nil, fmt.Errorf("invalid options type: %w", err)
 	}

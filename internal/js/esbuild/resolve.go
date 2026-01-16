@@ -18,16 +18,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
-	"slices"
 )
 
 const (
@@ -132,12 +132,12 @@ func ResolveResource(impPath string, resourceGetter resource.ResourceGetter) (r 
 }
 
 func newFSResolver(fs afero.Fs) *fsResolver {
-	return &fsResolver{fs: fs, resolved: maps.NewCache[string, *hugofs.FileMeta]()}
+	return &fsResolver{fs: fs, resolved: hmaps.NewCache[string, *hugofs.FileMeta]()}
 }
 
 type fsResolver struct {
 	fs       afero.Fs
-	resolved *maps.Cache[string, *hugofs.FileMeta]
+	resolved *hmaps.Cache[string, *hugofs.FileMeta]
 }
 
 func (r *fsResolver) resolveComponent(impPath string) *hugofs.FileMeta {

@@ -19,8 +19,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/tpl/css"
 	"github.com/gohugoio/hugo/tpl/js"
@@ -129,7 +129,7 @@ func (ns *Namespace) GetRemote(args ...any) (resource.Resource, error) {
 		var options map[string]any
 
 		if len(args) > 1 {
-			options, err = maps.ToStringMapE(args[1])
+			options, err = hmaps.ToStringMapE(args[1])
 			if err != nil {
 				return nil, err
 			}

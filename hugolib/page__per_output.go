@@ -22,7 +22,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
@@ -67,7 +67,7 @@ func newPageContentOutput(po *pageOutput) (*pageContentOutput, error) {
 	cp := &pageContentOutput{
 		po:           po,
 		renderHooks:  &renderHooks{},
-		otherOutputs: maps.NewCache[uint64, *pageContentOutput](),
+		otherOutputs: hmaps.NewCache[uint64, *pageContentOutput](),
 	}
 	return cp, nil
 }
@@ -83,7 +83,7 @@ type pageContentOutput struct {
 
 	// Other pages involved in rendering of this page,
 	// typically included with .RenderShortcodes.
-	otherOutputs *maps.Cache[uint64, *pageContentOutput]
+	otherOutputs *hmaps.Cache[uint64, *pageContentOutput]
 
 	contentRenderedVersion uint32      // Incremented on reset.
 	contentRendered        atomic.Bool // Set on content render.

@@ -22,7 +22,7 @@ import (
 
 	"github.com/gobwas/glob"
 	"github.com/gobwas/glob/syntax"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/identity"
 )
 
@@ -32,9 +32,9 @@ var (
 	isWindows        = runtime.GOOS == "windows"
 	defaultGlobCache = &pathGlobCache{
 		isWindows: isWindows,
-		cache:     maps.NewCache[string, globErr](),
+		cache:     hmaps.NewCache[string, globErr](),
 	}
-	dotGlobCache = maps.NewCache[string, globErr]()
+	dotGlobCache = hmaps.NewCache[string, globErr]()
 )
 
 type globErr struct {
@@ -47,7 +47,7 @@ type pathGlobCache struct {
 	isWindows bool
 
 	// Cache
-	cache *maps.Cache[string, globErr]
+	cache *hmaps.Cache[string, globErr]
 }
 
 // GetGlobDot returns a glob.Glob that matches the given pattern, using '.' as the path separator.

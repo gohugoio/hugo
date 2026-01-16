@@ -21,10 +21,10 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -121,8 +121,8 @@ func checkCascadePattern(logger loggers.Logger, m PageMatcher) {
 	}
 }
 
-func AddLangToCascadeTargetMap(lang string, m maps.Params) {
-	maps.SetNestedParamIfNotSet("target.sites.matrix.languages", ".", lang, m)
+func AddLangToCascadeTargetMap(lang string, m hmaps.Params) {
+	hmaps.SetNestedParamIfNotSet("target.sites.matrix.languages", ".", lang, m)
 }
 
 func DecodeCascadeConfig(in any) (*PageMatcherParamsConfigs, error) {
@@ -133,7 +133,7 @@ func DecodeCascadeConfig(in any) (*PageMatcherParamsConfigs, error) {
 			return CascadeConfig{}, []map[string]any{}, nil
 		}
 
-		ms, err := maps.ToSliceStringMap(in)
+		ms, err := hmaps.ToSliceStringMap(in)
 		if err != nil {
 			return CascadeConfig{}, nil, err
 		}
@@ -141,7 +141,7 @@ func DecodeCascadeConfig(in any) (*PageMatcherParamsConfigs, error) {
 		var cfgs []PageMatcherParamsConfig
 
 		for _, m := range ms {
-			m = maps.CleanConfigStringMap(m)
+			m = hmaps.CleanConfigStringMap(m)
 			var (
 				c   PageMatcherParamsConfig
 				err error
@@ -192,10 +192,10 @@ type cascadeConfigDecoder struct{}
 func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (PageMatcherParamsConfig, error) {
 	var pcfg PageMatcherParamsConfig
 	if pcfg.Fields == nil {
-		pcfg.Fields = make(maps.Params)
+		pcfg.Fields = make(hmaps.Params)
 	}
 	if pcfg.Params == nil {
-		pcfg.Params = make(maps.Params)
+		pcfg.Params = make(hmaps.Params)
 	}
 
 	for k, v := range m {
@@ -207,7 +207,7 @@ func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (Pa
 			}
 			pcfg.Target = target
 		case "params":
-			params := maps.ToStringMap(v)
+			params := hmaps.ToStringMap(v)
 			for k, v := range params {
 				if _, found := pcfg.Params[k]; !found {
 					pcfg.Params[k] = v
@@ -271,25 +271,25 @@ type CascadeConfig struct {
 
 type PageMatcherParamsConfig struct {
 	// Apply Params to all Pages matching Target.
-	Params maps.Params
+	Params hmaps.Params
 	// Fields holds all fields but Params.
-	Fields maps.Params
+	Fields hmaps.Params
 	// Target is the PageMatcher that this config applies to.
 	Target PageMatcher
 }
 
 func (p *PageMatcherParamsConfig) init() error {
-	maps.PrepareParams(p.Params)
-	maps.PrepareParams(p.Fields)
+	hmaps.PrepareParams(p.Params)
+	hmaps.PrepareParams(p.Fields)
 
 	return nil
 }
 
 func (p *PageMatcherParamsConfig) hasSitesMatrix() bool {
 	if m, ok := p.Fields["sites"]; ok {
-		mm := maps.ToStringMap(m)
+		mm := hmaps.ToStringMap(m)
 		if sm, found := mm["matrix"]; found {
-			mmm := maps.ToStringMap(sm)
+			mmm := hmaps.ToStringMap(sm)
 			return len(mmm) > 0
 		}
 	}

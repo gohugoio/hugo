@@ -17,7 +17,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 )
 
 func TestQuerify(t *testing.T) {
@@ -31,9 +31,9 @@ func TestQuerify(t *testing.T) {
 		expect any
 	}{
 		// map
-		{"01", []any{maps.Params{"a": "foo", "b": "bar"}}, `a=foo&b=bar`},
-		{"02", []any{maps.Params{"a": 6, "b": 7}}, `a=6&b=7`},
-		{"03", []any{maps.Params{"a": "foo", "b": 7}}, `a=foo&b=7`},
+		{"01", []any{hmaps.Params{"a": "foo", "b": "bar"}}, `a=foo&b=bar`},
+		{"02", []any{hmaps.Params{"a": 6, "b": 7}}, `a=6&b=7`},
+		{"03", []any{hmaps.Params{"a": "foo", "b": 7}}, `a=foo&b=7`},
 		{"04", []any{map[string]any{"a": "foo", "b": "bar"}}, `a=foo&b=bar`},
 		{"05", []any{map[string]any{"a": 6, "b": 7}}, `a=6&b=7`},
 		{"06", []any{map[string]any{"a": "foo", "b": 7}}, `a=foo&b=7`},
@@ -53,7 +53,7 @@ func TestQuerify(t *testing.T) {
 		// no arguments
 		{"16", []any{}, ``},
 		// errors: zero key length
-		{"17", []any{maps.Params{"": "foo"}}, false},
+		{"17", []any{hmaps.Params{"": "foo"}}, false},
 		{"18", []any{map[string]any{"": "foo"}}, false},
 		{"19", []any{[]string{"", "foo"}}, false},
 		{"20", []any{[]any{"", 6}}, false},

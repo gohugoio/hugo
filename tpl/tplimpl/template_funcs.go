@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/tpl"
 
@@ -68,7 +68,7 @@ func (t *templateExecHelper) Init(ctx context.Context, tmpl texttemplate.Prepare
 }
 
 func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.Preparer, receiver, key reflect.Value) (reflect.Value, bool) {
-	if params, ok := receiver.Interface().(maps.Params); ok {
+	if params, ok := receiver.Interface().(hmaps.Params); ok {
 		// Case insensitive.
 		keystr := strings.ToLower(key.String())
 		v, found := params[keystr]
@@ -83,7 +83,7 @@ func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.
 	return v, v.IsValid()
 }
 
-var typeParams = reflect.TypeOf(maps.Params{})
+var typeParams = reflect.TypeOf(hmaps.Params{})
 
 func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
 	if strings.EqualFold(name, "mainsections") && receiver.Type() == typeParams && receiver.Pointer() == t.siteParams.Pointer() {

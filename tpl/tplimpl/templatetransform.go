@@ -13,7 +13,7 @@ import (
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 
 	"github.com/gohugoio/hugo/common/hashing"
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/mitchellh/mapstructure"
 )
@@ -478,7 +478,7 @@ func (c *templateTransformContext) collectConfig(n *parse.PipeNode) {
 
 	if s, ok := cmd.Args[0].(*parse.StringNode); ok {
 		errMsg := "failed to decode $_hugo_config in template: %w"
-		m, err := maps.ToStringMapE(s.Text)
+		m, err := hmaps.ToStringMapE(s.Text)
 		if err != nil {
 			c.err = fmt.Errorf(errMsg, err)
 			return

@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
 
@@ -36,7 +37,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
 
@@ -133,7 +133,7 @@ type ResourceTransformationCtx struct {
 	// to be simple types, as it needs to be serialized to JSON and back.
 	Data map[string]any
 
-	// This is used to publish additional artifacts, e.g. source maps.
+	// This is used to publish additional artifacts, e.g. source hhmaps.
 	// We may improve this.
 	OpenResourcePublisher func(relTargetPath string) (io.WriteCloser, error)
 }
@@ -310,7 +310,7 @@ func (r *resourceAdapter) NameNormalized() string {
 	return r.target.(resource.NameNormalizedProvider).NameNormalized()
 }
 
-func (r *resourceAdapter) Params() maps.Params {
+func (r *resourceAdapter) Params() hmaps.Params {
 	r.init(false, false)
 	return r.metaProvider.Params()
 }

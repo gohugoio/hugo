@@ -14,7 +14,7 @@
 package markup_config
 
 import (
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
@@ -52,7 +52,7 @@ func Decode(cfg config.Provider) (conf Config, err error) {
 	if m == nil {
 		return
 	}
-	m = maps.CleanConfigStringMap(m)
+	m = hmaps.CleanConfigStringMap(m)
 
 	normalizeConfig(m)
 
@@ -73,9 +73,9 @@ func Decode(cfg config.Provider) (conf Config, err error) {
 }
 
 func normalizeConfig(m map[string]any) {
-	v, err := maps.GetNestedParam("goldmark.parser", ".", m)
+	v, err := hmaps.GetNestedParam("goldmark.parser", ".", m)
 	if err == nil {
-		vm := maps.ToStringMap(v)
+		vm := hmaps.ToStringMap(v)
 		// Changed from a bool in 0.81.0
 		if vv, found := vm["attribute"]; found {
 			if vvb, ok := vv.(bool); ok {
@@ -87,9 +87,9 @@ func normalizeConfig(m map[string]any) {
 	}
 
 	// Handle changes to the Goldmark configuration.
-	v, err = maps.GetNestedParam("goldmark.extensions", ".", m)
+	v, err = hmaps.GetNestedParam("goldmark.extensions", ".", m)
 	if err == nil {
-		vm := maps.ToStringMap(v)
+		vm := hmaps.ToStringMap(v)
 
 		// We changed the typographer extension config from a bool to a struct in 0.112.0.
 		migrateGoldmarkConfig(vm, "typographer", goldmark_config.Typographer{Disable: true})

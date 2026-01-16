@@ -16,7 +16,7 @@ package config
 import (
 	"time"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/common/urls"
@@ -96,7 +96,7 @@ type Provider interface {
 	GetString(key string) string
 	GetInt(key string) int
 	GetBool(key string) bool
-	GetParams(key string) maps.Params
+	GetParams(key string) hmaps.Params
 	GetStringMap(key string) map[string]any
 	GetStringMapString(key string) map[string]string
 	GetStringSlice(key string) []string
@@ -104,9 +104,9 @@ type Provider interface {
 	Set(key string, value any)
 	Keys() []string
 	Merge(key string, value any)
-	SetDefaults(params maps.Params)
+	SetDefaults(params hmaps.Params)
 	SetDefaultMergeStrategy()
-	WalkParams(walkFn func(params ...maps.KeyParams) bool)
+	WalkParams(walkFn func(params ...hmaps.KeyParams) bool)
 	IsSet(key string) bool
 }
 

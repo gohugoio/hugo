@@ -22,9 +22,9 @@ import (
 	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/cache/httpcache"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
@@ -196,7 +196,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "outputs",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			defaults := createDefaultOutputFormats(p.c.OutputFormats.Config)
-			m := maps.CleanConfigStringMap(p.p.GetStringMap("outputs"))
+			m := hmaps.CleanConfigStringMap(p.p.GetStringMap("outputs"))
 			p.c.Outputs = make(map[string][]string)
 			for k, v := range m {
 				s := types.ToStringSlicePreserveString(v)
@@ -225,13 +225,13 @@ var allDecoderSetups = map[string]decodeWeight{
 	"languages": {
 		key: "languages",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			m := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
+			m := hmaps.CleanConfigStringMap(p.p.GetStringMap(d.key))
 			if len(m) == 1 {
 				// In v0.112.4 we moved this to the language config, but it's very commmon for mono language sites to have this at the top level.
-				var first maps.Params
+				var first hmaps.Params
 				var ok bool
 				for _, v := range m {
-					first, ok = v.(maps.Params)
+					first, ok = v.(hmaps.Params)
 					if ok {
 						break
 					}
@@ -266,7 +266,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "versions",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			m := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
+			m := hmaps.CleanConfigStringMap(p.p.GetStringMap(d.key))
 			p.c.Versions, err = versions.DecodeConfig(p.c.RootConfig.DefaultContentVersion, m)
 			return err
 		},
@@ -278,7 +278,7 @@ var allDecoderSetups = map[string]decodeWeight{
 				err                error
 				defaultContentRole string
 			)
-			m := maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
+			m := hmaps.CleanConfigStringMap(p.p.GetStringMap(d.key))
 			p.c.Roles, defaultContentRole, err = roles.DecodeConfig(p.c.RootConfig.DefaultContentRole, m)
 			p.c.RootConfig.DefaultContentRole = defaultContentRole
 
@@ -289,7 +289,7 @@ var allDecoderSetups = map[string]decodeWeight{
 	"params": {
 		key: "params",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			p.c.Params = maps.CleanConfigStringMap(p.p.GetStringMap("params"))
+			p.c.Params = hmaps.CleanConfigStringMap(p.p.GetStringMap("params"))
 			if p.c.Params == nil {
 				p.c.Params = make(map[string]any)
 			}
@@ -335,7 +335,7 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "taxonomies",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			if p.p.IsSet(d.key) {
-				p.c.Taxonomies = maps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
+				p.c.Taxonomies = hmaps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
 			}
 			return nil
 		},
@@ -447,7 +447,7 @@ var allDecoderSetups = map[string]decodeWeight{
 	"author": {
 		key: "author",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			p.c.Author = maps.CleanConfigStringMap(p.p.GetStringMap(d.key))
+			p.c.Author = hmaps.CleanConfigStringMap(p.p.GetStringMap(d.key))
 			return nil
 		},
 		internalOrDeprecated: true,
@@ -455,7 +455,7 @@ var allDecoderSetups = map[string]decodeWeight{
 	"social": {
 		key: "social",
 		decode: func(d decodeWeight, p decodeConfig) error {
-			p.c.Social = maps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
+			p.c.Social = hmaps.CleanConfigStringMapString(p.p.GetStringMapString(d.key))
 			return nil
 		},
 		internalOrDeprecated: true,
@@ -469,8 +469,8 @@ var allDecoderSetups = map[string]decodeWeight{
 				p.c.UglyURLs = vv
 			case string:
 				p.c.UglyURLs = vv == "true"
-			case maps.Params:
-				p.c.UglyURLs = cast.ToStringMapBool(maps.CleanConfigStringMap(vv))
+			case hmaps.Params:
+				p.c.UglyURLs = cast.ToStringMapBool(hmaps.CleanConfigStringMap(vv))
 			default:
 				p.c.UglyURLs = cast.ToStringMapBool(v)
 			}

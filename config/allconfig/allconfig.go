@@ -29,10 +29,10 @@ import (
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/cache/httpcache"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/config"
@@ -212,7 +212,7 @@ type Config struct {
 
 	// User provided parameters.
 	// <docsmeta>{"refs": ["config:languages:params"] }</docsmeta>
-	Params maps.Params `mapstructure:"-"`
+	Params hmaps.Params `mapstructure:"-"`
 
 	// UglyURLs configuration. Either a boolean or a sections map.
 	UglyURLs any `mapstructure:"-"`
@@ -1023,7 +1023,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 		if lang == "" {
 			lang = "en"
 		}
-		res.Cfg.Set("languages", maps.Params{lang: maps.Params{}})
+		res.Cfg.Set("languages", hmaps.Params{lang: hmaps.Params{}})
 	}
 	bcfg := res.BaseConfig
 	cfg := res.Cfg
@@ -1050,11 +1050,11 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 		var differentRootKeys []string
 		switch x := v.(type) {
 		case nil:
-		case maps.Params:
+		case hmaps.Params:
 			_, found := x["params"]
 			if !found {
-				x["params"] = maps.Params{
-					maps.MergeStrategyKey: maps.ParamsMergeStrategyDeep,
+				x["params"] = hmaps.Params{
+					hmaps.MergeStrategyKey: hmaps.ParamsMergeStrategyDeep,
 				}
 			}
 			for kk, vv := range x {
@@ -1066,16 +1066,16 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					isMultihost = true
 				}
 
-				if p, ok := vv.(maps.Params); ok {
+				if p, ok := vv.(hmaps.Params); ok {
 					// With the introduction of YAML anchor and alias support, language config entries
 					// may be contain shared references.
 					// This also break potential cycles.
-					vv = maps.CloneParamsDeep(p)
+					vv = hmaps.CloneParamsDeep(p)
 				}
 
 				if kk == "cascade" {
 					// If not set, add the current language to make sure it does not get applied to other languages.
-					page.AddLangToCascadeTargetMap(k, vv.(maps.Params))
+					page.AddLangToCascadeTargetMap(k, vv.(hmaps.Params))
 					// Always clone cascade config to get the sites matrix right.
 					differentRootKeys = append(differentRootKeys, kk)
 				}
@@ -1086,14 +1086,14 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					// This overrides a root key and potentially needs a merge.
 					if !reflect.DeepEqual(rootv, vv) {
 						switch vvv := vv.(type) {
-						case maps.Params:
+						case hmaps.Params:
 							differentRootKeys = append(differentRootKeys, kk)
 
 							// Use the language value as base.
 							// Note that this is already cloned above.
 							mergedConfigEntry := vvv
 							// Merge in the root value.
-							maps.MergeParams(mergedConfigEntry, rootv.(maps.Params))
+							hmaps.MergeParams(mergedConfigEntry, rootv.(hmaps.Params))
 
 							mergedConfig.Set(kk, mergedConfigEntry)
 						default:
@@ -1103,7 +1103,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 					}
 				} else {
 					switch vv.(type) {
-					case maps.Params:
+					case hmaps.Params:
 						differentRootKeys = append(differentRootKeys, kk)
 					default:
 						// Apply new values to the root.
@@ -1139,7 +1139,7 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 			}
 
 			langConfigMap[k] = clone
-		case maps.ParamsMergeStrategy:
+		case hmaps.ParamsMergeStrategy:
 
 		default:
 			panic(fmt.Sprintf("unknown type in languages config: %T", v))

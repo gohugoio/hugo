@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -65,7 +65,7 @@ type pagesFromDataTemplateContext struct {
 }
 
 func (p *pagesFromDataTemplateContext) toPathSitesMap(v any) (string, map[string]any, map[string]any, error) {
-	m, err := maps.ToStringMapE(v)
+	m, err := hmaps.ToStringMapE(v)
 	if err != nil {
 		return "", nil, nil, err
 	}
@@ -75,7 +75,7 @@ func (p *pagesFromDataTemplateContext) toPathSitesMap(v any) (string, map[string
 		return "", nil, nil, fmt.Errorf("invalid path %q", path)
 	}
 
-	sites := maps.ToStringMap(m["sites"])
+	sites := hmaps.ToStringMap(m["sites"])
 
 	return path, sites, m, nil
 }
@@ -161,7 +161,7 @@ func NewPagesFromTemplate(opts PagesFromTemplateOptions) *PagesFromTemplate {
 		PagesFromTemplateOptions: opts,
 		PagesFromTemplateDeps:    opts.DepsFromSite(opts.Site),
 		buildState: &BuildState{
-			sourceInfosCurrent: maps.NewCache[string, *sourceInfo](),
+			sourceInfosCurrent: hmaps.NewCache[string, *sourceInfo](),
 		},
 		store: hstore.NewScratch(),
 	}
@@ -231,8 +231,8 @@ type BuildState struct {
 	NumPagesAdded     uint64
 	NumResourcesAdded uint64
 
-	sourceInfosCurrent  *maps.Cache[string, *sourceInfo]
-	sourceInfosPrevious *maps.Cache[string, *sourceInfo]
+	sourceInfosCurrent  *hmaps.Cache[string, *sourceInfo]
+	sourceInfosPrevious *hmaps.Cache[string, *sourceInfo]
 }
 
 func (b *BuildState) hash(v any) uint64 {
@@ -304,7 +304,7 @@ func (b *BuildState) resolveDeletedPaths() {
 
 func (b *BuildState) PrepareNextBuild() {
 	b.sourceInfosPrevious = b.sourceInfosCurrent
-	b.sourceInfosCurrent = maps.NewCache[string, *sourceInfo]()
+	b.sourceInfosCurrent = hmaps.NewCache[string, *sourceInfo]()
 	b.StaleVersion = 0
 	b.DeletedPaths = nil
 	b.ChangedIdentities = nil
@@ -317,7 +317,7 @@ func (p PagesFromTemplate) CloneForSite(s page.Site) *PagesFromTemplate {
 	p.PagesFromTemplateOptions.Site = s
 	p.PagesFromTemplateDeps = p.PagesFromTemplateOptions.DepsFromSite(s)
 	p.buildState = &BuildState{
-		sourceInfosCurrent: maps.NewCache[string, *sourceInfo](),
+		sourceInfosCurrent: hmaps.NewCache[string, *sourceInfo](),
 	}
 	return &p
 }

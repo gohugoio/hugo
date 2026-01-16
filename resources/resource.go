@@ -29,13 +29,13 @@ import (
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -91,7 +91,7 @@ type ResourceSourceDescriptor struct {
 	Data map[string]any
 
 	// The Params to associate with this resource.
-	Params maps.Params
+	Params hmaps.Params
 
 	// Delay publishing until either Permalink or RelPermalink is called. Maybe never.
 	LazyPublish bool
@@ -122,7 +122,7 @@ func (fd *ResourceSourceDescriptor) init(r *Spec) error {
 	}
 
 	if fd.Params == nil {
-		fd.Params = make(maps.Params)
+		fd.Params = make(hmaps.Params)
 	}
 
 	if fd.Path == nil {
@@ -498,7 +498,7 @@ func (l *genericResource) NameNormalized() string {
 	return l.sd.NameNormalized
 }
 
-func (l *genericResource) Params() maps.Params {
+func (l *genericResource) Params() hmaps.Params {
 	return l.params
 }
 

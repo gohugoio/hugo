@@ -20,11 +20,11 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/parser"
 
 	"github.com/gohugoio/hugo/common/paths"
 
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/afero"
 )
@@ -222,11 +222,11 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 	return cfg, dirnames, nil
 }
 
-var keyAliases maps.KeyRenamer
+var keyAliases hmaps.KeyRenamer
 
 func init() {
 	var err error
-	keyAliases, err = maps.NewKeyRenamer(
+	keyAliases, err = hmaps.NewKeyRenamer(
 		// Before 0.53 we used singular for "menu".
 		"{menu,languages/*/menu}", "menus",
 	)

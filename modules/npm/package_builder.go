@@ -21,14 +21,13 @@ import (
 	"io/fs"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
-
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/helpers"
 )
@@ -130,7 +129,7 @@ func Pack(sourceFs, assetsWithDuplicatesPreservedFs afero.Fs) error {
 	var commentsm map[string]any
 	comments, found := b.originalPackageJSON["comments"]
 	if found {
-		commentsm = maps.ToStringMap(comments)
+		commentsm = hmaps.ToStringMap(comments)
 	} else {
 		commentsm = make(map[string]any)
 	}
@@ -213,7 +212,7 @@ func (b *packageBuilder) addm(source string, m map[string]any) {
 	// These packages will be added by order of import (project, module1, module2...),
 	// so that should at least give the project control over the situation.
 	if devDeps, found := m[devDependenciesKey]; found {
-		mm := maps.ToStringMapString(devDeps)
+		mm := hmaps.ToStringMapString(devDeps)
 		for k, v := range mm {
 			if _, added := b.devDependencies[k]; !added {
 				b.devDependencies[k] = v
@@ -223,7 +222,7 @@ func (b *packageBuilder) addm(source string, m map[string]any) {
 	}
 
 	if deps, found := m[dependenciesKey]; found {
-		mm := maps.ToStringMapString(deps)
+		mm := hmaps.ToStringMapString(deps)
 		for k, v := range mm {
 			if _, added := b.dependencies[k]; !added {
 				b.dependencies[k] = v

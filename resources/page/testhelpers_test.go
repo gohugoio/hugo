@@ -27,9 +27,9 @@ import (
 
 	"github.com/gohugoio/hugo/navigation"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
@@ -398,7 +398,7 @@ func (p *testPage) Param(key any) (any, error) {
 	return resource.Param(p, nil, key)
 }
 
-func (p *testPage) Params() maps.Params {
+func (p *testPage) Params() hmaps.Params {
 	return p.params
 }
 

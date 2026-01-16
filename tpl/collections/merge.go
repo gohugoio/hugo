@@ -19,8 +19,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/maps"
 )
 
 // Merge creates a copy of the final parameter in params and merges the preceding
@@ -92,7 +92,7 @@ func mergeMap(dst, src reflect.Value) reflect.Value {
 	out := reflect.MakeMap(dst.Type())
 
 	// If the destination is Params, we must lower case all keys.
-	_, lowerCase := dst.Interface().(maps.Params)
+	_, lowerCase := dst.Interface().(hmaps.Params)
 
 	k := reflect.New(dst.Type().Key()).Elem()
 	v := reflect.New(dst.Type().Elem()).Elem()

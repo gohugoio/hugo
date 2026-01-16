@@ -20,9 +20,9 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/hstrings"
-	"github.com/gohugoio/hugo/common/maps"
 )
 
 // Where returns a filtered subset of collection c.
@@ -403,7 +403,7 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 		rvv := seqv.Index(i)
 
 		if kv.Kind() == reflect.String {
-			if params, ok := rvv.Interface().(maps.Params); ok {
+			if params, ok := rvv.Interface().(hmaps.Params); ok {
 				vvv = reflect.ValueOf(params.GetNested(path...))
 			} else {
 				vvv = rvv
@@ -415,7 +415,7 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 					}
 
 					if i < len(path)-1 && vvv.IsValid() {
-						if params, ok := vvv.Interface().(maps.Params); ok {
+						if params, ok := vvv.Interface().(hmaps.Params); ok {
 							// The current path element is the map itself, .Params.
 							vvv = reflect.ValueOf(params.GetNested(path[i+1:]...))
 							break

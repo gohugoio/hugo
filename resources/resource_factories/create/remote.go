@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"maps"
 	"math/rand"
 	"mime"
 	"net/http"
@@ -26,14 +27,12 @@ import (
 	"strings"
 	"time"
 
-	gmaps "maps"
-
 	"github.com/gohugoio/httpcache"
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/tasks"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
@@ -172,12 +171,12 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	}
 
 	method := "GET"
-	if s, _, ok := maps.LookupEqualFold(optionsm, "method"); ok {
+	if s, _, ok := hmaps.LookupEqualFold(optionsm, "method"); ok {
 		method = strings.ToUpper(s.(string))
 	}
 	isHeadMethod := method == "HEAD"
 
-	optionsm = gmaps.Clone(optionsm)
+	optionsm = maps.Clone(optionsm)
 	userKey, optionsKey := remoteResourceKeys(uri, optionsm)
 
 	// A common pattern is to use the key in the options map as
@@ -323,7 +322,7 @@ func (c *Client) validateFromRemoteArgs(uri string, options fromRemoteOptions) e
 
 func remoteResourceKeys(uri string, optionsm map[string]any) (string, string) {
 	var userKey string
-	if key, k, found := maps.LookupEqualFold(optionsm, "key"); found {
+	if key, k, found := hmaps.LookupEqualFold(optionsm, "key"); found {
 		userKey = hashing.HashString(key)
 		delete(optionsm, k)
 	}

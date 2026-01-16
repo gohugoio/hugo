@@ -31,11 +31,11 @@ import (
 	"github.com/bep/simplecobra"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/terminal"
 	"github.com/gohugoio/hugo/common/types"
@@ -1077,7 +1077,7 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 	}
 	cfg.Set("environment", c.r.environment)
 
-	cfg.Set("internal", maps.Params{
+	cfg.Set("internal", hmaps.Params{
 		"running":        running,
 		"watch":          watch,
 		"verbose":        c.r.isVerbose(),

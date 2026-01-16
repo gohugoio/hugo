@@ -22,11 +22,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config/security"
 
 	"github.com/gohugoio/hugo/common/types"
@@ -36,7 +37,6 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/deps"
-	"slices"
 )
 
 // New returns a new instance of the data-namespaced template functions.
@@ -185,7 +185,7 @@ func toURLAndHeaders(urlParts []any) (string, map[string]any) {
 	}
 
 	// The last argument may be a map.
-	headers, err := maps.ToStringMapE(urlParts[len(urlParts)-1])
+	headers, err := hmaps.ToStringMapE(urlParts[len(urlParts)-1])
 	if err == nil {
 		urlParts = urlParts[:len(urlParts)-1]
 	} else {

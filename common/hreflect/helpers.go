@@ -20,8 +20,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/htime"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 )
 
@@ -355,7 +355,7 @@ func IsNil(v reflect.Value) bool {
 
 var contextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
 
-var isContextCache = maps.NewCache[reflect.Type, bool]()
+var isContextCache = hmaps.NewCache[reflect.Type, bool]()
 
 type k string
 

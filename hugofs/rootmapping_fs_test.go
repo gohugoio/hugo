@@ -21,7 +21,7 @@ import (
 
 	iofs "io/fs"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -556,5 +556,5 @@ func TestRootMappingFileFilter(t *testing.T) {
 var testDims = sitesmatrix.NewTestingDimensions([]string{"en", "no"}, []string{"v1", "v2", "v3"}, []string{"admin", "editor", "viewer", "guest"})
 
 func sitesMatrixForLangs(langs ...int) *sitesmatrix.IntSets {
-	return sitesmatrix.NewIntSetsBuilder(testDims).WithSets(maps.NewOrderedIntSet(langs...), nil, nil).Build()
+	return sitesmatrix.NewIntSetsBuilder(testDims).WithSets(hmaps.NewOrderedIntSet(langs...), nil, nil).Build()
 }

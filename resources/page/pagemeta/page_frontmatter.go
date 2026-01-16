@@ -20,12 +20,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -104,7 +104,7 @@ func (pcfg *PageConfigEarly) SetMetaPreFromMap(ext string, frontmatter map[strin
 
 func (pcfg *PageConfigEarly) setFromFrontMatter(frontmatter map[string]any) error {
 	// Needed for case insensitive fetching of params values.
-	maps.PrepareParams(frontmatter)
+	hmaps.PrepareParams(frontmatter)
 	pcfg.Frontmatter = frontmatter
 
 	if v, found := frontmatter[pageMetaKeyMarkup]; found {
@@ -122,7 +122,7 @@ func (pcfg *PageConfigEarly) setFromFrontMatter(frontmatter map[string]any) erro
 func (p *PageConfigEarly) setCascadeEarlyValueIfNotSet(key string, value any) (done bool) {
 	switch key {
 	case pageMetaKeySites:
-		p.Sites.SetFromParamsIfNotSet(value.(maps.Params))
+		p.Sites.SetFromParamsIfNotSet(value.(hmaps.Params))
 	}
 
 	return !p.Sites.Matrix.IsZero()
@@ -137,7 +137,7 @@ type PageConfigEarly struct {
 	Sites   sitesmatrix.Sites
 	Content Source // Content holds the content for this page.
 
-	Frontmatter maps.Params `mapstructure:"-" json:"-"` // The original front matter or content adapter map.
+	Frontmatter hmaps.Params `mapstructure:"-" json:"-"` // The original front matter or content adapter map.
 
 	// Compiled values.
 	SitesMatrixAndComplements `mapstructure:"-" json:"-"`
@@ -151,7 +151,7 @@ type PageConfigEarly struct {
 type PageConfigLate struct {
 	Dates Dates `json:"-"` // Dates holds the four core dates for this page.
 	DatesStrings
-	Params maps.Params // User defined params.
+	Params hmaps.Params // User defined params.
 
 	Title          string   // The title of the page.
 	LinkTitle      string   // The link title of the page.
@@ -438,9 +438,9 @@ func (p *PageConfigLate) Compile(e *PageConfigEarly, logger loggers.Logger, outp
 	}
 
 	if p.Params == nil {
-		p.Params = make(maps.Params)
+		p.Params = make(hmaps.Params)
 	} else {
-		maps.PrepareParams(p.Params)
+		hmaps.PrepareParams(p.Params)
 	}
 
 	if len(p.Outputs) > 0 {
@@ -466,7 +466,7 @@ type ResourceConfig struct {
 	Path    string
 	Name    string
 	Title   string
-	Params  maps.Params
+	Params  hmaps.Params
 	Content Source
 	Sites   sitesmatrix.Sites
 
@@ -486,7 +486,7 @@ func (rc *ResourceConfig) Validate() error {
 
 func (rc *ResourceConfig) Compile(basePath string, fim hugofs.FileMetaInfo, conf config.AllProvider, mediaTypes media.Types) error {
 	if rc.Params != nil {
-		maps.PrepareParams(rc.Params)
+		hmaps.PrepareParams(rc.Params)
 	}
 
 	// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.

@@ -26,6 +26,7 @@ import (
 	"github.com/bep/logg"
 	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/cache/dynacache"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/predicate"
@@ -38,8 +39,6 @@ import (
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources"
-
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
@@ -100,7 +99,7 @@ type pageMap struct {
 	cacheContentPlain      *dynacache.Partition[string, *resources.StaleValue[contentPlainPlainWords]]
 	contentTableOfContents *dynacache.Partition[string, *resources.StaleValue[contentTableOfContents]]
 
-	contentDataFileSeenItems *maps.Cache[string, map[uint64]bool]
+	contentDataFileSeenItems *hmaps.Cache[string, map[uint64]bool]
 
 	cfg contentMapConfig
 }
@@ -710,7 +709,7 @@ func newPageMap(s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *pageMap
 		cacheContentPlain:      dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentPlainPlainWords]](mcache, fmt.Sprintf("/cont/pla/%s", languageVersionRole), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 		contentTableOfContents: dynacache.GetOrCreatePartition[string, *resources.StaleValue[contentTableOfContents]](mcache, fmt.Sprintf("/cont/toc/%s", languageVersionRole), dynacache.OptionsPartition{Weight: 70, ClearWhen: dynacache.ClearOnChange}),
 
-		contentDataFileSeenItems: maps.NewCache[string, map[uint64]bool](),
+		contentDataFileSeenItems: hmaps.NewCache[string, map[uint64]bool](),
 
 		cfg: contentMapConfig{
 			lang:                 s.Lang(),
@@ -756,13 +755,13 @@ func newPageMap(s *Site, mcache *dynacache.Cache, pageTrees *pageTrees) *pageMap
 func newContentTreeTreverseIndex(init func(get func(key any) (contentNode, bool), set func(key any, val contentNode))) *contentTreeReverseIndex {
 	return &contentTreeReverseIndex{
 		initFn: init,
-		mm:     maps.NewCache[any, contentNode](),
+		mm:     hmaps.NewCache[any, contentNode](),
 	}
 }
 
 type contentTreeReverseIndex struct {
 	initFn func(get func(key any) (contentNode, bool), set func(key any, val contentNode))
-	mm     *maps.Cache[any, contentNode]
+	mm     *hmaps.Cache[any, contentNode]
 }
 
 func (c *contentTreeReverseIndex) Reset() {

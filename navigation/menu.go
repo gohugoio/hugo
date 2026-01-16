@@ -19,7 +19,7 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/config"
@@ -89,7 +89,7 @@ type Page interface {
 	IsPage() bool
 	IsSection() bool
 	IsAncestor(other any) bool
-	Params() maps.Params
+	Params() hmaps.Params
 }
 
 // Menu is a collection of menu entries.
@@ -158,7 +158,7 @@ type MenuConfig struct {
 	Weight     int
 	Title      string
 	// User defined params.
-	Params maps.Params
+	Params hmaps.Params
 }
 
 // For internal use.
@@ -279,11 +279,11 @@ func DecodeConfig(in any) (*config.ConfigNamespace[map[string]MenuConfig, Menus]
 			return ret, map[string]any{}, nil
 		}
 
-		menus, err := maps.ToStringMapE(in)
+		menus, err := hmaps.ToStringMapE(in)
 		if err != nil {
 			return ret, nil, err
 		}
-		menus = maps.CleanConfigStringMap(menus)
+		menus = hmaps.CleanConfigStringMap(menus)
 
 		for name, menu := range menus {
 			m, err := cast.ToSliceE(menu)
@@ -295,7 +295,7 @@ func DecodeConfig(in any) (*config.ConfigNamespace[map[string]MenuConfig, Menus]
 					if err := mapstructure.WeakDecode(entry, &menuConfig); err != nil {
 						return ret, nil, err
 					}
-					maps.PrepareParams(menuConfig.Params)
+					hmaps.PrepareParams(menuConfig.Params)
 					menuEntry := MenuEntry{
 						Menu:       name,
 						MenuConfig: menuConfig,

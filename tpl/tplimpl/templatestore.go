@@ -37,9 +37,9 @@ import (
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -126,10 +126,10 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 		storeSite:            configureSiteStorage(siteOpts, opts.Watching),
 		treeMain:             doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
 		treeShortcodes:       doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
-		templatesByPath:      maps.NewCache[string, *TemplInfo](),
-		shortcodesByName:     maps.NewCache[string, *TemplInfo](),
-		cacheLookupPartials:  maps.NewCache[string, *TemplInfo](),
-		templatesSnapshotSet: maps.NewCache[*parse.Tree, struct{}](),
+		templatesByPath:      hmaps.NewCache[string, *TemplInfo](),
+		shortcodesByName:     hmaps.NewCache[string, *TemplInfo](),
+		cacheLookupPartials:  hmaps.NewCache[string, *TemplInfo](),
+		templatesSnapshotSet: hmaps.NewCache[*parse.Tree, struct{}](),
 
 		// Note that the funcs passed below is just for name validation.
 		tns: newTemplateNamespace(siteOpts.TemplateFuncs),
@@ -437,9 +437,9 @@ type TemplateStore struct {
 
 	treeMain             *doctree.SimpleTree[map[nodeKey]*TemplInfo]
 	treeShortcodes       *doctree.SimpleTree[map[string]map[TemplateDescriptor]*TemplInfo]
-	templatesByPath      *maps.Cache[string, *TemplInfo]
-	shortcodesByName     *maps.Cache[string, *TemplInfo]
-	templatesSnapshotSet *maps.Cache[*parse.Tree, struct{}]
+	templatesByPath      *hmaps.Cache[string, *TemplInfo]
+	shortcodesByName     *hmaps.Cache[string, *TemplInfo]
+	templatesSnapshotSet *hmaps.Cache[*parse.Tree, struct{}]
 
 	dh descriptorHandler
 
@@ -455,7 +455,7 @@ type TemplateStore struct {
 	siteOptsOrig SiteOptions
 
 	// caches. These need to be refreshed when the templates are refreshed.
-	cacheLookupPartials *maps.Cache[string, *TemplInfo]
+	cacheLookupPartials *hmaps.Cache[string, *TemplInfo]
 }
 
 // NewFromOpts creates a new store with the same configuration as the original.
