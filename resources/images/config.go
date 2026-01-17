@@ -496,7 +496,9 @@ func (cfg *ImagingConfig) init() error {
 		for i, s := range cfg.Meta.Sources {
 			cfg.Meta.Sources[i] = strings.ToLower(s)
 			if !validMetaSources[cfg.Meta.Sources[i]] {
-				return fmt.Errorf("invalid metadata source %q in imaging.meta.sources config; must be one of %s", s, slices.Collect(maps.Keys(validMetaSources)))
+				keys := slices.Collect(maps.Keys(validMetaSources))
+				slices.Sort(keys)
+				return fmt.Errorf("invalid metadata source %q in imaging.meta.sources config; must be one of %s", s, keys)
 			}
 		}
 	}
