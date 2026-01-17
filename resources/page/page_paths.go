@@ -50,10 +50,18 @@ type TargetPathDescriptor struct {
 	// 2) the file base name (TranslationBaseName).
 	BaseName string
 
-	// Typically a language prefix added to file paths.
+	// PrefixFilePath contains zero or more content dimensions used as a file
+	// path prefix. Dimensions are ordered role/version/language for
+	// single-host and language/role/version for multihost.
+	// Example (single-host): guest/v1.0.0/en
+	// Example (multihost):   en/guest/v1.0.0
 	PrefixFilePath string
 
-	// Typically a language prefix added to links.
+	// PrefixLink contains zero or more content dimensions used as a link
+	// prefix. Dimensions are ordered role/version/language for single-host,
+	// but the language dimension is excluded for multihost.
+	// Example (single-host): guest/v1.0.0/en
+	// Example (multihost):   guest/v1.0.0
 	PrefixLink string
 
 	// If in multihost mode etc., every link/path needs to be prefixed, even

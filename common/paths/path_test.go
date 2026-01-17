@@ -369,3 +369,100 @@ func TestPathEscape(t *testing.T) {
 		}
 	}
 }
+
+func TestInjectSegment(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		name     string
+		s        string
+		prefix   string
+		segment  string
+		expected string
+	}{
+		{
+			name:     "rooted match",
+			s:        "/abc/def",
+			prefix:   "/abc",
+			segment:  "seg",
+			expected: "/abc/seg/def",
+		},
+		{
+			name:     "relative match",
+			s:        "abc/def",
+			prefix:   "abc",
+			segment:  "seg",
+			expected: "abc/seg/def",
+		},
+		{
+			name:     "rootedness mismatch - s rooted",
+			s:        "/abc/def",
+			prefix:   "abc",
+			segment:  "seg",
+			expected: "/abc/def",
+		},
+		{
+			name:     "rootedness mismatch - prefix rooted",
+			s:        "abc/def",
+			prefix:   "/abc",
+			segment:  "seg",
+			expected: "abc/def",
+		},
+		{
+			name:     "partial component mismatch",
+			s:        "/abcdef",
+			prefix:   "/abc",
+			segment:  "seg",
+			expected: "/abcdef",
+		},
+		{
+			name:     "root slash prefix",
+			s:        "/abc",
+			prefix:   "/",
+			segment:  "seg",
+			expected: "/seg/abc",
+		},
+		{
+			name:     "all empty",
+			s:        "",
+			prefix:   "",
+			segment:  "",
+			expected: "",
+		},
+		{
+			name:     "empty s and prefix",
+			s:        "",
+			prefix:   "",
+			segment:  "seg",
+			expected: "seg",
+		},
+		{
+			name:     "empty segment",
+			s:        "/abc/def",
+			prefix:   "/abc",
+			segment:  "",
+			expected: "/abc/def",
+		},
+		{
+			name:     "empty prefix with relative s",
+			s:        "abc",
+			prefix:   "",
+			segment:  "seg",
+			expected: "seg/abc",
+		},
+		{
+			name:     "empty prefix with rooted s",
+			s:        "/abc",
+			prefix:   "",
+			segment:  "seg",
+			expected: "seg/abc",
+		},
+	}
+
+	for _, tt := range tests {
+		c.Run(tt.name, func(c *qt.C) {
+			actual := InjectSegment(tt.s, tt.prefix, tt.segment)
+			c.Assert(actual, qt.Equals, tt.expected)
+		})
+	}
+}

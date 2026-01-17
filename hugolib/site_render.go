@@ -333,29 +333,26 @@ func (s *Site) renderAliases() error {
 
 				for _, a := range p.Aliases() {
 					isRelative := !strings.HasPrefix(a, "/")
+					prefix := path.Join("/", p.targetPathDescriptor.PrefixFilePath)
 
+					var baseDir string
 					if isRelative {
-						// Resolve the alias relative to the current page's
-						// directory level, prepended by the output format's
-						// "path" setting, which may be empty.
-						basePath := path.Join(p.targetPaths().SubResourceBaseLink, "..")
-						a = path.Join(f.Path, basePath, a)
+						// Form the baseDir by taking the resource's base target
+						// and moving up one level to the parent. Then, inject
+						// the Output Format path between the content dimension
+						// prefixes and the remaining path.
+						parentContext := path.Join(p.targetPaths().SubResourceBaseTarget, "..")
+						baseDir = paths.InjectSegment(parentContext, prefix, f.Path)
 					} else {
-						// Resolve the alias relative to the site root,
-						// prepended by the output format's "path" setting,
-						// which may be empty.
-						a = path.Join(f.Path, a)
+						// Form the baseDir by prepending the content dimension
+						// prefixes with the Output Format path.
+						baseDir = path.Join(prefix, f.Path)
 					}
+
+					a = path.Join(baseDir, a)
 
 					if s.conf.C.IsUglyURLSection(p.Section()) && !strings.HasSuffix(a, ".html") {
 						a += ".html"
-					}
-
-					lang := p.Language().Lang
-
-					if s.h.Configs.IsMultihost && !strings.HasPrefix(a, "/"+lang) {
-						// These need to be in its language root.
-						a = path.Join(lang, a)
 					}
 
 					err := s.writeDestAlias(a, plink, f, p)
