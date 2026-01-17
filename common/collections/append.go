@@ -82,7 +82,7 @@ func Append(to any, from ...any) (any, error) {
 					return from[0], nil
 				}
 
-				// If we get []string []string, we append the from slice to to
+				// If we get []string []string, we append the from slice to
 				if tot == fromt {
 					return reflect.AppendSlice(tov, fromv).Interface(), nil
 				} else if !fromt.AssignableTo(tot) {
