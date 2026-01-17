@@ -58,7 +58,7 @@ func NewEmpty() Chain {
 }
 
 // Implements contentTransformer
-// Content is read from the from-buffer and rewritten to to the to-buffer.
+// Content is read from the from-buffer and rewritten to the to-buffer.
 type fromToBuffer struct {
 	from *bytes.Buffer
 	to   *bytes.Buffer
@@ -73,7 +73,7 @@ func (ft fromToBuffer) To() io.Writer {
 }
 
 // Apply passes the given from io.Reader through the transformation chain.
-// The result is written to to.
+// The result is written to.
 func (c *Chain) Apply(to io.Writer, from io.Reader) error {
 	if len(*c) == 0 {
 		_, err := io.Copy(to, from)
