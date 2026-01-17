@@ -33,7 +33,7 @@ var (
 	rightDelimScNoMarkup   = []byte(">}}")
 	leftDelimScWithMarkup  = []byte("{{%")
 	rightDelimScWithMarkup = []byte("%}}")
-	leftComment            = []byte("/*") // comments in this context us used to to mark shortcodes as "not really a shortcode"
+	leftComment            = []byte("/*") // comments in this context us used to mark shortcodes as "not really a shortcode"
 	rightComment           = []byte("*/")
 )
 
