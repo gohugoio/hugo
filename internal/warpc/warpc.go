@@ -530,7 +530,11 @@ func Start[Q, R any](opts Options) (Dispatcher[Q, R], error) {
 		opts.PoolSize = 1
 	}
 
-	return newDispatcher[Q, R](opts)
+	d, err := newDispatcher[Q, R](opts)
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
 type dispatcherPool[Q, R any] struct {
