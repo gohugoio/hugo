@@ -428,3 +428,38 @@ func ToSlashPreserveLeading(s string) string {
 func IsSameFilePath(s1, s2 string) bool {
 	return path.Clean(ToSlashTrim(s1)) == path.Clean(ToSlashTrim(s2))
 }
+
+// InjectSegment returns a clean path with forward slashes by inserting segment
+// into s immediately following prefix. The prefix must be a complete path
+// component match (e.g., "en" matches "en/docs" but not "entertainment").
+// If prefix is empty, segment is prepended to s. If prefix is not found or
+// is a partial match, the cleaned version of s is returned.
+func InjectSegment(s, prefix, segment string) string {
+	if s == "" && prefix == "" && segment == "" {
+		return ""
+	}
+
+	s = path.Clean(filepath.ToSlash(s))
+	prefix = path.Clean(filepath.ToSlash(prefix))
+	segment = path.Clean(filepath.ToSlash(segment))
+
+	if prefix == "." {
+		return path.Join(segment, s)
+	}
+
+	if !strings.HasPrefix(s, prefix) {
+		return s
+	}
+
+	lp := len(prefix)
+	ls := len(s)
+
+	// Ensure prefix matches a full component.
+	if ls > lp && prefix != "/" {
+		if s[lp] != '/' {
+			return s
+		}
+	}
+
+	return path.Join(prefix, segment, s[lp:])
+}
