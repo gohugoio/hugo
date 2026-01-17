@@ -191,3 +191,194 @@ aliases:
 
 	b.AssertPublishDir("n/index.html", "yes/index.html", "no/index.html", "yes/index.html")
 }
+
+// Issue 14381
+func TestIssue14381(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL      = 'https://example.org'
+disableKinds = ['home', 'rss', 'sitemap', 'taxonomy', 'term']
+
+[outputFormats.print]
+  isHTML        = IS_HTML
+  mediaType     = 'text/html'
+  path          = 'print'
+
+[outputs]
+  page    = ['html', 'print']
+  section = ['html', 'print']
+-- content/foo/s1/_index.md --
+---
+title: s1
+aliases: [s1-alias]
+---
+-- content/foo/s1/p1.md --
+---
+title: p1
+aliases: [p1-alias]
+---
+-- content/foo/s2/_index.md --
+---
+title: s2
+aliases: [/s2-alias]
+---
+-- content/foo/s2/p2.md --
+---
+title: p2
+aliases: [/p2-alias]
+---
+-- layouts/all.html --
+{{ .Title }}
+`
+
+	// Test 1
+	// Expected site structure:
+	//
+	// public/
+	// ├── foo/
+	// │  ├── s1/
+	// │  │  ├── p1/
+	// │  │  │  └── index.html
+	// │  │  ├── p1-alias/
+	// │  │  │  └── index.html
+	// │  │  └── index.html
+	// │  ├── s1-alias/
+	// │  │  └── index.html
+	// │  ├── s2/
+	// │  │  ├── p2/
+	// │  │  │  └── index.html
+	// │  │  └── index.html
+	// │  └── index.html
+	// ├── p2-alias/
+	// │  └── index.html
+	// ├── print/
+	// │  └── foo/
+	// │      ├── s1/
+	// │      │  ├── p1/
+	// │      │  │  └── index.html
+	// │      │  └── index.html
+	// │      ├── s2/
+	// │      │  ├── p2/
+	// │      │  │  └── index.html
+	// │      │  └── index.html
+	// │      └── index.html
+	// └── s2-alias/
+	//     └── index.html
+
+	f := strings.ReplaceAll(files, "IS_HTML", "false")
+	b := Test(t, f)
+
+	b.AssertFileContent("public/foo/s1-alias/index.html",
+		`<title>https://example.org/foo/s1/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s1/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/">`,
+	)
+	b.AssertFileContent("public/foo/s1/p1-alias/index.html",
+		`<title>https://example.org/foo/s1/p1/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s1/p1/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/p1/">`,
+	)
+	b.AssertFileContent("public/s2-alias/index.html",
+		`<title>https://example.org/foo/s2/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s2/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/">`,
+	)
+	b.AssertFileContent("public/p2-alias/index.html",
+		`<title>https://example.org/foo/s2/p2/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s2/p2/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/p2/">`,
+	)
+
+	b.AssertFileExists("public/print/foo/s1-alias/index.html", false)
+	b.AssertFileExists("public/print/foo/s1/p1-alias/index.html", false)
+	b.AssertFileExists("public/print/s2-alias/index.html", false)
+	b.AssertFileExists("public/print/p2-alias/index.html", false)
+
+	// Test 2
+	// Expected site structure:
+	//
+	// public/
+	// ├── foo/
+	// │  ├── s1/
+	// │  │  ├── p1/
+	// │  │  │  └── index.html
+	// │  │  ├── p1-alias/
+	// │  │  │  └── index.html
+	// │  │  └── index.html
+	// │  ├── s1-alias/
+	// │  │  └── index.html
+	// │  ├── s2/
+	// │  │  ├── p2/
+	// │  │  │  └── index.html
+	// │  │  └── index.html
+	// │  └── index.html
+	// ├── p2-alias/
+	// │  └── index.html
+	// ├── print/
+	// │  ├── foo/
+	// │  │  ├── s1/
+	// │  │  │  ├── p1/
+	// │  │  │  │  └── index.html
+	// │  │  │  ├── p1-alias/
+	// │  │  │  │  └── index.html
+	// │  │  │  └── index.html
+	// │  │  ├── s1-alias/
+	// │  │  │  └── index.html
+	// │  │  ├── s2/
+	// │  │  │  ├── p2/
+	// │  │  │  │  └── index.html
+	// │  │  │  └── index.html
+	// │  │  └── index.html
+	// │  ├── p2-alias/
+	// │  │  └── index.html
+	// │  └── s2-alias/
+	// │      └── index.html
+	// └── s2-alias/
+	//     └── index.html
+
+	f = strings.ReplaceAll(files, "IS_HTML", "true")
+	b = Test(t, f)
+
+	b.AssertFileContent("public/foo/s1-alias/index.html",
+		`<title>https://example.org/foo/s1/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s1/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/">`,
+	)
+	b.AssertFileContent("public/foo/s1/p1-alias/index.html",
+		`<title>https://example.org/foo/s1/p1/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s1/p1/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/p1/">`,
+	)
+	b.AssertFileContent("public/s2-alias/index.html",
+		`<title>https://example.org/foo/s2/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s2/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/">`,
+	)
+	b.AssertFileContent("public/p2-alias/index.html",
+		`<title>https://example.org/foo/s2/p2/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s2/p2/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/p2/">`,
+	)
+	b.AssertFileContent("public/print/foo/s1-alias/index.html",
+		`<title>https://example.org/print/foo/s1/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s1/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s1/">`,
+	)
+	b.AssertFileContent("public/print/foo/s1/p1-alias/index.html",
+		`<title>https://example.org/print/foo/s1/p1/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s1/p1/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s1/p1/">`,
+	)
+	b.AssertFileContent("public/print/s2-alias/index.html",
+		`<title>https://example.org/print/foo/s2/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s2/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s2/">`,
+	)
+	b.AssertFileContent("public/print/p2-alias/index.html",
+		`<title>https://example.org/print/foo/s2/p2/</title>`,
+		`<link rel="canonical" href="https://example.org/foo/s2/p2/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s2/p2/">`,
+	)
+}

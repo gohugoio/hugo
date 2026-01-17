@@ -335,13 +335,15 @@ func (s *Site) renderAliases() error {
 					isRelative := !strings.HasPrefix(a, "/")
 
 					if isRelative {
-						// Make alias relative, where "." will be on the
-						// same directory level as the current page.
+						// Resolve the alias relative to the current page's
+						// directory level, prepended by the output format's
+						// "path" setting, which may be empty.
 						basePath := path.Join(p.targetPaths().SubResourceBaseLink, "..")
-						a = path.Join(basePath, a)
-
+						a = path.Join(f.Path, basePath, a)
 					} else {
-						// Make sure AMP and similar doesn't clash with regular aliases.
+						// Resolve the alias relative to the site root,
+						// prepended by the output format's "path" setting,
+						// which may be empty.
 						a = path.Join(f.Path, a)
 					}
 
