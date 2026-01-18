@@ -34,9 +34,10 @@ var (
 )
 
 type CommonImageProcessingParams struct {
-	Width  int `json:"width,omitempty"`
-	Height int `json:"height,omitempty"`
-	Stride int `json:"stride,omitempty"`
+	Width    int  `json:"width,omitempty"`
+	Height   int  `json:"height,omitempty"`
+	Stride   int  `json:"stride,omitempty"`
+	HasAlpha bool `json:"hasAlpha,omitempty"`
 
 	// For animated images.
 	FrameDurations []int `json:"frameDurations,omitempty"`
@@ -132,7 +133,7 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 	}
 
 	if len(out.Data.Params.FrameDurations) > 0 {
-		// Animated WebP.
+		// Animated WebP (always RGBA).
 		img := &WEBP{
 			frameDurations: out.Data.Params.FrameDurations,
 			loopCount:      out.Data.Params.LoopCount,
@@ -153,9 +154,35 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 		return img, nil
 	}
 
+	var pix []byte
+	var nrgbaStride int
+
+	if out.Data.Params.HasAlpha {
+		// RGBA data (4 bytes per pixel).
+		pix = destination.Bytes()
+		nrgbaStride = stride
+	} else {
+		// RGB data (3 bytes per pixel) - convert to NRGBA.
+		rgbData := destination.Bytes()
+		nrgbaStride = w * 4
+		pix = make([]byte, nrgbaStride*h)
+		for y := 0; y < h; y++ {
+			srcIdx := y * stride
+			dstIdx := y * nrgbaStride
+			for x := 0; x < w; x++ {
+				pix[dstIdx+0] = rgbData[srcIdx+0] // R
+				pix[dstIdx+1] = rgbData[srcIdx+1] // G
+				pix[dstIdx+2] = rgbData[srcIdx+2] // B
+				pix[dstIdx+3] = 0xFF              // A (fully opaque)
+				srcIdx += 3
+				dstIdx += 4
+			}
+		}
+	}
+
 	img := &image.NRGBA{
-		Pix:    destination.Bytes(),
-		Stride: stride,
+		Pix:    pix,
+		Stride: nrgbaStride,
 		Rect:   image.Rect(0, 0, w, h),
 	}
 
@@ -295,6 +322,7 @@ func (d *WebpCodec) Encode(w io.Writer, img image.Image, opts map[string]any) er
 
 	opts = maps.Clone(opts)
 	opts["useSharpYuv"] = true // Use sharp (and slow) RGB->YUV conversion.
+	opts["method"] = 2         // quality/speed trade-off (0=fast, 6=slower-better)
 
 	message := Message[WebpInput]{
 		Header: Header{

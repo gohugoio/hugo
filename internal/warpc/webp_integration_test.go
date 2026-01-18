@@ -120,3 +120,56 @@ sourcefilename: ../../resources/testdata/giphy.gif
 	b.ImageHelper("public/anim_hu_edc2f24aaad2cee6.webp").AssertFormat("webp").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(animFrameDurations)
 	b.ImageHelper("public/anim_hu_58eb49733894e7ce.gif").AssertFormat("gif").AssertIsAnimated(true).AssertLoopCount(0).AssertFrameDurations(animFrameDurations)
 }
+
+func BenchmarkWebp(b *testing.B) {
+	files := `
+-- content/p1/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p1/index.md --
+-- content/p2/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p2/index.md --
+-- content/p3/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p3/index.md --
+-- content/p4/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p4/index.md --
+-- content/p5/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p5/index.md --
+-- content/p6/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p6/index.md --
+-- content/p7/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p7/index.md --
+-- content/p8/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p8/index.md --
+-- content/p9/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p9/index.md --
+-- content/p10/sunrise.webp --
+sourcefilename: ../../resources/testdata/sunrise.webp
+-- content/p10/index.md --
+-- layouts/home.html --
+Home.
+-- layouts/page.html --
+{{ $image := .Resources.Get "sunrise.webp" }}
+{{ $resized := $image.Fit "400x300 webp" }}
+Resized RelPermalink: {{ $resized.RelPermalink }}|
+`
+
+	cfg := hugolib.IntegrationTestConfig{
+		T:           b,
+		TxtarString: files,
+	}
+
+	for b.Loop() {
+		b.StopTimer()
+		builder := hugolib.NewIntegrationTestBuilder(cfg).Init()
+		b.StartTimer()
+		builder.Build()
+	}
+}

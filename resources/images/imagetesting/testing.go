@@ -153,7 +153,7 @@ func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 	c.Assert(err, qt.IsNil)
 	c.Assert(len(entries1), qt.Equals, len(entries2))
 	for i, e1 := range entries1 {
-		if shouldSkip != nil && shouldSkip(e1) {
+		if shouldSkip(e1) {
 			continue
 		}
 		c.Assert(filepath.Ext(e1.Name()), qt.Not(qt.Equals), "")
