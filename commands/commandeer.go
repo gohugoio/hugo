@@ -131,6 +131,7 @@ type rootCommand struct {
 	gc              bool
 	poll            string
 	forceSyncStatic bool
+	enableHardLinks bool
 
 	// Profile flags (for debugging of performance problems)
 	cpuprofile   string
@@ -592,6 +593,8 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
 	cmd.Flags().BoolVar(&r.forceSyncStatic, "forceSyncStatic", false, "copy all files when static is changed.")
+	// Note: The flag name is tentative and can be adjusted (e.g. --useHardLinks) based on preference.
+	cmd.Flags().BoolVar(&r.enableHardLinks, "enableHardLinks", false, "use hard links for static files")
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("printI18nWarnings", "", false, "print missing translations")

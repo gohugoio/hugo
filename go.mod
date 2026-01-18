@@ -67,6 +67,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.9
+	github.com/stretchr/testify v1.10.0
 	github.com/tdewolff/minify/v2 v2.24.8
 	github.com/tdewolff/parse/v2 v2.8.5
 	github.com/tetratelabs/wazero v1.11.0
@@ -128,6 +129,7 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20250501225837-2ac532fd4443 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.32.4 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
@@ -163,6 +165,7 @@ require (
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
 	github.com/woodsbury/decimal128 v1.3.0 // indirect

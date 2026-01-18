@@ -447,14 +447,39 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	fs := &countingStatFs{Fs: sourceFs.Fs}
 
 	syncer := fsync.NewSyncer()
+	destRoot := ""
+	if c.r.enableHardLinks {
+		h, err := c.hugo()
+		if err != nil {
+			return 0, err
+		}
+		absPublishDir := paths.AbsPathify(h.Configs.Base.WorkingDir, h.Configs.Base.PublishDir)
+		var publishFolder string
+		if sourceFs.PublishFolder != "" {
+			publishFolder = sourceFs.PublishFolder
+		}
+		destRoot = filepath.Join(absPublishDir, publishFolder)
+	}
+
 	c.withConf(func(conf *commonConfig) {
 		syncer.NoTimes = conf.configs.Base.NoTimes
 		syncer.NoChmod = conf.configs.Base.NoChmod
 		syncer.ChmodFilter = chmodFilter
 
 		syncer.DestFs = conf.fs.PublishDirStatic
+		if c.r.enableHardLinks {
+			syncer.DestFs = &hardLinkFs{
+				Fs:         syncer.DestFs,
+				src:        sourceFs,
+				publishDir: publishDir,
+				destRoot:   destRoot,
+			}
+		}
+
 		// Now that we are using a unionFs for the static directories
-		// We can effectively clean the publishDir on initial sync
+		// We can effectively clean the publishDir on initial sync.
+		// note: When hard links are enabled, the tracked filesSynced in fsync
+		// includes the hard-linked files, so they are preserved during cleanup.
 		syncer.Delete = conf.configs.Base.CleanDestinationDir
 	})
 
