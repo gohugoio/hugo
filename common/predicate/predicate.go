@@ -14,6 +14,7 @@
 package predicate
 
 import (
+	"fmt"
 	"iter"
 	"strings"
 
@@ -189,4 +190,119 @@ func NewStringPredicateFromGlobs(patterns []string, getGlob func(pattern string)
 
 type IndexMatcher interface {
 	IndexMatch(match P[string]) (iter.Seq[int], error)
+}
+
+// RangeOp represents a comparison operator for range matching.
+type RangeOp int
+
+const (
+	RangeOpNone RangeOp = iota
+	RangeOpGt           // >
+	RangeOpGte          // >=
+	RangeOpLt           // <
+	RangeOpLte          // <=
+)
+
+// RangeMatcher represents a single range condition.
+type RangeMatcher struct {
+	Op    RangeOp
+	Index int // The resolved index of the value
+}
+
+// ParseRangeOp parses a range operator from a pattern string.
+// Returns the operator, the value part, and whether this is a range pattern.
+func ParseRangeOp(pattern string) (RangeOp, string, bool) {
+	pattern = strings.TrimSpace(pattern)
+	if pattern == "" {
+		return RangeOpNone, "", false
+	}
+
+	// Check for operators in order of length (>= and <= before > and <)
+	switch {
+	case strings.HasPrefix(pattern, ">= "):
+		return RangeOpGte, strings.TrimSpace(pattern[3:]), true
+	case strings.HasPrefix(pattern, "<= "):
+		return RangeOpLte, strings.TrimSpace(pattern[3:]), true
+	case strings.HasPrefix(pattern, "> "):
+		return RangeOpGt, strings.TrimSpace(pattern[2:]), true
+	case strings.HasPrefix(pattern, "< "):
+		return RangeOpLt, strings.TrimSpace(pattern[2:]), true
+	// Also support without space for backwards compatibility
+	case strings.HasPrefix(pattern, ">="):
+		return RangeOpGte, strings.TrimSpace(pattern[2:]), true
+	case strings.HasPrefix(pattern, "<="):
+		return RangeOpLte, strings.TrimSpace(pattern[2:]), true
+	case strings.HasPrefix(pattern, ">"):
+		return RangeOpGt, strings.TrimSpace(pattern[1:]), true
+	case strings.HasPrefix(pattern, "<"):
+		return RangeOpLt, strings.TrimSpace(pattern[1:]), true
+	}
+
+	return RangeOpNone, "", false
+}
+
+// MatchIndex checks if the given index matches this range condition.
+// Lower index = greater value (index 0 > index 1 > index 2...).
+func (r RangeMatcher) MatchIndex(index int) bool {
+	// Comparison is inverted because lower indices represent greater values.
+	switch r.Op {
+	case RangeOpGt:
+		return index < r.Index
+	case RangeOpGte:
+		return index <= r.Index
+	case RangeOpLt:
+		return index > r.Index
+	case RangeOpLte:
+		return index >= r.Index
+	}
+	return false
+}
+
+// IndexResolver resolves a value to its index in a dimension.
+type IndexResolver interface {
+	ResolveIndex(string) int
+}
+
+// ParsePatterns parses a list of patterns and separates them into:
+// - glob patterns (including negations)
+// - range matchers
+// Returns the glob patterns, range matchers, and any error.
+func ParsePatterns(patterns []string, resolver IndexResolver) (globs []string, ranges []RangeMatcher, err error) {
+	for _, pattern := range patterns {
+		pattern = strings.TrimSpace(pattern)
+		if pattern == "" {
+			continue
+		}
+
+		op, value, isRange := ParseRangeOp(pattern)
+		if isRange {
+			if value == "" {
+				return nil, nil, fmt.Errorf("range pattern %q has no value", pattern)
+			}
+			index := resolver.ResolveIndex(value)
+			if index < 0 {
+				return nil, nil, fmt.Errorf("range pattern %q references unknown value %q", pattern, value)
+			}
+			ranges = append(ranges, RangeMatcher{Op: op, Index: index})
+		} else {
+			globs = append(globs, pattern)
+		}
+	}
+	return globs, ranges, nil
+}
+
+// CombineRangeMatchers creates a predicate that ANDs all range conditions together.
+// The returned function takes an index and returns true if it matches all range conditions.
+func CombineRangeMatchers(ranges []RangeMatcher) func(int) bool {
+	if len(ranges) == 0 {
+		return func(int) bool { return true }
+	}
+	return func(index int) bool {
+		for _, r := range ranges {
+			if !r.MatchIndex(index) {
+				return false
+			}
+		}
+		return true
+	}
 }

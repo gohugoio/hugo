@@ -1037,6 +1037,209 @@ All.{{ .Title }}|
 	b.AssertFileContent("public/de/p1/index.html", "All.P1 de|")
 }
 
+func TestSitesMatrixRangeMatchers(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+defaultContentVersion = "v4.0.0"
+defaultContentVersionInSubDir = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+
+[languages]
+[languages.en]
+weight = 1
+
+[versions]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+[versions."v2.1.0"]
+[versions."v3.0.0"]
+[versions."v4.0.0"]
+
+-- content/_index.md --
+---
+title: "Home"
+sites:
+  matrix:
+    versions: ["**"]
+---
+-- content/p1.md --
+---
+title: "P1 from v2.0.0"
+sites:
+  matrix:
+    versions: [">= v2.0.0"]
+---
+Content for v2.0.0 and later.
+-- content/p2.md --
+---
+title: "P2 between v2 and v3"
+sites:
+  matrix:
+    versions: [">= v2.0.0", "<= v3.0.0"]
+---
+Content between v2.0.0 and v3.0.0 (inclusive).
+-- content/p3.md --
+---
+title: "P3 before v3"
+sites:
+  matrix:
+    versions: ["< v3.0.0"]
+---
+Content before v3.0.0.
+-- content/p4.md --
+---
+title: "P4 after v2"
+sites:
+  matrix:
+    versions: ["> v2.0.0"]
+---
+Content after v2.0.0 (exclusive).
+-- content/p5.md --
+---
+title: "P5 range with negation"
+sites:
+  matrix:
+    versions: [">= v2.0.0", "! v2.1.0", "<= v4.0.0"]
+---
+Content from v2.0.0 to v4.0.0 but not v2.1.0.
+-- layouts/all.html --
+Title: {{ .Title }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	// P1: >= v2.0.0 should be in v2.0.0, v2.1.0, v3.0.0, v4.0.0
+	b.AssertFileContent("public/v2.0.0/p1/index.html", "Title: P1 from v2.0.0|")
+	b.AssertFileContent("public/v2.1.0/p1/index.html", "Title: P1 from v2.0.0|")
+	b.AssertFileContent("public/v3.0.0/p1/index.html", "Title: P1 from v2.0.0|")
+	b.AssertFileContent("public/v4.0.0/p1/index.html", "Title: P1 from v2.0.0|")
+	b.AssertFileExists("public/v1.0.0/p1/index.html", false)
+
+	// P2: >= v2.0.0 AND <= v3.0.0 should be in v2.0.0, v2.1.0, v3.0.0
+	b.AssertFileContent("public/v2.0.0/p2/index.html", "Title: P2 between v2 and v3|")
+	b.AssertFileContent("public/v2.1.0/p2/index.html", "Title: P2 between v2 and v3|")
+	b.AssertFileContent("public/v3.0.0/p2/index.html", "Title: P2 between v2 and v3|")
+	b.AssertFileExists("public/v1.0.0/p2/index.html", false)
+	b.AssertFileExists("public/v4.0.0/p2/index.html", false)
+
+	// P3: < v3.0.0 should be in v1.0.0, v2.0.0, v2.1.0
+	b.AssertFileContent("public/v1.0.0/p3/index.html", "Title: P3 before v3|")
+	b.AssertFileContent("public/v2.0.0/p3/index.html", "Title: P3 before v3|")
+	b.AssertFileContent("public/v2.1.0/p3/index.html", "Title: P3 before v3|")
+	b.AssertFileExists("public/v3.0.0/p3/index.html", false)
+	b.AssertFileExists("public/v4.0.0/p3/index.html", false)
+
+	// P4: > v2.0.0 should be in v2.1.0, v3.0.0, v4.0.0
+	b.AssertFileContent("public/v2.1.0/p4/index.html", "Title: P4 after v2|")
+	b.AssertFileContent("public/v3.0.0/p4/index.html", "Title: P4 after v2|")
+	b.AssertFileContent("public/v4.0.0/p4/index.html", "Title: P4 after v2|")
+	b.AssertFileExists("public/v1.0.0/p4/index.html", false)
+	b.AssertFileExists("public/v2.0.0/p4/index.html", false)
+
+	// P5: >= v2.0.0 AND ! v2.1.0 AND <= v4.0.0 should be in v2.0.0, v3.0.0, v4.0.0
+	b.AssertFileContent("public/v2.0.0/p5/index.html", "Title: P5 range with negation|")
+	b.AssertFileContent("public/v3.0.0/p5/index.html", "Title: P5 range with negation|")
+	b.AssertFileContent("public/v4.0.0/p5/index.html", "Title: P5 range with negation|")
+	b.AssertFileExists("public/v1.0.0/p5/index.html", false)
+	b.AssertFileExists("public/v2.1.0/p5/index.html", false) // Excluded by negation
+}
+
+func TestSitesMatrixRangeMatchersWithGlobs(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+defaultContentVersion = "v3.0.0"
+defaultContentVersionInSubDir = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+
+[languages]
+[languages.en]
+weight = 1
+
+[versions]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+[versions."v2.1.0"]
+[versions."v3.0.0"]
+[versions."v4.0.0"]
+
+-- content/_index.md --
+---
+title: "Home"
+sites:
+  matrix:
+    versions: ["**"]
+---
+-- content/p1.md --
+---
+title: "P1 glob and range"
+sites:
+  matrix:
+    versions: ["v1.*.*", ">= v3.0.0"]
+---
+Content for v1.x.x OR v3.0.0 and later.
+-- layouts/all.html --
+Title: {{ .Title }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	// P1: v1.*.* OR >= v3.0.0 should be in v1.0.0, v3.0.0, v4.0.0
+	b.AssertFileContent("public/v1.0.0/p1/index.html", "Title: P1 glob and range|")
+	b.AssertFileContent("public/v3.0.0/p1/index.html", "Title: P1 glob and range|")
+	b.AssertFileContent("public/v4.0.0/p1/index.html", "Title: P1 glob and range|")
+	b.AssertFileExists("public/v2.0.0/p1/index.html", false)
+	b.AssertFileExists("public/v2.1.0/p1/index.html", false)
+}
+
+func TestSitesMatrixRangeMatchersOnlyRanges(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+defaultContentVersion = "v3.0.0"
+defaultContentVersionInSubDir = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+
+[languages]
+[languages.en]
+weight = 1
+
+[versions]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+[versions."v3.0.0"]
+
+-- content/_index.md --
+---
+title: "Home"
+sites:
+  matrix:
+    versions: ["**"]
+---
+-- content/p1.md --
+---
+title: "P1 only ranges"
+sites:
+  matrix:
+    versions: [">= v2.0.0", "<= v2.0.0"]
+---
+Content for exactly v2.0.0.
+-- layouts/all.html --
+Title: {{ .Title }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	// >= v2.0.0 AND <= v2.0.0 should only match v2.0.0
+	b.AssertFileContent("public/v2.0.0/p1/index.html", "Title: P1 only ranges|")
+	b.AssertFileExists("public/v1.0.0/p1/index.html", false)
+	b.AssertFileExists("public/v3.0.0/p1/index.html", false)
+}
+
 func TestSitesMatrixDefaultValues(t *testing.T) {
 	t.Parallel()
 

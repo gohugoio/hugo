@@ -20,6 +20,7 @@ import (
 	"maps"
 	"slices"
 	"sort"
+	"strings"
 	"sync"
 
 	"github.com/gohugoio/hashstructure"
@@ -760,21 +761,86 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 			return result, nil
 		}
 
-		// Dot separated globs.
-		filter, err := predicate.NewStringPredicateFromGlobs(values, hglob.GetGlobDot)
+		// Parse patterns to separate globs from range matchers.
+		globs, ranges, err := predicate.ParsePatterns(values, matcher)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create filter for %s: %w", what, err)
+			return nil, fmt.Errorf("failed to parse patterns for %s: %w", what, err)
 		}
-		for _, pattern := range values {
+
+		// Create range filter function (ANDs all range conditions together).
+		rangeFilter := predicate.CombineRangeMatchers(ranges)
+
+		// Separate negation globs from positive globs for range filtering.
+		var negationGlobs, positiveGlobs []string
+		for _, g := range globs {
+			if strings.HasPrefix(g, hglob.NegationPrefix) {
+				negationGlobs = append(negationGlobs, g)
+			} else {
+				positiveGlobs = append(positiveGlobs, g)
+			}
+		}
+
+		// Apply negation to index (returns true if NOT excluded).
+		// This is used for range matches; glob matches use NewStringPredicateFromGlobs
+		// which handles negations internally.
+		applyNegation := func(i int) bool {
+			if len(negationGlobs) == 0 {
+				return true
+			}
+			name := matcher.ResolveName(i)
+			for _, neg := range negationGlobs {
+				pattern := strings.TrimPrefix(neg, hglob.NegationPrefix)
+				g, err := hglob.GetGlobDot(pattern)
+				if err == nil && g.Match(name) {
+					return false // Matched negation pattern, exclude this item.
+				}
+			}
+			return true
+		}
+
+		// If we have ranges, add all indices that match the range conditions.
+		if len(ranges) > 0 {
+			for i := range matcher.ForEachIndex() {
+				if rangeFilter(i) && applyNegation(i) {
+					if result == nil {
+						result = hmaps.NewOrderedIntSet()
+					}
+					result.Set(i)
+				}
+			}
+		}
+
+		// If we have positive globs, add matching indices (ORed with range results).
+		// Only process globs when there are positive patterns - negation-only patterns
+		// would match everything except the negated value, which is incorrect.
+		// When combined with ranges, negations are already applied via applyNegation.
+		if len(positiveGlobs) > 0 {
+			// Use all globs (including negations) since NewStringPredicateFromGlobs
+			// handles the combination of positive patterns and negations correctly.
+			filter, err := predicate.NewStringPredicateFromGlobs(globs, hglob.GetGlobDot)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create filter for %s: %w", what, err)
+			}
 			iter, err := matcher.IndexMatch(filter)
 			if err != nil {
-				return nil, fmt.Errorf("failed to match %s %q: %w", what, pattern, err)
+				return nil, fmt.Errorf("failed to match %s: %w", what, err)
 			}
 			for i := range iter {
 				if result == nil {
 					result = hmaps.NewOrderedIntSet()
 				}
 				result.Set(i)
+			}
+		} else if len(negationGlobs) > 0 && len(ranges) == 0 {
+			// Edge case: only negation globs, no positive globs, no ranges.
+			// This means "match everything EXCEPT the negated patterns".
+			for i := range matcher.ForEachIndex() {
+				if applyNegation(i) {
+					if result == nil {
+						result = hmaps.NewOrderedIntSet()
+					}
+					result.Set(i)
+				}
 			}
 		}
 
