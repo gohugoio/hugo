@@ -17,7 +17,7 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 )
 
 var _ ImageProcessSpecProvider = (*processFilter)(nil)
@@ -30,7 +30,7 @@ type processFilter struct {
 	spec string
 }
 
-func (f processFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
+func (f processFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
 	panic("not supported")
 }
 

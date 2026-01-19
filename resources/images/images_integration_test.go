@@ -50,3 +50,57 @@ Orientation: {{ $orientation }}|eq 6: {{ eq $orientation 6 }}|Type: {{ printf "%
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "Orientation: 6|eq 6: true|")
 }
+
+func BenchmarkImageResize(b *testing.B) {
+	files := `
+-- content/p1/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p1/index.md --
+-- content/p2/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p2/index.md --
+-- content/p3/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p3/index.md --
+-- content/p4/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p4/index.md --
+-- content/p5/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p5/index.md --
+-- content/p6/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p6/index.md --
+-- content/p7/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p7/index.md --
+-- content/p8/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p8/index.md --
+-- content/p9/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p9/index.md --
+-- content/p10/sunrise.jpg --
+sourcefilename: ../../resources/testdata/sunrise.jpg
+-- content/p10/index.md --
+-- layouts/home.html --
+Home.
+-- layouts/page.html --
+Page.
+{{ $image := .Resources.Get "sunrise.jpg" }}
+{{ ($image.Process "resize 200x200").Publish }}
+
+`
+
+	cfg := hugolib.IntegrationTestConfig{
+		T:           b,
+		TxtarString: files,
+	}
+
+	for b.Loop() {
+		b.StopTimer()
+		builder := hugolib.NewIntegrationTestBuilder(cfg).Init()
+		b.StartTimer()
+		builder.Build()
+	}
+}

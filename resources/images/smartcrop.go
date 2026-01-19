@@ -17,7 +17,7 @@ import (
 	"image"
 	"math"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 
 	"github.com/muesli/smartcrop"
 )

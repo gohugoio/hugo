@@ -17,7 +17,7 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 )
 
 var _ gift.Filter = (*autoOrientFilter)(nil)
@@ -38,7 +38,7 @@ type ImageFilterFromOrientationProvider interface {
 	AutoOrient(orientation int) gift.Filter
 }
 
-func (f autoOrientFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
+func (f autoOrientFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
 	panic("not supported")
 }
 

@@ -24,7 +24,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/himage"
 	"github.com/gohugoio/hugo/common/hugio"

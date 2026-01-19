@@ -25,7 +25,7 @@ import (
 	"github.com/makeworld-the-better-one/dither/v2"
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 	"github.com/spf13/cast"
 )
 

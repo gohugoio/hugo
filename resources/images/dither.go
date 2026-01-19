@@ -17,7 +17,7 @@ import (
 	"image"
 	"image/draw"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 	"github.com/makeworld-the-better-one/dither/v2"
 )
 
@@ -62,8 +62,8 @@ var ditherMethodsOrdered = map[string]dither.OrderedDitherMatrix{
 	"vertical5x3":                dither.Vertical5x3,
 }
 
-func (f ditherFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
-	gift.New().Draw(dst, f.ditherer.Dither(src))
+func (f ditherFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
+	return gift.New().Draw(dst, f.ditherer.Dither(src))
 }
 
 func (f ditherFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {
