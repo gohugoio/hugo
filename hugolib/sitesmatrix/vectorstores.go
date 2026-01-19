@@ -760,22 +760,19 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 			return result, nil
 		}
 
-		// Dot separated globs.
-		filter, err := predicate.NewStringPredicateFromGlobs(values, hglob.GetGlobDot)
+		filter, err := predicate.NewIndexStringPredicateFromGlobsAndRanges(values, matcher.ResolveIndex, hglob.GetGlobDot)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create filter for %s: %w", what, err)
 		}
-		for _, pattern := range values {
-			iter, err := matcher.IndexMatch(filter)
-			if err != nil {
-				return nil, fmt.Errorf("failed to match %s %q: %w", what, pattern, err)
+		iter, err := matcher.IndexMatch(filter)
+		if err != nil {
+			return nil, fmt.Errorf("failed to match %s %q: %w", what, values, err)
+		}
+		for i := range iter {
+			if result == nil {
+				result = hmaps.NewOrderedIntSet()
 			}
-			for i := range iter {
-				if result == nil {
-					result = hmaps.NewOrderedIntSet()
-				}
-				result.Set(i)
-			}
+			result.Set(i)
 		}
 
 		return result, nil
@@ -968,10 +965,10 @@ func (m *testDimension) ForEachIndex() iter.Seq[int] {
 	}
 }
 
-func (m *testDimension) IndexMatch(match predicate.P[string]) (iter.Seq[int], error) {
+func (m *testDimension) IndexMatch(match predicate.P[predicate.IndexString]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, n := range m.names {
-			if match(n) {
+			if match(predicate.IndexString{Index: i, String: n}) {
 				if !yield(i) {
 					return
 				}

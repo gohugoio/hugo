@@ -102,14 +102,14 @@ func (r RolesInternal) ResolveIndex(name string) int {
 			return i
 		}
 	}
-	panic(fmt.Sprintf("no role found for name %q", name))
+	return -1
 }
 
 // IndexMatch returns an iterator for the roles that match the filter.
-func (r RolesInternal) IndexMatch(match predicate.P[string]) (iter.Seq[int], error) {
+func (r RolesInternal) IndexMatch(match predicate.P[predicate.IndexString]) (iter.Seq[int], error) {
 	return func(yield func(i int) bool) {
 		for i, role := range r.Sorted {
-			if match(role.Name) {
+			if match(predicate.IndexString{Index: i, String: role.Name}) {
 				if !yield(i) {
 					return
 				}

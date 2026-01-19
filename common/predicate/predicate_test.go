@@ -146,6 +146,86 @@ func TestNewStringPredicateFromGlobs(t *testing.T) {
 	c.Assert(m("anything"), qt.IsFalse)
 }
 
+func TestNewIndexStringPredicateFromGlobsAndRanges(t *testing.T) {
+	c := qt.New(t)
+
+	// Simulate versions: v4.0.0=0, v3.0.0=1, v2.0.0=2, v1.0.0=3
+	// Lower index = greater value.
+	versions := []string{"v4.0.0", "v3.0.0", "v2.0.0", "v1.0.0"}
+	getIndex := func(s string) int {
+		for i, v := range versions {
+			if v == s {
+				return i
+			}
+		}
+		return -1
+	}
+	getGlob := func(pattern string) (glob.Glob, error) {
+		return glob.Compile(pattern)
+	}
+
+	n := func(patterns ...string) predicate.P[predicate.IndexString] {
+		p, err := predicate.NewIndexStringPredicateFromGlobsAndRanges(patterns, getIndex, getGlob)
+		c.Assert(err, qt.IsNil)
+		return p
+	}
+
+	is := func(i int) predicate.IndexString {
+		return predicate.IndexString{Index: i, String: versions[i]}
+	}
+
+	// Test >= v2.0.0 (index 2): should match indices <= 2
+	m := n(">= v2.0.0")
+	c.Assert(m(is(0)), qt.IsTrue)  // v4.0.0
+	c.Assert(m(is(1)), qt.IsTrue)  // v3.0.0
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+	c.Assert(m(is(3)), qt.IsFalse) // v1.0.0
+
+	// Test > v2.0.0 (index 2): should match indices < 2
+	m = n("> v2.0.0")
+	c.Assert(m(is(0)), qt.IsTrue)  // v4.0.0
+	c.Assert(m(is(1)), qt.IsTrue)  // v3.0.0
+	c.Assert(m(is(2)), qt.IsFalse) // v2.0.0
+	c.Assert(m(is(3)), qt.IsFalse) // v1.0.0
+
+	// Test < v3.0.0 (index 1): should match indices > 1
+	m = n("< v3.0.0")
+	c.Assert(m(is(0)), qt.IsFalse) // v4.0.0
+	c.Assert(m(is(1)), qt.IsFalse) // v3.0.0
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+	c.Assert(m(is(3)), qt.IsTrue)  // v1.0.0
+
+	// Test range: >= v2.0.0 AND <= v3.0.0
+	m = n(">= v2.0.0", "<= v3.0.0")
+	c.Assert(m(is(0)), qt.IsFalse) // v4.0.0 - too high
+	c.Assert(m(is(1)), qt.IsTrue)  // v3.0.0
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+	c.Assert(m(is(3)), qt.IsFalse) // v1.0.0 - too low
+
+	// Test glob pattern
+	m = n("v2.*.*")
+	c.Assert(m(is(0)), qt.IsFalse) // v4.0.0
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+
+	// Test glob with negation
+	m = n("v*.*.*", "! v3.*.*")
+	c.Assert(m(is(0)), qt.IsTrue)  // v4.0.0
+	c.Assert(m(is(1)), qt.IsFalse) // v3.0.0 - negated
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+
+	// Test range with negation: >= v2.0.0 but not v3.0.0
+	m = n(">= v2.0.0", "! v3.0.0")
+	c.Assert(m(is(0)), qt.IsTrue)  // v4.0.0
+	c.Assert(m(is(1)), qt.IsFalse) // v3.0.0 - negated
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+	c.Assert(m(is(3)), qt.IsFalse) // v1.0.0 - out of range
+
+	// Test unknown value in range returns no match
+	m = n(">= v99.0.0")
+	c.Assert(m(is(0)), qt.IsFalse)
+	c.Assert(m(is(3)), qt.IsFalse)
+}
+
 func BenchmarkPredicate(b *testing.B) {
 	b.Run("and or no match", func(b *testing.B) {
 		var p predicate.PR[int] = intP1
