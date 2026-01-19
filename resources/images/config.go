@@ -28,7 +28,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 )
 
 const (

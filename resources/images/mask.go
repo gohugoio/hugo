@@ -6,7 +6,7 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 )
 
 // maskFilter applies a mask image to a base image.
@@ -15,10 +15,10 @@ type maskFilter struct {
 }
 
 // Draw applies the mask to the base image.
-func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Options) {
+func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Options) error {
 	maskImage, err := f.mask.DecodeImage()
 	if err != nil {
-		panic(fmt.Sprintf("failed to decode image: %s", err))
+		return fmt.Errorf("failed to decode image: %s", err)
 	}
 
 	// Ensure the mask is the same size as the base image
@@ -54,7 +54,11 @@ func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Op
 	draw.DrawMask(outputImage, baseBounds, baseImage, image.Point{}, alphaMask, image.Point{}, draw.Over)
 
 	// Copy the result to the destination
-	gift.New().Draw(dst, outputImage)
+	if err := gift.New().Draw(dst, outputImage); err != nil {
+		return fmt.Errorf("failed to draw masked image: %s", err)
+	}
+
+	return nil
 }
 
 // Bounds returns the bounds of the resulting image.

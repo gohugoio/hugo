@@ -30,7 +30,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/images/meta"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 
 	"github.com/gohugoio/hugo/common/himage"
 	"github.com/gohugoio/hugo/common/hugio"

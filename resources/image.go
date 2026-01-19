@@ -31,7 +31,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 
 	"github.com/gohugoio/hugo/resources/images/meta"
 	"github.com/gohugoio/hugo/resources/internal"

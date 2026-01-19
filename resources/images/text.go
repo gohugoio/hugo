@@ -20,7 +20,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/disintegration/gift"
+	"github.com/gohugoio/gift"
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"golang.org/x/image/font"
@@ -42,7 +42,7 @@ type textFilter struct {
 	fontSource  hugio.ReadSeekCloserProvider
 }
 
-func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
+func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
 	// Load and parse font
 	ttf := goregular.TTF
 	if f.fontSource != nil {
@@ -143,6 +143,7 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 		d.DrawString(line)
 		y = y + fontHeight + f.linespacing
 	}
+	return nil
 }
 
 func (f textFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {

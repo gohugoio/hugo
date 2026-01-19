@@ -25,7 +25,6 @@ require (
 	github.com/bits-and-blooms/bitset v1.24.4
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
-	github.com/disintegration/gift v1.2.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/evanw/esbuild v0.27.2
 	github.com/fatih/color v1.18.0
@@ -36,6 +35,7 @@ require (
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
+	github.com/gohugoio/gift v0.1.0
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20251018145728-cfcc22d823c6
 	github.com/gohugoio/go-radix v1.2.0
 	github.com/gohugoio/hashstructure v0.6.0
