@@ -15,10 +15,10 @@ type maskFilter struct {
 }
 
 // Draw applies the mask to the base image.
-func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Options) error {
+func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Options) {
 	maskImage, err := f.mask.DecodeImage()
 	if err != nil {
-		return fmt.Errorf("failed to decode image: %s", err)
+		panic(fmt.Sprintf("failed to decode image: %s", err))
 	}
 
 	// Ensure the mask is the same size as the base image
@@ -54,11 +54,7 @@ func (f maskFilter) Draw(dst draw.Image, baseImage image.Image, options *gift.Op
 	draw.DrawMask(outputImage, baseBounds, baseImage, image.Point{}, alphaMask, image.Point{}, draw.Over)
 
 	// Copy the result to the destination
-	if err := gift.New().Draw(dst, outputImage); err != nil {
-		return fmt.Errorf("failed to draw masked image: %s", err)
-	}
-
-	return nil
+	gift.New().Draw(dst, outputImage)
 }
 
 // Bounds returns the bounds of the resulting image.

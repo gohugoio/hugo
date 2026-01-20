@@ -28,7 +28,7 @@ type paddingFilter struct {
 	ccolor                   color.Color // canvas color
 }
 
-func (f paddingFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
+func (f paddingFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
 	w := src.Bounds().Dx() + f.left + f.right
 	h := src.Bounds().Dy() + f.top + f.bottom
 
@@ -41,10 +41,8 @@ func (f paddingFilter) Draw(dst draw.Image, src image.Image, options *gift.Optio
 
 	i := image.NewRGBA(image.Rect(0, 0, w, h))
 	draw.Draw(i, i.Bounds(), image.NewUniform(f.ccolor), image.Point{}, draw.Src)
-	if err := gift.New().Draw(dst, i); err != nil {
-		return err
-	}
-	return gift.New().DrawAt(dst, src, image.Pt(f.left, f.top), gift.OverOperator)
+	gift.New().Draw(dst, i)
+	gift.New().DrawAt(dst, src, image.Pt(f.left, f.top), gift.OverOperator)
 }
 
 func (f paddingFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {
