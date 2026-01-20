@@ -231,7 +231,7 @@ func NewIndexStringPredicateFromGlobsAndRanges(patterns []string, getIndex func(
 				return BoolMatch(!g.Match(s.String))
 			})
 		} else {
-			// This can be eiter a glob or a value prefixed with one of >, >=, < or <=.
+			// This can be either a glob or a value prefixed with one of >, >=, < or <=.
 			o, v := cutRangeOp(pattern)
 			if o != rangeOpNone {
 				i := getIndex(v)
