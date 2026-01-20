@@ -133,6 +133,10 @@ func (f *componentFsDir) ReadDirWithContext(ctx context.Context, count int) ([]i
 
 		bi, bj := fimim.PathInfo.Base(), fimjm.PathInfo.Base()
 		if bi == bj {
+			// Check mount weight first for same module (earlier mounts should win).
+			if fimim.ModuleOrdinal == fimjm.ModuleOrdinal && fimim.Weight != fimjm.Weight {
+				return fimim.Weight > fimjm.Weight
+			}
 			matrixi, matrixj := fimim.SitesMatrix, fimjm.SitesMatrix
 			l1, l2 := matrixi.LenVectors(), matrixj.LenVectors()
 			if l1 != l2 {

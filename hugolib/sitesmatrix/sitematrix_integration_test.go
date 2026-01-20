@@ -1430,3 +1430,54 @@ All.
 	b = hugolib.Test(t, files)
 	b.AssertFileContent("public/guest/en/index.html", "url=https://example.org/guest/\"")
 }
+
+func TestSitesMatrixFileMountOrder(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+defaultContentVersion = "v1.0.0"
+defaultContentVersionInSubDir = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+
+[versions]
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+
+[[module.mounts]]
+source = 'content/v1'
+target = 'content'
+[module.mounts.sites.matrix]
+versions  = ["**"]
+[[module.mounts]]
+source = 'content/v21'
+target = 'content'
+[module.mounts.sites.matrix]
+versions  = ["v2.0.0"]
+[[module.mounts]]
+source = 'content/v22'
+target = 'content'
+[module.mounts.sites.matrix]
+versions  = ["v2.0.0"]
+-- content/v1/p1.md --
+---
+title: "P1 v1"
+---
+-- content/v21/p1.md --
+---
+title: "P1 v21"
+---
+-- content/v22/p1.md --
+---
+title: "P1 v22"
+---
+-- layouts/all.html --
+Title: {{ .Title }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/v1.0.0/p1/index.html", "Title: P1 v1|")
+	b.AssertFileContent("public/v2.0.0/p1/index.html", "Title: P1 v1|")
+}
