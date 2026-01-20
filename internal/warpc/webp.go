@@ -321,8 +321,6 @@ func (d *WebpCodec) Encode(w io.Writer, img image.Image, opts map[string]any) er
 	}
 
 	opts = maps.Clone(opts)
-	opts["useSharpYuv"] = true // Use sharp (and slow) RGB->YUV conversion.
-	opts["method"] = 2         // quality/speed trade-off (0=fast, 6=slower-better)
 
 	message := Message[WebpInput]{
 		Header: Header{

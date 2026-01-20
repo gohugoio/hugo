@@ -129,6 +129,8 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 			"compression": conf.Compression,
 			"quality":     conf.Quality,
 			"hint":        conf.Hint,
+			"useSharpYuv": conf.UseSharpYuv,
+			"method":      conf.Method,
 		}
 		return d.webp.Encode(w, img, opts)
 	default:

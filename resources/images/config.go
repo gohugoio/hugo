@@ -131,11 +131,13 @@ func ImageFormatFromMediaSubType(sub string) (Format, bool) {
 }
 
 const (
-	defaultJPEGQuality    = 75
-	defaultResampleFilter = "box"
-	defaultBgColor        = "#ffffff"
-	defaultHint           = "photo"
-	defaultCompression    = "lossy"
+	defaultJPEGQuality     = 75
+	defaultResampleFilter  = "box"
+	defaultBgColor         = "#ffffff"
+	defaultHint            = "photo"
+	defaultCompression     = "lossy"
+	defaultWebpUseSharpYuv = true
+	defaultWebpMethod      = 4
 )
 
 var (
@@ -145,6 +147,10 @@ var (
 		"hint":           defaultHint,
 		"quality":        defaultJPEGQuality,
 		"compression":    defaultCompression,
+		"webp": map[string]any{
+			"useSharpYuv": defaultWebpUseSharpYuv,
+			"method":      defaultWebpMethod,
+		},
 	}
 
 	defaultImageConfig *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
@@ -170,6 +176,11 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		}
 		// Merge in the defaults.
 		hmaps.MergeShallow(m, defaultImaging)
+
+		// Deep merge webp defaults.
+		if webp, ok := m["webp"].(map[string]any); ok {
+			hmaps.MergeShallow(webp, defaultImaging["webp"].(map[string]any))
+		}
 
 		var i ImagingConfigInternal
 		if err := mapstructure.Decode(m, &i.Imaging); err != nil {
@@ -304,7 +315,7 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 	}
 
 	if c.Hint == "" {
-		c.Hint = "photo"
+		c.Hint = defaults.Config.Imaging.Webp.Hint
 	}
 
 	if c.Action != "" && c.Anchor == -1 {
@@ -378,6 +389,10 @@ type ImageConfig struct {
 
 	Compression string
 
+	// WebP-specific options.
+	UseSharpYuv bool
+	Method      int
+
 	Width  int
 	Height int
 
@@ -442,7 +457,8 @@ type ImagingConfig struct {
 	// Currently only used when encoding to Webp.
 	// Default is "photo".
 	// Valid values are "picture", "photo", "drawing", "icon", or "text".
-	Hint string
+	// Moved to WebpConfig in v0.155.0, but kept here for backwards compatibility.
+	Hint string `json:"-"`
 
 	// The anchor to use in Fill. Default is "smart", i.e. Smart Crop.
 	Anchor string
@@ -452,6 +468,7 @@ type ImagingConfig struct {
 
 	Exif ExifConfig
 	Meta MetaConfig
+	Webp WebpConfig
 }
 
 var validMetaSources = map[string]bool{
@@ -503,6 +520,26 @@ func (cfg *ImagingConfig) init() error {
 		}
 	}
 
+	// WebP config with backwards compatibility for root-level Hint.
+	cfg.Webp.Hint = strings.ToLower(cfg.Webp.Hint)
+	if cfg.Webp.Hint == "" {
+		// Fall back to root-level hint for backwards compatibility.
+		if cfg.Hint != "" {
+			cfg.Webp.Hint = cfg.Hint
+		} else {
+			cfg.Webp.Hint = defaultHint
+		}
+	}
+	if cfg.Webp.Hint != "" && !hints[cfg.Webp.Hint] {
+		return fmt.Errorf("invalid webp hint %q; must be one of picture, photo, drawing, icon, or text", cfg.Webp.Hint)
+	}
+	if cfg.Webp.Method == 0 {
+		cfg.Webp.Method = defaultWebpMethod
+	}
+	if cfg.Webp.Method < 0 || cfg.Webp.Method > 6 {
+		return fmt.Errorf("webp method must be between 0 and 6, got %d", cfg.Webp.Method)
+	}
+
 	return nil
 }
 
@@ -548,4 +585,20 @@ type MetaConfig struct {
 	// Valid values are "exif", "iptc", "xmp".
 	// Default is ["exif", "iptc"] (XMP is excluded for performance reasons).
 	Sources []string
+}
+
+// WebpConfig holds WebP-specific encoding configuration.
+type WebpConfig struct {
+	// Hint about what type of image this is.
+	// Valid values are "picture", "photo", "drawing", "icon", or "text".
+	// Default is "photo".
+	Hint string
+
+	// Use sharp (and slow) RGB->YUV conversion.
+	// Default is true.
+	UseSharpYuv bool
+
+	// Quality/speed trade-off (0=fast, 6=slower-better).
+	// Default is 2.
+	Method int
 }
