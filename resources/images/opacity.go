@@ -27,12 +27,11 @@ type opacityFilter struct {
 	opacity float32
 }
 
-func (f opacityFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
+func (f opacityFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
 	// 0 is fully transparent and 255 is opaque.
 	alpha := uint8(f.opacity * 255)
 	mask := image.NewUniform(color.Alpha{alpha})
 	draw.DrawMask(dst, dst.Bounds(), src, image.Point{}, mask, image.Point{}, draw.Over)
-	return nil
 }
 
 func (f opacityFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {

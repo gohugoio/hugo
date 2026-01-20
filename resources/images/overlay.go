@@ -28,15 +28,13 @@ type overlayFilter struct {
 	x, y int
 }
 
-func (f overlayFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
+func (f overlayFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
 	overlaySrc, err := f.src.DecodeImage()
 	if err != nil {
-		return fmt.Errorf("failed to decode image: %s", err)
+		panic(fmt.Sprintf("failed to decode image: %s", err))
 	}
-	if err := gift.New().Draw(dst, src); err != nil {
-		return err
-	}
-	return gift.New().DrawAt(dst, overlaySrc, image.Pt(f.x, f.y), gift.OverOperator)
+	gift.New().Draw(dst, src)
+	gift.New().DrawAt(dst, overlaySrc, image.Pt(f.x, f.y), gift.OverOperator)
 }
 
 func (f overlayFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {

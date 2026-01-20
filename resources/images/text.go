@@ -42,7 +42,7 @@ type textFilter struct {
 	fontSource  hugio.ReadSeekCloserProvider
 }
 
-func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
+func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
 	// Load and parse font
 	ttf := goregular.TTF
 	if f.fontSource != nil {
@@ -143,7 +143,6 @@ func (f textFilter) Draw(dst draw.Image, src image.Image, options *gift.Options)
 		d.DrawString(line)
 		y = y + fontHeight + f.linespacing
 	}
-	return nil
 }
 
 func (f textFilter) Bounds(srcBounds image.Rectangle) image.Rectangle {

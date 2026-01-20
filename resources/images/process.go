@@ -30,7 +30,7 @@ type processFilter struct {
 	spec string
 }
 
-func (f processFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
+func (f processFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
 	panic("not supported")
 }
 

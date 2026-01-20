@@ -38,7 +38,7 @@ type ImageFilterFromOrientationProvider interface {
 	AutoOrient(orientation int) gift.Filter
 }
 
-func (f autoOrientFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) error {
+func (f autoOrientFilter) Draw(dst draw.Image, src image.Image, options *gift.Options) {
 	panic("not supported")
 }
 
