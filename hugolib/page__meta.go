@@ -384,10 +384,6 @@ func (m *pageMeta) prepareRebuild() {
 	m.pageConfig.Dates = m.datesOriginal
 }
 
-func (m *pageMeta) Aliases() []string {
-	return m.pageConfig.Aliases
-}
-
 func (m *pageMeta) BundleType() string {
 	switch m.pathInfo.Type() {
 	case paths.TypeLeaf:

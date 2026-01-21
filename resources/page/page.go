@@ -197,9 +197,6 @@ type PageMetaProvider interface {
 	// The 4 page dates
 	resource.Dated
 
-	// Aliases forms the base for redirects generation.
-	Aliases() []string
-
 	// BundleType returns the bundle type: `leaf`, `branch` or an empty string.
 	BundleType() string
 
@@ -278,8 +275,6 @@ func NamedPageMetaValue(p PageMetaLanguageResource, nameLower string) (any, bool
 		v = p.Section()
 	case "lang":
 		v = p.Lang()
-	case "aliases":
-		v = p.Aliases()
 	case "name":
 		v = p.Name()
 	case "keywords":
@@ -347,6 +342,7 @@ type PageWithoutContent interface {
 	PageMetaProvider
 
 	Param(key any) (any, error)
+	Aliases() []string
 	PageMetaInternalProvider
 
 	resource.LanguageProvider

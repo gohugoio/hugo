@@ -190,7 +190,7 @@ DATA
 	t.Run("Build config, no render link", func(t *testing.T) {
 		files := filesForDisabledKind("")
 		b := Test(t, files)
-		b.AssertFileExists("public/sect/no-render/index.html", false)
+		b.AssertFileExists("public/sect/no-render-link/index.html", false)
 		b.AssertFileContent("public/link-alias/index.html", "refresh")
 	})
 

@@ -1760,21 +1760,6 @@ func (s *Site) render(ctx *siteRenderContext) (err error) {
 		return err
 	}
 
-	if ctx.outIdx == 0 && s.h.buildCounter.Load() == 0 {
-		// Note that even if disableAliases is set, the aliases themselves are
-		// preserved on page. The motivation with this is to be able to generate
-		// 301 redirects in a .htaccess file and similar using a custom output format.
-		if !s.conf.DisableAliases {
-			// Aliases must be rendered before pages.
-			// Some sites, Hugo docs included, have faulty alias definitions that point
-			// to itself or another real page. These will be overwritten in the next
-			// step.
-			if err = s.renderAliases(); err != nil {
-				return
-			}
-		}
-	}
-
 	if err = s.renderPages(ctx); err != nil {
 		return
 	}
