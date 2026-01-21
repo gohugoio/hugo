@@ -33,6 +33,7 @@ func (f overlayFilter) Draw(dst draw.Image, src image.Image, options *gift.Optio
 	if err != nil {
 		panic(fmt.Sprintf("failed to decode image: %s", err))
 	}
+
 	gift.New().Draw(dst, src)
 	gift.New().DrawAt(dst, overlaySrc, image.Pt(f.x, f.y), gift.OverOperator)
 }

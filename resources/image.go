@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/gift"
 
@@ -394,14 +395,15 @@ func (i *imageResource) processOptions(options []string) (images.ImageResource, 
 	return img, nil
 }
 
-// Serialize image processing. The imaging library spins up its own set of Go routines,
-// so there is not much to gain from adding more load to the mix. That
-// can even have negative effect in low resource scenarios.
-// Note that this only effects the non-cached scenario. Once the processed
-// image is written to disk, everything is fast, fast fast.
-const imageProcWorkers = 1
+var imageProcSem chan bool
 
-var imageProcSem = make(chan bool, imageProcWorkers)
+func init() {
+	imageProcWorkers := 1
+	if n := config.GetNumWorkerMultiplier(); n > 4 {
+		imageProcWorkers = 2
+	}
+	imageProcSem = make(chan bool, imageProcWorkers)
+}
 
 func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src image.Image) (image.Image, error)) (images.ImageResource, error) {
 	img, err := i.getSpec().ImageCache.getOrCreate(i, conf, func() (*imageResource, image.Image, error) {

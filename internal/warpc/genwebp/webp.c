@@ -68,6 +68,7 @@ typedef struct
     int loopCount;
     int frameCount;
     int *frameDurations;
+    bool hasAlpha;
 
 } InputParams;
 
@@ -79,6 +80,7 @@ typedef struct
     int preset;           // preset to use; resolved from hint.
 
     bool useSharpYuv; // use sharp YUV for better quality.
+    int method;       // quality/speed trade-off (0=fast, 6=slower-better). Default is 2.
 
 } InputOptions;
 
@@ -316,6 +318,7 @@ static uint8_t initEncoderConfig(WebPConfig *config, InputOptions opts)
     }
 
     config->use_sharp_yuv = opts.useSharpYuv ? 1 : 0;
+    config->method = opts.method;
 
     return 1;
 }
@@ -410,6 +413,11 @@ InputMessage parse_input_message(const char *line)
                 msg.data.options.hint[sizeof(msg.data.options.hint) - 1] = '\0';
             }
             msg.data.options.useSharpYuv = json_object_get_number(options_object, "useSharpYuv") != 0;
+            msg.data.options.method = (int)json_object_get_number(options_object, "method");
+            if (msg.data.options.method < 0 || msg.data.options.method > 6)
+            {
+                msg.data.options.method = 2; // default
+            }
             if (msg.data.options.quality < 0 || msg.data.options.quality > 100)
             {
                 msg.data.options.quality = 75; // default
@@ -493,6 +501,7 @@ void write_output_message(const OutputMessage *msg)
         json_object_set_number(params_object, "width", msg->data.params.width);
         json_object_set_number(params_object, "height", msg->data.params.height);
         json_object_set_number(params_object, "stride", msg->data.params.stride);
+        json_object_set_boolean(params_object, "hasAlpha", msg->data.params.hasAlpha);
         if (msg->data.params.frameDurations != NULL)
         {
             JSON_Value *durations_value = json_value_init_array();
@@ -611,6 +620,7 @@ void handle_commands(FILE *stream)
                 output.data.params.stride = anim_info.canvas_width * 4;
                 output.data.params.frameCount = anim_info.frame_count;
                 output.data.params.loopCount = anim_info.loop_count;
+                output.data.params.hasAlpha = true; // Animated WebP always decoded as RGBA
 
                 int *frameDurations = malloc(sizeof(int) * anim_info.frame_count);
                 if (frameDurations == NULL)
@@ -680,7 +690,22 @@ void handle_commands(FILE *stream)
             }
             else
             {
-                uint8_t *output_buffer = WebPDecodeRGBA(blob_data, (size_t)blob_size, &output.data.params.width, &output.data.params.height);
+                uint8_t *output_buffer;
+                int bytesPerPixel;
+
+                output.data.params.hasAlpha = config.input.has_alpha;
+
+                if (config.input.has_alpha)
+                {
+                    output_buffer = WebPDecodeRGBA(blob_data, (size_t)blob_size, &output.data.params.width, &output.data.params.height);
+                    bytesPerPixel = 4;
+                }
+                else
+                {
+                    output_buffer = WebPDecodeRGB(blob_data, (size_t)blob_size, &output.data.params.width, &output.data.params.height);
+                    bytesPerPixel = 3;
+                }
+
                 if (output_buffer == NULL)
                 {
                     strncpy(output.header.err, "Failed to decode WebP", sizeof(output.header.err) - 1);
@@ -688,7 +713,7 @@ void handle_commands(FILE *stream)
                     goto cleanup;
                 }
 
-                output.data.params.stride = output.data.params.width * 4;
+                output.data.params.stride = output.data.params.width * bytesPerPixel;
 
                 write_output_message(&output);
 

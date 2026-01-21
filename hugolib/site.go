@@ -201,6 +201,15 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	rolesSorted := cfg.Configs.Base.Roles.Config.Sorted
 	versionsSorted := cfg.Configs.Base.Versions.Config.Sorted
 
+	var (
+		poolSizeKatex = 2
+		poolSizeWebP  = 1
+	)
+	if n := config.GetNumWorkerMultiplier(); n > 1 {
+		poolSizeKatex = min(n, 8)
+		poolSizeWebP = max(2, n/2)
+	}
+
 	var logger loggers.Logger
 	if cfg.TestLogger != nil {
 		logger = cfg.TestLogger
@@ -261,15 +270,14 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			warpc.Options{
 				CompilationCacheDir: compilationCacheDir,
 
-				// Katex is relatively slow.
-				PoolSize: 8,
+				PoolSize: poolSizeKatex,
 				Infof:    logger.InfoCommand("katex").Logf,
 				Warnf:    logger.WarnCommand("katex").Logf,
 			},
 			// WebP options.
 			warpc.Options{
 				CompilationCacheDir: compilationCacheDir,
-				PoolSize:            1,
+				PoolSize:            poolSizeWebP,
 				Memory:              384, // 384 MiB (4096 MiB Max)
 				Infof:               logger.InfoCommand("webp").Logf,
 				Warnf:               logger.WarnCommand("webp").Logf,
