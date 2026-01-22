@@ -153,6 +153,29 @@ func (p PR[T]) FilterCopy(s []T) []T {
 	return result
 }
 
+const (
+	rangeOpNone = iota
+	rangeOpLT
+	rangeOpLTE
+	rangeOpGT
+	rangeOpGTE
+)
+
+func cutRangeOp(s string) (op int, rest string) {
+	switch {
+	case strings.HasPrefix(s, ">= "):
+		return rangeOpGTE, s[3:]
+	case strings.HasPrefix(s, "<= "):
+		return rangeOpLTE, s[3:]
+	case strings.HasPrefix(s, "> "):
+		return rangeOpGT, s[2:]
+	case strings.HasPrefix(s, "< "):
+		return rangeOpLT, s[2:]
+	default:
+		return rangeOpNone, s
+	}
+}
+
 // NewStringPredicateFromGlobs creates a string predicate from the given glob patterns.
 // A glob pattern starting with "!" is a negation pattern which will be ANDed with the rest.
 func NewStringPredicateFromGlobs(patterns []string, getGlob func(pattern string) (glob.Glob, error)) (P[string], error) {
@@ -187,6 +210,78 @@ func NewStringPredicateFromGlobs(patterns []string, getGlob func(pattern string)
 	return p.BoolFunc(), nil
 }
 
+// NewIndexStringPredicateFromGlobsAndRanges creates an IndexString predicate from the given glob patterns and range patterns.
+// A glob pattern starting with "!" is a negation pattern which will be ANDed with the rest.
+// A range pattern is one of "> value", ">= value", "< value" or "<= value".
+func NewIndexStringPredicateFromGlobsAndRanges(patterns []string, getIndex func(s string) int, getGlob func(pattern string) (glob.Glob, error)) (P[IndexString], error) {
+	var p PR[IndexString]
+	for _, pattern := range patterns {
+		pattern = strings.TrimSpace(pattern)
+		if pattern == "" {
+			continue
+		}
+		negate := strings.HasPrefix(pattern, hglob.NegationPrefix)
+		if negate {
+			pattern = pattern[2:]
+			g, err := getGlob(pattern)
+			if err != nil {
+				return nil, err
+			}
+			p = p.And(func(s IndexString) Match {
+				return BoolMatch(!g.Match(s.String))
+			})
+		} else {
+			// This can be either a glob or a value prefixed with one of >, >=, < or <=.
+			o, v := cutRangeOp(pattern)
+			if o != rangeOpNone {
+				i := getIndex(v)
+				if i == -1 {
+					// No match possible.
+					p = p.And(func(s IndexString) Match {
+						return BoolMatch(false)
+					})
+					continue
+				}
+				switch o {
+				// The greater values starts at the top with index 0.
+				case rangeOpGT:
+					p = p.And(func(s IndexString) Match {
+						return BoolMatch(s.Index < i)
+					})
+				case rangeOpGTE:
+					p = p.And(func(s IndexString) Match {
+						return BoolMatch(s.Index <= i)
+					})
+				case rangeOpLT:
+					p = p.And(func(s IndexString) Match {
+						return BoolMatch(s.Index > i)
+					})
+				case rangeOpLTE:
+					p = p.And(func(s IndexString) Match {
+						return BoolMatch(s.Index >= i)
+					})
+				}
+			} else {
+				g, err := getGlob(pattern)
+				if err != nil {
+					return nil, err
+				}
+				p = p.Or(func(s IndexString) Match {
+					return BoolMatch(g.Match(s.String))
+				})
+			}
+
+		}
+	}
+
+	return p.BoolFunc(), nil
+}
+
+type IndexString struct {
+	Index  int
+	String string
+}
+
 type IndexMatcher interface {
-	IndexMatch(match P[string]) (iter.Seq[int], error)
+	IndexMatch(match P[IndexString]) (iter.Seq[int], error)
 }
