@@ -1590,3 +1590,50 @@ Title: {{ .Title }}|
 	b.AssertFileContent("public/v1.0.0/p1/index.html", "Title: P1 v1|")
 	b.AssertFileContent("public/v2.0.0/p1/index.html", "Title: P1 v1|")
 }
+
+func TestSitesMatrixFileMountThemeIssue14414(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+defaultContentVersion = "v1"
+defaultContentVersionInSubDir = true
+
+[versions]
+[versions."v1"]
+[versions."v2"]
+
+[module]
+[[module.mounts]]
+source = 'content'
+target = 'content'
+[module.mounts.sites.matrix]
+versions = '> v2.0.0'
+[[module.imports]]
+ignoreConfig = true
+path         = 'mytheme'
+[[module.imports.mounts]]
+source = 'content'
+target = 'content'
+[module.imports.mounts.sites.matrix]
+versions = '<= v2.0.0'
+
+-- themes/mytheme/content/p1.md --
+---
+title: "P1 from theme"
+---
+-- content/p1.md --
+---
+title: "P1 from site"
+---
+-- layouts/all.html --
+Title: {{ .Title }}|Version: {{ .Site.Version.Name }}|
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/v1/p1/index.html", "Title: P1 from theme|Version: v1|")
+}

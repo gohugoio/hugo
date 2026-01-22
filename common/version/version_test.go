@@ -50,6 +50,11 @@ func TestHugoVersion(t *testing.T) {
 func TestCompareVersions(t *testing.T) {
 	c := qt.New(t)
 
+	parseIgnoreErr := func(s string) Version {
+		v, _ := ParseVersion(s)
+		return v
+	}
+
 	c.Assert(CompareVersions(MustParseVersion("0.20.0"), 0.20), qt.Equals, 0)
 	c.Assert(CompareVersions(MustParseVersion("0.20.0"), float32(0.20)), qt.Equals, 0)
 	c.Assert(CompareVersions(MustParseVersion("0.20.0"), float64(0.20)), qt.Equals, 0)
@@ -69,6 +74,15 @@ func TestCompareVersions(t *testing.T) {
 	c.Assert(CompareVersions(MustParseVersion("0.22.0-DEV"), "0.22"), qt.Equals, 1)
 	c.Assert(CompareVersions(MustParseVersion("0.22.1-DEV"), "0.22"), qt.Equals, -1)
 	c.Assert(CompareVersions(MustParseVersion("0.22.1-DEV"), "0.22.1-DEV"), qt.Equals, 0)
+
+	c.Assert(CompareVersions(parseIgnoreErr("foobar"), "v1.0.0"), qt.Equals, 1)
+	c.Assert(CompareVersions(parseIgnoreErr("v1.0.0"), "foobar"), qt.Equals, -1)
+	c.Assert(CompareVersions(parseIgnoreErr("foobar"), "foobar"), qt.Equals, 0)
+	c.Assert(CompareVersions(parseIgnoreErr("foobar"), parseIgnoreErr("foobar")), qt.Equals, 0)
+	c.Assert(CompareVersions(parseIgnoreErr("a"), "b"), qt.Equals, -1)
+	c.Assert(CompareVersions(parseIgnoreErr("a"), parseIgnoreErr("b")), qt.Equals, -1)
+	c.Assert(CompareVersions(parseIgnoreErr("b"), "a"), qt.Equals, 1)
+	c.Assert(CompareVersions(parseIgnoreErr("b"), parseIgnoreErr("a")), qt.Equals, 1)
 }
 
 func TestParseHugoVersion(t *testing.T) {
