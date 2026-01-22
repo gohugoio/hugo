@@ -260,10 +260,10 @@ func (d *Deps) Init() error {
 		common = d.ResourceSpec.SpecCommon
 	}
 
-	fileCaches, err := filecache.NewCaches(d.PathSpec)
-	if err != nil {
-		return fmt.Errorf("failed to create file caches from configuration: %w", err)
-	}
+	d.Cfg.BaseConfig()
+
+	fileCaches := d.Cfg.FileCaches().(filecache.Caches)
+	fileCaches.SetResourceFs(d.BaseFs.ResourcesCache)
 
 	resourceSpec, err := resources.NewSpec(d.PathSpec, common, d.WasmDispatchers, fileCaches, d.MemCache, d.BuildState, d.Log, d, d.ExecHelper, d.BuildClosers, d.BuildState)
 	if err != nil {

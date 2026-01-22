@@ -40,13 +40,14 @@ var defaultCacheConfig = FileCacheConfig{
 }
 
 const (
-	CacheKeyGetJSON     = "getjson"
-	CacheKeyGetCSV      = "getcsv"
-	CacheKeyImages      = "images"
-	CacheKeyAssets      = "assets"
-	CacheKeyModules     = "modules"
-	CacheKeyGetResource = "getresource"
-	CacheKeyMisc        = "misc"
+	CacheKeyGetJSON       = "getjson"
+	CacheKeyGetCSV        = "getcsv"
+	CacheKeyImages        = "images"
+	CacheKeyAssets        = "assets"
+	CacheKeyModules       = "modules"
+	CacheKeyModuleQueries = "modulequeries"
+	CacheKeyGetResource   = "getresource"
+	CacheKeyMisc          = "misc"
 )
 
 type Configs map[string]FileCacheConfig
@@ -66,6 +67,10 @@ func (c Configs) CacheDirMisc() string {
 var defaultCacheConfigs = Configs{
 	CacheKeyModules: {
 		MaxAge: -1,
+		Dir:    ":cacheDir/modules",
+	},
+	CacheKeyModuleQueries: {
+		MaxAge: 24 * time.Hour,
 		Dir:    ":cacheDir/modules",
 	},
 	CacheKeyGetJSON: defaultCacheConfig,
@@ -125,6 +130,16 @@ func (f Caches) ImageCache() *Cache {
 // ModulesCache gets the file cache for Hugo Modules.
 func (f Caches) ModulesCache() *Cache {
 	return f[CacheKeyModules]
+}
+
+// ModuleQueriesCache gets the file cache for Hugo Module version queries.
+// Returns nil if not found.
+func (f Caches) ModuleQueriesCache() *Cache {
+	c, ok := f[CacheKeyModuleQueries]
+	if !ok {
+		panic("module queries cache not set")
+	}
+	return c
 }
 
 // AssetsCache gets the file cache for assets (processed resources, SCSS etc.).

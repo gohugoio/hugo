@@ -180,7 +180,25 @@ func Test386() error {
 // Run tests
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
-	return runCmd(env, goexe, "test", "-p", "2", "./...", "-tags", buildTags())
+	if isCI() {
+		// We have space issues on GitHub Actions (lots tests, incresing usage of Go generics).
+		// Test each package separately and clean up in between.
+		pkgs, err := hugoPackages()
+		if err != nil {
+			return err
+		}
+		for _, pkg := range pkgs {
+			if err := cmp.Or(CleanTest(), UninstallAll()); err != nil {
+				return err
+			}
+			if err := runCmd(env, goexe, "test", "-p", "2", pkg, "-tags", buildTags()); err != nil {
+				return err
+			}
+		}
+		return nil
+	} else {
+		return runCmd(env, goexe, "test", "-p", "2", "./...", "-tags", buildTags())
+	}
 }
 
 // Run tests with race detector
@@ -194,13 +212,6 @@ func TestRace() error {
 			return err
 		}
 		for _, pkg := range pkgs {
-			/*slashCount := strings.Count(pkg, "/")
-			if slashCount > 1 {
-				continue
-			}
-			if pkg != "." {
-				pkg += "/..."
-			}*/
 			if err := cmp.Or(CleanTest(), UninstallAll()); err != nil {
 				return err
 			}
@@ -209,7 +220,6 @@ func TestRace() error {
 			}
 		}
 		return nil
-
 	} else {
 		return runCmd(env, goexe, "test", "-p", "2", "-race", "./...", "-tags", buildTags())
 	}
