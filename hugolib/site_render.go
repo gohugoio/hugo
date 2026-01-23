@@ -154,6 +154,20 @@ func pageRenderer(
 			}
 		}
 
+		if !s.conf.DisableAliases && s.h.buildCounter.Load() == 0 {
+			of := p.outputFormat()
+			if of.IsHTML && of.Permalinkable {
+				// Render any aliases for this page.
+				if err := s.renderAliasesForPage(p); err != nil {
+					if sendErr(err) {
+						continue
+					} else {
+						return
+					}
+				}
+			}
+		}
+
 		if !p.render {
 			// Nothing more to do for this page.
 			continue
@@ -300,71 +314,17 @@ func (s *Site) renderPaginator(p *pageState, templ *tplimpl.TemplInfo) error {
 	return nil
 }
 
-// renderAliases renders shell pages that simply have a redirect in the header.
-func (s *Site) renderAliases() error {
-	w := &doctree.NodeShiftTreeWalker[contentNode]{
-		Tree: s.pageMap.treePages,
-		Handle: func(key string, n contentNode) (radix.WalkFlag, error) {
-			p := n.(*pageState)
-
-			// We cannot alias a page that's not rendered.
-			if p.m.noLink() || p.skipRender() {
-				return radix.WalkContinue, nil
-			}
-
-			if len(p.Aliases()) == 0 {
-				return radix.WalkContinue, nil
-			}
-
-			pathSeen := make(map[string]bool)
-			for _, of := range p.OutputFormats() {
-				if !of.Format.IsHTML {
-					continue
-				}
-
-				f := of.Format
-
-				if pathSeen[f.Path] {
-					continue
-				}
-				pathSeen[f.Path] = true
-
-				plink := of.Permalink()
-
-				for _, a := range p.Aliases() {
-					isRelative := !strings.HasPrefix(a, "/")
-					prefix := path.Join("/", p.targetPathDescriptor.PrefixFilePath)
-
-					var baseDir string
-					if isRelative {
-						// Form the baseDir by taking the resource's base target
-						// and moving up one level to the parent. Then, inject
-						// the Output Format path between the content dimension
-						// prefixes and the remaining path.
-						parentContext := path.Join(p.targetPaths().SubResourceBaseTarget, "..")
-						baseDir = paths.InjectSegment(parentContext, prefix, f.Path)
-					} else {
-						// Form the baseDir by prepending the content dimension
-						// prefixes with the Output Format path.
-						baseDir = path.Join(prefix, f.Path)
-					}
-
-					a = path.Join(baseDir, a)
-
-					if s.conf.C.IsUglyURLSection(p.Section()) && !strings.HasSuffix(a, ".html") {
-						a += ".html"
-					}
-
-					err := s.writeDestAlias(a, plink, f, p)
-					if err != nil {
-						return radix.WalkStop, err
-					}
-				}
-			}
-			return radix.WalkContinue, nil
-		},
+func (s *Site) renderAliasesForPage(p *pageState) error {
+	po := p.pageOutput
+	f := po.f
+	plink := p.Permalink()
+	for _, a := range p.Aliases() {
+		err := s.writeDestAlias(a, plink, f, p)
+		if err != nil {
+			return err
+		}
 	}
-	return w.Walk(context.TODO())
+	return nil
 }
 
 // renderDefaultSiteRedirect creates a redirect to the default site's home,

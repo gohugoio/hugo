@@ -203,6 +203,7 @@ disableKinds = ['home', 'rss', 'sitemap', 'taxonomy', 'term']
 
 [outputFormats.print]
   isHTML        = IS_HTML
+  permalinkable = true
   mediaType     = 'text/html'
   path          = 'print'
 
@@ -416,6 +417,7 @@ defaultContentVersionInSubdir  = true
   isHTML    = true
   mediaType = 'text/html'
   path      = 'print'
+  permalinkable = true
 
 [outputs]
   page    = ['html', 'print']
@@ -650,5 +652,34 @@ aliases: [/p2-alias]
 		`<title>https://en.example.org/guest/v1.0.0/print/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/print/foo/s2/p2/">`,
+	)
+}
+
+// Issue #14402.
+func TestComprehensiveAliasesRedirectsFile(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableAliases = true
+defaultContentLanguageInSubdir = true
+defaultContentRoleInSubdir     = true
+defaultContentVersionInSubdir  = true
+baseURL = "https://example.org/"
+-- content/foo/p1.md --
+---
+aliases: ["/foo/p2/", "../p3/"]
+---
+-- content/foo/p2.md --
+-- content/p3.md --
+-- layouts/home.html --
+Home.
+{{ range $p := site.RegularPages }}{{ range .Aliases }}{{ . | printf "%-35s" }}=>{{ $p.RelPermalink -}}|{{ end -}}{{ end }}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/guest/v1.0.0/en/index.html",
+		"/guest/v1.0.0/en/foo/p2            =>/guest/v1.0.0/en/foo/p1/|",
+		"/guest/v1.0.0/en/p3                =>/guest/v1.0.0/en/foo/p1/|",
 	)
 }
