@@ -64,6 +64,10 @@ type VersionInternal struct {
 	// Name of the version.
 	// This is the key from the config.
 	Name string
+
+	// Parsed version of Name.
+	parsedVersion version.Version
+
 	// Whether this version is the default version.
 	// This will be by default rendered in the root.
 	// There can only be one default version.
@@ -102,6 +106,15 @@ func (r VersionsInternal) ResolveIndex(name string) int {
 	for i, version := range r.Sorted {
 		if version.Name == name {
 			return i
+		}
+	}
+	// Compare against parsed versions as well.
+	v, err := version.ParseVersion(name)
+	if err == nil {
+		for i, version := range r.Sorted {
+			if version.parsedVersion.Compare(v) == 0 {
+				return i
+			}
 		}
 	}
 	return -1
@@ -161,15 +174,17 @@ func (r *VersionsInternal) init(defaultContentVersion string) error {
 			defaultSeen = true
 		}
 
-		r.Sorted = append(r.Sorted, VersionInternal{Name: k, Default: isDefault, VersionConfig: v})
+		// Ignore error, this may not be a semver version.
+		parsedVersion, _ := version.ParseVersion(k)
+
+		r.Sorted = append(r.Sorted, VersionInternal{Name: k, parsedVersion: parsedVersion, Default: isDefault, VersionConfig: v})
 	}
 
 	// Sort by weight if set, then semver descending.
 	sort.SliceStable(r.Sorted, func(i, j int) bool {
 		ri, rj := r.Sorted[i], r.Sorted[j]
 		if ri.Weight == rj.Weight {
-			v1, v2 := version.MustParseVersion(ri.Name), version.MustParseVersion(rj.Name)
-			return v1.Compare(v2) < 0
+			return ri.parsedVersion.Compare(rj.parsedVersion) < 0
 		}
 		if rj.Weight == 0 {
 			return true

@@ -37,6 +37,9 @@ type Version struct {
 	// HugoVersionSuffix is the suffix used in the Hugo version string.
 	// It will be blank for release versions.
 	Suffix string
+
+	// Set when parsed from a string,
+	source string
 }
 
 var (
@@ -49,6 +52,10 @@ func (v Version) IsAlphaBetaOrRC() bool {
 	s := strings.ToLower(v.Suffix)
 	// e.g. "alpha.1", "beta.2", "rc.3"
 	return strings.Contains(s, "alpha.") || strings.Contains(s, "beta.") || strings.Contains(s, "rc.")
+}
+
+func (v Version) IsZero() bool {
+	return v.Major == 0 && v.Minor == 0 && v.PatchLevel == 0 && v.Suffix == ""
 }
 
 func (v Version) String() string {
@@ -109,6 +116,7 @@ func ParseVersion(s string) (Version, error) {
 		vv.Suffix = suffix
 	}
 	vv.Major, vv.Minor, vv.PatchLevel = parseVersion(s)
+	vv.source = s
 
 	return vv, nil
 }
@@ -176,6 +184,10 @@ func CompareVersions(v1 Version, v2 any) int {
 	case int64:
 		c = compareFloatWithVersion(float64(d), v1)
 	case Version:
+		if v1.IsZero() && d.IsZero() {
+			// Fall back to source comparison.
+			return strings.Compare(v1.source, d.source)
+		}
 		if d.Major == v1.Major && d.Minor == v1.Minor && d.PatchLevel == v1.PatchLevel {
 			return strings.Compare(v1.Suffix, d.Suffix)
 		}
@@ -200,11 +212,13 @@ func CompareVersions(v1 Version, v2 any) int {
 			return -1
 		}
 
-		v, err := ParseVersion(s)
-		if err != nil {
-			return -1
+		v2v, _ := ParseVersion(s)
+		if v1.IsZero() && v2v.IsZero() {
+			// Fall back to source comparison.
+			return strings.Compare(v1.source, v2v.source)
 		}
-		return v1.Compare(v)
+
+		return v1.Compare(v2v)
 
 	}
 
