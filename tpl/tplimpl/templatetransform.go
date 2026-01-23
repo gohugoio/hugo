@@ -110,13 +110,18 @@ const (
 	// _pushPartialDecorator is always falsy.
 	pushPartialDecoratorTempl = `{{ if or (_pushPartialDecorator ("PLACEHOLDER")) }}{{ end }}`
 	popPartialDecoratorTempl  = `{{ if (_popPartialDecorator ("PLACEHOLDER1")) }}{{ . }}{{ else }}("PLACEHOLDER2"){{ end }}`
+
+	// popPartialDecoratorElseTempl is used when partial returns falsy and the with block is skipped.
+	// We still need to pop the decorator ID from the stack.
+	popPartialDecoratorElseTempl = `{{ _popPartialDecorator ("PLACEHOLDER") }}`
 )
 
 var (
-	partialReturnWrapper *parse.ListNode
-	doDefer              *parse.ListNode
-	popPartialDecorator  *parse.ListNode
-	pushPartialDecorator *parse.ListNode
+	partialReturnWrapper    *parse.ListNode
+	doDefer                 *parse.ListNode
+	popPartialDecorator     *parse.ListNode
+	pushPartialDecorator    *parse.ListNode
+	popPartialDecoratorElse *parse.ListNode
 )
 
 func init() {
@@ -143,6 +148,12 @@ func init() {
 		panic(err)
 	}
 	pushPartialDecorator = templ.Tree.Root
+
+	templ, err = texttemplate.New("").Funcs(texttemplate.FuncMap{"_popPartialDecorator": func(string) string { return "" }}).Parse(popPartialDecoratorElseTempl)
+	if err != nil {
+		panic(err)
+	}
+	popPartialDecoratorElse = templ.Tree.Root
 }
 
 // wrapInPartialReturnWrapper copies and modifies the parsed nodes of a
@@ -376,6 +387,23 @@ func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
 	withNode.Pipe.Cmds = append(orNode.Pipe.Cmds, withNode.Pipe.Cmds...)
 
 	withNode.List = newInner
+
+	// When the partial returns a falsy value, the with block is skipped,
+	// but we still need to pop the decorator ID from the stack.
+	// Add a pop call to the else branch.
+	popElse := popPartialDecoratorElse.CopyList()
+	popElseAction := popElse.Nodes[0].(*parse.ActionNode)
+	popElsePipe := popElseAction.Pipe.Cmds[0].Args[1].(*parse.PipeNode)
+	popElseString := popElsePipe.Cmds[0].Args[0].(*parse.StringNode)
+	popElseString.Text = innerHash
+	popElseString.Quoted = fmt.Sprintf("%q", popElseString.Text)
+
+	if withNode.ElseList == nil {
+		withNode.ElseList = popElse
+	} else {
+		// Prepend the pop to the existing else list
+		withNode.ElseList.Nodes = append(popElse.Nodes, withNode.ElseList.Nodes...)
+	}
 }
 
 func (c *templateTransformContext) handleWith(withNode *parse.WithNode) {
