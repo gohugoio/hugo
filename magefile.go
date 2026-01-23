@@ -194,13 +194,13 @@ func TestRace() error {
 			return err
 		}
 		for _, pkg := range pkgs {
-			slashCount := strings.Count(pkg, "/")
+			/*slashCount := strings.Count(pkg, "/")
 			if slashCount > 1 {
 				continue
 			}
 			if pkg != "." {
 				pkg += "/..."
-			}
+			}*/
 			if err := cmp.Or(CleanTest(), UninstallAll()); err != nil {
 				return err
 			}

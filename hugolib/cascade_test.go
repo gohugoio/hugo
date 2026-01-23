@@ -416,3 +416,66 @@ title: p1 (en)
 	b.AssertFileContent("public/en/s1/p1/index.html", "|color: red (en)|size: medium|") // fails: file contains "|color: red (en)|size: |"
 	b.AssertFileContent("public/de/s1/p1/index.html", "|color: red (de)|size: medium|")
 }
+
+// Issue 14409
+func TestCascadeDraftTrue14409(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','taxonomy','term']
+defaultContentLanguage         = 'en'
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+  weight = 1
+[languages.de]
+  weight = 2
+
+[[cascade]]
+  draft = true
+  [cascade.target.sites.matrix]
+    languages = ['en']
+-- content/_index.en.md --
+---
+title: home en
+draft: false
+---
+-- content/_index.de.md --
+---
+title: home de
+draft: false
+---
+-- content/s1/_index.en.md --
+---
+title: s1 en
+draft: false
+---
+-- content/s1/_index.de.md --
+---
+title: s1 de
+draft: false
+---
+-- content/s1/p1.en.md --
+---
+title: p1 en
+---
+-- content/s1/p1.de.md --
+---
+title: p1 de
+---
+-- layouts/all.html --
+{{ .Title }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/de/index.html", true)
+	b.AssertFileExists("public/en/index.html", true)
+
+	b.AssertFileExists("public/de/s1/index.html", true)
+	b.AssertFileExists("public/en/s1/index.html", true)
+
+	b.AssertFileExists("public/de/s1/p1/index.html", true)
+	b.AssertFileExists("public/en/s1/p1/index.html", false)
+}

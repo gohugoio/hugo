@@ -106,7 +106,10 @@ jobs:
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
       - if: matrix.os == 'ubuntu-latest'
         name: Run staticcheck
-        run: staticcheck ./...
+        run: |
+          export STATICCHECK_CACHE="${{ runner.temp }}/staticcheck"
+          staticcheck ./...
+          rm -rf ${{ runner.temp }}/staticcheck
       - if: matrix.os != 'windows-latest'
         name: Check
         run: |
@@ -118,16 +121,15 @@ jobs:
         # See issue #11052. We limit the build to regular test (no -race flag) on Windows for now.
         name: Test
         run: |
-          mage -v test;
+          mage -v test
+          go clean -i -testcache
         env:
           HUGO_BUILD_TAGS: extended,withdeploy
-      - name: Build tags
-        run: |
-          go install -tags extended
       - if: matrix.os == 'ubuntu-latest'
         name: Build for dragonfly
         run: |
           go install
+          go clean -i -cache
         env:
           GOARCH: amd64
           GOOS: dragonfly

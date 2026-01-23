@@ -86,7 +86,7 @@ func newAllPagesAssembler(
 		seenTerms:                  hmaps.NewMap[term, sitesmatrix.Vectors](),
 		droppedPages:               hmaps.NewMap[*Site, []string](),
 		seenRootSections:           seenRootSections,
-		assembleSectionsInParallel: true,
+		assembleSectionsInParallel: !h.isRebuild(), // On partial rebuilds, there's potential data races with parallel section assembly.
 		pwRoot:                     pw,
 		rwRoot:                     rw,
 	}
@@ -273,27 +273,23 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 						return false
 					}
 
-					var drop bool
 					if !site.shouldBuild(p) {
+						(&p.m.pageConfig.Build).Disable()
 						switch p.Kind() {
 						case kinds.KindHome, kinds.KindSection, kinds.KindTaxonomy:
-							// We need to keep these for the structure, but disable
-							// them so they don't get listed/rendered.
-							(&p.m.pageConfig.Build).Disable()
+							// We need to keep these for the structure.
 						default:
-							// Skip this page.
+							// Drop this page.
 							a.droppedPages.WithWriteLock(
 								func(m map[*Site][]string) error {
 									m[site] = append(m[site], s)
 									return nil
 								},
 							)
-
-							drop = true
 						}
 					}
 
-					if !drop && n == nil {
+					if n == nil {
 						if n2 == nil {
 							// Avoid creating a map for one node.
 							n2 = p
