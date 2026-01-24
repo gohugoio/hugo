@@ -16,6 +16,7 @@ package filecache
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -54,7 +55,11 @@ type Cache struct {
 
 	nlocker *lockTracker
 
+	isResourceDir bool
+	baseDir       string
+
 	initOnce sync.Once
+	isInited bool
 	initErr  error
 }
 
@@ -109,9 +114,14 @@ func (l *lockedFile) Close() error {
 }
 
 func (c *Cache) init() error {
+	if c == nil {
+		panic("cache is nil")
+	}
 	c.initOnce.Do(func() {
+		c.isInited = true
 		// Create the base dir if it does not exist.
 		if err := c.Fs.MkdirAll("", 0o777); err != nil && !os.IsExist(err) {
+			err = fmt.Errorf("failled to create base cache directory: %s", err)
 			c.initErr = err
 		}
 	})
@@ -286,8 +296,32 @@ func (c *Cache) GetOrCreateBytes(id string, create func() ([]byte, error)) (Item
 	return info, b, nil
 }
 
+// SetBytes sets the file content with the given id in the cache.
+func (c *Cache) SetBytes(id string, data []byte) error {
+	if err := c.init(); err != nil {
+		return err
+	}
+	id = cleanID(id)
+
+	c.nlocker.Lock(id)
+	defer c.nlocker.Unlock(id)
+
+	if c.maxAge == 0 {
+		// No caching.
+		return nil
+	}
+
+	return c.writeReader(id, bytes.NewReader(data))
+}
+
 // GetBytes gets the file content with the given id from the cache, nil if none found.
-func (c *Cache) GetBytes(id string) (ItemInfo, []byte, error) {
+func (c *Cache) GetBytes(id string) ([]byte, error) {
+	_, b, err := c.GetItemBytes(id)
+	return b, err
+}
+
+// GetItemBytes gets the ItemInfo and file content with the given id from the cache, nil if none found.
+func (c *Cache) GetItemBytes(id string) (ItemInfo, []byte, error) {
 	if err := c.init(); err != nil {
 		return ItemInfo{}, nil, err
 	}
@@ -417,6 +451,17 @@ func (c *Cache) GetString(id string) string {
 // Caches is a named set of caches.
 type Caches map[string]*Cache
 
+func (f Caches) SetResourceFs(fs afero.Fs) {
+	for _, c := range f {
+		if c.isResourceDir {
+			if c.isInited {
+				panic("cannot set resource fs after init")
+			}
+			c.Fs = hugofs.NewBasePathFs(fs, c.baseDir)
+		}
+	}
+}
+
 // Get gets a named cache, nil if none found.
 func (f Caches) Get(name string) *Cache {
 	return f[strings.ToLower(name)]
@@ -424,22 +469,17 @@ func (f Caches) Get(name string) *Cache {
 
 // NewCaches creates a new set of file caches from the given
 // configuration.
-func NewCaches(p *helpers.PathSpec) (Caches, error) {
-	dcfg := p.Cfg.GetConfigSection("caches").(Configs)
-	fs := p.Fs.Source
+func NewCaches(dcfg Configs, sourceFs afero.Fs) (Caches, error) {
+	// dcfg := p.Cfg.GetConfigSection("caches").(Configs)
+	fs := sourceFs
 
 	m := make(Caches)
 	for k, v := range dcfg {
 		var cfs afero.Fs
-
 		if v.IsResourceDir {
-			cfs = p.BaseFs.ResourcesCache
+			cfs = nil // Set later. TODO(bep) this needs to be cleanded up.
 		} else {
 			cfs = fs
-		}
-
-		if cfs == nil {
-			panic("nil fs")
 		}
 
 		baseDir := v.DirCompiled
@@ -451,7 +491,11 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 			pruneAllRootDir = "pkg"
 		}
 
-		m[k] = NewCache(bfs, v.MaxAge, pruneAllRootDir)
+		c := NewCache(bfs, v.MaxAge, pruneAllRootDir)
+		c.isResourceDir = v.IsResourceDir
+		c.baseDir = baseDir
+
+		m[k] = c
 	}
 
 	return m, nil

@@ -822,6 +822,7 @@ type Configs struct {
 
 	Modules       modules.Modules
 	ModulesClient *modules.Client
+	FileCaches    filecache.Caches
 
 	// All below is set in Init.
 	Languages                 langs.Languages
@@ -852,7 +853,7 @@ func (c *Configs) IsZero() bool {
 	return c == nil || len(c.Languages) == 0
 }
 
-func (c *Configs) Init(logger loggers.Logger) error {
+func (c *Configs) Init(sourceFs afero.Fs, logger loggers.Logger) error {
 	var languages langs.Languages
 
 	for _, f := range c.Base.Languages.Config.Sorted {
@@ -1154,10 +1155,16 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 		l.CommonDirs.CacheDir = bcfg.CacheDir
 	}
 
+	caches, err := filecache.NewCaches(all.Caches, fs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create file caches from configuration: %w", err)
+	}
+
 	cm := &Configs{
 		Base:              all,
 		LanguageConfigMap: langConfigMap,
 		LoadingInfo:       res,
+		FileCaches:        caches,
 		IsMultihost:       isMultihost,
 	}
 

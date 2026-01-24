@@ -25,9 +25,8 @@ import (
 )
 
 type ConfigLanguage struct {
-	config     *Config
-	baseConfig config.BaseConfig
-
+	config        *Config
+	baseConfig    config.BaseConfig
 	m             *Configs
 	language      *langs.Language
 	languageIndex int
@@ -121,6 +120,10 @@ func (c ConfigLanguage) Timeout() time.Duration {
 
 func (c ConfigLanguage) BaseConfig() config.BaseConfig {
 	return c.baseConfig
+}
+
+func (c ConfigLanguage) FileCaches() any {
+	return c.m.FileCaches
 }
 
 func (c ConfigLanguage) Dirs() config.CommonDirs {

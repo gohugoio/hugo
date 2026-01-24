@@ -391,14 +391,11 @@ func (c *collector) addAndRecurse(owner *moduleAdapter) error {
 		pk := pathVersionKey{path: tc.Path(), version: tc.Version()}
 		seenInCurrent := seen[pk]
 		if seenInCurrent {
-			// Only one import of the same module per project.
-			if owner.projectMod {
-				// In Hugo v0.150.0 we introduced direct dependencies, and it may be tempting to import the same version
-				// with different mount setups. We may allow that in the future, but we need to get some experience first.
-				// For now, we just warn. The user needs to add multiple mount points in the same import.
-				c.logger.Warnf("module with path %q is imported for the same version %q more than once", tc.Path(), tc.Version())
+			// Only one import of the same module per project, unless this is the main project.
+			if !owner.projectMod {
+				c.logger.Warnf("module with path %q is imported for the same version %q more than once; this is currently only allowed in the main project's config.", tc.Path(), tc.Version())
+				continue
 			}
-			continue
 		}
 		seen[pk] = true
 

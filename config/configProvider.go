@@ -41,6 +41,7 @@ type AllProvider interface {
 	Dirs() CommonDirs
 	Quiet() bool
 	DirsBase() CommonDirs
+	FileCaches() any
 	ContentTypes() ContentTypesProvider
 	GetConfigSection(string) any
 	GetConfig() any

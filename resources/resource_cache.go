@@ -111,7 +111,7 @@ func (c *ResourceCache) getFromFile(key string) (filecache.ItemInfo, io.ReadClos
 	var meta transformedResourceMetadata
 	filenameMeta, filenameContent := c.getFilenames(key)
 
-	_, jsonContent, _ := c.fileCache.GetBytes(filenameMeta)
+	jsonContent, _ := c.fileCache.GetBytes(filenameMeta)
 	if jsonContent == nil {
 		return filecache.ItemInfo{}, nil, meta, false
 	}

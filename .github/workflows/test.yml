@@ -122,7 +122,6 @@ jobs:
         name: Test
         run: |
           mage -v test
-          go clean -i -testcache
         env:
           HUGO_BUILD_TAGS: extended,withdeploy
       - if: matrix.os == 'ubuntu-latest'

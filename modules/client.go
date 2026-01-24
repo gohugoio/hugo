@@ -30,8 +30,10 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 
@@ -44,8 +46,6 @@ import (
 	"github.com/gohugoio/hugo/hugofs/files"
 
 	"golang.org/x/mod/module"
-
-	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/spf13/afero"
 )
@@ -440,16 +440,31 @@ func isProbablyModule(path string) bool {
 }
 
 func (c *Client) downloadModuleVersion(path, version string) (*goModule, error) {
-	args := []string{"mod", "download", "-json", fmt.Sprintf("%s@%s", path, version)}
-	b := &bytes.Buffer{}
+	// If it's already cached, use it.
+	const keyPrefix = "downloadmoduleversion_"
+	cacheKey := keyPrefix + hashing.XxHashFromStringHexEncoded(c.ccfg.CacheDir, path, version) + ".json"
+	if b, _ := c.ccfg.ModuleQueriesCache.GetBytes(cacheKey); len(b) > 0 {
+		var cm goModule
+		if err := json.Unmarshal(b, &cm); err == nil && cm.Dir != "" {
+			if c.isDirNonEmpty(cm.Dir) {
+				return &cm, nil
+			}
+		}
+	}
 
+	// No valid cache, need to query.
+	args := []string{"mod", "download", "-json", fmt.Sprintf("%s@%s", path, version)}
+
+	b := &bytes.Buffer{}
 	err := c.runGo(context.Background(), b, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download module %s@%s: %w", path, version, err)
 	}
 
+	jsonResult := b.Bytes()
+
 	m := &goModule{}
-	if err := json.NewDecoder(b).Decode(m); err != nil {
+	if err := json.NewDecoder(bytes.NewReader(jsonResult)).Decode(m); err != nil {
 		return nil, fmt.Errorf("failed to decode module download result: %w", err)
 	}
 
@@ -457,7 +472,24 @@ func (c *Client) downloadModuleVersion(path, version string) (*goModule, error) 
 		return nil, errors.New(m.Error.Err)
 	}
 
+	// Cache the successful result if it has a Dir field.
+	if m.Dir != "" {
+		_ = c.ccfg.ModuleQueriesCache.SetBytes(cacheKey, jsonResult)
+	}
+
 	return m, nil
+}
+
+// isDirNonEmpty returns true if dir exists and contains at least one file or subdirectory.
+func (c *Client) isDirNonEmpty(dir string) bool {
+	f, err := c.fs.Open(dir)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+	// Read just one entry to check if directory is non-empty.
+	_, err = f.Readdirnames(1)
+	return err == nil
 }
 
 func (c *Client) listGoMods() (goModules, error) {
@@ -865,8 +897,15 @@ type ClientConfig struct {
 
 	Exec *hexec.Exec
 
-	CacheDir     string // Module cache
-	ModuleConfig Config
+	CacheDir           string // Module cache
+	ModuleQueriesCache ModuleQueriesCache
+	ModuleConfig       Config
+}
+
+// ModuleQueriesCache is a cache for module version queries.
+type ModuleQueriesCache interface {
+	GetBytes(id string) ([]byte, error)
+	SetBytes(id string, data []byte) error
 }
 
 func (c ClientConfig) shouldIgnoreVendor(path string) bool {
