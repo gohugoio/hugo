@@ -78,9 +78,11 @@ dir = ":cacheDir/c"
 		configStr = strings.Replace(configStr, "\\", winPathSep, -1)
 
 		p := newPathsSpec(t, osfs, configStr)
+		fileCachConfig := p.Cfg.GetConfigSection("caches").(filecache.Configs)
 
-		caches, err := filecache.NewCaches(p)
+		caches, err := filecache.NewCaches(fileCachConfig, p.Fs.Source)
 		c.Assert(err, qt.IsNil)
+		caches.SetResourceFs(p.SourceFs)
 
 		cache := caches.Get("GetJSON")
 		c.Assert(cache, qt.Not(qt.IsNil))
@@ -149,7 +151,7 @@ dir = ":cacheDir/c"
 		r.Close()
 		c.Assert(string(b), qt.Equals, "Hugo is great!")
 
-		info, b, err = caches.ImageCache().GetBytes("mykey")
+		info, b, err = caches.ImageCache().GetItemBytes("mykey")
 		c.Assert(err, qt.IsNil)
 		c.Assert(info.Name, qt.Equals, "mykey")
 		c.Assert(string(b), qt.Equals, "Hugo is great!")
@@ -179,9 +181,10 @@ dir = "/cache/c"
 `
 
 	p := newPathsSpec(t, afero.NewMemMapFs(), configStr)
-
-	caches, err := filecache.NewCaches(p)
+	fileCachConfig := p.Cfg.GetConfigSection("caches").(filecache.Configs)
+	caches, err := filecache.NewCaches(fileCachConfig, p.Fs.Source)
 	c.Assert(err, qt.IsNil)
+	caches.SetResourceFs(p.Fs.Source)
 
 	const cacheName = "getjson"
 

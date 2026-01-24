@@ -95,7 +95,7 @@ func LoadConfig(d ConfigSourceDescriptor) (configs *Configs, err error) {
 	configs.Modules = moduleConfig.AllModules
 	configs.ModulesClient = modulesClient
 
-	if err := configs.Init(d.Logger); err != nil {
+	if err := configs.Init(d.Fs, d.Logger); err != nil {
 		return nil, fmt.Errorf("failed to init config: %w", err)
 	}
 
@@ -477,6 +477,7 @@ func (l *configLoader) loadModules(configs *Configs, ignoreModuleDoesNotExist bo
 		PublishDir:               publishDir,
 		Environment:              l.Environment,
 		CacheDir:                 conf.Caches.CacheDirModules(),
+		ModuleQueriesCache:       configs.FileCaches.ModuleQueriesCache(),
 		ModuleConfig:             conf.Module,
 		IgnoreVendor:             ignoreVendor,
 		IgnoreModuleDoesNotExist: ignoreModuleDoesNotExist,

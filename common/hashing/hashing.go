@@ -87,11 +87,13 @@ func XXHashFromString(s string) (uint64, error) {
 	return h.Sum64(), nil
 }
 
-// XxHashFromStringHexEncoded calculates the xxHash for the given string
+// XxHashFromStringHexEncoded calculates the xxHash for the given strings
 // and returns the hash as a hex encoded string.
-func XxHashFromStringHexEncoded(f string) string {
+func XxHashFromStringHexEncoded(s ...string) string {
 	h := xxhash.New()
-	h.WriteString(f)
+	for _, f := range s {
+		h.WriteString(f)
+	}
 	hash := h.Sum(nil)
 	return hex.EncodeToString(hash)
 }
