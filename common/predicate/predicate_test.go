@@ -224,6 +224,27 @@ func TestNewIndexStringPredicateFromGlobsAndRanges(t *testing.T) {
 	m = n(">= v99.0.0")
 	c.Assert(m(is(0)), qt.IsFalse)
 	c.Assert(m(is(3)), qt.IsFalse)
+
+	// Test == v2.0.0: should only match v2.0.0
+	m = n("== v2.0.0")
+	c.Assert(m(is(0)), qt.IsFalse) // v4.0.0
+	c.Assert(m(is(1)), qt.IsFalse) // v3.0.0
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+	c.Assert(m(is(3)), qt.IsFalse) // v1.0.0
+
+	// Test != v2.0.0: should match everything except v2.0.0
+	m = n("!= v2.0.0")
+	c.Assert(m(is(0)), qt.IsTrue)  // v4.0.0
+	c.Assert(m(is(1)), qt.IsTrue)  // v3.0.0
+	c.Assert(m(is(2)), qt.IsFalse) // v2.0.0
+	c.Assert(m(is(3)), qt.IsTrue)  // v1.0.0
+
+	// Test != with range: >= v2.0.0 AND != v3.0.0
+	m = n(">= v2.0.0", "!= v3.0.0")
+	c.Assert(m(is(0)), qt.IsTrue)  // v4.0.0
+	c.Assert(m(is(1)), qt.IsFalse) // v3.0.0 - excluded by !=
+	c.Assert(m(is(2)), qt.IsTrue)  // v2.0.0
+	c.Assert(m(is(3)), qt.IsFalse) // v1.0.0 - out of range
 }
 
 func BenchmarkPredicate(b *testing.B) {

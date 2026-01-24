@@ -38,6 +38,14 @@ func TestCutRangeOp(t *testing.T) {
 	c.Assert(op, qt.Equals, rangeOpLT)
 	c.Assert(rest, qt.Equals, "value")
 
+	op, rest = cutRangeOp("== value")
+	c.Assert(op, qt.Equals, rangeOpEQ)
+	c.Assert(rest, qt.Equals, "value")
+
+	op, rest = cutRangeOp("!= value")
+	c.Assert(op, qt.Equals, rangeOpNE)
+	c.Assert(rest, qt.Equals, "value")
+
 	op, rest = cutRangeOp("value")
 	c.Assert(op, qt.Equals, rangeOpNone)
 	c.Assert(rest, qt.Equals, "value")
