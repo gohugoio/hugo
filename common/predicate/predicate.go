@@ -159,6 +159,8 @@ const (
 	rangeOpLTE
 	rangeOpGT
 	rangeOpGTE
+	rangeOpEQ
+	rangeOpNE
 )
 
 func cutRangeOp(s string) (op int, rest string) {
@@ -167,6 +169,10 @@ func cutRangeOp(s string) (op int, rest string) {
 		return rangeOpGTE, s[3:]
 	case strings.HasPrefix(s, "<= "):
 		return rangeOpLTE, s[3:]
+	case strings.HasPrefix(s, "== "):
+		return rangeOpEQ, s[3:]
+	case strings.HasPrefix(s, "!= "):
+		return rangeOpNE, s[3:]
 	case strings.HasPrefix(s, "> "):
 		return rangeOpGT, s[2:]
 	case strings.HasPrefix(s, "< "):
@@ -259,6 +265,14 @@ func NewIndexStringPredicateFromGlobsAndRanges(patterns []string, getIndex func(
 				case rangeOpLTE:
 					p = p.And(func(s IndexString) Match {
 						return BoolMatch(s.Index >= i)
+					})
+				case rangeOpEQ:
+					p = p.And(func(s IndexString) Match {
+						return BoolMatch(s.Index == i)
+					})
+				case rangeOpNE:
+					p = p.And(func(s IndexString) Match {
+						return BoolMatch(s.Index != i)
 					})
 				}
 			} else {
