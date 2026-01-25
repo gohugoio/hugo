@@ -14,6 +14,7 @@
 package filecache_test
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -143,4 +144,30 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	c.Assert(imgConfig.IsResourceDir, qt.Equals, true)
 	c.Assert(jsonConfig.IsResourceDir, qt.Equals, false)
+}
+
+func TestFileCacheConfigMarshalJSON(t *testing.T) {
+	c := qt.New(t)
+
+	cfg := config.New()
+	cfg.Set("cacheDir", "/cache")
+	cfg.Set("workingDir", "/my/project")
+
+	fs := afero.NewMemMapFs()
+	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
+
+	moduleQueriesConfig := decoded[filecache.CacheKeyModuleQueries]
+	c.Assert(moduleQueriesConfig.MaxAge, qt.Equals, 24*time.Hour)
+
+	b, err := json.Marshal(moduleQueriesConfig)
+	c.Assert(err, qt.IsNil)
+
+	c.Assert(string(b), qt.Contains, `"maxAge":"24h"`)
+	c.Assert(string(b), qt.Not(qt.Contains), "86400000000000")
+	c.Assert(string(b), qt.Not(qt.Contains), "8.64e")
+
+	moduleQueriesConfig.MaxAge = -1
+	b, err = json.Marshal(moduleQueriesConfig)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(b), qt.Contains, `"maxAge":-1`)
 }
