@@ -15,6 +15,7 @@
 package filecache
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path"
@@ -110,6 +111,23 @@ type FileCacheConfig struct {
 	// Will resources/_gen will get its own composite filesystem that
 	// also checks any theme.
 	IsResourceDir bool `json:"-"`
+}
+
+// MarshalJSON marshals FileCacheConfig to JSON with MaxAge as a human-readable string.
+func (c FileCacheConfig) MarshalJSON() ([]byte, error) {
+	var maxAge any
+	if c.MaxAge == -1 {
+		maxAge = -1
+	} else {
+		maxAge = strings.TrimSuffix(c.MaxAge.String(), "0m0s")
+	}
+	return json.Marshal(&struct {
+		MaxAge any    `json:"maxAge"`
+		Dir    string `json:"dir"`
+	}{
+		MaxAge: maxAge,
+		Dir:    c.Dir,
+	})
 }
 
 // GetJSONCache gets the file cache for getJSON.
