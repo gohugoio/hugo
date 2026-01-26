@@ -35,16 +35,12 @@ const (
 	cacheDirProject = ":cacheDir/:project"
 )
 
-var defaultCacheConfig = FileCacheConfig{
-	MaxAge: -1, // Never expire
-	Dir:    cacheDirProject,
-}
-
 const (
 	CacheKeyImages        = "images"
 	CacheKeyAssets        = "assets"
 	CacheKeyModules       = "modules"
 	CacheKeyModuleQueries = "modulequeries"
+	CacheKeyModuleGitInfo = "modulegitinfo"
 	CacheKeyGetResource   = "getresource"
 	CacheKeyMisc          = "misc"
 )
@@ -67,10 +63,21 @@ var defaultCacheConfigs = Configs{
 	CacheKeyModules: {
 		MaxAge: -1,
 		Dir:    ":cacheDir/modules",
+		fileCacheConfigInternal: fileCacheConfigInternal{
+			entryIsDir: true,
+			isReadOnly: true, // we need to make it writable when pruning.
+		},
 	},
 	CacheKeyModuleQueries: {
 		MaxAge: 24 * time.Hour,
 		Dir:    ":cacheDir/modules",
+	},
+	CacheKeyModuleGitInfo: {
+		MaxAge: 24 * time.Hour,
+		Dir:    ":cacheDir/modules",
+		fileCacheConfigInternal: fileCacheConfigInternal{
+			entryIsDir: true,
+		},
 	},
 	CacheKeyImages: {
 		MaxAge: -1,
@@ -90,6 +97,13 @@ var defaultCacheConfigs = Configs{
 	},
 }
 
+func init() {
+	for k, v := range defaultCacheConfigs {
+		v.name = k
+		defaultCacheConfigs[k] = v
+	}
+}
+
 type FileCacheConfig struct {
 	// Max age of cache entries in this cache. Any items older than this will
 	// be removed and not returned from the cache.
@@ -101,12 +115,33 @@ type FileCacheConfig struct {
 	MaxAge time.Duration
 
 	// The directory where files are stored.
-	Dir         string
-	DirCompiled string `json:"-"`
+	Dir string
 
-	// Will resources/_gen will get its own composite filesystem that
-	// also checks any theme.
-	IsResourceDir bool `json:"-"`
+	fileCacheConfigInternal `json:"-"`
+}
+
+func (cfg *FileCacheConfig) init() error {
+	if cfg.DirCompiled == "" {
+		// From unit tests. Just check that it does not contain any placeholders.
+		if strings.Contains(cfg.Dir, ":") {
+			return fmt.Errorf("cache dir %q contains unresolved placeholders", cfg.Dir)
+		}
+		cfg.DirCompiled = cfg.Dir
+	}
+	// Sanity check the config.
+	if len(cfg.DirCompiled) < 5 {
+		panic(fmt.Sprintf("invalid cache dir: %q", cfg.DirCompiled))
+	}
+	return nil
+}
+
+type fileCacheConfigInternal struct {
+	DirCompiled string
+
+	name          string // The name of this cache, e.g. "images", "modules" etc.
+	entryIsDir    bool   // when set, the cache entries represents directories directly below the base dir.
+	isReadOnly    bool   // when set, the cache is read only and needs to be pruned differently. This is used for the Go modules cache.
+	IsResourceDir bool   //  resources/_gen will get its own composite filesystem that also checks any theme. TODO(bep) unexport this.
 }
 
 // MarshalJSON marshals FileCacheConfig to JSON with MaxAge as a human-readable string.
@@ -146,6 +181,15 @@ func (f Caches) ModuleQueriesCache() *Cache {
 	return c
 }
 
+// ModuleGitInfoCache gets the file cache for Hugo Module git info.
+func (f Caches) ModuleGitInfoCache() *Cache {
+	c, ok := f[CacheKeyModuleGitInfo]
+	if !ok {
+		panic("module git info cache not set")
+	}
+	return c
+}
+
 // AssetsCache gets the file cache for assets (processed resources, SCSS etc.).
 func (f Caches) AssetsCache() *Cache {
 	return f[CacheKeyAssets]
@@ -176,7 +220,11 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 		if _, ok := v.(hmaps.Params); !ok {
 			continue
 		}
-		cc := defaultCacheConfig
+		var ok bool
+		cc, ok := c[k]
+		if !ok {
+			return nil, fmt.Errorf("%q is not a valid cache name", k)
+		}
 
 		dc := &mapstructure.DecoderConfig{
 			Result:           &cc,
@@ -197,12 +245,8 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 			return c, errors.New("must provide cache Dir")
 		}
 
-		name := strings.ToLower(k)
-		if !valid[name] {
-			return nil, fmt.Errorf("%q is not a valid cache name", name)
-		}
+		c[k] = cc
 
-		c[name] = cc
 	}
 
 	for k, v := range c {

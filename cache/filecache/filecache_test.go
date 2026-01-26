@@ -252,7 +252,12 @@ func TestFileCacheReadOrCreateErrorInRead(t *testing.T) {
 		}
 	}
 
-	cache := filecache.NewCache(afero.NewMemMapFs(), 100*time.Hour, "")
+	cfg := filecache.FileCacheConfig{
+		MaxAge: 100 * time.Hour,
+		Dir:    "cache/c",
+	}
+
+	cache := filecache.NewCache(afero.NewMemMapFs(), cfg)
 
 	const id = "a32"
 

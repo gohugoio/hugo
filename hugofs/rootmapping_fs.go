@@ -185,7 +185,7 @@ type RootMapping struct {
 	FromBase      string    // The base directory of the virtual mount.
 	To            string    // The source directory or file.
 	ToBase        string    // The base of To. May be empty if an absolute path was provided.
-	Module        string    // The module path/ID.
+	Module        Module    // The module.
 	ModuleOrdinal int       // The module ordinal starting with 0 which is the project.
 	IsProject     bool      // Whether this is a mount in the main project.
 	Meta          *FileMeta // File metadata (lang etc.)

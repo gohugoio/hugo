@@ -964,6 +964,15 @@ type goModule struct {
 	Dir      string         // directory holding files for this module, if any
 	GoMod    string         // path to go.mod file for this module, if any
 	Error    *goModuleError // error loading module
+	Origin   *goModuleOrigin
+}
+
+type goModuleOrigin struct {
+	VCS    string // version control system, e.g. "git"
+	URL    string // repository URL, e.g. "https://github.com/bep/hugo-testing-git-versions"
+	Hash   string // commit hash
+	TagSum string
+	Ref    string // e.g. "refs/tags/v3.0.1"
 }
 
 type goModuleError struct {

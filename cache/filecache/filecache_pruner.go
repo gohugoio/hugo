@@ -50,8 +50,8 @@ func (c Caches) Prune() (int, error) {
 // Prune removes expired and unused items from this cache.
 // If force is set, everything will be removed not considering expiry time.
 func (c *Cache) Prune(force bool) (int, error) {
-	if c.pruneAllRootDir != "" {
-		return c.pruneRootDir(force)
+	if c.cfg.entryIsDir {
+		return c.pruneRootDirs(force)
 	}
 	if err := c.init(); err != nil {
 		return 0, err
@@ -93,9 +93,9 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		shouldRemove := force || c.isExpired(info.ModTime())
 
-		if !shouldRemove && len(c.nlocker.seen) > 0 {
+		if !shouldRemove && len(c.entryLocker.seen) > 0 {
 			// Remove it if it's not been touched/used in the last build.
-			_, seen := c.nlocker.seen[name]
+			_, seen := c.entryLocker.seen[name]
 			shouldRemove = !seen
 		}
 
@@ -117,11 +117,43 @@ func (c *Cache) Prune(force bool) (int, error) {
 	return counter, err
 }
 
-func (c *Cache) pruneRootDir(force bool) (int, error) {
+func (c *Cache) pruneRootDirs(force bool) (int, error) {
+	dirs, err := afero.ReadDir(c.Fs, "")
+	if err != nil {
+		if herrors.IsNotExist(err) {
+			return 0, nil
+		}
+		return 0, err
+	}
+
+	counter := 0
+
+	for _, dir := range dirs {
+		if !dir.IsDir() {
+			continue
+		}
+
+		count, err := c.pruneRootDir(dir.Name(), force)
+		if err != nil {
+			return counter, err
+		}
+		counter += count
+	}
+
+	return counter, nil
+}
+
+func (c *Cache) pruneRootDir(dirname string, force bool) (int, error) {
 	if err := c.init(); err != nil {
 		return 0, err
 	}
-	info, err := c.Fs.Stat(c.pruneAllRootDir)
+
+	// Sanity check.
+	if dirname != "pkg" && len(dirname) < 5 {
+		panic(fmt.Sprintf("invalid cache dir name: %q", dirname))
+	}
+
+	info, err := c.Fs.Stat(dirname)
 	if err != nil {
 		if herrors.IsNotExist(err) {
 			return 0, nil
@@ -133,5 +165,9 @@ func (c *Cache) pruneRootDir(force bool) (int, error) {
 		return 0, nil
 	}
 
-	return hugofs.MakeReadableAndRemoveAllModulePkgDir(c.Fs, c.pruneAllRootDir)
+	if c.cfg.isReadOnly {
+		return hugofs.MakeReadableAndRemoveAllModulePkgDir(c.Fs, dirname)
+	}
+
+	return 1, c.Fs.RemoveAll(dirname)
 }
