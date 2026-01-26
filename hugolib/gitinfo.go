@@ -19,8 +19,11 @@ import (
 	"strings"
 
 	"github.com/bep/gitmap"
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hexec"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/source"
 )
@@ -28,9 +31,33 @@ import (
 type gitInfo struct {
 	contentDir string
 	repo       *gitmap.GitRepo
+
+	// GitHub client for fetching per-file commit info.
+	ghClient *gitHubClient
+
+	// Module path -> Module for quick lookup.
+	modulesByPath map[string]modules.Module
+
+	logger loggers.Logger
 }
 
 func (g *gitInfo) forPage(p page.Page) *source.GitInfo {
+	if p.File() == nil {
+		return nil
+	}
+
+	mod := p.File().FileInfo().Meta().Module
+	if mod.IsGoMod() {
+		mm := mod.(modules.Module)
+		if isGitHubModule(mm) {
+			return g.gitInfoForGitHubFile(p, mm)
+		}
+	}
+
+	// Fall back to local git info.
+	if g.repo == nil {
+		return nil
+	}
 	name := strings.TrimPrefix(filepath.ToSlash(p.File().Filename()), g.contentDir)
 	name = strings.TrimPrefix(name, "/")
 	gi, found := g.repo.Files[name]
@@ -40,9 +67,77 @@ func (g *gitInfo) forPage(p page.Page) *source.GitInfo {
 	return gi
 }
 
-func newGitInfo(d *deps.Deps) (*gitInfo, error) {
+func (g *gitInfo) gitInfoForGitHubFile(p page.Page, mod modules.Module) *source.GitInfo {
+	if g.ghClient == nil {
+		return nil
+	}
+
+	origin := mod.Origin()
+	owner, repo := parseGitHubURL(origin.URL)
+	if owner == "" || repo == "" {
+		return nil
+	}
+
+	// Get the file path relative to the module root (repo-relative path).
+	filename := filepath.ToSlash(p.File().Filename())
+	modDir := filepath.ToSlash(mod.Dir())
+	filePath := strings.TrimPrefix(filename, modDir)
+	filePath = strings.TrimPrefix(filePath, "/")
+
+	// Fetch the commit info for this specific file.
+	// Use origin.Ref (e.g., "refs/tags/v3.0.1") for the GraphQL query.
+	commit, err := g.ghClient.fetchFileCommit(owner, repo, origin.Ref, filePath)
+	if err != nil {
+		g.logger.Warnf("Failed to fetch GitHub commit for %s/%s:%s: %v", owner, repo, filePath, err)
+		return nil
+	}
+	if commit == nil {
+		return nil
+	}
+
+	return commit.toGitInfo()
+}
+
+type gitInfoConfig struct {
+	Deps         *deps.Deps
+	Modules      modules.Modules
+	GitInfoCache *filecache.Cache
+	Logger       loggers.Logger
+}
+
+func newGitInfo(cfg gitInfoConfig) (*gitInfo, error) {
+	g := &gitInfo{
+		modulesByPath: make(map[string]modules.Module),
+		logger:        cfg.Logger,
+	}
+
+	// Build a map of module paths to modules.
+	for _, mod := range cfg.Modules {
+		g.modulesByPath[mod.Path()] = mod
+	}
+
+	var hasGitHubModules bool
+	var projectIsGitHubModule bool
+
+	for _, mod := range cfg.Modules {
+		if isGitHubModule(mod) {
+			hasGitHubModules = true
+			projectIsGitHubModule = mod.Owner() == nil // Project is always the first, so no need to look further.
+			break
+		}
+	}
+
+	if hasGitHubModules {
+		g.ghClient = newGitHubClient(cfg.GitInfoCache)
+	}
+
+	if projectIsGitHubModule {
+		return g, nil
+	}
+
+	// Load local git repo info.
 	opts := gitmap.Options{
-		Repository: d.Conf.BaseConfig().WorkingDir,
+		Repository: cfg.Deps.Conf.BaseConfig().WorkingDir,
 		GetGitCommandFunc: func(stdout, stderr io.Writer, args ...string) (gitmap.Runner, error) {
 			var argsv []any
 			for _, arg := range args {
@@ -53,14 +148,23 @@ func newGitInfo(d *deps.Deps) (*gitInfo, error) {
 				hexec.WithStdout(stdout),
 				hexec.WithStderr(stderr),
 			)
-			return d.ExecHelper.New("git", argsv...)
+			return cfg.Deps.ExecHelper.New("git", argsv...)
 		},
 	}
 
 	gitRepo, err := gitmap.Map(opts)
 	if err != nil {
+		// Don't fail if local git repo is not available,
+		// module-based git info may still work.
+		if hasGitHubModules {
+			cfg.Logger.Warnf("Failed to read local Git log: %v", err)
+			return g, nil
+		}
 		return nil, err
 	}
 
-	return &gitInfo{contentDir: gitRepo.TopLevelAbsPath, repo: gitRepo}, nil
+	g.contentDir = gitRepo.TopLevelAbsPath
+	g.repo = gitRepo
+
+	return g, nil
 }

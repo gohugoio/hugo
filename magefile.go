@@ -162,7 +162,7 @@ func testGoFlags() string {
 		return ""
 	}
 
-	return "-timeout=2m"
+	return "-timeout=5m"
 }
 
 // Clean Go's test cache.

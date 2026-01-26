@@ -777,7 +777,7 @@ func (b *sourceFilesystemsBuilder) createOverlayFs(
 				From:          mount.Target,
 				To:            filename,
 				ToBase:        base,
-				Module:        md.Module.Path(),
+				Module:        md.Module,
 				ModuleOrdinal: md.ordinal,
 				IsProject:     md.isMainProject,
 				Meta: &hugofs.FileMeta{
