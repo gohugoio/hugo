@@ -113,7 +113,7 @@ const (
 
 	// popPartialDecoratorElseTempl is used when partial returns falsy and the with block is skipped.
 	// We still need to pop the decorator ID from the stack.
-	popPartialDecoratorElseTempl = `{{ _popPartialDecorator ("PLACEHOLDER") }}`
+	popPartialDecoratorElseTempl = `{{ if _popPartialDecorator ("PLACEHOLDER") }}{{ end }}`
 )
 
 var (
@@ -392,8 +392,8 @@ func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
 	// but we still need to pop the decorator ID from the stack.
 	// Add a pop call to the else branch.
 	popElse := popPartialDecoratorElse.CopyList()
-	popElseAction := popElse.Nodes[0].(*parse.ActionNode)
-	popElsePipe := popElseAction.Pipe.Cmds[0].Args[1].(*parse.PipeNode)
+	popElseIf := popElse.Nodes[0].(*parse.IfNode)
+	popElsePipe := popElseIf.Pipe.Cmds[0].Args[1].(*parse.PipeNode)
 	popElseString := popElsePipe.Cmds[0].Args[0].(*parse.StringNode)
 	popElseString.Text = innerHash
 	popElseString.Quoted = fmt.Sprintf("%q", popElseString.Text)
