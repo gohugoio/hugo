@@ -197,7 +197,7 @@ func Test() error {
 		}
 		return nil
 	} else {
-		return runCmd(env, goexe, "test", "-p", "2", "./...", "-tags", buildTags())
+		return runCmd(env, goexe, "test", "./...", "-tags", buildTags())
 	}
 }
 
@@ -221,7 +221,7 @@ func TestRace() error {
 		}
 		return nil
 	} else {
-		return runCmd(env, goexe, "test", "-p", "2", "-race", "./...", "-tags", buildTags())
+		return runCmd(env, goexe, "test", "-race", "./...", "-tags", buildTags())
 	}
 }
 
