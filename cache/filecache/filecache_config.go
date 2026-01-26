@@ -47,6 +47,7 @@ const (
 	CacheKeyAssets        = "assets"
 	CacheKeyModules       = "modules"
 	CacheKeyModuleQueries = "modulequeries"
+	CacheKeyModuleGitInfo = "modulegitinfo"
 	CacheKeyGetResource   = "getresource"
 	CacheKeyMisc          = "misc"
 )
@@ -71,6 +72,10 @@ var defaultCacheConfigs = Configs{
 		Dir:    ":cacheDir/modules",
 	},
 	CacheKeyModuleQueries: {
+		MaxAge: 24 * time.Hour,
+		Dir:    ":cacheDir/modules",
+	},
+	CacheKeyModuleGitInfo: {
 		MaxAge: 24 * time.Hour,
 		Dir:    ":cacheDir/modules",
 	},
@@ -156,6 +161,15 @@ func (f Caches) ModuleQueriesCache() *Cache {
 	c, ok := f[CacheKeyModuleQueries]
 	if !ok {
 		panic("module queries cache not set")
+	}
+	return c
+}
+
+// ModuleGitInfoCache gets the file cache for Hugo Module git info from GitHub.
+func (f Caches) ModuleGitInfoCache() *Cache {
+	c, ok := f[CacheKeyModuleGitInfo]
+	if !ok {
+		panic("module git info cache not set")
 	}
 	return c
 }
