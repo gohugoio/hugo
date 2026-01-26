@@ -100,7 +100,7 @@ func (ns *Namespace) _PushPartialDecorator(ctx context.Context, id string) (any,
 }
 
 // For internal use only.
-func (ns *Namespace) _PopPartialDecorator(ctx context.Context, id string) bool {
+func (ns *Namespace) _PopPartialDecorator(ctx context.Context, id string) any {
 	stack := tpl.Context.PartialDecoratorIDStack.Get(ctx)
 	if stack == nil || stack.Len() == 0 {
 		panic("decorator stack is nil or empty")
@@ -110,6 +110,10 @@ func (ns *Namespace) _PopPartialDecorator(ctx context.Context, id string) bool {
 	top, ok := stack.Pop()
 	if !ok || top.Str != id {
 		panic("partial decorator ID mismatch")
+	}
+	if !top.Bool {
+		// Prevents anything being rendered if inner was not called.
+		return ""
 	}
 	return top.Bool // return whether inner exists in the wrapped partial.
 }

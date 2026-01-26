@@ -160,3 +160,31 @@ title: p10
 	variant = `{{ template "_internal/pagination.html" (dict "page" . "format" "terse") }}`
 	test(variant, expectedOutputTerseFormat)
 }
+
+func TestOpengraphPartialIssue14433(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- content/_index.md --
+---
+title: Home
+---
+-- layouts/home.html --
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{{- partial "opengraph.html" . }}
+</head>
+<body>
+</body>
+</html>
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<meta property="og:title" content="Home">`,
+		`! false`,
+	)
+}
