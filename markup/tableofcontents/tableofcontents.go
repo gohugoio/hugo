@@ -148,7 +148,8 @@ func (toc *Fragments) addAt(h *Heading, row, level int) {
 }
 
 // ToHTML renders the ToC as HTML.
-func (toc *Fragments) ToHTML(startLevel, stopLevel any, ordered bool) (template.HTML, error) {
+// The pre and post parameters are optional and default to the nav wrapper if not provided.
+func (toc *Fragments) ToHTML(startLevel, stopLevel any, ordered bool, prePost ...string) (template.HTML, error) {
 	if toc == nil {
 		return "", nil
 	}
@@ -163,12 +164,24 @@ func (toc *Fragments) ToHTML(startLevel, stopLevel any, ordered bool) (template.
 		return "", fmt.Errorf("stopLevel: %w", err)
 	}
 
+	// Use default pre/post values if not provided
+	pre := DefaultConfig.Pre
+	post := DefaultConfig.Post
+	if len(prePost) > 0 && prePost[0] != "" {
+		pre = prePost[0]
+	}
+	if len(prePost) > 1 && prePost[1] != "" {
+		post = prePost[1]
+	}
+
 	b := &tocBuilder{
 		s:          strings.Builder{},
 		h:          toc.Headings,
 		startLevel: iStartLevel,
 		stopLevel:  iStopLevel,
 		ordered:    ordered,
+		pre:        pre,
+		post:       post,
 	}
 	b.Build()
 	return template.HTML(b.s.String()), nil
@@ -187,6 +200,8 @@ type tocBuilder struct {
 	startLevel int
 	stopLevel  int
 	ordered    bool
+	pre        string
+	post       string
 }
 
 func (b *tocBuilder) Build() {
@@ -194,9 +209,9 @@ func (b *tocBuilder) Build() {
 }
 
 func (b *tocBuilder) writeNav(h Headings) {
-	b.s.WriteString("<nav id=\"TableOfContents\">")
+	b.s.WriteString(b.pre)
 	b.writeHeadings(1, 0, b.h)
-	b.s.WriteString("</nav>")
+	b.s.WriteString(b.post)
 }
 
 func (b *tocBuilder) writeHeadings(level, indent int, h Headings) {
@@ -260,6 +275,8 @@ var DefaultConfig = Config{
 	StartLevel: 2,
 	EndLevel:   3,
 	Ordered:    false,
+	Pre:        `<nav id="TableOfContents">`,
+	Post:       "</nav>",
 }
 
 type Config struct {
@@ -274,4 +291,12 @@ type Config struct {
 
 	// Whether to produce a ordered list or not.
 	Ordered bool
+
+	// Pre is the HTML to insert before the ToC list.
+	// Default is `<nav id="TableOfContents">`.
+	Pre string
+
+	// Post is the HTML to insert after the ToC list.
+	// Default is `</nav>`.
+	Post string
 }
