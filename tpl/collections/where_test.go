@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2026 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -877,29 +877,38 @@ func BenchmarkWhereOps(b *testing.B) {
 		j := rand.Intn(i + 1)
 		seq[i], seq[j] = seq[j], seq[i]
 	}
-	// results, err = ns.Where(context.Background(), test.seq, test.key, test.op, test.match)
-	runOps := func(b *testing.B, op, match string) {
-		_, err := ns.Where(ctx, seq, "foo", op, match)
-		if err != nil {
-			b.Fatal(err)
-		}
+
+	run := func(b *testing.B, name string, where func(c, key any)) {
+		b.Run(name, func(b *testing.B) {
+			b.Run("eq", func(b *testing.B) {
+				for b.Loop() {
+					where("eq", "bar")
+				}
+			})
+
+			b.Run("ne", func(b *testing.B) {
+				for b.Loop() {
+					where("ne", "baz")
+				}
+			})
+
+			b.Run("like", func(b *testing.B) {
+				for b.Loop() {
+					where("like", "^bar")
+				}
+			})
+		})
 	}
 
-	b.Run("eq", func(b *testing.B) {
-		for b.Loop() {
-			runOps(b, "eq", "bar")
+	run(b, "Wehere", func(c, key any) {
+		v, _ := ns.Where(ctx, seq, "foo", c, key)
+		s := v.([]map[string]string)
+		for range s {
 		}
 	})
-
-	b.Run("ne", func(b *testing.B) {
-		for b.Loop() {
-			runOps(b, "ne", "baz")
-		}
-	})
-
-	b.Run("like", func(b *testing.B) {
-		for b.Loop() {
-			runOps(b, "like", "^bar")
+	run(b, "WehereIter", func(c, key any) {
+		iter, _ := ns.WhereIter(ctx, seq, "foo", c, key)
+		for range iter {
 		}
 	})
 }
