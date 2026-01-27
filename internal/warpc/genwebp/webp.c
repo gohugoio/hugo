@@ -416,7 +416,7 @@ InputMessage parse_input_message(const char *line)
             msg.data.options.method = (int)json_object_get_number(options_object, "method");
             if (msg.data.options.method < 0 || msg.data.options.method > 6)
             {
-                msg.data.options.method = 2; // default
+                msg.data.options.method = 4; // default
             }
             if (msg.data.options.quality < 0 || msg.data.options.quality > 100)
             {
