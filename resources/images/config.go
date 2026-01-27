@@ -573,14 +573,6 @@ type MetaConfig struct {
 	// Use ["**"] to include all fields.
 	Fields []string
 
-	// Hugo extracts the "photo taken" date/time into .Date by default.
-	// Set this to true to turn it off.
-	DisableDate bool
-
-	// Hugo extracts the "photo taken where" (GPS latitude and longitude) into
-	// .Long and .Lat. Set this to true to turn it off.
-	DisableLatLong bool
-
 	// Which metadata sources to include.
 	// Valid values are "exif", "iptc", "xmp".
 	// Default is ["exif", "iptc"] (XMP is excluded for performance reasons).

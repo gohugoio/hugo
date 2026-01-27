@@ -313,15 +313,6 @@ func (d *Decoder) DecodeMeta(filename string, format imagemeta.ImageFormat, r io
 	}
 
 	shouldHandleTag := func(ti imagemeta.TagInfo) bool {
-		// Always include time and GPS tags (needed for Date, Lat, Long extraction).
-		// These may be in EXIF, XMP, or IPTC depending on the image.
-		if !d.noDate && isTimeTag(ti.Tag) {
-			return true
-		}
-		if !d.noLatLong && isGPSTag(ti.Tag) {
-			return true
-		}
-
 		// For EXIF, only include tags from IFD0 (skip thumbnail data).
 		if ti.Source == imagemeta.EXIF {
 			if !strings.HasPrefix(ti.Namespace, "IFD0") {
@@ -359,16 +350,8 @@ func (d *Decoder) DecodeMeta(filename string, format imagemeta.ImageFormat, r io
 		return nil, err
 	}
 
-	var tm time.Time
-	var lat, long float64
-
-	if !d.noDate {
-		tm, _ = tagInfos.GetDateTime()
-	}
-
-	if !d.noLatLong {
-		lat, long, _ = tagInfos.GetLatLong()
-	}
+	tm, _ := tagInfos.GetDateTime()
+	lat, long, _ := tagInfos.GetLatLong()
 
 	exifTags := make(map[string]any)
 	iptcTags := make(map[string]any)

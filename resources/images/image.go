@@ -139,8 +139,6 @@ func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatcher
 
 	m := cfg.Config.Imaging.Meta
 	metaDecoder, err := meta.NewDecoder(
-		meta.WithDateDisabled(m.DisableDate),
-		meta.WithLatLongDisabled(m.DisableLatLong),
 		meta.WithFields(m.Fields),
 		meta.WithSources(m.Sources...),
 		meta.WithWarnLogger(warnl),
