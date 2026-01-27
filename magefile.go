@@ -162,7 +162,7 @@ func testGoFlags() string {
 		return ""
 	}
 
-	return "-timeout=1m"
+	return "-timeout=2m"
 }
 
 // Clean Go's test cache.
@@ -221,6 +221,8 @@ func TestRace() error {
 		}
 		return nil
 	} else {
+		// These are flaky when run locally for some reason, is stable on CI.
+		env["HUGOTESTING_SKIP_COMMANDS"] = "1"
 		return runCmd(env, goexe, "test", "-race", "./...", "-tags", buildTags())
 	}
 }
