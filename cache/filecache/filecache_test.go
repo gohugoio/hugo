@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/gohugoio/hugo/htesting"
 	"sync"
 	"testing"
 	"time"
@@ -160,6 +162,7 @@ dir = ":cacheDir/c"
 }
 
 func TestFileCacheConcurrent(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	t.Parallel()
 
 	c := qt.New(t)

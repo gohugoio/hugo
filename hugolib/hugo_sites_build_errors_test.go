@@ -562,7 +562,7 @@ func TestSiteBuildTimeout(t *testing.T) {
 	var filesBuilder strings.Builder
 	filesBuilder.WriteString(`
 -- hugo.toml --
-timeout = 5
+timeout = '100ms'
 -- layouts/single.html --
 {{ .WordCount }}
 -- layouts/_shortcodes/c.html --
@@ -571,7 +571,7 @@ timeout = 5
 {{ end }}
 `)
 
-	for i := 1; i < 100; i++ {
+	for i := range 20 {
 		filesBuilder.WriteString(fmt.Sprintf(`
 -- content/page%d.md --
 ---

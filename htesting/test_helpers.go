@@ -105,6 +105,14 @@ func DiffStrings(s1, s2 string) []string {
 	return DiffStringSlices(strings.Fields(s1), strings.Fields(s2))
 }
 
+// SkipSlowTestUnlessCI skips the test unless we're running in a CI server.
+// Note that you can set CI_LOCAL=1 to run slow tests locally in a CI-like setup.
+func SkipSlowTestUnlessCI(t testing.TB) {
+	if !IsCI() {
+		t.Skip("skipping slow test in CI")
+	}
+}
+
 // IsCI reports whether we're running in a CI server.
 func IsCI() bool {
 	return (os.Getenv("CI") != "" || os.Getenv("CI_LOCAL") != "") && os.Getenv("CIRCLE_BRANCH") == ""

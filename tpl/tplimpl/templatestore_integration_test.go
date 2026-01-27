@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/kinds"
 	"github.com/gohugoio/hugo/resources/page"
@@ -403,6 +404,7 @@ title: "P1"
 
 func TestCreateManyTemplateStores(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	b := hugolib.Test(t, newSetupTestSites)
 	store := b.H.TemplateStore
 
@@ -1411,6 +1413,7 @@ layouts/list.html
 
 func TestTemplateLoop(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 
 	files := `
 -- hugo.toml --

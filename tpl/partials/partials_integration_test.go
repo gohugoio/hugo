@@ -23,6 +23,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -247,6 +248,7 @@ ABCDE
 }
 
 func TestIncludeTimeout(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	t.Parallel()
 
 	files := `

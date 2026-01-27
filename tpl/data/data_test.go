@@ -24,12 +24,15 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestGetCSV(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
+
 	c := qt.New(t)
 
 	for i, test := range []struct {
@@ -123,6 +126,7 @@ func TestGetCSV(t *testing.T) {
 
 func TestGetJSON(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	c := qt.New(t)
 
 	for i, test := range []struct {

@@ -571,6 +571,7 @@ date: 2012-01-12
 
 func TestPageSummary(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "SimpleWithoutSummaryDelimiter")
@@ -586,6 +587,7 @@ func TestPageSummary(t *testing.T) {
 }
 
 func TestPageWithDelimiter(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
@@ -600,6 +602,7 @@ func TestPageWithDelimiter(t *testing.T) {
 
 func TestPageWithSummaryParameter(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "SimpleWithSummaryParameter")
@@ -617,6 +620,9 @@ func TestPageWithSummaryParameter(t *testing.T) {
 // Issue #3854
 // Also see https://github.com/gohugoio/hugo/issues/3977
 func TestPageWithDateFields(t *testing.T) {
+	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
+
 	c := qt.New(t)
 	pageWithDate := `---
 title: P%d
@@ -633,7 +639,6 @@ Simple Page With Some Date`
 		return fmt.Sprintf(pageWithDate, weight, weight, field)
 	}
 
-	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		c.Assert(len(pages) > 0, qt.Equals, true)
 		for _, p := range pages {
@@ -698,6 +703,7 @@ baseURL = "http://example.com/"
 }
 
 func TestPageWithMoreTag(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
@@ -797,6 +803,7 @@ Content: {{ .Content }}|
 
 // #2973
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		c := qt.New(t)
 		p := pages[0]
@@ -875,6 +882,7 @@ home = ["HTML", "JSON"]
 // Issue 8919
 func TestContentProviderWithCustomOutputFormat(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 
 	files := `
 -- hugo.toml --
@@ -1150,6 +1158,7 @@ date = ["` + dateHandler + `", "date"]
 
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 		if p.WordCount(context.Background()) != 8 {
@@ -1162,6 +1171,7 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 
 func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	settings := map[string]any{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
@@ -1175,6 +1185,7 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 
 func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	settings := map[string]any{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
@@ -1189,6 +1200,7 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 
 func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	settings := map[string]any{
 		"hasCJKLanguage": true,
 	}
@@ -1205,6 +1217,7 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 
 func TestWordCount(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 		if p.WordCount(context.Background()) != 483 {

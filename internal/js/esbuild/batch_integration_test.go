@@ -24,6 +24,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/internal/js/esbuild"
 )
@@ -428,6 +429,7 @@ func TestBatchErrorScriptResourceInBundleSyntaxError(t *testing.T) {
 }
 
 func TestBatch(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term"]

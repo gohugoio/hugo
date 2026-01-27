@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -509,6 +510,7 @@ Content: {{ .Content }}
 // shortcodes in v0.141.0, replacing them with x and x_simple.
 func TestXShortcodes(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 
 	files := `
 -- hugo.toml --

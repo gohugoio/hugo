@@ -74,6 +74,7 @@ CSS: {{ $css.Content | safeCSS }}|
 
 func TestTailwindCSSNoInlineImportsIssue13719(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 
 	files := `
 -- hugo.toml --

@@ -21,6 +21,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -97,6 +98,7 @@ func TestGetRemoteResponseHeaders(t *testing.T) {
 
 func TestGetRemoteRetry(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
 
 	temporaryHTTPCodes := []int{408, 429, 500, 502, 503, 504}
 	numPages := 20

@@ -21,6 +21,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 
@@ -711,6 +712,7 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 
 // Issue #11089
 func TestHugoConfigSliceOverrides(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	t.Parallel()
 
 	filesTemplate := `

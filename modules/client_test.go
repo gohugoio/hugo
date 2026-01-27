@@ -34,6 +34,7 @@ import (
 )
 
 func TestClient(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
 	modName := "hugo-modules-basic-test"
 	modPath := "github.com/gohugoio/tests/" + modName
 	defaultImport := "modh2_2"
