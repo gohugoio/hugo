@@ -14,6 +14,7 @@ func TestMeta(t *testing.T) {
 	files := `
 -- hugo.toml --
 [imaging.meta]
+fields = ['**']
 sources = ['exif', 'iptc', 'xmp']
 -- assets/sunset.jpg --
 sourcefilename: ../../testdata/sunset.jpg
@@ -87,8 +88,6 @@ func TestMetaConfig(t *testing.T) {
 -- hugo.toml --
 [imaging]
 [imaging.meta]
-disableDate = true
-disableLatLong = true
 fields = ['! *{Model,ColorSpace,Metering}*']
 sources = ['exif', 'iptc']
 -- assets/sunset.jpg --
@@ -110,11 +109,9 @@ XMPCity: {{ with .XMP.City }}{{ . }}{{ else }}NOT_IN_SOURCE{{ end }}
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		// disableLatLong = true
-		"Lat: 0",
-		"Long: 0",
-		// disableDate = true
-		"Date: 0001-01-01",
+		"Lat: 36.597441",
+		"Long: -4.50846",
+		"Date: 2017-10-27",
 		// Exif is included
 		"ExifMake: RICOH IMAGING COMPANY, LTD.",
 		// Model is excluded by fields pattern '! *Model*'
@@ -123,6 +120,36 @@ XMPCity: {{ with .XMP.City }}{{ . }}{{ else }}NOT_IN_SOURCE{{ end }}
 		"IPTCCountry: Spain",
 		// XMP is not in sources, so should be empty
 		"XMPCity: NOT_IN_SOURCE",
+	)
+}
+
+func TestMetaFieldsFilterDateAndGPS(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[imaging.meta]
+fields = ['! GPS*', '! *Date*', '! *Time*']
+-- assets/sunset.jpg --
+sourcefilename: ../../testdata/sunset.jpg
+-- layouts/home.html --
+{{ $img := resources.Get "sunset.jpg" }}
+{{ $meta := $img.Meta }}
+{{ with $meta }}
+Lat: {{ .Lat }}
+Long: {{ .Long }}
+Date: {{ .Date.Format "2006-01-02" }}
+ExifMake: {{ .Exif.Make }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"Lat: 0",
+		"Long: 0",
+		"Date: 0001-01-01",
+		"ExifMake: RICOH IMAGING COMPANY, LTD.",
 	)
 }
 

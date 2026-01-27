@@ -21,9 +21,9 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hmaps"
-	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
+	"github.com/gohugoio/hugo/htesting"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/spf13/afero"
