@@ -32,18 +32,21 @@ import (
 
 	"github.com/bep/helpers/envhelpers"
 	"github.com/gohugoio/hugo/commands"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/rogpeppe/go-internal/testscript"
 )
 
 func TestCommands(t *testing.T) {
-	// These are somewhat flakey and takes some time,
-	// so usefule to have a way to skip them when developing.
-	const skipEnv = "HUGOTESTING_SKIP_COMMANDS"
-	if os.Getenv(skipEnv) != "" {
-		t.Skipf("skip because %s set in env", skipEnv)
-	}
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/commands"
+	testscript.Run(t, p)
+}
+
+func TestServer(t *testing.T) {
+	// See issue #14439
+	htesting.SkipSlowTestUnlessCI(t)
+	p := commonTestScriptsParam
+	p.Dir = "testscripts/server"
 	testscript.Run(t, p)
 }
 
