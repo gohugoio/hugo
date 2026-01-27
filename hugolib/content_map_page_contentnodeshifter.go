@@ -40,6 +40,18 @@ func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (cont
 		}
 		resource.MarkStale(v)
 		return v, true, true
+	case contentNodes:
+		var deleted contentNodes
+		for i, nn := range v {
+			if vv, ok, _ := s.Delete(nn, vec); ok {
+				deleted = append(deleted, vv)
+				v = append(v[:i], v[i+1:]...)
+			}
+		}
+		if len(deleted) == 0 {
+			return nil, false, false
+		}
+		return deleted, true, len(v) == 0
 	default:
 		v = v.(contentNodeSingle) // Ensure single node.
 		resource.MarkStale(v)
