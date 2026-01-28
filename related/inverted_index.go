@@ -331,7 +331,7 @@ type SearchOpts struct {
 	// The indices to search in.
 	Indices []string
 
-	// Fragments holds a a list of special keywords that is used
+	// Fragments holds a list of special keywords that is used
 	// for indices configured as type "fragments".
 	// This will match the fragment identifiers of the documents.
 	Fragments []string
