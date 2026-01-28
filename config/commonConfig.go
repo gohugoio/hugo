@@ -437,7 +437,7 @@ func (c *CacheBuster) CompileConfig(logger loggers.Logger) error {
 			return nil
 		}
 		return func(ss string) bool {
-			match = targetRe.MatchString(ss)
+			match := targetRe.MatchString(ss)
 			matchString := "no match"
 			if match {
 				matchString = "match!"
