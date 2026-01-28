@@ -366,9 +366,9 @@ type ImageConfig struct {
 	// If set, this will be used as the key in filenames etc.
 	Key string
 
-	// Quality ranges from 0 to 100 inclusive, higher is better.
+	// Quality ranges from 1 to 100 inclusive, higher is better.
 	// This is only relevant for JPEG and WEBP images.
-	// For WebP, 0 means lossless.
+	// For WEBP it's only relevant for lossy encoding.
 	// Default is 75.
 	Quality int
 
