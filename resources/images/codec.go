@@ -125,11 +125,16 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 	case BMP:
 		return bmp.Encode(w, img)
 	case WEBP:
+		// Convert bool to int because the C code reads it as a number.
+		useSharpYuvInt := 0
+		if conf.UseSharpYuv {
+			useSharpYuvInt = 1
+		}
 		opts := map[string]any{
 			"compression": conf.Compression,
 			"quality":     conf.Quality,
 			"hint":        conf.Hint,
-			"useSharpYuv": conf.UseSharpYuv,
+			"useSharpYuv": useSharpYuvInt,
 			"method":      conf.Method,
 		}
 		return d.webp.Encode(w, img, opts)
