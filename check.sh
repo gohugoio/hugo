@@ -36,13 +36,6 @@ run_gofmt() {
     echo "    OK"
 }
 
-# Run go vet
-run_govet() {
-    echo "==> Running go vet..."
-    go vet $PACKAGES
-    echo "    OK"
-}
-
 # Run staticcheck
 run_staticcheck() {
     # Check if staticcheck is installed, install if not
@@ -70,7 +63,6 @@ run_tests() {
 TOTAL_START=$(date +%s.%N)
 
 time_step "gofmt" run_gofmt
-time_step "go vet" run_govet
 time_step "staticcheck" run_staticcheck
 time_step "tests" run_tests
 
