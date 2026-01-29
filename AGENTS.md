@@ -7,7 +7,8 @@
 * Never export symbols that's not needed outside of the package.
 * Avoid global state at (almost) all cost.
 * This is a project with a long history; assume that a similiar problem has been solved before, look hard for helper functions before creating new ones.
-* Use `go test ./somepackage/...` when iterating.
-* Use `mage check` when you're done.
+* Use `./check.sh ./somepackage/...` when iterating.
+* Use `./check.sh` when you're done.
+
 
 [^1]: CI build fail if you forget to remove the debug printing.

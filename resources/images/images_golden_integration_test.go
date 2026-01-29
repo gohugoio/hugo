@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/images/imagetesting"
 )
 
@@ -36,7 +35,6 @@ const goldenProcess = `
 // Note, if you're enabling writeGoldenFiles on a MacOS ARM 64 you need to run the test with GOARCH=amd64, e.g.
 func TestImagesGoldenFiltersMisc(t *testing.T) {
 	t.Parallel()
-	htesting.SkipSlowTestUnlessCI(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -113,7 +111,6 @@ Home.
 
 func TestImagesGoldenFiltersMask(t *testing.T) {
 	t.Parallel()
-	htesting.SkipSlowTestUnlessCI(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -175,7 +172,6 @@ the last entry will win.
 
 // Issue 13272, 13273.
 func TestImagesGoldenFiltersMaskCacheIssues(t *testing.T) {
-	htesting.SkipSlowTestUnlessCI(t)
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
 	}
@@ -352,7 +348,6 @@ Home.
 
 func TestImagesGoldenProcessWebP(t *testing.T) {
 	t.Parallel()
-	htesting.SkipSlowTestUnlessCI(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -427,7 +422,6 @@ Home.
 
 func TestImagesGoldenWebPAnimation(t *testing.T) {
 	t.Parallel()
-	htesting.SkipSlowTestUnlessCI(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -463,7 +457,6 @@ Home.
 
 func TestImagesGoldenMethods(t *testing.T) {
 	t.Parallel()
-	htesting.SkipSlowTestUnlessCI(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -535,7 +528,6 @@ Home.
 
 func TestImagesGoldenConfigLossyVsQuality(t *testing.T) {
 	t.Parallel()
-	htesting.SkipSlowTestUnlessCI(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")

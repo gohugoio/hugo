@@ -77,7 +77,7 @@ To make the contribution process as seamless as possible, we ask for the followi
     * Run `go fmt`.
     * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
-    * Ensure that `mage check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Windows, Linux and macOS) will fail the build if `mage check` fails.
+    * Ensure that `./check.sh` succeeds. Note that some tests are skipped when running locally, some because they are slow. To run these locally,  do `CI_LOCAL=true ./check.sh ./somepackage/...`.
     * Follow the **Git Commit Message Guidelines** below.
 
 ## AI Assistance Notice
