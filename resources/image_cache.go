@@ -66,6 +66,7 @@ func (c *ImageCache) getOrCreate(
 			})
 			img.setSourceFilenameIsHash(true)
 			img.setMediaType(conf.TargetFormat.MediaType())
+			img.Format = conf.TargetFormat
 
 			if err := img.InitConfig(r); err != nil {
 				return err
