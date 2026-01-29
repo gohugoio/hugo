@@ -51,6 +51,29 @@ Orientation: {{ $orientation }}|eq 6: {{ eq $orientation 6 }}|Type: {{ printf "%
 	b.AssertFileContent("public/index.html", "Orientation: 6|eq 6: true|")
 }
 
+func TestColorsIssue14453(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+{{ $img := resources.Get "sunset.jpg" }}
+{{ $img := $img.Fit "100x100" }}
+{{ $img := $img.Filter (slice images.AutoOrient (images.Process "fit 100x100 webp")) -}}
+{{ $colors := $img.Colors }}
+Colors: {{ $colors }}|
+`
+	tempDir := t.TempDir()
+	for range 2 {
+		b := hugolib.Test(t, files, hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.NeedsOsFS = true
+			cfg.WorkingDir = tempDir
+		}))
+		b.AssertFileContent("public/index.html", "Colors: [#2e2f34 #a39e94 #d39e57 #a96b3a #747b84 #7c838a]|")
+
+	}
+}
+
 func BenchmarkImageResize(b *testing.B) {
 	files := `
 -- content/p1/sunrise.jpg --

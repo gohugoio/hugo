@@ -58,7 +58,7 @@ type imageResource struct {
 	// original (first).
 	root *imageResource
 
-	// These are only set for the root imageResource.
+	// These 2 are only set for the root imageResource.
 	exifInfoFn func() (*meta.ExifInfo, error)
 	metaInfoFn func() (*meta.MetaInfo, error)
 
