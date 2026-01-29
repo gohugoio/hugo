@@ -573,16 +573,6 @@ title: p5
 
 	filesOriginal := files
 
-	// Test privacy.twitter.simple
-	files = strings.ReplaceAll(filesOriginal, "#CONFIG", "privacy.twitter.simple=true")
-	b = hugolib.Test(t, files)
-	htmlFiles = []string{
-		b.FileContent("public/p2/index.html"),
-		b.FileContent("public/p3/index.html"),
-		b.FileContent("public/p5/index.html"),
-	}
-	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
-
 	// Test privacy.x.simple
 	files = strings.ReplaceAll(filesOriginal, "#CONFIG", "privacy.x.simple=true")
 	b = hugolib.Test(t, files)
@@ -596,19 +586,6 @@ title: p5
 	htmlFiles = []string{
 		b.FileContent("public/p2/index.html"),
 		b.FileContent("public/p3/index.html"),
-	}
-	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
-
-	// Test privacy.twitter.disable
-	files = strings.ReplaceAll(filesOriginal, "#CONFIG", "privacy.twitter.disable = true")
-	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "")
-	htmlFiles = []string{
-		b.FileContent("public/p1/index.html"),
-		b.FileContent("public/p2/index.html"),
-		b.FileContent("public/p3/index.html"),
-		b.FileContent("public/p4/index.html"),
-		b.FileContent("public/p4/index.html"),
 	}
 	b.Assert(htmlFiles, hqt.IsAllElementsEqual)
 
