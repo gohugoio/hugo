@@ -45,11 +45,22 @@ func (ns *Namespace) Where(ctx context.Context, c, key any, args ...any) (any, e
 		path = strings.Split(strings.Trim(kv.String(), "."), ".")
 	}
 
+	var iterErr error
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
-		return ns.checkWhereArray(ctxv, seqv, kv, mv, path, op)
+		it := ns.whereArrayIterWithErr(ctxv, seqv, kv, mv, path, op, &iterErr)
+		result := ns.collectWhereArray(seqv, it)
+		if iterErr != nil {
+			return nil, iterErr
+		}
+		return result, nil
 	case reflect.Map:
-		return ns.checkWhereMap(ctxv, seqv, kv, mv, path, op)
+		it := ns.whereMapIterWithErr(ctxv, seqv, kv, mv, path, op, &iterErr)
+		result := ns.collectWhereMap(seqv, it)
+		if iterErr != nil {
+			return nil, iterErr
+		}
+		return result, nil
 	default:
 		return nil, fmt.Errorf("can't iterate over %T", c)
 	}
@@ -439,52 +450,6 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 	return rv.Interface(), nil
 }
 
-// checkWhereMap handles the where-matching logic when the seqv value is a Map.
-func (ns *Namespace) checkWhereMap(ctxv, seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
-	rv := reflect.MakeMap(seqv.Type())
-	k := reflect.New(seqv.Type().Key()).Elem()
-	elemv := reflect.New(seqv.Type().Elem()).Elem()
-	iter := seqv.MapRange()
-	for iter.Next() {
-		k.SetIterKey(iter)
-		elemv.SetIterValue(iter)
-		switch elemv.Kind() {
-		case reflect.Array, reflect.Slice:
-			r, err := ns.checkWhereArray(ctxv, elemv, kv, mv, path, op)
-			if err != nil {
-				return nil, err
-			}
-
-			switch rr := reflect.ValueOf(r); rr.Kind() {
-			case reflect.Slice:
-				if rr.Len() > 0 {
-					rv.SetMapIndex(k, elemv)
-				}
-			}
-		case reflect.Interface:
-			elemvv, isNil := hreflect.Indirect(elemv)
-			if isNil {
-				continue
-			}
-
-			switch elemvv.Kind() {
-			case reflect.Array, reflect.Slice:
-				r, err := ns.checkWhereArray(ctxv, elemvv, kv, mv, path, op)
-				if err != nil {
-					return nil, err
-				}
-
-				switch rr := reflect.ValueOf(r); rr.Kind() {
-				case reflect.Slice:
-					if rr.Len() > 0 {
-						rv.SetMapIndex(k, elemv)
-					}
-				}
-			}
-		}
-	}
-	return rv.Interface(), nil
-}
 
 // toString returns the string value if possible, "" if not.
 
