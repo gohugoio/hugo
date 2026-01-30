@@ -1286,6 +1286,8 @@ config:
           eastAsianLineBreaksStyle: simple
           enable: false
           escapedSpace: false
+        cjkFriendly:
+          emphasis: false
         definitionList: true
         extras:
           delete:
