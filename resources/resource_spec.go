@@ -64,7 +64,9 @@ func NewSpec(
 
 	imagesWarnl := logger.WarnCommand("images")
 
-	imaging, err := images.NewImageProcessor(imagesWarnl, wasmDispatchers, imgConfig)
+	imagesDebugl := logger.Debug()
+
+	imaging, err := images.NewImageProcessor(imagesWarnl, imagesDebugl, wasmDispatchers, imgConfig)
 	if err != nil {
 		return nil, err
 	}

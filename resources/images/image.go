@@ -124,7 +124,7 @@ func (i *Image) initConfig() error {
 	return nil
 }
 
-func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatchers, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
+func NewImageProcessor(warnl, debugl logg.LevelLogger, wasmDispatchers *warpc.Dispatchers, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
 	e := cfg.Config.Imaging.Exif
 	exifDecoder, err := meta.NewDecoder(
 		meta.WithDateDisabled(e.DisableDate),
@@ -154,7 +154,7 @@ func NewImageProcessor(warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatcher
 	if webpCodec == nil {
 		return nil, errors.New("webp codec is not available")
 	}
-	imageCodec := newCodec(webpCodec)
+	imageCodec := newCodec(debugl, webpCodec)
 
 	return &ImageProcessor{
 		Cfg:         cfg,

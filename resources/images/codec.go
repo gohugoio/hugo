@@ -27,6 +27,7 @@ import (
 	"io"
 
 	"github.com/bep/imagemeta"
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/himage"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
@@ -56,11 +57,12 @@ type EncodeDecoder interface {
 
 // Codec is a generic image codec supporting multiple formats.
 type Codec struct {
-	webp EncodeDecoder
+	webp   EncodeDecoder
+	logger logg.LevelLogger
 }
 
-func newCodec(webp EncodeDecoder) *Codec {
-	return &Codec{webp: webp}
+func newCodec(logger logg.LevelLogger, webp EncodeDecoder) *Codec {
+	return &Codec{webp: webp, logger: logger}
 }
 
 func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
@@ -137,6 +139,11 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 			"useSharpYuv": useSharpYuvInt,
 			"method":      conf.Method,
 		}
+
+		if d.logger != nil {
+			d.logger.Logf("webp: encoding image to WebP with opts: %v", opts)
+		}
+
 		return d.webp.Encode(w, img, opts)
 	default:
 		return errors.New("format not supported")
@@ -167,6 +174,9 @@ func (d *Codec) DecodeFormat(f Format, r io.Reader) (image.Image, error) {
 	case BMP:
 		return bmp.Decode(r)
 	case WEBP:
+		if d.logger != nil {
+			d.logger.Logf("webp: decoding WebP image")
+		}
 		img, err := d.webp.Decode(r)
 		if err == nil {
 			return img, nil
