@@ -82,6 +82,10 @@ func (c ConfigLanguage) FastRenderMode() bool {
 	return c.config.Internal.FastRenderMode
 }
 
+func (c ConfigLanguage) SkipUnchanged() bool {
+	return c.config.Internal.SkipUnchanged
+}
+
 func (c ConfigLanguage) IsMultilingual() bool {
 	return len(c.m.Languages) > 1
 }

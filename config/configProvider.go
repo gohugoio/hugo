@@ -66,6 +66,7 @@ type AllProvider interface {
 	Watching() bool
 	NewIdentityManager(opts ...identity.ManagerOption) identity.Manager
 	FastRenderMode() bool
+	SkipUnchanged() bool
 	PrintUnusedTemplates() bool
 	EnableMissingTranslationPlaceholders() bool
 	TemplateMetrics() bool

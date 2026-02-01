@@ -1075,17 +1075,33 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
 		}
 
-		syncer := fsync.NewSyncer()
-		c.withConf(func(conf *commonConfig) {
-			syncer.NoTimes = conf.configs.Base.NoTimes
-			syncer.NoChmod = conf.configs.Base.NoChmod
-			syncer.ChmodFilter = chmodFilter
-			syncer.SrcFs = sourceFs.Fs
-			syncer.DestFs = conf.fs.PublishDir
-			if c.s != nil && c.s.renderStaticToDisk {
-				syncer.DestFs = conf.fs.PublishDirStatic
-			}
-		})
+		var syncFn func(dst, src string) error
+		if c.skipUnchanged {
+			ms := &hugofs.MtimeSyncer{SrcFs: sourceFs.Fs}
+			c.withConf(func(conf *commonConfig) {
+				ms.NoTimes = conf.configs.Base.NoTimes
+				ms.NoChmod = conf.configs.Base.NoChmod
+				ms.ChmodFilter = chmodFilter
+				ms.DestFs = conf.fs.PublishDir
+				if c.s != nil && c.s.renderStaticToDisk {
+					ms.DestFs = conf.fs.PublishDirStatic
+				}
+			})
+			syncFn = ms.Sync
+		} else {
+			fs := fsync.NewSyncer()
+			c.withConf(func(conf *commonConfig) {
+				fs.NoTimes = conf.configs.Base.NoTimes
+				fs.NoChmod = conf.configs.Base.NoChmod
+				fs.ChmodFilter = chmodFilter
+				fs.SrcFs = sourceFs.Fs
+				fs.DestFs = conf.fs.PublishDir
+				if c.s != nil && c.s.renderStaticToDisk {
+					fs.DestFs = conf.fs.PublishDirStatic
+				}
+			})
+			syncFn = fs.Sync
+		}
 
 		logger := s.c.r.logger
 
@@ -1136,7 +1152,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 					// If file still exists, sync it
 					logger.Println("Syncing", relPath, "to", publishDir)
 
-					if err := syncer.Sync(relPath, relPath); err != nil {
+					if err := syncFn(relPath, relPath); err != nil {
 						c.r.logger.Errorln(err)
 					}
 				} else {
@@ -1148,7 +1164,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 
 			// For all other event operations Hugo will sync static.
 			logger.Println("Syncing", relPath, "to", publishDir)
-			if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
+			if err := syncFn(filepath.Join(publishDir, relPath), relPath); err != nil {
 				c.r.logger.Errorln(err)
 			}
 		}

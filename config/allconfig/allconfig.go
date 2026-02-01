@@ -72,6 +72,10 @@ type InternalConfig struct {
 	Watch          bool
 	FastRenderMode bool
 	LiveReloadPort int
+
+	// SkipUnchanged enables mtime-based optimization where pages are skipped
+	// if their output file is newer than the source file.
+	SkipUnchanged bool
 }
 
 // All non-params config keys for language.

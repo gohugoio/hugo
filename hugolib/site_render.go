@@ -19,6 +19,7 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/bep/logg"
 	"github.com/gohugoio/go-radix"
@@ -79,9 +80,14 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 
 	wg := &sync.WaitGroup{}
 
-	for range numWorkers {
+	s.Log.Debugf("renderPages: starting %d workers", numWorkers)
+	for i := range numWorkers {
 		wg.Add(1)
-		go pageRenderer(ctx, s, pages, results, wg)
+		go func(workerID int) {
+			s.Log.Debugf("worker %d: started", workerID)
+			pageRenderer(ctx, s, pages, results, wg)
+			s.Log.Debugf("worker %d: finished", workerID)
+		}(i)
 	}
 
 	cfg := ctx.cfg
@@ -107,13 +113,18 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 		return err
 	}
 
+	s.Log.Debugf("renderPages: walk done, closing pages channel")
 	close(pages)
 
+	s.Log.Debugf("renderPages: waiting for workers")
 	wg.Wait()
 
+	s.Log.Debugf("renderPages: workers done, closing results")
 	close(results)
 
+	s.Log.Debugf("renderPages: waiting for error collator")
 	err := <-errs
+	s.Log.Debugf("renderPages: done")
 	if err != nil {
 		return fmt.Errorf("%v failed to render pages: %w", s.resolveDimensionNames(), err)
 	}
@@ -139,18 +150,24 @@ func pageRenderer(
 	}
 
 	for p := range pages {
+		pageStart := time.Now()
+		s.Log.Debugf(">>> START page %q kind=%s", p.Path(), p.Kind())
 
 		if p.m.isStandalone() && !ctx.shouldRenderStandalonePage(p.Kind()) {
 			continue
 		}
 
 		if p.m.pageConfig.Build.PublishResources {
+			resStart := time.Now()
 			if err := p.renderResources(); err != nil {
 				if sendErr(p.errorf(err, "failed to render resources")) {
 					continue
 				} else {
 					return
 				}
+			}
+			if d := time.Since(resStart); d > 50*time.Millisecond {
+				s.Log.Debugf("renderResources %q took %v", p.Path(), d)
 			}
 		}
 
@@ -173,6 +190,7 @@ func pageRenderer(
 			continue
 		}
 
+		s.Log.Debugf("resolveTemplate %q", p.Path())
 		templ, found, err := p.resolveTemplate()
 		if err != nil {
 			if sendErr(p.errorf(err, "failed to resolve template")) {
@@ -181,6 +199,7 @@ func pageRenderer(
 				return
 			}
 		}
+		s.Log.Debugf("resolveTemplate done %q found=%v", p.Path(), found)
 
 		if !found {
 			s.Log.Trace(
@@ -196,12 +215,7 @@ func pageRenderer(
 		}
 
 		targetPath := p.targetPaths().TargetFilename
-
-		s.Log.Trace(
-			func() string {
-				return fmt.Sprintf("rendering outputFormat %q kind %q using layout %q to %q", p.pageOutput.f.Name, p.Kind(), templ.Name(), targetPath)
-			},
-		)
+		s.Log.Infof("renderAndWritePage start %q -> %q", p.Path(), targetPath)
 
 		var d any = p
 		switch p.Kind() {
@@ -209,12 +223,16 @@ func pageRenderer(
 			d = s.h.Sites
 		}
 
+		writeStart := time.Now()
 		if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, targetPath, p, d, templ); err != nil {
 			if sendErr(err) {
 				continue
 			} else {
 				return
 			}
+		}
+		if d := time.Since(writeStart); d > 50*time.Millisecond {
+			s.Log.Debugf("renderAndWritePage %q took %v", p.Path(), d)
 		}
 
 		if of := p.outputFormat(); p.IsHome() && of.IsHTML && s.isDefault() && (of.Path != "" || of.Name == "html") {
@@ -236,6 +254,7 @@ func pageRenderer(
 				}
 			}
 		}
+		s.Log.Debugf("<<< DONE page %q took %v", p.Path(), time.Since(pageStart))
 	}
 }
 

@@ -635,6 +635,21 @@ func (cfg *BuildCfg) shouldRender(infol logg.LevelLogger, p *pageState) bool {
 		return false
 	}
 
+	fastRenderMode := p.s.Conf.FastRenderMode()
+	skipUnchanged := p.s.Conf.SkipUnchanged()
+
+	// Not applicable in server mode: that already has watch-based incremental rebuilds.
+	if skipUnchanged && !fastRenderMode {
+		canSkip, err := p.canSkipRenderByMtime()
+		if err != nil {
+			p.s.Log.Debugf("mtime check %q: %v", p.Path(), err)
+		}
+		if canSkip {
+			p.s.Log.Debugf("skip render (output newer than source) %q", p.Path())
+			return false
+		}
+	}
+
 	if !p.renderOnce {
 		return true
 	}
@@ -647,7 +662,9 @@ func (cfg *BuildCfg) shouldRender(infol logg.LevelLogger, p *pageState) bool {
 		return false
 	}
 
-	fastRenderMode := p.s.Conf.FastRenderMode()
+	if !fastRenderMode {
+		return shouldRender
+	}
 
 	if !fastRenderMode || !p.s.h.BuildState.IsRebuild() {
 		return shouldRender

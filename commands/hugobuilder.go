@@ -73,6 +73,7 @@ type hugoBuilder struct {
 	onConfigLoaded func(reloaded bool) error
 
 	fastRenderMode     bool
+	skipUnchanged      bool
 	showErrorInBrowser bool
 
 	errState hugoBuilderErrState
@@ -469,49 +470,72 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 
 	fs := &countingStatFs{Fs: sourceFs.Fs}
 
-	syncer := fsync.NewSyncer()
-	c.withConf(func(conf *commonConfig) {
-		syncer.NoTimes = conf.configs.Base.NoTimes
-		syncer.NoChmod = conf.configs.Base.NoChmod
-		syncer.ChmodFilter = chmodFilter
+	var (
+		err      error
+		numFiles uint64
+	)
 
-		syncer.DestFs = conf.fs.PublishDirStatic
-		// Now that we are using a unionFs for the static directories
-		// We can effectively clean the publishDir on initial sync
-		syncer.Delete = conf.configs.Base.CleanDestinationDir
-	})
-
-	syncer.SrcFs = fs
-
-	if syncer.Delete {
-		infol.Logf("removing all files from destination that don't exist in static dirs")
-
-		syncer.DeleteFilter = func(f fsync.FileInfo) bool {
-			name := f.Name()
-
-			// Keep .gitignore and .gitattributes anywhere
-			if name == ".gitignore" || name == ".gitattributes" {
-				return true
-			}
-
-			// Keep Hugo's original dot-directory behavior
-			return f.IsDir() && strings.HasPrefix(name, ".")
-		}
-	}
 	start := time.Now()
 
-	// because we are using a baseFs (to get the union right).
-	// set sync src to root
-	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
+	if c.skipUnchanged {
+		syncer := &hugofs.MtimeSyncer{SrcFs: fs}
+		c.withConf(func(conf *commonConfig) {
+			syncer.NoTimes = conf.configs.Base.NoTimes
+			syncer.NoChmod = conf.configs.Base.NoChmod
+			syncer.ChmodFilter = chmodFilter
+			syncer.DestFs = conf.fs.PublishDirStatic
+			// Now that we are using a unionFs for the static directories
+			// We can effectively clean the publishDir on initial sync
+			syncer.Delete = conf.configs.Base.CleanDestinationDir
+		})
+		if syncer.Delete {
+			infol.Logf("removing all files from destination that don't exist in static dirs")
+			syncer.DeleteFilter = func(f hugofs.FileInfo) bool {
+				name := f.Name()
+				if name == ".gitignore" || name == ".gitattributes" {
+					return true
+				}
+				return f.IsDir() && strings.HasPrefix(name, ".")
+			}
+		}
+		// because we are using a baseFs (to get the union right).
+		// set sync src to root
+		err = syncer.Sync(publishDir, helpers.FilePathSeparator)
+		numFiles = fs.statCounter // MtimeSyncer stats each source file once
+	} else {
+		syncer := fsync.NewSyncer()
+		c.withConf(func(conf *commonConfig) {
+			syncer.NoTimes = conf.configs.Base.NoTimes
+			syncer.NoChmod = conf.configs.Base.NoChmod
+			syncer.ChmodFilter = chmodFilter
+			syncer.DestFs = conf.fs.PublishDirStatic
+			// Now that we are using a unionFs for the static directories
+			// We can effectively clean the publishDir on initial sync
+			syncer.Delete = conf.configs.Base.CleanDestinationDir
+		})
+		syncer.SrcFs = fs
+		if syncer.Delete {
+			infol.Logf("removing all files from destination that don't exist in static dirs")
+			syncer.DeleteFilter = func(f fsync.FileInfo) bool {
+				name := f.Name()
+				if name == ".gitignore" || name == ".gitattributes" {
+					return true
+				}
+				return f.IsDir() && strings.HasPrefix(name, ".")
+			}
+		}
+		// because we are using a baseFs (to get the union right).
+		// set sync src to root
+		err = syncer.Sync(publishDir, helpers.FilePathSeparator)
+		numFiles = fs.statCounter / 2 // fsync stats each source file twice
+	}
+
 	if err != nil {
 		return 0, err
 	}
 	loggers.TimeTrackf(infol, start, nil, "syncing static files to %s", publishDir)
 
-	// Sync runs Stat 2 times for every source file.
-	numFiles := fs.statCounter / 2
-
-	return numFiles, err
+	return numFiles, nil
 }
 
 func (c *hugoBuilder) doWithPublishDirs(f func(sourceFs *filesystems.SourceFilesystem) (uint64, error)) (map[string]uint64, error) {
@@ -1091,6 +1115,7 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 		"watch":          watch,
 		"verbose":        c.r.isVerbose(),
 		"fastRenderMode": c.fastRenderMode,
+		"skipUnchanged":  c.skipUnchanged,
 	})
 
 	conf, err := c.r.ConfigFromProvider(configKey{counter: c.r.configVersionID.Load()}, flagsToCfg(cd, cfg))
