@@ -531,17 +531,8 @@ func (h *HugoSites) resetLogs() {
 	}
 }
 
-func (h *HugoSites) withSite(fn func(s *Site) error) error {
-	for _, s := range h.Sites {
-		if err := fn(s); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
-	h.withSite(func(s *Site) error {
+	for s := range h.allSites(nil) {
 		w := &doctree.NodeShiftTreeWalker[contentNode]{
 			Tree:     s.pageMap.treePages,
 			LockType: doctree.LockTypeRead,
@@ -552,8 +543,8 @@ func (h *HugoSites) withPage(fn func(s string, p *pageState) bool) {
 				return radix.WalkContinue, nil
 			},
 		}
-		return w.Walk(context.Background())
-	})
+		_ = w.Walk(context.Background())
+	}
 }
 
 // BuildCfg holds build options used to, as an example, skip the render step.

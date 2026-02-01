@@ -1637,3 +1637,24 @@ Title: {{ .Title }}|Version: {{ .Site.Version.Name }}|
 
 	b.AssertFileContent("public/v1/p1/index.html", "Title: P1 from theme|Version: v1|")
 }
+
+func TestSitesMatrixVersionsEditTemplate(t *testing.T) {
+	files := `
+-- hugo.toml --
+defaultcontentVersion = "v1"
+defaultcontentVersionInSubDir = true
+[versions]
+[versions."v1"]
+[versions."v2"]
+-- layouts/all.html --
+Version: {{ .Site.Version.Name }}|
+`
+
+	b := hugolib.TestRunning(t, files)
+
+	b.AssertFileContent("public/v1/index.html", "Version: v1|")
+
+	b.EditFileReplaceAll("layouts/all.html", "Version:", "Edited version:").Build()
+
+	b.AssertFileContent("public/v1/index.html", "Edited version: v1|")
+}
