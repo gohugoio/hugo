@@ -27,6 +27,7 @@ import (
 	"io"
 
 	"github.com/bep/imagemeta"
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/himage"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
@@ -56,14 +57,23 @@ type EncodeDecoder interface {
 
 // Codec is a generic image codec supporting multiple formats.
 type Codec struct {
-	webp EncodeDecoder
+	webp   EncodeDecoder
+	debugl logg.LevelLogger
 }
 
-func newCodec(webp EncodeDecoder) *Codec {
-	return &Codec{webp: webp}
+func newCodec(webp EncodeDecoder, debugl logg.LevelLogger) *Codec {
+	return &Codec{webp: webp, debugl: debugl}
 }
 
 func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
+	d.debugl.Log(
+		// This construct looks odd, but the func will only be called if debug is enabled.
+		logg.StringFunc(
+			func() string {
+				return fmt.Sprintf("Encoding image to format %s with config %+v", conf.TargetFormat, conf)
+			},
+		),
+	)
 	switch conf.TargetFormat {
 	case JPEG:
 		var rgba *image.RGBA
@@ -144,6 +154,13 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 }
 
 func (d *Codec) DecodeFormat(f Format, r io.Reader) (image.Image, error) {
+	d.debugl.Log(
+		logg.StringFunc(
+			func() string {
+				return fmt.Sprintf("Decoding image from format %s", f)
+			},
+		),
+	)
 	switch f {
 	case JPEG, PNG:
 		// We reworked this decode/encode setup to get full WebP support in v0.153.0.
@@ -192,6 +209,13 @@ func (d *Codec) DecodeFormat(f Format, r io.Reader) (image.Image, error) {
 }
 
 func (d *Codec) Decode(r io.Reader) (image.Image, error) {
+	d.debugl.Log(
+		logg.StringFunc(
+			func() string {
+				return "Decoding image from unknown format"
+			},
+		),
+	)
 	rr := toPeekReader(r)
 	format, err := formatFromImage(rr)
 	if err != nil {
