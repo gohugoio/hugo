@@ -173,6 +173,7 @@ func LevelLoggerToWriter(l logg.LevelLogger) io.Writer {
 
 type Logger interface {
 	Debug() logg.LevelLogger
+	DebugCommand(command string) logg.LevelLogger
 	Debugf(format string, v ...any)
 	Debugln(v ...any)
 	Error() logg.LevelLogger
@@ -219,6 +220,10 @@ type logAdapter struct {
 
 func (l *logAdapter) Debug() logg.LevelLogger {
 	return l.debugl
+}
+
+func (l *logAdapter) DebugCommand(command string) logg.LevelLogger {
+	return l.debugl.WithField(FieldNameCmd, command)
 }
 
 func (l *logAdapter) Debugf(format string, v ...any) {
