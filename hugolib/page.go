@@ -209,6 +209,49 @@ func (ps *pageState) skipRender() bool {
 	return b
 }
 
+// canSkipRenderByMtime reports whether the output file is newer than both the
+// source content file and all config files, meaning the page can be skipped.
+// Returns false with a descriptive error when rendering is required.
+// Pages without a source file (home, taxonomies, sections) always return false.
+func (ps *pageState) canSkipRenderByMtime() (bool, error) {
+	if ps.m.f == nil {
+		return false, fmt.Errorf("no source file")
+	}
+
+	srcInfo := ps.m.f.FileInfo()
+	if srcInfo == nil {
+		return false, fmt.Errorf("no source FileInfo")
+	}
+
+	targetPath := ps.targetPaths().TargetFilename
+	if targetPath == "" {
+		return false, fmt.Errorf("no target path")
+	}
+
+	dstInfo, err := ps.s.h.Deps.Fs.PublishDir.Stat(targetPath)
+	if err != nil {
+		return false, fmt.Errorf("stat %q: %w", targetPath, err)
+	}
+
+	dstMtime := dstInfo.ModTime()
+	if !dstMtime.After(srcInfo.ModTime()) {
+		return false, fmt.Errorf("src %v newer than dst %v", srcInfo.ModTime(), dstMtime)
+	}
+
+	// Config changes affect all pages; check every config file.
+	for _, configFile := range ps.s.h.Configs.LoadingInfo.ConfigFiles {
+		cfgInfo, err := ps.s.h.Deps.Fs.Source.Stat(configFile)
+		if err != nil {
+			return false, fmt.Errorf("stat config %q: %w", configFile, err)
+		}
+		if !dstMtime.After(cfgInfo.ModTime()) {
+			return false, fmt.Errorf("config %q newer than dst", configFile)
+		}
+	}
+
+	return true, nil
+}
+
 func (ps *pageState) isRenderedAny() bool {
 	for _, o := range ps.pageOutputs {
 		if o.isRendered() {

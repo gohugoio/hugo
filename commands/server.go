@@ -65,7 +65,6 @@ import (
 	"github.com/gohugoio/hugo/transform/livereloadinject"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
 )
@@ -1075,12 +1074,13 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
 		}
 
-		syncer := fsync.NewSyncer()
+		syncer := &hugofs.MtimeSyncer{
+			SrcFs: sourceFs.Fs,
+		}
 		c.withConf(func(conf *commonConfig) {
 			syncer.NoTimes = conf.configs.Base.NoTimes
 			syncer.NoChmod = conf.configs.Base.NoChmod
 			syncer.ChmodFilter = chmodFilter
-			syncer.SrcFs = sourceFs.Fs
 			syncer.DestFs = conf.fs.PublishDir
 			if c.s != nil && c.s.renderStaticToDisk {
 				syncer.DestFs = conf.fs.PublishDirStatic
