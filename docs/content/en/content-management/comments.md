@@ -41,6 +41,7 @@ Disqus has its own [internal template](/templates/embedded/#disqus) available, t
 
 Commercial commenting systems:
 
+- [Commentix](https://www.commentix.com/)
 - [Emote](https://emote.com/)
 - [Graph Comment](https://graphcomment.com/)
 - [Hyvor Talk](https://talk.hyvor.com/)
