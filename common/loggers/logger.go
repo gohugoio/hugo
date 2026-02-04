@@ -20,6 +20,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bep/logg"
@@ -123,8 +124,11 @@ func New(opts Options) Logger {
 	)
 
 	l := logger.WithLevel(opts.Level)
+	logMu := &sync.Mutex{}
 
 	reset := func() {
+		logMu.Lock()
+		defer logMu.Unlock()
 		logCounters.mu.Lock()
 		defer logCounters.mu.Unlock()
 		logCounters.counters = make(map[logg.Level]int)
@@ -135,6 +139,7 @@ func New(opts Options) Logger {
 	}
 
 	return &logAdapter{
+		mu:          logMu,
 		logCounters: logCounters,
 		errors:      errorsw,
 		reset:       reset,
@@ -204,6 +209,7 @@ type Logger interface {
 }
 
 type logAdapter struct {
+	mu          *sync.Mutex
 	logCounters *logLevelCounter
 	errors      *strings.Builder
 	reset       func()
@@ -328,6 +334,8 @@ func (l *logAdapter) Errorln(v ...any) {
 }
 
 func (l *logAdapter) Errors() string {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	return l.errors.String()
 }
 

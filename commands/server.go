@@ -282,7 +282,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 					}
 
 					port = 1313
-					f.c.withConf(func(conf *commonConfig) {
+					f.c.withConfOrOldConf(func(conf *commonConfig) {
 						if lrport := conf.configs.GetFirstLanguageConfig().BaseURLLiveReload().Port(); lrport != 0 {
 							port = lrport
 						}

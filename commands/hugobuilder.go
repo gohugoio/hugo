@@ -56,8 +56,9 @@ import (
 type hugoBuilder struct {
 	r *rootCommand
 
-	confmu sync.Mutex
-	conf   *commonConfig
+	confmu  sync.Mutex
+	confOld *commonConfig
+	conf    *commonConfig
 
 	// May be nil.
 	s *serverCommand
@@ -92,6 +93,27 @@ func (c *hugoBuilder) withConf(fn func(conf *commonConfig)) {
 	c.confmu.Lock()
 	defer c.confmu.Unlock()
 	fn(c.conf)
+}
+
+func (c *hugoBuilder) withConfOrOldConf(fn func(conf *commonConfig)) {
+	c.confmu.Lock()
+	defer c.confmu.Unlock()
+	if c.conf != nil {
+		fn(c.conf)
+	} else if c.confOld != nil {
+		fn(c.confOld)
+	}
+}
+
+func (c *hugoBuilder) withConfOrOldConfE(fn func(conf *commonConfig) error) error {
+	c.confmu.Lock()
+	defer c.confmu.Unlock()
+	if c.conf != nil {
+		return fn(c.conf)
+	} else if c.confOld != nil {
+		return fn(c.confOld)
+	}
+	return errConfigNotSet
 }
 
 type hugoBuilderErrState struct {
@@ -1095,6 +1117,7 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 	}
 
 	c.conf = conf
+	c.confOld = conf
 	if c.onConfigLoaded != nil {
 		if err := c.onConfigLoaded(false); err != nil {
 			return err
@@ -1158,8 +1181,9 @@ func (c *hugoBuilder) reloadConfig() error {
 	c.r.resetLogs()
 	c.r.configVersionID.Add(1)
 
-	if err := c.withConfE(func(conf *commonConfig) error {
+	if err := c.withConfOrOldConfE(func(conf *commonConfig) error {
 		oldConf := conf
+		c.conf = nil
 		newConf, err := c.r.ConfigFromConfig(configKey{counter: c.r.configVersionID.Load()}, conf)
 		if err != nil {
 			return err
