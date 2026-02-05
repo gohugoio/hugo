@@ -331,6 +331,9 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 }
 
 func (r *rootCommand) HugFromConfig(conf *commonConfig) (*hugolib.HugoSites, error) {
+	if conf == nil {
+		return nil, fmt.Errorf("conf must be set")
+	}
 	k := configKey{counter: r.configVersionID.Load()}
 	h, _, err := r.hugoSites.GetOrCreate(k, func(key configKey) (*hugolib.HugoSites, error) {
 		depsCfg := r.newDepsConfig(conf)

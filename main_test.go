@@ -241,7 +241,9 @@ var commonTestScriptsParam = testscript.Params{
 			if err != nil {
 				ts.Fatalf("failed to read file %v", err)
 			}
-			newContent := bytes.Replace(oldContent, []byte(args[1]), []byte(args[2]), -1)
+			old, new := args[1], args[2]
+
+			newContent := bytes.Replace(oldContent, []byte(old), []byte(new), -1)
 			err = os.WriteFile(filename, newContent, 0o644)
 			if err != nil {
 				ts.Fatalf("failed to write file: %v", err)
