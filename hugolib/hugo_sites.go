@@ -529,7 +529,7 @@ func (h *HugoSites) resetLogs() {
 	h.Log.Reset()
 	loggers.Log().Reset()
 
-	// TODO(bep) double check this, I'm pretty sure there only one logger.
+	// TODO(bep) Double-check this; I'm pretty sure there is only one logger.
 	for _, s := range h.Sites {
 		s.Deps.Log.Reset()
 	}
