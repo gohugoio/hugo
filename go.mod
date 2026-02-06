@@ -26,7 +26,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.27.2
+	github.com/evanw/esbuild v0.27.3
 	github.com/fatih/color v1.18.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.6
