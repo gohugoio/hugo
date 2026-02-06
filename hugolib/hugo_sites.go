@@ -42,6 +42,7 @@ import (
 	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/terminal"
 	"github.com/gohugoio/hugo/common/types"
@@ -526,6 +527,9 @@ func (h *HugoSites) reset() {
 // resetLogs resets the log counters etc. Used to do a new build on the same sites.
 func (h *HugoSites) resetLogs() {
 	h.Log.Reset()
+	loggers.Log().Reset()
+
+	// TODO(bep) double check this, I'm pretty sure there only one logger.
 	for _, s := range h.Sites {
 		s.Deps.Log.Reset()
 	}
