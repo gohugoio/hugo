@@ -217,7 +217,7 @@ func pageRenderer(
 			}
 		}
 
-		if p.IsHome() && p.outputFormat().IsHTML && s.isDefault() {
+		if of := p.outputFormat(); p.IsHome() && of.IsHTML && s.isDefault() && (of.Path != "" || of.Name == "html") {
 			if err = s.renderDefaultSiteRedirect(p); err != nil {
 				if sendErr(err) {
 					continue
