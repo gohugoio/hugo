@@ -125,7 +125,7 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 		return nil, nil
 	}
 
-	key := hashing.MD5FromStringHexEncoded(dataStr)
+	key := hashing.XxHashFromStringHexEncoded(dataStr)
 
 	if decoder != metadecoders.Default {
 		key += decoder.OptionsKey()

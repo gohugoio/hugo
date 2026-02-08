@@ -131,7 +131,7 @@ func (ns *Namespace) DoDefer(ctx context.Context, id string, optsv any) string {
 	templateName := id
 	var key string
 	if opts.Key != "" {
-		key = hashing.MD5FromStringHexEncoded(opts.Key)
+		key = hashing.XxHashFromStringHexEncoded(opts.Key)
 	} else {
 		key = strconv.FormatUint(defferedIDCounter.Add(1), 10)
 	}
