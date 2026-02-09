@@ -28,13 +28,14 @@ func newReleaseCommand() simplecobra.Commander {
 		step     int
 		skipPush bool
 		try      bool
+		version  string
 	)
 
 	return &simpleCommand{
 		name:  "release",
 		short: "Release a new version of Hugo",
 		run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-			rel, err := releaser.New(skipPush, try, step)
+			rel, err := releaser.New(skipPush, try, step, version)
 			if err != nil {
 				return err
 			}
@@ -47,6 +48,7 @@ func newReleaseCommand() simplecobra.Commander {
 			cmd.PersistentFlags().BoolVarP(&skipPush, "skip-push", "", false, "skip pushing to remote")
 			cmd.PersistentFlags().BoolVarP(&try, "try", "", false, "no changes")
 			cmd.PersistentFlags().IntVarP(&step, "step", "", 0, "step to run (1: set new version 2: prepare next dev version)")
+			cmd.PersistentFlags().StringVarP(&version, "version", "", "", "version to release (derived from branch name if not set)")
 			_ = cmd.RegisterFlagCompletionFunc("step", cobra.FixedCompletions([]string{"1", "2"}, cobra.ShellCompDirectiveNoFileComp))
 		},
 	}

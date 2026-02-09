@@ -30,28 +30,32 @@ import (
 const commitPrefix = "releaser:"
 
 // New initializes a ReleaseHandler.
-func New(skipPush, try bool, step int) (*ReleaseHandler, error) {
+// Note that version is only used for testig. In CI we derive the version from the branch name.
+func New(skipPush, try bool, step int, version string) (*ReleaseHandler, error) {
 	if step < 1 || step > 2 {
 		return nil, fmt.Errorf("step must be 1 or 2")
 	}
 
-	prefix := "release-"
-	branch, err := git("rev-parse", "--abbrev-ref", "HEAD")
-	if err != nil {
-		return nil, err
-	}
-	branch = strings.TrimSpace(branch)
+	if version == "" {
+		prefix := "release-"
+		branch, err := git("rev-parse", "--abbrev-ref", "HEAD")
+		if err != nil {
+			return nil, err
+		}
+		branch = strings.TrimSpace(branch)
 
-	if !strings.HasPrefix(branch, prefix) {
-		return nil, fmt.Errorf("branch %q is not a release branch", branch)
+		if !strings.HasPrefix(branch, prefix) {
+			return nil, fmt.Errorf("branch %q is not a release branch", branch)
+		}
+
+		version = strings.TrimPrefix(branch, prefix)
 	}
 
-	version := strings.TrimPrefix(branch, prefix)
 	version = strings.TrimPrefix(version, "v")
 
-	logf("Branch: %s|Version: v%s\n", branch, version)
+	logf("Version: v%s\n", version)
 
-	rh := &ReleaseHandler{branchVersion: version, skipPush: skipPush, try: try, step: step}
+	rh := &ReleaseHandler{version: version, skipPush: skipPush, try: try, step: step}
 
 	if try {
 		rh.git = func(args ...string) (string, error) {
@@ -70,7 +74,7 @@ func New(skipPush, try bool, step int) (*ReleaseHandler, error) {
 // go run -tags release main.go release --skip-publish --try -r 0.90.0
 // Or a variation of the above -- the skip-publish flag makes sure that any changes are performed to the local Git only.
 type ReleaseHandler struct {
-	branchVersion string
+	version string
 
 	// 1 or 2.
 	step int
@@ -89,8 +93,8 @@ func (r *ReleaseHandler) Run() error {
 	newVersion, finalVersion := r.calculateVersions()
 	version := newVersion.String()
 	tag := "v" + version
-	mainVersion := newVersion
-	mainVersion.PatchLevel = 0
+
+	logf("New version %q (prerelease: %t), final version %q\n", newVersion, newVersion.IsAlphaBetaOrRC(), finalVersion)
 
 	r.gitPull()
 
@@ -167,14 +171,15 @@ func (r *ReleaseHandler) bumpVersions(ver version.Version) error {
 }
 
 func (r ReleaseHandler) calculateVersions() (version.Version, version.Version) {
-	newVersion := version.MustParseVersion(r.branchVersion)
-	finalVersion := newVersion.Next()
-	finalVersion.PatchLevel = 0
-
-	if newVersion.Suffix != "-test" {
-		newVersion.Suffix = ""
+	newVersion := version.MustParseVersion(r.version)
+	var finalVersion version.Version
+	if newVersion.IsAlphaBetaOrRC() {
+		finalVersion = newVersion
+	} else {
+		finalVersion = newVersion.Next()
 	}
 
+	finalVersion.PatchLevel = 0
 	finalVersion.Suffix = "-DEV"
 
 	return newVersion, finalVersion
