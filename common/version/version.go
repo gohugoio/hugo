@@ -47,6 +47,13 @@ var (
 	_ compare.Comparer = (*VersionString)(nil)
 )
 
+// IsAlphaBetaOrRC returns whether this version is an alpha, beta, or release candidate.
+func (v Version) IsAlphaBetaOrRC() bool {
+	s := strings.ToLower(v.Suffix)
+	// e.g. "alpha.1", "beta.2", "rc.3"
+	return strings.Contains(s, "alpha.") || strings.Contains(s, "beta.") || strings.Contains(s, "rc.")
+}
+
 func (v Version) IsZero() bool {
 	return v.Major == 0 && v.Minor == 0 && v.PatchLevel == 0 && v.Suffix == ""
 }
