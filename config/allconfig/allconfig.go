@@ -399,16 +399,6 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		return err
 	}
 
-	// Legacy paginate values.
-	if c.Paginate != 0 {
-		hugo.DeprecateWithLogger("site config key paginate", "Use pagination.pagerSize instead.", "v0.128.0", logger.Logger())
-		c.Pagination.PagerSize = c.Paginate
-	}
-	if c.PaginatePath != "" {
-		hugo.DeprecateWithLogger("site config key paginatePath", "Use pagination.path instead.", "v0.128.0", logger.Logger())
-		c.Pagination.Path = c.PaginatePath
-	}
-
 	// Legacy privacy values.
 	if c.Privacy.Twitter.Disable {
 		hugo.DeprecateWithLogger("site config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0", logger.Logger())
@@ -686,14 +676,6 @@ type RootConfig struct {
 
 	// Enable if the site content has CJK language (Chinese, Japanese, or Korean). This affects how Hugo counts words.
 	HasCJKLanguage bool
-
-	// The default number of pages per page when paginating.
-	// Deprecated: Use the Pagination struct.
-	Paginate int
-
-	// The path to use when creating pagination URLs, e.g. "page" in /page/2/.
-	// Deprecated: Use the Pagination struct.
-	PaginatePath string
 
 	// Whether to pluralize default list titles.
 	// Note that this currently only works for English, but you can provide your own title in the content file's front matter.

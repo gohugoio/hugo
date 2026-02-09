@@ -410,12 +410,6 @@ type Positioner interface {
 	Next() Page
 	// Prev points down to the previous regular page (sorted by Hugo’s default sort).
 	Prev() Page
-
-	// Deprecated: Use Prev. Will be removed in Hugo 0.57
-	PrevPage() Page
-
-	// Deprecated: Use Next. Will be removed in Hugo 0.57
-	NextPage() Page
 }
 
 // RawContentProvider provides the raw, unprocessed content of the page.

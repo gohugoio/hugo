@@ -41,8 +41,6 @@ var defaultCacheConfig = FileCacheConfig{
 }
 
 const (
-	CacheKeyGetJSON       = "getjson"
-	CacheKeyGetCSV        = "getcsv"
 	CacheKeyImages        = "images"
 	CacheKeyAssets        = "assets"
 	CacheKeyModules       = "modules"
@@ -74,8 +72,6 @@ var defaultCacheConfigs = Configs{
 		MaxAge: 24 * time.Hour,
 		Dir:    ":cacheDir/modules",
 	},
-	CacheKeyGetJSON: defaultCacheConfig,
-	CacheKeyGetCSV:  defaultCacheConfig,
 	CacheKeyImages: {
 		MaxAge: -1,
 		Dir:    resourcesGenDir,
@@ -128,16 +124,6 @@ func (c FileCacheConfig) MarshalJSON() ([]byte, error) {
 		MaxAge: maxAge,
 		Dir:    c.Dir,
 	})
-}
-
-// GetJSONCache gets the file cache for getJSON.
-func (f Caches) GetJSONCache() *Cache {
-	return f[CacheKeyGetJSON]
-}
-
-// GetCSVCache gets the file cache for getCSV.
-func (f Caches) GetCSVCache() *Cache {
-	return f[CacheKeyGetCSV]
 }
 
 // ImageCache gets the file cache for processed images.

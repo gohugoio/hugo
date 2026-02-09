@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"io"
 	"strings"
-
-	"github.com/gohugoio/hugo/htesting"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/gohugoio/hugo/htesting"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/hugio"
@@ -66,7 +66,7 @@ assetDir = "assets"
 archeTypedir = "archetypes"
 
 [caches]
-[caches.getJSON]
+[caches.misc]
 maxAge = "10h"
 dir = ":cacheDir/c"
 
@@ -86,7 +86,7 @@ dir = ":cacheDir/c"
 		c.Assert(err, qt.IsNil)
 		caches.SetResourceFs(p.SourceFs)
 
-		cache := caches.Get("GetJSON")
+		cache := caches.Get("Misc")
 		c.Assert(cache, qt.Not(qt.IsNil))
 
 		cache = caches.Get("Images")
@@ -108,7 +108,7 @@ dir = ":cacheDir/c"
 			return []byte("bcd"), nil
 		}
 
-		for _, ca := range []*filecache.Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
+		for _, ca := range []*filecache.Cache{caches.ImageCache(), caches.AssetsCache()} {
 			for range 2 {
 				info, r, err := ca.GetOrCreate("a", rf("abc"))
 				c.Assert(err, qt.IsNil)
@@ -135,8 +135,6 @@ dir = ":cacheDir/c"
 				c.Assert(string(b), qt.Equals, "abc")
 			}
 		}
-
-		c.Assert(caches.Get("getJSON"), qt.Not(qt.IsNil))
 
 		info, w, err := caches.ImageCache().WriteCloser("mykey")
 		c.Assert(err, qt.IsNil)
@@ -177,7 +175,7 @@ assetDir = "assets"
 archeTypedir = "archetypes"
 
 [caches]
-[caches.getjson]
+[caches.misc]
 maxAge = "1s"
 dir = "/cache/c"
 
@@ -189,7 +187,7 @@ dir = "/cache/c"
 	c.Assert(err, qt.IsNil)
 	caches.SetResourceFs(p.Fs.Source)
 
-	const cacheName = "getjson"
+	const cacheName = "misc"
 
 	filenameData := func(i int) (string, string) {
 		data := fmt.Sprintf("data: %d", i)

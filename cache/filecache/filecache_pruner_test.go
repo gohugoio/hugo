@@ -39,12 +39,9 @@ assetDir = "assets"
 archeTypedir = "archetypes"
 
 [caches]
-[caches.getjson]
+[caches.misc]
 maxAge = "200ms"
 dir = "/cache/c"
-[caches.getcsv]
-maxAge = "200ms"
-dir = "/cache/d"
 [caches.assets]
 maxAge = "200ms"
 dir = ":resourceDir/_gen"
@@ -53,7 +50,7 @@ maxAge = "200ms"
 dir = ":resourceDir/_gen"
 `
 
-	for _, name := range []string{filecache.CacheKeyGetCSV, filecache.CacheKeyGetJSON, filecache.CacheKeyAssets, filecache.CacheKeyImages} {
+	for _, name := range []string{filecache.CacheKeyAssets, filecache.CacheKeyImages} {
 		msg := qt.Commentf("cache: %s", name)
 		fs := afero.NewMemMapFs()
 		p := newPathsSpec(t, fs, configStr)

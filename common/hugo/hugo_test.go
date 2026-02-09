@@ -66,8 +66,8 @@ func TestDeprecationLogLevelFromVersion(t *testing.T) {
 	c.Assert(deprecationLogLevelFromVersion(ver.String()), qt.Equals, logg.LevelError)
 
 	// Added just to find the threshold for where we can remove deprecated items.
-	// Subtract 5 from the minor version of the first ERRORed version => 0.122.0.
-	c.Assert(deprecationLogLevelFromVersion("0.127.0"), qt.Equals, logg.LevelError)
+	// Subtract 5 from the minor version of the first ERRORed version => 0.136.0.
+	c.Assert(deprecationLogLevelFromVersion("0.141.0"), qt.Equals, logg.LevelError)
 }
 
 func TestMarkupScope(t *testing.T) {

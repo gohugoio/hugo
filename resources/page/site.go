@@ -92,9 +92,6 @@ type Site interface {
 	// Returns a taxonomy map.
 	Taxonomies() TaxonomyList
 
-	// Deprecated: Use .Lastmod instead.
-	LastChange() time.Time
-
 	// Returns the last modification date of the content.
 	Lastmod() time.Time
 
@@ -116,20 +113,8 @@ type Site interface {
 	// Returns the site config.
 	Config() SiteConfig
 
-	// Deprecated: Use taxonomies instead.
-	Author() map[string]any
-
-	// Deprecated: Use taxonomies instead.
-	Authors() AuthorList
-
-	// Deprecated: Use .Site.Params instead.
-	Social() map[string]string
-
 	// BuildDrafts is deprecated and will be removed in a future release.
 	BuildDrafts() bool
-
-	// Deprecated: Use hugo.IsMultilingual instead.
-	IsMultiLingual() bool
 
 	// LanguagePrefix returns the language prefix for this site.
 	LanguagePrefix() string
@@ -153,12 +138,6 @@ type SiteDimension interface {
 
 // Sites represents an ordered list of sites (languages).
 type Sites []Site
-
-// Deprecated: Use .Sites.Default instead.
-func (s Sites) First() Site {
-	hugo.Deprecate(".Sites.First", "Use .Sites.Default instead.", "v0.127.0")
-	return s.Default()
-}
 
 // Default is a convenience method to get the site corresponding to the default
 // content language.
@@ -190,21 +169,6 @@ func WrapSite(s Site) Site {
 
 func (s *siteWrapper) Key() string {
 	return s.s.Language().Lang
-}
-
-// Deprecated: Use .Site.Params instead.
-func (s *siteWrapper) Social() map[string]string {
-	return s.s.Social()
-}
-
-// Deprecated: Use taxonomies instead.
-func (s *siteWrapper) Author() map[string]any {
-	return s.s.Author()
-}
-
-// Deprecated: Use taxonomies instead.
-func (s *siteWrapper) Authors() AuthorList {
-	return s.s.Authors()
 }
 
 func (s *siteWrapper) GetPage(ref ...string) (Page, error) {
@@ -291,11 +255,6 @@ func (s *siteWrapper) Taxonomies() TaxonomyList {
 	return s.s.Taxonomies()
 }
 
-// Deprecated: Use .Site.Lastmod instead.
-func (s *siteWrapper) LastChange() time.Time {
-	return s.s.LastChange()
-}
-
 func (s *siteWrapper) Lastmod() time.Time {
 	return s.s.Lastmod()
 }
@@ -322,11 +281,6 @@ func (s *siteWrapper) Data() map[string]any {
 
 func (s *siteWrapper) BuildDrafts() bool {
 	return s.s.BuildDrafts()
-}
-
-// Deprecated: Use hugo.IsMultilingual instead.
-func (s *siteWrapper) IsMultiLingual() bool {
-	return s.s.IsMultiLingual()
 }
 
 func (s *siteWrapper) LanguagePrefix() string {
@@ -356,32 +310,12 @@ type testSite struct {
 	l *langs.Language
 }
 
-// Deprecated: Use taxonomies instead.
-func (s testSite) Author() map[string]any {
-	return nil
-}
-
-// Deprecated: Use taxonomies instead.
-func (s testSite) Authors() AuthorList {
-	return AuthorList{}
-}
-
-// Deprecated: Use .Site.Params instead.
-func (s testSite) Social() map[string]string {
-	return make(map[string]string)
-}
-
 func (t testSite) Hugo() hugo.HugoInfo {
 	return t.h
 }
 
 func (t testSite) ServerPort() int {
 	return 1313
-}
-
-// Deprecated: Use .Site.Lastmod instead.
-func (testSite) LastChange() (t time.Time) {
-	return
 }
 
 func (testSite) Lastmod() (t time.Time) {
@@ -485,11 +419,6 @@ func (s testSite) Config() SiteConfig {
 }
 
 func (s testSite) BuildDrafts() bool {
-	return false
-}
-
-// Deprecated: Use hugo.IsMultilingual instead.
-func (s testSite) IsMultiLingual() bool {
 	return false
 }
 

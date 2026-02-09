@@ -44,12 +44,9 @@ assetDir = "assets"
 archetypeDir = "archetypes"
 
 [caches]
-[caches.getJSON]
+[caches.misc]
 maxAge = "10m"
 dir = "/path/to/c1"
-[caches.getCSV]
-maxAge = "11h"
-dir = "/path/to/c2"
 [caches.images]
 dir = "/path/to/c3"
 [caches.getResource]
@@ -60,11 +57,11 @@ dir = "/path/to/c4"
 	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 8)
+	c.Assert(len(decoded), qt.Equals, 6)
 
-	c2 := decoded["getcsv"]
-	c.Assert(c2.MaxAge.String(), qt.Equals, "11h0m0s")
-	c.Assert(c2.DirCompiled, qt.Equals, filepath.FromSlash("/path/to/c2/filecache/getcsv"))
+	c2 := decoded["misc"]
+	c.Assert(c2.MaxAge.String(), qt.Equals, "10m0s")
+	c.Assert(c2.DirCompiled, qt.Equals, filepath.FromSlash("/path/to/c1/filecache/misc"))
 
 	c3 := decoded["images"]
 	c.Assert(c3.MaxAge, qt.Equals, time.Duration(-1))
@@ -91,12 +88,9 @@ archeTypedir = "archetypes"
 
 ignoreCache = true
 [caches]
-[caches.getJSON]
+[caches.misc]
 maxAge = 1234
 dir = "/path/to/c1"
-[caches.getCSV]
-maxAge = 3456
-dir = "/path/to/c2"
 [caches.images]
 dir = "/path/to/c3"
 [caches.getResource]
@@ -107,7 +101,7 @@ dir = "/path/to/c4"
 	c.Assert(err, qt.IsNil)
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 8)
+	c.Assert(len(decoded), qt.Equals, 6)
 
 	for _, v := range decoded {
 		c.Assert(v.MaxAge, qt.Equals, time.Duration(0))
@@ -130,20 +124,20 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	fs := afero.NewMemMapFs()
 	decoded := testconfig.GetTestConfigs(fs, cfg).Base.Caches
-	c.Assert(len(decoded), qt.Equals, 8)
+	c.Assert(len(decoded), qt.Equals, 6)
 
 	imgConfig := decoded[filecache.CacheKeyImages]
-	jsonConfig := decoded[filecache.CacheKeyGetJSON]
+	miscConfig := decoded[filecache.CacheKeyMisc]
 
 	if runtime.GOOS == "windows" {
 		c.Assert(imgConfig.DirCompiled, qt.Equals, filepath.FromSlash("_gen/images"))
 	} else {
 		c.Assert(imgConfig.DirCompiled, qt.Equals, "_gen/images")
-		c.Assert(jsonConfig.DirCompiled, qt.Equals, "/cache/thecache/hugoproject/filecache/getjson")
+		c.Assert(miscConfig.DirCompiled, qt.Equals, "/cache/thecache/hugoproject/filecache/misc")
 	}
 
 	c.Assert(imgConfig.IsResourceDir, qt.Equals, true)
-	c.Assert(jsonConfig.IsResourceDir, qt.Equals, false)
+	c.Assert(miscConfig.IsResourceDir, qt.Equals, false)
 }
 
 func TestFileCacheConfigMarshalJSON(t *testing.T) {

@@ -20,10 +20,6 @@ import (
 	"fmt"
 
 	"github.com/gohugoio/hugo/common/hmaps"
-	"github.com/gohugoio/hugo/common/hugo"
-
-	"github.com/gohugoio/hugo/tpl/css"
-	"github.com/gohugoio/hugo/tpl/js"
 
 	"github.com/gohugoio/hugo/resources/postpub"
 
@@ -72,11 +68,6 @@ type Namespace struct {
 	integrityClient *integrity.Client
 	minifyClient    *minifier.Client
 	templatesClient *templates.Client
-
-	// We moved some CSS and JS related functions to the css and js package in Hugo 0.128.0.
-	// Keep this here until the deprecation period is over.
-	cssNs *css.Namespace
-	jsNs  *js.Namespace
 }
 
 // Copy copies r to the new targetPath in s.
@@ -301,30 +292,7 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 	return ns.minifyClient.Minify(r)
 }
 
-// ToCSS converts the given Resource to CSS. You can optional provide an Options object
-// as second argument. As an option, you can e.g. specify e.g. the target path (string)
-// for the converted CSS resource.
-// Deprecated: Moved to the css namespace in Hugo 0.128.0.
-func (ns *Namespace) ToCSS(args ...any) (resource.Resource, error) {
-	hugo.Deprecate("resources.ToCSS", "Use css.Sass instead.", "v0.128.0")
-	return ns.cssNs.Sass(args...)
-}
-
-// PostCSS processes the given Resource with PostCSS.
-// Deprecated: Moved to the css namespace in Hugo 0.128.0.
-func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
-	hugo.Deprecate("resources.PostCSS", "Use css.PostCSS instead.", "v0.128.0")
-	return ns.cssNs.PostCSS(args...)
-}
-
 // PostProcess processes r after the build.
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
 	return ns.deps.ResourceSpec.PostProcess(r)
-}
-
-// Babel processes the given Resource with Babel.
-// Deprecated: Moved to the js namespace in Hugo 0.128.0.
-func (ns *Namespace) Babel(args ...any) (resource.Resource, error) {
-	hugo.Deprecate("resources.Babel", "Use js.Babel.", "v0.128.0")
-	return ns.jsNs.Babel(args...)
 }

@@ -23,9 +23,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"hash"
-	"hash/fnv"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/spf13/cast"
 )
 
@@ -68,19 +66,6 @@ func (ns *Namespace) SHA256(v any) (string, error) {
 
 	hash := sha256.Sum256([]byte(conv))
 	return hex.EncodeToString(hash[:]), nil
-}
-
-// FNV32a hashes v using fnv32a algorithm.
-// <docsmeta>{"newIn": "0.98.0" }</docsmeta>
-func (ns *Namespace) FNV32a(v any) (int, error) {
-	hugo.Deprecate("crypto.FNV32a", "Use hash.FNV32a.", "v0.129.0")
-	conv, err := cast.ToStringE(v)
-	if err != nil {
-		return 0, err
-	}
-	algorithm := fnv.New32a()
-	algorithm.Write([]byte(conv))
-	return int(algorithm.Sum32()), nil
 }
 
 // HMAC returns a cryptographic hash that uses a key to sign a message.

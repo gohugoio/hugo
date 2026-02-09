@@ -440,10 +440,6 @@ func (h *HugoSites) filterAndJoinErrors(errs []error) error {
 	return errors.Join(errs...)
 }
 
-func (h *HugoSites) isMultilingual() bool {
-	return len(h.Sites) > 1
-}
-
 // TODO(bep) consolidate
 func (h *HugoSites) LanguageSet() map[string]int {
 	set := make(map[string]int)

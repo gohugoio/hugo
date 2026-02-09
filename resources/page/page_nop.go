@@ -372,14 +372,6 @@ func (p *nopPage) NextInSection() Page {
 	return nil
 }
 
-func (p *nopPage) PrevPage() Page {
-	return nil
-}
-
-func (p *nopPage) NextPage() Page {
-	return nil
-}
-
 func (p *nopPage) RawContent() string {
 	return ""
 }

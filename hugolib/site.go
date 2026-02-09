@@ -663,13 +663,6 @@ func (s *Site) BaseURL() string {
 	return s.conf.C.BaseURL.WithPath
 }
 
-// Deprecated: Use .Site.Lastmod instead.
-func (s *Site) LastChange() time.Time {
-	s.CheckReady()
-	hugo.Deprecate(".Site.LastChange", "Use .Site.Lastmod instead.", "v0.123.0")
-	return s.lastmod
-}
-
 // Returns the last modification date of the content.
 func (s *Site) Lastmod() time.Time {
 	return s.lastmod
@@ -678,26 +671,6 @@ func (s *Site) Lastmod() time.Time {
 // Returns the Params configured for this site.
 func (s *Site) Params() hmaps.Params {
 	return s.conf.Params
-}
-
-// Deprecated: Use taxonomies instead.
-func (s *Site) Author() map[string]any {
-	if len(s.conf.Author) != 0 {
-		hugo.Deprecate(".Site.Author", "Implement taxonomy 'author' or use .Site.Params.Author instead.", "v0.124.0")
-	}
-	return s.conf.Author
-}
-
-// Deprecated: Use taxonomies instead.
-func (s *Site) Authors() page.AuthorList {
-	hugo.Deprecate(".Site.Authors", "Implement taxonomy 'authors' or use .Site.Params.Author instead.", "v0.124.0")
-	return page.AuthorList{}
-}
-
-// Deprecated: Use .Site.Params instead.
-func (s *Site) Social() map[string]string {
-	hugo.Deprecate(".Site.Social", "Implement taxonomy 'social' or use .Site.Params.Social instead.", "v0.124.0")
-	return s.conf.Social
 }
 
 func (s *Site) Param(key any) (any, error) {
@@ -711,12 +684,6 @@ func (s *Site) Data() map[string]any {
 
 func (s *Site) BuildDrafts() bool {
 	return s.conf.BuildDrafts
-}
-
-// Deprecated: Use hugo.IsMultilingual instead.
-func (s *Site) IsMultiLingual() bool {
-	hugo.Deprecate(".Site.IsMultiLingual", "Use hugo.IsMultilingual instead.", "v0.124.0")
-	return s.h.isMultilingual()
 }
 
 func (s *Site) LanguagePrefix() string {
