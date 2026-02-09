@@ -119,7 +119,7 @@ posts = '/posts/:year/:month/:title/'
 category = 'categories'
 series = 'series'
 tag = 'tags'
-  
+
 [module]
 [module.hugoVersion]
 min = '0.80.0'
@@ -138,12 +138,12 @@ precision = 2
 
 [[cascade]]
 background = 'yosemite.jpg'
-[cascade._target]
+[cascade.target]
   kind = 'page'
   path = '/blog/**'
 [[cascade]]
 background = 'goldenbridge.jpg'
-[cascade._target]
+[cascade.target]
   kind = 'section'
 
 
