@@ -103,7 +103,7 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 				kn := "precision"
 				if vv, found := vm[ko]; found {
 					hugo.Deprecate(
-						fmt.Sprintf("site config key minify.tdewolff.%s.%s", key, ko),
+						fmt.Sprintf("project config key minify.tdewolff.%s.%s", key, ko),
 						fmt.Sprintf("Use config key minify.tdewolff.%s.%s instead.", key, kn),
 						"v0.150.0",
 					)
@@ -126,7 +126,7 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 			kn := "keepspecialcomments"
 			if vv, found := vm[ko]; found {
 				hugo.Deprecate(
-					fmt.Sprintf("site config key minify.tdewolff.html.%s", ko),
+					fmt.Sprintf("project config key minify.tdewolff.html.%s", ko),
 					fmt.Sprintf("Use config key minify.tdewolff.html.%s instead.", kn),
 					"v0.150.0",
 				)
@@ -145,7 +145,7 @@ func DecodeConfig(v any) (conf MinifyConfig, err error) {
 			kn := "version"
 			if vv, found := vm[ko]; found {
 				hugo.Deprecate(
-					fmt.Sprintf("site config key minify.tdewolff.css.%s", ko),
+					fmt.Sprintf("project config key minify.tdewolff.css.%s", ko),
 					fmt.Sprintf("Use config key minify.tdewolff.css.%s instead.", kn),
 					"v0.150.0",
 				)

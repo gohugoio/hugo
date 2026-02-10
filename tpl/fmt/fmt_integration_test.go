@@ -39,7 +39,7 @@ ignoreErrors = ['error-b','error-C']
 	b, err := hugolib.TestE(t, files)
 
 	b.Assert(err, qt.IsNotNil)
-	b.AssertLogMatches(`ERROR a\nYou can suppress this error by adding the following to your site configuration:\nignoreLogs = \['error-a'\]`)
+	b.AssertLogMatches(`ERROR a\nYou can suppress this error by adding the following to your project configuration:\nignoreLogs = \['error-a'\]`)
 	b.AssertLogMatches(`ERROR D`)
 	b.AssertLogMatches(`! ERROR C`)
 	b.AssertLogMatches(`! ERROR c`)

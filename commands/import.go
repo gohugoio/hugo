@@ -49,7 +49,7 @@ func newImportCommand() *importCommand {
 				name:  "jekyll",
 				short: "hugo import from Jekyll",
 				long: `hugo import from Jekyll.
-		
+
 Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 2 {
@@ -90,8 +90,8 @@ func (c *importCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 
 func (c *importCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
-	cmd.Short = "Import a site from another system"
-	cmd.Long = `Import a site from another system.
+	cmd.Short = "Import a project from another system"
+	cmd.Long = `Import a project from another system.
 
 Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`."
 
@@ -105,7 +105,7 @@ func (c *importCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 }
 
 func (i *importCommand) createConfigFromJekyll(fs afero.Fs, inpath string, kind metadecoders.Format, jekyllConfig map[string]any) (err error) {
-	title := "My New Hugo Site"
+	title := "My New Hugo Project"
 	baseURL := "http://example.org/"
 
 	for key, value := range jekyllConfig {
@@ -159,7 +159,7 @@ func (c *importCommand) getJekyllDirInfo(fs afero.Fs, jekyllRoot string) (map[st
 	return postDirs, hasAnyPost
 }
 
-func (c *importCommand) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool) error {
+func (c *importCommand) createProjectFromJekyll(jekyllRoot, targetDir string, jekyllPostDirs map[string]bool) error {
 	fs := &afero.OsFs{}
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
@@ -419,7 +419,7 @@ func (c *importCommand) importFromJekyll(args []string) error {
 		return errors.New("abort: jekyll root contains neither posts nor drafts")
 	}
 
-	err = c.createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs)
+	err = c.createProjectFromJekyll(jekyllRoot, targetDir, jekyllPostDirs)
 	if err != nil {
 		return newUserError(err)
 	}

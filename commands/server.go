@@ -523,7 +523,7 @@ func (c *serverCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, arg
 func (c *serverCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
 	cmd.Short = "Start the embedded web server"
-	cmd.Long = `Hugo provides its own webserver which builds and serves the site.
+	cmd.Long = `Hugo provides its own webserver which builds and serves the project.
 While hugo server is high performance, it is a webserver with limited options.
 
 The ` + "`" + `hugo server` + "`" + ` command will by default write and serve files from disk, but
@@ -531,8 +531,8 @@ you can render to memory by using the ` + "`" + `--renderToMemory` + "`" + ` fla
 faster in some cases, but it will consume more memory.
 
 By default hugo will also watch your files for any changes you make and
-automatically rebuild the site. It will then live reload any open browser pages
-and push the latest content to them. As most Hugo sites are built in a fraction
+automatically rebuild the project. It will then live reload any open browser pages
+and push the latest content to them. As most Hugo projects are built in a fraction
 of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Aliases = []string{"serve"}
 
@@ -553,7 +553,7 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().BoolVarP(&c.serverAppend, "appendPort", "", true, "append port to baseURL")
 	cmd.Flags().BoolVar(&c.disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	cmd.Flags().BoolVarP(&c.navigateToChanged, "navigateToChanged", "N", false, "navigate to changed content file on live browser reload")
-	cmd.Flags().BoolVarP(&c.openBrowser, "openBrowser", "O", false, "open the site in a browser after server startup")
+	cmd.Flags().BoolVarP(&c.openBrowser, "openBrowser", "O", false, "open the project in a browser after server startup")
 	cmd.Flags().BoolVar(&c.renderStaticToDisk, "renderStaticToDisk", false, "serve static files from disk and dynamic files from memory")
 	cmd.Flags().BoolVar(&c.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
 	cmd.Flags().BoolVar(&c.disableBrowserError, "disableBrowserError", false, "do not show build errors in the browser")

@@ -110,7 +110,7 @@ type Site interface {
 	// Returns a map of all the data inside /data.
 	Data() map[string]any
 
-	// Returns the site config.
+	// Returns the project config.
 	Config() SiteConfig
 
 	// BuildDrafts is deprecated and will be removed in a future release.

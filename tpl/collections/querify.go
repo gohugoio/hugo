@@ -37,7 +37,7 @@ func (ns *Namespace) Querify(params ...any) (string, error) {
 		switch v := params[0].(type) {
 		case map[string]any: // created with collections.Dictionary
 			return mapToQueryString(v)
-		case hmaps.Params: // site configuration or page parameters
+		case hmaps.Params: // project configuration or page parameters
 			return mapToQueryString(v)
 		case []string:
 			return stringSliceToQueryString(v)

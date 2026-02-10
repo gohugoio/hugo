@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	// DefaultArchetypeTemplateTemplate is the template used in 'hugo new site'
+	// DefaultArchetypeTemplateTemplate is the template used in 'hugo new project'
 	// and the template we use as a fall back.
 	DefaultArchetypeTemplateTemplate = `---
 title: "{{ replace .File.ContentBaseName "-" " " | title }}"

@@ -520,8 +520,8 @@ func (r *rootCommand) initRootCommand(subCommandName string, cd *simplecobra.Com
 		commandName = subCommandName
 	}
 	cmd.Use = fmt.Sprintf("%s [flags]", commandName)
-	cmd.Short = "Build your site"
-	cmd.Long = `COMMAND_NAME is the main command, used to build your Hugo site.
+	cmd.Short = "Build your project"
+	cmd.Long = `COMMAND_NAME is the main command, used to build your Hugo project.
 
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
@@ -622,13 +622,14 @@ func (r *rootCommand) timeTrack(start time.Time, name string) {
 }
 
 type simpleCommand struct {
-	use   string
-	name  string
-	short string
-	long  string
-	run   func(ctx context.Context, cd *simplecobra.Commandeer, rootCmd *rootCommand, args []string) error
-	withc func(cmd *cobra.Command, r *rootCommand)
-	initc func(cd *simplecobra.Commandeer) error
+	use     string
+	name    string
+	short   string
+	long    string
+	aliases []string
+	run     func(ctx context.Context, cd *simplecobra.Commandeer, rootCmd *rootCommand, args []string) error
+	withc   func(cmd *cobra.Command, r *rootCommand)
+	initc   func(cd *simplecobra.Commandeer) error
 
 	commands []simplecobra.Commander
 
@@ -655,6 +656,7 @@ func (c *simpleCommand) Init(cd *simplecobra.Commandeer) error {
 	cmd := cd.CobraCommand
 	cmd.Short = c.short
 	cmd.Long = c.long
+	cmd.Aliases = c.aliases
 	if c.use != "" {
 		cmd.Use = c.use
 	}
@@ -672,7 +674,7 @@ func (c *simpleCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 }
 
 func mapLegacyArgs(args []string) []string {
-	if len(args) > 1 && args[0] == "new" && !hstrings.EqualAny(args[1], "site", "theme", "content") {
+	if len(args) > 1 && args[0] == "new" && !hstrings.EqualAny(args[1], "project", "site", "theme", "content") {
 		// Insert "content" as the second argument
 		args = append(args[:1], append([]string{"content"}, args[1:]...)...)
 	}

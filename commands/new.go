@@ -46,9 +46,9 @@ It will guess which kind of file to create based on the path provided.
 
 You can also specify the kind with ` + "`-k KIND`" + `.
 
-If archetypes are provided in your theme or site, they will be used.
+If archetypes are provided in your theme or project, they will be used.
 
-Ensure you run this within the root directory of your site.`,
+Ensure you run this within the root directory of your project.`,
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 1 {
 						return newUserError("path needs to be provided")
@@ -76,10 +76,11 @@ Ensure you run this within the root directory of your site.`,
 				},
 			},
 			&simpleCommand{
-				name:  "site",
-				use:   "site [path]",
-				short: "Create a new site",
-				long:  `Create a new site at the specified path.`,
+				name:    "project",
+				use:     "project [path]",
+				short:   "Create a new project",
+				long:    `Create a new project at the specified path.`,
+				aliases: []string{"site"},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
 					if len(args) < 1 {
 						return newUserError("path needs to be provided")
@@ -99,13 +100,13 @@ Ensure you run this within the root directory of your site.`,
 					}
 					sourceFs := conf.fs.Source
 
-					err = skeletons.CreateSite(createpath, sourceFs, force, format)
+					err = skeletons.CreateProject(createpath, sourceFs, force, format)
 					if err != nil {
 						return err
 					}
 
-					r.Printf("Congratulations! Your new Hugo site was created in %s.\n\n", createpath)
-					r.Println(c.newSiteNextStepsText(createpath, format))
+					r.Printf("Congratulations! Your new Hugo project was created in %s.\n\n", createpath)
+					r.Println(c.newProjectNextStepsText(createpath, format))
 
 					return nil
 				},
@@ -192,9 +193,9 @@ It will guess which kind of file to create based on the path provided.
 
 You can also specify the kind with ` + "`-k KIND`" + `.
 
-If archetypes are provided in your theme or site, they will be used.
+If archetypes are provided in your theme or project, they will be used.
 
-Ensure you run this within the root directory of your site.`
+Ensure you run this within the root directory of your project.`
 
 	cmd.RunE = nil
 	return nil
@@ -205,7 +206,7 @@ func (c *newCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	return nil
 }
 
-func (c *newCommand) newSiteNextStepsText(path string, format string) string {
+func (c *newCommand) newProjectNextStepsText(path string, format string) string {
 	format = strings.ToLower(format)
 	var nextStepsText bytes.Buffer
 

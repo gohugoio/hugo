@@ -1,7 +1,7 @@
 # Test the config command.
 
 hugo config -h
-stdout 'Display site configuration'
+stdout 'Display project configuration'
 
 
 hugo config
@@ -18,4 +18,4 @@ stdout '\"source\": \"content\",'
 # Test files
 -- hugo.toml --
 baseURL="https://example.com/"
-title="My New Hugo Site"
+title="My New Hugo Project"
