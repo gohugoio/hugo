@@ -46,4 +46,4 @@ title = "Hugo Sub Module"
 -- golden/go.mod.testsubmod --
 module testsubmod
 
-go ${GOVERSION}
+go ${GOMODVERSION}

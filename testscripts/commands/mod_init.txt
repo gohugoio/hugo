@@ -12,4 +12,4 @@ path="github.com/bep/empty-hugo-module"
 -- golden/go.mod.testsubmod --
 module testsubmod
 
-go ${GOVERSION}
+go ${GOMODVERSION}

@@ -463,7 +463,7 @@ func (c *importCommand) importFromJekyll(args []string) error {
 	}
 
 	c.r.Println("Congratulations!", fileCount, "post(s) imported!")
-	c.r.Println("Now, start Hugo by yourself:\n")
+	c.r.Println("Now, start Hugo by yourself:")
 	c.r.Println("cd " + args[1])
 	c.r.Println("git init")
 	c.r.Println("git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke")

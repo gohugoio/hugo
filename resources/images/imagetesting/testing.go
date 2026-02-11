@@ -236,7 +236,8 @@ func goldenEqual(img1, img2 *image.NRGBA) bool {
 }
 
 // We don't have a CI test environment for these, and there are known dithering issues that makes these time consuming to maintain.
-var SkipGoldenTests = runtime.GOARCH == "ppc64" || runtime.GOARCH == "ppc64le" || runtime.GOARCH == "s390x"
+// Go changed their JPEG implementation in Go 1.26, so we cannot run the golden tests on earlier versions. See https://go.dev/doc/go1.26#imagejpegpkgimagejpeg
+var SkipGoldenTests = htesting.GoMinorVersion() < 26 || runtime.GOARCH == "ppc64" || runtime.GOARCH == "ppc64le" || runtime.GOARCH == "s390x"
 
 // UsesFMA indicates whether "fused multiply and add" (FMA) instruction is
 // used.  The command "grep FMADD go/test/codegen/floats.go" can help keep
