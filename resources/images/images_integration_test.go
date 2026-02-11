@@ -16,6 +16,7 @@ package images_test
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -52,6 +53,10 @@ Orientation: {{ $orientation }}|eq 6: {{ eq $orientation 6 }}|Type: {{ printf "%
 }
 
 func TestColorsIssue14453(t *testing.T) {
+	// Go changed their JPEG implementation in Go 1.26, so we cannot run this test on earlier versions. See https://go.dev/doc/go1.26#imagejpegpkgimagejpeg
+	if htesting.GoMinorVersion() < 26 {
+		t.Skip("Go 1.26+ required")
+	}
 	files := `
 -- hugo.toml --
 -- assets/sunset.jpg --
@@ -69,7 +74,7 @@ Colors: {{ $colors }}|
 			cfg.NeedsOsFS = true
 			cfg.WorkingDir = tempDir
 		}))
-		b.AssertFileContent("public/index.html", "Colors: [#2e2f34 #a39e94 #d39e57 #a96b3a #747b84 #7c838a]|")
+		b.AssertFileContent("public/index.html", "Colors: [#2e2f34 #a39e94 #d29e58 #ab6b3a #747b84 #7c838a]|")
 
 	}
 }
