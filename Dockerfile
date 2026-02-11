@@ -65,7 +65,9 @@ RUN apk add --no-cache \
     git \
     runuser \
     nodejs \
-    npm
+    npm \
+    openssh-client \
+    tar
 
 RUN mkdir -p /var/hugo/bin /cache && \
     addgroup -Sg 1000 hugo && \
