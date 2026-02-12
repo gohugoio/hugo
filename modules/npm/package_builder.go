@@ -60,7 +60,7 @@ func Pack(sourceFs, assetsWithDuplicatesPreservedFs afero.Fs) error {
 		} else {
 			// Create one.
 			name := "project"
-			// Use the Hugo site's folder name as the default name.
+			// Use the Hugo project's folder name as the default name.
 			// The owner can change it later.
 			rfi, err := sourceFs.Stat("")
 			if err == nil {

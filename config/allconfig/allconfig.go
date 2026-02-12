@@ -401,21 +401,21 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 
 	// Legacy privacy values.
 	if c.Privacy.Twitter.Disable {
-		hugo.DeprecateWithLogger("site config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0", logger.Logger())
+		hugo.DeprecateWithLogger("project config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.Disable = c.Privacy.Twitter.Disable
 	}
 	if c.Privacy.Twitter.EnableDNT {
-		hugo.DeprecateWithLogger("site config key privacy.twitter.enableDNT", "Use privacy.x.enableDNT instead.", "v0.141.0", logger.Logger())
+		hugo.DeprecateWithLogger("project config key privacy.twitter.enableDNT", "Use privacy.x.enableDNT instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.EnableDNT = c.Privacy.Twitter.EnableDNT
 	}
 	if c.Privacy.Twitter.Simple {
-		hugo.DeprecateWithLogger("site config key privacy.twitter.simple", "Use privacy.x.simple instead.", "v0.141.0", logger.Logger())
+		hugo.DeprecateWithLogger("project config key privacy.twitter.simple", "Use privacy.x.simple instead.", "v0.141.0", logger.Logger())
 		c.Privacy.X.Simple = c.Privacy.Twitter.Simple
 	}
 
 	// Legacy services values.
 	if c.Services.Twitter.DisableInlineCSS {
-		hugo.DeprecateWithLogger("site config key services.twitter.disableInlineCSS", "Use services.x.disableInlineCSS instead.", "v0.141.0", logger.Logger())
+		hugo.DeprecateWithLogger("project config key services.twitter.disableInlineCSS", "Use services.x.disableInlineCSS instead.", "v0.141.0", logger.Logger())
 		c.Services.X.DisableInlineCSS = c.Services.Twitter.DisableInlineCSS
 	}
 
@@ -436,7 +436,7 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	)
 	if c.Markup.Goldmark.RenderHooks.Image.EnableDefault != nil {
 		alternative := "Use markup.goldmark.renderHooks.image.useEmbedded instead." + " " + alternativeDetails
-		hugo.DeprecateWithLogger("site config key markup.goldmark.renderHooks.image.enableDefault", alternative, "0.148.0", logger.Logger())
+		hugo.DeprecateWithLogger("project config key markup.goldmark.renderHooks.image.enableDefault", alternative, "0.148.0", logger.Logger())
 		if *c.Markup.Goldmark.RenderHooks.Image.EnableDefault {
 			c.Markup.Goldmark.RenderHooks.Image.UseEmbedded = gc.RenderHookUseEmbeddedFallback
 		} else {
@@ -445,7 +445,7 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	}
 	if c.Markup.Goldmark.RenderHooks.Link.EnableDefault != nil {
 		alternative := "Use markup.goldmark.renderHooks.link.useEmbedded instead." + " " + alternativeDetails
-		hugo.DeprecateWithLogger("site config key markup.goldmark.renderHooks.link.enableDefault", alternative, "0.148.0", logger.Logger())
+		hugo.DeprecateWithLogger("project config key markup.goldmark.renderHooks.link.enableDefault", alternative, "0.148.0", logger.Logger())
 		if *c.Markup.Goldmark.RenderHooks.Link.EnableDefault {
 			c.Markup.Goldmark.RenderHooks.Link.UseEmbedded = gc.RenderHookUseEmbeddedFallback
 		} else {
@@ -461,10 +461,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		gc.RenderHookUseEmbeddedNever,
 	}
 	if !slices.Contains(renderHookUseEmbeddedModes, c.Markup.Goldmark.RenderHooks.Image.UseEmbedded) {
-		return fmt.Errorf("site config markup.goldmark.renderHooks.image.useEmbedded must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
+		return fmt.Errorf("project config markup.goldmark.renderHooks.image.useEmbedded must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
 	}
 	if !slices.Contains(renderHookUseEmbeddedModes, c.Markup.Goldmark.RenderHooks.Link.UseEmbedded) {
-		return fmt.Errorf("site config markup.goldmark.renderHooks.link.useEmbedded must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
+		return fmt.Errorf("project config markup.goldmark.renderHooks.link.useEmbedded must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
 	}
 
 	c.C = &ConfigCompiled{

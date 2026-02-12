@@ -1,5 +1,5 @@
-hugo new site myblog
-cd myblog
+hugo new project my-project
+cd my-project
 hugo new content --kind post post/first-post.md
 ! exists resources
 grep 'draft = true' content/post/first-post.md
@@ -7,7 +7,7 @@ grep 'draft = true' content/post/first-post.md
 # Issue 12599
 cd $WORK
 
-hugo new site --format toml --force issue-12599
+hugo new project --format toml --force issue-12599
 cp hugo.toml issue-12599/hugo.toml
 cd issue-12599
 hugo new content content/s1/2099-12-31-p1.md

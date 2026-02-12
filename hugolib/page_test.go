@@ -887,7 +887,7 @@ func TestContentProviderWithCustomOutputFormat(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = 'http://example.org/'
-title = 'My New Hugo Site'
+title = 'My New Hugo Project'
 
 timeout = 600000 # ten minutes in case we want to pause and debug
 
@@ -1803,7 +1803,7 @@ baseURL = "https://example.org"
 Author page: {{ $withParam.Param "author.name" }}
 Author name page string: {{ $withStringParam.Param "author.name" }}|
 Author page string: {{ $withStringParam.Param "author" }}|
-Author site config:  {{ $noParam.Param "author.name" }}
+Author project config:  {{ $noParam.Param "author.name" }}
 
 -- content/withparam.md --
 +++
@@ -1835,7 +1835,7 @@ author = "Jo Nesbø"
 		"Author page: Ernest Miller Hemingway",
 		"Author name page string: Kurt Vonnegut|",
 		"Author page string: Jo Nesbø|",
-		"Author site config:  Kurt Vonnegut")
+		"Author project config:  Kurt Vonnegut")
 }
 
 func TestGoldmark(t *testing.T) {

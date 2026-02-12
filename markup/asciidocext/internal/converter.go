@@ -138,7 +138,7 @@ func (a *AsciiDocConverter) ParseArgs(ctx converter.DocumentContext) ([]string, 
 
 		if attributeKey == asciiDocDiagramCacheImagesOptionKey {
 			a.Cfg.Logger.Warnf(
-				"The %q Asciidoctor attribute is fixed and cannot be modified. To disable caching of both image and metadata files, set markup.asciidocext.attributes.diagram-nocache-option to true in your site configuration.",
+				"The %q Asciidoctor attribute is fixed and cannot be modified. To disable caching of both image and metadata files, set markup.asciidocext.attributes.diagram-nocache-option to true in your project configuration.",
 				attributeKey,
 			)
 			continue
@@ -146,7 +146,7 @@ func (a *AsciiDocConverter) ParseArgs(ctx converter.DocumentContext) ([]string, 
 
 		if attributeKey == asciiDocDiagramCacheDirKey {
 			a.Cfg.Logger.Warnf(
-				"The %q Asciidoctor attribute is fixed and cannot be modified. To change the cache location, modify caches.misc.dir in your site configuration.",
+				"The %q Asciidoctor attribute is fixed and cannot be modified. To change the cache location, modify caches.misc.dir in your project configuration.",
 				attributeKey,
 			)
 			continue

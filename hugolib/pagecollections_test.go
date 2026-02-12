@@ -316,7 +316,7 @@ categories:
 func TestGetPageIndexIndex(t *testing.T) {
 	files := `
 -- hugo.toml --
-disableKinds = ["taxonomy", "term"]	
+disableKinds = ["taxonomy", "term"]
 -- content/mysect/index/index.md --
 ---
 title: "Mysect Index"
@@ -525,7 +525,7 @@ p1/index.md: {{ with .GetPage "p1/index.md" }}{{ .Title }}{{ end }}|
 `)
 
 	b.AssertFileContent("public/s1/p2/index.html", `
-../p2: p2_root|	 
+../p2: p2_root|
 ../p2.md: p2_root|
 p1/index.md: p1|
 ../s2/p3/index.md: p3|
@@ -616,7 +616,7 @@ func TestGetPageMultilingual(t *testing.T) {
 baseURL = "http://example.org/"
 languageCode = "en-us"
 defaultContentLanguage = "ru"
-title = "My New Hugo Site"
+title = "My New Hugo Project"
 uglyurls = true
 
 [languages]
@@ -667,7 +667,7 @@ func TestRegularPagesRecursive(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.org/"
-title = "My New Hugo Site"
+title = "My New Hugo Project"
 -- content/docs/1.md --
 ---
 title: docs1

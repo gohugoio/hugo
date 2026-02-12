@@ -31,7 +31,7 @@ import (
 var smc = newMenuCache()
 
 // MenuEntry represents a menu item defined in either Page front matter
-// or in the site config.
+// or in the project config.
 type MenuEntry struct {
 	// The menu entry configuration.
 	MenuConfig
@@ -52,7 +52,7 @@ type MenuEntry struct {
 func (m *MenuEntry) URL() string {
 	// Check page first.
 	// In Hugo 0.86.0 we added `pageRef`,
-	// a way to connect menu items in site config to pages.
+	// a way to connect menu items in project config to pages.
 	// This means that you now can have both a Page
 	// and a configured URL.
 	// Having the configured URL as a fallback if the Page isn't found

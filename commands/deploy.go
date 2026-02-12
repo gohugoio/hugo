@@ -27,8 +27,8 @@ import (
 func newDeployCommand() simplecobra.Commander {
 	return &simpleCommand{
 		name:  "deploy",
-		short: "Deploy your site to a cloud provider",
-		long: `Deploy your site to a cloud provider
+		short: "Deploy your project to a cloud provider",
+		long: `Deploy your project to a cloud provider
 
 See https://gohugo.io/hosting-and-deployment/hugo-deploy/ for detailed
 documentation.

@@ -30,7 +30,7 @@ import (
 
 // ProviderConfig configures a new Provider.
 type ProviderConfig struct {
-	Conf      config.AllProvider // Site config
+	Conf      config.AllProvider // Project config
 	ContentFs afero.Fs
 	Logger    loggers.Logger
 	Exec      *hexec.Exec

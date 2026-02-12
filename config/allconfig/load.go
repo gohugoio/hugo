@@ -39,7 +39,7 @@ import (
 )
 
 //lint:ignore ST1005 end user message.
-var ErrNoConfigFile = errors.New("Unable to locate config file or config directory. Perhaps you need to create a new site.\n       Run `hugo help new` for details.\n")
+var ErrNoConfigFile = errors.New("Unable to locate config file or config directory. Perhaps you need to create a new project.\n       Run `hugo help new` for details.\n")
 
 func LoadConfig(d ConfigSourceDescriptor) (configs *Configs, err error) {
 	defer func() {
@@ -179,12 +179,12 @@ func (l configLoader) applyDefaultConfig() error {
 
 func (l configLoader) normalizeCfg(cfg config.Provider) error {
 	if b, ok := cfg.Get("minifyOutput").(bool); ok {
-		hugo.Deprecate("site config minifyOutput", "Use minify.minifyOutput instead.", "v0.150.0")
+		hugo.Deprecate("project config minifyOutput", "Use minify.minifyOutput instead.", "v0.150.0")
 		if b {
 			cfg.Set("minify.minifyOutput", true)
 		}
 	} else if b, ok := cfg.Get("minify").(bool); ok {
-		hugo.Deprecate("site config minify", "Use minify.minifyOutput instead.", "v0.150.0")
+		hugo.Deprecate("project config minify", "Use minify.minifyOutput instead.", "v0.150.0")
 		if b {
 			cfg.Set("minify", hmaps.Params{"minifyOutput": true})
 		}

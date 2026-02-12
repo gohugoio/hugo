@@ -1,7 +1,7 @@
 # Test the hugo version command.
 
 hugo -h
-stdout 'hugo is the main command, used to build your Hugo site'
+stdout 'hugo is the main command, used to build your Hugo project'
 
 hugo version
 stdout 'hugo v.* BuildDate=unknown'

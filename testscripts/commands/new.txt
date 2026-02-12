@@ -1,12 +1,12 @@
 # Test the new command.
 
-hugo new site -h
-stdout 'Create a new site at the specified path.'
-hugo new site my-yaml-site --format yml
-checkfile my-yaml-site/hugo.yml
-hugo new site mysite -f
-stdout 'Congratulations! Your new Hugo site was created in'
-cd mysite
+hugo new project -h
+stdout 'Create a new project at the specified path.'
+hugo new project my-yaml-project --format yml
+checkfile my-yaml-project/hugo.yml
+hugo new project my-project -f
+stdout 'Congratulations! Your new Hugo project was created in'
+cd my-project
 checkfile archetypes/default.md
 checkfile hugo.toml
 exists assets
@@ -20,11 +20,11 @@ exists themes
 
 hugo new theme -h
 stdout 'Create a new theme with the specified name in the ./themes directory.'
-hugo new theme mytheme --format yml
+hugo new theme my-theme --format yml
 stdout 'Creating new theme'
 ! exists resources
 cd themes
-cd mytheme
+cd my-theme
 checkfile archetypes/default.md
 checkfile assets/css/main.css
 checkfile assets/js/main.js
@@ -52,7 +52,7 @@ checkfile hugo.yml
 exists data
 exists i18n
 
-cd $WORK/mysite
+cd $WORK/my-project
 
 hugo new -h
 stdout 'Create a new content file.'
@@ -60,8 +60,8 @@ hugo new posts/my-first-post.md
 checkfile content/posts/my-first-post.md
 
 cd ..
-cd myexistingsite
-hugo new post/foo.md -t mytheme
+cd my-existing-project
+hugo new post/foo.md -t my-theme
 grep 'Dummy content' content/post/foo.md
 
 cd $WORK
@@ -69,23 +69,23 @@ cd $WORK
 # In the three archetype format tests below, skip Windows testing to avoid
 # newline differences when comparing to golden.
 
-hugo new site json-site --format json
-[!windows] cmp json-site/archetypes/default.md archetype-golden-json.md
+hugo new project json-project --format json
+[!windows] cmp json-project/archetypes/default.md archetype-golden-json.md
 
-hugo new site toml-site --format toml
-[!windows] cmp toml-site/archetypes/default.md archetype-golden-toml.md
+hugo new project toml-project --format toml
+[!windows] cmp toml-project/archetypes/default.md archetype-golden-toml.md
 
-hugo new site yaml-site --format yaml
-[!windows] cmp yaml-site/archetypes/default.md archetype-golden-yaml.md
+hugo new project yaml-project --format yaml
+[!windows] cmp yaml-project/archetypes/default.md archetype-golden-yaml.md
 
--- myexistingsite/hugo.toml --
-theme = "mytheme"
--- myexistingsite/content/p1.md --
+-- my-existing-project/hugo.toml --
+theme = "my-theme"
+-- my-existing-project/content/p1.md --
 ---
 title: "P1"
 ---
--- myexistingsite/themes/mytheme/hugo.toml --
--- myexistingsite/themes/mytheme/archetypes/post.md --
+-- my-existing-project/themes/my-theme/hugo.toml --
+-- my-existing-project/themes/my-theme/archetypes/post.md --
 ---
 title: "{{ replace .Name "-" " " | title }}"
 date: {{ .Date }}

@@ -1,17 +1,17 @@
 # Test the import + import jekyll command.
 
-hugo import -h 
-stdout 'Import a site from another system'
+hugo import -h
+stdout 'Import a project from another system'
 
 hugo import jekyll -h
 stdout 'hugo import from Jekyll\.'
 
-hugo import jekyll myjekyllsite myhugosite
-checkfilecount 1 myhugosite/content/post
-grep 'example\.org' myhugosite/hugo.yaml
+hugo import jekyll my-jekyll-project my-hugo-project
+checkfilecount 1 my-hugo-project/content/post
+grep 'example\.org' my-hugo-project/hugo.yaml
 
-# A simple Jekyll site.
--- myjekyllsite/_posts/2012-01-18-hello-world.markdown --
+# A simple Jekyll project.
+-- my-jekyll-project/_posts/2012-01-18-hello-world.markdown --
 ---
 layout: post
 title: "Hello World"

@@ -15,4 +15,4 @@ hugo config
 
 -- hugo.toml --
 baseURL="https://example.com/"
-title="My New Hugo Site"
+title="My New Hugo Project"

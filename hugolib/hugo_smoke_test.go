@@ -151,7 +151,7 @@ myshortcode.en.html
 		"Parent: |",
 	)
 	b.AssertFileContent("public/nn/index.html",
-		"Site title nn|", // from site config.
+		"Site title nn|", // from project config.
 		"Lastmod: 2024-10-01",
 		"RenderString with shortcode: myshortcode.html",
 	)

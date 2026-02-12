@@ -352,7 +352,7 @@ func (l *logAdapter) Warnidf(id, format string, v ...any) {
 }
 
 func (l *logAdapter) idfInfoStatement(what, id, format string) string {
-	return fmt.Sprintf("\nYou can suppress this %s by adding the following to your site configuration:\nignoreLogs = ['%s']", what, id)
+	return fmt.Sprintf("\nYou can suppress this %s by adding the following to your project configuration:\nignoreLogs = ['%s']", what, id)
 }
 
 func (l *logAdapter) Trace(s logg.StringFunc) {

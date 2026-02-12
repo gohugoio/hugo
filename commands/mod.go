@@ -26,7 +26,7 @@ import (
 )
 
 const commonUsageMod = `
-Note that Hugo will always start out by resolving the components defined in the site
+Note that Hugo will always start out by resolving the components defined in the project
 configuration, provided by a _vendor directory (if no --ignoreVendorPaths flag provided),
 Go Modules, or a folder inside the themes directory, in that order.
 

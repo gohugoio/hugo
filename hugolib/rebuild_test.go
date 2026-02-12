@@ -485,7 +485,7 @@ My short.
 func TestRebuildBaseof(t *testing.T) {
 	files := `
 -- hugo.toml --
-title = "Hugo Site"
+title = "Hugo Project"
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
@@ -498,11 +498,11 @@ Home: {{ .Title }}|{{ .Content }}|
 {{ end }}
 `
 	testRebuildBothWatchingAndRunning(t, files, func(b *IntegrationTestBuilder) {
-		b.AssertFileContent("public/index.html", "Baseof: Hugo Site|", "Home: Hugo Site||")
+		b.AssertFileContent("public/index.html", "Baseof: Hugo Project|", "Home: Hugo Project||")
 		b.EditFileReplaceFunc("layouts/baseof.html", func(s string) string {
 			return strings.Replace(s, "Baseof", "Baseof Edited", 1)
 		}).Build()
-		b.AssertFileContent("public/index.html", "Baseof Edited: Hugo Site|", "Home: Hugo Site||")
+		b.AssertFileContent("public/index.html", "Baseof Edited: Hugo Project|", "Home: Hugo Project||")
 	})
 }
 
@@ -511,7 +511,7 @@ func TestRebuildSingle(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-title = "Hugo Site"
+title = "Hugo Project"
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy", "sitemap", "robotstxt", "404"]
 disableLiveReload = true
@@ -547,7 +547,7 @@ func TestRebuildSingleWithBaseofEditSingle(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-title = "Hugo Site"
+title = "Hugo Project"
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
@@ -583,7 +583,7 @@ func TestRebuildSingleWithBaseofEditBaseof(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-title = "Hugo Site"
+title = "Hugo Project"
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
@@ -618,7 +618,7 @@ func TestRebuildWithDeferEditRenderHook(t *testing.T) {
 
 	files := `
 -- hugo.toml --
-title = "Hugo Site"
+title = "Hugo Project"
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
 disableLiveReload = true
@@ -926,7 +926,7 @@ Len RegularPagesRecursive: {{ len .RegularPagesRecursive }}
 Site.Lastmod: {{ .Site.Lastmod.Format "2006-01-02" }}|
 Paginate: {{ range (.Paginate .Site.RegularPages).Pages }}{{ .RelPermalink }}|{{ .Title }}|{{ end }}$
 -- layouts/single.html --
-Single: .Site: {{ .Site }} 
+Single: .Site: {{ .Site }}
 Single: {{ .Title }}|{{ .Content }}|
 Single Partial Cached: {{ partialCached "pcached" . }}|
 Page.Lastmod: {{ .Lastmod.Format "2006-01-02" }}|

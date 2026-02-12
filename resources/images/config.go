@@ -377,7 +377,7 @@ type ImageConfig struct {
 	Rotate int
 
 	// Used to fill any transparency.
-	// When set in site config, it's used when converting to a format that does
+	// When set in project config, it's used when converting to a format that does
 	// not support transparency.
 	// When set per image operation, it's used even for formats that does support
 	// transparency.

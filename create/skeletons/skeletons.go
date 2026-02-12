@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/afero"
 )
 
-//go:embed all:site/*
-var siteFs embed.FS
+//go:embed all:project/*
+var projectFs embed.FS
 
 //go:embed all:theme/*
 var themeFs embed.FS
@@ -41,10 +41,10 @@ func CreateTheme(createpath string, sourceFs afero.Fs, format string) error {
 
 	format = strings.ToLower(format)
 
-	siteConfig := map[string]any{
+	projectConfig := map[string]any{
 		"baseURL":      "https://example.org/",
 		"languageCode": "en-US",
-		"title":        "My New Hugo Site",
+		"title":        "My New Hugo Project",
 		"menus": map[string]any{
 			"main": []any{
 				map[string]any{
@@ -72,7 +72,7 @@ func CreateTheme(createpath string, sourceFs afero.Fs, format string) error {
 		},
 	}
 
-	err := createSiteConfig(sourceFs, createpath, siteConfig, format)
+	err := createProjectConfig(sourceFs, createpath, projectConfig, format)
 	if err != nil {
 		return err
 	}
@@ -91,8 +91,8 @@ func CreateTheme(createpath string, sourceFs afero.Fs, format string) error {
 	return copyFiles(createpath, sourceFs, themeFs)
 }
 
-// CreateSite creates a site skeleton.
-func CreateSite(createpath string, sourceFs afero.Fs, force bool, format string) error {
+// CreateProject creates a project skeleton.
+func CreateProject(createpath string, sourceFs afero.Fs, force bool, format string) error {
 	format = strings.ToLower(format)
 	if exists, _ := helpers.Exists(createpath, sourceFs); exists {
 		if isDir, _ := helpers.IsDir(createpath, sourceFs); !isDir {
@@ -106,7 +106,7 @@ func CreateSite(createpath string, sourceFs afero.Fs, force bool, format string)
 			return errors.New(createpath + " already exists and is not empty. See --force.")
 		case !isEmpty && force:
 			var all []string
-			fs.WalkDir(siteFs, ".", func(path string, d fs.DirEntry, err error) error {
+			fs.WalkDir(projectFs, ".", func(path string, d fs.DirEntry, err error) error {
 				if d.IsDir() && path != "." {
 					all = append(all, path)
 				}
@@ -121,13 +121,13 @@ func CreateSite(createpath string, sourceFs afero.Fs, force bool, format string)
 		}
 	}
 
-	siteConfig := map[string]any{
+	projectConfig := map[string]any{
 		"baseURL":      "https://example.org/",
-		"title":        "My New Hugo Site",
+		"title":        "My New Hugo Project",
 		"languageCode": "en-us",
 	}
 
-	err := createSiteConfig(sourceFs, createpath, siteConfig, format)
+	err := createProjectConfig(sourceFs, createpath, projectConfig, format)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func CreateSite(createpath string, sourceFs afero.Fs, force bool, format string)
 		return err
 	}
 
-	return copyFiles(createpath, sourceFs, siteFs)
+	return copyFiles(createpath, sourceFs, projectFs)
 }
 
 func copyFiles(createpath string, sourceFs afero.Fs, skeleton embed.FS) error {
@@ -161,7 +161,7 @@ func copyFiles(createpath string, sourceFs afero.Fs, skeleton embed.FS) error {
 	})
 }
 
-func createSiteConfig(fs afero.Fs, createpath string, in map[string]any, format string) (err error) {
+func createProjectConfig(fs afero.Fs, createpath string, in map[string]any, format string) (err error) {
 	var buf bytes.Buffer
 	err = parser.InterfaceToConfig(in, metadecoders.FormatFromString(format), &buf)
 	if err != nil {
