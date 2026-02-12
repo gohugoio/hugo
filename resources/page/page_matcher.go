@@ -199,8 +199,12 @@ func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (Pa
 	}
 
 	for k, v := range m {
-		switch strings.ToLower(k) {
+		klc := strings.ToLower(k)
+		switch klc {
 		case "_target", "target":
+			if klc == "_target" {
+				hugo.Deprecate("cascade._target", "Use cascade.target instead, see https://gohugo.io/content-management/front-matter/#target", "v0.156.0")
+			}
 			var target PageMatcher
 			if err := d.decodePageMatcher(v, &target); err != nil {
 				return pcfg, err
