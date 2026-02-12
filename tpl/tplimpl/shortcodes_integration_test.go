@@ -125,26 +125,6 @@ Content: {{ .Content }}
 	b.AssertFileContent("public/index.html", "35b077dcb9887a84")
 }
 
-func TestGistShortcode(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-disableKinds = ['page','rss','section','sitemap','taxonomy','term']
--- layouts/home.html --
-{{ .Content }}
--- content/_index.md --
----
-title: home
----
-{{< gist jmooring 23932424365401ffa5e9d9810102a477 >}}
-`
-
-	b := hugolib.Test(t, files, hugolib.TestOptWarn())
-	b.AssertFileContent("public/index.html", `<script src="https://gist.github.com/jmooring/23932424365401ffa5e9d9810102a477.js"></script>`)
-	b.AssertLogContains(`WARN  The "gist" shortcode was deprecated in v0.143.0 and will be removed in a future release. See https://gohugo.io/shortcodes/gist for instructions to create a replacement.`)
-}
-
 func TestHighlightShortcode(t *testing.T) {
 	t.Parallel()
 
@@ -889,4 +869,25 @@ title: p1
 		b.Assert(err, qt.IsNotNil)
 		b.AssertLogContains(want)
 	}
+}
+
+// Issue 14491
+func TestGistShortcodeDeprecationError14491(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{< gist user 23932424365401ffa5e9d9810102a477 >}}
+`
+
+	b, err := hugolib.TestE(t, files, hugolib.TestOptWarn())
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogContains(`ERROR The "gist" shortcode was deprecated in v0.143.0 and removed in v0.156.0.`)
 }
