@@ -17,7 +17,6 @@ import (
 	"context"
 
 	"github.com/gohugoio/hugo/common/hsync"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
@@ -53,20 +52,8 @@ func (p pagePosition) Next() page.Page {
 	return p.next()
 }
 
-// Deprecated: Use Next instead.
-func (p pagePosition) NextPage() page.Page {
-	hugo.Deprecate(".Page.NextPage", "Use .Page.Next instead.", "v0.123.0")
-	return p.Next()
-}
-
 func (p pagePosition) Prev() page.Page {
 	return p.prev()
-}
-
-// Deprecated: Use Prev instead.
-func (p pagePosition) PrevPage() page.Page {
-	hugo.Deprecate(".Page.PrevPage", "Use .Page.Prev instead.", "v0.123.0")
-	return p.Prev()
 }
 
 type pagePositionInSection struct {

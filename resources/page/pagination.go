@@ -19,7 +19,6 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/spf13/cast"
@@ -192,13 +191,6 @@ func (p *Pager) Last() *Pager {
 // Pagers returns a list of pagers that can be used to build a pagination menu.
 func (p *Paginator) Pagers() pagers {
 	return p.pagers
-}
-
-// PageSize returns the size of each paginator page.
-// Deprecated: Use PagerSize instead.
-func (p *Paginator) PageSize() int {
-	hugo.Deprecate("PageSize", "Use PagerSize instead.", "v0.128.0")
-	return p.size
 }
 
 // PagerSize returns the size of each paginator page.

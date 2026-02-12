@@ -31,12 +31,6 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
-		// Deprecated. Use hash.FNV32a instead.
-		ns.AddMethodMapping(ctx.FNV32a,
-			nil,
-			[][2]string{},
-		)
-
 		ns.AddMethodMapping(ctx.HMAC,
 			[]string{"hmac"},
 			[][2]string{
