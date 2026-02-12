@@ -450,7 +450,6 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 	return rv.Interface(), nil
 }
 
-
 // toString returns the string value if possible, "" if not.
 
 func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
