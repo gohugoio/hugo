@@ -275,6 +275,13 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 		}
 	}
 
+	// Fast path: both values are plain strings.
+	if as, aOk := a.(string); aOk {
+		if bs, bOk := b.(string); bOk {
+			return ns.compareTwoStrings(collator, as, bs)
+		}
+	}
+
 	var left, right float64
 	var leftStr, rightStr *string
 	av := reflect.ValueOf(a)
@@ -350,20 +357,8 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 		}
 	}
 
-	if (ns.caseInsensitive || collator != nil) && leftStr != nil && rightStr != nil {
-		var c int
-		if collator != nil {
-			c = collator.CompareStrings(*leftStr, *rightStr)
-		} else {
-			c = compare.Strings(*leftStr, *rightStr)
-		}
-		if c < 0 {
-			return 0, 1
-		} else if c > 0 {
-			return 1, 0
-		} else {
-			return 0, 0
-		}
+	if leftStr != nil && rightStr != nil {
+		return ns.compareTwoStrings(collator, *leftStr, *rightStr)
 	}
 
 	switch {
@@ -377,6 +372,29 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	}
 
 	return left, right
+}
+
+func (ns *Namespace) compareTwoStrings(collator *langs.Collator, a, b string) (float64, float64) {
+	if ns.caseInsensitive || collator != nil {
+		var c int
+		if collator != nil {
+			c = collator.CompareStrings(a, b)
+		} else {
+			c = compare.Strings(a, b)
+		}
+		if c < 0 {
+			return 0, 1
+		} else if c > 0 {
+			return 1, 0
+		}
+		return 0, 0
+	}
+	if a < b {
+		return 0, 1
+	} else if a > b {
+		return 1, 0
+	}
+	return 0, 0
 }
 
 func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {

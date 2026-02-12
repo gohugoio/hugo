@@ -588,6 +588,8 @@ All.
 	seq := s.RegularPages()
 	ns := s.TemplateStore.GetTemplateFuncsNamespace("collections").(*collections.Namespace)
 
+	b.ResetTimer()
+
 	b.Run("Where", func(b *testing.B) {
 		for b.Loop() {
 			v, err := ns.Where(context.Background(), seq, "Title", "ge", "Page0480")
