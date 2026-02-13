@@ -26,8 +26,10 @@ import (
 func TestHugoInfo(t *testing.T) {
 	c := qt.New(t)
 
-	conf := testConfig{environment: "production", workingDir: "/mywork", running: false}
-	hugoInfo := NewInfo(conf, nil)
+	opts := HugoInfoOptions{
+		Conf: testConfig{environment: "production", workingDir: "/mywork", running: false},
+	}
+	hugoInfo := NewInfo(opts, nil)
 
 	c.Assert(hugoInfo.Version(), qt.Equals, CurrentVersion.Version())
 	c.Assert(fmt.Sprintf("%T", version.VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
@@ -46,7 +48,11 @@ func TestHugoInfo(t *testing.T) {
 	c.Assert(hugoInfo.IsExtended(), qt.Equals, IsExtended)
 	c.Assert(hugoInfo.IsServer(), qt.Equals, false)
 
-	devHugoInfo := NewInfo(testConfig{environment: "development", running: true}, nil)
+	opts = HugoInfoOptions{
+		Conf: testConfig{environment: "development", running: true},
+	}
+	devHugoInfo := NewInfo(opts, nil)
+
 	c.Assert(devHugoInfo.IsDevelopment(), qt.Equals, true)
 	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
 	c.Assert(devHugoInfo.IsServer(), qt.Equals, true)
@@ -73,8 +79,10 @@ func TestDeprecationLogLevelFromVersion(t *testing.T) {
 func TestMarkupScope(t *testing.T) {
 	c := qt.New(t)
 
-	conf := testConfig{environment: "production", workingDir: "/mywork", running: false}
-	info := NewInfo(conf, nil)
+	opts := HugoInfoOptions{
+		Conf: testConfig{environment: "production", workingDir: "/mywork", running: false},
+	}
+	info := NewInfo(opts, nil)
 
 	ctx := context.Background()
 

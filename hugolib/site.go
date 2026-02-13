@@ -517,7 +517,14 @@ func newHugoSites(
 		dependencies = append(dependencies, depFromMod(m))
 	}
 
-	h.hugoInfo = hugo.NewInfo(h.Configs.GetFirstLanguageConfig(), dependencies)
+	// Create a sites provider that avoids naming conflict with HugoSites.Sites field.
+	sp := hugoSitesSitesProvider{h: h}
+
+	opts := hugo.HugoInfoOptions{
+		Conf:          h.Configs.GetFirstLanguageConfig(),
+		SitesProvider: sp,
+	}
+	h.hugoInfo = hugo.NewInfo(opts, dependencies)
 
 	var prototype *deps.Deps
 
@@ -627,13 +634,26 @@ func (s *Site) LanguageCode() string {
 	return s.Language().LanguageCode()
 }
 
-// Returns all Sites for all languages.
+// Returns all sites for all dimensions.
+// Deprecated: Use hugo.Sites instead.
 func (s *Site) Sites() page.Sites {
-	sites := make(page.Sites, len(s.h.Sites))
-	for i, s := range s.h.Sites {
-		sites[i] = s.Site()
+	s.h.printSiteSitesDeprecationInit.Do(func() {
+		hugo.Deprecate(".Site.Sites", "Use hugo.Sites instead.", "v0.156.0")
+	})
+	var sites page.Sites
+	for _, v1 := range s.h.sitesVersionsRoles {
+		for _, v2 := range v1 {
+			for _, s := range v2 {
+				sites = append(sites, s.Site())
+			}
+		}
 	}
 	return sites
+}
+
+// IsDefault reports whether this site is the default across all dimensions.
+func (s *Site) IsDefault() bool {
+	return s.siteLanguageVersionRole.isDefault()
 }
 
 // Returns Site currently rendering.
