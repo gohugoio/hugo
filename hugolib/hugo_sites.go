@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"iter"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -102,8 +103,9 @@ type HugoSites struct {
 	previousPageTreesWalkContext *doctree.WalkContext[contentNode]     // Set for rebuilds only.
 	previousSeenTerms            *hmaps.Map[term, sitesmatrix.Vectors] // Set for rebuilds only.
 
-	printUnusedTemplatesInit sync.Once
-	printPathWarningsInit    sync.Once
+	printUnusedTemplatesInit      sync.Once
+	printPathWarningsInit         sync.Once
+	printSiteSitesDeprecationInit sync.Once
 
 	// File change events with filename stored in this map will be skipped.
 	skipRebuildForFilenamesMu sync.Mutex
@@ -120,6 +122,16 @@ type HugoSites struct {
 	*buildCounters
 	// Tracks invocations of the Build method.
 	buildCounter atomic.Uint64
+}
+
+// hugoSitesSitesProvider is a wrapper that implements hugo.SitesProvider.
+// This avoids naming conflict with HugoSites.Sites field.
+type hugoSitesSitesProvider struct {
+	h *HugoSites
+}
+
+func (sp hugoSitesSitesProvider) Sites() any {
+	return slices.Collect(sp.h.allSites(nil))
 }
 
 type progressReporter struct {

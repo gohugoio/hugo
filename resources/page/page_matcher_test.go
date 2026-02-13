@@ -27,8 +27,16 @@ import (
 
 func TestPageMatcher(t *testing.T) {
 	c := qt.New(t)
-	developmentTestSite := testSite{h: hugo.NewInfo(testConfig{environment: "development"}, nil)}
-	productionTestSite := testSite{h: hugo.NewInfo(testConfig{environment: "production"}, nil)}
+
+	opts := hugo.HugoInfoOptions{
+		Conf: testConfig{environment: "development"},
+	}
+	developmentTestSite := testSite{h: hugo.NewInfo(opts, nil)}
+
+	opts = hugo.HugoInfoOptions{
+		Conf: testConfig{environment: "production"},
+	}
+	productionTestSite := testSite{h: hugo.NewInfo(opts, nil)}
 
 	dec := cascadeConfigDecoder{}
 

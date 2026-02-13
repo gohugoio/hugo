@@ -77,11 +77,14 @@ type Site interface {
 	// Returns the configured copyright information for this Site.
 	Copyright() string
 
-	// Returns all Sites for all languages.
+	// Returns all sites for all dimensions.
 	Sites() Sites
 
 	// Returns Site currently rendering.
 	Current() Site
+
+	// Reports whether this site is the default across all dimensions.
+	IsDefault() bool
 
 	// Returns a struct with some information about the build.
 	Hugo() hugo.HugoInfo
@@ -120,8 +123,9 @@ type Site interface {
 	LanguagePrefix() string
 
 	hstore.StoreProvider
+
 	// String returns a string representation of the site.
-	// Note that this represenetation may change in the future.
+	// Note that this representation may change in the future.
 	String() string
 
 	// For internal use only.
@@ -239,6 +243,10 @@ func (s *siteWrapper) Current() Site {
 	return s.s.Current()
 }
 
+func (s *siteWrapper) IsDefault() bool {
+	return s.s.IsDefault()
+}
+
 func (s *siteWrapper) Config() SiteConfig {
 	return s.s.Config()
 }
@@ -350,6 +358,10 @@ func (t testSite) Current() Site {
 	return t
 }
 
+func (t testSite) IsDefault() bool {
+	return true
+}
+
 func (s testSite) LanguagePrefix() string {
 	return ""
 }
@@ -439,8 +451,11 @@ func (s testSite) CheckReady() {
 
 // NewDummyHugoSite creates a new minimal test site.
 func NewDummyHugoSite(conf config.AllProvider) Site {
+	opts := hugo.HugoInfoOptions{
+		Conf: conf,
+	}
 	return testSite{
-		h: hugo.NewInfo(conf, nil),
+		h: hugo.NewInfo(opts, nil),
 		l: &langs.Language{
 			Lang: "en",
 		},

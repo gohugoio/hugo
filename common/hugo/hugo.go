@@ -75,6 +75,8 @@ type HugoInfo struct {
 	conf ConfigProvider
 	deps []*Dependency
 
+	sitesProvider SitesProvider
+
 	store *hstore.Scratch
 
 	// Context gives access to some of the context scoped variables.
@@ -141,6 +143,14 @@ func (i HugoInfo) IsMultilingual() bool {
 	return i.conf.IsMultilingual()
 }
 
+// Sites returns all sites for all dimensions.
+func (i HugoInfo) Sites() any {
+	if i.sitesProvider == nil {
+		return nil
+	}
+	return i.sitesProvider.Sites()
+}
+
 type contextKey uint8
 
 const (
@@ -174,9 +184,20 @@ type ConfigProvider interface {
 	IsMultilingual() bool
 }
 
+// SitesProvider provides access to all sites.
+type SitesProvider interface {
+	Sites() any
+}
+
+// HugoInfoOptions defines the providers required to initialize HugoInfo.
+type HugoInfoOptions struct {
+	Conf          ConfigProvider
+	SitesProvider SitesProvider
+}
+
 // NewInfo creates a new Hugo Info object.
-func NewInfo(conf ConfigProvider, deps []*Dependency) HugoInfo {
-	if conf.Environment() == "" {
+func NewInfo(opts HugoInfoOptions, deps []*Dependency) HugoInfo {
+	if opts.Conf.Environment() == "" {
 		panic("environment not set")
 	}
 	var (
@@ -193,13 +214,14 @@ func NewInfo(conf ConfigProvider, deps []*Dependency) HugoInfo {
 	}
 
 	return HugoInfo{
-		CommitHash:  commitHash,
-		BuildDate:   buildDate,
-		Environment: conf.Environment(),
-		conf:        conf,
-		deps:        deps,
-		store:       hstore.NewScratch(),
-		GoVersion:   goVersion,
+		CommitHash:    commitHash,
+		BuildDate:     buildDate,
+		Environment:   opts.Conf.Environment(),
+		conf:          opts.Conf,
+		deps:          deps,
+		sitesProvider: opts.SitesProvider,
+		store:         hstore.NewScratch(),
+		GoVersion:     goVersion,
 	}
 }
 
