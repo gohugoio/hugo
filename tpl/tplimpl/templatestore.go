@@ -810,6 +810,16 @@ func (s TemplateStore) WithSiteOpts(opts SiteOptions) *TemplateStore {
 	return &s
 }
 
+// GetTemplateFuncsNamespace returns the given template funcs namespace.
+// Used in tests only.
+func (s *TemplateStore) GetTemplateFuncsNamespace(ns string) any {
+	v, err := s.storeSite.opts.TemplateFuncs[ns].(func(cctx context.Context, args ...any) (any, error))(context.Background())
+	if err != nil {
+		panic(fmt.Sprintf("template func namespace %q not found: %s", ns, err))
+	}
+	return v
+}
+
 func (s *TemplateStore) findBestMatchGet(key string, category Category,
 	consider func(candidate *TemplInfo) bool, d1 TemplateDescriptor, dims1 sitesmatrix.VectorProvider, best *bestMatch,
 ) {

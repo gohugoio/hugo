@@ -14,9 +14,13 @@
 package collections_test
 
 import (
+	"context"
+	"fmt"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/tpl/collections"
 )
 
 // Issue 9585
@@ -554,4 +558,59 @@ tags_weight: 20
 		"union:[]string:[a b c d e]",
 		"intersect:[]string:[a b c d]",
 	)
+}
+
+func BenchmarkWhereAndSortPages(b *testing.B) {
+	pageTemplate := `
+-- content/page%04d.md --
+---
+title: Page%04d
+---
+`
+
+	files := `
+-- hugo.toml --
+-- layouts/all.html --
+All.
+`
+
+	for i := 0; i < 500; i++ {
+		files += fmt.Sprintf(pageTemplate, i, i)
+	}
+
+	bb := hugolib.Test(b, files, hugolib.TestOptWithConfig(func(conf *hugolib.IntegrationTestConfig) {
+		conf.BuildCfg = hugolib.BuildCfg{
+			SkipRender: true,
+		}
+	}))
+
+	s := bb.H.Sites[0]
+	seq := s.RegularPages()
+	ns := s.TemplateStore.GetTemplateFuncsNamespace("collections").(*collections.Namespace)
+
+	b.Run("Where", func(b *testing.B) {
+		for b.Loop() {
+			v, err := ns.Where(context.Background(), seq, "Title", "ge", "Page0480")
+			if err != nil {
+				b.Fatal(err)
+			}
+			res := v.(page.Pages)
+			if len(res) != 20 {
+				b.Fatalf("Where didn't return an expected result, got %d", len(res))
+			}
+		}
+	})
+
+	b.Run("Sort", func(b *testing.B) {
+		for b.Loop() {
+			v, err := ns.Sort(context.Background(), s.RegularPages(), "Title", "desc")
+			if err != nil {
+				b.Fatal(err)
+			}
+			res := v.(page.Pages)
+			if len(res) != 500 {
+				b.Fatalf("Sort didn't return an expected result, got %d", len(res))
+			}
+		}
+	})
 }
