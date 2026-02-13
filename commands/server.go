@@ -1160,14 +1160,14 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 	return err
 }
 
+// chmodFilter is a ChmodFilter for static syncing.
+// Returns true to skip syncing permissions for directories and files without
+// owner-write permission. The primary use case is files from the module cache (0444).
 func chmodFilter(dst, src os.FileInfo) bool {
-	// Hugo publishes data from multiple sources, potentially
-	// with overlapping directory structures. We cannot sync permissions
-	// for directories as that would mean that we might end up with write-protected
-	// directories inside /public.
-	// One example of this would be syncing from the Go Module cache,
-	// which have 0555 directories.
-	return src.IsDir()
+	if src.IsDir() {
+		return true
+	}
+	return src.Mode().Perm()&0o200 == 0
 }
 
 func cleanErrorLog(content string) string {

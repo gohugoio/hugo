@@ -1,0 +1,27 @@
+hugo
+
+# Verify published files are writable.
+[!windows] exec sh -c 'test -w public/a.txt'
+[!windows] exec sh -c 'test -w public/sitemap.xml'
+
+[windows] exec cmd /c attrib public\a.txt
+[windows] ! stdout 'R.*public'
+[windows] exec cmd /c attrib public\sitemap.xml
+[windows] ! stdout 'R.*public'
+
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+
+[[module.imports]]
+path = 'github.com/gohugoio/hugoTestModule2'
+-- content/_index.md --
+---
+title: home
+---
+-- layouts/all.html --
+{{ .Title }}
+-- go.mod --
+module github.com/gohugoio/tests/testIssue14507
+
+go 1.23
