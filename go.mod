@@ -41,7 +41,7 @@ require (
 	github.com/gohugoio/hashstructure v0.6.0
 	github.com/gohugoio/httpcache v0.8.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.5.0
-	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.3.1
+	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.4.0
 	github.com/gohugoio/locales v0.14.0
 	github.com/gohugoio/localescompressed v1.0.1
 	github.com/google/go-cmp v0.7.0
