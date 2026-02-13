@@ -416,6 +416,12 @@ func (ns *Namespace) newElemResolver(ctxv reflect.Value, elemType reflect.Type, 
 
 	if baseType == reflect.TypeFor[hmaps.Params]() {
 		return func(v reflect.Value) (reflect.Value, error) {
+			if isPtr {
+				if v.IsNil() {
+					return zero, nil
+				}
+				v = v.Elem()
+			}
 			params := v.Interface().(hmaps.Params)
 			return reflect.ValueOf(params.GetNested(path...)), nil
 		}
@@ -442,6 +448,9 @@ func (ns *Namespace) newElemResolver(ctxv reflect.Value, elemType reflect.Type, 
 			kv := reflect.ValueOf(name)
 			return func(v reflect.Value) (reflect.Value, error) {
 				if isPtr {
+					if v.IsNil() {
+						return zero, nil
+					}
 					v = v.Elem()
 				}
 				return v.MapIndex(kv), nil
@@ -458,6 +467,9 @@ func (ns *Namespace) newElemResolver(ctxv reflect.Value, elemType reflect.Type, 
 			idx := ft.Index
 			return func(v reflect.Value) (reflect.Value, error) {
 				if isPtr {
+					if v.IsNil() {
+						return zero, nil
+					}
 					v = v.Elem()
 				}
 				return v.FieldByIndex(idx), nil
@@ -512,7 +524,7 @@ func (ns *Namespace) newMethodResolver(ctxv reflect.Value, elemType reflect.Type
 		}
 		res := fn.Call(args)
 		if hasErrOut && !res[1].IsNil() {
-			return zero, nil
+			return zero, res[1].Interface().(error)
 		}
 		return res[0], nil
 	}
@@ -557,7 +569,7 @@ func (ns *Namespace) newInterfaceMethodResolver(ctxv reflect.Value, ifaceType re
 		}
 		res := v.Method(index).Call(args)
 		if hasErrOut && !res[1].IsNil() {
-			return zero, nil
+			return zero, res[1].Interface().(error)
 		}
 		return res[0], nil
 	}
