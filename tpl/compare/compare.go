@@ -361,16 +361,6 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 		return ns.compareTwoStrings(collator, *leftStr, *rightStr)
 	}
 
-	switch {
-	case leftStr == nil || rightStr == nil:
-	case *leftStr < *rightStr:
-		return 0, 1
-	case *leftStr > *rightStr:
-		return 1, 0
-	default:
-		return 0, 0
-	}
-
 	return left, right
 }
 
