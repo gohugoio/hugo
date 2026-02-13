@@ -511,6 +511,14 @@ func (ns *Namespace) newMethodResolver(ctxv reflect.Value, elemType reflect.Type
 	hasErrOut := mt.Type.NumOut() == 2
 	isPtr := elemType.Kind() == reflect.Pointer
 
+	var callArgs []reflect.Value
+	if needsCtx {
+		callArgs = make([]reflect.Value, 2)
+		callArgs[1] = ctxv
+	} else {
+		callArgs = make([]reflect.Value, 1)
+	}
+
 	return func(v reflect.Value) (reflect.Value, error) {
 		if isPtr && v.IsNil() {
 			return zero, nil
@@ -519,13 +527,8 @@ func (ns *Namespace) newMethodResolver(ctxv reflect.Value, elemType reflect.Type
 		if !isPtr && !hreflect.IsInterfaceOrPointer(recv.Kind()) && recv.CanAddr() {
 			recv = recv.Addr()
 		}
-		var args []reflect.Value
-		if needsCtx {
-			args = []reflect.Value{recv, ctxv}
-		} else {
-			args = []reflect.Value{recv}
-		}
-		res := fn.Call(args)
+		callArgs[0] = recv
+		res := fn.Call(callArgs)
 		if hasErrOut && !res[1].IsNil() {
 			return zero, res[1].Interface().(error)
 		}
@@ -565,15 +568,16 @@ func (ns *Namespace) newInterfaceMethodResolver(ctxv reflect.Value, ifaceType re
 	index := mt.Index
 	hasErrOut := mType.NumOut() == 2
 
+	var callArgs []reflect.Value
+	if needsCtx {
+		callArgs = []reflect.Value{ctxv}
+	}
+
 	return func(v reflect.Value) (reflect.Value, error) {
 		if v.IsNil() {
 			return zero, nil
 		}
-		var args []reflect.Value
-		if needsCtx {
-			args = []reflect.Value{ctxv}
-		}
-		res := v.Method(index).Call(args)
+		res := v.Method(index).Call(callArgs)
 		if hasErrOut && !res[1].IsNil() {
 			return zero, res[1].Interface().(error)
 		}
