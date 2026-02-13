@@ -512,6 +512,9 @@ func (ns *Namespace) newMethodResolver(ctxv reflect.Value, elemType reflect.Type
 	isPtr := elemType.Kind() == reflect.Pointer
 
 	return func(v reflect.Value) (reflect.Value, error) {
+		if isPtr && v.IsNil() {
+			return zero, nil
+		}
 		recv := v
 		if !isPtr && !hreflect.IsInterfaceOrPointer(recv.Kind()) && recv.CanAddr() {
 			recv = recv.Addr()
@@ -563,6 +566,9 @@ func (ns *Namespace) newInterfaceMethodResolver(ctxv reflect.Value, ifaceType re
 	hasErrOut := mType.NumOut() == 2
 
 	return func(v reflect.Value) (reflect.Value, error) {
+		if v.IsNil() {
+			return zero, nil
+		}
 		var args []reflect.Value
 		if needsCtx {
 			args = []reflect.Value{ctxv}
