@@ -88,7 +88,7 @@ An example disclosure:
 
 > This PR was written primarily by Claude Code.
 
-When using AI assistance, we expect contributors to understand the code that is produced and be able to answer critical questions about it.
+When using AI assistance, we expect contributors to understand the code that is produced and be able to answer critical questions about it. Also, AI contributions from non-maintainers needs to have a fairly narrow scope (e.g. a bug fix), as we have limited review capacity.
 
 ### Git Commit Message Guidelines
 
