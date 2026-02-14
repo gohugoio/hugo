@@ -8,9 +8,9 @@ aliases: [/hosting-and-deployment/hosting-on-sourcehut/]
 
 ## Assumptions
 
-- Working familiarity with [Git] or [Mercurial] for version control
-- Completion of the Hugo [Quick Start]
-- A [SourceHut account]
+- Working familiarity with [Git][] or [Mercurial][] for version control
+- Completion of the Hugo [Quick Start][]
+- A [SourceHut account][]
 - A Hugo website on your local machine that you are ready to publish
 
 [Git]: https://git-scm.com/
@@ -22,14 +22,14 @@ Any and all mentions of `<YourUsername>` refer to your actual SourceHut username
 
 ## BaseURL
 
-The [`baseURL`] in your site configuration must reflect the full URL provided by SourceHut Pages if you are using the default address (e.g. `https://<YourUsername>.srht.site/`). If you want to use another domain, check the [custom domain section] of the official documentation.
+The [`baseURL`][] in your site configuration must reflect the full URL provided by SourceHut Pages if you are using the default address (e.g. `https://<YourUsername>.srht.site/`). If you want to use another domain, check the [custom domain section][] of the official documentation.
 
 [`baseURL`]: /configuration/all/#baseurl
 [custom domain section]: https://srht.site/custom-domains
 
 ## Manual deployment
 
-This method does not require a paid account. To proceed you will need to create a [SourceHut personal access token] and install and configure the [hut] CLI tool:
+This method does not require a paid account. To proceed you will need to create a [SourceHut personal access token][] and install and configure the [hut][] CLI tool:
 
 [SourceHut personal access token]: https://meta.sr.ht/oauth2/personal-token
 [hut]: https://sr.ht/~xenrox/hut/
@@ -47,7 +47,7 @@ A TLS certificate will be automatically obtained for you, and your new website w
 
 This method requires a paid account and relies on the SourceHut build system.
 
-First, define your [build manifest] by creating a `.build.yml` file in the root of your project. The following is a bare-bones template:
+First, define your [build manifest][] by creating a `.build.yml` file in the root of your project. The following is a bare-bones template:
 
 [build manifest]: https://man.sr.ht/builds.sr.ht/#build-manifests
 
@@ -61,6 +61,37 @@ environment:
   site: <YourUsername>.srht.site
 tasks:
 - package: |
+    cd $site
+    hugo
+    tar -C public -cvz . > ../site.tar.gz
+- upload: |
+    hut pages publish -d $site site.tar.gz
+```
+
+If your site requires [Dart Sass][] to transpile Sass to CSS, set the DART_SASS_VERSION to the [latest version number][] and include the Dart Sass installation lines before running the Hugo build step. Note that for Alpine, the `linux-x64-musl` version is used.
+
+[Dart Sass]: https://gohugo.io/functions/css/sass/#dart-sass
+[latest version number]: https://github.com/sass/dart-sass/releases
+
+```yaml {file=".build.yml" copy=true}
+image: alpine/edge
+packages:
+  - hugo
+  - hut
+  - curl # For Dart Sass installation
+oauth: pages.sr.ht/PAGES:RW
+environment:
+  site: <YourUsername>.srht.site
+tasks:
+- package: |
+    DART_SASS_VERSION=1.97.1 # Latest version as of 20/12/2025
+    mkdir -p $HOME/.local
+    curl -L https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64-musl.tar.gz -o dart-sass.tar.gz
+    tar -xzf dart-sass.tar.gz -C $HOME/.local
+    rm dart-sass.tar.gz
+    chmod -R +x $HOME/.local/dart-sass/src
+    export PATH="$HOME/.local/dart-sass:$PATH"
+    sass --version # Verify installation
     cd $site
     hugo
     tar -C public -cvz . > ../site.tar.gz

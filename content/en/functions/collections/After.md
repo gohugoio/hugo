@@ -1,13 +1,13 @@
 ---
 title: collections.After
-description: Slices an array to the items after the Nth item.
+description: Returns a slice containing the elements after the first N elements of the given slice.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [after]
-    returnType: any
-    signatures: [collections.After INDEX COLLECTION]
+    returnType: '[]any'
+    signatures: [collections.After N SLICE]
 aliases: [/functions/after]
 ---
 

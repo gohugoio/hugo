@@ -150,6 +150,18 @@ Step 3
 
   In the above, note the use of a [noop](g) statement to force content rendering before we check the value of `hasMath` with the `Store.Get` method.
 
+  > [!note]
+  > This conditional approach only identifies math on the current page. Mathematical expressions will not display correctly when one page's content is embedded within another. For example, if a [list page](g) calls the [`Content`][] or [`Summary`][] methods while ranging through its page collection, the list page will not load the KaTeX CSS.
+  >
+  > If this affects your site, use this conditional logic instead:
+  >
+  > ```go-html-template {file="layouts/baseof.html" copy=true}
+  > {{ $noop := .WordCount }}
+  > {{ if or (.Page.Store.Get "hasMath") .IsNode }}
+  >   <link rel="stylesheet" href="...">
+  > {{ end }}
+  > ```
+
 Step 4
 : Add some mathematical markup to your content, then test.
 
@@ -175,6 +187,8 @@ $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 
 $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 
+[`Content`]: /methods/page/content/
+[`Summary`]: /methods/page/summary/
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 [KaTeX]: https://katex.org/
 [MathML]: https://developer.mozilla.org/en-US/docs/Web/MathML

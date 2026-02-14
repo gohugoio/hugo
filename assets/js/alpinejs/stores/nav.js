@@ -31,6 +31,16 @@ export const navStore = (Alpine) => ({
 		atTop: true,
 	},
 
+	mobileMenu: {
+		open: false,
+		toggle() {
+			this.open = !this.open;
+		},
+		close() {
+			this.open = false;
+		},
+	},
+
 	userSettings: {
 		// settings gets persisted between page navigations.
 		settings: Alpine.$persist({

@@ -2,7 +2,7 @@
 title: images.Filter
 description: Applies one or more image filters to the given image resource.
 categories: []
-keywords: []
+keywords: [filter]
 params:
   functions_and_methods:
     aliases: []

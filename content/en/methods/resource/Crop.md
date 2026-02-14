@@ -1,25 +1,27 @@
 ---
 title: Crop
-description: Applicable to images, returns an image resource cropped to the given dimensions without resizing.
+description: Applicable to images, returns a new image resource cropped according to the given processing specification.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     returnType: images.ImageResource
-    signatures: [RESOURCE.Crop SPEC]
+    signatures: [RESOURCE.Crop SPECIFICATION]
 ---
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Crop an image to match the given dimensions without resizing. You must provide both width and height.
+Crop an image according to the given [processing specification][]. When cropping, you must provide both width and height (such as `200x200`) within the specification. This method does not perform any resizing; it simply extracts a region of the image based on the dimensions and the [anchor](#anchor) provided, if any.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Crop "200x200" }}
+  {{ with .Crop "200x200 TopRight" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
 ```
+
+In the example above, `"200x200 TopRight"` is the _processing specification_.
 
 {{% include "/_common/methods/resource/processing-spec.md" %}}
 
@@ -27,7 +29,7 @@ Crop an image to match the given dimensions without resizing. You must provide b
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Crop "200x200 topright webp q85 lanczos" }}
+  {{ with .Crop "200x200 TopRight" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
@@ -37,6 +39,8 @@ Crop an image to match the given dimensions without resizing. You must provide b
   src="images/examples/zion-national-park.jpg"
   alt="Zion National Park"
   filter="Process"
-  filterArgs="crop 200x200 topright webp q85 lanczos"
+  filterArgs="crop 200x200 TopRight"
   example=true
 >}}
+
+[processing specification]: #processing-specification

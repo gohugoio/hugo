@@ -23,8 +23,7 @@
     "**/emojis.md",
     "**/commands/*",
     "**/showcase/*",
-    "**/tools/*",
-    "data/docs.yaml"
+    "**/tools/*"
   ],
   "ignoreRegExpList": [
     "# cspell: ignore fenced code blocks",
@@ -182,6 +181,7 @@
     "dring",
     "fleqn",
     "inor",
+    "iptc",
     "jausten",
     "jdoe",
     "jsmith",

@@ -1,5 +1,6 @@
 .DS_Store
 .hugo_build.lock
+.hvm
 /.idea
 /.vscode
 /dist

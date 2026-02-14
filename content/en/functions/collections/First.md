@@ -1,13 +1,13 @@
 ---
 title: collections.First
-description: Returns the given collection, limited to the first N elements.
+description: Returns the first N elements of the given slice or string.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [first]
-    returnType: any
-    signatures: [collections.First N COLLECTION]
+    returnType: 'any'
+    signatures: [collections.First N SLICE|STRING]
 aliases: [/functions/first]
 ---
 
@@ -39,7 +39,7 @@ To use the `collections.First` function with a page collection:
 {{ end }}
 ```
 
-Set `N` to zero to return an empty collection:
+Set `N` to zero to return an empty slice:
 
 ```go-html-template
 {{ $emptyPageCollection := first 0 .Pages }}

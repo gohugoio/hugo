@@ -45,7 +45,6 @@ Page
 : (`page`) A reference to the current page.
 
 PageInner
-: {{< new-in 0.125.0 />}}
 : (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
 PlainText
@@ -98,8 +97,6 @@ wrapStandAloneImageWithinParagraph = false
 {{< /code-toggle >}}
 
 ## Embedded
-
-{{< new-in 0.123.0 />}}
 
 Hugo includes an [embedded image render hook] to resolve Markdown image destinations. You can adjust its behavior in your site configuration. This is the default setting:
 

@@ -1,6 +1,6 @@
 ---
 title: images.AutoOrient
-description: Returns an image filter that rotates and flips an image as needed per its EXIF orientation tag.
+description: Returns an image filter that rotates and flips an image as needed per its Exif orientation tag.
 categories: []
 keywords: []
 params:

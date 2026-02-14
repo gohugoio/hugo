@@ -1,27 +1,27 @@
 ---
 title: Resize
-description: Applicable to images, returns an image resource resized to the given width and/or height.
+description: Applicable to images, returns a new image resource resized according to the given processing specification.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     returnType: images.ImageResource
-    signatures: [RESOURCE.Resize SPEC]
+    signatures: [RESOURCE.Resize SPECIFICATION]
 ---
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Resize an image to the given width and/or height.
-
-If you specify both width and height, the resulting image will be disproportionally scaled unless the original image has the same aspect ratio.
+Resize an image according to the given [processing specification][]. You may specify only the width (such as `300x`) or only the height (`such as x150`) for proportional scaling. If you specify both width and height (such as `300x150`), the resulting image will be scaled to those exact dimensions; if the aspect ratio differs from the original, the image will be non-proportionally scaled (stretched or squashed). The operation uses the [resampling filter](#resampling-filter) provided, if any.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Resize "300x" }}
+  {{ with .Resize "300x lanczos" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
 ```
+
+In the example above, `"300x lanczos"` is the _processing specification_.
 
 {{% include "/_common/methods/resource/processing-spec.md" %}}
 
@@ -29,7 +29,7 @@ If you specify both width and height, the resulting image will be disproportiona
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Resize "300x webp q85 lanczos" }}
+  {{ with .Resize "300x lanczos" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
@@ -39,6 +39,8 @@ If you specify both width and height, the resulting image will be disproportiona
   src="images/examples/zion-national-park.jpg"
   alt="Zion National Park"
   filter="Process"
-  filterArgs="resize 300x webp q85 lanczos"
+  filterArgs="resize 300x lanczos"
   example=true
 >}}
+
+[processing specification]: #processing-specification

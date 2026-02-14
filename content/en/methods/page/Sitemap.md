@@ -23,8 +23,6 @@ Access to the `Sitemap` method on a `Page` object is restricted to [sitemap temp
 
 ### Disable
 
-{{< new-in 0.125.0 />}}
-
 (`bool`) Whether to disable page inclusion. Default is `false`. Set to `true` in front matter to exclude the page.
 
 ```go-html-template

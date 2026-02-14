@@ -77,24 +77,24 @@ Step 4
     build:
       runs-on: ubuntu-latest
       env:
-        DART_SASS_VERSION: 1.96.0
-        GO_VERSION: 1.25.5
-        HUGO_VERSION: 0.152.2
-        NODE_VERSION: 24.12.0
+        DART_SASS_VERSION: 1.97.3
+        GO_VERSION: 1.25.6
+        HUGO_VERSION: 0.155.3
+        NODE_VERSION: 24.13.0
         TZ: Europe/Oslo
       steps:
         - name: Checkout
-          uses: actions/checkout@v5
+          uses: actions/checkout@v6
           with:
             submodules: recursive
             fetch-depth: 0
         - name: Setup Go
-          uses: actions/setup-go@v5
+          uses: actions/setup-go@v6
           with:
             go-version: ${{ env.GO_VERSION }}
             cache: false
         - name: Setup Node.js
-          uses: actions/setup-node@v4
+          uses: actions/setup-node@v6
           with:
             node-version: ${{ env.NODE_VERSION }}
         - name: Setup Pages
@@ -130,7 +130,7 @@ Step 4
             git config core.quotepath false
         - name: Cache restore
           id: cache-restore
-          uses: actions/cache/restore@v4
+          uses: actions/cache/restore@v5
           with:
             path: ${{ runner.temp }}/hugo_cache
             key: hugo-${{ github.run_id }}
@@ -145,7 +145,7 @@ Step 4
               --cacheDir "${{ runner.temp }}/hugo_cache"
         - name: Cache save
           id: cache-save
-          uses: actions/cache/save@v4
+          uses: actions/cache/save@v5
           with:
             path: ${{ runner.temp }}/hugo_cache
             key: ${{ steps.cache-restore.outputs.cache-primary-key }}

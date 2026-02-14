@@ -1,12 +1,12 @@
 ---
 title: collections.Merge
-description: Returns the result of merging two or more maps.
+description: Returns a map by combining two or more given maps.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [merge]
-    returnType: any
+    returnType: map[string]any
     signatures: [collections.Merge MAP MAP...]
 aliases: [/functions/merge]
 ---

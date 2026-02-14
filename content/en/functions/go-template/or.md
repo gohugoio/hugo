@@ -12,13 +12,17 @@ params:
 
 {{% include "/_common/functions/truthy-falsy.md" %}}
 
-```go-html-template
-{{ or 0 1 2 }} → 1
-{{ or false "a" 1 }} → a
-{{ or 0 true "a" }} → true
+The `or` function evaluates the arguments from left to right, and returns when the result is determined.
 
-{{ or false "" 0 }} → 0
-{{ or 0 "" false }} → false
+```go-html-template
+{{ or 0 1 2 }} → 1 (int)
+{{ or false "a" 1 }} → a (string)
+{{ or 0 true "a" }} → true (bool)
+
+{{ or false "" 0 }} → 0 (int)
+{{ or 0 "" false }} → false (bool)
+
+{{ or true (math.Div 1 0) }} → true (bool)
 ```
 
 {{% include "/_common/functions/go-template/text-template.md" %}}

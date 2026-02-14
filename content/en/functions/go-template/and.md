@@ -12,6 +12,8 @@ params:
 
 {{% include "/_common/functions/truthy-falsy.md" %}}
 
+The `and` function evaluates the arguments from left to right, and returns when the result is determined.
+
 ```go-html-template
 {{ and 1 0 "" }} → 0 (int)
 {{ and 1 false 0 }} → false (bool)
@@ -19,4 +21,8 @@ params:
 {{ and 1 2 3 }} → 3 (int)
 {{ and "a" "b" "c" }} → c (string)
 {{ and "a" 1 true }} → true (bool)
+
+{{ and false (math.Div 1 0) }} → false (bool)
 ```
+
+{{% include "/_common/functions/go-template/text-template.md" %}}

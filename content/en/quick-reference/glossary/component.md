@@ -15,3 +15,4 @@ A _component_ is a collection of related files, housed within the [_unified file
   templates|`layouts`
   translation tables|`i18n`
   static files|`static`
+  {class="!mt-0"}

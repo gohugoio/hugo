@@ -59,7 +59,6 @@ Page
 : (`page`) A reference to the current page.
 
 PageInner
-: {{< new-in 0.125.0 />}}
 : (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
 
 Position

@@ -235,7 +235,7 @@ The above sets the [`baseURL`], [`enableGitInfo`], and [`environment`] configura
 > [!note]
 > An environment variable takes precedence over the values set in the configuration file. This means that if you set a configuration value with both an environment variable and in the configuration file, the value in the environment variable will be used.
 
-Environment variables simplify configuration for [CI/CD](g) deployments like GitHub Pages, GitLab Pages, and Netlify by allowing you to set values directly within their respective configuration and workflow files.
+Environment variables simplify configuration for [CI/CD](g) platforms by allowing you to set values directly within their respective configuration and workflow files.
 
 > [!note]
 > Environment variable names must be prefixed with `HUGO_`.
@@ -253,7 +253,6 @@ HUGO_FILE_LOG_FORMAT
 : (`string`) A format string for the file path, line number, and column number displayed when reporting errors, or when calling the `Position` method from a shortcode or Markdown render hook. Valid tokens are `:file`, `:line`, and `:col`. Default is `:file::line::col`.
 
 HUGO_MEMORYLIMIT
-: {{< new-in 0.123.0 />}}
 : (`int`) The maximum amount of system memory, in gigabytes, that Hugo can use while rendering your site. Default is 25% of total system memory. Note that `HUGO_MEMORYLIMIT` is a "best effort" setting. Don't expect Hugo to build a million pages with only 1 GB of memory. You can get more information about how this behaves during the build by building with `hugo --logLevel info` and look for the `dynacache` label.
 
 HUGO_NUMWORKERMULTIPLIER

@@ -16,17 +16,24 @@ This is a paragraph.
 {class="foo bar" id="baz"}
 ```
 
-With `class` and `id` you can use shorthand notation:
+With `class` and `id` attributes you can also use short-form notation:
 
 ```text
 This is a paragraph.
 {.foo .bar #baz}
 ```
 
-Hugo renders both of these to:
+Hugo renders both of the examples above to:
 
 ```html
 <p class="foo bar" id="baz">This is a paragraph.</p>
+```
+
+With `class` and `id` attributes, whether you use long-form or short-form notation, the resulting values are available in [render hook templates][] via the `Attributes` method. For example:
+
+```go-html-template
+{{ .Attributes.class }} → foo bar
+{{ .Attributes.id }} → baz
 ```
 
 ## Block elements
@@ -82,14 +89,14 @@ In most cases, place the attribute list beneath the markup element. For headings
 
 Element|Position of attribute list
 :--|:--
-blockquote | bottom
-fenced code block | right
-heading | right
-horizontal rule | bottom
-image | bottom
-list  | bottom
-paragraph | bottom
-table | bottom
+blockquote|bottom
+fenced code block|right
+heading|right
+horizontal rule|bottom
+image|bottom
+list|bottom
+paragraph|bottom
+table|bottom
 
 For example:
 
@@ -106,3 +113,5 @@ This is a paragraph.
 ````
 
 As shown above, the attribute list for fenced code blocks is not limited to HTML attributes. You can also configure syntax highlighting by passing one or more of [these options](/functions/transform/highlight/#options).
+
+[render hook templates]: /render-hooks/introduction/

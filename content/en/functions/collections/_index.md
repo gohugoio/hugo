@@ -1,7 +1,7 @@
 ---
 title: Collections functions
 linkTitle: collections
-description: Use these functions to work with arrays, slices, maps, and page collections.
+description: Use these functions to manipulate and query maps, slices, and strings.
 categories: []
 keywords: []
 ---

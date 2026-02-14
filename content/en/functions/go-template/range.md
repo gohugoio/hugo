@@ -192,8 +192,6 @@ Unlike ranging over an array or slice, Hugo sorts by key when ranging over a map
 
 ### Integers
 
-{{< new-in 0.123.0 />}}
-
 Ranging over a positive integer `n` executes the block `n` times, with the context starting at zero and incrementing by one in each iteration.
 
 ```go-html-template

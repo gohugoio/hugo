@@ -3,7 +3,7 @@ title: Embedded partial templates
 description: Hugo provides embedded partial templates for common use cases.
 categories: []
 keywords: []
-weight: 170
+weight: 180
 aliases: [/templates/internal]
 ---
 
@@ -90,7 +90,7 @@ disable
 : (`bool`) Whether to disable the template. Default is `false`.
 
 respectDoNotTrack
-: (`bool`) Whether to respect the browser's "do not track" setting. Default is `false`.
+: (`bool`) Whether to respect the browser's "do not track" setting. Default is `true`.
 
 ## Open Graph
 

@@ -136,7 +136,6 @@ Markdown|Replaced by|Description
 Most of the Goldmark settings above are self-explanatory, but some require explanation.
 
 duplicateResourceFiles
-: {{< new-in 0.123.0 />}}
 : (`bool`) Whether to duplicate shared page resources for each language on multilingual single-host sites. See [multilingual page resources] for details. Default is `false`.
 
   > [!note]
@@ -169,30 +168,27 @@ parser.attribute.title
 
 <!-- TODO: delete this on or after July 1, 2027. -->
 renderHooks.image.enableDefault
-: {{< new-in 0.123.0 />}}
 : Deprecated in v0.148.0. Use `renderHooks.image.useEmbedded` instead.
 
 renderHooks.image.useEmbedded
 : {{< new-in 0.148.0 />}}
 : (`string`) When to use the [embedded image render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
 
-  - `auto`: Automatically use the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `auto`: Use the embedded image render hook only for multilingual single-host projects where the [duplication of shared page resources] feature is disabled. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
   - `never`: Never use the embedded image render hook. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
-  - `always`: Always use the embedded image render hook, even if custom image render hooks are provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `always`: Always use the embedded image render hook, even if custom image render hooks are provided by your project, modules, or themes.
   - `fallback`: Use the embedded image render hook only if custom image render hooks are not provided by your project, modules, or themes. If custom image render hooks exist, these will be used instead.
 
 <!-- TODO: delete this on or after July 1, 2027. -->
 renderHooks.link.enableDefault
-: {{< new-in 0.123.0 />}}
 : Deprecated in v0.148.0. Use `renderHooks.link.useEmbedded` instead.
 
 renderHooks.link.useEmbedded
-: {{< new-in 0.148.0 />}}
 : (`string`) When to use the [embedded link render hook]. One of `auto`, `never`, `always`, or `fallback`. Default is `auto`.
 
-  - `auto`: Automatically use the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+  - `auto`: Use the embedded link render hook only for multilingual single-host projects where the [duplication of shared page resources] feature is disabled. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
   - `never`: Never use the embedded link render hook. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
-  - `always`: Always use the embedded link render hook, even if custom link render hooks are provided by your project, modules, or themes. In this case, the embedded hook takes precedence.
+  - `always`: Always use the embedded link render hook, even if custom link render hooks are provided by your project, modules, or themes.
   - `fallback`: Use the embedded link render hook only if custom link render hooks are not provided by your project, modules, or themes. If custom link render hooks exist, these will be used instead.
 
 renderer.hardWraps
@@ -216,7 +212,7 @@ backend
 : (`string`) The backend output file format. Default is `html5`.
 
 extensions
-: (`string array`) An array of enabled extensions, such as `asciidoctor-html5s`, `asciidoctor-bibtex`, or `asciidoctor-diagram`.
+: (`[]string`) An array of enabled extensions, such as `asciidoctor-html5s`, `asciidoctor-bibtex`, or `asciidoctor-diagram`.
 
   > [!note]
   > To mitigate security risks, entries in the extension array may not contain forward slashes (`/`), backslashes (`\`), or periods. Due to this restriction, extensions must be in Ruby's `$LOAD_PATH`.

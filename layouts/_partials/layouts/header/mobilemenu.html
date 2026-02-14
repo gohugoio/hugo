@@ -1,0 +1,106 @@
+{{/* Mobile menu overlay and panel - only visible on small screens */}}
+<div
+  x-data
+  x-show="$store.nav.mobileMenu.open"
+  x-transition:enter="transition-opacity ease-out duration-200"
+  x-transition:enter-start="opacity-0"
+  x-transition:enter-end="opacity-100"
+  x-transition:leave="transition-opacity ease-in duration-150"
+  x-transition:leave-start="opacity-100"
+  x-transition:leave-end="opacity-0"
+  class="sm:hidden fixed inset-0 z-50 bg-gray-900/50 backdrop-blur-sm"
+  @click="$store.nav.mobileMenu.close()"
+  x-cloak>
+</div>
+
+{{/* Mobile menu panel */}}
+<div
+  x-data
+  x-show="$store.nav.mobileMenu.open"
+  x-transition:enter="transition ease-out duration-200"
+  x-transition:enter-start="translate-x-full"
+  x-transition:enter-end="translate-x-0"
+  x-transition:leave="transition ease-in duration-150"
+  x-transition:leave-start="translate-x-0"
+  x-transition:leave-end="translate-x-full"
+  class="sm:hidden fixed top-0 right-0 z-50 h-full w-72 bg-blue-950 shadow-xl"
+  @keydown.escape.window="$store.nav.mobileMenu.close()"
+  x-cloak>
+
+  {{/* Header with close button */}}
+  <div class="flex items-center justify-between px-4 py-5">
+    <span class="text-white text-xl font-bold">Menu</span>
+    <button
+      @click="$store.nav.mobileMenu.close()"
+      class="p-2 text-gray-300 hover:text-white rounded-md hover:bg-blue-900 transition-colors"
+      aria-label="Close menu">
+      <svg class="w-6 h-6">
+        <use href="#icon--x-mark"></use>
+      </svg>
+    </button>
+  </div>
+
+  {{/* Navigation links */}}
+  <nav class="px-4 py-2">
+    <ul class="space-y-1">
+      {{ range .Site.Menus.global }}
+        <li>
+          <a
+            href="{{ .URL }}"
+            @click="$store.nav.mobileMenu.close()"
+            class="block px-3 py-3 text-gray-200 hover:text-white hover:bg-blue-900 rounded-md font-medium transition-colors">
+            {{ .Name }}
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  </nav>
+
+  {{/* Divider */}}
+  <div class="mx-4 my-4 border-t border-blue-800"></div>
+
+  {{/* Search trigger */}}
+  <div class="px-4 py-2">
+    <button
+      @click="$dispatch('search-toggle'); $store.nav.mobileMenu.close()"
+      class="w-full flex items-center gap-3 px-3 py-3 text-gray-200 hover:text-white hover:bg-blue-900 rounded-md font-medium transition-colors">
+      <svg class="w-5 h-5 fill-current">
+        <use href="#icon--search"></use>
+      </svg>
+      Search
+    </button>
+  </div>
+
+  {{/* Divider */}}
+  <div class="mx-4 my-4 border-t border-blue-800"></div>
+
+  {{/* Social links */}}
+  <div class="px-4 py-2 space-y-1">
+    {{/* GitHub */}}
+    {{ with partialCached "helpers/funcs/get-github-info.html" . "-" }}
+      <a
+        href="{{ .html_url | safeURL }}"
+        target="_blank"
+        class="flex items-center gap-3 px-3 py-3 text-gray-200 hover:text-white hover:bg-blue-900 rounded-md font-medium transition-colors">
+        <svg class="w-5 h-5 fill-current">
+          <use href="#icon--github"></use>
+        </svg>
+        GitHub
+        <span class="ml-auto text-sm text-gray-400">{{ .stargazers_count }} stars</span>
+      </a>
+    {{ end }}
+
+    {{/* Mastodon */}}
+    {{ with site.Params.social.mastodon.url }}
+      <a
+        href="{{ . }}"
+        target="_blank"
+        class="flex items-center gap-3 px-3 py-3 text-gray-200 hover:text-white hover:bg-blue-900 rounded-md font-medium transition-colors">
+        <svg class="w-5 h-5" viewBox="0 0 75 79" fill="currentColor">
+          <path d="M73.8393 17.4898C72.6973 9.00165 65.2994 2.31235 56.5296 1.01614C55.05 0.797115 49.4441 0 36.4582 0H36.3612C23.3717 0 20.585 0.797115 19.1054 1.01614C10.5798 2.27644 2.79399 8.28712 0.904997 16.8758C-0.00358524 21.1056 -0.100549 25.7949 0.0682394 30.0965C0.308852 36.2651 0.355538 42.423 0.91577 48.5665C1.30307 52.6474 1.97872 56.6957 2.93763 60.6812C4.73325 68.042 12.0019 74.1676 19.1233 76.6666C26.7478 79.2728 34.9474 79.7055 42.8039 77.9162C43.6682 77.7151 44.5217 77.4817 45.3645 77.216C47.275 76.6092 49.5123 75.9305 51.1571 74.7385C51.1797 74.7217 51.1982 74.7001 51.2112 74.6753C51.2243 74.6504 51.2316 74.6229 51.2325 74.5948V68.6416C51.2321 68.6154 51.2259 68.5896 51.2142 68.5661C51.2025 68.5426 51.1858 68.522 51.1651 68.5058C51.1444 68.4896 51.1204 68.4783 51.0948 68.4726C51.0692 68.4669 51.0426 68.467 51.0171 68.4729C45.9835 69.675 40.8254 70.2777 35.6502 70.2682C26.7439 70.2682 24.3486 66.042 23.6626 64.2826C23.1113 62.762 22.7612 61.1759 22.6212 59.5646C22.6197 59.5375 22.6247 59.5105 22.6357 59.4857C22.6466 59.4609 22.6633 59.4391 22.6843 59.422C22.7053 59.4048 22.73 59.3929 22.7565 59.3871C22.783 59.3813 22.8104 59.3818 22.8367 59.3886C27.7864 60.5826 32.8604 61.1853 37.9522 61.1839C39.1768 61.1839 40.3978 61.1839 41.6224 61.1516C46.7435 61.008 52.1411 60.7459 57.1796 59.7621C57.3053 59.7369 57.431 59.7154 57.5387 59.6831C65.4861 58.157 73.0493 53.3672 73.8178 41.2381C73.8465 40.7606 73.9184 36.2364 73.9184 35.7409C73.9219 34.0569 74.4606 23.7949 73.8393 17.4898Z" />
+        </svg>
+        Mastodon
+      </a>
+    {{ end }}
+  </div>
+</div>

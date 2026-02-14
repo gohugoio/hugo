@@ -8,7 +8,7 @@ siteSource: https://github.com/forestryio/forestry.io
 
 It was clear from the get-go that we had to go with a static site generator. Static sites are secure, performant, and give you 100% flexibility. At [Forestry.io](https://forestry.io/) we provide Content Management Solutions for websites built with static site generators, so we might be a little biased. The only question: Which static site generator was the right choice for us?
 
-### Why Hugo?
+## Why Hugo?
 
 In our early research we looked at Ionic's [site](https://github.com/ionic-team/ionic) to get some inspiration. They used Jekyll to build their website. While Jekyll is a great generator, the build times for larger sites can be painfully slow. With more than 150 pages plus many custom configurations and add-ons, our website doesn't fall into the low-volume category anymore. Our developers want a smooth experience when working on the website and our content editors need the ability to preview content quickly. In short, we need our builds to be lightning fast.
 

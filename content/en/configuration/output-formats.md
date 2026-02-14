@@ -41,7 +41,7 @@ baseName
 : (`string`) The base name of the published file. Default is `index`.
 
 isHTML
-: (`bool`) Whether to classify the output format as HTML. Hugo uses this value to determine when to create alias redirects and when to inject the LiveReload script. Default is `false`.
+: (`bool`) Whether to classify the output format as HTML. This value determines when the LiveReload script is injected and, in conjunction with [`permalinkable`](#permalinkable), whether [alias redirects][] are generated. Default is `false`.
 
 isPlainText
 : (`bool`) Whether to parse templates for this output format with Go's [text/template][] package instead of the [html/template][] package. Default is `false`.
@@ -59,13 +59,13 @@ path
 : (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your [`publishDir`][]. If omitted, Hugo will use the file's original content path for publishing.
 
 permalinkable
-: (`bool`) Whether to return the rendering output format rather than main output format when invoking the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object. See&nbsp;[details](#link-to-output-formats). Enabled by default for the `html` and `amp` output formats. Default is `false`.
+: (`bool`) Whether to return the rendering output format rather than the main output format when invoking the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object. Along with [`isHTML`](#ishtml), this must be `true` to create [alias redirects][]. Enabled by default for the `html` and `amp` output formats. Default is `false`.
 
 protocol
 : (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the [`baseURL`][] parameter in your site configuration, typically `https://`.
 
 rel
-: (`string`) If provided, you can assign this value to `rel` attributes in `link` elements when iterating over output formats in your templates. Default is `alternate`.
+: (`string`) The relationship of the output format to the current page. Hugo uses this property to determine the [canonical output format](g) of the current page. For the predefined `html` output format, the default value is `canonical`; for all other predefined output formats, the default value is `alternate`.
 
 root
 : (`bool`) Whether to publish files to the root of the publish directory. Default is `false`.
@@ -196,6 +196,7 @@ Output format|Template path
 [`publishDir`]: /configuration/all/#publishdir
 [`RelPermalink`]: /methods/page/relpermalink/
 [`uglyURLs`]: /configuration/ugly-urls/
+[alias redirects]: /content-management/urls/#aliases
 [configure media types]: /configuration/media-types/
 [configure outputs]: /configuration/outputs/
 [configured media types]: /configuration/media-types/

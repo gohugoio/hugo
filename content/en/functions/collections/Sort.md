@@ -1,13 +1,13 @@
 ---
 title: collections.Sort
-description: Sorts slices, maps, and page collections.
+description: Returns a sorted map or slice by reordering the given collection by a key and order.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [sort]
     returnType: any
-    signatures: ['collections.Sort COLLECTION [KEY] [ORDER]']
+    signatures: ['collections.Sort MAP|SLICE [KEY] [ORDER]']
 aliases: [/functions/sort]
 ---
 

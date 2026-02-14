@@ -77,8 +77,9 @@
 
   /* Fonts. */
   --font-sans:
-    "Mulish", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    "Mulish", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 html {
@@ -132,5 +133,11 @@ body {
 
 /* Code spans within paragraphs, tables cells, list items, etc. */
 :not(pre) > code {
+  white-space: nowrap;
+}
+
+/* Utility class for tables to prevent word wrapping in the first column. */
+.no-wrap-first-col td:first-child,
+.no-wrap-first-col th:first-child {
   white-space: nowrap;
 }

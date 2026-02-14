@@ -1,13 +1,13 @@
 ---
 title: collections.Intersect
-description: Returns the common elements of two arrays or slices, in the same order as the first array.
+description: Returns a slice containing the common elements found in two given slices, in the same order as the first slice.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [intersect]
-    returnType: any
-    signatures: [collections.Intersect SET1 SET2]
+    returnType: '[]any'
+    signatures: [collections.Intersect SLICE1 SLICE2]
 aliases: [/functions/intersect]
 ---
 

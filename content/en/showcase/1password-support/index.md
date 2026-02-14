@@ -9,7 +9,7 @@ aliases: [/showcase/1password/]
 
 At 1Password, we used to go through a different documentation platform every month: blog engines, ebooks, wikis, site generators written in Ruby and JavaScript. Each was inadequate in its own special way. Then we found **Hugo**. We made one last switch, and we're glad we did.
 
-### Not all static site generators are created equal
+## Not all static site generators are created equal
 
 Finding a tool that will make your customers, writers, designers, _and_ DevOps team happy is no easy task, but we managed it with Hugo:
 

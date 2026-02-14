@@ -1,11 +1,4 @@
 [[banners]]
-  name         = "Linode"
-  link         = "https://www.linode.com/"
-  logo         = "images/sponsors/linode-logo.svg"
-  utm_campaign = "hugosponsor"
-  bgcolor      = "#ffffff"
-
-[[banners]]
   name            = "GoLand"
   title           = "The complete IDE crafted for professional Go developers."
   no_query_params = true
@@ -19,3 +12,11 @@
   logo            = "images/sponsors/cloudcannon-cms-logo.svg"
   no_query_params = true
   bgcolor         = "#ffffff"
+
+[[banners]]
+  name          = "Your Company?"
+  link          = "https://bep.is/en/hugo-sponsor-2023-01/"
+  utm_campaign  = "hugosponsor"
+  show_on_hover = true
+  bgcolor       = "#4e4f4f"
+  link_attr     = "style='color: #ffffff; font-weight: bold; text-decoration: none; text-align: center'"

@@ -1,13 +1,13 @@
 ---
 title: collections.Complement
-description: Returns the elements of the last collection that are not in any of the others.
+description: Returns a slice by identifying elements in the last given slice that do not appear in any of the preceding slices.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [complement]
-    returnType: any
-    signatures: ['collections.Complement COLLECTION [COLLECTION...]']
+    returnType: '[]any'
+    signatures: ['collections.Complement SLICE [SLICE...]']
 aliases: [/functions/complement]
 ---
 

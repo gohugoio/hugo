@@ -1,25 +1,28 @@
 ---
 title: Process
-description: Applicable to images, returns an image resource processed with the given specification.
+description: Applicable to images, returns a new image resource processed according to the given processing specification.
 categories: []
-keywords: []
+keywords: [process]
 params:
+  alt_title: RESOURCE.Process
   functions_and_methods:
     returnType: images.ImageResource
-    signatures: [RESOURCE.Process SPEC]
+    signatures: [RESOURCE.Process SPECIFICATION]
 ---
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Process an image with the given specification. The specification can contain an optional action, one of `crop`, `fill`, `fit`, or `resize`. This means that you can use this method instead of [`Crop`], [`Fill`], [`Fit`], or [`Resize`].
+Process an image according to the given [processing specification][]. This versatile method supports the full range of image transformations, including resizing, cropping, rotation, and format conversion, all within a single specification string.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Process "crop 200x200" }}
+  {{ with .Process "crop 200x200 TopRight webp q50" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
 ```
+
+In the example above, `"crop 200x200 TopRight webp q50"` is the _processing specification_.
 
 You can also use this method to apply simple transformations such as rotation and conversion:
 
@@ -39,7 +42,7 @@ The `Process` method is also available as a filter, which is more effective if y
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Process "crop 200x200 topright webp q85 lanczos" }}
+  {{ with .Process "crop 200x200 TopRight webp q50" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
@@ -49,12 +52,9 @@ The `Process` method is also available as a filter, which is more effective if y
   src="images/examples/zion-national-park.jpg"
   alt="Zion National Park"
   filter="Process"
-  filterArgs="crop 200x200 topright webp q85 lanczos"
+  filterArgs="crop 200x200 TopRight webp q50"
   example=true
 >}}
 
-[`Crop`]: /methods/resource/crop/
-[`Fill`]: /methods/resource/fill/
-[`Fit`]: /methods/resource/fit/
-[`Resize`]: /methods/resource/resize/
 [`images.Process`]: /functions/images/process/
+[processing specification]: #processing-specification

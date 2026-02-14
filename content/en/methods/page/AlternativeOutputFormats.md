@@ -13,30 +13,17 @@ params:
 
 The `AlternativeOutputFormats` method on a `Page` object returns a slice of `OutputFormat` objects, excluding the current output format, each representing one of the output formats enabled for the given page. See&nbsp;[details](/configuration/output-formats/).
 
-## Methods
-
-{{% include "/_common/methods/page/output-format-methods.md" %}}
-
-## Example
-
-Generate a `link` element in the `<head>` of each page for each of the alternative output formats:
+For example, to generate a `link` element for each of the alternative output formats:
 
 ```go-html-template
-<head>
-  ...
-  {{ $title := printf "%s | %s" .Title site.Title }}
-  {{ if .IsHome }}
-    {{ $title = site.Title }}
-  {{ end }}
-  {{ range .AlternativeOutputFormats }}
-    {{ printf `<link rel=%q type=%q href=%q title=%q>` .Rel .MediaType.Type .Permalink $title | safeHTML }}
-  {{ end }}
-  ...
-</head>
+{{ range .AlternativeOutputFormats }}
+  {{ printf "<link rel=%q type=%q href=%q>" .Rel .MediaType.Type .Permalink | safeHTML }}
+{{ end }}
 ```
 
-On the site's home page, Hugo renders this to:
+Hugo renders this to something like:
 
 ```html
-<link rel="alternate" type="application/rss+xml" href="https://example.org/index.xml" title="ABC Widgets, Inc.">
+<link rel="alternate" type="application/rss+xml" href="https://example.org/index.xml">
+<link rel="alternate" type="application/json" href="https://example.org/index.json">
 ```

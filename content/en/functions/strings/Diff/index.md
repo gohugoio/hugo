@@ -9,8 +9,6 @@ params:
     signatures: [strings.Diff OLDNAME OLD NEWNAME NEW]
 ---
 
-{{< new-in 0.125.0 />}}
-
 Use `strings.Diff` to compare two strings and render a highlighted diff:
 
 ```go-html-template

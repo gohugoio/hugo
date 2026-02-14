@@ -2,8 +2,9 @@
 title: Filter
 description: Applicable to images, applies one or more image filters to the given image resource.
 categories: []
-keywords: []
+keywords: [filter]
 params:
+  alt_title: RESOURCE.Filter
   functions_and_methods:
     returnType: images.ImageResource
     signatures: [RESOURCE.Filter FILTER...]

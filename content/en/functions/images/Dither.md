@@ -10,12 +10,10 @@ params:
     signatures: ['images.Dither [OPTIONS]']
 ---
 
-{{< new-in 0.123.0 />}}
-
 ## Options
 
 colors
-: (`string array`) A slice of two or more colors that make up the dithering palette, each expressed as an RGB or RGBA [hexadecimal] value, with or without a leading hash mark. The default values are opaque black (`000000ff`) and opaque white (`ffffffff`).
+: (`[]string`) A slice of two or more colors that make up the dithering palette, each expressed as an RGB or RGBA [hexadecimal] value, with or without a leading hash mark. The default values are opaque black (`000000ff`) and opaque white (`ffffffff`).
 
 [hexadecimal]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 

@@ -11,7 +11,7 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Resources.Colors` method returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
+The `Colors` method on a `Resource` image object returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
 
 ## Methods
 
@@ -19,13 +19,9 @@ Each color is an object with the following methods:
 
 ### ColorHex
 
-{{< new-in 0.125.0 />}}
-
 (`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
 
 ### Luminance
-
-{{< new-in 0.125.0 />}}
 
 (`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 

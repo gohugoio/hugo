@@ -13,7 +13,7 @@
     {{ end }}
   </div>
   <div
-    class=" relative flex flex-grow basis-0 items-center min-w-24 max-w-3xl overflow-x-auto">
+    class="relative hidden sm:flex flex-grow basis-0 items-center min-w-24 max-w-3xl overflow-x-auto">
     {{ range .Site.Menus.global }}
       <a
         href="{{ .URL }}"
@@ -41,15 +41,19 @@
     </div>
   </div>
 
-  <div class="-my-5 pl-2 grow-0">
+  <div class="-my-5 pl-0 sm:pl-2 grow-0 flex items-center gap-0">
     {{/* Search. */}}
     {{ partial "layouts/search/input.html" . }}
+    {{/* Theme selector - shown inline on mobile */}}
+    <div class="sm:hidden">
+      {{ partial "layouts/header/theme.html" . }}
+    </div>
   </div>
   <div
-    class="relative ml-0 md:ml-8 flex content-center basis-0 justify-end gap-0 sm:gap-1 xl:grow-1">
+    class="relative hidden sm:flex ml-0 md:ml-8 content-center basis-0 justify-end gap-0 sm:gap-1 xl:grow-1">
     {{/* QR code. */}}
     {{ partial "layouts/header/qr.html" . }}
-    {{/* Theme selector. */}}
+    {{/* Theme selector - hidden on mobile (shown above) */}}
     {{ partial "layouts/header/theme.html" . }}
 
     {{/* Social. */}}
@@ -62,4 +66,18 @@
       {{ partial "layouts/header/mastodon.html" . }}
     </div>
   </div>
+
+  {{/* Mobile menu hamburger button - only visible on small screens */}}
+  <button
+    @click="$store.nav.mobileMenu.toggle()"
+    class="sm:hidden p-2 ml-2 text-gray-300 hover:text-white rounded-md hover:bg-blue-900 transition-colors"
+    aria-label="Open menu"
+    :aria-expanded="$store.nav.mobileMenu.open">
+    <svg class="w-6 h-6">
+      <use href="#icon--bars-3"></use>
+    </svg>
+  </button>
 </header>
+
+{{/* Mobile menu panel */}}
+{{ partial "layouts/header/mobilemenu.html" . }}

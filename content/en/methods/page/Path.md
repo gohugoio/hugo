@@ -9,8 +9,6 @@ params:
     signatures: [PAGE.Path]
 ---
 
-{{< new-in 0.123.0 />}}
-
 The `Path` method on a `Page` object returns the logical path of the given page, regardless of whether the page is backed by a file.
 
 {{% glossary-term "logical path" %}}

@@ -4,7 +4,7 @@
 [codespell]
 
 # Comma separated list of dirs to be skipped.
-skip = *.ai,chroma.css,chroma_dark.css,.cspell.json
+skip = *.ai,chroma.css,chroma_dark.css,.cspell.json,./data/docs.yaml
 
 # Comma separated list of words to be ignored. Words must be lowercased.
 ignore-words-list = abl,edn,januar,te,trys,ue,womens
