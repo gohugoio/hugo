@@ -27,6 +27,7 @@ import (
 var (
 	keyMatchRegex       = regexp.MustCompile(`\"(\w+)\":`)
 	nullEnableBoolRegex = regexp.MustCompile(`\"(enable\w+)\":null`)
+	nullLineNosRegex    = regexp.MustCompile(`\"(lineNos)\":null`)
 )
 
 type NullBoolJSONMarshaller struct {
@@ -38,7 +39,9 @@ func (c NullBoolJSONMarshaller) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return nullEnableBoolRegex.ReplaceAll(b, []byte(`"$1": false`)), nil
+	b = nullEnableBoolRegex.ReplaceAll(b, []byte(`"$1": false`))
+	b = nullLineNosRegex.ReplaceAll(b, []byte(`"$1": false`))
+	return b, nil
 }
 
 // Code adapted from https://gist.github.com/piersy/b9934790a8892db1a603820c0c23e4a7
