@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go/ast"
 	"go/doc"
 	"go/parser"
 	"go/token"
@@ -291,13 +292,16 @@ func getGetTplPackagesGoDoc() map[string]map[string]methodGoDocInfo {
 			namespaceDoc := make(map[string]methodGoDocInfo)
 			packagePath := filepath.Join(basePath, fi.Name())
 
-			d, err := parser.ParseDir(fset, packagePath, nil, parser.ParseComments)
+			astFiles, err := parseDir(fset, packagePath)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			for _, f := range d {
-				p := doc.New(f, "./", 0)
+			if len(astFiles) > 0 {
+				p, err := doc.NewFromFiles(fset, astFiles, "./")
+				if err != nil {
+					log.Fatal(err)
+				}
 
 				for _, t := range p.Types {
 					if t.Name == "Namespace" {
@@ -322,4 +326,23 @@ func getGetTplPackagesGoDoc() map[string]map[string]methodGoDocInfo {
 	})
 
 	return tplPackagesGoDoc
+}
+
+func parseDir(fset *token.FileSet, dir string) ([]*ast.File, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var files []*ast.File
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") {
+			continue
+		}
+		f, err := parser.ParseFile(fset, filepath.Join(dir, e.Name()), nil, parser.ParseComments)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, f)
+	}
+	return files, nil
 }
