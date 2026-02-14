@@ -252,9 +252,9 @@ func (c *Cache) writeReader(id string, r io.Reader) error {
 	}
 	defer f.Close()
 
-	_, _ = io.Copy(f, r)
+	_, err = io.Copy(f, r)
 
-	return nil
+	return err
 }
 
 // GetOrCreateBytes is the same as GetOrCreate, but produces a byte slice.
