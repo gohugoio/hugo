@@ -1345,7 +1345,7 @@ config:
       hl_inline: false
       lineAnchors: ''
       lineNoStart: 1
-      lineNos: null
+      lineNos: false
       lineNumbersInTable: true
       noClasses: true
       style: monokai
