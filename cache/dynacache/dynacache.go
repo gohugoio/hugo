@@ -157,15 +157,23 @@ func (c *Cache) ClearMatching(predicatePartition func(k string, p PartitionManag
 	if predicateValue == nil {
 		panic("nil predicateValue")
 	}
+
+	c.mu.RLock()
+	partitions := make(map[string]PartitionManager, len(c.partitions))
+	for k, v := range c.partitions {
+		partitions[k] = v
+	}
+	c.mu.RUnlock()
+
 	g := rungroup.Run[PartitionManager](context.Background(), rungroup.Config[PartitionManager]{
-		NumWorkers: len(c.partitions),
+		NumWorkers: len(partitions),
 		Handle: func(ctx context.Context, partition PartitionManager) error {
 			partition.clearMatching(predicateValue)
 			return nil
 		},
 	})
 
-	for k, p := range c.partitions {
+	for k, p := range partitions {
 		if !predicatePartition(k, p) {
 			continue
 		}
@@ -178,15 +186,22 @@ func (c *Cache) ClearMatching(predicatePartition func(k string, p PartitionManag
 // ClearOnRebuild prepares the cache for a new rebuild taking the given changeset into account.
 // predicate is optional and will clear any entry for which it returns true.
 func (c *Cache) ClearOnRebuild(predicate func(k, v any) bool, changeset ...identity.Identity) {
+	c.mu.RLock()
+	partitions := make([]PartitionManager, 0, len(c.partitions))
+	for _, p := range c.partitions {
+		partitions = append(partitions, p)
+	}
+	c.mu.RUnlock()
+
 	g := rungroup.Run[PartitionManager](context.Background(), rungroup.Config[PartitionManager]{
-		NumWorkers: len(c.partitions),
+		NumWorkers: len(partitions),
 		Handle: func(ctx context.Context, partition PartitionManager) error {
 			partition.clearOnRebuild(predicate, changeset...)
 			return nil
 		},
 	})
 
-	for _, p := range c.partitions {
+	for _, p := range partitions {
 		g.Enqueue(p)
 	}
 
@@ -194,14 +209,14 @@ func (c *Cache) ClearOnRebuild(predicate func(k, v any) bool, changeset ...ident
 
 	// Clear any entries marked as stale above.
 	g = rungroup.Run[PartitionManager](context.Background(), rungroup.Config[PartitionManager]{
-		NumWorkers: len(c.partitions),
+		NumWorkers: len(partitions),
 		Handle: func(ctx context.Context, partition PartitionManager) error {
 			partition.clearStale()
 			return nil
 		},
 	})
 
-	for _, p := range c.partitions {
+	for _, p := range partitions {
 		g.Enqueue(p)
 	}
 
@@ -217,8 +232,16 @@ func (c *Cache) Keys(predicate func(s string) bool) []string {
 	if predicate == nil {
 		predicate = func(s string) bool { return true }
 	}
+
+	c.mu.RLock()
+	partitions := make(map[string]PartitionManager, len(c.partitions))
+	for k, v := range c.partitions {
+		partitions[k] = v
+	}
+	c.mu.RUnlock()
+
 	var keys []string
-	for pn, g := range c.partitions {
+	for pn, g := range partitions {
 		pkeys := g.(keysProvider).Keys()
 		for _, k := range pkeys {
 			p := path.Join(pn, k)
