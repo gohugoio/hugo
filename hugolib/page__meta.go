@@ -308,7 +308,7 @@ func (m *pageMeta) initLate(s *Site) error {
 		m.singular = tc.singular
 
 		if m.pageConfigSource.Kind == kinds.KindTerm {
-			m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), tc.pluralTreeKey))
+			m.term = paths.TrimLeading(strings.TrimPrefix(m.pathInfo.Unnormalized().Base(), "/"+tc.plural))
 		}
 	}
 
