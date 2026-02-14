@@ -40,11 +40,10 @@ func CopyFile(fs afero.Fs, from, to string) error {
 	}
 	si, err := fs.Stat(from)
 	if err != nil {
-		err = fs.Chmod(to, si.Mode())
-
-		if err != nil {
-			return err
-		}
+		return err
+	}
+	if err := fs.Chmod(to, si.Mode()); err != nil {
+		return err
 	}
 
 	return nil
