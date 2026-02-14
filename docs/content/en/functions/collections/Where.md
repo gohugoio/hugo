@@ -1,22 +1,22 @@
 ---
 title: collections.Where 
-description: Returns the given collection, removing elements that do not satisfy the comparison condition.
+description: Returns a slice by filtering the given slice based on a key, operator, and value.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [where]
-    returnType: any
-    signatures: ['collections.Where COLLECTION KEY [OPERATOR] VALUE']
+    returnType: '[]any'
+    signatures: ['collections.Where SLICE KEY [OPERATOR] VALUE']
 aliases: [/functions/where]
 ---
 
-The `where` function returns the given collection, removing elements that do not satisfy the comparison condition. The comparison condition is composed of the `KEY`, `OPERATOR`, and `VALUE` arguments:
+The `where` function returns the given slice, removing elements that do not satisfy the comparison condition. The comparison condition is composed of the `KEY`, `OPERATOR`, and `VALUE` arguments:
 
 ```text
-collections.Where COLLECTION KEY [OPERATOR] VALUE
-                             --------------------
-                             comparison condition
+collections.Where SLICE KEY [OPERATOR] VALUE
+                        --------------------
+                        comparison condition
 ```
 
 Hugo will test for equality if you do not provide an `OPERATOR` argument. For example:
@@ -30,15 +30,15 @@ Hugo will test for equality if you do not provide an `OPERATOR` argument. For ex
 
 The where function takes three or four arguments. The `OPERATOR` argument is optional.
 
-COLLECTION
-: (`any`) A [page collection](g) or a [slice](g) of [maps](g).
+SLICE
+: (`[]any`) A [page collection](g) or a [slice](g) of [maps](g).
 
 KEY
 : (`string`) The key of the page or map value to compare with `VALUE`. With page collections, commonly used comparison keys are `Section`, `Type`, and `Params`. To compare with a member of the page `Params` map, [chain](g) the subkey as shown below:
 
-```go-html-template
-{{ $result := where .Site.RegularPages "Params.foo" "bar" }}
-```
+  ```go-html-template
+  {{ $result := where .Site.RegularPages "Params.foo" "bar" }}
+  ```
 
 OPERATOR
 : (`string`) The logical comparison [operator](#operators).
@@ -133,7 +133,7 @@ Compare the value of the given field to a [`bool`](g):
 
 Compare a [`scalar`](g) to a [`slice`](g).
 
-For example, to return a collection of pages where the `color` page parameter is either "red" or "yellow":
+For example, to return a slice of pages where the `color` page parameter is either "red" or "yellow":
 
 ```go-html-template
 {{ $fruit := where site.RegularPages "Section" "eq" "fruit" }}
@@ -142,7 +142,7 @@ For example, to return a collection of pages where the `color` page parameter is
 {{ $pages := where $fruit "Params.color" "in" $colors }}
 ```
 
-To return a collection of pages where the "color" page parameter is neither "red" nor "yellow":
+To return a slice of pages where the "color" page parameter is neither "red" nor "yellow":
 
 ```go-html-template
 {{ $fruit := where site.RegularPages "Section" "eq" "fruit" }}
@@ -153,9 +153,9 @@ To return a collection of pages where the "color" page parameter is neither "red
 
 ## Intersection comparison
 
-Compare a `slice` to a `slice`, returning collection elements with common values. This is frequently used when comparing taxonomy terms.
+Compare a `slice` to a `slice`, returning elements with common values. This is frequently used when comparing taxonomy terms.
 
-For example, to return a collection of pages where any of the terms in the "genres" taxonomy are "suspense" or "romance":
+For example, to return a slice of pages where any of the terms in the "genres" taxonomy are "suspense" or "romance":
 
 ```go-html-template
 {{ $books := where site.RegularPages "Section" "eq" "books" }}
@@ -166,7 +166,7 @@ For example, to return a collection of pages where any of the terms in the "genr
 
 ## Regular expression comparison
 
-To return a collection of pages where the "author" page parameter begins with either "victor" or "Victor":
+To return a slice of pages where the "author" page parameter begins with either "victor" or "Victor":
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Params.author" "like" `(?i)^victor` }}
@@ -175,7 +175,7 @@ To return a collection of pages where the "author" page parameter begins with ei
 {{% include "/_common/functions/regular-expressions.md" %}}
 
 > [!note]
-> Use the `like` operator to compare string values. Comparing other data types will result in an empty collection.
+> Use the `like` operator to compare string values. Comparing other data types will result in an empty slice.
 
 ## Date comparison
 
@@ -183,7 +183,7 @@ To return a collection of pages where the "author" page parameter begins with ei
 
 There are four predefined front matter dates: [`date`], [`publishDate`], [`lastmod`], and [`expiryDate`]. Regardless of the front matter data format (TOML, YAML, or JSON) these are [`time.Time`] values, allowing precise comparisons.
 
-For example, to return a collection of pages that were created before the current year:
+For example, to return a slice of pages that were created before the current year:
 
 ```go-html-template
 {{ $startOfYear := time.AsTime (printf "%d-01-01" now.Year) }}
@@ -208,14 +208,14 @@ eventDate = 2024-04-01
 +++
 ```
 
-To return a collection of future events:
+To return a slice of future events:
 
 ```go-html-template
 {{ $events := where .Site.RegularPages "Type" "events" }}
 {{ $futureEvents := where $events "Params.eventDate" "gt" now }}
 ```
 
-When working with YAML or JSON, or quoted TOML values, custom dates are strings; you cannot compare them with `time.Time` values. String comparisons may be possible if the custom date layout is consistent from one page to the next. To be safe, filter the pages by ranging through the collection:
+When working with YAML or JSON, or quoted TOML values, custom dates are strings; you cannot compare them with `time.Time` values. String comparisons may be possible if the custom date layout is consistent from one page to the next. To be safe, filter the pages by ranging over the slice:
 
 ```go-html-template
 {{ $events := where .Site.RegularPages "Type" "events" }}
@@ -229,13 +229,13 @@ When working with YAML or JSON, or quoted TOML values, custom dates are strings;
 
 ## Nil comparison
 
-To return a collection of pages where the "color" parameter is present in front matter, compare to `nil`:
+To return a slice of pages where the "color" parameter is present in front matter, compare to `nil`:
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Params.color" "ne" nil }}
 ```
 
-To return a collection of pages where the "color" parameter is not present in front matter, compare to `nil`:
+To return a slice of pages where the "color" parameter is not present in front matter, compare to `nil`:
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Params.color" "eq" nil }}
@@ -368,9 +368,9 @@ Is rendered to:
 
 To exclude a page with an undefined field from a boolean _inequality_ test:
 
-1. Create a collection using a boolean comparison
-1. Create a collection using a nil comparison
-1. Subtract the second collection from the first collection using the [`collections.Complement`] function.
+1. Create a slice using a boolean comparison
+1. Create a slice using a nil comparison
+1. Subtract the second slice from the first slice using the [`collections.Complement`] function.
 
 This template:
 

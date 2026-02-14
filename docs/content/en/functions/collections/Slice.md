@@ -1,12 +1,12 @@
 ---
 title: collections.Slice
-description: Returns a slice composed of the given values.
+description: Returns a slice created from the given values.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [slice]
-    returnType: any
+    returnType: '[]any'
     signatures: ['collections.Slice [VALUE...]']
 aliases: [/functions/slice]
 ---

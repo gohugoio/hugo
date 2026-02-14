@@ -30,13 +30,13 @@ auth
 : (`string`) Configures `GOAUTH` when running the Go command for module operations. This is a semicolon-separated list of authentication commands for go-import and HTTPS module mirror interactions. This is useful for private repositories. See `go help goauth` for more information.
 
 noProxy
-: (`string`) A comma-separated list of [glob](g) patterns matching paths that should not use the [configured proxy server](#proxy).
+: (`string`) A comma-separated list of [glob patterns](g),s matching paths that should not use the [configured proxy server](#proxy).
 
 noVendor
-: (`string`) A [glob](g) pattern matching module paths to skip when vendoring.
+: (`string`) A [glob pattern](g) matching module paths to skip when vendoring.
 
 private
-: (`string`) A comma-separated list of [glob](g) patterns matching paths that should be treated as private.
+: (`string`) A comma-separated list of [glob patterns](g),s matching paths that should be treated as private.
 
 proxy
 : (`string`) The proxy server to use to download remote modules. Default is `direct`, which means `git clone` and similar.
@@ -76,8 +76,18 @@ You can omit any of the settings above.
 extended
 : (`bool`) Whether the extended edition of Hugo is required, satisfied by installing either the extended or extended/deploy edition.
 
+  > [!note]
+  > The extended version check is disabled in v0.153.2 and later.
+  >
+  > Historically, certain features—specifically WebP encoding and LibSass—required the Hugo Extended binary. However, as of v0.153.0:
+  >
+  > - WebP encoding is now supported in all Hugo editions.
+  > - LibSass has been deprecated in favor of [Dart Sass][], which is compatible with any Hugo edition.
+  >
+  > Because these dependencies no longer require a specialized binary, the internal enforcement check for the extended version has been removed. Site and theme authors are encouraged to use Dart Sass to ensure cross-edition compatibility.
+
 max
-: (`string`) The maximum Hugo version supported, for example `0.152.2`.
+: (`string`) The maximum Hugo version supported, for example `0.153.0`.
 
 min
 : (`string`) The minimum Hugo version supported, for example `0.102.0`.
@@ -123,14 +133,6 @@ version
 > [!important]
 > If you define one or more mounts to map a file system path to a component path, do not use these legacy configuration settings: [`archetypeDir`][], [`assetDir`][], [`contentDir`][], [`dataDir`][], [`i18nDir`][], [`layoutDir`][], or [`staticDir`][].
 
-[`archetypeDir`]: /configuration/all/#archetypedir
-[`assetDir`]: /configuration/all/#assetdir
-[`contentDir`]: /configuration/all/#contentdir
-[`dataDir`]: /configuration/all/#datadir
-[`i18nDir`]: /configuration/all/#i18ndir
-[`layoutDir`]: /configuration/all/#layoutdir
-[`staticDir`]: /configuration/all/#staticdir
-
 ### Default mounts
 
 Within a project, if you define a mount to map a file system path to a component path, the corresponding default mount for that component will be removed. This action essentially overwrites the standard, automatic mapping for that specific component with your custom one.
@@ -153,16 +155,13 @@ disableWatch
 : {{< new-in 0.128.0 />}}
 : (`bool`) Whether to disable watching in watch mode for this mount. Default is `false`.
 
-lang
-: (`string`) The language code, e.g. "en". Relevant for `content` mounts, and `static` mounts when in multihost mode.
+files
+: {{< new-in 0.153.0 />}}
+: (`[]string`) A [glob slice](g) defining the files to include or exclude.
 
-includeFiles
-: (`string` or `[]string`) One or more [glob](g) patterns matching files or directories to include. If `excludeFiles` is not set, the files matching `includeFiles` will be the files mounted.
-
-  The glob patterns are matched against file names relative to the source root. Use Unix-style forward slashes (`/`), even on Windows. A single forward slash (`/`) matches the mount root, and double asterisks (`**`) act as a recursive wildcard, matching all directories and files beneath a given point (e.g., `/posts/**.jpg`). The search is case-insensitive.
-
-excludeFiles
-: (`string` or `[]string`) One or more [glob](g) patterns matching files to exclude.
+sites
+: {{< new-in 0.153.0 />}}
+: (`map`) A map to define [sites matrix](g) and [sites complements](g) for the mount. Relevant for `content` and `layouts` mounts, and `static` mounts when in multihost mode. For `static` and `layouts`, only the `matrix` keyword is supported.
 
 ### Example
 
@@ -171,7 +170,7 @@ excludeFiles
 [[module.mounts]]
     source="content"
     target="content"
-    excludeFiles="docs/*"
+    files=["! docs/*"]
 [[module.mounts]]
     source="node_modules"
     target="assets"
@@ -180,4 +179,12 @@ excludeFiles
     target="assets"
 {{< /code-toggle >}}
 
+[`archetypeDir`]: /configuration/all/#archetypedir
+[`assetDir`]: /configuration/all/#assetdir
+[`contentDir`]: /configuration/all/#contentdir
+[`dataDir`]: /configuration/all/#datadir
+[`i18nDir`]: /configuration/all/#i18ndir
+[`layoutDir`]: /configuration/all/#layoutdir
+[`staticDir`]: /configuration/all/#staticdir
 [`themesDir`]: /configuration/all/#themesdir
+[Dart Sass]: /functions/css/sass/#dart-sass

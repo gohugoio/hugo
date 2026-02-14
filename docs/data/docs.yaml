@@ -1148,12 +1148,6 @@ config:
     assets:
       dir: :resourceDir/_gen
       maxAge: -1
-    getcsv:
-      dir: :cacheDir/:project
-      maxAge: -1
-    getjson:
-      dir: :cacheDir/:project
-      maxAge: -1
     getresource:
       dir: :cacheDir/:project
       maxAge: -1
@@ -1921,8 +1915,6 @@ config:
   page:
     nextPrevInSectionSortOrder: desc
     nextPrevSortOrder: desc
-  paginate: 0
-  paginatePath: ''
   pagination:
     disableAliases: false
     pagerSize: 10
@@ -2189,12 +2181,12 @@ tpl:
         Description: |-
           Append appends args up to the last one to the slice in the last argument.
           This construct allows template constructs like this:
-          
+
           	{{ $pages = $pages | append $p2 $p1 }}
-          
+
           Note that with 2 arguments where both are slices of the same type,
           the first slice will be appended to the second:
-          
+
           	{{ $pages = $pages | append .Site.RegularPages }}
         Examples: []
       Apply:
@@ -2215,11 +2207,11 @@ tpl:
         Description: |-
           Complement gives the elements in the last element of ls that are not in
           any of the others.
-          
+
           All elements of ls must be slices or arrays of comparable types.
-          
+
           The reasoning behind this rather clumsy API is so we can do this in the templates:
-          
+
           	{{ $c := .Pages | complement $last4 }}
         Examples:
         - - '{{ slice "a" "b" "c" "d" "e" "f" | complement (slice "b" "c") (slice "d" "e") }}'
@@ -2294,9 +2286,9 @@ tpl:
           Index returns the result of indexing its first argument by the following
           arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each
           indexed item must be a map, slice, or array.
-          
+
           Adapted from Go stdlib src/text/template/funcs.go.
-          
+
           We deviate from the stdlib mostly because of https://github.com/golang/go/issues/14751.
         Examples: []
       Intersect:
@@ -2346,7 +2338,7 @@ tpl:
         Description: |-
           Merge creates a copy of the final parameter in params and merges the preceding
           parameters into it in reverse order.
-          
+
           Currently only maps are supported. Key handling is case insensitive.
         Examples:
         - - '{{ dict "title" "Hugo Rocks!" | collections.Merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") | sort }}'
@@ -2393,9 +2385,9 @@ tpl:
         - args
         Description: |-
           Seq creates a sequence of integers from args. It's named and used as GNU's seq.
-          
+
           Examples:
-          
+
           	3 => 1, 2, 3
           	1 2 4 => 1, 3
           	-3 => -1, -2, -3
@@ -2484,7 +2476,7 @@ tpl:
         - v2
         Description: |-
           Conditional can be used as a ternary operator.
-          
+
           It returns v1 if cond is true, else v2.
         Examples:
         - - '{{ cond (eq (add 2 2) 4) "2+2 is 4" "what?" | safeHTML }}'
@@ -2569,12 +2561,6 @@ tpl:
         Description: Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3 && arg1 != arg4.
         Examples: []
     crypto:
-      FNV32a:
-        Aliases: null
-        Args:
-        - v
-        Description: 'FNV32a hashes v using fnv32a algorithm.\n<docsmeta>{"newIn": "0.98.0" }</docsmeta>'
-        Examples: []
       HMAC:
         Aliases:
         - hmac
@@ -2649,30 +2635,6 @@ tpl:
         - v
         Description: Unquoted returns a string that does not need to be quoted in CSS.
         Examples: []
-    data:
-      GetCSV:
-        Aliases:
-        - getCSV
-        Args:
-        - sep
-        - args
-        Description: |-
-          GetCSV expects the separator sep and one or n-parts of a URL to a resource which
-          can either be a local or a remote one.
-          The data separator can be a comma, semi-colon, pipe, etc, but only one character.
-          If you provide multiple parts for the URL they will be joined together to the final URL.
-          GetCSV returns nil or a slice slice to use in a short code.
-        Examples: []
-      GetJSON:
-        Aliases:
-        - getJSON
-        Args:
-        - args
-        Description: |-
-          GetJSON expects one or n-parts of a URL in args to a resource which can either be a local or a remote one.
-          If you provide multiple parts they will be joined together to the final URL.
-          GetJSON returns nil or parsed JSON to use in a short code.
-        Examples: []
     debug:
       Dump:
         Aliases: null
@@ -2682,10 +2644,10 @@ tpl:
           Dump returns a object dump of val as a string.
           Note that not every value passed to Dump will print so nicely, but
           we'll improve on that.
-          
+
           We recommend using the "go" Chroma lexer to format the output
           nicely.
-          
+
           Also note that the output from Dump may change from Hugo version to the next,
           so don't depend on a specific output.
         Examples:
@@ -3087,7 +3049,7 @@ tpl:
         - v
         Description: |-
           Humanize returns the humanized form of v.
-          
+
           If v is either an integer or a string containing an integer
           value, the behavior is to add the appropriate ordinal.
         Examples:
@@ -3151,7 +3113,7 @@ tpl:
         Description: |-
           FormatAccounting returns the currency representation of number for the given currency and precision
           for the current language in accounting notation.
-          
+
           The return value is formatted with at least two decimal places.
         Examples:
         - - '{{ 512.5032 | lang.FormatAccounting 2 "NOK" }}'
@@ -3165,7 +3127,7 @@ tpl:
         Description: |-
           FormatCurrency returns the currency representation of number for the given currency and precision
           for the current language.
-          
+
           The return value is formatted with at least two decimal places.
         Examples:
         - - '{{ 512.5032 | lang.FormatCurrency 2 "USD" }}'
@@ -3687,12 +3649,6 @@ tpl:
         - - '{{ if reflect.IsSlice (slice 1 2 3) }}Slice{{ end }}'
           - Slice
     resources:
-      Babel:
-        Aliases: null
-        Args:
-        - args
-        Description: 'Babel processes the given Resource with Babel.\nDeprecated: Moved to the js namespace in Hugo 0.128.0.'
-        Examples: []
       ByType:
         Aliases: null
         Args:
@@ -3769,16 +3725,16 @@ tpl:
           so if you organize your resources in sub-folders, you need to be explicit about it, e.g.:
           "images/*.png". To match any PNG image anywhere in the bundle you can do "**.png", and
           to match all PNG images below the images folder, use "images/**.jpg".
-          
+
           The matching is case insensitive.
-          
+
           Match matches by using the files name with path relative to the file system root
           with Unix style slashes (/) and no leading slash, e.g. "images/logo.png".
-          
+
           See https://github.com/gobwas/glob for the full rules set.
-          
+
           It looks for files in the assets file system.
-          
+
           See Match for a more complete explanation about the rules used.
         Examples: []
       Minify:
@@ -3790,23 +3746,11 @@ tpl:
           Minify minifies the given Resource using the MediaType to pick the correct
           minifier.
         Examples: []
-      PostCSS:
-        Aliases: null
-        Args:
-        - args
-        Description: 'PostCSS processes the given Resource with PostCSS.\nDeprecated: Moved to the css namespace in Hugo 0.128.0.'
-        Examples: []
       PostProcess:
         Aliases: null
         Args:
         - r
         Description: PostProcess processes r after the build.
-        Examples: []
-      ToCSS:
-        Aliases: null
-        Args:
-        - args
-        Description: 'ToCSS converts the given Resource to CSS. You can optional provide an Options object\nas second argument. As an option, you can e.g. specify e.g. the target path (string)\nfor the converted CSS resource.\nDeprecated: Moved to the css namespace in Hugo 0.128.0.'
         Examples: []
     safe:
       CSS:
@@ -3863,16 +3807,6 @@ tpl:
           - http://gohugo.io
     site:
       AllPages:
-        Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
-      Author:
-        Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
-      Authors:
         Aliases: null
         Args: null
         Description: ''
@@ -3937,11 +3871,6 @@ tpl:
         Args: null
         Description: ''
         Examples: null
-      IsMultiLingual:
-        Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
       Key:
         Aliases: null
         Args: null
@@ -3963,11 +3892,6 @@ tpl:
         Description: ''
         Examples: null
       Languages:
-        Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
-      LastChange:
         Aliases: null
         Args: null
         Description: ''
@@ -4023,11 +3947,6 @@ tpl:
         Description: ''
         Examples: null
       Sites:
-        Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
-      Social:
         Aliases: null
         Args: null
         Description: ''
@@ -4156,7 +4075,7 @@ tpl:
           expression in content. Each element is a slice of strings holding the text
           of the leftmost match of the regular expression and the matches, if any, of
           its subexpressions.
-          
+
           By default all matches will be included. The number of matches can be
           limited with the optional limit parameter. A return value of nil indicates
           no match.
@@ -4516,7 +4435,7 @@ tpl:
         - s
         Description: |-
           Emojify returns a copy of s with all emoji codes replaced with actual emojis.
-          
+
           See http://www.emoji-cheat-sheet.com/
         Examples:
         - - '{{ "I :heart: Hugo" | emojify }}'

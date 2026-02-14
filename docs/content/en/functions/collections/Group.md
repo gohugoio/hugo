@@ -1,12 +1,12 @@
 ---
 title: collections.Group
-description: Groups the given page collection by the given key.
+description: Returns a map by grouping the given page collection (slice) by a specific key.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [group]
-    returnType: any
+    returnType: page.PageGroup
     signatures: [collections.Group KEY PAGES]
 aliases: [/functions/group]
 ---

@@ -2,4 +2,4 @@
 title: bundle
 ---
 
-See [page bundle](g).
+See [_page bundle_](g).

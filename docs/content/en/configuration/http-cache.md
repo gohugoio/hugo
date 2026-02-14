@@ -57,10 +57,10 @@ respectCacheControlNoStoreInResponse
 : (`bool`) Whether to respect the `no-store` directive in the server's `Cache-Control` response header when fetching remote resources via the [`resources.GetRemote`][] function. Default is `false`.
 
 cache.for.excludes
-: (`string`) A list of [glob](g) patterns to exclude from caching. In its default configuration HTTP caching excludes all files.
+: (`[]string`) A slice of [glob patterns](g) to exclude from caching. In its default configuration HTTP caching excludes all files.
 
 cache.for.includes
-: (`string`) A list of [glob](g) patterns to cache.
+: (`[]string`) A slice of [glob patterns](g) to cache.
 
 polls
 : A slice of polling configurations.
@@ -75,10 +75,10 @@ polls.low
 : (`string`) The minimum polling interval expressed as a [duration](g). This is used after a recent change and gradually increases towards `polls.high`. Default is `0s`.
 
 polls.for.excludes
-: (`string`) A list of [glob](g) patterns to exclude from polling for this configuration.
+: (`[]string`) A slice of [glob patterns](g) to exclude from polling for this configuration.
 
 polls.for.includes
-: (`string`) A list of [glob](g) patterns to include in polling for this configuration.
+: (`[]string`) A slice of [glob patterns](g) to include in polling for this configuration.
 
 ## HTTP polling
 
@@ -109,10 +109,10 @@ polls.low
 : (`string`) The minimum polling interval expressed as a [duration](g). This is used after a recent change and gradually increases towards `polls.high`. Default is `0s`.
 
 polls.for.excludes
-: (`string`) A list of [glob](g) patterns to exclude from polling for this configuration.
+: (`[]string`) A list of [glob patterns](g) to exclude from polling for this configuration.
 
 polls.for.includes
-: (`string`) A list of [glob](g) patterns to include in polling for this configuration.
+: (`[]string`) A list of [glob patterns](g) to include in polling for this configuration.
 
 ## Behavior
 

@@ -7,7 +7,11 @@
 # will decrease over time, though the initial implementation will require some
 # effort.
 
+- decorator
+- filter
 - highlight
 - menu
+- metadata
+- process
 - random
 - resource

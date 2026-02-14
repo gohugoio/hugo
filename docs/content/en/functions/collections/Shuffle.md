@@ -1,13 +1,13 @@
 ---
 title: collections.Shuffle
-description: Returns a random permutation of a given array or slice.
+description: Returns a slice by randomizing the element order of the given slice.
 categories: []
 keywords: [random]
 params:
   functions_and_methods:
     aliases: [shuffle]
-    returnType: any
-    signatures: [collections.Shuffle COLLECTION]
+    returnType: '[]any'
+    signatures: [collections.Shuffle SLICE]
 aliases: [/functions/shuffle]
 ---
 

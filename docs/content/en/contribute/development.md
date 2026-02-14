@@ -143,7 +143,7 @@ CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 To build and install a specific release:
 
 ```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.152.2
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.155.3
 ```
 
 To build and install at the latest commit on the master branch:

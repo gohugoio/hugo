@@ -4,7 +4,7 @@ description: Create a Hugo site in minutes.
 categories: []
 keywords: []
 params:
-  minVersion: v0.128.0
+  minVersion: v0.146.0
 weight: 10
 aliases: [/quickstart/,/overview/quickstart/]
 ---

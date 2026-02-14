@@ -2,7 +2,7 @@
 Renders the glossary of terms.
 
 When you call this shortcode using the {{% %}} notation, the glossary terms are
-Markdown headings (level 6) which means they are members of .Fragments. This
+description term (dt) elements which means they are members of .Fragments. This
 allows the link render hook to verify links to glossary terms.
 
 Yes, the terms themselves are pages, but we don't want to link to the pages, at
@@ -39,7 +39,11 @@ shortcode.
           {{- $destination = $u.String }}
         {{- else }}
           {{- with site.GetPage $u.Path }}
-            {{- $destination = .Path }}
+            {{- if $u.Fragment }}
+              {{- $destination = printf "%s#%s" .Path $u.Fragment }}
+            {{ else }}
+              {{- $destination = .Path  }}
+            {{- end }}
           {{- else }}
             {{- errorf "The %q shortcode was unable to find the reference link %s: see %s" $.Name . $p.String }}
           {{- end }}

@@ -1,13 +1,13 @@
 ---
 title: collections.IsSet
-description: Reports whether the key exists within the collection.
+description: Reports whether a specific key or index exists in the given map or slice.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [isset]
     returnType: bool
-    signatures: [collections.IsSet COLLECTION KEY]
+    signatures: [collections.IsSet MAP|SLICE KEY|INDEX]
 aliases: [/functions/isset]
 ---
 

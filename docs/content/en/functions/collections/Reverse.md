@@ -1,13 +1,13 @@
 ---
 title: collections.Reverse
-description: Reverses the order of a collection.
+description: Returns a slice by reversing the order of elements in the given slice.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType: any
-    signatures: [collections.Reverse COLLECTION]
+    returnType: '[]any'
+    signatures: [collections.Reverse SLICE]
 aliases: [/functions/collections.reverse]
 ---
 

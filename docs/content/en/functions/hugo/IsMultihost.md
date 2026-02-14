@@ -10,8 +10,6 @@ params:
     signatures: [hugo.IsMultihost]
 ---
 
-{{< new-in 0.124.0 />}}
-
 Site configuration:
 
 {{< code-toggle file=hugo >}}

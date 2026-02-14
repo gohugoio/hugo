@@ -18,7 +18,7 @@ If the key is not found in the translation table for the current language, the `
 If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
 
 > [!note]
-> To list missing and fallback translations, use the `--printI18nWarnings` flag when building your site.
+> To list missing and fallback translations, set [`printI18nWarnings`][] to `true` in your site configuration, or use the `--printI18nWarnings` flag when building your site.
 >
 > To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`][] to `true` in your site configuration.
 
@@ -28,10 +28,10 @@ Create translation tables in the `i18n` directory, naming each file according to
 
 ```text
 i18n/en.toml
-i18n/en-US.toml
+i18n/pt-BR.toml
 ```
 
-The base name must match the [language key][] as defined in your site configuration.
+The base name must match the [`languageCode`][] or [language key][] as defined in your site configuration. Hugo selects the translation table based on the `languageCode`,  falling back to the language key if a matching translation table does not exist.
 
 Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7][] are also supported. You may omit the `art-x-` prefix for brevity. For example:
 
@@ -238,8 +238,10 @@ Then in your templates:
 
 [`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
 [`enableMissingTranslationPlaceholders`]: /configuration/all/#enablemissingtranslationplaceholders
+[`languageCode`]: /configuration/languages/#languagecode
+[`printI18nWarnings`]: /configuration/all/#printi18nwarnings
 [CLDR]: https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
 [go-i18n]: https://github.com/nicksnyder/go-i18n
 [language key]: /configuration/languages/#language-keys
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
 [RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646

@@ -53,13 +53,13 @@ cloudFrontDistributionID
 : (`string`) The CloudFront Distribution ID, applicable if you are using the Amazon Web Services CloudFront CDN. Hugo will invalidate the CDN when deploying this target.
 
 exclude
-: (`string`) A [glob](g) pattern matching files to exclude when deploying to this target. Local files failing the include/exclude filters are not uploaded, and remote files failing these filters are not deleted.
+: (`string`) A [glob pattern](g) matching files to exclude when deploying to this target. Local files failing the include/exclude filters are not uploaded, and remote files failing these filters are not deleted.
 
 googleCloudCDNOrigin
 : (`string`) The Google Cloud project and CDN origin to invalidate when deploying this target, specified as `<project>/<origin>`.
 
 include
-: (`string`) A [glob](g) pattern matching files to include when deploying to this target. Local files failing the include/exclude filters are not uploaded, and remote files failing these filters are not deleted.
+: (`string`) A [glob pattern](g) matching files to include when deploying to this target. Local files failing the include/exclude filters are not uploaded, and remote files failing these filters are not deleted.
 
 name
 : (`string`) An arbitrary name for this target.

@@ -9,8 +9,6 @@ params:
     signatures: [TAXONOMY.Page]
 ---
 
-{{< new-in 0.125.0 />}}
-
 This `TAXONOMY` method returns nil if the taxonomy has no terms, so you must code defensively:
 
 ```go-html-template

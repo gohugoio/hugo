@@ -4,7 +4,7 @@ linkTitle: robots.txt templates
 description: Hugo can generate a customized robots.txt in the same way as any other template.
 categories: []
 keywords: []
-weight: 180
+weight: 190
 aliases: [/extras/robots-txt/]
 ---
 

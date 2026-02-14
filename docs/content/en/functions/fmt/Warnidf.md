@@ -11,8 +11,6 @@ params:
 aliases: [/functions/warnidf]
 ---
 
-{{< new-in 0.123.0 />}}
-
 {{% include "/_common/functions/fmt/format-string.md" %}}
 
 The `warnidf` function evaluates the format string, then prints the result to the WARNING log. Unlike the [`warnf`] function, you may suppress warnings logged by the `warnidf` function by adding the message ID to the `ignoreLogs` array in your site configuration.

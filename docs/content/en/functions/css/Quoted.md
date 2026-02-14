@@ -15,7 +15,7 @@ params:
 > [!note]
 > This function is only applicable to the [`vars`] option passed to the [`css.Sass`] function.
 
-When when passing a `vars` map to the `css.Sass` function, Hugo detects common typed CSS values such as `24px` or `#FF0000` using regular expression matching. If necessary, you can bypass automatic type inference by using the `css.Quoted` function to explicitly indicate that the value must be treated as a quoted string.
+When passing a `vars` map to the `css.Sass` function, Hugo detects common typed CSS values such as `24px` or `#FF0000` using regular expression matching. If necessary, you can bypass automatic type inference by using the `css.Quoted` function to explicitly indicate that the value must be treated as a quoted string.
 
 For example:
 

@@ -108,7 +108,7 @@ Note that:
 
 - You can run `hugo mod vendor` on any level in the module tree.
 - Vendoring will not store modules stored in your `themes` directory.
-- Most commands accept a `--ignoreVendorPaths` flag, which will then not use the vendored modules in `_vendor` for the module paths matching the given [glob](g) pattern.
+- Most commands accept a `--ignoreVendorPaths` flag, which will then not use the vendored modules in `_vendor` for the module paths matching the given [glob pattern](g).
 
 Also see the [CLI Doc](/commands/hugo_mod_vendor/).
 

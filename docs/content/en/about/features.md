@@ -60,6 +60,9 @@ weight: 20
 
 ## Content management
 
+[Multidimensional content model]
+: Generate pages across any combination of language, role, and version from a single source. This allows a single piece of content to be published to multiple [sites](g) within your project, removing the need to duplicate files for different audiences or versions.
+
 [Content adapters]
 : Create content adapters to dynamically add content when building your site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML.
 
@@ -78,7 +81,7 @@ weight: 20
 ## Asset pipelines
 
 [Image processing]
-: Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract EXIF data.
+: Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract metadata.
 
 [JavaScript bundling]
 : Transpile TypeScript and JSX to JavaScript, bundle, tree shake, minify, create source maps, and perform SRI hashing.
@@ -120,6 +123,7 @@ weight: 20
 [Syntax highlighting]: /content-management/syntax-highlighting/
 [Shortcodes]: /content-management/shortcodes/
 
+[Multidimensional content model]: /quick-reference/glossary/#sites-matrix
 [Content adapters]: /content-management/content-adapters/
 [Taxonomies]: /content-management/taxonomies/
 [Data]: /content-management/data-sources/

@@ -9,11 +9,7 @@ weight: 30
 > [!note]
 > Hugo v0.121.1 and later require at least Windows 10 or Windows Server 2016.
 
-## Editions
-
 {{% include "/_common/installation/01-editions.md" %}}
-
-Unless your specific deployment needs require the extended/deploy edition, we recommend the extended edition.
 
 {{% include "/_common/installation/02-prerequisites.md" %}}
 

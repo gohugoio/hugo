@@ -99,7 +99,9 @@ Returns a persistent "scratch pad" to store and manipulate data. The main use ca
 
 ### EnableAllLanguages
 
-By default, Hugo executes the content adapter for the language defined by the `_content.gotmpl` file. Use this method to activate the content adapter for all languages.
+By default, Hugo executes the content adapter only once for the first matching site in the [sites matrix](g). Use this method to expand execution to all languages while maintaining the current role and version.
+
+For more fine-grained control, define a `sites.matrix` in front matter or in a content mount.
 
 ```go-html-template {file="content/books/_content.gotmpl"}
 {{ .EnableAllLanguages }}
@@ -115,6 +117,14 @@ By default, Hugo executes the content adapter for the language defined by the `_
 }}
 {{ .AddPage $page }}
 ```
+
+### EnableAllDimensions
+
+By default, Hugo executes the content adapter only once for the first matching site in the [sites matrix](g). Use this method to expand execution to every possible combination of language, role, and version.
+
+For more fine-grained control, define a `sites.matrix` in front matter or in a content mount.
+
+{{< new-in v0.153.0 />}}
 
 ## Page map
 

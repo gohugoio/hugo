@@ -1,13 +1,13 @@
 ---
 title: collections.Querify
-description: Returns a URL query string composed of the given key-value pairs, encoded and sorted by key.
+description: Returns a URL query string from the given map, slice, or sequence of key-value pairs.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [querify]
     returnType: string
-    signatures: ['collections.Querify [VALUE...]']
+    signatures: [collections.Querify MAP|SLICE|KEY VALUE...]
 aliases: [/functions/querify]
 ---
 

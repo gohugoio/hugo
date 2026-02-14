@@ -1,6 +1,6 @@
 ---
 title: collections.Seq
-description: Returns a slice of integers.
+description: Returns a slice of integers starting from 1 or a given value, incrementing by 1 or a given value, and ending at a given value.
 categories: []
 keywords: []
 params:

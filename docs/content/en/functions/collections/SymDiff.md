@@ -1,13 +1,13 @@
 ---
 title: collections.SymDiff
-description: Returns the symmetric difference of two collections.
+description: Returns a slice containing the symmetric difference of two given slices.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [symdiff]
-    returnType: any
-    signatures: [COLLECTION | collections.SymDiff COLLECTION]
+    returnType: '[]any'
+    signatures: [SLICE1 | collections.SymDiff SLICE2]
 aliases: [/functions/symdiff]
 ---
 

@@ -1,17 +1,22 @@
 ---
 title: Exif
-description: Applicable to JPEG, PNG, TIFF, and WebP images, returns an EXIF object containing image metadata.
+description: Applicable to JPEG, PNG, TIFF, and WebP images, returns an object containing Exif metadata.
 categories: []
-keywords: []
+keywords: ['metadata']
 params:
   functions_and_methods:
-    returnType: exif.ExifInfo
+    returnType: meta.ExifInfo
     signatures: [RESOURCE.Exif]
 ---
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Applicable to JPEG, PNG, TIFF, and WebP images, the `Exif` method on an image `Resource` object returns an [EXIF] object containing image metadata.
+Applicable to JPEG, PNG, TIFF, and WebP images, the `Exif` method on an image `Resource` object returns an object containing [Exif][Exif_Definition] metadata.
+
+To extract [Exif][Exif_Definition], [IPTC][IPTC_Definition], and [XMP][XMP_Definition] metadata, use the [`Meta`] method instead.
+
+> [!note]
+> Metadata is not preserved during image transformation. Use this method with the _original_ image resource to extract metadata from JPEG, PNG, TIFF, and WebP images.
 
 ## Methods
 
@@ -21,62 +26,63 @@ Applicable to JPEG, PNG, TIFF, and WebP images, the `Exif` method on an image `R
 
 ### Lat
 
-(`float64`) Returns the GPS latitude in degrees.
+(`float64`) Returns the GPS latitude in degrees from Exif metadata.
 
 ### Long
 
-(`float64`) Returns the GPS longitude in degrees.
+(`float64`) Returns the GPS longitude in degrees from Exif metadata.
 
 ### Tags
 
-(`exif.Tags`) Returns a collection of the available EXIF tags for this image. You may include or exclude specific tags from this collection. See [configure imaging].
-
-[configure imaging]: /configuration/imaging/#exif-data
+(`meta.Tags`) Returns a collection of available Exif fields for this image. Availability is determined by the [`includeFields`][] and [`excludeFields`][] settings in your site configuration.
 
 ## Examples
 
-To list the creation date, location, and EXIF tags:
+To list the creation date, latitude, and longitude:
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
   {{ with .Exif }}
-    <p>Date: {{ .Date }}</p>
-    <p>Lat/Long: {{ .Lat }}/{{ .Long }}</p>
-    {{ with .Tags }}
-      <p>Tags</p>
-      <table>
-        <thead>
-          <tr><th>Tag</th><th>Value</th></tr>
-        </thead>
-        <tbody>
-          {{ range $k, $v := . }}
-          <tr><td>{{ $k }}</td><td>{{ $v }}</td></tr>
-          {{ end }}
-        </tbody>
-      </table>
-    {{ end }}
+    <pre>
+      {{ printf "%-25s %v\n" "Date" .Date }}
+      {{ printf "%-25s %v\n" "Latitude" .Lat }}
+      {{ printf "%-25s %v\n" "Longitude" .Long }}
+    </pre>
   {{ end }}
 {{ end }}
 ```
 
-To list specific values:
+To list the available Exif fields:
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}
   {{ with .Exif }}
-    <ul>
-      {{ with .Date }}<li>Date: {{ .Format "January 02, 2006" }}</li>{{ end }}
-      {{ with .Tags.ApertureValue }}<li>Aperture: {{ lang.FormatNumber 2 . }}</li>{{ end }}
-      {{ with .Tags.BrightnessValue }}<li>Brightness: {{ lang.FormatNumber 2 . }}</li>{{ end }}
-      {{ with .Tags.ExposureTime }}<li>Exposure Time: {{ . }}</li>{{ end }}
-      {{ with .Tags.FNumber }}<li>F Number: {{ . }}</li>{{ end }}
-      {{ with .Tags.FocalLength }}<li>Focal Length: {{ . }}</li>{{ end }}
-      {{ with .Tags.ISOSpeedRatings }}<li>ISO Speed Ratings: {{ . }}</li>{{ end }}
-      {{ with .Tags.LensModel }}<li>Lens Model: {{ . }}</li>{{ end }}
-    </ul>
+    <pre>
+      {{ range $k, $v := .Tags -}}
+        {{ printf "%-25s %v\n" $k $v }}
+      {{ end }}
+    </pre>
   {{ end }}
 {{ end }}
 ```
 
-[exif]: https://en.wikipedia.org/wiki/Exif
+To list specific Exif fields:
+
+```go-html-template
+{{ with resources.Get "images/a.jpg" }}
+  {{ with .Exif }}
+    <pre>
+      {{ with .Tags.ApertureValue }}{{ printf "%-25s %v\n" "ApertureValue" . }}{{ end }}
+      {{ with .Tags.BrightnessValue }}{{ printf "%-25s %v\n" "BrightnessValue" . }}{{ end }}
+    </pre>
+  {{ end }}
+{{ end }}
+```
+
+[`excludeFields`]: /configuration/imaging/#excludefields
+[`includeFields`]: /configuration/imaging/#includefields
+[`Meta`]: /methods/resource/meta/
 [`time.Format`]: /functions/time/format/
+[Exif_Definition]: https://en.wikipedia.org/wiki/Exif
+[IPTC_Definition]: https://en.wikipedia.org/wiki/IPTC_Information_Interchange_Model
+[XMP_Definition]: https://en.wikipedia.org/wiki/Extensible_Metadata_Platform

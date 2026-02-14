@@ -1,6 +1,6 @@
 ---
 title: collections.Dictionary
-description: Returns a map composed of the given key-value pairs.
+description: Returns a map created from the given key-value pairs.
 categories: []
 keywords: []
 params:

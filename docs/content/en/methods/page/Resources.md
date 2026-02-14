@@ -41,7 +41,7 @@ When working with global resources instead of page resources, use the [`resource
 
 ### GetMatch
 
-(`resource.Resource`) Returns the first page resource from paths matching the given [glob](g) pattern, or nil if none found.
+(`resource.Resource`) Returns the first page resource from paths matching the given [glob pattern](g), or nil if none found.
 
 ```go-html-template
 {{ with .Resources.GetMatch "images/*.jpg" }}
@@ -53,7 +53,7 @@ When working with global resources instead of page resources, use the [`resource
 
 ### Match
 
-(`resource.Resources`) Returns a collection of page resources from paths matching the given [glob](g) pattern, or nil if none found.
+(`resource.Resources`) Returns a collection of page resources from paths matching the given [glob pattern](g), or nil if none found.
 
 ```go-html-template
 {{ range .Resources.Match "images/*.jpg" }}
@@ -78,7 +78,7 @@ This method is currently only useful in [js.Batch](/functions/js/batch/#import-c
 
 ## Pattern matching
 
-With the `GetMatch` and `Match` methods, Hugo determines a match using a case-insensitive [glob](g) pattern.
+With the `GetMatch` and `Match` methods, Hugo determines a match using a case-insensitive [glob pattern](g).
 
 {{% include "/_common/glob-patterns.md" %}}
 

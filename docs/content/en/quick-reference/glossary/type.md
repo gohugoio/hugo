@@ -2,4 +2,4 @@
 title: type
 ---
 
-See [content type](g).
+See [_content type_](g).

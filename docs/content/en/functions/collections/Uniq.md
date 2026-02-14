@@ -1,13 +1,13 @@
 ---
 title: collections.Uniq
-description: Returns the given collection, removing duplicate elements.
+description: Returns a slice by removing duplicate elements from the given slice.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [uniq]
-    returnType: any
-    signatures: [collections.Uniq COLLECTION]
+    returnType: '[]any'
+    signatures: [collections.Uniq SLICE]
 aliases: [/functions/uniq]
 ---
 
