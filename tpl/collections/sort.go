@@ -89,7 +89,7 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 					if !v.IsValid() {
 						continue
 					}
-					// Special handling of lower cased hmaps.
+					// Special handling of lower cased maps.
 					if params, ok := v.Interface().(hmaps.Params); ok {
 						v = reflect.ValueOf(params.GetNested(path[i+1:]...))
 						break

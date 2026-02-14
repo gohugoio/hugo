@@ -904,46 +904,6 @@ func BenchmarkWhereOps(b *testing.B) {
 	})
 }
 
-func BenchmarkWhereMap(b *testing.B) {
-	ns := newNs()
-	seqString := map[string]string{}
-	seqAny := map[string]any{}
-	seqInt := map[string]int{}
-
-	for i := range 1000 {
-		seqString[fmt.Sprintf("key%d", i)] = "value"
-		seqAny[fmt.Sprintf("key%d", i)] = "value"
-		seqInt[fmt.Sprintf("key%d", i)] = i
-	}
-
-	b.Run("String", func(b *testing.B) {
-		for b.Loop() {
-			_, err := ns.Where(context.Background(), seqString, "key", "eq", "value")
-			if err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-
-	b.Run("Int", func(b *testing.B) {
-		for b.Loop() {
-			_, err := ns.Where(context.Background(), seqAny, "key", "eq", 42)
-			if err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-
-	b.Run("Any", func(b *testing.B) {
-		for b.Loop() {
-			_, err := ns.Where(context.Background(), seqAny, "key", "eq", "value")
-			if err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-}
-
 func BenchmarkWhereSliceOfStructPointersWithMethod(b *testing.B) {
 	// TstRv2
 	ns := newNs()

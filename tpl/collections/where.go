@@ -393,16 +393,219 @@ func parseWhereArgs(args ...any) (mv reflect.Value, op string, err error) {
 	return
 }
 
+// elemResolver resolves a sub-element from a reflect.Value.
+// Built once before the loop to avoid repeated type checks and reflect.ValueOf allocations.
+type elemResolver func(reflect.Value) (reflect.Value, error)
+
+// newElemResolver returns a resolver optimized for the given element type and path.
+// Returns nil if optimization isn't possible, in which case the caller should
+// fall back to evaluateSubElem.
+func (ns *Namespace) newElemResolver(ctxv reflect.Value, elemType reflect.Type, path []string) elemResolver {
+	if elemType.Kind() == reflect.Interface {
+		if len(path) != 1 {
+			return nil
+		}
+		return ns.newInterfaceMethodResolver(ctxv, elemType, path[0])
+	}
+
+	baseType := elemType
+	isPtr := baseType.Kind() == reflect.Pointer
+	if isPtr {
+		baseType = baseType.Elem()
+	}
+
+	if baseType == reflect.TypeFor[hmaps.Params]() {
+		return func(v reflect.Value) (reflect.Value, error) {
+			if isPtr {
+				if v.IsNil() {
+					return zero, nil
+				}
+				v = v.Elem()
+			}
+			params := v.Interface().(hmaps.Params)
+			return reflect.ValueOf(params.GetNested(path...)), nil
+		}
+	}
+
+	if len(path) != 1 {
+		return nil
+	}
+	name := path[0]
+
+	// Check for method first, matching evaluateSubElem order.
+	ptrType := baseType
+	if !hreflect.IsInterfaceOrPointer(ptrType.Kind()) {
+		ptrType = reflect.PointerTo(baseType)
+	}
+	mt := hreflect.GetMethodByNameForType(ptrType, name)
+	if mt.Func.IsValid() {
+		return ns.newMethodResolver(ctxv, elemType, mt)
+	}
+
+	switch baseType.Kind() {
+	case reflect.Map:
+		if baseType.Key().Kind() == reflect.String {
+			kv := reflect.ValueOf(name)
+			return func(v reflect.Value) (reflect.Value, error) {
+				if isPtr {
+					if v.IsNil() {
+						return zero, nil
+					}
+					v = v.Elem()
+				}
+				return v.MapIndex(kv), nil
+			}
+		}
+	case reflect.Struct:
+		ft, ok := baseType.FieldByName(name)
+		if ok {
+			if ft.PkgPath != "" && !ft.Anonymous {
+				return func(v reflect.Value) (reflect.Value, error) {
+					return zero, fmt.Errorf("%s is an unexported field of struct type %s", name, elemType)
+				}
+			}
+			idx := ft.Index
+			return func(v reflect.Value) (reflect.Value, error) {
+				if isPtr {
+					if v.IsNil() {
+						return zero, nil
+					}
+					v = v.Elem()
+				}
+				return v.FieldByIndex(idx), nil
+			}
+		}
+	}
+
+	return nil
+}
+
+func (ns *Namespace) newMethodResolver(ctxv reflect.Value, elemType reflect.Type, mt reflect.Method) elemResolver {
+	if mt.PkgPath != "" {
+		return func(v reflect.Value) (reflect.Value, error) {
+			return zero, fmt.Errorf("%s is an unexported method of type %s", mt.Name, elemType)
+		}
+	}
+
+	numIn := mt.Type.NumIn()
+	maxNumIn := 1
+	needsCtx := numIn > 1 && hreflect.IsContextType(mt.Type.In(1))
+	if needsCtx {
+		maxNumIn = 2
+	}
+
+	switch {
+	case mt.Type.NumIn() > maxNumIn:
+		return nil
+	case mt.Type.NumOut() == 0:
+		return nil
+	case mt.Type.NumOut() > 2:
+		return nil
+	case mt.Type.NumOut() == 1 && mt.Type.Out(0).Implements(errorType):
+		return nil
+	case mt.Type.NumOut() == 2 && !mt.Type.Out(1).Implements(errorType):
+		return nil
+	}
+
+	fn := mt.Func
+	hasErrOut := mt.Type.NumOut() == 2
+	isPtr := elemType.Kind() == reflect.Pointer
+
+	var callArgs []reflect.Value
+	if needsCtx {
+		callArgs = make([]reflect.Value, 2)
+		callArgs[1] = ctxv
+	} else {
+		callArgs = make([]reflect.Value, 1)
+	}
+
+	return func(v reflect.Value) (reflect.Value, error) {
+		if isPtr && v.IsNil() {
+			return zero, nil
+		}
+		recv := v
+		if !isPtr && !hreflect.IsInterfaceOrPointer(recv.Kind()) && recv.CanAddr() {
+			recv = recv.Addr()
+		}
+		callArgs[0] = recv
+		res := fn.Call(callArgs)
+		if hasErrOut && !res[1].IsNil() {
+			return zero, res[1].Interface().(error)
+		}
+		return res[0], nil
+	}
+}
+
+// newInterfaceMethodResolver returns a method resolver or nil if not possible, in which the caller should fall back to evaluateSubElem.
+func (ns *Namespace) newInterfaceMethodResolver(ctxv reflect.Value, ifaceType reflect.Type, name string) elemResolver {
+	mt, ok := ifaceType.MethodByName(name)
+	if !ok {
+		return nil
+	}
+
+	// For interface methods, Type does not include the receiver.
+	mType := mt.Type
+	numIn := mType.NumIn()
+	maxNumIn := 0
+	needsCtx := numIn > 0 && hreflect.IsContextType(mType.In(0))
+	if needsCtx {
+		maxNumIn = 1
+	}
+
+	switch {
+	case mType.NumIn() > maxNumIn:
+		return nil
+	case mType.NumOut() == 0:
+		return nil
+	case mType.NumOut() > 2:
+		return nil
+	case mType.NumOut() == 1 && mType.Out(0).Implements(errorType):
+		return nil
+	case mType.NumOut() == 2 && !mType.Out(1).Implements(errorType):
+		return nil
+	}
+
+	index := mt.Index
+	hasErrOut := mType.NumOut() == 2
+
+	var callArgs []reflect.Value
+	if needsCtx {
+		callArgs = []reflect.Value{ctxv}
+	}
+
+	return func(v reflect.Value) (reflect.Value, error) {
+		if v.IsNil() {
+			return zero, nil
+		}
+		res := v.Method(index).Call(callArgs)
+		if hasErrOut && !res[1].IsNil() {
+			return zero, res[1].Interface().(error)
+		}
+		return res[0], nil
+	}
+}
+
 // checkWhereArray handles the where-matching logic when the seqv value is an
 // Array or Slice.
 func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
 	rv := reflect.MakeSlice(seqv.Type(), 0, 0)
 
+	var resolve elemResolver
+	if kv.Kind() == reflect.String && len(path) > 0 {
+		resolve = ns.newElemResolver(ctxv, seqv.Type().Elem(), path)
+	}
+
 	for i := range seqv.Len() {
 		var vvv reflect.Value
 		rvv := seqv.Index(i)
 
-		if kv.Kind() == reflect.String {
+		if resolve != nil {
+			var err error
+			vvv, err = resolve(rvv)
+			if err != nil {
+				return nil, err
+			}
+		} else if kv.Kind() == reflect.String {
 			if params, ok := rvv.Interface().(hmaps.Params); ok {
 				vvv = reflect.ValueOf(params.GetNested(path...))
 			} else {
@@ -416,7 +619,6 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 
 					if i < len(path)-1 && vvv.IsValid() {
 						if params, ok := vvv.Interface().(hmaps.Params); ok {
-							// The current path element is the map itself, .Params.
 							vvv = reflect.ValueOf(params.GetNested(path[i+1:]...))
 							break
 						}
