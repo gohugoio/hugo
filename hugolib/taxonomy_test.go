@@ -619,21 +619,32 @@ func TestTaxonomiesSpaceInName(t *testing.T) {
 	files := `
 -- hugo.toml --
 [taxonomies]
-authors = 'book authors'
--- content/p1.md --
+"book author" = "book authors"
+-- content/posts/post1.md --
 ---
-title: Good Omens
-book authors:
-  - Neil Gaiman
-  - Terry Pratchett
+title: Post 1
+book authors: ["Author One"]
+---
+-- content/posts/post2.md --
+---
+title: Post 2
+book authors: ["Author One", "Author Two"]
 ---
 -- layouts/home.html --
 {{- $taxonomy := "book authors" }}
 Len Book Authors: {{ len (index .Site.Taxonomies $taxonomy) }}
+-- layouts/_default/taxonomy.html --
+{{ range .Data.Terms.ByCount }}
+Term: {{ .Term }}|Count: {{ .Count }}|Name: {{ .Name }}|Page title: {{ .Page.Title }}|
+{{ end }}
 `
 	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Len Book Authors: 2")
+	b.AssertFileContent("public/book-authors/index.html",
+		"Term: author one|Count: 2|Name: author one|Page title: Author One|",
+		"Term: author two|Count: 1|Name: author two|Page title: Author Two|",
+	)
 }
 
 func TestTaxonomiesListTermsHome(t *testing.T) {
