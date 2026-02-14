@@ -28,8 +28,6 @@ website: https://gohugo.io/
 platforms:
   amd64:
   arm64:
-  ppc64el:
-  s390x:
 
 lint:
   ignore:
