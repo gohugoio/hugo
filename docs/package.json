@@ -19,7 +19,7 @@
   "dependencies": {
     "@alpinejs/focus": "3.15.3",
     "@alpinejs/persist": "3.15.3",
-    "@hotwired/turbo": "8.0.20",
+    "@hotwired/turbo": "8.0.21",
     "alpinejs": "3.15.3"
   }
 }
