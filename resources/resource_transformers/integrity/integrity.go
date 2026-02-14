@@ -69,7 +69,9 @@ func (t *fingerprintTransformation) Transform(ctx *resources.ResourceTransformat
 		w = io.MultiWriter(h, ctx.To)
 	}
 
-	io.Copy(w, ctx.From)
+	if _, err := io.Copy(w, ctx.From); err != nil {
+		return err
+	}
 	d, err := digest(h)
 	if err != nil {
 		return err
