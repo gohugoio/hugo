@@ -7,6 +7,7 @@
 * Never export symbols that's not needed outside of the package.
 * Avoid global state at (almost) all cost.
 * This is a project with a long history; assume that a similiar problem has been solved before, look hard for helper functions before creating new ones.
+* In tests, use `qt` matchers (e.g. `b.Assert(err, qt.ErrorMatches, ...)`) instead of raw `if`/`t.Fatal` checks.
 * Use `./check.sh ./somepackage/...` when iterating.
 * Use `./check.sh` when you're done.
 

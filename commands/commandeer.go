@@ -131,6 +131,7 @@ type rootCommand struct {
 	gc              bool
 	poll            string
 	forceSyncStatic bool
+	panicOnWarning  bool
 
 	// Profile flags (for debugging of performance problems)
 	cpuprofile   string
@@ -488,12 +489,18 @@ func (r *rootCommand) createLogger(running bool) (loggers.Logger, error) {
 		}
 	}
 
+	var logHookLast func(e *logg.Entry) error
+	if r.panicOnWarning {
+		logHookLast = loggers.PanicOnWarningHook
+	}
+
 	optsLogger := loggers.Options{
 		DistinctLevel: logg.LevelWarn,
 		Level:         level,
 		StdOut:        r.StdOut,
 		StdErr:        r.StdErr,
 		StoreErrors:   running,
+		HandlerPost:   logHookLast,
 	}
 
 	return loggers.New(optsLogger), nil
@@ -591,7 +598,7 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().BoolVar(&r.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 	cmd.Flags().StringVar(&r.poll, "poll", "", "set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes")
 	_ = cmd.RegisterFlagCompletionFunc("poll", cobra.NoFileCompletions)
-	cmd.Flags().Bool("panicOnWarning", false, "panic on first WARNING log")
+	cmd.Flags().BoolVar(&r.panicOnWarning, "panicOnWarning", false, "panic on first WARNING log")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
 	cmd.Flags().BoolVar(&r.forceSyncStatic, "forceSyncStatic", false, "copy all files when static is changed.")

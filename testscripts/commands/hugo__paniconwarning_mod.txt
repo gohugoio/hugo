@@ -1,0 +1,13 @@
+! hugo --panicOnWarning
+
+stderr 'is not compatible with this Hugo'
+
+-- hugo.toml --
+baseURL="https://example.org"
+
+[module]
+[module.hugoVersion]
+min = "0.148.0"
+max = "0.148.0"
+-- layouts/all.html --
+All.

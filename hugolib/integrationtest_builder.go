@@ -879,12 +879,18 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 			w = &s.logBuff
 		}
 
+		var logHookLast func(e *logg.Entry) error
+		if s.Cfg.PanicOnWarning {
+			logHookLast = loggers.PanicOnWarningHook
+		}
+
 		logger := loggers.New(
 			loggers.Options{
 				StdOut:        w,
 				StdErr:        w,
 				Level:         s.Cfg.LogLevel,
 				DistinctLevel: logg.LevelWarn,
+				HandlerPost:   logHookLast,
 			},
 		)
 
@@ -1142,6 +1148,9 @@ type IntegrationTestConfig struct {
 
 	// The log level to use.
 	LogLevel logg.Level
+
+	// Whether to panic on warnings.
+	PanicOnWarning bool
 
 	// Whether it needs the real file system (e.g. for js.Build tests).
 	NeedsOsFS bool
