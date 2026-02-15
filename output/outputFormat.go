@@ -309,36 +309,6 @@ func (formats Formats) GetByNames(names ...string) (Formats, error) {
 	return types, nil
 }
 
-// FromFilename gets a Format given a filename.
-func (formats Formats) FromFilename(filename string) (f Format, found bool) {
-	// mytemplate.amp.html
-	// mytemplate.html
-	// mytemplate
-	var ext, outFormat string
-
-	parts := strings.Split(filename, ".")
-	if len(parts) > 2 {
-		outFormat = parts[1]
-		ext = parts[2]
-	} else if len(parts) > 1 {
-		ext = parts[1]
-	}
-
-	if outFormat != "" {
-		return formats.GetByName(outFormat)
-	}
-
-	if ext != "" {
-		f, found = formats.GetBySuffix(ext)
-		if !found && len(parts) == 2 {
-			// For extensionless output formats (e.g. Netlify's _redirects)
-			// we must fall back to using the extension as format lookup.
-			f, found = formats.GetByName(ext)
-		}
-	}
-	return
-}
-
 // BaseFilename returns the base filename of f including an extension (ie.
 // "index.xml").
 func (f Format) BaseFilename() string {

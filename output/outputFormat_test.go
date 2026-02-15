@@ -98,45 +98,6 @@ func TestGetFormatByExt(t *testing.T) {
 	c.Assert(found, qt.Equals, false)
 }
 
-func TestGetFormatByFilename(t *testing.T) {
-	c := qt.New(t)
-	noExtNoDelimMediaType := media.Builtin.TextType
-	noExtNoDelimMediaType.Delimiter = ""
-
-	noExtMediaType := media.Builtin.TextType
-
-	var (
-		noExtDelimFormat = Format{
-			Name:      "NEM",
-			MediaType: noExtNoDelimMediaType,
-			BaseName:  "_redirects",
-		}
-		noExt = Format{
-			Name:      "NEX",
-			MediaType: noExtMediaType,
-			BaseName:  "next",
-		}
-	)
-
-	formats := Formats{AMPFormat, HTMLFormat, noExtDelimFormat, noExt, CalendarFormat}
-	f, found := formats.FromFilename("my.amp.html")
-	c.Assert(found, qt.Equals, true)
-	c.Assert(f, qt.Equals, AMPFormat)
-	_, found = formats.FromFilename("my.ics")
-	c.Assert(found, qt.Equals, true)
-	f, found = formats.FromFilename("my.html")
-	c.Assert(found, qt.Equals, true)
-	c.Assert(f, qt.Equals, HTMLFormat)
-	f, found = formats.FromFilename("my.nem")
-	c.Assert(found, qt.Equals, true)
-	c.Assert(f, qt.Equals, noExtDelimFormat)
-	f, found = formats.FromFilename("my.nex")
-	c.Assert(found, qt.Equals, true)
-	c.Assert(f, qt.Equals, noExt)
-	_, found = formats.FromFilename("my.css")
-	c.Assert(found, qt.Equals, false)
-}
-
 func TestSort(t *testing.T) {
 	c := qt.New(t)
 	c.Assert(DefaultFormats[0].Name, qt.Equals, "html")
