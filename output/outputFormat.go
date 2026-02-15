@@ -318,9 +318,9 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 
 	parts := strings.Split(filename, ".")
 	if len(parts) > 2 {
-		outFormat = parts[1]
-		ext = parts[2]
-	} else if len(parts) > 1 {
+		outFormat = parts[len(parts)-2]
+		ext = parts[len(parts)-1]
+	} else if len(parts) == 2 {
 		ext = parts[1]
 	}
 
