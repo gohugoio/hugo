@@ -458,6 +458,33 @@ Content: {{ .Content }}
 	b.AssertFileContent("public/post/nested-a/content-a/index.html", `Content: http://example.com/post/nested-b/content-b/`)
 }
 
+// Issue 14344
+func TestRefUnderscoreSection(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+-- layouts/home.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{% ref "definitions/_" %}}
+-- content/definitions/_/_index.md --
+---
+title: underscore
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`https://example.org/definitions/_/`,
+	)
+}
+
 func TestClassCollector(t *testing.T) {
 	for _, minify := range []bool{false, true} {
 		t.Run(fmt.Sprintf("minify-%t", minify), func(t *testing.T) {

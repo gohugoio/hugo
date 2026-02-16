@@ -30,9 +30,17 @@ import (
 )
 
 const (
-	identifierBaseof         = "baseof"
-	identifierCurstomWrapper = "_"
+	identifierBaseof        = "baseof"
+	identifierCustomWrapper = "_"
 )
+
+// isCustomWrapperIdentifier tells whether a supplied path is of the form _xyz_.
+// must have non-empty content between the identifierCustomWrapper's to pass.
+func isCustomWrapperIdentifier(s string) bool {
+	return len(s) > 2*len(identifierCustomWrapper) &&
+		strings.HasPrefix(s, identifierCustomWrapper) &&
+		strings.HasSuffix(s, identifierCustomWrapper)
+}
 
 // PathParser parses and manages paths.
 type PathParser struct {
@@ -188,7 +196,7 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 	id := types.LowHigh[string]{Low: i + 1, High: high}
 	sid := p.s[id.Low:id.High]
 
-	if strings.HasPrefix(sid, identifierCurstomWrapper) && strings.HasSuffix(sid, identifierCurstomWrapper) {
+	if isCustomWrapperIdentifier(sid) {
 		p.identifiersKnown = append(p.identifiersKnown, id)
 		p.posIdentifierCustom = len(p.identifiersKnown) - 1
 		found = true
@@ -775,7 +783,7 @@ func (p *Path) Lang() string {
 }
 
 func (p *Path) Custom() string {
-	return strings.TrimSuffix(strings.TrimPrefix(p.identifierAsString(p.posIdentifierCustom), identifierCurstomWrapper), identifierCurstomWrapper)
+	return strings.TrimSuffix(strings.TrimPrefix(p.identifierAsString(p.posIdentifierCustom), identifierCustomWrapper), identifierCustomWrapper)
 }
 
 func (p *Path) Identifier(i int) string {
