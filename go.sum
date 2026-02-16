@@ -174,8 +174,8 @@ github.com/bep/simplecobra v0.6.1 h1:ORBAC5CSar99/NPZ5fCthCx/uvlm7ry58wwDsZ23a20
 github.com/bep/simplecobra v0.6.1/go.mod h1:hmtjyHv6xwD637ScIRP++0NKkR5szrHuMw5BxMUH66s=
 github.com/bep/textandbinarywriter v0.0.0-20251212174530-cd9f0732f60f h1:NzhMpf5eis+w8bTbT1jqVz+gcMEBhcIPA/KRbYvX8+Y=
 github.com/bep/textandbinarywriter v0.0.0-20251212174530-cd9f0732f60f/go.mod h1:vTWM9sqhanOWdo2B2NHwDQPuPmD/nCdMKDFPYxd4VKU=
-github.com/bep/tmc v0.5.1 h1:CsQnSC6MsomH64gw0cT5f+EwQDcvZz4AazKunFwTpuI=
-github.com/bep/tmc v0.5.1/go.mod h1:tGYHN8fS85aJPhDLgXETVKp+PR382OvFi2+q2GkGsq0=
+github.com/bep/tmc v0.6.0 h1:5zWy4L+3gS+Kk8czzLC4g7ETaC3wkX9ZtTRdAdL8V4s=
+github.com/bep/tmc v0.6.0/go.mod h1:SNHxc3o2WSNMAYqJcAO0rxFY+pbhZzMwjIHe5xaAue0=
 github.com/bep/workers v1.0.0 h1:U+H8YmEaBCEaFZBst7GcRVEoqeRC9dzH2dWOwGmOchg=
 github.com/bep/workers v1.0.0/go.mod h1:7kIESOB86HfR2379pwoMWNy8B50D7r99fRLUyPSNyCs=
 github.com/bits-and-blooms/bitset v1.24.4 h1:95H15Og1clikBrKr/DuzMXkQzECs1M6hhoGXLwLQOZE=
@@ -235,7 +235,6 @@ github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/fortytw2/leaktest v1.3.0 h1:u8491cBMTQ8ft8aeV+adlcytMZylmA5nnwwkRZjI8vw=
 github.com/fortytw2/leaktest v1.3.0/go.mod h1:jDsjWgpAGjm2CA7WthBh/CdZYEPF31XHquHwclZch5g=
-github.com/frankban/quicktest v1.4.1/go.mod h1:36zfPVQyHxymz4cH7wlDmVwDrJuljRB60qkgn7rorfQ=
 github.com/frankban/quicktest v1.7.2/go.mod h1:jaStnuzAqU1AJdCO0l53JDCJrVDKcS03DbaAcR7Ks/o=
 github.com/frankban/quicktest v1.13.0/go.mod h1:qLE0fzW0VuyUAJgPU19zByoIr0HtCHN/r/VLSOOIySU=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
