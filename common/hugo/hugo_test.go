@@ -15,48 +15,11 @@ package hugo
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/version"
 )
-
-func TestHugoInfo(t *testing.T) {
-	c := qt.New(t)
-
-	opts := HugoInfoOptions{
-		Conf: testConfig{environment: "production", workingDir: "/mywork", running: false},
-	}
-	hugoInfo := NewInfo(opts, nil)
-
-	c.Assert(hugoInfo.Version(), qt.Equals, CurrentVersion.Version())
-	c.Assert(fmt.Sprintf("%T", version.VersionString("")), qt.Equals, fmt.Sprintf("%T", hugoInfo.Version()))
-	c.Assert(hugoInfo.WorkingDir(), qt.Equals, "/mywork")
-
-	bi := getBuildInfo()
-	if bi != nil {
-		c.Assert(hugoInfo.CommitHash, qt.Equals, bi.Revision)
-		c.Assert(hugoInfo.BuildDate, qt.Equals, bi.RevisionTime)
-		c.Assert(hugoInfo.GoVersion, qt.Equals, bi.GoVersion)
-	}
-	c.Assert(hugoInfo.Environment, qt.Equals, "production")
-	c.Assert(string(hugoInfo.Generator()), qt.Contains, fmt.Sprintf("Hugo %s", hugoInfo.Version()))
-	c.Assert(hugoInfo.IsDevelopment(), qt.Equals, false)
-	c.Assert(hugoInfo.IsProduction(), qt.Equals, true)
-	c.Assert(hugoInfo.IsExtended(), qt.Equals, IsExtended)
-	c.Assert(hugoInfo.IsServer(), qt.Equals, false)
-
-	opts = HugoInfoOptions{
-		Conf: testConfig{environment: "development", running: true},
-	}
-	devHugoInfo := NewInfo(opts, nil)
-
-	c.Assert(devHugoInfo.IsDevelopment(), qt.Equals, true)
-	c.Assert(devHugoInfo.IsProduction(), qt.Equals, false)
-	c.Assert(devHugoInfo.IsServer(), qt.Equals, true)
-}
 
 func TestDeprecationLogLevelFromVersion(t *testing.T) {
 	c := qt.New(t)
@@ -79,42 +42,20 @@ func TestDeprecationLogLevelFromVersion(t *testing.T) {
 func TestMarkupScope(t *testing.T) {
 	c := qt.New(t)
 
-	opts := HugoInfoOptions{
-		Conf: testConfig{environment: "production", workingDir: "/mywork", running: false},
-	}
-	info := NewInfo(opts, nil)
-
 	ctx := context.Background()
-
 	ctx = SetMarkupScope(ctx, "foo")
 
-	c.Assert(info.Context.MarkupScope(ctx), qt.Equals, "foo")
+	var hugoCtx Context
+	c.Assert(hugoCtx.MarkupScope(ctx), qt.Equals, "foo")
+	c.Assert(GetMarkupScope(ctx), qt.Equals, "foo")
 }
 
-type testConfig struct {
-	environment  string
-	running      bool
-	workingDir   string
-	multihost    bool
-	multilingual bool
-}
+func TestGetBuildInfo(t *testing.T) {
+	c := qt.New(t)
 
-func (c testConfig) Environment() string {
-	return c.environment
-}
-
-func (c testConfig) Running() bool {
-	return c.running
-}
-
-func (c testConfig) WorkingDir() string {
-	return c.workingDir
-}
-
-func (c testConfig) IsMultihost() bool {
-	return c.multihost
-}
-
-func (c testConfig) IsMultilingual() bool {
-	return c.multilingual
+	bi := GetBuildInfo()
+	// In test mode, build info may or may not be available.
+	if bi != nil {
+		c.Assert(bi.GoVersion, qt.Not(qt.Equals), "")
+	}
 }

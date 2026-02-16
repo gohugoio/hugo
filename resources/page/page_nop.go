@@ -31,7 +31,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/source"
 
@@ -196,7 +195,7 @@ func (p *nopPage) HasShortcode(name string) bool {
 	return false
 }
 
-func (p *nopPage) Hugo() (h hugo.HugoInfo) {
+func (p *nopPage) Hugo() (h HugoInfo) {
 	return
 }
 

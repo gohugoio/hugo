@@ -29,7 +29,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
@@ -75,7 +74,7 @@ func newTestPageWithFile(filename string) *testPage {
 		currentSection: &testPage{
 			sectionEntries: []string{"a", "b", "c"},
 		},
-		site: testSite{l: l},
+		site: &testSite{l: l},
 	}
 }
 
@@ -86,7 +85,7 @@ type testPage struct {
 	linkTitle   string
 	lang        string
 	section     string
-	site        testSite
+	site        *testSite
 
 	content string
 
@@ -248,7 +247,7 @@ func (p *testPage) HasShortcode(name string) bool {
 	panic("testpage: not implemented")
 }
 
-func (p *testPage) Hugo() hugo.HugoInfo {
+func (p *testPage) Hugo() HugoInfo {
 	panic("testpage: not implemented")
 }
 
@@ -528,6 +527,9 @@ func (p *testPage) SectionsPath() string {
 }
 
 func (p *testPage) Site() Site {
+	if p.site == nil {
+		panic(fmt.Sprintf("testpage: site is nil for %q", p.path))
+	}
 	return p.site
 }
 

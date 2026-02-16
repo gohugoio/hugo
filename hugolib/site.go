@@ -520,11 +520,19 @@ func newHugoSites(
 	// Create a sites provider that avoids naming conflict with HugoSites.Sites field.
 	sp := hugoSitesSitesProvider{h: h}
 
-	opts := hugo.HugoInfoOptions{
+	opts := page.HugoInfoOptions{
 		Conf:          h.Configs.GetFirstLanguageConfig(),
 		SitesProvider: sp,
+		Deps:          dependencies,
 	}
-	h.hugoInfo = hugo.NewInfo(opts, dependencies)
+
+	if bi := hugo.GetBuildInfo(); bi != nil {
+		opts.CommitHash = bi.Revision
+		opts.BuildDate = bi.RevisionTime
+		opts.GoVersion = bi.GoVersion
+	}
+
+	h.hugoInfo = page.NewHugoInfo(opts)
 
 	var prototype *deps.Deps
 
@@ -668,13 +676,7 @@ func (s *Site) MainSections() []string {
 }
 
 // Returns a struct with some information about the build.
-func (s *Site) Hugo() hugo.HugoInfo {
-	if s.h == nil {
-		panic("site: hugo: h not initialized")
-	}
-	if s.h.hugoInfo.Environment == "" {
-		panic("site: hugo: hugoInfo not initialized")
-	}
+func (s *Site) Hugo() page.HugoInfo {
 	return s.h.hugoInfo
 }
 

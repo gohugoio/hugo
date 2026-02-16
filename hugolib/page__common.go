@@ -66,6 +66,7 @@ type pageCommon struct {
 	page.RawContentProvider
 	page.RefProvider
 	page.ShortcodeInfoProvider
+	page.SiteProvider
 	page.SitesProvider
 	page.TranslationsProvider
 	page.TreeProvider

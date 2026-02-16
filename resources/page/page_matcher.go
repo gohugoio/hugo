@@ -61,7 +61,7 @@ type PageMatcher struct {
 }
 
 func (m PageMatcher) Matches(p Page) bool {
-	return m.Match(p.Kind(), p.Path(), p.Site().Hugo().Environment, nil)
+	return m.Match(p.Kind(), p.Path(), p.Site().Hugo().Environment(), nil)
 }
 
 func (m PageMatcher) Match(kind, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {

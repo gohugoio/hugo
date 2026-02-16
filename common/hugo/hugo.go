@@ -16,7 +16,6 @@ package hugo
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"os"
 	"path/filepath"
 	"runtime/debug"
@@ -25,17 +24,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bep/helpers/contexthelpers"
 	"github.com/bep/logg"
 
 	"github.com/bep/godartsass/v2"
 
 	"github.com/gohugoio/hugo/common/hexec"
-	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
 
-	"github.com/bep/helpers/contexthelpers"
 	"github.com/spf13/afero"
 
 	iofs "io/fs"
@@ -56,99 +54,24 @@ var (
 	vendorInfo string
 )
 
-var _ hstore.StoreProvider = (*HugoInfo)(nil)
-
-// HugoInfo contains information about the current Hugo environment
-type HugoInfo struct {
-	CommitHash string
-	BuildDate  string
-
-	// The build environment.
-	// Defaults are "production" (hugo) and "development" (hugo server).
-	// This can also be set by the user.
-	// It can be any string, but it will be all lower case.
-	Environment string
-
-	// version of go that the Hugo binary was built with
-	GoVersion string
-
-	conf ConfigProvider
-	deps []*Dependency
-
-	sitesProvider SitesProvider
-
-	store *hstore.Scratch
-
-	// Context gives access to some of the context scoped variables.
-	Context Context
+// BuildInfo holds build information extracted from runtime/debug.
+type BuildInfo struct {
+	Revision     string
+	RevisionTime string
+	GoVersion    string
 }
 
-// Version returns the current version as a comparable version string.
-func (i HugoInfo) Version() version.VersionString {
-	return CurrentVersion.Version()
-}
-
-// Generator a Hugo meta generator HTML tag.
-func (i HugoInfo) Generator() template.HTML {
-	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s">`, CurrentVersion.String()))
-}
-
-// IsDevelopment reports whether the current running environment is "development".
-func (i HugoInfo) IsDevelopment() bool {
-	return i.Environment == EnvironmentDevelopment
-}
-
-// IsProduction reports whether the current running environment is "production".
-func (i HugoInfo) IsProduction() bool {
-	return i.Environment == EnvironmentProduction
-}
-
-// IsServer reports whether the built-in server is running.
-func (i HugoInfo) IsServer() bool {
-	return i.conf.Running()
-}
-
-// IsExtended reports whether the Hugo binary is the extended version.
-func (i HugoInfo) IsExtended() bool {
-	return IsExtended
-}
-
-// WorkingDir returns the project working directory.
-func (i HugoInfo) WorkingDir() string {
-	return i.conf.WorkingDir()
-}
-
-// Deps gets a list of dependencies for this Hugo build.
-func (i HugoInfo) Deps() []*Dependency {
-	return i.deps
-}
-
-func (i HugoInfo) Store() *hstore.Scratch {
-	return i.store
-}
-
-// Deprecated: Use hugo.IsMultihost instead.
-func (i HugoInfo) IsMultiHost() bool {
-	Deprecate("hugo.IsMultiHost", "Use hugo.IsMultihost instead.", "v0.124.0")
-	return i.conf.IsMultihost()
-}
-
-// IsMultihost reports whether each configured language has a unique baseURL.
-func (i HugoInfo) IsMultihost() bool {
-	return i.conf.IsMultihost()
-}
-
-// IsMultilingual reports whether there are two or more configured languages.
-func (i HugoInfo) IsMultilingual() bool {
-	return i.conf.IsMultilingual()
-}
-
-// Sites returns all sites for all dimensions.
-func (i HugoInfo) Sites() any {
-	if i.sitesProvider == nil {
+// GetBuildInfo returns the build info for the current binary.
+func GetBuildInfo() *BuildInfo {
+	bi := getBuildInfo()
+	if bi == nil {
 		return nil
 	}
-	return i.sitesProvider.Sites()
+	return &BuildInfo{
+		Revision:     bi.Revision,
+		RevisionTime: bi.RevisionTime,
+		GoVersion:    bi.GoVersion,
+	}
 }
 
 type contextKey uint8
@@ -159,6 +82,7 @@ const (
 
 var markupScope = contexthelpers.NewContextDispatcher[string](contextKeyMarkupScope)
 
+// Context gives access to some of the context scoped variables.
 type Context struct{}
 
 func (c Context) MarkupScope(ctx context.Context) string {
@@ -173,56 +97,6 @@ func SetMarkupScope(ctx context.Context, s string) context.Context {
 // GetMarkupScope gets the markup scope from the context.
 func GetMarkupScope(ctx context.Context) string {
 	return markupScope.Get(ctx)
-}
-
-// ConfigProvider represents the config options that are relevant for HugoInfo.
-type ConfigProvider interface {
-	Environment() string
-	Running() bool
-	WorkingDir() string
-	IsMultihost() bool
-	IsMultilingual() bool
-}
-
-// SitesProvider provides access to all sites.
-type SitesProvider interface {
-	Sites() any
-}
-
-// HugoInfoOptions defines the providers required to initialize HugoInfo.
-type HugoInfoOptions struct {
-	Conf          ConfigProvider
-	SitesProvider SitesProvider
-}
-
-// NewInfo creates a new Hugo Info object.
-func NewInfo(opts HugoInfoOptions, deps []*Dependency) HugoInfo {
-	if opts.Conf.Environment() == "" {
-		panic("environment not set")
-	}
-	var (
-		commitHash string
-		buildDate  string
-		goVersion  string
-	)
-
-	bi := getBuildInfo()
-	if bi != nil {
-		commitHash = bi.Revision
-		buildDate = bi.RevisionTime
-		goVersion = bi.GoVersion
-	}
-
-	return HugoInfo{
-		CommitHash:    commitHash,
-		BuildDate:     buildDate,
-		Environment:   opts.Conf.Environment(),
-		conf:          opts.Conf,
-		deps:          deps,
-		sitesProvider: opts.SitesProvider,
-		store:         hstore.NewScratch(),
-		GoVersion:     goVersion,
-	}
 }
 
 // GetExecEnviron creates and gets the common os/exec environment used in the

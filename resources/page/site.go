@@ -26,7 +26,6 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/navigation"
 )
@@ -87,7 +86,7 @@ type Site interface {
 	IsDefault() bool
 
 	// Returns a struct with some information about the build.
-	Hugo() hugo.HugoInfo
+	Hugo() HugoInfo
 
 	// Returns the BaseURL for this Site.
 	BaseURL() string
@@ -251,7 +250,7 @@ func (s *siteWrapper) Config() SiteConfig {
 	return s.s.Config()
 }
 
-func (s *siteWrapper) Hugo() hugo.HugoInfo {
+func (s *siteWrapper) Hugo() HugoInfo {
 	return s.s.Hugo()
 }
 
@@ -314,11 +313,11 @@ func (s *siteWrapper) CheckReady() {
 }
 
 type testSite struct {
-	h hugo.HugoInfo
+	h HugoInfo
 	l *langs.Language
 }
 
-func (t testSite) Hugo() hugo.HugoInfo {
+func (t testSite) Hugo() HugoInfo {
 	return t.h
 }
 
@@ -451,11 +450,11 @@ func (s testSite) CheckReady() {
 
 // NewDummyHugoSite creates a new minimal test site.
 func NewDummyHugoSite(conf config.AllProvider) Site {
-	opts := hugo.HugoInfoOptions{
+	opts := HugoInfoOptions{
 		Conf: conf,
 	}
 	return testSite{
-		h: hugo.NewInfo(opts, nil),
+		h: NewHugoInfo(opts),
 		l: &langs.Language{
 			Lang: "en",
 		},
