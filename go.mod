@@ -19,7 +19,7 @@ require (
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.10.0
-	github.com/bep/simplecobra v0.6.1
+	github.com/bep/simplecobra v0.7.0
 	github.com/bep/textandbinarywriter v0.0.0-20251212174530-cd9f0732f60f
 	github.com/bep/tmc v0.5.1
 	github.com/bits-and-blooms/bitset v1.24.4
@@ -66,7 +66,7 @@ require (
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/fsync v0.10.1
-	github.com/spf13/pflag v1.0.9
+	github.com/spf13/pflag v1.0.10
 	github.com/tdewolff/minify/v2 v2.24.8
 	github.com/tdewolff/parse/v2 v2.8.5
 	github.com/tetratelabs/wazero v1.11.0
