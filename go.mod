@@ -20,7 +20,7 @@ require (
 	github.com/bep/mclib v1.20400.20402
 	github.com/bep/overlayfs v0.10.0
 	github.com/bep/simplecobra v0.7.0
-	github.com/bep/textandbinarywriter v0.0.0-20251212174530-cd9f0732f60f
+	github.com/bep/textandbinarywriter v0.1.0
 	github.com/bep/tmc v0.6.0
 	github.com/bits-and-blooms/bitset v1.24.4
 	github.com/cespare/xxhash/v2 v2.3.0
