@@ -18,7 +18,6 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/common/hmaps"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 
@@ -28,21 +27,21 @@ import (
 func TestPageMatcher(t *testing.T) {
 	c := qt.New(t)
 
-	opts := hugo.HugoInfoOptions{
+	opts := HugoInfoOptions{
 		Conf: testConfig{environment: "development"},
 	}
-	developmentTestSite := testSite{h: hugo.NewInfo(opts, nil)}
+	developmentTestSite := &testSite{h: NewHugoInfo(opts)}
 
-	opts = hugo.HugoInfoOptions{
+	opts = HugoInfoOptions{
 		Conf: testConfig{environment: "production"},
 	}
-	productionTestSite := testSite{h: hugo.NewInfo(opts, nil)}
+	productionTestSite := &testSite{h: NewHugoInfo(opts)}
 
 	dec := cascadeConfigDecoder{}
 
 	p1, p2, p3 := &testPage{path: "/p1", kind: "section", lang: "en", site: developmentTestSite},
 		&testPage{path: "p2", kind: "page", lang: "no", site: productionTestSite},
-		&testPage{path: "p3", kind: "page", lang: "en"}
+		&testPage{path: "p3", kind: "page", lang: "en", site: developmentTestSite}
 
 	c.Run("Matches", func(c *qt.C) {
 		m := PageMatcher{Kind: "section"}
@@ -68,7 +67,7 @@ func TestPageMatcher(t *testing.T) {
 		m = PageMatcher{Environment: "development"}
 		c.Assert(m.Matches(p1), qt.Equals, true)
 		c.Assert(m.Matches(p2), qt.Equals, false)
-		c.Assert(m.Matches(p3), qt.Equals, false)
+		c.Assert(m.Matches(p3), qt.Equals, true)
 
 		m = PageMatcher{Environment: "production"}
 		c.Assert(m.Matches(p1), qt.Equals, false)

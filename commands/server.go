@@ -246,7 +246,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, net.Listener, string
 	logger := f.c.r.logger
 
 	if i == 0 {
-		r.Printf("Environment: %q\n", f.c.hugoTry().Deps.Site.Hugo().Environment)
+		r.Printf("Environment: %q\n", f.c.hugoTry().Deps.Site.Hugo().Environment())
 		mainTarget := "disk"
 		if f.c.r.renderToMemory {
 			mainTarget = "memory"

@@ -374,6 +374,7 @@ type PageWithoutContent interface {
 	resource.TranslationKeyProvider
 	TranslationsProvider
 
+	SiteProvider
 	SitesProvider
 
 	// Helper methods
@@ -453,12 +454,21 @@ type ShortcodeInfoProvider interface {
 	HasShortcode(name string) bool
 }
 
+type nopSitesProvider struct{}
+
+func (nopSitesProvider) Sites() Sites {
+	return nil
+}
+
 // SitesProvider provide accessors to get sites.
 type SitesProvider interface {
-	// Site returns the current site.
-	Site() Site
-	// Sites returns all sites.
+	// Sites returns all sites for all dimensions.
 	Sites() Sites
+}
+
+// SiteProvider provides access to the current site.
+type SiteProvider interface {
+	Site() Site
 }
 
 // TableOfContentsProvider provides the table of contents for a Page.

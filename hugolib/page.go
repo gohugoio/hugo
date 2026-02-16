@@ -607,6 +607,7 @@ func (ps *pageState) initCommonProviders(pp pagePaths) error {
 	ps.targetPathDescriptor = pp.targetPathDescriptor
 	ps.RefProvider = newPageRef(ps)
 	ps.SitesProvider = ps.s
+	ps.SiteProvider = ps
 
 	return nil
 }

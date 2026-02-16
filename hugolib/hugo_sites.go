@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"io"
 	"iter"
-	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -42,7 +41,6 @@ import (
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hsync"
 	"github.com/gohugoio/hugo/common/htime"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/common/terminal"
@@ -71,7 +69,7 @@ type HugoSites struct {
 
 	Configs *allconfig.Configs
 
-	hugoInfo hugo.HugoInfo
+	hugoInfo page.HugoInfo
 
 	// Render output formats for all sites.
 	renderFormats output.Formats
@@ -124,14 +122,18 @@ type HugoSites struct {
 	buildCounter atomic.Uint64
 }
 
-// hugoSitesSitesProvider is a wrapper that implements hugo.SitesProvider.
+// hugoSitesSitesProvider is a wrapper that implements page.SitesProvider.
 // This avoids naming conflict with HugoSites.Sites field.
 type hugoSitesSitesProvider struct {
 	h *HugoSites
 }
 
-func (sp hugoSitesSitesProvider) Sites() any {
-	return slices.Collect(sp.h.allSites(nil))
+func (sp hugoSitesSitesProvider) Sites() page.Sites {
+	sites := make(page.Sites, 0)
+	for s := range sp.h.allSites(nil) {
+		sites = append(sites, s.Site())
+	}
+	return sites
 }
 
 type progressReporter struct {
