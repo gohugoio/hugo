@@ -646,7 +646,7 @@ func (s *Site) LanguageCode() string {
 // Deprecated: Use hugo.Sites instead.
 func (s *Site) Sites() page.Sites {
 	s.h.printSiteSitesDeprecationInit.Do(func() {
-		hugo.Deprecate(".Site.Sites", "Use hugo.Sites instead.", "v0.156.0")
+		hugo.Deprecate(".Site.Sites and .Page.Sites", "Use hugo.Sites instead.", "v0.156.0")
 	})
 	return slices.Collect(s.h.allSitesInterface(nil))
 }

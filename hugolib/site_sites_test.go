@@ -82,7 +82,7 @@ fr-member-v2.0.0: IsDefault=false
 de-guest-v1.0.0: IsDefault=false
 de-member-v1.0.0: IsDefault=false
 de-guest-v2.0.0: IsDefault=false
-de-member-v2.0.0: IsDefault=false		
+de-member-v2.0.0: IsDefault=false
 `,
 	)
 	b.AssertFileContent("public/guest/v2.0.0/fr/p1/index.html",
@@ -154,5 +154,5 @@ weight = 2
 	b := Test(t, files, TestOptInfo())
 
 	b.AssertFileContent("public/guest/v1.0.0/fr/index.html", "en-guest-v1.0.0|en-member-v1.0.0|en-guest-v2.0.0|en-member-v2.0.0|fr-guest-v1.0.0|fr-member-v1.0.0|fr-guest-v2.0.0|fr-member-v2.0.0|de-guest-v1.0.0|de-member-v1.0.0|de-guest-v2.0.0|de-member-v2.0.0|")
-	b.AssertLogContains(".Site.Sites was deprecated")
+	b.AssertLogContains(".Site.Sites and .Page.Sites was deprecated")
 }
