@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"iter"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -129,11 +130,7 @@ type hugoSitesSitesProvider struct {
 }
 
 func (sp hugoSitesSitesProvider) Sites() page.Sites {
-	sites := make(page.Sites, 0)
-	for s := range sp.h.allSites(nil) {
-		sites = append(sites, s.Site())
-	}
-	return sites
+	return slices.Collect(sp.h.allSitesInterface(nil))
 }
 
 type progressReporter struct {
@@ -152,15 +149,47 @@ func (p *progressReporter) Start() {
 	p.t = htime.Now()
 }
 
+// allSites will range over all sites in the order of the sitesVersionsRoles matrix.
+// If include is not nil, it will be used to filter the sites.
 func (h *HugoSites) allSites(include func(s *Site) bool) iter.Seq[*Site] {
+	if include == nil {
+		include = func(s *Site) bool {
+			return true
+		}
+	}
 	return func(yield func(s *Site) bool) {
 		for _, v := range h.sitesVersionsRoles {
 			for _, r := range v {
 				for _, s := range r {
-					if include != nil && !include(s) {
+					if !include(s) {
 						continue
 					}
 					if !yield(s) {
+						return
+					}
+				}
+			}
+		}
+	}
+}
+
+// allSitesInterface is the same as allSites but returns page.Site, which is used in some places where we don't want to expose the full *Site type.
+// If include is not nil, it will be used to filter the sites.
+func (h *HugoSites) allSitesInterface(include func(s page.Site) bool) iter.Seq[page.Site] {
+	if include == nil {
+		include = func(s page.Site) bool {
+			return true
+		}
+	}
+	return func(yield func(s page.Site) bool) {
+		for _, v := range h.sitesVersionsRoles {
+			for _, r := range v {
+				for _, s := range r {
+					if !include(s) {
+						continue
+					}
+					// Site() returns a wrapped version of the site that only exposes the page.Site interface.
+					if !yield(s.Site()) {
 						return
 					}
 				}
