@@ -648,15 +648,7 @@ func (s *Site) Sites() page.Sites {
 	s.h.printSiteSitesDeprecationInit.Do(func() {
 		hugo.Deprecate(".Site.Sites", "Use hugo.Sites instead.", "v0.156.0")
 	})
-	var sites page.Sites
-	for _, v1 := range s.h.sitesVersionsRoles {
-		for _, v2 := range v1 {
-			for _, s := range v2 {
-				sites = append(sites, s.Site())
-			}
-		}
-	}
-	return sites
+	return slices.Collect(s.h.allSitesInterface(nil))
 }
 
 // IsDefault reports whether this site is the default across all dimensions.
