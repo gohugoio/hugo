@@ -21,6 +21,7 @@ func TestSiteIsDefault(t *testing.T) {
 disableKinds = ['rss','sitemap','taxonomy','term']
 defaultContentLanguage = 'fr'
 defaultContentLanguageInSubdir = true
+defaultContentVersion = "v2.0.0"
 defaultContentVersionInSubdir = true
 defaultContentRoleInSubdir = true
 [languages]
@@ -57,28 +58,68 @@ title: Page 1 DE
 ---
 -- layouts/_default/single.html --
 Current site is default: {{ .Site.IsDefault }}
-{{ range hugo.Sites }}
+{{ with hugo.Sites.Default }}
+Default site: {{ .Language.Name }}-{{ .Role.Name }}-{{ .Version.Name }}: IsDefault={{ .IsDefault }}
+{{ end }}
+{{ range hugo.Sites -}}
 {{ .Language.Name }}-{{ .Role.Name }}-{{ .Version.Name }}: IsDefault={{ .IsDefault }}
 {{ end }}
 `
 
 	b := Test(t, files)
-	b.AssertFileContent("public/guest/v1.0.0/en/p1/index.html",
-		"Current site is default: false",
-		"en-guest-v1.0.0: IsDefault=false",
-		"en-member-v1.0.0: IsDefault=false",
-		"fr-guest-v1.0.0: IsDefault=true",
-		"fr-member-v1.0.0: IsDefault=false",
-		"de-guest-v1.0.0: IsDefault=false",
-		"de-member-v1.0.0: IsDefault=false",
+	b.AssertFileContent("public/guest/v2.0.0/en/p1/index.html",
+		`
+Current site is default: false
+Default site: fr-guest-v2.0.0: IsDefault=true
+en-guest-v1.0.0: IsDefault=false
+en-member-v1.0.0: IsDefault=false
+en-guest-v2.0.0: IsDefault=false
+en-member-v2.0.0: IsDefault=false
+fr-guest-v1.0.0: IsDefault=false
+fr-member-v1.0.0: IsDefault=false
+fr-guest-v2.0.0: IsDefault=true
+fr-member-v2.0.0: IsDefault=false
+de-guest-v1.0.0: IsDefault=false
+de-member-v1.0.0: IsDefault=false
+de-guest-v2.0.0: IsDefault=false
+de-member-v2.0.0: IsDefault=false		
+`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/fr/p1/index.html",
-		"Current site is default: true",
-		"fr-guest-v1.0.0: IsDefault=true",
+	b.AssertFileContent("public/guest/v2.0.0/fr/p1/index.html",
+		`
+Current site is default: true
+Default site: fr-guest-v2.0.0: IsDefault=true
+en-guest-v1.0.0: IsDefault=false
+en-member-v1.0.0: IsDefault=false
+en-guest-v2.0.0: IsDefault=false
+en-member-v2.0.0: IsDefault=false
+fr-guest-v1.0.0: IsDefault=false
+fr-member-v1.0.0: IsDefault=false
+fr-guest-v2.0.0: IsDefault=true
+fr-member-v2.0.0: IsDefault=false
+de-guest-v1.0.0: IsDefault=false
+de-member-v1.0.0: IsDefault=false
+de-guest-v2.0.0: IsDefault=false
+de-member-v2.0.0: IsDefault=false
+`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/de/p1/index.html",
-		"Current site is default: false",
-		"fr-guest-v1.0.0: IsDefault=true",
+	b.AssertFileContent("public/guest/v2.0.0/de/p1/index.html",
+		`
+Current site is default: false
+Default site: fr-guest-v2.0.0: IsDefault=true
+en-guest-v1.0.0: IsDefault=false
+en-member-v1.0.0: IsDefault=false
+en-guest-v2.0.0: IsDefault=false
+en-member-v2.0.0: IsDefault=false
+fr-guest-v1.0.0: IsDefault=false
+fr-member-v1.0.0: IsDefault=false
+fr-guest-v2.0.0: IsDefault=true
+fr-member-v2.0.0: IsDefault=false
+de-guest-v1.0.0: IsDefault=false
+de-member-v1.0.0: IsDefault=false
+de-guest-v2.0.0: IsDefault=false
+de-member-v2.0.0: IsDefault=false
+`,
 	)
 }
 
