@@ -14,6 +14,7 @@
 package page
 
 import (
+	"slices"
 	"time"
 
 	"github.com/gohugoio/hugo/common/hmaps"
@@ -142,18 +143,14 @@ type SiteDimension interface {
 // Sites represents an ordered list of sites (languages).
 type Sites []Site
 
-// Default is a convenience method to get the site corresponding to the default
-// content language.
+// Default is a convenience method to get the default site.
 func (s Sites) Default() Site {
-	if len(s) == 0 {
-		return nil
+	if idx := slices.IndexFunc(s, func(ss Site) bool {
+		return ss.IsDefault()
+	}); idx != -1 {
+		return s[idx]
 	}
-	for _, site := range s {
-		if site.Language().IsDefault() {
-			return site
-		}
-	}
-	return s[0]
+	return nil
 }
 
 // Some additional interfaces implemented by siteWrapper that's not on Site.
