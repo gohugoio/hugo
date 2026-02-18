@@ -517,13 +517,13 @@ func newHugoSites(
 		dependencies = append(dependencies, depFromMod(m))
 	}
 
-	// Create a sites provider that avoids naming conflict with HugoSites.Sites field.
+	// Create providers that avoid naming conflicts with HugoSites fields.
 	sp := hugoSitesSitesProvider{h: h}
 
 	opts := page.HugoInfoOptions{
-		Conf:          h.Configs.GetFirstLanguageConfig(),
-		SitesProvider: sp,
-		Deps:          dependencies,
+		Conf:                      h.Configs.GetFirstLanguageConfig(),
+		HugoInfoHugoSitesProvider: sp,
+		Deps:                      dependencies,
 	}
 
 	if bi := hugo.GetBuildInfo(); bi != nil {
@@ -692,11 +692,19 @@ func (s *Site) Param(key any) (any, error) {
 }
 
 // Returns a map of all the data inside /data.
+// Deprecated: Use hugo.Data instead.
 func (s *Site) Data() map[string]any {
+	s.h.printSiteDataDeprecationInit.Do(func() {
+		hugo.Deprecate(".Site.Data", "Use hugo.Data instead.", "v0.156.0")
+	})
 	return s.h.Data()
 }
 
+// Deprecated: See https://discourse.gohugo.io/t/56732.
 func (s *Site) BuildDrafts() bool {
+	s.h.printSiteBuildDraftsDeprecationInit.Do(func() {
+		hugo.Deprecate(".Site.BuildDrafts", "See https://discourse.gohugo.io/t/56732.", "v0.156.0")
+	})
 	return s.conf.BuildDrafts
 }
 
@@ -754,7 +762,11 @@ func (s *Site) RegularPages() page.Pages {
 }
 
 // AllPages returns all pages for all sites.
+// Deprecated: See https://discourse.gohugo.io/t/56732.
 func (s *Site) AllPages() page.Pages {
+	s.h.printSiteAllPagesDeprecationInit.Do(func() {
+		hugo.Deprecate(".Site.AllPages", "See https://discourse.gohugo.io/t/56732.", "v0.156.0")
+	})
 	s.CheckReady()
 	return s.h.Pages()
 }
@@ -975,7 +987,11 @@ func (s *Site) Language() *langs.Language {
 	return s.language
 }
 
+// Deprecated: See https://discourse.gohugo.io/t/56732.
 func (s *Site) Languages() langs.Languages {
+	s.h.printSiteLanguagesDeprecationInit.Do(func() {
+		hugo.Deprecate(".Site.Languages", "See https://discourse.gohugo.io/t/56732.", "v0.156.0")
+	})
 	return s.h.Configs.Languages
 }
 

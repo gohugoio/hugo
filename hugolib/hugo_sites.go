@@ -102,9 +102,13 @@ type HugoSites struct {
 	previousPageTreesWalkContext *doctree.WalkContext[contentNode]     // Set for rebuilds only.
 	previousSeenTerms            *hmaps.Map[term, sitesmatrix.Vectors] // Set for rebuilds only.
 
-	printUnusedTemplatesInit      sync.Once
-	printPathWarningsInit         sync.Once
-	printSiteSitesDeprecationInit sync.Once
+	printUnusedTemplatesInit            sync.Once
+	printPathWarningsInit               sync.Once
+	printSiteSitesDeprecationInit       sync.Once
+	printSiteDataDeprecationInit        sync.Once
+	printSiteAllPagesDeprecationInit    sync.Once
+	printSiteBuildDraftsDeprecationInit sync.Once
+	printSiteLanguagesDeprecationInit   sync.Once
 
 	// File change events with filename stored in this map will be skipped.
 	skipRebuildForFilenamesMu sync.Mutex
@@ -131,6 +135,10 @@ type hugoSitesSitesProvider struct {
 
 func (sp hugoSitesSitesProvider) Sites() page.Sites {
 	return slices.Collect(sp.h.allSitesInterface(nil))
+}
+
+func (sp hugoSitesSitesProvider) Data() map[string]any {
+	return sp.h.Data()
 }
 
 type progressReporter struct {

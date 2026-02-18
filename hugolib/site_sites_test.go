@@ -156,3 +156,53 @@ weight = 2
 	b.AssertFileContent("public/guest/v1.0.0/fr/index.html", "en-guest-v1.0.0|en-member-v1.0.0|en-guest-v2.0.0|en-member-v2.0.0|fr-guest-v1.0.0|fr-member-v1.0.0|fr-guest-v2.0.0|fr-member-v2.0.0|de-guest-v1.0.0|de-member-v1.0.0|de-guest-v2.0.0|de-member-v2.0.0|")
 	b.AssertLogContains(".Site.Sites and .Page.Sites was deprecated")
 }
+
+func TestHugoDataDeprecation(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- data/mydata.toml --
+v1 = "myvalue"
+-- layouts/home.html --
+hugo.Data: {{ hugo.Data.mydata.v1 }}|
+site.Data: {{ site.Data.mydata.v1 }}|
+	`
+	b := Test(t, files, TestOptInfo())
+
+	b.AssertFileContent("public/index.html",
+		"hugo.Data: myvalue|",
+		"site.Data: myvalue|",
+	)
+	b.AssertLogContains(".Site.Data was deprecated")
+}
+
+func TestSiteDeprecations(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+buildDrafts = true
+[languages]
+[languages.en]
+weight = 1
+[languages.fr]
+weight = 2
+-- content/p1.md --
+---
+title: Page 1
+---
+-- layouts/home.html --
+AllPages: {{ len .Site.AllPages }}|
+BuildDrafts: {{ .Site.BuildDrafts }}|
+Languages: {{ len .Site.Languages }}|
+	`
+	b := Test(t, files, TestOptInfo())
+
+	b.AssertFileContent("public/index.html",
+		"AllPages: 3|",
+		"BuildDrafts: true|",
+		"Languages: 2|",
+	)
+	b.AssertLogContains(".Site.AllPages was deprecated")
+	b.AssertLogContains(".Site.BuildDrafts was deprecated")
+	b.AssertLogContains(".Site.Languages was deprecated")
+}
