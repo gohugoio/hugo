@@ -18,9 +18,9 @@ import (
 )
 
 const (
-	// Identifies site.Data.
+	// Identifies hugo.Data.
 	// The change detection in /data is currently very coarse grained.
-	Data = identity.StringIdentity("site.Data")
+	Data = identity.StringIdentity("hugo.Data")
 )
 
 // FromString returns the identity from the given string,

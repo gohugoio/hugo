@@ -454,9 +454,13 @@ type ShortcodeInfoProvider interface {
 	HasShortcode(name string) bool
 }
 
-type nopSitesProvider struct{}
+type nopHugoSitesProvider struct{}
 
-func (nopSitesProvider) Sites() Sites {
+func (nopHugoSitesProvider) Sites() Sites {
+	return nil
+}
+
+func (nopHugoSitesProvider) Data() map[string]any {
 	return nil
 }
 
@@ -464,6 +468,11 @@ func (nopSitesProvider) Sites() Sites {
 type SitesProvider interface {
 	// Sites returns all sites for all dimensions.
 	Sites() Sites
+}
+
+// DataProvider provides access to the data directory.
+type DataProvider interface {
+	Data() map[string]any
 }
 
 // SiteProvider provides access to the current site.

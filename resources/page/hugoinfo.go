@@ -25,7 +25,7 @@ import (
 var _ hstore.StoreProvider = (*HugoInfo)(nil)
 
 type hugoInfoProviders struct {
-	SitesProvider
+	HugoInfoHugoSitesProvider
 }
 
 // HugoInfo contains information about the current Hugo environment.
@@ -123,14 +123,21 @@ type HugoInfoConfigProvider interface {
 	IsMultilingual() bool
 }
 
+// HugoInfoHugoSitesProvider provides what HugoInfo needs from hugolib.HugoSites.
+type HugoInfoHugoSitesProvider interface {
+	SitesProvider
+	DataProvider
+}
+
 // HugoInfoOptions defines the providers required to initialize HugoInfo.
 type HugoInfoOptions struct {
-	Conf          HugoInfoConfigProvider
-	Deps          []*hugo.Dependency
-	SitesProvider SitesProvider
-	CommitHash    string
-	BuildDate     string
-	GoVersion     string
+	Conf                      HugoInfoConfigProvider
+	HugoInfoHugoSitesProvider HugoInfoHugoSitesProvider
+
+	Deps       []*hugo.Dependency
+	CommitHash string
+	BuildDate  string
+	GoVersion  string
 }
 
 // NewHugoInfo creates a new Hugo Info object.
@@ -141,8 +148,8 @@ func NewHugoInfo(opts HugoInfoOptions) HugoInfo {
 	if opts.Conf.Environment() == "" {
 		panic("environment not set")
 	}
-	if opts.SitesProvider == nil {
-		opts.SitesProvider = nopSitesProvider{}
+	if opts.HugoInfoHugoSitesProvider == nil {
+		opts.HugoInfoHugoSitesProvider = nopHugoSitesProvider{}
 	}
 
 	return HugoInfo{
@@ -150,7 +157,7 @@ func NewHugoInfo(opts HugoInfoOptions) HugoInfo {
 		BuildDate:  opts.BuildDate,
 		GoVersion:  opts.GoVersion,
 
-		hugoInfoProviders: hugoInfoProviders{SitesProvider: opts.SitesProvider},
+		hugoInfoProviders: hugoInfoProviders{HugoInfoHugoSitesProvider: opts.HugoInfoHugoSitesProvider},
 
 		opts:  opts,
 		store: hstore.NewScratch(),
