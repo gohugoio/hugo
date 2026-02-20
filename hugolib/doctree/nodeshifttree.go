@@ -338,6 +338,22 @@ func (r *NodeShiftTree[T]) Get(s string) T {
 	return t
 }
 
+// GetWithFallback is like Get but uses the fallback/complement mechanism
+// when finding a node for the current site vector.
+func (r *NodeShiftTree[T]) GetWithFallback(s string) T {
+	s = cleanKey(s)
+	v, ok := r.tree.Get(s)
+	if !ok {
+		var t T
+		return t
+	}
+	if v, ok := r.shift(v, true); ok {
+		return v
+	}
+	var t T
+	return t
+}
+
 func (r *NodeShiftTree[T]) ForEeachInDimension(s string, dims sitesmatrix.Vector, d int, f func(T) bool) {
 	s = cleanKey(s)
 	v, ok := r.tree.Get(s)

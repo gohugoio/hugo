@@ -223,6 +223,7 @@ func (h helperContentNode) findContentNodeForSiteVector(q sitesmatrix.Vector, fa
 	var (
 		best         contentNodeForSite = nil
 		bestDistance int
+		bestWeight   int
 	)
 
 	for n := range candidates {
@@ -233,27 +234,41 @@ func (h helperContentNode) findContentNodeForSiteVector(q sitesmatrix.Vector, fa
 		if m := n.(contentNodeLookupContentNodes).lookupContentNodes(q, fallback); m != nil {
 			for nn := range m {
 				vec := nn.siteVector()
-				if q == vec {
-					// Exact match.
+				var w int
+				if wp, ok := nn.(contentNodeContentWeightProvider); ok {
+					w = wp.contentWeight()
+				}
+
+				if q == vec && w > 0 {
+					// Exact match backed by a file.
 					return nn
 				}
 
 				distance := q.Distance(vec)
+				distanceAbs := absint(distance)
 
 				if best == nil {
 					best = nn
 					bestDistance = distance
+					bestWeight = w
 				} else {
-					distanceAbs := absint(distance)
 					bestDistanceAbs := absint(bestDistance)
-					if distanceAbs < bestDistanceAbs {
-						// Closer is better.
+					if w > 0 && bestWeight == 0 {
+						// Prefer file-backed pages over auto pages.
 						best = nn
 						bestDistance = distance
-					} else if distanceAbs == bestDistanceAbs && distance > 0 {
-						// Positive distance is better than negative.
-						best = nn
-						bestDistance = distance
+						bestWeight = w
+					} else if (w > 0) == (bestWeight > 0) {
+						// Both file-backed or both auto: use distance.
+						if distanceAbs < bestDistanceAbs {
+							best = nn
+							bestDistance = distance
+							bestWeight = w
+						} else if distanceAbs == bestDistanceAbs && distance > 0 {
+							best = nn
+							bestDistance = distance
+							bestWeight = w
+						}
 					}
 				}
 			}
