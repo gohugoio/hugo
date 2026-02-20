@@ -152,17 +152,31 @@ func (s *contentNodeShifter) Insert(old, new contentNode) (contentNode, contentN
 }
 
 func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector, fallback bool) (contentNode, bool) {
+	var exact contentNode
 	switch v := n.(type) {
 	case contentNodeLookupContentNode:
-		if vv := v.lookupContentNode(siteVector); vv != nil {
-			return vv, true
-		}
+		exact = v.lookupContentNode(siteVector)
 	default:
 		panic(fmt.Sprintf("Shift: unknown type %T for %q", n, n.Path()))
 	}
 
+	if exact != nil {
+		if !fallback {
+			return exact, true
+		}
+		// If the exact match is backed by a file, return it directly.
+		if wp, ok := exact.(contentNodeContentWeightProvider); ok && wp.contentWeight() > 0 {
+			return exact, true
+		}
+		// The exact match is an auto page (not backed by a file).
+		// Check if there's a file-backed complement that should take precedence.
+		if vvv := cnh.findContentNodeForSiteVector(siteVector, fallback, contentNodeToSeq(n)); vvv != nil {
+			return vvv, true
+		}
+		return exact, true
+	}
+
 	if !fallback {
-		// Done
 		return nil, false
 	}
 

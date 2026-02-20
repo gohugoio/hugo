@@ -388,7 +388,7 @@ func (m *pageMap) getPagesInSection(q pageMapQueryPagesInSection) page.Pages {
 
 		if err == nil {
 			if q.IncludeSelf {
-				if n := m.treePages.Get(q.Path); n != nil {
+				if n := m.treePages.GetWithFallback(q.Path); n != nil {
 					if p, ok := n.(*pageState); ok && include(p) {
 						pas = append(pas, p)
 					}

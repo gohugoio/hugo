@@ -1658,3 +1658,90 @@ Version: {{ .Site.Version.Name }}|
 
 	b.AssertFileContent("public/v1/index.html", "Edited version: v1|")
 }
+
+// Issue 14540
+func TestSiteComplementsOverrideAutomaticSectionPages(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss', 'sitemap', 'taxonomy', 'term']
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+  weight = 1
+
+[languages.de]
+  weight = 2
+
+[[module.mounts]]
+  source = 'content/en'
+  target = 'content'
+  [module.mounts.sites.matrix]
+    languages = ['en']
+  [module.mounts.sites.complements]
+    languages = ['de']
+
+[[module.mounts]]
+  source = 'content/de'
+  target = 'content'
+  [module.mounts.sites.matrix]
+    languages = ['de']
+-- layouts/home.html --
+<ul>
+{{ range $k, $_ := site.Pages -}}
+  <li>[{{ $k }}] <a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+{{ end -}}
+</ul>
+-- layouts/page.html --
+{{ .Title }}|
+-- layouts/section.html --
+{{ .Title }}|
+-- content/en/_index.md --
+---
+title: home en
+---
+-- content/en/s1/_index.md --
+---
+title: s1 en
+---
+-- content/en/s1/p1.md --
+---
+title: p1 en
+---
+-- content/en/s2/_index.md --
+---
+title: s2 en
+---
+-- content/en/s2/p2.md --
+---
+title: p2 en
+---
+-- content/de/s1/p1.md --
+---
+title: p1 de
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", `
+<ul>
+<li>[0] <a href="/en/">home en</a></li>
+<li>[1] <a href="/en/s1/p1/">p1 en</a></li>
+<li>[2] <a href="/en/s2/p2/">p2 en</a></li>
+<li>[3] <a href="/en/s1/">s1 en</a></li>
+<li>[4] <a href="/en/s2/">s2 en</a></li>
+</ul>
+	`)
+
+	b.AssertFileContent("public/de/index.html", `
+<ul>
+<li>[0] <a href="/en/">home en</a></li>
+<li>[1] <a href="/de/s1/p1/">p1 de</a></li>
+<li>[2] <a href="/en/s2/p2/">p2 en</a></li>
+<li>[3] <a href="/en/s1/">s1 en</a></li>
+<li>[4] <a href="/en/s2/">s2 en</a></li>
+</ul>
+	`)
+}
