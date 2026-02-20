@@ -683,3 +683,69 @@ Home.
 		"/guest/v1.0.0/en/p3                =>/guest/v1.0.0/en/foo/p1/|",
 	)
 }
+
+// Issue 14482
+func TestOutputFormatIsHTMLWithMultilangAliases(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguageInSubdir = true
+disableKinds = ['page', 'section', 'rss', 'sitemap', 'taxonomy', 'term']
+
+[languages.en]
+[languages.de]
+
+[outputFormats.foo]
+baseName = 'foo'
+isHTML = false
+mediaType = 'text/html'
+
+[outputs]
+home = ['html', 'foo']
+-- content/index.de.md --
+---
+title: home de
+---
+-- content/index.en.md --
+---
+title: home en
+---
+-- layouts/home.html --
+Output format: html|Title: {{ .Title }}
+-- layouts/home.foo.html --
+Output format: foo|Title: {{ .Title }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", `Output format: html|Title: home en`)
+	b.AssertFileContent("public/en/foo.html", `Output format: foo|Title: home en`)
+	b.AssertFileContent("public/de/index.html", `Output format: html|Title: home de`)
+	b.AssertFileContent("public/de/foo.html", `Output format: foo|Title: home de`)
+	b.AssertFileContent("public/index.html", `
+<head>
+  <title>/en/</title>
+  <link rel="canonical" href="/en/">
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=/en/">
+</head>
+	`)
+
+	files = strings.ReplaceAll(files, "isHTML = false", "isHTML = true")
+
+	b = Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", `Output format: html|Title: home en`)
+	b.AssertFileContent("public/en/foo.html", `Output format: foo|Title: home en`)
+	b.AssertFileContent("public/de/index.html", `Output format: html|Title: home de`)
+	b.AssertFileContent("public/de/foo.html", `Output format: foo|Title: home de`)
+	b.AssertFileContent("public/index.html", `
+<head>
+  <title>/en/</title>
+  <link rel="canonical" href="/en/">
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=/en/">
+</head>
+	`)
+}
