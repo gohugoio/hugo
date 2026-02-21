@@ -458,6 +458,11 @@ func (c *Client) downloadModuleVersion(path, version string) (*goModule, error) 
 	b := &bytes.Buffer{}
 	err := c.runGo(context.Background(), b, args...)
 	if err != nil {
+		// The -json flag makes Go output error details as JSON to stdout
+		// even on failure. Try to extract the error message from the JSON output.
+		if jsonErr := extractGoModDownloadError(b.Bytes()); jsonErr != "" {
+			return nil, fmt.Errorf("failed to download module %s@%s: %s: %s", path, version, err, jsonErr)
+		}
 		return nil, fmt.Errorf("failed to download module %s@%s: %w", path, version, err)
 	}
 
@@ -963,6 +968,18 @@ type goModule struct {
 
 type goModuleError struct {
 	Err string // the error itself
+}
+
+func extractGoModDownloadError(b []byte) string {
+	// go mod download -json outputs Error as a plain string,
+	// unlike go list -m -json which uses {"Err": "..."}.
+	var m struct {
+		Error string
+	}
+	if err := json.Unmarshal(b, &m); err == nil && m.Error != "" {
+		return m.Error
+	}
+	return ""
 }
 
 type goModules []*goModule
