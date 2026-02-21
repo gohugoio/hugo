@@ -267,6 +267,29 @@ Home: {{ .Title }}|{{ .Content }}|
 	b.AssertFileContent("public/index.html", "Home: |<h1 id=\"hello-world\">Hello World</h1>\n|")
 }
 
+// https://github.com/gohugoio/hugo/issues/14543
+func TestModulePrivateRepo(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+[module]
+[[module.imports]]
+path = "github.com/bep/this-is-a-non-existing-repo"
+version = "main"
+[[module.imports.mounts]]
+source = "content"
+target = "content"
+-- layouts/all.html --
+Title: {{ .Title }}|
+List: {{ .Title }}
+`
+
+	b, err := TestE(t, files, TestOptOsFs())
+	b.Assert(err, qt.ErrorMatches, `(?s).*mod download.*invalid version.*repository.*`)
+}
+
 // https://github.com/gohugoio/hugo/issues/6299
 func TestSiteWithGoModButNoModules(t *testing.T) {
 	t.Parallel()
