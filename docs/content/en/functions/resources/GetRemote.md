@@ -51,8 +51,7 @@ timeout
 
 responseHeaders
 : {{< new-in 0.143.0 />}}
-: (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive
-.[`Data.Headers`]: /methods/resource/data/#headers
+: (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.[`Data.Headers`]: /methods/resource/data/#headers
 
 ## Options examples
 
@@ -240,5 +239,5 @@ Note that the entry above is:
 
 [`try`]: /functions/go-template/try
 [configure file caches]: /configuration/caches/
-[duration string]: /functions/time/duration/
+
 [error handling]: #error-handling
