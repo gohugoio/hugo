@@ -334,3 +334,29 @@ title: "Page 2 nn"
 	b.AssertFileExists("public/nn/p1/index.html", false)
 	b.AssertFileExists("public/nn/p2/index.html", false)
 }
+
+// Issue #14550
+// disableKinds = [] after [taxonomies] is inside the taxonomies TOML table,
+// creating a phantom taxonomy that causes .Ancestors to hang.
+func TestDisableKindsEmptySliceAncestors(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+title = "Bug repro"
+[taxonomies]
+  tag = "tags"
+disableKinds = []
+-- content/posts/hello.md --
+---
+title: Hello
+tags: [demo]
+---
+Hello.
+-- layouts/page.html --
+Ancestors: {{ len .Ancestors }}|{{ range .Ancestors }}{{ .Kind }}|{{ end }}
+-- layouts/list.html --
+{{ .Title }}
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/posts/hello/index.html", "Ancestors: 2|section|home|")
+}
