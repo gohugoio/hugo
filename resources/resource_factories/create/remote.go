@@ -27,6 +27,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cast"
+
 	"github.com/gohugoio/httpcache"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
@@ -177,6 +179,19 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	isHeadMethod := method == "HEAD"
 
 	optionsm = maps.Clone(optionsm)
+
+	// Extract timeout before computing cache keys: it only affects fetch behaviour,
+	// not the cached content, so it must not influence the cache key.
+	var perRequestTimeout time.Duration
+	if v, k, ok := hmaps.LookupEqualFold(optionsm, "timeout"); ok {
+		d, err := cast.ToDurationE(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid timeout for resource %s: %w", uri, err)
+		}
+		perRequestTimeout = d
+		delete(optionsm, k)
+	}
+
 	userKey, optionsKey := remoteResourceKeys(uri, optionsm)
 
 	// A common pattern is to use the key in the options map as
@@ -197,6 +212,11 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 
 		getRes := func() (*http.Response, error) {
 			ctx := context.Background()
+			if perRequestTimeout > 0 {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithTimeout(ctx, perRequestTimeout)
+				defer cancel()
+			}
 			ctx = c.resourceIDDispatcher.Set(ctx, filecacheKey)
 
 			req, err := options.NewRequest(uri)

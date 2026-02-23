@@ -46,11 +46,12 @@ key
 method
 : (`string`) The action to perform on the requested resource, typically one of `GET`, `POST`, or `HEAD`.
 
+timeout
+: (`string`) Cancels the request if it does not complete within this duration (e.g. "30s").
+
 responseHeaders
 : {{< new-in 0.143.0 />}}
-: (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.
-
-[`Data.Headers`]: /methods/resource/data/#headers
+: (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.[`Data.Headers`]: /methods/resource/data/#headers
 
 ## Options examples
 
@@ -108,6 +109,20 @@ To extract specific headers from the server's response:
   "responseHeaders" (slice "X-Frame-Options" "Server")
 }}
 {{ $resource := resources.GetRemote $url $opts }}
+```
+
+To set a per-request timeout (e.g. when fetching many feeds where a few slow ones should not stall the build):
+
+```go-html-template
+{{ $url := "https://example.org/feed.rss" }}
+{{ $opts := dict "timeout" "10s" }}
+{{ with try (resources.GetRemote $url $opts) }}
+  {{ with .Err }}
+    {{ warnf "Failed to fetch feed: %s" . }}
+  {{ else with .Value }}
+    {{ $data = . | transform.Unmarshal }}
+  {{ end }}
+{{ end }}
 ```
 
 ## Remote data
@@ -224,4 +239,5 @@ Note that the entry above is:
 
 [`try`]: /functions/go-template/try
 [configure file caches]: /configuration/caches/
+
 [error handling]: #error-handling
