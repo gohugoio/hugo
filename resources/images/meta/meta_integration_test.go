@@ -229,3 +229,41 @@ Home.
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `invalid metadata source "foo" in imaging.meta.sources config; must be one of [exif iptc xmp]`)
 }
+
+func TestAVIFMetaWidthAndHeight(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[imaging.meta]
+fields = ['**']
+sources = ['exif', 'iptc', 'xmp']
+-- assets/sunset.avif --
+sourcefilename: ../../testdata/sunset.avif
+-- assets/mytext.txt --
+This is a text file, not an image.
+-- layouts/home.html --
+{{ $txt := resources.Get "mytext.txt" }}
+{{ $img := resources.Get "sunset.avif" }}
+{{ $ic := images.Config "/assets/sunset.avif" }}
+$img.Width/Height: {{ $img.Width }}x{{ $img.Height }}
+$ic.Width/Height: {{ $ic.Width }}x{{ $ic.Height }}
+IsImageResource $img : {{ if reflect.IsImageResource $img }}true{{ else }}false{{ end }}
+IsImageResourceMeta $img : {{ if reflect.IsImageResourceMeta $img }}true{{ else }}false{{ end }}
+IsImageResourceMeta $txt: {{ if reflect.IsImageResourceMeta $txt }}true{{ else }}false{{ end }}
+{{ $meta := $img.Meta }}
+Num Exif tags: {{ $meta.Exif | len }}|
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`
+Width/Height: 900x562
+IsImageResource $img : false
+IsImageResourceMeta $img : true
+IsImageResourceMeta $txt: false
+`,
+	)
+}

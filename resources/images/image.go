@@ -94,7 +94,7 @@ func (i Image) WithSpec(s Spec) *Image {
 func (i *Image) InitConfig(r io.Reader) error {
 	var err error
 	i.configInit.Do(func() {
-		i.config, _, err = i.Proc.Codec.DecodeConfig(r)
+		i.config, _, err = i.Proc.Codec.DecodeConfig(i.Format, r)
 	})
 	return err
 }
@@ -114,7 +114,7 @@ func (i *Image) initConfig() error {
 		}
 		defer f.Close()
 
-		i.config, _, err = i.Proc.Codec.DecodeConfig(f)
+		i.config, _, err = i.Proc.Codec.DecodeConfig(i.Format, f)
 	})
 
 	if err != nil {
@@ -342,7 +342,17 @@ const (
 	TIFF
 	BMP
 	WEBP
+
+	// Below: We have no encoder/decoder for these, but we can provide metadata support for them (including width/height).
+	AVIF
+	HEIF
+	HEIC
 )
+
+// Whether to use imagemeta to decode image config (width/height	).
+func (f Format) UseImageMetaConfigDecoder() bool {
+	return f == WEBP || f == AVIF || f == HEIF || f == HEIC
+}
 
 func (f Format) ToImageMetaImageFormatFormat() imagemeta.ImageFormat {
 	switch f {
@@ -354,6 +364,12 @@ func (f Format) ToImageMetaImageFormatFormat() imagemeta.ImageFormat {
 		return imagemeta.TIFF
 	case WEBP:
 		return imagemeta.WebP
+	case AVIF:
+		return imagemeta.AVIF
+	case HEIF:
+		return imagemeta.HEIF
+	case HEIC:
+		return imagemeta.HEIF
 	default:
 		return -1
 	}
@@ -396,6 +412,12 @@ func (f Format) MediaType() media.Type {
 		return media.Builtin.BMPType
 	case WEBP:
 		return media.Builtin.WEBPType
+	case AVIF:
+		return media.Builtin.AVIFType
+	case HEIF:
+		return media.Builtin.HEIFType
+	case HEIC:
+		return media.Builtin.HEICType
 	default:
 		panic(fmt.Sprintf("%d is not a valid image format", f))
 	}
@@ -415,6 +437,12 @@ func (f Format) String() string {
 		return "BMP"
 	case WEBP:
 		return "WEBP"
+	case AVIF:
+		return "AVIF"
+	case HEIF:
+		return "HEIF"
+	case HEIC:
+		return "HEIC"
 	default:
 		return "Unknown"
 	}

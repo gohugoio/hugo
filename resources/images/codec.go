@@ -25,10 +25,12 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"strings"
 
 	"github.com/bep/imagemeta"
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/himage"
+	"github.com/gohugoio/hugo/common/hugio"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
 )
@@ -230,41 +232,44 @@ func (d *Codec) Decode(r io.Reader) (image.Image, error) {
 	return img, err
 }
 
-func (d *Codec) DecodeConfig(r io.Reader) (image.Config, string, error) {
+func (d *Codec) DecodeConfig(f Format, r io.Reader) (image.Config, string, error) {
 	rr := toPeekReader(r)
 	format, err := formatFromImage(rr)
 	if err != nil {
 		return image.Config{}, "", err
 	}
+	if format == 0 {
+		format = f
+	}
 	r = rr
-	if format == WEBP {
-		if rs, ok := r.(io.ReadSeeker); ok {
-			rs.Seek(0, 0)
-			// Avoid spinning up a WASM runtime if we don't have to.
-			res, err := imagemeta.Decode(
-				imagemeta.Options{
-					R:           rs,
-					ImageFormat: imagemeta.WebP,
-					Sources:     imagemeta.CONFIG,
-				},
-			)
-			if err == nil {
-				return image.Config{
-					Width:      res.ImageConfig.Width,
-					Height:     res.ImageConfig.Height,
-					ColorModel: color.RGBAModel,
-				}, "webp", nil
-			}
-			rs.Seek(0, 0)
-			r = rs
+	if format.UseImageMetaConfigDecoder() {
+		rs, err := hugio.NewReadSeekerNoOpCloserFromReader(r)
+		if err != nil {
+			return image.Config{}, "", err
 		}
-		// Fallback to the webp codec config decode.
-		cfg, err := d.webp.DecodeConfig(r)
-		return cfg, "webp", err
+		rs.Seek(0, 0)
+		res, err := imagemeta.Decode(
+			imagemeta.Options{
+				R:           rs,
+				ImageFormat: format.ToImageMetaImageFormatFormat(),
+				Sources:     imagemeta.CONFIG,
+			},
+		)
+		if err == nil {
+			return image.Config{
+				Width:      res.ImageConfig.Width,
+				Height:     res.ImageConfig.Height,
+				ColorModel: color.RGBAModel,
+			}, strings.ToLower(format.String()), nil
+		}
+
+		// Fallback to the standard image.DecodeConfig.
+		rs.Seek(0, 0)
+		r = rs
 	}
 
-	// Fallback to the standard image.DecodeConfig.
-	conf, name, err := image.DecodeConfig(rr)
+	conf, name, err := image.DecodeConfig(r)
+
 	return conf, name, err
 }
 

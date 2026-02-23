@@ -16,6 +16,7 @@ package reflect
 import (
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -56,8 +57,13 @@ func (ns *Namespace) IsSite(v any) bool {
 	return ok
 }
 
-// IsImageResource reports whether v is a Hugo Image Resource.
-// If this returns true, you may process it and get information about its width, height, etc.
+// IsImageResource reports whether v is a Image Resource that supports all image operations.
 func (ns *Namespace) IsImageResource(v any) bool {
-	return resources.IsImage(v)
+	return resources.ResolveImageOpsSupport(v) == images.ImageOpsFull
+}
+
+// IsImageResourceMeta reports whether v is a Image Resource that supports the image metadata operations Width and Height and Meta (for e.g. Exif).
+// This will return true for AVIF, HEIF and HEIC image resources, even if we don't yet support image operations like Resize, Crop, etc. on these formats.
+func (ns *Namespace) IsImageResourceMeta(v any) bool {
+	return resources.ResolveImageOpsSupport(v) > 0
 }

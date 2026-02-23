@@ -186,8 +186,9 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 
 	isImage := rd.MediaType.MainType == "image"
 	var imgFormat images.Format
+	var imgOpsSupport images.ImageOpsSupport
 	if isImage {
-		imgFormat, isImage = images.ImageFormatFromMediaSubType(rd.MediaType.SubType)
+		imgFormat, imgOpsSupport = images.ImageFormatFromMediaSubType(rd.MediaType.SubType)
 	}
 
 	gr := &genericResource{
@@ -204,7 +205,7 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 		title:            rd.Title,
 	}
 
-	if isImage {
+	if imgOpsSupport > 0 {
 		ir := newImageResource(images.NewImage(imgFormat, r.Imaging, nil, gr), gr)
 		return newResourceAdapter(gr.spec, rd.LazyPublish, ir), nil
 	}

@@ -29,6 +29,9 @@ type BuiltinTypes struct {
 	TIFFType Type
 	BMPType  Type
 	WEBPType Type
+	AVIFType Type
+	HEIFType Type
+	HEICType Type
 
 	// Common font types
 	TrueTypeFontType Type
@@ -85,6 +88,9 @@ var Builtin = BuiltinTypes{
 	TIFFType: Type{Type: "image/tiff"},
 	BMPType:  Type{Type: "image/bmp"},
 	WEBPType: Type{Type: "image/webp"},
+	AVIFType: Type{Type: "image/avif"},
+	HEIFType: Type{Type: "image/heif"},
+	HEICType: Type{Type: "image/heic"},
 
 	// Common font types
 	TrueTypeFontType: Type{Type: "font/ttf"},
@@ -141,6 +147,9 @@ var defaultMediaTypesConfig = map[string]any{
 	"image/tiff": map[string]any{"suffixes": []string{"tif", "tiff"}},
 	"image/bmp":  map[string]any{"suffixes": []string{"bmp"}},
 	"image/webp": map[string]any{"suffixes": []string{"webp"}},
+	"image/avif": map[string]any{"suffixes": []string{"avif"}},
+	"image/heif": map[string]any{"suffixes": []string{"heif"}},
+	"image/heic": map[string]any{"suffixes": []string{"heic"}},
 
 	// Common font types
 	"font/ttf": map[string]any{"suffixes": []string{"ttf"}},

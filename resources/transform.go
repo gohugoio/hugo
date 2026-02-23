@@ -404,18 +404,18 @@ func (r *resourceAdapter) getImageOps() images.ImageResourceOps {
 	return img
 }
 
-// IsImage reports whether the given resource is an image that can be processed.
-func IsImage(v any) bool {
+// ResolveImageOpsSupport reports the ImageOpsSupport for the given resource. This can be used to determine if a resource supports image operations like Resize, Crop, etc.
+func ResolveImageOpsSupport(v any) images.ImageOpsSupport {
 	r, ok := v.(resource.Resource)
 	if !ok {
-		return false
+		return images.ImageOpsUnsupported
 	}
 	mt := r.MediaType()
 	if mt.MainType != "image" {
-		return false
+		return images.ImageOpsUnsupported
 	}
-	_, isImage := images.ImageFormatFromMediaSubType(mt.SubType)
-	return isImage
+	_, imgOpsSupport := images.ImageFormatFromMediaSubType(mt.SubType)
+	return imgOpsSupport
 }
 
 func (r *resourceAdapter) publish() {
