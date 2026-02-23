@@ -20,6 +20,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
@@ -174,4 +175,48 @@ mediaTypes = ['text/plain']
 			b.AssertLogContains("retry timeout")
 		}
 	})
+}
+
+func TestGetRemotePerRequestTimeout(t *testing.T) {
+	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
+
+	// A server that always sleeps longer than the per-request timeout.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(2 * time.Second)
+		w.Header().Add("Content-Type", "text/plain")
+		w.Write([]byte("too late"))
+	}))
+	t.Cleanup(func() { srv.Close() })
+
+	files := `
+-- hugo.toml --
+timeout = "30s"
+[security]
+[security.http]
+urls = ['.*']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $url := "URL" }}
+{{ $opts := dict "timeout" "200ms" }}
+{{ with try (resources.GetRemote $url $opts) }}
+  {{ with .Err }}
+    Err: {{ . }}
+  {{ else with .Value }}
+    Content: {{ .Content }}
+  {{ end }}
+{{ end }}
+`
+	files = strings.ReplaceAll(files, "URL", srv.URL)
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	)
+	b.Build()
+
+	// The per-request timeout of 200ms should fire well before the global 30s timeout.
+	b.AssertFileContent("public/index.html", "Err:")
 }
