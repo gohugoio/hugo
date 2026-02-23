@@ -44,6 +44,25 @@ func NewFileMeta() *FileMeta {
 	return &FileMeta{}
 }
 
+// A subset of modules.Module used to avoid circular dependencies.
+// Note that it's safe to type assert to the full modules.Module when needed.
+type Module interface {
+	// Returns the path to this module.
+	// This will either be the module path, e.g. "github.com/gohugoio/myshortcodes",
+	// or the path below your /theme folder, e.g. "mytheme".
+	Path() string
+
+	// Directory holding files for this module.
+	Dir() string
+
+	// Returns whether this is a Go Module.
+	IsGoMod() bool
+
+	// The module version.
+	Version() string
+}
+
+// FileMeta holds metadata about a file or directory.
 type FileMeta struct {
 	PathInfo *paths.Path
 	Name     string
@@ -51,7 +70,7 @@ type FileMeta struct {
 
 	BaseDir       string
 	SourceRoot    string
-	Module        string
+	Module        Module
 	ModuleOrdinal int
 	Component     string
 
@@ -128,6 +147,13 @@ func (f *FileMeta) JoinStat(name string) (FileMetaInfo, error) {
 		return nil, os.ErrNotExist
 	}
 	return f.JoinStatFunc(name)
+}
+
+func (m *FileMeta) ModulePath() string {
+	if m.Module == nil {
+		return ""
+	}
+	return m.Module.Path()
 }
 
 type FileMetaInfo interface {

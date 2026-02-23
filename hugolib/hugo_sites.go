@@ -546,7 +546,13 @@ func (h *HugoSites) GetContentPage(filename string) page.Page {
 
 func (h *HugoSites) loadGitInfo() error {
 	if h.Configs.Base.EnableGitInfo {
-		gi, err := newGitInfo(h.Deps)
+		cfg := gitInfoConfig{
+			Deps:         h.Deps,
+			Modules:      h.Configs.Modules,
+			GitInfoCache: h.Configs.FileCaches.ModuleGitInfoCache(),
+			Logger:       h.Log,
+		}
+		gi, err := newGitInfo(cfg)
 		if err != nil {
 			h.Log.Errorln("Failed to read Git log:", err)
 		} else {

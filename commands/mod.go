@@ -166,7 +166,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 					if all {
 						modCache := h.ResourceSpec.FileCaches.ModulesCache()
 						count, err := modCache.Prune(true)
-						r.Printf("Deleted %d files from module cache.", count)
+						r.Printf("Deleted %d directories from module cache.", count)
 						return err
 					}
 
