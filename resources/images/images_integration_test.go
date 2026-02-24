@@ -74,7 +74,7 @@ Colors: {{ $colors }}|
 			cfg.NeedsOsFS = true
 			cfg.WorkingDir = tempDir
 		}))
-		b.AssertFileContent("public/index.html", "Colors: [#2e2f34 #a39e94 #d29e58 #ab6b3a #747b84 #7c838a]|")
+		b.AssertFileContent("public/index.html", "Colors: [#2e2f33 #a69e94 #d29d59 #a26a3f #747c83 #7b848b]|")
 
 	}
 }
