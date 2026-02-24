@@ -1157,6 +1157,9 @@ config:
     misc:
       dir: :cacheDir/:project
       maxAge: -1
+    modulegitinfo:
+      dir: :cacheDir/modules
+      maxAge: 24h
     modulequeries:
       dir: :cacheDir/modules
       maxAge: 24h
@@ -1245,8 +1248,8 @@ config:
     quality: 75
     resampleFilter: box
     webp:
-      method: 4
-      useSharpYuv: true
+      method: 2
+      useSharpYuv: false
   languageCode: ''
   languages:
     en:
@@ -2847,7 +2850,17 @@ tpl:
         - - '{{ hash.XxHash "The quick brown fox jumps over the lazy dog" }}'
           - 0b242d361fda71bc
     hugo:
+      Data:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
       Deps:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
+      Environment:
         Aliases: null
         Args: null
         Description: ''
@@ -2888,6 +2901,11 @@ tpl:
         Description: ''
         Examples: null
       IsServer:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
+      Sites:
         Aliases: null
         Args: null
         Description: ''
@@ -3867,6 +3885,11 @@ tpl:
         Description: ''
         Examples: null
       Hugo:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
+      IsDefault:
         Aliases: null
         Args: null
         Description: ''

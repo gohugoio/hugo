@@ -136,8 +136,8 @@ const (
 	defaultBgColor         = "#ffffff"
 	defaultHint            = "photo"
 	defaultCompression     = "lossy"
-	defaultWebpUseSharpYuv = true
-	defaultWebpMethod      = 4
+	defaultWebpUseSharpYuv = false
+	defaultWebpMethod      = 2
 )
 
 var (
