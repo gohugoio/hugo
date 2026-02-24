@@ -15,7 +15,7 @@ Hugo provides several methods to add syntax highlighting to code examples:
 
 Regardless of method, use any of the syntax highlighting styles below.
 
-Set the default syntax highlighting style in your site configuration:
+Set the default syntax highlighting style in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [markup.highlight]

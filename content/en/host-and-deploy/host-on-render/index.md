@@ -37,11 +37,11 @@ Step 1
         - key: DART_SASS_VERSION
           value: 1.97.3
         - key: GO_VERSION
-          value: 1.25.6
+          value: 1.26.0
         - key: HUGO_VERSION
-          value: 0.155.3
+          value: 0.156.0
         - key: NODE_VERSION
-          value: 24.13.0
+          value: 24.13.1
         - key: TZ
           value: Europe/Oslo
   ```
@@ -103,7 +103,7 @@ Step 2
 
     # Build the site
     echo "Building the site..."
-    hugo --gc --minify --baseURL "${RENDER_EXTERNAL_URL}"
+    hugo build --gc --minify --baseURL "${RENDER_EXTERNAL_URL}"
 
   }
 

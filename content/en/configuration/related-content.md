@@ -9,7 +9,7 @@ keywords: []
 > [!note]
 > To understand Hugo's related content identification, please refer to the [related content] page.
 
-Hugo provides a sensible default configuration for identifying related content, but you can customize it in your site configuration, either globally or per language.
+Hugo provides a sensible default configuration for identifying related content, but you can customize it in your project configuration, either globally or per language.
 
 ## Default configuration
 
@@ -18,7 +18,7 @@ This is the default configuration:
 {{< code-toggle config=related />}}
 
 > [!note]
-> Adding a `related` section to your site configuration requires you to provide a full configuration. You cannot override individual default values without specifying all related settings.
+> Adding a `related` section to your project configuration requires you to provide a full configuration. You cannot override individual default values without specifying all related settings.
 
 ## Top-level options
 

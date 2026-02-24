@@ -192,7 +192,7 @@ Field|Description|Required
 `params.minversion`|Applicable to the quick start page: the minimum Hugo version required|&nbsp;
 `params.permalink`|Reserved for use by the news content adapter|&nbsp;
 `params.reference (used in glossary term)`|Applicable to glossary entries: a URL for additional information|&nbsp;
-`params.searchable`|Whether to add the content of this page to the search index. The default value is cascaded down from the site configuration; `true` if the page kind is `page`, and `false` if the page kind is one of `home`, `section`, `taxonomy`, or `term`. Add this field to override the default value.|&nbsp;
+`params.searchable`|Whether to add the content of this page to the search index. The default value is cascaded down from the project configuration; `true` if the page kind is `page`, and `false` if the page kind is one of `home`, `section`, `taxonomy`, or `term`. Add this field to override the default value.|&nbsp;
 `params.show_publish_date`|Whether to show the `publishDate` when rendering the page|&nbsp;
 `weight`|The page weight|&nbsp;
 `aliases`|Previous URLs used to access this page|&nbsp;
@@ -291,9 +291,9 @@ Use this syntax :
 ```
 ````
 
-### Site configuration
+### Project configuration
 
-Use the [code-toggle shortcode](#code-toggle) to include site configuration examples:
+Use the [code-toggle shortcode](#code-toggle) to include project configuration examples:
 
 ```text
 {{</* code-toggle file=hugo */>}}
@@ -371,25 +371,25 @@ These shortcodes are commonly used throughout the documentation. Other shortcode
 
 ### code-toggle
 
-Use the `code-toggle` shortcode to display examples of site configuration, front matter, or data files. This shortcode takes these arguments:
+Use the `code-toggle` shortcode to display examples of project configuration, front matter, or data files. This shortcode takes these arguments:
 
 config
-: (`string`) The section of `site.Data.docs.config` to render.
+: (`string`) The section of `hugo.Data.docs.config` to render.
 
 copy
 : (`bool`) Whether to display a copy-to-clipboard button. Default is `false`.
 
 datakey:
-: (`string`) The section of `site.Data.docs` to render.
+: (`string`) The section of `hugo.Data.docs` to render.
 
 file
-: (`string`) The file name to display above the rendered code. Omit the file extension for site configuration examples.
+: (`string`) The file name to display above the rendered code. Omit the file extension for project configuration examples.
 
 fm
 : (`bool`) Whether to render the code as front matter. Default is `false`.
 
 skipHeader
-: (`bool`) Whether to omit top-level key(s) when rendering a section of `site.Data.docs.config`.
+: (`bool`) Whether to omit top-level key(s) when rendering a section of `hugo.Data.docs.config`.
 
 ```text
 {{</* code-toggle file=hugo copy=true */>}}

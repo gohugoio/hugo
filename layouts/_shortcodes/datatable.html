@@ -1,6 +1,6 @@
 {{ $package := (index .Params 0) }}
 {{ $listname := (index .Params 1) }}
-{{ $list := (index (index .Site.Data.docs $package) $listname) }}
+{{ $list := (index (index hugo.Data.docs $package) $listname) }}
 {{ $fields := after 2 .Params }}
 
 

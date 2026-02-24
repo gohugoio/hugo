@@ -47,4 +47,3 @@ hugo mod verify [flags] [args]
 ### SEE ALSO
 
 * [hugo mod](/commands/hugo_mod/)	 - Manage modules
-

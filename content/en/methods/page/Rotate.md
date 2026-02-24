@@ -1,6 +1,6 @@
 ---
 title: Rotate
-description: Returns a collection of all pages sharing the same identity across the specified dimension, including the current page, sorted by the dimension's weight.
+description: Returns a collection of pages that vary along the specified dimension while sharing the current page's values for the other dimensions, including the current page, sorted by the dimension's default sort order.
 categories: []
 keywords: []
 params:
@@ -11,36 +11,45 @@ params:
 
 {{< new-in 0.153.0 />}}
 
-The `Rotate` method on a `Page` object returns a collection of all pages sharing the same identity across the specified [dimension](g), including the current page, sorted by the dimension's weight.
+The rotate method on a page object returns a collection of pages that vary along the specified [dimension](g), while holding the other dimensions constant. The result includes the current page and is sorted according to the rules of the specified dimension. For example, rotating along [language](g) returns all language variants that share the current page's [version](g) and [role](g).
 
-The `DIMENSION` argument must be one of `language`, `role`, or `version`.
+The `DIMENSION` argument must be one of `language`, `version`, or `role`.
 
-To render a list of all translations of the current page, including the current page:
+## Sort order
+
+Use the following rules to understand how Hugo sorts the collection returned by the `Rotate` method.
+
+| Dimension | Primary Sort | Secondary Sort |
+| :--- | :--- | :--- |
+| Language | Weight ascending | Lexicographical ascending |
+| Version | Weight ascending | Semantic version descending |
+| Role | Weight ascending | Lexicographical ascending |
+
+## Examples
+
+To render a list of the current page's language variants, including the current page, while sharing its current version and role:
 
 ```go-html-template
-{{ with .Rotate "language" }}
-  {{ range . }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-  {{ end }}
+{{/* Returns languages sorted by weight ascending, then lexicographically ascending */}}
+{{ range .Rotate "language" }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
-To render a list of all [roles](g) of the current page, including the current page:
+To render a list of the current page's version variants, including the current page, while sharing its current language and role:
 
 ```go-html-template
-{{ with .Rotate "role" }}
-  {{ range . }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-  {{ end }}
+{{/* Returns versions sorted by weight ascending, then semantic version descending */}}
+{{ range .Rotate "version" }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
 
-To render a list of all versions of the current page, including the current page:
+To render a list of the current page's role variants, including the current page, while sharing its current language and version:
 
 ```go-html-template
-{{ with .Rotate "version" }}
-  {{ range . }}
-    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
-  {{ end }}
+{{/* Returns roles sorted by weight ascending, then lexicographically ascending */}}
+{{ range .Rotate "role" }}
+  <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```

@@ -1,93 +1,176 @@
 ---
 title: Use Hugo Modules
-description: How to use Hugo Modules.
+description: Use modules to manage the content, layout, presentation, and behavior of your site.
 categories: []
 keywords: []
 weight: 20
 aliases: [/themes/usage/,/themes/installing/,/installing-and-using-themes/]
 ---
 
-## Prerequisite
+> [!note]
+> To work with modules you must install [Git][] and [Go][] 1.18 or later.
 
-{{% include "/_common/gomodules-info.md" %}}
+## Introduction
 
-## Initialize a new module
+{{% glossary-term module %}}
 
-Use `hugo mod init` to initialize a new Hugo Module. If it fails to guess the module path, you must provide it as an argument, e.g.:
+- Modules can be imported in any combination or sequence.
+- Module imports are recursive; importing Module A can trigger the import of Module B, and so on.
+- Modules can provide configuration files and directories, subject to the constraints described in the [merge configuration settings][] section of the documentation.
+- External directories, including those from non-Hugo projects, can be mounted to create a [unified file system](g).
+
+## Import
+
+To import a module, first initialize the project itself as a module. For example:
 
 ```sh
-hugo mod init github.com/<your_user>/<your_project>
+hugo mod init github.com/user/project
 ```
 
-Also see the [CLI Doc](/commands/hugo_mod_init/).
+This will generate a [`go.mod`][] file in the project root.
 
-## Use a module for a theme
+> [!note]
+> The module name is a unique identifier rather than a hosting requirement. Using a name like `github.com/user/project` is a common convention but it does not mean you must use Git or host your code on GitHub. You can use any name you like if you do not plan to have others import your project as a module. For example, you could use a simple name such as `my-project` when you run the initialization command.
 
-The easiest way to use a Module for a theme is to import it in the configuration.
+Then define one or more imports in your project configuration. This contrived example imports three modules, each containing custom shortcodes:
 
-1. Initialize the hugo module system: `hugo mod init github.com/<your_user>/<your_project>`
-1. Import the theme:
+{{< code-toggle file=hugo >}}
+[module]
+  [[module.imports]]
+    path = 'shortcodes-a'
+  [[module.imports]]
+    path = '/home/user/shortcodes-b'
+  [[module.imports]]
+    path = 'github.com/user/shortcodes-c'
+{{< /code-toggle >}}
 
-    {{< code-toggle file=hugo >}}
-    [module]
-      [[module.imports]]
-        path = "github.com/spf13/hyde"
-    {{< /code-toggle >}}
+Import precedence is top-down. For example, if `shortcodes-a`, `shortcodes-b`, and `shortcodes-c` each define an `image` shortcode, the `image` shortcode from `shortcodes-a` will take effect.
 
-## Update modules
+> [!note]
+> If multiple modules contain data files or [translation tables](g) with identical paths, the data is deeply merged, following top-down precedence.
 
-Modules will be downloaded and added when you add them as imports to your configuration. See [configure modules](/configuration/module/#imports).
+When you build your project, Hugo will:
 
-To update or manage versions, you can use `hugo mod get`.
+1. Download the modules
+1. Cache them for future use
+1. Generate a [`go.sum`][] file in the project root
 
-Some examples:
+See [configuring module imports][] for details and options.
 
-### Update all modules
+## Update
+
+When you import a module, Hugo creates `go.mod` and `go.sum` files in your project root, storing version and checksum data. Clearing the module cache and rebuilding will re-download the originally imported module version, as specified in the `go.mod` file, ensuring consistent builds. Modules can be updated to other versions as needed.
+
+To update a module to the latest version:
+
+```sh
+hugo mod get -u github.com/user/shortcodes-c
+```
+
+To update a module to a specific version:
+
+```sh
+hugo mod get -u github.com/user/shortcodes-c@v0.42.0
+```
+
+To update all modules to the latest version:
 
 ```sh
 hugo mod get -u
 ```
 
-### Update all modules recursively
+To recursively update all modules to the latest version:
 
 ```sh
 hugo mod get -u ./...
 ```
 
-### Update one module
+## Tidy
+
+To remove unused entries from the `go.mod` and `go.sum` files:
 
 ```sh
-hugo mod get -u github.com/gohugoio/myShortcodes
+hugo mod tidy
 ```
 
-### Get a specific version
+## Cache
+
+Hugo caches modules to avoid repeated downloads during site builds. By default, these are stored in the `modules` directory within the [`cacheDir`][].
+
+To clean the module cache for the current project:
 
 ```sh
-hugo mod get github.com/gohugoio/myShortcodes@v1.0.7
+hugo mod clean
 ```
 
-Also see the [CLI Doc](/commands/hugo_mod_get/).
-
-## Make and test changes in a module
-
-One way to do local development of a module imported in a project is to add a replace directive to a local directory with the source in `go.mod`:
+To clean the module cache for all projects:
 
 ```sh
-replace github.com/bep/hugotestmods/mypartials => /Users/bep/hugotestmods/mypartials
+hugo mod clean --all
 ```
 
-If you have the `hugo server` running, the configuration will be reloaded and `/Users/bep/hugotestmods/mypartials` put on the watch list.
+For details on cache location and eviction, see [configuring file caches][].
 
-Instead of modifying the `go.mod` files, you can also use the modules configuration [`replacements`](/configuration/module/#top-level-options) option.
+## Vendor
 
-## Print dependency graph
+{{% glossary-term vendor %}}
 
-Use `hugo mod graph` from the relevant module directory and it will print the dependency graph, including vendoring, module replacement or disabled status.
+Vendoring a module provides the benefits described above and allows for local inspection of its [components](g).
 
-E.g.:
+```sh
+hugo mod vendor
+```
 
-```txt
-hugo mod graph
+This command creates a `_vendor` directory containing copies of all imported modules, used in subsequent builds. Note that:
+
+- The `hugo mod vendor` command can be run from any module tree level.
+- Modules within the `themes` directory are not vendored.
+- The `--ignoreVendorPaths` flag allows you to exclude vendored modules matching a [glob pattern](g) from specific commands.
+
+> [!important]
+> Instead of modifying files directly within the `_vendor` directory, override them by creating a corresponding file with the same relative path in your project's root.
+
+To remove the vendored modules, delete the `_vendor` directory.
+
+## Replace
+
+For local module development, use a `replace` directive in `go.mod` pointing to your local directory:
+
+```text
+replace github.com/user/module => /home/user/projects/module
+```
+
+With `hugo serve`r running, this change will trigger a configuration reload and add the local directory to the watch list. Alternatively, configure replacements by setting the [`replacements`][] parameter in your project configuration.
+
+## Workspace
+
+{{% glossary-term "workspace" %}}
+
+Workspaces simplify local development of sites with modules. Create a `.work` file to define a workspace, and activate it via the [`workspace`][] configuration parameter or the `HUGO_MODULE_WORKSPACE` environment variable.
+
+A `.work` file example:
+
+```text
+go 1.24
+
+use .
+use ../my-hugo-module
+```
+
+Use the `use` directive to list module paths, including the main project (`.`). Start the Hugo server with the workspace enabled:
+
+```sh
+HUGO_MODULE_WORKSPACE=hugo.work hugo server --ignoreVendorPaths "**"
+```
+
+The `--ignoreVendorPaths` flag, used to ignore vendored dependencies (if applicable), enables live reloading of local edits within the workspace.
+
+## Graph
+
+To generate a [dependency graph](g), including vendoring, module replacement, and disabled module information, execute `hugo mod graph` within the target module directory. For example:
+
+```sh
+$ hugo mod graph
 
 github.com/bep/my-modular-site github.com/bep/hugotestmods/mymounts@v1.2.0
 github.com/bep/my-modular-site github.com/bep/hugotestmods/mypartials@v1.0.7
@@ -98,57 +181,20 @@ github.com/bep/my-modular-site github.com/bep/hugo-fresh@v1.0.1
 github.com/bep/my-modular-site in-themesdir
 ```
 
-Also see the [CLI Doc](/commands/hugo_mod_graph/).
+## Mounts
 
-## Vendor your modules
+Imported modules automatically mount their component directories to Hugo's [unified file system](g). You can also manually mount any directory, including those from non-Hugo projects, to component directories.
 
-`hugo mod vendor` will write all the module dependencies to a `_vendor` directory, which will then be used for all subsequent builds.
+See [configuring module mounts][] for details.
 
-Note that:
-
-- You can run `hugo mod vendor` on any level in the module tree.
-- Vendoring will not store modules stored in your `themes` directory.
-- Most commands accept a `--ignoreVendorPaths` flag, which will then not use the vendored modules in `_vendor` for the module paths matching the given [glob pattern](g).
-
-Also see the [CLI Doc](/commands/hugo_mod_vendor/).
-
-## Tidy go.mod, go.sum
-
-Run `hugo mod tidy` to remove unused entries in `go.mod` and `go.sum`.
-
-Also see the [CLI Doc](/commands/hugo_mod_clean/).
-
-## Clean module cache
-
-Run `hugo mod clean` to delete the entire modules cache.
-
-Note that you can also configure the `modules` cache with a `maxAge`. See [configure caches](/configuration/caches/).
-
-Also see the [CLI Doc](/commands/hugo_mod_clean/).
-
-## Module workspaces
-
-Workspace support was added in [Go 1.18](https://go.dev/blog/get-familiar-with-workspaces) and Hugo got solid support for it in the `v0.109.0` version.
-
-A common use case for a workspace is to simplify local development of a site with its theme modules.
-
-A workspace can be configured in a `*.work` file and activated with the [module.workspace](/configuration/module/) setting, which for this use is commonly controlled via the `HUGO_MODULE_WORKSPACE` OS environment variable.
-
-See the [hugo.work](https://github.com/gohugoio/hugo/blob/master/docs/hugo.work) file in the Hugo Docs repo for an example:
-
-```text
-go 1.20
-
-use .
-use ../gohugoioTheme
-```
-
-Using the `use` directive, list all the modules you want to work on, pointing to its relative location. As in the example above, it's recommended to always include the main project (the `.`) in the list.
-
-With that you can start the Hugo server with that workspace enabled:
-
-```sh
-HUGO_MODULE_WORKSPACE=hugo.work hugo server --ignoreVendorPaths "**"
-```
-
-The `--ignoreVendorPaths` flag is added above to ignore any of the vendored dependencies inside `_vendor`. If you don't use vendoring, you don't need that flag. But now the server is set up watching the files and directories in the workspace and you can see your local edits reloaded.
+[`cacheDir`]: /configuration/all/#cachedir
+[`go.mod`]: https://go.dev/ref/mod#go-mod-file
+[`go.sum`]: https://go.dev/ref/mod#go-sum-files
+[`replacements`]: /configuration/module/#replacements
+[`workspace`]: /configuration/module/#workspace
+[configuring file caches]: /configuration/caches/
+[configuring module imports]: /configuration/module/#imports
+[configuring module mounts]: /configuration/module/#mounts
+[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[Go]: https://go.dev/doc/install
+[merge configuration settings]: /configuration/introduction/#merge-configuration-settings

@@ -14,9 +14,9 @@ It will guess which kind of file to create based on the path provided.
 
 You can also specify the kind with `-k KIND`.
 
-If archetypes are provided in your theme or site, they will be used.
+If archetypes are provided in your theme or project, they will be used.
 
-Ensure you run this within the root directory of your site.
+Ensure you run this within the root directory of your project.
 
 ### Options
 
@@ -43,8 +43,7 @@ Ensure you run this within the root directory of your site.
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
+* [hugo](/commands/hugo/)	 - Build your project
 * [hugo new content](/commands/hugo_new_content/)	 - Create new content
-* [hugo new site](/commands/hugo_new_site/)	 - Create a new site
+* [hugo new project](/commands/hugo_new_project/)	 - Create a new project
 * [hugo new theme](/commands/hugo_new_theme/)	 - Create a new theme
-

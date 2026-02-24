@@ -9,9 +9,9 @@ params:
     signatures: [PAGES.ByPublishDate]
 ---
 
-When sorting by publish date, the value is determined by your [site configuration], defaulting to the `publishDate` field in front matter.
+When sorting by publish date, the value is determined by your [project configuration], defaulting to the `publishDate` field in front matter.
 
-[site configuration]: /configuration/front-matter/#dates
+[project configuration]: /configuration/front-matter/#dates
 
 ```go-html-template
 {{ range .Pages.ByPublishDate }}

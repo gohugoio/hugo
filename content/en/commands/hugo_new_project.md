@@ -1,18 +1,18 @@
 ---
-title: "hugo new site"
-slug: hugo_new_site
-url: /commands/hugo_new_site/
+title: "hugo new project"
+slug: hugo_new_project
+url: /commands/hugo_new_project/
 ---
-## hugo new site
+## hugo new project
 
-Create a new site
+Create a new project
 
 ### Synopsis
 
-Create a new site at the specified path.
+Create a new project at the specified path.
 
 ```
-hugo new site [path] [flags]
+hugo new project [path] [flags]
 ```
 
 ### Options
@@ -20,7 +20,7 @@ hugo new site [path] [flags]
 ```
   -f, --force           init inside non-empty directory
       --format string   preferred file format (toml, yaml or json) (default "toml")
-  -h, --help            help for site
+  -h, --help            help for project
 ```
 
 ### Options inherited from parent commands
@@ -43,4 +43,3 @@ hugo new site [path] [flags]
 ### SEE ALSO
 
 * [hugo new](/commands/hugo_new/)	 - Create new content
-

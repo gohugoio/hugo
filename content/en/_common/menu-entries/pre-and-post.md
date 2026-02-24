@@ -2,7 +2,7 @@
 _comment: Do not remove front matter.
 ---
 
-In this site configuration we enable rendering of [emoji shortcodes], and add emoji shortcodes before (pre) and after (post) each menu entry:
+In this project configuration we enable rendering of [emoji shortcodes], and add emoji shortcodes before (pre) and after (post) each menu entry:
 
 {{< code-toggle file=hugo >}}
 enableEmoji = true

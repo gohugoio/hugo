@@ -14,7 +14,6 @@ weight: 20
 
 ## Package managers
 
-<!--
 ### Snap
 
 [Snap] is a free and open-source package manager for Linux. Available for [most distributions], snap packages are simple to install and are automatically updated.
@@ -60,7 +59,6 @@ sudo snap disconnect hugo:ssh-keys
 [strictly confined]: https://snapcraft.io/docs/snap-confinement
 [most distributions]: https://snapcraft.io/docs/installing-snapd
 [Snap]: https://snapcraft.io/
--->
 
 {{% include "/_common/installation/homebrew.md" %}}
 

@@ -37,13 +37,13 @@ The project team will:
 To see the INFO messages, you must use the `--logLevel` command line flag:
 
 ```text
-hugo --logLevel info
+hugo build --logLevel info
 ```
 
 To limit the output to deprecation notices:
 
 ```text
-hugo --logLevel info | grep deprecate
+hugo build --logLevel info | grep deprecate
 ```
 
 Run the above command every time you upgrade Hugo.

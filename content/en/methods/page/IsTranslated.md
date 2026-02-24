@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.IsTranslated]
 ---
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'en'

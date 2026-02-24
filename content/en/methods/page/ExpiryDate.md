@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.ExpiryDate]
 ---
 
-By default, Hugo excludes expired pages when building your site. To include expired pages, use the `--buildExpired` command line flag.
+By default, Hugo excludes expired pages when building your project. To include expired pages, use the `--buildExpired` command line flag.
 
 Set the expiry date in front matter:
 

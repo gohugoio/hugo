@@ -9,7 +9,7 @@ params:
     signatures: [SITE.LanguagePrefix]
 ---
 
-Consider this site configuration:
+Consider this project configuration:
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'de'

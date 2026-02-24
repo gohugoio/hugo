@@ -12,10 +12,10 @@ keywords: []
 There are three ways to define menu entries:
 
 1. [Automatically]
-1. [In front matter]
-1. In site configuration
+1. In [front matter]
+1. In your project configuration
 
-This page covers the site configuration method.
+This page covers the project configuration method.
 
 ## Example
 
@@ -132,6 +132,6 @@ rel = 'external'
 
 [`Menus`]: /methods/site/menus/
 [Automatically]: /content-management/menus/#define-automatically
-[In front matter]: /content-management/menus/#define-in-front-matter
+[front matter]: /content-management/menus/#define-in-front-matter
 [menu templates]: /templates/menu/
 [menus]: /content-management/menus/

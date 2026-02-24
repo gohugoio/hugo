@@ -1,6 +1,6 @@
 ---
 title: Language
-description: Returns the language object for the given site.
+description: Returns the Language object for the given site.
 categories: []
 keywords: []
 params:
@@ -9,13 +9,13 @@ params:
     signatures: [SITE.Language]
 ---
 
-The `Language` method on a `Page` object returns the language object for the given page. The language object is derived from the language definition in the site configuration.
+The `Language` method on a `Site` object returns the `Language` object for the given site, derived from the language definition in your project configuration.
 
-You can also use the `Language` method on a `Page` object. See&nbsp;[details].
+You can also use the `Language` method on a `Page` object. See&nbsp;[details][].
 
 ## Methods
 
-The examples below assume the following in the site configuration:
+The examples below assume the following in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [languages.de]
@@ -29,7 +29,7 @@ weight = 1
 
 {{< new-in 0.153.0 />}}
 
-(`bool`) Reports whether this is the default language object as defined by the [`defaultContentLanguage`][] setting in the site configuration.
+(`bool`) Reports whether this is the [default language][].
 
 ```go-html-template
 {{ .Site.Language.IsDefault }} → true
@@ -37,7 +37,7 @@ weight = 1
 
 ### Lang
 
-(`string`) The language tag as defined by [RFC 5646]. This is the lower cased key from the site configuration.
+(`string`) Returns the language tag as defined by [RFC 5646][]. This is the lowercased key from your project configuration.
 
 ```go-html-template
 {{ .Site.Language.Lang }} → de
@@ -45,7 +45,7 @@ weight = 1
 
 ### LanguageCode
 
-(`string`) The language code from the site configuration. Falls back to `Lang` if not defined.
+(`string`) Returns the [`languageCode`][] from your project configuration. Falls back to `Lang` if not defined.
 
 ```go-html-template
 {{ .Site.Language.LanguageCode }} → de-DE
@@ -53,7 +53,7 @@ weight = 1
 
 ### LanguageDirection
 
-(`string`) The language direction from the site configuration, either `ltr` or `rtl`.
+(`string`) Returns the [`languageDirection`][] from your project configuration.
 
 ```go-html-template
 {{ .Site.Language.LanguageDirection }} → ltr
@@ -61,7 +61,7 @@ weight = 1
 
 ### LanguageName
 
-(`string`) The language name from the site configuration.
+(`string`) Returns the [`languageName`][] from your project configuration.
 
 ```go-html-template
 {{ .Site.Language.LanguageName }} → Deutsch
@@ -69,7 +69,9 @@ weight = 1
 
 ### Name
 
-(`string`) The language tag as defined by [RFC 5646]. This is the lower cased key from the site configuration. This is an alias for `Lang`.
+{{< new-in 0.153.0 />}}
+
+(`string`) Returns the language tag as defined by [RFC 5646][]. This is the lowercased key from your project configuration. This is an alias for `Lang`.
 
 ```go-html-template
 {{ .Site.Language.Name }} → de
@@ -77,7 +79,7 @@ weight = 1
 
 ### Weight
 
-(`int`) The language weight from the site configuration which determines its order in the slice of languages returned by the `Languages` method on a `Site` object.
+(`int`) Returns the language [`weight`][] from your project configuration.
 
 ```go-html-template
 {{ .Site.Language.Weight }} → 1
@@ -94,6 +96,10 @@ Some of the methods above are commonly used in a base template as attributes for
 >
 ```
 
-[`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
+[`languageCode`]: /configuration/languages/#languagecode
+[`languageDirection`]: /configuration/languages/#languagedirection
+[`languageName`]: /configuration/languages/#languagename
+[`weight`]: /configuration/languages/#weight
+[default language]: /quick-reference/glossary/#default-language
 [details]: /methods/page/language/
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646

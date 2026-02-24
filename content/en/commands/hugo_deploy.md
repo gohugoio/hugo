@@ -5,11 +5,11 @@ url: /commands/hugo_deploy/
 ---
 ## hugo deploy
 
-Deploy your site to a cloud provider
+Deploy your project to a cloud provider
 
 ### Synopsis
 
-Deploy your site to a cloud provider
+Deploy your project to a cloud provider
 
 See https://gohugo.io/hosting-and-deployment/hugo-deploy/ for detailed
 documentation.
@@ -51,5 +51,4 @@ hugo deploy [flags] [args]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
-
+* [hugo](/commands/hugo/)	 - Build your project

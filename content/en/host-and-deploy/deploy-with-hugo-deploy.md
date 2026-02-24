@@ -31,7 +31,7 @@ Use the `hugo deploy` command to deploy your site Amazon S3, Azure Blob Storage,
 
 ## Configuration
 
-Create a deployment target in your [site configuration]. The only required parameters are [`name`] and [`url`]:
+Create a deployment target in your [project configuration]. The only required parameters are [`name`] and [`url`]:
 
 {{< code-toggle file=hugo >}}
 [deployment]
@@ -44,7 +44,7 @@ Create a deployment target in your [site configuration]. The only required param
 
 To deploy to a target:
 
-```bash
+```sh
 hugo deploy [--target=<target name>]
 ```
 
@@ -94,4 +94,4 @@ See [configure deployment](/configuration/deployment/).
 [Google Cloud]: https://cloud.google.com/
 [installation]: /installation/
 [Quick Start]: /getting-started/quick-start/
-[site configuration]: /configuration/deployment/
+[project configuration]: /configuration/deployment/

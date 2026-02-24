@@ -1,7 +1,7 @@
 ---
 title: Resource methods
 linkTitle: Resource
-description: Use these methods with global, page, and remote Resource objects.
+description: Use these methods with a global, page, or remote Resource object.
 categories: []
 keywords: []
 ---

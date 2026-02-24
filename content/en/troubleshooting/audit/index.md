@@ -23,10 +23,10 @@ _Tested with GNU Bash 5.1 and GNU grep 3.7._
 ### Environment variables
 
 `HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true`
-: Retain HTML comments even if minification is enabled. This takes precedence over `minify.tdewolff.html.keepComments` in the site configuration. If you minify without keeping HTML comments when performing this audit, you will not be able to detect when raw HTML has been omitted.
+: Retain HTML comments even if minification is enabled. This takes precedence over `minify.tdewolff.html.keepComments` in your project configuration. If you minify without keeping HTML comments when performing this audit, you will not be able to detect when raw HTML has been omitted.
 
 `HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true`
-: Show a placeholder instead of the default value or an empty string if a translation is missing. This takes precedence over `enableMissingTranslationPlaceholders` in the site configuration.
+: Show a placeholder instead of the default value or an empty string if a translation is missing. This takes precedence over `enableMissingTranslationPlaceholders` in your project configuration.
 
 ### Grep options
 

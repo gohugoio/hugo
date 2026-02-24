@@ -178,7 +178,7 @@ The embedded templates will skip a parameter if not provided in front matter, bu
 
 ## Taxonomies
 
-Classify content by adding taxonomy terms to front matter. For example, with this site configuration:
+Classify content by adding taxonomy terms to front matter. For example, with this project configuration:
 
 {{< code-toggle file=hugo >}}
 [taxonomies]
@@ -240,9 +240,7 @@ From Hugo 0.153.0, you can also set the [sites](#sites) front matter as cascade 
 ### Target
 
 <!-- TODO
-Update the <version> and <date> below when we actually get around to deprecating _target.
-
-We deprecated the `_target` front matter key in favor of `target` in <version> on <date>. Remove footnote #1 on or after 2027-05-01 (15 months after deprecation).
+We deprecated the `_target` front matter key in favor of `target` in v0.156.0 on 2026-02-17. Remove footnote #1 on or after 2027-05-17 (15 months after deprecation).
 -->
 
 The `target`[^1] keyword allows you to target specific pages or [environments](g). For example, to cascade a "color" parameter from the home page only to pages within the "articles" section, including the "articles" section page itself:
@@ -295,7 +293,7 @@ kind = 'page'
 {{< /code-toggle >}}
 
 > [!note]
-> For multilingual sites, defining cascade values in your site configuration is often more efficient. This avoids repeating the same cascade values on the home, section, taxonomy, or term page for each language. See&nbsp;[details](/configuration/cascade/).
+> For multilingual sites, defining cascade values in your project configuration is often more efficient. This avoids repeating the same cascade values on the home, section, taxonomy, or term page for each language. See&nbsp;[details](/configuration/cascade/).
 >
 > If you choose to define cascade values in front matter for a multilingual site, you must create a corresponding home, section, taxonomy, or term page for every language.
 
@@ -330,10 +328,10 @@ When populating a date field, whether a [custom page parameter](#parameters) or 
 
 {{% include "/_common/parsable-date-time-strings.md" %}}
 
-To override the default time zone, set the [`timeZone`](/configuration/all/#timezone) in your site configuration. The order of precedence for determining the time zone is:
+To override the default time zone, set the [`timeZone`](/configuration/all/#timezone) in your project configuration. The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
-1. The time zone specified in your site configuration
+1. The time zone specified in your project configuration
 1. The `Etc/UTC` time zone
 
 [`aliases`]: /methods/page/aliases/

@@ -10,7 +10,7 @@ params:
     signatures: [hugo.IsMultihost]
 ---
 
-Site configuration:
+Project configuration:
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'de'

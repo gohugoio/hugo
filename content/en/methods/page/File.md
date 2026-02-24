@@ -81,8 +81,6 @@ content/
 
 ### IsContentAdapter
 
-{{< new-in 0.126.0 />}}
-
 (`bool`) Reports whether the file is a [content adapter].
 
 ```go-html-template

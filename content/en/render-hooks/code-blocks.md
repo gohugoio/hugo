@@ -11,7 +11,7 @@ keywords: []
 This Markdown example contains a fenced code block:
 
 ````text {file="content/example.md"}
-```bash {class="my-class" id="my-codeblock" lineNos=inline tabWidth=2}
+```sh {class="my-class" id="my-codeblock" lineNos=inline tabWidth=2}
 declare a=1
 echo "$a"
 exit

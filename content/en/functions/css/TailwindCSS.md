@@ -29,7 +29,7 @@ Step 1
 : Install the Tailwind CSS CLI v4.0 or later:
 
   ```sh {copy=true}
-  npm install --save-dev tailwindcss @tailwindcss/cli
+  npm install --save-dev tailwindcss @tailwindcss/cli @tailwindcss/typography
   ```
 
   The Tailwind CSS CLI is also available as a [standalone executable]. You must install it outside of your project directory and ensure its path is included in your system's `PATH` environment variable.
@@ -37,7 +37,7 @@ Step 1
   [standalone executable]: https://github.com/tailwindlabs/tailwindcss/releases/latest
 
 Step 2
-: Add this to your site configuration:
+: Add this to your project configuration:
 
   {{< code-toggle file=hugo copy=true >}}
   [build]
@@ -64,6 +64,7 @@ Step 3
 
   ```css {file="assets/css/main.css" copy=true}
   @import "tailwindcss";
+  @plugin "@tailwindcss/typography";
   @source "hugo_stats.json";
   ```
 

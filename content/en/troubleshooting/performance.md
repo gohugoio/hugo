@@ -28,7 +28,7 @@ Other virus scanners have similar exclusion mechanisms. See their respective doc
 Hugo is fast, but inefficient templates impede performance. Enable template metrics to determine which templates take the most time, and to identify caching opportunities:
 
 ```sh
-hugo --templateMetrics --templateMetricsHints
+hugo build --templateMetrics --templateMetricsHints
 ```
 
 The result will look something like this:

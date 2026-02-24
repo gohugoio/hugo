@@ -49,4 +49,3 @@ hugo gen chromastyles [flags] [args]
 ### SEE ALSO
 
 * [hugo gen](/commands/hugo_gen/)	 - Generate documentation and syntax highlighting styles
-

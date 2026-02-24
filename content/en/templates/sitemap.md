@@ -42,7 +42,7 @@ To override the built-in sitemapindex.xml template, create a new `layouts/sitema
 
 ## Disable sitemap generation
 
-You may disable sitemap generation in your site configuration:
+You may disable sitemap generation in your project configuration:
 
 {{< code-toggle file=hugo >}}
 disableKinds = ['sitemap']

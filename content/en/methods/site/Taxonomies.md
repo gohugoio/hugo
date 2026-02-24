@@ -30,7 +30,7 @@ taxonomy b:
 
 For example, on a book review site you might create two taxonomies; one for genres and another for authors.
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 [taxonomies]

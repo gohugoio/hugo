@@ -34,7 +34,7 @@ To extract [Exif][Exif_Definition], [IPTC][IPTC_Definition], and [XMP][XMP_Defin
 
 ### Tags
 
-(`meta.Tags`) Returns a collection of available Exif fields for this image. Availability is determined by the [`includeFields`][] and [`excludeFields`][] settings in your site configuration.
+(`meta.Tags`) Returns a collection of available Exif fields for this image. Availability is determined by the [`includeFields`][] and [`excludeFields`][] settings in your project configuration.
 
 ## Examples
 

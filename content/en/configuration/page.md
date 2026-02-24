@@ -15,7 +15,7 @@ Hugo uses the default sort order to determine the _next_ and _previous_ page rel
 - [`Next`](/methods/page/next/) and [`Prev`](/methods/page/prev/)
 - [`NextInSection`](/methods/page/nextinsection/) and [`PrevInSection`](/methods/page/previnsection/)
 
-This is based on this default site configuration:
+This is based on this default project configuration:
 
 {{< code-toggle config=page />}}
 

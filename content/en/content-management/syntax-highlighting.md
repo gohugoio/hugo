@@ -32,10 +32,10 @@ LANG
 : The language of the code to highlight. Choose from one of the [supported languages]. This value is case-insensitive.
 
 OPTIONS
-: One or more space-separated or comma-separated key-value pairs wrapped in braces. Set default values for each option in your [site configuration]. The key names are case-insensitive.
+: One or more space-separated or comma-separated key-value pairs wrapped in braces. Set default values for each option in your [project configuration]. The key names are case-insensitive.
 
 [supported languages]: #languages
-[site configuration]: /configuration/markup/#highlight
+[project configuration]: /configuration/markup/#highlight
 
 For example, with this Markdown:
 

@@ -1,6 +1,6 @@
 ---
 title: BaseURL
-description: Returns the base URL as defined in the site configuration.
+description: Returns the base URL as defined in your project configuration.
 categories: []
 keywords: []
 params:
@@ -9,7 +9,7 @@ params:
     signatures: [SITE.BaseURL]
 ---
 
-Site configuration:
+Project configuration:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/docs/'

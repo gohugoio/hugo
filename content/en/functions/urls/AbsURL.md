@@ -14,11 +14,11 @@ aliases: [/functions/absurl]
 With multilingual configurations, use the [`urls.AbsLangURL`] function instead. The URL returned by this function depends on:
 
 - Whether the input begins with a slash (`/`)
-- The `baseURL` in your site configuration
+- The `baseURL` in your project configuration
 
 ## Input does not begin with a slash
 
-If the input does not begin with a slash, the path in the resulting URL will be relative to the `baseURL` in your site configuration.
+If the input does not begin with a slash, the path in the resulting URL will be relative to the `baseURL` in your project configuration.
 
 With `baseURL = https://example.org/`
 
@@ -38,7 +38,7 @@ With `baseURL = https://example.org/docs/`
 
 ## Input begins with a slash
 
-If the input begins with a slash, the path in the resulting URL will be relative to the protocol+host of the `baseURL` in your site configuration.
+If the input begins with a slash, the path in the resulting URL will be relative to the protocol+host of the `baseURL` in your project configuration.
 
 With `baseURL = https://example.org/`
 

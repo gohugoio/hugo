@@ -40,5 +40,4 @@ hugo version [flags] [args]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
-
+* [hugo](/commands/hugo/)	 - Build your project

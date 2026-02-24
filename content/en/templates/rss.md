@@ -8,7 +8,7 @@ weight: 140
 
 ## Configuration
 
-By default, when you build your site, Hugo generates RSS feeds for home, section, taxonomy, and term pages. Control feed generation in your site configuration. For example, to generate feeds for home and section pages, but not for taxonomy and term pages:
+By default, when you build your project, Hugo generates RSS feeds for home, section, taxonomy, and term pages. Control feed generation in your project configuration. For example, to generate feeds for home and section pages, but not for taxonomy and term pages:
 
 {{< code-toggle file=hugo >}}
 [outputs]
@@ -24,7 +24,7 @@ To disable feed generation for all [page kinds](g):
 disableKinds = ['rss']
 {{< /code-toggle >}}
 
-By default, the number of items in each feed is unlimited. Change this as needed in your site configuration:
+By default, the number of items in each feed is unlimited. Change this as needed in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [services.rss]
@@ -33,7 +33,7 @@ limit = 42
 
 Set `limit` to `-1` to generate an unlimited number of items per feed.
 
-The built-in RSS template will render the following values, if present, from your site configuration:
+The built-in RSS template will render the following values, if present, from your project configuration:
 
 {{< code-toggle file=hugo >}}
 copyright = '© 2023 ABC Widgets, Inc.'

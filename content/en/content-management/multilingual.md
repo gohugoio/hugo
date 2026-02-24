@@ -253,8 +253,8 @@ See [lang.FormatPercent] for details.
 Localization of menu entries depends on how you define them:
 
 - When you define menu entries [automatically] using the section pages menu, you must use translation tables to localize each entry.
-- When you define menu entries [in front matter], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
-- When you define menu entries [in site configuration], you must create language-specific menu entries under each language key. If the names of the menu entries are insufficient, use translation tables to localize each entry.
+- When you define menu entries in [front matter], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
+- When you define menu entries in your [project configuration], you must create language-specific menu entries under each language key. If the names of the menu entries are insufficient, use translation tables to localize each entry.
 
 ### Create language-specific menu entries
 
@@ -341,9 +341,9 @@ It queries the translation table for the current language using the menu entry's
 The `identifier` depends on how you define menu entries:
 
 - If you define the menu entry [automatically] using the section pages menu, the `identifier` is the page's `.Section`.
-- If you define the menu entry [in site configuration] or [in front matter], set the `identifier` property to the desired value.
+- If you define the menu entry in your [project configuration] or in [front matter], set the `identifier` property to the desired value.
 
-For example, if you define menu entries in site configuration:
+For example, if you define menu entries in project configuration:
 
 {{< code-toggle file=hugo >}}
 [[menus.main]]
@@ -379,7 +379,7 @@ For merging of content from other languages (i.e. missing content translations),
 To track down missing translation strings, run Hugo with the `--printI18nWarnings` flag:
 
 ```sh
-hugo --printI18nWarnings | grep i18n
+hugo build --printI18nWarnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
 
@@ -418,12 +418,12 @@ hugo new content content/de/post/test.md
 [config]: /configuration/
 [configuration directory]: /configuration/introduction/#configuration-directory
 [example menu template]: /templates/menu/#example
+[front matter]: /content-management/menus/#define-in-front-matter
 [i18func]: /functions/lang/translate/
-[in front matter]: /content-management/menus/#define-in-front-matter
-[in site configuration]: /content-management/menus/#define-in-site-configuration
 [lang.FormatAccounting]: /functions/lang/formataccounting/
 [lang.FormatCurrency]: /functions/lang/formatcurrency/
 [lang.FormatNumber]: /functions/lang/formatnumber/
 [lang.FormatNumberCustom]: /functions/lang/formatnumbercustom/
 [lang.FormatPercent]: /functions/lang/formatpercent/
 [lang.Merge]: /functions/lang/merge/
+[project configuration]: /content-management/menus/#define-in-project-configuration

@@ -16,7 +16,7 @@ The `Data` method on a `Page` object returns a unique data object for each [page
 >
 > Themes that are not actively maintained may still use `.Data.Pages` in their templates. Although that syntax remains functional, use one of these methods instead: [`Pages`], [`RegularPages`], or [`RegularPagesRecursive`]
 
-The examples that follow are based on this site configuration:
+The examples that follow are based on this project configuration:
 
 {{< code-toggle file=hugo >}}
 [taxonomies]

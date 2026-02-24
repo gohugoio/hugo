@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.Permalink]
 ---
 
-Site configuration:
+Project configuration:
 
 {{< code-toggle file=hugo >}}
 title = 'Documentation'

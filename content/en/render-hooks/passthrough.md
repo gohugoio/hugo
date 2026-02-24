@@ -27,7 +27,7 @@ passthrough element with opening and closing block delimiters.
 This is an \(inline\) passthrough element with opening and closing inline delimiters.
 ```
 
-Update your site configuration to enable the Passthrough extension and define opening and closing delimiters for each passthrough element type, either `block` or `inline`. For example:
+Update your project configuration to enable the Passthrough extension and define opening and closing delimiters for each passthrough element type, either `block` or `inline`. For example:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.extensions.passthrough]

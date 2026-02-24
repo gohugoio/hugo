@@ -63,7 +63,7 @@ In new versions of Firebase, some other questions apply:
 After that Firebase has been set in your project with [CI/CD](g). After that run:
 
 ```sh
-hugo && firebase deploy
+hugo build && firebase deploy
 ```
 
 With this you will have the app initialized manually. After that you can manage and fix your GitHub workflow from <https://github.com/your-account/your-repo/actions>.

@@ -18,7 +18,7 @@ By default, when using the `os.Getenv` function Hugo allows access to:
 - The `CI` environment variable
 - Any environment variable beginning with `HUGO_`
 
-To access other environment variables, adjust your site configuration. For example, to allow access to the `HOME` and `USER` environment variables:
+To access other environment variables, adjust your project configuration. For example, to allow access to the `HOME` and `USER` environment variables:
 
 {{< code-toggle file=hugo >}}
 [security.funcs]
@@ -34,7 +34,7 @@ For more information see [configure security](/configuration/security).
 {{ getenv "USER" }} → victor
 ```
 
-You can pass values when building your site:
+You can pass values when building your project:
 
 ```sh
 MY_VAR1=foo MY_VAR2=bar hugo

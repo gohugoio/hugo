@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.Draft]
 ---
 
-By default, Hugo does not publish draft pages when you build your site. To include draft pages when you build your site, use the `--buildDrafts` command line flag.
+By default, Hugo does not publish draft pages when you build your project. To include draft pages when you build your project, use the `--buildDrafts` command line flag.
 
 {{< code-toggle file=content/posts/post-1.md fm=true >}}
 title = 'Post 1'

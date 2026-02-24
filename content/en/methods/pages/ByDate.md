@@ -9,9 +9,9 @@ params:
     signatures: [PAGES.ByDate]
 ---
 
-When sorting by date, the value is determined by your [site configuration], defaulting to the `date` field in front matter.
+When sorting by date, the value is determined by your [project configuration], defaulting to the `date` field in front matter.
 
-[site configuration]: /configuration/front-matter/#dates
+[project configuration]: /configuration/front-matter/#dates
 
 ```go-html-template
 {{ range .Pages.ByDate }}

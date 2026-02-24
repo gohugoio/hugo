@@ -28,14 +28,14 @@ section|section name (capitalized and pluralized)
 taxonomy|taxonomy name (capitalized and pluralized)
 term|term name (capitalized and pluralized)
 
-You can disable automatic capitalization and pluralization in your site configuration:
+You can disable automatic capitalization and pluralization in your project configuration:
 
 {{< code-toggle file=hugo >}}
 capitalizeListTitles = false
 pluralizeListTitles = false
 {{< /code-toggle >}}
 
-You can change the capitalization style in your site configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. For example:
+You can change the capitalization style in your project configuration to one of `ap`, `chicago`, `go`, `firstupper`, or `none`. For example:
 
 {{< code-toggle file=hugo >}}
 titleCaseStyle = "firstupper"

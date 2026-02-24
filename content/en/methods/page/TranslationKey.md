@@ -11,7 +11,7 @@ params:
 
 The translation key creates a relationship between all translations of a given page. The translation key is derived from the file path, or from the `translationKey` parameter if defined in front matter.
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'en'

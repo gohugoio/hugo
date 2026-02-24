@@ -5,11 +5,11 @@ url: /commands/hugo_import/
 ---
 ## hugo import
 
-Import a site from another system
+Import a project from another system
 
 ### Synopsis
 
-Import a site from another system.
+Import a project from another system.
 
 Import requires a subcommand, e.g. `hugo import jekyll jekyll_root_path target_path`.
 
@@ -38,6 +38,5 @@ Import requires a subcommand, e.g. `hugo import jekyll jekyll_root_path target_p
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
+* [hugo](/commands/hugo/)	 - Build your project
 * [hugo import jekyll](/commands/hugo_import_jekyll/)	 - hugo import from Jekyll
-

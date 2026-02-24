@@ -17,7 +17,7 @@ aliases: [/functions/urlize]
 
 Use the `urlize` function to create a link to a [term page](g).
 
-Consider this site configuration:
+Consider this project configuration:
 
 {{< code-toggle file=hugo >}}
 [taxonomies]

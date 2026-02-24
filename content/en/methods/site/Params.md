@@ -1,6 +1,6 @@
 ---
 title: Params
-description: Returns a map of custom parameters as defined in the site configuration.
+description: Returns a map of custom parameters as defined in your project configuration.
 categories: []
 keywords: []
 params:
@@ -9,7 +9,7 @@ params:
     signatures: [SITE.Params]
 ---
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 [params]

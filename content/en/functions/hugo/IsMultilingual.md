@@ -10,7 +10,7 @@ params:
     signatures: [hugo.IsMultilingual]
 ---
 
-Site configuration:
+Project configuration:
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'de'

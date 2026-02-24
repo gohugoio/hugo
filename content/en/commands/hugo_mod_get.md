@@ -34,7 +34,7 @@ Install the latest versions of all module dependencies (direct and indirect):
 
 Run "go help get" for more information. All flags available for "go get" is also relevant here.
 
-Note that Hugo will always start out by resolving the components defined in the site
+Note that Hugo will always start out by resolving the components defined in the project
 configuration, provided by a _vendor directory (if no --ignoreVendorPaths flag provided),
 Go Modules, or a folder inside the themes directory, in that order.
 
@@ -72,4 +72,3 @@ hugo mod get [flags] [args]
 ### SEE ALSO
 
 * [hugo mod](/commands/hugo_mod/)	 - Manage modules
-

@@ -180,7 +180,7 @@ export const postType = defineType({
 
 Note that the above requires some additional plugins to be installed:
 
-```bash
+```sh
 npm i sanity-plugin-media @sanity/code-input
 ```
 

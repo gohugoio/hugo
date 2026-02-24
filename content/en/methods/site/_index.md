@@ -1,7 +1,7 @@
 ---
 title: Site methods
 linkTitle: Site
-description: Use these methods with Site objects.
+description: Use these methods with a Site object.
 categories: []
 keywords: []
 aliases: [/variables/site/]

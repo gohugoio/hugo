@@ -89,7 +89,7 @@ To render standalone images within `figure` elements:
 {{- end -}}
 ```
 
-Note that the above requires the following site configuration:
+Note that the above requires the following project configuration:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.parser]
@@ -98,7 +98,7 @@ wrapStandAloneImageWithinParagraph = false
 
 ## Embedded
 
-Hugo includes an [embedded image render hook] to resolve Markdown image destinations. You can adjust its behavior in your site configuration. This is the default setting:
+Hugo includes an [embedded image render hook] to resolve Markdown image destinations. You can adjust its behavior in your project configuration. This is the default setting:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.image]
@@ -111,7 +111,7 @@ You can also configure Hugo to `always` use the embedded image render hook, use 
 
 The embedded image render hook resolves internal Markdown destinations by looking for a matching [page resource](g), falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 
-You must place global resources in the `assets` directory. If you have placed your resources in the `static` directory, and you are unable or unwilling to move them, you must mount the `static` directory to the `assets` directory by including both of these entries in your site configuration:
+You must place global resources in the `assets` directory. If you have placed your resources in the `static` directory, and you are unable or unwilling to move them, you must mount the `static` directory to the `assets` directory by including both of these entries in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [[module.mounts]]

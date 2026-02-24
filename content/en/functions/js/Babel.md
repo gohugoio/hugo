@@ -42,7 +42,7 @@ Step 2
   ```
 
 Step 3
-: Add the babel executable to Hugo's `security.exec.allow` list in your site configuration:
+: Add the babel executable to Hugo's `security.exec.allow` list in your project configuration:
 
   {{< code-toggle file=hugo >}}
   [security.exec]

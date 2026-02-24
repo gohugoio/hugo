@@ -34,7 +34,7 @@ Hugo selects the content renderer based on the `markup` identifier in front matt
 
 Create your content in [Markdown] preceded by front matter.
 
-Markdown is Hugo's default content format. Hugo natively renders Markdown to HTML using [Goldmark]. Goldmark is fast and conforms to the [CommonMark] and [GitHub Flavored Markdown] specifications. You can configure Goldmark in your [site configuration][configure goldmark].
+Markdown is Hugo's default content format. Hugo natively renders Markdown to HTML using [Goldmark]. Goldmark is fast and conforms to the [CommonMark] and [GitHub Flavored Markdown] specifications. You can configure Goldmark in your [project configuration][configure goldmark].
 
 Hugo provides custom Markdown features including:
 
@@ -77,7 +77,7 @@ Create your content in the [Emacs Org Mode] format preceded by front matter. You
 
 Create your content in the [AsciiDoc] format preceded by front matter. Hugo renders AsciiDoc content to HTML using the Asciidoctor executable. You must install Asciidoctor and its dependencies (Ruby) to render the AsciiDoc content format.
 
-You can configure the AsciiDoc renderer in your [site configuration][configure asciidoc].
+You can configure the AsciiDoc renderer in your [project configuration][configure asciidoc].
 
 In its default configuration, Hugo passes these CLI flags when calling the Asciidoctor executable:
 
@@ -85,10 +85,10 @@ In its default configuration, Hugo passes these CLI flags when calling the Ascii
 --no-header-footer
 ```
 
-The CLI flags passed to the Asciidoctor executable depend on configuration. You may inspect the flags when building your site:
+The CLI flags passed to the Asciidoctor executable depend on configuration. You may inspect the flags when building your project:
 
 ```text
-hugo --logLevel info
+hugo build --logLevel info
 ```
 
 [AsciiDoc]: https://asciidoc.org/

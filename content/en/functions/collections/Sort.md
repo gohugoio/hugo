@@ -17,7 +17,7 @@ The `ORDER` may be either `asc` (ascending) or `desc` (descending). The default 
 
 ## Sort a slice
 
-The examples below assume this site configuration:
+The examples below assume this project configuration:
 
 {{< code-toggle file=hugo >}}
 [params]
@@ -47,7 +47,7 @@ In the example above, `value` is the `KEY` representing the value of the slice e
 
 ## Sort a map
 
-The examples below assume this site configuration:
+The examples below assume this project configuration:
 
 {{< code-toggle file=hugo >}}
 [params.authors.a]

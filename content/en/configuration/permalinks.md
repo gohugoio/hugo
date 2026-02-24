@@ -97,7 +97,7 @@ content/
     └── _index.md
 ```
 
-And this site configuration:
+And this project configuration:
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'en'

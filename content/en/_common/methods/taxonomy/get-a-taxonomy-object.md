@@ -6,7 +6,7 @@ Before we can use a `Taxonomy` method, we need to capture a `Taxonomy` object.
 
 ## Capture a Taxonomy object
 
-Consider this site configuration:
+Consider this project configuration:
 
 {{< code-toggle file=hugo >}}
 [taxonomies]

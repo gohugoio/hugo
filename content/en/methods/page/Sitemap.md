@@ -39,7 +39,7 @@ Access to the `Sitemap` method on a `Page` object is restricted to [sitemap temp
 
 ## Example
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 [sitemap]

@@ -11,12 +11,7 @@ params:
 
 If you define the menu entry [automatically], the `Weight` method returns the page's [`Weight`].
 
-If you define the menu entry [in front matter] or [in site configuration], the `Weight` method returns the `weight` property, falling back to the page's `Weight`.
-
-[`Weight`]: /methods/page/weight/
-[automatically]: /content-management/menus/#define-automatically
-[in front matter]: /content-management/menus/#define-in-front-matter
-[in site configuration]: /content-management/menus/#define-in-site-configuration
+If you define the menu entry in [front matter] or in your [project configuration], the `Weight` method returns the `weight` property, falling back to the page's `Weight`.
 
 In this contrived example, we limit the number of menu entries based on weight:
 
@@ -29,3 +24,8 @@ In this contrived example, we limit the number of menu entries based on weight:
   {{ end }}
 </ul>
 ```
+
+[`Weight`]: /methods/page/weight/
+[automatically]: /content-management/menus/#define-automatically
+[front matter]: /content-management/menus/#define-in-front-matter
+[project configuration]: /content-management/menus/#define-in-project-configuration

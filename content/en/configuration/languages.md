@@ -56,7 +56,7 @@ languageCode
   Access this value from a template using the [`Language.LanguageCode`][] method on a `Site` or `Page` object.
 
 languageDirection
-: (`string`) The language direction, either left-to-right (`ltr`) or right-to-left (`rtl`). Use this value in your templates with the global [`dir`][] HTML attribute. Access this value from a template using the [`Language.LanguageDirection`][] method on a `Site` or `Page` object.
+: (`string`) The language direction, either left-to-right (`ltr`) or right-to-left (`rtl`). Use this value in your templates with the global [`dir`][] HTML attribute. Access this value from a template using the [`Language.LanguageDirection`][] method on a `Site` or `Page` object. Default is `ltr`.
 
 languageName
 : (`string`) The language name, typically used when rendering a language switcher. Access this value from a template using the [`Language.LanguageName`][] method on a `Site` or `Page` object.
@@ -66,6 +66,10 @@ title
 
 weight
 : (`int`) The language [weight](g). When set to a non-zero value, this is the primary sort criteria for this language. Access this value from a template using the [`Language.Weight`][] method on a `Site` or `Page` object.
+
+## Sort order
+
+Hugo sorts languages by weight in ascending order, then lexicographically in ascending order. This affects build order and complement selection.
 
 ## Localized settings
 
@@ -88,7 +92,7 @@ The following configuration keys can be defined separately for each language:
 
 {{< per-lang-config-keys >}}
 
-Any key not defined in a `languages` object will fall back to the global value in the root of the site configuration.
+Any key not defined in a `languages` object will fall back to the global value in the root of your project configuration.
 
 ## Language keys
 

@@ -35,18 +35,18 @@ To get help with a subcommand, use the `--help` flag. For example:
 hugo server --help
 ```
 
-## Build your site
+## Build your project
 
-To build your site, `cd` into your project directory and run:
+To build your project, `cd` into your project directory and run:
 
 ```sh
-hugo
+hugo build
 ```
 
-The [`hugo`] command builds your site, publishing the files to the `public` directory. To publish your site to a different directory, use the [`--destination`] flag or set [`publishDir`] in your site configuration.
+The [`hugo build`] command builds your project, publishing the files to the `public` directory. To publish your project to a different directory, use the [`--destination`] flag or set [`publishDir`] in your project configuration.
 
 > [!note]
-> Hugo does not clear the `public` directory before building your site. Existing files are overwritten, but not deleted. This behavior is intentional to prevent the inadvertent removal of files that you may have added to the `public` directory after the build.
+> Hugo does not clear the `public` directory before building your project. Existing files are overwritten, but not deleted. This behavior is intentional to prevent the inadvertent removal of files that you may have added to the `public` directory after the build.
 >
 > Depending on your needs, you may wish to manually clear the contents of the `public` directory before every build.
 
@@ -62,18 +62,18 @@ Hugo allows you to set `draft`, `date`, `publishDate`, and `expiryDate` in the [
 > [!note]
 > Hugo publishes descendants of draft, future, and expired [node](g) pages. To prevent publication of these descendants, use the [`cascade`] front matter field to cascade [build options] to the descendant pages.
 
-You can override the default behavior when running `hugo` or `hugo server` with command line flags:
+You can override the default behavior when running `hugo build` or `hugo server` with command line flags:
 
 ```sh
-hugo --buildDrafts    # or -D
-hugo --buildExpired   # or -E
-hugo --buildFuture    # or -F
+hugo build --buildDrafts    # or -D
+hugo build --buildExpired   # or -E
+hugo build --buildFuture    # or -F
 ```
 
-Although you can also set these values in your site configuration, it can lead to unwanted results unless all content authors are aware of, and understand, the settings.
+Although you can also set these values in your project configuration, it can lead to unwanted results unless all content authors are aware of, and understand, the settings.
 
 > [!note]
-> As noted above, Hugo does not clear the `public` directory before building your site. Depending on the _current_ evaluation of the four conditions above, after the build your `public` directory may contain extraneous files from a previous build.
+> As noted above, Hugo does not clear the `public` directory before building your project. Depending on the _current_ evaluation of the four conditions above, after the build your `public` directory may contain extraneous files from a previous build.
 >
 > A common practice is to manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
 
@@ -110,7 +110,7 @@ hugo server --navigateToChanged
 ## Deploy your site
 
 > [!note]
-> As noted above, Hugo does not clear the `public` directory before building your site. Manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
+> As noted above, Hugo does not clear the `public` directory before building your project. Manually clear the contents of the `public` directory before each build to remove draft, expired, and future content.
 
 When you are ready to deploy your site, run:
 
@@ -147,7 +147,7 @@ Most of our users deploy their sites to a [CI/CD](g) platform, where a push[^1] 
 [`--destination`]: /commands/hugo/#options
 [`cascade`]: /content-management/front-matter/#cascade
 [`hugo server`]: /commands/hugo_server/
-[`hugo`]: /commands/hugo/
+[`hugo build`]: /commands/hugo/
 [`publishDir`]: /configuration/all/#publishdir
 [build options]: /content-management/build-options/
 [front matter]: /content-management/front-matter/

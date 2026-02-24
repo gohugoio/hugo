@@ -20,7 +20,7 @@ Command line examples:
 
 Command|Environment
 :--|:--
-`hugo`|`production`
-`hugo --environment staging`|`staging`
+`hugo build`|`production`
+`hugo build --environment staging`|`staging`
 `hugo server`|`development`
 `hugo server --environment staging`|`staging`

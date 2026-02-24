@@ -9,9 +9,9 @@ params:
     signatures: [PAGES.ByExpiryDate]
 ---
 
-When sorting by expiration date, the value is determined by your [site configuration], defaulting to the `expiryDate` field in front matter.
+When sorting by expiration date, the value is determined by your [project configuration], defaulting to the `expiryDate` field in front matter.
 
-[site configuration]: /configuration/front-matter/#dates
+[project configuration]: /configuration/front-matter/#dates
 
 ```go-html-template
 {{ range .Pages.ByExpiryDate }}
