@@ -57,13 +57,18 @@ func (ns *Namespace) IsSite(v any) bool {
 	return ok
 }
 
-// IsImageResource reports whether v is a Image Resource that supports all image operations.
+// IsImageResource reports whether v is a Image Resource.
 func (ns *Namespace) IsImageResource(v any) bool {
-	return resources.ResolveImageOpsSupport(v) == images.ImageOpsFull
+	return resources.ResolveImageOpsSupport(v) > images.ImageResourceTypeNone
 }
 
-// IsImageResourceMeta reports whether v is a Image Resource that supports the image metadata operations Width and Height and Meta (for e.g. Exif).
+// IsImageResourceWithMeta reports whether v is a Image Resource that supports at least the image metadata operations Width and Height and Meta (for e.g. Exif).
 // This will return true for AVIF, HEIF and HEIC image resources, even if we don't yet support image operations like Resize, Crop, etc. on these formats.
-func (ns *Namespace) IsImageResourceMeta(v any) bool {
-	return resources.ResolveImageOpsSupport(v) > 0
+func (ns *Namespace) IsImageResourceWithMeta(v any) bool {
+	return resources.ResolveImageOpsSupport(v) >= images.ImageResourceTypeMetaOnly
+}
+
+// IsImageResourceProcessable reports whether v is a Image Resource that supports all image processing operations like Resize, Crop, etc. in addition to the metadata operations.
+func (ns *Namespace) IsImageResourceProcessable(v any) bool {
+	return resources.ResolveImageOpsSupport(v) >= images.ImageResourceTypeProcessable
 }

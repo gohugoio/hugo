@@ -135,27 +135,29 @@ func ImageFormatFromExt(ext string) (Format, bool) {
 	return f, found
 }
 
-type ImageOpsSupport int
+type ImageResourceType int
 
 const (
-	// ImageOpsUnsupported means that no image operations are supported for this format.
-	ImageOpsUnsupported ImageOpsSupport = iota
-	// ImageOpsMetaOnly means that only metadata operations (e.g. getting width/height and other metadata) are supported for this format.
-	ImageOpsMetaOnly
-	// ImageOpsFull means that all image operations (resizing, cropping, etc.) are supported for this format.
-	ImageOpsFull
+	// ImageResourceTypeNone means that the resource is not an image, and thus does not support any image operations.
+	ImageResourceTypeNone ImageResourceType = iota
+	// This is an image, but with no support for any image operations.
+	ImageResourceTypeBasic
+	// ImageResourceTypeMetaOnly means that only metadata operations (e.g. getting width/height and other metadata) are supported for this format.
+	ImageResourceTypeMetaOnly
+	// ImageResourceTypeProcessable means that all image operations (resizing, cropping, etc.) are supported for this format.
+	ImageResourceTypeProcessable
 )
 
 // ImageFormatFromMediaSubType returns the image format for the given media subtype, and how much image processing operations are supported for this format.
-func ImageFormatFromMediaSubType(sub string) (Format, ImageOpsSupport) {
+func ImageFormatFromMediaSubType(sub string) (Format, ImageResourceType) {
 	f, found := processableImageSubTypes[sub]
 	if found {
-		return f, ImageOpsFull
+		return f, ImageResourceTypeProcessable
 	}
 	if f, found = metaOnlyImageSubTypes[sub]; found {
-		return f, ImageOpsMetaOnly
+		return f, ImageResourceTypeMetaOnly
 	}
-	return f, ImageOpsUnsupported
+	return f, ImageResourceTypeBasic
 }
 
 const (
