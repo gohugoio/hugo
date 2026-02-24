@@ -58,6 +58,9 @@ var (
 		".bmp":  BMP,
 		".gif":  GIF,
 		".webp": WEBP,
+		".avif": AVIF,
+		".heif": HEIF,
+		".heic": HEIC,
 	}
 
 	// These are the image types we can process.
@@ -68,6 +71,13 @@ var (
 		media.Builtin.BMPType.SubType:  BMP,
 		media.Builtin.GIFType.SubType:  GIF,
 		media.Builtin.WEBPType.SubType: WEBP,
+	}
+
+	// We cannot process these formats, but we can provide metadata support for them (including width/height).
+	metaOnlyImageSubTypes = map[string]Format{
+		media.Builtin.AVIFType.SubType: AVIF,
+		media.Builtin.HEIFType.SubType: HEIF,
+		media.Builtin.HEICType.SubType: HEIC,
 	}
 
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
@@ -125,9 +135,29 @@ func ImageFormatFromExt(ext string) (Format, bool) {
 	return f, found
 }
 
-func ImageFormatFromMediaSubType(sub string) (Format, bool) {
+type ImageResourceType int
+
+const (
+	// ImageResourceTypeNone means that the resource is not an image, and thus does not support any image operations.
+	ImageResourceTypeNone ImageResourceType = iota
+	// This is an image, but with no support for any image operations.
+	ImageResourceTypeBasic
+	// ImageResourceTypeMetaOnly means that only metadata operations (e.g. getting width/height and other metadata) are supported for this format.
+	ImageResourceTypeMetaOnly
+	// ImageResourceTypeProcessable means that all image operations (resizing, cropping, etc.) are supported for this format.
+	ImageResourceTypeProcessable
+)
+
+// ImageFormatFromMediaSubType returns the image format for the given media subtype, and how much image processing operations are supported for this format.
+func ImageFormatFromMediaSubType(sub string) (Format, ImageResourceType) {
 	f, found := processableImageSubTypes[sub]
-	return f, found
+	if found {
+		return f, ImageResourceTypeProcessable
+	}
+	if f, found = metaOnlyImageSubTypes[sub]; found {
+		return f, ImageResourceTypeMetaOnly
+	}
+	return f, ImageResourceTypeBasic
 }
 
 const (

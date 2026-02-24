@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"image"
 	"path"
+	"path/filepath"
 	"sync"
 
 	"github.com/bep/overlayfs"
@@ -94,7 +95,10 @@ func (ns *Namespace) Config(path any) (image.Config, error) {
 	}
 	defer f.Close()
 
-	config, _, err = ns.deps.ResourceSpec.Imaging.Codec.DecodeConfig(f)
+	ext := filepath.Ext(filename)
+	format, _ := images.ImageFormatFromExt(ext)
+
+	config, _, err = ns.deps.ResourceSpec.Imaging.Codec.DecodeConfig(format, f)
 	if err != nil {
 		return config, err
 	}

@@ -506,7 +506,7 @@ func (s *IntegrationTestBuilder) ImageHelper(filename string) *IntegrationTestIm
 	fs := s.fs.WorkingDirReadOnly
 	b, err := afero.ReadFile(fs, filename)
 	s.Assert(err, qt.IsNil)
-	conf, format, err := s.H.ResourceSpec.Imaging.Codec.DecodeConfig(bytes.NewReader(b))
+	conf, format, err := s.H.ResourceSpec.Imaging.Codec.DecodeConfig(0, bytes.NewReader(b))
 	s.Assert(err, qt.IsNil)
 	img, err := s.H.ResourceSpec.Imaging.Codec.Decode(bytes.NewReader(b))
 	s.Assert(err, qt.IsNil)

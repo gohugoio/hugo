@@ -229,3 +229,74 @@ Home.
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `invalid metadata source "foo" in imaging.meta.sources config; must be one of [exif iptc xmp]`)
 }
+
+func TestAVIFMetaWidthAndHeight(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[imaging.meta]
+fields = ['**']
+sources = ['exif', 'iptc', 'xmp']
+-- assets/sunset.avif --
+sourcefilename: ../../testdata/sunset.avif
+-- assets/sunset.jpg --
+sourcefilename: ../../testdata/sunset.jpg
+-- assets/mytext.txt --
+This is a text file, not an image.
+-- assets/mysvg.svg --
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+  <rect width="100" height="100" fill="blue" />
+</svg>
+-- layouts/home.html --
+{{ $txt := resources.Get "mytext.txt" }}
+{{ $svg := resources.Get "mysvg.svg" }}
+{{ $avif := resources.Get "sunset.avif" }}
+{{ $jpg := resources.Get "sunset.jpg" }}
+{{ $ic := images.Config "/assets/sunset.avif" }}
+$avif.Width/Height: {{ $avif.Width }}x{{ $avif.Height }}
+$ic.Width/Height: {{ $ic.Width }}x{{ $ic.Height }}
+
+{{ template "is-meta-etc" dict "what" "AVIF" "dot" $avif -}}
+{{ template "is-meta-etc" dict "what" "JPG" "dot" $jpg -}}
+{{ template "is-meta-etc" dict "what" "TXT" "dot" $txt -}}
+{{ template "is-meta-etc" dict "what" "SVG" "dot" $svg -}}
+ 
+{{ $meta := $avif.Meta }}
+Num Exif tags: {{ $meta.Exif | len }}|
+{{ define "is-meta-etc"}}
+IsImageResource {{ .what }}: {{ if reflect.IsImageResource .dot }}true{{ else }}false{{ end }}
+IsImageResourceWithMeta {{ .what }}: {{ if reflect.IsImageResourceWithMeta .dot }}true{{ else }}false{{ end }}
+IsImageResourceProcessable {{ .what }}: {{ if reflect.IsImageResourceProcessable .dot }}true{{ else }}false{{ end }}
+{{ end }}
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`
+$avif.Width/Height: 900x562
+$ic.Width/Height: 900x562
+
+
+IsImageResource AVIF: true
+IsImageResourceWithMeta AVIF: true
+IsImageResourceProcessable AVIF: false
+
+IsImageResource JPG: true
+IsImageResourceWithMeta JPG: true
+IsImageResourceProcessable JPG: true
+
+IsImageResource TXT: false
+IsImageResourceWithMeta TXT: false
+IsImageResourceProcessable TXT: false
+
+IsImageResource SVG: true
+IsImageResourceWithMeta SVG: false
+IsImageResourceProcessable SVG: false
+
+Num Exif tags: 52|
+`,
+	)
+}

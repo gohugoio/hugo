@@ -47,7 +47,6 @@ AVIF.ResourceType: {{ $d.ResourceType }}
 IsSite: false: {{ reflect.IsSite . }}|true: {{ reflect.IsSite .Site }}|true: {{ reflect.IsSite site }}
 IsPage: true: {{ reflect.IsPage . }}|false: {{ reflect.IsPage .Site }}|false: {{ reflect.IsPage site }}
 IsResource: true: {{ reflect.IsResource . }}|true: {{ reflect.IsResource $a }}|true: {{ reflect.IsResource $b }}|true: {{ reflect.IsResource $c }}
-IsImageResource: false: {{ reflect.IsImageResource . }}|true: {{ reflect.IsImageResource $a }}|true: {{ reflect.IsImageResource $a10 }}|false: {{ reflect.IsImageResource $b }}|false: {{ reflect.IsImageResource $c }}|false: {{ reflect.IsImageResource $d }}
 
 
 
@@ -63,6 +62,5 @@ AVIF.ResourceType: image
 IsSite: false: false|true: true|true: true
 IsPage: true: true|false: false|false: false
 IsResource: true: true|true: true|true: true|true: true
-IsImageResource: false: false|true: true|true: true|false: false|false: false|false: false
 `)
 }
