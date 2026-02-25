@@ -569,7 +569,7 @@ func (c *Client) listGoMods() (goModules, error) {
 		// Origin isn't always set.
 		if m.Origin == nil && m.GoMod != "" {
 			// There's sometimes an Info field with a JSON filename with this info, but that is also not always set.
-			// But we seem to always get the go.mod filename, so we can determine the infor filename from that,
+			// But we seem to always get the go.mod filename, so we can determine the info filename from that,
 			// just replace the .mod suffix with .info.
 			infoFilename := strings.TrimSuffix(m.GoMod, ".mod") + ".info"
 			// JSON on the form {"Version":"v0.0.0-20260225095909-668663b54d09","Time":"2026-02-25T09:59:09Z","Origin":{"VCS":"git","URL":"https://github.com/bep/hugo-mod-testing-content","Hash":"668663b54d0937df05185d144765d13c3ffda489"}}
