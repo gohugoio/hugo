@@ -604,6 +604,40 @@ title: p3
 	b.AssertFileContent("public/index.html", `<a href="/s1/p2/">p2</a><a href="/s1/">s1</a>`)
 }
 
+// Issue 14566
+func TestMenusPageRefSitesMatrix(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+defaultContentVersionInSubdir = true
+[versions]
+[versions.v1]
+[versions.v2]
+
+[[menus.main]]
+name = "Home"
+pageRef = "/"
+weight = 1
+
+-- layouts/home.html --
+{{ range .Site.Menus.main }}
+{{ .Name }}|{{ .URL }}|{{ .Page.Path }}|{{ .Page.Site.Version.Name }}
+{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/v1/index.html", `
+Home|/v1/|/|v1
+`)
+
+	b.AssertFileContent("public/v2/index.html", `
+Home|/v2/|/|v2
+`)
+}
+
 // Issue 13161
 func TestMenuNameAndTitleFallback(t *testing.T) {
 	t.Parallel()

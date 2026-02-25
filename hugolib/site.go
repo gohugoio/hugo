@@ -1403,8 +1403,12 @@ func (s *Site) assembleMenus() (navigation.Menus, error) {
 
 	// add menu entries from config to flat hash
 	for name, menu := range s.conf.Menus.Config {
-		for _, me := range menu {
-			if types.IsNil(me.Page) && me.PageRef != "" {
+		for _, x := range menu {
+			// Shallow copy the menu entry, so we can set the URL and page without modifying the config.
+			c := *x
+			me := &c
+
+			if me.PageRef != "" {
 				// Try to resolve the page.
 				me.Page, _ = s.getPage(nil, me.PageRef)
 			}
