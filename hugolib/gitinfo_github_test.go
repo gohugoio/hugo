@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-func TestGitInfoFromGitModule(t *testing.T) {
+func TestGitInfoFromGitModuleWithVersionQuery(t *testing.T) {
 	t.Parallel()
 
 	files := `
@@ -60,6 +60,38 @@ List: {{ .Title }}
 
 	b.AssertFileContent("public/301/docs/functions/standard-deviation/index.html",
 		"Hash: 3e0f3930f1ec9a29a7442da5f1bfc0b7e58f167a|Subject: v3.0.1 edit|",
+		"AuthorName: Bjørn Erik Pedersen|",
+	)
+}
+
+func TestGitInfoFromGitModuleWithGoMod(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+enableGitInfo = true
+
+[module]
+[[module.imports]]
+path = "github.com/bep/hugo-mod-testing-content"
+[[module.imports.mounts]]
+source = "content"
+target = "content"
+-- layouts/page.html --
+Title: {{ .Title }}|
+GitInfo: {{ with .GitInfo }}Hash: {{ .Hash }}|Subject: {{ .Subject }}|AuthorName: {{ .AuthorName }}{{ end }}|
+Content: {{ .Content }}|
+-- layouts/_default/list.html --
+List: {{ .Title }}
+-- go.mod --
+module hugotest
+`
+
+	b := Test(t, files, TestOptOsFs())
+
+	b.AssertFileContent("public/docs/functions/kurtosis/index.html",
+		"Hash: 668663b54d0937df05185d144765d13c3ffda489|",
 		"AuthorName: Bjørn Erik Pedersen|",
 	)
 }

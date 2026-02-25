@@ -114,7 +114,9 @@ func newGitInfo(cfg gitInfoConfig) (*gitInfo, error) {
 			continue
 		}
 		hasGitModules = true
-		if mod.Owner() == nil {
+		if mod.Owner() == nil && !mod.Origin().IsZero() {
+			// TODO(bep) I'm not sure if this will ever be true. Needs some investigation,
+			// as I'm sure there will be cases where this could be useful.
 			projectIsGitModule = true
 		}
 	}
@@ -133,6 +135,9 @@ func newGitInfo(cfg gitInfoConfig) (*gitInfo, error) {
 	gitRepo, err := mapLocalRepo(cfg)
 	if err != nil {
 		if hasGitModules {
+			// We added GitInfo module support in Hugo v0.157.0 and need some real world experience,
+			// but for now, don't fail if the local repo is not a Git repo, but there are Git modules.
+			// I'm not sure we should even warn, but let's do that for now.
 			cfg.Logger.Warnf("Failed to read local Git log: %v", err)
 			return g, nil
 		}
