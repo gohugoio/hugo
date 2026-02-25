@@ -53,7 +53,7 @@ notAlternative
 : (`bool`) Whether to exclude this output format from the values returned by the [`AlternativeOutputFormats`][] method on a `Page` object. Default is `false`.
 
 noUgly
-: (`bool`) Whether to disable ugly URLs for this output format when [`uglyURLs`][] are enabled in your site configuration. Default is `false`.
+: (`bool`) Whether to disable ugly URLs for this output format when [`uglyURLs`][] are enabled in your project configuration. Default is `false`.
 
 path
 : (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your [`publishDir`][]. If omitted, Hugo will use the file's original content path for publishing.
@@ -62,7 +62,7 @@ permalinkable
 : (`bool`) Whether to return the rendering output format rather than the main output format when invoking the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object. Along with [`isHTML`](#ishtml), this must be `true` to create [alias redirects][]. Enabled by default for the `html` and `amp` output formats. Default is `false`.
 
 protocol
-: (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the [`baseURL`][] parameter in your site configuration, typically `https://`.
+: (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the [`baseURL`][] parameter in your project configuration, typically `https://`.
 
 rel
 : (`string`) The relationship of the output format to the current page. Hugo uses this property to determine the [canonical output format](g) of the current page. For the predefined `html` output format, the default value is `canonical`; for all other predefined output formats, the default value is `alternate`.
@@ -71,7 +71,7 @@ root
 : (`bool`) Whether to publish files to the root of the publish directory. Default is `false`.
 
 ugly
-: (`bool`) Whether to enable uglyURLs for this output format when `uglyURLs` is `false` in your site configuration. Default is `false`.
+: (`bool`) Whether to enable uglyURLs for this output format when `uglyURLs` is `false` in your project configuration. Default is `false`.
 
 weight
 : (`int`) When set to a non-zero value, Hugo uses the `weight` as the first criteria when sorting output formats, falling back to the name of the output format. Lighter items float to the top, while heavier items sink to the bottom. Hugo renders output formats sequentially based on the sort order. Default is `0`, except for the `html` output format, which has a default weight of `10`.
@@ -138,7 +138,7 @@ Step 4
 
 ## List output formats
 
-To access output formats, each `Page` object provides two methods: [`OutputFormats`][] (for all formats, including the current one) and [`AlternativeOutputFormats`][]. Use `AlternativeOutputFormats` to create a link `rel` list within your site's `head` element, as shown below:
+To access output formats, each `Page` object provides two methods: [`OutputFormats`][] (for all formats, including the current one) and [`AlternativeOutputFormats`][]. Use `AlternativeOutputFormats` to create a link `rel` list within a `head` element, as shown below:
 
 ```go-html-template
 {{ range .AlternativeOutputFormats }}

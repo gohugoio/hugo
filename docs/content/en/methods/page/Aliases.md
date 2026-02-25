@@ -50,9 +50,9 @@ Page-relative paths can also include directory traversal:
 | page-relative | `content/examples/a.en.md` | `../a-old` | `/en/a-old/` |
 | site-relative | `content/examples/a.en.md` | `/a-old` | `/en/a-old/` |
 
-### Site configuration
+### Project configuration
 
-To implement this, you must update your site configuration to:
+To implement this, you must update your project configuration to:
 
 1. Disable the generation of default HTML redirect files by setting `disableAliases` to `true`.
 1. Define a [media type][] named `text/redirects` to handle the file format.
@@ -102,8 +102,8 @@ Next, create a home page template specifically for the `redirects` output format
 To ensure the resulting `_redirects` file is valid, the template uses the [`strings.FindRE`][] function to check for whitespace such as tabs or newlines within the alias string. If whitespace is detected, Hugo will throw an error and fail the build to prevent generating an invalid file.
 
 ```go-html-template {file="layouts/home.redirects" copy=true}
-{{- if not (hugo.Store.Get "has_printed_redirects") -}}
-  {{- range .Sites -}}
+{{- if site.IsDefault -}}
+  {{- range hugo.Sites -}}
     {{- range $p := .Pages -}}
       {{- range .Aliases -}}
         {{- if findRE `\s` . -}}
@@ -113,7 +113,6 @@ To ensure the resulting `_redirects` file is valid, the template uses the [`stri
       {{- end -}}
     {{- end -}}
   {{- end -}}
-  {{- hugo.Store.Set "has_printed_redirects" true -}}
 {{- end -}}
 ```
 

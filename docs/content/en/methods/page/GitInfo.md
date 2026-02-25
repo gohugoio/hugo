@@ -18,16 +18,16 @@ The `GitInfo` method on a `Page` object returns an object with additional method
 
 Install Git, create a repository, and commit your project files.
 
-You must also allow Hugo to access your repository. In your site configuration:
+You must also allow Hugo to access your repository. In your project configuration:
 
 {{< code-toggle file=hugo >}}
 enableGitInfo = true
 {{< /code-toggle >}}
 
-Alternatively, use the command line flag when building your site:
+Alternatively, use the command line flag when building your project:
 
 ```sh
-hugo --enableGitInfo
+hugo build --enableGitInfo
 ```
 
 > [!note]
@@ -149,7 +149,7 @@ To reverse the order:
 
 By default, when `enableGitInfo` is `true`, the `Lastmod` method on a `Page` object returns the Git AuthorDate of the last commit that included the file.
 
-You can change this behavior in your [site configuration].
+You can change this behavior in your [project configuration].
 
 ## Hosting considerations
 
@@ -182,4 +182,4 @@ Vercel|Shallow|Yes [^1]
 
 [details]: /configuration/front-matter/#dates
 [gitmailmap]: https://git-scm.com/docs/gitmailmap
-[site configuration]: /configuration/front-matter/
+[project configuration]: /configuration/front-matter/

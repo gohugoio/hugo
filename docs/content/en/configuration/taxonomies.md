@@ -56,7 +56,7 @@ taxonomies:
   tag: tags
 {{< /code-toggle >}}
 
-To disable the taxonomy system, use the [`disableKinds`] setting in the root of your site configuration to disable the `taxonomy` and `term` page [kinds](g).
+To disable the taxonomy system, use the [`disableKinds`] setting in the root of your project configuration to disable the `taxonomy` and `term` page [kinds](g).
 
 {{< code-toggle file=hugo >}}
 disableKinds = ['taxonomy','term']

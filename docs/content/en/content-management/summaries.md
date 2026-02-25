@@ -84,7 +84,7 @@ This is the second paragraph.
 
 ## Automatic summary
 
-If you do not define the summary manually or in front matter, Hugo automatically defines the summary based on the [`summaryLength`] in your site configuration.
+If you do not define the summary manually or in front matter, Hugo automatically defines the summary based on the [`summaryLength`] in your project configuration.
 
 [`summaryLength`]: /configuration/all/#summarylength
 

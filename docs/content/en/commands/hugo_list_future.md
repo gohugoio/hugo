@@ -41,4 +41,3 @@ hugo list future [flags] [args]
 ### SEE ALSO
 
 * [hugo list](/commands/hugo_list/)	 - List content
-

@@ -105,14 +105,14 @@ body {
   padding-right: max(env(safe-area-inset-right), 1rem);
 }
 
-@media screen(md) {
+@media (min-width: theme('--breakpoint-md')) {
   .px-main {
     padding-left: max(env(safe-area-inset-left), 2rem);
     padding-right: max(env(safe-area-inset-right), 2rem);
   }
 }
 
-@media screen(lg) {
+@media (min-width: theme('--breakpoint-lg')) {
   .px-main {
     padding-left: max(env(safe-area-inset-left), 3rem);
     padding-right: max(env(safe-area-inset-right), 3rem);

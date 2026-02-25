@@ -5,11 +5,11 @@ url: /commands/hugo/
 ---
 ## hugo
 
-Build your site
+Build your project
 
 ### Synopsis
 
-hugo is the main command, used to build your Hugo site.
+hugo is the main command, used to build your Hugo project.
 
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
@@ -68,17 +68,16 @@ hugo [flags]
 
 ### SEE ALSO
 
-* [hugo build](/commands/hugo_build/)	 - Build your site
+* [hugo build](/commands/hugo_build/)	 - Build your project
 * [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
-* [hugo config](/commands/hugo_config/)	 - Display site configuration
+* [hugo config](/commands/hugo_config/)	 - Display project configuration
 * [hugo convert](/commands/hugo_convert/)	 - Convert front matter to another format
-* [hugo deploy](/commands/hugo_deploy/)	 - Deploy your site to a cloud provider
+* [hugo deploy](/commands/hugo_deploy/)	 - Deploy your project to a cloud provider
 * [hugo env](/commands/hugo_env/)	 - Display version and environment info
 * [hugo gen](/commands/hugo_gen/)	 - Generate documentation and syntax highlighting styles
-* [hugo import](/commands/hugo_import/)	 - Import a site from another system
+* [hugo import](/commands/hugo_import/)	 - Import a project from another system
 * [hugo list](/commands/hugo_list/)	 - List content
 * [hugo mod](/commands/hugo_mod/)	 - Manage modules
 * [hugo new](/commands/hugo_new/)	 - Create new content
 * [hugo server](/commands/hugo_server/)	 - Start the embedded web server
 * [hugo version](/commands/hugo_version/)	 - Display version
-

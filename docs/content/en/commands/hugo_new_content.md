@@ -14,9 +14,9 @@ It will guess which kind of file to create based on the path provided.
 
 You can also specify the kind with `-k KIND`.
 
-If archetypes are provided in your theme or site, they will be used.
+If archetypes are provided in your theme or project, they will be used.
 
-Ensure you run this within the root directory of your site.
+Ensure you run this within the root directory of your project.
 
 ```
 hugo new content [path] [flags]
@@ -56,4 +56,3 @@ hugo new content [path] [flags]
 ### SEE ALSO
 
 * [hugo new](/commands/hugo_new/)	 - Create new content
-

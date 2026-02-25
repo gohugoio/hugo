@@ -23,7 +23,7 @@ Because it returns a `Page` object, you can use any of the available [page metho
 
 This method is commonly used to generate a link to the home page. For example:
 
-Site configuration:
+Project configuration:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/docs/'

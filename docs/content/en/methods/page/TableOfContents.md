@@ -37,7 +37,7 @@ Produces this HTML:
 </nav>
 ```
 
-By default, the `TableOfContents` method returns an unordered list of level 2 and level 3 headings. You can adjust this in your site configuration:
+By default, the `TableOfContents` method returns an unordered list of level 2 and level 3 headings. You can adjust this in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [markup.tableOfContents]

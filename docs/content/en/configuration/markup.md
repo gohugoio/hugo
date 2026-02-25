@@ -18,7 +18,7 @@ defaultMarkdownHandler = 'goldmark'
 
 Files with ending with `.md`, `.mdown`, or `.markdown` are processed as Markdown, unless you've explicitly set a different format using the `markup` field in your front matter.
 
-To use a different renderer for Markdown files, specify one of `asciidocext`, `org`, `pandoc`, or `rst` in your site configuration.
+To use a different renderer for Markdown files, specify one of `asciidocext`, `org`, `pandoc`, or `rst` in your project configuration.
 
 `defaultMarkdownHandler`|Renderer
 :--|:--
@@ -57,8 +57,6 @@ Extension|Documentation|Enabled
 `typographer`|[Goldmark Extensions: Typographer]|:heavy_check_mark:
 
 #### Extras
-
-{{< new-in 0.126.0 />}}
 
 Enable [deleted text], [inserted text], [mark text], [subscript], and [superscript] elements in Markdown.
 
@@ -257,7 +255,7 @@ workingFolderCurrent
 Follow the steps below to enable syntax highlighting.
 
 Step 1
-: Set the `source-highlighter` attribute in your site configuration. For example:
+: Set the `source-highlighter` attribute in your project configuration. For example:
 
   {{< code-toggle file=hugo >}}
   [markup.asciidocExt.attributes]
@@ -300,7 +298,7 @@ Step 4
 
 ### Troubleshooting
 
-Run `hugo --logLevel debug` to examine Hugo's call to the Asciidoctor executable:
+Run `hugo build --logLevel debug` to examine Hugo's call to the Asciidoctor executable:
 
 ```txt
 INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\asciidoctor.bat using asciidoc args [--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram --base-dir D:\prototypes\hugo_asciidoc_ddd\docs -a outdir=D:\prototypes\hugo_asciidoc_ddd\build -] ...

@@ -11,7 +11,7 @@ params:
 ---
 
 ```go-html-template
-<pre>{{ debug.Dump site.Data.books }}</pre>
+<pre>{{ debug.Dump hugo.Data.books }}</pre>
 ```
 
 ```json

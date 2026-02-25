@@ -1,11 +1,9 @@
 ---
 title: Content adapters
-description: Create content adapters to dynamically add content when building your site.
+description: Create content adapters to dynamically add content when building your project.
 categories: []
 keywords: []
 ---
-
-{{< new-in 0.126.0 />}}
 
 ## Overview
 
@@ -120,7 +118,7 @@ For more fine-grained control, define a `sites.matrix` in front matter or in a c
 
 ### EnableAllDimensions
 
-By default, Hugo executes the content adapter only once for the first matching site in the [sites matrix](g). Use this method to expand execution to every possible combination of language, role, and version.
+By default, Hugo executes the content adapter only once for the first matching site in the [sites matrix](g). Use this method to expand execution to every possible combination of language, version, and role.
 
 For more fine-grained control, define a `sites.matrix` in front matter or in a content mount.
 
@@ -284,7 +282,7 @@ With multilingual sites you can:
 
 ### Translations by file name
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 [languages.en]
@@ -307,7 +305,7 @@ content/
 
 ### Translations by content directory
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 [languages.en]
@@ -347,7 +345,7 @@ content/
 
 If the content adapter also creates `books/the-hunchback-of-notre-dame`, the content of the published page is indeterminate. You can not define the processing order.
 
-To detect page collisions, use the `--printPathWarnings` flag when building your site.
+To detect page collisions, use the `--printPathWarnings` flag when building your project.
 
 [content formats]: /content-management/formats/#classification
 [front matter field]: /content-management/front-matter/#fields

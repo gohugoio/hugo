@@ -5,11 +5,11 @@ url: /commands/hugo_config/
 ---
 ## hugo config
 
-Display site configuration
+Display project configuration
 
 ### Synopsis
 
-Display site configuration, both default and custom settings.
+Display project configuration, both default and custom settings.
 
 ```
 hugo config [command] [flags]
@@ -48,6 +48,5 @@ hugo config [command] [flags]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
+* [hugo](/commands/hugo/)	 - Build your project
 * [hugo config mounts](/commands/hugo_config_mounts/)	 - Print the configured file mounts
-

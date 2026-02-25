@@ -9,7 +9,7 @@ params:
     signatures: [SITE.Param KEY]
 ---
 
-The `Param` method on a `Site` object is a convenience method to return the value of a user-defined parameter in the site configuration.
+The `Param` method on a `Site` object is a convenience method to return the value of a user-defined parameter in your project configuration.
 
 {{< code-toggle file=hugo >}}
 [params]

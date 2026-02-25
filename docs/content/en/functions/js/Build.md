@@ -75,7 +75,7 @@ For other files (e.g. `JSON`, `CSS`) you need to use the relative path including
 import * as data from 'my/module/data.json';
 ```
 
-Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo build`.
 
 Also note the new `params` option that can be passed from template to your JS files, e.g.:
 
@@ -95,7 +95,7 @@ Hugo will, by default, generate a `assets/jsconfig.json` file that maps the impo
 
 Use the `js.Build` function to include Node.js dependencies.
 
-Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [esbuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo`.
+Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [esbuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo build`.
 
 The start directory for resolving npm packages (aka. packages that live inside a `node_modules` directory) is always the main project directory.
 

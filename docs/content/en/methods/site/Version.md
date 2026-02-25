@@ -1,6 +1,6 @@
 ---
 title: Version
-description: Returns the version object for the given site.
+description: Returns the Version object for the given site.
 categories: []
 keywords: []
 params:
@@ -11,13 +11,13 @@ params:
 
 {{< new-in 0.153.0 />}}
 
-The `Version` method on a `Site` object returns the version object for the given site. The version object is derived from the version definition in the site configuration.
+The `Version` method on a `Site` object returns the `Version` object for the given site, derived from the version definition in your project configuration.
 
 ## Methods
 
 ### IsDefault
 
-(`bool`) Reports whether this is the default version object as defined by the [`defaultContentVersion`][] setting in the site configuration.
+(`bool`) Reports whether this is the [default version][].
 
 ```go-html-template
 {{ .Site.Version.IsDefault }} → true
@@ -25,10 +25,10 @@ The `Version` method on a `Site` object returns the version object for the given
 
 ### Name
 
-(`string`) Returns the version name. This is the lower cased key from the site configuration.
+(`string`) Returns the version name. This is the lowercased key from your project configuration.
 
 ```go-html-template
 {{ .Site.Version.Name }} → v1.0.0
 ```
 
-[`defaultContentVersion`]: /configuration/all/#defaultcontentversion
+[default version]: /quick-reference/glossary/#default-version

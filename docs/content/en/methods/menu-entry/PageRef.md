@@ -15,7 +15,7 @@ params:
 
 ## Explanation
 
-If you specify a `pageRef` property when [defining a menu entry] in your site configuration, Hugo looks for a matching page when rendering the entry.
+If you specify a `pageRef` property when [defining a menu entry] in your project configuration, Hugo looks for a matching page when rendering the entry.
 
 If a matching page is found:
 
@@ -100,10 +100,10 @@ Hugo renders this HTML:
 </ul>
 ```
 
-In the above note that Hugo populates the `href` attribute of the second `anchor` element with the `pageRef` property as defined in the site configuration because the template code falls back to the `PageRef` method.
+In the above note that Hugo populates the `href` attribute of the second `anchor` element with the `pageRef` property as defined in your project configuration because the template code falls back to the `PageRef` method.
 
 [`HasMenuCurrent`]: /methods/page/hasmenucurrent/
 [`IsMenuCurrent`]: /methods/page/ismenucurrent/
 [`Page`]: /methods/menu-entry/page/
 [`URL`]: /methods/menu-entry/url/
-[defining a menu entry]: /content-management/menus/#define-in-site-configuration
+[defining a menu entry]: /content-management/menus/#define-in-project-configuration

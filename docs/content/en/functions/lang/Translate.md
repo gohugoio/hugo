@@ -18,9 +18,9 @@ If the key is not found in the translation table for the current language, the `
 If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
 
 > [!note]
-> To list missing and fallback translations, set [`printI18nWarnings`][] to `true` in your site configuration, or use the `--printI18nWarnings` flag when building your site.
+> To list missing and fallback translations, set [`printI18nWarnings`][] to `true` in your project configuration, or use the `--printI18nWarnings` flag when building your project.
 >
-> To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`][] to `true` in your site configuration.
+> To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`][] to `true` in your project configuration.
 
 ## Translation tables
 
@@ -31,7 +31,7 @@ i18n/en.toml
 i18n/pt-BR.toml
 ```
 
-The base name must match the [`languageCode`][] or [language key][] as defined in your site configuration. Hugo selects the translation table based on the `languageCode`,  falling back to the language key if a matching translation table does not exist.
+The base name must match the [`languageCode`][] or [language key][] as defined in your project configuration. Hugo selects the translation table based on the `languageCode`,  falling back to the language key if a matching translation table does not exist.
 
 Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7][] are also supported. You may omit the `art-x-` prefix for brevity. For example:
 

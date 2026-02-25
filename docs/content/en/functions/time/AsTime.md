@@ -26,7 +26,7 @@ As shown above, the first argument must be a parsable string representation of a
 
 {{% include "/_common/parsable-date-time-strings.md" %}}
 
-To override the default time zone, set the [`timeZone`] in your site configuration or provide a second argument to the `time.AsTime` function. For example:
+To override the default time zone, set the [`timeZone`] in your project configuration or provide a second argument to the `time.AsTime` function. For example:
 
 ```go-html-template
 {{ time.AsTime "15 Oct 2023" "America/Los_Angeles" }}
@@ -38,7 +38,7 @@ The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
 1. The time zone provided as the second argument to the `time.AsTime` function
-1. The time zone specified in your site configuration
+1. The time zone specified in your project configuration
 1. The `Etc/UTC` time zone
 
 [IANA Time Zone database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones

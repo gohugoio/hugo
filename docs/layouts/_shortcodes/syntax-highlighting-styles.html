@@ -51,7 +51,7 @@ string = 'foo'
 {{- $examples := $examples | append $example }}
 
 {{- /* Render */}}
-{{- with site.Data.docs.chroma.styles }}
+{{- with hugo.Data.docs.chroma.styles }}
   {{- range $style := . }}
 
 ### {{ $style }} {class="!mt-7 !mb-6"}{{/* Do not indent. */}}

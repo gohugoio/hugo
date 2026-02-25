@@ -14,14 +14,14 @@ aliases: [/hosting-and-deployment/deployment-with-rclone/]
 - Deploying from an [Rclone](https://rclone.org) compatible operating system
 - You have [installed Rclone](https://rclone.org/install/).
 
-**NB**: You can remove ``--interactive`` in the commands below once you are comfortable with rclone, if you wish. Also, ``--gc`` and ``--minify`` are optional in the ``hugo`` commands below.
+**NB**: You can remove `--interactive` in the commands below once you are comfortable with rclone, if you wish. Also, `--gc` and `--minify` are optional in the commands below.
 
 ## Getting started
 
 The spoiler is that you can even deploy your entire website from any compatible OS with no configuration. Using SFTP for example:
 
 ```txt
-hugo --gc --minify
+hugo build --gc --minify
 rclone sync --interactive --sftp-host sftp.example.com --sftp-user www-data --sftp-ask-password public/ :sftp:www/
 ```
 
@@ -31,12 +31,12 @@ The easiest way is simply to run `rclone config`.
 
 The [Rclone docs](https://rclone.org/docs/) provide [an example of configuring Rclone to use SFTP](https://rclone.org/sftp/).
 
-For the next commands, we will assume you configured a remote you named ``hugo-www``
+For the next commands, we will assume you configured a remote you named `hugo-www`.
 
 The above 'spoiler' commands could become:
 
 ```txt
-hugo --gc --minify
+hugo build --gc --minify
 rclone sync --interactive public/ hugo-www:www/
 ```
 

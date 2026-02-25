@@ -11,7 +11,7 @@ params:
 
 Use the `Children` method when rendering a nested menu.
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 [[menus.main]]

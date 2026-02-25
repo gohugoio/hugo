@@ -1,6 +1,6 @@
 ---
 title: URL management
-description: Control the structure and appearance of URLs through front matter entries and settings in your site configuration.
+description: Control the structure and appearance of URLs through front matter entries and settings in your project configuration.
 categories: []
 keywords: []
 aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
@@ -14,7 +14,7 @@ By default, when Hugo renders a page, the resulting URL matches the file path wi
 content/posts/post-1.md → https://example.org/posts/post-1/
 ```
 
-You can change the structure and appearance of URLs with front matter values and site configuration options.
+You can change the structure and appearance of URLs with front matter values and project configuration options.
 
 ## Front matter
 
@@ -121,7 +121,7 @@ Use any of these tokens:
 
 {{% include "/_common/permalink-tokens.md" %}}
 
-## Site configuration
+## Project configuration
 
 ### Permalinks
 
@@ -185,7 +185,7 @@ Aliases allow you to redirect old URLs to new URLs. This is essential for preven
 
 ### Defining aliases
 
-To add redirects to a page, list the previous paths in the [`aliases`][aliases_field] field in your front matter. Hugo resolves these to [server-relative](g) paths during the build process, accounting for the [`baseURL`][] and [content dimension](g) prefixes such as language, role, or version.
+To add redirects to a page, list the previous paths in the [`aliases`][aliases_field] field in your front matter. Hugo resolves these to [server-relative](g) paths during the build process, accounting for the [`baseURL`][] and [content dimension](g) prefixes such as language, version, or role.
 
 {{< code-toggle file=content/examples/example-1.en.md fm=true >}}
 title = 'Example 1'
@@ -247,7 +247,7 @@ To implement this, you typically create a single template to generate the necess
 
 See the [`Aliases`][aliases_method] method page for a complete example of how to iterate through pages to generate these rules.
 
-If you implement server-side redirects, you should disable the generation of individual HTML files by setting [`disableAliases`][] to `true` in your site configuration. This setting only prevents the generation of the physical HTML files; the `Aliases` method on a `Page` object remains available for use in your configuration templates.
+If you implement server-side redirects, you should disable the generation of individual HTML files by setting [`disableAliases`][] to `true` in your project configuration. This setting only prevents the generation of the physical HTML files; the `Aliases` method on a `Page` object remains available for use in your configuration templates.
 
 [`baseURL`]: /configuration/all/#baseurl
 [`disableAliases`]: /configuration/all/#disablealiases

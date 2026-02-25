@@ -31,7 +31,7 @@ Rendered:
 
 ## Privacy
 
-Adjust the relevant privacy settings in your site configuration.
+Adjust the relevant privacy settings in your project configuration.
 
 {{< code-toggle config=privacy.x />}}
 
@@ -46,7 +46,7 @@ simple
 
 The source code for the simple version of the shortcode is available [in this file].
 
-If you enable simple mode you may want to disable the hardcoded inline styles by setting `disableInlineCSS` to `true` in your site configuration. The default value for this setting is `false`.
+If you enable simple mode you may want to disable the hardcoded inline styles by setting `disableInlineCSS` to `true` in your project configuration. The default value for this setting is `false`.
 
 {{< code-toggle config=services.x />}}
 

@@ -23,7 +23,7 @@ Only define settings that deviate from the defaults. A smaller configuration fil
 
 ## Configuration file
 
-Create a site configuration file in the root of your project directory, naming it `hugo.toml`, `hugo.yaml`, or `hugo.json`, with that order of precedence.
+Create a project configuration file in the root of your project directory, naming it `hugo.toml`, `hugo.yaml`, or `hugo.json`, with that order of precedence.
 
 ```text
 my-project/
@@ -31,7 +31,7 @@ my-project/
 ```
 
 > [!note]
-> For versions v0.109.0 and earlier, the site configuration file was named `config`. While you can still use this name, it's recommended to switch to the newer naming convention, `hugo`.
+> For versions v0.109.0 and earlier, the project configuration file was named `config`. While you can still use this name, it's recommended to switch to the newer naming convention, `hugo`.
 
 A simple example:
 
@@ -46,16 +46,16 @@ email = 'info@example.org'
 phone = '+1 202-555-1212'
 {{< /code-toggle >}}
 
-To use a different configuration file when building your site, use the `--config` flag:
+To use a different configuration file when building your project, use the `--config` flag:
 
 ```sh
-hugo --config other.toml
+hugo build --config other.toml
 ```
 
 Combine two or more configuration files, with left-to-right precedence:
 
 ```sh
-hugo --config a.toml,b.yaml,c.json
+hugo build --config a.toml,b.yaml,c.json
 ```
 
 > [!note]
@@ -63,7 +63,7 @@ hugo --config a.toml,b.yaml,c.json
 
 ## Configuration directory
 
-Instead of a single site configuration file, split your configuration by [environment](g), root configuration key, and language. For example:
+Instead of a single project configuration file, split your configuration by [environment](g), root configuration key, and language. For example:
 
 ```text
 my-project/
@@ -129,9 +129,9 @@ my-project/
         └── params.toml
 ```
 
-Considering the structure above, when running `hugo --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
+Considering the structure above, when running `hugo build --environment staging`, Hugo will use every setting from `config/_default` and merge `staging`'s on top of those.
 
-Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify a [Google tag ID] in your site configuration:
+Let's take an example to understand this better. Let's say you are using Google Analytics for your website. This requires you to specify a [Google tag ID] in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [services.googleAnalytics]
@@ -159,7 +159,7 @@ To satisfy these requirements, configure your site as follows:
       {{< /code-toggle >}}
 
     - You do not need to include other parameters in this file. Include only those parameters that are specific to your production environment. Hugo will merge these parameters with the default configuration.
-    - By default, Hugo sets its `environment` to `production` when running `hugo`. The analytics code will use the `G-PPPPPPPPP` tag ID.
+    - By default, Hugo sets its `environment` to `production` when running `hugo build`. The analytics code will use the `G-PPPPPPPPP` tag ID.
 
 1. `config/staging/hugo.toml`
 
@@ -171,7 +171,7 @@ To satisfy these requirements, configure your site as follows:
       {{< /code-toggle >}}
 
     - You do not need to include other parameters in this file. Include only those parameters that are specific to your staging environment. Hugo will merge these parameters with the default configuration.
-    - To build your staging site, run `hugo --environment staging`. The analytics code will use the `G-SSSSSSSSS` tag ID.
+    - To build your staging site, run `hugo build --environment staging`. The analytics code will use the `G-SSSSSSSSS` tag ID.
 
 ## Merge configuration settings
 
@@ -253,14 +253,14 @@ HUGO_FILE_LOG_FORMAT
 : (`string`) A format string for the file path, line number, and column number displayed when reporting errors, or when calling the `Position` method from a shortcode or Markdown render hook. Valid tokens are `:file`, `:line`, and `:col`. Default is `:file::line::col`.
 
 HUGO_MEMORYLIMIT
-: (`int`) The maximum amount of system memory, in gigabytes, that Hugo can use while rendering your site. Default is 25% of total system memory. Note that `HUGO_MEMORYLIMIT` is a "best effort" setting. Don't expect Hugo to build a million pages with only 1 GB of memory. You can get more information about how this behaves during the build by building with `hugo --logLevel info` and look for the `dynacache` label.
+: (`int`) The maximum amount of system memory, in gigabytes, that Hugo can use while rendering your site. Default is 25% of total system memory. Note that `HUGO_MEMORYLIMIT` is a "best effort" setting. Don't expect Hugo to build a million pages with only 1 GB of memory. You can get more information about how this behaves during the build by running `hugo build --logLevel info` and look for the `dynacache` label.
 
 HUGO_NUMWORKERMULTIPLIER
 : (`int`) The number of workers used in parallel processing. Default is the number of logical CPUs.
 
 ## Current configuration
 
-Display the complete site configuration with:
+Display the complete project configuration with:
 
 ```sh
 hugo config

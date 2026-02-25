@@ -64,4 +64,3 @@ hugo completion zsh [flags]
 ### SEE ALSO
 
 * [hugo completion](/commands/hugo_completion/)	 - Generate the autocompletion script for the specified shell
-

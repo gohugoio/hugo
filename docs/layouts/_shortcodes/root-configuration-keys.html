@@ -7,7 +7,7 @@ Renders a comma-separated list of links to the root key configuration pages.
 {{/* prettier-ignore-end */ -}}
 {{- /* Create scratch map of key:filename. */}}
 {{- $s := newScratch }}
-{{- range $k, $v := site.Data.docs.config }}
+{{- range $k, $v := hugo.Data.docs.config }}
   {{- if or (reflect.IsMap .) (reflect.IsSlice .) }}
     {{- $s.Set $k ($k | humanize | anchorize) }}
   {{- end }}

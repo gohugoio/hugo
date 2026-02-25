@@ -31,16 +31,16 @@ Step 1
   ```text {file="netlify.toml" copy=true}
   [build.environment]
   DART_SASS_VERSION = "1.97.3"
-  GO_VERSION = "1.25.6"
-  HUGO_VERSION = "0.155.3"
-  NODE_VERSION = "24.13.0"
+  GO_VERSION = "1.26.0"
+  HUGO_VERSION = "0.156.0"
+  NODE_VERSION = "24.13.1"
   TZ = "Europe/Oslo"
 
   [build]
   publish = "public"
   command = """\
     git config core.quotepath false && \
-    hugo --gc --minify --baseURL "${URL}"
+    hugo build --gc --minify --baseURL "${URL}"
     """
   ```
 
@@ -49,9 +49,9 @@ Step 1
   ```text {file="netlify.toml" copy=true}
   [build.environment]
   DART_SASS_VERSION = "1.97.3"
-  GO_VERSION = "1.25.6"
-  HUGO_VERSION = "0.155.3"
-  NODE_VERSION = "24.13.0"
+  GO_VERSION = "1.26.0"
+  HUGO_VERSION = "0.156.0"
+  NODE_VERSION = "24.13.1"
   TZ = "Europe/Oslo"
 
   [build]
@@ -62,7 +62,7 @@ Step 1
     rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
     export PATH="${HOME}/.local/dart-sass:${PATH}" && \
     git config core.quotepath false && \
-    hugo --gc --minify --baseURL "${URL}"
+    hugo build --gc --minify --baseURL "${URL}"
     """
   ```
 

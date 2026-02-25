@@ -13,8 +13,7 @@ params:
 {{< new-in 0.141.0 >}}
 The `Err` method on the returned resource was removed in v0.141.0.
 
-Use the [`try`] statement instead, as shown in the [error handling] example below.
-
+Use the [`try`](/functions/go-template/try) statement instead, as shown in the [error handling](#error-handling) example below.
 {{< /new-in >}}
 
 ```go-html-template
@@ -222,7 +221,7 @@ ERROR error calling resources.GetRemote: failed to resolve media type...
 
 For example, you will see the error above if you attempt to download an executable.
 
-Although the allowlist contains entries for common media types, you may encounter situations where Hugo is unable to resolve the media type of a file that you know to be safe. In these situations, edit your site configuration to add the media type to the allowlist. For example:
+Although the allowlist contains entries for common media types, you may encounter situations where Hugo is unable to resolve the media type of a file that you know to be safe. In these situations, edit your project configuration to add the media type to the allowlist. For example:
 
 {{< code-toggle file=hugo >}}
 [security.http]
@@ -234,10 +233,8 @@ Note that the entry above is:
 - An _addition_ to the allowlist; it does not _replace_ the allowlist
 - An array of [regular expressions](g)
 
-[allowlist]: https://en.wikipedia.org/wiki/Whitelist
-[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-
 [`try`]: /functions/go-template/try
+[allowlist]: https://en.wikipedia.org/wiki/Whitelist
 [configure file caches]: /configuration/caches/
-
+[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
 [error handling]: #error-handling

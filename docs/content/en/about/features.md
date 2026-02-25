@@ -61,10 +61,10 @@ weight: 20
 ## Content management
 
 [Multidimensional content model]
-: Generate pages across any combination of language, role, and version from a single source. This allows a single piece of content to be published to multiple [sites](g) within your project, removing the need to duplicate files for different audiences or versions.
+: Generate pages across any combination of language, version, and role from a single source. This allows a single piece of content to be published to multiple [sites](g) within your project, removing the need to duplicate files for different audiences or versions.
 
 [Content adapters]
-: Create content adapters to dynamically add content when building your site. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML.
+: Create content adapters to dynamically add content when building your project. For example, use a content adapter to create pages from a remote data source such as JSON, TOML, YAML, or XML.
 
 [Taxonomies]
 : Classify content to establish simple or complex logical relationships between pages. For example, create an authors taxonomy, and assign one or more authors to each page. Among other uses, the taxonomy system provides an inverted, weighted index to render a list of related pages, ordered by relevance.

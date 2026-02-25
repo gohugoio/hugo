@@ -3,7 +3,7 @@
 {{ $isFooter := (eq $gtag "footer") }}
 {{ $utmSource := cond $isFooter "hugofooter" "hugohome" }}
 {{ $containerClass := .containerClass | default "mx-auto max-w-7xl px-6 lg:px-8" }}
-{{ with .ctx.Site.Data.sponsors }}
+{{ with hugo.Data.sponsors }}
   <div class="{{ $containerClass }}">
     <h2 class="font-bold text-2xl mb-6 tracking-tighter">Hugo Sponsors</h2>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">

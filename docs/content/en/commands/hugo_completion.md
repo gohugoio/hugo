@@ -38,9 +38,8 @@ See each sub-command's help for details on how to use the generated script.
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
+* [hugo](/commands/hugo/)	 - Build your project
 * [hugo completion bash](/commands/hugo_completion_bash/)	 - Generate the autocompletion script for bash
 * [hugo completion fish](/commands/hugo_completion_fish/)	 - Generate the autocompletion script for fish
 * [hugo completion powershell](/commands/hugo_completion_powershell/)	 - Generate the autocompletion script for powershell
 * [hugo completion zsh](/commands/hugo_completion_zsh/)	 - Generate the autocompletion script for zsh
-

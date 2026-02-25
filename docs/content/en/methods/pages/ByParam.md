@@ -9,7 +9,7 @@ params:
     signatures: [PAGES.ByParam PARAM]
 ---
 
-If the given parameter is not present in front matter, Hugo will use the matching parameter in your site configuration if present.
+If the given parameter is not present in front matter, Hugo will use the matching parameter in your project configuration if present.
 
 ```go-html-template
 {{ range .Pages.ByParam "author" }}

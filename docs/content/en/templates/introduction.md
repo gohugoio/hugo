@@ -311,8 +311,8 @@ Object|Method|Description
 `Page`|[`Params`](methods/page/params/)|Returns a map of custom parameters as defined in the front matter of the given page.
 `Page`|[`Title`](methods/page/title/)|Returns the title of the given page.
 `Site`|[`Data`](methods/site/data/)|Returns a data structure composed from the files in the `data` directory.
-`Site`|[`Params`](methods/site/params/)|Returns a map of custom parameters as defined in the site configuration.
-`Site`|[`Title`](methods/site/title/)|Returns the title as defined in the site configuration.
+`Site`|[`Params`](methods/site/params/)|Returns a map of custom parameters as defined in your project configuration.
+`Site`|[`Title`](methods/site/title/)|Returns the title as defined in the your project configuration.
 
 Chain the method to its object with a dot (`.`) as shown below, remembering that the leading dot represents the [current context].
 
@@ -491,7 +491,7 @@ To test multiple conditions:
 
 See documentation for the [`Params`](/methods/site/params/) method on a `Site` object.
 
-With this site configuration:
+With this project configuration:
 
 {{< code-toggle file=hugo >}}
 title = 'ABC Widgets'

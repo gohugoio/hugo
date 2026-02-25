@@ -134,9 +134,9 @@ Select a method from the table above for syntax and usage examples.
 
 ### Caching
 
-Hugo processes images on demand and returns a new resource object. To ensure subsequent builds remain fast, Hugo caches the results in the directory specified in the [file cache] section of your site configuration.
+Hugo processes images on demand and returns a new resource object. To ensure subsequent builds remain fast, Hugo caches the results in the directory specified in the [file cache][] section of your project configuration.
 
-If you host your site with Netlify, include the following in your site configuration to persist the image cache between builds:
+If you host your site with Netlify, include the following in your project configuration to persist the image cache between builds:
 
 ```toml
 [caches]
@@ -149,7 +149,7 @@ If you host your site with Netlify, include the following in your site configura
 If you change image processing methods, or rename/remove images, the cache will eventually contain unused files. To remove them and reclaim disk space, run Hugo's garbage collection:
 
 ```text
-hugo --gc
+hugo build --gc
 ```
 
 ### Resource usage
@@ -175,3 +175,4 @@ See [configure imaging](/configuration/imaging).
 [`RelPermalink`]: /methods/resource/relpermalink/
 [`Resize`]: /methods/resource/resize/
 [`Width`]: /methods/resource/width/
+[file cache]: /configuration/caches/

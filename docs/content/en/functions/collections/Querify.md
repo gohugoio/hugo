@@ -34,7 +34,7 @@ Hugo renders this to:
 <a href="https://example.org?a=1&amp;b=2">Link</a>
 ```
 
-You can also pass in a map from your site configuration or front matter. For example:
+You can also pass in a map from your project configuration or front matter. For example:
 
 {{< code-toggle file=content/example.md fm=true >}}
 title = 'Example'

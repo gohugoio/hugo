@@ -46,13 +46,13 @@ maxAge
 : (`string`) The designated cache directory. See [details](/configuration/all/#cachedir).
 
 `:project`
-: (`string`) The base directory name of the current Hugo project. This ensures isolated file caches for each project, preventing the `hugo --gc` command from affecting other projects on the same machine.
+: (`string`) The base directory name of the current Hugo project. This ensures isolated file caches for each project, preventing the `hugo build --gc` command from affecting other projects on the same machine.
 
 `:resourceDir`
 : (`string`) The designated directory for caching output from [asset pipelines](g). See [details](/configuration/all/#resourcedir).
 
 ## Garbage collection
 
-As you modify your site or change your configuration, cached files from previous builds may remain on disk, consuming unnecessary space. Use the `hugo --gc` command to remove these expired or unused entries from the file cache.
+As you modify your site or change your configuration, cached files from previous builds may remain on disk, consuming unnecessary space. Use the `hugo build --gc` command to remove these expired or unused entries from the file cache.
 
 [`resources.GetRemote`]: /functions/resources/getremote/

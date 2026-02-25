@@ -1,6 +1,6 @@
 ---
 title: Config
-description: Returns a subset of the site configuration.
+description: Returns a subset of your project configuration.
 categories: []
 keywords: []
 params:
@@ -9,7 +9,7 @@ params:
     signatures: [SITE.Config]
 ---
 
-The `Config` method on a `Site` object provides access to a subset of the site configuration, specifically the `services` and `privacy` keys.
+The `Config` method on a `Site` object provides access to a subset of your project configuration, specifically the `services` and `privacy` keys.
 
 ## Services
 

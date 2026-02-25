@@ -27,7 +27,7 @@ if any of the pages in the filter do not exist.
 
 {{/* Build slice of filtered pages. */}}
 {{ with $filter }}
-  {{ with index site.Data.page_filters . }}
+  {{ with index hugo.Data.page_filters . }}
     {{ range . }}
       {{ with site.GetPage . }}
         {{ $filteredPages = $filteredPages | append . }}

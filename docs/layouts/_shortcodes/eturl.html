@@ -12,9 +12,9 @@ embedded_templates.toml file in the data directory.
 */ -}}
 {{/* prettier-ignore-end */ -}}
 {{- with $filename := or (.Get "filename") (.Get 0) }}
-  {{- with site.Data.embedded_template_urls }}
+  {{- with hugo.Data.embedded_template_urls }}
     {{- with index . $filename }}
-      {{- urls.JoinPath site.Data.embedded_template_urls.base_url . }}
+      {{- urls.JoinPath hugo.Data.embedded_template_urls.base_url . }}
     {{- else }}
       {{- errorf "The %q shortcode was unable to find a URL for the embedded template named %q. Check the name. See %s" $.Name $filename $.Position }}
     {{- end }}

@@ -47,7 +47,7 @@ The `Paginate` method is more flexible, allowing you to:
 
 - Paginate any page collection
 - Filter, sort, and group the page collection
-- Override the number of pages per pager as defined in your site configuration
+- Override the number of pages per pager as defined in your project configuration
 
 By comparison, the `Paginator` method paginates the page collection passed into the template, and you cannot override the number of pages per pager.
 
@@ -163,7 +163,7 @@ content/
 └── _index.md
 ```
 
-And this site configuration:
+And this project configuration:
 
 {{< code-toggle file=hugo >}}
 [pagination]
@@ -204,7 +204,7 @@ public/
 └── index.html
 ```
 
-To disable alias generation for the first pager, change your site configuration:
+To disable alias generation for the first pager, change your project configuration:
 
 {{< code-toggle file=hugo >}}
 [pagination]

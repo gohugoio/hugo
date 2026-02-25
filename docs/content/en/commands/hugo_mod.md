@@ -14,7 +14,7 @@ Most operations here requires a Go version installed on your system (>= Go 1.12)
 This is not needed if you only operate on modules inside /themes or if you have vendored them via "hugo mod vendor".
 
 
-Note that Hugo will always start out by resolving the components defined in the site
+Note that Hugo will always start out by resolving the components defined in the project
 configuration, provided by a _vendor directory (if no --ignoreVendorPaths flag provided),
 Go Modules, or a folder inside the themes directory, in that order.
 
@@ -47,7 +47,7 @@ See https://gohugo.io/hugo-modules/ for more information.
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
+* [hugo](/commands/hugo/)	 - Build your project
 * [hugo mod clean](/commands/hugo_mod_clean/)	 - Delete the Hugo Module cache for the current project
 * [hugo mod get](/commands/hugo_mod_get/)	 - Resolves dependencies in your current Hugo project
 * [hugo mod graph](/commands/hugo_mod_graph/)	 - Print a module dependency graph
@@ -56,4 +56,3 @@ See https://gohugo.io/hugo-modules/ for more information.
 * [hugo mod tidy](/commands/hugo_mod_tidy/)	 - Remove unused entries in go.mod and go.sum
 * [hugo mod vendor](/commands/hugo_mod_vendor/)	 - Vendor all module dependencies into the _vendor directory
 * [hugo mod verify](/commands/hugo_mod_verify/)	 - Verify dependencies
-

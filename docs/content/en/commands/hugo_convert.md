@@ -40,8 +40,7 @@ See convert's subcommands toJSON, toTOML and toYAML for more information.
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
+* [hugo](/commands/hugo/)	 - Build your project
 * [hugo convert toJSON](/commands/hugo_convert_tojson/)	 - Convert front matter to JSON
 * [hugo convert toTOML](/commands/hugo_convert_totoml/)	 - Convert front matter to TOML
 * [hugo convert toYAML](/commands/hugo_convert_toyaml/)	 - Convert front matter to YAML
-

@@ -14,7 +14,7 @@ The `resources.ExecuteAsTemplate` function returns a resource created from a Go 
 
 Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods.
 
-Let's say you have a CSS file that you wish to populate with values from your site configuration:
+Let's say you have a CSS file that you wish to populate with values from your project configuration:
 
 ```go-html-template {file="assets/css/template.css"}
 body {
@@ -23,7 +23,7 @@ body {
 }
 ```
 
-And your site configuration contains:
+And your project configuration contains:
 
 {{< code-toggle file=hugo >}}
 [params.style]

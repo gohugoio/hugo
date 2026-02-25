@@ -15,7 +15,7 @@ aliases: [/functions/anchorize]
 
 ## Sanitizing logic
 
-With the default Markdown renderer, Goldmark, the sanitizing logic is controlled by your site configuration:
+With the default Markdown renderer, Goldmark, the sanitizing logic is controlled by your project configuration:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.parser]

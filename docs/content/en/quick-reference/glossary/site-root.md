@@ -2,7 +2,7 @@
 title: site root
 ---
 
-The _site root_ is the root directory of the current [_site_](g), relative to the [`publishDir`][]. The _site root_ may include one or more content [_dimension_](g) prefixes, such as language, [_role_](g), or version.
+The _site root_ is the root directory of the current [_site_](g), relative to the [`publishDir`][]. The _site root_ may include one or more content [_dimension_](g) prefixes, such as [_language_](g), [_role_](g), or [_version_](g).
 
   Project description|Site root examples
   :--|:--|:--

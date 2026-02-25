@@ -53,8 +53,8 @@ When you visit page-2:
 - The `Prev` method points to page-3
 - The `Next` method points to page-1
 
-To reverse the meaning of _next_ and _previous_ you can change the sort direction in your [site configuration], or use the [`Next`] and [`Prev`] methods on a `Pages` object for more flexibility.
+To reverse the meaning of _next_ and _previous_ you can change the sort direction in your [project configuration], or use the [`Next`] and [`Prev`] methods on a `Pages` object for more flexibility.
 
-[site configuration]: /configuration/page/
+[project configuration]: /configuration/page/
 [`Next`]: /methods/pages/prev
 [`Prev`]: /methods/pages/prev

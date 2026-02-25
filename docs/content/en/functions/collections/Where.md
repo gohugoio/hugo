@@ -23,7 +23,7 @@ Hugo will test for equality if you do not provide an `OPERATOR` argument. For ex
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Section" "books" }}
-{{ $books := where .Site.Data.books "genres" "suspense" }}
+{{ $books := where hugo.Data.books "genres" "suspense" }}
 ```
 
 ## Arguments
@@ -264,13 +264,13 @@ Useful for theme authors, avoid hardcoding section names by using the `where` fu
 {{ $pages := where .Site.RegularPages "Section" "in" .Site.MainSections }}
 ```
 
-With this construct, a theme author can instruct users to specify their main sections in the site configuration:
+With this construct, a theme author can instruct users to specify their main sections in their project configuration:
 
 {{< code-toggle file=hugo >}}
 mainSections = ['blog','galleries']
 {{< /code-toggle >}}
 
-If `mainSections` is not defined in the site configuration, the `MainSections` method returns a slice with one element---the top-level section with the most pages.
+If `mainSections` is not defined in your project configuration, the `MainSections` method returns a slice with one element---the top-level section with the most pages.
 
 ## Boolean/undefined comparison
 

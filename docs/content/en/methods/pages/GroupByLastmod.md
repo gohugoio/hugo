@@ -9,13 +9,13 @@ params:
     signatures: ['PAGES.GroupByLastmod LAYOUT [SORT]']
 ---
 
-When grouping by last modification date, the value is determined by your [site configuration], defaulting to the `lastmod` field in front matter.
+When grouping by last modification date, the value is determined by your [project configuration], defaulting to the `lastmod` field in front matter.
 
 The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized](g) for language and region.
 
 [`time.Format`]: /functions/time/format/
 [layout string]: #layout-string
-[site configuration]: /configuration/front-matter/#dates
+[project configuration]: /configuration/front-matter/#dates
 
 {{% include "/_common/methods/pages/group-sort-order.md" %}}
 

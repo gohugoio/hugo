@@ -16,7 +16,7 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 
 ### Configure Disqus
 
-Disqus comments require you set a single value in your [site's configuration file][configuration] like so:
+Disqus comments require you set a single value in your [project configuration][configuration]:
 
 {{< code-toggle file=hugo >}}
 [services.disqus]

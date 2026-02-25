@@ -29,7 +29,7 @@ Huge renders this to:
 
 ## Privacy
 
-Adjust the relevant privacy settings in your site configuration.
+Adjust the relevant privacy settings in your project configuration.
 
 {{< code-toggle config=privacy.instagram />}}
 

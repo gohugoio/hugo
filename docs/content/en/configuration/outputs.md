@@ -41,7 +41,7 @@ title = 'Example'
 outputs = ['json']
 {{< /code-toggle >}}
 
-In its default configuration, Hugo will render both the `html` and `json` output formats for this page. The `outputs` field appends to, rather than replaces, the site's configured outputs.
+In its default configuration, Hugo will render both the `html` and `json` output formats for this page. The `outputs` field appends to, rather than replaces, the project's configured outputs.
 
 [`Permalink`]: /methods/page/permalink/
 [`RelPermalink`]: /methods/page/relpermalink/

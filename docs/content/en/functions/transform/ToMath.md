@@ -99,7 +99,7 @@ The example below demonstrates error handing within a template.
 Instead of client-side JavaScript rendering of mathematical markup using MathJax or KaTeX, create a passthrough render hook which calls the `transform.ToMath` function.
 
 Step 1
-: Enable and configure the Goldmark [passthrough extension][] in your site configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
+: Enable and configure the Goldmark [passthrough extension][] in your project configuration. The passthrough extension preserves raw Markdown within delimited snippets of text, including the delimiters themselves.
 
 [passthrough extension]: /configuration/markup/#passthrough
 

@@ -1,6 +1,6 @@
 ---
 title: MainSections
-description: Returns a slice of the main section names as defined in the site configuration, falling back to the top-level section with the most pages.
+description: Returns a slice of the main section names as defined in your project configuration, falling back to the top-level section with the most pages.
 categories: []
 keywords: []
 params:
@@ -9,7 +9,7 @@ params:
     signatures: [SITE.MainSections]
 ---
 
-Site configuration:
+Project configuration:
 
 {{< code-toggle file=hugo >}}
 mainSections = ['books','films']
@@ -21,7 +21,7 @@ Template:
 {{ .Site.MainSections }} → [books films]
 ```
 
-If `mainSections` is not defined in the site configuration, this method returns a slice with one element---the top-level section with the most pages.
+If `mainSections` is not defined in your project configuration, this method returns a slice with one element---the top-level section with the most pages.
 
 With this content structure, the "films" section has the most pages:
 
@@ -43,7 +43,7 @@ Template:
 {{ .Site.MainSections }} → [films]
 ```
 
-When creating a theme, instead of hardcoding section names when listing the most relevant pages on the front page, instruct site authors to set `mainSections` in their site configuration.
+When creating a theme, instead of hardcoding section names when listing the most relevant pages on the front page, instruct users to set `mainSections` in their project configuration.
 
 Then your _home_ template can do something like this:
 

@@ -17,7 +17,7 @@ date = 2023-10-19T00:40:04-07:00
 {{< /code-toggle >}}
 
 > [!note]
-> The date field in front matter is often considered to be the creation date, You can change its meaning, and its effect on your site, in the site configuration. See&nbsp;[details].
+> The date field in front matter is often considered to be the creation date, You can change its meaning, and its effect on your project, in your project configuration. See&nbsp;[details].
 
 The date is a [time.Time] value. Format and localize the value with the [`time.Format`] function, or use it with any of the [time methods].
 

@@ -10,7 +10,7 @@ weight: 50
 And for all the other community projects around Hugo:
 
 - [diego](https://github.com/ttybitnik/diego) - A CLI tool that integrates with Hugo to assist in importing and utilizing exported social media data from popular services on Hugo websites.
-- [Emacs Easy Hugo](https://github.com/masasam/emacs-easy-hugo) - Emacs package for writing blog posts in Markdown or org-mode and building your site with Hugo.
+- [Emacs Easy Hugo](https://github.com/masasam/emacs-easy-hugo) - Emacs package for writing blog posts in Markdown or org-mode and building your project with Hugo.
 - [Hugo SFTP Upload](https://github.com/thomasmey/HugoSftpUpload) - Sync the local build of your Hugo website with your remote web server via SFTP.
 - [HugoPhotoSwipe](https://github.com/GjjvdBurg/HugoPhotoSwipe) - Make it easy to create image galleries using PhotoSwipe.
 - [JAMStack Themes](https://jamstackthemes.dev/ssg/hugo/) -  A collection of site themes filterable by static site generator and supported CMS to help build CMS-connected sites using Hugo (linking to Hugo-specific themes).

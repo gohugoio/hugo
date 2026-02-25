@@ -1,23 +1,23 @@
 ---
 title: Role
-description: Returns the role object for the given site.
+description: Returns the Role object for the given site.
 categories: []
 keywords: []
 params:
   functions_and_methods:
-    returnType: roles.RoleSite
+    returnType: roles.Role
     signatures: [SITE.Role]
 ---
 
 {{< new-in 0.153.0 />}}
 
-The `Role` method on a `Site` object returns the role object for the given site. The role object is derived from the role definition in the site configuration.
+The `Role` method on a `Site` object returns the `Role` object for the given site, derived from the role definition in your project configuration.
 
 ## Methods
 
 ### IsDefault
 
-(`bool`) Reports whether this is the default role object as defined by the [`defaultContentRole`][] setting in the site configuration.
+(`bool`) Reports whether this is the [default role][].
 
 ```go-html-template
 {{ .Site.Role.IsDefault }} → true
@@ -25,10 +25,10 @@ The `Role` method on a `Site` object returns the role object for the given site.
 
 ### Name
 
-(`string`) Returns the role name. This is the lower cased key from the site configuration.
+(`string`) Returns the role name. This is the lowercased key from your project configuration.
 
 ```go-html-template
 {{ .Site.Role.Name }} → guest
 ```
 
-[`defaultContentRole`]: /configuration/all/#defaultcontentrole
+[default role]: /quick-reference/glossary/#default-role

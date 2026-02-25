@@ -12,15 +12,26 @@ This is the default configuration:
 
 {{< code-toggle config=versions />}}
 
-To define "v1.0.0" and "v2.0.0" versions:
+## Settings
+
+Use the following setting to define how Hugo orders versions.
+
+weight
+: (`int`) The language [weight](g).
+
+## Sort order
+
+Hugo sorts versions by weight in ascending order, then by their [semantic version][] in descending order. This affects build order and complement selection.
+
+## Example
+
+The following configuration demonstrates how to define multiple versions with specific weights.
 
 {{< code-toggle >}}
 [versions."v1.0.0"]
-weight = 0
+weight = 20
 [versions."v2.0.0"]
-weight = 0
+weight = 10
 {{< /code-toggle >}}
-
-Versions are sorted by their [weight](g) in ascending order, then by their [semantic version] in descending order. This affects build order and complement selection.
 
 [semantic version]: https://semver.org/

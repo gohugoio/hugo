@@ -20,14 +20,14 @@ There are three ways to define menu entries:
 
 1. Automatically
 1. In front matter
-1. In site configuration
+1. In your project configuration
 
 > [!note]
 > Although you can use these methods in combination when defining a menu, the menu will be easier to conceptualize and maintain if you use one method throughout the site.
 
 ## Define automatically
 
-To automatically define a menu entry for each top-level [section](g) of your site, enable the section pages menu in your site configuration.
+To automatically define a menu entry for each top-level [section](g) of your site, enable the section pages menu in your project configuration.
 
 {{< code-toggle file=hugo >}}
 sectionPagesMenu = "main"
@@ -82,7 +82,7 @@ class = 'center'
 
 Access the entry with `site.Menus.main` in your templates. See [menu templates] for details.
 
-## Define in site configuration
+## Define in project configuration
 
 See [configure menus](/configuration/menus/).
 

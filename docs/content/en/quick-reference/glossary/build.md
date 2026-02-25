@@ -2,4 +2,4 @@
 title: build
 ---
 
-To _build_ (verb) a site is to generate HTML files and assets such as images, CSS files, and JavaScript files. The build process includes rendering and resource transformations.
+To _build_ (verb) is to generate the static files for a [_project_](g), including HTML, images, CSS, and JavaScript. This process involves rendering templates, transforming resources, and resolving the matrix of [_language_](g), [_role_](g), and [_version_](g) defined in your project configuration.

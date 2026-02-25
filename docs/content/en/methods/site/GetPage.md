@@ -71,7 +71,7 @@ With multilingual projects, the `GetPage` method on a `Site` object resolves the
 To get a page from a different language, query the `Sites` object:
 
 ```go-html-template
-{{ with where .Site.Sites "Language.Lang" "eq" "de" }}
+{{ with where hugo.Sites "Language.Lang" "eq" "de" }}
   {{ with index . 0 }}
     {{ with .GetPage "/works/paintings/starry-night" }}
       {{ .Title }} → Sternenklare Nacht

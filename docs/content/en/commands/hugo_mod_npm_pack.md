@@ -56,4 +56,3 @@ hugo mod npm pack [flags] [args]
 ### SEE ALSO
 
 * [hugo mod npm](/commands/hugo_mod_npm/)	 - Various npm helpers
-

@@ -71,7 +71,7 @@ To include a `rel` attribute set to `external` for external links:
 
 ## Embedded
 
-Hugo includes an [embedded link render hook] to resolve Markdown link destinations. You can adjust its behavior in your site configuration. This is the default setting:
+Hugo includes an [embedded link render hook] to resolve Markdown link destinations. You can adjust its behavior in your project configuration. This is the default setting:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.link]
@@ -84,7 +84,7 @@ You can also configure Hugo to `always` use the embedded link render hook, use i
 
 The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource](g), then falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 
-You must place global resources in the `assets` directory. If you have placed your resources in the `static` directory, and you are unable or unwilling to move them, you must mount the `static` directory to the `assets` directory by including both of these entries in your site configuration:
+You must place global resources in the `assets` directory. If you have placed your resources in the `static` directory, and you are unable or unwilling to move them, you must mount the `static` directory to the `assets` directory by including both of these entries in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [[module.mounts]]

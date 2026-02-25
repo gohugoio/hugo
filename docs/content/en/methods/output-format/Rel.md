@@ -1,6 +1,6 @@
 ---
 title: Rel
-description: Returns the rel value of the given output format, either the default or as defined in the site configuration.
+description: Returns the rel value of the given output format, either the default or as defined in your project configuration.
 categories: []
 keywords: []
 params:

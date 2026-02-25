@@ -36,7 +36,7 @@ http.urls
 > [!note]
 > Setting an allowlist to the string `none` will completely disable the associated feature.
 
-You can also override the site configuration with environment variables. For example, to block `resources.GetRemote` from accessing any URL:
+You can also override your project configuration with environment variables. For example, to block `resources.GetRemote` from accessing any URL:
 
 ```txt
 export HUGO_SECURITY_HTTP_URLS=none

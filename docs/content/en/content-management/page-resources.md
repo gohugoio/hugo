@@ -198,7 +198,7 @@ By default, with a multilingual single-host site, Hugo does not duplicate shared
 > [!note]
 > This behavior is limited to Markdown content. Shared page resources for other [content formats] are copied into each language bundle.
 
-Consider this site configuration:
+Consider this project configuration:
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'de'
@@ -278,7 +278,7 @@ This approach reduces build times, storage requirements, bandwidth consumption, 
 >
 > You can also configure Hugo to `always` use the embedded link or image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 
-Although duplicating shared page resources is inefficient, you can enable this feature in your site configuration if desired:
+Although duplicating shared page resources is inefficient, you can enable this feature in your project configuration if desired:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark]

@@ -1,6 +1,6 @@
 ---
 title: Copyright
-description: Returns the copyright notice as defined in the site configuration.
+description: Returns the copyright notice as defined in your project configuration.
 categories: []
 keywords: []
 params:
@@ -9,7 +9,7 @@ params:
     signatures: [SITE.Copyright]
 ---
 
-Site configuration:
+Project configuration:
 
 {{< code-toggle file=hugo >}}
 copyright = '© 2023 ABC Widgets, Inc.'

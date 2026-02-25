@@ -11,7 +11,7 @@ effort.
 */}}
 {{/* prettier-ignore-end */ -}}
 {{- $t := debug.Timer "validateKeywords" }}
-{{- $allowedKeywords := collections.Apply site.Data.keywords "strings.ToLower" "." }}
+{{- $allowedKeywords := collections.Apply hugo.Data.keywords "strings.ToLower" "." }}
 {{- range $p := site.Pages }}
   {{- range .Params.keywords }}
     {{- if not (in $allowedKeywords (lower .)) }}

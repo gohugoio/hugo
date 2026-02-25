@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.PublishDate]
 ---
 
-By default, Hugo excludes pages with future publish dates when building your site. To include future pages, use the `--buildFuture` command line flag.
+By default, Hugo excludes pages with future publish dates when building your project. To include future pages, use the `--buildFuture` command line flag.
 
 Set the publish date in front matter:
 

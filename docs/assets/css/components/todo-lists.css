@@ -1,0 +1,15 @@
+ul.todo {
+  padding-left: 0;
+}
+
+ul.todo li {
+  display: flex;
+  gap: 0.8em;
+}
+
+ul.todo li input[type="checkbox"] {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  margin-top: 0.3em;
+}

@@ -70,7 +70,7 @@ Here's an example using some of the available arguments:
 
 ## Privacy
 
-Adjust the relevant privacy settings in your site configuration.
+Adjust the relevant privacy settings in your project configuration.
 
 {{< code-toggle config=privacy.youTube />}}
 

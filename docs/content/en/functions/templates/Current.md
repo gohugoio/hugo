@@ -36,7 +36,7 @@ Parent
 
 ## Examples
 
-The examples below help visualize template execution and require a `debug` parameter set to `true` in your site configuration:
+The examples below help visualize template execution and require a `debug` parameter set to `true` in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [params]

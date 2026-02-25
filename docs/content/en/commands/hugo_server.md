@@ -9,7 +9,7 @@ Start the embedded web server
 
 ### Synopsis
 
-Hugo provides its own webserver which builds and serves the site.
+Hugo provides its own webserver which builds and serves the project.
 While hugo server is high performance, it is a webserver with limited options.
 
 The `hugo server` command will by default write and serve files from disk, but
@@ -17,8 +17,8 @@ you can render to memory by using the `--renderToMemory` flag. This can be
 faster in some cases, but it will consume more memory.
 
 By default hugo will also watch your files for any changes you make and
-automatically rebuild the site. It will then live reload any open browser pages
-and push the latest content to them. As most Hugo sites are built in a fraction
+automatically rebuild the project. It will then live reload any open browser pages
+and push the latest content to them. As most Hugo projects are built in a fraction
 of a second, you will be able to save and see your changes nearly instantly.
 
 ```
@@ -53,7 +53,7 @@ hugo server [command] [flags]
       --noChmod                  don't sync permission mode of files
       --noHTTPCache              prevent HTTP caching
       --noTimes                  don't sync modification time of files
-  -O, --openBrowser              open the site in a browser after server startup
+  -O, --openBrowser              open the project in a browser after server startup
       --panicOnWarning           panic on first WARNING log
       --poll string              set this to a poll interval, e.g --poll 700ms, to use a poll based approach to watch for file system changes
   -p, --port int                 port on which the server will listen (default 1313)
@@ -93,6 +93,5 @@ hugo server [command] [flags]
 
 ### SEE ALSO
 
-* [hugo](/commands/hugo/)	 - Build your site
+* [hugo](/commands/hugo/)	 - Build your project
 * [hugo server trust](/commands/hugo_server_trust/)	 - Install the local CA in the system trust store
-

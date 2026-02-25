@@ -33,7 +33,7 @@ LANG
 : (`string`) The language of the code to highlight. Choose from one of the [supported languages]. This value is case-insensitive.
 
 OPTIONS
-: (`string`) Zero or more space-separated key-value pairs wrapped in quotation marks. Set default values for each option in your [site configuration]. The key names are case-insensitive.
+: (`string`) Zero or more space-separated key-value pairs wrapped in quotation marks. Set default values for each option in your [project configuration]. The key names are case-insensitive.
 
 ## Example
 
@@ -94,7 +94,7 @@ This is some {{< hl >}}fmt.Println("inline"){{< /hl >}} code.
 
 ## Options
 
-Pass the options when calling the shortcode. You can set their default values in your [site configuration].
+Pass the options when calling the shortcode. You can set their default values in your [project configuration].
 
 {{% include "_common/syntax-highlighting-options.md" %}}
 
@@ -102,6 +102,6 @@ Pass the options when calling the shortcode. You can set their default values in
 [Chroma]: https://github.com/alecthomas/chroma
 [content format]: /content-management/formats/
 [highlighting styles]: /quick-reference/syntax-highlighting-styles/
-[site configuration]: /configuration/markup/#highlight
+[project configuration]: /configuration/markup/#highlight
 [source code]: <{{% eturl highlight %}}>
 [supported languages]: /content-management/syntax-highlighting/#languages

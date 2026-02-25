@@ -41,8 +41,8 @@ Step 2
     variables:
       # Application versions
       DART_SASS_VERSION: 1.97.3
-      GO_VERSION: 1.25.6
-      HUGO_VERSION: 0.155.3
+      GO_VERSION: 1.26.0
+      HUGO_VERSION: 0.156.0
       # Time zone
       TZ: Europe/Oslo
       # Cache
@@ -95,7 +95,7 @@ Step 2
       build:
         commands:
           - echo "Building site..."
-          - hugo --gc --minify
+          - hugo build --gc --minify
     artifacts:
       baseDirectory: public
       files:

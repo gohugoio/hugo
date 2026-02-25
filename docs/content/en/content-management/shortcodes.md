@@ -42,7 +42,7 @@ An inline shortcode is a _shortcode_ template defined within content.
 
 Hugo's security model is based on the premise that template and configuration authors are trusted, but content authors are not. This model enables generation of HTML output safe against code injection.
 
-To conform with this security model, creating _shortcode_ templates within content is disabled by default. If you trust your content authors, you can enable this functionality in your site's configuration:
+To conform with this security model, creating _shortcode_ templates within content is disabled by default. If you trust your content authors, you can enable this functionality in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [security]

@@ -11,7 +11,7 @@ params:
 aliases: [/functions/isset]
 ---
 
-For example, consider this site configuration:
+For example, consider this project configuration:
 
 {{< code-toggle file=hugo >}}
 [params]

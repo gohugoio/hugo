@@ -58,14 +58,14 @@ dataDir
 : (`string`) The designated directory for data files. Default is `data`. {{% module-mounts-note %}}
 
 defaultContentLanguage
-: (`string`) The projects's default content language, conforming to the syntax described in [RFC 5646][]. This value must match one of the defined [language keys][]. Default is `en`.
+: (`string`) The projects's [default language](g), conforming to the syntax described in [RFC 5646][].
 
 defaultContentLanguageInSubdir
 : (`bool`) Whether to publish the default content language to a subdirectory matching the [`defaultContentLanguage`][]. Default is `false`.
 
 defaultContentRole
 : {{< new-in 0.153.0 />}}
-: (`string`) The project's default content [role](g). Default is `guest`.
+: (`string`) The project's [default role](g).
 
 defaultContentRoleInSubdir
 : {{< new-in 0.153.0 />}}
@@ -73,7 +73,7 @@ defaultContentRoleInSubdir
 
 defaultContentVersion
 : {{< new-in 0.153.0 />}}
-: (`string`) The project's default content version. Default is `v1.0.0`.
+: (`string`) The project's [default version](g).
 
 defaultContentVersionInSubdir
 : {{< new-in 0.153.0 />}}
@@ -94,7 +94,7 @@ disableDefaultLanguageRedirect
 
 disableDefaultSiteRedirect
 : {{< new-in 0.154.5 />}}
-: (bool) Whether to disable generation of the alias redirect to the [default site](g). When [`defaultContentLanguageInSubdir`][], [`defaultContentRoleInSubdir`][], or [`defaultContentVersionInSubdir`][] is `true`, this prevents the root directory from redirecting to the default site's subdirectory. Conversely, when these are `false`, it prevents the subdirectories from redirecting back to the root. The default site is the site with the default content language, version, and role. Default is `false`.
+: (bool) Whether to disable generation of the alias redirect to the [default site](g). When [`defaultContentLanguageInSubdir`][], [`defaultContentRoleInSubdir`][], or [`defaultContentVersionInSubdir`][] is `true`, this prevents the root directory from redirecting to the default site's subdirectory. Conversely, when these are `false`, it prevents the subdirectories from redirecting back to the root. Default is `false`.
 
 disableHugoGeneratorInject
 : (`bool`) Whether to disable injection of a `<meta name="generator">` tag into the home page. Default is `false`.
@@ -124,7 +124,7 @@ enableRobotsTXT
 : (`bool`) Whether to enable generation of a `robots.txt` file. Default is `false`.
 
 environment
-: (`string`) The build environment. Default is `production` when running `hugo` and `development` when running `hugo server`.
+: (`string`) The build environment. Default is `production` when running `hugo build` and `development` when running `hugo server`.
 
 frontmatter
 : See [configure front matter][].
@@ -253,7 +253,7 @@ removePathAccents
 : (`bool`) Whether to remove [non-spacing marks][] from [composite characters][] in content paths. Default is `false`.
 
 renderSegments
-: (`[]string`) A slice of [segments](g) to render. If omitted, all segments are rendered. This option is typically set via a command-line flag, such as `hugo --renderSegments segment1,segment2`. The provided segment names must correspond to those defined in the [`segments`][] configuration.
+: (`[]string`) A slice of [segments](g) to render. If omitted, all segments are rendered. This option is typically set via a command-line flag, such as `hugo build --renderSegments segment1,segment2`. The provided segment names must correspond to those defined in the [`segments`][] configuration.
 
 resourceDir
 : (`string`) The designated directory for caching output from [asset pipelines](g). Default is `resources`.
@@ -421,7 +421,6 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [embedded Open Graph template]: <{{% eturl opengraph %}}>
 [embedded RSS template]: <{{% eturl rss %}}>
 [IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-[language keys]: /configuration/languages/#language-keys
 [module mounts]: /configuration/module/#mounts
 [non-spacing marks]: https://www.compart.com/en/unicode/category/Mn
 [os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir

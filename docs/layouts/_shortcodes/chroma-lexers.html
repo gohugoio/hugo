@@ -12,7 +12,7 @@ Renders an HTML template of Chroma lexers and their aliases.
       <th>Identifiers</th>
     </thead>
     <tbody>
-      {{- range site.Data.docs.chroma.lexers }}
+      {{- range hugo.Data.docs.chroma.lexers }}
         <tr>
           <td>{{ .Name }}</td>
           <td>

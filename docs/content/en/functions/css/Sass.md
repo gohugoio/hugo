@@ -130,7 +130,7 @@ To use Dart Sass with Hugo on a [CI/CD](g) platform, you typically must modify y
 There's one key exception where you can skip this step: you have committed your `resources` directory to your repository. This is only possible if:
 
 - You have not changed Hugo's default asset cache location.
-- You have not set [`useResourceCacheWhen`][] to never in your sites configuration.
+- You have not set [`useResourceCacheWhen`][] to never in your project configuration.
 
 By committing the `resources` directory, you're providing the pre-built CSS files directly to your CI/CD platform, so it doesn't need to run the Sass compilation itself.
 
