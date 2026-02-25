@@ -92,6 +92,10 @@ type ModuleOrigin struct {
 	Ref  string // e.g. "refs/tags/v3.0.1"
 }
 
+func (o ModuleOrigin) IsZero() bool {
+	return o.URL == ""
+}
+
 type Modules []Module
 
 type moduleAdapter struct {

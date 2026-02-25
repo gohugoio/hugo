@@ -554,7 +554,7 @@ func (h *HugoSites) loadGitInfo() error {
 		}
 		gi, err := newGitInfo(cfg)
 		if err != nil {
-			h.Log.Errorln("Failed to read Git log:", err)
+			return err
 		} else {
 			h.gitInfo = gi
 		}

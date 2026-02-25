@@ -564,6 +564,26 @@ func (c *Client) listGoMods() (goModules, error) {
 		if m.Dir == "" {
 			modulesToDownload = append(modulesToDownload, fmt.Sprintf("%s@%s", m.Path, m.Version))
 		}
+
+		// See https://github.com/golang/go/issues/67363
+		// Origin isn't always set.
+		if m.Origin == nil && m.GoMod != "" {
+			// There's sometimes an Info field with a JSON filename with this info, but that is also not always set.
+			// But we seem to always get the go.mod filename, so we can determine the infor filename from that,
+			// just replace the .mod suffix with .info.
+			infoFilename := strings.TrimSuffix(m.GoMod, ".mod") + ".info"
+			// JSON on the form {"Version":"v0.0.0-20260225095909-668663b54d09","Time":"2026-02-25T09:59:09Z","Origin":{"VCS":"git","URL":"https://github.com/bep/hugo-mod-testing-content","Hash":"668663b54d0937df05185d144765d13c3ffda489"}}
+			if b, err := afero.ReadFile(c.fs, infoFilename); err == nil {
+				var info struct {
+					Version string
+					Time    time.Time
+					Origin  *goModuleOrigin
+				}
+				if err := json.Unmarshal(b, &info); err == nil {
+					m.Origin = info.Origin
+				}
+			}
+		}
 	}
 
 	if len(modulesToDownload) > 0 {
