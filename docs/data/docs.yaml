@@ -1242,12 +1242,24 @@ config:
   ignoreLogs: null
   ignoreVendorPaths: ''
   imaging:
-    bgColor: '#ffffff'
+    anchor: smart
+    bgColor: ffffff
     compression: lossy
-    hint: photo
+    exif:
+      disableDate: false
+      disableLatLong: false
+      excludeFields: GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance
+      includeFields: ''
+    meta:
+      fields:
+      - '! *{GPS,Exif,Exposure[MPB],Contrast,Resolution,Sharp,JPEG,Metering,Sensing,Saturation,ColorSpace,Flash,WhiteBalance}*'
+      sources:
+      - exif
+      - iptc
     quality: 75
     resampleFilter: box
     webp:
+      hint: photo
       method: 2
       useSharpYuv: false
   languageCode: ''
@@ -1403,6 +1415,10 @@ config:
       delimiter: .
       suffixes:
       - ttf
+    image/avif:
+      delimiter: .
+      suffixes:
+      - avif
     image/bmp:
       delimiter: .
       suffixes:
@@ -1411,6 +1427,14 @@ config:
       delimiter: .
       suffixes:
       - gif
+    image/heic:
+      delimiter: .
+      suffixes:
+      - heic
+    image/heif:
+      delimiter: .
+      suffixes:
+      - heif
     image/jpeg:
       delimiter: .
       suffixes:
@@ -3631,6 +3655,16 @@ tpl:
           - /my/path/|filename.txt
     reflect:
       IsImageResource:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
+      IsImageResourceProcessable:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
+      IsImageResourceWithMeta:
         Aliases: null
         Args: null
         Description: ''

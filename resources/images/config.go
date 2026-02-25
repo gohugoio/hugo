@@ -241,7 +241,7 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 
 		i.ResampleFilter = filter
 
-		return i, nil, nil
+		return i, i.Imaging, nil
 	}
 
 	ns, err := config.DecodeNamespace[ImagingConfig](in, buildConfig)
