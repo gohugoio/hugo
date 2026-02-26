@@ -46,6 +46,7 @@ The extensions below, excluding Extras and Passthrough, are enabled by default.
 Extension|Documentation|Enabled
 :--|:--|:-:
 `cjk`|[Goldmark Extensions: CJK]|:heavy_check_mark:
+`cjkFriendly`|[Goldmark Extensions: CJK Friendly]|&nbsp;
 `definitionList`|[PHP Markdown Extra: Definition lists]|:heavy_check_mark:
 `extras`|[Hugo Goldmark Extensions: Extras]|&nbsp;
 `footnote`|[PHP Markdown Extra: Footnotes]|:heavy_check_mark:
@@ -345,6 +346,7 @@ ordered
 [GitHub Flavored Markdown: Task list items]: https://github.github.com/gfm/#task-list-items-extension-
 [GitHub Flavored Markdown]: https://github.github.com/gfm/
 [Goldmark Extensions: CJK]: https://github.com/yuin/goldmark?tab=readme-ov-file#cjk-extension
+[Goldmark Extensions: CJK Friendly]: https://github.com/tats-u/goldmark-cjk-friendly
 [Goldmark Extensions: Typographer]: https://github.com/yuin/goldmark?tab=readme-ov-file#typographer-extension
 [Goldmark]: https://github.com/yuin/goldmark/
 [Hugo Goldmark Extensions: Extras]: https://github.com/gohugoio/hugo-goldmark-extensions?tab=readme-ov-file#extras-extension
