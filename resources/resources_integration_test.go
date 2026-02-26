@@ -97,7 +97,7 @@ Width: {{ $svg.Width }}
 		}).BuildE()
 
 	b.Assert(err, qt.IsNotNil)
-	b.Assert(err.Error(), qt.Contains, `error calling Width: this method is only available for raster images. To determine if an image is SVG, you can do {{ if eq .MediaType.SubType "svg" }}{{ end }}`)
+	b.Assert(err.Error(), qt.Contains, `error calling Width: resource "/circle.svg" of media type "image/svg+xml" does not support this method: use reflect.IsImageResource, reflect.IsImageResourceProcessable, or reflect.IsImageResourceWithMeta to check if the resource supports this method before calling it`)
 }
 
 // Issue 10255.
