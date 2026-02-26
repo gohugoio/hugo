@@ -242,6 +242,10 @@ sources = ['exif', 'iptc', 'xmp']
 sourcefilename: ../../testdata/sunset.avif
 -- assets/sunset.jpg --
 sourcefilename: ../../testdata/sunset.jpg
+-- assets/giphy.gif --
+sourcefilename: ../../testdata/giphy.gif
+-- assets/pix.bmp --
+sourcefilename: ../../testdata/pix.bmp
 -- assets/mytext.txt --
 This is a text file, not an image.
 -- assets/mysvg.svg --
@@ -253,7 +257,10 @@ This is a text file, not an image.
 {{ $svg := resources.Get "mysvg.svg" }}
 {{ $avif := resources.Get "sunset.avif" }}
 {{ $jpg := resources.Get "sunset.jpg" }}
+{{ $gif := resources.Get "giphy.gif" }}
+{{ $bmp := resources.Get "pix.bmp" }}
 {{ $ic := images.Config "/assets/sunset.avif" }}
+
 $avif.Width/Height: {{ $avif.Width }}x{{ $avif.Height }}
 $ic.Width/Height: {{ $ic.Width }}x{{ $ic.Height }}
 
@@ -261,6 +268,8 @@ $ic.Width/Height: {{ $ic.Width }}x{{ $ic.Height }}
 {{ template "is-meta-etc" dict "what" "JPG" "dot" $jpg -}}
 {{ template "is-meta-etc" dict "what" "TXT" "dot" $txt -}}
 {{ template "is-meta-etc" dict "what" "SVG" "dot" $svg -}}
+{{ template "is-meta-etc" dict "what" "GIF" "dot" $gif -}}
+{{ template "is-meta-etc" dict "what" "BMP" "dot" $bmp -}}
  
 {{ $meta := $avif.Meta }}
 Num Exif tags: {{ $meta.Exif | len }}|
@@ -268,6 +277,10 @@ Num Exif tags: {{ $meta.Exif | len }}|
 IsImageResource {{ .what }}: {{ if reflect.IsImageResource .dot }}true{{ else }}false{{ end }}
 IsImageResourceWithMeta {{ .what }}: {{ if reflect.IsImageResourceWithMeta .dot }}true{{ else }}false{{ end }}
 IsImageResourceProcessable {{ .what }}: {{ if reflect.IsImageResourceProcessable .dot }}true{{ else }}false{{ end }}
+{{ if reflect.IsImageResourceWithMeta .dot }}
+Has width {{ .what }}: {{ if .dot.Width }}true{{ else }}false{{ end }}
+Has meta {{ .what }}: {{ if .dot.Meta }}true{{ else }}false{{ end }}
+{{ end }}
 {{ end }}
 
 `
@@ -279,14 +292,18 @@ IsImageResourceProcessable {{ .what }}: {{ if reflect.IsImageResourceProcessable
 $avif.Width/Height: 900x562
 $ic.Width/Height: 900x562
 
-
 IsImageResource AVIF: true
 IsImageResourceWithMeta AVIF: true
 IsImageResourceProcessable AVIF: false
+Has width AVIF: true
+Has meta AVIF: true
 
 IsImageResource JPG: true
 IsImageResourceWithMeta JPG: true
 IsImageResourceProcessable JPG: true
+
+Has width JPG: true
+Has meta JPG: true
 
 IsImageResource TXT: false
 IsImageResourceWithMeta TXT: false
@@ -295,6 +312,20 @@ IsImageResourceProcessable TXT: false
 IsImageResource SVG: true
 IsImageResourceWithMeta SVG: false
 IsImageResourceProcessable SVG: false
+
+IsImageResource GIF: true
+IsImageResourceWithMeta GIF: true
+IsImageResourceProcessable GIF: true
+
+Has width GIF: true
+Has meta GIF: false
+
+IsImageResource BMP: true
+IsImageResourceWithMeta BMP: true
+IsImageResourceProcessable BMP: true
+
+Has width BMP: true
+Has meta BMP: false
 
 Num Exif tags: 52|
 `,
