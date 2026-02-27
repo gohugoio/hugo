@@ -110,6 +110,26 @@ func (f ContentFactory) CreateContentPlaceHolder(filename string, force bool) (s
 		return "", err
 	}
 
+	if !force {
+		dir := filepath.Dir(abs)
+		base := filepath.Base(abs)
+
+		dirFile, err := f.h.Fs.Source.Open(dir)
+		if err == nil {
+			names, _ := dirFile.Readdirnames(-1)
+			dirFile.Close()
+			for _, name := range names {
+				if strings.EqualFold(name, base) {
+					if name == base {
+						return "", fmt.Errorf("content file already exists: %s", filename)
+					}
+					return "", fmt.Errorf("content file already exists with different case: %s (found as %s)",
+						filename, name)
+				}
+			}
+		}
+	}
+
 	// This will be overwritten later, just write a placeholder to get
 	// the paths correct.
 	placeholder := `---
