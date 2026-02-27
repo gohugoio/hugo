@@ -751,6 +751,15 @@ func (s *IntegrationTestBuilder) AddFiles(filenameContent ...string) *Integratio
 	return s
 }
 
+func (s *IntegrationTestBuilder) CreateDirs(dirnames ...string) *IntegrationTestBuilder {
+	for _, dirname := range dirnames {
+		absDir := s.absFilename(filepath.FromSlash(dirname))
+		s.Assert(s.fs.Source.MkdirAll(absDir, 0o777), qt.IsNil)
+		s.createdFiles = append(s.createdFiles, absDir)
+	}
+	return s
+}
+
 func (s *IntegrationTestBuilder) RemoveFiles(filenames ...string) *IntegrationTestBuilder {
 	for _, filename := range filenames {
 		absFilename := s.absFilename(filename)
