@@ -670,6 +670,8 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 					cfg.TableOfContents.StartLevel,
 					cfg.TableOfContents.EndLevel,
 					cfg.TableOfContents.Ordered,
+					cfg.TableOfContents.Pre,
+					cfg.TableOfContents.Post,
 				)
 				return err
 			}
