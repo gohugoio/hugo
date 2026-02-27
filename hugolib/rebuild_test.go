@@ -399,6 +399,33 @@ func TestRebuilErrorRecovery(t *testing.T) {
 	b.EditFileReplaceAll("content/mysection/mysectionbundle/index.md", "{{< foo }}", "{{< foo >}}").Build()
 }
 
+// Issue 14573
+func TestRebuildAddContentWithMultipleDirCreations(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/page.html --
+Single: {{ .Title }}|{{ .Content }}|
+-- layouts/list.html --
+Pages: {{ range .RegularPages }}{{ .RelPermalink }}|{{ end }}$
+`
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "Pages: /p1/|$")
+	b.AddFiles(
+		"content/nesteddir/dir1/post.md", "---\ntitle: Post\n---",
+	).CreateDirs(
+		"content/dir1",
+		"content/dir2",
+	).Build()
+	b.AssertFileContent("public/nesteddir/dir1/post/index.html", "Single: Post|")
+}
+
 func TestRebuildAddPageListPagesInHome(t *testing.T) {
 	files := `
 -- hugo.toml --
