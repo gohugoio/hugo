@@ -504,6 +504,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
+github.com/tats-u/goldmark-cjk-friendly/v2 v2.0.2 h1:+N9clTED51Tt55ljeXYXufmqS8wUXpLJW771aIGIRxo=
+github.com/tats-u/goldmark-cjk-friendly/v2 v2.0.2/go.mod h1:1Wm+kJwLMq/sr22CCei+eN593nanPDVn1eH91QdVPEI=
 github.com/tdewolff/minify/v2 v2.24.9 h1:W6A570F9N6MuZtg9mdHXD93piZZIWJaGpbAw9Narrfw=
 github.com/tdewolff/minify/v2 v2.24.9/go.mod h1:9F66jUzl/Pdf6Q5x0RXFUsI/8N1kjBb3ILg9ABSWoOI=
 github.com/tdewolff/parse/v2 v2.8.8 h1:l3yOJ4OUKq1sKeQQxZ7P2yZ6daW/Oq4IDxL98uTOpPI=

@@ -67,6 +67,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.10
+	github.com/tats-u/goldmark-cjk-friendly/v2 v2.0.2
 	github.com/tdewolff/minify/v2 v2.24.9
 	github.com/tdewolff/parse/v2 v2.8.8
 	github.com/tetratelabs/wazero v1.11.0
