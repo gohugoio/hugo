@@ -160,8 +160,8 @@ github.com/bep/goportabletext v0.1.0 h1:8dqym2So1cEqVZiBa4ZnMM1R9l/DnC1h4ONg4J5k
 github.com/bep/goportabletext v0.1.0/go.mod h1:6lzSTsSue75bbcyvVc0zqd1CdApuT+xkZQ6Re5DzZFg=
 github.com/bep/helpers v0.7.0 h1:xruRGxcJ1lkbFhoTftFw4UdQ5/3TqEyxWCQLtfY/Pbg=
 github.com/bep/helpers v0.7.0/go.mod h1:NOkGxcWYMzJfri141CUO2MnnEXEKJsnj6xKPlrsahA0=
-github.com/bep/imagemeta v0.15.0 h1:fsQ9GcOq15f0RPGwsXQUAmj0PileCrj6n8LQqffNYBQ=
-github.com/bep/imagemeta v0.15.0/go.mod h1:+Hlp195TfZpzsqCxtDKTG6eWdyz2+F2V/oCYfr3CZKA=
+github.com/bep/imagemeta v0.16.0 h1:ulG2/OAqBsCwyE8dTHhH2yNelwOXbgN5N+ny6PnGQAU=
+github.com/bep/imagemeta v0.16.0/go.mod h1:+Hlp195TfZpzsqCxtDKTG6eWdyz2+F2V/oCYfr3CZKA=
 github.com/bep/lazycache v0.8.1 h1:ko6ASLjkPxyV5DMWoNNZ8B2M0weyjqXX8IZkjBoBtvg=
 github.com/bep/lazycache v0.8.1/go.mod h1:pbEiFsZoq7cLXvrTll0AHOPEurB1aGGxx4jKjOtlx9w=
 github.com/bep/logg v0.4.0 h1:luAo5mO4ZkhA5M1iDVDqDqnBBnlHjmtZF6VAyTp+nCQ=

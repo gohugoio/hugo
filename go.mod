@@ -14,7 +14,7 @@ require (
 	github.com/bep/golibsass v1.2.0
 	github.com/bep/goportabletext v0.1.0
 	github.com/bep/helpers v0.7.0
-	github.com/bep/imagemeta v0.15.0
+	github.com/bep/imagemeta v0.16.0
 	github.com/bep/lazycache v0.8.1
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20400.20402
