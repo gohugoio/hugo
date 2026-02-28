@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/loggers"
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 )
@@ -73,4 +74,30 @@ func BenchmarkCollator(b *testing.B) {
 			}
 		})
 	})
+}
+
+// TestLanguageLegacyFieldFallbacks verifies that Locale(), Direction(), and
+// Label() fall back to legacy LanguageConfig fields when the canonical fields
+// are not set. This matters for programmatic construction that bypasses the
+// allconfig migration (which normally copies legacy→canonical and clears them).
+func TestLanguageLegacyFieldFallbacks(t *testing.T) {
+	c := qt.New(t)
+
+	l, err := NewLanguage("en", "en", "UTC", LanguageConfig{
+		LanguageCode:      "en-US",
+		LanguageName:      "English",
+		LanguageDirection: "ltr",
+	}, loggers.NewDefault())
+	c.Assert(err, qt.IsNil)
+	c.Assert(l.Locale(), qt.Equals, "en-US")
+	c.Assert(l.Label(), qt.Equals, "English")
+	c.Assert(l.Direction(), qt.Equals, "ltr")
+
+	// Deprecated methods must not panic when logger is nil (no logger provided
+	// at construction). They delegate through Logger() which has a nil guard.
+	lNoLogger, err := NewLanguage("en", "en", "UTC", LanguageConfig{}, nil)
+	c.Assert(err, qt.IsNil)
+	_ = lNoLogger.LanguageCode()
+	_ = lNoLogger.LanguageName()
+	_ = lNoLogger.LanguageDirection()
 }

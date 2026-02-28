@@ -1262,16 +1262,16 @@ config:
       hint: photo
       method: 2
       useSharpYuv: false
-  languageCode: ''
   languages:
     en:
+      direction: ''
       disabled: false
-      languageCode: ''
-      languageDirection: ''
-      languageName: ''
+      label: ''
+      locale: ''
       title: ''
       weight: 0
   layoutDir: layouts
+  locale: ''
   mainSections: null
   markup:
     asciiDocExt:
