@@ -226,27 +226,17 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "languages",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			m := hmaps.CleanConfigStringMap(p.p.GetStringMap(d.key))
-			if len(m) == 1 {
-				// In v0.112.4 we moved this to the language config, but it's very commmon for mono language sites to have this at the top level.
-				var first hmaps.Params
-				var ok bool
-				for _, v := range m {
-					first, ok = v.(hmaps.Params)
-					if ok {
-						break
-					}
-				}
-				if first != nil {
-					if _, found := first["languagecode"]; !found {
-						first["languagecode"] = p.p.GetString("languagecode")
-					}
-				}
-			}
+			// Root-level locale/languageCode is passed to DecodeConfig so it can
+			// be applied to the default content language inside langs.DecodeConfig.
+			// They are passed separately so that an explicit per-lang languageCode
+			// can override a root-level languageCode (but not a root-level locale).
+			rootLocale := p.p.GetString("locale")
+			rootLanguageCode := p.p.GetString("languagecode")
 			var (
 				err                    error
 				defaultContentLanguage string
 			)
-			p.c.Languages, defaultContentLanguage, err = langs.DecodeConfig(p.c.RootConfig.DefaultContentLanguage, p.c.RootConfig.DisableLanguages, m)
+			p.c.Languages, defaultContentLanguage, err = langs.DecodeConfig(p.c.RootConfig.DefaultContentLanguage, rootLocale, rootLanguageCode, p.c.RootConfig.DisableLanguages, m)
 			if err != nil {
 				return fmt.Errorf("failed to decode languages config: %w", err)
 			}

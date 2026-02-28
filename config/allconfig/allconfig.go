@@ -399,6 +399,59 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		return err
 	}
 
+	// Legacy language values.
+	if c.LanguageCode != "" {
+		if !c.isLanguageClone {
+			hugo.DeprecateWithLogger("project config key languageCode", "Use locale instead.", "v0.158.0", logger.Logger())
+		}
+		if c.Locale == "" {
+			c.Locale = c.LanguageCode
+		}
+		c.LanguageCode = ""
+	}
+	for k, v := range c.Languages.Config.LanguageConfigs {
+		//lint:ignore SA1019 Keep as adapter for now.
+		if v.LanguageCode != "" {
+			hugo.DeprecateWithLogger(fmt.Sprintf("project config key languages.%s.languageCode", k), fmt.Sprintf("Use languages.%s.locale instead.", k), "v0.158.0", logger.Logger())
+			if v.Locale == "" {
+				//lint:ignore SA1019 Keep as adapter for now.
+				v.Locale = v.LanguageCode
+			}
+			//lint:ignore SA1019 Keep as adapter for now.
+			v.LanguageCode = ""
+		}
+		//lint:ignore SA1019 Keep as adapter for now.
+		if v.LanguageName != "" {
+			hugo.DeprecateWithLogger(fmt.Sprintf("project config key languages.%s.languageName", k), fmt.Sprintf("Use languages.%s.label instead.", k), "v0.158.0", logger.Logger())
+			if v.Label == "" {
+				//lint:ignore SA1019 Keep as adapter for now.
+				v.Label = v.LanguageName
+			}
+			//lint:ignore SA1019 Keep as adapter for now.
+			v.LanguageName = ""
+		}
+		//lint:ignore SA1019 Keep as adapter for now.
+		if v.LanguageDirection != "" {
+			hugo.DeprecateWithLogger(fmt.Sprintf("project config key languages.%s.languageDirection", k), fmt.Sprintf("Use languages.%s.direction instead.", k), "v0.158.0", logger.Logger())
+			if v.Direction == "" {
+				//lint:ignore SA1019 Keep as adapter for now.
+				v.Direction = v.LanguageDirection
+			}
+			//lint:ignore SA1019 Keep as adapter for now.
+			v.LanguageDirection = ""
+		}
+
+		c.Languages.Config.LanguageConfigs[k] = v
+		// Sorted is a snapshot of LanguageConfigs taken at decode time; keep it
+		// in sync so Configs.Init, which reads from Sorted, sees the migrated values.
+		for i, s := range c.Languages.Config.Sorted {
+			if s.Name == k {
+				c.Languages.Config.Sorted[i].LanguageConfig = v
+				break
+			}
+		}
+	}
+
 	// Legacy privacy values.
 	if c.Privacy.Twitter.Disable {
 		hugo.DeprecateWithLogger("project config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0", logger.Logger())
@@ -671,8 +724,11 @@ type RootConfig struct {
 	// The configured environment. Default is "development" for server and "production" for build.
 	Environment string
 
-	// The default language code.
-	LanguageCode string
+	// Deprecated: Use Locale instead.
+	LanguageCode string `json:"-"`
+
+	// The default locale.
+	Locale string
 
 	// Enable if the site content has CJK language (Chinese, Japanese, or Korean). This affects how Hugo counts words.
 	HasCJKLanguage bool
@@ -843,7 +899,7 @@ func (c *Configs) Init(sourceFs afero.Fs, logger loggers.Logger) error {
 		if !found {
 			return fmt.Errorf("invalid language configuration for %q", f.Name)
 		}
-		language, err := langs.NewLanguage(f.Name, c.Base.DefaultContentLanguage, v.TimeZone, f.LanguageConfig)
+		language, err := langs.NewLanguage(f.Name, c.Base.DefaultContentLanguage, v.TimeZone, f.LanguageConfig, logger)
 		if err != nil {
 			return err
 		}

@@ -42,9 +42,9 @@ func CreateTheme(createpath string, sourceFs afero.Fs, format string) error {
 	format = strings.ToLower(format)
 
 	projectConfig := map[string]any{
-		"baseURL":      "https://example.org/",
-		"languageCode": "en-US",
-		"title":        "My New Hugo Project",
+		"baseURL": "https://example.org/",
+		"locale":  "en-US",
+		"title":   "My New Hugo Project",
 		"menus": map[string]any{
 			"main": []any{
 				map[string]any{
@@ -122,9 +122,9 @@ func CreateProject(createpath string, sourceFs afero.Fs, force bool, format stri
 	}
 
 	projectConfig := map[string]any{
-		"baseURL":      "https://example.org/",
-		"title":        "My New Hugo Project",
-		"languageCode": "en-us",
+		"baseURL": "https://example.org/",
+		"locale":  "en-us",
+		"title":   "My New Hugo Project",
 	}
 
 	err := createProjectConfig(sourceFs, createpath, projectConfig, format)

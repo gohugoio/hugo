@@ -19,6 +19,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/hugolib/roles"
@@ -71,7 +72,7 @@ type Site interface {
 	// Returns the configured title for this Site.
 	Title() string
 
-	// Deprecated: Use .Language.LanguageCode instead.
+	// Deprecated: Use .Language.Locale instead.
 	LanguageCode() string
 
 	// Returns the configured copyright information for this Site.
@@ -224,7 +225,8 @@ func (s *siteWrapper) Title() string {
 }
 
 func (s *siteWrapper) LanguageCode() string {
-	return s.s.LanguageCode()
+	hugo.DeprecateWithLogger(".Site.LanguageCode", "Use .Site.Language.Locale instead.", "v0.158.0", s.s.Language().Logger())
+	return s.s.Language().Locale()
 }
 
 func (s *siteWrapper) Copyright() string {
@@ -330,8 +332,10 @@ func (t testSite) Title() string {
 	return "foo"
 }
 
+// Deprecated: Use .Language.Locale instead.
 func (t testSite) LanguageCode() string {
-	return t.l.Lang
+	hugo.DeprecateWithLogger(".Site.LanguageCode", "Use .Site.Language.Locale instead.", "v0.158.0", t.l.Logger())
+	return t.l.Locale()
 }
 
 func (t testSite) Copyright() string {

@@ -912,7 +912,7 @@ weight = 4
 {{ .AddResource (dict "path" "hello.txt" "title" "Hello" "content" $contentTextEnglish "sites" (dict "matrix"  $en )) }}
 {{ .AddResource (dict "path" "hello.txt" "title" "Hello" "content" $contentTextSwedish "sites" (dict "matrix"  $sv )) }}
 {{ .AddResource (dict "path" "hello.txt" "title" "Hello" "content" $contentTextDanish "sites" (dict "matrix"  $da )) }}
- 
+
 -- layouts/all.html --
 {{ $hello := .Resources.Get "hello.txt" }}
 All. {{ .Title }}|{{ .Site.Language.Name }}|hello: {{ with $hello }}{{ .RelPermalink }}: {{ .Content }}|{{ end }}|
@@ -1109,7 +1109,7 @@ Rotate(version): {{ with .Rotate "version" }}{{ range . }}{{ template "printp" .
 Rotate(role): {{ with .Rotate "role" }}{{ range . }}{{ template "printp" . }}|{{ end }}{{ end }}$
 {{ define "printp" }}{{ .RelPermalink }}:{{ with .Site }}{{ template "prints" . }}{{ end }}{{ end }}
 {{ define "prints" }}/l:{{ .Language.Name }}/v:{{ .Version.Name }}/r:{{ .Role.Name }}{{ end }}
- 
+
 `
 	}
 
@@ -1180,12 +1180,12 @@ target = 'content'
 	b.Assert(toJSONAndMap(conf.Languages), qt.DeepEquals,
 		map[string]any{
 			"en": map[string]any{
-				"Disabled":          bool(false),
-				"LanguageCode":      "",
-				"LanguageDirection": "",
-				"LanguageName":      "",
-				"Title":             "",
-				"Weight":            float64(0),
+				"Direction": "",
+				"Disabled":  bool(false),
+				"Label":     "",
+				"Locale":    "",
+				"Title":     "",
+				"Weight":    float64(0),
 			},
 		})
 

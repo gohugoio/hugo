@@ -127,7 +127,7 @@ func (i *importCommand) createConfigFromJekyll(fs afero.Fs, inpath string, kind 
 	in := map[string]any{
 		"baseURL":            baseURL,
 		"title":              title,
-		"languageCode":       "en-us",
+		"locale":             "en-us",
 		"disablePathToLower": true,
 	}
 
