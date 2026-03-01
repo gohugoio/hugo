@@ -234,7 +234,7 @@ Note that the entry above is:
 - An array of [regular expressions](g)
 
 [`try`]: /functions/go-template/try
-[allowlist]: https://en.wikipedia.org/wiki/Whitelist
+[allowlist]: https://en.wikipedia.org/wiki/Allowlist
 [configure file caches]: /configuration/caches/
 [Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
 [error handling]: #error-handling
