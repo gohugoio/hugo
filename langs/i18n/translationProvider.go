@@ -136,8 +136,8 @@ func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
 // We first try the language code (e.g. "en-US"), then the language key (e.g. "en").
 func (tp *TranslationProvider) getTranslateFunc(dst *deps.Deps) func(ctx context.Context, translationID string, templateData any) string {
 	l := dst.Conf.Language().(*langs.Language)
-	if lc := l.LanguageCode(); lc != "" {
-		if fn, ok := tp.t.Lookup(strings.ToLower(lc)); ok {
+	if locale := l.Locale(); locale != "" {
+		if fn, ok := tp.t.Lookup(strings.ToLower(locale)); ok {
 			return fn
 		}
 	}

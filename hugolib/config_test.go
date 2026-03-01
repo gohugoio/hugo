@@ -1068,8 +1068,9 @@ LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
 
 
 `
-	b := Test(t, files)
+	b := Test(t, files, TestOptInfo())
 
+	b.AssertLogContains("deprecated")
 	b.AssertFileContent("public/index.html", "LanguageCode: en-US|en-US|")
 }
 
@@ -1573,7 +1574,7 @@ languages:
   sv:
     weight: 3
     params: *params
-     
+
 -- layouts/all.html --
 Params: {{ site.Params }}|
 -- themes/mytheme/hugo.yaml --
@@ -1583,8 +1584,8 @@ definitions:
     p2: p2aliastheme
 
 params: *params
- 
-  
+
+
 `
 	b := Test(t, files)
 
@@ -1611,7 +1612,7 @@ languages:
   sv:
     weight: 2
     params: *params
-     
+
 -- layouts/all.html --
 Params: {{ site.Params }}|
 
@@ -1636,4 +1637,421 @@ func TestConfigYAMLNilMapIssue14074(t *testing.T) {
 `
 
 	Test(t, files)
+}
+
+// Issue 14269
+// When the legacy API deprecations are promoted to errors: flip Test() to TestE() and assert an error.
+func TestLanguageDeprecated(t *testing.T) {
+	t.Parallel()
+
+	const defaultConfig = `
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguageInSubdir = true
+`
+
+	tests := []struct {
+		name   string
+		config string
+		layout string
+	}{
+		{
+			name:   "config key languageCode",
+			config: "languageCode = 'en-US'\n",
+			layout: "-- layouts/home.html --\nhome\n",
+		},
+		{
+			name:   "config key languages.en.languageCode",
+			config: "[languages.en]\nlanguageCode = 'en-US'\n",
+			layout: "-- layouts/home.html --\nhome\n",
+		},
+		{
+			name:   "config key languages.en.languageDirection",
+			config: "[languages.en]\nlanguageDirection = 'ltr'\n",
+			layout: "-- layouts/home.html --\nhome\n",
+		},
+		{
+			name:   "config key languages.en.languageName",
+			config: "[languages.en]\nlanguageName = 'English'\n",
+			layout: "-- layouts/home.html --\nhome\n",
+		},
+		{
+			name:   "template Site.LanguageCode",
+			config: "",
+			layout: "-- layouts/home.html --\n{{ .Site.LanguageCode }}\n",
+		},
+		{
+			name:   "template Language.LanguageCode",
+			config: "",
+			layout: "-- layouts/home.html --\n{{ .Site.Language.LanguageCode }}\n",
+		},
+		{
+			name:   "template Language.LanguageDirection",
+			config: "",
+			layout: "-- layouts/home.html --\n{{ .Site.Language.LanguageDirection }}\n",
+		},
+		{
+			name:   "template Language.LanguageName",
+			config: "",
+			layout: "-- layouts/home.html --\n{{ .Site.Language.LanguageName }}\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			files := "-- hugo.toml --\n" + defaultConfig + tt.config + tt.layout
+			b := Test(t, files, TestOptInfo())
+			b.AssertLogMatches("deprecated")
+		})
+	}
+}
+
+// Issue 14269
+// When the legacy API deprecations are promoted to errors: no changes needed.
+func TestLanguageNewAPI(t *testing.T) {
+	t.Parallel()
+
+	const (
+		defaultConfig = `
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguageInSubdir = true
+`
+		layout = `
+-- layouts/home.html --
+{{ $l := .Site.Language -}}
+{{ printf "NA: %s|" $l.Name -}}
+{{ printf "LO: %s|" $l.Locale -}}
+{{ printf "DI: %s|" $l.Direction -}}
+{{ printf "LA: %s|" $l.Label -}}
+`
+	)
+
+	tests := []struct {
+		name   string
+		config string
+		want   map[string]string
+	}{
+		{
+			name:   "Default config",
+			config: "",
+			want: map[string]string{
+				"public/en/index.html": "NA: en|LO: en|DI: |LA: |",
+			},
+		},
+		{
+			name: "Multilingual per-lang new config keys",
+			config: `
+[languages.en]
+locale = 'en-US'
+direction = 'ltr'
+label = 'English'
+[languages.fr]
+locale = 'fr-FR'
+direction = 'ltr'
+label = 'French'
+`,
+			want: map[string]string{
+				"public/en/index.html": "NA: en|LO: en-US|DI: ltr|LA: English|",
+				"public/fr/index.html": "NA: fr|LO: fr-FR|DI: ltr|LA: French|",
+			},
+		},
+		{
+			name:   "Monolingual root locale",
+			config: "locale = 'en-US'\n",
+			want: map[string]string{
+				"public/en/index.html": "NA: en|LO: en-US|DI: |LA: |",
+			},
+		},
+		{
+			name: "Multilingual root locale",
+			config: `
+locale = 'en-US'
+[languages.en]
+[languages.fr]
+`,
+			want: map[string]string{
+				"public/en/index.html": "NA: en|LO: en-US|DI: |LA: |",
+				"public/fr/index.html": "NA: fr|LO: fr|DI: |LA: |",
+			},
+		},
+		{
+			name: "Multilingual per-lang locale overrides root locale",
+			config: `
+locale = 'en-NZ'
+[languages.en]
+locale = 'en-US'
+[languages.fr]
+locale = 'fr-FR'
+`,
+			want: map[string]string{
+				"public/en/index.html": "NA: en|LO: en-US|DI: |LA: |",
+				"public/fr/index.html": "NA: fr|LO: fr-FR|DI: |LA: |",
+			},
+		},
+		{
+			name: "Multilingual non-default defaultContentLanguage root locale",
+			config: `
+defaultContentLanguage = 'fr'
+locale = 'fr-FR'
+[languages.en]
+[languages.fr]
+`,
+			want: map[string]string{
+				"public/en/index.html": "NA: en|LO: en|DI: |LA: |",
+				"public/fr/index.html": "NA: fr|LO: fr-FR|DI: |LA: |",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			files := "-- hugo.toml --\n" + defaultConfig + tt.config + layout
+			b := Test(t, files)
+			for path, content := range tt.want {
+				b.AssertFileContent(path, content)
+			}
+		})
+	}
+}
+
+// Issue 14269
+// When the legacy API deprecations are promoted to errors: delete this function.
+func TestLanguageDeprecationMigration(t *testing.T) {
+	t.Parallel()
+
+	const (
+		defaultConfig = `
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguageInSubdir = true
+`
+		layout = `
+-- layouts/home.html --
+{{ $l := .Site.Language -}}
+{{ printf "LO: %s|" $l.Locale -}}
+{{ printf "DI: %s|" $l.Direction -}}
+{{ printf "LA: %s|" $l.Label -}}
+`
+	)
+
+	tests := []struct {
+		name           string
+		config         string
+		want           map[string]string
+		wantLogMatches []string
+	}{
+		{
+			name: "Monolingual root languageCode",
+			config: `
+languageCode = 'en-US'
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-US|DI: |LA: |",
+			},
+			wantLogMatches: []string{
+				`config key languageCode was deprecated`,
+				`! config key languages.*\.languageCode was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+			},
+		},
+		{
+			name: "Monolingual locale wins over languageCode",
+			config: `
+locale = 'en-US'
+languageCode = 'en-CA'
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-US|DI: |LA: |",
+			},
+			wantLogMatches: []string{
+				`config key languageCode was deprecated`,
+				`! config key languages.*\.languageCode was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+			},
+		},
+		{
+			name: "Multilingual root languageCode",
+			config: `
+languageCode = 'en-US'
+[languages.en]
+[languages.fr]
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-US|DI: |LA: |",
+				"public/fr/index.html": "LO: fr|DI: |LA: |",
+			},
+			wantLogMatches: []string{
+				`config key languageCode was deprecated`,
+				`! config key languages.*\.languageCode was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+			},
+		},
+		{
+			name: "Multilingual per-lang languageCode overrides root languageCode",
+			config: `
+languageCode = 'en-NZ'
+[languages.en]
+languageCode = 'en-US'
+[languages.fr]
+languageCode = 'fr-FR'
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-US|DI: |LA: |",
+				"public/fr/index.html": "LO: fr-FR|DI: |LA: |",
+			},
+			wantLogMatches: []string{
+				`config key languageCode was deprecated`,
+				`config key languages.en.languageCode was deprecated`,
+				`config key languages.fr.languageCode was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+			},
+		},
+		{
+			name: "Multilingual per-lang locale overrides root languageCode",
+			config: `
+languageCode = 'en-NZ'
+[languages.en]
+locale = 'en-US'
+[languages.fr]
+locale = 'fr-FR'
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-US|DI: |LA: |",
+				"public/fr/index.html": "LO: fr-FR|DI: |LA: |",
+			},
+			wantLogMatches: []string{
+				`config key languageCode was deprecated`,
+				`! config key languages.*\.languageCode was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+			},
+		},
+		{
+			name: "Multilingual root locale overrides per-lang languageCode",
+			config: `
+locale = 'en-NZ'
+[languages.en]
+languageCode = 'en-US'
+[languages.fr]
+languageCode = 'fr-FR'
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-NZ|DI: |LA: |",
+				"public/fr/index.html": "LO: fr-FR|DI: |LA: |",
+			},
+			wantLogMatches: []string{
+				`! config key languageCode was deprecated`,
+				`config key languages.en.languageCode was deprecated`,
+				`config key languages.fr.languageCode was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+			},
+		},
+		{
+			name: "Multilingual non-default defaultContentLanguage root languageCode",
+			config: `
+defaultContentLanguage = 'fr'
+languageCode = 'fr-FR'
+[languages.en]
+[languages.fr]
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en|DI: |LA: |",
+				"public/fr/index.html": "LO: fr-FR|DI: |LA: |",
+			},
+			wantLogMatches: []string{
+				`config key languageCode was deprecated`,
+				`! config key languages.*\.languageCode was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+			},
+		},
+		{
+			name: "Multilingual per-lang old config keys",
+			config: `
+[languages.en]
+languageCode = 'en-US'
+languageDirection = 'ltr'
+languageName = 'English'
+[languages.fr]
+languageCode = 'fr-FR'
+languageDirection = 'ltr'
+languageName = 'French'
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-US|DI: ltr|LA: English|",
+				"public/fr/index.html": "LO: fr-FR|DI: ltr|LA: French|",
+			},
+			wantLogMatches: []string{
+				`! config key languageCode was deprecated`,
+				`config key languages.en.languageCode was deprecated`,
+				`config key languages.fr.languageCode was deprecated`,
+				`config key languages.en.languageDirection was deprecated`,
+				`config key languages.fr.languageDirection was deprecated`,
+				`config key languages.en.languageName was deprecated`,
+				`config key languages.fr.languageName was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+				`! config key languages.*\.direction was deprecated`,
+				`! config key languages.*\.label was deprecated`,
+			},
+		},
+		{
+			name: "Multilingual per-lang new config keys override old",
+			config: `
+[languages.en]
+locale = 'en-US'
+direction = 'ltr'
+label = 'English'
+
+languageCode = 'en-US'
+languageDirection = 'foo'
+languageName = 'English New Zealand'
+[languages.fr]
+locale = 'fr-FR'
+direction = 'ltr'
+label = 'French'
+
+languageCode = 'fr-CA'
+languageDirection = 'bar'
+languageName = 'French Canadian'
+`,
+			want: map[string]string{
+				"public/en/index.html": "LO: en-US|DI: ltr|LA: English|",
+				"public/fr/index.html": "LO: fr-FR|DI: ltr|LA: French|",
+			},
+			wantLogMatches: []string{
+				`! config key languageCode was deprecated`,
+				`config key languages.en.languageCode was deprecated`,
+				`config key languages.fr.languageCode was deprecated`,
+				`config key languages.en.languageDirection was deprecated`,
+				`config key languages.fr.languageDirection was deprecated`,
+				`config key languages.en.languageName was deprecated`,
+				`config key languages.fr.languageName was deprecated`,
+				`! config key locale was deprecated`,
+				`! config key languages.*\.locale was deprecated`,
+				`! config key languages.*\.direction was deprecated`,
+				`! config key languages.*\.label was deprecated`,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			files := "-- hugo.toml --\n" + defaultConfig + "\n" + tt.config + "\n" + layout
+
+			b := Test(t, files, TestOptInfo())
+			for path, content := range tt.want {
+				b.AssertFileContent(path, content)
+			}
+			for _, pattern := range tt.wantLogMatches {
+				b.AssertLogMatches(pattern)
+			}
+		})
+	}
 }

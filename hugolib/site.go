@@ -638,8 +638,10 @@ func (s *Site) Config() page.SiteConfig {
 	}
 }
 
+// Deprecated: Use .Language.Locale instead.
 func (s *Site) LanguageCode() string {
-	return s.Language().LanguageCode()
+	hugo.DeprecateWithLogger(".Site.LanguageCode", "Use .Site.Language.Locale instead.", "v0.158.0", s.Language().Logger())
+	return s.Language().Locale()
 }
 
 // Returns all sites for all dimensions.

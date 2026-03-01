@@ -22,8 +22,11 @@ import (
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/locales"
 	translators "github.com/gohugoio/localescompressed"
@@ -55,6 +58,8 @@ type Language struct {
 
 	// This is just an alias of Site.Params.
 	params hmaps.Params
+
+	logger loggers.Logger
 }
 
 // Name is an alias for Lang.
@@ -62,12 +67,16 @@ func (l *Language) Name() string {
 	return l.Lang
 }
 
+func (l *Language) Logger() logg.Logger {
+	return l.logger.Logger()
+}
+
 func (l *Language) IsDefault() bool {
 	return l.isDefault
 }
 
 // NewLanguage creates a new language.
-func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig LanguageConfig) (*Language, error) {
+func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig LanguageConfig, logger loggers.Logger) (*Language, error) {
 	translator := translators.GetTranslator(lang)
 	if translator == nil {
 		translator = translators.GetTranslator(defaultContentLanguage)
@@ -103,6 +112,7 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 		collator1:      coll1,
 		collator2:      coll2,
 		isDefault:      lang == defaultContentLanguage,
+		logger:         logger,
 	}
 
 	return l, l.loadLocation(timeZone)
@@ -121,11 +131,37 @@ func (l *Language) Params() hmaps.Params {
 	return l.params
 }
 
+// Deprecated: Use Locale instead.
 func (l *Language) LanguageCode() string {
-	if l.LanguageConfig.LanguageCode != "" {
-		return l.LanguageConfig.LanguageCode
+	hugo.DeprecateWithLogger(".Language.LanguageCode", "Use .Language.Locale instead.", "v0.158.0", l.logger.Logger())
+	return l.Locale()
+}
+
+func (l *Language) Locale() string {
+	if l.LanguageConfig.Locale != "" {
+		return l.LanguageConfig.Locale
 	}
 	return l.Lang
+}
+
+// Deprecated: Use Direction instead.
+func (l *Language) LanguageDirection() string {
+	hugo.DeprecateWithLogger(".Language.LanguageDirection", "Use .Language.Direction instead.", "v0.158.0", l.logger.Logger())
+	return l.Direction()
+}
+
+func (l *Language) Direction() string {
+	return l.LanguageConfig.Direction
+}
+
+// Deprecated: Use Label instead.
+func (l *Language) LanguageName() string {
+	hugo.DeprecateWithLogger(".Language.LanguageName", "Use .Language.Label instead.", "v0.158.0", l.logger.Logger())
+	return l.Label()
+}
+
+func (l *Language) Label() string {
+	return l.LanguageConfig.Label
 }
 
 func (l *Language) loadLocation(tzStr string) error {

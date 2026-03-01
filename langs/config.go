@@ -29,18 +29,18 @@ import (
 // LanguageConfig holds the configuration for a single language.
 // This is what is read from the config file.
 type LanguageConfig struct {
-	// The language name, e.g. "English".
-	LanguageName string
+	// Deprecated: Use Label instead.
+	LanguageName string `json:"-"`
 
-	// The language code, e.g. "en-US".
-	LanguageCode string
+	// Deprecated: Use Locale instead.
+	LanguageCode string `json:"-"`
 
 	// The language title. When set, this will
 	// override site.Title for this language.
 	Title string
 
-	// The language direction, e.g. "ltr" or "rtl".
-	LanguageDirection string
+	// Deprecated: Use Direction instead.
+	LanguageDirection string `json:"-"`
 
 	// The language weight. When set to a non-zero value, this will
 	// be the main sort criteria for the language.
@@ -48,6 +48,15 @@ type LanguageConfig struct {
 
 	// Set to true to disable this language.
 	Disabled bool
+
+	// The language direction, e.g. "ltr" or "rtl".
+	Direction string
+
+	// The language name, e.g. "English".
+	Label string
+
+	// The locale, e.g. "en-US".
+	Locale string
 }
 
 type LanguageInternal struct {
@@ -120,7 +129,7 @@ func (ls LanguagesInternal) ForEachIndex() iter.Seq[int] {
 	}
 }
 
-func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguages []string) (string, error) {
+func (ls *LanguagesInternal) init(defaultContentLanguage, rootLocale, rootLanguageCode string, disabledLanguages []string) (string, error) {
 	const en = "en"
 
 	if len(ls.LanguageConfigs) == 0 {
@@ -202,13 +211,40 @@ func (ls *LanguagesInternal) init(defaultContentLanguage string, disabledLanguag
 		ls.LanguageConfigs[d.Name] = d.LanguageConfig
 		ls.Sorted[defaultIdx] = d
 		defaultContentLanguage = d.Name
+	}
 
+	// Apply root-level locale to the default content language if it has none.
+	// Done after defaultContentLanguage is resolved and Sorted is built so both
+	// are updated consistently. Other languages fall back to their Lang key.
+	// Priority: per-lang locale > root locale > per-lang languageCode > root
+	// languageCode. Root languageCode only applies when the default language has
+	// neither a per-lang locale nor a per-lang languageCode.
+	applyRootLocale := func(locale string) {
+		if v, ok := ls.LanguageConfigs[defaultContentLanguage]; ok {
+			v.Locale = locale
+			ls.LanguageConfigs[defaultContentLanguage] = v
+			for i, s := range ls.Sorted {
+				if s.Name == defaultContentLanguage {
+					ls.Sorted[i].LanguageConfig.Locale = locale
+					break
+				}
+			}
+		}
+	}
+	if rootLocale != "" {
+		if v, ok := ls.LanguageConfigs[defaultContentLanguage]; ok && v.Locale == "" {
+			applyRootLocale(rootLocale)
+		}
+	} else if rootLanguageCode != "" {
+		if v, ok := ls.LanguageConfigs[defaultContentLanguage]; ok && v.Locale == "" && v.LanguageCode == "" {
+			applyRootLocale(rootLanguageCode)
+		}
 	}
 
 	return defaultContentLanguage, nil
 }
 
-func DecodeConfig(defaultContentLanguage string, disabledLanguages []string, m map[string]any) (*config.ConfigNamespace[map[string]LanguageConfig, LanguagesInternal], string, error) {
+func DecodeConfig(defaultContentLanguage, rootLocale, rootLanguageCode string, disabledLanguages []string, m map[string]any) (*config.ConfigNamespace[map[string]LanguageConfig, LanguagesInternal], string, error) {
 	v, err := config.DecodeNamespace[map[string]LanguageConfig](m, func(in any) (LanguagesInternal, any, error) {
 		var languages LanguagesInternal
 		var conf map[string]LanguageConfig
@@ -217,7 +253,7 @@ func DecodeConfig(defaultContentLanguage string, disabledLanguages []string, m m
 		}
 		languages.LanguageConfigs = conf
 		var err error
-		if defaultContentLanguage, err = languages.init(defaultContentLanguage, disabledLanguages); err != nil {
+		if defaultContentLanguage, err = languages.init(defaultContentLanguage, rootLocale, rootLanguageCode, disabledLanguages); err != nil {
 			return languages, nil, err
 		}
 		return languages, languages.LanguageConfigs, nil

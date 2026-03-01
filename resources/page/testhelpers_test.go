@@ -29,6 +29,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
@@ -61,6 +62,7 @@ func newTestPageWithFile(filename string) *testPage {
 		langs.LanguageConfig{
 			LanguageName: "English",
 		},
+		loggers.NewDefault(),
 	)
 	if err != nil {
 		panic(err)
