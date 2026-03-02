@@ -386,7 +386,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	c.Assert(image.MediaType().Type, qt.Equals, "image/png")
 	c.Assert(image.RelPermalink(), qt.Equals, "/a/gohugoio.png")
 	c.Assert(image.ResourceType(), qt.Equals, "image")
-	c.Assert(image.Exif(), qt.IsNotNil)
+	c.Assert(image.Meta(), qt.IsNotNil)
 
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
@@ -414,14 +414,17 @@ func TestSVGImageContent(t *testing.T) {
 	c.Assert(content.(string), qt.Contains, `<svg height="100" width="100">`)
 }
 
-func TestImageExif(t *testing.T) {
+func TestImageMeta(t *testing.T) {
 	c := qt.New(t)
 	fs := afero.NewMemMapFs()
-	spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
+	meta := map[string]any{
+		"fields": []string{"*{Date,Lens,GPS}*"},
+	}
+	spec := newTestResourceSpec(specDescriptor{fs: fs, c: c, imagingMeta: meta})
 	image := fetchResourceForSpec(spec, c, "sunset.jpg").(images.ImageResource)
 
-	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
-		x := image.Exif()
+	getAndCheckMeta := func(c *qt.C, image images.ImageResource) {
+		x := image.Meta()
 		c.Assert(x, qt.Not(qt.IsNil))
 
 		c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
@@ -430,21 +433,21 @@ func TestImageExif(t *testing.T) {
 		c.Assert(x.Lat, qt.Equals, float64(36.59744166666667))
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
 
-		v, found := x.Tags["LensModel"]
+		v, found := x.Exif["LensModel"]
 		c.Assert(found, qt.Equals, true)
 		lensModel, ok := v.(string)
 		c.Assert(ok, qt.Equals, true)
 		c.Assert(lensModel, qt.Equals, "smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM")
 		resized, _ := image.Resize("300x200")
-		x2 := resized.Exif()
+		x2 := resized.Meta()
 
 		c.Assert(x2, eq, x)
 	}
 
-	getAndCheckExif(c, image)
+	getAndCheckMeta(c, image)
 	image = fetchResourceForSpec(spec, c, "sunset.jpg").(images.ImageResource)
 	// This will read from file cache.
-	getAndCheckExif(c, image)
+	getAndCheckMeta(c, image)
 }
 
 func TestImageColorsLuminance(t *testing.T) {
@@ -465,14 +468,17 @@ func TestImageColorsLuminance(t *testing.T) {
 	}
 }
 
-func BenchmarkImageExif(b *testing.B) {
-	getImage := func(i int, c *qt.C, b *testing.B, fs afero.Fs) images.ImageResource {
-		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c})
+func BenchmarkImageMeta(b *testing.B) {
+	getImage := func(i int, c *qt.C, fs afero.Fs) images.ImageResource {
+		meta := map[string]any{
+			"fields": []string{"*{Date,Lens,GPS}*"},
+		}
+		spec := newTestResourceSpec(specDescriptor{fs: fs, c: c, imagingMeta: meta})
 		return fetchResourceForSpec(spec, c, "sunset.jpg", strconv.Itoa(i)).(images.ImageResource)
 	}
 
-	getAndCheckExif := func(c *qt.C, image images.ImageResource) {
-		x := image.Exif()
+	getAndCheckMeta := func(c *qt.C, image images.ImageResource) {
+		x := image.Meta()
 		c.Assert(x, qt.Not(qt.IsNil))
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
 	}
@@ -482,9 +488,9 @@ func BenchmarkImageExif(b *testing.B) {
 		fs := afero.NewMemMapFs()
 		for i := 0; b.Loop(); i++ {
 			b.StopTimer()
-			image := getImage(i, c, b, fs)
+			image := getImage(i, c, fs)
 			b.StartTimer()
-			getAndCheckExif(c, image)
+			getAndCheckMeta(c, image)
 		}
 	})
 
@@ -493,10 +499,10 @@ func BenchmarkImageExif(b *testing.B) {
 		fs := afero.NewMemMapFs()
 		for i := 0; b.Loop(); i++ {
 			b.StopTimer()
-			image := getImage(i, c, b, fs)
+			image := getImage(i, c, fs)
 			b.StartTimer()
 			for range 10 {
-				getAndCheckExif(c, image)
+				getAndCheckMeta(c, image)
 			}
 		}
 	})
@@ -506,17 +512,17 @@ func BenchmarkImageExif(b *testing.B) {
 		fs := afero.NewMemMapFs()
 		// Prime the cache
 		for i := 0; i < b.N; i++ {
-			image := getImage(i, c, b, fs)
-			getAndCheckExif(c, image)
+			image := getImage(i, c, fs)
+			getAndCheckMeta(c, image)
 		}
 
 		// Start the real benchmark,
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			b.StopTimer()
-			image := getImage(i, c, b, fs)
+			image := getImage(i, c, fs)
 			b.StartTimer()
-			getAndCheckExif(c, image)
+			getAndCheckMeta(c, image)
 		}
 	})
 }
