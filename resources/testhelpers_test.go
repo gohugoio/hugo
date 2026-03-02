@@ -22,9 +22,10 @@ import (
 )
 
 type specDescriptor struct {
-	baseURL string
-	c       *qt.C
-	fs      afero.Fs
+	baseURL     string
+	c           *qt.C
+	fs          afero.Fs
+	imagingMeta map[string]any
 }
 
 func newTestResourceSpec(desc specDescriptor) *resources.Spec {
@@ -54,6 +55,10 @@ func newTestResourceSpec(desc specDescriptor) *resources.Spec {
 		"resampleFilter": "linear",
 		"quality":        68,
 		"anchor":         "left",
+	}
+
+	if desc.imagingMeta != nil {
+		imagingCfg["meta"] = desc.imagingMeta
 	}
 
 	cfg.Set("imaging", imagingCfg)
