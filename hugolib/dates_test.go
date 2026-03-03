@@ -252,9 +252,9 @@ Future talks: 2
 Past talks: 3
 Home's Date should be greater than past: true
 Home's Date should be less than future: true
-Home's Date should be equal mydata date: true
-Full time: 6:00:00 am UTC
-`)
+Home's Date should be equal mydata date: true`,
+		"Full time: 6:00:00\u202fam UTC",
+	)
 }
 
 func TestPublisDateRollupIssue12438(t *testing.T) {

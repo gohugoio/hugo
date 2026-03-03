@@ -147,7 +147,7 @@ func TestFormat(t *testing.T) {
 		d, err := ns.Format(":time_full", "2020-03-09T11:00:00")
 
 		c.Assert(err, qt.IsNil)
-		c.Assert(d, qt.Equals, "11:00:00 am Pacific Daylight Time")
+		c.Assert(d, qt.Equals, "11:00:00\u202fam Pacific Daylight Time")
 	})
 }
 

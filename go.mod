@@ -42,8 +42,8 @@ require (
 	github.com/gohugoio/httpcache v0.8.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.6.0
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.4.0
-	github.com/gohugoio/locales v0.14.0
-	github.com/gohugoio/localescompressed v1.0.1
+	github.com/gohugoio/locales v0.15.4
+	github.com/gohugoio/localescompressed v1.0.2-0.20260303171749-64ded8700579
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/hairyhenderson/go-codeowners v0.7.0

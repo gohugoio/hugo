@@ -49,7 +49,7 @@ func TestTimeFormatter(t *testing.T) {
 		c.Assert(f.Format(june06, ":date_medium"), qt.Equals, "6. juni 2018")
 		c.Assert(f.Format(june06, ":date_short"), qt.Equals, "06.06.2018")
 
-		c.Assert(f.Format(june06, ":time_full"), qt.Equals, "kl. 02:09:37 UTC")
+		c.Assert(f.Format(june06, ":time_full"), qt.Equals, "02:09:37 UTC") // Note: there wasa "kl: " prefix here in older CLDRs.
 		c.Assert(f.Format(june06, ":time_long"), qt.Equals, "02:09:37 UTC")
 		c.Assert(f.Format(june06, ":time_medium"), qt.Equals, "02:09:37")
 		c.Assert(f.Format(june06, ":time_short"), qt.Equals, "02:09")
@@ -63,10 +63,10 @@ func TestTimeFormatter(t *testing.T) {
 		c.Assert(f.Format(june06, ":date_medium"), qt.Equals, "Jun 6, 2018")
 		c.Assert(f.Format(june06, ":date_short"), qt.Equals, "6/6/18")
 
-		c.Assert(f.Format(june06, ":time_full"), qt.Equals, "2:09:37 am UTC")
-		c.Assert(f.Format(june06, ":time_long"), qt.Equals, "2:09:37 am UTC")
-		c.Assert(f.Format(june06, ":time_medium"), qt.Equals, "2:09:37 am")
-		c.Assert(f.Format(june06, ":time_short"), qt.Equals, "2:09 am")
+		c.Assert(f.Format(june06, ":time_full"), qt.Equals, "2:09:37\u202fam UTC")
+		c.Assert(f.Format(june06, ":time_long"), qt.Equals, "2:09:37\u202fam UTC")
+		c.Assert(f.Format(june06, ":time_medium"), qt.Equals, "2:09:37\u202fam")
+		c.Assert(f.Format(june06, ":time_short"), qt.Equals, "2:09\u202fam")
 	})
 
 	c.Run("English", func(c *qt.C) {
