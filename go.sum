@@ -281,8 +281,9 @@ github.com/gohugoio/hugo-goldmark-extensions/extras v0.6.0 h1:c16engMi6zyOGeCrP7
 github.com/gohugoio/hugo-goldmark-extensions/extras v0.6.0/go.mod h1:e3+TRCT4Uz6NkZOAVMOMgPeJ+7KEtQMX8hdB+WG4qRs=
 github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.4.0 h1:awFlqaCQ0N/RS9ndIBpDYNms101I1sGbDRG1bksa5Js=
 github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.4.0/go.mod h1:lK1CjqrueCd3OBnsLLQJGrQ+uodWfT9M9Cq2zfDWJCE=
-github.com/gohugoio/locales v0.14.0 h1:Q0gpsZwfv7ATHMbcTNepFd59H7GoykzWJIxi113XGDc=
 github.com/gohugoio/locales v0.14.0/go.mod h1:ip8cCAv/cnmVLzzXtiTpPwgJ4xhKZranqNqtoIu0b/4=
+github.com/gohugoio/locales v0.15.5 h1:lsOP9H+BrLJHWyntGFx172NZb7W4UrHCAgBWQVOA+o4=
+github.com/gohugoio/locales v0.15.5/go.mod h1:ipbld16M4g/Yrsp4+MxUG+cfYnaHAgSW3cgTOCe8clA=
 github.com/gohugoio/localescompressed v1.0.1 h1:KTYMi8fCWYLswFyJAeOtuk/EkXR/KPTHHNN9OS+RTxo=
 github.com/gohugoio/localescompressed v1.0.1/go.mod h1:jBF6q8D7a0vaEmcWPNcAjUZLJaIVNiwvM3WlmTvooB0=
 github.com/golang-jwt/jwt/v5 v5.2.3 h1:kkGXqQOBSDDWRhWNXTFpqGSCMyh/PLnqUvMGJPDJDs0=
