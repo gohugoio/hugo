@@ -22,16 +22,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/locales"
-	translators "github.com/gohugoio/localescompressed"
-
+	"github.com/bep/golocales"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the lang-namespaced template functions.
-func New(deps *deps.Deps, translator locales.Translator) *Namespace {
+func New(deps *deps.Deps, translator golocales.Translator) *Namespace {
 	return &Namespace{
 		translator: translator,
 		deps:       deps,
@@ -40,7 +38,7 @@ func New(deps *deps.Deps, translator locales.Translator) *Namespace {
 
 // Namespace provides template functions for the "lang" namespace.
 type Namespace struct {
-	translator locales.Translator
+	translator golocales.Translator
 	deps       *deps.Deps
 }
 
@@ -69,7 +67,7 @@ func (ns *Namespace) FormatNumber(precision, number any) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return ns.translator.FmtNumber(n, p), nil
+	return ns.translator.FormatNumber(n, p), nil
 }
 
 // FormatPercent formats number with the given precision for the current language.
@@ -79,7 +77,7 @@ func (ns *Namespace) FormatPercent(precision, number any) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return ns.translator.FmtPercent(n, p), nil
+	return ns.translator.FormatPercent(n, p), nil
 }
 
 // FormatCurrency returns the currency representation of number for the given currency and precision
@@ -91,11 +89,7 @@ func (ns *Namespace) FormatCurrency(precision, currency, number any) (string, er
 	if err != nil {
 		return "", err
 	}
-	c := translators.GetCurrency(cast.ToString(currency))
-	if c < 0 {
-		return "", fmt.Errorf("unknown currency code: %q", currency)
-	}
-	return ns.translator.FmtCurrency(n, p, c), nil
+	return ns.translator.FormatCurrency(n, p, cast.ToString(currency)), nil
 }
 
 // FormatAccounting returns the currency representation of number for the given currency and precision
@@ -107,15 +101,11 @@ func (ns *Namespace) FormatAccounting(precision, currency, number any) (string, 
 	if err != nil {
 		return "", err
 	}
-	c := translators.GetCurrency(cast.ToString(currency))
-	if c < 0 {
-		return "", fmt.Errorf("unknown currency code: %q", currency)
-	}
-	return ns.translator.FmtAccounting(n, p, c), nil
+	return ns.translator.FormatAccounting(n, p, cast.ToString(currency)), nil
 }
 
-func (ns *Namespace) castPrecisionNumber(precision, number any) (uint64, float64, error) {
-	p, err := cast.ToUint64E(precision)
+func (ns *Namespace) castPrecisionNumber(precision, number any) (int, float64, error) {
+	p, err := cast.ToIntE(precision)
 	if err != nil {
 		return 0, 0, err
 	}
