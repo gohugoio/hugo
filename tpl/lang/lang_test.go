@@ -3,9 +3,9 @@ package lang
 import (
 	"testing"
 
+	"github.com/bep/golocales"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/deps"
-	translators "github.com/gohugoio/localescompressed"
 )
 
 func TestNumFmt(t *testing.T) {
@@ -67,8 +67,8 @@ func TestNumFmt(t *testing.T) {
 func TestFormatNumbers(t *testing.T) {
 	c := qt.New(t)
 
-	nsNn := New(&deps.Deps{}, translators.GetTranslator("nn"))
-	nsEn := New(&deps.Deps{}, translators.GetTranslator("en"))
+	nsNn := New(&deps.Deps{}, golocales.New("nn"))
+	nsEn := New(&deps.Deps{}, golocales.New("en"))
 	pi := 3.14159265359
 
 	c.Run("FormatNumber", func(c *qt.C) {
@@ -108,10 +108,10 @@ func TestFormatNumbers(t *testing.T) {
 func TestLanguageKeyFormat(t *testing.T) {
 	c := qt.New(t)
 
-	nsUnderscoreUpper := New(&deps.Deps{}, translators.GetTranslator("es_ES"))
-	nsUnderscoreLower := New(&deps.Deps{}, translators.GetTranslator("es_es"))
-	nsHyphenUpper := New(&deps.Deps{}, translators.GetTranslator("es-ES"))
-	nsHyphenLower := New(&deps.Deps{}, translators.GetTranslator("es-es"))
+	nsUnderscoreUpper := New(&deps.Deps{}, golocales.New("es_ES"))
+	nsUnderscoreLower := New(&deps.Deps{}, golocales.New("es_es"))
+	nsHyphenUpper := New(&deps.Deps{}, golocales.New("es-ES"))
+	nsHyphenLower := New(&deps.Deps{}, golocales.New("es-es"))
 	pi := 3.14159265359
 
 	c.Run("FormatNumber", func(c *qt.C) {

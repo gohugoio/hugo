@@ -22,14 +22,13 @@ import (
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 
+	"github.com/bep/golocales"
 	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/htime"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
-	"github.com/gohugoio/locales"
-	translators "github.com/gohugoio/localescompressed"
 )
 
 var _ sitesmatrix.DimensionInfo = (*Language)(nil)
@@ -45,7 +44,7 @@ type Language struct {
 
 	// Used for date formatting etc. We don't want these exported to the
 	// templates.
-	translator    locales.Translator
+	translator    golocales.Translator
 	timeFormatter htime.TimeFormatter
 	tag           language.Tag
 
@@ -80,11 +79,11 @@ func (l *Language) IsDefault() bool {
 
 // NewLanguage creates a new language.
 func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig LanguageConfig, logger loggers.Logger) (*Language, error) {
-	translator := translators.GetTranslator(lang)
+	translator := golocales.New(lang)
 	if translator == nil {
-		translator = translators.GetTranslator(defaultContentLanguage)
+		translator = golocales.New(defaultContentLanguage)
 		if translator == nil {
-			translator = translators.GetTranslator("en")
+			translator = golocales.New("en")
 		}
 	}
 
@@ -223,7 +222,7 @@ func GetTimeFormatter(l *Language) htime.TimeFormatter {
 	return l.timeFormatter
 }
 
-func GetTranslator(l *Language) locales.Translator {
+func GetTranslator(l *Language) golocales.Translator {
 	return l.translator
 }
 

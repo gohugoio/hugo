@@ -119,9 +119,9 @@ FormatNumberCustom: 12,345.68
 
 	b.AssertFileContent("public/nn/index.html", `
 FormatNumber: 512,50
-FormatPercent: 512,50 %
-FormatCurrency: 512,50 USD
-FormatAccounting: 512,50 kr
+FormatPercent: 512,50 %
+FormatCurrency: 512,50 USD
+FormatAccounting: 512,50 kr
 FormatNumberCustom: 12,345.68
 
 `)
