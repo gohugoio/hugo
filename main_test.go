@@ -463,7 +463,8 @@ func testSetupFunc() func(env *testscript.Env) error {
 
 		goModVersion := goVersion
 		// From Go 1.26.0 on, the version used in go.mod on go mod init is the current version minus one.
-		if htesting.GoMinorVersion() >= 26 {
+		// This was reverted in Go 1.26.1.
+		if goVersion == "1.26.0" {
 			goModVersion = "1.25.0"
 		}
 
