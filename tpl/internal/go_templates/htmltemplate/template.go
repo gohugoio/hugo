@@ -267,7 +267,7 @@ func (t *Template) Clone() (*Template, error) {
 		name := x.Name()
 		src := t.set[name]
 		if src == nil || src.escapeErr != nil {
-			return nil, fmt.Errorf("html/template: cannot Clone %q after it has executed, %q not found", t.Name(), name)
+			return nil, fmt.Errorf("html/template: cannot Clone %q after it has executed", t.Name())
 		}
 		x.Tree = x.Tree.Copy()
 		ret.set[name] = &Template{

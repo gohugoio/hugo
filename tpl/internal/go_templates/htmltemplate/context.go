@@ -157,6 +157,10 @@ const (
 	// stateError is an infectious error state outside any valid
 	// HTML/CSS/JS construct.
 	stateError
+	// stateMetaContent occurs inside a HTML meta element content attribute.
+	stateMetaContent
+	// stateMetaContentURL occurs inside a "url=" tag in a HTML meta element content attribute.
+	stateMetaContentURL
 	// stateDead marks unreachable code after a {{break}} or {{continue}}.
 	stateDead
 )
@@ -268,6 +272,8 @@ const (
 	elementTextarea
 	// elementTitle corresponds to the RCDATA <title> element.
 	elementTitle
+	// elementMeta corresponds to the HTML <meta> element.
+	elementMeta
 )
 
 //go:generate stringer -type attr
@@ -289,4 +295,6 @@ const (
 	attrURL
 	// attrSrcset corresponds to a srcset attribute.
 	attrSrcset
+	// attrMetaContent corresponds to the content attribute in meta HTML element.
+	attrMetaContent
 )

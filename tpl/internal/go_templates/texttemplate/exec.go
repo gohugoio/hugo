@@ -7,12 +7,13 @@ package template
 import (
 	"errors"
 	"fmt"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 	"io"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/fmtsort"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 // maxExecDepth specifies the maximum stack depth of templates within
@@ -326,6 +327,7 @@ func isTrueOld(val reflect.Value) (truth, ok bool) {
 		// Something like var x interface{}, never set. It's a form of nil.
 		return false, true
 	}
+
 	switch val.Kind() {
 	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
 		truth = val.Len() > 0
@@ -333,7 +335,7 @@ func isTrueOld(val reflect.Value) (truth, ok bool) {
 		truth = val.Bool()
 	case reflect.Complex64, reflect.Complex128:
 		truth = val.Complex() != 0
-	case reflect.Chan, reflect.Func, reflect.Pointer, reflect.Interface:
+	case reflect.Chan, reflect.Func, reflect.Pointer, reflect.UnsafePointer, reflect.Interface:
 		truth = !val.IsNil()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		truth = val.Int() != 0
