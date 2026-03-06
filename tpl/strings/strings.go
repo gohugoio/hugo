@@ -23,6 +23,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -34,14 +36,18 @@ import (
 
 // New returns a new instance of the strings-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	return &Namespace{deps: d}
+	return &Namespace{
+		deps:          d,
+		replacerCache: hmaps.NewCacheWithOptions[string, *strings.Replacer](hmaps.CacheOptions{Size: 100}),
+	}
 }
 
 // Namespace provides template functions for the "strings" namespace.
 // Most functions mimic the Go stdlib, but the order of the parameters may be
 // different to ease their use in the Go template system.
 type Namespace struct {
-	deps *deps.Deps
+	deps          *deps.Deps
+	replacerCache *hmaps.Cache[string, *strings.Replacer]
 }
 
 // CountRunes returns the number of runes in s, excluding whitespace.
@@ -249,6 +255,61 @@ func (ns *Namespace) Replace(s, old, new any, limit ...any) (string, error) {
 	}
 
 	return strings.Replace(ss, so, sn, lim), nil
+}
+
+// ReplacePairs returns a copy of a string with multiple replacements performed
+// in a single pass. The last argument is the source string. Preceding arguments
+// are old/new string pairs, either as a slice or as individual arguments.
+func (ns *Namespace) ReplacePairs(args ...any) (string, error) {
+	if len(args) < 2 {
+		return "", fmt.Errorf("requires at least 2 arguments")
+	}
+
+	ss, err := cast.ToStringE(args[len(args)-1])
+	if err != nil {
+		return "", err
+	}
+
+	var p []string
+	if len(args) == 2 {
+		// slice form: ReplacePairs (slice "a" "b") "s"
+		if !hreflect.IsSlice(args[0]) {
+			return "", fmt.Errorf("with 2 arguments, the first must be a slice of replacement pairs, got %T", args[0])
+		}
+		p, err = cast.ToStringSliceE(args[0])
+		if err != nil {
+			return "", err
+		}
+	}
+	if p == nil {
+		// inline form: ReplacePairs "a" "b" "s"
+		p = make([]string, len(args)-1)
+		for i, v := range args[:len(args)-1] {
+			s, err := cast.ToStringE(v)
+			if err != nil {
+				return "", err
+			}
+			p[i] = s
+		}
+	}
+
+	if len(p) == 0 || ss == "" {
+		return ss, nil
+	}
+
+	if len(p)%2 != 0 {
+		return "", fmt.Errorf("uneven number of replacement pairs")
+	}
+
+	key := strings.Join(p, "\x00")
+	replacer, err := ns.replacerCache.GetOrCreate(key, func() (*strings.Replacer, error) {
+		return strings.NewReplacer(p...), nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return replacer.Replace(ss), nil
 }
 
 // SliceString slices a string by specifying a half-open range with
