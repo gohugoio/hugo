@@ -145,6 +145,20 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.ReplacePairs,
+			nil,
+			[][2]string{
+				{
+					`{{ "aab" | strings.ReplacePairs "a" "b" "b" "c" }}`,
+					`bbc`,
+				},
+				{
+					`{{ "aab" | strings.ReplacePairs (slice "a" "b" "b" "c") }}`,
+					`bbc`,
+				},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.ReplaceRE,
 			[]string{"replaceRE"},
 			[][2]string{

@@ -15,6 +15,7 @@ package strings
 
 import (
 	"html/template"
+	stds "strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -373,6 +374,91 @@ func TestReplace(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)
 	}
+}
+
+func TestReplacePairs(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		args   []any
+		expect string
+	}{
+		// slice form
+		{[]any{[]string{"a", "b"}, "aab"}, "bbb"},
+		{[]any{[]string{"a", "b", "b", "c"}, "aab"}, "bbc"},
+		{[]any{[]string{"app", "pear", "apple", "orange"}, "apple"}, "pearle"},
+		{[]any{[]string{}, "aab"}, "aab"},
+		{[]any{[]string{"remove-me", ""}, "text remove-me"}, "text "},
+		{[]any{[]string{"", "X"}, "ab"}, "XaXbX"},
+		{[]any{[]string{"a", "b"}, template.HTML("aab")}, "bbb"}, // template.HTML source
+		{[]any{[]string{"a", "b"}, 42}, "42"},                    // int source (cast: 42→"42")
+		{[]any{[]any{"a", "b"}, "s"}, "s"},                       // []any with all strings
+		{[]any{[]any{1, "one"}, "1abc"}, "oneabc"},               // []any with int pair (cast: 1→"1")
+		// inline form
+		{[]any{"a", "b", "aab"}, "bbb"},
+		{[]any{"a", "b", "b", "c", "aab"}, "bbc"},
+		{[]any{"app", "pear", "apple", "orange", "apple"}, "pearle"},
+		{[]any{"a", "b", ""}, ""},                      // empty source
+		{[]any{template.HTML("a"), "b", "aab"}, "bbb"}, // template.HTML pair
+		{[]any{1, "one", "1abc"}, "oneabc"},            // int pair (cast: 1→"1")
+	} {
+		result, err := ns.ReplacePairs(test.args...)
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	for _, test := range []struct {
+		args     []any
+		errMatch string
+	}{
+		{[]any{}, "requires at least 2"},                               // 0 args
+		{[]any{"s"}, "requires at least 2"},                            // 1 arg
+		{[]any{42, "s"}, "first must be a slice"},                      // 2 args: non-slice first arg
+		{[]any{"a", "s"}, "first must be a slice"},                     // 2 args: string first arg (not a slice)
+		{[]any{[]string{"a"}, "s"}, "uneven number"},                   // slice: odd pairs
+		{[]any{"a", "b", "c", "s"}, "uneven number"},                   // inline: 3 pairs
+		{[]any{[]any{tstNoStringer{}, "b"}, "s"}, "unable to cast"},    // non-castable slice element
+		{[]any{tstNoStringer{}, "b", "s"}, "unable to cast"},           // non-castable inline pair value
+		{[]any{[]string{"a", "b"}, tstNoStringer{}}, "unable to cast"}, // non-castable source
+	} {
+		_, err := ns.ReplacePairs(test.args...)
+		c.Assert(err, qt.ErrorMatches, ".*"+test.errMatch+".*")
+	}
+}
+
+func BenchmarkReplacePairs(b *testing.B) {
+	twoPairs := []string{"a", "A", "b", "B"}
+	threePairs := []string{"a", "A", "b", "B", "c", "C"}
+	s := "aabbcc"
+
+	b.Run("TwoPairs/cached", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			ns.ReplacePairs(twoPairs, s)
+		}
+	})
+
+	b.Run("TwoPairs/uncached", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			stds.NewReplacer(twoPairs...).Replace(s)
+		}
+	})
+
+	b.Run("ThreePairs/cached", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			ns.ReplacePairs(threePairs, s)
+		}
+	})
+
+	b.Run("ThreePairs/uncached", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			stds.NewReplacer(threePairs...).Replace(s)
+		}
+	})
 }
 
 func TestSliceString(t *testing.T) {
