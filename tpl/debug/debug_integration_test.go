@@ -73,6 +73,29 @@ Page: {{ debug.List . | jsonify }}
 	b.AssertFileContent("public/p1/index.html", `"Title"`)
 }
 
+func TestDebugListNil(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "Test"
+---
+-- layouts/page.html --
+NilResult: {{ debug.List nil | jsonify }}
+
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `NilResult: null`)
+}
+
 func TestDebugDumpPage(t *testing.T) {
 	files := `
 -- hugo.toml --

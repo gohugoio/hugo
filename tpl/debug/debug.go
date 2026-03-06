@@ -172,25 +172,34 @@ func (ns *Namespace) List(val any) []string {
 
 	v := reflect.ValueOf(val)
 	for v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return nil
+		}
 		v = v.Elem()
 	}
 
 	switch v.Kind() {
 	case reflect.Struct:
+		seen := make(map[string]struct{})
 		var names []string
 		t := v.Type()
 		for i := range t.NumField() {
 			f := t.Field(i)
 			if f.IsExported() {
+				seen[f.Name] = struct{}{}
 				names = append(names, f.Name)
 			}
 		}
-		// Also check methods on the original (pointer) value.
-		pt := reflect.TypeOf(val)
-		for i := range pt.NumMethod() {
-			m := pt.Method(i)
-			if m.IsExported() {
-				names = append(names, m.Name)
+		// Include methods from both value and pointer receiver sets.
+		for _, mt := range []reflect.Type{t, reflect.PointerTo(t)} {
+			for i := range mt.NumMethod() {
+				m := mt.Method(i)
+				if m.IsExported() {
+					if _, ok := seen[m.Name]; !ok {
+						seen[m.Name] = struct{}{}
+						names = append(names, m.Name)
+					}
+				}
 			}
 		}
 		sort.Strings(names)
