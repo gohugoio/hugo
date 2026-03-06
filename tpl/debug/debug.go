@@ -16,6 +16,8 @@ package debug
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 	"sort"
 	"sync"
 	"time"
@@ -159,6 +161,50 @@ func (t *timer) Stop() string {
 	})
 	// This is used in templates, we need to return something.
 	return ""
+}
+
+// List returns the exported field and method names of a struct or pointer to a struct,
+// or the keys of a map, as a sorted string slice.
+func (ns *Namespace) List(val any) []string {
+	if val == nil {
+		return nil
+	}
+
+	v := reflect.ValueOf(val)
+	for v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	switch v.Kind() {
+	case reflect.Struct:
+		var names []string
+		t := v.Type()
+		for i := range t.NumField() {
+			f := t.Field(i)
+			if f.IsExported() {
+				names = append(names, f.Name)
+			}
+		}
+		// Also check methods on the original (pointer) value.
+		pt := reflect.TypeOf(val)
+		for i := range pt.NumMethod() {
+			m := pt.Method(i)
+			if m.IsExported() {
+				names = append(names, m.Name)
+			}
+		}
+		sort.Strings(names)
+		return names
+	case reflect.Map:
+		var keys []string
+		for _, k := range v.MapKeys() {
+			keys = append(keys, fmt.Sprint(k.Interface()))
+		}
+		sort.Strings(keys)
+		return keys
+	default:
+		return nil
+	}
 }
 
 // Internal template func, used in tests only.
