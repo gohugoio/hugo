@@ -776,8 +776,10 @@ func (d *lazyDispatcher[Q, R]) start() (Dispatcher[Q, R], error) {
 	d.startOnce.Do(func() {
 		start := time.Now()
 		d.dispatcher, d.startErr = Start[Q, R](d.opts)
-		d.started = true
-		d.opts.Infof("started dispatcher in %s", time.Since(start))
+		if d.startErr == nil {
+			d.started = true
+			d.opts.Infof("started dispatcher in %s", time.Since(start))
+		}
 	})
 	return d.dispatcher, d.startErr
 }
