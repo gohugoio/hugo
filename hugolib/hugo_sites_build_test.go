@@ -154,7 +154,7 @@ RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .RelPermalink }}|{{ 
 			return
 		}
 
-		for i := 0; i < sectionsPerLevel; i++ {
+		for i := range sectionsPerLevel {
 			sectionCount++
 			sectionName := fmt.Sprintf("s%d", i)
 			sectionPath := sectionName
@@ -164,7 +164,7 @@ RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .RelPermalink }}|{{ 
 			sb.WriteString(section(currentSection, i))
 
 			// Pages in this section
-			for j := 0; j < pagesPerSection; j++ {
+			for j := range pagesPerSection {
 				pageCount++
 				sb.WriteString(page(sectionPath, j))
 			}

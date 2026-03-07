@@ -38,7 +38,6 @@ func TestI18n(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		c.Run(tc.name, func(c *qt.C) {
 			files := fmt.Sprintf(`
 -- hugo.toml --

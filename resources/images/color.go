@@ -172,11 +172,11 @@ func hexStringToColorGo(s string) (color.Color, error) {
 	s = strings.ToLower(s)
 
 	if len(s) == 3 || len(s) == 4 {
-		var v string
+		var v strings.Builder
 		for _, r := range s {
-			v += string(r) + string(r)
+			v.WriteString(string(r) + string(r))
 		}
-		s = v
+		s = v.String()
 	}
 
 	// Standard colors.

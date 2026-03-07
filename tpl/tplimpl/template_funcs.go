@@ -83,7 +83,7 @@ func (t *templateExecHelper) GetMapValue(ctx context.Context, tmpl texttemplate.
 	return v, v.IsValid()
 }
 
-var typeParams = reflect.TypeOf(hmaps.Params{})
+var typeParams = reflect.TypeFor[hmaps.Params]()
 
 func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value) {
 	if strings.EqualFold(name, "mainsections") && receiver.Type() == typeParams && receiver.Pointer() == t.siteParams.Pointer() {

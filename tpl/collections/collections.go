@@ -121,7 +121,7 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (stri
 		return "", errors.New("can't iterate over a nil value")
 	}
 
-	var str string
+	var str strings.Builder
 	switch lv.Kind() {
 	case reflect.Map:
 		sortSeq, err := ns.Sort(ctx, l)
@@ -139,11 +139,11 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (stri
 			}
 			switch {
 			case i == lv.Len()-2 && dLast != nil:
-				str += valStr + *dLast
+				str.WriteString(valStr + *dLast)
 			case i == lv.Len()-1:
-				str += valStr
+				str.WriteString(valStr)
 			default:
-				str += valStr + d
+				str.WriteString(valStr + d)
 			}
 		}
 
@@ -151,7 +151,7 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (stri
 		return "", fmt.Errorf("can't iterate over %T", l)
 	}
 
-	return str, nil
+	return str.String(), nil
 }
 
 // Dictionary creates a new map from the given parameters by
@@ -621,7 +621,7 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 		if err1 == nil && err2 == nil && f1 == f2 {
 			i.appendIfNotSeen(l1vv)
 		}
-	case kind == reflect.Ptr, kind == reflect.Struct:
+	case kind == reflect.Pointer, kind == reflect.Struct:
 		if types.Unwrapv(l1vv.Interface()) == types.Unwrapv(l2vv.Interface()) {
 			i.appendIfNotSeen(l1vv)
 		}
@@ -701,7 +701,7 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 					if err == nil {
 						ins.appendIfNotSeen(l2vv)
 					}
-				case kind == reflect.Interface, kind == reflect.Struct, kind == reflect.Ptr:
+				case kind == reflect.Interface, kind == reflect.Struct, kind == reflect.Pointer:
 					ins.appendIfNotSeen(l2vv)
 
 				}

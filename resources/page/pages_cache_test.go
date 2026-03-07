@@ -46,9 +46,7 @@ func TestPageCache(t *testing.T) {
 	}
 
 	for range 100 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for k, pages := range testPageSets {
 				l1.Lock()
 				p, ca := c1.get("k1", nil, pages)
@@ -67,7 +65,7 @@ func TestPageCache(t *testing.T) {
 				c.Assert(p3, qt.Not(qt.IsNil))
 				c.Assert("changed", qt.Equals, p3[0].(*testPage).description)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 }

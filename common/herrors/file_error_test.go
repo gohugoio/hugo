@@ -32,15 +32,15 @@ func TestNewFileError(t *testing.T) {
 	fe := NewFileErrorFromName(errors.New("bar"), "foo.html")
 	c.Assert(fe.Error(), qt.Equals, `"foo.html:1:1": bar`)
 
-	lines := ""
+	var lines strings.Builder
 	for i := 1; i <= 100; i++ {
-		lines += fmt.Sprintf("line %d\n", i)
+		lines.WriteString(fmt.Sprintf("line %d\n", i))
 	}
 
 	fe.UpdatePosition(text.Position{LineNumber: 32, ColumnNumber: 2})
 	c.Assert(fe.Error(), qt.Equals, `"foo.html:32:2": bar`)
 	fe.UpdatePosition(text.Position{LineNumber: 0, ColumnNumber: 0, Offset: 212})
-	fe.UpdateContent(strings.NewReader(lines), nil)
+	fe.UpdateContent(strings.NewReader(lines.String()), nil)
 	c.Assert(fe.Error(), qt.Equals, `"foo.html:32:0": bar`)
 	errorContext := fe.ErrorContext()
 	c.Assert(errorContext, qt.IsNotNil)

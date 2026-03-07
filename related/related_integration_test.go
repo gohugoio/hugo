@@ -16,6 +16,7 @@ package related_test
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -134,7 +135,8 @@ Related 2: 2
 }
 
 func BenchmarkRelatedSite(b *testing.B) {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "http://example.com/"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
@@ -151,7 +153,7 @@ disableKinds = ["taxonomy", "term", "RSS", "sitemap", "robotsTXT"]
   weight = 30	
 -- layouts/single.html --
 Len related: {{ site.RegularPages.Related . | len }}
-`
+`)
 
 	createContent := func(n int) string {
 		base := `---
@@ -168,12 +170,12 @@ keywords: ['k%d']
 	}
 
 	for i := 1; i < 100; i++ {
-		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+createContent(i+1), i+1)
+		files.WriteString(fmt.Sprintf("\n-- content/posts/p%d.md --\n"+createContent(i+1), i+1))
 	}
 
 	cfg := hugolib.IntegrationTestConfig{
 		T:           b,
-		TxtarString: files,
+		TxtarString: files.String(),
 	}
 
 	for b.Loop() {

@@ -96,7 +96,7 @@ func errConvert(v reflect.Value, s string) error {
 // See Issue 14079.
 func ConvertIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value, bool) {
 	switch val.Kind() {
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		if val.IsNil() {
 			// Return typ's zero value.
 			return reflect.Zero(typ), true

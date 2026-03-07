@@ -320,15 +320,15 @@ func normalizeExpected(ext, str string) string {
 		return strings.Trim(tpl.StripHTML(str), " ")
 	case "ad":
 		paragraphs := strings.Split(str, "</p>")
-		expected := ""
+		var expected strings.Builder
 		for _, para := range paragraphs {
 			if para == "" {
 				continue
 			}
-			expected += fmt.Sprintf("<div class=\"paragraph\">\n%s</p></div>\n", para)
+			expected.WriteString(fmt.Sprintf("<div class=\"paragraph\">\n%s</p></div>\n", para))
 		}
 
-		return expected
+		return expected.String()
 	case "rst":
 		if str == "" {
 			return "<div class=\"document\"></div>"
@@ -364,23 +364,24 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 				panic("contentDir must be set to 'content' for this test")
 			}
 
-			files := `
+			var files strings.Builder
+			files.WriteString(`
 -- hugo.toml --
 [security]
 [security.exec]
 allow = ['^python$', '^rst2html.*', '^asciidoctor$']
-`
+`)
 
 			for i, source := range pageSources {
-				files += fmt.Sprintf("-- content/p%d.%s --\n%s\n", i, e.ext, source)
+				files.WriteString(fmt.Sprintf("-- content/p%d.%s --\n%s\n", i, e.ext, source))
 			}
 			homePath := fmt.Sprintf("_index.%s", e.ext)
-			files += fmt.Sprintf("-- content/%s --\n%s\n", homePath, homePage)
+			files.WriteString(fmt.Sprintf("-- content/%s --\n%s\n", homePath, homePage))
 
 			b := NewIntegrationTestBuilder(
 				IntegrationTestConfig{
 					T:           t,
-					TxtarString: files,
+					TxtarString: files.String(),
 					NeedsOsFS:   true,
 					BaseCfg:     cfg,
 				},
@@ -513,7 +514,8 @@ baseURL = "http://example.com/"
 func TestPageDatesSections(t *testing.T) {
 	t.Parallel()
 
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "http://example.com/"
 -- content/no-index/page.md --
@@ -540,18 +542,18 @@ date: 2018-01-15
 title: Date
 date: 2018-01-15
 ---
-`
+`)
 	for i := 1; i <= 20; i++ {
-		files += fmt.Sprintf(`
+		files.WriteString(fmt.Sprintf(`
 -- content/main-section/p%d.md --
 ---
 title: Date
 date: 2012-01-12
 ---
-`, i)
+`, i))
 	}
 
-	b := Test(t, files)
+	b := Test(t, files.String())
 
 	b.Assert(len(b.H.Sites), qt.Equals, 1)
 	s := b.H.Sites[0]
@@ -1261,7 +1263,6 @@ post = ":year/:month/:day/:title/"
 	}
 
 	for i, test := range tests {
-		test := test
 		t.Run(fmt.Sprintf("Test%d", i), func(t *testing.T) {
 			t.Parallel()
 

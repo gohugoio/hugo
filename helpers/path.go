@@ -109,13 +109,13 @@ func GetDottedRelativePath(inPath string) string {
 		return "./"
 	}
 
-	var dottedPath string
+	var dottedPath strings.Builder
 
 	for i := 1; i < sectionCount; i++ {
-		dottedPath += "../"
+		dottedPath.WriteString("../")
 	}
 
-	return dottedPath
+	return dottedPath.String()
 }
 
 type NamedSlice struct {

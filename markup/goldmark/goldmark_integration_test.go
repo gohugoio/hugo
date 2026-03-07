@@ -232,7 +232,8 @@ LINE8
 }
 
 func BenchmarkRenderHooks(b *testing.B) {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 -- layouts/_markup/render-heading.html --
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
@@ -243,7 +244,7 @@ func BenchmarkRenderHooks(b *testing.B) {
 <a href="{{ .Destination | safeURL }}"{{ with .Title}} title="{{ . }}"{{ end }}>{{ .Text }}</a>
 -- layouts/single.html --
 {{ .Content }}
-`
+`)
 
 	content := `
 
@@ -271,12 +272,12 @@ D.
 `
 
 	for i := 1; i < 100; i++ {
-		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1)
+		files.WriteString(fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1))
 	}
 
 	cfg := hugolib.IntegrationTestConfig{
 		T:           b,
-		TxtarString: files,
+		TxtarString: files.String(),
 	}
 
 	for b.Loop() {
@@ -288,7 +289,8 @@ D.
 }
 
 func BenchmarkCodeblocks(b *testing.B) {
-	filesTemplate := `
+	var filesTemplate strings.Builder
+	filesTemplate.WriteString(`
 -- hugo.toml --
 [markup]
   [markup.highlight]
@@ -305,7 +307,7 @@ func BenchmarkCodeblocks(b *testing.B) {
     tabWidth = 4
 -- layouts/single.html --
 {{ .Content }}
-`
+`)
 
 	content := `
 
@@ -325,7 +327,7 @@ FENCE
 	content = strings.ReplaceAll(content, "FENCE", "```")
 
 	for i := 1; i < 100; i++ {
-		filesTemplate += fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1)
+		filesTemplate.WriteString(fmt.Sprintf("\n-- content/posts/p%d.md --\n"+content, i+1))
 	}
 
 	runBenchmark := func(files string, b *testing.B) {
@@ -343,11 +345,11 @@ FENCE
 	}
 
 	b.Run("Default", func(b *testing.B) {
-		runBenchmark(filesTemplate, b)
+		runBenchmark(filesTemplate.String(), b)
 	})
 
 	b.Run("Hook no higlight", func(b *testing.B) {
-		files := filesTemplate + `
+		files := filesTemplate.String() + `
 -- layouts/_markup/render-codeblock.html --
 {{ .Inner }}
 `

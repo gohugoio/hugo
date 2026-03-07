@@ -59,7 +59,8 @@ title: p#2
 func TestMiscPathIssues(t *testing.T) {
 	t.Parallel()
 
-	filesTemplate := `
+	var filesTemplate strings.Builder
+	filesTemplate.WriteString(`
 -- hugo.toml --
 uglyURLs = false
 
@@ -98,7 +99,7 @@ title: tags
 ---
 title: red
 ---
-`
+`)
 
 	templates := []string{
 		"layouts/home.html",
@@ -116,10 +117,10 @@ title: red
 	const code string = "TITLE: {{ .Title }} | AOFRP: {{ range .AlternativeOutputFormats }}{{ .RelPermalink }}{{ end }} | TEMPLATE: {{ templates.Current.Name }}"
 
 	for _, template := range templates {
-		filesTemplate += "-- " + template + " --\n" + code + "\n"
+		filesTemplate.WriteString("-- " + template + " --\n" + code + "\n")
 	}
 
-	files := filesTemplate
+	files := filesTemplate.String()
 
 	b := hugolib.Test(t, files)
 
@@ -137,7 +138,7 @@ title: red
 	b.AssertFileContent("public/print/tags/index.txt", "TITLE: tags | AOFRP: /tags/ | TEMPLATE: taxonomy.print.txt")
 	b.AssertFileContent("public/print/tags/red/index.txt", "TITLE: red | AOFRP: /tags/red/ | TEMPLATE: term.print.txt")
 
-	files = strings.ReplaceAll(filesTemplate, "uglyURLs = false", "uglyURLs = true")
+	files = strings.ReplaceAll(filesTemplate.String(), "uglyURLs = false", "uglyURLs = true")
 	b = hugolib.Test(t, files)
 
 	// uglyURLs: true, outputFormat: html

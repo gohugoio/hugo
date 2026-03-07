@@ -21,7 +21,7 @@ import (
 func BenchmarkSimpleThreadSafeTree(b *testing.B) {
 	newTestTree := func() TreeThreadSafe[int] {
 		t := NewSimpleThreadSafeTree[int]()
-		for i := 0; i < 1000; i++ {
+		for i := range 1000 {
 			t.Insert(fmt.Sprintf("key%d", i), i)
 		}
 		return t

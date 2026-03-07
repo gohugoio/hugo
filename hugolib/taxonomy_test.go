@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/resources/kinds"
@@ -144,7 +145,8 @@ categories: ["This is Cool", "And new" ]
 Content.
 `
 
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "http://example.com"
 -- layouts/home.html --
@@ -161,13 +163,13 @@ baseURL = "http://example.com"
             <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
     {{ end }}
 </ul>
-`
+`)
 
 	for i := range 10 {
-		files += fmt.Sprintf("\n-- content/page%d.md --\n%s", i+1, pageContent)
+		files.WriteString(fmt.Sprintf("\n-- content/page%d.md --\n%s", i+1, pageContent))
 	}
 
-	b := Test(t, files)
+	b := Test(t, files.String())
 
 	b.AssertFileContent("public/index.html", `<li><a href="http://example.com/tags/hugo-rocks/">Hugo Rocks!</a> 10</li>`)
 	b.AssertFileContent("public/categories/index.html", `<li><a href="http://example.com/categories/this-is-cool/">This Is Cool</a> 10</li>`)
@@ -845,7 +847,8 @@ func BenchmarkTaxonomiesGetTerms(b *testing.B) {
 	createBuilder := func(b *testing.B, numPages int) *IntegrationTestBuilder {
 		b.StopTimer()
 
-		files := `
+		var files strings.Builder
+		files.WriteString(`
 -- hugo.toml --
 baseURL = "https://example.com"
 disableKinds = ["RSS", "sitemap", "section"]
@@ -856,7 +859,7 @@ List.
 -- layouts/single.html --
 GetTerms.tags: {{ range .GetTerms "tags" }}{{ .Title }}|{{ end }}
 -- content/_index.md --
-`
+`)
 
 		tagsVariants := []string{
 			"tags: ['a']",
@@ -871,12 +874,12 @@ GetTerms.tags: {{ range .GetTerms "tags" }}{{ .Title }}|{{ end }}
 
 		for i := 1; i < numPages; i++ {
 			tags := tagsVariants[i%len(tagsVariants)]
-			files += fmt.Sprintf("\n-- content/posts/p%d.md --\n---\n%s\n---", i+1, tags)
+			files.WriteString(fmt.Sprintf("\n-- content/posts/p%d.md --\n---\n%s\n---", i+1, tags))
 		}
 
 		cfg := IntegrationTestConfig{
 			T:           b,
-			TxtarString: files,
+			TxtarString: files.String(),
 		}
 
 		bb := NewIntegrationTestBuilder(cfg)

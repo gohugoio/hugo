@@ -446,11 +446,11 @@ func doRenderShortcode(
 	}
 
 	if len(sc.inner) > 0 {
-		var inner string
+		var inner strings.Builder
 		for _, innerData := range sc.inner {
 			switch innerData := innerData.(type) {
 			case string:
-				inner += innerData
+				inner.WriteString(innerData)
 			case *shortcode:
 				s, err := prepareShortcode(level+1, innerData, data, po, isRenderString)
 				if err != nil {
@@ -461,7 +461,7 @@ func doRenderShortcode(
 				if err != nil {
 					return zeroShortcode, err
 				}
-				inner += ss
+				inner.WriteString(ss)
 			default:
 				po.p.s.Log.Errorf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
 					sc.name, p.File().Path(), reflect.TypeOf(innerData))
@@ -473,7 +473,7 @@ func doRenderShortcode(
 		// shortcode.
 		if sc.doMarkup && (level > 0 || sc.configVersion() == 1) {
 			var err error
-			b, err := p.pageOutput.contentRenderer.ParseAndRenderContent(ctx, []byte(inner), false)
+			b, err := p.pageOutput.contentRenderer.ParseAndRenderContent(ctx, []byte(inner.String()), false)
 			if err != nil {
 				return zeroShortcode, err
 			}
@@ -492,7 +492,7 @@ func doRenderShortcode(
 			//     the newline.
 			switch p.m.pageConfigSource.Content.Markup {
 			case "", "markdown":
-				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
+				if match, _ := regexp.MatchString(innerNewlineRegexp, inner.String()); !match {
 					cleaner, err := regexp.Compile(innerCleanupRegexp)
 
 					if err == nil {
@@ -504,7 +504,7 @@ func doRenderShortcode(
 			// TODO(bep) we may have plain text inner templates.
 			data.Inner = template.HTML(newInner)
 		} else {
-			data.Inner = template.HTML(inner)
+			data.Inner = template.HTML(inner.String())
 		}
 
 	}

@@ -1778,7 +1778,8 @@ Home.
 }
 
 func benchmarkFilesEdit(count int) string {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "https://example.com"
 disableKinds = ["term", "taxonomy"]
@@ -1791,7 +1792,7 @@ List: {{ .Title }}|{{ .Content }}|
 ---
 title: "My Sect"
 ---
-	`
+	`)
 
 	contentTemplate := `
 ---
@@ -1801,10 +1802,10 @@ P%d Content.
 `
 
 	for i := range count {
-		files += fmt.Sprintf("-- content/mysect/p%d/index.md --\n%s", i, fmt.Sprintf(contentTemplate, i, i))
+		files.WriteString(fmt.Sprintf("-- content/mysect/p%d/index.md --\n%s", i, fmt.Sprintf(contentTemplate, i, i)))
 	}
 
-	return files
+	return files.String()
 }
 
 func BenchmarkRebuildContentFileChange(b *testing.B) {

@@ -26,9 +26,9 @@ import (
 
 func TestMethods(t *testing.T) {
 	var (
-		zeroIE     = reflect.TypeOf((*IEmbed)(nil)).Elem()
-		zeroIEOnly = reflect.TypeOf((*IEOnly)(nil)).Elem()
-		zeroI      = reflect.TypeOf((*I)(nil)).Elem()
+		zeroIE     = reflect.TypeFor[IEmbed]()
+		zeroIEOnly = reflect.TypeFor[IEOnly]()
+		zeroI      = reflect.TypeFor[I]()
 	)
 
 	dir, _ := os.Getwd()

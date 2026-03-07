@@ -205,7 +205,8 @@ D1
 
 // gobench --package ./tpl/partials
 func BenchmarkIncludeCached(b *testing.B) {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = 'http://example.com/'
 -- layouts/home.html --
@@ -228,15 +229,15 @@ ABCDE
 {{ end }}
 
 
-`
+`)
 
 	for i := 1; i < 100; i++ {
-		files += fmt.Sprintf("\n-- content/p%d.md --\n---\ntitle: page\n---\n"+strings.Repeat("FOO ", i), i)
+		files.WriteString(fmt.Sprintf("\n-- content/p%d.md --\n---\ntitle: page\n---\n"+strings.Repeat("FOO ", i), i))
 	}
 
 	cfg := hugolib.IntegrationTestConfig{
 		T:           b,
-		TxtarString: files,
+		TxtarString: files.String(),
 	}
 
 	for b.Loop() {

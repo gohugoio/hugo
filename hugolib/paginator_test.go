@@ -15,13 +15,15 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 )
 
 func TestPaginator(t *testing.T) {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "https://example.com/foo/"
 
@@ -36,28 +38,28 @@ contentDir = "content/en"
 [languages.nn]
 weight = 2
 contentDir = "content/nn"
-`
+`)
 	// Manually generate content files for the txtar string
-	for i := 0; i < 9; i++ {
-		files += fmt.Sprintf(`
+	for i := range 9 {
+		files.WriteString(fmt.Sprintf(`
 -- content/en/blog/page%d.md --
 ---
 title: Page %d
 ---
 
 Content.
-`, i, i)
-		files += fmt.Sprintf(`
+`, i, i))
+		files.WriteString(fmt.Sprintf(`
 -- content/nn/blog/page%d.md --
 ---
 title: Page %d
 ---
 
 Content.
-`, i, i)
+`, i, i))
 	}
 
-	files += `
+	files.WriteString(`
 -- layouts/home.html --
 {{ $pag := $.Paginator }}
 Total: {{ $pag.TotalPages }}
@@ -80,9 +82,9 @@ URL: {{ $pag.URL }}
 {{ range $i, $e := $pag.Pagers }}
 {{ printf "%d: %d/%d  %t" $i $pag.PageNumber .PageNumber (eq . $pag) -}}
 {{ end }}
-`
+`)
 
-	b := Test(t, files)
+	b := Test(t, files.String())
 
 	b.AssertFileContent("public/index.html",
 		"Page Number: 1",
@@ -131,7 +133,8 @@ Paginate: {{ range (.Paginate (sort .Site.RegularPages ".File.Filename" "desc"))
 
 // https://github.com/gohugoio/hugo/issues/6797
 func TestPaginateOutputFormat(t *testing.T) {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "http://example.com/"
 -- content/_index.md --
@@ -141,23 +144,23 @@ cascade:
   outputs:
     - JSON
 ---
-`
-	for i := 0; i < 22; i++ {
-		files += fmt.Sprintf(`
+`)
+	for i := range 22 {
+		files.WriteString(fmt.Sprintf(`
 -- content/p%d.md --
 ---
 title: "Page"
 weight: %d
 ---
-`, i+1, i+1)
+`, i+1, i+1))
 	}
 
-	files += `
+	files.WriteString(`
 -- layouts/index.json --
 JSON: {{ .Paginator.TotalNumberOfElements }}: {{ range .Paginator.Pages }}|{{ .RelPermalink }}{{ end }}:DONE
-`
+`)
 
-	b := Test(t, files)
+	b := Test(t, files.String())
 
 	b.AssertFileContent("public/index.json",
 		`JSON: 22

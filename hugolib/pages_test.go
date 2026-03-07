@@ -3,6 +3,7 @@ package hugolib
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/resources/page"
@@ -22,17 +23,18 @@ categories: %s
 ---
 
 `
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "http://example.com/"
 
-`
+`)
 
 	for i := 1; i <= numPages; i++ {
-		files += fmt.Sprintf("-- content/page%d.md --%s\n", i, fmt.Sprintf(pageTemplate, i, rand.Intn(numPages), categoriesSlice))
+		files.WriteString(fmt.Sprintf("-- content/page%d.md --%s\n", i, fmt.Sprintf(pageTemplate, i, rand.Intn(numPages), categoriesSlice)))
 	}
 
-	return Test(t, files, TestOptSkipRender())
+	return Test(t, files.String(), TestOptSkipRender())
 }
 
 func TestPagesPrevNext(t *testing.T) {

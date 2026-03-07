@@ -73,7 +73,7 @@ func (c *Inspector) MethodsFromTypes(include []reflect.Type, exclude []reflect.T
 	nameAndPackage := func(t reflect.Type) (string, string) {
 		var name, pkg string
 
-		isPointer := t.Kind() == reflect.Ptr
+		isPointer := t.Kind() == reflect.Pointer
 
 		if isPointer {
 			t = t.Elem()

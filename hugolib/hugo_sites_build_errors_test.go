@@ -275,7 +275,6 @@ foo bar
 	}
 
 	for _, test := range tests {
-		test := test
 		if test.name != "Base template parse failed" {
 			continue
 		}
