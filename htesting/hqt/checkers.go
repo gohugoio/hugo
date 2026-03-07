@@ -182,7 +182,7 @@ func structTypes(v reflect.Value, m map[reflect.Type]struct{}) {
 		return
 	}
 	switch v.Kind() {
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if !v.IsNil() {
 			structTypes(v.Elem(), m)
 		}

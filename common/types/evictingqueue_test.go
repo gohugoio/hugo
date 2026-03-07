@@ -56,9 +56,7 @@ func TestEvictingStringQueueConcurrent(t *testing.T) {
 	queue := NewEvictingQueue[string](3)
 
 	for range 100 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			queue.Add(val)
 			v := queue.Peek()
 			if v != val {
@@ -68,7 +66,7 @@ func TestEvictingStringQueueConcurrent(t *testing.T) {
 			if len(vals) != 1 || vals[0] != val {
 				t.Error("wrong val")
 			}
-		}()
+		})
 	}
 	wg.Wait()
 }

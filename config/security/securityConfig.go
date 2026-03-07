@@ -202,7 +202,7 @@ func stringSliceToWhitelistHook() mapstructure.DecodeHookFuncType {
 		t reflect.Type,
 		data any,
 	) (any, error) {
-		if t != reflect.TypeOf(Whitelist{}) {
+		if t != reflect.TypeFor[Whitelist]() {
 			return data, nil
 		}
 

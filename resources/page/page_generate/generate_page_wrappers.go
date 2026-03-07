@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	"github.com/gohugoio/hugo/codegen"
 	"github.com/gohugoio/hugo/resources/page"
@@ -41,7 +42,7 @@ const header = `// Copyright 2019 The Hugo Authors. All rights reserved.
 `
 
 var (
-	pageInterface = reflect.TypeOf((*page.PageMetaProvider)(nil)).Elem()
+	pageInterface = reflect.TypeFor[page.PageMetaProvider]()
 
 	packageDir = filepath.FromSlash("resources/page")
 )
@@ -105,10 +106,11 @@ func importsString(imps []string) string {
 		return fmt.Sprintf("import %q", imps[0])
 	}
 
-	impsStr := "import (\n"
+	var impsStr strings.Builder
+	impsStr.WriteString("import (\n")
 	for _, imp := range imps {
-		impsStr += fmt.Sprintf("%q\n", imp)
+		impsStr.WriteString(fmt.Sprintf("%q\n", imp))
 	}
 
-	return impsStr + ")"
+	return impsStr.String() + ")"
 }

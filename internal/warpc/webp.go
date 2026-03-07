@@ -141,7 +141,7 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 
 		frameSize := stride * h
 		frames := make([]image.Image, len(destination.Bytes())/frameSize)
-		for i := 0; i < len(frames); i++ {
+		for i := range frames {
 			frameBytes := destination.Bytes()[i*frameSize : (i+1)*frameSize]
 			frameImg := &image.NRGBA{
 				Pix:    frameBytes,
@@ -166,10 +166,10 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 		rgbData := destination.Bytes()
 		nrgbaStride = w * 4
 		pix = make([]byte, nrgbaStride*h)
-		for y := 0; y < h; y++ {
+		for y := range h {
 			srcIdx := y * stride
 			dstIdx := y * nrgbaStride
-			for x := 0; x < w; x++ {
+			for range w {
 				pix[dstIdx+0] = rgbData[srcIdx+0] // R
 				pix[dstIdx+1] = rgbData[srcIdx+1] // G
 				pix[dstIdx+2] = rgbData[srcIdx+2] // B

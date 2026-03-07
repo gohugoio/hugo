@@ -364,7 +364,7 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 	t.Run("Limits number of root groups", func(t *testing.T) {
 		in := []string{}
 		// Create 15 different root paths to exceed maxRootGroups (10)
-		for i := 0; i < 15; i++ {
+		for i := range 15 {
 			in = append(in, filepath.FromSlash(fmt.Sprintf("/path%d/subdir", i)))
 		}
 
@@ -377,8 +377,8 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 
 func BenchmarkExtractAndGroupRootPaths(b *testing.B) {
 	in := []string{}
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 1000; j++ {
+	for i := range 10 {
+		for j := range 1000 {
 			in = append(in, fmt.Sprintf("/a/b/c/s%d/p%d", i, j))
 		}
 	}

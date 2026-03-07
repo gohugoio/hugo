@@ -16,6 +16,7 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -28,7 +29,8 @@ func TestSiteStats(t *testing.T) {
 
 	c := qt.New(t)
 
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "http://example.com/blog"
 
@@ -56,7 +58,7 @@ List|{{ .Title }}|Pages: {{ .Paginator.TotalPages }}|{{ .Content }}
 -- layouts/terms.html --
 Terms List|{{ .Title }}|{{ .Content }}
 
-`
+`)
 
 	pageTemplate := `---
 title: "T%d"
@@ -72,16 +74,16 @@ aliases: [/Ali%d]
 	for i := range 2 {
 		for j := range 2 {
 			pageID := i + j + 1
-			files += fmt.Sprintf("\n-- content/p%d.md --\n", pageID)
-			files += fmt.Sprintf(pageTemplate, pageID, fmt.Sprintf("- tag%d", j), fmt.Sprintf("- category%d", j), pageID)
+			files.WriteString(fmt.Sprintf("\n-- content/p%d.md --\n", pageID))
+			files.WriteString(fmt.Sprintf(pageTemplate, pageID, fmt.Sprintf("- tag%d", j), fmt.Sprintf("- category%d", j), pageID))
 		}
 	}
 
 	for i := range 5 {
-		files += fmt.Sprintf("\n-- assets/myimage%d.png --\niVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", i+1)
+		files.WriteString(fmt.Sprintf("\n-- assets/myimage%d.png --\niVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", i+1))
 	}
 
-	b := Test(t, files)
+	b := Test(t, files.String())
 	h := b.H
 
 	stats := []*helpers.ProcessingStats{

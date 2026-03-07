@@ -64,7 +64,7 @@ func (ns *Namespace) Apply(ctx context.Context, c any, fname string, args ...any
 	}
 }
 
-var typeOfReflectValue = reflect.TypeOf(reflect.Value{})
+var typeOfReflectValue = reflect.TypeFor[reflect.Value]()
 
 func applyFnToThis(ctx context.Context, fn, this reflect.Value, args ...any) (reflect.Value, error) {
 	num := fn.Type().NumIn()

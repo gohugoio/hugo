@@ -27,7 +27,7 @@ import (
 
 // IsInterfaceOrPointer returns whether the given kind is an interface or a pointer.
 func IsInterfaceOrPointer(kind reflect.Kind) bool {
-	return kind == reflect.Interface || kind == reflect.Ptr
+	return kind == reflect.Interface || kind == reflect.Pointer
 }
 
 // TODO(bep) replace the private versions in /tpl with these.
@@ -92,7 +92,7 @@ func IsSlice(v any) bool {
 	return reflect.ValueOf(v).Kind() == reflect.Slice
 }
 
-var zeroType = reflect.TypeOf((*types.Zeroer)(nil)).Elem()
+var zeroType = reflect.TypeFor[types.Zeroer]()
 
 var isZeroCache sync.Map
 
@@ -136,7 +136,7 @@ func IsTruthfulValue(val reflect.Value) (truth bool) {
 		truth = val.Bool()
 	case reflect.Complex64, reflect.Complex128:
 		truth = val.Complex() != 0
-	case reflect.Chan, reflect.Func, reflect.Ptr, reflect.Interface:
+	case reflect.Chan, reflect.Func, reflect.Pointer, reflect.Interface:
 		truth = !val.IsNil()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		truth = val.Int() != 0
@@ -216,8 +216,8 @@ func GetMethodIndexByName(tp reflect.Type, name string) int {
 }
 
 var (
-	timeType           = reflect.TypeOf((*time.Time)(nil)).Elem()
-	asTimeProviderType = reflect.TypeOf((*htime.AsTimeProvider)(nil)).Elem()
+	timeType           = reflect.TypeFor[time.Time]()
+	asTimeProviderType = reflect.TypeFor[htime.AsTimeProvider]()
 )
 
 // IsTime returns whether tp is a time.Time type or if it can be converted into one
@@ -240,7 +240,7 @@ func IsValid(v reflect.Value) bool {
 	}
 
 	switch v.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		return !v.IsNil()
 	}
 
@@ -347,13 +347,13 @@ func IsNil(v reflect.Value) bool {
 		return true
 	}
 	switch v.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		return v.IsNil()
 	}
 	return false
 }
 
-var contextInterface = reflect.TypeOf((*context.Context)(nil)).Elem()
+var contextInterface = reflect.TypeFor[context.Context]()
 
 var isContextCache = hmaps.NewCache[reflect.Type, bool]()
 

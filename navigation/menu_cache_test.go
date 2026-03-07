@@ -55,9 +55,7 @@ func TestMenuCache(t *testing.T) {
 	}
 
 	for range 100 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for k, menu := range testMenuSets {
 				l1.Lock()
 				m, ca := c1.get("k1", nil, menu)
@@ -76,7 +74,7 @@ func TestMenuCache(t *testing.T) {
 				c.Assert(m3, qt.Not(qt.IsNil))
 				c.Assert("changed", qt.Equals, m3[0].Title)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 }

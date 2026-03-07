@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -23,27 +24,28 @@ import (
 )
 
 func BenchmarkCascadeTarget(b *testing.B) {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- content/_index.md --
 background = 'yosemite.jpg'
 [cascade._target]
 kind = '{section,term}'
 -- content/posts/_index.md --
 -- content/posts/funny/_index.md --
-`
+`)
 
 	for i := 1; i < 100; i++ {
-		files += fmt.Sprintf("\n-- content/posts/p%d.md --\n", i+1)
+		files.WriteString(fmt.Sprintf("\n-- content/posts/p%d.md --\n", i+1))
 	}
 
 	for i := 1; i < 100; i++ {
-		files += fmt.Sprintf("\n-- content/posts/funny/pf%d.md --\n", i+1)
+		files.WriteString(fmt.Sprintf("\n-- content/posts/funny/pf%d.md --\n", i+1))
 	}
 
 	b.Run("Kind", func(b *testing.B) {
 		cfg := IntegrationTestConfig{
 			T:           b,
-			TxtarString: files,
+			TxtarString: files.String(),
 		}
 		b.ResetTimer()
 

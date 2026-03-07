@@ -38,9 +38,7 @@ func TestXxHashFromReaderPara(t *testing.T) {
 
 	var wg sync.WaitGroup
 	for i := range 10 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for j := range 100 {
 				s := strings.Repeat("Hello ", i+j+1*42)
 				r := strings.NewReader(s)
@@ -50,7 +48,7 @@ func TestXxHashFromReaderPara(t *testing.T) {
 				expect, _ := XXHashFromString(s)
 				c.Assert(got, qt.Equals, expect)
 			}
-		}()
+		})
 	}
 
 	wg.Wait()

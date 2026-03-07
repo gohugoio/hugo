@@ -108,7 +108,7 @@ func newSliceElement(items any) any {
 	switch tp.Kind() {
 	case reflect.Array, reflect.Slice:
 		tp = tp.Elem()
-		if tp.Kind() == reflect.Ptr {
+		if tp.Kind() == reflect.Pointer {
 			tp = tp.Elem()
 		}
 

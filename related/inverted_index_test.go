@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"strings"
 	"testing"
 	"time"
 
@@ -31,15 +32,16 @@ type testDoc struct {
 }
 
 func (d *testDoc) String() string {
-	s := "\n"
+	var s strings.Builder
+	s.WriteString("\n")
 	for k, v := range d.keywords {
-		s += k + ":\t\t"
+		s.WriteString(k + ":\t\t")
 		for _, vv := range v {
-			s += "  " + vv.String()
+			s.WriteString("  " + vv.String())
 		}
-		s += "\n"
+		s.WriteString("\n")
 	}
-	return s
+	return s.String()
 }
 
 func (d *testDoc) Name() string {

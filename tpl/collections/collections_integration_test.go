@@ -16,6 +16,7 @@ package collections_test
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -568,17 +569,18 @@ title: Page%04d
 ---
 `
 
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 -- layouts/all.html --
 All.
-`
+`)
 
-	for i := 0; i < 500; i++ {
-		files += fmt.Sprintf(pageTemplate, i, i)
+	for i := range 500 {
+		files.WriteString(fmt.Sprintf(pageTemplate, i, i))
 	}
 
-	bb := hugolib.Test(b, files, hugolib.TestOptWithConfig(func(conf *hugolib.IntegrationTestConfig) {
+	bb := hugolib.Test(b, files.String(), hugolib.TestOptWithConfig(func(conf *hugolib.IntegrationTestConfig) {
 		conf.BuildCfg = hugolib.BuildCfg{
 			SkipRender: true,
 		}

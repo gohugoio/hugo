@@ -1053,7 +1053,8 @@ All. {{ .Title }}|Lang: {{ .Site.Language.Name }}|Ver: {{ .Site.Version.Name }}|
 }
 
 func newSitesMatrixContentBenchmarkBuilder(t testing.TB, numPages int, skipRender, multipleDimensions bool) *hugolib.IntegrationTestBuilder {
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 disableKinds = ["rss", "sitemap", "section", "taxonomy", "term"]
 defaultContentLanguage = "en"
@@ -1069,10 +1070,10 @@ title = "Benchmark"
 weight = 1
 
 
-`
+`)
 
 	if multipleDimensions {
-		files += `
+		files.WriteString(`
 [languages.nn]
 weight = 2
 [languages.sv]
@@ -1087,10 +1088,10 @@ weight = 3
 weight = 300
 [roles.member]
 weight = 200
-`
+`)
 	}
 
-	files += `
+	files.WriteString(`
 
 [[module.mounts]]
 source = 'content'
@@ -1101,31 +1102,31 @@ versions  = ["**"]
 roles = ["**"]
 -- layouts/all.html --
 All. {{ .Title }}|
-`
+`)
 	if multipleDimensions {
-		files += `
+		files.WriteString(`
 Rotate(language): {{ with .Rotate "language" }}{{ range . }}{{ template "printp" . }}|{{ end }}{{ end }}$
 Rotate(version): {{ with .Rotate "version" }}{{ range . }}{{ template "printp" . }}|{{ end }}{{ end }}$
 Rotate(role): {{ with .Rotate "role" }}{{ range . }}{{ template "printp" . }}|{{ end }}{{ end }}$
 {{ define "printp" }}{{ .RelPermalink }}:{{ with .Site }}{{ template "prints" . }}{{ end }}{{ end }}
 {{ define "prints" }}/l:{{ .Language.Name }}/v:{{ .Version.Name }}/r:{{ .Role.Name }}{{ end }}
 
-`
+`)
 	}
 
 	for i := range numPages {
-		files += fmt.Sprintf(`
+		files.WriteString(fmt.Sprintf(`
 -- content/p%d/index.md --
 ---
 title: "P%d"
 ---
-`, i+1, i+1)
+`, i+1, i+1))
 	}
 
 	b := hugolib.NewIntegrationTestBuilder(
 		hugolib.IntegrationTestConfig{
 			T:           t,
-			TxtarString: files,
+			TxtarString: files.String(),
 			BuildCfg: hugolib.BuildCfg{
 				SkipRender: skipRender,
 			},

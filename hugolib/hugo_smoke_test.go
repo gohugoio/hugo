@@ -781,7 +781,8 @@ func BenchmarkBaseline(b *testing.B) {
 func benchmarkBaselineFiles(leafBundles bool) string {
 	rnd := rand.New(rand.NewSource(32))
 
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 baseURL = "https://example.com"
 defaultContentLanguage = 'en'
@@ -828,7 +829,7 @@ weight = 4
 {{ .Content }}
 -- layouts/_shortcodes/myshort.html --
 {{ .Inner }}
-`
+`)
 
 	contentTemplate := `
 ---
@@ -855,11 +856,11 @@ Aliqua labore enim et sint anim amet excepteur ea dolore.
 `
 
 	for _, lang := range []string{"en", "nn", "no", "sv"} {
-		files += fmt.Sprintf("\n-- content/%s/_index.md --\n"+contentTemplate, lang, 1, 1, 1)
+		files.WriteString(fmt.Sprintf("\n-- content/%s/_index.md --\n"+contentTemplate, lang, 1, 1, 1))
 		for i, root := range []string{"", "foo", "bar", "baz"} {
 			for j, section := range []string{"posts", "posts/funny", "posts/science", "posts/politics", "posts/world", "posts/technology", "posts/world/news", "posts/world/news/europe"} {
 				n := i + j + 1
-				files += fmt.Sprintf("\n-- content/%s/%s/%s/_index.md --\n"+contentTemplate, lang, root, section, n, n, n)
+				files.WriteString(fmt.Sprintf("\n-- content/%s/%s/%s/_index.md --\n"+contentTemplate, lang, root, section, n, n, n))
 				for k := 1; k < rnd.Intn(30)+1; k++ {
 					n := n + k
 					ns := fmt.Sprintf("%d", n)
@@ -867,11 +868,11 @@ Aliqua labore enim et sint anim amet excepteur ea dolore.
 						ns = fmt.Sprintf("%d/index", n)
 					}
 					file := fmt.Sprintf("\n-- content/%s/%s/%s/p%s.md --\n"+contentTemplate, lang, root, section, ns, n, n)
-					files += file
+					files.WriteString(file)
 				}
 			}
 		}
 	}
 
-	return files
+	return files.String()
 }
