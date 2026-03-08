@@ -38,7 +38,7 @@ func TestMD5(t *testing.T) {
 		result, err := ns.MD5(test.in)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -65,7 +65,7 @@ func TestSHA1(t *testing.T) {
 		result, err := ns.SHA1(test.in)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -92,7 +92,7 @@ func TestSHA256(t *testing.T) {
 		result, err := ns.SHA256(test.in)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -128,7 +128,7 @@ func TestHMAC(t *testing.T) {
 		result, err := ns.HMAC(test.hash, test.key, test.msg, test.encoding)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 

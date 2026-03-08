@@ -38,13 +38,13 @@ func TestMergeLanguages(t *testing.T) {
 	frSite := h.Sites[1]
 	nnSite := h.Sites[2]
 
-	c.Assert(len(enSite.RegularPages()), qt.Equals, 31)
-	c.Assert(len(frSite.RegularPages()), qt.Equals, 6)
-	c.Assert(len(nnSite.RegularPages()), qt.Equals, 12)
+	c.Assert(enSite.RegularPages(), qt.HasLen, 31)
+	c.Assert(frSite.RegularPages(), qt.HasLen, 6)
+	c.Assert(nnSite.RegularPages(), qt.HasLen, 12)
 
 	for range 2 {
 		mergedNN := nnSite.RegularPages().MergeByLanguage(enSite.RegularPages())
-		c.Assert(len(mergedNN), qt.Equals, 31)
+		c.Assert(mergedNN, qt.HasLen, 31)
 		for i := 1; i <= 31; i++ {
 			expectedLang := "en"
 			if i == 2 || i%3 == 0 || i == 31 {
@@ -56,7 +56,7 @@ func TestMergeLanguages(t *testing.T) {
 	}
 
 	mergedFR := frSite.RegularPages().MergeByLanguage(enSite.RegularPages())
-	c.Assert(len(mergedFR), qt.Equals, 31)
+	c.Assert(mergedFR, qt.HasLen, 31)
 	for i := 1; i <= 31; i++ {
 		expectedLang := "en"
 		if i%5 == 0 {
@@ -67,20 +67,20 @@ func TestMergeLanguages(t *testing.T) {
 	}
 
 	firstNN := nnSite.RegularPages()[0]
-	c.Assert(len(firstNN.Sites()), qt.Equals, 4)
+	c.Assert(firstNN.Sites(), qt.HasLen, 4)
 	c.Assert(firstNN.Sites().Default().Language().Lang, qt.Equals, "en")
 
 	nnBundle := nnSite.getPageOldVersion("page", "bundle")
 	enBundle := enSite.getPageOldVersion("page", "bundle")
 
-	c.Assert(len(enBundle.Resources()), qt.Equals, 6)
-	c.Assert(len(nnBundle.Resources()), qt.Equals, 2)
+	c.Assert(enBundle.Resources(), qt.HasLen, 6)
+	c.Assert(nnBundle.Resources(), qt.HasLen, 2)
 
 	var ri any = nnBundle.Resources()
 
 	// This looks less ugly in the templates ...
 	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources())
-	c.Assert(len(mergedNNResources), qt.Equals, 6)
+	c.Assert(mergedNNResources, qt.HasLen, 6)
 
 	unchanged, err := nnSite.RegularPages().MergeByLanguageInterface(nil)
 	c.Assert(err, qt.IsNil)

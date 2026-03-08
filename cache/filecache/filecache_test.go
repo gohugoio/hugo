@@ -87,10 +87,10 @@ dir = ":cacheDir/c"
 		caches.SetResourceFs(p.SourceFs)
 
 		cache := caches.Get("Misc")
-		c.Assert(cache, qt.Not(qt.IsNil))
+		c.Assert(cache, qt.IsNotNil)
 
 		cache = caches.Get("Images")
-		c.Assert(cache, qt.Not(qt.IsNil))
+		c.Assert(cache, qt.IsNotNil)
 
 		rf := func(s string) func() (io.ReadCloser, error) {
 			return func() (io.ReadCloser, error) {
@@ -112,7 +112,7 @@ dir = ":cacheDir/c"
 			for range 2 {
 				info, r, err := ca.GetOrCreate("a", rf("abc"))
 				c.Assert(err, qt.IsNil)
-				c.Assert(r, qt.Not(qt.IsNil))
+				c.Assert(r, qt.IsNotNil)
 				c.Assert(info.Name, qt.Equals, "a")
 				b, _ := io.ReadAll(r)
 				r.Close()
@@ -120,7 +120,7 @@ dir = ":cacheDir/c"
 
 				info, b, err = ca.GetOrCreateBytes("b", bf)
 				c.Assert(err, qt.IsNil)
-				c.Assert(r, qt.Not(qt.IsNil))
+				c.Assert(r, qt.IsNotNil)
 				c.Assert(info.Name, qt.Equals, "b")
 				c.Assert(string(b), qt.Equals, "bcd")
 
@@ -145,7 +145,7 @@ dir = ":cacheDir/c"
 
 		info, r, err := caches.ImageCache().Get("mykey")
 		c.Assert(err, qt.IsNil)
-		c.Assert(r, qt.Not(qt.IsNil))
+		c.Assert(r, qt.IsNotNil)
 		c.Assert(info.Name, qt.Equals, "mykey")
 		b, _ := io.ReadAll(r)
 		r.Close()
@@ -203,7 +203,7 @@ dir = "/cache/c"
 			defer wg.Done()
 			for range 20 {
 				ca := caches.Get(cacheName)
-				c.Assert(ca, qt.Not(qt.IsNil))
+				c.Assert(ca, qt.IsNotNil)
 				filename, data := filenameData(i)
 				_, r, err := ca.GetOrCreate(filename, func() (io.ReadCloser, error) {
 					return hugio.ToReadCloser(strings.NewReader(data)), nil

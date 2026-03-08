@@ -16,9 +16,9 @@ type testSiteBuildErrorAsserter struct {
 }
 
 func (t testSiteBuildErrorAsserter) getFileError(err error) herrors.FileError {
-	t.c.Assert(err, qt.Not(qt.IsNil), qt.Commentf(t.name))
+	t.c.Assert(err, qt.IsNotNil, qt.Commentf(t.name))
 	fe := herrors.UnwrapFileError(err)
-	t.c.Assert(fe, qt.Not(qt.IsNil))
+	t.c.Assert(fe, qt.IsNotNil)
 	return fe
 }
 
@@ -266,7 +266,7 @@ foo bar
 			},
 
 			assertErr: func(a testSiteBuildErrorAsserter, err error) {
-				a.c.Assert(err, qt.Not(qt.IsNil))
+				a.c.Assert(err, qt.IsNotNil)
 				fe := a.getFileError(err)
 				a.c.Assert(fe.Position().LineNumber, qt.Equals, 5)
 				a.c.Assert(fe.Position().ColumnNumber, qt.Equals, 21)
@@ -583,7 +583,7 @@ title: "A page"
 
 	_, err := TestE(t, filesBuilder.String())
 
-	qt.Assert(t, err, qt.Not(qt.IsNil))
+	qt.Assert(t, err, qt.IsNotNil)
 	qt.Assert(t, err.Error(), qt.Contains, "timed out rendering the page content")
 }
 

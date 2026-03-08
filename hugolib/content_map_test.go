@@ -428,7 +428,7 @@ func TestContentTreeReverseIndex(t *testing.T) {
 	for i := range 10 {
 		key := fmt.Sprint(i)
 		v := pageReverseIndex.Get(key)
-		c.Assert(v, qt.Not(qt.IsNil))
+		c.Assert(v, qt.IsNotNil)
 		c.Assert(v.Path(), qt.Equals, key)
 	}
 }

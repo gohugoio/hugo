@@ -28,7 +28,7 @@ func TestCacheSize(t *testing.T) {
 		cache.Set(string(rune('a'+i)), "value")
 	}
 
-	c.Assert(len(cache.m), qt.Equals, 10)
+	c.Assert(cache.m, qt.HasLen, 10)
 
 	for i := 20; i < 50; i++ {
 		cache.GetOrCreate(string(rune('a'+i)), func() (string, error) {
@@ -36,13 +36,13 @@ func TestCacheSize(t *testing.T) {
 		})
 	}
 
-	c.Assert(len(cache.m), qt.Equals, 10)
+	c.Assert(cache.m, qt.HasLen, 10)
 
 	for i := 100; i < 200; i++ {
 		cache.SetIfAbsent(string(rune('a'+i)), "value")
 	}
 
-	c.Assert(len(cache.m), qt.Equals, 10)
+	c.Assert(cache.m, qt.HasLen, 10)
 
 	cache.InitAndGet("foo", func(
 		get func(key string) (string, bool), set func(key string, value string),
@@ -53,5 +53,5 @@ func TestCacheSize(t *testing.T) {
 		return nil
 	})
 
-	c.Assert(len(cache.m), qt.Equals, 10)
+	c.Assert(cache.m, qt.HasLen, 10)
 }

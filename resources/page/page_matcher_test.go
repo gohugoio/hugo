@@ -77,8 +77,8 @@ func TestPageMatcher(t *testing.T) {
 
 	c.Run("Decode", func(c *qt.C) {
 		var v PageMatcher
-		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "foo"}, &v), qt.Not(qt.IsNil))
-		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "{foo,bar}"}, &v), qt.Not(qt.IsNil))
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "foo"}, &v), qt.IsNotNil)
+		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "{foo,bar}"}, &v), qt.IsNotNil)
 		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "taxonomy"}, &v), qt.IsNil)
 		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "{taxonomy,foo}"}, &v), qt.IsNil)
 		c.Assert(dec.decodePageMatcher(map[string]any{"kind": "{taxonomy,term}"}, &v), qt.IsNil)

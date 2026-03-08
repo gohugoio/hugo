@@ -88,7 +88,7 @@ func TestNewContentFromFile(t *testing.T) {
 
 			if b, ok := cas.expected.(bool); ok && !b {
 				if !b {
-					c.Assert(err, qt.Not(qt.IsNil))
+					c.Assert(err, qt.IsNotNil)
 				}
 				return
 			}
@@ -139,7 +139,7 @@ site RegularPages: {{ len site.RegularPages  }}
 	h := func() *hugolib.HugoSites {
 		h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
 		c.Assert(err, qt.IsNil)
-		c.Assert(len(h.Sites), qt.Equals, 2)
+		c.Assert(h.Sites, qt.HasLen, 2)
 		return h
 	}
 

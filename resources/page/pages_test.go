@@ -68,5 +68,5 @@ func TestToPages(t *testing.T) {
 	c.Assert(mustToPages([]any{p1, p2}), eq, pages12)
 
 	_, err := ToPages("not a page")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }

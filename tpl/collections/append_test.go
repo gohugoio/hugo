@@ -52,7 +52,7 @@ func TestAppend(t *testing.T) {
 		result, err := ns.Append(args...)
 
 		if b, ok := test.expected.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 

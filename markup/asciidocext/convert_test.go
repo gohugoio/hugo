@@ -72,7 +72,7 @@ func TestAsciidoctorDefaultArgs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciiDocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args, err := ac.ParseArgs(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
@@ -110,7 +110,7 @@ func TestAsciidoctorNonDefaultArgs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciiDocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args, err := ac.ParseArgs(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
@@ -146,7 +146,7 @@ func TestAsciidoctorDisallowedArgs(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciiDocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args, err := ac.ParseArgs(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
@@ -176,7 +176,7 @@ func TestAsciidoctorArbitraryExtension(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciiDocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	args, err := ac.ParseArgs(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
@@ -215,7 +215,7 @@ func TestAsciidoctorDisallowedExtension(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 
 		ac := conv.(*internal.AsciiDocConverter)
-		c.Assert(ac, qt.Not(qt.IsNil))
+		c.Assert(ac, qt.IsNotNil)
 
 		args, err := ac.ParseArgs(converter.DocumentContext{})
 		c.Assert(err, qt.IsNil)
@@ -254,7 +254,7 @@ my-attribute-false = false
 	c.Assert(err, qt.IsNil)
 
 	ac := conv.(*internal.AsciiDocConverter)
-	c.Assert(ac, qt.Not(qt.IsNil))
+	c.Assert(ac, qt.IsNotNil)
 
 	expectedValues := map[string]bool{
 		"my-base-url=https://gohugo.io/": true,
@@ -265,7 +265,7 @@ my-attribute-false = false
 
 	args, err := ac.ParseArgs(converter.DocumentContext{})
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(args), qt.Equals, 9)
+	c.Assert(args, qt.HasLen, 9)
 	c.Assert(args[0], qt.Equals, "-a")
 	c.Assert(expectedValues[args[1]], qt.Equals, true)
 	c.Assert(args[2], qt.Equals, "-a")

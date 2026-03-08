@@ -227,7 +227,7 @@ T1: {{ $r.Content }}
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`themes/mytheme/assets/scss/main.scss:6:1": expected ':' after $maincolor in assignment statement`))
 		ferrs := herrors.UnwrapFileErrors(err)
-		c.Assert(len(ferrs), qt.Equals, 2)
+		c.Assert(ferrs, qt.HasLen, 2)
 		fe := ferrs[1]
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 4 */", "", "$maincolor #eee;", "", "body {"})
@@ -245,7 +245,7 @@ T1: {{ $r.Content }}
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `assets/scss/components/_foo.scss:2:1": expected ':' after $foocolor in assignment statement`)
 		ferrs := herrors.UnwrapFileErrors(err)
-		c.Assert(len(ferrs), qt.Equals, 2)
+		c.Assert(ferrs, qt.HasLen, 2)
 		fe := ferrs[1]
 		b.Assert(fe.ErrorContext(), qt.IsNotNil)
 		b.Assert(fe.ErrorContext().Lines, qt.DeepEquals, []string{"/* comment line 1 */", "$foocolor #ccc;", "", "foo {"})

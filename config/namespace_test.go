@@ -41,7 +41,7 @@ func TestNamespace(t *testing.T) {
 	)
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(ns, qt.Not(qt.IsNil))
+	c.Assert(ns, qt.IsNotNil)
 	c.Assert(ns.SourceStructure, qt.DeepEquals, map[string]any{"foo": "bar"})
 	c.Assert(ns.SourceHash, qt.Equals, "1420f6c7782f7459")
 	c.Assert(ns.Config, qt.DeepEquals, &tstNsExt{Foo: "bar"})

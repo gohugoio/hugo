@@ -68,7 +68,7 @@ func TestIndex(t *testing.T) {
 			result, err := ns.Index(test.item, test.indices...)
 
 			if test.isErr {
-				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				c.Assert(err, qt.IsNotNil, errMsg)
 				return
 			}
 			c.Assert(err, qt.IsNil, errMsg)
@@ -81,7 +81,7 @@ func TestIndex(t *testing.T) {
 			result, err := ns.Index(test.item, test.indices)
 
 			if test.isErr {
-				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				c.Assert(err, qt.IsNotNil, errMsg)
 				return
 			}
 			c.Assert(err, qt.IsNil, errMsg)

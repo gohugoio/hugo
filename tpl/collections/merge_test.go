@@ -145,7 +145,7 @@ func TestMerge(t *testing.T) {
 			result, err := ns.Merge(test.params...)
 
 			if test.isErr {
-				c.Assert(err, qt.Not(qt.IsNil), errMsg)
+				c.Assert(err, qt.IsNotNil, errMsg)
 				return
 			}
 

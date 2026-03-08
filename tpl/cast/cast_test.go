@@ -46,7 +46,7 @@ func TestToInt(t *testing.T) {
 		result, err := ns.ToInt(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -74,7 +74,7 @@ func TestToString(t *testing.T) {
 		result, err := ns.ToString(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 
@@ -113,7 +113,7 @@ func TestToFloat(t *testing.T) {
 		result, err := ns.ToFloat(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 

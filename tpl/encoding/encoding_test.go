@@ -41,7 +41,7 @@ func TestBase64Decode(t *testing.T) {
 		result, err := ns.Base64Decode(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -68,7 +68,7 @@ func TestBase64Encode(t *testing.T) {
 		result, err := ns.Base64Encode(test.v)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -111,7 +111,7 @@ func TestJsonify(t *testing.T) {
 		result, err := ns.Jsonify(args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), qt.Commentf("#%d", i))
+			c.Assert(err, qt.IsNotNil, qt.Commentf("#%d", i))
 			continue
 		}
 

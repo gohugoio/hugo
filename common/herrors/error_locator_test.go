@@ -87,7 +87,7 @@ This THEONE
 	pos = location.Position
 	c.Assert(pos.LineNumber, qt.Equals, 0)
 	c.Assert(location.LinesPos, qt.Equals, -1)
-	c.Assert(len(location.Lines), qt.Equals, 0)
+	c.Assert(location.Lines, qt.HasLen, 0)
 
 	lineMatcher = func(m LineMatcher) int {
 		if m.LineNumber == 6 {

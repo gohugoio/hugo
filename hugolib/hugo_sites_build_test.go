@@ -68,12 +68,12 @@ p1 = "p1en"
 	sites := b.H.Sites
 
 	c := qt.New(t)
-	c.Assert(len(sites), qt.Equals, 2)
+	c.Assert(sites, qt.HasLen, 2)
 
 	nnSite := sites[0]
 	nnHome := nnSite.getPageOldVersion(kinds.KindHome)
-	c.Assert(len(nnHome.AllTranslations()), qt.Equals, 2)
-	c.Assert(len(nnHome.Translations()), qt.Equals, 1)
+	c.Assert(nnHome.AllTranslations(), qt.HasLen, 2)
+	c.Assert(nnHome.Translations(), qt.HasLen, 1)
 	c.Assert(nnHome.IsTranslated(), qt.Equals, true)
 
 	enHome := sites[1].getPageOldVersion(kinds.KindHome)

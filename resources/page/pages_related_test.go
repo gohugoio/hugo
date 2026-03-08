@@ -59,13 +59,13 @@ func TestRelated(t *testing.T) {
 	result, err := pages.Related(ctx, opts)
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(result), qt.Equals, 2)
+	c.Assert(result, qt.HasLen, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")
 	c.Assert(result[1].Title(), qt.Equals, "Page 1")
 
 	result, err = pages.Related(ctx, pages[0])
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(result), qt.Equals, 2)
+	c.Assert(result, qt.HasLen, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")
 	c.Assert(result[1].Title(), qt.Equals, "Page 3")
 
@@ -75,7 +75,7 @@ func TestRelated(t *testing.T) {
 	}
 	result, err = pages.Related(ctx, opts)
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(result), qt.Equals, 2)
+	c.Assert(result, qt.HasLen, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")
 	c.Assert(result[1].Title(), qt.Equals, "Page 3")
 
@@ -89,7 +89,7 @@ func TestRelated(t *testing.T) {
 	}
 	result, err = pages.Related(context.Background(), opts)
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(result), qt.Equals, 2)
+	c.Assert(result, qt.HasLen, 2)
 	c.Assert(result[0].Title(), qt.Equals, "Page 2")
 	c.Assert(result[1].Title(), qt.Equals, "Page 3")
 }

@@ -39,7 +39,7 @@ func TestInflect(t *testing.T) {
 		result, err := test.fn(test.in)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 

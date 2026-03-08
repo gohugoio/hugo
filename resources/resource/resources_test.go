@@ -29,7 +29,7 @@ func TestResourcesMount(t *testing.T) {
 	check := func(in, expect string) {
 		c.Helper()
 		r := m.Get(in)
-		c.Assert(r, qt.Not(qt.IsNil))
+		c.Assert(r, qt.IsNotNil)
 		c.Assert(r.Name(), qt.Equals, expect)
 	}
 

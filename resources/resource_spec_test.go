@@ -39,7 +39,7 @@ func TestNewResource(t *testing.T) {
 
 	r, err := spec.NewResource(rd)
 	c.Assert(err, qt.IsNil)
-	c.Assert(r, qt.Not(qt.IsNil))
+	c.Assert(r, qt.IsNotNil)
 	c.Assert(r.RelPermalink(), qt.Equals, "/c/d/a/b.txt")
 
 	info := resources.GetTestInfoForResource(r)

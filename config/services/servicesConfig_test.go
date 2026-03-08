@@ -44,7 +44,7 @@ disableInlineCSS = true
 
 	config, err := DecodeConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(config, qt.Not(qt.IsNil))
+	c.Assert(config, qt.IsNotNil)
 
 	c.Assert(config.Disqus.Shortname, qt.Equals, "DS")
 	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_id")
@@ -62,7 +62,7 @@ func TestUseSettingsFromRootIfSet(t *testing.T) {
 
 	config, err := DecodeConfig(cfg)
 	c.Assert(err, qt.IsNil)
-	c.Assert(config, qt.Not(qt.IsNil))
+	c.Assert(config, qt.IsNotNil)
 
 	c.Assert(config.Disqus.Shortname, qt.Equals, "root_short")
 	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_root")

@@ -195,10 +195,10 @@ a = "b"
 
 	c.Run("Error", func(c *qt.C) {
 		_, err := ns.Remarshal("asdf", "asdf")
-		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err, qt.IsNotNil)
 
 		_, err = ns.Remarshal("json", "asdf")
-		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err, qt.IsNotNil)
 	})
 }
 
@@ -259,7 +259,7 @@ c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
 			t.Parallel()
 			c := qt.New(t)
 			_, err := ns.Remarshal("json", test.data)
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 		})
 	}
 

@@ -82,7 +82,7 @@ output: ["HTML"]
 
 			b := Test(t, files)
 			s := b.H.Sites[0]
-			c.Assert(len(s.RegularPages()), qt.Equals, 1)
+			c.Assert(s.RegularPages(), qt.HasLen, 1)
 			p := s.RegularPages()[0]
 			u := p.Permalink()
 

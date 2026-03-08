@@ -82,7 +82,7 @@ func TestImageTransformBasic(t *testing.T) {
 	gotColors, err := image.Colors()
 	c.Assert(err, qt.IsNil)
 	expectedColors := images.HexStringsToColors("#2d2f33", "#a49e93", "#d39e59", "#a76936", "#737a84", "#7c838b")
-	c.Assert(len(gotColors), qt.Equals, len(expectedColors))
+	c.Assert(gotColors, qt.HasLen, len(expectedColors))
 	for i := range gotColors {
 		c1, c2 := gotColors[i], expectedColors[i]
 		c.Assert(c1.ColorHex(), qt.Equals, c2.ColorHex())
@@ -204,7 +204,7 @@ func TestImageTransformFormat(t *testing.T) {
 
 	assertExtWidthHeight := func(img images.ImageResource, ext string, w, h int) {
 		c.Helper()
-		c.Assert(img, qt.Not(qt.IsNil))
+		c.Assert(img, qt.IsNotNil)
 		c.Assert(paths.Ext(img.RelPermalink()), qt.Equals, ext)
 		c.Assert(img.Width(), qt.Equals, w)
 		c.Assert(img.Height(), qt.Equals, h)
@@ -258,7 +258,7 @@ func TestImagePermalinkPublishOrder(t *testing.T) {
 			}
 
 			original := fetchImageForSpec(spec, c, "sunset.jpg")
-			c.Assert(original, qt.Not(qt.IsNil))
+			c.Assert(original, qt.IsNotNil)
 
 			if checkOriginalFirst {
 				check2(original)
@@ -282,16 +282,16 @@ func TestImageBugs(t *testing.T) {
 	// Issue #4261
 	c.Run("Transform long filename", func(c *qt.C) {
 		_, image := fetchImage(c, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
-		c.Assert(image, qt.Not(qt.IsNil))
+		c.Assert(image, qt.IsNotNil)
 
 		resized, err := image.Resize("200x")
 		c.Assert(err, qt.IsNil)
-		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized, qt.IsNotNil)
 		c.Assert(resized.Width(), qt.Equals, 200)
 		c.Assert(resized.RelPermalink(), qt.Equals, "/a/1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph_hu_a6f31c42e1afef07.jpg")
 		resized, err = resized.Resize("100x")
 		c.Assert(err, qt.IsNil)
-		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized, qt.IsNotNil)
 		c.Assert(resized.Width(), qt.Equals, 100)
 		c.Assert(resized.RelPermalink(), qt.Equals, "/a/1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph_hu_14e106419fe28039.jpg")
 	})
@@ -302,7 +302,7 @@ func TestImageBugs(t *testing.T) {
 
 		resized, err := image.Resize("200x")
 		c.Assert(err, qt.IsNil)
-		c.Assert(resized, qt.Not(qt.IsNil))
+		c.Assert(resized, qt.IsNotNil)
 		c.Assert(resized.Width(), qt.Equals, 200)
 	})
 
@@ -328,7 +328,7 @@ func TestImageBugs(t *testing.T) {
 				c.Assert(err, qt.IsNil)
 				resized, err := image.Fill(fmt.Sprintf("%dx%d smart", test.targetWH, test.targetWH))
 				c.Assert(err, qt.IsNil)
-				c.Assert(resized, qt.Not(qt.IsNil))
+				c.Assert(resized, qt.IsNotNil)
 				c.Assert(resized.Width(), qt.Equals, test.targetWH)
 				c.Assert(resized.Height(), qt.Equals, test.targetWH)
 			})
@@ -399,14 +399,14 @@ func TestSVGImage(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	svg := fetchResourceForSpec(spec, c, "circle.svg")
-	c.Assert(svg, qt.Not(qt.IsNil))
+	c.Assert(svg, qt.IsNotNil)
 }
 
 func TestSVGImageContent(t *testing.T) {
 	c := qt.New(t)
 	spec := newTestResourceSpec(specDescriptor{c: c})
 	svg := fetchResourceForSpec(spec, c, "circle.svg")
-	c.Assert(svg, qt.Not(qt.IsNil))
+	c.Assert(svg, qt.IsNotNil)
 
 	content, err := svg.Content(context.Background())
 	c.Assert(err, qt.IsNil)
@@ -425,7 +425,7 @@ func TestImageMeta(t *testing.T) {
 
 	getAndCheckMeta := func(c *qt.C, image images.ImageResource) {
 		x := image.Meta()
-		c.Assert(x, qt.Not(qt.IsNil))
+		c.Assert(x, qt.IsNotNil)
 
 		c.Assert(x.Date.Format("2006-01-02"), qt.Equals, "2017-10-27")
 
@@ -454,10 +454,10 @@ func TestImageColorsLuminance(t *testing.T) {
 	c := qt.New(t)
 
 	_, image := fetchSunset(c)
-	c.Assert(image, qt.Not(qt.IsNil))
+	c.Assert(image, qt.IsNotNil)
 	colors, err := image.Colors()
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(colors), qt.Equals, 6)
+	c.Assert(colors, qt.HasLen, 6)
 	var prevLuminance float64
 	for i, color := range colors {
 		luminance := color.Luminance()
@@ -479,7 +479,7 @@ func BenchmarkImageMeta(b *testing.B) {
 
 	getAndCheckMeta := func(c *qt.C, image images.ImageResource) {
 		x := image.Meta()
-		c.Assert(x, qt.Not(qt.IsNil))
+		c.Assert(x, qt.IsNotNil)
 		c.Assert(x.Long, qt.Equals, float64(-4.50846))
 	}
 
@@ -548,7 +548,7 @@ func BenchmarkResizeParallel(b *testing.B) {
 
 func assertWidthHeight(c *qt.C, img images.ImageResource, w, h int) {
 	c.Helper()
-	c.Assert(img, qt.Not(qt.IsNil))
+	c.Assert(img, qt.IsNotNil)
 	c.Assert(img.Width(), qt.Equals, w)
 	c.Assert(img.Height(), qt.Equals, h)
 }

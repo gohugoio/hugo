@@ -75,7 +75,7 @@ func TestFileExists(t *testing.T) {
 		result, err := ns.FileExists(test.filename)
 
 		if test.expect == nil {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 

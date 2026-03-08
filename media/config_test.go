@@ -45,7 +45,7 @@ func TestDecodeTypes(t *testing.T) {
 					}
 				}
 
-				c.Assert(len(tt), qt.Equals, len(DefaultTypes))
+				c.Assert(tt, qt.HasLen, len(DefaultTypes))
 				json, si, found := tt.GetBySuffix("jasn")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(json.String(), qt.Equals, "application/json")
@@ -62,7 +62,7 @@ func TestDecodeTypes(t *testing.T) {
 			},
 			false,
 			func(t *testing.T, name string, tt Types) {
-				c.Assert(len(tt), qt.Equals, len(DefaultTypes)+1)
+				c.Assert(tt, qt.HasLen, len(DefaultTypes)+1)
 				hg, si, found := tt.GetBySuffix("hg2")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(hg.FirstSuffix.Suffix, qt.Equals, "hg1")
@@ -84,7 +84,7 @@ func TestDecodeTypes(t *testing.T) {
 			},
 			false,
 			func(t *testing.T, name string, tp Types) {
-				c.Assert(len(tp), qt.Equals, len(DefaultTypes)+1)
+				c.Assert(tp, qt.HasLen, len(DefaultTypes)+1)
 				// Make sure we have not broken the default config.
 
 				_, _, found := tp.GetBySuffix("json")
@@ -100,7 +100,7 @@ func TestDecodeTypes(t *testing.T) {
 	for _, test := range tests {
 		result, err := DecodeTypes(test.m)
 		if test.shouldError {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 		} else {
 			c.Assert(err, qt.IsNil)
 			test.assert(t, test.name, result.Config)
@@ -151,5 +151,5 @@ func TestDefaultTypes(t *testing.T) {
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 44)
+	c.Assert(DefaultTypes, qt.HasLen, 44)
 }

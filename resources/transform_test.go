@@ -57,7 +57,7 @@ func TestTransform(t *testing.T) {
 			GroupIdentity:      identity.StringIdentity(targetPath),
 		})
 		c.Assert(err, qt.IsNil)
-		c.Assert(r, qt.Not(qt.IsNil), qt.Commentf(filename))
+		c.Assert(r, qt.IsNotNil, qt.Commentf(filename))
 		return r.(resources.Transformer)
 	}
 

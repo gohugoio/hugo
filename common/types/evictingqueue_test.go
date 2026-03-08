@@ -45,7 +45,7 @@ func TestEvictingStringQueue(t *testing.T) {
 	queue.Add("d")
 	// Overflowed, a should now be removed.
 	c.Assert(queue.PeekAll(), qt.DeepEquals, []string{"d", "c", "b"})
-	c.Assert(len(queue.PeekAllSet()), qt.Equals, 3)
+	c.Assert(queue.PeekAllSet(), qt.HasLen, 3)
 	c.Assert(queue.PeekAllSet()["c"], qt.Equals, true)
 }
 

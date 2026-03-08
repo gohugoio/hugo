@@ -58,10 +58,10 @@ func TestCache(t *testing.T) {
 
 	opts := OptionsPartition{Weight: 30}
 
-	c.Assert(cache, qt.Not(qt.IsNil))
+	c.Assert(cache, qt.IsNotNil)
 
 	p1 := GetOrCreatePartition[string, testItem](cache, "/aaaa/bbbb", opts)
-	c.Assert(p1, qt.Not(qt.IsNil))
+	c.Assert(p1, qt.IsNotNil)
 
 	p2 := GetOrCreatePartition[string, testItem](cache, "/aaaa/bbbb", opts)
 
@@ -71,7 +71,7 @@ func TestCache(t *testing.T) {
 	c.Assert(p2, qt.Equals, p1)
 
 	p3 := GetOrCreatePartition[string, testItem](cache, "/aaaa/cccc", opts)
-	c.Assert(p3, qt.Not(qt.IsNil))
+	c.Assert(p3, qt.IsNotNil)
 	c.Assert(p3, qt.Not(qt.Equals), p1)
 
 	c.Assert(func() { New(Options{}) }, qt.PanicMatches, ".*nil Log.*")

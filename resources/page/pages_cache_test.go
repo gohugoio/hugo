@@ -56,13 +56,13 @@ func TestPageCache(t *testing.T) {
 				c.Assert(c2, qt.Equals, true)
 				c.Assert(pagesEqual(p, p2), qt.Equals, true)
 				c.Assert(pagesEqual(p, pages), qt.Equals, true)
-				c.Assert(p, qt.Not(qt.IsNil))
+				c.Assert(p, qt.IsNotNil)
 
 				l2.Lock()
 				p3, c3 := c1.get("k2", changeFirst, pages)
 				c.Assert(c3, qt.Equals, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)))
 				l2.Unlock()
-				c.Assert(p3, qt.Not(qt.IsNil))
+				c.Assert(p3, qt.IsNotNil)
 				c.Assert("changed", qt.Equals, p3[0].(*testPage).description)
 			}
 		})

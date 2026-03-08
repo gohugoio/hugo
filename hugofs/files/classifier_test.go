@@ -23,7 +23,7 @@ func TestComponentFolders(t *testing.T) {
 	c := qt.New(t)
 
 	// It's important that these are absolutely right and not changed.
-	c.Assert(len(componentFoldersSet), qt.Equals, len(ComponentFolders))
+	c.Assert(componentFoldersSet, qt.HasLen, len(ComponentFolders))
 	c.Assert(IsComponentFolder("archetypes"), qt.Equals, true)
 	c.Assert(IsComponentFolder("layouts"), qt.Equals, true)
 	c.Assert(IsComponentFolder("data"), qt.Equals, true)

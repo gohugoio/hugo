@@ -370,7 +370,7 @@ func TestExtractAndGroupRootPaths(t *testing.T) {
 
 		result := helpers.ExtractAndGroupRootPaths(in)
 		// Should have 10 paths + 1 "... and X more" message
-		c.Assert(len(result), qt.Equals, 11)
+		c.Assert(result, qt.HasLen, 11)
 		c.Assert(result[10], qt.Matches, `\.\.\. and \d+ more`)
 	})
 }

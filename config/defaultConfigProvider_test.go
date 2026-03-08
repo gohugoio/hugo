@@ -386,7 +386,7 @@ func TestDefaultConfigProvider(t *testing.T) {
 		cfg.Set(k, hmaps.Params{k: struct{}{}})
 		cfg.Set(k2, hmaps.Params{k2: struct{}{}})
 
-		c.Assert(len(cfg.Keys()), qt.Equals, 2)
+		c.Assert(cfg.Keys(), qt.HasLen, 2)
 
 		got := cfg.Keys()
 		slices.Sort(got)

@@ -42,7 +42,7 @@ func TestDecodeConfig(t *testing.T) {
 			false,
 			func(t *testing.T, name string, f Formats) {
 				msg := qt.Commentf(name)
-				c.Assert(len(f), qt.Equals, len(DefaultFormats), msg)
+				c.Assert(f, qt.HasLen, len(DefaultFormats), msg)
 				json, _ := f.GetByName("JSON")
 				c.Assert(json.BaseName, qt.Equals, "myindex")
 				c.Assert(json.MediaType, qt.Equals, media.Builtin.JSONType)
@@ -59,7 +59,7 @@ func TestDecodeConfig(t *testing.T) {
 			},
 			false,
 			func(t *testing.T, name string, f Formats) {
-				c.Assert(len(f), qt.Equals, len(DefaultFormats)+1)
+				c.Assert(f, qt.HasLen, len(DefaultFormats)+1)
 				xml, found := f.GetByName("MYXMLFORMAT")
 				c.Assert(found, qt.Equals, true)
 				c.Assert(xml.BaseName, qt.Equals, "myxml")
@@ -89,7 +89,7 @@ func TestDecodeConfig(t *testing.T) {
 		msg := qt.Commentf(test.name)
 
 		if test.shouldError {
-			c.Assert(err, qt.Not(qt.IsNil), msg)
+			c.Assert(err, qt.IsNotNil, msg)
 		} else {
 			c.Assert(err, qt.IsNil, msg)
 			test.assert(t, test.name, result.Config)

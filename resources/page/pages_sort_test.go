@@ -138,7 +138,7 @@ func TestLimit(t *testing.T) {
 	c := qt.New(t)
 	p := createSortTestPages(10)
 	firstFive := p.Limit(5)
-	c.Assert(len(firstFive), qt.Equals, 5)
+	c.Assert(firstFive, qt.HasLen, 5)
 	for i := range 5 {
 		c.Assert(firstFive[i], qt.Equals, p[i])
 	}

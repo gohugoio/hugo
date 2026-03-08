@@ -183,7 +183,7 @@ func TestTransformPostCSSNotInstalledError(t *testing.T) {
 		}).BuildE()
 
 	ferrs := herrors.UnwrapFileErrors(err)
-	c.Assert(len(ferrs), qt.Equals, 1)
+	c.Assert(ferrs, qt.HasLen, 1)
 	c.Assert(err.Error(), qt.Contains, `binary with name "postcss" not found using npx`)
 }
 
@@ -204,7 +204,7 @@ func TestTransformPostCSSImportError(t *testing.T) {
 			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`),
 		}).BuildE()
 	ferrs := herrors.UnwrapFileErrors(err)
-	c.Assert(len(ferrs), qt.Equals, 2)
+	c.Assert(ferrs, qt.HasLen, 2)
 	c.Assert(err.Error(), qt.Contains, "styles.css:4:3")
 	c.Assert(err.Error(), qt.Contains, filepath.FromSlash(`failed to resolve CSS @import "/css/components/doesnotexist.css"`))
 }

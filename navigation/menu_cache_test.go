@@ -65,13 +65,13 @@ func TestMenuCache(t *testing.T) {
 				c.Assert(c2, qt.Equals, true)
 				c.Assert(slices.Equal(m, m2), qt.Equals, true)
 				c.Assert(slices.Equal(m, menu), qt.Equals, true)
-				c.Assert(m, qt.Not(qt.IsNil))
+				c.Assert(m, qt.IsNotNil)
 
 				l2.Lock()
 				m3, c3 := c1.get("k2", changeFirst, menu)
 				c.Assert(c3, qt.Equals, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)))
 				l2.Unlock()
-				c.Assert(m3, qt.Not(qt.IsNil))
+				c.Assert(m3, qt.IsNotNil)
 				c.Assert("changed", qt.Equals, m3[0].Title)
 			}
 		})

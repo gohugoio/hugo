@@ -36,14 +36,14 @@ func (t *getPageTest) check(p page.Page, err error, errorMsg string, c *qt.C) {
 	errorComment := qt.Commentf(errorMsg)
 	switch t.kind {
 	case "Ambiguous":
-		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err, qt.IsNotNil)
 		c.Assert(p, qt.IsNil, errorComment)
 	case "NoPage":
 		c.Assert(err, qt.IsNil)
 		c.Assert(p, qt.IsNil, errorComment)
 	default:
 		c.Assert(err, qt.IsNil, errorComment)
-		c.Assert(p, qt.Not(qt.IsNil), errorComment)
+		c.Assert(p, qt.IsNotNil, errorComment)
 		c.Assert(p.Kind(), qt.Equals, t.kind, errorComment)
 		c.Assert(p.Title(), qt.Equals, t.expectedTitle, errorComment)
 	}

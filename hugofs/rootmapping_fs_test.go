@@ -100,7 +100,7 @@ func TestLanguageRootMapping(t *testing.T) {
 
 	dirs, err := rfs.Mounts(filepath.FromSlash("content/blog"))
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dirs), qt.Equals, 4)
+	c.Assert(dirs, qt.HasLen, 4)
 	for _, dir := range dirs {
 		f, err := dir.Meta().Open()
 		c.Assert(err, qt.IsNil)
@@ -275,7 +275,7 @@ func TestRootMappingFsMount(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	files, err := d.(iofs.ReadDirFile).ReadDir(-1)
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(files), qt.Equals, 4)
+	c.Assert(files, qt.HasLen, 4)
 
 	singlesDir, err := rfs.Open(filepath.FromSlash("content/singles"))
 	c.Assert(err, qt.IsNil)
@@ -531,8 +531,8 @@ func TestRootMappingFileFilter(t *testing.T) {
 			c.Assert(err2, qt.IsNil)
 			c.Assert(f.Close(), qt.IsNil)
 		} else {
-			c.Assert(err1, qt.Not(qt.IsNil))
-			c.Assert(err2, qt.Not(qt.IsNil))
+			c.Assert(err1, qt.IsNotNil)
+			c.Assert(err2, qt.IsNotNil)
 		}
 	}
 
@@ -542,7 +542,7 @@ func TestRootMappingFileFilter(t *testing.T) {
 
 	dirEntriesSub, err := afero.ReadDir(rfs, filepath.Join("content", "sub"))
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dirEntriesSub), qt.Equals, 3)
+	c.Assert(dirEntriesSub, qt.HasLen, 3)
 
 	f, err := rfs.Open("content")
 	c.Assert(err, qt.IsNil)
@@ -550,7 +550,7 @@ func TestRootMappingFileFilter(t *testing.T) {
 	dirEntries, err := f.(iofs.ReadDirFile).ReadDir(-1)
 
 	c.Assert(err, qt.IsNil)
-	c.Assert(len(dirEntries), qt.Equals, 4)
+	c.Assert(dirEntries, qt.HasLen, 4)
 }
 
 var testDims = sitesmatrix.NewTestingDimensions([]string{"en", "no"}, []string{"v1", "v2", "v3"}, []string{"admin", "editor", "viewer", "guest"})

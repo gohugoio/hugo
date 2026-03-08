@@ -72,7 +72,7 @@ func TestQuerify(t *testing.T) {
 		result, err := ns.Querify(test.params...)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err, qt.IsNotNil, errMsg)
 			continue
 		}
 

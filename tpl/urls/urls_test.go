@@ -61,7 +61,7 @@ func TestParse(t *testing.T) {
 		result, err := ns.Parse(test.rawurl)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -98,7 +98,7 @@ func TestJoinPath(t *testing.T) {
 		result, err := ns.JoinPath(test.elements)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -174,7 +174,7 @@ func TestPathUnescape(t *testing.T) {
 		c.Run(tt.name, func(c *qt.C) {
 			got, err := ns.PathUnescape(tt.input)
 			if tt.wantErr {
-				c.Assert(err, qt.Not(qt.IsNil), qt.Commentf("PathUnescape(%v) should have failed", tt.input))
+				c.Assert(err, qt.IsNotNil, qt.Commentf("PathUnescape(%v) should have failed", tt.input))
 				if tt.errCheck != "" {
 					c.Assert(err, qt.ErrorMatches, ".*"+regexp.QuoteMeta(tt.errCheck)+".*")
 				}

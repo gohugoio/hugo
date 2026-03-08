@@ -48,17 +48,17 @@ func TestDecodeConfig(t *testing.T) {
 	_, err = DecodeConfig(map[string]any{
 		"quality": 123,
 	})
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	_, err = DecodeConfig(map[string]any{
 		"resampleFilter": "asdf",
 	})
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	_, err = DecodeConfig(map[string]any{
 		"anchor": "asdf",
 	})
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	imagingConfig, err = DecodeConfig(map[string]any{
 		"anchor": "Smart",

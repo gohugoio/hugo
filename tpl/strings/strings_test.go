@@ -51,7 +51,7 @@ func TestChomp(t *testing.T) {
 		result, err := ns.Chomp(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -94,7 +94,7 @@ func TestContains(t *testing.T) {
 		result, err := ns.Contains(test.s, test.substr)
 
 		if test.isErr {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -138,7 +138,7 @@ func TestContainsAny(t *testing.T) {
 		result, err := ns.ContainsAny(test.s, test.substr)
 
 		if test.isErr {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -199,7 +199,7 @@ func TestCountRunes(t *testing.T) {
 		result, err := ns.CountRunes(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -226,7 +226,7 @@ func TestRuneCount(t *testing.T) {
 		result, err := ns.RuneCount(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -256,7 +256,7 @@ func TestCountWords(t *testing.T) {
 		result, err := ns.CountWords(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -290,7 +290,7 @@ func TestHasPrefix(t *testing.T) {
 		result, err := ns.HasPrefix(test.s, test.prefix)
 
 		if test.isErr {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -324,7 +324,7 @@ func TestHasSuffix(t *testing.T) {
 		result, err := ns.HasSuffix(test.s, test.suffix)
 
 		if test.isErr {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -367,7 +367,7 @@ func TestReplace(t *testing.T) {
 		}
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -509,7 +509,7 @@ func TestSliceString(t *testing.T) {
 		}
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -543,7 +543,7 @@ func TestSplit(t *testing.T) {
 		result, err := ns.Split(test.v1, test.v2)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -612,7 +612,7 @@ func TestSubstr(t *testing.T) {
 		}
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Check(err, qt.Not(qt.IsNil), qt.Commentf("%v", test))
+			c.Check(err, qt.IsNotNil, qt.Commentf("%v", test))
 			continue
 		}
 
@@ -621,10 +621,10 @@ func TestSubstr(t *testing.T) {
 	}
 
 	_, err = ns.Substr("abcdef")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	_, err = ns.Substr("abcdef", 1, 2, 3)
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 }
 
 func TestTitle(t *testing.T) {
@@ -645,7 +645,7 @@ func TestTitle(t *testing.T) {
 		result, err := ns.Title(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -672,7 +672,7 @@ func TestToLower(t *testing.T) {
 		result, err := ns.ToLower(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -699,7 +699,7 @@ func TestToUpper(t *testing.T) {
 		result, err := ns.ToUpper(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -733,7 +733,7 @@ func TestTrim(t *testing.T) {
 		result, err := ns.Trim(test.s, test.cutset)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -768,7 +768,7 @@ func TestTrimLeft(t *testing.T) {
 		result, err := ns.TrimLeft(test.cutset, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -798,7 +798,7 @@ func TestTrimPrefix(t *testing.T) {
 		result, err := ns.TrimPrefix(test.prefix, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -833,7 +833,7 @@ func TestTrimRight(t *testing.T) {
 		result, err := ns.TrimRight(test.cutset, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -863,7 +863,7 @@ func TestTrimSuffix(t *testing.T) {
 		result, err := ns.TrimSuffix(test.suffix, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -898,7 +898,7 @@ func TestRepeat(t *testing.T) {
 		result, err := ns.Repeat(test.n, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -931,7 +931,7 @@ func TestDiff(t *testing.T) {
 		result, err := ns.Diff(test.oldname, test.old, test.newname, test.new)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -959,7 +959,7 @@ func TestTrimSpace(t *testing.T) {
 		result, err := ns.TrimSpace(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 

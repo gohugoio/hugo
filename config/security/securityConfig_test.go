@@ -45,7 +45,7 @@ getEnv=["a", "b"]
 
 		pc, err := DecodeConfig(cfg)
 		c.Assert(err, qt.IsNil)
-		c.Assert(pc, qt.Not(qt.IsNil))
+		c.Assert(pc, qt.IsNotNil)
 		c.Assert(pc.EnableInlineShortcodes, qt.IsTrue)
 		c.Assert(pc.Exec.Allow.Accept("a"), qt.IsTrue)
 		c.Assert(pc.Exec.Allow.Accept("d"), qt.IsFalse)
@@ -74,7 +74,7 @@ osEnv="b"
 
 		pc, err := DecodeConfig(cfg)
 		c.Assert(err, qt.IsNil)
-		c.Assert(pc, qt.Not(qt.IsNil))
+		c.Assert(pc, qt.IsNotNil)
 		c.Assert(pc.Exec.Allow.Accept("a"), qt.IsTrue)
 		c.Assert(pc.Exec.Allow.Accept("d"), qt.IsFalse)
 		c.Assert(pc.Exec.OsEnv.Accept("b"), qt.IsTrue)
@@ -99,7 +99,7 @@ allow="a"
 
 		pc, err := DecodeConfig(cfg)
 		c.Assert(err, qt.IsNil)
-		c.Assert(pc, qt.Not(qt.IsNil))
+		c.Assert(pc, qt.IsNotNil)
 		c.Assert(pc.Exec.Allow.Accept("a"), qt.IsTrue)
 		c.Assert(pc.Exec.OsEnv.Accept("PATH"), qt.IsTrue)
 		c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
@@ -145,7 +145,7 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	pc, err := DecodeConfig(config.New())
 	c.Assert(err, qt.IsNil)
-	c.Assert(pc, qt.Not(qt.IsNil))
+	c.Assert(pc, qt.IsNotNil)
 	c.Assert(pc.Exec.Allow.Accept("a"), qt.IsFalse)
 	c.Assert(pc.Exec.Allow.Accept("npx"), qt.IsTrue)
 	c.Assert(pc.Exec.Allow.Accept("Npx"), qt.IsFalse)

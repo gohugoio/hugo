@@ -58,7 +58,7 @@ func TestGetByMainSubType(t *testing.T) {
 func TestBySuffix(t *testing.T) {
 	c := qt.New(t)
 	formats := DefaultTypes.BySuffix("xml")
-	c.Assert(len(formats), qt.Equals, 2)
+	c.Assert(formats, qt.HasLen, 2)
 	c.Assert(formats[0].SubType, qt.Equals, "rss")
 	c.Assert(formats[1].SubType, qt.Equals, "xml")
 }
@@ -105,7 +105,7 @@ func TestFromTypeString(t *testing.T) {
 	c.Assert(f, qt.Equals, Type{Type: "application/custom+sfx", MainType: "application", SubType: "custom", mimeSuffix: "sfx"})
 
 	_, err = FromString("noslash")
-	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err, qt.IsNotNil)
 
 	f, err = FromString("text/xml; charset=utf-8")
 	c.Assert(err, qt.IsNil)

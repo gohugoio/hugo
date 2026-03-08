@@ -41,7 +41,7 @@ func TestFindRE(t *testing.T) {
 		result, err := ns.FindRE(test.expr, test.content, test.limit)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -75,7 +75,7 @@ func TestFindRESubmatch(t *testing.T) {
 		result, err := ns.FindRESubmatch(test.expr, test.content, test.limit)
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
@@ -117,7 +117,7 @@ func TestReplaceRE(t *testing.T) {
 		}
 
 		if b, ok := test.expect.(bool); ok && !b {
-			c.Assert(err, qt.Not(qt.IsNil))
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
