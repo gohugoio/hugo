@@ -27,11 +27,12 @@ const name = "css"
 
 // Namespace provides template functions for the "css" namespace.
 type Namespace struct {
-	d                 *deps.Deps
-	scssClientLibSass *scss.Client
-	postcssClient     *cssjs.PostCSSClient
-	tailwindcssClient *cssjs.TailwindCSSClient
-	babelClient       *babel.Client
+	d                   *deps.Deps
+	scssClientLibSass   *scss.Client
+	postcssClient       *cssjs.PostCSSClient
+	tailwindcssClient   *cssjs.TailwindCSSClient
+	inlineImportsClient *cssjs.InlineImportsClient
+	babelClient         *babel.Client
 
 	// The Dart Client requires a os/exec process, so  only
 	// create it if we really need it.
@@ -64,6 +65,20 @@ func (ns *Namespace) PostCSS(args ...any) (resource.Resource, error) {
 	}
 
 	return ns.postcssClient.Process(r, m)
+}
+
+// InlineImports resolves CSS @import statements in the given Resource.
+func (ns *Namespace) InlineImports(args ...any) (resource.Resource, error) {
+	if len(args) > 2 {
+		return nil, errors.New("must not provide more arguments than resource object and options")
+	}
+
+	r, m, err := resourcehelpers.ResolveArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	return ns.inlineImportsClient.Process(r, m)
 }
 
 // TailwindCSS processes the given Resource with tailwindcss.
@@ -154,11 +169,12 @@ func init() {
 			panic(err)
 		}
 		ctx := &Namespace{
-			d:                 d,
-			scssClientLibSass: scssClient,
-			postcssClient:     cssjs.NewPostCSSClient(d.ResourceSpec),
-			tailwindcssClient: cssjs.NewTailwindCSSClient(d.ResourceSpec),
-			babelClient:       babel.New(d.ResourceSpec),
+			d:                   d,
+			scssClientLibSass:   scssClient,
+			postcssClient:       cssjs.NewPostCSSClient(d.ResourceSpec),
+			tailwindcssClient:   cssjs.NewTailwindCSSClient(d.ResourceSpec),
+			inlineImportsClient: cssjs.NewInlineImportsClient(d.ResourceSpec),
+			babelClient:         babel.New(d.ResourceSpec),
 		}
 
 		ns := &internal.TemplateFuncsNamespace{
@@ -178,6 +194,11 @@ func init() {
 
 		ns.AddMethodMapping(ctx.Sass,
 			[]string{"toCSS"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.InlineImports,
+			nil,
 			[][2]string{},
 		)
 
