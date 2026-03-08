@@ -29,6 +29,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -1271,8 +1272,25 @@ func (s *TemplateStore) insertTemplate2(
 
 	if !replace && existingFound {
 		if len(pi.Identifiers()) >= len(nkExisting.PathInfo.Identifiers()) {
-			// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
-			return nil, nil
+			if d.MediaType != "" && pi.Ext() != nkExisting.PathInfo.Ext() {
+				// Issue #13877: when multiple templates differ only in their file extension
+				// and both extensions are valid suffixes for the same media type,
+				// prefer the one whose extension matches an earlier suffix.
+				if mt, ok := s.opts.MediaTypes.GetByType(d.MediaType); ok {
+					suffixes := mt.Suffixes()
+					newIdx := slices.Index(suffixes, pi.Ext())
+					if newIdx != -1 {
+						existingIdx := slices.Index(suffixes, nkExisting.PathInfo.Ext())
+						if existingIdx == -1 || newIdx < existingIdx {
+							replace = true
+						}
+					}
+				}
+			}
+			if !replace {
+				// e.g. /pages/home.foo.html and  /pages/home.html where foo may be a valid language name in another site.
+				return nil, nil
+			}
 		}
 	}
 
