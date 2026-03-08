@@ -644,3 +644,35 @@ Overridden.
 
 	b.AssertFileContent("public/index.html", "Overridden.")
 }
+
+// Issue 13877
+func TestTemplateSelectionFirstMediaTypeSuffix(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+
+[mediaTypes.'text/html']
+suffixes = ['b','a','d','c']
+
+[outputFormats.html]
+mediaType = 'text/html'
+-- content/p1.md --
+---
+title: p1
+---
+-- layouts/page.html.a --
+page.html.a
+-- layouts/page.html.b --
+page.html.b
+-- layouts/page.html.c --
+page.html.c
+-- layouts/page.html.d --
+page.html.d
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.b", "page.html.b")
+}
