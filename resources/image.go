@@ -106,7 +106,7 @@ func (i *imageResource) newExifInfoFn() func() (*meta.ExifInfo, error) {
 			}
 			defer f.Close()
 
-			filename := i.getResourcePaths().Path()
+			filename := InternalResourceSourcePathBestEffort(i)
 			result, err = i.getSpec().Imaging.DecodeExif(filename, mf, f)
 			if err != nil {
 				i.getSpec().Logger.Warnf("Unable to decode Exif metadata from image: %s", i.Key())
@@ -148,7 +148,7 @@ func (i *imageResource) newMetaInfoFn() func() (*meta.MetaInfo, error) {
 			}
 			defer f.Close()
 
-			filename := i.getResourcePaths().Path()
+			filename := InternalResourceSourcePathBestEffort(i)
 			result, err = i.getSpec().Imaging.DecodeMeta(filename, mf, f)
 			if err != nil {
 				i.getSpec().Logger.Warnf("Unable to decode metadata from image: %s", i.Key())
