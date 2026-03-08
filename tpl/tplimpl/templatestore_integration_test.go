@@ -1576,3 +1576,40 @@ layouts/p1/page.html
 
 	b.AssertFileContent("public/p1/index.html", "layouts/p1/page.html")
 }
+
+// TestIssue13877 tests that when a media type has multiple suffixes,
+// only the first suffix is considered for template lookup.
+// https://github.com/gohugoio/hugo/issues/13877
+func TestIssue13877(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+[mediaTypes.'text/html']
+suffixes = ['b','a','d','c']
+-- content/p1.md --
+---
+title: p1
+---
+Content
+-- layouts/_default/single.html.b --
+Template B (first suffix)
+-- layouts/_default/single.html.a --
+Template A
+-- layouts/_default/single.html.c --
+Template C
+-- layouts/_default/single.html.d --
+Template D
+-- layouts/_default/baseof.html --
+Base: {{ block "main" . }}default main{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	// The page should be published to .b (first suffix)
+	b.AssertFileExists("public/p1/index.b", true)
+
+	// The template with the first suffix (.b) should be used
+	b.AssertFileContent("public/p1/index.b", "Template B (first suffix)")
+}

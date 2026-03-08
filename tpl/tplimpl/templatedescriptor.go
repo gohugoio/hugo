@@ -31,6 +31,7 @@ type TemplateDescriptor struct {
 	// Group 2.
 	OutputFormat string // rss, csv ...
 	MediaType    string // text/html, text/plain, ...
+	Suffix       string // The specific suffix used in the template filename, e.g. "html", "xml".
 
 	SitesHash uint64
 
@@ -89,6 +90,17 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 		if category == CategoryShortcode {
 			if (this.IsPlainText == other.IsPlainText || !other.IsPlainText) || this.AlwaysAllowPlainText {
 				w.w1 = 1
+			}
+		}
+	}
+
+	// Prefer templates with the suffix matching the first suffix of the media type.
+	// See issue 13877.
+	if w.w1 > 0 && other.Suffix != "" && this.MediaType == other.MediaType {
+		if mt, found := s.opts.MediaTypes.GetByType(this.MediaType); found {
+			if other.Suffix == mt.FirstSuffix.Suffix {
+				// Add a small weight bonus to prefer the first suffix.
+				w.w1++
 			}
 		}
 	}

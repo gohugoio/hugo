@@ -1543,6 +1543,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		desc.OutputFormat = outputFormat.Name
 		desc.IsPlainText = outputFormat.IsPlainText
 		desc.MediaType = mediaType.Type
+		desc.Suffix = k.ext
 		desc.SitesHash = fi.Meta().SitesMatrix.MustHash()
 
 		ti, err := s.insertTemplate2(pi, fi, targetPath, category, SubCategoryMain, desc, fi.Meta().SitesMatrix, true, true, s.treeMain)
@@ -1780,6 +1781,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 		SitesHash:          vactorStore.MustHash(),
 		OutputFormat:       p.OutputFormat(),
 		MediaType:          mediaType.Type,
+		Suffix:             p.Ext(),
 		Kind:               p.Kind(),
 		LayoutFromTemplate: p.Layout(),
 		IsPlainText:        outputFormat.IsPlainText,
