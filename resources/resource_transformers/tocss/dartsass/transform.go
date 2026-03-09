@@ -119,7 +119,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 	}
 
 	if opts.EnableSourceMap && res.SourceMap != "" {
-		if err := ctx.PublishSourceMap(res.SourceMap); err != nil {
+		if err := ctx.PublishSourceMap([]byte(res.SourceMap)); err != nil {
 			return err
 		}
 		_, err = fmt.Fprintf(ctx.To, "\n\n/*# sourceMappingURL=%s */", path.Base(ctx.OutPath)+".map")

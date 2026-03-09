@@ -36,7 +36,7 @@ func New(d *deps.Deps) (*Namespace, error) {
 
 	return &Namespace{
 		d:                 d,
-		jsTransformClient: jstransform.New(d.BaseFs.Assets, d.ResourceSpec),
+		jsTransformClient: jstransform.New(d.BaseFs.Assets, d.ResourceSpec, false),
 		createClient:      create.New(d.ResourceSpec),
 		babelClient:       babel.New(d.ResourceSpec),
 	}, nil
@@ -51,7 +51,7 @@ type Namespace struct {
 	babelClient       *babel.Client
 }
 
-// Build processes the given Resource with ESBuild.
+// Build processes the given JavaScript Resource with ESBuild.
 func (ns *Namespace) Build(args ...any) (resource.Resource, error) {
 	var (
 		r          resources.ResourceTransformer
