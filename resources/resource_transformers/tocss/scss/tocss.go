@@ -177,7 +177,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		// is important enough to go this extra mile.
 		mapContent := strings.Replace(res.SourceMapContent, `stdin"`, fmt.Sprintf("%s\"", sourcePath), 1)
 
-		return ctx.PublishSourceMap(mapContent)
+		return ctx.PublishSourceMap([]byte(mapContent))
 	}
 	return nil
 }

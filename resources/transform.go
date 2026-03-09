@@ -146,14 +146,19 @@ func (ctx *ResourceTransformationCtx) AddOutPathIdentifier(identifier string) {
 
 // PublishSourceMap writes the content to the target folder of the main resource
 // with the ".map" extension added.
-func (ctx *ResourceTransformationCtx) PublishSourceMap(content string) error {
+func (ctx *ResourceTransformationCtx) PublishSourceMap(content []byte) error {
 	target := ctx.OutPath + ".map"
+	return ctx.PublishTo(target, content)
+}
+
+// PublishTo writes the content to the target folder.
+func (ctx *ResourceTransformationCtx) PublishTo(target string, content []byte) error {
 	f, err := ctx.OpenResourcePublisher(target)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	_, err = f.Write([]byte(content))
+	_, err = f.Write(content)
 	return err
 }
 

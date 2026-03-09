@@ -106,6 +106,13 @@ func TestOptOsFs() TestOpt {
 	}
 }
 
+// TestOptWithNpmInstall will enable npm install in integration tests.
+func TestOptWithNpmInstall() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NeedsNpmInstall = true
+	}
+}
+
 // TestOptWithNFDOnDarwin will normalize the Unicode filenames to NFD on Darwin.
 func TestOptWithNFDOnDarwin() TestOpt {
 	return func(c *IntegrationTestConfig) {

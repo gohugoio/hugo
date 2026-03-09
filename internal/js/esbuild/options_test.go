@@ -47,7 +47,7 @@ func TestToBuildOptions(t *testing.T) {
 
 	opts = Options{
 		ExternalOptions: ExternalOptions{
-			Target:   "es2018",
+			Target:   []string{"es2018"},
 			Format:   "cjs",
 			Minify:   true,
 			AvoidTDZ: true,
@@ -75,7 +75,7 @@ func TestToBuildOptions(t *testing.T) {
 
 	opts = Options{
 		ExternalOptions: ExternalOptions{
-			Target: "es2018", Format: "cjs", Minify: true,
+			Target: []string{"es2018"}, Format: "cjs", Minify: true,
 			SourceMap: "inline",
 		},
 		InternalOptions: InternalOptions{
@@ -102,7 +102,7 @@ func TestToBuildOptions(t *testing.T) {
 
 	opts = Options{
 		ExternalOptions: ExternalOptions{
-			Target: "es2018", Format: "cjs", Minify: true,
+			Target: []string{"es2018"}, Format: "cjs", Minify: true,
 			SourceMap: "inline",
 		},
 		InternalOptions: InternalOptions{
@@ -129,7 +129,7 @@ func TestToBuildOptions(t *testing.T) {
 
 	opts = Options{
 		ExternalOptions: ExternalOptions{
-			Target: "es2018", Format: "cjs", Minify: true,
+			Target: []string{"es2018"}, Format: "cjs", Minify: true,
 			SourceMap: "external",
 		},
 		InternalOptions: InternalOptions{
@@ -223,7 +223,7 @@ func TestToBuildOptionsTarget(t *testing.T) {
 		c.Run(test.target, func(c *qt.C) {
 			opts := Options{
 				ExternalOptions: ExternalOptions{
-					Target: test.target,
+					Target: []string{test.target},
 				},
 				InternalOptions: InternalOptions{
 					MediaType: media.Builtin.JavascriptType,
@@ -259,4 +259,14 @@ func TestDecodeExternalOptions(t *testing.T) {
 		Platform:       api.PlatformNode,
 		SourcesContent: api.SourcesContentInclude,
 	})
+}
+
+func TestDecodeExternalOptionsLegacyTargetString(t *testing.T) {
+	c := qt.New(t)
+	m := map[string]any{
+		"target": "es2018",
+	}
+	ext, err := DecodeExternalOptions(m)
+	c.Assert(err, qt.IsNil)
+	c.Assert(ext.Target, qt.DeepEquals, []string{"es2018"})
 }

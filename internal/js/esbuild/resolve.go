@@ -46,16 +46,20 @@ const (
 	PrefixHugoMemory  = "__hu_m"
 )
 
-var extensionToLoaderMap = map[string]api.Loader{
+var extensionToLoaderMapJS = map[string]api.Loader{
 	".js":   api.LoaderJS,
 	".mjs":  api.LoaderJS,
 	".cjs":  api.LoaderJS,
 	".jsx":  api.LoaderJSX,
 	".ts":   api.LoaderTS,
 	".tsx":  api.LoaderTSX,
-	".css":  api.LoaderCSS,
 	".json": api.LoaderJSON,
 	".txt":  api.LoaderText,
+	".css":  api.LoaderCSS,
+}
+
+var extensionToLoaderMapCSS = map[string]api.Loader{
+	".css": api.LoaderCSS,
 }
 
 // This is a common sub-set of ESBuild's default extensions.
@@ -93,6 +97,7 @@ func ResolveComponent[T any](impPath string, resolve func(string) (v T, found, i
 	}
 
 	base := filepath.Base(impPath)
+
 	if base == "index" {
 		// try index.esm.js etc.
 		v, found, _ = findFirst(impPath + ".esm")
@@ -140,13 +145,21 @@ type fsResolver struct {
 	resolved *hmaps.Cache[string, *hugofs.FileMeta]
 }
 
-func (r *fsResolver) resolveComponent(impPath string) *hugofs.FileMeta {
+func (r *fsResolver) resolveComponent(impPath string, direct bool) *hugofs.FileMeta {
 	v, _ := r.resolved.GetOrCreate(impPath, func() (*hugofs.FileMeta, error) {
 		resolve := func(name string) (*hugofs.FileMeta, bool, bool) {
 			if fi, err := r.fs.Stat(name); err == nil {
 				return fi.(hugofs.FileMetaInfo).Meta(), true, fi.IsDir()
 			}
 			return nil, false, false
+		}
+		if direct {
+			// Only resolve the path as is, without trying to add extensions etc.
+			v, found, isDir := resolve(impPath)
+			if found && !isDir {
+				return v, nil
+			}
+			return nil, nil
 		}
 		v, _ := ResolveComponent(impPath, resolve)
 		return v, nil
@@ -159,6 +172,8 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 
 	resolveImport := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 		impPath := args.Path
+		isCSSToken := args.Kind == api.ResolveCSSImportRule || args.Kind == api.ResolveCSSURLToken
+
 		shimmed := false
 		if opts.Shims != nil {
 			override, found := opts.Shims[impPath]
@@ -182,9 +197,9 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 		}
 
 		importer := args.Importer
-
 		isStdin := importer == stdinImporter
 		var relDir string
+
 		if !isStdin {
 			if after, ok := strings.CutPrefix(importer, PrefixHugoVirtual); ok {
 				relDir = filepath.Dir(after)
@@ -208,23 +223,45 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 			relDir = opts.SourceDir
 		}
 
-		// Imports not starting with a "." is assumed to live relative to /assets.
-		// Hugo makes no assumptions about the directory structure below /assets.
-		if relDir != "" && strings.HasPrefix(impPath, ".") {
-			impPath = filepath.Join(relDir, impPath)
+		var pathsToTry []string
+
+		if relDir != "" {
+			// For JS imports not starting with a "." is assumed to live relative to /assets.
+			// Hugo makes no assumptions about the directory structure below /assets.
+			if strings.HasPrefix(impPath, ".") {
+				pathsToTry = append(pathsToTry, filepath.Join(relDir, impPath))
+			} else if isCSSToken && !strings.HasPrefix(impPath, "/") {
+				// Follow the logic of both ESBuild and WebKit for CSS @import and url() tokens.
+				// First try the relativ path, then the assets relative path.
+				// See https://github.com/evanw/esbuild/issues/469
+				pathsToTry = append(pathsToTry, filepath.Join(relDir, impPath), impPath)
+			} else {
+				// Try only the assets relative path.
+				pathsToTry = append(pathsToTry, impPath)
+			}
 		}
 
-		m := assetsResolver.resolveComponent(impPath)
+		var m *hugofs.FileMeta
+		for _, p := range pathsToTry {
+			m = assetsResolver.resolveComponent(p, isCSSToken)
+			if m != nil {
+				break
+			}
+		}
 
 		if m != nil {
 			depsManager.AddIdentity(m.PathInfo)
 
-			// Store the source root so we can create a jsconfig.json
-			// to help IntelliSense when the build is done.
-			// This should be a small number of elements, and when
-			// in server mode, we may get stale entries on renames etc.,
-			// but that shouldn't matter too much.
-			rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot)
+			//  jsconfig.json path mapping has no effect for CSS imports, so skip those.
+			if !isCSSToken {
+				// Store the source root so we can create a jsconfig.json
+				// to help IntelliSense when the build is done.
+				// This should be a small number of elements, and when
+				// in server mode, we may get stale entries on renames etc.,
+				// but that shouldn't matter too much.
+				rs.JSConfigBuilder.AddSourceRoot(m.SourceRoot)
+			}
+
 			return api.OnResolveResult{Path: m.Filename, Namespace: NsHugoImport}, nil
 		}
 

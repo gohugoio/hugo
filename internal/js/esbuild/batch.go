@@ -54,7 +54,6 @@ const (
 	NsBatch = "_hugo-js-batch"
 
 	propsKeyImportContext = "importContext"
-	propsResoure          = "resource"
 )
 
 //go:embed batch-esm-runner.gotmpl
@@ -72,7 +71,7 @@ var (
 func NewBatcherClient(deps *deps.Deps) (js.BatcherClient, error) {
 	c := &BatcherClient{
 		d:            deps,
-		buildClient:  NewBuildClient(deps.BaseFs.Assets, deps.ResourceSpec),
+		buildClient:  NewBuildClient(deps.BaseFs.Assets, deps.ResourceSpec, false),
 		createClient: create.New(deps.ResourceSpec),
 		batcherStore: hmaps.NewCache[string, js.Batcher](),
 		bundlesStore: hmaps.NewCache[string, js.BatchPackage](),

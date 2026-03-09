@@ -30,11 +30,18 @@ type buildTransformation struct {
 }
 
 func (t *buildTransformation) Key() internal.ResourceTransformationKey {
-	return internal.NewResourceTransformationKey("jsbuild", t.optsm)
+	key := "jsbuild"
+	if t.c.c.CssMode {
+		key = "cssbuild"
+	}
+	return internal.NewResourceTransformationKey(key, t.optsm)
 }
 
 func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
 	ctx.OutMediaType = media.Builtin.JavascriptType
+	if ctx.InMediaType == media.Builtin.CSSType {
+		ctx.OutMediaType = media.Builtin.CSSType
+	}
 
 	var opts esbuild.Options
 
@@ -49,7 +56,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if opts.TargetPath != "" {
 		ctx.OutPath = opts.TargetPath
 	} else {
-		ctx.ReplaceOutPathExtension(".js")
+		ctx.ReplaceOutPathExtension(ctx.OutMediaType.FirstSuffix.FullSuffix)
 	}
 
 	src, err := io.ReadAll(ctx.From)
@@ -61,6 +68,7 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.Contents = string(src)
 	opts.MediaType = ctx.InMediaType
 	opts.Stdin = true
+	opts.IsCSS = t.c.c.CssMode
 
 	_, err = t.c.transform(opts, ctx)
 

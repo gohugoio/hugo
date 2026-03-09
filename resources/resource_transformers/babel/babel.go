@@ -218,7 +218,7 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		if err != nil {
 			return err
 		}
-		if err = ctx.PublishSourceMap(string(sourceMap)); err != nil {
+		if err = ctx.PublishSourceMap(sourceMap); err != nil {
 			return err
 		}
 		targetPath := path.Base(ctx.OutPath) + ".map"

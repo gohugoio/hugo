@@ -32,17 +32,19 @@ import (
 )
 
 // NewBuildClient creates a new BuildClient.
-func NewBuildClient(fs *filesystems.SourceFilesystem, rs *resources.Spec) *BuildClient {
+func NewBuildClient(fs *filesystems.SourceFilesystem, rs *resources.Spec, cssMode bool) *BuildClient {
 	return &BuildClient{
-		rs:  rs,
-		sfs: fs,
+		rs:      rs,
+		sfs:     fs,
+		CssMode: cssMode,
 	}
 }
 
 // BuildClient is a client for building JavaScript resources using esbuild.
 type BuildClient struct {
-	rs  *resources.Spec
-	sfs *filesystems.SourceFilesystem
+	rs      *resources.Spec
+	sfs     *filesystems.SourceFilesystem
+	CssMode bool
 }
 
 // Build builds the given JavaScript resources using esbuild with the given options.
@@ -80,7 +82,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 				return api.BuildResult{}, fmt.Errorf("inject: absolute paths not supported, must be relative to /assets")
 			}
 
-			m := assetsResolver.resolveComponent(impPath)
+			m := assetsResolver.resolveComponent(impPath, false)
 
 			if m == nil {
 				return api.BuildResult{}, fmt.Errorf("inject: file %q not found", ext)
@@ -190,7 +192,7 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 			}
 		}
 
-		if m := assetsResolver.resolveComponent(s); m != nil {
+		if m := assetsResolver.resolveComponent(s, false); m != nil {
 			return m.Filename
 		}
 
