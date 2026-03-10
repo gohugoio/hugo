@@ -220,3 +220,50 @@ mediaTypes = ['text/plain']
 	// The per-request timeout of 200ms should fire well before the global 30s timeout.
 	b.AssertFileContent("public/index.html", "Err:")
 }
+
+// Issue 14611.
+func TestGetRemotePerRequestTimeoutBodyRead(t *testing.T) {
+	t.Parallel()
+
+	// Server sends headers immediately but streams body with a delay.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "text/plain")
+		w.WriteHeader(200)
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+		time.Sleep(300 * time.Millisecond)
+		w.Write([]byte("Hello from remote."))
+	}))
+	t.Cleanup(func() { srv.Close() })
+
+	files := `
+-- hugo.toml --
+timeout = "30s"
+[security]
+[security.http]
+urls = ['.*']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $url := "URL" }}
+{{ $opts := dict "timeout" "5s" }}
+{{ with try (resources.GetRemote $url $opts) }}
+  {{ with .Err }}
+    Err: {{ . }}
+  {{ else with .Value }}
+    Content: {{ .Content }}
+  {{ end }}
+{{ end }}
+`
+	files = strings.ReplaceAll(files, "URL", srv.URL)
+
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	)
+	b.Build()
+
+	b.AssertFileContent("public/index.html", "Content: Hello from remote.")
+}

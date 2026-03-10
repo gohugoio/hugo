@@ -110,7 +110,7 @@ var temporaryHTTPStatusCodes = map[int]bool{
 	504: true,
 }
 
-func (c *Client) configurePollingIfEnabled(uri, optionsKey string, getRes func() (*http.Response, error)) {
+func (c *Client) configurePollingIfEnabled(uri, optionsKey string, getRes func() (*http.Response, context.CancelFunc, error)) {
 	if c.remoteResourceChecker == nil {
 		return
 	}
@@ -137,7 +137,10 @@ func (c *Client) configurePollingIfEnabled(uri, optionsKey string, getRes func()
 					c.rs.Logger.Debugf("Polled remote resource for changes in %13s. Interval: %4s (low: %4s high: %4s) resource: %q ", duration, interval, pollingConfig.Config.Low, pollingConfig.Config.High, uri)
 				}()
 				// TODO(bep) figure out a ways to remove unused tasks.
-				res, err := getRes()
+				res, cancel, err := getRes()
+				if cancel != nil {
+					defer cancel()
+				}
 				if err != nil {
 					return pollingConfig.Config.High, err
 				}
@@ -210,26 +213,38 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 			return nil, err
 		}
 
-		getRes := func() (*http.Response, error) {
+		getRes := func() (*http.Response, context.CancelFunc, error) {
 			ctx := context.Background()
+			var cancel context.CancelFunc
 			if perRequestTimeout > 0 {
-				var cancel context.CancelFunc
 				ctx, cancel = context.WithTimeout(ctx, perRequestTimeout)
-				defer cancel()
 			}
 			ctx = c.resourceIDDispatcher.Set(ctx, filecacheKey)
 
 			req, err := options.NewRequest(uri)
 			if err != nil {
-				return nil, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
+				if cancel != nil {
+					cancel()
+				}
+				return nil, nil, fmt.Errorf("failed to create request for resource %s: %w", uri, err)
 			}
 
 			req = req.WithContext(ctx)
 
-			return c.httpClient.Do(req)
+			resp, err := c.httpClient.Do(req)
+			if err != nil {
+				if cancel != nil {
+					cancel()
+				}
+				return nil, nil, err
+			}
+			return resp, cancel, nil
 		}
 
-		res, err := getRes()
+		res, cancel, err := getRes()
+		if cancel != nil {
+			defer cancel()
+		}
 		if err != nil {
 			return nil, err
 		}
