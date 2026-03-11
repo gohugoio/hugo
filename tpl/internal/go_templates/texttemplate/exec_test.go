@@ -18,6 +18,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"unsafe"
 )
 
 var debug = flag.Bool("debug", false, "show the errors produced by the tests")
@@ -45,7 +46,8 @@ type T struct {
 	SIEmpty []int
 	SB      []bool
 	// Arrays
-	AI [3]int
+	AI  [3]int
+	PAI *[3]int // pointer to array
 	// Maps
 	MSI      map[string]int
 	MSIone   map[string]int // one element, for deterministic output
@@ -74,10 +76,12 @@ type T struct {
 	Str fmt.Stringer
 	Err error
 	// Pointers
-	PI  *int
-	PS  *string
-	PSI *[]int
-	NIL *int
+	PI       *int
+	PS       *string
+	PSI      *[]int
+	NIL      *int
+	UPI      unsafe.Pointer
+	EmptyUPI unsafe.Pointer
 	// Function (not method)
 	BinaryFunc             func(string, string) string
 	VariadicFunc           func(...string) string
@@ -142,6 +146,7 @@ var tVal = &T{
 	SI:     []int{3, 4, 5},
 	SICap:  make([]int, 5, 10),
 	AI:     [3]int{3, 4, 5},
+	PAI:    &[3]int{3, 4, 5},
 	SB:     []bool{true, false},
 	MSI:    map[string]int{"one": 1, "two": 2, "three": 3},
 	MSIone: map[string]int{"one": 1},
@@ -169,6 +174,7 @@ var tVal = &T{
 	PI:                        newInt(23),
 	PS:                        newString("a string"),
 	PSI:                       newIntSlice(21, 22, 23),
+	UPI:                       newUnsafePointer(23),
 	BinaryFunc:                func(a, b string) string { return fmt.Sprintf("[%s=%s]", a, b) },
 	VariadicFunc:              func(s ...string) string { return fmt.Sprint("<", strings.Join(s, "+"), ">") },
 	VariadicFuncInt:           func(a int, s ...string) string { return fmt.Sprint(a, "=<", strings.Join(s, "+"), ">") },
@@ -193,6 +199,10 @@ var iVal I = tVal
 // Helpers for creation.
 func newInt(n int) *int {
 	return &n
+}
+
+func newUnsafePointer(n int) unsafe.Pointer {
+	return unsafe.Pointer(&n)
 }
 
 func newString(s string) *string {
@@ -456,6 +466,10 @@ var execTests = []execTest{
 	{"if 0.0", "{{if .FloatZero}}NON-ZERO{{else}}ZERO{{end}}", "ZERO", tVal, true},
 	{"if 1.5i", "{{if 1.5i}}NON-ZERO{{else}}ZERO{{end}}", "NON-ZERO", tVal, true},
 	{"if 0.0i", "{{if .ComplexZero}}NON-ZERO{{else}}ZERO{{end}}", "ZERO", tVal, true},
+	{"if nonNilPointer", "{{if .PI}}NON-ZERO{{else}}ZERO{{end}}", "NON-ZERO", tVal, true},
+	{"if nilPointer", "{{if .NIL}}NON-ZERO{{else}}ZERO{{end}}", "ZERO", tVal, true},
+	{"if UPI", "{{if .UPI}}NON-ZERO{{else}}ZERO{{end}}", "NON-ZERO", tVal, true},
+	{"if EmptyUPI", "{{if .EmptyUPI}}NON-ZERO{{else}}ZERO{{end}}", "ZERO", tVal, true},
 	{"if emptystring", "{{if ``}}NON-EMPTY{{else}}EMPTY{{end}}", "EMPTY", tVal, true},
 	{"if string", "{{if `notempty`}}NON-EMPTY{{else}}EMPTY{{end}}", "NON-EMPTY", tVal, true},
 	{"if emptyslice", "{{if .SIEmpty}}NON-EMPTY{{else}}EMPTY{{end}}", "EMPTY", tVal, true},
@@ -561,6 +575,9 @@ var execTests = []execTest{
 	{"array[:]", "{{slice .AI}}", "[3 4 5]", tVal, true},
 	{"array[1:]", "{{slice .AI 1}}", "[4 5]", tVal, true},
 	{"array[1:2]", "{{slice .AI 1 2}}", "[4]", tVal, true},
+	{"pointer to array[:]", "{{slice .PAI}}", "[3 4 5]", tVal, true},
+	{"pointer to array[1:]", "{{slice .PAI 1}}", "[4 5]", tVal, true},
+	{"pointer to array[1:2]", "{{slice .PAI 1 2}}", "[4]", tVal, true},
 	{"string[:]", "{{slice .S}}", "xyz", tVal, true},
 	{"string[0:1]", "{{slice .S 0 1}}", "x", tVal, true},
 	{"string[1:]", "{{slice .S 1}}", "yz", tVal, true},
@@ -804,7 +821,7 @@ func count(n int) chan string {
 	}
 	c := make(chan string)
 	go func() {
-		for i := range n {
+		for i := 0; i < n; i++ {
 			c <- "abcdefghijklmnop"[i : i+1]
 		}
 		close(c)
@@ -1007,24 +1024,6 @@ func TestExecError(t *testing.T) {
 type CustomError struct{}
 
 func (*CustomError) Error() string { return "heyo !" }
-
-// Check that a custom error can be returned.
-func TestExecError_CustomError(t *testing.T) {
-	failingFunc := func() (string, error) {
-		return "", &CustomError{}
-	}
-	tmpl := Must(New("top").Funcs(FuncMap{
-		"err": failingFunc,
-	}).Parse("{{ err }}"))
-
-	var b bytes.Buffer
-	err := tmpl.Execute(&b, nil)
-
-	var e *CustomError
-	if !errors.As(err, &e) {
-		t.Fatalf("expected custom error; got %s", err)
-	}
-}
 
 func TestJSEscaping(t *testing.T) {
 	testCases := []struct {
@@ -1510,6 +1509,45 @@ func TestBadFuncNames(t *testing.T) {
 	}
 }
 
+func TestIsTrue(t *testing.T) {
+	var nil_ptr *int
+	var nil_chan chan int
+	tests := []struct {
+		v    any
+		want bool
+	}{
+		{1, true},
+		{0, false},
+		{uint8(1), true},
+		{uint8(0), false},
+		{float64(1.0), true},
+		{float64(0.0), false},
+		{complex64(1.0), true},
+		{complex64(0.0), false},
+		{true, true},
+		{false, false},
+		{[2]int{1, 2}, true},
+		{[0]int{}, false},
+		{[]byte("abc"), true},
+		{[]byte(""), false},
+		{map[string]int{"a": 1, "b": 2}, true},
+		{map[string]int{}, false},
+		{make(chan int), true},
+		{nil_chan, false},
+		//{new(int), true}, // Commented out for Hugo. We have a slightly different view on ... the truth.
+		{nil_ptr, false},
+		{unsafe.Pointer(new(int)), true},
+		{unsafe.Pointer(nil_ptr), false},
+	}
+	for i, test_case := range tests {
+
+		got, _ := IsTrue(test_case.v)
+		if got != test_case.want {
+			t.Fatalf("[%d] expect result %v, got %v", i, test_case.want, got)
+		}
+	}
+}
+
 func testBadFuncName(name string, t *testing.T) {
 	t.Helper()
 	defer func() {
@@ -1714,8 +1752,8 @@ func TestInterfaceValues(t *testing.T) {
 			"Nil":   nil,
 			"Zero":  0,
 		})
-		if after, ok := strings.CutPrefix(tt.out, "ERROR:"); ok {
-			e := strings.TrimSpace(after)
+		if strings.HasPrefix(tt.out, "ERROR:") {
+			e := strings.TrimSpace(strings.TrimPrefix(tt.out, "ERROR:"))
 			if err == nil || !strings.Contains(err.Error(), e) {
 				t.Errorf("%s: Execute: %v, want error %q", tt.text, err, e)
 			}
@@ -1940,7 +1978,7 @@ func TestIssue39807(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for range numTemplates {
+			for j := 0; j < numTemplates; j++ {
 				_, err := tplFoo.AddParseTree(tplBar.Name(), tplBar.Tree)
 				if err != nil {
 					t.Error(err)

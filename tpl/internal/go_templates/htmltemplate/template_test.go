@@ -14,11 +14,11 @@ import (
 	"testing"
 
 	. "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
-	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse" // https://golang.org/issue/12996
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate/parse"
 )
 
 func TestTemplateClone(t *testing.T) {
-
+	// https://golang.org/issue/12996
 	orig := New("name")
 	clone, err := orig.Clone()
 	if err != nil {

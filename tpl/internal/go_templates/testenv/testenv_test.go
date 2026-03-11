@@ -15,44 +15,7 @@ import (
 )
 
 func TestGoToolLocation(t *testing.T) {
-	t.Skip("This test is not relevant for Hugo")
-	testenv.MustHaveGoBuild(t)
-
-	var exeSuffix string
-	if runtime.GOOS == "windows" {
-		exeSuffix = ".exe"
-	}
-
-	// Tests are defined to run within their package source directory,
-	// and this package's source directory is $GOROOT/src/internal/testenv.
-	// The 'go' command is installed at $GOROOT/bin/go, so if the environment
-	// is correct then testenv.GoTool() should be identical to ../../../bin/go.
-
-	relWant := "../../../bin/go" + exeSuffix
-	absWant, err := filepath.Abs(relWant)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	wantInfo, err := os.Stat(absWant)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("found go tool at %q (%q)", relWant, absWant)
-
-	goTool, err := testenv.GoTool()
-	if err != nil {
-		t.Fatalf("testenv.GoTool(): %v", err)
-	}
-	t.Logf("testenv.GoTool() = %q", goTool)
-
-	gotInfo, err := os.Stat(goTool)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !os.SameFile(wantInfo, gotInfo) {
-		t.Fatalf("%q is not the same file as %q", absWant, goTool)
-	}
+	// Removed by Hugo.
 }
 
 func TestHasGoBuild(t *testing.T) {
@@ -90,7 +53,12 @@ func TestHasGoBuild(t *testing.T) {
 				return
 			}
 		case "android":
-			panic("Removed by Hugo, should not be used")
+			if isEmulatedBuilder(b) {
+				// As of 2023-05-02, the test environment on the emulated builders is
+				// missing a C linker.
+				t.Logf("HasGoBuild is false on %s", b)
+				return
+			}
 		}
 
 		if strings.Contains(b, "-noopt") {
@@ -172,8 +140,8 @@ func TestCleanCmdEnvPWD(t *testing.T) {
 	cmd = testenv.CleanCmdEnv(cmd)
 
 	for _, env := range cmd.Env {
-		if after, ok := strings.CutPrefix(env, "PWD="); ok {
-			pwd := after
+		if strings.HasPrefix(env, "PWD=") {
+			pwd := strings.TrimPrefix(env, "PWD=")
 			if pwd != dir {
 				t.Errorf("unexpected PWD: want %s, got %s", dir, pwd)
 			}

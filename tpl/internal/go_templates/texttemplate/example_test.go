@@ -35,7 +35,7 @@ Josie
 		Name, Gift string
 		Attended   bool
 	}
-	recipients := []Recipient{
+	var recipients = []Recipient{
 		{"Aunt Mildred", "bone china tea set", true},
 		{"Uncle John", "moleskin pants", false},
 		{"Cousin Rodney", "", false},

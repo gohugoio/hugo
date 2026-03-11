@@ -739,6 +739,16 @@ func TestEscape(t *testing.T) {
 			"<script>var a = `${ var a = \"{{\"a \\\" d\"}}\" }`</script>",
 			"<script>var a = `${ var a = \"a \\u0022 d\" }`</script>",
 		},
+		{
+			"meta content attribute url",
+			`<meta http-equiv="refresh" content="asd; url={{"javascript:alert(1)"}}; asd; url={{"vbscript:alert(1)"}}; asd">`,
+			`<meta http-equiv="refresh" content="asd; url=#ZgotmplZ; asd; url=#ZgotmplZ; asd">`,
+		},
+		{
+			"meta content string",
+			`<meta http-equiv="refresh" content="{{"asd: 123"}}">`,
+			`<meta http-equiv="refresh" content="asd: 123">`,
+		},
 	}
 
 	for _, test := range tests {
@@ -944,7 +954,6 @@ func TestEscapeSet(t *testing.T) {
 			t.Errorf("want\n\t%q\ngot\n\t%q", test.want, got)
 		}
 	}
-
 }
 
 func TestErrors(t *testing.T) {
@@ -1019,6 +1028,14 @@ func TestErrors(t *testing.T) {
 		},
 		{
 			"<script>var tmpl = `asd ${return \"{\"}`;</script>",
+			``,
+		},
+		{
+			`{{if eq "" ""}}<meta>{{end}}`,
+			``,
+		},
+		{
+			`{{if eq "" ""}}<meta content="url={{"asd"}}">{{end}}`,
 			``,
 		},
 
@@ -1198,7 +1215,6 @@ func TestErrors(t *testing.T) {
 		// Check that we get the same error if we call Execute again.
 		if err := tmpl.Execute(buf, nil); err == nil || err.Error() != got {
 			t.Errorf("input=%q: unexpected error on second call %q", test.input, err)
-
 		}
 	}
 }
