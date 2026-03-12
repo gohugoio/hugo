@@ -158,6 +158,11 @@ type PostBuildAssets struct {
 	postProcessMu        sync.RWMutex
 	PostProcessResources map[string]postpub.PostPublishedResource
 	JSConfigBuilder      *jsconfig.Builder
+
+	// Returns the HTML elements collected during the build (tags, classes, IDs).
+	// Set early with a closure over the sites' publishers so it always
+	// returns fresh data, including on rebuilds.
+	CSSPurgeElements func() []string
 }
 
 func (r *Spec) NewResourceWrapperFromResourceConfig(rc *pagemeta.ResourceConfig) (resource.Resource, error) {

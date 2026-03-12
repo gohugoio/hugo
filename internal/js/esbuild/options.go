@@ -218,6 +218,20 @@ type ExternalOptions struct {
 	// Deprecated: This no longer have any effect and will be removed.
 	// TODO(bep) remove. See https://github.com/evanw/esbuild/commit/869e8117b499ca1dbfc5b3021938a53ffe934dba
 	AvoidTDZ bool
+
+	// Purge configures CSS purging of unused selectors.
+	// Requires build.buildStats to be enabled and css.Build to be called
+	// in a templates.Defer block.
+	Purge CSSPurgeOpts
+}
+
+// CSSPurgeOpts configures CSS purging.
+type CSSPurgeOpts struct {
+	// Enable CSS purging using BuildStats.
+	Enable bool
+
+	// Safelist of additional class/ID/tag patterns to keep (regexp).
+	Safelist []string
 }
 
 // InternalOptions holds internal options for the js.Build template function.

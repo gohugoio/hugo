@@ -492,6 +492,20 @@ func newHugoSites(
 		progressReporter:        &progressReporter{},
 	}
 
+	if d.ResourceSpec.BuildConfig().BuildStats.Enabled() {
+		d.ResourceSpec.CSSPurgeElements = func() []string {
+			var elements []string
+			for _, s := range h.Sites {
+				stats := s.publisher.PublishStats()
+				elements = append(elements, stats.HTMLElements.Tags...)
+				elements = append(elements, stats.HTMLElements.Classes...)
+				elements = append(elements, stats.HTMLElements.IDs...)
+			}
+			sort.Strings(elements)
+			return slices.Compact(elements)
+		}
+	}
+
 	// Assemble dependencies to be used in hugo.Deps.
 	var dependencies []*hugo.Dependency
 	var depFromMod func(m modules.Module) *hugo.Dependency

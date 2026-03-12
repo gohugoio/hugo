@@ -22,6 +22,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/gohugoio/hugo/htesting"
 )
 
 // ErrorSender is a, typically, non-blocking error handler.
@@ -34,12 +36,19 @@ type ErrorSender interface {
 //
 //	defer herrors.Recover()
 func Recover(args ...any) {
+	panicIfRealCI()
 	if r := recover(); r != nil {
 		fmt.Println("ERR:", r)
 		buf := make([]byte, 64<<10)
 		buf = buf[:runtime.Stack(buf, false)]
 		args = append(args, "stacktrace from panic: \n"+string(buf), "\n")
 		fmt.Println(args...)
+	}
+}
+
+func panicIfRealCI() {
+	if htesting.IsRealCI() {
+		panic("This statement should be removed before committing code!")
 	}
 }
 
