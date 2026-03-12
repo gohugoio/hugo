@@ -86,6 +86,28 @@ article { background: yellow; }
 	)
 }
 
+func TestCSSBuildFilter(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/a/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- assets/css/main.css --
+.foo { background: red; }
+-- layouts/home.html --
+{{ with resources.Get "css/main.css"  }}
+{{ $opts := (dict "minify" true "target" (slice "chrome108" "firefox116" "safari16.4" "edge115" "ios16.4" "opera101")  "loaders" (dict ".png" "dataurl") "externals" (slice  "tailwindcss"))}}
+{{ with . | css.Build $opts  }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+	`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css", "asdf")
+}
+
 func TestCSSBuildEdit(t *testing.T) {
 	t.Parallel()
 
@@ -427,6 +449,7 @@ disableKinds = ["taxonomy", "term"]
 {{ end }}
 `
 
-	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall())
-	b.AssertFileContent("public/css/main.css", `--bs-indigo: #6610f2;`)
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall()) // hugolib.TestOptWithPrintAndKeepTempDir(true))
+	// b.AssertFileContent("public/css/main.css", `--bs-indigo: #6610f2;____`)
+	b.AssertFileContent("public/index.html", "CSS size: 82142|/css/main.css")
 }

@@ -192,3 +192,5 @@ require (
 )
 
 go 1.25.0
+
+replace github.com/evanw/esbuild => github.com/bep/esbuild v0.0.0-20260316123135-73d7e8444d08
