@@ -225,7 +225,12 @@ func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 					}
 					return ss
 				}
-				return ""
+				if strings.HasPrefix(s, opts.OutDir) {
+					// This is an output file, not a source file.
+					return ""
+				}
+				// s is already the absolute filename set by the Hugo resolve plugin.
+				return s
 			}
 			return s
 		}); err != nil {

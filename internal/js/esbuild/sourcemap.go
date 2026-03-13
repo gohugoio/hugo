@@ -46,7 +46,27 @@ func fixSourceMap(s []byte, resolve func(string) string) ([]byte, error) {
 		return nil, err
 	}
 
-	sm.Sources = fixSourceMapSources(sm.Sources, resolve)
+	hasSourcesContent := len(sm.SourcesContent) == len(sm.Sources)
+
+	var sources []string
+	var sourcesContent []string
+	for i, src := range sm.Sources {
+		if resolved := resolve(src); resolved != "" {
+			// Absolute filenames works fine on U*ix (tested in Chrome on MacOs), but works very poorly on Windows (again Chrome).
+			// So, convert it to a URL.
+			if u, err := paths.UrlFromFilename(resolved); err == nil {
+				sources = append(sources, u.String())
+				if hasSourcesContent {
+					sourcesContent = append(sourcesContent, sm.SourcesContent[i])
+				}
+			}
+		}
+	}
+
+	sm.Sources = sources
+	if hasSourcesContent {
+		sm.SourcesContent = sourcesContent
+	}
 
 	b, err := json.Marshal(sm)
 	if err != nil {
@@ -54,20 +74,6 @@ func fixSourceMap(s []byte, resolve func(string) string) ([]byte, error) {
 	}
 
 	return b, nil
-}
-
-func fixSourceMapSources(s []string, resolve func(string) string) []string {
-	var result []string
-	for _, src := range s {
-		if s := resolve(src); s != "" {
-			// Absolute filenames works fine on U*ix (tested in Chrome on MacOs), but works very poorly on Windows (again Chrome).
-			// So, convert it to a URL.
-			if u, err := paths.UrlFromFilename(s); err == nil {
-				result = append(result, u.String())
-			}
-		}
-	}
-	return result
 }
 
 // Used in tests.
