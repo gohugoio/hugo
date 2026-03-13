@@ -270,9 +270,14 @@ func TestCSSBuildLoadersDefault(t *testing.T) {
 -- hugo.toml --
 -- assets/a/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- static/b/issue14619.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 -- assets/css/main.css --
 body {
   background-image: url("a/pixel.png");
+}
+div {
+  background-image: url("static/b/issue14619.png");
 }
 -- layouts/home.html --
 {{ with resources.Get "css/main.css"  }}
@@ -285,6 +290,8 @@ body {
 	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 	b.AssertFileContent("public/css/main.css", `./pixel-NJRUOINY.png`)
 	b.AssertFileExists("public/css/pixel-NJRUOINY.png", true)
+	b.AssertFileContent("public/css/main.css", `url("./issue14619-NJRUOINY.png")`)
+	b.AssertFileExists("public/css/issue14619-NJRUOINY.png", true)
 }
 
 func TestCSSBuildBootstrapFromNPM(t *testing.T) {
