@@ -304,7 +304,7 @@ disableKinds = ["taxonomy", "term"]
 }
 -- layouts/home.html --
 {{ with resources.Get "css/main.css"  }}
-{{ with . | css.Build (dict "minify" true "mainFields" (slice "style"))  }}
+{{ with . | css.Build (dict "minify" true)  }}
 	 CSS size: {{ .Content | len }}|{{ .RelPermalink }}
 {{ end }}
 {{ end }}

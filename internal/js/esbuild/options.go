@@ -402,6 +402,10 @@ OUTER:
 		sourcesContent = api.SourcesContentExclude
 	}
 
+	if opts.IsCSS && opts.MainFields == nil {
+		opts.MainFields = []string{"style", "main"}
+	}
+
 	opts.compiled = api.BuildOptions{
 		Outfile:       outFile,
 		Bundle:        true,
