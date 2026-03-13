@@ -228,7 +228,7 @@ TS2: {{ template "print" $ts2 }}
 		}
 	}
 
-	checkMap("public/js/main.js.map", 4)
+	checkMap("public/js/main.js.map", 5)
 }
 
 func TestBuildError(t *testing.T) {
