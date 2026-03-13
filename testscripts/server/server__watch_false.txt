@@ -1,0 +1,17 @@
+# Test the hugo server command with watch disabled.
+
+hugo server --watch=false &
+
+waitServer
+
+httpget $HUGOTEST_BASEURL_0 'HOME'
+httpget $HUGOTEST_BASEURL_0 'HOME'
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+HOME
