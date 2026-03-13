@@ -61,7 +61,7 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
-	if h.isRebuild() && !h.Conf.Watching() {
+	if h.isRebuild() && !h.Conf.Watching() && !h.Conf.Running() {
 		return errors.New("Build called multiple times when not in watch or server mode (typically with hugolib.Test(t, files).Build(); Build() is already called once by Test)")
 	}
 	if !h.isRebuild() && terminal.PrintANSIColors(os.Stdout) {
