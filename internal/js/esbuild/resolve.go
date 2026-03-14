@@ -60,12 +60,21 @@ var extensionToLoaderMapJS = map[string]api.Loader{
 
 var extensionToLoaderMapCSS = map[string]api.Loader{
 	".css": api.LoaderCSS,
-}
 
-// Common static file extensions that should use the file loader in CSS builds.
-var defaultCSSFileLoaderExts = []string{
-	".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".avif",
-	".woff", ".woff2", ".ttf", ".eot", ".otf",
+	// Common static file extensions that should use the file loader in CSS builds.
+	".png":  api.LoaderFile,
+	".jpg":  api.LoaderFile,
+	".jpeg": api.LoaderFile,
+	".gif":  api.LoaderFile,
+	".svg":  api.LoaderFile,
+	".webp": api.LoaderFile,
+	".avif": api.LoaderFile,
+
+	".woff":  api.LoaderFile,
+	".woff2": api.LoaderFile,
+	".ttf":   api.LoaderFile,
+	".eot":   api.LoaderFile,
+	".otf":   api.LoaderFile,
 }
 
 // This is a common sub-set of ESBuild's default extensions.
