@@ -294,6 +294,32 @@ div {
 	b.AssertFileExists("public/css/issue14619-NJRUOINY.png", true)
 }
 
+// Issue #14623
+func TestCSSBuildLoadersPartial(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+{{ $opts := dict "loaders" (dict ".svg" "dataurl") }}
+{{ with resources.Get "css/main.css" | css.Build $opts }}
+  <link rel="stylesheet" href="{{ .RelPermalink }}">
+{{ end }}
+-- assets/css/main.css --
+body { background-image: url('images/pixel.png'); }
+div { background-image: url('images/foo.svg'); }
+-- assets/images/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- assets/images/foo.svg --
+SVG file.
+`
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileExists("public/css/pixel-NJRUOINY.png", true)
+	b.AssertFileContent("public/css/main.css", `url(data:image/svg`) // svg should be inlined as dataurl.
+	b.AssertFileContent("public/css/main.css", `pixel-NJRUOINY.png`) // png should be referenced as a hashed file, not inlined.
+}
+
 func TestCSSBuildBootstrapFromNPM(t *testing.T) {
 	htesting.SkipSlowTestUnlessCI(t)
 	t.Parallel()

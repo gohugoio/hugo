@@ -289,8 +289,19 @@ OUTER:
 	}
 
 	var loaders map[string]api.Loader
-	if opts.Loaders != nil {
+	if opts.IsCSS {
 		loaders = make(map[string]api.Loader)
+		// Add default CSS file loaders.
+		// May be overridden by opts.Loaders.
+		for ext, loader := range extensionToLoaderMapCSS {
+			loaders[ext] = loader
+		}
+	}
+	if opts.Loaders != nil {
+		if loaders == nil {
+			loaders = make(map[string]api.Loader)
+		}
+
 		for k, v := range opts.Loaders {
 			loader, found := nameLoader[v]
 			if !found {
@@ -298,15 +309,6 @@ OUTER:
 				return
 			}
 			loaders[k] = loader
-		}
-	} else if opts.IsCSS {
-		loaders = make(map[string]api.Loader)
-		// For CSS builds, default to the file loader for common static
-		// file extensions so that url() references are handled correctly
-		// even when resolved by ESBuild's native resolver.
-		// See #14619.
-		for _, ext := range defaultCSSFileLoaderExts {
-			loaders[ext] = api.LoaderFile
 		}
 	}
 
@@ -471,17 +473,10 @@ func (o Options) loaderFromFilename(filename string) api.Loader {
 			return l
 		}
 	}
-	if o.IsCSS {
-		l, found := extensionToLoaderMapCSS[ext]
-		if found {
+	if !o.IsCSS {
+		if l, found := extensionToLoaderMapJS[ext]; found {
 			return l
 		}
-	} else {
-		l, found := extensionToLoaderMapJS[ext]
-		if found {
-			return l
-		}
-
 	}
 	return api.LoaderDefault
 }
