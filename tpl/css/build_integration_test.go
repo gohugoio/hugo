@@ -141,6 +141,34 @@ All. No CSS here.
 	b.AssertFileContent("public/css/main.css", `.main{background:#00f}`) // updated content, blue gets minified to #00f.
 }
 
+func TestCSSBuildEditOptions(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss"]
+disableLiveReload = true
+-- assets/css/main.css --
+body {
+ background: red;
+}
+-- layouts/home.html --
+Home.
+{{ with resources.Get "css/main.css"  }}
+{{ $opts := dict "minify" false }}
+{{ with . | css.Build $opts  }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.TestRunning(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css", `  background: red;`)
+
+	b.EditFileReplaceAll("layouts/home.html", `"minify" false`, `"minify" true`).Build()
+	b.AssertFileContent("public/css/main.css", `{background:red}`)
+}
+
 func TestCSSBuildSourceMaps(t *testing.T) {
 	t.Parallel()
 
