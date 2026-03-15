@@ -481,3 +481,65 @@ title: p1 de
 	b.AssertFileExists("public/de/s1/p1/index.html", true)
 	b.AssertFileExists("public/en/s1/p1/index.html", false)
 }
+
+// Issue 14627
+func TestRegularPageCascadeToSelf(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap','taxonomy','term']
+environment = 'pubweb'
+-- content/s1/_index.md --
+---
+title: s1
+cascade:
+  target:
+    environment: pubweb
+  build:
+    list: never
+    render: never
+    publishResources: false
+---
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- content/s2/_index.md --
+---
+title: s2
+---
+-- content/s2/p2.md --
+---
+title: p2
+cascade:
+  target:
+    environment: pubweb
+  build:
+    list: never
+    render: never
+    publishResources: false
+---
+-- content/s2/p3/index.md --
+---
+title: p3
+cascade:
+  target:
+    environment: pubweb
+  build:
+    list: never
+    render: never
+    publishResources: false
+---
+-- layouts/all.html --
+{{ .Title }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/s1/index.html", false)
+	b.AssertFileExists("public/s1/p1/index.html", false)
+	b.AssertFileExists("public/s2/index.html", true)
+	b.AssertFileExists("public/s2/p2/index.html", false)
+	b.AssertFileExists("public/s2/p3/index.html", false)
+}
