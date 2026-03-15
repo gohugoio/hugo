@@ -22,6 +22,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/cache/dynacache"
@@ -56,6 +57,8 @@ func newResourceCache(rs *Spec, memCache *dynacache.Cache) *ResourceCache {
 			"/res1/tra",
 			dynacache.OptionsPartition{ClearWhen: dynacache.ClearOnChange, Weight: 40},
 		),
+
+		cacheResourceTransformationPublished: hmaps.NewMap[string, string](),
 	}
 }
 
@@ -67,6 +70,9 @@ type ResourceCache struct {
 	CacheResourceRemote         *dynacache.Partition[string, resource.Resource]
 	cacheResources              *dynacache.Partition[string, resource.Resources]
 	cacheResourceTransformation *dynacache.Partition[string, *resourceAdapterInner]
+
+	// Used in rebuilds. Maps the target path to the last published transformation key.
+	cacheResourceTransformationPublished *hmaps.Map[string, string]
 
 	fileCache *filecache.Cache
 }

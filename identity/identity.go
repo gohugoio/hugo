@@ -245,6 +245,11 @@ type SignalRebuilder interface {
 	SignalRebuild(ids ...Identity)
 }
 
+// IsRebuildProvider signals if we're in a rebuild or not.
+type IsRebuildProvider interface {
+	IsRebuild() bool
+}
+
 // IncrementByOne implements Incrementer adding 1 every time Incr is called.
 type IncrementByOne struct {
 	counter uint64

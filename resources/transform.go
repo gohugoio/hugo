@@ -455,7 +455,10 @@ func (r *resourceAdapter) TransformationKey() string {
 
 func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	key := r.TransformationKey()
+
+	var created bool
 	res, err := r.spec.ResourceCache.cacheResourceTransformation.GetOrCreate(key, func(string) (*resourceAdapterInner, error) {
+		created = true
 		return r.transform(key, publish, setContent)
 	})
 	if err != nil {
@@ -463,6 +466,40 @@ func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	}
 
 	r.resourceAdapterInner = res
+
+	if publish && r.spec.Rebuilder.IsRebuild() {
+		targetPath := r.target.TargetPath()
+		var republish bool
+
+		r.spec.ResourceCache.cacheResourceTransformationPublished.WithWriteLock(func(m map[string]string) error {
+			if created {
+				m[targetPath] = key
+			} else {
+				key2, found := m[targetPath]
+				republish = !found || key2 != key
+				m[targetPath] = key
+			}
+			return nil
+		})
+
+		if !created && republish {
+			src, err := contentReadSeekerCloser(r.target)
+			if err != nil {
+				return err
+			}
+			defer src.Close()
+			dest, err := r.target.openPublishFileForWriting(targetPath)
+			if err != nil {
+				return err
+			}
+			defer dest.Close()
+			_, err = io.Copy(dest, src)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

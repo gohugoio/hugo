@@ -441,6 +441,9 @@ type DepsCfg struct {
 type BuildState struct {
 	counter uint64
 
+	// Tracks invocations of the Build method.
+	BuildCounter atomic.Uint64
+
 	mu sync.Mutex // protects state below.
 
 	OnSignalRebuild func(ids ...identity.Identity)
@@ -471,6 +474,11 @@ type DeferredExecutions struct {
 }
 
 var _ identity.SignalRebuilder = (*BuildState)(nil)
+
+// IsRebuild reports whether this is a rebuild.
+func (b *BuildState) IsRebuild() bool {
+	return b.BuildCounter.Load() > 0
+}
 
 // StartStageRender will be called before a stage is rendered.
 func (b *BuildState) StartStageRender(stage tpl.RenderingContext) {
