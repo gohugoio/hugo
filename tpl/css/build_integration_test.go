@@ -169,6 +169,43 @@ Home.
 	b.AssertFileContent("public/css/main.css", `{background:red}`)
 }
 
+func TestCSSBuildEditOptionsMultiple(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss"]
+disableLiveReload = true
+-- assets/css/main.css --
+body {
+ background: red;
+}
+-- layouts/_partials/css.html --
+{{ with resources.Get "css/main.css"  }}
+{{ $opts := dict "minify" false }}
+{{ with . | css.Build $opts  }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+-- layouts/all.html --
+All. {{ partial "css.html" . }}
+-- content/p1.md --
+-- content/p2.md --
+-- content/p3.md --
+
+
+`
+
+	b := hugolib.TestRunning(t, files, hugolib.TestOptOsFs())
+
+	for range 3 {
+		b.AssertFileContent("public/css/main.css", `  background: red;`)
+		b.EditFileReplaceAll("layouts/_partials/css.html", `"minify" false`, `"minify" true`).Build()
+		b.AssertFileContent("public/css/main.css", `{background:red}`)
+		b.EditFileReplaceAll("layouts/_partials/css.html", `"minify" true`, `"minify" false`).Build()
+	}
+}
+
 func TestCSSBuildSourceMaps(t *testing.T) {
 	t.Parallel()
 

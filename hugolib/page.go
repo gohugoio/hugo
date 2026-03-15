@@ -721,7 +721,7 @@ func (ps *pageState) initPage() error {
 func (ps *pageState) renderResources() error {
 	for _, r := range ps.Resources() {
 		if _, ok := r.(page.Page); ok {
-			if ps.s.h.buildCounter.Load() == 0 {
+			if !ps.s.h.BuildState.IsRebuild() {
 				// Pages gets rendered with the owning page but we count them here.
 				ps.s.PathSpec.ProcessingStats.Incr(&ps.s.PathSpec.ProcessingStats.Pages)
 			}

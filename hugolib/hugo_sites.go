@@ -123,8 +123,6 @@ type HugoSites struct {
 	*progressReporter
 	*fatalErrorHandler
 	*buildCounters
-	// Tracks invocations of the Build method.
-	buildCounter atomic.Uint64
 }
 
 // hugoSitesSitesProvider is a wrapper that implements page.SitesProvider.
@@ -253,7 +251,7 @@ func (h *HugoSites) Close() error {
 }
 
 func (h *HugoSites) isRebuild() bool {
-	return h.buildCounter.Load() > 0
+	return h.BuildState.IsRebuild()
 }
 
 func (h *HugoSites) resolveFirstSite(matrix sitesmatrix.VectorStore) *Site {
@@ -650,7 +648,7 @@ func (cfg *BuildCfg) shouldRender(infol logg.LevelLogger, p *pageState) bool {
 
 	fastRenderMode := p.s.Conf.FastRenderMode()
 
-	if !fastRenderMode || p.s.h.buildCounter.Load() == 0 {
+	if !fastRenderMode || !p.s.h.BuildState.IsRebuild() {
 		return shouldRender
 	}
 

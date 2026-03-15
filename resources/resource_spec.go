@@ -57,7 +57,7 @@ func NewSpec(
 	errorHandler herrors.ErrorSender,
 	execHelper *hexec.Exec,
 	buildClosers types.CloseAdder,
-	rebuilder identity.SignalRebuilder,
+	rebuilder Rebuilder,
 ) (*Spec, error) {
 	conf := s.Cfg.GetConfig().(*allconfig.Config)
 	imgConfig := conf.Imaging
@@ -118,13 +118,18 @@ func NewSpec(
 	return rs, nil
 }
 
+type Rebuilder interface {
+	identity.SignalRebuilder
+	identity.IsRebuildProvider
+}
+
 type Spec struct {
 	*helpers.PathSpec
 
 	Logger       loggers.Logger
 	ErrorSender  herrors.ErrorSender
 	BuildClosers types.CloseAdder
-	Rebuilder    identity.SignalRebuilder
+	Rebuilder    Rebuilder
 
 	Permalinks page.PermalinkExpander
 

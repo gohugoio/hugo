@@ -83,7 +83,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.reportProgress(func() (state terminal.ProgressState, progress float64) {
 			return terminal.ProgressHidden, 1.0
 		})
-		h.buildCounter.Add(1)
+		h.BuildState.BuildCounter.Add(1)
 	}()
 
 	if h.Deps == nil {
