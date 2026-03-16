@@ -18,7 +18,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -180,6 +182,143 @@ func (r *fsResolver) resolveComponent(impPath string, direct bool) *hugofs.FileM
 		return v, nil
 	})
 	return v
+}
+
+type cssTokenWhitelister struct {
+	elements        []string
+	elementMatchers []*regexp.Regexp
+}
+
+func (w *cssTokenWhitelister) Drop(args api.OnCSSRuleArgs) bool {
+	switch args.Kind {
+	case "qualified-rule":
+		return w.dropQualifiedRule(args.Selector)
+	case "at-keyframes":
+		// Keep keyframes only if the name matches a whitelisted token.
+		name := strings.TrimPrefix(args.Selector, "@keyframes ")
+		name = strings.TrimSpace(name)
+		return !w.match(name)
+	default:
+		// Keep at-media, at-layer, at-scope, at-charset, known-at, unknown-at,
+		// declarations, comments, etc.
+		return false
+	}
+}
+
+// dropQualifiedRule returns true if all selectors in the comma-separated
+// list should be dropped, i.e. none of them reference a whitelisted token.
+func (w *cssTokenWhitelister) dropQualifiedRule(selector string) bool {
+	for sel := range strings.SplitSeq(selector, ",") {
+		if w.selectorMatchesAny(strings.TrimSpace(sel)) {
+			return false
+		}
+	}
+	return true
+}
+
+// selectorMatchesAny returns true if any simple selector token
+// in the compound selector references a whitelisted element.
+// Selectors with no extractable tokens (e.g. *, ::before, [attr])
+// are always kept.
+func (w *cssTokenWhitelister) selectorMatchesAny(sel string) bool {
+	tokens := extractSelectorTokens(sel)
+	if len(tokens) == 0 {
+		return true
+	}
+	return slices.ContainsFunc(tokens, w.match)
+}
+
+func (w *cssTokenWhitelister) match(token string) bool {
+	if _, found := sort.Find(len(w.elements), func(i int) int {
+		return strings.Compare(token, w.elements[i])
+	}); found {
+		return true
+	}
+	return slices.ContainsFunc(w.elementMatchers, func(re *regexp.Regexp) bool {
+		return re.MatchString(token)
+	})
+}
+
+// extractSelectorTokens extracts class names, IDs, and tag names from
+// a single (non-comma-separated) CSS selector.
+// E.g. "div.foo > #bar:hover" => ["div", "foo", "bar"]
+func extractSelectorTokens(sel string) []string {
+	var tokens []string
+	var buf strings.Builder
+
+	flush := func() {
+		if buf.Len() > 0 {
+			tokens = append(tokens, buf.String())
+			buf.Reset()
+		}
+	}
+
+	i := 0
+	for i < len(sel) {
+		ch := sel[i]
+		switch {
+		case ch == '.' || ch == '#':
+			flush()
+			i++ // skip the '.' or '#'
+			for i < len(sel) && isIdentChar(sel[i]) {
+				buf.WriteByte(sel[i])
+				i++
+			}
+			flush()
+		case ch == ':':
+			flush()
+			i++ // skip ':'
+			if i < len(sel) && sel[i] == ':' {
+				i++ // skip second ':' for pseudo-elements
+			}
+			// skip pseudo-class/element name
+			for i < len(sel) && isIdentChar(sel[i]) {
+				i++
+			}
+			if i < len(sel) && sel[i] == '(' {
+				// Skip function args (e.g. :nth-child(2n+1), :not(.foo))
+				depth := 1
+				i++
+				for i < len(sel) && depth > 0 {
+					if sel[i] == '(' {
+						depth++
+					} else if sel[i] == ')' {
+						depth--
+					}
+					i++
+				}
+			}
+		case ch == '[':
+			flush()
+			// skip attribute selector
+			for i < len(sel) && sel[i] != ']' {
+				i++
+			}
+			if i < len(sel) {
+				i++ // skip ']'
+			}
+		case ch == '*' || ch == ' ' || ch == '>' || ch == '+' || ch == '~':
+			flush()
+			i++
+		case isIdentChar(ch):
+			buf.WriteByte(ch)
+			i++
+		default:
+			flush()
+			i++
+		}
+	}
+	flush()
+	return tokens
+}
+
+func isIdentChar(ch byte) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+		(ch >= '0' && ch <= '9') || ch == '-' || ch == '_'
+}
+
+func (w *cssTokenWhitelister) init() {
+	sort.Strings(w.elements)
 }
 
 func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsManager identity.Manager, opts Options) ([]api.Plugin, error) {
@@ -371,5 +510,47 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 		},
 	}
 
-	return []api.Plugin{importResolver, paramsPlugin}, nil
+	plugins := []api.Plugin{importResolver, paramsPlugin}
+
+	if opts.IsCSS && opts.Purge.Enable {
+		if rs.CSSPurgeElements == nil {
+			rs.Logger.Warnf("css.Build: purge enabled but BuildStats not enabled")
+		} else {
+			elements := rs.CSSPurgeElements()
+			if len(elements) == 0 {
+				rs.Logger.Warnf("css.Build: purge enabled but no elements collected; use templates.Defer")
+			}
+
+			var matchers []*regexp.Regexp
+			for _, pattern := range opts.Purge.Safelist {
+				re, err := regexp.Compile(pattern)
+				if err != nil {
+					return nil, fmt.Errorf("invalid purge safelist pattern %q: %w", pattern, err)
+				}
+				matchers = append(matchers, re)
+			}
+
+			whitelist := &cssTokenWhitelister{
+				elements:        elements,
+				elementMatchers: matchers,
+			}
+			whitelist.init()
+
+			plugins = append(plugins, api.Plugin{
+				Name: "hugo-css-purge",
+				Setup: func(build api.PluginBuild) {
+					build.OnCSSRule(
+						api.OnCSSRuleOptions{Filter: `.*`},
+						func(args api.OnCSSRuleArgs) (api.OnCSSRuleResult, error) {
+							return api.OnCSSRuleResult{
+								Drop: whitelist.Drop(args),
+							}, nil
+						},
+					)
+				},
+			})
+		}
+	}
+
+	return plugins, nil
 }
