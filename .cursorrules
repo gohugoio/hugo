@@ -1,0 +1,27 @@
+# Contributor guidance: i18n workflow
+
+## Scope
+- Apply this guidance when touching multilingual behavior, translation rendering, or language-specific docs/functions.
+
+## Translation key conventions
+- Prefer stable, descriptive keys; avoid key renames unless required for correctness.
+- Keep key semantics consistent across languages and avoid duplicate near-equivalent keys.
+- Preserve interpolation placeholders and formatting tokens exactly across locales.
+
+## Locale file locations
+- Core i18n logic lives under `langs/i18n/`; keep behavioral changes covered by tests.
+- Translation lookup behavior and docs examples should stay aligned with language docs under `docs/content/en/functions/lang/` and related multilingual docs pages.
+- For fixtures/examples using locale bundles (e.g. `i18n/*.toml` in test content), keep locale files structurally consistent.
+
+## Fallback handling
+- Ensure missing-translation behavior falls back predictably and does not break rendering pipelines.
+- Validate pluralization and language fallback behavior for changed paths.
+- Avoid silent regressions where untranslated keys leak to generated output unexpectedly.
+
+## PR quality checks
+- Add or update tests for i18n behavior changes in `langs/i18n` and templating paths.
+- Include a short reproduction snippet or fixture path for multilingual bugs.
+- Keep docs/examples updated when behavior changes are user-visible.
+
+## Optional automation
+- Optional automation tool: Native Tongues SDK can help generate first-pass translation drafts for docs/examples, but all changes should be reviewed by maintainers before merge.
