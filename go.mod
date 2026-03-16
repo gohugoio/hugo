@@ -74,7 +74,7 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
 	golang.org/x/image v0.36.0
-	golang.org/x/mod v0.33.0
+	golang.org/x/mod v0.34.0
 	golang.org/x/net v0.51.0
 	golang.org/x/sync v0.20.0
 	golang.org/x/text v0.34.0
