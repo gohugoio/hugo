@@ -71,7 +71,7 @@ type Module interface {
 	// The version query requested in the import.
 	VersionQuery() string
 
-	// The expected cryptographic hash of the module.
+	// Checksum for path, version
 	Sum() string
 
 	// Time version was created.

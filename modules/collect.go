@@ -15,6 +15,7 @@ package modules
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -27,6 +28,7 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
+	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -677,10 +679,18 @@ func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([
 		return mounts, fmt.Errorf("failed to read dir %q: %q", owner.Dir(), err)
 	}
 
+	hasPackageHugoJSON := false
+	for _, fi := range fis {
+		if fi.Name() == files.FilenamePackageHugoJSON {
+			hasPackageHugoJSON = true
+			break
+		}
+	}
+
 	for _, fi := range fis {
 		n := fi.Name()
 
-		should := n == files.FilenamePackageHugoJSON || n == files.FilenamePackageJSON
+		should := n == files.FilenamePackageHugoJSON || (n == files.FilenamePackageJSON && !hasPackageHugoJSON)
 		should = should || commonJSConfigs.MatchString(n)
 
 		if should {
@@ -692,7 +702,78 @@ func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([
 
 	}
 
+	// Mount the project's hugoautogen workspace package.json (not from dependencies).
+	if owner.projectMod {
+		pkgAutoGen := filepath.Join(files.FolderPackagesHugoAutoGen, files.FilenamePackageJSON)
+		if fi, err := c.fs.Stat(filepath.Join(owner.Dir(), pkgAutoGen)); err == nil && !fi.IsDir() {
+			mounts = append(mounts, Mount{
+				Source: pkgAutoGen,
+				Target: filepath.Join(files.ComponentFolderAssets, files.FolderJSConfig, pkgAutoGen),
+			})
+		}
+	}
+
+	// Mount workspace package.json files (skipping hugoautogen from dependencies).
+	// Read workspaces from package.hugo.json if it exists, otherwise from package.json.
+	pkgFile := files.FilenamePackageJSON
+	if hasPackageHugoJSON {
+		pkgFile = files.FilenamePackageHugoJSON
+	}
+	if pkgData, err := afero.ReadFile(c.fs, filepath.Join(owner.Dir(), pkgFile)); err == nil {
+		var pkg map[string]any
+		if err := json.Unmarshal(pkgData, &pkg); err == nil {
+			for _, ws := range cast.ToStringSlice(pkg["workspaces"]) {
+				wsDirs := ResolveWorkspacePattern(c.fs, owner.Dir(), ws)
+				for _, wsDir := range wsDirs {
+					if filepath.ToSlash(wsDir) == filepath.ToSlash(files.FolderPackagesHugoAutoGen) {
+						continue
+					}
+					wsPackageJSON := filepath.Join(wsDir, files.FilenamePackageJSON)
+					if fi, err := c.fs.Stat(filepath.Join(owner.Dir(), wsPackageJSON)); err == nil && !fi.IsDir() {
+						mounts = append(mounts, Mount{
+							Source: wsPackageJSON,
+							Target: filepath.Join(files.ComponentFolderAssets, files.FolderJSConfig, wsPackageJSON),
+						})
+					}
+				}
+			}
+		}
+	}
+
 	return mounts, nil
+}
+
+// ResolveWorkspacePattern resolves an npm workspace pattern to actual directory paths.
+// Supports globs (*, **) and brace expansion ({a,b}) via gobwas/glob.
+// Literal paths are returned as-is.
+func ResolveWorkspacePattern(fs afero.Fs, root, pattern string) []string {
+	if !strings.ContainsAny(pattern, "*?[{}") {
+		return []string{pattern}
+	}
+
+	g, err := glob.Compile(pattern, '/')
+	if err != nil {
+		return nil
+	}
+
+	var dirs []string
+	_ = afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return nil
+		}
+		if info.Name() != files.FilenamePackageJSON {
+			return nil
+		}
+		rel, err := filepath.Rel(root, filepath.Dir(path))
+		if err != nil {
+			return nil
+		}
+		if g.Match(filepath.ToSlash(rel)) {
+			dirs = append(dirs, rel)
+		}
+		return nil
+	})
+	return dirs
 }
 
 func (c *collector) nodeModulesRoot(s string) string {
