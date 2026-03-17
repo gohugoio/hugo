@@ -336,6 +336,8 @@ func deprecateLevel(item, alternative, version string, level logg.Level) {
 func deprecateLevelWithLogger(item, alternative, version string, level logg.Level, log logg.Logger) {
 	var msg string
 	if level == logg.LevelError {
+		// Useful to debug deprecation errors that needs to be removedor fixed. Comment out when done debugging.
+		// hdebug.Panicf("deprecation error: %s was removed in Hugo %s. %s", item, version, alternative)
 		msg = fmt.Sprintf("%s was deprecated in Hugo %s and subsequently removed. %s", item, version, alternative)
 	} else {
 		msg = fmt.Sprintf("%s was deprecated in Hugo %s and will be removed in a future release. %s", item, version, alternative)

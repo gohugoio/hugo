@@ -86,7 +86,7 @@ title = "French Title"
 {{ range .Site.RegularPages }}
 |{{ .Title }}|{{ .RelPermalink }}|{{ .Plain }}
 {{ end }}
-{{ $data := .Site.Data }}
+{{ $data := hugo.Data }}
 Data Common: {{ $data.common.value }}
 Data C: {{ $data.c.value }}
 Data D: {{ $data.d.value }}

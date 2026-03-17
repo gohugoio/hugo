@@ -20,7 +20,7 @@ enableRobotsTXT = true
 pagerSize = 1
 
 [permalinks]
-other = "/somewhere/else/:filename"
+other = "/somewhere/else/:contentbasename"
 
 [taxonomies]
 tag = "tags"

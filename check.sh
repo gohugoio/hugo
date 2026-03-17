@@ -52,7 +52,7 @@ run_staticcheck() {
 run_tests() {
     echo "==> Running tests..."
     local output
-    if ! output=$(go test $PACKAGES 2>&1); then
+    if ! output=$(go test -failfast $PACKAGES 2>&1); then
         echo "$output"
         exit 1
     fi
