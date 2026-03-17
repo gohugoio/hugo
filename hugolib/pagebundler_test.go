@@ -635,7 +635,7 @@ func TestHTMLFilesIsue11999(t *testing.T) {
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
 [permalinks]
-posts = "/myposts/:slugorfilename"
+posts = "/myposts/:slugorcontentbasename"
 -- content/posts/markdown-without-frontmatter.md --
 -- content/posts/html-without-frontmatter.html --
 <html>hello</html>

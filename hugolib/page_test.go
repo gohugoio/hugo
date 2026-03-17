@@ -1691,7 +1691,7 @@ func TestPagePathDisablePathToLower(t *testing.T) {
 baseURL = "http://example.com"
 disablePathToLower = true
 [permalinks]
-sect2 = "/:section/:filename/"
+sect2 = "/:section/:contentbasename/"
 sect3 = "/:section/:title/"
 -- content/sect/p1.md --
 ---
