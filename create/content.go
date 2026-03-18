@@ -271,7 +271,7 @@ func (b *contentBuilder) setArcheTypeFilenameToUse(ext string) {
 func (b *contentBuilder) applyArcheType(contentFilename string, archetypeFi hugofs.FileMetaInfo) error {
 	p := b.h.GetContentPage(contentFilename)
 	if p == nil {
-		panic(fmt.Sprintf("[BUG] no Page found for %q", contentFilename))
+		return fmt.Errorf("no page found for %q; if a file with the same name but different case already exists, please use a different filename or remove the existing file", contentFilename)
 	}
 
 	f, err := b.sourceFs.Create(contentFilename)
