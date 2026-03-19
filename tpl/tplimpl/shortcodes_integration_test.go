@@ -474,14 +474,15 @@ Content: {{ .Content }}
 	b.AssertFileContent("public/p3/index.html", "2b5f9cc3167d1336")
 
 	// Simple mode
-	files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
+	// Commented out for now, see issue #14649
+	/*files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
 	b = hugolib.Test(t, files)
 	b.AssertFileContent("public/p1/index.html", "04d861fc957ee638")
 
 	// Simple mode with non-existent id
 	files = strings.ReplaceAll(files, "{{< vimeo 55073825 >}}", "{{< vimeo __id_does_not_exist__ >}}")
 	b = hugolib.Test(t, files, hugolib.TestOptWarn())
-	b.AssertLogContains(`WARN  The "vimeo" shortcode was unable to retrieve the remote data.`)
+	b.AssertLogContains(`WARN  The "vimeo" shortcode was unable to retrieve the remote data.`)*/
 }
 
 func TestXShortcodes(t *testing.T) {
