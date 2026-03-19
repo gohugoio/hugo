@@ -451,17 +451,17 @@ privacy.vimeo.simple = false
 ---
 title: p1
 ---
-{{< vimeo 55073825 >}}
+{{< vimeo 19899678 >}}
 -- content/p2.md --
 ---
 title: p2
 ---
-{{< vimeo id=55073825 allowFullScreen=true >}}
+{{< vimeo id=19899678 allowFullScreen=true >}}
 -- content/p3.md --
 ---
 title: p3
 ---
-{{< vimeo id=55073825 allowFullScreen=false >}}
+{{< vimeo id=19899678 allowFullScreen=false >}}
 -- layouts/single.html --
 Hash: {{ .Content | hash.XxHash }}
 Content: {{ .Content }}
@@ -469,20 +469,19 @@ Content: {{ .Content }}
 
 	// Regular mode
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "82566e6b8d04b53e")
-	b.AssertFileContent("public/p2/index.html", "82566e6b8d04b53e")
-	b.AssertFileContent("public/p3/index.html", "2b5f9cc3167d1336")
+	b.AssertFileContent("public/p1/index.html", "31c54d7f8c54f73d")
+	b.AssertFileContent("public/p2/index.html", "31c54d7f8c54f73d")
+	b.AssertFileContent("public/p3/index.html", "7c073565f380599b")
 
 	// Simple mode
-	// Commented out for now, see issue #14649
-	/*files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
+	files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "04d861fc957ee638")
+	b.AssertFileContent("public/p1/index.html", "fb22905d5b100a5a")
 
 	// Simple mode with non-existent id
-	files = strings.ReplaceAll(files, "{{< vimeo 55073825 >}}", "{{< vimeo __id_does_not_exist__ >}}")
+	files = strings.ReplaceAll(files, "{{< vimeo 19899678 >}}", "{{< vimeo __id_does_not_exist__ >}}")
 	b = hugolib.Test(t, files, hugolib.TestOptWarn())
-	b.AssertLogContains(`WARN  The "vimeo" shortcode was unable to retrieve the remote data.`)*/
+	b.AssertLogContains(`WARN  The "vimeo" shortcode was unable to retrieve the remote data.`)
 }
 
 func TestXShortcodes(t *testing.T) {
