@@ -99,7 +99,7 @@ ADD_MORE_PLACEHOLDER
 func TestPagesFromGoTmplMisc(t *testing.T) {
 	t.Parallel()
 	b := hugolib.Test(t, filesPagesFromDataTempleBasic, hugolib.TestOptWarn())
-	b.AssertLogContains("! WARN")
+	b.AssertLogNotContainsNonDeprecationWarnings()
 	b.AssertPublishDir(`
 docs/p1/mytext.txt
 docs/p1/sub/mytex2.tx

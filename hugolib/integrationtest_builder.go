@@ -381,6 +381,23 @@ func (s *IntegrationTestBuilder) AssertLogContains(els ...string) {
 	}
 }
 
+// AssertLogNotContainsNonDeprecationWarnings asserts that the last build log
+// does not contain any WARN-level messages except deprecation notices.
+//
+// hugo.Deprecate() writes to the global logger (loggers.Log()), and
+// SetGlobalLogger is overwritten by every parallel test during
+// allconfig.LoadConfig. This means deprecation warnings from unrelated
+// parallel tests can leak into any test's log buffer, making the broad
+// "! WARN" assertion flaky. This helper filters those out.
+func (s *IntegrationTestBuilder) AssertLogNotContainsNonDeprecationWarnings() {
+	s.Helper()
+	for _, line := range strings.Split(s.lastBuildLog, "\n") {
+		if strings.Contains(line, "WARN") && !strings.Contains(line, "deprecated:") {
+			s.Fatalf("Unexpected non-deprecation warning in build log:\n%s\n\nFull log:\n%s", line, s.lastBuildLog)
+		}
+	}
+}
+
 // AssertLogMatches asserts that the last build log matches the given regular expressions.
 // The regular expressions can be negated with a hglob.NegationPrefix prefix.
 func (s *IntegrationTestBuilder) AssertLogMatches(expression string) {

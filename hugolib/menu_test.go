@@ -567,7 +567,13 @@ menu: main
 
 	b.AssertFileContent("public/en/index.html", `<a href="/en/p1/">p1</a><a href="/en/p2/">p2</a>`)
 	b.AssertFileContent("public/fr/index.html", `<a href="/fr/p1/">p1</a>`)
-	b.AssertLogContains("! WARN")
+	// Check that the build produced no warnings other than deprecation
+	// notices. The broad "! WARN" assertion is flaky in parallel tests
+	// because hugo.Deprecate() writes to the global logger
+	// (loggers.Log()), and SetGlobalLogger is called by every parallel
+	// test's allconfig.LoadConfig -- so deprecation warnings from
+	// unrelated tests can leak into this test's log buffer.
+	b.AssertLogNotContainsNonDeprecationWarnings()
 }
 
 func TestSectionPagesIssue12399(t *testing.T) {
