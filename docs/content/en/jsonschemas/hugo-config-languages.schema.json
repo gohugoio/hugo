@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-languages.schema.json",
+  "additionalProperties": {
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "properties": {
+      "languageName": {
+        "type": "string",
+        "description": "The language name, e.g. \"English\". \nhttps://gohugo.io/configuration/languages/#languagename"
+      },
+      "languageCode": {
+        "type": "string",
+        "description": "The language code, e.g. \"en-US\". \nhttps://gohugo.io/configuration/languages/#languagecode"
+      },
+      "title": {
+        "type": "string",
+        "description": "The language title. When set, this will\noverride site.Title for this language. \nhttps://gohugo.io/configuration/languages/#title"
+      },
+      "languageDirection": {
+        "oneOf": [
+          {
+            "const": "ltr"
+          },
+          {
+            "const": "rtl"
+          }
+        ],
+        "type": "string",
+        "description": "The language direction, e.g. \"ltr\" or \"rtl\". \nhttps://gohugo.io/configuration/languages/#languagedirection"
+      },
+      "weight": {
+        "type": "integer",
+        "description": "The language weight. When set to a non-zero value, this will\nbe the main sort criteria for the language. \nhttps://gohugo.io/configuration/languages/#weight"
+      },
+      "disabled": {
+        "type": "boolean",
+        "description": "Set to true to disable this language. \nhttps://gohugo.io/configuration/languages/#disabled"
+      },
+      "mainSections": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#main-sections"
+      },
+      "titleCaseStyle": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#title-case-style"
+      },
+      "buildDrafts": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#build-drafts"
+      },
+      "canonifyURLs": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#canonify-u-r-ls"
+      },
+      "disableLiveReload": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-live-reload"
+      },
+      "refLinksNotFoundURL": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#ref-links-not-found-u-r-l"
+      },
+      "removePathAccents": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#remove-path-accents"
+      },
+      "sectionPagesMenu": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#section-pages-menu"
+      },
+      "staticDir": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir"
+      },
+      "timeZone": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#time-zone"
+      },
+      "buildExpired": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#build-expired"
+      },
+      "copyright": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#copyright"
+      },
+      "disableHugoGeneratorInject": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-hugo-generator-inject"
+      },
+      "enableEmoji": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#enable-emoji"
+      },
+      "hasCJKLanguage": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#has-c-j-k-language"
+      },
+      "refLinksErrorLevel": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#ref-links-error-level"
+      },
+      "relativeURLs": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#relative-u-r-ls"
+      },
+      "summaryLength": {
+        "type": "integer",
+        "description": "https://gohugo.io/configuration/languages/#summary-length"
+      },
+      "baseURL": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#base-u-r-l"
+      },
+      "buildFuture": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#build-future"
+      },
+      "disableKinds": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#disable-kinds"
+      },
+      "disablePathToLower": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-path-to-lower"
+      },
+      "pluralizeListTitles": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#pluralize-list-titles"
+      },
+      "renderSegments": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#render-segments"
+      },
+      "capitalizeListTitles": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#capitalize-list-titles"
+      },
+      "contentDir": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#content-dir"
+      },
+      "disableAliases": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-aliases"
+      },
+      "frontmatter": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-frontmatter.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#frontmatter"
+      },
+      "markup": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-markup.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#markup"
+      },
+      "mediatypes": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-mediatypes.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#mediatypes"
+      },
+      "menus": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-menus.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#menus"
+      },
+      "outputformats": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputformats.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#outputformats"
+      },
+      "outputs": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputs.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#outputs"
+      },
+      "page": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-page.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#page"
+      },
+      "pagination": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-pagination.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#pagination"
+      },
+      "params": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-params.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#params"
+      },
+      "permalinks": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-permalinks.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#permalinks"
+      },
+      "privacy": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-privacy.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#privacy"
+      },
+      "related": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-related.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#related"
+      },
+      "security": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-security.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#security"
+      },
+      "services": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-services.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#services"
+      },
+      "sitemap": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-sitemap.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#sitemap"
+      },
+      "taxonomies": {
+        "$ref": "http://gohugo.io/jsonschemas/hugo-config-taxonomies.schema.json",
+        "description": "https://gohugo.io/configuration/languages/#taxonomies"
+      }
+    },
+    "type": "object",
+    "description": "LanguageConfig holds the configuration for a single language."
+  },
+  "type": "object",
+  "description": "Language configuration. Maps language code to language configuration."
+}

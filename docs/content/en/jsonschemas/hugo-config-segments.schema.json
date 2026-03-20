@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-segments.schema.json",
+  "properties": {
+    "excludes": {
+      "items": {
+        "properties": {
+          "kind": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/segments/#kind"
+          },
+          "path": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/segments/#path"
+          },
+          "output": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/segments/#output"
+          },
+          "lang": {
+            "type": "string",
+            "description": "Deprecated: use Sites.Matrix instead. \nhttps://gohugo.io/configuration/segments/#lang"
+          },
+          "sites": {
+            "properties": {
+              "matrix": {
+                "properties": {
+                  "languages": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#excludessitesmatrixlanguages"
+                  },
+                  "versions": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#excludessitesmatrixversions"
+                  },
+                  "roles": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#excludessitesmatrixroles"
+                  }
+                },
+                "type": "object",
+                "description": "Matrix defines what sites to build this content for. \nhttps://gohugo.io/configuration/segments/#excludessitesmatrix"
+              },
+              "complements": {
+                "properties": {
+                  "languages": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#excludessitescomplementslanguages"
+                  },
+                  "versions": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#excludessitescomplementsversions"
+                  },
+                  "roles": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#excludessitescomplementsroles"
+                  }
+                },
+                "type": "object",
+                "description": "Complements defines what sites to complement with this content. \nhttps://gohugo.io/configuration/segments/#excludessitescomplements"
+              }
+            },
+            "type": "object",
+            "description": "Note that we only use Sites.Matrix for now. \nhttps://gohugo.io/configuration/segments/#excludessites"
+          }
+        },
+        "type": "object",
+        "description": "SegmentMatcherFields holds string slices of ordered filters for segment matching."
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/segments/#excludes"
+    },
+    "includes": {
+      "items": {
+        "properties": {
+          "kind": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/segments/#kind"
+          },
+          "path": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/segments/#path"
+          },
+          "output": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/segments/#output"
+          },
+          "lang": {
+            "type": "string",
+            "description": "Deprecated: use Sites.Matrix instead. \nhttps://gohugo.io/configuration/segments/#lang"
+          },
+          "sites": {
+            "properties": {
+              "matrix": {
+                "properties": {
+                  "languages": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#includessitesmatrixlanguages"
+                  },
+                  "versions": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#includessitesmatrixversions"
+                  },
+                  "roles": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#includessitesmatrixroles"
+                  }
+                },
+                "type": "object",
+                "description": "Matrix defines what sites to build this content for. \nhttps://gohugo.io/configuration/segments/#includessitesmatrix"
+              },
+              "complements": {
+                "properties": {
+                  "languages": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#includessitescomplementslanguages"
+                  },
+                  "versions": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#includessitescomplementsversions"
+                  },
+                  "roles": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/segments/#includessitescomplementsroles"
+                  }
+                },
+                "type": "object",
+                "description": "Complements defines what sites to complement with this content. \nhttps://gohugo.io/configuration/segments/#includessitescomplements"
+              }
+            },
+            "type": "object",
+            "description": "Note that we only use Sites.Matrix for now. \nhttps://gohugo.io/configuration/segments/#includessites"
+          }
+        },
+        "type": "object",
+        "description": "SegmentMatcherFields holds string slices of ordered filters for segment matching."
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/segments/#includes"
+    }
+  },
+  "type": "object"
+}

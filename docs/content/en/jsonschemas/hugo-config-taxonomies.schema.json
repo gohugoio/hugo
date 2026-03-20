@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-taxonomies.schema.json",
+  "additionalProperties": {
+    "type": "string",
+    "description": "The plural form of the taxonomy"
+  },
+  "type": "object",
+  "description": "Taxonomy configuration. Maps singular taxonomy name to plural form."
+}

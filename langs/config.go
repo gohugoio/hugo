@@ -40,7 +40,7 @@ type LanguageConfig struct {
 	Title string
 
 	// Deprecated: Use Direction instead.
-	LanguageDirection string `json:"-"`
+	LanguageDirection string `json:"-" jsonschema:"enum=ltr,enum=rtl"`
 
 	// The language weight. When set to a non-zero value, this will
 	// be the main sort criteria for the language.

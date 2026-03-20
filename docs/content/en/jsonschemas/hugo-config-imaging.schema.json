@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-imaging.schema.json",
+  "properties": {
+    "quality": {
+      "type": "integer",
+      "description": "Default image quality setting (1-100). Only used for JPEG and WebP images. \nhttps://gohugo.io/configuration/imaging/#quality"
+    },
+    "compression": {
+      "type": "string",
+      "description": "Compression method to use.\nOne of \"lossy\" or \"lossless\".\nNote that lossless is currently only supported for WebP. \nhttps://gohugo.io/configuration/imaging/#compression"
+    },
+    "resampleFilter": {
+      "type": "string",
+      "description": "Resample filter to use in resize operations. \nhttps://gohugo.io/configuration/imaging/#resamplefilter"
+    },
+    "anchor": {
+      "type": "string",
+      "description": "The anchor to use in Fill. Default is \"smart\", i.e. Smart Crop. \nhttps://gohugo.io/configuration/imaging/#anchor"
+    },
+    "bgColor": {
+      "type": "string",
+      "description": "Default color used in fill operations (e.g. \"fff\" for white). \nhttps://gohugo.io/configuration/imaging/#bgcolor"
+    },
+    "exif": {
+      "properties": {
+        "includeFields": {
+          "type": "string",
+          "description": "Regexp matching the Exif fields you want from the (massive) set of Exif info\navailable. As we cache this info to disk, this is for performance and\ndisk space reasons more than anything.\nIf you want it all, put \".*\" in this config setting.\nNote that if neither this or ExcludeFields is set, Hugo will return a small\ndefault set. \nhttps://gohugo.io/configuration/imaging/#includefields"
+        },
+        "excludeFields": {
+          "type": "string",
+          "description": "Regexp matching the Exif fields you want to exclude. This may be easier to use\nthan IncludeFields above, depending on what you want. \nhttps://gohugo.io/configuration/imaging/#excludefields"
+        },
+        "disableDate": {
+          "type": "boolean",
+          "description": "Hugo extracts the \"photo taken\" date/time into .Date by default.\nSet this to true to turn it off. \nhttps://gohugo.io/configuration/imaging/#disabledate"
+        },
+        "disableLatLong": {
+          "type": "boolean",
+          "description": "Hugo extracts the \"photo taken where\" (GPS latitude and longitude) into\n.Long and .Lat. Set this to true to turn it off. \nhttps://gohugo.io/configuration/imaging/#disablelatlong"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/imaging/#exif"
+    },
+    "meta": {
+      "properties": {
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Glob patterns for which metadata fields to include.\nUse \"! \" prefix to exclude patterns (e.g., \"! *GPS*\" excludes GPS fields).\nPatterns are OR'd together for inclusion, AND'd for exclusion.\nIf empty, a default set excluding technical metadata is used.\nUse [\"**\"] to include all fields. \nhttps://gohugo.io/configuration/imaging/#metafields"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Which metadata sources to include.\nValid values are \"exif\", \"iptc\", \"xmp\".\nDefault is [\"exif\", \"iptc\"] (XMP is excluded for performance reasons). \nhttps://gohugo.io/configuration/imaging/#metasources"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/imaging/#meta"
+    },
+    "webp": {
+      "properties": {
+        "hint": {
+          "type": "string",
+          "description": "Hint about what type of image this is.\nValid values are \"picture\", \"photo\", \"drawing\", \"icon\", or \"text\".\nDefault is \"photo\". \nhttps://gohugo.io/configuration/imaging/#hint"
+        },
+        "useSharpYuv": {
+          "type": "boolean",
+          "description": "Use sharp (and slow) RGB-\u003eYUV conversion.\nDefault is true. \nhttps://gohugo.io/configuration/imaging/#webpusesharpyuv"
+        },
+        "method": {
+          "type": "integer",
+          "description": "Quality/speed trade-off (0=fast, 6=slower-better).\nDefault is 2. \nhttps://gohugo.io/configuration/imaging/#webpmethod"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/imaging/#webp"
+    }
+  },
+  "type": "object",
+  "description": "ImagingConfig contains default image processing configuration."
+}
