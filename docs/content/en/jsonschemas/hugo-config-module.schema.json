@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-module.schema.json",
+  "properties": {
+    "mounts": {
+      "items": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/module/#source"
+          },
+          "target": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/module/#target"
+          },
+          "sites": {
+            "properties": {
+              "matrix": {
+                "properties": {
+                  "languages": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/module/#mountssitesmatrixlanguages"
+                  },
+                  "versions": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/module/#mountssitesmatrixversions"
+                  },
+                  "roles": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/module/#mountssitesmatrixroles"
+                  }
+                },
+                "type": "object",
+                "description": "https://gohugo.io/configuration/module/#mountssitesmatrix"
+              },
+              "complements": {
+                "properties": {
+                  "languages": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/module/#mountssitescomplementslanguages"
+                  },
+                  "versions": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/module/#mountssitescomplementsversions"
+                  },
+                  "roles": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "https://gohugo.io/configuration/module/#mountssitescomplementsroles"
+                  }
+                },
+                "type": "object",
+                "description": "https://gohugo.io/configuration/module/#mountssitescomplements"
+              }
+            },
+            "type": "object",
+            "description": "https://gohugo.io/configuration/module/#mountssites"
+          },
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/module/#mountsfiles"
+          },
+          "disableWatch": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/module/#disablewatch"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/module/#mounts"
+    },
+    "imports": {
+      "items": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/module/#path"
+          },
+          "version": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/module/#importsversion"
+          },
+          "ignoreConfig": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/module/#ignoreconfig"
+          },
+          "ignoreImports": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/module/#ignoreimports"
+          },
+          "noMounts": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/module/#nomounts"
+          },
+          "noVendor": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/module/#novendor-1"
+          },
+          "disable": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/module/#disable"
+          },
+          "mounts": {
+            "items": {
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/module/#source"
+                },
+                "target": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/module/#target"
+                },
+                "sites": {
+                  "properties": {
+                    "matrix": {
+                      "properties": {
+                        "languages": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array",
+                          "description": "https://gohugo.io/configuration/module/#importsmountssitesmatrixlanguages"
+                        },
+                        "versions": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array",
+                          "description": "https://gohugo.io/configuration/module/#importsmountssitesmatrixversions"
+                        },
+                        "roles": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array",
+                          "description": "https://gohugo.io/configuration/module/#importsmountssitesmatrixroles"
+                        }
+                      },
+                      "type": "object",
+                      "description": "https://gohugo.io/configuration/module/#importsmountssitesmatrix"
+                    },
+                    "complements": {
+                      "properties": {
+                        "languages": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array",
+                          "description": "https://gohugo.io/configuration/module/#importsmountssitescomplementslanguages"
+                        },
+                        "versions": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array",
+                          "description": "https://gohugo.io/configuration/module/#importsmountssitescomplementsversions"
+                        },
+                        "roles": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array",
+                          "description": "https://gohugo.io/configuration/module/#importsmountssitescomplementsroles"
+                        }
+                      },
+                      "type": "object",
+                      "description": "https://gohugo.io/configuration/module/#importsmountssitescomplements"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/module/#importsmountssites"
+                },
+                "files": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "description": "https://gohugo.io/configuration/module/#importsmountsfiles"
+                },
+                "disableWatch": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/module/#disablewatch"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "https://gohugo.io/configuration/module/#importsmounts"
+          },
+          "usePackageJSON": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/module/#importsusepackagejson"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/module/#imports"
+    },
+    "params": {
+      "type": "object",
+      "description": "https://gohugo.io/configuration/module/#params"
+    },
+    "hugoVersion": {
+      "properties": {
+        "min": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/module/#min"
+        },
+        "max": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/module/#max"
+        },
+        "extended": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/module/#extended"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/module/#hugo-version"
+    },
+    "noVendor": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/module/#novendor-1"
+    },
+    "vendorClosest": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/module/#vendorclosest"
+    },
+    "replacements": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/module/#replacements"
+    },
+    "proxy": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/module/#proxy"
+    },
+    "noProxy": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/module/#noproxy"
+    },
+    "private": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/module/#private"
+    },
+    "auth": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/module/#auth"
+    },
+    "workspace": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/module/#workspace"
+    }
+  },
+  "type": "object"
+}

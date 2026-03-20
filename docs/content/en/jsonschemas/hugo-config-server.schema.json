@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-server.schema.json",
+  "properties": {
+    "headers": {
+      "items": {
+        "properties": {
+          "for": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/server/#headersfor"
+          },
+          "values": {
+            "type": "object",
+            "description": "https://gohugo.io/configuration/server/#headersvalues"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/server/#headers"
+    },
+    "redirects": {
+      "items": {
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/server/#from"
+          },
+          "fromRe": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/server/#fromre"
+          },
+          "to": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/server/#to"
+          },
+          "fromHeaders": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "description": "https://gohugo.io/configuration/server/#fromheaders"
+          },
+          "status": {
+            "type": "integer",
+            "description": "https://gohugo.io/configuration/server/#status"
+          },
+          "force": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/server/#force"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/server/#redirects"
+    }
+  },
+  "type": "object"
+}

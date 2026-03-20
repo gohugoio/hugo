@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-deployment.schema.json",
+  "properties": {
+    "targets": {
+      "items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#name"
+          },
+          "url": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#url"
+          },
+          "cloudFrontDistributionID": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#cloudfrontdistributionid"
+          },
+          "googleCloudCDNOrigin": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#googlecloudcdnorigin"
+          },
+          "include": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#include"
+          },
+          "exclude": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#exclude"
+          },
+          "stripIndexHTML": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/deployment/#stripindexhtml"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/deployment/#targets"
+    },
+    "matchers": {
+      "items": {
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#pattern"
+          },
+          "cacheControl": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#cachecontrol"
+          },
+          "contentEncoding": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#contentencoding"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/deployment/#contenttype"
+          },
+          "gzip": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/deployment/#gzip"
+          },
+          "force": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/deployment/#force-1"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/deployment/#matchers"
+    },
+    "order": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/deployment/#order"
+    },
+    "target": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/deployment/#target"
+    },
+    "confirm": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/deployment/#confirm"
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/deployment/#dryrun"
+    },
+    "force": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/deployment/#force-1"
+    },
+    "invalidateCDN": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/deployment/#invalidatecdn"
+    },
+    "maxDeletes": {
+      "type": "integer",
+      "description": "https://gohugo.io/configuration/deployment/#maxdeletes"
+    },
+    "workers": {
+      "type": "integer",
+      "description": "https://gohugo.io/configuration/deployment/#workers"
+    }
+  },
+  "type": "object"
+}

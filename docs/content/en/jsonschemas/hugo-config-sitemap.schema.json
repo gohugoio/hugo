@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-sitemap.schema.json",
+  "properties": {
+    "changeFreq": {
+      "type": "string",
+      "enum": [
+        "always",
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly",
+        "yearly",
+        "never"
+      ],
+      "description": "https://gohugo.io/configuration/sitemap/#changefreq"
+    },
+    "priority": {
+      "type": "number",
+      "description": "https://gohugo.io/configuration/sitemap/#priority"
+    },
+    "filename": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/sitemap/#filename"
+    },
+    "disable": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/sitemap/#disable"
+    }
+  },
+  "type": "object"
+}
