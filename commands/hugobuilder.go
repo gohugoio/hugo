@@ -179,6 +179,7 @@ func (c *hugoBuilder) initCPUProfile() (func(), error) {
 		return nil, fmt.Errorf("failed to create CPU profile: %w", err)
 	}
 	if err := pprof.StartCPUProfile(f); err != nil {
+ttf.Close()
 		return nil, fmt.Errorf("failed to start CPU profile: %w", err)
 	}
 	return func() {
@@ -209,7 +210,14 @@ func (c *hugoBuilder) initMemTicker() func() {
 	printMem := func() {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
-		fmt.Printf("\n\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", formatByteCount(m.Alloc), formatByteCount(m.TotalAlloc), formatByteCount(m.Sys), m.NumGC)
+		fmt.Printf("
+
+Alloc = %v
+TotalAlloc = %v
+Sys = %v
+NumGC = %v
+
+", formatByteCount(m.Alloc), formatByteCount(m.TotalAlloc), formatByteCount(m.Sys), m.NumGC)
 	}
 
 	go func() {
@@ -898,7 +906,8 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		c.printChangeDetected("Static files")
 
 		if c.r.forceSyncStatic {
-			c.r.logger.Printf("Syncing all static files\n")
+			c.r.logger.Printf("Syncing all static files
+")
 			_, err := c.copyStatic()
 			if err != nil {
 				c.r.logger.Errorln("Error copying static files to publish dir:", err)
@@ -1113,7 +1122,8 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 
 	if len(conf.configs.LoadingInfo.ConfigFiles) == 0 {
 		//lint:ignore ST1005 end user message.
-		return errors.New("Unable to locate config file or config directory. Perhaps you need to create a new project.\nRun `hugo help new` for details.")
+		return errors.New("Unable to locate config file or config directory. Perhaps you need to create a new project.
+Run `hugo help new` for details.")
 	}
 
 	c.conf = conf
@@ -1130,7 +1140,8 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 var rebuildCounter atomic.Uint64
 
 func (c *hugoBuilder) printChangeDetected(typ string) {
-	msg := "\nChange"
+	msg := "
+Change"
 	if typ != "" {
 		msg += " of " + typ
 	}
