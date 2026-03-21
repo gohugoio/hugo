@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-server.schema.json",
+  "properties": {
+    "headers": {
+      "items": {
+        "properties": {
+          "for": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/server/#headersfor"
+          },
+          "values": {
+            "type": "object",
+            "description": "https://gohugo.io/configuration/server/#headersvalues"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/server/#headers"
+    },
+    "redirects": {
+      "items": {
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "From is the Glob pattern to match.\nOne of From or FromRe must be set. \nhttps://gohugo.io/configuration/server/#from"
+          },
+          "fromRe": {
+            "type": "string",
+            "description": "FromRe is the regexp to match.\nThis regexp can contain group matches (e.g. $1) that can be used in the To field.\nOne of From or FromRe must be set. \nhttps://gohugo.io/configuration/server/#fromre"
+          },
+          "to": {
+            "type": "string",
+            "description": "To is the target URL. \nhttps://gohugo.io/configuration/server/#to"
+          },
+          "fromHeaders": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "description": "Headers to match for the redirect.\nThis maps the HTTP header name to a Glob pattern with values to match.\nIf the map is empty, the redirect will always be triggered. \nhttps://gohugo.io/configuration/server/#fromheaders"
+          },
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code to use for the redirect.\nA status code of 200 will trigger a URL rewrite. \nhttps://gohugo.io/configuration/server/#status"
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Forcode redirect, even if original request path exists. \nhttps://gohugo.io/configuration/server/#force"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/server/#redirects"
+    }
+  },
+  "type": "object",
+  "description": "Config for the dev server."
+}

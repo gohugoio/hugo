@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-services.schema.json",
+  "properties": {
+    "disqus": {
+      "properties": {
+        "shortname": {
+          "type": "string",
+          "description": "A Shortname is the unique identifier assigned to a Disqus site. \nhttps://gohugo.io/configuration/services/#disqusshortname"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#disqus"
+    },
+    "googleAnalytics": {
+      "properties": {
+        "iD": {
+          "type": "string",
+          "description": "The GA tracking ID. \nhttps://gohugo.io/configuration/services/#googleanalyticsid"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#google-analytics"
+    },
+    "x": {
+      "properties": {
+        "disableInlineCSS": {
+          "type": "boolean",
+          "description": "The Simple variant of X is decorated with a basic set of inline styles.\nThis means that if you want to provide your own CSS, you want\nto disable the inline CSS provided by Hugo. \nhttps://gohugo.io/configuration/services/#xdisableinlinecss"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#x"
+    },
+    "rSS": {
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "description": "Limit the number of pages. \nhttps://gohugo.io/configuration/services/#rsslimit"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#r-s-s"
+    }
+  },
+  "type": "object",
+  "description": "Config is a services configuration for all the relevant services in Hugo."
+}

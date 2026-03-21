@@ -144,7 +144,7 @@ type Options struct {
 
 	// Default is nested.
 	// One of nested, expanded, compact, compressed.
-	OutputStyle string
+	OutputStyle string `jsonschema:"enum=nested,enum=expanded,enum=compact,enum=compressed"`
 
 	// When enabled, Hugo will generate a source map.
 	EnableSourceMap bool

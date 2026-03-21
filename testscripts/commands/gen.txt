@@ -27,3 +27,8 @@ hugo gen chromastyles --style monokai
 stdout 'GenericSubheading'
 hugo gen chromastyles --omitClassComments --style monokai
 ! stdout 'GenericSubheading'
+
+# Test the jsonschemas generator
+hugo gen jsonschemas -h
+stdout 'Generate a JSON Schema for Hugo configuration options and page structures using reflection'
+hugo gen jsonschemas

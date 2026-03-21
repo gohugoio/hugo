@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-related.schema.json",
+  "properties": {
+    "threshold": {
+      "type": "integer",
+      "description": "Only include matches \u003e= threshold, a normalized rank between 0 and 100. \nhttps://gohugo.io/configuration/related-content/#threshold"
+    },
+    "includeNewer": {
+      "type": "boolean",
+      "description": "To get stable \"See also\" sections we, by default, exclude newer related pages. \nhttps://gohugo.io/configuration/related-content/#includenewer"
+    },
+    "toLower": {
+      "type": "boolean",
+      "description": "Will lower case all string values and queries to the indices.\nMay get better results, but at a slight performance cost. \nhttps://gohugo.io/configuration/related-content/#tolower-1"
+    },
+    "indices": {
+      "items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The index name. This directly maps to a field or Param name. \nhttps://gohugo.io/configuration/related-content/#name"
+          },
+          "type": {
+            "type": "string",
+            "description": "The index type. \nhttps://gohugo.io/configuration/related-content/#type"
+          },
+          "applyFilter": {
+            "type": "boolean",
+            "description": "Enable to apply a type specific filter to the results.\nThis is currently only used for the \"fragments\" type. \nhttps://gohugo.io/configuration/related-content/#applyfilter"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Contextual pattern used to convert the Param value into a string.\nCurrently only used for dates. Can be used to, say, bump posts in the same\ntime frame when searching for related documents.\nFor dates it follows Go's time.Format patterns, i.e.\n\"2006\" for YYYY and \"200601\" for YYYYMM. \nhttps://gohugo.io/configuration/related-content/#pattern"
+          },
+          "weight": {
+            "type": "integer",
+            "description": "This field's weight when doing multi-index searches. Higher is \"better\". \nhttps://gohugo.io/configuration/related-content/#weight"
+          },
+          "cardinalityThreshold": {
+            "type": "integer",
+            "description": "A percentage (0-100) used to remove common keywords from the index.\nAs an example, setting this to 50 will remove all keywords that are\nused in more than 50% of the documents in the index. \nhttps://gohugo.io/configuration/related-content/#cardinalitythreshold"
+          },
+          "toLower": {
+            "type": "boolean",
+            "description": "Will lower case all string values in and queries tothis index.\nMay get better accurate results, but at a slight performance cost. \nhttps://gohugo.io/configuration/related-content/#tolower-1"
+          }
+        },
+        "type": "object",
+        "description": "IndexConfig configures an index."
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/related-content/#indices"
+    }
+  },
+  "type": "object",
+  "description": "Config is the top level configuration element used to configure how to retrieve related content in Hugo."
+}

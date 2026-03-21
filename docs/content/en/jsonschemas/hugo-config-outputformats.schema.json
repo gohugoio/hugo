@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-outputformats.schema.json",
+  "properties": {
+    "mediaType": {
+      "type": "string",
+      "description": "The MediaType string. This must be a configured media type. \nhttps://gohugo.io/configuration/output-formats/#mediatype"
+    },
+    "path": {
+      "type": "string",
+      "description": "Must be set to a value when there are two or more conflicting mediatype for the same resource. \nhttps://gohugo.io/configuration/output-formats/#path"
+    },
+    "baseName": {
+      "type": "string",
+      "description": "The base output file name used when not using \"ugly URLs\", defaults to \"index\". \nhttps://gohugo.io/configuration/output-formats/#basename"
+    },
+    "rel": {
+      "type": "string",
+      "description": "The value to use for rel links. \nhttps://gohugo.io/configuration/output-formats/#rel"
+    },
+    "protocol": {
+      "type": "string",
+      "description": "The protocol to use, i.e. \"webcal://\". Defaults to the protocol of the baseURL. \nhttps://gohugo.io/configuration/output-formats/#protocol"
+    },
+    "isPlainText": {
+      "type": "boolean",
+      "description": "IsPlainText decides whether to use text/template or html/template\nas template parser. \nhttps://gohugo.io/configuration/output-formats/#isplaintext"
+    },
+    "isHTML": {
+      "type": "boolean",
+      "description": "IsHTML returns whether this format is int the HTML family. This includes\nHTML, AMP etc. This is used to decide when to create alias redirects etc. \nhttps://gohugo.io/configuration/output-formats/#ishtml"
+    },
+    "noUgly": {
+      "type": "boolean",
+      "description": "Enable to ignore the global uglyURLs setting. \nhttps://gohugo.io/configuration/output-formats/#nougly"
+    },
+    "ugly": {
+      "type": "boolean",
+      "description": "Enable to override the global uglyURLs setting. \nhttps://gohugo.io/configuration/output-formats/#ugly"
+    },
+    "notAlternative": {
+      "type": "boolean",
+      "description": "Enable if it doesn't make sense to include this format in an alternative\nformat listing, CSS being one good example.\nNote that we use the term \"alternative\" and not \"alternate\" here, as it\ndoes not necessarily replace the other format, it is an alternative representation. \nhttps://gohugo.io/configuration/output-formats/#notalternative"
+    },
+    "root": {
+      "type": "boolean",
+      "description": "Eneable if this is a resource which path always starts at the root,\ne.g. /robots.txt. \nhttps://gohugo.io/configuration/output-formats/#root"
+    },
+    "permalinkable": {
+      "type": "boolean",
+      "description": "Setting this will make this output format control the value of\n.Permalink and .RelPermalink for a rendered Page.\nIf not set, these values will point to the main (first) output format\nconfigured. That is probably the behavior you want in most situations,\nas you probably don't want to link back to the RSS version of a page, as an\nexample. AMP would, however, be a good example of an output format where this\nbehavior is wanted. \nhttps://gohugo.io/configuration/output-formats/#permalinkable"
+    },
+    "weight": {
+      "type": "integer",
+      "description": "Setting this to a non-zero value will be used as the first sort criteria. \nhttps://gohugo.io/configuration/output-formats/#weight"
+    }
+  },
+  "type": "object",
+  "description": "OutputFormatConfig configures a single output format."
+}

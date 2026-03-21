@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-permalinks.schema.json",
+  "additionalProperties": {
+    "additionalProperties": {
+      "type": "string",
+      "description": "The permalink pattern for this section"
+    },
+    "type": "object",
+    "description": "Permalink patterns for this content kind"
+  },
+  "type": "object",
+  "description": "Permalink configuration. Maps content kind (page, section, term, taxonomy) to permalink patterns."
+}
