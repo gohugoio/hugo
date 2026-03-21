@@ -51,13 +51,15 @@ path="a"
 [[module.imports.mounts]]
 source="myacontent"
 target="content/blog"
-lang="en"
+[module.imports.mounts.sites.matrix]
+languages  = "en"
 [[module.imports]]
 path="b"
 [[module.imports.mounts]]
 source="mybcontent"
 target="content/blog"
-lang="nn"
+[module.imports.mounts.sites.matrix]
+languages  = "nn"
 [[module.imports]]
 path="c"
 [[module.imports]]
