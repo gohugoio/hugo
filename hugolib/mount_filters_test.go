@@ -72,7 +72,7 @@ foo
 -- assets/js/include.js --
 foo
 -- layouts/home.html --
-Data: {{ site.Data }}:END
+Data: {{ hugo.Data }}:END
 
 Template: {{ templates.Exists "partials/foo.html" }}:END
 Resource1: {{ resources.Get "js/include.js" }}:END

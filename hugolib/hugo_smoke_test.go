@@ -633,8 +633,8 @@ path = "mytheme"
 -- layouts/home.html --
 i18n s1: {{ i18n "s1" }}|
 i18n s2: {{ i18n "s2" }}|
-data s1: {{ site.Data.d1.s1 }}|
-data s2: {{ site.Data.d1.s2 }}|
+data s1: {{ hugo.Data.d1.s1 }}|
+data s2: {{ hugo.Data.d1.s2 }}|
 title: {{ .Title }}|
 -- themes/mytheme/hugo.toml --
 [[module.mounts]]

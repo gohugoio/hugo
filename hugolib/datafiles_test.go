@@ -37,10 +37,10 @@ v1 = "a_v1_theme"
 -- themes/mytheme/data/d.toml --
 v1 = "d_v1_theme"
 -- layouts/home.html --
-a: {{  site.Data.a.v1 }}|
-b: {{  site.Data.b.v1 }}|
-cd: {{ site.Data.c.d.v1 }}|
-d: {{  site.Data.d.v1 }}|
+a: {{ hugo.Data.a.v1 }}|
+b: {{ hugo.Data.b.v1 }}|
+cd: {{ hugo.Data.c.d.v1 }}|
+d: {{ hugo.Data.d.v1 }}|
 `
 		b := Test(t, files)
 
@@ -57,8 +57,8 @@ baseURL = "https://example.com"
 -- data/MyFolder/MyData.toml --
 v1 = "my_v1"
 -- layouts/home.html --
-{{ site.Data }}
-v1: {{  site.Data.MyFolder.MyData.v1 }}|
+{{ hugo.Data }}
+v1: {{  hugo.Data.MyFolder.MyData.v1 }}|
 `
 	b := Test(t, files)
 
@@ -75,7 +75,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- assets/data/foo.toml --
 content = "I am assets/data/foo.toml"
 -- layouts/home.html --
-|{{ site.Data.foo.content }}|
+|{{ hugo.Data.foo.content }}|
 	`
 
 	b := Test(t, files)

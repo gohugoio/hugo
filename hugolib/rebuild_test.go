@@ -1394,10 +1394,10 @@ title: "Home"
 title: "P1"
 ---
 
-Foo inline: {{< foo.inline >}}{{ site.Data.mydata.foo }}|{{< /foo.inline >}}
+Foo inline: {{< foo.inline >}}{{ hugo.Data.mydata.foo }}|{{< /foo.inline >}}
 -- layouts/_shortcodes/data.html --
 {{ $path := split (.Get 0) "." }}
-{{ $data := index site.Data $path }}
+{{ $data := index hugo.Data $path }}
 Foo: {{ $data }}|
 -- layouts/home.html --
 Content: {{ .Content }}|
