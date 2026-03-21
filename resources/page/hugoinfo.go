@@ -20,6 +20,8 @@ import (
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/version"
+	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources/page/siteidentities"
 )
 
 var _ hstore.StoreProvider = (*HugoInfo)(nil)
@@ -112,6 +114,15 @@ func (i HugoInfo) IsMultihost() bool {
 // IsMultilingual reports whether there are two or more configured languages.
 func (i HugoInfo) IsMultilingual() bool {
 	return i.opts.Conf.IsMultilingual()
+}
+
+// For internal use.
+func (s HugoInfo) ForEeachIdentityByName(name string, f func(identity.Identity) bool) {
+	if id, found := siteidentities.FromString(name); found {
+		if f(id) {
+			return
+		}
+	}
 }
 
 // HugoInfoConfigProvider represents the config options that are relevant for HugoInfo.

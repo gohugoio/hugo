@@ -229,8 +229,8 @@ talks = [
 	{ date = 2050-02-13, name = "Future talk 2" },
 ]
 -- layouts/home.html --
-{{ $futureTalks := where site.Data.mydata.talks "date" ">" now }}
-{{ $pastTalks := where site.Data.mydata.talks "date" "<" now }}
+{{ $futureTalks := where hugo.Data.mydata.talks "date" ">" now }}
+{{ $pastTalks := where hugo.Data.mydata.talks "date" "<" now }}
 
 {{ $homeDate := site.Home.Date }}
 {{ $p1Date := (site.GetPage "p1").Date }}
@@ -239,9 +239,9 @@ Past talks: {{ len $pastTalks }}
 
 Home's Date should be greater than past: {{ gt $homeDate (index $pastTalks 0).date }}
 Home's Date should be less than future: {{ lt $homeDate (index $futureTalks 0).date }}
-Home's Date should be equal mydata date: {{ eq $homeDate site.Data.mydata.date }}
+Home's Date should be equal mydata date: {{ eq $homeDate hugo.Data.mydata.date }}
 Home date: {{ $homeDate }}
-mydata.date: {{ site.Data.mydata.date }}
+mydata.date: {{ hugo.Data.mydata.date }}
 Full time: {{ $p1Date | time.Format ":time_full" }}
 `
 

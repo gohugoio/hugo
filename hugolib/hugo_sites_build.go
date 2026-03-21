@@ -1055,7 +1055,7 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 		case files.ComponentFolderData:
 			logger.Println("Data changed", pathInfo.Path())
 
-			// This should cover all usage of site.Data.
+			// This should cover all usage of hugo.Data.
 			// Currently very coarse grained.
 			changes = append(changes, siteidentities.Data)
 			h.init.data.Reset()

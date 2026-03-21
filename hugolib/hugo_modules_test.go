@@ -358,7 +358,7 @@ target = "data/extra"
 -- extra-data/test.yaml --
 message: Hugo Rocks
 -- layouts/home.html --
-{{ site.Data.extra.test.message }}
+{{ hugo.Data.extra.test.message }}
 `
 
 	b := Test(t, files)
