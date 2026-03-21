@@ -227,11 +227,11 @@ disableWatch = true
 [[module.mounts]]
 source = 'content4'
 target = 'content/excludedsome'
-excludeFiles = 'p1.md'
+files = '! p1.md'
 [[module.mounts]]
 source = 'content5'
 target = 'content/excludedall'
-excludeFiles = '/**'
+files = '! /**'
 [[module.mounts]]
 source = "hugo_stats.json"
 target = "assets/watching/hugo_stats.json"

@@ -334,6 +334,9 @@ func deprecateLevel(item, alternative, version string, level logg.Level) {
 
 // DeprecateLevel informs about a deprecation logging at the given level.
 func deprecateLevelWithLogger(item, alternative, version string, level logg.Level, log logg.Logger) {
+	//if strings.Contains(item, "module.mounts.lang") || strings.Contains(item, "includeFiles") {
+	// hdebug.Panicf("Deprecated")
+	//}
 	var msg string
 	if level == logg.LevelError {
 		// Useful to debug deprecation errors that needs to be removedor fixed. Comment out when done debugging.
