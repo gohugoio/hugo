@@ -179,6 +179,7 @@ func (c *hugoBuilder) initCPUProfile() (func(), error) {
 		return nil, fmt.Errorf("failed to create CPU profile: %w", err)
 	}
 	if err := pprof.StartCPUProfile(f); err != nil {
+		f.Close()
 		return nil, fmt.Errorf("failed to start CPU profile: %w", err)
 	}
 	return func() {
