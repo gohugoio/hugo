@@ -9,7 +9,7 @@
             "type": "string",
             "description": "https://gohugo.io/configuration/deployment/#name"
           },
-          "uRL": {
+          "url": {
             "type": "string",
             "description": "https://gohugo.io/configuration/deployment/#url"
           },

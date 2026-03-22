@@ -14,7 +14,7 @@
     },
     "googleAnalytics": {
       "properties": {
-        "iD": {
+        "id": {
           "type": "string",
           "description": "The GA tracking ID. \nhttps://gohugo.io/configuration/services/#googleanalyticsid"
         }
@@ -32,7 +32,7 @@
       "type": "object",
       "description": "https://gohugo.io/configuration/services/#x"
     },
-    "rSS": {
+    "rss": {
       "properties": {
         "limit": {
           "type": "integer",
@@ -40,7 +40,7 @@
         }
       },
       "type": "object",
-      "description": "https://gohugo.io/configuration/services/#r-s-s"
+      "description": "https://gohugo.io/configuration/services/#rss"
     }
   },
   "type": "object",

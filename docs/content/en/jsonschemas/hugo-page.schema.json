@@ -69,7 +69,7 @@
       "type": "integer",
       "description": "The weight of the page, used in sorting if set to a non-zero value. \nhttps://gohugo.io/content-management/front-matter#weight"
     },
-    "uRL": {
+    "url": {
       "type": "string",
       "description": "The URL to the rendered page, e.g. /sect/mypage.html. \nhttps://gohugo.io/content-management/front-matter#url"
     },

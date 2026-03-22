@@ -22,7 +22,7 @@
       "type": "string",
       "description": "https://gohugo.io/configuration/menus/#post"
     },
-    "uRL": {
+    "url": {
       "type": "string",
       "description": "https://gohugo.io/configuration/menus/#url"
     },

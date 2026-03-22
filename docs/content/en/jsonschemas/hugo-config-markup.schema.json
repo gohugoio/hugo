@@ -107,7 +107,7 @@
               "type": "boolean",
               "description": "Whether softline breaks should be rendered as '\u003cbr\u003e' \nhttps://gohugo.io/configuration/markup/#rendererhardwraps"
             },
-            "xHTML": {
+            "xhtml": {
               "type": "boolean",
               "description": "XHTML instead of HTML5. \nhttps://gohugo.io/configuration/markup/#rendererxhtml"
             },
@@ -360,7 +360,7 @@
               "type": "boolean",
               "description": "https://gohugo.io/configuration/markup/#extensions-1"
             },
-            "cJK": {
+            "cjk": {
               "properties": {
                 "enable": {
                   "type": "boolean",

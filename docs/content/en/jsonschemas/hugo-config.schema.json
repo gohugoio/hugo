@@ -298,7 +298,7 @@
       "type": "string",
       "description": "Deprecated: Use module mounts.\nThe layout source directory. \nhttps://gohugo.io/configuration/all/#layoutdir"
     },
-    "i18nDir": {
+    "i18ndir": {
       "type": "string",
       "description": "Deprecated: Use module mounts.\nThe i18n source directory. \nhttps://gohugo.io/configuration/all/#i18ndir"
     },
@@ -394,86 +394,86 @@
       "type": "array",
       "description": "Deprecated: Use module mount config instead. \nhttps://gohugo.io/configuration/all/#staticdir10"
     },
-    "imaging": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-imaging.schema.json"
-    },
-    "caches": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-caches.schema.json"
-    },
-    "markup": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-markup.schema.json"
-    },
-    "mediatypes": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-mediatypes.schema.json"
-    },
-    "httpcache": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-httpcache.schema.json"
-    },
-    "params": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-params.schema.json"
-    },
-    "outputs": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputs.schema.json"
-    },
-    "menus": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-menus.schema.json"
-    },
-    "module": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-module.schema.json"
-    },
-    "server": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-server.schema.json"
-    },
-    "frontmatter": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-frontmatter.schema.json"
-    },
-    "taxonomies": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-taxonomies.schema.json"
-    },
     "sitemap": {
       "$ref": "http://gohugo.io/jsonschemas/hugo-config-sitemap.schema.json"
-    },
-    "outputformats": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputformats.schema.json"
-    },
-    "related": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-related.schema.json"
-    },
-    "cascade": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-cascade.schema.json"
-    },
-    "contenttypes": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-contenttypes.schema.json"
-    },
-    "build": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-build.schema.json"
-    },
-    "deployment": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-deployment.schema.json"
-    },
-    "pagination": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-pagination.schema.json"
-    },
-    "page": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-page.schema.json"
     },
     "security": {
       "$ref": "http://gohugo.io/jsonschemas/hugo-config-security.schema.json"
     },
-    "minify": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-minify.schema.json"
+    "build": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-build.schema.json"
     },
-    "permalinks": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-permalinks.schema.json"
+    "markup": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-markup.schema.json"
     },
-    "services": {
-      "$ref": "http://gohugo.io/jsonschemas/hugo-config-services.schema.json"
+    "params": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-params.schema.json"
+    },
+    "mediatypes": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-mediatypes.schema.json"
+    },
+    "cascade": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-cascade.schema.json"
+    },
+    "outputs": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputs.schema.json"
+    },
+    "page": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-page.schema.json"
+    },
+    "caches": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-caches.schema.json"
+    },
+    "pagination": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-pagination.schema.json"
+    },
+    "imaging": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-imaging.schema.json"
     },
     "segments": {
       "$ref": "http://gohugo.io/jsonschemas/hugo-config-segments.schema.json"
     },
     "privacy": {
       "$ref": "http://gohugo.io/jsonschemas/hugo-config-privacy.schema.json"
+    },
+    "module": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-module.schema.json"
+    },
+    "permalinks": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-permalinks.schema.json"
+    },
+    "contenttypes": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-contenttypes.schema.json"
+    },
+    "minify": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-minify.schema.json"
+    },
+    "taxonomies": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-taxonomies.schema.json"
+    },
+    "services": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-services.schema.json"
+    },
+    "menus": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-menus.schema.json"
+    },
+    "related": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-related.schema.json"
+    },
+    "deployment": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-deployment.schema.json"
+    },
+    "server": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-server.schema.json"
+    },
+    "httpcache": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-httpcache.schema.json"
+    },
+    "outputformats": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-outputformats.schema.json"
+    },
+    "frontmatter": {
+      "$ref": "http://gohugo.io/jsonschemas/hugo-config-frontmatter.schema.json"
     }
   },
   "type": "object",

@@ -315,6 +315,9 @@ url: %s
 					if s == "" {
 						return ""
 					}
+					if len(s) > 1 && strings.ToUpper(s[:2]) == s[:2] {
+						return strings.ToLower(s)
+					}
 					return strings.ToLower(s[:1]) + s[1:]
 				}
 

@@ -32,7 +32,7 @@
     },
     "tdewolff": {
       "properties": {
-        "hTML": {
+        "html": {
           "properties": {
             "keepComments": {
               "type": "boolean",
@@ -79,7 +79,7 @@
           "type": "object",
           "description": "https://gohugo.io/configuration/minify/#tdewolffhtml"
         },
-        "cSS": {
+        "css": {
           "properties": {
             "precision": {
               "type": "integer",
@@ -97,7 +97,7 @@
           "type": "object",
           "description": "https://gohugo.io/configuration/minify/#tdewolffcss"
         },
-        "jS": {
+        "js": {
           "properties": {
             "precision": {
               "type": "integer",
@@ -115,7 +115,7 @@
           "type": "object",
           "description": "https://gohugo.io/configuration/minify/#tdewolffjs"
         },
-        "jSON": {
+        "json": {
           "properties": {
             "precision": {
               "type": "integer",
@@ -129,7 +129,7 @@
           "type": "object",
           "description": "https://gohugo.io/configuration/minify/#tdewolffjson"
         },
-        "sVG": {
+        "svg": {
           "properties": {
             "keepComments": {
               "type": "boolean",
@@ -143,7 +143,7 @@
           "type": "object",
           "description": "https://gohugo.io/configuration/minify/#tdewolffsvg"
         },
-        "xML": {
+        "xml": {
           "properties": {
             "keepWhitespace": {
               "type": "boolean",
