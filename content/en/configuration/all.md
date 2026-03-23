@@ -115,7 +115,7 @@ enableEmoji
 : (`bool`) Whether to allow emoji in Markdown. Default is `false`.
 
 enableGitInfo
-: (`bool`) For sites under Git version control, whether to enable the [`GitInfo`][] object for each page. With the [default front matter configuration][], the `Lastmod` method on a `Page` object will return the Git author date. Default is `false`.
+: (`bool`) Whether to retrieve commit metadata from the Git history of your local project and any [modules](g). This enables the [`GitInfo`][] method on a `Page` object. With the default front matter configuration, the [`Lastmod`][] method on a `Page` object returns the Git author date of the last commit for that file. Default is `false`.
 
 enableMissingTranslationPlaceholders
 : (`bool`) Whether to show a placeholder instead of the default value or an empty string if a translation is missing. Default is `false`.
@@ -153,7 +153,7 @@ ignoreVendorPaths
 imaging
 : See [configure imaging][].
 
-languageCode
+locale
 : (`string`) The site's language tag, conforming to the syntax described in [RFC 5646][]. This value does not affect translations or localization. Hugo uses this value to populate:
 
   - The `language` element in the [embedded RSS template][]
@@ -355,42 +355,46 @@ none
 
 Some configuration settings, such as menus and custom parameters, can be defined separately for each language. See [configure languages][].
 
-[`cacheDir`]: #cachedir
-[`defaultContentLanguage`]: #defaultcontentlanguage
-[`defaultContentLanguageInSubdir`]: #defaultcontentlanguageinsubdir
-[`defaultContentRole`]: #defaultcontentrole
-[`defaultContentRoleInSubdir`]: #defaultcontentroleinsubdir
-[`defaultContentVersion`]: #defaultcontentversion
-[`defaultContentVersionInSubdir`]: #defaultcontentversioninsubdir
-[`disabled`]: /configuration/languages/#disabled
-[`disableDefaultSiteRedirect`]: #disabledefaultsiteredirect
-[`erroridf`]: /functions/fmt/erroridf/
+[Associated Press Stylebook]: https://www.apstylebook.com/
+[Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
+[IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
+[XDG base directory specification]: https://specifications.freedesktop.org/basedir-spec/latest/
 [`FuzzyWordCount`]: /methods/page/fuzzywordcount/
 [`GitInfo`]: /methods/page/gitinfo/
+[`Lastmod`]: /methods/page/lastmod/
 [`MainSections`]: /methods/site/mainsections/
+[`Summary`]: /methods/page/summary/
+[`WordCount`]: /methods/page/wordcount/
+[`cacheDir`]: #cachedir
+[`defaultContentLanguageInSubdir`]: #defaultcontentlanguageinsubdir
+[`defaultContentLanguage`]: #defaultcontentlanguage
+[`defaultContentRoleInSubdir`]: #defaultcontentroleinsubdir
+[`defaultContentRole`]: #defaultcontentrole
+[`defaultContentVersionInSubdir`]: #defaultcontentversioninsubdir
+[`defaultContentVersion`]: #defaultcontentversion
+[`disableDefaultSiteRedirect`]: #disabledefaultsiteredirect
+[`disabled`]: /configuration/languages/#disabled
+[`erroridf`]: /functions/fmt/erroridf/
 [`publishDir`]: #publishdir
 [`segments`]: /configuration/segments/
 [`staticDir`]: #staticdir
 [`strings.Title`]: /functions/strings/title/
-[`Summary`]: /methods/page/summary/
 [`time.AsTime`]: /functions/time/astime/
 [`time.Format`]: /functions/time/format/
 [`titleCaseStyle`]: #titlecasestyle
 [`warnidf`]: /functions/fmt/warnidf/
-[`WordCount`]: /methods/page/wordcount/
 [aliases_front_matter]: /content-management/front-matter/#aliases
 [aliases_page_method]: /methods/page/aliases/
-[Associated Press Stylebook]: https://www.apstylebook.com/
 [automatic summaries]: /content-management/summaries/#automatic-summary
-[Chicago Manual of Style]: https://www.chicagomanualofstyle.org/home.html
 [client-side redirection]: /content-management/urls/#client-side-redirection
 [composite characters]: https://en.wikipedia.org/wiki/Precomposed_character
+[configure HTTP cache]: /configuration/http-cache/
 [configure build]: /configuration/build/
 [configure cascade]: /configuration/cascade/
 [configure deployment]: /configuration/deployment/
 [configure file caches]: /configuration/caches/
 [configure front matter]: /configuration/front-matter/
-[configure HTTP cache]: /configuration/http-cache/
 [configure imaging]: /configuration/imaging/
 [configure languages]: /configuration/languages/
 [configure markup]: /configuration/markup/
@@ -415,15 +419,11 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [configure taxonomies]: /configuration/taxonomies/
 [configure ugly URLs]: /configuration/ugly-urls/
 [configure versions]: /configuration/versions/
-[default front matter configuration]: /configuration/front-matter/
 [duration]: https://pkg.go.dev/time#Duration
-[embedded alias template]: <{{% eturl alias %}}>
 [embedded Open Graph template]: <{{% eturl opengraph %}}>
 [embedded RSS template]: <{{% eturl rss %}}>
-[IANA Time Zone Database]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+[embedded alias template]: <{{% eturl alias %}}>
 [module mounts]: /configuration/module/#mounts
 [non-spacing marks]: https://www.compart.com/en/unicode/category/Mn
 [os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [this configuration]: https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml
-[XDG base directory specification]: https://specifications.freedesktop.org/basedir-spec/latest/

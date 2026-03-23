@@ -274,7 +274,7 @@ If `mainSections` is not defined in your project configuration, the `MainSection
 
 ## Boolean/undefined comparison
 
-Consider this site content:
+Consider this project structure:
 
 ```text
 content/

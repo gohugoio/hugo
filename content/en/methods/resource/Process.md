@@ -12,7 +12,14 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Process an image according to the given [processing specification][]. This versatile method supports the full range of image transformations, including resizing, cropping, rotation, and format conversion, all within a single specification string.
+The `Process` method returns a new resource from a [processable image](g) according to the given [processing specification][].
+
+> [!note]
+> Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
+
+## Usage
+
+This versatile method supports the full range of image transformations including resizing, cropping, rotation, and format conversion within a single specification string. Unlike specialized methods such as [`Resize`][] or [`Crop`][], you must explicitly include the [action](#action) in the specification if you are changing the image dimensions.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
@@ -22,7 +29,7 @@ Process an image according to the given [processing specification][]. This versa
 {{ end }}
 ```
 
-In the example above, `"crop 200x200 TopRight webp q50"` is the _processing specification_.
+In the example above, `"crop 200x200 TopRight webp q50"` is the processing specification.
 
 You can also use this method to apply simple transformations such as rotation and conversion:
 
@@ -34,7 +41,7 @@ You can also use this method to apply simple transformations such as rotation an
 {{ $image := $image.Process "webp" }}
 ```
 
-The `Process` method is also available as a filter, which is more effective if you need to apply multiple filters to an image. See [`images.Process`].
+The `Process` method is also available as a filter. This is more effective if you need to apply multiple filters to an image. See [`images.Process`][].
 
 {{% include "/_common/methods/resource/processing-spec.md" %}}
 
@@ -56,5 +63,8 @@ The `Process` method is also available as a filter, which is more effective if y
   example=true
 >}}
 
+[`Crop`]: /methods/resource/crop/
+[`Resize`]: /methods/resource/resize/
 [`images.Process`]: /functions/images/process/
+[`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
 [processing specification]: #processing-specification

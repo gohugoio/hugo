@@ -1,9 +1,10 @@
 {{/* prettier-ignore-start */ -}}
 {{- /*
-Renders a callout indicating the version in which a feature was deprecated.
+Renders an admonition or badge indicating the version in which a feature was deprecated.
 
-Include descriptive text between the opening and closing tags, or omit the
-descriptive text and call the shortcode with a self-closing tag.
+To render an admonition, include descriptive text between the opening and closing
+tags. To render a badge, omit the descriptive text and call the shortcode with a
+self-closing tag.
 
 @param {string} 0 The semantic version string, with or without a leading v.
 
@@ -15,13 +16,13 @@ descriptive text and call the shortcode with a self-closing tag.
 */ -}}
 {{/* prettier-ignore-end */ -}}
 {{- with $version := .Get 0 | strings.TrimLeft "vV" }}
-  {{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $version }}
-  {{- $inner := strings.TrimSpace $.Inner }}
-  {{- $text := printf "Deprecated in [v%s](%s)\n\n%s" $version $href $inner | $.Page.RenderString (dict "display" "block") }}
-  {{- partial "layouts/blocks/alert.html" (dict
-    "color" "orange"
-    "icon" "exclamation"
-    "text" $text
+  {{- partial "layouts/blocks/feature-state.html" (dict
+    "inner" (strings.TrimSpace $.Inner)
+    "name" $.Name
+    "page" $.Page
+    "position" $.Position
+    "status" "deprecated"
+    "version" $version
     )
   }}
 {{- else }}

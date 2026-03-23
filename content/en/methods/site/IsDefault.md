@@ -18,17 +18,17 @@ For example, the following configuration defines a matrix of sites across langua
 {{< code-toggle file=hugo >}}
 [languages.de]
 contentDir = 'content/de'
-languageCode = 'de-DE'
-languageDirection = 'ltr'
-languageName = 'Deutsch'
+direction = 'ltr'
+label = 'Deutsch'
+locale = 'de-DE'
 title = 'Projekt Dokumentation'
 weight = 1
 
 [languages.en]
 contentDir = 'content/en'
-languageCode = 'en-US'
-languageDirection = 'ltr'
-languageName = 'English'
+direction = 'ltr'
+label = 'English'
+locale = 'en-US'
 title = 'Project Documentation'
 weight = 2
 

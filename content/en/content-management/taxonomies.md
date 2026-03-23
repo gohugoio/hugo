@@ -132,8 +132,8 @@ content/
 Then add front matter to each term page:
 
 {{< code-toggle file=content/authors/jsmith/_index.md fm=true >}}
-title = "John Smith"
-affiliation = "University of Chicago"
+title = 'John Smith'
+affiliation = 'University of Chicago'
 {{< /code-toggle >}}
 
 Then create a _taxonomy_ template specific to the "authors" taxonomy:

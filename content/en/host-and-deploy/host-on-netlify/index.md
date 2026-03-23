@@ -18,7 +18,7 @@ Please complete the following tasks before continuing:
 1. [Log in](https://github.com/login) to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
 1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
-1. Create a Hugo site within your local Git repository and test it with the `hugo server` command
+1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
 1. Commit the changes to your local Git repository and push to your GitHub repository.
 
 ## Procedure
@@ -30,10 +30,10 @@ Step 1
 
   ```text {file="netlify.toml" copy=true}
   [build.environment]
-  DART_SASS_VERSION = "1.97.3"
-  GO_VERSION = "1.26.0"
-  HUGO_VERSION = "0.156.0"
-  NODE_VERSION = "24.13.1"
+  DART_SASS_VERSION = "1.98.0"
+  GO_VERSION = "1.26.1"
+  HUGO_VERSION = "0.158.0"
+  NODE_VERSION = "24.14.0"
   TZ = "Europe/Oslo"
 
   [build]
@@ -48,10 +48,10 @@ Step 1
 
   ```text {file="netlify.toml" copy=true}
   [build.environment]
-  DART_SASS_VERSION = "1.97.3"
-  GO_VERSION = "1.26.0"
-  HUGO_VERSION = "0.156.0"
-  NODE_VERSION = "24.13.1"
+  DART_SASS_VERSION = "1.98.0"
+  GO_VERSION = "1.26.1"
+  HUGO_VERSION = "0.158.0"
+  NODE_VERSION = "24.14.0"
   TZ = "Europe/Oslo"
 
   [build]

@@ -26,24 +26,24 @@
     "**/tools/*"
   ],
   "ignoreRegExpList": [
-    "# cspell: ignore fenced code blocks",
+    // cspell: ignore fenced code blocks
     "^(\\s*`{3,}).*[\\s\\S]*?^\\1$",
-    "# cspell: ignore words joined with dot",
+    // cspell: ignore words joined with dot
     "\\w+\\.\\w+",
-    "# cspell: ignore strings within backticks",
+    // cspell: ignore strings within backticks
     "`.+`",
-    "# cspell: ignore strings within double quotes",
+    // cspell: ignore strings within double quotes
     "\".+\"",
-    "# cspell: ignore strings within brackets",
+    // cspell: ignore strings within brackets
     "\\[.+\\]",
-    "# cspell: ignore strings within parentheses",
+    // cspell: ignore strings within parentheses
     "\\(.+\\)",
-    "# cspell: ignore words that begin with a slash",
+    // cspell: ignore words that begin with a slash
     "/\\w+",
-    "# cspell: ignore everything within action delimiters",
+    // cspell: ignore everything within action delimiters
     "\\{\\{.+\\}\\}",
-    "# cspell: ignore everything after a right arrow",
-    "\\s+→\\s+.+"
+    // cspell: ignore everything after a right arrow
+    "\\s+→\\s+.+",
   ],
   "language": "en",
   "words": [
@@ -76,9 +76,9 @@
     "unmarshaled",
     "unmarshaling",
     "unmarshals",
-    "# ----------------------------------------------------------------------",
-    "# cspell: ignore hugo terminology",
-    "# ----------------------------------------------------------------------",
+    // ------------------------------------------------------------------------
+    // cspell: ignore hugo terminology",
+    // ------------------------------------------------------------------------
     "alignx",
     "aligny",
     "attrlink",
@@ -101,9 +101,9 @@
     "unmarshal",
     "unpublishdate",
     "zgotmplz",
-    "# ----------------------------------------------------------------------",
-    "# cspell: ignore foreign language words",
-    "# ----------------------------------------------------------------------",
+    // ------------------------------------------------------------------------
+    // cspell: ignore foreign language words",
+    // ------------------------------------------------------------------------
     "bezpieczeństwo",
     "blatt",
     "buch",
@@ -129,9 +129,9 @@
     "prywatność",
     "referenz",
     "régime",
-    "# ----------------------------------------------------------------------",
-    "# cspell: ignore names",
-    "# ----------------------------------------------------------------------",
+    // ------------------------------------------------------------------------
+    // cspell: ignore names",
+    // ------------------------------------------------------------------------
     "Atishay",
     "Cosette",
     "Eliott",
@@ -142,14 +142,15 @@
     "Ninke",
     "Noll",
     "Pastorius",
+    "Pontmercy",
     "Samsa",
     "Stucki",
     "Thénardier",
     "Vitter",
     "WASI",
-    "# ----------------------------------------------------------------------",
-    "# cspell: ignore operating systems and software packages",
-    "# ----------------------------------------------------------------------",
+    // ------------------------------------------------------------------------
+    // cspell: ignore operating systems and software packages",
+    // ------------------------------------------------------------------------
     "asciidoctor",
     "brotli",
     "cifs",
@@ -171,9 +172,9 @@
     "pkgin",
     "rclone",
     "xubuntu",
-    "# ----------------------------------------------------------------------",
-    "# cspell: ignore miscellaneous",
-    "# ----------------------------------------------------------------------",
+    // ------------------------------------------------------------------------
+    // cspell: ignore miscellaneous",
+    // ------------------------------------------------------------------------
     "achristie",
     "ccpa",
     "cpra",

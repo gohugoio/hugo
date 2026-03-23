@@ -44,18 +44,12 @@ _comment: Do not remove front matter.
 : The `slug` as defined in front matter, else the `title` as defined in front matter, else the automatic title. Hugo generates titles automatically for section, taxonomy, and term pages that are not backed by a file.
 
 `:filename`
-: The content's file name without extension, applicable to the `page` page kind.
-
-  {{< deprecated-in v0.144.0 >}}
-  The `:filename` token has been deprecated. Use `:contentbasename` instead.
-  {{< /deprecated-in >}}
+: {{< deprecated-in v0.144.0 />}}
+:  Use `:contentbasename` instead.
 
 `:slugorfilename`
-: The `slug` as defined in front matter, else the content's file name without extension, applicable to the `page` page kind.
-
-  {{< deprecated-in v0.144.0 >}}
-  The `:slugorfilename` token has been deprecated. Use `:slugorcontentbasename` instead.
-  {{< /deprecated-in >}}
+: {{< deprecated-in v0.144.0 />}}
+:  Use `:slugorcontentbasename` instead.
 
 `:contentbasename`
 : {{< new-in 0.144.0 />}}

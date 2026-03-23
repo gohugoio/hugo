@@ -11,24 +11,29 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Colors` method on a `Resource` image object returns a slice of the most dominant colors in an image, ordered from most dominant to least dominant. This method is fast, but if you also downsize your image you can improve performance by extracting the colors from the scaled image.
+The `Colors` method returns a slice of the most dominant colors in a [processable image](g), ordered from most dominant to least dominant.
+
+> [!note]
+> Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
+
+## Usage
+
+This method is fast, but if you downscale your image first, you can further improve performance by extracting colors from the smaller resource.
 
 ## Methods
 
-Each color is an object with the following methods:
+Each color in the slice is an object with the following methods:
 
 ### ColorHex
 
-(`string`) Returns the [hexadecimal color] value, prefixed with a hash sign.
+(`string`) Returns the [hexadecimal color][] value, prefixed with a hash sign.
 
 ### Luminance
 
-(`float64`) Returns the [relative luminance] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
+(`float64`) Returns the [relative luminance][] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
 > [!note]
-> Image filters such as [`images.Dither`], [`images.Padding`], and [`images.Text`] accept either hexadecimal color values or `images.Color` objects as arguments.
->
-> Hugo renders an `images.Color` object as a hexadecimal color value.
+> Image filters such as [`images.Dither`][], [`images.Padding`][], and [`images.Text`][] accept either hexadecimal color values or `images.Color` objects as arguments. Hugo renders an `images.Color` object as a hexadecimal color value.
 
 ## Sorting
 
@@ -131,13 +136,13 @@ To create a text box where the foreground and background colors are derived from
 
 ### WCAG contrast ratio
 
-In the previous example we placed light text on a dark background, but does this color combination conform to [WCAG] guidelines for either the [minimum] or the [enhanced] contrast ratio?
+In the previous example we placed light text on a dark background, but does this color combination conform to [WCAG][] guidelines for either the [minimum][] or the [enhanced][] contrast ratio?
 
-The WCAG defines the [contrast ratio] as:
+The WCAG defines the [contrast ratio][] as:
 
 $$contrast\ ratio = { L_1 + 0.05 \over L_2 + 0.05 }$$
 
-where $L_1$ is the relative luminance of the lightest color and $L_2$ is the relative luminance of the darkest color.
+where \(L_1\) is the relative luminance of the lightest color and \(L_2\) is the relative luminance of the darkest color.
 
 Calculate the contrast ratio to determine WCAG conformance:
 
@@ -159,12 +164,13 @@ Calculate the contrast ratio to determine WCAG conformance:
 {{ end }}
 ```
 
+[WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines
 [`images.Dither`]: /functions/images/dither/
 [`images.Padding`]: /functions/images/padding/
 [`images.Text`]: /functions/images/text/
+[`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
 [contrast ratio]: https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
 [enhanced]: https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=145#contrast-enhanced
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 [minimum]: https://www.w3.org/WAI/WCAG22/quickref/?showtechniques=145#contrast-minimum
 [relative luminance]: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
-[WCAG]: https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines

@@ -77,6 +77,7 @@ Link to the [glossary] as needed and use terms consistently. Pay particular atte
 - "server side" (noun), "server-side" (adjective)
 - "Markdown" (capitalized)
 - "open-source" (hyphenated adjective)
+- "Node.js" (first mention per page), "Node" (subsequent mentions), "node" (for the executable), "npm" (always lowercase)
 
 ### Template types
 
@@ -207,10 +208,10 @@ When available, the "See also" sidebar displays related pages using Hugo's [rela
 If the title in the "See also" sidebar is ambiguous or the same as another page, you can define an alternate title in the front matter:
 
 {{< code-toggle file=hugo >}}
-title = "Long descriptive title"
-linkTitle = "Short title"
+title = 'Long descriptive title'
+linkTitle = 'Short title'
 [params]
-alt_title = "Whatever you want"
+alt_title = 'Whatever you want'
 {{< /code-toggle >}}
 
 Use of the alternate title is limited to the "See also" sidebar.
@@ -298,7 +299,7 @@ Use the [code-toggle shortcode](#code-toggle) to include project configuration e
 ```text
 {{</* code-toggle file=hugo */>}}
 baseURL = 'https://example.org/'
-languageCode = 'en-US'
+locale = 'en-US'
 title = 'My Site'
 {{</* /code-toggle */>}}
 ```
@@ -394,7 +395,7 @@ skipHeader
 ```text
 {{</* code-toggle file=hugo copy=true */>}}
 baseURL = 'https://example.org/'
-languageCode = 'en-US'
+locale = 'en-US'
 title = 'My Site'
 {{</* /code-toggle */>}}
 ```
@@ -404,11 +405,14 @@ title = 'My Site'
 Use the `deprecated-in` shortcode to indicate that a feature is deprecated:
 
 ```text
+{{</* deprecated-in 0.144.0 /*/>}}
+```
+
+You can also include details:
+
+```text
 {{</* deprecated-in 0.144.0 */>}}
-
-Use [`hugo.IsServer`] instead.
-
-[`hugo.IsServer`]: /functions/hugo/isserver/
+Use [`hugo.IsServer`](/functions/hugo/isserver/) instead.
 {{</* /deprecated-in */>}}
 ```
 
@@ -456,33 +460,21 @@ This is a new feature.
 
 ## New features
 
-Use the [new-in shortcode](#new-in) to indicate a new feature:
+Use the [new-in](#new-in) shortcode to indicate a new feature.
 
-```text
-{{</* new-in 0.144.0 */>}}
-```
-
-The "new in" label will be hidden if the specified version is older than a predefined threshold, based on differences in major and minor versions. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/_vendor/github.com/gohugoio/gohugoioTheme/layouts/_shortcodes/new-in.html).
+The new-in shortcode will trigger a build warning if the specified version is older than a predefined threshold, based on differences in major and minor versions. This serves as a reminder to remove this shortcode call. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/layouts/_partials/layouts/blocks/feature-state.html).
 
 ## Deprecated features
 
-Use the [deprecated-in shorcode](#deprecated-in) shortcode to indicate that a feature is deprecated:
+Use the [deprecated-in](#deprecated-in) shortcode to indicate that a feature is deprecated.
 
-```text
-{{</* deprecated-in 0.144.0 */>}}
-Use [`hugo.IsServer`] instead.
+The deprecated-in shortcode will trigger a build warning if the specified version is older than a predefined threshold, based on differences in major and minor versions. This serves as a reminder to remove this shortcode call and the associated content. See&nbsp;[details](https://github.com/gohugoio/hugoDocs/blob/master/layouts/_partials/layouts/blocks/feature-state.html).
 
-[`hugo.IsServer`]: /functions/hugo/isserver/
-{{</* /deprecated-in */>}}
+When deprecating a feature that has its own page, also set the `expiryDate` in front matter to two years from the date of deprecation. Include a brief comment to explain the setting:
+
+```yaml
+expiryDate: 2028-03-03 # deprecated 2026-03-03 in v0.157.0
 ```
-
-When deprecating a function or method, add something like this to front matter:
-
-{{< code-toggle file=content/something/foo.md fm=true >}}
-expiryDate: 2027-02-17 # deprecated 2025-02-17 in v0.144.0
-{{< /code-toggle >}}
-
-Set the `expiryDate` to two years from the date of deprecation, and add a brief front matter comment to explain the setting.
 
 ## GitHub workflow
 

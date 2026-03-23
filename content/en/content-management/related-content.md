@@ -62,8 +62,8 @@ threshold    = 20
 includeNewer = true
 toLower      = false
 [[related.indices]]
-name        = "fragmentrefs"
-type        = "fragments"
+name        = 'fragmentrefs'
+type        = 'fragments'
 applyFilter = true
 weight      = 80
 {{< /code-toggle >}}

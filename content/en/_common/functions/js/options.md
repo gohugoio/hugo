@@ -18,7 +18,7 @@ params
   Note that this is meant for small data sets, e.g., configuration settings. For larger data sets, please put/mount the files into `assets` and import them directly.
 
 minify
-: (`bool`) Whether to let `js.Build` handle the minification.
+: (`bool`) Whether to minify the generated CSS code. Default is `false`.
 
 loaders
 : {{< new-in 0.140.0 />}}
@@ -77,11 +77,11 @@ drop
 : See <https://esbuild.github.io/api/#drop>
 
 sourceMap
-: (`string`) Whether to generate `inline`, `linked`, or `external` source maps from esbuild. Linked and external source maps will be written to the target with the output file name + ".map". When `linked` a `sourceMappingURL` will also be written to the output file. By default, source maps are not created. Note that the `linked` option was added in Hugo 0.140.0.
+: (`string`) The type of source map to generate. One of `external`, `inline`, `linked`, or `none`. Default is `none`. Linked and external source maps will be written to the target with the output file name + ".map". When `linked` a `sourceMappingURL` will also be written to the output file.
 
 sourcesContent
 : {{< new-in 0.140.0 />}}
-: (`bool`) Whether to include the content of the source files in the source map. By default, this is `true`.
+: (`bool`) Whether to include the content of the source files in the source map. Default is `true`.
 
 JSX
 : (`string`) How to handle/transform JSX syntax. One of: `transform`, `preserve`, `automatic`. Default is `transform`. Notably, the `automatic` transform was introduced in React 17+ and will cause the necessary JSX helper functions to be imported automatically. See <https://esbuild.github.io/api/#jsx>.

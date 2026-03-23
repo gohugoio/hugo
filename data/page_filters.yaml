@@ -1,12 +1,10 @@
-# Do not delete. Required for layouts/_shortcodes/list-pages-in-section.html.
+# Do not delete. This file defines filters that can be applied to lists of
+# pages when rendering. The filters are defined as lists of page paths. A
+# filter can be applied to a list of pages by specifying the filter name and
+# filter type (include or exclude). Used by:
 #
-# When calling the list-pages-in-section shortcode, you can specify a page
-# filter, and whether the pages in the filter should be included or excluded
-# from the list.
-#
-# For example:
-#
-# {{% list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude %}}
+#   - layouts/_shortcodes/render-list-of-pages-in-section.html
+#   - layouts/_shortcodes/render-table-of-pages-in-section.html
 
 functions_fmt_logging:
   - /functions/fmt/errorf
@@ -86,3 +84,10 @@ methods_page_navigation:
   - /methods/page/nextinsection
   - /methods/page/prev
   - /methods/page/previnsection
+methods_resource_image_processing:
+  - /methods/resource/crop
+  - /methods/resource/fill
+  - /methods/resource/filter
+  - /methods/resource/fit
+  - /methods/resource/fit
+  - /methods/resource/resize

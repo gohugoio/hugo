@@ -11,8 +11,6 @@ params:
 aliases: [/functions/templates.defer]
 ---
 
-{{< new-in 0.128.0 />}}
-
 > [!note]
 > This feature should only be used in the main template, typically `layouts/baseof.html`. Using it in _shortcode_, _partial_, or _render hook_ templates may lead to unpredictable results. For further details, please refer to [this issue].
 
@@ -83,15 +81,15 @@ data (`map`)
 : Optional map to pass as data to the deferred template. This will be available in the deferred template as `.` or `$`.
 
 ```go-html-template
-Language Outside: {{ site.Language.Lang }}
+Language Outside: {{ site.Language.Name }}
 Page Outside: {{ .RelPermalink }}
 I18n Outside: {{ i18n "hello" }}
 {{ $data := (dict "page" . )}}
 {{ with (templates.Defer (dict "data" $data )) }}
-     Language Inside: {{ site.Language.Lang }}
+     Language Inside: {{ site.Language.Name }}
      Page Inside: {{ .page.RelPermalink }}
      I18n Inside: {{ i18n "hello" }}
 {{ end }}
 ```
 
-The [output format](/configuration/output-formats/), [site](/methods/page/site/), and [language](/methods/site/language) will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Lang` and `.RelPermalink` will be the same on the inside and the outside of the deferred template.
+The [output format](/configuration/output-formats/), [site](/methods/page/site/), and [language](/methods/site/language) will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Name` and `.RelPermalink` will be the same on the inside and the outside of the deferred template.

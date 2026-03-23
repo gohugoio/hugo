@@ -1,6 +1,6 @@
 ---
 title: Meta
-description: Applicable to JPEG, PNG, TIFF, and WebP images, returns an object containing Exif, IPTC, and XMP metadata.
+description: Applicable to images, returns an object containing Exif, IPTC, and XMP metadata for supported image formats.
 categories: []
 keywords: ['metadata']
 params:
@@ -13,18 +13,32 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Applicable to JPEG, PNG, TIFF, and WebP images, the `Meta` method on an image `Resource` object returns an object containing [Exif][Exif_Definition], [IPTC][IPTC_Definition], and [XMP][XMP_Definition] metadata.
+The `Meta` method on an image `Resource` object returns an object containing [Exif][Exif_Definition], [IPTC][IPTC_Definition], and [XMP][XMP_Definition] metadata.
 
-To extract Exif metadata only, use the [`Exif`] method instead.
+While Hugo classifies many file types as images, only certain formats support metadata extraction. Supported formats include AVIF, BMP, GIF, HEIC, HEIF, JPEG, PNG, TIFF, and WebP.
 
 > [!note]
-> Metadata is not preserved during image transformation. Use this method with the _original_ image resource to extract metadata from JPEG, PNG, TIFF, and WebP images.
+> Metadata is not preserved during image transformation. Use this method with the _original_ image resource to extract metadata from supported formats.
+
+## Usage
+
+Use the [`reflect.IsImageResourceWithMeta`][] function to verify that a resource supports metadata extraction before calling the `Meta` method.
+
+```go-html-template
+{{ with resources.GetMatch "images/featured.*" }}
+  {{ if reflect.IsImageResourceWithMeta . }}
+    {{ with .Meta }}
+      {{ .Date.Format "2006-01-02" }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+```
 
 ## Methods
 
 ### Date
 
-(`time.Time`) Returns the image creation date/time. Format with the [`time.Format`] function.
+(`time.Time`) Returns the image creation date/time. Format with the [`time.Format`][] function.
 
 ### Lat
 
@@ -36,7 +50,7 @@ To extract Exif metadata only, use the [`Exif`] method instead.
 
 ### Orientation
 
-(`int`) Returns the value of the Exif `Orientation` tag, one of eight possible values:
+(`int`) Returns the value of the Exif `Orientation` tag, one of eight possible values.
 
 Value|Description
 :--|:--
@@ -51,7 +65,7 @@ Value|Description
 {class="!mt-0"}
 
 > [!tip]
-> Use the [`images.AutoOrient`] image filter to rotate and flip an image as needed per its Exif orientation tag
+> Use the [`images.AutoOrient`][] image filter to rotate and flip an image as needed per its Exif orientation tag
 
 ### Exif
 
@@ -70,96 +84,25 @@ Value|Description
 To list the creation date, latitude, longitude, and orientation:
 
 ```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  {{ with .Meta }}
-    <pre>
-      {{ printf "%-25s %v\n" "Date" .Date }}
-      {{ printf "%-25s %v\n" "Latitude" .Lat }}
-      {{ printf "%-25s %v\n" "Longitude" .Long }}
-      {{ printf "%-25s %v\n" "Orientation" .Orientation }}
-    </pre>
+{{ with resources.GetMatch "images/featured.*" }}
+  {{ if reflect.IsImageResourceWithMeta . }}
+    {{ with .Meta }}
+      <pre>
+        {{ printf "%-25s %v\n" "Date" .Date }}
+        {{ printf "%-25s %v\n" "Latitude" .Lat }}
+        {{ printf "%-25s %v\n" "Longitude" .Long }}
+        {{ printf "%-25s %v\n" "Orientation" .Orientation }}
+      </pre>
+    {{ end }}
   {{ end }}
 {{ end }}
 ```
 
-To list the available Exif fields:
+{{% include "/_common/functions/reflect/image-reflection-functions.md" %}}
 
-```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  {{ with .Meta }}
-    <pre>
-      {{ range $k, $v := .Exif -}}
-        {{ printf "%-25s %v\n" $k $v }}
-      {{ end }}
-    </pre>
-  {{ end }}
-{{ end }}
-```
-
-To list the available IPTC fields:
-
-```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  {{ with .Meta }}
-    <pre>
-      {{ range $k, $v := .IPTC -}}
-        {{ printf "%-25s %v\n" $k $v }}
-      {{ end }}
-    </pre>
-  {{ end }}
-{{ end }}
-```
-
-To list the available XMP fields:
-
-```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  {{ with .Meta }}
-    <pre>
-      {{ range $k, $v := .XMP -}}
-        {{ printf "%-25s %v\n" $k $v }}
-      {{ end }}
-    </pre>
-  {{ end }}
-{{ end }}
-```
-
-To list the available Exif, IPTC, and XMP fields together:
-
-```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  {{ with .Meta }}
-    <pre>
-      {{ range $k, $v := merge .Exif .IPTC .XMP -}}
-        {{ printf "%-25s %v\n" $k $v }}
-      {{ end }}
-    </pre>
-  {{ end }}
-{{ end }}
-```
-
-To list specific values:
-
-```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  {{ with .Meta }}
-    <pre>
-      {{ with .Exif.ApertureValue }}{{ printf "%-25s %v\n" "ApertureValue" . }}{{ end }}
-      {{ with .Exif.BrightnessValue }}{{ printf "%-25s %v\n" "BrightnessValue" . }}{{ end }}
-
-      {{ with .IPTC.Headline }}{{ printf "%-25s %v\n" "Headline" . }}{{ end }}
-      {{ with index .IPTC "Province-State" }}{{ printf "%-25s %v\n" "Province-State" . }}{{ end }}
-
-      {{ with .XMP.Creator }}{{ printf "%-25s %v\n" "Creator" . }}{{ end }}
-      {{ with .XMP.Subject }}{{ printf "%-25s %v\n" "Subject" . }}{{ end }}
-    </pre>
-  {{ end }}
-{{ end }}
-```
-
-[`Exif`]: /methods/resource/exif/
 [`fields`]: /configuration/imaging/#fields
 [`images.AutoOrient`]: /functions/images/autoorient/
+[`reflect.IsImageResourceWithMeta`]: /functions/reflect/isimageresourcewithmeta/
 [`sources`]: /configuration/imaging/#sources
 [`time.Format`]: /functions/time/format/
 [Exif_Definition]: https://en.wikipedia.org/wiki/Exif

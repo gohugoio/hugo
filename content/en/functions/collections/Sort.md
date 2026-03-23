@@ -51,14 +51,14 @@ The examples below assume this project configuration:
 
 {{< code-toggle file=hugo >}}
 [params.authors.a]
-firstName = "Marius"
-lastName  = "Pontmercy"
+firstName = 'Marius'
+lastName  = 'Pontmercy'
 [params.authors.b]
-firstName = "Victor"
-lastName  = "Hugo"
+firstName = 'Victor'
+lastName  = 'Hugo'
 [params.authors.c]
-firstName = "Jean"
-lastName  = "Valjean"
+firstName = 'Jean'
+lastName  = 'Valjean'
 {{< /code-toggle >}}
 
 > [!note]

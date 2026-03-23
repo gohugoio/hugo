@@ -18,14 +18,14 @@ defaultContentLanguageInSubdir = true
 [languages]
   [languages.de]
     baseURL = 'https://de.example.org/'
-    languageCode = 'de-DE'
-    languageName = 'Deutsch'
+    label = 'Deutsch'
+    locale = 'de-DE'
     title = 'Projekt Dokumentation'
     weight = 1
   [languages.en]
     baseURL = 'https://en.example.org/'
-    languageCode = 'en-US'
-    languageName = 'English'
+    label = 'English'
+    locale = 'en-US'
     title = 'Project Documentation'
     weight = 2
 {{< /code-toggle >}}

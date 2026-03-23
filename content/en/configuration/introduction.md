@@ -8,11 +8,11 @@ weight: 10
 
 ## Sensible defaults
 
-Hugo offers many configuration options, but its defaults are often sufficient. A new site requires only these settings:
+Hugo offers many configuration options, but its defaults are often sufficient. A new project requires only these settings:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'My New Hugo Site'
 {{< /code-toggle >}}
 
@@ -37,7 +37,7 @@ A simple example:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'ABC Widgets, Inc.'
 [params]
 subtitle = 'The Best Widgets on Earth'
@@ -191,7 +191,7 @@ and this project-level configuration:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'My New Hugo Site'
 theme = ['theme-a','theme-b']
 {{< /code-toggle >}}

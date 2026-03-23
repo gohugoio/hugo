@@ -33,17 +33,17 @@ The `build.cachebusters` configuration option was added to support development u
   [build.buildStats]
     enable = true
   [[build.cachebusters]]
-    source = "assets/watching/hugo_stats\\.json"
-    target = "styles\\.css"
+    source = 'assets/watching/hugo_stats\.json'
+    target = 'styles\.css'
   [[build.cachebusters]]
-    source = "(postcss|tailwind)\\.config\\.js"
-    target = "css"
+    source = '(postcss|tailwind)\.config\.js'
+    target = 'css'
   [[build.cachebusters]]
-    source = "assets/.*\\.(js|ts|jsx|tsx)"
-    target = "js"
+    source = 'assets/.*\.(js|ts|jsx|tsx)'
+    target = 'js'
   [[build.cachebusters]]
-    source = "assets/.*\\.(.*)$"
-    target = "$1"
+    source = 'assets/.*\.(.*)$'
+    target = '$1'
 {{< /code-toggle >}}
 <!-- markdownlint-enable MD049 -->
 

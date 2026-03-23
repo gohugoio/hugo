@@ -11,7 +11,14 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Crop an image according to the given [processing specification][]. When cropping, you must provide both width and height (such as `200x200`) within the specification. This method does not perform any resizing; it simply extracts a region of the image based on the dimensions and the [anchor](#anchor) provided, if any.
+The `Crop` method returns a new resource from a [processable image](g) according to the given [processing specification][].
+
+> [!note]
+> Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
+
+## Usage
+
+When cropping, you must provide both width and height (such as `200x200`) within the specification. This method does not perform any resizing; it simply extracts a region of the image based on the dimensions and the [anchor](#anchor) provided, if any.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
@@ -21,7 +28,7 @@ Crop an image according to the given [processing specification][]. When cropping
 {{ end }}
 ```
 
-In the example above, `"200x200 TopRight"` is the _processing specification_.
+In the example above, `"200x200 TopRight"` is the processing specification.
 
 {{% include "/_common/methods/resource/processing-spec.md" %}}
 
@@ -43,4 +50,5 @@ In the example above, `"200x200 TopRight"` is the _processing specification_.
   example=true
 >}}
 
+[`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
 [processing specification]: #processing-specification

@@ -75,7 +75,7 @@ For example, the _base_ template below calls the [`partial`] function to include
 
 ```go-html-template {file="layouts/baseof.html"}
 <!DOCTYPE html>
-<html lang="{{ site.Language.LanguageCode }}" dir="{{ or site.Language.LanguageDirection `ltr` }}">
+<html lang="{{ site.Language.Locale }}" dir="{{ or site.Language.Direction `ltr` }}">
 <head>
   {{ partial "head.html" . }}
 </head>

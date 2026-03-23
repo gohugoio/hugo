@@ -67,7 +67,7 @@ To create a date-based hierarchy for regular pages in the content root:
 
 {{< code-toggle file=hugo >}}
 [permalinks.page]
-"/" = "/:year/:month/:slug/"
+'/' = '/:year/:month/:slug/'
 {{< /code-toggle >}}
 
 Use the same approach with taxonomy terms. For example, to omit the taxonomy segment of the URL:
@@ -105,29 +105,29 @@ defaultContentLanguageInSubdir = true
 
 [languages.en]
 contentDir = 'content/en'
-languageCode = 'en-US'
-languageDirection = 'ltr'
-languageName = 'English'
+direction = 'ltr'
+label = 'English'
+locale = 'en-US'
 weight = 1
 
 [languages.en.permalinks.page]
-books = "/books/:slug/"
+books = '/books/:slug/'
 
 [languages.en.permalinks.section]
-books = "/books/"
+books = '/books/'
 
 [languages.es]
 contentDir = 'content/es'
-languageCode = 'es-ES'
-languageDirection = 'ltr'
-languageName = 'Español'
+direction = 'ltr'
+label = 'Español'
+locale = 'es-ES'
 weight = 2
 
 [languages.es.permalinks.page]
-books = "/libros/:slug/"
+books = '/libros/:slug/'
 
 [languages.es.permalinks.section]
-books = "/libros/"
+books = '/libros/'
 {{< /code-toggle >}}
 
 The structure of the published site will be:

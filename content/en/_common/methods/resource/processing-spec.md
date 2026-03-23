@@ -10,7 +10,7 @@ action
 : Specify one of `crop`, `fill`, `fit`, or `resize`. This is applicable to the [`Process`][] method and the [`images.Process`][] filter. If you specify an action, you must also provide dimensions.
 
 anchor
-: The focal point used when cropping or filling an image. Valid options include `TopLeft`, `Top`, `TopRight`, `Left`, `Center`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`, or `Smart`. The `Smart` option utilizes the [`smartcrop.js`][] library to identify the most interesting area of the image. This defaults to the [`anchor`][] parameter in your project configuration.
+: The focal point used when cropping or filling an image. Valid options include `TopLeft`, `Top`, `TopRight`, `Left`, `Center`, `Right`, `BottomLeft`, `Bottom`, `BottomRight`, or `Smart`. The `Smart` option utilizes the [`muesli/smartcrop`][] package to identify the most interesting area of the image. This defaults to the [`anchor`][] parameter in your project configuration.
 
 background color
 : The background color used when converting transparent images to formats that do not support transparency, such as PNG to JPEG. This color also fills the empty space created when rotating an image by a non-orthogonal angle if the space is not transparent and a background color is not specified in the  processing specification. The value must be an RGB [hexadecimal color][]. This defaults to the [`bgColor`][] parameter in your project configuration.
@@ -62,12 +62,12 @@ rotation
 [`bgcolor`]: /configuration/imaging/#bgcolor
 [`compression`]: /configuration/imaging/#compression
 [`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
+[`muesli/smartcrop`]: https://github.com/muesli/smartcrop
 [`hint`]: /configuration/imaging/#hint
 [`images.AutoOrient`]: /functions/images/autoorient/
 [`images.Process`]: /functions/images/process/
 [`Process`]: /methods/resource/process
 [`quality`]: /configuration/imaging/#quality
 [`resampleFilter`]: /configuration/imaging/#resamplefilter
-[`smartcrop.js`]: https://github.com/jwagner/smartcrop.js
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 [source documentation]: https://github.com/disintegration/imaging#image-resizing
