@@ -50,15 +50,15 @@ func newModCommands() *modCommands {
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "pack",
-				short: "Merges module npm dependencies into an npm workspace",
-				long: `Merges npm dependencies from all Hugo modules into a "packages/hugoautogen" npm workspace.
+				short: "Merges module Node.js dependencies into an npm workspace",
+				long: `Merges Node.js dependencies from all Hugo modules into a "packages/hugoautogen" npm workspace.
 
 The merged dependencies are written to packages/hugoautogen/package.json, and the root package.json
 is updated with a "workspaces" entry pointing to "packages/hugoautogen".
 
 The source entries are read from either package.hugo.json or package.json in the module root, with package.hugo.json taking precedence if both exist.
 
-See [npm dependencies](/hugo-modules/npm-dependencies/) for more information.
+See [Node.js dependencies](/hugo-modules/nodejs-dependencies/) for more information.
 `,
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
