@@ -97,6 +97,7 @@ type commonConfig struct {
 type configKey struct {
 	counter                    int32
 	ignoreModulesDoesNotExists bool
+	skipNpmCheck               bool
 }
 
 // This is the root command.
@@ -195,6 +196,7 @@ func (r *rootCommand) ConfigFromConfig(key configKey, oldConf *commonConfig) (*c
 				Logger:                   r.logger,
 				Environment:              r.environment,
 				IgnoreModuleDoesNotExist: key.ignoreModulesDoesNotExists,
+				SkipNpmCheck:             key.skipNpmCheck,
 			},
 		)
 		if err != nil {
@@ -251,6 +253,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 				Environment:              r.environment,
 				Logger:                   r.logger,
 				IgnoreModuleDoesNotExist: key.ignoreModulesDoesNotExists,
+				SkipNpmCheck:             key.skipNpmCheck,
 			},
 		)
 		if err != nil {

@@ -21,6 +21,7 @@ import (
 
 	"github.com/bep/simplecobra"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/modules/npm"
 	"github.com/spf13/cobra"
 )
@@ -49,28 +50,34 @@ func newModCommands() *modCommands {
 		commands: []simplecobra.Commander{
 			&simpleCommand{
 				name:  "pack",
-				short: "Experimental: Prepares and writes a composite package.json file for your project",
-				long: `Prepares and writes a composite package.json file for your project.
+				short: "Merges module npm dependencies into an npm workspace",
+				long: `Merges npm dependencies from all Hugo modules into a "packages/hugoautogen" npm workspace.
 
-On first run it creates a "package.hugo.json" in the project root if not already there. This file will be used as a template file
-with the base dependency set.
+The merged dependencies are written to packages/hugoautogen/package.json, and the root package.json
+is updated with a "workspaces" entry pointing to "packages/hugoautogen".
 
-This set will be merged with all "package.hugo.json" files found in the dependency tree, picking the version closest to the project.
+The source entries are read from either package.hugo.json or package.json in the module root, with package.hugo.json taking precedence if both exist.
 
-This command is marked as 'Experimental'. We think it's a great idea, so it's not likely to be
-removed from Hugo, but we need to test this out in "real life" to get a feel of it,
-so this may/will change in future versions of Hugo.
+See [npm dependencies](/hugo-modules/npm-dependencies/) for more information.
 `,
 				withc: func(cmd *cobra.Command, r *rootCommand) {
 					cmd.ValidArgsFunction = cobra.NoFileCompletions
 					applyLocalFlagsBuildConfig(cmd, r)
 				},
 				run: func(ctx context.Context, cd *simplecobra.Commandeer, r *rootCommand, args []string) error {
-					h, err := r.Hugo(flagsToCfg(cd, nil))
+					cfg := flagsToCfg(cd, nil)
+					k := configKey{counter: r.configVersionID.Load(), skipNpmCheck: true}
+					h, _, err := r.hugoSites.GetOrCreate(k, func(key configKey) (*hugolib.HugoSites, error) {
+						conf, err := r.ConfigFromProvider(key, cfg)
+						if err != nil {
+							return nil, err
+						}
+						return hugolib.NewHugoSites(r.newDepsConfig(conf))
+					})
 					if err != nil {
 						return err
 					}
-					return npm.Pack(h.BaseFs.ProjectSourceFs, h.BaseFs.AssetsWithDuplicatesPreserved.Fs)
+					return npm.Pack(h.BaseFs.ProjectSourceFs, h.BaseFs.AssetsWithDuplicatesPreserved.Fs, h.Configs.Modules)
 				},
 			},
 		},
@@ -293,7 +300,10 @@ Run "go help get" for more information. All flags available for "go get" is also
 							return err
 						}
 						client := conf.configs.ModulesClient
-						return client.Get(args...)
+						if err := client.Get(args...); err != nil {
+							return err
+						}
+						return nil
 					}
 				},
 			},

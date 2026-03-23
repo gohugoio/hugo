@@ -1,41 +1,218 @@
-# Test mod npm.
+# Test mod npm pack.
 
-dostounix golden/package.json
-
+dostounix golden1/package.json
+dostounix golden1/packages/hugoautogen/package.json
+dostounix golden1/packages/hugoautogen/hugo_packagemeta.json
+dostounix golden2/packages/hugoautogen/package.json
+dostounix golden3/packages/hugoautogen/package.json
+dostounix golden4/packages/hugoautogen/package.json
+dostounix golden5/packages/hugoautogen/package.json
 
 hugo mod npm pack
-cmp package.json golden/package.json
+cmp packages/hugoautogen/package.json golden1/packages/hugoautogen/package.json
+cmp package.json golden1/package.json
+cmp packages/hugoautogen/hugo_packagemeta.json golden1/packages/hugoautogen/hugo_packagemeta.json
+
+# c module commits:
+#   324e3adae608ff8b6a52b4630975ffe652859f27: add is-odd
+#   40c59ae8595d8ff3f56b87fcf4ba3325649a9a52: replace is-odd with is-even
+#   7dd9b2dc7f505508adbb3fdea36c308aad0de3ec: add package.hugo.json with is-number
+#   bf55e8bb813a7f6cbe6f212bd7e1dd4fb44c79df: update README.md only
+#   cc5188f671e1852f470df9fed52c7f93d1cab476:  Add myworkspace with my-prime (in package.hugo.json)
+replace hugo.toml "324e3adae608ff8b6a52b4630975ffe652859f27" "40c59ae8595d8ff3f56b87fcf4ba3325649a9a52"
+
+hugo mod graph
+stderr 'WARN  npm dependencies are out of sync'
+
+hugo mod npm pack
+cmp packages/hugoautogen/package.json golden2/packages/hugoautogen/package.json
+
+replace hugo.toml "40c59ae8595d8ff3f56b87fcf4ba3325649a9a52" "7dd9b2dc7f505508adbb3fdea36c308aad0de3ec"
+hugo mod npm pack
+cmp packages/hugoautogen/package.json golden3/packages/hugoautogen/package.json
+
+# This commit only updates README.md, no npm package updates.
+replace hugo.toml "7dd9b2dc7f505508adbb3fdea36c308aad0de3ec" "bf55e8bb813a7f6cbe6f212bd7e1dd4fb44c79df"
+hugo mod graph
+! stderr 'WARN'
+
+# Add myworkspace with my-prime (in package.hugo.json)
+replace hugo.toml "bf55e8bb813a7f6cbe6f212bd7e1dd4fb44c79df" "cc5188f671e1852f470df9fed52c7f93d1cab476"
+hugo mod npm pack
+cmp packages/hugoautogen/package.json golden4/packages/hugoautogen/package.json
+
+# usePackageJSON="auto" => usePackageJSON="never" in hugo.toml will effectively disable c's npm deps.
+replace hugo.toml "auto" "never"
+hugo mod graph
+# dependencies are out of sync
+stderr 'WARN'
+hugo mod npm pack
+cmp packages/hugoautogen/package.json golden5/packages/hugoautogen/package.json
+# Turn it back on using "always"
+replace hugo.toml "never" "always"
+hugo mod graph
+stderr 'WARN'
+hugo mod npm pack
+hugo mod graph
+! stderr 'WARN'
+cmp packages/hugoautogen/package.json golden4/packages/hugoautogen/package.json
+
+# Now test vendoring..
+hugo mod vendor
+# a ab c@cc5188f671e1852f470df9fed52c7f93d1cab476 d
+ls _vendor/github.com/gohugoio/hugoTestModsNPMNested/a
+stdout 'package.json'
+ls _vendor/github.com/gohugoio/hugoTestModsNPMNested/a/packages/aws1
+stdout 'package.json'
+
+ls _vendor/github.com/gohugoio/hugoTestModsNPMNested/c@cc5188f671e1852f470df9fed52c7f93d1cab476
+stdout 'package.hugo.json'
+# package.json is not needed when package.hugo.json exists.
+! stdout 'package.json'
+! exists _vendor/github.com/gohugoio/hugoTestModsNPMNested/ab/packages/hugoautogen
 
 -- hugo.toml --
 baseURL = "https://example.org/"
 [module]
 [[module.imports]]
-path="github.com/gohugoio/hugoTestModule2"
-
-
--- golden/package.json --
+path="github.com/gohugoio/hugoTestModsNPMNested/a"
+[[module.imports]]
+path="github.com/gohugoio/hugoTestModsNPMNested/c"
+version="324e3adae608ff8b6a52b4630975ffe652859f27"
+usePackageJSON="auto"
+-- package.json --
 {
-  "comments": {
+  "workspaces": [
+    "packages/hugoautogen"
+  ],
+  "name": "npmpack",
+  "version": "1.0.0",
+  "dependencies": {
+    "dedupe": "4.0.3"
+  }
+}
+-- golden1/packages/hugoautogen/hugo_packagemeta.json --
+{
+  "sum": "259f33c1d93dcc01",
+  "dependencySources": {
     "dependencies": {
-      "react-dom": "github.com/gohugoio/hugoTestModule2"
+      "count-days-in-month": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "fast-cartesian": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "is-odd": "github.com/gohugoio/hugoTestModsNPMNested/c",
+      "is-sorted": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "once": "github.com/gohugoio/hugoTestModsNPMNested/d",
+      "pluralize": "github.com/gohugoio/hugoTestModsNPMNested/ab",
+      "to-space-case": "github.com/gohugoio/hugoTestModsNPMNested/a"
     },
     "devDependencies": {
-      "@babel/cli": "github.com/gohugoio/hugoTestModule2",
-      "@babel/core": "github.com/gohugoio/hugoTestModule2",
-      "@babel/preset-env": "github.com/gohugoio/hugoTestModule2",
-      "postcss-cli": "github.com/gohugoio/hugoTestModule2",
-      "tailwindcss": "github.com/gohugoio/hugoTestModule2"
+      "decamelize": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "strip-ansi": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "to-pascal-case": "github.com/gohugoio/hugoTestModsNPMNested/a"
     }
-  },
+  }
+}
+-- golden1/packages/hugoautogen/package.json --
+{
   "dependencies": {
-    "react-dom": "^16.13.1"
+    "count-days-in-month": "^1.0.0",
+    "fast-cartesian": "9.0.0",
+    "is-odd": "3.0.0",
+    "is-sorted": "1.0.4",
+    "once": "1.4.0",
+    "pluralize": "8.0.0",
+    "to-space-case": "0.1.3"
   },
   "devDependencies": {
-    "@babel/cli": "7.8.4",
-    "@babel/core": "7.9.0",
-    "@babel/preset-env": "7.9.5",
-    "postcss-cli": "7.1.0",
-    "tailwindcss": "1.2.0"
+    "decamelize": "6.0.0",
+    "strip-ansi": "7.2.0",
+    "to-pascal-case": "1.0.0"
+  },
+  "name": "script-mod_npm",
+  "version": "0.1.0"
+}
+-- golden1/package.json --
+{
+  "workspaces": [
+    "packages/hugoautogen"
+  ],
+  "name": "npmpack",
+  "version": "1.0.0",
+  "dependencies": {
+    "dedupe": "4.0.3"
+  }
+}
+-- golden2/packages/hugoautogen/package.json --
+{
+  "dependencies": {
+    "count-days-in-month": "^1.0.0",
+    "fast-cartesian": "9.0.0",
+    "is-even": "1.0.0",
+    "is-sorted": "1.0.4",
+    "once": "1.4.0",
+    "pluralize": "8.0.0",
+    "to-space-case": "0.1.3"
+  },
+  "devDependencies": {
+    "decamelize": "6.0.0",
+    "strip-ansi": "7.2.0",
+    "to-pascal-case": "1.0.0"
+  },
+  "name": "script-mod_npm",
+  "version": "0.1.0"
+}
+-- golden3/packages/hugoautogen/package.json --
+{
+  "dependencies": {
+    "count-days-in-month": "^1.0.0",
+    "fast-cartesian": "9.0.0",
+    "is-number": "7.0.0",
+    "is-sorted": "1.0.4",
+    "once": "1.4.0",
+    "pluralize": "8.0.0",
+    "to-space-case": "0.1.3"
+  },
+  "devDependencies": {
+    "decamelize": "6.0.0",
+    "strip-ansi": "7.2.0",
+    "to-pascal-case": "1.0.0"
+  },
+  "name": "script-mod_npm",
+  "version": "0.1.0"
+}
+-- golden4/packages/hugoautogen/package.json --
+{
+  "dependencies": {
+    "count-days-in-month": "^1.0.0",
+    "fast-cartesian": "9.0.0",
+    "is-number": "7.0.0",
+    "is-sorted": "1.0.4",
+    "my-prime": "^1.0.1",
+    "once": "1.4.0",
+    "pluralize": "8.0.0",
+    "to-space-case": "0.1.3"
+  },
+  "devDependencies": {
+    "decamelize": "6.0.0",
+    "strip-ansi": "7.2.0",
+    "to-pascal-case": "1.0.0"
+  },
+  "name": "script-mod_npm",
+  "version": "0.1.0"
+}
+-- golden5/packages/hugoautogen/package.json --
+{
+  "dependencies": {
+    "count-days-in-month": "^1.0.0",
+    "fast-cartesian": "9.0.0",
+    "is-sorted": "1.0.4",
+    "once": "1.4.0",
+    "pluralize": "8.0.0",
+    "to-space-case": "0.1.3"
+  },
+  "devDependencies": {
+    "decamelize": "6.0.0",
+    "strip-ansi": "7.2.0",
+    "to-pascal-case": "1.0.0"
   },
   "name": "script-mod_npm",
   "version": "0.1.0"

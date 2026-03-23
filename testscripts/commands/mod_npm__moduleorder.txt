@@ -1,0 +1,68 @@
+# Test mod npm pack with shuffled modules.
+
+dostounix golden1/package.json
+dostounix golden1/packages/hugoautogen/package.json
+dostounix golden1/packages/hugoautogen/hugo_packagemeta.json
+
+hugo mod npm pack
+cmp packages/hugoautogen/package.json golden1/packages/hugoautogen/package.json
+cmp package.json golden1/package.json
+cmp packages/hugoautogen/hugo_packagemeta.json golden1/packages/hugoautogen/hugo_packagemeta.json
+
+-- hugo.toml --
+baseURL = "https://example.org/"
+[module]
+[[module.imports]]
+path="github.com/gohugoio/hugoTestModsNPMNested/d"
+[[module.imports]]
+path="github.com/gohugoio/hugoTestModsNPMNested/a"
+
+-- go.mod --
+module github.com/gohugoio/hugoTestModule
+go 1.20
+
+-- golden1/package.json --
+{
+  "workspaces": [
+    "packages/hugoautogen"
+  ]
+}
+-- golden1/packages/hugoautogen/package.json --
+{
+  "dependencies": {
+    "count-days-in-month": "^1.0.0",
+    "dedupe": "4.0.1",
+    "fast-cartesian": "9.0.0",
+    "is-sorted": "1.0.2",
+    "once": "1.4.0",
+    "pluralize": "8.0.0",
+    "to-space-case": "0.1.3"
+  },
+  "devDependencies": {
+    "decamelize": "6.0.0",
+    "strip-ansi": "7.0.0",
+    "to-pascal-case": "1.0.0"
+  },
+  "name": "script-mod_npm__moduleorder",
+  "version": "0.1.0"
+}
+-- golden1/packages/hugoautogen/hugo_packagemeta.json --
+{
+  "sum": "dd3590c300b0bebb",
+  "dependencySources": {
+    "dependencies": {
+      "count-days-in-month": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "dedupe": "github.com/gohugoio/hugoTestModsNPMNested/ab",
+      "fast-cartesian": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "is-sorted": "github.com/gohugoio/hugoTestModsNPMNested/d",
+      "once": "github.com/gohugoio/hugoTestModsNPMNested/d",
+      "pluralize": "github.com/gohugoio/hugoTestModsNPMNested/ab",
+      "to-space-case": "github.com/gohugoio/hugoTestModsNPMNested/a"
+    },
+    "devDependencies": {
+      "decamelize": "github.com/gohugoio/hugoTestModsNPMNested/a",
+      "strip-ansi": "github.com/gohugoio/hugoTestModsNPMNested/ab",
+      "to-pascal-case": "github.com/gohugoio/hugoTestModsNPMNested/a"
+    }
+  }
+}
