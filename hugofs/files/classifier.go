@@ -21,13 +21,17 @@ import (
 )
 
 const (
-	// The NPM package.json "template" file.
+	// When merging, we check for this file first, and then package.json.
 	FilenamePackageHugoJSON = "package.hugo.json"
 	// The NPM package file.
 	FilenamePackageJSON = "package.json"
 
-	FilenameHugoStatsJSON = "hugo_stats.json"
+	FilenameHugoStatsJSON   = "hugo_stats.json"
+	FilenamePackageMetaJSON = "hugo_packagemeta.json"
 )
+
+// FolderPackagesHugoAutoGen is the auto-generated npm workspace directory for Hugo module deps.
+var FolderPackagesHugoAutoGen = filepath.Join("packages", "hugoautogen")
 
 func IsGoTmplExt(ext string) bool {
 	return ext == "gotmpl"

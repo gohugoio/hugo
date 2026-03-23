@@ -286,7 +286,7 @@ func (l *logAdapter) PrintTimerIfDelayed(start time.Time, name string) {
 	if milli < 500 {
 		return
 	}
-	fmt.Fprintf(l.stdErr, "%s in %v ms", name, milli)
+	fmt.Fprintf(l.stdErr, "%s in %v ms\n", name, milli)
 }
 
 func (l *logAdapter) Printf(format string, v ...any) {

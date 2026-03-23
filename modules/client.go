@@ -979,6 +979,7 @@ type goModule struct {
 	Time     *time.Time     // time version was created
 	Update   *goModule      // available update, if any (with -u)
 	Sum      string         // checksum
+	GoModSum string         // checksum for go.mod
 	Main     bool           // is this the main module?
 	Indirect bool           // is this module only an indirect dependency of main module?
 	Dir      string         // directory holding files for this module, if any
