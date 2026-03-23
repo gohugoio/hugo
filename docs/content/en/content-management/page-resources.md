@@ -175,11 +175,11 @@ For example, if a bundle has the resources `photo_specs.pdf`, `other_specs.pdf`,
 {{< code-toggle file=content/inspections/engine/index.md fm=true >}}
 title = 'Engine inspections'
 [[resources]]
-  src = "*specs.pdf"
-  title = "Specification #:counter"
+  src = '*specs.pdf'
+  title = 'Specification #:counter'
 [[resources]]
-  src = "**.pdf"
-  name = "pdf-file-:counter"
+  src = '**.pdf'
+  name = 'pdf-file-:counter'
 {{</ code-toggle >}}
 
 the `Name` and `Title` will be assigned to the resource files as follows:
@@ -193,7 +193,7 @@ the `Name` and `Title` will be assigned to the resource files as follows:
 
 ## Multilingual
 
-By default, with a multilingual single-host site, Hugo does not duplicate shared page resources when building the site.
+By default, with a multilingual single-host project, Hugo does not duplicate shared page during the build.
 
 > [!note]
 > This behavior is limited to Markdown content. Shared page resources for other [content formats] are copied into each language bundle.
@@ -205,13 +205,13 @@ defaultContentLanguage = 'de'
 defaultContentLanguageInSubdir = true
 
 [languages.de]
-languageCode = 'de-DE'
-languageName = 'Deutsch'
+label = 'Deutsch'
+locale = 'de-DE'
 weight = 1
 
 [languages.en]
-languageCode = 'en-US'
-languageName = 'English'
+label = 'English'
+locale = 'en-US'
 weight = 2
 {{< /code-toggle >}}
 
@@ -274,7 +274,7 @@ This approach reduces build times, storage requirements, bandwidth consumption, 
 > [!important]
 > To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`] method, and then invoke its [`RelPermalink`] method.
 >
-> In its default configuration, Hugo automatically uses the [embedded link render hook] and the [embedded image render hook] for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link or image render hooks are defined by your project, modules, or themes, these will be used instead.
+> In its default configuration, Hugo automatically uses the [embedded link render hook] and the [embedded image render hook] for multilingual single-host projects, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such projects. If custom link or image render hooks are defined by your project, modules, or themes, these will be used instead.
 >
 > You can also configure Hugo to `always` use the embedded link or image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 

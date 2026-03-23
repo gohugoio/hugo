@@ -1,6 +1,6 @@
 ---
 title: AllTranslations
-description: Returns all translations of the given page, including the current language, sorted by language weight.
+description: Returns all translations of the given page, including the current language, sorted by language weight then language name.
 categories: []
 keywords: []
 params:
@@ -16,20 +16,20 @@ defaultContentLanguage = 'en'
 
 [languages.en]
 contentDir = 'content/en'
-languageCode = 'en-US'
-languageName = 'English'
+label = 'English'
+locale = 'en-US'
 weight = 1
 
 [languages.de]
 contentDir = 'content/de'
-languageCode = 'de-DE'
-languageName = 'Deutsch'
+label = 'Deutsch'
+locale = 'de-DE'
 weight = 2
 
 [languages.fr]
 contentDir = 'content/fr'
-languageCode = 'fr-FR'
-languageName = 'Français'
+label = 'Français'
+locale = 'fr-FR'
 weight = 3
 {{< /code-toggle >}}
 
@@ -61,7 +61,7 @@ And this template:
   <ul>
     {{ range . }}
       <li>
-        <a href="{{ .RelPermalink }}" hreflang="{{ .Language.LanguageCode }}">{{ .LinkTitle }} ({{ or .Language.LanguageName .Language.Lang }})</a>
+        <a href="{{ .RelPermalink }}" hreflang="{{ .Language.Locale }}">{{ .LinkTitle }} ({{ or .Language.Label .Language.Name }})</a>
       </li>
     {{ end }}
   </ul>

@@ -32,7 +32,7 @@ For a complete guide to contributing to Hugo, see the [Contribution Guide].
 To build the extended or extended/deploy edition from source you must:
 
 1. Install [Git]
-1. Install [Go] version 1.24.0 or later
+1. Install [Go] version 1.25.0 or later
 1. Install a C compiler, either [GCC] or [Clang]
 1. Update your `PATH` environment variable as described in the [Go documentation]
 
@@ -143,7 +143,7 @@ CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 To build and install a specific release:
 
 ```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.156.0
+CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.158.0
 ```
 
 To build and install at the latest commit on the master branch:

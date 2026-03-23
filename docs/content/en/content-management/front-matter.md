@@ -293,9 +293,9 @@ kind = 'page'
 {{< /code-toggle >}}
 
 > [!note]
-> For multilingual sites, defining cascade values in your project configuration is often more efficient. This avoids repeating the same cascade values on the home, section, taxonomy, or term page for each language. See&nbsp;[details](/configuration/cascade/).
+> For multilingual projects, defining cascade values in your project configuration is often more efficient. This avoids repeating the same cascade values on the home, section, taxonomy, or term page for each language. See&nbsp;[details](/configuration/cascade/).
 >
-> If you choose to define cascade values in front matter for a multilingual site, you must create a corresponding home, section, taxonomy, or term page for every language.
+> If you choose to define cascade values in front matter for a multilingual project, you must create a corresponding home, section, taxonomy, or term page for every language.
 
 ## Emacs Org Mode
 

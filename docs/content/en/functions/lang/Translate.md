@@ -31,7 +31,7 @@ i18n/en.toml
 i18n/pt-BR.toml
 ```
 
-The base name must match the [`languageCode`][] or [language key][] as defined in your project configuration. Hugo selects the translation table based on the `languageCode`,  falling back to the language key if a matching translation table does not exist.
+The base name must match the [`locale`][] or [language key][] as defined in your project configuration. Hugo selects the translation table based on the `locale`,  falling back to the language key if a matching translation table does not exist.
 
 Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7][] are also supported. You may omit the `art-x-` prefix for brevity. For example:
 
@@ -45,7 +45,7 @@ i18n/hugolang.toml
 
 ## Simple translations
 
-Let's say your multilingual site supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
+Let's say your multilingual project supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
 ```text
 i18n/
@@ -86,7 +86,7 @@ When viewing the Polish language site:
 
 ## Translations with pluralization
 
-Let's say your multilingual site supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
+Let's say your multilingual project supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
 ```text
 i18n/
@@ -238,7 +238,7 @@ Then in your templates:
 
 [`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
 [`enableMissingTranslationPlaceholders`]: /configuration/all/#enablemissingtranslationplaceholders
-[`languageCode`]: /configuration/languages/#languagecode
+[`locale`]: /configuration/languages/#locale
 [`printI18nWarnings`]: /configuration/all/#printi18nwarnings
 [CLDR]: https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
 [go-i18n]: https://github.com/nicksnyder/go-i18n

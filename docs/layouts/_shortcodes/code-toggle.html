@@ -80,7 +80,7 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
   <nav class="relative flex" aria-label="Tabs">
     {{- with $file }}
       <div
-        class="select-none flex-none text-sm px-2 content-center border-b-1 border-gray-300 dark:border-gray-700"
+        class="select-none flex-none text-sm px-2 content-center border-b border-gray-300 dark:border-gray-700"
         aria-label="Filename">
         {{ . }}{{ if not $fm }}.{{ end }}
       </div>
@@ -90,10 +90,10 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
       <button
         x-on:click="$store.nav.userSettings.settings.configFileType = '{{ index $langs $i }}'"
         aria-label="{{ printf `Toggle %s` . }}"
-        class="px-3 py-2 font-semibold text-black dark:text-slate-200 border-l-1 border-t-1 {{ if $isLast }}
-          border-r-1
+        class="px-3 py-2 font-semibold text-black dark:text-slate-200 border-l border-t {{ if $isLast }}
+          border-r
         {{ end }} border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700 cursor-pointer relative min-w-0 flex-1 overflow-hidden text-sm no-underline text-center focus:z-10 overflow-x-auto"
-        :class="$store.nav.userSettings.settings.configFileType === '{{ index $langs $i }}' ? 'border-b-0 bg-light dark:bg-dark' : 'border-b-1'">
+        :class="$store.nav.userSettings.settings.configFileType === '{{ index $langs $i }}' ? 'border-b-0 bg-light dark:bg-dark' : 'border-b'">
         <span class="select-none">
           {{ . }}
         </span>
@@ -103,7 +103,7 @@ Renders syntax-highlighted configuration data in JSON, TOML, and YAML formats.
   {{- if $code }}
     {{- range $i, $lang := $langs }}
       <div
-        class="max-h-96 overflow-y-auto border-l-1 border-b-1 border-r-1 border-gray-300 dark:border-gray-700"
+        class="max-h-96 overflow-y-auto border-l border-b border-r border-gray-300 dark:border-gray-700"
         x-ref="{{ $lang }}"
         x-cloak
         x-transition:enter.opacity.duration.300ms

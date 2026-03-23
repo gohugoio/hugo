@@ -84,7 +84,7 @@ environment:
   site: <YourUsername>.srht.site
 tasks:
 - package: |
-    DART_SASS_VERSION=1.97.1 # Latest version as of 20/12/2025
+    DART_SASS_VERSION=1.98.0
     mkdir -p $HOME/.local
     curl -L https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64-musl.tar.gz -o dart-sass.tar.gz
     tar -xzf dart-sass.tar.gz -C $HOME/.local

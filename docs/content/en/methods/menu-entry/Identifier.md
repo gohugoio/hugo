@@ -25,7 +25,7 @@ pageRef = '/contact'
 weight = 20
 {{< /code-toggle >}}
 
-This example uses the `Identifier` method when querying the translation table on a multilingual site, falling back the `name` property if a matching key in the translation table does not exist:
+This example uses the `Identifier` method when querying the translation table on a multilingual project, falling back the `name` property if a matching key in the translation table does not exist:
 
 ```go-html-template
 <ul>

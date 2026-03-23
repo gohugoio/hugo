@@ -19,14 +19,14 @@ pagerSize
 path
 : (`string`) The segment of each pager URL indicating that the target page is a pager. Default is `page`.
 
-With multilingual sites you can define the pagination behavior for each language:
+With multilingual projects you can define the pagination behavior for each language:
 
 {{< code-toggle file=hugo >}}
 [languages.en]
 contentDir = 'content/en'
-languageCode = 'en-US'
-languageDirection = 'ltr'
-languageName = 'English'
+direction = 'ltr'
+label = 'English'
+locale = 'en-US'
 weight = 1
 [languages.en.pagination]
 disableAliases = true
@@ -34,9 +34,9 @@ pagerSize = 10
 path = 'page'
 [languages.de]
 contentDir = 'content/de'
-languageCode = 'de-DE'
-languageDirection = 'ltr'
-languageName = 'Deutsch'
+direction = 'ltr'
+label = 'Deutsch'
+locale = 'de-DE'
 weight = 2
 [languages.de.pagination]
 disableAliases = true

@@ -11,17 +11,24 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Downscale an image to fit according to the given [processing specification][] while maintaining the aspect ratio. You must provide both width and height (such as `600x400`) within the specification. Unlike [`Fill`][] or [`Resize`][], this method will never upscale an image; if the source image is smaller than the target dimensions, it remains its original size. The operation uses the [resampling filter](#resampling-filter) provided, if any.
+The `Fit` method returns a new resource from a [processable image](g) according to the given [processing specification][].
+
+> [!note]
+> Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
+
+## Usage
+
+When fitting, you must provide both width and height (such as `300x175`) within the specification. `Fit` maintains the original aspect ratio by downscaling the image until it fits within the specified dimensions. Unlike [`Fill`][] or [`Resize`][], this method will never upscale an image; if the source image is smaller than the target dimensions, the dimensions of the resulting image are the same as the original.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Fit "300x175 lanczos" }}
+  {{ with .Fit "300x175" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
 ```
 
-In the example above, `"300x175 lanczos"` is the _processing specification_.
+In the example above, `"300x175"` is the processing specification.
 
 {{% include "/_common/methods/resource/processing-spec.md" %}}
 
@@ -29,7 +36,7 @@ In the example above, `"300x175 lanczos"` is the _processing specification_.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Fit "300x175 lanczos" }}
+  {{ with .Fit "300x175" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
@@ -39,10 +46,11 @@ In the example above, `"300x175 lanczos"` is the _processing specification_.
   src="images/examples/zion-national-park.jpg"
   alt="Zion National Park"
   filter="Process"
-  filterArgs="fit 300x175 lanczos"
+  filterArgs="fit 300x175"
   example=true
 >}}
 
-[`Resize`]: /methods/resource/resize/
 [`Fill`]: /methods/resource/fill/
+[`Resize`]: /methods/resource/resize/
+[`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
 [processing specification]: #processing-specification

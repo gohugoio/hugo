@@ -1,0 +1,17 @@
+{{- /*
+Returns the Description of the page specified by the logical path in the first
+positional argument.
+
+@param {string} logicalPath The logical path to the page.
+
+@example {{% get-page-desc "/functions/reflect/isimageresource" %}}
+*/}}
+{{- with $logicalPath := .Get 0 }}
+  {{- with $.Page.GetPage $logicalPath }}
+{{- .Description }}{{/* Do not indent. */}}
+  {{- else }}
+    {{- errorf "The %q shortcode was unable to find %s: see %s" $.Name $logicalPath $.Position }}
+  {{- end }}
+{{- else }}
+  {{- errorf "The %q shortcode requires a positional argument with the logical path to the page: see %s" $.Name $logicalPath $.Position }}
+{{- end -}}

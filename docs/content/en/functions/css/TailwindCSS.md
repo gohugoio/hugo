@@ -10,8 +10,6 @@ params:
     signatures: ['css.TailwindCSS [OPTIONS] RESOURCE']
 ---
 
-{{< new-in 0.128.0 />}}
-
 Use the `css.TailwindCSS` function to process your Tailwind CSS files. This function uses the Tailwind CSS CLI to:
 
 1. Scan your templates for Tailwind CSS utility class usage.

@@ -8,9 +8,8 @@ params:
     aliases: [postCSS]
     returnType: resource.Resource
     signatures: ['css.PostCSS [OPTIONS] RESOURCE']
+aliases: [/functions/resources/postcss/]
 ---
-
-{{< new-in 0.128.0 />}}
 
 ```go-html-template
 {{ with resources.Get "css/main.css" | postCSS }}
@@ -26,7 +25,7 @@ Step 1
 : Install [Node.js].
 
 Step 2
-: Install the required Node.js packages in the root of your project. For example, to add vendor prefixes to your CSS rules:
+: Install the required Node packages in the root of your project. For example, to add vendor prefixes to your CSS rules:
 
   ```sh
   npm i -D postcss postcss-cli autoprefixer
@@ -72,7 +71,7 @@ inlineImports
 : (`bool`) Whether to enable inlining of import statements. It does so recursively, but will only import a file once. URL imports (e.g. `@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');`) and imports with media queries will be ignored. Note that this import routine does not care about the CSS spec, so you can have @import anywhere in the file. Hugo will look for imports relative to the module mount and will respect theme overrides. Default is `false`.
 
 skipInlineImportsNotFound
-: (`bool`) Whether to allow the build process to continue despite unresolved import statements, preserving the original import declarations. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set this option to `true`. Default is `false`."
+: (`bool`) Whether to allow the build process to continue despite unresolved import statements, preserving the original import declarations. If you have regular CSS imports in your CSS that you want to preserve, you can either use imports with URL or media queries (Hugo does not try to resolve those) or set this option to `true`. Default is `false`.
 
 ```go-html-template
 {{ $opts := dict "config" "config-directory" "noMap" true }}

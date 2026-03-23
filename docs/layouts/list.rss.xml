@@ -5,7 +5,7 @@
     <description>Recent news about Hugo, a static site generator written in Go, optimized for speed and designed for flexibility.</description>
     <link>{{ .Permalink }}</link>
     <generator>Hugo {{ hugo.Version }}</generator>
-    <language>{{ or site.Language.LanguageCode site.Language.Lang }}</language>
+    <language>{{ site.Language.Locale }}</language>
     {{- with site.Copyright }}
       <copyright>{{ . }}</copyright>
     {{- end }}

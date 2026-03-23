@@ -10,7 +10,7 @@ params:
     signatures: [math.Counter]
 ---
 
-The counter is global for both monolingual and multilingual sites, and its initial value for each build is&nbsp;1.
+The counter is global for both monolingual and multilingual projects, and its initial value for each build is&nbsp;1.
 
 ```go-html-template {file="layouts/page.html"}
 {{ warnf "page.html called %d times" math.Counter }}

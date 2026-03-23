@@ -8,6 +8,7 @@ params:
     aliases: [toCSS]
     returnType: resource.Resource
     signatures: ['css.Sass [OPTIONS] RESOURCE']
+aliases: [/functions/resources/tocss/]
 ---
 
 Transpile Sass to CSS using the LibSass transpiler included in Hugo's extended and extended/deploy editions, or [install Dart Sass](#dart-sass) to use the latest features of the Sass language.

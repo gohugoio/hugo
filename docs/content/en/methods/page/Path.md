@@ -26,7 +26,7 @@ The value returned by the `Path` method on a `Page` object is independent of con
 
 ## Examples
 
-### Monolingual site
+### Monolingual project
 
 Note that the logical path is independent of content format and URL modifiers.
 

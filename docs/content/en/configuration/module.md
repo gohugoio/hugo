@@ -30,13 +30,13 @@ auth
 : (`string`) Configures `GOAUTH` when running the Go command for module operations. This is a semicolon-separated list of authentication commands for go-import and HTTPS module mirror interactions. This is useful for private repositories. See `go help goauth` for more information.
 
 noProxy
-: (`string`) A comma-separated list of [glob patterns](g),s matching paths that should not use the [configured proxy server](#proxy).
+: (`string`) A comma-separated list of [glob patterns](g), matching paths that should not use the [configured proxy server](#proxy).
 
 noVendor
 : (`string`) A [glob pattern](g) matching module paths to skip when vendoring.
 
 private
-: (`string`) A comma-separated list of [glob patterns](g),s matching paths that should be treated as private.
+: (`string`) A comma-separated list of [glob patterns](g), matching paths that should be treated as private.
 
 proxy
 : (`string`) The proxy server to use to download remote modules. Default is `direct`, which means `git clone` and similar.
@@ -99,9 +99,9 @@ min
 disable = false
 ignoreConfig = false
 ignoreImports = false
-path = "github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v"
+path = 'github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v'
 [[module.imports]]
-path = "my-shortcodes"
+path = 'my-shortcodes'
 {{< /code-toggle >}}
 
 disable
@@ -152,7 +152,6 @@ target
 : (`string`) Where the mount will reside within Hugo's [unified file system](g). It must begin with one of Hugo's [component](g) directories: archetypes, assets, content, data, i18n, layouts, or static. For example, content/blog.
 
 disableWatch
-: {{< new-in 0.128.0 />}}
 : (`bool`) Whether to disable watching in watch mode for this mount. Default is `false`.
 
 files
@@ -168,15 +167,15 @@ sites
 {{< code-toggle file=hugo >}}
 [module]
 [[module.mounts]]
-    source="content"
-    target="content"
-    files=["! docs/*"]
+source = 'content'
+target = 'content'
+files = ['! docs/*']
 [[module.mounts]]
-    source="node_modules"
-    target="assets"
+source = 'node_modules'
+target = 'assets'
 [[module.mounts]]
-    source="assets"
-    target="assets"
+source = 'assets'
+target = 'assets'
 {{< /code-toggle >}}
 
 [`archetypeDir`]: /configuration/all/#archetypedir

@@ -15,15 +15,25 @@ You can also use the `Language` method on a `Page` object. See&nbsp;[details][].
 
 ## Methods
 
-The examples below assume the following in your project configuration:
+The examples below assume the following language definition.
 
 {{< code-toggle file=hugo >}}
 [languages.de]
-languageCode = 'de-DE'
-languageDirection = 'ltr'
-languageName = 'Deutsch'
-weight = 1
+direction = 'ltr'
+label = 'Deutsch'
+locale = 'de-DE'
+weight = 2
 {{< /code-toggle >}}
+
+### Direction
+
+{{< new-in 0.158.0 />}}
+
+(`string`) Returns the [`direction`][] from the language definition.
+
+```go-html-template
+{{ .Site.Language.Direction }} → ltr
+```
 
 ### IsDefault
 
@@ -35,43 +45,55 @@ weight = 1
 {{ .Site.Language.IsDefault }} → true
 ```
 
-### Lang
+### Label
 
-(`string`) Returns the language tag as defined by [RFC 5646][]. This is the lowercased key from your project configuration.
+{{< new-in 0.158.0 />}}
+
+(`string`) Returns the [`label`][] from the language definition.
 
 ```go-html-template
-{{ .Site.Language.Lang }} → de
+{{ .Site.Language.Label }} → Deutsch
 ```
+
+### Lang
+
+{{<deprecated-in 0.158.0 />}}
+
+Use [`Name`](#name) instead.
 
 ### LanguageCode
 
-(`string`) Returns the [`languageCode`][] from your project configuration. Falls back to `Lang` if not defined.
+{{<deprecated-in 0.158.0 />}}
 
-```go-html-template
-{{ .Site.Language.LanguageCode }} → de-DE
-```
+Use [`Locale`](#locale) instead.
 
 ### LanguageDirection
 
-(`string`) Returns the [`languageDirection`][] from your project configuration.
+{{<deprecated-in 0.158.0 />}}
 
-```go-html-template
-{{ .Site.Language.LanguageDirection }} → ltr
-```
+Use [`Direction`](#direction) instead.
 
 ### LanguageName
 
-(`string`) Returns the [`languageName`][] from your project configuration.
+{{<deprecated-in 0.158.0 />}}
+
+Use [`Label`](#label) instead.
+
+### Locale
+
+{{< new-in 0.158.0 />}}
+
+(`string`) Returns the [`locale`][] from the language definition, falling back to [`Name`](#name).
 
 ```go-html-template
-{{ .Site.Language.LanguageName }} → Deutsch
+{{ .Site.Language.Locale }} → de-DE
 ```
 
 ### Name
 
 {{< new-in 0.153.0 />}}
 
-(`string`) Returns the language tag as defined by [RFC 5646][]. This is the lowercased key from your project configuration. This is an alias for `Lang`.
+(`string`) Returns the language tag as defined by [RFC 5646][]. This is the lowercased key from the language definition.
 
 ```go-html-template
 {{ .Site.Language.Name }} → de
@@ -79,11 +101,7 @@ weight = 1
 
 ### Weight
 
-(`int`) Returns the language [`weight`][] from your project configuration.
-
-```go-html-template
-{{ .Site.Language.Weight }} → 1
-```
+{{<deprecated-in 0.158.0 />}}
 
 ## Example
 
@@ -91,15 +109,14 @@ Some of the methods above are commonly used in a base template as attributes for
 
 ```go-html-template
 <html
-  lang="{{ .Site.Language.LanguageCode }}" 
-  dir="{{ or .Site.Language.LanguageDirection `ltr` }}"
+  lang="{{ .Site.Language.Locale }}" 
+  dir="{{ or .Site.Language.Direction `ltr` }}"
 >
 ```
 
-[`languageCode`]: /configuration/languages/#languagecode
-[`languageDirection`]: /configuration/languages/#languagedirection
-[`languageName`]: /configuration/languages/#languagename
-[`weight`]: /configuration/languages/#weight
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
+[`direction`]: /configuration/languages/#direction
+[`label`]: /configuration/languages/#label
+[`locale`]: /configuration/languages/#locale
 [default language]: /quick-reference/glossary/#default-language
 [details]: /methods/page/language/
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646

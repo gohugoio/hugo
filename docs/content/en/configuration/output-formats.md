@@ -44,7 +44,7 @@ isHTML
 : (`bool`) Whether to classify the output format as HTML. This value determines when the LiveReload script is injected and, in conjunction with [`permalinkable`](#permalinkable), whether [alias redirects][] are generated. Default is `false`.
 
 isPlainText
-: (`bool`) Whether to parse templates for this output format with Go's [text/template][] package instead of the [html/template][] package. Default is `false`.
+: (`bool`) Whether to parse templates for this output format with Go's [`text/template`][] package instead of the [`html/template`][] package. Default is `false`.
 
 mediaType
 : (`string`) The [media type](g) of the published file. This must match one of the [configured media types][].
@@ -128,7 +128,7 @@ Step 3
   See [configure outputs][] for more information.
 
 Step 4
-: Create a template to render the output format. Since Atom feeds are lists, you need to create a list template. Consult the [template lookup order] to find the correct template path:
+: Create a template to render the output format. Since Atom feeds are lists, you need to create a list template. Consult the [template lookup order][] to find the correct template path:
 
   ```text
   layouts/list.atom.atom
@@ -202,6 +202,6 @@ Output format|Template path
 [configured media types]: /configuration/media-types/
 [default media types]: /configuration/media-types/
 [embedded RSS template]: <{{% eturl rss %}}>
-[html/template]: https://pkg.go.dev/html/template
+[`html/template`]: https://pkg.go.dev/html/template
 [template lookup order]: /templates/lookup-order/
-[text/template]: https://pkg.go.dev/text/template
+[`text/template`]: https://pkg.go.dev/text/template

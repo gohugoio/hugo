@@ -21,9 +21,8 @@ The `js.Build` function uses the [evanw/esbuild] package to:
 ```go-html-template
 {{ with resources.Get "js/main.js" }}
   {{$opts := dict
-    "minify" (not hugo.IsDevelopment)
-    "sourceMap" (cond hugo.IsDevelopment "external" "")
-    "targetPath" "js/main.js"
+    "minify" (cond hugo.IsDevelopment false true)
+    "sourceMap" (cond hugo.IsDevelopment "linked" "none")
   }}
   {{ with . | js.Build $opts }}
     {{ if hugo.IsDevelopment }}
@@ -49,7 +48,7 @@ format
 
 ## Import JS code from the assets directory
 
-`js.Build` has full support for the virtual union file system in [Hugo Modules](/hugo-modules/). You can see some simple examples in this [test project](https://github.com/gohugoio/hugoTestProjectJSModImports), but in short this means that you can do this:
+`js.Build` has full support for Hugo's [unified file system](g). You can see some simple examples in this [test project](https://github.com/gohugoio/hugoTestProjectJSModImports), but in short this means that you can do this:
 
 ```js
 import { hello } from 'my/module';
@@ -93,7 +92,7 @@ Hugo will, by default, generate a `assets/jsconfig.json` file that maps the impo
 
 ## Node.js dependencies
 
-Use the `js.Build` function to include Node.js dependencies.
+Use the `js.Build` function to include Node dependencies.
 
 Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [esbuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo build`.
 

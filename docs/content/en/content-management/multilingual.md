@@ -37,15 +37,15 @@ By having the same path and base file name, the content pieces are linked togeth
 This system uses different content directories for each of the languages. Each language's `content` directory is set using the `contentDir` parameter.
 
 {{< code-toggle file=hugo >}}
-languages:
-  en:
-    weight: 10
-    languageName: "English"
-    contentDir: "content/english"
-  fr:
-    weight: 20
-    languageName: "Français"
-    contentDir: "content/french"
+[languages.en]
+contentDir = 'content/english'
+label = "English"
+weight = 10
+
+[languages.fr]
+contentDir = 'content/french'
+label = "Français"
+weight = 20
 {{< /code-toggle >}}
 
 The value of `contentDir` can be any valid path -- even absolute path references. The only restriction is that the content directories cannot overlap.
@@ -110,46 +110,13 @@ If, across the linked bundles, two or more files share the same basename, only o
 > [!note]
 > Page Bundle resources follow the same language assignment logic as content files, both by file name (`image.jpg`, `image.fr.jpg`) and by directory (`english/about/header.jpg`, `french/about/header.jpg`).
 
-## Reference translated content
-
-To create a list of links to translated content, use a template similar to the following:
-
-```go-html-template {file="layouts/_partials/i18nlist.html"}
-{{ if .IsTranslated }}
-<h4>{{ i18n "translations" }}</h4>
-<ul>
-  {{ range .Translations }}
-  <li>
-    <a href="{{ .RelPermalink }}">{{ .Language.Lang }}: {{ .LinkTitle }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
-  </li>
-  {{ end }}
-</ul>
-{{ end }}
-```
-
-The above can be put in a _partial_ template then included in any template. It will not print anything if there are no translations for a given page.
-
-The above also uses the [`i18n` function][i18func] described in the next section.
-
-### List all available languages
-
-`.AllTranslations` on a `Page` can be used to list all translations, including the page itself. On the home page it can be used to build a language navigator:
-
-```go-html-template {file="layouts/_partials/allLanguages.html"}
-<ul>
-{{ range $.Site.Home.AllTranslations }}
-<li><a href="{{ .RelPermalink }}">{{ .Language.LanguageName }}</a></li>
-{{ end }}
-</ul>
-```
-
 ## Translation of strings
 
 See the [`lang.Translate`] template function.
 
 ## Localization
 
-The following localization examples assume your site's primary language is English, with translations to French and German.
+The following localization examples assume your project's primary language is English, with translations to French and German.
 
 {{< code-toggle file=hugo >}}
 defaultContentLanguage = 'en'
@@ -157,15 +124,15 @@ defaultContentLanguage = 'en'
 [languages]
 [languages.en]
 contentDir = 'content/en'
-languageName = 'English'
+label = 'English'
 weight = 1
 [languages.fr]
 contentDir = 'content/fr'
-languageName = 'Français'
+label = 'Français'
 weight = 2
 [languages.de]
 contentDir = 'content/de'
-languageName = 'Deutsch'
+label = 'Deutsch'
 weight = 3
 
 {{< /code-toggle >}}
@@ -264,8 +231,8 @@ For a simple menu with a small number of entries, use a single configuration fil
 
 {{< code-toggle file=hugo >}}
 [languages.de]
-languageCode = 'de-DE'
-languageName = 'Deutsch'
+label = 'Deutsch'
+locale = 'de-DE'
 weight = 1
 
 [[languages.de.menus.main]]
@@ -279,8 +246,8 @@ pageRef = '/services'
 weight = 20
 
 [languages.en]
-languageCode = 'en-US'
-languageName = 'English'
+label = 'English'
+locale = 'en-US'
 weight = 2
 
 [[languages.en.menus.main]]
@@ -419,11 +386,10 @@ hugo new content content/de/post/test.md
 [configuration directory]: /configuration/introduction/#configuration-directory
 [example menu template]: /templates/menu/#example
 [front matter]: /content-management/menus/#define-in-front-matter
-[i18func]: /functions/lang/translate/
 [lang.FormatAccounting]: /functions/lang/formataccounting/
 [lang.FormatCurrency]: /functions/lang/formatcurrency/
-[lang.FormatNumber]: /functions/lang/formatnumber/
 [lang.FormatNumberCustom]: /functions/lang/formatnumbercustom/
+[lang.FormatNumber]: /functions/lang/formatnumber/
 [lang.FormatPercent]: /functions/lang/formatpercent/
 [lang.Merge]: /functions/lang/merge/
 [project configuration]: /content-management/menus/#define-in-project-configuration

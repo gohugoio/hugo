@@ -152,7 +152,7 @@ With your editor, open your [project configuration][] file (`hugo.toml`) in the 
 
 ```text
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'My New Hugo Project'
 theme = 'ananke'
 ```
@@ -160,7 +160,7 @@ theme = 'ananke'
 Make the following changes:
 
 1. Set the `baseURL` for your project. This value must begin with the protocol and end with a slash, as shown above.
-1. Set the `languageCode` to your locale.
+1. Set the `locale` to your locale.
 1. Set the `title` for your project.
 
 Start Hugo's development server to see your changes, remembering to include draft content.

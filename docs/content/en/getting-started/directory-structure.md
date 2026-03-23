@@ -108,9 +108,9 @@ static
 themes
 : The `themes` directory contains one or more [themes](g), each in its own subdirectory.
 
-## Union file system
+## Unified file system
 
-Hugo creates a union file system, allowing you to mount two or more directories to the same location. For example, let's say your home directory contains a Hugo project in one directory, and shared content in another:
+Hugo creates a [unified file system](g), allowing you to mount two or more directories to the same location. For example, let's say your home directory contains a Hugo project in one directory, and shared content in another:
 
 ```text
 home/
@@ -145,11 +145,11 @@ target = 'content'
 {{< /code-toggle >}}
 
 > [!note]
-> When you overlay one directory on top of another, you must mount both directories.
+> Defining a custom mount replaces the default mounting for that [component](g). To overlay an external directory on top of the project default, you must explicitly mount both.
 >
-> Hugo does not follow symbolic links. If you need the functionality provided by symbolic links, use Hugo's union file system instead.
+> Hugo does not follow symbolic links. If you need the functionality provided by symbolic links, use Hugo's unified file system instead.
 
-After mounting, the union file system has this structure:
+After mounting, the unified file system has this structure:
 
 ```text
 home/
@@ -170,8 +170,7 @@ home/
         └── hugo.toml
 ```
 
-> [!note]
-> When two or more files have the same path, the order of precedence follows the order of the mounts. For example, if the shared content directory contains `books/book-1.md`, it will be ignored because the project's `content` directory was mounted first.
+When two or more files share the same path, the version in the highest layer takes precedence. In the example above, if the `shared-content` directory contains `books/book-1.md`, it is ignored because the project's `content` directory is the first (highest) mount.
 
 You can mount directories to `archetypes`, `assets`, `content`, `data`, `i18n`, `layouts`, and `static`. See&nbsp;[details](/configuration/module/#mounts).
 
@@ -199,6 +198,6 @@ my-theme/
 └── hugo.toml
 ```
 
-Using the union file system described above, Hugo mounts each of these directories to the corresponding location in the project. When two files have the same path, the file in the project directory takes precedence. This allows you, for example, to override a theme's template by placing a copy in the same location within the project directory.
+Using the unified file system described above, Hugo mounts each of these directories to the corresponding location in the project. When two files have the same path, the file in the project directory takes precedence. This allows you, for example, to override a theme's template by placing a copy in the same location within the project directory.
 
 If you are simultaneously using components from two or more themes or modules, and there's a path collision, the first mount takes precedence.

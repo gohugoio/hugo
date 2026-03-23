@@ -21,7 +21,7 @@ Please complete the following tasks before continuing:
 1. [Log in](https://github.com/login) to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
 1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
-1. Create a Hugo site within your local Git repository and test it with the `hugo server` command
+1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
 1. Commit the changes to your local Git repository and push to your GitHub repository
 
 ## Procedure
@@ -40,7 +40,7 @@ Step 2
 
   {{< code-toggle file=hugo copy=true >}}
   [caches.images]
-  dir = ":cacheDir/images"
+  dir = ':cacheDir/images'
   {{< /code-toggle >}}
 
   See [configure file caches] for more information.
@@ -77,10 +77,10 @@ Step 4
     build:
       runs-on: ubuntu-latest
       env:
-        DART_SASS_VERSION: 1.97.3
-        GO_VERSION: 1.26.0
-        HUGO_VERSION: 0.156.0
-        NODE_VERSION: 24.13.1
+        DART_SASS_VERSION: 1.98.0
+        GO_VERSION: 1.26.1
+        HUGO_VERSION: 0.158.0
+        NODE_VERSION: 24.14.0
         TZ: Europe/Oslo
       steps:
         - name: Checkout
@@ -185,17 +185,6 @@ Step 8
 
 In the future, whenever you push a change from your local Git repository, GitHub Pages will rebuild and deploy your site.
 
-## Customize the workflow
-
-The example workflow above includes this step, which typically takes 10&#8209;15 seconds:
-
-```yaml
-- name: Install Dart Sass
-  run: sudo snap install dart-sass
-```
-
-You may remove this step if your site, themes, and modules do not transpile Sass to CSS using the [Dart Sass] transpiler.
-
 ## Other resources
 
 - [Learn more about GitHub Actions](https://docs.github.com/en/actions)
@@ -204,5 +193,4 @@ You may remove this step if your site, themes, and modules do not transpile Sass
 
 [`cacheDir`]: /configuration/all/#cachedir
 [configure file caches]: /configuration/caches/
-[Dart Sass]: /functions/css/sass/#dart-sass
 [GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites

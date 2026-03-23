@@ -24,9 +24,9 @@ Define your [CI/CD](g) jobs by creating a `.gitlab-ci.yml` file in the root of y
 ```yaml {file=".gitlab-ci.yml" copy=true}
 variables:
   # Application versions
-  DART_SASS_VERSION: 1.97.3
-  HUGO_VERSION: 0.156.0
-  NODE_VERSION: 24.13.1
+  DART_SASS_VERSION: 1.98.0
+  HUGO_VERSION: 0.158.0
+  NODE_VERSION: 24.14.0
   # Git
   GIT_DEPTH: 0
   GIT_STRATEGY: clone
@@ -35,69 +35,70 @@ variables:
   TZ: Europe/Oslo
 
 image:
-  name: golang:1.26.0-bookworm
+  name: golang:1.26.1-bookworm
 
 pages:
   stage: deploy
   script:
-    # Create directory for user-specific executable files
-    - echo "Creating directory for user-specific executable files..."
-    - mkdir -p "${HOME}/.local"
+    - |
+      # Create directory for user-specific executable files
+      echo "Creating directory for user-specific executable files..."
+      mkdir -p "${HOME}/.local"
 
-    # Install utilities
-    - echo "Installing utilities..."
-    - apt-get update
-    - apt-get install -y brotli xz-utils zstd
+      # Install utilities
+      echo "Installing utilities..."
+      apt-get update
+      apt-get install -y brotli xz-utils zstd
 
-    # Install Dart Sass
-    - echo "Installing Dart Sass ${DART_SASS_VERSION}..."
-    - curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-    - tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-    - rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-    - export PATH="${HOME}/.local/dart-sass:${PATH}"
+      # Install Dart Sass
+      echo "Installing Dart Sass ${DART_SASS_VERSION}..."
+      curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+      tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+      rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+      export PATH="${HOME}/.local/dart-sass:${PATH}"
 
-    # Install Hugo
-    - echo "Installing Hugo ${HUGO_VERSION}..."
-    - curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-    - mkdir "${HOME}/.local/hugo"
-    - tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-    - rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-    - export PATH="${HOME}/.local/hugo:${PATH}"
+      # Install Hugo
+      echo "Installing Hugo ${HUGO_VERSION}..."
+      curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
+      mkdir -p "${HOME}/.local/hugo"
+      tar -C "${HOME}/.local/hugo" -xf "hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
+      rm "hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
+      export PATH="${HOME}/.local/hugo:${PATH}"
 
-    # Install Node.js
-    - echo "Installing Node.js ${NODE_VERSION}..."
-    - curl -sLJO "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
-    - tar -C "${HOME}/.local" -xf "node-v${NODE_VERSION}-linux-x64.tar.xz"
-    - rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
-    - export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
+      # Install Node.js
+      echo "Installing Node.js ${NODE_VERSION}..."
+      curl -sLJO "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
+      tar -C "${HOME}/.local" -xf "node-v${NODE_VERSION}-linux-x64.tar.xz"
+      rm "node-v${NODE_VERSION}-linux-x64.tar.xz"
+      export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
 
-    # Verify installations
-    - echo "Verifying installations..."
-    - "echo Dart Sass: $(sass --version)"
-    - "echo Go: $(go version)"
-    - "echo Hugo: $(hugo version)"
-    - "echo Node.js: $(node --version)"
-    - "echo brotli: $(brotli --version)"
-    - "echo xz: $(xz --version)"
-    - "echo zstd: $(zstd --version)"
+      # Verify installations
+      echo "Verifying installations..."
+      echo "Dart Sass: $(sass --version)"
+      echo "Go: $(go version)"
+      echo "Hugo: $(hugo version)"
+      echo "Node.js: $(node --version)"
+      echo "brotli: $(brotli --version)"
+      echo "xz: $(xz --version)"
+      echo "zstd: $(zstd --version)"
 
-    # Install Node.js dependencies
-    - echo "Installing Node.js dependencies..."
-    - "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci --prefer-offline || true"
+      # Install Node.js dependencies
+      echo "Installing Node.js dependencies..."
+      [[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci --prefer-offline || true
 
-    # Configure Git
-    - echo "Configuring Git..."
-    - git config core.quotepath false
+      # Configure Git
+      echo "Configuring Git..."
+      git config core.quotepath false
 
-    # Build site
-    - echo "Building site..."
-    - hugo build --gc --minify --baseURL "${CI_PAGES_URL}"
+      # Build site
+      echo "Building site..."
+      hugo --gc --minify --baseURL "${CI_PAGES_URL}"
 
-    # Compress published files
-    - echo "Compressing published files..."
-    - find public/ -type f -regextype posix-extended -regex '.+\.(css|html|js|json|mjs|svg|txt|xml)$' -print0 > files.txt
-    - time xargs --null --max-procs=0 --max-args=1 brotli --quality=10 --force --keep < files.txt
-    - time xargs --null --max-procs=0 --max-args=1 gzip -9 --force --keep < files.txt
+      # Compress published files
+      echo "Compressing published files..."
+      find public/ -type f -regextype posix-extended -regex '.+\.(css|html|js|json|mjs|svg|txt|xml)$' -print0 > files.txt
+      time xargs --null --max-procs=0 --max-args=1 brotli --quality=10 --force --keep < files.txt
+      time xargs --null --max-procs=0 --max-args=1 gzip -9 --force --keep < files.txt
   artifacts:
     paths:
       - public

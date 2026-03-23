@@ -7,7 +7,7 @@
 skip = *.ai,chroma.css,chroma_dark.css,.cspell.json,./data/docs.yaml
 
 # Comma separated list of words to be ignored. Words must be lowercased.
-ignore-words-list = abl,edn,januar,te,trys,ue,womens
+ignore-words-list = abl,edn,ist,januar,te,trys,ue,womens
 
 # Check file names as well.
 check-filenames = true

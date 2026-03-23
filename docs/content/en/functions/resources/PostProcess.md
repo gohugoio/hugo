@@ -25,7 +25,7 @@ Step 1
 : Install [Node.js].
 
 Step 2
-: Install the required Node.js packages in the root of your project:
+: Install the required Node packages in the root of your project:
 
   ```sh {copy=true}
   npm i -D postcss postcss-cli autoprefixer @fullhuman/postcss-purgecss
