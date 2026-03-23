@@ -380,6 +380,15 @@ url: %s
 								Description: "The plural form of the taxonomy",
 							},
 						}
+					case "params":
+						// Params hmaps.Params - user-defined parameters, just use additionalProperties
+						schema = &jsonschema.Schema{
+							Type:        "object",
+							Description: "User-defined params. \nhttps://gohugo.io/configuration/all/#params",
+							AdditionalProperties: &jsonschema.Schema{
+								Type: "string",
+							},
+						}
 					case "languages":
 						// Languages map[string]langs.LanguageConfig - create schema with additionalProperties
 						// This includes both the basic language config and all localized settings
@@ -433,7 +442,7 @@ url: %s
 						// Add references to complex configuration sections that can be localized
 						complexConfigs := []string{
 							"frontmatter", "markup", "mediatypes", "menus", "outputformats",
-							"outputs", "page", "pagination", "params", "permalinks", "privacy",
+							"outputs", "page", "pagination", "permalinks", "privacy",
 							"related", "security", "services", "sitemap", "taxonomies",
 						}
 
