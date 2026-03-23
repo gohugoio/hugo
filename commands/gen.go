@@ -292,6 +292,7 @@ url: %s
 
 	newJSONSchema := func() simplecobra.Commander {
 		var schemaDir string
+		var schemaBaseURL string
 		return &simpleCommand{
 			name:  "jsonschemas",
 			short: "Generate JSON Schema for Hugo config and page structures",
@@ -309,6 +310,22 @@ url: %s
 				// Create the output directory if it doesn't exist
 				if err := os.MkdirAll(schemaDir, 0755); err != nil {
 					return fmt.Errorf("failed to create schema directory: %w", err)
+				}
+
+				// Build reference string - relative path or absolute URL
+				schemaRef := func(name string) string {
+					if schemaBaseURL != "" {
+						return schemaBaseURL + name + ".schema.json"
+					}
+					return "./" + name + ".schema.json"
+				}
+
+				// Build schema ID URL
+				schemaID := func(name string) string {
+					if schemaBaseURL != "" {
+						return schemaBaseURL + name + ".schema.json"
+					}
+					return "https://gohugo.io/jsonschemas/" + name + ".schema.json"
 				}
 
 				camel := func(s string) string {
@@ -448,7 +465,7 @@ url: %s
 
 						for _, configName := range complexConfigs {
 							languageConfigSchema.Properties.Set(configName, &jsonschema.Schema{
-								Ref: fmt.Sprintf("http://gohugo.io/jsonschemas/hugo-config-%s.schema.json", configName),
+								Ref: schemaRef("hugo-config-" + configName),
 							})
 						}
 
@@ -600,7 +617,7 @@ url: %s
 					if schemaErr != nil {
 						continue
 					}
-					schema.ID = jsonschema.ID(fmt.Sprintf("https://gohugo.io/jsonschemas/hugo-config-%s.schema.json", name))
+					schema.ID = jsonschema.ID(schemaID("hugo-config-" + name))
 					schema.Version = "https://json-schema.org/draft-07/schema"
 
 					// Clear all required fields
@@ -642,7 +659,7 @@ url: %s
 				rootConfigSchema := rf.Reflect(allconfig.RootConfig{})
 
 				// Set the main schema metadata directly on the schema object
-				rootConfigSchema.ID = jsonschema.ID("https://gohugo.io/jsonschemas/hugo-config.schema.json")
+				rootConfigSchema.ID = jsonschema.ID(schemaID("hugo-config"))
 				rootConfigSchema.Version = "https://json-schema.org/draft-07/schema"
 				rootConfigSchema.Title = "Hugo Configuration Schema"
 				rootConfigSchema.Description = "JSON Schema for Hugo configuration files"
@@ -663,7 +680,7 @@ url: %s
 				// Add references to section schemas
 				for name := range configSections {
 					rootConfigSchema.Properties.Set(camel(name), &jsonschema.Schema{
-						Ref: fmt.Sprintf("http://gohugo.io/jsonschemas/hugo-config-%s.schema.json", name),
+						Ref: schemaRef("hugo-config-" + name),
 					})
 				}
 
@@ -699,6 +716,7 @@ url: %s
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.PersistentFlags().StringVarP(&schemaDir, "dir", "", filepath.Join(os.TempDir(), "hugo-schemas"), "output directory for schema files")
+				cmd.PersistentFlags().StringVarP(&schemaBaseURL, "baseURL", "", "", "base URL for schema references (default: relative paths)")
 			},
 		}
 	}
