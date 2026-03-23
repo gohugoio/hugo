@@ -25,6 +25,7 @@ const (
 	WarnGoldmarkRawHTML            = "warning-goldmark-raw-html"
 	WarnPartialSuperfluousPrefix   = "warning-partial-superfluous-prefix"
 	WarnHomePageIsLeafBundle       = "warning-home-page-is-leaf-bundle"
+	WarnRstSyntaxHighlightFallback = "warning-rst-syntax-highlight-fallback"
 )
 
 // Field/method names with special meaning.

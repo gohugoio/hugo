@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"runtime"
 
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 
@@ -45,6 +46,10 @@ type rstConverter struct {
 	ctx converter.DocumentContext
 	cfg converter.ProviderConfig
 }
+
+var rst2BaseArgs = []string{"--leave-comments", "--initial-header-level=2"}
+
+const rst2ShortSyntaxHighlightArg = "--syntax-highlight=short"
 
 func (c *rstConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	b, err := c.getRstContent(ctx.Src, c.ctx)
@@ -75,21 +80,18 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	var result []byte
 	var err error
 
-	// certain *nix based OSs wrap executables in scripted launchers
-	// invoking binaries on these OSs via python interpreter causes SyntaxError
-	// invoke directly so that shebangs work as expected
-	// handle Windows manually because it doesn't do shebangs
-	if runtime.GOOS == "windows" {
-		pythonBinary, _ := internal.GetPythonBinaryAndExecPath()
-		args := []string{binaryPath, "--leave-comments", "--initial-header-level=2"}
-		result, err = internal.ExternallyRenderContent(c.cfg, ctx, src, pythonBinary, args)
-	} else {
-		args := []string{"--leave-comments", "--initial-header-level=2"}
-		result, err = internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
-	}
+	result, err = c.renderContent(ctx, src, binaryName, binaryPath, true)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if shouldRetryWithoutShortSyntaxHighlight(result) {
+		logger.Warnidf(constants.WarnRstSyntaxHighlightFallback, "%s did not return a parseable body with %s; retrying without it", binaryName, rst2ShortSyntaxHighlightArg)
+		result, err = c.renderContent(ctx, src, binaryName, binaryPath, false)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// TODO(bep) check if rst2html has a body only option.
@@ -104,6 +106,39 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	}
 
 	return result[bodyStart+7 : bodyEnd], err
+}
+
+func getRstArgs(binaryPath string, isWindows, useShortSyntaxHighlight bool) []string {
+	args := append([]string(nil), rst2BaseArgs...)
+	if useShortSyntaxHighlight {
+		args = append(args, rst2ShortSyntaxHighlightArg)
+	}
+	if isWindows {
+		return append([]string{binaryPath}, args...)
+	}
+	return args
+}
+
+func shouldRetryWithoutShortSyntaxHighlight(result []byte) bool {
+	if len(bytes.TrimSpace(result)) == 0 {
+		return true
+	}
+	return !bytes.Contains(result, []byte("<body>\n")) || !bytes.Contains(result, []byte("\n</body>"))
+}
+
+func (c *rstConverter) renderContent(ctx converter.DocumentContext, src []byte, binaryName, binaryPath string, useShortSyntaxHighlight bool) ([]byte, error) {
+	// certain *nix based OSs wrap executables in scripted launchers
+	// invoking binaries on these OSs via python interpreter causes SyntaxError
+	// invoke directly so that shebangs work as expected
+	// handle Windows manually because it doesn't do shebangs
+	if runtime.GOOS == "windows" {
+		pythonBinary, _ := internal.GetPythonBinaryAndExecPath()
+		args := getRstArgs(binaryPath, true, useShortSyntaxHighlight)
+		return internal.ExternallyRenderContent(c.cfg, ctx, src, pythonBinary, args)
+	}
+
+	args := getRstArgs(binaryPath, false, useShortSyntaxHighlight)
+	return internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
 }
 
 var rst2Binaries = []string{"rst2html", "rst2html.py"}
