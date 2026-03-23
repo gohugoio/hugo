@@ -10,14 +10,21 @@ hugo convert toYAML -h
 stdout 'to use YAML for the front matter'
 
 hugo convert toJSON -o myjsoncontent
-stdout 'processing 3 content files'
+stdout 'processing 4 content files'
 grep '^{' myjsoncontent/content/mytoml.md
 grep '^{' myjsoncontent/content/myjson.md
 grep '^{' myjsoncontent/content/myyaml.md
+grep '^{' myjsoncontent/content/bundle/index.md
+exists myjsoncontent/content/bundle/data.txt
+exists myjsoncontent/content/bundle/nested/asset.dat
 hugo convert toYAML -o myyamlcontent
-stdout 'processing 3 content files'
+stdout 'processing 4 content files'
+exists myyamlcontent/content/bundle/data.txt
+exists myyamlcontent/content/bundle/nested/asset.dat
 hugo convert toTOML -o mytomlcontent
-stdout 'processing 3 content files'
+stdout 'processing 4 content files'
+exists mytomlcontent/content/bundle/data.txt
+exists mytomlcontent/content/bundle/nested/asset.dat
 
 
 
@@ -40,3 +47,12 @@ JSON content
 title: YAML
 ---
 YAML content
+-- content/bundle/index.md --
+---
+title: Bundle
+---
+Bundle content
+-- content/bundle/data.txt --
+bundle resource
+-- content/bundle/nested/asset.dat --
+nested resource
