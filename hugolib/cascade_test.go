@@ -28,7 +28,7 @@ func BenchmarkCascadeTarget(b *testing.B) {
 	files.WriteString(`
 -- content/_index.md --
 background = 'yosemite.jpg'
-[cascade._target]
+[cascade.target]
 kind = '{section,term}'
 -- content/posts/_index.md --
 -- content/posts/funny/_index.md --
@@ -74,7 +74,7 @@ render = "never"
 list = "never"
 publishResources = false
 
-[cascade._target]
+[cascade.target]
 path = '/hidden/**'
 -- content/p1.md --
 ---
@@ -156,7 +156,7 @@ func TestCascadeIssue12172(t *testing.T) {
 disableKinds = ['rss','sitemap','taxonomy','term']
 [[cascade]]
 headless = true
-[cascade._target]
+[cascade.target]
 path = '/s1**'
 -- content/s1/p1.md --
 ---
