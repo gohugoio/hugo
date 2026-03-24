@@ -195,12 +195,12 @@ func (c *hugoBuilder) initMemProfile() {
 
 	f, err := os.Create(c.r.memprofile)
 	if err != nil {
-		c.r.logger.Errorf("could not create memory profile: ", err)
+		c.r.logger.Errorf("could not create memory profile: %s", err)
 	}
 	defer f.Close()
 	runtime.GC() // get up-to-date statistics
 	if err := pprof.WriteHeapProfile(f); err != nil {
-		c.r.logger.Errorf("could not write memory profile: ", err)
+		c.r.logger.Errorf("could not write memory profile: %s", err)
 	}
 }
 
@@ -937,7 +937,8 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 	if len(dynamicEvents) > 0 {
 		partitionedEvents := partitionDynamicEvents(
 			h.BaseFs.SourceFilesystems,
-			dynamicEvents)
+			dynamicEvents,
+		)
 
 		onePageName := pickOneWriteOrCreatePath(h.Conf.ContentTypes(), partitionedEvents.ContentEvents)
 
