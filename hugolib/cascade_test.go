@@ -69,7 +69,7 @@ tag = "tags"
 
 [[cascade]]
 
-[cascade._build]
+[cascade.build]
 render = "never"
 list = "never"
 publishResources = false
