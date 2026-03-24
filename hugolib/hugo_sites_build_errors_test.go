@@ -604,6 +604,29 @@ Home.
 	b.Assert(err.Error(), qt.Contains, `can't evaluate field ThisDoesNotExist`)
 }
 
+// https://github.com/gohugoio/hugo/issues/14607
+func TestRenderErrorIncludesContentFile(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/posts/p1.md --
+---
+title: "My Post"
+---
+
+Some content.
+-- layouts/page.html --
+line 1
+{{ .ThisDoesNotExist }}
+`
+
+	b, err := TestE(t, files)
+
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`content/posts/p1.md`))
+}
+
 func TestErrorFrontmatterYAMLSyntax(t *testing.T) {
 	t.Parallel()
 
