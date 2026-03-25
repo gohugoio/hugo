@@ -48,8 +48,7 @@ func newLinks(cfg goldmark_config.Config) goldmark.Extender {
 }
 
 type linkContext struct {
-	page        any
-	pageInner   any
+	hooks.BaseContext
 	destination string
 	title       string
 	text        hstring.HTML
@@ -59,14 +58,6 @@ type linkContext struct {
 
 func (ctx linkContext) Destination() string {
 	return ctx.destination
-}
-
-func (ctx linkContext) Page() any {
-	return ctx.page
-}
-
-func (ctx linkContext) PageInner() any {
-	return ctx.pageInner
 }
 
 func (ctx linkContext) Text() hstring.HTML {
@@ -83,7 +74,6 @@ func (ctx linkContext) Title() string {
 
 type imageLinkContext struct {
 	linkContext
-	ordinal int
 	isBlock bool
 }
 
@@ -91,26 +81,13 @@ func (ctx imageLinkContext) IsBlock() bool {
 	return ctx.isBlock
 }
 
-func (ctx imageLinkContext) Ordinal() int {
-	return ctx.ordinal
-}
-
 type headingContext struct {
-	page      any
-	pageInner any
+	hooks.BaseContext
 	level     int
 	anchor    string
 	text      hstring.HTML
 	plainText string
 	*attributes.AttributesHolder
-}
-
-func (ctx headingContext) Page() any {
-	return ctx.page
-}
-
-func (ctx headingContext) PageInner() any {
-	return ctx.pageInner
 }
 
 func (ctx headingContext) Level() int {
@@ -188,22 +165,18 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 	// internal attributes before rendering.
 	attrs := r.filterInternalAttributes(n.Attributes())
 
-	page, pageInner := render.GetPageAndPageInner(ctx)
-
 	err := lr.RenderLink(
 		ctx.RenderContext().Ctx,
 		w,
 		imageLinkContext{
 			linkContext: linkContext{
-				page:             page,
-				pageInner:        pageInner,
+				BaseContext:      render.NewBaseContext(ctx, lr, node, source, ordinal),
 				destination:      string(n.Destination),
 				title:            string(n.Title),
 				text:             hstring.HTML(text),
 				plainText:        render.TextPlain(n, source),
 				AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerGeneral),
 			},
-			ordinal: ordinal,
 			isBlock: isBlock,
 		},
 	)
@@ -277,15 +250,13 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 	}
 
 	text := ctx.PopRenderedString()
-
-	page, pageInner := render.GetPageAndPageInner(ctx)
+	ordinal := ctx.GetAndIncrementOrdinal(node.Kind())
 
 	err := lr.RenderLink(
 		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
-			page:             page,
-			pageInner:        pageInner,
+			BaseContext:      render.NewBaseContext(ctx, lr, node, source, ordinal),
 			destination:      string(n.Destination),
 			title:            string(n.Title),
 			text:             hstring.HTML(text),
@@ -420,14 +391,13 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 		url = "mailto:" + url
 	}
 
-	page, pageInner := render.GetPageAndPageInner(ctx)
+	ordinal := ctx.GetAndIncrementOrdinal(n.Kind())
 
 	err := lr.RenderLink(
 		ctx.RenderContext().Ctx,
 		w,
 		linkContext{
-			page:             page,
-			pageInner:        pageInner,
+			BaseContext:      render.NewBaseContext(ctx, lr, node, source, ordinal),
 			destination:      url,
 			text:             hstring.HTML(label),
 			plainText:        label,
@@ -508,15 +478,13 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	if anchori, ok := n.AttributeString("id"); ok {
 		anchor, _ = anchori.([]byte)
 	}
-
-	page, pageInner := render.GetPageAndPageInner(ctx)
+	ordinal := ctx.GetAndIncrementOrdinal(n.Kind())
 
 	err := hr.RenderHeading(
 		ctx.RenderContext().Ctx,
 		w,
 		headingContext{
-			page:             page,
-			pageInner:        pageInner,
+			BaseContext:      render.NewBaseContext(ctx, hr, node, source, ordinal),
 			level:            n.Level,
 			anchor:           string(anchor),
 			text:             hstring.HTML(text),

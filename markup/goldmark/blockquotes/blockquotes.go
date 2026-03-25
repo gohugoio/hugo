@@ -102,8 +102,8 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 		}
 	}
 
-	bqctx := &blockquoteContext{
-		BaseContext:      render.NewBaseContext(ctx, renderer, n, src, nil, ordinal),
+	bqctx := blockquoteContext{
+		BaseContext:      render.NewBaseContext(ctx, renderer, n, src, ordinal),
 		typ:              typ,
 		alert:            alert,
 		text:             hstring.HTML(text),
@@ -150,23 +150,23 @@ type blockquoteContext struct {
 	*attributes.AttributesHolder
 }
 
-func (c *blockquoteContext) Type() string {
+func (c blockquoteContext) Type() string {
 	return c.typ
 }
 
-func (c *blockquoteContext) AlertType() string {
+func (c blockquoteContext) AlertType() string {
 	return c.alert.typ
 }
 
-func (c *blockquoteContext) AlertTitle() hstring.HTML {
+func (c blockquoteContext) AlertTitle() hstring.HTML {
 	return hstring.HTML(c.alert.title)
 }
 
-func (c *blockquoteContext) AlertSign() string {
+func (c blockquoteContext) AlertSign() string {
 	return c.alert.sign
 }
 
-func (c *blockquoteContext) Text() hstring.HTML {
+func (c blockquoteContext) Text() hstring.HTML {
 	return c.text
 }
 
