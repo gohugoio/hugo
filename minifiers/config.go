@@ -46,8 +46,9 @@ var defaultTdewolffConfig = TdewolffConfig{
 	},
 	JSON: json.Minifier{},
 	SVG: svg.Minifier{
-		KeepComments: false,
-		Precision:    0, // 0 means no trimming
+		KeepComments:   false,
+		Precision:      0, // 0 means no trimming
+		KeepNamespaces: []string{"", "x-bind"},
 	},
 	XML: xml.Minifier{
 		KeepWhitespace: false,
