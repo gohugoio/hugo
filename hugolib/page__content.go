@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"sort"
 	"strings"
 	"sync/atomic"
 	"unicode/utf8"
@@ -197,18 +198,44 @@ func (pi *contentParseInfo) AddShortcode(s *shortcode) {
 	}
 }
 
+// sourceMapEntry maps a range in rendered content back to a position in the original source.
+type sourceMapEntry struct {
+	renderOffset int  // start offset in content sent to Goldmark
+	sourceOffset int  // corresponding offset in original source file
+	isShortcode  bool // if true, any pos in this segment maps to sourceOffset
+}
+
+// resolveSourceOffset maps a position in rendered content to an offset in the original source.
+func resolveSourceOffset(sm []sourceMapEntry, pos int) int {
+	i := sort.Search(len(sm), func(i int) bool {
+		return sm[i].renderOffset > pos
+	}) - 1
+	if i < 0 {
+		return pos
+	}
+	e := sm[i]
+	if e.isShortcode {
+		return e.sourceOffset
+	}
+	return e.sourceOffset + (pos - e.renderOffset)
+}
+
 // contentToRenderForItems returns the content to be processed by Goldmark or similar.
-func (pi *contentParseInfo) contentToRender(ctx context.Context, source []byte, renderedShortcodes map[string]shortcodeRenderer) ([]byte, bool, error) {
+func (pi *contentParseInfo) contentToRender(ctx context.Context, source []byte, renderedShortcodes map[string]shortcodeRenderer) ([]byte, []sourceMapEntry, bool, error) {
 	var hasVariants bool
 	c := make([]byte, 0, len(source)+(len(source)/10))
+	var sm []sourceMapEntry
 
 	for _, it := range pi.itemsStep2 {
 		switch v := it.(type) {
 		case pageparser.Item:
+			sm = append(sm, sourceMapEntry{renderOffset: len(c), sourceOffset: v.Pos()})
 			c = append(c, source[v.Pos():v.Pos()+len(v.Val(source))]...)
 		case pageContentReplacement:
+			sm = append(sm, sourceMapEntry{renderOffset: len(c), sourceOffset: v.source.Pos()})
 			c = append(c, v.val...)
 		case *shortcode:
+			sm = append(sm, sourceMapEntry{renderOffset: len(c), sourceOffset: v.pos, isShortcode: true})
 			if !v.insertPlaceholder() {
 				// Insert the rendered shortcode.
 				renderedShortcode, found := renderedShortcodes[v.placeholder]
@@ -219,7 +246,7 @@ func (pi *contentParseInfo) contentToRender(ctx context.Context, source []byte, 
 
 				b, more, err := renderedShortcode.renderShortcode(ctx)
 				if err != nil {
-					return nil, false, fmt.Errorf("failed to render shortcode: %w", err)
+					return nil, nil, false, fmt.Errorf("failed to render shortcode: %w", err)
 				}
 				hasVariants = hasVariants || more
 				c = append(c, []byte(b)...)
@@ -234,7 +261,7 @@ func (pi *contentParseInfo) contentToRender(ctx context.Context, source []byte, 
 		}
 	}
 
-	return c, hasVariants, nil
+	return c, sm, hasVariants, nil
 }
 
 func (c *cachedContent) IsZero() bool {
@@ -651,7 +678,7 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 		ctx = setGetContentCallbackInContext.Set(ctx, ctxCallback)
 
 		var hasVariants bool
-		ct.contentToRender, hasVariants, err = c.pi.contentToRender(ctx, source, ct.contentPlaceholders)
+		ct.contentToRender, cp.sourceMap, hasVariants, err = c.pi.contentToRender(ctx, source, ct.contentPlaceholders)
 		if err != nil {
 			return nil, err
 		}
@@ -919,7 +946,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 			return "", err
 		}
 
-		contentToRender, hasVariants, err := parseInfo.contentToRender(ctx, contentToRenderb, placeholders)
+		contentToRender, _, hasVariants, err := parseInfo.contentToRender(ctx, contentToRenderb, placeholders)
 		if err != nil {
 			return "", err
 		}

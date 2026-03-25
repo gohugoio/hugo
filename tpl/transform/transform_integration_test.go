@@ -304,13 +304,13 @@ Content: {{ .Content }}|
 	files := strings.Replace(filesTemplate, "$$1+2$$", "$$\\foo1+2$$", 1)
 	b, err := hugolib.TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
-	b.AssertLogContains("p1.md:6:1")
+	b.AssertLogContains("p1.md:7:1")
 
 	// Inline math.
 	files = strings.Replace(filesTemplate, "$1+3$", "$\\foo1+3$", 1)
 	b, err = hugolib.TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
-	b.AssertLogContains("p1.md:8:13")
+	b.AssertLogContains("p1.md:9:13")
 }
 
 func TestToMathMacros(t *testing.T) {

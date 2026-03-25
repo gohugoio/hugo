@@ -1682,7 +1682,7 @@ var infoOnMissingLayout = map[string]bool{
 type hookRendererTemplate struct {
 	templateHandler *tplimpl.TemplateStore
 	templ           *tplimpl.TemplInfo
-	resolvePosition func(ctx any) text.Position
+	resolvePosition func(ctx any, srcRender []byte, pos int) text.Position
 }
 
 func (hr hookRendererTemplate) RenderLink(cctx context.Context, w io.Writer, ctx hooks.LinkContext) error {
@@ -1709,8 +1709,8 @@ func (hr hookRendererTemplate) RenderTable(cctx context.Context, w hugio.FlexiWr
 	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
-func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
-	return hr.resolvePosition(ctx)
+func (hr hookRendererTemplate) ResolvePosition(ctx any, srcRender []byte, pos int) text.Position {
+	return hr.resolvePosition(ctx, srcRender, pos)
 }
 
 func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {
