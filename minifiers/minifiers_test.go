@@ -158,6 +158,9 @@ func TestBugs(t *testing.T) {
 		{media.Builtin.HTMLType, "<i class='fas fa-tags fa-fw'></i> Tags", `<i class='fas fa-tags fa-fw'></i> Tags`},
 		// Issue #13082
 		{media.Builtin.HTMLType, "<gcse:searchresults-only></gcse:searchresults-only>", `<gcse:searchresults-only></gcse:searchresults-only>`},
+		// Issue #14669.
+		{media.Builtin.SVGType, `<use x-bind:href="myicon">`, `<use x-bind:href="myicon">`},
+		{media.Builtin.SVGType, `<use :href="myicon">`, `<use :href="myicon">`},
 	} {
 		var b bytes.Buffer
 
