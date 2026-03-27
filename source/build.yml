@@ -1,0 +1,1 @@
+CGO_ENABLED=1 go install -tags extended,withdeploy github.com/gohugoio/hugo@latest
