@@ -181,10 +181,8 @@ title: "p1"
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", `
-# Issue 9627: For the Position in code blocks we try to match the .Inner with the original source. This isn't always possible.
-p1.md:0:0
-	`,
+	b.AssertFileContent("public/p1/index.html",
+		"/content/p1.md:7:1",
 	)
 }
 
@@ -387,4 +385,31 @@ Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "p1.md:7:9\": failed to parse Markdown attributes; you may need to quote the values")
+}
+
+func TestCodeblockPosition(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/_markup/render-codeblock.html --
+{{ .Position | safeHTML }}
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Simple
+
+§§§text
+Some code.
+§§§
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "Simple</h2>\n\"/content/p1.md:7:1\"")
 }

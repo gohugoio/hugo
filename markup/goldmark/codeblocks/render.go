@@ -101,8 +101,8 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		return ast.WalkStop, &herrors.TextSegmentError{Err: err, Segment: attrStr}
 	}
 
-	cbctx := &codeBlockContext{
-		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, func() []byte { return []byte(s) }, ordinal),
+	cbctx := codeBlockContext{
+		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, ordinal),
 		lang:             lang,
 		code:             s,
 		AttributesHolder: attributes.New(attrs, attrtp),
@@ -130,11 +130,11 @@ type codeBlockContext struct {
 	*attributes.AttributesHolder
 }
 
-func (c *codeBlockContext) Type() string {
+func (c codeBlockContext) Type() string {
 	return c.lang
 }
 
-func (c *codeBlockContext) Inner() string {
+func (c codeBlockContext) Inner() string {
 	return c.code
 }
 

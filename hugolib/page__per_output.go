@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -90,6 +89,9 @@ type pageContentOutput struct {
 
 	// Renders Markdown hooks.
 	renderHooks *renderHooks
+
+	// Maps positions in the content sent to Goldmark back to the original source.
+	sourceMap []sourceMapEntry
 }
 
 func (pco *pageContentOutput) trackDependency(idp identity.IdentityProvider) {
@@ -244,24 +246,22 @@ func (pco *pageContentOutput) initRenderHooks() error {
 		renderCache := make(map[cacheKey]any)
 		var renderCacheMu sync.Mutex
 
-		resolvePosition := func(ctx any) text.Position {
-			source := pco.po.p.m.content.mustSource()
+		resolvePosition := func(ctx any, srcRender []byte, pos int) text.Position {
+			if pos == -1 {
+				return text.Position{
+					Filename: pco.po.p.pathOrTitle(),
+				}
+			}
+			sourceOrig := pco.po.p.m.content.mustSource()
 			var offset int
 
-			switch v := ctx.(type) {
-			case hooks.PositionerSourceTargetProvider:
-				offset = bytes.Index(source, v.PositionerSourceTarget())
+			if sm := pco.sourceMap; len(sm) > 0 {
+				offset = resolveSourceOffset(sm, pos)
+			} else {
+				offset = pos + pco.po.p.m.content.pi.posMainContent
 			}
 
-			pos := pco.po.p.posFromInput(source, offset)
-
-			if pos.LineNumber > 0 {
-				// Move up to the code fence delimiter.
-				// This is in line with how we report on shortcodes.
-				pos.LineNumber = pos.LineNumber - 1
-			}
-
-			return pos
+			return pco.po.p.posFromInput(sourceOrig, offset)
 		}
 
 		pco.renderHooks.getRenderer = func(tp hooks.RendererType, id any) any {

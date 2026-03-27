@@ -19,7 +19,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	east "github.com/yuin/goldmark-emoji/ast"
 
@@ -160,51 +159,6 @@ func (ctx *RenderContextDataHolder) DocumentContext() converter.DocumentContext 
 	return ctx.Dctx
 }
 
-// extractSourceSample returns a sample of the source for the given node.
-// Note that this is not a copy of the source, but a slice of it,
-// so it assumes that the source is not mutated.
-func extractSourceSample(n ast.Node, src []byte) []byte {
-	if n.Type() == ast.TypeInline {
-		switch n := n.(type) {
-		case *passthrough.PassthroughInline:
-			return n.Segment.Value(src)
-		}
-
-		return nil
-	}
-
-	var sample []byte
-
-	getStartStop := func(n ast.Node) (int, int) {
-		if n == nil {
-			return 0, 0
-		}
-
-		var start, stop int
-		for i := 0; i < n.Lines().Len() && i < 2; i++ {
-			line := n.Lines().At(i)
-			if i == 0 {
-				start = line.Start
-			}
-			stop = line.Stop
-		}
-		return start, stop
-	}
-
-	start, stop := getStartStop(n)
-	if stop == 0 {
-		// Try first child.
-		start, stop = getStartStop(n.FirstChild())
-	}
-
-	if stop > 0 {
-		// We do not mutate the source, so this is safe.
-		sample = src[start:stop]
-	}
-
-	return sample
-}
-
 // GetPageAndPageInner returns the current page and the inner page for the given context.
 func GetPageAndPageInner(rctx *Context) (any, any) {
 	p := rctx.DocumentContext().Document
@@ -220,24 +174,17 @@ func GetPageAndPageInner(rctx *Context) (any, any) {
 }
 
 // NewBaseContext creates a new BaseContext.
-func NewBaseContext(rctx *Context, renderer any, n ast.Node, src []byte, getSourceSample func() []byte, ordinal int) hooks.BaseContext {
-	if getSourceSample == nil {
-		getSourceSample = func() []byte {
-			return extractSourceSample(n, src)
-		}
-	}
+func NewBaseContext(rctx *Context, renderer any, n ast.Node, src []byte, ordinal int) hooks.BaseContext {
 	page, pageInner := GetPageAndPageInner(rctx)
 	b := &hookBase{
 		page:      page,
 		pageInner: pageInner,
-
-		getSourceSample: getSourceSample,
-		ordinal:         ordinal,
+		ordinal:   ordinal,
 	}
 
 	b.createPos = func() htext.Position {
 		if resolver, ok := renderer.(hooks.ElementPositionResolver); ok {
-			return resolver.ResolvePosition(b)
+			return resolver.ResolvePosition(b, src, n.Pos())
 		}
 
 		return htext.Position{
@@ -250,19 +197,14 @@ func NewBaseContext(rctx *Context, renderer any, n ast.Node, src []byte, getSour
 	return b
 }
 
-var _ hooks.PositionerSourceTargetProvider = (*hookBase)(nil)
-
 type hookBase struct {
 	page      any
 	pageInner any
 	ordinal   int
 
-	// This is only used in error situations and is expensive to create,
-	// so delay creation until needed.
-	pos             htext.Position
-	posInit         sync.Once
-	createPos       func() htext.Position
-	getSourceSample func() []byte
+	pos       htext.Position
+	posInit   sync.Once
+	createPos func() htext.Position
 }
 
 func (c *hookBase) Page() any {
@@ -282,11 +224,6 @@ func (c *hookBase) Position() htext.Position {
 		c.pos = c.createPos()
 	})
 	return c.pos
-}
-
-// For internal use.
-func (c *hookBase) PositionerSourceTarget() []byte {
-	return c.getSourceSample()
 }
 
 // TextPlain returns a plain text representation of the given node.

@@ -84,6 +84,7 @@ type TableContext interface {
 }
 
 // BaseContext is the base context used in most render hooks.
+// TODO1 check all render hooks and remove any duplicate interface methods.
 type BaseContext interface {
 	text.Positioner
 	PageProvider
@@ -119,11 +120,6 @@ type BlockquoteContext interface {
 	// Currently only relevant for Obsidian alerts.
 	// GitHub does not suport alert signs and will not render alerts with signs.
 	AlertSign() string
-}
-
-type PositionerSourceTargetProvider interface {
-	// For internal use.
-	PositionerSourceTarget() []byte
 }
 
 // PassThroughContext is the context passed to a passthrough render hook.
@@ -205,7 +201,10 @@ type HeadingRenderer interface {
 // This may be both slow and approximate, so should only be
 // used for error logging.
 type ElementPositionResolver interface {
-	ResolvePosition(ctx any) text.Position
+	// ResolvePosition returns the position of the element in the original source document.
+	// ctx is the context passed to the render hook, and pos is the zero-based index of the element in the source document,
+	// -1 if it's not defined.
+	ResolvePosition(ctx any, srcRender []byte, pos int) text.Position
 }
 
 type RendererType int

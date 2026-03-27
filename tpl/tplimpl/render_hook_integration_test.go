@@ -339,3 +339,130 @@ TR-IMAGE
 	b.AssertFileContent("public/p1/index.html", "<img src=\"img.jpg\" alt=\"alt\">")
 	b.AssertFileContent("public/tr/p1/index.html", "TR-IMAGE")
 }
+
+// Hooks:
+// table
+// passthrough
+// link
+// image
+// heading
+// codeblock
+// blockquote
+func TestRenderHooksPosition(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[markup]
+[markup.goldmark]
+[markup.goldmark.extensions]
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+block = [['\[', '\]'], ['$$', '$$']]
+inline = [['\(', '\)']]
+-- layouts/_markup/render-table.html --
+HOOK_CONTENT
+-- layouts/_markup/render-passthrough.html --
+HOOK_CONTENT
+-- layouts/_markup/render-link.html --
+HOOK_CONTENT
+-- layouts/_markup/render-image.html --
+HOOK_CONTENT
+-- layouts/_markup/render-heading.html --
+HOOK_CONTENT
+-- layouts/_markup/render-codeblock.html --
+HOOK_CONTENT
+-- layouts/_markup/render-blockquote.html --
+HOOK_CONTENT
+-- layouts/shortcodes/myheading.html --
+{{ $s := .Get 0 -}}
+
+
+      {{ printf "## %s" $s }}
+-- layouts/shortcodes/mylink.html --
+{{ $s := .Get 0 -}}
+
+A
+
+B
+
+  {{ printf "[%s](%s)" $s $s }}
+
+
+C
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+[p1](/p1)
+ [p2](/p2)
+7
+8
+{{% mylink "p3" %}}
+10
+11
+12
+## My Heading 2
+14
+### My Heading 3
+16
+{{% myheading "h4" %}}
+18
+## Table 1
+20
+| Month | Savings |
+| -------- | ------- |
+| January | $250 |
+| February | $80 |
+| March | $420 |
+
+> blockquote 1
+
+Foo.
+
+> blockquote 2
+
+
+### Code block
+
+§§§go
+fmt.Println("hello")
+§§§
+
+## PassThrough
+
+\[block1\]
+
+ \[block2\]
+
+This is an \(inline\) passthrough element with opening and closing inline delimiters.
+
+
+`
+
+	files = strings.ReplaceAll(files, "HOOK_CONTENT", `
+{{ $pos := .Position }}
+{{ printf "%T" . }}|{{ $pos.Filename }}|{{ printf "%d:%d" $pos.LineNumber $pos.ColumnNumber }}|{{ $.Ordinal }}|
+`)
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"goldmark.linkContext|/content/p1.md|5:1|0|",
+		"goldmark.linkContext|/content/p1.md|6:2|1|",
+		"goldmark.linkContext|/content/p1.md|9:1|2|",
+		"goldmark.headingContext|/content/p1.md|13:1|0|",
+		"goldmark.headingContext|/content/p1.md|15:1|1|",
+		"goldmark.headingContext|/content/p1.md|17:1|2|",
+		"tables.tableContext|/content/p1.md|20:1|0|",
+		"blockquotes.blockquoteContext|/content/p1.md|27:1|0|",
+		"blockquotes.blockquoteContext|/content/p1.md|31:1|1|",
+		"codeblocks.codeBlockContext|/content/p1.md|36:1|0|",
+		"passthrough.passthroughContext|/content/p1.md|42:1|0|",
+		"passthrough.passthroughContext|/content/p1.md|44:2|1|",
+		"passthrough.passthroughContext|/content/p1.md|46:12|2|",
+	)
+}
