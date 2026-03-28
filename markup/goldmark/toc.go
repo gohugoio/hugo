@@ -106,7 +106,14 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			extras.KindMark,
 			extras.KindSubscript,
 			extras.KindSuperscript:
-			err := t.r.Render(&headingText, reader.Source(), n)
+			err := func() (err error) {
+				defer func() {
+					if r := recover(); r != nil {
+						headingText.Write(n.Text(reader.Source()))
+					}
+				}()
+				return t.r.Render(&headingText, reader.Source(), n)
+			}()
 			if err != nil {
 				return s, err
 			}
@@ -117,7 +124,14 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			ast.KindRawHTML,
 			ast.KindText,
 			ast.KindString:
-			err := t.r.Render(&headingText, reader.Source(), n)
+			err := func() (err error) {
+				defer func() {
+					if r := recover(); r != nil {
+						headingText.Write(n.Text(reader.Source()))
+					}
+				}()
+				return t.r.Render(&headingText, reader.Source(), n)
+			}()
 			if err != nil {
 				return s, err
 			}
