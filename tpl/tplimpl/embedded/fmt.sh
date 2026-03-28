@@ -1,0 +1,1 @@
+git reset --hard HEAD~1 && gotmplfmt -w . && git commit -a -m "fmt: format with gotmplfmt" && git push -f
