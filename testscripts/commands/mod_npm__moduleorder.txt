@@ -1,9 +1,5 @@
 # Test mod npm pack with shuffled modules.
 
-dostounix golden1/package.json
-dostounix golden1/packages/hugoautogen/package.json
-dostounix golden1/packages/hugoautogen/hugo_packagemeta.json
-
 hugo mod npm pack
 cmp packages/hugoautogen/package.json golden1/packages/hugoautogen/package.json
 cmp package.json golden1/package.json

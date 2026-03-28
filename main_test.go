@@ -87,18 +87,6 @@ var commonTestScriptsParam = testscript.Params{
 		"log": func(ts *testscript.TestScript, neg bool, args []string) {
 			log.Println(args)
 		},
-		// dostounix converts \r\n to \n.
-		"dostounix": func(ts *testscript.TestScript, neg bool, args []string) {
-			filename := ts.MkAbs(args[0])
-			b, err := os.ReadFile(filename)
-			if err != nil {
-				ts.Fatalf("%v", err)
-			}
-			b = bytes.Replace(b, []byte("\r\n"), []byte{'\n'}, -1)
-			if err := os.WriteFile(filename, b, 0o666); err != nil {
-				ts.Fatalf("%v", err)
-			}
-		},
 		// cat prints a file to stdout.
 		"cat": func(ts *testscript.TestScript, neg bool, args []string) {
 			filename := ts.MkAbs(args[0])
