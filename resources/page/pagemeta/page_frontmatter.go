@@ -555,7 +555,10 @@ func (s Source) ValueAsString() string {
 }
 
 func (s Source) ValueAsOpenReadSeekCloser() hugio.OpenReadSeekCloser {
-	return hugio.NewOpenReadSeekCloser(hugio.NewReadSeekerNoOpCloserFromString(s.ValueAsString()))
+	content := s.ValueAsString()
+	return func() (hugio.ReadSeekCloser, error) {
+		return hugio.NewReadSeekerNoOpCloserFromString(content), nil
+	}
 }
 
 // FrontMatterOnlyValues holds values that can only be set via front matter.

@@ -893,3 +893,29 @@ baseURL = "https://example.com"
 	// _content.gotmpl which was siblings of index.md (leaf bundles) was mistakingly classified as a content resource.
 	hugolib.Test(t, files)
 }
+
+// Issue 14684
+func TestPagesFromGoTmplAddResourceFromStringContent(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+baseURL = "https://example.com"
+-- assets/a/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/single.html --
+{{ with .Resources.Get "pixel.png" }}
+{{ with .Resize "1x1" }}Resized: {{ .Width }}x{{ .Height }}|{{ end }}
+{{ end }}
+-- content/_content.gotmpl --
+{{ $pixel := resources.Get "a/pixel.png" }}
+{{ $content := dict "mediaType" $pixel.MediaType.Type "value" $pixel.Content }}
+{{ $.AddPage (dict "path" "p1" "title" "p1") }}
+{{ $.AddResource (dict "path" "p1/pixel.png" "content" $content) }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "Resized: 1x1|")
+}
