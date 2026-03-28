@@ -1,8 +1,5 @@
 # Test the hugo mod commands.
 
-dostounix golden/vendor.txt
-dostounix golden/go.mod.testsubmod
-
 hugo mod graph
 stdout 'empty-hugo'
 hugo mod verify
