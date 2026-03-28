@@ -13,10 +13,10 @@
 	{{- end -}}
 {{- end -}}
 <img src="{{ $src }}" alt="{{ .PlainText }}"
-	{{- with .Title }} title="{{ . }}" {{- end -}}
+{{- with .Title }} title="{{ . }}" {{- end -}}
 	{{- range $k, $v := .Attributes -}}
 		{{- if $v -}}
-			{{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr -}}
+		{{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr -}}
 		{{- end -}}
 	{{- end -}}
 >

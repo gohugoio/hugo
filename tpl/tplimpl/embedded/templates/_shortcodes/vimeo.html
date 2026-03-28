@@ -49,16 +49,16 @@ title, then loading.
 					class="{{ . }}"
 				{{- else }}
 					style="{{ $divStyle | safeCSS }}"
-				{{- end }}>
-				<iframe
-					src="{{- $src }}"
-					{{- if not $class }}
-						style="{{ $iframeStyle | safeCSS }}"
-					{{- end }}
-					{{- with $iframeAllowList }} allow="{{ . }}" {{- end }}
-					{{- with $loading }} loading="{{ . }}" {{- end }}
-					{{- with $title }} title="{{ . }}" {{- end }}>
-				</iframe>
+				{{- end }}></div>
+			<iframe
+				src="{{- $src }}"
+				{{- if not $class }}
+					style="{{ $iframeStyle | safeCSS }}"
+				{{- end }}
+			{{- with $iframeAllowList }} allow="{{ . }}" {{- end }}
+			{{- with $loading }} loading="{{ . }}" {{- end }}
+			{{- with $title }} title="{{ . }}" {{- end }}></iframe>
+			</iframe>
 			</div>
 		{{- else }}
 			{{- errorf "The %q shortcode requires a video id, either as the first positional argument or an argument named id. See %s" .Name .Position }}

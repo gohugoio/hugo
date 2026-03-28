@@ -9,7 +9,9 @@
 		{{- $imgs = $imgs | append (dict
 			"Image" .
 			"RelPermalink" .RelPermalink
-			"Permalink" .Permalink) }}
+			"Permalink" .Permalink
+			)
+		}}
 	{{- end }}
 {{- end }}
 {{/* Use the first one of site images as the fallback. */}}
@@ -29,19 +31,23 @@
 			{{- $imgs = $imgs | append (dict
 				"Image" .
 				"RelPermalink" .RelPermalink
-				"Permalink" .Permalink) }}
+				"Permalink" .Permalink
+				)
+			}}
 		{{- else }}
 			{{- $imgs = $imgs | append (dict
 				"RelPermalink" (relURL $img)
 				"Permalink" (absURL $img)
-			) }}
+				)
+			}}
 		{{- end }}
 	{{- else }}
 		{{/* External image */}}
 		{{- $imgs = $imgs | append (dict
 			"RelPermalink" $img
 			"Permalink" $img
-		) }}
+			)
+		}}
 	{{- end }}
 {{- end }}
 {{- return $imgs }}

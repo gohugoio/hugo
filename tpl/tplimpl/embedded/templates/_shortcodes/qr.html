@@ -50,7 +50,7 @@ Encodes the given text into a QR code using the specified options and renders th
 {{- $loading := or (.Get "loading") "" }}
 
 {{- /* Validate arguments. */}}
-{{- $errors := false}}
+{{- $errors := false }}
 {{- if not $text }}
 	{{- errorf "The %q shortcode requires a %q argument. See %s" .Name "text" .Position }}
 	{{- $errors = true }}
@@ -69,11 +69,11 @@ Encodes the given text into a QR code using the specified options and renders th
 	{{- $opts := dict "level" $level "scale" $scale "targetDir" $targetDir }}
 	{{- with images.QR $text $opts -}}
 		<img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}"
-			{{- with $alt }} alt="{{ $alt }}" {{- end }}
-			{{- with $class }} class="{{ $class }}" {{- end }}
-			{{- with $id }} id="{{ $id }}" {{- end }}
-			{{- with $title }} title="{{ $title }}" {{- end -}}
-			{{- with $loading }} loading="{{ $loading }}" {{- end -}}
+		{{- with $alt }} alt="{{ $alt }}" {{- end }}
+		{{- with $class }} class="{{ $class }}" {{- end }}
+		{{- with $id }} id="{{ $id }}" {{- end }}
+		{{- with $title }} title="{{ $title }}" {{- end -}}
+		{{- with $loading }} loading="{{ $loading }}" {{- end -}}
 		>
 	{{- end }}
 {{- end -}}

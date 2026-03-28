@@ -63,7 +63,7 @@
 		<main>
 			{{ $codeStyle := "dracula" }}
 			<div class="error">
-				{{ highlight .Error "apl" (printf "linenos=false,noclasses=true,style=%s" $codeStyle ) }}
+				{{ highlight .Error "apl" (printf "linenos=false,noclasses=true,style=%s" $codeStyle) }}
 			</div>
 			<hr>
 			{{ range $i, $e := .Files }}
@@ -74,7 +74,7 @@
 				{{ $lexer := .ErrorContext.ChromaLexer | default "go-html-template" }}
 				{{ with .Position }}
 					<code class="filename"
-						>{{ printf "%s:%d:%d" .Filename .LineNumber .ColumnNumber }}:</code
+					>{{ printf "%s:%d:%d" .Filename .LineNumber .ColumnNumber }}:</code
 					>
 				{{ end }}
 				{{ highlight (delimit .ErrorContext.Lines "\n") $lexer $params }}
