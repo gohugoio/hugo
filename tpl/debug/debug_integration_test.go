@@ -73,3 +73,25 @@ Dump: {{ debug.Dump . | safeHTML }}
 	b := hugolib.TestRunning(t, files)
 	b.AssertFileContent("public/index.html", "Dump: {\n  \"Date\": \"2012-03-15T00:00:00Z\"")
 }
+
+func TestDebugList(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/page.html --
+List: {{ debug.List . | jsonify }}
+-- layouts/home.html --
+{{ $m := dict "b" 1 "a" 2 "c" 3 }}
+Map: {{ debug.List $m | jsonify }}
+`
+	b := hugolib.Test(t, files)
+	// Page struct: should contain exported fields and methods like Title, Date, etc.
+	b.AssertFileContent("public/p1/index.html", `"Title"`)
+	// Map: should return sorted keys.
+	b.AssertFileContent("public/index.html", `["a","b","c"]`)
+}
