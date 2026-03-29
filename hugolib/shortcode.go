@@ -612,6 +612,7 @@ Loop:
 			if cnt > 0 {
 				// nested shortcode; append it to inner content
 				pt.Backup()
+				nestedPos := currItem.Pos()
 				nested, err := s.extractShortcode(nestedOrdinal, nextLevel, source, pt)
 				nestedOrdinal++
 				if nested != nil && nested.name != "" {
@@ -621,7 +622,14 @@ Loop:
 				if err == nil {
 					sc.inner = append(sc.inner, nested)
 				} else {
-					return sc, err
+					// Wrap the error with the nested shortcode's position so that
+					// the error points to the correct shortcode (the inner one)
+					// rather than the outer shortcode.
+					if fe, ok := err.(herrors.FileError); ok {
+						return sc, fe
+					}
+					pos := posFromInput("", source, nestedPos)
+					return sc, herrors.NewFileErrorFromPos(err, pos)
 				}
 
 			} else {
