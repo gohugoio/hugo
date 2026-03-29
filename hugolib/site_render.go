@@ -366,7 +366,19 @@ func (s *Site) renderDefaultSiteRedirect(home *pageState) error {
 		//    /,/guest/ =  /guest/v1.0.0/
 		parts := strings.Split(strings.Trim(homeLink, "/"), "/")
 
-		for i := 0; i < len(parts)-1; i++ {
+		// With uglyURLs enabled for home pages, homeLink ends with an index file
+		// (e.g., "/en/index.html"). We need to skip creating redirects for the
+		// directory that contains this index file, as the redirect path would
+		// resolve to the same file (via targetPathAlias), overwriting the home page.
+		// See https://github.com/gohugoio/hugo/issues/14576
+		lastPartIsIndex := len(parts) > 0 && strings.HasPrefix(parts[len(parts)-1], of.BaseName+".")
+
+		skipCount := 0
+		if lastPartIsIndex {
+			skipCount = 1
+		}
+
+		for i := 0; i < len(parts)-1-skipCount; i++ {
 			ps = append(ps, paths.AddLeadingAndTrailingSlash(strings.Join(parts[0:i+1], "/")))
 		}
 	}
