@@ -110,16 +110,14 @@ Renders an embedded YouTube video.
 		{{- /* Render. */ -}}
 		<div
 			{{- with $class }} class="{{ . }}" {{- end }}
-			{{- with $divStyle }} style="{{ . | safeCSS }}" {{- end -}}
-		>
+			{{- with $divStyle }} style="{{ . | safeCSS }}" {{- end -}}>
 			<iframe
 				{{- with $iframeAllowList }} allow="{{ . }}" {{- end }}
 				{{- with $loading }} loading="{{ . }}" {{- end }}
 				{{- with $referrerpolicy }} referrerpolicy="{{ . }}" {{- end }}
 				{{- with $src }} src="{{ . }}" {{- end }}
-				{{- with $iframeStyle}} style="{{ . | safeCSS }}" {{- end }}
-				{{- with $title }} title="{{ . }}" {{- end -}}
-			></iframe>
+				{{- with $iframeStyle }} style="{{ . | safeCSS }}" {{- end }}
+				{{- with $title }} title="{{ . }}" {{- end -}}></iframe>
 		</div>
 	{{- else }}
 		{{- errorf "The %q shortcode requires an id argument. See %s" .Name .Position }}

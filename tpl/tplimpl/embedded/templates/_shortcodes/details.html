@@ -68,8 +68,7 @@ Renders an HTML details element.
 	{{- with $class }} class="{{ . }}" {{- end }}
 	{{- with $name }} name="{{ . }}" {{- end }}
 	{{- with $open }} open {{- end }}
-	{{- with $title }} title="{{ . }}" {{- end -}}
->
+	{{- with $title }} title="{{ . }}" {{- end -}}>
 	<summary>{{ $summary | .Page.RenderString }}</summary>
 	{{ .Inner | .Page.RenderString (dict "display" "block") -}}
 </details>

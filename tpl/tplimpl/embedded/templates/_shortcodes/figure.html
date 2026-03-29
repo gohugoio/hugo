@@ -13,12 +13,8 @@
 
 	<img src="{{ $src }}"
 		{{- if or (.Get "alt") (.Get "caption") }}
-		alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" | markdownify| plainify }}{{ end }}"
-		{{- end -}}
-		{{- with .Get "width" }} width="{{ . }}"{{ end -}}
-		{{- with .Get "height" }} height="{{ . }}"{{ end -}}
-		{{- with .Get "loading" }} loading="{{ . }}"{{ end -}}
-	><!-- Closing img tag -->
+			alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" | markdownify | plainify }}{{ end }}"
+		{{- end -}}{{- with .Get "width" }} width="{{ . }}"{{ end -}}{{- with .Get "height" }} height="{{ . }}"{{ end -}}{{- with .Get "loading" }} loading="{{ . }}"{{ end -}}><!-- Closing img tag -->
 	{{- if .Get "link" }}</a>{{ end -}}
 	{{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
 		<figcaption>
@@ -26,12 +22,12 @@
 				<h4>{{ . }}</h4>
 			{{- end -}}
 			{{- if or (.Get "caption") (.Get "attr") -}}<p>
-				{{- .Get "caption" | markdownify -}}
-				{{- with .Get "attrlink" }}
-					<a href="{{ . }}">
-				{{- end -}}
-				{{- .Get "attr" | markdownify -}}
-				{{- if .Get "attrlink" }}</a>{{ end }}</p>
+					{{- .Get "caption" | markdownify -}}
+					{{- with .Get "attrlink" }}
+						<a href="{{ . }}">
+					{{- end -}}
+					{{- .Get "attr" | markdownify -}}
+					{{- if .Get "attrlink" }}</a>{{ end }}</p>
 			{{- end }}
 		</figcaption>
 	{{- end }}

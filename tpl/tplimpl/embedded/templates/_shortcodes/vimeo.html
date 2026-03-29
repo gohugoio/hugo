@@ -57,8 +57,8 @@ title, then loading.
 					{{- end }}
 					{{- with $iframeAllowList }} allow="{{ . }}" {{- end }}
 					{{- with $loading }} loading="{{ . }}" {{- end }}
-					{{- with $title }} title="{{ . }}" {{- end }}>
-				</iframe>
+					{{- with $title }} title="{{ . }}" {{- end }}></iframe>
+			</iframe>
 			</div>
 		{{- else }}
 			{{- errorf "The %q shortcode requires a video id, either as the first positional argument or an argument named id. See %s" .Name .Position }}

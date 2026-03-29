@@ -9,29 +9,29 @@
 {{- end -}}
 
 {{- define "render-simple-x" -}}
-	{{- $dnt := site.Config.Privacy.X.EnableDNT }}
-	{{- $url := printf "https://x.com/%v/status/%v" .user .id -}}
-	{{- $query := querify "url" $url "dnt" $dnt "omit_script" true -}}
-	{{- $request := printf "https://publish.x.com/oembed?%s" $query -}}
-	{{- with try (resources.GetRemote $request) -}}
-		{{- with .Err -}}
-			{{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
-		{{- else with .Value -}}
-			{{- if not site.Config.Services.X.DisableInlineCSS }}
-				{{- template "__h_simple_x_css" (dict "ctx" $.ctx) }}
-			{{- end }}
-			{{- (. | transform.Unmarshal).html | safeHTML -}}
-		{{- else -}}
-			{{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
-		{{- end -}}
+{{- $dnt := site.Config.Privacy.X.EnableDNT }}
+{{- $url := printf "https://x.com/%v/status/%v" .user .id -}}
+{{- $query := querify "url" $url "dnt" $dnt "omit_script" true -}}
+{{- $request := printf "https://publish.x.com/oembed?%s" $query -}}
+{{- with try (resources.GetRemote $request) -}}
+	{{- with .Err -}}
+		{{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
+	{{- else with .Value -}}
+		{{- if not site.Config.Services.X.DisableInlineCSS }}
+			{{- template "__h_simple_x_css" (dict "ctx" $.ctx) }}
+		{{- end }}
+		{{- (. | transform.Unmarshal).html | safeHTML -}}
+	{{- else -}}
+		{{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
 	{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "__h_simple_x_css" -}}
-	{{- if not (.ctx.Page.Store.Get "__h_simple_x_css") -}}
-		{{/* Only include once */}}
-		{{- .ctx.Page.Store.Set "__h_simple_x_css" true -}}
-		<style type="text/css">
+{{- if not (.ctx.Page.Store.Get "__h_simple_x_css") -}}
+	{{/* Only include once */}}
+	{{- .ctx.Page.Store.Set "__h_simple_x_css" true -}}
+	<style type="text/css">
 			.twitter-tweet {
 				font:
 					14px/1.45 -apple-system,
@@ -55,6 +55,6 @@
 			blockquote.twitter-tweet a:focus {
 				text-decoration: underline;
 			}
-		</style>
-	{{- end -}}
+	</style>
+{{- end -}}
 {{- end -}}
