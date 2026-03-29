@@ -1728,11 +1728,10 @@ func (s *Site) renderForTemplate(ctx context.Context, name, outputFormat string,
 	}
 
 	if err = s.GetTemplateStore().ExecuteWithContext(ctx, templ, w, d); err != nil {
-		filename := name
 		if p, ok := d.(*pageState); ok {
-			filename = p.String()
+			return fmt.Errorf("render of %q failed for %q: %w", name, p.String(), err)
 		}
-		return fmt.Errorf("render of %q failed: %w", filename, err)
+		return fmt.Errorf("render of %q failed: %w", name, err)
 	}
 	return
 }
