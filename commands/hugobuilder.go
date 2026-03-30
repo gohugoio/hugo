@@ -301,6 +301,7 @@ func (c *hugoBuilder) initTraceProfile() (func(), error) {
 	}
 
 	if err := trace.Start(f); err != nil {
+		f.Close()
 		return nil, fmt.Errorf("failed to start trace: %w", err)
 	}
 
