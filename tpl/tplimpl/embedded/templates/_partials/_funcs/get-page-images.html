@@ -23,9 +23,8 @@
   {{- $img := . }}
   {{- $url := urls.Parse $img }}
   {{- if eq $url.Scheme "" }}
-    {{/* Internal image. */}}
-    {{- with $resources.GetMatch $img -}}
-      {{/* Image resource. */}}
+    {{/* Internal image: check page resources first, then global resources. */}}
+    {{- with or ($resources.GetMatch $img) (resources.Get $img) -}}
       {{- $imgs = $imgs | append (dict
         "Image" .
         "RelPermalink" .RelPermalink
