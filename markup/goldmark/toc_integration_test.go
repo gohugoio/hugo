@@ -364,3 +364,40 @@ title: home
 		`<li><a href="#1st">1^st^</a></li>`,
 	)
 }
+
+// Issue 14677
+func TestTableOfContentsWithPassthrough(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.goldmark.extensions.passthrough]
+  enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+  inline = [['$', '$']]
+-- content/_index.md --
+---
+title: home
+---
+## Heading with **$a$**
+
+## Heading with $b$
+
+## Heading with *$x + y$*
+
+-- layouts/home.html --
+{{ .TableOfContents }}
+`
+
+	b := hugolib.Test(t, files)
+
+	// Should not panic and should render the passthrough content
+	// Note: Emphasis nodes are rendered with <em> tags, so passthrough inside
+	// emphasis will be wrapped in <em>.
+	b.AssertFileContent("public/index.html",
+		`<li><a href="#">Heading with <em>$a$</em></a></li>`,
+		`<li><a href="#">Heading with $b$</a></li>`,
+		`<li><a href="#">Heading with <em>$x + y$</em></a></li>`,
+	)
+}
