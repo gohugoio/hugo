@@ -39,6 +39,7 @@ definitions:
     - CC=o64-clang
     - CXX=o64-clang++
   name_template_extended_withdeploy: &name_template_extended_withdeploy "{{ .Project }}_extended_withdeploy_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
+  name_template_withdeploy: &name_template_withdeploy "{{ .Project }}_withdeploy_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
   name_template_extended: &name_template_extended "{{ .Project }}_extended_{{ .Tag | trimPrefix `v` }}_{{ .Goos }}-{{ .Goarch }}"
   archive_deb: &archive_deb
     binary_dir: /usr/local/bin
@@ -164,6 +165,18 @@ builds:
       - goos: linux
         archs:
           - goarch: amd64
+  - path: container1/unix/withdeploy
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - withdeploy
+    os:
+      - goos: linux
+        archs:
+          - goarch: amd64
+          - goarch: arm64
   - path: container2/linux/extended
     build_settings:
       flags:
@@ -219,6 +232,17 @@ builds:
       - goos: darwin
         archs:
           - goarch: universal
+  - path: container1/macos/withdeploy
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - withdeploy
+    os:
+      - goos: darwin
+        archs:
+          - goarch: universal
   - path: container1/windows/regular
     os:
       - goos: windows
@@ -257,6 +281,19 @@ builds:
           binary: hugo.exe
         archs:
           - goarch: amd64
+  - path: container1/windows/withdeploy
+    build_settings:
+      flags:
+        - -buildmode
+        - exe
+        - -tags
+        - withdeploy
+    os:
+      - goos: windows
+        build_settings:
+          binary: hugo.exe
+        archs:
+          - goarch: amd64
 archives:
   - paths:
       - builds/container1/unix/regular/**
@@ -268,6 +305,10 @@ archives:
       - builds/container1/unix/extended-withdeploy/**
     archive_settings:
       name_template: *name_template_extended_withdeploy
+  - paths:
+      - builds/container1/unix/withdeploy/**
+    archive_settings:
+      name_template: *name_template_withdeploy
   - paths:
       - builds/container2/*/extended/**
     archive_settings:
@@ -290,6 +331,11 @@ archives:
       name_template: *name_template_extended_withdeploy
       <<: *archive_type_macos
   - paths:
+      - builds/**/macos/withdeploy/**
+    archive_settings:
+      name_template: *name_template_withdeploy
+      <<: *archive_type_macos
+  - paths:
       - builds/**/windows/regular/**
     archive_settings: *archive_type_zip
   - paths:
@@ -303,6 +349,11 @@ archives:
       name_template: *name_template_extended_withdeploy
       <<: *archive_type_zip
   - paths:
+      - builds/**/windows/withdeploy/**
+    archive_settings:
+      name_template: *name_template_withdeploy
+      <<: *archive_type_zip
+  - paths:
       - builds/**/regular/linux/{arm64,amd64}
     archive_settings: *archive_deb
   - paths:
@@ -314,6 +365,11 @@ archives:
       - builds/**/extended-withdeploy/linux/{arm64,amd64}
     archive_settings:
       name_template: *name_template_extended_withdeploy
+      <<: *archive_deb
+  - paths:
+      - builds/**/withdeploy/linux/{arm64,amd64}
+    archive_settings:
+      name_template: *name_template_withdeploy
       <<: *archive_deb
 releases:
   - paths:
