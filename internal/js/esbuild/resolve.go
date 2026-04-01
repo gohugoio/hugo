@@ -19,10 +19,12 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/types/css"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources"
@@ -34,12 +36,13 @@ const (
 	NsHugoImport            = "ns-hugo-imp"
 	NsHugoImportResolveFunc = "ns-hugo-imp-func"
 	nsHugoParams            = "ns-hugo-params"
+	nsHugoVars              = "ns-hugo-vars"
 	pathHugoConfigParams    = "@params/config"
 
 	stdinImporter = "<stdin>"
 )
 
-var hugoNamespaces = []string{NsHugoImport, NsHugoImportResolveFunc, nsHugoParams}
+var hugoNamespaces = []string{NsHugoImport, NsHugoImportResolveFunc, nsHugoParams, nsHugoVars}
 
 const (
 	PrefixHugoVirtual = "__hu_v"
@@ -371,5 +374,54 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 		},
 	}
 
-	return []api.Plugin{importResolver, paramsPlugin}, nil
+	varsPlugin := api.Plugin{
+		Name: "hugo-vars-plugin",
+		Setup: func(build api.PluginBuild) {
+			build.OnResolve(api.OnResolveOptions{Filter: `^hugo:vars$`},
+				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
+					return api.OnResolveResult{
+						Path:      args.Path,
+						Namespace: nsHugoVars,
+					}, nil
+				})
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsHugoVars},
+				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					return api.OnLoadResult{
+						Contents: createCSSVarsStyleSheet(opts.Vars),
+						Loader:   api.LoaderCSS,
+					}, nil
+				})
+		},
+	}
+
+	return []api.Plugin{importResolver, paramsPlugin, varsPlugin}, nil
+}
+
+// createCSSVarsStyleSheet creates a CSS custom properties stylesheet from the given vars.
+// The result is a :root block with CSS custom properties.
+func createCSSVarsStyleSheet(vars map[string]any) *string {
+	if len(vars) == 0 {
+		// We need to return a non-nil pointer to an empty string to avoid ESBuild treating this as a missing file.
+		s := ""
+		return &s
+	}
+
+	var varsSlice []string
+	for k, v := range vars {
+		if !strings.HasPrefix(k, "--") {
+			k = "--" + k
+		}
+
+		switch v.(type) {
+		case css.QuotedString:
+			// E.g. Arial, sans-serif.
+			varsSlice = append(varsSlice, fmt.Sprintf("  %s: %q;", k, v))
+		default:
+			varsSlice = append(varsSlice, fmt.Sprintf("  %s: %v;", k, v))
+		}
+	}
+	sort.Strings(varsSlice)
+	s := ":root {\n" + strings.Join(varsSlice, "\n") + "\n}\n"
+
+	return &s
 }
