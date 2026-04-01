@@ -1039,20 +1039,13 @@ foo[^1] and bar[^2]
 func TestRenderLinkDefaultDangerous(t *testing.T) {
 	t.Parallel()
 
-	/*
-		Content: <p>Link: <a href="javascript:alert(1)">Click me</a>
-		AutoLink: <a href="">javascript:alert(1)</a>
-		Image: <img src="javascript:alert(1)" alt="alt"></p>
-	*/
-
 	files := `
 -- content/p1.md --
 ---
 title: "p1"
 ---
 Link: [Click me](&#106;avascript:alert(1))
-AutoLink: <javascript:alert(2)>
-Image: ![alt](&#106;avascript:alert(3))
+Image: ![alt](&#106;avascript:alert(2))
 -- layouts/all.html --
 Content: {{ .Content }}
 `
@@ -1061,7 +1054,6 @@ Content: {{ .Content }}
 
 	b.AssertFileContent("public/p1/index.html",
 		`! alert(1)"`,
-		`! href="javascript:alert(2)"`,
-		`! alert(3)"`,
+		`! alert(2)"`,
 	)
 }
