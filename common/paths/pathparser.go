@@ -82,6 +82,13 @@ func NormalizePathStringBasic(s string) string {
 	return s
 }
 
+// NormalizePathStringBasicPreserveCase normalizes a path string like NormalizePathStringBasic
+// but preserves the original casing. Used when disablePathToLower is set.
+func NormalizePathStringBasicPreserveCase(s string) string {
+	// Replace spaces with hyphens only, preserving case.
+	return strings.ReplaceAll(s, " ", "-")
+}
+
 func (pp *PathParser) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
 	pp.init()
 	lang := p.Lang()

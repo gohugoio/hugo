@@ -375,7 +375,7 @@ func (p *PageConfigEarly) CompileEarly(pi *paths.Path, cascades *page.PageMatche
 	return nil
 }
 
-func (p *PageConfigEarly) CompileForPagesFromDataPre(basePath string, logger loggers.Logger, mediaTypes media.Types) error {
+func (p *PageConfigEarly) CompileForPagesFromDataPre(basePath string, logger loggers.Logger, conf config.AllProvider, mediaTypes media.Types) error {
 	// In content adapters, we always get relative paths.
 	if basePath != "" {
 		p.Path = path.Join(basePath, p.Path)
@@ -389,7 +389,11 @@ func (p *PageConfigEarly) CompileForPagesFromDataPre(basePath string, logger log
 	// We do that when we create pages from the file system; mostly for backward compatibility,
 	// but also because people tend to use use the filename to name their resources (with spaces and all),
 	// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
-	p.Path = paths.NormalizePathStringBasic(p.Path)
+	if conf == nil || !conf.DisablePathToLower() {
+		p.Path = paths.NormalizePathStringBasic(p.Path)
+	} else {
+		p.Path = paths.NormalizePathStringBasicPreserveCase(p.Path)
+	}
 
 	return p.resolveContentType("", mediaTypes)
 }
@@ -493,7 +497,12 @@ func (rc *ResourceConfig) Compile(basePath string, fim hugofs.FileMetaInfo, conf
 	// We do that when we create resources from the file system; mostly for backward compatibility,
 	// but also because people tend to use use the filename to name their resources (with spaces and all),
 	// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
-	rc.Path = paths.NormalizePathStringBasic(path.Join(basePath, rc.Path))
+	rc.Path = path.Join(basePath, rc.Path)
+	if conf == nil || !conf.DisablePathToLower() {
+		rc.Path = paths.NormalizePathStringBasic(rc.Path)
+	} else {
+		rc.Path = paths.NormalizePathStringBasicPreserveCase(rc.Path)
+	}
 	rc.PathInfo = conf.PathParser().Parse(files.ComponentFolderContent, rc.Path)
 	if rc.Content.MediaType != "" {
 		var found bool

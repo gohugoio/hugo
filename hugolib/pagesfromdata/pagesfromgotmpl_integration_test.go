@@ -919,3 +919,26 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 
 	b.AssertFileContent("public/p1/index.html", "Resized: 1x1|")
 }
+
+func TestPagesFromGoTmplDisablePathToLower(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+disablePathToLower = true
+-- content/_content.gotmpl --
+{{ $page := dict "path" "MyPath-One" "title" "p1" }}
+{{ $.AddPage $page }}
+
+{{ $resource := dict "path" "MyPath-One/MyResource-One.txt" "content" (dict "value" "text data") }}
+{{ $.AddResource $resource }}
+-- layouts/single.html --
+{{ .Title }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/MyPath-One/index.html", true)
+	b.AssertFileExists("public/MyPath-One/MyResource-One.txt", true)
+}

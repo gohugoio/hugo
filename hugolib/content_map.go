@@ -348,7 +348,7 @@ func (m *pageMap) addPagesFromGoTmplFi(fi hugofs.FileMetaInfo, buildConfig *Buil
 				HandlePage: func(pt *pagesfromdata.PagesFromTemplate, pe *pagemeta.PageConfigEarly) error {
 					s := pt.Site.(*Site)
 
-					if err := pe.CompileForPagesFromDataPre(pt.GoTmplFi.Meta().PathInfo.Base(), m.s.Log, s.conf.MediaTypes.Config); err != nil {
+					if err := pe.CompileForPagesFromDataPre(pt.GoTmplFi.Meta().PathInfo.Base(), m.s.Log, s.Conf, s.conf.MediaTypes.Config); err != nil {
 						return err
 					}
 
