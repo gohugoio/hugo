@@ -1035,3 +1035,33 @@ foo[^1] and bar[^2]
 		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n</ol>\n</div>",
 	)
 }
+
+func TestRenderLinkDefaultDangerous(t *testing.T) {
+	t.Parallel()
+
+	/*
+		Content: <p>Link: <a href="javascript:alert(1)">Click me</a>
+		AutoLink: <a href="">javascript:alert(1)</a>
+		Image: <img src="javascript:alert(1)" alt="alt"></p>
+	*/
+
+	files := `
+-- content/p1.md --
+---
+title: "p1"
+---
+Link: [Click me](&#106;avascript:alert(1))
+AutoLink: <javascript:alert(2)>
+Image: ![alt](&#106;avascript:alert(3))
+-- layouts/all.html --
+Content: {{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		`! alert(1)"`,
+		`! href="javascript:alert(2)"`,
+		`! alert(3)"`,
+	)
+}

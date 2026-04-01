@@ -230,8 +230,9 @@ func (r *hookedRenderer) renderImageDefault(w util.BufWriter, source []byte, nod
 	}
 	n := node.(*ast.Image)
 	_, _ = w.WriteString("<img src=\"")
-	if r.Unsafe || !html.IsDangerousURL(n.Destination) {
-		_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
+	dest := util.URLEscape(n.Destination, true)
+	if r.Unsafe || !html.IsDangerousURL(dest) {
+		_, _ = w.Write(util.EscapeHTML(dest))
 	}
 	_, _ = w.WriteString(`" alt="`)
 	r.renderTexts(w, source, n)
@@ -375,8 +376,9 @@ func (r *hookedRenderer) renderLinkDefault(w util.BufWriter, source []byte, node
 	n := node.(*ast.Link)
 	if entering {
 		_, _ = w.WriteString("<a href=\"")
-		if r.Unsafe || !html.IsDangerousURL(n.Destination) {
-			_, _ = w.Write(util.EscapeHTML(util.URLEscape(n.Destination, true)))
+		dest := util.URLEscape(n.Destination, true)
+		if r.Unsafe || !html.IsDangerousURL(dest) {
+			_, _ = w.Write(util.EscapeHTML(util.EscapeHTML(dest)))
 		}
 		_ = w.WriteByte('"')
 		if n.Title != nil {
@@ -445,12 +447,15 @@ func (r *hookedRenderer) renderAutoLinkDefault(w util.BufWriter, source []byte, 
 	}
 
 	_, _ = w.WriteString(`<a href="`)
-	url := r.autoLinkURL(n, source)
+	url := util.URLEscape(r.autoLinkURL(n, source), false)
+
 	label := n.Label(source)
 	if n.AutoLinkType == ast.AutoLinkEmail && !bytes.HasPrefix(bytes.ToLower(url), []byte("mailto:")) {
 		_, _ = w.WriteString("mailto:")
 	}
-	_, _ = w.Write(util.EscapeHTML(util.URLEscape(url, false)))
+	if r.Unsafe || !html.IsDangerousURL(url) {
+		_, _ = w.Write(util.EscapeHTML(url))
+	}
 	if n.Attributes() != nil {
 		_ = w.WriteByte('"')
 		html.RenderAttributes(w, n, html.LinkAttributeFilter)
