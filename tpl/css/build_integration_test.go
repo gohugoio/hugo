@@ -527,6 +527,7 @@ func TestCSSBuildVarsFromParams(t *testing.T) {
 primary-color = "blue"
 font-size = "24px"
 text-color = "#333"
+font-family = "\"Arial, sans-serif\""
 -- assets/css/main.css --
 @import "hugo:vars";
 -- assets/css/main.css --
@@ -536,6 +537,7 @@ body {
   background-color: var(--primary-color);
   font-size: var(--font-size);
   color: var(--text-color);
+  font-family: var(--font-family);
 }
 -- layouts/home.html --
 {{ with resources.Get "css/main.css" }}
@@ -553,5 +555,6 @@ body {
 		"--primary-color: blue;",
 		"--font-size: 24px;",
 		"--text-color: #333;",
+		`--font-family: "Arial, sans-serif";`,
 	)
 }
