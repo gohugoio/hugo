@@ -1,14 +1,19 @@
+[Clang]: https://clang.llvm.org/
+[GCC]: https://gcc.gnu.org/
+[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[Go]: https://go.dev/doc/install
 [bep]: https://github.com/bep
 [bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
 [contributing]: CONTRIBUTING.md
 [create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
+[dart sass]: /functions/css/sass/#dart-sass
+[details]: /host-and-deploy/deploy-with-hugo-deploy/
 [documentation repository]: https://github.com/gohugoio/hugoDocs
 [documentation]: https://gohugo.io/documentation
 [dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/installation/bsd
 [features]: https://gohugo.io/about/features/
 [forum]: https://discourse.gohugo.io
 [friends]: https://github.com/gohugoio/hugo/graphs/contributors
-[go]: https://go.dev/
 [hugo modules]: https://gohugo.io/hugo-modules/
 [installation]: https://gohugo.io/installation
 [issue queue]: https://github.com/gohugoio/hugo/issues
@@ -20,12 +25,13 @@
 [static site generator]: https://en.wikipedia.org/wiki/Static_site_generator
 [support]: https://discourse.gohugo.io
 [themes]: https://themes.gohugo.io/
+[transpile sass to css]: /functions/css/sass/
 [website]: https://gohugo.io
 [windows]: https://gohugo.io/installation/windows
 
 <a href="https://gohugo.io/"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565"></a>
 
-A fast and flexible static site generator built with love by [bep], [spf13], and [friends] in [Go].
+A fast and flexible static site generator built with love by [bep][], [spf13][], and [friends][] in Go.
 
 ---
 
@@ -33,11 +39,11 @@ A fast and flexible static site generator built with love by [bep], [spf13], and
 [![Tests on Linux, MacOS and Windows](https://github.com/gohugoio/hugo/workflows/Test/badge.svg)](https://github.com/gohugoio/hugo/actions?query=workflow%3ATest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
-[Website] | [Installation] | [Documentation] | [Support] | [Contributing] | <a rel="me" href="https://fosstodon.org/@gohugoio">Mastodon</a>
+[Website][] | [Installation][] | [Documentation][] | [Support][] | [Contributing][] | <a rel="me" href="https://fosstodon.org/@gohugoio">Mastodon</a>
 
 ## Overview
 
-Hugo is a [static site generator] written in [Go], optimized for speed and designed for flexibility. With its advanced templating system and fast asset pipelines, Hugo renders a complete site in seconds, often less.
+Hugo is a [static site generator][] written in Go, optimized for speed and designed for flexibility. With its advanced templating system and fast asset pipelines, Hugo renders a complete site in seconds, often less.
 
 Due to its flexible framework, multilingual support, and powerful taxonomy system, Hugo is widely used to create:
 
@@ -52,14 +58,15 @@ Use Hugo's embedded web server during development to instantly see changes to co
 
 Hugo's fast asset pipelines include:
 
+- CSS Processing &ndash; Bundle, transform, minify, create source maps, perform SRI hashing, and integrate with PostCSS.
 - Image processing &ndash; Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract metadata
 - JavaScript bundling &ndash; Transpile TypeScript and JSX to JavaScript, bundle, tree shake, minify, create source maps, and perform SRI hashing.
 - Sass processing &ndash; Transpile Sass to CSS, bundle, tree shake, minify, create source maps, perform SRI hashing, and integrate with PostCSS
 - Tailwind CSS processing &ndash; Compile Tailwind CSS utility classes into standard CSS, bundle, tree shake, optimize, minify, perform SRI hashing, and integrate with PostCSS
 
-And with [Hugo Modules], you can share content, assets, data, translations, themes, templates, and configuration with other projects via public or private Git repositories.
+And with [Hugo Modules][], you can share content, assets, data, translations, themes, templates, and configuration with other projects via public or private Git repositories.
 
-See the [features] section of the documentation for a comprehensive summary of Hugo's capabilities.
+See the [features][] section of the documentation for a comprehensive summary of Hugo's capabilities.
 
 ## Sponsors
 
@@ -72,49 +79,63 @@ See the [features] section of the documentation for a comprehensive summary of H
 
 ## Editions
 
-Hugo offers a standard edition with core features, plus extended and extended/deploy editions with more. Use the standard edition unless you need the features below.
+Hugo is available in several editions. Use the standard edition unless you need additional features.
 
-Feature|extended edition|extended/deploy edition
-:--|:-:|:-:
-[Transpile Sass to CSS] via embedded LibSass. Note that embedded LibSass was deprecated in v0.153.0 and will be removed in a future release. Use the [Dart Sass] transpiler instead, which is compatible with any edition.|:heavy_check_mark:|:heavy_check_mark:
-Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details].|:x:|:heavy_check_mark:
+Feature|standard|deploy|extended|extended/deploy
+:--|:-:|:-:|:-:|:-:
+Core features|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
+Direct cloud deployment (1)|:x:|:heavy_check_mark:|:x:|:heavy_check_mark:
+LibSass support (2)|:x:|:x:|:heavy_check_mark:|:heavy_check_mark:
 
-[dart sass]: https://gohugo.io/functions/css/sass/#dart-sass
-[transpile sass to css]: https://gohugo.io/functions/css/sass/
-[details]: https://gohugo.io/hosting-and-deployment/hugo-deploy/
+(1) Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details][].
+
+(2) [Transpile Sass to CSS][] via embedded LibSass. Note that embedded LibSass was deprecated in v0.153.0 and will be removed in a future release. Use the [Dart Sass][] transpiler instead, which is compatible with any edition.
 
 ## Installation
 
-Install Hugo from a [prebuilt binary], package manager, or package repository. Please see the installation instructions for your operating system:
+Install Hugo from a [prebuilt binary][], package manager, or package repository. Please see the installation instructions for your operating system:
 
-- [macOS]
-- [Linux]
-- [Windows]
-- [DragonFly BSD, FreeBSD, NetBSD, and OpenBSD]
+- [macOS][]
+- [Linux][]
+- [Windows][]
+- [DragonFly BSD, FreeBSD, NetBSD, and OpenBSD][]
 
 ## Build from source
 
-Prerequisites to build Hugo from source:
+To build Hugo from source you must install:
 
-- Standard edition: Go 1.25.0 or later
-- Extended edition: Go 1.25.0 or later, and GCC
-- Extended/deploy edition: Go 1.25.0 or later, and GCC
+1. [Git][]
+1. [Go][] version 1.25.0 or later
 
-Build the standard edition:
+### Standard edition
 
-```text
-go install github.com/gohugoio/hugo@latest
+To build and install the standard edition:
+
+```sh
+CGO_ENABLED=0 go install github.com/gohugoio/hugo@latest
 ```
 
-Build the extended edition:
+### Deploy edition
 
-```text
+To build and install the deploy edition:
+
+```sh
+CGO_ENABLED=0 go install -tags withdeploy github.com/gohugoio/hugo@latest
+```
+
+### Extended edition
+
+To build and install the extended edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command.
+
+```sh
 CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
 ```
 
-Build the extended/deploy edition:
+### Extended/deploy edition
 
-```text
+To build and install the extended/deploy edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command.
+
+```sh
 CGO_ENABLED=1 go install -tags extended,withdeploy github.com/gohugoio/hugo@latest
 ```
 
@@ -124,35 +145,35 @@ CGO_ENABLED=1 go install -tags extended,withdeploy github.com/gohugoio/hugo@late
 
 ## Documentation
 
-Hugo's [documentation] includes installation instructions, a quick start guide, conceptual explanations, reference information, and examples.
+Hugo's [documentation][] includes installation instructions, a quick start guide, conceptual explanations, reference information, and examples.
 
-Please submit documentation issues and pull requests to the [documentation repository].
+Please submit documentation issues and pull requests to the [documentation repository][].
 
 ## Support
 
-Please **do not use the issue queue** for questions or troubleshooting. Unless you are certain that your issue is a software defect, use the [forum].
+Please **do not use the issue queue** for questions or troubleshooting. Unless you are certain that your issue is a software defect, use the [forum][].
 
-Hugo’s [forum] is an active community of users and developers who answer questions, share knowledge, and provide examples. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.
+Hugo's [forum][] is an active community of users and developers who answer questions, share knowledge, and provide examples. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help][] before asking your first question.
 
 ## Contributing
 
 You can contribute to the Hugo project by:
 
-- Answering questions on the [forum]
-- Improving the [documentation]
-- Monitoring the [issue queue]
-- Creating or improving [themes]
-- Squashing [bugs]
+- Answering questions on the [forum][]
+- Improving the [documentation][]
+- Monitoring the [issue queue][]
+- Creating or improving [themes][]
+- Squashing [bugs][]
 
-Please submit documentation issues and pull requests to the [documentation repository].
+Please submit documentation issues and pull requests to the [documentation repository][].
 
-If you have an idea for an enhancement or new feature, create a new topic on the [forum] in the "Feature" category. This will help you to:
+If you have an idea for an enhancement or new feature, create a new topic on the [forum][] in the "Feature" category. This will help you to:
 
 - Determine if the capability already exists
 - Measure interest
 - Refine the concept
 
-If there is sufficient interest, [create a proposal]. Do not submit a pull request until the project lead accepts the proposal.
+If there is sufficient interest, [create a proposal][]. Do not submit a pull request until the project lead accepts the proposal.
 
 For a complete guide to contributing to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
 
@@ -162,9 +183,9 @@ For the Hugo source code, see [LICENSE](/LICENSE).
 
 We also bundle some libraries in binary/WASM form:
 
-* [libwebp](https://github.com/webmproject/libwebp), [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
-* [Katex](https://github.com/KaTeX/KaTeX), [MIT license](https://github.com/KaTeX/KaTeX?tab=MIT-1-ov-file#readme)
-* [QuickJS](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme), [License](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme)
+- [libwebp](https://github.com/webmproject/libwebp), [BSD-3-Clause license](https://github.com/webmproject/libwebp?tab=BSD-3-Clause-1-ov-file#readme)
+- [Katex](https://github.com/KaTeX/KaTeX), [MIT license](https://github.com/KaTeX/KaTeX?tab=MIT-1-ov-file#readme)
+- [QuickJS](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme), [License](https://github.com/bellard/quickjs?tab=License-1-ov-file#readme)
 
 ## Dependencies
 
