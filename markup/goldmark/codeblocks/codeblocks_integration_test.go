@@ -291,12 +291,7 @@ Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 
 `
 	testLanguage := func(language, expect string) {
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: strings.ReplaceAll(files, "LANGUAGE", language),
-			},
-		).Build()
+		b := hugolib.Test(t, strings.ReplaceAll(files, "LANGUAGE", language))
 
 		b.AssertFileContent("public/p1/index.html", expect)
 	}
@@ -339,12 +334,7 @@ Common
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			b := hugolib.NewIntegrationTestBuilder(
-				hugolib.IntegrationTestConfig{
-					T:           t,
-					TxtarString: strings.ReplaceAll(files, "BLOCK", test.markdown),
-				},
-			).Build()
+			b := hugolib.Test(t, strings.ReplaceAll(files, "BLOCK", test.markdown))
 
 			b.AssertFileContent("public/p1/index.html", "Common")
 		})
@@ -376,12 +366,7 @@ Hello, World!
 Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 `
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := hugolib.TestE(t, files)
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "p1.md:7:9\": failed to parse Markdown attributes; you may need to quote the values")

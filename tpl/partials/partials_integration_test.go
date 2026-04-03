@@ -261,12 +261,7 @@ baseURL = 'http://example.com/'
 {{ partial "foo.html" . }}
   `
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := hugolib.TestE(t, files)
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "maximum template call stack size exceeded")
@@ -287,12 +282,7 @@ timeout = '200ms'
 {{ partialCached "foo.html" . }}
   `
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := hugolib.TestE(t, files)
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, `error calling partialCached: circular call stack detected in partial`)

@@ -99,14 +99,7 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 -- layouts/home.html --
 {{ highlight "a" "b" 0 }}
   `
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-
-	_, err := b.BuildE()
+	b, err := hugolib.TestE(t, files)
 	b.Assert(err.Error(), qt.Contains, "error calling highlight: invalid Highlight option: 0")
 }
 

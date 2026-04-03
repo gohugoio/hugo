@@ -1330,12 +1330,7 @@ Template test.
 			files := test.files
 			files = strings.ReplaceAll(files, "HTTPTEST_SERVER_URL", ts.URL)
 
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-				},
-			).Build()
+			b := Test(t, files)
 
 			test.assert(b)
 		})

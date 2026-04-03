@@ -378,14 +378,7 @@ allow = ['^python$', '^rst2html.*', '^asciidoctor$']
 			homePath := fmt.Sprintf("_index.%s", e.ext)
 			files.WriteString(fmt.Sprintf("-- content/%s --\n%s\n", homePath, homePage))
 
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files.String(),
-					NeedsOsFS:   true,
-					BaseCfg:     cfg,
-				},
-			).Build()
+			b := Test(t, files.String(), TestOptOsFs(), TestOptWithConfig(func(c *IntegrationTestConfig) { c.BaseCfg = cfg }))
 
 			s := b.H.Sites[0]
 
@@ -412,13 +405,7 @@ baseURL = "http://example.com/"
 -- content/simple.md --
 ` + simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder + `
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{SkipRender: true},
-		},
-	).Build()
+	b := Test(t, files, TestOptSkipRender())
 
 	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
@@ -688,13 +675,7 @@ baseURL = "http://example.com/"
 -- content/tocpage.md --
 ` + pageWithToC + `
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{SkipRender: true},
-		},
-	).Build()
+	b := Test(t, files, TestOptSkipRender())
 
 	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
@@ -1069,13 +1050,7 @@ baseURL = "http://example.com/"
 -- content/simple.md --
 ` + simplePageRFC3339Date + `
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{SkipRender: true},
-		},
-	).Build()
+	b := Test(t, files, TestOptSkipRender())
 
 	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
@@ -1109,13 +1084,7 @@ date = ["` + dateHandler + `", "date"]
 -- content/section/2012-02-22-slug.md --
 ` + fmt.Sprintf(pageTemplate, 2, "slug: aslug") + `
 `
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-					NeedsOsFS:   true, // Needed for fileModTime
-				},
-			).Build()
+			b := Test(t, files, TestOptOsFs())
 
 			s := b.H.Sites[0]
 			b.Assert(len(s.RegularPages()), qt.Equals, 2)
@@ -1277,13 +1246,7 @@ post = ":year/:month/:day/:title/"
 -- content/` + test.path + ` --
 ` + test.content + `
 `
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-					BuildCfg:    BuildCfg{SkipRender: true},
-				},
-			).Build()
+			b := Test(t, files, TestOptSkipRender())
 
 			s := b.H.Sites[0]
 			b.Assert(len(s.RegularPages()), qt.Equals, 1)
@@ -1469,13 +1432,7 @@ baseURL = "http://example.com/"
 -- content/simple.md --
 ` + utf8BOM + simplePage + `
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{SkipRender: true},
-		},
-	).Build()
+	b := Test(t, files, TestOptSkipRender())
 
 	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 
@@ -1745,13 +1702,7 @@ title: Scratch Me!
 
 {{< scratch >}}
 `
-	b, err := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).BuildE()
+	b, err := TestE(t, files)
 
 	b.Assert(err, qt.IsNil)
 
@@ -1824,13 +1775,7 @@ author = "Jo Nesbø"
 
 +++
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		"Author page: Ernest Miller Hemingway",
@@ -1894,13 +1839,7 @@ T-SHORT
 -- content/page.md --
 ` + content + `
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/page/index.html",
 		`<nav id="TableOfContents">
@@ -1932,10 +1871,7 @@ title: "p2"
 ---
 `
 
-	b := NewIntegrationTestBuilder(IntegrationTestConfig{
-		T:           t,
-		TxtarString: files,
-	}).Build()
+	b := Test(t, files)
 
 	p1 := b.H.Sites[0].RegularPages()[0]
 	p2 := b.H.Sites[0].RegularPages()[1]
@@ -1957,12 +1893,7 @@ func TestRenderWithoutArgument(t *testing.T) {
 {{ .Render }}
 `
 
-	b, err := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := TestE(t, files)
 
 	b.Assert(err, qt.IsNotNil)
 }

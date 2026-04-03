@@ -56,13 +56,13 @@ JS Content:{{ $js.Content }}:End:
 			`
 
 	c.Run("Basic", func(c *qt.C) {
-		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
+		b := hugolib.Test(c, mainWithImport, hugolib.TestOptOsFs())
 
 		b.AssertFileContent("public/index.html", `abcd`)
 	})
 
 	c.Run("Edit Import", func(c *qt.C) {
-		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
+		b := hugolib.Test(c, mainWithImport, hugolib.TestOptRunning(), hugolib.TestOptOsFs())
 
 		b.AssertFileContent("public/index.html", `abcd`)
 		b.EditFileReplaceFunc("assets/js/util1.js", func(s string) string { return strings.ReplaceAll(s, "abcd", "1234") }).Build()
@@ -70,7 +70,7 @@ JS Content:{{ $js.Content }}:End:
 	})
 
 	c.Run("Edit Import Nested", func(c *qt.C) {
-		b := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, Running: true, NeedsOsFS: true, TxtarString: mainWithImport}).Build()
+		b := hugolib.Test(c, mainWithImport, hugolib.TestOptRunning(), hugolib.TestOptOsFs())
 
 		b.AssertFileContent("public/index.html", `efgh`)
 		b.EditFileReplaceFunc("assets/js/util2.js", func(s string) string { return strings.ReplaceAll(s, "efgh", "1234") }).Build()
@@ -106,14 +106,9 @@ require github.com/gohugoio/hugoTestProjectJSModImports v0.10.0 // indirect
 }
 
 `
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               c,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			TxtarString:     files,
-			Verbose:         true,
-		}).Build()
+	b := hugolib.Test(c, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+		cfg.Verbose = true
+	}))
 
 	b.AssertFileContent("public/js/main.js", `
 greeting: "greeting configured in mod2"
@@ -196,13 +191,7 @@ TS2: {{ template "print" $ts2 }}
 }
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               c,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			TxtarString:     files,
-		}).Build()
+	b := hugolib.Test(c, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall())
 
 	b.AssertFileContent("public/js/main.js", `//# sourceMappingURL=main.js.map`)
 	b.AssertFileContent("public/js/main.js.map", `"version":3`, "! ns-hugo")                                   // linked
@@ -266,7 +255,7 @@ JS Content:{{ $js.Content }}:End:
 	c.Run("Import from main not found", func(c *qt.C) {
 		c.Parallel()
 		files := strings.Replace(filesTemplate, "import { hello1, hello2 }", "import { hello1, hello2, FOOBAR }", 1)
-		b, err := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, NeedsOsFS: true, TxtarString: files}).BuildE()
+		b, err := hugolib.TestE(c, files, hugolib.TestOptOsFs())
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `main.js:2:25": No matching export`)
 	})
@@ -274,7 +263,7 @@ JS Content:{{ $js.Content }}:End:
 	c.Run("Import from import not found", func(c *qt.C) {
 		c.Parallel()
 		files := strings.Replace(filesTemplate, "import { hello3 } from './util2';", "import { hello3, FOOBAR } from './util2';", 1)
-		b, err := hugolib.NewIntegrationTestBuilder(hugolib.IntegrationTestConfig{T: c, NeedsOsFS: true, TxtarString: files}).BuildE()
+		b, err := hugolib.TestE(c, files, hugolib.TestOptOsFs())
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `util1.js:4:17": No matching export in`)
 	})
@@ -304,12 +293,7 @@ import 'imp3/foo.js';
 
 			files = strings.ReplaceAll(files, "IMPORT_SRC_DIR", importSrcDir)
 
-			b := hugolib.NewIntegrationTestBuilder(
-				hugolib.IntegrationTestConfig{
-					T:           c,
-					NeedsOsFS:   true,
-					TxtarString: files,
-				}).Build()
+			b := hugolib.Test(c, files, hugolib.TestOptOsFs())
 
 			expected := `
 IMPORT_SRC_DIR:imp1/index.js
@@ -348,12 +332,7 @@ console.log("Hello 2");
 {{ $js.RelPermalink }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			NeedsOsFS:   true,
-			TxtarString: files,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/js/main.js", `
 License util1
@@ -383,12 +362,7 @@ class A {}
 {{ $opts := dict "target" "es2020" "targetPath" "js/main.js" }}
 {{ (resources.Get "ts/main.ts" | js.Build $opts).Publish }}
 `
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			NeedsOsFS:   true,
-			TxtarString: files,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 	b.AssertFileContent("public/js/main.js", "__decorateClass")
 }
 
