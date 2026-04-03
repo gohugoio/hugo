@@ -17,6 +17,7 @@ package templates
 import (
 	"context"
 	"fmt"
+	htmltemplate "html/template"
 	"strconv"
 	"sync/atomic"
 
@@ -113,7 +114,10 @@ func (ns *Namespace) _PopPartialDecorator(ctx context.Context, id string) any {
 	}
 	if !top.Bool {
 		// Prevents anything being rendered if inner was not called.
-		return ""
+		// Use template.JS to avoid Go's html/template JS escaper
+		// wrapping an empty string in quotes inside <script> tags.
+		// See https://github.com/gohugoio/hugo/issues/14711
+		return htmltemplate.JS("")
 	}
 	return top.Bool // return whether inner exists in the wrapped partial.
 }
