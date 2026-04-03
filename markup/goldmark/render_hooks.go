@@ -349,7 +349,7 @@ func (r *hookedRenderer) renderLinkDefault(w util.BufWriter, source []byte, node
 		_, _ = w.WriteString("<a href=\"")
 		dest := util.URLEscape(n.Destination, true)
 		if r.Unsafe || !html.IsDangerousURL(dest) {
-			_, _ = w.Write(util.EscapeHTML(util.EscapeHTML(dest)))
+			_, _ = w.Write(util.EscapeHTML(dest))
 		}
 		_ = w.WriteByte('"')
 		if n.Title != nil {
