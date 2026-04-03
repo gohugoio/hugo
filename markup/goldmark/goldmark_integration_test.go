@@ -1047,3 +1047,24 @@ Content: {{ .Content }}
 		`! alert(2)"`,
 	)
 }
+
+// Issue 14715
+func TestRenderLinkDefaultAmpersand(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/_index.md --
+---
+title: "Home"
+---
+[foo](https://a.com/?a=1&b=2)
+-- layouts/home.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<a href="https://a.com/?a=1&amp;b=2">foo</a>`,
+	)
+}
