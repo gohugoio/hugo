@@ -466,3 +466,44 @@ This is an \(inline\) passthrough element with opening and closing inline delimi
 		"passthrough.passthroughContext|p1.md|46:12|2|",
 	)
 }
+
+func TestRenderHooksPositionRenderString(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/a.txt --
+
+## Heading
+
+[link](b.txt)
+
+-- assets/b.txt --
+{{% myshortcode %}}
+{{< myshortcode >}}
+
+
+
+  [link](a.txt)
+-- layouts/shortcodes/myshortcode.html --
+My Shortcode.
+# This is a heading in the shortcode.
+Some text.
+-- layouts/_markup/render-link.html --
+{{ $pos := .Position }}
+{{ printf "%T" . }}|{{ path.Join $pos.Filename }}|{{ printf "%d:%d" $pos.LineNumber $pos.ColumnNumber }}|{{ $.Ordinal }}|
+-- layouts/all.html --
+{{ $a := resources.Get "a.txt" }}
+a: {{ .RenderString $a.Content }}
+b: {{ .RenderString (resources.Get "b.txt").Content }}
+-- content/p1.md --
+
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"/content/p1.md (rendered from string)|4:1|0|",
+		"/content/p1.md (rendered from string)|6:3|0|",
+	)
+}

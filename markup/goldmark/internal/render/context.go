@@ -184,7 +184,7 @@ func NewBaseContext(rctx *Context, renderer any, n ast.Node, src []byte, ordinal
 
 	b.createPos = func() htext.Position {
 		if resolver, ok := renderer.(hooks.ElementPositionResolver); ok {
-			return resolver.ResolvePosition(b, src, n.Pos())
+			return resolver.ResolvePosition(rctx.RenderContext(), n.Pos())
 		}
 
 		return htext.Position{

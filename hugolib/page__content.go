@@ -457,6 +457,17 @@ type contentTableOfContents struct {
 	contentPlaceholders map[string]shortcodeRenderer
 
 	contentToRender []byte
+
+	sourceInfo
+}
+
+type sourceInfo struct {
+	// Optional override for the filename used in position reporting.
+	filename string
+	// The original source bytes.
+	source []byte
+	// Maps positions in the content sent to Goldmark back to the original source.
+	sourceMap []sourceMapEntry
 }
 
 type contentSummary struct {
@@ -515,7 +526,7 @@ func (c *cachedContentScope) contentRendered(ctx context.Context) (contentSummar
 
 			if ct.astDoc != nil {
 				// The content is parsed, but not rendered.
-				r, ok, err := po.contentRenderer.RenderContent(ctx, ct.contentToRender, ct.astDoc)
+				r, ok, err := po.contentRenderer.RenderContent(ctx, ct.contentToRender, ct.sourceInfo, ct.astDoc)
 				if err != nil {
 					return nil, err
 				}
@@ -638,12 +649,13 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 	versionv := c.version(cp)
 
 	v, err := c.pm.contentTableOfContents.GetOrCreate(key, func(string) (*resources.StaleValue[contentTableOfContents], error) {
-		source, err := c.pi.contentSource(c)
+		var err error
+		var ct contentTableOfContents
+		ct.source, err = c.pi.contentSource(c)
 		if err != nil {
 			return nil, err
 		}
 
-		var ct contentTableOfContents
 		if err := cp.initRenderHooks(); err != nil {
 			return nil, err
 		}
@@ -678,7 +690,7 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 		ctx = setGetContentCallbackInContext.Set(ctx, ctxCallback)
 
 		var hasVariants bool
-		ct.contentToRender, cp.sourceMap, hasVariants, err = c.pi.contentToRender(ctx, source, ct.contentPlaceholders)
+		ct.contentToRender, ct.sourceMap, hasVariants, err = c.pi.contentToRender(ctx, ct.source, ct.contentPlaceholders)
 		if err != nil {
 			return nil, err
 		}
@@ -926,9 +938,15 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 	}
 
 	if pageparser.HasShortcode(contentToRender) {
-		contentToRenderb := []byte(contentToRender)
+		ct := contentTableOfContents{
+			sourceInfo: sourceInfo{
+				filename: pco.po.p.pathOrTitle() + " (rendered from string)",
+				source:   []byte(contentToRender),
+			},
+		}
+		ct.contentToRender = ct.source
 		// String contains a shortcode.
-		parseInfo.itemsStep1, err = pageparser.ParseBytes(contentToRenderb, pageparser.Config{
+		parseInfo.itemsStep1, err = pageparser.ParseBytes(ct.source, pageparser.Config{
 			NoFrontMatter:    true,
 			NoSummaryDivider: true,
 		})
@@ -937,7 +955,7 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 		}
 
 		parseInfo.shortcodeParseInfo = newShortcodeHandler(pco.po.p.pathOrTitle(), pco.po.p.s.h.Deps)
-		if err := parseInfo.parseSource(contentToRenderb, true); err != nil {
+		if err := parseInfo.parseSource(ct.source, true); err != nil {
 			return "", err
 		}
 
@@ -946,14 +964,15 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 			return "", err
 		}
 
-		contentToRender, _, hasVariants, err := parseInfo.contentToRender(ctx, contentToRenderb, placeholders)
+		var hasVariants bool
+		ct.contentToRender, ct.sourceMap, hasVariants, err = parseInfo.contentToRender(ctx, ct.source, placeholders)
 		if err != nil {
 			return "", err
 		}
 		if hasVariants {
 			pco.po.p.incrPageOutputTemplateVariation()
 		}
-		b, err := pco.renderContentWithConverter(ctx, conv, contentToRender, false)
+		b, err := pco.renderContentWithConverter(ctx, conv, ct.contentToRender, ct.sourceInfo, false)
 		if err != nil {
 			return "", pco.po.p.wrapError(err)
 		}
@@ -998,7 +1017,11 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 		pco.po.p.m.content.hasShortcode.Store(&combined)
 
 	} else {
-		c, err := pco.renderContentWithConverter(ctx, conv, []byte(contentToRender), false)
+		si := sourceInfo{
+			filename: pco.po.p.pathOrTitle() + " (rendered from string)",
+			source:   []byte(contentToRender),
+		}
+		c, err := pco.renderContentWithConverter(ctx, conv, si.source, si, false)
 		if err != nil {
 			return "", pco.po.p.wrapError(err)
 		}

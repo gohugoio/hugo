@@ -114,7 +114,7 @@ type ContentRenderer interface {
 	// For internal use only.
 	ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error)
 	// For internal use only.
-	RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error)
+	RenderContent(ctx context.Context, content []byte, sourceInfo, doc any) (converter.ResultRender, bool, error)
 }
 
 // FileProvider provides the source file.

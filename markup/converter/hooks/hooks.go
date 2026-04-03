@@ -200,11 +200,8 @@ type HeadingRenderer interface {
 // This may be both slow and approximate, so should only be
 // used for error logging.
 type ElementPositionResolver interface {
-	// ResolvePosition returns the position of the element in the original source document.
-	// ctx is the context passed to the render hook, and srcPos is the zero-based byte offset of the element
-	// in srcRender (the rendered source buffer),
-	// -1 if it's not defined.
-	ResolvePosition(ctx any, srcRender []byte, srcPos int) text.Position
+	// ResolvePosition returns the position of the element in the original source document, -1 if it's not defined.
+	ResolvePosition(renderContext any, srcPos int) text.Position
 }
 
 type RendererType int

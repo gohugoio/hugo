@@ -522,7 +522,7 @@ func (r *nopContentRenderer) ParseContent(ctx context.Context, content []byte) (
 	return nil, false, nil
 }
 
-func (r *nopContentRenderer) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
+func (r *nopContentRenderer) RenderContent(ctx context.Context, content []byte, sourceInfo, doc any) (converter.ResultRender, bool, error) {
 	return nil, false, nil
 }
 
