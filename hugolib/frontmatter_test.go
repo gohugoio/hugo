@@ -31,14 +31,7 @@ Ints: {{ printf "%T" .Params.ints }} {{ range .Params.ints }}Int: {{ fmt.Printf 
 Mixed: {{ printf "%T" .Params.mixed }} {{ range .Params.mixed }}Mixed: {{ fmt.Printf "%[1]v (%[1]T)" . }}|{{ end }}
 Strings: {{ printf "%T" .Params.strings }} {{ range .Params.strings }}Strings: {{ fmt.Printf "%[1]v (%[1]T)" . }}|{{ end }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-
-	b.Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/post/one/index.html", "Ints: []interface {} Int: 1 (uint64)|Int: 2 (uint64)|Int: 3 (uint64)|")
 	b.AssertFileContent("public/post/one/index.html", "Mixed: []interface {} Mixed: 1 (string)|Mixed: 2 (uint64)|Mixed: 3 (uint64)|")

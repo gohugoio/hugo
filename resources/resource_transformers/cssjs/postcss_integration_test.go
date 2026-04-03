@@ -20,7 +20,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/htesting"
@@ -120,15 +119,9 @@ func TestTransformPostCSS(t *testing.T) {
 
 		files := repl.Replace(postCSSIntegrationTestFiles)
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:               c,
-				NeedsOsFS:       true,
-				NeedsNpmInstall: true,
-				LogLevel:        logg.LevelInfo,
-				WorkingDir:      tempDir,
-				TxtarString:     files,
-			}).Build()
+		b := hugolib.Test(c, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo(), hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.WorkingDir = tempDir
+		}))
 
 		b.AssertFileContent("public/index.html", `
 Styles RelPermalink: /foo/css/styles.css
@@ -155,13 +148,7 @@ func TestTransformPostCSSError(t *testing.T) {
 
 	c := qt.New(t)
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               c,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, "color: blue;", "@apply foo;"), // Syntax error
-		}).BuildE()
+	b, err := hugolib.TestE(c, strings.ReplaceAll(postCSSIntegrationTestFiles, "color: blue;", "@apply foo;"), hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall())
 
 	ferrs := herrors.UnwrapFileErrors(err)
 	b.Assert(len(ferrs), qt.Equals, 2)
@@ -175,12 +162,7 @@ func TestTransformPostCSSNotInstalledError(t *testing.T) {
 
 	c := qt.New(t)
 
-	_, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           c,
-			NeedsOsFS:   true,
-			TxtarString: postCSSIntegrationTestFiles,
-		}).BuildE()
+	_, err := hugolib.TestE(c, postCSSIntegrationTestFiles, hugolib.TestOptOsFs())
 
 	ferrs := herrors.UnwrapFileErrors(err)
 	c.Assert(len(ferrs), qt.Equals, 1)
@@ -195,14 +177,7 @@ func TestTransformPostCSSImportError(t *testing.T) {
 
 	c := qt.New(t)
 
-	_, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               c,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			LogLevel:        logg.LevelInfo,
-			TxtarString:     strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`),
-		}).BuildE()
+	_, err := hugolib.TestE(c, strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`), hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
 	ferrs := herrors.UnwrapFileErrors(err)
 	c.Assert(len(ferrs), qt.Equals, 2)
 	c.Assert(err.Error(), qt.Contains, "styles.css:4:3")
@@ -219,14 +194,7 @@ func TestTransformPostCSSImporSkipInlineImportsNotFound(t *testing.T) {
 	files := strings.ReplaceAll(postCSSIntegrationTestFiles, `@import "components/all.css";`, `@import "components/doesnotexist.css";`)
 	files = strings.ReplaceAll(files, `{{ $options := dict "inlineImports" true }}`, `{{ $options := dict "inlineImports" true "skipInlineImportsNotFound" true }}`)
 
-	s := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               c,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			LogLevel:        logg.LevelInfo,
-			TxtarString:     files,
-		}).Build()
+	s := hugolib.Test(c, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
 
 	s.AssertFileContent("public/css/styles.css", `@import "components/doesnotexist.css";`)
 }
@@ -250,15 +218,9 @@ func TestTransformPostCSSResourceCacheWithPathInBaseURL(t *testing.T) {
 			files = strings.ReplaceAll(files, "useResourceCacheWhen = 'never'", "	useResourceCacheWhen = 'always'")
 		}
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:               c,
-				NeedsOsFS:       true,
-				NeedsNpmInstall: true,
-				LogLevel:        logg.LevelInfo,
-				TxtarString:     files,
-				WorkingDir:      tempDir,
-			}).Build()
+		b := hugolib.Test(c, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo(), hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.WorkingDir = tempDir
+		}))
 
 		b.AssertFileContent("public/index.html", `
 Styles Content: Len: 770917

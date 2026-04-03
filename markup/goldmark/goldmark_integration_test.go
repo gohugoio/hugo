@@ -384,12 +384,7 @@ a@b.com
 
 			files = strings.ReplaceAll(files, "RENDERFUNC", renderFunc)
 
-			b, err := hugolib.NewIntegrationTestBuilder(
-				hugolib.IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-				},
-			).BuildE()
+			b, err := hugolib.TestE(t, files)
 
 			b.Assert(err, qt.IsNotNil)
 			b.Assert(err.Error(), qt.Contains, "text is already rendered, repeating it may cause infinite recursion")
@@ -449,12 +444,7 @@ Link https procol: https://www.example.org
 <a href="{{ .Destination | safeURL }}">{{ .Text }}</a>`
 		}
 
-		return hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		return hugolib.Test(t, files)
 	}
 
 	for _, withHook := range []bool{false, true} {

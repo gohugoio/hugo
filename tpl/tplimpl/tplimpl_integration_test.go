@@ -55,14 +55,7 @@ counter2: {{ .Scratch.Get "counter" }}
 
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/p1/index.html", `
 continue:1345:END:
@@ -124,13 +117,7 @@ title: "S3P1"
 {{ define "main" }}{{ .Title }}{{ end }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/s1/p1/index.html", `S1P1`)
 	b.AssertFileContent("public/s2/p1/index.html", `S2P1`)
@@ -152,13 +139,7 @@ func TestGoTemplateBugs(t *testing.T) {
 {{ end }}
 	`
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		)
-		b.Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/index.html", `key = value`)
 	})
@@ -176,12 +157,7 @@ var a = §§{{.Title }}§§;
 
 	files := strings.ReplaceAll(filesTemplate, "SECURITYCONFIG", "")
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := hugolib.TestE(t, files)
 
 	// This used to fail, but not in >= Hugo 0.121.0.
 	b.Assert(err, qt.IsNil)

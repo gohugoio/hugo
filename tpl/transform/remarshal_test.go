@@ -26,9 +26,7 @@ import (
 func TestRemarshal(t *testing.T) {
 	t.Parallel()
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 	c := qt.New(t)
@@ -241,9 +239,7 @@ c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 

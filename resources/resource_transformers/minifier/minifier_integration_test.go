@@ -35,12 +35,7 @@ new Date(2002, 04, 11)
 </script>
 `
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           c,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := hugolib.TestE(c, files)
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err, qt.ErrorMatches, "(?s).*legacy octal numbers.*line 1.*")

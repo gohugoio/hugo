@@ -22,7 +22,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 
-	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
@@ -679,16 +678,7 @@ Home.
  
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               t,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			TxtarString:     files,
-			Running:         true,
-			LogLevel:        logg.LevelWarn,
-			// PrintAndKeepTempDir: true,
-		}).Build()
+	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptWarn())
 
 	b.AssertFileContent("public/index.html",
 		"mains: 0: /mybundle/mains.js",

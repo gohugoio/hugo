@@ -85,11 +85,7 @@ func TestCopyPageShouldFail(t *testing.T) {
 
 	`
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		}).BuildE()
+	b, err := hugolib.TestE(t, files)
 
 	b.Assert(err, qt.IsNotNil)
 }

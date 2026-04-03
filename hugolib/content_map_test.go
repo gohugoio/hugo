@@ -210,11 +210,7 @@ Home: {{ .Title }}|
 
 	`
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           c,
-			TxtarString: files,
-		}).Build()
+	b := Test(c, files)
 
 	b.AssertFileContent("public/index.html", "Home: Integration Test|")
 }

@@ -29,9 +29,7 @@ type tstNoStringer struct{}
 
 func TestEmojify(t *testing.T) {
 	t.Parallel()
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 
@@ -59,9 +57,7 @@ func TestEmojify(t *testing.T) {
 
 func TestHighlight(t *testing.T) {
 	t.Parallel()
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 
@@ -104,9 +100,7 @@ func TestCanHighlight(t *testing.T) {
 
 func TestHTMLEscape(t *testing.T) {
 	t.Parallel()
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 
@@ -134,9 +128,7 @@ func TestHTMLEscape(t *testing.T) {
 
 func TestHTMLUnescape(t *testing.T) {
 	t.Parallel()
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 
@@ -164,9 +156,7 @@ func TestHTMLUnescape(t *testing.T) {
 
 func TestMarkdownify(t *testing.T) {
 	t.Parallel()
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 
@@ -194,9 +184,7 @@ func TestMarkdownify(t *testing.T) {
 // Issue #3040
 func TestMarkdownifyBlocksOfText(t *testing.T) {
 	t.Parallel()
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 
@@ -220,9 +208,7 @@ And then some.
 
 func TestPlainify(t *testing.T) {
 	t.Parallel()
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 

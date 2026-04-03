@@ -125,12 +125,7 @@ HasShortcode: foo:{{ .HasShortcode "foo" }}:false
 `
 
 	t.Run("Basic", func(t *testing.T) {
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: filesTemplate,
-			},
-		).Build()
+		b := Test(t, filesTemplate)
 
 		b.AssertFileContent("public/p1/index.html",
 			"<p>Markdown: 1. Item Mark2 1</p>\n<ol>\n<li>Item Mark2 2\n<ol>\n<li>Item Mark2 2-1</li>\n</ol>\n</li>\n<li>Item Mark2 3|",
@@ -145,13 +140,7 @@ Page Type: *hugolib.pageForShortcode`,
 	})
 
 	t.Run("Edit shortcode", func(t *testing.T) {
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: filesTemplate,
-				Running:     true,
-			},
-		).Build()
+		b := TestRunning(t, filesTemplate)
 
 		b.EditFiles("layouts/_shortcodes/myhthml.html", "Edit shortcode").Build()
 

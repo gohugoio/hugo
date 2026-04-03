@@ -47,14 +47,7 @@ func TestGetRemoteHead(t *testing.T) {
 {{ end }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		"Head Content: .",
@@ -83,14 +76,7 @@ func TestGetRemoteResponseHeaders(t *testing.T) {
 {{ end }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		"Response Headers: map[Server:[Netlify] X-Frame-Options:[DENY]]",
@@ -147,14 +133,7 @@ mediaTypes = ['text/plain']
 
 	t.Run("OK", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "60s")
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		)
-
-		b.Build()
+		b := hugolib.Test(t, files)
 
 		for i := range numPages {
 			b.AssertFileContent(fmt.Sprintf("public/post/p%d/index.html", i), fmt.Sprintf("Content: Response for /post/p%d/.", i))
@@ -163,12 +142,7 @@ mediaTypes = ['text/plain']
 
 	t.Run("Timeout", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "100ms")
-		b, err := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).BuildE()
+		b, err := hugolib.TestE(t, files)
 		// This is hard to get stable on GitHub Actions, it sometimes succeeds due to timing issues.
 		if err != nil {
 			b.AssertLogContains("Got Err")
@@ -209,13 +183,7 @@ mediaTypes = ['text/plain']
 `
 	files = strings.ReplaceAll(files, "URL", srv.URL)
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	// The per-request timeout of 200ms should fire well before the global 30s timeout.
 	b.AssertFileContent("public/index.html", "Err:")
@@ -257,13 +225,7 @@ mediaTypes = ['text/plain']
 `
 	files = strings.ReplaceAll(files, "URL", srv.URL)
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Content: Hello from remote.")
 }

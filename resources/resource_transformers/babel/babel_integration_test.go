@@ -16,7 +16,6 @@ package babel_test
 import (
 	"testing"
 
-	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -75,14 +74,7 @@ Transpiled3: {{ $transpiled.Permalink }}
 
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               t,
-			TxtarString:     files,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			LogLevel:        logg.LevelInfo,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
 
 	b.AssertLogContains("babel: Hugo Environment: production")
 	b.AssertFileContent("public/index.html", `var Car2 =`)

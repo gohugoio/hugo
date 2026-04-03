@@ -43,9 +43,7 @@ title: "p1"
 Title: {{ .Title }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t, TxtarString: files},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	// b.AssertFileContent("public/p1/index.html", "Title: p1")
 
@@ -81,9 +79,7 @@ baseURL = "https://example.com"
 logI18nWarnings = true
 logPathWarnings = true
 `
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t, TxtarString: files},
-	).Build()
+	b := hugolib.Test(t, files)
 
 	conf := b.H.Configs.Base
 
