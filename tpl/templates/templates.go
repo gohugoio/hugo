@@ -17,6 +17,7 @@ package templates
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"strconv"
 	"sync/atomic"
 
@@ -113,7 +114,7 @@ func (ns *Namespace) _PopPartialDecorator(ctx context.Context, id string) any {
 	}
 	if !top.Bool {
 		// Prevents anything being rendered if inner was not called.
-		return ""
+		return template.JS("")
 	}
 	return top.Bool // return whether inner exists in the wrapped partial.
 }

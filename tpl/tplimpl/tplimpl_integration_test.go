@@ -162,6 +162,33 @@ func TestGoTemplateBugs(t *testing.T) {
 
 		b.AssertFileContent("public/index.html", `key = value`)
 	})
+	t.Run("Issue 14711 with partial empty JS string injection", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+-- layouts/partials/empty.html --
+{{ return "" }}
+-- layouts/home.html --
+<div id="html-ctx">
+{{- with partial "empty.html" . -}}FAIL{{- end -}}
+</div>
+<script id="js-ctx">
+{{- with partial "empty.html" . -}}FAIL{{- end -}}
+</script>
+`
+
+		b := hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           t,
+				TxtarString: files,
+			},
+		)
+		b.Build()
+
+		b.AssertFileContent("public/index.html", `<div id="html-ctx"></div>`)
+		b.AssertFileContent("public/index.html", `<script id="js-ctx"></script>`)
+	})
 }
 
 func TestSecurityAllowActionJSTmpl(t *testing.T) {
