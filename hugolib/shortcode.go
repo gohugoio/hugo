@@ -553,7 +553,7 @@ func (s *shortcodeParseInfo) prepareShortcodesForPage(po *pageOutput, isRenderSt
 }
 
 func posFromInput(filename string, input []byte, offset int) text.Position {
-	if offset < 0 {
+	if offset < 0 || offset > len(input) {
 		return text.Position{
 			Filename: filename,
 		}
