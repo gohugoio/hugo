@@ -6,8 +6,8 @@
 [bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
 [contributing]: CONTRIBUTING.md
 [create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
-[dart sass]: https://github.com/gohugoio/hugo/blob/master/docs/content/en/functions/css/Sass.md#dart-sass
-[details]: https://github.com/gohugoio/hugo/blob/master/docs/content/en/host-and-deploy/deploy-with-hugo-deploy.md
+[dart sass]: hhttps://gohugo.io/functions/css/sass/#dart-sass
+[details]: https://gohugo.io/host-and-deploy/deploy-with-hugo-deploy/
 [documentation repository]: https://github.com/gohugoio/hugoDocs
 [documentation]: https://gohugo.io/documentation
 [dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/installation/bsd
@@ -25,7 +25,7 @@
 [static site generator]: https://en.wikipedia.org/wiki/Static_site_generator
 [support]: https://discourse.gohugo.io
 [themes]: https://themes.gohugo.io/
-[transpile sass to css]: https://github.com/gohugoio/hugo/blob/master/docs/content/en/functions/css/Sass.md
+[transpile sass to css]: https://gohugo.io/functions/css/sass/
 [website]: https://gohugo.io
 [windows]: https://gohugo.io/installation/windows
 
