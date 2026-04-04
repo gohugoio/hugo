@@ -58,6 +58,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.List,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Timer,
 			nil,
 			[][2]string{},
