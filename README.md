@@ -6,7 +6,7 @@
 [bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
 [contributing]: CONTRIBUTING.md
 [create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
-[dart sass]: hhttps://gohugo.io/functions/css/sass/#dart-sass
+[dart sass]: https://gohugo.io/functions/css/sass/#dart-sass
 [details]: https://gohugo.io/host-and-deploy/deploy-with-hugo-deploy/
 [documentation repository]: https://github.com/gohugoio/hugoDocs
 [documentation]: https://gohugo.io/documentation
