@@ -18,6 +18,7 @@ import (
 	"bytes"
 
 	"github.com/gohugoio/hugo-goldmark-extensions/extras"
+	passthroughExt "github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	"github.com/gohugoio/hugo/markup/goldmark/blockquotes"
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
@@ -121,6 +122,13 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 			renderer.WithNodeRenderers(util.Prioritized(extras.NewInlineTagHTMLRenderer(tag), tag.RenderPriority)),
 		)
 	}
+
+	// Add passthrough renderer for TOC to prevent panic when rendering headings
+	// that contain passthrough nodes (e.g., LaTeX like $a$) nested inside other
+	// inline elements like emphasis. Issue #14677.
+	tocRendererOptions = append(tocRendererOptions,
+		renderer.WithNodeRenderers(util.Prioritized(newTocPassthroughHTMLRenderer(), 90)),
+	)
 
 	var (
 		extensions = []goldmark.Extender{
@@ -352,4 +360,40 @@ func toTypographicPunctuationMap(t goldmark_config.Typographer) map[extension.Ty
 		extension.RightAngleQuote:  []byte(t.RightAngleQuote),
 		extension.Apostrophe:       []byte(t.Apostrophe),
 	}
+}
+
+// tocPassthroughHTMLRenderer is a simple renderer for passthrough nodes in TOC.
+// It renders the raw text content (including delimiters) without any special
+// processing, preventing panics when passthrough nodes appear in headings.
+// Issue #14677.
+type tocPassthroughHTMLRenderer struct{}
+
+func newTocPassthroughHTMLRenderer() renderer.NodeRenderer {
+	return &tocPassthroughHTMLRenderer{}
+}
+
+func (r *tocPassthroughHTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+	reg.Register(passthroughExt.KindPassthroughInline, r.renderPassthrough)
+	reg.Register(passthroughExt.KindPassthroughBlock, r.renderPassthrough)
+}
+
+func (r *tocPassthroughHTMLRenderer) renderPassthrough(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+
+	// For TOC, we want to render the raw content including delimiters.
+	// This is similar to what the passthrough extension does when no render hook is configured.
+	switch nn := node.(type) {
+	case *passthroughExt.PassthroughInline:
+		w.Write(nn.Text(src))
+	case *passthroughExt.PassthroughBlock:
+		l := nn.Lines().Len()
+		for i := range l {
+			line := nn.Lines().At(i)
+			w.Write(line.Value(src))
+		}
+	}
+
+	return ast.WalkContinue, nil
 }
