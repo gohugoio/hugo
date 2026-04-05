@@ -18,7 +18,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
@@ -39,9 +38,9 @@ title: "Home"
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t, TxtarString: files, RunGC: true, NeedsOsFS: true},
-	).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.RunGC = true
+	}))
 
 	_, err := b.H.BaseFs.ResourcesCache.Stat(filepath.Join("_gen", "images"))
 
@@ -77,9 +76,9 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t, TxtarString: files, Running: true, RunGC: true, NeedsOsFS: true, LogLevel: logg.LevelInfo},
-	).Build()
+	b := hugolib.TestRunning(t, files, hugolib.TestOptOsFs(), hugolib.TestOptInfo(), hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.RunGC = true
+	}))
 
 	b.Assert(b.GCCount, qt.Equals, 0)
 	b.Assert(b.H, qt.IsNotNil)

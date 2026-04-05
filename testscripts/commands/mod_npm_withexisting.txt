@@ -3,9 +3,6 @@
 # See https://github.com/gohugoio/hugo/issues/13465
 [windows] skip
 
-dostounix golden/packages/hugoautogen/package.json
-dostounix golden/package.json
-
 hugo mod npm pack
 cmp packages/hugoautogen/package.json golden/packages/hugoautogen/package.json
 cmp package.json golden/package.json

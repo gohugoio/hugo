@@ -207,6 +207,9 @@ type ExternalOptions struct {
 	// See https://esbuild.github.io/api/#jsx-import-source
 	JSXImportSource string
 
+	// User defined CSS variables. Will be available as CSS global scope CSS variables via @import "hugo:vars".
+	Vars map[string]any
+
 	// There is/was a bug in WebKit with severe performance issue with the tracking
 	// of TDZ checks in JavaScriptCore.
 	//

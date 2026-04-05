@@ -140,12 +140,7 @@ weight = 2
 
 			for range 1 {
 
-				b := hugolib.NewIntegrationTestBuilder(
-					hugolib.IntegrationTestConfig{
-						T:           t,
-						TxtarString: files,
-					},
-				).Build()
+				b := hugolib.Test(t, files)
 
 				b.AssertFileContent("public/index.html", `
 Heading OK.

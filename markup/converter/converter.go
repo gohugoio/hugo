@@ -150,6 +150,9 @@ type RenderContext struct {
 	// Src is the content to render.
 	Src []byte
 
+	// SourceInfo holds optional information about the source of the content to render.
+	SourceInfo any
+
 	// Whether to render TableOfContents.
 	RenderTOC bool
 

@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -244,24 +243,25 @@ func (pco *pageContentOutput) initRenderHooks() error {
 		renderCache := make(map[cacheKey]any)
 		var renderCacheMu sync.Mutex
 
-		resolvePosition := func(ctx any) text.Position {
-			source := pco.po.p.m.content.mustSource()
-			var offset int
-
-			switch v := ctx.(type) {
-			case hooks.PositionerSourceTargetProvider:
-				offset = bytes.Index(source, v.PositionerSourceTarget())
+		resolvePosition := func(renderContext any, pos int) text.Position {
+			rc, ok := renderContext.(converter.RenderContext)
+			var si sourceInfo
+			if ok {
+				si, ok = rc.SourceInfo.(sourceInfo)
 			}
 
-			pos := pco.po.p.posFromInput(source, offset)
-
-			if pos.LineNumber > 0 {
-				// Move up to the code fence delimiter.
-				// This is in line with how we report on shortcodes.
-				pos.LineNumber = pos.LineNumber - 1
+			if pos == -1 || !ok {
+				return text.Position{
+					Filename: pco.po.p.pathOrTitle(),
+				}
+			}
+			offset := resolveSourceOffset(si.sourceMap, pos)
+			filename := si.filename
+			if filename == "" {
+				filename = pco.po.p.pathOrTitle()
 			}
 
-			return pos
+			return posFromInput(filename, si.source, offset)
 		}
 
 		pco.renderHooks.getRenderer = func(tp hooks.RendererType, id any) any {
@@ -411,7 +411,10 @@ func (cp *pageContentOutput) ParseAndRenderContent(ctx context.Context, content 
 	if err != nil {
 		return nil, err
 	}
-	return cp.renderContentWithConverter(ctx, c, content, renderTOC)
+	si := sourceInfo{
+		source: content,
+	}
+	return cp.renderContentWithConverter(ctx, c, content, si, renderTOC)
 }
 
 func (pco *pageContentOutput) ParseContent(ctx context.Context, content []byte) (converter.ResultParse, bool, error) {
@@ -433,7 +436,7 @@ func (pco *pageContentOutput) ParseContent(ctx context.Context, content []byte) 
 	return r, ok, err
 }
 
-func (pco *pageContentOutput) RenderContent(ctx context.Context, content []byte, doc any) (converter.ResultRender, bool, error) {
+func (pco *pageContentOutput) RenderContent(ctx context.Context, content []byte, sourceInfo, doc any) (converter.ResultRender, bool, error) {
 	c, err := pco.getContentConverter()
 	if err != nil {
 		return nil, false, err
@@ -445,6 +448,7 @@ func (pco *pageContentOutput) RenderContent(ctx context.Context, content []byte,
 	rctx := converter.RenderContext{
 		Ctx:         ctx,
 		Src:         content,
+		SourceInfo:  sourceInfo,
 		RenderTOC:   true,
 		GetRenderer: pco.renderHooks.getRenderer,
 	}
@@ -452,11 +456,12 @@ func (pco *pageContentOutput) RenderContent(ctx context.Context, content []byte,
 	return r, ok, err
 }
 
-func (pco *pageContentOutput) renderContentWithConverter(ctx context.Context, c converter.Converter, content []byte, renderTOC bool) (converter.ResultRender, error) {
+func (pco *pageContentOutput) renderContentWithConverter(ctx context.Context, c converter.Converter, content []byte, sourceInfo any, renderTOC bool) (converter.ResultRender, error) {
 	r, err := c.Convert(
 		converter.RenderContext{
 			Ctx:         ctx,
 			Src:         content,
+			SourceInfo:  sourceInfo,
 			RenderTOC:   renderTOC,
 			GetRenderer: pco.renderHooks.getRenderer,
 		})

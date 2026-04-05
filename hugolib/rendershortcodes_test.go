@@ -189,13 +189,7 @@ Myshort Original.
 
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-		},
-	).Build()
+	b := TestRunning(t, files)
 
 	b.AssertNoRenderShortcodesArtifacts()
 	b.AssertFileContent("public/p1/index.html", "Original")

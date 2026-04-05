@@ -59,12 +59,7 @@ date: "2020-02-01"
 
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/en/index.html", "0|February, 2020|Pages(1)1|January, 2020|Pages(1)")
 	b.AssertFileContent("public/fr/index.html", "0|février, 2020|Pages(1)1|janvier, 2020|Pages(1)")
@@ -117,12 +112,7 @@ ByWeight: {{ range site.RegularPages.ByWeight }}{{ .Title }}|{{ end }}
 
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/en/index.html", `
 ByTitle: alpha|émotion|zulu|

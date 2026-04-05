@@ -14,6 +14,7 @@
 package pagemeta_test
 
 import (
+	"io"
 	"strings"
 	"testing"
 	"time"
@@ -152,6 +153,39 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	c.Assert(d.PageConfigLate.Dates.Lastmod.Day(), qt.Equals, 2)
 	c.Assert(d.PageConfigLate.Dates.PublishDate.Day(), qt.Equals, 4)
 	c.Assert(d.PageConfigLate.Dates.ExpiryDate.IsZero(), qt.Equals, true)
+}
+
+// Issue 14684
+// Each call to the opener must return an independent reader. With the old
+// implementation, opener() returned the same shared reader seeked to 0, so a
+// second open would reset the position of a reader already in use.
+func TestSourceValueAsOpenReadSeekCloserIsIndependent(t *testing.T) {
+	c := qt.New(t)
+	s := pagemeta.Source{Value: "abcdefgh"}
+	opener := s.ValueAsOpenReadSeekCloser()
+
+	r1, err := opener()
+	c.Assert(err, qt.IsNil)
+	defer r1.Close()
+
+	// Partially consume r1.
+	buf := make([]byte, 4)
+	_, err = io.ReadFull(r1, buf)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(buf), qt.Equals, "abcd")
+
+	// Open a second reader and fully consume it.
+	r2, err := opener()
+	c.Assert(err, qt.IsNil)
+	defer r2.Close()
+	all, err := io.ReadAll(r2)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(all), qt.Equals, "abcdefgh")
+
+	// r1's position must be unaffected; it should yield the remaining half.
+	rest, err := io.ReadAll(r1)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(rest), qt.Equals, "efgh")
 }
 
 func TestContentMediaTypeFromMarkup(t *testing.T) {
