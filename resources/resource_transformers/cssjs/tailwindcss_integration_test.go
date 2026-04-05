@@ -16,7 +16,6 @@ package cssjs_test
 import (
 	"testing"
 
-	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
@@ -60,14 +59,7 @@ func TestTailwindV4Basic(t *testing.T) {
 CSS: {{ $css.Content | safeCSS }}|
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               t,
-			TxtarString:     files,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			LogLevel:        logg.LevelInfo,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
 
 	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.")
 }
@@ -122,14 +114,7 @@ target = 'assets/css'
 }
 `
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               t,
-			TxtarString:     files,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			LogLevel:        logg.LevelInfo,
-		}).BuildE()
+	b, err := hugolib.TestE(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "Can't resolve 'colors/red.css'")

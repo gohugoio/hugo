@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bep/logg"
 	"github.com/fortytw2/leaktest"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/types"
@@ -986,18 +985,12 @@ Codeblock Include: {{ .Title }}|
 
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-			Verbose:     false,
-			BuildCfg: BuildCfg{
-				testCounters: &buildCounters{},
-			},
-			LogLevel: logg.LevelWarn,
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptWarn(),
+		TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.BuildCfg = BuildCfg{testCounters: &buildCounters{}}
+		}),
+	)
 
 	// When running the server, this is done on shutdown.
 	// Do this here to satisfy the leak detector above.
@@ -1331,18 +1324,11 @@ Content: {{ .Content }}|
 
 	testCounters := &buildCounters{}
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-			// LogLevel:    logg.LevelTrace,
-			// Verbose:     true,
-			BuildCfg: BuildCfg{
-				testCounters: testCounters,
-			},
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.BuildCfg = BuildCfg{testCounters: testCounters}
+		}),
+	)
 
 	b.AssertFileContent("public/index.html", `<script src="/main.js"></script>`)
 	b.AssertFileContent("public/p1/index.html", "<script>\n\"console.log(\\\"Hello\\\");\"\n</script>")
@@ -1502,15 +1488,9 @@ console.log("Hello");
 foo();
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-			// LogLevel:    logg.LevelTrace,
-			NeedsOsFS: true,
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptOsFs(),
+	)
 
 	b.AssertFileContent("public/index.html", "Home.", "Hello", "Foo")
 	// Edit the imported file.
@@ -1585,16 +1565,10 @@ Single.
 {{ end }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:               t,
-			TxtarString:     files,
-			Running:         true,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			// LogLevel:        logg.LevelDebug,
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptOsFs(),
+		TestOptWithNpmInstall(),
+	)
 
 	b.AssertFileContent("public/index.html", "Home.", "<style>body {\n\tbackground: red;\n}</style>")
 	b.AssertFileContent("public/p1/index.html", "Single.", "/css/main.css")
@@ -1748,14 +1722,9 @@ Home.
 	runTest := func(transpiler string) {
 		t.Run(transpiler, func(t *testing.T) {
 			files := strings.Replace(filesTemplate, "TRANSPILER", transpiler, 1)
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-					Running:     true,
-					NeedsOsFS:   true,
-				},
-			).Build()
+			b := TestRunning(t, files,
+				TestOptOsFs(),
+			)
 
 			b.AssertFileContent("public/index.html", "Home.", "background: red")
 

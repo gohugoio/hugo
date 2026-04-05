@@ -132,8 +132,8 @@ func (r *htmlRenderer) renderPassthroughBlock(w util.BufWriter, src []byte, node
 	// Trim the delimiters.
 	s = s[len(delims.Open) : len(s)-len(delims.Close)]
 
-	pctx := &passthroughContext{
-		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, nil, ordinal),
+	pctx := passthroughContext{
+		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, ordinal),
 		inner:            s,
 		typ:              typ,
 		AttributesHolder: attributes.New(node.Attributes(), attributes.AttributesOwnerGeneral),
@@ -157,10 +157,10 @@ type passthroughContext struct {
 	*attributes.AttributesHolder
 }
 
-func (p *passthroughContext) Type() string {
+func (p passthroughContext) Type() string {
 	return p.typ
 }
 
-func (p *passthroughContext) Inner() string {
+func (p passthroughContext) Inner() string {
 	return p.inner
 }

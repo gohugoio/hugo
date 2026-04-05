@@ -1,7 +1,5 @@
 # Test hugo mod tidy.
 
-dostounix golden/go.mod.cleaned
-
 hugo mod tidy
 
 cmp go.mod golden/go.mod.cleaned

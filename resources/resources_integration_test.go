@@ -52,13 +52,7 @@ bmp: {{ $bmp.RelPermalink }}|}|{{ $bmp.Width }}|{{ $bmp.Height }}|{{ $bmp.MediaT
 anigif: {{ $anigif.RelPermalink }}|{{ $anigif.Width }}|{{ $anigif.Height }}|{{ $anigif.MediaType }}|
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-			Running:     true,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptRunning())
 
 	assertImages := func() {
 		b.AssertFileContent("public/index.html", `
@@ -88,13 +82,7 @@ func TestSVGError(t *testing.T) {
 Width: {{ $svg.Width }}
 `
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-			Running:     true,
-		}).BuildE()
+	b, err := hugolib.TestE(t, files, hugolib.TestOptOsFs(), hugolib.TestOptRunning())
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `error calling Width: resource "/circle.svg" of media type "image/svg+xml" does not support this method: use reflect.IsImageResource, reflect.IsImageResourceProcessable, or reflect.IsImageResourceWithMeta to check if the resource supports this method before calling it`)
@@ -124,13 +112,9 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 
 	for range 3 {
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				NeedsOsFS:   true,
-				WorkingDir:  workingDir,
-			}).Build()
+		b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.WorkingDir = workingDir
+		}))
 
 		b.AssertFileCount("resources/_gen/images", 6)
 		b.AssertFileCount("public/images", 1)

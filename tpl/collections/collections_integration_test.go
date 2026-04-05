@@ -74,12 +74,7 @@ Desc: {{ sort (sort $values "b" "desc") "a" "desc" }}
 
 	for range 4 {
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 Asc:  [map[a:0 b:0] map[a:0 b:0] map[a:0 b:3] map[a:1 b:0] map[a:1 b:1] map[a:1 b:2] map[a:1 b:2] map[a:2 b:0] map[a:2 b:0] map[a:2 b:0] map[a:2 b:1] map[a:2 b:2] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:3 b:1] map[a:3 b:1] map[a:3 b:1] map[a:3 b:3]]
@@ -144,12 +139,7 @@ func TestAppendNilsToSliceWithNils(t *testing.T) {
 
 	for range 4 {
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/index.html", "[a &lt;nil&gt; c &lt;nil&gt;]")
 

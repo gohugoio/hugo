@@ -125,12 +125,7 @@ weight = 1
 [languages.sv]
 weight = 2
 `
-		b, err := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).BuildE()
+		b, err := TestE(t, files)
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `default language "sv" is disabled`)
@@ -174,13 +169,9 @@ pm31: {{ .Site.Params.pm3.pm31 }}
 
 
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				Environ:     []string{"HUGO_PARAMS_P2=p2env", "HUGO_PARAMS_PM2_PM21=pm21env", "HUGO_PARAMS_PM3_PM31=pm31env"},
-			},
-		).Build()
+		b := Test(t, files, TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.Environ = []string{"HUGO_PARAMS_P2=p2env", "HUGO_PARAMS_PM2_PM21=pm21env", "HUGO_PARAMS_PM3_PM31=pm31env"}
+		}))
 
 		b.AssertFileContent("public/index.html", "p1: p1base\np2: p2env\npm21: pm21env\npm22: pm22base\npm31: pm31env")
 	})
@@ -254,14 +245,9 @@ Home.
 		for i, v := range environ {
 			environ[i] = strings.ReplaceAll(v, " ", delim)
 		}
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				Environ:     environ,
-				BuildCfg:    BuildCfg{SkipRender: true},
-			},
-		).Build()
+		b := Test(t, files, TestOptSkipRender(), TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.Environ = environ
+		}))
 
 		conf := b.H.Configs.Base
 		b.Assert(conf.DisableLanguages, qt.DeepEquals, []string{"no", "sv"})
@@ -651,12 +637,7 @@ defaultMarkdownHandler = 'blackfriday'
 
 `
 
-	b, err := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := TestE(t, files)
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "Configured defaultMarkdownHandler \"blackfriday\" not found. Did you mean to use goldmark? Blackfriday was removed in Hugo v0.100.0.")
@@ -692,12 +673,7 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 
 			files := strings.ReplaceAll(filesTemplate, "hugo.toml", configName)
 
-			b, err := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-				},
-			).BuildE()
+			b, err := TestE(t, files)
 
 			b.Assert(err, qt.IsNil)
 			b.AssertFileContent("public/index.html",
@@ -743,13 +719,9 @@ Single.
 		files = strings.ReplaceAll(files, "WEIGHT_SV", "2")
 
 		cfg := config.New()
-		b, err := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				BaseCfg:     cfg,
-			},
-		).BuildE()
+		b, err := TestE(t, files, TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.BaseCfg = cfg
+		}))
 
 		b.Assert(err, qt.IsNil)
 		b.AssertFileContent("public/index.html", "Home: en|2|")
@@ -762,13 +734,9 @@ Single.
 
 		for range 20 {
 			cfg := config.New()
-			b, err := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-					BaseCfg:     cfg,
-				},
-			).BuildE()
+			b, err := TestE(t, files, TestOptWithConfig(func(c *IntegrationTestConfig) {
+				c.BaseCfg = cfg
+			}))
 
 			b.Assert(err, qt.IsNil)
 			b.AssertFileContent("public/index.html", "Home: en|2|")
@@ -801,12 +769,7 @@ Home.
 
 `
 
-	b, err := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := TestE(t, files)
 
 	b.Assert(err, qt.IsNil)
 	b.AssertFileContent("public/myindex.html", "Home.")
@@ -836,12 +799,7 @@ ThisIsAParam: {{ site.Params.thisIsAParam }}
 
 `
 
-	b, err := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := TestE(t, files)
 
 	b.Assert(err, qt.IsNil)
 	b.AssertFileContent("public/index.html", `
@@ -882,13 +840,7 @@ LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Lang
 {{ end }}
 
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			LogLevel:    logg.LevelWarn,
-		},
-	).Build()
+	b := Test(t, files, TestOptWarn())
 
 	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 1)
 
@@ -936,13 +888,9 @@ func TestConfigHugoWorkingDir(t *testing.T) {
 WorkingDir: {{ hugo.WorkingDir }}|
 
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			WorkingDir:  "myworkingdir",
-		},
-	).Build()
+	b := Test(t, files, TestOptWithConfig(func(c *IntegrationTestConfig) {
+		c.WorkingDir = "myworkingdir"
+	}))
 
 	b.AssertFileContent("public/index.html", `
 WorkingDir: myworkingdir|
@@ -1009,12 +957,7 @@ Home
 
 `
 
-	b, err := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := TestE(t, files)
 
 	b.Assert(err, qt.IsNil)
 	b.AssertFileContent("public/index.html", `
@@ -1147,12 +1090,7 @@ Foo: {{ site.Params.foo }}|
 
 
 	`
-		b, err := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).BuildE()
+		b, err := TestE(t, files)
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, "invalid language configuration ")
@@ -1174,12 +1112,7 @@ weight = 1
 
 
 	`
-		b, err := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).BuildE()
+		b, err := TestE(t, files)
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `defaultContentLanguage "sv" not found in languages configuration`)
@@ -1339,14 +1272,9 @@ func TestLoadConfigYamlEnvVar(t *testing.T) {
 			env = defaultEnv
 		}
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				Environ:     env,
-				BuildCfg:    BuildCfg{SkipRender: true},
-			},
-		).Build()
+		b := Test(t, files, TestOptSkipRender(), TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.Environ = env
+		}))
 
 		outputs := b.H.Configs.Base.Outputs
 		if env == nil {

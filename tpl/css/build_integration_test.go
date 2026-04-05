@@ -430,3 +430,128 @@ disableKinds = ["taxonomy", "term"]
 	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall())
 	b.AssertFileContent("public/css/main.css", `--bs-indigo: #6610f2;`)
 }
+
+func TestCSSBuildVars(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/css/main.css --
+@import "hugo:vars";
+
+body {
+  background-color: var(--primary-color);
+  font-size: var(--font-size);
+  color: var(--text-color);
+}
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ $opts := dict
+  "vars" (dict "primary-color" "blue" "font-size" "24px" "text-color" "#333" "--already-prefixed" "red")
+}}
+{{ with . | css.Build $opts }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css",
+		"--primary-color: blue;",
+		"--font-size: 24px;",
+		"--text-color: #333;",
+		"--already-prefixed: red;",
+		"background-color: var(--primary-color)",
+	)
+}
+
+func TestCSSBuildVarsEmpty(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/css/main.css --
+@import "hugo:vars";
+
+body {
+  background-color: red;
+}
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ with . | css.Build }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css", "background-color: red;")
+}
+
+func TestCSSBuildVarsQuoted(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/css/main.css --
+@import "hugo:vars";
+
+body {
+  font-family: var(--font-family);
+  color: var(--brand-color);
+}
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ $opts := dict
+  "vars" (dict "font-family" (css.Quoted "Arial, sans-serif") "brand-color" "hsl(0, 0%, 20%)")
+}}
+{{ with . | css.Build $opts }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css",
+		`--font-family: "Arial, sans-serif";`,
+		"--brand-color: hsl(0, 0%, 20%);",
+	)
+}
+
+func TestCSSBuildVarsFromParams(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[params.styles]
+primary-color = "blue"
+font-size = "24px"
+text-color = "#333"
+-- assets/css/main.css --
+@import "hugo:vars";
+-- assets/css/main.css --
+@import "hugo:vars";
+
+body {
+  background-color: var(--primary-color);
+  font-size: var(--font-size);
+  color: var(--text-color);
+}
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ $opts := dict
+  "vars" site.Params.styles
+}}
+{{ with . | css.Build $opts }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css",
+		"--primary-color: blue;",
+		"--font-size: 24px;",
+		"--text-color: #333;",
+	)
+}

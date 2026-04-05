@@ -49,12 +49,7 @@ moo {
 T1: {{ $r.Content }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           c,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		}).Build()
+	b := hugolib.Test(c, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", `T1: moo{color:#fff}`)
 }
@@ -92,12 +87,7 @@ T1: {{ $r.Content | safeHTML }}
 
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           c,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		}).Build()
+	b := hugolib.Test(c, files, hugolib.TestOptOsFs())
 
 	// LibSass does not support regular CSS imports. There
 	// is an open bug about it that probably will never be resolved.
@@ -169,12 +159,7 @@ zoo {
 @import "components/imports";
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           c,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		}).Build()
+	b := hugolib.Test(c, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", `T1: moo{color:#ccc}boo{color:green}zoo{color:pink}`)
 }
@@ -217,12 +202,7 @@ T1: {{ $r.Content }}
 	`
 
 	c.Run("error in main", func(c *qt.C) {
-		b, err := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           c,
-				TxtarString: strings.Replace(filesTemplate, "$maincolor: #eee;", "$maincolor #eee;", 1),
-				NeedsOsFS:   true,
-			}).BuildE()
+		b, err := hugolib.TestE(c, strings.Replace(filesTemplate, "$maincolor: #eee;", "$maincolor #eee;", 1), hugolib.TestOptOsFs())
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, filepath.FromSlash(`themes/mytheme/assets/scss/main.scss:6:1": expected ':' after $maincolor in assignment statement`))
@@ -235,12 +215,7 @@ T1: {{ $r.Content }}
 	})
 
 	c.Run("error in import", func(c *qt.C) {
-		b, err := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           c,
-				TxtarString: strings.Replace(filesTemplate, "$foocolor: #ccc;", "$foocolor #ccc;", 1),
-				NeedsOsFS:   true,
-			}).BuildE()
+		b, err := hugolib.TestE(c, strings.Replace(filesTemplate, "$foocolor: #ccc;", "$foocolor #ccc;", 1), hugolib.TestOptOsFs())
 
 		b.Assert(err, qt.IsNotNil)
 		b.Assert(err.Error(), qt.Contains, `assets/scss/components/_foo.scss:2:1": expected ':' after $foocolor in assignment statement`)
@@ -287,12 +262,7 @@ b {
 T1: {{ $r.Content }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover;font-family:Hugo&#39;s New Roman}p{color:blue;font-size:var 24px}b{color:green}`)
 }
@@ -323,12 +293,7 @@ module github.com/gohugoio/tests/testHugoModules
 Styles: {{ $r.RelPermalink }}
 		`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", "Styles: /scss/main.css")
 }
@@ -350,13 +315,7 @@ b {
 T1: {{ $r.Content }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-			Running:     true,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptRunning())
 
 	b.AssertFileContent("public/index.html", `color: red`)
 
@@ -407,14 +366,7 @@ h3 {
 {{ end }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-			Running:     true,
-			// LogLevel:    logg.LevelTrace,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptRunning())
 
 	b.AssertFileContent("public/index.html", `b.60a9f3bdc189ee8a857afd5b7e1b93ad1644de0873761a7c9bc84f781a821942.css`)
 
@@ -458,12 +410,7 @@ target = "assets/sass"
 .bar2 {color: blue;}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			NeedsOsFS:   true,
-			TxtarString: files,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", ".foo1{color:red}.bar1{color:blue}.foo2{color:red}.bar2{color:blue}")
 }

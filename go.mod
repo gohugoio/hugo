@@ -41,14 +41,14 @@ require (
 	github.com/gohugoio/go-radix v1.2.0
 	github.com/gohugoio/hashstructure v0.6.0
 	github.com/gohugoio/httpcache v0.8.0
-	github.com/gohugoio/hugo-goldmark-extensions/extras v0.6.0
-	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.4.0
+	github.com/gohugoio/hugo-goldmark-extensions/extras v0.7.0
+	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/hairyhenderson/go-codeowners v0.7.0
 	github.com/jdkato/prose v1.2.1
 	github.com/kyokomi/emoji/v2 v2.2.13
-	github.com/magefile/mage v1.16.1
+	github.com/magefile/mage v1.17.1
 	github.com/makeworld-the-better-one/dither/v2 v2.4.0
 	github.com/marekm4/color-extractor v1.2.1
 	github.com/mattn/go-isatty v0.0.20
@@ -69,11 +69,11 @@ require (
 	github.com/tdewolff/minify/v2 v2.24.11
 	github.com/tdewolff/parse/v2 v2.8.11
 	github.com/tetratelabs/wazero v1.11.0
-	github.com/yuin/goldmark v1.7.17
+	github.com/yuin/goldmark v1.8.2
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
-	golang.org/x/image v0.37.0
+	golang.org/x/image v0.38.0
 	golang.org/x/mod v0.34.0
 	golang.org/x/net v0.52.0
 	golang.org/x/sync v0.20.0
@@ -131,7 +131,7 @@ require (
 	github.com/envoyproxy/go-control-plane/envoy v1.36.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect

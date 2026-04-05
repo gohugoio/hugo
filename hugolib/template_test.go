@@ -40,13 +40,7 @@ title: "Page"
 
 Page Content
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/page/index.html", "Base: Hi!?")
 }
@@ -115,13 +109,7 @@ baseURL = "http://example.com/"
 title: The Page
 ---
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/blog/p1/index.html", `single`)
 	b.AssertFileContent("public/blog/index.html", `list`)
@@ -142,13 +130,7 @@ Base: {{ block "main" . }}{{ end }}
   Bonjour
 {{ end }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `Base:
 Bonjour`)
@@ -174,13 +156,7 @@ title: Home Sweet Home
 title: P1
 ---
 `
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-				BuildCfg:    BuildCfg{},
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", `List: Home Sweet Home`)
 		b.AssertFileContent("public/p1/index.html", `Single: P1`)
@@ -222,13 +198,7 @@ Baseof mysection: {{ block "main" .  }}mysection block{{ end }}
 title: My Page
 ---
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/en/index.html", `Baseof en: Main Home En`)
 	b.AssertFileContent("public/fr/index.html", `Baseof fr: Main Home Fr`)
@@ -261,13 +231,7 @@ Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
 Sites: {{ site.Sites.Default.Home.Language.Lang }}
 Hugo: {{ hugo.Generator }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/en/index.html",
 		"Site: en / en / http://example.com/blog",
@@ -309,13 +273,7 @@ dollarContext: 60: {{ partial "dollarContext.tpl" 18 }}
 adder: 70: {{ partial "dict.tpl" (dict "adder" 28) }}
 complex: 80: {{ partial "complex.tpl" 38 }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 add42: 50: 50
@@ -344,13 +302,7 @@ X{{ partial "retval" 0 }}X
 {{ end }}
 -- content/p.md --
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -377,13 +329,7 @@ Partial cached3: {{ partialCached "p1" "input3" $key2 }}
 -- layouts/_partials/p1.html --
 partial: {{ . }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
  Partial cached1: partial: input1
@@ -415,13 +361,7 @@ with: Zero {{ with $zero }}FAIL{{ else }}OK{{ end }}
 title: p1
 ---
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 if: Zero: OK
@@ -461,13 +401,7 @@ Population in Norway is {{
 	| upper
 }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 <script type="application/ld+json">{"@type":"WebPage","headline":"a \u0026 b"}</script>
@@ -497,13 +431,7 @@ P2: {{ $p2 }}
 {{ return $value }}
 {{ end }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -541,13 +469,7 @@ P2: {{ $p2 }}
 {{ return $value }}
 {{ end }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -585,13 +507,7 @@ This is home main
 This is single main
 {{ end }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Home Header
@@ -619,13 +535,7 @@ baseURL = "http://example.com/"
 {{ $a := apply $b "strings.Trim" "." " " }}
 a: {{ $a }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `a: [a b c]`)
 }

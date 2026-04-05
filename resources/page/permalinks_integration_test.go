@@ -112,12 +112,7 @@ slug: "mytagslug"
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			LogLevel:    logg.LevelWarn,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	t.Log(b.LogString())
 	// No .File.TranslationBaseName on zero object etc. warnings.
@@ -168,12 +163,7 @@ slug: "p1slugvalue"
 
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			LogLevel:    logg.LevelWarn,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	t.Log(b.LogString())
 	// No .File.TranslationBaseName on zero object etc. warnings.
@@ -221,12 +211,7 @@ Single.
 List.
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			LogLevel:    logg.LevelWarn,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	t.Log(b.LogString())
 	// No .File.TranslationBaseName on zero object etc. warnings.
@@ -270,12 +255,7 @@ Single.
 List.
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			LogLevel:    logg.LevelWarn,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	t.Log(b.LogString())
 	// No .File.TranslationBaseName on zero object etc. warnings.
@@ -311,12 +291,7 @@ title: Recipe 2
 slug: custom-recipe-2
 ---
 `
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			LogLevel:    logg.LevelWarn,
-		}).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
 	t.Log(b.LogString())
 	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
