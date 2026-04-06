@@ -209,6 +209,7 @@ func TestSanitize(t *testing.T) {
 		{"a%C3%B1ame", "a%C3%B1ame"},         // Issue #1292
 		{"this+is+a+test", "this+is+a+test"}, // Issue #1290
 		{"~foo", "~foo"},                     // Issue #2177
+		{"foo=bar", "foo=bar"},               // Issue #12993
 
 	}
 
