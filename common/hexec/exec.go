@@ -328,17 +328,15 @@ func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
 		}
 	}
 
-	var bin string
+	lookupName := c.name
 	if c.fullyQualifiedName != "" {
-		bin = c.fullyQualifiedName
-	} else {
-		var err error
-		bin, err = exec.LookPath(c.name)
-		if err != nil {
-			return nil, &NotFoundError{
-				name:   c.name,
-				method: "in PATH",
-			}
+		lookupName = c.fullyQualifiedName
+	}
+	bin, err := exec.LookPath(lookupName)
+	if err != nil {
+		return nil, &NotFoundError{
+			name:   c.name,
+			method: "in PATH",
 		}
 	}
 
@@ -352,9 +350,9 @@ func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
 	var cmd *exec.Cmd
 
 	if c.ctx != nil {
-		cmd = exec.CommandContext(c.ctx, bin, args...)
+		cmd = exec.CommandContext(c.ctx, bin, args...) // nosemgrep: go.lang.security.audit.dangerous-exec-command.dangerous-exec-command
 	} else {
-		cmd = exec.Command(bin, args...)
+		cmd = exec.Command(bin, args...) // nosemgrep: go.lang.security.audit.dangerous-exec-command.dangerous-exec-command
 	}
 
 	cmd.Stdin = c.stdin
