@@ -304,6 +304,18 @@ func IsDartSassGeV2() bool {
 	return !strings.Contains(DartSassBinaryName, "embedded")
 }
 
+// WarnDeprecatedEdition emits a deprecation warning if the running binary is
+// the extended or extended_withdeploy edition.
+func WarnDeprecatedEdition() {
+	if IsExtended {
+		if IsWithdeploy {
+			Deprecate("the extended_withdeploy edition of the Hugo executable", "Use the withdeploy edition instead.", "v0.161.0")
+		} else {
+			Deprecate("the extended edition of the Hugo executable", "Use the standard edition instead.", "v0.161.0")
+		}
+	}
+}
+
 // Deprecate informs about a deprecation starting at the given version.
 //
 // A deprecation typically needs a simple change in the template, but doing so will make the template incompatible with older versions.
