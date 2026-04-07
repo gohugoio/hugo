@@ -552,3 +552,32 @@ title: "includeme"
 
 	b.AssertNoRenderShortcodesArtifacts()
 }
+
+// Issue 12457.
+func TestRenderShortcodesCodeBlock(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['section','rss','sitemap','taxonomy','term']
+-- layouts/_shortcodes/foo.html --
+{{ $p := site.GetPage "includeme" }}
+    {{ $p.RenderShortcodes }}
+-- layouts/home.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{% foo %}}
+-- content/includeme.md --
+---
+title: "includeme"
+---
+Some markdown.
+    `
+
+	b := Test(t, files)
+	b.AssertNoRenderShortcodesArtifacts()
+	b.AssertFileContentEquals("public/index.html", "<p>Some markdown.</p>\n")
+}
