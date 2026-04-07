@@ -185,11 +185,11 @@ disableKinds = ['rss','sitemap','taxonomy','term', 'home']
 ---
 title: Home
 cascade:
-- _target:
+- target:
     path: "**"
   params:
     background: yosemite.jpg
-- _target:
+- target:
   params:
     background: goldenbridge.jpg
 ---

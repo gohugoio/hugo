@@ -926,7 +926,7 @@ P5 Content.
 -- content/myothersect/_index.md --
 ---
 cascade:
-- _target:
+- target:
   cascadeparam: "cascadevalue"
 ---
 -- content/myothersect/sub/_index.md --
