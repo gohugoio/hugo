@@ -1109,6 +1109,10 @@ func (c *cachedContentScope) RenderShortcodes(ctx context.Context) (template.HTM
 		return template.HTML(hugocontext.Wrap(cc, pco.po.p.pid)), nil
 	}
 
+	// Strip any Hugo context markers from nested RenderShortcodes calls
+	// that won't be processed by Goldmark.
+	cc = hugocontext.Strip(cc)
+
 	return helpers.BytesToHTML(cc), nil
 }
 

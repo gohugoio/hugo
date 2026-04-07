@@ -104,6 +104,14 @@ var (
 	hugoCtxRe           = regexp.MustCompile(`{{__hugo_ctx( pid=\d+)?/?}}\n?`)
 )
 
+// Strip strips any Hugo context markers from b.
+func Strip(b []byte) []byte {
+	if !bytes.Contains(b, hugoCtxPrefix) {
+		return b
+	}
+	return hugoCtxRe.ReplaceAll(b, nil)
+}
+
 var _ parser.InlineParser = (*hugoContextParser)(nil)
 
 type hugoContextParser struct{}
