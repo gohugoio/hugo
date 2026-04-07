@@ -695,6 +695,8 @@ func (c *cachedContentScope) contentToC(ctx context.Context) (contentTableOfCont
 			return nil, err
 		}
 
+		ct.contentToRender = hugocontext.DedentMarkers(ct.contentToRender)
+
 		if hasVariants {
 			p.incrPageOutputTemplateVariation()
 		}
