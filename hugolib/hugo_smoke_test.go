@@ -431,11 +431,11 @@ Home Content.
 ---
 title: Hjem
 cascade:
-  - _target:
+  - target:
       kind: page
       path: /posts/**
     background: post.jpg
-  - _target:
+  - target:
       kind: term
     background: term.jpg
 ---
