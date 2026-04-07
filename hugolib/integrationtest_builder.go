@@ -2,7 +2,6 @@ package hugolib
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -39,8 +38,8 @@ import (
 	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/media"
 	"github.com/spf13/afero"
-	"github.com/spf13/cast"
 	"golang.org/x/text/unicode/norm"
 	"golang.org/x/tools/txtar"
 )
@@ -462,12 +461,20 @@ func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches
 
 func (s *IntegrationTestBuilder) AssertNoRenderShortcodesArtifacts() {
 	s.Helper()
-	for _, p := range s.H.Pages() {
-		content, err := p.Content(context.Background())
+	afero.Walk(s.fs.PublishDir, "", func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return err
+		}
+		ext := strings.TrimPrefix(filepath.Ext(path), ".")
+		if !s.H.Conf.GetConfigSection("mediaTypes").(media.Types).IsTextSuffix(ext) {
+			return nil
+		}
+		content, err := afero.ReadFile(s.fs.PublishDir, path)
 		s.Assert(err, qt.IsNil)
-		comment := qt.Commentf("Page: %s\n%s", p.Path(), content)
-		s.Assert(strings.Contains(cast.ToString(content), "__hugo_ctx"), qt.IsFalse, comment)
-	}
+		comment := qt.Commentf("File: %s\n%s", path, string(content))
+		s.Assert(strings.Contains(string(content), "__hugo_ctx"), qt.IsFalse, comment)
+		return nil
+	})
 }
 
 type IntegrationTestImageHelper struct {

@@ -521,3 +521,34 @@ not emphasized
 		"<p>a</p>\n<p><em>emphasized</em></p>\n<p>not emphasized</p>\n<p>b</p>\n",
 	)
 }
+
+// Issue 14732.
+func TestRenderShortcodesStandalone(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['section','rss','sitemap','taxonomy','term']
+-- layouts/all.html --
+RenderShortcodes: {{ .RenderShortcodes }}|
+-- layouts/_shortcodes/headings.html --
+## Heading 1
+### Heading 2
+{{ $p := site.GetPage "includeme" }}
+RenderShortcodes2: {{ $p.RenderShortcodes }}|
+-- content/p1.md --
+---
+title: "p1"
+---
+{{% headings "headings" %}}
+-- content/includeme.md --
+---
+title: "includeme"
+---
+## Heading 2
+`
+
+	b := Test(t, files)
+
+	b.AssertNoRenderShortcodesArtifacts()
+}
