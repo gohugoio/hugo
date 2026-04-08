@@ -2126,3 +2126,18 @@ Content before shortcode.
 	b.EditFileReplaceAll("content/p1.md", "Content before shortcode.", "This is {{< year >}} wow.").Build()
 	b.AssertFileContent("public/p1/index.html", "Single: P1|", fmt.Sprintf("This is %s wow.", currentYear))
 }
+
+// Issue 14740.
+func TestRebuildEditTagsListLayout(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+-- layouts/tags/list.html --
+Foo.
+`
+
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/tags/index.html", "Foo.")
+	b.EditFileReplaceAll("layouts/tags/list.html", "Foo", "Bar").Build()
+	b.AssertFileContent("public/tags/index.html", "Bar.")
+}

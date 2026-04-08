@@ -45,8 +45,8 @@ var embeddedTemplatesAliases = map[string][]string{
 	"_shortcodes/twitter.html": {"_shortcodes/tweet.html"},
 }
 
-func (s *TemplateStore) parseTemplate(ti *TemplInfo, replace bool) error {
-	err := s.tns.doParseTemplate(ti, replace)
+func (s *TemplateStore) parseTemplate(ti *TemplInfo) error {
+	err := s.tns.doParseTemplate(ti)
 	if err != nil {
 		return s.addFileContext(ti, "parse of template failed", err)
 	}
@@ -69,7 +69,7 @@ func (t *templateNamespace) newBlankTemplate(ti *TemplInfo) tpl.Template {
 	return tt
 }
 
-func (t *templateNamespace) doParseTemplate(ti *TemplInfo, replace bool) error {
+func (t *templateNamespace) doParseTemplate(ti *TemplInfo) error {
 	if !ti.noBaseOf || ti.category == CategoryBaseof {
 		// Delay parsing until we have the base template.
 		return nil
@@ -84,7 +84,7 @@ func (t *templateNamespace) doParseTemplate(ti *TemplInfo, replace bool) error {
 
 	if ti.D.IsPlainText {
 		prototype := t.parseText
-		if !replace && prototype.Lookup(name) != nil {
+		if prototype.Lookup(name) != nil {
 			name += "-" + strconv.FormatUint(t.nameCounter.Add(1), 10)
 		}
 		templ, err = prototype.New(name).Parse(ti.content)
@@ -93,7 +93,7 @@ func (t *templateNamespace) doParseTemplate(ti *TemplInfo, replace bool) error {
 		}
 	} else {
 		prototype := t.parseHTML
-		if !replace && prototype.Lookup(name) != nil {
+		if prototype.Lookup(name) != nil {
 			name += "-" + strconv.FormatUint(t.nameCounter.Add(1), 10)
 		}
 		templ, err = prototype.New(name).Parse(ti.content)
