@@ -135,7 +135,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^npx$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']",
+		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
 	)
 }
 
@@ -147,8 +147,8 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(err, qt.IsNil)
 	c.Assert(pc, qt.Not(qt.IsNil))
 	c.Assert(pc.Exec.Allow.Accept("a"), qt.IsFalse)
-	c.Assert(pc.Exec.Allow.Accept("npx"), qt.IsTrue)
-	c.Assert(pc.Exec.Allow.Accept("Npx"), qt.IsFalse)
+	c.Assert(pc.Exec.Allow.Accept("node"), qt.IsTrue)
+	c.Assert(pc.Exec.Allow.Accept("npx"), qt.IsFalse)
 
 	c.Assert(pc.HTTP.URLs.Accept("https://example.org"), qt.IsTrue)
 	c.Assert(pc.HTTP.Methods.Accept("POST"), qt.IsTrue)
@@ -164,4 +164,56 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(pc.Exec.OsEnv.Accept("a"), qt.IsFalse)
 	c.Assert(pc.Exec.OsEnv.Accept("e"), qt.IsFalse)
 	c.Assert(pc.Exec.OsEnv.Accept("MYSECRET"), qt.IsFalse)
+
+	c.Assert(pc.Node.Permissions.IsEnabled(), qt.IsTrue)
+	c.Assert(pc.Node.Permissions.AllowRead, qt.DeepEquals, []string{"."})
+	c.Assert(pc.Node.Permissions.AllowWrite, qt.DeepEquals, []string{})
+}
+
+func TestDecodeConfigNodePermissions(t *testing.T) {
+	c := qt.New(t)
+
+	c.Run("Custom paths", func(c *qt.C) {
+		c.Parallel()
+		tomlConfig := `
+[security.node.permissions]
+allowRead = ["/tmp", "."]
+allowWrite = ["."]
+`
+		cfg, err := config.FromConfigString(tomlConfig, "toml")
+		c.Assert(err, qt.IsNil)
+		pc, err := DecodeConfig(cfg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(pc.Node.Permissions.IsEnabled(), qt.IsTrue)
+		c.Assert(pc.Node.Permissions.AllowRead, qt.DeepEquals, []string{"/tmp", "."})
+		c.Assert(pc.Node.Permissions.AllowWrite, qt.DeepEquals, []string{"."})
+	})
+
+	c.Run("Disabled", func(c *qt.C) {
+		c.Parallel()
+		tomlConfig := `
+[security.node.permissions]
+disable = true
+`
+		cfg, err := config.FromConfigString(tomlConfig, "toml")
+		c.Assert(err, qt.IsNil)
+		pc, err := DecodeConfig(cfg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(pc.Node.Permissions.IsEnabled(), qt.IsFalse)
+	})
+
+	c.Run("Wildcard", func(c *qt.C) {
+		c.Parallel()
+		tomlConfig := `
+[security.node.permissions]
+allowRead = ["*"]
+allowWrite = ["*"]
+`
+		cfg, err := config.FromConfigString(tomlConfig, "toml")
+		c.Assert(err, qt.IsNil)
+		pc, err := DecodeConfig(cfg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(pc.Node.Permissions.IsEnabled(), qt.IsTrue)
+		c.Assert(pc.Node.Permissions.AllowRead, qt.DeepEquals, []string{"*"})
+	})
 }

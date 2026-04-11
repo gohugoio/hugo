@@ -105,7 +105,7 @@ func GetExecEnviron(workDir string, cfg config.AllProvider, fs afero.Fs) []strin
 	var env []string
 	nodepath := filepath.Join(workDir, "node_modules")
 	if np := os.Getenv("NODE_PATH"); np != "" {
-		nodepath = workDir + string(os.PathListSeparator) + np
+		nodepath = nodepath + string(os.PathListSeparator) + np
 	}
 	config.SetEnvVars(&env, "NODE_PATH", nodepath)
 	config.SetEnvVars(&env, "PWD", workDir)

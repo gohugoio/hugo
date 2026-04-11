@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -38,7 +39,7 @@ var DefaultConfig = Config{
 			"^(dart-)?sass(-embedded)?$", // sass, dart-sass, dart-sass-embedded.
 			"^go$",                       // for Go Modules
 			"^git$",                      // For Git info
-			"^npx$",                      // used by all Node tools (Babel, PostCSS).
+			"^node$",                     // Used as the runtime for Node tools.
 			"^postcss$",
 			"^tailwindcss$",
 		),
@@ -52,6 +53,15 @@ var DefaultConfig = Config{
 	HTTP: HTTP{
 		URLs:    MustNewWhitelist(".*"),
 		Methods: MustNewWhitelist("(?i)GET|POST"),
+	},
+	Node: Node{
+		Permissions: NodePermissions{
+			Disable:     false,
+			AllowRead:   []string{"."},
+			AllowWrite:  []string{},              // No write access by default.
+			AllowAddons: []string{"tailwindcss"}, // tailwindcss does not work without addon permissions.
+			AllowWorker: []string{"tailwindcss"}, // tailwindcss needs worker access.
+		},
 	},
 }
 
@@ -67,6 +77,9 @@ type Config struct {
 
 	// Restricts access to resources.GetRemote, getJSON, getCSV.
 	HTTP HTTP `json:"http"`
+
+	// Node holds Node.js security settings.
+	Node Node `json:"node"`
 
 	// Allow inline shortcodes
 	EnableInlineShortcodes bool `json:"enableInlineShortcodes"`
@@ -93,6 +106,29 @@ type HTTP struct {
 
 	// Media types where the Content-Type in the response is used instead of resolving from the file content.
 	MediaTypes Whitelist `json:"mediaTypes"`
+}
+
+// Node holds Node.js security settings.
+type Node struct {
+	// Permissions configures Node's --permission flag for file system access control.
+	Permissions NodePermissions `json:"permissions"`
+}
+
+// NodePermissions configures the Node.js permission model (--permission).
+// Paths are relative to the working directory; "." means the working directory itself.
+// Use "*" to allow all paths.
+type NodePermissions struct {
+	// Disable turns off the Node.js permission model entirely.
+	Disable     bool     `json:"disable"`
+	AllowRead   []string `json:"allowRead"`
+	AllowWrite  []string `json:"allowWrite"`
+	AllowAddons []string `json:"allowAddons"`
+	AllowWorker []string `json:"allowWorker"`
+}
+
+// IsEnabled reports whether the Node.js permission model is active.
+func (p NodePermissions) IsEnabled() bool {
+	return !p.Disable
 }
 
 // ToTOML converts c to TOML with [security] as the root.
@@ -170,6 +206,11 @@ func (c Config) ToSecurityMap() map[string]any {
 // DecodeConfig creates a privacy Config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (Config, error) {
 	sc := DefaultConfig
+	// Deep copy slices to prevent mapstructure from mutating DefaultConfig.
+	sc.Node.Permissions.AllowRead = slices.Clone(sc.Node.Permissions.AllowRead)
+	sc.Node.Permissions.AllowWrite = slices.Clone(sc.Node.Permissions.AllowWrite)
+	sc.Node.Permissions.AllowAddons = slices.Clone(sc.Node.Permissions.AllowAddons)
+	sc.Node.Permissions.AllowWorker = slices.Clone(sc.Node.Permissions.AllowWorker)
 	if cfg.IsSet(securityConfigKey) {
 		m := cfg.GetStringMap(securityConfigKey)
 		dec, err := mapstructure.NewDecoder(

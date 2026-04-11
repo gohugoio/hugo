@@ -155,20 +155,6 @@ func TestTransformPostCSSError(t *testing.T) {
 	b.Assert(err.Error(), qt.Contains, "a.css:4:2")
 }
 
-func TestTransformPostCSSNotInstalledError(t *testing.T) {
-	if !htesting.IsCI() {
-		t.Skip("Skip long running test when running locally")
-	}
-
-	c := qt.New(t)
-
-	_, err := hugolib.TestE(c, postCSSIntegrationTestFiles, hugolib.TestOptOsFs())
-
-	ferrs := herrors.UnwrapFileErrors(err)
-	c.Assert(len(ferrs), qt.Equals, 1)
-	c.Assert(err.Error(), qt.Contains, `binary with name "postcss" not found using npx`)
-}
-
 // #9895
 func TestTransformPostCSSImportError(t *testing.T) {
 	if !htesting.IsCI() {

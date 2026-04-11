@@ -15,9 +15,9 @@ package babel
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
-	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -57,15 +57,15 @@ func DecodeOptions(m map[string]any) (opts Options, err error) {
 	return
 }
 
+func (opts Options) sourceMapEnabled() bool {
+	return opts.SourceMap != "" && opts.SourceMap != "none"
+}
+
 func (opts Options) toArgs() []any {
 	var args []any
 
-	// external is not a known constant on the babel command line
-	// .sourceMaps must be a boolean, "inline", "both", or undefined
-	switch opts.SourceMap {
-	case "external":
-		args = append(args, "--source-maps")
-	case "inline":
+	// Always use inline source maps; Transform extracts to external file if needed.
+	if opts.sourceMapEnabled() {
 		args = append(args, "--source-maps=inline")
 	}
 	if opts.Minified {
@@ -158,27 +158,13 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	}
 	cmdArgs = append(cmdArgs, "--filename="+ctx.SourcePath)
 
-	// Create compile into a real temp file:
-	// 1. separate stdout/stderr messages from babel (https://github.com/gohugoio/hugo/issues/8136)
-	// 2. allow generation and retrieval of external source map.
-	compileOutput, err := os.CreateTemp("", "compileOut-*.js")
-	if err != nil {
-		return err
-	}
-
-	cmdArgs = append(cmdArgs, "--out-file="+compileOutput.Name())
+	var outBuf bytes.Buffer
 	stderr := io.MultiWriter(infoW, &errBuf)
 	cmdArgs = append(cmdArgs, hexec.WithStderr(stderr))
-	cmdArgs = append(cmdArgs, hexec.WithStdout(stderr))
+	cmdArgs = append(cmdArgs, hexec.WithStdout(&outBuf))
+	cmdArgs = append(cmdArgs, hexec.WithDir(t.rs.Cfg.BaseConfig().WorkingDir))
 	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.Cfg.BaseConfig().WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
 
-	defer func() {
-		compileOutput.Close()
-		os.Remove(compileOutput.Name())
-	}()
-
-	// ARGA [--no-install babel --config-file /private/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/hugo-test-babel812882892/babel.config.js --source-maps --filename=js/main2.js --out-file=/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/compileOut-2237820197.js]
-	//      [--no-install babel --config-file /private/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/hugo-test-babel332846848/babel.config.js --filename=js/main.js --out-file=/var/folders/_g/j3j21hts4fn7__h04w2x8gb40000gn/T/compileOut-1451390834.js 0x10304ee60 0x10304ed60 0x10304f060]
 	cmd, err := ex.Npx(binaryName, cmdArgs...)
 	if err != nil {
 		if hexec.IsNotFound(err) {
@@ -206,24 +192,16 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		return fmt.Errorf(errBuf.String()+": %w", err)
 	}
 
-	content, err := io.ReadAll(compileOutput)
-	if err != nil {
-		return err
-	}
+	content := outBuf.Bytes()
 
-	mapFile := compileOutput.Name() + ".map"
-	if _, err := os.Stat(mapFile); err == nil {
-		defer os.Remove(mapFile)
-		sourceMap, err := os.ReadFile(mapFile)
-		if err != nil {
-			return err
+	if t.options.SourceMap == "external" {
+		if sourceMap, stripped, ok := extractInlineSourceMap(content); ok {
+			if err = ctx.PublishSourceMap(sourceMap); err != nil {
+				return err
+			}
+			targetPath := path.Base(ctx.OutPath) + ".map"
+			content = append(stripped, ("//# sourceMappingURL=" + targetPath + "\n")...)
 		}
-		if err = ctx.PublishSourceMap(sourceMap); err != nil {
-			return err
-		}
-		targetPath := path.Base(ctx.OutPath) + ".map"
-		re := regexp.MustCompile(`//# sourceMappingURL=.*\n?`)
-		content = []byte(re.ReplaceAllString(string(content), "//# sourceMappingURL="+targetPath+"\n"))
 	}
 
 	ctx.To.Write(content)
@@ -236,4 +214,18 @@ func (c *Client) Process(res resources.ResourceTransformer, options Options) (re
 	return res.Transform(
 		&babelTransformation{rs: c.rs, options: options},
 	)
+}
+
+var inlineSourceMapRe = regexp.MustCompile(`(?m)//# sourceMappingURL=data:application/json[^,]*,([A-Za-z0-9+/=]+)\s*$`)
+
+func extractInlineSourceMap(content []byte) (sourceMap, stripped []byte, ok bool) {
+	loc := inlineSourceMapRe.FindSubmatchIndex(content)
+	if loc == nil {
+		return nil, content, false
+	}
+	decoded, err := base64.StdEncoding.DecodeString(string(content[loc[2]:loc[3]]))
+	if err != nil {
+		return nil, content, false
+	}
+	return decoded, content[:loc[0]], true
 }

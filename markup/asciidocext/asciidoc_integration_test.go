@@ -264,7 +264,7 @@ defaultContentLanguageInSubdir = DEFAULT_CONTENT_LANGUAGE_IN_SUBDIR
 dir = 'DIAGRAM_CACHEDIR'
 
 [security.exec]
-  allow = ['^((dart-)?sass|git|go|npx|postcss|tailwindcss|asciidoctor)$']`
+  allow = ['^((dart-)?sass|git|go|node|postcss|tailwindcss|asciidoctor)$']`
 
 func validatePublishedSite_1(b *hugolib.IntegrationTestBuilder) {
 	for _, file := range []publishedContentFile{

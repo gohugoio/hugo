@@ -454,6 +454,18 @@ func (d *SourceFilesystem) RealDirs(from string) []string {
 	return dirnames
 }
 
+// RealPaths returns the absolute paths of all mounts in this filesystem.
+func (d *SourceFilesystem) RealPaths(from string) []string {
+	var paths []string
+	for _, m := range d.mounts() {
+		p := filepath.Join(m.Meta().Filename, from)
+		if _, err := d.SourceFs.Stat(p); err == nil {
+			paths = append(paths, p)
+		}
+	}
+	return paths
+}
+
 // WithBaseFs allows reuse of some potentially expensive to create parts that remain
 // the same across sites/languages.
 func WithBaseFs(b *BaseFs) func(*BaseFs) error {
