@@ -112,6 +112,14 @@ func TestOptWithNpmInstall() TestOpt {
 	}
 }
 
+// TestOptWithNpmInstallGlobal enables global npm package installation in integration tests.
+// This mutates the host environment and is therefore restricted to real CI.
+func TestOptWithNpmInstallGlobal(packages ...string) TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NeedsNpmGlobalInstall = packages
+	}
+}
+
 // TestOptWithNFDOnDarwin will normalize the Unicode filenames to NFD on Darwin.
 func TestOptWithNFDOnDarwin() TestOpt {
 	return func(c *IntegrationTestConfig) {
@@ -967,18 +975,37 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		s.H = sites
 		s.fs = fs
 
-		if s.Cfg.NeedsNpmInstall {
-			wd, _ := os.Getwd()
-			s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
-			s.C.Cleanup(func() { os.Chdir(wd) })
+		if s.Cfg.NeedsNpmInstall || len(s.Cfg.NeedsNpmGlobalInstall) > 0 {
+			if s.Cfg.NeedsNpmInstall {
+				wd, _ := os.Getwd()
+				s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
+				s.C.Cleanup(func() { os.Chdir(wd) })
+			}
 			sc := security.DefaultConfig
 			sc.Exec.Allow, err = security.NewWhitelist("npm")
 			s.Assert(err, qt.IsNil)
 			ex := hexec.New(sc, s.Cfg.WorkingDir, loggers.NewDefault())
-			command, err := ex.New("npm", "install")
-			s.Assert(err, qt.IsNil)
-			s.Assert(command.Run(), qt.IsNil)
 
+			if len(s.Cfg.NeedsNpmGlobalInstall) > 0 {
+				if !htesting.IsRealCI() && !htesting.IsGitHubAction() {
+					panic("NeedsNpmGlobalInstall is restricted to real CI because it performs global npm installs")
+				}
+				for _, pkg := range s.Cfg.NeedsNpmGlobalInstall {
+					command, err := ex.New("npm", "install", "-g", pkg)
+					s.Assert(err, qt.IsNil)
+					s.Assert(command.Run(), qt.IsNil)
+
+				}
+				s.C.Cleanup(func() {
+					for _, pkg := range s.Cfg.NeedsNpmGlobalInstall {
+						ex.New("npm", "uninstall", "-g", pkg)
+					}
+				})
+			} else {
+				command, err := ex.New("npm", "install")
+				s.Assert(err, qt.IsNil)
+				s.Assert(command.Run(), qt.IsNil)
+			}
 		}
 	})
 
@@ -1186,6 +1213,10 @@ type IntegrationTestConfig struct {
 
 	// Whether to run npm install before Build.
 	NeedsNpmInstall bool
+
+	// Global npm packages to install before Build. This is used for testing the npm integration in the Hugo Pipes.
+	// Only used on CI.
+	NeedsNpmGlobalInstall []string
 
 	// Whether to normalize the Unicode filenames to NFD on Darwin.
 	NFDFormOnDarwin bool
