@@ -561,14 +561,15 @@ func (m *pageMap) forEachResourceInPage(
 
 func (m *pageMap) getResourcesForPage(ps *pageState) (resource.Resources, error) {
 	var res resource.Resources
+
 	m.forEachResourceInPage(ps, doctree.LockTypeNone, true, nil, func(resourceKey string, n contentNode) (bool, error) {
 		switch n := n.(type) {
 		case *resourceSource:
 			r := n.r
+
 			if r == nil {
 				panic(fmt.Sprintf("getResourcesForPage: resource %q for page %q has no resource, sites matrix %v/%v", resourceKey, ps.Path(), ps.siteVector(), n.sv))
 			}
-
 			res = append(res, r)
 		case *pageState:
 			res = append(res, n)

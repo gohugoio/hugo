@@ -215,6 +215,14 @@ func (p *SitesMatrixAndComplements) MatchVersionCoarse(siteVector sitesmatrix.Ve
 	return p.SitesMatrix.HasVersion(i) || p.SitesComplements.HasVersion(i)
 }
 
+func (p *SitesMatrixAndComplements) MatchSiteVectorCoarse(siteVector sitesmatrix.Vector) bool {
+	return p.MatchLanguageCoarse(siteVector) && p.MatchSiteVectorCoarseExcludeLanguage(siteVector)
+}
+
+func (p *SitesMatrixAndComplements) MatchSiteVectorCoarseExcludeLanguage(siteVector sitesmatrix.Vector) bool {
+	return p.MatchRoleCoarse(siteVector) && p.MatchVersionCoarse(siteVector)
+}
+
 func DefaultPageConfig() *PageConfigLate {
 	return &PageConfigLate{
 		Build: DefaultBuildConfig,

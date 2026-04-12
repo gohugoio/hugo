@@ -229,6 +229,13 @@ type ToVectorStoreProvider interface {
 	ToVectorStore() VectorStore
 }
 
+// CoarseSiteVectorMatcher is implemented by types that can match a site vector in a coarse way, i.e. it first checks for a
+// sites matrix match and then falls back to checking the sites complements.
+type CoarseSiteVectorMatcher interface {
+	MatchSiteVectorCoarse(Vector) bool
+	MatchSiteVectorCoarseExcludeLanguage(Vector) bool
+}
+
 func VectorIteratorToStore(vi VectorIterator) VectorStore {
 	switch v := vi.(type) {
 	case VectorStore:
