@@ -791,6 +791,38 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 			},
 		)
 
+		// Duplicate resources across roles when owner pages share the same source.
+		// This ensures resources in a page bundle are available to all roles
+		// that the page spans, avoiding 404 errors in the rendered output.
+		if len(nodes) > 0 {
+			forEeachResourceOwnerPage(func(p *pageState) bool {
+				if _, found := nodes[p.s.siteVector]; found {
+					return true
+				}
+				// Find a resource from another role whose page shares
+				// the same pageMetaSource (i.e. same mount/content file).
+				forEeachResourceOwnerPage(func(donor *pageState) bool {
+					if donor.s.siteVector == p.s.siteVector {
+						return true
+					}
+					if donor.m.pageMetaSource != p.m.pageMetaSource {
+						return true
+					}
+					// Only clone across role differences, not language or version.
+					if donor.s.siteVector[sitesmatrix.Language] != p.s.siteVector[sitesmatrix.Language] ||
+						donor.s.siteVector[sitesmatrix.Version] != p.s.siteVector[sitesmatrix.Version] {
+						return true
+					}
+					if rs, ok := nodes[donor.s.siteVector]; ok {
+						nodes[p.s.siteVector] = rs.(*resourceSource).clone().assignSiteVector(p.s.siteVector)
+						return false
+					}
+					return true
+				})
+				return true
+			})
+		}
+
 		return
 	}
 

@@ -399,6 +399,163 @@ sites:
 	b.AssertFileContent("public/guest/v1.4.0/en/p2/index.html", "title: EN p2|")
 }
 
+func TestContentFilesMountSitesMatrixResourcesVersionsAndLanguages(t *testing.T) {
+	// The assertions below seems reasonable, but it's also a constructed and very rare corner case
+	// that's hard to support without adding too much complexity.
+	// Keep the test for now in case I can come up with something simple.
+	t.Skip("TODO")
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+defaultContentVersion = "v1.2.3"
+defaultContentVersionInSubDir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+[versions]
+[versions."v1.2.3"]
+[versions."v2.0.0"]
+
+[[module.mounts]]
+source = 'content/v1'
+target = 'content'
+[module.mounts.sites.matrix]
+versions = ["v1.2.*"]
+languages = ["*"]
+[[module.mounts]]
+source = 'content/v2'
+target = 'content'
+[module.mounts.sites.matrix]
+versions = ["v2.0.*"]
+languages = ["*"]
+-- content/v1/p1/index.en.md --
+---
+title: "Title English v1"
+---
+-- content/v2/p1/index.en.md --
+---
+title: "Title English v2"
+---
+-- content/v1/p1/index.nn.md --
+---
+title: "Tittel Nynorsk"
+---
+-- content/v2/p1/mytext.nn.txt --
+Tekst Nynorsk
+-- layouts/all.html --
+Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ end }}$
+`
+
+	b := hugolib.Test(t, filesTemplate)
+	b.AssertFileContent("public/v1.2.3/nn/p1/index.html", "Resources: $")
+	b.AssertFileContent("public/v1.2.3/en/p1/index.html", "Resources: $")
+	b.AssertFileContent("public/v2.0.0/en/p1/index.html", "Resources: /v2.0.0/en/p1/mytext.nn.txt|$")
+}
+
+func TestFileMountSitesMatrixResourcesRoles(t *testing.T) {
+	filesTemplate := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
+defaultContentRole = "guest"
+defaultContentRoleInSubDir = true
+[roles]
+[roles.guest]
+weight = 300
+[roles.member]
+weight = 200
+[mounts]
+[[module.mounts]]
+source = 'content/guest'
+target = 'content'
+[module.mounts.sites.matrix]
+roles = "guest"
+[[module.mounts]]
+source = 'content/member'
+target = 'content'
+[module.mounts.sites.matrix]
+roles = "member"
+-- layouts/all.html --
+{{ .Title }}|{{ .RelPermalink }}|Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ end }}$
+-- content/guest/p1/index.md --
+---
+title: "Guest Gallery"
+---
+-- content/member/p1/index.md --
+---
+title: "Member Gallery"
+---
+-- content/guest/p1/mytext.txt --
+Text Guest
+-- content/member/p1/mytext2.txt --
+Text Member
+
+`
+
+	t.Run("Issue 1", func(t *testing.T) {
+		t.Parallel()
+		files := strings.Replace(filesTemplate, "content/member/p1/index.md", "content/member/p1_removed/index.md", 1)
+		files = strings.Replace(files, `roles = "guest"`, `roles = "*"`, 1)
+		b := hugolib.Test(t, files)
+
+		// The current behavior is well intended: We avoid copying the same resources to multiple places.
+		// But for the typical role use case, this typically leads to 404 errors for shared resources in the member section.
+		b.AssertFileContent("public/guest/p1/index.html", "Guest Gallery|/guest/p1/|Resources: /guest/p1/mytext.txt|/guest/p1/mytext2.txt|$")
+		b.AssertFileContent("public/member/p1/index.html", "Guest Gallery|/member/p1/|Resources: /member/p1/mytext.txt|/member/p1/mytext2.txt|$")
+	})
+
+	t.Run("Issue 2", func(t *testing.T) {
+		t.Parallel()
+		files := filesTemplate
+		b := hugolib.Test(t, files)
+
+		// This comes from how we handled languages before we added version and role:
+		// You would typically add 1 image resources and then translate the markdown files to multiple languages.
+		// To make sure that all languages got a complete set when doing Page.Resources, we pull in missing resources from, in this case, the member section.
+		// This obviously doesn't work for the role dimension, but it works for the language dimension, and we need to make sure that we don't break that.
+		b.AssertFileContent("public/guest/p1/index.html", "Guest Gallery|/guest/p1/|Resources: /guest/p1/mytext.txt|$")
+		b.AssertFileContent("public/member/p1/index.html", "Member Gallery|/member/p1/|Resources: /member/p1/mytext2.txt|$")
+	})
+}
+
+func TestFileMountSitesMatrixResourcesRolesContentAdapter(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
+defaultContentRole = "guest"
+defaultContentRoleInSubDir = true
+[roles]
+[roles.guest]
+weight = 300
+[roles.member]
+weight = 200
+-- layouts/all.html --
+{{ .Title }}|{{ .RelPermalink }}|Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ end }}$
+-- content/_content.gotmpl --
+{{ $guest := dict "roles" "guest" }}
+{{ $member := dict "roles" "member" }}
+{{ $contentMarkdownGuest := dict "value" "**Guest**"  "mediaType" "text/markdown" }}
+{{ $contentMarkdownMember := dict "value" "**Member**"  "mediaType" "text/markdown" }}
+{{ $contentTextGuest:= dict "value" "Guest"  "mediaType" "text/plain" }}
+{{ $contentTextMember:= dict "value" "Member"  "mediaType" "text/plain" }}
+{{ .AddPage (dict "path" "p1" "title" "P1 guest" "content" $contentMarkdownGuest "sites" (dict "matrix"  $guest )) }}
+{{ .AddPage (dict "path" "p1" "title" "P1 member" "content" $contentMarkdownMember "sites" (dict "matrix"  $member )) }}
+
+{{ .AddResource (dict "path" "p1/hello1.txt" "title" "Hello guest" "content" $contentTextGuest "sites" (dict "matrix"  $guest )) }}
+{{ .AddResource (dict "path" "p1/hello2.txt" "title" "Hello member" "content" $contentTextMember "sites" (dict "matrix"  $member )) }}
+{{ .AddResource (dict "path" "p1/hello3.txt" "title" "Hello member 2" "content" $contentTextMember "sites" (dict "matrix"  $member )) }}
+
+`
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/member/p1/index.html", "P1 member|/member/p1/|Resources: /member/p1/hello2.txt|/member/p1/hello3.txt|$")
+	b.AssertFileContent("public/guest/p1/index.html", "P1 guest|/guest/p1/|Resources: /guest/p1/hello1.txt|$")
+}
+
 func TestGetPageAndRef(t *testing.T) {
 	t.Parallel()
 
@@ -1605,8 +1762,6 @@ defaultContentVersionInSubDir = true
 [versions]
 [versions."v1"]
 [versions."v2"]
-
-[module]
 [[module.mounts]]
 source = 'content'
 target = 'content'
