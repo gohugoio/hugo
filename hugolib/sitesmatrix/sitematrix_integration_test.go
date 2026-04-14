@@ -401,7 +401,7 @@ sites:
 
 func TestContentFilesMountSitesMatrixResourcesVersionsAndLanguages(t *testing.T) {
 	// The assertions below seems reasonable, but it's also a constructed and very rare corner case
-	// that's hard to support without adding too much complecxity.
+	// that's hard to support without adding too much complexity.
 	// Keep the test for now in case I can come up with something simple.
 	t.Skip("TODO")
 	t.Parallel()
@@ -503,7 +503,7 @@ Text Member
 		files = strings.Replace(files, `roles = "guest"`, `roles = "*"`, 1)
 		b := hugolib.Test(t, files)
 
-		// The current behavior is well itended: We avoid copying the same resources to multiple places.
+		// The current behavior is well intended: We avoid copying the same resources to multiple places.
 		// But for the typical role use case, this typically leads to 404 errors for shared resources in the member section.
 		b.AssertFileContent("public/guest/p1/index.html", "Guest Gallery|/guest/p1/|Resources: /guest/p1/mytext.txt|/guest/p1/mytext2.txt|$")
 		b.AssertFileContent("public/member/p1/index.html", "Guest Gallery|/member/p1/|Resources: /member/p1/mytext.txt|/member/p1/mytext2.txt|$")
@@ -514,9 +514,9 @@ Text Member
 		files := filesTemplate
 		b := hugolib.Test(t, files)
 
-		// This comes from how we handled languages before we adde version and role:
+		// This comes from how we handled languages before we added version and role:
 		// You would typically add 1 image resources and then translate the markdown files to multiple languages.
-		// To make sure that all languages got a complete set when doing Page.Resources, we pull inn missing resources from, in this case, the member section.
+		// To make sure that all languages got a complete set when doing Page.Resources, we pull in missing resources from, in this case, the member section.
 		// This obviously doesn't work for the role dimension, but it works for the language dimension, and we need to make sure that we don't break that.
 		b.AssertFileContent("public/guest/p1/index.html", "Guest Gallery|/guest/p1/|Resources: /guest/p1/mytext.txt|$")
 		b.AssertFileContent("public/member/p1/index.html", "Member Gallery|/member/p1/|Resources: /member/p1/mytext2.txt|$")
