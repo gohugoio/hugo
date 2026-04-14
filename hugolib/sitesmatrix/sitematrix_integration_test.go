@@ -1746,3 +1746,44 @@ title: p1 de
 </ul>
 	`)
 }
+
+// Issue 14576
+// Test that uglyURLs with defaultContentLanguageInSubdir does not create
+// a redirect at the default language home page that would overwrite the actual content.
+func TestSitesMatrixUglyURLsDefaultContentLanguageInSubdir(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["sitemap", "taxonomy", "term"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubDir = true
+uglyURLs = true
+[languages]
+[languages.en]
+languageName = "English"
+weight = 1
+[languages.fr]
+languageName = "Français"
+weight = 2
+-- layouts/index.html --
+Home Content: {{ .Language.LanguageName }}
+-- content/_index.md --
+---
+title: "Home"
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	// The root index.html should be a redirect to the default language home page
+	b.AssertFileContent("public/index.html", "url=https://example.org/en/index.html")
+
+	// The default language home page (/en/index.html) should have actual content,
+	// NOT a redirect. This is the bug fix - previously it would also be a redirect.
+	b.AssertFileContent("public/en/index.html", "Home Content: English", "! url=https://example.org/en/index.html")
+
+	// The non-default language home page should have actual content
+	b.AssertFileContent("public/fr/index.html", "Home Content: Français")
+}
