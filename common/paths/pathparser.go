@@ -34,12 +34,151 @@ const (
 	identifierCustomWrapper = "_"
 )
 
+// Known prefixes for ._prefix_value_. identifiers.
+const (
+	prefixLanguage     = "language_"
+	prefixVersion      = "version_"
+	prefixRole         = "role_"
+	prefixOutputFormat = "outputformat_"
+	prefixKind         = "kind_"
+	prefixLayout       = "layout_"
+)
+
 // isCustomWrapperIdentifier tells whether a supplied path is of the form _xyz_.
 // must have non-empty content between the identifierCustomWrapper's to pass.
 func isCustomWrapperIdentifier(s string) bool {
 	return len(s) > 2*len(identifierCustomWrapper) &&
 		strings.HasPrefix(s, identifierCustomWrapper) &&
 		strings.HasSuffix(s, identifierCustomWrapper)
+}
+
+// parsePrefixIdentifier parses inner content of a wrapper block (with outer underscores stripped)
+// and returns the prefix. The prefix match is case-insensitive.
+// Returns empty string if not a known prefix.
+func parsePrefixIdentifier(inner string) string {
+	innerLower := strings.ToLower(inner)
+	for _, p := range []string{prefixLanguage, prefixVersion, prefixRole, prefixOutputFormat, prefixKind, prefixLayout} {
+		if strings.HasPrefix(innerLower, p) {
+			return p
+		}
+	}
+	return ""
+}
+
+// findWrapperDotPositions returns positions of dots inside ._..._. wrapper blocks.
+// These dots should be skipped during the main backward dot-scanning loop,
+// so that wrapper blocks are treated as single opaque segments.
+func findWrapperDotPositions(s string) []int {
+	lastSlash := strings.LastIndex(s, "/")
+	if lastSlash == -1 {
+		return nil
+	}
+
+	var skipDots []int
+	i := lastSlash
+	for i < len(s) {
+		// Look for ._ which could start a wrapper block.
+		if i+2 < len(s) && s[i] == '.' && s[i+1] == '_' {
+			// Find the closing _. or _ at end of string.
+			end := -1
+			for j := i + 2; j < len(s); j++ {
+				if s[j] == '/' {
+					break
+				}
+				if s[j] == '_' && (j+1 >= len(s) || s[j+1] == '.') {
+					end = j
+					break
+				}
+			}
+			if end != -1 {
+				// Record dot positions inside the wrapper block.
+				for j := i + 2; j < end; j++ {
+					if s[j] == '.' {
+						skipDots = append(skipDots, j)
+					}
+				}
+				i = end + 1
+				continue
+			}
+		}
+		i++
+	}
+	return skipDots
+}
+
+// isSkippedDot reports whether position i is in the sorted skipDots slice.
+func isSkippedDot(skipDots []int, i int) bool {
+	for _, d := range skipDots {
+		if d == i {
+			return true
+		}
+		if d > i {
+			break
+		}
+	}
+	return false
+}
+
+// applyPrefixIdentifier validates and stores a prefix identifier.
+// id is the value-only LowHigh (e.g. pointing at "v1.0.0" in p.s, not the full wrapper).
+// Returns true if the identifier was recognized and applied.
+func (pp *PathParser) applyPrefixIdentifier(component, prefix string, p *Path, id types.LowHigh[string]) bool {
+	value := strings.ToLower(p.s[id.Low:id.High])
+	switch prefix {
+	case prefixLanguage:
+		if pp.LanguageIndex != nil {
+			if _, ok := pp.LanguageIndex[value]; ok {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierPrefixLanguages = append(p.posIdentifierPrefixLanguages, len(p.identifiersKnown)-1)
+				return true
+			}
+			if pp.IsLangDisabled != nil && pp.IsLangDisabled(value) {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierPrefixLanguages = append(p.posIdentifierPrefixLanguages, len(p.identifiersKnown)-1)
+				p.disabled = true
+				return true
+			}
+		}
+	case prefixVersion:
+		if pp.ConfiguredDimensions != nil {
+			if idx := pp.ConfiguredDimensions.ConfiguredVersions.ResolveIndex(value); idx >= 0 {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierVersions = append(p.posIdentifierVersions, len(p.identifiersKnown)-1)
+				return true
+			}
+		}
+	case prefixRole:
+		if pp.ConfiguredDimensions != nil {
+			if idx := pp.ConfiguredDimensions.ConfiguredRoles.ResolveIndex(value); idx >= 0 {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierRoles = append(p.posIdentifierRoles, len(p.identifiersKnown)-1)
+				return true
+			}
+		}
+	case prefixOutputFormat:
+		if component == files.ComponentFolderLayouts && pp.IsOutputFormat != nil {
+			if pp.IsOutputFormat(value, "") {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierPrefixOutputFormat = len(p.identifiersKnown) - 1
+				return true
+			}
+		}
+	case prefixKind:
+		if component == files.ComponentFolderLayouts {
+			if kinds.GetKindMain(value) != "" {
+				p.identifiersKnown = append(p.identifiersKnown, id)
+				p.posIdentifierPrefixKind = len(p.identifiersKnown) - 1
+				return true
+			}
+		}
+	case prefixLayout:
+		if component == files.ComponentFolderLayouts {
+			p.identifiersKnown = append(p.identifiersKnown, id)
+			p.posIdentifierPrefixLayout = len(p.identifiersKnown) - 1
+			return true
+		}
+	}
+	return false
 }
 
 // PathParser parses and manages paths.
@@ -84,12 +223,34 @@ func NormalizePathStringBasic(s string) string {
 
 func (pp *PathParser) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
 	pp.init()
-	lang := p.Lang()
-	v, _ := pp.sitesMatrixCache.GetOrCreate(lang, func() (sitesmatrix.VectorStore, error) {
+	langs := p.Langs()
+	versions := p.Versions()
+	roles := p.Roles()
+	lang := p.Lang() // First or dot-based language.
+	// Cache by the full site-selection identity derived from the path:
+	// languages, selected language, versions, and roles.
+	cacheKey := strings.Join(langs, ",") + "/" + lang + "/" + strings.Join(versions, ",") + "|" + strings.Join(roles, ",")
+	v, _ := pp.sitesMatrixCache.GetOrCreate(cacheKey, func() (sitesmatrix.VectorStore, error) {
 		builder := sitesmatrix.NewIntSetsBuilder(pp.ConfiguredDimensions)
-		if lang != "" {
+		if len(langs) > 0 {
+			for _, l := range langs {
+				if idx, ok := pp.LanguageIndex[l]; ok {
+					builder.WithLanguageIndices(idx)
+				}
+			}
+		} else if lang != "" {
 			if idx, ok := pp.LanguageIndex[lang]; ok {
 				builder.WithLanguageIndices(idx)
+			}
+		}
+		for _, version := range versions {
+			if idx := pp.ConfiguredDimensions.ConfiguredVersions.ResolveIndex(version); idx >= 0 {
+				builder.WithVersionIndices(idx)
+			}
+		}
+		for _, role := range roles {
+			if idx := pp.ConfiguredDimensions.ConfiguredRoles.ResolveIndex(role); idx >= 0 {
+				builder.WithRoleIndices(idx)
 			}
 		}
 
@@ -197,12 +358,24 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 	sid := p.s[id.Low:id.High]
 
 	if isCustomWrapperIdentifier(sid) {
-		p.identifiersKnown = append(p.identifiersKnown, id)
-		p.posIdentifierCustom = len(p.identifiersKnown) - 1
-		found = true
+		inner := sid[1 : len(sid)-1]
+		if prefix := parsePrefixIdentifier(inner); prefix != "" {
+			// Value-only LowHigh: skip leading _ + prefix, trailing _
+			valueID := types.LowHigh[string]{Low: id.Low + 1 + len(prefix), High: id.High - 1}
+			if pp.applyPrefixIdentifier(component, prefix, p, valueID) {
+				found = true
+			}
+		}
+		if !found {
+			p.identifiersKnown = append(p.identifiersKnown, id)
+			p.posIdentifierCustom = len(p.identifiersKnown) - 1
+			found = true
+		}
 	}
 
-	if len(p.identifiersKnown) == 0 {
+	if found {
+		// Already handled (e.g. prefix wrapper).
+	} else if len(p.identifiersKnown) == 0 {
 		// The first is always the extension.
 		p.identifiersKnown = append(p.identifiersKnown, id)
 		found = true
@@ -276,6 +449,18 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 		}
 
 	}
+
+	if found {
+		if isLast {
+			// The isLast identifier starts right at the container boundary.
+			// Treat it as part of the name (e.g. layout name "list" in list.no.html).
+			if p.posNameHigh <= 0 {
+				p.posNameHigh = lastDot
+			}
+		} else {
+			p.posNameHigh = i // The '.' before this identifier.
+		}
+	}
 }
 
 func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
@@ -300,10 +485,14 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 	}
 
 	p.s = s
+
+	// Find dots inside ._..._. wrapper blocks that must be skipped.
+	skipDots := findWrapperDotPositions(s)
+
 	slashCount := 0
 	lastDot := 0
 	lastSlashIdx := strings.LastIndex(s, "/")
-	numDots := strings.Count(s[lastSlashIdx+1:], ".")
+	numDots := strings.Count(s[lastSlashIdx+1:], ".") - len(skipDots)
 	if strings.Contains(s, "/_shortcodes/") {
 		p.pathType = TypeShortcode
 	}
@@ -313,6 +502,9 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 
 		switch c {
 		case '.':
+			if isSkippedDot(skipDots, i) {
+				continue
+			}
 			pp.parseIdentifier(component, s, p, i, lastDot, numDots, false)
 			lastDot = i
 		case '/':
@@ -331,13 +523,19 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 		}
 	}
 
+	// Compute the name boundary.
+	if p.posNameHigh >= p.posContainerHigh {
+		p.posIdentifierName = types.LowHigh[string]{Low: p.posContainerHigh, High: p.posNameHigh}
+	} else {
+		p.posIdentifierName = types.LowHigh[string]{Low: p.posContainerHigh, High: len(p.s)}
+	}
+
 	if len(p.identifiersKnown) > 0 {
 		isContentComponent := p.component == files.ComponentFolderContent || p.component == files.ComponentFolderArchetypes
 		isContent := isContentComponent && pp.IsContentExt(p.Ext())
-		id := p.identifiersKnown[len(p.identifiersKnown)-1]
 
-		if id.Low > p.posContainerHigh {
-			b := p.s[p.posContainerHigh : id.Low-1]
+		if p.posIdentifierName.Low >= p.posContainerHigh && p.posIdentifierName.High > p.posIdentifierName.Low {
+			b := p.s[p.posIdentifierName.Low:p.posIdentifierName.High]
 			if isContent {
 				switch b {
 				case "index":
@@ -445,7 +643,22 @@ type Path struct {
 	posIdentifierLayout       int
 	posIdentifierBaseof       int
 	posIdentifierCustom       int
-	disabled                  bool
+
+	// Prefix identifier positions (indices into identifiersKnown).
+	posIdentifierPrefixLanguages    []int
+	posIdentifierVersions           []int
+	posIdentifierRoles              []int
+	posIdentifierPrefixOutputFormat int
+	posIdentifierPrefixKind         int
+	posIdentifierPrefixLayout       int
+
+	// Name boundary, computed during parse.
+	posIdentifierName types.LowHigh[string]
+	// Position of the dot before the leftmost known identifier.
+	// Set during parseIdentifier, used to compute posIdentifierName.
+	posNameHigh int
+
+	disabled bool
 
 	trimLeadingSlash bool
 
@@ -483,6 +696,14 @@ func (p *Path) reset() {
 	p.posIdentifierLayout = -1
 	p.posIdentifierBaseof = -1
 	p.posIdentifierCustom = -1
+	p.posIdentifierPrefixLanguages = p.posIdentifierPrefixLanguages[:0]
+	p.posIdentifierVersions = p.posIdentifierVersions[:0]
+	p.posIdentifierRoles = p.posIdentifierRoles[:0]
+	p.posIdentifierPrefixOutputFormat = -1
+	p.posIdentifierPrefixKind = -1
+	p.posIdentifierPrefixLayout = -1
+	p.posIdentifierName = types.LowHigh[string]{}
+	p.posNameHigh = -1
 	p.disabled = false
 	p.trimLeadingSlash = false
 	p.unnormalized = nil
@@ -576,12 +797,23 @@ func (p *Path) NameNoExt() string {
 
 // Name returns the last element of path without any language identifier.
 func (p *Path) NameNoLang() string {
+	if len(p.posIdentifierPrefixLanguages) > 0 {
+		// Prefix language: the wrapper is outside the name boundary, so Name() without
+		// identifiers is the same as stripping all wrappers. Use the name + extension.
+		if len(p.identifiersKnown) > 0 {
+			return p.NameNoIdentifier() + p.s[p.identifiersKnown[0].Low-1:p.identifiersKnown[0].High]
+		}
+		return p.Name()
+	}
 	i := p.identifierIndex(p.posIdentifierLanguage)
 	if i == -1 {
 		return p.Name()
 	}
-
-	return p.s[p.posContainerHigh:p.identifiersKnown[i].Low-1] + p.s[p.identifiersKnown[i].High:]
+	id := p.identifiersKnown[i]
+	if id.Low-1 < p.posContainerHigh {
+		return p.s[id.High:]
+	}
+	return p.s[p.posContainerHigh:id.Low-1] + p.s[id.High:]
 }
 
 // BaseNameNoIdentifier returns the logical base name for a resource without any identifier (e.g. no extension).
@@ -600,21 +832,7 @@ func (p *Path) NameNoIdentifier() string {
 }
 
 func (p *Path) nameLowHigh() types.LowHigh[string] {
-	if len(p.identifiersKnown) > 0 {
-		lastID := p.identifiersKnown[len(p.identifiersKnown)-1]
-		if p.posContainerHigh == lastID.Low {
-			// The last identifier is the name.
-			return lastID
-		}
-		return types.LowHigh[string]{
-			Low:  p.posContainerHigh,
-			High: p.identifiersKnown[len(p.identifiersKnown)-1].Low - 1,
-		}
-	}
-	return types.LowHigh[string]{
-		Low:  p.posContainerHigh,
-		High: len(p.s),
-	}
+	return p.posIdentifierName
 }
 
 // Dir returns all but the last element of path, typically the path's directory.
@@ -646,6 +864,9 @@ func (p *Path) Unnormalized() *Path {
 
 // PathNoLang returns the Path but with any language identifier removed.
 func (p *Path) PathNoLang() string {
+	if len(p.posIdentifierPrefixLanguages) > 0 {
+		return p.base(true, false)
+	}
 	if p.identifierIndex(p.posIdentifierLanguage) == -1 {
 		return p.Path()
 	}
@@ -767,19 +988,68 @@ func (p *Path) Ext() string {
 }
 
 func (p *Path) OutputFormat() string {
+	if p.posIdentifierPrefixOutputFormat != -1 {
+		return p.identifierAsString(p.posIdentifierPrefixOutputFormat)
+	}
 	return p.identifierAsString(p.posIdentifierOutputFormat)
 }
 
 func (p *Path) Kind() string {
+	if p.posIdentifierPrefixKind != -1 {
+		return p.identifierAsString(p.posIdentifierPrefixKind)
+	}
 	return p.identifierAsString(p.posIdentifierKind)
 }
 
 func (p *Path) Layout() string {
+	if p.posIdentifierPrefixLayout != -1 {
+		return p.identifierAsString(p.posIdentifierPrefixLayout)
+	}
 	return p.identifierAsString(p.posIdentifierLayout)
 }
 
 func (p *Path) Lang() string {
+	if len(p.posIdentifierPrefixLanguages) > 0 {
+		return p.identifierAsString(p.posIdentifierPrefixLanguages[0])
+	}
 	return p.identifierAsString(p.posIdentifierLanguage)
+}
+
+func (p *Path) Langs() []string {
+	return p.identifiersAsStrings(p.posIdentifierPrefixLanguages)
+}
+
+func (p *Path) Version() string {
+	if len(p.posIdentifierVersions) > 0 {
+		return p.identifierAsString(p.posIdentifierVersions[0])
+	}
+	return ""
+}
+
+func (p *Path) Versions() []string {
+	return p.identifiersAsStrings(p.posIdentifierVersions)
+}
+
+func (p *Path) Role() string {
+	if len(p.posIdentifierRoles) > 0 {
+		return p.identifierAsString(p.posIdentifierRoles[0])
+	}
+	return ""
+}
+
+func (p *Path) Roles() []string {
+	return p.identifiersAsStrings(p.posIdentifierRoles)
+}
+
+func (p *Path) identifiersAsStrings(positions []int) []string {
+	if len(positions) == 0 {
+		return nil
+	}
+	ids := make([]string, len(positions))
+	for i, pos := range positions {
+		ids[i] = p.identifierAsString(pos)
+	}
+	return ids
 }
 
 func (p *Path) Custom() string {

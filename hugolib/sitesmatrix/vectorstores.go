@@ -812,6 +812,32 @@ func (s *IntSetsBuilder) WithLanguageIndices(idxs ...int) *IntSetsBuilder {
 	return s
 }
 
+func (s *IntSetsBuilder) WithVersionIndices(idxs ...int) *IntSetsBuilder {
+	if len(idxs) == 0 {
+		return s
+	}
+	if s.s.versions == nil {
+		s.s.versions = hmaps.NewOrderedIntSet()
+	}
+	for _, i := range idxs {
+		s.s.versions.Set(i)
+	}
+	return s
+}
+
+func (s *IntSetsBuilder) WithRoleIndices(idxs ...int) *IntSetsBuilder {
+	if len(idxs) == 0 {
+		return s
+	}
+	if s.s.roles == nil {
+		s.s.roles = hmaps.NewOrderedIntSet()
+	}
+	for _, i := range idxs {
+		s.s.roles.Set(i)
+	}
+	return s
+}
+
 func (s *IntSetsBuilder) WithDefaultsAndAllLanguagesIfNotSet() *IntSetsBuilder {
 	s.s.setDefaultsAndAllLAnguagesIfNotSet(s.cfg)
 	return s
