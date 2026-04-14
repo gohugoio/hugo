@@ -149,7 +149,7 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 	if err := s.insertEmbedded(); err != nil {
 		return nil, err
 	}
-	if err := s.parseTemplates(false); err != nil {
+	if err := s.parseTemplates(); err != nil {
 		return nil, err
 	}
 	if err := s.extractInlinePartials(false); err != nil {
@@ -740,7 +740,7 @@ func (s *TemplateStore) RefreshFiles(include func(fi hugofs.FileMetaInfo) bool) 
 	if err := s.createTemplatesSnapshot(); err != nil {
 		return err
 	}
-	if err := s.parseTemplates(true); err != nil {
+	if err := s.parseTemplates(); err != nil {
 		return err
 	}
 	if err := s.extractInlinePartials(true); err != nil {
@@ -1627,7 +1627,7 @@ func (s *TemplateStore) addTransformedTemplateSetTree(this *TemplInfo, root *par
 	return tree, nil
 }
 
-func (s *TemplateStore) parseTemplates(replace bool) error {
+func (s *TemplateStore) parseTemplates() error {
 	if err := func() error {
 		// Read and parse all templates.
 		for _, v := range s.treeMain.All() {
@@ -1635,7 +1635,7 @@ func (s *TemplateStore) parseTemplates(replace bool) error {
 				if vv.state == processingStateTransformed {
 					continue
 				}
-				if err := s.parseTemplate(vv, replace); err != nil {
+				if err := s.parseTemplate(vv); err != nil {
 					return err
 				}
 			}
@@ -1655,7 +1655,7 @@ func (s *TemplateStore) parseTemplates(replace bool) error {
 						// The regular expression used to detect if a template needs a base template has some
 						// rare false positives. Assume we don't need one.
 						vv.noBaseOf = true
-						if err := s.parseTemplate(vv, replace); err != nil {
+						if err := s.parseTemplate(vv); err != nil {
 							return err
 						}
 						continue
@@ -1684,7 +1684,7 @@ func (s *TemplateStore) parseTemplates(replace bool) error {
 				if vvv.state == processingStateTransformed {
 					continue
 				}
-				if err := s.parseTemplate(vvv, replace); err != nil {
+				if err := s.parseTemplate(vvv); err != nil {
 					return err
 				}
 			}

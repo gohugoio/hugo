@@ -33,7 +33,7 @@ background = 'yosemite.jpg'
 [cascade.params]
 a = "home-a"
 b = "home-b"
-[cascade._target]
+[cascade.target]
 kind = 'page'
 +++
 -- content/p1.md --

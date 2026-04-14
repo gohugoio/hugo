@@ -102,7 +102,25 @@ var (
 	hugoCtxEndDelim     = []byte("}}")
 	hugoCtxClosingDelim = []byte("/}}")
 	hugoCtxRe           = regexp.MustCompile(`{{__hugo_ctx( pid=\d+)?/?}}\n?`)
+	hugoCtxIndentedRe   = regexp.MustCompile(`(?m)^[ \t]+({{__hugo_ctx[^\n]*}})`)
 )
+
+// DedentMarkers removes leading whitespace from Hugo context marker lines
+// to prevent them from being treated as indented code blocks by Goldmark.
+func DedentMarkers(b []byte) []byte {
+	if !bytes.Contains(b, hugoCtxPrefix) {
+		return b
+	}
+	return hugoCtxIndentedRe.ReplaceAll(b, []byte("$1"))
+}
+
+// Strip strips any Hugo context markers from b.
+func Strip(b []byte) []byte {
+	if !bytes.Contains(b, hugoCtxPrefix) {
+		return b
+	}
+	return hugoCtxRe.ReplaceAll(b, nil)
+}
 
 var _ parser.InlineParser = (*hugoContextParser)(nil)
 
