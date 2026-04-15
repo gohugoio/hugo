@@ -20,6 +20,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
@@ -58,6 +59,18 @@ type PageMatcher struct {
 	// Compiled values.
 	// The site vectors to apply this to.
 	SitesMatrixCompiled sitesmatrix.VectorProvider `mapstructure:"-"`
+	kindGlob            glob.Glob
+	pathGlob            glob.Glob
+	environmentGlob     glob.Glob
+}
+
+// Equal compares the configured fields; compiled state is ignored.
+func (m PageMatcher) Equal(other PageMatcher) bool {
+	return m.Path == other.Path &&
+		m.Kind == other.Kind &&
+		m.Lang == other.Lang &&
+		m.Environment == other.Environment &&
+		m.Sites.Equal(other.Sites)
 }
 
 func (m PageMatcher) Matches(p Page) bool {
@@ -70,30 +83,23 @@ func (m PageMatcher) Match(kind, path, environment string, sitesMatrix sitesmatr
 			return false
 		}
 	}
-	if m.Kind != "" {
-		g, err := hglob.GetGlob(m.Kind)
-		if err == nil && !g.Match(kind) {
-			return false
-		}
+	if m.kindGlob != nil && !m.kindGlob.Match(kind) {
+		return false
 	}
 
-	if m.Path != "" {
-		g, err := hglob.GetGlob(m.Path)
+	if m.pathGlob != nil {
 		// TODO(bep) Path() vs filepath vs leading slash.
 		p := strings.ToLower(filepath.ToSlash(path))
-		if !(strings.HasPrefix(p, "/")) {
+		if !strings.HasPrefix(p, "/") {
 			p = "/" + p
 		}
-		if err == nil && !g.Match(p) {
+		if !m.pathGlob.Match(p) {
 			return false
 		}
 	}
 
-	if m.Environment != "" {
-		g, err := hglob.GetGlob(m.Environment)
-		if err == nil && !g.Match(environment) {
-			return false
-		}
+	if m.environmentGlob != nil && !m.environmentGlob.Match(environment) {
+		return false
 	}
 
 	return true
@@ -117,7 +123,7 @@ func isGlobWithExtension(s string) bool {
 
 func checkCascadePattern(logger loggers.Logger, m PageMatcher) {
 	if m.Lang != "" {
-		hugo.Deprecate("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/content-management/front-matter/#target", "v0.150.0")
+		hugo.DeprecateWithLogger("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/content-management/front-matter/#target", "v0.150.0", logger.Logger())
 	}
 }
 
@@ -249,8 +255,35 @@ func (d cascadeConfigDecoder) decodePageMatcher(m any, v *PageMatcher) error {
 	return nil
 }
 
+func (v *PageMatcher) compileGlobs() error {
+	var err error
+	if v.Kind != "" {
+		v.kindGlob, err = hglob.GetGlob(v.Kind)
+		if err != nil {
+			return err
+		}
+	}
+	if v.Path != "" {
+		v.pathGlob, err = hglob.GetGlob(v.Path)
+		if err != nil {
+			return err
+		}
+	}
+	if v.Environment != "" {
+		v.environmentGlob, err = hglob.GetGlob(v.Environment)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // DecodeCascadeConfigOptions
 func (v *PageMatcher) compileSitesMatrix(defaults sitesmatrix.VectorStore, configuredDimensions *sitesmatrix.ConfiguredDimensions) error {
+	if err := v.compileGlobs(); err != nil {
+		return err
+	}
+
 	if v.Sites.Matrix.IsZero() && defaults == nil {
 		// Nothing to do.
 		v.SitesMatrixCompiled = nil
