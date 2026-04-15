@@ -135,12 +135,8 @@ slug: "mytagslug"
 	b.AssertFileContent("public/tagsslug/tagsslug/index.html", "List|taxonomy|/tagsslug/tagsslug/|")
 
 	permalinksConf := b.H.Configs.Base.Permalinks
-	b.Assert(permalinksConf, qt.DeepEquals, map[string]map[string]string{
-		"page":     {"withallbutlastsection": "/:sections[:last]/:slug/", "withallbutlastsectionslug": "/:sectionslugs[:last]/:slug/", "withpageslug": "/pageslug/:slug/", "withsectionslug": "/sectionslug/:sectionslug/:slug/", "withsectionslugs": "/sectionslugs/:sectionslugs/:slug/"},
-		"section":  {"nofilefilename": "/sectionnofilefilename/:contentbasename/", "nofileslug": "/sectionnofileslug/:slug/", "nofiletitle1": "/sectionnofiletitle1/:title/", "nofiletitle2": "/sectionnofiletitle2/:sections[:last]/", "withfilefilename": "/sectionwithfilefilename/:contentbasename/", "withfilefiletitle": "/sectionwithfilefiletitle/:title/", "withfileslug": "/sectionwithfileslug/:slug/"},
-		"taxonomy": {"tags": "/tagsslug/:slug/"},
-		"term":     {"tags": "/tagsslug/tag/:slug/"},
-	})
+	// 5 page + 7 section + 1 taxonomy + 1 term = 14 rules.
+	b.Assert(len(permalinksConf), qt.Equals, 14)
 }
 
 func TestPermalinksOldSetup(t *testing.T) {
@@ -172,12 +168,8 @@ slug: "p1slugvalue"
 	b.AssertFileContent("public/pageslug/p1slugvalue/index.html", "Single|page|/pageslug/p1slugvalue/|")
 
 	permalinksConf := b.H.Configs.Base.Permalinks
-	b.Assert(permalinksConf, qt.DeepEquals, map[string]map[string]string{
-		"page":     {"withpageslug": "/pageslug/:slug/"},
-		"section":  {},
-		"taxonomy": {},
-		"term":     {"withpageslug": "/pageslug/:slug/"},
-	})
+	// Old flat format: 1 entry creates 2 rules (page + term).
+	b.Assert(len(permalinksConf), qt.Equals, 2)
 }
 
 func TestPermalinksNestedSections(t *testing.T) {
@@ -514,4 +506,267 @@ title: Tag A (set in front matter)
 			b.AssertFileExists("public/s1/p1/index.html", false)
 		})
 	}
+}
+
+func TestPermalinksNewSliceFormat(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/list.html --
+List|{{ .Kind }}|{{ .RelPermalink }}|
+-- layouts/single.html --
+Single|{{ .Kind }}|{{ .RelPermalink }}|
+-- hugo.yaml --
+permalinks:
+  - target:
+      kind: page
+      path: "/books/**"
+    pattern: /books/:year/:slug/
+  - target:
+      kind: section
+      path: "/{books,books/**}"
+    pattern: /libros/:sections[1:]
+  - target:
+      kind: page
+    pattern: /other/:slug/
+-- content/books/_index.md --
+---
+title: Books
+---
+-- content/books/fiction/_index.md --
+---
+title: Fiction
+---
+-- content/books/fiction/book1.md --
+---
+title: Book One
+date: 2023-06-15
+slug: book-one
+---
+-- content/other/p1.md --
+---
+title: Other Page
+slug: other-page
+---
+-- content/unmatched/p2.md --
+---
+title: Unmatched Page
+slug: unmatched-page
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	// Page in /books section gets the books-specific pattern.
+	b.AssertFileContent("public/books/2023/book-one/index.html", "Single|page|/books/2023/book-one/|")
+	// Section page for books/fiction gets the section pattern.
+	b.AssertFileContent("public/libros/fiction/index.html", "List|section|/libros/fiction/|")
+	// Page outside /books matches the default page pattern.
+	b.AssertFileContent("public/other/other-page/index.html", "Single|page|/other/other-page/|")
+	// Page in unmatched section also matches the default page pattern.
+	b.AssertFileContent("public/other/unmatched-page/index.html", "Single|page|/other/unmatched-page/|")
+}
+
+func TestPermalinksNewSliceFormatEnvironment(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/list.html --
+List|{{ .Kind }}|{{ .RelPermalink }}|
+-- layouts/single.html --
+Single|{{ .Kind }}|{{ .RelPermalink }}|
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap','taxonomy','term']
+[[permalinks]]
+pattern = "/testing/:slug/"
+[permalinks.target]
+path = "/books/**"
+environment = "test"
+[[permalinks]]
+pattern = "/prod/:slug/"
+[permalinks.target]
+path = "/books/**"
+environment = "production"
+-- content/books/fiction/book1.md --
+---
+title: Book One
+date: 2023-06-15
+slug: book-one
+---
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertPublishDir("prod", "! testing")
+}
+
+func TestPermalinksNewSliceFormatSitesMatrix(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/single.html --
+Single|{{ .Kind }}|{{ .RelPermalink }}|{{ .Language.Lang }}|
+-- hugo.yaml --
+defaultContentLanguage: en
+defaultContentLanguageInSubdir: true
+disableKinds: ['home','rss','section','sitemap','taxonomy','term']
+languages:
+  en:
+    weight: 1
+  de:
+    weight: 2
+permalinks:
+  - target:
+      kind: page
+      sites:
+        matrix:
+          languages: ["en"]
+    pattern: /en-posts/:slug/
+  - target:
+      kind: page
+      sites:
+        matrix:
+          languages: ["de"]
+    pattern: /de-posts/:slug/
+  - target:
+      kind: page
+    pattern: /other/:slug/
+-- content/p1.en.md --
+---
+title: Hello
+slug: hello
+---
+-- content/p1.de.md --
+---
+title: Hallo
+slug: hallo
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	// English page matches the en-specific rule.
+	b.AssertFileContent("public/en/en-posts/hello/index.html", "Single|page|/en/en-posts/hello/|en|")
+	// German page matches the de-specific rule.
+	b.AssertFileContent("public/de/de-posts/hallo/index.html", "Single|page|/de/de-posts/hallo/|de|")
+}
+
+// We only apply permalink patterns to kinds of type hone, page, section, taxonomy and term.
+func TestPermalinksNewSliceFormatAsteriskKind(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+enableRobotsTXT = true
+[[permalinks]]
+pattern = "/mylink/:slug/"
+[permalinks.target]
+kind = "*"
+-- content/mysection/p1.md --
+---
+title: My Page
+slug: my-page
+---
+-- layouts/all.html --
+{{ .Title }}|{{ .RelPermalink }}|{{ .Kind }}|
+-- layouts/404.html --
+404.
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertPublishDir(`
+404.html
+index.html
+index.xml
+mylink/categories/index.html 
+mylink/my-page/index.html
+mylink/mysections/index.html
+mylink/tags/index.html 
+sitemap.xml
+`)
+}
+
+func TestPermalinksHomeKind(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/home.html --
+Home|{{ .Kind }}|{{ .RelPermalink }}|
+-- layouts/list.html --
+List|{{ .Kind }}|{{ .RelPermalink }}|
+-- hugo.yaml --
+disableKinds: ['rss','sitemap','taxonomy','term']
+permalinks:
+  - target:
+      kind: home
+    pattern: /welcome/
+  - target:
+      kind: section
+    pattern: /s/:slug/
+-- content/mysection/_index.md --
+---
+title: My Section
+slug: my-section
+---
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+	t.Log(b.LogString())
+	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
+	b.AssertFileContent("public/welcome/index.html", "Home|home|/welcome/|")
+	b.AssertFileContent("public/s/my-section/index.html", "List|section|/s/my-section/|")
+}
+
+func TestPermalinksHomeKindLegacyMap(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/home.html --
+Home|{{ .Kind }}|{{ .RelPermalink }}|
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+[permalinks.home]
+"/" = '/welcome/'
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+	t.Log(b.LogString())
+	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 0)
+	b.AssertFileContent("public/welcome/index.html", "Home|home|/welcome/|")
+}
+
+func TestPermalinksNewSliceFormatRootSection(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/single.html --
+Single|{{ .Kind }}|{{ .RelPermalink }}|
+-- hugo.yaml --
+permalinks:
+  - target:
+      kind: page
+      path: "/*"
+    pattern: /root/:slug/
+  - target:
+      kind: page
+    pattern: /deep/:slug/
+-- content/p1.md --
+---
+title: Root Page
+slug: root-page
+---
+-- content/sub/p2.md --
+---
+title: Sub Page
+slug: sub-page
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	// Root section page matches /* (non-recursive).
+	b.AssertFileContent("public/root/root-page/index.html", "Single|page|/root/root-page/|")
+	// Nested page matches the default rule.
+	b.AssertFileContent("public/deep/sub-page/index.html", "Single|page|/deep/sub-page/|")
 }

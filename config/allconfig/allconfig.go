@@ -181,7 +181,7 @@ type Config struct {
 	Minify minifiers.MinifyConfig `mapstructure:"-"`
 
 	// Permalink configuration.
-	Permalinks map[string]map[string]string `mapstructure:"-"`
+	Permalinks page.PermalinksConfig `mapstructure:"-"`
 
 	// Taxonomy configuration.
 	Taxonomies map[string]string `mapstructure:"-"`
@@ -479,12 +479,13 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	}
 
 	// Legacy permalink tokens
-	vs := fmt.Sprintf("%v", c.Permalinks)
-	if strings.Contains(vs, ":filename") {
-		hugo.DeprecateWithLogger("the \":filename\" permalink token", "Use \":contentbasename\" instead.", "0.144.0", logger.Logger())
-	}
-	if strings.Contains(vs, ":slugorfilename") {
-		hugo.DeprecateWithLogger("the \":slugorfilename\" permalink token", "Use \":slugorcontentbasename\" instead.", "0.144.0", logger.Logger())
+	for _, pc := range c.Permalinks {
+		if strings.Contains(pc.Pattern, ":filename") {
+			hugo.DeprecateWithLogger("the \":filename\" permalink token", "Use \":contentbasename\" instead.", "0.144.0", logger.Logger())
+		}
+		if strings.Contains(pc.Pattern, ":slugorfilename") {
+			hugo.DeprecateWithLogger("the \":slugorfilename\" permalink token", "Use \":slugorcontentbasename\" instead.", "0.144.0", logger.Logger())
+		}
 	}
 
 	// Legacy render hook values.

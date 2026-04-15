@@ -553,12 +553,21 @@ type SiteVectorProvider interface {
 	SiteVector() sitesmatrix.Vector
 }
 
-// GetSiteVector returns the site vector for a Page.
+// GetSiteVector returns the site vector for a Page,
+// or the zero value if the Page does not implement SiteVectorProvider.
 func GetSiteVector(p Page) sitesmatrix.Vector {
 	if sp, ok := p.(SiteVectorProvider); ok {
 		return sp.SiteVector()
 	}
 	return sitesmatrix.Vector{}
+}
+
+// LookupSiteVector returns the site vector for a Page and whether it was found.
+func LookupSiteVector(p Page) (sitesmatrix.Vector, bool) {
+	if sp, ok := p.(SiteVectorProvider); ok {
+		return sp.SiteVector(), true
+	}
+	return sitesmatrix.Vector{}, false
 }
 
 // PageWithContext is a Page with a context.Context.
