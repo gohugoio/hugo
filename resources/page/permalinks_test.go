@@ -129,7 +129,7 @@ func TestPermalinkExpansion(t *testing.T) {
 		page.section = "blue"
 		page.slug = "The Slug"
 		page.kind = "page"
-		// page.pathInfo
+		page.path = "/posts/test-page"
 		return page
 	}
 
@@ -147,14 +147,12 @@ func TestPermalinkExpansion(t *testing.T) {
 		name := fmt.Sprintf("[%d] %s", i, specNameCleaner.ReplaceAllString(item.spec, "_"))
 
 		c.Run(name, func(c *qt.C) {
-			patterns := map[string]map[string]string{
-				"page": {
-					"posts": item.spec,
-				},
+			configs := PermalinksConfig{
+				{Target: PageMatcher{Kind: "page", Path: "/posts/**"}, Pattern: item.spec},
 			}
-			expander, err := NewPermalinkExpander(urlize, patterns)
+			expander, err := NewPermalinkExpander(urlize, configs)
 			c.Assert(err, qt.IsNil)
-			expanded, err := expander.Expand("posts", page)
+			expanded, err := expander.Expand(page)
 			c.Assert(err, qt.IsNil)
 			c.Assert(expanded, qt.Equals, item.expandsTo)
 
@@ -178,39 +176,42 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	page.section = "blue"
 	page.slug = "The Slug"
 	page.kind = "page"
+	page.path = "/posts/my-page"
 
-	page_slug_fallback := newTestPageWithFile("/page-filename/index.md")
-	page_slug_fallback.title = "Page Title"
-	page_slug_fallback.kind = "page"
+	pageSlugFallback := newTestPageWithFile("/page-filename/index.md")
+	pageSlugFallback.title = "Page Title"
+	pageSlugFallback.kind = "page"
 
-	permalinksConfig := map[string]map[string]string{
-		"page": {
-			"posts":   "/:slug",
-			"blog":    "/:section/:year",
-			"recipes": "/:slugorfilename",
-			"special": "/special\\::slug",
-		},
+	configs := PermalinksConfig{
+		{Target: PageMatcher{Kind: "page", Path: "/posts/**"}, Pattern: "/:slug"},
+		{Target: PageMatcher{Kind: "page", Path: "/blog/**"}, Pattern: "/:section/:year"},
+		{Target: PageMatcher{Kind: "page", Path: "/recipes/**"}, Pattern: "/:slugorfilename"},
+		{Target: PageMatcher{Kind: "page", Path: "/special/**"}, Pattern: "/special\\::slug"},
 	}
-	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
+	expander, err := NewPermalinkExpander(urlize, configs)
 	c.Assert(err, qt.IsNil)
 
-	expanded, err := expander.Expand("posts", page)
+	expanded, err := expander.Expand(page)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/the-slug")
 
-	expanded, err = expander.Expand("blog", page)
+	page.path = "/blog/my-page"
+	expanded, err = expander.Expand(page)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/blue/2012")
 
-	expanded, err = expander.Expand("posts", page_slug_fallback)
+	pageSlugFallback.path = "/posts/my-page"
+	expanded, err = expander.Expand(pageSlugFallback)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/page-title")
 
-	expanded, err = expander.Expand("recipes", page_slug_fallback)
+	pageSlugFallback.path = "/recipes/my-page"
+	expanded, err = expander.Expand(pageSlugFallback)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/page-filename")
 
-	expanded, err = expander.Expand("special", page)
+	page.path = "/special/my-page"
+	expanded, err = expander.Expand(page)
 	c.Assert(err, qt.IsNil)
 	c.Assert(expanded, qt.Equals, "/special:the-slug")
 }
@@ -220,13 +221,11 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 
 	c := qt.New(t)
 
-	permalinksConfig := map[string]map[string]string{
-		"page": {
-			"posts": "/:slug/",
-		},
+	configs := PermalinksConfig{
+		{Target: PageMatcher{Kind: "page", Path: "/posts/**"}, Pattern: "/:slug/"},
 	}
 
-	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
+	expander, err := NewPermalinkExpander(urlize, configs)
 	c.Assert(err, qt.IsNil)
 
 	var wg sync.WaitGroup
@@ -237,9 +236,10 @@ func TestPermalinkExpansionConcurrent(t *testing.T) {
 			defer wg.Done()
 			page := newTestPage()
 			page.kind = "page"
+			page.path = "/posts/my-page"
 			for j := 1; j < 20; j++ {
 				page.slug = fmt.Sprintf("slug%d", i+j)
-				expanded, err := expander.Expand("posts", page)
+				expanded, err := expander.Expand(page)
 				c.Assert(err, qt.IsNil)
 				c.Assert(expanded, qt.Equals, fmt.Sprintf("/%s/", page.slug))
 			}
@@ -253,7 +253,7 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 	t.Parallel()
 
 	c := qt.New(t)
-	exp, err := NewPermalinkExpander(urlize, nil)
+	exp, err := NewPermalinkExpander(urlize, PermalinksConfig{})
 	c.Assert(err, qt.IsNil)
 	slice4 := []string{"a", "b", "c", "d"}
 	fn4 := func(s string) []string {
@@ -302,19 +302,18 @@ func BenchmarkPermalinkExpand(b *testing.B) {
 	d, _ := time.Parse("2006-01-02", "2019-02-28")
 	page.date = d
 	page.kind = "page"
+	page.path = "/posts/my-page"
 
-	permalinksConfig := map[string]map[string]string{
-		"page": {
-			"posts": "/:year-:month-:title",
-		},
+	configs := PermalinksConfig{
+		{Target: PageMatcher{Kind: "page", Path: "/posts/**"}, Pattern: "/:year-:month-:title"},
 	}
-	expander, err := NewPermalinkExpander(urlize, permalinksConfig)
+	expander, err := NewPermalinkExpander(urlize, configs)
 	if err != nil {
 		b.Fatal(err)
 	}
 
 	for b.Loop() {
-		s, err := expander.Expand("posts", page)
+		s, err := expander.Expand(page)
 		if err != nil {
 			b.Fatal(err)
 		}

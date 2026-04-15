@@ -307,9 +307,10 @@ var allDecoderSetups = map[string]decodeWeight{
 		key: "permalinks",
 		decode: func(d decodeWeight, p decodeConfig) error {
 			var err error
-			p.c.Permalinks, err = page.DecodePermalinksConfig(p.p.GetStringMap(d.key))
+			p.c.Permalinks, err = page.DecodePermalinksConfig(p.p.Get(d.key))
 			return err
 		},
+		getInitializer: func(c *Config) configInitializer { return c.Permalinks },
 	},
 	"sitemap": {
 		key: "sitemap",
