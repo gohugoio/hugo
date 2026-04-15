@@ -214,7 +214,9 @@ type VectorProvider interface {
 type VectorStore interface {
 	VectorProvider
 	Complement(...VectorProvider) VectorStore
-	WithLanguageIndices(i int) VectorStore
+	WithLanguageIndices(i ...int) VectorStore
+	WithVersionIndices(i ...int) VectorStore
+	WithRoleIndices(i ...int) VectorStore
 	HasLanguage(lang int) bool
 	HasVersion(version int) bool
 	HasRole(role int) bool
@@ -227,6 +229,13 @@ type VectorStore interface {
 
 type ToVectorStoreProvider interface {
 	ToVectorStore() VectorStore
+}
+
+// CoarseSiteVectorMatcher is implemented by types that can match a site vector in a coarse way, i.e. it first checks for a
+// sites matrix match and then falls back to checking the sites complements.
+type CoarseSiteVectorMatcher interface {
+	MatchSiteVectorCoarse(Vector) bool
+	MatchSiteVectorCoarseExcludeLanguage(Vector) bool
 }
 
 func VectorIteratorToStore(vi VectorIterator) VectorStore {

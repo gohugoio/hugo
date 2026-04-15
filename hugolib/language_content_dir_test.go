@@ -171,6 +171,65 @@ title: "p4 theme (nl)"
 	b.AssertFileContent("public/en/index.html", `home (en): en: p1 (en)|p2 (en)|p3 (en)|:END`)
 }
 
+// Issue 14681
+func TestPublishMultilingualSectionCreation(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+capitalizeListTitles = false
+pluralizeListTitles = false
+disableKinds = ['rss','sitemap','taxonomy','term']
+
+defaultContentLanguage = "fr"
+defaultContentLanguageInSubdir = true
+
+[languages.fr]
+contentDir = "content/fr"
+weight = 1
+
+[languages.en]
+contentDir = "content/en"
+weight = 2
+
+[languages.de]
+contentDir = "content/de"
+weight = 3
+-- layouts/home.html --
+HOME {{ .Language.Name }}
+-- layouts/page.html --
+{{ .Title }} {{ .Language.Name }}
+-- layouts/section.html --
+{{ .Title }} {{ .Language.Name }}
+-- content/de/s1/p1.md --
+---
+title: p1
+---
+-- content/en/s1/p2.md --
+---
+title: p2
+---
+-- content/fr/s1/p3.md --
+---
+title: p3
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/de/index.html", "HOME de")
+	b.AssertFileContent("public/de/s1/index.html", "s1 de")
+	b.AssertFileContent("public/de/s1/p1/index.html", "p1 de")
+
+	b.AssertFileContent("public/en/index.html", "HOME en")
+	b.AssertFileContent("public/en/s1/index.html", "s1 en") // fail (file does not exist)
+	b.AssertFileContent("public/en/s1/p2/index.html", "p2 en")
+
+	b.AssertFileContent("public/fr/index.html", "HOME fr")
+	b.AssertFileContent("public/fr/s1/index.html", "s1 fr") // fail (file does not exist)
+	b.AssertFileContent("public/fr/s1/p3/index.html", "p3 fr")
+}
+
 // Issue 13993
 func TestIssue13993(t *testing.T) {
 	t.Parallel()

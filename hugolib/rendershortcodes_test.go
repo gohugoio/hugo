@@ -521,3 +521,63 @@ not emphasized
 		"<p>a</p>\n<p><em>emphasized</em></p>\n<p>not emphasized</p>\n<p>b</p>\n",
 	)
 }
+
+// Issue 14732.
+func TestRenderShortcodesStandalone(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['section','rss','sitemap','taxonomy','term']
+-- layouts/all.html --
+RenderShortcodes: {{ .RenderShortcodes }}|
+-- layouts/_shortcodes/headings.html --
+## Heading 1
+### Heading 2
+{{ $p := site.GetPage "includeme" }}
+RenderShortcodes2: {{ $p.RenderShortcodes }}|
+-- content/p1.md --
+---
+title: "p1"
+---
+{{% headings "headings" %}}
+-- content/includeme.md --
+---
+title: "includeme"
+---
+## Heading 2
+`
+
+	b := Test(t, files)
+
+	b.AssertNoRenderShortcodesArtifacts()
+}
+
+// Issue 12457.
+func TestRenderShortcodesCodeBlock(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['section','rss','sitemap','taxonomy','term']
+-- layouts/_shortcodes/foo.html --
+{{ $p := site.GetPage "includeme" }}
+    {{ $p.RenderShortcodes }}
+-- layouts/home.html --
+{{ .Content }}
+-- content/_index.md --
+---
+title: home
+---
+{{% foo %}}
+-- content/includeme.md --
+---
+title: "includeme"
+---
+Some markdown.
+    `
+
+	b := Test(t, files)
+	b.AssertNoRenderShortcodesArtifacts()
+	b.AssertFileContentEquals("public/index.html", "<p>Some markdown.</p>\n")
+}
