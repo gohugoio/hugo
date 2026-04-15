@@ -1901,3 +1901,55 @@ title: p1 de
 </ul>
 	`)
 }
+
+// Issue 14756.
+func TestFilenameIdentifierShouldReplaceMountDimension(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+defaultContentLanguage = "en"
+defaultContentRole = "guest"
+defaultContentRoleInSubdir = true
+[roles]
+[roles.guest]
+weight = 100
+[roles.member]
+weight = 200
+[module]
+[[module.mounts]]
+source = 'content/member'
+target = 'content'
+[module.mounts.sites.matrix]
+roles = "member"
+[[module.mounts]]
+source = 'content/guest'
+target = 'content'
+[module.mounts.sites.matrix]
+roles = "*"
+-- content/member/bundle/index.md --
+---
+title: "Bundle"
+---
+-- content/guest/bundle/index.md --
+---
+title: "Bundle"
+---
+-- content/guest/bundle/img._role_member_.txt --
+memberimg
+-- content/guest/bundle/guestimg.txt --
+guestimg
+-- layouts/page.html --
+Role: {{ .Site.Role.Name }}|{{ range .Resources }}{{ .Name }}|{{ end }}$
+-- layouts/list.html --
+List.
+`
+
+	b := hugolib.Test(t, files)
+
+	// The guest role should only see guestimg.txt (not img._role_member_.txt).
+	b.AssertFileContent("public/guest/bundle/index.html", "Role: guest|guestimg.txt|$")
+	// The member role should see both.
+	b.AssertFileContent("public/member/bundle/index.html", "Role: member|guestimg.txt|img._role_member_.txt|$")
+}
