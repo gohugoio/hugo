@@ -187,7 +187,7 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 		}
 	}
 
-	opath, err := d.ResourceSpec.Permalinks.Expand(p.Section(), p)
+	opath, err := d.ResourceSpec.Permalinks.Expand(p)
 	if err != nil {
 		return desc, err
 	}
