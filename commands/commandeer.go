@@ -153,6 +153,23 @@ type rootCommand struct {
 	cfgDir  string
 }
 
+// resolveEnvironment sets r.environment if not already set.
+// server indicates whether the server command is running (defaults to development).
+func (r *rootCommand) resolveEnvironment(server bool) {
+	if r.environment != "" {
+		return
+	}
+	if env := os.Getenv("HUGO_ENVIRONMENT"); env != "" {
+		r.environment = env
+	} else if env := os.Getenv("HUGO_ENV"); env != "" {
+		r.environment = env
+	} else if server {
+		r.environment = hugo.EnvironmentDevelopment
+	} else {
+		r.environment = hugo.EnvironmentProduction
+	}
+}
+
 func (r *rootCommand) isVerbose() bool {
 	return r.logger.Level() <= logg.LevelInfo
 }
@@ -224,6 +241,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 	if cfg == nil {
 		panic("cfg must be set")
 	}
+	r.resolveEnvironment(false)
 	cc, _, err := r.commonConfigs.GetOrCreate(key, func(key configKey) (*commonConfig, error) {
 		var dir string
 		if r.source != "" {
