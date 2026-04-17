@@ -162,9 +162,8 @@ func (b *contentBuilder) buildDir() error {
 	if !b.dirMap.siteUsed {
 		// We don't need to build everything.
 		contentInclusionFilter = hglob.NewFilenameFilterForInclusionFunc(func(filename string) bool {
-			filename = strings.TrimPrefix(filename, string(os.PathSeparator))
 			for _, cn := range contentTargetFilenames {
-				if strings.Contains(cn, filename) {
+				if strings.HasSuffix(cn, filename) {
 					return true
 				}
 			}
@@ -219,6 +218,9 @@ func (b *contentBuilder) buildDir() error {
 func (b *contentBuilder) buildFile() (string, error) {
 	contentPlaceholderAbsFilename, err := b.cf.CreateContentPlaceHolder(b.targetPath, b.force)
 	if err != nil {
+		if fi, serr := b.sourceFs.Stat(contentPlaceholderAbsFilename); serr == nil && !fi.IsDir() {
+			return "", errTargetConflict(contentPlaceholderAbsFilename)
+		}
 		return "", err
 	}
 
@@ -231,9 +233,15 @@ func (b *contentBuilder) buildFile() (string, error) {
 	if !usesSite {
 		// We don't need to build everything.
 		contentInclusionFilter = hglob.NewFilenameFilterForInclusionFunc(func(filename string) bool {
-			filename = strings.TrimPrefix(filename, string(os.PathSeparator))
-			return strings.Contains(contentPlaceholderAbsFilename, filename)
+			return strings.HasSuffix(contentPlaceholderAbsFilename, filename)
 		})
+	}
+
+	// If a directory with the target's name (sans extension) exists, this file
+	// would produce a URL conflict with the existing section or leaf bundle.
+	targetDir := strings.TrimSuffix(contentPlaceholderAbsFilename, filepath.Ext(contentPlaceholderAbsFilename))
+	if fi, err := b.sourceFs.Stat(targetDir); err == nil && fi.IsDir() {
+		return "", errTargetConflict(contentPlaceholderAbsFilename)
 	}
 
 	if err := b.h.Build(hugolib.BuildCfg{NoBuildLock: true, SkipRender: true, ContentInclusionFilter: contentInclusionFilter}); err != nil {
@@ -268,10 +276,14 @@ func (b *contentBuilder) setArcheTypeFilenameToUse(ext string) {
 	}
 }
 
+func errTargetConflict(path string) error {
+	return fmt.Errorf("no page found for %q; the target path conflicts with existing content", path)
+}
+
 func (b *contentBuilder) applyArcheType(contentFilename string, archetypeFi hugofs.FileMetaInfo) error {
 	p := b.h.GetContentPage(contentFilename)
 	if p == nil {
-		return fmt.Errorf("no page found for %q; if a file with the same name but different case already exists, please use a different filename or remove the existing file", contentFilename)
+		return errTargetConflict(contentFilename)
 	}
 
 	f, err := b.sourceFs.Create(contentFilename)
