@@ -335,7 +335,12 @@ func (l PermalinkExpander) pageToPermalinkSectionSlugs(p Page, attr string) (str
 }
 
 // pageToPermalinkContentBaseName returns the URL-safe form of the content base name.
+// For section pages it returns an empty string; :sections already carries the
+// section's own name, so emitting it again here would duplicate a path segment.
 func (l PermalinkExpander) pageToPermalinkContentBaseName(p Page, _ string) (string, error) {
+	if p.Kind() == kinds.KindSection {
+		return "", nil
+	}
 	return l.urlize(p.PathInfo().Unnormalized().BaseNameNoIdentifier()), nil
 }
 

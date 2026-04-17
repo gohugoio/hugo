@@ -122,11 +122,11 @@ slug: "mytagslug"
 	b.AssertFileContent("public/sectionslug/section-root-slug/page1-slug/index.html", "Single|page|/sectionslug/section-root-slug/page1-slug/|")
 	b.AssertFileContent("public/sectionslugs/sections-root-slug/level1-slug/page1-slug/index.html", "Single|page|/sectionslugs/sections-root-slug/level1-slug/page1-slug/|")
 
-	b.AssertFileContent("public/sectionwithfilefilename/withfilefilename/index.html", "List|section|/sectionwithfilefilename/withfilefilename/|")
+	b.AssertFileContent("public/sectionwithfilefilename/index.html", "List|section|/sectionwithfilefilename/|")
 
 	b.AssertFileContent("public/sectionwithfileslug/withfileslugvalue/index.html", "List|section|/sectionwithfileslug/withfileslugvalue/|")
 
-	b.AssertFileContent("public/sectionnofilefilename/nofilefilename/index.html", "List|section|/sectionnofilefilename/nofilefilename/|")
+	b.AssertFileContent("public/sectionnofilefilename/index.html", "List|section|/sectionnofilefilename/|")
 	b.AssertFileContent("public/sectionnofileslug/nofileslugs/index.html", "List|section|/sectionnofileslug/nofileslugs/|")
 	b.AssertFileContent("public/sectionnofiletitle1/nofiletitle1s/index.html", "List|section|/sectionnofiletitle1/nofiletitle1s/|")
 	b.AssertFileContent("public/sectionnofiletitle2/index.html", "List|section|/sectionnofiletitle2/|")
@@ -401,7 +401,7 @@ slug: "c2slug"
 	b := hugolib.Test(t, files)
 
 	// Sections.
-	b.AssertFileContent("public/mya/a/index.html", "As|/mya/a/|section|")
+	b.AssertFileContent("public/mya/index.html", "As|/mya/|section|")
 
 	// Pages.
 	b.AssertFileContent("public/myapage/b/index.html", "My Title|/myapage/b/|page|")
@@ -409,6 +409,42 @@ slug: "c2slug"
 	// Taxonomies.
 	b.AssertFileContent("public/myc/c1/index.html", "C1|/myc/c1/|term|")
 	b.AssertFileContent("public/myc/c2slug/index.html", "C2|/myc/c2slug/|term|")
+}
+
+// Issue 14104
+func TestPermalinksContentBaseNameSectionIssue14104(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap','taxonomy','term']
+
+[permalinks.page]
+s1 = "/:sections[1:]/:slugorcontentbasename/"
+
+[permalinks.section]
+s1 = "/:sections[1:]/:slugorcontentbasename/"
+
+-- content/s1/s2/_index.md --
+---
+title: s2
+---
+-- content/s1/s2/p1.md --
+---
+title: p1
+---
+-- layouts/all.html --
+{{ .Title }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/index.html", true)
+	b.AssertFileExists("public/s2/index.html", true)
+	b.AssertFileExists("public/s2/p1/index.html", true)
+
+	b.AssertFileExists("public/s1/index.html", false)
+	b.AssertFileExists("public/s2/s2/index.html", false)
 }
 
 func TestIssue13755(t *testing.T) {
