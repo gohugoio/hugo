@@ -16,6 +16,7 @@ package debug
 
 import (
 	"encoding/json"
+	"reflect"
 	"sort"
 	"sync"
 	"time"
@@ -112,6 +113,57 @@ func (ns *Namespace) Dump(val any) string {
 		return ""
 	}
 	return string(b)
+}
+
+// List returns a sorted list of exported field names, method names,
+// map keys, or slice values for the given value.
+// For structs, method names are suffixed with "()" to distinguish them from fields.
+// Embedding fields themselves are excluded, but their promoted fields are included.
+func (ns *Namespace) List(val any) []string {
+	if val == nil {
+		return nil
+	}
+
+	v := reflect.ValueOf(val)
+	t := v.Type()
+
+	for t.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return nil
+		}
+		t = t.Elem()
+		v = v.Elem()
+	}
+
+	var names []string
+
+	switch t.Kind() {
+	case reflect.Struct:
+		for _, f := range reflect.VisibleFields(t) {
+			if f.IsExported() && !f.Anonymous {
+				names = append(names, f.Name)
+			}
+		}
+		// Methods are on the original (pointer) type.
+		mt := reflect.TypeOf(val)
+		for i := range mt.NumMethod() {
+			names = append(names, mt.Method(i).Name+"()")
+		}
+		sort.Strings(names)
+	case reflect.Map:
+		for _, k := range v.MapKeys() {
+			names = append(names, cast.ToString(k.Interface()))
+		}
+		sort.Strings(names)
+	case reflect.Slice, reflect.Array:
+		for i := range v.Len() {
+			names = append(names, cast.ToString(v.Index(i).Interface()))
+		}
+	default:
+		return nil
+	}
+
+	return names
 }
 
 // VisualizeSpaces returns a string with spaces replaced by a visible string.

@@ -40,6 +40,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.List,
+			nil,
+			[][2]string{
+				{`{{ debug.List (dict "b" 1 "a" 2) }}`, `[a b]`},
+			},
+		)
+
 		// For internal use only. Used in tests.
 		ns.AddMethodMapping(ctx.TestDeprecationErr,
 			nil,

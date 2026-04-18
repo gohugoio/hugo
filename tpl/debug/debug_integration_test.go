@@ -37,6 +37,33 @@ disableKinds = ["taxonomy", "term"]
 	b.AssertLogContains("timer:  name foo count 5 duration")
 }
 
+func TestDebugList(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "The First"
+date: 2024-01-01
+---
+-- layouts/page.html --
+Page: {{ debug.List . }}
+Map: {{ debug.List (dict "b" 1 "a" 2 "c" 3) }}
+Nil: {{ debug.List nil }}
+Slice: {{ debug.List (slice "c" "a" "b") }}
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"Page: [Aliases()",
+		"Title",
+		"Map: [a b c]",
+		"Nil: []",
+		"Slice: [c a b]",
+	)
+}
+
 func TestDebugDumpPage(t *testing.T) {
 	files := `
 -- hugo.toml --
