@@ -16,6 +16,7 @@ package debug
 
 import (
 	"encoding/json"
+	"reflect"
 	"sort"
 	"sync"
 	"time"
@@ -118,6 +119,43 @@ func (ns *Namespace) Dump(val any) string {
 func (ns *Namespace) VisualizeSpaces(val any) string {
 	s := cast.ToString(val)
 	return string(util.VisualizeSpaces([]byte(s)))
+}
+
+// List returns a sorted list of field names and method names for structs/pointers,
+// or a sorted list of keys for maps. Non-recursive.
+func (ns *Namespace) List(val any) []string {
+	if val == nil {
+		return nil
+	}
+
+	v := reflect.ValueOf(val)
+	for v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+
+	var names []string
+
+	switch v.Kind() {
+	case reflect.Struct:
+		t := v.Type()
+		for i := range t.NumField() {
+			if f := t.Field(i); f.IsExported() {
+				names = append(names, f.Name)
+			}
+		}
+		// Include methods on the original (possibly pointer) value.
+		pt := reflect.TypeOf(val)
+		for i := range pt.NumMethod() {
+			names = append(names, pt.Method(i).Name)
+		}
+	case reflect.Map:
+		for _, k := range v.MapKeys() {
+			names = append(names, cast.ToString(k.Interface()))
+		}
+	}
+
+	sort.Strings(names)
+	return names
 }
 
 func (ns *Namespace) Timer(name string) Timer {
