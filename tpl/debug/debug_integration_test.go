@@ -37,6 +37,58 @@ disableKinds = ["taxonomy", "term"]
 	b.AssertLogContains("timer:  name foo count 5 duration")
 }
 
+func TestDebugList(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "The First"
+---
+-- layouts/page.html --
+Map: {{ $m := dict "Hugo" "Rocks" "Zed" "Last" "Alpha" "First" }}
+Keys: {{ debug.List $m | jsonify }}
+Page: {{ debug.List . | jsonify }}
+
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html",
+		`Keys: ["Alpha","Hugo","Zed"]`,
+	)
+	// Page should list exported fields and methods.
+	b.AssertFileContent("public/p1/index.html", `"Title"`)
+}
+
+func TestDebugListNil(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term"]
+-- content/p1.md --
+---
+title: "Test"
+---
+-- layouts/page.html --
+NilResult: {{ debug.List nil | jsonify }}
+
+`
+	b := hugolib.NewIntegrationTestBuilder(
+		hugolib.IntegrationTestConfig{
+			T:           t,
+			TxtarString: files,
+		},
+	).Build()
+
+	b.AssertFileContent("public/p1/index.html", `NilResult: null`)
+}
+
 func TestDebugDumpPage(t *testing.T) {
 	files := `
 -- hugo.toml --

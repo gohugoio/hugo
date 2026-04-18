@@ -16,6 +16,8 @@ package debug
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 	"sort"
 	"sync"
 	"time"
@@ -159,6 +161,59 @@ func (t *timer) Stop() string {
 	})
 	// This is used in templates, we need to return something.
 	return ""
+}
+
+// List returns the exported field and method names of a struct or pointer to a struct,
+// or the keys of a map, as a sorted string slice.
+func (ns *Namespace) List(val any) []string {
+	if val == nil {
+		return nil
+	}
+
+	v := reflect.ValueOf(val)
+	for v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
+
+	switch v.Kind() {
+	case reflect.Struct:
+		seen := make(map[string]struct{})
+		var names []string
+		t := v.Type()
+		for i := range t.NumField() {
+			f := t.Field(i)
+			if f.IsExported() {
+				seen[f.Name] = struct{}{}
+				names = append(names, f.Name)
+			}
+		}
+		// Include methods from both value and pointer receiver sets.
+		for _, mt := range []reflect.Type{t, reflect.PointerTo(t)} {
+			for i := range mt.NumMethod() {
+				m := mt.Method(i)
+				if m.IsExported() {
+					if _, ok := seen[m.Name]; !ok {
+						seen[m.Name] = struct{}{}
+						names = append(names, m.Name)
+					}
+				}
+			}
+		}
+		sort.Strings(names)
+		return names
+	case reflect.Map:
+		var keys []string
+		for _, k := range v.MapKeys() {
+			keys = append(keys, fmt.Sprint(k.Interface()))
+		}
+		sort.Strings(keys)
+		return keys
+	default:
+		return nil
+	}
 }
 
 // Internal template func, used in tests only.
