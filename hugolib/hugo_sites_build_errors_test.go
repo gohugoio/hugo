@@ -421,6 +421,39 @@ line 4
 	b.Assert(errors[3].ErrorContext().Lines, qt.DeepEquals, []string{"line 1", "line 2", "123{{ .ThisDoesNotExist }}", "line 4"})
 }
 
+// Issue #11302: "failed to extract" error should refer to inner shortcode, not outer.
+func TestErrorNestedShortcodeExtractInnerNotFound(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/_index.md --
+---
+title: "Home"
+---
+
+## Hello
+{{< outer >}}{{< inner >}}{{< /outer >}}
+
+-- layouts/home.html --
+{{ .Content }}
+-- layouts/_shortcodes/outer.html --
+<div>{{ .Inner }}</div>
+`
+
+	b, err := TestE(t, files)
+
+	b.Assert(err, qt.IsNotNil)
+	fe := herrors.UnwrapFileError(err)
+	b.Assert(fe, qt.Not(qt.IsNil))
+
+	// The error should point to the inner shortcode's position (line 6, column 12),
+	// not the outer shortcode's position (line 6, column 1).
+	b.Assert(fe.Position().LineNumber, qt.Equals, 6)
+	b.Assert(fe.Position().ColumnNumber, qt.Equals, 12)
+	b.Assert(fe.Error(), qt.Contains, `failed to extract shortcode: template for shortcode "inner" not found`)
+}
+
 func TestErrorRenderHookHeading(t *testing.T) {
 	t.Parallel()
 
