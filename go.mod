@@ -4,7 +4,7 @@ require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.0
 	github.com/alecthomas/chroma/v2 v2.23.1
-	github.com/aws/aws-sdk-go-v2 v1.41.1
+	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.59.0
 	github.com/bep/clocks v0.5.0
 	github.com/bep/debounce v1.2.0
@@ -27,7 +27,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.27.4
+	github.com/evanw/esbuild v0.28.0
 	github.com/fatih/color v1.18.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.6
@@ -58,7 +58,7 @@ require (
 	github.com/niklasfasching/go-org v1.9.1
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
-	github.com/pelletier/go-toml/v2 v2.2.4
+	github.com/pelletier/go-toml/v2 v2.3.0
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/spf13/afero v1.15.0
@@ -66,7 +66,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.10
-	github.com/tdewolff/minify/v2 v2.24.11
+	github.com/tdewolff/minify/v2 v2.24.12
 	github.com/tdewolff/parse/v2 v2.8.11
 	github.com/tetratelabs/wazero v1.11.0
 	github.com/yuin/goldmark v1.8.2
@@ -74,11 +74,11 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
 	golang.org/x/image v0.38.0
-	golang.org/x/mod v0.34.0
-	golang.org/x/net v0.52.0
+	golang.org/x/mod v0.35.0
+	golang.org/x/net v0.53.0
 	golang.org/x/sync v0.20.0
-	golang.org/x/text v0.35.0
-	golang.org/x/tools v0.43.0
+	golang.org/x/text v0.36.0
+	golang.org/x/tools v0.44.0
 	google.golang.org/api v0.267.0
 	rsc.io/qr v0.2.0
 )
@@ -121,7 +121,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.30.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.41.2 // indirect
-	github.com/aws/smithy-go v1.24.0 // indirect
+	github.com/aws/smithy-go v1.24.2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/clipperhouse/displaywidth v0.10.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.6.0 // indirect
@@ -175,9 +175,9 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.40.0 // indirect
 	go.opentelemetry.io/otel/trace v1.40.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.49.0 // indirect
+	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 // indirect

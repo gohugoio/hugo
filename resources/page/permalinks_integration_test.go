@@ -14,6 +14,7 @@
 package page_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -434,4 +435,83 @@ title: aBc
 
 	b = hugolib.Test(t, files)
 	b.AssertFileExists("public/aBc/index.html", true)
+}
+
+func TestPermalinksTaxonomyAndPageConsistencyIssue14325(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+disableKinds = ['rss','sitemap']
+%s
+-- content/s1/p1.md --
+---
+title: p1
+date: 2026-04-02
+tags: ['tag-a']
+categories: ['category-a']
+---
+%s
+-- layouts/all.html --
+{{ .Title }}|
+`
+
+	tests := []struct {
+		explicitTermContent bool
+		kindSpecificConfig  bool
+	}{
+		{true, true},
+		{false, true},
+		{true, false},
+		{false, false},
+	}
+
+	for _, tt := range tests {
+		name := fmt.Sprintf("explicitTermContent=%t/kindSpecificConfig=%t", tt.explicitTermContent, tt.kindSpecificConfig)
+
+		t.Run(name, func(t *testing.T) {
+			var permalinkConfig, termContent string
+
+			if tt.kindSpecificConfig {
+				permalinkConfig = `
+[permalinks.page]
+s1 = '/:year/:month/:day/:contentbasename/'
+[permalinks.term]
+categories = '/:contentbasename/'
+tags = '/tags/:contentbasename/'`
+			} else {
+				permalinkConfig = `
+[permalinks]
+s1 = '/:year/:month/:day/:contentbasename/'
+categories = '/:contentbasename/'
+tags = '/tags/:contentbasename/'`
+			}
+
+			if tt.explicitTermContent {
+				termContent = `
+-- content/categories/category-a/_index.md --
+---
+title: Category A (set in front matter)
+---
+-- content/tags/tag-a/_index.md --
+---
+title: Tag A (set in front matter)
+---`
+			}
+
+			f := fmt.Sprintf(filesTemplate, permalinkConfig, termContent)
+			b := hugolib.Test(t, f)
+
+			b.AssertFileExists("public/2026/04/02/p1/index.html", true)
+			b.AssertFileExists("public/categories/index.html", true)
+			b.AssertFileExists("public/category-a/index.html", true)
+			b.AssertFileExists("public/index.html", true)
+			b.AssertFileExists("public/s1/index.html", true)
+			b.AssertFileExists("public/tags/index.html", true)
+			b.AssertFileExists("public/tags/tag-a/index.html", true)
+
+			b.AssertFileExists("public/categories/category-a/index.html", false)
+			b.AssertFileExists("public/s1/p1/index.html", false)
+		})
+	}
 }

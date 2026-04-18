@@ -1082,22 +1082,8 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 	cfg := config.New()
 	cfg.Set("renderToMemory", c.r.renderToMemory)
 	watch := c.r.buildWatch || (c.s != nil && c.s.serverWatch)
-	if c.r.environment == "" {
-		// We need to set the environment as early as possible because we need it to load the correct config.
-		// Check if the user has set it in env.
-		if env := os.Getenv("HUGO_ENVIRONMENT"); env != "" {
-			c.r.environment = env
-		} else if env := os.Getenv("HUGO_ENV"); env != "" {
-			c.r.environment = env
-		} else {
-			if c.s != nil {
-				// The server defaults to development.
-				c.r.environment = hugo.EnvironmentDevelopment
-			} else {
-				c.r.environment = hugo.EnvironmentProduction
-			}
-		}
-	}
+	// We need to set the environment as early as possible because we need it to load the correct config.
+	c.r.resolveEnvironment(c.s != nil)
 	cfg.Set("environment", c.r.environment)
 
 	cfg.Set("internal", hmaps.Params{
