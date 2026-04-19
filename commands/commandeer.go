@@ -39,7 +39,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
@@ -473,7 +472,6 @@ func (r *rootCommand) PreRun(cd, runner *simplecobra.Commandeer) error {
 	}
 	// Set up the global logger early to allow info deprecations during config load.
 	loggers.SetGlobalLogger(r.logger)
-	hugo.WarnDeprecatedEdition()
 
 	r.changesFromBuild = make(chan []identity.Identity, 10)
 

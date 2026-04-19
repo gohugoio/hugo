@@ -1,6 +1,6 @@
 hugo --minify --logLevel=info
 
-! stderr 'deprecated.*minifyOutput'
+! stderr 'deprecated'
 grep '<p>one</p><p>two</p>'  public/index.html
 
 -- hugo.toml --

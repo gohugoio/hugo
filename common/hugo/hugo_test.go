@@ -14,13 +14,11 @@
 package hugo
 
 import (
-	"bytes"
 	"context"
 	"testing"
 
 	"github.com/bep/logg"
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/common/loggers"
 )
 
 func TestDeprecationLogLevelFromVersion(t *testing.T) {
@@ -60,39 +58,4 @@ func TestGetBuildInfo(t *testing.T) {
 	if bi != nil {
 		c.Assert(bi.GoVersion, qt.Not(qt.Equals), "")
 	}
-}
-
-func TestWarnDeprecatedEdition(t *testing.T) {
-	c := qt.New(t)
-
-	origExtended, origWithdeploy := IsExtended, IsWithdeploy
-	t.Cleanup(func() {
-		IsExtended = origExtended
-		IsWithdeploy = origWithdeploy
-		loggers.SetGlobalLogger(nil)
-	})
-
-	var buf bytes.Buffer
-	loggers.SetGlobalLogger(loggers.New(loggers.Options{Level: logg.LevelInfo, StdErr: &buf}))
-
-	IsExtended = true
-	IsWithdeploy = false
-	WarnDeprecatedEdition()
-	c.Assert(buf.String(), qt.Contains, "the extended edition of the Hugo executable")
-	c.Assert(buf.String(), qt.Contains, "Use the standard edition instead")
-
-	buf.Reset()
-
-	IsExtended = true
-	IsWithdeploy = true
-	WarnDeprecatedEdition()
-	c.Assert(buf.String(), qt.Contains, "the extended_withdeploy edition of the Hugo executable")
-	c.Assert(buf.String(), qt.Contains, "Use the withdeploy edition instead")
-
-	buf.Reset()
-
-	IsExtended = false
-	IsWithdeploy = false
-	WarnDeprecatedEdition()
-	c.Assert(buf.String(), qt.Equals, "")
 }
