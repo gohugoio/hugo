@@ -28,9 +28,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/bep/helpers/maphelpers"
 	"github.com/bep/textandbinarywriter"
 
-	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugio"
 	"golang.org/x/sync/errgroup"
@@ -253,7 +253,7 @@ func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
 	if err := q.init(); err != nil {
 		return nil, err
 	}
-	responseKinds := hmaps.NewMap[string, bool]()
+	responseKinds := maphelpers.NewConcurrentMap[string, bool]()
 	for _, rk := range q.Header.ResponseKinds {
 		responseKinds.Set(rk, true)
 	}
@@ -424,7 +424,7 @@ func (d *dispatcher[Q, R]) pendingCall(id uint32) *call[Q, R] {
 type call[Q, R any] struct {
 	request       Message[Q]
 	response      Message[R]
-	responseKinds *hmaps.Map[string, bool]
+	responseKinds *maphelpers.ConcurrentMap[string, bool]
 	err           error
 	donec         chan *call[Q, R]
 }
