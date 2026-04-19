@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/helpers/maphelpers"
 	"github.com/gohugoio/go-radix"
-	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -54,9 +54,9 @@ type allPagesAssembler struct {
 	rwRoot *doctree.NodeShiftTreeWalker[contentNode] // walks resources.
 
 	// Walking state.
-	seenTerms        *hmaps.Map[term, sitesmatrix.Vectors]
-	droppedPages     *hmaps.Map[*Site, []string] // e.g. drafts, expired, future.
-	seenRootSections *hmaps.Map[string, bool]
+	seenTerms        *maphelpers.ConcurrentMap[term, sitesmatrix.Vectors]
+	droppedPages     *maphelpers.ConcurrentMap[*Site, []string] // e.g. drafts, expired, future.
+	seenRootSections *maphelpers.ConcurrentMap[string, bool]
 	seenHome         bool // set before we fan out to multiple goroutines.
 }
 
@@ -75,7 +75,7 @@ func newAllPagesAssembler(
 	pw := rw.Extend()
 	pw.Tree = m.treePages
 
-	seenRootSections := hmaps.NewMap[string, bool]()
+	seenRootSections := maphelpers.NewConcurrentMap[string, bool]()
 	seenRootSections.Set("", true) // home.
 
 	return &allPagesAssembler{
@@ -83,8 +83,8 @@ func newAllPagesAssembler(
 		h:                          h,
 		m:                          m,
 		assembleChanges:            assembleChanges,
-		seenTerms:                  hmaps.NewMap[term, sitesmatrix.Vectors](),
-		droppedPages:               hmaps.NewMap[*Site, []string](),
+		seenTerms:                  maphelpers.NewConcurrentMap[term, sitesmatrix.Vectors](),
+		droppedPages:               maphelpers.NewConcurrentMap[*Site, []string](),
 		seenRootSections:           seenRootSections,
 		assembleSectionsInParallel: !h.isRebuild(), // On partial rebuilds, there's potential data races with parallel section assembly.
 		pwRoot:                     pw,
