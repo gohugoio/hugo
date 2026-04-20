@@ -95,7 +95,8 @@ func TestGetRstContentFallbackWithoutShortSyntaxHighlight(t *testing.T) {
 	err := os.WriteFile(rstBinary, []byte(`#!/bin/sh
 case "$*" in
   *"--syntax-highlight=short"*)
-    exit 0
+    printf 'rst2html: error: unrecognized arguments: --syntax-highlight=short\n' >&2
+    exit 2
     ;;
 esac
 printf '<html>\n<body>\n%s\n</body>\n</html>\n' "$*"
