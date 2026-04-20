@@ -164,8 +164,6 @@ github.com/bep/goportabletext v0.1.0 h1:8dqym2So1cEqVZiBa4ZnMM1R9l/DnC1h4ONg4J5k
 github.com/bep/goportabletext v0.1.0/go.mod h1:6lzSTsSue75bbcyvVc0zqd1CdApuT+xkZQ6Re5DzZFg=
 github.com/bep/helpers v0.8.0 h1:plg2BFgA9AgIHF2XemyZdZLqixjzQk3uyyArV48FngQ=
 github.com/bep/helpers v0.8.0/go.mod h1:PfE7MGdA8sSQ19nyDh4tYbs5rAlStlJaDI21f/fnNps=
-github.com/bep/imagemeta v0.17.0 h1:0sCIQTcmERGUCazrBfmoeh7SoHutlYQqLr24GCItTxA=
-github.com/bep/imagemeta v0.17.0/go.mod h1:+Hlp195TfZpzsqCxtDKTG6eWdyz2+F2V/oCYfr3CZKA=
 github.com/bep/imagemeta v0.17.1 h1:YZ3CBhdcmiPMpYGslQZ+6LKs5mN3el0/7srSm4Sxtlg=
 github.com/bep/imagemeta v0.17.1/go.mod h1:+Hlp195TfZpzsqCxtDKTG6eWdyz2+F2V/oCYfr3CZKA=
 github.com/bep/lazycache v0.8.1 h1:ko6ASLjkPxyV5DMWoNNZ8B2M0weyjqXX8IZkjBoBtvg=
@@ -240,8 +238,8 @@ github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHk
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
 github.com/fsnotify/fsnotify v1.9.0/go.mod h1:8jBTzvmWwFyi3Pb8djgCCO5IBqzKJ/Jwo8TRcHyHii0=
-github.com/getkin/kin-openapi v0.134.0 h1:/L5+1+kfe6dXh8Ot/wqiTgUkjOIEJiC0bbYVziHB8rU=
-github.com/getkin/kin-openapi v0.134.0/go.mod h1:wK6ZLG/VgoETO9pcLJ/VmAtIcl/DNlMayNTb716EUxE=
+github.com/getkin/kin-openapi v0.135.0 h1:751SjYfbiwqukYuVjwYEIKNfrSwS5YpA7DZnKSwQgtg=
+github.com/getkin/kin-openapi v0.135.0/go.mod h1:6dd5FJl6RdX4usBtFBaQhk9q62Yb2J0Mk5IhUO/QqFI=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
@@ -424,10 +422,10 @@ github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
 github.com/niklasfasching/go-org v1.9.1 h1:/3s4uTPOF06pImGa2Yvlp24yKXZoTYM+nsIlMzfpg/0=
 github.com/niklasfasching/go-org v1.9.1/go.mod h1:ZAGFFkWvUQcpazmi/8nHqwvARpr1xpb+Es67oUGX/48=
-github.com/oasdiff/yaml v0.0.0-20260313112342-a3ea61cb4d4c h1:7ACFcSaQsrWtrH4WHHfUqE1C+f8r2uv8KGaW0jTNjus=
-github.com/oasdiff/yaml v0.0.0-20260313112342-a3ea61cb4d4c/go.mod h1:JKox4Gszkxt57kj27u7rvi7IFoIULvCZHUsBTUmQM/s=
-github.com/oasdiff/yaml3 v0.0.0-20260224194419-61cd415a242b h1:vivRhVUAa9t1q0Db4ZmezBP8pWQWnXHFokZj0AOea2g=
-github.com/oasdiff/yaml3 v0.0.0-20260224194419-61cd415a242b/go.mod h1:y5+oSEHCPT/DGrS++Wc/479ERge0zTFxaF8PbGKcg2o=
+github.com/oasdiff/yaml v0.0.9 h1:zQOvd2UKoozsSsAknnWoDJlSK4lC0mpmjfDsfqNwX48=
+github.com/oasdiff/yaml v0.0.9/go.mod h1:8lvhgJG4xiKPj3HN5lDow4jZHPlx1i7dIwzkdAo6oAM=
+github.com/oasdiff/yaml3 v0.0.9 h1:rWPrKccrdUm8J0F3sGuU+fuh9+1K/RdJlWF7O/9yw2g=
+github.com/oasdiff/yaml3 v0.0.9/go.mod h1:y5+oSEHCPT/DGrS++Wc/479ERge0zTFxaF8PbGKcg2o=
 github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 h1:zrbMGy9YXpIeTnGj4EljqMiZsIcE09mmF8XsD5AYOJc=
 github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6/go.mod h1:rEKTHC9roVVicUIfZK7DYrdIoM0EOr8mK1Hj5s3JjH0=
 github.com/olekukonko/errors v1.2.0 h1:10Zcn4GeV59t/EGqJc8fUjtFT/FuUh5bTMzZ1XwmCRo=
