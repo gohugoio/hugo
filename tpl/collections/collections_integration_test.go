@@ -289,6 +289,51 @@ disableKinds = ['rss','sitemap', 'taxonomy', 'term', 'page']
 	b.AssertFileContentExact("public/index.html", "0: /a3_b1.html\n\n1: /b2.html\n\n2: /a1.html\n\n3: /a2.html\n$")
 }
 
+// Issue 14777.
+func TestWhereWithPageEqualityIssue14777(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+disableKinds = ['rss','sitemap','taxonomy','term']
+-- content/s1/_index.md --
+---
+title: S1
+---
+-- content/s1/p1.md --
+---
+title: P1
+---
+-- content/s1/p2.md --
+---
+title: P2
+---
+-- content/s2/_index.md --
+---
+title: S2
+---
+-- content/s2/p3.md --
+---
+title: P3
+---
+-- layouts/section.html --
+{{ $page := . }}
+WhereEq: {{ range where site.AllPages "Parent" "eq" $page }}{{ .Title }}|{{ end }}$
+WhereDefault: {{ range where site.AllPages "Parent" $page }}{{ .Title }}|{{ end }}$
+RangeIf: {{ range site.AllPages }}{{ if eq .Parent $page }}{{ .Title }}|{{ end }}{{ end }}$
+WhereNe: {{ range where site.AllPages "Parent" "ne" $page }}{{ .Title }}|{{ end }}$
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html",
+		"WhereEq: P1|P2|$",
+		"WhereDefault: P1|P2|$",
+		"RangeIf: P1|P2|$",
+	)
+}
+
 // Issue 13621.
 func TestWhereNotInEmptySlice(t *testing.T) {
 	t.Parallel()
