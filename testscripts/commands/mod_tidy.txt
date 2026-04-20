@@ -11,9 +11,17 @@ go 1.19
 
 require github.com/bep/empty-hugo-module v1.0.0
 
+tool (
+    github.com/gohugoio/hugo
+)
+
 module github.com/gohugoio/testmod
 -- golden/go.mod.cleaned --
 go 1.19
 
+
+tool (
+    github.com/gohugoio/hugo
+)
 
 module github.com/gohugoio/testmod

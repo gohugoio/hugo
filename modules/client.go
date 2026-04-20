@@ -1045,18 +1045,32 @@ func (modules goModules) GetMain() *goModule {
 
 func getModlineSplitter(isGoMod bool) func(line string) []string {
 	if isGoMod {
+		var inRequireBlock bool
 		return func(line string) []string {
 			if strings.HasPrefix(line, "require (") {
+				inRequireBlock = true
 				return nil
 			}
-			if !strings.HasPrefix(line, "require") && !strings.HasPrefix(line, "\t") {
+			if inRequireBlock {
+				if strings.HasPrefix(line, ")") {
+					inRequireBlock = false
+					return nil
+				}
+				if !strings.HasPrefix(line, "\t") {
+					return nil
+				}
+			} else if !strings.HasPrefix(line, "require ") {
 				return nil
 			}
 			line = strings.TrimPrefix(line, "require")
 			line = strings.TrimSpace(line)
 			line = strings.TrimSuffix(line, "// indirect")
 
-			return strings.Fields(line)
+			parts := strings.Fields(line)
+			if len(parts) < 2 {
+				return nil
+			}
+			return parts
 		}
 	}
 
