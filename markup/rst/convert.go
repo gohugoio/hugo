@@ -16,7 +16,9 @@ package rst
 
 import (
 	"bytes"
+	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hexec"
@@ -87,6 +89,14 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	}
 
 	if shouldRetryWithoutShortSyntaxHighlight(result) {
+		shortSyntaxHighlightUnsupported, err := c.isShortSyntaxHighlightUnsupported(binaryName, binaryPath)
+		if err != nil {
+			return nil, err
+		}
+		if shortSyntaxHighlightUnsupported {
+			return nil, fmt.Errorf("%s does not support %s; please upgrade Docutils (0.13+ required)", binaryName, rst2ShortSyntaxHighlightArg)
+		}
+
 		logger.Warnidf(constants.WarnRstSyntaxHighlightFallback, "%s did not return a parseable body with %s; retrying without it", binaryName, rst2ShortSyntaxHighlightArg)
 		result, err = c.renderContent(ctx, src, binaryName, binaryPath, false)
 		if err != nil {
@@ -124,6 +134,47 @@ func shouldRetryWithoutShortSyntaxHighlight(result []byte) bool {
 		return true
 	}
 	return !bytes.Contains(result, []byte("<body>\n")) || !bytes.Contains(result, []byte("\n</body>"))
+}
+
+func (c *rstConverter) isShortSyntaxHighlightUnsupported(binaryName, binaryPath string) (bool, error) {
+	commandName := binaryName
+	args := []string{rst2ShortSyntaxHighlightArg, "--help"}
+
+	if runtime.GOOS == "windows" {
+		pythonBinary, _ := internal.GetPythonBinaryAndExecPath()
+		commandName = pythonBinary
+		args = append([]string{binaryPath}, args...)
+	}
+
+	cmdArgs := make([]any, len(args))
+	for i, arg := range args {
+		cmdArgs[i] = arg
+	}
+
+	cmd, err := c.cfg.Exec.New(commandName, cmdArgs...)
+	if err != nil {
+		return false, err
+	}
+
+	err = cmd.Run()
+	if err == nil {
+		return false, nil
+	}
+
+	return isShortSyntaxHighlightUnsupportedError(err), nil
+}
+
+func isShortSyntaxHighlightUnsupportedError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	msg := strings.ToLower(err.Error())
+	if !strings.Contains(msg, strings.ToLower(rst2ShortSyntaxHighlightArg)) {
+		return false
+	}
+
+	return strings.Contains(msg, "unrecognized arguments") || strings.Contains(msg, "no such option")
 }
 
 func (c *rstConverter) renderContent(ctx converter.DocumentContext, src []byte, binaryName, binaryPath string, useShortSyntaxHighlight bool) ([]byte, error) {

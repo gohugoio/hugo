@@ -94,9 +94,12 @@ func TestGetRstContentFallbackWithoutShortSyntaxHighlight(t *testing.T) {
 
 	err := os.WriteFile(rstBinary, []byte(`#!/bin/sh
 case "$*" in
+  *"--syntax-highlight=short --help"*)
+    printf 'Usage: rst2html\n  --syntax-highlight=short\n'
+    exit 0
+    ;;
   *"--syntax-highlight=short"*)
-    printf 'rst2html: error: unrecognized arguments: --syntax-highlight=short\n' >&2
-    exit 2
+    exit 0
     ;;
 esac
 printf '<html>\n<body>\n%s\n</body>\n</html>\n' "$*"
@@ -119,6 +122,43 @@ printf '<html>\n<body>\n%s\n</body>\n</html>\n' "$*"
 	b, err := conv.getRstContent([]byte("ignored"), conv.ctx)
 	c.Assert(err, qt.IsNil)
 	c.Assert(string(b), qt.Equals, strings.Join(rst2BaseArgs, " "))
+}
+
+func TestGetRstContentUnsupportedShortSyntaxHighlight(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("scripted rst2html test not portable to Windows")
+	}
+
+	c := qt.New(t)
+	workDir := t.TempDir()
+	rstBinary := filepath.Join(workDir, "rst2html")
+
+	err := os.WriteFile(rstBinary, []byte(`#!/bin/sh
+case "$*" in
+  *"--syntax-highlight=short"*)
+    printf 'rst2html: error: unrecognized arguments: --syntax-highlight=short\n' >&2
+    exit 2
+    ;;
+esac
+printf '<html>\n<body>\n%s\n</body>\n</html>\n' "$*"
+`), 0o755)
+	c.Assert(err, qt.IsNil)
+
+	t.Setenv("PATH", workDir)
+
+	sc := security.DefaultConfig
+	sc.Exec.Allow = security.MustNewWhitelist("^rst2html$")
+
+	conv := &rstConverter{
+		ctx: converter.DocumentContext{DocumentName: "test.rst"},
+		cfg: converter.ProviderConfig{
+			Logger: loggers.NewDefault(),
+			Exec:   hexec.New(sc, "", loggers.NewDefault()),
+		},
+	}
+
+	_, err = conv.getRstContent([]byte("ignored"), conv.ctx)
+	c.Assert(err, qt.ErrorMatches, ".*does not support --syntax-highlight=short; please upgrade Docutils \\(0\\.13\\+ required\\).*")
 }
 
 func TestConvert(t *testing.T) {
