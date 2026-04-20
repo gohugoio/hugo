@@ -210,12 +210,25 @@ func TestGetModlineSplitter(t *testing.T) {
 
 	gomodSplitter := getModlineSplitter(true)
 
+	c.Assert(gomodSplitter("require ("), qt.IsNil)
 	c.Assert(gomodSplitter("\tgithub.com/BurntSushi/toml v0.3.1"), qt.DeepEquals, []string{"github.com/BurntSushi/toml", "v0.3.1"})
 	c.Assert(gomodSplitter("\tgithub.com/cpuguy83/go-md2man v1.0.8 // indirect"), qt.DeepEquals, []string{"github.com/cpuguy83/go-md2man", "v1.0.8"})
-	c.Assert(gomodSplitter("require ("), qt.IsNil)
 
 	gosumSplitter := getModlineSplitter(false)
 	c.Assert(gosumSplitter("github.com/BurntSushi/toml v0.3.1"), qt.DeepEquals, []string{"github.com/BurntSushi/toml", "v0.3.1"})
+}
+
+// Issue 14783
+func TestGetModlineSplitterIgnoresToolBlockIssue14783(t *testing.T) {
+	c := qt.New(t)
+
+	gomodSplitter := getModlineSplitter(true)
+
+	c.Assert(gomodSplitter("tool ("), qt.IsNil)
+	c.Assert(gomodSplitter("\tgithub.com/gohugoio/hugo"), qt.IsNil)
+	c.Assert(gomodSplitter(")"), qt.IsNil)
+	c.Assert(gomodSplitter("require ("), qt.IsNil)
+	c.Assert(gomodSplitter("\tgithub.com/foo/bar v1.2.3"), qt.DeepEquals, []string{"github.com/foo/bar", "v1.2.3"})
 }
 
 func TestClientConfigToEnv(t *testing.T) {
