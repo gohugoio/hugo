@@ -79,11 +79,13 @@ func (l *Language) IsDefault() bool {
 
 // NewLanguage creates a new language.
 func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig LanguageConfig, logger loggers.Logger) (*Language, error) {
-	translator := golocales.New(lang)
-	if translator == nil {
-		translator = golocales.New(defaultContentLanguage)
-		if translator == nil {
-			translator = golocales.New("en")
+	var translator golocales.Translator
+	for _, key := range []string{languageConfig.Locale, lang, defaultContentLanguage, "en"} {
+		if key == "" {
+			continue
+		}
+		if translator = golocales.New(key); translator != nil {
+			break
 		}
 	}
 
