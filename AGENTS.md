@@ -6,7 +6,7 @@
 * If you need to add temporary debug printing, use `hdebug.Printf`.[^1]
 * Never export symbols that's not needed outside of the package.
 * Avoid global state at (almost) all cost.
-* This is a project with a long history; assume that a similiar problem has been solved before, look hard for helper functions before creating new ones.
+* This is a project with a long history; assume that a similar problem has been solved before, look hard for helper functions before creating new ones.
 * In tests, use `qt` matchers (e.g. `b.Assert(err, qt.ErrorMatches, ...)`) instead of raw `if`/`t.Fatal` checks.
 * In tests, always use the latest Hugo specification, e.g. for layouts, it's `layouts/page.html` and not `layouts/_default/single.html`, `layouts/list.html` and not `layouts/_default/list.html`
 * Never name tests `TestIssue1234`; if this e.g. is about fixing an issue, use the issue ID as a suffix, as in `TestUpperCaseTitlesCreatesHavocIssue1234`. And note: No underscores in func names.
