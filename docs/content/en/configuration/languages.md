@@ -150,7 +150,7 @@ title = 'Projekt Dokumentation'
 weight = 1
 
 [languages.de.params]
-subtitle = 'Referenz, Tutorials und Erklärungen'
+subtitle = 'Reference, Tutorials und Erklärungen'
 
 [languages.en]
 contentDir = 'content/en'
