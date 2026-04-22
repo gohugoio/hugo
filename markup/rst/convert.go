@@ -18,9 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"runtime"
-	"strings"
 
-	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 
@@ -51,7 +49,7 @@ type rstConverter struct {
 
 var rst2BaseArgs = []string{"--leave-comments", "--initial-header-level=2"}
 
-const rst2ShortSyntaxHighlightArg = "--syntax-highlight=short"
+var rst2ShortSyntaxHighlightArg = "--syntax-highlight=short"
 
 func (c *rstConverter) Convert(ctx converter.RenderContext) (converter.ResultRender, error) {
 	b, err := c.getRstContent(ctx.Src, c.ctx)
@@ -79,43 +77,19 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 
 	logger.Infoln("Rendering", ctx.DocumentName, "with", binaryName, "...")
 
-	var result []byte
-	var err error
-
-	result, err = c.renderContent(ctx, src, binaryName, binaryPath, true)
-
+	result, err := c.renderContent(ctx, src, binaryName, binaryPath, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if shouldRetryWithoutShortSyntaxHighlight(result) {
-		shortSyntaxHighlightUnsupported, err := c.isShortSyntaxHighlightUnsupported(binaryName, binaryPath)
-		if err != nil {
-			return nil, err
-		}
-		if shortSyntaxHighlightUnsupported {
-			return nil, fmt.Errorf("%s does not support %s; please upgrade Docutils (0.13+ required)", binaryName, rst2ShortSyntaxHighlightArg)
-		}
-
-		logger.Warnidf(constants.WarnRstSyntaxHighlightFallback, "%s did not return a parseable body with %s; retrying without it", binaryName, rst2ShortSyntaxHighlightArg)
-		result, err = c.renderContent(ctx, src, binaryName, binaryPath, false)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
-	if bodyStart < 0 {
-		bodyStart = -7 // compensate for length
-	}
-
 	bodyEnd := bytes.Index(result, []byte("\n</body>"))
-	if bodyEnd < 0 || bodyEnd >= len(result) {
-		bodyEnd = max(len(result)-1, 0)
+	if bodyStart < 0 || bodyEnd < 0 || bodyEnd >= len(result) || bodyStart+7 > bodyEnd {
+		return nil, fmt.Errorf("%s returned output without a parseable <body>...</body>; %s may be unsupported", binaryName, rst2ShortSyntaxHighlightArg)
 	}
 
-	return result[bodyStart+7 : bodyEnd], err
+	return result[bodyStart+7 : bodyEnd], nil
 }
 
 func getRstArgs(binaryPath string, isWindows, useShortSyntaxHighlight bool) []string {
@@ -127,54 +101,6 @@ func getRstArgs(binaryPath string, isWindows, useShortSyntaxHighlight bool) []st
 		return append([]string{binaryPath}, args...)
 	}
 	return args
-}
-
-func shouldRetryWithoutShortSyntaxHighlight(result []byte) bool {
-	if len(bytes.TrimSpace(result)) == 0 {
-		return true
-	}
-	return !bytes.Contains(result, []byte("<body>\n")) || !bytes.Contains(result, []byte("\n</body>"))
-}
-
-func (c *rstConverter) isShortSyntaxHighlightUnsupported(binaryName, binaryPath string) (bool, error) {
-	commandName := binaryName
-	args := []string{rst2ShortSyntaxHighlightArg, "--help"}
-
-	if runtime.GOOS == "windows" {
-		pythonBinary, _ := internal.GetPythonBinaryAndExecPath()
-		commandName = pythonBinary
-		args = append([]string{binaryPath}, args...)
-	}
-
-	cmdArgs := make([]any, len(args))
-	for i, arg := range args {
-		cmdArgs[i] = arg
-	}
-
-	cmd, err := c.cfg.Exec.New(commandName, cmdArgs...)
-	if err != nil {
-		return false, err
-	}
-
-	err = cmd.Run()
-	if err == nil {
-		return false, nil
-	}
-
-	return isShortSyntaxHighlightUnsupportedError(err), nil
-}
-
-func isShortSyntaxHighlightUnsupportedError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	msg := strings.ToLower(err.Error())
-	if !strings.Contains(msg, strings.ToLower(rst2ShortSyntaxHighlightArg)) {
-		return false
-	}
-
-	return strings.Contains(msg, "unrecognized arguments") || strings.Contains(msg, "no such option")
 }
 
 func (c *rstConverter) renderContent(ctx converter.DocumentContext, src []byte, binaryName, binaryPath string, useShortSyntaxHighlight bool) ([]byte, error) {
