@@ -135,7 +135,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['.*']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
+		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['(?i)^https?://[a-z]', '! (?i)localhost', '! @']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
 	)
 }
 
@@ -168,6 +168,83 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(pc.Node.Permissions.IsEnabled(), qt.IsTrue)
 	c.Assert(pc.Node.Permissions.AllowRead, qt.DeepEquals, []string{"."})
 	c.Assert(pc.Node.Permissions.AllowWrite, qt.DeepEquals, []string{})
+}
+
+func TestCheckAllowedHTTPURLHardenedDefaultsIssue14792(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	c.Run("Public URLs allowed by default", func(c *qt.C) {
+		c.Parallel()
+		pc, err := DecodeConfig(config.New())
+		c.Assert(err, qt.IsNil)
+		for _, u := range []string{
+			"https://example.org/",
+			"https://example.org:8443/foo",
+			"https://sub.example.org/path",
+		} {
+			c.Assert(pc.CheckAllowedHTTPURL(u), qt.IsNil, qt.Commentf(u))
+		}
+	})
+
+	c.Run("Private/loopback URLs denied by default", func(c *qt.C) {
+		c.Parallel()
+		pc, err := DecodeConfig(config.New())
+		c.Assert(err, qt.IsNil)
+		for _, u := range []string{
+			"http://localhost/",
+			"http://LOCALHOST:8080/",
+			"http://foo.localhost/",
+			"http://127.0.0.1/",
+			"http://127.1.2.3:8080/x",
+			"http://user:pass@127.0.0.1/", // userinfo must not sneak past the deny.
+			"http://10.0.0.1/",
+			"http://172.16.0.1/",
+			"http://192.168.1.1/",
+			"http://169.254.169.254/latest/meta-data/", // AWS/GCP metadata.
+			"http://0.0.0.0/",
+			"http://[::1]/",
+			"http://[fe80::1]/",
+			"http://[fc00::1]/",
+			// Public IP literals are blocked as collateral; users can override.
+			"http://93.184.216.34/",
+			"https://[2001:db8::1]/",
+		} {
+			err := pc.CheckAllowedHTTPURL(u)
+			c.Assert(err, qt.IsNotNil, qt.Commentf(u))
+			c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`, qt.Commentf(u))
+		}
+	})
+
+	c.Run("Explicit user config bypasses hardening", func(c *qt.C) {
+		c.Parallel()
+		tomlConfig := `
+[security.http]
+urls = ['http://127\.0\.0\.1.*', 'http://localhost.*']
+`
+		cfg, err := config.FromConfigString(tomlConfig, "toml")
+		c.Assert(err, qt.IsNil)
+		pc, err := DecodeConfig(cfg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(pc.CheckAllowedHTTPURL("http://127.0.0.1:8080/foo"), qt.IsNil)
+		c.Assert(pc.CheckAllowedHTTPURL("http://localhost:1313/"), qt.IsNil)
+	})
+
+	c.Run("User can deny with the ! prefix", func(c *qt.C) {
+		c.Parallel()
+		tomlConfig := `
+[security.http]
+urls = ['.*', '! ^https?://evil\.example\.com']
+`
+		cfg, err := config.FromConfigString(tomlConfig, "toml")
+		c.Assert(err, qt.IsNil)
+		pc, err := DecodeConfig(cfg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(pc.CheckAllowedHTTPURL("https://good.example.com/"), qt.IsNil)
+		err = pc.CheckAllowedHTTPURL("https://evil.example.com/x")
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`)
+	})
 }
 
 func TestDecodeConfigNodePermissions(t *testing.T) {

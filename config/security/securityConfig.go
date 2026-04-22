@@ -51,7 +51,16 @@ var DefaultConfig = Config{
 		Getenv: MustNewWhitelist("^HUGO_", "^CI$"),
 	},
 	HTTP: HTTP{
-		URLs:    MustNewWhitelist(".*"),
+		// Allow URLs whose host starts with a letter (the typical
+		// "https://example.com" shape), deny anything that looks like
+		// localhost, and deny URLs with userinfo ("http://user@...") to
+		// foil the obvious SSRF bypass. Public IP literals are collateral
+		// blocks; users who need them can override security.http.urls.
+		URLs: MustNewWhitelist(
+			`(?i)^https?://[a-z]`,
+			`! (?i)localhost`,
+			`! @`,
+		),
 		Methods: MustNewWhitelist("(?i)GET|POST"),
 	},
 	Node: Node{

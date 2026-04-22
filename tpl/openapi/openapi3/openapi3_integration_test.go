@@ -273,7 +273,9 @@ func TestUnmarshalRefRemote(t *testing.T) {
 		})
 
 		dataPartRef := ts.URL + "/api/messages/dataPart.json"
-		return strings.ReplaceAll(refLocalTemplate, "DATAPART_REF", dataPartRef)
+		files := strings.ReplaceAll(refLocalTemplate, "DATAPART_REF", dataPartRef)
+		return strings.Replace(files, "baseURL = 'http://example.com/'",
+			"baseURL = 'http://example.com/'\n[security.http]\nurls = ['.*']", 1)
 	}
 
 	t.Run("Build", func(t *testing.T) {
