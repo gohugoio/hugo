@@ -296,3 +296,33 @@ FormatCurrency: {{ 512.5032 | lang.FormatCurrency 2 "USD" }}|
 		`FormatCurrency: US$512.50|`,
 	)
 }
+
+func TestMultipleLanguageVariants7982(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+defaultContentLanguageInSubdir = true
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+[languages.de-de]
+weight = 3
+-- i18n/en.toml --
+file = 'en'
+-- i18n/de.toml --
+file = 'de'
+-- i18n/de-de.toml --
+file = 'de-de'
+-- layouts/index.html --
+language: {{ site.Language.Name }} file: {{ T "file" }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "language: en file: en|")
+	b.AssertFileContent("public/de/index.html", "language: de file: de|")
+	b.AssertFileContent("public/de-de/index.html", "language: de-de file: de-de|")
+}

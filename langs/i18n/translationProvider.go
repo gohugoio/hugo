@@ -17,6 +17,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
@@ -59,6 +60,7 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 	bundle.RegisterUnmarshalFunc("yml", metadecoders.UnmarshalYaml)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
+	var files []hugofs.FileMetaInfo
 	w := hugofs.NewWalkway(
 		hugofs.WalkwayConfig{
 			Fs:         dst.BaseFs.I18n.Fs,
@@ -68,12 +70,28 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 				if info.IsDir() {
 					return nil
 				}
-				return addTranslationFile(bundle, source.NewFileInfo(info))
+				files = append(files, info)
+				return nil
 			},
 		})
 
 	if err := w.Walk(); err != nil {
 		return err
+	}
+
+	// Sort translation files so that base tags (e.g. "de") are always registered
+	// before their subtag variants (e.g. "de-DE"); without this ordering the
+	// fallback chain breaks. See https://github.com/gohugoio/hugo/issues/7982.
+	sort.Slice(files, func(i, j int) bool {
+		si := files[i].Meta().PathInfo.NameNoExt()
+		sj := files[j].Meta().PathInfo.NameNoExt()
+		return strings.Count(si, "-") < strings.Count(sj, "-")
+	})
+
+	for _, info := range files {
+		if err := addTranslationFile(bundle, source.NewFileInfo(info)); err != nil {
+			return err
+		}
 	}
 
 	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
