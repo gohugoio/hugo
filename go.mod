@@ -18,7 +18,7 @@ require (
 	github.com/bep/imagemeta v0.17.1
 	github.com/bep/lazycache v0.8.1
 	github.com/bep/logg v0.4.0
-	github.com/bep/mclib v1.20400.20402
+	github.com/bep/mclib v1.20401.20400
 	github.com/bep/overlayfs v0.10.0
 	github.com/bep/simplecobra v0.7.0
 	github.com/bep/textandbinarywriter v0.1.0
@@ -186,8 +186,8 @@ require (
 	google.golang.org/grpc v1.80.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	howett.net/plist v1.0.0 // indirect
-	software.sslmate.com/src/go-pkcs12 v0.2.0 // indirect
+	howett.net/plist v1.0.1 // indirect
+	software.sslmate.com/src/go-pkcs12 v0.7.0 // indirect
 )
 
 go 1.25.0
