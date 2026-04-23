@@ -188,23 +188,6 @@ func extractFilename(in, ext, base, pathSeparator string) (name string) {
 	return
 }
 
-func prettifyPath(in string, b filepathPathBridge) string {
-	if filepath.Ext(in) == "" {
-		// /section/name/  -> /section/name/index.html
-		if len(in) < 2 {
-			return b.Separator()
-		}
-		return b.Join(in, "index.html")
-	}
-	name, ext := fileAndExt(in, b)
-	if name == "index" {
-		// /section/name/index.html -> /section/name/index.html
-		return b.Clean(in)
-	}
-	// /section/name.html -> /section/name/index.html
-	return b.Join(b.Dir(in), name, "index"+ext)
-}
-
 // Sanitize sanitizes string to be used in Hugo's file paths and URLs, allowing only
 // a predefined set of special Unicode characters.
 //
