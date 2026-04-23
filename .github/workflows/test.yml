@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: "22"
       - name: Install Ruby
-        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
+        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
         with:
           ruby-version: "3.4.5"
       - name: Install Ruby gems
