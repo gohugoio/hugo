@@ -567,7 +567,7 @@ menu: main
 
 	b.AssertFileContent("public/en/index.html", `<a href="/en/p1/">p1</a><a href="/en/p2/">p2</a>`)
 	b.AssertFileContent("public/fr/index.html", `<a href="/fr/p1/">p1</a>`)
-	b.AssertLogContains("! WARN")
+	b.AssertLogContains("! duplicate menu entry")
 }
 
 func TestSectionPagesIssue12399(t *testing.T) {
