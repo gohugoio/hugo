@@ -100,19 +100,6 @@ func AddLeadingAndTrailingSlash(path string) string {
 	return AddTrailingSlash(AddLeadingSlash(path))
 }
 
-// MakeTitle converts the path given to a suitable title, trimming whitespace
-// and replacing hyphens with whitespace.
-func MakeTitle(inpath string) string {
-	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
-}
-
-// ReplaceExtension takes a path and an extension, strips the old extension
-// and returns the path with the new extension.
-func ReplaceExtension(path string, newExt string) string {
-	f, _ := fileAndExt(path, fpb)
-	return f + "." + newExt
-}
-
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
 	for _, currentPath := range possibleDirectories {
 		if after, ok := strings.CutPrefix(inPath, currentPath); ok {
@@ -201,25 +188,6 @@ func extractFilename(in, ext, base, pathSeparator string) (name string) {
 	return
 }
 
-// GetRelativePath returns the relative path of a given path.
-func GetRelativePath(path, base string) (final string, err error) {
-	if filepath.IsAbs(path) && base == "" {
-		return "", errors.New("source: missing base directory")
-	}
-	name := filepath.Clean(path)
-	base = filepath.Clean(base)
-
-	name, err = filepath.Rel(base, name)
-	if err != nil {
-		return "", err
-	}
-
-	if strings.HasSuffix(filepath.FromSlash(path), FilePathSeparator) && !strings.HasSuffix(name, FilePathSeparator) {
-		name += FilePathSeparator
-	}
-	return name, nil
-}
-
 func prettifyPath(in string, b filepathPathBridge) string {
 	if filepath.Ext(in) == "" {
 		// /section/name/  -> /section/name/index.html
@@ -235,39 +203,6 @@ func prettifyPath(in string, b filepathPathBridge) string {
 	}
 	// /section/name.html -> /section/name/index.html
 	return b.Join(b.Dir(in), name, "index"+ext)
-}
-
-// CommonDirPath returns the common directory of the given paths.
-func CommonDirPath(path1, path2 string) string {
-	if path1 == "" || path2 == "" {
-		return ""
-	}
-
-	hadLeadingSlash := strings.HasPrefix(path1, "/") || strings.HasPrefix(path2, "/")
-
-	path1 = TrimLeading(path1)
-	path2 = TrimLeading(path2)
-
-	p1 := strings.Split(path1, "/")
-	p2 := strings.Split(path2, "/")
-
-	var common []string
-
-	for i := 0; i < len(p1) && i < len(p2); i++ {
-		if p1[i] == p2[i] {
-			common = append(common, p1[i])
-		} else {
-			break
-		}
-	}
-
-	s := strings.Join(common, "/")
-
-	if hadLeadingSlash && s != "" {
-		s = "/" + s
-	}
-
-	return s
 }
 
 // Sanitize sanitizes string to be used in Hugo's file paths and URLs, allowing only

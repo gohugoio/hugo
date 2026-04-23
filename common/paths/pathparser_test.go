@@ -142,7 +142,6 @@ func TestParse(t *testing.T) {
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Name(), qt.Equals, "b.md")
 				c.Assert(p.Base(), qt.Equals, "/a/b")
-				c.Assert(p.BaseNoLeadingSlash(), qt.Equals, "a/b")
 				c.Assert(p.Section(), qt.Equals, "a")
 				c.Assert(p.BaseNameNoIdentifier(), qt.Equals, "b")
 
@@ -179,11 +178,9 @@ func TestParse(t *testing.T) {
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Name(), qt.Equals, "b.a.b.no.txt")
 				c.Assert(p.NameNoIdentifier(), qt.Equals, "b.a.b")
-				c.Assert(p.NameNoLang(), qt.Equals, "b.a.b.txt")
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"txt", "no"})
 				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"b", "a", "b"})
 				c.Assert(p.Base(), qt.Equals, "/a/b.a.b.txt")
-				c.Assert(p.BaseNoLeadingSlash(), qt.Equals, "a/b.a.b.txt")
 				c.Assert(p.Path(), qt.Equals, "/a/b.a.b.no.txt")
 				c.Assert(p.PathNoLang(), qt.Equals, "/a/b.a.b.txt")
 				c.Assert(p.Ext(), qt.Equals, "txt")
@@ -224,7 +221,6 @@ func TestParse(t *testing.T) {
 				c.Assert(p.Lang(), qt.Equals, "")
 				c.Assert(p.NameNoExt(), qt.Equals, "index")
 				c.Assert(p.NameNoIdentifier(), qt.Equals, "index")
-				c.Assert(p.NameNoLang(), qt.Equals, "index.md")
 				c.Assert(p.Section(), qt.Equals, "")
 			},
 		},
@@ -246,7 +242,6 @@ func TestParse(t *testing.T) {
 				c.Assert(p.Lang(), qt.Equals, "no")
 				c.Assert(p.NameNoExt(), qt.Equals, "index.no")
 				c.Assert(p.NameNoIdentifier(), qt.Equals, "index")
-				c.Assert(p.NameNoLang(), qt.Equals, "index.md")
 				c.Assert(p.Path(), qt.Equals, "/a/b/index.no.md")
 				c.Assert(p.PathNoLang(), qt.Equals, "/a/b/index.md")
 				c.Assert(p.Section(), qt.Equals, "a")
@@ -266,7 +261,6 @@ func TestParse(t *testing.T) {
 				c.Assert(p.IsBundle(), qt.IsTrue)
 				c.Assert(p.IsLeafBundle(), qt.IsFalse)
 				c.Assert(p.NameNoExt(), qt.Equals, "_index.no")
-				c.Assert(p.NameNoLang(), qt.Equals, "_index.md")
 			},
 		},
 		{
@@ -405,7 +399,7 @@ func TestParse(t *testing.T) {
 			"/a/b/p1._version_v1_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
-				c.Assert(p.Version(), qt.Equals, "v1")
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v1"})
 				c.Assert(p.Ext(), qt.Equals, "md")
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"md", "v1"})
 			},
@@ -415,7 +409,7 @@ func TestParse(t *testing.T) {
 			"/a/b/p1._version_v1.0.0_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
-				c.Assert(p.Version(), qt.Equals, "v1.0.0")
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v1.0.0"})
 				c.Assert(p.Ext(), qt.Equals, "md")
 			},
 		},
@@ -424,7 +418,7 @@ func TestParse(t *testing.T) {
 			"/a/b/p1._role_admin_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
-				c.Assert(p.Role(), qt.Equals, "admin")
+				c.Assert(p.Roles(), qt.DeepEquals, []string{"admin"})
 				c.Assert(p.Ext(), qt.Equals, "md")
 			},
 		},
@@ -434,8 +428,8 @@ func TestParse(t *testing.T) {
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
 				c.Assert(p.Lang(), qt.Equals, "no")
-				c.Assert(p.Role(), qt.Equals, "admin")
-				c.Assert(p.Version(), qt.Equals, "v2")
+				c.Assert(p.Roles(), qt.DeepEquals, []string{"admin"})
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v2"})
 				c.Assert(p.Ext(), qt.Equals, "md")
 			},
 		},
@@ -444,8 +438,8 @@ func TestParse(t *testing.T) {
 			"/a/b/p1._version_v1.0.0_._role_editor_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
-				c.Assert(p.Version(), qt.Equals, "v1.0.0")
-				c.Assert(p.Role(), qt.Equals, "editor")
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v1.0.0"})
+				c.Assert(p.Roles(), qt.DeepEquals, []string{"editor"})
 				c.Assert(p.Ext(), qt.Equals, "md")
 			},
 		},
@@ -454,7 +448,7 @@ func TestParse(t *testing.T) {
 			"/a/b/p1._version_v1_.no.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
-				c.Assert(p.Version(), qt.Equals, "v1")
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v1"})
 				c.Assert(p.Lang(), qt.Equals, "no")
 				c.Assert(p.Ext(), qt.Equals, "md")
 			},
@@ -464,7 +458,7 @@ func TestParse(t *testing.T) {
 			"/a/b/index._version_v1_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.IsLeafBundle(), qt.IsTrue)
-				c.Assert(p.Version(), qt.Equals, "v1")
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v1"})
 				c.Assert(p.Base(), qt.Equals, "/a/b")
 				c.Assert(p.BaseNameNoIdentifier(), qt.Equals, "b")
 			},
@@ -474,7 +468,7 @@ func TestParse(t *testing.T) {
 			"/a/b/_index._role_admin_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.IsBranchBundle(), qt.IsTrue)
-				c.Assert(p.Role(), qt.Equals, "admin")
+				c.Assert(p.Roles(), qt.DeepEquals, []string{"admin"})
 				c.Assert(p.Base(), qt.Equals, "/a/b")
 			},
 		},
@@ -483,10 +477,9 @@ func TestParse(t *testing.T) {
 			"/a/b/My Page._Version_V1_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/my-page")
-				c.Assert(p.Version(), qt.Equals, "v1")
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v1"})
 				pp := p.Unnormalized()
 				c.Assert(pp.BaseNameNoIdentifier(), qt.Equals, "My Page")
-				c.Assert(pp.Version(), qt.Equals, "V1")
 			},
 		},
 		{
@@ -505,7 +498,6 @@ func TestParse(t *testing.T) {
 			"/a/b/p1._role_guest_._role_admin_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
-				c.Assert(p.Role(), qt.Equals, "admin")
 				c.Assert(p.Roles(), qt.DeepEquals, []string{"admin", "guest"})
 				c.Assert(p.Ext(), qt.Equals, "md")
 			},
@@ -515,7 +507,6 @@ func TestParse(t *testing.T) {
 			"/a/b/p1._version_v1_._version_v2_.md",
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Base(), qt.Equals, "/a/b/p1")
-				c.Assert(p.Version(), qt.Equals, "v2")
 				c.Assert(p.Versions(), qt.DeepEquals, []string{"v2", "v1"})
 			},
 		},
@@ -525,8 +516,8 @@ func TestParse(t *testing.T) {
 			func(c *qt.C, p *Path) {
 				// Unknown prefix should be left in path and treated as custom wrapper.
 				c.Assert(p.Custom(), qt.Equals, "unknown_foo")
-				c.Assert(p.Version(), qt.Equals, "")
-				c.Assert(p.Role(), qt.Equals, "")
+				c.Assert(p.Versions(), qt.IsNil)
+				c.Assert(p.Roles(), qt.IsNil)
 			},
 		},
 	}
@@ -747,7 +738,6 @@ func TestParseLayouts(t *testing.T) {
 			func(c *qt.C, p *Path) {
 				c.Assert(p.Lang(), qt.Equals, "")
 				c.Assert(p.Layout(), qt.Equals, "index")
-				c.Assert(p.NameNoLang(), qt.Equals, "index.xy.html")
 				c.Assert(p.PathNoLang(), qt.Equals, "/foo/index.xy.html")
 				c.Assert(p.Identifiers(), qt.DeepEquals, []string{"html", "index"})
 				c.Assert(p.IdentifiersUnknown(), qt.DeepEquals, []string{"xy"})
@@ -806,7 +796,7 @@ func TestParseLayouts(t *testing.T) {
 			"Prefix version in layout",
 			"/page._version_v2_.html",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Version(), qt.Equals, "v2")
+				c.Assert(p.Versions(), qt.DeepEquals, []string{"v2"})
 				c.Assert(p.Base(), qt.Equals, "/page.html")
 			},
 		},
@@ -814,7 +804,7 @@ func TestParseLayouts(t *testing.T) {
 			"Prefix role in layout",
 			"/page._role_guest_.html",
 			func(c *qt.C, p *Path) {
-				c.Assert(p.Role(), qt.Equals, "guest")
+				c.Assert(p.Roles(), qt.DeepEquals, []string{"guest"})
 				c.Assert(p.Base(), qt.Equals, "/page.html")
 			},
 		},
@@ -835,20 +825,6 @@ func TestHasExt(t *testing.T) {
 	c.Assert(HasExt("/a/b.c/d.txt"), qt.IsTrue)
 	c.Assert(HasExt("/a/b/c"), qt.IsFalse)
 	c.Assert(HasExt("/a/b.c/d"), qt.IsFalse)
-}
-
-func BenchmarkParseIdentity(b *testing.B) {
-	parser := newTestParser()
-	for b.Loop() {
-		parser.ParseIdentity(files.ComponentFolderAssets, "/a/b.css")
-	}
-}
-
-func BenchmarkParseIdentityPrefixes(b *testing.B) {
-	parser := newTestParser()
-	for b.Loop() {
-		parser.ParseIdentity(files.ComponentFolderLayouts, "/a/b._language_en_._version_v1_._role_admin_._layout_list_._kind_page_.html")
-	}
 }
 
 func TestSitesMatrixFromPath(t *testing.T) {

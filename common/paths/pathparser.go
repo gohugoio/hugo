@@ -25,7 +25,6 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
-	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/kinds"
 )
 
@@ -267,13 +266,6 @@ func (pp *PathParser) SitesMatrixFromPath(p *Path) sitesmatrix.VectorStore {
 	})
 
 	return v
-}
-
-// ParseIdentity parses component c with path s into a StringIdentity.
-func (pp *PathParser) ParseIdentity(c, s string) identity.StringIdentity {
-	p := pp.parsePooled(c, s)
-	defer putPath(p)
-	return identity.StringIdentity(p.IdentifierBase())
 }
 
 // ParseBaseAndBaseNameNoIdentifier parses component c with path s into a base and a base name without any identifier.
@@ -795,27 +787,6 @@ func (p *Path) NameNoExt() string {
 	return p.s[p.posContainerHigh:]
 }
 
-// Name returns the last element of path without any language identifier.
-func (p *Path) NameNoLang() string {
-	if len(p.posIdentifierPrefixLanguages) > 0 {
-		// Prefix language: the wrapper is outside the name boundary, so Name() without
-		// identifiers is the same as stripping all wrappers. Use the name + extension.
-		if len(p.identifiersKnown) > 0 {
-			return p.NameNoIdentifier() + p.s[p.identifiersKnown[0].Low-1:p.identifiersKnown[0].High]
-		}
-		return p.Name()
-	}
-	i := p.identifierIndex(p.posIdentifierLanguage)
-	if i == -1 {
-		return p.Name()
-	}
-	id := p.identifiersKnown[i]
-	if id.Low-1 < p.posContainerHigh {
-		return p.s[id.High:]
-	}
-	return p.s[p.posContainerHigh:id.Low-1] + p.s[id.High:]
-}
-
 // BaseNameNoIdentifier returns the logical base name for a resource without any identifier (e.g. no extension).
 // For bundles this will be the containing directory's name, e.g. "blog".
 func (p *Path) BaseNameNoIdentifier() string {
@@ -946,11 +917,6 @@ func (p *Path) BaseReTyped(typ string) (d string) {
 	return
 }
 
-// BaseNoLeadingSlash returns the base path without the leading slash.
-func (p *Path) BaseNoLeadingSlash() string {
-	return p.Base()[1:]
-}
-
 func (p *Path) base(preserveExt, isBundle bool) string {
 	if len(p.identifiersKnown) == 0 {
 		return p.norm(p.s)
@@ -1019,22 +985,8 @@ func (p *Path) Langs() []string {
 	return p.identifiersAsStrings(p.posIdentifierPrefixLanguages)
 }
 
-func (p *Path) Version() string {
-	if len(p.posIdentifierVersions) > 0 {
-		return p.identifierAsString(p.posIdentifierVersions[0])
-	}
-	return ""
-}
-
 func (p *Path) Versions() []string {
 	return p.identifiersAsStrings(p.posIdentifierVersions)
-}
-
-func (p *Path) Role() string {
-	if len(p.posIdentifierRoles) > 0 {
-		return p.identifierAsString(p.posIdentifierRoles[0])
-	}
-	return ""
 }
 
 func (p *Path) Roles() []string {
@@ -1054,10 +1006,6 @@ func (p *Path) identifiersAsStrings(positions []int) []string {
 
 func (p *Path) Custom() string {
 	return strings.TrimSuffix(strings.TrimPrefix(p.identifierAsString(p.posIdentifierCustom), identifierCustomWrapper), identifierCustomWrapper)
-}
-
-func (p *Path) Identifier(i int) string {
-	return p.identifierAsString(i)
 }
 
 func (p *Path) Disabled() bool {

@@ -20,38 +20,6 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func TestGetRelativePath(t *testing.T) {
-	tests := []struct {
-		path   string
-		base   string
-		expect any
-	}{
-		{filepath.FromSlash("/a/b"), filepath.FromSlash("/a"), filepath.FromSlash("b")},
-		{filepath.FromSlash("/a/b/c/"), filepath.FromSlash("/a"), filepath.FromSlash("b/c/")},
-		{filepath.FromSlash("/c"), filepath.FromSlash("/a/b"), filepath.FromSlash("../../c")},
-		{filepath.FromSlash("/c"), "", false},
-	}
-	for i, this := range tests {
-		// ultimately a fancy wrapper around filepath.Rel
-		result, err := GetRelativePath(this.path, this.base)
-
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] GetRelativePath didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] GetRelativePath failed: %s", i, err)
-				continue
-			}
-			if result != this.expect {
-				t.Errorf("[%d] GetRelativePath got %v but expected %v", i, result, this.expect)
-			}
-		}
-
-	}
-}
-
 func TestMakePathRelative(t *testing.T) {
 	type test struct {
 		inPath, path1, path2, output string
@@ -72,54 +40,6 @@ func TestMakePathRelative(t *testing.T) {
 
 	if error == nil {
 		t.Errorf("Test failed, expected error")
-	}
-}
-
-func TestMakeTitle(t *testing.T) {
-	type test struct {
-		input, expected string
-	}
-	data := []test{
-		{"Make-Title", "Make Title"},
-		{"MakeTitle", "MakeTitle"},
-		{"make_title", "make_title"},
-	}
-	for i, d := range data {
-		output := MakeTitle(d.input)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-	}
-}
-
-// Replace Extension is probably poorly named, but the intent of the
-// function is to accept a path and return only the file name with a
-// new extension. It's intentionally designed to strip out the path
-// and only provide the name. We should probably rename the function to
-// be more explicit at some point.
-func TestReplaceExtension(t *testing.T) {
-	type test struct {
-		input, newext, expected string
-	}
-	data := []test{
-		// These work according to the above definition
-		{"/some/random/path/file.xml", "html", "file.html"},
-		{"/banana.html", "xml", "banana.xml"},
-		{"./banana.html", "xml", "banana.xml"},
-		{"banana/pie/index.html", "xml", "index.xml"},
-		{"../pies/fish/index.html", "xml", "index.xml"},
-		// but these all fail
-		{"filename-without-an-ext", "ext", "filename-without-an-ext.ext"},
-		{"/filename-without-an-ext", "ext", "filename-without-an-ext.ext"},
-		{"/directory/mydir/", "ext", ".ext"},
-		{"mydir/", "ext", ".ext"},
-	}
-
-	for i, d := range data {
-		output := ReplaceExtension(filepath.FromSlash(d.input), d.newext)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
 	}
 }
 
@@ -261,26 +181,6 @@ func TestFieldsSlash(t *testing.T) {
 	c.Assert(FieldsSlash("a/b/c/"), qt.DeepEquals, []string{"a", "b", "c"})
 	c.Assert(FieldsSlash("/"), qt.DeepEquals, []string{})
 	c.Assert(FieldsSlash(""), qt.DeepEquals, []string{})
-}
-
-func TestCommonDirPath(t *testing.T) {
-	c := qt.New(t)
-
-	for _, this := range []struct {
-		a, b, expected string
-	}{
-		{"/a/b/c", "/a/b/d", "/a/b"},
-		{"/a/b/c", "a/b/d", "/a/b"},
-		{"a/b/c", "/a/b/d", "/a/b"},
-		{"a/b/c", "a/b/d", "a/b"},
-		{"/a/b/c", "/a/b/c", "/a/b/c"},
-		{"/a/b/c", "/a/b/c/d", "/a/b/c"},
-		{"/a/b/c", "/a/b", "/a/b"},
-		{"/a/b/c", "/a", "/a"},
-		{"/a/b/c", "/d/e/f", ""},
-	} {
-		c.Assert(CommonDirPath(this.a, this.b), qt.Equals, this.expected, qt.Commentf("a: %s b: %s", this.a, this.b))
-	}
 }
 
 func TestIsSameFilePath(t *testing.T) {
