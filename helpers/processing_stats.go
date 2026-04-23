@@ -63,11 +63,6 @@ func (s *ProcessingStats) Incr(counter *uint64) {
 	atomic.AddUint64(counter, 1)
 }
 
-// Add adds an amount to a given counter.
-func (s *ProcessingStats) Add(counter *uint64, amount int) {
-	atomic.AddUint64(counter, uint64(amount))
-}
-
 // ProcessingStatsTable writes a table-formatted representation of stats to w.
 func ProcessingStatsTable(w io.Writer, stats ...*ProcessingStats) {
 	names := make([]string, len(stats)+1)

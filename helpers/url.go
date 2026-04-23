@@ -31,12 +31,6 @@ func (p *PathSpec) URLize(uri string) string {
 	return p.URLEscape(p.MakePathSanitized(uri))
 }
 
-// URLizeFilename creates an URL from a filename by escaping unicode letters
-// and turn any filepath separator into forward slashes.
-func (p *PathSpec) URLizeFilename(filename string) string {
-	return p.URLEscape(filepath.ToSlash(filename))
-}
-
 // URLEscape escapes unicode letters.
 func (p *PathSpec) URLEscape(uri string) string {
 	// escape unicode letters
