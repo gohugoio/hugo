@@ -232,7 +232,7 @@ P1nn
 -- layouts/home.html --
 Len RegularPages: {{ len .Site.RegularPages }}|RegularPages: {{ range site.RegularPages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}|
 Len Pages: {{ len .Site.Pages }}|
-Len Sites: {{ len .Site.Sites }}|
+Len Sites: {{ len hugo.Sites }}|
 -- layouts/single.html --
 {{ .Title }}|{{ .Content }}|{{ .Lang }}|
 
@@ -292,7 +292,7 @@ P1nn
 -- layouts/home.html --
 Len RegularPages: {{ len .Site.RegularPages }}|RegularPages: {{ range site.RegularPages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}|
 Len Pages: {{ len .Site.Pages }}|
-Len Sites: {{ len .Site.Sites }}|
+Len Sites: {{ len hugo.Sites }}|
 -- layouts/single.html --
 {{ .Title }}|{{ .Content }}|{{ .Lang }}|
 

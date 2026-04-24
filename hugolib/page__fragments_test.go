@@ -46,7 +46,7 @@ outputs: ["HTML", "JSON"]
 -- layouts/single.html --
 HTML
 -- layouts/single.json --
-{{ $secondSite := index .Sites 1 }}
+{{ $secondSite := index hugo.Sites 1 }}
 {{ $p1 := $secondSite.GetPage "p1" }}
 ToC: {{ $p1.TableOfContents }}
 Fragments : {{ $p1.Fragments.Identifiers }}
