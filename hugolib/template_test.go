@@ -224,11 +224,11 @@ weight = 20
 
 -- layouts/home.html --
 Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
-Sites: {{ site.Sites.Default.Home.Language.Lang }}
+Sites: {{ hugo.Sites.Default.Home.Language.Lang }}
 Hugo: {{ hugo.Generator }}
 -- layouts/home.fr.html --
 Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
-Sites: {{ site.Sites.Default.Home.Language.Lang }}
+Sites: {{ hugo.Sites.Default.Home.Language.Lang }}
 Hugo: {{ hugo.Generator }}
 `
 	b := Test(t, files)

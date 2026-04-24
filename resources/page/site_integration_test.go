@@ -35,7 +35,7 @@ weight = 1
 languageName = 'Deutsch'
 weight = 2
 -- layouts/home.html --
-{{ .Site.Sites.Default.Language.LanguageName }}
+{{ hugo.Sites.Default.Language.LanguageName }}
 `
 
 	b := hugolib.Test(t, files)
