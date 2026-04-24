@@ -50,7 +50,7 @@ Run these commands to create a Hugo project with the [Ananke][] theme. The next 
 hugo new project quickstart
 cd quickstart
 git init
-git submodule add https://github.com/gohugo-ananke/theme.git themes/ananke
+git submodule add https://github.com/gohugo-ananke/ananke.git themes/ananke
 echo "theme = 'ananke'" >> hugo.toml
 hugo server
 ```
@@ -80,7 +80,7 @@ git init
 Clone the [Ananke][] theme into the `themes` directory, adding it to your project as a [Git submodule][].
 
 ```text
-git submodule add https://github.com/gohugo-ananke/theme.git themes/ananke
+git submodule add https://github.com/gohugo-ananke/ananke.git themes/ananke
 ```
 
 Append a line to your project configuration file, indicating the current theme.
@@ -194,10 +194,10 @@ Hugo's [forum][] is an active community of users and developers who answer quest
 
 For other resources to help you learn Hugo, including books and video tutorials, see the [external learning resources][] page.
 
-[Ananke]: https://github.com/gohugo-ananke/theme
+[Ananke]: https://github.com/gohugo-ananke/ananke
 [are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
 [demonstration site]: https://gohugo-ananke-theme-demo.netlify.app/
-[documentation]: https://github.com/gohugo-ananke/theme#readme
+[documentation]: https://github.com/gohugo-ananke/ananke#readme
 [draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
 [external learning resources]: /getting-started/external-learning-resources/
 [forum]: https://discourse.gohugo.io/
