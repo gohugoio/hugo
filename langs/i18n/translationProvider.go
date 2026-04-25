@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
@@ -150,17 +151,29 @@ func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
 	return nil
 }
 
-// getTranslateFunc returns the translation function for the language in Deps.
-// We first try the locale (e.g. "en-US"), then the language key (e.g. "en").
-func (tp *TranslationProvider) getTranslateFunc(dst *deps.Deps) func(ctx context.Context, translationID string, templateData any) string {
-	l := dst.Conf.Language().(*langs.Language)
-	if locale := l.Locale(); locale != "" {
-		if fn, ok := tp.t.Lookup(strings.ToLower(locale)); ok {
-			return fn
+func defaultLanguage(conf config.AllProvider) *langs.Language {
+	key := conf.DefaultContentLanguage()
+	for _, l := range conf.Languages().(langs.Languages) {
+		if l.Lang == key {
+			return l
 		}
 	}
-	// Func will fall back to the default language if not found.
-	return tp.t.Func(l.Lang)
+	return conf.Language().(*langs.Language)
+}
+
+// getTranslateFunc returns the translation function for the language in Deps.
+// The lookup order is: current locale, current key, default locale, default key.
+func (tp *TranslationProvider) getTranslateFunc(dst *deps.Deps) func(ctx context.Context, translationID string, templateData any) string {
+	current := dst.Conf.Language().(*langs.Language)
+	defaultLang := defaultLanguage(dst.Conf)
+	for _, l := range []*langs.Language{current, defaultLang} {
+		for _, key := range []string{strings.ToLower(l.Locale()), l.Lang} {
+			if fn, ok := tp.t.Lookup(key); ok {
+				return fn
+			}
+		}
+	}
+	return tp.t.Func("en")
 }
 
 func errWithFileContext(inerr error, r *source.File) error {

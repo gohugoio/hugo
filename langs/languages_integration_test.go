@@ -326,3 +326,55 @@ language: {{ site.Language.Name }} file: {{ T "file" }}|
 	b.AssertFileContent("public/de/index.html", "language: de file: de|")
 	b.AssertFileContent("public/de-de/index.html", "language: de-de file: de-de|")
 }
+
+func TestDefaultContentLanguageFallback14243(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguage = 'es'
+defaultContentLanguageInSubdir = true
+
+[languages.es]
+locale = 'es-AR'
+weight = 1
+
+[languages.pt]
+locale = 'pt-BR'
+weight = 2
+-- layouts/home.html --
+{{ T "foo"}}|
+-- i18n/es-ar.toml --
+foo = 'foo es-ar'
+-- i18n/es.toml --
+foo = 'foo es'
+-- i18n/pt-br.toml --
+foo = 'foo pt-br'
+-- i18n/pt.toml --
+foo = 'foo pt'
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo pt-br|")
+
+	files = strings.ReplaceAll(files, "i18n/pt-br.toml", "unused-a.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo pt|")
+
+	files = strings.ReplaceAll(files, "i18n/pt.toml", "unused-b.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo es-ar|")
+
+	files = strings.ReplaceAll(files, "i18n/es-ar.toml", "unused-c.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo es|")
+
+	files = strings.ReplaceAll(files, "i18n/es.toml", "unused-d.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "|")
+}
