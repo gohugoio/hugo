@@ -15,10 +15,14 @@ package sass
 
 import (
 	"fmt"
+	"maps"
 	"regexp"
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/types/css"
 )
 
@@ -31,6 +35,72 @@ const (
 	TranspilerLibSass = "libsass"
 )
 
+// HugoVarsSubPath returns the slash-separated sub-path of a "hugo:vars" URL,
+// e.g. "hugo:vars" -> "" and "hugo:vars/mobile" -> "mobile". The second return
+// is false if url is not in the "hugo:vars" namespace.
+func HugoVarsSubPath(url string) (string, bool) {
+	if url == HugoVarsNamespace {
+		return "", true
+	}
+	if rest, ok := strings.CutPrefix(url, HugoVarsNamespace+"/"); ok {
+		return rest, true
+	}
+	return "", false
+}
+
+// PrepareVars lowercases all keys for any map value recursively and returns a clone if modified.
+func PrepareVars(vars map[string]any) map[string]any {
+	if vars == nil {
+		return nil
+	}
+
+	// Lowercase all keys for map values recursively, so that they can be accessed case-insensitively from the stylesheet.
+	var isCloned bool
+	for k, v := range vars {
+		if hstrings.HasUppercase(k) && hreflect.IsMap(v) {
+			if !isCloned {
+				vars = maps.Clone(vars)
+			}
+			delete(vars, k)
+			vars[strings.ToLower(k)] = PrepareVars(hmaps.ToStringMap(v))
+			isCloned = true
+		}
+	}
+	return vars
+}
+
+// ResolveVars returns the entries of vars at the given slash-separated path.
+// Nested map entries are excluded from the result, so only scalar/typed values remain.
+// An empty path returns the top-level scalars.
+func ResolveVars(vars map[string]any, path string) map[string]any {
+	if vars == nil {
+		return nil
+	}
+	if path == "" || path == "/" {
+		return removeMaps(vars)
+	}
+	vv, err := hmaps.GetNestedParam(path, "/", vars)
+	if err != nil {
+		return nil
+	}
+
+	return removeMaps(hmaps.ToStringMap(vv))
+}
+
+func removeMaps(m map[string]any) map[string]any {
+	if m == nil {
+		return nil
+	}
+	res := make(map[string]any)
+	for k, v := range m {
+		if hreflect.IsMap(v) {
+			continue
+		}
+		res[k] = v
+	}
+	return res
+}
+
 func CreateVarsStyleSheet(transpiler string, vars map[string]any) string {
 	if vars == nil {
 		return ""
@@ -39,6 +109,10 @@ func CreateVarsStyleSheet(transpiler string, vars map[string]any) string {
 
 	var varsSlice []string
 	for k, v := range vars {
+		if hreflect.IsMap(v) {
+			// Nested vars are exposed via "hugo:vars/<name>" namespaces, skip here.
+			continue
+		}
 		var prefix string
 		if !strings.HasPrefix(k, "$") {
 			prefix = "$"

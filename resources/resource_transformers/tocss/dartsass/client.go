@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/sass"
 	"github.com/spf13/afero"
 
 	"github.com/mitchellh/mapstructure"
@@ -177,6 +178,8 @@ func decodeOptions(m map[string]any) (opts Options, err error) {
 	if opts.TargetPath != "" {
 		opts.TargetPath = paths.ToSlashTrimLeading(opts.TargetPath)
 	}
+
+	opts.Vars = sass.PrepareVars(opts.Vars)
 
 	return
 }

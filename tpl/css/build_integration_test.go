@@ -465,6 +465,40 @@ body {
 	)
 }
 
+func TestCSSBuildVarsNestedIssue14705(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/css/main.css --
+@import "hugo:vars";
+@import "hugo:vars/mobile" (max-width: 650px);
+
+body {
+  background-color: var(--primary-color);
+}
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ $opts := dict
+  "vars" (dict "primary-color" "blue" "mobile" (dict "primary-color" "red" "font-size" "12px"))
+}}
+{{ with . | css.Build $opts }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css",
+		"--primary-color: blue;",
+		"@media (max-width: 650px)",
+		"--primary-color: red;",
+		"! --mobile:",
+		"--font-size: 12px;",
+		"background-color: var(--primary-color)",
+	)
+}
+
 func TestCSSBuildVarsEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -486,6 +520,40 @@ body {
 
 	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 	b.AssertFileContent("public/css/main.css", "background-color: red;")
+}
+
+func TestCSSBuildVarsNestedUpperCase(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+-- assets/css/main.css --
+@import "hugo:vars";
+@import "hugo:vars/MOBILE1" (max-width: 650px);
+
+body {
+  background-color: var(--primary-color);
+}
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ $opts := dict
+  "vars" (dict "primary-color" "blue" "MOBILE2" (dict "primary-color" "red" "font-size" "12px" "MixedCaseKey" "value"))
+}}
+{{ with . | css.Build $opts }}
+ <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	files := strings.ReplaceAll(filesTemplate, "MOBILE1", "Mobile")
+	files = strings.ReplaceAll(files, "MOBILE2", "mobile")
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css", "primary-color: red;")
+
+	files = strings.ReplaceAll(filesTemplate, "MOBILE1", "mobile")
+	files = strings.ReplaceAll(files, "MOBILE2", "MobilE")
+	b = hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/css/main.css", "primary-color: red;")
 }
 
 func TestCSSBuildVarsQuoted(t *testing.T) {

@@ -84,7 +84,7 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 			c:                 t.c,
 			dependencyManager: ctx.DependencyManager,
 
-			varsStylesheet: godartsass.Import{Content: sass.CreateVarsStyleSheet(sass.TranspilerDart, opts.Vars)},
+			vars: opts.Vars,
 		},
 		OutputStyle:                   godartsass.ParseOutputStyle(opts.OutputStyle),
 		EnableSourceMap:               opts.EnableSourceMap,
@@ -132,12 +132,12 @@ type importResolver struct {
 	baseDir           string
 	c                 *Client
 	dependencyManager identity.Manager
-	varsStylesheet    godartsass.Import
+	vars              map[string]any
 }
 
 func (t importResolver) CanonicalizeURL(url string) (string, error) {
-	if url == sass.HugoVarsNamespace {
-		return url, nil
+	if _, ok := sass.HugoVarsSubPath(url); ok {
+		return strings.ToLower(url), nil
 	}
 
 	filePath, isURL := paths.UrlStringToFilename(url)
@@ -193,8 +193,10 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 }
 
 func (t importResolver) Load(url string) (godartsass.Import, error) {
-	if url == sass.HugoVarsNamespace {
-		return t.varsStylesheet, nil
+	if subPath, ok := sass.HugoVarsSubPath(url); ok {
+		return godartsass.Import{
+			Content: sass.CreateVarsStyleSheet(sass.TranspilerDart, sass.ResolveVars(t.vars, subPath)),
+		}, nil
 	}
 	filename, _ := paths.UrlStringToFilename(url)
 	b, err := afero.ReadFile(hugofs.Os, filename)

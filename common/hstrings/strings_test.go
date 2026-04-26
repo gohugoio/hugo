@@ -71,6 +71,16 @@ func TestUniqueStringsSorted(t *testing.T) {
 	c.Assert(UniqueStringsSorted(nil), qt.IsNil)
 }
 
+func TestHasUppercase(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(HasUppercase("abc"), qt.Equals, false)
+	c.Assert(HasUppercase("Abc"), qt.Equals, true)
+	c.Assert(HasUppercase("aBc"), qt.Equals, true)
+	c.Assert(HasUppercase("abC"), qt.Equals, true)
+	c.Assert(HasUppercase("ABC"), qt.Equals, true)
+}
+
 // Note that these cannot use b.Loop() because of golang/go#27217.
 func BenchmarkUniqueStrings(b *testing.B) {
 	input := []string{"a", "b", "d", "e", "d", "h", "a", "i"}
