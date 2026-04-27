@@ -51,7 +51,7 @@ require (
 	github.com/magefile/mage v1.17.2
 	github.com/makeworld-the-better-one/dither/v2 v2.4.0
 	github.com/marekm4/color-extractor v1.2.1
-	github.com/mattn/go-isatty v0.0.21
+	github.com/mattn/go-isatty v0.0.22
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/mitchellh/mapstructure v1.5.1-0.20231216201459-8508981c8b6c
 	github.com/muesli/smartcrop v0.3.0
