@@ -164,8 +164,6 @@ github.com/bep/goportabletext v0.2.0 h1:CZ9f8jADBWqHwBymQiJJPCTSV/tHSA+PYzlUf86Y
 github.com/bep/goportabletext v0.2.0/go.mod h1:xDeA5+qcgKzJq6Q6XjAiBKtxLD3Yn7f6XP4joD3J3qU=
 github.com/bep/helpers v0.8.0 h1:plg2BFgA9AgIHF2XemyZdZLqixjzQk3uyyArV48FngQ=
 github.com/bep/helpers v0.8.0/go.mod h1:PfE7MGdA8sSQ19nyDh4tYbs5rAlStlJaDI21f/fnNps=
-github.com/bep/imagemeta v0.17.1 h1:YZ3CBhdcmiPMpYGslQZ+6LKs5mN3el0/7srSm4Sxtlg=
-github.com/bep/imagemeta v0.17.1/go.mod h1:+Hlp195TfZpzsqCxtDKTG6eWdyz2+F2V/oCYfr3CZKA=
 github.com/bep/imagemeta v0.17.2 h1:fDyXM1eAqCfBeqGLqS6UsN4OfuLM0cdu70KuLCehjOg=
 github.com/bep/imagemeta v0.17.2/go.mod h1:+Hlp195TfZpzsqCxtDKTG6eWdyz2+F2V/oCYfr3CZKA=
 github.com/bep/lazycache v0.8.1 h1:ko6ASLjkPxyV5DMWoNNZ8B2M0weyjqXX8IZkjBoBtvg=
@@ -495,12 +493,13 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
-github.com/tdewolff/minify/v2 v2.24.12 h1:YXJxVJmz7vxgnEv1v8J/EI4x+Uw4MMohcRFK7TFOjmk=
-github.com/tdewolff/minify/v2 v2.24.12/go.mod h1:exq1pjdrh9uAICdfVKQwqz6MsJmWmQahZuTC6pTO6ro=
-github.com/tdewolff/parse/v2 v2.8.11 h1:SGyjEy3xEqd+W9WVzTlTQ5GkP/en4a1AZNZVJ1cvgm0=
-github.com/tdewolff/parse/v2 v2.8.11/go.mod h1:Hwlni2tiVNKyzR1o6nUs4FOF07URA+JLBLd6dlIXYqo=
-github.com/tdewolff/test v1.0.11 h1:FdLbwQVHxqG16SlkGveC0JVyrJN62COWTRyUFzfbtBE=
+github.com/tdewolff/minify/v2 v2.24.13 h1:xrcF7gKDnUszseEY9WX9mUlZII2v2Go/QAcAwRASw58=
+github.com/tdewolff/minify/v2 v2.24.13/go.mod h1:emvwoYeIl8bfAKqRU5ww95LX9Gpggpqv/naal9a8Yq0=
+github.com/tdewolff/parse/v2 v2.8.12 h1:5BBjfaCv482v3nltlS0u6wH1xJaxjR6ofDrWttNvROg=
+github.com/tdewolff/parse/v2 v2.8.12/go.mod h1:Hwlni2tiVNKyzR1o6nUs4FOF07URA+JLBLd6dlIXYqo=
 github.com/tdewolff/test v1.0.11/go.mod h1:XPuWBzvdUzhCuxWO1ojpXsyzsA5bFoS3tO/Q3kFuTG8=
+github.com/tdewolff/test v1.0.12 h1:7F21DqIajswxuche0geHdrUZRCWE4oko4b7bcmkkrxk=
+github.com/tdewolff/test v1.0.12/go.mod h1:XPuWBzvdUzhCuxWO1ojpXsyzsA5bFoS3tO/Q3kFuTG8=
 github.com/tetratelabs/wazero v1.11.0 h1:+gKemEuKCTevU4d7ZTzlsvgd1uaToIDtlQlmNbwqYhA=
 github.com/tetratelabs/wazero v1.11.0/go.mod h1:eV28rsN8Q+xwjogd7f4/Pp4xFxO7uOGbLcD/LzB1wiU=
 github.com/ugorji/go/codec v1.2.7 h1:YPXUKf7fYbp/y8xloBqZOw2qaVggbfwMlI8WM3wZUJ0=
