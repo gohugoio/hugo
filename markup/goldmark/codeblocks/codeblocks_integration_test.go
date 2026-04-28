@@ -147,6 +147,12 @@ title: "p1"
 fmt.Println("Hello, World!");
 §§§
 
+## Plain Code
+
+§§§
+plain <code> & text
+§§§
+
 `
 
 	b := hugolib.Test(t, files)
@@ -154,6 +160,8 @@ fmt.Println("Hello, World!");
 	b.AssertFileContent("public/p1/index.html",
 		"Inner: |<span class=\"line\"><span class=\"cl\"><span class=\"nx\">fmt</span><span class=\"p\">.</span><span class=\"nf\">Println</span><span class=\"p\">(</span><span class=\"s\">&#34;Hello, World!&#34;</span><span class=\"p\">);</span></span></span>|",
 		"Wrapped: |<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-go\" data-lang=\"go\"><span class=\"line\"><span class=\"cl\"><span class=\"nx\">fmt</span><span class=\"p\">.</span><span class=\"nf\">Println</span><span class=\"p\">(</span><span class=\"s\">&#34;Hello, World!&#34;</span><span class=\"p\">);</span></span></span></code></pre></div>|",
+		"Inner: |plain &lt;code&gt; &amp; text|",
+		"Wrapped: |<pre tabindex=\"0\"><code>plain &lt;code&gt; &amp; text</code></pre>|",
 	)
 }
 
