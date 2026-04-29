@@ -131,7 +131,7 @@ static char * parson_strndup(const char *string, size_t n) {
     if (!output_string)
         return NULL;
     output_string[n] = '\0';
-    strncpy(output_string, string, n);
+    memcpy(output_string, string, n);
     return output_string;
 }
 
@@ -813,9 +813,9 @@ static int json_serialize_to_buffer_r(const JSON_Value *value, char *buf, int le
             if (buf != NULL)
                 num_buf = buf;
             if (num == ((double)(int)num)) /*  check if num is integer */
-                written = sprintf(num_buf, "%d", (int)num);
+                written = snprintf(num_buf, 64, "%d", (int)num);
             else
-                written = sprintf(num_buf, DOUBLE_SERIALIZATION_FORMAT, num);
+                written = snprintf(num_buf, 64, DOUBLE_SERIALIZATION_FORMAT, num);
             if (written < 0)
                 return -1;
             if (buf != NULL)
@@ -873,7 +873,9 @@ static int append_string(char *buf, const char *string) {
     if (buf == NULL) {
         return (int)strlen(string);
     }
-    return sprintf(buf, "%s", string);
+    int slen = (int)strlen(string);
+    memcpy(buf, string, (size_t)slen + 1);
+    return slen;
 }
 
 #undef APPEND_STRING
