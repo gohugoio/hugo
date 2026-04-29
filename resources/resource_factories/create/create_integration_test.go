@@ -19,9 +19,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -187,6 +189,91 @@ mediaTypes = ['text/plain']
 
 	// The per-request timeout of 200ms should fire well before the global 30s timeout.
 	b.AssertFileContent("public/index.html", "Err:")
+}
+
+// Issue 14828.
+func TestGetRemoteRetryAfterIssue14828(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Honored", func(t *testing.T) {
+		var (
+			mu       sync.Mutex
+			reqTimes []time.Time
+		)
+
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			mu.Lock()
+			reqTimes = append(reqTimes, time.Now())
+			n := len(reqTimes)
+			mu.Unlock()
+
+			if n == 1 {
+				w.Header().Set("Retry-After", "2")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				return
+			}
+			w.Header().Add("Content-Type", "text/plain")
+			w.Write([]byte("OK"))
+		}))
+		t.Cleanup(func() { srv.Close() })
+
+		files := `
+-- hugo.toml --
+timeout = "30s"
+[security]
+[security.http]
+urls = ['.*']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $url := "URL" }}
+{{ with try (resources.GetRemote $url) }}
+  {{ with .Err }}
+    {{ errorf "Got Err: %s" . }}
+  {{ else with .Value }}
+    Content: {{ .Content }}
+  {{ end }}
+{{ end }}
+`
+		files = strings.ReplaceAll(files, "URL", srv.URL)
+
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/index.html", "Content: OK")
+
+		mu.Lock()
+		defer mu.Unlock()
+		b.Assert(len(reqTimes) >= 2, qt.IsTrue, qt.Commentf("expected at least 2 requests, got %d", len(reqTimes)))
+		// Default exponential backoff caps the initial sleep at 1100ms.
+		// A Retry-After of 2s should produce a gap well above that.
+		gap := reqTimes[1].Sub(reqTimes[0])
+		b.Assert(gap >= 1500*time.Millisecond, qt.IsTrue, qt.Commentf("expected gap of at least 1500ms (Retry-After: 2), got %s", gap))
+	})
+
+	t.Run("TimeoutMessage", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Retry-After", "1")
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}))
+		t.Cleanup(func() { srv.Close() })
+
+		files := `
+-- hugo.toml --
+timeout = "200ms"
+[security]
+[security.http]
+urls = ['.*']
+-- layouts/home.html --
+{{ $url := "URL" }}
+{{ with try (resources.GetRemote $url) }}
+  {{ with .Err }}
+    {{ errorf "Got Err: %s" . }}
+  {{ end }}
+{{ end }}
+`
+		files = strings.ReplaceAll(files, "URL", srv.URL)
+
+		b, _ := hugolib.TestE(t, files)
+		b.AssertLogContains("Retry-After: 1s")
+	})
 }
 
 // Issue 14611.
