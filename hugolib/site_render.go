@@ -154,7 +154,7 @@ func pageRenderer(
 			}
 		}
 
-		if !s.conf.DisableAliases && !s.h.BuildState.IsRebuild() {
+		if !s.conf.DisableAliases && !s.h.BuildState.IsRebuild() && p.render {
 			of := p.outputFormat()
 			if of.IsHTML && of.Permalinkable {
 				// Render any aliases for this page.

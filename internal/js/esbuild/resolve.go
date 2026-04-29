@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/sass"
 	"github.com/spf13/afero"
 )
 
@@ -377,7 +378,7 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 	varsPlugin := api.Plugin{
 		Name: "hugo-vars-plugin",
 		Setup: func(build api.PluginBuild) {
-			build.OnResolve(api.OnResolveOptions{Filter: `^hugo:vars$`},
+			build.OnResolve(api.OnResolveOptions{Filter: `^hugo:vars(/|$)`},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return api.OnResolveResult{
 						Path:      args.Path,
@@ -386,8 +387,9 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: nsHugoVars},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					subPath, _ := sass.HugoVarsSubPath(args.Path)
 					return api.OnLoadResult{
-						Contents: createCSSVarsStyleSheet(opts.Vars),
+						Contents: createCSSVarsStyleSheet(opts.Vars, subPath),
 						Loader:   api.LoaderCSS,
 					}, nil
 				})
@@ -398,16 +400,19 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 }
 
 // createCSSVarsStyleSheet creates a CSS custom properties stylesheet from the given vars.
-// The result is a :root block with CSS custom properties.
-func createCSSVarsStyleSheet(vars map[string]any) *string {
-	if len(vars) == 0 {
+// The result is a :root block with CSS custom properties. If subPath is non-empty,
+// vars is navigated using the slash-separated path before emitting properties; nested
+// map values are skipped at the resolved level.
+func createCSSVarsStyleSheet(vars map[string]any, subPath string) *string {
+	resolved := sass.ResolveVars(vars, subPath)
+	if len(resolved) == 0 {
 		// We need to return a non-nil pointer to an empty string to avoid ESBuild treating this as a missing file.
 		s := ""
 		return &s
 	}
 
 	var varsSlice []string
-	for k, v := range vars {
+	for k, v := range resolved {
 		if !strings.HasPrefix(k, "--") {
 			k = "--" + k
 		}

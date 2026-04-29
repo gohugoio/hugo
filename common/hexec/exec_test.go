@@ -43,6 +43,7 @@ func TestNodePermissionArgs(t *testing.T) {
 			"--allow-fs-read=" + site,
 			"--allow-addons",
 			"--allow-worker",
+			"--allow-child-process",
 			"--disable-warning=SecurityWarning",
 		})
 	})
@@ -75,6 +76,7 @@ func TestNodePermissionArgs(t *testing.T) {
 			"--allow-fs-write=" + site,
 			"--allow-addons",
 			"--allow-worker",
+			"--allow-child-process",
 			"--disable-warning=SecurityWarning",
 		})
 	})
@@ -94,6 +96,7 @@ func TestNodePermissionArgs(t *testing.T) {
 			"--allow-fs-write=*",
 			"--allow-addons",
 			"--allow-worker",
+			"--allow-child-process",
 			"--disable-warning=SecurityWarning",
 		})
 	})
@@ -114,6 +117,7 @@ func TestNodePermissionArgs(t *testing.T) {
 		cfg.Node.Permissions.AllowRead = nil
 		cfg.Node.Permissions.AllowAddons = nil
 		cfg.Node.Permissions.AllowWorker = nil
+		cfg.Node.Permissions.AllowChildProcess = nil
 		e := &Exec{
 			sc:         cfg,
 			workingDir: site,

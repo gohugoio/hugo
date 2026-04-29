@@ -371,6 +371,86 @@ T1: {{ $r.Content }}
 	b.AssertFileContent("public/index.html", `T1: body body{background:url(images/hero.jpg) no-repeat center/cover;font-family:Hugo&#39;s New Roman}p{color:blue;font-size:24px}b{color:green}`)
 }
 
+func TestOptionVarsNestedIssue14705(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- assets/scss/main.scss --
+@use "hugo:vars";
+@use "hugo:vars/mobile" as mobile;
+
+body {
+	color: vars.$color1;
+	font-size: vars.$font_size;
+}
+
+@media (max-width: 650px) {
+	body {
+		color: mobile.$color1;
+		font-size: mobile.$font_size;
+	}
+}
+-- layouts/home.html --
+{{ $vars := dict
+	"color1" "blue"
+	"font_size" "16px"
+	"mobile" (dict "color1" "red" "font_size" "12px")
+}}
+{{ $cssOpts := (dict "transpiler" "dartsass" "outputStyle" "compressed" "vars" $vars ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	b.AssertFileContent("public/index.html", `T1: body{color:blue;font-size:16px}@media(max-width: 650px){body{color:red;font-size:12px}}`)
+}
+
+func TestOptionVarsNestedFromParamsIssue14705(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+[params]
+[params.sassvars]
+color1 = "blue"
+font_size = "16px"
+[params.sassvars.mobile]
+color1 = "red"
+font_size = "12px"
+-- assets/scss/main.scss --
+@use "hugo:vars";
+@use "hugo:vars/mobile" as mobile;
+
+body {
+	color: vars.$color1;
+	font-size: vars.$font_size;
+}
+
+@media (max-width: 650px) {
+	body {
+		color: mobile.$color1;
+		font-size: mobile.$font_size;
+	}
+}
+-- layouts/home.html --
+{{ $vars := site.Params.sassvars }}
+{{ $cssOpts := (dict "transpiler" "dartsass" "outputStyle" "compressed" "vars" $vars ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	b.AssertFileContent("public/index.html", `T1: body{color:blue;font-size:16px}@media(max-width: 650px){body{color:red;font-size:12px}}`)
+}
+
 func TestOptionVarsParams(t *testing.T) {
 	t.Parallel()
 	if !dartsass.Supports() {

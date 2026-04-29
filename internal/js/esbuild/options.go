@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/sass"
 
 	"github.com/evanw/esbuild/pkg/api"
 
@@ -419,6 +420,8 @@ OUTER:
 	if opts.IsCSS && opts.MainFields == nil {
 		opts.MainFields = []string{"style", "main"}
 	}
+
+	opts.Vars = sass.PrepareVars(opts.Vars)
 
 	opts.compiled = api.BuildOptions{
 		Outfile:       outFile,

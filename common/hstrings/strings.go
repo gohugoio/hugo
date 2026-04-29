@@ -107,6 +107,15 @@ func HasAnyPrefix(s string, prefixes ...string) bool {
 	return false
 }
 
+func HasUppercase(s string) bool {
+	for _, r := range s {
+		if 'A' <= r && r <= 'Z' {
+			return true
+		}
+	}
+	return false
+}
+
 // InSlice checks if a string is an element of a slice of strings
 // and returns a boolean value.
 func InSlice(arr []string, el string) bool {
