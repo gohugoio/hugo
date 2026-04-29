@@ -135,7 +135,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['(?i)^https?://[a-z]', '! (?i)localhost', '! @']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
+		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['(?i)^https?://[a-z]', '! (?i)localhost', '! (?i)^https?://[^/?#]*@']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
 	)
 }
 
@@ -245,6 +245,32 @@ urls = ['.*', '! ^https?://evil\.example\.com']
 		c.Assert(err, qt.IsNotNil)
 		c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`)
 	})
+}
+
+func TestCheckAllowedHTTPURLAtInPathIssue14825(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	pc, err := DecodeConfig(config.New())
+	c.Assert(err, qt.IsNil)
+
+	for _, u := range []string{
+		"https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs",
+		"https://unpkg.com/react@18/umd/react.production.min.js",
+		"https://example.org/foo@bar/baz",
+	} {
+		c.Assert(pc.CheckAllowedHTTPURL(u), qt.IsNil, qt.Commentf(u))
+	}
+
+	for _, u := range []string{
+		"http://user@127.0.0.1/",
+		"http://user:pass@example.org/",
+		"https://token@example.org/foo@bar",
+	} {
+		err := pc.CheckAllowedHTTPURL(u)
+		c.Assert(err, qt.IsNotNil, qt.Commentf(u))
+		c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`, qt.Commentf(u))
+	}
 }
 
 func TestDecodeConfigNodePermissions(t *testing.T) {

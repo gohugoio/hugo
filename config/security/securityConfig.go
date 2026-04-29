@@ -59,7 +59,7 @@ var DefaultConfig = Config{
 		URLs: MustNewWhitelist(
 			`(?i)^https?://[a-z]`,
 			`! (?i)localhost`,
-			`! @`,
+			`! (?i)^https?://[^/?#]*@`,
 		),
 		Methods: MustNewWhitelist("(?i)GET|POST"),
 	},
