@@ -22,6 +22,11 @@ hugo gen chromastyles --style monokai
 hugo gen chromastyles --omitEmpty --style monokai --logLevel info
 stderr 'deprecated: --omitEmpty was deprecated'
 
+# Keep same-colour token classes in generated CSS. This is needed when pairing
+# styles such as github and github-dark in dual-theme sites.
+hugo gen chromastyles --style github-dark
+stdout 'NameOther.*\.chroma \.nx \{ color:#e6edf3 \}'
+
 # Disable class comments.
 hugo gen chromastyles --style monokai
 stdout 'GenericSubheading'
