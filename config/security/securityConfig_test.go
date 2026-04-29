@@ -135,7 +135,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['(?i)^https?://[a-z]', '! (?i)localhost', '! @']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
+		"[security]\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['(?i)^https?://[a-z]', '! (?i)localhost', '! @']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowChildProcess = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
 	)
 }
 
@@ -168,6 +168,7 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(pc.Node.Permissions.IsEnabled(), qt.IsTrue)
 	c.Assert(pc.Node.Permissions.AllowRead, qt.DeepEquals, []string{"."})
 	c.Assert(pc.Node.Permissions.AllowWrite, qt.DeepEquals, []string{})
+	c.Assert(pc.Node.Permissions.AllowChildProcess, qt.DeepEquals, []string{"tailwindcss"})
 }
 
 func TestCheckAllowedHTTPURLHardenedDefaultsIssue14792(t *testing.T) {
@@ -256,6 +257,7 @@ func TestDecodeConfigNodePermissions(t *testing.T) {
 [security.node.permissions]
 allowRead = ["/tmp", "."]
 allowWrite = ["."]
+allowChildProcess = ["tailwindcss"]
 `
 		cfg, err := config.FromConfigString(tomlConfig, "toml")
 		c.Assert(err, qt.IsNil)
@@ -264,6 +266,7 @@ allowWrite = ["."]
 		c.Assert(pc.Node.Permissions.IsEnabled(), qt.IsTrue)
 		c.Assert(pc.Node.Permissions.AllowRead, qt.DeepEquals, []string{"/tmp", "."})
 		c.Assert(pc.Node.Permissions.AllowWrite, qt.DeepEquals, []string{"."})
+		c.Assert(pc.Node.Permissions.AllowChildProcess, qt.DeepEquals, []string{"tailwindcss"})
 	})
 
 	c.Run("Disabled", func(c *qt.C) {

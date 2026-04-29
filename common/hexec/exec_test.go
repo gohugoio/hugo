@@ -42,6 +42,7 @@ func TestNodePermissionArgs(t *testing.T) {
 			"--permission",
 			"--allow-fs-read=" + site,
 			"--allow-addons",
+			"--allow-child-process",
 			"--allow-worker",
 			"--disable-warning=SecurityWarning",
 		})
@@ -74,6 +75,7 @@ func TestNodePermissionArgs(t *testing.T) {
 			"--allow-fs-read=" + tmp,
 			"--allow-fs-write=" + site,
 			"--allow-addons",
+			"--allow-child-process",
 			"--allow-worker",
 			"--disable-warning=SecurityWarning",
 		})
@@ -93,6 +95,7 @@ func TestNodePermissionArgs(t *testing.T) {
 			"--allow-fs-read=*",
 			"--allow-fs-write=*",
 			"--allow-addons",
+			"--allow-child-process",
 			"--allow-worker",
 			"--disable-warning=SecurityWarning",
 		})
@@ -112,6 +115,7 @@ func TestNodePermissionArgs(t *testing.T) {
 	c.Run("No fs flags", func(c *qt.C) {
 		cfg := security.DefaultConfig
 		cfg.Node.Permissions.AllowRead = nil
+		cfg.Node.Permissions.AllowChildProcess = nil
 		cfg.Node.Permissions.AllowAddons = nil
 		cfg.Node.Permissions.AllowWorker = nil
 		e := &Exec{

@@ -280,6 +280,11 @@ func (e *Exec) nodePermissionArgs(name, scriptPath string) []string {
 		args = append(args, "--allow-addons")
 	}
 
+	if slices.Contains(perms.AllowChildProcess, name) {
+		silenceSecurityWarnings = true
+		args = append(args, "--allow-child-process")
+	}
+
 	if slices.Contains(perms.AllowWorker, name) {
 		silenceSecurityWarnings = true
 		args = append(args, "--allow-worker")

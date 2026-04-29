@@ -65,11 +65,12 @@ var DefaultConfig = Config{
 	},
 	Node: Node{
 		Permissions: NodePermissions{
-			Disable:     false,
-			AllowRead:   []string{"."},
-			AllowWrite:  []string{},              // No write access by default.
-			AllowAddons: []string{"tailwindcss"}, // tailwindcss does not work without addon permissions.
-			AllowWorker: []string{"tailwindcss"}, // tailwindcss needs worker access.
+			Disable:           false,
+			AllowRead:         []string{"."},
+			AllowWrite:        []string{},              // No write access by default.
+			AllowAddons:       []string{"tailwindcss"}, // tailwindcss does not work without addon permissions.
+			AllowChildProcess: []string{"tailwindcss"},
+			AllowWorker:       []string{"tailwindcss"}, // tailwindcss needs worker access.
 		},
 	},
 }
@@ -128,11 +129,12 @@ type Node struct {
 // Use "*" to allow all paths.
 type NodePermissions struct {
 	// Disable turns off the Node.js permission model entirely.
-	Disable     bool     `json:"disable"`
-	AllowRead   []string `json:"allowRead"`
-	AllowWrite  []string `json:"allowWrite"`
-	AllowAddons []string `json:"allowAddons"`
-	AllowWorker []string `json:"allowWorker"`
+	Disable           bool     `json:"disable"`
+	AllowRead         []string `json:"allowRead"`
+	AllowWrite        []string `json:"allowWrite"`
+	AllowAddons       []string `json:"allowAddons"`
+	AllowChildProcess []string `json:"allowChildProcess"`
+	AllowWorker       []string `json:"allowWorker"`
 }
 
 // IsEnabled reports whether the Node.js permission model is active.
@@ -219,6 +221,7 @@ func DecodeConfig(cfg config.Provider) (Config, error) {
 	sc.Node.Permissions.AllowRead = slices.Clone(sc.Node.Permissions.AllowRead)
 	sc.Node.Permissions.AllowWrite = slices.Clone(sc.Node.Permissions.AllowWrite)
 	sc.Node.Permissions.AllowAddons = slices.Clone(sc.Node.Permissions.AllowAddons)
+	sc.Node.Permissions.AllowChildProcess = slices.Clone(sc.Node.Permissions.AllowChildProcess)
 	sc.Node.Permissions.AllowWorker = slices.Clone(sc.Node.Permissions.AllowWorker)
 	if cfg.IsSet(securityConfigKey) {
 		m := cfg.GetStringMap(securityConfigKey)
