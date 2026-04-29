@@ -285,6 +285,11 @@ func (e *Exec) nodePermissionArgs(name, scriptPath string) []string {
 		args = append(args, "--allow-worker")
 	}
 
+	if slices.Contains(perms.AllowChildProcess, name) {
+		silenceSecurityWarnings = true
+		args = append(args, "--allow-child-process")
+	}
+
 	if silenceSecurityWarnings {
 		// There are no more fine grained way to do this, see https://github.com/nodejs/node/issues/59818
 		// If the process is configured to allow either workers or addons, Node will print warnings that's not very helpful.
