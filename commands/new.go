@@ -224,7 +224,7 @@ func (c *newCommand) newProjectNextStepsText(path string, format string) string 
 	nextStepsText.WriteString(`".
 5. Start the embedded web server with the command "hugo server --buildDrafts".
 
-See documentation at https://gohugo.io/.`)
+See documentation at https://gohugo.io/docs/.`)
 
 	return nextStepsText.String()
 }
