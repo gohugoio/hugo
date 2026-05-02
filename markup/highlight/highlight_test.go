@@ -17,6 +17,9 @@ package highlight
 import (
 	"testing"
 
+	"github.com/alecthomas/chroma/v2"
+	"github.com/alecthomas/chroma/v2/styles"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -144,4 +147,13 @@ User-Agent: foo
 		c.Assert(result, qt.Contains, "hello")
 		c.Assert(result, qt.Contains, "}")
 	})
+}
+
+func TestGitHubDarkStyleIncludesNameOther(t *testing.T) {
+	c := qt.New(t)
+
+	style := styles.Get("github-dark")
+	c.Assert(style, qt.Not(qt.IsNil))
+	c.Assert(style.Has(chroma.NameOther), qt.Equals, true)
+	c.Assert(style.Get(chroma.NameOther).Colour.String(), qt.Equals, "#e6edf3")
 }
