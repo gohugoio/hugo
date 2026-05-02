@@ -70,7 +70,7 @@ func TestScratchAddSlice(t *testing.T) {
 	expected := []int{1, 2, 3}
 
 	if !reflect.DeepEqual(expected, sl) {
-		t.Errorf("Slice difference, go %q expected %q", sl, expected)
+		t.Errorf("Slice difference, go %v expected %v", sl, expected)
 	}
 	_, err = scratch.Add("intSlice", []int{4, 5})
 
@@ -80,7 +80,7 @@ func TestScratchAddSlice(t *testing.T) {
 	expected = []int{1, 2, 3, 4, 5}
 
 	if !reflect.DeepEqual(expected, sl) {
-		t.Errorf("Slice difference, go %q expected %q", sl, expected)
+		t.Errorf("Slice difference, go %v expected %v", sl, expected)
 	}
 }
 
