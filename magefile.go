@@ -181,7 +181,7 @@ func Test386() error {
 func Test() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
 	if isCI() {
-		// We have space issues on GitHub Actions (lots tests, incresing usage of Go generics).
+		// We have space issues on GitHub Actions (lots tests, increasing usage of Go generics).
 		// Test each package separately and clean up in between.
 		pkgs, err := hugoPackages()
 		if err != nil {
@@ -205,7 +205,7 @@ func Test() error {
 func TestRace() error {
 	env := map[string]string{"GOFLAGS": testGoFlags()}
 	if isCI() {
-		// We have space issues on GitHub Actions (lots tests, incresing usage of Go generics).
+		// We have space issues on GitHub Actions (lots tests, increasing usage of Go generics).
 		// Test each package separately and clean up in between.
 		pkgs, err := hugoPackages()
 		if err != nil {
