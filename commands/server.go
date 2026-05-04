@@ -549,7 +549,7 @@ of a second, you will be able to save and see your changes nearly instantly.`
 	cmd.Flags().BoolVar(&c.tlsAuto, "tlsAuto", false, "generate and use locally-trusted certificates.")
 	cmd.Flags().BoolVar(&c.pprof, "pprof", false, "enable the pprof server (port 8080)")
 	cmd.Flags().BoolVarP(&c.serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
-	cmd.Flags().BoolVar(&c.noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
+	cmd.Flags().BoolVar(&c.noHTTPCache, "noHTTPCache", false, "disable browser caching of pages served by the embedded web server")
 	cmd.Flags().BoolVarP(&c.serverAppend, "appendPort", "", true, "append port to baseURL")
 	cmd.Flags().BoolVar(&c.disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	cmd.Flags().BoolVarP(&c.navigateToChanged, "navigateToChanged", "N", false, "navigate to changed content file on live browser reload")

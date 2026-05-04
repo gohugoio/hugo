@@ -57,7 +57,8 @@ var DefaultConfig = Config{
 		// foil the obvious SSRF bypass. Public IP literals are collateral
 		// blocks; users who need them can override security.http.urls.
 		URLs: MustNewWhitelist(
-			`(?i)^https?://[a-z]`,
+			`(?i)^https?://[a-z0-9]`,
+			`! ^https?://\d+\.`,
 			`! (?i)localhost`,
 			`! (?i)^https?://[^/?#]*@`,
 		),
