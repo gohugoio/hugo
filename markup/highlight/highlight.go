@@ -179,13 +179,17 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 	w := &byteCountFlexiWriter{delegate: fw}
 
 	if lexer == nil {
+		var pw *preWrapper
 		if cfg.Hl_inline {
 			fmt.Fprintf(w, "<code%s>%s</code>", inlineCodeAttrs(lang), gohtml.EscapeString(code))
 		} else {
-			preWrapper := getPreWrapper(lang, w)
-			fmt.Fprint(w, preWrapper.Start(true, ""))
+			pw = getPreWrapper(lang, w)
+			fmt.Fprint(w, pw.Start(true, ""))
 			fmt.Fprint(w, gohtml.EscapeString(code))
-			fmt.Fprint(w, preWrapper.End(true))
+			fmt.Fprint(w, pw.End(true))
+		}
+		if pw != nil {
+			return pw.low, pw.high, nil
 		}
 		return 0, 0, nil
 	}
