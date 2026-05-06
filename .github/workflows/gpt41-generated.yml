@@ -1,0 +1,163 @@
+name: "Test"
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request: {}
+
+env:
+  "GOPROXY": "https://proxy.golang.org"
+  "GO111MODULE": "on"
+  "SASS_VERSION": "1.80.3"
+  "SASS_SHA256_LINUX": "" # TODO: set actual SHA256 for Linux
+  "SASS_SHA256_MACOS": "" # TODO: set actual SHA256 for macOS
+  "SASS_SHA256_WINDOWS": "" # TODO: set actual SHA256 for Windows
+  "HUGO_BUILD_TAGS": "extended,withdeploy"
+
+jobs:
+  test:
+    name: "Test (Go ${{ matrix.go-version }} on ${{ matrix.os }})"
+    runs-on: "${{ matrix.os }}"
+    timeout-minutes: 15
+    permissions:
+      contents: "read"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+        go-version: ["1.25.x", "1.26.x"]
+    concurrency:
+      group: "test-${{ github.ref }}-${{ matrix.os }}-${{ matrix.go-version }}"
+      cancel-in-progress: true
+    steps:
+      - name: "Free disk space on Ubuntu"
+        if: "matrix.os == 'ubuntu-latest'"
+        shell: "bash"
+        run: |
+          set -euxo pipefail
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo apt-get clean
+          sudo apt-get autoremove -y
+          docker image prune -af || true
+          sudo rm -rf /opt/hostedtoolcache || true
+
+      - name: "Checkout code"
+        uses: "actions/checkout@v4"
+
+      - name: "Set up Go"
+        uses: "actions/setup-go@v5"
+        with:
+          go-version: "${{ matrix.go-version }}"
+          check-latest: true
+          cache: true
+          cache-dependency-path: |
+            **/go.mod
+            **/go.sum
+
+      - name: "Set up Ruby 3.4.5"
+        uses: "ruby/setup-ruby@v1"
+        with:
+          ruby-version: "3.4.5"
+
+      - name: "Set up Python 3.x"
+        uses: "actions/setup-python@v5"
+        with:
+          python-version: "3.x"
+
+      - name: "Install Ruby gems"
+        shell: "bash"
+        run: |
+          set -euxo pipefail
+          gem install asciidoctor -v 2.0.26
+          gem install asciidoctor-diagram -v 3.1.0
+
+      - name: "Install Python docutils and verify rst2html"
+        shell: "bash"
+        run: |
+          set -euxo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install docutils
+          rst2html.py --version || rst2html --version
+
+      - name: "Install Go tools (goat and mage@v1.15.0)"
+        shell: "bash"
+        run: |
+          set -euxo pipefail
+          go install github.com/magefile/mage@v1.15.0
+          go install github.com/gohugoio/hugo/tools/goat@latest
+
+      - name: "Install Pandoc on Ubuntu"
+        if: "matrix.os == 'ubuntu-latest'"
+        shell: "bash"
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      - name: "Install Pandoc on Windows"
+        if: "matrix.os == 'windows-latest'"
+        shell: "pwsh"
+        run: |
+          choco install pandoc -y
+
+      - name: "Install MinGW on Windows"
+        if: "matrix.os == 'windows-latest'"
+        shell: "pwsh"
+        run: |
+          choco install mingw -y
+
+      - name: "Install Dart Sass on Ubuntu"
+        if: "matrix.os == 'ubuntu-latest'"
+        shell: "bash"
+        run: |
+          set -euxo pipefail
+          curl -L -o dart-sass.tar.gz "https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-linux-x64.tar.gz"
+          echo "${SASS_SHA256_LINUX}  dart-sass.tar.gz" | sha256sum -c -
+          tar -xzf dart-sass.tar.gz
+          echo "${PWD}/dart-sass" >> $GITHUB_PATH
+
+      - name: "Install Dart Sass on Windows"
+        if: "matrix.os == 'windows-latest'"
+        shell: "pwsh"
+        run: |
+          $ErrorActionPreference = "Stop"
+          $url = "https://github.com/sass/dart-sass/releases/download/${env:SASS_VERSION}/dart-sass-${env:SASS_VERSION}-windows-x64.zip"
+          Invoke-WebRequest -Uri $url -OutFile "dart-sass.zip"
+          $expected = "${env:SASS_SHA256_WINDOWS}  dart-sass.zip"
+          $actual = (Get-FileHash "dart-sass.zip" -Algorithm SHA256).Hash.ToLower()
+          if (-not $expected.ToLower().StartsWith($actual)) { throw "SHA256 mismatch for Dart Sass" }
+          Expand-Archive -Path "dart-sass.zip" -DestinationPath "$PWD/dart-sass" -Force
+          echo "${PWD}/dart-sass" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: "Run staticcheck and mage check on Ubuntu"
+        if: "matrix.os == 'ubuntu-latest'"
+        shell: "bash"
+        env:
+          HUGO_BUILD_TAGS: "${{ env.HUGO_BUILD_TAGS }}"
+        run: |
+          set -euxo pipefail
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          "$(go env GOPATH)/bin/staticcheck" ./...
+          mage -v check
+
+      - name: "Run mage test on Windows"
+        if: "matrix.os == 'windows-latest'"
+        shell: "pwsh"
+        env:
+          HUGO_BUILD_TAGS: "${{ env.HUGO_BUILD_TAGS }}"
+        run: |
+          $ErrorActionPreference = "Stop"
+          mage -v test
+
+      - name: "Dragonfly build and clean Go cache (Ubuntu only)"
+        if: "matrix.os == 'ubuntu-latest'"
+        shell: "bash"
+        env:
+          HUGO_BUILD_TAGS: "${{ env.HUGO_BUILD_TAGS }}"
+        run: |
+          set -euxo pipefail
+          GOOS=dragonfly GOARCH=amd64 mage Hugo
+          go clean -cache
