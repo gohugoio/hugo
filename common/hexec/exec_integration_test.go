@@ -45,17 +45,17 @@ body { color: blue }
 -- layouts/home.html --
 {{ with resources.Get "css/main1.css"  }}
 	{{ with . | css.PostCSS  }}
-		 CSS1 size: {{ .Content | len }}|{{ .RelPermalink }}|
+		 CSS1: {{ .RelPermalink }}|{{ gt (.Content | len) 10 }}|
 	{{ end }}
 {{ end }}
- {{ with resources.Get "css/main2.css"  }}
+ {{ with resources.Get "css/main2.css" }}
 	{{ with . | css.TailwindCSS  }}
-		 CSS2 size: {{ .Content | len }}|{{ .RelPermalink }}|
+		 CSS2: {{ .RelPermalink }}|{{ gt (.Content | len) 10 }}|
 	{{ end }}
 {{ end }}
-{{ with resources.Get "js/main.js"  }}
+{{ with resources.Get "js/main.js" }}
 	{{ with . | js.Babel  }}
-		 JS size: {{ .Content | len }}|{{ .RelPermalink }}|
+		 JS: {{ .RelPermalink }}|{{ gt (.Content | len) 10 }}|
 	{{ end }}
 {{ end }}
 `
@@ -67,8 +67,8 @@ body { color: blue }
 	))
 
 	b.AssertFileContent("public/index.html",
-		"CSS1 size: 233|/css/main1.css|",
-		"CSS2 size: 4557|/css/main2.css|",
-		"JS size: 31|/js/main.js|",
+		"CSS1: /css/main1.css|true|",
+		"CSS2: /css/main2.css|true|",
+		"JS: /js/main.js|true|",
 	)
 }

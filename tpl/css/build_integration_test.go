@@ -116,12 +116,12 @@ All. No CSS here.
 `
 	b := hugolib.TestRunning(t, files, hugolib.TestOptOsFs())
 
-	b.AssertFileContent("public/css/main.css", `.foo{background:green}@layer mylayer{.bar{background-image:url("./bar-Y35ORVQM.svg")}}`)
+	b.AssertFileContent("public/css/main.css", `.foo{background:green}@layer mylayer{.bar{background-image:url("/css/bar-Y35ORVQM.svg")}}`)
 
 	// Edit svg
 	b.EditFileReplaceAll("assets/images/bar.svg", "barsvg", "newbarsvg").Build()
 	b.AssertRenderCountPage(1)
-	b.AssertFileContent("public/css/main.css", `bar-LVHHRPN5.svg`) // new hash.
+	b.AssertFileContent("public/css/main.css", `/css/bar-LVHHRPN5.svg`) // new hash.
 	b.AssertFileContent("public/css/bar-LVHHRPN5.svg", "newbarsvg")
 
 	// Edit foo.css
@@ -132,7 +132,7 @@ All. No CSS here.
 	// Edit bar.css
 	b.EditFileReplaceAll("assets/css/bar.css", "bar.svg", "foo.svg").Build()
 	b.AssertRenderCountPage(1)
-	b.AssertFileContent("public/css/main.css", `foo-52JTT5GU.svg`)
+	b.AssertFileContent("public/css/main.css", `/css/foo-52JTT5GU.svg`)
 	b.AssertFileContent("public/css/foo-52JTT5GU.svg", "foosvg")
 
 	// Edit main.css
@@ -342,7 +342,7 @@ CSS: {{ .RelPermalink }}|{{ .Content }}
 	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	for _, lang := range []string{"en", "fr"} {
-		b.AssertFileContent("public/"+lang+"/css/main.css", `./pixel-NJRUOINY.png`)
+		b.AssertFileContent("public/"+lang+"/css/main.css", `/css/pixel-NJRUOINY.png`)
 		b.AssertFileExists("public/"+lang+"/css/pixel-NJRUOINY.png", true)
 	}
 }
@@ -372,10 +372,118 @@ div {
 `
 
 	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
-	b.AssertFileContent("public/css/main.css", `./pixel-NJRUOINY.png`)
+	b.AssertFileContent("public/css/main.css", `/css/pixel-NJRUOINY.png`)
 	b.AssertFileExists("public/css/pixel-NJRUOINY.png", true)
-	b.AssertFileContent("public/css/main.css", `url("./issue14619-NJRUOINY.png")`)
+	b.AssertFileContent("public/css/main.css", `url("/css/issue14619-NJRUOINY.png")`)
 	b.AssertFileExists("public/css/issue14619-NJRUOINY.png", true)
+}
+
+// Issue #14849
+func TestCSSBuildFileLoaderURLRelativeToWebContextRoot(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+BASEURL
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+-- assets/css/main.css --
+@import "components/header.css";
+@import "/fonts/comic_neue/fonts.css";
+body { color: #222; }
+-- assets/css/components/header.css --
+header { border-bottom: 1px solid #222; }
+-- assets/fonts/comic_neue/fonts.css --
+@font-face {
+  font-family: 'Comic Neue';
+  src: url(ComicNeue-Regular.ttf) format('truetype');
+}
+-- assets/fonts/comic_neue/ComicNeue-Regular.ttf --
+fakefontdata
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ with . | css.Build (dict "minify" true) }}
+INLINE: <style>{{ .Content | safeCSS }}</style>
+LINKED: <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	// Default baseURL: URLs in inlined CSS must be resolvable from any page,
+	// not just relative to the (non-existent) /css/main.css location.
+	files := strings.ReplaceAll(filesTemplate, "BASEURL", "")
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html", `url("/css/ComicNeue-Regular-`)
+	b.AssertFileContent("public/css/main.css", `url("/css/ComicNeue-Regular-`)
+
+	// baseURL with a subpath: URLs must include that subpath.
+	files = strings.ReplaceAll(filesTemplate, "BASEURL", `baseURL = "https://example.org/mysite/"`)
+	b = hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html", `url("/mysite/css/ComicNeue-Regular-`)
+	b.AssertFileContent("public/css/main.css", `url("/mysite/css/ComicNeue-Regular-`)
+}
+
+// Issue #14849
+func TestCSSBuildFileLoaderURLRelativeToWebContextRootMultihost(t *testing.T) {
+	t.Parallel()
+
+	// The CSS is built once for all hosts. The deepest base path among the
+	// hosts is baked into the file-loader URLs so the URL is reachable on every
+	// host, and the artifact is published at a per-host compensated path so the
+	// URL resolves correctly on each host. EN_WEIGHT/FR_WEIGHT swap which host
+	// renders first, to verify the result is independent of build order.
+	filesTemplate := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+[languages]
+[languages.en]
+baseURL = "https://example.com/docs/"
+weight = EN_WEIGHT
+[languages.fr]
+baseURL = "https://example.fr/"
+weight = FR_WEIGHT
+-- assets/css/main.css --
+@import "/fonts/comic_neue/fonts.css";
+body { color: #222; }
+-- assets/fonts/comic_neue/fonts.css --
+@font-face {
+  font-family: 'Comic Neue';
+  src: url(ComicNeue-Regular.ttf) format('truetype');
+}
+-- assets/fonts/comic_neue/ComicNeue-Regular.ttf --
+fakefontdata
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ with . | css.Build (dict "minify" true) }}
+INLINE: <style>{{ .Content | safeCSS }}</style>
+LINKED: <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ end }}
+{{ end }}
+`
+
+	assertResult := func(t *testing.T, b *hugolib.IntegrationTestBuilder) {
+		t.Helper()
+		b.Assert(b.H.Conf.IsMultihost(), qt.Equals, true)
+		b.AssertFileContent("public/en/index.html", `url("/docs/css/ComicNeue-Regular-`)
+		b.AssertFileContent("public/en/css/main.css", `url("/docs/css/ComicNeue-Regular-`)
+		b.AssertFileContent("public/fr/index.html", `url("/docs/css/ComicNeue-Regular-`)
+		b.AssertFileContent("public/fr/css/main.css", `url("/docs/css/ComicNeue-Regular-`)
+		b.AssertPublishDir("en/css/ComicNeue-Regular-UA4ODE7N.ttf")
+		b.AssertPublishDir("fr/docs/css/ComicNeue-Regular-UA4ODE7N.ttf")
+	}
+
+	t.Run("en first", func(t *testing.T) {
+		t.Parallel()
+		files := strings.NewReplacer("EN_WEIGHT", "10", "FR_WEIGHT", "20").Replace(filesTemplate)
+		assertResult(t, hugolib.Test(t, files, hugolib.TestOptOsFs()))
+	})
+
+	t.Run("fr first", func(t *testing.T) {
+		t.Parallel()
+		files := strings.NewReplacer("EN_WEIGHT", "20", "FR_WEIGHT", "10").Replace(filesTemplate)
+		assertResult(t, hugolib.Test(t, files, hugolib.TestOptOsFs()))
+	})
 }
 
 // Issue #14623

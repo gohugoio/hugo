@@ -234,6 +234,10 @@ type InternalOptions struct {
 	AbsWorkingDir string
 	Metafile      bool
 
+	// Used as a prefix for asset references that go through the file loader.
+	// See https://esbuild.github.io/api/#public-path
+	PublicPath string
+
 	StdinSourcePath string
 
 	DependencyManager identity.Manager
@@ -443,8 +447,9 @@ OUTER:
 		MinifyIdentifiers: opts.Minify,
 		MinifySyntax:      opts.Minify,
 
-		Outdir:    outDir,
-		Splitting: opts.Splitting,
+		Outdir:     outDir,
+		PublicPath: opts.PublicPath,
+		Splitting:  opts.Splitting,
 
 		Define:   defines,
 		External: opts.Externals,

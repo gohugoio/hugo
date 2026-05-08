@@ -67,6 +67,15 @@ func (c ConfigLanguage) BaseURLLiveReload() urls.BaseURL {
 	return c.config.C.BaseURLLiveReload
 }
 
+// AllBaseURLs returns the BaseURL for each enabled language, ordered as Languages().
+func (c ConfigLanguage) AllBaseURLs() []urls.BaseURL {
+	bs := make([]urls.BaseURL, len(c.m.configLangs))
+	for i, p := range c.m.configLangs {
+		bs[i] = p.BaseURL()
+	}
+	return bs
+}
+
 func (c ConfigLanguage) Environment() string {
 	return c.config.Environment
 }

@@ -47,6 +47,11 @@ type BuildClient struct {
 	CssMode bool
 }
 
+// Spec returns the resources.Spec for this client.
+func (c *BuildClient) Spec() *resources.Spec {
+	return c.rs
+}
+
 // Build builds the given JavaScript resources using esbuild with the given options.
 func (c *BuildClient) Build(opts Options) (api.BuildResult, error) {
 	dependencyManager := opts.DependencyManager
