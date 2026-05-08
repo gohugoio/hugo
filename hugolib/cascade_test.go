@@ -543,3 +543,31 @@ cascade:
 	b.AssertFileExists("public/s2/p2/index.html", false)
 	b.AssertFileExists("public/s2/p3/index.html", false)
 }
+
+// Issue 14848
+func TestCascadeParamsLangIssue14848(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ['rss','sitemap','taxonomy','term']
+-- content/_index.md --
+---
+title: Home
+cascade:
+  params:
+    lang: en
+---
+-- content/p1.md --
+---
+title: p1
+---
+-- layouts/all.html --
+{{ .Title }}|lang: {{ .Params.lang }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "p1|lang: en|")
+}
