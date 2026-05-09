@@ -21,12 +21,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 )
 
-func TestTailwindV4Basic(t *testing.T) {
-	if !htesting.IsCI() {
-		t.Skip("Skip long running test when running locally")
-	}
-
-	files := `
+const tailwindV4TestFiles = `
 -- hugo.toml --
 -- package.json --
 {
@@ -59,8 +54,21 @@ func TestTailwindV4Basic(t *testing.T) {
 CSS: {{ $css.Content | safeCSS }}|
 `
 
-	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
+func TestTailwindV4Basic(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
 
+	b := hugolib.Test(t, tailwindV4TestFiles, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
+	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.")
+}
+
+func TestTailwindV4BasicPnpm(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	b := hugolib.Test(t, tailwindV4TestFiles, hugolib.TestOptOsFs(), hugolib.TestOptWithPnpmInstall(), hugolib.TestOptInfo())
 	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.")
 }
 

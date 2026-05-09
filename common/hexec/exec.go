@@ -358,11 +358,12 @@ func resolveNodeBin(path string) string {
 	return extractNodeEntryPoint(path)
 }
 
-// nodeEntryPointRe matches a relative path in npm-generated wrapper scripts.
-// The entry may be a .js/.mjs/.cjs file or an extensionless Node shebang
-// script (e.g. postcss-cli 7's bin/postcss). Local installs reference the
-// entry via "..", global installs via "node_modules" (notably on Windows,
-// where npm does not symlink global binaries).
+// nodeEntryPointRe matches a relative path in npm/pnpm-generated wrapper
+// scripts. The entry may be a .js/.mjs/.cjs file or an extensionless Node
+// shebang script (e.g. postcss-cli 7's bin/postcss). Local installs reference
+// the entry via "..", global installs via "node_modules" (notably on Windows,
+// where npm does not symlink global binaries). pnpm uses a flat layout under
+// node_modules/.pnpm with directory names like "@scope+name@version".
 // Examples:
 //
 //	Local shell:  "$basedir/../postcss-cli/index.js"
@@ -371,29 +372,32 @@ func resolveNodeBin(path string) string {
 //	No ext:       "%dp0%\..\postcss-cli\bin\postcss"
 //	Global shell: "$basedir/node_modules/postcss-cli/index.js"
 //	Global cmd:   "%dp0%\node_modules\postcss-cli\index.js"
-var nodeEntryPointRe = regexp.MustCompile(`[/\\]((?:\.\.|node_modules)[/\\][\w@][\w@./\\-]*)`)
+//	pnpm shell:   "$basedir/../.pnpm/@tailwindcss+cli@4.2.4/node_modules/@tailwindcss/cli/dist/index.mjs"
+var nodeEntryPointRe = regexp.MustCompile(`[/\\]((?:\.\.|node_modules)[/\\][\w@.+][\w@./\\+-]*)`)
 
-// extractNodeEntryPoint reads an npm wrapper script and extracts the Node
-// entry point path, validating that it's a JS file or a Node shebang script.
+// extractNodeEntryPoint reads a wrapper script and extracts the Node entry
+// point path, validating that it's a JS file or a Node shebang script.
+// Wrappers may contain several path-shaped strings (e.g. pnpm's NODE_PATH
+// listing absolute paths into .pnpm); we iterate matches and return the
+// first one that resolves to a valid Node script relative to the wrapper.
 func extractNodeEntryPoint(wrapperPath string) string {
 	data, err := os.ReadFile(wrapperPath)
 	if err != nil {
 		return ""
 	}
-	m := nodeEntryPointRe.FindSubmatch(data)
-	if m == nil {
-		return ""
+	for _, m := range nodeEntryPointRe.FindAllSubmatch(data, -1) {
+		// Normalize backslashes from Windows .cmd wrappers.
+		relPath := strings.ReplaceAll(string(m[1]), "\\", "/")
+		resolved := filepath.Join(filepath.Dir(wrapperPath), relPath)
+		if _, err := os.Stat(resolved); err != nil {
+			continue
+		}
+		if !hasJSExtension(resolved) && !isNodeScript(resolved) {
+			continue
+		}
+		return resolved
 	}
-	// Normalize backslashes from Windows .cmd wrappers.
-	relPath := strings.ReplaceAll(string(m[1]), "\\", "/")
-	resolved := filepath.Join(filepath.Dir(wrapperPath), relPath)
-	if _, err := os.Stat(resolved); err != nil {
-		return ""
-	}
-	if !hasJSExtension(resolved) && !isNodeScript(resolved) {
-		return ""
-	}
-	return resolved
+	return ""
 }
 
 func hasJSExtension(path string) bool {

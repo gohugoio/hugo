@@ -109,6 +109,15 @@ func TestOptOsFs() TestOpt {
 func TestOptWithNpmInstall() TestOpt {
 	return func(c *IntegrationTestConfig) {
 		c.NeedsNpmInstall = true
+		c.NpmCommand = "npm"
+	}
+}
+
+// TestOptWithNpmInstall will enable npm install in integration tests.
+func TestOptWithPnpmInstall() TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NeedsNpmInstall = true
+		c.NpmCommand = "pnpm"
 	}
 }
 
@@ -981,8 +990,12 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 				s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
 				s.C.Cleanup(func() { os.Chdir(wd) })
 			}
+			command := "npm"
+			if s.Cfg.NpmCommand != "" {
+				command = s.Cfg.NpmCommand
+			}
 			sc := security.DefaultConfig
-			sc.Exec.Allow, err = security.NewWhitelist("npm")
+			sc.Exec.Allow, err = security.NewWhitelist(command)
 			s.Assert(err, qt.IsNil)
 			ex := hexec.New(sc, s.Cfg.WorkingDir, loggers.NewDefault())
 
@@ -991,18 +1004,19 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 					panic("NeedsNpmGlobalInstall is restricted to real CI because it performs global npm installs")
 				}
 				for _, pkg := range s.Cfg.NeedsNpmGlobalInstall {
-					command, err := ex.New("npm", "install", "-g", pkg)
+					command, err := ex.New(command, "install", "-g", pkg)
 					s.Assert(err, qt.IsNil)
 					s.Assert(command.Run(), qt.IsNil)
 
 				}
 				s.C.Cleanup(func() {
 					for _, pkg := range s.Cfg.NeedsNpmGlobalInstall {
-						ex.New("npm", "uninstall", "-g", pkg)
+						ex.New(command, "uninstall", "-g", pkg)
 					}
 				})
 			} else {
-				command, err := ex.New("npm", "install")
+				args := []any{"install", "--ignore-scripts"}
+				command, err := ex.New(command, args...)
 				s.Assert(err, qt.IsNil)
 				s.Assert(command.Run(), qt.IsNil)
 			}
@@ -1213,6 +1227,9 @@ type IntegrationTestConfig struct {
 
 	// Whether to run npm install before Build.
 	NeedsNpmInstall bool
+
+	// The npm command to use. Defaults to "npm".
+	NpmCommand string
 
 	// Global npm packages to install before Build. This is used for testing the npm integration in the Hugo Pipes.
 	// Only used on CI.
