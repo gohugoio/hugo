@@ -14,6 +14,7 @@
 package tableofcontents
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -127,21 +128,9 @@ func TestTocMissingParent(t *testing.T) {
 	got := string(tocHTML)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ul>
-    <li>
-      <ul>
-        <li><a href="#h2">H2</a></li>
-      </ul>
-    </li>
-    <li>
-      <ul>
-        <li>
-          <ul>
-            <li><a href="#h3">H3</a></li>
-            <li><a href="#h3">H3</a></li>
-          </ul>
-        </li>
-      </ul>
-    </li>
+    <li><a href="#h2">H2</a></li>
+    <li><a href="#h3">H3</a></li>
+    <li><a href="#h3">H3</a></li>
   </ul>
 </nav>`, qt.Commentf(got))
 
@@ -158,23 +147,157 @@ func TestTocMissingParent(t *testing.T) {
 	got = string(tocHTML)
 	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
   <ol>
-    <li>
-      <ol>
-        <li><a href="#h2">H2</a></li>
-      </ol>
-    </li>
-    <li>
-      <ol>
-        <li>
-          <ol>
-            <li><a href="#h3">H3</a></li>
-            <li><a href="#h3">H3</a></li>
-          </ol>
-        </li>
-      </ol>
-    </li>
+    <li><a href="#h2">H2</a></li>
+    <li><a href="#h3">H3</a></li>
+    <li><a href="#h3">H3</a></li>
   </ol>
 </nav>`, qt.Commentf(got))
+}
+
+func TestTocMissingIntermediateLevels(t *testing.T) {
+	c := qt.New(t)
+
+	type item struct {
+		title string
+		id    string
+		row   int
+		level int
+	}
+
+	for _, test := range []struct {
+		name     string
+		items    []item
+		expected string
+	}{
+		{
+			name: "h2 to h4",
+			items: []item{
+				{title: "H2", id: "h2", level: 1},
+				{title: "H4", id: "h4", level: 3},
+			},
+			expected: `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#h2">H2</a>
+      <ul>
+        <li><a href="#h4">H4</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>`,
+		},
+		{
+			name: "h2 to h5",
+			items: []item{
+				{title: "H2", id: "h2", level: 1},
+				{title: "H5", id: "h5", level: 4},
+			},
+			expected: `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#h2">H2</a>
+      <ul>
+        <li><a href="#h5">H5</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>`,
+		},
+		{
+			name: "h2 to h6",
+			items: []item{
+				{title: "H2", id: "h2", level: 1},
+				{title: "H6", id: "h6", level: 5},
+			},
+			expected: `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#h2">H2</a>
+      <ul>
+        <li><a href="#h6">H6</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>`,
+		},
+		{
+			name: "h3 to h5",
+			items: []item{
+				{title: "H3", id: "h3", level: 2},
+				{title: "H5", id: "h5", level: 4},
+			},
+			expected: `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#h3">H3</a>
+      <ul>
+        <li><a href="#h5">H5</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>`,
+		},
+		{
+			name: "starts at h4",
+			items: []item{
+				{title: "H4", id: "h4", level: 3},
+			},
+			expected: `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#h4">H4</a></li>
+  </ul>
+</nav>`,
+		},
+		{
+			name: "starts at h6",
+			items: []item{
+				{title: "H6", id: "h6", level: 5},
+			},
+			expected: `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#h6">H6</a></li>
+  </ul>
+</nav>`,
+		},
+	} {
+		c.Run(test.name, func(c *qt.C) {
+			toc := &Fragments{}
+			for _, item := range test.items {
+				toc.addAt(&Heading{Title: item.title, ID: item.id}, item.row, item.level)
+			}
+
+			tocHTML, err := toc.ToHTML(2, -1, false)
+			c.Assert(err, qt.IsNil)
+			got := string(tocHTML)
+			c.Assert(got, qt.Equals, test.expected, qt.Commentf(got))
+			c.Assert(got, qt.Not(qt.Contains), "<li>\n")
+			c.Assert(hasListItemWithoutAnchor(got), qt.Equals, false)
+		})
+	}
+
+	toc := &Fragments{}
+	toc.addAt(&Heading{Title: "H2", ID: "h2"}, 0, 1)
+	toc.addAt(&Heading{Title: "H4", ID: "h4"}, 0, 3)
+
+	tocHTML, err := toc.ToHTML(2, 3, false)
+	c.Assert(err, qt.IsNil)
+	got := string(tocHTML)
+	c.Assert(got, qt.Equals, `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#h2">H2</a></li>
+  </ul>
+</nav>`, qt.Commentf(got))
+	c.Assert(got, qt.Not(qt.Contains), "<li>\n")
+	c.Assert(hasListItemWithoutAnchor(got), qt.Equals, false)
+}
+
+func hasListItemWithoutAnchor(s string) bool {
+	for {
+		i := strings.Index(s, "<li>")
+		if i == -1 {
+			return false
+		}
+		s = s[i+len("<li>"):]
+		if !strings.HasPrefix(strings.TrimLeft(s, " \n\t\r"), "<a ") {
+			return true
+		}
+	}
 }
 
 func TestTocMisc(t *testing.T) {

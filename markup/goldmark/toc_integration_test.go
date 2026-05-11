@@ -305,6 +305,101 @@ title: home
 	b.AssertFileExists("public/index.html", true)
 }
 
+func TestTableOfContentsSkippedHeadingLevelsIssue7128(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+TOC_CONFIG
+-- layouts/page.html --
+{{ .TableOfContents }}
+-- content/p1.md --
+---
+title: p1
+---
+## Extra-Curriculars
+
+#### Heading Four Here without Heading Three Before It
+
+## Technology
+
+#### Heading Four Here without Heading Three Before It
+`
+
+	t.Run("default end level", func(t *testing.T) {
+		t.Parallel()
+
+		files := strings.ReplaceAll(filesTemplate, "TOC_CONFIG", "")
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContentExact("public/p1/index.html", `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#extra-curriculars">Extra-Curriculars</a></li>
+    <li><a href="#technology">Technology</a></li>
+  </ul>
+</nav>`)
+	})
+
+	t.Run("include skipped level", func(t *testing.T) {
+		t.Parallel()
+
+		files := strings.ReplaceAll(filesTemplate, "TOC_CONFIG", `
+[markup.tableOfContents]
+startLevel = 2
+endLevel = -1`)
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContentExact("public/p1/index.html", `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#extra-curriculars">Extra-Curriculars</a>
+      <ul>
+        <li><a href="#heading-four-here-without-heading-three-before-it">Heading Four Here without Heading Three Before It</a></li>
+      </ul>
+    </li>
+    <li><a href="#technology">Technology</a>
+      <ul>
+        <li><a href="#heading-four-here-without-heading-three-before-it-1">Heading Four Here without Heading Three Before It</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>`)
+	})
+
+	t.Run("starts at h4", func(t *testing.T) {
+		t.Parallel()
+
+		files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[markup.tableOfContents]
+startLevel = 2
+endLevel = -1
+-- layouts/page.html --
+{{ .TableOfContents }}
+-- content/p1.md --
+---
+title: p1
+---
+#### Heading Four First
+
+###### Heading Six After Heading Four
+`
+
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContentExact("public/p1/index.html", `<nav id="TableOfContents">
+  <ul>
+    <li><a href="#heading-four-first">Heading Four First</a>
+      <ul>
+        <li><a href="#heading-six-after-heading-four">Heading Six After Heading Four</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>`)
+	})
+}
+
 // Issue 12605
 func TestTableOfContentsWithGoldmarkExtras(t *testing.T) {
 	t.Parallel()
