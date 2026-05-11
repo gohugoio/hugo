@@ -106,6 +106,22 @@ func (fs *baseFileDecoratorFs) Stat(name string) (os.FileInfo, error) {
 	return fim.(os.FileInfo), nil
 }
 
+func (fs *baseFileDecoratorFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
+	if lstater, ok := fs.Fs.(afero.Lstater); ok {
+		fi, ok, err := lstater.LstatIfPossible(name)
+		if err != nil {
+			return nil, false, err
+		}
+		fim, err := fs.decorate(fi, name)
+		if err != nil {
+			return nil, false, err
+		}
+		return fim.(os.FileInfo), ok, nil
+	}
+	fi, err := fs.Stat(name)
+	return fi, false, err
+}
+
 func (fs *baseFileDecoratorFs) Open(name string) (afero.File, error) {
 	return fs.open(name)
 }

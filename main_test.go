@@ -237,6 +237,21 @@ var commonTestScriptsParam = testscript.Params{
 				ts.Fatalf("failed to write file: %v", err)
 			}
 		},
+		// ln creates a symlink, but throws an error on Windows.
+		"ln": func(ts *testscript.TestScript, neg bool, args []string) {
+			if runtime.GOOS == "windows" {
+				ts.Fatalf("ln is not supported on Windows")
+			}
+			if len(args) != 2 {
+				ts.Fatalf("usage: ln TARGET LINKNAME")
+			}
+			target := ts.MkAbs(args[0])
+			linkname := ts.MkAbs(args[1])
+			err := os.Symlink(target, linkname)
+			if err != nil {
+				ts.Fatalf("failed to create symlink: %v", err)
+			}
+		},
 
 		// httpget checks that a HTTP resource's body matches (if it compiles as a regexp) or contains all of the strings given as arguments.
 		"httpget": func(ts *testscript.TestScript, neg bool, args []string) {
@@ -313,6 +328,10 @@ var commonTestScriptsParam = testscript.Params{
 				ok := err == nil != neg
 				if !ok {
 					ts.Fatalf("stat %s: %v", filename, err)
+				}
+				if ok && neg {
+					// OK.
+					continue
 				}
 				if fi.Size() == 0 {
 					ts.Fatalf("%s is empty", filename)

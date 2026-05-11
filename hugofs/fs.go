@@ -267,3 +267,13 @@ func ReadDirWithContext(ctx context.Context, f DirOnlyOps, count int) ([]iofs.Di
 	}
 	return v, ctx, nil
 }
+
+// LstatIfPossible tries to use LstatIfPossible if the filesystem supports it, otherwise it falls back to Stat.
+func LstatIfPossible(fs afero.Fs, name string) (os.FileInfo, error) {
+	if lstater, ok := fs.(afero.Lstater); ok {
+		fi, _, err := lstater.LstatIfPossible(name)
+		return fi, err
+	}
+	fi, err := fs.Stat(name)
+	return fi, err
+}
