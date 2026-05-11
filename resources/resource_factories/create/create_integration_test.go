@@ -276,6 +276,47 @@ urls = ['.*']
 	})
 }
 
+// Issue 14871.
+func TestGetRemoteRedirectSecurityCheckIssue14871(t *testing.T) {
+	t.Parallel()
+
+	// Final server: the redirect target. Its host must be denied by security.http.urls.
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "text/plain")
+		w.Write([]byte("should not reach here"))
+	}))
+	t.Cleanup(func() { target.Close() })
+
+	// Redirector: the allowed host. Redirects to the denied target.
+	redirector := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL+"/", http.StatusFound)
+	}))
+	t.Cleanup(func() { redirector.Close() })
+
+	files := `
+-- hugo.toml --
+[security]
+[security.http]
+urls = ['REDIRECTOR']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $url := "REDIRECTOR/" }}
+{{ with try (resources.GetRemote $url) }}
+  {{ with .Err }}
+    Err: {{ . }}
+  {{ else with .Value }}
+    Content: {{ .Content }}
+  {{ end }}
+{{ end }}
+`
+	files = strings.ReplaceAll(files, "REDIRECTOR", redirector.URL)
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Err:", "security.http.urls")
+	b.AssertFileContent("public/index.html", "! should not reach here")
+}
+
 // Issue 14611.
 func TestGetRemotePerRequestTimeoutBodyRead(t *testing.T) {
 	t.Parallel()
