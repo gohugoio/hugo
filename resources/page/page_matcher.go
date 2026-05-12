@@ -51,7 +51,7 @@ type PageMatcher struct {
 
 	// The sites to apply this to.
 	// Note that we currently only use the Matrix field for cascade matching.
-	Sites sitesmatrix.Sites
+	Sites sitesmatrix.Sites `json:"sites,omitzero"`
 
 	// A Glob pattern matching the Page's Environment, e.g. "{production,development}".
 	Environment string
