@@ -1,0 +1,16 @@
+{{- with .Site }}
+# {{ .Title }}
+
+{{- with .Params.description }}
+{{ . }}
+{{- end }}
+{{- $pages := where .RegularPages "Draft" "!=" true }}
+{{- range ($pages.GroupBy "Section") }}
+{{- if ne .Key "" }}
+## {{ .Key | title }}
+{{- end }}
+{{- range .Pages }}
+- [{{ .Title }}]({{ .Permalink }}){{ with .Description }}: {{ . }}{{ end }}
+{{- end }}
+{{- end }}
+{{- end }}

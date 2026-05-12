@@ -1,0 +1,15 @@
+{{- with .Site }}
+# {{ .Title }}
+
+{{- with .Params.description }}
+{{ . }}
+{{- end }}
+{{- $pages := where .RegularPages "Draft" "!=" true }}
+{{- range $pages }}
+{{ "---" }}
+
+# {{ .Title }}
+
+{{ .Plain }}
+{{- end }}
+{{- end }}

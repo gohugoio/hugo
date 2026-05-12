@@ -385,6 +385,7 @@ Use other specialized templates to create:
 - [RSS feeds](/templates/rss/)
 - [404 error pages](/templates/404/)
 - [robots.txt files](/templates/robots/)
+- [llms.txt files](/templates/llms/)
 
 [`Alphabetical`]: /methods/taxonomy/alphabetical/
 [`block`]: /functions/go-template/block/

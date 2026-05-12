@@ -36,6 +36,8 @@
 
 # Other
 'alias' = 'alias.html'
+'llms' = 'llms.txt'
+'llms-full' = 'llms-full.txt'
 'robots' = 'robots.txt'
 'rss' = 'rss.xml'
 'sitemap' = 'sitemap.xml'
