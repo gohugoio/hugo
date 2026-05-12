@@ -377,7 +377,8 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		options = append(options, strconv.Itoa(mainImageVersionNumber))
 	}
 
-	if smartCropVersionNumber > 0 && c.Anchor == SmartCropAnchor {
+	usesSmartCrop := c.Anchor == SmartCropAnchor && (c.Action == ActionCrop || c.Action == ActionFill)
+	if smartCropVersionNumber > 0 && usesSmartCrop {
 		options = append(options, strconv.Itoa(smartCropVersionNumber))
 	}
 

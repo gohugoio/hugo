@@ -79,6 +79,31 @@ Colors: {{ $colors }}|
 	}
 }
 
+func TestImageCropSmartKeepsTargetSizeIssue13688(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+{{ with resources.Get "sunset.jpg" }}
+Original: {{ .Width }}x{{ .Height }}|
+{{- with .Crop "900x561 TopLeft" -}}
+CropTopLeft: {{ .Width }}x{{ .Height }}|
+{{- end -}}
+{{- with .Crop "900x561 Smart" -}}
+CropSmart: {{ .Width }}x{{ .Height }}|
+{{- end -}}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Original: 900x562|CropTopLeft: 900x561|CropSmart: 900x561|")
+}
+
 func BenchmarkImageResize(b *testing.B) {
 	files := `
 -- content/p1/sunrise.jpg --
