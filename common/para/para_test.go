@@ -20,6 +20,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -28,18 +29,16 @@ import (
 )
 
 func TestPara(t *testing.T) {
-	if runtime.NumCPU() < 4 {
-		t.Skipf("skip para test, CPU count is %d", runtime.NumCPU())
-	}
-
-	// TODO(bep)
-	if htesting.IsCI() {
-		t.Skip("skip para test when running on CI")
-	}
-
 	c := qt.New(t)
 
 	c.Run("Order", func(c *qt.C) {
+		if runtime.NumCPU() < 4 {
+			c.Skipf("skip Order subtest, CPU count is %d", runtime.NumCPU())
+		}
+		if htesting.IsCI() {
+			c.Skip("skip Order subtest when running on CI")
+		}
+
 		n := 500
 		ints := make([]int, n)
 		for i := range n {
@@ -68,28 +67,31 @@ func TestPara(t *testing.T) {
 	})
 
 	c.Run("Time", func(c *qt.C) {
-		const n = 100
+		synctest.Test(c.TB.(*testing.T), func(t *testing.T) {
+			c := qt.New(t)
+			const n = 100
 
-		p := New(5)
-		r, _ := p.Start(context.Background())
+			p := New(5)
+			r, _ := p.Start(context.Background())
 
-		start := time.Now()
+			start := time.Now()
 
-		var counter int64
+			var counter int64
 
-		for range n {
-			r.Run(func() error {
-				atomic.AddInt64(&counter, 1)
-				time.Sleep(1 * time.Millisecond)
-				return nil
-			})
-		}
+			for range n {
+				r.Run(func() error {
+					atomic.AddInt64(&counter, 1)
+					time.Sleep(1 * time.Millisecond)
+					return nil
+				})
+			}
 
-		c.Assert(r.Wait(), qt.IsNil)
-		c.Assert(counter, qt.Equals, int64(n))
+			c.Assert(r.Wait(), qt.IsNil)
+			c.Assert(counter, qt.Equals, int64(n))
 
-		since := time.Since(start)
-		limit := n / 2 * time.Millisecond
-		c.Assert(since < limit, qt.Equals, true, qt.Commentf("%s >= %s", since, limit))
+			since := time.Since(start)
+			limit := n / 2 * time.Millisecond
+			c.Assert(since < limit, qt.Equals, true, qt.Commentf("%s >= %s", since, limit))
+		})
 	})
 }
