@@ -18,8 +18,10 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -83,6 +85,92 @@ func TestGetRemoteResponseHeaders(t *testing.T) {
 	b.AssertFileContent("public/index.html",
 		"Response Headers: map[Server:[Netlify] X-Frame-Options:[DENY]]",
 	)
+}
+
+func TestGetRemoteRedirectsValidateURLSecurityIssue14871(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Allowed", func(t *testing.T) {
+		var srv *httptest.Server
+		srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/start":
+				http.Redirect(w, r, srv.URL+"/target.txt", http.StatusFound)
+			case "/target.txt":
+				w.Header().Set("Content-Type", "text/plain")
+				w.Write([]byte("redirect ok"))
+			default:
+				http.NotFound(w, r)
+			}
+		}))
+		t.Cleanup(func() { srv.Close() })
+
+		files := `
+-- hugo.toml --
+[security.http]
+urls = ['.*']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $r := resources.GetRemote "URL/start" }}Content: {{ $r.Content }}
+`
+		files = strings.ReplaceAll(files, "URL", srv.URL)
+
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/index.html", "Content: redirect ok")
+	})
+
+	t.Run("Denied", func(t *testing.T) {
+		var targetHits atomic.Int32
+		target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			targetHits.Add(1)
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte("denied target"))
+		}))
+		t.Cleanup(func() { target.Close() })
+
+		redirector := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, target.URL+"/target.txt", http.StatusFound)
+		}))
+		t.Cleanup(func() { redirector.Close() })
+
+		files := `
+-- hugo.toml --
+[security.http]
+urls = ['.*', '! ^DENIED']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $r := resources.GetRemote "URL/start" }}Content: {{ $r.Content }}
+`
+		files = strings.ReplaceAll(files, "URL", redirector.URL)
+		files = strings.ReplaceAll(files, "DENIED", regexp.QuoteMeta(target.URL))
+
+		b, err := hugolib.TestE(t, files)
+		b.Assert(err, qt.IsNotNil)
+		b.Assert(err, qt.ErrorMatches, `(?s).*security\.http\.urls.*`)
+		b.Assert(targetHits.Load(), qt.Equals, int32(0))
+	})
+
+	t.Run("Limit", func(t *testing.T) {
+		var srv *httptest.Server
+		srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, srv.URL+"/loop", http.StatusFound)
+		}))
+		t.Cleanup(func() { srv.Close() })
+
+		files := `
+-- hugo.toml --
+[security.http]
+urls = ['.*']
+-- layouts/home.html --
+{{ with try (resources.GetRemote "URL/loop") }}
+  {{ with .Err }}Err: {{ . }}{{ else }}{{ errorf "expected redirect error" }}{{ end }}
+{{ end }}
+`
+		files = strings.ReplaceAll(files, "URL", srv.URL)
+
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/index.html", "stopped after 10 redirects")
+	})
 }
 
 func TestGetRemoteRetry(t *testing.T) {

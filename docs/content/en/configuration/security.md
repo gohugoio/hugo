@@ -31,7 +31,7 @@ http.mediaTypes
 : (`[]string`) Applicable to the `resources.GetRemote` function, a slice of [regular expressions](g) matching the `Content-Type` in HTTP responses that Hugo trusts, bypassing file content analysis for media type detection.
 
 http.urls
-: (`[]string`) A slice of [regular expressions](g) matching the URLs that the `resources.GetRemote` function is allowed to access.
+: (`[]string`) A slice of [regular expressions](g) matching the URLs that the `resources.GetRemote` function is allowed to access, including redirect targets.
 
 > [!note]
 > Setting an allowlist to the string `none` will completely disable the associated feature.

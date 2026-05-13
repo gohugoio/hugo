@@ -16,6 +16,7 @@
 package create
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"path"
@@ -97,6 +98,12 @@ func New(rs *resources.Spec) *Client {
 		remoteResourceLogger:  rs.Logger.InfoCommand("remote"),
 		httpClient: &http.Client{
 			Timeout: httpTimeout,
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				if len(via) >= 10 {
+					return errors.New("stopped after 10 redirects")
+				}
+				return rs.ExecHelper.Sec().CheckAllowedHTTPURL(req.URL.String())
+			},
 			Transport: &httpcache.Transport{
 				Cache: fileCache.AsHTTPCache(),
 				CacheKey: func(req *http.Request) string {
