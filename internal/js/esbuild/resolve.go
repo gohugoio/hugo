@@ -314,7 +314,10 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: NsHugoImportResolveFunc},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-					c := opts.ImportOnLoadFunc(args)
+					c, err := opts.ImportOnLoadFunc(args)
+					if err != nil {
+						return api.OnLoadResult{}, err
+					}
 					if c == "" {
 						return api.OnLoadResult{}, fmt.Errorf("ImportOnLoadFunc failed to resolve %q", args.Path)
 					}

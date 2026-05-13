@@ -261,6 +261,26 @@ func TestBatchRenameBundledScript(t *testing.T) {
 	b.Build()
 }
 
+func TestBatchMissingImportedAssetIssue13737(t *testing.T) {
+	files := jsBatchFilesTemplate
+	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
+	b.AssertFileContent("public/mybatch/mygroup.js", "Hello, Main")
+
+	filename := filepath.Join(b.Cfg.WorkingDir, "assets/js/main.js")
+	content, err := os.ReadFile(filename)
+	b.Assert(err, qt.IsNil)
+	b.Assert(os.Remove(filename), qt.IsNil)
+
+	_, err = b.BuildE()
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "failed to read import")
+	b.Assert(err.Error(), qt.Contains, "main.js")
+
+	b.Assert(os.WriteFile(filename, content, 0o666), qt.IsNil)
+	b.Build()
+	b.AssertFileContent("public/mybatch/mygroup.js", "Hello, Main")
+}
+
 func TestBatchErrorScriptResourceNotSet(t *testing.T) {
 	files := strings.Replace(jsBatchFilesTemplate, `(resources.Get "js/main.js")`, `(resources.Get "js/doesnotexist.js")`, 1)
 	b, err := hugolib.TestE(t, files, hugolib.TestOptWithOSFs())

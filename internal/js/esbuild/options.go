@@ -248,7 +248,7 @@ type InternalOptions struct {
 	TsConfig                string
 	EntryPoints             []string
 	ImportOnResolveFunc     func(string, api.OnResolveArgs) string
-	ImportOnLoadFunc        func(api.OnLoadArgs) string
+	ImportOnLoadFunc        func(api.OnLoadArgs) (string, error)
 	ImportParamsOnLoadFunc  func(args api.OnLoadArgs) json.RawMessage
 	ErrorMessageResolveFunc func(api.Message) *ErrorMessageResolved
 	ResolveSourceMapSource  func(string) string // Used to resolve paths in error source maps.
