@@ -173,9 +173,11 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 			}
 
 			var keyPath []string
+			var unwrapKey string
 			if !DefaultConfigNamesSet[name] {
 				// Can be params.jp, menus.en etc.
 				name, lang := paths.FileAndExtNoDelimiter(name)
+				unwrapKey = name
 
 				keyPath = []string{name}
 
@@ -190,13 +192,23 @@ func LoadConfigFromDir(sourceFs afero.Fs, configDir, environment string) (Provid
 				}
 			}
 
+			// TOML/YAML can't represent a headless top-level array, so allow a
+			// file to wrap its content under a single top-level key matching
+			// the basename (e.g. cascade.yaml with `cascade: [...]`).
+			var itemValue any = item
+			if unwrapKey != "" && len(item) == 1 {
+				if inner, ok := item[unwrapKey]; ok {
+					itemValue = inner
+				}
+			}
+
 			root := item
 			if len(keyPath) > 0 {
 				root = make(map[string]any)
 				m := root
 				for i, key := range keyPath {
 					if i >= len(keyPath)-1 {
-						m[key] = item
+						m[key] = itemValue
 					} else {
 						nm := make(map[string]any)
 						m[key] = nm
