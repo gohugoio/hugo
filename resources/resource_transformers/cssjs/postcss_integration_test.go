@@ -15,6 +15,7 @@ package cssjs_test
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -213,4 +214,74 @@ Styles Content: Len: 770917
 `)
 
 	}
+}
+
+// See Issue 13987.
+func TestTransformPostCSSESMConfigInModule(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+	// Use htesting.CreateTempDir to get canonical paths on macOS
+	// (/private/var/...); Node's --permission model rejects the symlinked
+	// /var/folders/... form when crossing the project boundary.
+	rootDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+	c.Assert(err, qt.IsNil)
+	c.Cleanup(clean)
+
+	projectDir := filepath.Join(rootDir, "project")
+	moduleDir := filepath.Join(rootDir, "external-module")
+	c.Assert(os.MkdirAll(projectDir, 0o755), qt.IsNil)
+	c.Assert(os.MkdirAll(moduleDir, 0o755), qt.IsNil)
+
+	files := `
+-- hugo.toml --
+disableKinds = ['taxonomy', 'term', 'page']
+baseURL = "https://example.com"
+[[module.imports]]
+path = "github.com/bep/hugo-mod-nop"
+-- assets/css/styles.css --
+body { color: red }
+-- layouts/home.html --
+{{ $styles := resources.Get "css/styles.css" | css.PostCSS }}
+RelPermalink: {{ $styles.RelPermalink }}|HasBody: {{ in $styles.Content "color:" }}|
+-- content/_index.md --
+---
+title: home
+---
+-- package.json --
+{
+  "devDependencies": {
+    "postcss-cli": "11.0.0",
+    "postcss-import": "16.0.0"
+  }
+}
+-- go.mod --
+module github.com/example/project
+
+go 1.20
+
+replace github.com/bep/hugo-mod-nop => ../external-module
+-- ../external-module/go.mod --
+module github.com/bep/hugo-mod-nop
+
+go 1.20
+-- ../external-module/postcss.config.js --
+import postcssImport from "postcss-import";
+export default { plugins: [postcssImport()] };
+
+`
+
+	b := hugolib.Test(c, files,
+		hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.WorkingDir = projectDir
+			cfg.NeedsOsFS = true
+			cfg.NeedsNpmInstall = true
+		}),
+	)
+
+	b.AssertFileContent("public/index.html",
+		"RelPermalink: /css/styles.css|HasBody: true|",
+	)
 }

@@ -234,6 +234,10 @@ func (e *Exec) newNode(name, scriptPath string, arg ...any) (Runner, error) {
 	for _, pa := range e.nodePermissionArgs(name, scriptPath) {
 		allArgs = append(allArgs, pa)
 	}
+	// Install an ESM resolver hook that makes NODE_PATH a fallback for failed
+	// bare imports, so postcss.config.js / babel.config.js / etc. written in
+	// ESM work when loaded from the Hugo module cache. See esmloader.mjs.
+	allArgs = append(allArgs, nodeESMLoaderImportArg())
 	allArgs = append(allArgs, scriptPath)
 	allArgs = append(allArgs, arg...)
 	// When the script lives outside the working dir (a globally installed
