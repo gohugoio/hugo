@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -821,4 +822,181 @@ p1.txt
 	b.AssertFileExists("public/fr/s1/index.html", false)
 	b.AssertFileExists("public/fr/s1/p1/index.html", false)
 	b.AssertFileExists("public/fr/s1/p1.txt", false) // failing test
+}
+
+func TestDraftPagesAndItsResourcesIssue13998(t *testing.T) {
+	t.Parallel()
+
+	// content/
+	// ├── p1/
+	// │   ├── index.de.md
+	// │   ├── index.en.md
+	// │   ├── p1.de.txt
+	// │   └── p1.en.txt
+	// ├── p2/
+	// │   ├── index.de.md
+	// │   ├── index.en.md
+	// │   └── p2.txt
+	// ├── p3/
+	// │   ├── index.en.md
+	// │   └── p3.en.txt
+	// ├── p4/
+	// │   ├── index.de.md
+	// │   └── p4.de.txt
+	// ├── p5/
+	// │   ├── index.en.md
+	// │   └── p5.txt
+	// └── p6/
+	//     ├── index.de.md
+	//     └── p6.txt
+
+	files := `
+-- hugo.toml --
+title = 'my site'
+disableKinds = ['rss','section','sitemap','taxonomy','term']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+
+[languages.en]
+weight = 1
+
+[languages.de]
+weight = 2
+-- layouts/all.html --
+title: {{ .Title }}|language: {{ .Language.Lang }}|resources: {{ range .Resources.Match "**" }}{{ .Name }}|{{ end }}|
+-- content/p1/index.de.md --
+---
+title: p1 (de)
+draft: false
+---
+-- content/p1/index.en.md --
+---
+title: p1 (en)
+draft: false
+---
+-- content/p1/p1.de.txt --
+content/p1/p1.de.txt
+-- content/p1/p1.en.txt --
+content/p1/p2.txt
+-- content/p2/index.de.md --
+---
+title: p2 (de)
+draft: false
+---
+-- content/p2/index.en.md --
+---
+title: p2 (en)
+draft: false
+---
+-- content/p2/p2.txt --
+content/p2/p2.txt
+-- content/p3/index.en.md --
+---
+title: p3 (en)
+draft: false
+---
+-- content/p3/p3.en.txt --
+content/p3/p3.en.txt
+-- content/p4/index.de.md --
+---
+title: p4 (de)
+draft: false
+---
+-- content/p4/p4.de.txt --
+content/p4/p4.de.txt
+-- content/p5/index.en.md --
+---
+title: p5 (en)
+draft: false
+---
+-- content/p5/p5.txt --
+content/p5/p5.txt
+-- content/p6/index.de.md --
+---
+title: p6 (de)
+draft: false
+---
+-- content/p6/p6.txt --
+content/p6/p6.txt
+`
+
+	b := Test(t, files)
+	b.AssertFileExists("public/index.html", true) // redirect to public/en/index.html
+
+	// de
+	b.AssertFileExists("public/de/index.html", true)
+	b.AssertFileExists("public/de/p1/index.html", true)
+	b.AssertFileExists("public/de/p1/p1.de.txt", true)
+	b.AssertFileExists("public/de/p2/index.html", true)
+	// We drop this resource because markup.goldmark.duplicateResourceFiles is
+	// false (the default value).
+	b.AssertFileExists("public/de/p2/p2.txt", false)
+	b.AssertFileExists("public/de/p4/index.html", true)
+	b.AssertFileExists("public/de/p4/p4.de.txt", true)
+	b.AssertFileExists("public/de/p6/index.html", true)
+	// We drop this resource because it does not have a language identifier and
+	// the page does not exist in the default content language.
+	b.AssertFileExists("public/de/p6/p6.txt", false)
+
+	// en
+	b.AssertFileExists("public/en/index.html", true)
+	b.AssertFileExists("public/en/p1/index.html", true)
+	b.AssertFileExists("public/en/p1/p1.en.txt", true)
+	b.AssertFileExists("public/en/p2/index.html", true)
+	b.AssertFileExists("public/en/p2/p2.txt", true)
+	b.AssertFileExists("public/en/p3/index.html", true)
+	b.AssertFileExists("public/en/p3/p3.en.txt", true)
+	b.AssertFileExists("public/en/p5/index.html", true)
+	b.AssertFileExists("public/en/p5/p5.txt", true)
+
+	files = strings.ReplaceAll(files, "draft: false", "draft: true")
+
+	b = Test(t, files)
+	b.AssertFileExists("public/index.html", true) // redirect to public/en/index.html
+
+	// de
+	b.AssertFileExists("public/de/index.html", true)
+	b.AssertFileExists("public/de/p1/index.html", false)
+	b.AssertFileExists("public/de/p1/p1.de.txt", false)
+	b.AssertFileExists("public/de/p2/index.html", false)
+	b.AssertFileExists("public/de/p2/p2.txt", false)
+	b.AssertFileExists("public/de/p4/index.html", false)
+	b.AssertFileExists("public/de/p4/p4.de.txt", false)
+	b.AssertFileExists("public/de/p6/index.html", false)
+	b.AssertFileExists("public/de/p6/p6.txt", false)
+
+	// en
+	b.AssertFileExists("public/en/index.html", true)
+	b.AssertFileExists("public/en/p1/index.html", false)
+	b.AssertFileExists("public/en/p1/p1.en.txt", false)
+	b.AssertFileExists("public/en/p2/index.html", false)
+	b.AssertFileExists("public/en/p2/p2.txt", false)
+	b.AssertFileExists("public/en/p3/index.html", false)
+	b.AssertFileExists("public/en/p3/p3.en.txt", false)
+	b.AssertFileExists("public/en/p5/index.html", false)
+	b.AssertFileExists("public/en/p5/p5.txt", false)
+
+	// file counts
+	b.AssertFileCount("public/de", 1)
+	b.AssertFileCount("public/en", 1) // fails, see actual vs. expected below
+
+	// Final output: actual
+	//
+	// public/
+	// ├── de/
+	// │   └── index.html
+	// ├── en/
+	// │   ├── p6/
+	// │   │   └── p6.txt
+	// │   └── index.html
+	// └── index.html
+
+	// Final output: expected
+	//
+	// public/
+	// ├── de/
+	// │   └── index.html
+	// ├── en/
+	// │   └── index.html
+	// └── index.html
 }
