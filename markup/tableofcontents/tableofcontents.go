@@ -195,13 +195,23 @@ func (b *tocBuilder) Build() {
 
 func (b *tocBuilder) writeNav(h Headings) {
 	b.s.WriteString("<nav id=\"TableOfContents\">")
-	b.writeHeadings(1, 0, h)
+	b.writeHeadings(1, 0, b.h)
 	b.s.WriteString("</nav>")
 }
 
 func (b *tocBuilder) writeHeadings(level, indent int, h Headings) {
-	headings := b.collectHeadings(level, h)
-	hasChildren := len(headings) > 0
+	if level < b.startLevel {
+		for _, h := range h {
+			b.writeHeadings(level+1, indent, h.Headings)
+		}
+		return
+	}
+
+	if b.stopLevel != -1 && level > b.stopLevel {
+		return
+	}
+
+	hasChildren := len(h) > 0
 
 	if hasChildren {
 		b.s.WriteString("\n")
@@ -213,8 +223,8 @@ func (b *tocBuilder) writeHeadings(level, indent int, h Headings) {
 		}
 	}
 
-	for _, h := range headings {
-		b.writeHeading(h.level, indent+2, h.h)
+	for _, h := range h {
+		b.writeHeading(level+1, indent+2, h)
 	}
 
 	if hasChildren {
@@ -229,35 +239,13 @@ func (b *tocBuilder) writeHeadings(level, indent int, h Headings) {
 	}
 }
 
-type tocHeading struct {
-	h     *Heading
-	level int
-}
-
-func (b *tocBuilder) collectHeadings(level int, h Headings) []tocHeading {
-	var out []tocHeading
-
-	for _, h := range h {
-		if h.IsZero() || level < b.startLevel {
-			out = append(out, b.collectHeadings(level+1, h.Headings)...)
-			continue
-		}
-
-		if b.stopLevel != -1 && level > b.stopLevel {
-			continue
-		}
-
-		out = append(out, tocHeading{h: h, level: level})
-	}
-
-	return out
-}
-
 func (b *tocBuilder) writeHeading(level, indent int, h *Heading) {
 	b.indent(indent)
 	b.s.WriteString("<li>")
-	b.s.WriteString("<a href=\"#" + h.ID + "\">" + h.Title + "</a>")
-	b.writeHeadings(level+1, indent, h.Headings)
+	if !h.IsZero() {
+		b.s.WriteString("<a href=\"#" + h.ID + "\">" + h.Title + "</a>")
+	}
+	b.writeHeadings(level, indent, h.Headings)
 	b.s.WriteString("</li>\n")
 }
 
