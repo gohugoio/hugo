@@ -9,6 +9,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/resources/kinds"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/spf13/afero"
 )
@@ -40,6 +41,32 @@ Single: {{ .Title }}|{{ .Lang }}|{{ .RelPermalink }}|
 	b := Test(t, files)
 	b.AssertFileContent("public/sect/doc1-fr/index.html", "Single: doc1 fr|fr|/sect/doc1-fr/|")
 	b.AssertFileContent("public/en/sect/doc1/index.html", "Single: doc1 en|en|/en/sect/doc1/|")
+}
+
+func TestDeferredTemplateMissingExecutionReturnsErrorIssue13737(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ["home", "section", "taxonomy", "term", "rss", "sitemap"]
+-- content/p1.md --
+---
+title: p1
+---
+-- layouts/page.html --
+OK
+`
+	b := Test(t, files)
+	s := b.H.Sites[0]
+	filename := "p1/index.html"
+	id := tpl.HugoDeferredTemplatePrefix + "missing" + tpl.HugoDeferredTemplateSuffix
+
+	b.Assert(afero.WriteFile(s.BaseFs.PublishFs, filename, []byte(id), 0o666), qt.IsNil)
+	b.H.Deps.BuildState.DeferredExecutions.FilenamesWithPostPrefix.Set(filename, true)
+
+	err := s.executeDeferredTemplates(b.H.Deps.BuildState.DeferredExecutions)
+	b.Assert(err, qt.ErrorMatches, `deferred execution with id "__hdeferred/missing__d=" not found in "/?p1/index.html"`)
 }
 
 func TestMultiSitesWithTwoLanguages(t *testing.T) {

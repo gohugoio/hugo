@@ -543,7 +543,7 @@ func (s *Site) executeDeferredTemplates(de *deps.DeferredExecutions) error {
 			if err := func() error {
 				deferred, found := de.Executions.Get(id)
 				if !found {
-					panic(fmt.Sprintf("deferred execution with id %q not found", id))
+					return fmt.Errorf("deferred execution with id %q not found in %q", id, filename)
 				}
 				deferred.Mu.Lock()
 				defer deferred.Mu.Unlock()
@@ -552,7 +552,7 @@ func (s *Site) executeDeferredTemplates(de *deps.DeferredExecutions) error {
 					tmpl := s.Deps.GetTemplateStore()
 					ti := s.TemplateStore.LookupByPath(deferred.TemplatePath)
 					if ti == nil {
-						panic(fmt.Sprintf("template %q not found", deferred.TemplatePath))
+						return fmt.Errorf("template %q for deferred execution %q not found in %q", deferred.TemplatePath, id, filename)
 					}
 
 					if err := func() error {
