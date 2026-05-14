@@ -58,7 +58,7 @@ func NewEmpty() Chain {
 }
 
 // Implements contentTransformer
-// Content is read from the from-buffer and rewritten to to the to-buffer.
+// Content is read from the from-buffer and rewritten to the to-buffer.
 type fromToBuffer struct {
 	from *bytes.Buffer
 	to   *bytes.Buffer
