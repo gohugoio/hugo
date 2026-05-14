@@ -55,6 +55,7 @@ const (
 	contextKeyIsInGoldmark
 	cntextKeyCurrentTemplateInfo
 	contextKeyPartialDecoratorIDStack
+	contextKeyIsInPartialCached
 )
 
 // Context manages values passed in the context to templates.
@@ -66,6 +67,7 @@ var Context = struct {
 	IsInGoldmark                       contexthelpers.ContextDispatcher[bool]
 	CurrentTemplate                    contexthelpers.ContextDispatcher[*CurrentTemplateInfo]
 	PartialDecoratorIDStack            contexthelpers.ContextDispatcher[*collections.Stack[*StringBool]]
+	IsInPartialCached                  contexthelpers.ContextDispatcher[bool]
 }{
 	DependencyManagerScopedProvider: contexthelpers.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKeyDependencyManagerScopedProvider),
 	DependencyScope:                 contexthelpers.NewContextDispatcher[int](contextKeyDependencyScope),
@@ -73,6 +75,7 @@ var Context = struct {
 	IsInGoldmark:                    contexthelpers.NewContextDispatcher[bool](contextKeyIsInGoldmark),
 	CurrentTemplate:                 contexthelpers.NewContextDispatcher[*CurrentTemplateInfo](cntextKeyCurrentTemplateInfo),
 	PartialDecoratorIDStack:         contexthelpers.NewContextDispatcher[*collections.Stack[*StringBool]](contextKeyPartialDecoratorIDStack),
+	IsInPartialCached:               contexthelpers.NewContextDispatcher[bool](contextKeyIsInPartialCached),
 }
 
 func init() {
