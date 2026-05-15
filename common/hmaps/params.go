@@ -120,6 +120,14 @@ func (p Params) merge(ps ParamsMergeStrategy, pp Params) {
 			if vvv, ok := vv.(Params); ok {
 				if pv, ok := v.(Params); ok {
 					vvv.merge(ms, pv)
+				} else if vvv.IsZero() {
+					// The existing value is an empty Params (just merge metadata)
+					// and the incoming value is a non-Params type (e.g. a slice).
+					// If the user has set an explicit non-none merge strategy,
+					// honor it by using the incoming value.
+					if s, found := vvv.GetMergeStrategy(); found && s != ParamsMergeStrategyNone {
+						p[k] = v
+					}
 				}
 			}
 		} else if !noUpdate {

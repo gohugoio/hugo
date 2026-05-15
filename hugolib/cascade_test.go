@@ -544,6 +544,33 @@ cascade:
 	b.AssertFileExists("public/s2/p3/index.html", false)
 }
 
+// Issue 13869
+func TestCascadeSliceFromModule13869(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+theme = 'foo'
+[cascade]
+_merge = 'deep'
+-- content/_index.md --
+---
+title: home
+---
+-- layouts/home.html --
+color: {{ .Params.color }}
+-- themes/foo/hugo.toml --
+[[cascade]]
+[cascade.params]
+color = 'red'
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "color: red")
+}
+
 // Issue 14848
 func TestCascadeParamsLangIssue14848(t *testing.T) {
 	t.Parallel()
