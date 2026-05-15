@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/config/security"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/rst/rst_config"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -44,4 +45,36 @@ func TestConvert(t *testing.T) {
 	b, err := conv.Convert(converter.RenderContext{Src: []byte("testContent")})
 	c.Assert(err, qt.IsNil)
 	c.Assert(string(b.Bytes()), qt.Equals, "<div class=\"document\">\n\n\n<p>testContent</p>\n</div>")
+}
+
+func TestParseArgs(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		name     string
+		value    string
+		expected []string
+	}{
+		{
+			name:     "Default",
+			value:    "long",
+			expected: []string{"--leave-comments", "--initial-header-level=2"},
+		},
+		{
+			name:     "Short",
+			value:    "short",
+			expected: []string{"--leave-comments", "--initial-header-level=2", "--syntax-highlight=short"},
+		},
+		{
+			name:     "None",
+			value:    "none",
+			expected: []string{"--leave-comments", "--initial-header-level=2", "--syntax-highlight=none"},
+		},
+	} {
+		c.Run(test.name, func(c *qt.C) {
+			c.Parallel()
+
+			c.Assert(parseArgs(rst_config.Config{SyntaxHighlight: test.value}), qt.DeepEquals, test.expected)
+		})
+	}
 }

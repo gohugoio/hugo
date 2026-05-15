@@ -19,6 +19,7 @@ import (
 	"github.com/gohugoio/hugo/markup/asciidocext/asciidocext_config"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/highlight"
+	"github.com/gohugoio/hugo/markup/rst/rst_config"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/mitchellh/mapstructure"
 )
@@ -39,6 +40,9 @@ type Config struct {
 
 	// Configuration for the AsciiDoc external markdown engine.
 	AsciiDocExt asciidocext_config.Config
+
+	// Configuration for the reStructuredText external markdown engine.
+	RST rst_config.Config
 }
 
 func (c *Config) Init() error {
@@ -119,4 +123,5 @@ var Default = Config{
 
 	Goldmark:    goldmark_config.Default,
 	AsciiDocExt: asciidocext_config.Default,
+	RST:         rst_config.Default,
 }

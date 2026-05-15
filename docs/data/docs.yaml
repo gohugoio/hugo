@@ -1366,6 +1366,8 @@ config:
       style: monokai
       tabWidth: 4
       wrapperClass: highlight
+    rst:
+      syntaxHighlight: long
     tableOfContents:
       endLevel: 3
       ordered: false

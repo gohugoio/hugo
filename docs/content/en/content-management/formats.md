@@ -118,7 +118,17 @@ Hugo passes these CLI flags when calling the rst2html executable:
 --leave-comments --initial-header-level=2
 ```
 
+To use short syntax highlighting class names, configure the reStructuredText renderer:
+
+{{< code-toggle file=hugo >}}
+[markup.rst]
+syntaxHighlight = 'short'
+{{< /code-toggle >}}
+
+Docutils requires [Pygments] to highlight code blocks.
+
 [Docutils]: https://docutils.sourceforge.io/
+[Pygments]: https://pygments.org/
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
 
 ## Classification

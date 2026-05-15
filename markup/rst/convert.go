@@ -25,6 +25,7 @@ import (
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/internal"
+	"github.com/gohugoio/hugo/markup/rst/rst_config"
 )
 
 // Provider is the package entry point.
@@ -81,10 +82,10 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	// handle Windows manually because it doesn't do shebangs
 	if runtime.GOOS == "windows" {
 		pythonBinary, _ := internal.GetPythonBinaryAndExecPath()
-		args := []string{binaryPath, "--leave-comments", "--initial-header-level=2"}
+		args := append([]string{binaryPath}, c.parseArgs()...)
 		result, err = internal.ExternallyRenderContent(c.cfg, ctx, src, pythonBinary, args)
 	} else {
-		args := []string{"--leave-comments", "--initial-header-level=2"}
+		args := c.parseArgs()
 		result, err = internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
 	}
 
@@ -104,6 +105,36 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	}
 
 	return result[bodyStart+7 : bodyEnd], err
+}
+
+func (c *rstConverter) parseArgs() []string {
+	cfg := rst_config.Default
+	if c.cfg.Conf != nil {
+		cfg = c.cfg.MarkupConfig().RST
+	}
+
+	if cfg.SyntaxHighlight != rst_config.CliDefault.SyntaxHighlight && !rst_config.AllowedSyntaxHighlight[cfg.SyntaxHighlight] {
+		if c.cfg.Logger != nil {
+			c.cfg.Logger.Errorf(
+				"Unsupported reStructuredText value %q for option %q was passed in and will be ignored.",
+				cfg.SyntaxHighlight,
+				"syntaxHighlight",
+			)
+		}
+		cfg.SyntaxHighlight = rst_config.CliDefault.SyntaxHighlight
+	}
+
+	return parseArgs(cfg)
+}
+
+func parseArgs(cfg rst_config.Config) []string {
+	args := []string{"--leave-comments", "--initial-header-level=2"}
+
+	if cfg.SyntaxHighlight != rst_config.CliDefault.SyntaxHighlight && rst_config.AllowedSyntaxHighlight[cfg.SyntaxHighlight] {
+		args = append(args, "--syntax-highlight="+cfg.SyntaxHighlight)
+	}
+
+	return args
 }
 
 var rst2Binaries = []string{"rst2html", "rst2html.py"}

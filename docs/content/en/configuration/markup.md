@@ -304,6 +304,19 @@ Run `hugo build --logLevel debug` to examine Hugo's call to the Asciidoctor exec
 INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\asciidoctor.bat using asciidoc args [--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram --base-dir D:\prototypes\hugo_asciidoc_ddd\docs -a outdir=D:\prototypes\hugo_asciidoc_ddd\build -] ...
 ```
 
+## reStructuredText
+
+This is the default configuration for the reStructuredText renderer:
+
+{{< code-toggle config=markup.rst />}}
+
+### reStructuredText settings explained
+
+syntaxHighlight
+: (`string`) The token name set passed to Docutils' `--syntax-highlight` option, one of `long`, `short`, or `none`. Default is `long`.
+
+  To highlight code blocks, Docutils must be able to import [Pygments].
+
 ## Highlight
 
 This is the default configuration.
@@ -359,6 +372,7 @@ ordered
 [Pandoc]: https://pandoc.org/
 [PHP Markdown Extra: Definition lists]: https://michelf.ca/projects/php-markdown/extra/#def-list
 [PHP Markdown Extra: Footnotes]: https://michelf.ca/projects/php-markdown/extra/#footnotes
+[Pygments]: https://pygments.org/
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
 [security policy]: /configuration/security/
 [subscript]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub
