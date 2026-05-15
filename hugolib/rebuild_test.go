@@ -125,6 +125,61 @@ func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b.AssertRenderCountContent(0)
 }
 
+func TestRebuildEditNestedContentInLeafBundleIssue13961(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404", "rss", "section"]
+-- content/_index.md --
+---
+title: "Home"
+---
+-- content/a/index.md --
+---
+title: "A"
+---
+A.
+-- content/a/b/index.md --
+---
+title: "B"
+---
+B.
+-- content/a/b/c.md --
+---
+title: "C"
+---
+C.
+-- layouts/home.html --
+Home.
+-- layouts/page.html --
+Page: {{ .Title }}|{{ .Content }}|Resources: {{ range .Resources }}{{ .Content }}{{ end }}|
+`
+
+	b := Test(t, files, TestOptRunning())
+	b.AssertFileContent("public/a/index.html", "Page: A", "B.", "C.")
+	b.AssertFileExists("public/a/b/index.html", false)
+	b.AssertFileExists("public/a/b/c/index.html", false)
+
+	b.EditFileReplaceAll("content/a/b/index.md", "B.", "B edited.").Build()
+	b.AssertFileContent("public/a/index.html", "B edited.")
+	b.AssertFileExists("public/a/b/index.html", false)
+	b.AssertFileExists("public/a/b/c/index.html", false)
+
+	b.EditFileReplaceAll("content/a/b/c.md", "C.", "C edited.").Build()
+	b.AssertFileContent("public/a/index.html", "C edited.")
+	b.AssertFileExists("public/a/b/index.html", false)
+	b.AssertFileExists("public/a/b/c/index.html", false)
+
+	b.AddFiles("content/a/b/d/index.md", `---
+title: "D"
+---
+D.
+`).Build()
+	b.AssertFileContent("public/a/index.html", "D.")
+	b.AssertFileExists("public/a/b/d/index.html", false)
+}
+
 func TestRebuildAddingALeaffBundleIssue13925(t *testing.T) {
 	t.Parallel()
 

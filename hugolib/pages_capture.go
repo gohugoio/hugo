@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -152,7 +153,9 @@ func (c *pagesCollector) Collect() (collectErr error) {
 		}
 
 		for _, id := range c.ids {
-			if id.p.IsLeafBundle() {
+			if owner := c.leafBundleOwner(id.p); owner != nil {
+				collectErr = c.collectDirBelowLeafBundle(owner, id)
+			} else if id.p.IsLeafBundle() {
 				collectErr = c.collectDir(
 					id.p,
 					false,
@@ -220,6 +223,52 @@ func (c *pagesCollector) Collect() (collectErr error) {
 	}
 
 	return
+}
+
+func (c *pagesCollector) collectDirBelowLeafBundle(owner *paths.Path, id pathChange) error {
+	return c.collectDir(
+		owner,
+		false,
+		func(fim hugofs.FileMetaInfo) bool {
+			fimp := fim.Meta().PathInfo
+			if fimp == nil {
+				return false
+			}
+
+			if id.isStructuralChange() {
+				return strings.HasPrefix(fimp.Path(), paths.AddTrailingSlash(owner.Base()))
+			}
+
+			if fimp.IsLeafBundle() && fimp.Base() == owner.Base() {
+				return true
+			}
+
+			if fim.IsDir() {
+				return strings.HasPrefix(id.p.Path(), paths.AddTrailingSlash(fimp.Path()))
+			}
+
+			return fimp.Path() == id.p.Path()
+		},
+	)
+}
+
+func (c *pagesCollector) leafBundleOwner(p *paths.Path) *paths.Path {
+	for dir := path.Dir(p.Base()); dir != "." && dir != "/"; dir = path.Dir(dir) {
+		n, ok := c.h.pageTrees.treePages.GetRaw(dir)
+		if !ok {
+			continue
+		}
+
+		pi := cnh.PathInfo(n)
+		if pi != nil && pi.IsLeafBundle() {
+			if p.Dir() == pi.Base() {
+				return nil
+			}
+			return pi
+		}
+	}
+
+	return nil
 }
 
 func (c *pagesCollector) collectDir(dirPath *paths.Path, isDir bool, inFilter func(fim hugofs.FileMetaInfo) bool) error {
