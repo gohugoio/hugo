@@ -75,7 +75,7 @@ canonifyURLs = %t
 ---
 title: Page
 slug: %q
-url: %q	
+url: %q
 output: ["HTML"]
 ---
 `, test.base, test.uglyURLs, test.canonifyURLs, test.file, test.slug, test.url)
@@ -172,4 +172,32 @@ Some content.
 	b.AssertFileContent("public/myblog/p1/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p1/|Permalink: https://example.com/myblog/p1/|")
 	b.AssertFileContent("public/myblog/p2/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p2/|Permalink: https://example.com/myblog/p2/|")
 	b.AssertFileContent("public/myblog/p3/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p3/|Permalink: https://example.com/myblog/p3/|")
+}
+
+// Issue 13869
+func TestPermalinksSliceFromModule13869(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+theme = 'foo'
+[permalinks]
+_merge = 'deep'
+-- content/books/my-book.md --
+---
+title: My Book
+---
+-- layouts/page.html --
+RelPermalink: {{ .RelPermalink }}
+-- themes/foo/hugo.toml --
+[[permalinks]]
+pattern = '/shelf/:slug/'
+[permalinks.target]
+path = '/books/**'
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/shelf/my-book/index.html", "RelPermalink: /shelf/my-book/")
 }
