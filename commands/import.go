@@ -466,41 +466,48 @@ func (c *importCommand) importFromJekyll(args []string) error {
 	c.r.Println("Now, start Hugo by yourself:")
 	c.r.Println("cd " + args[1])
 	c.r.Println("git init")
-	c.r.Println("git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke")
-	c.r.Println("echo \"theme = 'ananke'\" > hugo.toml")
+	c.r.Println("git submodule add https://github.com/gohugo-ananke/ananke themes/ananke")
+	c.r.Println("echo \"theme: ananke\" >> hugo.yaml")
 	c.r.Println("hugo server")
 
 	return nil
 }
 
 func (c *importCommand) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]any {
-	path := filepath.Join(jekyllRoot, "_config.yml")
+	for _, candidate := range []struct {
+		filename string
+		format   metadecoders.Format
+	}{
+		{"_config.yml", metadecoders.YAML},
+		{"_config.yaml", metadecoders.YAML},
+		{"_config.toml", metadecoders.TOML},
+	} {
+		path := filepath.Join(jekyllRoot, candidate.filename)
+		exists, err := helpers.Exists(path, fs)
+		if err != nil || !exists {
+			continue
+		}
 
-	exists, err := helpers.Exists(path, fs)
+		f, err := fs.Open(path)
+		if err != nil {
+			continue
+		}
+		b, err := io.ReadAll(f)
+		f.Close()
+		if err != nil {
+			continue
+		}
 
-	if err != nil || !exists {
-		c.r.Println("_config.yaml not found: Is the specified Jekyll root correct?")
-		return nil
+		m, err := metadecoders.Default.UnmarshalToMap(b, candidate.format)
+		if err != nil {
+			continue
+		}
+
+		return m
 	}
 
-	f, err := fs.Open(path)
-	if err != nil {
-		return nil
-	}
-
-	defer f.Close()
-
-	b, err := io.ReadAll(f)
-	if err != nil {
-		return nil
-	}
-
-	m, err := metadecoders.Default.UnmarshalToMap(b, metadecoders.YAML)
-	if err != nil {
-		return nil
-	}
-
-	return m
+	c.r.Println("no config file (_config.yml, _config.yaml, or _config.toml) found: is the specified Jekyll root correct?")
+	return nil
 }
 
 func (c *importCommand) parseJekyllFilename(filename string) (time.Time, string, error) {
