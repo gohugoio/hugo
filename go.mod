@@ -45,7 +45,7 @@ require (
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/hairyhenderson/go-codeowners v0.7.0
+	github.com/hairyhenderson/go-codeowners v0.7.1
 	github.com/jdkato/prose v1.2.1
 	github.com/kyokomi/emoji/v2 v2.2.13
 	github.com/magefile/mage v1.17.2
