@@ -58,18 +58,17 @@ Renders an HTML details element.
 {{- $title := or (.Get "title") "" }}
 {{- $open := false }}
 {{- if in (slice "false" false 0) (.Get "open") }}
-  {{- $open = false }}
+	{{- $open = false }}
 {{- else if in (slice "true" true 1) (.Get "open") }}
-  {{- $open = true }}
+	{{- $open = true }}
 {{- end }}
 
 {{- /* Render. */}}
 <details
-  {{- with $class }} class="{{ . }}" {{- end }}
-  {{- with $name }} name="{{ . }}" {{- end }}
-  {{- with $open }} open {{- end }}
-  {{- with $title }} title="{{ . }}" {{- end -}}
->
-  <summary>{{ $summary | .Page.RenderString }}</summary>
-  {{ .Inner | .Page.RenderString (dict "display" "block") -}}
+	{{- with $class }} class="{{ . }}" {{- end }}
+	{{- with $name }} name="{{ . }}" {{- end }}
+	{{- with $open }} open {{- end }}
+	{{- with $title }} title="{{ . }}" {{- end -}}>
+	<summary>{{ $summary | .Page.RenderString }}</summary>
+	{{ .Inner | .Page.RenderString (dict "display" "block") -}}
 </details>

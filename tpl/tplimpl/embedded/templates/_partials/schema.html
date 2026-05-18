@@ -1,27 +1,27 @@
 {{- with or .Title site.Title | plainify }}
-  <meta itemprop="name" content="{{ . }}">
+	<meta itemprop="name" content="{{ . }}">
 {{- end }}
 
 {{- with or .Description .Summary site.Params.description | plainify | htmlUnescape }}
-  <meta itemprop="description" content="{{ trim . "\n\r\t " }}">
+	<meta itemprop="description" content="{{ trim . "\n\r\t " }}">
 {{- end }}
 
 {{- $ISO8601 := "2006-01-02T15:04:05-07:00" }}
 {{- with .PublishDate }}
-  <meta itemprop="datePublished" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
+	<meta itemprop="datePublished" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
 {{- end }}
 
 {{- with .Lastmod }}
-  <meta itemprop="dateModified" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
+	<meta itemprop="dateModified" {{ .Format $ISO8601 | printf "content=%q" | safeHTMLAttr }}>
 {{- end }}
 
 {{- with .WordCount }}
-  <meta itemprop="wordCount" content="{{ . }}">
+	<meta itemprop="wordCount" content="{{ . }}">
 {{- end }}
 
 {{- $images := partial "_funcs/get-page-images" . }}
 {{- range first 6 $images }}
-  <meta itemprop="image" content="{{ .Permalink }}">
+	<meta itemprop="image" content="{{ .Permalink }}">
 {{- end }}
 
 {{- /*
@@ -35,22 +35,22 @@ Keywords precedence:
 */}}
 {{- $keywords := slice }}
 {{- range .GetTerms "keywords" }}
-  {{- $keywords = $keywords | append .Title }}
+	{{- $keywords = $keywords | append .Title }}
 {{- else }}
-  {{- with .Keywords }}
-    {{- $keywords = . }}
-  {{- else }}
-    {{- range .GetTerms "tags" }}
-      {{- $keywords = $keywords | append .Title }}
-    {{- else }}
-      {{- range $taxonomy, $_ := site.Taxonomies }}
-        {{- range $.GetTerms $taxonomy }}
-          {{- $keywords = $keywords | append .Title }}
-        {{- end }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
+	{{- with .Keywords }}
+		{{- $keywords = . }}
+	{{- else }}
+		{{- range .GetTerms "tags" }}
+			{{- $keywords = $keywords | append .Title }}
+		{{- else }}
+			{{- range $taxonomy, $_ := site.Taxonomies }}
+				{{- range $.GetTerms $taxonomy }}
+					{{- $keywords = $keywords | append .Title }}
+				{{- end }}
+			{{- end }}
+		{{- end }}
+	{{- end }}
 {{- end }}
 {{- with $keywords }}
-  <meta itemprop="keywords" content="{{ delimit . `,` }}">
+	<meta itemprop="keywords" content="{{ delimit . `,` }}">
 {{- end -}}
