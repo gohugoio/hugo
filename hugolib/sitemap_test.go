@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/config"
 )
 
@@ -82,6 +83,55 @@ Doc2
 	b.AssertFileContent("public/sitemap.xml", "<loc>https://example.com/en/sitemap.xml</loc>", "<loc>https://example.com/nn/sitemap.xml</loc>")
 	b.AssertFileContent("public/en/sitemap.xml", " <loc>https://example.com/sect/doc1/</loc>", "doc2")
 	b.AssertFileContent("public/nn/sitemap.xml", " <loc>https://example.com/nn/sect/doc2/</loc>")
+}
+
+// See issue 14912.
+func TestSitemapMultilingualAlternateLinksUseAllTranslations(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy"]
+defaultContentLanguage = "en"
+[languages]
+[languages.en]
+weight = 1
+languageName = "English"
+languageCode = "en-US"
+[languages.nn]
+weight = 2
+languageName = "Nynorsk"
+languageCode = "nn-NO"
+-- content/sect/doc1.md --
+---
+title: doc1
+---
+Doc1
+-- content/sect/doc1.nn.md --
+---
+title: doc1
+---
+Doc1 nn
+`
+
+	b := Test(t, files)
+
+	sitemap := b.FileContent("public/en/sitemap.xml")
+	enLink := `<xhtml:link
+                rel="alternate"
+                hreflang="en-US"
+                href="https://example.com/sect/doc1/"
+                />`
+	nnLink := `<xhtml:link
+                rel="alternate"
+                hreflang="nn-NO"
+                href="https://example.com/nn/sect/doc1/"
+                />`
+
+	b.Assert(sitemap, qt.Contains, enLink)
+	b.Assert(sitemap, qt.Contains, nnLink)
+	b.Assert(strings.Index(sitemap, enLink) < strings.Index(sitemap, nnLink), qt.IsTrue)
 }
 
 // https://github.com/gohugoio/hugo/issues/5910
