@@ -126,6 +126,11 @@ func (c codeBlockContext) Type() string {
 	return c.lang
 }
 
+func (c codeBlockContext) WithType(lang string) hooks.CodeblockContext {
+	c.lang = lang
+	return c
+}
+
 func (c codeBlockContext) Inner() string {
 	return c.code
 }

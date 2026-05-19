@@ -70,6 +70,9 @@ type CodeblockContext interface {
 	// The type of code block. This will be the programming language, e.g. bash, when doing code highlighting.
 	Type() string
 
+	// WithType returns a copy of the context with Type overridden.
+	WithType(lang string) CodeblockContext
+
 	// The text between the code fences.
 	Inner() string
 }
