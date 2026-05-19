@@ -29,6 +29,9 @@ chroma:
     - alloy
     Name: Alloy
   - Aliases:
+    - ampl
+    Name: AMPL
+  - Aliases:
     - ng2
     Name: Angular2
   - Aliases:
@@ -270,6 +273,12 @@ chroma:
     - emacs-lisp
     Name: EmacsLisp
   - Aliases:
+    - erb
+    - html+erb
+    - html+ruby
+    - rhtml
+    Name: ERB
+  - Aliases:
     - erlang
     Name: Erlang
   - Aliases:
@@ -327,6 +336,10 @@ chroma:
   - Aliases:
     - genshitext
     Name: Genshi Text
+  - Aliases:
+    - pot
+    - po
+    Name: Gettext
   - Aliases:
     - cucumber
     - Cucumber
@@ -469,6 +482,10 @@ chroma:
     - kotlin
     Name: Kotlin
   - Aliases:
+    - lateralus
+    - ltl
+    Name: Lateralus
+  - Aliases:
     - lean4
     - lean
     Name: Lean4
@@ -483,8 +500,10 @@ chroma:
     Name: lox
   - Aliases:
     - lua
-    - luau
     Name: Lua
+  - Aliases:
+    - luau
+    Name: Luau
   - Aliases:
     - make
     - makefile
@@ -819,6 +838,9 @@ chroma:
     - scala
     Name: Scala
   - Aliases:
+    - scdoc
+    Name: scdoc
+  - Aliases:
     - scheme
     - scm
     Name: Scheme
@@ -860,6 +882,9 @@ chroma:
   - Aliases:
     - sp
     Name: SourcePawn
+  - Aliases:
+    - spade
+    Name: Spade
   - Aliases:
     - sparql
     Name: SPARQL
@@ -1038,7 +1063,6 @@ chroma:
     - zig
     Name: Zig
   styles:
-  - RPGLE
   - abap
   - algol
   - algol_nu
@@ -1056,6 +1080,7 @@ chroma:
   - catppuccin-macchiato
   - catppuccin-mocha
   - colorful
+  - darcula
   - doom-one
   - doom-one2
   - dracula
@@ -1070,6 +1095,9 @@ chroma:
   - hr_high_contrast
   - hrdark
   - igor
+  - kanagawa-dragon
+  - kanagawa-lotus
+  - kanagawa-wave
   - lovelace
   - manni
   - modus-operandi
@@ -1091,6 +1119,7 @@ chroma:
   - rose-pine
   - rose-pine-dawn
   - rose-pine-moon
+  - rpgle
   - rrt
   - solarized-dark
   - solarized-dark256
@@ -1597,6 +1626,9 @@ config:
         precision: 0
       svg:
         keepComments: false
+        keepNamespaces:
+        - ''
+        - x-bind
         precision: 0
       xml:
         keepWhitespace: false
@@ -1948,11 +1980,7 @@ config:
     path: page
   panicOnWarning: false
   params: {}
-  permalinks:
-    page: {}
-    section: {}
-    taxonomy: {}
-    term: {}
+  permalinks: null
   pluralizeListTitles: true
   printI18nWarnings: false
   printPathWarnings: false
@@ -2021,7 +2049,7 @@ config:
       - ^(dart-)?sass(-embedded)?$
       - ^go$
       - ^git$
-      - ^npx$
+      - ^node$
       - ^postcss$
       - ^tailwindcss$
       osEnv:
@@ -2035,7 +2063,22 @@ config:
       methods:
       - (?i)GET|POST
       urls:
-      - .*
+      - (?i)^https?://[a-z0-9]
+      - '! ^https?://\d+\.'
+      - '! (?i)localhost'
+      - '! (?i)^https?://[^/?#]*@'
+    node:
+      permissions:
+        allowAddons:
+        - tailwindcss
+        allowChildProcess:
+        - tailwindcss
+        allowRead:
+        - .
+        allowWorker:
+        - tailwindcss
+        allowWrite: []
+        disable: false
   segments: {}
   server:
     headers: null
@@ -4406,6 +4449,7 @@ tpl:
       Defer:
         Aliases: null
         Args:
+        - ctx
         - args
         Description: Defer defers the execution of a template block.
         Examples: []
