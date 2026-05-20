@@ -15,6 +15,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/gohugoio/hugo/tpl/internal/go_templates/cfg"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -59,31 +60,6 @@ func HasGoBuild() bool {
 }
 
 var tryGoBuild = sync.OnceValue(func() error {
-	// To run 'go build', we need to be able to exec a 'go' command.
-	// We somewhat arbitrarily choose to exec 'go tool -n compile' because that
-	// also confirms that cmd/go can find the compiler. (Before CL 472096,
-	// we sometimes ended up with cmd/go installed in the test environment
-	// without a cmd/compile it could use to actually build things.)
-	goTool, err := goTool()
-	if err != nil {
-		return err
-	}
-	cmd := exec.Command(goTool, "tool", "-n", "compile")
-	cmd.Env = origEnv
-	out, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("%v: %w", cmd, err)
-	}
-	out = bytes.TrimSpace(out)
-	if len(out) == 0 {
-		return fmt.Errorf("%v: no tool reported", cmd)
-	}
-	if _, err := exec.LookPath(string(out)); err != nil {
-		return err
-	}
-
-	// Removed by Hugo (not used)
-
 	return nil
 })
 
@@ -141,9 +117,18 @@ func MustHaveParallelism(t testing.TB) {
 // If the tool is unavailable GoToolPath calls t.Skip.
 // If the tool should be available and isn't, GoToolPath calls t.Fatal.
 func GoToolPath(t testing.TB) string {
-	t.Skip()
-	// Removed by Hugo (not used)
-	return ""
+	MustHaveGoBuild(t)
+	path, err := GoTool()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Add all environment variables that affect the Go command to test metadata.
+	// Cached test results will be invalidate when these variables change.
+	// See golang.org/issue/32285.
+	for _, envVar := range strings.Fields(cfg.KnownEnv) {
+		os.Getenv(envVar)
+	}
+	return path
 }
 
 var findGOROOT = sync.OnceValues(func() (path string, err error) {
@@ -229,8 +214,10 @@ func GOROOT(t testing.TB) string {
 
 // GoTool reports the path to the Go tool.
 func GoTool() (string, error) {
-	// Removed by Hugo (not used)
-	return "", errors.New("GoTool is not implemented")
+	if !HasGoBuild() {
+		return "", errors.New("platform cannot run go tool")
+	}
+	return goTool()
 }
 
 var goTool = sync.OnceValues(func() (string, error) {
@@ -301,7 +288,6 @@ func MustHaveCGO(t testing.TB) {
 // CanInternalLink reports whether the current system can link programs with
 // internal linking.
 func CanInternalLink(withCgo bool) bool {
-	// Removed by Hugo (not used)
 	return false
 }
 
@@ -336,14 +322,12 @@ func MustInternalLink(t testing.TB, with SpecialBuildTypes) {
 // internal linking.
 // If not, MustInternalLinkPIE calls t.Skip with an explanation.
 func MustInternalLinkPIE(t testing.TB) {
-	// Removed by Hugo (not used)
 }
 
 // MustHaveBuildMode reports whether the current system can build programs in
 // the given build mode.
 // If not, MustHaveBuildMode calls t.Skip with an explanation.
 func MustHaveBuildMode(t testing.TB, buildmode string) {
-	// Removed by Hugo (not used)
 }
 
 // HasSymlink reports whether the current system can use os.Symlink.
@@ -462,7 +446,7 @@ func WriteImportcfg(t testing.TB, dstPath string, packageFiles map[string]string
 		}
 	}
 
-	if err := os.WriteFile(dstPath, icfg.Bytes(), 0o666); err != nil {
+	if err := os.WriteFile(dstPath, icfg.Bytes(), 0666); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -471,13 +455,6 @@ func WriteImportcfg(t testing.TB, dstPath string, packageFiles map[string]string
 // not supported by the current platform or execution environment.
 func SyscallIsNotSupported(err error) bool {
 	return syscallIsNotSupported(err)
-}
-
-// ParallelOn64Bit calls t.Parallel() unless there is a case that cannot be parallel.
-// This function should be used when it is necessary to avoid t.Parallel on
-// 32-bit machines, typically because the test uses lots of memory.
-func ParallelOn64Bit(t *testing.T) {
-	// Removed by Hugo (not used)
 }
 
 // CPUProfilingBroken returns true if CPU profiling has known issues on this
