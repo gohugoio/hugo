@@ -652,8 +652,9 @@ func (m *pageMap) getOrCreateResourcesForPage(ps *pageState) resource.Resources 
 		sort.SliceStable(res, lessFunc)
 
 		if len(ps.m.pageConfig.ResourcesMeta) > 0 {
+			counters := make(map[string]int)
 			for i, r := range res {
-				res[i] = resources.CloneWithMetadataFromMapIfNeeded(ps.m.pageConfig.ResourcesMeta, r)
+				res[i] = resources.CloneWithMetadataFromMapIfNeeded(ps.m.pageConfig.ResourcesMeta, r, counters)
 			}
 			sort.SliceStable(res, lessFunc)
 		}
