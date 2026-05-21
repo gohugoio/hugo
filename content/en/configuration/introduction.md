@@ -219,6 +219,9 @@ Note that you don't need to be so verbose as in the default setup below; a `_mer
 
 {{< code-toggle file=hugo dataKey="config_helpers.mergeStrategy" skipHeader=true />}}
 
+> [!note]
+> Hugo can merge map configuration values from modules and themes into the project configuration, but cannot merge slice values. This applies to top-level slice keys such as `menus`, as well as to map keys whose values are slices, such as the per-kind format lists in `outputs`.
+
 ## Environment variables
 
 You can also configure settings using operating system environment variables:

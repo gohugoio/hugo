@@ -68,7 +68,7 @@ And this template:
 {{ end }}
 ```
 
-Hugo will render this list on the "Book 1" page of each site:
+Hugo will render this list on the `book-1` page of each site:
 
 ```html
 <ul>
@@ -78,7 +78,7 @@ Hugo will render this list on the "Book 1" page of each site:
 </ul>
 ```
 
-On the "Book 2" page of the English and German sites, Hugo will render this:
+On the `book-2` page of the English and German sites, Hugo will render this:
 
 ```html
 <ul>

@@ -10,7 +10,10 @@ params:
     signatures: ['js.Build [OPTIONS] RESOURCE']
 ---
 
-The `js.Build` function uses the [evanw/esbuild] package to:
+> [!note]
+> The `js.Build` function is backed by the [`evanw/esbuild`][] package, providing a mature, high-performance foundation for bundling, transformation, and minification.
+
+Use the `js.Build` function to:
 
 - Bundle
 - Transpile (TypeScript and JSX)
@@ -74,7 +77,7 @@ For other files (e.g. `JSON`, `CSS`) you need to use the relative path including
 import * as data from 'my/module/data.json';
 ```
 
-Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [ESBuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo build`.
+Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [esbuild](https://esbuild.github.io/) with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [hugo mod npm pack](/commands/hugo_mod_npm_pack/). If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo build`.
 
 Also note the new `params` option that can be passed from template to your JS files, e.g.:
 
@@ -118,4 +121,4 @@ Or with options:
 <script src="{{ $built.RelPermalink }}" defer></script>
 ```
 
-[evanw/esbuild]: https://github.com/evanw/esbuild
+[`evanw/esbuild`]: https://github.com/evanw/esbuild

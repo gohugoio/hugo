@@ -3,6 +3,7 @@ _comment: Do not remove front matter.
 ---
 
 > [!note]
-> Localization of dates, currencies, numbers, and percentages is performed by the [gohugoio/locales] package. The language tag of the current site must match one of the listed locales.
+> Localization of dates, currencies, numbers, and percentages is performed by the [`bep/golocales`][] package. Hugo determines the locale using the [`locale`][] configuration setting, falling back to the language key itself. The resolved value must be a locale supported by the package.
 
-[gohugoio/locales]: https://github.com/gohugoio/locales
+[`bep/golocales`]: https://github.com/bep/golocales
+[`locale`]: /configuration/all/#locale

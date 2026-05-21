@@ -12,7 +12,7 @@ guessSyntax
 : (`bool`) Whether to automatically detect the language if the `LANG` argument is blank or set to a language for which there is no corresponding [lexer](g). Falls back to a plain text lexer if unable to automatically detect the language. Default is `false`.
 
   > [!note]
-  > The Chroma syntax highlighter includes lexers for approximately 250 languages, but only 5 of these have implemented automatic language detection.
+  > The syntax highlighter includes lexers for approximately 300 languages, but only 5 of these have implemented automatic language detection.
 
 hl_Lines
 : (`string`) A space-delimited list of lines to emphasize within the highlighted code. To emphasize lines 2, 3, 4, and 7, set this value to `2-4 7`. This option is independent of the `lineNoStart` option.
@@ -45,7 +45,7 @@ noClasses
   ```
 
 style
-: (`string`) The CSS styles to apply to the highlighted code. Case-sensitive. Default is `monokai`. See [syntax highlighting styles].
+: (`string`) The CSS styles to apply to the highlighted code. This value is case-insensitive. Default is `monokai`. See [syntax highlighting styles][].
 
 tabWidth
 : (`int`) Substitute this number of spaces for each tab character in your highlighted code. Irrelevant if `noClasses` is `false`. Default is `4`.

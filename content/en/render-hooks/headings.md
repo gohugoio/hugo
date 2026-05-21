@@ -24,6 +24,10 @@ Attributes
 Level
 : (`int`) The heading level, 1 through 6.
 
+Ordinal
+: {{< new-in v0.160.0 />}}
+: (`int`) The zero-based ordinal of the heading on the page.
+
 Page
 : (`page`) A reference to the current page.
 
@@ -32,6 +36,10 @@ PageInner
 
 PlainText
 : (`string`) The heading text as plain text.
+
+Position
+: {{< new-in 0.160.0 />}}
+: (`string`) The position of the heading within the page content.
 
 Text
 : (`template.HTML`) The heading text.

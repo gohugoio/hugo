@@ -2,18 +2,18 @@
 {{ hugo.Generator }}
 
 {{ if hugo.IsProduction }}
-  <meta name="robots" content="index, follow" />
+	<meta name="robots" content="index, follow">
 {{ else }}
-  <meta name="robots" content="noindex, nofollow" />
+	<meta name="robots" content="noindex, nofollow">
 {{ end }}
 
 <title>
-  {{ with .Title }}{{ . }} |{{ end }}
-  {{ .Site.Title }}
+	{{ with .Title }}{{ . }} |{{ end }}
+	{{ .Site.Title }}
 </title>
 
-<link rel="preload" href="{{ `fonts/Mulish-VariableFont_wght.ttf` | relURL }}" as="font" type="font/ttf" crossorigin="anonymous" />
-<link rel="preload" href="{{ `fonts/Mulish-Italic-VariableFont_wght.ttf` | relURL }}" as="font" type="font/ttf" crossorigin="anonymous" />
+<link rel="preload" href="{{ `fonts/Mulish-VariableFont_wght.ttf` | relURL }}" as="font" type="font/ttf" crossorigin="anonymous">
+<link rel="preload" href="{{ `fonts/Mulish-Italic-VariableFont_wght.ttf` | relURL }}" as="font" type="font/ttf" crossorigin="anonymous">
 
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png href=/favicon-32x32.png sizes=32x32>
@@ -24,10 +24,10 @@
 <meta name="turbo-prefetch" content="true">
 
 {{ range .AlternativeOutputFormats -}}
-  <link
-    rel="{{ .Rel }}"
-    type="{{ .MediaType.Type }}"
-    href="{{ .RelPermalink | safeURL }}" />
+	<link
+		rel="{{ .Rel }}"
+		type="{{ .MediaType.Type }}"
+		href="{{ .RelPermalink | safeURL }}" />
 {{ end -}}
 
 <meta name="description" content="{{ or .Description site.Params.description }}">
@@ -37,5 +37,5 @@
 {{ partial "twitter_cards.html" . }}
 
 {{ if hugo.IsProduction }}
-  {{ partial "helpers/gtag.html" . }}
+	{{ partial "helpers/gtag.html" . }}
 {{ end }}

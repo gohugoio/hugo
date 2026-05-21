@@ -1,5 +1,4 @@
-{{/* prettier-ignore-start */ -}}
-{{- /*
+{{/*
 Renders an admonition or badge indicating the version in which a feature was introduced.
 
 To render an admonition, include descriptive text between the opening and closing
@@ -8,23 +7,23 @@ self-closing tag.
 
 @param {string} 0 The semantic version string, with or without a leading v.
 
-@example  {{< new-in 0.144.0 />}}
+@example	{{< new-in 0.144.0 />}}
 
-@example  {{< new-in 0.144.0 >}}
-          Some descriptive text here.
-          {{< /new-in >}}
-*/ -}}
-{{/* prettier-ignore-end */ -}}
+@example	{{< new-in 0.144.0 >}}
+			Some descriptive text here.
+			{{< /new-in >}}
+*/}}
+
 {{- with $version := .Get 0 | strings.TrimLeft "vV" }}
-  {{- partial "layouts/blocks/feature-state.html" (dict
-    "inner" (strings.TrimSpace $.Inner)
-    "name" $.Name
-    "page" $.Page
-    "position" $.Position
-    "status" "new"
-    "version" $version
-    )
-  }}
+	{{- partial "layouts/blocks/feature-state.html" (dict
+		"inner" (strings.TrimSpace $.Inner)
+		"name" $.Name
+		"page" $.Page
+		"position" $.Position
+		"status" "new"
+		"version" $version
+		)
+	}}
 {{- else }}
-  {{- errorf "The %q shortcode requires a single positional parameter indicating version. See %s" .Name .Position }}
+	{{- errorf "The %q shortcode requires a single positional parameter indicating version. See %s" .Name .Position }}
 {{- end }}

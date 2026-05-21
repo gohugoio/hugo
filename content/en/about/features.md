@@ -80,6 +80,9 @@ weight: 20
 
 ## Asset pipelines
 
+[CSS Processing]
+: Bundle, transform, minify, create source maps, perform SRI hashing, and integrate with PostCSS.
+
 [Image processing]
 : Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract metadata.
 
@@ -130,9 +133,10 @@ weight: 20
 [Menus]: /content-management/menus/
 [URL management]: /content-management/urls/
 
+[CSS processing]: /functions/css/build/
 [Image processing]: /content-management/image-processing/
 [JavaScript bundling]: /functions/js/build/
-[Sass processing]: /functions/css/Sass/
+[Sass processing]: /functions/css/sass/
 [Tailwind CSS processing]: /functions/css/tailwindcss/
 
 [Caching]: /functions/partials/includecached/

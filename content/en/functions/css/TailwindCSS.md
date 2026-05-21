@@ -24,15 +24,18 @@ Use the `css.TailwindCSS` function to process your Tailwind CSS files. This func
 ## Setup
 
 Step 1
-: Install the Tailwind CSS CLI v4.0 or later:
+: Install Tailwind CSS v4.0 or later:
 
   ```sh {copy=true}
   npm install --save-dev tailwindcss @tailwindcss/cli @tailwindcss/typography
   ```
 
-  The Tailwind CSS CLI is also available as a [standalone executable]. You must install it outside of your project directory and ensure its path is included in your system's `PATH` environment variable.
+  <!-- TODO: remove the admonition below somewhere after v0.172.0 -->
+  
+  > [!note]
+  > As of v0.161.0, Hugo no longer supports the Tailwind [standalone binary]. You must now install the Tailwind CSS CLI via `npm` as shown above.
 
-  [standalone executable]: https://github.com/tailwindlabs/tailwindcss/releases/latest
+  [standalone binary]: https://github.com/tailwindlabs/tailwindcss/releases/latest
 
 Step 2
 : Add this to your project configuration:
@@ -113,3 +116,25 @@ disableInlineImports
 
 skipInlineImportsNotFound
 : (`bool`) Whether to allow the build process to continue despite unresolved import statements, preserving the original import declarations. It is important to note that the inline importer does not process URL-based imports or those with media queries, and these will remain unaltered even when this option is disabled. Default is `false`.
+
+## Inject CSS variables with `vars`
+
+The [css.Build](./Build) function has a [vars](./Build#vars) option that can be used to inject CSS variables into your stylesheets. This is particularly useful for dynamically setting values based on your site's configuration or other data. To use this with Tailwind CSS, you can use [css.Build](./Build) as a preprocessor step before passing the result to `css.TailwindCSS`. Here's how you can do it:
+
+```go-html-template
+{{ with resources.Get "css/styles.css" }}
+  {{ $cssOpts := dict
+    "vars" (dict "favourite-color" "#7f93c9")
+    "externals" (slice "tailwindcss")
+  }}
+  {{ $tailwindOpts := dict "disableInlineImports" true }}
+  {{ with . | css.Build $cssOpts | css.TailwindCSS $tailwindOpts }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}">
+  {{ end }}
+{{ end }}
+```
+
+Some notes to the above:
+
+- Marking `tailwindcss` as an external in the `css.Build` options prevents it from being processed by the build step, allowing it to be correctly handled by the Tailwind CSS CLI in the subsequent step.
+- The `disableInlineImports` option is set to `true` for the Tailwind CSS step as imports are handled by the `css.Build`.

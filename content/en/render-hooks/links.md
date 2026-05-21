@@ -25,6 +25,10 @@ Link _render hook_ templates receive the following context:
 Destination
 : (`string`) The link destination.
 
+Ordinal
+: {{< new-in v0.160.0 />}}
+: (`int`) The zero-based ordinal of the link on the page.
+
 Page
 : (`page`) A reference to the current page.
 
@@ -33,6 +37,10 @@ PageInner
 
 PlainText
 : (`string`) The link description as plain text.
+
+Position
+: {{< new-in 0.160.0 />}}
+: (`string`) The position of the link within the page content.
 
 Text
 : (`template.HTML`) The link description.

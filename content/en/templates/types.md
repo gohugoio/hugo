@@ -320,7 +320,7 @@ A _content view_ template is similar to a _partial_ template, invoked by calling
 - Can target any page kind, content type, logical path, language, or output format
 - Can reside at any level within the `layouts` directory
 
-For example, Hugo applies a _base_ template to the _home_ template below, then renders the page content and a card component for each page within the "films" section of your site.
+For example, Hugo applies a _base_ template to the _home_ template below, then renders the page content and a card component for each page within the `films` section of your site.
 
 ```go-html-template {file="layouts/home.html"}
 {{ define "main" }}

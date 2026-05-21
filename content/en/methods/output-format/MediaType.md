@@ -33,4 +33,4 @@ params:
 
 ### Type
 
-(`string`) Returns the the current format's media type.
+(`string`) Returns the current format's media type.

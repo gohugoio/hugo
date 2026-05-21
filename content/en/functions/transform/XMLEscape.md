@@ -34,5 +34,5 @@ When using `transform.XMLEscape` in a template rendered by Go's [`html/template`
 ```
 
 [disallowed characters]: https://www.w3.org/TR/xml/#charsets
-[html entities]: https://developer.mozilla.org/en-us/docs/glossary/entity
+[html entities]: https://developer.mozilla.org/en-US/docs/Glossary/Entity
 [`html/template`]: https://pkg.go.dev/html/template

@@ -79,7 +79,7 @@ Hugo render this HTML:
 </ul>
 ```
 
-In the above note that the `href` attribute of the second `anchor` element is blank because Hugo was unable to find the "services" page.
+In the above note that the `href` attribute of the second `anchor` element is blank because Hugo was unable to find the `services` page.
 
 With this template code:
 

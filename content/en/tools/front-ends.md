@@ -16,6 +16,9 @@ aliases: [/tools/frontends/]
 [DatoCMS](https://www.datocms.com)
 : DatoCMS is a fully customizable administrative area for your static websites. Use your favorite website generator, let your clients publish new content independently, and the host the site anywhere you like.
 
+[GitCMS](https://gitcms.dev)
+: GitCMS is an AI-focused CMS for markdown-based content sites that brings together Content Agents for ChatGPT and Claude using MCP app, a friendly notion-like interface for non-technical team members, and a structured editorial publishing workflow. It is built for teams that want to manage blogs, documentation, changelogs, and other markdown content with the speed of AI assistance and the reliability of a review-driven publishing process.
+
 [PubCrank](https://www.pubcrank.com/)
 : PubCrank is a static site editor which lets you define templates for different front matter layouts in your site. This gives writers an easy-to-use visual interface to create and edit content while maintaining the guardrails that the developer has created. PubCrank is free for local editing.
 
@@ -26,6 +29,9 @@ aliases: [/tools/frontends/]
 
 [Decap CMS](https://decapcms.org/)
 : Decap CMS is an open-source, serverless solution for managing Git based content in static sites, and it works on any platform that can host static sites. A [Hugo/Decap CMS starter](https://github.com/decaporg/one-click-hugo-cms) is available to get new projects running quickly.
+
+[Pages CMS](https://pagescms.org/)
+: Pages CMS is an open-source, Git-based CMS for static sites and apps. It lets you edit Hugo content stored in a GitHub repository through a web interface, with support for front matter fields, media management, rich text editing, etc.
 
 [Quiqr Desktop](https://quiqr.org/)
 : Quiqr Desktop is a open-source, cross-platform, offline desktop CMS for Hugo with built-in Git functionality for deploying static sites to any hosting server.
