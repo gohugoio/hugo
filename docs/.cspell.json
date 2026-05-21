@@ -77,7 +77,7 @@
     "unmarshaling",
     "unmarshals",
     // ------------------------------------------------------------------------
-    // cspell: ignore hugo terminology",
+    // cspell: ignore hugo terminology
     // ------------------------------------------------------------------------
     "alignx",
     "aligny",
@@ -102,7 +102,7 @@
     "unpublishdate",
     "zgotmplz",
     // ------------------------------------------------------------------------
-    // cspell: ignore foreign language words",
+    // cspell: ignore foreign language words
     // ------------------------------------------------------------------------
     "bezpieczeństwo",
     "blatt",
@@ -130,7 +130,7 @@
     "referenz",
     "régime",
     // ------------------------------------------------------------------------
-    // cspell: ignore names",
+    // cspell: ignore names
     // ------------------------------------------------------------------------
     "Atishay",
     "Cosette",
@@ -149,8 +149,9 @@
     "Vitter",
     "WASI",
     // ------------------------------------------------------------------------
-    // cspell: ignore operating systems and software packages",
+    // cspell: ignore operating systems and software packages
     // ------------------------------------------------------------------------
+    "ananke",
     "asciidoctor",
     "brotli",
     "cifs",
@@ -173,7 +174,7 @@
     "rclone",
     "xubuntu",
     // ------------------------------------------------------------------------
-    // cspell: ignore miscellaneous",
+    // cspell: ignore miscellaneous
     // ------------------------------------------------------------------------
     "achristie",
     "ccpa",

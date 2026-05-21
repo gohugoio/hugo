@@ -39,7 +39,7 @@ weight = 2
 
 {{< new-in 0.153.0 />}}
 
-(`bool`) Reports whether this is the [default language][].
+(`bool`) Reports whether this is the [default language](g).
 
 ```go-html-template
 {{ .Site.Language.IsDefault }} → true
@@ -118,5 +118,4 @@ Some of the methods above are commonly used in a base template as attributes for
 [`direction`]: /configuration/languages/#direction
 [`label`]: /configuration/languages/#label
 [`locale`]: /configuration/languages/#locale
-[default language]: /quick-reference/glossary/#default-language
 [details]: /methods/page/language/

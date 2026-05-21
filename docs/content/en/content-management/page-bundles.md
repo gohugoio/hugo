@@ -9,7 +9,7 @@ keywords: []
 
 A page bundle is a directory that encapsulates both content and associated resources.
 
-By way of example, this site has an "about" page and a "privacy" page:
+By way of example, this site has an `about` page and a `privacy` page:
 
 ```text
 content/
@@ -19,7 +19,7 @@ content/
 └── privacy.md
 ```
 
-The "about" page is a page bundle. It logically associates a resource with content by bundling them together. Resources within a page bundle are [page resources], accessible with the [`Resources`] method on the `Page` object.
+The `about` page is a page bundle. It logically associates a resource with content by bundling them together. Resources within a page bundle are [page resources], accessible with the [`Resources`] method on the `Page` object.
 
 Page bundles are either _leaf bundles_ or _branch bundles_.
 

@@ -39,6 +39,7 @@ IsBlock
 : (`bool`) Reports whether a standalone image is not wrapped within a paragraph element.
 
 Ordinal
+: {{< new-in v0.160.0 />}}
 : (`int`) The zero-based ordinal of the image on the page.
 
 Page
@@ -49,6 +50,10 @@ PageInner
 
 PlainText
 : (`string`) The image description as plain text.
+
+Position
+: {{< new-in 0.160.0 />}}
+: (`string`) The position of the image within the page content.
 
 Text
 : (`template.HTML`) The image description.

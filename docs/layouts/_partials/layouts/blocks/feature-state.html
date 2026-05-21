@@ -1,4 +1,3 @@
-{{/* prettier-ignore-start */ -}}
 {{- /*
 This must be used in conjunction with the "deprecated-in" and "new-in"
 shortcodes. The "deprecated-in" shortcode should be used to indicate when a
@@ -33,8 +32,7 @@ by the shortcodes.
     )
   }}
 
-*/ -}}
-{{/* prettier-ignore-end */ -}}
+*/}}
 
 {{- /* Configuration */ -}}
 {{- $majorVersionDiffThreshold := 0 }}
@@ -54,47 +52,47 @@ by the shortcodes.
 {{- $text := "" }}
 
 {{- if and $.name $.page $.position $.status $.version }}
-  {{- if in $validStatusValues $.status }}
-    {{- if eq $.status "deprecated" }}
-      {{- $classAnchor = printf "text-orange-800 hover:text-orange-600 %s" $classAnchor }}
-      {{- $classSpan = printf "bg-orange-200 dark:bg-orange-400 fill-orange-600 %s" $classSpan }}
-      {{- $color = "orange" }}
-      {{- $expiryMessage = "The deprecation period has ended. Remove this shortcode call and the associated content" }}
-      {{- $icon = "exclamation" }}
-      {{- $minorVersionDiffThreshold = $minorVersionDiffThresholdDeprecatedFeature }}
-      {{- $text = "Deprecated in" }}
-    {{- else if eq $.status "new" }}
-      {{- $classAnchor = printf "text-green-800 hover:text-green-600 %s" $classAnchor }}
-      {{- $classSpan = printf "bg-green-200 dark:bg-green-400 fill-green-600 %s" $classSpan }}
-      {{- $color = "green" }}
-      {{- $expiryMessage = "This feature is no longer new. Remove this shortcode call" }}
-      {{- $icon = "exclamation" }}
-      {{- $minorVersionDiffThreshold = $minorVersionDiffThresholdNewFeature }}
-      {{- $text = "New in" }}
-    {{- else }}
-      {{- errorf "BUG: The %q template does not support the %q feature status: see %s" templates.Current.Name $.status $.position }}
-    {{- end }}
+	{{- if in $validStatusValues $.status }}
+		{{- if eq $.status "deprecated" }}
+			{{- $classAnchor = printf "text-orange-800 hover:text-orange-600 %s" $classAnchor }}
+			{{- $classSpan = printf "bg-orange-200 dark:bg-orange-400 fill-orange-600 %s" $classSpan }}
+			{{- $color = "orange" }}
+			{{- $expiryMessage = "The deprecation period has ended. Remove this shortcode call and the associated content" }}
+			{{- $icon = "exclamation" }}
+			{{- $minorVersionDiffThreshold = $minorVersionDiffThresholdDeprecatedFeature }}
+			{{- $text = "Deprecated in" }}
+		{{- else if eq $.status "new" }}
+			{{- $classAnchor = printf "text-green-800 hover:text-green-600 %s" $classAnchor }}
+			{{- $classSpan = printf "bg-green-200 dark:bg-green-400 fill-green-600 %s" $classSpan }}
+			{{- $color = "green" }}
+			{{- $expiryMessage = "This feature is no longer new. Remove this shortcode call" }}
+			{{- $icon = "exclamation" }}
+			{{- $minorVersionDiffThreshold = $minorVersionDiffThresholdNewFeature }}
+			{{- $text = "New in" }}
+		{{- else }}
+			{{- errorf "BUG: The %q template does not support the %q feature status: see %s" templates.Current.Name $.status $.position }}
+		{{- end }}
 
-    {{- $hv := split hugo.Version "." }}
-    {{- $sv := split $.version "." }}
-    {{- $majorDiff := sub (index $hv 0 | int) (index $sv 0 | int) }}
-    {{- $minorDiff := sub (index $hv 1 | int) (index $sv 1 | int) }}
+		{{- $hv := split hugo.Version "." }}
+		{{- $sv := split $.version "." }}
+		{{- $majorDiff := sub (index $hv 0 | int) (index $sv 0 | int) }}
+		{{- $minorDiff := sub (index $hv 1 | int) (index $sv 1 | int) }}
 
-    {{- if or (gt $majorDiff $majorVersionDiffThreshold) (gt $minorDiff $minorVersionDiffThreshold) }}
-      {{- warnf "%s: %s" $expiryMessage $.position }}
-    {{- end }}
+		{{- if or (gt $majorDiff $majorVersionDiffThreshold) (gt $minorDiff $minorVersionDiffThreshold) }}
+			{{- warnf "%s: %s" $expiryMessage $.position }}
+		{{- end }}
 
-    {{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $.version }}
-    {{- if $.inner }}
-      {{- $text = printf "%s [v%s](%s)\n\n%s" $text $.version $href $.inner  | $.page.RenderString (dict "display" "block") }}
-      {{- partial "layouts/blocks/alert.html" (dict "color" $color "icon" $icon "text" $text) }}
-    {{- else }}
-      {{- $target := "_blank"}}
-      {{- printf "<span class=%q><a class=%q href=%q target=%q>%s v%s</a></span>" $classSpan $classAnchor $href $target $text $.version | safeHTML }}
-    {{- end }}
-  {{- else }}
-    {{- errorf "The %q template does not support the %q feature status: see %s" templates.Current.Name $.status $.position }}
-  {{- end }}
+		{{- $href := printf "https://github.com/gohugoio/hugo/releases/tag/v%s" $.version }}
+		{{- if $.inner }}
+			{{- $text = printf "%s [v%s](%s)\n\n%s" $text $.version $href $.inner | $.page.RenderString (dict "display" "block") }}
+			{{- partial "layouts/blocks/alert.html" (dict "color" $color "icon" $icon "text" $text) }}
+		{{- else }}
+			{{- $target := "_blank" }}
+			{{- printf "<span class=%q><a class=%q href=%q target=%q>%s v%s</a></span>" $classSpan $classAnchor $href $target $text $.version | safeHTML }}
+		{{- end }}
+	{{- else }}
+		{{- errorf "The %q template does not support the %q feature status: see %s" templates.Current.Name $.status $.position }}
+	{{- end }}
 {{- else }}
-  {{- errorf "The %q template requires the following context: name, page, position, status, version: see %s" templates.Current.Name $.position }}
+	{{- errorf "The %q template requires the following context: name, page, position, status, version: see %s" templates.Current.Name $.position }}
 {{- end }}

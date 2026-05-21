@@ -7,14 +7,14 @@ keywords: [highlight]
 ---
 
 > [!note]
-> To override Hugo's embedded `highlight` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
+> To override Hugo's embedded `highlight` shortcode, copy the [source code][] to a file with the same name in the `layouts/_shortcodes` directory.
 
 > [!note]
-> With the Markdown [content format], the `highlight` shortcode is rarely needed because, by default, Hugo automatically applies syntax highlighting to fenced code blocks.
+> With the Markdown [content format][], the `highlight` shortcode is rarely needed because, by default, Hugo automatically applies syntax highlighting to fenced code blocks.
 >
 > The primary use case for the `highlight` shortcode in Markdown is to apply syntax highlighting to inline code snippets.
 
-The `highlight` shortcode calls the [`transform.Highlight`] function which uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 [highlighting styles].
+The `highlight` shortcode calls the [`transform.Highlight`][] function to generate syntax-highlighted HTML from the provided code, [language][], and [options][].
 
 ## Arguments
 
@@ -30,14 +30,14 @@ CODE
 : (`string`) The code to highlight.
 
 LANG
-: (`string`) The language of the code to highlight. Choose from one of the [supported languages]. This value is case-insensitive.
+: (`string`) The [language][] of the code to highlight. This value is case-insensitive.
 
 OPTIONS
-: (`string`) Zero or more space-separated key-value pairs wrapped in quotation marks. Set default values for each option in your [project configuration]. The key names are case-insensitive.
+: (`string`) Zero or more space-separated key-value pairs wrapped in quotation marks. You can set default values for each option in your [project configuration][]. The key names are case-insensitive.
 
 ## Example
 
-```text
+```text {file="content/example.md"}
 {{</* highlight go "linenos=inline, hl_lines=3 6-8, style=emacs" */>}}
 package main
 
@@ -94,14 +94,11 @@ This is some {{< hl >}}fmt.Println("inline"){{< /hl >}} code.
 
 ## Options
 
-Pass the options when calling the shortcode. You can set their default values in your [project configuration].
-
 {{% include "_common/syntax-highlighting-options.md" %}}
 
 [`transform.Highlight`]: /functions/transform/highlight/
-[Chroma]: https://github.com/alecthomas/chroma
 [content format]: /content-management/formats/
-[highlighting styles]: /quick-reference/syntax-highlighting-styles/
+[language]: /content-management/syntax-highlighting/#languages
+[options]: #options-1
 [project configuration]: /configuration/markup/#highlight
 [source code]: <{{% eturl highlight %}}>
-[supported languages]: /content-management/syntax-highlighting/#languages

@@ -11,6 +11,9 @@ params:
 ---
 
 > [!note]
+> The `js.Batch` function is backed by the [`evanw/esbuild`][] package, providing a mature, high-performance foundation for bundling, transformation, and minification.
+
+> [!note]
 > For a runnable example of this feature, see [this test and demo repo](https://github.com/bep/hugojsbatchdemo/).
 
 The Batch `ID` is used to create the base directory for this batch. Forward slashes are allowed. `js.Batch` returns an object with an API with this structure:
@@ -287,22 +290,23 @@ import './lib1.js';
 console.log('entrypoints-workaround.js');
 ```
 
+[ESBuild]: https://github.com/evanw/esbuild
+[JavaScript import]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
+[OptionsSetter]: #optionssetter
+[SetOptions]: #optionssetter
 [`Resource`]: /methods/resource/
 [`Resources.Mount`]: /methods/page/resources/#mount
 [`Resources`]: /methods/page/resources/
+[`evanw/esbuild`]: https://github.com/evanw/esbuild
 [`templates.Defer`]: /functions/templates/defer/
 [build options]: #build-options
 [code splitting]: https://esbuild.github.io/api/#splitting
 [config]: #config
-[ESBuild]: https://github.com/evanw/esbuild
 [group]: #group
 [instance]: #instance
-[JavaScript import]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
 [js.Batch Demo Repo]: https://github.com/bep/hugojsbatchdemo/
-[OptionsSetter]: #optionssetter
 [params options]: #params-options
 [runner]: #runner
-[script]: #script
 [script options]: #script-options
-[SetOptions]: #optionssetter
+[script]: #script
 [with]: /functions/go-template/with/

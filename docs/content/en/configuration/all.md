@@ -94,7 +94,7 @@ disableDefaultLanguageRedirect
 
 disableDefaultSiteRedirect
 : {{< new-in 0.154.5 />}}
-: (bool) Whether to disable generation of the alias redirect to the [default site](g). When [`defaultContentLanguageInSubdir`][], [`defaultContentRoleInSubdir`][], or [`defaultContentVersionInSubdir`][] is `true`, this prevents the root directory from redirecting to the default site's subdirectory. Conversely, when these are `false`, it prevents the subdirectories from redirecting back to the root. Default is `false`.
+: (`bool`) Whether to disable generation of the alias redirect to the [default site](g). When [`defaultContentLanguageInSubdir`][], [`defaultContentRoleInSubdir`][], or [`defaultContentVersionInSubdir`][] is `true`, this prevents the root directory from redirecting to the default site's subdirectory. Conversely, when these are `false`, it prevents the subdirectories from redirecting back to the root. Default is `false`.
 
 disableHugoGeneratorInject
 : (`bool`) Whether to disable injection of a `<meta name="generator">` tag into the home page. Default is `false`.
@@ -139,7 +139,7 @@ i18nDir
 : (`string`) The designated directory for translation tables. Default is `i18n`. {{% module-mounts-note %}}
 
 ignoreCache
-: (`bool`) Whether to ignore the cache directory. Default is `false`.
+: (`bool`) Whether to ignore the configured file caches. Default is `false`.
 
 ignoreFiles
 : (`[]string`) A slice of [regular expressions](g) used to exclude specific files from a build. These expressions are matched against the absolute file path and apply to files within the `content`, `data`, and `i18n` directories. For more advanced file exclusion options, see the section on [module mounts][].
@@ -153,20 +153,19 @@ ignoreVendorPaths
 imaging
 : See [configure imaging][].
 
-locale
-: (`string`) The site's language tag, conforming to the syntax described in [RFC 5646][]. This value does not affect translations or localization. Hugo uses this value to populate:
-
-  - The `language` element in the [embedded RSS template][]
-  - The `lang` attribute of the `html` element in the [embedded alias template][]
-  - The `og:locale` `meta` element in the [embedded Open Graph template][]
-
-  When present in the root of the configuration, this value is ignored if one or more language keys exists. Please specify this value independently for each language key.
+languageCode
+: {{<deprecated-in 0.158.0 />}}
+: Use [`locale`](#locale) instead.
 
 languages
 : See [configure languages][].
 
 layoutDir
 : (`string`) The designated directory for templates. Default is `layouts`. {{% module-mounts-note %}}
+
+{{% include "/_common/configuration/locale.md" %}}
+
+  For a multilingual project, specify this value independently for each language key. See [configure languages][].
 
 mainSections
 : (`string` or `[]string`) The main sections of a site. If set, the [`MainSections`][] method on the `Site` object returns the given sections, otherwise it returns the section with the most pages.
@@ -420,9 +419,6 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [configure ugly URLs]: /configuration/ugly-urls/
 [configure versions]: /configuration/versions/
 [duration]: https://pkg.go.dev/time#Duration
-[embedded Open Graph template]: <{{% eturl opengraph %}}>
-[embedded RSS template]: <{{% eturl rss %}}>
-[embedded alias template]: <{{% eturl alias %}}>
 [module mounts]: /configuration/module/#mounts
 [non-spacing marks]: https://www.compart.com/en/unicode/category/Mn
 [os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir

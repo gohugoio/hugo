@@ -29,15 +29,10 @@ For a complete guide to contributing to Hugo, see the [Contribution Guide].
 
 ## Prerequisites
 
-To build the extended or extended/deploy edition from source you must:
+To build Hugo from source you must install:
 
 1. Install [Git]
 1. Install [Go] version 1.25.0 or later
-1. Install a C compiler, either [GCC] or [Clang]
-1. Update your `PATH` environment variable as described in the [Go documentation]
-
-> [!note]
-> See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
 
 ## GitHub workflow
 
@@ -71,23 +66,29 @@ Step 4
 : Make changes.
 
 Step 5
-: Compile and install.
+: Build and install.
 
-  To compile and install the standard edition:
+  To build and install the standard edition:
 
-  ```text
-  go install
+  ```sh
+  CGO_ENABLED=0 go install
   ```
 
-  To compile and install the extended edition:
+  {{< new-in v0.159.2 />}} To build and install the deploy edition:
 
-  ```text
+  ```sh
+  CGO_ENABLED=0 go install -tags withdeploy
+  ```
+
+  To build and install the extended edition, first install a C compiler such as [GCC] or [Clang] and then run the following command:
+
+  ```sh
   CGO_ENABLED=1 go install -tags extended
   ```
 
-  To compile and install the extended/deploy edition:
+  To build and install the extended/deploy edition, first install a C compiler such as [GCC] or [Clang] and then run the following command:
 
-  ```text
+  ```sh
   CGO_ENABLED=1 go install -tags extended,withdeploy
   ```
 
@@ -130,46 +131,17 @@ Step 9
 Step 10
 : A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.
 
-## Building from source
-
-You can build, install, and test Hugo at any point in its development history. The examples below build and install the extended edition of Hugo.
-
-To build and install the latest release:
-
-```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
-```
-
-To build and install a specific release:
-
-```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@v0.158.0
-```
-
-To build and install at the latest commit on the master branch:
-
-```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@master
-```
-
-To build and install at a specific commit:
-
-```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@c0d9beb
-```
-
-[bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
 [Clang]: https://clang.llvm.org/
-[commit message guidelines]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md#git-commit-message-guidelines
 [Contribution Guide]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md
-[create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
-[documentation]: /documentation
-[documentation repository]: https://github.com/gohugoio/hugoDocs
-[forum]: https://discourse.gohugo.io
 [GCC]: https://gcc.gnu.org/
 [Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 [Go]: https://go.dev/doc/install
-[Go documentation]: https://go.dev/doc/code#Command
+[bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
+[commit message guidelines]: https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md#git-commit-message-guidelines
+[create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
+[documentation repository]: https://github.com/gohugoio/hugoDocs
+[documentation]: /documentation
+[forum]: https://discourse.gohugo.io
 [issue queue]: https://github.com/gohugoio/hugo/issues
 [issues]: https://github.com/gohugoio/hugo/issues
 [project repository]: https://github.com/gohugoio/hugo/

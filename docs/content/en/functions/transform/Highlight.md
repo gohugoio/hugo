@@ -11,26 +11,20 @@ params:
 aliases: [/functions/highlight]
 ---
 
-The `highlight` function uses the [Chroma] syntax highlighter, supporting over 200 languages with more than 40 [highlighting styles].
-
-[chroma]: https://github.com/alecthomas/chroma
-[highlighting styles]: /quick-reference/syntax-highlighting-styles/
+The `transform.Highlight` function uses the [`alecthomas/chroma`][] package to generate syntax-highlighted HTML from the provided code, [language][], and [options][].
 
 ## Arguments
 
-The `transform.Highlight` shortcode takes three arguments.
+The `transform.Highlight` function takes three arguments.
 
 CODE
 : (`string`) The code to highlight.
 
 LANG
-: (`string`) The language of the code to highlight. Choose from one of the [supported languages]. This value is case-insensitive.
+: (`string`) The [language][] of the code to highlight. This value is case-insensitive.
 
 OPTIONS
-: (`map or string`) A map or comma-separated key-value pairs wrapped in quotation marks. Set default values for each option in your [project configuration]. The key names are case-insensitive.
-
-[project configuration]: /configuration/markup#highlight
-[supported languages]: /content-management/syntax-highlighting#languages
+: (`map or string`) A map or comma-separated key-value pairs wrapped in quotation marks. You can set default values for each option in your [project configuration][]. The key names are case-insensitive.
 
 ## Examples
 
@@ -51,3 +45,8 @@ OPTIONS
 ## Options
 
 {{% include "_common/syntax-highlighting-options.md" %}}
+
+[`alecthomas/chroma`]: https://github.com/alecthomas/chroma
+[language]: /content-management/syntax-highlighting#languages
+[options]: #options-1
+[project configuration]: /configuration/markup#highlight

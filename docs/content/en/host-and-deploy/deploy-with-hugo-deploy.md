@@ -9,7 +9,7 @@ aliases: [/hosting-and-deployment/hugo-deploy/]
 Use the `hugo deploy` command to deploy your site Amazon S3, Azure Blob Storage, or Google Cloud Storage.
 
 > [!note]
-> This feature requires the Hugo extended/deploy edition. See the [installation] section for details.
+> This feature requires the deploy or extended/deploy edition. See the [installation] section for details.
 
 ## Assumptions
 

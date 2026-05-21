@@ -9,11 +9,9 @@
   "author": "",
   "license": "",
   "devDependencies": {
-    "@awmottaz/prettier-plugin-void-html": "~2.0.0",
     "@tailwindcss/cli": "~4.1.18",
     "@tailwindcss/typography": "~0.5.19",
     "prettier": "~3.7.4",
-    "prettier-plugin-go-template": "~0.0.15",
     "tailwindcss": "~4.1.18"
   },
   "dependencies": {
