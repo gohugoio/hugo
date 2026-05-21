@@ -62,6 +62,15 @@ func TestXxHashFromString(t *testing.T) {
 	c.Assert(got, qt.Equals, uint64(7148569436472236994))
 }
 
+func TestHashNilMapVsEmptyMap(t *testing.T) {
+	c := qt.New(t)
+
+	var m1 map[string]any = nil
+	m2 := map[string]any{}
+
+	c.Assert(HashString(m1), qt.Equals, HashString(m2))
+}
+
 func TestXxHashFromStringHexEncoded(t *testing.T) {
 	c := qt.New(t)
 	s := "The quick brown fox jumps over the lazy dog"

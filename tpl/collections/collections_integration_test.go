@@ -653,3 +653,21 @@ All.
 		}
 	})
 }
+
+func TestEmptyDictShouldBeNil(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $d := dict }}
+{{ printf "dict: %T %t %d" $d (eq $d nil) (len $d) }}
+{{ range $d }}FAIL{{ end }}
+index: {{ index $d "foo" }}|
+{{ $d2 := dict "foo" "bar" }}
+{{ $d3 := merge $d $d2 }}
+{{ printf "d3: %v" $d3 }}|
+`
+
+	hugolib.Test(t, files).AssertFileContent("public/index.html", "dict: map[string]interface {} true 0", "! FAIL", "index: |", "d3: map[foo:bar]|")
+}
