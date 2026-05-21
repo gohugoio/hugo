@@ -17,7 +17,7 @@ The `Version` method on a `Site` object returns the `Version` object for the giv
 
 ### IsDefault
 
-(`bool`) Reports whether this is the [default version][].
+(`bool`) Reports whether this is the [default version](g).
 
 ```go-html-template
 {{ .Site.Version.IsDefault }} → true
@@ -30,5 +30,3 @@ The `Version` method on a `Site` object returns the `Version` object for the giv
 ```go-html-template
 {{ .Site.Version.Name }} → v1.0.0
 ```
-
-[default version]: /quick-reference/glossary/#default-version

@@ -398,6 +398,35 @@ func TestRebuilErrorRecovery(t *testing.T) {
 	b.EditFileReplaceAll("content/mysection/mysectionbundle/index.md", "{{< foo }}", "{{< foo >}}").Build()
 }
 
+func TestRebuildEmptyParamsIssue14886(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy", "sitemap", "robotstxt", "404", "rss"]
+disableLiveReload = true
+-- content/news/_index.md --
+---
+title: News
+params:
+  featuredImage: featured.png
+---
+News.
+-- layouts/list.html --
+List: {{ .Title }}|{{ .Params.featuredimage }}|
+`
+
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/news/index.html", "List: News|featured.png|")
+
+	b.EditFileReplaceAll("content/news/_index.md", "  featuredImage", "featuredImage").Build()
+	b.AssertFileContent("public/news/index.html", "List: News|featured.png|")
+
+	b.EditFileReplaceAll("content/news/_index.md", "featuredImage", "  featuredImage").Build()
+	b.AssertFileContent("public/news/index.html", "List: News|featured.png|")
+}
+
 // Issue 14573
 func TestRebuildAddContentWithMultipleDirCreations(t *testing.T) {
 	t.Parallel()

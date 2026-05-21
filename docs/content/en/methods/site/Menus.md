@@ -69,7 +69,7 @@ When viewing the home page, the result is:
 </nav>
 ```
 
-When viewing the "books" page, the result is:
+When viewing the `books` page, the result is:
 
 ```html
 <nav class="menu">

@@ -18,7 +18,7 @@ params
   Note that this is meant for small data sets, e.g., configuration settings. For larger data sets, please put/mount the files into `assets` and import them directly.
 
 minify
-: (`bool`) Whether to minify the generated CSS code. Default is `false`.
+: (`bool`) Whether to minify the generated JS code. Default is `false`.
 
 loaders
 : {{< new-in 0.140.0 />}}

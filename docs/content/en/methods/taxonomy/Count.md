@@ -15,7 +15,7 @@ The `Count` method on a `Taxonomy` object returns the number of number of [weigh
 
 ## Count the weighted pages
 
-Now that we have captured the "genres" `Taxonomy` object, let's count the number of weighted pages to which the "suspense" term has been assigned:
+Now that we have captured the `genres` `Taxonomy` object, let's count the number of weighted pages to which the `suspense` term has been assigned:
 
 ```go-html-template
 {{ $taxonomyObject.Count "suspense" }} → 3

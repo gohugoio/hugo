@@ -10,8 +10,6 @@ params:
     signatures: [math.Atan VALUE]
 ---
 
-{{< new-in 0.130.0 />}}
-
 ```go-html-template
 {{ math.Atan 1 }} → 0.7853981633974483
 ```

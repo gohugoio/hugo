@@ -1539,11 +1539,10 @@ func TestIsTrue(t *testing.T) {
 		{unsafe.Pointer(new(int)), true},
 		{unsafe.Pointer(nil_ptr), false},
 	}
-	for i, test_case := range tests {
-
+	for _, test_case := range tests {
 		got, _ := IsTrue(test_case.v)
 		if got != test_case.want {
-			t.Fatalf("[%d] expect result %v, got %v", i, test_case.want, got)
+			t.Fatalf("expect result %v, got %v", test_case.want, got)
 		}
 	}
 }

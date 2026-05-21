@@ -1,4 +1,3 @@
-{{/* prettier-ignore-start */}}
 {{/*
 Renders a highlighted code block using the given options and attributes.
 
@@ -16,15 +15,14 @@ may also specify the following parameters:
 
 @examples
 
-    ```go
-    fmt.Println("Hello world!")
-    ```
+	```go
+	fmt.Println("Hello world!")
+	```
 
-    ```go {linenos=true file="layouts/index.html" copy=true}
-    fmt.Println("Hello world!")
-    ```
+	```go {linenos=true file="layouts/index.html" copy=true}
+	fmt.Println("Hello world!")
+	```
 */}}
-{{/* prettier-ignore-end */}}
 
 {{- $copy := false }}
 {{- $file := or .Attributes.file "" }}
@@ -35,78 +33,78 @@ may also specify the following parameters:
 {{- $ext := strings.TrimPrefix "." (path.Ext $file) }}
 {{- $lang := or .Type $ext "text" }}
 {{- if in (slice "html" "gotmpl") $lang }}
-  {{- $lang = "go-html-template" }}
+	{{- $lang = "go-html-template" }}
 {{- end }}
 {{- if eq $lang "md" }}
-  {{- $lang = "text" }}
+	{{- $lang = "text" }}
 {{- end }}
 
 {{- if collections.IsSet .Attributes "copy" }}
-  {{- if in (slice true "true" 1) .Attributes.copy }}
-    {{- $copy = true }}
-  {{- else if in (slice false "false" 0) .Attributes.copy }}
-    {{- $copy = false }}
-  {{- end }}
+	{{- if in (slice true "true" 1) .Attributes.copy }}
+		{{- $copy = true }}
+	{{- else if in (slice false "false" 0) .Attributes.copy }}
+		{{- $copy = false }}
+	{{- end }}
 {{- end }}
 
 {{- if collections.IsSet .Attributes "details" }}
-  {{- if in (slice true "true" 1) .Attributes.details }}
-    {{- $details = true }}
-  {{- else if in (slice false "false" 0) .Attributes.details }}
-    {{- $details = false }}
-  {{- end }}
+	{{- if in (slice true "true" 1) .Attributes.details }}
+		{{- $details = true }}
+	{{- else if in (slice false "false" 0) .Attributes.details }}
+		{{- $details = false }}
+	{{- end }}
 {{- end }}
 
 {{- if collections.IsSet .Attributes "open" }}
-  {{- if in (slice true "true" 1) .Attributes.open }}
-    {{- $open = "open" }}
-  {{- else if in (slice false "false" 0) .Attributes.open }}
-    {{- $open = "" }}
-  {{- end }}
+	{{- if in (slice true "true" 1) .Attributes.open }}
+		{{- $open = "open" }}
+	{{- else if in (slice false "false" 0) .Attributes.open }}
+		{{- $open = "" }}
+	{{- end }}
 {{- end }}
 
 {{- if collections.IsSet .Attributes "trim" }}
-  {{- if in (slice true "true" 1) .Attributes.trim }}
-    {{- $trim = true }}
-  {{- else if in (slice false "false" 0) .Attributes.trim }}
-    {{- $trim = false }}
-  {{- end }}
+	{{- if in (slice true "true" 1) .Attributes.trim }}
+		{{- $trim = true }}
+	{{- else if in (slice false "false" 0) .Attributes.trim }}
+		{{- $trim = false }}
+	{{- end }}
 {{- end }}
 
 {{- if $details }}
-  <details class="cursor-pointer" {{ $open }}>
-  <summary>{{ $summary }}</summary>
+	<details class="cursor-pointer" {{ $open }}>
+		<summary>{{ $summary }}</summary>
 {{- end }}
 
 <div
-  x-data
-  class="render-hook-codeblock font-mono not-prose relative mt-6 mb-8 border border-gray-200 dark:border-gray-800 bg-light dark:bg-dark">
-  {{- $fileSelectClass := "select-none" }}
-  {{- if $copy }}
-    {{- $fileSelectClass = "select-text" }}
-    <svg
-      class="absolute right-4 top-2 z-30 text-blue-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer w-6 h-6"
-      @click="$copy($refs.code)">
-      <use href="#icon--copy"></use>
-    </svg>
-  {{- end }}
-  {{- with $file }}
-    <div
-      class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-gray-300 dark:bg-slate-700 w-full {{ $fileSelectClass }}
-">
-      {{ . }}
-    </div>
-  {{- end }}
+	x-data
+	class="render-hook-codeblock font-mono not-prose relative mt-6 mb-8 border border-gray-200 dark:border-gray-800 bg-light dark:bg-dark">
+	{{- $fileSelectClass := "select-none" }}
+	{{- if $copy }}
+		{{- $fileSelectClass = "select-text" }}
+		<svg
+			class="absolute right-4 top-2 z-30 text-blue-600 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer w-6 h-6"
+			@click="$copy($refs.code)">
+			<use href="#icon--copy"></use>
+		</svg>
+	{{- end }}
+	{{- with $file }}
+		<div
+			class="san-serif text-sm inline-block leading-none pl-2 py-3 bg-gray-300 dark:bg-slate-700 w-full {{ $fileSelectClass }}
+			">
+			{{ . }}
+		</div>
+	{{- end }}
 
-  <div x-ref="code">
-    {{- $content := .Inner }}
-    {{- if $trim }}
-      {{- $content = strings.TrimSpace .Inner }}
-    {{- end }}
-    {{- transform.Highlight $content $lang .Options }}
-  </div>
+	<div x-ref="code">
+		{{- $content := .Inner }}
+		{{- if $trim }}
+			{{- $content = strings.TrimSpace .Inner }}
+		{{- end }}
+		{{- transform.Highlight $content $lang .Options }}
+	</div>
 </div>
 
 {{- if $details }}
-  </details>
+	</details>
 {{- end }}

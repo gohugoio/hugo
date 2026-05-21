@@ -10,8 +10,6 @@ params:
     signatures: [math.Cos VALUE]
 ---
 
-{{< new-in 0.130.0 />}}
-
 ```go-html-template
 {{ math.Cos 1 }} → 0.5403023058681398
 ```

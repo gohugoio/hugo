@@ -59,19 +59,7 @@ languageName
 : {{<deprecated-in 0.158.0 />}}
 : Use [`label`](#label) instead.
 
-locale
-: (`string`) The language tag as described in [RFC 5646][]. This is the primary value used by the [`language.Translate`][] function to select a translation table, falling back to the language key if a matching translation table does not exist.
-
-  Hugo also uses this value to populate:
-
-  - The `lang` attribute of the `html` element in the [embedded alias template][]
-  - The `language` element in the [embedded RSS template][]
-  - The `locale` property in the [embedded OpenGraph template][]
-
-  > [!note]
-  > This value does not affect localization of dates, numbers, and currencies, nor does it affect the site's URL structure. These are controlled by the [language key](#language-keys).
-
-  Access this value from a template using the [`Language.Locale`][] method on a `Site` or `Page` object.
+{{% include "/_common/configuration/locale.md" %}}
 
 title
 : (`string`) The site title for this language. Access this value from a template using the [`Title`][] method on a `Site` object.
@@ -203,15 +191,10 @@ public
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.1
 [`Language.Direction`]: /methods/site/language/#direction
 [`Language.Label`]: /methods/site/language/#label
-[`Language.Locale`]: /methods/site/language/#locale
 [`Title`]: /methods/site/title/
 [`defaultContentLanguageInSubdir`]: #defaultcontentlanguageinsubdir
 [`defaultContentLanguage`]: #defaultcontentlanguage
 [`dir`]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir
 [`disableDefaultSiteRedirect`]: /configuration/all/#disabledefaultsiteredirect
-[`language.Translate`]: /functions/lang/translate/
-[embedded OpenGraph template]: <{{% eturl opengraph %}}>
-[embedded RSS template]: <{{% eturl rss %}}>
-[embedded alias template]: <{{% eturl alias %}}>
-[language keys]: #language-keys
+[language keys]: /configuration/languages/#language-keys
 [translating by file name]: /content-management/multilingual/#translation-by-file-name

@@ -2,7 +2,7 @@ module github.com/gohugoio/hugo
 
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
-	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.0
+	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.1
 	github.com/alecthomas/chroma/v2 v2.24.1
 	github.com/aws/aws-sdk-go-v2 v1.41.6
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.61.1
@@ -32,7 +32,7 @@ require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.6
 	github.com/fsnotify/fsnotify v1.9.0
-	github.com/getkin/kin-openapi v0.137.0
+	github.com/getkin/kin-openapi v0.138.0
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
@@ -73,7 +73,7 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
-	golang.org/x/image v0.39.0
+	golang.org/x/image v0.40.0
 	golang.org/x/mod v0.36.0
 	golang.org/x/net v0.54.0
 	golang.org/x/sync v0.20.0

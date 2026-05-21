@@ -1,36 +1,36 @@
 {{- if not site.Config.Privacy.X.Disable -}}
-  {{- $id := or (.Get "id") "" -}}
-  {{- $user := or (.Get "user") "" -}}
-  {{- if and $id $user -}}
-    {{- template "render-simple-x" (dict "id" $id "user" $user "ctx" .) -}}
-  {{- else -}}
-    {{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
-  {{- end -}}
+	{{- $id := or (.Get "id") "" -}}
+	{{- $user := or (.Get "user") "" -}}
+	{{- if and $id $user -}}
+		{{- template "render-simple-x" (dict "id" $id "user" $user "ctx" .) -}}
+	{{- else -}}
+		{{- errorf "The %q shortcode requires two named parameters: user and id. See %s" .Name .Position -}}
+	{{- end -}}
 {{- end -}}
 
 {{- define "render-simple-x" -}}
-  {{- $dnt := site.Config.Privacy.X.EnableDNT }}
-  {{- $url := printf "https://x.com/%v/status/%v" .user .id -}}
-  {{- $query := querify "url" $url "dnt" $dnt "omit_script" true -}}
-  {{- $request := printf "https://publish.x.com/oembed?%s" $query -}}
-  {{- with try (resources.GetRemote $request) -}}
-    {{- with .Err -}}
-      {{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
-    {{- else with .Value -}}
-      {{- if not site.Config.Services.X.DisableInlineCSS }}
-        {{- template "__h_simple_x_css" (dict "ctx" $.ctx) }}
-      {{- end }}
-      {{- (. | transform.Unmarshal).html | safeHTML -}}
-    {{- else -}}
-      {{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
-    {{- end -}}
-  {{- end -}}
+{{- $dnt := site.Config.Privacy.X.EnableDNT }}
+{{- $url := printf "https://x.com/%v/status/%v" .user .id -}}
+{{- $query := querify "url" $url "dnt" $dnt "omit_script" true -}}
+{{- $request := printf "https://publish.x.com/oembed?%s" $query -}}
+{{- with try (resources.GetRemote $request) -}}
+	{{- with .Err -}}
+		{{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data: %s. See %s" $.ctx.Name . $.ctx.Position -}}
+	{{- else with .Value -}}
+		{{- if not site.Config.Services.X.DisableInlineCSS }}
+			{{- template "__h_simple_x_css" (dict "ctx" $.ctx) }}
+		{{- end }}
+		{{- (. | transform.Unmarshal).html | safeHTML -}}
+	{{- else -}}
+		{{- warnidf "shortcode-x-simple-getremote" "The %q shortcode was unable to retrieve the remote data. See %s" $.ctx.Name $.ctx.Position -}}
+	{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "__h_simple_x_css" -}}
-  {{- if not (.ctx.Page.Store.Get "__h_simple_x_css") -}}
-    {{/* Only include once */}}
-    {{- .ctx.Page.Store.Set "__h_simple_x_css" true -}}
+{{- if not (.ctx.Page.Store.Get "__h_simple_x_css") -}}
+	{{/* Only include once */}}
+	{{- .ctx.Page.Store.Set "__h_simple_x_css" true -}}
     <style type="text/css">
       .twitter-tweet {
         font:
@@ -56,5 +56,5 @@
         text-decoration: underline;
       }
     </style>
-  {{- end -}}
+{{- end -}}
 {{- end -}}

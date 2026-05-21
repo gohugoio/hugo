@@ -655,9 +655,9 @@ params:
 		loki := strings.ToLower(k)
 
 		if loki == "params" {
-			vv, err := hmaps.ToStringMapE(v)
+			vv, err := hmaps.ToParamsAndPrepare(v)
 			if err != nil {
-				return err
+				return fmt.Errorf("front matter field %q must be a map: %w", k, err)
 			}
 			userParams = vv
 			delete(pcfg.Params, k)

@@ -4,14 +4,19 @@ _comment: Do not remove front matter.
 
 ## Editions
 
-Hugo offers a standard edition with core features, plus extended and extended/deploy editions with more. Use the standard edition unless you need the features below.
+Hugo is available in several editions. Use the standard edition unless you need additional features.
 
-<!-- TODO Remove the transpiler row somewhere around v0.166.0 -->
+Feature|standard|deploy (1)|extended|extended/deploy
+:--|:-:|:-:|:-:|:-:
+Core features|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
+Direct cloud deployment (2)|:x:|:heavy_check_mark:|:x:|:heavy_check_mark:
+LibSass support (3)|:x:|:x:|:heavy_check_mark:|:heavy_check_mark:
 
-Feature|extended edition|extended/deploy edition
-:--|:-:|:-:
-[Transpile Sass to CSS] via embedded LibSass. Note that embedded LibSass was deprecated in v0.153.0 and will be removed in a future release. Use the [Dart Sass] transpiler instead, which is compatible with any edition.|:heavy_check_mark:|:heavy_check_mark:
-Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details].|:x:|:heavy_check_mark:
+(1) {{< new-in v0.159.2 />}}
+
+(2) Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details].
+
+(3) [Transpile Sass to CSS] via embedded LibSass. Note that embedded LibSass was deprecated in v0.153.0 and will be removed in a future release. Use the [Dart Sass] transpiler instead, which is compatible with any edition.
 
 [dart sass]: /functions/css/sass/#dart-sass
 [transpile sass to css]: /functions/css/sass/

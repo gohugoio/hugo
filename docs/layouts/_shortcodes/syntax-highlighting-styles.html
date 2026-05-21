@@ -1,8 +1,11 @@
-{{- /*
+{{/* gotmplfmt-ignore-all */ -}}
+
+{{/*
 Renders a gallery a Chroma syntax highlighting styles.
 
 @example {{% syntax-highlighting-styles %}}
-*/ -}}
+*/}}
+
 {{- $examples := slice }}
 
 {{- /* Example: css */}}
@@ -10,13 +13,13 @@ Renders a gallery a Chroma syntax highlighting styles.
 body {
   font-size: 16px;  /* comment */
 }
-`}}
+` }}
 {{- $examples = $examples | append $example }}
 
 {{- /* Example: html */}}
 {{- $example = dict "lang" "html" "code" `
 <a href="/about.html">Example</a>  <!-- comment -->
-`}}
+` }}
 {{- $examples = $examples | append $example }}
 
 {{- /* Example: go-html-template */}}
@@ -24,7 +27,7 @@ body {
 {{ with $.Page.Params.content }}
   {{ . | $.Page.RenderString }}  {{/* comment */}}
 {{ end }}
-`}}
+` }}
 {{- $examples = $examples | append $example }}
 
 {{- /* Example: javascript */}}
@@ -32,14 +35,14 @@ body {
 if ([1,"one",2,"two"].includes(value)){
   console.log("Number is either 1 or 2.");  // comment
 }
-`}}
+` }}
 {{- $examples := $examples | append $example }}
 
 {{- /* Example: markdown */}}
 {{- $example = dict "lang" "markdown" "code" `
 {{< figure src="kitten.jpg" >}}
 [example](https://example.org "An example")  <!-- comment -->
-`}}
+` }}
 {{- $examples := $examples | append $example }}
 
 {{- /* Example: toml */}}
@@ -47,16 +50,16 @@ if ([1,"one",2,"two"].includes(value)){
 [params]
 bool = true  # comment
 string = 'foo'
-`}}
+` }}
 {{- $examples := $examples | append $example }}
 
 {{- /* Render */}}
 {{- with hugo.Data.docs.chroma.styles }}
-  {{- range $style := . }}
+	{{- range $style := . }}
 
 ### {{ $style }} {class="!mt-7 !mb-6"}{{/* Do not indent. */}}
 
-    {{- range $examples }}
+		{{- range $examples }}
 
 {{ .lang }}{{/* Do not indent. */}}
 {class="text-sm !-mt-3 !-mb-5"}{{/* Do not indent. */}}
@@ -65,6 +68,6 @@ string = 'foo'
 {{- .code | safeHTML -}}{{/* Do not indent. */}}
 ```{{/* Do not indent. */}}
 
-    {{- end }}
-  {{- end }}
+		{{- end }}
+	{{- end }}
 {{- end }}

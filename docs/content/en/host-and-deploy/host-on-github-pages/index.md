@@ -77,10 +77,10 @@ Step 4
     build:
       runs-on: ubuntu-latest
       env:
-        DART_SASS_VERSION: 1.98.0
-        GO_VERSION: 1.26.1
-        HUGO_VERSION: 0.158.0
-        NODE_VERSION: 24.14.0
+        DART_SASS_VERSION: 1.99.0
+        GO_VERSION: 1.26.2
+        HUGO_VERSION: 0.161.1
+        NODE_VERSION: 24.15.0
         TZ: Europe/Oslo
       steps:
         - name: Checkout
@@ -99,7 +99,7 @@ Step 4
             node-version: ${{ env.NODE_VERSION }}
         - name: Setup Pages
           id: pages
-          uses: actions/configure-pages@v5
+          uses: actions/configure-pages@v6
         - name: Create directory for user-specific executable files
           run: |
             mkdir -p "${HOME}/.local"
@@ -150,7 +150,7 @@ Step 4
             path: ${{ runner.temp }}/hugo_cache
             key: ${{ steps.cache-restore.outputs.cache-primary-key }}
         - name: Upload artifact
-          uses: actions/upload-pages-artifact@v3
+          uses: actions/upload-pages-artifact@v5
           with:
             path: ./public
     deploy:
@@ -162,7 +162,7 @@ Step 4
       steps:
         - name: Deploy to GitHub Pages
           id: deployment
-          uses: actions/deploy-pages@v4
+          uses: actions/deploy-pages@v5
   ```
 
 Step 5

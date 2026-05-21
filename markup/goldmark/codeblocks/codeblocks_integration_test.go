@@ -276,6 +276,7 @@ Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 }
 
 // Issue 9571
+// Issue 14909
 func TestAttributesChroma(t *testing.T) {
 	t.Parallel()
 
@@ -288,7 +289,7 @@ title: "p1"
 
 ##   Code
 
-§§§LANGUAGE {style=monokai}
+§§§LANGUAGE {style=monokai class=my-class tabWidth=8}
 echo "p1";
 §§§
 -- layouts/single.html --
@@ -304,8 +305,9 @@ Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 		b.AssertFileContent("public/p1/index.html", expect)
 	}
 
-	testLanguage("bash", "Attributes: map[]|Options: map[style:monokai]|")
-	testLanguage("hugo", "Attributes: map[style:monokai]|Options: map[]|")
+	testLanguage("bash", "Attributes: map[class:my-class]|Options: map[style:monokai tabWidth:8]|")
+	testLanguage("hugo", "Attributes: map[class:my-class]|Options: map[style:monokai tabWidth:8]|")
+	testLanguage("", "Attributes: map[class:my-class]|Options: map[style:monokai tabWidth:8]|")
 }
 
 func TestPanics(t *testing.T) {

@@ -5,20 +5,18 @@ url: /commands/hugo_mod_npm_pack/
 ---
 ## hugo mod npm pack
 
-Experimental: Prepares and writes a composite package.json file for your project
+Merges module Node.js dependencies into an npm workspace
 
 ### Synopsis
 
-Prepares and writes a composite package.json file for your project.
+Merges Node.js dependencies from all Hugo modules into a "packages/hugoautogen" npm workspace.
 
-On first run it creates a "package.hugo.json" in the project root if not already there. This file will be used as a template file
-with the base dependency set.
+The merged dependencies are written to packages/hugoautogen/package.json, and the root package.json
+is updated with a "workspaces" entry pointing to "packages/hugoautogen".
 
-This set will be merged with all "package.hugo.json" files found in the dependency tree, picking the version closest to the project.
+The source entries are read from either package.hugo.json or package.json in the module root, with package.hugo.json taking precedence if both exist.
 
-This command is marked as 'Experimental'. We think it's a great idea, so it's not likely to be
-removed from Hugo, but we need to test this out in "real life" to get a feel of it,
-so this may/will change in future versions of Hugo.
+See [Node.js dependencies](/hugo-modules/nodejs-dependencies/) for more information.
 
 
 ```

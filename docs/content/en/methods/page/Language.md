@@ -39,7 +39,7 @@ weight = 2
 
 {{< new-in 0.153.0 />}}
 
-(`bool`) Reports whether this is the [default language][].
+(`bool`) Reports whether this is the [default language](g).
 
 ```go-html-template
 {{ .Language.IsDefault }} → true
@@ -103,13 +103,6 @@ Use [`Label`](#label) instead.
 
 {{<deprecated-in 0.158.0 />}}
 
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
-[`direction`]: /configuration/languages/#direction
-[`label`]: /configuration/languages/#label
-[`locale`]: /configuration/languages/#locale
-[default language]: /quick-reference/glossary/#default-language
-[details]: /methods/site/language/
-
 ## Example
 
 Use the code below to create a language selector, allowing users to navigate between the different translated versions of the current page.
@@ -133,3 +126,9 @@ Use the code below to create a language selector, allowing users to navigate bet
   </nav>
 {{ end }}
 ```
+
+[`direction`]: /configuration/languages/#direction
+[`label`]: /configuration/languages/#label
+[`locale`]: /configuration/languages/#locale
+[details]: /methods/site/language/
+[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646

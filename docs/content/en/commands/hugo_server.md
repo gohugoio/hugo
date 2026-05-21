@@ -45,13 +45,13 @@ hugo server [command] [flags]
       --forceSyncStatic          copy all files when static is changed.
       --gc                       enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                     help for server
-      --ignoreCache              ignores the cache directory
+      --ignoreCache              ignore the configured file caches
   -l, --layoutDir string         filesystem path to layout directory
       --liveReloadPort int       port for live reloading (i.e. 443 in HTTPS proxy situations) (default -1)
       --minify                   minify any supported output format (HTML, XML etc.)
   -N, --navigateToChanged        navigate to changed content file on live browser reload
       --noChmod                  don't sync permission mode of files
-      --noHTTPCache              prevent HTTP caching
+      --noHTTPCache              disable browser caching of pages served by the embedded web server
       --noTimes                  don't sync modification time of files
   -O, --openBrowser              open the project in a browser after server startup
       --panicOnWarning           panic on first WARNING log

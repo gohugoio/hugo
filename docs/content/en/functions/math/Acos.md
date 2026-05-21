@@ -10,8 +10,6 @@ params:
     signatures: [math.Acos VALUE]
 ---
 
-{{< new-in 0.130.0 />}}
-
 ```go-html-template
 {{ math.Acos 1 }} → 0
 ```

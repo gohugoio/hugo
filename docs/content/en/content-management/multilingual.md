@@ -30,6 +30,9 @@ Their language is assigned according to the language code added as a suffix to t
 By having the same path and base file name, the content pieces are linked together as translated pages.
 
 > [!note]
+> The language code in a file name must be lowercase. For example, use `about.en-us.md` instead of `about.en-US.md`.
+
+> [!note]
 > If a file has no language code, it will be assigned the default language.
 
 ### Translation by content directory

@@ -105,9 +105,7 @@ monolingual|`about`|`https://example.org/about/`
 multilingual|`/about`|`https://example.org/about/`
 multilingual|`about`|`https://example.org/de/about/`
 
-#### Permalinks tokens in front matter
-
-{{< new-in 0.131.0 />}}
+#### Tokens
 
 You can also use tokens when setting the `url` value. This is typically used in `cascade` sections:
 

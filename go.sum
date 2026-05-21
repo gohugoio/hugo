@@ -94,8 +94,8 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapp
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.54.0/go.mod h1:Mf6O40IAyB9zR/1J8nGDDPirZQQPbYJni8Yisy7NTMc=
 github.com/JohannesKaufmann/dom v0.2.0 h1:1bragmEb19K8lHAqgFgqCpiPCFEZMTXzOIEjuxkUfLQ=
 github.com/JohannesKaufmann/dom v0.2.0/go.mod h1:57iSUl5RKric4bUkgos4zu6Xt5LMHUnw3TF1l5CbGZo=
-github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.0 h1:mklaPbT4f/EiDr1Q+zPrEt9lgKAkVrIBtWf33d9GpVA=
-github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.0/go.mod h1:D56Cl9r8M5i3UwAchE+LlLc5hPN3kJtdZNVJn06lSHU=
+github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.1 h1:IpUgup6ucCE4wB59wAP0Y2qSApYjFhSfGVjShUBoVSw=
+github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.1/go.mod h1:KUwy/WLgv9kv2yeBZkPCgDokHzg0M6EdRc17thnbVFw=
 github.com/alecthomas/assert/v2 v2.11.0 h1:2Q9r3ki8+JYXvGsDyBXwH3LcJ+WK5D0gc5E8vS6K3D0=
 github.com/alecthomas/assert/v2 v2.11.0/go.mod h1:Bze95FyfUr7x34QZrjL+XP+0qgp/zg8yS+TtBj1WA3k=
 github.com/alecthomas/chroma/v2 v2.24.1 h1:m5ffpfZbIb++k8AqFEKy9uVgY12xIQtBsQlc6DfZJQM=
@@ -238,8 +238,8 @@ github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHk
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
 github.com/fsnotify/fsnotify v1.9.0/go.mod h1:8jBTzvmWwFyi3Pb8djgCCO5IBqzKJ/Jwo8TRcHyHii0=
-github.com/getkin/kin-openapi v0.137.0 h1:Q3HhawNQV0GfvO2mIYMUBUSEFrDsVlzcYz4VydL9YEo=
-github.com/getkin/kin-openapi v0.137.0/go.mod h1:vUYWaKyMqj7PfTybelXtLuLN9tReS12vxnzMRK+z2GY=
+github.com/getkin/kin-openapi v0.138.0 h1:ebfE0JAmF6AqHrNBy1KO3Fs68K9tPs48HalvLPo7Rv4=
+github.com/getkin/kin-openapi v0.138.0/go.mod h1:vUYWaKyMqj7PfTybelXtLuLN9tReS12vxnzMRK+z2GY=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
@@ -569,8 +569,8 @@ golang.org/x/exp v0.0.0-20200207192155-f17229e696bd/go.mod h1:J/WKrq2StrnmMY6+EH
 golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6/go.mod h1:3jZMyOhIsHpP37uCMkUooju7aAi5cS1Q23tOzKc+0MU=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
-golang.org/x/image v0.39.0 h1:skVYidAEVKgn8lZ602XO75asgXBgLj9G/FE3RbuPFww=
-golang.org/x/image v0.39.0/go.mod h1:sIbmppfU+xFLPIG0FoVUTvyBMmgng1/XAMhQ2ft0hpA=
+golang.org/x/image v0.40.0 h1:Tw4GyDXMo+daZN1znreBRC3VayR1aLFUyUEOLUdW1a8=
+golang.org/x/image v0.40.0/go.mod h1:uIc348UZMSvS5Z65CVZ7iDPaNobNFEPeJ4kbqTOszmA=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=
 golang.org/x/lint v0.0.0-20190227174305-5b3e6a55c961/go.mod h1:wehouNa3lNwaWXcvxsM5YxQ5yQlVC4a0KAMCusXpPoU=
 golang.org/x/lint v0.0.0-20190301231843-5614ed5bae6f/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=

@@ -242,7 +242,7 @@ public/
 
 Consider this example. A documentation site has a team of contributors with access to 20 custom shortcodes. Each shortcode takes several arguments, and requires documentation for the contributors to reference when using them.
 
-Instead of external documentation for the shortcodes, include an "internal" section that is hidden when building the production site.
+Instead of external documentation for the shortcodes, include an `internal` section that is hidden when building the production site.
 
 ```text
 content/

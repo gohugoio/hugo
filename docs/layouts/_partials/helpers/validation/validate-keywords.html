@@ -1,5 +1,4 @@
-{{/* prettier-ignore-start */ -}}
-{{- /*
+{{/*
 We use the front matter keywords field to determine related content. To ensure
 consistency, during site build we validate each keyword against the entries in
 data/keywords.yaml.
@@ -9,14 +8,14 @@ assessment. We anticipate that the number of additions to data/keywords.yaml
 will decrease over time, though the initial implementation will require some
 effort.
 */}}
-{{/* prettier-ignore-end */ -}}
+
 {{- $t := debug.Timer "validateKeywords" }}
 {{- $allowedKeywords := collections.Apply hugo.Data.keywords "strings.ToLower" "." }}
 {{- range $p := site.Pages }}
-  {{- range .Params.keywords }}
-    {{- if not (in $allowedKeywords (lower .)) }}
-      {{- warnf "The word or phrase %q is not in the keywords data file. See %s." . $p.Page.String }}
-    {{- end }}
-  {{- end }}
+	{{- range .Params.keywords }}
+		{{- if not (in $allowedKeywords (lower .)) }}
+			{{- warnf "The word or phrase %q is not in the keywords data file. See %s." . $p.Page.String }}
+		{{- end }}
+	{{- end }}
 {{- end }}
 {{- $t.Stop }}
