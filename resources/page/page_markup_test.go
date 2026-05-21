@@ -38,6 +38,9 @@ func TestExtractSummaryFromHTML(t *testing.T) {
 		{media.Builtin.MarkdownType, "<p>First paragraph</p>", false, 10, "<p>First paragraph</p>", ""},
 		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p>", false, 2, "<p>First paragraph</p>", "<p>Second paragraph</p>"},
 		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p><p>Third paragraph</p>", false, 3, "<p>First paragraph</p><p>Second paragraph</p>", "<p>Third paragraph</p>"},
+		{media.Builtin.MarkdownType, "<blockquote>\n<p>foo</p>\n</blockquote>\n<p>bar</p>", false, 1, "<blockquote>\n<p>foo</p>\n</blockquote>", "<p>bar</p>"},
+		{media.Builtin.MarkdownType, "<ul>\n<li>\n<p>item 1 line 1</p>\n<p>item 1 line 2</p>\n</li>\n</ul>\n<p>bar</p>", false, 1, "<ul>\n<li>\n<p>item 1 line 1</p>\n<p>item 1 line 2</p>\n</li>\n</ul>", "<p>bar</p>"},
+		{media.Builtin.HTMLType, "<div><p>foo</p></div><p>bar</p>", false, 1, "<div><p>foo</p></div>", "<p>bar</p>"},
 		{media.Builtin.AsciiDocType, "<div><p>First paragraph</p></div><div><p>Second paragraph</p></div>", false, 2, "<div><p>First paragraph</p></div>", "<div><p>Second paragraph</p></div>"},
 		{media.Builtin.MarkdownType, "<p>这是中文，全中文</p><p>a这是中文，全中文</p>", true, 5, "<p>这是中文，全中文</p>", "<p>a这是中文，全中文</p>"},
 	}

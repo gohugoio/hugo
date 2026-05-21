@@ -784,6 +784,36 @@ Content: {{ .Content }}|
 		"Content: <p>This is <strong>summary</strong>.")
 }
 
+// Issue 14044
+func TestSummaryAutoBalancesContainerTags(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+summaryLength = 1
+-- content/p1.md --
+---
+title: p1
+---
+> foo
+-- content/p2.md --
+---
+title: p2
+---
+- item 1 line 1
+
+  item 1 line 2
+-- layouts/single.html --
+|{{ .Summary }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "|<blockquote>\n<p>foo</p>\n</blockquote>|")
+	b.AssertFileContent("public/p2/index.html", "|<ul>\n<li>\n<p>item 1 line 1</p>\n<p>item 1 line 2</p>\n</li>\n</ul>|")
+}
+
 // #2973
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
 	htesting.SkipSlowTestUnlessCI(t)
