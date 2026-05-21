@@ -94,21 +94,50 @@ func (ns *Namespace) Emojify(s any) (template.HTML, error) {
 	return template.HTML(helpers.Emojify([]byte(ss))), nil
 }
 
-// Highlight returns a copy of s as an HTML string with syntax
+// Highlight returns a copy of CODE as an HTML string with syntax
 // highlighting applied.
-func (ns *Namespace) Highlight(s any, lang string, opts ...any) (template.HTML, error) {
-	ss, err := cast.ToStringE(s)
+//
+//	transform.Highlight CODE [LANG] [OPTIONS]
+//
+// LANG is optional; it can also be set via the type option in OPTIONS, which
+// makes this work the same way as HighlightCodeBlock.
+func (ns *Namespace) Highlight(s any, args ...any) (template.HTML, error) {
+	code, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	var optsv any
-	if len(opts) > 0 {
-		optsv = opts[0]
+	var lang string
+	var opts any
+
+	switch len(args) {
+	case 0:
+	case 1:
+		// A single argument is either OPTIONS (a map or option string) or LANG.
+		if _, ok := args[0].(map[string]any); ok {
+			opts = args[0]
+		} else {
+			var arg string
+			if arg, err = cast.ToStringE(args[0]); err != nil {
+				return "", err
+			}
+			if strings.Contains(arg, "=") || strings.Contains(arg, ",") {
+				opts = arg
+			} else {
+				lang = arg
+			}
+		}
+	case 2:
+		if lang, err = cast.ToStringE(args[0]); err != nil {
+			return "", err
+		}
+		opts = args[1]
+	default:
+		return "", errors.New("transform.Highlight: expects at most 3 arguments")
 	}
 
 	hl := ns.deps.ContentSpec.Converters.GetHighlighter()
-	highlighted, err := hl.Highlight(ss, lang, optsv)
+	highlighted, err := hl.Highlight(code, lang, opts)
 	if err != nil {
 		return "", err
 	}

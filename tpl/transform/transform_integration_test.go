@@ -103,6 +103,34 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b.Assert(err.Error(), qt.Contains, "error calling highlight: invalid Highlight option: 0")
 }
 
+// transform.Highlight: LANG is optional and may be set via the type option, and
+// the code option overrides CODE — consistent with transform.HighlightCodeBlock.
+// See issue 11872.
+func TestHighlightTypeAndCodeOptions(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[markup.highlight]
+noClasses = false
+-- layouts/home.html --
+lang:{{ transform.Highlight "i = 42" "go" }}
+type:{{ transform.Highlight "i = 42" (dict "type" "go") }}
+code:{{ transform.Highlight "" (dict "type" "go" "code" "i = 42") }}
+`
+
+	b := hugolib.Test(t, files)
+
+	want := `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">42</span></span></span></code></pre></div>`
+
+	b.AssertFileContent("public/index.html",
+		"lang:"+want,
+		"type:"+want,
+		"code:"+want,
+	)
+}
+
 // Issue #11884
 func TestUnmarshalCSVLazyDecoding(t *testing.T) {
 	t.Parallel()
