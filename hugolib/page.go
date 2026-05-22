@@ -475,7 +475,7 @@ func (ps *pageState) String() string {
 // IsTranslated returns whether this content file is translated to
 // other language(s).
 func (ps *pageState) IsTranslated() bool {
-	return len(ps.Translations()) > 0
+	return len(ps.AllTranslations()) > 1
 }
 
 // TranslationKey returns the key used to identify a translation of this content.
