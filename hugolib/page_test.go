@@ -1991,3 +1991,28 @@ func content(c resource.ContentProvider) string {
 	}
 	return ccs
 }
+
+func BenchmarkIsTranslatedOneLanguage(b *testing.B) {
+	// Set it reasonably high to get a balance between cached and uncached calls to IsTranslated.
+	const numPages = 3000
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+`
+	for i := range numPages {
+		files += fmt.Sprintf(`
+-- content/sect/p%d.md --`, i)
+	}
+
+	bb := Test(b, files, TestOptSkipRender())
+	p := bb.H.Sites[0].RegularPages()
+
+	b.ResetTimer()
+
+	for i := range b.N {
+		if p[i%numPages].IsTranslated() {
+			b.Fatalf("Page %d should not be translated", i)
+		}
+	}
+}
