@@ -2376,6 +2376,7 @@ tpl:
         - isSet
         - isset
         Args:
+        - ctx
         - c
         - key
         Description: |-

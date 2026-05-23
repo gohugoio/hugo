@@ -653,3 +653,20 @@ All.
 		}
 	})
 }
+
+// Issue 11794
+func TestIsSetUnsupportedTypeWarningIncludesTemplatePath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+{{ $s := "hello" }}
+{{ if isset $s "anyKey" }}A{{ else }}B{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWarn())
+
+	b.AssertLogContains(`WARN  calling IsSet with unsupported type "string" (string) in "/layouts/home.html" will always return false.`)
+}

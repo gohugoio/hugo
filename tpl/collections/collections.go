@@ -20,17 +20,20 @@ import (
 	"errors"
 	"fmt"
 	"math/rand/v2"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
 )
@@ -329,7 +332,7 @@ func (ns *Namespace) Group(key any, items any) (any, error) {
 
 // IsSet returns whether a given array, channel, slice, or map in c has the given key
 // defined.
-func (ns *Namespace) IsSet(c any, key any) (bool, error) {
+func (ns *Namespace) IsSet(ctx context.Context, c any, key any) (bool, error) {
 	av := reflect.ValueOf(c)
 	kv := reflect.ValueOf(key)
 
@@ -347,7 +350,15 @@ func (ns *Namespace) IsSet(c any, key any) (bool, error) {
 			return av.MapIndex(kv).IsValid(), nil
 		}
 	default:
-		ns.deps.Log.Warnf("calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), c)
+		var where string
+		if currentTpl := tpl.Context.CurrentTemplate.Get(ctx); currentTpl != nil {
+			if f := currentTpl.Filename(); f != "" {
+				where = fmt.Sprintf(" in %q", filepath.ToSlash(f))
+			} else if n := currentTpl.Name(); n != "" {
+				where = fmt.Sprintf(" in template %q", n)
+			}
+		}
+		ns.deps.Log.Warnidf(constants.WarnIsSetUnsupportedType, "calling IsSet with unsupported type %q (%T)%s will always return false.", av.Kind(), c, where)
 	}
 
 	return false, nil

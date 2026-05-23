@@ -20,6 +20,7 @@ const (
 	WarnGoldmarkRawHTML          = "warning-goldmark-raw-html"
 	WarnPartialSuperfluousPrefix = "warning-partial-superfluous-prefix"
 	WarnHomePageIsLeafBundle     = "warning-home-page-is-leaf-bundle"
+	WarnIsSetUnsupportedType     = "warning-isset-unsupported-type"
 )
 
 // Field/method names with special meaning.

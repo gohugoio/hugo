@@ -460,7 +460,7 @@ func TestIsSet(t *testing.T) {
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test)
 
-		result, err := ns.IsSet(test.a, test.key)
+		result, err := ns.IsSet(context.Background(), test.a, test.key)
 		if test.isErr {
 			continue
 		}
