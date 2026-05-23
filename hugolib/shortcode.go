@@ -27,6 +27,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bep/helpers/maphelpers"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/types"
@@ -286,24 +287,18 @@ type shortcodeParseInfo struct {
 	shortcodes []*shortcode
 
 	// All the shortcode names in this set.
-	nameSetMu sync.RWMutex
-	nameSet   map[string]bool
+	nameSet *maphelpers.ConcurrentSet[string]
 
 	// Configuration
 	enableInlineShortcodes bool
 }
 
 func (s *shortcodeParseInfo) addName(name string) {
-	s.nameSetMu.Lock()
-	defer s.nameSetMu.Unlock()
-	s.nameSet[name] = true
+	s.nameSet.Add(name)
 }
 
 func (s *shortcodeParseInfo) hasName(name string) bool {
-	s.nameSetMu.RLock()
-	defer s.nameSetMu.RUnlock()
-	_, ok := s.nameSet[name]
-	return ok
+	return s.nameSet.Has(name)
 }
 
 func newShortcodeHandler(filename string, d *deps.Deps) *shortcodeParseInfo {
@@ -312,7 +307,7 @@ func newShortcodeHandler(filename string, d *deps.Deps) *shortcodeParseInfo {
 		firstTemplateStore:     d.TemplateStore,
 		enableInlineShortcodes: d.ExecHelper.Sec().EnableInlineShortcodes,
 		shortcodes:             make([]*shortcode, 0, 4),
-		nameSet:                make(map[string]bool),
+		nameSet:                maphelpers.NewConcurrentSet[string](),
 	}
 
 	return sh

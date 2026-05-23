@@ -18,6 +18,7 @@ import (
 	"path"
 	"sync"
 
+	"github.com/bep/helpers/maphelpers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/internal/warpc"
@@ -88,7 +89,7 @@ func NewSpec(
 			incr:       incr,
 			FileCaches: fileCaches,
 			PostBuildAssets: &PostBuildAssets{
-				PostProcessResources: make(map[string]postpub.PostPublishedResource),
+				PostProcessResources: maphelpers.NewConcurrentMap[string, postpub.PostPublishedResource](),
 				JSConfigBuilder:      jsconfig.NewBuilder(),
 			},
 		}
@@ -155,8 +156,7 @@ type SpecCommon struct {
 }
 
 type PostBuildAssets struct {
-	postProcessMu        sync.RWMutex
-	PostProcessResources map[string]postpub.PostPublishedResource
+	PostProcessResources *maphelpers.ConcurrentMap[string, postpub.PostPublishedResource]
 	JSConfigBuilder      *jsconfig.Builder
 }
 

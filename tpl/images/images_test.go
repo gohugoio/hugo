@@ -113,7 +113,8 @@ func TestNSConfig(t *testing.T) {
 
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)
-		c.Assert(len(ns.cache), qt.Not(qt.Equals), 0)
+		_, cached := ns.cache.Lookup(sp)
+		c.Assert(cached, qt.IsTrue)
 	}
 }
 

@@ -25,27 +25,11 @@ type transformationKeyer interface {
 // PostProcess wraps the given Resource for later processing.
 func (spec *Spec) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
 	key := r.(transformationKeyer).TransformationKey()
-	spec.postProcessMu.RLock()
-	result, found := spec.PostProcessResources[key]
-	spec.postProcessMu.RUnlock()
-	if found {
+	return spec.PostProcessResources.GetOrCreate(key, func() (postpub.PostPublishedResource, error) {
+		result := postpub.NewPostPublishResource(spec.incr.Incr(), r)
+		if result == nil {
+			panic("got nil result")
+		}
 		return result, nil
-	}
-
-	spec.postProcessMu.Lock()
-	defer spec.postProcessMu.Unlock()
-
-	// Double check
-	result, found = spec.PostProcessResources[key]
-	if found {
-		return result, nil
-	}
-
-	result = postpub.NewPostPublishResource(spec.incr.Incr(), r)
-	if result == nil {
-		panic("got nil result")
-	}
-	spec.PostProcessResources[key] = result
-
-	return result, nil
+	})
 }

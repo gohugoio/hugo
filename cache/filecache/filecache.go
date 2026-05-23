@@ -31,6 +31,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/BurntSushi/locker"
+	"github.com/bep/helpers/maphelpers"
 	"github.com/spf13/afero"
 )
 
@@ -56,8 +57,7 @@ type Cache struct {
 }
 
 type lockTracker struct {
-	seenMu sync.RWMutex
-	seen   map[string]struct{}
+	seen *maphelpers.ConcurrentSet[string]
 
 	*locker.Locker
 }
@@ -65,16 +65,7 @@ type lockTracker struct {
 // Lock tracks the ids in use. We use this information to do garbage collection
 // after a Hugo build.
 func (l *lockTracker) Lock(id string) {
-	l.seenMu.RLock()
-	if _, seen := l.seen[id]; !seen {
-		l.seenMu.RUnlock()
-		l.seenMu.Lock()
-		l.seen[id] = struct{}{}
-		l.seenMu.Unlock()
-	} else {
-		l.seenMu.RUnlock()
-	}
-
+	l.seen.AddIfAbsent(id)
 	l.Locker.Lock(id)
 }
 
@@ -92,7 +83,7 @@ func NewCache(fs afero.Fs, cfg FileCacheConfig) *Cache {
 
 	return &Cache{
 		Fs:          fs,
-		entryLocker: &lockTracker{Locker: locker.NewLocker(), seen: make(map[string]struct{})},
+		entryLocker: &lockTracker{Locker: locker.NewLocker(), seen: maphelpers.NewConcurrentSet[string]()},
 		cfg:         cfg,
 	}
 }
