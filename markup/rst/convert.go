@@ -113,15 +113,15 @@ func (c *rstConverter) parseArgs() []string {
 		cfg = c.cfg.MarkupConfig().RST
 	}
 
-	if cfg.SyntaxHighlight != rst_config.CliDefault.SyntaxHighlight && !rst_config.AllowedSyntaxHighlight[cfg.SyntaxHighlight] {
+	if cfg.Highlight.ClassNaming != rst_config.CliDefault.Highlight.ClassNaming && !rst_config.AllowedClassNaming[cfg.Highlight.ClassNaming] {
 		if c.cfg.Logger != nil {
 			c.cfg.Logger.Errorf(
 				"Unsupported reStructuredText value %q for option %q was passed in and will be ignored.",
-				cfg.SyntaxHighlight,
-				"syntaxHighlight",
+				cfg.Highlight.ClassNaming,
+				"highlight.classNaming",
 			)
 		}
-		cfg.SyntaxHighlight = rst_config.CliDefault.SyntaxHighlight
+		cfg.Highlight.ClassNaming = rst_config.CliDefault.Highlight.ClassNaming
 	}
 
 	return parseArgs(cfg)
@@ -130,8 +130,8 @@ func (c *rstConverter) parseArgs() []string {
 func parseArgs(cfg rst_config.Config) []string {
 	args := []string{"--leave-comments", "--initial-header-level=2"}
 
-	if cfg.SyntaxHighlight != rst_config.CliDefault.SyntaxHighlight && rst_config.AllowedSyntaxHighlight[cfg.SyntaxHighlight] {
-		args = append(args, "--syntax-highlight="+cfg.SyntaxHighlight)
+	if cfg.Highlight.ClassNaming != rst_config.CliDefault.Highlight.ClassNaming && rst_config.AllowedClassNaming[cfg.Highlight.ClassNaming] {
+		args = append(args, "--syntax-highlight="+cfg.Highlight.ClassNaming)
 	}
 
 	return args

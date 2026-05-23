@@ -22,7 +22,7 @@ import (
 	"github.com/gohugoio/hugo/markup/rst"
 )
 
-func TestRSTSyntaxHighlightConfigIssue5349(t *testing.T) {
+func TestRSTHighlightClassNamingConfigIssue5349(t *testing.T) {
 	if !rst.Supports() {
 		t.Skip("rst not installed")
 	}
@@ -38,8 +38,8 @@ baseURL = "https://example.org"
 disableKinds = ["home", "section", "taxonomy", "term", "rss", "sitemap"]
 [security.exec]
 allow = [RST_EXEC_ALLOW]
-[markup.rst]
-syntaxHighlight = 'none'
+[markup.rst.highlight]
+classNaming = 'none'
 -- layouts/page.html --
 {{ .Content }}
 -- content/p.rst --

@@ -40,7 +40,9 @@ func TestConfig(t *testing.T) {
 				"extensions":           []string{"asciidoctor-html5s"},
 			},
 			"rst": map[string]any{
-				"syntaxHighlight": "short",
+				"highlight": map[string]any{
+					"classNaming": "short",
+				},
 			},
 		})
 
@@ -53,7 +55,7 @@ func TestConfig(t *testing.T) {
 
 		c.Assert(conf.AsciiDocExt.WorkingFolderCurrent, qt.Equals, true)
 		c.Assert(conf.AsciiDocExt.Extensions[0], qt.Equals, "asciidoctor-html5s")
-		c.Assert(conf.RST.SyntaxHighlight, qt.Equals, "short")
+		c.Assert(conf.RST.Highlight.ClassNaming, qt.Equals, "short")
 	})
 
 	// We changed the typographer extension config from a bool to a struct in 0.112.0.

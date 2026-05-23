@@ -1396,7 +1396,8 @@ config:
       tabWidth: 4
       wrapperClass: highlight
     rst:
-      syntaxHighlight: long
+      highlight:
+        classNaming: long
     tableOfContents:
       endLevel: 3
       ordered: false

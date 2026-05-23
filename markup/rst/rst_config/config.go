@@ -17,15 +17,19 @@ package rst_config
 var (
 	// Default holds Hugo's default reStructuredText configuration.
 	Default = Config{
-		SyntaxHighlight: "long",
+		Highlight: HighlightConfig{
+			ClassNaming: "long",
+		},
 	}
 
 	// CliDefault holds rst2html CLI defaults.
 	CliDefault = Config{
-		SyntaxHighlight: "long",
+		Highlight: HighlightConfig{
+			ClassNaming: "long",
+		},
 	}
 
-	AllowedSyntaxHighlight = map[string]bool{
+	AllowedClassNaming = map[string]bool{
 		"long":  true,
 		"short": true,
 		"none":  true,
@@ -34,6 +38,11 @@ var (
 
 // Config configures reStructuredText.
 type Config struct {
-	// SyntaxHighlight sets Docutils' Pygments token names: "long", "short", or "none".
-	SyntaxHighlight string
+	Highlight HighlightConfig
+}
+
+// HighlightConfig configures reStructuredText code block highlighting.
+type HighlightConfig struct {
+	// ClassNaming sets the naming convention for CSS classes generated during syntax highlighting.
+	ClassNaming string
 }

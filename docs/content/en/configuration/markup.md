@@ -312,8 +312,8 @@ This is the default configuration for the reStructuredText renderer:
 
 ### reStructuredText settings explained
 
-syntaxHighlight
-: (`string`) The token name set passed to Docutils' `--syntax-highlight` option, one of `long`, `short`, or `none`. Default is `long`.
+highlight.classNaming
+: (`string`) The naming convention for CSS classes generated during syntax highlighting, one of `long`, `short`, or `none`. Default is `long`.
 
   To highlight code blocks, Docutils must be able to import [Pygments].
 

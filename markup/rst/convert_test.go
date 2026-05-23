@@ -74,7 +74,11 @@ func TestParseArgs(t *testing.T) {
 		c.Run(test.name, func(c *qt.C) {
 			c.Parallel()
 
-			c.Assert(parseArgs(rst_config.Config{SyntaxHighlight: test.value}), qt.DeepEquals, test.expected)
+			c.Assert(parseArgs(rst_config.Config{
+				Highlight: rst_config.HighlightConfig{
+					ClassNaming: test.value,
+				},
+			}), qt.DeepEquals, test.expected)
 		})
 	}
 }
