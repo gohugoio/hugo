@@ -88,7 +88,7 @@ An example disclosure:
 
 Also, When using AI assistance:
 
-* We epxect contributors to manually verify that the state of the pull request is OK (e.g. that the CLI is signed).
+* We expect contributors to manually verify that the state of the pull request is OK (e.g. that the CLI is signed).
 * We expect contributors to understand the code that is produced and be able to answer critical questions about it
 
 ### Git Commit Message Guidelines
