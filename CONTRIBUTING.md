@@ -1,5 +1,3 @@
->**Note:** We would appreciate if you hold on with any big refactoring (like renaming deprecated Go packages), mainly because of potential for extra merge work for future coming in in the near future.
-
 # Contributing to Hugo
 
 We welcome contributions to Hugo of any kind including documentation, themes,
