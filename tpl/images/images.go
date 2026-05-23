@@ -20,8 +20,8 @@ import (
 	"image"
 	"path"
 	"path/filepath"
-	"sync"
 
+	"github.com/bep/helpers/maphelpers"
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugio"
@@ -52,7 +52,7 @@ func New(d *deps.Deps) *Namespace {
 	return &Namespace{
 		readFileFs:   readFileFs,
 		Filters:      &images.Filters{},
-		cache:        map[string]image.Config{},
+		cache:        maphelpers.NewConcurrentMap[string, image.Config](),
 		deps:         d,
 		createClient: create.New(d.ResourceSpec),
 	}
@@ -62,8 +62,7 @@ func New(d *deps.Deps) *Namespace {
 type Namespace struct {
 	*images.Filters
 	readFileFs   afero.Fs
-	cacheMu      sync.RWMutex
-	cache        map[string]image.Config
+	cache        *maphelpers.ConcurrentMap[string, image.Config]
 	deps         *deps.Deps
 	createClient *create.Client
 }
@@ -80,34 +79,19 @@ func (ns *Namespace) Config(path any) (image.Config, error) {
 		return image.Config{}, errors.New("config needs a filename")
 	}
 
-	// Check cache for image config.
-	ns.cacheMu.RLock()
-	config, ok := ns.cache[filename]
-	ns.cacheMu.RUnlock()
+	return ns.cache.GetOrCreate(filename, func() (image.Config, error) {
+		f, err := ns.readFileFs.Open(filename)
+		if err != nil {
+			return image.Config{}, err
+		}
+		defer f.Close()
 
-	if ok {
-		return config, nil
-	}
+		ext := filepath.Ext(filename)
+		format, _ := images.ImageFormatFromExt(ext)
 
-	f, err := ns.readFileFs.Open(filename)
-	if err != nil {
-		return image.Config{}, err
-	}
-	defer f.Close()
-
-	ext := filepath.Ext(filename)
-	format, _ := images.ImageFormatFromExt(ext)
-
-	config, _, err = ns.deps.ResourceSpec.Imaging.Codec.DecodeConfig(format, f)
-	if err != nil {
+		config, _, err := ns.deps.ResourceSpec.Imaging.Codec.DecodeConfig(format, f)
 		return config, err
-	}
-
-	ns.cacheMu.Lock()
-	ns.cache[filename] = config
-	ns.cacheMu.Unlock()
-
-	return config, nil
+	})
 }
 
 // Filter applies the given filters to the image given as the last element in args.
