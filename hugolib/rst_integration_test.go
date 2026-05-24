@@ -14,11 +14,13 @@
 package hugolib
 
 import (
+	"os/exec"
 	"runtime"
 	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/markup/rst"
 )
 
@@ -32,14 +34,14 @@ func TestRSTHighlightClassNamingConfigIssue5349(t *testing.T) {
 		execAllow = `'^python(\.exe)?$'`
 	}
 
-	files := strings.ReplaceAll(`
+	filesTemplate := strings.ReplaceAll(`
 -- hugo.toml --
 baseURL = "https://example.org"
 disableKinds = ["home", "section", "taxonomy", "term", "rss", "sitemap"]
 [security.exec]
 allow = [RST_EXEC_ALLOW]
 [markup.rst.highlight]
-classNaming = 'none'
+classNaming = 'CLASS_NAMING'
 -- layouts/page.html --
 {{ .Content }}
 -- content/p.rst --
@@ -52,10 +54,42 @@ title: p
    if true {}
 `, "RST_EXEC_ALLOW", execAllow)
 
-	b := Test(t, files)
-	content := b.FileContent("public/p/index.html")
-	b.Assert(content, qt.Contains, `if true {}`)
-	b.Assert(content, qt.Not(qt.Contains), `Pygments package not found`)
-	b.Assert(content, qt.Not(qt.Contains), `<span class="keyword">if</span>`)
-	b.Assert(content, qt.Not(qt.Contains), `<span class="k">if</span>`)
+	for _, test := range []struct {
+		name             string
+		classNaming      string
+		requiresPygments bool
+	}{
+		{"None", "none", false},
+		{"Short", "short", true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if test.requiresPygments && !supportsPygments() {
+				qt.Assert(t, htesting.IsGitHubAction(), qt.Equals, false, qt.Commentf("Pygments not installed"))
+				t.Skip("Pygments not installed")
+			}
+
+			files := strings.ReplaceAll(filesTemplate, "CLASS_NAMING", test.classNaming)
+			b := Test(t, files)
+			content := b.FileContent("public/p/index.html")
+			b.Assert(content, qt.Not(qt.Contains), `Pygments package not found`)
+
+			if test.classNaming == "none" {
+				b.Assert(content, qt.Contains, `if true {}`)
+				b.Assert(content, qt.Not(qt.Contains), `<span class="keyword">if</span>`)
+				b.Assert(content, qt.Not(qt.Contains), `<span class="k">if</span>`)
+			} else {
+				b.Assert(content, qt.Contains, `<span class="k">if</span>`)
+				b.Assert(content, qt.Not(qt.Contains), `<span class="keyword">if</span>`)
+			}
+		})
+	}
+}
+
+func supportsPygments() bool {
+	for _, python := range []string{"python3", "python"} {
+		if err := exec.Command(python, "-c", "import pygments").Run(); err == nil {
+			return true
+		}
+	}
+	return false
 }
