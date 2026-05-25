@@ -80,6 +80,13 @@ func (g *gitInfo) gitInfoFromModuleRepo(p page.Page, mod modules.Module, repo *g
 	filePath := strings.TrimPrefix(filename, modDir)
 	filePath = strings.TrimPrefix(filePath, "/")
 
+	// If the module's go.mod lives in a subdirectory of the git repo,
+	// the blobless clone keys files by their path relative to the repo root,
+	// so we need to prepend the subdir.
+	if subdir := strings.Trim(mod.Origin().Subdir, "/"); subdir != "" {
+		filePath = subdir + "/" + filePath
+	}
+
 	gi, found := repo.Files[filePath]
 	if !found {
 		return nil

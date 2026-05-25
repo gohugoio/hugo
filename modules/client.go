@@ -991,6 +991,7 @@ type goModule struct {
 type goModuleOrigin struct {
 	VCS    string // version control system, e.g. "git"
 	URL    string // repository URL, e.g. "https://github.com/bep/hugo-testing-git-versions"
+	Subdir string // subdirectory within the repo where the module lives, e.g. "site"
 	Hash   string // commit hash
 	TagSum string
 	Ref    string // e.g. "refs/tags/v3.0.1"

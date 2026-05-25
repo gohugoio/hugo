@@ -86,10 +86,11 @@ type Module interface {
 
 // ModuleOrigin contains origin info for a Go module.
 type ModuleOrigin struct {
-	VCS  string // version control system, e.g. "git"
-	URL  string // repository URL, e.g. "https://github.com/bep/hugo-testing-git-versions"
-	Hash string // commit hash
-	Ref  string // e.g. "refs/tags/v3.0.1"
+	VCS    string // version control system, e.g. "git"
+	URL    string // repository URL, e.g. "https://github.com/bep/hugo-testing-git-versions"
+	Subdir string // subdirectory within the repo where the module lives, e.g. "site"
+	Hash   string // commit hash
+	Ref    string // e.g. "refs/tags/v3.0.1"
 }
 
 func (o ModuleOrigin) IsZero() bool {
@@ -240,9 +241,10 @@ func (m *moduleAdapter) Origin() ModuleOrigin {
 		return ModuleOrigin{}
 	}
 	return ModuleOrigin{
-		VCS:  m.gomod.Origin.VCS,
-		URL:  m.gomod.Origin.URL,
-		Hash: m.gomod.Origin.Hash,
-		Ref:  m.gomod.Origin.Ref,
+		VCS:    m.gomod.Origin.VCS,
+		URL:    m.gomod.Origin.URL,
+		Subdir: m.gomod.Origin.Subdir,
+		Hash:   m.gomod.Origin.Hash,
+		Ref:    m.gomod.Origin.Ref,
 	}
 }
