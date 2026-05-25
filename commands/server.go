@@ -1137,7 +1137,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 					logger.Println("Syncing", relPath, "to", publishDir)
 
 					if err := syncer.Sync(relPath, relPath); err != nil {
-						c.r.logger.Errorln(err)
+						c.r.logger.Errorln(wrapStaticSyncError(err))
 					}
 				} else {
 					c.r.logger.Errorln(err)
@@ -1149,7 +1149,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			// For all other event operations Hugo will sync static.
 			logger.Println("Syncing", relPath, "to", publishDir)
 			if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-				c.r.logger.Errorln(err)
+				c.r.logger.Errorln(wrapStaticSyncError(err))
 			}
 		}
 

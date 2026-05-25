@@ -456,7 +456,7 @@ func (c *hugoBuilder) copyStatic() (map[string]uint64, error) {
 	if err == nil || herrors.IsNotExist(err) {
 		return m, nil
 	}
-	return m, err
+	return m, wrapStaticSyncError(err)
 }
 
 func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
