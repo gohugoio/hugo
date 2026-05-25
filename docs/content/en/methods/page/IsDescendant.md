@@ -28,7 +28,7 @@ content/
 └── _index.md
 ```
 
-When rendering the "auctions" page:
+When rendering the `auctions` page:
 
 ```go-html-template
 {{ with .Site.GetPage "/" }}
@@ -69,7 +69,7 @@ Inside of the `with` block, the [context](g) (the dot) is the section `Page` obj
 {{ end }}
 ```
 
-The result would be wrong when rendering the "auction-1" page because we are comparing the section page to itself.
+The result would be wrong when rendering the `auction-1` page because we are comparing the section page to itself.
 
 > [!note]
 > Use the `$` to get the context passed into the template.

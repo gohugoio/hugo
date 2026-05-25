@@ -339,3 +339,171 @@ TR-IMAGE
 	b.AssertFileContent("public/p1/index.html", "<img src=\"img.jpg\" alt=\"alt\">")
 	b.AssertFileContent("public/tr/p1/index.html", "TR-IMAGE")
 }
+
+// Hooks:
+// table
+// passthrough
+// link
+// image
+// heading
+// codeblock
+// blockquote
+func TestRenderHooksPosition(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[markup]
+[markup.goldmark]
+[markup.goldmark.extensions]
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+block = [['\[', '\]'], ['$$', '$$']]
+inline = [['\(', '\)']]
+-- layouts/_markup/render-table.html --
+HOOK_CONTENT
+-- layouts/_markup/render-passthrough.html --
+HOOK_CONTENT
+-- layouts/_markup/render-link.html --
+HOOK_CONTENT
+-- layouts/_markup/render-image.html --
+HOOK_CONTENT
+-- layouts/_markup/render-heading.html --
+HOOK_CONTENT
+-- layouts/_markup/render-codeblock.html --
+HOOK_CONTENT
+-- layouts/_markup/render-blockquote.html --
+HOOK_CONTENT
+-- layouts/shortcodes/myheading.html --
+{{ $s := .Get 0 -}}
+
+
+      {{ printf "## %s" $s }}
+-- layouts/shortcodes/mylink.html --
+{{ $s := .Get 0 -}}
+
+A
+
+B
+
+  {{ printf "[%s](%s)" $s $s }}
+
+
+C
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+[p1](/p1)
+ [p2](/p2)
+7
+8
+{{% mylink "p3" %}}
+10
+11
+12
+## My Heading 2
+14
+### My Heading 3
+16
+{{% myheading "h4" %}}
+18
+## Table 1
+20
+| Month | Savings |
+| -------- | ------- |
+| January | $250 |
+| February | $80 |
+| March | $420 |
+
+> blockquote 1
+
+Foo.
+
+> blockquote 2
+
+
+### Code block
+
+§§§go
+fmt.Println("hello")
+§§§
+
+## PassThrough
+
+\[block1\]
+
+ \[block2\]
+
+This is an \(inline\) passthrough element with opening and closing inline delimiters.
+
+
+`
+
+	files = strings.ReplaceAll(files, "HOOK_CONTENT", `
+{{ $pos := .Position }}
+{{ printf "%T" . }}|{{ path.Base $pos.Filename }}|{{ printf "%d:%d" $pos.LineNumber $pos.ColumnNumber }}|{{ $.Ordinal }}|
+`)
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"goldmark.linkContext|p1.md|5:1|0|",
+		"goldmark.linkContext|p1.md|6:2|1|",
+		"goldmark.linkContext|p1.md|9:1|2|",
+		"goldmark.headingContext|p1.md|13:1|0|",
+		"goldmark.headingContext|p1.md|15:1|1|",
+		"goldmark.headingContext|p1.md|17:1|2|",
+		"tables.tableContext|p1.md|20:1|0|",
+		"blockquotes.blockquoteContext|p1.md|27:1|0|",
+		"blockquotes.blockquoteContext|p1.md|31:1|1|",
+		"codeblocks.codeBlockContext|p1.md|36:1|0|",
+		"passthrough.passthroughContext|p1.md|42:1|0|",
+		"passthrough.passthroughContext|p1.md|44:2|1|",
+		"passthrough.passthroughContext|p1.md|46:12|2|",
+	)
+}
+
+func TestRenderHooksPositionRenderString(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/a.txt --
+
+## Heading
+
+[link](b.txt)
+
+-- assets/b.txt --
+{{% myshortcode %}}
+{{< myshortcode >}}
+
+
+
+  [link](a.txt)
+-- layouts/shortcodes/myshortcode.html --
+My Shortcode.
+# This is a heading in the shortcode.
+Some text.
+-- layouts/_markup/render-link.html --
+{{ $pos := .Position }}
+{{ printf "%T" . }}|{{ path.Join $pos.Filename }}|{{ printf "%d:%d" $pos.LineNumber $pos.ColumnNumber }}|{{ $.Ordinal }}|
+-- layouts/all.html --
+{{ $a := resources.Get "a.txt" }}
+a: {{ .RenderString $a.Content }}
+b: {{ .RenderString (resources.Get "b.txt").Content }}
+-- content/p1.md --
+
+
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		"/content/p1.md (rendered from string)|4:1|0|",
+		"/content/p1.md (rendered from string)|6:3|0|",
+	)
+}

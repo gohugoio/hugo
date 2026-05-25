@@ -532,6 +532,10 @@ func newHugoSites(
 		opts.GoVersion = bi.GoVersion
 	}
 
+	if opts.BuildDate == "" {
+		opts.BuildDate = hugo.GetBuildDate()
+	}
+
 	h.hugoInfo = page.NewHugoInfo(opts)
 
 	var prototype *deps.Deps
@@ -1682,7 +1686,7 @@ var infoOnMissingLayout = map[string]bool{
 type hookRendererTemplate struct {
 	templateHandler *tplimpl.TemplateStore
 	templ           *tplimpl.TemplInfo
-	resolvePosition func(ctx any) text.Position
+	resolvePosition func(renderContext any, pos int) text.Position
 }
 
 func (hr hookRendererTemplate) RenderLink(cctx context.Context, w io.Writer, ctx hooks.LinkContext) error {
@@ -1709,8 +1713,8 @@ func (hr hookRendererTemplate) RenderTable(cctx context.Context, w hugio.FlexiWr
 	return hr.templateHandler.ExecuteWithContext(cctx, hr.templ, w, ctx)
 }
 
-func (hr hookRendererTemplate) ResolvePosition(ctx any) text.Position {
-	return hr.resolvePosition(ctx)
+func (hr hookRendererTemplate) ResolvePosition(renderContext any, pos int) text.Position {
+	return hr.resolvePosition(renderContext, pos)
 }
 
 func (hr hookRendererTemplate) IsDefaultCodeBlockRenderer() bool {

@@ -48,10 +48,7 @@ block = true # default is false
 
 ## Standalone images
 
-By default, when the [Goldmark] Markdown renderer encounters a standalone image element (no other elements or text on the same line), it wraps the image element within a paragraph element per the [CommonMark specification].
-
-[CommonMark specification]: https://spec.commonmark.org/current/
-[Goldmark]: https://github.com/yuin/goldmark
+By default, when the [Goldmark][] Markdown renderer encounters a standalone image element (no other elements or text on the same line), it wraps the image element within a paragraph element per the [CommonMark specification][].
 
 If you were to place an attribute list beneath an image element, Hugo would apply the attributes to the surrounding paragraph, not the image.
 
@@ -64,9 +61,10 @@ wrapStandAloneImageWithinParagraph = false # default is true
 
 ## Usage
 
-You may add [global HTML attributes], or HTML attributes specific to the current element type. Consistent with its content security model, Hugo removes HTML event attributes such as `onclick` and `onmouseover`.
+You may add [global HTML attributes][], or HTML attributes specific to the current element type. Consistent with its content security model, Hugo removes HTML event attributes such as `onclick` and `onmouseover`.
 
-[global HTML attributes]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
+> [!note]
+> Within fenced code blocks, Hugo interprets the `style` attribute as a syntax highlighting [option][option] rather than a global HTML attribute.
 
 The attribute list consists of one or more key-value pairs, separated by spaces or commas, wrapped by braces. You must quote string values that contain spaces. Unlike HTML, boolean attributes must have both key and value.
 
@@ -112,6 +110,10 @@ This is a paragraph.
 {class=foo}
 ````
 
-As shown above, the attribute list for fenced code blocks is not limited to HTML attributes. You can also configure syntax highlighting by passing one or more of [these options](/functions/transform/highlight/#options).
+As shown above, the attribute list for fenced code blocks is not limited to HTML attributes. You can also configure syntax highlighting by passing one or more of [these options][option].
 
+[CommonMark specification]: https://spec.commonmark.org/current/
+[global HTML attributes]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
+[Goldmark]: https://github.com/yuin/goldmark
 [render hook templates]: /render-hooks/introduction/
+[option]: /functions/transform/highlight/#options

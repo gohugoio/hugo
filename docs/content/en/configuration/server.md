@@ -53,14 +53,14 @@ Include headers in every server response to facilitate testing, particularly for
 
 {{< code-toggle file=config/development/server >}}
 [[headers]]
-for = "/**"
+for = '/**'
 
 [headers.values]
-X-Frame-Options = "DENY"
-X-XSS-Protection = "1; mode=block"
-X-Content-Type-Options = "nosniff"
-Referrer-Policy = "strict-origin-when-cross-origin"
-Content-Security-Policy = "script-src localhost:1313"
+X-Frame-Options = 'DENY'
+X-XSS-Protection = '1; mode=block'
+X-Content-Type-Options = 'nosniff'
+Referrer-Policy = 'strict-origin-when-cross-origin'
+Content-Security-Policy = 'script-src localhost:1313'
 {{< /code-toggle >}}
 
 ## Redirects
@@ -69,8 +69,8 @@ You can define simple redirect rules.
 
 {{< code-toggle file=config/development/server >}}
 [[redirects]]
-from = "/myspa/**"
-to = "/myspa/"
+from = '/myspa/**'
+to = '/myspa/'
 status = 200
 force = false
 {{< /code-toggle >}}
@@ -90,12 +90,12 @@ If you've already defined other redirects, you must explicitly add the 404 redir
 {{< code-toggle file=config/development/server >}}
 [[redirects]]
 force = false
-from   = "/**"
-to     = "/404.html"
+from   = '/**'
+to     = '/404.html'
 status = 404
 {{< /code-toggle >}}
 
-For multilingual sites, ensure the default language 404 redirect is defined last:
+For multilingual projects, ensure the default language 404 redirect is defined last:
 
 {{< code-toggle file=config/development/server >}}
 defaultContentLanguage = 'en'

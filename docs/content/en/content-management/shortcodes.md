@@ -16,7 +16,7 @@ There are three types of shortcodes: embedded, custom, and inline.
 
 Hugo's embedded shortcodes are pre-defined templates within the application. Refer to each shortcode's documentation for specific usage instructions and available arguments.
 
-{{% list-pages-in-section path=/shortcodes %}}
+{{% render-list-of-pages-in-section path=/shortcodes %}}
 
 ## Custom
 
@@ -34,7 +34,7 @@ Then call the shortcode from within markup:
 {{</* audio src=/audio/test.mp3 */>}}
 ```
 
-Learn more about creating shortcodes in the [shortcode templates] section.
+Learn more about creating shortcodes in the [shortcode templates][] section.
 
 ## Inline
 
@@ -51,7 +51,7 @@ enableInlineShortcodes = true
 
 For more information see [configure security](/configuration/security).
 
-The following example demonstrates an inline shortcode, `date.inline`, that accepts a single positional argument: a date/time [layout string].
+The following example demonstrates an inline shortcode, `date.inline`, that accepts a single positional argument: a date/time [layout string][].
 
 ```text {file="content/example.md"}
 Today is
@@ -69,12 +69,12 @@ In the example above, the inline shortcode is executed twice: once upon definiti
 <p>Today is Thursday, January 30, 2025</p>
 ```
 
-Inline shortcodes process their inner content within the same context as regular _shortcode_ templates, allowing you to use any available [shortcode method].
+Inline shortcodes process their inner content within the same context as regular _shortcode_ templates, allowing you to use any available [shortcode method][].
 
 > [!note]
 > You cannot [nest](#nesting) inline shortcodes.
 
-Learn more about creating shortcodes in the [shortcode templates] section.
+Learn more about creating shortcodes in the [shortcode templates][] section.
 
 ## Calling
 
@@ -82,7 +82,7 @@ Shortcode calls involve three syntactical elements: tags, arguments, and notatio
 
 ### Tags
 
-Some shortcodes expect content between opening and closing tags. For example, the embedded [`details`] shortcode requires an opening and closing tag:
+Some shortcodes expect content between opening and closing tags. For example, the embedded [`details`][] shortcode requires an opening and closing tag:
 
 ```text
 {{</* details summary="See the details" */>}}
@@ -90,13 +90,13 @@ This is a **bold** word.
 {{</* /details */>}}
 ```
 
-Some shortcodes do not accept content. For example, the embedded [`instagram`] shortcode requires a single _positional_ argument:
+Some shortcodes do not accept content. For example, the embedded [`instagram`][] shortcode requires a single _positional_ argument:
 
 ```text
 {{</* instagram CxOWiQNP2MO */>}}
 ```
 
-Some shortcodes optionally accept content. For example, you can call the embedded [`qr`] shortcode with content:
+Some shortcodes optionally accept content. For example, you can call the embedded [`qr`][] shortcode with content:
 
 ```text
 {{</* qr */>}}
@@ -116,7 +116,7 @@ Refer to each shortcode's documentation for specific usage instructions and avai
 
 Shortcode arguments can be either _named_ or _positional_.
 
-Named arguments are passed as case-sensitive key-value pairs, as seen in this example with the embedded [`figure`] shortcode. The `src` argument, for instance, is required.
+Named arguments are passed as case-sensitive key-value pairs, as seen in this example with the embedded [`figure`][] shortcode. The `src` argument, for instance, is required.
 
 ```text
 {{</* figure src=/images/kitten.jpg */>}}
@@ -173,7 +173,7 @@ Standard|`{{</* foo */>}} ## Section 2 {{</* /foo */>}}`
 
 #### Markdown notation
 
-Hugo processes the shortcode before the page content is rendered by the Markdown renderer. This means, for instance, that Markdown headings inside a Markdown-notation shortcode will be included when invoking the [`TableOfContents`] method on the `Page` object.
+Hugo processes the shortcode before the page content is rendered by the Markdown renderer. This means, for instance, that Markdown headings inside a Markdown-notation shortcode will be included when invoking the [`TableOfContents`][] method on the `Page` object.
 
 #### Standard notation
 

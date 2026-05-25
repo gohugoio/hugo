@@ -2,7 +2,6 @@ package hugolib
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -39,8 +38,8 @@ import (
 	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/media"
 	"github.com/spf13/afero"
-	"github.com/spf13/cast"
 	"golang.org/x/text/unicode/norm"
 	"golang.org/x/tools/txtar"
 )
@@ -110,6 +109,14 @@ func TestOptOsFs() TestOpt {
 func TestOptWithNpmInstall() TestOpt {
 	return func(c *IntegrationTestConfig) {
 		c.NeedsNpmInstall = true
+	}
+}
+
+// TestOptWithNpmInstallGlobal enables global npm package installation in integration tests.
+// This mutates the host environment and is therefore restricted to real CI.
+func TestOptWithNpmInstallGlobal(packages ...string) TestOpt {
+	return func(c *IntegrationTestConfig) {
+		c.NeedsNpmGlobalInstall = packages
 	}
 }
 
@@ -462,12 +469,20 @@ func (s *IntegrationTestBuilder) AssertFileContentExact(filename string, matches
 
 func (s *IntegrationTestBuilder) AssertNoRenderShortcodesArtifacts() {
 	s.Helper()
-	for _, p := range s.H.Pages() {
-		content, err := p.Content(context.Background())
+	afero.Walk(s.fs.PublishDir, "", func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return err
+		}
+		ext := strings.TrimPrefix(filepath.Ext(path), ".")
+		if !s.H.Conf.GetConfigSection("mediaTypes").(media.Types).IsTextSuffix(ext) {
+			return nil
+		}
+		content, err := afero.ReadFile(s.fs.PublishDir, path)
 		s.Assert(err, qt.IsNil)
-		comment := qt.Commentf("Page: %s\n%s", p.Path(), content)
-		s.Assert(strings.Contains(cast.ToString(content), "__hugo_ctx"), qt.IsFalse, comment)
-	}
+		comment := qt.Commentf("File: %s\n%s", path, string(content))
+		s.Assert(strings.Contains(string(content), "__hugo_ctx"), qt.IsFalse, comment)
+		return nil
+	})
 }
 
 type IntegrationTestImageHelper struct {
@@ -960,18 +975,37 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		s.H = sites
 		s.fs = fs
 
-		if s.Cfg.NeedsNpmInstall {
-			wd, _ := os.Getwd()
-			s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
-			s.C.Cleanup(func() { os.Chdir(wd) })
+		if s.Cfg.NeedsNpmInstall || len(s.Cfg.NeedsNpmGlobalInstall) > 0 {
+			if s.Cfg.NeedsNpmInstall {
+				wd, _ := os.Getwd()
+				s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
+				s.C.Cleanup(func() { os.Chdir(wd) })
+			}
 			sc := security.DefaultConfig
 			sc.Exec.Allow, err = security.NewWhitelist("npm")
 			s.Assert(err, qt.IsNil)
 			ex := hexec.New(sc, s.Cfg.WorkingDir, loggers.NewDefault())
-			command, err := ex.New("npm", "install")
-			s.Assert(err, qt.IsNil)
-			s.Assert(command.Run(), qt.IsNil)
 
+			if len(s.Cfg.NeedsNpmGlobalInstall) > 0 {
+				if !htesting.IsRealCI() && !htesting.IsGitHubAction() {
+					panic("NeedsNpmGlobalInstall is restricted to real CI because it performs global npm installs")
+				}
+				for _, pkg := range s.Cfg.NeedsNpmGlobalInstall {
+					command, err := ex.New("npm", "install", "-g", pkg)
+					s.Assert(err, qt.IsNil)
+					s.Assert(command.Run(), qt.IsNil)
+
+				}
+				s.C.Cleanup(func() {
+					for _, pkg := range s.Cfg.NeedsNpmGlobalInstall {
+						ex.New("npm", "uninstall", "-g", pkg)
+					}
+				})
+			} else {
+				command, err := ex.New("npm", "install")
+				s.Assert(err, qt.IsNil)
+				s.Assert(command.Run(), qt.IsNil)
+			}
 		}
 	})
 
@@ -1179,6 +1213,10 @@ type IntegrationTestConfig struct {
 
 	// Whether to run npm install before Build.
 	NeedsNpmInstall bool
+
+	// Global npm packages to install before Build. This is used for testing the npm integration in the Hugo Pipes.
+	// Only used on CI.
+	NeedsNpmGlobalInstall []string
 
 	// Whether to normalize the Unicode filenames to NFD on Darwin.
 	NFDFormOnDarwin bool

@@ -15,7 +15,7 @@ weight: 20
 : Localize your project for each language and region, including translations, images, dates, currencies, numbers, percentages, and collation sequence. Hugo's multilingual framework supports single-host and multihost configurations.
 
 [Output formats]
-: Render each page of your site to one or more output formats, with granular control by page kind, section, and path. While HTML is the default output format, you can add JSON, RSS, CSV, and more. For example, create a REST API to access content.
+: Render each page of your project to one or more output formats, with granular control by page kind, section, and path. While HTML is the default output format, you can add JSON, RSS, CSV, and more. For example, create a REST API to access content.
 
 [Templates]
 : Create templates using variables, functions, and methods to transform your content, resources, and data into a published page. While HTML templates are the most common, you can create templates for any output format.
@@ -24,10 +24,10 @@ weight: 20
 : Reduce development time and cost by using one of the hundreds of themes contributed by the Hugo community. Themes are available for corporate sites, documentation projects, image portfolios, landing pages, personal and professional blogs, resumes, CVs, and more.
 
 [Modules]
-: Reduce development time and cost by creating or importing packaged combinations of archetypes, assets, content, data, templates, translation tables, static files, or configuration settings. A module may serve as the basis for a new site, or to augment an existing site.
+: Reduce development time and cost by creating or importing packaged combinations of archetypes, assets, content, data, templates, translation tables, static files, or configuration settings. A module may serve as the basis for a new project, or to augment an existing project.
 
 [Privacy]
-: Configure your site to help comply with regional privacy regulations.
+: Configure your project to help comply with regional privacy regulations.
 
 [Security]
 : Hugo's security model is based on the premise that template and configuration authors are trusted, but content authors are not. This model enables generation of HTML output safe against code injection. Other protections prevent "shelling out" to arbitrary applications, limit access to specific environment variables, prevent connections to arbitrary remote data sources, and more.
@@ -80,6 +80,9 @@ weight: 20
 
 ## Asset pipelines
 
+[CSS Processing]
+: Bundle, transform, minify, create source maps, perform SRI hashing, and integrate with PostCSS.
+
 [Image processing]
 : Convert, resize, crop, rotate, adjust colors, apply filters, overlay text and images, and extract metadata.
 
@@ -98,7 +101,7 @@ weight: 20
 : Reduce build time and cost by rendering a _partial_ template once then cache the result, either globally or within a given context. For example, cache the result of an asset pipeline to prevent reprocessing on every rendered page.
 
 [Segmentation]
-: Reduce build time and cost by partitioning your sites into segments. For example, render the home page and the "news section" every hour, and render the entire site once a week.
+: Reduce build time and cost by partitioning your sites into segments. For example, render the home page and the "news section" every hour, and render the entire project once a week.
 
 [Minification]
 : Minify HTML, CSS, and JavaScript to reduce file size, bandwidth consumption, and loading times.
@@ -130,9 +133,10 @@ weight: 20
 [Menus]: /content-management/menus/
 [URL management]: /content-management/urls/
 
+[CSS processing]: /functions/css/build/
 [Image processing]: /content-management/image-processing/
 [JavaScript bundling]: /functions/js/build/
-[Sass processing]: /functions/css/Sass/
+[Sass processing]: /functions/css/sass/
 [Tailwind CSS processing]: /functions/css/tailwindcss/
 
 [Caching]: /functions/partials/includecached/

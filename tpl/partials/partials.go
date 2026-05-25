@@ -234,6 +234,8 @@ func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any
 			depsManagerShared = identity.NewManager()
 			ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, depsManagerShared.(identity.DependencyManagerScopedProvider))
 		}
+		// Mark the ctx so templates.Defer can reject being called from a cached body.
+		ctx = tpl.Context.IsInPartialCached.Set(ctx, true)
 		r := ns.doInclude(ctx, keyString, ti, context)
 		if ns.deps.Conf.Watching() {
 			r.mangager = depsManagerShared

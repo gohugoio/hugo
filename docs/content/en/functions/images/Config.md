@@ -11,7 +11,8 @@ params:
 aliases: [/functions/imageconfig]
 ---
 
-See [image processing] for an overview of Hugo's image pipeline.
+> [!note]
+> This is a legacy function, superseded by the [`Width`][] and [`Height`][] methods for [global resources](g), [page resources](g), and [remote resources](g). See the [image processing][] section for details.
 
 ```go-html-template
 {{ $ic := images.Config "/static/images/a.jpg" }}
@@ -20,10 +21,7 @@ See [image processing] for an overview of Hugo's image pipeline.
 {{ $ic.Height }} → 400 (int)
 ```
 
-Supported image formats include GIF, JPEG, PNG, TIFF, and WebP.
-
-> [!note]
-> This is a legacy function, superseded by the [`Width`] and [`Height`] methods for [global resources](g), [page resources](g), and [remote resources](g). See the [image processing] section for details.
+Supported image formats include AVIF, BMP, GIF, HEIC, HEIF, JPEG, PNG, TIFF, and WebP.
 
 [`Height`]: /methods/resource/height/
 [`Width`]: /methods/resource/width/

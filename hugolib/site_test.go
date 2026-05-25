@@ -66,12 +66,7 @@ publishdate: "2012-05-29"
 baseURL = "http://auth/bub"
 ` + basefiles
 
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 		b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 	})
 
@@ -82,12 +77,7 @@ baseURL = "http://auth/bub"
 baseURL = "http://auth/bub"
 buildDrafts = true
 ` + basefiles
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 		b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 	})
 
@@ -98,12 +88,7 @@ buildDrafts = true
 baseURL = "http://auth/bub"
 buildFuture = true
 ` + basefiles
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 		b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 2)
 	})
 
@@ -115,12 +100,7 @@ baseURL = "http://auth/bub"
 buildDrafts = true
 buildFuture = true
 ` + basefiles
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 		b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 4)
 	})
 }
@@ -198,13 +178,7 @@ weight: 3
 # doc5
 *some content*
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{SkipRender: true},
-		},
-	).Build()
+	b := Test(t, files, TestOptSkipRender())
 
 	b.Assert(b.H.Sites[0].Lastmod().IsZero(), qt.Equals, false)
 	b.Assert(b.H.Sites[0].Lastmod().Year(), qt.Equals, 2017)
@@ -226,13 +200,7 @@ date: 2014-05-29
 # doc1
 *some content*
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{SkipRender: true},
-		},
-	).Build()
+	b := Test(t, files, TestOptSkipRender())
 
 	b.Assert(len(b.H.Sites[0].RegularPages()), qt.Equals, 1)
 }
@@ -275,12 +243,7 @@ doc2 *content*
 baseURL = "http://auth/bub"
 uglyURLs = true
 ` + basefiles
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", "Home Sweet Home.")
 		b.AssertFileContent("public/sect/doc1.html", "<h1 id=\"title\">title</h1>\n<p>some <em>content</em></p>\n")
@@ -301,12 +264,7 @@ uglyURLs = true
 baseURL = "http://auth/bub"
 uglyURLs = false
 ` + basefiles
-		b := NewIntegrationTestBuilder(
-			IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := Test(t, files)
 
 		b.AssertFileContent("public/index.html", "Home Sweet Home.")
 		b.AssertFileContent("public/sect/doc1/index.html", "<h1 id=\"title\">title</h1>\n<p>some <em>content</em></p>\n")

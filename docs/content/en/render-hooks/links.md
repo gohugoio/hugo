@@ -25,6 +25,10 @@ Link _render hook_ templates receive the following context:
 Destination
 : (`string`) The link destination.
 
+Ordinal
+: {{< new-in v0.160.0 />}}
+: (`int`) The zero-based ordinal of the link on the page.
+
 Page
 : (`page`) A reference to the current page.
 
@@ -33,6 +37,10 @@ PageInner
 
 PlainText
 : (`string`) The link description as plain text.
+
+Position
+: {{< new-in 0.160.0 />}}
+: (`string`) The position of the link within the page content.
 
 Text
 : (`template.HTML`) The link description.
@@ -78,7 +86,7 @@ Hugo includes an [embedded link render hook] to resolve Markdown link destinatio
 useEmbedded = 'auto'
 {{< /code-toggle >}}
 
-When set to `auto` as shown above, Hugo automatically uses the embedded link render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+When set to `auto` as shown above, Hugo automatically uses the embedded link render hook for multilingual single-host projects, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such projects. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
 
 You can also configure Hugo to `always` use the embedded link render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
 

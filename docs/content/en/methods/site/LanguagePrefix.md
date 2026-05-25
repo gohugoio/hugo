@@ -16,16 +16,16 @@ defaultContentLanguage = 'de'
 defaultContentLanguageInSubdir = false
 
 [languages.de]
-languageCode = 'de-DE'
-languageDirection = 'ltr'
-languageName = 'Deutsch'
+direction = 'ltr'
+label = 'Deutsch'
+locale = 'de-DE'
 title = 'Projekt Dokumentation'
 weight = 1
 
 [languages.en]
-languageCode = 'en-US'
-languageDirection = 'ltr'
-languageName = 'English'
+direction = 'ltr'
+label = 'English'
+locale = 'en-US'
 title = 'Project Documentation'
 weight = 2
 {{< /code-toggle >}}
@@ -48,4 +48,4 @@ If you change `defaultContentLanguageInSubdir` to `true`, when visiting the Germ
 {{ .Site.LanguagePrefix }} → /de
 ```
 
-You may use the `LanguagePrefix` method with both monolingual and multilingual sites.
+You may use the `LanguagePrefix` method with both monolingual and multilingual projects.

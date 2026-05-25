@@ -22,7 +22,6 @@ import (
 
 	qt "github.com/frankban/quicktest"
 
-	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
@@ -260,6 +259,26 @@ func TestBatchRenameBundledScript(t *testing.T) {
 	// Rename it back.
 	b.RenameFile("content/p1/p1script2.js", "content/p1/p1script.js")
 	b.Build()
+}
+
+func TestBatchMissingImportedAssetIssue13737(t *testing.T) {
+	files := jsBatchFilesTemplate
+	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs())
+	b.AssertFileContent("public/mybatch/mygroup.js", "Hello, Main")
+
+	filename := filepath.Join(b.Cfg.WorkingDir, "assets/js/main.js")
+	content, err := os.ReadFile(filename)
+	b.Assert(err, qt.IsNil)
+	b.Assert(os.Remove(filename), qt.IsNil)
+
+	_, err = b.BuildE()
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "failed to read import")
+	b.Assert(err.Error(), qt.Contains, "main.js")
+
+	b.Assert(os.WriteFile(filename, content, 0o666), qt.IsNil)
+	b.Build()
+	b.AssertFileContent("public/mybatch/mygroup.js", "Hello, Main")
 }
 
 func TestBatchErrorScriptResourceNotSet(t *testing.T) {
@@ -679,16 +698,7 @@ Home.
  
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:               t,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			TxtarString:     files,
-			Running:         true,
-			LogLevel:        logg.LevelWarn,
-			// PrintAndKeepTempDir: true,
-		}).Build()
+	b := hugolib.TestRunning(t, files, hugolib.TestOptWithOSFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptWarn())
 
 	b.AssertFileContent("public/index.html",
 		"mains: 0: /mybundle/mains.js",

@@ -89,6 +89,9 @@ Alternatively, you can use the [Jekyll import command](/commands/hugo_import_jek
 [BloggerToHugo](https://github.com/huanlin/blogger-to-hugo)
 : Yet another tool to import Blogger posts to Hugo. For Windows platform only, and .NET Framework 4.5 is required. See README.md before using this tool.
 
+[blogger2hugo](https://github.com/noorkhafidzin/blogger2hugo)
+: Converts a Blogger backup file (`.atom`) from [Google Takeout](https://takeout.google.com/takeout/custom/blogger?hl=en) to Markdown (`.md`) files. The tool generates output compatible with the Hugo `content/` structure.
+
 ## Contentful
 
 [contentful-hugo](https://github.com/ModiiMedia/contentful-hugo)

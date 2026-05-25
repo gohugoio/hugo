@@ -17,7 +17,7 @@ The `Role` method on a `Site` object returns the `Role` object for the given sit
 
 ### IsDefault
 
-(`bool`) Reports whether this is the [default role][].
+(`bool`) Reports whether this is the [default role](g).
 
 ```go-html-template
 {{ .Site.Role.IsDefault }} → true
@@ -30,5 +30,3 @@ The `Role` method on a `Site` object returns the `Role` object for the given sit
 ```go-html-template
 {{ .Site.Role.Name }} → guest
 ```
-
-[default role]: /quick-reference/glossary/#default-role

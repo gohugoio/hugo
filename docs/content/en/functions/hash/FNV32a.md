@@ -8,7 +8,7 @@ params:
     aliases: []
     returnType: int
     signatures: [hash.FNV32a STRING]
-aliases: [/functions/crypto.fnv32a]
+aliases: [/functions/crypto/fnv32a/,/functions/crypto.fnv32a]
 ---
 
 ```go-html-template

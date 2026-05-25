@@ -8,11 +8,11 @@ weight: 10
 
 ## Sensible defaults
 
-Hugo offers many configuration options, but its defaults are often sufficient. A new site requires only these settings:
+Hugo offers many configuration options, but its defaults are often sufficient. A new project requires only these settings:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'My New Hugo Site'
 {{< /code-toggle >}}
 
@@ -37,7 +37,7 @@ A simple example:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'ABC Widgets, Inc.'
 [params]
 subtitle = 'The Best Widgets on Earth'
@@ -191,7 +191,7 @@ and this project-level configuration:
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'My New Hugo Site'
 theme = ['theme-a','theme-b']
 {{< /code-toggle >}}
@@ -218,6 +218,9 @@ deep
 Note that you don't need to be so verbose as in the default setup below; a `_merge` value higher up will be inherited if not set.
 
 {{< code-toggle file=hugo dataKey="config_helpers.mergeStrategy" skipHeader=true />}}
+
+> [!note]
+> Hugo can merge map configuration values from modules and themes into the project configuration, but cannot merge slice values. This applies to top-level slice keys such as `menus`, as well as to map keys whose values are slices, such as the per-kind format lists in `outputs`.
 
 ## Environment variables
 

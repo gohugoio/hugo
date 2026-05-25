@@ -44,35 +44,33 @@ func TestPageMatcher(t *testing.T) {
 		&testPage{path: "p3", kind: "page", lang: "en", site: developmentTestSite}
 
 	c.Run("Matches", func(c *qt.C) {
-		m := PageMatcher{Kind: "section"}
+		matches := func(m PageMatcher, p Page) bool {
+			c.Assert(m.compileGlobs(), qt.IsNil)
+			return m.Matches(p)
+		}
 
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, false)
+		c.Assert(matches(PageMatcher{Kind: "section"}, p1), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Kind: "section"}, p2), qt.Equals, false)
 
-		m = PageMatcher{Kind: "page"}
-		c.Assert(m.Matches(p1), qt.Equals, false)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Kind: "page"}, p1), qt.Equals, false)
+		c.Assert(matches(PageMatcher{Kind: "page"}, p2), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Kind: "page"}, p3), qt.Equals, true)
 
-		m = PageMatcher{Kind: "page", Path: "/p2"}
-		c.Assert(m.Matches(p1), qt.Equals, false)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, false)
+		c.Assert(matches(PageMatcher{Kind: "page", Path: "/p2"}, p1), qt.Equals, false)
+		c.Assert(matches(PageMatcher{Kind: "page", Path: "/p2"}, p2), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Kind: "page", Path: "/p2"}, p3), qt.Equals, false)
 
-		m = PageMatcher{Path: "/p*"}
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Path: "/p*"}, p1), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Path: "/p*"}, p2), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Path: "/p*"}, p3), qt.Equals, true)
 
-		m = PageMatcher{Environment: "development"}
-		c.Assert(m.Matches(p1), qt.Equals, true)
-		c.Assert(m.Matches(p2), qt.Equals, false)
-		c.Assert(m.Matches(p3), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Environment: "development"}, p1), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Environment: "development"}, p2), qt.Equals, false)
+		c.Assert(matches(PageMatcher{Environment: "development"}, p3), qt.Equals, true)
 
-		m = PageMatcher{Environment: "production"}
-		c.Assert(m.Matches(p1), qt.Equals, false)
-		c.Assert(m.Matches(p2), qt.Equals, true)
-		c.Assert(m.Matches(p3), qt.Equals, false)
+		c.Assert(matches(PageMatcher{Environment: "production"}, p1), qt.Equals, false)
+		c.Assert(matches(PageMatcher{Environment: "production"}, p2), qt.Equals, true)
+		c.Assert(matches(PageMatcher{Environment: "production"}, p3), qt.Equals, false)
 	})
 
 	c.Run("Decode", func(c *qt.C) {

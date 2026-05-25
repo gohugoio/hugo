@@ -122,6 +122,12 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 		)
 	}
 
+	if cfg.Extensions.Passthrough.Enable {
+		tocRendererOptions = append(tocRendererOptions,
+			renderer.WithNodeRenderers(util.Prioritized(&tocPassthroughRenderer{}, 90)),
+		)
+	}
+
 	var (
 		extensions = []goldmark.Extender{
 			hugocontext.New(pcfg.Logger),

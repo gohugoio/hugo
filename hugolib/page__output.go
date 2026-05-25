@@ -86,7 +86,7 @@ func newPageOutput(
 type pageOutput struct {
 	p *pageState
 
-	// Set if this page isn't configured to be rendered to this format.
+	// Set if this page is configured to be rendered to this format.
 	render bool
 
 	f output.Format

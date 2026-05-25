@@ -79,7 +79,7 @@ title: "p1"
 		"Blockquote Alert: |<p>This is a caution with some whitespace before the alert type.</p>|alert|",
 		"Blockquote: |<p>A regular blockquote.</p>\n|regular|",
 		"Blockquote Alert Attributes: |<p>This is a tip with attributes.</p>|map[class:foo bar id:baz]|",
-		filepath.FromSlash("/content/p1.md:19:3"),
+		filepath.FromSlash("/content/p1.md:20:1"),
 		"Blockquote Alert Page: |<p>This is a tip with attributes.</p>|p1|p1|",
 
 		// Issue 12767.

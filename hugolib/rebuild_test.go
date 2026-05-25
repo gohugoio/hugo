@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bep/logg"
 	"github.com/fortytw2/leaktest"
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/types"
@@ -397,6 +396,35 @@ func TestRebuilErrorRecovery(t *testing.T) {
 
 	// Fix the error
 	b.EditFileReplaceAll("content/mysection/mysectionbundle/index.md", "{{< foo }}", "{{< foo >}}").Build()
+}
+
+func TestRebuildEmptyParamsIssue14886(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy", "sitemap", "robotstxt", "404", "rss"]
+disableLiveReload = true
+-- content/news/_index.md --
+---
+title: News
+params:
+  featuredImage: featured.png
+---
+News.
+-- layouts/list.html --
+List: {{ .Title }}|{{ .Params.featuredimage }}|
+`
+
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/news/index.html", "List: News|featured.png|")
+
+	b.EditFileReplaceAll("content/news/_index.md", "  featuredImage", "featuredImage").Build()
+	b.AssertFileContent("public/news/index.html", "List: News|featured.png|")
+
+	b.EditFileReplaceAll("content/news/_index.md", "featuredImage", "  featuredImage").Build()
+	b.AssertFileContent("public/news/index.html", "List: News|featured.png|")
 }
 
 // Issue 14573
@@ -927,7 +955,7 @@ P5 Content.
 -- content/myothersect/_index.md --
 ---
 cascade:
-- _target:
+- target:
   cascadeparam: "cascadevalue"
 ---
 -- content/myothersect/sub/_index.md --
@@ -986,18 +1014,12 @@ Codeblock Include: {{ .Title }}|
 
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-			Verbose:     false,
-			BuildCfg: BuildCfg{
-				testCounters: &buildCounters{},
-			},
-			LogLevel: logg.LevelWarn,
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptWarn(),
+		TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.BuildCfg = BuildCfg{testCounters: &buildCounters{}}
+		}),
+	)
 
 	// When running the server, this is done on shutdown.
 	// Do this here to satisfy the leak detector above.
@@ -1331,18 +1353,11 @@ Content: {{ .Content }}|
 
 	testCounters := &buildCounters{}
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-			// LogLevel:    logg.LevelTrace,
-			// Verbose:     true,
-			BuildCfg: BuildCfg{
-				testCounters: testCounters,
-			},
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.BuildCfg = BuildCfg{testCounters: testCounters}
+		}),
+	)
 
 	b.AssertFileContent("public/index.html", `<script src="/main.js"></script>`)
 	b.AssertFileContent("public/p1/index.html", "<script>\n\"console.log(\\\"Hello\\\");\"\n</script>")
@@ -1502,15 +1517,9 @@ console.log("Hello");
 foo();
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			Running:     true,
-			// LogLevel:    logg.LevelTrace,
-			NeedsOsFS: true,
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptOsFs(),
+	)
 
 	b.AssertFileContent("public/index.html", "Home.", "Hello", "Foo")
 	// Edit the imported file.
@@ -1585,16 +1594,10 @@ Single.
 {{ end }}
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:               t,
-			TxtarString:     files,
-			Running:         true,
-			NeedsOsFS:       true,
-			NeedsNpmInstall: true,
-			// LogLevel:        logg.LevelDebug,
-		},
-	).Build()
+	b := TestRunning(t, files,
+		TestOptOsFs(),
+		TestOptWithNpmInstall(),
+	)
 
 	b.AssertFileContent("public/index.html", "Home.", "<style>body {\n\tbackground: red;\n}</style>")
 	b.AssertFileContent("public/p1/index.html", "Single.", "/css/main.css")
@@ -1748,14 +1751,9 @@ Home.
 	runTest := func(transpiler string) {
 		t.Run(transpiler, func(t *testing.T) {
 			files := strings.Replace(filesTemplate, "TRANSPILER", transpiler, 1)
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-					Running:     true,
-					NeedsOsFS:   true,
-				},
-			).Build()
+			b := TestRunning(t, files,
+				TestOptOsFs(),
+			)
 
 			b.AssertFileContent("public/index.html", "Home.", "background: red")
 
@@ -2156,4 +2154,19 @@ Content before shortcode.
 	currentYear := time.Now().Format("2006")
 	b.EditFileReplaceAll("content/p1.md", "Content before shortcode.", "This is {{< year >}} wow.").Build()
 	b.AssertFileContent("public/p1/index.html", "Single: P1|", fmt.Sprintf("This is %s wow.", currentYear))
+}
+
+// Issue 14740.
+func TestRebuildEditTagsListLayout(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+-- layouts/tags/list.html --
+Foo.
+`
+
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/tags/index.html", "Foo.")
+	b.EditFileReplaceAll("layouts/tags/list.html", "Foo", "Bar").Build()
+	b.AssertFileContent("public/tags/index.html", "Bar.")
 }

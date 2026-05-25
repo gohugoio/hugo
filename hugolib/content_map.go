@@ -168,6 +168,19 @@ func (p *resourceSource) lookupContentNode(v sitesmatrix.Vector) contentNode {
 
 func (p *resourceSource) lookupContentNodes(siteVector sitesmatrix.Vector, fallback bool) iter.Seq[contentNodeForSite] {
 	if siteVector == p.sv {
+		found := p.rc == nil
+		if !found {
+			// For content adapter resources with explicit sites.matrix config,
+			// verify the vector is allowed even on exact match,
+			// since sv is the creating site's vector, not necessarily the target.
+			// In the exact-match path (siteVector == p.sv), always use strict matching.
+			// The coarse language-excluding fallback only applies for cross-site matching.
+			found = p.rc.Sites.Matrix.IsZero() || p.rc.MatchSiteVector(siteVector)
+		}
+		if !found {
+			return nil
+		}
+
 		return func(yield func(n contentNodeForSite) bool) {
 			yield(p)
 		}
@@ -184,19 +197,19 @@ func (p *resourceSource) lookupContentNodes(siteVector sitesmatrix.Vector, fallb
 		}
 	}
 
-	if !found && pc != nil {
-		if !pc.MatchLanguageCoarse(siteVector) {
-			return nil
-		}
-		if !pc.MatchVersionCoarse(siteVector) {
-			return nil
-		}
-		if !pc.MatchRoleCoarse(siteVector) {
-			return nil
+	if !found {
+		if pc != nil {
+			// Content adapter resources have explicit site matrix config; respect all dimensions.
+			found = pc.MatchSiteVectorCoarse(siteVector)
+		} else if p.fi != nil {
+			// File-based resources: exclude the language dimension in the coarse match.
+			// The typical setup is to provide translated content files but one resource (e.g. an image) that is shared between the translations.
+			// To give all the languages a full set, we ignore that dimension for this last fallback check.
+			found = p.fi.Meta().MatchSiteVectorCoarseExcludeLanguage(siteVector)
 		}
 	}
 
-	if !found && !fallback {
+	if !found {
 		return nil
 	}
 

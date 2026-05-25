@@ -15,12 +15,6 @@ After [installing] Hugo, test your installation by running:
 hugo version
 ```
 
-You should see something like:
-
-```text
-hugo v0.155.3-8a858213b73907e823e2be2b5640a0ce4c04d295+extended linux/amd64 BuildDate=2026-02-08T16:40:42Z VendorInfo=gohugoio
-```
-
 ## Display available commands
 
 To see a list of the available commands and flags:

@@ -14,18 +14,18 @@ keywords: []
 To display a Vimeo video with this URL:
 
 ```text
-https://vimeo.com/channels/staffpicks/55073825
+https://vimeo.com/19899678
 ```
 
 Include this in your Markdown:
 
 ```text
-{{</* vimeo 55073825 */>}}
+{{</* vimeo 19899678 */>}}
 ```
 
 Hugo renders this to:
 
-{{< vimeo 55073825 >}}
+{{< vimeo 19899678 >}}
 
 ## Arguments
 
@@ -49,7 +49,7 @@ title
 Here's an example using some of the available arguments:
 
 ```text
-{{</* vimeo id=55073825 allowFullScreen=false loading=lazy */>}}
+{{</* vimeo id=19899678 allowFullScreen=false loading=lazy */>}}
 ```
 
 ## Privacy

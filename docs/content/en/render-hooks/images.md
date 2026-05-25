@@ -39,6 +39,7 @@ IsBlock
 : (`bool`) Reports whether a standalone image is not wrapped within a paragraph element.
 
 Ordinal
+: {{< new-in v0.160.0 />}}
 : (`int`) The zero-based ordinal of the image on the page.
 
 Page
@@ -49,6 +50,10 @@ PageInner
 
 PlainText
 : (`string`) The image description as plain text.
+
+Position
+: {{< new-in 0.160.0 />}}
+: (`string`) The position of the image within the page content.
 
 Text
 : (`template.HTML`) The image description.
@@ -105,7 +110,7 @@ Hugo includes an [embedded image render hook] to resolve Markdown image destinat
 useEmbedded = 'auto'
 {{< /code-toggle >}}
 
-When set to `auto` as shown above, Hugo automatically uses the embedded image render hook for multilingual single-host sites, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such sites. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
+When set to `auto` as shown above, Hugo automatically uses the embedded image render hook for multilingual single-host projects, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such projects. If custom image render hooks are defined by your project, modules, or themes, these will be used instead.
 
 You can also configure Hugo to `always` use the embedded image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhooksimageuseembedded).
 

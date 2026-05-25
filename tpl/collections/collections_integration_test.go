@@ -74,12 +74,7 @@ Desc: {{ sort (sort $values "b" "desc") "a" "desc" }}
 
 	for range 4 {
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/index.html", `
 Asc:  [map[a:0 b:0] map[a:0 b:0] map[a:0 b:3] map[a:1 b:0] map[a:1 b:1] map[a:1 b:2] map[a:1 b:2] map[a:2 b:0] map[a:2 b:0] map[a:2 b:0] map[a:2 b:1] map[a:2 b:2] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:3 b:0] map[a:3 b:1] map[a:3 b:1] map[a:3 b:1] map[a:3 b:3]]
@@ -144,12 +139,7 @@ func TestAppendNilsToSliceWithNils(t *testing.T) {
 
 	for range 4 {
 
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		b := hugolib.Test(t, files)
 
 		b.AssertFileContent("public/index.html", "[a &lt;nil&gt; c &lt;nil&gt;]")
 
@@ -297,6 +287,51 @@ disableKinds = ['rss','sitemap', 'taxonomy', 'term', 'page']
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContentExact("public/index.html", "0: /a3_b1.html\n\n1: /b2.html\n\n2: /a1.html\n\n3: /a2.html\n$")
+}
+
+// Issue 14777.
+func TestWhereWithPageEqualityIssue14777(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+disableKinds = ['rss','sitemap','taxonomy','term']
+-- content/s1/_index.md --
+---
+title: S1
+---
+-- content/s1/p1.md --
+---
+title: P1
+---
+-- content/s1/p2.md --
+---
+title: P2
+---
+-- content/s2/_index.md --
+---
+title: S2
+---
+-- content/s2/p3.md --
+---
+title: P3
+---
+-- layouts/section.html --
+{{ $page := . }}
+WhereEq: {{ range where site.AllPages "Parent" "eq" $page }}{{ .Title }}|{{ end }}$
+WhereDefault: {{ range where site.AllPages "Parent" $page }}{{ .Title }}|{{ end }}$
+RangeIf: {{ range site.AllPages }}{{ if eq .Parent $page }}{{ .Title }}|{{ end }}{{ end }}$
+WhereNe: {{ range where site.AllPages "Parent" "ne" $page }}{{ .Title }}|{{ end }}$
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html",
+		"WhereEq: P1|P2|$",
+		"WhereDefault: P1|P2|$",
+		"RangeIf: P1|P2|$",
+	)
 }
 
 // Issue 13621.
@@ -617,4 +652,22 @@ All.
 			}
 		}
 	})
+}
+
+func TestEmptyDictShouldBeNil(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $d := dict }}
+{{ printf "dict: %T %t %d" $d (eq $d nil) (len $d) }}
+{{ range $d }}FAIL{{ end }}
+index: {{ index $d "foo" }}|
+{{ $d2 := dict "foo" "bar" }}
+{{ $d3 := merge $d $d2 }}
+{{ printf "d3: %v" $d3 }}|
+`
+
+	hugolib.Test(t, files).AssertFileContent("public/index.html", "dict: map[string]interface {} true 0", "! FAIL", "index: |", "d3: map[foo:bar]|")
 }

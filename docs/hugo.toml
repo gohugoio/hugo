@@ -53,9 +53,10 @@ disableAliases = true
 
 [languages]
   [languages.en]
-    languageCode = "en-US"
-    languageName = "English"
-    weight       = 1
+    direction = 'ltr'
+    label     = 'English'
+    locale    = 'en-US'
+    weight    = 1
 
 [markup]
   [markup.goldmark]
@@ -66,7 +67,7 @@ disableAliases = true
           block  = [['\[', '\]'], ['$$', '$$']]
           inline = [['\(', '\)']]
     [markup.goldmark.parser]
-      autoDefinitionTermID = true
+      autoDefinitionTermID               = true
       wrapStandAloneImageWithinParagraph = false
       [markup.goldmark.parser.attribute]
         block = true
@@ -152,7 +153,7 @@ disableAliases = true
 [taxonomies]
   category = 'categories'
 
-######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES ########
+  ######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES ########
 
 [menus]
   [[menus.global]]

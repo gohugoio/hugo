@@ -45,17 +45,18 @@ key
 method
 : (`string`) The action to perform on the requested resource, typically one of `GET`, `POST`, or `HEAD`.
 
-timeout
-: (`string`) Cancels the request if it does not complete within this duration (e.g. "30s").
-
 responseHeaders
 : {{< new-in 0.143.0 />}}
-: (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`] method. Header name matching is case-insensitive.[`Data.Headers`]: /methods/resource/data/#headers
+: (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`][] method. Header name matching is case-insensitive.
+
+timeout
+: {{< new-in 0.157.0 />}}
+: (`string`) The duration after which the request is cancelled if it does not complete, expressed as a [duration](g). If not specified, the request will timeout after 2 minutes.
 
 ## Options examples
 
 > [!note]
-> For brevity, the examples below do not include [error handling].
+> For brevity, the examples below do not include [error handling][].
 
 To include a header:
 
@@ -110,7 +111,7 @@ To extract specific headers from the server's response:
 {{ $resource := resources.GetRemote $url $opts }}
 ```
 
-To set a per-request timeout (e.g. when fetching many feeds where a few slow ones should not stall the build):
+Use the `timeout` option to prevent slow external requests from stalling the build when fetching multiple remote feeds:
 
 ```go-html-template
 {{ $url := "https://example.org/feed.rss" }}
@@ -126,9 +127,7 @@ To set a per-request timeout (e.g. when fetching many feeds where a few slow one
 
 ## Remote data
 
-When retrieving remote data, use the [`transform.Unmarshal`] function to [unmarshal](g) the response.
-
-[`transform.Unmarshal`]: /functions/transform/unmarshal/
+When retrieving remote data, use the [`transform.Unmarshal`][] function to [unmarshal](g) the response.
 
 ```go-html-template
 {{ $data := dict }}
@@ -145,7 +144,7 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
 ```
 
 > [!note]
-> When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
+> When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type][]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
 >
 > In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
 >
@@ -153,7 +152,7 @@ When retrieving remote data, use the [`transform.Unmarshal`] function to [unmars
 
 ## Error handling
 
-Use the [`try`] statement to capture HTTP request errors. If you do not handle the error yourself, Hugo will fail the build.
+Use the [`try`][] statement to capture HTTP request errors. If you do not handle the error yourself, Hugo will fail the build.
 
 > [!note]
 > Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
@@ -188,13 +187,11 @@ To log an error as a warning instead of an error:
 
 ## HTTP response
 
-The [`Data`] method on a resource returned by the `resources.GetRemote` function returns information from the HTTP response.
-
-[`Data`]: /methods/resource/data/
+The [`Data`][] method on a resource returned by the `resources.GetRemote` function returns information from the HTTP response.
 
 ## Caching
 
-Resources returned from `resources.GetRemote` are cached to disk. See [configure file caches] for details.
+Resources returned from `resources.GetRemote` are cached to disk. See [configure file caches][] for details.
 
 By default, Hugo derives the cache key from the arguments passed to the function. Override the cache key by setting a `key` in the options map. Use this approach to have more control over how often Hugo fetches a remote resource.
 
@@ -209,11 +206,11 @@ By default, Hugo derives the cache key from the arguments passed to the function
 
 To protect against malicious intent, the `resources.GetRemote` function inspects the server response including:
 
-- The [Content-Type] in the response header
+- The [Content-Type][] in the response header
 - The file extension, if any
 - The content itself
 
-If Hugo is unable to resolve the media type to an entry in its [allowlist], the function throws an error:
+If Hugo is unable to resolve the media type to an entry in its [allowlist][], the function throws an error:
 
 ```text
 ERROR error calling resources.GetRemote: failed to resolve media type...
@@ -233,6 +230,9 @@ Note that the entry above is:
 - An _addition_ to the allowlist; it does not _replace_ the allowlist
 - An array of [regular expressions](g)
 
+[`Data.Headers`]: /methods/resource/data/#headers
+[`Data`]: /methods/resource/data/
+[`transform.Unmarshal`]: /functions/transform/unmarshal/
 [`try`]: /functions/go-template/try
 [allowlist]: https://en.wikipedia.org/wiki/Whitelist
 [configure file caches]: /configuration/caches/

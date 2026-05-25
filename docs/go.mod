@@ -1,3 +1,3 @@
 module github.com/gohugoio/hugoDocs
 
-go 1.22.0
+go 1.26.0

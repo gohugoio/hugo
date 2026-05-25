@@ -232,7 +232,7 @@ P1nn
 -- layouts/home.html --
 Len RegularPages: {{ len .Site.RegularPages }}|RegularPages: {{ range site.RegularPages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}|
 Len Pages: {{ len .Site.Pages }}|
-Len Sites: {{ len .Site.Sites }}|
+Len Sites: {{ len hugo.Sites }}|
 -- layouts/single.html --
 {{ .Title }}|{{ .Content }}|{{ .Lang }}|
 
@@ -292,7 +292,7 @@ P1nn
 -- layouts/home.html --
 Len RegularPages: {{ len .Site.RegularPages }}|RegularPages: {{ range site.RegularPages }}{{ .RelPermalink }}: {{ .Title }}|{{ end }}|
 Len Pages: {{ len .Site.Pages }}|
-Len Sites: {{ len .Site.Sites }}|
+Len Sites: {{ len hugo.Sites }}|
 -- layouts/single.html --
 {{ .Title }}|{{ .Content }}|{{ .Lang }}|
 
@@ -332,13 +332,7 @@ headless: true
 HEADLESS1: {{ $headless1.Title }}|{{ $headless1.RelPermalink }}|{{ len $headless1.Resources }}|
 HEADLESS2: {{ $headless2.Title }}{{ $headless2.RelPermalink }}|{{ len $headless2.Resources }}|
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 HEADLESS1: My Headless Bundle1||1|

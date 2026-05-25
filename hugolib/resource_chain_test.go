@@ -45,6 +45,8 @@ func TestResourceChainBasic(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
+[security.http]
+urls = ['.*']
 -- assets/images/sunset.jpg --
 ` + getTestSunset(t) + `
 -- layouts/home.html --
@@ -1329,13 +1331,10 @@ Template test.
 
 			files := test.files
 			files = strings.ReplaceAll(files, "HTTPTEST_SERVER_URL", ts.URL)
+			files = strings.Replace(files, `baseURL = "http://example.com/"`,
+				"baseURL = \"http://example.com/\"\n[security.http]\nurls = ['.*']", 1)
 
-			b := NewIntegrationTestBuilder(
-				IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-				},
-			).Build()
+			b := Test(t, files)
 
 			test.assert(b)
 		})

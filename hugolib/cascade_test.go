@@ -28,7 +28,7 @@ func BenchmarkCascadeTarget(b *testing.B) {
 	files.WriteString(`
 -- content/_index.md --
 background = 'yosemite.jpg'
-[cascade._target]
+[cascade.target]
 kind = '{section,term}'
 -- content/posts/_index.md --
 -- content/posts/funny/_index.md --
@@ -69,12 +69,12 @@ tag = "tags"
 
 [[cascade]]
 
-[cascade._build]
+[cascade.build]
 render = "never"
 list = "never"
 publishResources = false
 
-[cascade._target]
+[cascade.target]
 path = '/hidden/**'
 -- content/p1.md --
 ---
@@ -156,7 +156,7 @@ func TestCascadeIssue12172(t *testing.T) {
 disableKinds = ['rss','sitemap','taxonomy','term']
 [[cascade]]
 headless = true
-[cascade._target]
+[cascade.target]
 path = '/s1**'
 -- content/s1/p1.md --
 ---
@@ -185,11 +185,11 @@ disableKinds = ['rss','sitemap','taxonomy','term', 'home']
 ---
 title: Home
 cascade:
-- _target:
+- target:
     path: "**"
   params:
     background: yosemite.jpg
-- _target:
+- target:
   params:
     background: goldenbridge.jpg
 ---
@@ -542,4 +542,59 @@ cascade:
 	b.AssertFileExists("public/s2/index.html", true)
 	b.AssertFileExists("public/s2/p2/index.html", false)
 	b.AssertFileExists("public/s2/p3/index.html", false)
+}
+
+// Issue 13869
+func TestCascadeSliceFromModule13869(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+theme = 'foo'
+[cascade]
+_merge = 'deep'
+-- content/_index.md --
+---
+title: home
+---
+-- layouts/home.html --
+color: {{ .Params.color }}
+-- themes/foo/hugo.toml --
+[[cascade]]
+[cascade.params]
+color = 'red'
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "color: red")
+}
+
+// Issue 14848
+func TestCascadeParamsLangIssue14848(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ['rss','sitemap','taxonomy','term']
+-- content/_index.md --
+---
+title: Home
+cascade:
+  params:
+    lang: en
+---
+-- content/p1.md --
+---
+title: p1
+---
+-- layouts/all.html --
+{{ .Title }}|lang: {{ .Params.lang }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "p1|lang: en|")
 }

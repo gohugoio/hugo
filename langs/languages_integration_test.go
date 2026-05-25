@@ -215,3 +215,166 @@ TITLE: {{ .Title }} RELPERMALINK: {{ .RelPermalink }}|
 		"b (en)|TITLE: P1 (en) RELPERMALINK: /en/p1/|",
 	)
 }
+
+func TestLocaleAsLocalizationKeyIssue9109(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguage = 'de'
+defaultContentLanguageInSubdir = true
+
+[languages.de]
+weight = 1
+
+[languages.en]
+locale = 'en-US'
+weight = 2
+
+[languages.fr]
+locale = 'bogus'
+weight = 3
+
+[languages.nn]
+weight = 4
+
+[languages.xx]
+locale = 'bogus'
+weight = 5
+
+[languages.zh-cn]
+locale = 'zh-Hans'
+weight = 6
+-- layouts/home.html --
+Time: {{ "2026-04-01T20:11:31+08:00" | time.Format ":date_long" }}|
+FormatAccounting: {{ 512.5032 | lang.FormatAccounting 2 "USD" }}|
+FormatCurrency: {{ 512.5032 | lang.FormatCurrency 2 "USD" }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	// de: no locale => localize with lang.
+	b.AssertFileContent("public/de/index.html",
+		`Time: 1. April 2026|`,
+		"FormatAccounting: 512,50\u00a0$|",
+		"FormatCurrency: 512,50\u00a0$|",
+	)
+
+	// en: valid locale => localize with locale.
+	b.AssertFileContent("public/en/index.html",
+		`Time: April 1, 2026|`,
+		`FormatAccounting: $512.50|`,
+		`FormatCurrency: $512.50|`,
+	)
+
+	// fr: invalid locale => localize with lang.
+	b.AssertFileContent("public/fr/index.html",
+		`Time: 1 avril 2026|`,
+		"FormatAccounting: 512,50\u00a0$US|",
+		"FormatCurrency: 512,50\u00a0$US|",
+	)
+
+	// nn: no locale => localize with lang.
+	b.AssertFileContent("public/nn/index.html",
+		`Time: 1. april 2026|`,
+		"FormatAccounting: 512,50\u00a0USD|",
+		"FormatCurrency: 512,50\u00a0USD|",
+	)
+
+	// xx: invalid locale + invalid lang => localize with defaultContentLanguage.
+	b.AssertFileContent("public/xx/index.html",
+		`Time: 1. April 2026|`,
+		"FormatAccounting: 512,50\u00a0$|",
+		"FormatCurrency: 512,50\u00a0$|",
+	)
+
+	// zh-cn: invalid lang, but valid locale => localize with locale.
+	b.AssertFileContent("public/zh-cn/index.html",
+		`Time: 2026年4月1日|`,
+		`FormatAccounting: US$512.50|`,
+		`FormatCurrency: US$512.50|`,
+	)
+}
+
+func TestMultipleLanguageVariants7982(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+defaultContentLanguageInSubdir = true
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+[languages.de-de]
+weight = 3
+-- i18n/en.toml --
+file = 'en'
+-- i18n/de.toml --
+file = 'de'
+-- i18n/de-de.toml --
+file = 'de-de'
+-- layouts/index.html --
+language: {{ site.Language.Name }} file: {{ T "file" }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "language: en file: en|")
+	b.AssertFileContent("public/de/index.html", "language: de file: de|")
+	b.AssertFileContent("public/de-de/index.html", "language: de-de file: de-de|")
+}
+
+func TestDefaultContentLanguageFallback14243(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguage = 'es'
+defaultContentLanguageInSubdir = true
+
+[languages.es]
+locale = 'es-AR'
+weight = 1
+
+[languages.pt]
+locale = 'pt-BR'
+weight = 2
+-- layouts/home.html --
+{{ T "foo"}}|
+-- i18n/es-ar.toml --
+foo = 'foo es-ar'
+-- i18n/es.toml --
+foo = 'foo es'
+-- i18n/pt-br.toml --
+foo = 'foo pt-br'
+-- i18n/pt.toml --
+foo = 'foo pt'
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo pt-br|")
+
+	files = strings.ReplaceAll(files, "i18n/pt-br.toml", "unused-a.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo pt|")
+
+	files = strings.ReplaceAll(files, "i18n/pt.toml", "unused-b.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo es-ar|")
+
+	files = strings.ReplaceAll(files, "i18n/es-ar.toml", "unused-c.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "foo es|")
+
+	files = strings.ReplaceAll(files, "i18n/es.toml", "unused-d.toml")
+
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/pt/index.html", "|")
+}

@@ -21,7 +21,7 @@ Returns an image filter that processes an image according to the given [processi
 {{ end }}
 ```
 
-In the example above, `"crop 200x200 TopRight webp q50"` is the _processing specification_.
+In the example above, `"crop 200x200 TopRight webp q50"` is the processing specification.
 
 {{% include "/_common/methods/resource/processing-spec.md" %}}
 

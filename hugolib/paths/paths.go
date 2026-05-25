@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	hpaths "github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/config"
@@ -40,6 +41,22 @@ type Paths struct {
 	// When in multihost mode, this returns a list of base paths below PublishDir
 	// for each language.
 	MultihostTargetBasePaths []string
+
+	// When in multihost mode, this is the URL base path (the path part of baseURL,
+	// without trailing slash) for each language, parallel to MultihostTargetBasePaths.
+	MultihostBasePaths []string
+
+	// When in multihost mode, this is the deepest of the per-host base paths
+	// in MultihostBasePaths. css.Build uses this so file-loader URLs are
+	// reachable on every host (each host's base path is a prefix).
+	MultihostLongestBasePath string
+}
+
+// allBaseURLsProvider is satisfied by allconfig.ConfigLanguage and lets us
+// access per-host BaseURLs without importing allconfig (which would create an
+// import cycle via helpers).
+type allBaseURLsProvider interface {
+	AllBaseURLs() []urls.BaseURL
 }
 
 func New(fs *hugofs.Fs, cfg config.AllProvider) (*Paths, error) {
@@ -65,10 +82,20 @@ func New(fs *hugofs.Fs, cfg config.AllProvider) (*Paths, error) {
 		absResourcesDir = FilePathSeparator
 	}
 
-	var multihostTargetBasePaths []string
+	var (
+		multihostTargetBasePaths []string
+		multihostBasePaths       []string
+		multihostLongestBasePath string
+	)
 	if cfg.IsMultihost() && len(cfg.Languages().(langs.Languages)) > 1 {
-		for _, l := range cfg.Languages().(langs.Languages) {
+		baseURLs := cfg.(allBaseURLsProvider).AllBaseURLs()
+		for i, l := range cfg.Languages().(langs.Languages) {
 			multihostTargetBasePaths = append(multihostTargetBasePaths, hpaths.ToSlashPreserveLeading(l.Lang))
+			bp := baseURLs[i].BasePathNoTrailingSlash
+			multihostBasePaths = append(multihostBasePaths, bp)
+			if len(bp) > len(multihostLongestBasePath) {
+				multihostLongestBasePath = bp
+			}
 		}
 	}
 
@@ -78,6 +105,8 @@ func New(fs *hugofs.Fs, cfg config.AllProvider) (*Paths, error) {
 		AbsResourcesDir:          absResourcesDir,
 		AbsPublishDir:            absPublishDir,
 		MultihostTargetBasePaths: multihostTargetBasePaths,
+		MultihostBasePaths:       multihostBasePaths,
+		MultihostLongestBasePath: multihostLongestBasePath,
 	}
 
 	return p, nil

@@ -215,6 +215,14 @@ func (p *SitesMatrixAndComplements) MatchVersionCoarse(siteVector sitesmatrix.Ve
 	return p.SitesMatrix.HasVersion(i) || p.SitesComplements.HasVersion(i)
 }
 
+func (p *SitesMatrixAndComplements) MatchSiteVectorCoarse(siteVector sitesmatrix.Vector) bool {
+	return p.MatchLanguageCoarse(siteVector) && p.MatchSiteVectorCoarseExcludeLanguage(siteVector)
+}
+
+func (p *SitesMatrixAndComplements) MatchSiteVectorCoarseExcludeLanguage(siteVector sitesmatrix.Vector) bool {
+	return p.MatchRoleCoarse(siteVector) && p.MatchVersionCoarse(siteVector)
+}
+
 func DefaultPageConfig() *PageConfigLate {
 	return &PageConfigLate{
 		Build: DefaultBuildConfig,
@@ -555,7 +563,10 @@ func (s Source) ValueAsString() string {
 }
 
 func (s Source) ValueAsOpenReadSeekCloser() hugio.OpenReadSeekCloser {
-	return hugio.NewOpenReadSeekCloser(hugio.NewReadSeekerNoOpCloserFromString(s.ValueAsString()))
+	content := s.ValueAsString()
+	return func() (hugio.ReadSeekCloser, error) {
+		return hugio.NewReadSeekerNoOpCloserFromString(content), nil
+	}
 }
 
 // FrontMatterOnlyValues holds values that can only be set via front matter.

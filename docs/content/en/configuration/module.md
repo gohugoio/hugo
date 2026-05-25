@@ -30,13 +30,13 @@ auth
 : (`string`) Configures `GOAUTH` when running the Go command for module operations. This is a semicolon-separated list of authentication commands for go-import and HTTPS module mirror interactions. This is useful for private repositories. See `go help goauth` for more information.
 
 noProxy
-: (`string`) A comma-separated list of [glob patterns](g),s matching paths that should not use the [configured proxy server](#proxy).
+: (`string`) A comma-separated list of [glob patterns](g), matching paths that should not use the [configured proxy server](#proxy).
 
 noVendor
 : (`string`) A [glob pattern](g) matching module paths to skip when vendoring.
 
 private
-: (`string`) A comma-separated list of [glob patterns](g),s matching paths that should be treated as private.
+: (`string`) A comma-separated list of [glob patterns](g), matching paths that should be treated as private.
 
 proxy
 : (`string`) The proxy server to use to download remote modules. Default is `direct`, which means `git clone` and similar.
@@ -99,9 +99,9 @@ min
 disable = false
 ignoreConfig = false
 ignoreImports = false
-path = "github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v"
+path = 'github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v'
 [[module.imports]]
-path = "my-shortcodes"
+path = 'my-shortcodes'
 {{< /code-toggle >}}
 
 disable
@@ -119,6 +119,10 @@ noMounts
 noVendor
 : (`bool`) Whether to disable vendoring for this import. This setting is restricted to the main project. Default is `false`.
 
+usePackageJSON
+: {{< new-in 0.159.0 />}}
+: (`string`) Whether to use the import's npm dependencies in [hugo mod npm pack](commands/hugo_mod_npm_pack/). One of `auto` (default), `always` or `never`. When set to `auto`, Hugo will enable this if either there is a Hugo config file (e.g. `hugo.toml`) or a `package.hugo.json` file in the module root.
+
 path
 : (`string`) The module path, either a valid Go module path (e.g., `github.com/gohugoio/myShortcodes`) or the directory name if stored in the [`themesDir`][].
 
@@ -135,11 +139,11 @@ version
 
 ### Default mounts
 
-Within a project, if you define a mount to map a file system path to a component path, the corresponding default mount for that component will be removed. This action essentially overwrites the standard, automatic mapping for that specific component with your custom one.
+Defining a mount for a component within a project configuration removes the default mount for that component.
 
-Within a module, if you define a mount to map a file system path to a component path, all of the default mounts will be removed. Defining a mount at the module level is a more sweeping change, causing all default mappings within that module to be discarded.
+Defining a mount for a component within a module configuration removes all default mounts for that module.
 
-In either case, if you still need one of the default mounts, you must explicitly add it along with the new mount. Because custom mounts override defaults, any necessary default mappings must be re-added manually after you introduce your custom configuration.
+If you still need any of the default mounts, you must explicitly add them along with the new mount.
 
 These are the default mounts:
 
@@ -152,12 +156,23 @@ target
 : (`string`) Where the mount will reside within Hugo's [unified file system](g). It must begin with one of Hugo's [component](g) directories: archetypes, assets, content, data, i18n, layouts, or static. For example, content/blog.
 
 disableWatch
-: {{< new-in 0.128.0 />}}
 : (`bool`) Whether to disable watching in watch mode for this mount. Default is `false`.
+
+excludeFiles
+: {{< deprecated-in 0.153.0 />}}
+: Use [`files`](#files) instead.
 
 files
 : {{< new-in 0.153.0 />}}
 : (`[]string`) A [glob slice](g) defining the files to include or exclude.
+
+includeFiles
+: {{< deprecated-in 0.153.0 />}}
+: Use [`files`](#files) instead.
+
+lang
+: {{< deprecated-in 0.153.0 />}}
+: Use [`sites`](#sites) instead.
 
 sites
 : {{< new-in 0.153.0 />}}
@@ -168,15 +183,15 @@ sites
 {{< code-toggle file=hugo >}}
 [module]
 [[module.mounts]]
-    source="content"
-    target="content"
-    files=["! docs/*"]
+source = 'content'
+target = 'content'
+files = ['! docs/*']
 [[module.mounts]]
-    source="node_modules"
-    target="assets"
+source = 'node_modules'
+target = 'assets'
 [[module.mounts]]
-    source="assets"
-    target="assets"
+source = 'assets'
+target = 'assets'
 {{< /code-toggle >}}
 
 [`archetypeDir`]: /configuration/all/#archetypedir

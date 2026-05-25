@@ -142,7 +142,7 @@ For example, to return a slice of pages where the `color` page parameter is eith
 {{ $pages := where $fruit "Params.color" "in" $colors }}
 ```
 
-To return a slice of pages where the "color" page parameter is neither "red" nor "yellow":
+To return a slice of pages where the `color` page parameter is neither `red` nor `yellow`:
 
 ```go-html-template
 {{ $fruit := where site.RegularPages "Section" "eq" "fruit" }}
@@ -155,7 +155,7 @@ To return a slice of pages where the "color" page parameter is neither "red" nor
 
 Compare a `slice` to a `slice`, returning elements with common values. This is frequently used when comparing taxonomy terms.
 
-For example, to return a slice of pages where any of the terms in the "genres" taxonomy are "suspense" or "romance":
+For example, to return a slice of pages where any of the terms in the `genres` taxonomy are "suspense" or "romance":
 
 ```go-html-template
 {{ $books := where site.RegularPages "Section" "eq" "books" }}
@@ -166,7 +166,7 @@ For example, to return a slice of pages where any of the terms in the "genres" t
 
 ## Regular expression comparison
 
-To return a slice of pages where the "author" page parameter begins with either "victor" or "Victor":
+To return a slice of pages where the `author` page parameter begins with either "victor" or "Victor":
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Params.author" "like" `(?i)^victor` }}
@@ -274,7 +274,7 @@ If `mainSections` is not defined in your project configuration, the `MainSection
 
 ## Boolean/undefined comparison
 
-Consider this site content:
+Consider this project structure:
 
 ```text
 content/

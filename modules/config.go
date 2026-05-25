@@ -403,7 +403,19 @@ type Import struct {
 	Disable bool
 	// File mounts.
 	Mounts []Mount
+
+	// Controls whether npm package files (package.json/package.hugo.json) are
+	// read from this module. Values: "auto" (default), "always", "never".
+	// "auto" reads package files when a Hugo config file or package.hugo.json
+	// is present in the module root.
+	UsePackageJSON string
 }
+
+const (
+	UsePackageJSONAuto   = "auto"
+	UsePackageJSONAlways = "always"
+	UsePackageJSONNever  = "never"
+)
 
 type Mount struct {
 	// Relative path in source repo, e.g. "scss".

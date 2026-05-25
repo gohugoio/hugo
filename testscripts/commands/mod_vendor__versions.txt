@@ -1,5 +1,3 @@
-dostounix golden/vendor.txt
-
 hugo mod vendor
 cmp _vendor/modules.txt golden/vendor.txt
 lsr _vendor

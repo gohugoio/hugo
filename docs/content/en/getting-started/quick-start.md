@@ -4,7 +4,7 @@ description: Create your first Hugo project.
 categories: []
 keywords: []
 params:
-  minVersion: v0.156.0
+  minVersion: v0.158.0
 weight: 10
 aliases: [/quickstart/,/overview/quickstart/]
 ---
@@ -20,7 +20,7 @@ In this tutorial you will:
 
 Before you begin this tutorial you must:
 
-1. [Install Hugo] (extended or extended/deploy edition, {{% param "minVersion" %}} or later)
+1. [Install Hugo] (any edition, {{% param "minVersion" %}} or later)
 1. [Install Git]
 
 You must also be comfortable working from the command line.
@@ -50,7 +50,7 @@ Run these commands to create a Hugo project with the [Ananke][] theme. The next 
 hugo new project quickstart
 cd quickstart
 git init
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
+git submodule add https://github.com/gohugo-ananke/ananke themes/ananke
 echo "theme = 'ananke'" >> hugo.toml
 hugo server
 ```
@@ -80,7 +80,7 @@ git init
 Clone the [Ananke][] theme into the `themes` directory, adding it to your project as a [Git submodule][].
 
 ```text
-git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke
+git submodule add https://github.com/gohugo-ananke/ananke themes/ananke
 ```
 
 Append a line to your project configuration file, indicating the current theme.
@@ -152,7 +152,7 @@ With your editor, open your [project configuration][] file (`hugo.toml`) in the 
 
 ```text
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'My New Hugo Project'
 theme = 'ananke'
 ```
@@ -160,7 +160,7 @@ theme = 'ananke'
 Make the following changes:
 
 1. Set the `baseURL` for your project. This value must begin with the protocol and end with a slash, as shown above.
-1. Set the `languageCode` to your locale.
+1. Set the `locale` to your locale.
 1. Set the `title` for your project.
 
 Start Hugo's development server to see your changes, remembering to include draft content.
@@ -170,9 +170,7 @@ hugo server -D
 ```
 
 > [!note]
-> Most theme authors provide configuration guidelines and options. Make sure to visit your theme's repository or documentation site for details.
->
-> [The New Dynamic][], authors of the Ananke theme, provide [documentation][] for configuration and usage. They also provide a [demonstration site][].
+> Now that you have the Ananke theme installed, check out their [documentation][] and [demonstration site][] to learn how to configure and customize it.
 
 ## Publish the project
 
@@ -196,8 +194,8 @@ For other resources to help you learn Hugo, including books and video tutorials,
 
 [Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
 [are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
-[demonstration site]: https://gohugo-ananke-theme-demo.netlify.app/
-[documentation]: https://github.com/theNewDynamic/gohugo-theme-ananke#readme
+[demonstration site]: https://ananke-theme.netlify.app/
+[documentation]: https://ananke-documentation.netlify.app/
 [draft, future, and expired content]: /getting-started/usage/#draft-future-and-expired-content
 [external learning resources]: /getting-started/external-learning-resources/
 [forum]: https://discourse.gohugo.io/
@@ -213,4 +211,3 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [project skeleton]: /getting-started/directory-structure/#project-skeleton
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
 [specification]: https://spec.commonmark.org/
-[The New Dynamic]: https://www.thenewdynamic.com/

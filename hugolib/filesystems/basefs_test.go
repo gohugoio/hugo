@@ -296,14 +296,9 @@ F1 text
 
 	os.Chdir(wd)
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-			WorkingDir:  tmpDir,
-		},
-	).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.WorkingDir = tmpDir
+	}))
 
 	bfs := b.H.BaseFs
 	watchFilenames := bfs.WatchFilenames()
@@ -432,13 +427,9 @@ title: "Foo"
 ---
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			WorkingDir:  tempDir,
-			TxtarString: files,
-		},
-	).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.WorkingDir = tempDir
+	}))
 
 	abs1 := filepath.Join(tempDir, "content", "foo.md")
 	rel, abs2, err := b.H.BaseFs.AbsProjectContentDir("foo.md")

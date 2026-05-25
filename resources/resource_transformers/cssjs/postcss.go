@@ -187,6 +187,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	stderr := io.MultiWriter(infow, &errBuf)
 	cmdArgs = append(cmdArgs, hexec.WithStderr(stderr))
 	cmdArgs = append(cmdArgs, hexec.WithStdout(ctx.To))
+	cmdArgs = append(cmdArgs, hexec.WithDir(t.rs.Cfg.BaseConfig().WorkingDir))
 	cmdArgs = append(cmdArgs, hexec.WithEnviron(hugo.GetExecEnviron(t.rs.Cfg.BaseConfig().WorkingDir, t.rs.Cfg, t.rs.BaseFs.Assets.Fs)))
 
 	cmd, err := ex.Npx(binaryName, cmdArgs...)

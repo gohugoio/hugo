@@ -10,11 +10,11 @@ aliases: [/templates/shortcode-templates/]
 {{< newtemplatesystem >}}
 
 > [!note]
-> Before creating custom shortcodes, please review the [shortcodes] page in the [content management] section. Understanding the usage details will help you design and create better templates.
+> Before creating custom shortcodes, please review the [shortcodes][] page in the [content management][] section. Understanding the usage details will help you design and create better templates.
 
 ## Introduction
 
-Hugo provides [embedded shortcodes] for many common tasks, but you'll likely need to create your own for more specific needs. Some examples of custom shortcodes you might develop include:
+Hugo provides [embedded shortcodes][] for many common tasks, but you'll likely need to create your own for more specific needs. Some examples of custom shortcodes you might develop include:
 
 - Audio players
 - Video players
@@ -72,7 +72,7 @@ foo|rss|en|`layouts/_shortcodes/foo.xml`
 
 Use these methods in your _shortcode_ templates. Refer to each methods's documentation for details and examples.
 
-{{% list-pages-in-section path=/methods/shortcode %}}
+{{% render-list-of-pages-in-section path=/methods/shortcode %}}
 
 ## Examples
 
@@ -92,7 +92,7 @@ Then call the shortcode from within your markup:
 This is {{</* year */>}}, and look at how far we've come.
 ```
 
-This shortcode can be used inline or as a block on its own line. If a shortcode might be used inline, remove the surrounding [whitespace] by using [template action](g) delimiters with hyphens.
+This shortcode can be used inline or as a block on its own line. If a shortcode might be used inline, remove the surrounding [whitespace][] by using [template action](g) delimiters with hyphens.
 
 ### Insert image
 
@@ -124,14 +124,14 @@ Then call the shortcode from within your markup:
 
 The example above uses:
 
-- The [`with`] statement to rebind the [context](g) after each successful operation
-- The [`Get`] method to retrieve arguments by name
+- The [`with`][] statement to rebind the [context](g) after each successful operation
+- The [`Get`][] method to retrieve arguments by name
 - The `$` to access the template context
 
 > [!note]
 > Make sure that you thoroughly understand the concept of context. The most common templating errors made by new users relate to context.
 >
-> Read more about context in the [introduction to templating].
+> Read more about context in the [introduction to templating][].
 
 ### Insert image with error handling
 
@@ -158,7 +158,7 @@ The previous example, while functional, silently fails if the image is missing, 
 
 This template throws an error and gracefully fails the build if the author neglected to provide a `path` or `width` argument, and it emits a warning if it cannot find the image at the specified path. If the author does not provide an `alt` argument, the `alt` attribute is set to an empty string.
 
-The [`Name`] and [`Position`] methods provide helpful context for errors and warnings. For example, a missing `width` argument causes the shortcode to throw this error:
+The [`Name`][] and [`Position`][] methods provide helpful context for errors and warnings. For example, a missing `width` argument causes the shortcode to throw this error:
 
 ```text
 ERROR The "image" shortcode requires a 'width' argument: see "/home/user/project/content/example/index.md:7:1"
@@ -166,7 +166,7 @@ ERROR The "image" shortcode requires a 'width' argument: see "/home/user/project
 
 ### Positional arguments
 
-Shortcode arguments can be [named or positional]. We used named arguments previously; let's explore positional arguments. Here's the named argument version of our example:
+Shortcode arguments can be [named or positional][]. We used named arguments previously; let's explore positional arguments. Here's the named argument version of our example:
 
 ```text {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
@@ -191,7 +191,7 @@ Using the `Get` method with zero-indexed keys, we'll initialize variables with d
 
 ### Named and positional arguments
 
-You can create a shortcode that will accept both named and positional arguments, but not at the same time. Use the [`IsNamedParams`] method to determine whether the shortcode call used named or positional arguments:
+You can create a shortcode that will accept both named and positional arguments, but not at the same time. Use the [`IsNamedParams`][] method to determine whether the shortcode call used named or positional arguments:
 
 ```go-html-template {file="layouts/_shortcodes/image.html"}
 {{ $path := cond (.IsNamedParams) (.Get "path") (.Get 0) }}
@@ -199,11 +199,11 @@ You can create a shortcode that will accept both named and positional arguments,
 {{ $alt := cond (.IsNamedParams) (.Get "alt") (.Get 2) }}
 ```
 
-This example uses the `cond` alias for the [`compare.Conditional`] function to get the argument by name if `IsNamedParams` returns `true`, otherwise get the argument by position.
+This example uses the `cond` alias for the [`compare.Conditional`][] function to get the argument by name if `IsNamedParams` returns `true`, otherwise get the argument by position.
 
 ### Argument collection
 
-Use the [`Params`] method to access the arguments as a collection.
+Use the [`Params`][] method to access the arguments as a collection.
 
 When using named arguments, the `Params` method returns a map:
 
@@ -229,11 +229,11 @@ When using named arguments, the `Params` method returns a map:
 {{ index .Params 1 }} → A white kitten
 ```
 
-Combine the `Params` method with the [`collections.IsSet`] function to determine if a parameter is set, even if its value is falsy.
+Combine the `Params` method with the [`collections.IsSet`][] function to determine if a parameter is set, even if its value is falsy.
 
 ### Inner content
 
-Extract the content enclosed within shortcode tags using the [`Inner`] method. This example demonstrates how to pass both content and a title to a shortcode. The shortcode then generates a `div` element containing an `h2` element (displaying the title) and the provided content.
+Extract the content enclosed within shortcode tags using the [`Inner`][] method. This example demonstrates how to pass both content and a title to a shortcode. The shortcode then generates a `div` element containing an `h2` element (displaying the title) and the provided content.
 
 ```text {file="content/example.md"}
 {{</* contrived title="A Contrived Example" */>}}
@@ -248,11 +248,11 @@ This is a **bold** word, and this is an _emphasized_ word.
 </div>
 ```
 
-The preceding example called the shortcode using [standard notation], requiring us to process the inner content with the [`RenderString`] method to convert the Markdown to HTML. This conversion is unnecessary when calling a shortcode using [Markdown notation].
+The preceding example called the shortcode using [standard notation][], requiring us to process the inner content with the [`RenderString`][] method to convert the Markdown to HTML. This conversion is unnecessary when calling a shortcode using [Markdown notation][].
 
 ### Nesting
 
-The  [`Parent`] method provides access to the parent shortcode context when the shortcode in question is called within the context of a parent shortcode. This provides an inheritance model.
+The  [`Parent`][] method provides access to the parent shortcode context when the shortcode in question is called within the context of a parent shortcode. This provides an inheritance model.
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` argument:
 
@@ -295,11 +295,11 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 
 ### Other examples
 
-For guidance, consider examining Hugo's embedded shortcodes. The source code, available on [GitHub], can provide a useful model.
+For guidance, consider examining Hugo's embedded shortcodes. The source code, available on [GitHub][], can provide a useful model.
 
 ## Detection
 
-The [`HasShortcode`] method allows you to check if a specific shortcode has been called on a page. For example, consider a custom audio shortcode:
+The [`HasShortcode`][] method allows you to check if a specific shortcode has been called on a page. For example, consider a custom audio shortcode:
 
 ```text {file="content/example.md"}
 {{</* audio src=/audio/test.mp3 */>}}

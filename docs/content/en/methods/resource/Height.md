@@ -11,16 +11,16 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
+Use the [`reflect.IsImageResourceWithMeta`][] function to verify that Hugo can determine the dimensions before calling the `Height` method.
+
 ```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  {{ .Height }} → 400
+{{ with resources.GetMatch "images/featured.*" }}
+  {{ if reflect.IsImageResourceWithMeta . }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+  {{ else }}
+    <img src="{{ .RelPermalink }}" alt="">
+  {{ end }}
 {{ end }}
 ```
 
-Use the `Width` and `Height` methods together when rendering an `img` element:
-
-```go-html-template
-{{ with resources.Get "images/a.jpg" }}
-  <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}">
-{{ end }}
-```
+[`reflect.IsImageResourceWithMeta`]: /functions/reflect/isimageresourcewithmeta/

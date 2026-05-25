@@ -121,11 +121,6 @@ type BlockquoteContext interface {
 	AlertSign() string
 }
 
-type PositionerSourceTargetProvider interface {
-	// For internal use.
-	PositionerSourceTarget() []byte
-}
-
 // PassThroughContext is the context passed to a passthrough render hook.
 type PassthroughContext interface {
 	BaseContext
@@ -205,7 +200,8 @@ type HeadingRenderer interface {
 // This may be both slow and approximate, so should only be
 // used for error logging.
 type ElementPositionResolver interface {
-	ResolvePosition(ctx any) text.Position
+	// ResolvePosition returns the position of the element in the original source document, -1 if it's not defined.
+	ResolvePosition(renderContext any, srcPos int) text.Position
 }
 
 type RendererType int

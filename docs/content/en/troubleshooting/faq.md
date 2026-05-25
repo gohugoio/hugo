@@ -11,16 +11,13 @@ Hugo's [forum] is an active community of users and developers who answer questio
 These are just a few of the questions most frequently asked by new users.
 
 An error message indicates that a feature is not available. Why?
-: <!-- do not remove preceding space -->
-  {{% include "/_common/installation/01-editions.md" %}}
-
-  When you attempt to use a feature that is not available in the edition that you installed, Hugo throws this error:
+: When you attempt to use a feature that is not available in the edition that you installed, Hugo throws this error:
 
   ```go-html-template
   this feature is not available in this edition of Hugo
   ```
 
-  To resolve, install a different edition based on the feature table above. See the [installation] section for details.
+  To resolve, install a different edition. See the [installation] section for details.
 
 Why do I see "Page Not Found" when visiting the home page?
 : In the `content/_index.md` file:

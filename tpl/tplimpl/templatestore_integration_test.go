@@ -379,14 +379,7 @@ title: "P1"
 
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/p1/index.html", "MAIN /_default/single.html")
 

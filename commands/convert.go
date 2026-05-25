@@ -18,10 +18,12 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/bep/simplecobra"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -200,6 +202,56 @@ func (c *convertCommand) convertAndSavePage(p page.Page, site *hugolib.Site, tar
 	return nil
 }
 
+func (c *convertCommand) copyContentDirsForOutput(pagesBackedByFile page.Pages) error {
+	contentDirs := make(map[string]bool)
+	for _, p := range pagesBackedByFile {
+		filename := p.File().Filename()
+		contentDir := strings.TrimSuffix(filename, p.File().Path())
+		if contentDir == filename {
+			continue
+		}
+		contentDirs[filepath.Clean(contentDir)] = true
+	}
+
+	var contentDirList []string
+	for contentDir := range contentDirs {
+		contentDirList = append(contentDirList, contentDir)
+	}
+	slices.Sort(contentDirList)
+
+	outputDirAbs, err := filepath.Abs(c.outputDir)
+	if err != nil {
+		return fmt.Errorf("failed to resolve output path %q: %w", c.outputDir, err)
+	}
+
+	for _, contentDir := range contentDirList {
+		outputContentDirAbs := filepath.Join(outputDirAbs, filepath.Base(contentDir))
+
+		skipDirs := make(map[string]bool)
+		relToOutputDir, err := filepath.Rel(contentDir, outputDirAbs)
+		if err == nil && relToOutputDir != ".." && !strings.HasPrefix(relToOutputDir, ".."+string(filepath.Separator)) {
+			skipDirs[filepath.Clean(outputDirAbs)] = true
+		}
+		relToOutputContentDir, err := filepath.Rel(contentDir, outputContentDirAbs)
+		if err == nil && relToOutputContentDir != ".." && !strings.HasPrefix(relToOutputContentDir, ".."+string(filepath.Separator)) {
+			skipDirs[filepath.Clean(outputContentDirAbs)] = true
+		}
+
+		var shouldCopy func(filename string) bool
+		if len(skipDirs) > 0 {
+			shouldCopy = func(filename string) bool {
+				return !skipDirs[filepath.Clean(filename)]
+			}
+		}
+
+		if err := hugio.CopyDir(hugofs.Os, contentDir, outputContentDirAbs, shouldCopy); err != nil {
+			return fmt.Errorf("failed to copy %q to %q: %w", contentDir, outputContentDirAbs, err)
+		}
+	}
+
+	return nil
+}
+
 func (c *convertCommand) convertContents(format metadecoders.Format) error {
 	if c.outputDir == "" && !c.unsafe {
 		return newUserError("Unsafe operation not allowed, use --unsafe or set a different output path")
@@ -217,6 +269,12 @@ func (c *convertCommand) convertContents(format metadecoders.Format) error {
 			continue
 		}
 		pagesBackedByFile = append(pagesBackedByFile, p)
+	}
+
+	if c.outputDir != "" {
+		if err := c.copyContentDirsForOutput(pagesBackedByFile); err != nil {
+			return err
+		}
 	}
 
 	site.Log.Println("processing", len(pagesBackedByFile), "content files")

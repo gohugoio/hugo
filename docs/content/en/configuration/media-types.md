@@ -61,21 +61,21 @@ Occasionally, you may need to create a media type without a suffix or delimiter.
 To support these custom output formats, register a custom media type with no suffix or delimiter:
 
 {{< code-toggle file=hugo >}}
-[mediaTypes."text/netlify"]
-delimiter = ""
+[mediaTypes.'text/netlify']
+delimiter = ''
 {{< /code-toggle >}}
 
 The custom output format definitions would look something like this:
 
 {{< code-toggle file=hugo >}}
 [outputFormats.redir]
-baseName    = "_redirects"
+baseName    = '_redirects'
 isPlainText = true
-mediatype   = "text/netlify"
+mediatype   = 'text/netlify'
 [outputFormats.headers]
-baseName       = "_headers"
+baseName       = '_headers'
 isPlainText    = true
-mediatype      = "text/netlify"
+mediatype      = 'text/netlify'
 notAlternative = true
 {{< /code-toggle >}}
 

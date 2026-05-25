@@ -75,7 +75,7 @@ Provide your tracking ID in your configuration file:
 
 {{< code-toggle file=hugo >}}
 [services.googleAnalytics]
-id = "G-MEASUREMENT_ID"
+id = 'G-MEASUREMENT_ID'
 {{</ code-toggle >}}
 
 To use this value in your own template, access the configured ID with `{{ site.Config.Services.GoogleAnalytics.ID }}`.
@@ -124,8 +124,8 @@ Hugo's Open Graph template is configured using a mix of configuration settings a
 {{</ code-toggle >}}
 
 {{< code-toggle file=content/blog/my-post.md fm=true >}}
-title = "Post title"
-description = "Text about this post"
+title = 'Post title'
+description = 'Text about this post'
 date = 2024-03-08T08:18:11-08:00
 images = ["post-cover.png"]
 audio = []
@@ -186,12 +186,12 @@ Hugo's X (Twitter) Card template is configured using a mix of configuration sett
 {{< code-toggle file=hugo >}}
 [params]
   images = ["site-feature-image.jpg"]
-  description = "Text about my cool site"
+  description = 'Text about my cool site'
 {{</ code-toggle >}}
 
 {{< code-toggle file=content/blog/my-post.md fm=true >}}
-title = "Post title"
-description = "Text about this post"
+title = 'Post title'
+description = 'Text about this post'
 images = ["post-cover.png"]
 {{</ code-toggle >}}
 
@@ -203,7 +203,7 @@ Set the value of `twitter:site` in your project configuration:
 
 {{< code-toggle file=hugo >}}
 [params.social]
-twitter = "GoHugoIO"
+twitter = 'GoHugoIO'
 {{</ code-toggle >}}
 
 NOTE: The `@` will be added for you

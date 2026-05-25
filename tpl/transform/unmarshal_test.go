@@ -82,9 +82,7 @@ func (t testContentResource) Key() string {
 }
 
 func TestUnmarshal(t *testing.T) {
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: t},
-	).Build()
+	b := hugolib.Test(t, "")
 
 	ns := transform.New(b.H.Deps)
 
@@ -191,9 +189,7 @@ a;b;c`, mime: media.Builtin.CSVType}, map[string]any{"DElimiter": ";", "Comment"
 }
 
 func BenchmarkUnmarshalString(b *testing.B) {
-	bb := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: b},
-	).Build()
+	bb := hugolib.Test(b, "")
 
 	ns := transform.New(bb.H.Deps)
 
@@ -218,9 +214,7 @@ func BenchmarkUnmarshalString(b *testing.B) {
 }
 
 func BenchmarkUnmarshalResource(b *testing.B) {
-	bb := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{T: b},
-	).Build()
+	bb := hugolib.Test(b, "")
 
 	ns := transform.New(bb.H.Deps)
 

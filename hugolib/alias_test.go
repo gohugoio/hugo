@@ -749,3 +749,43 @@ Output format: foo|Title: {{ .Title }}
 </head>
 	`)
 }
+
+// Issue 14807
+func TestDoNotRenderAliasesIfPageNotRendered14807(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+aliases: [p1-alias]
+---
+-- content/p2.md --
+---
+title: p2
+aliases: [p2-alias]
+build:
+  render: never
+---
+-- content/p3.md --
+---
+title: p3
+aliases: [p3-alias]
+build:
+  render: link
+---
+-- layouts/page.html --
+{{ .Title }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileExists("public/p1/index.html", true)
+	b.AssertFileExists("public/p2/index.html", false)
+	b.AssertFileExists("public/p3/index.html", false)
+	b.AssertFileExists("public/p1-alias/index.html", true)
+	b.AssertFileExists("public/p2-alias/index.html", false)
+	b.AssertFileExists("public/p3-alias/index.html", false)
+}

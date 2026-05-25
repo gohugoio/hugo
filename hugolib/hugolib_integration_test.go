@@ -58,13 +58,7 @@ tags: ['T1']
 <ul>{{ range .AllTranslations }}<li>{{ .Title }}-{{ .Lang }}</li>{{ end }}</ul>
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	// Kind home
 	b.AssertFileContent("public/en/index.html",
@@ -98,14 +92,8 @@ func TestRenderStringBadMarkupOpt(t *testing.T) {
 {{ "something" | .RenderString $opts }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-
-	_, err := b.BuildE()
+	b, err := hugolib.TestE(t, files)
+	_ = b
 
 	want := `no content renderer found for markup "foo"`
 	if !strings.Contains(err.Error(), want) {
@@ -136,12 +124,6 @@ title: Films
 {{ (site.GetPage "/films").Title }}
 	`
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "tags\nfiction\nbooks\nFilms")
 }

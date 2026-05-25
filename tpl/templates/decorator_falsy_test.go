@@ -61,3 +61,30 @@ title: "Page 1"
 
 	b.AssertFileContent("public/index.html", "d:truthy", "$")
 }
+
+// Issue 14711
+// When using {{ with partial "name" . }} inside a <script> tag,
+// the injected else block's empty string return was being JS-escaped to "".
+func TestDecoratorPartialFalsyReturnInScript(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "taxonomy", "term", "sitemap", "RSS"]
+-- content/p1.md --
+---
+title: "Page 1"
+---
+-- layouts/_partials/empty.html --
+{{ return "" }}
+-- layouts/home.html --
+<script>
+  {{- with partial "empty" . }}
+  "this-should-be-skipped": "{{ . }}"
+  {{- end }}
+</script>
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "! \"\"")
+}

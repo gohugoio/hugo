@@ -71,7 +71,7 @@ type chromaHighlighter struct {
 
 func (h chromaHighlighter) Highlight(code, lang string, opts any) (string, error) {
 	cfg := h.cfg
-	if err := applyOptions(opts, &cfg); err != nil {
+	if err := applyOptions(opts, &cfg, &lang, &code); err != nil {
 		return "", err
 	}
 	var b strings.Builder
@@ -90,14 +90,14 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 
 	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
 
-	options := ctx.Options()
-
-	if err := applyOptionsFromMap(options, &cfg); err != nil {
+	if err := applyOptionsFromMap(ctx.Options(), &cfg); err != nil {
 		return HighlightResult{}, err
 	}
 
-	// Apply these last so the user can override them.
-	if err := applyOptions(opts, &cfg); err != nil {
+	lang, code := ctx.Type(), ctx.Inner()
+
+	// Apply these last so the user can override them, including the type and code.
+	if err := applyOptions(opts, &cfg, &lang, &code); err != nil {
 		return HighlightResult{}, err
 	}
 
@@ -105,7 +105,7 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 		return HighlightResult{}, err
 	}
 
-	low, high, err := highlight(&b, ctx.Inner(), ctx.Type(), attributes, cfg)
+	low, high, err := highlight(&b, code, lang, attributes, cfg)
 	if err != nil {
 		return HighlightResult{}, err
 	}
@@ -181,13 +181,14 @@ func highlight(fw hugio.FlexiWriter, code, lang string, attributes []attributes.
 	if lexer == nil {
 		if cfg.Hl_inline {
 			fmt.Fprintf(w, "<code%s>%s</code>", inlineCodeAttrs(lang), gohtml.EscapeString(code))
-		} else {
-			preWrapper := getPreWrapper(lang, w)
-			fmt.Fprint(w, preWrapper.Start(true, ""))
-			fmt.Fprint(w, gohtml.EscapeString(code))
-			fmt.Fprint(w, preWrapper.End(true))
+			return 0, 0, nil
 		}
-		return 0, 0, nil
+
+		preWrapper := getPreWrapper(lang, w)
+		fmt.Fprint(w, preWrapper.Start(true, ""))
+		fmt.Fprint(w, gohtml.EscapeString(code))
+		fmt.Fprint(w, preWrapper.End(true))
+		return preWrapper.low, preWrapper.high, nil
 	}
 
 	style := styles.Get(cfg.Style)

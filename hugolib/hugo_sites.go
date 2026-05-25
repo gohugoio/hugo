@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/bep/helpers/maphelpers"
 	"github.com/bep/logg"
 	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/cache/dynacache"
@@ -99,8 +100,8 @@ type HugoSites struct {
 	translationKeyPages *hmaps.SliceCache[page.Page]
 
 	pageTrees                    *pageTrees
-	previousPageTreesWalkContext *doctree.WalkContext[contentNode]     // Set for rebuilds only.
-	previousSeenTerms            *hmaps.Map[term, sitesmatrix.Vectors] // Set for rebuilds only.
+	previousPageTreesWalkContext *doctree.WalkContext[contentNode]                    // Set for rebuilds only.
+	previousSeenTerms            *maphelpers.ConcurrentMap[term, sitesmatrix.Vectors] // Set for rebuilds only.
 
 	printUnusedTemplatesInit            sync.Once
 	printPathWarningsInit               sync.Once

@@ -8,12 +8,9 @@ aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 
 Hugo provides several methods to add syntax highlighting to code examples:
 
-- Use the [`transform.Highlight`] function within your templates
-- Use the [`highlight`] shortcode with any [content format](g)
+- Use the [`transform.Highlight`][] function within your templates
+- Use the [`highlight`][] shortcode with any [content format](g)
 - Use fenced code blocks with the Markdown content format
-
-[`transform.Highlight`]: /functions/transform/highlight/
-[`highlight`]: /shortcodes/highlight/
 
 ## Fenced code blocks
 
@@ -29,13 +26,10 @@ CODE
 : The code to highlight.
 
 LANG
-: The language of the code to highlight. Choose from one of the [supported languages]. This value is case-insensitive.
+: The language of the code to highlight. Choose from one of the [supported languages][]. This value is case-insensitive. If omitted or unsupported, Hugo renders the text as a plain text block without syntax highlighting. Consistent with the [CommonMark specification][], fenced code blocks require a known language identifier to trigger semantic syntax highlighting.
 
 OPTIONS
-: One or more space-separated or comma-separated key-value pairs wrapped in braces. Set default values for each option in your [project configuration]. The key names are case-insensitive.
-
-[supported languages]: #languages
-[project configuration]: /configuration/markup/#highlight
+: One or more space-separated or comma-separated key-value pairs wrapped in braces. Set default values for each option in your [project configuration][]. The key names are case-insensitive.
 
 For example, with this Markdown:
 
@@ -95,8 +89,14 @@ Hugo renders this to:
 
 These are the supported languages. Use one of the identifiers, not the language name, when specifying a language for:
 
-- The [`transform.Highlight`] function
-- The [`highlight`] shortcode
+- The [`transform.Highlight`][] function
+- The [`highlight`][] shortcode
 - Fenced code blocks
 
 {{< chroma-lexers >}}
+
+[`highlight`]: /shortcodes/highlight/
+[`transform.Highlight`]: /functions/transform/highlight/
+[CommonMark specification]: https://spec.commonmark.org/0.31.2/#indented-code-blocks
+[project configuration]: /configuration/markup/#highlight
+[supported languages]: #languages

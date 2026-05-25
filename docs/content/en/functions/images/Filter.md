@@ -7,10 +7,19 @@ params:
   functions_and_methods:
     aliases: []
     returnType: images.ImageResource
-    signatures: [images.Filter FILTERS... IMAGE]
+    signatures: [images.Filter FILTER... RESOURCE]
 ---
 
-Apply one or more [image filters](#image-filters) to the given image.
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
+
+The `images.Filter` function returns a new resource from a [processable image](g) after applying one or more [image filters](#image-filters).
+
+> [!note]
+> Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
+
+## Usage
+
+Use the `images.Filter` function to apply effects such as blurring, sharpening, or grayscale conversion. You can pass a single filter or a slice of filters. When providing a slice, Hugo applies the filters from left to right.
 
 To apply a single filter:
 
@@ -36,9 +45,7 @@ To apply two or more filters, executing from left to right:
 {{ end }}
 ```
 
-You can also apply image filters using the [`Filter`] method on a `Resource` object.
-
-[`Filter`]: /methods/resource/filter/
+You can also apply image filters using the [`Filter`][] method on a `Resource` object.
 
 ## Example
 
@@ -62,4 +69,7 @@ You can also apply image filters using the [`Filter`] method on a `Resource` obj
 
 Use any of these filters with the `images.Filter` function, or with the `Filter` method on a `Resource` object.
 
-{{% list-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude %}}
+{{% render-list-of-pages-in-section path=/functions/images filter=functions_images_no_filters filterType=exclude %}}
+
+[`Filter`]: /methods/resource/filter/
+[`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/

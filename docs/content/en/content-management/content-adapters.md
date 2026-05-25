@@ -273,9 +273,9 @@ Step 4
   {{ end }}
   ```
 
-## Multilingual sites
+## Multilingual projects
 
-With multilingual sites you can:
+With multilingual projects you can:
 
 1. Create one content adapter for all languages using the [`EnableAllLanguages`](#enablealllanguages) method as described above.
 1. Create content adapters unique to each language. See the examples below.

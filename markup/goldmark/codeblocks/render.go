@@ -23,7 +23,6 @@ import (
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
-	"github.com/gohugoio/hugo/markup/highlight/chromalexers"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -89,23 +88,16 @@ func (r *htmlRenderer) renderCodeBlock(w util.BufWriter, src []byte, node ast.No
 		info = n.Info.Segment.Value(src)
 	}
 
-	attrtp := attributes.AttributesOwnerCodeBlockCustom
-	if isd, ok := renderer.(hooks.IsDefaultCodeBlockRendererProvider); (ok && isd.IsDefaultCodeBlockRenderer()) || chromalexers.Get(lang) != nil {
-		// We say that this is a Chroma code block if it's the default code block renderer
-		// or if the language is supported by Chroma.
-		attrtp = attributes.AttributesOwnerCodeBlockChroma
-	}
-
 	attrs, attrStr, err := getAttributes(n, info)
 	if err != nil {
 		return ast.WalkStop, &herrors.TextSegmentError{Err: err, Segment: attrStr}
 	}
 
-	cbctx := &codeBlockContext{
-		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, func() []byte { return []byte(s) }, ordinal),
+	cbctx := codeBlockContext{
+		BaseContext:      render.NewBaseContext(ctx, renderer, node, src, ordinal),
 		lang:             lang,
 		code:             s,
-		AttributesHolder: attributes.New(attrs, attrtp),
+		AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerCodeBlockChroma),
 	}
 
 	cr := renderer.(hooks.CodeBlockRenderer)
@@ -130,11 +122,11 @@ type codeBlockContext struct {
 	*attributes.AttributesHolder
 }
 
-func (c *codeBlockContext) Type() string {
+func (c codeBlockContext) Type() string {
 	return c.lang
 }
 
-func (c *codeBlockContext) Inner() string {
+func (c codeBlockContext) Inner() string {
 	return c.code
 }
 

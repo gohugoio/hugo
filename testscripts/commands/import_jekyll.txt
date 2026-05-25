@@ -6,12 +6,55 @@ stdout 'Import a project from another system'
 hugo import jekyll -h
 stdout 'hugo import from Jekyll\.'
 
-hugo import jekyll my-jekyll-project my-hugo-project
-checkfilecount 1 my-hugo-project/content/post
-grep 'example\.org' my-hugo-project/hugo.yaml
+# No config file
+hugo import jekyll jekyll-no-config hugo-no-config
+checkfilecount 1 hugo-no-config/content/post
+grep 'example\.org' hugo-no-config/hugo.yaml
 
-# A simple Jekyll project.
--- my-jekyll-project/_posts/2012-01-18-hello-world.markdown --
+# Has _config.yml file
+hugo import jekyll jekyll-yml hugo-yml
+checkfilecount 1 hugo-yml/content/post
+grep 'https://yml\.example\.org/' hugo-yml/hugo.yaml
+
+# Has _config.yaml file
+hugo import jekyll jekyll-yaml hugo-yaml
+checkfilecount 1 hugo-yaml/content/post
+grep 'https://yaml\.example\.org/' hugo-yaml/hugo.yaml
+
+# Has _config.toml file
+hugo import jekyll jekyll-toml hugo-toml
+checkfilecount 1 hugo-toml/content/post
+grep 'https://toml\.example\.org/' hugo-toml/hugo.yaml
+
+# Jekyll projects used by the tests above.
+-- jekyll-no-config/_posts/2012-01-18-hello-world.markdown --
+---
+layout: post
+title: "Hello World"
+---
+Hello world!
+-- jekyll-yml/_config.yml --
+title: "Jekyll YML Site"
+url: "https://yml.example.org/"
+-- jekyll-yml/_posts/2012-01-18-hello-world.markdown --
+---
+layout: post
+title: "Hello World"
+---
+Hello world!
+-- jekyll-yaml/_config.yaml --
+title: "Jekyll YAML Site"
+url: "https://yaml.example.org/"
+-- jekyll-yaml/_posts/2012-01-18-hello-world.markdown --
+---
+layout: post
+title: "Hello World"
+---
+Hello world!
+-- jekyll-toml/_config.toml --
+title = "Jekyll TOML Site"
+url = "https://toml.example.org/"
+-- jekyll-toml/_posts/2012-01-18-hello-world.markdown --
 ---
 layout: post
 title: "Hello World"

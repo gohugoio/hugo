@@ -134,10 +134,10 @@ Markdown|Replaced by|Description
 Most of the Goldmark settings above are self-explanatory, but some require explanation.
 
 duplicateResourceFiles
-: (`bool`) Whether to duplicate shared page resources for each language on multilingual single-host sites. See [multilingual page resources] for details. Default is `false`.
+: (`bool`) Whether to duplicate shared page resources for each language on multilingual single-host projects. See [multilingual page resources] for details. Default is `false`.
 
   > [!note]
-  > With multilingual single-host sites, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host sites.
+  > With multilingual single-host projects, setting this parameter to `false` will enable Hugo's [embedded link render hook] and [embedded image render hook]. This is the default configuration for multilingual single-host projects.
 
 parser.wrapStandAloneImageWithinParagraph
 : (`bool`) Whether to wrap image elements without adjacent content within a `p` element when rendered. This is the default Markdown behavior. Set to `false` when using an [image render hook] to render standalone images as `figure` elements. Default is `true`.
@@ -243,11 +243,11 @@ workingFolderCurrent
 
 {{< code-toggle file=hugo >}}
 [markup.asciidocExt]
-    extensions = ["asciidoctor-html5s", "asciidoctor-diagram"]
-    workingFolderCurrent = true
-    [markup.asciidocExt.attributes]
-        my-base-url = "https://example.com/"
-        my-attribute-name = "my value"
+extensions = ['asciidoctor-html5s','asciidoctor-diagram']
+workingFolderCurrent = true
+[markup.asciidocExt.attributes]
+my-base-url = 'https://example.com/'
+my-attribute-name = 'my value'
 {{< /code-toggle >}}
 
 ### Syntax highlighting

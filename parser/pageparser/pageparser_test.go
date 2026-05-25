@@ -22,6 +22,33 @@ import (
 	"github.com/gohugoio/hugo/parser/metadecoders"
 )
 
+func FuzzParse(f *testing.F) {
+	samples := []string{
+		`{{< foo >}}`,
+		`{{% foo %}}`,
+		`{{< foo >}} {{< bar >}}`,
+		`---
+title: "Front Matters"
+---
+
+This is some summary. This is some summary. This is some summary. This is some summary.
+
+ <!--more-->
+
+ Foo bars.
+		 
+		`,
+	}
+	for _, s := range samples {
+		f.Add([]byte(s))
+	}
+
+	f.Fuzz(func(t *testing.T, b []byte) {
+		cfg := Config{}
+		_, _ = parseBytes(b, cfg, lexIntroSection)
+	})
+}
+
 func BenchmarkParse(b *testing.B) {
 	start := `
 

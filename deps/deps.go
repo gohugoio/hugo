@@ -243,6 +243,8 @@ func (d *Deps) Init() error {
 		}
 	}
 
+	d.ExecHelper.SetNodeReadPaths(d.BaseFs.Assets.RealPaths(""))
+
 	if d.ContentSpec == nil {
 		contentSpec, err := helpers.NewContentSpec(d.Conf, d.Log, d.Content.Fs, d.ExecHelper)
 		if err != nil {

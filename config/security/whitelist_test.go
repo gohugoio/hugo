@@ -43,4 +43,25 @@ func TestWhitelist(t *testing.T) {
 		c.Assert(w.Accept("bar"), qt.IsTrue)
 		c.Assert(w.Accept("mbar"), qt.IsFalse)
 	})
+
+	c.Run("Negation takes precedence", func(c *qt.C) {
+		w := MustNewWhitelist(".*", "! ^foo")
+		c.Assert(w.Accept("bar"), qt.IsTrue)
+		c.Assert(w.Accept("foo"), qt.IsFalse)
+		c.Assert(w.Accept("foobar"), qt.IsFalse)
+	})
+
+	c.Run("Negation only", func(c *qt.C) {
+		// A whitelist with only deny rules accepts everything else.
+		w := MustNewWhitelist("! ^foo")
+		c.Assert(w.Accept("bar"), qt.IsTrue)
+		c.Assert(w.Accept("foo"), qt.IsFalse)
+	})
+
+	c.Run("Bad pattern", func(c *qt.C) {
+		_, err := NewWhitelist("[invalid")
+		c.Assert(err, qt.IsNotNil)
+		_, err = NewWhitelist("! [invalid")
+		c.Assert(err, qt.IsNotNil)
+	})
 }

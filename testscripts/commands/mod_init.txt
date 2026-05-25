@@ -1,5 +1,4 @@
 # Test the hugo init command.
-dostounix golden/go.mod.testsubmod
 
 hugo mod init testsubmod
 cmpenv go.mod $WORK/golden/go.mod.testsubmod

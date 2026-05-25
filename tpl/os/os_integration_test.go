@@ -37,13 +37,7 @@ START:|{{ range $entry := $entries }}{{ if not $entry.IsDir }}{{ $entry.Name }}|
 
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		},
-	).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", `
 START:|hugo.toml|myproject.txt|:END:
@@ -63,13 +57,7 @@ func TestReadFileNotExists(t *testing.T) {
 
   `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			NeedsOsFS:   true,
-		},
-	).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
 
 	b.AssertFileContent("public/index.html", `
 OK

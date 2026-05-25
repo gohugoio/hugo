@@ -151,6 +151,9 @@ allow="none"
 		files := fmt.Sprintf(`
 -- hugo.toml --
 baseURL = "https://example.org"
+[security]
+[security.http]
+urls = ['.*']
 -- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fruits.json" }}{{ $json.Content }}
 `, ts.URL)
@@ -166,6 +169,9 @@ baseURL = "https://example.org"
 		files := fmt.Sprintf(`
 -- hugo.toml --
 baseURL = "https://example.org"
+[security]
+[security.http]
+urls = ['.*']
 -- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fruits.json" (dict "method" "DELETE" ) }}{{ $json.Content }}
 `, ts.URL)
@@ -194,6 +200,23 @@ urls="none"
 		c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`)
 	})
 
+	c.Run("resources.GetRemote, denied loopback URL by default", func(c *qt.C) {
+		c.Parallel()
+		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
+		c.Cleanup(func() {
+			ts.Close()
+		})
+		files := fmt.Sprintf(`
+-- hugo.toml --
+baseURL = "https://example.org"
+-- layouts/home.html --
+{{ $json := resources.GetRemote "%s/fruits.json" }}{{ $json.Content }}
+`, ts.URL)
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`)
+	})
+
 	c.Run("resources.GetRemote, fake JSON", func(c *qt.C) {
 		c.Parallel()
 		ts := httptest.NewServer(http.FileServer(http.Dir("testdata/")))
@@ -204,6 +227,8 @@ urls="none"
 -- hugo.toml --
 baseURL = "https://example.org"
 [security]
+[security.http]
+urls = ['.*']
 -- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fakejson.json" }}{{ $json.Content }}
 `, ts.URL)
@@ -223,6 +248,7 @@ baseURL = "https://example.org"
 baseURL = "https://example.org"
 [security]
 [security.http]
+urls = ['.*']
 mediaTypes=["application/json"]
 -- layouts/home.html --
 {{ $json := resources.GetRemote "%s/fakejson.json" }}{{ $json.Content }}

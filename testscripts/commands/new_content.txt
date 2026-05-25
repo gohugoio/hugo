@@ -5,8 +5,8 @@ hugo new content --kind post post/first-post.md
 grep 'draft = true' content/post/first-post.md
 
 # Issue 12599
-cd $WORK
 
+cd $WORK
 hugo new project --format toml --force issue-12599
 cp hugo.toml issue-12599/hugo.toml
 cd issue-12599
@@ -15,6 +15,33 @@ hugo -DF
 grep 'DATE _2099-12-31_' public/s1/p1/index.html
 grep 'SLUG _p1_' public/s1/p1/index.html
 grep 'TITLE _2099 12 31 P1_' public/s1/p1/index.html
+
+# Issue 12602
+
+cd $WORK
+hugo new project issue-12602
+cd issue-12602
+hugo new content about/_index.md
+! hugo new content about.md
+stderr 'the target path conflicts with existing content'
+
+# Issue 12786
+
+cd $WORK
+hugo new project issue-12786
+cd issue-12786
+hugo new content content/p1/index.md
+! hugo new content content/p1/p2.md
+stderr 'the target path conflicts with existing content'
+
+# Issue 14112
+
+cd $WORK
+hugo new project issue-14112
+cd issue-14112
+hugo new content P1.md
+! hugo new content p1.md
+stderr 'the target path conflicts with existing content'
 
 -- hugo.toml --
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']

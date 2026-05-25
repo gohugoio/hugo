@@ -34,6 +34,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	hglob "github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/modules"
+	"github.com/gohugoio/hugo/modules/npm"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/afero"
 )
@@ -95,6 +96,10 @@ func LoadConfig(d ConfigSourceDescriptor) (configs *Configs, err error) {
 	configs.Modules = moduleConfig.AllModules
 	configs.ModulesClient = modulesClient
 
+	if !d.SkipNpmCheck && npm.NpmPackNeedsUpdate(d.Fs, configs.Modules) {
+		d.Logger.Warnln(`npm dependencies are out of sync, please run "hugo mod npm pack" (you may also want to run "npm install" after that)`)
+	}
+
 	if err := configs.Init(d.Fs, d.Logger); err != nil {
 		return nil, fmt.Errorf("failed to init config: %w", err)
 	}
@@ -127,6 +132,9 @@ type ConfigSourceDescriptor struct {
 
 	// If set, this will be used to ignore the module does not exist error.
 	IgnoreModuleDoesNotExist bool
+
+	// If set, skip the npm pack staleness check (used by hugo mod npm pack).
+	SkipNpmCheck bool
 }
 
 func (d ConfigSourceDescriptor) configFilenames() []string {

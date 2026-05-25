@@ -1,6 +1,6 @@
 ---
 title: GitInfo
-description: Returns Git information related to the last commit of the given page.
+description: Provides access to commit metadata for a given page.
 categories: []
 keywords: []
 params:
@@ -9,47 +9,55 @@ params:
     signatures: [PAGE.GitInfo]
 ---
 
-The `GitInfo` method on a `Page` object returns an object with additional methods.
+The `GitInfo` method on a `Page` object provides access to commit metadata from your Git history, such as the author's name, the commit hash, and the commit message.
 
 > [!note]
-> Hugo's Git integration is performant, but may increase build times on large sites.
+> Hugo's Git integration is performant, but may increase build times for large projects.
 
 ## Prerequisites
 
 Install Git, create a repository, and commit your project files.
 
-You must also allow Hugo to access your repository. In your project configuration:
+You must also allow Hugo to access your repository by adding this to your project configuration:
 
 {{< code-toggle file=hugo >}}
 enableGitInfo = true
 {{< /code-toggle >}}
 
-Alternatively, use the command line flag when building your project:
-
-```sh
-hugo build --enableGitInfo
-```
-
 > [!note]
-> When you set `enableGitInfo` to `true`, or enable the feature with the command line flag, the last modification date for each content page will be the Author Date of the last commit for that file.
+> When you set [`enableGitInfo`][] to `true`, the last modification date for each content page will automatically be the Author Date of the last commit for that file.
 >
-> This is configurable. See&nbsp;[details].
+> This is configurable. See [details][].
+
+## Scope
+
+Commit metadata is available for content stored in your local repository and for content provided by [modules](g).
+
+### Local content
+
+Hugo retrieves commit metadata for files tracked within your project's local repository. This includes all content files managed by Git in your main project directory.
+
+### Module content
+
+{{< new-in 0.157.0 />}}
+
+Hugo also retrieves commit metadata for content provided by modules. This allows you to display commit data for remote repositories that are mounted as content directories, such as when aggregating documentation from multiple sources.
 
 ## Methods
 
 ### AbbreviatedHash
 
-(`string`) The abbreviated commit hash.
+(`string`) Returns the seven-character shortened version of the commit hash.
 
 ```go-html-template
 {{ with .GitInfo }}
-  {{ .AbbreviatedHash }} → aab9ec0b3
+  {{ .AbbreviatedHash }} → aab9ec0
 {{ end }}
 ```
 
 ### AuthorDate
 
-(`time.Time`) The author date.
+(`time.Time`) Returns the date the author originally created the commit.
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -59,7 +67,7 @@ hugo build --enableGitInfo
 
 ### AuthorEmail
 
-(`string`) The author's email address, respecting [gitmailmap].
+(`string`) Returns the author's email address, respecting [gitmailmap][].
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -69,7 +77,7 @@ hugo build --enableGitInfo
 
 ### AuthorName
 
-(`string`) The author's name, respecting [gitmailmap].
+(`string`) Returns the author's name, respecting [gitmailmap][].
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -79,7 +87,7 @@ hugo build --enableGitInfo
 
 ### CommitDate
 
-(`time.Time`) The commit date.
+(`time.Time`) Returns the date the commit was applied to the branch.
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -89,7 +97,7 @@ hugo build --enableGitInfo
 
 ### Hash
 
-(`string`) The commit hash.
+(`string`) Returns the full SHA-1 commit hash.
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -99,7 +107,7 @@ hugo build --enableGitInfo
 
 ### Subject
 
-(`string`) The commit message subject.
+(`string`) Returns the first line of the commit message (the summary).
 
 ```go-html-template
 {{ with .GitInfo }}
@@ -109,17 +117,17 @@ hugo build --enableGitInfo
 
 ### Body
 
-(`string`) The commit message body.
+(`string`) Returns the full content of the commit message, excluding the subject line.
 
 ```go-html-template
 {{ with .GitInfo }}
-  {{ .Body }} → - Two new pages added.
+  {{ .Body }} → Two new pages added.
 {{ end }}
 ```
 
 ### Ancestors
 
-(`gitmap.GitInfos`) A slice of file-filtered ancestor commits, if any, ordered from most recent to least recent.
+(`gitmap.GitInfos`) Returns a list of previous commits for this specific file, ordered from most recent to oldest.
 
 For example, to list the last 5 commits:
 
@@ -143,13 +151,13 @@ To reverse the order:
 
 ### Parent
 
-(`*gitmap.GitInfo`) The first file-filtered ancestor commit, if any.
+(`*gitmap.GitInfo`) Returns the most recent ancestor commit for the file, if any.
 
 ## Last modified date
 
 By default, when `enableGitInfo` is `true`, the `Lastmod` method on a `Page` object returns the Git AuthorDate of the last commit that included the file.
 
-You can change this behavior in your [project configuration].
+You can change this behavior in your [project configuration][].
 
 ## Hosting considerations
 
@@ -180,6 +188,7 @@ Vercel|Shallow|Yes [^1]
 
 [^3]: To perform a deep clone when hosting on GitLab Pages, set the `GIT_DEPTH` environment variable to `0` in the workflow file. See [example](/host-and-deploy/host-on-gitlab-pages/#configure-gitlab-cicd).
 
+[`enableGitInfo`]: /configuration/all/#enablegitinfo
 [details]: /configuration/front-matter/#dates
 [gitmailmap]: https://git-scm.com/docs/gitmailmap
 [project configuration]: /configuration/front-matter/

@@ -1,7 +1,7 @@
 {{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
 {{- if not (.Page.Scratch.Get "__h_simple_css") -}}
-{{/* Only include once */}}
-{{-  .Page.Scratch.Set "__h_simple_css" true -}}
+	{{/* Only include once */}}
+	{{- .Page.Scratch.Set "__h_simple_css" true -}}
 <style>
 .__h_video {
    position: relative;

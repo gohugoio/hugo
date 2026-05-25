@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/sass"
 
 	"github.com/evanw/esbuild/pkg/api"
 
@@ -207,6 +208,9 @@ type ExternalOptions struct {
 	// See https://esbuild.github.io/api/#jsx-import-source
 	JSXImportSource string
 
+	// User defined CSS variables. Will be available as CSS global scope CSS variables via @import "hugo:vars".
+	Vars map[string]any
+
 	// There is/was a bug in WebKit with severe performance issue with the tracking
 	// of TDZ checks in JavaScriptCore.
 	//
@@ -230,6 +234,10 @@ type InternalOptions struct {
 	AbsWorkingDir string
 	Metafile      bool
 
+	// Used as a prefix for asset references that go through the file loader.
+	// See https://esbuild.github.io/api/#public-path
+	PublicPath string
+
 	StdinSourcePath string
 
 	DependencyManager identity.Manager
@@ -240,7 +248,7 @@ type InternalOptions struct {
 	TsConfig                string
 	EntryPoints             []string
 	ImportOnResolveFunc     func(string, api.OnResolveArgs) string
-	ImportOnLoadFunc        func(api.OnLoadArgs) string
+	ImportOnLoadFunc        func(api.OnLoadArgs) (string, error)
 	ImportParamsOnLoadFunc  func(args api.OnLoadArgs) json.RawMessage
 	ErrorMessageResolveFunc func(api.Message) *ErrorMessageResolved
 	ResolveSourceMapSource  func(string) string // Used to resolve paths in error source maps.
@@ -417,6 +425,8 @@ OUTER:
 		opts.MainFields = []string{"style", "main"}
 	}
 
+	opts.Vars = sass.PrepareVars(opts.Vars)
+
 	opts.compiled = api.BuildOptions{
 		Outfile:       outFile,
 		Bundle:        true,
@@ -437,8 +447,9 @@ OUTER:
 		MinifyIdentifiers: opts.Minify,
 		MinifySyntax:      opts.Minify,
 
-		Outdir:    outDir,
-		Splitting: opts.Splitting,
+		Outdir:     outDir,
+		PublicPath: opts.PublicPath,
+		Splitting:  opts.Splitting,
 
 		Define:   defines,
 		External: opts.Externals,

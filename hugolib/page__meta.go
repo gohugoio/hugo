@@ -655,9 +655,9 @@ params:
 		loki := strings.ToLower(k)
 
 		if loki == "params" {
-			vv, err := hmaps.ToStringMapE(v)
+			vv, err := hmaps.ToParamsAndPrepare(v)
 			if err != nil {
-				return err
+				return fmt.Errorf("front matter field %q must be a map: %w", k, err)
 			}
 			userParams = vv
 			delete(pcfg.Params, k)
@@ -679,7 +679,12 @@ params:
 
 		if loki == "path" || loki == "kind" || loki == "lang" {
 			// See issue 12484.
-			hugo.DeprecateLevelMin(loki+" in front matter", "", "v0.144.0", logg.LevelWarn)
+			// Only warn when the key was set at the top level of the
+			// original front matter; cascade.params can legitimately carry
+			// these names as user params (issue 14848).
+			if _, ok := pm.pageConfigSource.Frontmatter[loki]; ok {
+				hugo.DeprecateLevelMin(loki+" in front matter", "", "v0.144.0", logg.LevelWarn)
+			}
 		}
 
 		switch loki {

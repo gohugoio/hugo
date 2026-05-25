@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html class="no-js" lang="">
-  <head>
-    <meta charset="utf-8">
-    <title>Hugo Server: Error</title>
+	<head>
+		<meta charset="utf-8">
+		<title>Hugo Server: Error</title>
     <style type="text/css">
       body {
         font-family: "Muli", system-ui, -apple-system, "Segoe UI", Roboto,
@@ -58,30 +58,30 @@
         color: #ccc;
       }
     </style>
-  </head>
-  <body>
-    <main>
-      {{ $codeStyle := "dracula" }}
-      <div class="error">
-        {{ highlight .Error "apl" (printf "linenos=false,noclasses=true,style=%s" $codeStyle ) }}
-      </div>
-      <hr>
-      {{ range $i, $e := .Files }}
-        {{ if not .ErrorContext }}
-          {{ continue }}
-        {{ end }}
-        {{ $params := printf "noclasses=true,style=%s,linenos=table,hl_lines=%d,linenostart=%d" $codeStyle (add .ErrorContext.LinesPos 1) (sub .Position.LineNumber .ErrorContext.LinesPos) }}
-        {{ $lexer := .ErrorContext.ChromaLexer | default "go-html-template" }}
-        {{ with .Position }}
-          <code class="filename"
-            >{{ printf "%s:%d:%d" .Filename .LineNumber .ColumnNumber }}:</code
-          >
-        {{ end }}
-        {{ highlight (delimit .ErrorContext.Lines "\n") $lexer $params }}
-        <hr>
-      {{ end }}
-      <p class="version">{{ .Version }}</p>
-      <a href="">Reload Page</a>
-    </main>
-  </body>
+	</head>
+	<body>
+		<main>
+			{{ $codeStyle := "dracula" }}
+			<div class="error">
+				{{ highlight .Error "apl" (printf "linenos=false,noclasses=true,style=%s" $codeStyle) }}
+			</div>
+			<hr>
+			{{ range $i, $e := .Files }}
+				{{ if not .ErrorContext }}
+					{{ continue }}
+				{{ end }}
+				{{ $params := printf "noclasses=true,style=%s,linenos=table,hl_lines=%d,linenostart=%d" $codeStyle (add .ErrorContext.LinesPos 1) (sub .Position.LineNumber .ErrorContext.LinesPos) }}
+				{{ $lexer := .ErrorContext.ChromaLexer | default "go-html-template" }}
+				{{ with .Position }}
+					<code class="filename"
+					>{{ printf "%s:%d:%d" .Filename .LineNumber .ColumnNumber }}:</code
+					>
+				{{ end }}
+				{{ highlight (delimit .ErrorContext.Lines "\n") $lexer $params }}
+				<hr>
+			{{ end }}
+			<p class="version">{{ .Version }}</p>
+			<a href="">Reload Page</a>
+		</main>
+	</body>
 </html>

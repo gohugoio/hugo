@@ -26,6 +26,9 @@ images
 misc
 : Caches miscellaneous data.
 
+modulegitinfo
+: Caches Git information for modules.
+
 modulequeries
 : Caches the results of module resolution queries.
 

@@ -45,7 +45,6 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/cast"
 )
 
 var _ js.Batcher = (*batcher)(nil)
@@ -567,17 +566,17 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 				}
 				return ""
 			},
-			ImportOnLoadFunc: func(args api.OnLoadArgs) string {
+			ImportOnLoadFunc: func(args api.OnLoadArgs) (string, error) {
 				imp := args.Path
 
 				if r, found := state.importResource.Get(imp); found {
-					content, err := r.(resource.ContentProvider).Content(ctx)
+					content, err := resources.InternalResourceSourceContent(ctx, r)
 					if err != nil {
-						panic(err)
+						return "", fmt.Errorf("failed to read import %q: %w", resources.InternalResourceSourcePathBestEffort(r), err)
 					}
-					return cast.ToString(content)
+					return content, nil
 				}
-				return ""
+				return "", nil
 			},
 			ImportParamsOnLoadFunc: func(args api.OnLoadArgs) json.RawMessage {
 				if importContext, found := state.importerImportContext.Get(args.Path); found {

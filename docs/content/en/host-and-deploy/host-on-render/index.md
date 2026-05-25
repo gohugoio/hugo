@@ -18,7 +18,7 @@ Please complete the following tasks before continuing:
 1. [Log in](https://github.com/login) to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
 1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
-1. Create a Hugo site within your local Git repository and test it with the `hugo server` command
+1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
 
 ## Procedure
 
@@ -35,13 +35,13 @@ Step 1
       staticPublishPath: public
       envVars:
         - key: DART_SASS_VERSION
-          value: 1.97.3
+          value: 1.99.0
         - key: GO_VERSION
-          value: 1.26.0
+          value: 1.26.2
         - key: HUGO_VERSION
-          value: 0.156.0
+          value: 0.161.1
         - key: NODE_VERSION
-          value: 24.13.1
+          value: 24.15.0
         - key: TZ
           value: Europe/Oslo
   ```
@@ -59,33 +59,50 @@ Step 2
   # Render automatically installs Node.js dependencies.
   #------------------------------------------------------------------------------
 
-  main() {
+  # Exit on error, undefined variables, or pipe failures
+  set -euo pipefail
 
-    # Create directory for user-specific executable files
-    echo "Creating directory for user-specific executable files..."
+  build_temp_dir=""
+
+  # Perform cleanup
+  cleanup() {
+    if [[ -n "${build_temp_dir:-}" && -d "${build_temp_dir}" ]]; then
+      rm -rf "${build_temp_dir}"
+    fi
+  }
+
+  # Register the cleanup trap
+  trap cleanup EXIT SIGINT SIGTERM
+
+  main() {
+    # Create and move into a temporary directory for downloads
+    build_temp_dir=$(mktemp -d)
+    pushd "${build_temp_dir}" > /dev/null
+
+    # Create the local tools directory
     mkdir -p "${HOME}/.local"
 
     # Install Dart Sass
     echo "Installing Dart Sass ${DART_SASS_VERSION}..."
     curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
     tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-    rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
     export PATH="${HOME}/.local/dart-sass:${PATH}"
 
     # Install Go
     echo "Installing Go ${GO_VERSION}..."
     curl -sLJO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
     tar -C "${HOME}/.local" -xf "go${GO_VERSION}.linux-amd64.tar.gz"
-    rm "go${GO_VERSION}.linux-amd64.tar.gz"
     export PATH="${HOME}/.local/go/bin:${PATH}"
 
     # Install Hugo
     echo "Installing Hugo ${HUGO_VERSION}..."
-    curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+    curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
     mkdir -p "${HOME}/.local/hugo"
-    tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-    rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+    tar -C "${HOME}/.local/hugo" -xf "hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
     export PATH="${HOME}/.local/hugo:${PATH}"
+
+    # Return to the project root
+    popd > /dev/null
 
     # Verify installations
     echo "Verifying installations..."
@@ -104,10 +121,8 @@ Step 2
     # Build the site
     echo "Building the site..."
     hugo build --gc --minify --baseURL "${RENDER_EXTERNAL_URL}"
-
   }
 
-  set -euo pipefail
   main "$@"
   ```
 

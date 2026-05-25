@@ -23,6 +23,7 @@ import (
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/hstrings"
+	"github.com/gohugoio/hugo/compare"
 )
 
 // Where returns a filtered subset of collection c.
@@ -83,6 +84,16 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return v.Bool() != mv.Bool(), nil
 		}
 		return false, nil
+	}
+
+	switch op {
+	case "", "=", "==", "eq", "!=", "<>", "ne":
+		if eq, ok := tryEq(v, mv); ok {
+			if op == "!=" || op == "<>" || op == "ne" {
+				return !eq, nil
+			}
+			return eq, nil
+		}
 	}
 
 	var ivp, imvp *int64
@@ -689,6 +700,23 @@ func (ns *Namespace) checkWhereMap(ctxv, seqv, kv, mv reflect.Value, path []stri
 }
 
 // toString returns the string value if possible, "" if not.
+
+// tryEq returns the equality of v and mv via the compare.Eqer interface
+// if either side implements it. The second return value reports whether
+// such a comparison was possible.
+func tryEq(v, mv reflect.Value) (bool, bool) {
+	if !v.CanInterface() || !mv.CanInterface() {
+		return false, false
+	}
+	vi, mvi := v.Interface(), mv.Interface()
+	if e, ok := vi.(compare.Eqer); ok {
+		return e.Eq(mvi), true
+	}
+	if e, ok := mvi.(compare.Eqer); ok {
+		return e.Eq(vi), true
+	}
+	return false, false
+}
 
 func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
 	t, ok := hreflect.AsTime(v, ns.loc)

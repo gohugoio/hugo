@@ -14,7 +14,6 @@
 package helpers_test
 
 import (
-	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -106,64 +105,6 @@ func TestHasStringsSuffix(t *testing.T) {
 	}
 }
 
-var containsTestText = (`На берегу пустынных волн
-Стоял он, дум великих полн,
-И вдаль глядел. Пред ним широко
-Река неслася; бедный чёлн
-По ней стремился одиноко.
-По мшистым, топким берегам
-Чернели избы здесь и там,
-Приют убогого чухонца;
-И лес, неведомый лучам
-В тумане спрятанного солнца,
-Кругом шумел.
-
-Τη γλώσσα μου έδωσαν ελληνική
-το σπίτι φτωχικό στις αμμουδιές του Ομήρου.
-Μονάχη έγνοια η γλώσσα μου στις αμμουδιές του Ομήρου.
-
-από το Άξιον Εστί
-του Οδυσσέα Ελύτη
-
-Sîne klâwen durh die wolken sint geslagen,
-er stîget ûf mit grôzer kraft,
-ich sih in grâwen tägelîch als er wil tagen,
-den tac, der im geselleschaft
-erwenden wil, dem werden man,
-den ich mit sorgen în verliez.
-ich bringe in hinnen, ob ich kan.
-sîn vil manegiu tugent michz leisten hiez.
-`)
-
-var containsBenchTestData = []struct {
-	v1     string
-	v2     []byte
-	expect bool
-}{
-	{"abc", []byte("a"), true},
-	{"abc", []byte("b"), true},
-	{"abcdefg", []byte("efg"), true},
-	{"abc", []byte("d"), false},
-	{containsTestText, []byte("стремился"), true},
-	{containsTestText, []byte(containsTestText[10:80]), true},
-	{containsTestText, []byte(containsTestText[100:111]), true},
-	{containsTestText, []byte(containsTestText[len(containsTestText)-100 : len(containsTestText)-10]), true},
-	{containsTestText, []byte(containsTestText[len(containsTestText)-20:]), true},
-	{containsTestText, []byte("notfound"), false},
-}
-
-// some corner cases
-var containsAdditionalTestData = []struct {
-	v1     string
-	v2     []byte
-	expect bool
-}{
-	{"", nil, false},
-	{"", []byte("a"), false},
-	{"a", []byte(""), false},
-	{"", []byte(""), false},
-}
-
 func TestSliceToLower(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -185,19 +126,6 @@ func TestSliceToLower(t *testing.T) {
 	}
 }
 
-func TestReaderContains(t *testing.T) {
-	c := qt.New(t)
-	for i, this := range append(containsBenchTestData, containsAdditionalTestData...) {
-		result := helpers.ReaderContains(strings.NewReader(this.v1), this.v2)
-		if result != this.expect {
-			t.Errorf("[%d] got %t but expected %t", i, result, this.expect)
-		}
-	}
-
-	c.Assert(helpers.ReaderContains(nil, []byte("a")), qt.Equals, false)
-	c.Assert(helpers.ReaderContains(nil, nil), qt.Equals, false)
-}
-
 func TestGetTitleFunc(t *testing.T) {
 	title := "somewhere over the Rainbow"
 	c := qt.New(t)
@@ -211,18 +139,6 @@ func TestGetTitleFunc(t *testing.T) {
 	c.Assert(helpers.GetTitleFunc("unknown")(title), qt.Equals, "Somewhere Over the Rainbow")
 	c.Assert(helpers.GetTitleFunc("none")(title), qt.Equals, title)
 	c.Assert(helpers.GetTitleFunc("firstupper")(title), qt.Equals, "Somewhere over the Rainbow")
-}
-
-func BenchmarkReaderContains(b *testing.B) {
-
-	for b.Loop() {
-		for i, this := range containsBenchTestData {
-			result := helpers.ReaderContains(strings.NewReader(this.v1), this.v2)
-			if result != this.expect {
-				b.Errorf("[%d] got %t but expected %t", i, result, this.expect)
-			}
-		}
-	}
 }
 
 func TestStringSliceToList(t *testing.T) {

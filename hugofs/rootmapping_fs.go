@@ -724,9 +724,14 @@ func (fs *RootMappingFs) statRoot(root *RootMapping, filename string) (FileMetaI
 	}
 
 	filename = root.filename(filename)
-	fi, err := fs.Fs.Stat(filename)
+	fi, err := LstatIfPossible(fs.Fs, filename)
 	if err != nil {
 		return nil, err
+	}
+
+	// Don't allow symlinks to escape the mount.
+	if fi.Mode()&os.ModeSymlink != 0 {
+		return nil, os.ErrNotExist
 	}
 
 	var opener func() (afero.File, error)

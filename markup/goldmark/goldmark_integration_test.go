@@ -384,12 +384,7 @@ a@b.com
 
 			files = strings.ReplaceAll(files, "RENDERFUNC", renderFunc)
 
-			b, err := hugolib.NewIntegrationTestBuilder(
-				hugolib.IntegrationTestConfig{
-					T:           t,
-					TxtarString: files,
-				},
-			).BuildE()
+			b, err := hugolib.TestE(t, files)
 
 			b.Assert(err, qt.IsNotNil)
 			b.Assert(err.Error(), qt.Contains, "text is already rendered, repeating it may cause infinite recursion")
@@ -449,12 +444,7 @@ Link https procol: https://www.example.org
 <a href="{{ .Destination | safeURL }}">{{ .Text }}</a>`
 		}
 
-		return hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).Build()
+		return hugolib.Test(t, files)
 	}
 
 	for _, withHook := range []bool{false, true} {
@@ -1033,5 +1023,48 @@ foo[^1] and bar[^2]
 	b = hugolib.Test(t, files)
 	b.AssertFileContent("public/p1/index.html",
 		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n</ol>\n</div>",
+	)
+}
+
+func TestRenderLinkDefaultDangerous(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/p1.md --
+---
+title: "p1"
+---
+Link: [Click me](&#106;avascript:alert(1))
+Image: ![alt](&#106;avascript:alert(2))
+-- layouts/all.html --
+Content: {{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		`! alert(1)"`,
+		`! alert(2)"`,
+	)
+}
+
+// Issue 14715
+func TestRenderLinkDefaultAmpersand(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/_index.md --
+---
+title: "Home"
+---
+[foo](https://a.com/?a=1&b=2)
+-- layouts/home.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<a href="https://a.com/?a=1&amp;b=2">foo</a>`,
 	)
 }

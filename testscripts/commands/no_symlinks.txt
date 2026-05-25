@@ -1,0 +1,39 @@
+[windows] skip
+
+ln ./rootfile.txt ./themes/mytheme/assets/modassetsymlink.txt
+ln ./rootfile.txt ./themes/mytheme/static/modstaticsymlink.txt
+ln ./README.md ./content/pagesymlink.md
+
+hugo
+
+grep 'OK' public/index.html
+! grep 'FAIL' public/index.html
+
+tree public
+
+stdout modassetok
+! stdout modassetsymlink
+stdout 'modstatictok'
+! stdout 'modstaticsymlink'
+stdout pageok
+! stdout pagesymlink
+
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss"]
+[[module.imports]]
+path = 'mytheme'
+-- README.md --
+Read me.
+-- layouts/all.html --
+{{ with resources.Get "modassetok.txt"}}OK {{ .Publish }}{{ else }}FAIL{{ end }}
+{{ with resources.Get "modassetsymlink.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
+Page: {{ .RelPermalink }}|{{ .Content }}|
+-- content/pageok.md --
+-- themes/mytheme/assets/modassetok.txt --
+Content.
+-- themes/mytheme/static/modstatictok.txt --
+Content.
+-- rootfile.txt --
+Roo Content.
+
+

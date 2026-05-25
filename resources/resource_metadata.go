@@ -119,7 +119,8 @@ func cloneWithMetadataFromResourceConfigIfNeeded(rc *pagemeta.ResourceConfig, r 
 }
 
 // CloneWithMetadataFromMapIfNeeded clones the given resource with the given metadata if the resource supports it.
-func CloneWithMetadataFromMapIfNeeded(m []map[string]any, r resource.Resource) resource.Resource {
+// The counters map is shared across all resources in a bundle so that the :counter placeholder increments correctly.
+func CloneWithMetadataFromMapIfNeeded(m []map[string]any, r resource.Resource, counters map[string]int) resource.Resource {
 	wmp, ok := r.(resource.WithResourceMetaProvider)
 	if !ok {
 		return r
@@ -131,7 +132,7 @@ func CloneWithMetadataFromMapIfNeeded(m []map[string]any, r resource.Resource) r
 		params: r.Params(),
 	}
 
-	assignMetadata(m, wrapped)
+	assignMetadata(m, wrapped, counters)
 	if !wrapped.changed {
 		return r
 	}
@@ -144,9 +145,7 @@ func CloneWithMetadataFromMapIfNeeded(m []map[string]any, r resource.Resource) r
 // This assignment is additive, but the most specific match needs to be first.
 // The `name` and `title` metadata field support shell-matched collection it got a match in.
 // See https://golang.org/pkg/path/#Match
-func assignMetadata(metadata []map[string]any, ma *metaResource) error {
-	counters := make(map[string]int)
-
+func assignMetadata(metadata []map[string]any, ma *metaResource, counters map[string]int) error {
 	var (
 		nameSet, titleSet                   bool
 		nameCounter, titleCounter           = 0, 0

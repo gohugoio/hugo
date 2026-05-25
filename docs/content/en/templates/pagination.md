@@ -40,8 +40,8 @@ See [configure pagination](/configuration/pagination).
 
 To paginate a `home`, `section`, `taxonomy`, or `term` page, invoke either of these methods on the `Page` object in the corresponding template:
 
-- [`Paginate`]
-- [`Paginator`]
+- [`Paginate`][]
+- [`Paginator`][]
 
 The `Paginate` method is more flexible, allowing you to:
 
@@ -101,7 +101,7 @@ When paginating conditionally, do not use the `compare.Conditional` function due
 
 ## Grouping
 
-Use pagination with any of the [grouping methods]. For example:
+Use pagination with any of the [grouping methods][]. For example:
 
 ```go-html-template
 {{ $pages := where site.RegularPages "Type" "posts" }}
@@ -138,13 +138,13 @@ The `terse` format has fewer controls and page slots, consuming less space when 
 ```
 
 > [!note]
-> To override Hugo's embedded pagination template, copy the [source code] to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`] function:
+> To override Hugo's embedded pagination template, copy the [source code][] to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`][] function:
 >
 > `{{ partial "pagination.html" . }}`
 
 Create custom navigation components using any of the `Pager` methods:
 
-{{% list-pages-in-section path=/methods/pager %}}
+{{% render-list-of-pages-in-section path=/methods/pager %}}
 
 ## Structure
 

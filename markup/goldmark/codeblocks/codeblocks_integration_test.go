@@ -147,6 +147,12 @@ title: "p1"
 fmt.Println("Hello, World!");
 §§§
 
+## Plain Code
+
+§§§
+plain <code> & text
+§§§
+
 `
 
 	b := hugolib.Test(t, files)
@@ -154,6 +160,8 @@ fmt.Println("Hello, World!");
 	b.AssertFileContent("public/p1/index.html",
 		"Inner: |<span class=\"line\"><span class=\"cl\"><span class=\"nx\">fmt</span><span class=\"p\">.</span><span class=\"nf\">Println</span><span class=\"p\">(</span><span class=\"s\">&#34;Hello, World!&#34;</span><span class=\"p\">);</span></span></span>|",
 		"Wrapped: |<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-go\" data-lang=\"go\"><span class=\"line\"><span class=\"cl\"><span class=\"nx\">fmt</span><span class=\"p\">.</span><span class=\"nf\">Println</span><span class=\"p\">(</span><span class=\"s\">&#34;Hello, World!&#34;</span><span class=\"p\">);</span></span></span></code></pre></div>|",
+		"Inner: |plain &lt;code&gt; &amp; text|",
+		"Wrapped: |<pre tabindex=\"0\"><code>plain &lt;code&gt; &amp; text</code></pre>|",
 	)
 }
 
@@ -181,10 +189,8 @@ title: "p1"
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", `
-# Issue 9627: For the Position in code blocks we try to match the .Inner with the original source. This isn't always possible.
-p1.md:0:0
-	`,
+	b.AssertFileContent("public/p1/index.html",
+		"p1.md:7:1",
 	)
 }
 
@@ -270,6 +276,7 @@ Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 }
 
 // Issue 9571
+// Issue 14909
 func TestAttributesChroma(t *testing.T) {
 	t.Parallel()
 
@@ -282,7 +289,7 @@ title: "p1"
 
 ##   Code
 
-§§§LANGUAGE {style=monokai}
+§§§LANGUAGE {style=monokai class=my-class tabWidth=8}
 echo "p1";
 §§§
 -- layouts/single.html --
@@ -293,18 +300,14 @@ Attributes: {{ .Attributes }}|Options: {{ .Options }}|
 
 `
 	testLanguage := func(language, expect string) {
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: strings.ReplaceAll(files, "LANGUAGE", language),
-			},
-		).Build()
+		b := hugolib.Test(t, strings.ReplaceAll(files, "LANGUAGE", language))
 
 		b.AssertFileContent("public/p1/index.html", expect)
 	}
 
-	testLanguage("bash", "Attributes: map[]|Options: map[style:monokai]|")
-	testLanguage("hugo", "Attributes: map[style:monokai]|Options: map[]|")
+	testLanguage("bash", "Attributes: map[class:my-class]|Options: map[style:monokai tabWidth:8]|")
+	testLanguage("hugo", "Attributes: map[class:my-class]|Options: map[style:monokai tabWidth:8]|")
+	testLanguage("", "Attributes: map[class:my-class]|Options: map[style:monokai tabWidth:8]|")
 }
 
 func TestPanics(t *testing.T) {
@@ -341,12 +344,7 @@ Common
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			b := hugolib.NewIntegrationTestBuilder(
-				hugolib.IntegrationTestConfig{
-					T:           t,
-					TxtarString: strings.ReplaceAll(files, "BLOCK", test.markdown),
-				},
-			).Build()
+			b := hugolib.Test(t, strings.ReplaceAll(files, "BLOCK", test.markdown))
 
 			b.AssertFileContent("public/p1/index.html", "Common")
 		})
@@ -378,13 +376,35 @@ Hello, World!
 Attributes: {{ .Attributes }}|Type: {{ .Type }}|
 `
 
-	b, err := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	).BuildE()
+	b, err := hugolib.TestE(t, files)
 
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "p1.md:7:9\": failed to parse Markdown attributes; you may need to quote the values")
+}
+
+func TestCodeblockPosition(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/_markup/render-codeblock.html --
+{{ .Position | safeHTML }}
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Simple
+
+§§§text
+Some code.
+§§§
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "p1.md:7:1")
 }

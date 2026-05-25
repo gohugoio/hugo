@@ -11,11 +11,9 @@ params:
 aliases: [/functions/i18n]
 ---
 
-The `lang.Translate` function returns the value associated with given key as defined in the translation table for the current language.
+The `lang.Translate` function returns the value associated with the given key by searching the current language's [translation tables](#translation-tables), then those for the [`defaultContentLanguage`][].
 
-If the key is not found in the translation table for the current language, the `lang.Translate` function falls back to the translation table for the [`defaultContentLanguage`][].
-
-If the key is not found in the translation table for the `defaultContentLanguage`, the `lang.Translate` function returns an empty string.
+If not found, the function returns an empty string.
 
 > [!note]
 > To list missing and fallback translations, set [`printI18nWarnings`][] to `true` in your project configuration, or use the `--printI18nWarnings` flag when building your project.
@@ -24,14 +22,21 @@ If the key is not found in the translation table for the `defaultContentLanguage
 
 ## Translation tables
 
-Create translation tables in the `i18n` directory, naming each file according to [RFC 5646][]. Translation tables may be JSON, TOML, or YAML. For example:
+{{% glossary-term "translation table" %}}
+
+For example:
 
 ```text
 i18n/en.toml
 i18n/pt-BR.toml
 ```
 
-The base name must match the [`languageCode`][] or [language key][] as defined in your project configuration. Hugo selects the translation table based on the `languageCode`,  falling back to the language key if a matching translation table does not exist.
+Hugo searches for a matching translation table using the following base names, in order:
+
+1. The [`locale`][] of the current language
+1. The [key][] of the current language
+1. The locale of the [`defaultContentLanguage`][]
+1. The key of the [`defaultContentLanguage`][]
 
 Artificial languages with private use subtags as defined in [RFC 5646 § 2.2.7][] are also supported. You may omit the `art-x-` prefix for brevity. For example:
 
@@ -45,7 +50,7 @@ i18n/hugolang.toml
 
 ## Simple translations
 
-Let's say your multilingual site supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
+Let's say your multilingual project supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
 ```text
 i18n/
@@ -86,7 +91,7 @@ When viewing the Polish language site:
 
 ## Translations with pluralization
 
-Let's say your multilingual site supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
+Let's say your multilingual project supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
 ```text
 i18n/
@@ -177,7 +182,7 @@ Template code:
 
 ## Reserved keys
 
-Hugo uses the [go-i18n][] package to look up values in translation tables. This package reserves the following keys for internal use:
+Hugo uses the [`nicksnyder/go-i18n`][] package to look up values in translation tables. This package reserves the following keys for internal use:
 
 id
 : (`string`) Uniquely identifies the message.
@@ -236,12 +241,11 @@ Then in your templates:
 {{ T "_other" }} → otro
 ```
 
+[CLDR]: https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
+[RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
 [`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
 [`enableMissingTranslationPlaceholders`]: /configuration/all/#enablemissingtranslationplaceholders
-[`languageCode`]: /configuration/languages/#languagecode
+[`locale`]: /configuration/all/#locale
+[`nicksnyder/go-i18n`]: https://github.com/nicksnyder/go-i18n
 [`printI18nWarnings`]: /configuration/all/#printi18nwarnings
-[CLDR]: https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
-[go-i18n]: https://github.com/nicksnyder/go-i18n
-[language key]: /configuration/languages/#language-keys
-[RFC 5646 § 2.2.7]: https://datatracker.ietf.org/doc/html/rfc5646#section-2.2.7
-[RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
+[key]: /configuration/languages/#language-keys

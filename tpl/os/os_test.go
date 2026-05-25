@@ -26,7 +26,7 @@ import (
 func TestReadFile(t *testing.T) {
 	t.Parallel()
 
-	b := newFileTestBuilder(t).Build()
+	b := newFileTestBuilder(t)
 
 	// helpers.PrintFs(b.H.PathSpec.BaseFs.Work, "", _os.Stdout)
 
@@ -59,7 +59,7 @@ func TestFileExists(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	b := newFileTestBuilder(t).Build()
+	b := newFileTestBuilder(t)
 	ns := os.New(b.H.Deps)
 
 	for _, test := range []struct {
@@ -86,7 +86,7 @@ func TestFileExists(t *testing.T) {
 
 func TestStat(t *testing.T) {
 	t.Parallel()
-	b := newFileTestBuilder(t).Build()
+	b := newFileTestBuilder(t)
 	ns := os.New(b.H.Deps)
 
 	for _, test := range []struct {
@@ -118,11 +118,7 @@ f1-content
 f2-content
 	`
 
-	return hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			WorkingDir:  "/mywork",
-		},
-	)
+	return hugolib.Test(t, files, hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.WorkingDir = "/mywork"
+	}))
 }

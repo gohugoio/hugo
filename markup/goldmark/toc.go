@@ -24,6 +24,7 @@ import (
 	emojiAst "github.com/yuin/goldmark-emoji/ast"
 
 	"github.com/gohugoio/hugo-goldmark-extensions/extras"
+	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/yuin/goldmark"
@@ -116,7 +117,9 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			ast.KindAutoLink,
 			ast.KindRawHTML,
 			ast.KindText,
-			ast.KindString:
+			ast.KindString,
+			passthrough.KindPassthroughInline,
+			passthrough.KindPassthroughBlock:
 			err := t.r.Render(&headingText, reader.Source(), n)
 			if err != nil {
 				return s, err
@@ -169,6 +172,30 @@ func newTOCSanitizerPolicy() *bluemonday.Policy {
 	p.AllowAttrs("datetime").OnElements("del", "ins", "time")
 	p.AllowAttrs("value").OnElements("data")
 	return p
+}
+
+// tocPassthroughRenderer renders passthrough nodes as raw text for the TOC.
+type tocPassthroughRenderer struct{}
+
+func (r *tocPassthroughRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+	reg.Register(passthrough.KindPassthroughInline, r.render)
+	reg.Register(passthrough.KindPassthroughBlock, r.render)
+}
+
+func (r *tocPassthroughRenderer) render(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		return ast.WalkContinue, nil
+	}
+	switch nn := node.(type) {
+	case *passthrough.PassthroughInline:
+		w.Write(nn.Segment.Value(src))
+	case *passthrough.PassthroughBlock:
+		for i := range nn.Lines().Len() {
+			line := nn.Lines().At(i)
+			w.Write(line.Value(src))
+		}
+	}
+	return ast.WalkSkipChildren, nil
 }
 
 var whiteSpaceRe = regexp.MustCompile(`\s+`)

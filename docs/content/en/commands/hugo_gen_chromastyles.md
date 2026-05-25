@@ -11,7 +11,7 @@ Generate CSS stylesheet for the Chroma code highlighter
 
 Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if markup.highlight.noClasses is disabled in config.
 
-See https://xyproto.github.io/splash/docs/all.html for a preview of the available styles
+See https://gohugo.io/quick-reference/syntax-highlighting-styles/ for a preview of the available styles.
 
 ```
 hugo gen chromastyles [flags] [args]
@@ -26,7 +26,7 @@ hugo gen chromastyles [flags] [args]
       --lineNumbersTableStyle string    foreground and background colors for table line numbers, e.g. --lineNumbersTableStyle "#fff000 bg:#000fff"
       --omitClassComments               omit CSS class comment prefixes in the generated CSS
       --omitEmpty                       omit empty CSS rules (deprecated, no longer needed)
-      --style string                    highlighter style (see https://xyproto.github.io/splash/docs/) (default "friendly")
+      --style string                    highlighter style (default "friendly")
 ```
 
 ### Options inherited from parent commands

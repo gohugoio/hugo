@@ -16,7 +16,6 @@ package debug_test
 import (
 	"testing"
 
-	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -33,13 +32,7 @@ disableKinds = ["taxonomy", "term"]
 {{ end }}
 
 `
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			LogLevel:    logg.LevelInfo,
-		},
-	).Build()
+	b := hugolib.Test(t, files, hugolib.TestOptInfo())
 
 	b.AssertLogContains("timer:  name foo count 5 duration")
 }

@@ -1,0 +1,23 @@
+# Issue 14763
+
+# The staging config should not apply.
+hugo config
+! stdout 'myparam'
+mkdir content
+hugo new content foo.md
+hugo -DF
+! grep 'foo' public/foo/index.html
+
+# The staging config should apply.
+hugo config -e staging
+stdout 'myparam'
+hugo new content bar.md -e staging
+hugo -DF -e staging
+grep 'myparam: foo|' public/bar/index.html
+
+-- config/_default/hugo.toml --
+baseURL = "https://example.com"
+-- config/staging/params.toml --
+myparam = "foo"
+-- layouts/single.html --
+myparam: {{ site.Params.myparam }}|

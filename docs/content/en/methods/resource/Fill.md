@@ -11,17 +11,24 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-Crop and resize an image according to the given [processing specification][]. You must provide both width and height (such as `500x200`) within the specification. Unlike [`Resize`][], which may stretch the image, `Fill` maintains the original aspect ratio by cropping the image to the target ratio before resizing. The operation uses the [anchor](#anchor) and [resampling filter](#resampling-filter) provided, if any.
+The `Fill` method returns a new resource from a [processable image](g) according to the given [processing specification][].
+
+> [!note]
+> Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
+
+## Usage
+
+When filling, you must provide both width and height (such as `500x200`) within the specification. `Fill` maintains the original aspect ratio by resizing the image to cover the target area and cropping any overflowing pixels based on the [anchor](#anchor) provided.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Fill "500x200 TopRight lanczos" }}
+  {{ with .Fill "500x200 TopRight" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
 ```
 
-In the example above, `"500x200 TopRight lanczos"` is the _processing specification_.
+In the example above, `"500x200 TopRight"` is the _processing specification.
 
 {{% include "/_common/methods/resource/processing-spec.md" %}}
 
@@ -29,7 +36,7 @@ In the example above, `"500x200 TopRight lanczos"` is the _processing specificat
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
-  {{ with .Fill "500x200 TopRight lanczos webp q85" }}
+  {{ with .Fill "500x200 TopRight" }}
     <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
   {{ end }}
 {{ end }}
@@ -39,9 +46,9 @@ In the example above, `"500x200 TopRight lanczos"` is the _processing specificat
   src="images/examples/zion-national-park.jpg"
   alt="Zion National Park"
   filter="Process"
-  filterArgs="fill 500x200 TopRight lanczos webp q85"
+  filterArgs="fill 500x200 TopRight"
   example=true
 >}}
 
-[`Resize`]: /methods/resource/resize/
+[`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
 [processing specification]: #processing-specification

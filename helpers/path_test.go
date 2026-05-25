@@ -109,29 +109,6 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	}
 }
 
-func TestMakePathRelative(t *testing.T) {
-	type test struct {
-		inPath, path1, path2, output string
-	}
-
-	data := []test{
-		{"/abc/bcd/ab.css", "/abc/bcd", "/bbc/bcd", "/ab.css"},
-		{"/abc/bcd/ab.css", "/abcd/bcd", "/abc/bcd", "/ab.css"},
-	}
-
-	for i, d := range data {
-		output, _ := helpers.MakePathRelative(d.inPath, d.path1, d.path2)
-		if d.output != output {
-			t.Errorf("Test #%d failed. Expected %q got %q", i, d.output, output)
-		}
-	}
-	_, error := helpers.MakePathRelative("a/b/c.ss", "/a/c", "/d/c", "/e/f")
-
-	if error == nil {
-		t.Errorf("Test failed, expected error")
-	}
-}
-
 func TestGetDottedRelativePath(t *testing.T) {
 	for _, f := range []func(string) string{filepath.FromSlash, func(s string) string { return s }} {
 		doTestGetDottedRelativePath(f, t)
@@ -163,23 +140,6 @@ func doTestGetDottedRelativePath(urlFixer func(string) string, t *testing.T) {
 	}
 	for i, d := range data {
 		output := helpers.GetDottedRelativePath(d.input)
-		if d.expected != output {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
-		}
-	}
-}
-
-func TestMakeTitle(t *testing.T) {
-	type test struct {
-		input, expected string
-	}
-	data := []test{
-		{"Make-Title", "Make Title"},
-		{"MakeTitle", "MakeTitle"},
-		{"make_title", "make_title"},
-	}
-	for i, d := range data {
-		output := helpers.MakeTitle(d.input)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -386,70 +346,6 @@ func BenchmarkExtractAndGroupRootPaths(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		helpers.ExtractAndGroupRootPaths(in)
-	}
-}
-
-func TestFindCWD(t *testing.T) {
-	type test struct {
-		expectedDir string
-		expectedErr error
-	}
-
-	// cwd, _ := os.Getwd()
-	data := []test{
-		//{cwd, nil},
-		// Commenting this out. It doesn't work properly.
-		// There's a good reason why we don't use os.Getwd(), it doesn't actually work the way we want it to.
-		// I really don't know a better way to test this function. - SPF 2014.11.04
-	}
-	for i, d := range data {
-		dir, err := helpers.FindCWD()
-		if d.expectedDir != dir {
-			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedDir, dir)
-		}
-		if d.expectedErr != err {
-			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, err)
-		}
-	}
-}
-
-func TestSafeWriteToDisk(t *testing.T) {
-	emptyFile := createZeroSizedFileInTempDir(t)
-	tmpDir := t.TempDir()
-
-	randomString := "This is a random string!"
-	reader := strings.NewReader(randomString)
-
-	fileExists := fmt.Errorf("%v already exists", emptyFile.Name())
-
-	type test struct {
-		filename    string
-		expectedErr error
-	}
-
-	now := time.Now().Unix()
-	nowStr := strconv.FormatInt(now, 10)
-	data := []test{
-		{emptyFile.Name(), fileExists},
-		{tmpDir + "/" + nowStr, nil},
-	}
-
-	for i, d := range data {
-		e := helpers.SafeWriteToDisk(d.filename, reader, new(afero.OsFs))
-		if d.expectedErr != nil {
-			if d.expectedErr.Error() != e.Error() {
-				t.Errorf("Test %d failed. Expected error %q but got %q", i, d.expectedErr.Error(), e.Error())
-			}
-		} else {
-			if d.expectedErr != e {
-				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expectedErr, e)
-			}
-			contents, _ := os.ReadFile(d.filename)
-			if randomString != string(contents) {
-				t.Errorf("Test %d failed. Expected contents %q but got %q", i, randomString, string(contents))
-			}
-		}
-		reader.Seek(0, 0)
 	}
 }
 

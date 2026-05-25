@@ -15,7 +15,9 @@ import (
 var Sigquit = syscall.SIGQUIT
 
 func syscallIsNotSupported(err error) bool {
-	// Removed by Hugo.
+	if err == nil {
+		return false
+	}
 
 	return false
 }

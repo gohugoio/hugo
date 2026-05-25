@@ -88,6 +88,7 @@ See https://gohugo.io/quick-reference/syntax-highlighting-styles/ for a preview 
 				}
 				options := []html.Option{
 					html.WithCSSComments(!omitClassComments),
+					html.WithCustomCSS(chromaCSSOverrides(style)),
 				}
 				formatter := html.New(options...)
 
@@ -273,6 +274,33 @@ url: %s
 			newDocsHelper(),
 		},
 	}
+}
+
+func chromaCSSOverrides(style *chroma.Style) map[chroma.TokenType]string {
+	bg := style.Get(chroma.Background)
+	m := make(map[chroma.TokenType]string)
+	for tt := range chroma.StandardTypes {
+		if tt == chroma.Background || !style.Has(tt) || !chromaLeafToken(tt) {
+			continue
+		}
+		entry := style.Get(tt)
+		if !entry.Sub(bg).IsZero() || !entry.Colour.IsSet() {
+			continue
+		}
+		if css := html.StyleEntryToCSS(chroma.StyleEntry{Colour: entry.Colour}); css != "" {
+			m[tt] = css
+		}
+	}
+	return m
+}
+
+func chromaLeafToken(tt chroma.TokenType) bool {
+	for other := range chroma.StandardTypes {
+		if other != tt && (other.Category() == tt || other.SubCategory() == tt) {
+			return false
+		}
+	}
+	return true
 }
 
 type genCommand struct {

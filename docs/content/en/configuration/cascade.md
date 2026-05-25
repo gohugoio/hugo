@@ -9,9 +9,9 @@ keywords: []
 You can configure your site to cascade front matter values to the home page and any of its descendants. However, this cascading will be prevented if the descendant already defines the field, or if a closer ancestor [node](g) has already cascaded a value for the same field through its front matter's `cascade` key.
 
 > [!note]
-> You can also configure cascading behavior within a page's front matter. See&nbsp;[details].
+> You can also configure cascading behavior within a page's front matter. See&nbsp;[details][].
 
-For example, to cascade a "color" parameter to the home page and all its descendants:
+For example, to cascade the `color` page parameter to all pages:
 
 {{< code-toggle file=hugo >}}
 [cascade.params]
@@ -24,51 +24,38 @@ color = 'red'
 We deprecated the `_target` front matter key in favor of `target` in v0.156.0 on 2026-02-17. Remove footnote #1 on or after 2027-05-17 (15 months after deprecation).
 -->
 
-The `target`[^1] keyword allows you to target specific pages or [environments](g). For example, to cascade a "color" parameter to pages within the "articles" section, including the "articles" section page itself:
+The `target` key accepts a [page matcher](g) to limit cascaded values to a subset of pages.[^1] If a target is omitted, values cascade to all pages.
 
-[^1]: The `_target` alias for `target` is deprecated and will be removed in a future release.
+{{% include "/_common/configuration/page-matcher.md" %}}
+
+For example, to cascade the `color` page parameter to the `articles` section and its descendants, but only for the English (`en`) and German (`de`) language sites:
 
 {{< code-toggle file=hugo >}}
 [cascade.params]
 color = 'red'
 [cascade.target]
 path = '{/articles,/articles/**}'
+[cascade.target.sites.matrix]
+languages = '{en,de}'
 {{< /code-toggle >}}
-
-Use any combination of these keywords to target pages and/or environments:
-
-environment
-: (`string`) A [glob pattern](g) matching the build [environment](g). For example: `{staging,production}`.
-
-kind
-: (`string`) A [glob pattern](g) matching the [page kind](g). For example: `{taxonomy,term}`.
-
-lang
-: (`string`) A [glob pattern](g) matching the [page language]. For example: `{en,de}`.
-
-path
-: (`string`) A [glob pattern](g) matching the page's [logical path](g). For example: `{/books,/books/**}`.
 
 ## Array
 
-Define an array of cascade parameters to apply different values to different targets. For example:
+Define an array of cascade maps to apply different values to different targets. For example:
 
 {{< code-toggle file=hugo >}}
 [[cascade]]
 [cascade.params]
 color = 'red'
 [cascade.target]
-path = '/books/**'
-kind = 'page'
-lang = '{en,de}'
+path = '{/articles,/articles/**}'
 [[cascade]]
 [cascade.params]
 color = 'blue'
 [cascade.target]
-path = '/films/**'
-kind = 'page'
-environment = 'production'
+path = '{/tutorials,/tutorials/**}'
 {{< /code-toggle >}}
 
+[^1]: The `_target` alias for `target` is deprecated and will be removed in a future release.
+
 [details]: /content-management/front-matter/#cascade-1
-[page language]: /methods/page/language/

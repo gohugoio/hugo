@@ -103,13 +103,13 @@ tags_weight = 1000
 tags = ['chemistry','science']
 {{</ code-toggle >}}
 
-With the front matter above, the "Organic Chemistry" page will float towards the top of the list on section and home pages, and it will sink towards the bottom of the list on the "chemistry" and "science" term pages.
+With the front matter above, the `organic-chemistry` page will float towards the top of the list on section and home pages, and it will sink towards the bottom of the list on the `chemistry` and `science` term pages.
 
 ## Metadata
 
 Display metadata about each term by creating a corresponding branch bundle in the `content` directory.
 
-For example, create an "authors" taxonomy:
+For example, create an `authors` taxonomy:
 
 {{< code-toggle file=hugo >}}
 [taxonomies]
@@ -132,11 +132,11 @@ content/
 Then add front matter to each term page:
 
 {{< code-toggle file=content/authors/jsmith/_index.md fm=true >}}
-title = "John Smith"
-affiliation = "University of Chicago"
+title = 'John Smith'
+affiliation = 'University of Chicago'
 {{< /code-toggle >}}
 
-Then create a _taxonomy_ template specific to the "authors" taxonomy:
+Then create a _taxonomy_ template specific to the `authors` taxonomy:
 
 ```go-html-template {file="layouts/authors/taxonomy.html"}
 {{ define "main" }}
@@ -156,7 +156,7 @@ Then create a _taxonomy_ template specific to the "authors" taxonomy:
 
 In the example above we list each author including their affiliation and portrait.
 
-Or create a _term_ template specific to the "authors" taxonomy:
+Or create a _term_ template specific to the `authors` taxonomy:
 
 ```go-html-template {file="layouts/authors/term.html"}
 {{ define "main" }}

@@ -17,6 +17,7 @@ package templates
 import (
 	"context"
 	"fmt"
+	htmltemplate "html/template"
 	"strconv"
 	"sync/atomic"
 
@@ -52,10 +53,17 @@ func (ns *Namespace) Exists(name string) bool {
 }
 
 // Defer defers the execution of a template block.
-func (ns *Namespace) Defer(args ...any) (bool, error) {
+func (ns *Namespace) Defer(ctx context.Context, args ...any) (bool, error) {
 	// Prevent defer from being used in content adapters,
 	// that just doesn't work.
 	ns.deps.Site.CheckReady()
+
+	// Reject use inside a partialCached body: the cached output retains the
+	// deferred placeholder across rebuilds while the executions map is reset,
+	// which used to cause a panic in executeDeferredTemplates. See issue #13492.
+	if tpl.Context.IsInPartialCached.Get(ctx) {
+		return false, fmt.Errorf("templates.Defer cannot be used inside a partialCached partial; use partial instead, or move templates.Defer to the calling template")
+	}
 
 	if len(args) != 0 {
 		return false, fmt.Errorf("Defer does not take any arguments")
@@ -113,7 +121,10 @@ func (ns *Namespace) _PopPartialDecorator(ctx context.Context, id string) any {
 	}
 	if !top.Bool {
 		// Prevents anything being rendered if inner was not called.
-		return ""
+		// Use template.JS to avoid Go's html/template JS escaper
+		// wrapping an empty string in quotes inside <script> tags.
+		// See https://github.com/gohugoio/hugo/issues/14711
+		return htmltemplate.JS("")
 	}
 	return top.Bool // return whether inner exists in the wrapped partial.
 }

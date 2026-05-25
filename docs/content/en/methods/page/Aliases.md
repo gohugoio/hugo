@@ -67,16 +67,16 @@ defaultContentLanguage         = 'en'
 defaultContentLanguageInSubdir = true
 
 [languages.en]
-  languageCode      = 'en-US'
-  languageDirection = 'ltr'
-  languageName      = 'English'
+ locale      = 'en-US'
+ direction = 'ltr'
+ name      = 'English'
   weight            = 1
   title             = 'My Site in English'
 
 [languages.de]
-  languageCode      = 'de-DE'
-  languageDirection = 'ltr'
-  languageName      = 'Deutsch'
+ locale      = 'de-DE'
+ direction = 'ltr'
+ name      = 'Deutsch'
   weight            = 2
   title             = 'My Site in German'
 

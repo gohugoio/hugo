@@ -13,61 +13,39 @@ params:
 <!-- Added in v0.111.0 -->
 
 > [!note]
-> This function is only applicable to the [`vars`] option passed to the [`css.Sass`] function.
+> This function is only applicable to the `vars` option passed to the [`css.Sass`][] function.
 
-When passing a `vars` map to the `css.Sass` function, Hugo detects common typed CSS values such as `24px` or `#FF0000` using regular expression matching. If necessary, you can bypass automatic type inference by using the `css.Unquoted` function to explicitly indicate that the value must not be treated as a quoted string.
+When passing a `vars` map to the `css.Sass` function, Hugo detects common typed CSS values such as `24px` or `#FF0000` using regular expression matching. If necessary, you can bypass automatic type inference by using the `css.Unquoted` function to explicitly indicate that the value must be treated as an unquoted string.
 
-For example:
+In the example below, we use `css.Unquoted` to ensure the value for the `font-family` property is injected without quotes.
 
-```scss {file="assets/sass/main.scss"}
-@use "hugo:vars" as h;
-
-h1 {
-  font-size: h.$font-size-h1;
-}
-
-h2 {
-  font-size: h.$font-size-h2;
-}
-```
-
-```go-html-template {file="layouts/_partials/css.html"}
+```go-html-template
 {{ $vars := dict
-  "font_size_h1" ("72px * 0.500" | css.Unquoted)
-  "font_size_h2" ("72px * 0.375" | css.Unquoted)
+  "font-main" ("sans-serif" | css.Unquoted)
 }}
 
-{{ with resources.Get "sass/main.scss" }}
-  {{ $opts := dict
-    "enableSourceMap" hugo.IsDevelopment
-    "outputStyle" (cond hugo.IsDevelopment "expanded" "compressed")
-    "targetPath" "css/main.css"
-    "transpiler" "dartsass"
-    "vars" $vars
-  }}
-  {{ with . | toCSS $opts }}
-    {{ if hugo.IsDevelopment }}
-      <link rel="stylesheet" href="{{ .RelPermalink }}">
-    {{ else }}
-      {{ with . | fingerprint }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
-      {{ end }}
-    {{ end }}
-  {{ end }}
+{{ $opts := dict "vars" $vars "transpiler" "dartsass" }}
+{{ with resources.Get "sass/main.scss" | css.Sass $opts }}
+  <link rel="stylesheet" href="{{ .RelPermalink }}">
 {{ end }}
 ```
 
-The Sass rules are transpiled to:
+Using the `hugo:vars` identifier in your stylesheet:
 
-```css {file="public/css/main.css"}
-h1 {
-  font-size: 36px;
-}
+```scss
+@use "hugo:vars" as h;
 
-h2 {
-  font-size: 27px;
+body {
+  font-family: h.$font-main;
 }
 ```
 
-[`css.Sass`]: /functions/css/sass/
-[`vars`]: /functions/css/sass/#vars
+The resulting CSS contains an unquoted string:
+
+```css
+body {
+  font-family: sans-serif;
+}
+```
+
+[`css.Sass`]: /functions/css/sass/#vars

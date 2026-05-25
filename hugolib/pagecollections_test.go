@@ -584,13 +584,7 @@ Single.
 /README.md: {{ with .GetPage "/README.md" }}{{ .Title }}{{ end }}|
 {{ .Content }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		`
@@ -649,13 +643,7 @@ title: about1en
 NOT FOUND
 {{ end }}
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `Docs p1: p1`)
 	b.AssertFileContent("public/en/index.html", `NOT FOUND`)
@@ -713,13 +701,7 @@ title: news1
 
 Sect1 RegularPagesRecursive: {{ range $sect1.RegularPagesRecursive }}{{ .Kind }}:{{ .RelPermalink}}|{{ end }}|End.
 `
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-			BuildCfg:    BuildCfg{},
-		},
-	).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `
 Sect1 RegularPagesRecursive: page:/docs/sect1/ps1/|page:/docs/sect1/ps2/|page:/docs/sect1/sect1_s2/ps2_1/||End.
@@ -737,11 +719,7 @@ func TestRegularPagesRecursiveHome(t *testing.T) {
 RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .Kind }}:{{ .RelPermalink}}|{{ end }}|End.
 `
 
-	b := NewIntegrationTestBuilder(
-		IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		}).Build()
+	b := Test(t, files)
 
 	b.AssertFileContent("public/index.html", `RegularPagesRecursive: page:/p1/|page:/post/p2/||End.`)
 }

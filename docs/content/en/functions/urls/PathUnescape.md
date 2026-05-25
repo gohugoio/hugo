@@ -1,6 +1,6 @@
 ---
 title: urls.PathUnescape 
-description: Returns the given string, applying percent-encoding to special characters and reserved delimiters so it can be safely used as a segment within a URL path.
+description: Returns the given string, replacing all percent-encoded sequences with the corresponding unescaped characters.
 categories: []
 keywords: []
 params:
@@ -16,5 +16,7 @@ The `urls.PathUnescape` function does the inverse transformation of [`urls.PathE
 ```go-html-template
 {{ urls.PathUnescape "A%2Fb%2Fc%3Fd=%C3%A9&f=g+h" }} → A/b/c?d=é&f=g+h
 ```
+
+Use this function to decode an individual segment within a URL path.
 
 [`urls.PathEscape`]: /functions/urls/PathEscape/

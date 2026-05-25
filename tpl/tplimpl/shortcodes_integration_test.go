@@ -122,7 +122,7 @@ Content: {{ .Content }}
 `
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "35b077dcb9887a84")
+	b.AssertFileContent("public/index.html", "c18e12c59a2f9bdb")
 }
 
 func TestHighlightShortcode(t *testing.T) {
@@ -237,12 +237,12 @@ Content: {{ .Content }}
 
 	// Regular mode
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "6e93404b93277876")
+	b.AssertFileContent("public/index.html", "336bb64b13c24575")
 
 	// Simple mode
 	files = strings.ReplaceAll(files, "privacy.instagram.simple = false", "privacy.instagram.simple = true")
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "2c1dce3881be0513")
+	b.AssertFileContent("public/index.html", "4c094707f37b2340")
 }
 
 func TestParamShortcode(t *testing.T) {
@@ -469,14 +469,14 @@ Content: {{ .Content }}
 
 	// Regular mode
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "31c54d7f8c54f73d")
-	b.AssertFileContent("public/p2/index.html", "31c54d7f8c54f73d")
-	b.AssertFileContent("public/p3/index.html", "7c073565f380599b")
+	b.AssertFileContent("public/p1/index.html", "2144844b57ee39d8")
+	b.AssertFileContent("public/p2/index.html", "2144844b57ee39d8")
+	b.AssertFileContent("public/p3/index.html", "a131e93ce53bc318")
 
 	// Simple mode
 	files = strings.ReplaceAll(files, "privacy.vimeo.simple = false", "privacy.vimeo.simple = true")
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "fb22905d5b100a5a")
+	b.AssertFileContent("public/p1/index.html", "582bde2225dc43c0")
 
 	// Simple mode with non-existent id
 	files = strings.ReplaceAll(files, "{{< vimeo 19899678 >}}", "{{< vimeo __id_does_not_exist__ >}}")
@@ -587,14 +587,14 @@ title: p2
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html", "4b54bf9bd03946ec")
-	b.AssertFileContent("public/p2/index.html", "289c655e727e596c")
+	b.AssertFileContent("public/p1/index.html", "365fe481b0377cd9")
+	b.AssertFileContent("public/p2/index.html", "82d7f05fb1fefb3b")
 
 	files = strings.ReplaceAll(files, "privacy.youtube.privacyEnhanced = false", "privacy.youtube.privacyEnhanced = true")
 
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html", "78eb19b5c6f3768f")
-	b.AssertFileContent("public/p2/index.html", "a6db910a9cf54bc1")
+	b.AssertFileContent("public/p1/index.html", "48398992f5ff0afc")
+	b.AssertFileContent("public/p2/index.html", "116436ffc3f62191")
 }
 
 func TestShortcodePlainTextVsHTMLTemplateIssue13698(t *testing.T) {

@@ -320,8 +320,9 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 
 	meta.PathInfo = pi
 	if !fim.IsDir() {
+		pp := fs.opts.Cfg.PathParser()
 		if fileLang := meta.PathInfo.Lang(); fileLang != "" {
-			if idx, ok := fs.opts.Cfg.PathParser().LanguageIndex[fileLang]; ok {
+			if idx, ok := pp.LanguageIndex[fileLang]; ok {
 				// A valid lang set in filename.
 				// Give priority to myfile.sv.txt inside the sv filesystem.
 				meta.Weight++
@@ -330,7 +331,29 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 					// Not the default language, add some weight.
 					meta.SitesMatrix = sitesmatrix.NewWeightedVectorStore(meta.SitesMatrix, 10)
 				}
-
+			}
+		}
+		// Filename identifiers for roles/versions replace any mount configuration for that dimension.
+		if roles := pi.Roles(); len(roles) > 0 {
+			var indices []int
+			for _, role := range roles {
+				if idx := pp.ConfiguredDimensions.ConfiguredRoles.ResolveIndex(role); idx >= 0 {
+					indices = append(indices, idx)
+				}
+			}
+			if len(indices) > 0 {
+				meta.SitesMatrix = meta.SitesMatrix.WithRoleIndices(indices...)
+			}
+		}
+		if versions := pi.Versions(); len(versions) > 0 {
+			var indices []int
+			for _, version := range versions {
+				if idx := pp.ConfiguredDimensions.ConfiguredVersions.ResolveIndex(version); idx >= 0 {
+					indices = append(indices, idx)
+				}
+			}
+			if len(indices) > 0 {
+				meta.SitesMatrix = meta.SitesMatrix.WithVersionIndices(indices...)
 			}
 		}
 		switch meta.Component {
@@ -341,7 +364,6 @@ func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, b
 				meta.Weight--
 			}
 		}
-
 	}
 
 	if fi.IsDir() {

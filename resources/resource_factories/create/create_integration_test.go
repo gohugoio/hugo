@@ -19,9 +19,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -47,14 +49,7 @@ func TestGetRemoteHead(t *testing.T) {
 {{ end }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		"Head Content: .",
@@ -83,14 +78,7 @@ func TestGetRemoteResponseHeaders(t *testing.T) {
 {{ end }}
 `
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
 		"Response Headers: map[Server:[Netlify] X-Frame-Options:[DENY]]",
@@ -147,14 +135,7 @@ mediaTypes = ['text/plain']
 
 	t.Run("OK", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "60s")
-		b := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		)
-
-		b.Build()
+		b := hugolib.Test(t, files)
 
 		for i := range numPages {
 			b.AssertFileContent(fmt.Sprintf("public/post/p%d/index.html", i), fmt.Sprintf("Content: Response for /post/p%d/.", i))
@@ -163,12 +144,7 @@ mediaTypes = ['text/plain']
 
 	t.Run("Timeout", func(t *testing.T) {
 		files := strings.ReplaceAll(filesTemplate, "TIMEOUT", "100ms")
-		b, err := hugolib.NewIntegrationTestBuilder(
-			hugolib.IntegrationTestConfig{
-				T:           t,
-				TxtarString: files,
-			},
-		).BuildE()
+		b, err := hugolib.TestE(t, files)
 		// This is hard to get stable on GitHub Actions, it sometimes succeeds due to timing issues.
 		if err != nil {
 			b.AssertLogContains("Got Err")
@@ -209,16 +185,136 @@ mediaTypes = ['text/plain']
 `
 	files = strings.ReplaceAll(files, "URL", srv.URL)
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	// The per-request timeout of 200ms should fire well before the global 30s timeout.
 	b.AssertFileContent("public/index.html", "Err:")
+}
+
+// Issue 14828.
+func TestGetRemoteRetryAfterIssue14828(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Honored", func(t *testing.T) {
+		var (
+			mu       sync.Mutex
+			reqTimes []time.Time
+		)
+
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			mu.Lock()
+			reqTimes = append(reqTimes, time.Now())
+			n := len(reqTimes)
+			mu.Unlock()
+
+			if n == 1 {
+				w.Header().Set("Retry-After", "2")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				return
+			}
+			w.Header().Add("Content-Type", "text/plain")
+			w.Write([]byte("OK"))
+		}))
+		t.Cleanup(func() { srv.Close() })
+
+		files := `
+-- hugo.toml --
+timeout = "30s"
+[security]
+[security.http]
+urls = ['.*']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $url := "URL" }}
+{{ with try (resources.GetRemote $url) }}
+  {{ with .Err }}
+    {{ errorf "Got Err: %s" . }}
+  {{ else with .Value }}
+    Content: {{ .Content }}
+  {{ end }}
+{{ end }}
+`
+		files = strings.ReplaceAll(files, "URL", srv.URL)
+
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/index.html", "Content: OK")
+
+		mu.Lock()
+		defer mu.Unlock()
+		b.Assert(len(reqTimes) >= 2, qt.IsTrue, qt.Commentf("expected at least 2 requests, got %d", len(reqTimes)))
+		// Default exponential backoff caps the initial sleep at 1100ms.
+		// A Retry-After of 2s should produce a gap well above that.
+		gap := reqTimes[1].Sub(reqTimes[0])
+		b.Assert(gap >= 1500*time.Millisecond, qt.IsTrue, qt.Commentf("expected gap of at least 1500ms (Retry-After: 2), got %s", gap))
+	})
+
+	t.Run("TimeoutMessage", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Retry-After", "1")
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}))
+		t.Cleanup(func() { srv.Close() })
+
+		files := `
+-- hugo.toml --
+timeout = "200ms"
+[security]
+[security.http]
+urls = ['.*']
+-- layouts/home.html --
+{{ $url := "URL" }}
+{{ with try (resources.GetRemote $url) }}
+  {{ with .Err }}
+    {{ errorf "Got Err: %s" . }}
+  {{ end }}
+{{ end }}
+`
+		files = strings.ReplaceAll(files, "URL", srv.URL)
+
+		b, _ := hugolib.TestE(t, files)
+		b.AssertLogContains("Retry-After: 1s")
+	})
+}
+
+// Issue 14871.
+func TestGetRemoteRedirectSecurityCheckIssue14871(t *testing.T) {
+	t.Parallel()
+
+	// Final server: the redirect target. Its host must be denied by security.http.urls.
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "text/plain")
+		w.Write([]byte("should not reach here"))
+	}))
+	t.Cleanup(func() { target.Close() })
+
+	// Redirector: the allowed host. Redirects to the denied target.
+	redirector := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL+"/", http.StatusFound)
+	}))
+	t.Cleanup(func() { redirector.Close() })
+
+	files := `
+-- hugo.toml --
+[security]
+[security.http]
+urls = ['REDIRECTOR']
+mediaTypes = ['text/plain']
+-- layouts/home.html --
+{{ $url := "REDIRECTOR/" }}
+{{ with try (resources.GetRemote $url) }}
+  {{ with .Err }}
+    Err: {{ . }}
+  {{ else with .Value }}
+    Content: {{ .Content }}
+  {{ end }}
+{{ end }}
+`
+	files = strings.ReplaceAll(files, "REDIRECTOR", redirector.URL)
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Err:", "security.http.urls")
+	b.AssertFileContent("public/index.html", "! should not reach here")
 }
 
 // Issue 14611.
@@ -257,13 +353,7 @@ mediaTypes = ['text/plain']
 `
 	files = strings.ReplaceAll(files, "URL", srv.URL)
 
-	b := hugolib.NewIntegrationTestBuilder(
-		hugolib.IntegrationTestConfig{
-			T:           t,
-			TxtarString: files,
-		},
-	)
-	b.Build()
+	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Content: Hello from remote.")
 }

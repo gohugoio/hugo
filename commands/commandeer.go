@@ -39,6 +39,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
@@ -97,6 +98,7 @@ type commonConfig struct {
 type configKey struct {
 	counter                    int32
 	ignoreModulesDoesNotExists bool
+	skipNpmCheck               bool
 }
 
 // This is the root command.
@@ -151,6 +153,23 @@ type rootCommand struct {
 	cfgDir  string
 }
 
+// resolveEnvironment sets r.environment if not already set.
+// server indicates whether the server command is running (defaults to development).
+func (r *rootCommand) resolveEnvironment(server bool) {
+	if r.environment != "" {
+		return
+	}
+	if env := os.Getenv("HUGO_ENVIRONMENT"); env != "" {
+		r.environment = env
+	} else if env := os.Getenv("HUGO_ENV"); env != "" {
+		r.environment = env
+	} else if server {
+		r.environment = hugo.EnvironmentDevelopment
+	} else {
+		r.environment = hugo.EnvironmentProduction
+	}
+}
+
 func (r *rootCommand) isVerbose() bool {
 	return r.logger.Level() <= logg.LevelInfo
 }
@@ -195,6 +214,7 @@ func (r *rootCommand) ConfigFromConfig(key configKey, oldConf *commonConfig) (*c
 				Logger:                   r.logger,
 				Environment:              r.environment,
 				IgnoreModuleDoesNotExist: key.ignoreModulesDoesNotExists,
+				SkipNpmCheck:             key.skipNpmCheck,
 			},
 		)
 		if err != nil {
@@ -221,6 +241,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 	if cfg == nil {
 		panic("cfg must be set")
 	}
+	r.resolveEnvironment(false)
 	cc, _, err := r.commonConfigs.GetOrCreate(key, func(key configKey) (*commonConfig, error) {
 		var dir string
 		if r.source != "" {
@@ -251,6 +272,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 				Environment:              r.environment,
 				Logger:                   r.logger,
 				IgnoreModuleDoesNotExist: key.ignoreModulesDoesNotExists,
+				SkipNpmCheck:             key.skipNpmCheck,
 			},
 		)
 		if err != nil {
@@ -591,7 +613,7 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
-	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
+	cmd.Flags().BoolP("ignoreCache", "", false, "ignore the configured file caches")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date, author, and CODEOWNERS info to the pages")
 	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	_ = cmd.MarkFlagDirname("layoutDir")

@@ -14,7 +14,6 @@
 package helpers
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -63,22 +62,6 @@ func (p *PathSpec) MakePathSanitized(s string) string {
 		return p.MakePath(s)
 	}
 	return strings.ToLower(p.MakePath(s))
-}
-
-// MakeTitle converts the path given to a suitable title, trimming whitespace
-// and replacing hyphens with whitespace.
-func MakeTitle(inpath string) string {
-	return strings.Replace(strings.TrimSpace(inpath), "-", " ", -1)
-}
-
-// MakeTitleInPath converts the path given to a suitable title, trimming whitespace
-func MakePathRelative(inPath string, possibleDirectories ...string) (string, error) {
-	for _, currentPath := range possibleDirectories {
-		if after, ok := strings.CutPrefix(inPath, currentPath); ok {
-			return after, nil
-		}
-	}
-	return inPath, errors.New("can't extract relative path, unknown prefix")
 }
 
 // Should be good enough for Hugo.
@@ -197,29 +180,6 @@ LOOP:
 	return groups
 }
 
-// FindCWD returns the current working directory from where the Hugo
-// executable is run.
-func FindCWD() (string, error) {
-	serverFile, err := filepath.Abs(os.Args[0])
-	if err != nil {
-		return "", fmt.Errorf("can't get absolute path for executable: %v", err)
-	}
-
-	path := filepath.Dir(serverFile)
-	realFile, err := filepath.EvalSymlinks(serverFile)
-	if err != nil {
-		if _, err = os.Stat(serverFile + ".exe"); err == nil {
-			realFile = filepath.Clean(serverFile + ".exe")
-		}
-	}
-
-	if err == nil && realFile != serverFile {
-		path = filepath.Dir(realFile)
-	}
-
-	return path, nil
-}
-
 // Walk walks the file tree rooted at root, calling walkFn for each file or
 // directory in the tree, including root.
 func Walk(fs afero.Fs, root string, walker hugofs.WalkFunc) error {
@@ -233,12 +193,6 @@ func Walk(fs afero.Fs, root string, walker hugofs.WalkFunc) error {
 	})
 
 	return w.Walk()
-}
-
-// SafeWriteToDisk is the same as WriteToDisk
-// but it also checks to see if file/directory already exists.
-func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
-	return afero.SafeWriteReader(fs, inpath, r)
 }
 
 // WriteToDisk writes content to disk.

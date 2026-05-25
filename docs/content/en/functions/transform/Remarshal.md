@@ -24,7 +24,7 @@ Example 1
 ```go-html-template
 {{ $s := `
   baseURL = 'https://example.org/'
-  languageCode = 'en-US'
+  locale = 'en-US'
   title = 'ABC Widgets'
 `}}
 <pre>{{ transform.Remarshal "json" $s }}</pre>
@@ -35,7 +35,7 @@ Resulting HTML:
 ```html
 <pre>{
    &#34;baseURL&#34;: &#34;https://example.org/&#34;,
-   &#34;languageCode&#34;: &#34;en-US&#34;,
+   &#34;locale&#34;: &#34;en-US&#34;,
    &#34;title&#34;: &#34;ABC Widgets&#34;
 }
 </pre>
@@ -46,7 +46,7 @@ Rendered in browser:
 ```text
 {
    "baseURL": "https://example.org/",
-   "languageCode": "en-US",
+   "locale": "en-US",
    "title": "ABC Widgets"
 }
 ```

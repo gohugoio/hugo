@@ -76,8 +76,8 @@ func (r *htmlRenderer) renderTable(w util.BufWriter, source []byte, n ast.Node, 
 
 	ordinal := ctx.GetAndIncrementOrdinal(gast.KindTable)
 
-	tctx := &tableContext{
-		BaseContext:      render.NewBaseContext(ctx, renderer, n, source, nil, ordinal),
+	tctx := tableContext{
+		BaseContext:      render.NewBaseContext(ctx, renderer, n, source, ordinal),
 		AttributesHolder: attributes.New(n.Attributes(), attributes.AttributesOwnerGeneral),
 		tHead:            table.THead,
 		tBody:            table.TBody,
@@ -166,10 +166,10 @@ type tableContext struct {
 	tBody []hooks.TableRow
 }
 
-func (c *tableContext) THead() []hooks.TableRow {
+func (c tableContext) THead() []hooks.TableRow {
 	return c.tHead
 }
 
-func (c *tableContext) TBody() []hooks.TableRow {
+func (c tableContext) TBody() []hooks.TableRow {
 	return c.tBody
 }
