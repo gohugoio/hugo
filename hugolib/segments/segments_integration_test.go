@@ -75,3 +75,56 @@ tags: ["tag1", "tag2"]
 	b.AssertFileExists("public/no/index.html", true)
 	b.AssertFileExists("public/no/index.xml", false)
 }
+
+// See issue 14939.
+func TestRenderSegmentsMergesHugoStatsJSON(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+renderSegments = ["docs"]
+[build.buildStats]
+enable = true
+[segments]
+[segments.docs]
+[[segments.docs.includes]]
+path = "{/docs,/docs/**}"
+-- hugo_stats.json --
+{
+  "htmlElements": {
+    "tags": [
+      "section"
+    ],
+    "classes": [
+      "from-previous-build"
+    ],
+    "ids": [
+      "previous-id"
+    ]
+  }
+}
+-- layouts/single.html --
+<div id="docs-id" class="docs-class">{{ .Title }}</div>
+-- layouts/list.html --
+<div id="list-id" class="list-class">{{ .Title }}</div>
+-- content/docs/section1/page1.md --
+---
+title: "Docs Page 1"
+---
+-- content/blog/section1/page1.md --
+---
+title: "Blog Page 1"
+---
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	b.AssertFileContent("public/docs/section1/page1/index.html", "Docs Page 1")
+	b.AssertFileExists("public/blog/section1/page1/index.html", false)
+
+	b.AssertFileContent("hugo_stats.json",
+		"from-previous-build",
+		"previous-id",
+		"section",
+		"docs-class",
+	)
+}

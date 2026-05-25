@@ -779,6 +779,23 @@ func (h *HugoSites) writeBuildStats() error {
 		htmlElements.Merge(stats.HTMLElements)
 	}
 
+	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, files.FilenameHugoStatsJSON)
+
+	existingContent, _ := afero.ReadFile(hugofs.Os, filename)
+
+	// When rendering only a subset of the site, merge with any existing
+	// hugo_stats.json so that elements from pages not rendered in this build
+	// are preserved (e.g. so Tailwind doesn't strip their classes).
+	// See issue 14939.
+	if len(h.Configs.Base.RenderSegments) > 0 && len(existingContent) > 0 {
+		var existing publisher.PublishStats
+		if err := json.Unmarshal(existingContent, &existing); err == nil {
+			htmlElements.Merge(existing.HTMLElements)
+		} else {
+			h.Log.Warnf("Failed to unmarshal existing hugo_stats.json: %s", err)
+		}
+	}
+
 	htmlElements.Sort()
 
 	stats := publisher.PublishStats{
@@ -795,13 +812,8 @@ func (h *HugoSites) writeBuildStats() error {
 	}
 	js := buf.Bytes()
 
-	filename := filepath.Join(h.Configs.LoadingInfo.BaseConfig.WorkingDir, files.FilenameHugoStatsJSON)
-
-	if existingContent, err := afero.ReadFile(hugofs.Os, filename); err == nil {
-		// Check if the content has changed.
-		if bytes.Equal(existingContent, js) {
-			return nil
-		}
+	if bytes.Equal(existingContent, js) {
+		return nil
 	}
 
 	// Make sure it's always written to the OS fs.
