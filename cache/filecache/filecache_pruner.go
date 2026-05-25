@@ -93,10 +93,9 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		shouldRemove := force || c.isExpired(info.ModTime())
 
-		if !shouldRemove && len(c.entryLocker.seen) > 0 {
+		if !shouldRemove && c.entryLocker.seen.Len() > 0 {
 			// Remove it if it's not been touched/used in the last build.
-			_, seen := c.entryLocker.seen[name]
-			shouldRemove = !seen
+			shouldRemove = !c.entryLocker.seen.Has(name)
 		}
 
 		if shouldRemove {

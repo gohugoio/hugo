@@ -80,6 +80,50 @@ HighlightCodeBlock: Wrapped:{{ $result.Wrapped  }}|Inner:{{ $result.Inner }}
 	)
 }
 
+// See issue 11872.
+func TestCodeblockWithTypeOverride(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[markup.highlight]
+noClasses = false # to reduce size of assertion string
+-- content/p1.md --
+---
+title: p1
+---
+§§§go {style=monokai class=my-class tabWidth=8}
+i = 42
+§§§
+-- content/p2.md --
+---
+title: p2
+---
+§§§{style=monokai class=my-class tabWidth=8}
+i = 42
+§§§
+-- layouts/page.html --
+{{ .Content }}
+-- layouts/_markup/render-codeblock.html --
+{{- $opts := dict }}
+{{- if not (transform.CanHighlight .Type) }}
+	{{- $opts = dict "type" "text" }}
+{{- end }}
+{{- $result := transform.HighlightCodeBlock . $opts }}
+{{- $result.Wrapped -}}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		`<div class="highlight my-class"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">42</span></span></span></code></pre></div>`,
+	)
+	b.AssertFileContent("public/p2/index.html",
+		`<div class="highlight my-class"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">i = 42</span></span></code></pre></div>`,
+	)
+}
+
 // Issue #11311
 func TestIssue11311(t *testing.T) {
 	t.Parallel()

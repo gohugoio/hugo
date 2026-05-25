@@ -14,7 +14,7 @@ require (
 	github.com/bep/golibsass v1.2.0
 	github.com/bep/golocales v0.1.0
 	github.com/bep/goportabletext v0.2.0
-	github.com/bep/helpers v0.8.0
+	github.com/bep/helpers v0.12.0
 	github.com/bep/imagemeta v0.17.2
 	github.com/bep/lazycache v0.8.1
 	github.com/bep/logg v0.4.0
@@ -73,9 +73,9 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
-	golang.org/x/image v0.40.0
+	golang.org/x/image v0.41.0
 	golang.org/x/mod v0.36.0
-	golang.org/x/net v0.54.0
+	golang.org/x/net v0.55.0
 	golang.org/x/sync v0.20.0
 	golang.org/x/text v0.37.0
 	golang.org/x/tools v0.45.0
@@ -178,7 +178,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7 // indirect

@@ -116,6 +116,9 @@ func (c ReplacingJSONMarshaller) MarshalJSON() ([]byte, error) {
 					switch vv := v.(type) {
 					case map[string]any:
 						removeZeroVAlues(vv)
+						if len(vv) == 0 {
+							delete(m, k)
+						}
 					case []any:
 						for _, vvv := range vv {
 							if m, ok := vvv.(map[string]any); ok {

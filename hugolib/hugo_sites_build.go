@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/bep/debounce"
+	"github.com/bep/helpers/maphelpers"
 	"github.com/bep/logg"
 	"github.com/gohugoio/go-radix"
 	"github.com/gohugoio/hugo/bufferpool"
@@ -692,7 +693,7 @@ func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 	}
 
 	var toPostProcess []postpub.PostPublishedResource
-	for _, r := range h.ResourceSpec.PostProcessResources {
+	for _, r := range h.ResourceSpec.PostProcessResources.All() {
 		toPostProcess = append(toPostProcess, r)
 	}
 
@@ -758,7 +759,7 @@ func (h *HugoSites) postProcess(l logg.LevelLogger) error {
 
 	// Prepare for a new build.
 	for _, s := range h.Sites {
-		s.ResourceSpec.PostProcessResources = make(map[string]postpub.PostPublishedResource)
+		s.ResourceSpec.PostProcessResources = maphelpers.NewConcurrentMap[string, postpub.PostPublishedResource]()
 	}
 
 	return g.Wait()
