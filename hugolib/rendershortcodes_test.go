@@ -247,6 +247,8 @@ func TestRenderShortcodesNestedPageContextIssue12356(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
+[security]
+allowContent = ['.*']
 -- layouts/_markup/render-image.html --
 {{- with .PageInner.Resources.Get .Destination -}}Image: {{ .RelPermalink }}|{{- end -}}
 -- layouts/_markup/render-link.html --

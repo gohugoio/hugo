@@ -74,6 +74,11 @@ var DefaultConfig = Config{
 			AllowChildProcess: []string{"tailwindcss"}, // detect-libc spawns getconf on some Linux setups.
 		},
 	},
+	// Content under /content is treated as untrusted. text/html bodies are
+	// emitted verbatim and are an XSS sink, so they are denied by default.
+	// Everything else is allowed because Whitelist treats a deny-only list as
+	// "allow anything not denied".
+	AllowContent: MustNewWhitelist("! ^text/html$"),
 }
 
 // Config is the top level security config.
@@ -91,6 +96,12 @@ type Config struct {
 
 	// Node holds Node.js security settings.
 	Node Node `json:"node"`
+
+	// AllowContent restricts which content media types may be used for
+	// pages under /content. Matched against the full MIME type (e.g.
+	// "text/html"). text/html is denied by default because Hugo emits the
+	// body verbatim.
+	AllowContent Whitelist `json:"allowContent"`
 
 	// Allow inline shortcodes
 	EnableInlineShortcodes bool `json:"enableInlineShortcodes"`
@@ -194,6 +205,17 @@ func (c Config) CheckAllowedHTTPMethod(method string) error {
 		return &AccessDeniedError{
 			name:     method,
 			path:     "security.http.method",
+			policies: c.ToTOML(),
+		}
+	}
+	return nil
+}
+
+func (c Config) CheckAllowedContent(mediaType string) error {
+	if !c.AllowContent.Accept(mediaType) {
+		return &AccessDeniedError{
+			name:     mediaType,
+			path:     "security.allowContent",
 			policies: c.ToTOML(),
 		}
 	}
