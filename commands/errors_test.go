@@ -14,6 +14,7 @@
 package commands
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"syscall"
@@ -32,5 +33,9 @@ func TestWrapStaticSyncError(t *testing.T) {
 	c.Assert(err.Error(), qt.Equals, "chmod public: operation not permitted")
 
 	err = wrapStaticSyncError(&fs.PathError{Op: "chtimes", Path: "public", Err: syscall.ENOENT})
-	c.Assert(err.Error(), qt.Equals, "chtimes public: no such file or directory")
+	var pathErr *fs.PathError
+	c.Assert(errors.As(err, &pathErr), qt.IsTrue)
+	c.Assert(pathErr.Op, qt.Equals, "chtimes")
+	c.Assert(pathErr.Path, qt.Equals, "public")
+	c.Assert(os.IsNotExist(err), qt.IsTrue)
 }
