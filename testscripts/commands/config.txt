@@ -6,6 +6,7 @@ stdout 'Display project configuration'
 
 hugo config
 stdout 'baseurl = .https://example.com/'
+stdout '\[contenttypes\.'
 hugo config --format json
 stdout '\"baseurl\": \"https://example.com/\",'
 
