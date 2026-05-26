@@ -95,3 +95,36 @@ module hugotest
 		"AuthorName: Bjørn Erik Pedersen|",
 	)
 }
+
+// See issue 14942.
+func TestGitInfoFromGitModuleWithGoModInSubdir(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/"
+enableGitInfo = true
+
+[module]
+[[module.imports]]
+path = "github.com/bep/hugo-mod-misc/dummy-content"
+version = "v0.3.0"
+[[module.imports.mounts]]
+source = "content"
+target = "content"
+-- layouts/page.html --
+Title: {{ .Title }}|
+GitInfo: {{ with .GitInfo }}Hash: {{ .Hash }}|Subject: {{ .Subject }}|AuthorName: {{ .AuthorName }}{{ end }}|
+-- layouts/_default/list.html --
+List: {{ .Title }}
+-- go.mod --
+module hugotest
+`
+
+	b := Test(t, files, TestOptOsFs())
+
+	b.AssertFileContent("public/blog/music/satin-doll/index.html",
+		"Hash: 522ee6c486ff24b2e3d45e9b90061564e9427030|",
+		"AuthorName: Bjørn Erik Pedersen|",
+	)
+}
