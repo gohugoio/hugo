@@ -63,6 +63,29 @@ Data: 1|
 `)
 }
 
+// See issue 12162.
+func Test404IsNotNode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
+-- layouts/404.html --
+Kind: {{ .Kind }}|
+IsNode: {{ .IsNode }}|
+IsPage: {{ .IsPage }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/404.html",
+		"Kind: 404|",
+		"IsNode: false|",
+		"IsPage: false|",
+	)
+}
+
 func Test404EditTemplate(t *testing.T) {
 	t.Parallel()
 

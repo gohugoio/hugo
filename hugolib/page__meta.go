@@ -469,7 +469,7 @@ func (m *pageMeta) Name() string {
 }
 
 func (m *pageMeta) IsNode() bool {
-	return !m.IsPage()
+	return kinds.IsBranch(m.Kind())
 }
 
 func (m *pageMeta) IsPage() bool {
