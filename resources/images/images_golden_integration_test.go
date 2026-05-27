@@ -370,6 +370,10 @@ sourcefilename: ../testdata/sunset.jpg
 sourcefilename: ../testdata/giphy.avif
 -- assets/fuzzycircle.webp --
 sourcefilename: ../testdata/webp/fuzzy-cirlcle-transparent-32.webp
+-- assets/gohugoio8.png --
+sourcefilename: ../testdata/gohugoio8.png
+-- assets/gohugoio24.png --
+sourcefilename: ../testdata/gohugoio24.png
 -- layouts/home.html --
 Home.
 {{ $sunset := resources.Get "sunset.jpg" }}
@@ -378,6 +382,8 @@ Home.
 {{ $webpAnim := resources.Get "anim.webp" }}
 {{ $giphy := resources.Get "giphy.avif" }}
 {{ $fuzzyCircle := resources.Get "fuzzycircle.webp" }}
+ {{ $gohugoio8 := resources.Get "gohugoio8.png" }}
+ {{ $gohugoio24 := resources.Get "gohugoio24.png" }}
 
 {{ template "process" (dict "spec" "r1" "img" $dock) }}
 {{ template "process" (dict "spec" "q50" "img" $dock) }}
@@ -386,8 +392,8 @@ Home.
 {{ template "process" (dict "spec" "gif" "img" $giphy) }}
 {{ template "process" (dict "spec" "crop 300x300 smart avif" "img" $fuzzyCircle) }}
 {{ template "process" (dict "spec" "crop 300x300 smart #ff9999 avif" "img" $fuzzyCircle) }}
-
-
+{{ template "process" (dict "spec" "avif q79" "img" $gohugoio8) }}
+{{ template "process" (dict "spec" "avif q80" "img" $gohugoio24) }}
 
 
 
