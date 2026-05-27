@@ -204,10 +204,12 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	var (
 		poolSizeKatex = 2
 		poolSizeWebP  = 1
+		poolSizeAvif  = 1
 	)
 	if n := config.GetNumWorkerMultiplier(); n > 1 {
 		poolSizeKatex = min(n, 8)
 		poolSizeWebP = max(2, n/2)
+		poolSizeAvif = max(2, n/2)
 	}
 
 	var logger loggers.Logger
@@ -281,6 +283,14 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 				Memory:              384, // 384 MiB (4096 MiB Max)
 				Infof:               logger.InfoCommand("webp").Logf,
 				Warnf:               logger.WarnCommand("webp").Logf,
+			},
+			// Avif options.
+			warpc.Options{
+				CompilationCacheDir: compilationCacheDir,
+				PoolSize:            poolSizeAvif,
+				Memory:              384, // 384 MiB (4096 MiB Max)
+				Infof:               logger.InfoCommand("avif").Logf,
+				Warnf:               logger.WarnCommand("avif").Logf,
 			},
 		),
 	}

@@ -238,6 +238,17 @@ func (m *pageMetaSource) initFrontMatter(h *HugoSites) error {
 		return err
 	}
 
+	// Gate the content format against the security policy. The body of a
+	// content file is treated as untrusted; text/html is denied by default
+	// because Hugo emits it verbatim and that is an XSS sink. This applies
+	// to pages emitted by content adapters too -- the adapter is trusted
+	// but the data it pulls in may not be.
+	if m.f != nil && !m.pageConfigSource.ContentMediaType.IsZero() {
+		if err := h.Deps.ExecHelper.Sec().CheckAllowedContent(m.pageConfigSource.ContentMediaType.Type); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

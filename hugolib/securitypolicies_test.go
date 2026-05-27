@@ -30,6 +30,74 @@ import (
 func TestSecurityPolicies(t *testing.T) {
 	c := qt.New(t)
 
+	c.Run("HTML content, denied by default", func(c *qt.C) {
+		c.Parallel()
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- content/page.html --
+---
+title: "Untrusted"
+---
+<script>alert(1)</script>
+-- layouts/single.html --
+{{ .Content }}
+`
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*"text/html" is not whitelisted in policy "security\.allowContent".*`)
+	})
+
+	c.Run("HTML content, allowed via override", func(c *qt.C) {
+		c.Parallel()
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+[security]
+allowContent = ['.*']
+-- content/page.html --
+---
+title: "Trusted"
+---
+<p>hello</p>
+-- layouts/single.html --
+{{ .Content }}
+`
+		b := Test(c, files)
+		b.AssertFileContent("public/page/index.html", "<p>hello</p>")
+	})
+
+	c.Run("HTML content from content adapter, denied by default", func(c *qt.C) {
+		c.Parallel()
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+-- content/_content.gotmpl --
+{{ .AddPage (dict "path" "p1" "title" "Untrusted" "content" (dict "value" "<script>alert(1)</script>" "mediaType" "text/html")) }}
+-- layouts/single.html --
+{{ .Content }}
+`
+		_, err := TestE(c, files)
+		c.Assert(err, qt.IsNotNil)
+		c.Assert(err, qt.ErrorMatches, `(?s).*"text/html" is not whitelisted in policy "security\.allowContent".*`)
+	})
+
+	c.Run("HTML content from content adapter, allowed via override", func(c *qt.C) {
+		c.Parallel()
+		files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+[security]
+allowContent = ['.*']
+-- content/_content.gotmpl --
+{{ .AddPage (dict "path" "p1" "title" "Trusted" "content" (dict "value" "<p>hello</p>" "mediaType" "text/html")) }}
+-- layouts/single.html --
+{{ .Content }}
+`
+		b := Test(c, files)
+		b.AssertFileContent("public/p1/index.html", "<p>hello</p>")
+	})
+
 	c.Run("os.GetEnv, denied", func(c *qt.C) {
 		c.Parallel()
 		files := `

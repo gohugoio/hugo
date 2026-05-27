@@ -99,7 +99,7 @@ func (i *Image) InitConfig(r io.Reader) error {
 	return err
 }
 
-func (i *Image) initConfig() error {
+func (i *Image) initConfig() {
 	var err error
 	i.configInit.Do(func() {
 		if i.configLoaded {
@@ -118,10 +118,8 @@ func (i *Image) initConfig() error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to load image config: %w", err)
+		panic(fmt.Errorf("failed to load image config: %w", err))
 	}
-
-	return nil
 }
 
 func NewImageProcessor(debugl, warnl logg.LevelLogger, wasmDispatchers *warpc.Dispatchers, cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) (*ImageProcessor, error) {
@@ -154,7 +152,11 @@ func NewImageProcessor(debugl, warnl logg.LevelLogger, wasmDispatchers *warpc.Di
 	if webpCodec == nil {
 		return nil, errors.New("webp codec is not available")
 	}
-	imageCodec := newCodec(webpCodec, debugl)
+	avifCodec, err := wasmDispatchers.NewAvifCodec()
+	if err != nil {
+		return nil, err
+	}
+	imageCodec := newCodec(webpCodec, avifCodec, debugl)
 
 	return &ImageProcessor{
 		Cfg:         cfg,
@@ -256,7 +258,12 @@ func (p *ImageProcessor) resolveSrc(src image.Image, targetFormat Format) image.
 	if animatedImage, ok := src.(himage.AnimatedImage); ok {
 		frames := animatedImage.GetFrames()
 		// If e.g. converting an animated GIF to JPEG, we only want the first frame.
-		if len(frames) < 2 || !targetFormat.SupportsAnimation() {
+		// Preserve the AnimatedImage wrapper for color properties only when there is
+		// no actual animation to preserve. Multi-frame animated sources must still be
+		// collapsed unless the target format supports animation output.
+		shouldExtractFirstFrame := len(frames) < 2 || !targetFormat.SupportsAnimation()
+		colorPropsNeedPreserving := himage.HasColorProperties(src) && len(frames) < 2
+		if shouldExtractFirstFrame && !colorPropsNeedPreserving {
 			src = frames[0]
 		}
 	}
@@ -268,20 +275,36 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 
 	if anim, ok := src.(himage.AnimatedImage); ok {
 		frames := anim.GetFrames()
-		if len(frames) < 2 || !targetFormat.SupportsAnimation() {
+		// Check if we should extract first frame or preserve AnimatedImage wrapper.
+		// Preserve AnimatedImage if color properties need to be maintained.
+		shouldExtractFirstFrame := len(frames) < 2 || !targetFormat.SupportsAnimation()
+		colorPropsNeedPreserving := himage.HasColorProperties(src) && len(frames) < 2
+		if shouldExtractFirstFrame && !colorPropsNeedPreserving {
 			src = frames[0]
 		} else {
 			var bounds image.Rectangle
 			firstFrame := frames[0]
-			tmp := image.NewNRGBA(firstFrame.Bounds())
+			// Preserve bit depth for HDR images.
+			var tmp draw.Image
+			switch firstFrame.(type) {
+			case *image.RGBA64, *image.NRGBA64:
+				tmp = image.NewNRGBA64(firstFrame.Bounds())
+			default:
+				tmp = image.NewNRGBA(firstFrame.Bounds())
+			}
 			for i, frame := range frames {
 				gift.New().DrawAt(tmp, frame, frame.Bounds().Min, gift.OverOperator)
 				bounds = filter.Bounds(tmp.Bounds())
 				var dst draw.Image
-				if paletted, ok := frame.(*image.Paletted); ok {
+				switch f := frame.(type) {
+				case *image.Paletted:
 					// Gif.
-					dst = image.NewPaletted(bounds, paletted.Palette)
-				} else {
+					dst = image.NewPaletted(bounds, f.Palette)
+				case *image.RGBA64:
+					dst = image.NewRGBA64(bounds)
+				case *image.NRGBA64:
+					dst = image.NewNRGBA64(bounds)
+				default:
 					dst = image.NewNRGBA(bounds)
 				}
 				filter.Draw(dst, tmp)
@@ -305,6 +328,12 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 		dst = image.NewNRGBA(bounds)
 	case *image.Gray:
 		dst = image.NewGray(bounds)
+	case *image.RGBA64:
+		dst = image.NewRGBA64(bounds)
+	case *image.NRGBA64:
+		dst = image.NewNRGBA64(bounds)
+	case *image.Gray16:
+		dst = image.NewGray16(bounds)
 	default:
 		dst = image.NewNRGBA(bounds)
 	}
@@ -318,12 +347,13 @@ func GetDefaultImageConfig(defaults *config.ConfigNamespace[ImagingConfig, Imagi
 		defaults = defaultImageConfig
 	}
 	return ImageConfig{
-		Anchor:      -1, // The real values start at 0.
-		Hint:        defaults.Config.Imaging.Webp.Hint,
-		Quality:     defaults.Config.Imaging.Quality,
-		Compression: defaults.Config.Imaging.Compression,
-		UseSharpYuv: defaults.Config.Imaging.Webp.UseSharpYuv,
-		Method:      defaults.Config.Imaging.Webp.Method,
+		Anchor:       -1, // The real values start at 0.
+		Hint:         defaults.Config.Imaging.Webp.Hint,
+		Quality:      defaults.Config.Imaging.Quality,
+		Compression:  defaults.Config.Imaging.Compression,
+		UseSharpYuv:  defaults.Config.Imaging.Webp.UseSharpYuv,
+		Method:       defaults.Config.Imaging.Webp.Method,
+		EncoderSpeed: defaults.Config.Imaging.Avif.EncoderSpeed,
 	}
 }
 
@@ -342,9 +372,9 @@ const (
 	TIFF
 	BMP
 	WEBP
+	AVIF
 
 	// Below: We have no encoder/decoder for these, but we can provide metadata support for them (including width/height).
-	AVIF
 	HEIF
 	HEIC
 )
@@ -387,6 +417,9 @@ func (f Format) SupportsTransparency() bool {
 }
 
 // SupportsAnimation reports whether the format supports animation.
+// AVIF supports animation in the spec, but Hugo's AVIF encoder is single-frame
+// only — including AVIF here would make the pipeline preserve frames just to
+// drop them at encode time.
 func (f Format) SupportsAnimation() bool {
 	return f == GIF || f == WEBP
 }

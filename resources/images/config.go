@@ -71,6 +71,7 @@ var (
 		media.Builtin.BMPType.SubType:  BMP,
 		media.Builtin.GIFType.SubType:  GIF,
 		media.Builtin.WEBPType.SubType: WEBP,
+		media.Builtin.AVIFType.SubType: AVIF,
 	}
 
 	// We cannot process these formats, but we can provide metadata support for them (including width/height).
@@ -161,13 +162,14 @@ func ImageFormatFromMediaSubType(sub string) (Format, ImageResourceType) {
 }
 
 const (
-	defaultJPEGQuality     = 75
-	defaultResampleFilter  = "box"
-	defaultBgColor         = "#ffffff"
-	defaultHint            = "photo"
-	defaultCompression     = "lossy"
-	defaultWebpUseSharpYuv = false
-	defaultWebpMethod      = 2
+	defaultJPEGQuality      = 75
+	defaultResampleFilter   = "box"
+	defaultBgColor          = "#ffffff"
+	defaultHint             = "photo"
+	defaultCompression      = "lossy"
+	defaultWebpUseSharpYuv  = false
+	defaultWebpMethod       = 2
+	defaultAvifEncoderSpeed = 10
 )
 
 var (
@@ -180,6 +182,9 @@ var (
 		"webp": map[string]any{
 			"useSharpYuv": defaultWebpUseSharpYuv,
 			"method":      defaultWebpMethod,
+		},
+		"avif": map[string]any{
+			"encoderSpeed": defaultAvifEncoderSpeed,
 		},
 	}
 
@@ -210,6 +215,11 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		// Deep merge webp defaults.
 		if webp, ok := m["webp"].(map[string]any); ok {
 			hmaps.MergeShallow(webp, defaultImaging["webp"].(map[string]any))
+		}
+
+		// Deep merge avif defaults.
+		if avif, ok := m["avif"].(map[string]any); ok {
+			hmaps.MergeShallow(avif, defaultImaging["avif"].(map[string]any))
 		}
 
 		var i ImagingConfigInternal
@@ -279,6 +289,8 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			c.Hint = part
 		} else if _, ok := compressionMethods[part]; ok {
 			c.Compression = part
+		} else if f, ok := ImageFormatFromExt("." + part); ok {
+			c.TargetFormat = f
 		} else if part[0] == '#' {
 			c.BgColor, err = hexStringToColorGo(part[1:])
 			if err != nil {
@@ -320,8 +332,6 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			} else {
 				return c, errors.New("invalid image dimensions")
 			}
-		} else if f, ok := ImageFormatFromExt("." + part); ok {
-			c.TargetFormat = f
 		}
 	}
 
@@ -424,6 +434,9 @@ type ImageConfig struct {
 	UseSharpYuv bool
 	Method      int
 
+	// AVIF-specific options.
+	EncoderSpeed int
+
 	Width  int
 	Height int
 
@@ -478,7 +491,7 @@ type ImagingConfig struct {
 
 	// Compression method to use.
 	// One of "lossy" or "lossless".
-	// Note that lossless is currently only supported for WebP.
+	// Note that lossless is currently only supported for WebP and AVIF.
 	Compression string
 
 	// Resample filter to use in resize operations.
@@ -500,6 +513,7 @@ type ImagingConfig struct {
 	Exif ExifConfig
 	Meta MetaConfig
 	Webp WebpConfig
+	Avif AvifConfig
 }
 
 var validMetaSources = map[string]bool{
@@ -571,6 +585,13 @@ func (cfg *ImagingConfig) init() error {
 		return fmt.Errorf("webp method must be between 0 and 6, got %d", cfg.Webp.Method)
 	}
 
+	if cfg.Avif.EncoderSpeed == 0 {
+		cfg.Avif.EncoderSpeed = defaultAvifEncoderSpeed
+	}
+	if cfg.Avif.EncoderSpeed < 1 || cfg.Avif.EncoderSpeed > 10 {
+		return fmt.Errorf("avif encoderSpeed must be between 1 and 10, got %d", cfg.Avif.EncoderSpeed)
+	}
+
 	return nil
 }
 
@@ -608,6 +629,19 @@ type MetaConfig struct {
 	// Valid values are "exif", "iptc", "xmp".
 	// Default is ["exif", "iptc"] (XMP is excluded for performance reasons).
 	Sources []string
+}
+
+// AvifConfig holds AVIF-specific encoding configuration.
+type AvifConfig struct {
+	// Encoder quality/speed trade-off, 1 (slowest, best quality / smallest
+	// files) to 10 (fastest). Default is 10 — fast enough for incremental
+	// builds with quality indistinguishable from slower settings at typical
+	// web thumbnail sizes. Lower values reduce file size at the cost of
+	// build time.
+	// We recommend sticking with the default of 10 unless you have a specific reason to change it,
+	// and to stay above 5 to avoid very long build times and timeouts.
+	// 0 is treated as unset and falls back to the default.
+	EncoderSpeed int
 }
 
 // WebpConfig holds WebP-specific encoding configuration.

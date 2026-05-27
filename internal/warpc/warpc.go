@@ -54,6 +54,9 @@ var quickjsWasm []byte
 //go:embed wasm/webp.wasm
 var webpWasm []byte
 
+//go:embed wasm/avif.wasm
+var avifWasm []byte
+
 // Header is in both the request and response.
 type Header struct {
 	// Major version of the protocol.
@@ -587,6 +590,7 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	// Page size is 64KB.
 	numPages := opts.Memory * 1024 / 64
 	runtimeConfig := wazero.NewRuntimeConfig().WithMemoryLimitPages(uint32(numPages))
+	runtimeConfig = runtimeConfig.WithCoreFeatures(api.CoreFeaturesV2 | experimental.CoreFeaturesExceptionHandling | experimental.CoreFeaturesThreads)
 
 	if opts.CompilationCacheDir != "" {
 		compilationCache, err := wazero.NewCompilationCacheWithDir(opts.CompilationCacheDir)
@@ -788,6 +792,7 @@ func (d *lazyDispatcher[Q, R]) start() (Dispatcher[Q, R], error) {
 type Dispatchers struct {
 	katex *lazyDispatcher[KatexInput, KatexOutput]
 	webp  *lazyDispatcher[WebpInput, WebpOutput]
+	avif  *lazyDispatcher[AvifInput, AvifOutput]
 }
 
 func (d *Dispatchers) Katex() (Dispatcher[KatexInput, KatexOutput], error) {
@@ -798,9 +803,19 @@ func (d *Dispatchers) Webp() (Dispatcher[WebpInput, WebpOutput], error) {
 	return d.webp.start()
 }
 
+func (d *Dispatchers) Avif() (Dispatcher[AvifInput, AvifOutput], error) {
+	return d.avif.start()
+}
+
 func (d *Dispatchers) NewWepCodec() (*WebpCodec, error) {
 	return &WebpCodec{
 		d: d.Webp,
+	}, nil
+}
+
+func (d *Dispatchers) NewAvifCodec() (*AvifCodec, error) {
+	return &AvifCodec{
+		d: d.Avif,
 	}, nil
 }
 
@@ -825,7 +840,7 @@ func (d *Dispatchers) Close() error {
 // AllDispatchers creates all the dispatchers for the warpc package.
 // Note that the individual dispatchers are started lazily.
 // Remember to call Close on the returned Dispatchers when done.
-func AllDispatchers(katexOpts, webpOpts Options) *Dispatchers {
+func AllDispatchers(katexOpts, webpOpts, avifOpts Options) *Dispatchers {
 	if err := katexOpts.init(); err != nil {
 		panic(err)
 	}
@@ -840,10 +855,12 @@ func AllDispatchers(katexOpts, webpOpts Options) *Dispatchers {
 	}
 
 	webpOpts.Main = Binary{Name: "webp", Data: webpWasm}
+	avifOpts.Main = Binary{Name: "avif", Data: avifWasm}
 
 	dispatchers := &Dispatchers{
 		katex: &lazyDispatcher[KatexInput, KatexOutput]{opts: katexOpts},
 		webp:  &lazyDispatcher[WebpInput, WebpOutput]{opts: webpOpts},
+		avif:  &lazyDispatcher[AvifInput, AvifOutput]{opts: avifOpts},
 	}
 
 	return dispatchers

@@ -807,7 +807,8 @@ func (ps *pageState) getContentConverter() converter.Converter {
 		markup := ps.m.pageConfigSource.ContentMediaType.SubType
 
 		if markup == "html" {
-			// Only used for shortcode inner content.
+			// Only reachable for shortcode inner content rendering; file-based
+			// HTML pages are gated at initFrontMatter via security.allowContent.
 			markup = "markdown"
 		}
 		ps.contentConverter, err = ps.m.newContentConverter(ps, markup)

@@ -68,6 +68,9 @@ func GetTestDeps(fs afero.Fs, cfg config.Provider, beforeInit ...func(*deps.Deps
 			warpc.Options{
 				PoolSize: 1,
 			},
+			warpc.Options{
+				PoolSize: 1,
+			},
 		),
 	}
 	for _, f := range beforeInit {

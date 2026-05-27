@@ -38,10 +38,21 @@ type CommonImageProcessingParams struct {
 	Height   int  `json:"height,omitempty"`
 	Stride   int  `json:"stride,omitempty"`
 	HasAlpha bool `json:"hasAlpha,omitempty"`
+	Depth    int  `json:"depth,omitempty"` // Bit depth per channel (8, 10, 12, 16).
 
 	// For animated images.
 	FrameDurations []int `json:"frameDurations,omitempty"`
 	LoopCount      int   `json:"loopCount,omitempty"`
+
+	// CICP color properties (for AVIF).
+	ColorPrimaries          int `json:"colorPrimaries,omitempty"`
+	TransferCharacteristics int `json:"transferCharacteristics,omitempty"`
+	MatrixCoefficients      int `json:"matrixCoefficients,omitempty"`
+
+	// HDR CLLI box (cd/m^2). Populated by the AVIF decoder when a gain map has
+	// been baked into a PQ HDR image, and re-applied by the encoder.
+	MaxCLL  int `json:"maxCLL,omitempty"`
+	MaxPALL int `json:"maxPALL,omitempty"`
 }
 
 /*
@@ -102,11 +113,6 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 
 	var destination bytes.Buffer
 
-	// Commands:
-	// encodeNRGBA
-	// encodeGray
-	// decode
-	// config
 	message := Message[WebpInput]{
 		Header: Header{
 			Version:       1,
@@ -134,7 +140,7 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 
 	if len(out.Data.Params.FrameDurations) > 0 {
 		// Animated WebP (always RGBA).
-		img := &WEBP{
+		img := &AnimatedImage{
 			frameDurations: out.Data.Params.FrameDurations,
 			loopCount:      out.Data.Params.LoopCount,
 		}
@@ -257,7 +263,7 @@ func (d *WebpCodec) Encode(w io.Writer, img image.Image, opts map[string]any) er
 		imageBytes = v.Pix
 		stride = v.Stride
 		command = commandEncodeNRGBA
-	case *WEBP:
+	case *AnimatedImage:
 		// Animated WebP.
 		frames := v.GetFrames()
 		if len(frames) == 0 {
@@ -357,34 +363,69 @@ func convertToNRGBA(src image.Image) *image.NRGBA {
 	return dst
 }
 
-var _ himage.AnimatedImage = (*WEBP)(nil)
+var _ himage.AnimatedImage = (*AnimatedImage)(nil)
 
-// WEBP represents an animated WebP image.
+// AnimatedImage represents an animated WebP image.
 // The naming deliberately matches the fields in the standard library image/gif package.
-type WEBP struct {
+// This type is also used to preserve HDR color properties for single-frame images.
+type AnimatedImage struct {
 	image.Image    // The first frame.
 	frames         []image.Image
 	frameDurations []int
 	loopCount      int
+	depth          int // Bit depth per channel (8, 10, 12, 16). Used to preserve HDR quality.
+
+	// CICP color properties (for preserving color space in HDR images).
+	colorPrimaries          int
+	transferCharacteristics int
+	matrixCoefficients      int
+
+	// HDR CLLI (cd/m^2). Set when an AVIF gain map has been baked into PQ HDR.
+	maxCLL  int
+	maxPALL int
 }
 
-func (w *WEBP) GetLoopCount() int {
+func (w *AnimatedImage) GetLoopCount() int {
 	return w.loopCount
 }
 
-func (w *WEBP) GetFrames() []image.Image {
+func (w *AnimatedImage) GetDepth() int {
+	return w.depth
+}
+
+func (w *AnimatedImage) GetFrames() []image.Image {
 	return w.frames
 }
 
-func (w *WEBP) GetFrameDurations() []int {
+func (w *AnimatedImage) GetFrameDurations() []int {
 	return w.frameDurations
 }
 
-func (w *WEBP) GetRaw() any {
+func (w *AnimatedImage) GetRaw() any {
 	return w
 }
 
-func (w *WEBP) SetFrames(frames []image.Image) {
+func (w *AnimatedImage) GetColorPrimaries() int {
+	return w.colorPrimaries
+}
+
+func (w *AnimatedImage) GetTransferCharacteristics() int {
+	return w.transferCharacteristics
+}
+
+func (w *AnimatedImage) GetMatrixCoefficients() int {
+	return w.matrixCoefficients
+}
+
+func (w *AnimatedImage) GetMaxCLL() int {
+	return w.maxCLL
+}
+
+func (w *AnimatedImage) GetMaxPALL() int {
+	return w.maxPALL
+}
+
+func (w *AnimatedImage) SetFrames(frames []image.Image) {
 	if len(frames) == 0 {
 		panic("frames cannot be empty")
 	}
@@ -392,6 +433,6 @@ func (w *WEBP) SetFrames(frames []image.Image) {
 	w.Image = frames[0]
 }
 
-func (w *WEBP) SetWidthHeight(width, height int) {
-	// No-op for WEBP.
+func (w *AnimatedImage) SetWidthHeight(width, height int) {
+	// No-op for AnimatedImage.
 }
