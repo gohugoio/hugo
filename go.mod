@@ -12,7 +12,7 @@ require (
 	github.com/bep/goat v0.5.0
 	github.com/bep/godartsass/v2 v2.5.0
 	github.com/bep/golibsass v1.2.0
-	github.com/bep/golocales v0.1.0
+	github.com/bep/golocales v0.2.0
 	github.com/bep/goportabletext v0.2.0
 	github.com/bep/helpers v0.12.0
 	github.com/bep/imagemeta v0.17.2
@@ -68,7 +68,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/tdewolff/minify/v2 v2.24.13
 	github.com/tdewolff/parse/v2 v2.8.12
-	github.com/tetratelabs/wazero v1.11.0
+	github.com/tetratelabs/wazero v1.11.1-0.20260521072212-475a1f8f0dc3
 	github.com/yuin/goldmark v1.8.2
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3

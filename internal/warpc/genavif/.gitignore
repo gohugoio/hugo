@@ -1,0 +1,4 @@
+build/
+build_avif/
+libavif/
+aom/

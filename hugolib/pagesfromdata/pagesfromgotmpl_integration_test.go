@@ -31,6 +31,8 @@ const filesPagesFromDataTempleBasic = `
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
 disableLiveReload = true
+[security]
+allowContent = ['.*']
 -- assets/a/pixel.png --
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 -- assets/mydata.yaml --
@@ -589,6 +591,8 @@ func TestPagesFromGoTmplShortcodeNoPreceddingCharacterIssue12544(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[security]
+allowContent = ['.*']
 -- content/_content.gotmpl --
 {{ $content := dict "mediaType" "text/html" "value" "x{{< sc >}}" }}
 {{ .AddPage (dict "content" $content "path" "a") }}

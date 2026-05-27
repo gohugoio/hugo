@@ -346,6 +346,91 @@ Home.
 	imagetesting.RunGolden(opts)
 }
 
+func TestImagesGoldenProcessAvif(t *testing.T) {
+	t.Parallel()
+
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "process/avif"
+
+	files := `
+-- hugo.toml --
+-- assets/anim.webp --
+sourcefilename: ../testdata/webp/anim.webp
+-- assets/dock.avif --
+sourcefilename: ../testdata/bep/dock-75-hdr.avif
+-- assets/sunset420.avif --
+sourcefilename: ../testdata/sunset_420.avif
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- assets/giphy.avif --
+sourcefilename: ../testdata/giphy.avif
+-- assets/fuzzycircle.webp --
+sourcefilename: ../testdata/webp/fuzzy-cirlcle-transparent-32.webp
+-- layouts/home.html --
+Home.
+{{ $sunset := resources.Get "sunset.jpg" }}
+{{ $dock := resources.Get "dock.avif" }}
+{{ $sunset420 := resources.Get "sunset420.avif" }}
+{{ $webpAnim := resources.Get "anim.webp" }}
+{{ $giphy := resources.Get "giphy.avif" }}
+{{ $fuzzyCircle := resources.Get "fuzzycircle.webp" }}
+
+{{ template "process" (dict "spec" "r1" "img" $dock) }}
+{{ template "process" (dict "spec" "q50" "img" $dock) }}
+{{ template "process" (dict "spec" "r2" "img" $sunset420) }}
+{{ template "process" (dict "spec" "avif" "img" $webpAnim) }}
+{{ template "process" (dict "spec" "gif" "img" $giphy) }}
+{{ template "process" (dict "spec" "crop 300x300 smart avif" "img" $fuzzyCircle) }}
+{{ template "process" (dict "spec" "crop 300x300 smart #ff9999 avif" "img" $fuzzyCircle) }}
+
+
+
+
+
+` + goldenProcess
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
+}
+
+func TestImagesGoldenProcessAviStraws(t *testing.T) {
+	t.Parallel()
+
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "process/avifstraws"
+
+	files := `
+-- hugo.toml --
+-- assets/straws.avif --
+sourcefilename: ../testdata/bep/straws.avif
+-- layouts/home.html --
+Home.
+{{ $straws := resources.Get "straws.avif" }}
+{{ template "process" (dict "spec" "resize 900x" "img" $straws) }}
+
+
+` + goldenProcess
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
+}
+
 func TestImagesGoldenProcessWebP(t *testing.T) {
 	t.Parallel()
 
