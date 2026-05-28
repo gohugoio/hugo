@@ -485,7 +485,6 @@ Content: {{ .Content }}
 }
 
 func TestXShortcodes(t *testing.T) {
-	t.Skip("TODO: Fix broken test")
 	t.Parallel()
 	htesting.SkipSlowTestUnlessCI(t)
 
@@ -511,12 +510,12 @@ title: p2
 	b := hugolib.Test(t, files)
 
 	// Test x shortcode
-	want := `<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Owl bet you&#39;ll lose this staring contest 🦉 <a href="https://t.co/eJh4f2zncC">pic.twitter.com/eJh4f2zncC</a></p>&mdash; San Diego Zoo Wildlife Alliance (@sandiegozoo) <a href="https://twitter.com/sandiegozoo/status/1453110110599868418?ref_src=twsrc%5Etfw">October 26, 2021</a></blockquote>
-	<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>`
+	want := `<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Owl bet you&#39;ll lose this staring contest 🦉 <a href="https://t.co/eJh4f2zncC">pic.twitter.com/eJh4f2zncC</a></p>&mdash; San Diego Zoo Wildlife Alliance (@sandiegozoo) <a href="https://x.com/sandiegozoo/status/1453110110599868418?ref_src=twsrc%5Etfw">October 26, 2021</a></blockquote>
+<script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>`
 	b.AssertFileContent("public/p1/index.html", want)
 
 	// Test x_simple shortcodes
-	wantSimple := "<style type=\"text/css\">\n      .twitter-tweet {\n        font:\n          14px/1.45 -apple-system,\n          BlinkMacSystemFont,\n          \"Segoe UI\",\n          Roboto,\n          Oxygen-Sans,\n          Ubuntu,\n          Cantarell,\n          \"Helvetica Neue\",\n          sans-serif;\n        border-left: 4px solid #2b7bb9;\n        padding-left: 1.5em;\n        color: #555;\n      }\n      .twitter-tweet a {\n        color: #2b7bb9;\n        text-decoration: none;\n      }\n      blockquote.twitter-tweet a:hover,\n      blockquote.twitter-tweet a:focus {\n        text-decoration: underline;\n      }\n    </style><blockquote class=\"twitter-tweet\"><p lang=\"en\" dir=\"ltr\">Owl bet you&#39;ll lose this staring contest 🦉 <a href=\"https://t.co/eJh4f2zncC\">pic.twitter.com/eJh4f2zncC</a></p>&mdash; San Diego Zoo Wildlife Alliance (@sandiegozoo) <a href=\"https://twitter.com/sandiegozoo/status/1453110110599868418?ref_src=twsrc%5Etfw\">October 26, 2021</a></blockquote>\n--"
+	wantSimple := "<style type=\"text/css\">\n      .twitter-tweet {\n        font:\n          14px/1.45 -apple-system,\n          BlinkMacSystemFont,\n          \"Segoe UI\",\n          Roboto,\n          Oxygen-Sans,\n          Ubuntu,\n          Cantarell,\n          \"Helvetica Neue\",\n          sans-serif;\n        border-left: 4px solid #2b7bb9;\n        padding-left: 1.5em;\n        color: #555;\n      }\n      .twitter-tweet a {\n        color: #2b7bb9;\n        text-decoration: none;\n      }\n      blockquote.twitter-tweet a:hover,\n      blockquote.twitter-tweet a:focus {\n        text-decoration: underline;\n      }\n    </style><blockquote class=\"twitter-tweet\"><p lang=\"en\" dir=\"ltr\">Owl bet you&#39;ll lose this staring contest 🦉 <a href=\"https://t.co/eJh4f2zncC\">pic.twitter.com/eJh4f2zncC</a></p>&mdash; San Diego Zoo Wildlife Alliance (@sandiegozoo) <a href=\"https://x.com/sandiegozoo/status/1453110110599868418?ref_src=twsrc%5Etfw\">October 26, 2021</a></blockquote>\n--"
 	b.AssertFileContent("public/p2/index.html", wantSimple)
 
 	// Test privacy.x.simple
