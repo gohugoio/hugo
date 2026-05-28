@@ -157,17 +157,7 @@ func (ns *Namespace) Delimit(ctx context.Context, l, sep any, last ...any) (stri
 // Dictionary creates a new map from the given parameters by
 // treating values as key-value pairs.  The number of values must be even.
 // The keys can be string slices, which will create the needed nested structure.
-// If no values are provided, nil will be returned.
 func (ns *Namespace) Dictionary(values ...any) (map[string]any, error) {
-	if len(values) == 0 {
-		// A common construct is to do
-		//     {{ $opts := dict }}
-		// And then conditionally assign it if some condition is set.
-		// The only difference between this and an empty map is that this cannot be written to,
-		// which is not something we do in Hugo (or: If we do, that's a bug).
-		// This saves us ~48 bytes in memory allocation on 64-bit architectures.
-		return nil, nil
-	}
 	if len(values)%2 != 0 {
 		return nil, errors.New("invalid dictionary call")
 	}
