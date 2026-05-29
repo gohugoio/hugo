@@ -519,8 +519,8 @@ func TestImageAltApostrophesWithTypographer(t *testing.T) {
 -- hugo.toml --
 [markup.goldmark.extensions.typographer]
 disable = false
- [markup.goldmark.renderHooks.image]
- enableDefault = true
+[markup.goldmark.renderHooks.image]
+useEmbedded = 'always'
 -- content/p1.md --
 ---
 title: "p1"

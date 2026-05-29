@@ -69,9 +69,9 @@ func TestRSSCanonifyURLsSubDir(t *testing.T) {
 baseURL = 'https://example.org/subdir'
 disableKinds = ['section','sitemap','taxonomy','term']
 [markup.goldmark.renderHooks.image]
-enableDefault = true
+useEmbedded = 'fallback'
 [markup.goldmark.renderHooks.link]
-enableDefault = true
+useEmbedded = 'fallback'
 -- layouts/_markup/render-image.html --
 {{- $u := urls.Parse .Destination -}}
 {{- $src := $u.String | relURL -}}
