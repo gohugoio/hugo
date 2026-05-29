@@ -9,7 +9,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/hugolib"
-	gc "github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/media"
 )
 
@@ -360,25 +359,46 @@ weight = 3
 
 // Issue 13535
 // We changed enablement of the embedded link and image render hooks from
-// booleans to enums in v0.148.0.
+// booleans to enums in v0.148.0. This should throw error with v0.163.0 and later.
 func TestLegacyEmbeddedRenderHookEnablement(t *testing.T) {
 	files := `
 -- hugo.toml --
 [markup.goldmark.renderHooks.image]
-#KEY_VALUE
+#KEY_VALUE_IMAGE
 
 [markup.goldmark.renderHooks.link]
-#KEY_VALUE
+#KEY_VALUE_LINK
 `
-	f := strings.ReplaceAll(files, "#KEY_VALUE", "enableDefault = false")
-	b := hugolib.Test(t, f)
-	c := b.H.Configs.Base.Markup.Goldmark.RenderHooks
-	b.Assert(c.Link.UseEmbedded, qt.Equals, gc.RenderHookUseEmbeddedNever)
-	b.Assert(c.Image.UseEmbedded, qt.Equals, gc.RenderHookUseEmbeddedNever)
 
-	f = strings.ReplaceAll(files, "#KEY_VALUE", "enableDefault = true")
-	b = hugolib.Test(t, f)
-	c = b.H.Configs.Base.Markup.Goldmark.RenderHooks
-	b.Assert(c.Link.UseEmbedded, qt.Equals, gc.RenderHookUseEmbeddedFallback)
-	b.Assert(c.Image.UseEmbedded, qt.Equals, gc.RenderHookUseEmbeddedFallback)
+	replacer := strings.NewReplacer(
+		"#KEY_VALUE_IMAGE", "enableDefault = false",
+		"#KEY_VALUE_LINK", "",
+	)
+	f := replacer.Replace(files)
+	b, _ := hugolib.TestE(t, f)
+	b.AssertLogContains("ERROR deprecated")
+
+	replacer = strings.NewReplacer(
+		"#KEY_VALUE_IMAGE", "enableDefault = true",
+		"#KEY_VALUE_LINK", "",
+	)
+	f = replacer.Replace(files)
+	b, _ = hugolib.TestE(t, f)
+	b.AssertLogContains("ERROR deprecated")
+
+	replacer = strings.NewReplacer(
+		"#KEY_VALUE_IMAGE", "",
+		"#KEY_VALUE_LINK", "enableDefault = false",
+	)
+	f = replacer.Replace(files)
+	b, _ = hugolib.TestE(t, f)
+	b.AssertLogContains("ERROR deprecated")
+
+	replacer = strings.NewReplacer(
+		"#KEY_VALUE_IMAGE", "",
+		"#KEY_VALUE_LINK", "enableDefault = true",
+	)
+	f = replacer.Replace(files)
+	b, _ = hugolib.TestE(t, f)
+	b.AssertLogContains("ERROR deprecated")
 }
