@@ -133,6 +133,13 @@ func ResolveComponent[T any](impPath string, resolve func(string) (v T, found, i
 		if !found {
 			v, found, _ = findFirst(filepath.Join(impPath, "index.esm"))
 		}
+		if !found && isBarePackage(impPath) {
+			// A bare package import, e.g. "alpinejs" or "@alpinejs/persist". Try
+			// the conventional ESM entry, e.g. alpinejs/module.esm.js (AlpineJS'
+			// package.json "module" field), so it can be imported without
+			// spelling out the filename.
+			v, found, _ = findFirst(filepath.Join(impPath, "module.esm"))
+		}
 	}
 
 	if !found && strings.HasSuffix(base, ".js") {
@@ -140,6 +147,16 @@ func ResolveComponent[T any](impPath string, resolve func(string) (v T, found, i
 	}
 
 	return
+}
+
+// isBarePackage reports whether p is a bare package specifier, i.e. a package
+// name without a subpath: "alpinejs" or the scoped "@alpinejs/persist", but not
+// "foo/bar".
+func isBarePackage(p string) bool {
+	if strings.HasPrefix(p, "@") {
+		return strings.Count(p, "/") == 1
+	}
+	return !strings.Contains(p, "/")
 }
 
 // ResolveResource resolves a resource using the given resourceGetter.

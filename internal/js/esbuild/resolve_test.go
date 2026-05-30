@@ -53,6 +53,13 @@ func TestResolveComponentInAssets(t *testing.T) {
 
 		// Issue #8949
 		{"Check file before directory", []string{"foo.js", "foo/index.js"}, "foo", "foo.js"},
+
+		// Issue #14973: resolve bare package imports to their module.esm.js entry.
+		{"Package module.esm", []string{"alpinejs/module.esm.js", "bar.js"}, "alpinejs", "alpinejs/module.esm.js"},
+		{"Package index before module.esm", []string{"alpinejs/index.js", "alpinejs/module.esm.js"}, "alpinejs", "alpinejs/index.js"},
+		{"Package module.esm not for subpaths", []string{"foo/bar/module.esm.js"}, "foo/bar", ""},
+		{"Scoped package module.esm", []string{"@alpinejs/persist/module.esm.js", "bar.js"}, "@alpinejs/persist", "@alpinejs/persist/module.esm.js"},
+		{"Scoped package module.esm not for subpaths", []string{"@alpinejs/persist/dist/module.esm.js"}, "@alpinejs/persist/dist", ""},
 	} {
 		c.Run(test.name, func(c *qt.C) {
 			baseDir := "assets"
