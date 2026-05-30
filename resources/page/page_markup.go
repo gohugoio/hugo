@@ -83,7 +83,7 @@ func (s HtmlSummary) wrap(ss string) string {
 	if s.WrapperStart.IsZero() {
 		return ss
 	}
-	return s.source[s.WrapperStart.Low:s.WrapperStart.High] + ss + s.source[s.WrapperEnd.Low:s.WrapperEnd.High]
+	return s.safeSlice(s.WrapperStart.Low, s.WrapperStart.High) + ss + s.safeSlice(s.WrapperEnd.Low, s.WrapperEnd.High)
 }
 
 func (s HtmlSummary) wrapLeft(ss string) string {
@@ -91,11 +91,11 @@ func (s HtmlSummary) wrapLeft(ss string) string {
 		return ss
 	}
 
-	return s.source[s.WrapperStart.Low:s.WrapperStart.High] + ss
+	return s.safeSlice(s.WrapperStart.Low, s.WrapperStart.High) + ss
 }
 
 func (s HtmlSummary) Value(l types.LowHigh[string]) string {
-	return s.source[l.Low:l.High]
+	return s.safeSlice(l.Low, l.High)
 }
 
 func (s HtmlSummary) trimSpace(ss string) string {
@@ -106,8 +106,8 @@ func (s HtmlSummary) Content() string {
 	if s.Divider.IsZero() {
 		return s.trimSpace(s.source)
 	}
-	ss := s.source[:s.Divider.Low]
-	ss += s.source[s.Divider.High:]
+	ss := s.safeSlice(0, s.Divider.Low)
+	ss += s.safeSliceFrom(s.Divider.High)
 	return s.trimSpace(ss)
 }
 
@@ -115,9 +115,9 @@ func (s HtmlSummary) Summary() string {
 	if s.Divider.IsZero() {
 		return s.trimSpace(s.wrap(s.Value(s.SummaryLowHigh)))
 	}
-	ss := s.source[s.SummaryLowHigh.Low:s.Divider.Low]
+	ss := s.safeSlice(s.SummaryLowHigh.Low, s.Divider.Low)
 	if s.SummaryLowHigh.High > s.Divider.High {
-		ss += s.source[s.Divider.High:s.SummaryLowHigh.High]
+		ss += s.safeSlice(s.Divider.High, s.SummaryLowHigh.High)
 	}
 	if !s.SummaryEndTag.IsZero() {
 		ss += s.Value(s.SummaryEndTag)
@@ -130,13 +130,64 @@ func (s HtmlSummary) ContentWithoutSummary() string {
 		if s.SummaryLowHigh.Low == s.WrapperStart.High && s.SummaryLowHigh.High == s.WrapperEnd.Low {
 			return ""
 		}
-		return s.trimSpace(s.wrapLeft(s.source[s.SummaryLowHigh.High:]))
+		return s.trimSpace(s.wrapLeft(s.safeSliceFrom(s.SummaryLowHigh.High)))
 	}
 	if s.SummaryEndTag.IsZero() {
-		return s.trimSpace(s.wrapLeft(s.source[s.Divider.High:]))
+		return s.trimSpace(s.wrapLeft(s.safeSliceFrom(s.Divider.High)))
 	}
-	return s.trimSpace(s.wrapLeft(s.source[s.SummaryEndTag.High:]))
+	return s.trimSpace(s.wrapLeft(s.safeSliceFrom(s.SummaryEndTag.High)))
 }
+
+func (s HtmlSummary) safeSlice(low, high int) string {
+	if low < 0 {
+		low = 0
+	}
+	if high < 0 {
+		high = 0
+	}
+	n := len(s.source)
+	if low > n {
+		low = n
+	}
+	if high > n {
+		high = n
+	}
+	if low > high {
+		low = high
+	}
+	low = s.safeRuneBoundary(low)
+	high = s.safeRuneBoundary(high)
+	if low > high {
+		low = high
+	}
+	return s.source[low:high]
+}
+
+func (s HtmlSummary) safeSliceFrom(low int) string {
+	if low < 0 {
+		low = 0
+	}
+	n := len(s.source)
+	if low > n {
+		low = n
+	}
+	low = s.safeRuneBoundary(low)
+	return s.source[low:]
+}
+
+func (s HtmlSummary) safeRuneBoundary(idx int) int {
+	if idx <= 0 {
+		return 0
+	}
+	if idx >= len(s.source) {
+		return len(s.source)
+	}
+	for idx > 0 && !utf8.RuneStart(s.source[idx]) {
+		idx--
+	}
+	return idx
+}
+
 
 func (s HtmlSummary) Truncated() bool {
 	return s.Summary() != s.Content()

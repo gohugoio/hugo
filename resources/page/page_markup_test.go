@@ -206,3 +206,28 @@ func BenchmarkSummaryFromHTMLWithDivider(b *testing.B) {
 		}
 	}
 }
+
+func TestExtractSummaryFromHTMLShortenedSource(t *testing.T) {
+	// Simulate a case where a previous run has a longer SummaryLowHigh.High.
+	// We want to verify that methods on HtmlSummary do not panic if the source string is shortened.
+	inputLong := "<p>这是一个非常长长的中文段落，用来生成一个长边界索引。</p>"
+	summaryLong := ExtractSummaryFromHTML(media.Builtin.MarkdownType, inputLong, 70, false)
+
+	// Create a shorter input
+	inputShort := "<p>短内容</p>"
+
+	// Reuse the SummaryLowHigh index from the long summary with the short input
+	summaryStale := HtmlSummary{
+		source:         inputShort,
+		SummaryLowHigh: summaryLong.SummaryLowHigh,
+		WrapperStart:   summaryLong.WrapperStart,
+		WrapperEnd:     summaryLong.WrapperEnd,
+		Divider:        summaryLong.Divider,
+	}
+
+	// This should not panic
+	_ = summaryStale.Summary()
+	_ = summaryStale.ContentWithoutSummary()
+}
+
+
