@@ -163,6 +163,7 @@ func ImageFormatFromMediaSubType(sub string) (Format, ImageResourceType) {
 
 const (
 	defaultJPEGQuality      = 75
+	defaultAVIFQuality      = 60
 	defaultResampleFilter   = "box"
 	defaultBgColor          = "#ffffff"
 	defaultHint             = "photo"
@@ -177,7 +178,6 @@ var (
 		"resampleFilter": defaultResampleFilter,
 		"bgColor":        defaultBgColor,
 		"hint":           defaultHint,
-		"quality":        defaultJPEGQuality,
 		"compression":    defaultCompression,
 		"webp": map[string]any{
 			"useSharpYuv": defaultWebpUseSharpYuv,
@@ -209,6 +209,7 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		if err != nil {
 			return ImagingConfigInternal{}, nil, err
 		}
+		_, qualityExplicit := m["quality"]
 		// Merge in the defaults.
 		hmaps.MergeShallow(m, defaultImaging)
 
@@ -226,6 +227,7 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		if err := mapstructure.Decode(m, &i.Imaging); err != nil {
 			return i, nil, err
 		}
+		i.Imaging.qualityExplicit = qualityExplicit
 
 		if err := i.Imaging.init(); err != nil {
 			return i, nil, err
@@ -488,8 +490,14 @@ func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
 // ImagingConfig contains default image processing configuration. This will be fetched
 // from site (or language) config.
 type ImagingConfig struct {
-	// Default image quality setting (1-100). Only used for JPEG and WebP images.
+	// Default image quality setting (1-100). Used as the fallback for JPEG,
+	// WebP and AVIF when no per-format quality is set. When left unset, JPEG
+	// and WebP default to 75 and AVIF to 60 (its scale differs perceptually).
 	Quality int
+
+	// Whether Quality was explicitly set in the config. When false, AVIF uses
+	// its own lower default instead of the global Quality.
+	qualityExplicit bool
 
 	// Compression method to use.
 	// One of "lossy" or "lossless".
@@ -534,6 +542,9 @@ func (cfg *ImagingConfig) qualityFor(f Format) int {
 	if q > 0 {
 		return q
 	}
+	if f == AVIF && !cfg.qualityExplicit {
+		return defaultAVIFQuality
+	}
 	return cfg.Quality
 }
 
@@ -544,6 +555,9 @@ var validMetaSources = map[string]bool{
 }
 
 func (cfg *ImagingConfig) init() error {
+	if cfg.Quality == 0 && !cfg.qualityExplicit {
+		cfg.Quality = defaultJPEGQuality
+	}
 	if cfg.Quality < 1 || cfg.Quality > 100 {
 		return errors.New("image quality must be a number between 1 and 100")
 	}

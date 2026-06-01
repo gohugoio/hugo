@@ -18,6 +18,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/config"
+
 	qt "github.com/frankban/quicktest"
 )
 
@@ -148,6 +150,37 @@ func TestImageConfigQualityPerFormat(t *testing.T) {
 	// Out-of-range per-format quality is rejected.
 	_, err = DecodeConfig(map[string]any{"avif": map[string]any{"quality": 123}})
 	c.Assert(err, qt.ErrorMatches, ".*quality must be.*")
+}
+
+// See issue 14979.
+func TestImageConfigAvifDefaultQuality(t *testing.T) {
+	c := qt.New(t)
+
+	quality := func(cfg *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], opts ...string) int {
+		conf, err := DecodeImageConfig(append([]string{"resize", "100x"}, opts...), cfg, JPEG)
+		c.Assert(err, qt.IsNil)
+		return conf.Quality
+	}
+
+	// With nothing configured, AVIF defaults to 60 while JPEG/WebP stay at 75.
+	cfg, err := DecodeConfig(map[string]any{})
+	c.Assert(err, qt.IsNil)
+	c.Assert(quality(cfg, "avif"), qt.Equals, 60)
+	c.Assert(quality(cfg, "jpg"), qt.Equals, 75)
+	c.Assert(quality(cfg, "webp"), qt.Equals, 75)
+
+	// An explicit global quality applies to AVIF too.
+	cfg, err = DecodeConfig(map[string]any{"quality": 80})
+	c.Assert(err, qt.IsNil)
+	c.Assert(quality(cfg, "avif"), qt.Equals, 80)
+
+	// An explicit per-format AVIF quality wins over the default.
+	cfg, err = DecodeConfig(map[string]any{"avif": map[string]any{"quality": 90}})
+	c.Assert(err, qt.IsNil)
+	c.Assert(quality(cfg, "avif"), qt.Equals, 90)
+
+	// A per-image quality still wins.
+	c.Assert(quality(cfg, "avif", "q33"), qt.Equals, 33)
 }
 
 func TestDecodeImageConfig(t *testing.T) {
