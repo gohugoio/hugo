@@ -395,7 +395,7 @@ func (p *PageConfigEarly) CompileForPagesFromDataPre(basePath string, logger log
 
 	// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
 	// We do that when we create pages from the file system; mostly for backward compatibility,
-	// but also because people tend to use use the filename to name their resources (with spaces and all),
+	// but also because people tend to use the filename to name their resources (with spaces and all),
 	// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
 	p.Path = paths.NormalizePathStringBasic(p.Path)
 
@@ -499,7 +499,7 @@ func (rc *ResourceConfig) Compile(basePath string, fim hugofs.FileMetaInfo, conf
 
 	// Note that NormalizePathStringBasic will make sure that we don't preserve the unnormalized path.
 	// We do that when we create resources from the file system; mostly for backward compatibility,
-	// but also because people tend to use use the filename to name their resources (with spaces and all),
+	// but also because people tend to use the filename to name their resources (with spaces and all),
 	// and this isn't relevant when creating resources from an API where it's easy to add textual meta data.
 	rc.Path = paths.NormalizePathStringBasic(path.Join(basePath, rc.Path))
 	rc.PathInfo = conf.PathParser().Parse(files.ComponentFolderContent, rc.Path)

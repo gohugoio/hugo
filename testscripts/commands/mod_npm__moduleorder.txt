@@ -5,6 +5,9 @@ cmp packages/hugoautogen/package.json golden1/packages/hugoautogen/package.json
 cmp package.json golden1/package.json
 cmp packages/hugoautogen/hugo_packagemeta.json golden1/packages/hugoautogen/hugo_packagemeta.json
 
+hugo mod graph
+! stderr 'WARN  npm dependencies are out of sync'
+
 -- hugo.toml --
 baseURL = "https://example.org/"
 [module]
@@ -44,7 +47,7 @@ go 1.20
 }
 -- golden1/packages/hugoautogen/hugo_packagemeta.json --
 {
-  "sum": "dd3590c300b0bebb",
+  "sum": "98594123fa88aedf",
   "dependencySources": {
     "dependencies": {
       "count-days-in-month": "github.com/gohugoio/hugoTestModsNPMNested/a",

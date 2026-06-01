@@ -1,7 +1,7 @@
 package hiter
 
 // Common iterator functions.
-// Some of these are are based on this discsussion: https://github.com/golang/go/issues/61898
+// Some of these are based on this discsussion: https://github.com/golang/go/issues/61898
 
 import "iter"
 
