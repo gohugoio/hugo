@@ -207,6 +207,19 @@ func Pack(sourceFs, assetsWithDuplicatesPreservedFs afero.Fs, mods modules.Modul
 		devDependenciesKey: moduleDevDeps,
 	}
 
+	if err := sourceFs.MkdirAll(files.FolderPackagesHugoAutoGen, 0o777); err != nil {
+		return err
+	}
+	if err := writeJSON(sourceFs, workspacePackageJSON, autoGenPkg); err != nil {
+		return err
+	}
+
+	// 5. Ensure root package.json references the workspace.
+	if err := ensureWorkspaceRef(sourceFs, workspacePath); err != nil {
+		return err
+	}
+
+	// 6. Write metadata for the final on-disk package state.
 	metaFile := packageMeta{
 		Sum: PackageFilesSum(sourceFs, mods),
 		DependencySources: dependencySources{
@@ -214,19 +227,7 @@ func Pack(sourceFs, assetsWithDuplicatesPreservedFs afero.Fs, mods modules.Modul
 			DevDependencies: moduleDevDepsComments,
 		},
 	}
-
-	if err := sourceFs.MkdirAll(files.FolderPackagesHugoAutoGen, 0o777); err != nil {
-		return err
-	}
-	if err := writeJSON(sourceFs, workspacePackageJSON, autoGenPkg); err != nil {
-		return err
-	}
-	if err := writeJSON(sourceFs, workspacePackageMetaJSON, metaFile); err != nil {
-		return err
-	}
-
-	// 5. Ensure root package.json references the workspace.
-	return ensureWorkspaceRef(sourceFs, workspacePath)
+	return writeJSON(sourceFs, workspacePackageMetaJSON, metaFile)
 }
 
 // ensureWorkspaceRef adds workspacePath to the "workspaces" array in root

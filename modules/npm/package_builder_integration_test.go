@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/modules"
 	"github.com/gohugoio/hugo/modules/npm"
+	"github.com/spf13/afero"
 )
 
 func getPackageBuilderTestFiles() string {
@@ -49,7 +50,7 @@ PACKAGE_CONTENT
 "version": "0.1.1",
 "dependencies": {
 	"react-dom": "1.1.1",
-	"tailwindcss": "1.2.0",	
+	"tailwindcss": "1.2.0",
 	"@babel/cli": "7.8.4",
 	"@babel/core": "7.9.0",
 	"@babel/preset-env": "7.9.5"
@@ -70,9 +71,25 @@ func TestPackageBuilder(t *testing.T) {
 	files := getPackageBuilderTestFiles()
 	b := hugolib.Test(t, files)
 	fs := b.H.Fs.WorkingDirReadOnly
+	sourceFs := b.H.BaseFs.ProjectSourceFs
+	assetsFs := b.H.BaseFs.AssetsWithDuplicatesPreserved.Fs
+	mods := b.H.Configs.Modules
 
 	sum := npm.PackageFilesSum(fs, b.H.AllModules())
-	b.Assert(sum, qt.Equals, "ce880d142ad9a16a")
+	b.Assert(sum, qt.Equals, "528bb6507993888c")
+
+	b.Assert(npm.Pack(sourceFs, assetsFs, mods), qt.IsNil)
+	b.Assert(npm.NpmPackNeedsUpdate(sourceFs, mods), qt.IsFalse)
+
+	meta1, err := afero.ReadFile(sourceFs, "packages/hugoautogen/hugo_packagemeta.json")
+	b.Assert(err, qt.IsNil)
+
+	b.Assert(npm.Pack(sourceFs, assetsFs, mods), qt.IsNil)
+	b.Assert(npm.NpmPackNeedsUpdate(sourceFs, mods), qt.IsFalse)
+
+	meta2, err := afero.ReadFile(sourceFs, "packages/hugoautogen/hugo_packagemeta.json")
+	b.Assert(err, qt.IsNil)
+	b.Assert(string(meta2), qt.Equals, string(meta1))
 }
 
 func BenchmarkPackageFilesSum(b *testing.B) {
@@ -83,6 +100,6 @@ func BenchmarkPackageFilesSum(b *testing.B) {
 
 	for b.Loop() {
 		sum := npm.PackageFilesSum(fs, modules.Modules{})
-		bb.Assert(sum, qt.Equals, "ce880d142ad9a16a")
+		bb.Assert(sum, qt.Equals, "528bb6507993888c")
 	}
 }
