@@ -263,8 +263,9 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 
 func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], sourceFormat Format) (ImageConfig, error) {
 	var (
-		c   ImageConfig = GetDefaultImageConfig(defaults)
-		err error
+		c          ImageConfig = GetDefaultImageConfig(defaults)
+		err        error
+		qualitySet bool
 	)
 
 	// Make to lower case, trim space and remove any empty strings.
@@ -304,6 +305,7 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			if c.Quality < 1 || c.Quality > 100 {
 				return c, errors.New("quality ranges from 1 to 100 inclusive")
 			}
+			qualitySet = true
 		} else if part[0] == 'r' {
 			c.Rotate, err = strconv.Atoi(part[1:])
 			if err != nil {
@@ -367,10 +369,10 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		c.TargetFormat = sourceFormat
 	}
 
-	if c.Quality <= 0 && c.TargetFormat.RequiresDefaultQuality() {
-		// We need a quality setting for all JPEGs and WEBPs,
-		// unless the user explicitly set quality.
-		c.Quality = defaults.Config.Imaging.Quality
+	if !qualitySet && c.TargetFormat.RequiresDefaultQuality() {
+		// Apply the per-format (or global) default quality unless the user
+		// explicitly set a quality for this image operation.
+		c.Quality = defaults.Config.Imaging.qualityFor(c.TargetFormat)
 	}
 
 	if c.Compression == "" {
@@ -512,8 +514,27 @@ type ImagingConfig struct {
 
 	Exif ExifConfig
 	Meta MetaConfig
+	Jpeg JpegConfig
 	Webp WebpConfig
 	Avif AvifConfig
+}
+
+// qualityFor returns the configured quality for the given target format,
+// falling back to the global Quality when no per-format quality is set.
+func (cfg *ImagingConfig) qualityFor(f Format) int {
+	var q int
+	switch f {
+	case JPEG:
+		q = cfg.Jpeg.Quality
+	case WEBP:
+		q = cfg.Webp.Quality
+	case AVIF:
+		q = cfg.Avif.Quality
+	}
+	if q > 0 {
+		return q
+	}
+	return cfg.Quality
 }
 
 var validMetaSources = map[string]bool{
@@ -585,6 +606,12 @@ func (cfg *ImagingConfig) init() error {
 		return fmt.Errorf("webp method must be between 0 and 6, got %d", cfg.Webp.Method)
 	}
 
+	for name, q := range map[string]int{"jpeg": cfg.Jpeg.Quality, "webp": cfg.Webp.Quality, "avif": cfg.Avif.Quality} {
+		if q != 0 && (q < 1 || q > 100) {
+			return fmt.Errorf("%s quality must be a number between 1 and 100", name)
+		}
+	}
+
 	if cfg.Avif.EncoderSpeed == 0 {
 		cfg.Avif.EncoderSpeed = defaultAvifEncoderSpeed
 	}
@@ -631,8 +658,17 @@ type MetaConfig struct {
 	Sources []string
 }
 
+// JpegConfig holds JPEG-specific encoding configuration.
+type JpegConfig struct {
+	// Quality setting (1-100). Falls back to the global imaging.quality if unset.
+	Quality int
+}
+
 // AvifConfig holds AVIF-specific encoding configuration.
 type AvifConfig struct {
+	// Quality setting (1-100). Falls back to the global imaging.quality if unset.
+	Quality int
+
 	// Encoder quality/speed trade-off, 1 (slowest, best quality / smallest
 	// files) to 10 (fastest). Default is 10 — fast enough for incremental
 	// builds with quality indistinguishable from slower settings at typical
@@ -646,6 +682,10 @@ type AvifConfig struct {
 
 // WebpConfig holds WebP-specific encoding configuration.
 type WebpConfig struct {
+	// Quality setting (1-100). Falls back to the global imaging.quality if unset.
+	// Only relevant for lossy encoding.
+	Quality int
+
 	// Hint about what type of image this is.
 	// Valid values are "picture", "photo", "drawing", "icon", or "text".
 	// Default is "photo".

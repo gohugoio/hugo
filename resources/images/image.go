@@ -408,7 +408,7 @@ func (f Format) ToImageMetaImageFormatFormat() imagemeta.ImageFormat {
 // RequiresDefaultQuality returns if the default quality needs to be applied to
 // images of this format.
 func (f Format) RequiresDefaultQuality() bool {
-	return f == JPEG || f == WEBP
+	return f == JPEG || f == WEBP || f == AVIF
 }
 
 // SupportsTransparency reports whether it supports transparency in any form.
