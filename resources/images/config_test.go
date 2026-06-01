@@ -109,6 +109,47 @@ func TestDecodeConfig(t *testing.T) {
 	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, 1)
 }
 
+// See issue 14957.
+func TestImageConfigQualityPerFormat(t *testing.T) {
+	c := qt.New(t)
+
+	cfg, err := DecodeConfig(map[string]any{
+		"quality": 80,
+		"webp":    map[string]any{"quality": 70},
+		"avif":    map[string]any{"quality": 55},
+	})
+	c.Assert(err, qt.IsNil)
+
+	quality := func(opts ...string) int {
+		conf, err := DecodeImageConfig(append([]string{"resize", "100x"}, opts...), cfg, JPEG)
+		c.Assert(err, qt.IsNil)
+		return conf.Quality
+	}
+
+	// Per-format quality from config.
+	c.Assert(quality("webp"), qt.Equals, 70)
+	c.Assert(quality("avif"), qt.Equals, 55)
+	// JPEG has no per-format override, so it falls back to the global quality.
+	c.Assert(quality("jpg"), qt.Equals, 80)
+
+	// A per-image quality always wins.
+	c.Assert(quality("webp", "q33"), qt.Equals, 33)
+	c.Assert(quality("avif", "q33"), qt.Equals, 33)
+
+	// Without per-format config, all formats fall back to the global quality.
+	cfg2, err := DecodeConfig(map[string]any{"quality": 80})
+	c.Assert(err, qt.IsNil)
+	for _, f := range []string{"jpg", "webp", "avif"} {
+		conf, err := DecodeImageConfig([]string{"resize", "100x", f}, cfg2, JPEG)
+		c.Assert(err, qt.IsNil)
+		c.Assert(conf.Quality, qt.Equals, 80)
+	}
+
+	// Out-of-range per-format quality is rejected.
+	_, err = DecodeConfig(map[string]any{"avif": map[string]any{"quality": 123}})
+	c.Assert(err, qt.ErrorMatches, ".*quality must be.*")
+}
+
 func TestDecodeImageConfig(t *testing.T) {
 	for i, this := range []struct {
 		action string

@@ -239,9 +239,9 @@ defaultContentLanguageInSubdir = true
 duplicateResourceFiles = false
 [markup.goldmark.renderhooks]
 [markup.goldmark.renderhooks.link]
-#enableDefault = false
+#useEmbedded = 'never'
 [markup.goldmark.renderhooks.image]
-#enableDefault = false
+#useEmbedded = 'never'
 [languages]
 [languages.en]
 weight = 1
@@ -291,7 +291,7 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 	})
 
 	t.Run("Disabled", func(t *testing.T) {
-		b := Test(t, strings.ReplaceAll(files, "#enableDefault = false", "enableDefault = false"))
+		b := Test(t, strings.ReplaceAll(files, "#useEmbedded = 'never'", "useEmbedded = 'never'"))
 
 		b.AssertFileContent("public/nn/p1/index.html",
 			"p1|<p><a href=\"p2\">P2</a>", "<img src=\"pixel.png\" alt=\"Pixel\">")
@@ -304,9 +304,9 @@ func TestRenderHooksDefaultEscape(t *testing.T) {
 [markup.goldmark.extensions.typographer]
 disable = true
 [markup.goldmark.renderHooks.image]
-enableDefault = ENABLE
+useEmbedded = 'WHEN'
 [markup.goldmark.renderHooks.link]
-enableDefault = ENABLE
+useEmbedded = 'WHEN'
 [markup.goldmark.parser]
 wrapStandAloneImageWithinParagraph = false
 [markup.goldmark.parser.attribute]
@@ -326,13 +326,13 @@ Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
 {{ .Content }}
 `
 
-	for _, enabled := range []bool{true, false} {
-		t.Run(fmt.Sprint(enabled), func(t *testing.T) {
+	for _, when := range []string{"auto", "never", "always", "fallback"} {
+		t.Run(fmt.Sprint(when), func(t *testing.T) {
 			t.Parallel()
-			b := Test(t, strings.ReplaceAll(files, "ENABLE", fmt.Sprint(enabled)))
+			b := Test(t, strings.ReplaceAll(files, "WHEN", fmt.Sprint(when)))
 
 			// The escaping is slightly different between the two.
-			if enabled {
+			if when == "always" || when == "fallback" {
 				b.AssertFileContent("public/index.html",
 					"Link: <a href=\"/destination-%22%3C%3E\" title=\"title-&#34;&lt;&gt;&amp;\">text-&quot;&lt;&gt;&amp;</a>",
 					"img src=\"/destination-%22%3C%3E\" alt=\"alt-&#34;&lt;&gt;&amp;\" title=\"title-&#34;&lt;&gt;&amp;\">",

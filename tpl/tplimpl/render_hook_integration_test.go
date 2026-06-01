@@ -27,7 +27,7 @@ func TestEmbeddedLinkRenderHook(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['rss','sitemap','taxonomy','term']
 [markup.goldmark.renderHooks.link]
-enableDefault = true
+useEmbedded = 'always'
 -- layouts/list.html --
 {{ .Content }}
 -- layouts/single.html --
@@ -153,7 +153,7 @@ wrapStandAloneImageWithinParagraph = false
 [markup.goldmark.parser.attribute]
 block = false
 [markup.goldmark.renderHooks.image]
-enableDefault = true
+useEmbedded = 'always'
 -- content/p1/index.md --
 ![]()
 
@@ -253,37 +253,29 @@ custom image render hook: {{ .Text }}|{{ .Destination }}
 		id             string // the test id
 		isMultilingual bool   // whether the site is multilingual single-host
 		hasCustomHooks bool   // whether the site has custom link and image render hooks
-		keyValuePair   string // the enableDefault (deprecated in v0.148.0) or useEmbedded key-value pair
+		keyValuePair   string // the useEmbedded key-value pair
 		want           string // the expected content of public/s1/p1/index.html
 	}{
 		{"01", false, false, "", wantGoldmark},                         // monolingual
-		{"02", false, false, "enableDefault = false", wantGoldmark},    // monolingual, enableDefault = false
-		{"03", false, false, "enableDefault = true", wantEmbedded},     // monolingual, enableDefault = true
-		{"04", false, false, "useEmbedded = 'always'", wantEmbedded},   // monolingual, useEmbedded = 'always'
-		{"05", false, false, "useEmbedded = 'auto'", wantGoldmark},     // monolingual, useEmbedded = 'auto'
-		{"06", false, false, "useEmbedded = 'fallback'", wantEmbedded}, // monolingual, useEmbedded = 'fallback'
-		{"07", false, false, "useEmbedded = 'never'", wantGoldmark},    // monolingual, useEmbedded = 'never'
-		{"08", false, true, "", wantCustom},                            // monolingual, with custom hooks
-		{"09", false, true, "enableDefault = false", wantCustom},       // monolingual, with custom hooks, enableDefault = false
-		{"10", false, true, "enableDefault = true", wantCustom},        // monolingual, with custom hooks, enableDefault = true
-		{"11", false, true, "useEmbedded = 'always'", wantEmbedded},    // monolingual, with custom hooks, useEmbedded = 'always'
-		{"12", false, true, "useEmbedded = 'auto'", wantCustom},        // monolingual, with custom hooks, useEmbedded = 'auto'
-		{"13", false, true, "useEmbedded = 'fallback'", wantCustom},    // monolingual, with custom hooks, useEmbedded = 'fallback'
-		{"14", false, true, "useEmbedded = 'never'", wantCustom},       // monolingual, with custom hooks, useEmbedded = 'never'
-		{"15", true, false, "", wantEmbedded},                          // multilingual
-		{"16", true, false, "enableDefault = false", wantGoldmark},     // multilingual, enableDefault = false
-		{"17", true, false, "enableDefault = true", wantEmbedded},      // multilingual, enableDefault = true
-		{"18", true, false, "useEmbedded = 'always'", wantEmbedded},    // multilingual, useEmbedded = 'always'
-		{"19", true, false, "useEmbedded = 'auto'", wantEmbedded},      // multilingual, useEmbedded = 'auto'
-		{"20", true, false, "useEmbedded = 'fallback'", wantEmbedded},  // multilingual, useEmbedded = 'fallback'
-		{"21", true, false, "useEmbedded = 'never'", wantGoldmark},     // multilingual, useEmbedded = 'never'
-		{"22", true, true, "", wantCustom},                             // multilingual, with custom hooks
-		{"23", true, true, "enableDefault = false", wantCustom},        // multilingual, with custom hooks, enableDefault = false
-		{"24", true, true, "enableDefault = true", wantCustom},         // multilingual, with custom hooks, enableDefault = true
-		{"25", true, true, "useEmbedded = 'always'", wantEmbedded},     // multilingual, with custom hooks, useEmbedded = 'always'
-		{"26", true, true, "useEmbedded = 'auto'", wantCustom},         // multilingual, with custom hooks, useEmbedded = 'auto'
-		{"27", true, true, "useEmbedded = 'fallback'", wantCustom},     // multilingual, with custom hooks, useEmbedded = 'fallback'
-		{"28", true, true, "useEmbedded = 'never'", wantCustom},        // multilingual, with custom hooks, useEmbedded = 'never'
+		{"02", false, false, "useEmbedded = 'always'", wantEmbedded},   // monolingual, useEmbedded = 'always'
+		{"03", false, false, "useEmbedded = 'auto'", wantGoldmark},     // monolingual, useEmbedded = 'auto'
+		{"04", false, false, "useEmbedded = 'fallback'", wantEmbedded}, // monolingual, useEmbedded = 'fallback'
+		{"05", false, false, "useEmbedded = 'never'", wantGoldmark},    // monolingual, useEmbedded = 'never'
+		{"06", false, true, "", wantCustom},                            // monolingual, with custom hooks
+		{"07", false, true, "useEmbedded = 'always'", wantEmbedded},    // monolingual, with custom hooks, useEmbedded = 'always'
+		{"08", false, true, "useEmbedded = 'auto'", wantCustom},        // monolingual, with custom hooks, useEmbedded = 'auto'
+		{"09", false, true, "useEmbedded = 'fallback'", wantCustom},    // monolingual, with custom hooks, useEmbedded = 'fallback'
+		{"10", false, true, "useEmbedded = 'never'", wantCustom},       // monolingual, with custom hooks, useEmbedded = 'never'
+		{"11", true, false, "", wantEmbedded},                          // multilingual
+		{"12", true, false, "useEmbedded = 'always'", wantEmbedded},    // multilingual, useEmbedded = 'always'
+		{"13", true, false, "useEmbedded = 'auto'", wantEmbedded},      // multilingual, useEmbedded = 'auto'
+		{"14", true, false, "useEmbedded = 'fallback'", wantEmbedded},  // multilingual, useEmbedded = 'fallback'
+		{"15", true, false, "useEmbedded = 'never'", wantGoldmark},     // multilingual, useEmbedded = 'never'
+		{"16", true, true, "", wantCustom},                             // multilingual, with custom hooks
+		{"17", true, true, "useEmbedded = 'always'", wantEmbedded},     // multilingual, with custom hooks, useEmbedded = 'always'
+		{"18", true, true, "useEmbedded = 'auto'", wantCustom},         // multilingual, with custom hooks, useEmbedded = 'auto'
+		{"19", true, true, "useEmbedded = 'fallback'", wantCustom},     // multilingual, with custom hooks, useEmbedded = 'fallback'
+		{"20", true, true, "useEmbedded = 'never'", wantCustom},        // multilingual, with custom hooks, useEmbedded = 'never'
 	}
 
 	for _, tt := range tests {
@@ -313,7 +305,7 @@ func TestRenderHookMultilingual(t *testing.T) {
 baseURL = 'https://example.org/'
 defaultContentLanguage = 'en'
 [markup.goldmark.renderHooks.image]
-enableDefault = false
+useEmbedded = 'never'
 [languages.en]
 weight = 1
 [languages.tr]
