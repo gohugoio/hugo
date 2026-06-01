@@ -429,6 +429,16 @@ func (s *IntegrationTestBuilder) negate(match string) (string, bool) {
 	return match, negate
 }
 
+// AssertFileContentStartsWith asserts that the content of the given file starts with s.
+func (s *IntegrationTestBuilder) AssertFileContentStartsWith(filename, prefix string) {
+	s.Helper()
+	content := strings.TrimSpace(s.FileContent(filename))
+	cm := qt.Commentf("File: %s Expect:\n%s Got:\n%s\nWith Space Visuals:\n%s", filename, prefix, content, util.VisualizeSpaces([]byte(content)))
+	var negate bool
+	prefix, negate = s.negate(prefix)
+	s.Assert(strings.HasPrefix(content, prefix), qt.Equals, !negate, cm)
+}
+
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {
 	s.Helper()
 	content := strings.TrimSpace(s.FileContent(filename))
