@@ -38,7 +38,7 @@ modules
 ## Keys
 
 dir
-: (`string`) The absolute file system path where Hugo stores the cached files. You can begin the path with the `:cacheDir` or `:resourceDir` [tokens](#tokens) to anchor the cache to specific system or project locations.
+: (`string`) The absolute file system path where Hugo stores the cached files. You can begin the path with the `:cacheDir` [token](#tokens) to anchor the cache to a system location. The `:resourceDir` token is a special case for the layered resources cache, with limited support as described below.
 
 maxAge
 : (`string`) The duration a cached entry remains valid before being evicted, expressed as a [duration](g). A value of `0` disables the cache for that key, and a value of `-1` means the cache entry never expires. Default is `-1`.
@@ -52,7 +52,7 @@ maxAge
 : (`string`) The base directory name of the current Hugo project. This ensures isolated file caches for each project, preventing the `hugo build --gc` command from affecting other projects on the same machine.
 
 `:resourceDir`
-: (`string`) The designated directory for caching output from [asset pipelines](g). See [details](/configuration/all/#resourcedir).
+: (`string`) A special token for the layered resources cache used by asset pipelines. This token does not behave like a general path placeholder. The built-in `images` and `assets` caches use the `:resourceDir/_gen` form to target the resources cache filesystem. See [details](/configuration/all/#resourcedir).
 
 ## Garbage collection
 

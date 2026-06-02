@@ -140,6 +140,38 @@ func TestDecodeConfigDefault(t *testing.T) {
 	c.Assert(miscConfig.IsResourceDir, qt.Equals, false)
 }
 
+// See issue 14165.
+func TestDecodeConfigResourceDirHandling(t *testing.T) {
+	t.Parallel()
+
+	t.Run("supported", func(t *testing.T) {
+		t.Parallel()
+
+		c := qt.New(t)
+		fs := afero.NewMemMapFs()
+		cfg := config.New()
+		cfg.Set("cacheDir", "/cache/thecache")
+		cfg.Set("workingDir", filepath.FromSlash("/my/cool/hugoproject"))
+		cfg.Set("resourceDir", "/cache/resources")
+		cfg.Set("caches", map[string]any{
+			"images": map[string]any{
+				"dir":    ":resourceDir/_gen",
+				"maxAge": "10m",
+			},
+		})
+
+		testCfg := testconfig.GetTestConfig(fs, cfg)
+		decoded, err := filecache.DecodeConfig(fs, testCfg.BaseConfig(), cfg.GetStringMap("caches"))
+		c.Assert(err, qt.IsNil)
+
+		imgConfig := decoded[filecache.CacheKeyImages]
+		c.Assert(imgConfig.DirCompiled, qt.Equals, filepath.FromSlash("_gen/images"))
+		c.Assert(imgConfig.MaxAge, qt.Equals, 10*time.Minute)
+		c.Assert(imgConfig.IsResourceDir, qt.Equals, true)
+	})
+
+}
+
 func TestFileCacheConfigMarshalJSON(t *testing.T) {
 	c := qt.New(t)
 
