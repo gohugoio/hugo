@@ -493,6 +493,8 @@ type ImagingConfig struct {
 	// Default image quality setting (1-100). Used as the fallback for JPEG,
 	// WebP and AVIF when no per-format quality is set. When left unset, JPEG
 	// and WebP default to 75 and AVIF to 60 (its scale differs perceptually).
+	// Deprecated in v0.164.0: set the quality per format instead, see
+	// imaging.jpeg.quality, imaging.webp.quality and imaging.avif.quality.
 	Quality int
 
 	// Whether Quality was explicitly set in the config. When false, AVIF uses
