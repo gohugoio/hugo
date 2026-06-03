@@ -419,7 +419,11 @@ func (d *dispatcher[Q, R]) pendingCall(id uint32) *call[Q, R] {
 	defer d.mu.Unlock()
 	c, ok := d.pending[id]
 	if !ok {
-		panic(fmt.Errorf("call with ID %d not found", id))
+		// The WASM module wrote a response for an ID we never sent. This means it
+		// broke the RPC protocol, e.g. a corrupted stream after an error path that
+		// failed to drain its input or write a response. This is a bug in the
+		// module and should be reported.
+		panic(fmt.Errorf("received response for unknown call ID %d: WASM module violated the RPC protocol", id))
 	}
 	return c
 }

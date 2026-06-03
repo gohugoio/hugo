@@ -947,7 +947,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		// In the full setup, this channel is created in the commands package.
 		changesFromBuild := make(chan []identity.Identity, 10)
 
-		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), StdErr: logger.StdErr(), ChangesFromBuild: changesFromBuild, IsIntegrationTest: true}
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), StdErr: logger.StdErr(), ChangesFromBuild: changesFromBuild, IsIntegrationTest: true, TestCfg: deps.TestConfig{WarpcMemory: s.Cfg.WarpcMemory}}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err
@@ -1226,4 +1226,8 @@ type IntegrationTestConfig struct {
 
 	// The config to pass to Build.
 	BuildCfg BuildCfg
+
+	// WarpcMemory, if set, overrides the memory limit in MiB for the WASM based
+	// image processors (WebP and AVIF). Used to provoke memory allocation failures.
+	WarpcMemory int
 }
