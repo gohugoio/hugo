@@ -243,6 +243,23 @@ void write_output_message(const OutputMessage *msg)
     json_value_free(root_value);
 }
 
+// drain_bytes discards n bytes from stream. Used to keep the protocol aligned
+// after an error that prevents the blob from being consumed normally.
+static void drain_bytes(FILE *stream, size_t n)
+{
+    uint8_t buf[4096];
+    while (n > 0)
+    {
+        size_t want = n < sizeof(buf) ? n : sizeof(buf);
+        size_t got = fread(buf, 1, want, stream);
+        if (got == 0)
+        {
+            break;
+        }
+        n -= got;
+    }
+}
+
 void handle_commands(FILE *stream)
 {
 
@@ -278,7 +295,15 @@ void handle_commands(FILE *stream)
         blob_data = malloc((size_t)blob_size);
         if (blob_data == NULL)
         {
-            fprintf(stderr, "[%d] Error allocating memory for blob data\n", blob_id);
+            // Out of memory. Drain the blob from the input stream so the next
+            // command stays aligned, then report the error to the client instead
+            // of leaving the stream corrupted with no response.
+            drain_bytes(stream, (size_t)blob_size);
+            OutputMessage err_output = {0};
+            err_output.header = input.header;
+            snprintf(err_output.header.err, sizeof(err_output.header.err),
+                     "out of memory allocating %u bytes for blob data", blob_size);
+            write_output_message(&err_output);
             goto cleanup;
         }
         read_bytes = fread(blob_data, 1, (size_t)blob_size, stream);

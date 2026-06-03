@@ -435,8 +435,26 @@ type DepsCfg struct {
 	// Build triggered by the IntegrationTest framework.
 	IsIntegrationTest bool
 
+	// TestCfg holds configuration used only in tests.
+	// It is a programming error to set this when IsIntegrationTest is not set,
+	// and doing so will panic.
+	TestCfg TestConfig
+
 	// ChangesFromBuild for changes passed back to the server/watch process.
 	ChangesFromBuild chan []identity.Identity
+}
+
+// TestConfig holds configuration used only in tests.
+// See DepsCfg.TestCfg.
+type TestConfig struct {
+	// WarpcMemory, if set, overrides the memory limit in MiB for the WASM based
+	// image processors (WebP and AVIF). Used to provoke memory allocation failures.
+	WarpcMemory int
+}
+
+// IsZero reports whether c holds no test configuration.
+func (c TestConfig) IsZero() bool {
+	return c == TestConfig{}
 }
 
 // BuildState are state used during a build.
