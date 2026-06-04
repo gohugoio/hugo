@@ -28,7 +28,6 @@ func TestJsConfigBuilder(t *testing.T) {
 	b.AddSourceRoot("/d/assets")
 
 	conf := b.Build("/a/b")
-	c.Assert(conf.CompilerOptions.BaseURL, qt.Equals, ".")
 	c.Assert(conf.CompilerOptions.Paths["*"], qt.DeepEquals, []string{filepath.FromSlash("../../c/assets/*"), filepath.FromSlash("../../d/assets/*")})
 
 	c.Assert(NewBuilder().Build("/a/b"), qt.IsNil)
