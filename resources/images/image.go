@@ -347,8 +347,8 @@ func GetDefaultImageConfig(defaults *config.ConfigNamespace[ImagingConfig, Imagi
 		defaults = defaultImageConfig
 	}
 	return ImageConfig{
-		Anchor:       -1, // The real values start at 0.
-		Hint:         defaults.Config.Imaging.Webp.Hint,
+		Anchor: -1, // The real values start at 0.
+		// Hint is resolved per target format in DecodeImageConfig.
 		Quality:      defaults.Config.Imaging.Quality,
 		Compression:  defaults.Config.Imaging.Compression,
 		UseSharpYuv:  defaults.Config.Imaging.Webp.UseSharpYuv,

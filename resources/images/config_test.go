@@ -111,6 +111,52 @@ func TestDecodeConfig(t *testing.T) {
 	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, 1)
 }
 
+// See issue 14992.
+func TestImageConfigHintPerFormat(t *testing.T) {
+	c := qt.New(t)
+
+	// Default: both WebP and AVIF hint default to "photo".
+	cfg, err := DecodeConfig(map[string]any{})
+	c.Assert(err, qt.IsNil)
+	c.Assert(cfg.Config.Imaging.Webp.Hint, qt.Equals, "photo")
+	c.Assert(cfg.Config.Imaging.Avif.Hint, qt.Equals, "photo")
+
+	// Per-format hint from config.
+	cfg, err = DecodeConfig(map[string]any{
+		"webp": map[string]any{"hint": "drawing"},
+		"avif": map[string]any{"hint": "icon"},
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(cfg.Config.Imaging.Webp.Hint, qt.Equals, "drawing")
+	c.Assert(cfg.Config.Imaging.Avif.Hint, qt.Equals, "icon")
+
+	// Root-level hint applies to both formats for backwards compatibility.
+	cfg, err = DecodeConfig(map[string]any{"hint": "text"})
+	c.Assert(err, qt.IsNil)
+	c.Assert(cfg.Config.Imaging.Webp.Hint, qt.Equals, "text")
+	c.Assert(cfg.Config.Imaging.Avif.Hint, qt.Equals, "text")
+
+	// Invalid AVIF hint is rejected.
+	_, err = DecodeConfig(map[string]any{"avif": map[string]any{"hint": "nope"}})
+	c.Assert(err, qt.ErrorMatches, ".*invalid avif hint.*")
+
+	// Per-image config picks the hint for the target format.
+	cfg, err = DecodeConfig(map[string]any{
+		"webp": map[string]any{"hint": "drawing"},
+		"avif": map[string]any{"hint": "icon"},
+	})
+	c.Assert(err, qt.IsNil)
+	hint := func(f Format, opts ...string) string {
+		conf, err := DecodeImageConfig(append([]string{"resize", "100x"}, opts...), cfg, f)
+		c.Assert(err, qt.IsNil)
+		return conf.Hint
+	}
+	c.Assert(hint(WEBP), qt.Equals, "drawing")
+	c.Assert(hint(AVIF), qt.Equals, "icon")
+	// A per-image hint always wins.
+	c.Assert(hint(AVIF, "photo"), qt.Equals, "photo")
+}
+
 // See issue 14957.
 func TestImageConfigQualityPerFormat(t *testing.T) {
 	c := qt.New(t)
@@ -235,6 +281,7 @@ func newImageConfig(action string, width, height, quality, rotate int, filter, a
 	var c ImageConfig = GetDefaultImageConfig(nil)
 	c.Action = action
 	c.TargetFormat = PNG
+	c.Hint = defaultHint // Resolved per target format in DecodeImageConfig.
 	c.Width = width
 	c.Height = height
 	c.Quality = quality
