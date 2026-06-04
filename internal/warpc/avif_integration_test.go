@@ -82,9 +82,11 @@ text:{{ ($img.Process "avif text").RelPermalink }}|
 
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html",
-		"default:/logo_hu_add3d7dfc55b7f80.avif|",
-		"photo:/logo_hu_add3d7dfc55b7f80.avif|",
-		"text:/logo_hu_b7080fe2a2e2a664.avif|")
+		`
+default:/logo_hu_72e150ce03376cfd.avif|
+photo:/logo_hu_72e150ce03376cfd.avif|
+text:/logo_hu_9de8f282912bc925.avif|
+`)
 }
 
 // See issue 14985.
