@@ -1994,6 +1994,42 @@ func content(c resource.ContentProvider) string {
 	return ccs
 }
 
+// See issue 11574.
+func TestPageIsBranch(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
+-- content/_index.md --
+-- content/sect/_index.md --
+-- content/sect/p1.md --
+-- layouts/all.html --
+{{ .Kind }}|IsBranch={{ .IsBranch }}|IsPage={{ .IsPage }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "home|IsBranch=true|IsPage=false")
+	b.AssertFileContent("public/sect/index.html", "section|IsBranch=true|IsPage=false")
+	b.AssertFileContent("public/sect/p1/index.html", "page|IsBranch=false|IsPage=true")
+}
+
+// See issue 11574.
+func TestPageIsNodeDeprecated(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404"]
+-- content/_index.md --
+-- layouts/all.html --
+{{ .IsNode }}
+`
+
+	b := Test(t, files, TestOptInfo())
+
+	b.AssertLogContains(".Page.IsNode was deprecated")
+}
+
 func BenchmarkIsTranslatedOneLanguage(b *testing.B) {
 	// Set it reasonably high to get a balance between cached and uncached calls to IsTranslated.
 	const numPages = 3000

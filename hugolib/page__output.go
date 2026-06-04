@@ -48,7 +48,7 @@ func newPageOutput(
 	var paginatorProvider page.PaginatorProvider
 	var pag *pagePaginator
 
-	if render && ps.IsNode() {
+	if render && ps.IsBranch() {
 		pag = newPagePaginator(ps)
 		paginatorProvider = pag
 	} else {

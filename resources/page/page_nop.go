@@ -227,6 +227,10 @@ func (p *nopPage) IsNode() bool {
 	return false
 }
 
+func (p *nopPage) IsBranch() bool {
+	return false
+}
+
 func (p *nopPage) IsPage() bool {
 	return false
 }
