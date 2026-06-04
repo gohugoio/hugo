@@ -281,6 +281,10 @@ func (p *testPage) IsNode() bool {
 	panic("testpage: not implemented")
 }
 
+func (p *testPage) IsBranch() bool {
+	panic("testpage: not implemented")
+}
+
 func (p *testPage) IsPage() bool {
 	panic("testpage: not implemented")
 }
