@@ -183,6 +183,30 @@ func TestImageConfigAvifDefaultQuality(t *testing.T) {
 	c.Assert(quality(cfg, "avif", "q33"), qt.Equals, 33)
 }
 
+// See issue 14990.
+func TestImageConfigFormatVersionNumber(t *testing.T) {
+	c := qt.New(t)
+
+	cfg, err := DecodeConfig(map[string]any{})
+	c.Assert(err, qt.IsNil)
+
+	key := func(f string) string {
+		conf, err := DecodeImageConfig([]string{"resize", "100x", f}, cfg, JPEG)
+		c.Assert(err, qt.IsNil)
+		return conf.Key
+	}
+
+	avifBefore, jpgBefore := key("avif"), key("jpg")
+
+	orig := formatVersionNumbers[AVIF]
+	defer func() { formatVersionNumbers[AVIF] = orig }()
+	formatVersionNumbers[AVIF] = orig + 1
+
+	// Bumping the AVIF version invalidates AVIF images only.
+	c.Assert(key("avif"), qt.Not(qt.Equals), avifBefore)
+	c.Assert(key("jpg"), qt.Equals, jpgBefore)
+}
+
 func TestDecodeImageConfig(t *testing.T) {
 	for i, this := range []struct {
 		action string

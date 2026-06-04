@@ -84,6 +84,13 @@ var (
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
 	// See the finer grained smartCropVersionNumber.
 	mainImageVersionNumber = 1
+
+	// Increment a format's version number to mark all processed images targeting
+	// that format as stale, e.g. after a change to its encoder. This is finer
+	// grained than mainImageVersionNumber, which invalidates every format.
+	formatVersionNumbers = map[Format]int{
+		AVIF: 1,
+	}
 )
 
 var anchorPositions = map[string]gift.Anchor{
@@ -389,6 +396,10 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 
 	if mainImageVersionNumber > 0 {
 		options = append(options, strconv.Itoa(mainImageVersionNumber))
+	}
+
+	if v := formatVersionNumbers[c.TargetFormat]; v > 0 {
+		options = append(options, "tfv"+strconv.Itoa(v))
 	}
 
 	usesSmartCrop := c.Anchor == SmartCropAnchor && (c.Action == ActionCrop || c.Action == ActionFill)
