@@ -104,7 +104,7 @@ var compressionMethods = map[string]bool{
 	"lossless": true,
 }
 
-// These encoding hints are currently only relevant for Webp.
+// These encoding hints are used by Webp (preset) and Avif (chroma subsampling).
 var hints = map[string]bool{
 	"picture": true,
 	"photo":   true,
@@ -429,7 +429,7 @@ type ImageConfig struct {
 	BgColor color.Color
 
 	// Hint about what type of picture this is. Used to optimize encoding
-	// when target is set to webp.
+	// when target is webp (preset) or avif (chroma subsampling).
 	Hint string
 
 	Compression string
@@ -510,7 +510,7 @@ type ImagingConfig struct {
 	ResampleFilter string
 
 	// Hint about what type of image this is.
-	// Currently only used when encoding to Webp.
+	// Used when encoding to Webp (preset) and Avif (chroma subsampling).
 	// Default is "photo".
 	// Valid values are "picture", "photo", "drawing", "icon", or "text".
 	// Moved to WebpConfig in v0.155.0, but kept here for backwards compatibility.

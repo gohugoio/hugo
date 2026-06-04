@@ -50,6 +50,7 @@ typedef struct
     float quality;        // between 1 and 100.
     char compression[32]; // "lossy" or "lossless"
     int encoderSpeed;     // 1 (slowest, best) to 10 (fastest). 0 means use default.
+    char hint[64];        // drawing, icon, photo, picture, or text. Selects chroma subsampling.
 } InputOptions;
 
 typedef struct
@@ -165,6 +166,12 @@ InputMessage parse_input_message(const char *line)
                 strncpy(msg.data.options.compression, compression_str, sizeof(msg.data.options.compression) - 1);
                 msg.data.options.compression[sizeof(msg.data.options.compression) - 1] = '\0';
             }
+            const char *hint_str = json_object_get_string(options_object, "hint");
+            if (hint_str != NULL)
+            {
+                strncpy(msg.data.options.hint, hint_str, sizeof(msg.data.options.hint) - 1);
+                msg.data.options.hint[sizeof(msg.data.options.hint) - 1] = '\0';
+            }
         }
     }
 
@@ -258,6 +265,19 @@ static void drain_bytes(FILE *stream, size_t n)
         }
         n -= got;
     }
+}
+
+// avifFormatForHint maps a content hint to a chroma subsampling format.
+// Photographic content tolerates 4:2:0, which roughly halves the encoder's
+// memory footprint and the output size. Sharp-edged content (text, icons, line
+// art) keeps full 4:4:4 chroma. See issue 14987.
+static avifPixelFormat avifFormatForHint(const char *hint)
+{
+    if (strcmp(hint, "drawing") == 0 || strcmp(hint, "icon") == 0 || strcmp(hint, "text") == 0)
+    {
+        return AVIF_PIXEL_FORMAT_YUV444;
+    }
+    return AVIF_PIXEL_FORMAT_YUV420; // photo, picture, and the default.
 }
 
 void handle_commands(FILE *stream)
@@ -620,8 +640,15 @@ void handle_commands(FILE *stream)
                 goto cleanup;
             }
 
+            // Pick chroma subsampling from the content hint. Lossless keeps 4:4:4,
+            // since subsampling discards chroma and would defeat it.
+            avifPixelFormat yuvFormat = avifFormatForHint(input.data.options.hint);
+            if (strcmp(compression, "lossless") == 0) {
+                yuvFormat = AVIF_PIXEL_FORMAT_YUV444;
+            }
+
             // Create image with the target bit depth for encoding.
-            avifImage *image = avifImageCreate(width, height, depth, AVIF_PIXEL_FORMAT_YUV444);
+            avifImage *image = avifImageCreate(width, height, depth, yuvFormat);
             if (!image) {
                 snprintf(output.header.err, sizeof(output.header.err), "encodeNRGBA: Failed to create avifImage");
                 write_output_message(&output);
