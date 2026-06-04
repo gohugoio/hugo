@@ -67,6 +67,26 @@ gif:{{ $gif.RelPermalink }}
 		AssertFrameDurations(durations)
 }
 
+// See issue 14987.
+func TestAvifEncodeHintSubsampling(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- assets/logo.png --
+sourcefilename: ../../resources/testdata/gohugoio24.png
+-- layouts/home.html --
+{{ $img := resources.Get "logo.png" }}
+default:{{ ($img.Process "avif photo").RelPermalink }}|
+photo:{{ ($img.Process "avif photo").RelPermalink }}|
+text:{{ ($img.Process "avif text").RelPermalink }}|
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		"default:/logo_hu_add3d7dfc55b7f80.avif|",
+		"photo:/logo_hu_add3d7dfc55b7f80.avif|",
+		"text:/logo_hu_b7080fe2a2e2a664.avif|")
+}
+
 // See issue 14985.
 func TestAvifEncodeOutOfMemory(t *testing.T) {
 	files := `
