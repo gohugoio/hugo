@@ -358,10 +358,6 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		c.Filter = defaults.Config.ResampleFilter
 	}
 
-	if c.Hint == "" {
-		c.Hint = defaults.Config.Imaging.Webp.Hint
-	}
-
 	if c.Action != "" && c.Anchor == -1 {
 		c.Anchor = defaults.Config.Anchor
 	}
@@ -369,6 +365,10 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 	// default to the source format
 	if c.TargetFormat == 0 {
 		c.TargetFormat = sourceFormat
+	}
+
+	if c.Hint == "" {
+		c.Hint = defaults.Config.Imaging.hintFor(c.TargetFormat)
 	}
 
 	if !qualitySet && c.TargetFormat.RequiresDefaultQuality() {
@@ -550,6 +550,14 @@ func (cfg *ImagingConfig) qualityFor(f Format) int {
 	return cfg.Quality
 }
 
+// hintFor returns the configured hint for the given target format.
+func (cfg *ImagingConfig) hintFor(f Format) string {
+	if f == AVIF {
+		return cfg.Avif.Hint
+	}
+	return cfg.Webp.Hint
+}
+
 var validMetaSources = map[string]bool{
 	"exif": true,
 	"iptc": true,
@@ -628,6 +636,20 @@ func (cfg *ImagingConfig) init() error {
 		}
 	}
 
+	// AVIF config with backwards compatibility for root-level Hint.
+	cfg.Avif.Hint = strings.ToLower(cfg.Avif.Hint)
+	if cfg.Avif.Hint == "" {
+		// Fall back to root-level hint for backwards compatibility.
+		if cfg.Hint != "" {
+			cfg.Avif.Hint = cfg.Hint
+		} else {
+			cfg.Avif.Hint = defaultHint
+		}
+	}
+	if !hints[cfg.Avif.Hint] {
+		return fmt.Errorf("invalid avif hint %q; must be one of picture, photo, drawing, icon, or text", cfg.Avif.Hint)
+	}
+
 	if cfg.Avif.EncoderSpeed == 0 {
 		cfg.Avif.EncoderSpeed = defaultAvifEncoderSpeed
 	}
@@ -684,6 +706,11 @@ type JpegConfig struct {
 type AvifConfig struct {
 	// Quality setting (1-100). Falls back to the global imaging.quality if unset.
 	Quality int
+
+	// Hint about what type of image this is. Used for chroma subsampling.
+	// Valid values are "picture", "photo", "drawing", "icon", or "text".
+	// Default is "photo".
+	Hint string
 
 	// Encoder quality/speed trade-off, 1 (slowest, best quality / smallest
 	// files) to 10 (fastest). Default is 10 — fast enough for incremental
