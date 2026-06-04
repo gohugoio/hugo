@@ -685,6 +685,8 @@ void handle_commands(FILE *stream)
                 if (quality < 1) quality = 1;
                 if (quality > 100) quality = 100;
                 int avif_quality = (int)((quality - 1.0) / 99.0 * 100.0);
+                // Keep lossy strictly below lossless so quality 100 stays lossy. See issue 14981.
+                if (avif_quality >= AVIF_QUALITY_LOSSLESS) avif_quality = AVIF_QUALITY_LOSSLESS - 1;
                 encoder->quality = avif_quality;
                 encoder->qualityAlpha = avif_quality;
             }
@@ -809,6 +811,8 @@ void handle_commands(FILE *stream)
                 if (quality < 1) quality = 1;
                 if (quality > 100) quality = 100;
                 int avif_quality = (int)((quality - 1.0) / 99.0 * 100.0);
+                // Keep lossy strictly below lossless so quality 100 stays lossy. See issue 14981.
+                if (avif_quality >= AVIF_QUALITY_LOSSLESS) avif_quality = AVIF_QUALITY_LOSSLESS - 1;
                 encoder->quality = avif_quality;
             }
             encoder->qualityAlpha = AVIF_QUALITY_LOSSLESS;
