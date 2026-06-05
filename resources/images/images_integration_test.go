@@ -105,15 +105,15 @@ CropSmart: {{ .Width }}x{{ .Height }}|
 	b.AssertFileContent("public/index.html", "Original: 900x562|CropTopLeft: 900x561|CropSmart: 900x561|")
 }
 
-// The global imaging.quality was deprecated in v0.164.0 in favour of the
-// per-format quality settings. See issue 14979.
-func TestImagingQualityDeprecated(t *testing.T) {
+func TestImagingGlobalsDeprecated(t *testing.T) {
 	t.Parallel()
 
 	files := `
 -- hugo.toml --
 [imaging]
 quality = 70
+hint = "picture"
+compression = "lossless"
 -- layouts/home.html --
 Home.
 `
@@ -122,20 +122,11 @@ Home.
 		cfg.LogLevel = logg.LevelInfo
 	}))
 
-	b.AssertLogContains("project config key imaging.quality was deprecated in Hugo v0.164.0")
-
-	// The per-format settings should not trigger the deprecation.
-	files = `
--- hugo.toml --
-[imaging.jpeg]
-quality = 70
--- layouts/home.html --
-Home.
-`
-	b = hugolib.Test(t, files, hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
-		cfg.LogLevel = logg.LevelInfo
-	}))
-	b.AssertLogContains("! project config key imaging.quality was deprecated")
+	b.AssertLogContains(
+		"project config key imaging.quality was deprecated in Hugo v0.163.0",
+		"project config key imaging.hint was deprecated in Hugo v0.163.0",
+		"project config key imaging.compression was deprecated in Hugo v0.163.0",
+	)
 }
 
 func BenchmarkImageResize(b *testing.B) {
