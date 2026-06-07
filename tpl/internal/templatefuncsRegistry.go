@@ -214,8 +214,8 @@ func (t *TemplateFuncsNamespace) toJSON(ctx context.Context) ([]byte, error) {
 		return nil, nil
 	}
 	ctxType := reflect.TypeOf(tctx)
-	for i := range ctxType.NumMethod() {
-		method := ctxType.Method(i)
+	for method := range ctxType.Methods() {
+		method := method
 		if ignoreFuncs[method.Name] {
 			continue
 		}
