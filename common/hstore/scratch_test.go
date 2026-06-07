@@ -14,7 +14,6 @@
 package hstore
 
 import (
-	"reflect"
 	"sync"
 	"testing"
 
@@ -69,9 +68,8 @@ func TestScratchAddSlice(t *testing.T) {
 	sl := scratch.Get("intSlice")
 	expected := []int{1, 2, 3}
 
-	if !reflect.DeepEqual(expected, sl) {
-		t.Errorf("Slice difference, go %q expected %q", sl, expected)
-	}
+	c.Assert(sl, qt.DeepEquals, expected)
+
 	_, err = scratch.Add("intSlice", []int{4, 5})
 
 	c.Assert(err, qt.IsNil)
@@ -79,9 +77,7 @@ func TestScratchAddSlice(t *testing.T) {
 	sl = scratch.Get("intSlice")
 	expected = []int{1, 2, 3, 4, 5}
 
-	if !reflect.DeepEqual(expected, sl) {
-		t.Errorf("Slice difference, go %q expected %q", sl, expected)
-	}
+	c.Assert(sl, qt.DeepEquals, expected)
 }
 
 // https://github.com/gohugoio/hugo/issues/5275
