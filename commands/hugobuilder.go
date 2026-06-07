@@ -195,12 +195,12 @@ func (c *hugoBuilder) initMemProfile() {
 
 	f, err := os.Create(c.r.memprofile)
 	if err != nil {
-		c.r.logger.Errorf("could not create memory profile: ", err)
+		c.r.logger.Errorf("could not create memory profile: %s", err)
 	}
 	defer f.Close()
 	runtime.GC() // get up-to-date statistics
 	if err := pprof.WriteHeapProfile(f); err != nil {
-		c.r.logger.Errorf("could not write memory profile: ", err)
+		c.r.logger.Errorf("could not write memory profile: %s", err)
 	}
 }
 
@@ -367,7 +367,7 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 			case changes := <-c.r.changesFromBuild:
 				unlock, err := h.LockBuild()
 				if err != nil {
-					c.r.logger.Errorln("Failed to acquire a build lock: %s", err)
+					c.r.logger.Errorf("Failed to acquire a build lock: %s\n", err)
 					return
 				}
 				c.changeDetector.PrepareNew()
@@ -387,7 +387,7 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 			case evs := <-watcher.Events:
 				unlock, err := h.LockBuild()
 				if err != nil {
-					c.r.logger.Errorln("Failed to acquire a build lock: %s", err)
+					c.r.logger.Errorf("Failed to acquire a build lock: %s\n", err)
 					return
 				}
 				c.handleEvents(watcher, staticSyncer, evs, configSet)
