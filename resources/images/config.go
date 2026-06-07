@@ -248,7 +248,7 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		if i.Imaging.Anchor != "" {
 			anchor, found := anchorPositions[i.Imaging.Anchor]
 			if !found {
-				return i, nil, fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+				return i, nil, fmt.Errorf("invalid anchor value %q in imaging config", i.Imaging.Anchor)
 			}
 			i.Anchor = anchor
 		}
@@ -484,14 +484,14 @@ func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
 	if externalCfg.Anchor != "" {
 		anchor, found := anchorPositions[externalCfg.Anchor]
 		if !found {
-			return fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+			return fmt.Errorf("invalid anchor value %q in imaging config", externalCfg.Anchor)
 		}
 		i.Anchor = anchor
 	}
 
 	filter, found := imageFilters[externalCfg.ResampleFilter]
 	if !found {
-		return fmt.Errorf("%q is not a valid resample filter", filter)
+		return fmt.Errorf("%q is not a valid resample filter", externalCfg.ResampleFilter)
 	}
 	i.ResampleFilter = filter
 
