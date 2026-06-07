@@ -14,6 +14,7 @@
 package jsconfig
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"testing"
 
@@ -28,8 +29,12 @@ func TestJsConfigBuilder(t *testing.T) {
 	b.AddSourceRoot("/d/assets")
 
 	conf := b.Build("/a/b")
-	c.Assert(conf.CompilerOptions.BaseURL, qt.Equals, ".")
 	c.Assert(conf.CompilerOptions.Paths["*"], qt.DeepEquals, []string{filepath.FromSlash("../../c/assets/*"), filepath.FromSlash("../../d/assets/*")})
+
+	// baseUrl is deprecated in TypeScript and not needed when paths is set; see issue 14991.
+	data, err := json.Marshal(conf)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(data), qt.Not(qt.Contains), "baseUrl")
 
 	c.Assert(NewBuilder().Build("/a/b"), qt.IsNil)
 }

@@ -61,8 +61,7 @@ func (b *Builder) AddSourceRoot(root string) {
 
 // CompilerOptions holds compilerOptions for jsonconfig.json.
 type CompilerOptions struct {
-	BaseURL string              `json:"baseUrl"`
-	Paths   map[string][]string `json:"paths"`
+	Paths map[string][]string `json:"paths"`
 }
 
 // Config holds the data for jsconfig.json.
@@ -73,8 +72,7 @@ type Config struct {
 func newJSConfig() *Config {
 	return &Config{
 		CompilerOptions: CompilerOptions{
-			BaseURL: ".",
-			Paths:   make(map[string][]string),
+			Paths: make(map[string][]string),
 		},
 	}
 }
