@@ -103,9 +103,7 @@ func (c *Inspector) MethodsFromTypes(include []reflect.Type, exclude []reflect.T
 	}
 
 	for _, t := range include {
-		for i := range t.NumMethod() {
-
-			m := t.Method(i)
+		for m := range t.Methods() {
 			if excludes[m.Name] || seen[m.Name] {
 				continue
 			}

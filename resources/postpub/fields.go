@@ -31,8 +31,8 @@ func structToMap(s any) map[string]any {
 	m := make(map[string]any)
 	t := reflect.TypeOf(s)
 
-	for i := range t.NumMethod() {
-		method := t.Method(i)
+	for method := range t.Methods() {
+
 		if method.PkgPath != "" {
 			continue
 		}
@@ -41,8 +41,7 @@ func structToMap(s any) map[string]any {
 		}
 	}
 
-	for i := range t.NumField() {
-		field := t.Field(i)
+	for field := range t.Fields() {
 		if field.PkgPath != "" {
 			continue
 		}

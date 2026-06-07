@@ -200,8 +200,8 @@ func structTypes(v reflect.Value, m map[reflect.Type]struct{}) {
 		}
 	case reflect.Struct:
 		m[v.Type()] = struct{}{}
-		for i := range v.NumField() {
-			structTypes(v.Field(i), m)
+		for _, field := range v.Fields() {
+			structTypes(field, m)
 		}
 	}
 }

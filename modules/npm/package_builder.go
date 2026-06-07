@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hashing"
@@ -255,23 +256,23 @@ func ensureWorkspaceRef(fsys afero.Fs, workspacePath string) error {
 	wsVal, hasWS := pkg["workspaces"]
 
 	switch v := wsVal.(type) {
-	case []interface{}:
+	case []any:
 		// Array form: ["pkg-a", "pkg-b", ...]
-		if containsString(toStringSlice(v), workspacePath) {
+		if slices.Contains(toStringSlice(v), workspacePath) {
 			if runtime.GOOS == "windows" {
 				return afero.WriteFile(fsys, packageJSONName, data, 0o666)
 			}
 			return nil
 		}
 		// Fall through to byte-based insertion into the existing array below.
-	case map[string]interface{}:
+	case map[string]any:
 		// Object form: { "workspaces": { "packages": [...] } }
 		packagesVal, ok := v["packages"]
 		if !ok {
 			return fmt.Errorf("npm pack: unsupported workspaces object; missing \"packages\" field")
 		}
 		packagesSlice := toStringSlice(packagesVal)
-		if containsString(packagesSlice, workspacePath) {
+		if slices.Contains(packagesSlice, workspacePath) {
 			if runtime.GOOS == "windows" {
 				return afero.WriteFile(fsys, packageJSONName, data, 0o666)
 			}
@@ -279,7 +280,7 @@ func ensureWorkspaceRef(fsys afero.Fs, workspacePath string) error {
 		}
 
 		// Append the new workspace path to the packages slice.
-		newPkgs := make([]interface{}, 0, len(packagesSlice)+1)
+		newPkgs := make([]any, 0, len(packagesSlice)+1)
 		for _, s := range packagesSlice {
 			newPkgs = append(newPkgs, s)
 		}
@@ -349,7 +350,7 @@ func ensureWorkspaceRef(fsys afero.Fs, workspacePath string) error {
 }
 
 func detectIndent(data []byte) string {
-	for _, line := range bytes.Split(data, []byte("\n")) {
+	for line := range bytes.SplitSeq(data, []byte("\n")) {
 		trimmed := bytes.TrimLeft(line, " \t")
 		if len(trimmed) < len(line) && len(trimmed) > 0 && trimmed[0] == '"' {
 			return string(line[:len(line)-len(trimmed)])
@@ -383,15 +384,6 @@ func toStringSlice(v any) []string {
 		return out
 	}
 	return nil
-}
-
-func containsString(ss []string, s string) bool {
-	for _, v := range ss {
-		if v == s {
-			return true
-		}
-	}
-	return false
 }
 
 // resolveProjectWorkspaces resolves workspace patterns from the project's

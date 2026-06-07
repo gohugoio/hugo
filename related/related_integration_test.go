@@ -156,17 +156,18 @@ Len related: {{ site.RegularPages.Related . | len }}
 `)
 
 	createContent := func(n int) string {
-		base := `---
+		var base strings.Builder
+		base.WriteString(`---
 title: "Page %d"
 keywords: ['k%d']
 ---
-`
+`)
 
 		for range 32 {
-			base += fmt.Sprintf("\n## Title %d", rand.Intn(100))
+			base.WriteString(fmt.Sprintf("\n## Title %d", rand.Intn(100)))
 		}
 
-		return fmt.Sprintf(base, n, rand.Intn(32))
+		return fmt.Sprintf(base.String(), n, rand.Intn(32))
 	}
 
 	for i := 1; i < 100; i++ {

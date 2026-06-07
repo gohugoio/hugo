@@ -2034,16 +2034,17 @@ func BenchmarkIsTranslatedOneLanguage(b *testing.B) {
 	// Set it reasonably high to get a balance between cached and uncached calls to IsTranslated.
 	const numPages = 3000
 
-	files := `
+	var files strings.Builder
+	files.WriteString(`
 -- hugo.toml --
 disableKinds = ["taxonomy", "term"]
-`
+`)
 	for i := range numPages {
-		files += fmt.Sprintf(`
--- content/sect/p%d.md --`, i)
+		files.WriteString(fmt.Sprintf(`
+-- content/sect/p%d.md --`, i))
 	}
 
-	bb := Test(b, files, TestOptSkipRender())
+	bb := Test(b, files.String(), TestOptSkipRender())
 	p := bb.H.Sites[0].RegularPages()
 
 	b.ResetTimer()
