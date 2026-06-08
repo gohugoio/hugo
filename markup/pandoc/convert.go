@@ -15,6 +15,8 @@
 package pandoc
 
 import (
+	"fmt"
+
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/identity"
@@ -56,12 +58,9 @@ func (c *pandocConverter) Supports(feature identity.Identity) bool {
 
 // getPandocContent calls pandoc as an external helper to convert pandoc markdown to HTML.
 func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentContext) ([]byte, error) {
-	logger := c.cfg.Logger
 	binaryName := getPandocBinaryName()
 	if binaryName == "" {
-		logger.Println("pandoc not found in $PATH: Please install.\n",
-			"                 Leaving pandoc content unrendered.")
-		return src, nil
+		return nil, fmt.Errorf("pandoc not found in $PATH, cannot render %q", ctx.DocumentName)
 	}
 	args := []string{"--mathjax"}
 	return internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
