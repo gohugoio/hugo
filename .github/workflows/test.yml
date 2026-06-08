@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.26.x]
-        os: [ubuntu-latest, windows-latest] # macos disabled for now because of disk space issues.
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - if: matrix.os == 'ubuntu-latest'
@@ -39,9 +39,6 @@ jobs:
           go-version: ${{ matrix.go-version }}
           check-latest: true
           cache: true
-          cache-dependency-path: |
-            **/go.sum
-            **/go.mod
       - name: Install Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
