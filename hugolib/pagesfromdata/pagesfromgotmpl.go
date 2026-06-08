@@ -17,7 +17,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"path/filepath"
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
@@ -346,7 +345,7 @@ func (p *PagesFromTemplate) Execute(ctx context.Context) (BuildInfo, error) {
 	}
 	defer f.Close()
 
-	tmpl, err := p.TemplateStore.TextParse(filepath.ToSlash(p.GoTmplFi.Meta().Filename), helpers.ReaderToString(f))
+	tmpl, err := p.TemplateStore.TextParse(p.GoTmplFi.Meta().PathInfo.Path(), helpers.ReaderToString(f))
 	if err != nil {
 		return BuildInfo{}, err
 	}

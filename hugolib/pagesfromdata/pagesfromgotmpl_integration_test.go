@@ -14,6 +14,7 @@
 package pagesfromdata_test
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -922,4 +923,26 @@ iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAA
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "Resized: 1x1|")
+}
+
+// See https://github.com/gohugoio/hugo/issues/14999
+func TestContentAdapterTemplateMetricsRelativePath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+templateMetrics = true
+-- layouts/all.html --
+{{ .Title }}
+-- content/docs/_content.gotmpl --
+{{ .AddPage (dict "path" "/docs/p1" "title" "P1") }}
+`
+	b := hugolib.Test(t, files)
+
+	var buf bytes.Buffer
+	b.H.Metrics.WriteMetrics(&buf)
+	got := buf.String()
+
+	b.Assert(got, qt.Contains, "/docs/_content.gotmpl")
+	b.Assert(got, qt.Not(qt.Contains), "content/docs/_content.gotmpl")
 }
