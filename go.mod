@@ -23,7 +23,7 @@ require (
 	github.com/bep/simplecobra v0.7.0
 	github.com/bep/textandbinarywriter v0.1.0
 	github.com/bep/tmc v0.6.0
-	github.com/bits-and-blooms/bitset v1.24.4
+	github.com/bits-and-blooms/bitset v1.24.5
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
 	github.com/dustin/go-humanize v1.0.1
