@@ -16,6 +16,7 @@ package rst
 
 import (
 	"bytes"
+	"fmt"
 	"runtime"
 
 	"github.com/gohugoio/hugo/common/hexec"
@@ -65,9 +66,7 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 	binaryName, binaryPath := getRstBinaryNameAndPath()
 
 	if binaryName == "" {
-		logger.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
-			"                 Leaving reStructuredText content unrendered.")
-		return src, nil
+		return nil, fmt.Errorf("rst2html / rst2html.py not found in $PATH, cannot render %q", ctx.DocumentName)
 	}
 
 	logger.Infoln("Rendering", ctx.DocumentName, "with", binaryName, "...")

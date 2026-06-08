@@ -136,40 +136,55 @@ docs/p1/sub/mymixcasetext2.txt
 }
 
 func TestPagesFromGoTmplAsciiDocAndSimilar(t *testing.T) {
-	files := `
+	supportsAsciiDoc, _ := asciidocext.Supports()
+	supportsPandoc := pandoc.Supports()
+	supportsRst := rst.Supports()
+
+	var contentGotmpl strings.Builder
+	var securityAllow []string
+	if supportsAsciiDoc {
+		contentGotmpl.WriteString("{{ $.AddPage (dict \"path\" \"asciidoc\" \"content\" (dict \"value\" \"Mark my words, #automation is essential#.\" \"mediaType\" \"text/asciidoc\" )) }}\n")
+		securityAllow = append(securityAllow, "'asciidoctor'")
+	}
+	if supportsPandoc {
+		contentGotmpl.WriteString("{{ $.AddPage (dict \"path\" \"pandoc\" \"content\" (dict \"value\" \"This ~~is deleted text.~~\" \"mediaType\" \"text/pandoc\" )) }}\n")
+		securityAllow = append(securityAllow, "'pandoc'")
+	}
+	if supportsRst {
+		contentGotmpl.WriteString("{{ $.AddPage (dict \"path\" \"rst\" \"content\" (dict \"value\" \"This is *bold*.\" \"mediaType\" \"text/rst\" )) }}\n")
+		securityAllow = append(securityAllow, "'rst2html'", "'python'")
+	}
+	contentGotmpl.WriteString("{{ $.AddPage (dict \"path\" \"org\" \"content\" (dict \"value\" \"the ability to use +strikethrough+ is a plus\" \"mediaType\" \"text/org\" )) }}\n")
+	contentGotmpl.WriteString("{{ $.AddPage (dict \"path\" \"nocontent\" \"title\" \"No Content\" ) }}\n")
+
+	files := fmt.Sprintf(`
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 baseURL = "https://example.com"
 [security]
 [security.exec]
-allow = ['asciidoctor', 'pandoc','rst2html', 'python']
+allow = [%s]
 -- layouts/single.html --
 |Content: {{ .Content }}|Title: {{ .Title }}|Path: {{ .Path }}|
 -- content/docs/_content.gotmpl --
-{{ $.AddPage (dict "path" "asciidoc" "content" (dict "value" "Mark my words, #automation is essential#." "mediaType" "text/asciidoc" )) }}
-{{ $.AddPage (dict "path" "pandoc" "content" (dict "value" "This ~~is deleted text.~~" "mediaType" "text/pandoc" )) }}
-{{ $.AddPage (dict "path" "rst" "content" (dict "value" "This is *bold*." "mediaType" "text/rst" )) }}
-{{ $.AddPage (dict "path" "org" "content" (dict "value" "the ability to use +strikethrough+ is a plus" "mediaType" "text/org" )) }}
-{{ $.AddPage (dict "path" "nocontent" "title" "No Content" ) }}
-
-	`
+%s
+`, strings.Join(securityAllow, ", "), contentGotmpl.String())
 
 	b := hugolib.Test(t, files)
 
-	if ok, _ := asciidocext.Supports(); ok {
+	if supportsAsciiDoc {
 		b.AssertFileContent("public/docs/asciidoc/index.html",
 			"Mark my words, <mark>automation is essential</mark>",
 			"Path: /docs/asciidoc|",
 		)
 	}
-	if pandoc.Supports() {
+	if supportsPandoc {
 		b.AssertFileContent("public/docs/pandoc/index.html",
 			"This <del>is deleted text.</del>",
 			"Path: /docs/pandoc|",
 		)
 	}
-
-	if rst.Supports() {
+	if supportsRst {
 		b.AssertFileContent("public/docs/rst/index.html",
 			"This is <em>bold</em>",
 			"Path: /docs/rst|",
