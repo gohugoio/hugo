@@ -84,7 +84,7 @@ func IsFeatureNotAvailableError(err error) bool {
 //
 // We will, at least to begin with, make some Hugo features (SCSS with libsass) optional,
 // and this error is used to signal those situations.
-var ErrFeatureNotAvailable = &FeatureNotAvailableError{Cause: errors.New("this feature is not available in your current Hugo version, see https://goo.gl/YMrWcn for more information")}
+var ErrFeatureNotAvailable = &FeatureNotAvailableError{Cause: errors.New("this feature is not available in this edition of Hugo")}
 
 // FeatureNotAvailableError is an error type used to signal that a feature is not available.
 type FeatureNotAvailableError struct {
