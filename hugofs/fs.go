@@ -244,6 +244,8 @@ func WrapFilesystem(container, content afero.Fs) afero.Fs {
 	return filesystemsWrapper{Fs: container, content: content}
 }
 
+var _ afero.Lstater = (*filesystemsWrapper)(nil)
+
 type filesystemsWrapper struct {
 	afero.Fs
 	content afero.Fs
@@ -251,6 +253,14 @@ type filesystemsWrapper struct {
 
 func (w filesystemsWrapper) UnwrapFilesystem() afero.Fs {
 	return w.content
+}
+
+func (w filesystemsWrapper) LstatIfPossible(name string) (os.FileInfo, bool, error) {
+	if lstater, ok := w.Fs.(afero.Lstater); ok {
+		return lstater.LstatIfPossible(name)
+	}
+	fi, err := w.Fs.Stat(name)
+	return fi, false, err
 }
 
 type ReadDirWithContextDir interface {
