@@ -47,6 +47,8 @@ func newGenCommand() *genCommand {
 
 		// Chroma flags.
 		style                  string
+		mode                   string
+		modeSelector           bool
 		highlightStyle         string
 		lineNumbersInlineStyle string
 		lineNumbersTableStyle  string
@@ -67,7 +69,26 @@ See https://gohugo.io/quick-reference/syntax-highlighting-styles/ for a preview 
 				if !slices.Contains(styles.Names(), style) {
 					return fmt.Errorf("invalid style: %s", style)
 				}
-				builder := styles.Get(style).Builder()
+				var chromaStyle *chroma.Style
+				if mode != "" {
+					var chromaMode chroma.Mode
+					switch mode {
+					case "light":
+						chromaMode = chroma.Light
+					case "dark":
+						chromaMode = chroma.Dark
+					default:
+						return fmt.Errorf("invalid mode: %s", mode)
+					}
+
+					chromaStyle = styles.GetForMode(style, chromaMode)
+					if chromaStyle.Mode() != chromaMode {
+						return fmt.Errorf("style %q does not have a %q mode", style, mode)
+					}
+				} else {
+					chromaStyle = styles.Get(style)
+				}
+				builder := chromaStyle.Builder()
 				if highlightStyle != "" {
 					builder.Add(chroma.LineHighlight, highlightStyle)
 				}
@@ -88,19 +109,52 @@ See https://gohugo.io/quick-reference/syntax-highlighting-styles/ for a preview 
 				}
 				options := []html.Option{
 					html.WithCSSComments(!omitClassComments),
-					html.WithCustomCSS(chromaCSSOverrides(style)),
 				}
+				if !modeSelector {
+					// Only needed for the shared-scope overlay; --modeSelector
+					// gives each mode its own scope and makes this redundant.
+					options = append(options, html.WithCustomCSS(chromaCSSOverrides(style)))
+				}
+
 				formatter := html.New(options...)
 
-				w := os.Stdout
-				fmt.Fprintf(w, "/* Generated using: hugo %s */\n\n", strings.Join(os.Args[1:], " "))
-				formatter.WriteCSS(w, style)
+				var buf bytes.Buffer
+				fmt.Fprintf(&buf, "/* Generated using: hugo %s */\n\n", strings.Join(os.Args[1:], " "))
+				formatter.WriteCSS(&buf, style)
+				css := buf.String()
+				if modeSelector {
+					// Scope every selector under a top level mode class, e.g. ".dark .chroma".
+					// This allows generating both light and dark stylesheets and toggling
+					// them with a parent class on the page.
+					// There's no upstream option for this (I think), so do string replacements for now.
+					// TODO(bep) upstream option for this.
+					var prefix string
+					switch style.Mode() {
+					case chroma.Light:
+						prefix = ".light "
+					case chroma.Dark:
+						prefix = ".dark "
+					default:
+						return fmt.Errorf("style %q does not have a %q mode", style.Name, mode)
+					}
+					replacer := strings.NewReplacer(
+						".bg {", prefix+".bg {",
+						".chroma ", prefix+".chroma ",
+					)
+					css = replacer.Replace(css)
+				}
+
+				fmt.Print(css)
 				return nil
 			},
 			withc: func(cmd *cobra.Command, r *rootCommand) {
 				cmd.ValidArgsFunction = cobra.NoFileCompletions
 				cmd.PersistentFlags().StringVar(&style, "style", "friendly", "highlighter style")
 				_ = cmd.RegisterFlagCompletionFunc("style", cobra.NoFileCompletions)
+				cmd.PersistentFlags().StringVar(&mode, "mode", "", `style mode ("light", "dark")`)
+				_ = cmd.RegisterFlagCompletionFunc("mode", cobra.FixedCompletions([]string{"light", "dark"}, cobra.ShellCompDirectiveNoFileComp))
+				cmd.PersistentFlags().BoolVar(&modeSelector, "modeSelector", false, `scope selectors under a top level mode class, e.g. ".dark .chroma"`)
+				_ = cmd.RegisterFlagCompletionFunc("modeSelector", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "", `foreground and background colors for highlighted lines, e.g. --highlightStyle "#fff000 bg:#000fff"`)
 				_ = cmd.RegisterFlagCompletionFunc("highlightStyle", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&lineNumbersInlineStyle, "lineNumbersInlineStyle", "", `foreground and background colors for inline line numbers, e.g. --lineNumbersInlineStyle "#fff000 bg:#000fff"`)
@@ -276,6 +330,11 @@ url: %s
 	}
 }
 
+// chromaCSSOverrides re-emits leaf token colors that Chroma's minifier drops
+// because they equal the style's default foreground (the .chroma color). Without
+// modeSelector scoping, a paired light/dark stylesheet shares the same .chroma
+// scope, and the light sheet's explicit rule (e.g. .chroma .nx) would otherwise
+// leak into dark mode, since an explicit declaration beats inheritance.
 func chromaCSSOverrides(style *chroma.Style) map[chroma.TokenType]string {
 	bg := style.Get(chroma.Background)
 	m := make(map[chroma.TokenType]string)

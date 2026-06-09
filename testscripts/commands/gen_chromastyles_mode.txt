@@ -1,0 +1,24 @@
+# Dark mode, no mode selector: plain ".chroma" selectors.
+hugo gen chromastyles --style github --mode dark
+stdout '\.chroma'
+! stdout '\.dark'
+
+# Dark mode for style with no dark mode.
+! hugo gen chromastyles --style friendly --mode dark
+stderr 'style "friendly" does not have a "dark" mode'
+
+# Dark mode with mode selector: ".dark .chroma".
+hugo gen chromastyles --style github --mode dark --modeSelector
+stdout '\.dark \.chroma'
+
+# Light mode with mode selector: ".light .chroma".
+hugo gen chromastyles --style github --mode light --modeSelector
+stdout '\.light \.chroma'
+
+# --modeSelector without --mode on a default light style.
+hugo gen chromastyles --style github --modeSelector
+stdout '\.light \.chroma'
+
+# --modeSelector without --mode on a default dark style.
+hugo gen chromastyles --style ashen --modeSelector
+stdout '\.dark \.chroma'
