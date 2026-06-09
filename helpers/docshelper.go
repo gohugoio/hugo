@@ -31,11 +31,33 @@ func init() {
 
 		}
 
+		var styleInfos []styleInfo
+
+		for name := range styles.Registry {
+			style := styles.Registry[name]
+
+			styleInfos = append(styleInfos, styleInfo{
+				Name:        name,
+				Counterpart: style.Counterpart,
+				Mode:        style.Mode().String(),
+			})
+		}
+
+		sort.Slice(styleInfos, func(i, j int) bool {
+			return styleInfos[i].Name < styleInfos[j].Name
+		})
+
 		return docshelper.DocProvider{"chroma": map[string]any{
 			"lexers": chromaLexers,
-			"styles": styles.Names(),
+			"styles": styleInfos,
 		}}
 	}
 
 	docshelper.AddDocProviderFunc(docsProvider)
+}
+
+type styleInfo struct {
+	Name        string `json:"name"`
+	Mode        string `json:"mode"`
+	Counterpart string `json:"counterpart"`
 }

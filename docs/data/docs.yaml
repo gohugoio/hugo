@@ -58,6 +58,10 @@ chroma:
     - armasm
     Name: ArmAsm
   - Aliases:
+    - arturo
+    - art
+    Name: Arturo
+  - Aliases:
     - atl
     Name: ATL
   - Aliases:
@@ -318,6 +322,10 @@ chroma:
     - gd3
     Name: GDScript3
   - Aliases:
+    - gemfile-lock
+    - gemfilelock
+    Name: Gemfile.lock
+  - Aliases:
     - gemtext
     - gmi
     - gmni
@@ -455,6 +463,7 @@ chroma:
     Name: JavaScript
   - Aliases:
     - json
+    - jsonl
     Name: JSON
   - Aliases:
     - jsonata
@@ -493,6 +502,9 @@ chroma:
     - lighty
     - lighttpd
     Name: Lighttpd configuration file
+  - Aliases:
+    - lilypond
+    Name: LilyPond
   - Aliases:
     - llvm
     Name: LLVM
@@ -935,6 +947,9 @@ chroma:
     - csh
     Name: Tcsh
   - Aliases:
+    - templ
+    Name: Templ
+  - Aliases:
     - termcap
     Name: Termcap
   - Aliases:
@@ -1051,6 +1066,12 @@ chroma:
     - yaml
     Name: YAML
   - Aliases:
+    - yaml+jinja
+    - salt
+    - sls
+    - ansible
+    Name: YAML+Jinja
+  - Aliases:
     - yang
     Name: YANG
   - Aliases:
@@ -1063,80 +1084,228 @@ chroma:
     - zig
     Name: Zig
   styles:
-  - abap
-  - algol
-  - algol_nu
-  - arduino
-  - ashen
-  - aura-theme-dark
-  - aura-theme-dark-soft
-  - autumn
-  - average
-  - base16-snazzy
-  - borland
-  - bw
-  - catppuccin-frappe
-  - catppuccin-latte
-  - catppuccin-macchiato
-  - catppuccin-mocha
-  - colorful
-  - darcula
-  - doom-one
-  - doom-one2
-  - dracula
-  - emacs
-  - evergarden
-  - friendly
-  - fruity
-  - github
-  - github-dark
-  - gruvbox
-  - gruvbox-light
-  - hr_high_contrast
-  - hrdark
-  - igor
-  - kanagawa-dragon
-  - kanagawa-lotus
-  - kanagawa-wave
-  - lovelace
-  - manni
-  - modus-operandi
-  - modus-vivendi
-  - monokai
-  - monokailight
-  - murphy
-  - native
-  - nord
-  - nordic
-  - onedark
-  - onesenterprise
-  - paraiso-dark
-  - paraiso-light
-  - pastie
-  - perldoc
-  - pygments
-  - rainbow_dash
-  - rose-pine
-  - rose-pine-dawn
-  - rose-pine-moon
-  - rpgle
-  - rrt
-  - solarized-dark
-  - solarized-dark256
-  - solarized-light
-  - swapoff
-  - tango
-  - tokyonight-day
-  - tokyonight-moon
-  - tokyonight-night
-  - tokyonight-storm
-  - trac
-  - vim
-  - vs
-  - vulcan
-  - witchhazel
-  - xcode
-  - xcode-dark
+  - counterpart: ''
+    mode: light
+    name: abap
+  - counterpart: ''
+    mode: light
+    name: algol
+  - counterpart: ''
+    mode: light
+    name: algol_nu
+  - counterpart: ''
+    mode: light
+    name: arduino
+  - counterpart: ''
+    mode: dark
+    name: ashen
+  - counterpart: ''
+    mode: dark
+    name: aura-theme-dark
+  - counterpart: ''
+    mode: dark
+    name: aura-theme-dark-soft
+  - counterpart: ''
+    mode: light
+    name: autumn
+  - counterpart: ''
+    mode: dark
+    name: average
+  - counterpart: ''
+    mode: dark
+    name: base16-snazzy
+  - counterpart: ''
+    mode: light
+    name: borland
+  - counterpart: ''
+    mode: light
+    name: bw
+  - counterpart: ''
+    mode: dark
+    name: catppuccin-frappe
+  - counterpart: catppuccin-mocha
+    mode: light
+    name: catppuccin-latte
+  - counterpart: ''
+    mode: dark
+    name: catppuccin-macchiato
+  - counterpart: catppuccin-latte
+    mode: dark
+    name: catppuccin-mocha
+  - counterpart: ''
+    mode: light
+    name: colorful
+  - counterpart: ''
+    mode: dark
+    name: darcula
+  - counterpart: ''
+    mode: dark
+    name: doom-one
+  - counterpart: ''
+    mode: dark
+    name: doom-one2
+  - counterpart: ''
+    mode: dark
+    name: dracula
+  - counterpart: ''
+    mode: light
+    name: emacs
+  - counterpart: ''
+    mode: dark
+    name: evergarden
+  - counterpart: ''
+    mode: light
+    name: friendly
+  - counterpart: ''
+    mode: dark
+    name: fruity
+  - counterpart: github-dark
+    mode: light
+    name: github
+  - counterpart: github
+    mode: dark
+    name: github-dark
+  - counterpart: gruvbox-light
+    mode: dark
+    name: gruvbox
+  - counterpart: gruvbox
+    mode: light
+    name: gruvbox-light
+  - counterpart: ''
+    mode: light
+    name: hr_high_contrast
+  - counterpart: ''
+    mode: light
+    name: hrdark
+  - counterpart: ''
+    mode: light
+    name: igor
+  - counterpart: ''
+    mode: dark
+    name: kanagawa-dragon
+  - counterpart: kanagawa-wave
+    mode: light
+    name: kanagawa-lotus
+  - counterpart: kanagawa-lotus
+    mode: dark
+    name: kanagawa-wave
+  - counterpart: ''
+    mode: light
+    name: lovelace
+  - counterpart: ''
+    mode: light
+    name: manni
+  - counterpart: modus-vivendi
+    mode: light
+    name: modus-operandi
+  - counterpart: modus-operandi
+    mode: dark
+    name: modus-vivendi
+  - counterpart: monokailight
+    mode: dark
+    name: monokai
+  - counterpart: monokai
+    mode: light
+    name: monokailight
+  - counterpart: ''
+    mode: light
+    name: murphy
+  - counterpart: ''
+    mode: dark
+    name: native
+  - counterpart: ''
+    mode: dark
+    name: nord
+  - counterpart: ''
+    mode: dark
+    name: nordic
+  - counterpart: ''
+    mode: dark
+    name: onedark
+  - counterpart: ''
+    mode: light
+    name: onesenterprise
+  - counterpart: paraiso-light
+    mode: dark
+    name: paraiso-dark
+  - counterpart: paraiso-dark
+    mode: light
+    name: paraiso-light
+  - counterpart: ''
+    mode: light
+    name: pastie
+  - counterpart: ''
+    mode: light
+    name: perldoc
+  - counterpart: ''
+    mode: light
+    name: pygments
+  - counterpart: ''
+    mode: light
+    name: rainbow_dash
+  - counterpart: rose-pine-dawn
+    mode: dark
+    name: rose-pine
+  - counterpart: rose-pine
+    mode: light
+    name: rose-pine-dawn
+  - counterpart: ''
+    mode: dark
+    name: rose-pine-moon
+  - counterpart: ''
+    mode: light
+    name: rpgle
+  - counterpart: ''
+    mode: dark
+    name: rrt
+  - counterpart: solarized-light
+    mode: dark
+    name: solarized-dark
+  - counterpart: ''
+    mode: dark
+    name: solarized-dark256
+  - counterpart: solarized-dark
+    mode: light
+    name: solarized-light
+  - counterpart: ''
+    mode: dark
+    name: swapoff
+  - counterpart: ''
+    mode: light
+    name: tango
+  - counterpart: tokyonight-night
+    mode: light
+    name: tokyonight-day
+  - counterpart: ''
+    mode: dark
+    name: tokyonight-moon
+  - counterpart: tokyonight-day
+    mode: dark
+    name: tokyonight-night
+  - counterpart: ''
+    mode: dark
+    name: tokyonight-storm
+  - counterpart: ''
+    mode: light
+    name: trac
+  - counterpart: ''
+    mode: dark
+    name: vim
+  - counterpart: ''
+    mode: light
+    name: vs
+  - counterpart: ''
+    mode: dark
+    name: vulcan
+  - counterpart: ''
+    mode: dark
+    name: witchhazel
+  - counterpart: xcode-dark
+    mode: light
+    name: xcode
+  - counterpart: xcode
+    mode: dark
+    name: xcode-dark
 config:
   HTTPCache:
     cache:
