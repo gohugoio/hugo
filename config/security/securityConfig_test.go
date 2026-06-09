@@ -298,6 +298,41 @@ func TestCheckAllowedHTTPURLDigitHostnameIssue14837(t *testing.T) {
 	}
 }
 
+// Integer/hex/octal IPv4 encodings must be denied just like their dotted-decimal
+// literals; digit-leading hostnames must still be allowed. See issue 14856.
+func TestCheckAllowedHTTPURLIntegerIPEncodings(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	pc, err := DecodeConfig(config.New())
+	c.Assert(err, qt.IsNil)
+
+	for _, u := range []string{
+		"http://2130706433/",       // 127.0.0.1 decimal
+		"http://2130706433:9777/x", // 127.0.0.1 decimal, port
+		"http://2852039166/",       // 169.254.169.254 (cloud metadata)
+		"http://0x7f000001/",       // 127.0.0.1 hex
+		"http://017700000001/",     // 127.0.0.1 octal
+		"http://0x7f.0.0.1/",       // 127.0.0.1 dotted hex
+		"http://0177.0.0.1/",       // 127.0.0.1 dotted octal
+		"http://127.1/",            // 127.0.0.1 short form
+		"http://0/",                // 0.0.0.0
+		"http://0xa9fea9fe/",       // 169.254.169.254 hex
+	} {
+		err := pc.CheckAllowedHTTPURL(u)
+		c.Assert(err, qt.IsNotNil, qt.Commentf(u))
+	}
+
+	for _, u := range []string{
+		"https://1password.com/",
+		"https://37signals.com/foo",
+		"https://3com.com/",
+		"https://0x.tools/",
+	} {
+		c.Assert(pc.CheckAllowedHTTPURL(u), qt.IsNil, qt.Commentf(u))
+	}
+}
+
 func TestCheckAllowedContent(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
