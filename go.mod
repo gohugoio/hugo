@@ -73,11 +73,11 @@ require (
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
-	golang.org/x/image v0.41.0
+	golang.org/x/image v0.42.0
 	golang.org/x/mod v0.36.0
 	golang.org/x/net v0.55.0
-	golang.org/x/sync v0.20.0
-	golang.org/x/text v0.37.0
+	golang.org/x/sync v0.21.0
+	golang.org/x/text v0.38.0
 	golang.org/x/tools v0.45.0
 	google.golang.org/api v0.276.0
 	rsc.io/qr v0.2.0
