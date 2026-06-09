@@ -3,6 +3,7 @@
 ln ./rootfile.txt ./themes/mytheme/assets/modassetsymlink.txt
 ln ./rootfile.txt ./themes/mytheme/static/modstaticsymlink.txt
 ln ./README.md ./content/pagesymlink.md
+ln ./rootdir ./assets/myassets/symlinkdir
 
 hugo
 
@@ -27,13 +28,30 @@ Read me.
 -- layouts/all.html --
 {{ with resources.Get "modassetok.txt"}}OK {{ .Publish }}{{ else }}FAIL{{ end }}
 {{ with resources.Get "modassetsymlink.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
+{{ with resources.GetMatch "modassetsymlink.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
+{{ with resources.GetMatch "myassets/symlinkdir/**"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
 Page: {{ .RelPermalink }}|{{ .Content }}|
+
+{{/* os template package. */}}
+{{ $symFilePath := "content/pagesymlink.md" }} 
+
+{{ with os.ReadDir "assets/myassets/symlinkdir" }}FAIL {{ len . }}{{ else }}OK{{ end }}
+{{ with os.Stat $symFilePath }}FAIL{{ else }}OK{{ end }}
+{{ with os.ReadFile $symFilePath }}FAIL{{ else }}OK{{ end }}
+{{ with os.FileExists $symFilePath }}FAIL{{ else }}OK{{ end }}
+
 -- content/pageok.md --
 -- themes/mytheme/assets/modassetok.txt --
 Content.
 -- themes/mytheme/static/modstatictok.txt --
 Content.
 -- rootfile.txt --
-Roo Content.
+Root Content.
+-- assets/myassets/myfile.txt --
+My file.
+-- rootdir/rootdirfile1.txt --
+Rootdirfile1 content.
+-- rootdir/rootdirfile2.txt --
+Rootdirfile2 content.
 
 

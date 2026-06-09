@@ -46,6 +46,7 @@ func NewComponentFs(opts ComponentFsOptions) *componentFs {
 var (
 	_ FilesystemUnwrapper   = (*componentFs)(nil)
 	_ ReadDirWithContextDir = (*componentFsDir)(nil)
+	_ afero.Lstater         = (*componentFs)(nil)
 )
 
 // componentFs is a filesystem that holds one of the Hugo components, e.g. content, layouts etc.
@@ -305,6 +306,23 @@ func (fs *componentFs) Stat(name string) (os.FileInfo, error) {
 	}
 	fim, _ := fs.applyMeta(fi, name)
 	return fim, nil
+}
+
+func (fs *componentFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
+	if lstater, ok := fs.Fs.(afero.Lstater); ok {
+		fi, b, err := lstater.LstatIfPossible(name)
+		if err != nil {
+			return nil, false, err
+		}
+		fim, ok := fs.applyMeta(fi, name)
+		if !ok {
+			return nil, false, os.ErrNotExist
+		}
+		return fim, b, nil
+	}
+
+	fi, err := fs.Stat(name)
+	return fi, false, err
 }
 
 func (fs *componentFs) applyMeta(fi FileNameIsDir, name string) (FileMetaInfo, bool) {
