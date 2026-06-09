@@ -136,7 +136,7 @@ func (ns *Namespace) FileExists(i any) (bool, error) {
 	}
 
 	if path == "" {
-		return false, errors.New("fileExists needs a path to a file")
+		return false, nil
 	}
 
 	status, err := afero.Exists(ns.readFileFs, path)
@@ -155,7 +155,7 @@ func (ns *Namespace) Stat(i any) (_os.FileInfo, error) {
 	}
 
 	if path == "" {
-		return nil, errors.New("fileStat needs a path to a file")
+		return nil, nil
 	}
 
 	r, err := ns.readFileFs.Stat(path)

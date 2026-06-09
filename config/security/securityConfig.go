@@ -18,8 +18,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/netip"
+	"net/url"
 	"reflect"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -189,15 +192,100 @@ func (c Config) CheckAllowedGetEnv(name string) error {
 	return nil
 }
 
-func (c Config) CheckAllowedHTTPURL(url string) error {
-	if !c.HTTP.URLs.Accept(url) {
+func (c Config) CheckAllowedHTTPURL(u string) error {
+	deny := func(name string) error {
 		return &AccessDeniedError{
-			name:     url,
+			name:     name,
 			path:     "security.http.urls",
 			policies: c.ToTOML(),
 		}
 	}
+	if !c.HTTP.URLs.Accept(u) {
+		return deny(u)
+	}
+	// A host can be written as an integer/hex/octal IPv4 literal
+	// (e.g. http://2130706433/ == http://127.0.0.1/) that has no dot and
+	// thus slips past IP-literal deny rules. Re-check the canonical form so
+	// the policy treats every encoding of the same address alike.
+	if canon, ok := canonicalIPv4URL(u); ok && !c.HTTP.URLs.Accept(canon) {
+		return deny(u)
+	}
 	return nil
+}
+
+// canonicalIPv4URL rewrites an integer/hex/octal IPv4 host in rawURL to its
+// canonical dotted-decimal form (inet_aton semantics), returning ok=false when
+// the host is a normal name or already dotted-decimal.
+func canonicalIPv4URL(rawURL string) (string, bool) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return "", false
+	}
+	host := u.Hostname()
+	ip, ok := parseInetAtonIPv4(host)
+	if !ok || ip.String() == host {
+		return "", false
+	}
+	if port := u.Port(); port != "" {
+		u.Host = ip.String() + ":" + port
+	} else {
+		u.Host = ip.String()
+	}
+	return u.String(), true
+}
+
+// parseInetAtonIPv4 parses the inet_aton IPv4 forms (1–4 dot-separated parts,
+// each decimal, octal "0..." or hex "0x..."), e.g. "2130706433", "0x7f.0.0.1".
+func parseInetAtonIPv4(host string) (netip.Addr, bool) {
+	if host == "" {
+		return netip.Addr{}, false
+	}
+	parts := strings.Split(host, ".")
+	if len(parts) > 4 {
+		return netip.Addr{}, false
+	}
+	vals := make([]uint64, len(parts))
+	for i, p := range parts {
+		v, ok := parseCInt(p)
+		if !ok {
+			return netip.Addr{}, false
+		}
+		vals[i] = v
+	}
+	maxLast := []uint64{0xffffffff, 0xffffff, 0xffff, 0xff}[len(parts)-1]
+	var n uint64
+	for i, v := range vals {
+		if i == len(parts)-1 {
+			if v > maxLast {
+				return netip.Addr{}, false
+			}
+			n |= v
+		} else {
+			if v > 0xff {
+				return netip.Addr{}, false
+			}
+			n |= v << (8 * (3 - i))
+		}
+	}
+	return netip.AddrFrom4([4]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)}), true
+}
+
+func parseCInt(s string) (uint64, bool) {
+	base := 10
+	switch {
+	case len(s) >= 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X'):
+		base, s = 16, s[2:]
+	case len(s) >= 2 && s[0] == '0':
+		base, s = 8, s[1:]
+	}
+	if s == "" {
+		return 0, false
+	}
+	v, err := strconv.ParseUint(s, base, 64)
+	if err != nil {
+		return 0, false
+	}
+	return v, true
 }
 
 func (c Config) CheckAllowedHTTPMethod(method string) error {
