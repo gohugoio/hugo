@@ -43,7 +43,7 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(`echo "Hugo Rocks!"`, "bash", "")
-		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></span></span></code></pre></div>`)
+		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma dark"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></span></span></code></pre></div>`)
 		result, _ = h.Highlight(`echo "Hugo Rocks!"`, "unknown", "")
 		c.Assert(result, qt.Equals, `<pre tabindex="0"><code class="language-unknown" data-lang="unknown">echo &#34;Hugo Rocks!&#34;</code></pre>`)
 	})
@@ -54,7 +54,7 @@ User-Agent: foo
 		h := New(cfg)
 
 		result, _ := h.Highlight(lines, "bash", "linenos=table,hl_lines=2 4-5,linenostart=3")
-		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class")
+		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma dark\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma dark\"><code><span class")
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">4")
 
 		result, _ = h.Highlight(lines, "bash", "linenos=inline,hl_lines=2")

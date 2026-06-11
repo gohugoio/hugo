@@ -30,21 +30,6 @@ import (
 	"github.com/gohugoio/hugo/compare"
 )
 
-// formatDuration formats a duration with exactly 2 decimal places.
-// Units are padded to 2 characters so decimal points align in tables.
-func formatDuration(d time.Duration) string {
-	switch {
-	case d >= time.Second:
-		return fmt.Sprintf("%.2fs ", d.Seconds())
-	case d >= time.Millisecond:
-		return fmt.Sprintf("%.2fms", float64(d.Nanoseconds())/float64(time.Millisecond))
-	case d >= time.Microsecond:
-		return fmt.Sprintf("%.2fµs", float64(d.Nanoseconds())/float64(time.Microsecond))
-	default:
-		return fmt.Sprintf("%.2fns", float64(d.Nanoseconds()))
-	}
-}
-
 // The Provider interface defines an interface for measuring metrics.
 type Provider interface {
 	// MeasureSince adds a measurement for key to the metric store.
@@ -195,9 +180,9 @@ func (s *Store) WriteMetrics(w io.Writer) {
 	sort.Sort(bySum(results))
 	for _, v := range results {
 		if s.calculateHints {
-			fmt.Fprintf(w, "  %15s  %12s  %12s  %9d  %7.f  %6d  %5d  %s\n", formatDuration(v.sum), formatDuration(v.avg), formatDuration(v.max), v.cacheFactor, float64(v.cacheCount)/float64(v.count)*100, v.cacheCount, v.count, v.key)
+			fmt.Fprintf(w, "  %15s  %12s  %12s  %9d  %7.f  %6d  %5d  %s\n", v.sum, v.avg, v.max, v.cacheFactor, float64(v.cacheCount)/float64(v.count)*100, v.cacheCount, v.count, v.key)
 		} else {
-			fmt.Fprintf(w, "  %15s  %12s  %12s  %5d  %s\n", formatDuration(v.sum), formatDuration(v.avg), formatDuration(v.max), v.count, v.key)
+			fmt.Fprintf(w, "  %15s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
 		}
 	}
 }

@@ -189,7 +189,7 @@ unsafe = true
 	c.Assert(got, qt.Contains, `<h2 id="神真美好-2">神真美好</h2>`, qt.Commentf(got))
 
 	// Code fences
-	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>")
+	c.Assert(got, qt.Contains, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma dark\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>")
 	c.Assert(got, qt.Contains, "Code Fences No Lexer</h2>\n<pre tabindex=\"0\"><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>")
 
 	// Extensions
@@ -326,7 +326,7 @@ func TestConvertAttributes(t *testing.T) {
 				conf.Highlight.NoClasses = false
 			},
 			"```bash {linenos=table, anchorlinenos=true, lineanchors=org-coderef--xyz}\necho 'foo';\n```",
-			"<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class=\"lnt\" id=\"org-coderef--xyz-1\"><a href=\"#org-coderef--xyz-1\">1</a>\n</span></code></pre></td>\n<td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s1\">&#39;foo&#39;</span><span class=\"p\">;</span>\n</span></span></code></pre></td></tr></table>\n</div>\n</div>",
+			"<div class=\"highlight\"><div class=\"chroma dark\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma dark\"><code><span class=\"lnt\" id=\"org-coderef--xyz-1\"><a href=\"#org-coderef--xyz-1\">1</a>\n</span></code></pre></td>\n<td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma dark\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s1\">&#39;foo&#39;</span><span class=\"p\">;</span>\n</span></span></code></pre></td></tr></table>\n</div>\n</div>",
 		},
 		{
 			"Code block, CodeFences=true,lineanchors, default ordinal",
@@ -481,14 +481,14 @@ noclasses=false
 
 		result := convertForConfig(c, confStr, `echo "Hugo Rocks!"`, "bash")
 		// TODO(bep) there is a whitespace mismatch (\n) between this and the highlight template func.
-		c.Assert(result, qt.Equals, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s2\">&#34;Hugo Rocks!&#34;</span>\n</span></span></code></pre></div>")
+		c.Assert(result, qt.Equals, "<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma dark\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\"><span class=\"nb\">echo</span> <span class=\"s2\">&#34;Hugo Rocks!&#34;</span>\n</span></span></code></pre></div>")
 		result = convertForConfig(c, confStr, `echo "Hugo Rocks!"`, "unknown")
 		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code class=\"language-unknown\" data-lang=\"unknown\">echo &#34;Hugo Rocks!&#34;\n</code></pre>")
 	})
 
 	c.Run("Highlight lines, default config", func(c *qt.C) {
 		result := convertForConfig(c, cfgStrHighlichgtNoClasses, lines, `bash {linenos=table,hl_lines=[2 "4-5"],linenostart=3}`)
-		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class")
+		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma dark\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma dark\"><code><span class")
 		c.Assert(result, qt.Contains, "<span class=\"hl\"><span class=\"lnt\">4")
 
 		result = convertForConfig(c, cfgStrHighlichgtNoClasses, lines, "bash {linenos=inline,hl_lines=[2]}")

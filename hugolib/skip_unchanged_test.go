@@ -60,6 +60,7 @@ Home: {{ .Title }}|
 			TxtarString: files,
 			BaseCfg:     cfg,
 			NeedsOsFS:   true, // Need real FS for mtime comparison
+			Running:     true,
 		},
 	).Build()
 
@@ -126,6 +127,7 @@ Home.
 			TxtarString: files,
 			BaseCfg:     cfg,
 			NeedsOsFS:   true,
+			Running:     true,
 		},
 	).Build()
 

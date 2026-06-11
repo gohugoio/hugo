@@ -1741,26 +1741,8 @@ func (s *Site) shouldBuild(p page.Page) bool {
 	if !s.conf.IsKindEnabled(p.Kind()) {
 		return false
 	}
-	now := htime.Now()
-	if !s.Conf.BuildDrafts() && p.Draft() {
-		s.Log.Debugf("skip draft page %q", p.Path())
-		return false
-	}
-	if !s.Conf.BuildFuture() {
-		if pd := p.PublishDate(); !pd.IsZero() && pd.After(now) {
-			s.Log.Debugf("skip future page %q: not to be published before %s, time is now %s",
-				p.Path(), pd.Format(time.TimeOnly), now.Format(time.TimeOnly))
-			return false
-		}
-	}
-	if !s.Conf.BuildExpired() {
-		if ed := p.ExpiryDate(); !ed.IsZero() && ed.Before(now) {
-			s.Log.Debugf("skip expired page %q: expired at %s, time is now %s",
-				p.Path(), ed.Format(time.TimeOnly), now.Format(time.TimeOnly))
-			return false
-		}
-	}
-	return true
+	return shouldBuild(s.Conf.BuildFuture(), s.Conf.BuildExpired(),
+		s.Conf.BuildDrafts(), p.Draft(), p.PublishDate(), p.ExpiryDate())
 }
 
 func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,

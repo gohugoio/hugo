@@ -225,7 +225,7 @@ LINE8
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html",
-		"<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>",
+		"<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma dark\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>",
 		"Code Fences No Lexer</h2>\n<pre tabindex=\"0\"><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>",
 		"lnt",
 	)

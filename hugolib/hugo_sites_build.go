@@ -397,7 +397,6 @@ func (h *HugoSites) assemble(ctx context.Context, l logg.LevelLogger, bcfg *Buil
 // render renders the sites.
 func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 	l = l.WithField("step", "render")
-	l.Logf("starting render phase")
 	start := time.Now()
 	defer func() {
 		loggers.TimeTrackf(l, start, h.buildCounters.loggFields(), "")
@@ -449,19 +448,16 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 				case <-h.Done():
 					return nil
 				default:
-					l.Logf("preparing pages for render")
 					for s2 := range h.allSites(nil) {
 						if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
 							return err
 						}
 					}
-					l.Logf("pages prepared, starting page rendering")
 					if !config.SkipRender {
 						ll := l.WithField("substep", "pages").
 							WithField("site", s.language.Lang).
 							WithField("outputFormat", renderFormat.Name)
 
-						l.Logf(">>> rendering site=%s format=%s", s.language.Lang, renderFormat.Name)
 						start := time.Now()
 
 						if config.PartialReRender {
@@ -473,7 +469,6 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 								return renderErr(err)
 							}
 						}
-						l.Logf("<<< done site=%s format=%s took=%v", s.language.Lang, renderFormat.Name, time.Since(start))
 						loggers.TimeTrackf(ll, start, nil, "")
 					}
 				}

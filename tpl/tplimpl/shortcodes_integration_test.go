@@ -210,7 +210,7 @@ An inline {{< highlight go "hl_inline=true" >}}fmt.Println("Value of i:", i)Hell
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/p1/index.html", "4f7e70e3bc7702fc")
-	b.AssertFileContent("public/p2/index.html", "3f97c98e654f23a2")
+	b.AssertFileContent("public/p2/index.html", "a9f2594afc77fc8f")
 	b.AssertFileContent("public/p3/index.html", "21d109753ff1b086")
 	b.AssertFileContent("public/p4/index.html", "a6df524f21db7044")
 	b.AssertFileContent("public/p5/index.html", "db2d5cc19d163217")
