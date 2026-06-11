@@ -559,7 +559,12 @@ func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
 func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
 	s.Helper()
 	var buff bytes.Buffer
-	s.Assert(s.printAndCheckFs(fs, "", &buff), qt.IsNil)
+	if err := s.printAndCheckFs(fs, "", &buff); err != nil {
+		// E.g. public not created, treat that as an empty dir.
+		if !errors.Is(err, os.ErrNotExist) {
+			s.Fatal(err)
+		}
+	}
 	printFsLines := strings.Split(buff.String(), "\n")
 	sort.Strings(printFsLines)
 	content := strings.TrimSpace((strings.Join(printFsLines, "\n")))
@@ -589,7 +594,7 @@ func (s *IntegrationTestBuilder) printAndCheckFs(fs afero.Fs, path string, w io.
 
 	return afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("error: path %q: %s", path, err)
+			return err
 		}
 		path = filepath.ToSlash(path)
 		if path == "" {
