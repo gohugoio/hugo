@@ -14,6 +14,7 @@
 package segments_test
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -74,6 +75,64 @@ tags: ["tag1", "tag2"]
 	b.AssertFileExists("public/index.xml", true)
 	b.AssertFileExists("public/no/index.html", true)
 	b.AssertFileExists("public/no/index.xml", false)
+}
+
+// See issue 15024.
+func TestSegmentsMultiple(t *testing.T) {
+	filesTemplate := `
+-- hugo.toml --
+renderSegments = SEGMENTS
+disableKinds = ["home", "taxonomy", "term", "page"]
+[outputs]
+section = ['html', 'json']
+[segments]
+[segments.excludeallkinds]
+[[segments.excludeallkinds.excludes]]
+kind = "**"
+[segments.blog]
+[[segments.blog.includes]]
+path = "{/blog,/blog/**}"
+[[segments.blog.excludes]]
+output = 'json'
+[segments.news]
+[[segments.news.includes]]
+path = "{/news,/news/**}"
+-- layouts/all.html --
+{{ .Kind }}: {{ .Title }}|{{ .RelPermalink }}|
+-- layouts/all.json --
+{{ .Kind }}: {{ .Title }}|{{ .RelPermalink }}|
+-- content/blog/_index.md --
+-- content/blog/page1.md --
+---
+title: "Blog Page 1"
+tags: ["tag1", "tag2"]
+---
+-- content/news/_index.md --
+-- content/news/page1.md --
+---
+title: "News Page 1"
+tags: ["tag1", "tag2"]
+---
+`
+	files := strings.ReplaceAll(filesTemplate, "SEGMENTS", `["excludeallkinds", "blog", "news"]`)
+
+	b := hugolib.Test(t, files, hugolib.TestOptInfo())
+
+	b.AssertPublishDir(`
+blog/index.html
+! blog/index.json
+news/index.html
+news/index.json
+`)
+
+	files = strings.ReplaceAll(filesTemplate, "SEGMENTS", `["excludeallkinds"]`)
+
+	b = hugolib.Test(t, files, hugolib.TestOptInfo())
+
+	b.AssertPublishDir(`
+! json
+! html
+`)
 }
 
 // See issue 14939.
