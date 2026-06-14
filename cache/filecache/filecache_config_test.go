@@ -130,9 +130,9 @@ func TestDecodeConfigDefault(t *testing.T) {
 	miscConfig := decoded[filecache.CacheKeyMisc]
 
 	if runtime.GOOS == "windows" {
-		c.Assert(imgConfig.DirCompiled, qt.Equals, filepath.FromSlash("_gen/images"))
+		c.Assert(imgConfig.DirCompiled, qt.Equals, filepath.FromSlash("c:\\cache\\resources\\_gen/images"))
 	} else {
-		c.Assert(imgConfig.DirCompiled, qt.Equals, "_gen/images")
+		c.Assert(imgConfig.DirCompiled, qt.Equals, "/cache/resources/_gen/images")
 		c.Assert(miscConfig.DirCompiled, qt.Equals, "/cache/thecache/hugoproject/filecache/misc")
 	}
 
