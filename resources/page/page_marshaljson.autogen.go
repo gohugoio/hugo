@@ -26,7 +26,6 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	lastmod := p.Lastmod()
 	publishDate := p.PublishDate()
 	expiryDate := p.ExpiryDate()
-	aliases := p.Aliases()
 	bundleType := p.BundleType()
 	description := p.Description()
 	draft := p.Draft()
@@ -36,10 +35,10 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	layout := p.Layout()
 	linkTitle := p.LinkTitle()
 	isNode := p.IsNode()
+	isBranch := p.IsBranch()
 	isPage := p.IsPage()
 	path := p.Path()
 	slug := p.Slug()
-	lang := p.Lang()
 	isSection := p.IsSection()
 	section := p.Section()
 	sitemap := p.Sitemap()
@@ -51,7 +50,6 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Lastmod     time.Time
 		PublishDate time.Time
 		ExpiryDate  time.Time
-		Aliases     []string
 		BundleType  string
 		Description string
 		Draft       bool
@@ -61,10 +59,10 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Layout      string
 		LinkTitle   string
 		IsNode      bool
+		IsBranch    bool
 		IsPage      bool
 		Path        string
 		Slug        string
-		Lang        string
 		IsSection   bool
 		Section     string
 		Sitemap     config.SitemapConfig
@@ -75,7 +73,6 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Lastmod:     lastmod,
 		PublishDate: publishDate,
 		ExpiryDate:  expiryDate,
-		Aliases:     aliases,
 		BundleType:  bundleType,
 		Description: description,
 		Draft:       draft,
@@ -85,10 +82,10 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Layout:      layout,
 		LinkTitle:   linkTitle,
 		IsNode:      isNode,
+		IsBranch:    isBranch,
 		IsPage:      isPage,
 		Path:        path,
 		Slug:        slug,
-		Lang:        lang,
 		IsSection:   isSection,
 		Section:     section,
 		Sitemap:     sitemap,

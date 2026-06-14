@@ -24,24 +24,25 @@ import (
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the os-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	var readFileFs, workFs afero.Fs
+	var readFileFs, workFs *hugofs.DropSymlinksFs
 
 	// The docshelper script does not have or need all the dependencies set up.
 	if d.PathSpec != nil {
-		readFileFs = overlayfs.New(overlayfs.Options{
+		readFileFs = hugofs.NewDropSymlinksFs(overlayfs.New(overlayfs.Options{
 			Fss: []afero.Fs{
 				d.PathSpec.BaseFs.Work,
 				d.PathSpec.BaseFs.Content.Fs,
 			},
-		})
+		}))
 		// See #9599
-		workFs = d.PathSpec.BaseFs.WorkDir
+		workFs = hugofs.NewDropSymlinksFs(d.PathSpec.BaseFs.WorkDir)
 	}
 
 	return &Namespace{
@@ -53,8 +54,8 @@ func New(d *deps.Deps) *Namespace {
 
 // Namespace provides template functions for the "os" namespace.
 type Namespace struct {
-	readFileFs afero.Fs
-	workFs     afero.Fs
+	readFileFs *hugofs.DropSymlinksFs
+	workFs     *hugofs.DropSymlinksFs
 	deps       *deps.Deps
 }
 
@@ -118,6 +119,9 @@ func (ns *Namespace) ReadDir(i any) ([]_os.FileInfo, error) {
 
 	list, err := afero.ReadDir(ns.workFs, path)
 	if err != nil {
+		if herrors.IsNotExist(err) {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)
 	}
 
@@ -132,7 +136,7 @@ func (ns *Namespace) FileExists(i any) (bool, error) {
 	}
 
 	if path == "" {
-		return false, errors.New("fileExists needs a path to a file")
+		return false, nil
 	}
 
 	status, err := afero.Exists(ns.readFileFs, path)
@@ -151,11 +155,14 @@ func (ns *Namespace) Stat(i any) (_os.FileInfo, error) {
 	}
 
 	if path == "" {
-		return nil, errors.New("fileStat needs a path to a file")
+		return nil, nil
 	}
 
 	r, err := ns.readFileFs.Stat(path)
 	if err != nil {
+		if herrors.IsNotExist(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

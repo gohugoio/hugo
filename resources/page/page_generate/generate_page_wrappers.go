@@ -80,6 +80,7 @@ func generateMarshalJSON(c *codegen.Inspector) error {
 		"github.com/gohugoio/hugo/resources/page",
 		// Exclusion regexps. Matches method names.
 		`\bPage\b`,
+		`\bIsNode\b`,
 	)
 
 	fmt.Fprintf(f, `%s

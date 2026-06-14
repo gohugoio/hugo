@@ -16,6 +16,7 @@ package esbuild
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -301,9 +302,7 @@ OUTER:
 		loaders = make(map[string]api.Loader)
 		// Add default CSS file loaders.
 		// May be overridden by opts.Loaders.
-		for ext, loader := range extensionToLoaderMapCSS {
-			loaders[ext] = loader
-		}
+		maps.Copy(loaders, extensionToLoaderMapCSS)
 	}
 	if opts.Loaders != nil {
 		if loaders == nil {

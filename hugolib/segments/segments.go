@@ -44,17 +44,35 @@ type SegmentFilter interface {
 	ShouldExcludeFine(SegmentQuery) bool
 }
 
-type segmentFilter struct {
-	exclude predicate.PR[SegmentQuery]
+type segmentPredicate struct {
 	include predicate.PR[SegmentQuery]
+	exclude predicate.PR[SegmentQuery]
 }
 
+type segmentFilter struct {
+	segments []segmentPredicate
+}
+
+// ShouldExcludeCoarse skips a whole site or output format only if every
+// segment excludes it; a single segment that doesn't is enough to keep it.
 func (f segmentFilter) ShouldExcludeCoarse(q SegmentQuery) bool {
-	return f.exclude(q).OK()
+	for _, s := range f.segments {
+		if !s.exclude(q).OK() {
+			return false
+		}
+	}
+	return true
 }
 
+// ShouldExcludeFine renders the query if any segment includes it and does not
+// exclude it.
 func (f segmentFilter) ShouldExcludeFine(q SegmentQuery) bool {
-	return f.exclude(q).OK() || !f.include(q).OK()
+	for _, s := range f.segments {
+		if s.include(q).OK() && !s.exclude(q).OK() {
+			return false
+		}
+	}
+	return true
 }
 
 type segmentsBuilder struct {
@@ -204,23 +222,17 @@ func (s *segmentsBuilder) build() (SegmentFilter, error) {
 		if err != nil {
 			return nil, err
 		}
-		if sf.include == nil {
-			sf.include = include
-		} else {
-			sf.include = sf.include.Or(include)
+		if include == nil {
+			include = matchAll
 		}
-		if sf.exclude == nil {
-			sf.exclude = exclude
-		} else {
-			sf.exclude = sf.exclude.Or(exclude)
+		if exclude == nil {
+			exclude = matchNothing
 		}
+		sf.segments = append(sf.segments, segmentPredicate{include: include, exclude: exclude})
 	}
 
-	if sf.exclude == nil {
-		sf.exclude = matchNothing
-	}
-	if sf.include == nil {
-		sf.include = matchAll
+	if len(sf.segments) == 0 {
+		sf.segments = append(sf.segments, segmentPredicate{include: matchAll, exclude: matchNothing})
 	}
 
 	return sf, nil

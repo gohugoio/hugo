@@ -19,11 +19,11 @@ require (
 	github.com/bep/lazycache v0.8.1
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20401.20400
-	github.com/bep/overlayfs v0.10.0
+	github.com/bep/overlayfs v0.11.0
 	github.com/bep/simplecobra v0.7.0
 	github.com/bep/textandbinarywriter v0.1.0
 	github.com/bep/tmc v0.6.0
-	github.com/bits-and-blooms/bitset v1.24.4
+	github.com/bits-and-blooms/bitset v1.24.5
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/clbanning/mxj/v2 v2.7.0
 	github.com/dustin/go-humanize v1.0.1
@@ -32,7 +32,7 @@ require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.6
 	github.com/fsnotify/fsnotify v1.9.0
-	github.com/getkin/kin-openapi v0.138.0
+	github.com/getkin/kin-openapi v0.139.0
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.19.2
@@ -60,7 +60,7 @@ require (
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
 	github.com/pelletier/go-toml/v2 v2.3.1
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
-	github.com/rogpeppe/go-internal v1.14.1
+	github.com/rogpeppe/go-internal v1.15.0
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.10.2
@@ -68,16 +68,16 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/tdewolff/minify/v2 v2.24.13
 	github.com/tdewolff/parse/v2 v2.8.12
-	github.com/tetratelabs/wazero v1.11.1-0.20260521072212-475a1f8f0dc3
+	github.com/tetratelabs/wazero v1.12.0
 	github.com/yuin/goldmark v1.8.2
 	github.com/yuin/goldmark-emoji v1.0.6
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
-	golang.org/x/image v0.41.0
+	golang.org/x/image v0.42.0
 	golang.org/x/mod v0.36.0
 	golang.org/x/net v0.55.0
-	golang.org/x/sync v0.20.0
-	golang.org/x/text v0.37.0
+	golang.org/x/sync v0.21.0
+	golang.org/x/text v0.38.0
 	golang.org/x/tools v0.45.0
 	google.golang.org/api v0.276.0
 	rsc.io/qr v0.2.0
@@ -154,8 +154,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
-	github.com/oasdiff/yaml v0.0.9 // indirect
-	github.com/oasdiff/yaml3 v0.0.12 // indirect
+	github.com/oasdiff/yaml v0.1.0 // indirect
+	github.com/oasdiff/yaml3 v0.0.13 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
 	github.com/olekukonko/errors v1.2.0 // indirect
 	github.com/olekukonko/ll v0.1.6 // indirect
@@ -191,4 +191,4 @@ require (
 	software.sslmate.com/src/go-pkcs12 v0.7.0 // indirect
 )
 
-go 1.25.0
+go 1.26.0

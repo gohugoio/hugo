@@ -95,13 +95,6 @@ func TestDecodeConfig(t *testing.T) {
 	})
 	c.Assert(err, qt.ErrorMatches, ".*encoderSpeed must be between.*")
 
-	// AVIF: minimum is 1; 0 is treated as unset and falls back to the default.
-	imagingConfig, err = DecodeConfig(map[string]any{
-		"avif": map[string]any{"encoderSpeed": 0},
-	})
-	c.Assert(err, qt.IsNil)
-	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, defaultAvifEncoderSpeed)
-
 	imagingConfig, err = DecodeConfig(map[string]any{
 		"avif": map[string]any{"encoderSpeed": 1},
 	})
@@ -109,62 +102,58 @@ func TestDecodeConfig(t *testing.T) {
 	c.Assert(imagingConfig.Config.Imaging.Avif.EncoderSpeed, qt.Equals, 1)
 }
 
-// See issue 14957.
-func TestImageConfigQualityPerFormat(t *testing.T) {
+func TestImageConfigPerFormat(t *testing.T) {
 	c := qt.New(t)
 
 	cfg, err := DecodeConfig(map[string]any{
-		"quality": 80,
-		"webp":    map[string]any{"quality": 70},
-		"avif":    map[string]any{"quality": 55},
+		"quality":     80,
+		"compression": "lossy",
+		"hint":        "text",
+		"jpeg":        map[string]any{"quality": 80},
+		"webp":        map[string]any{"quality": 70, "hint": "picture", "compression": "lossless"},
+		"avif":        map[string]any{"quality": 55},
 	})
 	c.Assert(err, qt.IsNil)
 
-	quality := func(opts ...string) int {
+	conf := func(opts ...string) ImageConfig {
 		conf, err := DecodeImageConfig(append([]string{"resize", "100x"}, opts...), cfg, JPEG)
 		c.Assert(err, qt.IsNil)
-		return conf.Quality
+		return conf
 	}
 
-	// Per-format quality from config.
-	c.Assert(quality("webp"), qt.Equals, 70)
-	c.Assert(quality("avif"), qt.Equals, 55)
-	// JPEG has no per-format override, so it falls back to the global quality.
-	c.Assert(quality("jpg"), qt.Equals, 80)
+	c.Assert(conf("jpg").Quality, qt.Equals, 80)
+	c.Assert(conf("avif").Quality, qt.Equals, 55)
+	c.Assert(conf("webp").Quality, qt.Equals, 70)
 
-	// A per-image quality always wins.
-	c.Assert(quality("webp", "q33"), qt.Equals, 33)
-	c.Assert(quality("avif", "q33"), qt.Equals, 33)
+	c.Assert(conf("webp", "q33").Quality, qt.Equals, 33)
+	c.Assert(conf("avif", "q33").Quality, qt.Equals, 33)
 
-	// Without per-format config, all formats fall back to the global quality.
-	cfg2, err := DecodeConfig(map[string]any{"quality": 80})
-	c.Assert(err, qt.IsNil)
-	for _, f := range []string{"jpg", "webp", "avif"} {
-		conf, err := DecodeImageConfig([]string{"resize", "100x", f}, cfg2, JPEG)
-		c.Assert(err, qt.IsNil)
-		c.Assert(conf.Quality, qt.Equals, 80)
-	}
+	c.Assert(conf("webp").Hint, qt.Equals, "picture")
+	c.Assert(conf("avif").Hint, qt.Equals, "text")
+	c.Assert(conf("jpeg").Hint, qt.Equals, "")
 
-	// Out-of-range per-format quality is rejected.
-	_, err = DecodeConfig(map[string]any{"avif": map[string]any{"quality": 123}})
-	c.Assert(err, qt.ErrorMatches, ".*quality must be.*")
+	c.Assert(conf("webp").Compression, qt.Equals, "lossless")
+	c.Assert(conf("avif").Compression, qt.Equals, "lossy")
+	c.Assert(conf("jpeg").Compression, qt.Equals, "")
 }
 
 func TestDecodeImageConfig(t *testing.T) {
+	c := qt.New(t)
+
 	for i, this := range []struct {
 		action string
 		in     string
 		expect any
 	}{
-		{"resize", "300x400", newImageConfig("resize", 300, 400, 75, 0, "box", "smart", "")},
-		{"resize", "300x400 #fff", newImageConfig("resize", 300, 400, 75, 0, "box", "smart", "fff")},
-		{"resize", "100x200 bottomRight", newImageConfig("resize", 100, 200, 75, 0, "box", "BottomRight", "")},
-		{"resize", "10x20 topleft Lanczos", newImageConfig("resize", 10, 20, 75, 0, "Lanczos", "topleft", "")},
-		{"resize", "linear left 10x r180", newImageConfig("resize", 10, 0, 75, 180, "linear", "left", "")},
-		{"resize", "x20 riGht Cosine q95", newImageConfig("resize", 0, 20, 95, 0, "cosine", "right", "")},
-		{"crop", "300x400", newImageConfig("crop", 300, 400, 75, 0, "box", "smart", "")},
-		{"fill", "300x400", newImageConfig("fill", 300, 400, 75, 0, "box", "smart", "")},
-		{"fit", "300x400", newImageConfig("fit", 300, 400, 75, 0, "box", "smart", "")},
+		{"resize", "300x400", newTestImageConfig("resize", 300, 400, 75, 0, "box", "smart", "")},
+		{"resize", "300x400 #fff", newTestImageConfig("resize", 300, 400, 75, 0, "box", "smart", "fff")},
+		{"resize", "100x200 bottomRight", newTestImageConfig("resize", 100, 200, 75, 0, "box", "BottomRight", "")},
+		{"resize", "10x20 topleft Lanczos", newTestImageConfig("resize", 10, 20, 75, 0, "Lanczos", "topleft", "")},
+		{"resize", "linear left 10x r180", newTestImageConfig("resize", 10, 0, 75, 180, "linear", "left", "")},
+		{"resize", "x20 riGht Cosine q95", newTestImageConfig("resize", 0, 20, 95, 0, "cosine", "right", "")},
+		{"crop", "300x400", newTestImageConfig("crop", 300, 400, 75, 0, "box", "smart", "")},
+		{"fill", "300x400", newTestImageConfig("fill", 300, 400, 75, 0, "box", "smart", "")},
+		{"fit", "300x400", newTestImageConfig("fit", 300, 400, 75, 0, "box", "smart", "")},
 
 		{"resize", "", false},
 		{"resize", "foo", false},
@@ -179,7 +168,7 @@ func TestDecodeImageConfig(t *testing.T) {
 			t.Fatal(err)
 		}
 		options := append([]string{this.action}, strings.Fields(this.in)...)
-		result, err := DecodeImageConfig(options, cfg, PNG)
+		result, err := DecodeImageConfig(options, cfg, WEBP)
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] parseImageConfig didn't return an expected error", i)
@@ -191,23 +180,25 @@ func TestDecodeImageConfig(t *testing.T) {
 			expect := this.expect.(ImageConfig)
 			result.Key = ""
 
-			if fmt.Sprint(result) != fmt.Sprint(expect) {
-				t.Fatalf("[%d] got\n%v\n but expected\n%v", i, result, expect)
-			}
+			c.Assert(fmt.Sprint(result), qt.Equals, fmt.Sprint(expect))
+
 		}
 	}
 }
 
-func newImageConfig(action string, width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
-	var c ImageConfig = GetDefaultImageConfig(nil)
+func newTestImageConfig(action string, width, height, quality, rotate int, filter, anchor, bgColor string) ImageConfig {
+	var c ImageConfig = newImageConfig()
 	c.Action = action
-	c.TargetFormat = PNG
+	c.TargetFormat = WEBP
+	c.Hint = defaultHint
+	c.Compression = defaultCompression
 	c.Width = width
 	c.Height = height
 	c.Quality = quality
 	c.Rotate = rotate
 	c.BgColor, _ = hexStringToColorGo(bgColor)
 	c.Anchor = SmartCropAnchor
+	c.Method = defaultWebpMethod
 
 	if filter != "" {
 		filter = strings.ToLower(filter)

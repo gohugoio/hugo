@@ -263,11 +263,39 @@ func (c *convertCommand) convertContents(format metadecoders.Format) error {
 
 	site := c.h.Sites[0]
 
-	var pagesBackedByFile page.Pages
-	for _, p := range site.AllPages() {
+	workingDir := c.h.Sites[0].Deps.Conf.WorkingDir() + string(filepath.Separator)
+
+	isConvertible := func(p page.Page) bool {
+		// Skip pages not backed by a content file.
 		if p.File() == nil {
+			return false
+		}
+		// Skip content adapters.
+		if p.File().IsContentAdapter() {
+			return false
+		}
+		// Skip content files provided by modules, including vendored modules.
+		if !p.File().FileInfo().Meta().IsProject {
+			return false
+		}
+		// Skip content files in project mounts outside the working directory.
+		if !strings.HasPrefix(p.File().Filename(), workingDir) {
+			return false
+		}
+		return true
+	}
+
+	seen := make(map[string]bool)
+	var pagesBackedByFile page.Pages
+	for _, p := range c.h.Pages() {
+		if !isConvertible(p) {
 			continue
 		}
+		filename := p.File().Filename()
+		if seen[filename] {
+			continue
+		}
+		seen[filename] = true
 		pagesBackedByFile = append(pagesBackedByFile, p)
 	}
 
@@ -278,7 +306,7 @@ func (c *convertCommand) convertContents(format metadecoders.Format) error {
 	}
 
 	site.Log.Println("processing", len(pagesBackedByFile), "content files")
-	for _, p := range site.AllPages() {
+	for _, p := range pagesBackedByFile {
 		if err := c.convertAndSavePage(p, site, format); err != nil {
 			return err
 		}

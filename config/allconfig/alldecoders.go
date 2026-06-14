@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/cache/httpcache"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
@@ -87,8 +88,18 @@ var allDecoderSetups = map[string]decodeWeight{
 	"imaging": {
 		key: "imaging",
 		decode: func(d decodeWeight, p decodeConfig) error {
+			m := p.p.GetStringMap(d.key)
+			if _, found := m["quality"]; found {
+				hugo.DeprecateWithLogger("project config key imaging.quality", "Set the quality per format instead with imaging.jpeg.quality, imaging.webp.quality and/or imaging.avif.quality.", "v0.163.0", p.logger.Logger())
+			}
+			if _, found := m["compression"]; found {
+				hugo.DeprecateWithLogger("project config key imaging.compression", "Set the compression type per format instead with imaging.webp.compression and/or imaging.avif.compression.", "v0.163.0", p.logger.Logger())
+			}
+			if _, found := m["hint"]; found {
+				hugo.DeprecateWithLogger("project config key imaging.hint", "Set the hint per format instead with imaging.webp.hint and/or imaging.avif.hint.", "v0.163.0", p.logger.Logger())
+			}
 			var err error
-			p.c.Imaging, err = images.DecodeConfig(p.p.GetStringMap(d.key))
+			p.c.Imaging, err = images.DecodeConfig(m)
 			return err
 		},
 	},

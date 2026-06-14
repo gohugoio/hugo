@@ -197,6 +197,10 @@ func (s *Site) Debug() {
 
 // NewHugoSites creates HugoSites from the given config.
 func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
+	if !cfg.TestCfg.IsZero() && !cfg.IsIntegrationTest {
+		panic("DepsCfg.TestCfg must only be set in integration tests")
+	}
+
 	conf := cfg.Configs.GetFirstLanguageConfig()
 	rolesSorted := cfg.Configs.Base.Roles.Config.Sorted
 	versionsSorted := cfg.Configs.Base.Versions.Config.Sorted
@@ -257,6 +261,11 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 	compilationCacheDir := filepath.Join(conf.Dirs().CacheDir, "_warpc")
 
+	imageWasmMemory := 384 // 384 MiB (4096 MiB Max)
+	if m := cfg.TestCfg.WarpcMemory; m > 0 {
+		imageWasmMemory = m
+	}
+
 	firstSiteDeps := &deps.Deps{
 		Fs:   cfg.Fs,
 		Log:  logger,
@@ -280,7 +289,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			warpc.Options{
 				CompilationCacheDir: compilationCacheDir,
 				PoolSize:            poolSizeWebP,
-				Memory:              384, // 384 MiB (4096 MiB Max)
+				Memory:              imageWasmMemory,
 				Infof:               logger.InfoCommand("webp").Logf,
 				Warnf:               logger.WarnCommand("webp").Logf,
 			},
@@ -288,7 +297,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			warpc.Options{
 				CompilationCacheDir: compilationCacheDir,
 				PoolSize:            poolSizeAvif,
-				Memory:              384, // 384 MiB (4096 MiB Max)
+				Memory:              imageWasmMemory,
 				Infof:               logger.InfoCommand("avif").Logf,
 				Warnf:               logger.WarnCommand("avif").Logf,
 			},

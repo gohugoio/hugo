@@ -488,7 +488,7 @@ func (m *pageMap) forEachResourceInPage(
 
 	prefix := paths.AddTrailingSlash(ps.Path())
 
-	isBranch := ps.IsNode()
+	isBranch := ps.IsBranch()
 
 	rwr := &doctree.NodeShiftTreeWalker[contentNode]{
 		Tree:     m.treeResources,

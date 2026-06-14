@@ -367,7 +367,7 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 			case changes := <-c.r.changesFromBuild:
 				unlock, err := h.LockBuild()
 				if err != nil {
-					c.r.logger.Errorln("Failed to acquire a build lock: %s", err)
+					c.r.logger.Errorf("Failed to acquire a build lock: %s", err)
 					return
 				}
 				c.changeDetector.PrepareNew()
@@ -387,7 +387,7 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 			case evs := <-watcher.Events:
 				unlock, err := h.LockBuild()
 				if err != nil {
-					c.r.logger.Errorln("Failed to acquire a build lock: %s", err)
+					c.r.logger.Errorf("Failed to acquire a build lock: %s", err)
 					return
 				}
 				c.handleEvents(watcher, staticSyncer, evs, configSet)

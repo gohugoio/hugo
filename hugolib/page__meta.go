@@ -469,7 +469,12 @@ func (m *pageMeta) Name() string {
 }
 
 func (m *pageMeta) IsNode() bool {
-	return !m.IsPage()
+	hugo.Deprecate(".Page.IsNode", "Use .Page.IsBranch or not .Page.IsPage instead.", "v0.163.0")
+	return m.IsBranch()
+}
+
+func (m *pageMeta) IsBranch() bool {
+	return kinds.IsBranch(m.Kind())
 }
 
 func (m *pageMeta) IsPage() bool {

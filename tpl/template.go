@@ -95,7 +95,7 @@ type StringBool struct {
 }
 
 type page interface {
-	IsNode() bool
+	IsBranch() bool
 }
 
 type site interface {

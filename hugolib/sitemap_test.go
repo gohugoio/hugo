@@ -42,7 +42,10 @@ Doc2
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/sitemap.xml", " <loc>https://example.com/sect/doc1/</loc>", "doc2")
+	b.AssertFileContentStartsWith("public/sitemap.xml", `<?xml`) // Issue 14977
+	b.AssertFileContent("public/sitemap.xml",
+		"<loc>https://example.com/sect/doc1/</loc>", "doc2",
+	)
 }
 
 func TestSitemapMultilingual(t *testing.T) {
