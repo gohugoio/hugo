@@ -105,7 +105,7 @@ Install Hugo from a [prebuilt binary][], package manager, or package repository.
 To build Hugo from source you must install:
 
 1. [Git][]
-1. [Go][] version 1.25.0 or later
+1. [Go][] version 1.26.0 or later
 
 ### Standard edition
 

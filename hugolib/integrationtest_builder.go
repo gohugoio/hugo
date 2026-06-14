@@ -429,6 +429,16 @@ func (s *IntegrationTestBuilder) negate(match string) (string, bool) {
 	return match, negate
 }
 
+// AssertFileContentStartsWith asserts that the content of the given file starts with s.
+func (s *IntegrationTestBuilder) AssertFileContentStartsWith(filename, prefix string) {
+	s.Helper()
+	content := strings.TrimSpace(s.FileContent(filename))
+	cm := qt.Commentf("File: %s Expect:\n%s Got:\n%s\nWith Space Visuals:\n%s", filename, prefix, content, util.VisualizeSpaces([]byte(content)))
+	var negate bool
+	prefix, negate = s.negate(prefix)
+	s.Assert(strings.HasPrefix(content, prefix), qt.Equals, !negate, cm)
+}
+
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {
 	s.Helper()
 	content := strings.TrimSpace(s.FileContent(filename))
@@ -549,7 +559,12 @@ func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
 func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
 	s.Helper()
 	var buff bytes.Buffer
-	s.Assert(s.printAndCheckFs(fs, "", &buff), qt.IsNil)
+	if err := s.printAndCheckFs(fs, "", &buff); err != nil {
+		// E.g. public not created, treat that as an empty dir.
+		if !errors.Is(err, os.ErrNotExist) {
+			s.Fatal(err)
+		}
+	}
 	printFsLines := strings.Split(buff.String(), "\n")
 	sort.Strings(printFsLines)
 	content := strings.TrimSpace((strings.Join(printFsLines, "\n")))
@@ -579,7 +594,7 @@ func (s *IntegrationTestBuilder) printAndCheckFs(fs afero.Fs, path string, w io.
 
 	return afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("error: path %q: %s", path, err)
+			return err
 		}
 		path = filepath.ToSlash(path)
 		if path == "" {
@@ -947,7 +962,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		// In the full setup, this channel is created in the commands package.
 		changesFromBuild := make(chan []identity.Identity, 10)
 
-		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), StdErr: logger.StdErr(), ChangesFromBuild: changesFromBuild, IsIntegrationTest: true}
+		depsCfg := deps.DepsCfg{Configs: res, Fs: fs, LogLevel: logger.Level(), StdErr: logger.StdErr(), ChangesFromBuild: changesFromBuild, IsIntegrationTest: true, TestCfg: deps.TestConfig{WarpcMemory: s.Cfg.WarpcMemory}}
 		sites, err := NewHugoSites(depsCfg)
 		if err != nil {
 			initErr = err
@@ -1226,4 +1241,8 @@ type IntegrationTestConfig struct {
 
 	// The config to pass to Build.
 	BuildCfg BuildCfg
+
+	// WarpcMemory, if set, overrides the memory limit in MiB for the WASM based
+	// image processors (WebP and AVIF). Used to provoke memory allocation failures.
+	WarpcMemory int
 }

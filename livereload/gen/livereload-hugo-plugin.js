@@ -32,3 +32,13 @@ HugoReload.prototype.reload = function (path, options) {
 };
 
 LiveReload.addPlugin(HugoReload);
+
+// Disconnect LiveReload before the page is captured for a cross-document view
+// transition. With Speculation Rules prerendering in Chromium, an active
+// LiveReload WebSocket on the outgoing page causes a flash during the
+// transition. LiveReload reconnects automatically on the next page load.
+addEventListener('pageswap', function () {
+	if (window.LiveReload) {
+		window.LiveReload.shutDown();
+	}
+});

@@ -159,7 +159,7 @@ func (d *AvifCodec) Decode(r io.Reader) (image.Image, error) {
 			return nil, fmt.Errorf("decoded AVIF frame count %d does not match frame durations %d", frameCount, len(out.Data.Params.FrameDurations))
 		}
 		frames := make([]image.Image, frameCount)
-		for i := 0; i < len(frames); i++ {
+		for i := range frames {
 			frameBytes := destination.Bytes()[i*frameSize : (i+1)*frameSize]
 			if isHDR {
 				// NRGBA64 for HDR - libavif returns non-premultiplied alpha.

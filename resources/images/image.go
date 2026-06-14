@@ -342,18 +342,9 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 	return dst, nil
 }
 
-func GetDefaultImageConfig(defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]) ImageConfig {
-	if defaults == nil {
-		defaults = defaultImageConfig
-	}
+func newImageConfig() ImageConfig {
 	return ImageConfig{
-		Anchor:       -1, // The real values start at 0.
-		Hint:         defaults.Config.Imaging.Webp.Hint,
-		Quality:      defaults.Config.Imaging.Quality,
-		Compression:  defaults.Config.Imaging.Compression,
-		UseSharpYuv:  defaults.Config.Imaging.Webp.UseSharpYuv,
-		Method:       defaults.Config.Imaging.Webp.Method,
-		EncoderSpeed: defaults.Config.Imaging.Avif.EncoderSpeed,
+		Anchor: -1, // The real values start at 0.
 	}
 }
 
@@ -403,12 +394,6 @@ func (f Format) ToImageMetaImageFormatFormat() imagemeta.ImageFormat {
 	default:
 		return -1
 	}
-}
-
-// RequiresDefaultQuality returns if the default quality needs to be applied to
-// images of this format.
-func (f Format) RequiresDefaultQuality() bool {
-	return f == JPEG || f == WEBP || f == AVIF
 }
 
 // SupportsTransparency reports whether it supports transparency in any form.

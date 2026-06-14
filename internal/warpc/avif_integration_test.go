@@ -66,3 +66,52 @@ gif:{{ $gif.RelPermalink }}
 		AssertLoopCount(0).
 		AssertFrameDurations(durations)
 }
+
+// See issue 14987.
+func TestAvifEncodeHintSubsampling(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- assets/logo.png --
+sourcefilename: ../../resources/testdata/gohugoio24.png
+-- layouts/home.html --
+{{ $img := resources.Get "logo.png" }}
+default:{{ ($img.Process "avif photo").RelPermalink }}|
+photo:{{ ($img.Process "avif photo").RelPermalink }}|
+text:{{ ($img.Process "avif text").RelPermalink }}|
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		`
+default:/logo_hu_72e150ce03376cfd.avif|
+photo:/logo_hu_72e150ce03376cfd.avif|
+text:/logo_hu_9de8f282912bc925.avif|
+`)
+}
+
+// See issue 14985.
+func TestAvifEncodeOutOfMemory(t *testing.T) {
+	files := `
+-- assets/gopher.png --
+sourcefilename: ../../resources/testdata/bw-gopher.png
+-- layouts/home.html --
+{{ $img := resources.Get "gopher.png" }}
+{{ $r := try ($img.Resize "3000x3000 avif") }}
+{{ with $r.Err }}BigErr: {{ . }}|{{ else }}BigOK|{{ end }}
+{{ $small := $img.Resize "32x32 avif" }}
+SmallAfter: {{ $small.RelPermalink }}|
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.WarpcMemory = 8
+	}))
+
+	// The big resize must fail gracefully (caught by try) ...
+	b.AssertFileContent("public/index.html",
+		"BigErr:",
+		"out of memory allocating",
+		"for blob data",
+		// ... and the dispatcher must still process images afterwards.
+		"SmallAfter: /gopher_",
+	)
+}

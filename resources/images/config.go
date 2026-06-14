@@ -84,6 +84,13 @@ var (
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
 	// See the finer grained smartCropVersionNumber.
 	mainImageVersionNumber = 1
+
+	// Increment a format's version number to mark all processed images targeting
+	// that format as stale, e.g. after a change to its encoder. This is finer
+	// grained than mainImageVersionNumber, which invalidates every format.
+	formatVersionNumbers = map[Format]int{
+		AVIF: 1,
+	}
 )
 
 var anchorPositions = map[string]gift.Anchor{
@@ -104,7 +111,7 @@ var compressionMethods = map[string]bool{
 	"lossless": true,
 }
 
-// These encoding hints are currently only relevant for Webp.
+// These encoding hints are used by Webp (preset) and Avif (chroma subsampling).
 var hints = map[string]bool{
 	"picture": true,
 	"photo":   true,
@@ -162,7 +169,6 @@ func ImageFormatFromMediaSubType(sub string) (Format, ImageResourceType) {
 }
 
 const (
-	defaultJPEGQuality      = 75
 	defaultResampleFilter   = "box"
 	defaultBgColor          = "#ffffff"
 	defaultHint             = "photo"
@@ -171,33 +177,6 @@ const (
 	defaultWebpMethod       = 2
 	defaultAvifEncoderSpeed = 10
 )
-
-var (
-	defaultImaging = map[string]any{
-		"resampleFilter": defaultResampleFilter,
-		"bgColor":        defaultBgColor,
-		"hint":           defaultHint,
-		"quality":        defaultJPEGQuality,
-		"compression":    defaultCompression,
-		"webp": map[string]any{
-			"useSharpYuv": defaultWebpUseSharpYuv,
-			"method":      defaultWebpMethod,
-		},
-		"avif": map[string]any{
-			"encoderSpeed": defaultAvifEncoderSpeed,
-		},
-	}
-
-	defaultImageConfig *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal]
-)
-
-func init() {
-	var err error
-	defaultImageConfig, err = DecodeConfig(defaultImaging)
-	if err != nil {
-		panic(err)
-	}
-}
 
 func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], error) {
 	if in == nil {
@@ -209,20 +188,21 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		if err != nil {
 			return ImagingConfigInternal{}, nil, err
 		}
-		// Merge in the defaults.
-		hmaps.MergeShallow(m, defaultImaging)
 
-		// Deep merge webp defaults.
-		if webp, ok := m["webp"].(map[string]any); ok {
-			hmaps.MergeShallow(webp, defaultImaging["webp"].(map[string]any))
+		i := ImagingConfigInternal{
+			Imaging: ImagingConfig{
+				BgColor:        defaultBgColor,
+				ResampleFilter: defaultResampleFilter,
+				Webp: WebpConfig{
+					UseSharpYuv: defaultWebpUseSharpYuv,
+					Method:      defaultWebpMethod,
+				},
+				Avif: AvifConfig{
+					EncoderSpeed: defaultAvifEncoderSpeed,
+				},
+			},
 		}
 
-		// Deep merge avif defaults.
-		if avif, ok := m["avif"].(map[string]any); ok {
-			hmaps.MergeShallow(avif, defaultImaging["avif"].(map[string]any))
-		}
-
-		var i ImagingConfigInternal
 		if err := mapstructure.Decode(m, &i.Imaging); err != nil {
 			return i, nil, err
 		}
@@ -239,7 +219,7 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 		if i.Imaging.Anchor != "" {
 			anchor, found := anchorPositions[i.Imaging.Anchor]
 			if !found {
-				return i, nil, fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+				return i, nil, fmt.Errorf("invalid anchor value %q in imaging config", i.Imaging.Anchor)
 			}
 			i.Anchor = anchor
 		}
@@ -263,9 +243,8 @@ func DecodeConfig(in map[string]any) (*config.ConfigNamespace[ImagingConfig, Ima
 
 func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[ImagingConfig, ImagingConfigInternal], sourceFormat Format) (ImageConfig, error) {
 	var (
-		c          ImageConfig = GetDefaultImageConfig(defaults)
-		err        error
-		qualitySet bool
+		c   ImageConfig = newImageConfig()
+		err error
 	)
 
 	// Make to lower case, trim space and remove any empty strings.
@@ -305,7 +284,6 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 			if c.Quality < 1 || c.Quality > 100 {
 				return c, errors.New("quality ranges from 1 to 100 inclusive")
 			}
-			qualitySet = true
 		} else if part[0] == 'r' {
 			c.Rotate, err = strconv.Atoi(part[1:])
 			if err != nil {
@@ -352,41 +330,16 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		}
 	}
 
-	if c.Action != "" && c.Filter == nil {
-		c.Filter = defaults.Config.ResampleFilter
-	}
-
-	if c.Hint == "" {
-		c.Hint = defaults.Config.Imaging.Webp.Hint
-	}
-
-	if c.Action != "" && c.Anchor == -1 {
-		c.Anchor = defaults.Config.Anchor
-	}
-
-	// default to the source format
-	if c.TargetFormat == 0 {
-		c.TargetFormat = sourceFormat
-	}
-
-	if !qualitySet && c.TargetFormat.RequiresDefaultQuality() {
-		// Apply the per-format (or global) default quality unless the user
-		// explicitly set a quality for this image operation.
-		c.Quality = defaults.Config.Imaging.qualityFor(c.TargetFormat)
-	}
-
-	if c.Compression == "" {
-		c.Compression = defaults.Config.Imaging.Compression
-	}
-
-	if c.BgColor == nil && c.TargetFormat != sourceFormat {
-		if sourceFormat.SupportsTransparency() && !c.TargetFormat.SupportsTransparency() {
-			c.BgColor = defaults.Config.BgColor
-		}
+	if err := c.init(defaults.Config, sourceFormat); err != nil {
+		return c, err
 	}
 
 	if mainImageVersionNumber > 0 {
 		options = append(options, strconv.Itoa(mainImageVersionNumber))
+	}
+
+	if v := formatVersionNumbers[c.TargetFormat]; v > 0 {
+		options = append(options, "tfv"+strconv.Itoa(v))
 	}
 
 	usesSmartCrop := c.Anchor == SmartCropAnchor && (c.Action == ActionCrop || c.Action == ActionFill)
@@ -404,6 +357,7 @@ type ImageConfig struct {
 	// This defines the output format of the output image. It defaults to the source format.
 	TargetFormat Format
 
+	// Optional image processing action to perform ("resize", "crop", "fit", "fill"). When empty, the operation may still perform e.g. format conversion.
 	Action string
 
 	// If set, this will be used as the key in filenames etc.
@@ -426,8 +380,11 @@ type ImageConfig struct {
 	// transparency.
 	BgColor color.Color
 
+	Filter gift.Resampling
+	Anchor gift.Anchor
+
 	// Hint about what type of picture this is. Used to optimize encoding
-	// when target is set to webp.
+	// when target is webp (preset) or avif (chroma subsampling).
 	Hint string
 
 	Compression string
@@ -441,16 +398,54 @@ type ImageConfig struct {
 
 	Width  int
 	Height int
-
-	Filter gift.Resampling
-
-	Anchor gift.Anchor
 }
 
-func (cfg ImageConfig) Reanchor(a gift.Anchor) ImageConfig {
-	cfg.Anchor = a
-	cfg.Key = hashing.HashStringHex(cfg.Key, "reanchor", a)
-	return cfg
+func (c *ImageConfig) init(defaults ImagingConfigInternal, sourceFormat Format) error {
+	if c.Action != "" && c.Anchor == -1 {
+		c.Anchor = defaults.Anchor
+	}
+	if c.TargetFormat == 0 {
+		c.TargetFormat = sourceFormat
+	}
+	if c.Filter == nil {
+		c.Filter = defaults.ResampleFilter
+	}
+	if c.Anchor == -1 {
+		c.Anchor = defaults.Anchor
+	}
+	if c.Hint == "" {
+		c.Hint = defaults.Imaging.hintFor(c.TargetFormat)
+	}
+
+	if c.Quality == 0 {
+		c.Quality = defaults.Imaging.qualityFor(c.TargetFormat)
+	}
+
+	if c.Compression == "" {
+		c.Compression = defaults.Imaging.compressionFor(c.TargetFormat)
+	}
+
+	if c.TargetFormat == AVIF {
+		c.EncoderSpeed = defaults.Imaging.Avif.EncoderSpeed
+	}
+
+	if c.TargetFormat == WEBP {
+		c.Method = defaults.Imaging.Webp.Method
+		c.UseSharpYuv = defaults.Imaging.Webp.UseSharpYuv
+	}
+
+	if c.BgColor == nil && c.TargetFormat != sourceFormat {
+		if sourceFormat.SupportsTransparency() && !c.TargetFormat.SupportsTransparency() {
+			c.BgColor = defaults.BgColor
+		}
+	}
+	return nil
+}
+
+func (c ImageConfig) Reanchor(a gift.Anchor) ImageConfig {
+	c.Anchor = a
+	c.Key = hashing.HashStringHex(c.Key, "reanchor", a)
+	return c
 }
 
 type ImagingConfigInternal struct {
@@ -471,14 +466,14 @@ func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
 	if externalCfg.Anchor != "" {
 		anchor, found := anchorPositions[externalCfg.Anchor]
 		if !found {
-			return fmt.Errorf("invalid anchor value %q in imaging config", i.Anchor)
+			return fmt.Errorf("invalid anchor value %q in imaging config", externalCfg.Anchor)
 		}
 		i.Anchor = anchor
 	}
 
 	filter, found := imageFilters[externalCfg.ResampleFilter]
 	if !found {
-		return fmt.Errorf("%q is not a valid resample filter", filter)
+		return fmt.Errorf("%q is not a valid resample filter", externalCfg.ResampleFilter)
 	}
 	i.ResampleFilter = filter
 
@@ -488,19 +483,24 @@ func (i *ImagingConfigInternal) Compile(externalCfg *ImagingConfig) error {
 // ImagingConfig contains default image processing configuration. This will be fetched
 // from site (or language) config.
 type ImagingConfig struct {
-	// Default image quality setting (1-100). Only used for JPEG and WebP images.
-	Quality int
+	// Default image quality setting (1-100). Used as the fallback for JPEG,
+	// WebP and AVIF when no per-format quality is set. When left unset, JPEG
+	// and WebP default to 75 and AVIF to 60 (its scale differs perceptually).
+	// Deprecated in v0.163.0: set the quality per format instead, see
+	// imaging.jpeg.quality, imaging.webp.quality and imaging.avif.quality.
+	Quality int `json:"-"`
 
 	// Compression method to use.
 	// One of "lossy" or "lossless".
 	// Note that lossless is currently only supported for WebP and AVIF.
-	Compression string
+	// Deprecated in v0.163.0: set the compression method per format instead, see imaging.webp.compression and imaging.avif.compression.
+	Compression string `json:"-"`
 
 	// Resample filter to use in resize operations.
 	ResampleFilter string
 
 	// Hint about what type of image this is.
-	// Currently only used when encoding to Webp.
+	// Used when encoding to Webp (preset) and Avif (chroma subsampling).
 	// Default is "photo".
 	// Valid values are "picture", "photo", "drawing", "icon", or "text".
 	// Moved to WebpConfig in v0.155.0, but kept here for backwards compatibility.
@@ -519,22 +519,37 @@ type ImagingConfig struct {
 	Avif AvifConfig
 }
 
-// qualityFor returns the configured quality for the given target format,
-// falling back to the global Quality when no per-format quality is set.
 func (cfg *ImagingConfig) qualityFor(f Format) int {
-	var q int
 	switch f {
 	case JPEG:
-		q = cfg.Jpeg.Quality
+		return cfg.Jpeg.Quality
 	case WEBP:
-		q = cfg.Webp.Quality
+		return cfg.Webp.Quality
 	case AVIF:
-		q = cfg.Avif.Quality
+		return cfg.Avif.Quality
 	}
-	if q > 0 {
-		return q
+	return 0
+}
+
+func (cfg *ImagingConfig) compressionFor(f Format) string {
+	switch f {
+	case WEBP:
+		return cfg.Webp.Compression
+	case AVIF:
+		return cfg.Avif.Compression
 	}
-	return cfg.Quality
+	return ""
+}
+
+// hintFor returns the configured hint for the given target format.
+func (cfg *ImagingConfig) hintFor(f Format) string {
+	switch f {
+	case WEBP:
+		return cfg.Webp.Hint
+	case AVIF:
+		return cfg.Avif.Hint
+	}
+	return ""
 }
 
 var validMetaSources = map[string]bool{
@@ -544,15 +559,23 @@ var validMetaSources = map[string]bool{
 }
 
 func (cfg *ImagingConfig) init() error {
-	if cfg.Quality < 1 || cfg.Quality > 100 {
-		return errors.New("image quality must be a number between 1 and 100")
-	}
-
 	cfg.BgColor = strings.ToLower(strings.TrimPrefix(cfg.BgColor, "#"))
 	cfg.Anchor = strings.ToLower(cfg.Anchor)
 	cfg.ResampleFilter = strings.ToLower(cfg.ResampleFilter)
 	cfg.Hint = strings.ToLower(cfg.Hint)
 	cfg.Compression = strings.ToLower(cfg.Compression)
+	if err := cfg.Jpeg.init(cfg); err != nil {
+		return fmt.Errorf("invalid jpeg config: %w", err)
+	}
+	if err := cfg.Webp.init(cfg); err != nil {
+		return fmt.Errorf("invalid webp config: %w", err)
+	}
+	if err := cfg.Avif.init(cfg); err != nil {
+		return fmt.Errorf("invalid avif config: %w", err)
+	}
+	if cfg.Quality < 0 || cfg.Quality > 100 {
+		return fmt.Errorf("imaging.quality must be between 1 and 100 inclusive, got %d", cfg.Quality)
+	}
 
 	if cfg.Anchor == "" {
 		cfg.Anchor = smartCropIdentifier
@@ -584,39 +607,6 @@ func (cfg *ImagingConfig) init() error {
 				return fmt.Errorf("invalid metadata source %q in imaging.meta.sources config; must be one of %s", s, keys)
 			}
 		}
-	}
-
-	// WebP config with backwards compatibility for root-level Hint.
-	cfg.Webp.Hint = strings.ToLower(cfg.Webp.Hint)
-	if cfg.Webp.Hint == "" {
-		// Fall back to root-level hint for backwards compatibility.
-		if cfg.Hint != "" {
-			cfg.Webp.Hint = cfg.Hint
-		} else {
-			cfg.Webp.Hint = defaultHint
-		}
-	}
-	if cfg.Webp.Hint != "" && !hints[cfg.Webp.Hint] {
-		return fmt.Errorf("invalid webp hint %q; must be one of picture, photo, drawing, icon, or text", cfg.Webp.Hint)
-	}
-	if cfg.Webp.Method == 0 {
-		cfg.Webp.Method = defaultWebpMethod
-	}
-	if cfg.Webp.Method < 0 || cfg.Webp.Method > 6 {
-		return fmt.Errorf("webp method must be between 0 and 6, got %d", cfg.Webp.Method)
-	}
-
-	for name, q := range map[string]int{"jpeg": cfg.Jpeg.Quality, "webp": cfg.Webp.Quality, "avif": cfg.Avif.Quality} {
-		if q != 0 && (q < 1 || q > 100) {
-			return fmt.Errorf("%s quality must be a number between 1 and 100", name)
-		}
-	}
-
-	if cfg.Avif.EncoderSpeed == 0 {
-		cfg.Avif.EncoderSpeed = defaultAvifEncoderSpeed
-	}
-	if cfg.Avif.EncoderSpeed < 1 || cfg.Avif.EncoderSpeed > 10 {
-		return fmt.Errorf("avif encoderSpeed must be between 1 and 10, got %d", cfg.Avif.EncoderSpeed)
 	}
 
 	return nil
@@ -664,10 +654,32 @@ type JpegConfig struct {
 	Quality int
 }
 
+func (c *JpegConfig) init(ic *ImagingConfig) error {
+	if c.Quality == 0 {
+		c.Quality = ic.Quality
+	}
+	if c.Quality == 0 {
+		c.Quality = 75
+	}
+	if c.Quality < 1 || c.Quality > 100 {
+		return fmt.Errorf("imaging.jpeg.quality must be between 1 and 100 inclusive, got %d", c.Quality)
+	}
+	return nil
+}
+
 // AvifConfig holds AVIF-specific encoding configuration.
 type AvifConfig struct {
 	// Quality setting (1-100). Falls back to the global imaging.quality if unset.
 	Quality int
+
+	// Compression method to use.
+	// One of "lossy" or "lossless".
+	Compression string
+
+	// Hint about what type of image this is. Used for chroma subsampling.
+	// Valid values are "picture", "photo", "drawing", "icon", or "text".
+	// Default is "photo".
+	Hint string
 
 	// Encoder quality/speed trade-off, 1 (slowest, best quality / smallest
 	// files) to 10 (fastest). Default is 10 — fast enough for incremental
@@ -676,8 +688,47 @@ type AvifConfig struct {
 	// build time.
 	// We recommend sticking with the default of 10 unless you have a specific reason to change it,
 	// and to stay above 5 to avoid very long build times and timeouts.
-	// 0 is treated as unset and falls back to the default.
 	EncoderSpeed int
+}
+
+func (c *AvifConfig) init(ic *ImagingConfig) error {
+	if c.Hint == "" {
+		c.Hint = ic.Hint
+	}
+	if c.Compression == "" {
+		c.Compression = ic.Compression
+	}
+	if c.Quality == 0 {
+		c.Quality = ic.Quality
+	}
+	if c.Hint == "" {
+		c.Hint = defaultHint
+	}
+	if c.Compression == "" {
+		c.Compression = defaultCompression
+	}
+	if c.Quality == 0 {
+		c.Quality = 60
+	}
+
+	c.Hint = strings.ToLower(c.Hint)
+	c.Compression = strings.ToLower(c.Compression)
+
+	if c.Hint != "" && !hints[c.Hint] {
+		return fmt.Errorf("imaging.avif.hint must be one of picture, photo, drawing, icon, or text, got %q", c.Hint)
+	}
+	if c.EncoderSpeed < 1 || c.EncoderSpeed > 10 {
+		return fmt.Errorf("imaging.avif.encoderSpeed must be between 1 and 10, got %d", c.EncoderSpeed)
+	}
+
+	if c.Compression != "" && !compressionMethods[c.Compression] {
+		return fmt.Errorf("imaging.avif.compression must be one of lossy or lossless, got %q", c.Compression)
+	}
+	if c.Quality < 1 || c.Quality > 100 {
+		return fmt.Errorf("imaging.avif.quality must be between 1 and 100 inclusive, got %d", c.Quality)
+	}
+
+	return nil
 }
 
 // WebpConfig holds WebP-specific encoding configuration.
@@ -685,6 +736,10 @@ type WebpConfig struct {
 	// Quality setting (1-100). Falls back to the global imaging.quality if unset.
 	// Only relevant for lossy encoding.
 	Quality int
+
+	// Compression method to use.
+	// One of "lossy" or "lossless".
+	Compression string
 
 	// Hint about what type of image this is.
 	// Valid values are "picture", "photo", "drawing", "icon", or "text".
@@ -698,4 +753,42 @@ type WebpConfig struct {
 	// Quality/speed trade-off (0=fast, 6=slower-better).
 	// Default is 2.
 	Method int
+}
+
+func (c *WebpConfig) init(ic *ImagingConfig) error {
+	if c.Hint == "" {
+		c.Hint = ic.Hint
+	}
+	if c.Compression == "" {
+		c.Compression = ic.Compression
+	}
+	if c.Quality == 0 {
+		c.Quality = ic.Quality
+	}
+	if c.Hint == "" {
+		c.Hint = defaultHint
+	}
+	if c.Compression == "" {
+		c.Compression = defaultCompression
+	}
+	if c.Quality == 0 {
+		c.Quality = 75
+	}
+
+	c.Hint = strings.ToLower(c.Hint)
+	c.Compression = strings.ToLower(c.Compression)
+
+	if c.Hint != "" && !hints[c.Hint] {
+		return fmt.Errorf("imaging.webp.hint must be one of picture, photo, drawing, icon, or text, got %q", c.Hint)
+	}
+	if c.Method < 0 || c.Method > 6 {
+		return fmt.Errorf("imaging.webp.method must be between 0 and 6, got %d", c.Method)
+	}
+	if c.Compression != "" && !compressionMethods[c.Compression] {
+		return fmt.Errorf("imaging.webp.compression must be one of lossy or lossless, got %q", c.Compression)
+	}
+	if c.Quality < 1 || c.Quality > 100 {
+		return fmt.Errorf("imaging.webp.quality must be between 1 and 100 inclusive, got %d", c.Quality)
+	}
+	return nil
 }

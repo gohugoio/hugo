@@ -303,7 +303,7 @@ func (h helperContentNode) isBranchNode(n contentNode) bool {
 	case *pageMetaSource:
 		return nn.pathInfo.IsBranchBundle()
 	case *pageState:
-		return nn.IsNode()
+		return nn.IsBranch()
 	case contentNodeSampleProvider:
 		return h.isBranchNode(nn.sample())
 	default:

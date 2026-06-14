@@ -134,11 +134,6 @@ func (l LowHigh[S]) Value(source S) S {
 // This is only used for debugging purposes.
 var InvocationCounter atomic.Int64
 
-// NewTrue returns a pointer to b.
-func NewBool(b bool) *bool {
-	return &b
-}
-
 // WeightProvider provides a weight.
 type WeightProvider interface {
 	Weight() int

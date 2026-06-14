@@ -144,6 +144,7 @@ func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 			"compression":  conf.Compression,
 			"quality":      conf.Quality,
 			"encoderSpeed": conf.EncoderSpeed,
+			"hint":         conf.Hint,
 		}
 		return d.avif.Encode(w, img, opts)
 	case WEBP:
