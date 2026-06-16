@@ -216,6 +216,97 @@ Styles Content: Len: 770917
 	}
 }
 
+// See Issue 15039.
+// See Issue 15040.
+func TestTransformPostCSSConfigResolution(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[[module.imports]]
+path = "github.com/bep/hugo-mod-nop"
+-- assets/css/styles.css --
+body { color: red }
+-- layouts/home.html --
+{{ $styles := resources.Get "css/styles.css" | css.PostCSS }}
+RelPermalink: {{ $styles.RelPermalink }}|HasBody: {{ in $styles.Content "color:" }}|
+-- package.json --
+{
+  "devDependencies": {
+    "postcss-cli": "11.0.0"
+  }
+}
+-- go.mod --
+module github.com/example/project
+
+go 1.26
+
+replace github.com/bep/hugo-mod-nop => ../external-module
+-- ../external-module/go.mod --
+module github.com/bep/hugo-mod-nop
+
+go 1.26
+-- ../external-module/CONFIG_FILE_NAME --
+CONFIG_FILE_CONTENT
+	`
+
+	tests := []struct {
+		name              string
+		configFileName    string
+		configFileContent string
+	}{
+		{
+			name:              "mjs in module",
+			configFileName:    "postcss.config.mjs",
+			configFileContent: "export default {};\n",
+		},
+		{
+			name:              "cjs in module",
+			configFileName:    "postcss.config.cjs",
+			configFileContent: "module.exports = {};\n",
+		},
+		{
+			name:              "js in module",
+			configFileName:    "postcss.config.js",
+			configFileContent: "module.exports = {};\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := qt.New(t)
+			rootDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+			c.Assert(err, qt.IsNil)
+			c.Cleanup(clean)
+
+			projectDir := filepath.Join(rootDir, "project")
+			moduleDir := filepath.Join(rootDir, "external-module")
+			c.Assert(os.MkdirAll(projectDir, 0o755), qt.IsNil)
+			c.Assert(os.MkdirAll(moduleDir, 0o755), qt.IsNil)
+
+			f := strings.ReplaceAll(files, "CONFIG_FILE_NAME", tt.configFileName)
+			f = strings.ReplaceAll(f, "CONFIG_FILE_CONTENT", tt.configFileContent)
+
+			b := hugolib.Test(c, f,
+				hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+					cfg.WorkingDir = projectDir
+					cfg.NeedsOsFS = true
+					cfg.NeedsNpmInstall = true
+				}),
+				hugolib.TestOptInfo(),
+			)
+
+			b.AssertFileContent("public/index.html",
+				"RelPermalink: /css/styles.css|HasBody: true|",
+			)
+			b.AssertLogContains(tt.configFileName)
+		})
+	}
+}
+
 // See Issue 13987.
 func TestTransformPostCSSESMConfigInModule(t *testing.T) {
 	if !htesting.IsCI() {
