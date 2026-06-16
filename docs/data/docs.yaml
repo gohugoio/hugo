@@ -1165,7 +1165,7 @@ config:
       disableTags: false
       enable: false
     cacheBusters:
-    - source: '(postcss|tailwind)\.config\.js'
+    - source: '(postcss|tailwind)\.config\.(js|mjs|cjs)'
       target: (css|styles|scss|sass)
     noJSConfigInAssets: false
     useResourceCacheWhen: fallback
@@ -1272,24 +1272,31 @@ config:
   ignoreVendorPaths: ''
   imaging:
     anchor: smart
+    avif:
+      compression: lossy
+      encoderSpeed: 10
+      hint: photo
+      quality: 60
     bgColor: ffffff
-    compression: lossy
     exif:
       disableDate: false
       disableLatLong: false
       excludeFields: GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance
       includeFields: ''
+    jpeg:
+      quality: 75
     meta:
       fields:
       - '! *{GPS,Exif,Exposure[MPB],Contrast,Resolution,Sharp,JPEG,Metering,Sensing,Saturation,ColorSpace,Flash,WhiteBalance}*'
       sources:
       - exif
       - iptc
-    quality: 75
     resampleFilter: box
     webp:
+      compression: lossy
       hint: photo
       method: 2
+      quality: 75
       useSharpYuv: false
   languages:
     en:
@@ -2043,6 +2050,8 @@ config:
       weight: 0
   sectionPagesMenu: ''
   security:
+    allowContent:
+    - '! ^text/html$'
     enableInlineShortcodes: false
     exec:
       allow:
@@ -4612,11 +4621,15 @@ tpl:
         - highlight
         Args:
         - s
-        - lang
-        - opts
+        - args
         Description: |-
-          Highlight returns a copy of s as an HTML string with syntax
+          Highlight returns a copy of CODE as an HTML string with syntax
           highlighting applied.
+          
+          	transform.Highlight CODE [LANG] [OPTIONS]
+          
+          LANG is optional; it can also be set via the type option in OPTIONS, which
+          makes this work the same way as HighlightCodeBlock.
         Examples: []
       HighlightCodeBlock:
         Aliases: null

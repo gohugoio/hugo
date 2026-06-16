@@ -130,17 +130,23 @@ func (t *babelTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	if t.options.Config != "" {
 		configFile = t.options.Config
 	} else {
-		configFile = "babel.config.js"
+		for _, name := range []string{"babel.config.js", "babel.config.mjs", "babel.config.cjs"} {
+			configFile = t.rs.BaseFs.ResolveJSConfigFile(name)
+			if configFile != "" {
+				break
+			}
+		}
 	}
 
-	configFile = filepath.Clean(configFile)
-
-	// We need an absolute filename to the config file.
-	if !filepath.IsAbs(configFile) {
-		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
-		if configFile == "" && t.options.Config != "" {
-			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("babel config %q not found", configFile)
+	if configFile != "" {
+		configFile = filepath.Clean(configFile)
+		// We need an absolute filename to the config file.
+		if !filepath.IsAbs(configFile) {
+			configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+			if configFile == "" && t.options.Config != "" {
+				// Only fail if the user specified config file is not found.
+				return fmt.Errorf("babel config %q not found", t.options.Config)
+			}
 		}
 	}
 
