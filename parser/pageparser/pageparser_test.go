@@ -138,3 +138,13 @@ func TestSummaryDividerStartingFromMain(t *testing.T) {
 	c.Assert(items, qt.HasLen, 4)
 	c.Assert(items[1].Type, qt.Equals, TypeLeadSummaryDivider)
 }
+
+func TestIdeographicAfterSummaryDivider(t *testing.T) {
+	c := qt.New(t)
+
+	input := []byte(`aaa <!--more-->   　bbb`)
+	items, err := collectStringMain(string(input))
+	c.Assert(err, qt.IsNil)
+	c.Assert(items, qt.HasLen, 4)
+	c.Assert(items[2].ValStr(input), qt.Equals, "\u3000bbb")
+}
