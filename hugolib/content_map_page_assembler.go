@@ -508,6 +508,15 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 				// Try to preserve the original casing if possible.
 				sectionUnnormalized := p.Unnormalized().Section()
 				rootSectionPath := a.h.Conf.PathParser().Parse(files.ComponentFolderContent, "/"+sectionUnnormalized+"/_index.md")
+
+				// A regular page (e.g. content/s1.md) may share the same tree
+				// key as its section (both map to /s1). In that case the page
+				// itself already occupies the section root; creating a synthetic
+				// section on top of it would overwrite the real content.
+				if _, exists := treePages.GetRaw(rootSectionPath.Base()); exists {
+					return true, nil
+				}
+
 				var rootSectionPages contentNode
 				rootSectionPages, _, err = transformPages(rootSectionPath.Base(), &pageMetaSource{
 					pathInfo:        rootSectionPath,
