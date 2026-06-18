@@ -13,7 +13,7 @@ params:
 
 With this content structure:
 
-```text
+```tree
 content/
 ├── lessons/
 │   ├── math/
@@ -32,7 +32,7 @@ When rendering lesson-1.md:
 
 In the example above "lessons" is the top-level section.
 
-The `Section` method is often used with the [`where`] function to build a page collection.
+The `Section` method is often used with the [`where`][] function to build a page collection.
 
 ```go-html-template
 {{ range where .Site.RegularPages "Section" "lessons" }}
@@ -40,7 +40,7 @@ The `Section` method is often used with the [`where`] function to build a page c
 {{ end }}
 ```
 
-This is similar to using the [`Type`] method with the `where` function
+This is similar to using the [`Type`][] method with the `where` function
 
 ```go-html-template
 {{ range where .Site.RegularPages "Type" "lessons" }}
@@ -50,5 +50,5 @@ This is similar to using the [`Type`] method with the `where` function
 
 However, if the `type` field in front matter has been defined on one or more pages, the page collection based on `Type` will be different than the page collection based on `Section`.
 
-[`where`]: /functions/collections/where/
 [`Type`]: /methods/page/type/
+[`where`]: /functions/collections/where/

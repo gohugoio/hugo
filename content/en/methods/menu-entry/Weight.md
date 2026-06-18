@@ -9,9 +9,9 @@ params:
     signatures: [MENUENTRY.Weight]
 ---
 
-If you define the menu entry [automatically], the `Weight` method returns the page's [`Weight`].
+If you define the menu entry [automatically][], the `Weight` method returns the page's [`Weight`][].
 
-If you define the menu entry in [front matter] or in your [project configuration], the `Weight` method returns the `weight` property, falling back to the page's `Weight`.
+If you define the menu entry in [front matter][] or in your [project configuration][], the `Weight` method returns the `weight` property, falling back to the page's `Weight`.
 
 In this contrived example, we limit the number of menu entries based on weight:
 

@@ -12,7 +12,7 @@ params:
 
 {{< new-in 0.158.0 />}}
 
-> [!note]
+> [!NOTE]
 > The `css.Build` function is backed by the [`evanw/esbuild`][] package, providing a mature, high-performance foundation for bundling, transformation, and minification.
 
 Use the `css.Build` function to:
@@ -29,7 +29,7 @@ If an `@import` statement includes a media query, a feature query, or a cascade 
 
 In this example, Hugo bundles the local files referenced by `@import` statements to create and publish a single resource with inline content.
 
-```text
+```tree
 assets/
 └── css/
     ├── components/
@@ -93,17 +93,17 @@ To minify the generated CSS code, use the [`minify`](#minify) option as describe
 
 ## Options
 
-The `css.Build` function takes an optional map of options to fine-tune bundling, minification, and browser compatibility.
+The `css.Build` function accepts an options map to fine-tune bundling, minification, and browser compatibility.
 
-externals
-: (`[]string`) A slice of path patterns to exclude from bundling. The `@import` statements for these patterns remain as-is in the generated CSS code. See&nbsp;[details][esb_external].
+`externals`
+: (`[]string`) A slice of path patterns to exclude from bundling. The `@import` statements for these patterns remain as-is in the generated CSS code. See [details][esb external].
 
   ```go-html-template
   {{ $opts := dict "externals" (slice "./exclude-these/*" "./exclude-these-too/*") }}
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
-loaders
+`loaders`
 : (`map`) A map of file extensions to loader types. This determines how files with a given extension are processed during bundling. By default, Hugo uses the `css` loader for `.css` files and the `file` loader for all others. Common loaders include:
 
   - `css`: Processes the file as a CSS file
@@ -112,15 +112,15 @@ loaders
   - `file`: Copies the file to the output directory and rewrites the URL
   - `text`: Loads the file content as a string
 
-  See&nbsp;[details][esb_loader].
+  See [details][esb loader].
 
   ```go-html-template
   {{ $opts := dict "loaders" (dict ".png" "dataurl" ".svg" "dataurl") }}
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
-mainFields
-: (`[]string`) A prioritized slice of field names in a `package.json` file that determine the CSS entry point of a Node package. The default is `["style", "main"]`. See&nbsp;[details][esb_mainfields].
+`mainFields`
+: (`[]string`) A prioritized slice of field names in a `package.json` file that determine the CSS entry point of a Node package. The default is `["style", "main"]`. See [details][esb mainfields].
 
   When an `@import` statement references a Node package, Hugo consults the metadata in the `package.json` file to find the stylesheet. Use this option to support packages that define a CSS entry point using non-standard fields.
 
@@ -129,32 +129,32 @@ mainFields
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
-minify
-: (`bool`) Whether to minify the generated CSS code. Default is `false`. See&nbsp;[details][esb_minify].
+`minify`
+: (`bool`) Whether to minify the generated CSS code. Default is `false`. See [details][esb minify].
 
   ```go-html-template
   {{ $opts := dict "minify" true }}
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
-sourceMap
-: (`string`) The type of source map to generate. One of `external`, `inline`, `linked`, or `none`. Default is `none`. See&nbsp;[details][esb_sourcemap].
+`sourceMap`
+: (`string`) The type of source map to generate. One of `external`, `inline`, `linked`, or `none`. Default is `none`. See [details][esb sourcemap].
 
   ```go-html-template
   {{ $opts := dict "sourceMap" "linked" }}
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
-sourcesContent
-: (`bool`) Whether to include the content of the source files in the source map. Default is `true`. See&nbsp;[details][esb_sourcesContent].
+`sourcesContent`
+: (`bool`) Whether to include the content of the source files in the source map. Default is `true`. See [details][esb sourcesContent].
 
   ```go-html-template
   {{ $opts := dict "sourceMap" "linked" "sourcesContent" false }}
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
-target
-: (`[]string`) The target environment for the generated CSS code. This determines which syntax transformations to perform and which vendor prefixes to apply. If unset, no transformations or prefixing are performed. Each element consists of a target name and a version number. Supported targets include `chrome`, `edge`, `firefox`, `ie`, `ios`, `opera`, and `safari`. See&nbsp;[details][esb_target].
+`target`
+: (`[]string`) The target environment for the generated CSS code. This determines which syntax transformations to perform and which vendor prefixes to apply. If unset, no transformations or prefixing are performed. Each element consists of a target name and a version number. Supported targets include `chrome`, `edge`, `firefox`, `ie`, `ios`, `opera`, and `safari`. See [details][esb target].
 
   ```go-html-template
   {{ $target := slice "chrome115" "edge115" "firefox116" "ios16.4" "opera101" "safari16.4" }}
@@ -164,7 +164,7 @@ target
 
   In the example above, the target environment is roughly equivalent to the [browserlist][] "baseline widely available" profile as of March 2026.
 
-targetPath
+`targetPath`
 : (`string`) The path to the generated CSS file, relative to the project's [`publishDir`][]. If unset, this defaults to the asset's original path with a `.css` extension.
 
   ```go-html-template
@@ -172,7 +172,7 @@ targetPath
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
-vars
+`vars`
 : {{< new-in 0.160.0 />}}
 : (`map`) A map of key-value pairs used to generate CSS variables. The `css.Build` function injects these variables into the stylesheet when it encounters the `hugo:vars` internal identifier within an `@import` statement.
   
@@ -215,7 +215,7 @@ vars
     font-family: var(--font-family);
     font-size: var(--font-size);
   }
-````
+  ```
 
   {{< new-in 0.161.0 />}}
 
@@ -289,8 +289,8 @@ vars
 
   When passing a `vars` map to the `css.Build` function, you can use the [`css.Quoted`][] function to explicitly indicate that a value must be treated as a quoted string, most commonly for `font-family` names or the `content` property.
 
-  > [!note]
-  > If you're using TailwindCSS and want to use the `vars` option to inject CSS variables, see [this section in the TailwindCSS documentation](./TailwindCSS.md#inject-css-variables-with-vars).
+  > [!NOTE]
+  > If you're using TailwindCSS and want to use the `vars` option to inject CSS variables, see [this section in the TailwindCSS documentation](./TailwindCSS.md#inject-css-variables).
 
 ## Example
 
@@ -372,10 +372,10 @@ To reference a specific file within a Node package, provide the path starting wi
 [`evanw/esbuild`]: https://github.com/evanw/esbuild
 [`publishDir`]: /configuration/all/#publishdir
 [browserlist]: https://browsersl.ist
-[esb_external]: https://esbuild.github.io/api/#external
-[esb_loader]: https://esbuild.github.io/api/#loader
-[esb_mainfields]: https://esbuild.github.io/api/#main-fields
-[esb_minify]: https://esbuild.github.io/api/#minify
-[esb_sourcemap]: https://esbuild.github.io/api/#sourcemap
-[esb_sourcesContent]: https://esbuild.github.io/api/#sources-content
-[esb_target]: https://esbuild.github.io/api/#target
+[esb external]: https://esbuild.github.io/api/#external
+[esb loader]: https://esbuild.github.io/api/#loader
+[esb mainfields]: https://esbuild.github.io/api/#main-fields
+[esb minify]: https://esbuild.github.io/api/#minify
+[esb sourcemap]: https://esbuild.github.io/api/#sourcemap
+[esb sourcesContent]: https://esbuild.github.io/api/#sources-content
+[esb target]: https://esbuild.github.io/api/#target

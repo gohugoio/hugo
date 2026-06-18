@@ -7,7 +7,7 @@ keywords: []
 
 Hugo provides methods to transform and analyze images during the build process. While Hugo can manage any image format as a resource, only [processable images](g) can be transformed using the methods below. The results are cached to ensure subsequent builds remain fast.
 
-> [!note]
+> [!NOTE]
 > Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
 
 ## Resources
@@ -18,7 +18,7 @@ To process an image you must capture the file as a page resource, a global resou
 
 {{% glossary-term "page resource" %}}
 
-```text
+```tree
 content/
 └── posts/
     └── post-1/           <-- page bundle
@@ -36,7 +36,7 @@ To capture an image as a page resource:
 
 {{% glossary-term "global resource" %}}
 
-```text
+```tree
 assets/
 └── images/
     └── sunset.jpg    <-- global resource
@@ -115,7 +115,7 @@ To transform an image, apply a processing method to the image resource. Hugo gen
 {{ end }}
 ```
 
-> [!note]
+> [!NOTE]
 > Metadata is not preserved during image transformation. Use the [`Meta`][] method with the original image resource to extract metadata from supported formats.
 
 Select a method from the table below for syntax and usage examples, depending on your specific transformation or metadata requirements:
@@ -146,7 +146,7 @@ If you host your site with Netlify, include the following in your project config
 
 If you change image processing methods, or rename/remove images, the cache will eventually contain unused files. To remove them and reclaim disk space, run Hugo's garbage collection:
 
-```text
+```sh
 hugo build --gc
 ```
 
@@ -158,7 +158,7 @@ If your source images are much larger than the maximum size you intend to publis
 
 ## Configuration
 
-See [configure imaging](/configuration/imaging).
+See [configure imaging][].
 
 [`Height`]: /methods/resource/height/
 [`Meta`]: /methods/resource/meta/
@@ -166,4 +166,5 @@ See [configure imaging](/configuration/imaging).
 [`RelPermalink`]: /methods/resource/relpermalink/
 [`Width`]: /methods/resource/width/
 [`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
+[configure imaging]: /configuration/imaging/
 [file cache]: /configuration/caches/

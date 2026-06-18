@@ -15,7 +15,7 @@ This function formats a number with the given precision. The first options param
 
 Note that numbers are rounded up at 5 or greater. So, with precision set to 0, 1.5 becomes 2, and 1.4 becomes&nbsp;1.
 
-For a simpler function that adapts to the current language, see [`lang.FormatNumber`].
+For a simpler function that adapts to the current language, see [`lang.FormatNumber`][].
 
 ```go-html-template
 {{ lang.FormatNumberCustom 2 12345.6789 }} → 12,345.68

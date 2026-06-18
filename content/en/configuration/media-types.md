@@ -14,7 +14,7 @@ Configured media types serve multiple purposes in Hugo, including the definition
 
 The `suffixes` column in the table above shows the suffixes associated with each media type. For example, Hugo associates `.html` and `.htm` files with the `text/html` media type.
 
-> [!note]
+> [!NOTE]
 > The first suffix is the primary suffix. Use the primary suffix when naming template files. For example, when creating a template for an RSS feed, use the `xml` suffix.
 
 ## Default configuration
@@ -23,10 +23,10 @@ The following is the default configuration that matches the table above:
 
 {{< code-toggle file=hugo config=mediaTypes />}}
 
-delimiter
+`delimiter`
 : (`string`) The delimiter between the file name and the suffix. The delimiter, in conjunction with the suffix, forms the file extension. Default is `"."`.
 
-suffixes
+`suffixes`
 : (`[]string`) The suffixes associated with this media type. The first suffix is the primary suffix.
 
 ## Modify a media type
@@ -56,7 +56,7 @@ suffixes = ['atom']
 
 ## Media types without suffixes
 
-Occasionally, you may need to create a media type without a suffix or delimiter. For example, [Netlify] recognizes configuration files named `_redirects` and `_headers`, which Hugo can generate using custom [output formats](g).
+Occasionally, you may need to create a media type without a suffix or delimiter. For example, [Netlify][] recognizes configuration files named `_redirects` and `_headers`, which Hugo can generate using custom [output formats](g).
 
 To support these custom output formats, register a custom media type with no suffix or delimiter:
 

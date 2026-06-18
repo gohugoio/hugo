@@ -6,8 +6,8 @@ keywords: []
 weight: 30
 ---
 
-> [!note]
-> Hugo v0.121.1 and later require at least Windows 10 or Windows Server 2016.
+> [!NOTE]
+> Hugo requires Windows 10, Windows Server 2016, or later.
 
 {{% include "/_common/installation/01-editions.md" %}}
 
@@ -19,7 +19,7 @@ weight: 30
 
 ### Chocolatey
 
-[Chocolatey] is a free and open-source package manager for Windows. To install the extended edition of Hugo:
+[Chocolatey][] is a free and open-source package manager for Windows. To install the extended edition of Hugo:
 
 ```sh
 choco install hugo-extended
@@ -27,7 +27,7 @@ choco install hugo-extended
 
 ### Scoop
 
-[Scoop] is a free and open-source package manager for Windows. To install the extended edition of Hugo:
+[Scoop][] is a free and open-source package manager for Windows. To install the extended edition of Hugo:
 
 ```sh
 scoop install hugo-extended
@@ -35,7 +35,7 @@ scoop install hugo-extended
 
 ### Winget
 
-[Winget] is Microsoft's official free and open-source package manager for Windows. To install the extended edition of Hugo:
+[Winget][] is Microsoft's official free and open-source package manager for Windows. To install the extended edition of Hugo:
 
 ```sh
 winget install Hugo.Hugo.Extended
@@ -51,10 +51,10 @@ winget uninstall --name "Hugo (Extended)"
 
 To build Hugo from source you must install:
 
-1. [Git]
-1. [Go] version 1.25.0 or later
+1. [Git][]
+1. [Go][] version {{% current-go-version %}} or later
 
-> [!note]
+> [!NOTE]
 > The Bash-style `KEY=VALUE cmd` syntax used in the macOS and Linux build-from-source instructions does not work in PowerShell or Command Prompt. Use the code block matching your shell.
 
 ### Standard edition
@@ -95,7 +95,7 @@ go install -tags withdeploy github.com/gohugoio/hugo@latest
 
 ### Extended edition
 
-To build and install the extended edition, first install a C compiler such as [GCC] or [Clang] and then run the following command:
+To build and install the extended edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command:
 
 PowerShell:
 
@@ -112,7 +112,7 @@ go install -tags extended github.com/gohugoio/hugo@latest
 
 ### Extended/deploy edition
 
-To build and install the extended/deploy edition, first install a C compiler such as [GCC] or [Clang] and then run the following command:
+To build and install the extended/deploy edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command:
 
 PowerShell:
 
@@ -127,8 +127,8 @@ set CGO_ENABLED=1
 go install -tags extended,withdeploy github.com/gohugoio/hugo@latest
 ```
 
-> [!note]
-> See these [detailed instructions](https://discourse.gohugo.io/t/41370) to install GCC on Windows.
+> [!NOTE]
+> See these [detailed instructions][] to install GCC on Windows.
 
 ## Comparison
 
@@ -150,3 +150,4 @@ Latest version available?|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mar
 [Go]: https://go.dev/doc/install
 [Scoop]: https://scoop.sh/
 [Winget]: https://learn.microsoft.com/en-us/windows/package-manager/
+[detailed instructions]: https://discourse.gohugo.io/t/41370

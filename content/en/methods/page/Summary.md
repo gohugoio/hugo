@@ -14,7 +14,7 @@ params:
 
 <!--more-->
 
-You can define a [summary] manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.
+You can define a [summary][] manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.
 
 To list the pages in a section with a summary beneath each link:
 
@@ -25,10 +25,10 @@ To list the pages in a section with a summary beneath each link:
 {{ end }}
 ```
 
-> [!warning]
-> Automatic `.Summary` may cut block tags (e.g., `blockquote`) in the middle, causing the browser to recover the end tag. See [automatic summary] for details and for ways to avoid this.
+> [!WARNING]
+> Automatic `.Summary` may cut block tags (e.g., `blockquote`) in the middle, causing the browser to recover the end tag. See [automatic summary][] for details and for ways to avoid this.
 
-Depending on content length and how you define the summary, the summary may be equivalent to the content itself. To determine whether the content length exceeds the summary length, use the [`Truncated`] method on a `Page` object. This is useful for conditionally rendering a “read more” link:
+Depending on content length and how you define the summary, the summary may be equivalent to the content itself. To determine whether the content length exceeds the summary length, use the [`Truncated`][] method on a `Page` object. This is useful for conditionally rendering a “read more” link:
 
 ```go-html-template
 {{ range .Pages }}
@@ -40,9 +40,9 @@ Depending on content length and how you define the summary, the summary may be e
 {{ end }}
 ```
 
-> [!note]
+> [!NOTE]
 > The `Truncated` method returns `false` if you define the summary in front matter.
 
-[`Truncated`]: /methods/page/truncated
-[summary]: /content-management/summaries/
+[`Truncated`]: /methods/page/truncated/
 [automatic summary]: /content-management/summaries/#automatic-summary
+[summary]: /content-management/summaries/

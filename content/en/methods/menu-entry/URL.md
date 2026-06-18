@@ -9,7 +9,7 @@ params:
     signatures: [MENUENTRY.URL]
 ---
 
-For menu entries associated with a page, the `URL` method returns the page's [`RelPermalink`], otherwise it returns the entry's `url` property.
+For menu entries associated with a page, the `URL` method returns the page's [`RelPermalink`][], otherwise it returns the entry's `url` property.
 
 ```go-html-template
 <ul>

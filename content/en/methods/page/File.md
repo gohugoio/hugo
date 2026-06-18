@@ -13,7 +13,7 @@ By default, not all pages are backed by a file, including top-level [section pag
 
 To back one of the pages above with a file, create an&nbsp;`_index.md`&nbsp;file in the corresponding directory. For example:
 
-```text
+```tree
 content/
 └── books/
     ├── _index.md  <-- the top-slevel section page
@@ -21,129 +21,120 @@ content/
     └── book-2.md
 ```
 
-> [!note]
+> [!NOTE]
 > Code defensively by verifying file existence as shown in the examples below.
 
 ## Methods
 
-> [!note]
+Use these methods on the `File` object.
+
+> [!NOTE]
 > The path separators (slash or backslash) in `Path`, `Dir`, and `Filename` depend on the operating system.
 
-### BaseFileName
+`BaseFileName`
+: (`string`) The file name, excluding the extension.
 
-(`string`) The file name, excluding the extension.
+  ```go-html-template
+  {{ with .File }}
+    {{ .BaseFileName }}
+  {{ end }}
+  ```
 
-```go-html-template
-{{ with .File }}
-  {{ .BaseFileName }}
-{{ end }}
-```
+`ContentBaseName`
+: (`string`) If the page is a branch or leaf bundle, the name of the containing directory, else the `TranslationBaseName`.
 
-### ContentBaseName
+  ```go-html-template
+  {{ with .File }}
+    {{ .ContentBaseName }}
+  {{ end }}
+  ```
 
-(`string`) If the page is a branch or leaf bundle, the name of the containing directory, else the `TranslationBaseName`.
+`Dir`
+: (`string`) The file path, excluding the file name, relative to the `content` directory.
 
-```go-html-template
-{{ with .File }}
-  {{ .ContentBaseName }}
-{{ end }}
-```
+  ```go-html-template
+  {{ with .File }}
+    {{ .Dir }}
+  {{ end }}
+  ```
 
-### Dir
+`Ext`
+: (`string`) The file extension.
 
-(`string`) The file path, excluding the file name, relative to the `content` directory.
+  ```go-html-template
+  {{ with .File }}
+    {{ .Ext }}
+  {{ end }}
+  ```
 
-```go-html-template
-{{ with .File }}
-  {{ .Dir }}
-{{ end }}
-```
+`Filename`
+: (`string`) The absolute file path.
 
-### Ext
+  ```go-html-template
+  {{ with .File }}
+    {{ .Filename }}
+  {{ end }}
+  ```
 
-(`string`) The file extension.
+`IsContentAdapter`
+: (`bool`) Reports whether the file is a [content adapter][].
 
-```go-html-template
-{{ with .File }}
-  {{ .Ext }}
-{{ end }}
-```
+  ```go-html-template
+  {{ with .File }}
+    {{ .IsContentAdapter }}
+  {{ end }}
+  ```
 
-### Filename
+`LogicalName`
+: (`string`) The file name.
 
-(`string`) The absolute file path.
+  ```go-html-template
+  {{ with .File }}
+    {{ .LogicalName }}
+  {{ end }}
+  ```
 
-```go-html-template
-{{ with .File }}
-  {{ .Filename }}
-{{ end }}
-```
+`Path`
+: (`string`) The file path, relative to the `content` directory.
 
-### IsContentAdapter
+  ```go-html-template
+  {{ with .File }}
+    {{ .Path }}
+  {{ end }}
+  ```
 
-(`bool`) Reports whether the file is a [content adapter].
+`Section`
+: (`string`) The name of the top-level section in which the file resides.
 
-```go-html-template
-{{ with .File }}
-  {{ .IsContentAdapter }}
-{{ end }}
-```
+  ```go-html-template
+  {{ with .File }}
+    {{ .Section }}
+  {{ end }}
+  ```
 
-### LogicalName
+`TranslationBaseName`
+: (`string`) The file name, excluding the extension and language identifier.
 
-(`string`) The file name.
+  ```go-html-template
+  {{ with .File }}
+    {{ .TranslationBaseName }}
+  {{ end }}
+  ```
 
-```go-html-template
-{{ with .File }}
-  {{ .LogicalName }}
-{{ end }}
-```
+`UniqueID`
+: (`string`) The MD5 hash of `.File.Path`.
 
-### Path
-
-(`string`) The file path, relative to the `content` directory.
-
-```go-html-template
-{{ with .File }}
-  {{ .Path }}
-{{ end }}
-```
-
-### Section
-
-(`string`) The name of the top-level section in which the file resides.
-
-```go-html-template
-{{ with .File }}
-  {{ .Section }}
-{{ end }}
-```
-
-### TranslationBaseName
-
-(`string`) The file name, excluding the extension and language identifier.
-
-```go-html-template
-{{ with .File }}
-  {{ .TranslationBaseName }}
-{{ end }}
-```
-
-### UniqueID
-
-(`string`) The MD5 hash of `.File.Path`.
-
-```go-html-template
-{{ with .File }}
-  {{ .UniqueID }}
-{{ end }}
-```
+  ```go-html-template
+  {{ with .File }}
+    {{ .UniqueID }}
+  {{ end }}
+  ```
 
 ## Examples
 
 Consider this content structure in a multilingual project:
 
-```text
+```tree
 content/
 ├── news/
 │   ├── b/

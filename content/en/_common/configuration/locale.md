@@ -2,7 +2,7 @@
 _comment: Do not remove front matter.
 ---
 
-locale
+`locale`
 : (`string`) The language tag as described in [RFC 5646][]. This is the primary value used by the [`language.Translate`][] function to select a translation table, and for localization of dates, currencies, numbers, and percentages, falling back to the [language key][] in both cases.
 
   Hugo also uses this value to populate:

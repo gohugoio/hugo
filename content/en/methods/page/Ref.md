@@ -11,7 +11,7 @@ params:
 
 ## Usage
 
-The `Ref` method accepts a single argument: an options map.
+The `Ref` method requires a single argument: an options map.
 
 ## Options
 

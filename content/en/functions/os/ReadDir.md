@@ -15,7 +15,7 @@ The `os.ReadDir` function resolves the path relative to the root of your project
 
 With this directory structure:
 
-```text
+```tree
 content/
 ├── about.md
 ├── contact.md
@@ -42,4 +42,6 @@ news → true
 
 Note that `os.ReadDir` is not recursive.
 
-Details of the `FileInfo` structure are available in the [Go documentation](https://pkg.go.dev/io/fs#FileInfo).
+Details of the `FileInfo` structure are available in the [Go documentation][].
+
+[Go documentation]: https://pkg.go.dev/io/fs#FileInfo

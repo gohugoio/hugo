@@ -9,7 +9,7 @@ params:
     signatures: [RESOURCE.Data]
 ---
 
-The `Data` method on a resource returned by the [`resources.GetRemote`] function returns information from the HTTP response.
+The `Data` method on a resource returned by the [`resources.GetRemote`][] function returns information from the HTTP response.
 
 ## Example
 
@@ -36,29 +36,25 @@ The `Data` method on a resource returned by the [`resources.GetRemote`] function
 
 ## Methods
 
-### ContentLength
+Use these methods on the `Data` object.
 
-(`int`) The content length in bytes.
+`ContentLength`
+: (`int`) The content length in bytes.
 
-### ContentType
+`ContentType`
+: (`string`) The content type.
 
-(`string`) The content type.
+`Headers`
+: (`map[string][]string`) A map of response headers matching those requested in the [`responseHeaders`][] option passed to the `resources.GetRemote` function. The header name matching is case-insensitive. In most cases there will be one value per header key.
 
-### Headers
+`Status`
+: (`string`) The HTTP status text.
 
-(`map[string][]string`) A map of response headers matching those requested in the [`responseHeaders`] option passed to the `resources.GetRemote` function. The header name matching is case-insensitive. In most cases there will be one value per header key.
+`StatusCode`
+: (`int`) The HTTP status code.
 
-### Status
-
-(`string`) The HTTP status text.
-
-### StatusCode
-
-(`int`) The HTTP status code.
-
-### TransferEncoding
-
-(`string`) The transfer encoding.
+`TransferEncoding`
+: (`string`) The transfer encoding.
 
 [`resources.GetRemote`]: /functions/resources/getremote/
 [`responseHeaders`]: /functions/resources/getremote/#responseheaders

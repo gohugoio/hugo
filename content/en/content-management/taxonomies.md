@@ -78,7 +78,7 @@ When taxonomies are used Hugo will automatically create both a page listing all 
 
 ## Configuration
 
-See [configure taxonomies](/configuration/taxonomies/).
+See [configure taxonomies][].
 
 ## Assign terms to content
 
@@ -118,7 +118,7 @@ author = 'authors'
 
 Then create content with one [branch bundle](g) for each term:
 
-```text
+```tree
 content/
 └── authors/
     ├── jsmith/
@@ -175,3 +175,5 @@ Or create a _term_ template specific to the `authors` taxonomy:
 ```
 
 In the example above we display the author including their affiliation and portrait, then a list of associated content.
+
+[configure taxonomies]: /configuration/taxonomies/

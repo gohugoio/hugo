@@ -9,9 +9,7 @@ params:
     signatures: [PAGE.LinkTitle]
 ---
 
-The `LinkTitle` method returns the `linkTitle` field as defined in front matter, falling back to the value returned by the [`Title`] method.
-
-[`Title`]: /methods/page/title/
+The `LinkTitle` method returns the `linkTitle` field as defined in front matter, falling back to the value returned by the [`Title`][] method.
 
 {{< code-toggle file=content/articles/healthy-desserts.md fm=true >}}
 title = 'Seventeen delightful recipes for healthy desserts'
@@ -27,3 +25,5 @@ As demonstrated above, defining a link title in front matter is advantageous whe
 ```go-html-template
 <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
 ```
+
+[`Title`]: /methods/page/title/

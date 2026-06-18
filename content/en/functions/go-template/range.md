@@ -20,7 +20,7 @@ The collection may be a slice, a map, or an integer.
 {{ end }}
 ```
 
-Use with the [`else`] statement:
+Use with the [`else`][] statement:
 
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
@@ -33,12 +33,12 @@ Use with the [`else`] statement:
 
 Within a range block:
 
-- Use the [`continue`] statement to stop the innermost iteration and continue to the next iteration
-- Use the [`break`] statement to stop the innermost iteration and bypass all remaining iterations
+- Use the [`continue`][] statement to stop the innermost iteration and continue to the next iteration
+- Use the [`break`][] statement to stop the innermost iteration and bypass all remaining iterations
 
 ## Understanding context
 
-See the [context] section in the introduction to templating.
+See the [context][] section in the introduction to templating.
 
 For example, at the top of a _page_ template, the [context](g) (the dot) is a `Page` object. Within the `range` block, the context is bound to each successive element.
 
@@ -59,7 +59,7 @@ can't evaluate field Title in type int
 
 The error occurs because we are trying to use the `.Title` method on a string instead of a `Page` object. Within the `range` block, if we want to render the page title, we need to get the context passed into the template.
 
-> [!note]
+> [!NOTE]
 > Use the `$` to get the context passed into the template.
 
 This template will render the page title three times:
@@ -71,7 +71,7 @@ This template will render the page title three times:
 {{ end }}
 ```
 
-> [!note]
+> [!NOTE]
 > Gaining a thorough understanding of context is critical for anyone writing template code.
 
 ## Examples

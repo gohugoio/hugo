@@ -11,7 +11,7 @@ params:
 
 ## Usage
 
-The `RelRef` method accepts a single argument: an options map.
+The `RelRef` method requires a single argument: an options map.
 
 ## Options
 

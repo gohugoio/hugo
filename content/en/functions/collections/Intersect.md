@@ -21,4 +21,6 @@ A useful example is to use it as `AND` filters when combined with where:
 
 The above fetches regular pages not of `page` or `about` type unless they are pinned. And finally, we exclude all pages with no `images` set in Page parameters.
 
-See [union](/functions/collections/union) for `OR`.
+See [union][] for `OR`.
+
+[union]: /functions/collections/union/

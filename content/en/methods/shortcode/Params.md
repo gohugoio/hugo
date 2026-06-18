@@ -11,7 +11,7 @@ params:
 
 When you call a shortcode using positional arguments, the `Params` method returns a slice.
 
-```text {file="content/about.md"}
+```md {file="content/about.md"}
 {{</* myshortcode "Hello" "world" */>}}
 ```
 
@@ -22,7 +22,7 @@ When you call a shortcode using positional arguments, the `Params` method return
 
 When you call a shortcode using named arguments, the `Params` method returns a map.
 
-```text {file="content/about.md"}
+```md {file="content/about.md"}
 {{</* myshortcode greeting="Hello" name="world" */>}}
 ```
 

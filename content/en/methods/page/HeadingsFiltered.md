@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.HeadingsFiltered]
 ---
 
-Use in conjunction with the [`Related`] method on a [`Pages`] object. See&nbsp;[details].
+Use in conjunction with the [`Related`][] method on a [`Pages`][] object. See [details][].
 
 [`Pages`]: /methods/pages/
 [`Related`]: /methods/pages/related/

@@ -21,9 +21,7 @@ Use the `safe.HTML` function to encapsulate a known safe HTML document fragment.
 
 Use of this type presents a security risk: the encapsulated content should come from a trusted source, as it will be included verbatim in the template output.
 
-See the [Go documentation] for details.
-
-[Go documentation]: https://pkg.go.dev/html/template#HTML
+See the [Go documentation][] for details.
 
 ## Example
 
@@ -52,3 +50,5 @@ Hugo renders the above to:
 ```html
 <em>emphasized</em>
 ```
+
+[Go documentation]: https://pkg.go.dev/html/template#HTML

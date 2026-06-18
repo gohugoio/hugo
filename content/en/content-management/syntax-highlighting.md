@@ -16,24 +16,24 @@ Hugo provides several methods to add syntax highlighting to code examples:
 
 In its default configuration, Hugo highlights code examples within fenced code blocks, following this form:
 
-````text {file="content/example.md"}
+````md {file="content/example.md"}
 ```LANG [OPTIONS]
 CODE
 ```
 ````
 
-CODE
+`CODE`
 : The code to highlight.
 
-LANG
-: The language of the code to highlight. Choose from one of the [supported languages][]. This value is case-insensitive. If omitted or unsupported, Hugo renders the text as a plain text block without syntax highlighting. Consistent with the [CommonMark specification][], fenced code blocks require a known language identifier to trigger semantic syntax highlighting.
+`LANG`
+: The language of the code to highlight. Choose from one of the [supported languages](#languages). This value is case-insensitive. If omitted or unsupported, Hugo renders the text as a plain text block without syntax highlighting. Consistent with the [CommonMark][] specification, fenced code blocks require a known language identifier to trigger semantic syntax highlighting.
 
-OPTIONS
+`OPTIONS`
 : One or more space-separated or comma-separated key-value pairs wrapped in braces. Set default values for each option in your [project configuration][]. The key names are case-insensitive.
 
 For example, with this Markdown:
 
-````text {file="content/example.md"}
+````md {file="content/example.md"}
 ```go {linenos=inline hl_lines=[3,"6-8"] style=emacs}
 package main
 
@@ -69,7 +69,7 @@ func main() {
 
 When documenting shortcode usage, escape the tag delimiters:
 
-````text {file="content/example.md"}
+````md {file="content/example.md"}
 ```text {linenos=inline}
 {{</*/* shortcode-1 */*/>}}
 
@@ -95,8 +95,7 @@ These are the supported languages. Use one of the identifiers, not the language 
 
 {{< chroma-lexers >}}
 
+[CommonMark]: https://spec.commonmark.org/current/#indented-code-blocks
 [`highlight`]: /shortcodes/highlight/
 [`transform.Highlight`]: /functions/transform/highlight/
-[CommonMark specification]: https://spec.commonmark.org/0.31.2/#indented-code-blocks
 [project configuration]: /configuration/markup/#highlight
-[supported languages]: #languages

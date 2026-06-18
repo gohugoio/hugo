@@ -9,40 +9,40 @@ keywords: []
 
 You can contribute to the Hugo project by:
 
-- Answering questions on the [forum]
-- Improving the [documentation]
-- Monitoring the [issue queue]
-- Creating or improving [themes]
-- Squashing [bugs]
+- Answering questions on the [forum][]
+- Improving the [documentation][]
+- Monitoring the [issue queue][]
+- Creating or improving [themes][]
+- Squashing [bugs][]
 
-Please submit documentation issues and pull requests to the [documentation repository].
+Please submit documentation issues and pull requests to the [documentation repository][].
 
-If you have an idea for an enhancement or new feature, create a new topic on the [forum] in the "Feature" category. This will help you to:
+If you have an idea for an enhancement or new feature, create a new topic on the [forum][] in the "Feature" category. This will help you to:
 
 - Determine if the capability already exists
 - Measure interest
 - Refine the concept
 
-If there is sufficient interest, [create a proposal]. Do not submit a pull request until the project lead accepts the proposal.
+If there is sufficient interest, [create a proposal][]. Do not submit a pull request until the project lead accepts the proposal.
 
-For a complete guide to contributing to Hugo, see the [Contribution Guide].
+For a complete guide to contributing to Hugo, see the [Contribution Guide][].
 
 ## Prerequisites
 
 To build Hugo from source you must install:
 
-1. Install [Git]
-1. Install [Go] version 1.25.0 or later
+1. Install [Git][]
+1. Install [Go][] version {{% current-go-version %}} or later
 
 ## GitHub workflow
 
-> [!note]
+> [!NOTE]
 > This section assumes that you have a working knowledge of Go, Git and GitHub, and are comfortable working on the command line.
 
 Use this workflow to create and submit pull requests.
 
 Step 1
-: Fork the [project repository].
+: Fork the [project repository][].
 
 Step 2
 : Clone your fork.
@@ -80,13 +80,13 @@ Step 5
   CGO_ENABLED=0 go install -tags withdeploy
   ```
 
-  To build and install the extended edition, first install a C compiler such as [GCC] or [Clang] and then run the following command:
+  To build and install the extended edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command:
 
   ```sh
   CGO_ENABLED=1 go install -tags extended
   ```
 
-  To build and install the extended/deploy edition, first install a C compiler such as [GCC] or [Clang] and then run the following command:
+  To build and install the extended/deploy edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command:
 
   ```sh
   CGO_ENABLED=1 go install -tags extended,withdeploy
@@ -95,7 +95,7 @@ Step 5
 Step 6
 : Test your changes:
 
-  ```text
+  ```sh
   go test ./...
   ```
 
@@ -105,9 +105,9 @@ Step 7
   - Provide a summary on the first line, typically 50 characters or less, followed by a blank line.
     - Begin the summary with the name of the package, followed by a colon, a space, and a brief description of the change beginning with a capital letter
     - Use imperative present tense
-    - See the [commit message guidelines] for requirements
+    - See the [commit message guidelines][] for requirements
   - Optionally, provide a detailed description where each line is 72 characters or less, followed by a blank line.
-  - Add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues] addressed by this change.
+  - Add one or more "Fixes" or "Closes" keywords, each on its own line, referencing the [issues][] addressed by this change.
 
   For example:
 
@@ -126,7 +126,7 @@ Step 8
 : Push the new branch to your fork of the documentation repository.
 
 Step 9
-: Visit the [project repository] and create a pull request (PR).
+: Visit the [project repository][] and create a pull request (PR).
 
 Step 10
 : A project maintainer will review your PR and may request changes. You may delete your branch after the maintainer merges your PR.

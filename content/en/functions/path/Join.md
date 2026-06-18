@@ -11,10 +11,7 @@ params:
 aliases: [/functions/path.join]
 ---
 
-See Go's [`path.Join`] and [`path.Clean`] documentation for details.
-
-[`path.Clean`]: https://pkg.go.dev/path#Clean
-[`path.Join`]: https://pkg.go.dev/path#Join
+See Go's [`path.Join`][] and [`path.Clean`][] documentation for details.
 
 ```go-html-template
 {{ path.Join "partial" "news.html" }} → partial/news.html
@@ -26,3 +23,6 @@ See Go's [`path.Join`] and [`path.Clean`] documentation for details.
 {{ path.Join "foo" ".." "baz" }} → baz
 {{ path.Join "/.." "foo" ".." "baz" }} → baz
 ```
+
+[`path.Clean`]: https://pkg.go.dev/path#Clean
+[`path.Join`]: https://pkg.go.dev/path#Join

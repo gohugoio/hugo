@@ -10,7 +10,7 @@ params:
     signatures: [else VALUE]
 ---
 
-Use with the [`if`] statement:
+Use with the [`if`][] statement:
 
 ```go-html-template
 {{ $var := "foo" }}
@@ -21,7 +21,7 @@ Use with the [`if`] statement:
 {{ end }}
 ```
 
-Use with the [`with`] statement:
+Use with the [`with`][] statement:
 
 ```go-html-template
 {{ $var := "foo" }}
@@ -32,7 +32,7 @@ Use with the [`with`] statement:
 {{ end }}
 ```
 
-Use with the [`range`] statement:
+Use with the [`range`][] statement:
 
 ```go-html-template
 {{ $var := slice 1 2 3 }}
@@ -61,5 +61,5 @@ Use `else if` to check multiple conditions.
 {{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`if`]: /functions/go-template/if/
-[`with`]: /functions/go-template/with/
 [`range`]: /functions/go-template/range/
+[`with`]: /functions/go-template/with/

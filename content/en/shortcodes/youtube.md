@@ -6,8 +6,8 @@ categories: []
 keywords: []
 ---
 
-> [!note]
-> To override Hugo's embedded `youtube` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
+> [!NOTE]
+> To override Hugo's embedded `youtube` shortcode, copy the [source code][] to a file with the same name in the `layouts/_shortcodes` directory.
 
 ## Example
 
@@ -19,7 +19,7 @@ https://www.youtube.com/watch?v=0RKpf3rK57I
 
 Include this in your Markdown:
 
-```texts
+```md
 {{</* youtube 0RKpf3rK57I */>}}
 ```
 
@@ -29,42 +29,42 @@ Hugo renders this to:
 
 ## Arguments
 
-id
+`id`
 : (`string`) The video `id`. Optional if the `id` is the first and only positional argument.
 
-allowFullScreen
+`allowFullScreen`
 : (`bool`) Whether the `iframe` element can activate full screen mode. Default is `true`.
 
-autoplay
+`autoplay`
 : (`bool`) Whether to automatically play the video. Forces `mute` to `true`. Default is `false`.
 
-class
+`class`
 : (`string`) The `class` attribute of the wrapping `div` element. When specified, removes the `style` attributes from the `iframe` element and its wrapping `div` element.
 
-controls
+`controls`
 : (`bool`) Whether to display the video controls. Default is `true`.
 
-end
+`end`
 : (`int`) The time, measured in seconds from the start of the video, when the player should stop playing the video.
 
-loading
+`loading`
 : (`string`) The loading attribute of the `iframe` element, either `eager` or `lazy`. Default is `eager`.
 
-loop
+`loop`
 : (`bool`) Whether to indefinitely repeat the video. Ignores the `start` and `end` arguments after the first play. Default is `false`.
 
-mute
+`mute`
 : (`bool`) Whether to mute the video. Always `true` when `autoplay` is `true`. Default is `false`.
 
-start
+`start`
 : (`int`) The time, measured in seconds from the start of the video, when the player should start playing the video.
 
-title
+`title`
 : (`string`) The `title` attribute of the `iframe` element. Defaults to "YouTube video".
 
 Here's an example using some of the available arguments:
 
-```text
+```md
 {{</* youtube id=0RKpf3rK57I start=30 end=60 loading=lazy */>}}
 ```
 
@@ -74,10 +74,10 @@ Adjust the relevant privacy settings in your project configuration.
 
 {{< code-toggle config=privacy.youTube />}}
 
-disable
+`disable`
 : (`bool`) Whether to disable the shortcode. Default is `false`.
 
-privacyEnhanced
+`privacyEnhanced`
 : (`bool`) Whether to block YouTube from storing information about visitors on your website unless the user plays the embedded video. Default is `false`.
 
-[source code]: {{% eturl youtube %}}
+[source code]: <{{% eturl youtube %}}>

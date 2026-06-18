@@ -24,7 +24,11 @@ immediate descendants.
 		{{ with .Pages }}
 			{{ range . }}
 				{{/* Use page Path as the link destination for render hook to resolve correctly. */}}
+				{{ if .Params.isFunctionOrMethod }}
+[`{{ .LinkTitle }}`]({{ .Path }}){{/* Do not indent. */}}
+				{{ else }}
 [{{ .LinkTitle }}]({{ .Path }}){{/* Do not indent. */}}
+				{{ end }}
 : {{ .Description }}{{/* Do not indent. */}}
 			{{ end }}
 		{{ end }}

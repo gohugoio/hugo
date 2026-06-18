@@ -15,8 +15,10 @@ aliases: [/functions/md5]
 {{ md5 "Hello world" }} → 3e25960a79dbc69b674cd4ec67a72c62
 ```
 
-This can be useful if you want to use [Gravatar](https://en.gravatar.com/) for generating a unique avatar:
+This can be useful if you want to use [Gravatar][] for generating a unique avatar:
 
 ```html
 <img src="https://www.gravatar.com/avatar/{{ md5 "your@email.com" }}?s=100&d=identicon">
 ```
+
+[Gravatar]: https://en.gravatar.com/

@@ -101,7 +101,7 @@ either of these shortcodes in conjunction with this render hook.
 	{{- $attrs = partial "inline/h-rh-l/get-glossary-link-attributes.html" $ctx }}
 {{- else if $u.IsAbs }}
 	{{- /* Destination is a remote resource. */}}
-	{{- $attrs = merge $attrs (dict "rel" "external") }}
+	{{- $attrs = merge $attrs (dict "rel" "external nofollow") }}
 {{- else }}
 	{{- with $u.Path }}
 		{{- with $p := or ($.PageInner.GetPage .) ($.PageInner.GetPage (strings.TrimRight "/" .)) }}

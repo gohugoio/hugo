@@ -33,7 +33,7 @@ Type
 Section
 : Is relevant for `section`, `taxonomy` and `term` types.
 
-> [!note]
+> [!NOTE]
 > Templates can live in either the project's or the themes' `layout` directories, and the most specific templates will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
 
 ## Target a template
@@ -42,7 +42,7 @@ You cannot change the lookup order to target a content page, but you can change 
 
 Consider this content structure:
 
-```text
+```tree
 content/
 ├── about.md
 └── contact.md
@@ -50,13 +50,13 @@ content/
 
 Files in the root of the `content` directory have a [content type](g) of `page`. To render these pages with a unique template, create a matching subdirectory:
 
-```text
+```tree
 layouts/
 └── page/
     └── single.html
 ```
 
-But the contact page probably has a form and requires a different template. In the front matter specify `layout`:
+The contact page, however, probably has a form and requires a different template. In the front matter specify `layout`:
 
 {{< code-toggle file=content/contact.md fm=true >}}
 title = 'Contact'
@@ -65,7 +65,7 @@ layout = 'contact'
 
 Then create the template for the contact page:
 
-```text
+```tree
 layouts/
 └── page/
     └── contact.html  <-- renders contact.md
@@ -87,7 +87,7 @@ layout = 'contact'
 
 Now place the layouts in the corresponding directory:
 
-```text
+```tree
 layouts/
 └── miscellaneous/
     └── contact.html  <-- renders contact.md

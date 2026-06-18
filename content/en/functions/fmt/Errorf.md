@@ -19,6 +19,6 @@ The `errorf` function evaluates the format string, then prints the result to the
 {{ errorf "The %q shortcode requires a src argument. See %s" .Name .Position }}
 ```
 
-Use the [`erroridf`] function to allow optional suppression of specific errors.
+Use the [`erroridf`][] function to allow optional suppression of specific errors.
 
 [`erroridf`]: /functions/fmt/erroridf/

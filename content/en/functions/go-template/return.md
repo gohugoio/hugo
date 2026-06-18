@@ -10,13 +10,13 @@ params:
     signatures: ['return [VALUE]']
 ---
 
-The `return` statement is a non-standard extension to Go's [text/template package]. Used within _partial_ templates, the `return` statement terminates template execution and returns the given value, if any.
+The `return` statement is a non-standard extension to Go's [`text/template`][] package. Used within _partial_ templates, the `return` statement terminates template execution and returns the given value, if any.
 
 The returned value may be of any data type including, but not limited to, [`bool`](g), [`float`](g), [`int`](g), [`map`](g), [`resource`](g), [`slice`](g), or [`string`](g).
 
 A `return` statement without a value returns an empty string of type `template.HTML`.
 
-> [!note]
+> [!NOTE]
 > Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks. See [usage](#usage) notes below.
 
 ## Example
@@ -62,7 +62,7 @@ Hugo renders:
 
 ## Usage
 
-> [!note]
+> [!NOTE]
 > Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks.
 
 A partial that returns a value must contain only one `return` statement, placed at the end of the template.
@@ -79,7 +79,7 @@ For example:
 {{ return $result }}
 ```
 
-> [!note]
+> [!NOTE]
 > The construct below is incorrect; it contains more than one `return` statement.
 
 ```go-html-template {file="layouts/_partials/do-not-do-this.html"}
@@ -90,4 +90,4 @@ For example:
 {{ end }}
 ```
 
-[text/template package]: https://pkg.go.dev/text/template
+[`text/template`]: https://pkg.go.dev/text/template

@@ -9,320 +9,317 @@ aliases: [/getting-started/configuration/]
 
 ## Settings
 
-archetypeDir
+`archetypeDir`
 : (`string`) The designated directory for [archetypes](g). Default is `archetypes`. {{% module-mounts-note %}}
 
-assetDir
+`assetDir`
 : (`string`) The designated directory for [global resources](g). Default is `assets`. {{% module-mounts-note %}}
 
-baseURL
+`baseURL`
 : (`string`) The absolute URL of your published site including the protocol, host, path, and a trailing slash.
 
-build
+`build`
 : See [configure build][].
 
-buildDrafts
+`buildDrafts`
 : (`bool`) Whether to include draft content when building a site. Default is `false`.
 
-buildExpired
+`buildExpired`
 : (`bool`) Whether to include expired content when building a site. Default is `false`.
 
-buildFuture
+`buildFuture`
 : (`bool`) Whether to include future content when building a site. Default is `false`.
 
-cacheDir
-: (`string`) The designated cache directory. See&nbsp;[details](#cache-directory).
+`cacheDir`
+: (`string`) The designated cache directory. See [details](#cache-directory).
 
-caches
+`caches`
 : See [configure file caches][].
 
-canonifyURLs
-: (`bool`) See&nbsp;[details](/content-management/urls/#canonical-urls) before enabling this feature. Default is `false`.
+`canonifyURLs`
+: (`bool`) See [details][canonical-urls] before enabling this feature. Default is `false`.
 
-capitalizeListTitles
-: (`bool`) Whether to capitalize automatic list titles. Applicable to section, taxonomy, and term pages. Use the [`titleCaseStyle`][] setting to configure capitalization rules. Default is `true`.
+`capitalizeListTitles`
+: (`bool`) Whether to capitalize automatic list titles. Applicable to section, taxonomy, and term pages. Use the [`titleCaseStyle`](#titlecasestyle) setting to configure capitalization rules. Default is `true`.
 
-cascade
+`cascade`
 : See [configure cascade][].
 
-cleanDestinationDir
-: (`bool`) Whether to remove files from the [`publishDir`][] that do not exist in the [`staticDir`][] when building the site. This setting will not take effect if the `staticDir` does not exist. Note that `.gitignore` and `.gitattributes` files, along with directories named `.git`, are always preserved in the `publishDir`. Default is `false`.
+`cleanDestinationDir`
+: (`bool`) Whether to remove files from the [`publishDir`](#publishdir) that do not exist in the [`staticDir`](#staticdir) when building the site. This setting will not take effect if the `staticDir` does not exist. Note that `.gitignore` and `.gitattributes` files, along with directories named `.git`, are always preserved in the `publishDir`. Default is `false`.
 
-contentDir
+`contentDir`
 : (`string`) The designated directory for content files. Default is `content`. {{% module-mounts-note %}}
 
-copyright
+`copyright`
 : (`string`) The copyright notice for a site, typically displayed in the footer.
 
-dataDir
+`dataDir`
 : (`string`) The designated directory for data files. Default is `data`. {{% module-mounts-note %}}
 
-defaultContentLanguage
+`defaultContentLanguage`
 : (`string`) The projects's [default language](g), conforming to the syntax described in [RFC 5646][].
 
-defaultContentLanguageInSubdir
-: (`bool`) Whether to publish the default content language to a subdirectory matching the [`defaultContentLanguage`][]. Default is `false`.
+`defaultContentLanguageInSubdir`
+: (`bool`) Whether to publish the default content language to a subdirectory matching the [`defaultContentLanguage`](#defaultcontentlanguage). Default is `false`.
 
-defaultContentRole
+`defaultContentRole`
 : {{< new-in 0.153.0 />}}
 : (`string`) The project's [default role](g).
 
-defaultContentRoleInSubdir
+`defaultContentRoleInSubdir`
 : {{< new-in 0.153.0 />}}
-: (`bool`) Whether to publish the default content [role](g) to a subdirectory matching the [`defaultContentRole`][]. Default is `false`.
+: (`bool`) Whether to publish the default content [role](g) to a subdirectory matching the [`defaultContentRole`](#defaultcontentrole). Default is `false`.
 
-defaultContentVersion
+`defaultContentVersion`
 : {{< new-in 0.153.0 />}}
 : (`string`) The project's [default version](g).
 
-defaultContentVersionInSubdir
+`defaultContentVersionInSubdir`
 : {{< new-in 0.153.0 />}}
-: (`bool`) Whether to publish the default content version to a subdirectory matching the [`defaultContentVersion`][]. Default is `false`.
+: (`bool`) Whether to publish the default content version to a subdirectory matching the [`defaultContentVersion`](#defaultcontentversion). Default is `false`.
 
-defaultOutputFormat
+`defaultOutputFormat`
 : (`string`) The default output format for the site. If unspecified, the first available format in the defined order (by weight, then alphabetically) will be used.
 
-deployment
+`deployment`
 : See [configure deployment][].
 
-disableAliases
+`disableAliases`
 : (`bool`) Whether to disable the generation of HTML redirect files for each path defined in the [`aliases`][aliases_front_matter] front matter field. When `true`, Hugo will not create physical files for [client-side redirection][], but the alias data remains available via the [`Aliases`][aliases_page_method] method on a `Page` object. Default is `false`.
 
-disableDefaultLanguageRedirect
+`disableDefaultLanguageRedirect`
 : {{< new-in 0.140.0 />}}
-: (`bool`) Whether to disable generation of the alias redirect for the default content language. When [`defaultContentLanguageInSubdir`][] is `true`, this setting prevents the root directory from redirecting to the language subdirectory. Conversely, when `defaultContentLanguageInSubdir` is `false`, this setting prevents the language subdirectory from redirecting to the root directory. This is superseded by the more general [`disableDefaultSiteRedirect`][] setting. Default is `false`.
+: (`bool`) Whether to disable generation of the alias redirect for the default content language. When [`defaultContentLanguageInSubdir`](#defaultcontentlanguageinsubdir) is `true`, this setting prevents the root directory from redirecting to the language subdirectory. Conversely, when `defaultContentLanguageInSubdir` is `false`, this setting prevents the language subdirectory from redirecting to the root directory. This is superseded by the more general [`disableDefaultSiteRedirect`](#disabledefaultsiteredirect) setting. Default is `false`.
 
-disableDefaultSiteRedirect
+`disableDefaultSiteRedirect`
 : {{< new-in 0.154.5 />}}
-: (`bool`) Whether to disable generation of the alias redirect to the [default site](g). When [`defaultContentLanguageInSubdir`][], [`defaultContentRoleInSubdir`][], or [`defaultContentVersionInSubdir`][] is `true`, this prevents the root directory from redirecting to the default site's subdirectory. Conversely, when these are `false`, it prevents the subdirectories from redirecting back to the root. Default is `false`.
+: (`bool`) Whether to disable generation of the alias redirect to the [default site](g). When [`defaultContentLanguageInSubdir`](#defaultcontentlanguageinsubdir), [`defaultContentRoleInSubdir`](#defaultcontentroleinsubdir), or [`defaultContentVersionInSubdir`](#defaultcontentversioninsubdir) is `true`, this prevents the root directory from redirecting to the default site's subdirectory. Conversely, when these are `false`, it prevents the subdirectories from redirecting back to the root. Default is `false`.
 
-disableHugoGeneratorInject
+`disableHugoGeneratorInject`
 : (`bool`) Whether to disable injection of a `<meta name="generator">` tag into the home page. Default is `false`.
 
-disableKinds
+`disableKinds`
 : (`[]string`) A slice of page [kinds](g) to disable during the build process, any of `404`, `home`, `page`, `robotstxt`, `rss`, `section`, `sitemap`, `taxonomy`, or `term`.
 
-disableLanguages
+`disableLanguages`
 : (`[]string`) A slice of language keys representing the languages to disable during the build process. Although this is functional, consider using the [`disabled`][] key under each language instead.
 
-disableLiveReload
+`disableLiveReload`
 : (`bool`) Whether to disable automatic live reloading of the browser window. Default is `false`.
 
-disablePathToLower
+`disablePathToLower`
 : (`bool`) Whether to disable transformation of page URLs to lower case. Default is `false`.
 
-enableEmoji
+`enableEmoji`
 : (`bool`) Whether to allow emoji in Markdown. Default is `false`.
 
-enableGitInfo
+`enableGitInfo`
 : (`bool`) Whether to retrieve commit metadata from the Git history of your local project and any [modules](g). This enables the [`GitInfo`][] method on a `Page` object. With the default front matter configuration, the [`Lastmod`][] method on a `Page` object returns the Git author date of the last commit for that file. Default is `false`.
 
-enableMissingTranslationPlaceholders
+`enableMissingTranslationPlaceholders`
 : (`bool`) Whether to show a placeholder instead of the default value or an empty string if a translation is missing. Default is `false`.
 
-enableRobotsTXT
+`enableRobotsTXT`
 : (`bool`) Whether to enable generation of a `robots.txt` file. Default is `false`.
 
-environment
-: (`string`) The build environment. Default is `production` when running `hugo build` and `development` when running `hugo server`.
-
-frontmatter
+`frontmatter`
 : See [configure front matter][].
 
-hasCJKLanguage
+`hasCJKLanguage`
 : (`bool`) Whether to automatically detect [CJK](g) languages in content. Affects the values returned by the [`WordCount`][] and [`FuzzyWordCount`][] methods. Default is `false`.
 
-HTTPCache
+`HTTPCache`
 : See [configure HTTP cache][].
 
-i18nDir
+`i18nDir`
 : (`string`) The designated directory for translation tables. Default is `i18n`. {{% module-mounts-note %}}
 
-ignoreCache
+`ignoreCache`
 : (`bool`) Whether to ignore the configured file caches. Default is `false`.
 
-ignoreFiles
+`ignoreFiles`
 : (`[]string`) A slice of [regular expressions](g) used to exclude specific files from a build. These expressions are matched against the absolute file path and apply to files within the `content`, `data`, and `i18n` directories. For more advanced file exclusion options, see the section on [module mounts][].
 
-ignoreLogs
+`ignoreLogs`
 : (`[]string`) A slice of message identifiers corresponding to warnings and errors you wish to suppress. See [`erroridf`][] and [`warnidf`][].
 
-ignoreVendorPaths
+`ignoreVendorPaths`
 : (`string`) A [glob pattern](g) matching the module paths to exclude from the `_vendor` directory.
 
-imaging
+`imaging`
 : See [configure imaging][].
 
-languageCode
+`languageCode`
 : {{<deprecated-in 0.158.0 />}}
 : Use [`locale`](#locale) instead.
 
-languages
+`languages`
 : See [configure languages][].
 
-layoutDir
+`layoutDir`
 : (`string`) The designated directory for templates. Default is `layouts`. {{% module-mounts-note %}}
 
 {{% include "/_common/configuration/locale.md" %}}
 
   For a multilingual project, specify this value independently for each language key. See [configure languages][].
 
-mainSections
+`mainSections`
 : (`string` or `[]string`) The main sections of a site. If set, the [`MainSections`][] method on the `Site` object returns the given sections, otherwise it returns the section with the most pages.
 
-markup
+`markup`
 : See [configure markup][].
 
-mediaTypes
+`mediaTypes`
 : See [configure media types][].
 
-menus
+`menus`
 : See [configure menus][].
 
-minify
+`minify`
 : See [configure minify][].
 
-module
+`module`
 : See [configure modules][].
 
-newContentEditor
+`newContentEditor`
 : (`string`) The editor to use when creating new content.
 
-noBuildLock
+`noBuildLock`
 : (`bool`) Whether to disable creation of the `.hugo_build.lock` file. Default is `false`.
 
-noChmod
+`noChmod`
 : (`bool`) Whether to disable synchronization of file permission modes. Default is `false`.
 
-noTimes
+`noTimes`
 : (`bool`) Whether to disable synchronization of file modification times. Default is `false`.
 
-outputFormats
+`outputFormats`
 : See [configure output formats][].
 
-outputs
+`outputs`
 : See [configure outputs][].
 
-page
+`page`
 : See [configure page][].
 
-pagination
+`pagination`
 : See [configure pagination][].
 
-panicOnWarning
+`panicOnWarning`
 : (`bool`) Whether to panic on the first WARNING. Default is `false`.
 
-params
+`params`
 : See [configure params][].
 
-permalinks
+`permalinks`
 : See [configure permalinks][].
 
-pluralizeListTitles
+`pluralizeListTitles`
 : (`bool`) Whether to pluralize automatic list titles. Applicable to section pages. Default is `true`.
 
-printI18nWarnings
+`printI18nWarnings`
 : (`bool`) Whether to log WARNINGs for each missing translation. Default is `false`.
 
-printPathWarnings
+`printPathWarnings`
 : (`bool`) Whether to log WARNINGs when Hugo publishes two or more files to the same path. Default is `false`.
 
-printUnusedTemplates
+`printUnusedTemplates`
 : (`bool`) Whether to log WARNINGs for each unused template. Default is `false`.
 
-privacy
+`privacy`
 : See [configure privacy][].
 
-publishDir
+`publishDir`
 : (`string`) The designated directory for publishing the site. Default is `public`.
 
-refLinksErrorLevel
+`refLinksErrorLevel`
 : (`string`) The logging error level to use when the `ref` and `relref` functions, methods, and shortcodes are unable to resolve a reference to a page. Either `ERROR` or `WARNING`. Any `ERROR` will fail the build. Default is `ERROR`.
 
-refLinksNotFoundURL
+`refLinksNotFoundURL`
 : (`string`) The URL to return when the `ref` and `relref` functions, methods, and shortcodes are unable to resolve a reference to a page.
 
-related
+`related`
 : See [configure related content][].
 
-relativeURLs
-: (`bool`) See&nbsp;[details](/content-management/urls/#relative-urls) before enabling this feature. Default is `false`.
+`relativeURLs`
+: (`bool`) See [details][relative-urls] before enabling this feature. Default is `false`.
 
-removePathAccents
+`removePathAccents`
 : (`bool`) Whether to remove [non-spacing marks][] from [composite characters][] in content paths. Default is `false`.
 
-renderSegments
+`renderSegments`
 : (`[]string`) A slice of [segments](g) to render. If omitted, all segments are rendered. This option is typically set via a command-line flag, such as `hugo build --renderSegments segment1,segment2`. The provided segment names must correspond to those defined in the [`segments`][] configuration.
 
-resourceDir
+`resourceDir`
 : (`string`) The designated directory for caching output from [asset pipelines](g). Default is `resources`.
 
-roles
+`roles`
 : See [configure roles][].
 
-security
+`security`
 : See [configure security][].
 
-sectionPagesMenu
-: (`string`) When set, each top-level section will be added to the menu identified by the provided value. See&nbsp;[details](/content-management/menus/#define-automatically).
+`sectionPagesMenu`
+: (`string`) When set, each top-level section will be added to the menu identified by the provided value. See [details][define-automatically].
 
-segments
+`segments`
 : See [configure segments][].
 
-server
+`server`
 : See [configure server][].
 
-services
+`services`
 : See [configure services][].
 
-sitemap
+`sitemap`
 : See [configure sitemap][].
 
-staticDir
+`staticDir`
 : (`string`) The designated directory for static files. Default is `static`. {{% module-mounts-note %}}
 
-summaryLength
+`summaryLength`
 : (`int`) Applicable to [automatic summaries][], the minimum number of words returned by the [`Summary`][] method on a `Page` object. The `Summary` method will return content truncated at the paragraph boundary closest to the specified `summaryLength`, but at least this minimum number of words. Default is `70`.
 
-taxonomies
+`taxonomies`
 : See [configure taxonomies][].
 
-templateMetrics
-: (`bool`) Whether to print template execution metrics to the console. Default is `false`. See&nbsp;[details](/troubleshooting/performance/#template-metrics).
+`templateMetrics`
+: (`bool`) Whether to print template execution metrics to the console. Default is `false`. See [details][template-metrics].
 
-templateMetricsHints
-: (`bool`) Whether to print template execution improvement hints to the console. Applicable when `templateMetrics` is `true`. Default is `false`. See&nbsp;[details](/troubleshooting/performance/#template-metrics).
+`templateMetricsHints`
+: (`bool`) Whether to print template execution improvement hints to the console. Applicable when `templateMetrics` is `true`. Default is `false`. See [details][template-metrics].
 
-theme
-: (`string` or `[]string`) The [theme](g) to use. Multiple themes can be listed, with precedence given from left to right. See&nbsp;[details](/hugo-modules/theme-components/).
+`theme`
+: (`string` or `[]string`) The [theme](g) to use. Multiple themes can be listed, with precedence given from left to right. See [details][].
 
-themesDir
+`themesDir`
 : (`string`) The designated directory for themes. Default is `themes`.
 
-timeout
+`timeout`
 : (`string`) The timeout for generating page content, either as a [duration][] or in seconds. This timeout is used to prevent infinite recursion during content generation. You may need to increase this value if your pages take a long time to generate, for example, due to extensive image processing or reliance on remote content. Default is `60s`.
 
-timeZone
-: (`string`) The time zone used to parse dates without time zone offsets, including front matter date fields and values passed to the [`time.AsTime`][] and [`time.Format`][] template functions. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone Database][]. For example, `America/Los_Angeles` and `Europe/Oslo` are valid time zones.
+`timeZone`
+: (`string`) The time zone used to parse dates without time zone offsets, including front matter date fields and values passed to the [`time.AsTime`][] and [`time.Format`][] functions. The list of valid values may be system dependent, but should include `UTC`, `Local`, and any location in the [IANA Time Zone Database][]. For example, `America/Los_Angeles` and `Europe/Oslo` are valid time zones.
 
-title
+`title`
 : (`string`) The site title.
 
-titleCaseStyle
-: (`string`) The capitalization rules to follow when Hugo automatically generates a section title, or when using the [`strings.Title`][] function. One of `ap`, `chicago`, `go`, `firstupper`, or `none`. Default is `ap`. See&nbsp;[details](#title-case-style).
+`titleCaseStyle`
+: (`string`) The capitalization rules to follow when Hugo automatically generates a section title, or when using the [`strings.Title`][] function. One of `ap`, `chicago`, `go`, `firstupper`, or `none`. Default is `ap`. See [details](#title-case-style).
 
-uglyurls
+`uglyurls`
 : See [configure ugly URLs][].
 
-versions
+`versions`
 : See [configure versions][].
 
 ## Cache directory
 
-Hugo's file cache directory is configurable via the [`cacheDir`][] configuration option or the `HUGO_CACHEDIR` environment variable. If neither is set, Hugo will use, in order of preference:
+Hugo's file cache directory is configurable via the [`cacheDir`](#cachedir) setting or the `HUGO_CACHEDIR` environment variable. If neither is set, Hugo will use, in order of preference:
 
 1. If running on Netlify: `/opt/build/cache/hugo_cache/`. This means that if you run your builds on Netlify, all caches configured with `:cacheDir` will be saved and restored on the next build. For other [CI/CD](g) platforms, please read their documentation. For a CircleCI example, see [this configuration][].
-1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [os.UserCacheDir][] function. On Unix systems, per the [XDG base directory specification][], this is `$XDG_CACHE_HOME` if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`.
+1. In a `hugo_cache` directory below the OS user cache directory as defined by Go's [`os.UserCacheDir`][] function. On Unix systems, per the [XDG base directory specification][], this is `$XDG_CACHE_HOME` if non-empty, else `$HOME/.cache`. On MacOS, this is `$HOME/Library/Caches`. On Windows, this is`%LocalAppData%`. On Plan 9, this is `$home/lib/cache`.
 1. In a  `hugo_cache_$USER` directory below the OS temp dir.
 
 To determine the current `cacheDir`:
@@ -333,21 +330,21 @@ hugo config | grep cachedir
 
 ## Title case style
 
-Hugo's [`titleCaseStyle`][] setting governs capitalization for automatically generated section titles and the [`strings.Title`][] function. By default, it follows the capitalization rules published in the Associated Press Stylebook. Change this setting to use other capitalization rules.
+Hugo's [`titleCaseStyle`](#titlecasestyle) setting governs capitalization for automatically generated section titles and the [`strings.Title`][] function. By default, it follows the capitalization rules published in the Associated Press Stylebook. Change this setting to use other capitalization rules.
 
-ap
+`ap`
 : Use the capitalization rules published in the [Associated Press Stylebook][]. This is the default.
 
-chicago
+`chicago`
 : Use the capitalization rules published in the [Chicago Manual of Style][].
 
-go
+`go`
 : Capitalize the first letter of every word.
 
-firstupper
+`firstupper`
 : Capitalize the first letter of the first word.
 
-none
+`none`
 : Disable transformation of automatic section titles, and disable the transformation performed by the `strings.Title` function. This is useful if you would prefer to manually capitalize section titles as needed, and to bypass opinionated theme usage of the `strings.Title` function.
 
 ## Localized settings
@@ -365,27 +362,18 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [`MainSections`]: /methods/site/mainsections/
 [`Summary`]: /methods/page/summary/
 [`WordCount`]: /methods/page/wordcount/
-[`cacheDir`]: #cachedir
-[`defaultContentLanguageInSubdir`]: #defaultcontentlanguageinsubdir
-[`defaultContentLanguage`]: #defaultcontentlanguage
-[`defaultContentRoleInSubdir`]: #defaultcontentroleinsubdir
-[`defaultContentRole`]: #defaultcontentrole
-[`defaultContentVersionInSubdir`]: #defaultcontentversioninsubdir
-[`defaultContentVersion`]: #defaultcontentversion
-[`disableDefaultSiteRedirect`]: #disabledefaultsiteredirect
 [`disabled`]: /configuration/languages/#disabled
 [`erroridf`]: /functions/fmt/erroridf/
-[`publishDir`]: #publishdir
+[`os.UserCacheDir`]: https://pkg.go.dev/os#UserCacheDir
 [`segments`]: /configuration/segments/
-[`staticDir`]: #staticdir
 [`strings.Title`]: /functions/strings/title/
 [`time.AsTime`]: /functions/time/astime/
 [`time.Format`]: /functions/time/format/
-[`titleCaseStyle`]: #titlecasestyle
 [`warnidf`]: /functions/fmt/warnidf/
 [aliases_front_matter]: /content-management/front-matter/#aliases
 [aliases_page_method]: /methods/page/aliases/
 [automatic summaries]: /content-management/summaries/#automatic-summary
+[canonical-urls]: /content-management/urls/#canonical-urls
 [client-side redirection]: /content-management/urls/#client-side-redirection
 [composite characters]: https://en.wikipedia.org/wiki/Precomposed_character
 [configure HTTP cache]: /configuration/http-cache/
@@ -408,7 +396,7 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [configure params]: /configuration/params/
 [configure permalinks]: /configuration/permalinks/
 [configure privacy]: /configuration/privacy/
-[configure related content]: /configuration/related-content
+[configure related content]: /configuration/related-content/
 [configure roles]: /configuration/roles/
 [configure security]: /configuration/security/
 [configure segments]: /configuration/segments/
@@ -418,8 +406,11 @@ Some configuration settings, such as menus and custom parameters, can be defined
 [configure taxonomies]: /configuration/taxonomies/
 [configure ugly URLs]: /configuration/ugly-urls/
 [configure versions]: /configuration/versions/
+[define-automatically]: /content-management/menus/#define-automatically
+[details]: /hugo-modules/theme-components/
 [duration]: https://pkg.go.dev/time#Duration
 [module mounts]: /configuration/module/#mounts
 [non-spacing marks]: https://www.compart.com/en/unicode/category/Mn
-[os.UserCacheDir]: https://pkg.go.dev/os#UserCacheDir
+[relative-urls]: /content-management/urls/#relative-urls
+[template-metrics]: /troubleshooting/performance/#template-metrics
 [this configuration]: https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml

@@ -11,9 +11,7 @@ params:
 aliases: [/functions/path.clean]
 ---
 
-See Go's [`path.Clean`] documentation for details.
-
-[`path.Clean`]: https://pkg.go.dev/path#Clean
+See Go's [`path.Clean`][] documentation for details.
 
 ```go-html-template
 {{ path.Clean "foo/bar" }} → foo/bar
@@ -25,3 +23,5 @@ See Go's [`path.Clean`] documentation for details.
 {{ path.Clean "/../foo/../bar/" }} → /bar
 {{ path.Clean "" }} → .
 ```
+
+[`path.Clean`]: https://pkg.go.dev/path#Clean

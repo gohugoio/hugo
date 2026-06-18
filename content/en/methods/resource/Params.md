@@ -13,7 +13,7 @@ Use the `Params` method with [page resources](g). It is not applicable to either
 
 With this content structure:
 
-```text
+```tree
 content/
 ├── posts/
 │   ├── cats/
@@ -56,6 +56,6 @@ Hugo renders:
 </figure>
 ```
 
-See the [page resources] section for more information.
+See the [page resources][] section for more information.
 
 [page resources]: /content-management/page-resources/

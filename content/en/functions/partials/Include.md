@@ -11,11 +11,11 @@ params:
 aliases: [/functions/partial]
 ---
 
-Without a [`return`] statement, the `partial` function returns a string of type `template.HTML`. With a `return` statement, the `partial` function can return any data type.
+Without a [`return`][] statement, the `partial` function returns a string of type `template.HTML`. With a `return` statement, the `partial` function can return any data type.
 
 In this example we have three _partial_ templates:
 
-```text
+```tree
 layouts/
 └── _partials/
     ├── average.html
@@ -30,7 +30,7 @@ The "average" partial returns the average of one or more numbers. We pass the nu
 {{ $average := partial "average.html" $numbers }}
 ```
 
-The "breadcrumbs" partial renders [breadcrumb navigation], and needs to receive the current page in context:
+The "breadcrumbs" partial renders [breadcrumb navigation][], and needs to receive the current page in context:
 
 ```go-html-template
 {{ partial "breadcrumbs.html" . }}
@@ -73,8 +73,6 @@ To return a value from a _partial_ template, it must contain only one `return` s
 {{ end }}
 {{ return $result }}
 ```
-
-See&nbsp;[details][`return`].
 
 [`return`]: /functions/go-template/return/
 [breadcrumb navigation]: /content-management/sections/#ancestors-and-descendants

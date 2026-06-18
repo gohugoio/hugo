@@ -16,7 +16,7 @@ This is the default configuration:
 
 Use the following setting to define how Hugo orders roles.
 
-weight
+`weight`
 : (`int`) The role [weight](g).
 
 ## Sort order

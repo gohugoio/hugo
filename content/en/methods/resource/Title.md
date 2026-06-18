@@ -15,7 +15,7 @@ The value returned by the `Title` method on a `Resource` object depends on the r
 
 With a [global resource](g), the `Title` method returns the path to the resource, relative to the `assets` directory.
 
-```text
+```tree
 assets/
 └── images/
     └── Sunrise in Bryce Canyon.jpg
@@ -31,7 +31,7 @@ assets/
 
 With a [page resource](g), if you create an element in the `resources` array in front matter, the `Title` method returns the value of the `title` parameter.
 
-```text
+```tree
 content/
 ├── example/
 │   ├── images/
@@ -55,7 +55,7 @@ title = 'A beautiful sunrise in Bryce Canyon'
 
 If you do not create an element in the `resources` array in front matter, the `Title` method returns the file path, relative to the page bundle.
 
-```text
+```tree
 content/
 ├── example/
 │   ├── images/

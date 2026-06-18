@@ -22,6 +22,6 @@ aliases: [/functions/urls.joinpath]
 {{ urls.JoinPath (slice "a" "b") }} → a/b
 ```
 
-Unlike the [`path.Join`] function, `urls.JoinPath` retains consecutive leading slashes.
+Unlike the [`path.Join`][] function, `urls.JoinPath` retains consecutive leading slashes.
 
 [`path.Join`]: /functions/path/join/

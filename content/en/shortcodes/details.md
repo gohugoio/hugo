@@ -8,14 +8,14 @@ keywords: []
 
 {{< new-in 0.140.0 />}}
 
-> [!note]
-> To override Hugo's embedded `details` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
+> [!NOTE]
+> To override Hugo's embedded `details` shortcode, copy the [source code][] to a file with the same name in the `layouts/_shortcodes` directory.
 
 ## Example
 
-With this markup:
+With this Markdown:
 
-```text
+```md
 {{</* details summary="See the details" */>}}
 This is a **bold** word.
 {{</* /details */>}}
@@ -38,19 +38,19 @@ This is a **bold** word.
 
 ## Arguments
 
-summary
+`summary`
 : (`string`) The content of the child `summary` element rendered from Markdown to HTML. Default is `Details`.
 
-open
+`open`
 : (`bool`) Whether to initially display the content of the `details` element. Default is `false`.
 
-class
+`class`
 : (`string`) The `class` attribute of the `details` element.
 
-name
+`name`
 : (`string`) The `name` attribute of the `details` element.
 
-title
+`title`
 : (`string`) The `title` attribute of the `details` element.
 
 ## Styling

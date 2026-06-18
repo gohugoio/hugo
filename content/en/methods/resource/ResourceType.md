@@ -22,7 +22,7 @@ Common resource types include `audio`, `image`, `text`, and `video`.
 
 When working with content files, the resource type is `page`.
 
-```text
+```tree
 content/
 ├── lessons/
 │   ├── lesson-1/

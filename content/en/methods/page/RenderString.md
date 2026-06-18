@@ -10,40 +10,40 @@ params:
 aliases: [/functions/renderstring]
 ---
 
+The `RenderString` method on a `Page` object renders markup to HTML.
+
 ```go-html-template
 {{ $s := "An *emphasized* word" }}
 {{ $s | .RenderString }} → An <em>emphasized</em> word
 ```
 
-This method takes an optional map of options:
+## Options
 
-display
+The `RenderString` method on a `Page` object accepts an options map.
+
+`display`
 : (`string`) Specify either `inline` or `block`. If `inline`, removes surrounding `p` tags from short snippets. Default is `inline`.
 
-markup
-: (`string`) Specify a [markup identifier] for the provided markup. Default is the `markup` front matter value, falling back to the value derived from the page's file extension.
+`markup`
+: (`string`) Specify a [markup identifier][] for the provided markup. Default is the `markup` front matter value, falling back to the value derived from the page's file extension.
 
-Render with the default markup renderer:
+## Examples
+
+Render Markdown content to HTML in block display mode:
 
 ```go-html-template
-{{ $s := "An *emphasized* word" }}
-{{ $s | .RenderString }} → An <em>emphasized</em> word
-
 {{ $opts := dict "display" "block" }}
 {{ $s | .RenderString $opts }} → <p>An <em>emphasized</em> word</p>
 ```
 
-Render with [Pandoc]:
+Render [Pandoc] content to HTML in block display mode:
 
 ```go-html-template
 {{ $s := "H~2~O" }}
 
-{{ $opts := dict "markup" "pandoc" }}
+{{ $opts := dict "markup" "pandoc" "display" "block" }}
 {{ $s | .RenderString $opts }} → H<sub>2</sub>O
-
-{{ $opts := dict "display" "block" "markup" "pandoc" }}
-{{ .RenderString $opts $s }} → <p>H<sub>2</sub>O</p>
 ```
 
+[Pandoc]: /content-management/formats/#pandoc
 [markup identifier]: /content-management/formats/#classification
-[pandoc]: https://pandoc.org/

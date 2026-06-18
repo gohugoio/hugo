@@ -6,8 +6,8 @@ categories: []
 keywords: []
 ---
 
-> [!note]
-> To understand Hugo's related content identification, please refer to the [related content] page.
+> [!NOTE]
+> To understand Hugo's related content identification, please refer to the [related content][] page.
 
 Hugo provides a sensible default configuration for identifying related content, but you can customize it in your project configuration, either globally or per language.
 
@@ -17,42 +17,42 @@ This is the default configuration:
 
 {{< code-toggle config=related />}}
 
-> [!note]
+> [!NOTE]
 > Adding a `related` section to your project configuration requires you to provide a full configuration. You cannot override individual default values without specifying all related settings.
 
-## Top-level options
+## Top-level settings
 
-threshold
+`threshold`
 : (`int`) A value between 0-100, inclusive. A lower value will return more, but maybe not so relevant, matches.
 
-includeNewer
+`includeNewer`
 : (`bool`) Whether to include pages newer than the current page in the related content listing. This will mean that the output for older posts may change as new related content gets added. Default is `false`.
 
-toLower
+`toLower`
 : (`bool`) Whether to transform keywords in both the indexes and the queries to lower case. This may give more accurate results at a slight performance penalty. Default is `false`.
 
-## Per-index options
+## Per-index settings
 
-name
-: (`string`) The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
+`applyFilter`
+: (`string`) Apply a `type` specific filter to the result of a search. This is only used for the `fragments` type.
 
-type
-: (`string`) One of `basic` or `fragments`. Default is `basic`.
-
-applyFilter
-: (`string`) Apply a `type` specific filter to the result of a search. This is currently only used for the `fragments` type.
-
-weight
-: (`int`) An integer weight that indicates how important this parameter is relative to the other parameters. It can be `0`, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best. Default is `0`.
-
-cardinalityThreshold
+`cardinalityThreshold`
 : (`int`) If between `1` and `100`, this is a percentage. All keywords that are used in more than this percentage of documents are removed. For example, setting this to `60` will remove all keywords that are used in more than 60% of the documents in the index. If `0`, no keyword is removed from the index. Default is `0`.
 
-pattern
+`name`
+: (`string`) The index name. This value maps directly to a page parameter. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
+
+`pattern`
 : (`string`) This is currently only relevant for dates. When listing related content, we may want to list content that is also close in time. Setting "2006" (default value for date indexes) as the pattern for a date index will add weight to pages published in the same year. For busier blogs, "200601" (year and month) may be a better default.
 
-toLower
+`toLower`
 : (`bool`) Whether to transform keywords in both the indexes and the queries to lower case. This may give more accurate results at a slight performance penalty. Default is `false`.
+
+`type`
+: (`string`) One of `basic` or `fragments`. Default is `basic`.
+
+`weight`
+: (`int`) An integer weight that indicates how important this parameter is relative to the other parameters. It can be `0`, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best. Default is `0`.
 
 ## Example
 
@@ -60,7 +60,7 @@ Imagine we're building a book review site. Our main content will be book reviews
 
 Create the content:
 
-```text
+```tree
 content/
 └── book-reviews/
     ├── book-review-1.md

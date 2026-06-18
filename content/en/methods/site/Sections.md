@@ -13,7 +13,7 @@ The `Sections` method on a `Site` object returns a collection of top-level [sect
 
 Given this content structure:
 
-```text
+```tree
 content/
 ├── books/
 │   ├── book-1.md

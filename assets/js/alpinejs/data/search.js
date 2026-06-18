@@ -10,7 +10,7 @@ const groupByLvl0 = (array) => {
 	}, {});
 };
 
-const applyHelperFuncs = (array) => {
+const adjustHits = (array, isServer) => {
 	if (!array) return [];
 	return array.map((item) => {
 		item.getHeadingHTML = function () {
@@ -30,6 +30,11 @@ const applyHelperFuncs = (array) => {
 
 			return `${lvl2.value} <span class="text-gray-500">&nbsp;>&nbsp;</span> ${lvl3.value}`;
 		};
+
+		if (isServer) {
+			// Trim https://gohugo.io from the url to make it work locally.
+			item.url = item.url.replace('https://gohugo.io', '');
+		}
 		return item;
 	});
 };
@@ -99,7 +104,7 @@ export const search = (Alpine, cfg) => ({
 		})
 			.then((response) => response.json())
 			.then((data) => {
-				this.result = groupByLvl0(applyHelperFuncs(data.results[0].hits));
+				this.result = groupByLvl0(adjustHits(data.results[0].hits, cfg.params.isServer));
 				this.cache.put(this.query, this.result);
 			});
 	},

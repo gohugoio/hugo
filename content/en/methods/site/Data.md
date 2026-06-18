@@ -11,5 +11,5 @@ expiryDate: '2028-02-18' # deprecated 2026-02-18 in v0.156.0
 ---
 
 {{< deprecated-in 0.156.0 >}}
-Use [`hugo.Data`](/functions/hugo/data/) instead.
+Use the [`hugo.Data`](/functions/hugo/data/) function instead.
 {{< /deprecated-in >}}

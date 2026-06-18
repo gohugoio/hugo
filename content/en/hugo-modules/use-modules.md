@@ -1,5 +1,5 @@
 ---
-title: Use Hugo Modules
+title: Use modules
 description: Use modules to manage the content, layout, presentation, and behavior of your site.
 categories: []
 keywords: []
@@ -7,7 +7,7 @@ weight: 20
 aliases: [/themes/usage/,/themes/installing/,/installing-and-using-themes/]
 ---
 
-> [!note]
+> [!NOTE]
 > To work with modules you must install [Git][] and [Go][] 1.18 or later.
 
 ## Introduction
@@ -29,7 +29,7 @@ hugo mod init github.com/user/project
 
 This will generate a [`go.mod`][] file in the project root.
 
-> [!note]
+> [!NOTE]
 > The module name is a unique identifier rather than a hosting requirement. Using a name like `github.com/user/project` is a common convention but it does not mean you must use Git or host your code on GitHub. You can use any name you like if you do not plan to have others import your project as a module. For example, you could use a simple name such as `my-project` when you run the initialization command.
 
 Then define one or more imports in your project configuration. This contrived example imports three modules, each containing custom shortcodes:
@@ -46,7 +46,7 @@ Then define one or more imports in your project configuration. This contrived ex
 
 Import precedence is top-down. For example, if `shortcodes-a`, `shortcodes-b`, and `shortcodes-c` each define an `image` shortcode, the `image` shortcode from `shortcodes-a` will take effect.
 
-> [!note]
+> [!NOTE]
 > If multiple modules contain data files or [translation tables](g) with identical paths, the data is deeply merged, following top-down precedence.
 
 When you build your project, Hugo will:
@@ -127,7 +127,7 @@ This command creates a `_vendor` directory containing copies of all imported mod
 - Modules within the `themes` directory are not vendored.
 - The `--ignoreVendorPaths` flag allows you to exclude vendored modules matching a [glob pattern](g) from specific commands.
 
-> [!important]
+> [!IMPORTANT]
 > Instead of modifying files directly within the `_vendor` directory, override them by creating a corresponding file with the same relative path in your project's root.
 
 To remove the vendored modules, delete the `_vendor` directory.
@@ -146,12 +146,12 @@ With `hugo serve`r running, this change will trigger a configuration reload and 
 
 {{% glossary-term "workspace" %}}
 
-Workspaces simplify local development of sites with modules. Create a `.work` file to define a workspace, and activate it via the [`workspace`][] configuration parameter or the `HUGO_MODULE_WORKSPACE` environment variable.
+Workspaces simplify local development of sites with modules. Create a `.work` file to define a workspace, and activate it via the [`workspace`][] configuration setting or the `HUGO_MODULE_WORKSPACE` environment variable.
 
 A `.work` file example:
 
 ```text
-go 1.25
+go 1.26
 
 use .
 use ../my-hugo-module
@@ -187,6 +187,8 @@ Imported modules automatically mount their component directories to Hugo's [unif
 
 See [configuring module mounts][] for details.
 
+[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[Go]: https://go.dev/doc/install
 [`cacheDir`]: /configuration/all/#cachedir
 [`go.mod`]: https://go.dev/ref/mod#go-mod-file
 [`go.sum`]: https://go.dev/ref/mod#go-sum-files
@@ -195,6 +197,4 @@ See [configuring module mounts][] for details.
 [configuring file caches]: /configuration/caches/
 [configuring module imports]: /configuration/module/#imports
 [configuring module mounts]: /configuration/module/#mounts
-[Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[Go]: https://go.dev/doc/install
 [merge configuration settings]: /configuration/introduction/#merge-configuration-settings

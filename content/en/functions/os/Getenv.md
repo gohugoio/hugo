@@ -25,7 +25,7 @@ To access other environment variables, adjust your project configuration. For ex
 getenv = ['^HUGO_', '^CI$', '^USER$', '^HOME$']
 {{< /code-toggle >}}
 
-For more information see [configure security](/configuration/security).
+For more information see [configure security][].
 
 ## Examples
 
@@ -52,3 +52,5 @@ And then retrieve the values within a template:
 {{ getenv "MY_VAR1" }} → foo
 {{ getenv "MY_VAR2" }} → bar
 ```
+
+[configure security]: /configuration/security/
