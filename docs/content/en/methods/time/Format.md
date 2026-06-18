@@ -18,8 +18,8 @@ aliases: [/methods/time/format]
 {{ $t.Format $format }} → 27 Jan 2023
 ```
 
-> [!note]
-> To [localize](g) the return value, use the [`time.Format`] function instead.
+> [!NOTE]
+> To [localize](g) the return value, use the [`time.Format`][] function instead.
 
 Use the `Format` method with any `time.Time` value, including the four predefined front matter dates:
 
@@ -32,8 +32,8 @@ Use the `Format` method with any `time.Time` value, including the four predefine
 {{ .Lastmod.Format $format }}
 ```
 
-> [!note]
-> Use the [`time.Format`] function to format string representations of dates, and to format raw TOML dates that exclude time and time zone offset.
+> [!NOTE]
+> Use the [`time.Format`][] function to format string representations of dates, and to format raw TOML dates that exclude time and time zone offset.
 
 ## Layout string
 
@@ -76,7 +76,7 @@ Convert and format any `time.Time` value to either Coordinated Universal Time (U
 
 ## Ordinal representation
 
-Use the [`humanize`](/functions/inflect/humanize) function to render the day of the month as an ordinal number:
+Use the [`humanize`][] function to render the day of the month as an ordinal number:
 
 ```go-html-template
 {{ $t := "2023-01-27T23:44:58-08:00" }}
@@ -85,4 +85,5 @@ Use the [`humanize`](/functions/inflect/humanize) function to render the day of 
 {{ humanize $t.Day }} of {{ $t.Format "January 2006" }} → 27th of January 2023
 ```
 
+[`humanize`]: /functions/inflect/humanize/
 [`time.Format`]: /functions/time/format/

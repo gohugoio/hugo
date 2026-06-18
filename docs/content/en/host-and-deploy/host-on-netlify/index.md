@@ -8,6 +8,8 @@ aliases: [/hosting-and-deployment/hosting-on-netlify/]
 
 Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply if you are using Azure DevOps, Bitbucket, or GitLab for version control.
 
+{{% include "/_common/gitignore-public.md" %}}
+
 ## Prerequisites
 
 Please complete the following tasks before continuing:
@@ -17,9 +19,9 @@ Please complete the following tasks before continuing:
 1. [Create](https://github.com/signup) a GitHub account
 1. [Log in](https://github.com/login) to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
-1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
+1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote][] reference to your GitHub repository
 1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
-1. Commit the changes to your local Git repository and push to your GitHub repository.
+1. Commit the changes to your local Git repository and push to your GitHub repository
 
 ## Procedure
 
@@ -28,30 +30,30 @@ Please complete the following tasks before continuing:
 Step 1
 : Create a `netlify.toml` file in the root of your project.
 
-  ```text {file="netlify.toml" copy=true}
+  ```toml {file="netlify.toml" copy=true}
   [build.environment]
-  DART_SASS_VERSION = "1.99.0"
-  GO_VERSION = "1.26.2"
-  HUGO_VERSION = "0.161.1"
-  NODE_VERSION = "24.15.0"
+  DART_SASS_VERSION = "1.101.0"
+  GO_VERSION = "1.26.4"
+  HUGO_VERSION = "0.163.2"
+  NODE_VERSION = "24.16.0"
   TZ = "Europe/Oslo"
 
   [build]
   publish = "public"
   command = """\
-    git config core.quotepath false && \
+    git config --global core.quotepath false && \
     hugo build --gc --minify --baseURL "${URL}"
     """
   ```
 
   If your site requires Dart Sass to transpile Sass to CSS, set the `DART_SASS_VERSION` and include the Dart Sass installation in the build step.
 
-  ```text {file="netlify.toml" copy=true}
+  ```toml {file="netlify.toml" copy=true}
   [build.environment]
-  DART_SASS_VERSION = "1.99.0"
-  GO_VERSION = "1.26.2"
-  HUGO_VERSION = "0.161.1"
-  NODE_VERSION = "24.15.0"
+  DART_SASS_VERSION = "1.101.0"
+  GO_VERSION = "1.26.4"
+  HUGO_VERSION = "0.163.2"
+  NODE_VERSION = "24.16.0"
   TZ = "Europe/Oslo"
 
   [build]
@@ -61,7 +63,7 @@ Step 1
     tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
     rm "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz" && \
     export PATH="${HOME}/.local/dart-sass:${PATH}" && \
-    git config core.quotepath false && \
+    git config --global core.quotepath false && \
     hugo build --gc --minify --baseURL "${URL}"
     """
   ```
@@ -119,3 +121,5 @@ Step 11
   ![screen capture](netlify-10.png)
 
 In the future, whenever you push a change from your local Git repository, Netlify will rebuild and deploy your site.
+
+[remote]: https://git-scm.com/docs/git-remote

@@ -9,9 +9,7 @@ params:
     signatures: [PAGER.PageGroups]
 ---
 
-Use the `PageGroups` method with any of the [grouping methods].
-
-[grouping methods]: /quick-reference/page-collections/#group
+Use the `PageGroups` method with any of the [grouping methods][].
 
 ```go-html-template
 {{ $pages := where site.RegularPages "Type" "posts" }}
@@ -26,3 +24,5 @@ Use the `PageGroups` method with any of the [grouping methods].
 
 {{ partial "pagination.html" . }}
 ```
+
+[grouping methods]: /quick-reference/page-collections/#group

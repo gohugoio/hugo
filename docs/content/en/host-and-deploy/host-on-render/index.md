@@ -8,6 +8,8 @@ aliases: [/hosting-and-deployment/hosting-on-render/]
 
 Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply if you are using Bitbucket or GitLab for version control.
 
+{{% include "/_common/gitignore-public.md" %}}
+
 ## Prerequisites
 
 Please complete the following tasks before continuing:
@@ -17,15 +19,16 @@ Please complete the following tasks before continuing:
 1. [Create](https://github.com/signup) a GitHub account
 1. [Log in](https://github.com/login) to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
-1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
+1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote][] reference to your GitHub repository
 1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
+1. Commit the changes to your local Git repository and push to your GitHub repository
 
 ## Procedure
 
 Step 1
 : Create a [Render Blueprint][] in the root of your project.
 
-  ``` {file="render.yaml" copy=true}
+  ```yaml {file="render.yaml" copy=true}
   services:
     - type: web
       name: hosting-render
@@ -35,13 +38,13 @@ Step 1
       staticPublishPath: public
       envVars:
         - key: DART_SASS_VERSION
-          value: 1.99.0
+          value: 1.101.0
         - key: GO_VERSION
-          value: 1.26.2
+          value: 1.26.4
         - key: HUGO_VERSION
-          value: 0.161.1
+          value: 0.163.2
         - key: NODE_VERSION
-          value: 24.15.0
+          value: 24.16.0
         - key: TZ
           value: Europe/Oslo
   ```
@@ -113,7 +116,7 @@ Step 2
 
     # Configure Git
     echo "Configuring Git..."
-    git config core.quotepath false
+    git config --global core.quotepath false
     if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
       git fetch --unshallow
     fi
@@ -183,3 +186,4 @@ In the future, whenever you push a change from your local Git repository, Render
 
 [Render Blueprint]: https://render.com/docs/blueprint-spec
 [dashboard]: https://dashboard.render.com/
+[remote]: https://git-scm.com/docs/git-remote

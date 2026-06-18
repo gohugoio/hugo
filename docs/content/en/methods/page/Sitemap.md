@@ -9,33 +9,32 @@ params:
     signatures: [PAGE.Sitemap]
 ---
 
-Access to the `Sitemap` method on a `Page` object is restricted to [sitemap templates].
+Access to the `Sitemap` method on a `Page` object is restricted to [sitemap templates][].
 
 ## Methods
 
-### ChangeFreq
+Use these methods on the `Sitemap` object.
 
-(`string`) How frequently a page is likely to change. Valid values are `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, and `never`. With the default value of `""` Hugo will omit this field from the sitemap. See&nbsp;[details](https://www.sitemaps.org/protocol.html#changefreqdef).
+`ChangeFreq`
+: (`string`) How frequently a page is likely to change. Valid values are `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, and `never`. With the default value of `""` Hugo will omit this field from the sitemap. See [details][changefreqdef].
 
-```go-html-template
-{{ .Sitemap.ChangeFreq }}
-```
+  ```go-html-template
+  {{ .Sitemap.ChangeFreq }}
+  ```
 
-### Disable
+`Disable`
+: (`bool`) Whether to disable page inclusion. Default is `false`. Set to `true` in front matter to exclude the page.
 
-(`bool`) Whether to disable page inclusion. Default is `false`. Set to `true` in front matter to exclude the page.
+  ```go-html-template
+  {{ .Sitemap.Disable }}
+  ```
 
-```go-html-template
-{{ .Sitemap.Disable }}
-```
+`Priority`
+: (`float`) The priority of a page relative to any other page on the site. Valid values range from 0.0 to 1.0. With the default value of `-1` Hugo will omit this field from the sitemap. See [details][prioritydef].
 
-### Priority
-
-(`float`) The priority of a page relative to any other page on the site. Valid values range from 0.0 to 1.0. With the default value of `-1` Hugo will omit this field from the sitemap. See&nbsp;[details](https://www.sitemaps.org/protocol.html#prioritydef).
-
-```go-html-template
-{{ .Sitemap.Priority }}
-```
+  ```go-html-template
+  {{ .Sitemap.Priority }}
+  ```
 
 ## Example
 
@@ -76,4 +75,6 @@ And this simplistic sitemap template:
 
 The change frequency will be `hourly` for the news page, and `monthly` for other pages.
 
+[changefreqdef]: https://www.sitemaps.org/protocol.html#changefreqdef
+[prioritydef]: https://www.sitemaps.org/protocol.html#prioritydef
 [sitemap templates]: /templates/sitemap/

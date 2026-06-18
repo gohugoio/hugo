@@ -7,6 +7,8 @@ keywords: []
 
 Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply if you are using Bitbucket or GitLab for version control.
 
+{{% include "/_common/gitignore-public.md" %}}
+
 ## Prerequisites
 
 Please complete the following tasks before continuing:
@@ -16,8 +18,9 @@ Please complete the following tasks before continuing:
 1. [Create](https://github.com/signup) a GitHub account
 1. [Log in](https://github.com/login) to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
-1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
+1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote][] reference to your GitHub repository
 1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
+1. Commit the changes to your local Git repository and push to your GitHub repository
 
 ## Procedure
 
@@ -62,10 +65,10 @@ Step 2
 
   main() {
     # Define tool versions
-    DART_SASS_VERSION=1.99.0
-    GO_VERSION=1.26.2
-    HUGO_VERSION=0.161.1
-    NODE_VERSION=24.15.0
+    DART_SASS_VERSION=1.101.0
+    GO_VERSION=1.26.4
+    HUGO_VERSION=0.163.2
+    NODE_VERSION=24.16.0
 
     # Set the build timezone
     export TZ=Europe/Oslo
@@ -114,7 +117,7 @@ Step 2
 
     # Configure Git
     echo "Configuring Git..."
-    git config core.quotepath false
+    git config --global core.quotepath false
     if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
       git fetch --unshallow
     fi
@@ -183,3 +186,5 @@ Step 13
   ![screen capture](vercel-10.png)
 
 In the future, whenever you push a change from your local Git repository, Vercel will rebuild and deploy your site.
+
+[remote]: https://git-scm.com/docs/git-remote

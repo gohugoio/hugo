@@ -9,10 +9,10 @@ aliases: [/hosting-and-deployment/deployment-with-rclone/]
 ## Assumptions
 
 - A web host running a web server. This could be a shared hosting environment or a VPS.
-- Access to your web host with any of the [protocols supported by rclone](https://rclone.org/#providers), such as SFTP.
+- Access to your web host with any of the [protocols supported by rclone][], such as SFTP.
 - A functional static website built with Hugo
-- Deploying from an [Rclone](https://rclone.org) compatible operating system
-- You have [installed Rclone](https://rclone.org/install/).
+- Deploying from an [Rclone][] compatible operating system
+- You have [installed Rclone][].
 
 **NB**: You can remove `--interactive` in the commands below once you are comfortable with rclone, if you wish. Also, `--gc` and `--minify` are optional in the commands below.
 
@@ -29,7 +29,7 @@ rclone sync --interactive --sftp-host sftp.example.com --sftp-user www-data --sf
 
 The easiest way is simply to run `rclone config`.
 
-The [Rclone docs](https://rclone.org/docs/) provide [an example of configuring Rclone to use SFTP](https://rclone.org/sftp/).
+The [Rclone docs][] provide [an example of configuring Rclone to use SFTP][].
 
 For the next commands, we will assume you configured a remote you named `hugo-www`.
 
@@ -41,3 +41,9 @@ rclone sync --interactive public/ hugo-www:www/
 ```
 
 After you issue the above commands (and respond to any prompts), check your website and you will see that it is deployed.
+
+[Rclone docs]: https://rclone.org/docs/
+[Rclone]: https://rclone.org
+[an example of configuring Rclone to use SFTP]: https://rclone.org/sftp/
+[installed Rclone]: https://rclone.org/install/
+[protocols supported by rclone]: https://rclone.org/#providers

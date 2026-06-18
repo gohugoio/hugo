@@ -6,13 +6,13 @@ categories: []
 keywords: []
 ---
 
-> [!note]
-> To understand Hugo's menu system, please refer to the [menus] page.
+> [!NOTE]
+> To understand Hugo's menu system, please refer to the [menus][] page.
 
 There are three ways to define menu entries:
 
-1. [Automatically]
-1. In [front matter]
+1. [Automatically][]
+1. In [front matter][]
 1. In your project configuration
 
 This page covers the project configuration method.
@@ -38,7 +38,7 @@ pageRef = '/services'
 weight = 30
 {{< /code-toggle >}}
 
-This creates a menu structure that you can access with [`Menus`] method on a `Site` object:
+This creates a menu structure that you can access with [`Menus`][] method on a `Site` object:
 
 ```go-html-template
 {{ range .Site.Menus.main }}
@@ -46,7 +46,7 @@ This creates a menu structure that you can access with [`Menus`] method on a `Si
 {{ end }}
 ```
 
-See [menu templates] for a detailed example.
+See [menu templates][] for a detailed example.
 
 To define entries for a "footer" menu:
 
@@ -78,7 +78,7 @@ These are the available menu entry properties:
 
 {{% include "/_common/menu-entry-properties.md" %}}
 
-pageRef
+`pageRef`
 : (`string`) The [logical path](g) of the target page. For example:
 
   page kind|pageRef
@@ -89,7 +89,7 @@ pageRef
   taxonomy|`/tags`
   term|`/tags/foo`
 
-url
+`url`
 : (`string`) The destination URL. Use this for external destinations only.
 
 ## Nested menu
@@ -130,8 +130,8 @@ rel = 'external'
 {{< /code-toggle >}}
 <!-- markdownlint-enable MD033 -->
 
-[`Menus`]: /methods/site/menus/
 [Automatically]: /content-management/menus/#define-automatically
+[`Menus`]: /methods/site/menus/
 [front matter]: /content-management/menus/#define-in-front-matter
 [menu templates]: /templates/menu/
 [menus]: /content-management/menus/

@@ -16,7 +16,7 @@ author = 'authors'
 
 And this content structure:
 
-```text
+```tree
 content/
 ├── books/
 │   ├── and-then-there-were-none.md --> genres: suspense
@@ -26,13 +26,13 @@ content/
 └── _index.md
 ```
 
-To capture the "genres" `Taxonomy` object from within any template, use the [`Taxonomies`] method on a `Site` object.
+To capture the "genres" `Taxonomy` object from within any template, use the [`Taxonomies`][] method on a `Site` object.
 
 ```go-html-template
 {{ $taxonomyObject := .Site.Taxonomies.genres }}
 ```
 
-To capture the "genres" `Taxonomy` object when rendering its page with a _taxonomy_ template, use the [`Terms`] method on the page's [`Data`] object:
+To capture the "genres" `Taxonomy` object when rendering its page with a _taxonomy_ template, use the [`Terms`][] method on the page's [`Data`][] object:
 
 ```go-html-template {file="layouts/taxonomy.html"}
 {{ $taxonomyObject := .Data.Terms }}
@@ -44,7 +44,7 @@ To inspect the data structure:
 <pre>{{ debug.Dump $taxonomyObject }}</pre>
 ```
 
-Although the [`Alphabetical`] and [`ByCount`] methods provide a better data structure for ranging through the taxonomy, you can render the weighted pages by term directly from the `Taxonomy` object:
+Although the [`Alphabetical`][] and [`ByCount`][] methods provide a better data structure for ranging through the taxonomy, you can render the weighted pages by term directly from the `Taxonomy` object:
 
 ```go-html-template
 {{ range $term, $weightedPages := $taxonomyObject }}
@@ -61,7 +61,6 @@ In the example above, the first anchor element is a link to the term page.
 
 [`Alphabetical`]: /methods/taxonomy/alphabetical/
 [`ByCount`]: /methods/taxonomy/bycount/
-
-[`data`]: /methods/page/data/
-[`terms`]: /methods/page/data/#in-a-taxonomy-template
-[`taxonomies`]: /methods/site/taxonomies/
+[`Data`]: /methods/page/data/
+[`Taxonomies`]: /methods/site/taxonomies/
+[`Terms`]: /methods/page/data/#in-a-taxonomy-template

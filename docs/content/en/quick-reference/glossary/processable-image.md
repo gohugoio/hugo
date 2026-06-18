@@ -4,6 +4,7 @@ title: processable image
 
 A _processable image_ is an image file characterized by one of the following [_media types_](g):
 
+  - `image/avif`
   - `image/bmp`
   - `image/gif`
   - `image/jpeg`
@@ -16,4 +17,4 @@ A _processable image_ is an image file characterized by one of the following [_m
   Use the [`reflect.IsImageResourceProcessable`][] function to determine if an image can be processed.
 
   [`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
-  [resource methods]: /methods/resource
+  [resource methods]: /methods/resource/

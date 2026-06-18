@@ -27,7 +27,7 @@ For example:
 
 Then call the shortcode in your Markdown:
 
-```text {file="content/about.md"}
+```md {file="content/about.md"}
 {{%/* include "/snippets/services" */%}}
 {{%/* include "/snippets/values" */%}}
 {{%/* include "/snippets/leadership" */%}}
@@ -48,7 +48,7 @@ Use the latter for the "include" shortcode described above.
 
 To understand what is returned by the `RenderShortcodes` method, consider this content file
 
-```text {file="content/about.md"}
+```md {file="content/about.md"}
 +++
 title = 'About'
 date = 2023-10-07T12:28:33-07:00

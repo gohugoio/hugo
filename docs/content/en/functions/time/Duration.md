@@ -11,7 +11,7 @@ params:
 aliases: [/functions/duration]
 ---
 
-The `time.Duration` function returns a [`time.Duration`] value that you can use with any of the `Duration` [methods].
+The `time.Duration` function returns a [`time.Duration`][] value that you can use with any of the `Duration` [methods][].
 
 This template:
 

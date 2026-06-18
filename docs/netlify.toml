@@ -3,7 +3,7 @@
   command = "npm ls && hugo --gc --minify"
 
   [build.environment]
-    HUGO_VERSION = "0.161.1"
+    HUGO_VERSION = "0.163.2"
 
 [context.production.environment]
   HUGO_ENV           = "production"

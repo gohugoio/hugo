@@ -1,6 +1,6 @@
 ---
 title: hugo.Deps
-description: Returns a slice of project dependencies, either Hugo Modules or local theme components.
+description: Returns a slice of project dependencies, either modules or local theme components.
 categories: []
 keywords: []
 params:
@@ -10,25 +10,31 @@ params:
     signatures: [hugo.Deps]
 ---
 
-The `hugo.Deps` function returns a slice of project dependencies, either Hugo Modules or local theme components. Each dependency contains:
+The `hugo.Deps` function returns a slice of project dependencies, either modules or local theme components.
 
-Owner
+## Methods
+
+Use these methods on each `hugo.Dependency` object returned by `hugo.Deps`.
+
+`Owner`
 : (`hugo.Dependency`) In the dependency tree, this is the first module that defines this module as a dependency (e.g., `github.com/gohugoio/hugo-mod-bootstrap-scss/v5`).
 
-Path
-: (`string`) The module path or the path below your `themes` directory (e.g., `github.com/gohugoio/hugo-mod-jslibs-dist/popperjs/v2`).
+`Path`
+: (`string`) Returns the module path or the path below your `themes` directory (e.g., `github.com/gohugoio/hugo-mod-jslibs-dist/popperjs/v2`).
 
-Replace
-: (`hugo.Dependency`) Replaced by this dependency.
+`Replace`
+: (`hugo.Dependency`) Returns the dependency that replaces this dependency.
 
-Time
-: (`time.Time`) The time that the version was created (e.g., `2022-02-13 15:11:28 +0000 UTC`).
+`Time`
+: (`time.Time`) Returns the time that the version was created (e.g., `2022-02-13 15:11:28 +0000 UTC`).
 
-Vendor
+`Vendor`
 : (`bool`) Reports whether the dependency is vendored.
 
-Version
-: (`string`) The module version (e.g., `v2.21100.20000`).
+`Version`
+: (`string`) Returns the module version (e.g., `v2.21100.20000`).
+
+## Example
 
 An example table listing the dependencies:
 

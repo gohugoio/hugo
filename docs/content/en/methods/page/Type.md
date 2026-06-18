@@ -13,7 +13,7 @@ The `Type` method on a `Page` object returns the [content type](g) of the given 
 
 With this content structure:
 
-```text
+```tree
 content/
 ├── auction/
 │   ├── _index.md
@@ -46,6 +46,6 @@ Hugo renders this to;
 <h2><a href="/auction/item-2/">Item 2</a></h2>
 ```
 
-The `type` field in front matter is also useful for targeting a template. See&nbsp;[details].
+The `type` field in front matter is also useful for targeting a template. See [details][].
 
 [details]: /templates/lookup-order/#target-a-template

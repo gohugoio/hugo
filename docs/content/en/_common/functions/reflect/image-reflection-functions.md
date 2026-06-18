@@ -14,7 +14,7 @@ The table below shows the values these functions return for various file formats
 
 |Format|IsImageResource|IsImageResourceProcessable|IsImageResourceWithMeta|
 |:-----|:--------------|:-------------------------|:----------------------|
-|AVIF  |true           |**false**                 |true                   |
+|AVIF  |true           |true                      |true                   |
 |BMP   |true           |true                      |true                   |
 |GIF   |true           |true                      |true                   |
 |HEIC  |true           |**false**                 |true                   |
@@ -44,6 +44,6 @@ This contrived example demonstrates how to iterate through resources and use the
 {{ end }}
 ```
 
-[`reflect.IsImageResource`]: /functions/reflect/isimageresource/
 [`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
 [`reflect.IsImageResourceWithMeta`]: /functions/reflect/isimageresourcewithmeta/
+[`reflect.IsImageResource`]: /functions/reflect/isimageresource/

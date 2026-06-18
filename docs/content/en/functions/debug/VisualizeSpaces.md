@@ -10,8 +10,6 @@ params:
     signatures: [debug.VisualizeSpaces STRING]
 ---
 
-<!-- Added in v0.112.0 -->
-
 ```go-html-template
 {{ debug.VisualizeSpaces "foo  bar" }} → foo[SPACE][SPACE]bar
 ```

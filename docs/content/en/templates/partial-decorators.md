@@ -6,7 +6,7 @@ keywords: [decorator]
 weight: 170
 ---
 
-{{< new-in "0.154.0" />}}
+{{< new-in 0.154.0 />}}
 
 ## Overview
 
@@ -51,7 +51,7 @@ This approach separates container logic from content logic. The wrapper handles 
 
 The following templates illustrate how to nest three wrapper components including a section, a column, and a card while passing context through each layer.
 
-The home template initiates the structure by calling the section, column, and card partials as decorators:
+The _home_ template initiates the structure by calling the section, column, and card partials as decorators:
 
 ```go-html-template {file="layouts/home.html" copy=true}
 {{ $ctx := dict

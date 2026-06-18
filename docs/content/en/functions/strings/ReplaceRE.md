@@ -32,7 +32,7 @@ Use `$1`, `$2`, etc. within the replacement string to insert the content of each
 {{ replaceRE "^https?://([^/]+).*" "$1" $s }} → gohugo.io
 ```
 
-> [!note]
-> You can write and test your regular expression using [regex101.com]. Be sure to select the Go flavor before you begin.
+> [!NOTE]
+> You can write and test your regular expression using [regex101.com][]. Be sure to select the Go flavor before you begin.
 
 [regex101.com]: https://regex101.com/

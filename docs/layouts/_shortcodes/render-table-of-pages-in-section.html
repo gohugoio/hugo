@@ -70,7 +70,11 @@ if any of the pages in the filter do not exist.
 						{{- $linkTitle = printf "%s%s" . $linkTitle }}
 					{{- end }}
 					{{- /* Use page Path as the link destination for render hook to resolve correctly. */}}
+					{{- if $page.Params.isFunctionOrMethod }}
 [`{{ $linkTitle }}`]({{ $page.Path }})|{{ $page.Description }}{{/* Do not indent. */}}
+					{{- else }}
+[{{ $linkTitle }}]({{ $page.Path }})|{{ $page.Description }}{{/* Do not indent. */}}
+					{{- end }}
 				{{- end }}
 			{{- end }}
 		{{- else }}

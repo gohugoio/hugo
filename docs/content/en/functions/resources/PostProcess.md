@@ -16,13 +16,13 @@ The `resources.PostProcess` function delays resource transformation steps until 
 
 In this example, after the build is complete, Hugo will:
 
-1. Purge unused CSS using the [PurgeCSS] plugin for [PostCSS]
-1. Add vendor prefixes to CSS rules using the [Autoprefixer] plugin for PostCSS
-1. [Minify] the CSS
-1. [Fingerprint] the CSS
+1. Purge unused CSS using the [PurgeCSS][] plugin for [PostCSS][]
+1. Add vendor prefixes to CSS rules using the [Autoprefixer][] plugin for PostCSS
+1. [Minify][] the CSS
+1. [Fingerprint][] the CSS
 
 Step 1
-: Install [Node.js].
+: Install [Node.js][].
 
 Step 2
 : Install the required Node packages in the root of your project:
@@ -32,21 +32,21 @@ Step 2
   ```
 
 Step 3
-: Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [`config/production`].
+: Enable creation of the `hugo_stats.json` file when building the site. If you are only using this for the production build, consider placing it below [`config/production`][].
 
   {{< code-toggle file=hugo copy=true >}}
   [build.buildStats]
   enable = true
   {{< /code-toggle >}}
 
-  See the [configure build] documentation for details and options.
+  See the [configure build][] documentation for details and options.
 
 Step 4
 : Create a PostCSS configuration file in the root of your project.
 
-  ```js {file="postcss.config.js" copy=true}
-  const autoprefixer = require('autoprefixer');
-  const purgeCSSPlugin = require('@fullhuman/postcss-purgecss').default;
+  ```js {file="postcss.config.mjs" copy=true}
+  import autoprefixer from 'autoprefixer';
+  import purgeCSSPlugin from '@fullhuman/postcss-purgecss';
 
   const purgecss = purgeCSSPlugin({
     content: ['./hugo_stats.json'],
@@ -62,16 +62,13 @@ Step 4
     safelist: []
   });
 
-  module.exports = {
+  export default {
     plugins: [
       process.env.HUGO_ENVIRONMENT !== 'development' ? purgecss : null,
       autoprefixer,
     ]
   };
   ```
-
-  > [!note]
-  > If you are a Windows user, and the path to your project contains a space, you must place the PostCSS configuration within the package.json file. See [this example] and issue [#7333].
 
 Step 5
 : Place your CSS file within the `assets/css` directory.
@@ -99,17 +96,17 @@ Hugo passes the environment variables below to PostCSS, allowing you to do somet
 process.env.HUGO_ENVIRONMENT !== 'development' ? purgecss : null,
 ```
 
-PWD
+`PWD`
 : The absolute path to the project working directory.
 
-HUGO_ENVIRONMENT
+`HUGO_ENVIRONMENT`
 : The current Hugo environment, set with the `--environment` command line flag.
 Default is `production` for `hugo build` and `development` for `hugo server`.
 
-HUGO_PUBLISHDIR
+`HUGO_PUBLISHDIR`
 : The absolute path to the publish directory, typically `public`. This value points to a directory on disk, even when rendering to memory with the `--renderToMemory` command line flag.
 
-HUGO_FILE_X
+`HUGO_FILE_X`
 : Hugo automatically mounts the following files from your project's root directory under `assets/_jsconfig`:
 
 - `babel.config.js`
@@ -136,13 +133,11 @@ You cannot manipulate the values returned from the resource's methods. For examp
 {{ $css.RelPermalink | strings.ToUpper }}
 ```
 
-[#7333]: https://github.com/gohugoio/hugo/issues/7333
-[`config/production`]: /configuration/introduction/#configuration-directory
 [Autoprefixer]: https://github.com/postcss/autoprefixer
-[configure build]: /configuration/build/
 [Fingerprint]: /functions/resources/fingerprint/
 [Minify]: /functions/resources/minify/
 [Node.js]: https://nodejs.org/en
 [PostCSS]: https://postcss.org/
 [PurgeCSS]: https://github.com/FullHuman/purgecss
-[this example]: https://github.com/postcss/postcss-load-config#packagejson
+[`config/production`]: /configuration/introduction/#configuration-directory
+[configure build]: /configuration/build/

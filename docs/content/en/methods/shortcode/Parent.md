@@ -13,7 +13,7 @@ This is useful for inheritance of common shortcode arguments from the root.
 
 In this contrived example, the "greeting" shortcode is the parent, and the "now" shortcode is child.
 
-```text {file="content/welcome.md"}
+```md {file="content/welcome.md"}
 {{</* greeting dateFormat="Jan 2, 2006" */>}}
 Welcome. Today is {{</* now */>}}.
 {{</* /greeting */>}}

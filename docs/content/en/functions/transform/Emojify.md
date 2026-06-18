@@ -13,11 +13,11 @@ aliases: [/functions/emojify]
 
 `emojify` runs a passed string through the Emoji emoticons processor.
 
-See the list of [emoji shortcodes] for available emoticons.
+See the list of [emoji shortcodes][] for available emoticons.
 
-The `emojify` function can be called in your templates but not directly in your content files by default. For emojis in content files, set [`enableEmoji`] to `true` in your project configuration. Then you can write emoji shorthand directly into your content files;
+The `emojify` function can be called in your templates but not directly in your content files by default. For emojis in content files, set [`enableEmoji`][] to `true` in your project configuration. Then you can write emoji shorthand directly into your content files;
 
-```text
+```md
 I :heart: Hugo!
 ```
 

@@ -15,20 +15,22 @@ The input can be a string or a [resource](g).
 
 ## Options
 
-delimiter
+The `transform.Unmarshal` function accepts an options map.
+
+`delimiter`
 : (`string`) Applicable to CSV files. The delimiter used. Default is `,`.
 
-comment
+`comment`
 : (`string`) Applicable to CSV files. The comment character used in the CSV. If set, lines beginning with the comment character without preceding whitespace are ignored.
 
-format
+`format`
 : {{< new-in 0.149.0 />}}
 : (`string`) The serialization format of the input, one of `csv`, `json`, `org`, `toml`, `xml`, or `yaml`. If empty or unspecified, Hugo infers the format from the input. For resources, this option is only needed if the file lacks an extension or to override the inferred format. For strings, it's only required when the format is ambiguous.
 
-lazyQuotes
+`lazyQuotes`
 : (`bool`) Applicable to CSV files. Whether to allow a quote in an unquoted field, or to allow a non-doubled quote in a quoted field. Default is `false`.
 
-targetType
+`targetType`
 : {{< new-in 0.146.7 />}}
 : (`string`) Applicable to CSV files. The target data type, either `slice` or `map`. Default is `slice`.
 
@@ -53,7 +55,7 @@ Use the `transform.Unmarshal` function with global, page, and remote resources.
 
 A global resource is a file within the `assets` directory, or within any directory mounted to the `assets` directory.
 
-```text
+```tree
 assets/
 └── data/
     └── books.json
@@ -77,9 +79,9 @@ assets/
 
 ### Page resource
 
-A page resource is a file within a [page bundle].
+A page resource is a file within a [page bundle][].
 
-```text
+```tree
 content/
 ├── post/
 │   └── book-reviews/
@@ -126,8 +128,8 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 {{ end }}
 ```
 
-> [!note]
-> When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
+> [!NOTE]
+> When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type][]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
 >
 > In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
 >
@@ -342,7 +344,7 @@ Each item node looks like this:
 }
 ```
 
-The title keys do not begin with an underscore or a letter---they are not valid [identifiers](g). Use the [`index`] function to access the values:
+The title keys do not begin with an underscore or a letter---they are not valid [identifiers](g). Use the [`index`][] function to access the values:
 
 ```go-html-template
 {{ with $data.channel.item }}
@@ -366,6 +368,6 @@ Hugo renders this to:
 </ul>
 ```
 
-[`index`]: /functions/collections/indexfunction/
 [Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+[`index`]: /functions/collections/indexfunction/
 [page bundle]: /content-management/page-bundles/

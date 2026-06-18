@@ -21,7 +21,7 @@ The `RegularPages` method on a `Site` object returns a collection of all [regula
 
 [default sort order](g)
 
-To change the sort order, use any of the `Pages` [sorting methods]. For example:
+To change the sort order, use any of the `Pages` [sorting methods][]. For example:
 
 ```go-html-template
 {{ range .Site.RegularPages.ByTitle }}

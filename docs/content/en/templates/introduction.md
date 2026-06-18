@@ -11,9 +11,9 @@ weight: 10
 
 {{% glossary-term template %}}
 
-Templates use [variables][], [functions][], and [methods][] to transform your content, resources, and data into a published page.
+Templates use [variables](#variables), [functions][], and [methods][] to transform your content, resources, and data into a published page.
 
-> [!note]
+> [!NOTE]
 > Hugo uses Go's [`text/template`][] and [`html/template`][] packages.
 >
 > The `text/template` package implements data-driven templates for generating textual output, while the `html/template` package implements data-driven templates for generating HTML output safe against code injection.
@@ -85,7 +85,7 @@ Hugo renders this to:
 <p>My Page Title - foo</p>
 ```
 
-> [!note]
+> [!NOTE]
 > Make sure that you thoroughly understand the concept of _context_ before you continue reading. The most common templating errors made by new users relate to context.
 
 ## Actions
@@ -113,7 +113,6 @@ In the example above:
 Hugo renders the above to:
 
 ```html {trim=false}
-  
   
     <h2>my page title</h2>
   
@@ -185,7 +184,7 @@ These are also equivalent:
 {{ 5 | add 2 | mul 6 }} → 42
 ```
 
-> [!note]
+> [!NOTE]
 > Remember that the piped value becomes the final argument to the function or method to which you are piping.
 
 ### Line splitting
@@ -261,7 +260,7 @@ With variables that represent a slice or map, use the [`index`][] function to re
 {{ index $map "c" }} → baz
 ```
 
-> [!note]
+> [!NOTE]
 > Slices and arrays are zero-based; element 0 is the first element.
 
 With variables that represent a map or object, [chain](g) identifiers to return the desired value or to access the desired method.
@@ -274,7 +273,7 @@ With variables that represent a map or object, [chain](g) identifiers to return 
 {{ $homePage.Title }} → My Homepage
 ```
 
-> [!note]
+> [!NOTE]
 > As seen above, object and method names are capitalized. Although not required, to avoid confusion we recommend beginning variable and map key names with a lowercase letter or underscore.
 
 ## Functions
@@ -287,9 +286,9 @@ Hugo provides hundreds of custom [functions][] categorized by namespace. For exa
 
 Function|Alias
 :--|:--
-[`strings.ToLower`](/functions/strings/tolower)|`lower`
-[`strings.ToUpper`](/functions/strings/toupper)|`upper`
-[`strings.Replace`](/functions/strings/replace)|`replace`
+[`strings.ToLower`][]|`lower`
+[`strings.ToUpper`][]|`upper`
+[`strings.Replace`][]|`replace`
 
 As shown above, frequently used functions have an alias. Use aliases in your templates to reduce code length.
 
@@ -314,7 +313,7 @@ Object|Method|Description
 `Site`|[`Params`](methods/site/params/)|Returns a map of custom parameters as defined in your project configuration.
 `Site`|[`Title`](methods/site/title/)|Returns the title as defined in the your project configuration.
 
-Chain the method to its object with a dot (`.`) as shown below, remembering that the leading dot represents the [current context][].
+Chain the method to its object with a dot (`.`) as shown below, remembering that the leading dot represents the [current context](#current-context).
 
 ```go-html-template {file="layouts/page.html"}
 {{ .Site.Title }} → My Site Title
@@ -337,21 +336,21 @@ Some methods take an argument. Separate the argument from the method with a spac
 
 ## Comments
 
-> [!note]
+> [!NOTE]
 > Do not attempt to use HTML comment delimiters to comment out template code.
 >
 > Hugo strips HTML comments when rendering a page, but first evaluates any template code within the HTML comment delimiters. Depending on the template code within the HTML comment delimiters, this could cause unexpected results or fail the build.
 
 Template comments are similar to template actions. Paired opening and closing braces represent the beginning and end of a comment. For example:
 
-```text
+```go-html-template
 {{/* This is an inline comment. */}}
 {{- /* This is an inline comment with adjacent whitespace removed. */ -}}
 ```
 
 Code within a comment is not parsed, executed, or displayed. Comments may be inline, as shown above, or in block form:
 
-```text
+```go-html-template
 {{/*
 This is a block comment.
 */}}
@@ -364,7 +363,7 @@ adjacent whitespace removed.
 
 You may not nest one comment inside of another.
 
-To render an HTML comment, pass a string through the [`safeHTML`][] template function. For example:
+To render an HTML comment, pass a string through the [`safe.HTML`][] function. For example:
 
 ```go-html-template
 {{ "<!-- I am an HTML comment. -->" | safeHTML }}
@@ -373,7 +372,7 @@ To render an HTML comment, pass a string through the [`safeHTML`][] template fun
 
 ## Include
 
-Use the [`template`][] function to include one or more of Hugo's [embedded templates]:
+Use the [`template`][] function to include one or more of Hugo's [embedded templates][]:
 
 ```go-html-template
 {{ partial "google_analytics.html" . }}
@@ -392,7 +391,7 @@ Use the [`partial`][] or [`partialCached`][] function to include one or more [pa
 
 Create your _partial_ templates in the `layouts/_partials` directory.
 
-> [!note]
+> [!NOTE]
 > In the examples above, note that we are passing the current context (the dot) to each of the templates.
 
 ## Examples
@@ -489,7 +488,7 @@ To test multiple conditions:
 
 ### Access site parameters
 
-See documentation for the [`Params`](/methods/site/params/) method on a `Site` object.
+See documentation for the [`Params`][params_site] method on a `Site` object.
 
 With this project configuration:
 
@@ -519,7 +518,7 @@ Access the custom site parameters by chaining the identifiers:
 
 ### Access page parameters
 
-See documentation for the [`Params`](/methods/page/params/) method on a `Page` object.
+See documentation for the [`Params`][params_page] method on a `Page` object.
 
 By way of example, consider this front matter:
 
@@ -550,30 +549,33 @@ In the template example above, each of the keys is a valid identifier. For examp
 {{ index .Params "key-with-hyphens" }} → must use index function
 ```
 
-[`and`]: /functions/go-template/and
+[`Page`]: /methods/page/
+[`Site`]: /methods/site/
+[`Title`]: /methods/page/title/
+[`and`]: /functions/go-template/and/
 [`else`]: /functions/go-template/else/
 [`end`]: /functions/go-template/end/
+[`html/template`]: https://pkg.go.dev/html/template
 [`if`]: /functions/go-template/if/
 [`index`]: /functions/collections/indexfunction/
-[`or`]: /functions/go-template/or
-[`Page`]: /methods/page/
-[`partial`]: /functions/partials/include/
+[`or`]: /functions/go-template/or/
 [`partialCached`]: /functions/partials/includecached/
+[`partial`]: /functions/partials/include/
 [`range`]: /functions/go-template/range/
-[`safeHTML`]: /functions/safe/html
-[`Site`]: /methods/site/
+[`safe.HTML`]: /functions/safe/html/
+[`strings.Replace`]: /functions/strings/replace/
+[`strings.ToLower`]: /functions/strings/tolower/
+[`strings.ToUpper`]: /functions/strings/toupper/
 [`template`]: /functions/go-template/template/
-[`Title`]: /methods/page/title
+[`text/template`]: https://pkg.go.dev/text/template
 [`with`]: /functions/go-template/with/
-[current context]: #current-context
 [embedded templates]: /templates/embedded/
 [front matter fields]: /content-management/front-matter/#fields
 [front matter]: /content-management/front-matter/
 [functions]: /functions/
 [go-templates]: /functions/go-template/
-[`html/template`]: https://pkg.go.dev/html/template
 [methods]: /methods/
+[params_page]: /methods/page/params/
+[params_site]: /methods/site/params/
 [partial templates]: /templates/types/#partial
 [templates]: /templates/
-[`text/template`]: https://pkg.go.dev/text/template
-[variables]: #variables

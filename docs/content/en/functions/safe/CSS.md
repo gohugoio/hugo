@@ -26,7 +26,7 @@ Use the `safe.CSS` function to encapsulate known safe content that matches any o
 
 Use of this type presents a security risk: the encapsulated content should come from a trusted source, as it will be included verbatim in the template output.
 
-See the [Go documentation] for details.
+See the [Go documentation][] for details.
 
 ## Example
 
@@ -43,7 +43,7 @@ Hugo renders the above to:
 <p style="ZgotmplZ">foo</p>
 ```
 
-> [!note]
+> [!NOTE]
 > `ZgotmplZ` is a special value that indicates that unsafe content reached a CSS or URL context at runtime.
 
 To declare the string as safe:

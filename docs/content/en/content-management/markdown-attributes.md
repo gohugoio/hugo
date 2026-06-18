@@ -11,14 +11,14 @@ Hugo supports Markdown attributes on images and block elements including blockqu
 
 For example:
 
-```text
+```md
 This is a paragraph.
 {class="foo bar" id="baz"}
 ```
 
 With `class` and `id` attributes you can also use short-form notation:
 
-```text
+```md
 This is a paragraph.
 {.foo .bar #baz}
 ```
@@ -48,7 +48,7 @@ block = true # default is false
 
 ## Standalone images
 
-By default, when the [Goldmark][] Markdown renderer encounters a standalone image element (no other elements or text on the same line), it wraps the image element within a paragraph element per the [CommonMark specification][].
+By default, when the [Goldmark][] Markdown renderer encounters a standalone image element (no other elements or text on the same line), it wraps the image element within a paragraph element per the [CommonMark][] specification.
 
 If you were to place an attribute list beneath an image element, Hugo would apply the attributes to the surrounding paragraph, not the image.
 
@@ -63,14 +63,14 @@ wrapStandAloneImageWithinParagraph = false # default is true
 
 You may add [global HTML attributes][], or HTML attributes specific to the current element type. Consistent with its content security model, Hugo removes HTML event attributes such as `onclick` and `onmouseover`.
 
-> [!note]
+> [!NOTE]
 > Within fenced code blocks, Hugo interprets the `style` attribute as a syntax highlighting [option][option] rather than a global HTML attribute.
 
 The attribute list consists of one or more key-value pairs, separated by spaces or commas, wrapped by braces. You must quote string values that contain spaces. Unlike HTML, boolean attributes must have both key and value.
 
 For example:
 
-```text
+```md
 > This is a blockquote.
 {class="foo bar" hidden=hidden}
 ```
@@ -85,20 +85,20 @@ Hugo renders this to:
 
 In most cases, place the attribute list beneath the markup element. For headings and fenced code blocks, place the attribute list on the right.
 
-Element|Position of attribute list
-:--|:--
-blockquote|bottom
-fenced code block|right
-heading|right
-horizontal rule|bottom
-image|bottom
-list|bottom
-paragraph|bottom
-table|bottom
+Element           | Position of attribute list
+:-----------------|:--------------------------
+blockquote        | bottom
+fenced code block | right
+heading           | right
+horizontal rule   | bottom
+image             | bottom
+list              | bottom
+paragraph         | bottom
+table             | bottom
 
 For example:
 
-````text
+````md
 ## Section 1 {class=foo}
 
 ```sh {class=foo linenos=inline}
@@ -112,8 +112,8 @@ This is a paragraph.
 
 As shown above, the attribute list for fenced code blocks is not limited to HTML attributes. You can also configure syntax highlighting by passing one or more of [these options][option].
 
-[CommonMark specification]: https://spec.commonmark.org/current/
-[global HTML attributes]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
+[CommonMark]: https://spec.commonmark.org/current/
 [Goldmark]: https://github.com/yuin/goldmark
-[render hook templates]: /render-hooks/introduction/
+[global HTML attributes]: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
 [option]: /functions/transform/highlight/#options
+[render hook templates]: /render-hooks/introduction/

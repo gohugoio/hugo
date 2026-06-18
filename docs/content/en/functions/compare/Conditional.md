@@ -18,10 +18,7 @@ If CONTROL is truthy the function returns ARG1, otherwise it returns ARG2.
 {{ cond (le $qty 3) "few" "many" }} → many
 ```
 
-Unlike [ternary operators] in other languages, the `compare.Conditional` function does not perform [short-circuit evaluation]. It evaluates both ARG1 and ARG2 regardless of the CONTROL value.
-
-[short-circuit evaluation]: https://en.wikipedia.org/wiki/Short-circuit_evaluation
-[ternary operators]: https://en.wikipedia.org/wiki/Ternary_conditional_operator
+Unlike [ternary operators][] in other languages, the `compare.Conditional` function does not perform [short-circuit evaluation][]. It evaluates both ARG1 and ARG2 regardless of the CONTROL value.
 
 Due to the absence of short-circuit evaluation, these examples throw an error:
 
@@ -29,3 +26,6 @@ Due to the absence of short-circuit evaluation, these examples throw an error:
 {{ cond true "true" (div 1 0) }}
 {{ cond false (div 1 0) "false" }}
 ```
+
+[short-circuit evaluation]: https://en.wikipedia.org/wiki/Short-circuit_evaluation
+[ternary operators]: https://en.wikipedia.org/wiki/Ternary_conditional_operator

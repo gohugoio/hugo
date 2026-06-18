@@ -9,10 +9,7 @@ params:
     signatures: ['PAGES.GroupByParamDate PARAM LAYOUT [SORT]']
 ---
 
-The [layout string] has the same format as the layout string for the [`time.Format`] function. The resulting group key is [localized](g) for language and region.
-
-[`time.Format`]: /functions/time/format/
-[layout string]: #layout-string
+The [layout string](#layout-string) has the same format as the layout string for the [`time.Format`][] function. The resulting group key is [localized](g) for language and region.
 
 {{% include "/_common/methods/pages/group-sort-order.md" %}}
 
@@ -58,3 +55,5 @@ The pages within each group will also be sorted by the parameter date, either as
 ## Layout string
 
 {{% include "/_common/time-layout-string.md" %}}
+
+[`time.Format`]: /functions/time/format/

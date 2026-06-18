@@ -9,7 +9,7 @@ aliases: [/templates/shortcode-templates/]
 
 {{< newtemplatesystem >}}
 
-> [!note]
+> [!NOTE]
 > Before creating custom shortcodes, please review the [shortcodes][] page in the [content management][] section. Understanding the usage details will help you design and create better templates.
 
 ## Introduction
@@ -28,7 +28,7 @@ Hugo provides [embedded shortcodes][] for many common tasks, but you'll likely n
 
 Create _shortcode_ templates within the `layouts/_shortcodes` directory, either at its root or organized into subdirectories.
 
-```text
+```tree
 layouts/
 └── _shortcodes/
     ├── diagrams/
@@ -46,7 +46,7 @@ layouts/
 
 When calling a shortcode in a subdirectory, specify its path relative to the `_shortcode` directory, excluding the file extension.
 
-```text
+```md
 {{</* media/audio path=/audio/podcast/episode-42.mp3 */>}}
 ```
 
@@ -70,7 +70,7 @@ foo|rss|en|`layouts/_shortcodes/foo.xml`
 
 ## Methods
 
-Use these methods in your _shortcode_ templates. Refer to each methods's documentation for details and examples.
+Use these methods in your _shortcode_ templates. Refer to each method's documentation for details and examples.
 
 {{% render-list-of-pages-in-section path=/methods/shortcode %}}
 
@@ -88,7 +88,7 @@ Create a shortcode to insert the current year:
 
 Then call the shortcode from within your markup:
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 This is {{</* year */>}}, and look at how far we've come.
 ```
 
@@ -98,7 +98,7 @@ This shortcode can be used inline or as a block on its own line. If a shortcode 
 
 This example assumes the following content structure, where `content/example/index.md` is a [page bundle](g) containing one or more [page resources](g).
 
-```text
+```tree
 content/
 ├── example/
 │   ├── a.jpg
@@ -118,7 +118,7 @@ Create a shortcode to capture an image as a page resource, resize it to the give
 
 Then call the shortcode from within your markup:
 
-```text {file="content/example/index.md"}
+```md {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
 ```
 
@@ -128,7 +128,7 @@ The example above uses:
 - The [`Get`][] method to retrieve arguments by name
 - The `$` to access the template context
 
-> [!note]
+> [!NOTE]
 > Make sure that you thoroughly understand the concept of context. The most common templating errors made by new users relate to context.
 >
 > Read more about context in the [introduction to templating][].
@@ -168,13 +168,13 @@ ERROR The "image" shortcode requires a 'width' argument: see "/home/user/project
 
 Shortcode arguments can be [named or positional][]. We used named arguments previously; let's explore positional arguments. Here's the named argument version of our example:
 
-```text {file="content/example/index.md"}
+```md {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
 ```
 
 Here's how to call it with positional arguments:
 
-```text {file="content/example/index.md"}
+```md {file="content/example/index.md"}
 {{</* image a.jpg 300 "A white kitten" */>}}
 ```
 
@@ -186,7 +186,7 @@ Using the `Get` method with zero-indexed keys, we'll initialize variables with d
 {{ $alt := .Get 2 }}
 ```
 
-> [!note]
+> [!NOTE]
 > Positional arguments work well for frequently used shortcodes with one or two arguments. Since you'll use them often, the argument order will be easy to remember. For less frequently used shortcodes, or those with more than two arguments, named arguments improve readability and reduce the chance of errors.
 
 ### Named and positional arguments
@@ -207,7 +207,7 @@ Use the [`Params`][] method to access the arguments as a collection.
 
 When using named arguments, the `Params` method returns a map:
 
-```text {file="content/example/index.md"}
+```md {file="content/example/index.md"}
 {{</* image path=a.jpg width=300 alt="A white kitten" */>}}
 ```
 
@@ -219,7 +219,7 @@ When using named arguments, the `Params` method returns a map:
 
  When using positional arguments, the `Params` method returns a slice:
 
-```text {file="content/example/index.md"}
+```md {file="content/example/index.md"}
 {{</* image a.jpg 300 "A white kitten" */>}}
 ```
 
@@ -235,7 +235,7 @@ Combine the `Params` method with the [`collections.IsSet`][] function to determi
 
 Extract the content enclosed within shortcode tags using the [`Inner`][] method. This example demonstrates how to pass both content and a title to a shortcode. The shortcode then generates a `div` element containing an `h2` element (displaying the title) and the provided content.
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 {{</* contrived title="A Contrived Example" */>}}
 This is a **bold** word, and this is an _emphasized_ word.
 {{</* /contrived  */>}}
@@ -275,7 +275,7 @@ You also have an `img` shortcode with a single named `src` argument that you wan
 
 You can then call your shortcode in your content as follows:
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 {{</* gallery class="content-gallery" */>}}
   {{</* img src="/images/one.jpg" */>}}
   {{</* img src="/images/two.jpg" */>}}
@@ -301,7 +301,7 @@ For guidance, consider examining Hugo's embedded shortcodes. The source code, av
 
 The [`HasShortcode`][] method allows you to check if a specific shortcode has been called on a page. For example, consider a custom audio shortcode:
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 {{</* audio src=/audio/test.mp3 */>}}
 ```
 
@@ -317,8 +317,8 @@ You can use the `HasShortcode` method in your base template to conditionally loa
 </head>
 ```
 
-[`collections.IsSet`]: /functions/collections/isset/
-[`compare.Conditional`]: /functions/compare/conditional/
+[GitHub]: https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates/_shortcodes
+[Markdown notation]: /content-management/shortcodes/#markdown-notation
 [`Get`]: /methods/shortcode/get/
 [`HasShortcode`]: /methods/page/hasshortcode/
 [`Inner`]: /methods/shortcode/inner/
@@ -328,12 +328,12 @@ You can use the `HasShortcode` method in your base template to conditionally loa
 [`Parent`]: /methods/shortcode/parent/
 [`Position`]: /methods/shortcode/position/
 [`RenderString`]: /methods/page/renderstring/
+[`collections.IsSet`]: /functions/collections/isset/
+[`compare.Conditional`]: /functions/compare/conditional/
 [`with`]: /functions/go-template/with/
 [content management]: /content-management/shortcodes/
 [embedded shortcodes]: /shortcodes/
-[GitHub]: https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates/_shortcodes
 [introduction to templating]: /templates/introduction/
-[Markdown notation]: /content-management/shortcodes/#markdown-notation
 [named or positional]: /content-management/shortcodes/#arguments
 [shortcodes]: /content-management/shortcodes/
 [standard notation]: /content-management/shortcodes/#standard-notation

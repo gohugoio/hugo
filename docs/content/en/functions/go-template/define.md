@@ -10,7 +10,7 @@ params:
     signatures: [define NAME]
 ---
 
-Use with the [`block`] statement:
+Use with the [`block`][] statement:
 
 ```go-html-template
 {{ block "main" . }}
@@ -23,7 +23,7 @@ Use with the [`block`] statement:
 {{ end }}
 ```
 
-Use with the [`partial`] function:
+Use with the [`partial`][] function:
 
 ```go-html-template
 {{ partial "inline/foo.html" (dict "answer" 42) }}
@@ -33,7 +33,7 @@ Use with the [`partial`] function:
 {{ end }}
 ```
 
-Use with the [`template`] function:
+Use with the [`template`][] function:
 
 ```go-html-template
 {{ template "foo" (dict "answer" 42) }}
@@ -46,5 +46,5 @@ Use with the [`template`] function:
 {{% include "/_common/functions/go-template/text-template.md" %}}
 
 [`block`]: /functions/go-template/block/
-[`template`]: /functions/go-template/block/
 [`partial`]: /functions/partials/include/
+[`template`]: /functions/go-template/block/

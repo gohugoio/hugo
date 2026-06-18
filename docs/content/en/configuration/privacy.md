@@ -26,7 +26,7 @@ Some of these templates include settings to enhance privacy.
 
 ## Configuration
 
-> [!note]
+> [!NOTE]
 > These settings affect the behavior of some of Hugo's embedded templates. These settings may or may not affect the behavior of templates provided by third parties in their modules or themes.
 
 These are the default privacy settings for Hugo's embedded templates:
@@ -35,9 +35,16 @@ These are the default privacy settings for Hugo's embedded templates:
 
 See each template's documentation for a description of its privacy settings:
 
-- [Disqus partial](/templates/embedded/#privacy-disqus)
-- [Google Analytics partial](/templates/embedded/#privacy-google-analytics)
-- [Instagram shortcode](/shortcodes/instagram/#privacy)
-- [Vimeo shortcode](/shortcodes/vimeo/#privacy)
-- [X shortcode](/shortcodes/x/#privacy)
-- [YouTube shortcode](/shortcodes/youtube/#privacy)
+- [Disqus partial][]
+- [Google Analytics partial][]
+- [Instagram shortcode][]
+- [Vimeo shortcode][]
+- [X shortcode][]
+- [YouTube shortcode][]
+
+[Disqus partial]: /templates/embedded/#privacy-disqus
+[Google Analytics partial]: /templates/embedded/#privacy-google-analytics
+[Instagram shortcode]: /shortcodes/instagram/#privacy
+[Vimeo shortcode]: /shortcodes/vimeo/#privacy
+[X shortcode]: /shortcodes/x/#privacy
+[YouTube shortcode]: /shortcodes/youtube/#privacy

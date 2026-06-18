@@ -10,7 +10,7 @@ params:
     signatures: [templates.Current]
 ---
 
-> [!note]
+> [!NOTE]
 > This function is experimental and subject to change.
 
 {{< new-in 0.146.0 />}}
@@ -19,19 +19,21 @@ The `templates.Current` function provides introspection capabilities, allowing y
 
 ## Methods
 
-Ancestors
+Use these methods on the `CurrentTemplateInfo` object.
+
+`Ancestors`
 : (`tpl.CurrentTemplateInfos`) Returns a slice containing information about each template in the current execution chain, starting from the parent of the current template and going up towards the initial template called. It excludes any base template applied via `define` and `block`. You can chain the `Reverse` method to this result to get the slice in chronological execution order.
 
-Base
+`Base`
 : (`tpl.CurrentTemplateInfoCommonOps`) Returns an object representing the base template that was applied to the current template, if any. This may be `nil`.
 
-Filename
+`Filename`
 : (`string`) Returns the absolute path of the current template. This will be empty for embedded templates.
 
-Name
+`Name`
 : (`string`) Returns the name of the current template. This is usually the path relative to the layouts directory.
 
-Parent
+`Parent`
 : (`tpl.CurrentTemplateInfo`) Returns an object representing the parent of the current template, if any. This may be `nil`.
 
 ## Examples

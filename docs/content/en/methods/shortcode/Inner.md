@@ -11,7 +11,7 @@ params:
 
 This content:
 
-```text {file="content/services.md"}
+```md {file="content/services.md"}
 {{</* card title="Product Design" */>}}
 We design the **best** widgets in the world.
 {{</* /card */>}}
@@ -41,15 +41,15 @@ Is rendered to:
 </div>
 ```
 
-> [!note]
-> Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`strings.TrimSpace`] function as shown above to remove carriage returns and newlines.
+> [!NOTE]
+> Content between opening and closing shortcode tags may include leading and/or trailing newlines, depending on placement within the Markdown. Use the [`strings.TrimSpace`][] function as shown above to remove carriage returns and newlines.
 
-> [!note]
+> [!NOTE]
 > In the example above, the value returned by `Inner` is Markdown, but it was rendered as plain text. Use either of the following approaches to render Markdown to HTML.
 
 ## Use RenderString
 
-Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`] method on the `Page` object:
+Let's modify the example above to pass the value returned by `Inner` through the [`RenderString`][] method on the `Page` object:
 
 ```go-html-template {file="layouts/_shortcodes/card.html"}
 <div class="card">
@@ -73,13 +73,13 @@ Hugo renders this to:
 </div>
 ```
 
-You can use the [`markdownify`] function instead of the `RenderString` method, but the latter is more flexible. See&nbsp;[details].
+You can use the [`markdownify`][] function instead of the `RenderString` method, but the latter is more flexible. See [details][].
 
 ## Alternative notation
 
 Instead of calling the shortcode with the `{{</* */>}}` notation, use the `{{%/* */%}}` notation:
 
-```text {file="content/services.md"}
+```md {file="content/services.md"}
 {{%/* card title="Product Design" */%}}
 We design the **best** widgets in the world.
 {{%/* /card */%}}
@@ -94,9 +94,9 @@ First, configure the renderer to allow raw HTML within Markdown:
 unsafe = true
 {{< /code-toggle >}}
 
-This configuration is not unsafe if _you_ control the content. Read more about Hugo's [security model].
+This configuration is not unsafe if _you_ control the content. Read more about Hugo's [security model][].
 
-Second, because we are rendering the entire shortcode as Markdown, we must adhere to the rules governing [indentation] and inclusion of [raw HTML blocks] as provided in the [CommonMark] specification.
+Second, because we are rendering the entire shortcode as Markdown, we must adhere to the rules governing [indentation][] and inclusion of [raw HTML blocks][] as provided in the [CommonMark][] specification.
 
 ```go-html-template {file="layouts/_shortcodes/card.html"}
 <div class="card">
@@ -129,15 +129,15 @@ The difference between this and the previous example is subtle but required. Not
  </div>
 ```
 
-> [!note]
-> Don't process the `Inner` value with `RenderString` or `markdownify` when using [Markdown notation] to call the shortcode.
+> [!NOTE]
+> Don't process the `Inner` value with `RenderString` or `markdownify` when using [Markdown notation][] to call the shortcode.
 
-[`markdownify`]: /functions/transform/markdownify/
-[`RenderString`]: /methods/page/renderstring/
-[`strings.TrimSpace`]: /functions/strings/trimspace/
 [CommonMark]: https://spec.commonmark.org/current/
+[Markdown notation]: /content-management/shortcodes/#notation
+[`RenderString`]: /methods/page/renderstring/
+[`markdownify`]: /functions/transform/markdownify/
+[`strings.TrimSpace`]: /functions/strings/trimspace/
 [details]: /methods/page/renderstring/
 [indentation]: https://spec.commonmark.org/current/#indented-code-blocks
-[Markdown notation]: /content-management/shortcodes/#notation
 [raw HTML blocks]: https://spec.commonmark.org/current/#html-blocks
 [security model]: /about/security/

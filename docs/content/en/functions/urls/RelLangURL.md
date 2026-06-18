@@ -78,5 +78,5 @@ When rendering the `en` site with `baseURL = https://example.org/docs/`
 {{ relLangURL "/style.css" }} → /en/style.css
 ```
 
-> [!note]
+> [!NOTE]
 > As illustrated by the previous example, using a leading slash is rarely desirable and can lead to unexpected outcomes. In nearly all cases, omit the leading slash.

@@ -37,43 +37,43 @@ The following is the default configuration that matches the table above:
 
 {{< code-toggle config=outputFormats />}}
 
-baseName
+`baseName`
 : (`string`) The base name of the published file. Default is `index`.
 
-isHTML
+`isHTML`
 : (`bool`) Whether to classify the output format as HTML. This value determines when the LiveReload script is injected and, in conjunction with [`permalinkable`](#permalinkable), whether [alias redirects][] are generated. Default is `false`.
 
-isPlainText
+`isPlainText`
 : (`bool`) Whether to parse templates for this output format with Go's [`text/template`][] package instead of the [`html/template`][] package. Default is `false`.
 
-mediaType
+`mediaType`
 : (`string`) The [media type](g) of the published file. This must match one of the [configured media types][].
 
-notAlternative
+`notAlternative`
 : (`bool`) Whether to exclude this output format from the values returned by the [`AlternativeOutputFormats`][] method on a `Page` object. Default is `false`.
 
-noUgly
+`noUgly`
 : (`bool`) Whether to disable ugly URLs for this output format when [`uglyURLs`][] are enabled in your project configuration. Default is `false`.
 
-path
+`path`
 : (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your [`publishDir`][]. If omitted, Hugo will use the file's original content path for publishing.
 
-permalinkable
+`permalinkable`
 : (`bool`) Whether to return the rendering output format rather than the main output format when invoking the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object. Along with [`isHTML`](#ishtml), this must be `true` to create [alias redirects][]. Enabled by default for the `html` and `amp` output formats. Default is `false`.
 
-protocol
+`protocol`
 : (`string`) The protocol (scheme) of the URL for this output format. For example, `https://` or `webcal://`. Default is the scheme of the [`baseURL`][] parameter in your project configuration, typically `https://`.
 
-rel
+`rel`
 : (`string`) The relationship of the output format to the current page. Hugo uses this property to determine the [canonical output format](g) of the current page. For the predefined `html` output format, the default value is `canonical`; for all other predefined output formats, the default value is `alternate`.
 
-root
+`root`
 : (`bool`) Whether to publish files to the root of the publish directory. Default is `false`.
 
-ugly
+`ugly`
 : (`bool`) Whether to enable uglyURLs for this output format when `uglyURLs` is `false` in your project configuration. Default is `false`.
 
-weight
+`weight`
 : (`int`) When set to a non-zero value, Hugo uses the `weight` as the first criteria when sorting output formats, falling back to the name of the output format. Lighter items float to the top, while heavier items sink to the bottom. Hugo renders output formats sequentially based on the sort order. Default is `0`, except for the `html` output format, which has a default weight of `10`.
 
 ## Modify an output format
@@ -159,7 +159,7 @@ For example, in `page.json.json`, you'll see:
 {{ end }}
 ```
 
-To make these methods return the URL of the _current_ template's output format, you must set the [`permalinkable`][] setting to `true` for that format.
+To make these methods return the URL of the _current_ template's output format, you must set the [`permalinkable`](#permalinkable) setting to `true` for that format.
 
 With `permalinkable` set to true for `json` in the same `page.json.json` template:
 
@@ -189,12 +189,13 @@ Output format|Template path
 `rss`|`layouts/section.rss.xml`
 
 [`AlternativeOutputFormats`]: /methods/page/alternativeoutputformats/
-[`baseURL`]: /configuration/all/#baseurl
 [`OutputFormats`]: /methods/page/outputformats/
 [`Permalink`]: /methods/page/permalink/
-[`permalinkable`]: #permalinkable
-[`publishDir`]: /configuration/all/#publishdir
 [`RelPermalink`]: /methods/page/relpermalink/
+[`baseURL`]: /configuration/all/#baseurl
+[`html/template`]: https://pkg.go.dev/html/template
+[`publishDir`]: /configuration/all/#publishdir
+[`text/template`]: https://pkg.go.dev/text/template
 [`uglyURLs`]: /configuration/ugly-urls/
 [alias redirects]: /content-management/urls/#aliases
 [configure media types]: /configuration/media-types/
@@ -202,6 +203,4 @@ Output format|Template path
 [configured media types]: /configuration/media-types/
 [default media types]: /configuration/media-types/
 [embedded RSS template]: <{{% eturl rss %}}>
-[`html/template`]: https://pkg.go.dev/html/template
 [template lookup order]: /templates/lookup-order/
-[`text/template`]: https://pkg.go.dev/text/template

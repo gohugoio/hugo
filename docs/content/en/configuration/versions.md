@@ -16,7 +16,7 @@ This is the default configuration:
 
 Use the following setting to define how Hugo orders versions.
 
-weight
+`weight`
 : (`int`) The language [weight](g).
 
 ## Sort order

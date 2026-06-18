@@ -30,20 +30,20 @@ Hugo will test for equality if you do not provide an `OPERATOR` argument. For ex
 
 The where function takes three or four arguments. The `OPERATOR` argument is optional.
 
-SLICE
+`SLICE`
 : (`[]any`) A [page collection](g) or a [slice](g) of [maps](g).
 
-KEY
+`KEY`
 : (`string`) The key of the page or map value to compare with `VALUE`. With page collections, commonly used comparison keys are `Section`, `Type`, and `Params`. To compare with a member of the page `Params` map, [chain](g) the subkey as shown below:
 
   ```go-html-template
   {{ $result := where .Site.RegularPages "Params.foo" "bar" }}
   ```
 
-OPERATOR
+`OPERATOR`
 : (`string`) The logical comparison [operator](#operators).
 
-VALUE
+`VALUE`
 : (`any`) The value with which to compare. The values to compare must have comparable data types. For example:
 
 Comparison|Result
@@ -78,18 +78,17 @@ Use any of the following logical operators:
 : (`bool`) Reports whether the given field value is less than `VALUE`.
 
 `in`
-: (`bool`) Reports whether the given field value is a member of `VALUE`. Compare string to slice, or string to string. See&nbsp;[details](/functions/collections/in).
+: (`bool`) Reports whether the given field value is a member of `VALUE`. Compare string to slice, or string to string.
 
 `not in`
-: (`bool`) Reports whether the given field value is not a member of `VALUE`. Compare string to slice, or string to string. See&nbsp;[details](/functions/collections/in).
-
+: (`bool`) Reports whether the given field value is not a member of `VALUE`. Compare string to slice, or string to string.
 `intersect`
-: (`bool`) Reports whether the given field value (a slice) contains one or more elements in common with `VALUE`. See&nbsp;[details](/functions/collections/intersect).
+: (`bool`) Reports whether the given field value (a slice) contains one or more elements in common with `VALUE`.
 
 `like`
 : (`bool`) Reports whether the given field value matches the [regular expression](g) specified in `VALUE`. Use the `like` operator to compare `string` values. The `like` operator returns `false` when comparing other data types to the regular expression.
 
-> [!note]
+> [!NOTE]
 > The examples below perform comparisons within a page collection, but the same comparisons are applicable to a slice of maps.
 
 ## String comparison
@@ -174,14 +173,14 @@ To return a slice of pages where the `author` page parameter begins with either 
 
 {{% include "/_common/functions/regular-expressions.md" %}}
 
-> [!note]
+> [!NOTE]
 > Use the `like` operator to compare string values. Comparing other data types will result in an empty slice.
 
 ## Date comparison
 
 ### Predefined dates
 
-There are four predefined front matter dates: [`date`], [`publishDate`], [`lastmod`], and [`expiryDate`]. Regardless of the front matter data format (TOML, YAML, or JSON) these are [`time.Time`] values, allowing precise comparisons.
+There are four predefined front matter dates: [`date`][], [`publishDate`][], [`lastmod`][], and [`expiryDate`][]. Regardless of the front matter data format (TOML, YAML, or JSON) these are [`time.Time`][] values, allowing precise comparisons.
 
 For example, to return a slice of pages that were created before the current year:
 
@@ -194,14 +193,14 @@ For example, to return a slice of pages that were created before the current yea
 
 With custom front matter dates, the comparison depends on the front matter data format (TOML, YAML, or JSON).
 
-> [!note]
+> [!NOTE]
 > Using TOML for pages with custom front matter dates enables precise date comparisons.
 
-With TOML, date values are first-class citizens. TOML has a date data type while JSON and YAML do not. If you quote a TOML date, it is a string. If you do not quote a TOML date value, it is [`time.Time`] value, enabling precise comparisons.
+With TOML, date values are first-class citizens. TOML has a date data type while JSON and YAML do not. If you quote a TOML date, it is a string. If you do not quote a TOML date value, it is [`time.Time`][] value, enabling precise comparisons.
 
 In the TOML example below, note that the event date is not quoted.
 
-```text {file="content/events/2024-user-conference.md"}
+```md {file="content/events/2024-user-conference.md"}
 +++
 title = '2024 User Conference"
 eventDate = 2024-04-01
@@ -258,7 +257,7 @@ These are equivalent:
 
 ## Portable section comparison
 
-Useful for theme authors, avoid hardcoding section names by using the `where` function with the [`MainSections`] method on a `Site` object.
+Useful for theme authors, avoid hardcoding section names by using the `where` function with the [`MainSections`][] method on a `Site` object.
 
 ```go-html-template
 {{ $pages := where .Site.RegularPages "Section" "in" .Site.MainSections }}
@@ -276,7 +275,7 @@ If `mainSections` is not defined in your project configuration, the `MainSection
 
 Consider this project structure:
 
-```text
+```tree
 content/
 ├── posts/
 │   ├── _index.md
@@ -370,7 +369,7 @@ To exclude a page with an undefined field from a boolean _inequality_ test:
 
 1. Create a slice using a boolean comparison
 1. Create a slice using a nil comparison
-1. Subtract the second slice from the first slice using the [`collections.Complement`] function.
+1. Subtract the second slice from the first slice using the [`collections.Complement`][] function.
 
 This template:
 
@@ -412,8 +411,8 @@ Is rendered to:
 </ul>
 ```
 
+[`MainSections`]: /methods/site/mainsections/
 [`collections.Complement`]: /functions/collections/complement/
 [`date`]: /methods/page/date/
 [`lastmod`]: /methods/page/lastmod/
-[`MainSections`]: /methods/site/mainsections/
 [`time.Time`]: https://pkg.go.dev/time#Time

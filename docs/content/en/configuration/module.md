@@ -9,7 +9,7 @@ aliases: [/hugo-modules/configuration/]
 
 {{% include "/_common/gomodules-info.md" %}}
 
-## Top-level options
+## Top-level settings
 
 This is the default configuration:
 
@@ -25,23 +25,23 @@ workspace = 'off'
 {{< /code-toggle >}}
 <!-- markdownlint-enable MD049 -->
 
-auth
+`auth`
 : {{< new-in 0.144.0 />}}
 : (`string`) Configures `GOAUTH` when running the Go command for module operations. This is a semicolon-separated list of authentication commands for go-import and HTTPS module mirror interactions. This is useful for private repositories. See `go help goauth` for more information.
 
-noProxy
+`noProxy`
 : (`string`) A comma-separated list of [glob patterns](g), matching paths that should not use the [configured proxy server](#proxy).
 
-noVendor
+`noVendor`
 : (`string`) A [glob pattern](g) matching module paths to skip when vendoring.
 
-private
+`private`
 : (`string`) A comma-separated list of [glob patterns](g), matching paths that should be treated as private.
 
-proxy
+`proxy`
 : (`string`) The proxy server to use to download remote modules. Default is `direct`, which means `git clone` and similar.
 
-replacements
+`replacements`
 : (`string`) Primarily useful for local module development, a comma-separated list of mappings from module paths to directories. Paths may be absolute or relative to the [`themesDir`][].
 
   {{< code-toggle file=hugo >}}
@@ -49,10 +49,10 @@ replacements
   replacements = 'github.com/bep/my-theme -> ../..,github.com/bep/shortcodes -> /some/path'
   {{< /code-toggle >}}
 
-vendorClosest
+`vendorClosest`
 : (`bool`) Whether to pick the vendored module closest to the module using it. The default behavior is to pick the first. Note that there can still be only one dependency of a given module path, so once it is in use it cannot be redefined. Default is `false`.
 
-workspace
+`workspace`
 : (`string`) The Go workspace file to use, either as an absolute path or a path relative to the current working directory. Enabling this activates Go workspace mode and requires Go 1.18 or later. The default is `off`.
 
 You may also use environment variables to set any of the above. For example:
@@ -73,10 +73,11 @@ This is the default configuration:
 
 You can omit any of the settings above.
 
-extended
+`extended`
+: {{< deprecated-in v0.153.0 />}}
 : (`bool`) Whether the extended edition of Hugo is required, satisfied by installing either the extended or extended/deploy edition.
 
-  > [!note]
+  > [!NOTE]
   > The extended version check is disabled in v0.153.2 and later.
   >
   > Historically, certain features—specifically WebP encoding and LibSass—required the Hugo Extended binary. However, as of v0.153.0:
@@ -86,10 +87,10 @@ extended
   >
   > Because these dependencies no longer require a specialized binary, the internal enforcement check for the extended version has been removed. Site and theme authors are encouraged to use Dart Sass to ensure cross-edition compatibility.
 
-max
+`max`
 : (`string`) The maximum Hugo version supported, for example `0.153.0`.
 
-min
+`min`
 : (`string`) The minimum Hugo version supported, for example `0.102.0`.
 
 ## Imports
@@ -104,37 +105,37 @@ path = 'github.com/gohugoio/hugoTestModules1_linux/modh1_2_1v'
 path = 'my-shortcodes'
 {{< /code-toggle >}}
 
-disable
+`disable`
 : (`bool`) Whether to disable the module but keep version information in the `go.*` files. Default is `false`.
 
-ignoreConfig
+`ignoreConfig`
 : (`bool`) Whether to ignore module configuration files, for example, `hugo.toml`. This will also prevent loading of any transitive module dependencies. Default is `false`.
 
-ignoreImports
+`ignoreImports`
 : (`bool`) Whether to ignore module imports. Default is `false`.
 
-noMounts
+`noMounts`
 : (`bool`) Whether to disable directory mounting for this import. Default is `false`.
 
-noVendor
+`noVendor`
 : (`bool`) Whether to disable vendoring for this import. This setting is restricted to the main project. Default is `false`.
 
-usePackageJSON
+`usePackageJSON`
 : {{< new-in 0.159.0 />}}
 : (`string`) Whether to use the import's npm dependencies in [hugo mod npm pack](commands/hugo_mod_npm_pack/). One of `auto` (default), `always` or `never`. When set to `auto`, Hugo will enable this if either there is a Hugo config file (e.g. `hugo.toml`) or a `package.hugo.json` file in the module root.
 
-path
+`path`
 : (`string`) The module path, either a valid Go module path (e.g., `github.com/gohugoio/myShortcodes`) or the directory name if stored in the [`themesDir`][].
 
-version
+`version`
 : {{< new-in 0.150.0 />}}
-: If set to a [version query](https://go.dev/ref/mod#version-queries), this import becomes a direct dependency, in contrast to dependencies managed by Go Modules. See [this issue](https://github.com/gohugoio/hugo/pull/13966) for more information.
+: (`string`) If set to a [version query][], this import becomes a direct dependency, in contrast to dependencies managed by Go modules. See [this issue][] for more information.
 
 ## Mounts
 
 {{% glossary-term mount %}}
 
-> [!important]
+> [!IMPORTANT]
 > If you define one or more mounts to map a file system path to a component path, do not use these legacy configuration settings: [`archetypeDir`][], [`assetDir`][], [`contentDir`][], [`dataDir`][], [`i18nDir`][], [`layoutDir`][], or [`staticDir`][].
 
 ### Default mounts
@@ -149,32 +150,32 @@ These are the default mounts:
 
 {{< code-toggle config=module.mounts />}}
 
-source
+`source`
 : (`string`) The source directory of the mount. For the main project, this can be either project-relative or absolute. For other modules it must be project-relative.
 
-target
+`target`
 : (`string`) Where the mount will reside within Hugo's [unified file system](g). It must begin with one of Hugo's [component](g) directories: archetypes, assets, content, data, i18n, layouts, or static. For example, content/blog.
 
-disableWatch
+`disableWatch`
 : (`bool`) Whether to disable watching in watch mode for this mount. Default is `false`.
 
-excludeFiles
+`excludeFiles`
 : {{< deprecated-in 0.153.0 />}}
-: Use [`files`](#files) instead.
+: Use the [`files`](#files) setting instead.
 
-files
+`files`
 : {{< new-in 0.153.0 />}}
 : (`[]string`) A [glob slice](g) defining the files to include or exclude.
 
-includeFiles
+`includeFiles`
 : {{< deprecated-in 0.153.0 />}}
-: Use [`files`](#files) instead.
+: Use the [`files`](#files) setting instead.
 
-lang
+`lang`
 : {{< deprecated-in 0.153.0 />}}
-: Use [`sites`](#sites) instead.
+: Use the [`sites`](#sites) setting instead.
 
-sites
+`sites`
 : {{< new-in 0.153.0 />}}
 : (`map`) A map to define [sites matrix](g) and [sites complements](g) for the mount. Relevant for `content` and `layouts` mounts, and `static` mounts when in multihost mode. For `static` and `layouts`, only the `matrix` keyword is supported.
 
@@ -194,6 +195,7 @@ source = 'assets'
 target = 'assets'
 {{< /code-toggle >}}
 
+[Dart Sass]: /functions/css/sass/#dart-sass
 [`archetypeDir`]: /configuration/all/#archetypedir
 [`assetDir`]: /configuration/all/#assetdir
 [`contentDir`]: /configuration/all/#contentdir
@@ -202,4 +204,5 @@ target = 'assets'
 [`layoutDir`]: /configuration/all/#layoutdir
 [`staticDir`]: /configuration/all/#staticdir
 [`themesDir`]: /configuration/all/#themesdir
-[Dart Sass]: /functions/css/sass/#dart-sass
+[this issue]: https://github.com/gohugoio/hugo/pull/13966
+[version query]: https://go.dev/ref/mod#version-queries

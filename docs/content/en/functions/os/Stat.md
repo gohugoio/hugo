@@ -11,7 +11,7 @@ params:
 aliases: [/functions/os.stat]
 ---
 
-The `os.Stat` function attempts to resolve the path relative to the root of your project directory. If a matching file or directory is not found, it will attempt to resolve the path relative to the [`contentDir`](/configuration/all/#contentdir). A leading path separator (`/`) is optional.
+The `os.Stat` function attempts to resolve the path relative to the root of your project directory. If a matching file or directory is not found, it will attempt to resolve the path relative to the [`contentDir`][]. A leading path separator (`/`) is optional.
 
 ```go-html-template
 {{ $f := os.Stat "README.md" }}
@@ -24,4 +24,7 @@ The `os.Stat` function attempts to resolve the path relative to the root of your
 {{ $d.IsDir }}    → true (bool)
 ```
 
-Details of the `FileInfo` structure are available in the [Go documentation](https://pkg.go.dev/io/fs#FileInfo).
+Details of the `FileInfo` structure are available in the [Go documentation][].
+
+[Go documentation]: https://pkg.go.dev/io/fs#FileInfo
+[`contentDir`]: /configuration/all/#contentdir

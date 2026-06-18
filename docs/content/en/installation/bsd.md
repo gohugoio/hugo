@@ -14,49 +14,39 @@ weight: 40
 
 ## Repository packages
 
-Most BSD derivatives maintain a repository for commonly installed applications. Please note that these repositories may not contain the [latest release].
-
-[latest release]: https://github.com/gohugoio/hugo/releases/latest
+Most BSD derivatives maintain a repository for commonly installed applications. Please note that these repositories may not contain the [latest release][].
 
 ### DragonFly BSD
 
-[DragonFly BSD] includes Hugo in its package repository. To install the extended edition of Hugo:
+[DragonFly BSD][] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
 ```
-
-[DragonFly BSD]: https://www.dragonflybsd.org/
 
 ### FreeBSD
 
-[FreeBSD] includes Hugo in its package repository. To install the extended edition of Hugo:
+[FreeBSD][] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkg install gohugo
 ```
 
-[FreeBSD]: https://www.freebsd.org/
-
 ### NetBSD
 
-[NetBSD] includes Hugo in its package repository. To install the extended edition of Hugo:
+[NetBSD][] includes Hugo in its package repository. To install the extended edition of Hugo:
 
 ```sh
 sudo pkgin install go-hugo
 ```
 
-[NetBSD]: https://www.netbsd.org/
-
 ### OpenBSD
 
-[OpenBSD] includes Hugo in its package repository. This will prompt you to select which edition of Hugo to install:
+[OpenBSD][] includes Hugo in its package repository. This will prompt you to select which edition of Hugo to install:
 
 ```sh
 doas pkg_add hugo
 ```
-
-[OpenBSD]: https://www.openbsd.org/
 
 {{% include "/_common/installation/04-build-from-source.md" %}}
 
@@ -69,3 +59,9 @@ Easy to upgrade?|:heavy_check_mark:|varies|:heavy_check_mark:
 Easy to downgrade?|:heavy_check_mark:|varies|:heavy_check_mark:
 Automatic updates?|:x:|varies|:x:
 Latest version available?|:heavy_check_mark:|varies|:heavy_check_mark:
+
+[DragonFly BSD]: https://www.dragonflybsd.org/
+[FreeBSD]: https://www.freebsd.org/
+[NetBSD]: https://www.netbsd.org/
+[OpenBSD]: https://www.openbsd.org/
+[latest release]: https://github.com/gohugoio/hugo/releases/latest

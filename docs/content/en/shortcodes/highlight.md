@@ -6,38 +6,38 @@ categories: []
 keywords: [highlight]
 ---
 
-> [!note]
+> [!NOTE]
 > To override Hugo's embedded `highlight` shortcode, copy the [source code][] to a file with the same name in the `layouts/_shortcodes` directory.
 
-> [!note]
+> [!NOTE]
 > With the Markdown [content format][], the `highlight` shortcode is rarely needed because, by default, Hugo automatically applies syntax highlighting to fenced code blocks.
 >
 > The primary use case for the `highlight` shortcode in Markdown is to apply syntax highlighting to inline code snippets.
 
-The `highlight` shortcode calls the [`transform.Highlight`][] function to generate syntax-highlighted HTML from the provided code, [language][], and [options][].
+The `highlight` shortcode calls the [`transform.Highlight`][] function to generate syntax-highlighted HTML from the provided code, [language][], and [options](#options-1).
 
 ## Arguments
 
 The `highlight` shortcode takes three arguments.
 
-```text
+```md
 {{</* highlight LANG OPTIONS */>}}
 CODE
 {{</* /highlight */>}}
 ```
 
-CODE
+`CODE`
 : (`string`) The code to highlight.
 
-LANG
+`LANG`
 : (`string`) The [language][] of the code to highlight. This value is case-insensitive.
 
-OPTIONS
+`OPTIONS`
 : (`string`) Zero or more space-separated key-value pairs wrapped in quotation marks. You can set default values for each option in your [project configuration][]. The key names are case-insensitive.
 
 ## Example
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 {{</* highlight go "linenos=inline, hl_lines=3 6-8, style=emacs" */>}}
 package main
 
@@ -67,7 +67,7 @@ func main() {
 
 You can also use the `highlight` shortcode for inline code snippets:
 
-```text
+```md
 This is some {{</* highlight go "hl_inline=true" */>}}fmt.Println("inline"){{</* /highlight */>}} code.
 ```
 
@@ -84,7 +84,7 @@ Given the verbosity of the example above, if you need to frequently highlight in
 {{ transform.Highlight $code $lang $opts }}
 ```
 
-```text
+```md
 This is some {{</* hl */>}}fmt.Println("inline"){{</* /hl */>}} code.
 ```
 
@@ -99,6 +99,5 @@ This is some {{< hl >}}fmt.Println("inline"){{< /hl >}} code.
 [`transform.Highlight`]: /functions/transform/highlight/
 [content format]: /content-management/formats/
 [language]: /content-management/syntax-highlighting/#languages
-[options]: #options-1
 [project configuration]: /configuration/markup/#highlight
 [source code]: <{{% eturl highlight %}}>

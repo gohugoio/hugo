@@ -15,7 +15,7 @@ The value returned by the `Name` method on a `Resource` object depends on the re
 
 With a [global resource](g), the `Name` method returns the path to the resource, relative to the `assets` directory.
 
-```text
+```tree
 assets/
 └── images/
     └── Sunrise in Bryce Canyon.jpg
@@ -31,7 +31,7 @@ assets/
 
 With a [page resource](g), if you create an element in the `resources` array in front matter, the `Name` method returns the value of the `name` parameter.
 
-```text
+```tree
 content/
 ├── example/
 │   ├── images/
@@ -63,7 +63,7 @@ You can also capture the image by specifying its `name` instead of its path:
 
 If you do not create an element in the `resources` array in front matter, the `Name` method returns the file path, relative to the page bundle.
 
-```text
+```tree
 content/
 ├── example/
 │   ├── images/

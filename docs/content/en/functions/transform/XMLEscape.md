@@ -10,7 +10,7 @@ params:
     signatures: [transform.XMLEscape INPUT]
 ---
 
-The `transform.XMLEscape` function removes [disallowed characters][] as defined in the XML specification, then escapes the result by replacing the following characters with [HTML entities]:
+The `transform.XMLEscape` function removes [disallowed characters][] as defined in the XML specification, then escapes the result by replacing the following characters with [HTML entities][]:
 
 - `"` → `&#34;`
 - `'` → `&#39;`
@@ -33,6 +33,6 @@ When using `transform.XMLEscape` in a template rendered by Go's [`html/template`
 <description>{{ .Summary | transform.XMLEscape | safeHTML }}</description>
 ```
 
-[disallowed characters]: https://www.w3.org/TR/xml/#charsets
-[html entities]: https://developer.mozilla.org/en-US/docs/Glossary/Entity
+[HTML entities]: https://developer.mozilla.org/en-US/docs/Glossary/Entity
 [`html/template`]: https://pkg.go.dev/html/template
+[disallowed characters]: https://www.w3.org/TR/xml/#charsets

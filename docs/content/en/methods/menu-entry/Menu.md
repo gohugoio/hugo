@@ -15,7 +15,7 @@ params:
 {{ end }}
 ```
 
-Use this method with the [`IsMenuCurrent`] and [`HasMenuCurrent`] methods on a `Page` object to set "active" and "ancestor" classes on a rendered entry. See [this example].
+Use this method with the [`IsMenuCurrent`][] and [`HasMenuCurrent`][] methods on a `Page` object to set "active" and "ancestor" classes on a rendered entry. See [this example][].
 
 [`HasMenuCurrent`]: /methods/page/hasmenucurrent/
 [`IsMenuCurrent`]: /methods/page/ismenucurrent/

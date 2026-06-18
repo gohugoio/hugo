@@ -20,7 +20,7 @@ The primary use case for `PageInner` is to resolve links and [page resources](g)
 
 Then call the shortcode in your Markdown:
 
-```text {file="content/posts/post-1.md"}
+```md {file="content/posts/post-1.md"}
 {{%/* include "/posts/post-2" */%}}
 ```
 
@@ -31,15 +31,15 @@ Any render hook triggered while rendering `/posts/post-2` will get:
 
 `PageInner` falls back to the value of `Page` if not relevant, and always returns a value.
 
-> [!note]
-> The `PageInner` method is only relevant for shortcodes that invoke the [`RenderShortcodes`] method, and you must call the shortcode using [Markdown notation].
+> [!NOTE]
+> The `PageInner` method is only relevant for shortcodes that invoke the [`RenderShortcodes`][] method, and you must call the shortcode using [Markdown notation][].
 
 As a practical example, Hugo's embedded link and image render hooks use the `PageInner` method to resolve markdown link and image destinations. See the source code for each:
 
-- [Embedded link render hook]
-- [Embedded image render hook]
+- [Embedded link render hook][]
+- [Embedded image render hook][]
 
-[`RenderShortcodes`]: /methods/page/rendershortcodes/
-[Markdown notation]: /content-management/shortcodes/#notation
-[Embedded link render hook]: <{{% eturl render-link %}}>
 [Embedded image render hook]: <{{% eturl render-image %}}>
+[Embedded link render hook]: <{{% eturl render-link %}}>
+[Markdown notation]: /content-management/shortcodes/#notation
+[`RenderShortcodes`]: /methods/page/rendershortcodes/

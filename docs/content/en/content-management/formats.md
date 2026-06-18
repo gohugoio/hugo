@@ -10,7 +10,7 @@ aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-f
 
 You may mix content formats throughout your site. For example:
 
-```text
+```tree
 content/
 └── posts/
     ├── post-1.md
@@ -21,105 +21,80 @@ content/
     └── post-6.html
 ```
 
-Regardless of content format, all content must have [front matter], preferably including both `title` and `date`.
+Regardless of content format, all content must have [front matter][], preferably including both `title` and `date`.
 
-Hugo selects the content renderer based on the `markup` identifier in front matter, falling back to the file extension. See the [classification] table below for a list of markup identifiers and recognized file extensions.
-
-[classification]: #classification
-[front matter]: /content-management/front-matter/
+Hugo selects the content renderer based on the `markup` identifier in front matter, falling back to the file extension. See the [classification](#classification) table below for a list of markup identifiers and recognized file extensions.
 
 ## Formats
 
 ### Markdown
 
-Create your content in [Markdown] preceded by front matter.
+Create your content in [Markdown][] preceded by front matter.
 
-Markdown is Hugo's default content format. Hugo natively renders Markdown to HTML using [Goldmark]. Goldmark is fast and conforms to the [CommonMark] and [GitHub Flavored Markdown] specifications. You can configure Goldmark in your [project configuration][configure goldmark].
+Markdown is Hugo's default content format. Hugo natively renders Markdown to HTML using [Goldmark][]. Goldmark is fast and conforms to the [CommonMark][] and [GitHub Flavored Markdown][] specifications. You can configure Goldmark in your [project configuration][configure goldmark].
 
 Hugo provides custom Markdown features including:
 
-[Attributes]
+[Attributes][]
 : Apply HTML attributes such as `class` and `id` to Markdown images and block elements including blockquotes, fenced code blocks, headings, horizontal rules, lists, paragraphs, and tables.
 
-[Extensions]
+[Extensions][]
 : Leverage the embedded Markdown extensions to create tables, definition lists, footnotes, task lists, inserted text, mark text, subscripts, superscripts, and more.
 
-[Mathematics]
+[Mathematics][]
 : Include mathematical equations and expressions in Markdown using LaTeX markup.
 
-[Render hooks]
+[Render hooks][]
 : Override the conversion of Markdown to HTML when rendering fenced code blocks, headings, images, and links. For example, render every standalone image as an HTML `figure` element.
-
-[Attributes]: /content-management/markdown-attributes/
-[CommonMark]: https://spec.commonmark.org/current/
-[Extensions]: /configuration/markup/#extensions
-[GitHub Flavored Markdown]: https://github.github.com/gfm/
-[Goldmark]: https://github.com/yuin/goldmark
-[Markdown]: https://daringfireball.net/projects/markdown/
-[Mathematics]: /content-management/mathematics/
-[Render hooks]: /render-hooks/introduction/
-[configure goldmark]: /configuration/markup/#goldmark
 
 ### HTML
 
-Create your content in [HTML] preceded by front matter. The content is typically what you would place within an HTML document's `body` or `main` element.
+Create your content in [HTML][] preceded by front matter. The content is typically what you would place within an HTML document's `body` or `main` element.
 
-[HTML]: https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Your_first_website/Creating_the_content
+> [!NOTE]
+> The HTML content format is denied by default. See [`security.allowContent`][].
 
 ### Emacs Org Mode
 
-Create your content in the [Emacs Org Mode] format preceded by front matter. You can use Org Mode keywords for front matter. See&nbsp;[details].
-
-[details]: /content-management/front-matter/#emacs-org-mode
-[Emacs Org Mode]: https://orgmode.org/
+Create your content in the [Emacs Org Mode][] format preceded by front matter. You can use Org Mode keywords for front matter. See [details][].
 
 ### AsciiDoc
 
-Create your content in the [AsciiDoc] format preceded by front matter. Hugo renders AsciiDoc content to HTML using the Asciidoctor executable. You must install Asciidoctor and its dependencies (Ruby) to render the AsciiDoc content format.
+Create your content in the [AsciiDoc][] format preceded by front matter. Hugo renders AsciiDoc content to HTML using the Asciidoctor executable. You must install Asciidoctor and its dependencies (Ruby) to render the AsciiDoc content format.
 
 You can configure the AsciiDoc renderer in your [project configuration][configure asciidoc].
 
 In its default configuration, Hugo passes these CLI flags when calling the Asciidoctor executable:
 
-```text
+```sh
 --no-header-footer
 ```
 
 The CLI flags passed to the Asciidoctor executable depend on configuration. You may inspect the flags when building your project:
 
-```text
+```sh
 hugo build --logLevel info
 ```
 
-[AsciiDoc]: https://asciidoc.org/
-[configure asciidoc]: /configuration/markup/#asciidoc
-
 ### Pandoc
 
-Create your content in the [Pandoc] format[^1] preceded by front matter. Hugo renders Pandoc content to HTML using the Pandoc executable. You must install Pandoc to render the Pandoc content format.
-
-[^1]: This is a derivation of the Markdown format as described by the CommonMark specification.
+Create your content in the [Pandoc][] format preceded by front matter. Hugo renders Pandoc content to HTML using the Pandoc executable. You must install Pandoc to render the Pandoc content format.
 
 Hugo passes these CLI flags when calling the Pandoc executable:
 
-```text
+```sh
 --mathjax
 ```
 
-[Pandoc]: https://pandoc.org/MANUAL.html#pandocs-markdown
-
 ### reStructuredText
 
-Create your content in the [reStructuredText] format preceded by front matter. Hugo renders reStructuredText content to HTML using [Docutils], specifically rst2html. You must install Docutils and its dependencies (Python) to render the reStructuredText content format.
+Create your content in the [reStructuredText][] format preceded by front matter. Hugo renders reStructuredText content to HTML using [Docutils][], specifically rst2html. You must install Docutils and its dependencies (Python) to render the reStructuredText content format.
 
 Hugo passes these CLI flags when calling the rst2html executable:
 
-```text
+```sh
 --leave-comments --initial-header-level=2
 ```
-
-[Docutils]: https://docutils.sourceforge.io/
-[reStructuredText]: https://docutils.sourceforge.io/rst.html
 
 ## Classification
 
@@ -131,3 +106,23 @@ When converting content to HTML, Hugo uses:
 - External renderers for AsciiDoc, Pandoc, and reStructuredText
 
 Native renderers are faster than external renderers.
+
+[AsciiDoc]: https://asciidoc.org/
+[Attributes]: /content-management/markdown-attributes/
+[CommonMark]: https://spec.commonmark.org/current/
+[Docutils]: https://docutils.sourceforge.io/
+[Emacs Org Mode]: https://orgmode.org/
+[Extensions]: /configuration/markup/#extensions
+[GitHub Flavored Markdown]: https://github.github.com/gfm/
+[Goldmark]: https://github.com/yuin/goldmark
+[HTML]: https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Your_first_website/Creating_the_content
+[Markdown]: https://daringfireball.net/projects/markdown/
+[Mathematics]: /content-management/mathematics/
+[Pandoc]: https://pandoc.org/MANUAL.html#pandocs-markdown
+[Render hooks]: /render-hooks/introduction/
+[`security.allowContent`]: /configuration/security/#allowcontent
+[configure asciidoc]: /configuration/markup/#asciidoc
+[configure goldmark]: /configuration/markup/#goldmark
+[details]: /content-management/front-matter/#emacs-org-mode
+[front matter]: /content-management/front-matter/
+[reStructuredText]: https://docutils.sourceforge.io/rst.html

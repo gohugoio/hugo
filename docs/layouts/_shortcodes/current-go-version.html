@@ -1,0 +1,5 @@
+{{/*
+Prints the first patch release of the Go minor version used to compile the Hugo
+executable that built this site (e.g., 1.26.3 → 1.26.0).
+*/}}
+{{- hugo.GoVersion | strings.ReplaceRE `go(\d+\.\d+)\..*` `$1.0` -}}

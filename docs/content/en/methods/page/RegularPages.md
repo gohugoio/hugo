@@ -21,7 +21,7 @@ Range through the page collection in your template:
 
 Consider this content structure:
 
-```text
+```tree
 content/
 ├── lessons/
 │   ├── lesson-1/
@@ -67,8 +67,8 @@ When rendering lesson-2, the `RegularPages` method returns:
 
 In the last example, the collection includes pages in the resources subdirectory. That directory is not a [section](g)---it does not contain an&nbsp;`_index.md`&nbsp;file. Its contents are part of the lesson-2 section.
 
-> [!note]
-> When used with the `Site` object, the `RegularPages` method recursively returns all regular pages within the site. See&nbsp;[details].
+> [!NOTE]
+> When used with the `Site` object, the `RegularPages` method recursively returns all regular pages within the site. See [details][].
 
 ```go-html-template
 {{ range .Site.RegularPages.ByTitle }}

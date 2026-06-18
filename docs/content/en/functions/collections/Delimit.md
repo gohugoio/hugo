@@ -21,7 +21,7 @@ Delimit a slice:
 
 Delimit a map:
 
-> [!note]
+> [!NOTE]
 > The `delimit` function sorts maps by key, returning the values.
 
 ```go-html-template

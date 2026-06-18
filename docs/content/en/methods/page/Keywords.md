@@ -9,9 +9,7 @@ params:
     signatures: [PAGE.Keywords]
 ---
 
-By default, Hugo evaluates the keywords when creating collections of [related content].
-
-[related content]: /content-management/related-content/
+By default, Hugo evaluates the keywords when creating collections of [related content][].
 
 {{< code-toggle file=content/recipes/sushi.md fm=true >}}
 title = 'How to make spicy tuna hand rolls'
@@ -26,15 +24,13 @@ To list the keywords within a template:
 {{ end }}
 ```
 
-Or use the [delimit] function:
+Or use the [`delimit`][] function:
 
 ```go-html-template
 {{ delimit .Keywords ", " ", and " }} → tuna, sriracha, nori, and rice
 ```
 
-[delimit]: /functions/collections/delimit/
-
-Keywords are also a useful [taxonomy]:
+Keywords are also a useful [taxonomy][]:
 
 {{< code-toggle file=hugo >}}
 [taxonomies]
@@ -43,4 +39,6 @@ keyword = 'keywords'
 category = 'categories'
 {{< /code-toggle >}}
 
+[`delimit`]: /functions/collections/delimit/
+[related content]: /content-management/related-content/
 [taxonomy]: /content-management/taxonomies/

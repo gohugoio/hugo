@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: A brief introduction to Hugo Modules.
+description: A brief introduction to Hugo modules.
 categories: []
 keywords: []
 weight: 10
@@ -13,7 +13,7 @@ Modules are combinable in any arrangement, and external directories (including t
 Some example projects:
 
 <https://github.com/bep/docuapi>
-: A theme that has been ported to Hugo Modules while testing this feature. It is a good example of a non-Hugo-project mounted into Hugo's directory structure.
+: A theme that has been ported to Hugo modules while testing this feature. It is a good example of a non-Hugo-project mounted into Hugo's directory structure.
 
 <https://github.com/bep/my-modular-site>
 : A simple site used for testing.

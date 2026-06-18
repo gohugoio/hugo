@@ -17,11 +17,6 @@ Method|Description
 [`Lastmod`][]|Returns the last modification date of the given page.
 [`PublishDate`][]|Returns the publish date of the given page.
 
-[`Date`]: /methods/page/date
-[`ExpiryDate`]: /methods/page/expirydate
-[`Lastmod`]: /methods/page/lastmod
-[`PublishDate`]: /methods/page/publishdate
-
 Hugo determines the values to return based on this configuration:
 
 {{< code-toggle config=frontmatter />}}
@@ -76,7 +71,9 @@ Hugo provides the following [tokens](g) to help you configure your front matter:
 
   Within the `YYYY-MM-DD-HH-MM-SS` format, the date and time values may be separated by any character including a space (e.g., `2025-02-01T14-30-00`).
 
-  Hugo resolves the extracted date to the [`timeZone`][] defined in your project configuration, falling back to the system time zone. After extracting the date, Hugo uses the remaining part of the file name to generate the page's [`slug`][], but only if you haven't already specified a slug in the page's front matter.
+  Hugo resolves the extracted date to the [`timeZone`][] defined in your project configuration, falling back to the system time zone. Hugo also derives the page [`slug`][] from the remaining file name, unless the page already defines a `slug` in its front matter.
+
+  Slug inference only occurs when `:filename` is the winning date source. If an earlier entry in the list provides a valid date, Hugo skips `:filename` entirely. For example, with `date = ["date", ":filename"]`, a page that defines `date` in its front matter will use that value, and the slug will not be inferred from the file name.
 
   For example, if you name your file `2025-02-01-article.md`, Hugo will set the date to `2025-02-01` and the slug to `article`.
 
@@ -98,6 +95,10 @@ To determine `date` and `publishDate`, Hugo tries to extract the value from the 
 
 To determine `lastmod`, Hugo looks for a `lastmod` field in front matter, falling back to the file's last modification timestamp.
 
+[`Date`]: /methods/page/date/
+[`ExpiryDate`]: /methods/page/expirydate/
+[`Lastmod`]: /methods/page/lastmod/
+[`PublishDate`]: /methods/page/publishdate/
 [`enableGitInfo`]: /configuration/all/#enablegitinfo
 [`slug`]: /content-management/front-matter/#slug
 [`timeZone`]: /configuration/all/#timezone
