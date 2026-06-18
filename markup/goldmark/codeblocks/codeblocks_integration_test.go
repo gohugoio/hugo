@@ -408,3 +408,32 @@ Some code.
 
 	b.AssertFileContent("public/p1/index.html", "p1.md:7:1")
 }
+
+func TestCodeblockLangEscape(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+## Simple
+
+§§§a"><script>A</script>
+Some code.
+§§§
+
+§§§a"><script>B</script> {hl_inline=true}
+Some code.
+§§§
+
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "! <script>")
+}
