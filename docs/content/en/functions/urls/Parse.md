@@ -11,9 +11,7 @@ params:
 aliases: [/functions/urls.parse]
 ---
 
-The `urls.Parse` function parses a URL into a [URL structure](https://godoc.org/net/url#URL). The URL may be relative (a path, without a host) or absolute (starting with a [scheme]). Hugo throws an error when parsing an invalid URL.
-
-[scheme]: https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml#uri-schemes-1
+The `urls.Parse` function parses a URL into a [URL structure][]. The URL may be relative (a path, without a host) or absolute (starting with a [scheme][]). Hugo throws an error when parsing an invalid URL.
 
 ```go-html-template
 {{ $url := "https://example.org:123/foo?a=6&b=7#bar" }}
@@ -33,3 +31,6 @@ The `urls.Parse` function parses a URL into a [URL structure](https://godoc.org/
 {{ $u.Query.Has "b" }} → true
 {{ $u.Fragment }} → bar
 ```
+
+[URL structure]: https://godoc.org/net/url#URL
+[scheme]: https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml#uri-schemes-1

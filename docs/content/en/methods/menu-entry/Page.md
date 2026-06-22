@@ -9,7 +9,7 @@ params:
     signatures: [MENUENTRY.Page]
 ---
 
-Regardless of how you [define menu entries], an entry associated with a page has access to its [methods].
+Regardless of how you [define menu entries][], an entry associated with a page has access to its [methods][].
 
 In this menu definition, the first two entries are associated with a page, the last entry is not:
 
@@ -28,7 +28,7 @@ url = 'https://gohugo.io'
 weight = 30
 {{< /code-toggle >}}
 
-In this example, if the menu entry is associated with a page, we use page's [`RelPermalink`] and [`LinkTitle`] when rendering the anchor element.
+In this example, if the menu entry is associated with a page, we use page's [`RelPermalink`][] and [`LinkTitle`][] when rendering the anchor element.
 
 If the entry is not associated with a page, we use its `url` and `name` properties.
 
@@ -44,7 +44,7 @@ If the entry is not associated with a page, we use its `url` and `name` properti
 </ul>
 ```
 
-See the [menu templates] section for more information.
+See the [menu templates][] section for more information.
 
 [`LinkTitle`]: /methods/page/linktitle/
 [`RelPermalink`]: /methods/page/relpermalink/

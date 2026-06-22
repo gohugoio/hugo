@@ -14,7 +14,7 @@ params:
 
 The `Filter` method returns a new resource from a [processable image](g) after applying one or more [image filters](#image-filters).
 
-> [!note]
+> [!NOTE]
 > Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
 
 ## Usage

@@ -11,12 +11,12 @@ params:
 
 {{% glossary-term section %}}
 
-> [!note]
-> The parent section of a regular page is the [current section].
+> [!NOTE]
+> The parent section of a regular page is the [current section][].
 
 Consider this content structure:
 
-```text
+```tree
 content/
 ├── auctions/
 │   ├── 2023-11/

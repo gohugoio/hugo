@@ -6,21 +6,16 @@ Hugo determines the _next_ and _previous_ page by sorting the current section's 
 
 Field|Precedence|Sort direction
 :--|:--|:--
-[`weight`]|1|descending
-[`date`]|2|descending
-[`linkTitle`]|3|descending
-[`path`]|4|descending
-
-[`date`]: /methods/page/date/
-[`weight`]: /methods/page/weight/
-[`linkTitle`]: /methods/page/linktitle/
-[`path`]: /methods/page/path/
+[`weight`][]|1|descending
+[`date`][]|2|descending
+[`linkTitle`][]|3|descending
+[`path`][]|4|descending
 
 The sorted page collection used to determine the _next_ and _previous_ page is independent of other page collections, which may lead to unexpected behavior.
 
 For example, with this content structure:
 
-```text
+```tree
 content/
 ├── pages/
 │   ├── _index.md
@@ -53,11 +48,7 @@ When you visit page-2:
 - The `PrevInSection` method points to page-3
 - The `NextInSection` method points to page-1
 
-To reverse the meaning of _next_ and _previous_ you can change the sort direction in your [project configuration], or use the [`Next`] and [`Prev`] methods on a `Pages` object for more flexibility.
-
-[project configuration]: /configuration/page/
-[`Next`]: /methods/pages/prev
-[`Prev`]: /methods/pages/prev
+To reverse the meaning of _next_ and _previous_ you can change the sort direction in your [project configuration][], or use the [`Next`][] and [`Prev`][] methods on a `Pages` object for more flexibility.
 
 ## Example
 
@@ -75,4 +66,12 @@ Code defensively by checking for page existence:
 
 ## Alternative
 
-Use the [`Next`] and [`Prev`] methods on a `Pages` object for more flexibility.
+Use the [`Next`][] and [`Prev`][] methods on a `Pages` object for more flexibility.
+
+[`Next`]: /methods/pages/next/
+[`Prev`]: /methods/pages/prev/
+[`date`]: /methods/page/date/
+[`linkTitle`]: /methods/page/linktitle/
+[`path`]: /methods/page/path/
+[`weight`]: /methods/page/weight/
+[project configuration]: /configuration/page/

@@ -29,7 +29,7 @@ By default, `findRESubmatch` finds all matches. You can limit the number of matc
 
 This Markdown:
 
-```text
+```md
 - [Example](https://example.org)
 - [Hugo](https://gohugo.io)
 ```
@@ -82,5 +82,7 @@ https://example.org
 https://gohugo.io
 ```
 
-> [!note]
-> You can write and test your regular expression using [regex101.com](https://regex101.com/). Be sure to select the Go flavor before you begin.
+> [!NOTE]
+> You can write and test your regular expression using [regex101.com][]. Be sure to select the Go flavor before you begin.
+
+[regex101.com]: https://regex101.com/

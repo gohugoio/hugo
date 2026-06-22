@@ -16,7 +16,7 @@ These can be used as either page content or [page resources](g). When used as pa
 
 Consider this example of a [page bundle](g):
 
-```text
+```tree
 content/
 └── example/
     ├── index.md  <-- content
@@ -34,7 +34,7 @@ The `index.md` file is the page's content, while the other files are page resour
 
 When you build a site, Hugo does not publish page resources having a resource type of `page`. For example, this is the result of building the site above:
 
-```text
+```tree
 public/
 ├── example/
 │   ├── g.jpg

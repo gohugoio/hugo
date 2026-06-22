@@ -19,7 +19,7 @@ params:
 {{ end }}
 ```
 
-Use with the [`else`] statement:
+Use with the [`else`][] statement:
 
 ```go-html-template
 {{ $var := "foo" }}

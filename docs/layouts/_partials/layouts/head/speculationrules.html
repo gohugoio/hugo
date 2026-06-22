@@ -1,0 +1,17 @@
+{{- /*
+	Speculation Rules API: prerender same-origin pages on moderate intent
+	(pointer/focus held ~200ms) for near-instant navigation. This replaces
+	the prefetch/SPA behavior previously provided by Turbo.
+	https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API
+*/ -}}
+<script type="speculationrules">
+{
+	"prerender": [
+		{
+			"source": "document",
+			"where": { "href_matches": "/*" },
+			"eagerness": "moderate"
+		}
+	]
+}
+</script>

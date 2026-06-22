@@ -55,9 +55,7 @@ weight: 10
 
 ## Vim
 
-[Vim Hugo Helper]: https://github.com/robertbasic/vim-hugo-helper
-
-[Vim Hugo Helper]
+[Vim Hugo Helper](https://github.com/robertbasic/vim-hugo-helper)
 : This plugin facilitates authoring pages and blog posts.
 
 [vim-hugo](https://github.com/phelipetls/vim-hugo)

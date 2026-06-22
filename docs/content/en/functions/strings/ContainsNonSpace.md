@@ -11,12 +11,12 @@ params:
 aliases: [/functions/strings.containsnonspace]
 ---
 
-Whitespace characters include `\t`, `\n`, `\v`, `\f`, `\r`, and characters in the [Unicode Space Separator] category.
-
-[Unicode Space Separator]: https://www.compart.com/en/unicode/category/Zs
+Whitespace characters include `\t`, `\n`, `\v`, `\f`, `\r`, and characters in the [Unicode Space Separator][] category.
 
 ```go-html-template
 {{ strings.ContainsNonSpace "\n" }} → false
 {{ strings.ContainsNonSpace " " }} → false
 {{ strings.ContainsNonSpace "\n abc" }} → true
 ```
+
+[Unicode Space Separator]: https://www.compart.com/en/unicode/category/Zs

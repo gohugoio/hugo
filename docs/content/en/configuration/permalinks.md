@@ -8,8 +8,8 @@ keywords: []
 
 Use the `permalinks` configuration to define custom URL patterns for your pages. Hugo supports two forms: a map form for simple section-based patterns, and an array form that supports [page matchers](g) for more precise targeting.
 
-> [!note]
-> The [`url`] front matter field overrides any matching permalink pattern.
+> [!NOTE]
+> The [`url`][] front matter field overrides any matching permalink pattern.
 
 ## Map form
 

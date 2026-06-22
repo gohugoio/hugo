@@ -15,9 +15,9 @@ aliases: [/functions/title]
 {{ title "table of contents (TOC)" }} → Table of Contents (TOC)
 ```
 
-By default, Hugo follows the capitalization rules published in the [Associated Press Stylebook]. Change your [project configuration] if you would prefer to:
+By default, Hugo follows the capitalization rules published in the [Associated Press Stylebook][]. Change your [project configuration][] if you would prefer to:
 
-- Follow the capitalization rules published in the [Chicago Manual of Style]
+- Follow the capitalization rules published in the [Chicago Manual of Style][]
 - Capitalize the first letter of every word
 - Capitalize the first letter of the first word
 - Disable the effects of the `title` function

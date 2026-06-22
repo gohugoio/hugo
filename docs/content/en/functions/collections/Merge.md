@@ -63,5 +63,7 @@ Example 4
 {{ $merged.z.a }} → huey
 ```
 
-> [!note]
-> Regardless of depth, merging only applies to maps. For slices, use [append](/functions/collections/append).
+> [!NOTE]
+> Regardless of depth, merging only applies to maps. For slices, use the [`collections.Append`][] function.
+
+[`collections.Append`]: /functions/collections/append/

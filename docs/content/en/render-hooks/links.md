@@ -22,38 +22,38 @@ These components are passed into the render hook [context](g) as shown below.
 
 Link _render hook_ templates receive the following context:
 
-Destination
+`Destination`
 : (`string`) The link destination.
 
-Ordinal
+`Ordinal`
 : {{< new-in v0.160.0 />}}
 : (`int`) The zero-based ordinal of the link on the page.
 
-Page
+`Page`
 : (`page`) A reference to the current page.
 
-PageInner
-: (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
+`PageInner`
+: (`page`) A reference to a page nested via the [`RenderShortcodes`][] method. [See details](#pageinner-details).
 
-PlainText
+`PlainText`
 : (`string`) The link description as plain text.
 
-Position
+`Position`
 : {{< new-in 0.160.0 />}}
 : (`string`) The position of the link within the page content.
 
-Text
+`Text`
 : (`template.HTML`) The link description.
 
-Title
+`Title`
 : (`string`) The link title.
 
 ## Examples
 
-> [!note]
+> [!NOTE]
 > With inline elements such as images and links, remove leading and trailing whitespace using the `{{‑ ‑}}` delimiter notation to prevent whitespace between adjacent inline elements and text.
 
-In its default configuration, Hugo renders Markdown links according to the [CommonMark specification]. To create a render hook that does the same thing:
+In its default configuration, Hugo renders Markdown links according to the [CommonMark][] specification. To create a render hook that does the same thing:
 
 ```go-html-template {file="layouts/_markup/render-link.html" copy=true}
 <a href="{{ .Destination | safeURL }}"
@@ -79,16 +79,16 @@ To include a `rel` attribute set to `external` for external links:
 
 ## Embedded
 
-Hugo includes an [embedded link render hook] to resolve Markdown link destinations. You can adjust its behavior in your project configuration. This is the default setting:
+Hugo includes an [embedded link render hook][] to resolve Markdown link destinations. You can adjust its behavior in your project configuration. This is the default setting:
 
 {{< code-toggle file=hugo >}}
 [markup.goldmark.renderHooks.link]
 useEmbedded = 'auto'
 {{< /code-toggle >}}
 
-When set to `auto` as shown above, Hugo automatically uses the embedded link render hook for multilingual single-host projects, specifically when the [duplication of shared page resources] feature is disabled. This is the default behavior for such projects. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
+When set to `auto` as shown above, Hugo automatically uses the embedded link render hook for multilingual single-host projects, specifically when the [duplication of shared page resources][] feature is disabled. This is the default behavior for such projects. If custom link render hooks are defined by your project, modules, or themes, these will be used instead.
 
-You can also configure Hugo to `always` use the embedded link render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details](/configuration/markup/#renderhookslinkuseembedded).
+You can also configure Hugo to `always` use the embedded link render hook, use it only as a `fallback`, or `never` use it. See [details][].
 
 The embedded link render hook resolves internal Markdown destinations by looking for a matching page, falling back to a matching [page resource](g), then falling back to a matching [global resource](g). Remote destinations are passed through, and the render hook will not throw an error or warning if unable to resolve a destination.
 
@@ -106,7 +106,8 @@ target = 'assets'
 
 {{% include "/_common/render-hooks/pageinner.md" %}}
 
-[`RenderShortcodes`]: /methods/page/rendershortcodes
-[CommonMark specification]: https://spec.commonmark.org/current/
+[CommonMark]: https://spec.commonmark.org/current/
+[`RenderShortcodes`]: /methods/page/rendershortcodes/
+[details]: /configuration/markup/#renderhookslinkuseembedded
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
 [embedded link render hook]: <{{% eturl render-link %}}>

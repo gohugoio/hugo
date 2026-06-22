@@ -14,7 +14,7 @@ params:
 
 With this project structure:
 
-```text
+```tree
 project/
 ├── assets/
 │   ├── a.json

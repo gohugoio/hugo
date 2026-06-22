@@ -29,13 +29,11 @@ Examples of parsable string representations:
 
 {{% include "/_common/parsable-date-time-strings.md" %}}
 
-To override the default time zone, set the [`timeZone`] in your project configuration. The order of precedence for determining the time zone is:
+To override the default time zone, set the [`timeZone`][] in your project configuration. The order of precedence for determining the time zone is:
 
 1. The time zone offset in the date/time string
 1. The time zone specified in your project configuration
 1. The `Etc/UTC` time zone
-
-[`timeZone`]: /configuration/all/#timezone
 
 ## Layout string
 
@@ -78,3 +76,5 @@ Token|Result
 `:time_long`|`23:44:58 PST`
 `:time_medium`|`23:44:58`
 `:time_short`|`23:44`
+
+[`timeZone`]: /configuration/all/#timezone

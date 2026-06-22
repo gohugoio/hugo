@@ -13,7 +13,7 @@ The `Sections` method on a `Page` object is available to these [page kinds](g): 
 
 With this content structure:
 
-```text
+```tree
 content/
 ├── auctions/
 │   ├── 2023-11/

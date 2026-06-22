@@ -11,7 +11,7 @@ params:
 
 {{% glossary-term "output format" %}}
 
-The `AlternativeOutputFormats` method on a `Page` object returns a slice of `OutputFormat` objects, excluding the current output format, each representing one of the output formats enabled for the given page. See&nbsp;[details](/configuration/output-formats/).
+The `AlternativeOutputFormats` method on a `Page` object returns a slice of `OutputFormat` objects, excluding the current output format, each representing one of the output formats enabled for the given page. See [details][].
 
 For example, to generate a `link` element for each of the alternative output formats:
 
@@ -27,3 +27,5 @@ Hugo renders this to something like:
 <link rel="alternate" type="application/rss+xml" href="https://example.org/index.xml">
 <link rel="alternate" type="application/json" href="https://example.org/index.json">
 ```
+
+[details]: /configuration/output-formats/

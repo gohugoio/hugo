@@ -11,26 +11,22 @@ params:
 
 {{% include "/_common/methods/output-formats/to-use-this-method.md" %}}
 
+## Example
+
 ```go-html-template
 {{ with .Site.Home.OutputFormats.Get "rss" }}
   {{ with .MediaType }}
-    {{ .Type }}       → application/rss+xml
-    {{ .MainType }}   → application
-    {{ .SubType }}    → rss
+    {{ .Type }} → application/rss+xml
+    {{ .MainType }} → application
+    {{ .SubType }} → rss
+    {{ .Suffixes }} → [rss]
+    {{ .FirstSuffix.Suffix }} → rss
   {{ end }}
 {{ end }}
 ```
 
 ## Methods
 
-### MainType
+Use these methods on the `MediaType` object.
 
-(`string`) Returns the main type of the output format's media type.
-
-### SubType
-
-(`string`) Returns the subtype of the current format's media type.
-
-### Type
-
-(`string`) Returns the current format's media type.
+{{% include "/_common/methods/media-type/core-methods.md" %}}

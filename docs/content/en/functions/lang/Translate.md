@@ -15,7 +15,7 @@ The `lang.Translate` function returns the value associated with the given key by
 
 If not found, the function returns an empty string.
 
-> [!note]
+> [!NOTE]
 > To list missing and fallback translations, set [`printI18nWarnings`][] to `true` in your project configuration, or use the `--printI18nWarnings` flag when building your project.
 >
 > To render placeholders for missing and fallback translations, set [`enableMissingTranslationPlaceholders`][] to `true` in your project configuration.
@@ -45,14 +45,14 @@ i18n/art-x-hugolang.toml
 i18n/hugolang.toml
 ```
 
-> [!note]
+> [!NOTE]
 > Private use subtags must not exceed 8 alphanumeric characters.
 
 ## Simple translations
 
 Let's say your multilingual project supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
-```text
+```tree
 i18n/
 ├── en.toml
 └── pl.toml
@@ -72,7 +72,7 @@ privacy = 'prywatność'
 security = 'bezpieczeństwo'
 {{< /code-toggle >}}
 
-> [!note]
+> [!NOTE]
 > The examples below use the `T` alias for brevity.
 
 When viewing the English language site:
@@ -93,7 +93,7 @@ When viewing the Polish language site:
 
 Let's say your multilingual project supports two languages, English and Polish. Create a translation table for each language in the `i18n` directory.
 
-```text
+```tree
 i18n/
 ├── en.toml
 └── pl.toml
@@ -129,7 +129,7 @@ many = '{{ . }} miesięcy'
 other = '{{ . }} miesiąca'
 {{< /code-toggle >}}
 
-> [!note]
+> [!NOTE]
 > The examples below use the `T` alias for brevity.
 
 When viewing the English language site:
@@ -177,44 +177,44 @@ Template code:
 {{ T "age" (dict "name" "John" "count" 3) }} → John is 3 years old.
 ```
 
-> [!note]
+> [!NOTE]
 > Translation tables may contain both simple translations and translations with pluralization.
 
 ## Reserved keys
 
 Hugo uses the [`nicksnyder/go-i18n`][] package to look up values in translation tables. This package reserves the following keys for internal use:
 
-id
+`id`
 : (`string`) Uniquely identifies the message.
 
-description
+`description`
 : (`string`) Describes the message to give additional context to translators that may be relevant for translation.
 
-hash
+`hash`
 : (`string`) Uniquely identifies the content of the message that this message was translated from.
 
-leftdelim
+`leftdelim`
 : (`string`) The left Go template delimiter.
 
-rightdelim
+`rightdelim`
 : (`string`) The right Go template delimiter.
 
-zero
+`zero`
 : (`string`) The content of the message for the [CLDR][] plural form "zero".
 
-one
+`one`
 : (`string`) The content of the message for the [CLDR][] plural form "one".
 
-two
+`two`
 : (`string`) The content of the message for the [CLDR][] plural form "two".
 
-few
+`few`
 : (`string`) The content of the message for the [CLDR][] plural form "few".
 
-many
+`many`
 : (`string`) The content of the message for the [CLDR][] plural form "many".
 
-other
+`other`
 : (`string`) The content of the message for the [CLDR][] plural form "other".
 
 If you need to provide a translation for one of the reserved keys, you can prepend the word with an underscore. For example:

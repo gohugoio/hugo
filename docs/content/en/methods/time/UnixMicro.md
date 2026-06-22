@@ -9,9 +9,11 @@ params:
     signatures: [TIME.UnixMicro]
 ---
 
-See [Unix epoch](https://en.wikipedia.org/wiki/Unix_time).
+See [Unix epoch][].
 
 ```go-html-template
 {{ $t := time.AsTime "2023-01-27T23:44:58-08:00" }}
 {{ $t.UnixMicro }} → 1674891898000000
 ```
+
+[Unix epoch]: https://en.wikipedia.org/wiki/Unix_time

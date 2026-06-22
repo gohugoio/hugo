@@ -9,10 +9,10 @@ params:
     signatures: [SHORTCODE.Site]
 ---
 
-See [Site methods].
-
-[Site methods]: /methods/site/
+See [Site methods][].
 
 ```go-html-template
 {{ .Site.Title }}
 ```
+
+[Site methods]: /methods/site/

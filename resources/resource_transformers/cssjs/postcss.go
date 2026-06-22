@@ -157,17 +157,23 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	if options.Config != "" {
 		configFile = options.Config
 	} else {
-		configFile = "postcss.config.js"
+		for _, name := range []string{"postcss.config.js", "postcss.config.mjs", "postcss.config.cjs"} {
+			configFile = t.rs.BaseFs.ResolveJSConfigFile(name)
+			if configFile != "" {
+				break
+			}
+		}
 	}
 
-	configFile = filepath.Clean(configFile)
-
-	// We need an absolute filename to the config file.
-	if !filepath.IsAbs(configFile) {
-		configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
-		if configFile == "" && options.Config != "" {
-			// Only fail if the user specified config file is not found.
-			return fmt.Errorf("postcss config %q not found", options.Config)
+	if configFile != "" {
+		configFile = filepath.Clean(configFile)
+		// We need an absolute filename to the config file.
+		if !filepath.IsAbs(configFile) {
+			configFile = t.rs.BaseFs.ResolveJSConfigFile(configFile)
+			if configFile == "" && options.Config != "" {
+				// Only fail if the user specified config file is not found.
+				return fmt.Errorf("postcss config %q not found", options.Config)
+			}
 		}
 	}
 

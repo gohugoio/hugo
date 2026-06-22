@@ -6,8 +6,8 @@ categories: []
 keywords: []
 ---
 
-> [!note]
-> This configuration is only relevant when using the [`resources.GetRemote`] function.
+> [!NOTE]
+> This configuration is only relevant when using the [`resources.GetRemote`][] function.
 
 ## Layered caching
 
@@ -30,13 +30,13 @@ Hugo employs a layered caching system.
 ```
 
 Dynacache
-: An in-memory cache employing a Least Recently Used (LRU) eviction policy. Entries are removed from the cache when changes occur, when they match [cache-busting] patterns, or under low-memory conditions.
+: An in-memory cache employing a Least Recently Used (LRU) eviction policy. Entries are removed from the cache when changes occur, when they match [cache-busting][] patterns, or under low-memory conditions.
 
 HTTP Cache
-: An HTTP cache for remote resources as specified in [RFC 9111]. Optimal performance is achieved when resources include appropriate HTTP cache headers. The HTTP cache utilizes the file cache for storage and retrieval of cached resources.
+: An HTTP cache for remote resources as specified in [RFC 9111][]. Optimal performance is achieved when resources include appropriate HTTP cache headers. The HTTP cache utilizes the file cache for storage and retrieval of cached resources.
 
 File cache
-: See [configure file caches].
+: See [configure file caches][].
 
 The HTTP cache involves two key aspects: determining which content to cache (the caching process itself) and defining the frequency with which to check for updates (the polling strategy).
 
@@ -48,36 +48,36 @@ This is the default configuration for HTTP caching:
 
 {{< code-toggle config=HTTPCache />}}
 
-respectCacheControlNoStoreInRequest
+`respectCacheControlNoStoreInRequest`
 : {{< new-in 0.151.0 />}}
 : (`bool`) Whether to respect the `no-store` directive in the server's `Cache-Control` request header when fetching remote resources via the [`resources.GetRemote`][] function. Default is `true`.
 
-respectCacheControlNoStoreInResponse
+`respectCacheControlNoStoreInResponse`
 : {{< new-in 0.151.0 />}}
 : (`bool`) Whether to respect the `no-store` directive in the server's `Cache-Control` response header when fetching remote resources via the [`resources.GetRemote`][] function. Default is `false`.
 
-cache.for.excludes
+`cache.for.excludes`
 : (`[]string`) A slice of [glob patterns](g) to exclude from caching. In its default configuration HTTP caching excludes all files.
 
-cache.for.includes
+`cache.for.includes`
 : (`[]string`) A slice of [glob patterns](g) to cache.
 
-polls
-: A slice of polling configurations.
+`polls`
+: (`[]PollConfig`) A slice of polling configurations.
 
-polls.disable
+`polls.disable`
 : (`bool`) Whether to disable polling for this configuration. Default is `true`.
 
-polls.high
+`polls.high`
 : (`string`) The maximum polling interval expressed as a [duration](g). This is used when the resource is considered stable. Default is `0s`.
 
-polls.low
+`polls.low`
 : (`string`) The minimum polling interval expressed as a [duration](g). This is used after a recent change and gradually increases towards `polls.high`. Default is `0s`.
 
-polls.for.excludes
+`polls.for.excludes`
 : (`[]string`) A slice of [glob patterns](g) to exclude from polling for this configuration.
 
-polls.for.includes
+`polls.for.includes`
 : (`[]string`) A slice of [glob patterns](g) to include in polling for this configuration.
 
 ## HTTP polling
@@ -96,22 +96,22 @@ includes = ['**']
 excludes = []
 {{< /code-toggle >}}
 
-polls
-: A slice of polling configurations.
+`polls`
+: (`[]PollConfig`) A slice of polling configurations.
 
-polls.disable
+`polls.disable`
 : (`bool`) Whether to disable polling for this configuration. Default is `true`.
 
-polls.high
+`polls.high`
 : (`string`) The maximum polling interval expressed as a [duration](g). This is used when the resource is considered stable. Default is `0s`.
 
-polls.low
+`polls.low`
 : (`string`) The minimum polling interval expressed as a [duration](g). This is used after a recent change and gradually increases towards `polls.high`. Default is `0s`.
 
-polls.for.excludes
+`polls.for.excludes`
 : (`[]string`) A list of [glob patterns](g) to exclude from polling for this configuration.
 
-polls.for.includes
+`polls.for.includes`
 : (`[]string`) A list of [glob patterns](g) to include in polling for this configuration.
 
 ## Behavior
@@ -120,10 +120,10 @@ Polling and HTTP caching interact as follows:
 
 - With polling enabled, rebuilds are triggered only by actual changes, detected via `eTag` changes (Hugo generates an MD5 hash if the server doesn't provide one).
 - If polling is enabled but HTTP caching is disabled, the remote is checked for changes only after the file cache's TTL expires (e.g., a `maxAge` of `10h` with a `1s` polling interval is inefficient).
-- If both polling and HTTP caching are enabled, changes are checked for even before the file cache's TTL expires. Cached `eTag` and `last-modified` values are sent in `if-none-match` and `if-modified-since` headers, respectively, and a cached response is returned on HTTP [304].
+- If both polling and HTTP caching are enabled, changes are checked for even before the file cache's TTL expires. Cached `eTag` and `last-modified` values are sent in `if-none-match` and `if-modified-since` headers, respectively, and a cached response is returned on HTTP [304][].
 
-[`resources.GetRemote`]: /functions/resources/getremote/
 [304]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
+[RFC 9111]: https://datatracker.ietf.org/doc/html/rfc9111
+[`resources.GetRemote`]: /functions/resources/getremote/
 [cache-busting]: /configuration/build/#cache-busters
 [configure file caches]: /configuration/caches/
-[RFC 9111]: https://datatracker.ietf.org/doc/html/rfc9111

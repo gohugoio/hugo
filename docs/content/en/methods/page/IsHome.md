@@ -11,7 +11,7 @@ params:
 
 The `IsHome` method on a `Page` object returns `true` if the [page kind](g) is `home`.
 
-```text
+```tree
 content/
 ├── books/
 │   ├── book-1/

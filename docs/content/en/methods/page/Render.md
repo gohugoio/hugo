@@ -21,7 +21,7 @@ Typically used when ranging over a page collection, the `Render` method on a `Pa
 
 In the example above, note that the template ("summary") is identified by its file name without directory or extension.
 
-Although similar to the [`partial`] function, there are key differences.
+Although similar to the [`partial`][] function, there are key differences.
 
 `Render` method|`partial` function
 :--|:--
@@ -30,7 +30,7 @@ The path to the template is determined by the [content type](g).|You must specif
 
 Consider this layout structure:
 
-```text
+```tree
 layouts/
 ├── books/
 │   └── li.html   <-- used when content type is "books"
@@ -65,7 +65,7 @@ For all other content types the `Render` methods calls:
 layouts/li.html
 ```
 
-See [content views] for more examples.
+See [content views][] for more examples.
 
-[content views]: /templates/types/#content-view
 [`partial`]: /functions/partials/include/
+[content views]: /templates/types/#content-view

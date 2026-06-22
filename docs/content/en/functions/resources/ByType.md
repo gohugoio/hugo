@@ -10,7 +10,7 @@ params:
     signatures: [resources.ByType MEDIATYPE]
 ---
 
-The [media type] is typically one of `image`, `text`, `audio`, `video`, or `application`.
+The [media type][] is typically one of `image`, `text`, `audio`, `video`, or `application`.
 
 ```go-html-template
 {{ range resources.ByType "image" }}
@@ -18,10 +18,10 @@ The [media type] is typically one of `image`, `text`, `audio`, `video`, or `appl
 {{ end }}
 ```
 
-> [!note]
+> [!NOTE]
 > This function operates on global resources. A global resource is a file within the `assets` directory, or within any directory mounted to the `assets` directory.
 >
-> For page resources, use the [`Resources.ByType`] method on a `Page` object.
+> For page resources, use the [`Resources.ByType`][] method on a `Page` object.
 
 [`Resources.ByType`]: /methods/page/resources/
 [media type]: https://en.wikipedia.org/wiki/Media_type

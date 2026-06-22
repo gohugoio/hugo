@@ -6,4 +6,6 @@ categories: []
 keywords: []
 ---
 
-See [JS functions](/functions/js/).
+See [JS functions][].
+
+[JS functions]: /functions/js/

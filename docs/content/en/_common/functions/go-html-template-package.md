@@ -10,5 +10,5 @@ By default, Hugo uses the `html/template` package when rendering HTML files.
 
 To generate HTML output that is safe against code injection, the `html/template` package escapes strings in certain contexts.
 
-[`text/template`]: https://pkg.go.dev/text/template
 [`html/template`]: https://pkg.go.dev/html/template
+[`text/template`]: https://pkg.go.dev/text/template

@@ -11,7 +11,7 @@ params:
 
 The [page kind](g) is one of `home`, `page`, `section`, `taxonomy`, or `term`.
 
-```text
+```tree
 content/
 ├── books/
 │   ├── book-1/

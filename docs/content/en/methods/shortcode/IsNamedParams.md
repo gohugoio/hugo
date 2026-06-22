@@ -23,7 +23,7 @@ With this _shortcode_ template:
 
 Both of these calls return the same value:
 
-```text {file="content/about.md"}
+```md {file="content/about.md"}
 {{</* myshortcode greeting="Hello" firstName="world" */>}}
 {{</* myshortcode "Hello" "world" */>}}
 ```

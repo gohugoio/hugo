@@ -4,7 +4,7 @@ _comment: Do not remove front matter.
 
 ## Prebuilt binaries
 
-Prebuilt binaries are available for a variety of operating systems and architectures. Visit the [latest release] page, and scroll down to the Assets section.
+Prebuilt binaries are available for a variety of operating systems and architectures. Visit the [latest release][] page, and scroll down to the Assets section.
 
 1. Download the archive for the desired edition, operating system, and architecture
 1. Extract the archive

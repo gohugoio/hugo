@@ -1,10 +1,10 @@
 import Alpine from 'alpinejs';
 import { registerMagics } from './alpinejs/magics/index';
 import { navbar, search, toc } from './alpinejs/data/index';
-import { navStore, initColorScheme } from './alpinejs/stores/index';
-import { bridgeTurboAndAlpine } from './helpers/index';
+import { navStore } from './alpinejs/stores/index';
 import persist from '@alpinejs/persist';
 import focus from '@alpinejs/focus';
+import * as params from '@params';
 
 var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 
@@ -28,6 +28,7 @@ var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 			index: 'hugodocs',
 			app_id: 'D1BPLZHGYQ',
 			api_key: '6df94e1e5d55d258c56f60d974d10314',
+			params: params,
 		};
 
 		Alpine.data('navbar', () => navbar(Alpine));
@@ -43,39 +44,14 @@ var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 	// Start AlpineJS.
 	Alpine.start();
 
-	// Start the Turbo-Alpine bridge.
-	bridgeTurboAndAlpine(Alpine);
-
-	{
-		let containerScrollTops = {};
-
-		// To preserve scroll position in scrolling elements on navigation add data-turbo-preserve-scroll-container="somename" to the scrolling container.
-		addEventListener('turbo:click', () => {
-			document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((el2) => {
-				containerScrollTops[el2.dataset.turboPreserveScrollContainer] = el2.scrollTop;
-			});
+	// On cross-document navigation the browser snapshots the current page for
+	// the view transition. An open overlay (e.g. the search modal) would
+	// otherwise linger in that outgoing snapshot while the page crossfades.
+	// `pageswap` runs right before the snapshot is taken, so hide such
+	// elements here to make them disappear instantly on navigation.
+	window.addEventListener('pageswap', () => {
+		document.querySelectorAll('[data-hide-on-navigate]').forEach((el) => {
+			el.classList.add('hidden');
 		});
-
-		addEventListener('turbo:render', () => {
-			document.querySelectorAll('[data-turbo-preserve-scroll-container]').forEach((ele) => {
-				const containerScrollTop = containerScrollTops[ele.dataset.turboPreserveScrollContainer];
-				if (containerScrollTop) {
-					ele.scrollTop = containerScrollTop;
-				} else {
-					let els = ele.querySelectorAll('.scroll-active');
-					if (els.length) {
-						els.forEach((el) => {
-							// Avoid scrolling if el is already in view.
-							if (el.offsetTop >= ele.scrollTop && el.offsetTop <= ele.scrollTop + ele.clientHeight) {
-								return;
-							}
-							ele.scrollTop = el.offsetTop - ele.offsetTop;
-						});
-					}
-				}
-			});
-
-			containerScrollTops = {};
-		});
-	}
+	});
 })();

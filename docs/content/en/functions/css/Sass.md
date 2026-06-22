@@ -13,14 +13,21 @@ aliases: [/functions/resources/tocss/]
 
 Transpile Sass to CSS using the LibSass transpiler included in Hugo's extended and extended/deploy editions, or [install Dart Sass](#dart-sass) to use the latest features of the Sass language.
 
-> [!warning]
+<!-- TODO
+Remove the admonition below somewhere after v0.168.0, 15 minor releases
+after deprecation.
+-->
+
+> [!WARNING]
 > The embedded LibSass transpiler was deprecated in [v0.153.0][] and will be removed in a future release. Use the Dart Sass transpiler instead by setting the `transpiler` option to `dartsass` as shown in the examples below.
 
 Sass has two forms of syntax: [SCSS][] and [indented][]. Hugo supports both.
 
 ## Options
 
-enableSourceMap
+The `css.Sass` function accepts an options map.
+
+`enableSourceMap`
 : (`bool`) Whether to generate a source map. Default is `false`.
 
   ```go-html-template
@@ -31,7 +38,7 @@ enableSourceMap
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-includePaths
+`includePaths`
 : (`slice`) A slice of paths, relative to the project root, that the transpiler will use when resolving `@use` and `@import` statements.
 
   ```go-html-template
@@ -42,7 +49,7 @@ includePaths
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-outputStyle
+`outputStyle`
 : (`string`) The output style of the resulting CSS. With LibSass, one of `nested` (default), `expanded`, `compact`, or `compressed`. With Dart Sass, either `expanded` (default) or `compressed`.
 
   ```go-html-template
@@ -53,7 +60,7 @@ outputStyle
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-precision
+`precision`
 : (`int`) The precision of floating point math. Applicable to LibSass. Default is `8`.
 
   ```go-html-template
@@ -64,7 +71,7 @@ precision
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-silenceDeprecations
+`silenceDeprecations`
 : {{< new-in 0.139.0 />}}
 : (`slice`) A slice of deprecation IDs to silence. IDs are enclosed in brackets within Dart Sass warning messages (e.g., `import` in `WARN Dart Sass: DEPRECATED [import]`). Applicable to Dart Sass.
 
@@ -76,7 +83,7 @@ silenceDeprecations
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-silenceDependencyDeprecations
+`silenceDependencyDeprecations`
 : {{< new-in 0.146.0 />}}
 : (`bool`) Whether to silence deprecation warnings from dependencies, where a dependency is considered any file transitively imported through a load path. This does not apply to `@warn` or `@debug` rules. Default is `false`.
 
@@ -88,7 +95,7 @@ silenceDependencyDeprecations
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-sourceMapIncludeSources
+`sourceMapIncludeSources`
 : (`bool`) Whether to embed sources in the generated source map. Applicable to Dart Sass. Default is `false`.
 
   ```go-html-template
@@ -99,7 +106,7 @@ sourceMapIncludeSources
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-targetPath
+`targetPath`
 : (`string`) The publish path for the transformed resource, relative to the [`publishDir`][]. If unset, the target path defaults to the asset's original path with a `.css` extension.
 
   ```go-html-template
@@ -110,7 +117,7 @@ targetPath
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-transpiler
+`transpiler`
 : (`string`) The transpiler to use, either `libsass` or `dartsass`. Hugo's extended and extended/deploy editions include the LibSass transpiler. To use the Dart Sass transpiler, see the [installation instructions](#dart-sass). Default is `libsass`.
 
   ```go-html-template
@@ -118,7 +125,7 @@ transpiler
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
 
-vars
+`vars`
 : (`map`) A map of key-value pairs used to generate Sass variables. The `css.Sass` function injects these variables into the stylesheet when it encounters the `hugo:vars` internal identifier within a `@use` or `@import` statement.
 
   ```go-html-template
@@ -262,6 +269,11 @@ vars
 
 ## Dart Sass
 
+<!-- TODO
+Revise the paragraphs below somewhere after v0.168.0, 15 minor releases
+after the deprecation of the LibSass transpiler.
+-->
+
 Hugo's extended and extended/deploy editions include [LibSass][] to transpile Sass to CSS. In 2020, the Sass team deprecated LibSass in favor of [Dart Sass][].
 
 Use the latest features of the Sass language by installing Dart Sass in your development and production environments.
@@ -274,25 +286,23 @@ If you have been using Embedded Dart Sass[^1] with Hugo v0.113.0 and earlier, un
 
 If you install Hugo as a [Snap package][] there is no need to install Dart Sass. The Hugo Snap package includes Dart Sass.
 
-[^1]: In 2023, the Sass team deprecated Embedded Dart Sass in favor of Dart Sass.
-
 ### Installing in a development environment
 
 When you install Dart Sass somewhere in your PATH, Hugo will find it.
 
-OS|Package manager|Site|Installation
-:--|:--|:--|:--
-Linux|Homebrew|[brew.sh]|`brew install sass/sass/sass`
-Linux|Snap|[snapcraft.io]|`sudo snap install dart-sass`
-macOS|Homebrew|[brew.sh]|`brew install sass/sass/sass`
-Windows|Chocolatey|[chocolatey.org]|`choco install sass`
-Windows|Scoop|[scoop.sh]|`scoop install sass`
+OS      | Package manager | Site               | Installation
+:-------|:----------------|:-------------------|:-----------------------------
+Linux   | Homebrew        | [brew.sh][]        | `brew install sass/sass/sass`
+Linux   | Snap            | [snapcraft.io][]   | `sudo snap install dart-sass`
+macOS   | Homebrew        | [brew.sh][]        | `brew install sass/sass/sass`
+Windows | Chocolatey      | [chocolatey.org][] | `choco install sass`
+Windows | Scoop           | [scoop.sh][]       | `scoop install sass`
 
 You may also install [prebuilt binaries][] for Linux, macOS, and Windows. You must install the prebuilt binary outside of your project directory and ensure its path is included in your system's PATH environment variable.
 
 Run `hugo env` to list the active transpilers.
 
-> [!note]
+> [!NOTE]
 > If you build Hugo from source and run `mage test -v`, the test will fail if you install Dart Sass as a Snap package. This is due to the Snap package's strict confinement model.
 
 ### Installing in a production environment
@@ -316,25 +326,27 @@ For examples of how to install Dart Sass in a production environment, see these 
 - [SourceHut][]
 - [Vercel][]
 
+[^1]: In 2023, the Sass team deprecated Embedded Dart Sass in favor of Dart Sass.
+
+[Cloudflare]: /host-and-deploy/host-on-cloudflare/
+[Dart Sass]: https://sass-lang.com/dart-sass/
+[GitHub Pages]: /host-and-deploy/host-on-github-pages/
+[GitLab Pages]: /host-and-deploy/host-on-gitlab-pages/
+[LibSass]: https://sass-lang.com/libsass
+[Netlify]: /host-and-deploy/host-on-netlify/
+[Render]: /host-and-deploy/host-on-render/
+[SCSS]: https://sass-lang.com/documentation/syntax#scss
+[Snap package]: https://snapcraft.io/hugo
+[SourceHut]: /host-and-deploy/host-on-sourcehut-pages/
+[Vercel]: /host-and-deploy/host-on-vercel/
 [`css.Quoted`]: /functions/css/quoted/
 [`css.Unquoted`]: /functions/css/unquoted/
 [`publishDir`]: /configuration/all/#publishdir
 [`useResourceCacheWhen`]: /configuration/build/#useresourcecachewhen
 [brew.sh]: https://brew.sh/
 [chocolatey.org]: https://community.chocolatey.org/packages/sass
-[Cloudflare]: /host-and-deploy/host-on-cloudflare/
-[Dart Sass]: https://sass-lang.com/dart-sass/
-[GitHub Pages]: /host-and-deploy/host-on-github-pages/
-[GitLab Pages]: /host-and-deploy/host-on-gitlab-pages/
 [indented]: https://sass-lang.com/documentation/syntax#the-indented-syntax
-[LibSass]: https://sass-lang.com/libsass
-[Netlify]: /host-and-deploy/host-on-netlify/
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
-[Render]: /host-and-deploy/host-on-render/
 [scoop.sh]: https://scoop.sh/#/apps?q=sass
-[SCSS]: https://sass-lang.com/documentation/syntax#scss
-[Snap package]: https://snapcraft.io/hugo
 [snapcraft.io]: https://snapcraft.io/dart-sass
-[SourceHut]: /host-and-deploy/host-on-sourcehut-pages/
 [v0.153.0]: https://github.com/gohugoio/hugo/releases/tag/v0.153.0
-[Vercel]: /host-and-deploy/host-on-vercel/

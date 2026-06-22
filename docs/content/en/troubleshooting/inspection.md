@@ -6,7 +6,7 @@ categories: []
 keywords: []
 ---
 
-Use the [`debug.Dump`] function to inspect a data structure:
+Use the [`debug.Dump`][] function to inspect a data structure:
 
 ```go-html-template
 <pre>{{ debug.Dump .Params }}</pre>
@@ -27,7 +27,7 @@ Use the [`debug.Dump`] function to inspect a data structure:
 }
 ```
 
-Use the [`printf`] function (render) or [`warnf`] function (log to console) to inspect simple data structures. The layout string below displays both value and data type.
+Use the [`printf`][] function (render) or [`warnf`][] function (log to console) to inspect simple data structures. The layout string below displays both value and data type.
 
 ```go-html-template
 {{ $value := 42 }}
@@ -36,9 +36,9 @@ Use the [`printf`] function (render) or [`warnf`] function (log to console) to i
 
 {{< new-in 0.146.0 />}}
 
-Use the [`templates.Current`] function to visually mark template execution boundaries or to display the template call stack.
+Use the [`templates.Current`][] function to visually mark template execution boundaries or to display the template call stack.
 
 [`debug.Dump`]: /functions/debug/dump/
 [`printf`]: /functions/fmt/printf/
-[`warnf`]: /functions/fmt/warnf/
 [`templates.Current`]: /functions/templates/current/
+[`warnf`]: /functions/fmt/warnf/

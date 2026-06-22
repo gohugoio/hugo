@@ -290,7 +290,7 @@ func lexEndOfShortcode(l *pageLexer) stateFunc {
 		return lexShortcodeRightDelim
 	}
 	switch r := l.next(); {
-	case isSpace(r):
+	case isASCIISpace(r):
 		l.ignore()
 	default:
 		return l.errorf("unclosed shortcode")
@@ -307,7 +307,7 @@ func lexInsideShortcode(l *pageLexer) stateFunc {
 	case r == eof:
 		// eol is allowed inside shortcodes; this may go to end of document before it fails
 		return l.errorf("unclosed shortcode action")
-	case isSpace(r), isEndOfLine(r):
+	case isASCIISpace(r):
 		l.ignore()
 	case r == '=':
 		l.consumeSpace()

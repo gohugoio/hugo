@@ -22,7 +22,7 @@ Create the filter:
 
 {{% include "/_common/functions/images/apply-image-filter.md" %}}
 
-The `images.Opacity` filter is most useful for target formats such as PNG and WebP that support transparency. If the source image does not support transparency, combine this filter with the `images.Process` filter:
+The `images.Opacity` filter is most useful for target formats such as AVIF, PNG, and WebP that support transparency. If the source image does not support transparency, combine this filter with the `images.Process` filter:
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}

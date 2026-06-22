@@ -50,7 +50,7 @@ Hugo renders this to:
 </ul>
 ```
 
-You can also sort menu entries using the [`sort`] function. For example, to sort by `name` in descending order:
+You can also sort menu entries using the [`sort`][] function. For example, to sort by `name` in descending order:
 
 ```go-html-template
 <ul>

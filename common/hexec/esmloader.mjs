@@ -9,7 +9,16 @@
 // This hook makes the ESM resolver fall back to NODE_PATH for bare
 // specifiers when Node's normal resolution fails. It is a no-op for
 // relative/absolute paths and URL-scheme specifiers, and it never fires
-// unless Node would itself have thrown ERR_MODULE_NOT_FOUND.
+// unless Node would itself have thrown ERR_MODULE_NOT_FOUND or
+// ERR_ACCESS_DENIED.
+//
+// ERR_ACCESS_DENIED is handled because Node's resolver walks up the
+// directory tree looking for node_modules. Under the permission model that
+// walk can hit a node_modules outside the allow-list (e.g. Netlify stores
+// its node_modules cache in the same tree as the Hugo file cache), aborting
+// resolution even though the package is reachable via NODE_PATH. If the
+// NODE_PATH fallback also fails we re-throw the original error so the
+// access-denied resource is still reported.
 //
 // Uses the synchronous registerHooks API so it runs on the main thread and
 // does not require --allow-worker under the Node permission model.
@@ -38,7 +47,7 @@ registerHooks({
 		try {
 			return nextResolve(specifier, context);
 		} catch (err) {
-			if (err?.code !== 'ERR_MODULE_NOT_FOUND') throw err;
+			if (err?.code !== 'ERR_MODULE_NOT_FOUND' && err?.code !== 'ERR_ACCESS_DENIED') throw err;
 			if (!isBareSpecifier(specifier)) throw err;
 			for (const r of resolvers) {
 				try {

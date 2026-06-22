@@ -11,7 +11,7 @@ params:
 
 The `IsSection` method on a `Page` object returns `true` if the [page kind](g) is `section`.
 
-```text
+```tree
 content/
 ├── books/
 │   ├── book-1/

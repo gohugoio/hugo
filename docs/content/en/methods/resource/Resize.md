@@ -11,9 +11,9 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Resize` method returns a new resource from a [processable image](g) according to the given [processing specification][].
+The `Resize` method returns a new resource from a [processable image](g) according to the given [processing specification](#processing-specification).
 
-> [!note]
+> [!NOTE]
 > Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
 
 ## Usage
@@ -53,4 +53,3 @@ In the example above, `"300x"` is the processing specification.
 >}}
 
 [`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
-[processing specification]: #processing-specification

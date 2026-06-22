@@ -21,8 +21,8 @@ To find the elements within `$c3` that do not exist in `$c1` or `$c2`:
 {{ complement $c1 $c2 $c3 }} → [1 2]
 ```
 
-> [!note]
-> Make your code simpler to understand by using a [chained pipeline]:
+> [!NOTE]
+> Make your code simpler to understand by using a [chained pipeline][]:
 
 ```go-html-template
 {{ $c3 | complement $c1 $c2 }} → [1 2]
@@ -30,7 +30,7 @@ To find the elements within `$c3` that do not exist in `$c1` or `$c2`:
 
 You can also use the `complement` function with page collections. Let's say your site has five content types:
 
-```text
+```tree
 content/
 ├── blog/
 ├── books/
@@ -49,8 +49,8 @@ To list everything except blog articles (`blog`) and frequently asked questions 
 {{ end }}
 ```
 
-> [!note]
-> Although the example above demonstrates the `complement` function, you could use the [`where`] function as well:
+> [!NOTE]
+> Although the example above demonstrates the `complement` function, you could use the [`where`][] function as well:
 
 ```go-html-template
 {{ range where site.RegularPages "Type" "not in" (slice "blog" "faqs") }}
@@ -58,7 +58,7 @@ To list everything except blog articles (`blog`) and frequently asked questions 
 {{ end }}
 ```
 
-In this example we use the `complement` function to remove [stop words] from a sentence:
+In this example we use the `complement` function to remove [stop words][] from a sentence:
 
 ```go-html-template
 {{ $text := "The quick brown fox jumps over the lazy dog" }}

@@ -11,9 +11,7 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Content` method on a `Resource` object returns `template.HTML` when the [resource type] is `page`, otherwise it returns a `string`.
-
-[resource type]: /methods/resource/resourcetype/
+The `Content` method on a `Resource` object returns `template.HTML` when the [resource type][] is `page`, otherwise it returns a `string`.
 
 ```text {file="assets/quotations/kipling.txt"}
 He travels the fastest who travels alone.
@@ -58,3 +56,5 @@ To create inline JavaScript:
   <script>{{ .Content | safeJS }}</script>
 {{ end }}
 ```
+
+[resource type]: /methods/resource/resourcetype/

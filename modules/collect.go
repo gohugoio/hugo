@@ -656,7 +656,7 @@ func (c *collector) loadModules() error {
 }
 
 // Matches postcss.config.js etc.
-var commonJSConfigs = regexp.MustCompile(`(babel|postcss|tailwind)\.config\.js`)
+var commonJSConfigs = regexp.MustCompile(`^(babel|postcss|tailwind)\.config\.(c|m)?js$`)
 
 func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([]Mount, error) {
 	for _, m := range mounts {

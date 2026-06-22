@@ -9,9 +9,7 @@ params:
     signatures: [PAGE.Truncated]
 ---
 
-You can define a [summary] manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.
-
-[summary]: /content-management/summaries/
+You can define a [summary][] manually, in front matter, or automatically. A manual summary takes precedence over a front matter summary, and a front matter summary takes precedence over an automatic summary.
 
 The `Truncated` method returns `true` if the content length exceeds the summary length. This is useful for conditionally rendering a "read more" link:
 
@@ -25,5 +23,7 @@ The `Truncated` method returns `true` if the content length exceeds the summary 
 {{ end }}
 ```
 
-> [!note]
+> [!NOTE]
 > The `Truncated` method returns `false` if you define the summary in front matter.
+
+[summary]: /content-management/summaries/
