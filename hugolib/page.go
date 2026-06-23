@@ -631,7 +631,41 @@ func (ps *pageState) resolveTemplate(layouts ...string) (*tplimpl.TemplInfo, boo
 	dir, d := ps.GetInternalTemplateBasePathAndDescriptor()
 
 	if len(layouts) > 0 {
-		d.LayoutFromUser = layouts[0]
+		layout := layouts[0]
+		if i := strings.LastIndex(layout, "/"); i != -1 {
+			if i == len(layout)-1 {
+				return nil, false, nil
+			}
+			subdir := layout[:i]
+			d.LayoutFromUser = layout[i+1:]
+			d.LayoutFromUserMustMatch = true
+
+			// Try the subdir relative to each ancestor of the page's path,
+			// from most specific to least: {page-path}/subdir, {parent}/subdir, ..., /subdir.
+			var parts []string
+			if trimmed := strings.Trim(dir, "/"); trimmed != "" {
+				parts = strings.Split(trimmed, "/")
+			}
+			for depth := len(parts); depth >= 0; depth-- {
+				var searchPath string
+				if depth > 0 {
+					searchPath = "/" + strings.Join(parts[:depth], "/") + "/" + subdir
+				} else {
+					searchPath = "/" + subdir
+				}
+				q := tplimpl.TemplateQuery{
+					Path:     searchPath,
+					Category: tplimpl.CategoryLayout,
+					Sites:    ps.s.siteVector,
+					Desc:     d,
+				}
+				if tinfo := ps.s.TemplateStore.LookupPagesLayoutAtPath(q); tinfo != nil {
+					return tinfo, true, nil
+				}
+			}
+			return nil, false, nil
+		}
+		d.LayoutFromUser = layout
 		d.LayoutFromUserMustMatch = true
 	}
 

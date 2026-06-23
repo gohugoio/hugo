@@ -585,11 +585,25 @@ func (s *TemplateStore) putBest(b *bestMatch) {
 func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 	q.init()
 	key := s.key(q.Path)
-
 	slashCountKey := strings.Count(key, "/")
 	best1 := s.getBest()
 	defer s.putBest(best1)
 	s.findBestMatchWalkPath(q, key, slashCountKey, best1)
+	return s.resolveBaseof(q, key, slashCountKey, best1)
+}
+
+// LookupPagesLayoutAtPath is like LookupPagesLayout but only checks the given
+// path for a layout match, without walking up to parent directories.
+func (s *TemplateStore) LookupPagesLayoutAtPath(q TemplateQuery) *TemplInfo {
+	q.init()
+	key := strings.ToLower(s.key(q.Path))
+	best1 := s.getBest()
+	defer s.putBest(best1)
+	s.findBestMatchGet(key, q.Category, q.Consider, q.Desc, q.Sites, best1)
+	return s.resolveBaseof(q, key, strings.Count(key, "/"), best1)
+}
+
+func (s *TemplateStore) resolveBaseof(q TemplateQuery, key string, slashCountKey int, best1 *bestMatch) *TemplInfo {
 	if best1.w.w1 <= 0 {
 		return nil
 	}
@@ -602,7 +616,6 @@ func (s *TemplateStore) LookupPagesLayout(q TemplateQuery) *TemplInfo {
 	if best1.w.w1 <= 0 {
 		return nil
 	}
-
 	return best1.templ
 }
 
