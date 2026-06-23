@@ -14,6 +14,8 @@
 package tplimpl
 
 import (
+	"strings"
+
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
 	"github.com/gohugoio/hugo/resources/kinds"
@@ -44,6 +46,8 @@ type TemplateDescriptor struct {
 }
 
 func (d *TemplateDescriptor) normalizeFromFile() {
+	d.LayoutFromTemplate = strings.ToLower(d.LayoutFromTemplate)
+
 	if d.LayoutFromTemplate == d.OutputFormat {
 		d.LayoutFromTemplate = ""
 	}
@@ -138,7 +142,7 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 		// when one exist for the html output format (same media type).
 		skip := category != CategoryBaseof && (this.Kind == "" || (this.Kind != other.Kind && (this.LayoutFromTemplate != other.LayoutFromTemplate && other.LayoutFromTemplate != layoutAll)))
 		if this.LayoutFromUser != "" {
-			skip = skip && (this.LayoutFromUser != other.LayoutFromTemplate)
+			skip = skip && this.LayoutFromUser != other.LayoutFromTemplate
 		}
 		if skip {
 			return w

@@ -425,6 +425,7 @@ func (q *TemplateQuery) init() {
 	}
 
 	q.Name = strings.ToLower(q.Name)
+	q.Desc.LayoutFromUser = strings.ToLower(q.Desc.LayoutFromUser)
 
 	if q.Category == 0 {
 		panic("category not set")
