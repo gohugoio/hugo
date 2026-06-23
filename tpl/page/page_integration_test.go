@@ -77,7 +77,7 @@ Image OK.
 {{ if page.IsHome }}
 Link OK.
 {{ end }}
--- layouts/myview.html
+-- layouts/myview.html --
 {{ if page.IsHome }}
 Render OK.
 {{ end }}
