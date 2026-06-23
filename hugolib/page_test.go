@@ -2073,3 +2073,97 @@ foo
 	b, err := TestE(t, files)
 	b.Assert(err, qt.ErrorMatches, `.*template "view_bar" not found.*`)
 }
+
+// See issue 15057.
+func TestRenderCaseInsensitiveTemplateName(t *testing.T) {
+	t.Parallel()
+
+	files := `
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- content/s2/p2.md --
+---
+title: p2
+layout: ab
+---
+-- content/s2/p3.md --
+---
+title: p3
+layout: aB
+---
+-- content/s2/p4.md --
+---
+title: p4
+layout: AB
+---
+-- content/s3/p5.md --
+---
+title: p5
+layout: cd
+---
+-- content/s3/p6.md --
+---
+title: p6
+layout: cD
+---
+-- content/s3/p7.md --
+---
+title: p7
+layout: CD
+---
+-- content/s4/p8.md --
+---
+title: p8
+layout: ef
+---
+-- content/s4/p9.md --
+---
+title: p9
+layout: eF
+---
+-- content/s4/p10.md --
+---
+title: p10
+layout: EF
+---
+-- layouts/s1/p1/page.html --
+{{ .Render "ab" }}|{{ .Render "aB" }}|{{ .Render "AB" }}
+{{ .Render "cd" }}|{{ .Render "cD" }}|{{ .Render "CD" }}
+{{ .Render "ef" }}|{{ .Render "eF" }}|{{ .Render "EF" }}
+-- layouts/s1/p1/ab.html --
+ab{{- /**/ -}}
+-- layouts/s1/p1/cD.html --
+cD{{- /**/ -}}
+-- layouts/s1/p1/EF.html --
+EF{{- /**/ -}}
+-- layouts/s2/ab.html --
+ab
+-- layouts/s3/cD.html --
+cD
+-- layouts/s4/EF.html --
+EF
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/s1/p1/index.html",
+		"ab|ab|ab",
+		"cD|cD|cD",
+		"EF|EF|EF",
+	)
+
+	b.AssertFileContent("public/s2/p2/index.html", "ab")
+	b.AssertFileContent("public/s2/p3/index.html", "ab")
+	b.AssertFileContent("public/s2/p4/index.html", "ab")
+
+	b.AssertFileContent("public/s3/p5/index.html", "cD")
+	b.AssertFileContent("public/s3/p6/index.html", "cD")
+	b.AssertFileContent("public/s3/p7/index.html", "cD")
+
+	b.AssertFileContent("public/s4/p8/index.html", "EF")
+	b.AssertFileContent("public/s4/p9/index.html", "EF")
+	b.AssertFileContent("public/s4/p10/index.html", "EF")
+}
