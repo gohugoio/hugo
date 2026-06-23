@@ -2055,3 +2055,22 @@ disableKinds = ["taxonomy", "term"]
 		}
 	}
 }
+
+// See issue 15052.
+func TestRenderViewNotFound(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+{{ .Render "view_foo" }}
+{{ .Render "view_bar" }}
+-- layouts/view_foo.html --
+foo
+`
+
+	b, err := TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "template [\"view_bar\"] not found")
+}

@@ -114,7 +114,7 @@ func (pco *pageContentOutput) Render(ctx context.Context, layout ...string) (tem
 	}
 
 	if !found {
-		return "", nil
+		return "", fmt.Errorf("template %q not found", layout)
 	}
 
 	// Make sure to send the *pageState and not the *pageContentOutput to the template.
