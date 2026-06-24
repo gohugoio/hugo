@@ -20,8 +20,8 @@ In this tutorial you will:
 
 Before you begin this tutorial you must:
 
-1. [Install Hugo] (any edition, {{% param "minVersion" %}} or later)
-1. [Install Git]
+1. [Install Hugo][] (any edition, {{% param "minVersion" %}} or later)
+1. [Install Git][]
 
 You must also be comfortable working from the command line.
 
@@ -29,7 +29,7 @@ You must also be comfortable working from the command line.
 
 ### Commands
 
-> [!note]
+> [!NOTE]
 > **If you are a Windows user:**
 >
 > - Do not use the Command Prompt
@@ -40,13 +40,13 @@ You must also be comfortable working from the command line.
 
 Verify that you have installed Hugo {{% param "minVersion" %}} or later.
 
-```text
+```sh
 hugo version
 ```
 
 Run these commands to create a Hugo project with the [Ananke][] theme. The next section provides an explanation of each command.
 
-```text
+```sh
 hugo new project quickstart
 cd quickstart
 git init
@@ -61,37 +61,37 @@ View your project at the URL displayed in your terminal. Press `Ctrl + C` to sto
 
 Create the [project skeleton][] for your project in the `quickstart` directory.
 
-```text
+```sh
 hugo new project quickstart
 ```
 
 Change the current directory to the root of your project.
 
-```text
+```sh
 cd quickstart
 ```
 
 Initialize an empty Git repository in the current directory.
 
-```text
+```sh
 git init
 ```
 
 Clone the [Ananke][] theme into the `themes` directory, adding it to your project as a [Git submodule][].
 
-```text
+```sh
 git submodule add https://github.com/gohugo-ananke/ananke themes/ananke
 ```
 
 Append a line to your project configuration file, indicating the current theme.
 
-```text
+```sh
 echo "theme = 'ananke'" >> hugo.toml
 ```
 
 Start Hugo's development server.
 
-```text
+```sh
 hugo server
 ```
 
@@ -101,13 +101,13 @@ Press `Ctrl + C` to stop Hugo's development server.
 
 Add a new page to your project.
 
-```text
+```sh
 hugo new content content/posts/my-first-post.md
 ```
 
 Hugo created the file in the `content/posts` directory. Open the file with your editor.
 
-```text
+```md
 +++
 title = 'My First Post'
 date = 2024-01-14T07:07:07+01:00
@@ -119,7 +119,7 @@ Notice the `draft` value in the [front matter][] is `true`. By default, Hugo doe
 
 Add some [Markdown][] to the body of the post, but do not change the `draft` value.
 
-```text
+```md
 +++
 title = 'My First Post'
 date = 2024-01-14T07:07:07+01:00
@@ -134,7 +134,7 @@ Visit the [Hugo](https://gohugo.io) website!
 
 Save the file, then start Hugo's development server. You can run either of the following commands to include draft content.
 
-```text
+```sh
 hugo server --buildDrafts
 hugo server -D
 ```
@@ -143,14 +143,14 @@ View your project at the URL displayed in your terminal. Keep the development se
 
 When satisfied with your new content, set the front matter `draft` parameter to `false`.
 
-> [!note]
+> [!NOTE]
 > Hugo's rendering engine conforms to the CommonMark [specification][] for Markdown. The CommonMark organization provides a useful [live testing tool][] powered by the reference implementation.
 
 ## Configure the project
 
-With your editor, open your [project configuration][] file (`hugo.toml`) in the root of your project.
+With your editor, open the [project configuration][] file in the root of your project directory:
 
-```text
+```toml {file="hugo.toml"}
 baseURL = 'https://example.org/'
 locale = 'en-us'
 title = 'My New Hugo Project'
@@ -165,11 +165,11 @@ Make the following changes:
 
 Start Hugo's development server to see your changes, remembering to include draft content.
 
-```text
+```sh
 hugo server -D
 ```
 
-> [!note]
+> [!NOTE]
 > Now that you have the Ananke theme installed, check out their [documentation][] and [demonstration site][] to learn how to configure and customize it.
 
 ## Publish the project
@@ -178,7 +178,7 @@ In this step you will _publish_ your project, but you will not _deploy_ it.
 
 When you publish your project, Hugo renders all build artifacts to the `public` directory in the root of your project. This includes the HTML files for every site, along with assets such as images, CSS, and JavaScript. The command is simple.
 
-```text
+```sh
 hugo
 ```
 
@@ -186,13 +186,18 @@ To learn how to _deploy_ your project, see the [host and deploy][] section.
 
 ## Ask for help
 
-Hugo's [forum][] is an active community of users and developers who answer questions, share knowledge, and provide examples. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help] before asking your first question.
+Hugo's [forum][] is an active community of users and developers who answer questions, share knowledge, and provide examples. A quick search of over 20,000 topics will often answer your question. Please be sure to read about [requesting help][] before asking your first question.
 
 ## Other resources
 
 For other resources to help you learn Hugo, including books and video tutorials, see the [external learning resources][] page.
 
 [Ananke]: https://github.com/theNewDynamic/gohugo-theme-ananke
+[Git submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
+[Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[Install Hugo]: /installation/
+[Markdown]: https://daringfireball.net/projects/markdown
+[PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
 [are different applications]: https://learn.microsoft.com/en-us/powershell/scripting/whats-new/differences-from-windows-powershell?view=powershell-7.3
 [demonstration site]: https://ananke-theme.netlify.app/
 [documentation]: https://ananke-documentation.netlify.app/
@@ -200,13 +205,8 @@ For other resources to help you learn Hugo, including books and video tutorials,
 [external learning resources]: /getting-started/external-learning-resources/
 [forum]: https://discourse.gohugo.io/
 [front matter]: /content-management/front-matter/
-[Git submodule]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [host and deploy]: /host-and-deploy/
-[Install Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-[Install Hugo]: /installation/
 [live testing tool]: https://spec.commonmark.org/dingus/
-[Markdown]: https://daringfireball.net/projects/markdown
-[PowerShell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows
 [project configuration]: /configuration/
 [project skeleton]: /getting-started/directory-structure/#project-skeleton
 [requesting help]: https://discourse.gohugo.io/t/requesting-help/9132

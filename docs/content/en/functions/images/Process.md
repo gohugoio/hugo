@@ -10,7 +10,7 @@ params:
     signatures: [images.Process SPECIFICATION]
 ---
 
-Returns an image filter that processes an image according to the given [processing specification][]. This versatile filter supports the full range of image transformations, including resizing, cropping, rotation, and format conversion, all within a single specification string. Use this as an argument to the [`Filter`][] method or the [`images.Filter`][] function.
+Returns an image filter that processes an image according to the given [processing specification](#processing-specification). This versatile filter supports the full range of image transformations, including resizing, cropping, rotation, and format conversion, all within a single specification string. Use this as an argument to the [`Filter`][] method or the [`images.Filter`][] function.
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
@@ -46,5 +46,4 @@ Create a filter:
 >}}
 
 [`Filter`]: /methods/resource/filter/
-[`images.Filter`]: /functions/images/filter
-[processing specification]: #processing-specification
+[`images.Filter`]: /functions/images/filter/

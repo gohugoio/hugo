@@ -9,9 +9,9 @@ params:
     signatures: [transform.HTMLToMarkdown INPUT]
 ---
 
-{{< new-in "0.151.0" />}}
+{{< new-in 0.151.0 />}}
 
-> [!note]
+> [!NOTE]
 > This function is experimental and its API may change in the future.
 
 The `transform.HTMLToMarkdown` function converts HTML to Markdown by utilizing the [`html-to-markdown`][] Go package.
@@ -29,9 +29,9 @@ The conversion process is enabled by the following `html-to-markdown` plugins:
 Plugin|Description
 :--|:--
 Base|Implements basic shared functionality
-CommonMark|Implements Markdown according to the [Commonmark Spec][]
-Table|Implements tables according to the [GitHub Flavored Markdown Spec][]
+CommonMark|Implements Markdown according to the [Commonmark][] specification
+Table|Implements tables according to the [GitHub Flavored Markdown][] specification
 
+[Commonmark]: https://spec.commonmark.org/current/
+[GitHub Flavored Markdown]: https://github.github.com/gfm/
 [`html-to-markdown`]: https://github.com/JohannesKaufmann/html-to-markdown?tab=readme-ov-file#readme
-[Commonmark Spec]: https://spec.commonmark.org/current/
-[GitHub Flavored Markdown Spec]: https://github.github.com/gfm/

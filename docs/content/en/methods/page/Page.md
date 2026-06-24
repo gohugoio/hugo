@@ -29,7 +29,7 @@ The page title is: {{ .Page.Title }}
 
 To handle both scenarios, the _partial_ template must be able to access the `Page` object with `Page.Page`.
 
-> [!note]
+> [!NOTE]
 > And yes, that means you can do `.Page.Page.Page.Page.Title` too.
 >
 > But don't.

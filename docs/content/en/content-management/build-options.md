@@ -6,13 +6,7 @@ keywords: []
 aliases: [/content/build-options/]
 ---
 
-<!-- TODO
-We deprecated the `_build` front matter key in favor of `build` in v0.145.0 on 2025-02-26. Remove footnote #1 on or after 2026-05-26 (15 months after deprecation).
--->
-
-Build options are stored in a reserved front matter object named `build`[^1] with these defaults:
-
-[^1]: The `_build` alias for `build` is deprecated and will be removed in a future release.
+Build options are stored in a reserved front matter object named `build` with these defaults:
 
 {{< code-toggle file=content/example/index.md fm=true >}}
 [build]
@@ -21,34 +15,34 @@ publishResources = true
 render = 'always'
 {{< /code-toggle >}}
 
-list
+`list`
 : When to include the page within page collections. Specify one of:
 
   - `always`: Include the page in _all_ page collections. For example, `site.RegularPages`, `.Pages`, etc. This is the default value.
   - `local`: Include the page in _local_ page collections. For example, `.RegularPages`, `.Pages`, etc. Use this option to create fully navigable but headless content sections.
   - `never`: Do not include the page in _any_ page collection.
 
-publishResources
-: Applicable to [page bundles], determines whether to publish the associated [page resources]. Specify one of:
+`publishResources`
+: Applicable to [page bundles][], determines whether to publish the associated [page resources][]. Specify one of:
 
   - `true`: Always publish resources. This is the default value.
-  - `false`: Only publish a resource when invoking its [`Permalink`], [`RelPermalink`], or [`Publish`] method within a template.
+  - `false`: Only publish a resource when invoking its [`Permalink`][], [`RelPermalink`][], or [`Publish`][] method within a template.
 
-render
+`render`
 : When to render the page. Specify one of:
 
   - `always`: Always render the page to disk. This is the default value.
   - `link`: Do not render the page to disk, but assign `Permalink` and `RelPermalink` values.
   - `never`: Never render the page to disk, and exclude it from all page collections.
 
-> [!note]
-> Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`] or [`.Site.GetPage`] method.
+> [!NOTE]
+> Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`][] or [`.Site.GetPage`][] method.
 
 ## Example -- headless page
 
 Create a unpublished page whose content and resources can be included in other pages.
 
-```text
+```tree
 content/
 ├── headless/
 │   ├── a.jpg
@@ -80,7 +74,7 @@ To include the content and images on the home page:
 
 The published site will have this structure:
 
-```text
+```tree
 public/
 ├── headless/
 │   ├── a.jpg
@@ -91,13 +85,13 @@ public/
 In the example above, note that:
 
 1. Hugo did not publish an HTML file for the page.
-1. Despite setting `publishResources` to `false` in front matter, Hugo published the [page resources] because we invoked the [`RelPermalink`] method on each resource. This is the expected behavior.
+1. Despite setting `publishResources` to `false` in front matter, Hugo published the [page resources][] because we invoked the [`RelPermalink`][] method on each resource. This is the expected behavior.
 
 ## Example -- headless section
 
 Create a unpublished section whose content and resources can be included in other pages.
 
-```text
+```tree
 content/
 ├── headless/
 │   ├── note-1/
@@ -140,7 +134,7 @@ To include the content and images on the home page:
 
 The published site will have this structure:
 
-```text
+```tree
 public/
 ├── headless/
 │   ├── note-1/
@@ -155,13 +149,13 @@ public/
 In the example above, note that:
 
 1. Hugo did not publish an HTML file for the page.
-1. Despite setting `publishResources` to `false` in front matter, Hugo correctly published the [page resources] because we invoked the [`RelPermalink`] method on each resource. This is the expected behavior.
+1. Despite setting `publishResources` to `false` in front matter, Hugo correctly published the [page resources][] because we invoked the [`RelPermalink`][] method on each resource. This is the expected behavior.
 
 ## Example -- list without publishing
 
 Publish a section page without publishing the descendant pages. For example, to create a glossary:
 
-```text
+```tree
 content/
 ├── glossary/
 │   ├── _index.md
@@ -197,7 +191,7 @@ To render the glossary:
 
 The published site will have this structure:
 
-```text
+```tree
 public/
 ├── glossary/
 │   └── index.html
@@ -208,7 +202,7 @@ public/
 
 Publish a section's descendant pages without publishing the section page itself.
 
-```text
+```tree
 content/
 ├── books/
 │   ├── _index.md
@@ -228,7 +222,7 @@ list = 'never'
 
 The published site will have this structure:
 
-```text
+```tree
 public/
 ├── books/
 │   ├── book-1/
@@ -244,7 +238,7 @@ Consider this example. A documentation site has a team of contributors with acce
 
 Instead of external documentation for the shortcodes, include an `internal` section that is hidden when building the production site.
 
-```text
+```tree
 content/
 ├── internal/
 │   ├── shortcodes/
@@ -277,7 +271,7 @@ environment = 'production'
 
 The production site will have this structure:
 
-```text
+```tree
 public/
 ├── reference/
 │   ├── reference-1/

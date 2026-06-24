@@ -22,7 +22,7 @@ key-with-hyphens = 'must use index function'
   name = 'John Smith'
 {{< /code-toggle >}}
 
-The `title` and `date` fields are standard [front matter fields], while the other fields are user-defined.
+The `title` and `date` fields are standard [front matter fields][], while the other fields are user-defined.
 
 Access the custom fields by [chaining](g) the [identifiers](g) when needed:
 
@@ -32,7 +32,7 @@ Access the custom fields by [chaining](g) the [identifiers](g) when needed:
 {{ .Params.author.name }} → John Smith
 ```
 
-In the template example above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
+In the template example above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`][] function:
 
 ```go-html-template
 {{ index .Params "key-with-hyphens" }} → must use index function

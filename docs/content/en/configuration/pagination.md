@@ -10,13 +10,13 @@ This is the default configuration:
 
 {{< code-toggle config=pagination />}}
 
-disableAliases
+`disableAliases`
 : (`bool`) Whether to disable alias generation for the first pager. Default is `false`.
 
-pagerSize
+`pagerSize`
 : (`int`) The number of pages per pager. Default is `10`.
 
-path
+`path`
 : (`string`) The segment of each pager URL indicating that the target page is a pager. Default is `page`.
 
 With multilingual projects you can define the pagination behavior for each language:

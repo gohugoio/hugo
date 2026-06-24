@@ -6,10 +6,10 @@ categories: []
 keywords: []
 ---
 
-You can configure your site to cascade front matter values to the home page and any of its descendants. However, this cascading will be prevented if the descendant already defines the field, or if a closer ancestor [node](g) has already cascaded a value for the same field through its front matter's `cascade` key.
+You can configure your site to cascade front matter values to the home page and any of its descendants. However, this cascading will be prevented if the descendant already defines the field, or if a closer ancestor [branch](g) has already cascaded a value for the same field through its front matter's `cascade` key.
 
-> [!note]
-> You can also configure cascading behavior within a page's front matter. See&nbsp;[details][].
+> [!NOTE]
+> You can also configure cascading behavior within a page's front matter. See [details][].
 
 For example, to cascade the `color` page parameter to all pages:
 
@@ -21,7 +21,8 @@ color = 'red'
 ## Target
 
 <!-- TODO
-We deprecated the `_target` front matter key in favor of `target` in v0.156.0 on 2026-02-17. Remove footnote #1 on or after 2027-05-17 (15 months after deprecation).
+We deprecated the `_target` front matter key in favor of `target` in v0.156.0 on 2026-02-17. Remove footnote #1 somewhere after v0.171.0, 15 minor releases
+after deprecation.
 -->
 
 The `target` key accepts a [page matcher](g) to limit cascaded values to a subset of pages.[^1] If a target is omitted, values cascade to all pages.

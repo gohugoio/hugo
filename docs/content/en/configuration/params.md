@@ -19,9 +19,7 @@ email = 'info@example.org'
 phone = '+1 206-555-1212'
 {{< /code-toggle >}}
 
-Access the custom parameters from your templates using the [`Params`] method on a `Site` object:
-
-[`Params`]: /methods/site/params/
+Access the custom parameters from your templates using the [`Params`][] method on a `Site` object:
 
 ```go-html-template
 {{ .Site.Params.subtitle }} → Reference, Tutorials, and Explanations
@@ -98,3 +96,5 @@ To access the module/theme settings:
 {{ $cfg.colors.background }} → #efefef
 {{ $cfg.colors.font }} → #222222
 ```
+
+[`Params`]: /methods/site/params/

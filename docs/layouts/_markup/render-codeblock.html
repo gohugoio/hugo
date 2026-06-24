@@ -34,8 +34,11 @@ may also specify the following parameters:
 {{- $lang := or .Type $ext "text" }}
 {{- if in (slice "html" "gotmpl") $lang }}
 	{{- $lang = "go-html-template" }}
-{{- end }}
-{{- if eq $lang "md" }}
+{{- else if in (slice "bash" "ksh" "sh" "shell" "zsh") $lang }}
+	{{- $lang = "text" }}
+{{- else if in (slice "md" "mkd") $lang }}
+	{{- $lang = "text" }}
+{{- else if eq $lang "tree" }}
 	{{- $lang = "text" }}
 {{- end }}
 

@@ -13,7 +13,7 @@ params:
 {{< new-in 0.141.0 >}}
 The `Err` method on the returned resource was removed in v0.141.0.
 
-Use the [`try`](/functions/go-template/try) statement instead, as shown in the [error handling](#error-handling) example below.
+Use the [`try`][] statement instead, as shown in the [error handling](#error-handling) example below.
 {{< /new-in >}}
 
 ```go-html-template
@@ -31,32 +31,32 @@ Use the [`try`](/functions/go-template/try) statement instead, as shown in the [
 
 ## Options
 
-The `resources.GetRemote` function takes an optional map of options.
+The `resources.GetRemote` function accepts an options map.
 
-body
+`body`
 : (`string`) The data you want to transmit to the server.
 
-headers
+`headers`
 : (`map[string][]string`) The collection of key-value pairs that provide additional information about the request.
 
-key
+`key`
 : (`string`) The cache key. Hugo derives the default value from the URL and options map. See [caching](#caching).
 
-method
+`method`
 : (`string`) The action to perform on the requested resource, typically one of `GET`, `POST`, or `HEAD`.
 
-responseHeaders
+`responseHeaders`
 : {{< new-in 0.143.0 />}}
 : (`[]string`) The headers to extract from the server's response, accessible through the resource's [`Data.Headers`][] method. Header name matching is case-insensitive.
 
-timeout
+`timeout`
 : {{< new-in 0.157.0 />}}
 : (`string`) The duration after which the request is cancelled if it does not complete, expressed as a [duration](g). If not specified, the request will timeout after 2 minutes.
 
 ## Options examples
 
-> [!note]
-> For brevity, the examples below do not include [error handling][].
+> [!NOTE]
+> For brevity, the examples below do not include [error handling](#error-handling).
 
 To include a header:
 
@@ -143,7 +143,7 @@ When retrieving remote data, use the [`transform.Unmarshal`][] function to [unma
 {{ end }}
 ```
 
-> [!note]
+> [!NOTE]
 > When retrieving remote data, a misconfigured server may send a response header with an incorrect [Content-Type][]. For example, the server may set the Content-Type header to `application/octet-stream` instead of `application/json`.
 >
 > In these cases, pass the resource `Content` through the `transform.Unmarshal` function instead of passing the resource itself. For example, in the above, do this instead:
@@ -154,7 +154,7 @@ When retrieving remote data, use the [`transform.Unmarshal`][] function to [unma
 
 Use the [`try`][] statement to capture HTTP request errors. If you do not handle the error yourself, Hugo will fail the build.
 
-> [!note]
+> [!NOTE]
 > Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
 
 ```go-html-template
@@ -222,7 +222,7 @@ Although the allowlist contains entries for common media types, you may encounte
 
 {{< code-toggle file=hugo >}}
 [security.http]
-mediaTypes = ['^image/avif$','^application/vnd\.api\+json$']
+mediaTypes = ['^application/vnd\.api\+json$']
 {{< /code-toggle >}}
 
 Note that the entry above is:
@@ -230,11 +230,10 @@ Note that the entry above is:
 - An _addition_ to the allowlist; it does not _replace_ the allowlist
 - An array of [regular expressions](g)
 
+[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
 [`Data.Headers`]: /methods/resource/data/#headers
 [`Data`]: /methods/resource/data/
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
-[`try`]: /functions/go-template/try
+[`try`]: /functions/go-template/try/
 [allowlist]: https://en.wikipedia.org/wiki/Whitelist
 [configure file caches]: /configuration/caches/
-[Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-[error handling]: #error-handling

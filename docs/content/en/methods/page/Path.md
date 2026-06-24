@@ -17,11 +17,6 @@ The `Path` method on a `Page` object returns the logical path of the given page,
 {{ .Path }} → /posts/post-1
 ```
 
-> [!note]
-> Beginning with the release of [v0.92.0] in January 2022, Hugo emitted a warning whenever calling the `Path` method. The warning indicated that this method would change in a future release.
->
-> The meaning of, and value returned by, the `Path` method on a `Page` object changed with the release of [v0.123.0] in February 2024.
-
 The value returned by the `Path` method on a `Page` object is independent of content format, language, and URL modifiers such as the `slug` and `url` front matter fields.
 
 ## Examples
@@ -56,7 +51,7 @@ File path|Front matter slug|Logical path
 
 The `Path` method on a `Page` object returns a value regardless of whether the page is backed by a file.
 
-```text
+```tree
 content/
 └── posts/
     └── post-1.md  <-- front matter: tags = ['hugo']
@@ -64,7 +59,7 @@ content/
 
 When you build the site:
 
-```text
+```tree
 public/
 ├── posts/
 │   ├── post-1/
@@ -83,14 +78,14 @@ These methods, functions, and shortcodes use the logical path to find the given 
 
 Methods|Functions|Shortcodes
 :--|:--|:--
-[`Site.GetPage`]|[`urls.Ref`]|[`ref`]
-[`Page.GetPage`]|[`urls.RelRef`]|[`relref`]
-[`Page.Ref`]|&nbsp;|&nbsp;
-[`Page.RelRef`]|&nbsp;|&nbsp;
-[`Shortcode.Ref`]|&nbsp;|&nbsp;
-[`Shortcode.RelRef`]|&nbsp;|&nbsp;
+[`Site.GetPage`][]|[`urls.Ref`][]|[`ref`][]
+[`Page.GetPage`][]|[`urls.RelRef`][]|[`relref`][]
+[`Page.Ref`][]|&nbsp;|&nbsp;
+[`Page.RelRef`][]|&nbsp;|&nbsp;
+[`Shortcode.Ref`][]|&nbsp;|&nbsp;
+[`Shortcode.RelRef`][]|&nbsp;|&nbsp;
 
-> [!note]
+> [!NOTE]
 > Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
 
 ## Logical tree
@@ -99,7 +94,7 @@ Just as file paths form a file tree, logical paths form a logical tree.
 
 A file tree:
 
-```text
+```tree
 content/
 └── s1/
     ├── p1/
@@ -109,7 +104,7 @@ content/
 
 The same content represented as a logical tree:
 
-```text
+```tree
 content/
 └── s1/
     ├── p1
@@ -121,18 +116,16 @@ A key difference between these trees is the relative path from p1 to p2:
 - In the file tree, the relative path from p1 to p2 is `../p2.md`
 - In the logical tree, the relative path is `p2`
 
-> [!note]
+> [!NOTE]
 > Remember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
 
 [`Page.GetPage`]: /methods/page/getpage/
 [`Page.Ref`]: /methods/page/ref/
 [`Page.RelRef`]: /methods/page/relref/
+[`Shortcode.Ref`]: /methods/shortcode/ref/
+[`Shortcode.RelRef`]: /methods/shortcode/relref/
+[`Site.GetPage`]: /methods/site/getpage/
 [`ref`]: /shortcodes/ref/
 [`relref`]: /shortcodes/relref/
-[`Shortcode.Ref`]: /methods/shortcode/ref
-[`Shortcode.RelRef`]: /methods/shortcode/relref
-[`Site.GetPage`]: /methods/site/getpage/
 [`urls.Ref`]: /functions/urls/ref/
 [`urls.RelRef`]: /functions/urls/relref/
-[v0.123.0]: https://github.com/gohugoio/hugo/releases/tag/v0.123.0
-[v0.92.0]: https://github.com/gohugoio/hugo/releases/tag/v0.92.0

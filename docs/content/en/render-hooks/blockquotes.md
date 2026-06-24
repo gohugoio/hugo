@@ -6,52 +6,50 @@ categories: []
 keywords: []
 ---
 
-{{< new-in 0.132.0 />}}
-
 ## Context
 
 Blockquote _render hook_ templates receive the following [context](g):
 
-AlertType
+`AlertType`
 : (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert type converted to lowercase. See the [alerts](#alerts) section below.
 
-AlertTitle
+`AlertTitle`
 : {{< new-in 0.134.0 />}}
 : (`template.HTML`) Applicable when [`Type`](#type) is `alert`, this is the alert title. See the [alerts](#alerts) section below.
 
-AlertSign
+`AlertSign`
 : {{< new-in 0.134.0 />}}
 : (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert sign. Typically used to indicate whether an alert is graphically foldable, this is one of&nbsp;`+`,&nbsp;`-`,&nbsp;or an empty string. See the [alerts](#alerts) section below.
 
-Attributes
-: (`map`) The [Markdown attributes], available if you configure your site as follows:
+`Attributes`
+: (`map`) The [Markdown attributes][], available if you configure your site as follows:
 
   {{< code-toggle file=hugo >}}
   [markup.goldmark.parser.attribute]
   block = true
   {{< /code-toggle >}}
 
-Ordinal
+`Ordinal`
 : (`int`) The zero-based ordinal of the blockquote on the page.
 
-Page
+`Page`
 : (`page`) A reference to the current page.
 
-PageInner
-: (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
+`PageInner`
+: (`page`) A reference to a page nested via the [`RenderShortcodes`][] method. [See details](#pageinner-details).
 
-Position
+`Position`
 : (`string`) The position of the blockquote within the page content.
 
-Text
+`Text`
 : (`template.HTML`) The blockquote text, excluding the first line if [`Type`](#type) is `alert`. See the [alerts](#alerts) section below.
 
-Type
+`Type`
 : (`string`) The blockquote type. Returns `alert` if the blockquote has an alert designator, else `regular`. See the [alerts](#alerts) section below.
 
 ## Examples
 
-In its default configuration, Hugo renders Markdown blockquotes according to the [CommonMark specification]. To create a render hook that does the same thing:
+In its default configuration, Hugo renders Markdown blockquotes according to the [CommonMark][] specification. To create a render hook that does the same thing:
 
 ```go-html-template {file="layouts/_markup/render-blockquote.html" copy=true}
 <blockquote>
@@ -76,7 +74,7 @@ To render a blockquote as an HTML `figure` element with an optional citation and
 
 Then in your markdown:
 
-```text
+```md
 > Some text
 {cite="https://gohugo.io" caption="Some caption"}
 ```
@@ -89,7 +87,7 @@ Also known as _callouts_ or _admonitions_, alerts are blockquotes used to emphas
 
 With the basic Markdown syntax, the first line of each alert is an alert designator consisting of an exclamation point followed by the alert type, wrapped within brackets. For example:
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 > [!NOTE]
 > Useful information that users should know, even when skimming content.
 
@@ -106,20 +104,20 @@ With the basic Markdown syntax, the first line of each alert is an alert designa
 > Advises about risks or negative outcomes of certain actions.
 ```
 
-The basic syntax is compatible with [GitHub], [Obsidian], and [Typora].
+The basic syntax is compatible with [GitHub][], [Obsidian][], and [Typora][].
 
 ### Extended syntax
 
 With the extended Markdown syntax, you may optionally include an alert sign and/or an alert title. The alert sign is one of&nbsp;`+`&nbsp;or&nbsp;`-`, typically used to indicate whether an alert is graphically foldable. For example:
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 > [!WARNING]+ Radiation hazard
 > Do not approach or handle without protective gear.
 ```
 
-The extended syntax is compatible with [Obsidian].
+The extended syntax is compatible with [Obsidian][].
 
-> [!note]
+> [!NOTE]
 > The extended syntax is not compatible with GitHub or Typora. If you include an alert sign or an alert title, these applications render the Markdown as a blockquote.
 
 ### Example
@@ -166,7 +164,7 @@ warning = 'Warning'
 
 Although you can use one template with conditional logic as shown above, you can also create separate templates for each [`Type`](#type) of blockquote:
 
-```text
+```tree
 layouts/
   └── _markup/
       ├── render-blockquote-alert.html
@@ -175,9 +173,9 @@ layouts/
 
 {{% include "/_common/render-hooks/pageinner.md" %}}
 
-[`RenderShortcodes`]: /methods/page/rendershortcodes
-[CommonMark specification]: https://spec.commonmark.org/current/
+[CommonMark]: https://spec.commonmark.org/current/
 [GitHub]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts
 [Markdown attributes]: /content-management/markdown-attributes/
 [Obsidian]: https://help.obsidian.md/Editing+and+formatting/Callouts
 [Typora]: https://support.typora.io/Markdown-Reference/#callouts--github-style-alerts
+[`RenderShortcodes`]: /methods/page/rendershortcodes/

@@ -1,7 +1,7 @@
 {{ $t := debug.Timer "qr" }}
 {{ $qr := partial "_inline/qr" (dict
 	"page" $
-	"img_class" "w-10 bg-white view-transition-qr"
+	"img_class" "w-10 bg-white"
 	)
 }}
 {{ $qrBig := partial "_inline/qr" (dict "page" $ "img_class" "w-64 p-4") }}

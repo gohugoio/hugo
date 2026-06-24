@@ -12,7 +12,7 @@ params:
 
 The `resources.ExecuteAsTemplate` function returns a resource created from a Go template, parsed and executed with the given context, caching the result using the target path as its cache key.
 
-Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods.
+Hugo publishes the resource to the target path when you call its [`Publish`][], [`Permalink`][], or [`RelPermalink`][] methods.
 
 Let's say you have a CSS file that you wish to populate with values from your project configuration:
 
@@ -56,6 +56,6 @@ body {
 }
 ```
 
-[`publish`]: /methods/resource/publish/
-[`permalink`]: /methods/resource/permalink/
-[`relpermalink`]: /methods/resource/relpermalink/
+[`Permalink`]: /methods/resource/permalink/
+[`Publish`]: /methods/resource/publish/
+[`RelPermalink`]: /methods/resource/relpermalink/

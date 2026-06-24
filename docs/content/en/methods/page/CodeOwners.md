@@ -11,13 +11,10 @@ params:
 
 GitHub and GitLab support CODEOWNERS files. This file specifies the users responsible for developing and maintaining software and documentation. This definition can apply to the entire repository, specific directories, or to individual files. To learn more:
 
-- [GitHub CODEOWNERS documentation]
-- [GitLab CODEOWNERS documentation]
+- [GitHub CODEOWNERS documentation][]
+- [GitLab CODEOWNERS documentation][]
 
 Use the `CodeOwners` method on a `Page` object to determine the code owners for the given page.
-
-[GitHub CODEOWNERS documentation]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-[GitLab CODEOWNERS documentation]: https://docs.gitlab.com/ee/user/project/code_owners.html
 
 To use the `CodeOwners` method you must enable access to your local Git repository:
 
@@ -27,7 +24,7 @@ enableGitInfo = true
 
 Consider this project structure:
 
-```text
+```tree
 my-project/
 ├── content/
 │   ├── books/
@@ -60,6 +57,8 @@ Render the code owners for each content page:
 {{ end }}
 ```
 
-Combine this method with [`resources.GetRemote`] to retrieve names and avatars from your Git provider by querying their API.
+Combine this method with [`resources.GetRemote`][] to retrieve names and avatars from your Git provider by querying their API.
 
+[GitHub CODEOWNERS documentation]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+[GitLab CODEOWNERS documentation]: https://docs.gitlab.com/ee/user/project/code_owners.html
 [`resources.GetRemote`]: /functions/resources/getremote/

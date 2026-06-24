@@ -4,6 +4,7 @@
 	aria-label="Search docs"
 	role="dialog"
 	aria-modal="true"
+	data-hide-on-navigate
 	@keydown.right="$focus.next()"
 	@keydown.left="$focus.previous()"
 	@keydown.esc="open=false"

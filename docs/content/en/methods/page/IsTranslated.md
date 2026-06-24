@@ -29,7 +29,7 @@ weight = 2
 
 And this content:
 
-```text
+```tree
 content/
 ├── de/
 │   ├── books/

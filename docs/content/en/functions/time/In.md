@@ -16,9 +16,7 @@ The `time.In` function returns the given date/time as represented in the specifi
 
 - If the time zone is an empty string or `UTC`, the time is returned in [UTC](g).
 - If the time zone is `Local`, the time is returned in the system's local time zone.
-- Otherwise, the time zone must be a valid IANA [time zone name].
-
-[time zone name]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+- Otherwise, the time zone must be a valid IANA [time zone name][].
 
 ```go-html-template
 {{ $layout := "2006-01-02T15:04:05-07:00" }}
@@ -28,3 +26,5 @@ The `time.In` function returns the given date/time as represented in the specifi
 {{ $t | time.In "Australia/Adelaide" | time.Format $layout }} → 2025-04-01T01:15:00+10:30
 {{ $t | time.In "Europe/Oslo" | time.Format $layout }}        → 2025-03-31T16:45:00+02:00
 ```
+
+[time zone name]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List

@@ -6,21 +6,25 @@ keywords: []
 aliases: [/hosting-and-deployment/hosting-on-github/]
 ---
 
+Use these instructions to enable continuous deployment from a GitHub repository using GitHub Actions.
+
+{{% include "/_common/gitignore-public.md" %}}
+
 ## Types of sites
 
 There are three types of GitHub Pages sites: project, user, and organization. Project sites are connected to a specific project hosted on GitHub. User and organization sites are connected to a specific account on GitHub.com.
 
-> [!note]
-> See the [GitHub Pages documentation] to understand the requirements for repository ownership and naming.
+> [!NOTE]
+> See the [GitHub Pages documentation][] to understand the requirements for repository ownership and naming.
 
 ## Prerequisites
 
 Please complete the following tasks before continuing:
 
 1. [Create](https://github.com/signup) a GitHub account
-1. [Log in](https://github.com/login) to your GitHub account
+1. [Log in][] to your GitHub account
 1. [Create](https://github.com/new) a GitHub repository for your project
-1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote](https://git-scm.com/docs/git-remote) reference to your GitHub repository
+1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote][] reference to your GitHub repository
 1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
 1. Commit the changes to your local Git repository and push to your GitHub repository
 
@@ -36,19 +40,19 @@ Step 1
   ![screen capture](gh-pages-02.png)
 
 Step 2
-: In your project configuration, change the location of the image cache to the [`cacheDir`] as shown below:
+: In your project configuration, change the location of the image cache to the [`cacheDir`][] as shown below:
 
   {{< code-toggle file=hugo copy=true >}}
   [caches.images]
   dir = ':cacheDir/images'
   {{< /code-toggle >}}
 
-  See [configure file caches] for more information.
+  See [configure file caches][] for more information.
 
 Step 3
 : Create a file named `hugo.yaml` in a directory named `.github/workflows`.
 
-  ```text
+  ```sh
   mkdir -p .github/workflows
   touch .github/workflows/hugo.yaml
   ```
@@ -77,10 +81,10 @@ Step 4
     build:
       runs-on: ubuntu-latest
       env:
-        DART_SASS_VERSION: 1.99.0
-        GO_VERSION: 1.26.2
-        HUGO_VERSION: 0.161.1
-        NODE_VERSION: 24.15.0
+        DART_SASS_VERSION: 1.101.0
+        GO_VERSION: 1.26.4
+        HUGO_VERSION: 0.163.2
+        NODE_VERSION: 24.16.0
         TZ: Europe/Oslo
       steps:
         - name: Checkout
@@ -127,7 +131,7 @@ Step 4
             [[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true
         - name: Configure Git
           run: |
-            git config core.quotepath false
+            git config --global core.quotepath false
         - name: Cache restore
           id: cache-restore
           uses: actions/cache/restore@v5
@@ -187,10 +191,15 @@ In the future, whenever you push a change from your local Git repository, GitHub
 
 ## Other resources
 
-- [Learn more about GitHub Actions](https://docs.github.com/en/actions)
-- [Caching dependencies to speed up workflows](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows)
-- [Manage a custom domain for your GitHub Pages site](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages)
+- [Learn more about GitHub Actions][]
+- [Caching dependencies to speed up workflows][]
+- [Manage a custom domain for your GitHub Pages site][]
 
+[Caching dependencies to speed up workflows]: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
+[GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
+[Learn more about GitHub Actions]: https://docs.github.com/en/actions
+[Log in]: https://github.com/login
+[Manage a custom domain for your GitHub Pages site]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages
 [`cacheDir`]: /configuration/all/#cachedir
 [configure file caches]: /configuration/caches/
-[GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
+[remote]: https://git-scm.com/docs/git-remote

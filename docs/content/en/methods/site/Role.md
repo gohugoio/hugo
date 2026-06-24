@@ -11,22 +11,24 @@ params:
 
 {{< new-in 0.153.0 />}}
 
+## Overview
+
 The `Role` method on a `Site` object returns the `Role` object for the given site, derived from the role definition in your project configuration.
 
 ## Methods
 
-### IsDefault
+Use these methods on the `Role` object.
 
-(`bool`) Reports whether this is the [default role](g).
+`IsDefault`
+: (`bool`) Reports whether this is the [default role](g).
 
-```go-html-template
-{{ .Site.Role.IsDefault }} → true
-```
+  ```go-html-template
+  {{ .Site.Role.IsDefault }} → true
+  ```
 
-### Name
+`Name`
+: (`string`) Returns the role name. This is the lowercased key from your project configuration.
 
-(`string`) Returns the role name. This is the lowercased key from your project configuration.
-
-```go-html-template
-{{ .Site.Role.Name }} → guest
-```
+  ```go-html-template
+  {{ .Site.Role.Name }} → guest
+  ```

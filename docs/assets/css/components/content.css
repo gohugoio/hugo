@@ -27,7 +27,7 @@
   /* pre */
   @apply prose-pre:text-gray-800 prose-pre:border-1 prose-pre:border-gray-100 prose-pre:bg-light dark:prose-pre:bg-dark dark:prose-pre:ring-1 dark:prose-pre:ring-slate-300/10;
   /* code */
-  @apply prose-code:px-0.5 prose-code:text-gray-500 prose-code:dark:text-gray-300 border-none;
+  @apply prose-code:px-0.5 prose-code:text-gray-600 prose-code:dark:text-gray-300 border-none;
   @apply prose-code:before:hidden prose-code:after:hidden prose-code:font-mono;
   @apply prose-table:prose-th:prose-code:text-white;
   /* tables */

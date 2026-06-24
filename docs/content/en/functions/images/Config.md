@@ -11,7 +11,7 @@ params:
 aliases: [/functions/imageconfig]
 ---
 
-> [!note]
+> [!NOTE]
 > This is a legacy function, superseded by the [`Width`][] and [`Height`][] methods for [global resources](g), [page resources](g), and [remote resources](g). See the [image processing][] section for details.
 
 ```go-html-template

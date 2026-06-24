@@ -6,8 +6,8 @@ categories: []
 keywords: []
 ---
 
-> [!note]
-> To override Hugo's embedded `instagram` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
+> [!NOTE]
+> To override Hugo's embedded `instagram` shortcode, copy the [source code][] to a file with the same name in the `layouts/_shortcodes` directory.
 
 ## Example
 
@@ -19,7 +19,7 @@ https://www.instagram.com/p/CxOWiQNP2MO/
 
 Include this in your Markdown:
 
-```text
+```md
 {{</* instagram CxOWiQNP2MO */>}}
 ```
 
@@ -33,10 +33,10 @@ Adjust the relevant privacy settings in your project configuration.
 
 {{< code-toggle config=privacy.instagram />}}
 
-disable
+`disable`
 : (`bool`) Whether to disable the shortcode. Default is `false`.
 
-simple
+`simple`
 : (`bool`) Whether to enable simple mode for image card generation. If `true`, Hugo creates a static card without JavaScript. This mode only supports image cards, and the image is fetched directly from Instagram's servers. Default is `false`.
 
 [source code]: <{{% eturl instagram %}}>

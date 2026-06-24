@@ -11,14 +11,14 @@ params:
 
 {{< new-in 0.156.0 />}}
 
-Use the `hugo.Data` function to access data within the `data` directory, or within any directory [mounted] to the `data` directory. Supported data formats include JSON, TOML, YAML, and XML.
+Use the `hugo.Data` function to access data within the `data` directory, or within any directory [mounted][] to the `data` directory. Supported data formats include JSON, TOML, YAML, and XML.
 
-> [!note]
-> Although Hugo can unmarshal CSV files with the [`transform.Unmarshal`] function, do not place CSV files in the `data` directory. You cannot access data within CSV files using this method.
+> [!NOTE]
+> Although Hugo can [unmarshal](g) CSV files with the [`transform.Unmarshal`][] function, do not place CSV files in the `data` directory. You cannot access data within CSV files using this method.
 
 Consider this `data` directory:
 
-```text
+```tree
 data/
 ├── books/
 │   ├── fiction.yaml
@@ -94,7 +94,7 @@ To find a fiction book by ISBN:
 {{ end }}
 ```
 
-In the template examples above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function. For example:
+In the template examples above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`][] function. For example:
 
 ```go-html-template
 {{ index hugo.Data.books "historical-fiction" }}

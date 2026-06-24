@@ -15,7 +15,7 @@ Displaying a large page collection on a list page is not user-friendly:
 
 Improve usability by paginating `home`, `section`, `taxonomy`, and `term` pages.
 
-> [!note]
+> [!NOTE]
 > The most common templating mistake related to pagination is invoking pagination more than once for a given list page. See the [caching](#caching) section below.
 
 ## Terminology
@@ -34,7 +34,7 @@ paginator
 
 ## Configuration
 
-See [configure pagination](/configuration/pagination).
+See [configure pagination][].
 
 ## Methods
 
@@ -92,7 +92,7 @@ In the example above, we:
 
 ## Caching
 
-> [!note]
+> [!NOTE]
 > The most common templating mistake related to pagination is invoking pagination more than once for a given list page.
 
 Regardless of pagination method, the initial invocation is cached and cannot be changed. If you invoke pagination more than once for a given list page, subsequent invocations use the cached result. This means that subsequent invocations will not behave as written.
@@ -137,7 +137,7 @@ The `terse` format has fewer controls and page slots, consuming less space when 
 {{ partial "pagination.html" (dict "page" . "format" "terse") }}
 ```
 
-> [!note]
+> [!NOTE]
 > To override Hugo's embedded pagination template, copy the [source code][] to a file with the same name in the `layouts/_partials` directory, then call it from your templates using the [`partial`][] function:
 >
 > `{{ partial "pagination.html" . }}`
@@ -152,7 +152,7 @@ The example below depicts the published site structure when paginating a list pa
 
 With this content:
 
-```text
+```tree
 content/
 ├── posts/
 │   ├── _index.md
@@ -184,7 +184,7 @@ And this _section_ template:
 
 The published site has this structure:
 
-```text
+```tree
 public/
 ├── posts/
 │   ├── page/
@@ -215,7 +215,7 @@ To disable alias generation for the first pager, change your project configurati
 
 Now the published site will have this structure:
 
-```text
+```tree
 public/
 ├── posts/
 │   ├── page/
@@ -236,5 +236,6 @@ public/
 [`Paginate`]: /methods/page/paginate/
 [`Paginator`]: /methods/page/paginator/
 [`partial`]: /functions/partials/include/
+[configure pagination]: /configuration/pagination/
 [grouping methods]: /quick-reference/page-collections/#group
 [source code]: <{{% eturl pagination %}}>

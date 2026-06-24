@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -147,4 +148,37 @@ All: {{ .Title }}|{{ .Kind }}|
 	b.AssertFileContent("public/a/index.html", "All: As|section|")
 	b.AssertFileExists("public/a/b/index.html", false)
 	b.AssertFileContent("public/a/b/c/index.html", "All: C|section|")
+}
+
+// See issue 15046.
+func TestSectionAndSiblingPageURLs(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','sitemap','taxonomy','term']
+uglyURLs = false
+-- content/s1/p1.md --
+---
+title: content/s1/p1.md
+---
+-- content/s1.md --
+---
+title: content/s1.md
+---
+-- layouts/all.html --
+{{ .Title }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/s1/index.html", "content/s1.md")
+	b.AssertFileContent("public/s1/p1/index.html", "content/s1/p1.md")
+
+	files = strings.ReplaceAll(files, "uglyURLs = false", "uglyURLs = true")
+
+	b = Test(t, files)
+
+	b.AssertFileContent("public/s1.html", "content/s1.md")
+	b.AssertFileContent("public/s1/p1.html", "content/s1/p1.md")
 }

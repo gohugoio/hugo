@@ -10,9 +10,7 @@ params:
     signatures: [css.Unquoted STRING]
 ---
 
-<!-- Added in v0.111.0 -->
-
-> [!note]
+> [!NOTE]
 > This function is only applicable to the `vars` option passed to the [`css.Sass`][] function.
 
 When passing a `vars` map to the `css.Sass` function, Hugo detects common typed CSS values such as `24px` or `#FF0000` using regular expression matching. If necessary, you can bypass automatic type inference by using the `css.Unquoted` function to explicitly indicate that the value must be treated as an unquoted string.

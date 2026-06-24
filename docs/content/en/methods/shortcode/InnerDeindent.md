@@ -9,13 +9,13 @@ params:
     signatures: [SHORTCODE.InnerDeindent]
 ---
 
-Similar to the [`Inner`] method, `InnerDeindent` returns the content between opening and closing shortcode tags. However, with `InnerDeindent`, indentation before the content is removed.
+Similar to the [`Inner`][] method, `InnerDeindent` returns the content between opening and closing shortcode tags. However, with `InnerDeindent`, indentation before the content is removed.
 
-This allows us to effectively bypass the rules governing [indentation] as provided in the [CommonMark] specification.
+This allows us to effectively bypass the rules governing indentation as provided in the [CommonMark][] specification.
 
 Consider this Markdown, an unordered list with a small gallery of thumbnail images within each list item:
 
-```text {file="content/about.md"}
+```md {file="content/about.md"}
 - Gallery one
 
     {{</* gallery */>}}
@@ -93,6 +93,5 @@ Hugo renders the Markdown to:
 </ul>
 ```
 
-[commonmark]: https://commonmark.org/
-[indentation]: https://spec.commonmark.org/current/#indented-code-blocks
+[CommonMark]: https://spec.commonmark.org/current/#indented-code-blocks
 [`Inner`]: /methods/shortcode/inner/

@@ -25,7 +25,7 @@ If `mainSections` is not defined in your project configuration, this method retu
 
 With this content structure, the `films` section has the most pages:
 
-```text
+```tree
 content/
 ├── books/
 │   ├── book-1.md

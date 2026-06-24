@@ -44,6 +44,12 @@ disableAliases = true
     searchable = false
   [cascade.target]
     kind = '{home,section,taxonomy,term}'
+[[cascade]]
+  [cascade.params]
+    isFunctionOrMethod = true
+  [cascade.target]
+    path = '{/functions/**,/methods/**}'
+    kind = 'page'
 
 [frontmatter]
   date        = ['date'] # do not add publishdate; it will affect page sorting

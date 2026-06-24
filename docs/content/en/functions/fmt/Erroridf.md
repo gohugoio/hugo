@@ -13,7 +13,7 @@ aliases: [/functions/erroridf]
 
 {{% include "/_common/functions/fmt/format-string.md" %}}
 
-The `erroridf` function evaluates the format string, then prints the result to the ERROR log and fails the build. Unlike the [`errorf`] function, you may suppress errors logged by the `erroridf` function by adding the message ID to the `ignoreLogs` array in your project configuration.
+The `erroridf` function evaluates the format string, then prints the result to the ERROR log and fails the build. Unlike the [`errorf`][] function, you may suppress errors logged by the `erroridf` function by adding the message ID to the `ignoreLogs` array in your project configuration.
 
 This template code:
 

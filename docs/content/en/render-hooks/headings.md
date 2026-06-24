@@ -10,48 +10,43 @@ keywords: []
 
 Heading _render hook_ templates receive the following [context](g):
 
-Anchor
+`Anchor`
 : (`string`) The `id` attribute of the heading element.
 
-Attributes
-: (`map`) The [Markdown attributes], available if you configure your site as follows:
+`Attributes`
+: (`map`) The [Markdown attributes][], available if you configure your site as follows:
 
   {{< code-toggle file=hugo >}}
   [markup.goldmark.parser.attribute]
   title = true
   {{< /code-toggle >}}
 
-Level
+`Level`
 : (`int`) The heading level, 1 through 6.
 
-Ordinal
-: {{< new-in v0.160.0 />}}
+`Ordinal`
+: {{< new-in 0.160.0 />}}
 : (`int`) The zero-based ordinal of the heading on the page.
 
-Page
+`Page`
 : (`page`) A reference to the current page.
 
-PageInner
-: (`page`) A reference to a page nested via the [`RenderShortcodes`] method. [See details](#pageinner-details).
+`PageInner`
+: (`page`) A reference to a page nested via the [`RenderShortcodes`][] method. [See details](#pageinner-details).
 
-PlainText
+`PlainText`
 : (`string`) The heading text as plain text.
 
-Position
+`Position`
 : {{< new-in 0.160.0 />}}
 : (`string`) The position of the heading within the page content.
 
-Text
+`Text`
 : (`template.HTML`) The heading text.
-
-[Markdown attributes]: /content-management/markdown-attributes/
-[`RenderShortcodes`]: /methods/page/rendershortcodes
 
 ## Examples
 
-In its default configuration, Hugo renders Markdown headings according to the [CommonMark specification] with the addition of automatic `id` attributes. To create a render hook that does the same thing:
-
-[CommonMark specification]: https://spec.commonmark.org/current/
+In its default configuration, Hugo renders Markdown headings according to the [CommonMark][] specification with the addition of automatic `id` attributes. To create a render hook that does the same thing:
 
 ```go-html-template {file="layouts/_markup/render-heading.html" copy=true}
 <h{{ .Level }} id="{{ .Anchor }}" {{- with .Attributes.class }} class="{{ . }}" {{- end }}>
@@ -69,3 +64,7 @@ To add an anchor link to the right of each heading:
 ```
 
 {{% include "/_common/render-hooks/pageinner.md" %}}
+
+[CommonMark]: https://spec.commonmark.org/current/
+[Markdown attributes]: /content-management/markdown-attributes/
+[`RenderShortcodes`]: /methods/page/rendershortcodes/

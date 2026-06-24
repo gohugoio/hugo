@@ -2,9 +2,7 @@
 _comment: Do not remove front matter.
 ---
 
-Apply the filter using the [`images.Filter`] function:
-
-[`images.Filter`]: /functions/images/filter/
+Apply the filter using the [`images.Filter`][] function:
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
@@ -14,9 +12,7 @@ Apply the filter using the [`images.Filter`] function:
 {{ end }}
 ```
 
-You can also apply the filter using the [`Filter`] method on a `Resource` object:
-
-[`Filter`]: /methods/resource/filter/
+You can also apply the filter using the [`Filter`][] method on a `Resource` object:
 
 ```go-html-template
 {{ with resources.Get "images/original.jpg" }}
@@ -25,3 +21,6 @@ You can also apply the filter using the [`Filter`] method on a `Resource` object
   {{ end }}
 {{ end }}
 ```
+
+[`Filter`]: /methods/resource/filter/
+[`images.Filter`]: /functions/images/filter/

@@ -13,15 +13,12 @@ aliases: [/assets/]
 This is about global and remote resources.
 
 global resource
-: A file within the `assets` directory, or within any directory [mounted] to the `assets` directory.
+: A file within the `assets` directory, or within any directory [mounted][] to the `assets` directory.
 
 remote resource
 : A file on a remote server, accessible via HTTP or HTTPS.
 
-For `.Page` scoped resources, see the [page resources] section.
-
-[mounted]: /configuration/module/#mounts
-[page resources]: /content-management/page-resources/
+For `.Page` scoped resources, see the [page resources][] section.
 
 ## Get a resource
 
@@ -29,20 +26,18 @@ In order to process an asset with Hugo Pipes, it must be retrieved as a resource
 
 For global resources, use:
 
-- [`resources.ByType`](/functions/resources/bytype/)
-- [`resources.Get`](/functions/resources/get/)
-- [`resources.GetMatch`](/functions/resources/getmatch/)
-- [`resources.Match`](/functions/resources/match/)
+- [`resources.ByType`][]
+- [`resources.Get`][]
+- [`resources.GetMatch`][]
+- [`resources.Match`][]
 
 For remote resources, use:
 
-- [`resources.GetRemote`](/functions/resources/getremote/)
-
-See the [GoDoc Page](https://pkg.go.dev/github.com/gohugoio/hugo/tpl/resources) for the `resources` package for an up to date overview of all template functions in this namespace.
+- [`resources.GetRemote`][]
 
 ## Copy a resource
 
-See the [`resources.Copy`](/functions/resources/copy/) function.
+See the [`resources.Copy`][] function.
 
 ## Asset directory
 
@@ -54,7 +49,7 @@ Hugo publishes assets to the `publishDir` (typically `public`) when you invoke `
 
 ## Go Pipes
 
-For improved readability, the Hugo Pipes examples of this documentation will be written using [Go Pipes](/templates/introduction/#pipes):
+For improved readability, the Hugo Pipes examples of this documentation will be written using [Go Pipes][]:
 
 ```go-html-template
 {{ $style := resources.Get "sass/main.scss" | css.Sass | resources.Minify | resources.Fingerprint }}
@@ -72,3 +67,13 @@ An example of a pipe chain is:
 ```
 
 The pipe chain is only invoked the first time it is encountered in a site build, and results are otherwise loaded from cache. As such, Hugo Pipes can be used in templates which are executed thousands or millions of times without negatively impacting the build performance.
+
+[Go Pipes]: /templates/introduction/#pipes
+[`resources.ByType`]: /functions/resources/bytype/
+[`resources.Copy`]: /functions/resources/copy/
+[`resources.GetMatch`]: /functions/resources/getmatch/
+[`resources.GetRemote`]: /functions/resources/getremote/
+[`resources.Get`]: /functions/resources/get/
+[`resources.Match`]: /functions/resources/match/
+[mounted]: /configuration/module/#mounts
+[page resources]: /content-management/page-resources/

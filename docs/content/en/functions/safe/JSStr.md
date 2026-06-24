@@ -21,9 +21,7 @@ Use the `safe.JSStr` function to encapsulate a sequence of characters meant to b
 
 Use of this type presents a security risk: the encapsulated content should come from a trusted source, as it will be included verbatim in the template output.
 
-See the [Go documentation] for details.
-
-[Go documentation]: https://pkg.go.dev/html/template#JSStr
+See the [Go documentation][] for details.
 
 ## Example
 
@@ -60,3 +58,5 @@ Hugo renders the above to:
   const a = "Title: " + "Lilo & Stitch";
 </script>
 ```
+
+[Go documentation]: https://pkg.go.dev/html/template#JSStr

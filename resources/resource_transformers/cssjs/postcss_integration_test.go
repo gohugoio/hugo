@@ -216,6 +216,97 @@ Styles Content: Len: 770917
 	}
 }
 
+// See Issue 15039.
+// See Issue 15040.
+func TestTransformPostCSSConfigResolution(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[[module.imports]]
+path = "github.com/bep/hugo-mod-nop"
+-- assets/css/styles.css --
+body { color: red }
+-- layouts/home.html --
+{{ $styles := resources.Get "css/styles.css" | css.PostCSS }}
+RelPermalink: {{ $styles.RelPermalink }}|HasBody: {{ in $styles.Content "color:" }}|
+-- package.json --
+{
+  "devDependencies": {
+    "postcss-cli": "11.0.0"
+  }
+}
+-- go.mod --
+module github.com/example/project
+
+go 1.26
+
+replace github.com/bep/hugo-mod-nop => ../external-module
+-- ../external-module/go.mod --
+module github.com/bep/hugo-mod-nop
+
+go 1.26
+-- ../external-module/CONFIG_FILE_NAME --
+CONFIG_FILE_CONTENT
+	`
+
+	tests := []struct {
+		name              string
+		configFileName    string
+		configFileContent string
+	}{
+		{
+			name:              "mjs in module",
+			configFileName:    "postcss.config.mjs",
+			configFileContent: "export default {};\n",
+		},
+		{
+			name:              "cjs in module",
+			configFileName:    "postcss.config.cjs",
+			configFileContent: "module.exports = {};\n",
+		},
+		{
+			name:              "js in module",
+			configFileName:    "postcss.config.js",
+			configFileContent: "module.exports = {};\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := qt.New(t)
+			rootDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+			c.Assert(err, qt.IsNil)
+			c.Cleanup(clean)
+
+			projectDir := filepath.Join(rootDir, "project")
+			moduleDir := filepath.Join(rootDir, "external-module")
+			c.Assert(os.MkdirAll(projectDir, 0o755), qt.IsNil)
+			c.Assert(os.MkdirAll(moduleDir, 0o755), qt.IsNil)
+
+			f := strings.ReplaceAll(files, "CONFIG_FILE_NAME", tt.configFileName)
+			f = strings.ReplaceAll(f, "CONFIG_FILE_CONTENT", tt.configFileContent)
+
+			b := hugolib.Test(c, f,
+				hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+					cfg.WorkingDir = projectDir
+					cfg.NeedsOsFS = true
+					cfg.NeedsNpmInstall = true
+				}),
+				hugolib.TestOptInfo(),
+			)
+
+			b.AssertFileContent("public/index.html",
+				"RelPermalink: /css/styles.css|HasBody: true|",
+			)
+			b.AssertLogContains(tt.configFileName)
+		})
+	}
+}
+
 // See Issue 13987.
 func TestTransformPostCSSESMConfigInModule(t *testing.T) {
 	if !htesting.IsCI() {
@@ -263,6 +354,86 @@ module github.com/example/project
 go 1.20
 
 replace github.com/bep/hugo-mod-nop => ../external-module
+-- ../external-module/go.mod --
+module github.com/bep/hugo-mod-nop
+
+go 1.20
+-- ../external-module/postcss.config.js --
+import postcssImport from "postcss-import";
+export default { plugins: [postcssImport()] };
+
+`
+
+	b := hugolib.Test(c, files,
+		hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.WorkingDir = projectDir
+			cfg.NeedsOsFS = true
+			cfg.NeedsNpmInstall = true
+		}),
+	)
+
+	b.AssertFileContent("public/index.html",
+		"RelPermalink: /css/styles.css|HasBody: true|",
+	)
+}
+
+// Netlify stores its node_modules cache in the same tree as the Hugo file
+// cache, so Node's resolver can walk up from a module's postcss.config.js and
+// hit a node_modules outside the permission allow-list, aborting with
+// ERR_ACCESS_DENIED instead of falling through to NODE_PATH. The restricted
+// postcss-import below (an ancestor of the external module, never installed by
+// us) forces that walk to fail; the build must still succeed by resolving the
+// real postcss-import via NODE_PATH.
+//
+// See issue 15041.
+func TestTransformPostCSSESMConfigAccessDenied(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	c := qt.New(t)
+	// Use htesting.CreateTempDir to get canonical paths on macOS
+	// (/private/var/...); Node's --permission model rejects the symlinked
+	// /var/folders/... form when crossing the project boundary.
+	rootDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+	c.Assert(err, qt.IsNil)
+	c.Cleanup(clean)
+
+	projectDir := filepath.Join(rootDir, "project")
+	moduleDir := filepath.Join(rootDir, "external-module")
+	c.Assert(os.MkdirAll(projectDir, 0o755), qt.IsNil)
+	c.Assert(os.MkdirAll(moduleDir, 0o755), qt.IsNil)
+
+	files := `
+-- hugo.toml --
+disableKinds = ['taxonomy', 'term', 'page']
+baseURL = "https://example.com"
+[[module.imports]]
+path = "github.com/bep/hugo-mod-nop"
+-- assets/css/styles.css --
+body { color: red }
+-- layouts/home.html --
+{{ $styles := resources.Get "css/styles.css" | css.PostCSS }}
+RelPermalink: {{ $styles.RelPermalink }}|HasBody: {{ in $styles.Content "color:" }}|
+-- content/_index.md --
+---
+title: home
+---
+-- package.json --
+{
+  "devDependencies": {
+    "postcss-cli": "11.0.0",
+    "postcss-import": "16.0.0"
+  }
+}
+-- go.mod --
+module github.com/example/project
+
+go 1.20
+
+replace github.com/bep/hugo-mod-nop => ../external-module
+-- ../node_modules/postcss-import/package.json --
+{ "name": "postcss-import", "version": "0.0.0-RESTRICTED", "main": "index.js" }
 -- ../external-module/go.mod --
 module github.com/bep/hugo-mod-nop
 

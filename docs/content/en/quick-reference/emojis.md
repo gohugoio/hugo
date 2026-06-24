@@ -9,14 +9,9 @@ params:
 
 ## Attribution
 
-This quick reference guide was generated using the [ikatyang/emoji-cheat-sheet] project which reads from the [GitHub Emoji API] and the [Unicode Full Emoji List].
+This quick reference guide was generated using the [ikatyang/emoji-cheat-sheet][] project which reads from the [GitHub Emoji API][] and the [Unicode Full Emoji List][].
 
-Note that GitHub [custom emoji] are not supported.
-
-[custom emoji]: #github-custom-emoji
-[github emoji api]: https://api.github.com/emojis
-[ikatyang/emoji-cheat-sheet]: https://github.com/ikatyang/emoji-cheat-sheet/
-[unicode full emoji list]: https://unicode.org/emoji/charts/full-emoji-list.html
+Note that GitHub [custom emoji](#github-custom-emoji) are not supported.
 
 ## Usage
 
@@ -40,14 +35,17 @@ Hello! &#x1f44b;
 
 And in your browser... Hello! :wave:
 
-To process an emoji shortcode from within a template, use the [`emojify`] function or pass the string through the [`RenderString`] method on a `Page` object:
+To process an emoji shortcode from within a template, use the [`emojify`][] function or pass the string through the [`RenderString`][] method on a `Page` object:
 
 ```go-html-template
 {{ "Hello! :wave:" | .RenderString }}
 ```
 
-[`emojify`]: /functions/transform/emojify/
+[GitHub Emoji API]: https://api.github.com/emojis
+[Unicode Full Emoji List]: https://unicode.org/emoji/charts/full-emoji-list.html
 [`RenderString`]: /methods/page/renderstring/
+[`emojify`]: /functions/transform/emojify/
+[ikatyang/emoji-cheat-sheet]: https://github.com/ikatyang/emoji-cheat-sheet/
 
 <!--
 To generate the sections below:

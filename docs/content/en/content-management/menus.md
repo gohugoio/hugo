@@ -12,7 +12,7 @@ To create a menu for your site:
 
 1. Define the menu entries
 1. [Localize](multilingual/#menus) each entry
-1. Render the menu with a [template]
+1. Render the menu with a [template][]
 
 Create multiple menus, either flat or nested. For example, create a main menu for the header, and a separate menu for the footer.
 
@@ -22,7 +22,7 @@ There are three ways to define menu entries:
 1. In front matter
 1. In your project configuration
 
-> [!note]
+> [!NOTE]
 > Although you can use these methods in combination when defining a menu, the menu will be easier to conceptualize and maintain if you use one method throughout the site.
 
 ## Define automatically
@@ -33,7 +33,7 @@ To automatically define a menu entry for each top-level [section](g) of your sit
 sectionPagesMenu = 'main'
 {{< /code-toggle >}}
 
-This creates a menu structure that you can access with `site.Menus.main` in your templates. See [menu templates] for details.
+This creates a menu structure that you can access with `site.Menus.main` in your templates. See [menu templates][] for details.
 
 ## Define in front matter
 
@@ -44,7 +44,7 @@ title = 'About'
 menus = 'main'
 {{< /code-toggle >}}
 
-Access the entry with `site.Menus.main` in your templates. See [menu templates] for details.
+Access the entry with `site.Menus.main` in your templates. See [menu templates][] for details.
 
 To add a page to the "main" and "footer" menus:
 
@@ -53,9 +53,9 @@ title = 'Contact'
 menus = ['main','footer']
 {{< /code-toggle >}}
 
-Access the entry with `site.Menus.main` and `site.Menus.footer` in your templates. See [menu templates] for details.
+Access the entry with `site.Menus.main` and `site.Menus.footer` in your templates. See [menu templates][] for details.
 
-> [!note]
+> [!NOTE]
 > The configuration key in the examples above is `menus`. The `menu` (singular) configuration key is an alias for `menus`.
 
 ### Properties
@@ -80,20 +80,21 @@ class = 'center'
 {{< /code-toggle >}}
 <!-- markdownlint-enable MD033 -->
 
-Access the entry with `site.Menus.main` in your templates. See [menu templates] for details.
+Access the entry with `site.Menus.main` in your templates. See [menu templates][] for details.
 
 ## Define in project configuration
 
-See [configure menus](/configuration/menus/).
+See [configure menus][].
 
 ## Localize
 
-Hugo provides two methods to localize your menu entries. See [multilingual].
+Hugo provides two methods to localize your menu entries. See [multilingual][].
 
 ## Render
 
-See [menu templates].
+See [menu templates][].
 
+[configure menus]: /configuration/menus/
 [menu templates]: /templates/menu/
 [multilingual]: /content-management/multilingual/#menus
 [template]: /templates/menu/

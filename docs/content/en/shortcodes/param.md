@@ -6,12 +6,12 @@ categories: []
 keywords: []
 ---
 
-> [!note]
-> To override Hugo's embedded `param` shortcode, copy the [source code] to a file with the same name in the `layouts/_shortcodes` directory.
+> [!NOTE]
+> To override Hugo's embedded `param` shortcode, copy the [source code][] to a file with the same name in the `layouts/_shortcodes` directory.
 
 The `param` shortcode renders a parameter from front matter, falling back to a site parameter of the same name. The shortcode throws an error if the parameter does not exist.
 
-```text {file="content/example.md"}
+```md {file="content/example.md"}
 ---
 title: Example
 date: 2025-01-15T23:29:46-08:00
@@ -31,7 +31,7 @@ Hugo renders this to:
 
 Access nested values by [chaining](g) the [identifiers](g):
 
-```text
+```md
 {{%/* param my.nested.param */%}}
 ```
 

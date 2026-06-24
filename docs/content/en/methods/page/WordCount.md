@@ -13,6 +13,6 @@ params:
 {{ .WordCount }} → 103
 ```
 
-To round up to nearest multiple of 100, use the [`FuzzyWordCount`] method.
+To round up to nearest multiple of 100, use the [`FuzzyWordCount`][] method.
 
 [`FuzzyWordCount`]: /methods/page/fuzzywordcount/

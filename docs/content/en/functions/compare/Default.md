@@ -12,14 +12,14 @@ aliases: [/functions/default]
 
 The `default` function returns the second argument if set, else the first argument.
 
-> [!note]
+> [!NOTE]
 > When the second argument is the boolean `false` value, the `default` function returns `false`. All _other_ falsy values are considered unset.
 >
 > The falsy values are `false`, `0`, any `nil` pointer or interface value, any array, slice, map, or string of length zero, and zero `time.Time` values.
 >
 > Everything else is truthy.
 >
-> To set a default value based on truthiness, use the [`or`] operator instead.
+> To set a default value based on truthiness, use the [`or`][] operator instead.
 
 The `default` function returns the second argument if set:
 

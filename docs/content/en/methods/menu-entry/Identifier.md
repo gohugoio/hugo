@@ -9,7 +9,7 @@ params:
     signatures: [MENUENTRY.Identifier]
 ---
 
-The `Identifier` method returns the `identifier` property of the menu entry. If you define the menu entry [automatically], it returns the page's section.
+The `Identifier` method returns the `identifier` property of the menu entry. If you define the menu entry [automatically][], it returns the page's section.
 
 {{< code-toggle file=hugo >}}
 [[menus.main]]
@@ -35,7 +35,7 @@ This example uses the `Identifier` method when querying the translation table on
 </ul>
 ```
 
-> [!note]
+> [!NOTE]
 > In the menu definition above, note that the `identifier` property is only required when two or more menu entries have the same name, or when localizing the name using translation tables.
 
 [automatically]: /content-management/menus/#define-automatically

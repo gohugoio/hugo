@@ -41,6 +41,6 @@ You can change the capitalization style in your project configuration to one of 
 titleCaseStyle = "firstupper"
 {{< /code-toggle >}}
 
-See&nbsp;[details].
+See [details][].
 
 [details]: /configuration/all/#title-case-style

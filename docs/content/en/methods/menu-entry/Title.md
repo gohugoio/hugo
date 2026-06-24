@@ -9,9 +9,7 @@ params:
     signatures: [MENUENTRY.Title]
 ---
 
-The `Title` method returns the `title` property of the given menu entry. If the `title` is not defined, and the menu entry resolves to a page, the `Title` returns the page [`Title`].
-
-[`Title`]: /methods/page/title/
+The `Title` method returns the `title` property of the given menu entry. If the `title` is not defined, and the menu entry resolves to a page, the `Title` returns the page [`Title`][].
 
 ```go-html-template
 <ul>
@@ -20,3 +18,5 @@ The `Title` method returns the `title` property of the given menu entry. If the 
   {{ end }}
 </ul>
 ```
+
+[`Title`]: /methods/page/title/

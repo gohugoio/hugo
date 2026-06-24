@@ -40,7 +40,7 @@ author = 'authors'
 
 And this content structure:
 
-```text
+```tree
 content/
 ├── books/
 │   ├── and-then-there-were-none.md --> genres: suspense
@@ -93,10 +93,10 @@ Hugo renders this to:
 </ul>
 ```
 
-> [!note]
+> [!NOTE]
 > Hugo's taxonomy system is powerful, allowing you to classify content and create relationships between pages.
 >
-> Please see the [taxonomies] section for a complete explanation and examples.
+> Please see the [taxonomies][] section for a complete explanation and examples.
 
 ## Examples
 
@@ -114,7 +114,7 @@ If you are using a taxonomy for something like a series of posts, you can list i
 
 ### List all content in a given taxonomy
 
-This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
+This is useful in a sidebar as "featured content". You could even have different sections of "featured content" by assigning different terms to the content.
 
 ```go-html-template
 <section id="menu">

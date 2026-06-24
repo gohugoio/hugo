@@ -12,18 +12,14 @@ params:
 
 The `resources.FromString` function returns a resource created from a string, caching the result using the target path as its cache key.
 
-Hugo publishes the resource to the target path when you call its [`Publish`], [`Permalink`], or [`RelPermalink`] methods.
-
-[`publish`]: /methods/resource/publish/
-[`permalink`]: /methods/resource/permalink/
-[`relpermalink`]: /methods/resource/relpermalink/
+Hugo publishes the resource to the target path when you call its [`Publish`][], [`Permalink`][], or [`RelPermalink`][] methods.
 
 Let's say you need to publish a file named "site.json" in the root of your `public` directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
 
 ```json
 {
   "build_date": "2026-04-04T10:46:21-07:00",
-  "hugo_version": "0.161.1",
+  "hugo_version": "0.163.2",
   "last_modified": "2026-04-04T10:46:26-07:00"
 }
 ```
@@ -46,12 +42,12 @@ Place this in your baseof.html template:
 
 The example above:
 
-1. Creates a map with the relevant key-value pairs using the [`dict`] function
-1. Encodes the map as a JSON string using the [`jsonify`] function
+1. Creates a map with the relevant key-value pairs using the [`dict`][] function
+1. Encodes the map as a JSON string using the [`jsonify`][] function
 1. Creates a resource from the JSON string using the `resources.FromString` function
 1. Publishes the file to the root of the `public` directory using the resource's `.Publish` method
 
-Combine `resources.FromString` with [`resources.ExecuteAsTemplate`] if your string contains template actions. Rewriting the example above:
+Combine `resources.FromString` with [`resources.ExecuteAsTemplate`][] if your string contains template actions. Rewriting the example above:
 
 ```go-html-template
 {{ if .IsHome }}
@@ -71,6 +67,9 @@ Combine `resources.FromString` with [`resources.ExecuteAsTemplate`] if your stri
 {{ end }}
 ```
 
+[`Permalink`]: /methods/resource/permalink/
+[`Publish`]: /methods/resource/publish/
+[`RelPermalink`]: /methods/resource/relpermalink/
 [`dict`]: /functions/collections/dictionary/
 [`jsonify`]: /functions/encoding/jsonify/
 [`resources.ExecuteAsTemplate`]: /functions/resources/executeastemplate/

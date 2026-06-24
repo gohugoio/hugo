@@ -24,11 +24,13 @@ more copies of _indent_ according to the indentation nesting.
 
 ## Options
 
-indent
+The `encoding.Jsonify` function accepts an options map.
+
+`indent`
 : (`string`) Indentation to use. Default is "".
 
-prefix
+`prefix`
 : (`string`) Indentation prefix. Default is "".
 
-noHTMLEscape
+`noHTMLEscape`
 : (`bool`) Whether to disable escaping of problematic HTML characters inside JSON quoted strings. The default behavior is to escape `&`, `<`, and `>` to `\u0026`, `\u003c`, and `\u003e` to avoid certain safety problems that can arise when embedding JSON in HTML. Default is `false`.

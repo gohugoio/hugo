@@ -9,7 +9,7 @@ params:
     signatures: [MENUENTRY.Params]
 ---
 
-When you define menu entries in your [project configuration] or in [front matter], you can include a `params` key to attach additional information to the entry. For example:
+When you define menu entries in your [project configuration][] or in [front matter][], you can include a `params` key to attach additional information to the entry. For example:
 
 {{< code-toggle file=hugo >}}
 [[menus.main]]
@@ -54,8 +54,8 @@ Hugo renders:
 </ul>
 ```
 
-See the [menu templates] section for more information.
+See the [menu templates][] section for more information.
 
-[menu templates]: /templates/menu/#menu-entry-parameters
 [front matter]: /content-management/menus/#define-in-front-matter
+[menu templates]: /templates/menu/#menu-entry-parameters
 [project configuration]: /content-management/menus/

@@ -20,7 +20,7 @@ isbn = '978-0451419439'
 
 Calling this shortcode:
 
-```text
+```md
 {{</* book-details */>}}
 ```
 

@@ -9,7 +9,7 @@ Page resources are only accessible from [page bundles][], those directories with
 
 In this example, `first-post` is a page bundle with access to 10 page resources including audio, data, documents, images, and video. Although `second-post` is also a page bundle, it has no page resources and is unable to directly access the page resources associated with `first-post`.
 
-```text
+```tree
 content
 └── post
     ├── first-post
@@ -33,16 +33,16 @@ content
 
 Use any of these methods on a `Page` object to capture page resources:
 
-- [`Resources.ByType`]
-- [`Resources.Get`]
-- [`Resources.GetMatch`]
-- [`Resources.Match`]
+- [`Resources.ByType`][]
+- [`Resources.Get`][]
+- [`Resources.GetMatch`][]
+- [`Resources.Match`][]
 
  Once you have captured a resource, use any of the applicable [`Resource`][] methods to return a value or perform an action.
 
 The following examples assume this content structure:
 
-```text
+```tree
 content/
 └── example/
     ├── data/
@@ -106,19 +106,19 @@ List the titles in the data file, and throw an error if the file does not exist.
 
 The page resources' metadata is managed from the corresponding page's front matter with an array parameter named `resources`.
 
-> [!note]
+> [!NOTE]
 > Resources of type `page` get `Title` etc. from their own front matter.
 
-src
+`src`
 : (`string`) Required. A [glob pattern](g) matching one or more page resources by file path, relative to the page bundle. Matching is case-insensitive. When the pattern matches multiple resources, the same metadata is applied to each.
 
-name
-: (`string`) Sets the value returned by [`Name`]. Supports the [`:counter`][] placeholder. After assignment, use `name`, not the original file path, with [`Resources.Get`][], [`Resources.Match`][], and [`Resources.GetMatch`][].
+`name`
+: (`string`) Sets the value returned by [`Name`][]. Supports the [`:counter`](#the-counter-placeholder-in-name-and-title) placeholder. After assignment, use `name`, not the original file path, with [`Resources.Get`][], [`Resources.Match`][], and [`Resources.GetMatch`][].
 
-title
-: (`string`) Sets the value returned by [`Title`][]. Supports the [`:counter`][] placeholder.
+`title`
+: (`string`) Sets the value returned by [`Title`][]. Supports the [`:counter`](#the-counter-placeholder-in-name-and-title) placeholder.
 
-params
+`params`
 : (`map`) A map of custom key-value pairs. When multiple array entries match the same resource, their `params` maps are merged; later entries take precedence for duplicate keys.
 
 ### Resources metadata example
@@ -155,7 +155,7 @@ From the example above:
 - All `PDF` files will get the `pdf` icon and a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder-in-name-and-title), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - All `.docx` files will get the `word` icon.
 
-> [!note]
+> [!NOTE]
 > For `name` and `title`, the first matching array entry wins; later matches are ignored. For `params`, all matching entries contribute; later entries take precedence for duplicate keys. Place more specific `src` patterns before broader wildcards to control which `name` and `title` values are applied.
 
 ### The `:counter` placeholder in `name` and `title`
@@ -189,7 +189,7 @@ the `Name` and `Title` will be assigned to the resource files as follows:
 
 By default, with a multilingual single-host project, Hugo does not duplicate shared page during the build.
 
-> [!note]
+> [!NOTE]
 > This behavior is limited to Markdown content. Shared page resources for other [content formats][] are copied into each language bundle.
 
 Consider this project configuration:
@@ -211,7 +211,7 @@ weight = 2
 
 And this content:
 
-```text
+```tree
 content/
 └── my-bundle/
     ├── a.jpg     <-- shared page resource
@@ -222,31 +222,9 @@ content/
     └── index.en.md
 ```
 
-With v0.122.0 and earlier, Hugo duplicated the shared page resources, creating copies for each language:
+Hugo places the shared resources in the page bundle for the default content language:
 
-```text
-public/
-├── de/
-│   ├── my-bundle/
-│   │   ├── a.jpg     <-- shared page resource
-│   │   ├── b.jpg     <-- shared page resource
-│   │   ├── c.de.jpg
-│   │   └── index.html
-│   └── index.html
-├── en/
-│   ├── my-bundle/
-│   │   ├── a.jpg     <-- shared page resource (duplicate)
-│   │   ├── b.jpg     <-- shared page resource (duplicate)
-│   │   ├── c.en.jpg
-│   │   └── index.html
-│   └── index.html
-└── index.html
-
-```
-
-With v0.123.0 and later, Hugo places the shared resources in the page bundle for the default content language:
-
-```text
+```tree
 public/
 ├── de/
 │   ├── my-bundle/
@@ -265,12 +243,12 @@ public/
 
 This approach reduces build times, storage requirements, bandwidth consumption, and deployment times, ultimately reducing cost.
 
-> [!important]
+> [!IMPORTANT]
 > To resolve Markdown link and image destinations to the correct location, you must use link and image render hooks that capture the page resource with the [`Resources.Get`][] method, and then invoke its [`RelPermalink`][] method.
 >
 > In its default configuration, Hugo automatically uses the [embedded link render hook][] and the [embedded image render hook][] for multilingual single-host projects, specifically when the [duplication of shared page resources][] feature is disabled. This is the default behavior for such projects. If custom link or image render hooks are defined by your project, modules, or themes, these will be used instead.
 >
-> You can also configure Hugo to `always` use the embedded link or image render hook, use it only as a `fallback`, or `never` use it. See&nbsp;[details][].
+> You can also configure Hugo to `always` use the embedded link or image render hook, use it only as a `fallback`, or `never` use it. See [details][].
 
 Although duplicating shared page resources is inefficient, you can enable this feature in your project configuration if desired:
 
@@ -279,10 +257,9 @@ Although duplicating shared page resources is inefficient, you can enable this f
 duplicateResourceFiles = true
 {{< /code-toggle >}}
 
-[`:counter`]: #the-counter-placeholder-in-name-and-title
 [`Name`]: /methods/resource/name/
 [`RelPermalink`]: /methods/resource/relpermalink/
-[`Resource`]: /methods/resource
+[`Resource`]: /methods/resource/
 [`Resources.ByType`]: /methods/page/resources#bytype
 [`Resources.GetMatch`]: /methods/page/resources#getmatch
 [`Resources.Get`]: /methods/page/resources/#get
@@ -293,4 +270,4 @@ duplicateResourceFiles = true
 [duplication of shared page resources]: /configuration/markup/#duplicateresourcefiles
 [embedded image render hook]: /render-hooks/images/#embedded
 [embedded link render hook]: /render-hooks/links/#embedded
-[page bundles]: /content-management/page-bundles
+[page bundles]: /content-management/page-bundles/

@@ -5,7 +5,7 @@ export const scrollToActive = (when) => {
 	}
 	els.forEach((el) => {
 		// Find scrolling container.
-		let container = el.closest('[data-turbo-preserve-scroll-container]');
+		let container = el.closest('[data-preserve-scroll-container]');
 		if (container) {
 			// Avoid scrolling if el is already in view.
 			if (el.offsetTop >= container.scrollTop && el.offsetTop <= container.scrollTop + container.clientHeight) {

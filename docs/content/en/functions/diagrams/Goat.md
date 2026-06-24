@@ -10,31 +10,31 @@ params:
     signatures: [diagrams.Goat MARKUP]
 ---
 
-Useful in a [code block render hook], the `diagrams.Goat` function returns an SVGDiagram object created from the given [GoAT] markup.
+Useful in a [code block render hook][], the `diagrams.Goat` function returns an SVGDiagram object created from the given [GoAT][] markup.
 
 ## Methods
 
-The SVGDiagram object has the following methods:
+Use these methods on the `SVGDiagram` object.
 
-Inner
+`Inner`
 : (`template.HTML`) Returns the SVG child elements without a wrapping `svg` element, allowing you to create your own wrapper.
 
-Wrapped
+`Wrapped`
 : (`template.HTML`) Returns the SVG child elements wrapped in an `svg` element.
 
-Width
+`Width`
 : (`int`) Returns the width of the rendered diagram, in pixels.
 
-Height
+`Height`
 : (`int`) Returns the height of the rendered diagram, in pixels.
 
 ## GoAT Diagrams
 
-Hugo natively supports GoAT diagrams with an [embedded code block render hook].
+Hugo natively supports GoAT diagrams with an [embedded code block render hook][].
 
 This Markdown:
 
-````text
+````md
 ```goat
 .---.     .-.       .-.       .-.     .---.
 | A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
@@ -60,7 +60,7 @@ Which appears in your browser as:
 '---'     '-'       '+'       '+'     '---'
 ```
 
-To customize rendering, override Hugo's [embedded code block render hook] for GoAT diagrams.
+To customize rendering, override Hugo's [embedded code block render hook][] for GoAT diagrams.
 
 ## Code block render hook
 
@@ -83,7 +83,7 @@ By way of example, let's create a code block render hook to render GoAT diagrams
 
 This Markdown:
 
-````text {file="content/example.md" }
+````md {file="content/example.md" }
 ```goat {class="foo" caption="Diagram 1: Example"}
 .---.     .-.       .-.       .-.     .---.
 | A +--->| 1 |<--->| 2 |<--->| 3 |<---+ B |
@@ -110,6 +110,6 @@ svg.foo {
 }
 ```
 
+[GoAT]: https://github.com/bep/goat
 [code block render hook]: /render-hooks/code-blocks/
 [embedded code block render hook]: <{{% eturl render-codeblock-goat %}}>
-[GoAT]: https://github.com/bep/goat

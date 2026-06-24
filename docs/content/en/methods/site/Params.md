@@ -33,7 +33,7 @@ Access the custom parameters by [chaining](g) the [identifiers](g):
 {{ .Site.Lastmod.Format $layout }} → Tue, 17 Oct 2023 13:21:02 PDT
 ```
 
-In the template example above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`] function:
+In the template example above, each of the keys is a valid identifier. For example, none of the keys contains a hyphen. To access a key that is not a valid identifier, use the [`index`][] function:
 
 ```go-html-template
 {{ index .Site.Params "copyright-year" }} → 2023

@@ -9,9 +9,7 @@ params:
     signatures: [PAGES.ByLastmod]
 ---
 
-When sorting by last modification date, the value is determined by your [project configuration], defaulting to the `lastmod` field in front matter.
-
-[project configuration]: /configuration/front-matter/#dates
+When sorting by last modification date, the value is determined by your [project configuration][], defaulting to the `lastmod` field in front matter.
 
 ```go-html-template
 {{ range .Pages.ByLastmod }}
@@ -26,3 +24,5 @@ To sort in descending order:
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
 {{ end }}
 ```
+
+[project configuration]: /configuration/front-matter/#dates

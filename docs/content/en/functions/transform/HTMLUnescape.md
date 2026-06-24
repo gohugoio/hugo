@@ -18,12 +18,12 @@ The `transform.HTMLUnescape` function replaces [HTML entities][] with their corr
 {{ htmlUnescape "7 &gt; 6" }} → 7 > 6
 ```
 
-In most contexts Go's [`html/template`][] package will escape special characters. To bypass this behavior, pass the unescaped string through the [`safeHTML`][] function.
+In most contexts Go's [`html/template`][] package will escape special characters. To bypass this behavior, pass the unescaped string through the [`safe.HTML`][] function.
 
 ```go-html-template
 {{ htmlUnescape "Lilo &amp; Stitch" | safeHTML }}
 ```
 
-[`safehtml`]: /functions/safe/html/
-[html entities]: https://developer.mozilla.org/en-US/docs/Glossary/Entity
+[HTML entities]: https://developer.mozilla.org/en-US/docs/Glossary/Entity
 [`html/template`]: https://pkg.go.dev/html/template
+[`safe.HTML`]: /functions/safe/html/

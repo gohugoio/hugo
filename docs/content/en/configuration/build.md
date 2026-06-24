@@ -7,25 +7,25 @@ keywords: []
 aliases: [/getting-started/configuration-build/]
 ---
 
-The `build` configuration section contains global build-related configuration options.
+This is the default configuration:
 
 {{< code-toggle config=build />}}
 
-buildStats
+`buildStats`
 : See the [build stats](#build-stats) section below.
 
-cachebusters
+`cachebusters`
 : See the [cache busters](#cache-busters) section below.
 
-noJSConfigInAssets
-: (`bool`) Whether to disable writing a `jsconfig.json` in your `assets` directory with mapping of imports from running [js.Build](/hugo-pipes/js). This file is intended to help with intellisense/navigation inside code editors such as [VS Code](https://code.visualstudio.com/). Note that if you do not use `js.Build`, no file will be written.
+`noJSConfigInAssets`
+: (`bool`) Whether to disable writing a `jsconfig.json` in your `assets` directory with mapping of imports from running [js.Build][]. This file is intended to help with intellisense/navigation inside code editors such as [VS Code][]. Note that if you do not use `js.Build`, no file will be written.
 
-useResourceCacheWhen
+`useResourceCacheWhen`
 : (`string`) When to use the resource file cache, one of `never`, `fallback`, or `always`. Applicable when transpiling Sass to CSS. Default is `fallback`.
 
 ## Cache busters
 
-The `build.cachebusters` configuration option was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
+The `build.cachebusters` setting was added to support development using Tailwind 3.x's JIT compiler where a `build` configuration may look like this:
 
 <!-- markdownlint-disable MD049 -->
 {{< code-toggle file=hugo >}}
@@ -47,37 +47,39 @@ The `build.cachebusters` configuration option was added to support development u
 {{< /code-toggle >}}
 <!-- markdownlint-enable MD049 -->
 
-When `buildStats` is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic](https://github.com/bep/hugo-starter-tailwind-basic) for a running example.
+When `buildStats` is enabled, Hugo writes a `hugo_stats.json` file on each build with HTML classes etc. that's used in the rendered output. Changes to this file will trigger a rebuild of the `styles.css` file. You also need to add `hugo_stats.json` to Hugo's server watcher. See [Hugo Starter Tailwind Basic][] for a running example.
 
-source
+`source`
 : (`string`) A [regular expression](g) matching file(s) relative to one of the virtual component directories in Hugo, typically `assets/...`.
 
-target
+`target`
 : (`string`) A [regular expression](g) matching the keys in the resource cache that should be expired when `source` changes. You can use the matching regexp groups from `source` in the expression, e.g. `$1`.
 
 ## Build stats
 
 {{< code-toggle config=build.buildStats />}}
 
-enable
-: (`bool`) Whether to create a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS] from your site. This process is also known as pruning, purging, or tree shaking. Default is `false`.
+`enable`
+: (`bool`) Whether to create a `hugo_stats.json` file in the root of your project. This file contains arrays of the `class` attributes, `id` attributes, and tags of every HTML element within your published site. Use this file as data source when [removing unused CSS][] from your site. This process is also known as pruning, purging, or tree shaking. Default is `false`.
 
-[removing unused CSS]: /functions/resources/postprocess/
-
-disableIDs
+`disableIDs`
 : (`bool`) Whether to exclude `id` attributes. Default is `false`.
 
-disableTags
+`disableTags`
 : (`bool`) Whether to exclude element tags. Default is `false`.
 
-disableClasses
+`disableClasses`
 : (`bool`) Whether to exclude `class` attributes. Default is `false`.
 
-> [!note]
-> Given that CSS purging is typically limited to production builds, place the `buildStats` object below [`config/production`].
+> [!NOTE]
+> Given that CSS purging is typically limited to production builds, place the `buildStats` object below [`config/production`][].
 >
 > Built for speed, there may be "false positive" detections (e.g., HTML elements that are not HTML elements) while parsing the published site. These "false positives" are infrequent and inconsequential.
 
 Due to the nature of partial server builds, new HTML entities are added while the server is running, but old values will not be removed until you restart the server or run `hugo build`.
 
+[Hugo Starter Tailwind Basic]: https://github.com/bep/hugo-starter-tailwind-basic
+[VS Code]: https://code.visualstudio.com/
 [`config/production`]: /configuration/introduction/#configuration-directory
+[js.Build]: /functions/js/build/
+[removing unused CSS]: /functions/resources/postprocess/

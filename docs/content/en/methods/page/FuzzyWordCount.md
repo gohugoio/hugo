@@ -13,6 +13,6 @@ params:
 {{ .FuzzyWordCount }} → 200
 ```
 
-To get the exact word count, use the [`WordCount`] method.
+To get the exact word count, use the [`WordCount`][] method.
 
 [`WordCount`]: /methods/page/wordcount/

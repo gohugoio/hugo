@@ -77,6 +77,6 @@ Same result per day|`time.Now.YearDay`
 Same result per page|`hash.FNV32a .Path`
 Different result per page per day|`hash.FNV32a (print .Path time.Now.YearDay)`
 
+[Method D]: https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/
 [`collections.Shuffle`]: /functions/collections/shuffle/
 [day of the year]: /methods/time/yearday/
-[Method D]: https://getkerf.wordpress.com/2016/03/30/the-best-algorithm-no-one-knows-about/

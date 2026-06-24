@@ -9,7 +9,7 @@ params:
     signatures: [PAGE.Description]
 ---
 
-Conceptually different from a [content summary], a page description is typically used in metadata about the page.
+Conceptually different from a [content summary][], a page description is typically used in metadata about the page.
 
 {{< code-toggle file=content/recipes/sushi.md fm=true >}}
 title = 'How to make spicy tuna hand rolls'

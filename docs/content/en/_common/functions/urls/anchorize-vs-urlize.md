@@ -2,10 +2,7 @@
 _comment: Do not remove front matter.
 ---
 
-The [`anchorize`] and [`urlize`] functions are similar:
-
-[`anchorize`]: /functions/urls/anchorize/
-[`urlize`]: /functions/urls/urlize/
+The [`anchorize`][] and [`urlize`][] functions are similar:
 
 - Use the `anchorize` function to generate an HTML `id` attribute value
 - Use the `urlize` function to sanitize a string for usage in a URL
@@ -33,3 +30,6 @@ For example:
 {{ $s | anchorize }} → hugö
 {{ $s | urlize }} → hug%C3%B6
 ```
+
+[`anchorize`]: /functions/urls/anchorize/
+[`urlize`]: /functions/urls/urlize/

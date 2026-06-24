@@ -21,10 +21,10 @@ Template:
 {{ .Site.BaseURL }} → https://example.org/docs/
 ```
 
-> [!note]
+> [!NOTE]
 > There is almost never a good reason to use this method in your templates. Its usage tends to be fragile due to misconfiguration.
 >
-> Use the [`absURL`], [`absLangURL`], [`relURL`], or [`relLangURL`] functions instead.
+> Use the [`absURL`][], [`absLangURL`][], [`relURL`][], or [`relLangURL`][] functions instead.
 
 [`absLangURL`]: /functions/urls/absLangURL/
 [`absURL`]: /functions/urls/absURL/

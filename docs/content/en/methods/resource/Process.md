@@ -12,9 +12,9 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Process` method returns a new resource from a [processable image](g) according to the given [processing specification][].
+The `Process` method returns a new resource from a [processable image](g) according to the given [processing specification](#processing-specification).
 
-> [!note]
+> [!NOTE]
 > Use the [`reflect.IsImageResourceProcessable`][] function to verify that an image can be processed.
 
 ## Usage
@@ -67,4 +67,3 @@ The `Process` method is also available as a filter. This is more effective if yo
 [`Resize`]: /methods/resource/resize/
 [`images.Process`]: /functions/images/process/
 [`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
-[processing specification]: #processing-specification

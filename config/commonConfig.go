@@ -88,7 +88,7 @@ var defaultBuild = BuildConfig{
 
 	CacheBusters: []CacheBuster{
 		{
-			Source: `(postcss|tailwind)\.config\.js`,
+			Source: `(postcss|tailwind)\.config\.(js|mjs|cjs)`,
 			Target: cssTargetCachebusterRe,
 		},
 	},

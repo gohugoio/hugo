@@ -1,20 +1,24 @@
+/* Opt in to native cross-document view transitions on navigation. */
+@view-transition {
+  navigation: auto;
+}
+
 /* Global slight fade */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 200ms;
 }
 
-::view-transition-old(qr),
-::view-transition-new(qr) {
-  animation-duration: 800ms;
-  animation-delay: 250ms;
-}
-
-.view-transition-qr {
-  view-transition-name: qr;
-}
-
-/* Turbo styles */
-.turbo-progress-bar {
-  visibility: hidden;
+/*
+ * Persistent chrome (header/footer) is named so it gets its own snapshot
+ * instead of being part of the root crossfade. Holding it static prevents
+ * the flicker that the sticky header otherwise shows on every navigation.
+ */
+::view-transition-group(site-header),
+::view-transition-group(site-footer),
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+  animation: none;
 }
