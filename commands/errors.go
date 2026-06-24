@@ -27,7 +27,7 @@ func wrapStaticSyncError(err error) error {
 
 	var pathErr *fs.PathError
 	if errors.As(err, &pathErr) && pathErr.Op == "chtimes" && os.IsPermission(err) {
-		return fmt.Errorf("%w; if the publishDir is writable but not owned by the Hugo process, try --noTimes or set noTimes = true", err)
+		return fmt.Errorf("%w; you have insufficient permissions to update timestamps in publishDir; try --noTimes or set noTimes = true, and check publishDir ownership and permissions", err)
 	}
 
 	return err
