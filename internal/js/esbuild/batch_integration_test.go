@@ -243,8 +243,8 @@ Defer:
 `
 	b := hugolib.Test(t, files, hugolib.TestOptWithOSFs())
 	b.AssertPublishDir(
-		"en/mybatch/chunk-TOZKWCDE.js", "en/mybatch/mygroup.js ",
-		"fr/mybatch/mygroup.js", "fr/mybatch/chunk-TOZKWCDE.js")
+		"en/mybatch/chunk-MO3Q4WT6.js", "en/mybatch/mygroup.js ",
+		"fr/mybatch/mygroup.js", "fr/mybatch/chunk-MO3Q4WT6.js")
 }
 
 func TestBatchRenameBundledScript(t *testing.T) {
@@ -402,7 +402,7 @@ export default function P1Script() {};
 	b.AssertFileContent("public/mybatch/mygroup.js", "sourceMappingURL=mygroup.js.map")
 	b.AssertFileContent("public/mybatch/p1.js", "sourceMappingURL=p1.js.map")
 	b.AssertFileContent("public/mybatch/mygroup_run_runner.js", "sourceMappingURL=mygroup_run_runner.js.map")
-	b.AssertFileContent("public/mybatch/chunk-UQKPPNA6.js", "sourceMappingURL=chunk-UQKPPNA6.js.map")
+	b.AssertFileContent("public/mybatch/chunk-3REXYBSZ.js", "sourceMappingURL=chunk-3REXYBSZ.js.map")
 
 	checkMap := func(p string, expectLen int) {
 		s := b.FileContent(p)
@@ -421,7 +421,7 @@ export default function P1Script() {};
 	checkMap("public/mybatch/mygroup.js.map", 1)
 	checkMap("public/mybatch/p1.js.map", 1)
 	checkMap("public/mybatch/mygroup_run_runner.js.map", 0)
-	checkMap("public/mybatch/chunk-UQKPPNA6.js.map", 1)
+	checkMap("public/mybatch/chunk-3REXYBSZ.js.map", 1)
 }
 
 func TestBatchErrorRunnerResourceNotSet(t *testing.T) {
