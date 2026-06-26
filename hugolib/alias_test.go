@@ -789,3 +789,29 @@ build:
 	b.AssertFileExists("public/p2-alias/index.html", false)
 	b.AssertFileExists("public/p3-alias/index.html", false)
 }
+
+// Aliases with an explicit file extension should be published verbatim,
+// even with uglyURLs enabled, rather than having ".html" appended.
+// See issue 14402.
+func TestAliasWithExplicitExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+uglyURLs = true
+-- content/tutorials.md --
+---
+title: tut
+url: /tutorials.htm
+aliases: ["/tutorials/index.html", "/tutorials/index.htm"]
+---
+-- layouts/page.html --
+page
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/tutorials/index.html", "refresh")
+	b.AssertFileContent("public/tutorials/index.htm", "refresh")
+	b.AssertFileExists("public/tutorials/index.htm.html", false)
+}

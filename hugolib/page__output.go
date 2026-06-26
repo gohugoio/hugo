@@ -140,7 +140,7 @@ func (po *pageOutput) Aliases() []string {
 
 		a = path.Join(baseDir, a)
 
-		if conf.C.IsUglyURLSection(p.Section()) && !strings.HasSuffix(a, ".html") {
+		if ext := path.Ext(a); conf.C.IsUglyURLSection(p.Section()) && (ext == "" || ext == ".") {
 			a += ".html"
 		}
 
