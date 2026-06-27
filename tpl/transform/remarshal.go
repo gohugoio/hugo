@@ -69,6 +69,18 @@ func applyMarshalTypes(m map[string]any) {
 		switch t := v.(type) {
 		case map[string]any:
 			applyMarshalTypes(t)
+		case []any:
+			if len(t) == 0 {
+				// The YAML decoder returns the same shared instance for
+				// every empty array literal, which makes the smart-anchor
+				// encoder treat them as one value referenced many times
+				// and emit an invalid self-referencing anchor. Give each
+				// one its own backing array (len 0 alone shares a pointer)
+				// to break the false sharing without touching real
+				// (non-empty) anchors, which still need dedup to guard
+				// against billion-laughs-style expansion.
+				m[k] = make([]any, 0, 1)
+			}
 		case float64:
 			i := int64(t)
 			if t == float64(i) {

@@ -14,6 +14,7 @@
 package transform_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -197,6 +198,36 @@ a = "b"
 
 		_, err = ns.Remarshal("json", "asdf")
 		c.Assert(err, qt.Not(qt.IsNil))
+	})
+
+	// Issue 14596
+	c.Run("Repeated empty arrays do not produce invalid YAML anchors", func(c *qt.C) {
+		input := `
+field1:
+  options: []
+  pattern: x1
+field2:
+  options: []
+  pattern: x2
+field3:
+  options: []
+  pattern: x3
+`
+
+		converted, err := ns.Remarshal("yaml", input)
+		c.Assert(err, qt.IsNil)
+
+		// The output must be valid YAML, in particular it must not contain
+		// a node that both defines and dereferences an anchor on the same
+		// line (e.g. "&options *options").
+		roundtripped, err := ns.Remarshal("json", converted)
+		c.Assert(err, qt.IsNil)
+		c.Assert(roundtripped, qt.Contains, `"field1"`)
+		c.Assert(roundtripped, qt.Contains, `"field2"`)
+		c.Assert(roundtripped, qt.Contains, `"field3"`)
+
+		// A node must never both define and dereference an anchor at once.
+		c.Assert(regexp.MustCompile(`&\S+\s+\*\S+`).MatchString(converted), qt.IsFalse)
 	})
 }
 
