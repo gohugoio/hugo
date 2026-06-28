@@ -46,6 +46,20 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.HexDecode,
+			nil,
+			[][2]string{
+				{`{{ "48656c6c6f20776f726c64" | encoding.HexDecode }}`, `Hello world`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.HexEncode,
+			nil,
+			[][2]string{
+				{`{{ "Hello world" | encoding.HexEncode }}`, `48656c6c6f20776f726c64`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Jsonify,
 			[]string{"jsonify"},
 			[][2]string{
