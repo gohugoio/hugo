@@ -567,16 +567,25 @@ func (c *templateTransformContext) collectInnerInPartial(n *parse.CommandNode) {
 }
 
 func (c *templateTransformContext) collectReturnNode(n *parse.CommandNode) bool {
-	if c.t.category != CategoryPartial || c.returnNode != nil {
-		return true
-	}
-
-	if len(n.Args) < 2 {
+	if len(n.Args) == 0 {
 		return true
 	}
 
 	ident, ok := n.Args[0].(*parse.IdentifierNode)
 	if !ok || ident.Ident != "return" {
+		return true
+	}
+
+	if c.t.category != CategoryPartial {
+		c.err = errors.New(`"return" is only supported in partial templates`)
+		return true
+	}
+
+	if c.returnNode != nil {
+		return true
+	}
+
+	if len(n.Args) < 2 {
 		return true
 	}
 
