@@ -123,7 +123,7 @@ func isGlobWithExtension(s string) bool {
 
 func checkCascadePattern(logger loggers.Logger, m PageMatcher) {
 	if m.Lang != "" {
-		hugo.DeprecateWithLogger("cascade.target.language", "cascade.target.sites.matrix instead, see https://gohugo.io/content-management/front-matter/#target", "v0.150.0", logger.Logger())
+		hugo.DeprecateWithLogger("cascade.target.lang", "cascade.target.sites instead, see https://gohugo.io/docs/reference/configuration/cascade/#sites", "v0.150.0", logger.Logger())
 	}
 }
 
@@ -209,7 +209,7 @@ func (d cascadeConfigDecoder) mapToPageMatcherParamsConfig(m map[string]any) (Pa
 		switch klc {
 		case "_target", "target":
 			if klc == "_target" {
-				hugo.Deprecate("cascade._target", "Use cascade.target instead, see https://gohugo.io/content-management/front-matter/#target", "v0.156.0")
+				hugo.Deprecate("cascade._target", "Use cascade.target instead, see https://gohugo.io/docs/reference/configuration/cascade/#target", "v0.156.0")
 			}
 			var target PageMatcher
 			if err := d.decodePageMatcher(v, &target); err != nil {
