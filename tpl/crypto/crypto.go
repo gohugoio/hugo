@@ -68,6 +68,62 @@ func (ns *Namespace) SHA256(v any) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
+// Hash returns the hex-encoded checksum of v using the given algorithm; one of
+// md5, sha1, sha256 (the default), sha384 or sha512.
+//
+// The supported algorithms match those used for the Subresource Integrity (SRI)
+// hash in .Data.Integrity on fingerprinted resources, so an SRI hash can be
+// constructed by combining this with encoding.HexDecode and encoding.Base64Encode.
+func (ns *Namespace) Hash(args ...any) (string, error) {
+	var algo, v any
+	switch len(args) {
+	case 1:
+		algo, v = "sha256", args[0]
+	case 2:
+		algo, v = args[0], args[1]
+	default:
+		return "", fmt.Errorf("crypto.Hash: expected 1 or 2 arguments, got %d", len(args))
+	}
+
+	conv, err := cast.ToStringE(v)
+	if err != nil {
+		return "", err
+	}
+
+	algoS, err := cast.ToStringE(algo)
+	if err != nil {
+		return "", err
+	}
+
+	h, err := newHash(algoS)
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := h.Write([]byte(conv)); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+func newHash(algo string) (hash.Hash, error) {
+	switch algo {
+	case "md5":
+		return md5.New(), nil
+	case "sha1":
+		return sha1.New(), nil
+	case "sha256":
+		return sha256.New(), nil
+	case "sha384":
+		return sha512.New384(), nil
+	case "sha512":
+		return sha512.New(), nil
+	default:
+		return nil, fmt.Errorf("crypto.Hash: %q is not a supported hash algorithm", algo)
+	}
+}
+
 // HMAC returns a cryptographic hash that uses a key to sign a message.
 func (ns *Namespace) HMAC(h any, k any, m any, e ...any) (string, error) {
 	ha, err := cast.ToStringE(h)

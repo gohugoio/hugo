@@ -60,6 +60,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Hash,
+			nil,
+			[][2]string{
+				{`{{ crypto.Hash "sha256" "Hello world, gophers!" }}`, `6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46`},
+			},
+		)
+
 		return ns
 	}
 
