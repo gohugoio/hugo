@@ -101,6 +101,42 @@ func TestSHA256(t *testing.T) {
 	}
 }
 
+func TestHash(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := New()
+
+	const in = "Hello world, gophers!"
+
+	for i, test := range []struct {
+		args   []any
+		expect any
+	}{
+		// Default algo is sha256, matching ns.SHA256.
+		{[]any{in}, "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"},
+		{[]any{"md5", in}, "b3029f756f98f79e7f1b7f1d1f0dd53b"},
+		{[]any{"sha1", in}, "c8b5b0e33d408246e30f53e32b8f7627a7a649d4"},
+		{[]any{"sha256", in}, "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"},
+		{[]any{"sha384", in}, "e914b060e06f1115fd98b494257d652403305b585c29a54636e7262b5e44adfc61f195f03d4192d89a006b28192fdd25"},
+		{[]any{"sha512", in}, "e2b74589547d8954a47321e19e2987ffce366317e3843be7da7eae3090a0eacb46393b52978933afa65c8bc365c329e55950b6106119a382a3b4f4cd5886ddcf"},
+		{[]any{"unsupported", in}, false},
+		{[]any{}, false},
+		{[]any{"sha256", in, "extra"}, false},
+	} {
+		errMsg := qt.Commentf("[%d] %v", i, test.args)
+
+		result, err := ns.Hash(test.args...)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			continue
+		}
+
+		c.Assert(err, qt.IsNil, errMsg)
+		c.Assert(result, qt.Equals, test.expect, errMsg)
+	}
+}
+
 func TestHMAC(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
