@@ -453,3 +453,49 @@ Home. {{ partial "a" }}:Done.
 		}
 	}
 }
+
+func TestDecoratorFingerprintScript(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+[outputs]
+home = ["html", "headers"]
+[mediaTypes]
+[mediaTypes."text/netlify"]
+delimiter = ""
+[outputFormats]
+[outputFormats.headers]
+baseName       = "_headers"
+isPlainText    = true
+mediatype      = "text/netlify"
+notAlternative = true
+-- layouts/_partials/script.html --
+{{ $s := (templates.Inner .) }}
+{{ $r := resources.FromString ($s | xxhash) $s | fingerprint }}
+{{ $hash := $s | crypto.SHA256 | encoding.HexDecode | encoding.Base64Encode }}
+{{ $sri := (printf "sha256-%s" $hash) }}
+{{ if ne $sri $r.Data.Integrity }}
+	{{ errorf "SRI hash mismatch: %s != %s" $sri $r.Data.Integrity }}
+{{ end }}
+{{ hugo.Store.SetInMap "srihashes" $sri true }}
+<script>{{ $s | safeJS }}</script>
+-- layouts/home.html --
+Home.
+{{ with partial "script.html" . }}
+console.log("Hello world");
+{{ end }}
+{{ with partial "script.html" . }}
+console.log("Hugo rocks!");
+{{ end }}
+-- layouts/home.headers --
+{{ $hashes := hugo.Store.Get "srihashes" -}}
+Content-Security-Policy: script-src 'self'{{ range $k, $v := $hashes }} '{{ $k }}'{{ end }};
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContentExact("public/index.html", "<script>\nconsole.log(\"Hello world\");\n</script>")
+	b.AssertFileContentExact("public/_headers", "Content-Security-Policy: script-src 'self' 'sha256-t6z9j4/CagmaDDbn6nHbntzt8PRk8HZ1TwrgdYuZjbE=' 'sha256-wVbS8f78ttoSSGU80KghGoPcTO8DXqT0Uc/87a7zMdk=';")
+}

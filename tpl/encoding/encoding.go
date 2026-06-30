@@ -16,6 +16,7 @@ package encoding
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"html/template"
@@ -54,6 +55,28 @@ func (ns *Namespace) Base64Encode(content any) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
+}
+
+// HexDecode returns the hex decoding of the given content.
+func (ns *Namespace) HexDecode(content any) (string, error) {
+	conv, err := cast.ToStringE(content)
+	if err != nil {
+		return "", err
+	}
+	b, err := hex.DecodeString(conv)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// HexEncode returns the hex encoding of the given content.
+func (ns *Namespace) HexEncode(content any) (string, error) {
+	conv, err := cast.ToStringE(content)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString([]byte(conv)), nil
 }
 
 // Jsonify encodes a given object to JSON.  To pretty print the JSON, pass a map

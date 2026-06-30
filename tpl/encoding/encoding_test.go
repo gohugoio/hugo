@@ -77,6 +77,60 @@ func TestBase64Encode(t *testing.T) {
 	}
 }
 
+func TestHexDecode(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		v      any
+		expect any
+	}{
+		{"616263313233213f242a2628292d3d407e", "abc123!?$*&()-=@~"},
+		// errors
+		{t, false},
+	} {
+
+		result, err := ns.HexDecode(test.v)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
+func TestHexEncode(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New()
+
+	for _, test := range []struct {
+		v      any
+		expect any
+	}{
+		{"abc123!?$*&()-=@~", "616263313233213f242a2628292d3d407e"},
+		// errors
+		{t, false},
+	} {
+
+		result, err := ns.HexEncode(test.v)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}
+
 func TestJsonify(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

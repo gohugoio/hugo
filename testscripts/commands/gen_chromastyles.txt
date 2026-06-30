@@ -1,0 +1,25 @@
+hugo gen chromastyles -h
+stdout 'Generate CSS stylesheet for the Chroma code highlighter'
+hugo gen chromastyles --style monokai
+stdout 'Generated using: hugo gen chromastyles --style monokai'
+! hugo gen chromastyles --style __invalid_style__
+stderr 'invalid style: __invalid_style__'
+
+# Not empty classes.
+# From Hugo 0.149.0 empty classes are always removed, so no need for the omitEmpty flag.
+hugo gen chromastyles --style monokai
+! stdout '{  }'
+hugo gen chromastyles --omitEmpty --style monokai --logLevel info
+stderr 'deprecated: --omitEmpty was deprecated'
+
+# Keep same-colour token classes in generated CSS. This is needed when pairing
+# styles such as github and github-dark in dual-theme sites.
+hugo gen chromastyles --style github-dark
+stdout 'NameOther.*\.chroma \.nx \{ color:#e6edf3 \}'
+
+# Disable class comments.
+hugo gen chromastyles --style monokai
+stdout 'GenericSubheading'
+hugo gen chromastyles --omitClassComments --style monokai
+! stdout 'GenericSubheading'
+
