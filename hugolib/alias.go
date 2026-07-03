@@ -96,7 +96,7 @@ func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	handler := newAliasHandler(s.GetTemplateStore(), s.Log, allowRoot)
 
-	targetPath, err := handler.targetPathAlias(path)
+	targetPath, err := handler.targetPathAlias(path, outputFormat)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 	return s.publisher.Publish(pd)
 }
 
-func (a aliasHandler) targetPathAlias(src string) (string, error) {
+func (a aliasHandler) targetPathAlias(src string, of output.Format) (string, error) {
 	originalAlias := src
 	if len(src) <= 0 {
 		return "", fmt.Errorf("alias \"\" is an empty string")
@@ -176,13 +176,23 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 		}
 	}
 
-	// Add the final touch
+	// Add the final touch. When the alias does not already end in one of the
+	// output format's configured suffixes, treat it as a directory and append
+	// the format's base name and suffix (e.g. index.html).
 	alias = strings.TrimPrefix(alias, "/")
+	baseFile := of.BaseName + of.MediaType.FirstSuffix.FullSuffix
 	if strings.HasSuffix(alias, "/") {
-		alias = alias + "index.html"
-	} else if !strings.HasSuffix(alias, ".html") {
-		alias = alias + "/" + "index.html"
+		alias = alias + baseFile
+	} else if !pathHasOutputFormatSuffix(alias, of) {
+		alias = alias + "/" + baseFile
 	}
 
 	return filepath.FromSlash(alias), nil
+}
+
+// pathHasOutputFormatSuffix reports whether the last element of p ends in one
+// of the suffixes configured for the output format's media type.
+func pathHasOutputFormatSuffix(p string, of output.Format) bool {
+	ext := path.Ext(p)
+	return ext != "" && of.MediaType.HasSuffix(ext[1:])
 }
