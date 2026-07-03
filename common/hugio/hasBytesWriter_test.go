@@ -65,3 +65,61 @@ func TestHasBytesWriter(t *testing.T) {
 	fmt.Fprintf(w, "__foo")
 	c.Assert(h.Patterns[0].Match, qt.Equals, true)
 }
+
+func TestHasBytesWriterMultiplePatterns(t *testing.T) {
+	c := qt.New(t)
+
+	neww := func() (*HasBytesWriter, io.Writer) {
+		var b bytes.Buffer
+		h := &HasBytesWriter{
+			Patterns: []*HasBytesPattern{
+				{Pattern: []byte("__hdeferred/")},
+				{Pattern: []byte("__h_pp_l1")},
+			},
+		}
+		return h, io.MultiWriter(&b, h)
+	}
+
+	// Neither pattern present.
+	h, w := neww()
+	fmt.Fprint(w, "the quick brown fox jumps over the lazy dog")
+	c.Assert(h.Patterns[0].Match, qt.Equals, false)
+	c.Assert(h.Patterns[1].Match, qt.Equals, false)
+	c.Assert(h.done, qt.Equals, false)
+
+	// Only the second pattern present; the writer must not report a match
+	// for the first, and must not prematurely mark itself done.
+	h, w = neww()
+	fmt.Fprint(w, "prefix __h_pp_l1 suffix")
+	c.Assert(h.Patterns[0].Match, qt.Equals, false)
+	c.Assert(h.Patterns[1].Match, qt.Equals, true)
+	c.Assert(h.done, qt.Equals, false)
+
+	// Both patterns present across multiple writes; done once all match.
+	h, w = neww()
+	fmt.Fprint(w, "aaa __hdef")
+	fmt.Fprint(w, "erred/xyz bbb __h_p")
+	fmt.Fprint(w, "p_l1 ccc")
+	c.Assert(h.Patterns[0].Match, qt.Equals, true)
+	c.Assert(h.Patterns[1].Match, qt.Equals, true)
+	c.Assert(h.done, qt.Equals, true)
+}
+
+func BenchmarkHasBytesWriter(b *testing.B) {
+	// A large chunk of output containing neither pattern is the common case
+	// (a normal rendered page): the writer must scan all of it.
+	content := []byte(strings.Repeat("<div class=\"nav\"><a href=\"/foo/bar\">baz</a></div>\n", 4000))
+
+	b.ResetTimer()
+	for range b.N {
+		h := &HasBytesWriter{
+			Patterns: []*HasBytesPattern{
+				{Pattern: []byte("__hdeferred/")},
+				{Pattern: []byte("__h_pp_l1")},
+			},
+		}
+		if _, err := h.Write(content); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
