@@ -63,7 +63,7 @@ jobs:
         run: go install github.com/gohugoio/gotmplfmt@latest
       - name: Install docutils
         run: |
-          pip install docutils
+          pip install docutils Pygments
           rst2html --version
       - if: matrix.os == 'ubuntu-latest'
         name: Install pandoc on Linux
