@@ -140,8 +140,8 @@ func (po *pageOutput) Aliases() []string {
 
 		a = path.Join(baseDir, a)
 
-		if conf.C.IsUglyURLSection(p.Section()) && !strings.HasSuffix(a, ".html") {
-			a += ".html"
+		if conf.C.IsUglyURLSection(p.Section()) && !pathHasOutputFormatSuffix(a, f) {
+			a += f.MediaType.FirstSuffix.FullSuffix
 		}
 
 		aliases[i] = a

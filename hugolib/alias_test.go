@@ -21,6 +21,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/output"
 )
 
 func TestAlias(t *testing.T) {
@@ -158,7 +159,7 @@ func TestTargetPathHTMLRedirectAlias(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		path, err := h.targetPathAlias(test.value)
+		path, err := h.targetPathAlias(test.value, output.HTMLFormat)
 		if (err == nil) != test.errIsNil {
 			t.Errorf("Expected err == nil => %t, got: %t. err: %s", test.errIsNil, err == nil, err)
 			continue
@@ -788,4 +789,79 @@ build:
 	b.AssertFileExists("public/p1-alias/index.html", true)
 	b.AssertFileExists("public/p2-alias/index.html", false)
 	b.AssertFileExists("public/p3-alias/index.html", false)
+}
+
+// See issue 15066.
+func TestAliasExplicitExtension(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+uglyURLs = UGLYURLS
+
+[mediaTypes]
+  [mediaTypes.'text/html']
+    suffixes = SUFFIXES
+
+[outputFormats]
+  [outputFormats.html]
+    mediaType = 'text/html'
+
+-- content/s1/p1.md --
+---
+title: p1
+aliases: [a, b.foo, c.html, d.htm, e.foo.html, f.foo.htm]
+---
+-- layouts/page.html --
+{{ .Title }}
+`
+
+	r := strings.NewReplacer("UGLYURLS", "false", "SUFFIXES", "['html', 'htm']")
+	f := r.Replace(files)
+
+	b := Test(t, f)
+
+	b.AssertFileContent("public/s1/a/index.html", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/b.foo/index.html", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/c.html", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/d.htm", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/e.foo.html", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/f.foo.htm", "url=/s1/p1/")
+
+	r = strings.NewReplacer("UGLYURLS", "false", "SUFFIXES", "['htm', 'html']")
+	f = r.Replace(files)
+
+	b = Test(t, f)
+
+	b.AssertFileContent("public/s1/a/index.htm", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/b.foo/index.htm", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/c.html", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/d.htm", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/e.foo.html", "url=/s1/p1/")
+	b.AssertFileContent("public/s1/f.foo.htm", "url=/s1/p1/")
+
+	r = strings.NewReplacer("UGLYURLS", "true", "SUFFIXES", "['html', 'htm']")
+	f = r.Replace(files)
+
+	b = Test(t, f)
+
+	b.AssertFileContent("public/s1/a.html", "url=/s1/p1.html")
+	b.AssertFileContent("public/s1/b.foo.html", "url=/s1/p1.html")
+	b.AssertFileContent("public/s1/c.html", "url=/s1/p1.html")
+	b.AssertFileContent("public/s1/d.htm", "url=/s1/p1.html")
+	b.AssertFileContent("public/s1/e.foo.html", "url=/s1/p1.html")
+	b.AssertFileContent("public/s1/f.foo.htm", "url=/s1/p1.html")
+
+	r = strings.NewReplacer("UGLYURLS", "true", "SUFFIXES", "['htm', 'html']")
+	f = r.Replace(files)
+
+	b = Test(t, f)
+
+	b.AssertFileContent("public/s1/a.htm", "url=/s1/p1.htm")
+	b.AssertFileContent("public/s1/b.foo.htm", "url=/s1/p1.htm")
+	b.AssertFileContent("public/s1/c.html", "url=/s1/p1.htm")
+	b.AssertFileContent("public/s1/d.htm", "url=/s1/p1.htm")
+	b.AssertFileContent("public/s1/e.foo.html", "url=/s1/p1.htm")
+	b.AssertFileContent("public/s1/f.foo.htm", "url=/s1/p1.htm")
 }
