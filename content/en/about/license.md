@@ -8,7 +8,7 @@ weight: 40
 
 ## Apache License
 
-_Version 2.0, January 2004_  
+_Version 2.0, January 2004_
 _<http://www.apache.org/licenses/>_
 
 ### Terms and Conditions for use, reproduction, and distribution

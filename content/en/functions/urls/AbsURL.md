@@ -1,5 +1,5 @@
 ---
-title: urls.AbsURL 
+title: urls.AbsURL
 description: Returns an absolute URL.
 categories: []
 keywords: []

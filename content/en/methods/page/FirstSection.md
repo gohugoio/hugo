@@ -24,7 +24,7 @@ content/
 │   │   ├── auction-1.md
 │   │   └── auction-2.md  <-- first section: auctions
 │   ├── 2023-12/
-│   │   ├── _index.md     
+│   │   ├── _index.md
 │   │   ├── auction-3.md
 │   │   └── auction-4.md
 │   ├── _index.md         <-- first section: auctions

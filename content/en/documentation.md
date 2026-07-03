@@ -18,5 +18,5 @@ Try to use the same language (e.g., tagline) everywhere:
 - Home: https://gohugo.io/
 - Docs: https://gohugo.io/documentation/
 - Project repo: https://github.com/gohugoio/hugo?tab=readme-ov-file#readme
-- Docs repo: https://github.com/gohugoio/hugoDocs?tab=readme-ov-file#readme 
+- Docs repo: https://github.com/gohugoio/hugoDocs?tab=readme-ov-file#readme
 -->

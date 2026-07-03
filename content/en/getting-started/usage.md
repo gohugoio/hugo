@@ -82,7 +82,7 @@ hugo server
 The [`hugo server`][] command builds your site and serves your pages using a minimal HTTP server. When you run `hugo server` it will display the URL of your local site:
 
 ```text
-Web Server is available at http://localhost:1313/ 
+Web Server is available at http://localhost:1313/
 ```
 
 While the server is running, it watches your project directory for changes to assets, configuration, content, data, layouts, translations, and static files. When it detects a change, the server rebuilds your site and refreshes your browser using [LiveReload][].

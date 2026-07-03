@@ -1,6 +1,6 @@
 ---
 title: Security model
-linkTitle: Security 
+linkTitle: Security
 description: A summary of Hugo's security model.
 categories: []
 keywords: []

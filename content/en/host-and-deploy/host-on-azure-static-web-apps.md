@@ -1,6 +1,6 @@
 ---
 title: Host on Azure Static Web Apps
-description: Host your site on Azure Static Web Apps.
+description: Host your project on Azure Static Web Apps.
 categories: []
 keywords: []
 aliases: [/hosting-and-deployment/hosting-on-azure-static-web-apps/]

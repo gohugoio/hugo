@@ -98,7 +98,7 @@ A file tree:
 content/
 └── s1/
     ├── p1/
-    │   └── index.md 
+    │   └── index.md
     └── p2.md
 ```
 
@@ -108,7 +108,7 @@ The same content represented as a logical tree:
 content/
 └── s1/
     ├── p1
-    └── p2 
+    └── p2
 ```
 
 A key difference between these trees is the relative path from p1 to p2:

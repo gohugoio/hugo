@@ -1,12 +1,12 @@
 ---
 title: Host on Render
-description: Host your site on Render.
+description: Host your project on Render.
 categories: []
 keywords: []
 aliases: [/hosting-and-deployment/hosting-on-render/]
 ---
 
-Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply if you are using Bitbucket or GitLab for version control.
+Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply for other Git providers such as GitLab or Bitbucket.
 
 {{% include "/_common/gitignore-public.md" %}}
 
@@ -14,19 +14,19 @@ Use these instructions to enable continuous deployment from a GitHub repository.
 
 Please complete the following tasks before continuing:
 
-1. [Create](https://dashboard.render.com/register) a Render account
-1. [Log in](https://dashboard.render.com/login) to your Render account
-1. [Create](https://github.com/signup) a GitHub account
-1. [Log in](https://github.com/login) to your GitHub account
-1. [Create](https://github.com/new) a GitHub repository for your project
-1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote][] reference to your GitHub repository
-1. Create a Hugo project within your local Git repository and test it with the `hugo server` command
-1. Commit the changes to your local Git repository and push to your GitHub repository
+1. [Create](https://dashboard.render.com/register) a Render account.
+1. [Log in](https://dashboard.render.com/login) to your Render account.
+1. [Create](https://github.com/signup) a GitHub account.
+1. [Log in](https://github.com/login) to your GitHub account.
+1. [Create](https://github.com/new) a GitHub repository for your project.
+1. [Create](https://git-scm.com/docs/git-init) a local Git repository for your project with a [remote][] reference to your GitHub repository.
+1. Create a Hugo project within your local Git repository and test it with the `hugo server` command.
+1. Commit the changes to your local Git repository and push to your GitHub repository.
 
 ## Procedure
 
 Step 1
-: Create a [Render Blueprint][] in the root of your project.
+: Create a `render.yaml` file in the root of your project, adjusting the tool versions and time zone as needed.
 
   ```yaml {file="render.yaml" copy=true}
   services:
@@ -42,7 +42,7 @@ Step 1
         - key: GO_VERSION
           value: 1.26.4
         - key: HUGO_VERSION
-          value: 0.163.2
+          value: 0.163.3
         - key: NODE_VERSION
           value: 24.16.0
         - key: TZ
@@ -57,15 +57,16 @@ Step 2
 
   #------------------------------------------------------------------------------
   # @file
-  # Builds a Hugo site hosted on a Render.
+  # Builds a Hugo project hosted on Render.
   #
-  # Render automatically installs Node.js dependencies.
+  # Render automatically installs Node.js and any Node.js dependencies.
   #------------------------------------------------------------------------------
 
   # Exit on error, undefined variables, or pipe failures
   set -euo pipefail
 
-  build_temp_dir=""
+  # Set the build cache directory
+  HUGO_CACHEDIR="${PWD}/.cache/hugo"
 
   # Perform cleanup
   cleanup() {
@@ -78,112 +79,133 @@ Step 2
   trap cleanup EXIT SIGINT SIGTERM
 
   main() {
-    # Create and move into a temporary directory for downloads
-    build_temp_dir=$(mktemp -d)
-    pushd "${build_temp_dir}" > /dev/null
+    # Export the build cache directory
+    export HUGO_CACHEDIR
 
-    # Create the local tools directory
+    # Create a temporary directory for downloads
+    build_temp_dir=$(mktemp -d)
+
+    # Create a local tools directory
     mkdir -p "${HOME}/.local"
 
     # Install Dart Sass
     echo "Installing Dart Sass ${DART_SASS_VERSION}..."
-    curl -sLJO "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-    tar -C "${HOME}/.local" -xf "dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+    curl -sfL --output-dir "${build_temp_dir}" -O "https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
+    tar -C "${HOME}/.local" -xf "${build_temp_dir}/dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
     export PATH="${HOME}/.local/dart-sass:${PATH}"
 
     # Install Go
-    echo "Installing Go ${GO_VERSION}..."
-    curl -sLJO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
-    tar -C "${HOME}/.local" -xf "go${GO_VERSION}.linux-amd64.tar.gz"
-    export PATH="${HOME}/.local/go/bin:${PATH}"
+    if [[ -f "go.mod" ]]; then
+      echo "Installing Go ${GO_VERSION}..."
+      curl -sfL --output-dir "${build_temp_dir}" -O "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
+      tar -C "${HOME}/.local" -xf "${build_temp_dir}/go${GO_VERSION}.linux-amd64.tar.gz"
+      export PATH="${HOME}/.local/go/bin:${PATH}"
+    fi
 
     # Install Hugo
     echo "Installing Hugo ${HUGO_VERSION}..."
-    curl -sLJO "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
+    curl -sfL --output-dir "${build_temp_dir}" -O "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
     mkdir -p "${HOME}/.local/hugo"
-    tar -C "${HOME}/.local/hugo" -xf "hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
+    tar -C "${HOME}/.local/hugo" -xf "${build_temp_dir}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
     export PATH="${HOME}/.local/hugo:${PATH}"
 
-    # Return to the project root
-    popd > /dev/null
-
-    # Verify installations
-    echo "Verifying installations..."
-    echo Dart Sass: "$(sass --version)"
-    echo Go: "$(go version)"
-    echo Hugo: "$(hugo version)"
-    echo Node.js: "$(node --version)"
+    # Log tool versions
+    echo "Logging tool versions..."
+    command -v sass &> /dev/null && echo "Dart Sass: $(sass --version)" || echo "Dart Sass: not installed"
+    command -v go &> /dev/null && echo "Go: $(go version)" || echo "Go: not installed"
+    command -v hugo &> /dev/null && echo "Hugo: $(hugo version)" || echo "Hugo: not installed"
+    command -v node &> /dev/null && echo "Node.js: $(node --version)" || echo "Node.js: not installed"
 
     # Configure Git
     echo "Configuring Git..."
     git config --global core.quotepath false
-    if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+
+    # Fetch full Git history
+    if [[ $(git rev-parse --is-shallow-repository) == true ]]; then
+      echo "Fetching full Git history..."
       git fetch --unshallow
     fi
 
-    # Build the site
-    echo "Building the site..."
-    hugo build --gc --minify --baseURL "${RENDER_EXTERNAL_URL}"
+    # Initialize Git submodules
+    if [[ -f .gitmodules ]]; then
+      echo "Initializing Git submodules..."
+      git submodule update --init --recursive
+    fi
+
+    # Build the project
+    echo "Building the project..."
+    hugo build --gc --minify
   }
 
   main "$@"
   ```
 
 Step 3
-: Commit the changes to your local Git repository and push to your GitHub repository.
+: In your project configuration, change the location of the image cache to the [`cacheDir`][] as shown below:
+
+  {{< code-toggle file=hugo copy=true >}}
+  [caches.images]
+  dir = ':cacheDir/images'
+  {{< /code-toggle >}}
+
+  See [configure file caches][] for more information.
 
 Step 4
+: Commit the changes to your local Git repository and push to your GitHub repository.
+
+Step 5
 : On the Render [dashboard][], press the **Add new** button and select "Blueprint" from the drop-down menu.
 
   ![screen capture](render-01.png)
 
-Step 5
+Step 6
 : Press the **GitHub** button to connect to your GitHub account.
 
   ![screen capture](render-02.png)
 
-Step 6
+Step 7
 : Press the **Authorize Render** button to allow the Render application to access your GitHub account.
 
   ![screen capture](render-03.png)
 
-Step 7
+Step 8
 : Select the GitHub account where you want to install the Render application.
 
   ![screen capture](render-04.png)
 
-Step 8
+Step 9
 : Authorize the Render application to access all repositories or only select repositories, then press the **Install** button.
 
-![screen capture](render-05.png)
+  ![screen capture](render-05.png)
 
-Step 9
-: On the "Create a new Blueprint Instance in My Workspacee" page, press the **Connect** button to the right of the name of your GitHub repository.
+Step 10
+: On the "Create a new Blueprint Instance in My Workspace" page, press the **Connect** button to the right of the name of your GitHub repository.
 
   ![screen capture](render-06.png)
 
-Step 10
+Step 11
 : Enter a unique name for your Blueprint, then press the **Deploy Blueprint** button at the bottom of the page.
 
   ![screen capture](render-07.png)
 
-Step 11
+Step 12
 : Wait for the site to build and deploy, then click on the "Resources" link on the left side of the page.
 
   ![screen capture](render-08.png)
 
-Step 12
+Step 13
 : Click on the link to the static site resource.
 
   ![screen capture](render-09.png)
 
-Step 13
+Step 14
 : Click on the link to your published site.
 
   ![screen capture](render-10.png)
 
 In the future, whenever you push a change from your local Git repository, Render will rebuild and deploy your site.
 
-[Render Blueprint]: https://render.com/docs/blueprint-spec
+[`cacheDir`]: /configuration/all/#cachedir
+[configure file caches]: /configuration/caches/
 [dashboard]: https://dashboard.render.com/
 [remote]: https://git-scm.com/docs/git-remote

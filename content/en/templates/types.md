@@ -85,7 +85,7 @@ For example, the _base_ template below calls the [`partial`][] function to inclu
   </header>
   <main>
     {{ block "main" . }}
-      This will be replaced with content from the 
+      This will be replaced with content from the
       corresponding "define" action found in the template
       to which this base template is applied.
     {{ end }}

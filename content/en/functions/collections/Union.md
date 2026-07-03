@@ -8,7 +8,7 @@ params:
     aliases: [union]
     returnType: '[]any'
     signatures: [collections.Union SLICE1 SLICE2]
-aliases: [/functions/union] 
+aliases: [/functions/union]
 ---
 
 

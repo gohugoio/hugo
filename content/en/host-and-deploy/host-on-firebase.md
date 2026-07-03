@@ -1,6 +1,6 @@
 ---
 title: Host on Firebase
-description: Host your site on Firebase.
+description: Host your project on Firebase.
 categories: []
 keywords: []
 aliases: [/hosting-and-deployment/hosting-on-firebase/]

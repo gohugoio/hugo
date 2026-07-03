@@ -8,7 +8,7 @@ _comment: Do not remove front matter.
   ```go-html-template
   {{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api")) }}
   ```
-  
+
   And then in your JS file:
 
   ```js

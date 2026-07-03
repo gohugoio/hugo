@@ -175,12 +175,12 @@ The `css.Build` function accepts an options map to fine-tune bundling, minificat
 `vars`
 : {{< new-in 0.160.0 />}}
 : (`map`) A map of key-value pairs used to generate CSS variables. The `css.Build` function injects these variables into the stylesheet when it encounters the `hugo:vars` internal identifier within an `@import` statement.
-  
+
   ```go-html-template
   {{ $vars := dict
     "font-family" "\"Times New Roman\", Times, serif"
-    "font-size" "24px" 
-    "primary-color" "blue" 
+    "font-size" "24px"
+    "primary-color" "blue"
   }}
   {{ $opts := dict "vars" $vars }}
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
@@ -226,9 +226,9 @@ The `css.Build` function accepts an options map to fine-tune bundling, minificat
     "font-family" "\"Times New Roman\", Times, serif"
     "font-size" "24px"
     "primary-color" "blue"
-    "mobile" (dict 
+    "mobile" (dict
       "font-size" "12px"
-      "primary-color" "red" 
+      "primary-color" "red"
     )
   }}
   {{ $opts := dict "vars" $vars }}

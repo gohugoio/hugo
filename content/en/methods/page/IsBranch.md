@@ -21,7 +21,7 @@ content/
 │   ├── book-2.md       <-- kind = page      IsBranch = false
 │   └── _index.md       <-- kind = section   IsBranch = true
 ├── tags
-│   ├── fiction   
+│   ├── fiction
 │   │   └── _index.md   <-- kind = term      IsBranch = true
 │   └── _index.md       <-- kind = taxonomy  IsBranch = true
 └── _index.md           <-- kind = home      IsBranch = true

@@ -84,7 +84,7 @@ To post data:
 {{ $url := "https://example.org/api" }}
 {{ $opts := dict
   "method" "post"
-  "body" `{"complete": true}` 
+  "body" `{"complete": true}`
   "headers" (dict  "Content-Type" "application/json")
 }}
 {{ $resource := resources.GetRemote $url $opts }}
@@ -94,7 +94,7 @@ To override the default cache key:
 
 ```go-html-template
 {{ $url := "https://example.org/images/a.jpg" }}
-{{ $opts := dict 
+{{ $opts := dict
   "key" (print $url (now.Format "2006-01-02"))
 }}
 {{ $resource := resources.GetRemote $url $opts }}

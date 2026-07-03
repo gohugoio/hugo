@@ -32,7 +32,7 @@ baseURL = 'https://example.org/docs/'
 Template:
 
 ```go-html-template
-{{ .Site.Home.Permalink }} → https://example.org/docs/ 
+{{ .Site.Home.Permalink }} → https://example.org/docs/
 {{ .Site.Home.RelPermalink }} → /docs/
 ```
 

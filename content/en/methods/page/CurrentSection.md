@@ -24,7 +24,7 @@ content/
 │   │   ├── auction-1.md
 │   │   └── auction-2.md  <-- current section: 2023-11
 │   ├── 2023-12/
-│   │   ├── _index.md     
+│   │   ├── _index.md
 │   │   ├── auction-3.md
 │   │   └── auction-4.md
 │   ├── _index.md         <-- current section: auctions
@@ -35,7 +35,7 @@ content/
 │   ├── book-1.md
 │   └── book-2.md         <-- current section: books
 ├── films/
-│   ├── _index.md         <-- current section: films 
+│   ├── _index.md         <-- current section: films
 │   ├── film-1.md
 │   └── film-2.md         <-- current section: films
 └── _index.md             <-- current section: home

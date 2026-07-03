@@ -119,7 +119,7 @@ Step 2
     {{- end }}
   {{- end -}}
   ```
-  
+
 Step 3
 : In your base template, conditionally include the KaTeX CSS within the head element.
 

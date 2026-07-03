@@ -6,7 +6,7 @@ keywords: [highlight]
 params:
   functions_and_methods:
     aliases: []
-    returnType: highlight.HighlightResult 
+    returnType: highlight.HighlightResult
     signatures: ['transform.HighlightCodeBlock CONTEXT [OPTIONS]']
 ---
 

@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [append]
     returnType: '[]any'
-    signatures: 
+    signatures:
       - collections.Append ELEMENT [ELEMENT...] SLICE
       - collections.Append SLICE1 SLICE2
 aliases: [/functions/append]
