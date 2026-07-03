@@ -132,7 +132,7 @@ Use these methods on the `GitInfo` object.
 
   ```go-html-template
   {{ with .GitInfo }}
-    {{ range .Ancestors | first 5 }} 
+    {{ range .Ancestors | first 5 }}
       {{ .CommitDate.Format "2006-01-02" }}: {{ .Subject }}
     {{ end }}
   {{ end }}
@@ -142,7 +142,7 @@ Use these methods on the `GitInfo` object.
 
   ```go-html-template
   {{ with .GitInfo }}
-    {{ range .Ancestors.Reverse | first 5 }} 
+    {{ range .Ancestors.Reverse | first 5 }}
       {{ .CommitDate.Format "2006-01-02" }}: {{ .Subject }}
     {{ end }}
   {{ end }}

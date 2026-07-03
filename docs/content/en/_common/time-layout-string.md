@@ -34,7 +34,7 @@ Time zone offsets|`"Z0700" "Z07:00" "Z07" "Z070000" "Z07:00:00"`
 {{ $t = time.AsTime $t }}
 {{ $t = $t.Format "Jan 02, 2006 3:04 PM Z07:00" }}
 
-{{ $t }} → Jan 27, 2023 11:44 PM -08:00 
+{{ $t }} → Jan 27, 2023 11:44 PM -08:00
 ```
 
 Strings such as `PST` and `CET` are not time zones. They are time zone _abbreviations_.

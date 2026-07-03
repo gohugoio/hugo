@@ -1,5 +1,5 @@
 ---
-title: transform.Emojify 
+title: transform.Emojify
 description: Runs a string through the Emoji emoticons processor.
 categories: []
 keywords: []

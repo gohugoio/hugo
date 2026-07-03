@@ -58,7 +58,7 @@ Use these methods on the `Data` object within a _taxonomy_ template.
 : (`page.Taxonomy`) Returns the `Taxonomy` object, consisting of a map of terms and the [weighted pages](g) associated with each term.
 
 ```go-html-template
-{{ $taxonomyObject := .Data.Terms }} 
+{{ $taxonomyObject := .Data.Terms }}
 ```
 
 > [!NOTE]

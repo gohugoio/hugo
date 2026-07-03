@@ -28,8 +28,8 @@ Hugo renders this HTML:
 ```html
 <figure class="ma0 w-75">
   <a href="https://www.nps.gov/zion/index.htm">
-    <img 
-      src="/images/examples/zion-national-park.jpg" 
+    <img
+      src="/images/examples/zion-national-park.jpg"
       alt="A photograph of Zion National Park"
     >
   </a>

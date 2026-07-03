@@ -56,8 +56,8 @@ Specify `level`, `scale`, and `targetDir` as needed to achieve the desired resul
 
 ```go-html-template
 {{ $text := "https://gohugo.io" }}
-{{ $opts := dict 
-  "level" "high" 
+{{ $opts := dict
+  "level" "high"
   "scale" 3
   "targetDir" "images/qr"
 }}
@@ -94,7 +94,7 @@ Then hide the QR code with CSS unless printing the page:
 /* Show QR code when printing */
 @media print {
   .qr-code {
-    display: block; 
+    display: block;
   }
 }
 ```

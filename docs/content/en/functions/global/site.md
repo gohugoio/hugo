@@ -6,7 +6,7 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType: 
+    returnType:
     signatures: [site]
 aliases: [/functions/site]
 ---

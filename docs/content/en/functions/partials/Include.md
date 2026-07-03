@@ -45,9 +45,9 @@ The "footer" partial renders the site footer. In this contrived example, the foo
 You can pass anything in context: a page, a page collection, a scalar value, a slice, or a map. In this example we pass the current page and three scalar values:
 
 ```go-html-template
-{{ $ctx := dict 
+{{ $ctx := dict
   "page" .
-  "name" "John Doe" 
+  "name" "John Doe"
   "major" "Finance"
   "gpa" 4.0
 }}

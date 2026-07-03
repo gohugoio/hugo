@@ -33,7 +33,7 @@ The `css.Sass` function accepts an options map.
   ```go-html-template
   {{ $opts := dict
     "transpiler" "dartsass"
-    "enableSourceMap" true 
+    "enableSourceMap" true
   }}
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
@@ -66,7 +66,7 @@ The `css.Sass` function accepts an options map.
   ```go-html-template
   {{ $opts := dict
     "transpiler" "dartsass"
-    "precision" 10 
+    "precision" 10
   }}
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}
   ```
@@ -131,10 +131,10 @@ The `css.Sass` function accepts an options map.
   ```go-html-template
   {{ $vars := dict
     "font-family" "\"Times New Roman\", Times, serif"
-    "font-size" "24px" 
+    "font-size" "24px"
     "primary-color" "blue"
   }}
-  {{ $opts := dict 
+  {{ $opts := dict
     "transpiler" "dartsass"
     "vars" $vars
   }}
@@ -172,12 +172,12 @@ The `css.Sass` function accepts an options map.
     "font-family" "\"Times New Roman\", Times, serif"
     "font-size" "24px"
     "primary-color" "blue"
-    "mobile" (dict 
+    "mobile" (dict
       "font-size" "12px"
       "primary-color" "red"
     )
   }}
-  {{ $opts := dict 
+  {{ $opts := dict
     "transpiler" "dartsass"
     "vars" $vars
   }}
@@ -235,7 +235,7 @@ The `css.Sass` function accepts an options map.
   {{< /code-toggle >}}
 
   ```go-html-template
-  {{ $opts := dict 
+  {{ $opts := dict
     "transpiler" "dartsass"
     "vars" site.Params.theme.style }}
   {{ $r := resources.Get "sass/main.scss" | css.Sass $opts }}

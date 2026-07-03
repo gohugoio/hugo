@@ -58,7 +58,7 @@ my-project/
 ├── archetypes/
 │   └── default.md
 ├── assets/
-├── config/       
+├── config/
 │   └── _default/
 │       └── hugo.toml
 ├── content/
@@ -115,7 +115,7 @@ Hugo creates a [unified file system](g), allowing you to mount two or more direc
 ```tree
 home/
 └── user/
-    ├── my-project/            
+    ├── my-project/
     │   ├── content/
     │   │   ├── books/
     │   │   │   ├── _index.md
@@ -125,7 +125,7 @@ home/
     │   ├── themes/
     │   │   └── my-theme/
     │   └── hugo.toml
-    └── shared-content/     
+    └── shared-content/
         └── films/
             ├── _index.md
             ├── film-1.md

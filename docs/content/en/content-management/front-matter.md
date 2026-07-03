@@ -112,7 +112,7 @@ The most common front matter fields are `date`, `draft`, `title`, and `weight`, 
 : (`map`) A map to define [sites matrix](g) and [sites complements](g) for the page.
 
   <!-- markdownlint-disable MD049 -->
-  
+
   {{< code-toggle file=content/_index.md fm=true >}}
   title = 'Home'
   [sites.matrix]

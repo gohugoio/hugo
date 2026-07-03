@@ -1,5 +1,5 @@
 ---
-title: collections.Where 
+title: collections.Where
 description: Returns a slice by filtering the given slice based on a key, operator, and value.
 categories: []
 keywords: []
@@ -320,7 +320,7 @@ This template:
 Is rendered to:
 
 ```html
-<ul>  
+<ul>
   <li><a href="/posts/post-2/">Post 2</a></li>
 </ul>
 ```

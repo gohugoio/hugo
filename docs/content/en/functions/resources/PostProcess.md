@@ -109,9 +109,9 @@ Default is `production` for `hugo build` and `development` for `hugo server`.
 `HUGO_FILE_X`
 : Hugo automatically mounts the following files from your project's root directory under `assets/_jsconfig`:
 
-- `babel.config.js`
-- `postcss.config.js`
-- `tailwind.config.js`
+- `babel.config.js`, `babel.config.mjs`, `babel.config.cjs`
+- `postcss.config.js`, `postcss.config.mjs`, `postcss.config.cjs`
+- `tailwind.config.js`, `tailwind.config.mjs`, `tailwind.config.cjs`
 
 For each file, Hugo creates a corresponding environment variable named `HUGO_FILE_:filename:`, where `:filename:` is the uppercase version of the filename with periods replaced by underscores. This allows you to access these files within your JavaScript, for example:
 

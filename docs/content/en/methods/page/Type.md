@@ -25,7 +25,7 @@ content/
 │   └── book-2.md
 ├── films/
 │   ├── _index.md
-│   ├── film-1.md 
+│   ├── film-1.md
 │   └── film-2.md
 └── _index.md
 ```

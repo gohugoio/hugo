@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: []
     returnType: debug.Timer
-    signatures: [debug.Timer NAME] 
+    signatures: [debug.Timer NAME]
 ---
 
 Use the `debug.Timer` function to determine execution time for a block of code, useful for finding performance bottlenecks in templates.

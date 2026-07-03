@@ -6,7 +6,7 @@ keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType: 
+    returnType:
     signatures: [range COLLECTION]
 aliases: [/functions/range]
 ---
@@ -47,7 +47,7 @@ With this contrived example:
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
 {{ range $s }}
-  {{ .Title }} 
+  {{ .Title }}
 {{ end }}
 ```
 
@@ -67,7 +67,7 @@ This template will render the page title three times:
 ```go-html-template
 {{ $s := slice "foo" "bar" "baz" }}
 {{ range $s }}
-  {{ $.Title }} 
+  {{ $.Title }}
 {{ end }}
 ```
 

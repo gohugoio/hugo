@@ -84,7 +84,7 @@ Consider this content structure:
 
 ```tree
 content/
-├── headless/    
+├── headless/
 │   ├── a.jpg
 │   ├── b.jpg
 │   ├── c.jpg

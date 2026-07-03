@@ -113,9 +113,9 @@ In the example above:
 Hugo renders the above to:
 
 ```html {trim=false}
-  
+
     <h2>my page title</h2>
-  
+
 ```
 
 ### Whitespace
@@ -194,7 +194,7 @@ You can split a template action over two or more lines. For example, these are e
 ```go-html-template
 {{ $v := or $arg1 $arg2 }}
 
-{{ $v := or 
+{{ $v := or
   $arg1
   $arg2
 }}
@@ -225,8 +225,8 @@ Other than using the `nil` keyword in comparisons, you may not use it as an argu
 These, on the other hand, are invalid:
 
 ```go-html-template
-{{ $a := nil }} 
-{{ add 3 nil }} 
+{{ $a := nil }}
+{{ add 3 nil }}
 {{ nil | print}}
 ```
 

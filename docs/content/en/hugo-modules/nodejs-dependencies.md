@@ -13,7 +13,7 @@ Modules that need Node packages (e.g. for Tailwind CSS) can declare those depend
 Each module declares its Node dependencies in a `package.json` file in its root directory, using the standard `dependencies` and `devDependencies` fields.
 
 <!-- TODO
-In the admonition below, remove the reference to v0.159.0 somewhere 
+In the admonition below, remove the reference to v0.159.0 somewhere
 after v0.174.0, 15 minor releases after the improvement.
 -->
 
@@ -37,7 +37,7 @@ project/
 ```
 
 <!-- TODO
-In the admonition below, remove the reference to v0.159.0 somewhere 
+In the admonition below, remove the reference to v0.159.0 somewhere
 after v0.174.0, 15 minor releases after the improvement.
 -->
 

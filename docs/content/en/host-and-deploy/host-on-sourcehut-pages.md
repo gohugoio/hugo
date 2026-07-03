@@ -1,6 +1,6 @@
 ---
 title: Host on SourceHut Pages
-description: Host your site on SourceHut Pages.
+description: Host your project on SourceHut Pages.
 categories: []
 keywords: []
 aliases: [/hosting-and-deployment/hosting-on-sourcehut/]

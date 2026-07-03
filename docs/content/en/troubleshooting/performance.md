@@ -36,7 +36,7 @@ The result will look something like this:
 ```text
 Template Metrics:
 
-     cumulative       average       maximum      cache  percent  cached  total  
+     cumulative       average       maximum      cache  percent  cached  total
        duration      duration      duration  potential   cached   count  count  template
      ----------      --------      --------  ---------  -------  ------  -----  --------
   36.037476822s  135.990478ms  225.765245ms         11        0       0    265  _partials/head.html

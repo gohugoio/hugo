@@ -8,11 +8,11 @@ aliases: [/hosting-and-deployment/deployment-with-rclone/]
 
 ## Assumptions
 
-- A web host running a web server. This could be a shared hosting environment or a VPS.
-- Access to your web host with any of the [protocols supported by rclone][], such as SFTP.
+- A web host running a web server. This could be a shared hosting environment or a VPS
+- Access to your web host with any of the [protocols supported by rclone][], such as SFTP
 - A functional static website built with Hugo
 - Deploying from an [Rclone][] compatible operating system
-- You have [installed Rclone][].
+- You have [installed Rclone][]
 
 **NB**: You can remove `--interactive` in the commands below once you are comfortable with rclone, if you wish. Also, `--gc` and `--minify` are optional in the commands below.
 

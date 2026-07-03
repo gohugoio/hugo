@@ -5,7 +5,7 @@ categories: []
 keywords: []
 params:
   functions_and_methods:
-    aliases: [] 
+    aliases: []
     returnType: bool
     signatures: [hugo.IsMultilingual]
 ---
