@@ -159,6 +159,37 @@ site RegularPages: {{ len site.RegularPages  }}
 	cContains(c, readFileFromFs(t, fs.Source, filepath.Join("content", "mypage.md")), `draft: true`)
 }
 
+// See issue 15078.
+func TestNewContentWithBuildCascade(t *testing.T) {
+	t.Parallel()
+
+	mm := afero.NewMemMapFs()
+	c := qt.New(t)
+
+	c.Assert(initFs(mm), qt.IsNil)
+	c.Assert(mm.MkdirAll(filepath.Join("content", "posts", "drafts"), 0o755), qt.IsNil)
+	c.Assert(afero.WriteFile(mm, filepath.Join("content", "posts", "drafts", "_index.md"), []byte(`---
+title: Drafts
+build:
+  render: never
+cascade:
+  draft: true
+  build:
+    render: link
+draft: true
+---
+`), 0o755), qt.IsNil)
+
+	cfg, fs := newTestCfg(c, mm)
+	conf := testconfig.GetTestConfigs(fs.Source, cfg)
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs})
+	c.Assert(err, qt.IsNil)
+
+	const target = "posts/drafts/trip-to-puebla/index.md"
+	c.Assert(create.NewContent(h, "", target, false), qt.IsNil)
+	c.Assert(readFileFromFs(c, fs.Source, filepath.Join("content", target)), qt.Contains, `title: "Trip to Puebla"`)
+}
+
 func initFs(fs afero.Fs) error {
 	perm := os.FileMode(0o755)
 	var err error
