@@ -51,7 +51,7 @@ defaultContentLanguage = "nn"
 
 [languages]
 [languages.nn]
-languageName = "Nynorsk"
+label = "Nynorsk"
 weight = 1
 title = "Tittel på Nynorsk"
 [languages.nn.params]
@@ -59,7 +59,7 @@ p1 = "p1nn"
 
 [languages.en]
 title = "Title in English"
-languageName = "English"
+label = "English"
 weight = 2
 [languages.en.params]
 p1 = "p1en"

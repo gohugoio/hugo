@@ -41,12 +41,12 @@ pagerSize = 1
 
 [languages]
 [languages.nn]
-languageName = "Nynorsk"
+label = "Nynorsk"
 weight = 1
 title = "Hugo på norsk"
 
 [languages.en]
-languageName = "English"
+label = "English"
 weight = 2
 title = "Hugo in English"
 -- layouts/single.html --

@@ -19,19 +19,23 @@ defaultContentLanguage = 'en'
 [[module.mounts]]
 source = 'content/en'
 target = 'content/en'
-lang = 'en'
+[module.mounts.sites.matrix]
+languages = 'en'
 [[module.mounts]]
 source = 'content/nn'
 target = 'content/nn'
-lang = 'nn'
+[module.mounts.sites.matrix]
+languages = 'nn'
 [[module.mounts]]
 source = 'content/no'
 target = 'content/no'
-lang = 'no'
+[module.mounts.sites.matrix]
+languages = 'no'
 [[module.mounts]]
 source = 'content/sv'
 target = 'content/sv'
-lang = 'sv'
+[module.mounts.sites.matrix]
+languages = 'sv'
 [[module.mounts]]
 source = 'layouts'
 target = 'layouts'

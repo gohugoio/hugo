@@ -25,11 +25,13 @@ weight = 2
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
-lang = 'en'
+[module.mounts.sites.matrix]
+languages = 'en'
 [[module.mounts]]
 source = 'content/sv'
 target = 'content'
-lang = 'sv'
+[module.mounts.sites.matrix]
+languages = 'sv'
 -- content/en/p1.md --
 ---
 title: "p1"

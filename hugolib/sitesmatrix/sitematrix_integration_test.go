@@ -1570,11 +1570,11 @@ defaultContentRoleInSubDir: true
 defaultContentLanguage: en
 languages:
   en:
-    languageName: English
+    label: English
   bn:
-    languageName: Bengali
+    label: Bengali
   fr:
-    languageName: French
+    label: French
 -- layouts/all.html --
 All.
 

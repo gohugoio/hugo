@@ -60,7 +60,7 @@ func newTestPageWithFile(filename string) *testPage {
 		"en",
 		"UTC",
 		langs.LanguageConfig{
-			LanguageName: "English",
+			Label: "English",
 		},
 		loggers.NewDefault(),
 	)

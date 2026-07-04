@@ -315,11 +315,11 @@ baseName = "o1main"
 
 [languages]
 [languages.en]
-languageName = "English"
+label = "English"
 [languages.en.params]
 pl1 = "p1-en-main"
 [languages.nb]
-languageName = "Norsk"
+label = "Norsk"
 [languages.nb.params]
 pl1 = "p1-nb-main"
 
@@ -368,7 +368,7 @@ baseName = "o2theme"
 
 [languages]
 [languages.en]
-languageName = "English2"
+label = "English2"
 [languages.en.params]
 pl1 = "p1-en-theme"
 pl2 = "p2-en-theme"
@@ -377,7 +377,7 @@ name   = "menu-lang-en-main"
 [[languages.en.menu.theme]]
 name   = "menu-lang-en-theme"
 [languages.nb]
-languageName = "Norsk2"
+label = "Norsk2"
 [languages.nb.params]
 pl1 = "p1-nb-theme"
 pl2 = "p2-nb-theme"
@@ -905,16 +905,16 @@ func TestConfigMergeLanguageDeepEmptyLeftSide(t *testing.T) {
 [params]
 p1 = "p1base"
 [languages.en]
-languageCode = 'en-US'
-languageName = 'English'
+locale = 'en-US'
+label = 'English'
 weight = 1
 [languages.en.markup.goldmark.extensions.typographer]
 leftDoubleQuote = '&ldquo;'   # default &ldquo;
 rightDoubleQuote = '&rdquo;'  # default &rdquo;
 
 [languages.de]
-languageCode = 'de-DE'
-languageName = 'Deutsch'
+locale = 'de-DE'
+label = 'Deutsch'
 weight = 2
 [languages.de.params]
 p1 = "p1de"
@@ -998,23 +998,6 @@ HTACCESS.
 	b := Test(t, files)
 
 	b.AssertFileContent("public/.htaccess", "HTACCESS")
-}
-
-func TestConfigLanguageCodeTopLevel(t *testing.T) {
-	t.Parallel()
-
-	files := `
--- hugo.toml --
-languageCode = "en-US"
--- layouts/home.html --
-LanguageCode: {{ .Site.LanguageCode }}|{{ site.Language.LanguageCode }}|
-
-
-`
-	b := Test(t, files, TestOptInfo())
-
-	b.AssertLogContains("deprecated")
-	b.AssertFileContent("public/index.html", "LanguageCode: en-US|en-US|")
 }
 
 // See #11159

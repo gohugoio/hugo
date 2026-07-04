@@ -74,7 +74,6 @@ func TestNewContentFromFile(t *testing.T) {
 	c := qt.New(t)
 
 	for i, cas := range cases {
-
 		c.Run(cas.name, func(c *qt.C) {
 			c.Parallel()
 
@@ -109,7 +108,6 @@ func TestNewContentFromFile(t *testing.T) {
 				}
 			}
 		})
-
 	}
 }
 
@@ -339,10 +337,10 @@ theme = "mytheme"
 [languages]
 [languages.en]
 weight = 1
-languageName = "English"
+label = "English"
 [languages.nn]
 weight = 2
-languageName = "Nynorsk"
+label = "Nynorsk"
 
 [module]
 [[module.mounts]]
@@ -351,11 +349,13 @@ languageName = "Nynorsk"
 [[module.mounts]]
   source = 'content'
   target = 'content'
-  lang = 'en'
+  [module.mounts.sites.matrix]
+  languages = 'en'
 [[module.mounts]]
   source = 'content_nn'
   target = 'content'
-  lang = 'nn'
+  [module.mounts.sites.matrix]
+  languages = 'nn'
 `
 	if mm == nil {
 		mm = afero.NewMemMapFs()
