@@ -881,12 +881,12 @@ defaultContentLanguage = "en"
 [languages]
 	[languages.en]
 	title = "Repro"
-	languageName = "English"
+	label = "English"
 	contentDir = "content/en"
 
 	[languages.zh_CN]
 	title = "Repro"
-	languageName = "简体中文"
+	label = "简体中文"
 	contentDir = "content/zh_CN"
 
 [outputFormats]

@@ -31,13 +31,13 @@ staticDir2 = ["staticen"]
 baseURL = "https://example.com/docs"
 weight = 10
 title = "In English"
-languageName = "English"
+label = "English"
 [languages.fr]
 staticDir2 = ["staticfr"]
 baseURL = "https://example.fr"
 weight = 20
 title = "Le Français"
-languageName = "Français"
+label = "Français"
 -- assets/css/main.css --
 body { color: red; }
 -- content/mysect/mybundle/index.md --

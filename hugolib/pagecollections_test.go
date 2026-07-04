@@ -608,7 +608,7 @@ func TestGetPageMultilingual(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.org/"
-languageCode = "en-us"
+locale = "en-us"
 defaultContentLanguage = "ru"
 title = "My New Hugo Project"
 uglyurls = true

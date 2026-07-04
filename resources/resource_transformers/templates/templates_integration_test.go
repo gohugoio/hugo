@@ -31,11 +31,11 @@ defaultContentLanguageInSubdir = true
 [Languages.en]
 weight = 10
 title = "In English"
-languageName = "English"
+label = "English"
 [Languages.fr]
 weight = 20
 title = "Le Français"
-languageName = "Français"
+label = "Français"
 -- i18n/en.toml --
 [hello]
 other = "Hello"

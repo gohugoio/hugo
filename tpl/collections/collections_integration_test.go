@@ -319,10 +319,10 @@ title: P3
 ---
 -- layouts/section.html --
 {{ $page := . }}
-WhereEq: {{ range where site.AllPages "Parent" "eq" $page }}{{ .Title }}|{{ end }}$
-WhereDefault: {{ range where site.AllPages "Parent" $page }}{{ .Title }}|{{ end }}$
-RangeIf: {{ range site.AllPages }}{{ if eq .Parent $page }}{{ .Title }}|{{ end }}{{ end }}$
-WhereNe: {{ range where site.AllPages "Parent" "ne" $page }}{{ .Title }}|{{ end }}$
+WhereEq: {{ range where site.Pages "Parent" "eq" $page }}{{ .Title }}|{{ end }}$
+WhereDefault: {{ range where site.Pages "Parent" $page }}{{ .Title }}|{{ end }}$
+RangeIf: {{ range site.Pages }}{{ if eq .Parent $page }}{{ .Title }}|{{ end }}{{ end }}$
+WhereNe: {{ range where site.Pages "Parent" "ne" $page }}{{ .Title }}|{{ end }}$
 `
 
 	b := hugolib.Test(t, files)

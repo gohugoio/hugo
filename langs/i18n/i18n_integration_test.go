@@ -167,14 +167,14 @@ b = 'b translated'
 	b.Assert(err.Error(), qt.Contains, "failed to load translations: reserved keys [description] mixed with unreserved keys [a b]: see the lang.Translate documentation for a list of reserved keys")
 }
 
-func TestI18nUseLanguageCodeWhenBothTranslationFilesArePresent(t *testing.T) {
+func TestI18nUseLocaleWhenBothTranslationFilesArePresent(t *testing.T) {
 	t.Parallel()
 
 	filesTemplate := `
 -- hugo.yaml --
 languages:
   en:
-    languageCode: en-us
+    locale: en-us
 -- i18n/en.yml --
 hello: Greetings from en!
 -- i18n/en-us.yml --
@@ -189,11 +189,11 @@ hello: Greetings from en-us!
 	}
 
 	runTest(filesTemplate)
-	runTest(strings.ReplaceAll(filesTemplate, "languageCode: en-us", "languageCode: En-US"))
+	runTest(strings.ReplaceAll(filesTemplate, "locale: en-us", "locale: En-US"))
 	runTest(strings.ReplaceAll(filesTemplate, "-- i18n/en-us.yml --", "-- i18n/en-US.yml --"))
 }
 
-func TestI18nUseLangWhenLanguageCodeFileIsMissing(t *testing.T) {
+func TestI18nUseLangWhenLocaleFileIsMissing(t *testing.T) {
 	t.Parallel()
 
 	filesTemplate := `
@@ -202,7 +202,7 @@ languages:
   en:
     title: English
   pt:
-    languageCode: pt-br
+    locale: pt-br
 -- i18n/en.yml --
 hello: Greetings from en!
 -- i18n/pt.yml --

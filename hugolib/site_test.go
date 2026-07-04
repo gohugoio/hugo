@@ -451,7 +451,8 @@ func TestClassCollector(t *testing.T) {
 
 			files := fmt.Sprintf(`
 -- hugo.toml --
-minify = %t
+[minify]
+minifyOutput = %t
 
 [build]
   writeStats = true

@@ -63,7 +63,7 @@ func TestContentMountMerge(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'Hugo Forum Topic #37225'
 theme = 'mytheme'
 
@@ -72,44 +72,49 @@ defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = true
 
 [languages.en]
-languageName = 'English'
+label = 'English'
 weight = 1
 [languages.de]
-languageName = 'Deutsch'
+label = 'Deutsch'
 weight = 2
 [languages.nl]
-languageName = 'Nederlands'
+label = 'Nederlands'
 weight = 3
 
 # EN content
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
-lang = 'en'
+[module.mounts.sites.matrix]
+languages = 'en'
 
 # DE content
 [[module.mounts]]
 source = 'content/de'
 target = 'content'
-lang = 'de'
+[module.mounts.sites.matrix]
+languages = 'de'
 
 # This fills in the gaps in DE content with EN content
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
-lang = 'de'
+[module.mounts.sites.matrix]
+languages = 'de'
 
 # NL content
 [[module.mounts]]
 source = 'content/nl'
 target = 'content'
-lang = 'nl'
+[module.mounts.sites.matrix]
+languages = 'nl'
 
 # This should fill in the gaps in NL content with EN content
 [[module.mounts]]
 source = 'content/en'
 target = 'content'
-lang = 'nl'
+[module.mounts.sites.matrix]
+languages = 'nl'
 
 -- content/de/_index.md --
 ---
@@ -153,7 +158,8 @@ title: "p3 (nl)"
 [[module.mounts]]
 source = 'content/nlt'
 target = 'content'
-lang = 'nl'
+[module.mounts.sites.matrix]
+languages = 'nl'
 -- themes/mytheme/content/nlt/p3.md --
 ---
 title: "p3 theme (nl)"
@@ -255,19 +261,22 @@ weight = 2
 [[module.mounts]]
 source = "content/en"
 target = "content"
-lang = "en"
+[module.mounts.sites.matrix]
+languages = "en"
 
 [[module.mounts]]
 source = "content/es"
 target = "content"
-lang = "es"
+[module.mounts.sites.matrix]
+languages = "es"
 
 # Populate the missing es content with en content
 
 [[module.mounts]]
 source = "content/en"
 target = "content"
-lang = "es"
+[module.mounts.sites.matrix]
+languages = "es"
 -- layouts/all.html --
 {{ .Title }}
 -- content/en/p1.md --

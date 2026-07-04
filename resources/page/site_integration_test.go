@@ -29,13 +29,13 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 defaultContentLanguage = 'de'
 defaultContentLanguageInSubdir = true
 [languages.en]
-languageName = 'English'
+label = 'English'
 weight = 1
 [languages.de]
-languageName = 'Deutsch'
+label = 'Deutsch'
 weight = 2
 -- layouts/home.html --
-{{ hugo.Sites.Default.Language.LanguageName }}
+{{ hugo.Sites.Default.Language.Label }}
 `
 
 	b := hugolib.Test(t, files)

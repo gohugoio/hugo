@@ -69,18 +69,18 @@ path="d"
 
 [languages.en]
 title = "Title in English"
-languageName = "English"
+label = "English"
 weight = 1
 [languages.nn]
-languageName = "Nynorsk"
+label = "Nynorsk"
 weight = 2
 title = "Tittel på nynorsk"
 [languages.nb]
-languageName = "Bokmål"
+label = "Bokmål"
 weight = 3
 title = "Tittel på bokmål"
 [languages.fr]
-languageName = "French"
+label = "French"
 weight = 4
 title = "French Title"
 
@@ -312,7 +312,7 @@ func TestMountSameSource(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = 'https://example.org/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'Hugo GitHub Issue #9426'
 
 disableKinds = ['RSS','sitemap','taxonomy','term']

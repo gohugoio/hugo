@@ -59,10 +59,10 @@ defaultContentLanguage = "en"
 [languages]
 [languages.en]
 weight = 1
-languageName = "English"
+label = "English"
 [languages.nn]
 weight = 2
-languageName = "Nynorsk"
+label = "Nynorsk"
 -- content/sect/doc1.md --
 ---
 title: doc1
@@ -139,7 +139,7 @@ disableKinds = ["term", "taxonomy"]
 [languages]
 [languages.en]
 weight = 1
-languageName = "English"
+label = "English"
 [languages.nn]
 weight = 2
 -- layouts/list.xml --
