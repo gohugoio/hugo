@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/resources/postpub"
 
@@ -293,6 +294,9 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 }
 
 // PostProcess processes r after the build.
+//
+// Deprecated: Use templates.Defer instead.
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
+	hugo.DeprecateWithLogger("resources.PostProcess", "Use templates.Defer instead. See https://gohugo.io/functions/templates/defer/", "v0.164.0", ns.deps.Log.Logger())
 	return ns.deps.ResourceSpec.PostProcess(r)
 }

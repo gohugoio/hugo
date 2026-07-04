@@ -277,3 +277,22 @@ disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 	)
 	b.AssertLogContains("! WARN  Dart Sass: hugo:vars")
 }
+
+// See issue 15086.
+func TestPostProcessDeprecated(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "section", "RSS", "sitemap", "robotsTXT", "404"]
+-- assets/css/main.css --
+body { color: red; }
+-- layouts/home.html --
+{{ $r := resources.Get "css/main.css" | minify | resources.PostProcess }}
+{{ $r.RelPermalink }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptInfo())
+
+	b.AssertLogContains("resources.PostProcess was deprecated in Hugo v0.164.0")
+}
