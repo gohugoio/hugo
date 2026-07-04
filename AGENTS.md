@@ -12,6 +12,7 @@
 * In tests, use `qt` matchers (e.g. `b.Assert(err, qt.ErrorMatches, ...)`) instead of raw `if`/`t.Fatal` checks.
 * In tests, always use the latest Hugo specification, e.g. for layouts, it's `layouts/page.html` and not `layouts/_default/single.html`, `layouts/list.html` and not `layouts/_default/list.html`
 * Never name tests `TestIssue1234`; always give the test function a descriptive name, e.g. `TestDisablePathToLower`, and add any issue reference as a Go doc function comment, e.g. `// See issue 1234.`.
+* If you borrow a test case (e.g. from the issue), that test's author must be added as co-author in the commit.
 * If you're a security researcher, read @SECURITY.md carefully.
 * Brevity is good. This applies to code, comments and commit messages. Don't write a novel.
 * Use `./check.sh ./somepackage/...` when iterating.

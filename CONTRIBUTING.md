@@ -72,6 +72,7 @@ To make the contribution process as seamless as possible, we ask for the followi
 * When you’re ready to create a pull request, be sure to:
     * Sign the [CLA](https://cla-assistant.io/gohugoio/hugo).
     * Have test cases for the new code. If you have questions about how to do this, please ask in your pull request.
+	 * If you borrow a test case (e.g. from the issue), that test's author must be added as [co-author](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/creating-a-commit-with-multiple-authors) in the commit.
     * Run `go fmt`.
     * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
