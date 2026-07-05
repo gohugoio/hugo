@@ -628,15 +628,25 @@ func (po *pageOutput) GetInternalTemplateBasePathAndDescriptor() (string, tplimp
 }
 
 func (ps *pageState) resolveTemplate(layouts ...string) (*tplimpl.TemplInfo, bool, error) {
-	dir, d := ps.GetInternalTemplateBasePathAndDescriptor()
+	pth, d := ps.GetInternalTemplateBasePathAndDescriptor()
+	var subPath string
 
 	if len(layouts) > 0 {
-		d.LayoutFromUser = layouts[0]
+		layout := layouts[0]
+		if i := strings.LastIndexByte(layout, '/'); i != -1 {
+			// A layout in a sub path, e.g. "foo/mylayout".
+			subPath, layout = layout[:i], layout[i+1:]
+			if layout == "" {
+				return nil, false, nil
+			}
+		}
+		d.LayoutFromUser = layout
 		d.LayoutFromUserMustMatch = true
 	}
 
 	q := tplimpl.TemplateQuery{
-		Path:     dir,
+		Path:     pth,
+		SubPath:  subPath,
 		Category: tplimpl.CategoryLayout,
 		Sites:    ps.s.siteVector,
 		Desc:     d,

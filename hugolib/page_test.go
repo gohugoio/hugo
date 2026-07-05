@@ -2167,3 +2167,177 @@ EF
 	b.AssertFileContent("public/s4/p9/index.html", "EF")
 	b.AssertFileContent("public/s4/p10/index.html", "EF")
 }
+
+// See issue 15056.
+func TestRenderViewSubdir(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- layouts/s1/p1/page.html --
+{{ .Render "a" }}|{{ .Render "b" }}|{{ .Render "c" }}|{{ .Render "foo/d" }}|{{ .Render "foo/e" }}|{{ .Render "foo/f" }}|{{ .Render "sub/foo/g" }}
+-- layouts/s1/p1/a.html --
+a{{- /**/ -}}
+-- layouts/s1/b.html --
+b{{- /**/ -}}
+-- layouts/c.html --
+c{{- /**/ -}}
+-- layouts/s1/p1/foo/d.html --
+d{{- /**/ -}}
+-- layouts/s1/foo/e.html --
+e{{- /**/ -}}
+-- layouts/foo/f.html --
+f{{- /**/ -}}
+-- layouts/sub/foo/g.html --
+g{{- /**/ -}}
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/s1/p1/index.html", "a|b|c|d|e|f|g")
+}
+
+// See issue 15056.
+func TestRenderViewSubdirRootPage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+---
+-- layouts/page.html --
+{{ .Render "foo/a" }}
+-- layouts/foo/a.html --
+a{{- /**/ -}}
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/p1/index.html", "a")
+}
+
+// See issue 15056.
+func TestRenderViewSubdirNotFound(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- layouts/s1/p1/page.html --
+{{ .Render "foo/missing" }}
+-- layouts/s1/p1/missing.html --
+should-not-match{{- /**/ -}}
+`
+
+	b, err := TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, `.*template "foo/missing" not found.*`)
+}
+
+// See issue 15056.
+func TestRenderViewSubdirTrailingSlash(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- layouts/s1/p1/page.html --
+{{ .Render "foo/" }}
+-- layouts/s1/p1/foo.html --
+should-not-match{{- /**/ -}}
+`
+
+	b, err := TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, `.*template "foo/" not found.*`)
+}
+
+// See issue 15056.
+func TestRenderViewSubdirCaseInsensitiveArgument(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- layouts/s1/p1/page.html --
+{{ .Render "Foo/Bar" }}
+-- layouts/s1/p1/foo/bar.html --
+bar{{- /**/ -}}
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/s1/p1/index.html", "bar")
+}
+
+// See issue 15056.
+func TestRenderViewSubdirCaseInsensitivePath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/s1/p1.md --
+---
+title: p1
+---
+-- layouts/s1/p1/page.html --
+{{ .Render "foo/bar" }}
+-- layouts/s1/p1/Foo/Bar.html --
+bar{{- /**/ -}}
+`
+
+	b := Test(t, files)
+	b.AssertFileContent("public/s1/p1/index.html", "bar")
+}
+
+// See issue 15056.
+func TestRenderViewSubdirWithUnderscore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+---
+-- content/s1/p2.md --
+---
+title: p2
+---
+-- content/s1/p3.md --
+---
+title: p3
+---
+-- layouts/page.html --
+{{ .Title }}: {{ .Render "_views/a" }}
+-- layouts/_views/a.html --
+layouts/_views/a.html
+-- layouts/s1/_views/a.html --
+layouts/s1/_views/a.html
+-- layouts/s1/p3/_views/a.html --
+layouts/s1/p3/_views/a.html
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "p1: layouts/_views/a.html")
+	b.AssertFileContent("public/s1/p2/index.html", "p2: layouts/s1/_views/a.html")    // fails
+	b.AssertFileContent("public/s1/p3/index.html", "p3: layouts/s1/p3/_views/a.html") // fails
+}

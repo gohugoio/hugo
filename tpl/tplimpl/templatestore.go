@@ -388,6 +388,10 @@ type TemplateQuery struct {
 	// The path to walk down to.
 	Path string
 
+	// Currently only set for page.Render, e.g. using "foo/bar/mylayout";
+	// in that example SubPath will be "foo/bar" and LayoutFromUser will be "mylayout".
+	SubPath string
+
 	// The name to look for. Used for shortcode queries.
 	Name string
 
@@ -426,6 +430,9 @@ func (q *TemplateQuery) init() {
 
 	q.Name = strings.ToLower(q.Name)
 	q.Desc.LayoutFromUser = strings.ToLower(q.Desc.LayoutFromUser)
+	if q.SubPath != "" {
+		q.SubPath = paths.AddLeadingSlash(strings.ToLower(paths.ToSlashTrim(q.SubPath)))
+	}
 
 	if q.Category == 0 {
 		panic("category not set")
@@ -857,34 +864,53 @@ func (s *TemplateStore) inPath(k1, k2 string) bool {
 }
 
 func (s *TemplateStore) findBestMatchWalkPath(q TemplateQuery, k1 string, slashCountK1 int, best *bestMatch) {
+	if q.SubPath != "" {
+		// Match templates in <dir><SubPath> only, for every ancestor dir of k1.
+		// Walk from the root down (as WalkPath does) so the nearest match wins
+		// on equal-weight ties.
+		for i, distance := 0, slashCountK1; ; distance-- {
+			k2 := k1[:i] + q.SubPath
+			if v := s.treeMain.Get(k2); v != nil {
+				s.findBestMatchIn(q, k2, distance, v, best)
+			}
+			if i == len(k1) {
+				break
+			}
+			if j := strings.IndexByte(k1[i+1:], '/'); j >= 0 {
+				i += j + 1
+			} else {
+				i = len(k1)
+			}
+		}
+		return
+	}
+
 	s.treeMain.WalkPath(k1, func(k2 string, v map[nodeKey]*TemplInfo) (bool, error) {
 		if !s.inPath(k1, k2) {
 			return false, nil
 		}
-		slashCountK2 := strings.Count(k2, "/")
-		distance := slashCountK1 - slashCountK2
-
-		for k, vv := range v {
-			if vv.category != q.Category {
-				continue
-			}
-
-			if !q.Consider(vv) {
-				continue
-			}
-
-			weight := s.dh.compareDescriptors(q.Category, q.Desc, k.d, q.Sites, vv.matrix)
-
-			weight.distance = distance
-			isBetter := best.isBetter(weight, vv)
-
-			if isBetter {
-				best.updateValues(weight, k2, k.d, vv)
-			}
-		}
-
+		s.findBestMatchIn(q, k2, slashCountK1-strings.Count(k2, "/"), v, best)
 		return false, nil
 	})
+}
+
+func (s *TemplateStore) findBestMatchIn(q TemplateQuery, k2 string, distance int, v map[nodeKey]*TemplInfo, best *bestMatch) {
+	for k, vv := range v {
+		if vv.category != q.Category {
+			continue
+		}
+
+		if !q.Consider(vv) {
+			continue
+		}
+
+		weight := s.dh.compareDescriptors(q.Category, q.Desc, k.d, q.Sites, vv.matrix)
+		weight.distance = distance
+
+		if best.isBetter(weight, vv) {
+			best.updateValues(weight, k2, k.d, vv)
+		}
+	}
 }
 
 func (t *TemplateStore) addDeferredTemplate(owner *TemplInfo, name string, n *parse.ListNode) error {
@@ -1678,7 +1704,7 @@ func (s *TemplateStore) parseTemplates() error {
 		return err
 	}
 
-	// Prese shortcodes.
+	// Parse shortcodes.
 	for _, v := range s.treeShortcodes.All() {
 		for _, vv := range v {
 			for _, vvv := range vv {
