@@ -749,3 +749,24 @@ Output format: foo|Title: {{ .Title }}
 </head>
 	`)
 }
+
+// Issue 14576
+func TestHomeRedirectWithUglyURLs(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+defaultContentLanguageInSubdir = true
+uglyURLs = true
+-- layouts/home.html --
+HOME
+-- layouts/alias.html --
+ALIAS
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "ALIAS")
+	b.AssertFileContent("public/en/index.html", "HOME")
+}

@@ -364,7 +364,16 @@ func (s *Site) renderDefaultSiteRedirect(home *pageState) error {
 		//    /,/guest/,/guest/v1.0.0  = /guest/v1.0.0/en/
 		// /guest/v1.0.0/
 		//    /,/guest/ =  /guest/v1.0.0/
-		parts := strings.Split(strings.Trim(homeLink, "/"), "/")
+		//
+		// With uglyURLs enabled homeLink points to a file (e.g. /en/index.html)
+		// rather than a directory. Use the directory it lives in so the file
+		// name isn't treated as an extra path segment, which would add a
+		// redirect that overwrites the home page itself (#14576).
+		homeDir := homeLink
+		if !strings.HasSuffix(homeDir, "/") {
+			homeDir = path.Dir(homeDir)
+		}
+		parts := strings.Split(strings.Trim(homeDir, "/"), "/")
 
 		for i := 0; i < len(parts)-1; i++ {
 			ps = append(ps, paths.AddLeadingAndTrailingSlash(strings.Join(parts[0:i+1], "/")))
