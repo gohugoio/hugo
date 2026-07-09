@@ -26,8 +26,8 @@ var debug = 0 ? console.log.bind(console, '[index]') : function () {};
 		// Register AlpineJS data controllers.
 		let searchConfig = {
 			index: 'hugodocs',
-			app_id: 'D1BPLZHGYQ',
-			api_key: '6df94e1e5d55d258c56f60d974d10314',
+			app_id: params.algoliaAppId,
+			api_key: params.algoliaApiKey,
 			params: params,
 		};
 

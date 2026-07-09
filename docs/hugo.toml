@@ -124,6 +124,9 @@ disableAliases = true
 [params]
   description = "The world’s fastest framework for building websites"
   ghrepo      = "https://github.com/gohugoio/hugoDocs/"
+  [params.algolia]
+    app_id  = "D1BPLZHGYQ"
+    api_key = "6df94e1e5d55d258c56f60d974d10314"
   [params.render_hooks.link]
     errorLevel = 'warning' # ignore (default), warning, or error (fails the build)
   [params.social.mastodon]
