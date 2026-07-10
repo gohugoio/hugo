@@ -71,6 +71,9 @@ plugs:
 
 # Runtime environment
 environment:
+  # Home
+  HOME: $SNAP_REAL_HOME
+
   # Ruby
   GEM_HOME: $SNAP_USER_DATA/gems
   GEM_PATH: $SNAP/usr/share/rubygems-integration/all:$SNAP/usr/lib/ruby/gems/3.2.0:$SNAP/var/lib/gems/3.2.0
