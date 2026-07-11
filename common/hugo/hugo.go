@@ -33,6 +33,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/internal/warpc"
 
 	"github.com/spf13/afero"
 
@@ -211,7 +212,10 @@ func GetDependencyList() []string {
 
 // GetDependencyListNonGo returns a list of non-Go dependencies.
 func GetDependencyListNonGo() []string {
-	deps := []string{formatDep("github.com/webmproject/libwebp", "v1.6.0")} // via WASM. TODO(bep) get versions from the plugin setup.
+	var deps []string
+	for _, dep := range warpc.GetWASMDeps() {
+		deps = append(deps, formatDep(dep[0], dep[1]))
+	}
 
 	if IsExtended {
 		deps = append(
@@ -225,7 +229,8 @@ func GetDependencyListNonGo() []string {
 		if IsDartSassGeV2() {
 			dartSassPath = "github.com/sass/dart-sass"
 		}
-		deps = append(deps,
+		deps = append(
+			deps,
 			formatDep(dartSassPath+"/protocol", dartSass.ProtocolVersion),
 			formatDep(dartSassPath+"/compiler", dartSass.CompilerVersion),
 			formatDep(dartSassPath+"/implementation", dartSass.ImplementationVersion),

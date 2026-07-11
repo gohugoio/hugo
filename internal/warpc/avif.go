@@ -25,6 +25,13 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 )
 
+// Keep in sync with genavif/Makefile.
+const (
+	libavifVersion = "v1.4.1"
+	aomVersion     = "v3.14.1"
+	dav1dVersion   = "1.5.3"
+)
+
 var (
 	_ SourceProvider      = AvifInput{}
 	_ DestinationProvider = AvifInput{}

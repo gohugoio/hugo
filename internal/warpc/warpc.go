@@ -48,6 +48,17 @@ const (
 
 const currentVersion = 1
 
+// GetWASMDeps returns version information for the C libraries bundled as WASM.
+func GetWASMDeps() [][2]string {
+	return [][2]string{
+		{"aomedia.googlesource.com/aom", aomVersion},
+		{"code.videolan.org/videolan/dav1d", dav1dVersion},
+		{"github.com/AOMediaCodec/libavif", libavifVersion},
+		{"github.com/KaTeX/KaTeX", katexVersion},
+		{"github.com/webmproject/libwebp", libwebpVersion},
+	}
+}
+
 //go:embed wasm/quickjs.wasm
 var quickjsWasm []byte
 
@@ -348,7 +359,8 @@ func (d *dispatcher[Q, R]) inputBlobs() error {
 					call.done()
 				}
 				return nil
-			}); err != nil {
+			},
+		); err != nil {
 			inputErr = err
 			break
 		}
@@ -384,7 +396,8 @@ func (d *dispatcher[Q, R]) inputJSON() error {
 					call.done()
 				}
 				return nil
-			}); err != nil {
+			},
+		); err != nil {
 			inputErr = err
 			break
 		}
@@ -679,7 +692,8 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 					if err != nil {
 						return toErr("quickjs", errBuff, err)
 					}
-					ctx = experimental.WithImportResolver(ctx,
+					ctx = experimental.WithImportResolver(
+						ctx,
 						func(name string) api.Module {
 							if name == opts.Runtime.Name {
 								return runtimeInstance

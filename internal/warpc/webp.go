@@ -28,6 +28,9 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 )
 
+// Keep in sync with genwebp/Makefile.
+const libwebpVersion = "v1.6.0"
+
 var (
 	_ SourceProvider      = WebpInput{}
 	_ DestinationProvider = WebpInput{}
