@@ -388,7 +388,11 @@ func (df DirFile) String() string {
 func PathEscape(pth string) string {
 	u, err := url.Parse(pth)
 	if err != nil {
-		panic(err)
+		// pth is not a valid URL, e.g. it contains a bare '%' that is not part
+		// of a valid percent-encoding (a filename may legitimately contain one).
+		// Escape it as a path so we degrade gracefully instead of panicking.
+		// See https://github.com/gohugoio/hugo/issues/12447
+		return (&url.URL{Path: pth}).EscapedPath()
 	}
 	return u.EscapedPath()
 }

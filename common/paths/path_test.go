@@ -360,6 +360,7 @@ func TestPathEscape(t *testing.T) {
 		{"/simple-path", "/simple-path"},
 		{"/path/with/slash", "/path/with/slash"},
 		{"/path/with special&chars", "/path/with%20special&chars"},
+		{"/about/index.md%", "/about/index.md%25"},
 	} {
 		in := this.input
 		for range 2 {
