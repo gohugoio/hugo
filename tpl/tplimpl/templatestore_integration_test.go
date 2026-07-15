@@ -395,6 +395,46 @@ title: "P1"
 	b.Assert(len(unused), qt.Equals, 5, qt.Commentf("%#v", names))
 }
 
+func TestPrintUnusedTemplatesIgnore(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+printUnusedTemplates=true
+ignoreUnusedTemplates=['/_partials/unusedpartial.html']
+-- content/p1.md --
+---
+title: "P1"
+---
+{{< usedshortcode >}}
+-- layouts/baseof.html --
+{{ block "main" . }}{{ end }}
+-- layouts/baseof.json --
+{{ block "main" . }}{{ end }}
+-- layouts/home.html --
+{{ define "main" }}FOO{{ end }}
+-- layouts/single.json --
+-- layouts/single.html --
+{{ define "main" }}MAIN /_default/single.html{{ end }}
+-- layouts/post/single.html --
+{{ define "main" }}MAIN{{ end }}
+-- layouts/_partials/usedpartial.html --
+-- layouts/_partials/unusedpartial.html --
+-- layouts/_shortcodes/usedshortcode.html --
+{{ partial "usedpartial.html" }}
+-- layouts/_shortcodes/unusedshortcode.html --
+
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	// The ignore list only affects logging, not template detection.
+	// All 5 unused templates should still be detected.
+	unused := b.H.GetTemplateStore().UnusedTemplates()
+	b.Assert(len(unused), qt.Equals, 5, qt.Commentf("unused templates should still be detected"))
+}
+
 func TestCreateManyTemplateStores(t *testing.T) {
 	t.Parallel()
 	htesting.SkipSlowTestUnlessCI(t)

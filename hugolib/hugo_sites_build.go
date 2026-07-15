@@ -635,15 +635,30 @@ func (h *HugoSites) printUnusedTemplatesOnce() error {
 		if conf.PrintUnusedTemplates {
 			unusedTemplates := h.GetTemplateStore().UnusedTemplates()
 			for _, unusedTemplate := range unusedTemplates {
+				p := unusedTemplate.PathInfo.Path()
+				if isIgnoredUnusedTemplate(conf.IgnoreUnusedTemplates, p) {
+					continue
+				}
 				if unusedTemplate.Fi != nil {
-					h.Log.Warnf("Template %s is unused, source %q", unusedTemplate.PathInfo.Path(), unusedTemplate.Fi.Meta().Filename)
+					h.Log.Warnf("Template %s is unused, source %q", p, unusedTemplate.Fi.Meta().Filename)
 				} else {
-					h.Log.Warnf("Template %s is unused", unusedTemplate.PathInfo.Path())
+					h.Log.Warnf("Template %s is unused", p)
 				}
 			}
 		}
 	})
 	return nil
+}
+
+// isIgnoredUnusedTemplate reports whether p matches any of the glob patterns.
+func isIgnoredUnusedTemplate(patterns []string, p string) bool {
+	p = strings.TrimPrefix(p, "/")
+	for _, pattern := range patterns {
+		if ok, _ := path.Match(strings.TrimPrefix(pattern, "/"), p); ok {
+			return true
+		}
+	}
+	return false
 }
 
 // postProcess runs the post processors, e.g. writing the hugo_stats.json file.

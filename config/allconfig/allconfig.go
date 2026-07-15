@@ -247,6 +247,7 @@ func (c Config) cloneForLang() *Config {
 	x.MainSections = copyStringSlice(x.MainSections)
 	x.IgnoreLogs = copyStringSlice(x.IgnoreLogs)
 	x.IgnoreFiles = copyStringSlice(x.IgnoreFiles)
+	x.IgnoreUnusedTemplates = copyStringSlice(x.IgnoreUnusedTemplates)
 	x.Theme = copyStringSlice(x.Theme)
 
 	// Collapse all static dirs to one.
@@ -759,6 +760,10 @@ type RootConfig struct {
 
 	// Whether to track and print unused templates during the build.
 	PrintUnusedTemplates bool
+
+	// Glob patterns matched against a template's path to exclude it from the
+	// unused templates warnings printed when PrintUnusedTemplates is enabled.
+	IgnoreUnusedTemplates []string
 
 	// Enable to print warnings for missing translation strings.
 	PrintI18nWarnings bool

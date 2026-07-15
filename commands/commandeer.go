@@ -628,7 +628,7 @@ func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("printI18nWarnings", "", false, "print missing translations")
 	cmd.Flags().BoolP("printPathWarnings", "", false, "print warnings on duplicate target paths etc.")
-	cmd.Flags().BoolP("printUnusedTemplates", "", false, "print warnings on unused templates.")
+	cmd.Flags().BoolP("printUnusedTemplates", "", false, "print warnings on potentially unused templates.")
 	cmd.Flags().StringVarP(&r.cpuprofile, "profile-cpu", "", "", "write cpu profile to `file`")
 	cmd.Flags().StringVarP(&r.memprofile, "profile-mem", "", "", "write memory profile to `file`")
 	cmd.Flags().BoolVarP(&r.printm, "printMemoryUsage", "", false, "print memory usage to screen at intervals")
