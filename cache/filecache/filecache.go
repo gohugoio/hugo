@@ -54,10 +54,14 @@ type Cache struct {
 	initOnce sync.Once
 	isInited bool
 	initErr  error
+
+	caseInsensitiveFilesystemInit sync.Once
+	caseInsensitiveFilesystem     bool
 }
 
 type lockTracker struct {
-	seen *maphelpers.ConcurrentSet[string]
+	seen                *maphelpers.ConcurrentSet[string]
+	seenCaseInsensitive *maphelpers.ConcurrentSet[string]
 
 	*locker.Locker
 }
@@ -66,6 +70,7 @@ type lockTracker struct {
 // after a Hugo build.
 func (l *lockTracker) Lock(id string) {
 	l.seen.AddIfAbsent(id)
+	l.seenCaseInsensitive.AddIfAbsent(foldID(id))
 	l.Locker.Lock(id)
 }
 
@@ -82,9 +87,13 @@ func NewCache(fs afero.Fs, cfg FileCacheConfig) *Cache {
 	}
 
 	return &Cache{
-		Fs:          fs,
-		entryLocker: &lockTracker{Locker: locker.NewLocker(), seen: maphelpers.NewConcurrentSet[string]()},
-		cfg:         cfg,
+		Fs: fs,
+		entryLocker: &lockTracker{
+			Locker:              locker.NewLocker(),
+			seen:                maphelpers.NewConcurrentSet[string](),
+			seenCaseInsensitive: maphelpers.NewConcurrentSet[string](),
+		},
+		cfg: cfg,
 	}
 }
 
@@ -471,6 +480,34 @@ func (c *Cache) isExpired(modTime time.Time) bool {
 	// Note the use of time.Since here.
 	// We cannot use Hugo's global Clock for this.
 	return c.cfg.MaxAge == 0 || time.Since(modTime) > c.cfg.MaxAge
+}
+
+func (c *Cache) isCaseInsensitiveFilesystem() bool {
+	c.caseInsensitiveFilesystemInit.Do(func() {
+		c.caseInsensitiveFilesystem = c.detectCaseInsensitiveFilesystem()
+	})
+	return c.caseInsensitiveFilesystem
+}
+
+func (c *Cache) detectCaseInsensitiveFilesystem() bool {
+	nameUpper := fmt.Sprintf(".hugo-case-check-%p-%d-A", c, time.Now().UnixNano())
+	nameLower := strings.TrimSuffix(nameUpper, "A") + "a"
+
+	f, err := c.Fs.Create(nameUpper)
+	if err != nil {
+		return false
+	}
+	f.Close()
+
+	defer c.Fs.Remove(nameUpper)
+	defer c.Fs.Remove(nameLower)
+
+	_, err = c.Fs.Stat(nameLower)
+	return err == nil
+}
+
+func foldID(name string) string {
+	return strings.ToLower(name)
 }
 
 // For testing

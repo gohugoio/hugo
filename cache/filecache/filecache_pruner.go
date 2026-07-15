@@ -58,6 +58,8 @@ func (c *Cache) Prune(force bool) (int, error) {
 	}
 
 	counter := 0
+	hasSeen := !force && c.entryLocker.seen.Len() > 0
+	caseInsensitiveFilesystem := hasSeen && c.isCaseInsensitiveFilesystem()
 
 	err := afero.Walk(c.Fs, "", func(name string, info os.FileInfo, err error) error {
 		if info == nil {
@@ -93,9 +95,12 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		shouldRemove := force || c.isExpired(info.ModTime())
 
-		if !shouldRemove && c.entryLocker.seen.Len() > 0 {
+		if !shouldRemove && hasSeen {
 			// Remove it if it's not been touched/used in the last build.
 			shouldRemove = !c.entryLocker.seen.Has(name)
+			if shouldRemove && caseInsensitiveFilesystem {
+				shouldRemove = !c.entryLocker.seenCaseInsensitive.Has(foldID(name))
+			}
 		}
 
 		if shouldRemove {
