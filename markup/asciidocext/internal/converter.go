@@ -318,7 +318,7 @@ func (a *AsciiDocConverter) extractTOC(src []byte) ([]byte, *tableofcontents.Fra
 		toVisit []*html.Node
 	)
 	f = func(n *html.Node) bool {
-		if n.Type == html.ElementNode && n.Data == "div" && attr(n, "id") == "toc" {
+		if n.Type == html.ElementNode && (n.Data == "div" || n.Data == "nav") && attr(n, "id") == "toc" {
 			toc = parseTOC(n)
 			if !a.Cfg.MarkupConfig().AsciiDocExt.PreserveTOC {
 				n.Parent.RemoveChild(n)
@@ -364,7 +364,7 @@ func parseTOC(doc *html.Node) *tableofcontents.Fragments {
 	f = func(n *html.Node, row, level int) {
 		if n.Type == html.ElementNode {
 			switch n.Data {
-			case "ul":
+			case "ul", "ol":
 				if level == 0 {
 					row++
 				}
