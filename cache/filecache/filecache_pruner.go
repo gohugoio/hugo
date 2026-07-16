@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
@@ -58,6 +59,11 @@ func (c *Cache) Prune(force bool) (int, error) {
 	}
 
 	counter := 0
+	seen := make(map[string][]string, c.entryLocker.seen.Len())
+	for name := range c.entryLocker.seen.All() {
+		key := strings.ToLower(name)
+		seen[key] = append(seen[key], name)
+	}
 
 	err := afero.Walk(c.Fs, "", func(name string, info os.FileInfo, err error) error {
 		if info == nil {
@@ -95,7 +101,7 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		if !shouldRemove && c.entryLocker.seen.Len() > 0 {
 			// Remove it if it's not been touched/used in the last build.
-			shouldRemove = !c.entryLocker.seen.Has(name)
+			shouldRemove = !c.wasSeen(name, info, seen)
 		}
 
 		if shouldRemove {
@@ -114,6 +120,22 @@ func (c *Cache) Prune(force bool) (int, error) {
 	})
 
 	return counter, err
+}
+
+func (c *Cache) wasSeen(name string, info os.FileInfo, seen map[string][]string) bool {
+	for _, seenName := range seen[strings.ToLower(name)] {
+		if seenName == name {
+			return true
+		}
+		if !strings.EqualFold(seenName, name) {
+			continue
+		}
+		seenInfo, err := c.Fs.Stat(seenName)
+		if err == nil && os.SameFile(info, seenInfo) {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Cache) pruneRootDirs(force bool) (int, error) {
