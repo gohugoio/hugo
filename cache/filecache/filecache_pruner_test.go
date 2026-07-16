@@ -15,6 +15,8 @@ package filecache_test
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"testing"
 	"testing/synctest"
 	"time"
@@ -112,4 +114,32 @@ dir = ":resourceDir/_gen"
 
 		}
 	})
+}
+
+// See #15101.
+func TestPruneKeepsRecentlyUsedCaseInsensitiveFile(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	fsys := afero.NewBasePathFs(afero.NewOsFs(), t.TempDir())
+	const (
+		seenName = "images/mybundle/cover"
+		diskName = "images/MyBundle/cover"
+	)
+	c.Assert(fsys.MkdirAll(path.Dir(diskName), 0o755), qt.IsNil)
+	c.Assert(afero.WriteFile(fsys, diskName, []byte("cached"), 0o644), qt.IsNil)
+
+	seenInfo, err := fsys.Stat(seenName)
+	if err != nil {
+		t.Skip("filesystem is case-sensitive")
+	}
+	diskInfo, err := fsys.Stat(diskName)
+	c.Assert(err, qt.IsNil)
+	c.Assert(os.SameFile(seenInfo, diskInfo), qt.IsTrue)
+
+	cache := filecache.NewCache(fsys, filecache.FileCacheConfig{Dir: "cache", MaxAge: -1})
+	c.Assert(cache.GetString(seenName), qt.Equals, "cached")
+	count, err := cache.Prune(false)
+	c.Assert(err, qt.IsNil)
+	c.Assert(count, qt.Equals, 0)
+	c.Assert(cache.GetString(seenName), qt.Equals, "cached")
 }
