@@ -19,36 +19,23 @@ import (
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
-	strikethroughAst "github.com/yuin/goldmark/extension/ast"
+	strikethroughAst "github.com/yuin/goldmark/v2/extension/ast"
 
-	emojiAst "github.com/yuin/goldmark-emoji/ast"
-
-	"github.com/gohugoio/hugo-goldmark-extensions/extras"
-	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/renderer"
-	"github.com/yuin/goldmark/text"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/renderer/html"
 )
 
-var (
-	tocResultKey = parser.NewContextKey()
-	tocEnableKey = parser.NewContextKey()
-)
-
-type tocTransformer struct {
-	r renderer.Renderer
-}
-
-func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parser.Context) {
-	if b, ok := pc.Get(tocEnableKey).(bool); !ok || !b {
-		return
-	}
-
+// buildTableOfContents walks the parsed document and builds the table of
+// contents.
+//
+// GOLDMARK-V2: In v1 this was a parser AST transformer that stored its result
+// in the parser.Context. Since v2's Parser.Parse(source) creates its own
+// internal context that callers can neither seed nor read back, we now walk the
+// returned AST directly after parsing. The heading anchor ids are read from the
+// heading `id` attributes (already assigned and de-duplicated during parsing).
+func buildTableOfContents(n ast.Node, src []byte, r html.Renderer) *tableofcontents.Fragments {
 	var (
 		toc         tableofcontents.Builder
 		tocHeading  = &tableofcontents.Heading{}
@@ -56,11 +43,8 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 		row         = -1
 		inHeading   bool
 		headingText bytes.Buffer
+		identifiers []string
 	)
-
-	if ids := pc.IDs().(stringValuesProvider).StringValues(); len(ids) > 0 {
-		toc.SetIdentifiers(ids)
-	}
 
 	ast.Walk(n, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		s := ast.WalkStatus(ast.WalkContinue)
@@ -90,24 +74,22 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 				row++
 			}
 
-			id, found := heading.AttributeString("id")
-			if found {
-				tocHeading.ID = string(id.([]byte))
+			if id, found := heading.Attribute("id"); found {
+				idStr := string(id.Bytes(src))
+				tocHeading.ID = idStr
 				tocHeading.Level = level
+				identifiers = append(identifiers, idStr)
 			}
 		case
 			ast.KindCodeSpan,
 			ast.KindLink,
 			ast.KindImage,
 			ast.KindEmphasis,
-			strikethroughAst.KindStrikethrough,
-			emojiAst.KindEmoji,
-			extras.KindDelete,
-			extras.KindInsert,
-			extras.KindMark,
-			extras.KindSubscript,
-			extras.KindSuperscript:
-			err := t.r.Render(&headingText, reader.Source(), n)
+			strikethroughAst.KindStrikethrough:
+			// GOLDMARK-V2: emoji (goldmark-emoji) and the hugo-goldmark-extensions
+			// (extras: delete/insert/mark/subscript/superscript) node kinds are
+			// omitted here because those modules have no v2 release yet.
+			err := r.Render(&headingText, src, n)
 			if err != nil {
 				return s, err
 			}
@@ -116,11 +98,10 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 		case
 			ast.KindAutoLink,
 			ast.KindRawHTML,
-			ast.KindText,
-			ast.KindString,
-			passthrough.KindPassthroughInline,
-			passthrough.KindPassthroughBlock:
-			err := t.r.Render(&headingText, reader.Source(), n)
+			ast.KindText:
+			// GOLDMARK-V2: ast.KindString was removed (string content is now
+			// Text); passthrough kinds omitted (external v1-only module).
+			err := r.Render(&headingText, src, n)
 			if err != nil {
 				return s, err
 			}
@@ -129,27 +110,11 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 		return s, nil
 	})
 
-	pc.Set(tocResultKey, toc.Build())
-}
-
-type tocExtension struct {
-	options []renderer.Option
-}
-
-func newTocExtension(options []renderer.Option) goldmark.Extender {
-	return &tocExtension{
-		options: options,
+	if len(identifiers) > 0 {
+		toc.SetIdentifiers(identifiers)
 	}
-}
 
-func (e *tocExtension) Extend(m goldmark.Markdown) {
-	r := goldmark.DefaultRenderer()
-	r.AddOptions(e.options...)
-	m.Parser().AddOptions(parser.WithASTTransformers(util.Prioritized(&tocTransformer{
-		r: r,
-	},
-		// This must run after the ID generation (priority 100).
-		110)))
+	return toc.Build()
 }
 
 var tocSanitizerPolicy = newTOCSanitizerPolicy()
@@ -172,30 +137,6 @@ func newTOCSanitizerPolicy() *bluemonday.Policy {
 	p.AllowAttrs("datetime").OnElements("del", "ins", "time")
 	p.AllowAttrs("value").OnElements("data")
 	return p
-}
-
-// tocPassthroughRenderer renders passthrough nodes as raw text for the TOC.
-type tocPassthroughRenderer struct{}
-
-func (r *tocPassthroughRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(passthrough.KindPassthroughInline, r.render)
-	reg.Register(passthrough.KindPassthroughBlock, r.render)
-}
-
-func (r *tocPassthroughRenderer) render(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	if !entering {
-		return ast.WalkContinue, nil
-	}
-	switch nn := node.(type) {
-	case *passthrough.PassthroughInline:
-		w.Write(nn.Segment.Value(src))
-	case *passthrough.PassthroughBlock:
-		for i := range nn.Lines().Len() {
-			line := nn.Lines().At(i)
-			w.Write(line.Value(src))
-		}
-	}
-	return ast.WalkSkipChildren, nil
 }
 
 var whiteSpaceRe = regexp.MustCompile(`\s+`)

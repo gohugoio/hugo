@@ -19,7 +19,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/util"
 )
 
 type lowHigh struct {

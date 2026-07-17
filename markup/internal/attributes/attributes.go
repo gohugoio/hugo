@@ -14,15 +14,13 @@
 package attributes
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/spf13/cast"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/util"
 )
 
 // Markdown attributes used as options by the Chroma highlighter.
@@ -60,48 +58,23 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 		opts  []Attribute
 	)
 	for _, v := range astAttributes {
-		nameLower := strings.ToLower(string(v.Name))
-		if strings.HasPrefix(string(nameLower), "on") {
+		nameLower := strings.ToLower(v.Name)
+		if strings.HasPrefix(nameLower, "on") {
 			continue
 		}
-		var vv any
-		switch vvv := v.Value.(type) {
-		case bool, float64:
-			vv = vvv
-		case []any:
-			// Highlight line number hlRanges.
-			var hlRanges [][2]int
-			for _, l := range vvv {
-				if ln, ok := l.(float64); ok {
-					hlRanges = append(hlRanges, [2]int{int(ln) - 1, int(ln) - 1})
-				} else if rng, ok := l.([]uint8); ok {
-					slices := strings.Split(string([]byte(rng)), "-")
-					lhs, err := strconv.Atoi(slices[0])
-					if err != nil {
-						continue
-					}
-					rhs := lhs
-					if len(slices) > 1 {
-						rhs, err = strconv.Atoi(slices[1])
-						if err != nil {
-							continue
-						}
-					}
-					hlRanges = append(hlRanges, [2]int{lhs - 1, rhs - 1})
-				}
-			}
-			vv = hlRanges
-		case []byte:
-			// Note that we don't do any HTML escaping here.
-			// We used to do that, but that changed in #9558.
-			// Now it's up to the templates to decide.
-			vv = string(vvv)
-		default:
-			panic(fmt.Sprintf("not implemented: %T", vvv))
-		}
+		// GOLDMARK-V2: In goldmark v2 attribute values are always a
+		// text.MultilineValue (raw string), so the previous typed values
+		// (bool, float64, []any/hlRanges) that goldmark v1 produced are gone.
+		// See https://github.com/yuin/goldmark/discussions/559 — this regresses
+		// typed code-fence highlight options (lineNos=true, hl_lines=[...] etc.).
+		// For now we treat every value as a string.
+		// Note that we don't do any HTML escaping here.
+		// We used to do that, but that changed in #9558.
+		// Now it's up to the templates to decide.
+		vv := string(v.Value.Bytes(nil))
 
 		if ownerType == AttributesOwnerCodeBlockChroma && chromaHighlightProcessingAttributes[nameLower] {
-			attr := Attribute{Name: string(v.Name), Value: vv}
+			attr := Attribute{Name: v.Name, Value: vv}
 			opts = append(opts, attr)
 		} else {
 			attr := Attribute{Name: nameLower, Value: vv}
@@ -178,21 +151,17 @@ func (a *AttributesHolder) OptionsSlice() []Attribute {
 func RenderASTAttributes(w hugio.FlexiWriter, attributes ...ast.Attribute) {
 	for _, attr := range attributes {
 
-		a := strings.ToLower(string(attr.Name))
+		a := strings.ToLower(attr.Name)
 		if strings.HasPrefix(a, "on") {
 			continue
 		}
 
 		_, _ = w.WriteString(" ")
-		_, _ = w.Write(attr.Name)
+		_, _ = w.WriteString(attr.Name)
 		_, _ = w.WriteString(`="`)
 
-		switch v := attr.Value.(type) {
-		case []byte:
-			_, _ = w.Write(util.EscapeHTML(v))
-		default:
-			w.WriteString(cast.ToString(v))
-		}
+		// GOLDMARK-V2: attribute values are always a text.MultilineValue now.
+		_, _ = w.Write(util.EscapeHTML(attr.Value.Bytes(nil)))
 
 		_ = w.WriteByte('"')
 	}

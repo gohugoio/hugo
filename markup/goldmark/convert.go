@@ -17,7 +17,9 @@ package goldmark
 import (
 	"bytes"
 
-	"github.com/gohugoio/hugo-goldmark-extensions/extras"
+	// GOLDMARK-V2: hugo-goldmark-extensions/{extras,passthrough} and
+	// goldmark-emoji have no v2 releases yet, so those extensions are disabled.
+	// "github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo/markup/goldmark/blockquotes"
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
@@ -27,16 +29,12 @@ import (
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/goldmark/passthrough"
 	"github.com/gohugoio/hugo/markup/goldmark/tables"
-	"github.com/yuin/goldmark/util"
 
-	"github.com/yuin/goldmark"
-	emoji "github.com/yuin/goldmark-emoji"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/renderer"
-	"github.com/yuin/goldmark/renderer/html"
-	"github.com/yuin/goldmark/text"
+	// emoji "github.com/yuin/goldmark-emoji"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/extension"
+	"github.com/yuin/goldmark/v2/parser"
+	"github.com/yuin/goldmark/v2/renderer/html"
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
@@ -69,179 +67,188 @@ func (p provide) New(cfg converter.ProviderConfig) (converter.Provider, error) {
 
 var _ converter.AnchorNameSanitizer = (*goldmarkConverter)(nil)
 
+// markdownHandler holds the goldmark v2 parser and renderers.
+// GOLDMARK-V2: v2 has no unified goldmark.Markdown; the parser and renderer are
+// built and used separately.
+type markdownHandler struct {
+	parser parser.Parser
+	// renderer is the main HTML renderer (with Hugo's render hooks).
+	renderer html.Renderer
+	// tocRenderer renders heading inline content for the table of contents.
+	tocRenderer html.Renderer
+}
+
 type goldmarkConverter struct {
-	md  goldmark.Markdown
+	md  *markdownHandler
 	ctx converter.DocumentContext
 	cfg converter.ProviderConfig
 
 	sanitizeAnchorName func(s string) string
 }
 
+// rendererExtension adapts a slice of html.Option into an html.Extension so
+// that Hugo's node renderers are registered after (and thus override) the
+// CommonMark renderers.
+type rendererExtension []html.Option
+
+func (e rendererExtension) RendererOptions(*html.Config) []html.Option {
+	return e
+}
+
 func (c *goldmarkConverter) SanitizeAnchorName(s string) string {
 	return c.sanitizeAnchorName(s)
 }
 
-func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
+func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 	mcfg := pcfg.MarkupConfig()
 	cfg := mcfg.Goldmark
-	var rendererOptions []renderer.Option
 
+	// GOLDMARK-V2: build the parser and renderer separately. Hugo's own node
+	// renderers are wrapped as html.Extensions (via rendererExtension) so that
+	// they are registered after CommonMark and override it.
+	var (
+		parserOptions   []parser.Option
+		rendererOptions []html.Option
+		parserExts      []parser.Extension
+		rendererExts    []html.Extension
+	)
+
+	// Base HTML renderer options.
 	if cfg.Renderer.HardWraps {
 		rendererOptions = append(rendererOptions, html.WithHardWraps())
 	}
-
 	if cfg.Renderer.XHTML {
 		rendererOptions = append(rendererOptions, html.WithXHTML())
 	}
-
 	if cfg.Renderer.Unsafe {
 		rendererOptions = append(rendererOptions, html.WithUnsafe())
 	}
 
-	tocRendererOptions := make([]renderer.Option, len(rendererOptions))
-	if rendererOptions != nil {
-		copy(tocRendererOptions, rendererOptions)
-	}
+	// Hugo context (.RenderShortcodes) — parser + renderer.
+	hc := hugocontext.New(pcfg.Logger, cfg.Renderer.Unsafe)
+	parserOptions = append(parserOptions, hc.ParserOptions()...)
+	rendererExts = append(rendererExts, rendererExtension(hc.RendererOptions()))
 
-	tocRendererOptions = append(tocRendererOptions,
-		renderer.WithNodeRenderers(util.Prioritized(extension.NewStrikethroughHTMLRenderer(), 500)),
-		renderer.WithNodeRenderers(util.Prioritized(emoji.NewHTMLRenderer(), 200)),
-	)
+	// Link/image/heading render hooks.
+	rendererExts = append(rendererExts, rendererExtension(newLinks(cfg).RendererOptions()))
 
-	inlineTags := []extras.InlineTag{
-		extras.DeleteTag,
-		extras.InsertTag,
-		extras.MarkTag,
-		extras.SubscriptTag,
-		extras.SuperscriptTag,
-	}
+	// Blockquotes.
+	rendererExts = append(rendererExts, blockquotes.New())
 
-	for _, tag := range inlineTags {
-		tocRendererOptions = append(tocRendererOptions,
-			renderer.WithNodeRenderers(util.Prioritized(extras.NewInlineTagHTMLRenderer(tag), tag.RenderPriority)),
-		)
-	}
+	// Images.
+	parserExts = append(parserExts, images.New(cfg.Parser.WrapStandAloneImageWithinParagraph))
 
-	if cfg.Extensions.Passthrough.Enable {
-		tocRendererOptions = append(tocRendererOptions,
-			renderer.WithNodeRenderers(util.Prioritized(&tocPassthroughRenderer{}, 90)),
-		)
-	}
-
-	var (
-		extensions = []goldmark.Extender{
-			hugocontext.New(pcfg.Logger),
-			newLinks(cfg),
-			newTocExtension(tocRendererOptions),
-			blockquotes.New(),
-		}
-		parserOptions []parser.Option
-	)
-
-	extensions = append(extensions, images.New(cfg.Parser.WrapStandAloneImageWithinParagraph))
-
-	extensions = append(extensions, extras.New(
-		extras.Config{
-			Delete:      extras.DeleteConfig{Enable: cfg.Extensions.Extras.Delete.Enable},
-			Insert:      extras.InsertConfig{Enable: cfg.Extensions.Extras.Insert.Enable},
-			Mark:        extras.MarkConfig{Enable: cfg.Extensions.Extras.Mark.Enable},
-			Subscript:   extras.SubscriptConfig{Enable: cfg.Extensions.Extras.Subscript.Enable},
-			Superscript: extras.SuperscriptConfig{Enable: cfg.Extensions.Extras.Superscript.Enable},
-		},
-	))
+	// GOLDMARK-V2: the hugo-goldmark-extensions "extras" (delete/insert/mark/
+	// subscript/superscript) extension has no v2 release yet and is disabled.
 
 	if mcfg.Highlight.CodeFences {
-		extensions = append(extensions, codeblocks.New())
+		rendererExts = append(rendererExts, codeblocks.New())
 	}
 
 	if cfg.Extensions.Table {
-		extensions = append(extensions, extension.Table)
-		extensions = append(extensions, tables.New())
+		parserExts = append(parserExts, extension.NewTableParser())
+		rendererExts = append(rendererExts, extension.NewTableHTMLRenderer())
+		rendererExts = append(rendererExts, tables.New())
 	}
 
 	if cfg.Extensions.Strikethrough {
-		extensions = append(extensions, extension.Strikethrough)
+		parserExts = append(parserExts, extension.NewStrikethroughParser())
+		rendererExts = append(rendererExts, extension.NewStrikethroughHTMLRenderer())
 	}
 
 	if cfg.Extensions.Linkify {
-		extensions = append(extensions, extension.Linkify)
+		parserExts = append(parserExts, extension.NewLinkifyParser())
 	}
 
 	if cfg.Extensions.TaskList {
-		extensions = append(extensions, extension.TaskList)
+		parserExts = append(parserExts, extension.NewTaskCheckBoxParser())
+		rendererExts = append(rendererExts, extension.NewTaskListItemHTMLRenderer())
 	}
 
 	if !cfg.Extensions.Typographer.Disable {
-		t := extension.NewTypographer(
+		parserExts = append(parserExts, extension.NewTypographerParser(
 			extension.WithTypographicSubstitutions(toTypographicPunctuationMap(cfg.Extensions.Typographer)),
-		)
-		extensions = append(extensions, t)
+		))
 	}
 
 	if cfg.Extensions.DefinitionList {
-		extensions = append(extensions, extension.DefinitionList)
+		parserExts = append(parserExts, extension.NewDefinitionListParser())
+		rendererExts = append(rendererExts, extension.NewDefinitionListHTMLRenderer())
 	}
 
 	if cfg.Extensions.Footnote.Enable {
-		opts := []extension.FootnoteOption{}
-		opts = append(opts, extension.WithFootnoteBacklinkHTML(cfg.Extensions.Footnote.BacklinkHTML))
+		parserExts = append(parserExts, extension.NewFootnoteParser())
+		// GOLDMARK-V2: footnote options moved from the parser to the HTML
+		// renderer, and the option names were shortened.
+		opts := []extension.FootnoteHTMLRendererOption{
+			extension.WithBacklinkHTML(cfg.Extensions.Footnote.BacklinkHTML),
+		}
 		if cfg.Extensions.Footnote.EnableAutoIDPrefix {
 			opts = append(opts,
-				extension.WithFootnoteIDPrefixFunction(func(n ast.Node) []byte {
-					documentID := n.OwnerDocument().Meta()["documentID"].(string)
+				extension.WithIDPrefixFunction(func(n ast.Node) []byte {
+					documentID := n.OwnerDocument().Metadata()["documentID"].(string)
 					return []byte("h" + documentID)
 				}))
 		}
-		f := extension.NewFootnote(opts...)
-		extensions = append(extensions, f)
+		rendererExts = append(rendererExts, extension.NewFootnoteHTMLRenderer(opts...))
 	}
 
 	if cfg.Extensions.CJK.Enable {
-		opts := []extension.CJKOption{}
+		// GOLDMARK-V2: extension.NewCJK is gone; CJK is now expressed through
+		// parser/renderer options.
 		if cfg.Extensions.CJK.EastAsianLineBreaks {
 			if cfg.Extensions.CJK.EastAsianLineBreaksStyle == "css3draft" {
-				opts = append(opts, extension.WithEastAsianLineBreaks(extension.EastAsianLineBreaksCSS3Draft))
+				rendererOptions = append(rendererOptions, html.WithEastAsianLineBreaks(html.EastAsianLineBreaksCSS3Draft))
 			} else {
-				opts = append(opts, extension.WithEastAsianLineBreaks())
+				rendererOptions = append(rendererOptions, html.WithEastAsianLineBreaks(html.EastAsianLineBreaksSimple))
 			}
 		}
-
 		if cfg.Extensions.CJK.EscapedSpace {
-			opts = append(opts, extension.WithEscapedSpace())
+			parserOptions = append(parserOptions, parser.WithEscapedSpace())
+			rendererOptions = append(rendererOptions, html.WithEscapedSpace())
 		}
-		c := extension.NewCJK(opts...)
-		extensions = append(extensions, c)
 	}
 
+	// GOLDMARK-V2: passthrough is disabled (external v1-only module); New
+	// returns nil.
 	if cfg.Extensions.Passthrough.Enable {
-		extensions = append(extensions, passthrough.New(cfg.Extensions.Passthrough))
+		if pe := passthrough.New(cfg.Extensions.Passthrough); pe != nil {
+			parserExts = append(parserExts, pe)
+		}
 	}
 
-	if pcfg.Conf.EnableEmoji() {
-		extensions = append(extensions, emoji.Emoji)
-	}
+	// GOLDMARK-V2: emoji is disabled (goldmark-emoji has no v2 release yet).
+	// if pcfg.Conf.EnableEmoji() { ... }
 
 	if cfg.Parser.Attribute.Title {
 		parserOptions = append(parserOptions, parser.WithAttribute())
 	}
 
 	if cfg.Parser.Attribute.Block || cfg.Parser.AutoHeadingID || cfg.Parser.AutoDefinitionTermID {
-		extensions = append(extensions, attributes.New(cfg.Parser))
+		parserExts = append(parserExts, attributes.New(cfg.Parser))
 	}
 
-	md := goldmark.New(
-		goldmark.WithExtensions(
-			extensions...,
-		),
-		goldmark.WithParserOptions(
-			parserOptions...,
-		),
-		goldmark.WithRendererOptions(
-			rendererOptions...,
-		),
-	)
+	// Stateless ID generator; per-document uniqueness is handled by goldmark.
+	parserOptions = append(parserOptions,
+		parser.WithIDGenerator(newIDFactory(cfg.Parser.AutoIDType)))
 
-	return md
+	parserOptions = append(parserOptions, parser.WithExtensions(parserExts...))
+	rendererOptions = append(rendererOptions, html.WithExtensions(rendererExts...))
+
+	// The TOC renderer renders heading inline content to plain-ish HTML. It uses
+	// the default CommonMark renderers plus strikethrough (when enabled).
+	var tocRendererOptions []html.Option
+	tocRendererOptions = append(tocRendererOptions, rendererOptions...)
+	if cfg.Extensions.Strikethrough {
+		tocRendererOptions = append(tocRendererOptions,
+			html.WithExtensions(extension.NewStrikethroughHTMLRenderer()))
+	}
+
+	return &markdownHandler{
+		parser:      parser.New(parserOptions...),
+		renderer:    html.New(rendererOptions...),
+		tocRenderer: html.New(tocRendererOptions...),
+	}
 }
 
 type parserResult struct {
@@ -271,18 +278,20 @@ type tableOfContentsProvider interface {
 }
 
 func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.ResultParse, error) {
-	pctx := c.newParserContext(ctx)
-	reader := text.NewReader(ctx.Src)
-
-	doc := c.md.Parser().Parse(
-		reader,
-		parser.WithContext(pctx),
-	)
+	// GOLDMARK-V2: Parser.Parse takes only the source now; there is no way to
+	// pass a custom parser.Context, so the ID generator is configured on the
+	// parser and the table of contents is built by walking the returned AST.
+	doc := c.md.parser.Parse(ctx.Src)
 	doc.OwnerDocument().AddMeta("documentID", c.ctx.DocumentID)
+
+	var toc *tableofcontents.Fragments
+	if ctx.RenderTOC {
+		toc = buildTableOfContents(doc, ctx.Src, c.md.tocRenderer)
+	}
 
 	return parserResult{
 		doc: doc,
-		toc: pctx.TableOfContents(),
+		toc: toc,
 	}, nil
 }
 
@@ -300,7 +309,7 @@ func (c *goldmarkConverter) Render(ctx converter.RenderContext, doc any) (conver
 		ContextData: rcx,
 	}
 
-	if err := c.md.Renderer().Render(w, ctx.Src, n); err != nil {
+	if err := c.md.renderer.Render(w, ctx.Src, n); err != nil {
 		return nil, err
 	}
 
@@ -322,25 +331,6 @@ func (c *goldmarkConverter) Convert(ctx converter.RenderContext) (converter.Resu
 		ResultRender:            renderResult,
 		tableOfContentsProvider: parseResult,
 	}, nil
-}
-
-func (c *goldmarkConverter) newParserContext(rctx converter.RenderContext) *parserContext {
-	ctx := parser.NewContext(parser.WithIDs(newIDFactory(c.cfg.MarkupConfig().Goldmark.Parser.AutoIDType)))
-	ctx.Set(tocEnableKey, rctx.RenderTOC)
-	return &parserContext{
-		Context: ctx,
-	}
-}
-
-type parserContext struct {
-	parser.Context
-}
-
-func (p *parserContext) TableOfContents() *tableofcontents.Fragments {
-	if v := p.Get(tocResultKey); v != nil {
-		return v.(*tableofcontents.Fragments)
-	}
-	return nil
 }
 
 // Note: It's tempting to put this in the config package, but that doesn't work.

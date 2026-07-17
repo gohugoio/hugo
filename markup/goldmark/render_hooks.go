@@ -14,7 +14,8 @@
 package goldmark
 
 import (
-	"bytes"
+	"io"
+	"strconv"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/types/hstring"
@@ -24,26 +25,24 @@ import (
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
 
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/renderer"
-	"github.com/yuin/goldmark/renderer/html"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/renderer"
+	"github.com/yuin/goldmark/v2/renderer/html"
+	"github.com/yuin/goldmark/v2/util"
 )
 
-var _ renderer.SetOptioner = (*hookedRenderer)(nil)
-
-func newLinkRenderer(cfg goldmark_config.Config) renderer.NodeRenderer {
+func newLinkRenderer(cfg goldmark_config.Config) *hookedRenderer {
 	r := &hookedRenderer{
 		linkifyProtocol: []byte(cfg.Extensions.LinkifyProtocol),
-		Config: html.Config{
-			Writer: html.DefaultWriter,
-		},
+		unsafe:          cfg.Renderer.Unsafe,
+		xhtml:           cfg.Renderer.XHTML,
+		hardWraps:       cfg.Renderer.HardWraps,
+		writer:          html.DefaultWriter,
 	}
 	return r
 }
 
-func newLinks(cfg goldmark_config.Config) goldmark.Extender {
+func newLinks(cfg goldmark_config.Config) *links {
 	return &links{cfg: cfg}
 }
 
@@ -108,22 +107,22 @@ func (ctx headingContext) PlainText() string {
 
 type hookedRenderer struct {
 	linkifyProtocol []byte
-	html.Config
+	unsafe          bool
+	xhtml           bool
+	hardWraps       bool
+	writer          html.Writer
 }
 
-func (r *hookedRenderer) SetOption(name renderer.OptionName, value any) {
-	r.Config.SetOption(name, value)
+func (r *hookedRenderer) rendererOptions() []html.Option {
+	return []html.Option{
+		html.WithNodeRenderer(ast.KindLink, html.NodeRendererFunc(r.renderLink)),
+		html.WithNodeRenderer(ast.KindAutoLink, html.NodeRendererFunc(r.renderAutoLink)),
+		html.WithNodeRenderer(ast.KindImage, html.NodeRendererFunc(r.renderImage)),
+		html.WithNodeRenderer(ast.KindHeading, html.NodeRendererFunc(r.renderHeading)),
+	}
 }
 
-// RegisterFuncs implements NodeRenderer.RegisterFuncs.
-func (r *hookedRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(ast.KindLink, r.renderLink)
-	reg.Register(ast.KindAutoLink, r.renderAutoLink)
-	reg.Register(ast.KindImage, r.renderImage)
-	reg.Register(ast.KindHeading, r.renderHeading)
-}
-
-func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderImage(w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	n := node.(*ast.Image)
 	var lr hooks.LinkRenderer
 
@@ -152,11 +151,13 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 		isBlock bool
 		ordinal int
 	)
-	if b, ok := n.AttributeString(images.AttrIsBlock); ok && b.(bool) {
+	// GOLDMARK-V2: attribute values are text.MultilineValue now, so the internal
+	// signal attributes set by the images transform are strings we decode here.
+	if b, ok := n.Attribute(images.AttrIsBlock); ok && string(b.Bytes(nil)) == "true" {
 		isBlock = true
 	}
-	if n, ok := n.AttributeString(images.AttrOrdinal); ok {
-		ordinal = n.(int)
+	if o, ok := n.Attribute(images.AttrOrdinal); ok {
+		ordinal, _ = strconv.Atoi(string(o.Bytes(nil)))
 	}
 
 	// We use the attributes to signal from the parser whether the image is in
@@ -171,8 +172,8 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 		imageLinkContext{
 			linkContext: linkContext{
 				BaseContext:      render.NewBaseContext(ctx, lr, node, source, ordinal),
-				destination:      string(n.Destination),
-				title:            string(n.Title),
+				destination:      string(n.Destination.Bytes(source)),
+				title:            string(n.Title.Bytes(source)),
 				text:             hstring.HTML(text),
 				plainText:        render.TextPlain(n, source),
 				AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerGeneral),
@@ -187,7 +188,7 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 func (r *hookedRenderer) filterInternalAttributes(attrs []ast.Attribute) []ast.Attribute {
 	n := 0
 	for _, x := range attrs {
-		if !bytes.HasPrefix(x.Name, []byte(internalAttrPrefix)) {
+		if !strings.HasPrefix(x.Name, internalAttrPrefix) {
 			attrs[n] = x
 			n++
 		}
@@ -197,36 +198,37 @@ func (r *hookedRenderer) filterInternalAttributes(attrs []ast.Attribute) []ast.A
 
 // Fall back to the default Goldmark render funcs. Method below borrowed from:
 // https://github.com/yuin/goldmark
-func (r *hookedRenderer) renderImageDefault(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderImageDefault(w io.Writer, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
+	bw := w.(*render.Context)
 	n := node.(*ast.Image)
-	_, _ = w.WriteString("<img src=\"")
-	dest := util.URLEscape(n.Destination, true)
-	if r.Unsafe || !html.IsDangerousURL(dest) {
-		_, _ = w.Write(util.EscapeHTML(dest))
+	_, _ = bw.WriteString("<img src=\"")
+	dest := util.URLEscape(n.Destination.Bytes(source), true)
+	if r.unsafe || !html.IsDangerousURL(dest) {
+		_, _ = bw.Write(util.EscapeHTML(dest))
 	}
-	_, _ = w.WriteString(`" alt="`)
-	r.renderTexts(w, source, n)
-	_ = w.WriteByte('"')
-	if n.Title != nil {
-		_, _ = w.WriteString(` title="`)
-		r.Writer.Write(w, n.Title)
-		_ = w.WriteByte('"')
+	_, _ = bw.WriteString(`" alt="`)
+	r.renderTexts(bw, source, n)
+	_ = bw.WriteByte('"')
+	if title := n.Title.Bytes(source); len(title) > 0 {
+		_, _ = bw.WriteString(` title="`)
+		r.writer.WriteText(bw, title)
+		_ = bw.WriteByte('"')
 	}
 	if n.Attributes() != nil {
-		html.RenderAttributes(w, n, html.ImageAttributeFilter)
+		html.RenderAttributes(bw, n, html.ImageAttributeFilter)
 	}
-	if r.XHTML {
-		_, _ = w.WriteString(" />")
+	if r.xhtml {
+		_, _ = bw.WriteString(" />")
 	} else {
-		_, _ = w.WriteString(">")
+		_, _ = bw.WriteString(">")
 	}
 	return ast.WalkSkipChildren, nil
 }
 
-func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderLink(w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	n := node.(*ast.Link)
 	var lr hooks.LinkRenderer
 
@@ -257,8 +259,8 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 		w,
 		linkContext{
 			BaseContext:      render.NewBaseContext(ctx, lr, node, source, ordinal),
-			destination:      string(n.Destination),
-			title:            string(n.Title),
+			destination:      string(n.Destination.Bytes(source)),
+			title:            string(n.Title.Bytes(source)),
 			text:             hstring.HTML(text),
 			plainText:        render.TextPlain(n, source),
 			AttributesHolder: attributes.Empty,
@@ -269,11 +271,10 @@ func (r *hookedRenderer) renderLink(w util.BufWriter, source []byte, node ast.No
 }
 
 // Borrowed from Goldmark's HTML renderer.
-func (r *hookedRenderer) renderTexts(w util.BufWriter, source []byte, n ast.Node) {
+// GOLDMARK-V2: ast.String was removed; textual content is all *ast.Text now.
+func (r *hookedRenderer) renderTexts(w io.Writer, source []byte, n ast.Node) {
 	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
-		if s, ok := c.(*ast.String); ok {
-			_, _ = r.renderString(w, source, s, true)
-		} else if t, ok := c.(*ast.Text); ok {
+		if t, ok := c.(*ast.Text); ok {
 			_, _ = r.renderText(w, source, t, true)
 		} else {
 			r.renderTexts(w, source, c)
@@ -282,40 +283,22 @@ func (r *hookedRenderer) renderTexts(w util.BufWriter, source []byte, n ast.Node
 }
 
 // Borrowed from Goldmark's HTML renderer.
-func (r *hookedRenderer) renderString(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderText(w io.Writer, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
-	n := node.(*ast.String)
-	if n.IsCode() {
-		_, _ = w.Write(n.Value)
-	} else {
-		if n.IsRaw() {
-			r.Writer.RawWrite(w, n.Value)
-		} else {
-			r.Writer.Write(w, n.Value)
-		}
-	}
-	return ast.WalkContinue, nil
-}
-
-// Borrowed from Goldmark's HTML renderer.
-func (r *hookedRenderer) renderText(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	if !entering {
-		return ast.WalkContinue, nil
-	}
+	bw := w.(*render.Context)
 	n := node.(*ast.Text)
-	segment := n.Segment
-	if n.IsRaw() {
-		r.Writer.RawWrite(w, segment.Value(source))
-	} else {
-		value := segment.Value(source)
-		r.Writer.Write(w, value)
-		if n.HardLineBreak() || (n.SoftLineBreak() && r.HardWraps) {
-			if r.XHTML {
-				_, _ = w.WriteString("<br />\n")
+	// GOLDMARK-V2: Text.Segment -> Text.Value; Writer.Write/RawWrite ->
+	// WriteText/RawWriteText.
+	value := n.Value.Bytes(source)
+	r.writer.WriteText(bw, value)
+	{
+		if n.HardLineBreak() || (n.SoftLineBreak() && r.hardWraps) {
+			if r.xhtml {
+				_, _ = bw.WriteString("<br />\n")
 			} else {
-				_, _ = w.WriteString("<br>\n")
+				_, _ = bw.WriteString("<br>\n")
 			}
 		} else if n.SoftLineBreak() {
 			// TODO(bep) we use these methods a fallback to default rendering when no image/link hooks are defined.
@@ -333,9 +316,9 @@ func (r *hookedRenderer) renderText(w util.BufWriter, source []byte, node ast.No
 					}
 				}
 			} else {
-				_ = w.WriteByte('\n')
+				_ = bw.WriteByte('\n')
 			}*/
-			_ = w.WriteByte('\n')
+			_ = bw.WriteByte('\n')
 		}
 	}
 	return ast.WalkContinue, nil
@@ -343,28 +326,29 @@ func (r *hookedRenderer) renderText(w util.BufWriter, source []byte, node ast.No
 
 // Fall back to the default Goldmark render funcs. Method below borrowed from:
 // https://github.com/yuin/goldmark/blob/b611cd333a492416b56aa8d94b04a67bf0096ab2/renderer/html/html.go#L404
-func (r *hookedRenderer) renderLinkDefault(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderLinkDefault(w io.Writer, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	bw := w.(*render.Context)
 	n := node.(*ast.Link)
 	if entering {
-		_, _ = w.WriteString("<a href=\"")
-		dest := util.URLEscape(n.Destination, true)
-		if r.Unsafe || !html.IsDangerousURL(dest) {
-			_, _ = w.Write(util.EscapeHTML(dest))
+		_, _ = bw.WriteString("<a href=\"")
+		dest := util.URLEscape(n.Destination.Bytes(source), true)
+		if r.unsafe || !html.IsDangerousURL(dest) {
+			_, _ = bw.Write(util.EscapeHTML(dest))
 		}
-		_ = w.WriteByte('"')
-		if n.Title != nil {
-			_, _ = w.WriteString(` title="`)
-			r.Writer.Write(w, n.Title)
-			_ = w.WriteByte('"')
+		_ = bw.WriteByte('"')
+		if title := n.Title.Bytes(source); len(title) > 0 {
+			_, _ = bw.WriteString(` title="`)
+			r.writer.WriteText(bw, title)
+			_ = bw.WriteByte('"')
 		}
-		_ = w.WriteByte('>')
+		_ = bw.WriteByte('>')
 	} else {
-		_, _ = w.WriteString("</a>")
+		_, _ = bw.WriteString("</a>")
 	}
 	return ast.WalkContinue, nil
 }
 
-func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderAutoLink(w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
@@ -385,11 +369,12 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 		return r.renderAutoLinkDefault(w, source, node, entering)
 	}
 
-	url := string(r.autoLinkURL(n, source))
-	label := string(n.Label(source))
-	if n.AutoLinkType == ast.AutoLinkEmail && !strings.HasPrefix(strings.ToLower(url), "mailto:") {
-		url = "mailto:" + url
-	}
+	// GOLDMARK-V2: AutoLink no longer exposes AutoLinkType/Protocol/URL()/Label().
+	// Destination already includes the "mailto:" prefix for emails, so the
+	// previous email handling and the linkifyProtocol rewrite are gone (the
+	// latter has no v2 equivalent).
+	url := string(n.Destination.Bytes(source))
+	label := string(n.Label.Bytes(source))
 
 	ordinal := ctx.GetAndIncrementOrdinal(n.Kind())
 
@@ -410,46 +395,33 @@ func (r *hookedRenderer) renderAutoLink(w util.BufWriter, source []byte, node as
 
 // Fall back to the default Goldmark render funcs. Method below borrowed from:
 // https://github.com/yuin/goldmark/blob/5588d92a56fe1642791cf4aa8e9eae8227cfeecd/renderer/html/html.go#L439
-func (r *hookedRenderer) renderAutoLinkDefault(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderAutoLinkDefault(w io.Writer, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	bw := w.(*render.Context)
 	n := node.(*ast.AutoLink)
 	if !entering {
 		return ast.WalkContinue, nil
 	}
 
-	_, _ = w.WriteString(`<a href="`)
-	url := util.URLEscape(r.autoLinkURL(n, source), false)
-
-	label := n.Label(source)
-	if n.AutoLinkType == ast.AutoLinkEmail && !bytes.HasPrefix(bytes.ToLower(url), []byte("mailto:")) {
-		_, _ = w.WriteString("mailto:")
-	}
-	if r.Unsafe || !html.IsDangerousURL(url) {
-		_, _ = w.Write(util.EscapeHTML(url))
+	_, _ = bw.WriteString(`<a href="`)
+	// GOLDMARK-V2: Destination already includes any mailto: prefix.
+	url := util.URLEscape(n.Destination.Bytes(source), false)
+	label := n.Label.Bytes(source)
+	if r.unsafe || !html.IsDangerousURL(url) {
+		_, _ = bw.Write(util.EscapeHTML(url))
 	}
 	if n.Attributes() != nil {
-		_ = w.WriteByte('"')
-		html.RenderAttributes(w, n, html.LinkAttributeFilter)
-		_ = w.WriteByte('>')
+		_ = bw.WriteByte('"')
+		html.RenderAttributes(bw, n, html.LinkAttributeFilter)
+		_ = bw.WriteByte('>')
 	} else {
-		_, _ = w.WriteString(`">`)
+		_, _ = bw.WriteString(`">`)
 	}
-	_, _ = w.Write(util.EscapeHTML(label))
-	_, _ = w.WriteString(`</a>`)
+	_, _ = bw.Write(util.EscapeHTML(label))
+	_, _ = bw.WriteString(`</a>`)
 	return ast.WalkContinue, nil
 }
 
-func (r *hookedRenderer) autoLinkURL(n *ast.AutoLink, source []byte) []byte {
-	url := n.URL(source)
-	if len(n.Protocol) > 0 && !bytes.Equal(n.Protocol, r.linkifyProtocol) {
-		// The CommonMark spec says "http" is the correct protocol for links,
-		// but this doesn't make much sense (the fact that they should care about the rendered output).
-		// Note that n.Protocol is not set if protocol is provided by user.
-		url = append(r.linkifyProtocol, url[len(n.Protocol):]...)
-	}
-	return url
-}
-
-func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderHeading(w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	n := node.(*ast.Heading)
 	var hr hooks.HeadingRenderer
 
@@ -475,8 +447,8 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	text := ctx.PopRenderedString()
 
 	var anchor []byte
-	if anchori, ok := n.AttributeString("id"); ok {
-		anchor, _ = anchori.([]byte)
+	if anchori, ok := n.Attribute("id"); ok {
+		anchor = anchori.Bytes(source)
 	}
 	ordinal := ctx.GetAndIncrementOrdinal(n.Kind())
 
@@ -496,19 +468,20 @@ func (r *hookedRenderer) renderHeading(w util.BufWriter, source []byte, node ast
 	return ast.WalkContinue, err
 }
 
-func (r *hookedRenderer) renderHeadingDefault(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hookedRenderer) renderHeadingDefault(w io.Writer, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	bw := w.(*render.Context)
 	n := node.(*ast.Heading)
 	if entering {
-		_, _ = w.WriteString("<h")
-		_ = w.WriteByte("0123456"[n.Level])
+		_, _ = bw.WriteString("<h")
+		_ = bw.WriteByte("0123456"[n.Level])
 		if n.Attributes() != nil {
-			attributes.RenderASTAttributes(w, node.Attributes()...)
+			attributes.RenderASTAttributes(bw, node.Attributes()...)
 		}
-		_ = w.WriteByte('>')
+		_ = bw.WriteByte('>')
 	} else {
-		_, _ = w.WriteString("</h")
-		_ = w.WriteByte("0123456"[n.Level])
-		_, _ = w.WriteString(">\n")
+		_, _ = bw.WriteString("</h")
+		_ = bw.WriteByte("0123456"[n.Level])
+		_, _ = bw.WriteString(">\n")
 	}
 	return ast.WalkContinue, nil
 }
@@ -517,9 +490,8 @@ type links struct {
 	cfg goldmark_config.Config
 }
 
-// Extend implements goldmark.Extender.
-func (e *links) Extend(m goldmark.Markdown) {
-	m.Renderer().AddOptions(renderer.WithNodeRenderers(
-		util.Prioritized(newLinkRenderer(e.cfg), 100),
-	))
+// RendererOptions returns the goldmark v2 HTML renderer options for links,
+// autolinks, images and headings.
+func (e *links) RendererOptions() []html.Option {
+	return newLinkRenderer(e.cfg).rendererOptions()
 }

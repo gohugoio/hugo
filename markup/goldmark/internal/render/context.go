@@ -20,15 +20,16 @@ import (
 	"sync"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
-	east "github.com/yuin/goldmark-emoji/ast"
+	// GOLDMARK-V2: goldmark-emoji has no v2 release yet; emoji support disabled.
+	// east "github.com/yuin/goldmark-emoji/ast"
 
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/markup/converter"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/util"
 )
 
 type BufWriter struct {
@@ -46,6 +47,13 @@ func (b *BufWriter) Buffered() int {
 }
 
 func (b *BufWriter) Flush() error {
+	return nil
+}
+
+// Error implements goldmark v2's util.ErrorBufWriter so that this writer is
+// passed through unwrapped by the HTML renderer, allowing our node renderers
+// to type-assert the writer back to *render.Context.
+func (b *BufWriter) Error() error {
 	return nil
 }
 
@@ -247,17 +255,20 @@ func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
 
 	switch c := c.(type) {
 	case *ast.RawHTML:
-		s := strings.TrimSpace(tpl.StripHTML(string(c.Segments.Value(source))))
+		// GOLDMARK-V2: RawHTML.Segments -> RawHTML.Value (text.MultilineValue).
+		s := strings.TrimSpace(tpl.StripHTML(string(c.Value.Bytes(source))))
 		buf.WriteString(s)
-	case *ast.String:
-		buf.Write(c.Value)
+	// GOLDMARK-V2: ast.String was removed; string content is now an owned
+	// text.Text node handled by the *ast.Text case below.
 	case *ast.Text:
-		buf.Write(c.Segment.Value(source))
+		// GOLDMARK-V2: Text.Segment -> Text.Value (text.Value).
+		buf.Write(c.Value.Bytes(source))
 		if c.HardLineBreak() || c.SoftLineBreak() {
 			buf.WriteByte('\n')
 		}
-	case *east.Emoji:
-		buf.WriteString(string(c.ShortName))
+	// GOLDMARK-V2: goldmark-emoji has no v2 release yet; emoji disabled.
+	// case *east.Emoji:
+	// 	buf.WriteString(string(c.ShortName))
 	default:
 		textPlainTo(c.FirstChild(), source, buf)
 	}
