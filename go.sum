@@ -276,6 +276,10 @@ github.com/gohugoio/hashstructure v0.6.0 h1:7wMB/2CfXoThFYhdWRGv3u3rUM761Cq29CxU
 github.com/gohugoio/hashstructure v0.6.0/go.mod h1:lapVLk9XidheHG1IQ4ZSbyYrXcaILU1ZEP/+vno5rBQ=
 github.com/gohugoio/httpcache v0.8.0 h1:hNdsmGSELztetYCsPVgjA960zSa4dfEqqF/SficorCU=
 github.com/gohugoio/httpcache v0.8.0/go.mod h1:fMlPrdY/vVJhAriLZnrF5QpN3BNAcoBClgAyQd+lGFI=
+github.com/gohugoio/hugo-goldmark-extensions/extras/v2 v2.0.0-20260718140759-8bc302efd59b h1:C11Yvlqfd5WNaDG6nqYTawpnEjn7zYB39KRdhXua9TU=
+github.com/gohugoio/hugo-goldmark-extensions/extras/v2 v2.0.0-20260718140759-8bc302efd59b/go.mod h1:XWgBmKsDXhk3IQK8lR+192WcmnAYdXWpMprZjI9e0B4=
+github.com/gohugoio/hugo-goldmark-extensions/passthrough/v2 v2.0.0-20260718140759-8bc302efd59b h1:fg+JG/hf0hK6TGZbNzuup6nzkLpV4mN96DEuPRUnQ8M=
+github.com/gohugoio/hugo-goldmark-extensions/passthrough/v2 v2.0.0-20260718140759-8bc302efd59b/go.mod h1:HrlYrNltUzIcKrrHF0B0sEJJd5TvW770NiGvYVw6E6o=
 github.com/golang-jwt/jwt/v5 v5.3.0 h1:pv4AsKCKKZuqlgs5sUmn4x8UlGa0kEVt/puTpKx9vvo=
 github.com/golang-jwt/jwt/v5 v5.3.0/go.mod h1:fxCRLWMO43lRc8nhHWY6LGqRcf+1gQWArsqaEUEa5bE=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
@@ -500,6 +504,8 @@ github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.8.2 h1:kEGpgqJXdgbkhcOgBxkC0X0PmoPG1ZyoZ117rDVp4zE=
 github.com/yuin/goldmark v1.8.2/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
+github.com/yuin/goldmark-emoji/v2 v2.0.0 h1:jl2qa2YrciyCcdppfl9YeEYTmbBMMD2U3e3kVuenGoA=
+github.com/yuin/goldmark-emoji/v2 v2.0.0/go.mod h1:EVAy4uFccv4WtKwWnBRfLNdc7DVA0dhzyqyKqHnkDOQ=
 github.com/yuin/goldmark/v2 v2.0.0-beta.5 h1:IOyGIdkgU4oSCFA+qaei8ct8ECajxUMcvUsgKDI4pyg=
 github.com/yuin/goldmark/v2 v2.0.0-beta.5/go.mod h1:lSX/kxc086wZlaQYnSrf7GGqRnFsP6Bm6cWQKVmOuqs=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=

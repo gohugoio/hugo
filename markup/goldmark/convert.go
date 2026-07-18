@@ -15,11 +15,8 @@
 package goldmark
 
 import (
-	"bytes"
+	"github.com/gohugoio/hugo-goldmark-extensions/extras/v2"
 
-	// GOLDMARK-V2: hugo-goldmark-extensions/{extras,passthrough} and
-	// goldmark-emoji have no v2 releases yet, so those extensions are disabled.
-	// "github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo/markup/goldmark/blockquotes"
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
@@ -29,8 +26,7 @@ import (
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/goldmark/passthrough"
 	"github.com/gohugoio/hugo/markup/goldmark/tables"
-
-	// emoji "github.com/yuin/goldmark-emoji"
+	emoji "github.com/yuin/goldmark-emoji/v2"
 	"github.com/yuin/goldmark/v2/ast"
 	"github.com/yuin/goldmark/v2/extension"
 	"github.com/yuin/goldmark/v2/parser"
@@ -138,8 +134,15 @@ func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 	// Images.
 	parserExts = append(parserExts, images.New(cfg.Parser.WrapStandAloneImageWithinParagraph))
 
-	// GOLDMARK-V2: the hugo-goldmark-extensions "extras" (delete/insert/mark/
-	// subscript/superscript) extension has no v2 release yet and is disabled.
+	parserExts = append(parserExts, extras.NewParser(
+		extras.Config{
+			Delete:      extras.DeleteConfig{Enable: cfg.Extensions.Extras.Delete.Enable},
+			Insert:      extras.InsertConfig{Enable: cfg.Extensions.Extras.Insert.Enable},
+			Mark:        extras.MarkConfig{Enable: cfg.Extensions.Extras.Mark.Enable},
+			Subscript:   extras.SubscriptConfig{Enable: cfg.Extensions.Extras.Subscript.Enable},
+			Superscript: extras.SuperscriptConfig{Enable: cfg.Extensions.Extras.Superscript.Enable},
+		},
+	))
 
 	if mcfg.Highlight.CodeFences {
 		rendererExts = append(rendererExts, codeblocks.New())
@@ -209,16 +212,16 @@ func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 		}
 	}
 
-	// GOLDMARK-V2: passthrough is disabled (external v1-only module); New
-	// returns nil.
 	if cfg.Extensions.Passthrough.Enable {
-		if pe := passthrough.New(cfg.Extensions.Passthrough); pe != nil {
+		if pe, re := passthrough.New(cfg.Extensions.Passthrough); pe != nil {
 			parserExts = append(parserExts, pe)
+			rendererExts = append(rendererExts, re)
 		}
 	}
 
-	// GOLDMARK-V2: emoji is disabled (goldmark-emoji has no v2 release yet).
-	// if pcfg.Conf.EnableEmoji() { ... }
+	if pcfg.Conf.EnableEmoji() {
+		parserExts = append(parserExts, emoji.Parser)
+	}
 
 	if cfg.Parser.Attribute.Title {
 		parserOptions = append(parserOptions, parser.WithAttribute())
@@ -286,7 +289,7 @@ func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.Result
 
 	var toc *tableofcontents.Fragments
 	if ctx.RenderTOC {
-		toc = buildTableOfContents(doc, ctx.Src, c.md.tocRenderer)
+		toc = buildTableOfContents(doc, ctx, c.ctx, c.md.tocRenderer)
 	}
 
 	return parserResult{
@@ -297,24 +300,16 @@ func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.Result
 
 func (c *goldmarkConverter) Render(ctx converter.RenderContext, doc any) (converter.ResultRender, error) {
 	n := doc.(ast.Node)
-	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
 
-	rcx := &render.RenderContextDataHolder{
-		Rctx: ctx,
-		Dctx: c.ctx,
-	}
+	w := render.NewContext(ctx, c.ctx)
 
-	w := &render.Context{
-		BufWriter:   buf,
-		ContextData: rcx,
-	}
-
+	// TODO1 goldmrk v2. Would be great to have a context.Context or something.
 	if err := c.md.renderer.Render(w, ctx.Src, n); err != nil {
 		return nil, err
 	}
 
 	return renderResult{
-		ResultRender: buf,
+		ResultRender: w.Buffer,
 	}, nil
 }
 

@@ -14,19 +14,22 @@
 package goldmark
 
 import (
-	"bytes"
 	"regexp"
 	"strings"
 
+	passthrough "github.com/gohugoio/hugo-goldmark-extensions/passthrough/v2"
 	"github.com/microcosm-cc/bluemonday"
 	strikethroughAst "github.com/yuin/goldmark/v2/extension/ast"
 
+	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/yuin/goldmark/v2/ast"
 	"github.com/yuin/goldmark/v2/renderer/html"
 )
 
+// TODO1 goldmrk v2. This doesn't look great.
 // buildTableOfContents walks the parsed document and builds the table of
 // contents.
 //
@@ -35,14 +38,14 @@ import (
 // internal context that callers can neither seed nor read back, we now walk the
 // returned AST directly after parsing. The heading anchor ids are read from the
 // heading `id` attributes (already assigned and de-duplicated during parsing).
-func buildTableOfContents(n ast.Node, src []byte, r html.Renderer) *tableofcontents.Fragments {
+func buildTableOfContents(n ast.Node, rc converter.RenderContext, dc converter.DocumentContext, r html.Renderer) *tableofcontents.Fragments {
 	var (
 		toc         tableofcontents.Builder
 		tocHeading  = &tableofcontents.Heading{}
 		level       int
 		row         = -1
 		inHeading   bool
-		headingText bytes.Buffer
+		headingText = render.NewContext(rc, dc)
 		identifiers []string
 	)
 
@@ -75,7 +78,7 @@ func buildTableOfContents(n ast.Node, src []byte, r html.Renderer) *tableofconte
 			}
 
 			if id, found := heading.Attribute("id"); found {
-				idStr := string(id.Bytes(src))
+				idStr := string(id.Bytes(rc.Src))
 				tocHeading.ID = idStr
 				tocHeading.Level = level
 				identifiers = append(identifiers, idStr)
@@ -89,7 +92,7 @@ func buildTableOfContents(n ast.Node, src []byte, r html.Renderer) *tableofconte
 			// GOLDMARK-V2: emoji (goldmark-emoji) and the hugo-goldmark-extensions
 			// (extras: delete/insert/mark/subscript/superscript) node kinds are
 			// omitted here because those modules have no v2 release yet.
-			err := r.Render(&headingText, src, n)
+			err := r.Render(headingText, rc.Src, n)
 			if err != nil {
 				return s, err
 			}
@@ -98,10 +101,11 @@ func buildTableOfContents(n ast.Node, src []byte, r html.Renderer) *tableofconte
 		case
 			ast.KindAutoLink,
 			ast.KindRawHTML,
-			ast.KindText:
-			// GOLDMARK-V2: ast.KindString was removed (string content is now
-			// Text); passthrough kinds omitted (external v1-only module).
-			err := r.Render(&headingText, src, n)
+			ast.KindText,
+			passthrough.KindPassthroughInline,
+			passthrough.KindPassthroughBlock:
+			// GOLDMARK-V2: ast.KindString was removed (string content is now Text).
+			err := r.Render(headingText, rc.Src, n)
 			if err != nil {
 				return s, err
 			}

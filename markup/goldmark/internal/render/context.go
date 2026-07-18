@@ -149,6 +149,23 @@ func (ctx *Context) PeekValue(k ast.NodeKind) any {
 	return v[len(v)-1]
 }
 
+// NewContext creates a new Context.
+func NewContext(rc converter.RenderContext, dc converter.DocumentContext) *Context {
+	buf := &BufWriter{Buffer: &bytes.Buffer{}}
+
+	rcx := &RenderContextDataHolder{
+		Rctx: rc,
+		Dctx: dc,
+	}
+
+	w := &Context{
+		BufWriter:   buf,
+		ContextData: rcx,
+	}
+
+	return w
+}
+
 type ContextData interface {
 	RenderContext() converter.RenderContext
 	DocumentContext() converter.DocumentContext
