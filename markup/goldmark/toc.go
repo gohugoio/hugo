@@ -99,6 +99,9 @@ func buildTableOfContents(n ast.Node, rc converter.RenderContext, r html.Rendere
 			ast.KindLink,
 			ast.KindImage,
 			ast.KindEmphasis,
+			// GOLDMARK-V2: **bold** is now a separate ast.Strong node (Emphasis no
+			// longer carries a Level).
+			ast.KindStrong,
 			strikethroughAst.KindStrikethrough,
 			extras.KindDelete,
 			extras.KindInsert,
