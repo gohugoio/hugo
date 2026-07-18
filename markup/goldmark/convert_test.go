@@ -198,10 +198,12 @@ unsafe = true
 	c.Assert(got, qt.Contains, `Table`)
 	c.Assert(got, qt.Contains, `<li><input disabled="" type="checkbox"> Push my commits to GitHub</li>`)
 
-	c.Assert(got, qt.Contains, `Straight double &ldquo;quotes&rdquo; and single &lsquo;quotes&rsquo;`)
-	c.Assert(got, qt.Contains, `Dashes (“&ndash;” and “&mdash;”) `)
-	c.Assert(got, qt.Contains, `Three consecutive dots (“&hellip;”)`)
-	c.Assert(got, qt.Contains, `&ldquo;That was back in the &rsquo;90s, that&rsquo;s a long time ago&rdquo;`)
+	// GOLDMARK-V2: the typographer now emits resolved Unicode characters rather
+	// than HTML entities.
+	c.Assert(got, qt.Contains, `Straight double “quotes” and single ‘quotes’`)
+	c.Assert(got, qt.Contains, `Dashes (“–” and “—”) `)
+	c.Assert(got, qt.Contains, `Three consecutive dots (“…”)`)
+	c.Assert(got, qt.Contains, `“That was back in the ’90s, that’s a long time ago”`)
 	c.Assert(got, qt.Contains, `footnote.<sup id="fnref1:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>`)
 	c.Assert(got, qt.Contains, `<div class="footnotes" role="doc-endnotes">`)
 	c.Assert(got, qt.Contains, `<dt>date</dt>`)
@@ -584,7 +586,9 @@ rightDoubleQuote = "&raquo;"
 	b := convert(c, conf, content)
 	got := string(b.Bytes())
 
-	c.Assert(got, qt.Contains, "<p>A &laquo;quote&raquo; and &lsquo;another quote&rsquo; and a &laquo;quote with a &rsquo;nested&rsquo; quote&raquo; and a &lsquo;quote with a &laquo;nested&raquo; quote&rsquo; and an ellipsis&hellip;</p>\n")
+	// GOLDMARK-V2: the typographer now emits the resolved Unicode characters
+	// rather than HTML entities.
+	c.Assert(got, qt.Contains, "<p>A «quote» and ‘another quote’ and a «quote with a ’nested’ quote» and a ‘quote with a «nested» quote’ and an ellipsis…</p>\n")
 }
 
 // Issue #11045
@@ -607,7 +611,8 @@ func TestTypographerImageAltText(t *testing.T) {
 	b := convert(c, conf, content)
 	got := string(b.Bytes())
 
-	c.Assert(got, qt.Contains, "&ldquo;They didn&rsquo;t even say &lsquo;hello&rsquo;!&rdquo; I exclaimed.")
+	// GOLDMARK-V2: typographer emits resolved Unicode characters, not entities.
+	c.Assert(got, qt.Contains, "“They didn’t even say ‘hello’!” I exclaimed.")
 }
 
 func unsafeConf() config.AllProvider {

@@ -18,6 +18,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gohugoio/hugo-goldmark-extensions/extras/v2"
 	passthrough "github.com/gohugoio/hugo-goldmark-extensions/passthrough/v2"
 	"github.com/microcosm-cc/bluemonday"
 	strikethroughAst "github.com/yuin/goldmark/v2/extension/ast"
@@ -88,10 +89,14 @@ func buildTableOfContents(n ast.Node, rc converter.RenderContext, r html.Rendere
 			ast.KindLink,
 			ast.KindImage,
 			ast.KindEmphasis,
-			strikethroughAst.KindStrikethrough:
-			// GOLDMARK-V2: emoji (goldmark-emoji) and the hugo-goldmark-extensions
-			// (extras: delete/insert/mark/subscript/superscript) node kinds are
-			// omitted here because those modules have no v2 release yet.
+			strikethroughAst.KindStrikethrough,
+			extras.KindDelete,
+			extras.KindInsert,
+			extras.KindMark,
+			extras.KindSubscript,
+			extras.KindSuperscript:
+			// GOLDMARK-V2: emoji (goldmark-emoji) node kinds are omitted here
+			// because that module has no v2 release yet.
 			err := r.Render(&headingText, rc.Src, n)
 			if err != nil {
 				return s, err

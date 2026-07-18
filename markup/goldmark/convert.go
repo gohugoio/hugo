@@ -136,15 +136,16 @@ func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 	// Images.
 	parserExts = append(parserExts, images.New(cfg.Parser.WrapStandAloneImageWithinParagraph))
 
-	parserExts = append(parserExts, extras.NewParser(
-		extras.Config{
-			Delete:      extras.DeleteConfig{Enable: cfg.Extensions.Extras.Delete.Enable},
-			Insert:      extras.InsertConfig{Enable: cfg.Extensions.Extras.Insert.Enable},
-			Mark:        extras.MarkConfig{Enable: cfg.Extensions.Extras.Mark.Enable},
-			Subscript:   extras.SubscriptConfig{Enable: cfg.Extensions.Extras.Subscript.Enable},
-			Superscript: extras.SuperscriptConfig{Enable: cfg.Extensions.Extras.Superscript.Enable},
-		},
-	))
+	// GOLDMARK-V2: extras is now split into a parser and an HTML renderer.
+	extrasConfig := extras.Config{
+		Delete:      extras.DeleteConfig{Enable: cfg.Extensions.Extras.Delete.Enable},
+		Insert:      extras.InsertConfig{Enable: cfg.Extensions.Extras.Insert.Enable},
+		Mark:        extras.MarkConfig{Enable: cfg.Extensions.Extras.Mark.Enable},
+		Subscript:   extras.SubscriptConfig{Enable: cfg.Extensions.Extras.Subscript.Enable},
+		Superscript: extras.SuperscriptConfig{Enable: cfg.Extensions.Extras.Superscript.Enable},
+	}
+	parserExts = append(parserExts, extras.NewParser(extrasConfig))
+	rendererExts = append(rendererExts, extras.NewHTMLRenderer(extrasConfig))
 
 	if mcfg.Highlight.CodeFences {
 		rendererExts = append(rendererExts, codeblocks.New())
@@ -247,6 +248,8 @@ func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 	// can appear inside a heading. `rendererOptions` still holds only the base
 	// options at this point (the hooks are added just below), so copy it first.
 	tocRendererOptions := append([]html.Option(nil), rendererOptions...)
+	tocRendererOptions = append(tocRendererOptions,
+		html.WithExtensions(extras.NewHTMLRenderer(extrasConfig)))
 	if cfg.Extensions.Strikethrough {
 		tocRendererOptions = append(tocRendererOptions,
 			html.WithExtensions(extension.NewStrikethroughHTMLRenderer()))
