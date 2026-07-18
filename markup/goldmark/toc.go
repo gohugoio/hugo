@@ -66,6 +66,15 @@ func buildTableOfContents(n ast.Node, rc converter.RenderContext, r html.Rendere
 			inHeading = true
 		}
 
+		// GOLDMARK-V2: In v1 the fragment identifiers came from the ID factory's
+		// StringValues (all generated ids). Now we collect them from the AST;
+		// definition terms are not inside headings, so gather their ids here.
+		if entering && n.Kind() == strikethroughAst.KindDefinitionTerm {
+			if id, found := n.Attribute("id"); found {
+				identifiers = append(identifiers, string(id.Bytes(rc.Src)))
+			}
+		}
+
 		if !(inHeading && entering) {
 			return s, nil
 		}
