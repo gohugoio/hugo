@@ -21,6 +21,13 @@ lists). Friction, worst first:
 - **Nodes can't hold arbitrary attr values.** We used `SetAttributeString(name,
   any)` to pass internal signals (image isBlock/ordinal) parser→renderer; now
   string-encoded.
+- **Render `Hook` is whole-render only.** The new `renderer.Hook` /
+  `html.WithHooks` (`PreRender`/`PostRender`) fires once per top-level
+  `Render(w, src, n)`, bracketing the entire walk — not per node. That rules out
+  the thing I'd most want a render hook for: recording output byte offsets around
+  each node so the rendered buffer can be sliced after the fact (e.g. pull one
+  table's HTML out as `b[lo:hi]`). Per-node enter/leave callbacks — or just
+  exposing start/stop output offsets on nodes — would enable this.
 
 ## Extension model
 
@@ -36,10 +43,13 @@ lists). Friction, worst first:
 
 ## Mechanical (pervasive but easy)
 
-- `ast.String` gone (now owned `Text`); `FencedCodeBlock`→`CodeBlock`+`Kind`;
-  `Node.Type()`/`NodeType`/`TypeBlock`→`ast.BlockNode`; `Lines()` gone from block
-  nodes (→`.Value`); `Remove/Replace/InsertChild` dropped the receiver arg;
-  `Dump(src,level)`+`DumpHelper`→`Dump(src) *NodeDump`.
+- `ast.String` gone (now owned `Text`); `**bold**` is now `ast.Strong`/
+  `KindStrong` and `Emphasis` lost its `Level` (code that only handled
+  `KindEmphasis`, or switched on level, silently drops bold — bit us in the TOC);
+  `CodeSpan` text moved to `.Value` (no child nodes); `FencedCodeBlock`→
+  `CodeBlock`+`Kind`; `Node.Type()`/`NodeType`/`TypeBlock`→`ast.BlockNode`;
+  `Lines()` gone from block nodes (→`.Value`); `Remove/Replace/InsertChild`
+  dropped the receiver arg; `Dump(src,level)`+`DumpHelper`→`Dump(src) *NodeDump`.
 - Field types → `text.Value`/`MultilineValue`: `Link/Image.Destination/.Title`,
   `Text.Value` (was `.Segment`), `RawHTML.Value` (was `.Segments`),
   `CodeBlock.Value/.Info`.
@@ -54,6 +64,6 @@ lists). Friction, worst first:
 
 ## Ecosystem
 
-`goldmark-emoji` and `hugo-goldmark-extensions` (extras, passthrough) have no v2,
-so those features are disabled here — the usual chicken-and-egg for a downstream
-to fully ship v2.
+`goldmark-emoji` and `hugo-goldmark-extensions` (extras, passthrough) now have v2
+releases and are wired back in, so Hugo's own extension deps are covered. Still
+the usual chicken-and-egg for the wider third-party ecosystem.
