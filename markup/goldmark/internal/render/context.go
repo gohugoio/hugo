@@ -20,8 +20,7 @@ import (
 	"sync"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
-	// GOLDMARK-V2: goldmark-emoji has no v2 release yet; emoji support disabled.
-	// east "github.com/yuin/goldmark-emoji/ast"
+	emoji "github.com/yuin/goldmark-emoji/v2"
 
 	htext "github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/tpl"
@@ -270,9 +269,12 @@ func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
 		if c.HardLineBreak() || c.SoftLineBreak() {
 			buf.WriteByte('\n')
 		}
-	// GOLDMARK-V2: goldmark-emoji has no v2 release yet; emoji disabled.
-	// case *east.Emoji:
-	// 	buf.WriteString(string(c.ShortName))
+	case *emoji.Emoji:
+		// GOLDMARK-V2: the emoji node's short name is unexported now; read it
+		// from the emoji definition instead.
+		if c.Value != nil && len(c.Value.ShortNames) > 0 {
+			buf.WriteString(c.Value.ShortNames[0])
+		}
 	default:
 		textPlainTo(c.FirstChild(), source, buf)
 	}

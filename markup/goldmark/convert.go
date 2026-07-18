@@ -224,6 +224,7 @@ func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 
 	if pcfg.Conf.EnableEmoji() {
 		parserExts = append(parserExts, emoji.Parser)
+		rendererExts = append(rendererExts, emoji.HTMLRenderer)
 	}
 
 	if cfg.Parser.Attribute.Title {
@@ -250,6 +251,10 @@ func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 	tocRendererOptions := append([]html.Option(nil), rendererOptions...)
 	tocRendererOptions = append(tocRendererOptions,
 		html.WithExtensions(extras.NewHTMLRenderer(extrasConfig)))
+	if pcfg.Conf.EnableEmoji() {
+		tocRendererOptions = append(tocRendererOptions,
+			html.WithExtensions(emoji.HTMLRenderer))
+	}
 	if cfg.Extensions.Strikethrough {
 		tocRendererOptions = append(tocRendererOptions,
 			html.WithExtensions(extension.NewStrikethroughHTMLRenderer()))

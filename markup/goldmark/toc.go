@@ -21,6 +21,7 @@ import (
 	"github.com/gohugoio/hugo-goldmark-extensions/extras/v2"
 	passthrough "github.com/gohugoio/hugo-goldmark-extensions/passthrough/v2"
 	"github.com/microcosm-cc/bluemonday"
+	emoji "github.com/yuin/goldmark-emoji/v2"
 	strikethroughAst "github.com/yuin/goldmark/v2/extension/ast"
 
 	"github.com/gohugoio/hugo/markup/converter"
@@ -94,9 +95,8 @@ func buildTableOfContents(n ast.Node, rc converter.RenderContext, r html.Rendere
 			extras.KindInsert,
 			extras.KindMark,
 			extras.KindSubscript,
-			extras.KindSuperscript:
-			// GOLDMARK-V2: emoji (goldmark-emoji) node kinds are omitted here
-			// because that module has no v2 release yet.
+			extras.KindSuperscript,
+			emoji.KindEmoji:
 			err := r.Render(&headingText, rc.Src, n)
 			if err != nil {
 				return s, err
