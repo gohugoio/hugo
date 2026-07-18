@@ -149,23 +149,6 @@ func (ctx *Context) PeekValue(k ast.NodeKind) any {
 	return v[len(v)-1]
 }
 
-// NewContext creates a new Context.
-func NewContext(rc converter.RenderContext, dc converter.DocumentContext) *Context {
-	buf := &BufWriter{Buffer: &bytes.Buffer{}}
-
-	rcx := &RenderContextDataHolder{
-		Rctx: rc,
-		Dctx: dc,
-	}
-
-	w := &Context{
-		BufWriter:   buf,
-		ContextData: rcx,
-	}
-
-	return w
-}
-
 type ContextData interface {
 	RenderContext() converter.RenderContext
 	DocumentContext() converter.DocumentContext
@@ -275,6 +258,10 @@ func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
 		// GOLDMARK-V2: RawHTML.Segments -> RawHTML.Value (text.MultilineValue).
 		s := strings.TrimSpace(tpl.StripHTML(string(c.Value.Bytes(source))))
 		buf.WriteString(s)
+	case *ast.CodeSpan:
+		// GOLDMARK-V2: a code span's text now lives in CodeSpan.Value (it no
+		// longer has child text nodes).
+		buf.Write(c.Value.Bytes(source))
 	// GOLDMARK-V2: ast.String was removed; string content is now an owned
 	// text.Text node handled by the *ast.Text case below.
 	case *ast.Text:

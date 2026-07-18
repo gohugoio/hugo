@@ -14,6 +14,7 @@
 package goldmark
 
 import (
+	"bytes"
 	"regexp"
 	"strings"
 
@@ -22,7 +23,6 @@ import (
 	strikethroughAst "github.com/yuin/goldmark/v2/extension/ast"
 
 	"github.com/gohugoio/hugo/markup/converter"
-	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/yuin/goldmark/v2/ast"
@@ -38,14 +38,14 @@ import (
 // internal context that callers can neither seed nor read back, we now walk the
 // returned AST directly after parsing. The heading anchor ids are read from the
 // heading `id` attributes (already assigned and de-duplicated during parsing).
-func buildTableOfContents(n ast.Node, rc converter.RenderContext, dc converter.DocumentContext, r html.Renderer) *tableofcontents.Fragments {
+func buildTableOfContents(n ast.Node, rc converter.RenderContext, r html.Renderer) *tableofcontents.Fragments {
 	var (
 		toc         tableofcontents.Builder
 		tocHeading  = &tableofcontents.Heading{}
 		level       int
 		row         = -1
 		inHeading   bool
-		headingText = render.NewContext(rc, dc)
+		headingText bytes.Buffer
 		identifiers []string
 	)
 
@@ -92,7 +92,7 @@ func buildTableOfContents(n ast.Node, rc converter.RenderContext, dc converter.D
 			// GOLDMARK-V2: emoji (goldmark-emoji) and the hugo-goldmark-extensions
 			// (extras: delete/insert/mark/subscript/superscript) node kinds are
 			// omitted here because those modules have no v2 release yet.
-			err := r.Render(headingText, rc.Src, n)
+			err := r.Render(&headingText, rc.Src, n)
 			if err != nil {
 				return s, err
 			}
@@ -105,7 +105,7 @@ func buildTableOfContents(n ast.Node, rc converter.RenderContext, dc converter.D
 			passthrough.KindPassthroughInline,
 			passthrough.KindPassthroughBlock:
 			// GOLDMARK-V2: ast.KindString was removed (string content is now Text).
-			err := r.Render(headingText, rc.Src, n)
+			err := r.Render(&headingText, rc.Src, n)
 			if err != nil {
 				return s, err
 			}

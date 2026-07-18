@@ -55,6 +55,13 @@ func New(cfg goldmark_config.Passthrough) (parser.Extension, html.Extension) {
 	return passthrough.NewParser(pcfg), &htmlRenderer{}
 }
 
+// NewTOCRenderer returns the upstream (raw) passthrough HTML renderer. It writes
+// the raw passthrough source and does not depend on Hugo's *render.Context, so
+// it is safe to use from the table-of-contents renderer.
+func NewTOCRenderer() html.Extension {
+	return passthrough.NewHTMLRenderer(passthrough.Config{})
+}
+
 type htmlRenderer struct{}
 
 func (r *htmlRenderer) RendererOptions(*html.Config) []html.Option {

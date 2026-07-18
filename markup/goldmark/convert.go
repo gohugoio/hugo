@@ -15,6 +15,8 @@
 package goldmark
 
 import (
+	"bytes"
+
 	"github.com/gohugoio/hugo-goldmark-extensions/extras/v2"
 
 	"github.com/gohugoio/hugo/markup/goldmark/blockquotes"
@@ -236,16 +238,25 @@ func newMarkdown(pcfg converter.ProviderConfig) *markdownHandler {
 		parser.WithIDGenerator(newIDFactory(cfg.Parser.AutoIDType)))
 
 	parserOptions = append(parserOptions, parser.WithExtensions(parserExts...))
-	rendererOptions = append(rendererOptions, html.WithExtensions(rendererExts...))
 
-	// The TOC renderer renders heading inline content to plain-ish HTML. It uses
-	// the default CommonMark renderers plus strikethrough (when enabled).
-	var tocRendererOptions []html.Option
-	tocRendererOptions = append(tocRendererOptions, rendererOptions...)
+	// GOLDMARK-V2: The TOC renderer renders heading inline content to a plain
+	// bytes.Buffer, so it must NOT include Hugo's render hooks
+	// (link/image/heading/blockquote/codeblock/passthrough), which assume the
+	// writer is a *render.Context and would panic otherwise. Like the v1 code, it
+	// is a plain CommonMark renderer plus only the inline extension renderers that
+	// can appear inside a heading. `rendererOptions` still holds only the base
+	// options at this point (the hooks are added just below), so copy it first.
+	tocRendererOptions := append([]html.Option(nil), rendererOptions...)
 	if cfg.Extensions.Strikethrough {
 		tocRendererOptions = append(tocRendererOptions,
 			html.WithExtensions(extension.NewStrikethroughHTMLRenderer()))
 	}
+	if cfg.Extensions.Passthrough.Enable {
+		tocRendererOptions = append(tocRendererOptions,
+			html.WithExtensions(passthrough.NewTOCRenderer()))
+	}
+
+	rendererOptions = append(rendererOptions, html.WithExtensions(rendererExts...))
 
 	return &markdownHandler{
 		parser:      parser.New(parserOptions...),
@@ -289,7 +300,7 @@ func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.Result
 
 	var toc *tableofcontents.Fragments
 	if ctx.RenderTOC {
-		toc = buildTableOfContents(doc, ctx, c.ctx, c.md.tocRenderer)
+		toc = buildTableOfContents(doc, ctx, c.md.tocRenderer)
 	}
 
 	return parserResult{
@@ -300,8 +311,17 @@ func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.Result
 
 func (c *goldmarkConverter) Render(ctx converter.RenderContext, doc any) (converter.ResultRender, error) {
 	n := doc.(ast.Node)
+	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
 
-	w := render.NewContext(ctx, c.ctx)
+	rcx := &render.RenderContextDataHolder{
+		Rctx: ctx,
+		Dctx: c.ctx,
+	}
+
+	w := &render.Context{
+		BufWriter:   buf,
+		ContextData: rcx,
+	}
 
 	// TODO1 goldmrk v2. Would be great to have a context.Context or something.
 	if err := c.md.renderer.Render(w, ctx.Src, n); err != nil {

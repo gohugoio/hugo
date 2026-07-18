@@ -167,6 +167,7 @@ func (pco *pageContentOutput) ContentWithoutSummary(ctx context.Context) (templa
 }
 
 func (pco *pageContentOutput) TableOfContents(ctx context.Context) template.HTML {
+	defer herrors.Recover() // TODO1 remove me.
 	return pco.c().(*cachedContentScope).fragmentsHTML(ctx)
 }
 
