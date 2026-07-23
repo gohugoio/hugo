@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"github.com/bep/logg"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/util"
 
 	qt "github.com/frankban/quicktest"
 	"github.com/fsnotify/fsnotify"

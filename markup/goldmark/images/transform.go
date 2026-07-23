@@ -1,11 +1,12 @@
 package images
 
 import (
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/text"
-	"github.com/yuin/goldmark/util"
+	"strconv"
+
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/parser"
+	"github.com/yuin/goldmark/v2/text"
+	"github.com/yuin/goldmark/v2/util"
 )
 
 type (
@@ -21,16 +22,17 @@ const (
 	AttrOrdinal = "_h__ordinal"
 )
 
-func New(wrapStandAloneImageWithinParagraph bool) goldmark.Extender {
+// New returns a goldmark v2 parser extension for images.
+func New(wrapStandAloneImageWithinParagraph bool) parser.Extension {
 	return &imagesExtension{wrapStandAloneImageWithinParagraph: wrapStandAloneImageWithinParagraph}
 }
 
-func (e *imagesExtension) Extend(m goldmark.Markdown) {
-	m.Parser().AddOptions(
+func (e *imagesExtension) ParserOptions(*parser.Config) []parser.Option {
+	return []parser.Option{
 		parser.WithASTTransformers(
-			util.Prioritized(&Transformer{wrapStandAloneImageWithinParagraph: e.wrapStandAloneImageWithinParagraph}, 300),
+			util.Prioritized[parser.ASTTransformer](&Transformer{wrapStandAloneImageWithinParagraph: e.wrapStandAloneImageWithinParagraph}, 300),
 		),
-	)
+	}
 }
 
 type Transformer struct {
@@ -47,13 +49,16 @@ func (t *Transformer) Transform(doc *ast.Document, reader text.Reader, pctx pars
 
 		if n, ok := node.(*ast.Image); ok {
 			parent := n.Parent()
-			n.SetAttributeString(AttrOrdinal, ordinal)
+			// GOLDMARK-V2: node attribute values are text.MultilineValue now, so
+			// these internal signal attributes must be encoded as strings and
+			// decoded in the render hook.
+			n.SetAttribute(AttrOrdinal, text.NewStringMultilineValue(strconv.Itoa(ordinal)))
 			ordinal++
 
 			if !t.wrapStandAloneImageWithinParagraph {
 				isBlock := parent.ChildCount() == 1
 				if isBlock {
-					n.SetAttributeString(AttrIsBlock, true)
+					n.SetAttribute(AttrIsBlock, text.NewStringMultilineValue("true"))
 				}
 
 				if isBlock && parent.Kind() == ast.KindParagraph {
@@ -64,7 +69,9 @@ func (t *Transformer) Transform(doc *ast.Document, reader text.Reader, pctx pars
 						n.SetAttribute(attr.Name, attr.Value)
 					}
 					grandParent := parent.Parent()
-					grandParent.ReplaceChild(grandParent, parent, n)
+					// GOLDMARK-V2: ReplaceChild no longer takes the receiver as its
+					// first argument.
+					grandParent.ReplaceChild(parent, n)
 				}
 			}
 

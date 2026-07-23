@@ -15,81 +15,63 @@ package passthrough
 
 import (
 	"bytes"
+	"io"
 
-	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
+	"github.com/gohugoio/hugo-goldmark-extensions/passthrough/v2"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/goldmark_config"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/renderer"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/parser"
+	"github.com/yuin/goldmark/v2/renderer"
+	"github.com/yuin/goldmark/v2/renderer/html"
 )
 
-func New(cfg goldmark_config.Passthrough) goldmark.Extender {
+// New returns the goldmark v2 parser and HTML renderer extensions for the
+// passthrough feature, or (nil, nil) if it is disabled. The parser comes from
+// the upstream module; the renderer is Hugo's own so the passthrough render
+// hooks apply.
+func New(cfg goldmark_config.Passthrough) (parser.Extension, html.Extension) {
 	if !cfg.Enable {
-		return nil
-	}
-	return &passthroughExtension{cfg: cfg}
-}
-
-type (
-	passthroughExtension struct {
-		cfg goldmark_config.Passthrough
-	}
-	htmlRenderer struct{}
-)
-
-func (e *passthroughExtension) Extend(m goldmark.Markdown) {
-	configuredInlines := e.cfg.Delimiters.Inline
-	configuredBlocks := e.cfg.Delimiters.Block
-
-	inlineDelimiters := make([]passthrough.Delimiters, len(configuredInlines))
-	blockDelimiters := make([]passthrough.Delimiters, len(configuredBlocks))
-
-	for i, d := range configuredInlines {
-		inlineDelimiters[i] = passthrough.Delimiters{
-			Open:  d[0],
-			Close: d[1],
-		}
+		return nil, nil
 	}
 
-	for i, d := range configuredBlocks {
-		blockDelimiters[i] = passthrough.Delimiters{
-			Open:  d[0],
-			Close: d[1],
-		}
+	inlineDelimiters := make([]passthrough.Delimiters, len(cfg.Delimiters.Inline))
+	blockDelimiters := make([]passthrough.Delimiters, len(cfg.Delimiters.Block))
+
+	for i, d := range cfg.Delimiters.Inline {
+		inlineDelimiters[i] = passthrough.Delimiters{Open: d[0], Close: d[1]}
+	}
+	for i, d := range cfg.Delimiters.Block {
+		blockDelimiters[i] = passthrough.Delimiters{Open: d[0], Close: d[1]}
 	}
 
-	pse := passthrough.New(
-		passthrough.Config{
-			InlineDelimiters: inlineDelimiters,
-			BlockDelimiters:  blockDelimiters,
-		},
-	)
+	pcfg := passthrough.Config{
+		InlineDelimiters: inlineDelimiters,
+		BlockDelimiters:  blockDelimiters,
+	}
 
-	pse.Extend(m)
-
-	// Set up render hooks if configured.
-	// Upstream passthrough inline = 101
-	// Upstream passthrough block = 99
-	m.Renderer().AddOptions(renderer.WithNodeRenderers(
-		util.Prioritized(newHTMLRenderer(), 90),
-	))
+	return passthrough.NewParser(pcfg), &htmlRenderer{}
 }
 
-func newHTMLRenderer() renderer.NodeRenderer {
-	r := &htmlRenderer{}
-	return r
+// NewTOCRenderer returns the upstream (raw) passthrough HTML renderer. It writes
+// the raw passthrough source and does not depend on Hugo's *render.Context, so
+// it is safe to use from the table-of-contents renderer.
+func NewTOCRenderer() html.Extension {
+	return passthrough.NewHTMLRenderer(passthrough.Config{})
 }
 
-func (r *htmlRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(passthrough.KindPassthroughBlock, r.renderPassthroughBlock)
-	reg.Register(passthrough.KindPassthroughInline, r.renderPassthroughBlock)
+type htmlRenderer struct{}
+
+func (r *htmlRenderer) RendererOptions(*html.Config) []html.Option {
+	return []html.Option{
+		html.WithNodeRenderer(passthrough.KindPassthroughBlock, html.NodeRendererFunc(r.renderPassthroughBlock)),
+		html.WithNodeRenderer(passthrough.KindPassthroughInline, html.NodeRendererFunc(r.renderPassthroughBlock)),
+	}
 }
 
-func (r *htmlRenderer) renderPassthroughBlock(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *htmlRenderer) renderPassthroughBlock(w io.Writer, src []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	ctx := w.(*render.Context)
 
 	if entering {
@@ -104,15 +86,15 @@ func (r *htmlRenderer) renderPassthroughBlock(w util.BufWriter, src []byte, node
 
 	switch nn := node.(type) {
 	case *passthrough.PassthroughInline:
-		s = string(nn.Text(src))
+		// GOLDMARK-V2: PassthroughInline exposes a Segment field (Text() is gone).
+		s = string(nn.Segment.Bytes(src))
 		typ = "inline"
 		delims = nn.Delimiters
-	case (*passthrough.PassthroughBlock):
-		l := nn.Lines().Len()
+	case *passthrough.PassthroughBlock:
+		// GOLDMARK-V2: block content is read via BlockNode.Source() now.
 		var buff bytes.Buffer
-		for i := range l {
-			line := nn.Lines().At(i)
-			buff.Write(line.Value(src))
+		for _, line := range nn.Source() {
+			buff.Write(line.Bytes(src))
 		}
 		s = buff.String()
 		typ = "block"

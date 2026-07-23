@@ -19,21 +19,24 @@ import (
 	"regexp"
 	"strconv"
 
+	"io"
+
 	"github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/renderer"
-	"github.com/yuin/goldmark/renderer/html"
-	"github.com/yuin/goldmark/text"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/parser"
+	"github.com/yuin/goldmark/v2/renderer"
+	"github.com/yuin/goldmark/v2/renderer/html"
+	"github.com/yuin/goldmark/v2/text"
+	"github.com/yuin/goldmark/v2/util"
 )
 
-func New(logger loggers.Logger) goldmark.Extender {
-	return &hugoContextExtension{logger: logger}
+// New returns a goldmark v2 extension (parser + HTML renderer) for the Hugo
+// context markers used by .RenderShortcodes.
+func New(logger loggers.Logger, unsafe bool) *hugoContextExtension {
+	return &hugoContextExtension{logger: logger, unsafe: unsafe}
 }
 
 // Wrap wraps the given byte slice in a Hugo context that used to determine the correct Page
@@ -70,10 +73,11 @@ type HugoContext struct {
 }
 
 // Dump implements Node.Dump.
-func (n *HugoContext) Dump(source []byte, level int) {
-	m := map[string]string{}
-	m["Pid"] = fmt.Sprintf("%v", n.Pid)
-	ast.DumpHelper(n, source, level, m, nil)
+// GOLDMARK-V2: Dump now returns *ast.NodeDump.
+func (n *HugoContext) Dump(source []byte) *ast.NodeDump {
+	return ast.NewNodeDump(n, map[string]any{
+		"Pid": fmt.Sprintf("%v", n.Pid),
+	})
 }
 
 func (n *HugoContext) parseAttrs(attrBytes []byte) {
@@ -154,17 +158,16 @@ func (s *hugoContextParser) Parse(parent ast.Node, reader text.Reader, pc parser
 
 type hugoContextRenderer struct {
 	logger loggers.Logger
-	html.Config
+	unsafe bool
+	writer html.Writer
 }
 
-func (r *hugoContextRenderer) SetOption(name renderer.OptionName, value any) {
-	r.Config.SetOption(name, value)
-}
-
-func (r *hugoContextRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(kindHugoContext, r.handleHugoContext)
-	reg.Register(ast.KindRawHTML, r.renderRawHTML)
-	reg.Register(ast.KindHTMLBlock, r.renderHTMLBlock)
+func (r *hugoContextRenderer) rendererOptions() []html.Option {
+	return []html.Option{
+		html.WithNodeRenderer(kindHugoContext, html.NodeRendererFunc(r.handleHugoContext)),
+		html.WithNodeRenderer(ast.KindRawHTML, html.NodeRendererFunc(r.renderRawHTML)),
+		html.WithNodeRenderer(ast.KindHTMLBlock, html.NodeRendererFunc(r.renderHTMLBlock)),
+	}
 }
 
 func (r *hugoContextRenderer) stripHugoCtx(b []byte) ([]byte, bool) {
@@ -174,11 +177,11 @@ func (r *hugoContextRenderer) stripHugoCtx(b []byte) ([]byte, bool) {
 	return hugoCtxRe.ReplaceAll(b, nil), true
 }
 
-func (r *hugoContextRenderer) logRawHTMLEmittedWarn(w util.BufWriter) {
+func (r *hugoContextRenderer) logRawHTMLEmittedWarn(w io.Writer) {
 	r.logger.Warnidf(constants.WarnGoldmarkRawHTML, "Raw HTML omitted while rendering %q; see https://gohugo.io/getting-started/configuration-markup/#rendererunsafe", r.getPage(w))
 }
 
-func (r *hugoContextRenderer) getPage(w util.BufWriter) any {
+func (r *hugoContextRenderer) getPage(w io.Writer) any {
 	var p any
 	ctx, ok := w.(*render.Context)
 	if ok {
@@ -192,43 +195,27 @@ func (r *hugoContextRenderer) isHTMLComment(b []byte) bool {
 }
 
 // HTML rendering based on Goldmark implementation.
+// GOLDMARK-V2: HTMLBlock.Lines()/ClosureLine/HasClosure are gone; the whole
+// block content (including any closing line) is now in HTMLBlock.Value.
 func (r *hugoContextRenderer) renderHTMLBlock(
-	w util.BufWriter, source []byte, node ast.Node, entering bool,
+	w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context,
 ) (ast.WalkStatus, error) {
+	bw := w.(*render.Context)
 	n := node.(*ast.HTMLBlock)
 
 	if entering {
-		if r.Unsafe {
-			l := n.Lines().Len()
-			for i := range l {
-				line := n.Lines().At(i)
-				linev := line.Value(source)
-				var stripped bool
-				linev, stripped = r.stripHugoCtx(linev)
-				if stripped {
-					r.logger.Warnidf(constants.WarnRenderShortcodesInHTML, ".RenderShortcodes detected inside HTML block in %q; this may not be what you intended, see https://gohugo.io/methods/page/rendershortcodes/#limitations", r.getPage(w))
-				}
-				r.Writer.SecureWrite(w, linev)
+		v := n.Value.Bytes(source)
+		if r.unsafe {
+			var stripped bool
+			v, stripped = r.stripHugoCtx(v)
+			if stripped {
+				r.logger.Warnidf(constants.WarnRenderShortcodesInHTML, ".RenderShortcodes detected inside HTML block in %q; this may not be what you intended, see https://gohugo.io/methods/page/rendershortcodes/#limitations", r.getPage(w))
 			}
+			r.writer.WriteHTML(bw, v)
 		} else {
-			l := n.Lines().At(0)
-			v := l.Value(source)
 			if !r.isHTMLComment(v) {
 				r.logRawHTMLEmittedWarn(w)
-				_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
-			}
-		}
-	} else {
-		if n.HasClosure() {
-			if r.Unsafe {
-				closure := n.ClosureLine
-				r.Writer.SecureWrite(w, closure.Value(source))
-			} else {
-				l := n.Lines().At(0)
-				v := l.Value(source)
-				if !r.isHTMLComment(v) {
-					_, _ = w.WriteString("<!-- raw HTML omitted -->\n")
-				}
+				_, _ = bw.WriteString("<!-- raw HTML omitted -->\n")
 			}
 		}
 	}
@@ -236,30 +223,27 @@ func (r *hugoContextRenderer) renderHTMLBlock(
 }
 
 func (r *hugoContextRenderer) renderRawHTML(
-	w util.BufWriter, source []byte, node ast.Node, entering bool,
+	w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context,
 ) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkSkipChildren, nil
 	}
+	bw := w.(*render.Context)
 	n := node.(*ast.RawHTML)
-	l := n.Segments.Len()
-	if r.Unsafe {
-		for i := range l {
-			segment := n.Segments.At(i)
-			_, _ = w.Write(segment.Value(source))
-		}
+	// GOLDMARK-V2: RawHTML.Segments -> RawHTML.Value (text.MultilineValue).
+	v := n.Value.Bytes(source)
+	if r.unsafe {
+		_, _ = bw.Write(v)
 		return ast.WalkSkipChildren, nil
 	}
-	segment := n.Segments.At(0)
-	v := segment.Value(source)
 	if !r.isHTMLComment(v) {
 		r.logRawHTMLEmittedWarn(w)
-		_, _ = w.WriteString("<!-- raw HTML omitted -->")
+		_, _ = bw.WriteString("<!-- raw HTML omitted -->")
 	}
 	return ast.WalkSkipChildren, nil
 }
 
-func (r *hugoContextRenderer) handleHugoContext(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *hugoContextRenderer) handleHugoContext(w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
@@ -291,13 +275,15 @@ func (a *hugoContextTransformer) Transform(n *ast.Document, reader text.Reader, 
 		if p, ok := n.Parent().(*ast.Paragraph); ok {
 			if p.ChildCount() == 1 {
 				// Avoid empty paragraphs.
-				p.Parent().ReplaceChild(p.Parent(), p, n)
+				// GOLDMARK-V2: ReplaceChild/RemoveChild no longer take the receiver.
+				p.Parent().ReplaceChild(p, n)
 			} else {
 				if t, ok := n.PreviousSibling().(*ast.Text); ok {
 					// Remove the newline produced by the Hugo context markers.
 					if t.SoftLineBreak() {
-						if t.Segment.Len() == 0 {
-							p.RemoveChild(p, t)
+						// GOLDMARK-V2: Text.Segment -> Text.Value.
+						if len(t.Value.Bytes(reader.Source())) == 0 {
+							p.RemoveChild(t)
 						} else {
 							t.SetSoftLineBreak(false)
 						}
@@ -312,24 +298,23 @@ func (a *hugoContextTransformer) Transform(n *ast.Document, reader text.Reader, 
 
 type hugoContextExtension struct {
 	logger loggers.Logger
+	unsafe bool
 }
 
-func (a *hugoContextExtension) Extend(m goldmark.Markdown) {
-	m.Parser().AddOptions(
+func (a *hugoContextExtension) ParserOptions() []parser.Option {
+	return []parser.Option{
 		parser.WithInlineParsers(
-			util.Prioritized(&hugoContextParser{}, 50),
+			util.Prioritized[parser.InlineParser](&hugoContextParser{}, 50),
 		),
-		parser.WithASTTransformers(util.Prioritized(&hugoContextTransformer{}, 10)),
-	)
+		parser.WithASTTransformers(util.Prioritized[parser.ASTTransformer](&hugoContextTransformer{}, 10)),
+	}
+}
 
-	m.Renderer().AddOptions(
-		renderer.WithNodeRenderers(
-			util.Prioritized(&hugoContextRenderer{
-				logger: a.logger,
-				Config: html.Config{
-					Writer: html.DefaultWriter,
-				},
-			}, 50),
-		),
-	)
+func (a *hugoContextExtension) RendererOptions() []html.Option {
+	r := &hugoContextRenderer{
+		logger: a.logger,
+		unsafe: a.unsafe,
+		writer: html.DefaultWriter,
+	}
+	return r.rendererOptions()
 }

@@ -41,8 +41,8 @@ require (
 	github.com/gohugoio/go-radix v1.2.0
 	github.com/gohugoio/hashstructure v0.6.0
 	github.com/gohugoio/httpcache v0.8.0
-	github.com/gohugoio/hugo-goldmark-extensions/extras v0.7.0
-	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.5.0
+	github.com/gohugoio/hugo-goldmark-extensions/extras/v2 v2.0.0-20260718140759-8bc302efd59b
+	github.com/gohugoio/hugo-goldmark-extensions/passthrough/v2 v2.0.0-20260718140759-8bc302efd59b
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/hairyhenderson/go-codeowners v0.7.0
@@ -69,8 +69,8 @@ require (
 	github.com/tdewolff/minify/v2 v2.24.13
 	github.com/tdewolff/parse/v2 v2.8.12
 	github.com/tetratelabs/wazero v1.12.0
-	github.com/yuin/goldmark v1.8.2
-	github.com/yuin/goldmark-emoji v1.0.6
+	github.com/yuin/goldmark-emoji/v2 v2.0.0
+	github.com/yuin/goldmark/v2 v2.0.0-beta.5
 	go.uber.org/automaxprocs v1.5.3
 	gocloud.dev v0.45.0
 	golang.org/x/image v0.43.0
