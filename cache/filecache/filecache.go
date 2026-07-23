@@ -499,7 +499,7 @@ func (f Caches) SetResourceFs(fs afero.Fs) {
 			if c.isInited {
 				panic("cannot set resource fs after init")
 			}
-			c.Fs = hugofs.NewBasePathFs(fs, c.cfg.DirCompiled)
+			c.Fs = hugofs.NewBasePathFs(fs, c.cfg.DirCompiledVirtual)
 		}
 	}
 }

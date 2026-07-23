@@ -408,9 +408,10 @@ func (l *configLoader) loadConfigMain(d ConfigSourceDescriptor) (config.LoadConf
 	workingDir := filepath.Clean(l.cfg.GetString("workingDir"))
 
 	l.BaseConfig = config.BaseConfig{
-		WorkingDir: workingDir,
-		CacheDir:   l.cfg.GetString("cacheDir"),
-		ThemesDir:  paths.AbsPathify(workingDir, l.cfg.GetString("themesDir")),
+		WorkingDir:  workingDir,
+		CacheDir:    l.cfg.GetString("cacheDir"),
+		ThemesDir:   paths.AbsPathify(workingDir, l.cfg.GetString("themesDir")),
+		ResourceDir: l.cfg.GetString("resourceDir"),
 	}
 
 	var err error
