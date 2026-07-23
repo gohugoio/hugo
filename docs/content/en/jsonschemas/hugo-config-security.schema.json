@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-security.schema.json",
+  "properties": {
+    "exec": {
+      "properties": {
+        "allow": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#execallow"
+        },
+        "osEnv": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#execosenv"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/security/#exec"
+    },
+    "funcs": {
+      "properties": {
+        "getenv": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#funcsgetenv"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/security/#funcs"
+    },
+    "http": {
+      "properties": {
+        "urls": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#httpurls"
+        },
+        "methods": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#httpmethods"
+        },
+        "mediaTypes": {
+          "properties": {},
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#httpmediatypes"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/security/#http"
+    },
+    "node": {
+      "properties": {
+        "permissions": {
+          "properties": {
+            "disable": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/security/#nodepermissionsdisable"
+            },
+            "allowRead": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "description": "https://gohugo.io/configuration/security/#nodepermissionsallowread"
+            },
+            "allowWrite": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "description": "https://gohugo.io/configuration/security/#nodepermissionsallowwrite"
+            },
+            "allowAddons": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "description": "https://gohugo.io/configuration/security/#nodepermissionsallowaddons"
+            },
+            "allowWorker": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "description": "https://gohugo.io/configuration/security/#nodepermissionsallowworker"
+            },
+            "allowChildProcess": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "description": "https://gohugo.io/configuration/security/#nodepermissionsallowchildprocess"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/security/#nodepermissions"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/security/#node"
+    },
+    "allowContent": {
+      "properties": {},
+      "type": "object",
+      "description": "https://gohugo.io/configuration/security/#allow-content"
+    },
+    "enableInlineShortcodes": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/security/#enableinlineshortcodes"
+    }
+  },
+  "type": "object"
+}

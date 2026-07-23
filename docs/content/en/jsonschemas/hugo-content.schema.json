@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-content.schema.json",
+  "$defs": {
+    "flexibleDate": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC3339 date-time format (e.g., 2017-01-02T15:04:05Z07:00)"
+        },
+        {
+          "type": "string",
+          "format": "date",
+          "description": "Date only format (e.g., 2017-01-02)"
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}$",
+          "description": "Date with time format (e.g., 2017-01-02 15:04:05)"
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}$",
+          "description": "Date with hour:minute format (e.g., 2017-01-02 15:04)"
+        }
+      ],
+      "description": "Hugo date field supporting multiple formats"
+    }
+  },
+  "properties": {
+    "date": {
+      "$ref": "#/$defs/flexibleDate",
+      "description": "https://gohugo.io/content-management/front-matter#date"
+    },
+    "lastMod": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#lastmod"
+    },
+    "publishDate": {
+      "$ref": "#/$defs/flexibleDate",
+      "description": "https://gohugo.io/content-management/front-matter#publishdate"
+    },
+    "expiryDate": {
+      "$ref": "#/$defs/flexibleDate",
+      "description": "https://gohugo.io/content-management/front-matter#expirydate"
+    },
+    "params": {
+      "type": "object",
+      "description": "https://gohugo.io/content-management/front-matter#params"
+    },
+    "title": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#title"
+    },
+    "linkTitle": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#linktitle"
+    },
+    "type": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#type"
+    },
+    "layout": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#layout"
+    },
+    "weight": {
+      "type": "integer",
+      "description": "https://gohugo.io/content-management/front-matter#weight"
+    },
+    "url": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#url"
+    },
+    "slug": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#slug"
+    },
+    "description": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#description"
+    },
+    "summary": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#summary"
+    },
+    "draft": {
+      "type": "boolean",
+      "description": "https://gohugo.io/content-management/front-matter#draft"
+    },
+    "isCJKLanguage": {
+      "type": "boolean",
+      "description": "https://gohugo.io/content-management/front-matter#iscjklanguage"
+    },
+    "translationKey": {
+      "type": "string",
+      "description": "https://gohugo.io/content-management/front-matter#translationkey"
+    },
+    "keywords": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/content-management/front-matter#keywords"
+    },
+    "aliases": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/content-management/front-matter#aliases"
+    },
+    "outputs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/content-management/front-matter#outputs"
+    },
+    "sitemap": {
+      "properties": {
+        "changeFreq": {
+          "type": "string",
+          "enum": [
+            "always",
+            "hourly",
+            "daily",
+            "weekly",
+            "monthly",
+            "yearly",
+            "never"
+          ],
+          "description": "https://gohugo.io/content-management/front-matter"
+        },
+        "priority": {
+          "type": "number",
+          "description": "https://gohugo.io/content-management/front-matter"
+        },
+        "filename": {
+          "type": "string",
+          "description": "https://gohugo.io/content-management/front-matter"
+        },
+        "disable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/content-management/front-matter"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/content-management/front-matter#sitemap"
+    },
+    "build": {
+      "properties": {
+        "list": {
+          "type": "string",
+          "enum": [
+            "never",
+            "always",
+            "local"
+          ],
+          "description": "https://gohugo.io/content-management/front-matter"
+        },
+        "render": {
+          "type": "string",
+          "enum": [
+            "never",
+            "always",
+            "link"
+          ],
+          "description": "https://gohugo.io/content-management/front-matter"
+        },
+        "publishResources": {
+          "type": "boolean",
+          "description": "https://gohugo.io/content-management/front-matter"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/content-management/front-matter#build"
+    },
+    "menus": {
+      "description": "https://gohugo.io/content-management/front-matter#menus"
+    }
+  },
+  "type": "object",
+  "title": "Hugo Page Front Matter Schema",
+  "description": "JSON Schema for Hugo page front matter structure"
+}
