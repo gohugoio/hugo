@@ -16,6 +16,7 @@ package htesting
 import (
 	"math/rand"
 	"os"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -56,6 +57,27 @@ func CreateTempDir(fs afero.Fs, prefix string) (string, func(), error) {
 		tempDir = "/private" + tempDir
 	}
 	return tempDir, func() { fs.RemoveAll(tempDir) }, nil
+}
+
+// IsCaseInsensitiveFs reports whether dir lives on a case-insensitive filesystem
+// (e.g. the default on macOS and Windows).
+func IsCaseInsensitiveFs(dir string) (bool, error) {
+	f, err := os.CreateTemp(dir, "case-*.tmp")
+	if err != nil {
+		return false, err
+	}
+	f.Close()
+	defer os.Remove(f.Name())
+
+	_, err = os.Stat(filepath.Join(dir, strings.ToUpper(filepath.Base(f.Name()))))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }
 
 // BailOut panics with a stack trace after the given duration. Useful for
