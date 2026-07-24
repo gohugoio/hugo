@@ -1257,20 +1257,14 @@ func (h *HugoSites) fileEventsApplyInfo(events []fsnotify.Event) []fileEventInfo
 		removed := false
 		added := false
 
-		if ev.Op&fsnotify.Remove == fsnotify.Remove {
-			removed = true
-		}
-
 		fi, statErr := h.Fs.Source.Stat(ev.Name)
 
-		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file
-		// Sometimes a rename operation means that file has been renamed other times it means
-		// it's been updated.
-		if ev.Op.Has(fsnotify.Rename) {
-			// If the file is still on disk, it's only been updated, if it's not, it's been moved
-			if statErr != nil {
-				removed = true
-			}
+		// Some editors (Vim) sometimes issue only a Rename operation when writing an existing file,
+		// and an atomic save (write temp file, then rename it into place) makes the watcher
+		// report the replaced file as removed (kqueue/macOS).
+		// So, if the file is still on disk, it's only been updated, if it's not, it's gone.
+		if ev.Op.Has(fsnotify.Remove) || ev.Op.Has(fsnotify.Rename) {
+			removed = statErr != nil
 		}
 		if ev.Op.Has(fsnotify.Create) {
 			added = true

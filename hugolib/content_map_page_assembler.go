@@ -1385,8 +1385,11 @@ func (a *allPagesAssembler) createMissingTaxonomies() error {
 	for viewName, languages := range viewLanguages {
 		key := viewName.pluralTreeKey
 		if a.h.isRebuild() {
-			if v := tree.Get(key); v != nil {
-				// Already there.
+			// Note that we cannot use tree.Get here, as the tree at this point
+			// may hold not yet assembled *pageMetaSource nodes.
+			// We're only interested in whether the auto created (not file backed)
+			// taxonomy node is still there.
+			if n, found := tree.GetRaw(key); found && hasAutoContentNode(n) {
 				continue
 			}
 		}

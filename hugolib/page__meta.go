@@ -98,6 +98,13 @@ func (m *pageMetaSource) String() string {
 	return fmt.Sprintf("pageMetaSource(%s)", m.pathInfo)
 }
 
+func (m *pageMetaSource) contentWeight() int {
+	if m.f == nil {
+		return 0
+	}
+	return m.f.FileInfo().Meta().Weight
+}
+
 func (m *pageMetaSource) nodeCategoryPage() {
 	// Marker method.
 }
