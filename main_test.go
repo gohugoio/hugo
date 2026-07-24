@@ -15,6 +15,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,6 +28,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -78,9 +80,21 @@ func TestMain(m *testing.M) {
 	})
 }
 
+var isCaseInsensitiveFs = sync.OnceValues(func() (bool, error) {
+	return htesting.IsCaseInsensitiveFs(os.TempDir())
+})
+
 var commonTestScriptsParam = testscript.Params{
 	Setup: func(env *testscript.Env) error {
 		return testSetupFunc()(env)
+	},
+	Condition: func(cond string) (bool, error) {
+		switch cond {
+		case "caseinsensitivefs":
+			return isCaseInsensitiveFs()
+		default:
+			return false, fmt.Errorf("unknown condition %q", cond)
+		}
 	},
 	Cmds: map[string]func(ts *testscript.TestScript, neg bool, args []string){
 		// log prints to stderr.
@@ -250,6 +264,34 @@ var commonTestScriptsParam = testscript.Params{
 			err := os.Symlink(target, linkname)
 			if err != nil {
 				ts.Fatalf("failed to create symlink: %v", err)
+			}
+		},
+		// base64decode decodes a base64-encoded file into a binary file.
+		"base64decode": func(ts *testscript.TestScript, neg bool, args []string) {
+			if len(args) != 2 {
+				ts.Fatalf("usage: base64decode src_base64_file dest_binary_file")
+			}
+
+			// Resolve paths relative to the test sandbox's current directory
+			src := ts.MkAbs(args[0])
+			dest := ts.MkAbs(args[1])
+
+			// Read the base64 text
+			base64Data, err := os.ReadFile(src)
+			if err != nil {
+				ts.Fatalf("failed to read base64 file: %v", err)
+			}
+
+			// Decode base64 back to raw bytes
+			binaryBytes, err := base64.StdEncoding.DecodeString(string(base64Data))
+			if err != nil {
+				ts.Fatalf("failed to decode base64 data: %v", err)
+			}
+
+			// Write the executable binary file (0755 grants execution permissions)
+			err = os.WriteFile(dest, binaryBytes, 0o755)
+			if err != nil {
+				ts.Fatalf("failed to write binary file: %v", err)
 			}
 		},
 

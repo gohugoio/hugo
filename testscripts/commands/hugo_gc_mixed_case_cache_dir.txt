@@ -1,0 +1,38 @@
+# In Hugo v0.123 we started lowercasing the content paths, but on case-insensitive
+# filesystems existing caches keep their mixed-case dir names (e.g. MyBundle).
+# The pruner would then consider those entries unused and remove them on every
+# hugo --gc. See issue 15101.
+
+[!caseinsensitivefs] skip
+
+base64decode pixel.png.txt content/MyBundle/pix.png
+
+hugo
+
+stdout 'Processed images │  1 '
+tree resources/_gen
+stdout 'pix_hu_a354833fd576551d.png'
+
+# Simulate a cache created by an older Hugo version.
+mv resources/_gen/images/mybundle resources/_gen/images/MyBundle
+
+hugo --gc
+stdout 'Cleaned          │  0 '
+
+tree resources/_gen
+stdout 'pix_hu_a354833fd576551d.png'
+
+-- hugo.toml --
+disableKinds = ["term", "taxonomy", "home"]
+-- layouts/all.html --
+All.
+-- layouts/page.html --
+{{ $pix := .Resources.Get "pix.png" }}
+{{ $resized := $pix.Resize "10x10" }}
+Resized: {{ $resized.RelPermalink }}
+-- content/MyBundle/index.md --
+---
+title: MyBundle
+---
+-- pixel.png.txt --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
