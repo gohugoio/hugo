@@ -28,6 +28,7 @@ var _ contentNode = (*contentNodeSeq)(nil)
 
 var (
 	_ contentNode                      = (*resourceSource)(nil)
+	_ contentNodeContentWeightProvider = (*pageMetaSource)(nil)
 	_ contentNodeContentWeightProvider = (*pageState)(nil)
 	_ contentNodeForSites              = (*pageState)(nil)
 	_ contentNodePage                  = (*contentNodes)(nil)
@@ -393,6 +394,14 @@ func contentNodeToContentNodesPage(n contentNode) (contentNodesMap, bool) {
 	default:
 		panic(fmt.Sprintf("contentNodeToContentNodesPage: unexpected type %T", n))
 	}
+}
+
+// hasAutoContentNode reports whether n holds at least one node that is not backed by a file.
+func hasAutoContentNode(n contentNodeForEach) bool {
+	return !n.forEeachContentNode(func(_ sitesmatrix.Vector, nn contentNode) bool {
+		wp, ok := nn.(contentNodeContentWeightProvider)
+		return ok && wp.contentWeight() > 0
+	})
 }
 
 func contentNodeToSeq(n contentNodeForEach) contentNodeSeq {

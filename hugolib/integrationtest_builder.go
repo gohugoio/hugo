@@ -231,11 +231,12 @@ type IntegrationTestBuilder struct {
 
 	Cfg IntegrationTestConfig
 
-	changedFiles []string
-	createdFiles []string
-	removedFiles []string
-	renamedFiles []string
-	renamedDirs  []string
+	changedFiles     []string
+	createdFiles     []string
+	removedFiles     []string
+	renamedFiles     []string
+	atomicSavedFiles []string
+	renamedDirs      []string
 
 	buildCount   int
 	GCCount      int
@@ -748,11 +749,29 @@ func (s *IntegrationTestBuilder) EditFileReplaceAll(filename, old, new string) *
 	})
 }
 
+// EditFileAtomicReplaceAll edits a file the way many editors do it: Write to a temp file,
+// then rename it into place.
+func (s *IntegrationTestBuilder) EditFileAtomicReplaceAll(filename, old, new string) *IntegrationTestBuilder {
+	return s.EditFileAtomicReplaceFunc(filename, func(s string) string {
+		return strings.ReplaceAll(s, old, new)
+	})
+}
+
 func (s *IntegrationTestBuilder) EditFileReplaceFunc(filename string, replacementFunc func(s string) string) *IntegrationTestBuilder {
 	absFilename := s.absFilename(filename)
 	b, err := afero.ReadFile(s.fs.Source, absFilename)
 	s.Assert(err, qt.IsNil)
 	s.changedFiles = append(s.changedFiles, absFilename)
+	oldContent := string(b)
+	s.writeSource(absFilename, replacementFunc(oldContent))
+	return s
+}
+
+func (s *IntegrationTestBuilder) EditFileAtomicReplaceFunc(filename string, replacementFunc func(s string) string) *IntegrationTestBuilder {
+	absFilename := s.absFilename(filename)
+	b, err := afero.ReadFile(s.fs.Source, absFilename)
+	s.Assert(err, qt.IsNil)
+	s.atomicSavedFiles = append(s.atomicSavedFiles, absFilename)
 	oldContent := string(b)
 	s.writeSource(absFilename, replacementFunc(oldContent))
 	return s
@@ -1043,6 +1062,7 @@ func (s *IntegrationTestBuilder) reset() {
 	s.createdFiles = nil
 	s.removedFiles = nil
 	s.renamedFiles = nil
+	s.atomicSavedFiles = nil
 }
 
 func (s *IntegrationTestBuilder) build(cfg BuildCfg) error {
@@ -1088,6 +1108,15 @@ func (s *IntegrationTestBuilder) changeEvents() []fsnotify.Event {
 		events = append(events, fsnotify.Event{
 			Name: v,
 			Op:   fsnotify.Rename,
+		})
+	}
+
+	for _, v := range s.atomicSavedFiles {
+		events = append(events, fsnotify.Event{
+			Name: v,
+			// The watcher was watching the inode that got replaced by the rename,
+			// so we get a Remove for a file that's still on disk.
+			Op: fsnotify.Remove,
 		})
 	}
 
