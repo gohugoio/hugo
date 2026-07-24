@@ -362,7 +362,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 
 		switch v := n.(type) {
 		case contentNodeSeq, contentNodes:
-			return handleContentNodeSeq(contentNodeToSeq(v))
+			return handleContentNodeSeq(cnh.contentNodeToSeq(v))
 		case *pageMetaSource:
 			n2, err = handlePageMetaSource(v, nil, false)
 			if err != nil {
@@ -781,7 +781,7 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 
 				if _, found := nodes[p.s.siteVector]; !found {
 					var rs *resourceSource
-					match := cnh.findContentNodeForSiteVector(p.s.siteVector, duplicateResourceFiles, contentNodeToSeq(n))
+					match := cnh.findContentNodeForSiteVector(p.s.siteVector, duplicateResourceFiles, cnh.contentNodeToSeq(n))
 					if match == nil {
 						return true
 					}
@@ -1385,8 +1385,11 @@ func (a *allPagesAssembler) createMissingTaxonomies() error {
 	for viewName, languages := range viewLanguages {
 		key := viewName.pluralTreeKey
 		if a.h.isRebuild() {
-			if v := tree.Get(key); v != nil {
-				// Already there.
+			// Note that we cannot use tree.Get here, as the tree at this point
+			// may hold not yet assembled *pageMetaSource nodes.
+			// We're only interested in whether the auto created (not file backed)
+			// taxonomy node is still there.
+			if n, found := tree.GetRaw(key); found && cnh.hasAutoContentNode(n) {
 				continue
 			}
 		}

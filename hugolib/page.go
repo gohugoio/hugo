@@ -225,10 +225,7 @@ func (ps *pageState) forEeachContentNode(f func(v sitesmatrix.Vector, n contentN
 }
 
 func (ps *pageState) contentWeight() int {
-	if ps.m.f == nil {
-		return 0
-	}
-	return ps.m.f.FileInfo().Meta().Weight
+	return ps.m.pageMetaSource.contentWeight()
 }
 
 func (ps *pageState) nodeSourceEntryID() any {

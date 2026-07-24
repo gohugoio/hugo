@@ -897,6 +897,17 @@ func TestRebuildEditSectionRemoveDate(t *testing.T) {
 	b.AssertFileContent("public/mysection/index.html", "all. My Section|Param: |Lastmod: 2021-02-01|")
 }
 
+// Atomic save (write temp file, then rename into place) of a section's branch bundle.
+// See issue 15130.
+func TestRebuildEditAtomicSection(t *testing.T) {
+	t.Parallel()
+	b := TestRunning(t, rebuildBasicFiles)
+	b.AssertFileContent("public/mysection/index.html", "My Section")
+	b.EditFileAtomicReplaceAll("content/mysection/_index.md", "My Section", "My Changed Section").Build()
+	b.AssertRenderCountPage(5)
+	b.AssertFileContent("public/mysection/index.html", "My Changed Section")
+}
+
 func TestRebuildVariations(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	// This leaktest seems to be a little bit shaky on Travis.
@@ -2169,4 +2180,34 @@ Foo.
 	b.AssertFileContent("public/tags/index.html", "Foo.")
 	b.EditFileReplaceAll("layouts/tags/list.html", "Foo", "Bar").Build()
 	b.AssertFileContent("public/tags/index.html", "Bar.")
+}
+
+// Atomic save (write temp file, then rename into place) of a content backed taxonomy root.
+// See issue 15130.
+func TestRebuildEditAtomicTaxonomyRoot(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+[taxonomies]
+object = "objects"
+-- content/objects/_index.md --
+---
+title: "Objects"
+---
+Objects content.
+-- content/p1.md --
+---
+title: "P1"
+objects: ["o1"]
+---
+-- layouts/all.html --
+{{ .Title }}|{{ .Kind }}|{{ .Content }}
+`
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/objects/index.html", "Objects|taxonomy|<p>Objects content.</p>")
+	b.EditFileAtomicReplaceAll("content/objects/_index.md", "Objects content.", "Objects content edited.").Build()
+	b.AssertFileContent("public/objects/index.html", "Objects|taxonomy|<p>Objects content edited.</p>")
+	b.AssertFileContent("public/objects/o1/index.html", "O1|term|")
 }

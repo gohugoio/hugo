@@ -2341,3 +2341,30 @@ layouts/s1/p3/_views/a.html
 	b.AssertFileContent("public/s1/p2/index.html", "p2: layouts/s1/_views/a.html")    // fails
 	b.AssertFileContent("public/s1/p3/index.html", "p3: layouts/s1/p3/_views/a.html") // fails
 }
+
+func TestPageConttentWeight(t *testing.T) {
+	files := `
+-- hugo.toml --
+-- content/mysection/page1.md --
+-- content/myothersection/page2.md --
+-- content/myothersection/_index.md --
+-- layouts/all.html --
+All.
+`
+	b := Test(t, files)
+
+	check := func(p page.Page, ok bool) {
+		cw := p.(contentNodeContentWeightProvider).contentWeight()
+		b.Assert(ok, qt.Equals, cw > 0)
+	}
+
+	s := b.H.Sites[0]
+	for _, p := range s.RegularPages() {
+		check(p, true)
+	}
+	check(s.home, false)
+	mysection, _ := s.GetPage("mysection")
+	check(mysection, false)
+	myothersection, _ := s.GetPage("myothersection") // backed by a content file.
+	check(myothersection, true)
+}

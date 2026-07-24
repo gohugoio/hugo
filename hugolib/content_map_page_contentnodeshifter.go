@@ -105,7 +105,7 @@ func (s *contentNodeShifter) ForEeachInAllDimensions(n contentNode, f func(conte
 
 func (s *contentNodeShifter) ForEeachInDimension(n contentNode, vec sitesmatrix.Vector, d int, f func(contentNode) bool) {
 LOOP1:
-	for vec2, v := range contentNodeToSeq2(n) {
+	for vec2, v := range cnh.contentNodeToSeq2(n) {
 		for i, v := range vec2 {
 			if i != d && v != vec[i] {
 				continue LOOP1
@@ -170,7 +170,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		}
 		// The exact match is an auto page (not backed by a file).
 		// Check if there's a file-backed complement that should take precedence.
-		if vvv := cnh.findContentNodeForSiteVector(siteVector, fallback, contentNodeToSeq(n)); vvv != nil {
+		if vvv := cnh.findContentNodeForSiteVector(siteVector, fallback, cnh.contentNodeToSeq(n)); vvv != nil {
 			return vvv, true
 		}
 		return exact, true
@@ -180,7 +180,7 @@ func (s *contentNodeShifter) Shift(n contentNode, siteVector sitesmatrix.Vector,
 		return nil, false
 	}
 
-	if vvv := cnh.findContentNodeForSiteVector(siteVector, fallback, contentNodeToSeq(n)); vvv != nil {
+	if vvv := cnh.findContentNodeForSiteVector(siteVector, fallback, cnh.contentNodeToSeq(n)); vvv != nil {
 		return vvv, true
 	}
 
