@@ -66,6 +66,7 @@ type lockTracker struct {
 // after a Hugo build.
 func (l *lockTracker) Lock(id string) {
 	l.seen.AddIfAbsent(id)
+	l.seen.AddIfAbsent(strings.ToLower(id))
 	l.Locker.Lock(id)
 }
 

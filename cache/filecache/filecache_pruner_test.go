@@ -15,6 +15,7 @@ package filecache_test
 
 import (
 	"fmt"
+	"io"
 	"testing"
 	"testing/synctest"
 	"time"
@@ -24,6 +25,24 @@ import (
 
 	qt "github.com/frankban/quicktest"
 )
+
+func TestPrunePreservesCaseInsensitiveCacheEntry(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	cache := filecache.NewCache(afero.NewMemMapFs(), filecache.FileCacheConfig{Dir: "cache", MaxAge: time.Hour})
+
+	_, w, err := cache.WriteCloser("MyBundle/image")
+	c.Assert(err, qt.IsNil)
+	_, err = io.WriteString(w, "content")
+	c.Assert(err, qt.IsNil)
+	c.Assert(w.Close(), qt.IsNil)
+
+	cache.NamedLock("mybundle/image")()
+	count, err := cache.Prune(false)
+	c.Assert(err, qt.IsNil)
+	c.Assert(count, qt.Equals, 0)
+	c.Assert(cache.GetString("MyBundle/image"), qt.Equals, "content")
+}
 
 func TestPrune(t *testing.T) {
 	t.Parallel()

@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
@@ -95,7 +96,7 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		if !shouldRemove && c.entryLocker.seen.Len() > 0 {
 			// Remove it if it's not been touched/used in the last build.
-			shouldRemove = !c.entryLocker.seen.Has(name)
+			shouldRemove = !c.entryLocker.seen.Has(name) && !c.entryLocker.seen.Has(strings.ToLower(name))
 		}
 
 		if shouldRemove {
