@@ -298,6 +298,27 @@ func TestResolveNodeBin(t *testing.T) {
 		t.Logf("Missing target: wrapper=%q, resolved=%q", wrapper, resolved)
 		c.Assert(resolved, qt.Equals, "")
 	})
+
+	// pnpm uses a flat node_modules/.pnpm/<pkg>@<ver>/node_modules layout, and
+	// its wrapper hardcodes absolute paths into NODE_PATH ahead of the relative
+	// exec target — the resolver must skip those and pick the relative one.
+	c.Run("pnpm shell wrapper for scoped package", func(c *qt.C) {
+		target := filepath.Join(nodeModules, ".pnpm", "@tailwindcss+cli@4.2.4", "node_modules", "@tailwindcss", "cli", "dist", "index.mjs")
+		mkdirAndWrite(t, target, "#!/usr/bin/env node\nconsole.log('tailwind');\n")
+
+		wrapper := filepath.Join(binDir, "tailwindcss-pnpm")
+		absRef := filepath.ToSlash(filepath.Join(nodeModules, ".pnpm", "@tailwindcss+cli@4.2.4", "node_modules", "@tailwindcss", "cli", "node_modules"))
+		content := "#!/bin/sh\n" +
+			`basedir=$(dirname "$0")` + "\n" +
+			`export NODE_PATH="` + absRef + `"` + "\n" +
+			`exec node "$basedir/../.pnpm/@tailwindcss+cli@4.2.4/node_modules/@tailwindcss/cli/dist/index.mjs" "$@"` + "\n"
+		mkdirAndWrite(t, wrapper, content)
+
+		resolved := resolveNodeBin(wrapper)
+		t.Logf("pnpm wrapper: wrapper=%q, resolved=%q", wrapper, resolved)
+		c.Assert(resolved, qt.Not(qt.Equals), "")
+		c.Assert(sameFile(t, resolved, target), qt.IsTrue)
+	})
 }
 
 func TestExtractNodeEntryPointRegex(t *testing.T) {
@@ -318,6 +339,8 @@ func TestExtractNodeEntryPointRegex(t *testing.T) {
 		{"cmd postcss global", `"%dp0%\node_modules\postcss-cli\index.js"`, `node_modules\postcss-cli\index.js`},
 		{"cmd babel global", `"%dp0%\node_modules\@babel\cli\bin\babel.js"`, `node_modules\@babel\cli\bin\babel.js`},
 		{"shell postcss global", `"$basedir/node_modules/postcss-cli/index.js"`, "node_modules/postcss-cli/index.js"},
+		{"pnpm shell scoped", `"$basedir/../.pnpm/@tailwindcss+cli@4.2.4/node_modules/@tailwindcss/cli/dist/index.mjs"`, "../.pnpm/@tailwindcss+cli@4.2.4/node_modules/@tailwindcss/cli/dist/index.mjs"},
+		{"pnpm cmd scoped", `"%dp0%\..\.pnpm\@tailwindcss+cli@4.2.4\node_modules\@tailwindcss\cli\dist\index.mjs"`, `..\.pnpm\@tailwindcss+cli@4.2.4\node_modules\@tailwindcss\cli\dist\index.mjs`},
 	}
 
 	for _, tc := range cases {
