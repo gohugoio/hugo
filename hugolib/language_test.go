@@ -60,6 +60,30 @@ Hello: {{ i18n "hello" 1 }}
 	}
 }
 
+// See issue 9260. A language configured with a valid but non-canonical BCP 47
+// tag (e.g. "nld" instead of "nl") parses without error, but i18n bundle
+// lookups, date/number localization, and collation are keyed on the
+// canonical form, so translations for that language silently fail to load.
+func TestNonCanonicalLanguageTagWarning(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+defaultContentLanguage = "nld"
+
+[languages]
+[languages.nld]
+weight = 1
+-- i18n/nld.toml --
+hello.one = "Hallo"
+-- layouts/home.html --
+Hello: {{ i18n "hello" 1 }}
+-- content/p1.md --
+`
+
+	b := Test(t, files, TestOptWarn())
+	b.AssertLogContains(`WARN  language "nld" is not the canonical form of a known language tag; use "nl" instead, or translations/localization for this language may silently fail`)
+}
+
 func TestLanguageBugs(t *testing.T) {
 	c := qt.New(t)
 

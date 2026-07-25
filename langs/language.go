@@ -92,6 +92,19 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 	var coll1, coll2 *Collator
 	tag, err := language.Parse(lang)
 	if err == nil {
+		if canonical := tag.String(); canonical != lang {
+			// The language tag we were given is valid but is not the
+			// canonical BCP 47 form (e.g. "eng" instead of "en"). Hugo's
+			// translation lookups, date/number localization, and collation
+			// are all keyed on the literal language code, so files such as
+			// i18n/eng.toml will silently be ignored in favor of the
+			// canonical i18n/en.toml. See issue 9260.
+			l := logger
+			if l == nil {
+				l = loggers.Log()
+			}
+			l.Warnf("language %q is not the canonical form of a known language tag; use %q instead, or translations/localization for this language may silently fail", lang, canonical)
+		}
 		coll1 = &Collator{
 			c: collate.New(tag),
 		}

@@ -101,3 +101,18 @@ func TestLanguageLegacyFieldFallbacks(t *testing.T) {
 	_ = lNoLogger.LanguageName()
 	_ = lNoLogger.LanguageDirection()
 }
+
+// See issue 9260. A non-canonical BCP 47 language tag (e.g. "eng" instead of
+// "en", or "nld" instead of "nl") parses without error, but Hugo's i18n
+// lookups are keyed on the literal tag, so translations for that language
+// silently fail. NewLanguage should not panic when warning about this, even
+// when constructed without a logger.
+func TestNewLanguageNonCanonicalTagDoesNotPanic(t *testing.T) {
+	c := qt.New(t)
+
+	_, err := NewLanguage("nld", "nld", "UTC", LanguageConfig{}, nil)
+	c.Assert(err, qt.IsNil)
+
+	_, err = NewLanguage("nld", "nld", "UTC", LanguageConfig{}, loggers.NewDefault())
+	c.Assert(err, qt.IsNil)
+}
