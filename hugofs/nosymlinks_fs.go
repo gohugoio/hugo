@@ -15,9 +15,36 @@ package hugofs
 
 import (
 	"os"
+	"path/filepath"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/spf13/afero"
 )
+
+// hasSymlinkParent reports whether any directory between name and base is a symlink.
+// Lstat only refrains from following the last element of a path, so callers checking
+// name itself need this to keep a symlinked parent from escaping base.
+// base itself is not checked; an empty base walks to the root of fs.
+func hasSymlinkParent(fs afero.Fs, base, name string) (bool, error) {
+	for name != base {
+		parent := filepath.Dir(name)
+		if parent == name || parent == base || parent == "." {
+			return false, nil
+		}
+		fi, err := LstatIfPossible(fs, parent)
+		if err != nil {
+			if herrors.IsNotExist(err) {
+				return false, nil
+			}
+			return false, err
+		}
+		if fi.Mode()&os.ModeSymlink != 0 {
+			return true, nil
+		}
+		name = parent
+	}
+	return false, nil
+}
 
 // NewDropSymlinksFs returns an afero.Fs wrapper that treats symlinks as non-existing files.
 func NewDropSymlinksFs(base afero.Fs) *DropSymlinksFs {
@@ -46,6 +73,13 @@ func (fs *DropSymlinksFs) Stat(name string) (os.FileInfo, error) {
 		return nil, err
 	}
 	if fi.Mode()&os.ModeSymlink != 0 {
+		return nil, os.ErrNotExist
+	}
+	symlinkParent, err := hasSymlinkParent(fs.Fs, "", name)
+	if err != nil {
+		return nil, err
+	}
+	if symlinkParent {
 		return nil, os.ErrNotExist
 	}
 	return fi, nil

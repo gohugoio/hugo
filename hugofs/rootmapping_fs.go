@@ -729,8 +729,16 @@ func (fs *RootMappingFs) statRoot(root *RootMapping, filename string) (FileMetaI
 		return nil, err
 	}
 
-	// Don't allow symlinks to escape the mount.
+	// Don't allow symlinks to escape the mount, neither as the file itself
+	// nor as any directory between it and the mount root.
 	if fi.Mode()&os.ModeSymlink != 0 {
+		return nil, os.ErrNotExist
+	}
+	symlinkParent, err := hasSymlinkParent(fs.Fs, root.To, filename)
+	if err != nil {
+		return nil, err
+	}
+	if symlinkParent {
 		return nil, os.ErrNotExist
 	}
 
