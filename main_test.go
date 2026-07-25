@@ -282,14 +282,14 @@ var commonTestScriptsParam = testscript.Params{
 				ts.Fatalf("failed to read base64 file: %v", err)
 			}
 
-			// Decode base64 back to raw bytes
-			binaryBytes, err := base64.StdEncoding.DecodeString(string(base64Data))
+			// Decode base64 back to raw bytes.
+			binaryBytes, err := base64.StdEncoding.DecodeString(strings.TrimSpace(string(base64Data)))
 			if err != nil {
 				ts.Fatalf("failed to decode base64 data: %v", err)
 			}
 
-			// Write the executable binary file (0755 grants execution permissions)
-			err = os.WriteFile(dest, binaryBytes, 0o755)
+			// Write the binary file.
+			err = os.WriteFile(dest, binaryBytes, 0o644)
 			if err != nil {
 				ts.Fatalf("failed to write binary file: %v", err)
 			}
