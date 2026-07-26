@@ -22,7 +22,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/spf13/cast"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/util"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/deps"

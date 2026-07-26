@@ -265,7 +265,8 @@ title: p8 (link)
 
 	// typographer
 	b.AssertFileContent("public/p5/index.html",
-		`<li><a href="#some-typographer-markup">Some &ldquo;typographer&rdquo; markup</a></li>`,
+		// GOLDMARK-V2: typographer emits resolved Unicode characters, not entities.
+		`<li><a href="#some-typographer-markup">Some “typographer” markup</a></li>`,
 	)
 
 	// strikethrough

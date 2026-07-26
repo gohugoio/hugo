@@ -14,16 +14,17 @@
 package tables
 
 import (
+	"io"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	gast "github.com/yuin/goldmark/extension/ast"
-	"github.com/yuin/goldmark/renderer"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	gast "github.com/yuin/goldmark/v2/extension/ast"
+	"github.com/yuin/goldmark/v2/renderer"
+	"github.com/yuin/goldmark/v2/renderer/html"
 )
 
 type (
@@ -31,29 +32,22 @@ type (
 	htmlRenderer struct{}
 )
 
-func New() goldmark.Extender {
+// New returns a goldmark v2 HTML renderer extension for tables.
+func New() html.Extension {
 	return &ext{}
 }
 
-func (e *ext) Extend(m goldmark.Markdown) {
-	m.Renderer().AddOptions(renderer.WithNodeRenderers(
-		util.Prioritized(newHTMLRenderer(), 100),
-	))
-}
-
-func newHTMLRenderer() renderer.NodeRenderer {
+func (e *ext) RendererOptions(*html.Config) []html.Option {
 	r := &htmlRenderer{}
-	return r
+	return []html.Option{
+		html.WithNodeRenderer(gast.KindTable, html.NodeRendererFunc(r.renderTable)),
+		html.WithNodeRenderer(gast.KindTableHeader, html.NodeRendererFunc(r.renderHeaderOrRow)),
+		html.WithNodeRenderer(gast.KindTableRow, html.NodeRendererFunc(r.renderHeaderOrRow)),
+		html.WithNodeRenderer(gast.KindTableCell, html.NodeRendererFunc(r.renderCell)),
+	}
 }
 
-func (r *htmlRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(gast.KindTable, r.renderTable)
-	reg.Register(gast.KindTableHeader, r.renderHeaderOrRow)
-	reg.Register(gast.KindTableRow, r.renderHeaderOrRow)
-	reg.Register(gast.KindTableCell, r.renderCell)
-}
-
-func (r *htmlRenderer) renderTable(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *htmlRenderer) renderTable(w io.Writer, source []byte, n ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	ctx := w.(*render.Context)
 	if entering {
 		// This will be modified below.
@@ -87,7 +81,7 @@ func (r *htmlRenderer) renderTable(w util.BufWriter, source []byte, n ast.Node, 
 
 	err := cr.RenderTable(
 		ctx.RenderContext().Ctx,
-		w,
+		ctx,
 		tctx,
 	)
 	if err != nil {
@@ -105,7 +99,7 @@ func (r *htmlRenderer) peekTable(ctx *render.Context) *hooks.Table {
 	return v.(*hooks.Table)
 }
 
-func (r *htmlRenderer) renderCell(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *htmlRenderer) renderCell(w io.Writer, source []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	ctx := w.(*render.Context)
 
 	if entering {
@@ -143,7 +137,7 @@ func (r *htmlRenderer) renderCell(w util.BufWriter, source []byte, node ast.Node
 	return ast.WalkContinue, nil
 }
 
-func (r *htmlRenderer) renderHeaderOrRow(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *htmlRenderer) renderHeaderOrRow(w io.Writer, source []byte, n ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	ctx := w.(*render.Context)
 	table := r.peekTable(ctx)
 	if entering {

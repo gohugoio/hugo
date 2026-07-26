@@ -17,16 +17,16 @@ import (
 	"regexp"
 	"strings"
 
+	"io"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/types/hstring"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
 	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/internal/attributes"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/renderer"
-	"github.com/yuin/goldmark/renderer/html"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	"github.com/yuin/goldmark/v2/renderer"
+	"github.com/yuin/goldmark/v2/renderer/html"
 )
 
 type (
@@ -34,23 +34,16 @@ type (
 	htmlRenderer         struct{}
 )
 
-func New() goldmark.Extender {
+// New returns a goldmark v2 HTML renderer extension for blockquotes.
+func New() html.Extension {
 	return &blockquotesExtension{}
 }
 
-func (e *blockquotesExtension) Extend(m goldmark.Markdown) {
-	m.Renderer().AddOptions(renderer.WithNodeRenderers(
-		util.Prioritized(newHTMLRenderer(), 100),
-	))
-}
-
-func newHTMLRenderer() renderer.NodeRenderer {
+func (e *blockquotesExtension) RendererOptions(*html.Config) []html.Option {
 	r := &htmlRenderer{}
-	return r
-}
-
-func (r *htmlRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
-	reg.Register(ast.KindBlockquote, r.renderBlockquote)
+	return []html.Option{
+		html.WithNodeRenderer(ast.KindBlockquote, html.NodeRendererFunc(r.renderBlockquote)),
+	}
 }
 
 const (
@@ -58,7 +51,7 @@ const (
 	typeAlert   = "alert"
 )
 
-func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *htmlRenderer) renderBlockquote(w io.Writer, src []byte, node ast.Node, entering bool, _ renderer.Context) (ast.WalkStatus, error) {
 	ctx := w.(*render.Context)
 
 	n := node.(*ast.Blockquote)
@@ -81,7 +74,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 
 	renderer := ctx.RenderContext().GetRenderer(hooks.BlockquoteRendererType, typ)
 	if renderer == nil {
-		return r.renderBlockquoteDefault(w, n, text)
+		return r.renderBlockquoteDefault(ctx, n, text)
 	}
 
 	if typ == typeAlert {
@@ -114,7 +107,7 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 
 	err := cr.RenderBlockquote(
 		ctx.RenderContext().Ctx,
-		w,
+		ctx,
 		bqctx,
 	)
 	if err != nil {
@@ -126,19 +119,20 @@ func (r *htmlRenderer) renderBlockquote(w util.BufWriter, src []byte, node ast.N
 
 // Code borrowed from goldmark's html renderer.
 func (r *htmlRenderer) renderBlockquoteDefault(
-	w util.BufWriter, n ast.Node, text string,
+	w io.Writer, n ast.Node, text string,
 ) (ast.WalkStatus, error) {
+	bw := w.(*render.Context)
 	if n.Attributes() != nil {
-		_, _ = w.WriteString("<blockquote")
+		_, _ = bw.WriteString("<blockquote")
 		html.RenderAttributes(w, n, html.BlockquoteAttributeFilter)
-		_ = w.WriteByte('>')
+		_ = bw.WriteByte('>')
 	} else {
-		_, _ = w.WriteString("<blockquote>\n")
+		_, _ = bw.WriteString("<blockquote>\n")
 	}
 
-	_, _ = w.WriteString(text)
+	_, _ = bw.WriteString(text)
 
-	_, _ = w.WriteString("</blockquote>\n")
+	_, _ = bw.WriteString("</blockquote>\n")
 	return ast.WalkContinue, nil
 }
 

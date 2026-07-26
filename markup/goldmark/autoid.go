@@ -15,7 +15,6 @@ package goldmark
 
 import (
 	"bytes"
-	"strconv"
 	"unicode"
 	"unicode/utf8"
 
@@ -25,10 +24,9 @@ import (
 
 	"github.com/gohugoio/hugo/common/text"
 
-	"github.com/yuin/goldmark/ast"
-	east "github.com/yuin/goldmark/extension/ast"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/util"
+	"github.com/yuin/goldmark/v2/ast"
+	east "github.com/yuin/goldmark/v2/extension/ast"
+	"github.com/yuin/goldmark/v2/parser"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 )
@@ -88,34 +86,25 @@ func isAlphaNumeric(r rune) bool {
 	return r == '_' || unicode.IsLetter(r) || unicode.IsDigit(r)
 }
 
-var _ parser.IDs = (*idFactory)(nil)
+// GOLDMARK-V2: In goldmark v1 Hugo supplied a full parser.IDs implementation
+// (Generate + Put) and tracked every generated id so the TOC could seed its
+// disambiguation. In v2 the parser.IDs type is a concrete struct that handles
+// per-parse uniqueness itself; a custom generator only implements the stateless
+// parser.IDGenerator interface (Generate). Because the parser instance is shared
+// across all documents, the generator must not keep per-document state, so the
+// old Put/StringValues/duplicate bookkeeping is gone. The TOC now reads the
+// final ids from the heading nodes' `id` attributes.
+// See https://github.com/yuin/goldmark/discussions/559.
+var _ parser.IDGenerator = (*idFactory)(nil)
 
 type idFactory struct {
-	idType     string
-	vals       map[string]struct{}
-	duplicates []string
+	idType string
 }
 
 func newIDFactory(idType string) *idFactory {
 	return &idFactory{
-		vals:   make(map[string]struct{}),
 		idType: idType,
 	}
-}
-
-type stringValuesProvider interface {
-	StringValues() []string
-}
-
-var _ stringValuesProvider = (*idFactory)(nil)
-
-func (ids *idFactory) StringValues() []string {
-	values := make([]string, 0, len(ids.vals))
-	for k := range ids.vals {
-		values = append(values, k)
-	}
-	values = append(values, ids.duplicates...)
-	return values
 }
 
 func (ids *idFactory) Generate(value []byte, kind ast.NodeKind) []byte {
@@ -129,31 +118,5 @@ func (ids *idFactory) Generate(value []byte, kind ast.NodeKind) []byte {
 				buf.WriteString("id")
 			}
 		}
-
-		if _, found := ids.vals[util.BytesToReadOnlyString(buf.Bytes())]; found {
-			// Append a hyphen and a number, starting with 1.
-			buf.WriteRune('-')
-			pos := buf.Len()
-			for i := 1; ; i++ {
-				buf.WriteString(strconv.Itoa(i))
-				if _, found := ids.vals[util.BytesToReadOnlyString(buf.Bytes())]; !found {
-					break
-				}
-				buf.Truncate(pos)
-			}
-		}
-		ids.put(buf.String())
 	})
-}
-
-func (ids *idFactory) put(s string) {
-	if _, found := ids.vals[s]; found {
-		ids.duplicates = append(ids.duplicates, s)
-	} else {
-		ids.vals[s] = struct{}{}
-	}
-}
-
-func (ids *idFactory) Put(value []byte) {
-	ids.put(string(value))
 }
