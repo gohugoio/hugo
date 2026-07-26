@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
@@ -59,6 +60,29 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 	counter := 0
 
+	seen := c.entryLocker.seen
+	seenByLower := make(map[string]string, seen.Len())
+	for id := range seen.All() {
+		seenByLower[strings.ToLower(id)] = id
+	}
+
+	// Names on disk matching a used cache key except for the case, and the used keys
+	// actually walked. See the note about case-insensitive filesystems below.
+	var candidates map[string]string
+	visited := make(map[string]bool, seen.Len())
+
+	remove := func(name string) error {
+		err := c.Fs.Remove(name)
+		if err == nil {
+			counter++
+			return nil
+		}
+		if !herrors.IsNotExist(err) {
+			return err
+		}
+		return nil
+	}
+
 	err := afero.Walk(c.Fs, "", func(name string, info os.FileInfo, err error) error {
 		if info == nil {
 			return nil
@@ -93,27 +117,44 @@ func (c *Cache) Prune(force bool) (int, error) {
 
 		shouldRemove := force || c.isExpired(info.ModTime())
 
-		if !shouldRemove && c.entryLocker.seen.Len() > 0 {
-			// Remove it if it's not been touched/used in the last build.
-			shouldRemove = !c.entryLocker.seen.Has(name)
+		if seen.Has(name) {
+			visited[name] = true
+		} else if !shouldRemove && seen.Len() > 0 {
+			if id, found := seenByLower[strings.ToLower(name)]; found {
+				// On case-insensitive filesystems this is the same file as id; e.g. an
+				// entry created before Hugo started lowercasing the content paths in
+				// v0.123 (content/MyBundle => _gen/images/MyBundle). Decided once the
+				// walk is done: if id is walked too, they are distinct files and this
+				// one is stale. See issue 15101.
+				if candidates == nil {
+					candidates = make(map[string]string)
+				}
+				candidates[name] = id
+			} else {
+				// Remove it if it's not been touched/used in the last build.
+				shouldRemove = true
+			}
 		}
 
 		if shouldRemove {
-			err := c.Fs.Remove(name)
-			if err == nil {
-				counter++
-			}
-
-			if err != nil && !herrors.IsNotExist(err) {
-				return err
-			}
-
+			return remove(name)
 		}
 
 		return nil
 	})
+	if err != nil {
+		return counter, err
+	}
 
-	return counter, err
+	for name, id := range candidates {
+		if visited[id] {
+			if err := remove(name); err != nil {
+				return counter, err
+			}
+		}
+	}
+
+	return counter, nil
 }
 
 func (c *Cache) pruneRootDirs(force bool) (int, error) {

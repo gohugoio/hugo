@@ -20,10 +20,71 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/spf13/afero"
 
 	qt "github.com/frankban/quicktest"
 )
+
+// A cache entry created before Hugo started lowercasing content paths in v0.123
+// (e.g. _gen/images/MyBundle) is on a case-insensitive filesystem the same file as
+// the lowercased cache key used today, and must not be pruned.
+// See issue 15101.
+func TestPruneCacheEntryWithOtherCase(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	dir := t.TempDir()
+	if isCaseInsensitive, err := htesting.IsCaseInsensitiveFs(dir); err != nil {
+		t.Fatal(err)
+	} else if !isCaseInsensitive {
+		t.Skip("skip test on case-sensitive filesystem")
+	}
+
+	fs := afero.NewBasePathFs(afero.NewOsFs(), dir)
+	newCache := func() *filecache.Cache {
+		return filecache.NewCache(fs, filecache.FileCacheConfig{Dir: "cache", MaxAge: -1})
+	}
+
+	c.Assert(newCache().SetBytes("MyBundle/i1", []byte("abc")), qt.IsNil)
+
+	cache := newCache()
+	_, b, err := cache.GetOrCreateBytes("mybundle/i1", func() ([]byte, error) {
+		return []byte("def"), nil
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(b), qt.Equals, "abc")
+
+	count, err := cache.Prune(false)
+	c.Assert(err, qt.IsNil)
+	c.Assert(count, qt.Equals, 0)
+	c.Assert(cache.GetString("MyBundle/i1"), qt.Equals, "abc")
+}
+
+// On a case-sensitive filesystem the entries above are distinct files,
+// and the one not used in this build should be pruned.
+func TestPruneCacheEntryWithOtherCaseCaseSensitiveFs(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	fs := afero.NewMemMapFs()
+	cache := filecache.NewCache(fs, filecache.FileCacheConfig{Dir: "cache", MaxAge: -1})
+
+	c.Assert(cache.SetBytes("MyBundle/i1", []byte("abc")), qt.IsNil)
+
+	cache = filecache.NewCache(fs, filecache.FileCacheConfig{Dir: "cache", MaxAge: -1})
+	_, b, err := cache.GetOrCreateBytes("mybundle/i1", func() ([]byte, error) {
+		return []byte("def"), nil
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(b), qt.Equals, "def")
+
+	count, err := cache.Prune(false)
+	c.Assert(err, qt.IsNil)
+	c.Assert(count, qt.Equals, 1)
+	c.Assert(cache.GetString("MyBundle/i1"), qt.Equals, "")
+	c.Assert(cache.GetString("mybundle/i1"), qt.Equals, "def")
+}
 
 func TestPrune(t *testing.T) {
 	t.Parallel()
