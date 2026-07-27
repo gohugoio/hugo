@@ -280,6 +280,15 @@ static avifPixelFormat avifFormatForHint(const char *hint)
     return AVIF_PIXEL_FORMAT_YUV420; // photo, picture, and the default.
 }
 
+// encoder_errf writes "prefix: result[: diag]", where diag is libavif's
+// detailed diagnostics (e.g. the underlying aom error, such as an allocation
+// failure hidden behind the generic "Encoding of color planes failed").
+static void encoder_errf(char *dst, size_t size, const char *prefix, avifResult result, const avifEncoder *encoder)
+{
+    snprintf(dst, size, "%s: %s%s%s", prefix, avifResultToString(result),
+             encoder->diag.error[0] ? ": " : "", encoder->diag.error);
+}
+
 void handle_commands(FILE *stream)
 {
 
@@ -725,7 +734,7 @@ void handle_commands(FILE *stream)
 
             result = avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
             if (result != AVIF_RESULT_OK) {
-                snprintf(output.header.err, sizeof(output.header.err), "encodeNRGBA: Failed to add image to encoder: %s", avifResultToString(result));
+                encoder_errf(output.header.err, sizeof(output.header.err), "encodeNRGBA: Failed to add image to encoder", result, encoder);
                 avifEncoderDestroy(encoder);
                 avifImageDestroy(image);
                 write_output_message(&output);
@@ -735,7 +744,7 @@ void handle_commands(FILE *stream)
             avifRWData raw = { NULL, 0 };
             result = avifEncoderFinish(encoder, &raw);
             if (result != AVIF_RESULT_OK) {
-                snprintf(output.header.err, sizeof(output.header.err), "encodeNRGBA: Failed to finish encoding: %s", avifResultToString(result));
+                encoder_errf(output.header.err, sizeof(output.header.err), "encodeNRGBA: Failed to finish encoding", result, encoder);
                 avifEncoderDestroy(encoder);
                 avifImageDestroy(image);
                 write_output_message(&output);
@@ -850,7 +859,7 @@ void handle_commands(FILE *stream)
 
             avifResult result = avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
             if (result != AVIF_RESULT_OK) {
-                snprintf(output.header.err, sizeof(output.header.err), "encodeGray: Failed to add image to encoder: %s", avifResultToString(result));
+                encoder_errf(output.header.err, sizeof(output.header.err), "encodeGray: Failed to add image to encoder", result, encoder);
                 avifEncoderDestroy(encoder);
                 avifImageDestroy(image);
                 write_output_message(&output);
@@ -860,7 +869,7 @@ void handle_commands(FILE *stream)
             avifRWData raw = { NULL, 0 };
             result = avifEncoderFinish(encoder, &raw);
             if (result != AVIF_RESULT_OK) {
-                snprintf(output.header.err, sizeof(output.header.err), "encodeGray: Failed to finish encoding: %s", avifResultToString(result));
+                encoder_errf(output.header.err, sizeof(output.header.err), "encodeGray: Failed to finish encoding", result, encoder);
                 avifEncoderDestroy(encoder);
                 avifImageDestroy(image);
                 write_output_message(&output);
