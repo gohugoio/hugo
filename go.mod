@@ -31,7 +31,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.6
-	github.com/fsnotify/fsnotify v1.9.0
+	github.com/fsnotify/fsnotify v1.10.1
 	github.com/getkin/kin-openapi v0.144.0
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v0.2.3
@@ -66,8 +66,8 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.10
-	github.com/tdewolff/minify/v2 v2.24.13
-	github.com/tdewolff/parse/v2 v2.8.12
+	github.com/tdewolff/minify/v2 v2.24.14
+	github.com/tdewolff/parse/v2 v2.8.14
 	github.com/tetratelabs/wazero v1.12.0
 	github.com/yuin/goldmark v1.8.2
 	github.com/yuin/goldmark-emoji v1.0.6
