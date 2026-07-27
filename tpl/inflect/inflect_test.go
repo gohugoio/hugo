@@ -18,7 +18,7 @@ func TestInflect(t *testing.T) {
 		expect any
 	}{
 		{ns.Humanize, "MyCamel", "My camel"},
-		{ns.Humanize, "óbito", "Óbito"},
+		{ns.Humanize, "\u00f3bito", "\u00d3bito"},
 		{ns.Humanize, "", ""},
 		{ns.Humanize, "103", "103rd"},
 		{ns.Humanize, "41", "41st"},
@@ -28,6 +28,14 @@ func TestInflect(t *testing.T) {
 		{ns.Humanize, t, false},
 		{ns.Humanize, "this is a TEST", "This is a test"},
 		{ns.Humanize, "my-first-Post", "My first post"},
+		// Issue #15126: flect incorrectly treats quote+uppercase as a camelCase
+		// boundary, inserting a spurious space after the opening quote.
+		{ns.Humanize, "Painting \u201eTitle\u201c", "Painting \u201etitle\u201c"}, // German „Title" (from issue)
+		{ns.Humanize, "a \u201eB\u201c", "A \u201eb\u201c"},                       // German „B" uppercase
+		{ns.Humanize, "a \u201eb\u201c", "A \u201eb\u201c"},                       // German „b" lowercase (baseline, no split)
+		{ns.Humanize, "a \"B\"", "A \"b\""},                                       // ASCII " uppercase
+		{ns.Humanize, "A \"B\"", "A \"b\""},                                       // ASCII " uppercase, capital-initial first word
+		{ns.Humanize, "a \"b\"", "A \"b\""},                                       // ASCII " lowercase (baseline, no split)
 		{ns.Pluralize, "cat", "cats"},
 		{ns.Pluralize, "", ""},
 		{ns.Pluralize, t, false},
