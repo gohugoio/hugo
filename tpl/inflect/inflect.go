@@ -15,6 +15,7 @@
 package inflect
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -29,6 +30,11 @@ func New() *Namespace {
 
 // Namespace provides template functions for the "inflect" namespace.
 type Namespace struct{}
+
+// quoteSpaceRe matches a spurious space that flect.Humanize inserts after an
+// opening quotation mark when the quoted text begins with an uppercase letter.
+// flect incorrectly treats quote+uppercase as a camelCase word boundary.
+var quoteSpaceRe = regexp.MustCompile("([\u201e\u201a\u201c\u2018\u00ab\u2039\"']) ")
 
 // Humanize returns the humanized form of v.
 //
@@ -51,7 +57,8 @@ func (ns *Namespace) Humanize(v any) (string, error) {
 	}
 
 	str := _inflect.Humanize(word)
-	return _inflect.Humanize(strings.ToLower(str)), nil
+	result := _inflect.Humanize(strings.ToLower(str))
+	return quoteSpaceRe.ReplaceAllString(result, "$1"), nil
 }
 
 // Pluralize returns the plural form of the single word in v.
