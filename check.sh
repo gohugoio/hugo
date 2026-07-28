@@ -38,13 +38,20 @@ run_gofmt() {
 
 # Run staticcheck
 run_staticcheck() {
-    # Check if staticcheck is installed, install if not
-    if ! command -v staticcheck &> /dev/null; then
+    local staticcheck_bin
+    if command -v staticcheck &> /dev/null; then
+        staticcheck_bin=$(command -v staticcheck)
+    else
         echo "==> Installing staticcheck..."
         go install honnef.co/go/tools/cmd/staticcheck@latest
+        staticcheck_bin="$(go env GOBIN)"
+        if [ -z "$staticcheck_bin" ]; then
+            staticcheck_bin="$(go env GOPATH)/bin"
+        fi
+        staticcheck_bin="$staticcheck_bin/staticcheck"
     fi
     echo "==> Running staticcheck..."
-    staticcheck $PACKAGES
+    "$staticcheck_bin" $PACKAGES
     echo "    OK"
 }
 
