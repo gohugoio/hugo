@@ -31,7 +31,6 @@ type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram `json:"-"` // the embedded instagram shortcode no longer uses this
-	Twitter         Twitter   `json:"-"` // deprecated in favor of X in v0.141.0
 	X               X
 	RSS             RSS
 }
@@ -59,15 +58,6 @@ type Instagram struct {
 	// If you are using a Client Access Token, remember that you must combine it with your App ID
 	// using a pipe symbol (<APPID>|<CLIENTTOKEN>) otherwise the request will fail.
 	AccessToken string // this is no longer used by the embedded instagram shortcode
-}
-
-// Twitter holds the functional configuration settings related to the Twitter shortcodes.
-// Deprecated in favor of X in v0.141.0.
-type Twitter struct {
-	// The Simple variant of Twitter is decorated with a basic set of inline styles.
-	// This means that if you want to provide your own CSS, you want
-	// to disable the inline CSS provided by Hugo.
-	DisableInlineCSS bool
 }
 
 // X holds the functional configuration settings related to the X shortcodes.
