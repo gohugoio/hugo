@@ -78,7 +78,7 @@ require (
 	golang.org/x/net v0.57.0
 	golang.org/x/sync v0.22.0
 	golang.org/x/text v0.40.0
-	golang.org/x/tools v0.47.0
+	golang.org/x/tools v0.48.0
 	google.golang.org/api v0.276.0
 	rsc.io/qr v0.2.0
 )
