@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bep/logg"
 	"github.com/gobuffalo/flect"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -698,16 +697,6 @@ params:
 
 		if ps.s.frontmatterHandler.IsDateKey(loki) {
 			continue
-		}
-
-		if loki == "path" || loki == "kind" || loki == "lang" {
-			// See issue 12484.
-			// Only warn when the key was set at the top level of the
-			// original front matter; cascade.params can legitimately carry
-			// these names as user params (issue 14848).
-			if _, ok := pm.pageConfigSource.Frontmatter[loki]; ok {
-				hugo.DeprecateLevelMin(loki+" in front matter", "", "v0.144.0", logg.LevelWarn)
-			}
 		}
 
 		switch loki {

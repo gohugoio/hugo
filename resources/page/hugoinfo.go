@@ -100,12 +100,6 @@ func (i HugoInfo) Store() *hstore.Scratch {
 	return i.store
 }
 
-// Deprecated: Use hugo.IsMultihost instead.
-func (i HugoInfo) IsMultiHost() bool {
-	hugo.Deprecate("hugo.IsMultiHost", "Use hugo.IsMultihost instead.", "v0.124.0")
-	return i.opts.Conf.IsMultihost()
-}
-
 // IsMultihost reports whether each configured language has a unique baseURL.
 func (i HugoInfo) IsMultihost() bool {
 	return i.opts.Conf.IsMultihost()

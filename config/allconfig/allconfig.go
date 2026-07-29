@@ -458,36 +458,6 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		}
 	}
 
-	// Legacy privacy values.
-	if c.Privacy.Twitter.Disable {
-		hugo.DeprecateWithLogger("project config key privacy.twitter.disable", "Use privacy.x.disable instead.", "v0.141.0", logger.Logger())
-		c.Privacy.X.Disable = c.Privacy.Twitter.Disable
-	}
-	if c.Privacy.Twitter.EnableDNT {
-		hugo.DeprecateWithLogger("project config key privacy.twitter.enableDNT", "Use privacy.x.enableDNT instead.", "v0.141.0", logger.Logger())
-		c.Privacy.X.EnableDNT = c.Privacy.Twitter.EnableDNT
-	}
-	if c.Privacy.Twitter.Simple {
-		hugo.DeprecateWithLogger("project config key privacy.twitter.simple", "Use privacy.x.simple instead.", "v0.141.0", logger.Logger())
-		c.Privacy.X.Simple = c.Privacy.Twitter.Simple
-	}
-
-	// Legacy services values.
-	if c.Services.Twitter.DisableInlineCSS {
-		hugo.DeprecateWithLogger("project config key services.twitter.disableInlineCSS", "Use services.x.disableInlineCSS instead.", "v0.141.0", logger.Logger())
-		c.Services.X.DisableInlineCSS = c.Services.Twitter.DisableInlineCSS
-	}
-
-	// Legacy permalink tokens
-	for _, pc := range c.Permalinks {
-		if strings.Contains(pc.Pattern, ":filename") {
-			hugo.DeprecateWithLogger("the \":filename\" permalink token", "Use \":contentbasename\" instead.", "0.144.0", logger.Logger())
-		}
-		if strings.Contains(pc.Pattern, ":slugorfilename") {
-			hugo.DeprecateWithLogger("the \":slugorfilename\" permalink token", "Use \":slugorcontentbasename\" instead.", "0.144.0", logger.Logger())
-		}
-	}
-
 	// Legacy render hook values.
 	alternativeDetails := fmt.Sprintf(
 		"Set to %q if previous value was false, or set to %q if previous value was true.",
