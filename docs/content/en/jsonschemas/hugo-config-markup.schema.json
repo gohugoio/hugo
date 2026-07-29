@@ -1,0 +1,499 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-markup.schema.json",
+  "$defs": {
+    "asciidocExt": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "backend": {
+          "type": "string",
+          "enum": [
+            "html5",
+            "html5s",
+            "xhtml5",
+            "docbook5",
+            "docbook45",
+            "manpage"
+          ],
+          "description": "https://gohugo.io/configuration/markup/#backend"
+        },
+        "extensions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "https://gohugo.io/configuration/markup/#extensions-1"
+        },
+        "attributes": {
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#attributes"
+        },
+        "noHeaderOrFooter": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#noheaderorfooter"
+        },
+        "safeMode": {
+          "type": "string",
+          "enum": [
+            "unsafe",
+            "safe",
+            "server",
+            "secure"
+          ],
+          "description": "https://gohugo.io/configuration/markup/#safemode"
+        },
+        "sectionNumbers": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#sectionnumbers"
+        },
+        "verbose": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#verbose"
+        },
+        "trace": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#trace"
+        },
+        "failureLevel": {
+          "type": "string",
+          "enum": [
+            "fatal",
+            "warn"
+          ],
+          "description": "https://gohugo.io/configuration/markup/#failurelevel"
+        },
+        "workingFolderCurrent": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#workingfoldercurrent"
+        },
+        "preserveTOC": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#preservetoc"
+        }
+      },
+      "type": "object"
+    },
+    "goldmark": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "renderer": {
+          "properties": {
+            "hardWraps": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#rendererhardwraps"
+            },
+            "xhtml": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#rendererxhtml"
+            },
+            "unsafe": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#rendererunsafe"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#renderer"
+        },
+        "parser": {
+          "properties": {
+            "autoHeadingID": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#parserautoheadingid"
+            },
+            "autoDefinitionTermID": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#parserautodefinitiontermid"
+            },
+            "autoIDType": {
+              "type": "string",
+              "enum": [
+                "github",
+                "github-ascii",
+                "blackfriday"
+              ],
+              "description": "https://gohugo.io/configuration/markup/#parserautoidtype"
+            },
+            "attribute": {
+              "properties": {
+                "title": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#parserattributetitle"
+                },
+                "block": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#parserattributeblock"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#parserattribute"
+            },
+            "wrapStandAloneImageWithinParagraph": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#parserwrapstandaloneimagewithinparagraph"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#parser"
+        },
+        "extensions": {
+          "properties": {
+            "typographer": {
+              "properties": {
+                "disable": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "leftSingleQuote": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "rightSingleQuote": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "leftDoubleQuote": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "rightDoubleQuote": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "enDash": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "emDash": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "ellipsis": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "leftAngleQuote": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "rightAngleQuote": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "apostrophe": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "footnote": {
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "enableAutoIDPrefix": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "backlinkHTML": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "definitionList": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "extras": {
+              "properties": {
+                "delete": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "insert": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "mark": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "subscript": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "superscript": {
+                  "properties": {
+                    "enable": {
+                      "type": "boolean",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "passthrough": {
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "delimiters": {
+                  "properties": {
+                    "inline": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "type": "array",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    },
+                    "block": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "type": "array",
+                      "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                    }
+                  },
+                  "type": "object",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "table": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "strikethrough": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "linkify": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "linkifyProtocol": {
+              "type": "string",
+              "enum": [
+                "http",
+                "https"
+              ],
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "taskList": {
+              "type": "boolean",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            },
+            "cjk": {
+              "properties": {
+                "enable": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "eastAsianLineBreaks": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "eastAsianLineBreaksStyle": {
+                  "type": "string",
+                  "enum": [
+                    "simple",
+                    "css3draft"
+                  ],
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                },
+                "escapedSpace": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#extensions-1"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#extensions-1"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#extensions-1"
+        },
+        "duplicateResourceFiles": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#duplicateresourcefiles"
+        },
+        "renderHooks": {
+          "properties": {
+            "image": {
+              "properties": {
+                "enableDefault": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#renderhooksimageenabledefault"
+                },
+                "useEmbedded": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#renderhooksimageuseembedded"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#renderhooksimage"
+            },
+            "link": {
+              "properties": {
+                "enableDefault": {
+                  "type": "boolean",
+                  "description": "https://gohugo.io/configuration/markup/#renderhookslinkenabledefault"
+                },
+                "useEmbedded": {
+                  "type": "string",
+                  "description": "https://gohugo.io/configuration/markup/#renderhookslinkuseembedded"
+                }
+              },
+              "type": "object",
+              "description": "https://gohugo.io/configuration/markup/#renderhookslink"
+            }
+          },
+          "type": "object",
+          "description": "https://gohugo.io/configuration/markup/#render-hooks"
+        }
+      },
+      "type": "object"
+    },
+    "highlight": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "style": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#style"
+        },
+        "codeFences": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#codefences"
+        },
+        "wrapperClass": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#wrapperclass"
+        },
+        "noClasses": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#noclasses"
+        },
+        "lineNos": {
+          "description": "https://gohugo.io/configuration/markup/#linenos"
+        },
+        "lineNumbersInTable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#linenumbersintable"
+        },
+        "anchorLineNos": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#anchorlinenos"
+        },
+        "lineAnchors": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#lineanchors"
+        },
+        "lineNoStart": {
+          "type": "integer",
+          "description": "https://gohugo.io/configuration/markup/#linenostart"
+        },
+        "hl_Lines": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/markup/#hl_lines"
+        },
+        "hl_inline": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#hl_inline"
+        },
+        "tabWidth": {
+          "type": "integer",
+          "description": "https://gohugo.io/configuration/markup/#tabwidth"
+        },
+        "guessSyntax": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#guesssyntax"
+        }
+      },
+      "type": "object"
+    },
+    "tableOfContents": {
+      "$schema": "https://json-schema.org/draft-07/schema",
+      "properties": {
+        "startLevel": {
+          "type": "integer",
+          "description": "https://gohugo.io/configuration/markup/#startlevel"
+        },
+        "endLevel": {
+          "type": "integer",
+          "description": "https://gohugo.io/configuration/markup/#endlevel"
+        },
+        "ordered": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/markup/#ordered"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "properties": {
+    "defaultMarkdownHandler": {
+      "type": "string",
+      "description": "Default markdown handler for md/markdown extensions. Default is 'goldmark'. \nhttps://gohugo.io/configuration/markup/#default-handler"
+    },
+    "highlight": {
+      "$ref": "#/$defs/highlight",
+      "description": "Configuration for syntax highlighting. \nhttps://gohugo.io/configuration/markup/#highlight"
+    },
+    "tableOfContents": {
+      "$ref": "#/$defs/tableOfContents",
+      "description": "Table of contents configuration. \nhttps://gohugo.io/configuration/markup/#table-of-contents"
+    },
+    "goldmark": {
+      "$ref": "#/$defs/goldmark",
+      "description": "Configuration for the Goldmark markdown engine. \nhttps://gohugo.io/configuration/markup/#goldmark"
+    },
+    "asciidocExt": {
+      "$ref": "#/$defs/asciidocExt",
+      "description": "Configuration for the Asciidoc external markdown engine. \nhttps://gohugo.io/configuration/markup/#asciidoc-ext"
+    }
+  },
+  "type": "object",
+  "description": "Configuration for markup processing"
+}

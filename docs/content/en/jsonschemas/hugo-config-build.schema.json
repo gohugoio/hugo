@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-build.schema.json",
+  "properties": {
+    "useResourceCacheWhen": {
+      "type": "string",
+      "enum": [
+        "never",
+        "fallback",
+        "always"
+      ],
+      "description": "https://gohugo.io/configuration/build/#useresourcecachewhen"
+    },
+    "buildStats": {
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#enable"
+        },
+        "disableTags": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#disabletags"
+        },
+        "disableClasses": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#disableclasses"
+        },
+        "disableIDs": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/build/#disableids"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/build/#buildstats"
+    },
+    "noJSConfigInAssets": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/build/#nojsconfiginassets"
+    },
+    "cacheBusters": {
+      "items": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/build/#source"
+          },
+          "target": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/build/#target"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/build/#cachebusters"
+    }
+  },
+  "type": "object"
+}

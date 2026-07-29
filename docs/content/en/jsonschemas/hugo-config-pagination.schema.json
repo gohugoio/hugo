@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-pagination.schema.json",
+  "properties": {
+    "pagerSize": {
+      "type": "integer",
+      "description": "https://gohugo.io/configuration/pagination/#pagersize"
+    },
+    "path": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/pagination/#path"
+    },
+    "disableAliases": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/pagination/#disablealiases"
+    }
+  },
+  "type": "object"
+}

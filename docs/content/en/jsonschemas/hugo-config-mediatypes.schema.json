@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-mediaTypes.schema.json",
+  "properties": {
+    "suffixes": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/mediaTypes/#suffixes"
+    },
+    "delimiter": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/mediaTypes/#delimiter"
+    }
+  },
+  "type": "object"
+}

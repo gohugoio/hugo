@@ -1,0 +1,369 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-languages.schema.json",
+  "additionalProperties": {
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#title"
+      },
+      "weight": {
+        "type": "integer",
+        "description": "https://gohugo.io/configuration/languages/#weight"
+      },
+      "disabled": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disabled"
+      },
+      "direction": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#direction"
+      },
+      "label": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#label"
+      },
+      "locale": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#locale"
+      },
+      "baseURL": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#base-u-r-l"
+      },
+      "buildDrafts": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#build-drafts"
+      },
+      "buildExpired": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#build-expired"
+      },
+      "buildFuture": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#build-future"
+      },
+      "copyright": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#copyright"
+      },
+      "defaultContentLanguage": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#defaultcontentlanguage"
+      },
+      "defaultContentLanguageInSubdir": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#defaultcontentlanguageinsubdir"
+      },
+      "defaultContentRole": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#default-content-role"
+      },
+      "defaultContentRoleInSubdir": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#default-content-role-in-subdir"
+      },
+      "defaultContentVersion": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#default-content-version"
+      },
+      "defaultContentVersionInSubdir": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#default-content-version-in-subdir"
+      },
+      "defaultOutputFormat": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#default-output-format"
+      },
+      "disableDefaultLanguageRedirect": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disabledefaultlanguageredirect"
+      },
+      "disableDefaultSiteRedirect": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-default-site-redirect"
+      },
+      "disableAliases": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-aliases"
+      },
+      "disablePathToLower": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-path-to-lower"
+      },
+      "disableKinds": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#disable-kinds"
+      },
+      "disableLanguages": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#disablelanguages"
+      },
+      "renderSegments": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#render-segments"
+      },
+      "disableHugoGeneratorInject": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-hugo-generator-inject"
+      },
+      "disableLiveReload": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#disable-live-reload"
+      },
+      "enableEmoji": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#enable-emoji"
+      },
+      "mainSections": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#main-sections"
+      },
+      "enableRobotsTXT": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#enable-robots-t-x-t"
+      },
+      "enableGitInfo": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#enable-git-info"
+      },
+      "templateMetrics": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#template-metrics"
+      },
+      "templateMetricsHints": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#template-metrics-hints"
+      },
+      "noBuildLock": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#no-build-lock"
+      },
+      "ignoreLogs": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#ignore-logs"
+      },
+      "ignoreFiles": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#ignore-files"
+      },
+      "ignoreCache": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#ignore-cache"
+      },
+      "enableMissingTranslationPlaceholders": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#enable-missing-translation-placeholders"
+      },
+      "panicOnWarning": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#panic-on-warning"
+      },
+      "environment": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#environment"
+      },
+      "languageCode": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#languagecode"
+      },
+      "hasCJKLanguage": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#has-c-j-k-language"
+      },
+      "pluralizeListTitles": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#pluralize-list-titles"
+      },
+      "capitalizeListTitles": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#capitalize-list-titles"
+      },
+      "canonifyURLs": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#canonify-u-r-ls"
+      },
+      "relativeURLs": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#relative-u-r-ls"
+      },
+      "removePathAccents": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#remove-path-accents"
+      },
+      "printUnusedTemplates": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#print-unused-templates"
+      },
+      "printI18nWarnings": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#print-i18n-warnings"
+      },
+      "printPathWarnings": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#print-path-warnings"
+      },
+      "refLinksNotFoundURL": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#ref-links-not-found-u-r-l"
+      },
+      "refLinksErrorLevel": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#ref-links-error-level"
+      },
+      "sectionPagesMenu": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#section-pages-menu"
+      },
+      "summaryLength": {
+        "type": "integer",
+        "description": "https://gohugo.io/configuration/languages/#summary-length"
+      },
+      "theme": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#theme"
+      },
+      "timeout": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#timeout"
+      },
+      "timeZone": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#time-zone"
+      },
+      "titleCaseStyle": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#title-case-style"
+      },
+      "newContentEditor": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#new-content-editor"
+      },
+      "noTimes": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#no-times"
+      },
+      "noChmod": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#no-chmod"
+      },
+      "cleanDestinationDir": {
+        "type": "boolean",
+        "description": "https://gohugo.io/configuration/languages/#clean-destination-dir"
+      },
+      "ignoreVendorPaths": {
+        "type": "string",
+        "description": "https://gohugo.io/configuration/languages/#ignore-vendor-paths"
+      },
+      "staticDir": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir"
+      },
+      "staticDir0": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir0"
+      },
+      "staticDir1": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir1"
+      },
+      "staticDir2": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir2"
+      },
+      "staticDir3": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir3"
+      },
+      "staticDir4": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir4"
+      },
+      "staticDir5": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir5"
+      },
+      "staticDir6": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir6"
+      },
+      "staticDir7": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir7"
+      },
+      "staticDir8": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir8"
+      },
+      "staticDir9": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir9"
+      },
+      "staticDir10": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "description": "https://gohugo.io/configuration/languages/#static-dir10"
+      }
+    },
+    "type": "object"
+  },
+  "type": "object",
+  "description": "Language configuration. Maps language code to language configuration."
+}

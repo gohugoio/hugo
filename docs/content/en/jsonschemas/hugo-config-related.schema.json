@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-related.schema.json",
+  "properties": {
+    "threshold": {
+      "type": "integer",
+      "description": "https://gohugo.io/configuration/related-content/#threshold"
+    },
+    "includeNewer": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/related-content/#includenewer"
+    },
+    "toLower": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/related-content/#tolower-1"
+    },
+    "indices": {
+      "items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/related-content/#name"
+          },
+          "type": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/related-content/#type"
+          },
+          "applyFilter": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/related-content/#applyfilter"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "https://gohugo.io/configuration/related-content/#pattern"
+          },
+          "weight": {
+            "type": "integer",
+            "description": "https://gohugo.io/configuration/related-content/#weight"
+          },
+          "cardinalityThreshold": {
+            "type": "integer",
+            "description": "https://gohugo.io/configuration/related-content/#cardinalitythreshold"
+          },
+          "toLower": {
+            "type": "boolean",
+            "description": "https://gohugo.io/configuration/related-content/#tolower-1"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "https://gohugo.io/configuration/related-content/#indices"
+    }
+  },
+  "type": "object"
+}

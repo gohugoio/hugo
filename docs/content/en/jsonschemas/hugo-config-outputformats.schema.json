@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-outputFormats.schema.json",
+  "properties": {
+    "mediaType": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/outputFormats/#media-type"
+    },
+    "path": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/outputFormats/#path"
+    },
+    "baseName": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/outputFormats/#base-name"
+    },
+    "rel": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/outputFormats/#rel"
+    },
+    "protocol": {
+      "type": "string",
+      "description": "https://gohugo.io/configuration/outputFormats/#protocol"
+    },
+    "isPlainText": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/outputFormats/#is-plain-text"
+    },
+    "isHTML": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/outputFormats/#is-h-t-m-l"
+    },
+    "noUgly": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/outputFormats/#no-ugly"
+    },
+    "ugly": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/outputFormats/#ugly"
+    },
+    "notAlternative": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/outputFormats/#not-alternative"
+    },
+    "root": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/outputFormats/#root"
+    },
+    "permalinkable": {
+      "type": "boolean",
+      "description": "https://gohugo.io/configuration/outputFormats/#permalinkable"
+    },
+    "weight": {
+      "type": "integer",
+      "description": "https://gohugo.io/configuration/outputFormats/#weight"
+    }
+  },
+  "type": "object"
+}

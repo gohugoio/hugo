@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-services.schema.json",
+  "properties": {
+    "disqus": {
+      "properties": {
+        "shortname": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/services/#disqusshortname"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#disqus"
+    },
+    "googleAnalytics": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "https://gohugo.io/configuration/services/#googleanalyticsid"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#google-analytics"
+    },
+    "x": {
+      "properties": {
+        "disableInlineCSS": {
+          "type": "boolean",
+          "description": "https://gohugo.io/configuration/services/#xdisableinlinecss"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#x"
+    },
+    "rss": {
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "description": "https://gohugo.io/configuration/services/#rsslimit"
+        }
+      },
+      "type": "object",
+      "description": "https://gohugo.io/configuration/services/#rss"
+    }
+  },
+  "type": "object"
+}

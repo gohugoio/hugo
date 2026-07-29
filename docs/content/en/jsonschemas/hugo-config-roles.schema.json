@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://gohugo.io/jsonschemas/hugo-config-roles.schema.json",
+  "properties": {
+    "weight": {
+      "type": "integer",
+      "description": "https://gohugo.io/configuration/roles/#weight"
+    }
+  },
+  "type": "object"
+}
