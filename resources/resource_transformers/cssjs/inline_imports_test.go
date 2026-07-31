@@ -15,6 +15,9 @@ package cssjs
 
 import (
 	"context"
+	"io"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -78,6 +81,27 @@ func TestShouldImportExcludes(t *testing.T) {
 	c.Assert(imp.shouldImport(`@import "tailwindcss";`), qt.Equals, false)
 	c.Assert(imp.shouldImport(`@import "tailwindcss.css";`), qt.Equals, true)
 	c.Assert(imp.shouldImport(`@import "tailwindcss/preflight";`), qt.Equals, false)
+}
+
+func TestRewriteImportsRelativeTo(t *testing.T) {
+	c := qt.New(t)
+	dir := t.TempDir()
+	c.Assert(os.WriteFile(filepath.Join(dir, "red.css"), []byte(".red{}"), 0o644), qt.IsNil)
+
+	in := strings.NewReader(`@import "tailwindcss";
+@import "./red.css";
+@import "./missing.css";
+@source "hugo_stats.json";
+`)
+	out, err := rewriteImportsRelativeTo(in, dir)
+	c.Assert(err, qt.IsNil)
+	b, err := io.ReadAll(out)
+	c.Assert(err, qt.IsNil)
+	s := string(b)
+	c.Assert(s, qt.Contains, `@import "tailwindcss";`)
+	c.Assert(s, qt.Contains, filepath.ToSlash(filepath.Join(dir, "red.css")))
+	c.Assert(s, qt.Contains, `@import "./missing.css";`)
+	c.Assert(s, qt.Contains, `@source "hugo_stats.json";`)
 }
 
 func TestImportResolver(t *testing.T) {
