@@ -304,8 +304,9 @@ func (c *Client) FromOpts(opts Options) (resource.Resource, error) {
 		}
 		return c.rs.NewResource(
 			resources.ResourceSourceDescriptor{
-				LazyPublish:   true,
-				GroupIdentity: identity.Anonymous, // All usage of this resource are tracked via its string content.
+				LazyPublish:      true,
+				IncludeHashInKey: !opts.TargetPathHasHash,
+				GroupIdentity:    identity.Anonymous, // All usage of this resource are tracked via its string content.
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return newReadSeeker()
 				},

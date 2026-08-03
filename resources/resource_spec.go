@@ -201,7 +201,7 @@ func (r *Spec) NewResource(rd ResourceSourceDescriptor) (resource.Resource, erro
 		h:                &resourceHash{},
 		publishInit:      &hsync.OnceMore{},
 		keyInit:          &sync.Once{},
-		includeHashInKey: isImage,
+		includeHashInKey: isImage || rd.IncludeHashInKey,
 		paths:            rp,
 		spec:             r,
 		sd:               rd,

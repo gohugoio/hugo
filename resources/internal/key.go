@@ -13,7 +13,9 @@
 
 package internal
 
-import "github.com/gohugoio/hugo/common/hashing"
+import (
+	"github.com/gohugoio/hugo/common/hashing"
+)
 
 // ResourceTransformationKey are provided by the different transformation implementations.
 // It identifies the transformation (name) and its configuration (elements).

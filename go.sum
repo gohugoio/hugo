@@ -274,6 +274,8 @@ github.com/gohugoio/go-radix v1.2.0 h1:D5GTk8jIoeXirBSc2P4E4NdHKDrenk9k9N0ctU5Yr
 github.com/gohugoio/go-radix v1.2.0/go.mod h1:k6vDa0ebpbpgtzSj9lPGJcA4AZwJ9xUNObUy2vczPFM=
 github.com/gohugoio/hashstructure v0.6.0 h1:7wMB/2CfXoThFYhdWRGv3u3rUM761Cq29CxUW+NltUg=
 github.com/gohugoio/hashstructure v0.6.0/go.mod h1:lapVLk9XidheHG1IQ4ZSbyYrXcaILU1ZEP/+vno5rBQ=
+github.com/gohugoio/hashstructure v1.0.0 h1:vWYuyzs1n0LdI0F54TJQeYAiB44fHX7H9hCp9X6gHKg=
+github.com/gohugoio/hashstructure v1.0.0/go.mod h1:FSbTK4QwxucJ2bC4Lvrs9a6x0DbQDXNoyBO+h4nlCgE=
 github.com/gohugoio/httpcache v0.8.0 h1:hNdsmGSELztetYCsPVgjA960zSa4dfEqqF/SficorCU=
 github.com/gohugoio/httpcache v0.8.0/go.mod h1:fMlPrdY/vVJhAriLZnrF5QpN3BNAcoBClgAyQd+lGFI=
 github.com/gohugoio/hugo-goldmark-extensions/extras v0.7.0 h1:I/n6v7VImJ3aISLnn73JAHXyjcQsMVvbguQPTk9Ehus=

@@ -19,7 +19,6 @@ import (
 	"iter"
 	"path/filepath"
 	"slices"
-	"strconv"
 	"strings"
 	"sync/atomic"
 
@@ -172,10 +171,6 @@ func (ps *pageState) GetDependencyManagerForScopesAll() []identity.Manager {
 // This method is also implemented on SiteInfo.
 func (ps *pageState) Param(key any) (any, error) {
 	return resource.Param(ps, ps.s.Params(), key)
-}
-
-func (ps *pageState) Key() string {
-	return "page-" + strconv.FormatUint(ps.pid, 10)
 }
 
 // RelatedKeywords implements the related.Document interface needed for fast page searches.

@@ -96,6 +96,9 @@ type ResourceSourceDescriptor struct {
 	// Delay publishing until either Permalink or RelPermalink is called. Maybe never.
 	LazyPublish bool
 
+	// Whether to include the hash of the source content in the resource key.
+	IncludeHashInKey bool
+
 	// Set when its known up front, else it's resolved from the target filename.
 	MediaType media.Type
 

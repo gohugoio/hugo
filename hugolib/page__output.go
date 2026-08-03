@@ -149,6 +149,11 @@ func (po *pageOutput) Aliases() []string {
 	return aliases
 }
 
+// Key returns a unique key for this page output, used to e.g. hashing.
+func (po *pageOutput) Key() string {
+	return po.p.Path() + po.f.Name
+}
+
 func (po *pageOutput) incrRenderState() {
 	po.renderState++
 	po.renderOnce = true

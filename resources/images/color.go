@@ -16,13 +16,12 @@ package images
 import (
 	"encoding/hex"
 	"fmt"
-	"hash/fnv"
 	"image/color"
 	"math"
+	"slices"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/hstrings"
-	"slices"
 )
 
 type colorGoProvider interface {
@@ -65,10 +64,8 @@ func (c Color) String() string {
 // For hashstructure. This struct is used in template func options
 // that needs to be able to hash a Color.
 // For internal use only.
-func (c Color) Hash() (uint64, error) {
-	h := fnv.New64a()
-	h.Write([]byte(c.hex))
-	return h.Sum64(), nil
+func (c Color) Key() string {
+	return c.hex
 }
 
 func (c *Color) init() error {

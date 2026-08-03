@@ -87,6 +87,10 @@ type InlineImports struct {
 	// Note that the inline importer does not process url location or imports with media queries,
 	// so those will be left as-is even without enabling this option.
 	SkipInlineImportsNotFound bool
+
+	// User provided import context. If set, imports are looked up here first,
+	// by the path as written in the @import statement, then in the assets filesystem.
+	ImportContext any
 }
 
 // Some of the options from https://github.com/postcss/postcss-cli
@@ -213,6 +217,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	src := ctx.From
 
 	imp := newImportResolver(
+		ctx.Ctx,
 		ctx.From,
 		ctx.InPath,
 		options.InlineImports,

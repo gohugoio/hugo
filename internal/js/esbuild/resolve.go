@@ -260,6 +260,19 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 			}
 		}
 
+		if opts.ImportOnResolveFunc != nil {
+			// Relative imports resolved against the importing file's directory,
+			// e.g. "./foo.css". The path as written was tried above.
+			for _, p := range pathsToTry {
+				if p == impPath {
+					continue
+				}
+				if s := opts.ImportOnResolveFunc(filepath.ToSlash(p), args); s != "" {
+					return api.OnResolveResult{Path: s, Namespace: NsHugoImportResolveFunc}, nil
+				}
+			}
+		}
+
 		var m *hugofs.FileMeta
 		for _, p := range pathsToTry {
 			m = assetsResolver.resolveComponent(p, isCSSToken)

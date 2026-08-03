@@ -58,7 +58,10 @@ func New(deps *deps.Deps) (*Namespace, error) {
 	}, nil
 }
 
-var _ resource.ResourceFinder = (*Namespace)(nil)
+var (
+	_ resource.ResourceFinder = (*Namespace)(nil)
+	_ resource.Identifier     = (*Namespace)(nil)
+)
 
 // Namespace provides template functions for the "resources" namespace.
 type Namespace struct {
@@ -299,4 +302,9 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 func (ns *Namespace) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
 	hugo.DeprecateWithLogger("resources.PostProcess", "Use templates.Defer instead. See https://gohugo.io/functions/templates/defer/", "v0.164.0", ns.deps.Log.Logger())
 	return ns.deps.ResourceSpec.PostProcess(r)
+}
+
+// For internal use only.
+func (ns *Namespace) Key() string {
+	return "tpl.resources"
 }

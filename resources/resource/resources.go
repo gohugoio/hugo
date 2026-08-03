@@ -20,6 +20,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gohugoio/hashstructure"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/paths"
@@ -33,44 +35,56 @@ var _ ResourceFinder = (*Resources)(nil)
 // I.e. both pages and images etc.
 type Resources []Resource
 
+type resourceMount struct {
+	R      Resources
+	Base   string
+	Target string
+}
+
+func (r resourceMount) Get(namev any) Resource {
+	name1, err := cast.ToStringE(namev)
+	if err != nil {
+		panic(err)
+	}
+
+	isTargetAbs := strings.HasPrefix(r.Target, "/")
+
+	if r.Target != "" {
+		name1 = strings.TrimPrefix(name1, r.Target)
+		if !isTargetAbs {
+			name1 = paths.TrimLeading(name1)
+		}
+	}
+
+	if r.Base != "" && isTargetAbs {
+		name1 = path.Join(r.Base, name1)
+	}
+
+	for _, res := range r.R {
+		name2 := res.Name()
+
+		if r.Base != "" && !isTargetAbs {
+			name2 = paths.TrimLeading(strings.TrimPrefix(name2, r.Base))
+		}
+
+		if strings.EqualFold(name1, name2) {
+			return res
+		}
+
+	}
+
+	return nil
+}
+
 // Mount mounts the given resources from base to the given target path.
 // Note that leading slashes in target marks an absolute path.
-// This method is currently only useful in js.Batch.
+// This method can be used in any of the template funcs that takes an importContext option, e.g. css.Build.
 func (r Resources) Mount(base, target string) ResourceGetter {
-	return resourceGetterFunc(func(namev any) Resource {
-		name1, err := cast.ToStringE(namev)
-		if err != nil {
-			panic(err)
-		}
-
-		isTargetAbs := strings.HasPrefix(target, "/")
-
-		if target != "" {
-			name1 = strings.TrimPrefix(name1, target)
-			if !isTargetAbs {
-				name1 = paths.TrimLeading(name1)
-			}
-		}
-
-		if base != "" && isTargetAbs {
-			name1 = path.Join(base, name1)
-		}
-
-		for _, res := range r {
-			name2 := res.Name()
-
-			if base != "" && !isTargetAbs {
-				name2 = paths.TrimLeading(strings.TrimPrefix(name2, base))
-			}
-
-			if strings.EqualFold(name1, name2) {
-				return res
-			}
-
-		}
-
-		return nil
-	})
+	return resourceMount{
+		R:      r,
+		Base:   base,
+		Target: target,
+	}
 }
 
 type ResourcesProvider interface {
@@ -276,12 +290,6 @@ type StaleInfoResourceGetter interface {
 	ResourceGetter
 }
 
-type resourceGetterFunc func(name any) Resource
-
-func (f resourceGetterFunc) Get(name any) Resource {
-	return f(name)
-}
-
 // ResourceFinder provides methods to find Resources.
 // Note that GetRemote (as found in resources.GetRemote) is
 // not covered by this interface, as this is only available as a global template function.
@@ -318,6 +326,8 @@ type ResourceFinder interface {
 	ByType(typ any) Resources
 }
 
+var _ hashstructure.Hashable = (*cachedResourceGetter)(nil)
+
 // NewCachedResourceGetter creates a new ResourceGetter from the given objects.
 // If multiple objects are provided, they are merged into one where
 // the first match wins.
@@ -329,10 +339,17 @@ func NewCachedResourceGetter(os ...any) *cachedResourceGetter {
 		}
 	}
 
+	hash := hashing.HashUint64(getters)
+
 	return &cachedResourceGetter{
 		cache:    hmaps.NewCache[string, Resource](),
 		delegate: getters,
+		hash:     hash,
 	}
+}
+
+func (c *cachedResourceGetter) Hash() (uint64, error) {
+	return c.hash, nil
 }
 
 type multiResourceGetter []ResourceGetter
@@ -354,6 +371,7 @@ var (
 type cachedResourceGetter struct {
 	cache    *hmaps.Cache[string, Resource]
 	delegate ResourceGetter
+	hash     uint64
 }
 
 func (c *cachedResourceGetter) Get(name any) Resource {
@@ -390,8 +408,6 @@ func unwrapResourceGetter(v any) (ResourceGetter, bool) {
 		return vv, true
 	case ResourcesProvider:
 		return vv.Resources(), true
-	case func(name any) Resource:
-		return resourceGetterFunc(vv), true
 	default:
 		vvv, ok := hreflect.ToSliceAny(v)
 		if !ok {
