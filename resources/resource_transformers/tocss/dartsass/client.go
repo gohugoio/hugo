@@ -158,6 +158,10 @@ type Options struct {
 	//     $color: vars.$color;
 	Vars map[string]any
 
+	// User provided import context. If set, imports are looked up here first,
+	// then in the assets filesystem.
+	ImportContext any
+
 	// Deprecations IDs in this slice will be silenced.
 	// The IDs can be found in the Dart Sass log output, e.g. "import" in
 	//    WARN  Dart Sass: DEPRECATED [import].

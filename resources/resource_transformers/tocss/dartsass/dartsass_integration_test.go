@@ -51,6 +51,35 @@ T1: {{ $r.Content }}
 	b.AssertFileContent("public/index.html", `T1: moo{color:#fff}`)
 }
 
+// See issue 15103.
+func TestTransformImportContext(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+-- assets/scss/_foo.scss --
+body { color: orange; }
+-- assets/scss/main.scss --
+@import "foo";
+@import "bar";
+-- layouts/home.html --
+{{ $foo := resources.FromString "foo.scss" "body { color: blue; }" }}
+{{ $bar := resources.FromString "bar.scss" "@import \"baz\";\nbody { color: green; }" }}
+{{ $baz := resources.FromString "baz.scss" "p { color: red; }" }}
+{{ $opts := dict "transpiler" "dartsass" "outputStyle" "compressed" "importContext" (slice $foo $bar $baz) }}
+{{ $r := resources.Get "scss/main.scss" | css.Sass $opts }}
+T1: {{ $r.Content }}
+	`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	// foo resolves in the import context before the assets filesystem.
+	b.AssertFileContent("public/index.html", `T1: body{color:blue}p{color:red}body{color:green}`)
+}
+
 func TestTransformImportRegularCSS(t *testing.T) {
 	t.Parallel()
 	if !dartsass.Supports() {

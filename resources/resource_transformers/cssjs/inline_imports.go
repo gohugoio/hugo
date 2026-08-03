@@ -14,6 +14,7 @@
 package cssjs
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -30,6 +31,8 @@ import (
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
 )
 
@@ -46,10 +49,12 @@ type fileOffset struct {
 }
 
 type importResolver struct {
+	ctx    context.Context
 	r      io.Reader
 	inPath string
 	opts   InlineImports
 
+	importContext     resource.ResourceGetter
 	contentSeen       map[string]bool
 	dependencyManager identity.Manager
 	linemap           map[int]fileOffset
@@ -57,8 +62,9 @@ type importResolver struct {
 	logger            loggers.Logger
 }
 
-func newImportResolver(r io.Reader, inPath string, opts InlineImports, fs afero.Fs, logger loggers.Logger, dependencyManager identity.Manager) *importResolver {
-	return &importResolver{
+func newImportResolver(ctx context.Context, r io.Reader, inPath string, opts InlineImports, fs afero.Fs, logger loggers.Logger, dependencyManager identity.Manager) *importResolver {
+	imp := &importResolver{
+		ctx:               ctx,
 		r:                 r,
 		dependencyManager: dependencyManager,
 		inPath:            inPath,
@@ -66,6 +72,10 @@ func newImportResolver(r io.Reader, inPath string, opts InlineImports, fs afero.
 		linemap: make(map[int]fileOffset), contentSeen: make(map[string]bool),
 		opts: opts,
 	}
+	if opts.ImportContext != nil {
+		imp.importContext = resource.NewCachedResourceGetter(opts.ImportContext)
+	}
+	return imp
 }
 
 func (imp *importResolver) contentHash(filename string) ([]byte, string) {
@@ -73,9 +83,13 @@ func (imp *importResolver) contentHash(filename string) ([]byte, string) {
 	if err != nil {
 		return nil, ""
 	}
+	return b, hashBytes(b)
+}
+
+func hashBytes(b []byte) string {
 	h := sha256.New()
 	h.Write(b)
-	return b, hex.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func (imp *importResolver) importRecursive(
@@ -105,8 +119,35 @@ func (imp *importResolver) importRecursive(
 		} else {
 			path := strings.Trim(strings.TrimPrefix(line, importIdentifier), " \"';")
 			filename := filepath.Join(basePath, path)
-			imp.dependencyManager.AddIdentity(identity.CleanStringIdentity(filename))
-			importContent, hash := imp.contentHash(filename)
+			var (
+				importContent []byte
+				hash          string
+				nestedInPath  string
+			)
+			if imp.importContext != nil {
+				// Try first the path as written in the import statement,
+				// then resolved relative to the importing file.
+				for _, name := range []string{path, filepath.ToSlash(filename)} {
+					r := imp.importContext.Get(name)
+					if r == nil {
+						continue
+					}
+					imp.dependencyManager.AddIdentity(identity.FirstIdentity(r))
+					s, err := resources.InternalResourceSourceContent(imp.ctx, r)
+					if err != nil {
+						return 0, "", err
+					}
+					importContent, hash = []byte(s), hashBytes([]byte(s))
+					nestedInPath = name
+					break
+				}
+			}
+
+			if importContent == nil {
+				imp.dependencyManager.AddIdentity(identity.CleanStringIdentity(filename))
+				importContent, hash = imp.contentHash(filename)
+				nestedInPath = filepath.ToSlash(filename)
+			}
 
 			if importContent == nil {
 				if imp.opts.SkipInlineImportsNotFound {
@@ -135,7 +176,7 @@ func (imp *importResolver) importRecursive(
 			imp.contentSeen[hash] = true
 
 			// Handle recursive imports.
-			l, nested, err := imp.importRecursive(i+lineNum, string(importContent), filepath.ToSlash(filename))
+			l, nested, err := imp.importRecursive(i+lineNum, string(importContent), nestedInPath)
 			if err != nil {
 				return 0, "", err
 			}

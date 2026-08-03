@@ -124,6 +124,7 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 	src := ctx.From
 
 	imp := newImportResolver(
+		ctx.Ctx,
 		ctx.From,
 		ctx.InPath,
 		options.InlineImports,

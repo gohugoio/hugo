@@ -39,7 +39,7 @@ require (
 	github.com/gohugoio/gift v0.2.0
 	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20251018145728-cfcc22d823c6
 	github.com/gohugoio/go-radix v1.2.0
-	github.com/gohugoio/hashstructure v0.6.0
+	github.com/gohugoio/hashstructure v1.0.0
 	github.com/gohugoio/httpcache v0.8.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.7.0
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.5.0

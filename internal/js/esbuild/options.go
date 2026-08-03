@@ -183,6 +183,9 @@ type ExternalOptions struct {
 	// Maps a component import to another.
 	Shims map[string]string
 
+	// User provided import context. If set, we will look here first.
+	ImportContext any
+
 	// Configuring a loader for a given file type lets you load that file type with an
 	// import statement or a require call. For example, configuring the .png file extension
 	// to use the data URL loader means importing a .png file gives you a data URL

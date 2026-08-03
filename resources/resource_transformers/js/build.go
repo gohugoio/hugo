@@ -42,6 +42,8 @@ func New(fs *filesystems.SourceFilesystem, rs *resources.Spec, cssMode bool) *Cl
 }
 
 // Process processes a resource with the user provided options.
+// If importContext is not nil, imports are resolved in it first,
+// then in the assets filesystem (the same precedence as in js.Batch).
 func (c *Client) Process(res resources.ResourceTransformer, opts map[string]any) (resource.Resource, error) {
 	return res.Transform(
 		&buildTransformation{c: c, optsm: opts},

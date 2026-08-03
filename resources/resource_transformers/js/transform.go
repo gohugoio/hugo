@@ -18,10 +18,14 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/evanw/esbuild/pkg/api"
+	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/internal/js/esbuild"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
+	"github.com/gohugoio/hugo/resources/resource"
 )
 
 type buildTransformation struct {
@@ -69,6 +73,29 @@ func (t *buildTransformation) Transform(ctx *resources.ResourceTransformationCtx
 	opts.MediaType = ctx.InMediaType
 	opts.Stdin = true
 	opts.IsCSS = t.c.c.CssMode
+	var ic resource.ResourceGetter
+	if opts.ImportContext != nil {
+		ic = resource.NewCachedResourceGetter(opts.ImportContext)
+	}
+
+	if ic != nil {
+		resolved := hmaps.NewCache[string, resource.Resource]()
+		opts.ImportOnResolveFunc = func(imp string, args api.OnResolveArgs) string {
+			if r := esbuild.ResolveResource(imp, ic); r != nil {
+				p := esbuild.PrefixHugoVirtual + resources.InternalResourceTargetPath(r)
+				resolved.Set(p, r)
+				ctx.DependencyManager.AddIdentity(identity.FirstIdentity(r))
+				return p
+			}
+			return ""
+		}
+		opts.ImportOnLoadFunc = func(args api.OnLoadArgs) (string, error) {
+			if r, found := resolved.Get(args.Path); found {
+				return resources.InternalResourceSourceContent(ctx.Ctx, r)
+			}
+			return "", nil
+		}
+	}
 
 	_, err = t.c.transform(opts, ctx)
 

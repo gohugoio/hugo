@@ -14,6 +14,7 @@
 package cssjs
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"testing"
@@ -21,10 +22,12 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -103,6 +106,7 @@ LOCAL_STYLE
 @import "e.css";`)
 
 	imp := newImportResolver(
+		t.Context(),
 		mainStyles,
 		"styles.css",
 		InlineImports{},
@@ -129,6 +133,70 @@ E_STYLE`)
 		Filename: "d.css",
 	})
 }
+
+func TestImportResolverImportContext(t *testing.T) {
+	c := qt.New(t)
+	fs := afero.NewMemMapFs()
+
+	writeFile := func(name, content string) {
+		c.Assert(afero.WriteFile(fs, name, []byte(content), 0o777), qt.IsNil)
+	}
+
+	// Loses to the import context entry with the same name.
+	writeFile("css/a.css", "A_STYLE_FS")
+	writeFile("css/b.css", "B_STYLE_FS")
+
+	importContext := testImportContext{
+		"a.css":     "@import \"c.css\";\nA_STYLE",
+		"c.css":     "C_STYLE",
+		"css/d.css": "D_STYLE",
+	}
+
+	mainStyles := strings.NewReader(`@import "a.css";
+@import "b.css";
+@import "./d.css";
+LOCAL_STYLE`)
+
+	imp := newImportResolver(
+		t.Context(),
+		mainStyles,
+		"css/styles.css",
+		InlineImports{ImportContext: importContext},
+		fs, loggers.NewDefault(),
+		identity.NopManager,
+	)
+
+	r, err := imp.resolve()
+	c.Assert(err, qt.IsNil)
+	rs := helpers.ReaderToString(r)
+	result := regexp.MustCompile(`\n+`).ReplaceAllString(rs, "\n")
+
+	c.Assert(result, hqt.IsSameString, `C_STYLE
+A_STYLE
+B_STYLE_FS
+D_STYLE
+LOCAL_STYLE`)
+}
+
+type testImportContext map[string]string
+
+func (g testImportContext) Get(name any) resource.Resource {
+	s := cast.ToString(name)
+	if content, found := g[s]; found {
+		return testImportContextResource{name: s, content: content}
+	}
+	return nil
+}
+
+type testImportContextResource struct {
+	resource.Resource
+	name    string
+	content string
+}
+
+func (r testImportContextResource) Name() string { return r.name }
+
+func (r testImportContextResource) Content(context.Context) (any, error) { return r.content, nil }
 
 func BenchmarkImportResolver(b *testing.B) {
 	c := qt.New(b)
@@ -161,6 +229,7 @@ LOCAL_STYLE
 	for b.Loop() {
 		b.StopTimer()
 		imp := newImportResolver(
+			b.Context(),
 			strings.NewReader(mainStyles),
 			"styles.css",
 			InlineImports{},

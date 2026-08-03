@@ -64,6 +64,45 @@ CSS: {{ $css.Content | safeCSS }}|
 	b.AssertFileContent("public/index.html", "/*! tailwindcss v4.")
 }
 
+// See issue 15103.
+func TestTailwindCSSImportContext(t *testing.T) {
+	t.Parallel()
+	htesting.SkipSlowTestUnlessCI(t)
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/css/main.css --
+@import "tailwindcss";
+
+@import "foo.css";
+@import "bar.css";
+-- assets/css/foo.css --
+.foo {color: orange;}
+-- layouts/home.html --
+{{ $foo := resources.FromString "foo.css" ".foo {color: blue;}" }}
+{{ $bar := resources.FromString "bar.css" ".bar {color: green;}" }}
+{{ $opts := dict "importContext" (slice $foo $bar) }}
+{{ $css := resources.Get "css/main.css" | css.TailwindCSS $opts }}
+CSS: {{ $css.Content | safeCSS }}|
+-- package.json --
+{
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.7",
+    "tailwindcss": "^4.1.7"
+  }
+}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
+
+	// foo.css resolves in the import context before the assets filesystem.
+	b.AssertFileContent("public/index.html",
+		".foo {\n    color: blue;\n  }",
+		".bar {\n    color: green;\n  }",
+	)
+}
+
 func TestTailwindCSSNoInlineImportsIssue13719(t *testing.T) {
 	t.Parallel()
 	htesting.SkipSlowTestUnlessCI(t)

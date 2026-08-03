@@ -49,6 +49,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/site"
 	_ "github.com/gohugoio/hugo/tpl/strings"
 	_ "github.com/gohugoio/hugo/tpl/templates"
+	_ "github.com/gohugoio/hugo/tpl/testinginternal"
 	_ "github.com/gohugoio/hugo/tpl/time"
 	_ "github.com/gohugoio/hugo/tpl/transform"
 	_ "github.com/gohugoio/hugo/tpl/urls"
