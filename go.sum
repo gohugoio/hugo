@@ -98,8 +98,8 @@ github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.2 h1:XFJZFWESIWlUEHHjzBuv8R
 github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.2/go.mod h1:BHWO8lJzttJLqwuV8Rb1B3OG2OSzLbssZDI1FRg2eAA=
 github.com/alecthomas/assert/v2 v2.11.0 h1:2Q9r3ki8+JYXvGsDyBXwH3LcJ+WK5D0gc5E8vS6K3D0=
 github.com/alecthomas/assert/v2 v2.11.0/go.mod h1:Bze95FyfUr7x34QZrjL+XP+0qgp/zg8yS+TtBj1WA3k=
-github.com/alecthomas/chroma/v2 v2.27.0 h1:FodwmyOBgJULFYmDqibcp9pvfDLWdtPRh9v/r5BXYZs=
-github.com/alecthomas/chroma/v2 v2.27.0/go.mod h1:NjJ3ciIgrqBNeIkWZ4e46nseoLDslxU1LmfCoL+wcY8=
+github.com/alecthomas/chroma/v3 v3.0.0-alpha.5 h1:Ins5lDliEp34swfd+nh2eESjBA4MlrHrmi6Uyxsl/9E=
+github.com/alecthomas/chroma/v3 v3.0.0-alpha.5/go.mod h1:CjTPYmVdv0LiMgid2gCJeE30AgchDKbdsW7R3xs9mHI=
 github.com/alecthomas/repr v0.5.2 h1:SU73FTI9D1P5UNtvseffFSGmdNci/O6RsqzeXJtP0Qs=
 github.com/alecthomas/repr v0.5.2/go.mod h1:Fr0507jx4eOXV7AlPV6AVZLYrLIuIeSOWtW57eE/O/4=
 github.com/aws/aws-sdk-go-v2 v1.41.6 h1:1AX0AthnBQzMx1vbmir3Y4WsnJgiydmnJjiLu+LvXOg=
@@ -209,8 +209,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dlclark/regexp2 v1.12.0 h1:0j4c5qQmnC6XOWNjP3PIXURXN2gWx76rd3KvgdPkCz8=
 github.com/dlclark/regexp2 v1.12.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
-github.com/dlclark/regexp2/v2 v2.2.1 h1:mf4KkFUj0gJuarK8P+LgiS+Lit7m9N1yAwEfPbee7R0=
-github.com/dlclark/regexp2/v2 v2.2.1/go.mod h1:avUrQvPaLz2DrFNHJF0taWAFFX2C1GMSSoeiqFjcBmU=
+github.com/dlclark/regexp2/v2 v2.2.2 h1:MYWvNYw8okuqNhwTYO587EZMiDruVa2vhV6fsGpfya0=
+github.com/dlclark/regexp2/v2 v2.2.2/go.mod h1:avUrQvPaLz2DrFNHJF0taWAFFX2C1GMSSoeiqFjcBmU=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
@@ -272,8 +272,6 @@ github.com/gohugoio/go-i18n/v2 v2.1.3-0.20251018145728-cfcc22d823c6 h1:pxlAea9eR
 github.com/gohugoio/go-i18n/v2 v2.1.3-0.20251018145728-cfcc22d823c6/go.mod h1:m5hu1im5Qc7LDycVLvee6MPobJiRLBYHklypFJR0/aE=
 github.com/gohugoio/go-radix v1.2.0 h1:D5GTk8jIoeXirBSc2P4E4NdHKDrenk9k9N0ctU5Yrhg=
 github.com/gohugoio/go-radix v1.2.0/go.mod h1:k6vDa0ebpbpgtzSj9lPGJcA4AZwJ9xUNObUy2vczPFM=
-github.com/gohugoio/hashstructure v0.6.0 h1:7wMB/2CfXoThFYhdWRGv3u3rUM761Cq29CxUW+NltUg=
-github.com/gohugoio/hashstructure v0.6.0/go.mod h1:lapVLk9XidheHG1IQ4ZSbyYrXcaILU1ZEP/+vno5rBQ=
 github.com/gohugoio/hashstructure v1.0.0 h1:vWYuyzs1n0LdI0F54TJQeYAiB44fHX7H9hCp9X6gHKg=
 github.com/gohugoio/hashstructure v1.0.0/go.mod h1:FSbTK4QwxucJ2bC4Lvrs9a6x0DbQDXNoyBO+h4nlCgE=
 github.com/gohugoio/httpcache v0.8.0 h1:hNdsmGSELztetYCsPVgjA960zSa4dfEqqF/SficorCU=

@@ -3,8 +3,8 @@ package helpers
 import (
 	"sort"
 
-	"github.com/alecthomas/chroma/v2/lexers"
-	"github.com/alecthomas/chroma/v2/styles"
+	"github.com/alecthomas/chroma/v3/lexers"
+	"github.com/alecthomas/chroma/v3/styles"
 	"github.com/gohugoio/hugo/docshelper"
 )
 
@@ -28,13 +28,12 @@ func init() {
 			}
 
 			chromaLexers = append(chromaLexers, lexerEntry)
-
 		}
 
 		var styleInfos []styleInfo
 
-		for name := range styles.Registry {
-			style := styles.Registry[name]
+		for _, name := range styles.Names() {
+			style := styles.Get(name)
 
 			styleInfos = append(styleInfos, styleInfo{
 				Name:        name,

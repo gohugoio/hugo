@@ -3,7 +3,7 @@ module github.com/gohugoio/hugo
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.2
-	github.com/alecthomas/chroma/v2 v2.27.0
+	github.com/alecthomas/chroma/v3 v3.0.0-alpha.5
 	github.com/aws/aws-sdk-go-v2 v1.41.6
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.61.1
 	github.com/bep/clocks v0.5.0
@@ -128,7 +128,7 @@ require (
 	github.com/cncf/xds/go v0.0.0-20260202195803-dba9d589def2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/dlclark/regexp2 v1.12.0 // indirect
-	github.com/dlclark/regexp2/v2 v2.2.1 // indirect
+	github.com/dlclark/regexp2/v2 v2.2.2 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.37.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.3.3 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect

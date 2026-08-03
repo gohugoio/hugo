@@ -14,8 +14,8 @@
 package chromalexers
 
 import (
-	"github.com/alecthomas/chroma/v2"
-	"github.com/alecthomas/chroma/v2/lexers"
+	"github.com/alecthomas/chroma/v3"
+	"github.com/alecthomas/chroma/v3/lexers"
 	"github.com/bep/helpers/maphelpers"
 )
 
