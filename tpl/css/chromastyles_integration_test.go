@@ -47,6 +47,28 @@ Light: {{ $light.RelPermalink }}|Dark: {{ $dark.RelPermalink }}|Default: {{ $def
 	b.AssertFileContent("public/css/chroma.css", "/* Background */ .bg {", "background-color:#272822")
 }
 
+// Chroma's minifier drops token rules whose color equals the style's default
+// foreground (e.g. .nx in github-dark). In a paired light/dark setup the light
+// sheet's explicit rule would then leak into dark mode, so these must be re-emitted.
+// See issue 15161.
+func TestChromaStylesKeepDefaultForegroundTokens(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section", "page"]
+-- layouts/home.html --
+{{ $light := css.ChromaStyles (dict "targetPath" "css/chroma-light.css" "style" "github" "mode" "light") }}
+{{ $dark := css.ChromaStyles (dict "targetPath" "css/chroma-dark.css" "style" "github" "mode" "dark" "modeSelector" true) }}
+Light: {{ $light.RelPermalink }}|Dark: {{ $dark.RelPermalink }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/css/chroma-light.css", "/* NameOther */ .chroma .nx { color:#1f2328 }")
+	b.AssertFileContent("public/css/chroma-dark.css", "/* NameOther */ .dark .chroma .nx { color:#e6edf3 }")
+}
+
 func TestChromaStylesErrors(t *testing.T) {
 	t.Parallel()
 
