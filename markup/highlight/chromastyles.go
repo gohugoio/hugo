@@ -91,11 +91,7 @@ func ChromaStylesCSS(opts ChromaStylesOptions) (string, error) {
 
 	options := []html.Option{
 		html.WithCSSComments(!opts.OmitClassComments),
-	}
-	if !opts.ModeSelector {
-		// Only needed for the shared-scope overlay; modeSelector
-		// gives each mode its own scope and makes this redundant.
-		options = append(options, html.WithCustomCSS(chromaCSSOverrides(style)))
+		html.WithCustomCSS(chromaCSSOverrides(style)),
 	}
 
 	var buf bytes.Buffer
@@ -129,10 +125,11 @@ func ChromaStylesCSS(opts ChromaStylesOptions) (string, error) {
 }
 
 // chromaCSSOverrides re-emits leaf token colors that Chroma's minifier drops
-// because they equal the style's default foreground (the .chroma color). Without
-// modeSelector scoping, a paired light/dark stylesheet shares the same .chroma
-// scope, and the light sheet's explicit rule (e.g. .chroma .nx) would otherwise
-// leak into dark mode, since an explicit declaration beats inheritance.
+// because they equal the style's default foreground (the .chroma color).
+// In a paired light/dark setup, the other sheet's explicit rule (e.g. .chroma .nx)
+// would otherwise leak into this mode, since an explicit declaration beats
+// inheritance from .chroma.
+// TODO(bep): replace with an upstream option, see issue 15161.
 func chromaCSSOverrides(style *chroma.Style) map[chroma.TokenType]string {
 	bg := style.Get(chroma.Background)
 	m := make(map[chroma.TokenType]string)
