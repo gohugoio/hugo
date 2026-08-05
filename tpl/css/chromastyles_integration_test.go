@@ -47,6 +47,25 @@ Light: {{ $light.RelPermalink }}|Dark: {{ $dark.RelPermalink }}|Default: {{ $def
 	b.AssertFileContent("public/css/chroma.css", "/* Background */ .bg {", "background-color:#272822")
 }
 
+// See issue 15167.
+func TestChromaStylesCustomModeClasses(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section", "page"]
+-- layouts/home.html --
+{{ $light := css.ChromaStyles (dict "targetPath" "css/chroma-light.css" "style" "github" "mode" "light" "modeSelector" true "classLight" "theme-light") }}
+{{ $dark := css.ChromaStyles (dict "targetPath" "css/chroma-dark.css" "style" "github" "mode" "dark" "modeSelector" true "classDark" "theme-dark") }}
+Light: {{ $light.RelPermalink }}|Dark: {{ $dark.RelPermalink }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/css/chroma-light.css", ".theme-light .chroma ", ".theme-light .bg {")
+	b.AssertFileContent("public/css/chroma-dark.css", ".theme-dark .chroma ", ".theme-dark .bg {")
+}
+
 // Chroma's minifier drops token rules whose color equals the style's default
 // foreground (e.g. .nx in github-dark). In a paired light/dark setup the light
 // sheet's explicit rule would then leak into dark mode, so these must be re-emitted.

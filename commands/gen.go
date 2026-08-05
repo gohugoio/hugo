@@ -46,6 +46,8 @@ func newGenCommand() *genCommand {
 		style                  string
 		mode                   string
 		modeSelector           bool
+		classDark              string
+		classLight             string
 		highlightStyle         string
 		lineNumbersInlineStyle string
 		lineNumbersTableStyle  string
@@ -70,6 +72,8 @@ See https://gohugo.io/quick-reference/syntax-highlighting-styles/ for a preview 
 					Style:                  style,
 					Mode:                   mode,
 					ModeSelector:           modeSelector,
+					ClassDark:              classDark,
+					ClassLight:             classLight,
 					HighlightStyle:         highlightStyle,
 					LineNumbersInlineStyle: lineNumbersInlineStyle,
 					LineNumbersTableStyle:  lineNumbersTableStyle,
@@ -91,6 +95,10 @@ See https://gohugo.io/quick-reference/syntax-highlighting-styles/ for a preview 
 				_ = cmd.RegisterFlagCompletionFunc("mode", cobra.FixedCompletions([]string{"light", "dark"}, cobra.ShellCompDirectiveNoFileComp))
 				cmd.PersistentFlags().BoolVar(&modeSelector, "modeSelector", false, `scope selectors under a top level mode class, e.g. ".dark .chroma"`)
 				_ = cmd.RegisterFlagCompletionFunc("modeSelector", cobra.NoFileCompletions)
+				cmd.PersistentFlags().StringVar(&classDark, "classDark", "dark", `class name used by --modeSelector for dark styles`)
+				_ = cmd.RegisterFlagCompletionFunc("classDark", cobra.NoFileCompletions)
+				cmd.PersistentFlags().StringVar(&classLight, "classLight", "light", `class name used by --modeSelector for light styles`)
+				_ = cmd.RegisterFlagCompletionFunc("classLight", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&highlightStyle, "highlightStyle", "", `foreground and background colors for highlighted lines, e.g. --highlightStyle "#fff000 bg:#000fff"`)
 				_ = cmd.RegisterFlagCompletionFunc("highlightStyle", cobra.NoFileCompletions)
 				cmd.PersistentFlags().StringVar(&lineNumbersInlineStyle, "lineNumbersInlineStyle", "", `foreground and background colors for inline line numbers, e.g. --lineNumbersInlineStyle "#fff000 bg:#000fff"`)
