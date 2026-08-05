@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strings"
 	"sync/atomic"
+	"unicode"
 	"unicode/utf8"
 
 	maps0 "maps"
@@ -328,11 +329,16 @@ Loop:
 			// The content may be rendered by Goldmark or similar,
 			// and we need to track the summary.
 			divider := internalSummaryDividerPre
-			before := bytes.TrimSpace(source[:it.Pos()])
-			after := bytes.TrimSpace(source[it.Pos()+len(it.Val(source)):])
-			if !bytes.ContainsRune(it.Val(source), '\n') &&
-				!bytes.HasSuffix(before, []byte("}}")) &&
-				!bytes.HasPrefix(after, []byte("{{")) {
+			before := source[:it.Pos()]
+			after := source[it.Pos()+len(it.Val(source)):]
+			beforeRune, _ := utf8.DecodeLastRune(before)
+			afterRune, _ := utf8.DecodeRune(after)
+			if len(before) > 0 && len(after) > 0 &&
+				!bytes.ContainsRune(it.Val(source), '\n') &&
+				!unicode.IsSpace(beforeRune) &&
+				!unicode.IsSpace(afterRune) &&
+				!bytes.HasSuffix(bytes.TrimSpace(before), []byte("}}")) &&
+				!bytes.HasPrefix(bytes.TrimSpace(after), []byte("{{")) {
 				divider = internalSummaryDivider
 			}
 			pi.AddReplacement(divider, it)
