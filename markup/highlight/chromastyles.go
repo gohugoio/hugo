@@ -35,6 +35,12 @@ type ChromaStylesOptions struct {
 	// Scope selectors under a top level mode class, e.g. ".dark .chroma".
 	ModeSelector bool
 
+	// Class name used by ModeSelector for dark styles, defaults to "dark".
+	ClassDark string
+
+	// Class name used by ModeSelector for light styles, defaults to "light".
+	ClassLight string
+
 	// Foreground and background colors for highlighted lines, e.g. "#fff000 bg:#000fff".
 	HighlightStyle string
 
@@ -105,12 +111,19 @@ func ChromaStylesCSS(opts ChromaStylesOptions) (string, error) {
 		// them with a parent class on the page.
 		// There's no upstream option for this (I think), so do string replacements for now.
 		// TODO(bep) upstream option for this.
+		classDark, classLight := opts.ClassDark, opts.ClassLight
+		if classDark == "" {
+			classDark = "dark"
+		}
+		if classLight == "" {
+			classLight = "light"
+		}
 		var prefix string
 		switch style.Mode() {
 		case chroma.Light:
-			prefix = ".light "
+			prefix = "." + classLight + " "
 		case chroma.Dark:
-			prefix = ".dark "
+			prefix = "." + classDark + " "
 		default:
 			return "", fmt.Errorf("style %q does not have a light or dark mode", style.Name)
 		}
