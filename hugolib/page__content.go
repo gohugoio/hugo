@@ -328,7 +328,11 @@ Loop:
 			// The content may be rendered by Goldmark or similar,
 			// and we need to track the summary.
 			divider := internalSummaryDividerPre
-			if !bytes.ContainsRune(it.Val(source), '\n') {
+			before := bytes.TrimSpace(source[:it.Pos()])
+			after := bytes.TrimSpace(source[it.Pos()+len(it.Val(source)):])
+			if !bytes.ContainsRune(it.Val(source), '\n') &&
+				!bytes.HasSuffix(before, []byte("}}")) &&
+				!bytes.HasPrefix(after, []byte("{{")) {
 				divider = internalSummaryDivider
 			}
 			pi.AddReplacement(divider, it)
