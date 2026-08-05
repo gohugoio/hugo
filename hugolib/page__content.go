@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -55,8 +56,8 @@ const (
 )
 
 var (
-	internalSummaryDividerPreString = "\n\n" + internalSummaryDividerBase + "\n\n"
-	internalSummaryDividerPre       = []byte(internalSummaryDividerPreString)
+	internalSummaryDivider    = []byte(internalSummaryDividerBase)
+	internalSummaryDividerPre = []byte("\n\n" + internalSummaryDividerBase + "\n\n")
 )
 
 type pageContentReplacement struct {
@@ -326,7 +327,11 @@ Loop:
 
 			// The content may be rendered by Goldmark or similar,
 			// and we need to track the summary.
-			pi.AddReplacement(internalSummaryDividerPre, it)
+			divider := internalSummaryDividerPre
+			if !bytes.ContainsRune(it.Val(source), '\n') {
+				divider = internalSummaryDivider
+			}
+			pi.AddReplacement(divider, it)
 
 		// Handle shortcode
 		case it.IsLeftShortcodeDelim():

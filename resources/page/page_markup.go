@@ -71,12 +71,13 @@ func (s Summary) PrintableValue() any {
 var _ types.PrintableValueProvider = (*Summary)(nil)
 
 type HtmlSummary struct {
-	source         string
-	SummaryLowHigh types.LowHigh[string]
-	SummaryEndTag  types.LowHigh[string]
-	WrapperStart   types.LowHigh[string]
-	WrapperEnd     types.LowHigh[string]
-	Divider        types.LowHigh[string]
+	source          string
+	SummaryLowHigh  types.LowHigh[string]
+	SummaryStartTag types.LowHigh[string]
+	SummaryEndTag   types.LowHigh[string]
+	WrapperStart    types.LowHigh[string]
+	WrapperEnd      types.LowHigh[string]
+	Divider         types.LowHigh[string]
 }
 
 func (s HtmlSummary) wrap(ss string) string {
@@ -134,6 +135,9 @@ func (s HtmlSummary) ContentWithoutSummary() string {
 	}
 	if s.SummaryEndTag.IsZero() {
 		return s.trimSpace(s.wrapLeft(s.source[s.Divider.High:]))
+	}
+	if !s.SummaryStartTag.IsZero() {
+		return s.trimSpace(s.wrapLeft(s.Value(s.SummaryStartTag) + s.source[s.Divider.High:]))
 	}
 	return s.trimSpace(s.wrapLeft(s.source[s.SummaryEndTag.High:]))
 }
@@ -268,7 +272,7 @@ func ExtractSummaryFromHTMLWithDivider(mt media.Type, input, divider string) (re
 	ptag := result.resolveParagraphTagAndSetWrapper(mt)
 
 	if !mt.IsHTML() {
-		result.Divider, result.SummaryEndTag = expandSummaryDivider(result.source, ptag, result.Divider)
+		result.Divider, result.SummaryStartTag, result.SummaryEndTag = expandSummaryDivider(result.source, ptag, result.Divider)
 	}
 
 	result.SummaryLowHigh = types.LowHigh[string]{
@@ -280,7 +284,8 @@ func ExtractSummaryFromHTMLWithDivider(mt media.Type, input, divider string) (re
 }
 
 var (
-	pOrDiv = regexp.MustCompile(`<p[^>]?>|<div[^>]?>$`)
+	pOrDiv           = regexp.MustCompile(`<p[^>]?>|<div[^>]?>$`)
+	closingTagsAtEnd = regexp.MustCompile(`(?:\s*</[^>]+>)+$`)
 
 	startEndDiv = tagReStartEnd{
 		startEndOfString: regexp.MustCompile(`<div[^>]*?>$`),
@@ -301,11 +306,12 @@ type tagReStartEnd struct {
 	tagName          string
 }
 
-func expandSummaryDivider(s string, re tagReStartEnd, divider types.LowHigh[string]) (types.LowHigh[string], types.LowHigh[string]) {
+func expandSummaryDivider(s string, re tagReStartEnd, divider types.LowHigh[string]) (types.LowHigh[string], types.LowHigh[string], types.LowHigh[string]) {
+	var startMarkup types.LowHigh[string]
 	var endMarkup types.LowHigh[string]
 
 	if divider.IsZero() {
-		return divider, endMarkup
+		return divider, startMarkup, endMarkup
 	}
 
 	lo, hi := divider.Low, divider.High
@@ -347,8 +353,39 @@ func expandSummaryDivider(s string, re tagReStartEnd, divider types.LowHigh[stri
 	}
 
 	if preserveEndMarkup {
-		endMarkup.Low = divider.High
-		endMarkup.High = hi
+		for i := divider.Low - 1; i >= 0; i-- {
+			if s[i] != '>' {
+				continue
+			}
+			if match := re.startEndOfString.FindString(s[:i+1]); match != "" {
+				startMarkup.Low = i - len(match) + 1
+				startMarkup.High = startMarkup.Low
+				for startMarkup.High < divider.Low {
+					if s[startMarkup.High] == '<' {
+						j := strings.IndexByte(s[startMarkup.High:], '>')
+						if j == -1 {
+							break
+						}
+						startMarkup.High += j + 1
+						continue
+					}
+					r, size := utf8.DecodeRuneInString(s[startMarkup.High:])
+					if !unicode.IsSpace(r) {
+						break
+					}
+					startMarkup.High += size
+				}
+				break
+			}
+		}
+
+		if match := closingTagsAtEnd.FindStringIndex(s[divider.High:hi]); match != nil {
+			endMarkup.Low = divider.High + match[0]
+			endMarkup.High = hi
+		}
+		if strings.TrimSpace(s[divider.High:endMarkup.Low]) == "" {
+			startMarkup = types.LowHigh[string]{}
+		}
 	} else {
 		divider.High = hi
 	}
@@ -358,5 +395,5 @@ func expandSummaryDivider(s string, re tagReStartEnd, divider types.LowHigh[stri
 		divider.High++
 	}
 
-	return divider, endMarkup
+	return divider, startMarkup, endMarkup
 }

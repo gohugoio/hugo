@@ -105,6 +105,7 @@ func TestExtractSummaryFromHTMLWithDivider(t *testing.T) {
 		{media.Builtin.MarkdownType, "<p>First paragraph</p>\n<p>FOOO</p>\n<p>Second paragraph</p>", "<p>First paragraph</p>", "<p>Second paragraph</p>", "<p>First paragraph</p>\n<p>Second paragraph</p>"},
 		{media.Builtin.MarkdownType, "<p>FOOO</p>\n<p>First paragraph</p>", "", "<p>First paragraph</p>", "<p>First paragraph</p>"},
 		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraphFOOO</p><p>Third paragraph</p>", "<p>First paragraph</p><p>Second paragraph</p>", "<p>Third paragraph</p>", "<p>First paragraph</p><p>Second paragraph</p><p>Third paragraph</p>"},
+		{media.Builtin.MarkdownType, "<p>First FOOOSecond</p>", "<p>First </p>", "<p>Second</p>", "<p>First Second</p>"},
 		{media.Builtin.MarkdownType, "<p>这是中文，全中文FOOO</p><p>a这是中文，全中文</p>", "<p>这是中文，全中文</p>", "<p>a这是中文，全中文</p>", "<p>这是中文，全中文</p><p>a这是中文，全中文</p>"},
 		{media.Builtin.MarkdownType, `<p>a <strong>b</strong>` + "\v" + ` c</p>` + "\n<p>FOOO</p>", "<p>a <strong>b</strong>\v c</p>", "", "<p>a <strong>b</strong>\v c</p>"},
 
@@ -131,25 +132,28 @@ func TestExpandDivider(t *testing.T) {
 	c := qt.New(t)
 
 	for i, test := range []struct {
-		input           string
-		divider         string
-		ptag            tagReStartEnd
-		expect          string
-		expectEndMarkup string
+		input             string
+		divider           string
+		ptag              tagReStartEnd
+		expect            string
+		expectStartMarkup string
+		expectEndMarkup   string
 	}{
-		{"<p>First paragraph</p>\n<p>FOOO</p>\n<p>Second paragraph</p>", "FOOO", startEndP, "<p>FOOO</p>\n", ""},
-		{"<div class=\"paragraph\">\n<p>FOOO</p>\n</div>", "FOOO", startEndDiv, "<div class=\"paragraph\">\n<p>FOOO</p>\n</div>", ""},
-		{"<div><p>FOOO</p></div><div><p>Second paragraph</p></div>", "FOOO", startEndDiv, "<div><p>FOOO</p></div>", ""},
-		{"<div><p>First paragraphFOOO</p></div><div><p>Second paragraph</p></div>", "FOOO", startEndDiv, "FOOO", "</p></div>"},
-		{"   <p> abc FOOO  </p>  ", "FOOO", startEndP, "FOOO", "  </p>"},
-		{"   <p>  FOOO  </p>  ", "FOOO", startEndP, "<p>  FOOO  </p>", ""},
-		{"   <p>\n  \nFOOO  </p>  ", "FOOO", startEndP, "<p>\n  \nFOOO  </p>", ""},
-		{"   <div>  FOOO  </div>  ", "FOOO", startEndDiv, "<div>  FOOO  </div>", ""},
+		{"<p>First paragraph</p>\n<p>FOOO</p>\n<p>Second paragraph</p>", "FOOO", startEndP, "<p>FOOO</p>\n", "", ""},
+		{"<div class=\"paragraph\">\n<p>FOOO</p>\n</div>", "FOOO", startEndDiv, "<div class=\"paragraph\">\n<p>FOOO</p>\n</div>", "", ""},
+		{"<div><p>FOOO</p></div><div><p>Second paragraph</p></div>", "FOOO", startEndDiv, "<div><p>FOOO</p></div>", "", ""},
+		{"<div><p>First paragraphFOOO</p></div><div><p>Second paragraph</p></div>", "FOOO", startEndDiv, "FOOO", "", "</p></div>"},
+		{"   <p> abc FOOO  </p>  ", "FOOO", startEndP, "FOOO", "", "  </p>"},
+		{"   <p> abc FOOO def</p>  ", "FOOO", startEndP, "FOOO", "<p> ", "</p>"},
+		{"   <p>  FOOO  </p>  ", "FOOO", startEndP, "<p>  FOOO  </p>", "", ""},
+		{"   <p>\n  \nFOOO  </p>  ", "FOOO", startEndP, "<p>\n  \nFOOO  </p>", "", ""},
+		{"   <div>  FOOO  </div>  ", "FOOO", startEndDiv, "<div>  FOOO  </div>", "", ""},
 	} {
 
 		l := types.LowHigh[string]{Low: strings.Index(test.input, test.divider), High: strings.Index(test.input, test.divider) + len(test.divider)}
-		e, t := expandSummaryDivider(test.input, test.ptag, l)
+		e, s, t := expandSummaryDivider(test.input, test.ptag, l)
 		c.Assert(test.input[e.Low:e.High], qt.Equals, test.expect, qt.Commentf("[%d] Test.expect %q", i, test.input))
+		c.Assert(test.input[s.Low:s.High], qt.Equals, test.expectStartMarkup, qt.Commentf("[%d] Test.expectStartMarkup %q", i, test.input))
 		c.Assert(test.input[t.Low:t.High], qt.Equals, test.expectEndMarkup, qt.Commentf("[%d] Test.expectEndMarkup %q", i, test.input))
 	}
 }

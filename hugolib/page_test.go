@@ -737,6 +737,25 @@ Content: {{ .Content }}|
 	)
 }
 
+func TestSummaryManualSplitPreservesParagraph(t *testing.T) {
+	t.Parallel()
+	Test(t, `
+-- hugo.toml --
+-- content/simple.md --
+---
+title: Simple
+---
+This is **summary**.<!--more-->This is **content**.
+-- layouts/single.html --
+Summary: {{ .Summary }}|
+Content: {{ .Content }}|
+
+`).AssertFileContent("public/simple/index.html",
+		"Summary: <p>This is <strong>summary</strong>.</p>|",
+		"Content: <p>This is <strong>summary</strong>.This is <strong>content</strong>.</p>|",
+	)
+}
+
 func TestSummaryManualSplitHTML(t *testing.T) {
 	t.Parallel()
 	Test(t, `
