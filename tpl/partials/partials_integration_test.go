@@ -335,3 +335,20 @@ BAR
 
 	b.AssertFileContent("public/index.html", "OO:BAR")
 }
+
+// See Issue #11708
+func TestReturnInNonPartialError(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+-- layouts/home.html --
+{{ return "hugo" }}
+`
+
+	b, err := hugolib.TestE(t, files)
+
+	b.Assert(err, qt.Not(qt.IsNil))
+	b.Assert(err.Error(), qt.Contains, "\"return\" is only supported in partial templates")
+}

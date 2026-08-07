@@ -142,6 +142,7 @@ type fileCacheConfigInternal struct {
 	entryIsDir    bool   // when set, the cache entries represents directories directly below the base dir.
 	isReadOnly    bool   // when set, the cache is read only and needs to be pruned differently. This is used for the Go modules cache.
 	IsResourceDir bool   //  resources/_gen will get its own composite filesystem that also checks any theme. TODO(bep) unexport this.
+	DirCompiledVirtual string // The path relative to the resource directory, if IsResourceDir is true.
 }
 
 // MarshalJSON marshals FileCacheConfig to JSON with MaxAge as a human-readable string.
@@ -284,7 +285,13 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 			}
 		}
 
-		if !strings.HasPrefix(v.DirCompiled, "_gen") {
+		resDir := bcfg.ResourceDir
+		if resDir == "" {
+			resDir = "resources"
+		}
+
+		isGen := strings.HasPrefix(v.DirCompiled, "_gen") || strings.HasPrefix(filepath.ToSlash(v.DirCompiled), filepath.ToSlash(resDir)+"/_gen")
+		if !isGen {
 			// We do cache eviction (file removes) and since the user can set
 			// his/hers own cache directory, we really want to make sure
 			// we do not delete any files that do not belong to this cache.
@@ -294,6 +301,15 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 			v.DirCompiled = filepath.Join(v.DirCompiled, FilecacheRootDirname, k)
 		} else {
 			v.DirCompiled = filepath.Join(v.DirCompiled, k)
+		}
+
+		if v.IsResourceDir {
+			virtualDir := strings.TrimPrefix(filepath.ToSlash(v.DirCompiled), filepath.ToSlash(resDir))
+			virtualDir = strings.TrimPrefix(virtualDir, "/")
+			if virtualDir == "" {
+				virtualDir = "/"
+			}
+			v.DirCompiledVirtual = filepath.FromSlash(virtualDir)
 		}
 
 		c[k] = v
@@ -306,7 +322,11 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 func resolveDirPlaceholder(fs afero.Fs, bcfg config.BaseConfig, placeholder string) (cacheDir string, isResource bool, err error) {
 	switch strings.ToLower(placeholder) {
 	case ":resourcedir":
-		return "", true, nil
+		resDir := bcfg.ResourceDir
+		if resDir == "" {
+			resDir = "resources"
+		}
+		return resDir, true, nil
 	case ":cachedir":
 		return bcfg.CacheDir, false, nil
 	case ":project":
