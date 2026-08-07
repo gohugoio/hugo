@@ -16,6 +16,8 @@ package cssjs
 import (
 	"bytes"
 	"io"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -136,6 +138,17 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		if err != nil {
 			return err
 		}
+	} else if ctx.SourcePath != "" {
+		// Tailwind resolves @import from process.cwd() when reading stdin
+		// (tailwindlabs/tailwindcss#14522). Keep cwd at the project root so
+		// @source "hugo_stats.json" still works; rewrite entry-relative imports
+		// to absolute paths so Tailwind can resolve them.
+		if rf := t.rs.Assets.RealFilename(ctx.SourcePath); filepath.IsAbs(rf) {
+			src, err = rewriteImportsRelativeTo(src, filepath.Dir(rf))
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	go func() {
@@ -166,4 +179,42 @@ func decodeTailwindCSSOptions(m map[string]any) (opts TailwindCSSOptions, err er
 	}
 	err = mapstructure.WeakDecode(m, &opts)
 	return
+}
+
+// rewriteImportsRelativeTo rewrites top-level relative @import paths so they
+// resolve against baseDir. Nested imports are resolved by Tailwind relative to
+// each loaded file.
+func rewriteImportsRelativeTo(r io.Reader, baseDir string) (io.Reader, error) {
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(string(b), "\n")
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.Contains(trimmed, "url(") {
+			continue
+		}
+		m := shouldImportRe.FindStringSubmatch(trimmed)
+		if m == nil {
+			continue
+		}
+		impPath := m[1]
+		if tailwindImportExclude(impPath) {
+			continue
+		}
+		if filepath.IsAbs(impPath) || strings.Contains(impPath, "://") {
+			continue
+		}
+
+		abs := filepath.Join(baseDir, filepath.FromSlash(impPath))
+		if _, err := os.Stat(abs); err != nil {
+			// Leave package imports / mount-only paths for Tailwind (or its error).
+			continue
+		}
+		lines[i] = strings.Replace(line, impPath, filepath.ToSlash(abs), 1)
+	}
+
+	return strings.NewReader(strings.Join(lines, "\n")), nil
 }
