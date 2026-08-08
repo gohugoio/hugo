@@ -1080,6 +1080,8 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			changes = append(changes, identity.GenghisKhan)
 		case files.ComponentFolderArchetypes:
 			// Ignore for now.
+		case files.ComponentFolderStatic:
+			// Handled by the static file syncer.
 		default:
 			panic(fmt.Sprintf("unknown component: %q", pathInfo.Component()))
 		}

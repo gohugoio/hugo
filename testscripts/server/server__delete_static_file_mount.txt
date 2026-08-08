@@ -1,0 +1,32 @@
+# Test the hugo server command when removing a file mounted into static.
+# See issue 15174.
+
+hugo server &
+
+waitServer
+
+rm myfiles/robots.txt
+
+sleep 2
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+[[module.mounts]]
+source = "content"
+target = "content"
+[[module.mounts]]
+source = "layouts"
+target = "layouts"
+[[module.mounts]]
+source = "myfiles/robots.txt"
+target = "static/robots.txt"
+-- layouts/all.html --
+All.
+-- content/p1.md --
+-- myfiles/robots.txt --
+robots
