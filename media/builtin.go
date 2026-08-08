@@ -21,6 +21,7 @@ type BuiltinTypes struct {
 	TextType           Type
 	TOMLType           Type
 	YAMLType           Type
+	SourceMapType      Type
 
 	// Common image types
 	PNGType  Type
@@ -36,6 +37,8 @@ type BuiltinTypes struct {
 	// Common font types
 	TrueTypeFontType Type
 	OpenTypeFontType Type
+	WOFFFontType     Type
+	WOFF2FontType    Type
 
 	// Common document types
 	PDFType              Type
@@ -80,6 +83,7 @@ var Builtin = BuiltinTypes{
 	TextType:           Type{Type: "text/plain"},
 	TOMLType:           Type{Type: "application/toml"},
 	YAMLType:           Type{Type: "application/yaml"},
+	SourceMapType:      Type{Type: "application/source-map"},
 
 	// Common image types
 	PNGType:  Type{Type: "image/png"},
@@ -95,6 +99,8 @@ var Builtin = BuiltinTypes{
 	// Common font types
 	TrueTypeFontType: Type{Type: "font/ttf"},
 	OpenTypeFontType: Type{Type: "font/otf"},
+	WOFFFontType:     Type{Type: "font/woff"},
+	WOFF2FontType:    Type{Type: "font/woff2"},
 
 	// Common document types
 	PDFType:              Type{Type: "application/pdf"},
@@ -139,6 +145,7 @@ var defaultMediaTypesConfig = map[string]any{
 	"text/plain":                map[string]any{"suffixes": []string{"txt"}},
 	"application/toml":          map[string]any{"suffixes": []string{"toml"}},
 	"application/yaml":          map[string]any{"suffixes": []string{"yaml", "yml"}},
+	"application/source-map":    map[string]any{"suffixes": []string{"map"}},
 
 	// Common image types
 	"image/png":  map[string]any{"suffixes": []string{"png"}},
@@ -152,8 +159,10 @@ var defaultMediaTypesConfig = map[string]any{
 	"image/heic": map[string]any{"suffixes": []string{"heic"}},
 
 	// Common font types
-	"font/ttf": map[string]any{"suffixes": []string{"ttf"}},
-	"font/otf": map[string]any{"suffixes": []string{"otf"}},
+	"font/ttf":   map[string]any{"suffixes": []string{"ttf"}},
+	"font/otf":   map[string]any{"suffixes": []string{"otf"}},
+	"font/woff":  map[string]any{"suffixes": []string{"woff"}},
+	"font/woff2": map[string]any{"suffixes": []string{"woff2"}},
 
 	// Common document types
 	"application/pdf": map[string]any{"suffixes": []string{"pdf"}},

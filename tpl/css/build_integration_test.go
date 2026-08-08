@@ -458,6 +458,8 @@ fakefontdata
 {{ with . | css.Build (dict "minify" true) }}
 INLINE: <style>{{ .Content | safeCSS }}</style>
 LINKED: <link rel="stylesheet" href="{{ .RelPermalink }}" />
+{{ range .Data.Artifacts }}ARTIFACT: {{ .RelPermalink }}|{{ .MediaType.Type }}
+{{ end }}
 {{ end }}
 {{ end }}
 `
@@ -471,6 +473,9 @@ LINKED: <link rel="stylesheet" href="{{ .RelPermalink }}" />
 		b.AssertFileContent("public/fr/css/main.css", `url("/docs/css/ComicNeue-Regular-`)
 		b.AssertPublishDir("en/css/ComicNeue-Regular-UA4ODE7N.ttf")
 		b.AssertPublishDir("fr/docs/css/ComicNeue-Regular-UA4ODE7N.ttf")
+		// The artifact URL is the same on every host. See issue #15173.
+		b.AssertFileContent("public/en/index.html", "ARTIFACT: /docs/css/ComicNeue-Regular-UA4ODE7N.ttf|font/ttf")
+		b.AssertFileContent("public/fr/index.html", "ARTIFACT: /docs/css/ComicNeue-Regular-UA4ODE7N.ttf|font/ttf")
 	}
 
 	t.Run("en first", func(t *testing.T) {
@@ -484,6 +489,52 @@ LINKED: <link rel="stylesheet" href="{{ .RelPermalink }}" />
 		files := strings.NewReplacer("EN_WEIGHT", "20", "FR_WEIGHT", "10").Replace(filesTemplate)
 		assertResult(t, hugolib.Test(t, files, hugolib.TestOptOsFs()))
 	})
+}
+
+// Issue #15173.
+func TestCSSBuildDataArtifacts(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/mysite/"
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/css/main.css --
+@import "/fonts/fonts.css";
+body { color: #222; }
+-- assets/fonts/fonts.css --
+@font-face {
+  font-family: 'Comic Neue';
+  src: url(ComicNeue-Regular.woff2) format('woff2'), url(ComicNeue-Regular.ttf) format('truetype');
+}
+-- assets/fonts/ComicNeue-Regular.ttf --
+fakefontdata
+-- assets/fonts/ComicNeue-Regular.woff2 --
+fakefontdata2
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+{{ with . | css.Build (dict "minify" true "sourcemap" "external") }}
+{{ range .Data.Artifacts }}
+ARTIFACT: {{ .RelPermalink }}|{{ .Permalink }}|{{ .MediaType.Type }}
+{{ end }}
+{{ range .Data.Artifacts }}{{ if eq .MediaType.MainType "font" }}
+<link rel="preload" href="{{ .RelPermalink }}" as="font" type="{{ .MediaType.Type }}" crossorigin>
+{{ end }}{{ end }}
+<link rel="stylesheet" href="{{ .RelPermalink }}">
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html",
+		"ARTIFACT: /mysite/css/main.css.map|https://example.org/mysite/css/main.css.map|application/source-map",
+		".ttf|https://example.org/mysite/css/ComicNeue-Regular-",
+		".woff2|https://example.org/mysite/css/ComicNeue-Regular-",
+		"|font/ttf",
+		"|font/woff2",
+		`as="font" type="font/woff2" crossorigin`,
+	)
+	b.AssertFileExists("public/css/main.css.map", true)
 }
 
 // Issue #14623

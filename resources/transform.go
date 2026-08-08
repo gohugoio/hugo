@@ -129,11 +129,12 @@ type ResourceTransformationCtx struct {
 	// The media type of the transformed resource.
 	OutMediaType media.Type
 
-	// Data data can be set on the transformed Resource. Not that this need
-	// to be simple types, as it needs to be serialized to JSON and back.
+	// Data can be set on the transformed Resource. For transformations
+	// cached to disk (see transformationsToCacheOnDisk), this needs to be
+	// simple types, as it will be serialized to JSON and back.
 	Data map[string]any
 
-	// This is used to publish additional artifacts, e.g. source hhmaps.
+	// This is used to publish additional artifacts, e.g. source maps.
 	// We may improve this.
 	OpenResourcePublisher func(relTargetPath string) (io.WriteCloser, error)
 }

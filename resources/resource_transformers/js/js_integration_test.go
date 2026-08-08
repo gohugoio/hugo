@@ -78,6 +78,42 @@ JS Content:{{ $js.Content }}:End:
 	})
 }
 
+// Issue #15173.
+func TestBuildDataArtifacts(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds=["page", "section", "taxonomy", "term", "sitemap", "robotsTXT"]
+-- assets/js/main.js --
+import { hello } from './util';
+hello();
+-- assets/js/util.js --
+export function hello() {
+	return 'abcd';
+}
+-- layouts/home.html --
+{{ with resources.Get "js/main.js" | js.Build (dict "minify" true "sourcemap" "external") }}
+COUNT: {{ len .Data.Artifacts }}
+{{ range .Data.Artifacts }}
+ARTIFACT: {{ .RelPermalink }}|{{ .Permalink }}|{{ .MediaType.Type }}
+{{ end }}
+{{ end }}
+{{ with resources.Get "js/main.js" | js.Build }}
+COUNT2: {{ len .Data.Artifacts }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html",
+		"COUNT: 1",
+		"ARTIFACT: /js/main.js.map|https://example.org/js/main.js.map|application/source-map",
+		"COUNT2: 0",
+	)
+	b.AssertFileExists("public/js/main.js.map", true)
+}
+
 func TestBuildWithModAndNpm(t *testing.T) {
 	if !htesting.IsCI() {
 		t.Skip("skip (relative) long running modules test when running locally")

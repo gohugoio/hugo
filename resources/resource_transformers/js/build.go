@@ -18,12 +18,15 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/internal/js/esbuild"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -87,9 +90,27 @@ func (c *Client) transform(opts esbuild.Options, transformCtx *resources.Resourc
 	hasLinkedSourceMap := opts.ExternalOptions.SourceMap == "linked"
 	hasSourceMap := hasLinkedSourceMap || opts.ExternalOptions.SourceMap == "external"
 
+	spec := c.c.Spec()
+	mediaTypes := spec.MediaTypes()
+	baseURL := spec.Cfg.BaseURL().WithoutPath
+	newArtifact := func(relPermalink, fileName string) resources.Artifact {
+		mt, _, found := mediaTypes.GetFirstBySuffix(strings.TrimPrefix(path.Ext(fileName), "."))
+		if !found {
+			mt = media.Builtin.OctetType
+		}
+		return resources.NewArtifact(baseURL+relPermalink, relPermalink, mt)
+	}
+	fileLoaderRelPermalink := func(base string) string {
+		if opts.PublicPath != "" {
+			return strings.TrimSuffix(opts.PublicPath, "/") + "/" + paths.PathEscape(base)
+		}
+		return pathSpec.GetBasePath(false) + paths.PathEscape(paths.AddLeadingSlash(path.Join(outDir, base)))
+	}
+
 	// Classify output files by path rather than relying on array ordering,
 	// which esbuild does not guarantee.
 	var mainOutput []byte
+	var artifacts []resources.Artifact
 	for _, file := range result.OutputFiles {
 		basePath := path.Base(filepath.ToSlash(file.Path))
 		if strings.HasSuffix(basePath, ".map") {
@@ -97,6 +118,7 @@ func (c *Client) transform(opts esbuild.Options, transformCtx *resources.Resourc
 				if err = transformCtx.PublishSourceMap(file.Contents); err != nil {
 					return result, err
 				}
+				artifacts = append(artifacts, newArtifact(pathSpec.GetBasePath(false)+paths.PathEscape(paths.AddLeadingSlash(transformCtx.OutPath+".map")), basePath))
 			}
 		} else if isStdinEntryOutput(basePath) {
 			mainOutput = file.Contents
@@ -105,8 +127,12 @@ func (c *Client) transform(opts esbuild.Options, transformCtx *resources.Resourc
 			if err = publishFileLoaderArtifact(pathSpec, opts.PublicPath, outDir, basePath, file.Contents, transformCtx); err != nil {
 				return result, err
 			}
+			artifacts = append(artifacts, newArtifact(fileLoaderRelPermalink(basePath), basePath))
 		}
 	}
+
+	sort.Slice(artifacts, func(i, j int) bool { return artifacts[i].RelPermalink() < artifacts[j].RelPermalink() })
+	transformCtx.Data["Artifacts"] = artifacts
 
 	if mainOutput == nil {
 		return result, fmt.Errorf("esbuild: entry point output not found")
