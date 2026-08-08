@@ -1,0 +1,26 @@
+# A deleted static file should be removed from the publish dir.
+
+hugo server &
+
+waitServer
+
+exists public/static.txt
+
+rm static/static.txt
+
+sleep 2
+
+! exists public/static.txt
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+title = "Hugo Server Test"
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "sitemap"]
+-- layouts/all.html --
+All.
+-- content/p1.md --
+-- static/static.txt --
+static
