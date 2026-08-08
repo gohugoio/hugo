@@ -142,6 +142,9 @@ func TestDefaultTypes(t *testing.T) {
 		{Builtin.PDFType, "application", "pdf", "pdf", "application/pdf", "application/pdf"},
 		{Builtin.TrueTypeFontType, "font", "ttf", "ttf", "font/ttf", "font/ttf"},
 		{Builtin.OpenTypeFontType, "font", "otf", "otf", "font/otf", "font/otf"},
+		{Builtin.WOFFFontType, "font", "woff", "woff", "font/woff", "font/woff"},
+		{Builtin.WOFF2FontType, "font", "woff2", "woff2", "font/woff2", "font/woff2"},
+		{Builtin.SourceMapType, "application", "source-map", "map", "application/source-map", "application/source-map"},
 	} {
 		c.Assert(test.tp.MainType, qt.Equals, test.expectedMainType)
 		c.Assert(test.tp.SubType, qt.Equals, test.expectedSubType)
@@ -151,5 +154,5 @@ func TestDefaultTypes(t *testing.T) {
 
 	}
 
-	c.Assert(len(DefaultTypes), qt.Equals, 44)
+	c.Assert(len(DefaultTypes), qt.Equals, 47)
 }
