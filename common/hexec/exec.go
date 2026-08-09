@@ -510,6 +510,10 @@ func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
 		}
 	}
 
+	if !filepath.IsAbs(bin) {
+		return nil, fmt.Errorf("command %q resolved to non-absolute path %q", c.name, bin)
+	}
+
 	outerr := &bytes.Buffer{}
 	if c.stderr == nil {
 		c.stderr = outerr
@@ -517,13 +521,11 @@ func (c *commandeer) command(arg ...any) (*cmdWrapper, error) {
 		c.stderr = io.MultiWriter(c.stderr, outerr)
 	}
 
-	var cmd *exec.Cmd
-
-	if c.ctx != nil {
-		cmd = exec.CommandContext(c.ctx, bin, args...)
-	} else {
-		cmd = exec.Command(bin, args...)
+	cmdCtx := c.ctx
+	if cmdCtx == nil {
+		cmdCtx = context.Background()
 	}
+	cmd := exec.CommandContext(cmdCtx, bin, args...)
 
 	cmd.Stdin = c.stdin
 	cmd.Stderr = c.stderr
