@@ -28,6 +28,7 @@ func TestTailwindV4Basic(t *testing.T) {
 
 	files := `
 -- hugo.toml --
+security.exec.allow = ['^go$', '^git$', '^node$', '^tailwindcss$']
 -- package.json --
 {
   "license": "MIT",
@@ -72,6 +73,7 @@ func TestTailwindCSSImportContext(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+security.exec.allow = ['^go$', '^git$', '^node$', '^tailwindcss$']
 -- assets/css/main.css --
 @import "tailwindcss";
 
@@ -111,6 +113,8 @@ func TestTailwindCSSNoInlineImportsIssue13719(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 theme = 'my-theme'
+
+security.exec.allow = ['^go$', '^git$', '^node$', '^tailwindcss$']
 
 [[module.mounts]]
 source = 'assets'
