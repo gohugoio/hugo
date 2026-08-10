@@ -140,7 +140,7 @@ CGO_ENABLED=1 go install -tags extended,withdeploy github.com/gohugoio/hugo@late
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=gohugoio/hugo&type=Timeline)](https://star-history.com/#gohugoio/hugo&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=gohugoio/hugo&type=Timeline)](https://star-history.dera.page/#gohugoio/hugo&Timeline)
 
 ## Documentation
 
