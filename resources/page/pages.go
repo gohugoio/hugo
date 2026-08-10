@@ -87,7 +87,7 @@ func ToPages(seq any) (Pages, error) {
 	return nil, fmt.Errorf("cannot convert type %T to Pages", seq)
 }
 
-// Group groups the pages in in by key.
+// Group groups the pages in by key.
 // This implements collections.Grouper.
 func (p Pages) Group(key any, in any) (any, error) {
 	pages, err := ToPages(in)
