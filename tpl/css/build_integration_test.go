@@ -537,6 +537,49 @@ ARTIFACT: {{ .RelPermalink }}|{{ .Permalink }}|{{ .MediaType.Type }}
 	b.AssertFileExists("public/css/main.css.map", true)
 }
 
+func TestCSSBuildDataArtifactsAndThenFingerprint(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/mysite/"
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/css/main.css --
+@import "/fonts/fonts.css";
+body { color: #222; }
+-- assets/fonts/fonts.css --
+@font-face {
+  font-family: 'Comic Neue';
+  src: url(ComicNeue-Regular.woff2) format('woff2'), url(ComicNeue-Regular.ttf) format('truetype');
+}
+-- assets/fonts/ComicNeue-Regular.ttf --
+fakefontdata
+-- assets/fonts/ComicNeue-Regular.woff2 --
+fakefontdata2
+-- layouts/home.html --
+{{ with resources.Get "css/main.css" }}
+ORIG CSS SHA256: {{ .Content | crypto.Hash "sha256" }}|
+{{ with . | css.Build (dict "minify" true) }}
+{{ range .Data.Artifacts }}
+ARTIFACT: {{ .RelPermalink }}|{{ .Permalink }}|{{ .MediaType.Type }}
+{{ end }}
+BUILT CSS SHA256: {{ .Content | crypto.Hash "sha256" }}|
+{{ with . | fingerprint }}
+FINGERPRINTED: {{ .RelPermalink }}|
+{{ end }}
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html",
+		"ARTIFACT: /mysite/css/ComicNeue-Regular-UA4ODE7N.ttf|",
+		"ORIG CSS SHA256: a2b878c05df0f346c3854caebd21f00bb0965b46628440b8ccb31ce675af6bfe|",
+		"BUILT CSS SHA256: 5f8757d5579386b8755e0df759c7eecfd069c385294dfe7bc3695862d7f218b1|",
+		"FINGERPRINTED: /mysite/css/main.5f8757d5579386b8755e0df759c7eecfd069c385294dfe7bc3695862d7f218b1.css|",
+	)
+}
+
 // Issue #14623
 func TestCSSBuildLoadersPartial(t *testing.T) {
 	t.Parallel()

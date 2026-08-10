@@ -82,6 +82,7 @@ func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResour
 	return &resourceAdapter{
 		resourceTransformations: &resourceTransformations{},
 		metaProvider:            target,
+		sourceTarget:            target,
 		resourceAdapterInner: &resourceAdapterInner{
 			ctx:         context.Background(),
 			spec:        spec,
@@ -186,6 +187,12 @@ type resourceAdapter struct {
 	commonResource
 	*resourceTransformations
 	*resourceAdapterInner
+
+	// The original untransformed target. The inner target is replaced with the
+	// transformed resource once the transformation chain has run, so any new
+	// transformations appended to the chain must start from this.
+	sourceTarget transformableResource
+
 	metaProvider resource.ResourceMetaProvider
 }
 
@@ -230,6 +237,7 @@ func (r *resourceAdapter) GetDependencyManager() identity.Manager {
 
 func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
 	newtTarget := r.target.cloneTo(targetPath)
+	r.sourceTarget = newtTarget.(transformableResource)
 	newInner := &resourceAdapterInner{
 		ctx:    r.ctx,
 		spec:   r.spec,
@@ -379,7 +387,7 @@ func (r resourceAdapter) TransformWithContext(ctx context.Context, t ...Resource
 		spec:        r.spec,
 		Staler:      r.Staler,
 		publishOnce: &publishOnce{},
-		target:      r.target,
+		target:      r.sourceTarget,
 	}
 
 	return &r, nil
