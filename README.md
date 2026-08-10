@@ -138,10 +138,6 @@ To build and install the extended/deploy edition, first install a C compiler suc
 CGO_ENABLED=1 go install -tags extended,withdeploy github.com/gohugoio/hugo@latest
 ```
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=gohugoio/hugo&type=Timeline)](https://star-history.com/#gohugoio/hugo&Timeline)
-
 ## Documentation
 
 Hugo's [documentation][] includes installation instructions, a quick start guide, conceptual explanations, reference information, and examples.
