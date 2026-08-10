@@ -67,7 +67,7 @@ require (
 	github.com/spf13/fsync v0.10.1
 	github.com/spf13/pflag v1.0.10
 	github.com/tdewolff/minify/v2 v2.24.14
-	github.com/tdewolff/parse/v2 v2.8.14
+	github.com/tdewolff/parse/v2 v2.8.15
 	github.com/tetratelabs/wazero v1.12.0
 	github.com/yuin/goldmark v1.8.5
 	github.com/yuin/goldmark-emoji v1.0.6
