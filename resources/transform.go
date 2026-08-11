@@ -455,11 +455,26 @@ func (r *resourceAdapter) publish() {
 }
 
 func (r *resourceAdapter) TransformationKey() string {
-	var key string
-	for _, tr := range r.transformations {
-		key = key + "_" + tr.Key().Value()
+	return r.transformationKey(r.transformations)
+}
+
+func (r *resourceAdapter) transformationKey(trs []ResourceTransformation) string {
+	sb := bp.GetBuffer()
+	defer bp.PutBuffer(sb)
+
+	for _, tr := range trs {
+		sb.WriteString("_")
+		sb.WriteString(tr.Key().Value())
 	}
-	return r.spec.ResourceCache.cleanKey(r.target.Key()) + "_" + hashing.MD5FromStringHexEncoded(key)
+
+	h := hashing.MD5FromReaderHexEncoded(sb)
+
+	sb.Reset()
+
+	sb.WriteString(r.spec.ResourceCache.cleanKey(r.target.Key()))
+	sb.WriteString(h)
+
+	return sb.String()
 }
 
 func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
@@ -515,6 +530,25 @@ func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 func (r *resourceAdapter) transform(key string, publish, setContent bool) (*resourceAdapterInner, error) {
 	cache := r.spec.ResourceCache
 
+	trs := r.transformations
+	writeToFileCache := false
+
+	// If a prefix of this chain has already run (e.g. .Content or .Data was
+	// accessed before more transformations were chained), resume from the
+	// longest cached prefix instead of re-running it.
+	for i := len(trs) - 1; i > 0; i-- {
+		if inner, found := cache.cacheResourceTransformation.Get(r.ctx, r.transformationKey(trs[:i])); found {
+			for _, tr := range trs[:i] {
+				if transformationsToCacheOnDisk[tr.Key().Name] {
+					writeToFileCache = true
+				}
+			}
+			r.target = inner.target
+			trs = trs[i:]
+			break
+		}
+	}
+
 	b1 := bp.GetBuffer()
 	b2 := bp.GetBuffer()
 	defer bp.PutBuffer(b1)
@@ -549,11 +583,10 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 	tctx.SourcePath = strings.TrimPrefix(tctx.InPath, "/")
 
 	counter := 0
-	writeToFileCache := false
 
 	var transformedContentr io.Reader
 
-	for i, tr := range r.transformations {
+	for i, tr := range trs {
 		if i != 0 {
 			tctx.InMediaType = tctx.OutMediaType
 		}
