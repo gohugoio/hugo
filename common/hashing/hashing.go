@@ -106,6 +106,16 @@ func MD5FromStringHexEncoded(f string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+// MD5FromReaderHexEncoded returns the MD5 hash of the given reader.
+func MD5FromReaderHexEncoded(r io.Reader) string {
+	h := md5.New()
+	_, err := io.Copy(h, r)
+	if err != nil {
+		return ""
+	}
+	return hex.EncodeToString(h.Sum(nil))
+}
+
 // HashString returns a hash from the given elements.
 // It will panic if the hash cannot be calculated.
 // Note that this hash should be used primarily for identity, not for change detection as
