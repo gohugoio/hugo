@@ -37,4 +37,10 @@ func TestJsConfigBuilder(t *testing.T) {
 	c.Assert(string(data), qt.Not(qt.Contains), "baseUrl")
 
 	c.Assert(NewBuilder().Build("/a/b"), qt.IsNil)
+
+	// Issue 15169.
+	b = NewBuilder()
+	b.AddSourceRoot("/c/assets")
+	conf = b.Build("/c/assets")
+	c.Assert(conf, qt.IsNil)
 }

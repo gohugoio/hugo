@@ -39,6 +39,11 @@ func (b *Builder) Build(dir string) *Config {
 	}
 	var roots []string
 	for root := range b.sourceRoots.All() {
+		if root == dir {
+			// We need mappings for other source roots (e.g. mounted modules), but not for the current one.
+			// See issue 15169.
+			continue
+		}
 		rel, err := filepath.Rel(dir, filepath.Join(root, "*"))
 		if err == nil {
 			roots = append(roots, rel)
