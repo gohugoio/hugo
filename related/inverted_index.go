@@ -18,12 +18,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html"
 	"maps"
 	"math"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hmaps"
@@ -122,9 +125,15 @@ type IndexConfig struct {
 	// used in more than 50% of the documents in the index.
 	CardinalityThreshold int
 
-	// Will lower case all string values in and queries tothis index.
+	// Will lower case all string values in and queries to this index.
 	// May get better accurate results, but at a slight performance cost.
 	ToLower bool
+
+	// Whether to split multi-word values into individual keywords.
+	Tokenize bool
+
+	// Minimum token length in Unicode code points when tokenizing.
+	MinTokenLength int
 }
 
 // Document is the interface an indexable document in Hugo must fulfill.
@@ -220,8 +229,24 @@ func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
 
 			if config.Type == TypeFragments {
 				if fp, ok := doc.(FragmentProvider); ok {
-					for _, fragment := range fp.Fragments(ctx).Identifiers {
+					frags := fp.Fragments(ctx)
+					seenKW := make(map[Keyword]bool)
+					for _, fragment := range frags.Identifiers {
 						added = true
+						if config.Tokenize {
+							if h, found := frags.HeadingsMap[fragment]; found {
+								for _, word := range splitWords(h.Title) {
+									if !config.shouldSkipToken(word) {
+										kw := config.stringToKeyword(word)
+										if !seenKW[kw] {
+											seenKW[kw] = true
+											setm[kw] = append(setm[kw], doc)
+										}
+									}
+								}
+								continue
+							}
+						}
 						setm[FragmentKeyword(fragment)] = append(setm[FragmentKeyword(fragment)], doc)
 					}
 				}
@@ -377,7 +402,23 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 			}
 			if opts.Document != nil {
 				if fp, ok := opts.Document.(FragmentProvider); ok {
-					for _, fragment := range fp.Fragments(ctx).Identifiers {
+					frags := fp.Fragments(ctx)
+					seenKW := make(map[Keyword]bool)
+					for _, fragment := range frags.Identifiers {
+						if cfg.Tokenize {
+							if h, found := frags.HeadingsMap[fragment]; found {
+								for _, word := range splitWords(h.Title) {
+									if !cfg.shouldSkipToken(word) {
+										kw := cfg.stringToKeyword(word)
+										if !seenKW[kw] {
+											seenKW[kw] = true
+											keywords = append(keywords, kw)
+										}
+									}
+								}
+								continue
+							}
+						}
 						keywords = append(keywords, FragmentKeyword(fragment))
 					}
 				}
@@ -423,19 +464,41 @@ func (cfg IndexConfig) stringToKeyword(s string) Keyword {
 	return StringKeyword(s)
 }
 
+func (cfg IndexConfig) shouldSkipToken(word string) bool {
+	return cfg.MinTokenLength > 0 && utf8.RuneCountInString(word) < cfg.MinTokenLength
+}
+
 // ToKeywords returns a Keyword slice of the given input.
 func (cfg IndexConfig) ToKeywords(v any) ([]Keyword, error) {
 	var keywords []Keyword
 
 	switch vv := v.(type) {
 	case string:
-		keywords = append(keywords, cfg.stringToKeyword(vv))
-	case []string:
-		vvv := make([]Keyword, len(vv))
-		for i := range vvv {
-			vvv[i] = cfg.stringToKeyword(vv[i])
+		if cfg.Tokenize {
+			for _, word := range splitWords(vv) {
+				if !cfg.shouldSkipToken(word) {
+					keywords = append(keywords, cfg.stringToKeyword(word))
+				}
+			}
+		} else {
+			keywords = append(keywords, cfg.stringToKeyword(vv))
 		}
-		keywords = append(keywords, vvv...)
+	case []string:
+		if !cfg.Tokenize {
+			kw := make([]Keyword, len(vv))
+			for i, s := range vv {
+				kw[i] = cfg.stringToKeyword(s)
+			}
+			keywords = append(keywords, kw...)
+		} else {
+			for _, s := range vv {
+				for _, word := range splitWords(s) {
+					if !cfg.shouldSkipToken(word) {
+						keywords = append(keywords, cfg.stringToKeyword(word))
+					}
+				}
+			}
+		}
 	case []any:
 		return cfg.ToKeywords(cast.ToStringSlice(vv))
 	case time.Time:
@@ -466,7 +529,12 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 	}()
 
 	applyDateFilter := !idx.cfg.IncludeNewer && !upperDate.IsZero()
-	var fragmentsFilter collections.SortedStringSlice
+	// Bundled into one struct so the closure below causes only one heap escape.
+	var ff struct {
+		ids     collections.SortedStringSlice
+		words   collections.SortedStringSlice
+		toLower bool
+	}
 
 	for _, el := range query {
 		setm, found := idx.index[el.Index]
@@ -477,6 +545,10 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 		config, found := idx.getIndexCfg(el.Index)
 		if !found {
 			return []Document{}, fmt.Errorf("index config for %q not found", el.Index)
+		}
+
+		if config.Type == TypeFragments && config.ApplyFilter && config.Tokenize {
+			ff.toLower = config.ToLower
 		}
 
 		for _, kw := range el.Keywords {
@@ -495,10 +567,13 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 
 					if config.Type == TypeFragments && config.ApplyFilter {
 						if fkw, ok := kw.(FragmentKeyword); ok {
-							fragmentsFilter = append(fragmentsFilter, string(fkw))
+							if config.Tokenize {
+								ff.words = append(ff.words, string(fkw))
+							} else {
+								ff.ids = append(ff.ids, string(fkw))
+							}
 						}
 					}
-
 					r, found := matchm[doc]
 					if !found {
 						r = getRank(doc, config.Weight)
@@ -528,17 +603,31 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 	}
 
 	sort.Stable(matches)
-	sort.Strings(fragmentsFilter)
+	sort.Strings(ff.ids)
+	sort.Strings(ff.words)
 
 	result := make([]Document, len(matches))
 
 	for i, m := range matches {
 		result[i] = m.Doc
 
-		if len(fragmentsFilter) > 0 {
+		if len(ff.ids) > 0 || len(ff.words) > 0 {
 			if dp, ok := result[i].(FragmentProvider); ok {
 				result[i] = dp.ApplyFilterToHeadings(ctx, func(h *tableofcontents.Heading) bool {
-					return fragmentsFilter.Contains(h.ID)
+					if ff.ids.Contains(h.ID) {
+						return true
+					}
+					if len(ff.words) > 0 {
+						for _, word := range splitWords(h.Title) {
+							if ff.toLower {
+								word = strings.ToLower(word)
+							}
+							if ff.words.Contains(word) {
+								return true
+							}
+						}
+					}
+					return false
 				})
 			}
 		}
@@ -616,6 +705,31 @@ func (f FragmentKeyword) String() string {
 // Keyword is the interface a keyword in the search index must implement.
 type Keyword interface {
 	String() string
+}
+
+// splitWords splits s into normalized words, stripping HTML entities and
+// leading/trailing punctuation from each word.
+func splitWords(title string) []string {
+	// Fast path: no whitespace or HTML entities means at most one token.
+	if strings.IndexFunc(title, unicode.IsSpace) == -1 && strings.IndexByte(title, '&') == -1 {
+		title = strings.TrimFunc(html.UnescapeString(title), func(r rune) bool { return !unicode.IsLetter(r) && !unicode.IsDigit(r) })
+		if title == "" {
+			return nil
+		}
+		return []string{title}
+	}
+	raw := strings.Fields(html.UnescapeString(title))
+	words := raw[:0]
+	for _, w := range raw {
+		w = strings.TrimFunc(w, func(r rune) bool { return !unicode.IsLetter(r) && !unicode.IsDigit(r) })
+		if w != "" {
+			words = append(words, w)
+		}
+	}
+	if len(words) == 0 {
+		return nil
+	}
+	return words
 }
 
 // StringsToKeywords converts the given slice of strings to a slice of Keyword.

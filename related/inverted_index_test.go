@@ -309,6 +309,38 @@ func TestToKeywordsAnySlice(t *testing.T) {
 	})
 }
 
+func TestSplitWords(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		in   string
+		want []string
+	}{
+		{"", nil},
+		{"   ", nil},
+		{"hello world", []string{"hello", "world"}},
+		// leading/trailing punctuation stripped
+		{"...hello...", []string{"hello"}},
+		{",hello, world!", []string{"hello", "world"}},
+		// digits preserved
+		{"go1.24", []string{"go1.24"}},
+		// HTML entities decoded
+		{"foo &amp;bar", []string{"foo", "bar"}},
+		// fast path: single token, no whitespace
+		{"&amp;foo&amp;", []string{"foo"}},
+		// &nbsp; and similar entities that decode to whitespace must not use the fast path
+		{"Apples&nbsp;and&nbsp;oranges!", []string{"Apples", "and", "oranges"}},
+		// punctuation-only tokens dropped
+		{"hello --- world", []string{"hello", "world"}},
+		// mixed spaces
+		{"  foo   bar  ", []string{"foo", "bar"}},
+	}
+
+	for _, tt := range tests {
+		c.Assert(splitWords(tt.in), qt.DeepEquals, tt.want, qt.Commentf("input: %q", tt.in))
+	}
+}
+
 func BenchmarkRelatedNewIndex(b *testing.B) {
 	pages := make([]*testDoc, 100)
 	numkeywords := 30
