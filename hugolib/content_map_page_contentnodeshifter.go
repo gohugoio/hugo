@@ -25,7 +25,7 @@ type contentNodeShifter struct {
 	conf config.AllProvider // Used for logging/debugging.
 }
 
-func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (contentNode, bool, bool) {
+func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (contentNode, contentNode, bool, bool) {
 	switch v := n.(type) {
 	case contentNodesMap:
 		deleted, wasDeleted := v[vec]
@@ -33,49 +33,53 @@ func (s *contentNodeShifter) Delete(n contentNode, vec sitesmatrix.Vector) (cont
 			delete(v, vec)
 			resource.MarkStale(deleted)
 		}
-		return deleted, wasDeleted, len(v) == 0
+		return v, deleted, wasDeleted, len(v) == 0
 	case contentNodeForSite:
 		if v.siteVector() != vec {
-			return nil, false, false
+			return v, nil, false, false
 		}
 		resource.MarkStale(v)
-		return v, true, true
+		return nil, v, true, true
 	case contentNodes:
-		var deleted contentNodes
-		for i, nn := range v {
-			if vv, ok, _ := s.Delete(nn, vec); ok {
+		var deleted, remaining contentNodes
+		for _, nn := range v {
+			updated, vv, ok, isEmpty := s.Delete(nn, vec)
+			if ok {
 				deleted = append(deleted, vv)
-				v = append(v[:i], v[i+1:]...)
+			}
+			if !isEmpty {
+				remaining = append(remaining, updated)
 			}
 		}
 		if len(deleted) == 0 {
-			return nil, false, false
+			return v, nil, false, false
 		}
-		return deleted, true, len(v) == 0
+		return remaining, deleted, true, len(remaining) == 0
 	default:
-		v = v.(contentNodeSingle) // Ensure single node.
-		resource.MarkStale(v)
-		return v, true, true
-
+		vv := v.(contentNodeSingle) // Ensure single node.
+		resource.MarkStale(vv)
+		return nil, vv, true, true
 	}
 }
 
-func (s *contentNodeShifter) DeleteFunc(v contentNode, f func(n contentNode) bool) bool {
+func (s *contentNodeShifter) DeleteFunc(v contentNode, f func(n contentNode) bool) (contentNode, bool) {
 	switch ss := v.(type) {
 	case contentNodeSingle:
 		if f(ss) {
 			resource.MarkStale(ss)
-			return true
+			return nil, true
 		}
-		return false
+		return ss, false
 	case contentNodes:
-		for i, n := range ss {
+		var remaining contentNodes
+		for _, n := range ss {
 			if f(n) {
 				resource.MarkStale(n)
-				ss = append(ss[:i], ss[i+1:]...)
+			} else {
+				remaining = append(remaining, n)
 			}
 		}
-		return len(ss) == 0
+		return remaining, len(remaining) == 0
 	case contentNodesMap:
 		for k, n := range ss {
 			if f(n) {
@@ -83,7 +87,7 @@ func (s *contentNodeShifter) DeleteFunc(v contentNode, f func(n contentNode) boo
 				delete(ss, k)
 			}
 		}
-		return len(ss) == 0
+		return ss, len(ss) == 0
 	default:
 		panic(fmt.Sprintf("DeleteFunc: unknown type %T", v))
 	}

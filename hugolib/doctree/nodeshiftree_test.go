@@ -258,12 +258,15 @@ func (s *testShifter) Insert(old, new *testValue) (*testValue, *testValue, bool)
 	return new, old, true
 }
 
-func (s *testShifter) Delete(n *testValue, dimension sitesmatrix.Vector) (*testValue, bool, bool) {
-	return nil, true, true
+func (s *testShifter) Delete(n *testValue, dimension sitesmatrix.Vector) (*testValue, *testValue, bool, bool) {
+	return nil, n, true, true
 }
 
-func (s *testShifter) DeleteFunc(v *testValue, f func(*testValue) bool) bool {
-	return f(v)
+func (s *testShifter) DeleteFunc(v *testValue, f func(*testValue) bool) (*testValue, bool) {
+	if f(v) {
+		return nil, true
+	}
+	return v, false
 }
 
 func (s *testShifter) Shift(n *testValue, dimension sitesmatrix.Vector, fallback bool) (v *testValue, ok bool) {
