@@ -90,6 +90,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Publish,
+			nil,
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.PostProcess,
 			nil,
 			[][2]string{},
