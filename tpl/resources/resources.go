@@ -296,6 +296,18 @@ func (ns *Namespace) Minify(r resources.ResourceTransformer) (resource.Resource,
 	return ns.minifyClient.Minify(r)
 }
 
+// Publish publishes r to the destination and returns it.
+func (ns *Namespace) Publish(r resource.Resource) (resource.Resource, error) {
+	s, ok := r.(resource.Source)
+	if !ok {
+		return nil, fmt.Errorf("%T can not be published", r)
+	}
+	if err := s.Publish(); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
 // PostProcess processes r after the build.
 //
 // Deprecated: Use templates.Defer instead.

@@ -278,6 +278,26 @@ disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 	b.AssertLogContains("! WARN  Dart Sass: hugo:vars")
 }
 
+// See issue 15208.
+func TestPublish(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "section", "RSS", "sitemap", "robotsTXT", "404"]
+-- assets/js/main.js --
+let foo;
+-- layouts/home.html --
+{{ $r := resources.Get "js/main.js" | minify | resources.Publish }}
+Name: {{ $r.Name }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Name: /js/main.js|")
+	b.AssertFileExists("public/js/main.min.js", true)
+}
+
 // See issue 15086.
 func TestPostProcessDeprecated(t *testing.T) {
 	t.Parallel()
