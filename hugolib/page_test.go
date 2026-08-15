@@ -412,7 +412,8 @@ baseURL = "http://example.com/"
 	p := b.H.Sites[0].RegularPages()[0]
 
 	b.Assert(p.Summary(context.Background()), qt.Equals, template.HTML(
-		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>"))
+		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>",
+	))
 
 	cnt := content(p)
 	b.Assert(cnt, qt.Equals, "<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup id=\"fnref:1\"><a href=\"#fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\">\n<p>Many people say so.&#160;<a href=\"#fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>")
@@ -730,7 +731,8 @@ This is **content**.
 Summary: {{ .Summary }}|Truncated: {{ .Truncated }}|
 Content: {{ .Content }}|
 
-`).AssertFileContent("public/simple/index.html",
+`).AssertFileContent(
+		"public/simple/index.html",
 		"Summary: <p>This is <strong>summary</strong>.</p>|",
 		"Truncated: true|",
 		"Content: <p>This is <strong>summary</strong>.</p>\n<p>This is <strong>content</strong>.</p>|",
@@ -1286,13 +1288,15 @@ AllTranslations: {{ range .AllTranslations }}{{ .Language.Lang }}|{{ end }}|
 
 `
 	b := Test(t, files)
-	b.AssertFileContent("public/en/sect/p1/index.html",
+	b.AssertFileContent(
+		"public/en/sect/p1/index.html",
 		"TranslationKey: adfasdf|",
 		"AllTranslations: en|nn||",
 		"Translations: nn||",
 	)
 
-	b.AssertFileContent("public/nn/sect/p1/index.html",
+	b.AssertFileContent(
+		"public/nn/sect/p1/index.html",
 		"TranslationKey: adfasdf|",
 		"Translations: en||",
 		"AllTranslations: en|nn||",
@@ -1378,12 +1382,14 @@ Resources: {{ range .Resources }}{{ .RelPermalink }}|{{ .Content }}|{{ end }}|
 
 `
 	b := Test(t, files)
-	b.AssertFileContent("public/en/sect/mybundle_en/index.html",
+	b.AssertFileContent(
+		"public/en/sect/mybundle_en/index.html",
 		"TranslationKey: adfasdf|",
 		"Resources: /en/sect/mybundle_en/f1.txt|f1.en|/en/sect/mybundle_en/f2.txt|f2.en||",
 	)
 
-	b.AssertFileContent("public/nn/sect/mybundle_nn/index.html",
+	b.AssertFileContent(
+		"public/nn/sect/mybundle_nn/index.html",
 		"TranslationKey: adfasdf|",
 		"Title: mybundle nn|TranslationKey: adfasdf|\nResources: /en/sect/mybundle_en/f1.txt|f1.en|/nn/sect/mybundle_nn/f2.nn.txt|f2.nn||",
 	)
@@ -1497,31 +1503,37 @@ CONTENT:{{ .Content }}
 `
 	b := Test(t, files)
 
-	b.AssertFileContent("public/page-md-shortcode/index.html",
+	b.AssertFileContent(
+		"public/page-md-shortcode/index.html",
 		"SUMMARY:<p>This is a a shortcode.</p>:END",
 		"CONTENT:<p>This is a a shortcode.</p>\n\n<p>Content.</p>\n",
 	)
 
-	b.AssertFileContent("public/page-md-shortcode-same-line/index.html",
+	b.AssertFileContent(
+		"public/page-md-shortcode-same-line/index.html",
 		"SUMMARY:<p>This is a a shortcode</p>:END",
 		"CONTENT:<p>This is a a shortcode</p>\n\n<p>Same line.</p>\n",
 	)
 
-	b.AssertFileContent("public/page-md-shortcode-same-line-after/index.html",
+	b.AssertFileContent(
+		"public/page-md-shortcode-same-line-after/index.html",
 		"SUMMARY:<p>Summary</p>:END",
 		"CONTENT:<p>Summary</p>\n\na shortcode",
 	)
 
-	b.AssertFileContent("public/page-org-shortcode/index.html",
+	b.AssertFileContent(
+		"public/page-org-shortcode/index.html",
 		"SUMMARY:<p>\nThis is a a shortcode.\n</p>:END",
 		"CONTENT:<p>\nThis is a a shortcode.\n</p>\n<p>\nContent.\t\n</p>\n",
 	)
-	b.AssertFileContent("public/page-org-variant1/index.html",
+	b.AssertFileContent(
+		"public/page-org-variant1/index.html",
 		"SUMMARY:<p>\nSummary.\n</p>:END",
 		"CONTENT:<p>\nSummary.\n</p>\n<p>\nContent.\t\n</p>\n",
 	)
 
-	b.AssertFileContent("public/page-md-only-shortcode/index.html",
+	b.AssertFileContent(
+		"public/page-md-only-shortcode/index.html",
 		"SUMMARY:a shortcode:END",
 		"CONTENT:a shortcode\n\na shortcode\n",
 	)
@@ -1731,7 +1743,8 @@ c: {{ .Scratch.Get "c" }}
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		".Scratch eq .Store: true",
 		"a: b",
 		"c: d",
@@ -1928,7 +1941,8 @@ Site: {{ site.Store.Get "Site" }}|
 
 	b := TestRunning(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`
 Shortcode: sh-Home|
 Page: p-Home|
@@ -1939,7 +1953,8 @@ Hugo: h-Home|
 
 	b.EditFileReplaceAll("content/_index.md", "Home", "Homer").Build()
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`
 Shortcode: sh-Homer|
 Page: p-Homer|
@@ -2149,7 +2164,8 @@ EF
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/s1/p1/index.html",
+	b.AssertFileContent(
+		"public/s1/p1/index.html",
 		"ab|ab|ab",
 		"cD|cD|cD",
 		"EF|EF|EF",
@@ -2367,4 +2383,78 @@ All.
 	check(mysection, false)
 	myothersection, _ := s.GetPage("myothersection") // backed by a content file.
 	check(myothersection, true)
+}
+
+// See issue 15206.
+func TestReadingTimeAndFuzzyWordCountBoundaries(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["home", "section", "taxonomy", "term", "rss", "sitemap"]
+-- content/p99.md --
+---
+title: p99
+---
+` + strings.Repeat("word ", 99) + `
+-- content/p100.md --
+---
+title: p100
+---
+` + strings.Repeat("word ", 100) + `
+-- content/p101.md --
+---
+title: p101
+---
+` + strings.Repeat("word ", 101) + `
+-- content/p211.md --
+---
+title: p211
+---
+` + strings.Repeat("word ", 211) + `
+-- content/p212.md --
+---
+title: p212
+---
+` + strings.Repeat("word ", 212) + `
+-- content/p213.md --
+---
+title: p213
+---
+` + strings.Repeat("word ", 213) + `
+-- content/p499.md --
+---
+title: p499
+isCJKLanguage: true
+---
+` + strings.Repeat("你", 499) + `
+-- content/p500.md --
+---
+title: p500
+isCJKLanguage: true
+---
+` + strings.Repeat("你", 500) + `
+-- content/p501.md --
+---
+title: p501
+isCJKLanguage: true
+---
+` + strings.Repeat("你", 501) + `
+-- layouts/page.html --
+{{ .WordCount }}|{{ .FuzzyWordCount }}|{{ .ReadingTime }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p99/index.html", "99|100|1")
+	b.AssertFileContent("public/p100/index.html", "100|100|1")
+	b.AssertFileContent("public/p101/index.html", "101|200|1")
+
+	b.AssertFileContent("public/p211/index.html", "211|300|1")
+	b.AssertFileContent("public/p212/index.html", "212|300|1")
+	b.AssertFileContent("public/p213/index.html", "213|300|2")
+
+	b.AssertFileContent("public/p499/index.html", "499|500|1")
+	b.AssertFileContent("public/p500/index.html", "500|500|1")
+	b.AssertFileContent("public/p501/index.html", "501|600|2")
 }
