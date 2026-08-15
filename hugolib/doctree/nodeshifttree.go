@@ -49,12 +49,14 @@ type (
 		// and a bool indicating if an existing record is updated.
 		Insert(old, new T) (T, T, bool)
 
-		// Delete deletes T from the given dimension and returns the deleted T and whether the dimension was deleted and if  it's empty after the delete.
-		Delete(v T, dimension sitesmatrix.Vector) (T, bool, bool)
+		// Delete deletes T from the given dimension.
+		// It returns the updated T, the deleted T, whether anything was deleted
+		// and whether T is empty after the delete.
+		Delete(v T, dimension sitesmatrix.Vector) (T, T, bool, bool)
 
-		// DeleteFunc deletes nodes in v from the tree where the given function returns true.
-		// It returns true if it's empty after the delete.
-		DeleteFunc(v T, f func(n T) bool) bool
+		// DeleteFunc deletes nodes in v where the given function returns true.
+		// It returns the updated T and whether it's empty after the delete.
+		DeleteFunc(v T, f func(n T) bool) (T, bool)
 
 		// Shift shifts v into the given dimension,
 		// if fallback is true, it will fall back a fallback match if found.
@@ -118,7 +120,7 @@ func (r *NodeShiftTree[T]) DeleteFuncRaw(key string, f func(T) bool) (T, int) {
 		return lastDeleted, count
 	}
 
-	isEmpty := r.shifter.DeleteFunc(v, func(n T) bool {
+	updated, isEmpty := r.shifter.DeleteFunc(v, func(n T) bool {
 		if f(n) {
 			count++
 			lastDeleted = n
@@ -129,6 +131,8 @@ func (r *NodeShiftTree[T]) DeleteFuncRaw(key string, f func(T) bool) (T, int) {
 
 	if isEmpty {
 		r.tree.Delete(key)
+	} else if count > 0 {
+		r.tree.Insert(key, updated)
 	}
 
 	return lastDeleted, count
@@ -161,10 +165,15 @@ func (r *NodeShiftTree[T]) delete(key string) (T, bool) {
 	var wasDeleted bool
 	var deleted T
 	if v, ok := r.tree.Get(key); ok {
-		var isEmpty bool
-		deleted, wasDeleted, isEmpty = r.shifter.Delete(v, r.siteVector)
+		var (
+			updated T
+			isEmpty bool
+		)
+		updated, deleted, wasDeleted, isEmpty = r.shifter.Delete(v, r.siteVector)
 		if isEmpty {
 			r.tree.Delete(key)
+		} else if wasDeleted {
+			r.tree.Insert(key, updated)
 		}
 	}
 	return deleted, wasDeleted
