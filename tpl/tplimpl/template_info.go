@@ -24,9 +24,6 @@ type ParseInfo struct {
 	// Set for partial templates with any {{ inner }} or {{ templates.Inner }}
 	HasPartialInner bool
 
-	// Set for partials with a return statement.
-	HasReturn bool
-
 	// Config extracted from template.
 	Config ParseConfig
 }

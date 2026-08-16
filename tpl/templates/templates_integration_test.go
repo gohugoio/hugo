@@ -277,7 +277,7 @@ P1.
 
 	b, err := hugolib.TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
-	b.Assert(err.Error(), qt.Contains, "wrong number of args for string: want 1 got 0")
+	b.Assert(err.Error(), qt.Contains, "return must be the last command in a pipeline")
 }
 
 func TestPartialWithoutSuffixIssue13601(t *testing.T) {

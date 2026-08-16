@@ -17,6 +17,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	qt "github.com/frankban/quicktest"
 )
 
 // https://github.com/gohugoio/hugo/issues/4895
@@ -312,6 +314,70 @@ X123X
 X123X
 X123X
 `)
+}
+
+// See issue 15212.
+func TestTemplateReturnEarly(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/home.html --
+home-start|{{ if true }}{{ return }}{{ end }}home-end
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "home-start|", "! home-end")
+}
+
+// See issue 15212.
+func TestTemplateReturnEarlyFromBlock(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/baseof.html --
+header|{{ block "main" . }}{{ end }}|footer
+-- layouts/home.html --
+{{ define "main" }}main-start|{{ return }}main-end{{ end }}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "header|main-start||footer", "! main-end")
+}
+
+// See issue 15212.
+func TestTemplateReturnEarlyFromTemplateInclude(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/home.html --
+{{ template "foo" . }}|after
+{{ define "foo" }}foo-start|{{ return }}foo-end{{ end }}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/index.html", "foo-start||after", "! foo-end")
+}
+
+// See issue 15212.
+func TestTemplateReturnWithValueOutsidePartialFails(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+-- layouts/home.html --
+{{ return 32 }}
+`
+	b, err := TestE(t, files)
+
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "return with a value is only supported in partials")
 }
 
 func TestPartialCached(t *testing.T) {

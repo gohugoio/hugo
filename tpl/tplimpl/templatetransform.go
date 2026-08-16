@@ -32,9 +32,6 @@ type templateTransformContext struct {
 	configChecked bool
 
 	t *TemplInfo
-
-	// Store away the return node in partials.
-	returnNode *parse.CommandNode
 }
 
 func (c templateTransformContext) getIfNotVisited(name string) *TemplInfo {
@@ -84,7 +81,7 @@ func applyTemplateTransformers(
 		panic(fmt.Errorf("template %s not parsed", t))
 	}
 
-	if err := c.applyTransformationsAndSetReturnWrapper(tree); err != nil {
+	if err := c.applyTransformations(tree.Root); err != nil {
 		return c, fmt.Errorf("failed to transform template %q: %w", t.Name(), err)
 	}
 
@@ -99,12 +96,6 @@ func getParseTree(templ tpl.Template) *parse.Tree {
 }
 
 const (
-	// We parse this template and modify the nodes in order to assign
-	// the return value of a partial to a contextWrapper via Set. We use
-	// "range" over a one-element slice so we can shift dot to the
-	// partial's argument, Arg, while allowing Arg to be falsy.
-	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ range (slice .Arg) }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
-
 	doDeferTempl = `{{ doDefer ("PLACEHOLDER1") ("PLACEHOLDER2") }}`
 
 	// _pushPartialDecorator is always falsy.
@@ -117,7 +108,6 @@ const (
 )
 
 var (
-	partialReturnWrapper    *parse.ListNode
 	doDefer                 *parse.ListNode
 	popPartialDecorator     *parse.ListNode
 	pushPartialDecorator    *parse.ListNode
@@ -125,13 +115,7 @@ var (
 )
 
 func init() {
-	templ, err := texttemplate.New("").Parse(partialReturnWrapperTempl)
-	if err != nil {
-		panic(err)
-	}
-	partialReturnWrapper = templ.Tree.Root
-
-	templ, err = texttemplate.New("").Funcs(texttemplate.FuncMap{"doDefer": func(string, string) string { return "" }}).Parse(doDeferTempl)
+	templ, err := texttemplate.New("").Funcs(texttemplate.FuncMap{"doDefer": func(string, string) string { return "" }}).Parse(doDeferTempl)
 	if err != nil {
 		panic(err)
 	}
@@ -156,39 +140,8 @@ func init() {
 	popPartialDecoratorElse = templ.Tree.Root
 }
 
-// wrapInPartialReturnWrapper copies and modifies the parsed nodes of a
-// predefined partial return wrapper to insert those of a user-defined partial.
-func (c *templateTransformContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
-	wrapper := partialReturnWrapper.CopyList()
-	rangeNode := wrapper.Nodes[2].(*parse.RangeNode)
-	retn := rangeNode.List.Nodes[0]
-	setCmd := retn.(*parse.ActionNode).Pipe.Cmds[0]
-	setPipe := setCmd.Args[1].(*parse.PipeNode)
-	// Replace PLACEHOLDER with the real return value.
-	// Note that this is a PipeNode, so it will be wrapped in parens.
-	setPipe.Cmds = []*parse.CommandNode{c.returnNode}
-	rangeNode.List.Nodes = append(n.Nodes, retn)
-
-	return wrapper
-}
-
-func (c *templateTransformContext) applyTransformationsAndSetReturnWrapper(tree *parse.Tree) error {
-	_, err := c.applyTransformations(tree.Root)
-	if err != nil {
-		return err
-	}
-	if c.returnNode != nil {
-		// This is a partial with a return statement.
-		c.t.ParseInfo.HasReturn = true
-		tree.Root = c.wrapInPartialReturnWrapper(tree.Root)
-	}
-	return nil
-}
-
-// applyTransformations does 2 things:
-// 1) Parses partial return statement.
-// 2) Tracks template (partial) dependencies and some other info.
-func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, error) {
+// applyTransformations tracks template (partial) dependencies and some other info.
+func (c *templateTransformContext) applyTransformations(n parse.Node) error {
 	switch x := n.(type) {
 	case *parse.ListNode:
 		if x != nil {
@@ -211,19 +164,22 @@ func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, err
 	case *parse.PipeNode:
 		c.collectConfig(x)
 		for i, cmd := range x.Cmds {
-			keep, _ := c.applyTransformations(cmd)
-			if !keep {
-				x.Cmds = slices.Delete(x.Cmds, i, i+1)
+			// A return in any other position would silently discard the rest of the pipeline.
+			if i < len(x.Cmds)-1 && len(cmd.Args) > 0 {
+				if id, ok := cmd.Args[0].(*parse.IdentifierNode); ok && id.Ident == "return" {
+					c.err = errors.New("return must be the last command in a pipeline")
+					return c.err
+				}
 			}
+			c.applyTransformations(cmd)
 		}
 
 	case *parse.CommandNode:
 		if x == nil {
-			return true, nil
+			return nil
 		}
 		c.collectInnerInShortcode(x)
 		c.collectInnerInPartial(x)
-		keep := c.collectReturnNode(x)
 
 		for _, elem := range x.Args {
 			switch an := elem.(type) {
@@ -231,10 +187,9 @@ func (c *templateTransformContext) applyTransformations(n parse.Node) (bool, err
 				c.applyTransformations(an)
 			}
 		}
-		return keep, c.err
 	}
 
-	return true, c.err
+	return c.err
 }
 
 func (c *templateTransformContext) isWithPartial(args []parse.Node) bool {
@@ -355,7 +310,7 @@ func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
 			return
 		}
 
-		if err := cc.applyTransformationsAndSetReturnWrapper(tree); err != nil {
+		if err := cc.applyTransformations(tree.Root); err != nil {
 			c.err = fmt.Errorf("failed to transform internal partial decorator template %q: %w", internalPartialName, err)
 			return
 		}
@@ -564,25 +519,4 @@ func (c *templateTransformContext) collectInnerInPartial(n *parse.CommandNode) {
 			}
 		}
 	}
-}
-
-func (c *templateTransformContext) collectReturnNode(n *parse.CommandNode) bool {
-	if c.t.category != CategoryPartial || c.returnNode != nil {
-		return true
-	}
-
-	if len(n.Args) < 2 {
-		return true
-	}
-
-	ident, ok := n.Args[0].(*parse.IdentifierNode)
-	if !ok || ident.Ident != "return" {
-		return true
-	}
-
-	c.returnNode = n
-	// Remove the "return" identifiers
-	c.returnNode.Args = c.returnNode.Args[1:]
-
-	return false
 }
