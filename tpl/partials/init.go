@@ -43,9 +43,9 @@ func init() {
 			[][2]string{},
 		)
 
-		// TODO(bep) we need the return to be a valid identifiers, but
-		// should consider another way of adding it.
-		ns.AddMethodMapping(func() string { return "" },
+		// The return keyword is intercepted in the template executor,
+		// but it needs to resolve to a function.
+		ns.AddMethodMapping(func(v ...any) any { return nil },
 			[]string{"return"},
 			[][2]string{},
 		)

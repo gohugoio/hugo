@@ -335,3 +335,97 @@ BAR
 
 	b.AssertFileContent("public/index.html", "OO:BAR")
 }
+
+// See issue 15212.
+func TestPartialReturnConditional(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+-- layouts/home.html --
+1:{{ partial "parity.html" 1 }}|2:{{ partial "parity.html" 2 }}|
+-- layouts/_partials/parity.html --
+{{ if math.ModBool . 2 }}
+{{ return "even" }}
+{{ end }}
+{{ return "odd" }}
+  `
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "1:odd|2:even|")
+}
+
+// See issue 15212.
+func TestPartialReturnFromRange(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+-- layouts/home.html --
+{{ partial "find.html" (slice 1 2 3) }}|
+-- layouts/_partials/find.html --
+{{ range . }}{{ if eq . 2 }}{{ return . }}{{ end }}{{ end }}{{ return "notfound" }}
+  `
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "2|")
+}
+
+// See issue 15212.
+func TestPartialReturnBareStopsEarly(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+-- layouts/home.html --
+{{ partial "p.html" . }}
+-- layouts/_partials/p.html --
+partial-start|{{ if true }}{{ return }}{{ end }}partial-end
+  `
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "partial-start|", "! partial-end")
+}
+
+// See issue 15212.
+func TestPartialReturnNil(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+-- layouts/home.html --
+{{ if eq (partial "p.html" .) nil }}NIL{{ end }}
+-- layouts/_partials/p.html --
+{{ return nil }}
+  `
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "NIL")
+}
+
+// See issue 15212.
+func TestPartialReturnValueFromTemplateInclude(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+-- layouts/home.html --
+{{ partial "p.html" . }}|
+-- layouts/_partials/p.html --
+{{ template "p-helper" . }}
+{{ define "p-helper" }}{{ return 42 }}{{ end }}
+  `
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "42|")
+}

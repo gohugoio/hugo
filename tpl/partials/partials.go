@@ -17,9 +17,9 @@ package partials
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"strings"
 	"time"
 
@@ -91,18 +91,6 @@ type Namespace struct {
 	cachedPartials *partialCache
 }
 
-// contextWrapper makes room for a return value in a partial invocation.
-type contextWrapper struct {
-	Arg    any
-	Result any
-}
-
-// Set sets the return value and returns an empty string.
-func (c *contextWrapper) Set(in any) string {
-	c.Result = in
-	return ""
-}
-
 // Include executes the named partial.
 // If the partial contains a return statement, that value will be returned.
 // Else, the rendered output will be returned:
@@ -159,39 +147,27 @@ func (ns *Namespace) doInclude(ctx context.Context, key string, templ *tplimpl.T
 		data = dataList[0]
 	}
 
-	info := templ.ParseInfo
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
 
-	var w io.Writer
-
-	if info.HasReturn {
-
-		// Wrap the context sent to the template to capture the return value.
-		// Note that the template is rewritten to make sure that the dot (".")
-		// and the $ variable points to Arg.
-		data = &contextWrapper{
-			Arg: data,
+	if err := ns.deps.GetTemplateStore().ExecuteWithContextAndKey(ctx, key, templ, b, data); err != nil {
+		var rerr *texttemplate.ReturnError
+		if !errors.As(err, &rerr) {
+			return includeResult{err: err}
 		}
-
-		// We don't care about any template output.
-		w = io.Discard
-	} else {
-		b := bp.GetBuffer()
-		defer bp.PutBuffer(b)
-		w = b
-	}
-
-	if err := ns.deps.GetTemplateStore().ExecuteWithContextAndKey(ctx, key, templ, w, data); err != nil {
-		return includeResult{err: err}
+		// The partial has a {{ return <value> }}; any rendered output is discarded.
+		return includeResult{
+			name:   templ.Name(),
+			result: rerr.Value,
+		}
 	}
 
 	var result any
 
-	if ctx, ok := data.(*contextWrapper); ok {
-		result = ctx.Result
-	} else if _, ok := templ.Template.(*texttemplate.Template); ok {
-		result = w.(fmt.Stringer).String()
+	if _, ok := templ.Template.(*texttemplate.Template); ok {
+		result = b.String()
 	} else {
-		result = template.HTML(w.(fmt.Stringer).String())
+		result = template.HTML(b.String())
 	}
 
 	return includeResult{

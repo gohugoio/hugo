@@ -98,8 +98,33 @@ func (t *Template) Prepare() (*Template, error) {
 	return t, nil
 }
 
+// ReturnError is the sentinel used by the return keyword
+// to signal an early exit from a template.
+// A bare {{ return }} is trapped at the nearest template boundary,
+// a {{ return <value> }} must be trapped by a partial invocation.
+type ReturnError struct {
+	Value    any
+	HasValue bool
+}
+
+func (r *ReturnError) Error() string {
+	return "return with a value is only supported in partials"
+}
+
 func (t *Template) executeWithState(state *state, value reflect.Value) (err error) {
 	defer errRecover(&err)
+	// Added for Hugo. Trap the return sentinel.
+	defer func() {
+		if r := recover(); r != nil {
+			if rerr, ok := r.(*ReturnError); ok {
+				if rerr.HasValue {
+					err = rerr
+				}
+				return
+			}
+			panic(r)
+		}
+	}()
 	if t.Tree == nil || t.Root == nil {
 		state.errorf("%q is an incomplete or empty template", t.Name())
 	}
@@ -123,9 +148,62 @@ type state struct {
 	depth  int        // the height of the stack of executing templates.
 }
 
+// newReturnError evaluates any return value and creates the return sentinel.
+// Everything after the return keyword is evaluated as a command,
+// so both {{ return $v }} and {{ return add . 42 }} work.
+func (s *state) newReturnError(dot reflect.Value, cmd parse.Node, args []parse.Node, final reflect.Value) *ReturnError {
+	rerr := &ReturnError{}
+
+	toValue := func(v reflect.Value) any {
+		if v.IsValid() && v.Type() == reflectValueType {
+			v = v.Interface().(reflect.Value)
+		}
+		if !v.IsValid() {
+			return nil
+		}
+		return v.Interface()
+	}
+
+	switch {
+	case len(args) > 1:
+		rerr.HasValue = true
+		if _, ok := args[1].(*parse.NilNode); ok && len(args) == 2 && isMissing(final) {
+			// {{ return nil }}
+			break
+		}
+		c := *(cmd.(*parse.CommandNode))
+		c.Args = args[1:]
+		rerr.Value = toValue(s.evalCommand(dot, &c, final))
+	case !isMissing(final):
+		rerr.HasValue = true
+		rerr.Value = toValue(final)
+	}
+
+	return rerr
+}
+
+// walkTemplate traps any bare return so it only ends the execution of the
+// included template.
+func (s *state) walkTemplate(dot reflect.Value, t *parse.TemplateNode) {
+	defer func() {
+		if r := recover(); r != nil {
+			if rerr, ok := r.(*ReturnError); ok && !rerr.HasValue {
+				return
+			}
+			panic(r)
+		}
+	}()
+	s.walkTemplateOld(dot, t)
+}
+
 func (s *state) evalFunction(dot reflect.Value, node *parse.IdentifierNode, cmd parse.Node, args []parse.Node, final reflect.Value) reflect.Value {
 	s.at(node)
 	name := node.Ident
+
+	// Added for Hugo.
+	if name == "return" {
+		panic(s.newReturnError(dot, cmd, args, final))
+	}
 
 	var function reflect.Value
 	// Added for Hugo.
@@ -296,6 +374,9 @@ func (s *state) evalCall(dot, fun reflect.Value, isBuiltin bool, node parse.Node
 	if name == "try" {
 		defer func() {
 			if r := recover(); r != nil {
+				if _, ok := r.(*ReturnError); ok {
+					panic(r)
+				}
 				// Cause: herrors.Cause(err)
 				if err, ok := r.(error); ok {
 					val = reflect.ValueOf(TryValue{Value: nil, Err: newErrorWithCause(err)})
