@@ -28,6 +28,8 @@ func TestInflect(t *testing.T) {
 		{ns.Humanize, t, false},
 		{ns.Humanize, "this is a TEST", "This is a test"},
 		{ns.Humanize, "my-first-Post", "My first post"},
+		// Opening low-9 quote must not gain a space before the next word (#15126).
+		{ns.Humanize, "Painting „Title“", "Painting „title“"},
 		{ns.Pluralize, "cat", "cats"},
 		{ns.Pluralize, "", ""},
 		{ns.Pluralize, t, false},
