@@ -70,3 +70,15 @@ func TestToPages(t *testing.T) {
 	_, err := ToPages("not a page")
 	c.Assert(err, qt.Not(qt.IsNil))
 }
+
+func TestIndexOf(t *testing.T) {
+	c := qt.New(t)
+
+	p1, p2, p3, p4 := &testPage{title: "p1"}, &testPage{title: "p2"}, &testPage{title: "p3"}, &testPage{title: "p4"}
+
+	pages := Pages{p1, p2, p3}
+	c.Assert(pages.IndexOf(p1), qt.Equals, 0)
+	c.Assert(pages.IndexOf(p2), qt.Equals, 1)
+	c.Assert(pages.IndexOf(p3), qt.Equals, 2)
+	c.Assert(pages.IndexOf(p4), qt.Equals, -1)
+}
