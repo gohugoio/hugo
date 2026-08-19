@@ -327,8 +327,9 @@ type PageMetaInternalProvider interface {
 
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
-	// Render renders the given layout with this Page as context.
-	Render(ctx context.Context, layout ...string) (template.HTML, error)
+	// Render renders the given view (a layout template) with this Page as
+	// the data context, or, if given, the second argument CONTEXT.
+	Render(ctx context.Context, args ...any) (template.HTML, error)
 	// RenderString renders the first value in args with the content renderer defined
 	// for this Page.
 	// It takes an optional map as a second argument:
