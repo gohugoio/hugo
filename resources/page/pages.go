@@ -130,6 +130,11 @@ func (pages Pages) ProbablyEq(other any) bool {
 	return true
 }
 
+// IndexOf returns the index of page in p, or -1 if not found.
+func (p Pages) IndexOf(page Page) int {
+	return searchPage(page, p)
+}
+
 // PagesFactory somehow creates some Pages.
 // We do a lot of lazy Pages initialization in Hugo, so we need a type.
 type PagesFactory func() Pages
