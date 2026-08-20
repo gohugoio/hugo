@@ -332,10 +332,8 @@ func (ps *pageState) RegularPagesRecursive() page.Pages {
 	case kinds.KindSection, kinds.KindHome:
 		return ps.s.pageMap.getPagesInSection(
 			pageMapQueryPagesInSection{
-				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
-					Path:    ps.Path(),
-					Include: pagePredicates.ShouldListLocal.And(pagePredicates.KindPage).BoolFunc(),
-				},
+				Path:      ps.Path(),
+				Include:   pagePredicates.ShouldListLocal.And(pagePredicates.KindPage).BoolFunc(),
 				Recursive: true,
 			},
 		)
@@ -354,10 +352,8 @@ func (ps *pageState) RegularPages() page.Pages {
 	case kinds.KindSection, kinds.KindHome, kinds.KindTaxonomy:
 		return ps.s.pageMap.getPagesInSection(
 			pageMapQueryPagesInSection{
-				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
-					Path:    ps.Path(),
-					Include: pagePredicates.ShouldListLocal.And(pagePredicates.KindPage).BoolFunc(),
-				},
+				Path:    ps.Path(),
+				Include: pagePredicates.ShouldListLocal.And(pagePredicates.KindPage).BoolFunc(),
 			},
 		)
 	case kinds.KindTerm:
@@ -379,13 +375,11 @@ func (ps *pageState) Pages() page.Pages {
 	case kinds.KindSection, kinds.KindHome:
 		return ps.s.pageMap.getPagesInSection(
 			pageMapQueryPagesInSection{
-				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
-					Path:    ps.Path(),
-					KeyPart: "page-section",
-					Include: pagePredicates.ShouldListLocal.And(
-						pagePredicates.KindPage.Or(pagePredicates.KindSection),
-					).BoolFunc(),
-				},
+				Path:    ps.Path(),
+				KeyPart: "page-section",
+				Include: pagePredicates.ShouldListLocal.And(
+					pagePredicates.KindPage.Or(pagePredicates.KindSection),
+				).BoolFunc(),
 			},
 		)
 	case kinds.KindTerm:
@@ -397,11 +391,9 @@ func (ps *pageState) Pages() page.Pages {
 	case kinds.KindTaxonomy:
 		return ps.s.pageMap.getPagesInSection(
 			pageMapQueryPagesInSection{
-				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
-					Path:    ps.Path(),
-					KeyPart: "term",
-					Include: pagePredicates.ShouldListLocal.And(pagePredicates.KindTerm).BoolFunc(),
-				},
+				Path:      ps.Path(),
+				KeyPart:   "term",
+				Include:   pagePredicates.ShouldListLocal.And(pagePredicates.KindTerm).BoolFunc(),
 				Recursive: true,
 			},
 		)

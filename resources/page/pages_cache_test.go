@@ -31,8 +31,8 @@ func TestPageCache(t *testing.T) {
 		p[0].(*testPage).description = "changed"
 	}
 
-	var o1 uint64
-	var o2 uint64
+	var o1 atomic.Uint64
+	var o2 atomic.Uint64
 
 	var wg sync.WaitGroup
 
@@ -50,7 +50,7 @@ func TestPageCache(t *testing.T) {
 			for k, pages := range testPageSets {
 				l1.Lock()
 				p, ca := c1.get("k1", nil, pages)
-				c.Assert(ca, qt.Equals, !atomic.CompareAndSwapUint64(&o1, uint64(k), uint64(k+1)))
+				c.Assert(ca, qt.Equals, !o1.CompareAndSwap(uint64(k), uint64(k+1)))
 				l1.Unlock()
 				p2, c2 := c1.get("k1", nil, p)
 				c.Assert(c2, qt.Equals, true)
@@ -60,7 +60,7 @@ func TestPageCache(t *testing.T) {
 
 				l2.Lock()
 				p3, c3 := c1.get("k2", changeFirst, pages)
-				c.Assert(c3, qt.Equals, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)))
+				c.Assert(c3, qt.Equals, !o2.CompareAndSwap(uint64(k), uint64(k+1)))
 				l2.Unlock()
 				c.Assert(p3, qt.Not(qt.IsNil))
 				c.Assert("changed", qt.Equals, p3[0].(*testPage).description)

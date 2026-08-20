@@ -162,7 +162,7 @@ func NewHugoInfo(opts HugoInfoOptions) HugoInfo {
 		BuildDate:  opts.BuildDate,
 		GoVersion:  opts.GoVersion,
 
-		hugoInfoProviders: hugoInfoProviders{HugoInfoHugoSitesProvider: opts.HugoInfoHugoSitesProvider},
+		HugoInfoHugoSitesProvider: opts.HugoInfoHugoSitesProvider,
 
 		opts:  opts,
 		store: hstore.NewScratch(),

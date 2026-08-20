@@ -81,9 +81,9 @@ func (s *StackThreadSafe[T]) DrainMatching(predicate func(T) bool) []T {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	var items []T
-	for i := len(s.items) - 1; i >= 0; i-- {
-		if predicate(s.items[i]) {
-			items = append(items, s.items[i])
+	for i, v := range slices.Backward(s.items) {
+		if predicate(v) {
+			items = append(items, v)
 			s.items = slices.Delete(s.items, i, i+1)
 		}
 	}

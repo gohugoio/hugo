@@ -459,7 +459,7 @@ func (c TestConfig) IsZero() bool {
 
 // BuildState are state used during a build.
 type BuildState struct {
-	counter uint64
+	counter atomic.Uint64
 
 	// Tracks invocations of the Build method.
 	BuildCounter atomic.Uint64
@@ -538,5 +538,5 @@ func (b *BuildState) GetFilenamesWithPostPrefix() []string {
 }
 
 func (b *BuildState) Incr() int {
-	return int(atomic.AddUint64(&b.counter, uint64(1)))
+	return int(b.counter.Add(uint64(1)))
 }

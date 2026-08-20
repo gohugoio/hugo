@@ -759,11 +759,9 @@ func (s *Site) Pages() page.Pages {
 	s.CheckReady()
 	return s.pageMap.getPagesInSection(
 		pageMapQueryPagesInSection{
-			pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
-				Path:    "",
-				KeyPart: "global",
-				Include: pagePredicates.ShouldListGlobal.BoolFunc(),
-			},
+			Path:        "",
+			KeyPart:     "global",
+			Include:     pagePredicates.ShouldListGlobal.BoolFunc(),
 			Recursive:   true,
 			IncludeSelf: true,
 		},
@@ -776,11 +774,9 @@ func (s *Site) RegularPages() page.Pages {
 	s.CheckReady()
 	return s.pageMap.getPagesInSection(
 		pageMapQueryPagesInSection{
-			pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
-				Path:    "",
-				KeyPart: "global",
-				Include: pagePredicates.ShouldListGlobal.And(pagePredicates.KindPage).BoolFunc(),
-			},
+			Path:      "",
+			KeyPart:   "global",
+			Include:   pagePredicates.ShouldListGlobal.And(pagePredicates.KindPage).BoolFunc(),
 			Recursive: true,
 		},
 	)
@@ -922,11 +918,9 @@ func (s *Site) prepareInits() {
 
 		sections := s.pageMap.getPagesInSection(
 			pageMapQueryPagesInSection{
-				pageMapQueryPagesBelowPath: pageMapQueryPagesBelowPath{
-					Path:    "",
-					KeyPart: "sectionorhome",
-					Include: pagePredicates.KindSection.Or(pagePredicates.KindHome).BoolFunc(),
-				},
+				Path:        "",
+				KeyPart:     "sectionorhome",
+				Include:     pagePredicates.KindSection.Or(pagePredicates.KindHome).BoolFunc(),
 				IncludeSelf: true,
 				Recursive:   true,
 			},
@@ -1464,12 +1458,10 @@ func (s *Site) assembleMenus() (navigation.Menus, error) {
 				return false, nil
 			}
 			me := navigation.MenuEntry{
-				MenuConfig: navigation.MenuConfig{
-					Identifier: id,
-					Name:       p.LinkTitle(),
-					Weight:     p.Weight(),
-				},
-				Page: p,
+				Identifier: id,
+				Name:       p.LinkTitle(),
+				Weight:     p.Weight(),
+				Page:       p,
 			}
 
 			navigation.SetPageValues(&me, p)
@@ -1508,9 +1500,7 @@ func (s *Site) assembleMenus() (navigation.Menus, error) {
 		if !ok {
 			// if parent does not exist, create one without a URL
 			flat[twoD{p.MenuName, p.EntryName}] = &navigation.MenuEntry{
-				MenuConfig: navigation.MenuConfig{
-					Name: p.EntryName,
-				},
+				Name: p.EntryName,
 			}
 		}
 		flat[twoD{p.MenuName, p.EntryName}].Children = childmenu

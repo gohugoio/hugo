@@ -16,6 +16,7 @@ package doctree
 import (
 	"fmt"
 	"iter"
+	"slices"
 	"strings"
 	"sync"
 
@@ -251,8 +252,8 @@ func (ctx *WalkContext[T]) HandleEvents() error {
 		// Loop the event handlers in reverse order so
 		// that events created by the handlers themselves will
 		// be picked up further up the tree.
-		for i := len(ctx.eventHandlers[event.Name]) - 1; i >= 0; i-- {
-			ctx.eventHandlers[event.Name][i](event)
+		for _, v := range slices.Backward(ctx.eventHandlers[event.Name]) {
+			v(event)
 			if event.stopPropagation {
 				break
 			}

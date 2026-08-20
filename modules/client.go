@@ -615,7 +615,7 @@ func (c *Client) writeHugoDirectSum(mods Modules) error {
 			continue
 		}
 		if m.IsGoMod() && m.VersionQuery() != "" {
-			sums = append(sums, modSum{pathVersionKey: pathVersionKey{path: m.Path(), version: m.Version()}, sum: m.Sum()})
+			sums = append(sums, modSum{path: m.Path(), version: m.Version(), sum: m.Sum()})
 		}
 	}
 

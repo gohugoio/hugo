@@ -528,96 +528,94 @@ func (b *batcher) doBuild(ctx context.Context) (*Package, error) {
 	}
 
 	jsOpts := Options{
-		ExternalOptions: externalOptions,
-		InternalOptions: InternalOptions{
-			DependencyManager: b.dependencyManager,
-			Splitting:         true,
-			ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
-				var importContextPath string
-				if args.Kind == api.ResolveEntryPoint {
-					importContextPath = args.Path
-				} else {
-					importContextPath = args.Importer
-				}
-				importContext, importContextFound := state.importerImportContext.Get(importContextPath)
+		ExternalOptions:   externalOptions,
+		DependencyManager: b.dependencyManager,
+		Splitting:         true,
+		ImportOnResolveFunc: func(imp string, args api.OnResolveArgs) string {
+			var importContextPath string
+			if args.Kind == api.ResolveEntryPoint {
+				importContextPath = args.Path
+			} else {
+				importContextPath = args.Importer
+			}
+			importContext, importContextFound := state.importerImportContext.Get(importContextPath)
 
-				// We want to track the dependencies closest to where they're used.
-				dm := b.dependencyManager
-				if importContextFound {
-					dm = importContext.dm
-				}
+			// We want to track the dependencies closest to where they're used.
+			dm := b.dependencyManager
+			if importContextFound {
+				dm = importContext.dm
+			}
 
-				if r, found := state.importResource.Get(imp); found {
-					dm.AddIdentity(identity.FirstIdentity(r))
+			if r, found := state.importResource.Get(imp); found {
+				dm.AddIdentity(identity.FirstIdentity(r))
+				return imp
+			}
+
+			if importContext.resourceGetter != nil {
+				resolved := ResolveResource(imp, importContext.resourceGetter)
+				if resolved != nil {
+					resolvePath := resources.InternalResourceTargetPath(resolved)
+					dm.AddIdentity(identity.FirstIdentity(resolved))
+					imp := PrefixHugoVirtual + resolvePath
+					state.importResource.Set(imp, resolved)
+					state.importerImportContext.Set(imp, importContext)
 					return imp
-				}
-
-				if importContext.resourceGetter != nil {
-					resolved := ResolveResource(imp, importContext.resourceGetter)
-					if resolved != nil {
-						resolvePath := resources.InternalResourceTargetPath(resolved)
-						dm.AddIdentity(identity.FirstIdentity(resolved))
-						imp := PrefixHugoVirtual + resolvePath
-						state.importResource.Set(imp, resolved)
-						state.importerImportContext.Set(imp, importContext)
-						return imp
-
-					}
-				}
-				return ""
-			},
-			ImportOnLoadFunc: func(args api.OnLoadArgs) (string, error) {
-				imp := args.Path
-
-				if r, found := state.importResource.Get(imp); found {
-					content, err := resources.InternalResourceSourceContent(ctx, r)
-					if err != nil {
-						return "", fmt.Errorf("failed to read import %q: %w", resources.InternalResourceSourcePathBestEffort(r), err)
-					}
-					return content, nil
-				}
-				return "", nil
-			},
-			ImportParamsOnLoadFunc: func(args api.OnLoadArgs) json.RawMessage {
-				if importContext, found := state.importerImportContext.Get(args.Path); found {
-					if !importContext.scriptOptions.IsZero() {
-						return importContext.scriptOptions.Params
-					}
-				}
-				return nil
-			},
-			ErrorMessageResolveFunc: func(args api.Message) *ErrorMessageResolved {
-				if loc := args.Location; loc != nil {
-					path := strings.TrimPrefix(loc.File, NsHugoImportResolveFunc+":")
-					if r, found := state.importResource.Get(path); found {
-						sourcePath := resources.InternalResourceSourcePathBestEffort(r)
-
-						var contentr hugio.ReadSeekCloser
-						if cp, ok := r.(hugio.ReadSeekCloserProvider); ok {
-							contentr, _ = cp.ReadSeekCloser()
-						}
-						return &ErrorMessageResolved{
-							Content: contentr,
-							Path:    sourcePath,
-							Message: args.Text,
-						}
-
-					}
 
 				}
-				return nil
-			},
-			ResolveSourceMapSource: func(s string) string {
-				if r, found := state.importResource.Get(s); found {
-					if ss := resources.InternalResourceSourcePath(r); ss != "" {
-						return ss
-					}
-					return PrefixHugoMemory + s
-				}
-				return ""
-			},
-			EntryPoints: entryPoints,
+			}
+			return ""
 		},
+		ImportOnLoadFunc: func(args api.OnLoadArgs) (string, error) {
+			imp := args.Path
+
+			if r, found := state.importResource.Get(imp); found {
+				content, err := resources.InternalResourceSourceContent(ctx, r)
+				if err != nil {
+					return "", fmt.Errorf("failed to read import %q: %w", resources.InternalResourceSourcePathBestEffort(r), err)
+				}
+				return content, nil
+			}
+			return "", nil
+		},
+		ImportParamsOnLoadFunc: func(args api.OnLoadArgs) json.RawMessage {
+			if importContext, found := state.importerImportContext.Get(args.Path); found {
+				if !importContext.scriptOptions.IsZero() {
+					return importContext.scriptOptions.Params
+				}
+			}
+			return nil
+		},
+		ErrorMessageResolveFunc: func(args api.Message) *ErrorMessageResolved {
+			if loc := args.Location; loc != nil {
+				path := strings.TrimPrefix(loc.File, NsHugoImportResolveFunc+":")
+				if r, found := state.importResource.Get(path); found {
+					sourcePath := resources.InternalResourceSourcePathBestEffort(r)
+
+					var contentr hugio.ReadSeekCloser
+					if cp, ok := r.(hugio.ReadSeekCloserProvider); ok {
+						contentr, _ = cp.ReadSeekCloser()
+					}
+					return &ErrorMessageResolved{
+						Content: contentr,
+						Path:    sourcePath,
+						Message: args.Text,
+					}
+
+				}
+
+			}
+			return nil
+		},
+		ResolveSourceMapSource: func(s string) string {
+			if r, found := state.importResource.Get(s); found {
+				if ss := resources.InternalResourceSourcePath(r); ss != "" {
+					return ss
+				}
+				return PrefixHugoMemory + s
+			}
+			return ""
+		},
+		EntryPoints: entryPoints,
 	}
 
 	result, err := b.client.buildClient.Build(jsOpts)

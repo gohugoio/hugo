@@ -72,16 +72,14 @@ type Config struct {
 // can be set if position of first shortcode is known
 func newPageLexer(input []byte, stateStart stateFunc, cfg Config) *pageLexer {
 	lexer := &pageLexer{
-		input:          input,
-		stateStart:     stateStart,
-		summaryDivider: summaryDivider,
-		cfg:            cfg,
-		lexerShortcodeState: lexerShortcodeState{
-			currLeftDelimItem:  tLeftDelimScNoMarkup,
-			currRightDelimItem: tRightDelimScNoMarkup,
-			openShortcodes:     make(map[unique.Handle[string]]bool),
-		},
-		items: make([]Item, 0, 5),
+		input:              input,
+		stateStart:         stateStart,
+		summaryDivider:     summaryDivider,
+		cfg:                cfg,
+		currLeftDelimItem:  tLeftDelimScNoMarkup,
+		currRightDelimItem: tRightDelimScNoMarkup,
+		openShortcodes:     make(map[unique.Handle[string]]bool),
+		items:              make([]Item, 0, 5),
 	}
 
 	lexer.sectionHandlers = createSectionHandlers(lexer)

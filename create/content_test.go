@@ -317,7 +317,7 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		// Print some debug info
-		root := strings.Split(filename, helpers.FilePathSeparator)[0]
+		root, _, _ := strings.Cut(filename, helpers.FilePathSeparator)
 		afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
 			if info != nil && !info.IsDir() {
 				fmt.Println("    ", path)
