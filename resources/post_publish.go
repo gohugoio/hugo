@@ -26,10 +26,6 @@ type transformationKeyer interface {
 func (spec *Spec) PostProcess(r resource.Resource) (postpub.PostPublishedResource, error) {
 	key := r.(transformationKeyer).TransformationKey()
 	return spec.PostProcessResources.GetOrCreate(key, func() (postpub.PostPublishedResource, error) {
-		result := postpub.NewPostPublishResource(spec.incr.Incr(), r)
-		if result == nil {
-			panic("got nil result")
-		}
-		return result, nil
+		return postpub.NewPostPublishResource(spec.incr.Incr(), r), nil
 	})
 }

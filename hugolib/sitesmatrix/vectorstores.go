@@ -14,7 +14,6 @@
 package sitesmatrix
 
 import (
-	"cmp"
 	"fmt"
 	"iter"
 	"maps"
@@ -780,7 +779,7 @@ func (b *IntSetsBuilder) Build() *IntSets {
 }
 
 func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
-	applyFilter := func(what string, values []string, matcher ConfiguredDimension) (*hmaps.OrderedIntSet, error) {
+	applyFilter := func(what string, values []string, matcher ConfiguredDimension) *hmaps.OrderedIntSet {
 		var result *hmaps.OrderedIntSet
 		if len(values) == 0 {
 
@@ -800,16 +799,16 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 				}
 			}
 
-			return result, nil
+			return result
 		}
 
 		filter, err := predicate.NewIndexStringPredicateFromGlobsAndRanges(values, matcher.ResolveIndex, hglob.GetGlobDot)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create filter for %s: %w", what, err)
+			panic(fmt.Errorf("failed to create filter for %s: %w", what, err))
 		}
 		iter, err := matcher.IndexMatch(filter)
 		if err != nil {
-			return nil, fmt.Errorf("failed to match %s %q: %w", what, values, err)
+			panic(fmt.Errorf("failed to match %s %q: %w", what, values, err))
 		}
 		for i := range iter {
 			if result == nil {
@@ -818,16 +817,12 @@ func (b *IntSetsBuilder) WithConfig(cfg IntSetsConfig) *IntSetsBuilder {
 			result.Set(i)
 		}
 
-		return result, nil
+		return result
 	}
 
-	l, err1 := applyFilter("languages", cfg.Globs.Languages, b.cfg.ConfiguredLanguages)
-	v, err2 := applyFilter("versions", cfg.Globs.Versions, b.cfg.ConfiguredVersions)
-	r, err3 := applyFilter("roles", cfg.Globs.Roles, b.cfg.ConfiguredRoles)
-
-	if err := cmp.Or(err1, err2, err3); err != nil {
-		panic(fmt.Errorf("failed to apply filters: %w", err))
-	}
+	l := applyFilter("languages", cfg.Globs.Languages, b.cfg.ConfiguredLanguages)
+	v := applyFilter("versions", cfg.Globs.Versions, b.cfg.ConfiguredVersions)
+	r := applyFilter("roles", cfg.Globs.Roles, b.cfg.ConfiguredRoles)
 
 	b.GlobFilterMisses = Bools{
 		len(cfg.Globs.Languages) > 0 && l == nil,
