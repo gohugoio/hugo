@@ -82,6 +82,9 @@ func CopyDir(fs afero.Fs, from, to string, shouldCopy func(filename string) bool
 				return err
 			}
 		} else {
+			if shouldCopy != nil && !shouldCopy(fromFilename) {
+				continue
+			}
 			if err := CopyFile(fs, fromFilename, toFilename); err != nil {
 				return err
 			}

@@ -1017,15 +1017,20 @@ func newDefaultConfig() *Config {
 			Timeout:              "60s",
 
 			CommonDirs: config.CommonDirs{
+				//lint:ignore SA1019 Keep as adapter for now.
 				ArcheTypeDir: "archetypes",
 				ContentDir:   "content",
 				ResourceDir:  "resources",
 				PublishDir:   "public",
 				ThemesDir:    "themes",
-				AssetDir:     "assets",
-				LayoutDir:    "layouts",
-				I18nDir:      "i18n",
-				DataDir:      "data",
+				//lint:ignore SA1019 Keep as adapter for now.
+				AssetDir: "assets",
+				//lint:ignore SA1019 Keep as adapter for now.
+				LayoutDir: "layouts",
+				//lint:ignore SA1019 Keep as adapter for now.
+				I18nDir: "i18n",
+				//lint:ignore SA1019 Keep as adapter for now.
+				DataDir: "data",
 			},
 		},
 	}

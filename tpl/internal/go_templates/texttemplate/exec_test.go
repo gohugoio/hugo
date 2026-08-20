@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !windows
-// +build !windows
 
 package template
 
@@ -337,16 +336,12 @@ var execTests = []execTest{
 	{"$.U.V", "{{$.U.V}}", "v", tVal, true},
 	{"declare in action", "{{$x := $.U.V}}{{$x}}", "v", tVal, true},
 	{"simple assignment", "{{$x := 2}}{{$x = 3}}{{$x}}", "3", tVal, true},
-	{
-		"nested assignment",
+	{"nested assignment",
 		"{{$x := 2}}{{if true}}{{$x = 3}}{{end}}{{$x}}",
-		"3", tVal, true,
-	},
-	{
-		"nested assignment changes the last declaration",
+		"3", tVal, true},
+	{"nested assignment changes the last declaration",
 		"{{$x := 1}}{{if true}}{{$x := 2}}{{if true}}{{$x = 3}}{{end}}{{end}}{{$x}}",
-		"1", tVal, true,
-	},
+		"1", tVal, true},
 
 	// Type with String method.
 	{"V{6666}.String()", "-{{.V0}}-", "-<6666>-", tVal, true},
@@ -393,21 +388,15 @@ var execTests = []execTest{
 	{".Method3(nil constant)", "-{{.Method3 nil}}-", "-Method3: <nil>-", tVal, true},
 	{".Method3(nil value)", "-{{.Method3 .MXI.unset}}-", "-Method3: <nil>-", tVal, true},
 	{"method on var", "{{if $x := .}}-{{$x.Method2 .U16 $x.X}}{{end}}-", "-Method2: 16 x-", tVal, true},
-	{
-		"method on chained var",
+	{"method on chained var",
 		"{{range .MSIone}}{{if $.U.TrueFalse $.True}}{{$.U.TrueFalse $.True}}{{else}}WRONG{{end}}{{end}}",
-		"true", tVal, true,
-	},
-	{
-		"chained method",
+		"true", tVal, true},
+	{"chained method",
 		"{{range .MSIone}}{{if $.GetU.TrueFalse $.True}}{{$.U.TrueFalse $.True}}{{else}}WRONG{{end}}{{end}}",
-		"true", tVal, true,
-	},
-	{
-		"chained method on variable",
+		"true", tVal, true},
+	{"chained method on variable",
 		"{{with $x := .}}{{with .SI}}{{$.GetU.TrueFalse $.True}}{{end}}{{end}}",
-		"true", tVal, true,
-	},
+		"true", tVal, true},
 	{".NilOKFunc not nil", "{{call .NilOKFunc .PI}}", "false", tVal, true},
 	{".NilOKFunc nil", "{{call .NilOKFunc nil}}", "true", tVal, true},
 	{"method on nil value from slice", "-{{range .}}{{.Method1 1234}}{{end}}-", "-1234-", tSliceOfNil, true},
@@ -500,14 +489,10 @@ var execTests = []execTest{
 	{"printf lots", `{{printf "%d %s %g %s" 127 "hello" 7-3i .Method0}}`, "127 hello (7-3i) M0", tVal, true},
 
 	// HTML.
-	{
-		"html", `{{html "<script>alert(\"XSS\");</script>"}}`,
-		"&lt;script&gt;alert(&#34;XSS&#34;);&lt;/script&gt;", nil, true,
-	},
-	{
-		"html pipeline", `{{printf "<script>alert(\"XSS\");</script>" | html}}`,
-		"&lt;script&gt;alert(&#34;XSS&#34;);&lt;/script&gt;", nil, true,
-	},
+	{"html", `{{html "<script>alert(\"XSS\");</script>"}}`,
+		"&lt;script&gt;alert(&#34;XSS&#34;);&lt;/script&gt;", nil, true},
+	{"html pipeline", `{{printf "<script>alert(\"XSS\");</script>" | html}}`,
+		"&lt;script&gt;alert(&#34;XSS&#34;);&lt;/script&gt;", nil, true},
 	{"html", `{{html .PS}}`, "a string", tVal, true},
 	{"html typed nil", `{{html .NIL}}`, "&lt;nil&gt;", tVal, true},
 	{"html untyped nil", `{{html .Empty0}}`, "&lt;no value&gt;", tVal, true},
@@ -942,9 +927,8 @@ var delimPairs = []string{
 
 func TestDelims(t *testing.T) {
 	const hello = "Hello, world"
-	value := struct{ Str string }{hello}
+	var value = struct{ Str string }{hello}
 	for i := 0; i < len(delimPairs); i += 2 {
-		text := ".Str"
 		left := delimPairs[i+0]
 		trueLeft := left
 		right := delimPairs[i+1]
@@ -955,17 +939,23 @@ func TestDelims(t *testing.T) {
 		if right == "" { // default case
 			trueRight = "}}"
 		}
-		text = trueLeft + text + trueRight
-		// Now add a comment
-		text += trueLeft + "/*comment*/" + trueRight
-		// Now add  an action containing a string.
-		text += trueLeft + `"` + trueLeft + `"` + trueRight
+		action := trueLeft + ".Str" + trueRight
+		// A comment, which is not preserved in the parse tree.
+		comment := trueLeft + "/*comment*/" + trueRight
+		// An action containing a string that looks like the left delimiter.
+		strAction := trueLeft + `"` + trueLeft + `"` + trueRight
+		text := action + comment + strAction
 		// At this point text looks like `{{.Str}}{{/*comment*/}}{{"{{"}}`.
 		tmpl, err := New("delims").Delims(left, right).Parse(text)
 		if err != nil {
 			t.Fatalf("delim %q text %q parse err %s", left, text, err)
 		}
-		b := new(strings.Builder)
+		// The parse tree's String form should roundtrip back to the input,
+		// using the custom delimiters, modulo the dropped comment.
+		if got, want := tmpl.Root.String(), action+strAction; got != want {
+			t.Errorf("delim %q: String() = %q, want %q", left, got, want)
+		}
+		var b = new(strings.Builder)
 		err = tmpl.Execute(b, value)
 		if err != nil {
 			t.Fatalf("delim %q exec err %s", left, err)
@@ -1025,6 +1015,23 @@ type CustomError struct{}
 
 func (*CustomError) Error() string { return "heyo !" }
 
+// Check that a custom error can be returned.
+func TestExecError_CustomError(t *testing.T) {
+	failingFunc := func() (string, error) {
+		return "", &CustomError{}
+	}
+	tmpl := Must(New("top").Funcs(FuncMap{
+		"err": failingFunc,
+	}).Parse("{{ err }}"))
+
+	var b bytes.Buffer
+	err := tmpl.Execute(&b, nil)
+
+	if _, ok := errors.AsType[*CustomError](err); !ok {
+		t.Fatalf("expected custom error; got %s", err)
+	}
+}
+
 func TestJSEscaping(t *testing.T) {
 	testCases := []struct {
 		in, exp string
@@ -1070,7 +1077,7 @@ const treeTemplate = `
 `
 
 func TestTree(t *testing.T) {
-	tree := &Tree{
+	var tree = &Tree{
 		1,
 		&Tree{
 			2, &Tree{
@@ -1323,7 +1330,7 @@ var cmpTests = []cmpTest{
 
 func TestComparison(t *testing.T) {
 	b := new(strings.Builder)
-	cmpStruct := struct {
+	var cmpStruct = struct {
 		Uthree, Ufour    uint
 		NegOne, Three    int
 		Ptr, NilPtr      *int
@@ -1836,13 +1843,12 @@ func TestFunctionCheckDuringCall(t *testing.T) {
 		input   string
 		data    any
 		wantErr string
-	}{
-		{
-			name:    "call nothing",
-			input:   `{{call}}`,
-			data:    tVal,
-			wantErr: "wrong number of args for call: want at least 1 got 0",
-		},
+	}{{
+		name:    "call nothing",
+		input:   `{{call}}`,
+		data:    tVal,
+		wantErr: "wrong number of args for call: want at least 1 got 0",
+	},
 		{
 			name:    "call non-function",
 			input:   "{{call .True}}",

@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"cmp"
 	"context"
 	"fmt"
 	"path"
@@ -23,6 +22,7 @@ import (
 
 	"github.com/bep/helpers/maphelpers"
 	"github.com/gohugoio/go-radix"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/hugofs/files"
@@ -134,7 +134,7 @@ func (a *allPagesAssembler) createAllPages() error {
 		}()
 	}
 
-	if err := cmp.Or(a.doCreatePages("", 0), a.g.Wait()); err != nil {
+	if err := herrors.Or(a.doCreatePages("", 0), a.g.Wait()); err != nil {
 		return err
 	}
 	if err := a.pwRoot.WalkContext.HandleEventsAndHooks(); err != nil {

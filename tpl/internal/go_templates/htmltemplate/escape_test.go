@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !windows
-// +build !windows
 
 package template
 
@@ -1866,7 +1865,7 @@ func TestEscapeText(t *testing.T) {
 		},
 		{
 			"<script>function f() {`${ function f() { `${1}` } }`}",
-			context{state: stateJS, element: elementScript, jsCtx: jsCtxDivOp},
+			context{state: stateJS, element: elementScript, jsCtx: jsCtxRegexp},
 		},
 		{
 			"<script>`${ { `` }",
@@ -2264,5 +2263,57 @@ func TestAliasedParseTreeDoesNotOverescape(t *testing.T) {
 	}
 	if got1 != got2 {
 		t.Fatalf(`Template "foo" and "bar" rendered %q and %q respectively, expected equal values`, got1, got2)
+	}
+}
+
+func TestCVE202656858(t *testing.T) {
+	tests := []struct {
+		name  string
+		tmpl  string
+		input string
+		want  string
+	}{
+		{
+			name:  "regexp after open brace in if block",
+			tmpl:  `<script>if(true){/{{.}}/g.test("x")}</script>`,
+			input: "a.b",
+			want:  `<script>if(true){/a\.b/g.test("x")}</script>`,
+		},
+		{
+			name:  "regexp after close brace",
+			tmpl:  `<script>if(true){x=1}/{{.}}/g.test("x")</script>`,
+			input: "a.b",
+			want:  `<script>if(true){x=1}/a\.b/g.test("x")</script>`,
+		},
+		{
+			name:  "regexp pathological attacker input",
+			tmpl:  `<script>if(true){/{{.}}/g.test("x")}</script>`,
+			input: `./;alert(1);var q=/.`,
+			want:  `<script>if(true){/\.\/;alert\(1\);var q=\/\./g.test("x")}</script>`,
+		},
+		{
+			name:  "regexp after open brace in template literal",
+			tmpl:  "<script>`${ (function(){/{{.}}/g.test(x)}) }`</script>",
+			input: "a.b",
+			want:  "<script>`${ (function(){/a\\.b/g.test(x)}) }`</script>",
+		},
+		{
+			name:  "regexp after close brace in template literal",
+			tmpl:  "<script>`${ (function(){}/{{.}}/g.test(x)) }`</script>",
+			input: "a.b",
+			want:  "<script>`${ (function(){}/a\\.b/g.test(x)) }`</script>",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpl := Must(New("test").Parse(tt.tmpl))
+			var buf bytes.Buffer
+			if err := tmpl.Execute(&buf, tt.input); err != nil {
+				t.Fatalf("Execute: %v", err)
+			}
+			if got := buf.String(); got != tt.want {
+				t.Errorf("got:  %s\nwant: %s", got, tt.want)
+			}
+		})
 	}
 }

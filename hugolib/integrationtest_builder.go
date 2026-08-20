@@ -1179,23 +1179,7 @@ func (s *IntegrationTestBuilder) readFileFromFs(t testing.TB, fs afero.Fs, filen
 	t.Helper()
 	filename = filepath.Clean(filename)
 	b, err := afero.ReadFile(fs, filename)
-	if err != nil {
-		// Print some debug info
-		hadSlash := strings.HasPrefix(filename, helpers.FilePathSeparator)
-		start := 0
-		if hadSlash {
-			start = 1
-		}
-		end := start + 1
-
-		parts := strings.Split(filename, helpers.FilePathSeparator)
-		if parts[start] == "work" {
-			end++
-		}
-
-		s.Assert(err, qt.IsNil)
-
-	}
+	s.Assert(err, qt.IsNil)
 	return string(b)
 }
 

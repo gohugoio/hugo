@@ -178,3 +178,14 @@ func improveIfNilPointerMsg(inErr error) string {
 	s := fmt.Sprintf("– %s is nil; wrap it in if or with: {{ with %s }}{{ .%s }}{{ end }}", receiverName, receiver, field)
 	return nilPointerErrRe.ReplaceAllString(inErr.Error(), s)
 }
+
+// Or returns the first non-nil error from the given list of errors.
+// If all errors are nil, it returns nil.
+func Or(errs ...error) error {
+	for _, err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
