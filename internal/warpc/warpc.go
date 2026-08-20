@@ -582,6 +582,9 @@ func (p *dispatcherPool[Q, R]) Err() error {
 	}
 }
 
+// Workaround for data race, see https://github.com/wazero/wazero/issues/2532
+var wazeroCacheMu sync.Mutex
+
 func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	if opts.Ctx == nil {
 		opts.Ctx = context.Background()
@@ -610,6 +613,8 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	runtimeConfig = runtimeConfig.WithCoreFeatures(api.CoreFeaturesV2 | experimental.CoreFeaturesExceptionHandling | experimental.CoreFeaturesThreads)
 
 	if opts.CompilationCacheDir != "" {
+		wazeroCacheMu.Lock()
+		defer wazeroCacheMu.Unlock()
 		compilationCache, err := wazero.NewCompilationCacheWithDir(opts.CompilationCacheDir)
 		if err != nil {
 			return nil, err
