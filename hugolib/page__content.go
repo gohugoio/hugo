@@ -941,10 +941,8 @@ func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (tem
 
 	if pageparser.HasShortcode(contentToRender) {
 		ct := contentTableOfContents{
-			sourceInfo: sourceInfo{
-				filename: pco.po.p.pathOrTitle() + " (rendered from string)",
-				source:   []byte(contentToRender),
-			},
+			filename: pco.po.p.pathOrTitle() + " (rendered from string)",
+			source:   []byte(contentToRender),
 		}
 		ct.contentToRender = ct.source
 		// String contains a shortcode.

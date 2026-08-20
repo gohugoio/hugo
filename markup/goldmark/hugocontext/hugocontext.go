@@ -326,9 +326,7 @@ func (a *hugoContextExtension) Extend(m goldmark.Markdown) {
 		renderer.WithNodeRenderers(
 			util.Prioritized(&hugoContextRenderer{
 				logger: a.logger,
-				Config: html.Config{
-					Writer: html.DefaultWriter,
-				},
+				Writer: html.DefaultWriter,
 			}, 50),
 		),
 	)

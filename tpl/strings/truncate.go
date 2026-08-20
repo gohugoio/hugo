@@ -18,6 +18,7 @@ import (
 	"html"
 	"html/template"
 	"regexp"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -132,8 +133,8 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 				out.WriteString(ellipsis)
 				// Close out any open HTML tags
 				var currentTag *htmlTag
-				for i := len(tags) - 1; i >= 0; i-- {
-					tag := tags[i]
+				for _, tag := range slices.Backward(tags) {
+
 					if tag.pos >= endTextPos || currentTag != nil {
 						if currentTag != nil && currentTag.name == tag.name {
 							currentTag = nil

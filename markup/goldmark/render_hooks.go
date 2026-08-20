@@ -36,9 +36,7 @@ var _ renderer.SetOptioner = (*hookedRenderer)(nil)
 func newLinkRenderer(cfg goldmark_config.Config) renderer.NodeRenderer {
 	r := &hookedRenderer{
 		linkifyProtocol: []byte(cfg.Extensions.LinkifyProtocol),
-		Config: html.Config{
-			Writer: html.DefaultWriter,
-		},
+		Writer:          html.DefaultWriter,
 	}
 	return r
 }
@@ -169,15 +167,13 @@ func (r *hookedRenderer) renderImage(w util.BufWriter, source []byte, node ast.N
 		ctx.RenderContext().Ctx,
 		w,
 		imageLinkContext{
-			linkContext: linkContext{
-				BaseContext:      render.NewBaseContext(ctx, lr, node, source, ordinal),
-				destination:      string(n.Destination),
-				title:            string(n.Title),
-				text:             hstring.HTML(text),
-				plainText:        render.TextPlain(n, source),
-				AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerGeneral),
-			},
-			isBlock: isBlock,
+			BaseContext:      render.NewBaseContext(ctx, lr, node, source, ordinal),
+			destination:      string(n.Destination),
+			title:            string(n.Title),
+			text:             hstring.HTML(text),
+			plainText:        render.TextPlain(n, source),
+			AttributesHolder: attributes.New(attrs, attributes.AttributesOwnerGeneral),
+			isBlock:          isBlock,
 		},
 	)
 

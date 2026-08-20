@@ -70,7 +70,7 @@ type SuffixInfo struct {
 // If http.DetectContentType resolves to application/octet-stream, a zero Type is returned.
 // If http.DetectContentType  resolves to text/plain or application/xml, we try to get more specific using types and ext.
 func FromContent(types Types, extensionHints []string, content []byte) Type {
-	t := strings.Split(http.DetectContentType(content), ";")[0]
+	t, _, _ := strings.Cut(http.DetectContentType(content), ";")
 	if t == "application/octet-stream" {
 		return zero
 	}
@@ -143,7 +143,7 @@ func FromString(t string) (Type, error) {
 	mainType := parts[0]
 	subParts := strings.Split(parts[1], "+")
 
-	subType := strings.Split(subParts[0], ";")[0]
+	subType, _, _ := strings.Cut(subParts[0], ";")
 
 	var suffix string
 

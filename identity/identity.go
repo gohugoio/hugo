@@ -252,11 +252,11 @@ type IsRebuildProvider interface {
 
 // IncrementByOne implements Incrementer adding 1 every time Incr is called.
 type IncrementByOne struct {
-	counter uint64
+	counter atomic.Uint64
 }
 
 func (c *IncrementByOne) Incr() int {
-	return int(atomic.AddUint64(&c.counter, uint64(1)))
+	return int(c.counter.Add(uint64(1)))
 }
 
 // Incrementer increments and returns the value.

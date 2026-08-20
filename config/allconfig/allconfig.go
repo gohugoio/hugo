@@ -1005,34 +1005,30 @@ func (c Configs) GetByLang(lang string) config.AllProvider {
 
 func newDefaultConfig() *Config {
 	return &Config{
-		Taxonomies: map[string]string{"tag": "tags", "category": "categories"},
-		Sitemap:    config.SitemapConfig{Priority: -1, Filename: "sitemap.xml"},
-		RootConfig: RootConfig{
-			Environment:          hugo.EnvironmentProduction,
-			TitleCaseStyle:       "AP",
-			PluralizeListTitles:  true,
-			CapitalizeListTitles: true,
-			StaticDir:            []string{"static"},
-			SummaryLength:        70,
-			Timeout:              "60s",
+		Taxonomies:           map[string]string{"tag": "tags", "category": "categories"},
+		Sitemap:              config.SitemapConfig{Priority: -1, Filename: "sitemap.xml"},
+		Environment:          hugo.EnvironmentProduction,
+		TitleCaseStyle:       "AP",
+		PluralizeListTitles:  true,
+		CapitalizeListTitles: true,
+		StaticDir:            []string{"static"},
+		SummaryLength:        70,
+		Timeout:              "60s",
 
-			CommonDirs: config.CommonDirs{
-				//lint:ignore SA1019 Keep as adapter for now.
-				ArcheTypeDir: "archetypes",
-				ContentDir:   "content",
-				ResourceDir:  "resources",
-				PublishDir:   "public",
-				ThemesDir:    "themes",
-				//lint:ignore SA1019 Keep as adapter for now.
-				AssetDir: "assets",
-				//lint:ignore SA1019 Keep as adapter for now.
-				LayoutDir: "layouts",
-				//lint:ignore SA1019 Keep as adapter for now.
-				I18nDir: "i18n",
-				//lint:ignore SA1019 Keep as adapter for now.
-				DataDir: "data",
-			},
-		},
+		//lint:ignore SA1019 Keep as adapter for now.
+		ArcheTypeDir: "archetypes",
+		ContentDir:   "content",
+		ResourceDir:  "resources",
+		PublishDir:   "public",
+		ThemesDir:    "themes",
+		//lint:ignore SA1019 Keep as adapter for now.
+		AssetDir: "assets",
+		//lint:ignore SA1019 Keep as adapter for now.
+		LayoutDir: "layouts",
+		//lint:ignore SA1019 Keep as adapter for now.
+		I18nDir: "i18n",
+		//lint:ignore SA1019 Keep as adapter for now.
+		DataDir: "data",
 	}
 }
 
