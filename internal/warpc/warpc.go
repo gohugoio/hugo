@@ -766,7 +766,9 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 		}
 
 		for _, d := range dp.dispatchers {
-			if err := d.inGroup.Wait(); err != nil {
+			// ErrShutdown is expected here; since Go 1.27 (json/v2), Decode
+			// surfaces the read error from the pipes we just closed.
+			if err := d.inGroup.Wait(); err != nil && err != ErrShutdown {
 				return err
 			}
 		}
