@@ -15,8 +15,16 @@ import (
 )
 
 func main() {
-	// The current is built with 2dc996f71b0ebafb77e64433e58333e049488a3c go1.26.3
-	// TODO(bep) preserve the staticcheck.conf file.
+	/*
+		Previously: with 2dc996f71b0ebafb77e64433e58333e049488a3c go1.26.3
+		Current:  8af21751f0 [release-branch.go1.27] go1.27.0
+
+		Note that the upgrade here is mostly automatic, but there are some manual steps:
+
+		* There's some unrelevant test codes that depends on some some internals in Go: Remove or stub these out to make it build.
+		* There's one failing test case as we have slightly cbhanged the meaning of isTrue.
+		* We're only patching the execution part of the template packages, so it's also good to check the execution package's Git history to check for valuable changes in our patched files.
+	*/
 	fmt.Println("Forking ...")
 	defer fmt.Println("Done ...")
 
@@ -37,7 +45,6 @@ func main() {
 }
 
 const (
-	// TODO(bep)
 	goSource = "/Users/bep/dev/go/misc/go/src"
 	forkRoot = "../../tpl/internal/go_templates"
 )
@@ -140,10 +147,18 @@ var fs = afero.NewOsFs()
 
 // Removes all non-Hugo files in the go_templates folder.
 func cleanFork() {
+	keepRe := regexp.MustCompile(`(?i)hugo|staticcheck\.conf`)
 	must(filepath.Walk(filepath.Join(forkRoot), func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() && len(path) > 10 && !strings.Contains(path, "hugo") {
-			must(fs.Remove(path))
+		if info.IsDir() || len(path) <= 10 {
+			return nil
 		}
+
+		if keepRe.MatchString(info.Name()) {
+			return nil
+		}
+
+		must(fs.Remove(path))
+
 		return nil
 	}))
 }
