@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build go1.13
-// +build go1.13
-
 package parse
 
 import (
@@ -412,6 +409,36 @@ func TestParseWithComments(t *testing.T) {
 				t.Errorf("%s=(%q): got\n\t%v\nexpected\n\t%v", test.name, test.input, result, test.result)
 			}
 		})
+	}
+}
+
+func TestDelimsStringRoundtrip(t *testing.T) {
+	// Each input is already in canonical String form, so parsing it with the
+	// custom delimiters and printing the resulting tree must reproduce the
+	// input exactly. This exercises the String/writeTo methods of every node
+	// type that emits delimiters.
+	const (
+		left  = "[["
+		right = "]]"
+	)
+	for _, input := range []string{
+		`[[.X]]`,                     // ActionNode
+		`[[/* a comment */]]`,        // CommentNode
+		`[[if .X]]y[[else]]z[[end]]`, // BranchNode (if), with else and end
+		`[[range .X]][[break]][[continue]][[end]]`, // RangeNode, BreakNode, ContinueNode
+		`[[with .X]]y[[end]]`,                      // BranchNode (with)
+		`[[template "name" .]]`,                    // TemplateNode
+	} {
+		tr := New("test")
+		tr.Mode = ParseComments
+		tmpl, err := tr.Parse(input, left, right, make(map[string]*Tree))
+		if err != nil {
+			t.Errorf("%q: unexpected parse error: %v", input, err)
+			continue
+		}
+		if got := tmpl.Root.String(); got != input {
+			t.Errorf("got\n\t%q\nexpected\n\t%q", got, input)
+		}
 	}
 }
 

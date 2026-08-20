@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"html"
-	//"internal/godebug"
 	"io"
 	"maps"
 	"regexp"
@@ -165,9 +164,7 @@ func (e *escaper) escape(c context, n parse.Node) context {
 	panic("escaping " + n.String() + " is unimplemented")
 }
 
-//var debugAllowActionJSTmpl = godebug.New("jstmpllitinterp")
-
-var htmlmetacontenturlescape = true //godebug.New("htmlmetacontenturlescape")
+var htmlmetacontenturlescape = true
 
 // escapeAction escapes an action template node.
 func (e *escaper) escapeAction(c context, n *parse.ActionNode) context {

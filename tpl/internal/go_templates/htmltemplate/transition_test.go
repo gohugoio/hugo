@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !windows
-// +build !windows
 
 package template
 
@@ -43,6 +42,7 @@ func TestFindEndTag(t *testing.T) {
 }
 
 func BenchmarkTemplateSpecialTags(b *testing.B) {
+
 	r := struct {
 		Name, Gift string
 	}{"Aunt Mildred", "bone china tea set"}

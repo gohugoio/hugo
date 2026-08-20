@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !windows
-// +build !windows
 
 package template
 
@@ -221,8 +220,7 @@ func TestJSStrEscaper(t *testing.T) {
 		{"<!--", `\u003c!--`},
 		{"-->", `--\u003e`},
 		// From https://code.google.com/p/doctype/wiki/ArticleUtf7
-		{
-			"+ADw-script+AD4-alert(1)+ADw-/script+AD4-",
+		{"+ADw-script+AD4-alert(1)+ADw-/script+AD4-",
 			`\u002bADw-script\u002bAD4-alert(1)\u002bADw-\/script\u002bAD4-`,
 		},
 		// Invalid UTF-8 sequence
