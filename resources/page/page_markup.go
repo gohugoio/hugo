@@ -16,6 +16,7 @@ package page
 import (
 	"context"
 	"html/template"
+	"io"
 	"regexp"
 	"strings"
 	"unicode"
@@ -25,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/tpl"
+	"golang.org/x/net/html"
 )
 
 type Content interface {
@@ -234,9 +236,11 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 		}
 
 		if count >= numWords {
+			summaryHigh := j + closingIndex + len(ptag.tagName) + 3
+			summaryHigh = expandSummaryHighToBalancedHTML(input, result.WrapperStart.High, summaryHigh, high)
 			result.SummaryLowHigh = types.LowHigh[string]{
 				Low:  result.WrapperStart.High,
-				High: j + closingIndex + len(ptag.tagName) + 3,
+				High: summaryHigh,
 			}
 			return
 		}
@@ -251,6 +255,83 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 	}
 
 	return
+}
+
+func expandSummaryHighToBalancedHTML(input string, low, high, maxHigh int) int {
+	if low >= high || high >= maxHigh {
+		return high
+	}
+
+	stack, ok := htmlElementStack(input[low:high])
+	if !ok || len(stack) == 0 {
+		return high
+	}
+
+	t := html.NewTokenizer(strings.NewReader(input[high:maxHigh]))
+	offset := high
+
+	for {
+		tt := t.Next()
+		if tt == html.ErrorToken {
+			return high
+		}
+
+		offset += len(t.Raw())
+
+		switch tt {
+		case html.StartTagToken:
+			token := t.Token()
+			if !isVoidHTMLElement(token.Data) {
+				stack = append(stack, strings.ToLower(token.Data))
+			}
+		case html.EndTagToken:
+			token := t.Token()
+			stack = popHTMLStack(stack, strings.ToLower(token.Data))
+			if len(stack) == 0 {
+				return offset
+			}
+		}
+	}
+}
+
+func htmlElementStack(input string) ([]string, bool) {
+	t := html.NewTokenizer(strings.NewReader(input))
+	var stack []string
+
+	for {
+		switch t.Next() {
+		case html.ErrorToken:
+			if t.Err() == io.EOF {
+				return stack, true
+			}
+			return nil, false
+		case html.StartTagToken:
+			token := t.Token()
+			if !isVoidHTMLElement(token.Data) {
+				stack = append(stack, strings.ToLower(token.Data))
+			}
+		case html.EndTagToken:
+			token := t.Token()
+			stack = popHTMLStack(stack, strings.ToLower(token.Data))
+		}
+	}
+}
+
+func popHTMLStack(stack []string, name string) []string {
+	for i := len(stack) - 1; i >= 0; i-- {
+		if stack[i] == name {
+			return stack[:i]
+		}
+	}
+	return stack
+}
+
+func isVoidHTMLElement(name string) bool {
+	switch strings.ToLower(name) {
+	case "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr":
+		return true
+	}
+	return false
 }
 
 // ExtractSummaryFromHTMLWithDivider extracts a summary from the given HTML content with
