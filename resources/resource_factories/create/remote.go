@@ -226,7 +226,7 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 	// but the auto generated and more stable key for everything else.
 	filecacheKey := userKey
 
-	return c.rs.ResourceCache.CacheResourceRemote.GetOrCreate(optionsKey, func(key string) (resource.Resource, error) {
+	return c.rs.ResourceCache.GetOrCreateRemote(optionsKey, func(key string) (resource.Resource, error) {
 		options, err := decodeRemoteOptions(optionsm)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode options for resource %s: %w", uri, err)

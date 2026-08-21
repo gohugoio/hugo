@@ -31,7 +31,8 @@ import (
 
 func newResourceCache(rs *Spec, memCache *dynacache.Cache) *ResourceCache {
 	return &ResourceCache{
-		fileCache: rs.FileCaches.AssetsCache(),
+		cacheKeyPrefix: rs.Cfg.BaseURL().String() + "__",
+		fileCache:      rs.FileCaches.AssetsCache(),
 		cacheResource: dynacache.GetOrCreatePartition[string, resource.Resource](
 			memCache,
 			"/res1",
@@ -65,6 +66,8 @@ func newResourceCache(rs *Spec, memCache *dynacache.Cache) *ResourceCache {
 type ResourceCache struct {
 	sync.RWMutex
 
+	cacheKeyPrefix string
+
 	cacheResource               *dynacache.Partition[string, resource.Resource]
 	cacheResourceFile           *dynacache.Partition[string, resource.Resource]
 	CacheResourceRemote         *dynacache.Partition[string, resource.Resource]
@@ -77,30 +80,38 @@ type ResourceCache struct {
 	fileCache *filecache.Cache
 }
 
+func (c *ResourceCache) cacheKey(key string) string {
+	return c.cacheKeyPrefix + key
+}
+
 func (c *ResourceCache) cleanKey(key string) string {
 	return strings.TrimPrefix(path.Clean(strings.ToLower(filepath.ToSlash(key))), "/")
 }
 
 func (c *ResourceCache) Get(ctx context.Context, key string) (resource.Resource, bool) {
-	return c.cacheResource.Get(ctx, key)
+	return c.cacheResource.Get(ctx, c.cacheKey(key))
 }
 
 func (c *ResourceCache) GetOrCreate(key string, f func() (resource.Resource, error)) (resource.Resource, error) {
-	return c.cacheResource.GetOrCreate(key, func(key string) (resource.Resource, error) {
+	return c.cacheResource.GetOrCreate(c.cacheKey(key), func(key string) (resource.Resource, error) {
 		return f()
 	})
 }
 
 func (c *ResourceCache) GetOrCreateFile(key string, f func() (resource.Resource, error)) (resource.Resource, error) {
-	return c.cacheResourceFile.GetOrCreate(key, func(key string) (resource.Resource, error) {
+	return c.cacheResourceFile.GetOrCreate(c.cacheKey(key), func(key string) (resource.Resource, error) {
 		return f()
 	})
 }
 
 func (c *ResourceCache) GetOrCreateResources(key string, f func() (resource.Resources, error)) (resource.Resources, error) {
-	return c.cacheResources.GetOrCreate(key, func(key string) (resource.Resources, error) {
+	return c.cacheResources.GetOrCreate(c.cacheKey(key), func(key string) (resource.Resources, error) {
 		return f()
 	})
+}
+
+func (c *ResourceCache) GetOrCreateRemote(key string, f func(string) (resource.Resource, error)) (resource.Resource, error) {
+	return c.CacheResourceRemote.GetOrCreate(c.cacheKey(key), f)
 }
 
 func (c *ResourceCache) getFilenames(key string) (string, string) {
