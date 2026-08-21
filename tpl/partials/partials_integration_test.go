@@ -170,8 +170,8 @@ D1
 
 	got := buf.String()
 
-	// Get rid of all the durations, they are never the same.
-	durationRe := regexp.MustCompile(`\b[\.\d]*(ms|ns|µs|s)\b`)
+	// Get rid of all the durations, including the space and unit, they are never the same.
+	durationRe := regexp.MustCompile(`\b[\.\d]*\s*(ms|ns|µs|s)\b`)
 
 	normalize := func(s string) string {
 		s = durationRe.ReplaceAllString(s, "")
