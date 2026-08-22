@@ -408,7 +408,15 @@ func (c *templateTransformContext) handleWith(withNode *parse.WithNode) {
 		c.err = errors.New("resources.PostProcess cannot be used in a deferred template")
 		return
 	}
-	innerHash := hashing.XxHashFromStringHexEncoded(s)
+	// The deferred template is registered under this ID and takes its
+	// escaping (text vs html) from the first owner that registers it.
+	// Hashing only the body made byte-identical blocks in templates of
+	// different output formats collide on one registration, and which
+	// escaping survived followed the (random) map iteration order of the
+	// surrounding transform loop. Include the owning template's name so
+	// each output format gets its own, correctly escaped registration —
+	// the same convention the partial-decorator hash below uses (#15234).
+	innerHash := hashing.XxHashFromStringHexEncoded(c.t.Name() + s)
 	deferredID := tpl.HugoDeferredTemplatePrefix + innerHash
 
 	c.deferNodes[deferredID] = inner
