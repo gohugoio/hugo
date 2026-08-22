@@ -367,3 +367,35 @@ Home.
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "templates.Defer cannot be used inside a partialCached partial")
 }
+
+// Issue #15234: byte-identical deferred blocks in templates of different
+// output formats collided on one deferred-template registration, and which
+// escaping (html vs text) survived followed the transform loop's random map
+// iteration order. Each output format must keep its own escaping.
+func TestDeferIdenticalBodiesAcrossOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term", "rss", "sitemap", "robots", "404"]
+[outputFormats.probe]
+mediaType = "text/plain"
+baseName = "index"
+isPlainText = true
+[outputs]
+home = ["html", "probe"]
+-- layouts/home.html --
+{{ $v := "<b>&" }}OUT[{{ $v }}]{{ with (templates.Defer (dict "key" "K" "data" (dict "v" $v))) }}IN[{{ .v }}]{{ end }}
+-- layouts/home.probe.txt --
+{{ $v := "<b>&" }}OUT[{{ $v }}]{{ with (templates.Defer (dict "key" "K" "data" (dict "v" $v))) }}IN[{{ .v }}]{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	// The HTML output must html-escape the deferred interpolation.
+	b.AssertFileContent("public/index.html",
+		"OUT[&lt;b&gt;&amp;]IN[&lt;b&gt;&amp;]")
+	// The plain-text output must keep the raw bytes.
+	b.AssertFileContent("public/index.txt",
+		"OUT[<b>&]IN[<b>&]")
+}
