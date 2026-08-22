@@ -505,13 +505,21 @@ func (ns *Namespace) Shuffle(l any) (any, error) {
 	}
 
 	switch lv.Kind() {
-	case reflect.Array, reflect.Slice, reflect.String:
+	case reflect.Array, reflect.Slice:
 		// okay
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
-	shuffled := reflect.MakeSlice(reflect.TypeOf(l), lv.Len(), lv.Len())
+	// Use the type of the indirected value so a pointer to a slice is
+	// handled, and collect arrays into a slice of their element type as
+	// reflect.MakeSlice requires a slice type.
+	sliceType := lv.Type()
+	if sliceType.Kind() == reflect.Array {
+		sliceType = reflect.SliceOf(sliceType.Elem())
+	}
+
+	shuffled := reflect.MakeSlice(sliceType, lv.Len(), lv.Len())
 
 	randomIndices := rand.Perm(lv.Len())
 
