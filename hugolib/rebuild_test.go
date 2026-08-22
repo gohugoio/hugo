@@ -2212,11 +2212,6 @@ objects: ["o1"]
 	b.AssertFileContent("public/objects/o1/index.html", "O1|term|")
 }
 
-// A data file in a mounted assets dir is consumed by the home template via
-// resources.Get | minify, but only its RelPermalink is used in the output (the
-// content is fetched client side). Simulates a server that outlives periodic
-// regenerations of the data file: each regeneration must be reflected in the
-// published minified file, also after later unrelated rebuilds.
 func TestRebuildEditMountedAssetOnlyRelPermalinkUsed(t *testing.T) {
 	files := `
 -- hugo.toml --
@@ -2260,8 +2255,6 @@ Data: {{ $data.RelPermalink }}|
 	b.AssertFileContent("public/out/data.min.json", `{"version":"v3"}`)
 }
 
-// Variant of the above where the template also consumes the content of the
-// minified resource.
 func TestRebuildEditMountedAssetContentUsed(t *testing.T) {
 	files := `
 -- hugo.toml --
@@ -2303,12 +2296,6 @@ Data: {{ $data.RelPermalink }}|{{ $data.Content | safeHTML }}|
 	b.AssertFileContent("public/index.html", `{"version":"v3"}`)
 }
 
-// Fast render mode variant: the page owning the minified data resource is not
-// in the recently visited queue (e.g. a long running server whose home page
-// has not been navigated to since the server started). A change to the data
-// file in the mounted assets dir must still be reflected in the published
-// minified file: it is fetched by URL from the browser, and no navigation will
-// ever trigger a re-render/re-publish of it.
 func TestRebuildFastRenderEditMountedAssetNotRecentlyVisited(t *testing.T) {
 	files := `
 -- hugo.toml --
