@@ -483,7 +483,7 @@ func (p *testPage) RelRefFrom(argsm map[string]any, source any) (string, error) 
 	return "", nil
 }
 
-func (p *testPage) Render(ctx context.Context, layout ...string) (template.HTML, error) {
+func (p *testPage) Render(ctx context.Context, args ...any) (template.HTML, error) {
 	panic("testpage: not implemented")
 }
 

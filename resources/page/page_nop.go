@@ -399,7 +399,7 @@ func (p *nopPage) RelRef(argsm map[string]any) (string, error) {
 	return "", nil
 }
 
-func (p *nopPage) Render(ctx context.Context, layout ...string) (template.HTML, error) {
+func (p *nopPage) Render(ctx context.Context, args ...any) (template.HTML, error) {
 	return "", nil
 }
 

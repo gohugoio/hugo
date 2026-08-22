@@ -104,21 +104,34 @@ func (pco *pageContentOutput) Reset() {
 	pco.renderHooks = &renderHooks{}
 }
 
-func (pco *pageContentOutput) Render(ctx context.Context, layout ...string) (template.HTML, error) {
-	if len(layout) == 0 {
-		return "", errors.New("no layout given")
+func (pco *pageContentOutput) Render(ctx context.Context, args ...any) (template.HTML, error) {
+	if len(args) == 0 {
+		return "", errors.New("no view given")
 	}
-	templ, found, err := pco.po.p.resolveTemplate(layout...)
+	if len(args) > 2 {
+		return "", errors.New("too many arguments, expected VIEW [CONTEXT]")
+	}
+	view, err := cast.ToStringE(args[0])
+	if err != nil {
+		return "", fmt.Errorf("failed to convert view argument to string: %w", err)
+	}
+
+	// Make sure to send the *pageState and not the *pageContentOutput to the template.
+	var data any = pco.po.p
+	if len(args) == 2 {
+		data = args[1]
+	}
+
+	templ, found, err := pco.po.p.resolveTemplate(view)
 	if err != nil {
 		return "", pco.po.p.wrapError(err)
 	}
 
 	if !found {
-		return "", fmt.Errorf("template %q not found", layout[0])
+		return "", fmt.Errorf("template %q not found", view)
 	}
 
-	// Make sure to send the *pageState and not the *pageContentOutput to the template.
-	res, err := executeToString(ctx, pco.po.p.s.GetTemplateStore(), templ, pco.po.p)
+	res, err := executeToString(ctx, pco.po.p.s.GetTemplateStore(), templ, data)
 	if err != nil {
 		return "", pco.po.p.wrapError(fmt.Errorf("failed to execute template %s: %w", templ.Name(), err))
 	}
