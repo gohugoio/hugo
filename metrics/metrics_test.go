@@ -69,6 +69,7 @@ func BenchmarkHowSimilar(b *testing.B) {
 }
 
 func TestFormatDuration(t *testing.T) {
+	c := qt.New(t)
 	tests := []struct {
 		duration time.Duration
 		want     string
@@ -81,8 +82,6 @@ func TestFormatDuration(t *testing.T) {
 
 	for _, tt := range tests {
 		got := formatDuration(tt.duration)
-		if got != tt.want {
-			t.Errorf("formatDuration(%v) = %q, want %q", tt.duration, got, tt.want)
-		}
+		c.Assert(got, qt.Equals, tt.want)
 	}
 }
