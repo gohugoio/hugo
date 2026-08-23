@@ -14,6 +14,7 @@
 package hstore
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -214,4 +215,26 @@ func BenchmarkScratchGet(b *testing.B) {
 	for b.Loop() {
 		scratch.Get("A")
 	}
+}
+
+func TestScratchGetSortedMapValuesConcurrentWithSetInMap(t *testing.T) {
+	c := qt.New(t)
+
+	s := NewScratch()
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(2)
+		go func(i int) {
+			defer wg.Done()
+			s.SetInMap("m", fmt.Sprintf("k%d", i), i)
+		}(i)
+		go func() {
+			defer wg.Done()
+			s.GetSortedMapValues("m")
+		}()
+	}
+	wg.Wait()
+
+	val := s.GetSortedMapValues("m").([]any)
+	c.Assert(val, qt.HasLen, 100)
 }
