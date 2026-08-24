@@ -207,6 +207,33 @@ func TestScratchGetSortedMapValues(t *testing.T) {
 	}
 }
 
+// See issue 15237.
+func TestScratchGetSortedMapValuesInParallel(t *testing.T) {
+	var wg sync.WaitGroup
+	scratch := NewScratch()
+	scratch.SetInMap("key", "seed", "seed")
+
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		for i := range 100000 {
+			scratch.SetInMap("key", string(rune('a'+i%26)), i)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for range 100000 {
+			_ = scratch.GetSortedMapValues("key")
+		}
+	}()
+	wg.Wait()
+
+	v := scratch.GetSortedMapValues("key")
+	if v == nil {
+		t.Fatal("expected values after concurrent writes")
+	}
+}
+
 func BenchmarkScratchGet(b *testing.B) {
 	scratch := NewScratch()
 	scratch.Add("A", 1)
