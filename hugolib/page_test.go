@@ -2508,3 +2508,25 @@ isCJKLanguage: true
 	b.AssertFileContent("public/p500/index.html", "500|500|1")
 	b.AssertFileContent("public/p501/index.html", "501|600|2")
 }
+
+func TestFrontMatter2000YamlAliases(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/p1.md --
+---
+a: &anchor { key: "value" }
+`
+
+	for i := range 2000 {
+		files += fmt.Sprintf(`alias%d: *anchor
+`, i)
+	}
+	files += `---
+`
+
+	b, err := TestE(t, files, TestOptSkipRender())
+
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "too many YAML aliases")
+}
