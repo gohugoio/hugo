@@ -247,6 +247,39 @@ urls = ['.*', '! ^https?://evil\.example\.com']
 	})
 }
 
+// A resolved destination address must be validated so a hostname that resolves
+// to an internal address cannot reach an internal endpoint via GetRemote.
+// See CVE-2026-10582.
+func TestCheckAllowedHTTPAddress(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	pc := DefaultConfig
+
+	for _, addr := range []string{
+		"93.184.216.34:80",
+		"[2001:db8::1]:443",
+	} {
+		c.Assert(pc.CheckAllowedHTTPAddress("tcp", addr), qt.IsNil, qt.Commentf(addr))
+	}
+
+	for _, addr := range []string{
+		"127.0.0.1:80",
+		"[::1]:80",
+		"10.0.0.1:8080",
+		"172.16.0.1:80",
+		"192.168.1.1:80",
+		"169.254.169.254:80", // Cloud metadata.
+		"[fe80::1]:80",
+		"[fc00::1]:80",
+		"0.0.0.0:80",
+		"[::ffff:127.0.0.1]:80", // IPv4-mapped loopback.
+	} {
+		err := pc.CheckAllowedHTTPAddress("tcp", addr)
+		c.Assert(err, qt.IsNotNil, qt.Commentf(addr))
+		c.Assert(err, qt.ErrorMatches, `(?s).*is not whitelisted in policy "security\.http\.urls".*`, qt.Commentf(addr))
+	}
+}
+
 func TestCheckAllowedHTTPURLAtInPathIssue14825(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)

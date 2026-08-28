@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/netip"
 	"net/url"
 	"reflect"
@@ -208,6 +209,47 @@ func (c Config) CheckAllowedHTTPURL(u string) error {
 	// the policy treats every encoding of the same address alike.
 	if canon, ok := canonicalIPv4URL(u); ok && !c.HTTP.URLs.Accept(canon) {
 		return deny(u)
+	}
+	return nil
+}
+
+// CheckAllowedHTTPAddress reports whether a dial-time destination address may
+// be connected to. address is the resolved "host:port" passed to a net.Dialer
+// control hook, i.e. the actual address the HTTP client is about to connect to.
+//
+// The security.http.urls allowlist only inspects the URL text and never sees
+// the resolved address, so a hostname that resolves to a loopback, private or
+// link-local (including the cloud metadata endpoint) address would otherwise
+// satisfy the policy and let resources.GetRemote reach an internal endpoint.
+// We deny any non–global-unicast or private address here to close that gap.
+func (c Config) CheckAllowedHTTPAddress(network, address string) error {
+	// Only enforced under the default hardened allowlist. If the user has
+	// customized security.http.urls they have opted into whatever hosts they
+	// listed, including internal ones (e.g. a local dev server), so we do not
+	// second-guess the resolved address.
+	if !slices.Equal(c.HTTP.URLs.patternsStrings, DefaultConfig.HTTP.URLs.patternsStrings) {
+		return nil
+	}
+	deny := func(name string) error {
+		return &AccessDeniedError{
+			name:     name,
+			path:     "security.http.urls",
+			policies: c.ToTOML(),
+		}
+	}
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		host = address
+	}
+	ip, err := netip.ParseAddr(host)
+	if err != nil {
+		// The dial hook always hands us a resolved IP literal; anything else
+		// is unexpected, so fail closed.
+		return deny(address)
+	}
+	ip = ip.Unmap()
+	if !ip.IsGlobalUnicast() || ip.IsPrivate() {
+		return deny(host)
 	}
 	return nil
 }
