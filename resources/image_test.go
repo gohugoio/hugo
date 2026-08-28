@@ -16,6 +16,8 @@ package resources_test
 import (
 	"context"
 	"fmt"
+	"image"
+	"image/color"
 	"io/fs"
 	"math/rand"
 	"os"
@@ -393,6 +395,45 @@ func TestImageResize8BitPNG(t *testing.T) {
 	c.Assert(resized.MediaType().Type, qt.Equals, "image/png")
 	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu_626cfc4db4222bfe.png")
 	c.Assert(resized.Width(), qt.Equals, 800)
+}
+
+// Issue 12543: applying a filter to an indexed PNG must not clamp the result
+// back to the source palette. An overlaid true color image was reduced to the
+// palette of the indexed background image.
+func TestImageFilterIndexedPNG(t *testing.T) {
+	c := qt.New(t)
+
+	spec, bg := fetchImage(c, "gohugoio8.png")
+	fg := fetchImageForSpec(spec, c, "fuzzy-cirlcle.png")
+
+	fgImage, err := fg.DecodeImage()
+	c.Assert(err, qt.IsNil)
+
+	filtered, err := bg.Filter((&images.Filters{}).Overlay(fg.(images.ImageSource), 0, 0))
+	c.Assert(err, qt.IsNil)
+	c.Assert(filtered.MediaType().Type, qt.Equals, "image/png")
+
+	composite, err := filtered.DecodeImage()
+	c.Assert(err, qt.IsNil)
+
+	// The composite must not be limited to the background's palette.
+	_, isPaletted := composite.(*image.Paletted)
+	c.Assert(isPaletted, qt.IsFalse)
+
+	// Every fully opaque foreground pixel must come through unchanged.
+	var checked int
+	bounds := fgImage.Bounds()
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 21 {
+		for x := bounds.Min.X; x < bounds.Max.X; x += 21 {
+			if _, _, _, a := fgImage.At(x, y).RGBA(); a == 0xffff {
+				got := color.NRGBAModel.Convert(composite.At(x, y))
+				want := color.NRGBAModel.Convert(fgImage.At(x, y))
+				c.Assert(got, qt.DeepEquals, want)
+				checked++
+			}
+		}
+	}
+	c.Assert(checked > 0, qt.IsTrue)
 }
 
 func TestSVGImage(t *testing.T) {

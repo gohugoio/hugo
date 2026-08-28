@@ -321,7 +321,7 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 		return nil, err
 	}
 
-	confMain.Action = "filter"
+	confMain.Action = images.ActionFilter
 	confMain.Key = hashing.HashString(gfilters)
 
 	return i.doWithImageConfig(confMain, func(src image.Image) (image.Image, error) {
@@ -438,7 +438,12 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 			converted = tmp
 		}
 
-		if conf.TargetFormat == images.PNG {
+		// Preserve the source palette for the geometric actions (resize, crop,
+		// fit, fill), so an indexed PNG stays indexed. Filters (e.g.
+		// images.Overlay, images.Text) routinely introduce colors that do not
+		// exist in the source palette, and clamping the result back to that
+		// palette destroys the filtered output. See issue #12543.
+		if conf.TargetFormat == images.PNG && conf.Action != images.ActionFilter {
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
 				palette := paletted.Palette
