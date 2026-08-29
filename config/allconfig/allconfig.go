@@ -326,9 +326,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	if c.DefaultOutputFormat != "" {
 		f, found := outputFormats.GetByName(c.DefaultOutputFormat)
 		if !found {
-			return fmt.Errorf("unknown default output format %q", c.DefaultOutputFormat)
+			transientErr = fmt.Errorf("unknown default output format %q", c.DefaultOutputFormat)
+		} else {
+			defaultOutputFormat = f
 		}
-		defaultOutputFormat = f
 	} else {
 		c.DefaultOutputFormat = defaultOutputFormat.Name
 	}

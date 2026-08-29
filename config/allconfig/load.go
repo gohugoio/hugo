@@ -89,7 +89,7 @@ func LoadConfig(d ConfigSourceDescriptor) (configs *Configs, err error) {
 			return nil, fmt.Errorf("failed to create config from modules config: %w", err)
 		}
 		configs.LoadingInfo.ConfigFiles = append(configs.LoadingInfo.ConfigFiles, l.ModulesConfigFiles...)
-	} else if err := configs.transientErr(); err != nil {
+	} else if err := configs.transientErr(); err != nil && !d.IgnoreModuleDoesNotExist {
 		return nil, fmt.Errorf("failed to create config: %w", err)
 	}
 
