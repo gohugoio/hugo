@@ -1,10 +1,35 @@
-# Test the hugo init command.
+# Test the hugo mod init command.
 
+hugo mod init testsubmod
+cmpenv go.mod $WORK/golden/go.mod.testsubmod
+
+# Output formats not yet available at init time must not block hugo mod init.
+# See issue 15253.
+cp hugo2.toml hugo.toml
+rm go.mod
+hugo mod init testsubmod
+cmpenv go.mod $WORK/golden/go.mod.testsubmod
+
+cp hugo3.toml hugo.toml
+rm go.mod
 hugo mod init testsubmod
 cmpenv go.mod $WORK/golden/go.mod.testsubmod
 
 -- hugo.toml --
 title = "Hugo Modules Test"
+[module]
+[[module.imports]]
+path="github.com/bep/empty-hugo-module"
+-- hugo2.toml --
+title = "Hugo Modules Test"
+[outputs]
+section = ['HTML', 'print']
+[module]
+[[module.imports]]
+path="github.com/bep/empty-hugo-module"
+-- hugo3.toml --
+title = "Hugo Modules Test"
+defaultOutputFormat = 'print'
 [module]
 [[module.imports]]
 path="github.com/bep/empty-hugo-module"
