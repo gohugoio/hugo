@@ -1456,6 +1456,8 @@ func TestPageManualSummary(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
+[security]
+allowContent = ['.*']
 -- content/page-md-shortcode.md --
 ---
 title: "Hugo"
@@ -2022,6 +2024,8 @@ func TestHomePageIsLeafBundle(t *testing.T) {
 -- hugo.toml --
 defaultContentLanguage = 'de'
 defaultContentLanguageInSubdir = true
+[security]
+allowContent = ['.*']
 [languages.de]
 weight = 1
 [languages.en]

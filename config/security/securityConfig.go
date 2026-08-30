@@ -79,9 +79,11 @@ var DefaultConfig = Config{
 	},
 	// Content under /content is treated as untrusted. text/html bodies are
 	// emitted verbatim and are an XSS sink, so they are denied by default.
+	// The same goes for text/org, whose export blocks and inline snippets
+	// pass raw HTML through unescaped.
 	// Everything else is allowed because Whitelist treats a deny-only list as
 	// "allow anything not denied".
-	AllowContent: MustNewWhitelist("! ^text/html$"),
+	AllowContent: MustNewWhitelist("! ^text/html$", "! ^text/org$"),
 }
 
 // Config is the top level security config.
