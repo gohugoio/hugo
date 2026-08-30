@@ -18,7 +18,7 @@ import (
 )
 
 // Keep in sync with js/package.json.
-const katexVersion = "0.16.21"
+const katexVersion = "0.18.4"
 
 //go:embed wasm/renderkatex.wasm
 var katexWasm []byte
