@@ -423,7 +423,7 @@ func (p *nopPage) Store() *hstore.Scratch {
 	return nil
 }
 
-func (p *nopPage) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
+func (p *nopPage) RelatedKeywords(cfg related.IndexConfig) ([]string, error) {
 	return nil, nil
 }
 

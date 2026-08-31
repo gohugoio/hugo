@@ -449,7 +449,7 @@ type RefProvider interface {
 type RelatedKeywordsProvider interface {
 	// Make it indexable as a related.Document
 	// RelatedKeywords is meant for internal usage only.
-	RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error)
+	RelatedKeywords(cfg related.IndexConfig) ([]string, error)
 }
 
 // ShortcodeInfoProvider provides info about the shortcodes in a Page.
