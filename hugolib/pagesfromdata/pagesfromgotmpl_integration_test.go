@@ -369,11 +369,11 @@ func TestPagesFromGoRelatedKeywords(t *testing.T) {
 	}
 	k, err := p1.RelatedKeywords(icfg)
 	b.Assert(err, qt.IsNil)
-	b.Assert(k, qt.DeepEquals, icfg.StringsToKeywords("foo", "Bar"))
+	b.Assert(k, qt.DeepEquals, []string{"foo", "Bar"})
 	icfg.Name = "title"
 	k, err = p1.RelatedKeywords(icfg)
 	b.Assert(err, qt.IsNil)
-	b.Assert(k, qt.DeepEquals, icfg.StringsToKeywords("p1:p1"))
+	b.Assert(k, qt.DeepEquals, []string{"p1:p1"})
 }
 
 func TestPagesFromGoTmplLanguagePerFile(t *testing.T) {
