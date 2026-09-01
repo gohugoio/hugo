@@ -324,6 +324,15 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 	confMain.Action = images.ActionFilter
 	confMain.Key = hashing.HashString(gfilters)
 
+	// Geometric filters cannot introduce colors outside the source palette.
+	for _, f := range gfilters {
+		switch images.UnwrapFilter(f).(type) {
+		case images.ImageProcessSpecProvider, images.ImageFilterFromOrientationProvider:
+		default:
+			confMain.PreserveSourcePalette = false
+		}
+	}
+
 	return i.doWithImageConfig(confMain, func(src image.Image) (image.Image, error) {
 		var filters []gift.Filter
 		for _, f := range gfilters {
@@ -438,11 +447,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 			converted = tmp
 		}
 
-		// Preserve the source palette for the geometric actions so an indexed
-		// PNG stays indexed. Filters (e.g. images.Overlay, images.Text) routinely
-		// introduce colors outside the source palette, and clamping the result
-		// back to that palette destroys the filtered output. See issue 12543.
-		if conf.TargetFormat == images.PNG && conf.Action != images.ActionFilter {
+		if conf.TargetFormat == images.PNG && conf.PreserveSourcePalette {
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
 				palette := paletted.Palette
