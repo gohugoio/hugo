@@ -364,6 +364,14 @@ type ImageConfig struct {
 	// If set, this will be used as the key in filenames etc.
 	Key string
 
+	// Whether the palette of a paletted source image should be re-applied to
+	// the result when the target format is PNG, so an indexed PNG stays indexed.
+	// This is always the case for the geometric actions (resize, crop, fit, fill);
+	// a filter chain turns it off unless all its filters are geometric,
+	// as other filters routinely introduce colors outside the source palette.
+	// See issue 12543.
+	PreserveSourcePalette bool
+
 	// Quality ranges from 1 to 100 inclusive, higher is better.
 	// This is only relevant for JPEG and WEBP images.
 	// For WEBP it's only relevant for lossy encoding.
