@@ -322,7 +322,14 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 	}
 
 	confMain.Action = images.ActionFilter
-	confMain.Key = hashing.HashString(gfilters)
+	opts := []any{gfilters}
+	if images.MainImageVersionNumber > 0 {
+		opts = append(opts, images.MainImageVersionNumber)
+	}
+	if v := images.FormatVersionNumbers[confMain.TargetFormat]; v > 0 {
+		opts = append(opts, v)
+	}
+	confMain.Key = hashing.HashString(opts...)
 
 	// Geometric filters cannot introduce colors outside the source palette.
 	for _, f := range gfilters {
