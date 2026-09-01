@@ -39,8 +39,12 @@ func TestHexStringToColor(t *testing.T) {
 		{"#ffffff", color.White},
 		{"ffffff", color.White},
 		{"#000", color.Black},
-		{"#4287f5", color.RGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0xff}},
-		{"777", color.RGBA{R: 0x77, G: 0x77, B: 0x77, A: 0xff}},
+		{"#4287f5", color.NRGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0xff}},
+		{"777", color.NRGBA{R: 0x77, G: 0x77, B: 0x77, A: 0xff}},
+		// Hex notation is not alpha-premultiplied, so a transparent color
+		// must parse to a color.NRGBA. See issue 12536.
+		{"#00f7", color.NRGBA{R: 0x00, G: 0x00, B: 0xff, A: 0x77}},
+		{"4287f580", color.NRGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0x80}},
 	} {
 
 		c.Run(test.arg, func(c *qt.C) {
@@ -71,10 +75,11 @@ func TestColorToHexString(t *testing.T) {
 		{color.Black, "#000000"},
 		{color.RGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0xff}, "#4287f5"},
 
-		// 50% opacity.
+		// 50% opacity. Hex notation is not alpha-premultiplied, so the
+		// components of a transparent color are the non-premultiplied ones.
 		// Note that the .Colors (dominant colors) received from the Image resource
 		// will always have an alpha value of 0xff.
-		{color.RGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0x80}, "#4287f580"},
+		{color.NRGBA{R: 0x42, G: 0x87, B: 0xf5, A: 0x80}, "#4287f580"},
 	} {
 
 		c.Run(test.expect, func(c *qt.C) {

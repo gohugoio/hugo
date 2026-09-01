@@ -36,6 +36,7 @@ const (
 	ActionCrop   = "crop"
 	ActionFit    = "fit"
 	ActionFill   = "fill"
+	ActionFilter = "filter"
 )
 
 var Actions = map[string]bool{
