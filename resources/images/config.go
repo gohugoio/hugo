@@ -84,13 +84,14 @@ var (
 
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
 	// See the finer grained smartCropVersionNumber.
-	mainImageVersionNumber = 1
+	MainImageVersionNumber = 1
 
 	// Increment a format's version number to mark all processed images targeting
 	// that format as stale, e.g. after a change to its encoder. This is finer
 	// grained than mainImageVersionNumber, which invalidates every format.
-	formatVersionNumbers = map[Format]int{
+	FormatVersionNumbers = map[Format]int{
 		AVIF: 1,
+		PNG:  1, // See issue 12543, 12536
 	}
 )
 
@@ -335,11 +336,11 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		return c, err
 	}
 
-	if mainImageVersionNumber > 0 {
-		options = append(options, strconv.Itoa(mainImageVersionNumber))
+	if MainImageVersionNumber > 0 {
+		options = append(options, strconv.Itoa(MainImageVersionNumber))
 	}
 
-	if v := formatVersionNumbers[c.TargetFormat]; v > 0 {
+	if v := FormatVersionNumbers[c.TargetFormat]; v > 0 {
 		options = append(options, "tfv"+strconv.Itoa(v))
 	}
 

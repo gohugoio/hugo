@@ -112,7 +112,8 @@ docs/p1/sub/mymixcasetext2.txt
 	// Page from markdown file.
 	b.AssertFileContent("public/docs/pfile/index.html", "Dates: Date: 2023-03-01|Lastmod: 2023-03-01|PublishDate: 2023-03-01|ExpiryDate: 0001-01-01|")
 	// Pages from gotmpl.
-	b.AssertFileContent("public/docs/p1/index.html",
+	b.AssertFileContent(
+		"public/docs/p1/index.html",
 		"Single: p1:p1|",
 		"Path: /docs/p1|",
 		"<strong>Hello World</strong>",
@@ -125,7 +126,7 @@ docs/p1/sub/mymixcasetext2.txt
 		"RelPermalink: /docs/p1/sub/mymixcasetext2.txt|Name: sub/mymixcasetext2.txt|",
 		"RelPermalink: /mydata.yaml|Name: sub/data1.yaml|Title: Sub data|Params: map[]|",
 		"Featured Image: /a/pixel.png|featured.png|",
-		"Resized Featured Image: /a/pixel_hu_a354833fd576551d.png|10|",
+		"Resized Featured Image: /a/pixel_hu_51638841a22bb583.png|10|",
 		// Resource from string
 		"RelPermalink: /docs/p1/mytext.txt|Name: textresource|Title: My Text Resource|Params: map[param1:param1v]|",
 		// Dates
@@ -174,25 +175,29 @@ allow = [%s]
 	b := hugolib.Test(t, files)
 
 	if supportsAsciiDoc {
-		b.AssertFileContent("public/docs/asciidoc/index.html",
+		b.AssertFileContent(
+			"public/docs/asciidoc/index.html",
 			"Mark my words, <mark>automation is essential</mark>",
 			"Path: /docs/asciidoc|",
 		)
 	}
 	if supportsPandoc {
-		b.AssertFileContent("public/docs/pandoc/index.html",
+		b.AssertFileContent(
+			"public/docs/pandoc/index.html",
 			"This <del>is deleted text.</del>",
 			"Path: /docs/pandoc|",
 		)
 	}
 	if supportsRst {
-		b.AssertFileContent("public/docs/rst/index.html",
+		b.AssertFileContent(
+			"public/docs/rst/index.html",
 			"This is <em>bold</em>",
 			"Path: /docs/rst|",
 		)
 	}
 
-	b.AssertFileContent("public/docs/org/index.html",
+	b.AssertFileContent(
+		"public/docs/org/index.html",
 		"the ability to use <del>strikethrough</del> is a plus",
 		"Path: /docs/org|",
 	)
@@ -305,14 +310,16 @@ func TestPagesFromGoTmplMovePage(t *testing.T) {
 func TestPagesFromGoTmplRemoveGoTmpl(t *testing.T) {
 	t.Parallel()
 	b := hugolib.TestRunning(t, filesPagesFromDataTempleBasic)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"RegularPagesRecursive: p1:p1:/docs/p1|p2title:/docs/p2|p3title:/docs/p3|p4title:/docs/p4|pfile:/docs/pfile|$",
 		"Sections: Docs:/docs|",
 	)
 	b.AssertFileContent("public/docs/index.html", "RegularPagesRecursive: p1:p1:/docs/p1|p2title:/docs/p2|p3title:/docs/p3|p4title:/docs/p4|pfile:/docs/pfile|$")
 	b.RemoveFiles("content/docs/_content.gotmpl").Build()
 	// One regular page left.
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"RegularPagesRecursive: pfile:/docs/pfile|$",
 		"Sections: Docs:/docs|",
 	)
@@ -596,7 +603,8 @@ disableKinds = ['home','section','rss','sitemap','taxonomy','term']
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		"p1|param1v",
 		"data1.yaml|param1v",
 	)
@@ -651,7 +659,8 @@ Footer: {{ range index site.Menus.footer }}{{ .Name }}|{{ end }}|
 `
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"Main: Main|p1|p2||",
 		"Footer: Footer|p2||",
 	)
@@ -706,7 +715,8 @@ summary: {{ .Summary }}|content: {{ .Content}}
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/s1/p1/index.html",
+	b.AssertFileContent(
+		"public/s1/p1/index.html",
 		"<p>aaa</p>|content: <p>aaa</p>\n<p>bbb</p>",
 	)
 }
