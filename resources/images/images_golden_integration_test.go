@@ -32,7 +32,7 @@ const goldenProcess = `
 {{ end }}
 `
 
-// Note, if you're enabling writeGoldenFiles on a MacOS ARM 64 you need to run the test with GOARCH=amd64, e.g.
+// To regenerate the golden files, see the -writegoldenfiles flag in the imagetesting package.
 func TestImagesGoldenFiltersMisc(t *testing.T) {
 	t.Parallel()
 
@@ -240,6 +240,78 @@ Home.
 	imagetesting.RunGolden(opts)
 }
 
+// The padding color must survive the trip through an alpha-premultiplied
+// destination image; the two images below should look the same.
+// See issue 12536.
+func TestImagesGoldenFiltersPaddingTransparentColor(t *testing.T) {
+	t.Parallel()
+
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "filters/padding"
+
+	files := `
+-- hugo.toml --
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+Home.
+{{ $sunset := resources.Get "sunset.jpg" }}
+{{ $onepass := $sunset.Filter (images.Process "resize x200 png") (images.Padding 20 "#00f7") }}
+{{ $chained := ($sunset.Resize "x200 png").Filter (images.Padding 20 "#00f7") }}
+{{ with $onepass | resources.Copy "images/padding-transparent-onepass.png" }}{{ .Publish }}{{ end }}
+{{ with $chained | resources.Copy "images/padding-transparent-chained.png" }}{{ .Publish }}{{ end }}
+`
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
+}
+
+// Filtering an indexed PNG must not clamp the result to the source palette.
+// See issue 12543.
+func TestImagesGoldenFiltersPaletted(t *testing.T) {
+	t.Parallel()
+
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "filters/paletted"
+
+	files := `
+-- hugo.toml --
+-- assets/gohugoio8.png --
+sourcefilename: ../testdata/gohugoio8.png
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+Home.
+{{ $bg := (resources.Get "gohugoio8.png").Resize "500x" }}
+{{ $sunset := (resources.Get "sunset.jpg").Resize "x160" }}
+{{ $textOpts := dict "color" "#ff0060" "size" 40 "x" 190 "y" 80 }}
+
+{{ $overlay := $bg.Filter (images.Overlay $sunset 230 70) }}
+{{ $text := $bg.Filter (images.Text "Hugo Rocks!" $textOpts) }}
+{{ with $overlay | resources.Copy "images/overlay.png" }}{{ .Publish }}{{ end }}
+{{ with $text | resources.Copy "images/text.png" }}{{ .Publish }}{{ end }}
+`
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
+}
+
 func TestImagesGoldenFiltersText(t *testing.T) {
 	t.Parallel()
 
@@ -295,8 +367,6 @@ Home.
 	opts.T = t
 	opts.Name = name
 	opts.Files = files
-	// opts.WriteFiles = true
-	// opts.DevMode = true
 
 	imagetesting.RunGolden(opts)
 }
