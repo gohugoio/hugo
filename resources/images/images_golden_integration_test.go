@@ -292,16 +292,24 @@ func TestImagesGoldenFiltersPaletted(t *testing.T) {
 sourcefilename: ../testdata/gohugoio8.png
 -- assets/sunset.jpg --
 sourcefilename: ../testdata/sunset.jpg
+-- assets/card.gif --
+sourcefilename: ../testdata/gohugoio-card.gif
 -- layouts/home.html --
 Home.
 {{ $bg := (resources.Get "gohugoio8.png").Resize "500x" }}
 {{ $sunset := (resources.Get "sunset.jpg").Resize "x160" }}
+{{ $card := resources.Get "card.gif" }}
 {{ $textOpts := dict "color" "#ff0060" "size" 40 "x" 190 "y" 80 }}
 
 {{ $overlay := $bg.Filter (images.Overlay $sunset 230 70) }}
 {{ $text := $bg.Filter (images.Text "Hugo Rocks!" $textOpts) }}
+{{/* Chains of geometric filters only; these should preserve the source palette. */}}
+{{ $processed := $bg.Filter (images.Process "crop 300x150 TopRight png") images.AutoOrient }}
+{{ $gifcrop := $card.Filter (images.Process "crop 100x50 TopRight png") }}
 {{ with $overlay | resources.Copy "images/overlay.png" }}{{ .Publish }}{{ end }}
 {{ with $text | resources.Copy "images/text.png" }}{{ .Publish }}{{ end }}
+{{ with $processed | resources.Copy "images/process-autoorient.png" }}{{ .Publish }}{{ end }}
+{{ with $gifcrop | resources.Copy "images/gif-process.png" }}{{ .Publish }}{{ end }}
 `
 
 	opts := imagetesting.DefaultGoldenOpts
