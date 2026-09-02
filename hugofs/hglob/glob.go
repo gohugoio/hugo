@@ -23,6 +23,7 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/gobwas/glob/syntax"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/identity"
 )
 
@@ -38,7 +39,7 @@ var (
 )
 
 type globErr struct {
-	glob glob.Glob
+	glob hstrings.Matcher
 	err  error
 }
 
@@ -50,8 +51,8 @@ type pathGlobCache struct {
 	cache *hmaps.Cache[string, globErr]
 }
 
-// GetGlobDot returns a glob.Glob that matches the given pattern, using '.' as the path separator.
-func GetGlobDot(pattern string) (glob.Glob, error) {
+// GetGlobDot returns a hstrings.Matcher that matches the given pattern, using '.' as the path separator.
+func GetGlobDot(pattern string) (hstrings.Matcher, error) {
 	v, err := dotGlobCache.GetOrCreate(pattern, func() (globErr, error) {
 		g, err := glob.Compile(pattern, '.')
 		return globErr{
@@ -66,7 +67,7 @@ func GetGlobDot(pattern string) (glob.Glob, error) {
 	return v.glob, v.err
 }
 
-func (gc *pathGlobCache) GetGlob(pattern string) (glob.Glob, error) {
+func (gc *pathGlobCache) GetGlob(pattern string) (hstrings.Matcher, error) {
 	v, err := gc.cache.GetOrCreate(pattern, func() (globErr, error) {
 		pattern = filepath.ToSlash(pattern)
 		g, err := glob.Compile(strings.ToLower(pattern), '/')
@@ -86,11 +87,11 @@ func (gc *pathGlobCache) GetGlob(pattern string) (glob.Glob, error) {
 }
 
 // Or creates a new Glob from the given globs.
-func Or(globs ...glob.Glob) glob.Glob {
+func Or(globs ...hstrings.Matcher) hstrings.Matcher {
 	return globSlice{globs: globs}
 }
 
-// MatchesFunc is a convenience type to create a glob.Glob from a function.
+// MatchesFunc is a convenience type to create a hstrings.Matcher from a function.
 type MatchesFunc func(s string) bool
 
 func (m MatchesFunc) Match(s string) bool {
@@ -98,7 +99,7 @@ func (m MatchesFunc) Match(s string) bool {
 }
 
 type globSlice struct {
-	globs []glob.Glob
+	globs []hstrings.Matcher
 }
 
 func (g globSlice) Match(s string) bool {
@@ -115,7 +116,7 @@ type globDecorator struct {
 	// which we need to normalize.
 	isWindows bool
 
-	g glob.Glob
+	g hstrings.Matcher
 }
 
 func (g globDecorator) Match(s string) bool {
@@ -126,7 +127,7 @@ func (g globDecorator) Match(s string) bool {
 	return g.g.Match(s)
 }
 
-func GetGlob(pattern string) (glob.Glob, error) {
+func GetGlob(pattern string) (hstrings.Matcher, error) {
 	return defaultGlobCache.GetGlob(pattern)
 }
 
@@ -171,7 +172,7 @@ func FilterGlobParts(a []string) []string {
 // HasGlobChar returns whether s contains any glob wildcards.
 func HasGlobChar(s string) bool {
 	for i := range len(s) {
-		if syntax.Special(s[i]) {
+		if syntax.IsSpecial(s[i]) {
 			return true
 		}
 	}

@@ -20,7 +20,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstrings"
@@ -59,9 +58,9 @@ type PageMatcher struct {
 	// Compiled values.
 	// The site vectors to apply this to.
 	SitesMatrixCompiled sitesmatrix.VectorProvider `mapstructure:"-"`
-	kindGlob            glob.Glob
-	pathGlob            glob.Glob
-	environmentGlob     glob.Glob
+	kindGlob            hstrings.Matcher
+	pathGlob            hstrings.Matcher
+	environmentGlob     hstrings.Matcher
 }
 
 // Equal compares the configured fields; compiled state is ignored.

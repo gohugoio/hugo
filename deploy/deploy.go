@@ -34,7 +34,7 @@ import (
 	"sync"
 
 	"github.com/dustin/go-humanize"
-	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/para"
 	"github.com/gohugoio/hugo/config"
@@ -132,7 +132,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	}
 
 	// Load local files from the source directory.
-	var include, exclude glob.Glob
+	var include, exclude hstrings.Matcher
 	var mappath func(string) string
 	if d.target != nil {
 		include, exclude = d.target.IncludeGlob, d.target.ExcludeGlob
@@ -487,7 +487,7 @@ func knownHiddenDirectory(name string) bool {
 
 // walkLocal walks the source directory and returns a flat list of files,
 // using localFile.SlashPath as the map keys.
-func (d *Deployer) walkLocal(fs afero.Fs, matchers []*deployconfig.Matcher, include, exclude glob.Glob, mediaTypes media.Types, mappath func(string) string) (map[string]*localFile, error) {
+func (d *Deployer) walkLocal(fs afero.Fs, matchers []*deployconfig.Matcher, include, exclude hstrings.Matcher, mediaTypes media.Types, mappath func(string) string) (map[string]*localFile, error) {
 	retval := make(map[string]*localFile)
 	var mu sync.Mutex
 
@@ -575,7 +575,7 @@ func stripIndexHTML(slashpath string) string {
 }
 
 // walkRemote walks the target bucket and returns a flat list.
-func (d *Deployer) walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude glob.Glob) (map[string]*blob.ListObject, error) {
+func (d *Deployer) walkRemote(ctx context.Context, bucket *blob.Bucket, include, exclude hstrings.Matcher) (map[string]*blob.ListObject, error) {
 	retval := map[string]*blob.ListObject{}
 	iter := bucket.List(nil)
 	for {

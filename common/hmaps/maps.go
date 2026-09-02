@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/gobwas/glob"
@@ -145,7 +146,7 @@ func MergeShallow(dst, src map[string]any) {
 }
 
 type keyRename struct {
-	pattern glob.Glob
+	pattern hstrings.Matcher
 	newKey  string
 }
 

@@ -17,7 +17,7 @@ import (
 	"iter"
 	"strings"
 
-	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/hugofs/hglob"
 )
 
@@ -184,7 +184,7 @@ func cutRangeOp(s string) (op int, rest string) {
 
 // NewStringPredicateFromGlobs creates a string predicate from the given glob patterns.
 // A glob pattern starting with "!" is a negation pattern which will be ANDed with the rest.
-func NewStringPredicateFromGlobs(patterns []string, getGlob func(pattern string) (glob.Glob, error)) (P[string], error) {
+func NewStringPredicateFromGlobs(patterns []string, getGlob func(pattern string) (hstrings.Matcher, error)) (P[string], error) {
 	var p PR[string]
 	for _, pattern := range patterns {
 		pattern = strings.TrimSpace(pattern)
@@ -219,7 +219,7 @@ func NewStringPredicateFromGlobs(patterns []string, getGlob func(pattern string)
 // NewIndexStringPredicateFromGlobsAndRanges creates an IndexString predicate from the given glob patterns and range patterns.
 // A glob pattern starting with "!" is a negation pattern which will be ANDed with the rest.
 // A range pattern is one of "> value", ">= value", "< value" or "<= value".
-func NewIndexStringPredicateFromGlobsAndRanges(patterns []string, getIndex func(s string) int, getGlob func(pattern string) (glob.Glob, error)) (P[IndexString], error) {
+func NewIndexStringPredicateFromGlobsAndRanges(patterns []string, getIndex func(s string) int, getGlob func(pattern string) (hstrings.Matcher, error)) (P[IndexString], error) {
 	var p PR[IndexString]
 	for _, pattern := range patterns {
 		pattern = strings.TrimSpace(pattern)
