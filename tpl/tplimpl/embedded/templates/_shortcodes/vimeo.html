@@ -43,7 +43,7 @@ title, then loading.
 		{{- $iframeStyle := "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" }}
 
 		{{- with $id }}
-			{{- $src := printf "https://player.vimeo.com/video/%v?dnt=%v" . $dnt }}
+			{{- $src := printf "https://player.vimeo.com/video/%v?dnt=%v" . $dnt -}}
 			<div
 				{{- with $class }}
 					class="{{ . }}"
