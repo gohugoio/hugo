@@ -967,3 +967,36 @@ func TestTrimSpace(t *testing.T) {
 		c.Assert(result, qt.Equals, test.expect)
 	}
 }
+
+func TestRemoveNonPrintableCharacters(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		s      any
+		expect any
+	}{
+		{"\n\r test \n\r", " test "},
+		{"foo\tbar", "foo bar"},
+		{"foo\r\n\n\tbar", "foo bar"},
+		{"foo\u00a0\u2003bar", "foo bar"},
+		{"foo\u00adbar\u200bbaz\ufeff", "foobarbaz"},
+		{"foo \u00ad bar", "foo bar"},
+		{"caf\u0065\u0301 \U0001f44b\U0001f3fb", "caf\u0065\u0301 \U0001f44b\U0001f3fb"},
+		{template.HTML("\n\r test \n\r"), " test "},
+		{[]byte("\n\r test \n\r"), " test "},
+		// errors
+		{tstNoStringer{}, false},
+	} {
+
+		result, err := ns.RemoveNonPrintableCharacters(test.s)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			c.Assert(err, qt.Not(qt.IsNil))
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+}

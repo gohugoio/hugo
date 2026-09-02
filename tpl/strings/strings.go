@@ -257,6 +257,34 @@ func (ns *Namespace) Replace(s, old, new any, limit ...any) (string, error) {
 	return strings.Replace(ss, so, sn, lim), nil
 }
 
+// RemoveNonPrintableCharacters removes non-printable characters from s.
+// Whitespace, including tabs and newlines, is replaced with a single space,
+// and runs of whitespace are collapsed. Other non-printable characters,
+// such as soft hyphens and zero-width spaces, are removed.
+func (ns *Namespace) RemoveNonPrintableCharacters(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	var space bool
+	return strings.Map(func(r rune) rune {
+		switch {
+		case unicode.IsSpace(r):
+			if space {
+				return -1
+			}
+			space = true
+			return ' '
+		case unicode.IsPrint(r):
+			space = false
+			return r
+		default:
+			return -1
+		}
+	}, ss), nil
+}
+
 // ReplacePairs returns a copy of a string with multiple replacements performed
 // in a single pass. The last argument is the source string. Preceding arguments
 // are old/new string pairs, either as a slice or as individual arguments.
