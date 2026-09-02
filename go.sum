@@ -158,8 +158,8 @@ github.com/bep/godartsass/v2 v2.5.0 h1:tKRvwVdyjCIr48qgtLa4gHEdtRkPF8H1OeEhJAEv7
 github.com/bep/godartsass/v2 v2.5.0/go.mod h1:rjsi1YSXAl/UbsGL85RLDEjRKdIKUlMQHr6ChUNYOFU=
 github.com/bep/golibsass v1.2.0 h1:nyZUkKP/0psr8nT6GR2cnmt99xS93Ji82ZD9AgOK6VI=
 github.com/bep/golibsass v1.2.0/go.mod h1:DL87K8Un/+pWUS75ggYv41bliGiolxzDKWJAq3eJ1MA=
-github.com/bep/golocales v0.2.0 h1:4H1H5UPw3ainpj5zykeEfiMRQngyaIC/t+I4Dvn+fvE=
-github.com/bep/golocales v0.2.0/go.mod h1:Hl78nje8mNL3LzLeJvYN9NsIZgyFJGrGfvgO9r1+mwE=
+github.com/bep/golocales v0.3.0 h1:qqJ2OEpVzk5V6NLMg1xkTXtGq5uiFykPzzMGekz9lAI=
+github.com/bep/golocales v0.3.0/go.mod h1:ubUc+etzkzlDM1W/WE83aT3TQlVibFoKViazkFmvnsk=
 github.com/bep/goportabletext v0.2.0 h1:CZ9f8jADBWqHwBymQiJJPCTSV/tHSA+PYzlUf86Yze0=
 github.com/bep/goportabletext v0.2.0/go.mod h1:xDeA5+qcgKzJq6Q6XjAiBKtxLD3Yn7f6XP4joD3J3qU=
 github.com/bep/helpers v0.12.0 h1:tD6V2DQW0B+FUynF2etR/106S/TO9akm+vA/Hk24GxY=
