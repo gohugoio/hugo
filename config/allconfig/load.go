@@ -22,10 +22,10 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
@@ -451,7 +451,7 @@ func (l *configLoader) loadModules(configs *Configs, ignoreModuleDoesNotExist bo
 
 	cfg := configs.LoadingInfo.Cfg
 
-	var ignoreVendor glob.Glob
+	var ignoreVendor hstrings.Matcher
 	if s := conf.IgnoreVendorPaths; s != "" {
 		ignoreVendor, _ = hglob.GetGlob(hglob.NormalizePath(s))
 	}

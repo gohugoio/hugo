@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/config"
 	hglob "github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/mitchellh/mapstructure"
@@ -67,8 +67,8 @@ type Target struct {
 	Exclude string
 
 	// Parsed versions of Include/Exclude.
-	IncludeGlob glob.Glob `json:"-"`
-	ExcludeGlob glob.Glob `json:"-"`
+	IncludeGlob hstrings.Matcher `json:"-"`
+	ExcludeGlob hstrings.Matcher `json:"-"`
 
 	// If true, any local path matching <dir>/index.html will be mapped to the
 	// remote path <dir>/. This does not affect the top-level index.html file,
