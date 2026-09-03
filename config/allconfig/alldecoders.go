@@ -494,6 +494,13 @@ var allDecoderSetups = map[string]decodeWeight{
 		},
 		internalOrDeprecated: true,
 	},
+	"internalexternal": {
+		key: "internalexternal",
+		decode: func(d decodeWeight, p decodeConfig) error {
+			return mapstructure.WeakDecode(p.p.GetStringMap(d.key), &p.c.InternalExternal)
+		},
+		internalOrDeprecated: true,
+	},
 }
 
 func init() {
