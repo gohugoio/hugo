@@ -61,7 +61,7 @@ var DefaultConfig = Config{
 		// blocks; users who need them can override security.http.urls.
 		URLs: MustNewWhitelist(
 			`(?i)^https?://[a-z0-9]`,
-			`! ^https?://\d+\.`,
+			`! (?i)^https?://\d+\.`,
 			`! (?i)localhost`,
 			`! (?i)^https?://[^/?#]*@`,
 		),
@@ -249,11 +249,50 @@ func (c Config) CheckAllowedHTTPAddress(network, address string) error {
 		// is unexpected, so fail closed.
 		return deny(address)
 	}
-	ip = ip.Unmap()
-	if !ip.IsGlobalUnicast() || ip.IsPrivate() {
+	if !isPublicAddr(ip) {
 		return deny(host)
 	}
 	return nil
+}
+
+// Special-purpose ranges that Go classifies as global unicast and
+// non-private, but that are never reachable on the public Internet.
+var nonPublicPrefixes = []netip.Prefix{
+	netip.MustParsePrefix("100.64.0.0/10"),   // Shared address space (CGNAT), RFC 6598.
+	netip.MustParsePrefix("192.0.0.0/24"),    // IETF protocol assignments.
+	netip.MustParsePrefix("192.0.2.0/24"),    // TEST-NET-1.
+	netip.MustParsePrefix("198.18.0.0/15"),   // Benchmarking.
+	netip.MustParsePrefix("198.51.100.0/24"), // TEST-NET-2.
+	netip.MustParsePrefix("203.0.113.0/24"),  // TEST-NET-3.
+	netip.MustParsePrefix("240.0.0.0/4"),     // Reserved.
+	netip.MustParsePrefix("2001:db8::/32"),   // Documentation.
+	netip.MustParsePrefix("3fff::/20"),       // Documentation.
+	netip.MustParsePrefix("2001:2::/48"),     // Benchmarking.
+}
+
+// nat64Prefixes embed an IPv4 address in the low 32 bits, RFC 6052/8215.
+var nat64Prefixes = []netip.Prefix{
+	netip.MustParsePrefix("64:ff9b::/96"),
+	netip.MustParsePrefix("64:ff9b:1::/48"),
+}
+
+func isPublicAddr(ip netip.Addr) bool {
+	ip = ip.Unmap()
+	for _, p := range nat64Prefixes {
+		if p.Contains(ip) {
+			b := ip.As16()
+			return isPublicAddr(netip.AddrFrom4([4]byte(b[12:])))
+		}
+	}
+	if !ip.IsGlobalUnicast() || ip.IsPrivate() {
+		return false
+	}
+	for _, p := range nonPublicPrefixes {
+		if p.Contains(ip) {
+			return false
+		}
+	}
+	return true
 }
 
 // canonicalIPv4URL rewrites an integer/hex/octal IPv4 host in rawURL to its

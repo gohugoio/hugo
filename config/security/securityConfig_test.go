@@ -135,7 +135,7 @@ func TestToTOML(t *testing.T) {
 	got := DefaultConfig.ToTOML()
 
 	c.Assert(got, qt.Equals,
-		"[security]\n  allowContent = ['! ^text/html$', '! ^text/org$']\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass$', '^go$', '^git$', '^node$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['(?i)^https?://[a-z0-9]', '! ^https?://\\d+\\.', '! (?i)localhost', '! (?i)^https?://[^/?#]*@']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowChildProcess = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
+		"[security]\n  allowContent = ['! ^text/html$', '! ^text/org$']\n  enableInlineShortcodes = false\n\n  [security.exec]\n    allow = ['^(dart-)?sass$', '^go$', '^git$', '^node$', '^postcss$']\n    osEnv = ['(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$']\n\n  [security.funcs]\n    getenv = ['^HUGO_', '^CI$']\n\n  [security.http]\n    methods = ['(?i)GET|POST']\n    urls = ['(?i)^https?://[a-z0-9]', '! (?i)^https?://\\d+\\.', '! (?i)localhost', '! (?i)^https?://[^/?#]*@']\n\n  [security.node]\n    [security.node.permissions]\n      allowAddons = ['tailwindcss']\n      allowChildProcess = ['tailwindcss']\n      allowRead = ['.']\n      allowWorker = ['tailwindcss']\n      allowWrite = []\n      disable = false",
 	)
 }
 
@@ -196,6 +196,8 @@ func TestCheckAllowedHTTPURLHardenedDefaultsIssue14792(t *testing.T) {
 			"http://LOCALHOST:8080/",
 			"http://foo.localhost/",
 			"http://127.0.0.1/",
+			"HTTP://127.0.0.1/", // The deny rules must be case-insensitive.
+			"HtTpS://169.254.169.254/",
 			"http://127.1.2.3:8080/x",
 			"http://user:pass@127.0.0.1/", // userinfo must not sneak past the deny.
 			"http://10.0.0.1/",
@@ -257,7 +259,8 @@ func TestCheckAllowedHTTPAddress(t *testing.T) {
 
 	for _, addr := range []string{
 		"93.184.216.34:80",
-		"[2001:db8::1]:443",
+		"[2606:4700::1]:443",
+		"[64:ff9b::5db8:d822]:80", // NAT64-embedded 93.184.216.34.
 	} {
 		c.Assert(pc.CheckAllowedHTTPAddress("tcp", addr), qt.IsNil, qt.Commentf(addr))
 	}
@@ -273,6 +276,19 @@ func TestCheckAllowedHTTPAddress(t *testing.T) {
 		"[fc00::1]:80",
 		"0.0.0.0:80",
 		"[::ffff:127.0.0.1]:80", // IPv4-mapped loopback.
+		"100.64.0.1:80",         // CGNAT.
+		"[::ffff:100.64.0.1]:80",
+		"192.0.0.9:80",
+		"192.0.2.1:80", // TEST-NET-1.
+		"198.18.0.1:80",
+		"198.51.100.1:80",
+		"203.0.113.1:80",
+		"240.0.0.1:80",
+		"[2001:db8::1]:443",
+		"[3fff::1]:443",
+		"[64:ff9b::7f00:1]:80",    // NAT64-embedded 127.0.0.1.
+		"[64:ff9b::a9fe:a9fe]:80", // NAT64-embedded 169.254.169.254.
+		"[64:ff9b:1::a00:1]:80",   // NAT64-embedded 10.0.0.1.
 	} {
 		err := pc.CheckAllowedHTTPAddress("tcp", addr)
 		c.Assert(err, qt.IsNotNil, qt.Commentf(addr))
