@@ -83,7 +83,7 @@ Create your content in the [Pandoc][] format preceded by front matter. Hugo rend
 Hugo passes these CLI flags when calling the Pandoc executable:
 
 ```sh
---mathjax
+--math-method=mathjax
 ```
 
 ### reStructuredText

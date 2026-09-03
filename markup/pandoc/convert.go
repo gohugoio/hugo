@@ -62,7 +62,7 @@ func (c *pandocConverter) getPandocContent(src []byte, ctx converter.DocumentCon
 	if binaryName == "" {
 		return nil, fmt.Errorf("pandoc not found in $PATH, cannot render %q", ctx.DocumentName)
 	}
-	args := []string{"--mathjax", "--citeproc"}
+	args := []string{"--math-method=mathjax", "--citeproc"}
 	return internal.ExternallyRenderContent(c.cfg, ctx, src, binaryName, args)
 }
 
