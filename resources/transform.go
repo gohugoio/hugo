@@ -479,9 +479,10 @@ func (r *resourceAdapter) transformationKey(trs []ResourceTransformation) string
 
 func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	key := r.TransformationKey()
+	cacheKey := r.spec.ResourceCache.cacheKey(key)
 
 	var created bool
-	res, err := r.spec.ResourceCache.cacheResourceTransformation.GetOrCreate(key, func(string) (*resourceAdapterInner, error) {
+	res, err := r.spec.ResourceCache.cacheResourceTransformation.GetOrCreate(cacheKey, func(string) (*resourceAdapterInner, error) {
 		created = true
 		return r.transform(key, publish, setContent)
 	})
@@ -493,15 +494,16 @@ func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 
 	if publish && r.spec.Rebuilder.IsRebuild() {
 		targetPath := r.target.TargetPath()
+		publishedKey := r.spec.ResourceCache.cacheKey(targetPath)
 		var republish bool
 
 		r.spec.ResourceCache.cacheResourceTransformationPublished.WithWriteLock(func(m map[string]string) error {
 			if created {
-				m[targetPath] = key
+				m[publishedKey] = cacheKey
 			} else {
-				key2, found := m[targetPath]
-				republish = !found || key2 != key
-				m[targetPath] = key
+				key2, found := m[publishedKey]
+				republish = !found || key2 != cacheKey
+				m[publishedKey] = cacheKey
 			}
 			return nil
 		})
@@ -537,7 +539,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 	// accessed before more transformations were chained), resume from the
 	// longest cached prefix instead of re-running it.
 	for i := len(trs) - 1; i > 0; i-- {
-		if inner, found := cache.cacheResourceTransformation.Get(r.ctx, r.transformationKey(trs[:i])); found {
+		if inner, found := cache.cacheResourceTransformation.Get(r.ctx, cache.cacheKey(r.transformationKey(trs[:i]))); found {
 			for _, tr := range trs[:i] {
 				if transformationsToCacheOnDisk[tr.Key().Name] {
 					writeToFileCache = true
