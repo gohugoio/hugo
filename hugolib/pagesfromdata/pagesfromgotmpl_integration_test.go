@@ -972,3 +972,36 @@ templateMetrics = true
 	b.Assert(got, qt.Contains, "/docs/_content.gotmpl")
 	b.Assert(got, qt.Not(qt.Contains), "content/docs/_content.gotmpl")
 }
+
+// See issue 14480.
+func TestContentAdapterInlinePartial(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT"]
+-- content/test/_content.gotmpl --
+{{ define "_partials/inline/foo.html" }}
+The answer is {{ .answer }}.
+{{ end }}
+
+{{ $content := dict
+  "mediaType" "text/markdown"
+  "value" (partial "inline/foo.html" (dict "answer" 1831))
+}}
+
+{{ $page := dict
+  "content" $content
+  "kind" "page"
+  "path" "my-page"
+  "title" "The Title"
+}}
+
+{{ .AddPage $page }}
+-- layouts/page.html --
+Title: {{ .Title }}|Content: {{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/test/my-page/index.html", "The answer is 1831.")
+}
