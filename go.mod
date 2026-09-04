@@ -20,7 +20,7 @@ require (
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20401.20400
 	github.com/bep/overlayfs v0.11.0
-	github.com/bep/simplecobra v0.7.0
+	github.com/bep/simplecobra v0.8.0
 	github.com/bep/textandbinarywriter v0.1.0
 	github.com/bep/tmc v0.6.0
 	github.com/bits-and-blooms/bitset v1.24.5
