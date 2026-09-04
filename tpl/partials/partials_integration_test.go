@@ -15,7 +15,7 @@ package partials_test
 
 import (
 	"bytes"
-	"fmt"
+	"context"
 	"regexp"
 	"sort"
 	"strings"
@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/tpl/partials"
 )
 
 func TestInclude(t *testing.T) {
@@ -215,37 +216,35 @@ baseURL = 'http://example.com/'
 {{ partialCached "easy1.html" "bar" }}
 {{ partialCached "easy1.html" "baz" }}
 {{ partialCached "easy2.html" "baz" }}
--- layouts/_partials/easy1.html --
+-- layouts/_partials/abc.html --
 ABCD
--- layouts/_partials/easy2.html --
-ABCDE
--- layouts/_partials/heavy.html --
-{{ $result := slice }}
-{{ range site.RegularPages }}
-{{ $result = $result | append (dict "title" .Title "link" .RelPermalink "readingTime" .ReadingTime) }}
-{{ end }}
-{{ range $result }}
-* {{ .title }} {{ .link }} {{ .readingTime }}
-{{ end }}
+-- layouts/_partials/42.html --
+{{ return 42 }}
+
 
 
 `)
 
-	for i := 1; i < 100; i++ {
-		files.WriteString(fmt.Sprintf("\n-- content/p%d.md --\n---\ntitle: page\n---\n"+strings.Repeat("FOO ", i), i))
-	}
+	bb := hugolib.Test(b, files.String())
+	ns := bb.H.TemplateStore.GetTemplateFuncsNamespace("partials").(*partials.Namespace)
 
-	cfg := hugolib.IntegrationTestConfig{
-		T:           b,
-		TxtarString: files.String(),
-	}
+	b.Run("abc", func(b *testing.B) {
+		for b.Loop() {
+			_, _ = ns.IncludeCached(context.Background(), "abc.html", "foo")
+		}
+	})
 
-	for b.Loop() {
-		b.StopTimer()
-		bb := hugolib.NewIntegrationTestBuilder(cfg)
-		b.StartTimer()
-		bb.Build()
-	}
+	b.Run("variant", func(b *testing.B) {
+		for b.Loop() {
+			_, _ = ns.IncludeCached(context.Background(), "abc.html", "foo", "variant")
+		}
+	})
+
+	b.Run("return", func(b *testing.B) {
+		for b.Loop() {
+			_, _ = ns.IncludeCached(context.Background(), "42.html", "foo")
+		}
+	})
 }
 
 func TestIncludeTimeout(t *testing.T) {
