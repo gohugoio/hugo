@@ -16,7 +16,7 @@ require (
 	github.com/bep/goportabletext v0.2.0
 	github.com/bep/helpers v0.12.0
 	github.com/bep/imagemeta v1.0.0
-	github.com/bep/lazycache v0.8.1
+	github.com/bep/lazycache v0.9.0
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20401.20400
 	github.com/bep/overlayfs v0.11.0
