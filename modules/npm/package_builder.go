@@ -195,15 +195,28 @@ func Pack(sourceFs, assetsWithDuplicatesPreservedFs afero.Fs, mods modules.Modul
 		}
 	}
 
-	name := "project"
-	rfi, err := sourceFs.Stat("")
-	if err == nil {
-		name = rfi.Name()
+	// Stable defaults; mark the workspace private so npm never publishes it.
+	// Preserve any hand-set values from an existing file.
+	name, version, private := "hugoautogen", "0.1.0", true
+	if data, err := afero.ReadFile(sourceFs, workspacePackageJSON); err == nil {
+		var existing map[string]any
+		if err := json.Unmarshal(data, &existing); err == nil {
+			if s, ok := existing["name"].(string); ok && s != "" {
+				name = s
+			}
+			if s, ok := existing["version"].(string); ok && s != "" {
+				version = s
+			}
+			if b, ok := existing["private"].(bool); ok {
+				private = b
+			}
+		}
 	}
 
 	autoGenPkg := map[string]any{
 		"name":             name,
-		"version":          "0.1.0",
+		"version":          version,
+		"private":          private,
 		dependenciesKey:    moduleDeps,
 		devDependenciesKey: moduleDevDeps,
 	}

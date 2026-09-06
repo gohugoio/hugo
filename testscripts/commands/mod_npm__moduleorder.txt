@@ -42,7 +42,8 @@ go 1.20
     "strip-ansi": "7.0.0",
     "to-pascal-case": "1.0.0"
   },
-  "name": "script-mod_npm__moduleorder",
+  "name": "hugoautogen",
+  "private": true,
   "version": "0.1.0"
 }
 -- golden1/packages/hugoautogen/hugo_packagemeta.json --

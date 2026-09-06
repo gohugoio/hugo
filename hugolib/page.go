@@ -174,14 +174,10 @@ func (ps *pageState) Param(key any) (any, error) {
 }
 
 // RelatedKeywords implements the related.Document interface needed for fast page searches.
-func (ps *pageState) RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
+func (ps *pageState) RelatedKeywords(cfg related.IndexConfig) ([]string, error) {
 	v, found, err := page.NamedPageMetaValue(ps, cfg.Name)
-	if err != nil {
+	if err != nil || !found {
 		return nil, err
-	}
-
-	if !found {
-		return nil, nil
 	}
 
 	return cfg.ToKeywords(v)

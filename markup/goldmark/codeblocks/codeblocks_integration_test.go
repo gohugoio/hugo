@@ -437,3 +437,38 @@ Some code.
 
 	b.AssertFileContent("public/p1/index.html", "! <script>")
 }
+
+// A quote inside a code-fence attribute value must not break out of the
+// attribute and inject a further attribute (e.g. an event handler).
+// See CVE-2026-10618.
+func TestCodeblockAttributeValueEscape(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+§§§bash { title="x\" onmouseover=\"alert(1)" }
+echo "hello";
+§§§
+
+§§§bash { class="x\" onmouseover=\"alert(2)" }
+echo "hello";
+§§§
+`
+
+	b := hugolib.Test(t, files)
+
+	// The quote must be escaped so it cannot close the attribute and start a
+	// new one; the literal onmouseover="alert breakout must not appear.
+	b.AssertFileContent("public/p1/index.html",
+		`! onmouseover="alert`,
+		"&#34; onmouseover=&#34;alert(2)",
+		"&quot; onmouseover=&quot;alert(1)",
+	)
+}

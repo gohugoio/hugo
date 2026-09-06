@@ -344,7 +344,8 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 
 func newImageConfig() ImageConfig {
 	return ImageConfig{
-		Anchor: -1, // The real values start at 0.
+		Anchor:                -1, // The real values start at 0.
+		PreserveSourcePalette: true,
 	}
 }
 

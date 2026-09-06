@@ -119,7 +119,8 @@ usePackageJSON="auto"
     "strip-ansi": "7.2.0",
     "to-pascal-case": "1.0.0"
   },
-  "name": "script-mod_npm",
+  "name": "hugoautogen",
+  "private": true,
   "version": "0.1.0"
 }
 -- golden1/package.json --
@@ -149,7 +150,8 @@ usePackageJSON="auto"
     "strip-ansi": "7.2.0",
     "to-pascal-case": "1.0.0"
   },
-  "name": "script-mod_npm",
+  "name": "hugoautogen",
+  "private": true,
   "version": "0.1.0"
 }
 -- golden3/packages/hugoautogen/package.json --
@@ -168,7 +170,8 @@ usePackageJSON="auto"
     "strip-ansi": "7.2.0",
     "to-pascal-case": "1.0.0"
   },
-  "name": "script-mod_npm",
+  "name": "hugoautogen",
+  "private": true,
   "version": "0.1.0"
 }
 -- golden4/packages/hugoautogen/package.json --
@@ -188,7 +191,8 @@ usePackageJSON="auto"
     "strip-ansi": "7.2.0",
     "to-pascal-case": "1.0.0"
   },
-  "name": "script-mod_npm",
+  "name": "hugoautogen",
+  "private": true,
   "version": "0.1.0"
 }
 -- golden5/packages/hugoautogen/package.json --
@@ -206,7 +210,8 @@ usePackageJSON="auto"
     "strip-ansi": "7.2.0",
     "to-pascal-case": "1.0.0"
   },
-  "name": "script-mod_npm",
+  "name": "hugoautogen",
+  "private": true,
   "version": "0.1.0"
 }
 -- go.mod --

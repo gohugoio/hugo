@@ -79,7 +79,8 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 `
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`<img data-id="0" data-img-hash="6ccacf8056c41475" data-level="" data-scale="" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
 		`<img data-id="1" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
 		`<img data-id="2" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="4" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
@@ -161,8 +162,8 @@ Brightnes func: {{ ($img | images.Filter (images.Brightness 12) ).RelPermalink }
 	b.AssertFileContent("public/index.html", `
 images.Config: 222
 Resize to 100x100: 100
-Brightnes method: /qr_hu_d5f06fd7594d0594.png
-Brightnes func: /qr_hu_d5f06fd7594d0594.png
+Brightnes method: /qr_hu_e82a6802e23c740e.png
+Brightnes func: /qr_hu_e82a6802e23c740e.png
 `)
 }
 
@@ -184,8 +185,8 @@ Brightnes func: {{ ($img | images.Filter (images.Brightness 12) ).RelPermalink }
 	b.AssertFileContent("public/index.html", `
 images.Config: 222
 Resize to 100x100: 100
-Brightnes method: /qr_hu_d5f06fd7594d0594.webp
-Brightnes func: /qr_hu_d5f06fd7594d0594.webp
+Brightnes method: /qr_hu_61e637d0f762ec78.webp
+Brightnes func: /qr_hu_61e637d0f762ec78.webp
 `)
 }
 
@@ -214,7 +215,7 @@ Image: {{ $img.RelPermalink }}
 			cfg.NeedsOsFS = true
 			cfg.WorkingDir = tempDir
 		}))
-		b.AssertFileContent("public/index.html", `Image: /qr_hu_6b5f59be9c4d3b3a.webp`)
+		b.AssertFileContent("public/index.html", `Image: /qr_hu_7178b50f0d0a9def.webp`)
 
 	}
 }

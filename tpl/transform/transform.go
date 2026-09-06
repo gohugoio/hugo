@@ -293,7 +293,7 @@ func (ns *Namespace) ToMath(ctx context.Context, args ...any) (template.HTML, er
 		Warnings []string `json:"warnings,omitempty"`
 	}
 
-	const fileCacheEntryVersion = "v1" // Increment on incompatible changes.
+	const fileCacheEntryVersion = "v2" // Increment on incompatible changes.
 
 	s := hashing.HashString(args...)
 	key := "tomath/" + fileCacheEntryVersion + "/" + s[:2] + "/" + s[2:]

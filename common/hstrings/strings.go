@@ -61,7 +61,8 @@ var reCache = *maphelpers.NewConcurrentMap[string, *regexp.Regexp]()
 // If the pattern is not found in the cache, the pattern is compiled and added to
 // the cache.
 func GetOrCompileRegexp(pattern string) (re *regexp.Regexp, err error) {
-	return reCache.GetOrCreate(pattern,
+	return reCache.GetOrCreate(
+		pattern,
 		func() (*regexp.Regexp, error) {
 			return regexp.Compile(pattern)
 		},
@@ -176,4 +177,9 @@ func UniqueStringsSorted(s []string) []string {
 	}
 
 	return s[:i+1]
+}
+
+// Matcher is an interface for matching strings.
+type Matcher interface {
+	Match(s string) bool
 }

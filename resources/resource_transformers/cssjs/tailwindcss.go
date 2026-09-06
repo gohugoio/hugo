@@ -15,6 +15,7 @@ package cssjs
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"regexp"
 	"strings"
@@ -23,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/hexec"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/internal"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -113,6 +115,17 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 			// This may be on a CI server etc. Will fall back to pre-built assets.
 			return &herrors.FeatureNotAvailableError{Cause: err}
 		}
+
+		var accessDeniedErr *security.AccessDeniedError
+		if errors.As(err, &accessDeniedErr) {
+			if t.rs.Cfg.IgnoreTailwindCSSSecurityError() {
+				// This construct is here so the Hugo theme checker can build TailwindCSS sites with default security config without errors.
+				// Add some dummy CSS to the output so we can continue the build.
+				ctx.To.Write([]byte(".tailwindcss-security-error-ignored { display: none; }"))
+				return nil
+			}
+		}
+
 		return err
 	}
 

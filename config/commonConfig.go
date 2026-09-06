@@ -23,6 +23,7 @@ import (
 
 	"github.com/bep/logg"
 	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/types"
 
@@ -154,14 +155,14 @@ func (s BuildConfig) MatchCacheBuster(logger loggers.Logger, p string) (func(str
 		}
 	}
 	if len(matchers) > 0 {
-		return (func(cacheKey string) bool {
+		return func(cacheKey string) bool {
 			for _, m := range matchers {
 				if m(cacheKey) {
 					return true
 				}
 			}
 			return false
-		}), nil
+		}, nil
 	}
 	return nil, nil
 }
@@ -227,14 +228,14 @@ type Server struct {
 	Headers   []Headers
 	Redirects []Redirect
 
-	compiledHeaders   []glob.Glob
+	compiledHeaders   []hstrings.Matcher
 	compiledRedirects []redirect
 }
 
 type redirect struct {
-	from    glob.Glob
+	from    hstrings.Matcher
 	fromRe  *regexp.Regexp
-	headers map[string]glob.Glob
+	headers map[string]hstrings.Matcher
 }
 
 func (r redirect) matchHeader(header http.Header) bool {
@@ -262,7 +263,7 @@ func (s *Server) CompileConfig(logger loggers.Logger) error {
 			return fmt.Errorf("redirects must have either From or FromRe set")
 		}
 		rd := redirect{
-			headers: make(map[string]glob.Glob),
+			headers: make(map[string]hstrings.Matcher),
 		}
 		if r.From != "" {
 			g, err := glob.Compile(r.From)

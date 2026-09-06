@@ -36,6 +36,7 @@ const (
 	ActionCrop   = "crop"
 	ActionFit    = "fit"
 	ActionFill   = "fill"
+	ActionFilter = "filter"
 )
 
 var Actions = map[string]bool{
@@ -83,13 +84,14 @@ var (
 
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
 	// See the finer grained smartCropVersionNumber.
-	mainImageVersionNumber = 1
+	MainImageVersionNumber = 1
 
 	// Increment a format's version number to mark all processed images targeting
 	// that format as stale, e.g. after a change to its encoder. This is finer
 	// grained than mainImageVersionNumber, which invalidates every format.
-	formatVersionNumbers = map[Format]int{
+	FormatVersionNumbers = map[Format]int{
 		AVIF: 1,
+		PNG:  1, // See issue 12543, 12536
 	}
 )
 
@@ -334,11 +336,11 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		return c, err
 	}
 
-	if mainImageVersionNumber > 0 {
-		options = append(options, strconv.Itoa(mainImageVersionNumber))
+	if MainImageVersionNumber > 0 {
+		options = append(options, strconv.Itoa(MainImageVersionNumber))
 	}
 
-	if v := formatVersionNumbers[c.TargetFormat]; v > 0 {
+	if v := FormatVersionNumbers[c.TargetFormat]; v > 0 {
 		options = append(options, "tfv"+strconv.Itoa(v))
 	}
 
@@ -362,6 +364,14 @@ type ImageConfig struct {
 
 	// If set, this will be used as the key in filenames etc.
 	Key string
+
+	// Whether the palette of a paletted source image should be re-applied to
+	// the result when the target format is PNG, so an indexed PNG stays indexed.
+	// This is always the case for the geometric actions (resize, crop, fit, fill);
+	// a filter chain turns it off unless all its filters are geometric,
+	// as other filters routinely introduce colors outside the source palette.
+	// See issue 12543.
+	PreserveSourcePalette bool
 
 	// Quality ranges from 1 to 100 inclusive, higher is better.
 	// This is only relevant for JPEG and WEBP images.

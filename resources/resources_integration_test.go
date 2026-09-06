@@ -143,9 +143,9 @@ resize 2|RelPermalink: {{ $image.RelPermalink }}|MediaType: {{ $image.MediaType 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		"jpg|RelPermalink: /images/pixel_hu_38c3f257174fc757.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
-		"resize 1|RelPermalink: /images/pixel_hu_b5c2a3d88991f65a.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
-		"resize 2|RelPermalink: /images/pixel_hu_b5c2a3d88991f65a.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"jpg|RelPermalink: /images/pixel_hu_43e529ee1951bebf.jpg|MediaType: image/jpeg|Width: 1|Height: 1|",
+		"resize 1|RelPermalink: /images/pixel_hu_81fc53effe4c3cf6.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
+		"resize 2|RelPermalink: /images/pixel_hu_81fc53effe4c3cf6.jpg|MediaType: image/jpeg|Width: 20|Height: 30|",
 	)
 }
 

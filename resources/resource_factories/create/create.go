@@ -17,11 +17,13 @@ package create
 
 import (
 	"errors"
+	"net"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/bep/helpers/contexthelpers"
@@ -40,6 +42,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/tasks"
+	"github.com/gohugoio/hugo/config/security"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -139,11 +142,29 @@ func New(rs *resources.Spec) *Client {
 				Transport: &transport{
 					Cfg:    rs.Cfg,
 					Logger: rs.Logger,
+					base:   newSecureBaseTransport(rs.ExecHelper.Sec()),
 				},
 			},
 		},
 		cacheGetResource: fileCache,
 	}
+}
+
+// newSecureBaseTransport clones the default transport and installs a dial-time
+// hook that validates the resolved destination address against the security
+// policy, so a hostname resolving to an internal address cannot be used to
+// reach internal endpoints. See CheckAllowedHTTPAddress.
+func newSecureBaseTransport(sec security.Config) http.RoundTripper {
+	base := http.DefaultTransport.(*http.Transport).Clone()
+	d := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+		Control: func(network, address string, _ syscall.RawConn) error {
+			return sec.CheckAllowedHTTPAddress(network, address)
+		},
+	}
+	base.DialContext = d.DialContext
+	return base
 }
 
 // Copy copies r to the new targetPath.

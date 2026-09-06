@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/netip"
 	"net/url"
 	"reflect"
@@ -60,7 +61,7 @@ var DefaultConfig = Config{
 		// blocks; users who need them can override security.http.urls.
 		URLs: MustNewWhitelist(
 			`(?i)^https?://[a-z0-9]`,
-			`! ^https?://\d+\.`,
+			`! (?i)^https?://\d+\.`,
 			`! (?i)localhost`,
 			`! (?i)^https?://[^/?#]*@`,
 		),
@@ -78,9 +79,11 @@ var DefaultConfig = Config{
 	},
 	// Content under /content is treated as untrusted. text/html bodies are
 	// emitted verbatim and are an XSS sink, so they are denied by default.
+	// The same goes for text/org, whose export blocks and inline snippets
+	// pass raw HTML through unescaped.
 	// Everything else is allowed because Whitelist treats a deny-only list as
 	// "allow anything not denied".
-	AllowContent: MustNewWhitelist("! ^text/html$"),
+	AllowContent: MustNewWhitelist("! ^text/html$", "! ^text/org$"),
 }
 
 // Config is the top level security config.
@@ -210,6 +213,86 @@ func (c Config) CheckAllowedHTTPURL(u string) error {
 		return deny(u)
 	}
 	return nil
+}
+
+// CheckAllowedHTTPAddress reports whether a dial-time destination address may
+// be connected to. address is the resolved "host:port" passed to a net.Dialer
+// control hook, i.e. the actual address the HTTP client is about to connect to.
+//
+// The security.http.urls allowlist only inspects the URL text and never sees
+// the resolved address, so a hostname that resolves to a loopback, private or
+// link-local (including the cloud metadata endpoint) address would otherwise
+// satisfy the policy and let resources.GetRemote reach an internal endpoint.
+// We deny any non–global-unicast or private address here to close that gap.
+func (c Config) CheckAllowedHTTPAddress(network, address string) error {
+	// Only enforced under the default hardened allowlist. If the user has
+	// customized security.http.urls they have opted into whatever hosts they
+	// listed, including internal ones (e.g. a local dev server), so we do not
+	// second-guess the resolved address.
+	if !slices.Equal(c.HTTP.URLs.patternsStrings, DefaultConfig.HTTP.URLs.patternsStrings) {
+		return nil
+	}
+	deny := func(name string) error {
+		return &AccessDeniedError{
+			name:     name,
+			path:     "security.http.urls",
+			policies: c.ToTOML(),
+		}
+	}
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		host = address
+	}
+	ip, err := netip.ParseAddr(host)
+	if err != nil {
+		// The dial hook always hands us a resolved IP literal; anything else
+		// is unexpected, so fail closed.
+		return deny(address)
+	}
+	if !isPublicAddr(ip) {
+		return deny(host)
+	}
+	return nil
+}
+
+// Special-purpose ranges that Go classifies as global unicast and
+// non-private, but that are never reachable on the public Internet.
+var nonPublicPrefixes = []netip.Prefix{
+	netip.MustParsePrefix("100.64.0.0/10"),   // Shared address space (CGNAT), RFC 6598.
+	netip.MustParsePrefix("192.0.0.0/24"),    // IETF protocol assignments.
+	netip.MustParsePrefix("192.0.2.0/24"),    // TEST-NET-1.
+	netip.MustParsePrefix("198.18.0.0/15"),   // Benchmarking.
+	netip.MustParsePrefix("198.51.100.0/24"), // TEST-NET-2.
+	netip.MustParsePrefix("203.0.113.0/24"),  // TEST-NET-3.
+	netip.MustParsePrefix("240.0.0.0/4"),     // Reserved.
+	netip.MustParsePrefix("2001:db8::/32"),   // Documentation.
+	netip.MustParsePrefix("3fff::/20"),       // Documentation.
+	netip.MustParsePrefix("2001:2::/48"),     // Benchmarking.
+}
+
+// nat64Prefixes embed an IPv4 address in the low 32 bits, RFC 6052/8215.
+var nat64Prefixes = []netip.Prefix{
+	netip.MustParsePrefix("64:ff9b::/96"),
+	netip.MustParsePrefix("64:ff9b:1::/48"),
+}
+
+func isPublicAddr(ip netip.Addr) bool {
+	ip = ip.Unmap()
+	for _, p := range nat64Prefixes {
+		if p.Contains(ip) {
+			b := ip.As16()
+			return isPublicAddr(netip.AddrFrom4([4]byte(b[12:])))
+		}
+	}
+	if !ip.IsGlobalUnicast() || ip.IsPrivate() {
+		return false
+	}
+	for _, p := range nonPublicPrefixes {
+		if p.Contains(ip) {
+			return false
+		}
+	}
+	return true
 }
 
 // canonicalIPv4URL rewrites an integer/hex/octal IPv4 host in rawURL to its

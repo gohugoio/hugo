@@ -92,6 +92,40 @@ func TestPackageBuilder(t *testing.T) {
 	b.Assert(string(meta2), qt.Equals, string(meta1))
 }
 
+// The generated workspace package.json should get a stable name and
+// "private": true, and preserve hand-set name/version/private on regeneration.
+// See issue 15245.
+func TestPackStableNameAndPrivate(t *testing.T) {
+	files := getPackageBuilderTestFiles()
+	b := hugolib.Test(t, files)
+	sourceFs := b.H.BaseFs.ProjectSourceFs
+	assetsFs := b.H.BaseFs.AssetsWithDuplicatesPreserved.Fs
+	mods := b.H.Configs.Modules
+
+	b.Assert(npm.Pack(sourceFs, assetsFs, mods), qt.IsNil)
+
+	pkg, err := afero.ReadFile(sourceFs, "packages/hugoautogen/package.json")
+	b.Assert(err, qt.IsNil)
+	b.Assert(string(pkg), qt.Contains, `"name": "hugoautogen"`)
+	b.Assert(string(pkg), qt.Contains, `"private": true`)
+	b.Assert(string(pkg), qt.Contains, `"version": "0.1.0"`)
+
+	// Hand-set fields survive a re-pack.
+	edited := strings.NewReplacer(
+		`"name": "hugoautogen"`, `"name": "@foo/hugoautogen"`,
+		`"version": "0.1.0"`, `"version": "1.2.3"`,
+		`"private": true`, `"private": false`,
+	).Replace(string(pkg))
+	b.Assert(afero.WriteFile(sourceFs, "packages/hugoautogen/package.json", []byte(edited), 0o666), qt.IsNil)
+
+	b.Assert(npm.Pack(sourceFs, assetsFs, mods), qt.IsNil)
+	pkg, err = afero.ReadFile(sourceFs, "packages/hugoautogen/package.json")
+	b.Assert(err, qt.IsNil)
+	b.Assert(string(pkg), qt.Contains, `"name": "@foo/hugoautogen"`)
+	b.Assert(string(pkg), qt.Contains, `"version": "1.2.3"`)
+	b.Assert(string(pkg), qt.Contains, `"private": false`)
+}
+
 func BenchmarkPackageFilesSum(b *testing.B) {
 	files := getPackageBuilderTestFiles()
 	bb := hugolib.Test(b, files)

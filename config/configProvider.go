@@ -68,6 +68,7 @@ type AllProvider interface {
 	FastRenderMode() bool
 	PrintUnusedTemplates() bool
 	EnableMissingTranslationPlaceholders() bool
+	IgnoreTailwindCSSSecurityError() bool
 	TemplateMetrics() bool
 	TemplateMetricsHints() bool
 	PrintI18nWarnings() bool

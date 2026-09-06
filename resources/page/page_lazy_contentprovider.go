@@ -117,8 +117,8 @@ func (lcp *LazyContentProvider) Len(ctx context.Context) int {
 	return lcp.init.Value(ctx).Len(ctx)
 }
 
-func (lcp *LazyContentProvider) Render(ctx context.Context, layout ...string) (template.HTML, error) {
-	return lcp.init.Value(ctx).Render(ctx, layout...)
+func (lcp *LazyContentProvider) Render(ctx context.Context, args ...any) (template.HTML, error) {
+	return lcp.init.Value(ctx).Render(ctx, args...)
 }
 
 func (lcp *LazyContentProvider) RenderString(ctx context.Context, args ...any) (template.HTML, error) {

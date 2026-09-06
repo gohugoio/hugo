@@ -14,9 +14,14 @@
 package create
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/security"
 )
 
 func TestDecodeRemoteOptions(t *testing.T) {
@@ -133,4 +138,38 @@ func TestRemoteResourceKeys(t *testing.T) {
 	check("foo", map[string]any{"key": "12345", "bar": "baz"}, "14335752410685132726", "5783339285578751849")
 	check("asdf", map[string]any{"key": "1234", "bar": "asdf"}, "15578353952571222948", "15615023578599429261")
 	check("asdf", map[string]any{"key": "12345", "bar": "asdf"}, "14335752410685132726", "15615023578599429261")
+}
+
+// The transport used for remote fetches must refuse to connect to an internal
+// (here loopback) address under the default security policy, even though the
+// URL text check happens elsewhere. See CVE-2026-10582.
+func TestSecureBaseTransportBlocksInternalAddress(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("secret"))
+	}))
+	t.Cleanup(srv.Close)
+
+	req, err := http.NewRequest("GET", srv.URL, nil)
+	c.Assert(err, qt.IsNil)
+
+	// Default policy: the loopback address the httptest server listens on is
+	// refused at dial time.
+	_, err = newSecureBaseTransport(security.DefaultConfig).RoundTrip(req)
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(security.IsAccessDenied(err), qt.IsTrue)
+
+	// Customized policy: the user has opted into their own hosts, so the dial
+	// check stands down and the fetch succeeds.
+	sec, err := security.DecodeConfig(config.FromTOMLConfigString(`
+[security.http]
+urls = ['.*']
+`))
+	c.Assert(err, qt.IsNil)
+	resp, err := newSecureBaseTransport(sec).RoundTrip(req)
+	c.Assert(err, qt.IsNil)
+	resp.Body.Close()
 }

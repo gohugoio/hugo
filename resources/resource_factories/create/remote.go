@@ -464,6 +464,10 @@ var _ http.RoundTripper = (*transport)(nil)
 type transport struct {
 	Cfg    config.AllProvider
 	Logger loggers.Logger
+
+	// base does the actual round trip. It carries a dial-time hook that
+	// validates the resolved destination address (see New).
+	base http.RoundTripper
 }
 
 func (t *transport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
@@ -482,7 +486,7 @@ func (t *transport) RoundTrip(req *http.Request) (resp *http.Response, err error
 
 	for {
 		resp, retry, err = func() (*http.Response, bool, error) {
-			resp2, err := http.DefaultTransport.RoundTrip(req)
+			resp2, err := t.base.RoundTrip(req)
 			if err != nil {
 				return resp2, false, err
 			}

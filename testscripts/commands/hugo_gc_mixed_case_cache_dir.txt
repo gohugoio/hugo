@@ -11,7 +11,7 @@ hugo
 
 stdout 'Processed images │  1 '
 tree resources/_gen
-stdout 'pix_hu_a354833fd576551d.png'
+stdout 'pix_hu_51638841a22bb583.png'
 
 # Simulate a cache created by an older Hugo version.
 mv resources/_gen/images/mybundle resources/_gen/images/MyBundle
@@ -20,7 +20,7 @@ hugo --gc
 stdout 'Cleaned          │  0 '
 
 tree resources/_gen
-stdout 'pix_hu_a354833fd576551d.png'
+stdout 'pix_hu_51638841a22bb583.png'
 
 -- hugo.toml --
 disableKinds = ["term", "taxonomy", "home"]

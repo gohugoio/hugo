@@ -924,8 +924,9 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 
 		if s.Cfg.Running {
 			flags.Set("internal", hmaps.Params{
-				"running": s.Cfg.Running,
-				"watch":   s.Cfg.Running,
+				"running":        s.Cfg.Running,
+				"watch":          s.Cfg.Running,
+				"fastRenderMode": s.Cfg.FastRenderMode,
 			})
 		} else if s.Cfg.Watching {
 			flags.Set("internal", hmaps.Params{
@@ -1215,6 +1216,10 @@ type IntegrationTestConfig struct {
 
 	// Whether to simulate server mode.
 	Running bool
+
+	// Whether to simulate the server's fast render mode.
+	// Only used when Running is set.
+	FastRenderMode bool
 
 	// Watch for changes.
 	// This is (currently) always set to true when Running is set.
