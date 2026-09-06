@@ -80,6 +80,7 @@ func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResour
 		po = &publishOnce{}
 	}
 	return &resourceAdapter{
+		spec:                    spec,
 		resourceTransformations: &resourceTransformations{},
 		metaProvider:            target,
 		sourceTarget:            target,
@@ -187,6 +188,7 @@ type resourceAdapter struct {
 	commonResource
 	*resourceTransformations
 	*resourceAdapterInner
+	spec *Spec
 
 	// The original untransformed target. The inner target is replaced with the
 	// transformed resource once the transformation chain has run, so any new
@@ -335,7 +337,7 @@ func (r *resourceAdapter) Params() hmaps.Params {
 
 func (r *resourceAdapter) Permalink() string {
 	r.init(true, false)
-	return r.target.Permalink()
+	return r.spec.Cfg.BaseURL().WithPathNoTrailingSlash + paths.PathEscape(r.target.getResourcePaths().TargetPath())
 }
 
 func (r *resourceAdapter) Publish() error {
@@ -356,7 +358,7 @@ func (r *resourceAdapter) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 
 func (r *resourceAdapter) RelPermalink() string {
 	r.init(true, false)
-	return r.target.RelPermalink()
+	return r.spec.PathSpec.GetBasePath(false) + paths.PathEscape(r.target.getResourcePaths().TargetLink())
 }
 
 func (r *resourceAdapter) ResourceType() string {
@@ -479,10 +481,8 @@ func (r *resourceAdapter) transformationKey(trs []ResourceTransformation) string
 
 func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	key := r.TransformationKey()
-	cacheKey := r.spec.ResourceCache.cacheKey(key)
-
 	var created bool
-	res, err := r.spec.ResourceCache.cacheResourceTransformation.GetOrCreate(cacheKey, func(string) (*resourceAdapterInner, error) {
+	res, err := r.spec.ResourceCache.cacheResourceTransformation.GetOrCreate(key, func(string) (*resourceAdapterInner, error) {
 		created = true
 		return r.transform(key, publish, setContent)
 	})
@@ -494,16 +494,15 @@ func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 
 	if publish && r.spec.Rebuilder.IsRebuild() {
 		targetPath := r.target.TargetPath()
-		publishedKey := r.spec.ResourceCache.cacheKey(targetPath)
 		var republish bool
 
 		r.spec.ResourceCache.cacheResourceTransformationPublished.WithWriteLock(func(m map[string]string) error {
 			if created {
-				m[publishedKey] = cacheKey
+				m[targetPath] = key
 			} else {
-				key2, found := m[publishedKey]
-				republish = !found || key2 != cacheKey
-				m[publishedKey] = cacheKey
+				key2, found := m[targetPath]
+				republish = !found || key2 != key
+				m[targetPath] = key
 			}
 			return nil
 		})
@@ -529,6 +528,19 @@ func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	return nil
 }
 
+func (r *resourceAdapter) cloneWithSpec(spec *Spec) *resourceAdapter {
+	clone := *r
+	clone.spec = spec
+	clone.resourceAdapterInner = &resourceAdapterInner{
+		ctx:         r.ctx,
+		spec:        spec,
+		target:      r.target,
+		Staler:      r.Staler,
+		publishOnce: r.publishOnce,
+	}
+	return &clone
+}
+
 func (r *resourceAdapter) transform(key string, publish, setContent bool) (*resourceAdapterInner, error) {
 	cache := r.spec.ResourceCache
 
@@ -539,7 +551,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 	// accessed before more transformations were chained), resume from the
 	// longest cached prefix instead of re-running it.
 	for i := len(trs) - 1; i > 0; i-- {
-		if inner, found := cache.cacheResourceTransformation.Get(r.ctx, cache.cacheKey(r.transformationKey(trs[:i]))); found {
+		if inner, found := cache.cacheResourceTransformation.Get(r.ctx, r.transformationKey(trs[:i])); found {
 			for _, tr := range trs[:i] {
 				if transformationsToCacheOnDisk[tr.Key().Name] {
 					writeToFileCache = true
