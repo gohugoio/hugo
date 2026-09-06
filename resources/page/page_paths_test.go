@@ -14,7 +14,13 @@
 package page
 
 import (
+	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/common/paths"
+	"github.com/gohugoio/hugo/hugofs/files"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/kinds"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -28,6 +34,53 @@ func TestPagePathsBuilder(t *testing.T) {
 	b.Add("foo", "bar")
 
 	c.Assert(b.Path(0), qt.Equals, "/foo/bar")
+}
+
+// See issue 10393.
+func TestTargetPathsExplicitURLWithOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	pp := &paths.PathParser{IsContentExt: func(ext string) bool { return ext == "md" }}
+	p := pp.Parse(files.ComponentFolderContent, "/posts/_index.md")
+	json := output.JSONFormat
+	json.Name = "custom"
+	json.Path = "api"
+	json.BaseName = "data"
+
+	for _, test := range []struct {
+		name             string
+		format           output.Format
+		primaryMediaType string
+		url              string
+		ugly             bool
+		want             string
+	}{
+		{"html", output.HTMLFormat, output.HTMLFormat.MediaType.Type, "/posts/test.html", false, "/posts/test.html"},
+		{"rss", output.RSSFormat, output.HTMLFormat.MediaType.Type, "/posts/test.html", false, "/posts/test.xml"},
+		{"rss ugly", output.RSSFormat, output.HTMLFormat.MediaType.Type, "/posts/test.html", true, "/posts/test.xml"},
+		{"html arbitrary suffix", output.HTMLFormat, output.HTMLFormat.MediaType.Type, "/posts/test.php", false, "/posts/test.php"},
+		{"rss arbitrary suffix", output.RSSFormat, output.HTMLFormat.MediaType.Type, "/posts/test.php", false, "/posts/test.xml"},
+		{"custom alternate", json, output.HTMLFormat.MediaType.Type, "/posts/test.php", false, "/api/posts/test.json"},
+		{"same media type", output.AMPFormat, output.HTMLFormat.MediaType.Type, "/posts/test.php", false, "/amp/posts/test.php"},
+		{"rss primary", output.RSSFormat, output.RSSFormat.MediaType.Type, "/posts/test.feed", false, "/posts/test.feed"},
+		{"custom primary", json, json.MediaType.Type, "/posts/test.data", false, "/api/posts/test.data"},
+		{"no primary media type", output.RSSFormat, "", "/posts/test.feed", false, "/posts/test.feed"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			c := qt.New(t)
+			tp := CreateTargetPaths(TargetPathDescriptor{
+				Type:             test.format,
+				PrimaryMediaType: test.primaryMediaType,
+				Kind:             kinds.KindSection,
+				Path:             p,
+				Section:          p,
+				URL:              test.url,
+				UglyURLs:         test.ugly,
+			})
+			c.Assert(filepath.ToSlash(tp.TargetFilename), qt.Equals, test.want)
+			c.Assert(tp.Link, qt.Equals, test.want)
+		})
+	}
 }
 
 func BenchmarkPagePathsBuilderPath(b *testing.B) {
