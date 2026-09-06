@@ -252,7 +252,7 @@ func (b *contentBuilder) buildFile() (string, error) {
 		return "", err
 	}
 
-	b.h.Log.Printf("Content %q created", contentPlaceholderAbsFilename)
+	b.h.Log.Printf("%s", contentPlaceholderAbsFilename)
 
 	return contentPlaceholderAbsFilename, nil
 }

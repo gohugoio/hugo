@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/allconfig"
 	"github.com/gohugoio/hugo/config/testconfig"
@@ -35,6 +37,27 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 )
+
+func TestNewContentLog(t *testing.T) {
+	c := qt.New(t)
+
+	mm := afero.NewMemMapFs()
+	c.Assert(initFs(mm), qt.IsNil)
+	cfg, fs := newTestCfg(c, mm)
+	conf := testconfig.GetTestConfigs(fs.Source, cfg)
+
+	var logOutput strings.Builder
+	logger := loggers.New(loggers.Options{
+		Level:  logg.LevelInfo,
+		StdOut: &logOutput,
+		StdErr: &logOutput,
+	})
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Configs: conf, Fs: fs, TestLogger: logger})
+	c.Assert(err, qt.IsNil)
+	c.Assert(create.NewContent(h, "", "post/my-post.md", false), qt.IsNil)
+	c.Assert(logOutput.String(), qt.Contains, filepath.Join("content", "post", "my-post.md"))
+	c.Assert(logOutput.String(), qt.Not(qt.Contains), "Content")
+}
 
 // TODO(bep) clean this up. Export the test site builder in Hugolib or something.
 func TestNewContentFromFile(t *testing.T) {
