@@ -34,6 +34,9 @@ This is the default security configuration:
 `http.mediaTypes`
 : (`[]string`) Applicable to the `resources.GetRemote` function, a slice of [regular expressions](g) matching the `Content-Type` in HTTP responses that Hugo trusts, bypassing file content analysis for media type detection.
 
+`http.proxyFromEnvironment`
+: (`bool`) Whether to use HTTP(S) proxy settings from the environment (`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`). Default is `false`.
+
 `http.urls`
 : (`[]string`) A slice of [regular expressions](g) matching the URLs that the `resources.GetRemote` function is allowed to access.
 

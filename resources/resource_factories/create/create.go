@@ -156,6 +156,9 @@ func New(rs *resources.Spec) *Client {
 // reach internal endpoints. See CheckAllowedHTTPAddress.
 func newSecureBaseTransport(sec security.Config) http.RoundTripper {
 	base := http.DefaultTransport.(*http.Transport).Clone()
+	if !sec.HTTP.ProxyFromEnvironment {
+		base.Proxy = nil
+	}
 	d := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,

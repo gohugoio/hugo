@@ -14,8 +14,10 @@
 package create
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -172,4 +174,65 @@ urls = ['.*']
 	resp, err := newSecureBaseTransport(sec).RoundTrip(req)
 	c.Assert(err, qt.IsNil)
 	resp.Body.Close()
+}
+
+// See issue 15302.
+func TestSecureBaseTransportProxyFromEnvironment(t *testing.T) {
+	c := qt.New(t)
+
+	var proxyHit atomic.Bool
+	proxySrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		proxyHit.Store(true)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("proxied"))
+	}))
+	t.Cleanup(proxySrv.Close)
+
+	targetSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("target"))
+	}))
+	t.Cleanup(targetSrv.Close)
+
+	t.Setenv("HTTP_PROXY", proxySrv.URL)
+
+	// Default ProxyFromEnvironment (false): Proxy is nil, target server is reached directly even if HTTP_PROXY is set.
+	secDefault, err := security.DecodeConfig(config.FromTOMLConfigString(`
+[security.http]
+urls = ['.*']
+`))
+	c.Assert(err, qt.IsNil)
+	trDefault := newSecureBaseTransport(secDefault).(*http.Transport)
+	c.Assert(trDefault.Proxy, qt.IsNil)
+
+	reqDirect, err := http.NewRequest("GET", targetSrv.URL, nil)
+	c.Assert(err, qt.IsNil)
+	proxyHit.Store(false)
+	resp, err := trDefault.RoundTrip(reqDirect)
+	c.Assert(err, qt.IsNil)
+	body, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	c.Assert(string(body), qt.Equals, "target")
+	c.Assert(proxyHit.Load(), qt.IsFalse)
+
+	// Explicit proxyFromEnvironment = true: Proxy is configured and HTTP_PROXY is used.
+	secProxy, err := security.DecodeConfig(config.FromTOMLConfigString(`
+[security.http]
+urls = ['.*']
+proxyFromEnvironment = true
+`))
+	c.Assert(err, qt.IsNil)
+	trProxy := newSecureBaseTransport(secProxy).(*http.Transport)
+	c.Assert(trProxy.Proxy, qt.IsNotNil)
+
+	// Go's ProxyFromEnvironment ignores proxy for loopback targets, so use non-loopback URL for proxy test.
+	reqProxied, err := http.NewRequest("GET", "http://example.com/test", nil)
+	c.Assert(err, qt.IsNil)
+	proxyHit.Store(false)
+	resp, err = trProxy.RoundTrip(reqProxied)
+	c.Assert(err, qt.IsNil)
+	body, _ = io.ReadAll(resp.Body)
+	resp.Body.Close()
+	c.Assert(string(body), qt.Equals, "proxied")
+	c.Assert(proxyHit.Load(), qt.IsTrue)
 }

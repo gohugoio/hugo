@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"runtime"
+	"sync/atomic"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -375,4 +376,47 @@ mediaTypes=["application/json"]
 `, ts.URL)
 		Test(c, files)
 	})
+}
+
+// See issue 15302.
+func TestProxyFromEnvironment(t *testing.T) {
+	c := qt.New(t)
+
+	var proxyHit atomic.Bool
+	proxySrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		proxyHit.Store(true)
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("from-proxy"))
+	}))
+	t.Cleanup(proxySrv.Close)
+
+	t.Setenv("HTTP_PROXY", proxySrv.URL)
+
+	// Case 1: Default config (proxyFromEnvironment = false).
+	filesDefault := `
+-- hugo.toml --
+baseURL = "https://example.org"
+[security.http]
+urls = ['.*']
+-- layouts/home.html --
+{{ $res := resources.GetRemote "http://example.com/test.txt" }}
+`
+	proxyHit.Store(false)
+	TestE(c, filesDefault)
+	c.Assert(proxyHit.Load(), qt.IsFalse)
+
+	// Case 2: Explicit proxyFromEnvironment = true.
+	filesProxied := `
+-- hugo.toml --
+baseURL = "https://example.org"
+[security.http]
+urls = ['.*']
+proxyFromEnvironment = true
+-- layouts/home.html --
+{{ $res := resources.GetRemote "http://example.com/test.txt" }}{{ $res.Content }}
+`
+	proxyHit.Store(false)
+	b := Test(c, filesProxied)
+	c.Assert(proxyHit.Load(), qt.IsTrue)
+	b.AssertFileContent("public/index.html", "from-proxy")
 }

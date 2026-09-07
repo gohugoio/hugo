@@ -133,6 +133,10 @@ type HTTP struct {
 
 	// Media types where the Content-Type in the response is used instead of resolving from the file content.
 	MediaTypes Whitelist `json:"mediaTypes"`
+
+	// ProxyFromEnvironment specifies whether to use HTTP/HTTPS proxy settings
+	// from the environment (e.g. HTTP_PROXY, HTTPS_PROXY).
+	ProxyFromEnvironment bool `json:"proxyFromEnvironment"`
 }
 
 // Node holds Node.js security settings.
