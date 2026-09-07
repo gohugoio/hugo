@@ -46,6 +46,26 @@ func hasSymlinkParent(fs afero.Fs, base, name string) (bool, error) {
 	return false, nil
 }
 
+// isSymlinkOrHasSymlinkParent reports whether name is a symlink or has a symlinked parent below base.
+// Parents are only checked when base is set; absolute mount sources may legitimately
+// live below symlinked directories (e.g. /tmp on macOS).
+func isSymlinkOrHasSymlinkParent(fs afero.Fs, base, name string) (bool, error) {
+	fi, err := LstatIfPossible(fs, name)
+	if err != nil {
+		if herrors.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	if fi.Mode()&os.ModeSymlink != 0 {
+		return true, nil
+	}
+	if base == "" {
+		return false, nil
+	}
+	return hasSymlinkParent(fs, filepath.Clean(base), name)
+}
+
 // NewDropSymlinksFs returns an afero.Fs wrapper that treats symlinks as non-existing files.
 func NewDropSymlinksFs(base afero.Fs) *DropSymlinksFs {
 	return &DropSymlinksFs{base}
