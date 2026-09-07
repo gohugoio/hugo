@@ -2240,6 +2240,7 @@ config:
       mediaTypes: null
       methods:
       - (?i)GET|POST
+      proxyFromEnvironment: false
       urls:
       - (?i)^https?://[a-z0-9]
       - '! (?i)^https?://\d+\.'

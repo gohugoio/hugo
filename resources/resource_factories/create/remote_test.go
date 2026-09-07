@@ -14,8 +14,10 @@
 package create
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -172,4 +174,79 @@ urls = ['.*']
 	resp, err := newSecureBaseTransport(sec).RoundTrip(req)
 	c.Assert(err, qt.IsNil)
 	resp.Body.Close()
+}
+
+// Proxies from the environment are ignored unless
+// security.http.proxyFromEnvironment is enabled. When enabled, the dial-time
+// address check does not apply to the proxy itself. See issue 15302.
+func TestSecureBaseTransportProxyFromEnvironment(t *testing.T) {
+	c := qt.New(t)
+
+	var proxyHits, targetHits atomic.Int32
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		proxyHits.Add(1)
+		w.Write([]byte("via proxy"))
+	}))
+	t.Cleanup(proxy.Close)
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		targetHits.Add(1)
+		w.Write([]byte("direct"))
+	}))
+	t.Cleanup(target.Close)
+
+	t.Setenv("HTTP_PROXY", proxy.URL)
+	t.Setenv("NO_PROXY", "")
+	t.Setenv("no_proxy", "")
+
+	decode := func(toml string) security.Config {
+		sec, err := security.DecodeConfig(config.FromTOMLConfigString(toml))
+		c.Assert(err, qt.IsNil)
+		return sec
+	}
+	fetch := func(sec security.Config, u string) (string, error) {
+		req, err := http.NewRequest("GET", u, nil)
+		c.Assert(err, qt.IsNil)
+		resp, err := newSecureBaseTransport(sec).RoundTrip(req)
+		if err != nil {
+			return "", err
+		}
+		defer resp.Body.Close()
+		b, err := io.ReadAll(resp.Body)
+		c.Assert(err, qt.IsNil)
+		return string(b), nil
+	}
+
+	// Default: proxy ignored, fetched directly.
+	body, err := fetch(decode(`
+[security.http]
+urls = ['.*']
+`), target.URL)
+	c.Assert(err, qt.IsNil)
+	c.Assert(body, qt.Equals, "direct")
+	c.Assert(proxyHits.Load(), qt.Equals, int32(0))
+	c.Assert(targetHits.Load(), qt.Equals, int32(1))
+
+	// Enabled: the loopback proxy is dialed even under the default hardened
+	// policy, and the destination is never dialed directly.
+	body, err = fetch(decode(`
+[security.http]
+proxyFromEnvironment = true
+`), "http://example.com/")
+	c.Assert(err, qt.IsNil)
+	c.Assert(body, qt.Equals, "via proxy")
+	c.Assert(proxyHits.Load(), qt.Equals, int32(1))
+	c.Assert(targetHits.Load(), qt.Equals, int32(1))
+
+	// Enabled, but loopback destinations are never proxied: the address
+	// check still applies to the direct dial, also when the destination is
+	// the proxy's own address.
+	for _, u := range []string{target.URL, proxy.URL} {
+		_, err = fetch(decode(`
+[security.http]
+proxyFromEnvironment = true
+`), u)
+		c.Assert(security.IsAccessDenied(err), qt.IsTrue, qt.Commentf(u))
+	}
+	c.Assert(proxyHits.Load(), qt.Equals, int32(1))
+	c.Assert(targetHits.Load(), qt.Equals, int32(1))
 }

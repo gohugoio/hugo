@@ -128,6 +128,12 @@ type HTTP struct {
 	// URLs to allow in remote HTTP (resources.Get, getJSON, getCSV).
 	URLs Whitelist `json:"urls"`
 
+	// Whether to honor the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment
+	// variables for remote HTTP. Off by default, as a proxy hides the
+	// resolved destination address from the security policy.
+	// <docsmeta>{ "newIn": "0.166.0" }</docsmeta>
+	ProxyFromEnvironment bool `json:"proxyFromEnvironment"`
+
 	// HTTP methods to allow.
 	Methods Whitelist `json:"methods"`
 

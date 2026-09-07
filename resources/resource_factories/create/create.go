@@ -16,15 +16,19 @@
 package create
 
 import (
+	"context"
 	"errors"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
+
+	"golang.org/x/net/http/httpproxy"
 
 	"github.com/bep/helpers/contexthelpers"
 
@@ -65,6 +69,7 @@ type contextKey uint8
 
 const (
 	contextKeyResourceID contextKey = iota
+	contextKeyProxyURL
 )
 
 // New creates a new Client with the given specification.
@@ -154,17 +159,80 @@ func New(rs *resources.Spec) *Client {
 // hook that validates the resolved destination address against the security
 // policy, so a hostname resolving to an internal address cannot be used to
 // reach internal endpoints. See CheckAllowedHTTPAddress.
+//
+// Proxies are only used when security.http.proxyFromEnvironment is enabled.
+// A proxied connection is dialed to the proxy, not the destination, so the
+// address check is skipped for that dial; the user has opted into trusting
+// the proxy with the destination. The proxy decision is carried per request
+// in its context, so a direct dial is always validated, even to the proxy's
+// own address.
 func newSecureBaseTransport(sec security.Config) http.RoundTripper {
 	base := http.DefaultTransport.(*http.Transport).Clone()
-	d := &net.Dialer{
+	secureDialer := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
 		Control: func(network, address string, _ syscall.RawConn) error {
 			return sec.CheckAllowedHTTPAddress(network, address)
 		},
 	}
-	base.DialContext = d.DialContext
-	return base
+	base.Proxy = nil
+	base.DialContext = secureDialer.DialContext
+
+	if !sec.HTTP.ProxyFromEnvironment {
+		return base
+	}
+
+	proxyFromCtx := func(ctx context.Context) *url.URL {
+		u, _ := ctx.Value(contextKeyProxyURL).(*url.URL)
+		return u
+	}
+	base.Proxy = func(req *http.Request) (*url.URL, error) {
+		return proxyFromCtx(req.Context()), nil
+	}
+	proxyDialer := &net.Dialer{Timeout: secureDialer.Timeout, KeepAlive: secureDialer.KeepAlive}
+	base.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		if u := proxyFromCtx(ctx); u != nil && canonicalAddr(u) == addr {
+			return proxyDialer.DialContext(ctx, network, addr)
+		}
+		return secureDialer.DialContext(ctx, network, addr)
+	}
+	return &proxyTransport{base: base, proxyFunc: httpproxy.FromEnvironment().ProxyFunc()}
+}
+
+// proxyTransport resolves the proxy for each request up front and stores it
+// in the request context, where both the Proxy and DialContext hooks of base
+// can see it.
+type proxyTransport struct {
+	base      *http.Transport
+	proxyFunc func(*url.URL) (*url.URL, error)
+}
+
+func (t *proxyTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	u, err := t.proxyFunc(req.URL)
+	if err != nil {
+		return nil, err
+	}
+	if u != nil {
+		req = req.WithContext(context.WithValue(req.Context(), contextKeyProxyURL, u))
+	}
+	return t.base.RoundTrip(req)
+}
+
+// canonicalAddr mirrors net/http's canonicalAddr: the host:port the transport
+// dials for u, with the port defaulted from the scheme.
+func canonicalAddr(u *url.URL) string {
+	port := u.Port()
+	if port == "" {
+		switch u.Scheme {
+		case "http":
+			port = "80"
+		case "https":
+			port = "443"
+		case "socks5", "socks5h":
+			port = "1080"
+		}
+	}
+	return net.JoinHostPort(u.Hostname(), port)
 }
 
 // Copy copies r to the new targetPath.

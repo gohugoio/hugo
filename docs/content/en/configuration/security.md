@@ -34,8 +34,14 @@ This is the default security configuration:
 `http.mediaTypes`
 : (`[]string`) Applicable to the `resources.GetRemote` function, a slice of [regular expressions](g) matching the `Content-Type` in HTTP responses that Hugo trusts, bypassing file content analysis for media type detection.
 
+`http.proxyFromEnvironment`
+: {{< new-in 0.166.0 />}}
+: (`bool`) Whether the `resources.GetRemote` function honors the `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` environment variables. Default is `false`. When a proxy is used, Hugo connects to the proxy rather than the destination, so the resolved address validation described under `http.urls` does not apply.
+
 `http.urls`
 : (`[]string`) A slice of [regular expressions](g) matching the URLs that the `resources.GetRemote` function is allowed to access.
+
+  The default allowlist denies URLs with an IP address or `localhost` as the host name. In addition, with the default allowlist, Hugo validates the resolved address when connecting and rejects connections to loopback, private, link-local, and other non-public addresses, e.g. a host name that resolves to a cloud metadata endpoint. This validation is disabled if you override `http.urls`, as the override may intentionally allow access to hosts on your local network, such as a development server.
 
 `node.permissions.disable`
 : {{< new-in 0.161.0 />}}
