@@ -472,3 +472,31 @@ echo "hello";
 		"&quot; onmouseover=&quot;alert(1)",
 	)
 }
+
+// The lineAnchors value from a code-fence attribute is written by Chroma
+// verbatim into id and href attributes, so it must be escaped before it gets there.
+func TestCodeblockLineAnchorsEscape(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+§§§go {lineNos=true anchorLineNos=true lineAnchors="z\"><script>alert(1)</script>"}
+func main() {}
+§§§
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"! <script>",
+		`id="z&#34;&gt;&lt;script&gt;alert(1)&lt;/script&gt;-1"`,
+		`href="#z&#34;&gt;&lt;script&gt;alert(1)&lt;/script&gt;-1"`,
+	)
+}
