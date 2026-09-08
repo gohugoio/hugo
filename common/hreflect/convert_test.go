@@ -110,6 +110,29 @@ func TestConvertIfPossible(t *testing.T) {
 			ok:    false, // overflow
 		},
 		{
+			// float64(math.MaxInt64) rounds up to 2^63, which is out of range.
+			name:  "float64(math.MaxInt64) to int64",
+			value: float64(math.MaxInt64),
+			typ:   int64(0),
+			ok:    false, // overflow
+		},
+		{
+			// The largest float64 that is a valid int64.
+			name:     "float64(9223372036854774784) to int64",
+			value:    float64(9223372036854774784),
+			typ:      int64(0),
+			ok:       true,
+			expected: int64(9223372036854774784),
+		},
+		{
+			// float64(math.MinInt64) is exact, so this is in range.
+			name:     "float64(math.MinInt64) to int64",
+			value:    float64(math.MinInt64),
+			typ:      int64(0),
+			ok:       true,
+			expected: int64(math.MinInt64),
+		},
+		{
 			name:     "float64(32767) to int16",
 			value:    float64(32767),
 			typ:      int16(0),
@@ -210,6 +233,21 @@ func TestConvertIfPossible(t *testing.T) {
 			typ:      uint64(0),
 			ok:       true,
 			expected: uint64(3),
+		},
+		{
+			// float64(math.MaxUint64) rounds up to 2^64, which is out of range.
+			name:  "float64(math.MaxUint64) to uint64",
+			value: float64(math.MaxUint64),
+			typ:   uint64(0),
+			ok:    false, // overflow
+		},
+		{
+			// The largest float64 that is a valid uint64.
+			name:     "float64(18446744073709549568) to uint64",
+			value:    float64(18446744073709549568),
+			typ:      uint64(0),
+			ok:       true,
+			expected: uint64(18446744073709549568),
 		},
 		// From uint to float.
 		{

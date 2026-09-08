@@ -145,7 +145,7 @@ func convertToUintIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value
 	}
 	if IsFloat(val.Kind()) {
 		f := val.Float()
-		if f < 0 || f > float64(math.MaxUint64) {
+		if f < 0 || f >= float64(math.MaxUint64) {
 			return reflect.Value{}, false
 		}
 		if f != math.Trunc(f) {
@@ -205,7 +205,7 @@ func convertToIntIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value,
 	}
 	if IsFloat(val.Kind()) {
 		f := val.Float()
-		if f < float64(math.MinInt64) || f > float64(math.MaxInt64) {
+		if f < float64(math.MinInt64) || f >= float64(math.MaxInt64) {
 			return reflect.Value{}, false
 		}
 		if f != math.Trunc(f) {
