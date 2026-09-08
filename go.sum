@@ -180,8 +180,8 @@ github.com/bep/textandbinarywriter v0.1.0 h1:KXmXsRN2Uhwhm1G3e/snM8+5SPQBJrCEpIo
 github.com/bep/textandbinarywriter v0.1.0/go.mod h1:dAcHveajlWWU7PXhp6Dn4PIAYDg2H13Huif9xMS2w8w=
 github.com/bep/tmc v0.7.0 h1:e0axmUwy+5EGQ6qk4wiOyDFuTqn3vpnoXIrxEG+yCX0=
 github.com/bep/tmc v0.7.0/go.mod h1:jNqktL5Su+ScC51fw6urQRvP9Dwr1hVVGr9a3rwuGb4=
-github.com/bits-and-blooms/bitset v1.24.5 h1:654xBVHc23gJMAgOTkPNoCVfiRxuIOAUnAZFtopqJ4w=
-github.com/bits-and-blooms/bitset v1.24.5/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
+github.com/bits-and-blooms/bitset v1.25.0 h1:0Ro0qF4abCkM6SqWPVj29sFhAbMPAZpaDD7xhJ10beM=
+github.com/bits-and-blooms/bitset v1.25.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
