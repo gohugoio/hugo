@@ -99,11 +99,12 @@ func New(cfg security.Config, workingDir string, log loggers.Logger) *Exec {
 	}
 
 	return &Exec{
-		sc:              cfg,
-		workingDir:      workingDir,
-		infol:           log.InfoCommand("exec"),
-		baseEnviron:     baseEnviron,
-		nodeRunnerCache: hmaps.NewCache[string, func(arg ...any) (Runner, error)](),
+		sc:                cfg,
+		workingDir:        workingDir,
+		infol:             log.InfoCommand("exec"),
+		baseEnviron:       baseEnviron,
+		nodeRunnerCache:   hmaps.NewCache[string, func(arg ...any) (Runner, error)](),
+		nodeSymlinkChecks: hmaps.NewCache[string, bool](),
 	}
 }
 
@@ -126,6 +127,9 @@ type Exec struct {
 	nodeReadPaths []string
 
 	nodeRunnerCache *hmaps.Cache[string, func(arg ...any) (Runner, error)]
+
+	// Roots already scanned by checkNodeSymlinks, keyed by kind and path.
+	nodeSymlinkChecks *hmaps.Cache[string, bool]
 }
 
 // SetNodeReadPaths sets additional absolute paths to allow reading from
@@ -230,6 +234,15 @@ func (e *Exec) Npx(name string, arg ...any) (Runner, error) {
 
 // newNode runs a Node.js script via "node [--permission <flags>] <scriptPath> <args>".
 func (e *Exec) newNode(name, scriptPath string, arg ...any) (Runner, error) {
+	if e.sc.Node.Permissions.IsEnabled() {
+		if err := e.checkNodeSymlinks("allowRead", e.nodeReadRoots(scriptPath)); err != nil {
+			return nil, err
+		}
+		if err := e.checkNodeSymlinks("allowWrite", e.nodeWriteRoots()); err != nil {
+			return nil, err
+		}
+	}
+
 	var allArgs []any
 	for _, pa := range e.nodePermissionArgs(name, scriptPath) {
 		allArgs = append(allArgs, pa)
@@ -264,17 +277,10 @@ func (e *Exec) nodePermissionArgs(name, scriptPath string) []string {
 
 	args := []string{"--permission"}
 
-	for _, p := range e.resolveNodePermPaths(perms.AllowRead) {
+	for _, p := range e.nodeReadRoots(scriptPath) {
 		args = append(args, "--allow-fs-read="+p)
 	}
-	for _, p := range e.nodeReadPaths {
-		args = append(args, "--allow-fs-read="+p)
-	}
-	if p := nodeScriptReadPath(scriptPath); p != "" {
-		args = append(args, "--allow-fs-read="+p)
-	}
-
-	for _, p := range e.resolveNodePermPaths(perms.AllowWrite) {
+	for _, p := range e.nodeWriteRoots() {
 		args = append(args, "--allow-fs-write="+p)
 	}
 
@@ -301,6 +307,19 @@ func (e *Exec) nodePermissionArgs(name, scriptPath string) []string {
 	}
 
 	return args
+}
+
+func (e *Exec) nodeReadRoots(scriptPath string) []string {
+	roots := e.resolveNodePermPaths(e.sc.Node.Permissions.AllowRead)
+	roots = append(roots, e.nodeReadPaths...)
+	if p := nodeScriptReadPath(scriptPath); p != "" {
+		roots = append(roots, p)
+	}
+	return roots
+}
+
+func (e *Exec) nodeWriteRoots() []string {
+	return e.resolveNodePermPaths(e.sc.Node.Permissions.AllowWrite)
 }
 
 // resolveNodePermPaths resolves relative paths against the working directory.
