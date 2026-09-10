@@ -104,18 +104,18 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	var fma []float64
 	var sma []string
 
-	if mv.Kind() == v.Kind() {
+	if hreflect.IsInt(v.Kind()) && hreflect.IsInt(mv.Kind()) {
+		iv := v.Int()
+		ivp = &iv
+		imv := mv.Int()
+		imvp = &imv
+	} else if hreflect.IsUint(v.Kind()) && hreflect.IsUint(mv.Kind()) {
+		iv := int64(v.Uint())
+		ivp = &iv
+		imv := int64(mv.Uint())
+		imvp = &imv
+	} else if mv.Kind() == v.Kind() {
 		switch v.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			iv := v.Int()
-			ivp = &iv
-			imv := mv.Int()
-			imvp = &imv
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			iv := int64(v.Uint())
-			ivp = &iv
-			imv := int64(mv.Uint())
-			imvp = &imv
 		case reflect.String:
 			sv := v.String()
 			svp = &sv

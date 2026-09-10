@@ -96,6 +96,8 @@ func (*Namespace) Default(defaultv any, givenv ...any) (any, error) {
 }
 
 // Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
+// Numeric and string values are converted to the type of arg1 before comparison when
+// this can be done without loss, so e.g. 1 and 1.0 are considered equal.
 func (n *Namespace) Eq(first any, others ...any) bool {
 	if n.caseInsensitive {
 		panic("caseInsensitive not implemented for Eq")
@@ -105,32 +107,14 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 		if types.IsNil(v) {
 			return nil
 		}
-
 		if at, ok := v.(htime.AsTimeProvider); ok {
 			return at.AsTime(n.loc)
 		}
-
-		vv := reflect.ValueOf(v)
-		switch vv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return vv.Int()
-		case reflect.Float32, reflect.Float64:
-			return vv.Float()
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			i := vv.Uint()
-			// If it can fit in an int, convert it.
-			if i <= math.MaxInt64 {
-				return int64(i)
-			}
-			return i
-		case reflect.String:
-			return vv.String()
-		default:
-			return v
-		}
+		return v
 	}
 
 	normFirst := normalize(first)
+	fv := reflect.ValueOf(normFirst)
 	for _, other := range others {
 		if e, ok := first.(compare.Eqer); ok {
 			if e.Eq(other) {
@@ -147,7 +131,49 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 		}
 
 		other = normalize(other)
-		if reflect.DeepEqual(normFirst, other) {
+		if normFirst == nil || other == nil {
+			if normFirst == other {
+				return true
+			}
+			continue
+		}
+
+		ov := reflect.ValueOf(other)
+
+		// Some common fast paths.
+		if fv.Kind() == reflect.String && ov.Kind() == reflect.String {
+			if fv.String() == ov.String() {
+				return true
+			}
+			continue
+		} else if fv.CanFloat() && ov.CanFloat() {
+			if fv.Float() == ov.Float() {
+				return true
+			}
+			continue
+		} else if fv.CanInt() && ov.CanInt() {
+			if fv.Int() == ov.Int() {
+				return true
+			}
+			continue
+		} else if fv.CanUint() && ov.CanUint() {
+			if fv.Uint() == ov.Uint() {
+				return true
+			}
+			continue
+		}
+
+		cv, ok := hreflect.ConvertIfPossible(ov, fv.Type())
+		if !ok {
+			continue
+		}
+		if k := fv.Kind(); hreflect.IsNumber(k) || hreflect.IsString(k) || k == reflect.Bool {
+			if fv.Equal(cv) {
+				return true
+			}
+			continue
+		}
+		if reflect.DeepEqual(fv.Interface(), cv.Interface()) {
 			return true
 		}
 	}

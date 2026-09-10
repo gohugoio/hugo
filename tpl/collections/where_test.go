@@ -697,6 +697,10 @@ func TestCheckCondition(t *testing.T) {
 		expect
 	}{
 		{reflect.ValueOf(123), reflect.ValueOf(123), "", expect{true, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(int(1<<53 + 1)), "", expect{true, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(int(1 << 53)), ">", expect{true, false}},
+		{reflect.ValueOf(uint64(1<<53 + 1)), reflect.ValueOf(uint8(1)), ">", expect{true, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(float64(1 << 53)), "", expect{false, true}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("foo"), "", expect{true, false}},
 		{
 			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
