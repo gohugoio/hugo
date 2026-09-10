@@ -307,6 +307,50 @@ func TestEqualExtend(t *testing.T) {
 	}
 }
 
+func TestEqualMixedNumberKinds(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(time.UTC, false)
+
+	// eq compares numbers by value, as lt/le/gt/ge already do. Before #15322
+	// these normalized to different Go types and compared unequal, so le and ge
+	// were both true for 1 and 1.0 while lt, eq and gt were all false.
+	for _, test := range []struct {
+		first  any
+		other  any
+		expect bool
+	}{
+		{1, 1.0, true},
+		{1.0, 1, true},
+		{0, 0.0, true},
+		{-1, -1.0, true},
+		{int64(3), float64(3), true},
+		{uint(4), 4.0, true},
+		{1, 2.0, false},
+		{2.0, 1, false},
+	} {
+		c.Assert(ns.Eq(test.first, test.other), qt.Equals, test.expect,
+			qt.Commentf("eq(%#v, %#v)", test.first, test.other))
+		c.Assert(ns.Ne(test.first, test.other), qt.Equals, !test.expect,
+			qt.Commentf("ne(%#v, %#v)", test.first, test.other))
+
+		// The six operators must agree: exactly one of lt/eq/gt holds,
+		// le means lt or eq, and ge means gt or eq.
+		lt, eq := ns.Lt(test.first, test.other), ns.Eq(test.first, test.other)
+		gt := ns.Gt(test.first, test.other)
+		c.Assert(ns.Le(test.first, test.other), qt.Equals, lt || eq,
+			qt.Commentf("le disagrees for %#v, %#v", test.first, test.other))
+		c.Assert(ns.Ge(test.first, test.other), qt.Equals, gt || eq,
+			qt.Commentf("ge disagrees for %#v, %#v", test.first, test.other))
+	}
+
+	// A number and a numeric string remain unequal. Comparing across those
+	// kinds is a separate question from comparing two numbers.
+	c.Assert(ns.Eq(1, "1"), qt.Equals, false)
+	c.Assert(ns.Eq("1", 1), qt.Equals, false)
+}
+
 func TestNotEqualExtend(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
