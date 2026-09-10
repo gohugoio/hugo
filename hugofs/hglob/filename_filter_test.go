@@ -60,6 +60,12 @@ func TestFilenameFilter(t *testing.T) {
 	c.Assert(includeOnlyFilter.Match("ab.jpg", false), qt.Equals, true)
 	c.Assert(includeOnlyFilter.Match("ab.gif", false), qt.Equals, false)
 
+	includeIndexFilter, err := NewFilenameFilter([]string{"**/index.md"}, nil)
+	c.Assert(err, qt.IsNil)
+	c.Assert(includeIndexFilter.Match("index.md", false), qt.Equals, true)
+	c.Assert(includeIndexFilter.Match("a/index.md", false), qt.Equals, true)
+	c.Assert(includeIndexFilter.Match("index.html", false), qt.Equals, false)
+
 	excludeOnlyFilter, err := NewFilenameFilter(nil, []string{"**.json", "**.jpg"})
 	c.Assert(err, qt.IsNil)
 	c.Assert(excludeOnlyFilter.Match("ab.json", false), qt.Equals, false)

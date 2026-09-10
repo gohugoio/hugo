@@ -57,6 +57,26 @@ func normalizeFilenameGlobPattern(s string) string {
 	return s
 }
 
+func expandFilenameGlobPattern(s string) []string {
+	patterns := []string{normalizeFilenameGlobPattern(s)}
+	for i := 0; i < len(patterns); i++ {
+		p := patterns[i]
+		for j := 0; ; {
+			idx := strings.Index(p[j:], "/**/")
+			if idx == -1 {
+				break
+			}
+			idx += j
+			p2 := p[:idx+1] + p[idx+4:]
+			if !slices.Contains(patterns, p2) {
+				patterns = append(patterns, p2)
+			}
+			j = idx + 4
+		}
+	}
+	return patterns
+}
+
 func NewFilenameFilterV2(patterns []string) (*FilenameFilter, error) {
 	if len(patterns) == 0 {
 		return nil, nil
@@ -70,25 +90,26 @@ func NewFilenameFilterV2(patterns []string) (*FilenameFilter, error) {
 		} else {
 			t = globFilenameFilterEntryTypeInclusion
 		}
-		p = normalizeFilenameGlobPattern(p)
-		g, err := GetGlob(p)
-		if err != nil {
-			return nil, err
-		}
-		filter.entries = append(filter.entries, globFilenameFilterEntry{t: t, g: g})
-		if t == globFilenameFilterEntryTypeInclusion {
-			// For mounts that do directory walking (e.g. content) we
-			// must make sure that all directories up to this inclusion also
-			// gets included.
-			dir := path.Dir(p)
-			parts := strings.Split(dir, "/")
-			for i := range parts {
-				pattern := "/" + filepath.Join(parts[:i+1]...)
-				g, err := GetGlob(pattern)
-				if err != nil {
-					return nil, err
+		for _, p := range expandFilenameGlobPattern(p) {
+			g, err := GetGlob(p)
+			if err != nil {
+				return nil, err
+			}
+			filter.entries = append(filter.entries, globFilenameFilterEntry{t: t, g: g})
+			if t == globFilenameFilterEntryTypeInclusion {
+				// For mounts that do directory walking (e.g. content) we
+				// must make sure that all directories up to this inclusion also
+				// gets included.
+				dir := path.Dir(p)
+				parts := strings.Split(dir, "/")
+				for i := range parts {
+					pattern := "/" + filepath.Join(parts[:i+1]...)
+					g, err := GetGlob(pattern)
+					if err != nil {
+						return nil, err
+					}
+					filter.entries = append(filter.entries, globFilenameFilterEntry{t: globFilenameFilterEntryTypeInclusionDir, g: g})
 				}
-				filter.entries = append(filter.entries, globFilenameFilterEntry{t: globFilenameFilterEntryTypeInclusionDir, g: g})
 			}
 		}
 

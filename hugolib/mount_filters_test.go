@@ -94,3 +94,33 @@ Resource3: :END
 Resources: [/js/include.js]
 `)
 }
+
+// See issue 15320.
+func TestMountFilesFilterGlobStarRootIndex(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+[module]
+[[module.mounts]]
+source = "content"
+target = "content"
+[[module.mounts]]
+source = "bundle-src/guide"
+target = "content/guide"
+files = ["**/index.md"]
+-- bundle-src/guide/index.md --
+---
+title: "Guide"
+version: "2.1.2"
+---
+Leaf bundle body.
+-- layouts/page.html --
+THIS: kind={{ .Kind }} path={{ .Path }} version={{ .Params.version }}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/guide/index.html", "THIS: kind=page path=/guide version=2.1.2")
+}
