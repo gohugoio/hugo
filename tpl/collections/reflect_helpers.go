@@ -94,8 +94,15 @@ func convertValue(v reflect.Value, to reflect.Type) (reflect.Value, error) {
 }
 
 func convertNumber(v reflect.Value, typ reflect.Type) (reflect.Value, error) {
-	if v, ok := hreflect.ConvertIfPossible(v, typ); ok {
-		return v, nil
+	if cv, ok := hreflect.ConvertIfPossible(v, typ); ok {
+		return cv, nil
+	}
+	if v.Kind() == reflect.Interface {
+		v = v.Elem()
+	}
+	if hreflect.IsFloat(v.Kind()) && hreflect.IsFloat(typ.Kind()) {
+		// Narrowing float64 to float32 loses precision, but that is expected.
+		return v.Convert(typ), nil
 	}
 	return reflect.Value{}, fmt.Errorf("unable to convert value of type %q to %q", v.Type().String(), typ.String())
 }

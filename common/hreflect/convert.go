@@ -89,16 +89,13 @@ func errConvert(v reflect.Value, s string) error {
 }
 
 // ConvertIfPossible tries to convert val to typ if possible.
-// This is currently only implemented for int kinds,
-// added to handle the move to a new YAML library which produces uint64 for unsigned integers.
-// We can expand on this later if needed.
-// This conversion is lossless.
+// This is implemented for numeric and string kinds. The conversion is lossless;
+// if the value cannot be represented exactly in typ, it returns false.
+// It was added to handle the move to a new YAML library which produces uint64 for unsigned integers.
 // See Issue 14079.
 func ConvertIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value, bool) {
-	switch val.Kind() {
-	case reflect.Pointer, reflect.Interface:
+	if val.Kind() == reflect.Interface {
 		if val.IsNil() {
-			// Return typ's zero value.
 			return reflect.Zero(typ), true
 		}
 		val = val.Elem()
@@ -163,22 +160,37 @@ func convertToUintIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value
 func convertToFloatIfPossible(val reflect.Value, typ reflect.Type) (reflect.Value, bool) {
 	if IsInt(val.Kind()) {
 		i := val.Int()
+		if typ.Kind() == reflect.Float32 {
+			f := float32(i)
+			if float64(f) >= 1<<63 || int64(f) != i {
+				return reflect.Value{}, false
+			}
+			return reflect.ValueOf(f).Convert(typ), true
+		}
 		f := float64(i)
-		if typ.OverflowFloat(f) {
+		if f >= 1<<63 || int64(f) != i {
 			return reflect.Value{}, false
 		}
 		return reflect.ValueOf(f).Convert(typ), true
 	}
 	if IsUint(val.Kind()) {
 		u := val.Uint()
+		if typ.Kind() == reflect.Float32 {
+			f := float32(u)
+			if float64(f) >= 1<<64 || uint64(f) != u {
+				return reflect.Value{}, false
+			}
+			return reflect.ValueOf(f).Convert(typ), true
+		}
 		f := float64(u)
-		if typ.OverflowFloat(f) {
+		if f >= 1<<64 || uint64(f) != u {
 			return reflect.Value{}, false
 		}
 		return reflect.ValueOf(f).Convert(typ), true
 	}
 	if IsFloat(val.Kind()) {
-		if typ.OverflowFloat(val.Float()) {
+		f := val.Float()
+		if typ.Kind() == reflect.Float32 && float64(float32(f)) != f {
 			return reflect.Value{}, false
 		}
 		return val.Convert(typ), true
