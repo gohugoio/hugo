@@ -463,7 +463,17 @@ func (ns *Namespace) Title(s any) (string, error) {
 	return ns.deps.Conf.CreateTitle(ss), nil
 }
 
-// FirstUpper converts s making  the first character upper case.
+// FirstLower returns s with the first Unicode letter mapped to lowercase.
+func (ns *Namespace) FirstLower(s any) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return helpers.FirstLower(ss), nil
+}
+
+// FirstUpper returns s with the first Unicode letter mapped to uppercase.
 func (ns *Namespace) FirstUpper(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
@@ -473,8 +483,7 @@ func (ns *Namespace) FirstUpper(s any) (string, error) {
 	return helpers.FirstUpper(ss), nil
 }
 
-// ToLower returns a copy of the input s with all Unicode letters mapped to their
-// lower case.
+// ToLower returns s with all Unicode letters mapped to lowercase.
 func (ns *Namespace) ToLower(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
@@ -484,8 +493,7 @@ func (ns *Namespace) ToLower(s any) (string, error) {
 	return strings.ToLower(ss), nil
 }
 
-// ToUpper returns a copy of the input s with all Unicode letters mapped to their
-// upper case.
+// ToUpper returns s with all Unicode letters mapped to uppercase.
 func (ns *Namespace) ToUpper(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
