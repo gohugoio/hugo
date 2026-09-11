@@ -15,6 +15,7 @@
 package langs
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -29,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
+	"github.com/gohugoio/hugo/tpl"
 )
 
 var _ sitesmatrix.DimensionInfo = (*Language)(nil)
@@ -136,8 +138,8 @@ func (l *Language) Params() hmaps.Params {
 }
 
 // Deprecated: Use Locale instead.
-func (l *Language) LanguageCode() string {
-	hugo.DeprecateWithLogger(".Language.LanguageCode", "Use .Language.Locale instead.", "v0.158.0", l.Logger())
+func (l *Language) LanguageCode(ctx context.Context) string {
+	hugo.DeprecateWithLogger(fmt.Sprintf(".Language.LanguageCode in %q", tpl.CurrentTemplateFilename(ctx)), "Use .Language.Locale instead.", "v0.158.0", l.Logger())
 	return l.Locale()
 }
 
@@ -165,8 +167,8 @@ func (l *Language) Direction() string {
 }
 
 // Deprecated: Use Label instead.
-func (l *Language) LanguageName() string {
-	hugo.DeprecateWithLogger(".Language.LanguageName", "Use .Language.Label instead.", "v0.158.0", l.Logger())
+func (l *Language) LanguageName(ctx context.Context) string {
+	hugo.DeprecateWithLogger(fmt.Sprintf(".Language.LanguageName in %q", tpl.CurrentTemplateFilename(ctx)), "Use .Language.Label instead.", "v0.158.0", l.Logger())
 	return l.Label()
 }
 

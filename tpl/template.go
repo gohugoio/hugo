@@ -26,7 +26,6 @@ import (
 	"github.com/gohugoio/hugo/common/collections"
 
 	"github.com/gohugoio/hugo/identity"
-	"github.com/gohugoio/hugo/langs"
 
 	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -78,6 +77,14 @@ var Context = struct {
 	IsInPartialCached:               contexthelpers.NewContextDispatcher[bool](contextKeyIsInPartialCached),
 }
 
+func CurrentTemplateFilename(ctx context.Context) string {
+	templ := Context.CurrentTemplate.Get(ctx)
+	if templ != nil {
+		return templ.Filename()
+	}
+	return ""
+}
+
 func init() {
 	Context.GetDependencyManagerInCurrentScope = func(ctx context.Context) identity.Manager {
 		idmsp := Context.DependencyManagerScopedProvider.Get(ctx)
@@ -99,7 +106,7 @@ type page interface {
 }
 
 type site interface {
-	Language() *langs.Language
+	ServerPort() int
 }
 
 const (
