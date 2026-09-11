@@ -48,7 +48,16 @@ func TCPListen() (net.Listener, *net.TCPAddr, error) {
 	return nil, nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
 }
 
-// FirstUpper returns a string with the first character as upper case.
+// FirstLower returns s with the first Unicode letter mapped to lowercase.
+func FirstLower(s string) string {
+	if s == "" {
+		return ""
+	}
+	r, n := utf8.DecodeRuneInString(s)
+	return string(unicode.ToLower(r)) + s[n:]
+}
+
+// FirstUpper returns s with the first Unicode letter mapped to uppercase.
 func FirstUpper(s string) string {
 	if s == "" {
 		return ""
