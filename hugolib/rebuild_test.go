@@ -2338,3 +2338,40 @@ Single: {{ .Title }}|
 	b.EditFileReplaceAll("out/data.json", "v1", "v2").Build()
 	b.AssertFileContent("public/out/data.min.json", `{"version":"v2"}`)
 }
+
+// See issue 15330.
+func TestRebuildEditTwoContentFilesInSameDirSameBatch(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "home", "section"]
+disableLiveReload = true
+-- content/a.md --
+---
+title: a
+---
+page a
+-- content/c.md --
+---
+title: c
+---
+page c
+-- layouts/page.html --
+{{ .Content }}|Summary: {{ .Summary }}|
+`
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/c/index.html", "<p>page c</p>")
+
+	// a.md rewritten with identical content, c.md grows, same batch.
+	b.EditFiles("content/a.md", "---\ntitle: a\n---\npage a\n")
+	b.EditFiles("content/c.md", "---\ntitle: c\n---\npage c\nappended line\n")
+	b.Build()
+	b.AssertFileContent("public/c/index.html", "<p>page c\nappended line</p>")
+
+	// c.md shrinks.
+	b.EditFiles("content/a.md", "---\ntitle: a\n---\npage a\n")
+	b.EditFiles("content/c.md", "---\ntitle: c\n---\nc\n")
+	b.Build()
+	b.AssertFileContent("public/c/index.html", "<p>c</p>", "|Summary: <p>c</p>|")
+}
