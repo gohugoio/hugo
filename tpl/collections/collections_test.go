@@ -667,6 +667,13 @@ func TestUnion(t *testing.T) {
 		{[]string{"1", "2"}, []int{3}, []string{}, false},
 		{[]int{1, 2}, []string{"1", "2"}, []int{}, false},
 
+		// numeric []A ∪ []B unify. See issue 15323.
+		{[]int{1}, []float64{1.0}, []int{1}, false},
+		{[]int{1, 2}, []float64{2.0, 3.0}, []int{1, 2, 3}, false},
+		{[]float64{1.0}, []int{1, 2}, []float64{1.0, 2.0}, false},
+		// the empty l1 prototype comes from l2, so appends must stay assignable to l1's element type.
+		{[]int{}, []float64{1.0}, []int{}, false},
+
 		// []T ∪ []T
 		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b", "c"}, false},
 		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b", "c"}, false},
