@@ -74,6 +74,34 @@ Copy3: /blog/js/copies/moo.a677329fc6c4ad947e0c7116d91f37a2.min.js|text/javascri
 	b.AssertFileExists("public/images/copy3.png", false)
 }
 
+// See issue 10584.
+func TestCopyPageResource(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1/index.md --
+---
+title: p1
+---
+-- content/p1/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/page.html --
+{{ with .Resources.Get "pixel.png" }}
+Orig: {{ .RelPermalink }}|
+{{ with . | resources.Copy "p1/copy.png" }}
+Copy: {{ .RelPermalink }}|{{ .Width }}|{{ .Height }}|
+{{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "Orig: /p1/pixel.png|", "Copy: /p1/copy.png|1|1|")
+	b.AssertFileContent("public/p1/copy.png", "PNG")
+}
+
 func TestCopyPageShouldFail(t *testing.T) {
 	t.Parallel()
 

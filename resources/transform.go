@@ -238,16 +238,15 @@ func (r *resourceAdapter) GetDependencyManager() identity.Manager {
 func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
 	newtTarget := r.target.cloneTo(targetPath)
 	r.sourceTarget = newtTarget.(transformableResource)
-	newInner := &resourceAdapterInner{
-		ctx:    r.ctx,
-		spec:   r.spec,
-		Staler: r.Staler,
-		target: newtTarget.(transformableResource),
+	// The copy has its own target path and is never part of an eager publish set
+	// (e.g. a page's own resources), so it must always publish lazily.
+	r.resourceAdapterInner = &resourceAdapterInner{
+		ctx:         r.ctx,
+		spec:        r.spec,
+		publishOnce: &publishOnce{},
+		target:      newtTarget.(transformableResource),
+		Staler:      r.Staler,
 	}
-	if r.resourceAdapterInner.publishOnce != nil {
-		newInner.publishOnce = &publishOnce{}
-	}
-	r.resourceAdapterInner = newInner
 	return &r
 }
 
