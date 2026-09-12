@@ -150,8 +150,48 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 		if reflect.DeepEqual(normFirst, other) {
 			return true
 		}
+
+		// Numbers of different kinds normalize to different Go types, so
+		// reflect.DeepEqual reports 1 and 1.0 as unequal. Lt, Le, Gt and Ge
+		// compare such pairs numerically via compareGet, so eq did not agree
+		// with them: le and ge were both true while lt, eq and gt were all
+		// false. See #15322.
+		if numbersEqual(normFirst, other) {
+			return true
+		}
 	}
 
+	return false
+}
+
+// numbersEqual reports whether a and b are both numbers of equal value. Both
+// arguments must already be normalized to int64, uint64 or float64. Mixed
+// int/float comparisons go through float64, matching compareGet, so that eq
+// agrees with the ordering operators for every pair they both accept.
+func numbersEqual(a, b any) bool {
+	switch av := a.(type) {
+	case int64:
+		switch bv := b.(type) {
+		case uint64:
+			return av >= 0 && uint64(av) == bv
+		case float64:
+			return float64(av) == bv
+		}
+	case uint64:
+		switch bv := b.(type) {
+		case int64:
+			return bv >= 0 && av == uint64(bv)
+		case float64:
+			return float64(av) == bv
+		}
+	case float64:
+		switch bv := b.(type) {
+		case int64:
+			return av == float64(bv)
+		case uint64:
+			return av == float64(bv)
+		}
+	}
 	return false
 }
 
