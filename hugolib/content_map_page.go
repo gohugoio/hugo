@@ -136,6 +136,40 @@ type pageTrees struct {
 	resourceTrees doctree.MutableTrees
 }
 
+// leafBundleOwner returns the closest ancestor leaf bundle for p, if any.
+func (t *pageTrees) leafBundleOwner(p *paths.Path) *paths.Path {
+	if p == nil || p.Component() != files.ComponentFolderContent || p.IsContentData() {
+		return nil
+	}
+
+	t.treePages.Lock(false)
+	defer t.treePages.Unlock(false)
+
+	for dir := path.Dir(p.Base()); ; dir = path.Dir(dir) {
+		key := dir
+		if dir == "/" {
+			// The home page is stored at "".
+			key = ""
+		}
+		if n, ok := t.treePages.GetRaw(key); ok {
+			var owner *paths.Path
+			n.forEeachContentNode(func(_ sitesmatrix.Vector, nn contentNode) bool {
+				if pi := cnh.PathInfo(nn); pi != nil && pi.IsLeafBundle() {
+					owner = pi
+					return false
+				}
+				return true
+			})
+			if owner != nil {
+				return owner
+			}
+		}
+		if dir == "/" || dir == "." || dir == "" {
+			return nil
+		}
+	}
+}
+
 // collectAndMarkStaleIdentities collects all identities from in all trees matching the given key.
 // We currently re-read all page/resources for all languages that share the same path,
 // so we mark all entries as stale (which will trigger cache invalidation), then
