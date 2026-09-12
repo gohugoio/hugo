@@ -42,6 +42,9 @@ type TargetPathDescriptor struct {
 	Type output.Format
 	Kind string
 
+	// The media type of the page's first output format.
+	PrimaryMediaType string
+
 	Path    *paths.Path
 	Section *paths.Path
 
@@ -136,6 +139,12 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 	if d.Type.Root && !d.ForcePrefix {
 		d.PrefixFilePath = ""
 		d.PrefixLink = ""
+	}
+
+	if d.Kind != kinds.KindHome && d.PrimaryMediaType != "" && d.PrimaryMediaType != d.Type.MediaType.Type {
+		if ext := paths.Ext(d.URL); ext != "" {
+			d.URL = strings.TrimSuffix(d.URL, ext) + d.Type.MediaType.FirstSuffix.FullSuffix
+		}
 	}
 
 	pb := getPagePathBuilder(d)
