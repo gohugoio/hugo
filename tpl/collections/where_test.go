@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"math"
 	"math/rand"
 	"reflect"
 	"strings"
@@ -700,7 +701,11 @@ func TestCheckCondition(t *testing.T) {
 		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(int(1<<53 + 1)), "", expect{true, false}},
 		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(int(1 << 53)), ">", expect{true, false}},
 		{reflect.ValueOf(uint64(1<<53 + 1)), reflect.ValueOf(uint8(1)), ">", expect{true, false}},
-		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(float64(1 << 53)), "", expect{false, true}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(float64(1 << 53)), "", expect{false, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(float64(1 << 53)), ">", expect{true, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(uint64(1<<53 + 1)), "", expect{true, false}},
+		{reflect.ValueOf(-1), reflect.ValueOf(uint64(math.MaxUint64)), "<", expect{true, false}},
+		{reflect.ValueOf(uint64(math.MaxUint64)), reflect.ValueOf(uint8(1)), ">", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("foo"), "", expect{true, false}},
 		{
 			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),

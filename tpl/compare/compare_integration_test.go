@@ -49,7 +49,7 @@ ge: {{ ge 1 1.0 }}|{{ ge 1 1.5 }}
 
 //
 
-func BenchmarkEq(b *testing.B) {
+func BenchmarkCompare(b *testing.B) {
 	files := `
 -- hugo.toml --
 `
@@ -59,51 +59,107 @@ func BenchmarkEq(b *testing.B) {
 
 	b.ResetTimer()
 
-	b.Run("eq int", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq(42, 42)
-		}
-	})
+	run := func(name string, fn func(first any, others ...any) bool) {
+		b.Run(name, func(b *testing.B) {
+			b.Run("mixed int and float", func(b *testing.B) {
+				for b.Loop() {
+					fn(42, 42.0)
+				}
+			})
+			b.Run("mixed float and int", func(b *testing.B) {
+				for b.Loop() {
+					fn(42.0, 42)
+				}
+			})
+			b.Run("mixed string and int", func(b *testing.B) {
+				for b.Loop() {
+					fn("42", 42)
+				}
+			})
+			b.Run("mixed string and float", func(b *testing.B) {
+				for b.Loop() {
+					fn("42", 42.0)
+				}
+			})
+			b.Run("mixed float and string", func(b *testing.B) {
+				for b.Loop() {
+					fn(42.0, "42")
+				}
+			})
+			// End of mixed type benchmark
+			// start of same type benchmark
+			b.Run("same int", func(b *testing.B) {
+				for b.Loop() {
+					fn(42, 42)
+				}
+			})
+			b.Run("same float", func(b *testing.B) {
+				for b.Loop() {
+					fn(42.0, 42.0)
+				}
+			})
+			b.Run("same string", func(b *testing.B) {
+				for b.Loop() {
+					fn("foo", "foo")
+				}
+			})
+			b.Run("same bool", func(b *testing.B) {
+				for b.Loop() {
+					fn(true, true)
+				}
+			})
+			b.Run("same nil", func(b *testing.B) {
+				for b.Loop() {
+					fn(nil, nil)
+				}
+			})
+			b.Run("same complex", func(b *testing.B) {
+				for b.Loop() {
+					fn(complex(1, 2), complex(1, 2))
+				}
+			})
+			// End of same type benchmark
+			// start of edge case benchmark
+			b.Run("empty slice", func(b *testing.B) {
+				for b.Loop() {
+					fn([]int{}, []int{})
+				}
+			})
+			b.Run("empty map", func(b *testing.B) {
+				for b.Loop() {
+					fn(map[string]int{}, map[string]int{})
+				}
+			})
+			// End of edge case benchmark
+			// start of nil benchmark
+			b.Run("nil and non-nil", func(b *testing.B) {
+				for b.Loop() {
+					fn(nil, 42)
+				}
+			})
+			b.Run("non-nil and nil", func(b *testing.B) {
+				for b.Loop() {
+					fn(42, nil)
+				}
+			})
+			// End of nil benchmark
+			// start of large number benchmark
+			b.Run("large numbers", func(b *testing.B) {
+				for b.Loop() {
+					fn(1e18, 1e18)
+				}
+			})
+			// End of large number benchmark
+			// start of small number benchmark
+			b.Run("small numbers", func(b *testing.B) {
+				for b.Loop() {
+					fn(1e-18, 1e-18)
+				}
+			})
+			// End of small number benchmark
+		})
+	}
 
-	b.Run("eq float", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq(42.0, 42.0)
-		}
-	})
-
-	b.Run("eq string", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq("foo", "foo")
-		}
-	})
-
-	b.Run("eq float32 and float64", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq(float32(42.0), 42.0)
-		}
-	})
-
-	b.Run("eq int and float", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq(42, 42.0)
-		}
-	})
-
-	b.Run("eq float and int", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq(42.0, 42)
-		}
-	})
-
-	b.Run("eq int and uint64", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq(42, uint64(42))
-		}
-	})
-
-	b.Run("eq uint32 and uint64", func(b *testing.B) {
-		for b.Loop() {
-			ns.Eq(uint32(42), uint64(42))
-		}
-	})
+	run("Eq", ns.Eq)
+	run("Gt", ns.Gt)
 }

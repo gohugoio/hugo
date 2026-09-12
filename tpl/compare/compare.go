@@ -19,6 +19,7 @@ import (
 	"math"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gohugoio/hugo/compare"
@@ -96,8 +97,7 @@ func (*Namespace) Default(defaultv any, givenv ...any) (any, error) {
 }
 
 // Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
-// Numeric and string values are converted to the type of arg1 before comparison when
-// this can be done without loss, so e.g. 1 and 1.0 are considered equal.
+// Numbers are compared by value regardless of type, so e.g. 1 and 1.0 are considered equal.
 func (n *Namespace) Eq(first any, others ...any) bool {
 	if n.caseInsensitive {
 		panic("caseInsensitive not implemented for Eq")
@@ -140,40 +140,21 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 
 		ov := reflect.ValueOf(other)
 
-		// Some common fast paths.
 		if fv.Kind() == reflect.String && ov.Kind() == reflect.String {
 			if fv.String() == ov.String() {
 				return true
 			}
 			continue
-		} else if fv.CanFloat() && ov.CanFloat() {
-			if fv.Float() == ov.Float() {
-				return true
-			}
-			continue
-		} else if fv.CanInt() && ov.CanInt() {
-			if fv.Int() == ov.Int() {
-				return true
-			}
-			continue
-		} else if fv.CanUint() && ov.CanUint() {
-			if fv.Uint() == ov.Uint() {
+		}
+
+		if c, ok := hreflect.CompareNumbers(fv, ov); ok {
+			if c == 0 {
 				return true
 			}
 			continue
 		}
 
-		cv, ok := hreflect.ConvertIfPossible(ov, fv.Type())
-		if !ok {
-			continue
-		}
-		if k := fv.Kind(); hreflect.IsNumber(k) || hreflect.IsString(k) || k == reflect.Bool {
-			if fv.Equal(cv) {
-				return true
-			}
-			continue
-		}
-		if reflect.DeepEqual(fv.Interface(), cv.Interface()) {
+		if reflect.DeepEqual(normFirst, other) {
 			return true
 		}
 	}
@@ -268,37 +249,25 @@ func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
 	return ns.compareGetWithCollator(nil, a, b)
 }
 
-func (ns *Namespace) compareTwoUints(a uint64, b uint64) (float64, float64) {
-	if a < b {
+// toLeftRight maps a three-way comparison result to the (left, right)
+// pair convention used by compareGet.
+func toLeftRight(c int) (float64, float64) {
+	switch {
+	case c < 0:
 		return 0, 1
-	} else if a == b {
-		return 0, 0
-	} else {
+	case c > 0:
 		return 1, 0
 	}
+	return 0, 0
 }
 
 func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b any) (float64, float64) {
 	if ac, ok := a.(compare.Comparer); ok {
-		c := ac.Compare(b)
-		if c < 0 {
-			return 1, 0
-		} else if c == 0 {
-			return 0, 0
-		} else {
-			return 0, 1
-		}
+		return toLeftRight(-ac.Compare(b))
 	}
 
 	if bc, ok := b.(compare.Comparer); ok {
-		c := bc.Compare(a)
-		if c < 0 {
-			return 0, 1
-		} else if c == 0 {
-			return 0, 0
-		} else {
-			return 1, 0
-		}
+		return toLeftRight(bc.Compare(a))
 	}
 
 	// Fast path: both values are plain strings.
@@ -308,25 +277,23 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 		}
 	}
 
-	var left, right float64
-	var leftStr, rightStr *string
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
+
+	if c, ok := hreflect.CompareNumbers(av, bv); ok {
+		return toLeftRight(c)
+	}
+
+	var left, right float64
+	var leftStr, rightStr *string
 
 	switch av.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
 		left = float64(av.Len())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		if hreflect.IsUint(bv.Kind()) {
-			return ns.compareTwoUints(uint64(av.Int()), bv.Uint())
-		}
 		left = float64(av.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		left = float64(av.Uint())
-	case reflect.Uint64:
-		if hreflect.IsUint(bv.Kind()) {
-			return ns.compareTwoUints(av.Uint(), bv.Uint())
-		}
 	case reflect.Float32, reflect.Float64:
 		left = av.Float()
 	case reflect.String:
@@ -352,16 +319,9 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
 		right = float64(bv.Len())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		if hreflect.IsUint(av.Kind()) {
-			return ns.compareTwoUints(av.Uint(), uint64(bv.Int()))
-		}
 		right = float64(bv.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		right = float64(bv.Uint())
-	case reflect.Uint64:
-		if hreflect.IsUint(av.Kind()) {
-			return ns.compareTwoUints(av.Uint(), bv.Uint())
-		}
 	case reflect.Float32, reflect.Float64:
 		right = bv.Float()
 	case reflect.String:
@@ -398,19 +358,9 @@ func (ns *Namespace) compareTwoStrings(collator *langs.Collator, a, b string) (f
 		} else {
 			c = compare.Strings(a, b)
 		}
-		if c < 0 {
-			return 0, 1
-		} else if c > 0 {
-			return 1, 0
-		}
-		return 0, 0
+		return toLeftRight(c)
 	}
-	if a < b {
-		return 0, 1
-	} else if a > b {
-		return 1, 0
-	}
-	return 0, 0
+	return toLeftRight(strings.Compare(a, b))
 }
 
 func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
