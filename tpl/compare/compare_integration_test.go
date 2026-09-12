@@ -47,8 +47,6 @@ ge: {{ ge 1 1.0 }}|{{ ge 1 1.5 }}
 	)
 }
 
-//
-
 func BenchmarkCompare(b *testing.B) {
 	files := `
 -- hugo.toml --
@@ -59,7 +57,7 @@ func BenchmarkCompare(b *testing.B) {
 
 	b.ResetTimer()
 
-	run := func(name string, fn func(first any, others ...any) bool) {
+	run := func(name string, fn func(v1, v2 any)) {
 		b.Run(name, func(b *testing.B) {
 			b.Run("mixed int and float", func(b *testing.B) {
 				for b.Loop() {
@@ -160,6 +158,11 @@ func BenchmarkCompare(b *testing.B) {
 		})
 	}
 
-	run("Eq", ns.Eq)
-	run("Gt", ns.Gt)
+	run("Eq", func(v1, v2 any) {
+		ns.Eq(v1, v2)
+	})
+
+	run("Gt", func(v1, v2 any) {
+		ns.Gt(v1, v2)
+	})
 }
