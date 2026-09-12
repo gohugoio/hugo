@@ -68,13 +68,26 @@ func (c *Scratch) Add(key string, newAddend any) (string, error) {
 	return "", nil // have to return something to make it work with the Go templates
 }
 
-// Set stores a value with the given key in the Node context.
+// Set stores a value with the given key.
 // This value can later be retrieved with Get.
 func (c *Scratch) Set(key string, value any) string {
 	c.mu.Lock()
 	c.values[key] = value
 	c.mu.Unlock()
 	return ""
+}
+
+// SetOnce stores a value with the given key only if it does not already exist.
+// It returns true if the value was set, false if it already existed.
+// This value can later be retrieved with Get.
+func (c *Scratch) SetOnce(key string, value any) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if _, found := c.values[key]; found {
+		return false
+	}
+	c.values[key] = value
+	return true
 }
 
 // Delete deletes the given key.

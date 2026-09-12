@@ -442,6 +442,12 @@ func (s *IntegrationTestBuilder) AssertFileContentStartsWith(filename, prefix st
 
 func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...string) {
 	s.Helper()
+	ok, cm := s.assertFileContent(filename, matches...)
+	s.Assert(ok, qt.IsTrue, cm)
+}
+
+func (s *IntegrationTestBuilder) assertFileContent(filename string, matches ...string) (bool, qt.Comment) {
+	s.Helper()
 	content := strings.TrimSpace(s.FileContent(filename))
 
 	for _, m := range matches {
@@ -455,12 +461,17 @@ func (s *IntegrationTestBuilder) AssertFileContent(filename string, matches ...s
 			var negate bool
 			match, negate = s.negate(match)
 			if negate {
-				s.Assert(content, qt.Not(qt.Contains), match, cm)
+				if strings.Contains(content, match) {
+					return false, cm
+				}
 				continue
 			}
-			s.Assert(content, qt.Contains, match, cm)
+			if !strings.Contains(content, match) {
+				return false, cm
+			}
 		}
 	}
+	return true, qt.Commentf("File: %s matches all expectations", filename)
 }
 
 func (s *IntegrationTestBuilder) AssertFileContentEquals(filename string, match string) {
@@ -555,6 +566,37 @@ func (s *IntegrationTestBuilder) ImageHelper(filename string) *IntegrationTestIm
 
 func (s *IntegrationTestBuilder) AssertPublishDir(matches ...string) {
 	s.AssertFs(s.fs.PublishDir, matches...)
+}
+
+func (s *IntegrationTestBuilder) AssertFileContentWalk(root string, expectCount int, matches ...string) {
+	s.Helper()
+	s.Assert(root, qt.Not(qt.Equals), "", qt.Commentf("Root path cannot be empty"))
+	mt := s.H.Conf.GetConfigSection("mediaTypes").(media.Types)
+	matchCounter := 0
+	var comment qt.Comment
+	err := afero.Walk(s.fs.WorkingDirReadOnly, root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		path = filepath.ToSlash(path)
+
+		// Skip non text files.
+		if !mt.IsTextSuffix(strings.TrimPrefix(filepath.Ext(path), ".")) {
+			return nil
+		}
+
+		var ok bool
+		ok, comment = s.assertFileContent(path, matches...)
+		if ok {
+			matchCounter++
+		}
+		return nil
+	})
+	s.Assert(err, qt.IsNil)
+	s.Assert(matchCounter, qt.Equals, expectCount, comment)
 }
 
 func (s *IntegrationTestBuilder) AssertFs(fs afero.Fs, matches ...string) {
