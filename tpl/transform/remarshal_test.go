@@ -14,6 +14,7 @@
 package transform_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/htesting"
@@ -198,6 +199,39 @@ a = "b"
 		_, err = ns.Remarshal("json", "asdf")
 		c.Assert(err, qt.Not(qt.IsNil))
 	})
+}
+
+// See issue 14596.
+func TestRemarshalYAMLRepeatedEmptySlices(t *testing.T) {
+	t.Parallel()
+
+	b := hugolib.Test(t, "")
+	ns := transform.New(b.H.Deps)
+	c := qt.New(t)
+
+	input := `
+alpha:
+  tags: []
+  kind: one
+beta:
+  tags: []
+  kind: two
+gamma:
+  tags: []
+  kind: three
+`
+
+	got, err := ns.Remarshal("yaml", input)
+	c.Assert(err, qt.IsNil)
+	c.Assert(strings.Contains(got, "&"), qt.IsFalse)
+	c.Assert(strings.Contains(got, "*"), qt.IsFalse)
+	c.Assert(got, qt.Contains, "tags: []")
+
+	roundtrip, err := ns.Remarshal("json", got)
+	c.Assert(err, qt.IsNil)
+	c.Assert(roundtrip, qt.Contains, `"alpha"`)
+	c.Assert(roundtrip, qt.Contains, `"beta"`)
+	c.Assert(roundtrip, qt.Contains, `"gamma"`)
 }
 
 func TestRemarshaBillionLaughs(t *testing.T) {

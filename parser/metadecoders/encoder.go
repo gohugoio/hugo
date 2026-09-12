@@ -21,7 +21,19 @@ var yamlEncodeOptions = []yaml.EncodeOption{
 	yaml.WithSmartAnchor(),
 }
 
+var yamlEncodeOptionsNoAnchor = []yaml.EncodeOption{
+	yaml.UseSingleQuote(true),
+}
+
 // MarshalYAML marshals the given value to YAML.
 var MarshalYAML = func(v any) ([]byte, error) {
-	return yaml.MarshalWithOptions(v, yamlEncodeOptions...)
+	b, err := yaml.MarshalWithOptions(v, yamlEncodeOptions...)
+	if err != nil {
+		return nil, err
+	}
+	// WithSmartAnchor can emit invalid YAML for empty slices (goccy/go-yaml#853).
+	if err := yaml.Unmarshal(b, new(any)); err != nil {
+		return yaml.MarshalWithOptions(v, yamlEncodeOptionsNoAnchor...)
+	}
+	return b, nil
 }
