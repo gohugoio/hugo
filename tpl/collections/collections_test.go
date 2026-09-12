@@ -571,10 +571,12 @@ func TestShuffle(t *testing.T) {
 		{[]int{100, 200, 300}, true},
 		{[]int{100, 200, 300}, true},
 		{[]int{100}, true},
+		{[3]int{100, 200, 300}, true},
 		// errors
 		{nil, false},
 		{t, false},
 		{(*string)(nil), false},
+		{"abc", false},
 	} {
 		errMsg := qt.Commentf("[%d] %v", i, test)
 
@@ -592,6 +594,11 @@ func TestShuffle(t *testing.T) {
 
 		c.Assert(seqv.Len(), qt.Equals, resultv.Len(), errMsg)
 	}
+
+	// A pointer to a slice should be shuffled after being dereferenced.
+	result, err := ns.Shuffle(&[]int{100, 200, 300})
+	c.Assert(err, qt.IsNil)
+	c.Assert(reflect.ValueOf(result).Len(), qt.Equals, 3)
 }
 
 func TestShuffleRandomising(t *testing.T) {

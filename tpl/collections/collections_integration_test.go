@@ -653,3 +653,29 @@ All.
 		}
 	})
 }
+
+// shuffle accepted arrays, strings and pointers to slices in its type switch,
+// but built the result with reflect.MakeSlice(reflect.TypeOf(l)), which panics
+// with "reflect.MakeSlice of non-slice type" for anything that is not a plain
+// slice. A template such as {{ shuffle "abc" }} therefore crashed the build.
+// A string now returns the regular iteration error, and a plain slice still
+// shuffles.
+func TestShuffleNonSlice(t *testing.T) {
+	t.Parallel()
+
+	_, err := hugolib.TestE(t, `
+-- hugo.toml --
+-- layouts/home.html --
+{{ shuffle "abc" }}
+`)
+	if err == nil || !strings.Contains(err.Error(), "can't iterate over string") {
+		t.Fatalf("expected a \"can't iterate over string\" error, got: %v", err)
+	}
+
+	b := hugolib.Test(t, `
+-- hugo.toml --
+-- layouts/home.html --
+{{ shuffle (slice "a" "b" "c") | sort }}
+`)
+	b.AssertFileContent("public/index.html", "[a b c]")
+}
