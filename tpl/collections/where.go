@@ -104,28 +104,17 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	var fma []float64
 	var sma []string
 
-	if mv.Kind() == v.Kind() {
+	if c, ok := hreflect.CompareNumbers(v, mv); ok {
+		// Feed the result through the int64 comparisons below.
+		iv, imv := int64(c), int64(0)
+		ivp, imvp = &iv, &imv
+	} else if mv.Kind() == v.Kind() {
 		switch v.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			iv := v.Int()
-			ivp = &iv
-			imv := mv.Int()
-			imvp = &imv
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			iv := int64(v.Uint())
-			ivp = &iv
-			imv := int64(mv.Uint())
-			imvp = &imv
 		case reflect.String:
 			sv := v.String()
 			svp = &sv
 			smv := mv.String()
 			smvp = &smv
-		case reflect.Float64:
-			fv := v.Float()
-			fvp = &fv
-			fmv := mv.Float()
-			fmvp = &fmv
 		case reflect.Struct:
 			if hreflect.IsTime(v.Type()) {
 				iv := ns.toTimeUnix(v)
@@ -137,17 +126,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			slv = v.Interface()
 			slmv = mv.Interface()
 		}
-	} else if hreflect.IsNumber(v.Kind()) && hreflect.IsNumber(mv.Kind()) {
-		fv, err := hreflect.ToFloat64E(v)
-		if err != nil {
-			return false, err
-		}
-		fvp = &fv
-		fmv, err := hreflect.ToFloat64E(mv)
-		if err != nil {
-			return false, err
-		}
-		fmvp = &fmv
 	} else {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
 			return false, nil
