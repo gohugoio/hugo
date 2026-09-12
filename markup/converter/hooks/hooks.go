@@ -112,12 +112,12 @@ type BlockquoteContext interface {
 
 	// The alert title.
 	// Currently only relevant for Obsidian alerts.
-	// GitHub does not suport alert titles and will not render alerts with titles.
+	// GitHub does not support alert titles and will not render alerts with titles.
 	AlertTitle() hstring.HTML
 
 	// The alert sign,  "+" or "-" or "" used to indicate folding.
 	// Currently only relevant for Obsidian alerts.
-	// GitHub does not suport alert signs and will not render alerts with signs.
+	// GitHub does not support alert signs and will not render alerts with signs.
 	AlertSign() string
 }
 

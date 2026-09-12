@@ -79,7 +79,7 @@ type InlineImports struct {
 
 	// See issue https://github.com/gohugoio/hugo/issues/13719
 	// Disable inlining of @import statements
-	// This is currenty only used for css.TailwindCSS.
+	// This is currently only used for css.TailwindCSS.
 	DisableInlineImports bool
 
 	// When InlineImports is enabled, we fail the build if an import cannot be resolved.

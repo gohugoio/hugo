@@ -164,11 +164,11 @@ func (s *HtmlSummary) resolveParagraphTagAndSetWrapper(mt media.Type) tagReStart
 // Avoid counting words that are most likely HTML tokens.
 var (
 	isProbablyHTMLTag      = regexp.MustCompile(`^<\/?[A-Za-z]+>?$`)
-	isProablyHTMLAttribute = regexp.MustCompile(`^[A-Za-z]+=["']`)
+	isProbablyHTMLAttribute = regexp.MustCompile(`^[A-Za-z]+=["']`)
 )
 
 func isProbablyHTMLToken(s string) bool {
-	return s == ">" || isProbablyHTMLTag.MatchString(s) || isProablyHTMLAttribute.MatchString(s)
+	return s == ">" || isProbablyHTMLTag.MatchString(s) || isProbablyHTMLAttribute.MatchString(s)
 }
 
 // ExtractSummaryFromHTML extracts a summary from the given HTML content.

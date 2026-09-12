@@ -1250,10 +1250,10 @@ func canRedirect(requestURIWithoutQuery string, r *http.Request) bool {
 // Fall back to the file extension if not set.
 // The main take here is that we don't want to have CSS/JS files etc. partake in this logic.
 func isNavigation(requestURIWithoutQuery string, r *http.Request) bool {
-	return r.Header.Get("Sec-Fetch-Mode") == "navigate" || isPropablyHTMLRequest(requestURIWithoutQuery)
+	return r.Header.Get("Sec-Fetch-Mode") == "navigate" || isProbablyHTMLRequest(requestURIWithoutQuery)
 }
 
-func isPropablyHTMLRequest(requestURIWithoutQuery string) bool {
+func isProbablyHTMLRequest(requestURIWithoutQuery string) bool {
 	if strings.HasSuffix(requestURIWithoutQuery, "/") || strings.HasSuffix(requestURIWithoutQuery, "html") || strings.HasSuffix(requestURIWithoutQuery, "htm") {
 		return true
 	}
