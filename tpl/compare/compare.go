@@ -95,6 +95,65 @@ func (*Namespace) Default(defaultv any, givenv ...any) (any, error) {
 	return defaultv, nil
 }
 
+// Require returns the given value if it is set, otherwise it returns an error
+// with the given message. This is the error-returning counterpart of Default.
+//
+// "Set" in this context means non-zero for numeric types and times;
+// non-zero length for strings, arrays, slices, and maps;
+// any struct value; or non-nil for any other types.
+//
+// Unlike Default, a boolean false is considered not set.
+func (*Namespace) Require(msg any, givenv ...any) (any, error) {
+	// given is variadic because the following construct will not pass a piped
+	// argument when the key is missing:  {{ index . "key" | require "key is required" }}
+	// The Go template will complain that we got 1 argument when we expected 2.
+
+	if len(givenv) == 0 {
+		return nil, fmt.Errorf("%v", msg)
+	}
+	if len(givenv) != 1 {
+		return nil, fmt.Errorf("wrong number of args for require: want 2 got %d", len(givenv)+1)
+	}
+
+	g := reflect.ValueOf(givenv[0])
+	if !g.IsValid() {
+		return nil, fmt.Errorf("%v", msg)
+	}
+
+	set := false
+
+	switch g.Kind() {
+	case reflect.Bool:
+		// Unlike Default, false is considered not set.
+		set = g.Bool()
+	case reflect.String, reflect.Array, reflect.Slice, reflect.Map:
+		set = g.Len() != 0
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		set = g.Int() != 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		set = g.Uint() != 0
+	case reflect.Float32, reflect.Float64:
+		set = g.Float() != 0
+	case reflect.Complex64, reflect.Complex128:
+		set = g.Complex() != 0
+	case reflect.Struct:
+		switch actual := givenv[0].(type) {
+		case time.Time:
+			set = !actual.IsZero()
+		default:
+			set = true
+		}
+	default:
+		set = !g.IsNil()
+	}
+
+	if set {
+		return givenv[0], nil
+	}
+
+	return nil, fmt.Errorf("%v", msg)
+}
+
 // Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
 func (n *Namespace) Eq(first any, others ...any) bool {
 	if n.caseInsensitive {

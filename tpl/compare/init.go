@@ -52,6 +52,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Require,
+			[]string{"require"},
+			[][2]string{
+				{`{{ "Hugo Rocks!" | require "value is required" }}`, `Hugo Rocks!`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Eq,
 			[]string{"eq"},
 			[][2]string{

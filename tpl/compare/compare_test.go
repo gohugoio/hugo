@@ -144,6 +144,60 @@ func TestDefaultFunc(t *testing.T) {
 	}
 }
 
+func TestRequireFunc(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	ns := New(time.UTC, false)
+	then := time.Now()
+
+	for i, test := range []struct {
+		msg   any
+		given any
+		err   bool
+	}{
+		// Values that are set should be returned without error.
+		{"required", true, false},
+		{"required", "set", false},
+		{"required", 1, false},
+		{"required", 0.5, false},
+		{"required", []string{"one"}, false},
+		{"required", map[string]int{"one": 1}, false},
+		{"required", [2]int{1, 2}, false},
+		{"required", struct{ f string }{f: "one"}, false},
+		{"required", then, false}, // non-zero time
+
+		// Values that are not set should return an error.
+		{"required", false, true},
+		{"required", "", true},
+		{"required", 0, true},
+		{"required", 0.0, true},
+		{"required", []string{}, true},
+		{"required", map[string]int{}, true},
+		{"required", [0]int{}, true},
+		{"required", nil, true},
+		{"required", time.Time{}, true}, // zero time
+	} {
+		errMsg := qt.Commentf("[%d] %v", i, test)
+
+		result, err := ns.Require(test.msg, test.given)
+
+		if test.err {
+			c.Assert(err, qt.Not(qt.IsNil), errMsg)
+			c.Assert(err.Error(), qt.Equals, "required", errMsg)
+		} else {
+			c.Assert(err, qt.IsNil, errMsg)
+			eq := qt.CmpEquals(hqt.DeepAllowUnexported(test.given))
+			c.Assert(result, eq, test.given, errMsg)
+		}
+	}
+
+	// Test variadic: no given value (e.g. missing key in pipeline).
+	_, err := ns.Require("missing key")
+	c.Assert(err, qt.Not(qt.IsNil))
+	c.Assert(err.Error(), qt.Equals, "missing key")
+}
+
 func TestCompare(t *testing.T) {
 	t.Parallel()
 
