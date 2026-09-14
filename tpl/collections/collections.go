@@ -631,8 +631,8 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 }
 
 // Union returns the union of the given sets, l1 and l2. l1 and
-// l2 must be of the same type and may be either arrays or slices.
-// If l1 and l2 aren't of the same type then l1 will be returned.
+// l2 may be either arrays or slices. The result has the type of l1;
+// values in l2 that cannot be converted to the element type of l1 are skipped.
 // If either l1 or l2 is nil then the non-nil list will be returned.
 func (ns *Namespace) Union(l1, l2 any) (any, error) {
 	if l1 == nil && l2 == nil {
@@ -654,10 +654,16 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 		case reflect.Array, reflect.Slice:
 			ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[any]bool)}
 
-			if l1v.Type() != l2v.Type() &&
-				l1v.Type().Elem().Kind() != reflect.Interface &&
-				l2v.Type().Elem().Kind() != reflect.Interface {
-				return ins.r.Interface(), nil
+			// Values from l2 are only added if they can be converted to the element type of l1.
+			elemType := l1v.Type().Elem()
+			appendIfNotSeen := func(v reflect.Value) {
+				if !v.Type().AssignableTo(elemType) {
+					var ok bool
+					if v, ok = hreflect.ConvertIfPossible(v, elemType); !ok {
+						return
+					}
+				}
+				ins.appendIfNotSeen(v)
 			}
 
 			var (
@@ -693,16 +699,16 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 				case kind == reflect.String:
 					l2t, err := hreflect.ToStringE(l2vv)
 					if err == nil {
-						ins.appendIfNotSeen(reflect.ValueOf(l2t))
+						appendIfNotSeen(reflect.ValueOf(l2t))
 					}
 				case hreflect.IsNumber(kind):
 					var err error
 					l2vv, err = convertNumber(l2vv, typ)
 					if err == nil {
-						ins.appendIfNotSeen(l2vv)
+						appendIfNotSeen(l2vv)
 					}
 				case kind == reflect.Interface, kind == reflect.Struct, kind == reflect.Pointer:
-					ins.appendIfNotSeen(l2vv)
+					appendIfNotSeen(l2vv)
 
 				}
 			}

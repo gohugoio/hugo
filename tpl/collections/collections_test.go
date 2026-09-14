@@ -664,8 +664,13 @@ func TestUnion(t *testing.T) {
 		{[]string{"a", "b"}, nil, []string{"a", "b"}, false},
 
 		// []A ∪ []B
-		{[]string{"1", "2"}, []int{3}, []string{}, false},
-		{[]int{1, 2}, []string{"1", "2"}, []int{}, false},
+		{[]string{"1", "2"}, []int{3}, []string{"1", "2"}, false},
+		{[]int{1, 2}, []string{"1", "2"}, []int{1, 2}, false},
+		{[]int{1, 2}, []float64{2.0, 3.0}, []int{1, 2, 3}, false},
+		{[]int{1}, []float64{1.5}, []int{1}, false},
+		{[]float64{1.5}, []int{1, 2}, []float64{1.5, 1, 2}, false},
+		{[]int{}, []float64{1.0, 1.5}, []int{1}, false},
+		{pagesPtr{p1}, pagesVals{p3v}, pagesPtr{p1}, false},
 
 		// []T ∪ []T
 		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b", "c"}, false},
@@ -691,6 +696,8 @@ func TestUnion(t *testing.T) {
 
 		{[]float64{2.2, 4.4}, []any{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
 		{[]float32{2.2, 4.4}, []any{1.1, 2.2, 4.4}, []float32{2.2, 4.4, 1.1}, false},
+		{[]int{}, []any{1, 2}, []int{1, 2}, false},
+		{[]template.HTML{"a"}, []any{"b"}, []template.HTML{"a", "b"}, false},
 
 		// []interface{} ∪ []T
 		{[]any{"a", "b", "c", "c"}, []string{"a", "b", "d"}, []any{"a", "b", "c", "d"}, false},
