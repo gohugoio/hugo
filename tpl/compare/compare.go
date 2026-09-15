@@ -113,16 +113,14 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 		vv := reflect.ValueOf(v)
 		switch vv.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return vv.Int()
+			// To allow numeric comparison with floats, we convert to float64.
+			// This ensures consistency with compareGet used in Lt, Le, Gt, Ge.
+			return float64(vv.Int())
 		case reflect.Float32, reflect.Float64:
 			return vv.Float()
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			i := vv.Uint()
-			// If it can fit in an int, convert it.
-			if i <= math.MaxInt64 {
-				return int64(i)
-			}
-			return i
+			return float64(i)
 		case reflect.String:
 			return vv.String()
 		default:
