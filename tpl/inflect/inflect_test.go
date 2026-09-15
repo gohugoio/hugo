@@ -28,6 +28,7 @@ func TestInflect(t *testing.T) {
 		{ns.Humanize, t, false},
 		{ns.Humanize, "this is a TEST", "This is a test"},
 		{ns.Humanize, "my-first-Post", "My first post"},
+		{ns.Humanize, "Painting „Title“", "Painting „Title“"},
 		{ns.Pluralize, "cat", "cats"},
 		{ns.Pluralize, "", ""},
 		{ns.Pluralize, t, false},
