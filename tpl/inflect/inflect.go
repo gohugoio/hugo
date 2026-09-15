@@ -51,7 +51,10 @@ func (ns *Namespace) Humanize(v any) (string, error) {
 	}
 
 	str := _inflect.Humanize(word)
-	return _inflect.Humanize(strings.ToLower(str)), nil
+	str = _inflect.Humanize(strings.ToLower(str))
+	// flect treats the low double quotation mark as a word separator and
+	// inserts a space after it. Keep the punctuation attached to the word.
+	return strings.ReplaceAll(str, "„ ", "„"), nil
 }
 
 // Pluralize returns the plural form of the single word in v.
