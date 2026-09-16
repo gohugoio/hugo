@@ -37,8 +37,7 @@ func New(loc *time.Location, caseInsensitive bool) *Namespace {
 
 // Namespace provides template functions for the "compare" namespace.
 type Namespace struct {
-	loc *time.Location
-	// Enable to do case insensitive string compares.
+	loc            *time.Location
 	caseInsensitive bool
 }
 
@@ -98,24 +97,16 @@ func (*Namespace) Default(defaultv any, givenv ...any) (any, error) {
 
 // Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
 // Numbers are compared by value regardless of type, so e.g. 1 and 1.0 are considered equal.
+// This implementation uses the same centralized numeric comparison logic as Lt, Le, Gt, Ge
+// to ensure consistency across all comparison operators.
 func (n *Namespace) Eq(first any, others ...any) bool {
 	if n.caseInsensitive {
 		panic("caseInsensitive not implemented for Eq")
 	}
 	n.checkComparisonArgCount(1, others...)
-	normalize := func(v any) any {
-		if types.IsNil(v) {
-			return nil
-		}
-		if at, ok := v.(htime.AsTimeProvider); ok {
-			return at.AsTime(n.loc)
-		}
-		return v
-	}
 
-	normFirst := normalize(first)
-	fv := reflect.ValueOf(normFirst)
 	for _, other := range others {
+		// Check for custom Eqer implementations first
 		if e, ok := first.(compare.Eqer); ok {
 			if e.Eq(other) {
 				return true
@@ -130,31 +121,9 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 			continue
 		}
 
-		other = normalize(other)
-		if normFirst == nil || other == nil {
-			if normFirst == other {
-				return true
-			}
-			continue
-		}
-
-		ov := reflect.ValueOf(other)
-
-		if fv.Kind() == reflect.String && ov.Kind() == reflect.String {
-			if fv.String() == ov.String() {
-				return true
-			}
-			continue
-		}
-
-		if c, ok := hreflect.CompareNumbers(fv, ov); ok {
-			if c == 0 {
-				return true
-			}
-			continue
-		}
-
-		if reflect.DeepEqual(normFirst, other) {
+		// Use the same comparison logic as other operators for consistency
+		left, right := n.compareGetWithCollator(nil, first, other)
+		if left == right {
 			return true
 		}
 	}
@@ -249,25 +218,27 @@ func (ns *Namespace) compareGet(a any, b any) (float64, float64) {
 	return ns.compareGetWithCollator(nil, a, b)
 }
 
-// toLeftRight maps a three-way comparison result to the (left, right)
-// pair convention used by compareGet.
-func toLeftRight(c int) (float64, float64) {
-	switch {
-	case c < 0:
-		return 0, 1
-	case c > 0:
-		return 1, 0
-	}
-	return 0, 0
-}
-
 func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b any) (float64, float64) {
 	if ac, ok := a.(compare.Comparer); ok {
-		return toLeftRight(-ac.Compare(b))
+		c := ac.Compare(b)
+		if c < 0 {
+			return 1, 0
+		} else if c == 0 {
+			return 0, 0
+		} else {
+			return 0, 1
+		}
 	}
 
 	if bc, ok := b.(compare.Comparer); ok {
-		return toLeftRight(bc.Compare(a))
+		c := bc.Compare(a)
+		if c < 0 {
+			return 0, 1
+		} else if c == 0 {
+			return 0, 0
+		} else {
+			return 1, 0
+		}
 	}
 
 	// Fast path: both values are plain strings.
@@ -280,8 +251,15 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
 
+	// Fast path: use hreflect.CompareNumbers for numeric types
 	if c, ok := hreflect.CompareNumbers(av, bv); ok {
-		return toLeftRight(c)
+		switch {
+		case c < 0:
+			return 0, 1
+		case c > 0:
+			return 1, 0
+		}
+		return 0, 0
 	}
 
 	var left, right float64
@@ -358,9 +336,19 @@ func (ns *Namespace) compareTwoStrings(collator *langs.Collator, a, b string) (f
 		} else {
 			c = compare.Strings(a, b)
 		}
-		return toLeftRight(c)
+		if c < 0 {
+			return 0, 1
+		} else if c > 0 {
+			return 1, 0
+		}
+		return 0, 0
 	}
-	return toLeftRight(strings.Compare(a, b))
+	if a < b {
+		return 0, 1
+	} else if a > b {
+		return 1, 0
+	}
+	return 0, 0
 }
 
 func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
