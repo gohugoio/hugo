@@ -300,7 +300,7 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b any)
 }
 
 func TestEqualExtend(t *testing.T) {
-	t.Parallel()
+	tt.Parallel()
 	c := qt.New(t)
 
 	ns := New(time.UTC, false)
@@ -348,6 +348,88 @@ func TestEqualExtend(t *testing.T) {
 
 		c.Assert(result, qt.Equals, test.expect)
 	}
+}
+
+// TestEqEdgeCases tests edge cases for Eq function to ensure consistency
+// with other comparison operators (Lt, Le, Gt, Ge).
+func TestEqEdgeCases(t *testing.T) {
+	tt.Parallel()
+	c := qt.New(t)
+
+	ns := New(time.UTC, false)
+
+	// Test NaN handling - NaN should never be equal to anything including itself
+	// This matches IEEE 754 and the behavior of Lt/Le/Gt/Ge
+	c.Assert(ns.Eq(math.NaN(), math.NaN()), qt.Equals, false)
+	c.Assert(ns.Eq(float64(math.NaN()), float32(math.NaN())), qt.Equals, false)
+	c.Assert(ns.Eq(float32(math.NaN()), float64(math.NaN())), qt.Equals, false)
+	c.Assert(ns.Eq(1.0, math.NaN()), qt.Equals, false)
+	c.Assert(ns.Eq(math.NaN(), 1.0), qt.Equals, false)
+
+	// Test Infinity handling
+	c.Assert(ns.Eq(math.Inf(1), math.Inf(1)), qt.Equals, true)
+	c.Assert(ns.Eq(math.Inf(-1), math.Inf(-1)), qt.Equals, true)
+	c.Assert(ns.Eq(math.Inf(1), math.Inf(-1)), qt.Equals, false)
+	c.Assert(ns.Eq(float64(math.Inf(1)), float32(math.Inf(1))), qt.Equals, true)
+	c.Assert(ns.Eq(float64(math.Inf(-1)), float32(math.Inf(-1))), qt.Equals, true)
+
+	// Test large integer precision boundaries (int64 vs float64 at 2^53)
+	c.Assert(ns.Eq(int64(1<<53), float64(1<<53)), qt.Equals, true)
+	c.Assert(ns.Eq(int64(1<<53+1), float64(1<<53+1)), qt.Equals, false) // precision loss
+	c.Assert(ns.Eq(int64(1<<53+2), float64(1<<53+2)), qt.Equals, true)  // even numbers work
+	c.Assert(ns.Eq(uint64(1<<53), float64(1<<53)), qt.Equals, true)
+
+	// Test uint64 max vs negative int edge case
+	c.Assert(ns.Eq(uint64(math.MaxUint64), int64(-1)), qt.Equals, false)
+
+	// Test string number parsing edge cases
+	c.Assert(ns.Eq("inf", math.Inf(1)), qt.Equals, true)
+	c.Assert(ns.Eq("-inf", math.Inf(-1)), qt.Equals, true)
+	c.Assert(ns.Eq("nan", math.NaN()), qt.Equals, false) // NaN != NaN
+	c.Assert(ns.Eq("NaN", math.NaN()), qt.Equals, false)
+
+	// Test very large uint64 that can't fit in float64 precisely
+	c.Assert(ns.Eq(uint64(math.MaxUint64), float64(math.MaxUint64)), qt.Equals, false)
+
+	// Test custom Eqer implementations take precedence
+	c.Assert(ns.Eq(tstEqerType1("custom"), "custom"), qt.Equals, true)
+	c.Assert(ns.Eq("custom", tstEqerType2("custom")), qt.Equals, true)
+
+	// Test nil and typed nil interfaces
+	var nilInterface *T
+	c.Assert(ns.Eq(nil, nil), qt.Equals, true)
+	c.Assert(ns.Eq(nilInterface, nil), qt.Equals, true)
+
+	// Test empty structs
+	c.Assert(ns.Eq(struct{}{}, struct{}{}), qt.Equals, true)
+	c.Assert(ns.Eq(struct{ X int }{1}, struct{ X int }{1}), qt.Equals, true)
+	c.Assert(ns.Eq(struct{ X int }{1}, struct{ X int }{2}), qt.Equals, false)
+
+	// Test complex numbers
+	c.Assert(ns.Eq(complex(1, 2), complex(1, 2)), qt.Equals, true)
+	c.Assert(ns.Eq(complex(1, 2), complex(1, 3)), qt.Equals, false)
+	c.Assert(ns.Eq(complex64(1+2i), complex128(1+2i)), qt.Equals, true)
+
+	// Test pointer equality (same address vs different address)
+	a := 42
+	b := 42
+	c.Assert(ns.Eq(&a, &a), qt.Equals, true)
+	c.Assert(ns.Eq(&a, &b), qt.Equals, false)
+
+	// Test time.Time edge cases
+	now := time.Now()
+	c.Assert(ns.Eq(now, now), qt.Equals, true)
+	c.Assert(ns.Eq(now, now.Add(time.Second)), qt.Equals, false)
+
+	// Test zero values of different types
+	c.Assert(ns.Eq(int(0), int64(0)), qt.Equals, true)
+	c.Assert(ns.Eq(uint(0), float64(0)), qt.Equals, true)
+	c.Assert(ns.Eq(float32(0), int(0)), qt.Equals, true)
+	c.Assert(ns.Eq(0, 0.0), qt.Equals, true)
+
+	// Test boolean edge cases
+	c.Assert(ns.Eq(true, 1), qt.Equals, false) // bool != int in Hugo
+	c.Assert(ns.Eq(false, 0), qt.Equals, false)
 }
 
 func TestNotEqualExtend(t *testing.T) {
