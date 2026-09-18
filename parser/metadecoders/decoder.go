@@ -142,6 +142,7 @@ func (d Decoder) UnmarshalStringTo(data string, typ any) (any, error) {
 // Unmarshal will unmarshall data in format f into an interface{}.
 // This is what's needed for Hugo's /data handling.
 func (d Decoder) Unmarshal(data []byte, f Format) (any, error) {
+	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF}) // UTF-8 BOM
 	if len(data) == 0 {
 		switch f {
 		case CSV:
