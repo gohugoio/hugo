@@ -10,7 +10,7 @@
 			"Image" .
 			"RelPermalink" .RelPermalink
 			"Permalink" .Permalink
-			)
+		)
 		}}
 	{{- end }}
 {{- end }}
@@ -31,13 +31,13 @@
 				"Image" .
 				"RelPermalink" .RelPermalink
 				"Permalink" .Permalink
-				)
+			)
 			}}
 		{{- else }}
 			{{- $imgs = $imgs | append (dict
 				"RelPermalink" (relURL $img)
 				"Permalink" (absURL $img)
-				)
+			)
 			}}
 		{{- end }}
 	{{- else }}
@@ -45,7 +45,7 @@
 		{{- $imgs = $imgs | append (dict
 			"RelPermalink" $img
 			"Permalink" $img
-			)
+		)
 		}}
 	{{- end }}
 {{- end }}

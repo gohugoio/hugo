@@ -1,7 +1,7 @@
 <table
 	{{- range $k, $v := .Attributes }}
 		{{- if $v }}
-		{{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr }}
+			{{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr }}
 		{{- end }}
 	{{- end }}>
 	<thead>
@@ -10,7 +10,7 @@
 				{{- range . }}
 					<th
 						{{- with .Alignment }}
-						{{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+							{{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
 						{{- end -}}>
 						{{- .Text -}}
 					</th>
@@ -24,7 +24,7 @@
 				{{- range . }}
 					<td
 						{{- with .Alignment }}
-						{{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+							{{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
 						{{- end -}}>
 						{{- .Text -}}
 					</td>
