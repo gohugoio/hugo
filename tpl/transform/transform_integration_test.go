@@ -124,7 +124,8 @@ code:{{ transform.Highlight "" (dict "type" "go" "code" "i = 42") }}
 
 	want := `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">42</span></span></span></code></pre></div>`
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"lang:"+want,
 		"type:"+want,
 		"code:"+want,
@@ -418,11 +419,13 @@ DATA
 
 	// targetType = map
 	f := strings.ReplaceAll(files, "OPTS", `dict "targetType" "map"`)
-	f = strings.ReplaceAll(f, "DATA",
+	f = strings.ReplaceAll(
+		f, "DATA",
 		"name,type,breed,age\nSpot,dog,Collie,3\nFelix,cat,Malicious,7",
 	)
 	b := hugolib.Test(t, f)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`[{"age":"3","breed":"Collie","name":"Spot","type":"dog"},{"age":"7","breed":"Malicious","name":"Felix","type":"cat"}]`,
 	)
 
@@ -434,11 +437,13 @@ DATA
 
 	// targetType = slice
 	f = strings.ReplaceAll(files, "OPTS", `dict "targetType" "slice"`)
-	f = strings.ReplaceAll(f, "DATA",
+	f = strings.ReplaceAll(
+		f, "DATA",
 		"name,type,breed,age\nSpot,dog,Collie,3\nFelix,cat,Malicious,7",
 	)
 	b = hugolib.Test(t, f)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`[["name","type","breed","age"],["Spot","dog","Collie","3"],["Felix","cat","Malicious","7"]]`,
 	)
 
@@ -450,11 +455,13 @@ DATA
 
 	// targetType not specified
 	f = strings.ReplaceAll(files, "OPTS", "dict")
-	f = strings.ReplaceAll(f, "DATA",
+	f = strings.ReplaceAll(
+		f, "DATA",
 		"name,type,breed,age\nSpot,dog,Collie,3\nFelix,cat,Malicious,7",
 	)
 	b = hugolib.Test(t, f)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`[["name","type","breed","age"],["Spot","dog","Collie","3"],["Felix","cat","Malicious","7"]]`,
 	)
 
@@ -503,7 +510,8 @@ DATA
 
 	// targetType = map (error: header row contains duplicate field names)
 	f = strings.ReplaceAll(files, "OPTS", `dict "targetType" "map"`)
-	f = strings.ReplaceAll(f, "DATA",
+	f = strings.ReplaceAll(
+		f, "DATA",
 		"name,name,breed,age\nSpot,dog,Collie,3\nFelix,cat,Malicious,7",
 	)
 	_, err = hugolib.TestE(t, f)
@@ -639,4 +647,67 @@ i: &i [*h, *h, *h, *h, *h, *h, *h, *h, *h, *h]
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "too many YAML aliases for non-scalar nodes")
+}
+
+// See issue 15355.
+func TestUnmarshalWithBOM(t *testing.T) {
+	t.Parallel()
+
+	bom := "\xef\xbb\xbf"
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+{{ with resources.Get "data.csv" | transform.Unmarshal (dict "targetType" "map") }}
+  {{ range . }}
+    csv: {{ .column_a }}|{{ .column_b }}|
+  {{ end }}
+{{ end }}
+
+{{ with resources.Get "data.json" | transform.Unmarshal }}
+  json: {{ .column_a }}|{{ .column_b }}|
+{{ end }}
+
+{{ with resources.Get "data.toml" | transform.Unmarshal }}
+  toml: {{ .column_a }}|{{ .column_b }}|
+{{ end }}
+
+{{ with resources.Get "data.xml" | transform.Unmarshal }}
+  xml: {{ .column_a }}|{{ .column_b }}|
+{{ end }}
+
+{{ with resources.Get "data.yaml" | transform.Unmarshal }}
+  yaml: {{ .column_a }}|{{ .column_b }}|
+{{ end }}
+
+{{ with (resources.Get "data.json").Content | transform.Unmarshal }}
+  string: {{ .column_a }}|{{ .column_b }}|
+{{ end }}
+-- assets/data.csv --
+` + bom + `column_a,column_b
+foo,bar
+-- assets/data.json --
+` + bom + `{"column_a": "foo", "column_b": "bar"}
+-- assets/data.toml --
+` + bom + `column_a = "foo"
+column_b = "bar"
+-- assets/data.xml --
+` + bom + `<root><column_a>foo</column_a><column_b>bar</column_b></root>
+-- assets/data.yaml --
+` + bom + `column_a: foo
+column_b: bar
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent(
+		"public/index.html",
+		"csv: foo|bar|",
+		"json: foo|bar|",
+		"toml: foo|bar|",
+		"xml: foo|bar|",
+		"yaml: foo|bar|",
+		"string: foo|bar|",
+	)
 }
