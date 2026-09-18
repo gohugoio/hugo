@@ -48,6 +48,7 @@ func newPagePaths(ps *pageState) (pagePaths, error) {
 		}
 	}
 
+	targetPathDescriptor.PrimaryMediaType = outputFormats[0].MediaType.Type
 	pageOutputFormats := make(page.OutputFormats, len(outputFormats))
 	targets := make(map[string]targetPathsHolder)
 
