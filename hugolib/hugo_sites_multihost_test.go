@@ -111,7 +111,7 @@ robots|{{ site.Language.Lang }}
 	// now with a more complex matrix, we have one sort order.
 	b.AssertFileContent("public/en/mysect/mybundle/index.html", "CSS: https://example.com/docs/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
 	b.AssertFileContent("public/en/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css", "body { color: red; }")
-	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "CSS: https://example.com/docs/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
+	b.AssertFileContent("public/fr/mysect/mybundle/index.html", "CSS: https://example.fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css|")
 	b.AssertFileContent("public/fr/css/main.5de625c36355cce7c1d5408826a0b21abfb49fb6c0e1f16c945a6f2aef38200c.css", "body { color: red; }")
 }
 
