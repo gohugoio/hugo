@@ -788,6 +788,9 @@ func (t *TemplateStore) TextParse(name, tpl string) (*TemplInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := t.extractInlinePartials(false); err != nil {
+		return nil, err
+	}
 	return &TemplInfo{
 		Template: templ,
 	}, nil
@@ -1066,6 +1069,11 @@ func (s *TemplateStore) allRawTemplates() iter.Seq[tpl.Template] {
 			}
 		}
 		for t := range p.templatesIn(p.parseText) {
+			if !yield(t) {
+				return
+			}
+		}
+		for t := range p.templatesIn(p.standaloneText) {
 			if !yield(t) {
 				return
 			}
