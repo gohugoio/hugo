@@ -300,6 +300,15 @@ func (m *pageMap) AddFi(fi hugofs.FileMetaInfo, buildConfig *BuildCfg) (pageSour
 		}
 
 	default:
+		// Partial rebuilds may start below a leaf; keep those files as resources.
+		if m.leafBundleOwner(pi) != nil {
+			paths.ModifyPathBundleTypeResource(pi)
+			if err := insertResource(fi); err != nil {
+				addErr = err
+			}
+			return
+		}
+
 		m.s.Log.Trace(logg.StringFunc(
 			func() string {
 				return fmt.Sprintf("insert bundle: %q", fi.Meta().Filename)
