@@ -653,3 +653,36 @@ All.
 		}
 	})
 }
+
+// TestSetOperationsExactBigNumbers pins template level behavior for numbers
+// beyond the float64 exact range: distinct values stay distinct and equal
+// values match across int and float.
+// See issue 15322.
+func TestSetOperationsExactBigNumbers(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "rss", "sitemap", "taxonomy"]
+-- layouts/home.html --
+intersectSame: {{ intersect (slice 9007199254740993) (slice 9007199254740993) }}
+intersectBoth: {{ intersect (slice 9007199254740993 9007199254740992) (slice 9007199254740992 9007199254740993) }}
+intersectDiff: {{ intersect (slice 9007199254740993) (slice 9007199254740992) }}
+unionDiff: {{ union (slice 9007199254740993) (slice 9007199254740992) }}
+uniqDiff: {{ uniq (slice 9007199254740993 9007199254740992) }}
+inDiff: {{ in (slice 9007199254740993) 9007199254740992 }}
+inCrossType: {{ in (slice 9007199254740992) 9007199254740992.0 }}
+intersectCrossType: {{ intersect (slice 9007199254740992) (slice 9007199254740992.0) }}
+`
+
+	hugolib.Test(t, files).AssertFileContent("public/index.html",
+		"intersectSame: [9007199254740993]",
+		"intersectBoth: [9007199254740993 9007199254740992]",
+		"intersectDiff: []",
+		"unionDiff: [9007199254740993 9007199254740992]",
+		"uniqDiff: [9007199254740993 9007199254740992]",
+		"inDiff: false",
+		"inCrossType: true",
+		"intersectCrossType: [9007199254740992]",
+	)
+}
