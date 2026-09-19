@@ -16,7 +16,9 @@ package collections
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
+	"strconv"
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hreflect"
@@ -33,15 +35,18 @@ var (
 // or get the hash values if not Comparable (such as map or struct)
 // to make them comparable
 func normalize(v reflect.Value) any {
+	if v.Kind() == reflect.Interface {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
 	k := v.Kind()
 	switch {
 	case !v.Type().Comparable():
 		return hashing.HashUint64(v.Interface())
 	case hreflect.IsNumber(k):
-		f, err := hreflect.ToFloat64E(v)
-		if err == nil {
-			return f
-		}
+		return numericKey(v)
 	}
 
 	vv := types.Unwrapv(v.Interface())
@@ -50,6 +55,32 @@ func normalize(v reflect.Value) any {
 	}
 
 	return vv
+}
+
+// numericKey returns a key that unifies equal numbers across int, uint and
+// float types exactly. Integer formatting keeps values beyond the float64
+// exact range distinct, so e.g. 2^53 and 2^53+1 no longer collide.
+// See issue 15322.
+func numericKey(v reflect.Value) string {
+	switch {
+	case hreflect.IsInt(v.Kind()):
+		return "i" + strconv.FormatInt(v.Int(), 10)
+	case hreflect.IsUint(v.Kind()):
+		u := v.Uint()
+		if u <= math.MaxInt64 {
+			return "i" + strconv.FormatInt(int64(u), 10)
+		}
+		return "u" + strconv.FormatUint(u, 10)
+	default:
+		f := v.Float()
+		if !math.IsInf(f, 0) && f == math.Trunc(f) && f >= math.MinInt64 && f < math.MaxUint64 {
+			if f < math.MaxInt64 {
+				return "i" + strconv.FormatInt(int64(f), 10)
+			}
+			return "u" + strconv.FormatUint(uint64(f), 10)
+		}
+		return "f" + strconv.FormatUint(math.Float64bits(f), 16)
+	}
 }
 
 // collects identities from the slices in seqs into a set. Numeric values are normalized,

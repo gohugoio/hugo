@@ -956,3 +956,63 @@ func ToTstXIs(slice any) []TstXI {
 func newNs() *Namespace {
 	return New(testconfig.GetTestDeps(nil, nil))
 }
+
+// TestSetOperationsUseExactNumericComparison pins the exact numeric
+// comparison contract for the set operations: equal values unify across
+// int, uint and float types, but distinct values never collide, even
+// beyond the range where float64 is exact.
+// See issue 15322.
+func TestSetOperationsUseExactNumericComparison(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := newNs()
+
+	// Distinct int64 values that collapse to the same float64.
+	const a = int64(9007199254740993) // 2^53 + 1
+	const b = int64(9007199254740992) // 2^53
+
+	in, err := ns.In([]any{a}, b)
+	c.Assert(err, qt.IsNil)
+	c.Assert(in, qt.Equals, false, qt.Commentf("distinct big integers must not match"))
+
+	inSame, err := ns.In([]any{a}, a)
+	c.Assert(err, qt.IsNil)
+	c.Assert(inSame, qt.Equals, true)
+
+	inCrossType, err := ns.In([]any{1, 2}, 1.0)
+	c.Assert(err, qt.IsNil)
+	c.Assert(inCrossType, qt.Equals, true, qt.Commentf("equal values must still unify across types"))
+
+	intersect, err := ns.Intersect([]any{a}, []any{b})
+	c.Assert(err, qt.IsNil)
+	c.Assert(intersect, qt.DeepEquals, []any{})
+
+	intersectBoth, err := ns.Intersect([]any{a, b}, []any{a, b})
+	c.Assert(err, qt.IsNil)
+	c.Assert(intersectBoth, qt.DeepEquals, []any{a, b})
+
+	intersectCrossType, err := ns.Intersect([]any{1}, []any{1.0})
+	c.Assert(err, qt.IsNil)
+	c.Assert(intersectCrossType, qt.DeepEquals, []any{1})
+
+	union, err := ns.Union([]any{a}, []any{b})
+	c.Assert(err, qt.IsNil)
+	c.Assert(union, qt.DeepEquals, []any{a, b})
+
+	unionCrossType, err := ns.Union([]any{1}, []any{1.0})
+	c.Assert(err, qt.IsNil)
+	c.Assert(unionCrossType, qt.DeepEquals, []any{1})
+
+	uniq, err := ns.Uniq([]any{a, b, a})
+	c.Assert(err, qt.IsNil)
+	c.Assert(uniq, qt.DeepEquals, []any{a, b})
+
+	// SymDiff takes s2 first and walks s1 first.
+	symdiff, err := ns.SymDiff([]any{a}, []any{b})
+	c.Assert(err, qt.IsNil)
+	c.Assert(symdiff, qt.DeepEquals, []any{b, a})
+
+	complement, err := ns.Complement([]any{a}, []any{a, b})
+	c.Assert(err, qt.IsNil)
+	c.Assert(complement, qt.DeepEquals, []any{b})
+}
