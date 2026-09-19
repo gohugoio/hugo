@@ -149,6 +149,9 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 	if err := s.insertEmbedded(); err != nil {
 		return nil, err
 	}
+	if err := s.checkDuplicateInlinePartials(); err != nil {
+		return nil, err
+	}
 	if err := s.parseTemplates(); err != nil {
 		return nil, err
 	}
@@ -745,6 +748,9 @@ func (s *TemplateStore) RefreshFiles(include func(fi hugofs.FileMetaInfo) bool) 
 	if err := s.insertTemplates(include, true); err != nil {
 		return err
 	}
+	if err := s.checkDuplicateInlinePartials(); err != nil {
+		return err
+	}
 	if err := s.createTemplatesSnapshot(); err != nil {
 		return err
 	}
@@ -1017,11 +1023,99 @@ func (s *TemplateStore) extractIdentifiers(line string) []string {
 	return identifiers
 }
 
-func (s *TemplateStore) extractInlinePartials(rebuild bool) error {
-	isPartialName := func(s string) bool {
-		return strings.HasPrefix(s, "partials/") || strings.HasPrefix(s, "_partials/")
+func isPartialName(name string) bool {
+	return strings.HasPrefix(name, "partials/") || strings.HasPrefix(name, "_partials/")
+}
+
+// inlinePartialDefineNames returns {{define}}/{{block}} names that are inline partials.
+func inlinePartialDefineNames(content string) []string {
+	t := parse.New("")
+	t.Mode = parse.SkipFuncCheck
+	treeSet := make(map[string]*parse.Tree)
+	if _, err := t.Parse(content, "{{", "}}", treeSet); err != nil {
+		return nil
+	}
+	var names []string
+	for name := range treeSet {
+		if name != "" && isPartialName(name) {
+			names = append(names, name)
+		}
+	}
+	return names
+}
+
+func templSourcePath(ti *TemplInfo) string {
+	if ti != nil && ti.PathInfo != nil {
+		return ti.PathInfo.Path()
+	}
+	if ti != nil {
+		return ti.Name()
+	}
+	return ""
+}
+
+func sameInlinePartialSource(a, b *TemplInfo) bool {
+	if a == b {
+		return true
+	}
+	if a.PathInfo != nil && b.PathInfo != nil {
+		return a.PathInfo.Path() == b.PathInfo.Path()
+	}
+	return false
+}
+
+func (s *TemplateStore) normalizeInlinePartialName(name string) string {
+	if !paths.HasExt(name) {
+		name += s.htmlFormat.MediaType.FirstSuffix.FullSuffix
+	}
+	if !strings.HasPrefix(name, "_") {
+		name = "_" + name
+	}
+	return s.opts.PathParser.Parse(files.ComponentFolderLayouts, name).Path()
+}
+
+func (s *TemplateStore) checkDuplicateInlinePartials() error {
+	defined := make(map[string]*TemplInfo)
+	check := func(ti *TemplInfo) error {
+		if ti == nil || ti.content == "" {
+			return nil
+		}
+		for _, name := range inlinePartialDefineNames(ti.content) {
+			key := s.normalizeInlinePartialName(name)
+			prev, found := defined[key]
+			if !found {
+				defined[key] = ti
+				continue
+			}
+			if sameInlinePartialSource(prev, ti) {
+				continue
+			}
+			return s.addFileContext(ti, "parse of template failed",
+				fmt.Errorf("template: multiple definition of template %q (also defined in %q)", key, templSourcePath(prev)))
+		}
+		return nil
 	}
 
+	for _, v := range s.treeMain.All() {
+		for _, ti := range v {
+			if err := check(ti); err != nil {
+				return err
+			}
+		}
+	}
+	for _, v := range s.treeShortcodes.All() {
+		for _, m := range v {
+			for _, ti := range m {
+				if err := check(ti); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (s *TemplateStore) extractInlinePartials(rebuild bool) error {
 	// We may find both inline and external partials in the current template namespaces,
 	// so only add the ones we have not seen before.
 	for templ := range s.allRawTemplates() {
