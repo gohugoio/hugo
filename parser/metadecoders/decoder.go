@@ -79,6 +79,7 @@ var Default = Decoder{
 // UnmarshalToMap will unmarshall data in format f into a new map. This is
 // what's needed for Hugo's front matter decoding.
 func (d Decoder) UnmarshalToMap(data []byte, f Format) (map[string]any, error) {
+	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF}) // UTF-8 BOM
 	m := make(map[string]any)
 	if data == nil {
 		return m, nil

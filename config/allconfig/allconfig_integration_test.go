@@ -421,3 +421,25 @@ func TestLegacyEmbeddedRenderHookEnablement(t *testing.T) {
 	b, _ = hugolib.TestE(t, f)
 	b.AssertLogContains("ERROR deprecated")
 }
+
+// See issue 15355.
+func TestSiteConfigWithBOM(t *testing.T) {
+	t.Parallel()
+
+	bom := "\xef\xbb\xbf"
+
+	files := `
+-- hugo.toml --
+title = "my title"
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term"]
+-- layouts/home.html --
+Title: {{ site.Title }}
+`
+
+	files = strings.Replace(files, "title = ", bom+"title = ", 1)
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Title: my title")
+}
