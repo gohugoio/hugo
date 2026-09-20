@@ -22,7 +22,6 @@ import (
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/paths"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/page"
@@ -339,13 +338,12 @@ func (p *PagesFromTemplate) Execute(ctx context.Context) (BuildInfo, error) {
 		p.buildState.PrepareNextBuild()
 	}()
 
-	f, err := p.GoTmplFi.Meta().Open()
+	b, err := p.GoTmplFi.Meta().ReadAll()
 	if err != nil {
 		return BuildInfo{}, err
 	}
-	defer f.Close()
 
-	tmpl, err := p.TemplateStore.TextParse(p.GoTmplFi.Meta().PathInfo.Path(), helpers.ReaderToString(f))
+	tmpl, err := p.TemplateStore.TextParse(p.GoTmplFi.Meta().PathInfo.Path(), string(b))
 	if err != nil {
 		return BuildInfo{}, err
 	}

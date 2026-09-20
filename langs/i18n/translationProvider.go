@@ -29,7 +29,6 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
-	"github.com/gohugoio/hugo/helpers"
 	toml "github.com/pelletier/go-toml/v2"
 
 	"github.com/gohugoio/hugo/deps"
@@ -74,7 +73,8 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 				files = append(files, info)
 				return nil
 			},
-		})
+		},
+	)
 
 	if err := w.Walk(); err != nil {
 		return err
@@ -105,13 +105,10 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 const artificialLangTagPrefix = "art-x-"
 
 func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
-	f, err := r.FileInfo().Meta().Open()
+	b, err := r.FileInfo().Meta().ReadAll()
 	if err != nil {
-		return fmt.Errorf("failed to open translations file %q:: %w", r.LogicalName(), err)
+		return fmt.Errorf("failed to read translations file %q:: %w", r.LogicalName(), err)
 	}
-
-	b := helpers.ReaderToBytes(f)
-	f.Close()
 
 	name := r.LogicalName()
 	lang := paths.Filename(name)

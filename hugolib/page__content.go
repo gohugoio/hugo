@@ -18,7 +18,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -441,7 +440,7 @@ func (pi *contentParseInfo) readSourceAll() ([]byte, error) {
 	}
 	defer r.Close()
 
-	return io.ReadAll(r)
+	return hugio.ReadAll(r)
 }
 
 type contentTableOfContents struct {

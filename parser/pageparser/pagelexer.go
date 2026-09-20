@@ -97,7 +97,6 @@ func (l *pageLexer) run() *pageLexer {
 
 // Page syntax
 var (
-	byteOrderMark     = '\ufeff'
 	summaryDivider    = []byte("<!--more-->")
 	summaryDividerOrg = []byte("# more")
 	delimTOML         = []byte("+++")

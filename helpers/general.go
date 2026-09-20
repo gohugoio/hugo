@@ -66,23 +66,7 @@ func FirstUpper(s string) string {
 	return string(unicode.ToUpper(r)) + s[n:]
 }
 
-// ReaderToBytes takes an io.Reader argument, reads from it
-// and returns bytes.
-func ReaderToBytes(lines io.Reader) []byte {
-	if lines == nil {
-		return []byte{}
-	}
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
-
-	b.ReadFrom(lines)
-
-	bc := make([]byte, b.Len())
-	copy(bc, b.Bytes())
-	return bc
-}
-
-// ReaderToString is the same as ReaderToBytes, but returns a string.
+// ReaderToString reads from an io.Reader and returns its content as a string.
 func ReaderToString(lines io.Reader) string {
 	if lines == nil {
 		return ""

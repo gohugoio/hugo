@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"net/url"
 	"path"
 	"path/filepath"
@@ -28,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/cache/dynacache"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/parser/metadecoders"
@@ -103,7 +103,7 @@ func (ns *Namespace) Unmarshal(ctx context.Context, args ...any) (*OpenAPIDocume
 		}
 		defer reader.Close()
 
-		b, err := io.ReadAll(reader)
+		b, err := hugio.ReadAll(reader)
 		if err != nil {
 			return nil, err
 		}

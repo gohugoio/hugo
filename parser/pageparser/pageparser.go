@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 )
 
@@ -58,7 +59,7 @@ type ContentFrontMatter struct {
 func ParseFrontMatterAndContent(r io.Reader) (ContentFrontMatter, error) {
 	var cf ContentFrontMatter
 
-	input, err := io.ReadAll(r)
+	input, err := hugio.ReadAll(r)
 	if err != nil {
 		return cf, fmt.Errorf("failed to read page content: %w", err)
 	}
