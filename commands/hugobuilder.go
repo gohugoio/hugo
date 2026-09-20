@@ -48,6 +48,7 @@ import (
 	"github.com/gohugoio/hugo/livereload"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/watcher"
+	"github.com/spf13/afero"
 	"github.com/spf13/fsync"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -470,48 +471,102 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	fs := &countingStatFs{Fs: sourceFs.Fs}
 
 	syncer := fsync.NewSyncer()
+	var clean bool
 	c.withConf(func(conf *commonConfig) {
 		syncer.NoTimes = conf.configs.Base.NoTimes
 		syncer.NoChmod = conf.configs.Base.NoChmod
 		syncer.ChmodFilter = chmodFilter
 
 		syncer.DestFs = conf.fs.PublishDirStatic
-		// Now that we are using a unionFs for the static directories
-		// We can effectively clean the publishDir on initial sync
-		syncer.Delete = conf.configs.Base.CleanDestinationDir
+		clean = conf.configs.Base.CleanDestinationDir
 	})
 
 	syncer.SrcFs = fs
 
-	if syncer.Delete {
-		infol.Logf("removing all files from destination that don't exist in static dirs")
-
-		syncer.DeleteFilter = func(f fsync.FileInfo) bool {
-			name := f.Name()
-
-			// Keep .gitignore and .gitattributes anywhere
-			if name == ".gitignore" || name == ".gitattributes" {
-				return true
-			}
-
-			// Keep Hugo's original dot-directory behavior
-			return f.IsDir() && strings.HasPrefix(name, ".")
-		}
-	}
 	start := time.Now()
 
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
 	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
-	if err != nil {
+	if err != nil && !herrors.IsNotExist(err) {
 		return 0, err
 	}
+
+	if clean {
+		infol.Logf("removing stale files from destination")
+
+		keep := func(f fsync.FileInfo) bool {
+			name := f.Name()
+
+			// Keep git metadata files anywhere.
+			if name == ".gitignore" || name == ".gitattributes" {
+				return true
+			}
+
+			// Keep dot-directories anywhere.
+			return f.IsDir() && strings.HasPrefix(name, ".")
+		}
+
+		if err := removeStale(syncer.DestFs, sourceFs.Fs, publishDir, helpers.FilePathSeparator, keep); err != nil {
+			return 0, err
+		}
+	}
+
 	loggers.TimeTrackf(infol, start, nil, "syncing static files to %s", publishDir)
 
 	// Sync runs Stat 2 times for every source file.
 	numFiles := fs.statCounter / 2
 
 	return numFiles, err
+}
+
+// removeStale removes entries in dstDir on dst that keep reports as false and
+// that don't exist in srcDir on src. Unlike fsync's delete pass, it applies
+// keep at every level, so kept files survive inside stale directories.
+func removeStale(dst, src afero.Fs, dstDir, srcDir string, keep func(fsync.FileInfo) bool) error {
+	entries, err := afero.ReadDir(dst, dstDir)
+	if err != nil {
+		if herrors.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	for _, entry := range entries {
+		if keep(entry) {
+			continue
+		}
+		dstPath := filepath.Join(dstDir, entry.Name())
+		srcPath := filepath.Join(srcDir, entry.Name())
+		if _, err := src.Stat(srcPath); err == nil {
+			if entry.IsDir() {
+				if err := removeStale(dst, src, dstPath, srcPath, keep); err != nil {
+					return err
+				}
+			}
+			continue
+		} else if !herrors.IsNotExist(err) {
+			return err
+		}
+		if entry.IsDir() {
+			if err := removeStale(dst, src, dstPath, srcPath, keep); err != nil {
+				return err
+			}
+			remaining, err := afero.ReadDir(dst, dstPath)
+			if err != nil {
+				if herrors.IsNotExist(err) {
+					continue
+				}
+				return err
+			}
+			if len(remaining) > 0 {
+				continue
+			}
+		}
+		if err := dst.RemoveAll(dstPath); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c *hugoBuilder) doWithPublishDirs(f func(sourceFs *filesystems.SourceFilesystem) (uint64, error)) (map[string]uint64, error) {

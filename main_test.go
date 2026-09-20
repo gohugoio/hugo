@@ -41,6 +41,7 @@ import (
 func TestCommands(t *testing.T) {
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/commands"
+	// p.UpdateScripts = true
 	testscript.Run(t, p)
 }
 
