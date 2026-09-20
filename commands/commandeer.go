@@ -609,7 +609,7 @@ func applyLocalFlagsBuildConfig(cmd *cobra.Command, r *rootCommand) {
 // Flags needed to do a build (used by hugo and hugo server commands)
 func applyLocalFlagsBuild(cmd *cobra.Command, r *rootCommand) {
 	applyLocalFlagsBuildConfig(cmd, r)
-	cmd.Flags().Bool("cleanDestinationDir", false, "remove files from destination not found in static directories")
+	cmd.Flags().Bool("cleanDestinationDir", false, "remove stale files from destination")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
