@@ -609,24 +609,25 @@ func (i *intersector) appendIfNotSeen(v reflect.Value) {
 }
 
 func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
-	switch kind := l1vv.Kind(); {
+	v1, isNil1 := hreflect.Indirect(l1vv)
+	v2, isNil2 := hreflect.Indirect(l2vv)
+	if isNil1 || isNil2 {
+		return
+	}
+
+	var eq bool
+	switch kind := v1.Kind(); {
 	case kind == reflect.String:
-		l2t, err := hreflect.ToStringE(l2vv)
-		if err == nil && l1vv.String() == l2t {
-			i.appendIfNotSeen(l1vv)
-		}
+		eq = v2.Kind() == reflect.String && v1.String() == v2.String()
 	case hreflect.IsNumber(kind):
-		f1, err1 := hreflect.ToFloat64E(l1vv)
-		f2, err2 := hreflect.ToFloat64E(l2vv)
-		if err1 == nil && err2 == nil && f1 == f2 {
-			i.appendIfNotSeen(l1vv)
-		}
+		c, ok := hreflect.CompareNumbers(v1, v2)
+		eq = ok && c == 0
 	case kind == reflect.Pointer, kind == reflect.Struct:
-		if types.Unwrapv(l1vv.Interface()) == types.Unwrapv(l2vv.Interface()) {
-			i.appendIfNotSeen(l1vv)
-		}
-	case kind == reflect.Interface:
-		i.handleValuePair(reflect.ValueOf(l1vv.Interface()), l2vv)
+		eq = types.Unwrapv(v1.Interface()) == types.Unwrapv(v2.Interface())
+	}
+
+	if eq {
+		i.appendIfNotSeen(l1vv)
 	}
 }
 
@@ -665,13 +666,8 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 				}
 			}
 
-			var (
-				l1vv  reflect.Value
-				isNil bool
-			)
-
 			for i := range l1v.Len() {
-				l1vv, isNil = hreflect.Indirect(l1v.Index(i))
+				l1vv, isNil := hreflect.Indirect(l1v.Index(i))
 
 				if !l1vv.Type().Comparable() {
 					return []any{}, errors.New("union does not support slices or arrays of uncomparable types")
@@ -682,35 +678,23 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 				}
 			}
 
-			if !l1vv.IsValid() {
-				// The first slice may be empty. Pick the first value of the second
-				// to use as a prototype.
-				if l2v.Len() > 0 {
-					l1vv = l2v.Index(0)
-				}
-			}
-
+			elemType := l1v.Type().Elem()
 			for j := range l2v.Len() {
 				l2vv := l2v.Index(j)
-				typ := l1vv.Type()
-
-				switch kind := l1vv.Kind(); {
-				case kind == reflect.String:
-					l2t, err := hreflect.ToStringE(l2vv)
-					if err == nil {
-						ins.appendIfNotSeen(reflect.ValueOf(l2t))
+				if l2vv.Kind() == reflect.Interface {
+					if l2vv.IsNil() {
+						continue
 					}
-				case hreflect.IsNumber(kind):
-					var err error
-					l2vv, err = convertNumber(l2vv, typ)
-					// The empty l1 prototype comes from l2 and may not match l1's element type.
-					if err == nil && l2vv.Type().AssignableTo(l1v.Type().Elem()) {
-						ins.appendIfNotSeen(l2vv)
-					}
-				case kind == reflect.Interface, kind == reflect.Struct, kind == reflect.Pointer:
-					ins.appendIfNotSeen(l2vv)
-
+					l2vv = l2vv.Elem()
 				}
+				if !l2vv.Type().AssignableTo(elemType) {
+					var err error
+					// Values that cannot be represented in l1's element type are skipped.
+					if l2vv, err = convertValue(l2vv, elemType); err != nil {
+						continue
+					}
+				}
+				ins.appendIfNotSeen(l2vv)
 			}
 
 			return ins.r.Interface(), nil
