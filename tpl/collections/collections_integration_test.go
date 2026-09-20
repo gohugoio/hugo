@@ -653,3 +653,45 @@ All.
 		}
 	})
 }
+
+// Front matter integers decode to int64 (TOML), uint64 (YAML) or float64 (JSON),
+// and must all match the []int produced by slice.
+func TestWhereInNumericParams(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "rss", "sitemap", "taxonomy", "term"]
+-- content/a.md --
++++
+title = "a"
+n = 1
++++
+-- content/b.md --
+---
+title: b
+n: 2
+---
+-- content/c.md --
+{ "title": "c", "n": 3 }
+-- layouts/page.html --
+-- layouts/home.html --
+in: {{ range where site.RegularPages "Params.n" "in" (slice 1 2) }}{{ .Title }}{{ end }}|
+in float: {{ range where site.RegularPages "Params.n" "in" (slice 2.0 3.0) }}{{ .Title }}{{ end }}|
+in mixed: {{ range where site.RegularPages "Params.n" "in" (slice 1 2.5 3.0) }}{{ .Title }}{{ end }}|
+not in: {{ range where site.RegularPages "Params.n" "not in" (slice 1 2) }}{{ .Title }}{{ end }}|
+not in strings: {{ range where site.RegularPages "Params.n" "not in" (slice "1" "2") }}{{ .Title }}{{ end }}|
+intersect: {{ intersect (slice 9007199254740993) (slice 9007199254740993 9007199254740992.0) }}|
+uniq: {{ uniq (slice 9007199254740993 9007199254740992 9007199254740992.0) }}|
+`
+
+	hugolib.Test(t, files).AssertFileContent("public/index.html",
+		"in: ab|",
+		"in float: bc|",
+		"in mixed: ac|",
+		"not in: c|",
+		"not in strings: abc|",
+		"intersect: [9007199254740993]|",
+		"uniq: [9007199254740993 9007199254740992]|",
+	)
+}

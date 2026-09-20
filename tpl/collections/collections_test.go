@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -671,8 +672,10 @@ func TestUnion(t *testing.T) {
 		{[]int{1}, []float64{1.0}, []int{1}, false},
 		{[]int{1, 2}, []float64{2.0, 3.0}, []int{1, 2, 3}, false},
 		{[]float64{1.0}, []int{1, 2}, []float64{1.0, 2.0}, false},
-		// the empty l1 prototype comes from l2, so appends must stay assignable to l1's element type.
-		{[]int{}, []float64{1.0}, []int{}, false},
+		{[]int{}, []float64{1.0}, []int{1}, false},
+		// Values not representable in l1's element type are skipped.
+		{[]int8{1}, []int64{300}, []int8{1}, false},
+		{[]int{1}, []float64{1.5}, []int{1}, false},
 
 		// []T ∪ []T
 		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b", "c"}, false},
@@ -703,7 +706,7 @@ func TestUnion(t *testing.T) {
 		{[]any{"a", "b", "c", "c"}, []string{"a", "b", "d"}, []any{"a", "b", "c", "d"}, false},
 		{[]any{}, []string{}, []any{}, false},
 		{[]any{1, 2}, []int{2, 3}, []any{1, 2, 3}, false},
-		{[]any{1, 2}, []int8{2, 3}, []any{1, 2, 3}, false}, // 28
+		{[]any{1, 2}, []int8{2, 3}, []any{1, 2, int8(3)}, false},
 		{[]any{uint(1), uint(2)}, []uint{2, 3}, []any{uint(1), uint(2), uint(3)}, false},
 		{[]any{1.1, 2.2}, []float64{2.2, 3.3}, []any{1.1, 2.2, 3.3}, false},
 
@@ -955,4 +958,66 @@ func ToTstXIs(slice any) []TstXI {
 
 func newNs() *Namespace {
 	return New(testconfig.GetTestDeps(nil, nil))
+}
+
+// Numbers are compared by exact value across int, uint and float types in
+// all set operations.
+// See issue 15358.
+func TestSetOperationsExactNumbers(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	ns := newNs()
+
+	const (
+		a = int64(1<<53 + 1)
+		b = int64(1 << 53)
+	)
+	bf := float64(b)
+	u := uint64(math.MaxUint64)
+	im := int64(math.MaxInt64)
+	um := uint64(math.MaxInt64)
+
+	for i, test := range []struct {
+		fn     func() (any, error)
+		expect any
+	}{
+		{func() (any, error) { return ns.In([]any{a}, b) }, false},
+		{func() (any, error) { return ns.In([]any{a}, bf) }, false},
+		{func() (any, error) { return ns.In([]any{b}, bf) }, true},
+		{func() (any, error) { return ns.In([]int64{a}, int(a)) }, true},
+		{func() (any, error) { return ns.In([]any{um}, im) }, true},
+		{func() (any, error) { return ns.In([]any{u}, float64(u)) }, false},
+		{func() (any, error) { return ns.In([]any{-1}, u) }, false},
+
+		{func() (any, error) { return ns.Intersect([]any{a}, []any{a}) }, []any{a}},
+		{func() (any, error) { return ns.Intersect([]any{a}, []any{b}) }, []any{}},
+		{func() (any, error) { return ns.Intersect([]any{a, b}, []any{b, a}) }, []any{a, b}},
+		{func() (any, error) { return ns.Intersect([]any{b}, []any{bf}) }, []any{b}},
+		{func() (any, error) { return ns.Intersect([]int64{a}, []int{int(a)}) }, []int64{a}},
+		{func() (any, error) { return ns.Intersect([]uint64{u}, []uint64{u}) }, []uint64{u}},
+		{func() (any, error) { return ns.Intersect([]any{um}, []any{im}) }, []any{um}},
+		{func() (any, error) { return ns.Intersect([]any{-1}, []any{u}) }, []any{}},
+
+		{func() (any, error) { return ns.Union([]any{a}, []any{b}) }, []any{a, b}},
+		{func() (any, error) { return ns.Union([]any{a}, []any{int(a)}) }, []any{a}},
+		{func() (any, error) { return ns.Union([]any{b}, []any{bf}) }, []any{b}},
+		{func() (any, error) { return ns.Union([]any{um}, []any{im}) }, []any{um}},
+		{func() (any, error) { return ns.Union([]int64{a}, []float64{bf}) }, []int64{a, b}},
+		{func() (any, error) { return ns.Union([]any{}, []any{1, 1.0}) }, []any{1}},
+
+		{func() (any, error) { return ns.Uniq([]any{a, b, a, int(a), bf}) }, []any{a, b}},
+		{func() (any, error) { return ns.Uniq([]any{um, im, float64(1 << 63), uint64(1 << 63)}) }, []any{um, float64(1 << 63)}},
+
+		{func() (any, error) { return ns.SymDiff([]any{a}, []any{b}) }, []any{b, a}},
+		{func() (any, error) { return ns.SymDiff([]any{a}, []any{int(a)}) }, []any{}},
+		{func() (any, error) { return ns.SymDiff([]any{um}, []any{im}) }, []any{}},
+
+		{func() (any, error) { return ns.Complement([]any{int(a)}, []any{a, b}) }, []any{b}},
+		{func() (any, error) { return ns.Complement([]any{bf}, []any{a, b}) }, []any{a}},
+		{func() (any, error) { return ns.Complement([]any{im}, []any{um}) }, []any{}},
+	} {
+		result, err := test.fn()
+		c.Assert(err, qt.IsNil, qt.Commentf("[%d]", i))
+		c.Assert(result, qt.DeepEquals, test.expect, qt.Commentf("[%d]", i))
+	}
 }
