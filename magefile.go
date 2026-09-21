@@ -146,8 +146,8 @@ func Docker() error {
 
 // Run tests and linters
 func Check() {
-	if isCI() && isDarwin() {
-		// Skip on macOS in CI (disk space issues)
+	if isCI() && (isDarwin() || isWindows()) {
+		// Skip on macOS/Windows in CI (disk space issues)
 	} else {
 		mg.Deps(Fmt, Vet)
 	}
