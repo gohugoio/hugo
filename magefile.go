@@ -328,6 +328,10 @@ func isDarwin() bool {
 	return runtime.GOOS == "darwin"
 }
 
+func isWindows() bool {
+	return runtime.GOOS == "windows"
+}
+
 func isCI() bool {
 	return os.Getenv("CI") != ""
 }
