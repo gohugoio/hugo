@@ -287,6 +287,11 @@ func TestIn(t *testing.T) {
 		{[]int{1, 2, 4}, 2, true},
 		{[]any{1, 2, 4}, 2, true},
 		{[]any{1, 2, 4}, nil, false},
+		// Integers beyond float64's exactly representable range. Issue #15358.
+		{[]int64{1<<53 + 1}, int64(1<<53 + 1), true},
+		{[]int64{1<<53 + 1}, 1<<53 + 1, true},
+		{[]int64{1<<53 + 1}, int64(1 << 53), false},
+		{[]any{int64(1<<53 + 1)}, 1<<53 + 1, true},
 		{[]any{nil}, nil, false},
 		{[]int{1, 2, 4}, 3, false},
 		{[]float64{1.23, 2.45, 4.67}, 1.23, true},
@@ -366,6 +371,14 @@ func TestIntersect(t *testing.T) {
 		{[]int{2, 4}, []int{1, 2, 4}, []int{2, 4}},
 		{[]int{1, 2, 4}, []int{3, 6}, []int{}},
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4}},
+
+		// Integers beyond float64's exactly representable range. Issue #15358.
+		{[]int64{1 << 53, 1<<53 + 1}, []int64{1 << 53, 1<<53 + 1}, []int64{1 << 53, 1<<53 + 1}},
+		{[]int64{1<<53 + 1}, []int64{1<<53 + 1}, []int64{1<<53 + 1}},
+		{[]int64{1<<53 + 1}, []int64{1 << 53}, []int64{}},
+		{[]any{1<<53 + 1}, []any{int64(1<<53 + 1)}, []any{1<<53 + 1}},
+		// A nil element is not the number zero.
+		{[]any{0}, []any{nil}, []any{}},
 
 		// []interface{} ∩ []interface{}
 		{[]any{"a", "b", "c"}, []any{"a", "b", "b"}, []any{"a", "b"}},
@@ -762,6 +775,9 @@ func TestUniq(t *testing.T) {
 		{[]int{1, 2, 2, 3}, []int{1, 2, 3}, false},
 		{[]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
 		{[4]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
+		// Integers beyond float64's exactly representable range. Issue #15358.
+		{[]int64{1 << 53, 1<<53 + 1}, []int64{1 << 53, 1<<53 + 1}, false},
+		{[]any{int64(1<<53 + 1), 1<<53 + 1}, []any{int64(1<<53 + 1)}, false},
 		{nil, make([]any, 0), false},
 		// Pointers
 		{pagesPtr{p1, p2, p3, p2}, pagesPtr{p1, p2, p3}, false},

@@ -16,6 +16,7 @@ package collections
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/hashing"
@@ -38,10 +39,7 @@ func normalize(v reflect.Value) any {
 	case !v.Type().Comparable():
 		return hashing.HashUint64(v.Interface())
 	case hreflect.IsNumber(k):
-		f, err := hreflect.ToFloat64E(v)
-		if err == nil {
-			return f
-		}
+		return numberKey(v)
 	}
 
 	vv := types.Unwrapv(v.Interface())
@@ -50,6 +48,33 @@ func normalize(v reflect.Value) any {
 	}
 
 	return vv
+}
+
+// numberKey returns a map key that is equal for equal numbers of any numeric
+// type. Integral values key as int64, or uint64 when too large for int64, so
+// values outside float64's exact range keep their identity.
+func numberKey(v reflect.Value) any {
+	switch k := v.Kind(); {
+	case hreflect.IsInt(k):
+		return v.Int()
+	case hreflect.IsUint(k):
+		u := v.Uint()
+		if u <= math.MaxInt64 {
+			return int64(u)
+		}
+		return u
+	default:
+		f := v.Float()
+		if t := math.Trunc(f); t == f {
+			switch {
+			case t >= math.MinInt64 && t < 1<<63:
+				return int64(t)
+			case t >= 0 && t < 1<<64:
+				return uint64(t)
+			}
+		}
+		return f
+	}
 }
 
 // collects identities from the slices in seqs into a set. Numeric values are normalized,

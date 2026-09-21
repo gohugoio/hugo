@@ -616,9 +616,11 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 			i.appendIfNotSeen(l1vv)
 		}
 	case hreflect.IsNumber(kind):
-		f1, err1 := hreflect.ToFloat64E(l1vv)
-		f2, err2 := hreflect.ToFloat64E(l2vv)
-		if err1 == nil && err2 == nil && f1 == f2 {
+		l2vv, isNil := hreflect.Indirect(l2vv)
+		if isNil {
+			return
+		}
+		if c, ok := hreflect.CompareNumbers(l1vv, l2vv); ok && c == 0 {
 			i.appendIfNotSeen(l1vv)
 		}
 	case kind == reflect.Pointer, kind == reflect.Struct:

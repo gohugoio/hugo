@@ -653,3 +653,32 @@ All.
 		}
 	})
 }
+
+// See issue 15358.
+func TestSetOperationsWithLargeIntegers(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'http://example.com/'
+[params]
+big = 9007199254740993
+bigs = [9007199254740993, 9007199254740992]
+-- layouts/home.html --
+intersectBoth: {{ intersect (slice 9007199254740993 9007199254740992) (slice 9007199254740992 9007199254740993) }}
+intersectSame: {{ intersect (slice 9007199254740993) (slice 9007199254740993) }}
+intersectDiff: {{ intersect (slice 9007199254740993) (slice 9007199254740992) }}
+inParam: {{ in site.Params.bigs 9007199254740993 }}
+uniqMixed: {{ uniq (slice site.Params.big 9007199254740993) }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"intersectBoth: [9007199254740993 9007199254740992]",
+		"intersectSame: [9007199254740993]",
+		"intersectDiff: []",
+		"inParam: true",
+		"uniqMixed: [9007199254740993]",
+	)
+}
