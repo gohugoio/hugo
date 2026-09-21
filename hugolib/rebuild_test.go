@@ -132,13 +132,15 @@ func TestRebuildAddingALeaffBundleIssue13925(t *testing.T) {
 
 	b.AddFiles(
 		"content/mysection/mysectionbundle2/index.md", "",
-		"content/mysection/mysectionbundle2/mysectionbundletext.txt", "mysectionbundletext.txt").Build()
+		"content/mysection/mysectionbundle2/mysectionbundletext.txt", "mysectionbundletext.txt",
+	).Build()
 
 	b.AssertFileContent("public/mysection/mysectionbundle2/index.html", "Len Resources: 1|")
 
 	b.AddFiles(
 		"content/mynewsection/_index.md", "",
-		"content/mynewsection/mynewsectiontext.txt", "foo").Build()
+		"content/mynewsection/mynewsectiontext.txt", "foo",
+	).Build()
 
 	b.AssertFileContent("public/mynewsection/index.html", "Len Resources: 1|")
 }
@@ -663,7 +665,6 @@ Single: {{ .Title }}|{{ .Content }}|
 `
 	b := Test(t, files, TestOptRunning())
 	b.AssertFileContent("public/p1/index.html", "Single: P1|")
-	fmt.Println("===============")
 	b.EditFileReplaceAll("layouts/baseof.html", "Baseof", "Baseof Edited").Build()
 	b.AssertFileContent("public/p1/index.html", "Baseof Edited")
 }
@@ -1025,7 +1026,8 @@ Codeblock Include: {{ .Title }}|
 
 `
 
-	b := TestRunning(t, files,
+	b := TestRunning(
+		t, files,
 		TestOptWarn(),
 		TestOptWithConfig(func(c *IntegrationTestConfig) {
 			c.BuildCfg = BuildCfg{testCounters: &buildCounters{}}
@@ -1364,7 +1366,8 @@ Content: {{ .Content }}|
 
 	testCounters := &buildCounters{}
 
-	b := TestRunning(t, files,
+	b := TestRunning(
+		t, files,
 		TestOptWithConfig(func(c *IntegrationTestConfig) {
 			c.BuildCfg = BuildCfg{testCounters: testCounters}
 		}),
@@ -1528,7 +1531,8 @@ console.log("Hello");
 foo();
 `
 
-	b := TestRunning(t, files,
+	b := TestRunning(
+		t, files,
 		TestOptOsFs(),
 	)
 
@@ -1605,7 +1609,8 @@ Single.
 {{ end }}
 `
 
-	b := TestRunning(t, files,
+	b := TestRunning(
+		t, files,
 		TestOptOsFs(),
 		TestOptWithNpmInstall(),
 	)
@@ -1762,7 +1767,8 @@ Home.
 	runTest := func(transpiler string) {
 		t.Run(transpiler, func(t *testing.T) {
 			files := strings.Replace(filesTemplate, "TRANSPILER", transpiler, 1)
-			b := TestRunning(t, files,
+			b := TestRunning(
+				t, files,
 				TestOptOsFs(),
 			)
 

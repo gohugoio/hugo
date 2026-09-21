@@ -60,7 +60,6 @@ var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
 // TODO(bep) a way to toggle ORG mode vs the rest.
 var frontMatterTests = []lexerTest{
 	{"empty", "", []typeText{tstEOF}, nil},
-	{"Byte order mark", "\ufeff\nSome text.\n", []typeText{nti(TypeIgnore, "\ufeff"), tstSomeText, tstEOF}, nil},
 	{"No front matter", "\nSome text.\n", []typeText{tstSomeText, tstEOF}, nil},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []typeText{tstFrontMatterYAML, tstSomeText, tstEOF}, nil},
 	{"YAML empty front matter", "---\n---\n\nSome text.\n", []typeText{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}, nil},

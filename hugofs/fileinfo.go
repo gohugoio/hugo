@@ -35,6 +35,7 @@ import (
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/paths"
 
 	"github.com/spf13/afero"
@@ -139,7 +140,7 @@ func (f *FileMeta) ReadAll() ([]byte, error) {
 		return nil, err
 	}
 	defer file.Close()
-	return io.ReadAll(file)
+	return hugio.ReadAll(file)
 }
 
 func (f *FileMeta) JoinStat(name string) (FileMetaInfo, error) {

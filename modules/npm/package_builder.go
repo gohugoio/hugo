@@ -27,14 +27,13 @@ import (
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/hugofs/files"
 	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
-
-	"github.com/gohugoio/hugo/helpers"
 )
 
 const (
@@ -471,7 +470,10 @@ func (b *packageBuilder) addm(source string, m map[string]any) {
 
 func (b *packageBuilder) unmarshal(r io.Reader) map[string]any {
 	m := make(map[string]any)
-	err := json.Unmarshal(helpers.ReaderToBytes(r), &m)
+	data, err := hugio.ReadAll(r)
+	if err == nil {
+		err = json.Unmarshal(data, &m)
+	}
 	if err != nil {
 		b.err = err
 	}

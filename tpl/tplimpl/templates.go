@@ -1,7 +1,6 @@
 package tplimpl
 
 import (
-	"io"
 	"iter"
 	"regexp"
 	"strconv"
@@ -17,24 +16,13 @@ import (
 )
 
 func (t *templateNamespace) readTemplateInto(templ *TemplInfo) error {
-	if err := func() error {
-		meta := templ.Fi.Meta()
-		f, err := meta.Open()
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		b, err := io.ReadAll(f)
-		if err != nil {
-			return err
-		}
-		templ.content = removeLeadingBOM(string(b))
-		if !templ.noBaseOf {
-			templ.noBaseOf = !needsBaseTemplate(templ.content)
-		}
-		return nil
-	}(); err != nil {
+	b, err := templ.Fi.Meta().ReadAll()
+	if err != nil {
 		return err
+	}
+	templ.content = string(b)
+	if !templ.noBaseOf {
+		templ.noBaseOf = !needsBaseTemplate(templ.content)
 	}
 	return nil
 }
@@ -257,21 +245,6 @@ func needsBaseTemplate(templ string) bool {
 	}
 
 	return baseTemplateDefineRe.MatchString(templ[idx:])
-}
-
-func removeLeadingBOM(s string) string {
-	const bom = '\ufeff'
-
-	for i, r := range s {
-		if i == 0 && r != bom {
-			return s
-		}
-		if i > 0 {
-			return s[i:]
-		}
-	}
-
-	return s
 }
 
 type templateNamespace struct {

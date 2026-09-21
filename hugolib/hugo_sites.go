@@ -689,7 +689,8 @@ func (s *Site) preparePagesForRender(isRenderingSite bool, idx int) error {
 		return nil
 	}
 
-	return s.pageMap.forEeachPageIncludingBundledPages(nil,
+	return s.pageMap.forEeachPageIncludingBundledPages(
+		nil,
 		func(p *pageState) (bool, error) {
 			return false, initPage(p)
 		},
@@ -713,7 +714,8 @@ func (h *HugoSites) loadData() error {
 				}
 				return h.handleDataFile(source.NewFileInfo(fi))
 			},
-		})
+		},
+	)
 
 	if err := w.Walk(); err != nil {
 		return err
@@ -805,12 +807,10 @@ func (h *HugoSites) errWithFileContext(err error, f *source.File) error {
 }
 
 func (h *HugoSites) readData(f *source.File) (any, error) {
-	file, err := f.FileInfo().Meta().Open()
+	content, err := f.FileInfo().Meta().ReadAll()
 	if err != nil {
-		return nil, fmt.Errorf("readData: failed to open data file: %w", err)
+		return nil, fmt.Errorf("readData: failed to read data file: %w", err)
 	}
-	defer file.Close()
-	content := helpers.ReaderToBytes(file)
 
 	format := metadecoders.FormatFromString(f.Ext())
 	return metadecoders.Default.Unmarshal(content, format)

@@ -873,6 +873,9 @@ func contentReadSeekerCloser(r resource.Resource) (hugio.ReadSeekCloser, error) 
 		if err != nil {
 			return nil, err
 		}
+		if _, ok := rc.(afero.File); ok {
+			return hugio.NewSkipBOMReader(rc)
+		}
 		return rc, nil
 	default:
 		return nil, fmt.Errorf("cannot transform content of Resource of type %T", r)
