@@ -62,13 +62,16 @@ func NewRootMappingFs(fs afero.Fs, rms ...*RootMapping) (*RootMappingFs, error) 
 		}
 
 		// Don't allow a symlinked mount root (or any directory between it and
-		// the module root) to escape the module.
-		symlink, err := isSymlinkOrHasSymlinkParent(fs, rm.ToBase, rm.To)
-		if err != nil {
-			return nil, err
-		}
-		if symlink {
-			continue
+		// the module root) to escape the module. The main project is exempt;
+		// its mount sources may be absolute, so a symlink gains nothing.
+		if !rm.IsProject {
+			symlink, err := isSymlinkOrHasSymlinkParent(fs, rm.ToBase, rm.To)
+			if err != nil {
+				return nil, err
+			}
+			if symlink {
+				continue
+			}
 		}
 
 		fi, err := fs.Stat(rm.To)
