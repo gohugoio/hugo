@@ -5,6 +5,7 @@ ln ./rootfile.txt ./themes/mytheme/static/modstaticsymlink.txt
 ln ./README.md ./content/pagesymlink.md
 ln ./rootdir ./assets/myassets/symlinkdir
 ln ./rootdir ./projectmountroot
+ln ./rootdir ./projectmountparent
 ln ./rootdir ./themes/mytheme/thememountroot
 ln ./rootdir ./themes/mytheme/thememountparent
 
@@ -19,9 +20,11 @@ stdout modassetok
 ! stdout modassetsymlink
 stdout 'modstatictok'
 ! stdout 'modstaticsymlink'
+stdout projectmountroot
+stdout projectmountparent
 stdout pageok
 ! stdout pagesymlink
-! stdout rootdirfile
+! stdout thememount
 
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss"]
@@ -33,6 +36,9 @@ target = 'assets'
 [[module.mounts]]
 source = 'projectmountroot'
 target = 'assets/projectmountroot'
+[[module.mounts]]
+source = 'projectmountparent/subdir'
+target = 'assets/projectmountparent'
 -- themes/mytheme/hugo.toml --
 [[module.mounts]]
 source = 'assets'
@@ -54,10 +60,12 @@ Read me.
 {{ with resources.GetMatch "modassetsymlink.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
 {{ with resources.GetMatch "myassets/symlinkdir/**"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
 {{ with resources.Get "myassets/symlinkdir/rootdirfile1.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
-{{ with resources.Get "projectmountroot/rootdirfile1.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
+{{ with resources.Get "projectmountroot/rootdirfile1.txt"}}OK {{ .Publish }}{{ else }}FAIL{{ end }}
+{{ with resources.Get "projectmountparent/rootdirfile3.txt"}}OK {{ .Publish }}{{ else }}FAIL{{ end }}
+{{ with resources.Get "projectmountroot/subdir/rootdirfile3.txt"}}OK {{ .Publish }}{{ else }}FAIL{{ end }}
 {{ with resources.Get "thememountroot/rootdirfile1.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
 {{ with resources.Get "thememountparent/rootdirfile3.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
-{{ with resources.GetMatch "*mountroot/**"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
+{{ with resources.GetMatch "thememount*/**"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
 Page: {{ .RelPermalink }}|{{ .Content }}|
 
 {{/* os template package. */}}
