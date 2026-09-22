@@ -344,8 +344,7 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 		options = append(options, "tfv"+strconv.Itoa(v))
 	}
 
-	usesSmartCrop := c.Anchor == SmartCropAnchor && (c.Action == ActionCrop || c.Action == ActionFill)
-	if smartCropVersionNumber > 0 && usesSmartCrop {
+	if smartCropVersionNumber > 0 && c.usesSmartCrop() {
 		options = append(options, strconv.Itoa(smartCropVersionNumber))
 	}
 
@@ -450,6 +449,10 @@ func (c *ImageConfig) init(defaults ImagingConfigInternal, sourceFormat Format) 
 		}
 	}
 	return nil
+}
+
+func (c ImageConfig) usesSmartCrop() bool {
+	return c.Anchor == SmartCropAnchor && (c.Action == ActionCrop || c.Action == ActionFill)
 }
 
 func (c ImageConfig) Reanchor(a gift.Anchor) ImageConfig {

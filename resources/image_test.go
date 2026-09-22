@@ -134,7 +134,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	smart, err := image.Fill("200x100 smart")
 	c.Assert(err, qt.IsNil)
-	c.Assert(smart.RelPermalink(), qt.Equals, "/a/sunset_hu_e548e0b0d6759ee7.jpg")
+	c.Assert(smart.RelPermalink(), qt.Equals, "/a/sunset_hu_68598cde516f4179.jpg")
 	assertWidthHeight(smart, 200, 100)
 
 	// Check cache
@@ -149,7 +149,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	smartcropped, err := image.Crop("200x200 smart")
 	c.Assert(err, qt.IsNil)
-	c.Assert(smartcropped.RelPermalink(), qt.Equals, "/a/sunset_hu_2ffd7547f08a145d.jpg")
+	c.Assert(smartcropped.RelPermalink(), qt.Equals, "/a/sunset_hu_5a29f30d38eb4aea.jpg")
 	assertWidthHeight(smartcropped, 200, 200)
 
 	// Check cache
