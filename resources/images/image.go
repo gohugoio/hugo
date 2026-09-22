@@ -189,7 +189,14 @@ func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([
 
 	if conf.Rotate != 0 {
 		// Apply any rotation before any resize.
-		filters = append(filters, gift.Rotate(float32(conf.Rotate), color.Transparent, gift.NearestNeighborInterpolation))
+		rotate := gift.Rotate(float32(conf.Rotate), color.Transparent, gift.NearestNeighborInterpolation)
+		filters = append(filters, rotate)
+		if conf.Anchor == SmartCropAnchor && (conf.Action == ActionCrop || conf.Action == ActionFill) {
+			// Smart crop must analyze the same orientation that its bounds will be applied to.
+			rotated := image.NewNRGBA64(rotate.Bounds(src.Bounds()))
+			gift.New(rotate).Draw(rotated, src)
+			src = rotated
+		}
 	}
 
 	switch conf.Action {

@@ -14,6 +14,7 @@
 package images_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/bep/logg"
@@ -103,6 +104,52 @@ CropSmart: {{ .Width }}x{{ .Height }}|
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", "Original: 900x562|CropTopLeft: 900x561|CropSmart: 900x561|")
+}
+
+// See issue 11266.
+func TestImageSmartCropWithRotation(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+{{ $landscape := (resources.Get "sunset.jpg").Process "png" }}
+{{ $portrait := $landscape.Process "r90 png" }}
+{{ range $name, $img := dict "landscape" $landscape "portrait" $portrait }}
+  {{ range $angle := slice 0 90 180 270 45 }}
+    {{ $rotated := $img.Process (printf "r%d png" $angle) }}
+    {{ $size := "200x150 smart png" }}
+    {{ if eq $angle 45 }}{{ $size = printf "%s nearestneighbor" $size }}{{ end }}
+    {{ range $action := slice "crop" "fill" }}
+      {{ $spec := printf "r%d %s" $angle $size }}
+      {{ $got := $img.Crop $spec }}
+      {{ $want := $rotated.Crop $size }}
+      {{ if eq $action "fill" }}
+        {{ $got = $img.Fill $spec }}
+        {{ $want = $rotated.Fill $size }}
+      {{ end }}
+      {{ $filtered := $img.Filter (images.Process (printf "%s %s" $action $spec)) }}
+      {{ $name }} {{ $action }} {{ $angle }}: {{ eq (sha256 $got.Content) (sha256 $want.Content) }}|
+      {{ $name }} {{ $action }} {{ $angle }} filter: {{ eq (sha256 $filtered.Content) (sha256 $want.Content) }}|
+    {{ end }}
+  {{ end }}
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+	for _, name := range []string{"landscape", "portrait"} {
+		for _, angle := range []int{0, 90, 180, 270, 45} {
+			for _, action := range []string{"crop", "fill"} {
+				b.AssertFileContent("public/index.html",
+					fmt.Sprintf("%s %s %d: true|", name, action, angle),
+					fmt.Sprintf("%s %s %d filter: true|", name, action, angle),
+				)
+			}
+		}
+	}
 }
 
 func TestImagingGlobalsDeprecated(t *testing.T) {

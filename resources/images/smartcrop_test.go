@@ -14,11 +14,45 @@
 package images
 
 import (
+	"bytes"
 	"image"
+	"image/color"
+	"image/gif"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/gift"
 )
+
+func TestSmartCropRotationPreservesSource(t *testing.T) {
+	c := qt.New(t)
+	p := &ImageProcessor{}
+	palette := color.Palette{color.Black, color.White}
+	frame := image.NewPaletted(image.Rect(0, 0, 80, 40), palette)
+	frame.SetColorIndex(10, 20, 1)
+	pixels := bytes.Clone(frame.Pix)
+	anim := &giphy{
+		Image: frame,
+		gif: &gif.GIF{
+			Image:  []*image.Paletted{frame, image.NewPaletted(frame.Bounds(), palette)},
+			Config: image.Config{Width: 80, Height: 40},
+		},
+	}
+	frames := anim.GetFrames()
+	for _, src := range []image.Image{frame, anim} {
+		for _, action := range []string{ActionCrop, ActionFill} {
+			_, err := p.FiltersFromConfig(src, ImageConfig{
+				Action: action, Width: 20, Height: 10, Rotate: 90,
+				Anchor: SmartCropAnchor, Filter: gift.BoxResampling,
+			})
+			c.Assert(err, qt.IsNil)
+			c.Assert(src.Bounds(), qt.Equals, image.Rect(0, 0, 80, 40))
+			c.Assert(frame.Pix, qt.DeepEquals, pixels)
+			c.Assert(anim.GetFrames(), qt.DeepEquals, frames)
+			c.Assert(anim.GetImageConfig(), qt.Equals, image.Config{Width: 80, Height: 40})
+		}
+	}
+}
 
 func TestExpandCropRectToMinSize(t *testing.T) {
 	c := qt.New(t)

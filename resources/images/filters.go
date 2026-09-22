@@ -38,7 +38,7 @@ type Filters struct{}
 func (*Filters) Process(spec any) gift.Filter {
 	specs := strings.ToLower(cast.ToString(spec))
 	return filter{
-		Options: newFilterOpts(specs),
+		Options: newFilterOpts(specs, smartCropVersionNumber),
 		Filter: processFilter{
 			spec: specs,
 		},
