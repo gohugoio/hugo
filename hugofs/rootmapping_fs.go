@@ -45,6 +45,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...*RootMapping) (*RootMappingFs, error) 
 	rootMapToReal := radix.New[[]*RootMapping]()
 	realMapToRoot := radix.New[[]*RootMapping]()
 	id := fmt.Sprintf("rfs-%d", rootMappingFsCounter.Add(1))
+	symlinks := newSymlinkChecker(fs)
 
 	addMapping := func(key string, rm *RootMapping, to *radix.Tree[[]*RootMapping]) {
 		mappings, _ := to.Get(key)
@@ -65,7 +66,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...*RootMapping) (*RootMappingFs, error) 
 		// the module root) to escape the module. The main project is exempt;
 		// its mount sources may be absolute, so a symlink gains nothing.
 		if !rm.IsProject {
-			symlink, err := isSymlinkOrHasSymlinkParent(fs, rm.ToBase, rm.To)
+			symlink, err := symlinks.isSymlinkOrHasSymlinkParent(rm.ToBase, rm.To)
 			if err != nil {
 				return nil, err
 			}
@@ -170,6 +171,7 @@ func NewRootMappingFs(fs afero.Fs, rms ...*RootMapping) (*RootMappingFs, error) 
 		Fs:            fs,
 		rootMapToReal: rootMapToReal,
 		realMapToRoot: realMapToRoot,
+		symlinks:      symlinks,
 	}
 
 	return rfs, nil
@@ -242,6 +244,7 @@ type RootMappingFs struct {
 	afero.Fs
 	rootMapToReal *radix.Tree[[]*RootMapping]
 	realMapToRoot *radix.Tree[[]*RootMapping]
+	symlinks      *symlinkChecker
 }
 
 var rootMappingFsCounter atomic.Int32
@@ -646,7 +649,7 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 				fi, err := rm.fi.Meta().JoinStat(subdir)
 				if err == nil {
 					// Apply the same symlink rules as statRoot.
-					symlink, err := isSymlinkOrHasSymlinkParent(rfs.Fs, rm.To, fi.Meta().Filename)
+					symlink, err := rfs.symlinks.isSymlinkOrHasSymlinkParent(rm.To, fi.Meta().Filename)
 					if err != nil {
 						return nil, err
 					}
@@ -755,7 +758,7 @@ func (fs *RootMappingFs) statRoot(root *RootMapping, filename string) (FileMetaI
 	if fi.Mode()&os.ModeSymlink != 0 {
 		return nil, os.ErrNotExist
 	}
-	symlinkParent, err := hasSymlinkParent(fs.Fs, root.To, filename)
+	symlinkParent, err := fs.symlinks.hasSymlinkParent(root.To, filepath.Dir(filename))
 	if err != nil {
 		return nil, err
 	}

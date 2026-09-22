@@ -18,30 +18,48 @@ import (
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/spf13/afero"
 )
 
-// hasSymlinkParent reports whether any directory between name and base is a symlink.
-// Lstat only refrains from following the last element of a path, so callers checking
-// name itself need this to keep a symlinked parent from escaping base.
-// base itself is not checked; an empty base walks to the root of fs.
-func hasSymlinkParent(fs afero.Fs, base, name string) (bool, error) {
-	for name != base {
-		parent := filepath.Dir(name)
-		if parent == name || parent == base || parent == "." {
-			return false, nil
-		}
-		fi, err := LstatIfPossible(fs, parent)
+// symlinkChecker caches Lstat results for directories.
+// We assume that symlinks are not created or removed while Hugo is running.
+type symlinkChecker struct {
+	fs    afero.Fs
+	cache *hmaps.Cache[string, bool]
+}
+
+func newSymlinkChecker(fs afero.Fs) *symlinkChecker {
+	return &symlinkChecker{fs: fs, cache: hmaps.NewCacheWithOptions[string, bool](hmaps.CacheOptions{Size: 10000})}
+}
+
+// isSymlink reports whether name is a symlink. A missing name is not a symlink.
+func (c *symlinkChecker) isSymlink(name string) (bool, error) {
+	return c.cache.GetOrCreate(name, func() (bool, error) {
+		fi, err := LstatIfPossible(c.fs, name)
 		if err != nil {
 			if herrors.IsNotExist(err) {
 				return false, nil
 			}
 			return false, err
 		}
-		if fi.Mode()&os.ModeSymlink != 0 {
-			return true, nil
+		return fi.Mode()&os.ModeSymlink != 0, nil
+	})
+}
+
+// hasSymlinkParent reports whether dir or any of its parents below base is a symlink.
+// base itself is not checked; an empty base walks to the root of fs.
+func (c *symlinkChecker) hasSymlinkParent(base, dir string) (bool, error) {
+	for dir != base && dir != "." {
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return false, nil
 		}
-		name = parent
+		symlink, err := c.isSymlink(dir)
+		if err != nil || symlink {
+			return symlink, err
+		}
+		dir = parent
 	}
 	return false, nil
 }
@@ -49,31 +67,26 @@ func hasSymlinkParent(fs afero.Fs, base, name string) (bool, error) {
 // isSymlinkOrHasSymlinkParent reports whether name is a symlink or has a symlinked parent below base.
 // Parents are only checked when base is set; absolute mount sources may legitimately
 // live below symlinked directories (e.g. /tmp on macOS).
-func isSymlinkOrHasSymlinkParent(fs afero.Fs, base, name string) (bool, error) {
-	fi, err := LstatIfPossible(fs, name)
-	if err != nil {
-		if herrors.IsNotExist(err) {
-			return false, nil
-		}
-		return false, err
-	}
-	if fi.Mode()&os.ModeSymlink != 0 {
-		return true, nil
+func (c *symlinkChecker) isSymlinkOrHasSymlinkParent(base, name string) (bool, error) {
+	symlink, err := c.isSymlink(name)
+	if err != nil || symlink {
+		return symlink, err
 	}
 	if base == "" {
 		return false, nil
 	}
-	return hasSymlinkParent(fs, filepath.Clean(base), name)
+	return c.hasSymlinkParent(filepath.Clean(base), filepath.Dir(name))
 }
 
 // NewDropSymlinksFs returns an afero.Fs wrapper that treats symlinks as non-existing files.
 func NewDropSymlinksFs(base afero.Fs) *DropSymlinksFs {
-	return &DropSymlinksFs{base}
+	return &DropSymlinksFs{Fs: base, symlinks: newSymlinkChecker(base)}
 }
 
 // DropSymlinksFs is an afero.Fs wrapper that treats symlinks as non-existing files.
 type DropSymlinksFs struct {
 	afero.Fs
+	symlinks *symlinkChecker
 }
 
 func (fs *DropSymlinksFs) Open(name string) (afero.File, error) {
@@ -95,7 +108,7 @@ func (fs *DropSymlinksFs) Stat(name string) (os.FileInfo, error) {
 	if fi.Mode()&os.ModeSymlink != 0 {
 		return nil, os.ErrNotExist
 	}
-	symlinkParent, err := hasSymlinkParent(fs.Fs, "", name)
+	symlinkParent, err := fs.symlinks.hasSymlinkParent("", filepath.Dir(name))
 	if err != nil {
 		return nil, err
 	}
