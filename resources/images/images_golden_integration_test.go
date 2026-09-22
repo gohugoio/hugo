@@ -424,6 +424,46 @@ Home.
 	imagetesting.RunGolden(opts)
 }
 
+// See issue 11266.
+func TestImagesGoldenProcessSmartCropRotate(t *testing.T) {
+	t.Parallel()
+
+	if imagetesting.SkipGoldenTests {
+		t.Skip("Skip golden test on this architecture")
+	}
+
+	// Will be used as the base folder for generated images.
+	name := "process/smartcrop-rotate"
+
+	files := `
+-- hugo.toml --
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+Home.
+{{ $landscape := resources.Get "sunset.jpg" }}
+{{ $portrait := $landscape.Process "r90" }}
+
+{{/* These are sorted. The end file name will be created from the spec + extension, so make sure these are unique. */}}
+{{ template "process" (dict "spec" "crop 300x200 smart r180" "img" $landscape) }}
+{{ template "process" (dict "spec" "crop 300x200 smart r270" "img" $landscape) }}
+{{ template "process" (dict "spec" "crop 300x200 smart r90" "img" $landscape) }}
+{{ template "process" (dict "spec" "fill 200x300 smart r270" "img" $portrait) }}
+{{ template "process" (dict "spec" "fill 200x300 smart r90" "img" $portrait) }}
+{{ template "process" (dict "spec" "fill 300x200 smart r180" "img" $landscape) }}
+{{ template "process" (dict "spec" "fill 300x200 smart r270" "img" $landscape) }}
+{{ template "process" (dict "spec" "fill 300x200 smart r90" "img" $landscape) }}
+
+` + goldenProcess
+
+	opts := imagetesting.DefaultGoldenOpts
+	opts.T = t
+	opts.Name = name
+	opts.Files = files
+
+	imagetesting.RunGolden(opts)
+}
+
 func TestImagesGoldenProcessAvif(t *testing.T) {
 	t.Parallel()
 
