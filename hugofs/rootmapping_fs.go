@@ -645,6 +645,14 @@ func (rfs *RootMappingFs) collectDirEntries(prefix string) ([]iofs.DirEntry, err
 			if rm.fi.IsDir() {
 				fi, err := rm.fi.Meta().JoinStat(subdir)
 				if err == nil {
+					// Apply the same symlink rules as statRoot.
+					symlink, err := isSymlinkOrHasSymlinkParent(rfs.Fs, rm.To, fi.Meta().Filename)
+					if err != nil {
+						return nil, err
+					}
+					if symlink {
+						continue
+					}
 					if err := collectDir(rm, fi); err != nil {
 						return nil, err
 					}

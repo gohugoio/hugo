@@ -8,6 +8,7 @@ ln ./rootdir ./projectmountroot
 ln ./rootdir ./projectmountparent
 ln ./rootdir ./themes/mytheme/thememountroot
 ln ./rootdir ./themes/mytheme/thememountparent
+ln ./rootdir ./themes/mytheme/assets/vendor
 
 hugo
 
@@ -52,6 +53,9 @@ target = 'assets/thememountroot'
 [[module.mounts]]
 source = 'thememountparent/subdir'
 target = 'assets/thememountparent'
+[[module.mounts]]
+source = 'nestedsource'
+target = 'assets/vendor/x'
 -- README.md --
 Read me.
 -- layouts/all.html --
@@ -66,6 +70,9 @@ Read me.
 {{ with resources.Get "thememountroot/rootdirfile1.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
 {{ with resources.Get "thememountparent/rootdirfile3.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
 {{ with resources.GetMatch "thememount*/**"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
+{{ with resources.Get "vendor/x/nested.txt"}}OK {{ .Publish }}{{ else }}FAIL{{ end }}
+{{ with resources.Get "vendor/rootdirfile1.txt"}}FAIL {{ .Publish }}{{ else }}OK{{ end }}
+{{ $vendor := resources.Match "vendor/**" }}{{ if eq (len $vendor) 1 }}OK{{ else }}FAIL {{ range $vendor }}{{ .Name }} {{ end }}{{ end }}
 Page: {{ .RelPermalink }}|{{ .Content }}|
 
 {{/* os template package. */}}
@@ -89,6 +96,8 @@ Page: {{ .RelPermalink }}|{{ .Content }}|
 Content.
 -- themes/mytheme/static/modstatictok.txt --
 Content.
+-- themes/mytheme/nestedsource/nested.txt --
+Nested content.
 -- rootfile.txt --
 Root Content.
 -- assets/myassets/myfile.txt --
