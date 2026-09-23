@@ -453,11 +453,7 @@ func (c *hugoBuilder) buildSites(noBuildLock bool) (err error) {
 }
 
 func (c *hugoBuilder) copyStatic() (map[string]uint64, error) {
-	m, err := c.doWithPublishDirs(c.copyStaticTo)
-	if err == nil || herrors.IsNotExist(err) {
-		return m, nil
-	}
-	return m, err
+	return c.doWithPublishDirs(c.copyStaticTo)
 }
 
 func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
@@ -487,8 +483,11 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
-	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
-	if err != nil && !herrors.IsNotExist(err) {
+	if _, err := fs.Stat(helpers.FilePathSeparator); err == nil {
+		if err := syncer.Sync(publishDir, helpers.FilePathSeparator); err != nil {
+			return 0, err
+		}
+	} else if !herrors.IsNotExist(err) {
 		return 0, err
 	}
 
@@ -517,7 +516,7 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	// Sync runs Stat 2 times for every source file.
 	numFiles := fs.statCounter / 2
 
-	return numFiles, err
+	return numFiles, nil
 }
 
 // removeStale removes entries in dstDir on dst that keep reports as false and

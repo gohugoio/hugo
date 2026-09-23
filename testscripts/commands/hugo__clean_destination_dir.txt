@@ -1,41 +1,40 @@
-[!linux] skip
 
 # --- Scenario 1: Without static directory ---
 
-exec cp -r golden_public public
+cpr golden_public public
 
 hugo
-exec tree -a public
+tree public
 cmp stdout no_static_default_build.txt
 
 hugo --cleanDestinationDir
-exec tree -a public
+tree public
 cmp stdout no_static_clean_build.txt
 
 # --- Scenario 2: With static directory ---
 
 rm public
 
-exec cp -r golden_public public
-exec cp -r golden_static static
+cpr golden_public public
+cpr golden_static static
 
 hugo
-exec tree -a public
+tree public
 cmp stdout with_static_default_build.txt
 
 hugo --cleanDestinationDir
-exec tree -a public
+tree public
 cmp stdout with_static_clean_build.txt
 
 # --- Scenario 3: Type mismatch between destination and static ---
 
 rm public static
 
-exec cp -r golden_public_mismatch public
-exec cp -r golden_static_mismatch static
+cpr golden_public_mismatch public
+cpr golden_static_mismatch static
 
 hugo --cleanDestinationDir
-exec tree -a public
+tree public
 cmp stdout mismatch_clean_build.txt
 
 # Files
@@ -76,102 +75,92 @@ title: home
 -- golden_static_mismatch/type-b/y.txt --
 
 -- no_static_default_build.txt --
-public
-|-- .b.txt
-|-- .dir-a
-|   `-- a.txt
-|-- .gitattributes
-|-- .gitignore
-|-- c.txt
-|-- dir-b
-|   |-- .dir-c
-|   |   `-- d.txt
-|   |-- .e.txt
-|   |-- .gitignore
-|   `-- f.txt
-|-- dir-d
-|   `-- g.txt
-|-- dir-e
-|   |-- .dir-f
-|   |   `-- h.txt
-|   |-- .gitattributes
-|   |-- .i.txt
-|   `-- j.txt
-`-- index.html
-
-7 directories, 15 files
+.
+└─.b.txt
+└─.dir-a/
+  └─a.txt
+└─.gitattributes
+└─.gitignore
+└─c.txt
+└─dir-b/
+  └─.dir-c/
+    └─d.txt
+  └─.e.txt
+  └─.gitignore
+  └─f.txt
+└─dir-d/
+  └─g.txt
+└─dir-e/
+  └─.dir-f/
+    └─h.txt
+  └─.gitattributes
+  └─.i.txt
+  └─j.txt
+└─index.html
 -- no_static_clean_build.txt --
-public
-|-- .dir-a
-|   `-- a.txt
-|-- .gitattributes
-|-- .gitignore
-|-- dir-b
-|   |-- .dir-c
-|   |   `-- d.txt
-|   `-- .gitignore
-|-- dir-e
-|   |-- .dir-f
-|   |   `-- h.txt
-|   `-- .gitattributes
-`-- index.html
-
-6 directories, 8 files
+.
+└─.dir-a/
+  └─a.txt
+└─.gitattributes
+└─.gitignore
+└─dir-b/
+  └─.dir-c/
+    └─d.txt
+  └─.gitignore
+└─dir-e/
+  └─.dir-f/
+    └─h.txt
+  └─.gitattributes
+└─index.html
 -- with_static_default_build.txt --
-public
-|-- .b.txt
-|-- .dir-a
-|   `-- a.txt
-|-- .gitattributes
-|-- .gitignore
-|-- .k.txt
-|-- c.txt
-|-- dir-b
-|   |-- .dir-c
-|   |   `-- d.txt
-|   |-- .e.txt
-|   |-- .gitignore
-|   `-- f.txt
-|-- dir-d
-|   `-- g.txt
-|-- dir-e
-|   |-- .dir-f
-|   |   `-- h.txt
-|   |-- .gitattributes
-|   |-- .i.txt
-|   |-- .m.txt
-|   |-- j.txt
-|   `-- n.txt
-|-- index.html
-`-- l.txt
-
-7 directories, 19 files
+.
+└─.b.txt
+└─.dir-a/
+  └─a.txt
+└─.gitattributes
+└─.gitignore
+└─.k.txt
+└─c.txt
+└─dir-b/
+  └─.dir-c/
+    └─d.txt
+  └─.e.txt
+  └─.gitignore
+  └─f.txt
+└─dir-d/
+  └─g.txt
+└─dir-e/
+  └─.dir-f/
+    └─h.txt
+  └─.gitattributes
+  └─.i.txt
+  └─.m.txt
+  └─j.txt
+  └─n.txt
+└─index.html
+└─l.txt
 -- with_static_clean_build.txt --
-public
-|-- .dir-a
-|   `-- a.txt
-|-- .gitattributes
-|-- .gitignore
-|-- .k.txt
-|-- dir-b
-|   |-- .dir-c
-|   |   `-- d.txt
-|   `-- .gitignore
-|-- dir-e
-|   |-- .dir-f
-|   |   `-- h.txt
-|   |-- .gitattributes
-|   |-- .m.txt
-|   `-- n.txt
-|-- index.html
-`-- l.txt
-
-6 directories, 12 files
+.
+└─.dir-a/
+  └─a.txt
+└─.gitattributes
+└─.gitignore
+└─.k.txt
+└─dir-b/
+  └─.dir-c/
+    └─d.txt
+  └─.gitignore
+└─dir-e/
+  └─.dir-f/
+    └─h.txt
+  └─.gitattributes
+  └─.m.txt
+  └─n.txt
+└─index.html
+└─l.txt
 -- mismatch_clean_build.txt --
-public
-|-- index.html
-|-- type-a
-`-- type-b
-    `-- y.txt
-
-2 directories, 3 files
+.
+└─index.html
+└─type-a
+└─type-b/
+  └─y.txt
