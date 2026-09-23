@@ -34,7 +34,9 @@ import (
 
 	"github.com/bep/helpers/envhelpers"
 	"github.com/gohugoio/hugo/commands"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/rogpeppe/go-internal/testscript"
 )
 
@@ -62,7 +64,7 @@ func TestUnfinished(t *testing.T) {
 
 	p := commonTestScriptsParam
 	p.Dir = "testscripts/unfinished"
-	// p.UpdateScripts = true
+	//p.UpdateScripts = true
 	// p.TestWork = true
 
 	testscript.Run(t, p)
@@ -149,6 +151,12 @@ var commonTestScriptsParam = testscript.Params{
 				return nil
 			})
 			if err != nil {
+				ts.Fatalf("%v", err)
+			}
+		},
+		// cpr copies a directory recursively to another location.
+		"cpr": func(ts *testscript.TestScript, neg bool, args []string) {
+			if err := hugio.CopyDir(hugofs.Os, ts.MkAbs(args[0]), ts.MkAbs(args[1]), nil); err != nil {
 				ts.Fatalf("%v", err)
 			}
 		},
