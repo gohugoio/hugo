@@ -74,5 +74,29 @@ To return a value from a _partial_ template, it must contain only one `return` s
 {{ return $result }}
 ```
 
+## Relative paths
+
+{{< new-in 0.167.0 />}}
+
+Within a _partial_ template, a path that begins with `./` or `../` is resolved relative to the directory of the calling _partial_ template. For example, given this structure:
+
+```tree
+layouts/
+└── _partials/
+    ├── cards/
+    │   ├── card.html
+    │   └── image.html
+    └── footer.html
+```
+
+The "card" _partial_ template can call its sibling and the "footer" _partial_ template like this:
+
+```go-html-template
+{{ partial "./image.html" . }}
+{{ partial "../footer.html" . }}
+```
+
+Relative paths are only supported from within _partial_ templates. Calling `partial "./foo.html"` from any other template, or with a path that resolves outside the `_partials` directory, is an error.
+
 [`return`]: /functions/go-template/return/
 [breadcrumb navigation]: /content-management/sections/#ancestors-and-descendants
