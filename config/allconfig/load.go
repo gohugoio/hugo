@@ -198,6 +198,13 @@ func (l configLoader) normalizeCfg(cfg config.Provider) error {
 		}
 	}
 
+	if b, ok := cfg.Get("cleanDestinationDir").(bool); ok {
+		hugo.Deprecate("project config cleanDestinationDir", "Use build.cleanDestinationDir.enable instead.", "v0.167.0")
+		if b {
+			cfg.Set("build.cleanDestinationDir.enable", true)
+		}
+	}
+
 	return nil
 }
 

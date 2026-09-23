@@ -785,10 +785,6 @@ type RootConfig struct {
 	// Don't sync modification time of files for the static mounts.
 	NoChmod bool
 
-	// Clean the destination folder before a new build.
-	// This currently only handles static files.
-	CleanDestinationDir bool
-
 	// A Glob pattern of module paths to ignore in the _vendor folder.
 	IgnoreVendorPaths string
 

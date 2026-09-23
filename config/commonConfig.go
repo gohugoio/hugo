@@ -25,7 +25,9 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/predicate"
 	"github.com/gohugoio/hugo/common/types"
+	"github.com/gohugoio/hugo/hugofs/hglob"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/mitchellh/mapstructure"
@@ -86,6 +88,10 @@ type LoadConfigResult struct {
 var defaultBuild = BuildConfig{
 	UseResourceCacheWhen: "fallback",
 	BuildStats:           BuildStats{},
+	CleanDestinationDir: CleanDestinationDir{
+		KeepFiles: []string{"{**/,}.{git,gitignore,gitattributes}"},
+		KeepDirs:  []string{"{**/,}.*"},
+	},
 
 	CacheBusters: []CacheBuster{
 		{
@@ -112,6 +118,42 @@ type BuildConfig struct {
 
 	// Can used to control how the resource cache gets evicted on rebuilds.
 	CacheBusters []CacheBuster
+
+	// Removes files from the publish directory that are not found in the static source.
+	CleanDestinationDir CleanDestinationDir
+}
+
+// CleanDestinationDir configures the removal of stale files from the publish directory.
+type CleanDestinationDir struct {
+	// Whether to remove stale files. Can also be enabled with the --cleanDestinationDir flag.
+	Enable bool
+
+	// Glob patterns of files to keep, matched against the slash separated path relative to the publish directory, e.g. "dir/.gitignore".
+	// A pattern prefixed with "! " is a negation.
+	KeepFiles []string
+
+	// Glob patterns of directories to keep with all of their content.
+	KeepDirs []string
+
+	keepFiles predicate.P[string]
+	keepDirs  predicate.P[string]
+}
+
+// Keep reports whether path, relative to the publish directory, should be kept.
+func (c CleanDestinationDir) Keep(path string, isDir bool) bool {
+	if isDir {
+		return c.keepDirs(path)
+	}
+	return c.keepFiles(path)
+}
+
+func (c *CleanDestinationDir) compile() error {
+	var err error
+	if c.keepFiles, err = predicate.NewStringPredicateFromGlobs(c.KeepFiles, hglob.GetGlob); err != nil {
+		return err
+	}
+	c.keepDirs, err = predicate.NewStringPredicateFromGlobs(c.KeepDirs, hglob.GetGlob)
+	return err
 }
 
 // BuildStats configures if and what to write to the hugo_stats.json file.
@@ -131,6 +173,8 @@ func (w BuildStats) Enabled() bool {
 
 func (b BuildConfig) clone() BuildConfig {
 	b.CacheBusters = slices.Clone(b.CacheBusters)
+	b.CleanDestinationDir.KeepFiles = slices.Clone(b.CleanDestinationDir.KeepFiles)
+	b.CleanDestinationDir.KeepDirs = slices.Clone(b.CleanDestinationDir.KeepDirs)
 	return b
 }
 
@@ -173,6 +217,9 @@ func (b *BuildConfig) CompileConfig(logger loggers.Logger) error {
 			return fmt.Errorf("failed to compile cache buster %q: %w", cb.Source, err)
 		}
 		b.CacheBusters[i] = cb
+	}
+	if err := b.CleanDestinationDir.compile(); err != nil {
+		return fmt.Errorf("failed to compile build.cleanDestinationDir: %w", err)
 	}
 	return nil
 }
