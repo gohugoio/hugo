@@ -467,14 +467,14 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	fs := &countingStatFs{Fs: sourceFs.Fs}
 
 	syncer := fsync.NewSyncer()
-	var clean bool
+	var clean config.CleanDestinationDir
 	c.withConf(func(conf *commonConfig) {
 		syncer.NoTimes = conf.configs.Base.NoTimes
 		syncer.NoChmod = conf.configs.Base.NoChmod
 		syncer.ChmodFilter = chmodFilter
 
 		syncer.DestFs = conf.fs.PublishDirStatic
-		clean = conf.configs.Base.CleanDestinationDir
+		clean = conf.configs.Base.Build.CleanDestinationDir
 	})
 
 	syncer.SrcFs = fs
@@ -491,22 +491,9 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 		return 0, err
 	}
 
-	if clean {
+	if clean.Enable {
 		infol.Logf("removing stale files from destination")
-
-		keep := func(f fsync.FileInfo) bool {
-			name := f.Name()
-
-			// Keep git metadata files anywhere.
-			if name == ".gitignore" || name == ".gitattributes" {
-				return true
-			}
-
-			// Keep dot-directories anywhere.
-			return f.IsDir() && strings.HasPrefix(name, ".")
-		}
-
-		if err := removeStale(syncer.DestFs, sourceFs.Fs, publishDir, helpers.FilePathSeparator, keep); err != nil {
+		if err := removeStale(syncer.DestFs, sourceFs.Fs, publishDir, helpers.FilePathSeparator, clean.Keep); err != nil {
 			return 0, err
 		}
 	}
@@ -522,7 +509,8 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 // removeStale removes entries in dstDir on dst that keep reports as false and
 // that don't exist in srcDir on src. Unlike fsync's delete pass, it applies
 // keep at every level, so kept files survive inside stale directories.
-func removeStale(dst, src afero.Fs, dstDir, srcDir string, keep func(fsync.FileInfo) bool) error {
+// keep gets the slash separated path relative to srcDir's root, e.g. "dir/.gitignore".
+func removeStale(dst, src afero.Fs, dstDir, srcDir string, keep func(path string, isDir bool) bool) error {
 	entries, err := afero.ReadDir(dst, dstDir)
 	if err != nil {
 		if herrors.IsNotExist(err) {
@@ -531,11 +519,11 @@ func removeStale(dst, src afero.Fs, dstDir, srcDir string, keep func(fsync.FileI
 		return err
 	}
 	for _, entry := range entries {
-		if keep(entry) {
-			continue
-		}
 		dstPath := filepath.Join(dstDir, entry.Name())
 		srcPath := filepath.Join(srcDir, entry.Name())
+		if keep(strings.TrimPrefix(filepath.ToSlash(srcPath), "/"), entry.IsDir()) {
+			continue
+		}
 		if _, err := src.Stat(srcPath); err == nil {
 			if entry.IsDir() {
 				if err := removeStale(dst, src, dstPath, srcPath, keep); err != nil {
@@ -644,7 +632,7 @@ func (c *hugoBuilder) fullBuild(noBuildLock bool) error {
 	// and it does so at the end of copyStatic() call.
 	var cleanDestinationDir bool
 	c.withConf(func(conf *commonConfig) {
-		cleanDestinationDir = conf.configs.Base.CleanDestinationDir
+		cleanDestinationDir = conf.configs.Base.Build.CleanDestinationDir.Enable
 	})
 	if cleanDestinationDir {
 		if err := copyStaticFunc(); err != nil {

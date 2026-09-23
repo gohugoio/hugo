@@ -37,24 +37,76 @@ hugo --cleanDestinationDir
 tree public
 cmp stdout mismatch_clean_build.txt
 
+# --- Scenario 4: Custom keepFiles and keepDirs ---
+
+rm public static
+
+cpr golden_public_keep public
+
+hugo --config hugo_keep.toml
+tree public
+cmp stdout keep_clean_build.txt
+
+# --- Scenario 5: Negated keepFiles ---
+
+rm public
+
+cpr golden_public_keep public
+
+hugo --config hugo_keep_negate.toml
+tree public
+cmp stdout keep_negate_clean_build.txt
+
+# --- Scenario 6: Deprecated root cleanDestinationDir key with default keep patterns ---
+
+rm public
+
+cpr golden_public_keep public
+
+hugo --config hugo_legacy.toml
+tree public
+cmp stdout legacy_clean_build.txt
+
 # Files
 
 -- hugo.toml --
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- hugo_keep.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[build.cleanDestinationDir]
+enable = true
+keepFiles = ['.domains', '_redirects']
+keepDirs = ['keep-me']
+-- hugo_keep_negate.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+# Render home as JSON so no HTML gets rendered.
+[outputs]
+home = ['json']
+[build.cleanDestinationDir]
+enable = true
+# Remove all HTML files, keep everything else.
+keepFiles = ['! **.html']
+-- hugo_legacy.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+cleanDestinationDir = true
 -- content/_index.md --
 ---
 title: home
 ---
 -- layouts/home.html --
 {{ .Title }}
+-- layouts/home.json --
+{{ .Title | jsonify }}
 
 -- golden_public/.dir-a/a.txt --
 -- golden_public/.b.txt --
+-- golden_public/.git --
 -- golden_public/.gitattributes --
 -- golden_public/.gitignore --
 -- golden_public/c.txt --
 -- golden_public/dir-b/.dir-c/d.txt --
 -- golden_public/dir-b/.e.txt --
+-- golden_public/dir-b/.git --
 -- golden_public/dir-b/.gitignore --
 -- golden_public/dir-b/f.txt --
 -- golden_public/dir-d/g.txt --
@@ -68,6 +120,16 @@ title: home
 -- golden_static/dir-e/.m.txt --
 -- golden_static/dir-e/n.txt --
 
+-- golden_public_keep/.domains --
+-- golden_public_keep/.gitignore --
+-- golden_public_keep/.hidden/x.txt --
+-- golden_public_keep/_redirects --
+-- golden_public_keep/a.html --
+-- golden_public_keep/b.txt --
+-- golden_public_keep/dir/.domains --
+-- golden_public_keep/keep-me/x.html --
+-- golden_public_keep/keep-me/y.txt --
+
 -- golden_public_mismatch/type-a/x.txt --
 -- golden_public_mismatch/type-b --
 
@@ -79,6 +141,7 @@ title: home
 └─.b.txt
 └─.dir-a/
   └─a.txt
+└─.git
 └─.gitattributes
 └─.gitignore
 └─c.txt
@@ -86,6 +149,7 @@ title: home
   └─.dir-c/
     └─d.txt
   └─.e.txt
+  └─.git
   └─.gitignore
   └─f.txt
 └─dir-d/
@@ -101,11 +165,13 @@ title: home
 .
 └─.dir-a/
   └─a.txt
+└─.git
 └─.gitattributes
 └─.gitignore
 └─dir-b/
   └─.dir-c/
     └─d.txt
+  └─.git
   └─.gitignore
 └─dir-e/
   └─.dir-f/
@@ -117,6 +183,7 @@ title: home
 └─.b.txt
 └─.dir-a/
   └─a.txt
+└─.git
 └─.gitattributes
 └─.gitignore
 └─.k.txt
@@ -125,6 +192,7 @@ title: home
   └─.dir-c/
     └─d.txt
   └─.e.txt
+  └─.git
   └─.gitignore
   └─f.txt
 └─dir-d/
@@ -143,12 +211,14 @@ title: home
 .
 └─.dir-a/
   └─a.txt
+└─.git
 └─.gitattributes
 └─.gitignore
 └─.k.txt
 └─dir-b/
   └─.dir-c/
     └─d.txt
+  └─.git
   └─.gitignore
 └─dir-e/
   └─.dir-f/
@@ -164,3 +234,30 @@ title: home
 └─type-a
 └─type-b/
   └─y.txt
+-- keep_clean_build.txt --
+.
+└─.domains
+└─_redirects
+└─index.html
+└─keep-me/
+  └─x.html
+  └─y.txt
+-- keep_negate_clean_build.txt --
+.
+└─.domains
+└─.gitignore
+└─.hidden/
+  └─x.txt
+└─_redirects
+└─b.txt
+└─dir/
+  └─.domains
+└─index.json
+└─keep-me/
+  └─y.txt
+-- legacy_clean_build.txt --
+.
+└─.gitignore
+└─.hidden/
+  └─x.txt
+└─index.html
