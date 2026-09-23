@@ -107,10 +107,11 @@ func (c *ResourceCache) GetOrCreateResources(key string, f func() (resource.Reso
 	r, err := c.cacheResources.GetOrCreate(key, func(key string) (resource.Resources, error) {
 		return f()
 	})
+	rebound := make(resource.Resources, len(r))
 	for i, rr := range r {
-		r[i] = c.rebind(rr)
+		rebound[i] = c.rebind(rr)
 	}
-	return r, err
+	return rebound, err
 }
 
 func (c *ResourceCache) GetOrCreateRemote(key string, f func(string) (resource.Resource, error)) (resource.Resource, error) {
