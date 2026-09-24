@@ -37,8 +37,8 @@ func (l *Linker) Link(src string, dstFs afero.Fs, dst string) bool {
 		return false
 	}
 	fi, err := os.Lstat(src)
-	// Symlinks must be resolved by copying, and read-only files (e.g. from the module cache) must be published writable.
-	if err != nil || !fi.Mode().IsRegular() || fi.Mode().Perm()&0o200 == 0 {
+	// Symlinks must be resolved by copying.
+	if err != nil || !fi.Mode().IsRegular() {
 		return false
 	}
 	dev := deviceID(fi)

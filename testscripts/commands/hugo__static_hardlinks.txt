@@ -15,15 +15,14 @@ hugo --cleanDestinationDir
 samefile static/a.txt public/a.txt
 grep 'b' public/a.txt
 
-# Read-only sources are copied so the published file can be made writable.
+# Read-only sources (e.g. from the module cache) are linked too.
 rm public
 chmod 444 static/b.txt
 hugo --cleanDestinationDir
-! samefile static/b.txt public/b.txt
-[!windows] exec sh -c 'test -w public/b.txt'
+samefile static/b.txt public/b.txt
 
-# Hard links can be disabled.
-replace hugo.toml 'noHardlinks = false' 'noHardlinks = true'
+# Hard links are off by default.
+replace hugo.toml 'hardlinks = true' 'hardlinks = false'
 rm public
 hugo --cleanDestinationDir
 ! samefile static/a.txt public/a.txt
@@ -33,7 +32,7 @@ grep 'b' public/a.txt
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 enableRobotsTXT = true
 [build]
-noHardlinks = false
+hardlinks = true
 -- static/a.txt --
 a
 -- static/b.txt --
