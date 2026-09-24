@@ -1308,6 +1308,7 @@ func (sa *sitePagesAssembler) assembleResourcesAndSetHome() error {
 						BasePathRelPermalink: targetPaths.SubResourceBaseLink,
 						BasePathTargetPath:   baseTarget,
 						SourceFilenameOrPath: filename,
+						SourceFilename:       filename,
 						NameNormalized:       relPath,
 						NameOriginal:         relPathOriginal,
 						MediaType:            mt,
@@ -1317,6 +1318,7 @@ func (sa *sitePagesAssembler) assembleResourcesAndSetHome() error {
 					if rs.rc != nil {
 						rc := rs.rc
 						rd.OpenReadSeekCloser = rc.Content.ValueAsOpenReadSeekCloser()
+						rd.SourceFilename = ""
 						if rc.Name != "" {
 							rd.NameNormalized = rc.Name
 							rd.NameOriginal = rc.Name

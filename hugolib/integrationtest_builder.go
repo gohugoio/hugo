@@ -889,7 +889,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 	s.builderInit.Do(func() {
 		var afs afero.Fs
 		if s.Cfg.NeedsOsFS {
-			afs = afero.NewOsFs()
+			afs = hugofs.NewUnlinkOnCreateFs(afero.NewOsFs())
 		} else {
 			afs = afero.NewMemMapFs()
 		}
@@ -988,6 +988,9 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		fs := hugofs.NewFrom(afs, res.LoadingInfo.BaseConfig)
+		if s.Cfg.NeedsOsFS {
+			fs.Linker = &hugofs.Linker{}
+		}
 
 		s.Assert(err, qt.IsNil)
 

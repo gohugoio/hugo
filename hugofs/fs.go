@@ -60,6 +60,9 @@ type Fs struct {
 	// WorkingDirWritable is a writable file system
 	// restricted to the project working dir.
 	WorkingDirWritable afero.Fs
+
+	// Linker hard links files into PublishDir. Nil if hard links are disabled.
+	Linker *Linker
 }
 
 func NewDefault(cfg config.Provider) *Fs {

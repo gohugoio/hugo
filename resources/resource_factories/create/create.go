@@ -300,6 +300,7 @@ func (c *Client) getOrCreateFileResource(info hugofs.FileMetaInfo) (resource.Res
 			GroupIdentity:        meta.PathInfo,
 			TargetPath:           meta.PathInfo.Unnormalized().Path(),
 			SourceFilenameOrPath: meta.Filename,
+			SourceFilename:       meta.Filename,
 		})
 	})
 }
