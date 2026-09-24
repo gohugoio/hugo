@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"mime"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -36,6 +37,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -86,6 +88,9 @@ type ResourceSourceDescriptor struct {
 	BasePathRelPermalink string
 	BasePathTargetPath   string
 	SourceFilenameOrPath string // Used for error logging.
+
+	// The OS filename of the source, if any. Used for hard linking.
+	SourceFilename string
 
 	// The Data to associate with this resource.
 	Data map[string]any
@@ -302,7 +307,7 @@ func (commonResource) Slice(in any) (any, error) {
 }
 
 type fileInfo interface {
-	setOpenSource(hugio.OpenReadSeekCloser)
+	setOpenSource(hugio.OpenReadSeekCloser, string)
 	setSourceFilenameIsHash(bool)
 	setTargetPath(internal.ResourcePaths)
 	size() int64
@@ -417,8 +422,9 @@ func (l *genericResource) hash() uint64 {
 	return l.h.value
 }
 
-func (l *genericResource) setOpenSource(openSource hugio.OpenReadSeekCloser) {
+func (l *genericResource) setOpenSource(openSource hugio.OpenReadSeekCloser, filename string) {
 	l.sd.OpenReadSeekCloser = openSource
+	l.sd.SourceFilename = filename
 }
 
 func (l *genericResource) setSourceFilenameIsHash(b bool) {
@@ -524,6 +530,16 @@ func (l *genericResource) Publish() error {
 			}
 			targetFilenames = changedFilenames
 		}
+
+		if linker := l.spec.BaseFs.Linker; linker != nil && l.sd.SourceFilename != "" {
+			targetFilenames = slices.DeleteFunc(targetFilenames, func(filename string) bool {
+				return linker.Link(l.sd.SourceFilename, l.spec.BaseFs.PublishFs, filename)
+			})
+			if len(targetFilenames) == 0 {
+				return
+			}
+		}
+
 		var fr hugio.ReadSeekCloser
 		fr, err = l.ReadSeekCloser()
 		if err != nil {
@@ -612,9 +628,9 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 	r := rc.clone()
 
 	if u.content != nil {
-		r.sd.OpenReadSeekCloser = func() (hugio.ReadSeekCloser, error) {
+		r.setOpenSource(func() (hugio.ReadSeekCloser, error) {
 			return hugio.NewReadSeekerNoOpCloserFromString(*u.content), nil
-		}
+		}, "")
 	}
 
 	r.sd.MediaType = u.mediaType
@@ -623,9 +639,10 @@ func (rc *genericResource) cloneWithUpdates(u *transformationUpdate) (baseResour
 		if u.sourceFs == nil {
 			return nil, errors.New("sourceFs is nil")
 		}
+		filename, _ := hugofs.RealFilename(u.sourceFs, *u.sourceFilename)
 		r.setOpenSource(func() (hugio.ReadSeekCloser, error) {
 			return u.sourceFs.Open(*u.sourceFilename)
-		})
+		}, filename)
 	} else if u.sourceFs != nil {
 		return nil, errors.New("sourceFs is set without sourceFilename")
 	}

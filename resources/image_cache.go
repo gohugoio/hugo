@@ -18,6 +18,7 @@ import (
 	"io"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/resources/images"
 
 	"github.com/gohugoio/hugo/cache/dynacache"
@@ -61,9 +62,10 @@ func (c *ImageCache) getOrCreate(
 			targetPath := img.getResourcePaths()
 			targetPath.File = relTarget.File
 			img.setTargetPath(targetPath)
+			filename, _ := hugofs.RealFilename(c.fcache.Fs, info.Name)
 			img.setOpenSource(func() (hugio.ReadSeekCloser, error) {
 				return c.fcache.Fs.Open(info.Name)
-			})
+			}, filename)
 			img.setSourceFilenameIsHash(true)
 			img.setMediaType(conf.TargetFormat.MediaType())
 			img.Format = conf.TargetFormat
@@ -87,9 +89,10 @@ func (c *ImageCache) getOrCreate(
 			targetPath := img.getResourcePaths()
 			targetPath.File = relTarget.File
 			img.setTargetPath(targetPath)
+			filename, _ := hugofs.RealFilename(c.fcache.Fs, info.Name)
 			img.setOpenSource(func() (hugio.ReadSeekCloser, error) {
 				return c.fcache.Fs.Open(info.Name)
-			})
+			}, filename)
 			return img.EncodeTo(conf, conv, w)
 		}
 

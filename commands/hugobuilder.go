@@ -509,21 +509,13 @@ func newStaticSyncer(conf *commonConfig, srcFs afero.Fs) *fsync.Syncer {
 	syncer.ChmodFilter = chmodFilter
 	syncer.SrcFs = srcFs
 	syncer.DestFs = conf.fs.PublishDirStatic
-	if !conf.configs.Base.Build.NoHardlinks && hugofs.IsOsFs(syncer.DestFs) {
+	if linker := conf.fs.Linker; linker != nil {
 		syncer.Link = func(dst, src string, sstat os.FileInfo) error {
-			if sstat.Mode().Perm()&0o200 == 0 {
-				// Copy read-only files (e.g. from the module cache), see chmodFilter.
-				return errors.New("source is not writable")
-			}
 			fim, ok := sstat.(hugofs.FileMetaInfo)
-			if !ok {
-				return errors.New("source is not a hugofs.FileMetaInfo")
+			if !ok || !linker.Link(fim.Meta().Filename, syncer.DestFs, dst) {
+				return errors.New("hard link not possible")
 			}
-			dstFilename, ok := hugofs.RealFilename(syncer.DestFs, dst)
-			if !ok {
-				return errors.New("destination is not an OS file")
-			}
-			return os.Link(fim.Meta().Filename, dstFilename)
+			return nil
 		}
 	}
 	return syncer

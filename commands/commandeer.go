@@ -309,6 +309,9 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 		}
 
 		fs := hugofs.NewFromSourceAndDestination(sourceFs, destinationFs, cfg)
+		if !base.Build.NoHardlinks {
+			fs.Linker = &hugofs.Linker{}
+		}
 
 		if renderStaticToDisk {
 			dynamicFs := fs.PublishDir
