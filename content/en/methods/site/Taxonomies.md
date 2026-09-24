@@ -9,6 +9,8 @@ params:
     signatures: [SITE.Taxonomies]
 ---
 
+## Usage
+
 Conceptually, the `Taxonomies` method on a `Site` object returns a data structure such&nbsp;as:
 
 <!-- markdownlint-disable MD007 MD032 -->
@@ -100,7 +102,9 @@ Hugo renders this to:
 
 ## Examples
 
-### List content with the same taxonomy term
+The following examples demonstrate common uses of a site's taxonomies.
+
+### Content by taxonomy term
 
 If you are using a taxonomy for something like a series of posts, you can list individual pages associated with the same term. For example:
 
@@ -112,7 +116,7 @@ If you are using a taxonomy for something like a series of posts, you can list i
 </ul>
 ```
 
-### List all content in a given taxonomy
+### All content in a taxonomy
 
 This is useful in a sidebar as "featured content". You could even have different sections of "featured content" by assigning different terms to the content.
 

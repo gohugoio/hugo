@@ -6,7 +6,7 @@ keywords: []
 params:
   functions_and_methods:
     returnType: page.Pages
-    signatures: [PAGES.Limit NUMBER]
+    signatures: [PAGES.Limit N]
 ---
 
 ```go-html-template

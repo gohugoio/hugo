@@ -1,6 +1,6 @@
 ---
 title: Crop
-description: Applicable to images, returns a new image resource cropped according to the given processing specification.
+description: Returns a new image resource cropped according to the given processing specification.
 categories: []
 keywords: []
 params:

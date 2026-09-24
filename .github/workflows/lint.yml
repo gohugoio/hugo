@@ -56,6 +56,6 @@ jobs:
           **/go.sum
           **/go.mod
     - name: Install gotmplfmt
-      run: go install github.com/gohugoio/gotmplfmt@623175f49b3d07a11da381ff85228d0d03101880 # v0.4.1
+      run: go install github.com/gohugoio/gotmplfmt@9aa02f78b401685c026c3184c4dd45cecfcc9161 # v0.5.0
     - name: Check template formatting
       run: "diff <(gotmplfmt -d layouts) <(printf '')"

@@ -1,6 +1,6 @@
 ---
 title: css.Build
-description: Bundle, transform, and minify CSS resources.
+description: Returns a resource created by bundling, transforming, and minifying the given CSS resource.
 categories: []
 keywords: []
 params:

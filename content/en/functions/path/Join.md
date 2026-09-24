@@ -1,6 +1,6 @@
 ---
 title: path.Join
-description: Replaces path separators with slashes (`/`), joins the given path elements into a single path, and returns the shortest path name equivalent to the result.
+description: Returns the shortest path name equivalent to the given path elements joined into a single path, after replacing path separators with slashes (`/`).
 categories: []
 keywords: []
 params:

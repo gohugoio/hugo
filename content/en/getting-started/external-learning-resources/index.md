@@ -12,6 +12,8 @@ weight: 40
 
 ## Books
 
+The following books cover using Hugo to build static websites.
+
 ### Hugo in Action
 
 Hugo in Action is a step-by-step guide to using Hugo to create static websites. Working with a complete example website and source code samples, you'll learn how to build and host a low-maintenance, high-performance site that will wow your users and stay stable without relying on a third-party server.
@@ -37,6 +39,8 @@ Length: 154 pages\
 ISBN: 9781680507263
 
 ## Videos
+
+The following video series cover using Hugo to build static websites.
 
 ### Hugo Beginner Tutorial Series
 

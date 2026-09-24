@@ -1,6 +1,6 @@
 ---
 title: RelPermalink
-description: Publishes the given resource and returns its relative permalink.
+description: Returns the relative permalink of the given resource, publishing it in the process.
 categories: []
 keywords: []
 params:

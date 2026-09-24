@@ -11,7 +11,7 @@ In [Hugo v0.146.0][], we performed a full re-implementation of how Go templates 
 
 We have aimed to maintain as much backward compatibility as possible by mapping "old to new," but some reported breakages have occurred. We're working on a full overhaul of the documentation on this topic – until then, this is a one-pager with the most important changes.
 
-## Changes to the `layouts` folder
+## Changes to the layouts folder
 
 | Description                                                                                                                                                                                                                                                                                                                                                                                                             | Action required                                                                                                                                                   |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -29,7 +29,7 @@ We have aimed to maintain as much backward compatibility as possible by mapping 
 
 Also, see the [Example folder structure](#example-folder-structure) below for a more concrete example of the new layout system.
 
-## Changes to template lookup order
+## Changes to lookup order
 
 We have consolidated the template lookup so it works the same across all [template types][], with the exception of _partial_ templates which are not context-aware. The previous setup was difficult to understand and had a massive number of variants. The new setup aims to feel natural with few surprises.
 

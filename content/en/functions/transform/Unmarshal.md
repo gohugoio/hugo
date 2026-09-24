@@ -1,6 +1,6 @@
 ---
 title: transform.Unmarshal
-description: Parses serialized data and returns a map or an array. Supports CSV, JSON, TOML, YAML, and XML.
+description: Returns a map or an array parsed from serialized data in CSV, JSON, TOML, YAML, or XML format.
 categories: []
 keywords: []
 params:
@@ -136,6 +136,8 @@ A remote resource is a file on a remote server, accessible via HTTP or HTTPS.
 > `{{ $data = .Content | transform.Unmarshal }}`
 
 ## Working with CSV
+
+A CSV file is tabular, so unlike JSON, TOML, XML, and YAML, `transform.Unmarshal` always returns a collection with one entry per row instead of a single object. This is a slice of rows by default, or a slice of row maps when you set `targetType` to `map`.
 
 The examples below use this CSV file:
 
@@ -285,8 +287,6 @@ Hugo renders this to:
   <li>Les Misérables</li>
 </ul>
 ```
-
-### XML attributes and namespaces
 
 Let's add a `lang` attribute to the `title` nodes of our RSS feed, and a namespaced node for the ISBN number:
 

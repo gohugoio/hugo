@@ -1,6 +1,6 @@
 ---
 title: transform.Highlight
-description: Renders code with a syntax highlighter.
+description: Returns the given code rendered with a syntax highlighter.
 categories: []
 keywords: [highlight]
 params:

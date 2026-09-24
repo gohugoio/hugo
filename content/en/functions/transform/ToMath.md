@@ -1,6 +1,6 @@
 ---
 title: transform.ToMath
-description: Renders mathematical equations and expressions written in the LaTeX markup language.
+description: Returns the given mathematical markup, written in the LaTeX language, rendered to HTML.
 categories: []
 keywords: []
 params:
@@ -16,6 +16,8 @@ Hugo uses an embedded instance of the [KaTeX][] display engine to render mathema
 ```go-html-template
 {{ transform.ToMath "c = \\pm\\sqrt{a^2 + b^2}" }}
 ```
+
+Hugo caches the result to disk in the [`misc`][] file cache, so calling the function multiple times with the same arguments incurs no additional overhead.
 
 > [!NOTE]
 > By default, Hugo renders mathematical markup to [MathML][], and does not require any CSS to display the result.
@@ -61,7 +63,7 @@ The `transform.ToMath` function accepts an options map. These options are a subs
   With `html` and `htmlAndMathml` you must include the KaTeX style sheet within the `head` element of your _base_ template.
 
   ```html
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.17.0/dist/katex.min.css" integrity="sha384-vlBdW0r3AcZO/HboRPznQNowvexd3fY8qHOWkBi5q7KGgqJ+F48+DceybYmrVbmB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css" integrity="sha384-u1zONI5gPXUx0UKI62c75/zww972y0v2rSK5ZYlVdS6xEuWDeZWUI66v6t1gvlXJ" crossorigin="anonymous">
   ```
 
 `strict`
@@ -76,8 +78,6 @@ The `transform.ToMath` function accepts an options map. These options are a subs
 
 `throwOnError`
 : (`bool`) Whether to throw a `ParseError` when KaTeX encounters an unsupported command or invalid LaTeX. Default is `true`.
-
-Hugo caches the result, so calling the function multiple times with the same arguments incurs no additional overhead.
 
 ## Error handling
 
@@ -129,7 +129,7 @@ Step 3
   <head>
     {{ $noop := .WordCount }}
     {{ if .Page.Store.Get "hasMath" }}
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.17.0/dist/katex.min.css" integrity="sha384-vlBdW0r3AcZO/HboRPznQNowvexd3fY8qHOWkBi5q7KGgqJ+F48+DceybYmrVbmB" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css" integrity="sha384-u1zONI5gPXUx0UKI62c75/zww972y0v2rSK5ZYlVdS6xEuWDeZWUI66v6t1gvlXJ" crossorigin="anonymous">
     {{ end }}
   </head>
   ```
@@ -178,6 +178,7 @@ $$C_p[\ce{H2O(l)}] = \pu{75.3 J // mol K}$$
 [`Content`]: /methods/page/content/
 [`Summary`]: /methods/page/summary/
 [`mhchem`]: https://mhchem.github.io/MathJax-mhchem/
+[`misc`]: /configuration/caches/#misc
 [hexadecimal color]: https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color
 [passthrough extension]: /configuration/markup/#passthrough
 [passthrough render hook]: /render-hooks/passthrough/

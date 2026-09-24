@@ -1,6 +1,6 @@
 ---
 title: resources.Fingerprint
-description: Cryptographically hashes the content of the given resource.
+description: Returns a fingerprinted resource, created by cryptographically hashing the content of the given resource.
 categories: []
 keywords: []
 params:
@@ -9,6 +9,8 @@ params:
     returnType: resource.Resource
     signatures: ['resources.Fingerprint [ALGORITHM] RESOURCE']
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 ```go-html-template
 {{ with resources.Get "js/main.js" }}

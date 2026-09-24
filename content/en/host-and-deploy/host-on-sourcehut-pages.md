@@ -72,7 +72,7 @@ environment:
   site: <YourUsername>.srht.site
 tasks:
 - package: |
-    DART_SASS_VERSION=1.102.0
+    DART_SASS_VERSION=1.104.0
     mkdir -p $HOME/.local
     curl -L https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64-musl.tar.gz -o dart-sass.tar.gz
     tar -xzf dart-sass.tar.gz -C $HOME/.local
@@ -93,17 +93,19 @@ You can now follow the build progress of your page at `https://builds.sr.ht/`.
 
 After the build has passed, a TLS certificate will be automatically obtained for you and your new website will be available at `https://<YourUsername>.srht.site/` (or the provided custom domain).
 
-## Other resources
+## Related resources
 
-- [SourceHut Pages][]
-- [SourceHut Builds user manual][]
+For more information on hosting and managing your site with SourceHut Pages, consult the official documentation:
 
+- [General documentation][]
+- [Custom domain setup][]
+
+[Custom domain setup]: https://man.sr.ht/pages.sr.ht/custom-domains.md
 [Dart Sass]: https://gohugo.io/functions/css/sass/#dart-sass
+[General documentation]: https://man.sr.ht/pages.sr.ht/
 [Git]: https://git-scm.com/
 [Mercurial]: https://www.mercurial-scm.org/
 [Quick Start]: /getting-started/quick-start/
-[SourceHut Builds user manual]: https://man.sr.ht/builds.sr.ht/
-[SourceHut Pages]: https://srht.site/
 [SourceHut account]: https://meta.sr.ht/login
 [SourceHut personal access token]: https://meta.sr.ht/oauth2/personal-token
 [`baseURL`]: /configuration/all/#baseurl

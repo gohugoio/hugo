@@ -130,6 +130,8 @@ Select a method from the table below for syntax and usage examples, depending on
 
 ## Performance
 
+Consider these factors when processing a large number of images.
+
 ### Caching
 
 Hugo processes images on demand and returns a new resource object. To ensure subsequent builds remain fast, Hugo caches the results in the directory specified in the [file cache][] section of your project configuration.

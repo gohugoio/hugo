@@ -1,63 +1,73 @@
 ---
 title: Render
-description: Renders a view template with the given page as context.
+description: Returns the result of rendering a view template with the given page as context, or with an optional context argument.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     returnType: template.HTML
-    signatures: [PAGE.Render VIEW]
+    signatures: ['PAGE.Render VIEW [CONTEXT]']
 aliases: [/functions/render]
 ---
 
-The `Render` method on a `Page` object renders a [view template][] with the given page as context.
+The `Render` method on a `Page` object renders a [view template][] with the given page as [context](g), or with an optional context argument.
 
 {{< new-in 0.164.0 >}}
 The `VIEW` argument now supports slash-separated directory paths.
 {{< /new-in >}}
 
-The `VIEW` argument is the name of a _view_ template, optionally preceded by a slash-separated directory path. Do not include a file extension. Hugo resolves the template via the [template lookup order][], so the same `VIEW` value may map to different _view_ templates depending on the page being rendered.
+{{< new-in 0.166.0 >}}
+This method now accepts an optional `CONTEXT` argument.
+{{< /new-in >}}
 
-Consider this layout structure:
+The `VIEW` argument is the name of a _view_ template, optionally preceded by a slash-separated directory path. Do not include a file extension. Hugo resolves the template via the [template lookup order][], so the same `VIEW` value may map to different templates depending on the page being rendered.
 
-```tree
-layouts/
-├── books/
-│   └── summary.html
-├── baseof.html
-├── home.html
-├── page.html
-├── section.html
-├── summary.html
-├── taxonomy.html
-└── term.html
-```
+By default, Hugo passes the `Page` object as the context (the dot) when rendering the template. To pass a different context, provide the optional `CONTEXT` argument.
 
-And this template:
+## Examples
 
-```go-html-template
+The following examples demonstrate calling this method with and without a custom context argument.
+
+### Default context
+
+When called without a context argument, the `Page` object is the context within the template:
+
+```go-html-template {file="layouts/home.html"}
 <ul>
   {{ range site.RegularPages }}
-    {{ .Render "summary" }}
+    <li>{{ .Render "_views/summary" }}</li>
   {{ end }}
 </ul>
 ```
 
-When rendering content of type `books`, the `Render` method calls:
-
-```text
-layouts/books/summary.html
+```go-html-template {file="layouts/_views/summary.html"}
+<a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
 ```
 
-For all other pages, the `Render` method calls:
+### Custom context
 
-```text
-layouts/summary.html
+To pass additional data to a view template, provide a custom context argument. This example passes a map as context, combining the `Page` object with an additional key-value pair:
+
+```go-html-template {file="layouts/home.html"}
+<div>
+  {{ range site.RegularPages }}
+    {{ .Render "_views/card" (dict "page" . "class" "featured") }}
+  {{ end }}
+</div>
 ```
+
+```go-html-template {file="layouts/_views/card.html"}
+<div class="card {{ .class }}">
+  <h2><a href="{{ .page.RelPermalink }}">{{ .page.LinkTitle }}</a></h2>
+  {{ .page.Summary }}
+</div>
+```
+
+## Organization
 
 As a best practice, place _view_ templates together in a dedicated subdirectory. Hugo does not reserve a directory name for _view_ templates as it does for `_partials`, `_shortcodes`, and `_markup`. The examples below use `_views`, where the underscore prefix differentiates it from other path segments and conveys its purpose, but a directory named `foo` would work equally well.
 
-With path segments, consider this layout structure:
+The following example uses path segments to organize _view_ templates in a dedicated subdirectory:
 
 ```tree
 layouts/
@@ -76,7 +86,7 @@ layouts/
 
 And this template:
 
-```go-html-template
+```go-html-template {file="layouts/home.html"}
 <ul>
   {{ range site.RegularPages }}
     {{ .Render "_views/summary" }}
@@ -96,12 +106,11 @@ For all other pages, the `Render` method calls:
 layouts/_views/summary.html
 ```
 
+## Notes
+
 Although similar to the [`partial`][] function, there are key differences.
 
-`Render` method|`partial` function
-:--|:--
-The `Page` object is automatically passed to the given template. You cannot pass additional context.|You must specify the context, allowing you to pass a combination of objects, slices, maps, and scalars.
-The template is resolved automatically via the [template lookup order][].|You must specify the template name, relative to the `layouts/_partials` directory.
+{{% include "/_common/render-vs-partial.md" %}}
 
 [`partial`]: /functions/partials/include/
 [template lookup order]: /templates/lookup-order/

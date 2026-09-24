@@ -33,10 +33,10 @@ Step 1
   ```yaml {file=".gitlab-ci.yml" copy=true}
   variables:
     # Define tool versions
-    DART_SASS_VERSION: 1.102.0
-    GO_VERSION: 1.26.5
-    HUGO_VERSION: 0.165.0
-    NODE_VERSION: 24.19.0
+    DART_SASS_VERSION: 1.104.0
+    GO_VERSION: 1.27.0
+    HUGO_VERSION: 0.166.0
+    NODE_VERSION: 24.20.0
 
     # Set the build timezone
     TZ: Europe/Oslo
@@ -176,7 +176,7 @@ Step 2
   ```
 
 Step 3
-: In your project configuration, change the location of the image cache to the [`cacheDir`][] as shown below:
+: In the project configuration file in the root of your local Git repository, set the location of the image cache to the [`cacheDir`][] as shown below.
 
   {{< code-toggle file=hugo copy=true >}}
   [caches.images]
@@ -196,6 +196,15 @@ Step 6
 
 In the future, whenever you push a change from your local Git repository, GitLab Pages will rebuild and deploy your site.
 
+## Related resources
+
+For more information on hosting and managing your site with GitLab Pages, consult the official documentation:
+
+- [General documentation][]
+- [Custom domain setup][]
+
+[Custom domain setup]: https://docs.gitlab.com/ee/user/project/pages/custom_domains_ssl_tls_certificates/
+[General documentation]: https://docs.gitlab.com/ee/user/project/pages/
 [`baseURL`]: /configuration/all/#baseurl
 [`cacheDir`]: /configuration/all/#cachedir
 [configure file caches]: /configuration/caches/

@@ -1,6 +1,6 @@
 ---
 title: compare.Lt
-description: Returns the boolean truth of arg1 < arg2 && arg1 < arg3.
+description: Reports whether the first argument is less than all of the subsequent arguments.
 categories: []
 keywords: []
 params:
@@ -11,25 +11,37 @@ params:
 aliases: [/functions/lt]
 ---
 
+## Usage
+
+The `compare.Lt` function reports whether the first argument is less than all of the subsequent arguments. Numbers are compared by value, regardless of type. You can also use this function to compare strings, boolean values, dates, and other comparable data types.
+
+## Examples
+
 ```go-html-template
-{{ lt 1 1 }} → false
-{{ lt 1 2 }} → true
-{{ lt 2 1 }} → false
+{{ compare.Lt 1 1 }} → false
+{{ compare.Lt 1 2 }} → true
+{{ compare.Lt 2 1 }} → false
 
-{{ lt 1 1 1 }} → false
-{{ lt 1 1 2 }} → false
-{{ lt 1 2 1 }} → false
-{{ lt 1 2 2 }} → true
+{{ compare.Lt 1 1 1 }} → false
+{{ compare.Lt 1 1 2 }} → false
+{{ compare.Lt 1 2 1 }} → false
+{{ compare.Lt 1 2 2 }} → true
 
-{{ lt 2 1 1 }} → false
-{{ lt 2 1 2 }} → false
-{{ lt 2 2 1 }} → false
+{{ compare.Lt 2 1 1 }} → false
+{{ compare.Lt 2 1 2 }} → false
+{{ compare.Lt 2 2 1 }} → false
 ```
 
-Use the `compare.Lt` function to compare other data types as well:
+Comparing numbers of different types:
 
 ```go-html-template
-{{ lt "ab" "a" }} → false
-{{ lt time.Now (time.AsTime "1964-12-30") }} → false
-{{ lt true false }} → false
+{{ compare.Lt 1 1.0 }} → false
+```
+
+Comparing other data types:
+
+```go-html-template
+{{ compare.Lt "ab" "a" }} → false
+{{ compare.Lt time.Now (time.AsTime "1964-12-30") }} → false
+{{ compare.Lt true false }} → false
 ```

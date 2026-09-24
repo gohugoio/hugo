@@ -1,6 +1,6 @@
 ---
 title: safe.CSS
-description: Declares the given string as a safe CSS string.
+description: Returns the given string declared as safe CSS.
 categories: []
 keywords: []
 params:

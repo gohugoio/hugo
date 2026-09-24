@@ -21,7 +21,7 @@
 			"text" .Text
 			"title" .AlertTitle
 			"class" .Attributes.class
-			)
+		)
 		}}
 	{{- else }}
 		{{- errorf `Invalid blockquote alert type. Received %s. Expected one of %s (case-insensitive). See %s.` .AlertType (delimit $alertTypes ", " ", or ") .Page.String }}

@@ -1,6 +1,6 @@
 ---
 title: return
-description: Used within partial templates, terminates template execution and returns the given value, if any.
+description: Terminates execution of the current template and, when used within a partial template, returns the given value, if any.
 categories: []
 keywords: []
 params:
@@ -10,84 +10,82 @@ params:
     signatures: ['return [VALUE]']
 ---
 
-The `return` statement is a non-standard extension to Go's [`text/template`][] package. Used within _partial_ templates, the `return` statement terminates template execution and returns the given value, if any.
+The `return` statement is a non-standard extension to Go's [`text/template`][] package. It terminates execution of the current template only; execution continues in any calling template. When used within a _partial_ template, the `return` statement may also return a value to the caller.
 
-The returned value may be of any data type including, but not limited to, [`bool`](g), [`float`](g), [`int`](g), [`map`](g), [`resource`](g), [`slice`](g), or [`string`](g).
+{{< new-in 0.166.0 >}}
+In earlier versions, the `return` statement was only supported within partial templates, limited to one `return` statement per template, executed regardless of its position within logical blocks. The `return` statement now follows normal flow control: you can use it in any template, in any position, any number of times, and Hugo executes it only when reached.
+{{< /new-in >}}
 
-A `return` statement without a value returns an empty string of type `template.HTML`.
+## Return a value
 
-> [!NOTE]
-> Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks. See [usage](#usage) notes below.
+Within a _partial_ template, the `return` statement may return a value of any data type: [`bool`](g), [`float`](g), [`int`](g), [`map`](g), [`resource`](g), [`slice`](g), [`string`](g), and others. When returning a value, any output rendered before the `return` statement is discarded.
 
-## Example
+Using the `return` statement with a value in any other template type produces an error.
 
-By way of example, let's create a _partial_ template that _renders_ HTML, describing whether the given number is odd or even:
+For example, a _partial_ template that returns a string value:
 
-```go-html-template {file="layouts/_partials/odd-or-even.html"}
-{{ if math.ModBool . 2 }}
-  <p>{{ . }} is even</p>
-{{ else }}
-  <p>{{ . }} is odd</p>
-{{ end }}
-```
-
-When called, the _partial_ template renders HTML:
-
-```go-html-template
-{{ partial "odd-or-even.html" 42 }} → <p>42 is even</p>
-```
-
-Instead of rendering HTML, let's create a _partial_ template that _returns_ a boolean value, reporting whether the given number is even:
-
-```go-html-template {file="layouts/_partials/is-even.html"}
-{{ return math.ModBool . 2 }}
-```
-
-With this template:
-
-```go-html-template
-{{ $number := 42 }}
-{{ if partial "is-even.html" $number }}
-  <p>{{ $number }} is even</p>
-{{ else }}
-  <p>{{ $number }} is odd</p>
-{{ end }}
-```
-
-Hugo renders:
-
-```html
-<p>42 is even</p>
-```
-
-## Usage
-
-> [!NOTE]
-> Unlike `return` statements in other languages, Hugo executes the first occurrence of the `return` statement regardless of its position within logical blocks.
-
-A _partial_ template that returns a value must contain only one `return` statement, placed at the end of the template.
-
-For example:
-
-```go-html-template {file="layouts/_partials/is-even.html"}
-{{ $result := false }}
-{{ if math.ModBool . 2 }}
-  {{ $result = "even" }}
-{{ else }}
-  {{ $result = "odd" }}
-{{ end }}
-{{ return $result }}
-```
-
-> [!NOTE]
-> The construct below is incorrect; it contains more than one `return` statement.
-
-```go-html-template {file="layouts/_partials/do-not-do-this.html"}
+```go-html-template {file="layouts/_partials/parity.html"}
 {{ if math.ModBool . 2 }}
   {{ return "even" }}
-{{ else }}
-  {{ return "odd" }}
 {{ end }}
+{{ return "odd" }}
+```
+
+```go-html-template {file="layouts/single.html"}
+{{ partial "parity.html" 42 }} → even
+```
+
+A more practical example is a _partial_ template that returns the cover image of the first page in a section that has one:
+
+```go-html-template {file="layouts/_partials/section-cover.html"}
+{{ range .Pages }}
+  {{ with .Resources.GetMatch "cover.*" }}
+    {{ return . }}
+  {{ end }}
+{{ end }}
+```
+
+```go-html-template {file="layouts/section.html"}
+{{ with partial "section-cover.html" . }}
+  <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" alt="">
+{{ end }}
+```
+
+## Return early
+
+Use the `return` statement without a value to stop execution of the current template:
+
+```go-html-template {file="layouts/single.html"}
+<h2>{{ .Title }}</h2>
+{{ if .Draft }}
+  <p>This article is a draft.</p>
+  {{ return }}
+{{ end }}
+{{ .Content }}
+```
+
+Within a _shortcode_ template, use a `return` statement after each validation check to avoid deeply nested conditional blocks:
+
+```go-html-template {file="layouts/_shortcodes/img.html"}
+{{ if not (.Get "src") }}
+  {{ errorf "The %q shortcode requires a src argument. See %s" .Name .Position }}
+  {{ return }}
+{{ end }}
+
+{{ if not (.Get "alt") }}
+  {{ errorf "The %q shortcode requires an alt argument. See %s" .Name .Position }}
+  {{ return }}
+{{ end }}
+
+<img src="{{ .Get "src" }}" alt="{{ .Get "alt" }}">
+```
+
+## Limitations
+
+The `return` statement must be the last command in a pipeline. This produces an error:
+
+```go-html-template
+{{ return "even" | strings.ToUpper }}
 ```
 
 [`text/template`]: https://pkg.go.dev/text/template

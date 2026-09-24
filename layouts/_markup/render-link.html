@@ -171,7 +171,7 @@ either of these shortcodes in conjunction with this render hook.
 	{{- with .Title }}title="{{ . }}"{{- end }}
 	{{- range $k, $v := $attrs }}
 		{{- if $v }}
-		{{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr }}
+			{{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr }}
 		{{- end }}
 	{{- end -}}>{{ .Text }}</a>
 

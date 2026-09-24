@@ -1,6 +1,6 @@
 ---
 title: js.Batch
-description: Build JavaScript bundle groups with global code splitting and flexible hooks/runners setup.
+description: Returns a batcher used to build JavaScript bundle groups with global code splitting and flexible hooks/runners setup.
 categories: []
 keywords: []
 params:

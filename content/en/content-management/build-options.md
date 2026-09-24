@@ -38,7 +38,7 @@ render = 'always'
 > [!NOTE]
 > Any page, regardless of its build options, will always be available by using the [`.Page.GetPage`][] or [`.Site.GetPage`][] method.
 
-## Example -- headless page
+## Headless page
 
 Create a unpublished page whose content and resources can be included in other pages.
 
@@ -87,7 +87,7 @@ In the example above, note that:
 1. Hugo did not publish an HTML file for the page.
 1. Despite setting `publishResources` to `false` in front matter, Hugo published the [page resources][] because we invoked the [`RelPermalink`][] method on each resource. This is the expected behavior.
 
-## Example -- headless section
+## Headless section
 
 Create a unpublished section whose content and resources can be included in other pages.
 
@@ -151,7 +151,7 @@ In the example above, note that:
 1. Hugo did not publish an HTML file for the page.
 1. Despite setting `publishResources` to `false` in front matter, Hugo correctly published the [page resources][] because we invoked the [`RelPermalink`][] method on each resource. This is the expected behavior.
 
-## Example -- list without publishing
+## List without publishing
 
 Publish a section page without publishing the descendant pages. For example, to create a glossary:
 
@@ -198,7 +198,7 @@ public/
 └── index.html
 ```
 
-## Example -- publish without listing
+## Publish without listing
 
 Publish a section's descendant pages without publishing the section page itself.
 
@@ -232,7 +232,7 @@ public/
 └── index.html
 ```
 
-## Example -- conditionally hide section
+## Conditionally hide a section
 
 Consider this example. A documentation site has a team of contributors with access to 20 custom shortcodes. Each shortcode takes several arguments, and requires documentation for the contributors to reference when using them.
 

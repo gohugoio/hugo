@@ -1,6 +1,6 @@
 ---
 title: Paginate
-description: Paginates a collection of pages.
+description: Returns a pager created by paginating the given collection of pages.
 categories: []
 keywords: []
 params:

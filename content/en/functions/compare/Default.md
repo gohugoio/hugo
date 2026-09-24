@@ -1,6 +1,7 @@
 ---
 title: compare.Default
 description: Returns the second argument if set, else the first argument.
+categories: []
 keywords: []
 params:
   functions_and_methods:
@@ -10,10 +11,12 @@ params:
 aliases: [/functions/default]
 ---
 
-The `default` function returns the second argument if set, else the first argument.
+## Usage
+
+The `compare.Default` function returns the second argument if set, else the first argument.
 
 > [!NOTE]
-> When the second argument is the boolean `false` value, the `default` function returns `false`. All _other_ falsy values are considered unset.
+> When the second argument is the boolean `false` value, the `compare.Default` function returns `false`. All _other_ falsy values are considered unset.
 >
 > The falsy values are `false`, `0`, any `nil` pointer or interface value, any array, slice, map, or string of length zero, and zero `time.Time` values.
 >
@@ -21,27 +24,29 @@ The `default` function returns the second argument if set, else the first argume
 >
 > To set a default value based on truthiness, use the [`or`][] operator instead.
 
-The `default` function returns the second argument if set:
+## Examples
+
+When the second argument is set:
 
 ```go-html-template
-{{ 1             | default 42 }} → 1
-{{ "foo"         | default 42 }} → foo
-{{ dict "k" "v"  | default 42 }} → map[k:v]
-{{ slice "a" "b" | default 42 }} → [a b]
-{{ true          | default 42 }} → true
+{{ 1             | compare.Default 42 }} → 1
+{{ "foo"         | compare.Default 42 }} → foo
+{{ dict "k" "v"  | compare.Default 42 }} → map[k:v]
+{{ slice "a" "b" | compare.Default 42 }} → [a b]
+{{ true          | compare.Default 42 }} → true
 
 <!-- As noted above, the boolean "false" is considered set -->
-{{ false         | default 42 }} → false
+{{ false         | compare.Default 42 }} → false
 ```
 
-The `default` function returns the first argument if the second argument is not set:
+When the second argument is not set:
 
 ```go-html-template
-{{ 0     | default 42 }} → 42
-{{ ""    | default 42 }} → 42
-{{ dict  | default 42 }} → 42
-{{ slice | default 42 }} → 42
-{{ nil   | default 42 }} → 42
+{{ 0     | compare.Default 42 }} → 42
+{{ ""    | compare.Default 42 }} → 42
+{{ dict  | compare.Default 42 }} → 42
+{{ slice | compare.Default 42 }} → 42
+
 ```
 
 [`or`]: /functions/go-template/or/

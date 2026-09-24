@@ -1,6 +1,6 @@
 ---
 title: inflect.Pluralize
-description: Pluralizes the given word according to a set of common English pluralization rules.
+description: Returns the plural form of the given word according to a set of common English pluralization rules.
 categories: []
 keywords: []
 params:

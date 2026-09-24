@@ -133,7 +133,7 @@ The example above uses:
 >
 > Read more about context in the [introduction to templating][].
 
-### Insert image with error handling
+### Add error handling
 
 The previous example, while functional, silently fails if the image is missing, and does not gracefully exit if a required argument is missing. We'll add error handling to address these issues:
 
@@ -189,7 +189,7 @@ Using the `Get` method with zero-indexed keys, we'll initialize variables with d
 > [!NOTE]
 > Positional arguments work well for frequently used shortcodes with one or two arguments. Since you'll use them often, the argument order will be easy to remember. For less frequently used shortcodes, or those with more than two arguments, named arguments improve readability and reduce the chance of errors.
 
-### Named and positional arguments
+### Either named or positional
 
 You can create a shortcode that will accept both named and positional arguments, but not at the same time. Use the [`IsNamedParams`][] method to determine whether the shortcode call used named or positional arguments:
 

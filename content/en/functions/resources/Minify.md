@@ -1,6 +1,6 @@
 ---
 title: resources.Minify
-description: Minifies the given resource.
+description: Returns a minified version of the given resource.
 categories: []
 keywords: []
 params:
@@ -9,6 +9,8 @@ params:
     returnType: resource.Resource
     signatures: [resources.Minify RESOURCE]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 ```go-html-template
 {{ $css := resources.Get "css/main.css" }}

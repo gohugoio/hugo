@@ -10,7 +10,7 @@ params:
     signatures: ['template NAME [CONTEXT]']
 ---
 
-Use the `template` function to execute a defined template:
+Use the `template` statement to execute a defined template:
 
 ```go-html-template
 {{ template "foo" (dict "answer" 42) }}

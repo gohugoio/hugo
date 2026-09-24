@@ -1,6 +1,6 @@
 ---
 title: transform.Markdownify
-description: Renders Markdown to HTML.
+description: Returns the given Markdown rendered to HTML.
 categories: []
 keywords: []
 params:

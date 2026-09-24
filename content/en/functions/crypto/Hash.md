@@ -1,6 +1,6 @@
 ---
 title: crypto.Hash
-description: Hashes the given input with the given algorithm and returns its checksum encoded to a hexadecimal string.
+description: Returns the checksum of the given input, encoded to a hexadecimal string, using the given hash algorithm.
 categories: []
 keywords: []
 params:

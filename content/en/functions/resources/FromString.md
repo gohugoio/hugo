@@ -12,64 +12,36 @@ params:
 
 The `resources.FromString` function returns a resource created from a string, caching the result using the target path as its cache key.
 
-Hugo publishes the resource to the target path when you call its [`Publish`][], [`Permalink`][], or [`RelPermalink`][] methods.
+For example, to create and publish a `security.txt` file from your site configuration:
 
-Let's say you need to publish a file named "site.json" in the root of your `public` directory, containing the build date, the Hugo version used to build the site, and the date that the content was last modified. For example:
-
-```json
-{
-  "build_date": "2026-08-12T11:32:21-07:00",
-  "hugo_version": "0.165.0",
-  "last_modified": "2026-08-12T10:46:26-07:00"
-}
-```
-
-Place this in your baseof.html template:
-
-```go-html-template
-{{ if .IsHome }}
-  {{ $rfc3339 := "2006-01-02T15:04:05Z07:00" }}
-  {{ $m := dict
-    "hugo_version" hugo.Version
-    "build_date" (now.Format $rfc3339)
-    "last_modified" (site.Lastmod.Format $rfc3339)
-  }}
-  {{ $json := jsonify $m }}
-  {{ $r := resources.FromString "site.json" $json }}
-  {{ $r.Publish }}
+```go-html-template {file="layouts/baseof.html"}
+{{ $content := printf "Contact: mailto:%s\n" site.Params.email }}
+{{ with resources.FromString ".well-known/security.txt" $content }}
+  {{ .Publish }}
 {{ end }}
 ```
 
-The example above:
+To publish within a pipeline, use the [`resources.Publish`][] function:
 
-1. Creates a map with the relevant key-value pairs using the [`dict`][] function
-1. Encodes the map as a JSON string using the [`jsonify`][] function
-1. Creates a resource from the JSON string using the `resources.FromString` function
-1. Publishes the file to the root of the `public` directory using the resource's `Publish` method
+```go-html-template {file="layouts/baseof.html"}
+{{ $content := printf "Contact: mailto:%s\n" site.Params.email }}
+{{ resources.FromString ".well-known/security.txt" $content | resources.Publish }}
+```
 
-Combine `resources.FromString` with [`resources.ExecuteAsTemplate`][] if your string contains template actions. Rewriting the example above:
+The [`Permalink`][] and [`RelPermalink`][] methods also publish the resource.
 
-```go-html-template
-{{ if .IsHome }}
-  {{ $string := `
-    {{ $rfc3339 := "2006-01-02T15:04:05Z07:00" }}
-    {{ $m := dict
-      "hugo_version" hugo.Version
-      "build_date" (now.Format $rfc3339)
-      "last_modified" (site.Lastmod.Format $rfc3339)
-    }}
-    {{ $json := jsonify $m }}
-    `
-  }}
-  {{ $r := resources.FromString "" $string }}
-  {{ $r = $r | resources.ExecuteAsTemplate "site.json" . }}
-  {{ $r.Publish }}
-{{ end }}
+Combine `resources.FromString` with [`resources.ExecuteAsTemplate`][] if your string contains template actions:
+
+```go-html-template {file="layouts/baseof.html"}
+{{ $string := `Contact: mailto:{{ site.Params.email }}
+Expires: {{ (now.AddDate 1 0 0).UTC.Format "2006-01-02T15:04:05Z" }}
+` }}
+{{ $r := resources.FromString "" $string }}
+{{ $r = $r | resources.ExecuteAsTemplate ".well-known/security.txt" . }}
+{{ $r.Publish }}
 ```
 
 [`Permalink`]: /methods/resource/permalink/
-[`Publish`]: /methods/resource/publish/
 [`RelPermalink`]: /methods/resource/relpermalink/
-[`dict`]: /functions/collections/dictionary/
-[`jsonify`]: /functions/encoding/jsonify/
 [`resources.ExecuteAsTemplate`]: /functions/resources/executeastemplate/
+[`resources.Publish`]: /functions/resources/publish/

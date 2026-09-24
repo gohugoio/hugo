@@ -14,6 +14,8 @@ weight: 10
 
 ## Package managers
 
+You can also install Hugo using one of the following package managers.
+
 {{% include "/_common/installation/homebrew.md" %}}
 
 ### MacPorts

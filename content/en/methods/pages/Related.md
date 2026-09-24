@@ -13,6 +13,8 @@ params:
 
 Based on front matter, Hugo uses several factors to identify content related to the given page. Use the default [related content configuration][], or tune the results to the desired indices and parameters. See [details][].
 
+## Usage
+
 The argument passed to the `Related` method may be a `Page` or an options map. For example, to pass the current page:
 
 ```go-html-template {file="layouts/page.html"}

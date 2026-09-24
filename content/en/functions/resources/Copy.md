@@ -1,6 +1,6 @@
 ---
 title: resources.Copy
-description: Copies the given resource to the target path.
+description: Returns a copy of the given resource at the target path.
 categories: []
 params:
   functions_and_methods:
@@ -8,6 +8,8 @@ params:
     returnType: resource.Resource
     signatures: [resources.Copy TARGETPATH RESOURCE]
 ---
+
+{{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}

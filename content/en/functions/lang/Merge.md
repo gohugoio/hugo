@@ -1,6 +1,6 @@
 ---
 title: lang.Merge
-description: Merge missing translations from other languages.
+description: Returns a copy of the given page collection with missing translations filled in from another page collection.
 categories: []
 keywords: []
 params:

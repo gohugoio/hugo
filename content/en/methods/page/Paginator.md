@@ -1,6 +1,6 @@
 ---
 title: Paginator
-description: Paginates the collection of regular pages received in context.
+description: Returns a pager created by paginating the collection of regular pages received in context.
 categories: []
 keywords: []
 params:

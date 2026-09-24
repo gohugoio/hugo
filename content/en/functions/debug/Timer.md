@@ -1,6 +1,6 @@
 ---
 title: debug.Timer
-description: Creates a named timer that reports elapsed time to the console.
+description: Returns a named timer used to measure and report elapsed execution time to the console.
 categories: []
 keywords: []
 params:

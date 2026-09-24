@@ -24,7 +24,7 @@ Hugo uses file caches to store data on disk, avoiding repeated operations within
 : Caches processed images.
 
 `misc`
-: Caches miscellaneous data.
+: Caches miscellaneous data, such as the results of the [`transform.ToMath`][] function.
 
 `modulegitinfo`
 : Caches Git information for modules.
@@ -59,5 +59,6 @@ Hugo uses file caches to store data on disk, avoiding repeated operations within
 As you modify your site or change your configuration, cached files from previous builds may remain on disk, consuming unnecessary space. Use the `hugo build --gc` command to remove these expired or unused entries from the file cache.
 
 [`resources.GetRemote`]: /functions/resources/getremote/
+[`transform.ToMath`]: /functions/transform/tomath/
 [cachedir]: /configuration/all/#cachedir
 [resourcedir]: /configuration/all/#resourcedir

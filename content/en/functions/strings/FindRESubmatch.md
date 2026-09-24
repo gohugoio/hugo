@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [findRESubmatch]
     returnType: '[][]string'
-    signatures: ['strings.FindRESubmatch PATTERN INPUT [LIMIT]']
+    signatures: ['strings.FindRESubmatch PATTERN STRING [LIMIT]']
 aliases: [/functions/findresubmatch]
 ---
 

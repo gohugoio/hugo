@@ -1,6 +1,6 @@
 ---
 title: Process
-description: Applicable to images, returns a new image resource processed according to the given processing specification.
+description: Returns a new image resource processed according to the given processing specification.
 categories: []
 keywords: [process]
 params:

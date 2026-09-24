@@ -113,10 +113,10 @@ The page resources' metadata is managed from the corresponding page's front matt
 : (`string`) Required. A [glob pattern](g) matching one or more page resources by file path, relative to the page bundle. Matching is case-insensitive. When the pattern matches multiple resources, the same metadata is applied to each.
 
 `name`
-: (`string`) Sets the value returned by [`Name`][]. Supports the [`:counter`](#the-counter-placeholder-in-name-and-title) placeholder. After assignment, use `name`, not the original file path, with [`Resources.Get`][], [`Resources.Match`][], and [`Resources.GetMatch`][].
+: (`string`) Sets the value returned by [`Name`][]. Supports the [`:counter`](#the-counter-placeholder) placeholder. After assignment, use `name`, not the original file path, with [`Resources.Get`][], [`Resources.Match`][], and [`Resources.GetMatch`][].
 
 `title`
-: (`string`) Sets the value returned by [`Title`][]. Supports the [`:counter`](#the-counter-placeholder-in-name-and-title) placeholder.
+: (`string`) Sets the value returned by [`Title`][]. Supports the [`:counter`](#the-counter-placeholder) placeholder.
 
 `params`
 : (`map`) A map of custom key-value pairs. When multiple array entries match the same resource, their `params` maps are merged; later entries take precedence for duplicate keys.
@@ -152,13 +152,13 @@ From the example above:
 
 - `sunset.jpg` will receive a new `Name` and can now be found with `.GetMatch "header"`.
 - `documents/photo_specs.pdf`, `documents/guide.pdf`, `documents/checklist.pdf`, and `documents/payment.docx` will get `Title` as set by `title`.
-- All `PDF` files will get the `pdf` icon and a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder-in-name-and-title), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
+- All `PDF` files will get the `pdf` icon and a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - All `.docx` files will get the `word` icon.
 
 > [!NOTE]
 > For `name` and `title`, the first matching array entry wins; later matches are ignored. For `params`, all matching entries contribute; later entries take precedence for duplicate keys. Place more specific `src` patterns before broader wildcards to control which `name` and `title` values are applied.
 
-### The `:counter` placeholder in `name` and `title`
+### The counter placeholder
 
 The `:counter` is a special placeholder recognized in `name` and `title` parameters `resources`.
 

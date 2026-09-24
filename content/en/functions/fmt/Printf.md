@@ -1,6 +1,6 @@
 ---
 title: fmt.Printf
-description: Formats a string using the standard `fmt.Sprintf` function.
+description: Returns a string formatted according to the given format specifier.
 categories: []
 keywords: []
 params:

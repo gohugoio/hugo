@@ -13,6 +13,8 @@ aliases: [/functions/with]
 
 {{% include "/_common/functions/truthy-falsy.md" %}}
 
+## Usage
+
 ```go-html-template
 {{ $var := "foo" }}
 {{ with $var }}

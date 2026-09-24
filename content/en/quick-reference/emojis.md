@@ -637,6 +637,9 @@ Then...
 | [top](#animals--nature) | :blowfish: | `:blowfish:` | :shark: | `:shark:` | [top](#table-of-contents) |
 | [top](#animals--nature) | :octopus: | `:octopus:` | :shell: | `:shell:` | [top](#table-of-contents) |
 | [top](#animals--nature) | :coral: | `:coral:` | :jellyfish: | `:jellyfish:` | [top](#table-of-contents) |
+| [top](#animals--nature) | :crab: | `:crab:` | :lobster: | `:lobster:` | [top](#table-of-contents) |
+| [top](#animals--nature) | :shrimp: | `:shrimp:` | :squid: | `:squid:` | [top](#table-of-contents) |
+| [top](#animals--nature) | :oyster: | `:oyster:` | | | [top](#table-of-contents) |
 
 ### Animal Bug
 
@@ -681,7 +684,6 @@ Then...
 - [Food Vegetable](#food-vegetable)
 - [Food Prepared](#food-prepared)
 - [Food Asian](#food-asian)
-- [Food Marine](#food-marine)
 - [Food Sweet](#food-sweet)
 - [Drink](#drink)
 - [Dishware](#dishware)
@@ -750,14 +752,6 @@ Then...
 | [top](#food--drink) | :moon_cake: | `:moon_cake:` | :dango: | `:dango:` | [top](#table-of-contents) |
 | [top](#food--drink) | :dumpling: | `:dumpling:` | :fortune_cookie: | `:fortune_cookie:` | [top](#table-of-contents) |
 | [top](#food--drink) | :takeout_box: | `:takeout_box:` | | | [top](#table-of-contents) |
-
-### Food Marine
-
-| | ico | shortcode | ico | shortcode | |
-| - | :-: | - | :-: | - | - |
-| [top](#food--drink) | :crab: | `:crab:` | :lobster: | `:lobster:` | [top](#table-of-contents) |
-| [top](#food--drink) | :shrimp: | `:shrimp:` | :squid: | `:squid:` | [top](#table-of-contents) |
-| [top](#food--drink) | :oyster: | `:oyster:` | | | [top](#table-of-contents) |
 
 ### Food Sweet
 
@@ -1128,9 +1122,9 @@ Then...
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
-| [top](#objects) | :saxophone: | `:saxophone:` | :accordion: | `:accordion:` | [top](#table-of-contents) |
-| [top](#objects) | :guitar: | `:guitar:` | :musical_keyboard: | `:musical_keyboard:` | [top](#table-of-contents) |
-| [top](#objects) | :trumpet: | `:trumpet:` | :violin: | `:violin:` | [top](#table-of-contents) |
+| [top](#objects) | :saxophone: | `:saxophone:` | :trumpet: | `:trumpet:` | [top](#table-of-contents) |
+| [top](#objects) | :accordion: | `:accordion:` | :guitar: | `:guitar:` | [top](#table-of-contents) |
+| [top](#objects) | :musical_keyboard: | `:musical_keyboard:` | :violin: | `:violin:` | [top](#table-of-contents) |
 | [top](#objects) | :banjo: | `:banjo:` | :drum: | `:drum:` | [top](#table-of-contents) |
 | [top](#objects) | :long_drum: | `:long_drum:` | :maracas: | `:maracas:` | [top](#table-of-contents) |
 | [top](#objects) | :flute: | `:flute:` | | | [top](#table-of-contents) |
@@ -1186,7 +1180,7 @@ Then...
 
 | | ico | shortcode | ico | shortcode | |
 | - | :-: | - | :-: | - | - |
-| [top](#objects) | :moneybag: | `:moneybag:` | :coin: | `:coin:` | [top](#table-of-contents) |
+| [top](#objects) | :coin: | `:coin:` | :moneybag: | `:moneybag:` | [top](#table-of-contents) |
 | [top](#objects) | :yen: | `:yen:` | :dollar: | `:dollar:` | [top](#table-of-contents) |
 | [top](#objects) | :euro: | `:euro:` | :pound: | `:pound:` | [top](#table-of-contents) |
 | [top](#objects) | :money_with_wings: | `:money_with_wings:` | :credit_card: | `:credit_card:` | [top](#table-of-contents) |
@@ -1668,12 +1662,13 @@ Then...
 | - | :-: | - | :-: | - | - |
 | [top](#github-custom-emoji) | :accessibility: | `:accessibility:` | :atom: | `:atom:` | [top](#table-of-contents) |
 | [top](#github-custom-emoji) | :basecamp: | `:basecamp:` | :basecampy: | `:basecampy:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :bowtie: | `:bowtie:` | :dependabot: | `:dependabot:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :electron: | `:electron:` | :feelsgood: | `:feelsgood:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :finnadie: | `:finnadie:` | :fishsticks: | `:fishsticks:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :goberserk: | `:goberserk:` | :godmode: | `:godmode:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :hurtrealbad: | `:hurtrealbad:` | :neckbeard: | `:neckbeard:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :octocat: | `:octocat:` | :rage1: | `:rage1:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :rage2: | `:rage2:` | :rage3: | `:rage3:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :rage4: | `:rage4:` | :shipit: | `:shipit:` | [top](#table-of-contents) |
-| [top](#github-custom-emoji) | :suspect: | `:suspect:` | :trollface: | `:trollface:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :bowtie: | `:bowtie:` | :copilot: | `:copilot:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :dependabot: | `:dependabot:` | :electron: | `:electron:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :feelsgood: | `:feelsgood:` | :finnadie: | `:finnadie:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :fishsticks: | `:fishsticks:` | :goberserk: | `:goberserk:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :godmode: | `:godmode:` | :hurtrealbad: | `:hurtrealbad:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :neckbeard: | `:neckbeard:` | :octocat: | `:octocat:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :rage1: | `:rage1:` | :rage2: | `:rage2:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :rage3: | `:rage3:` | :rage4: | `:rage4:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :shipit: | `:shipit:` | :suspect: | `:suspect:` | [top](#table-of-contents) |
+| [top](#github-custom-emoji) | :trollface: | `:trollface:` | | | [top](#table-of-contents) |
