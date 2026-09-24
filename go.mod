@@ -187,3 +187,5 @@ require (
 )
 
 go 1.27.0
+
+replace github.com/spf13/fsync => /Users/bep/dev/mymonorepo/gohugoio/gocodelibs/fsync

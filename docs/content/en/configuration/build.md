@@ -17,6 +17,9 @@ This is the default configuration:
 `cachebusters`
 : See the [cache busters](#cache-busters) section below.
 
+`noHardlinks`
+: (`bool`) Whether to disable hard linking of unmodified files into the publish directory. By default Hugo hard links files from the `static` directory into `publishDir` when the file system supports it, and copies them otherwise. Default is `false`.
+
 `noJSConfigInAssets`
 : (`bool`) Whether to disable writing a `jsconfig.json` in your `assets` directory with mapping of imports from running [js.Build][]. This file is intended to help with intellisense/navigation inside code editors such as [VS Code][]. Note that if you do not use `js.Build`, no file will be written.
 

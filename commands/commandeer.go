@@ -288,6 +288,11 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 		renderStaticToDisk := cfg.GetBool("renderStaticToDisk")
 
 		sourceFs := hugofs.Os
+		var osFs afero.Fs = hugofs.Os
+		if !base.Build.NoHardlinks {
+			// Writes must not modify the source of a hard link.
+			osFs = hugofs.NewUnlinkOnCreateFs(osFs)
+		}
 		var destinationFs afero.Fs
 		if cfg.GetBool("renderToMemory") {
 			destinationFs = afero.NewMemMapFs()
@@ -300,7 +305,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 				cfg.Set("publishDirStatic", "/")
 			}
 		} else {
-			destinationFs = hugofs.Os
+			destinationFs = osFs
 		}
 
 		fs := hugofs.NewFromSourceAndDestination(sourceFs, destinationFs, cfg)
@@ -310,7 +315,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 			publishDirStatic := cfg.GetString("publishDirStatic")
 			workingDir := cfg.GetString("workingDir")
 			absPublishDirStatic := paths.AbsPathify(workingDir, publishDirStatic)
-			staticFs := hugofs.NewBasePathFs(afero.NewOsFs(), absPublishDirStatic)
+			staticFs := hugofs.NewBasePathFs(osFs, absPublishDirStatic)
 
 			// Serve from both the static and dynamic fs,
 			// the first will take priority.

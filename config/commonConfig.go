@@ -121,6 +121,10 @@ type BuildConfig struct {
 
 	// Removes files from the publish directory that are not found in the static source.
 	CleanDestinationDir CleanDestinationDir
+
+	// Hugo hard links unmodified files into the publish dir when possible.
+	// Set this to true to always copy them.
+	NoHardlinks bool
 }
 
 // CleanDestinationDir configures the removal of stale files from the publish directory.
