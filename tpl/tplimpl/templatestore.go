@@ -249,6 +249,9 @@ type TemplInfo struct {
 	// The base template used, if any.
 	base *TemplInfo
 
+	// For partial decorator inner templates, the template the inner block was defined in.
+	decoratorOwner *TemplInfo
+
 	// The descriptior that this template represents.
 	D TemplateDescriptor
 
@@ -636,6 +639,31 @@ func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 	return ti
 }
 
+// ResolvePartialName resolves partial names starting with "./" or "../"
+// relative to the directory of the calling partial.
+func (s *TemplateStore) ResolvePartialName(ctx context.Context, name string) (string, error) {
+	if !strings.HasPrefix(name, "./") && !strings.HasPrefix(name, "../") {
+		return name, nil
+	}
+	cur := tpl.Context.CurrentTemplate.Get(ctx)
+	if cur == nil {
+		return "", fmt.Errorf("relative partial path %q can only be used from within a partial", name)
+	}
+	ti := cur.CurrentTemplateInfoOps.(*TemplInfo)
+	for ti.decoratorOwner != nil {
+		ti = ti.decoratorOwner
+	}
+	if ti.category != CategoryPartial {
+		return "", fmt.Errorf("relative partial path %q can only be used from within a partial, called from %q", name, ti.Name())
+	}
+	dir := strings.TrimPrefix(strings.TrimPrefix(ti.PathInfo.Dir(), "/"+containerPartials), "/")
+	resolved := path.Join(dir, name)
+	if resolved == ".." || strings.HasPrefix(resolved, "../") {
+		return "", fmt.Errorf("relative partial path %q in %q resolves outside the partials directory", name, ti.Name())
+	}
+	return resolved, nil
+}
+
 func (s *TemplateStore) LookupShortcodeByName(name string) *TemplInfo {
 	name = strings.ToLower(name)
 	ti, _ := s.shortcodesByName.Get(name)
@@ -939,10 +967,12 @@ func (t *TemplateStore) addDeferredTemplate(owner *TemplInfo, name string, n *pa
 	}
 
 	t.templatesByPath.Set(name, &TemplInfo{
-		Fi:       owner.Fi,
-		PathInfo: owner.PathInfo,
-		D:        owner.D,
-		Template: templ,
+		Fi:             owner.Fi,
+		PathInfo:       owner.PathInfo,
+		D:              owner.D,
+		Template:       templ,
+		category:       owner.category,
+		decoratorOwner: owner.decoratorOwner,
 	})
 
 	return nil

@@ -301,6 +301,7 @@ func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
 			c.err = fmt.Errorf("failed to find internal partial decorator template %q after insertion", internalPartialName)
 			return
 		}
+		ti.decoratorOwner = c.t
 
 		cc := newTemplateTransformContext(ti, c.store, c.lookupFn)
 
