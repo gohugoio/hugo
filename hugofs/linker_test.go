@@ -57,10 +57,11 @@ func TestLinker(t *testing.T) {
 	// Not an OS destination.
 	c.Assert(l.Link(src, NewBasePathFs(&afero.MemMapFs{}, "/public"), "d.txt"), qt.IsFalse)
 
-	// Read-only source.
+	// Read-only source, e.g. from the module cache.
 	ro := filepath.Join(dir, "ro.txt")
 	c.Assert(os.WriteFile(ro, []byte("ro"), 0o444), qt.IsNil)
-	c.Assert(l.Link(ro, pubFs, "ro.txt"), qt.IsFalse)
+	c.Assert(l.Link(ro, pubFs, "ro.txt"), qt.IsTrue)
+	assertSameFile(ro, filepath.Join(pubDir, "ro.txt"), true)
 
 	// Symlink source.
 	if runtime.GOOS != "windows" {

@@ -1336,7 +1336,7 @@ config:
     cacheBusters:
     - source: '(postcss|tailwind)\.config\.(js|mjs|cjs)'
       target: (css|styles|scss|sass)
-    noHardlinks: false
+    hardlinks: false
     noJSConfigInAssets: false
     useResourceCacheWhen: fallback
   buildDrafts: false

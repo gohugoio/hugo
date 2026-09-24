@@ -289,7 +289,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 
 		sourceFs := hugofs.Os
 		var osFs afero.Fs = hugofs.Os
-		if !base.Build.NoHardlinks {
+		if base.Build.Hardlinks {
 			// Writes must not modify the source of a hard link.
 			osFs = hugofs.NewUnlinkOnCreateFs(osFs)
 		}
@@ -309,7 +309,7 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 		}
 
 		fs := hugofs.NewFromSourceAndDestination(sourceFs, destinationFs, cfg)
-		if !base.Build.NoHardlinks {
+		if base.Build.Hardlinks {
 			fs.Linker = &hugofs.Linker{}
 		}
 
