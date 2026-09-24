@@ -11,10 +11,13 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Publish` method on a `Resource` object writes the resource to the publish directory, typically `public`.
+The `Publish` method on a `Resource` object writes the given resource to the [`publishDir`][].
 
-```go-html-template
-{{ with resources.Get "images/a.jpg" }}
+This example uses [`resources.FromString`][] to create a resource from a string, then publishes it:
+
+```go-html-template {file="layouts/baseof.html"}
+{{ $content := printf "Contact: mailto:%s\n" site.Params.email }}
+{{ with resources.FromString ".well-known/security.txt" $content }}
   {{ .Publish }}
 {{ end }}
 ```
@@ -30,3 +33,9 @@ Instead of this:
 ```go-html-template
 {{ $noop := $resource.Permalink }}
 ```
+
+To publish a resource within a pipeline, use the [`resources.Publish`][] function instead.
+
+[`publishDir`]: /configuration/all/#publishdir
+[`resources.FromString`]: /functions/resources/fromstring/
+[`resources.Publish`]: /functions/resources/publish/

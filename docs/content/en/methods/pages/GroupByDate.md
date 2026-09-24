@@ -9,6 +9,8 @@ params:
     signatures: ['PAGES.GroupByDate LAYOUT [SORT]']
 ---
 
+## Usage
+
 When grouping by date, the value is determined by your [project configuration][], defaulting to the `date` field in front matter.
 
 The [layout string](#layout-string) has the same format as the layout string for the [`time.Format`][] function. The resulting group key is [localized](g) for language and region.

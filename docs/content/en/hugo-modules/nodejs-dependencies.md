@@ -20,7 +20,7 @@ after v0.174.0, 15 minor releases after the improvement.
 > [!NOTE]
 > We improved this setup greatly in Hugo [v0.159.0][], but we kept the old `package.hugo.json` in the search path. Mostly to preserve as much backward compatibility as possible, but it may also be useful in some situations to reserve a separate set of Node dependencies for Hugo.
 
-## Consolidating with `hugo mod npm pack`
+## Consolidating dependencies
 
 Run [`hugo mod npm pack`][] to collect Node dependencies from all modules and write them to `packages/hugoautogen/package.json`. Hugo also adds a `workspaces` entry to your project's root `package.json` pointing to this auto-generated package.
 

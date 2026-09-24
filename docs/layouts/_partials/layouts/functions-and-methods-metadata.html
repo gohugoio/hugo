@@ -1,0 +1,34 @@
+<dl>
+	{{- $dtClass := "font-bold text-dark dark:text-light" }}
+	{{- $ddClass := "font-sm font-mono ml-3 sm:ml-6 mt-0 sm:mt-1" }}
+	{{- with .Params.functions_and_methods.signatures }}
+		<dt class="{{ $dtClass }}">Syntax</dt>
+		{{- range . }}
+			{{- $signature := . }}
+			{{- if $.Params.function.returnType }}
+				{{- $signature = printf "%s ⟼ %s" . $.Params.function.returnType }}
+			{{- end }}
+			<dd class="{{ $ddClass }}">
+				{{- $signature -}}
+			</dd>
+		{{- end }}
+	{{- end }}
+	{{- with .Params.functions_and_methods.returnType }}
+		<dt class="{{ $dtClass }}">Returns</dt>
+		<dd class="{{ $ddClass }}">
+			{{- . -}}
+		</dd>
+	{{- end }}
+	{{- with .Params.functions_and_methods.aliases }}
+		{{- $label := "Alias" }}
+		{{- if gt (len .) 1 }}
+			{{- $label = "Aliases" }}
+		{{- end }}
+		<dt class="{{ $dtClass }}">{{ $label }}</dt>
+		{{- range . }}
+			<dd class="{{ $ddClass }}">
+				{{- . -}}
+			</dd>
+		{{- end }}
+	{{- end }}
+</dl>

@@ -14,7 +14,12 @@ This is the default security configuration:
 
 `allowContent`
 : {{< new-in 0.162.0 />}}
-: (`[]string`) A slice of [regular expressions](g) matching the [media type](g) of [content formats](g) allowed in the `content` directory. By default, the HTML content format (media type `text/html`) is denied. Hugo emits HTML file content verbatim, which could allow arbitrary JavaScript execution. See the [classification][] table for a mapping of content formats to media types.
+: (`[]string`) A slice of [regular expressions](g) matching the [media type](g) of [content formats](g) allowed in the `content` directory. By default, Hugo denies the following content formats:
+
+  - Emacs Org Mode (media type `text/org`): Hugo renders export blocks and `@@html:...@@` snippets verbatim, which can allow arbitrary JavaScript execution. See [details](https://orgmode.org/manual/Quoting-HTML-tags.html#Quoting-HTML-tags-1).
+  - HTML (media type `text/html`): Hugo renders HTML file content verbatim, which can allow arbitrary JavaScript execution.
+
+  See the [classification][] table for a mapping of content formats to media types.
 
 `enableInlineShortcodes`
 : (`bool`) Whether to enable [inline shortcodes][]. Default is `false`.

@@ -1,6 +1,6 @@
 ---
 title: math.Mul
-description: Multiplies two or more numbers.
+description: Returns the result of multiplying the first number by one or more numbers.
 categories: []
 keywords: []
 params:

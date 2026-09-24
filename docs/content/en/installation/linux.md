@@ -14,6 +14,8 @@ weight: 20
 
 ## Package managers
 
+You can also install Hugo using one of the following package managers.
+
 ### Snap
 
 [Snap][] is a free and open-source package manager for Linux. Available for [most distributions][], snap packages are simple to install and are automatically updated.

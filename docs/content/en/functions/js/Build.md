@@ -1,6 +1,6 @@
 ---
 title: js.Build
-description: Bundle, transpile, tree shake, and minify JavaScript resources.
+description: Returns a resource created by bundling, transpiling, tree shaking, and minifying the given JavaScript resource.
 categories: []
 keywords: []
 params:
@@ -55,7 +55,7 @@ The `js.Build` function accepts an options map.
 
 {{% include "/_common/functions/js/options.md" %}}
 
-## Import JS code from the assets directory
+## Import from the assets directory
 
 `js.Build` has full support for Hugo's [unified file system](g). You can see some simple examples in this [test project][], but in short this means that you can do this:
 

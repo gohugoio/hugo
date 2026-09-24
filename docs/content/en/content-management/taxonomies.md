@@ -10,8 +10,6 @@ aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/index
 
 Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications of logical relationships between content.
 
-### Definitions
-
 Taxonomy
 : A categorization that can be used to classify content
 
@@ -21,7 +19,7 @@ Term
 Value
 : A piece of content assigned to a term
 
-## Example taxonomy: movie website
+## Example taxonomy
 
 Let's assume you are making a website about movies. You may want to include the following taxonomies:
 

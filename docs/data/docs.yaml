@@ -2203,23 +2203,29 @@ config:
     indices:
     - applyFilter: false
       cardinalityThreshold: 0
+      minTokenLength: 0
       name: keywords
       pattern: ''
       toLower: false
+      tokenize: false
       type: basic
       weight: 100
     - applyFilter: false
       cardinalityThreshold: 0
+      minTokenLength: 0
       name: date
       pattern: ''
       toLower: false
+      tokenize: false
       type: basic
       weight: 10
     - applyFilter: false
       cardinalityThreshold: 0
+      minTokenLength: 0
       name: tags
       pattern: ''
       toLower: false
+      tokenize: false
       type: basic
       weight: 80
     threshold: 80
@@ -2235,6 +2241,7 @@ config:
   security:
     allowContent:
     - '! ^text/html$'
+    - '! ^text/org$'
     enableInlineShortcodes: false
     exec:
       allow:
@@ -4097,6 +4104,12 @@ tpl:
         Args:
         - r
         Description: 'PostProcess processes r after the build.\n\nDeprecated: Use templates.Defer instead.'
+        Examples: []
+      Publish:
+        Aliases: null
+        Args:
+        - r
+        Description: Publish publishes r to the destination and returns it.
         Examples: []
     safe:
       CSS:

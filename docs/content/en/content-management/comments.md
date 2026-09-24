@@ -29,7 +29,7 @@ For many websites, this is enough configuration. However, you also have the opti
 - `params.disqus_title`
 - `params.disqus_url`
 
-### Render Hugo's embedded Disqus partial
+### Render the partial
 
 To render it, add the following code where you want comments to appear:
 

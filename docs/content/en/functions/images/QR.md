@@ -1,6 +1,6 @@
 ---
 title: images.QR
-description: Encodes the given text into a QR code using the specified options, returning an image resource.
+description: Returns an image resource containing a QR code encoded from the given text using the specified options.
 keywords: []
 params:
   functions_and_methods:

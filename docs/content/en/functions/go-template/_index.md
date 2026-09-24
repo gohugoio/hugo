@@ -1,7 +1,7 @@
 ---
-title: Go template functions, operators, and statements
+title: Go template functions and statements
 linkTitle: go template
-description: These are the functions, operators, and statements provided by Go's text/template package.
+description: Use these functions and statements to write conditionals, loops, and other template logic.
 categories: []
 keywords: []
 ---

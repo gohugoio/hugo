@@ -299,7 +299,7 @@ content/
     └── _index.en.md
 ```
 
-### Translations by content directory
+### Translations by directory
 
 With this project configuration:
 

@@ -77,6 +77,8 @@ sequenceDiagram
 
 ## Goat ASCII diagram examples
 
+The following examples demonstrate the range of diagrams you can create with GoAT.
+
 ### Graphics
 
 ```goat

@@ -63,7 +63,7 @@ Without any additional configuration, the following will automatically work:
 
 The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseURL = "https://example.org/"` in your [project configuration][].
 
-### Index pages: `_index.md`
+### Index pages
 
 `_index.md` has a special role in Hugo. It allows you to add front matter and content to `home`, `section`, `taxonomy`, and `term` pages.
 
@@ -126,24 +126,20 @@ https://example.org/posts/my-first-hugo-post/index.html
 
 The following concepts provide more insight into the relationship between your project's organization and the default Hugo behavior when building output for the website.
 
-### `section`
+section
+: A default content type is determined by the section in which a content item is stored. The section is determined by the location within the project's `content` directory. The section cannot be specified or overridden in front matter.
 
-A default content type is determined by the section in which a content item is stored. `section` is determined by the location within the project's `content` directory. `section` cannot be specified or overridden in front matter.
+slug
+: The slug is the last segment of the URL path, defined by the file name and optionally overridden by a `slug` value in front matter. See [URL management][slug] for details.
 
-### `slug`
+path
+: A content's path is determined by the section's path to the file. The file path:
 
-The `slug` is the last segment of the URL path, defined by the file name and optionally overridden by a `slug` value in front matter. See [URL management][slug] for details.
+  - Is based on the path to the content's location AND
+  - Does not include the slug
 
-### `path`
-
-A content's `path` is determined by the section's path to the file. The file `path`:
-
-- Is based on the path to the content's location AND
-- Does not include the slug
-
-### `url`
-
-The `url` is the entire URL path, defined by the file path and optionally overridden by a `url` value in front matter. See [URL management][url] for details.
+url
+: The url is the entire URL path, defined by the file path and optionally overridden by a `url` value in front matter. See [URL management][url] for details.
 
 [image processing]: /content-management/image-processing/
 [page resources]: /content-management/page-resources/

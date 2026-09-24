@@ -1,6 +1,6 @@
 ---
 title: css.Sass
-description: Transpiles Sass to CSS.
+description: Returns a resource created by transpiling the given Sass resource to CSS.
 categories: []
 keywords: []
 params:
@@ -290,7 +290,7 @@ If you have been using Embedded Dart Sass[^1] with Hugo v0.113.0 and earlier, un
 
 If you install Hugo as a [Snap package][] there is no need to install Dart Sass. The Hugo Snap package includes Dart Sass.
 
-### Installing in a development environment
+### Development environment
 
 When you install Dart Sass somewhere in your PATH, Hugo will find it.
 
@@ -309,7 +309,7 @@ Run `hugo env` to list the active transpilers.
 > [!NOTE]
 > If you build Hugo from source and run `mage test -v`, the test will fail if you install Dart Sass as a Snap package. This is due to the Snap package's strict confinement model.
 
-### Installing in a production environment
+### Production environment
 
 To use Dart Sass with Hugo on a [CI/CD](g) platform, you typically must modify your build workflow to install Dart Sass before the Hugo site build begins. This is because these platforms don't have Dart Sass pre-installed, and Hugo needs it to process your Sass files.
 

@@ -1,6 +1,6 @@
 ---
 title: GitInfo
-description: Provides access to commit metadata for a given page.
+description: Returns commit metadata for the given page.
 categories: []
 keywords: []
 params:

@@ -1,6 +1,6 @@
 ---
 title: continue
-description: Used with the range statement, stops the innermost iteration and continues to the next iteration.
+description: Stops the innermost range iteration and continues with the next iteration.
 categories: []
 keywords: []
 params:

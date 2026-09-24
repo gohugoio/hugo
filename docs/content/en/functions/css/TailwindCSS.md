@@ -1,6 +1,6 @@
 ---
 title: css.TailwindCSS
-description: Processes the given resource with the Tailwind CSS CLI.
+description: Returns a resource created by processing the given resource with the Tailwind CSS CLI.
 categories: []
 keywords: []
 params:

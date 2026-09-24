@@ -1,7 +1,7 @@
 ---
 title: Inflect functions
 linkTitle: inflect
-description: These functions provide word inflection features such as singularization and pluralization of English nouns.
+description: Use these functions for word inflection, such as singularization and pluralization of English nouns.
 categories: []
 keywords: []
 ---

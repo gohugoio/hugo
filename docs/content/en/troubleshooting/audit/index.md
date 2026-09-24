@@ -20,6 +20,8 @@ _Tested with GNU Bash 5.1 and GNU grep 3.7._
 
 ## Explanation
 
+The command above uses these environment variables, `grep` options, and patterns.
+
 ### Environment variables
 
 `HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true`

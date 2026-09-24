@@ -1,6 +1,6 @@
 ---
 title: Width
-description: Applicable to images, returns the width of the given resource.
+description: Returns the width of the given image resource.
 categories: []
 keywords: []
 params:

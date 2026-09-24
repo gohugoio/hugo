@@ -18,7 +18,9 @@ You can change the structure and appearance of URLs with front matter values and
 
 ## Front matter
 
-### `slug`
+Override the default URL for a page using these front matter fields.
+
+### Slug
 
 Set the `slug` in front matter to override the last segment of the path. This front matter field is not applicable to `home`, `section`, `taxonomy`, or `term` pages.
 
@@ -33,7 +35,7 @@ The resulting URL will be:
 https://example.org/posts/my-first-post/
 ```
 
-### `url`
+### URL
 
 Set the `url` in front matter to override the entire path. Use this with either regular pages or section pages.
 
@@ -46,8 +48,6 @@ Set the `url` in front matter to override the entire path. Use this with either 
 If you set both `slug` and `url` in front matter, the `url` value takes precedence.
 
 #### Include a colon
-
-{{< new-in 0.136.0 />}}
 
 If you need to include a colon in the  `url` front matter field, escape it with backslash characters. Use one backslash if you wrap the string within single quotes, or use two backslashes if you wrap the string within double quotes. With YAML front matter, use a single backslash if you omit quotation marks.
 
@@ -120,6 +120,8 @@ Use any of these tokens:
 {{% include "/_common/permalink-tokens.md" %}}
 
 ## Project configuration
+
+Configure permalinks, URL appearance, and post-processing in your project configuration.
 
 ### Permalinks
 

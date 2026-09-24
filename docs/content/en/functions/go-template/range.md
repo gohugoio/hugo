@@ -11,6 +11,8 @@ params:
 aliases: [/functions/range]
 ---
 
+## Usage
+
 The collection may be a slice, a map, or an integer.
 
 ```go-html-template
@@ -35,8 +37,6 @@ Within a range block:
 
 - Use the [`continue`][] statement to stop the innermost iteration and continue to the next iteration
 - Use the [`break`][] statement to stop the innermost iteration and bypass all remaining iterations
-
-## Understanding context
 
 See the [context][] section in the introduction to templating.
 
@@ -75,6 +75,8 @@ This template will render the page title three times:
 > Gaining a thorough understanding of context is critical for anyone writing template code.
 
 ## Examples
+
+The following examples demonstrate ranging over different collection types.
 
 ### Slice of scalars
 

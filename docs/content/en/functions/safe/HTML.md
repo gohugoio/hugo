@@ -1,6 +1,6 @@
 ---
 title: safe.HTML
-description: Declares the given string as a safeHTML string.
+description: Returns the given string declared as safe HTML.
 categories: []
 keywords: []
 params:

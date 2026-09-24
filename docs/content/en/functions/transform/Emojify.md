@@ -1,6 +1,6 @@
 ---
 title: transform.Emojify
-description: Runs a string through the Emoji emoticons processor.
+description: Returns the given string with emoji shortcodes replaced by their corresponding emoji characters.
 categories: []
 keywords: []
 params:
@@ -10,8 +10,6 @@ params:
     signatures: [transform.Emojify INPUT]
 aliases: [/functions/emojify]
 ---
-
-`emojify` runs a passed string through the Emoji emoticons processor.
 
 See the list of [emoji shortcodes][] for available emoticons.
 

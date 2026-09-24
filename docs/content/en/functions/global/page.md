@@ -1,15 +1,17 @@
 ---
 title: page
-description: Provides global access to a Page object.
+description: Returns the Page object of the current page, accessible from any context.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType:
+    returnType: page.Page
     signatures: [page]
 aliases: [/functions/page]
 ---
+
+## Usage
 
 At the top level of a template that receives a `Page` object in context, these are equivalent:
 
@@ -26,9 +28,7 @@ When a `Page` object is not in context, you can use the global `page` function:
 ```
 
 > [!NOTE]
-> Do not use the global `page` function in shortcodes, _partial_ templates called by shortcodes, or cached _partial_ templates. See [warnings](#warnings) below.
-
-## Explanation
+> Do not use the global `page` function in shortcodes, _partial_ templates called by shortcodes, or cached _partial_ templates. See [examples](#examples) below.
 
 Hugo almost always passes a `Page` as the data context into the top-level template (e.g., `baseof.html`). The one exception is the multihost sitemap template. This means that you can access the current page with the `.` in the template.
 
@@ -36,7 +36,9 @@ However, when deeply nested inside a [partial template](g) or [render hook](g), 
 
 Use the global `page` function to access the `Page` object from anywhere in any template.
 
-## Warnings
+## Examples
+
+The following examples demonstrate common pitfalls when using the global `page` function.
 
 ### Be aware of top-level context
 

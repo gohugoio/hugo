@@ -64,6 +64,10 @@ To reverse the meaning of _next_ and _previous_ you can chain the [`Reverse`][] 
 {{ end }}
 ```
 
+> [!TIP]
+> If you also need the page's position within the collection, use the [`IndexOf`][] method instead. For example, use it to render "post 2 of 3" alongside the previous and next links.
+
+[`IndexOf`]: /methods/pages/indexof/
 [`Reverse`]: /methods/pages/reverse/
 [`date`]: /methods/page/date/
 [`linkTitle`]: /methods/page/linktitle/

@@ -38,13 +38,13 @@ Step 1
       staticPublishPath: public
       envVars:
         - key: DART_SASS_VERSION
-          value: 1.102.0
+          value: 1.104.0
         - key: GO_VERSION
-          value: 1.26.5
+          value: 1.27.0
         - key: HUGO_VERSION
-          value: 0.165.0
+          value: 0.166.0
         - key: NODE_VERSION
-          value: 24.19.0
+          value: 24.20.0
         - key: TZ
           value: Europe/Oslo
   ```
@@ -141,7 +141,7 @@ Step 2
   ```
 
 Step 3
-: In your project configuration, change the location of the image cache to the [`cacheDir`][] as shown below:
+: In the project configuration file in the root of your local Git repository, set the location of the image cache to the [`cacheDir`][] as shown below.
 
   {{< code-toggle file=hugo copy=true >}}
   [caches.images]
@@ -205,6 +205,15 @@ Step 14
 
 In the future, whenever you push a change from your local Git repository, Render will rebuild and deploy your site.
 
+## Related resources
+
+For more information on hosting and managing your site with Render, consult the official documentation:
+
+- [General documentation][]
+- [Custom domain setup][]
+
+[Custom domain setup]: https://render.com/docs/custom-domains
+[General documentation]: https://render.com/docs/static-sites
 [`cacheDir`]: /configuration/all/#cachedir
 [configure file caches]: /configuration/caches/
 [dashboard]: https://dashboard.render.com/

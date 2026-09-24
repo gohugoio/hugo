@@ -1,6 +1,6 @@
 ---
 title: Resize
-description: Applicable to images, returns a new image resource resized according to the given processing specification.
+description: Returns a new image resource resized according to the given processing specification.
 categories: []
 keywords: []
 params:

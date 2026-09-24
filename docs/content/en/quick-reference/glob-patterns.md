@@ -11,26 +11,27 @@ The table below details the supported glob pattern syntax and its matching behav
 
 | Match type | Glob pattern | Test string | Match? |
 | :--- | :--- | :--- | :--- |
-| Simple wildcard | `a/*.md` | `a/page.md` | true |
-| Literal match | `'a/*.md'` | `a/*.md` | true |
-| Single-level wildcard | `a/*/page.md` | `a/b/page.md` | true |
-| Single-level wildcard | `a/*/page.md` | `a/b/c/page.md` | false |
-| Multi-level wildcard | `a/**/page.md` | `a/b/c/page.md` | true |
-| Single character | `file.???` | `file.txt` | true |
-| Single character | `file.???` | `file.js` | false |
+| Simple wildcard | `images/*.jpg` | `images/a.jpg` | true |
+| Literal match | `images/a\*.jpg` | `images/a*.jpg` | true |
+| Single-level wildcard | `images/*/a.jpg` | `images/foo/a.jpg` | true |
+| Single-level wildcard | `images/*/a.jpg` | `images/foo/bar/a.jpg` | false |
+| Multi-level wildcard | `images/**/a.jpg` | `images/foo/bar/a.jpg` | true |
+| Multi-level wildcard | `images/**/a.jpg` | `images/a.jpg` | false |
+| Single character | `image.???` | `image.jpg` | true |
+| Single character | `image.???` | `image.avif` | false |
 | Delimiter exclusion | `?at` | `f/at` | false |
-| Character list | `f.[jt]xt` | `f.txt` | true |
-| Negated list | `f.[!j]xt` | `f.txt` | true |
-| Character range | `f.[a-c].txt` | `f.b.txt` | true |
-| Character range | `f.[a-c].txt` | `f.z.txt` | false |
-| Negated range | `f.[!a-c].txt` | `f.z.txt` | true |
-| Pattern alternates | `*.{jpg,png}` | `logo.png` | true |
-| No match | `*.{jpg,png}` | `logo.webp` | false |
+| Character list | `images/a.[jp]pg` | `images/a.jpg` | true |
+| Negated list | `images/a.[!p]pg` | `images/a.jpg` | true |
+| Character range | `images/a-[a-c].jpg` | `images/a-b.jpg` | true |
+| Character range | `images/a-[a-c].jpg` | `images/a-z.jpg` | false |
+| Negated range | `images/a-[!a-c].jpg` | `images/a-z.jpg` | true |
+| Pattern alternates | `images/*.{jpg,png}` | `images/logo.png` | true |
+| No match | `images/*.{jpg,png}` | `images/logo.webp` | false |
 
 The matching logic follows these rules:
 
 - Standard wildcard (`*`) matches any character except for a delimiter.
-- Super wildcard (`**`) matches any character including delimiters.
+- Super wildcard (`**`) matches any character including delimiters, but when placed between two delimiters it requires at least one intervening character; it does not match zero directories.
 - Single character (`?`) matches exactly one character, excluding delimiters.
 - Negation (`!`) matches any character except those specified in a list or range when used inside brackets.
 - Character ranges (`[a-z]`) match any single character within the specified range.

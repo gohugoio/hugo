@@ -50,9 +50,7 @@
 
 		{{ if .Params.functions_and_methods.signatures }}
 			<div class="mb-4 not-prose">
-				{{- partial "docs/functions-signatures.html" . -}}
-				{{- partial "docs/functions-return-type.html" . -}}
-				{{- partial "docs/functions-aliases.html" . -}}
+				{{- partial "layouts/functions-and-methods-metadata.html" . -}}
 			</div>
 		{{ end }}
 		{{ $t := debug.Timer "single.content" }}

@@ -46,10 +46,10 @@ Step 2
       runs-on: codeberg-small
       env:
         # Define tool versions
-        DART_SASS_VERSION: 1.102.0
-        GO_VERSION: 1.26.5
-        HUGO_VERSION: 0.165.0
-        NODE_VERSION: 24.19.0
+        DART_SASS_VERSION: 1.104.0
+        GO_VERSION: 1.27.0
+        HUGO_VERSION: 0.166.0
+        NODE_VERSION: 24.20.0
 
         # Set the build time zone
         TZ: Europe/Oslo
@@ -170,7 +170,7 @@ Step 2
   ```
 
 Step 3
-: In your project configuration, change the location of the image cache to the [`cacheDir`][] as shown below:
+: In the project configuration file in the root of your local Git repository, set the location of the image cache to the [`cacheDir`][] as shown below.
 
   {{< code-toggle file=hugo copy=true >}}
   [caches.images]
@@ -247,7 +247,16 @@ Runner|Notes
 `codeberg-small`|A reasonable middle ground for projects with a moderate amount of image processing. Queue times can exceed 30 minutes under heavy load. If your deployment is not time-sensitive, consider using `codeberg-small-lazy` instead.
 `codeberg-medium`|Demand for these runners is high, making queue times impractical for routine deployments.
 
+## Related resources
+
+For more information on hosting and managing your site with Codeberg Pages, consult the official documentation:
+
+- [General documentation][]
+- [Custom domain setup][]
+
 [Codeberg documentation]: https://docs.codeberg.org/codeberg-pages/forgejo-actions/
+[Custom domain setup]: https://docs.codeberg.org/codeberg-pages/using-custom-domain/
+[General documentation]: https://docs.codeberg.org/codeberg-pages/
 [`cacheDir`]: /configuration/all/#cachedir
 [configure file caches]: /configuration/caches/
 [hosted runners]: https://codeberg.org/actions/meta#available-runners

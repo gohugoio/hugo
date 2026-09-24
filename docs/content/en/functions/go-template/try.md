@@ -7,12 +7,12 @@ params:
   functions_and_methods:
     aliases: []
     returnType: TryValue
-    signatures: ['try EXPRESSION']
+    signatures: ['try EXPR']
 ---
 
 {{< new-in 0.141.0 />}}
 
-The `try` statement is a non-standard extension to Go's [`text/template`][] package. It introduces a mechanism for handling errors within templates, mimicking the `try-catch` constructs found in other programming languages.
+The `try` function is a non-standard extension to Go's [`text/template`][] package. It introduces a mechanism for handling errors within templates, mimicking the `try-catch` constructs found in other programming languages.
 
 ## Methods
 
@@ -100,7 +100,7 @@ Instead of failing the build, we can catch the error and emit a warning:
 {{ end }}
 ```
 
-In the above, note that the [context](g) within the last conditional block is the `TryValue` object returned by the `try` statement. At this point neither the `Err` nor `Value` methods returned anything, so the current context is not useful. Use the `$` to access the [template context][] if needed.
+In the above, note that the [context](g) within the last conditional block is the `TryValue` object returned by the `try` function. At this point neither the `Err` nor `Value` methods returned anything, so the current context is not useful. Use the `$` to access the [template context][] if needed.
 
 > [!NOTE]
 > Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns `nil`.

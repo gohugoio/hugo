@@ -1,6 +1,6 @@
 ---
 title: templates.Defer
-description: Defer execution of a template until all sites and output formats have been rendered.
+description: Defers execution of a template until all sites and output formats have been rendered.
 categories: []
 keywords: []
 params:
@@ -10,6 +10,8 @@ params:
     signatures: [templates.Defer OPTIONS]
 aliases: [/functions/templates.defer]
 ---
+
+## Usage
 
 The `templates.Defer` function defers the execution of a template until all sites and output formats have been rendered.
 
@@ -21,7 +23,31 @@ The `templates.Defer` function defers the execution of a template until all site
 >
 > Variables defined on the outside are not visible on the inside and vice versa. To pass in data, use the `data` option.
 
+The `templates.Defer` function requires a single argument, a map with the following optional keys:
+
+`key`
+: (`string`) The key to use for the deferred template. This will, combined with a hash of the template content, be used as a cache key. Without this key, Hugo executes the deferred template on every render, which is inefficient for shared resources like CSS and JavaScript.
+
+`data`
+: (`map`) Optional map to pass as data to the deferred template. This will be available in the deferred template as `.` or `$`.
+
+```go-html-template
+Language Outside: {{ site.Language.Name }}
+Page Outside: {{ .RelPermalink }}
+I18n Outside: {{ i18n "hello" }}
+{{ $data := (dict "page" . )}}
+{{ with (templates.Defer (dict "data" $data )) }}
+     Language Inside: {{ site.Language.Name }}
+     Page Inside: {{ .page.RelPermalink }}
+     I18n Inside: {{ i18n "hello" }}
+{{ end }}
+```
+
+The [output format][], [site][], and [language][] will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Name` and `.RelPermalink` will be the same on the inside and the outside of the deferred template.
+
 ## Examples
+
+The following examples defer CSS processing until Hugo has finished rendering all pages.
 
 ### Process Tailwind CSS
 
@@ -150,30 +176,6 @@ Step 6
     {{ end }}
   {{ end }}
   ```
-
-## Options
-
-The `templates.Defer` function requires a single argument, a map with the following optional keys:
-
-`key`
-: (`string`) The key to use for the deferred template. This will, combined with a hash of the template content, be used as a cache key. Without this key, Hugo executes the deferred template on every render, which is inefficient for shared resources like CSS and JavaScript.
-
-`data`
-: (`map`) Optional map to pass as data to the deferred template. This will be available in the deferred template as `.` or `$`.
-
-```go-html-template
-Language Outside: {{ site.Language.Name }}
-Page Outside: {{ .RelPermalink }}
-I18n Outside: {{ i18n "hello" }}
-{{ $data := (dict "page" . )}}
-{{ with (templates.Defer (dict "data" $data )) }}
-     Language Inside: {{ site.Language.Name }}
-     Page Inside: {{ .page.RelPermalink }}
-     I18n Inside: {{ i18n "hello" }}
-{{ end }}
-```
-
-The [output format][], [site][], and [language][] will be the same, even if the execution is deferred. In the example above, this means that the `site.Language.Name` and `.RelPermalink` will be the same on the inside and the outside of the deferred template.
 
 [Node.js]: https://nodejs.org/en
 [`PurgeCSS`]: https://github.com/FullHuman/purgecss

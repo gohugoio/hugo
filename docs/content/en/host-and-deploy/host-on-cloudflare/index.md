@@ -58,10 +58,10 @@ Step 2
   set -euo pipefail
 
   # Define tool versions
-  DART_SASS_VERSION=1.102.0
-  GO_VERSION=1.26.5
-  HUGO_VERSION=0.165.0
-  NODE_VERSION=24.19.0
+  DART_SASS_VERSION=1.104.0
+  GO_VERSION=1.27.0
+  HUGO_VERSION=0.166.0
+  NODE_VERSION=24.20.0
 
   # Set the build time zone
   TZ=Europe/Oslo
@@ -159,7 +159,7 @@ Step 2
   ```
 
 Step 3
-: In your project configuration, change the location of the image cache to the [`cacheDir`][] as shown below:
+: In the project configuration file in the root of your local Git repository, set the location of the image cache to the [`cacheDir`][] as shown below.
 
   {{< code-toggle file=hugo copy=true >}}
   [caches.images]
@@ -267,6 +267,16 @@ Step 4
 > [!NOTE]
 > The schedule event can be delayed during periods of high loads of GitHub Actions workflow runs. High load times include the start of every hour. If the load is sufficiently high enough, some queued jobs may be dropped. To decrease the chance of delay, schedule your workflow to run at a different time of the hour, or use a dedicated third-party scheduling service such as [Google Cloud Scheduler][] or [cron-job.org][].
 
+## Related resources
+
+For more information on hosting and managing your site with Cloudflare Workers, consult the official documentation:
+
+- [General documentation][]
+- [Custom domain setup][]
+
+[Custom domain setup]: https://developers.cloudflare.com/workers/configuration/routing/custom-domains/
+[General documentation]: https://developers.cloudflare.com/workers/
+[Google Cloud Scheduler]: https://docs.cloud.google.com/scheduler/docs/overview
 [`cacheDir`]: /configuration/all/#cachedir
 [`cron`]: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
 [`resources.GetRemote`]: /functions/resources/getremote/
@@ -274,4 +284,3 @@ Step 4
 [cron-job.org]: https://cron-job.org/en/
 [dashboard]: https://dash.cloudflare.com/
 [remote]: https://git-scm.com/docs/git-remote
-[Google Cloud Scheduler]: https://docs.cloud.google.com/scheduler/docs/overview
