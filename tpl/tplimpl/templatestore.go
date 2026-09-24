@@ -967,10 +967,12 @@ func (t *TemplateStore) addDeferredTemplate(owner *TemplInfo, name string, n *pa
 	}
 
 	t.templatesByPath.Set(name, &TemplInfo{
-		Fi:       owner.Fi,
-		PathInfo: owner.PathInfo,
-		D:        owner.D,
-		Template: templ,
+		Fi:             owner.Fi,
+		PathInfo:       owner.PathInfo,
+		D:              owner.D,
+		Template:       templ,
+		category:       owner.category,
+		decoratorOwner: owner.decoratorOwner,
 	})
 
 	return nil

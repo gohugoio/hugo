@@ -540,3 +540,22 @@ helper
 
 	b.Assert(err, qt.ErrorMatches, `(?s).*relative partial path "../../helper.html" in "_partials/a/main.html" resolves outside the partials directory.*`)
 }
+
+func TestIncludeRelativePathInDeferredBlock(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "taxonomy", "term", "sitemap", "RSS"]
+-- layouts/home.html --
+{{ partial "a/main.html" . }}
+-- layouts/_partials/a/main.html --
+{{ with (templates.Defer (dict "key" "a")) }}deferred:{{ partial "./helper.html" . }}{{ end }}
+-- layouts/_partials/a/helper.html --
+a/helper
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "deferred:a/helper")
+}
