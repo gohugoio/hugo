@@ -185,6 +185,31 @@ func IsOsFs(fs afero.Fs) bool {
 	return isOsFs
 }
 
+// RealFilename returns the OS filename for name in fs.
+// It returns false if fs is not backed by the OS file system.
+func RealFilename(fs afero.Fs, name string) (string, bool) {
+	var isOsFs bool
+	WalkFilesystems(fs, func(fs afero.Fs) bool {
+		switch v := fs.(type) {
+		case *afero.OsFs:
+			isOsFs = true
+			return true
+		case filesystemsWrapper:
+			if bfs, ok := v.Fs.(*afero.BasePathFs); ok {
+				var err error
+				if name, err = bfs.RealPath(name); err != nil {
+					return true
+				}
+			}
+		}
+		return false
+	})
+	if !isOsFs {
+		return "", false
+	}
+	return name, true
+}
+
 // FilesystemsUnwrapper returns the underlying filesystems.
 type FilesystemsUnwrapper interface {
 	UnwrapFilesystems() []afero.Fs

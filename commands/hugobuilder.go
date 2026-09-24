@@ -466,18 +466,14 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 
 	fs := &countingStatFs{Fs: sourceFs.Fs}
 
-	syncer := fsync.NewSyncer()
-	var clean config.CleanDestinationDir
+	var (
+		syncer *fsync.Syncer
+		clean  config.CleanDestinationDir
+	)
 	c.withConf(func(conf *commonConfig) {
-		syncer.NoTimes = conf.configs.Base.NoTimes
-		syncer.NoChmod = conf.configs.Base.NoChmod
-		syncer.ChmodFilter = chmodFilter
-
-		syncer.DestFs = conf.fs.PublishDirStatic
+		syncer = newStaticSyncer(conf, fs)
 		clean = conf.configs.Base.Build.CleanDestinationDir
 	})
-
-	syncer.SrcFs = fs
 
 	start := time.Now()
 
@@ -504,6 +500,33 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	numFiles := fs.statCounter / 2
 
 	return numFiles, nil
+}
+
+func newStaticSyncer(conf *commonConfig, srcFs afero.Fs) *fsync.Syncer {
+	syncer := fsync.NewSyncer()
+	syncer.NoTimes = conf.configs.Base.NoTimes
+	syncer.NoChmod = conf.configs.Base.NoChmod
+	syncer.ChmodFilter = chmodFilter
+	syncer.SrcFs = srcFs
+	syncer.DestFs = conf.fs.PublishDirStatic
+	if !conf.configs.Base.Build.NoHardlinks && hugofs.IsOsFs(syncer.DestFs) {
+		syncer.Link = func(dst, src string, sstat os.FileInfo) error {
+			if sstat.Mode().Perm()&0o200 == 0 {
+				// Copy read-only files (e.g. from the module cache), see chmodFilter.
+				return errors.New("source is not writable")
+			}
+			fim, ok := sstat.(hugofs.FileMetaInfo)
+			if !ok {
+				return errors.New("source is not a hugofs.FileMetaInfo")
+			}
+			dstFilename, ok := hugofs.RealFilename(syncer.DestFs, dst)
+			if !ok {
+				return errors.New("destination is not an OS file")
+			}
+			return os.Link(fim.Meta().Filename, dstFilename)
+		}
+	}
+	return syncer
 }
 
 // removeStale removes entries in dstDir on dst that keep reports as false and

@@ -1,0 +1,48 @@
+# Static files are hard linked into public when possible.
+hugo --cleanDestinationDir
+samefile static/a.txt public/a.txt
+samefile static/sub/b.txt public/sub/b.txt
+grep 'a' public/a.txt
+
+# Generated files take precedence over static files without modifying the source.
+grep 'generated' public/robots.txt
+! samefile static/robots.txt public/robots.txt
+grep 'static robots' static/robots.txt
+
+# Replaced source files get relinked.
+cp static/b.txt static/a.txt
+hugo --cleanDestinationDir
+samefile static/a.txt public/a.txt
+grep 'b' public/a.txt
+
+# Read-only sources are copied so the published file can be made writable.
+rm public
+chmod 444 static/b.txt
+hugo --cleanDestinationDir
+! samefile static/b.txt public/b.txt
+[!windows] exec sh -c 'test -w public/b.txt'
+
+# Hard links can be disabled.
+replace hugo.toml 'noHardlinks = false' 'noHardlinks = true'
+rm public
+hugo --cleanDestinationDir
+! samefile static/a.txt public/a.txt
+grep 'b' public/a.txt
+
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+enableRobotsTXT = true
+[build]
+noHardlinks = false
+-- static/a.txt --
+a
+-- static/b.txt --
+b
+-- static/sub/b.txt --
+b
+-- static/robots.txt --
+static robots
+-- layouts/robots.txt --
+generated
+-- layouts/home.html --
+Home.
