@@ -288,11 +288,8 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 		renderStaticToDisk := cfg.GetBool("renderStaticToDisk")
 
 		sourceFs := hugofs.Os
-		var osFs afero.Fs = hugofs.Os
-		if base.Build.Hardlinks {
-			// Writes must not modify the source of a hard link.
-			osFs = hugofs.NewUnlinkOnCreateFs(osFs)
-		}
+		// Writes must not modify the source of a hard link, which may be left from an earlier build.
+		osFs := hugofs.NewUnlinkOnCreateFs(hugofs.Os)
 		var destinationFs afero.Fs
 		if cfg.GetBool("renderToMemory") {
 			destinationFs = afero.NewMemMapFs()

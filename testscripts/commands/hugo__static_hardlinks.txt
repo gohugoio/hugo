@@ -28,6 +28,17 @@ hugo --cleanDestinationDir
 ! samefile static/a.txt public/a.txt
 grep 'b' public/a.txt
 
+# Links left from an earlier build must not be written through.
+replace hugo.toml 'hardlinks = false' 'hardlinks = true'
+rm public
+hugo
+samefile content/p1/r.txt public/p1/r.txt
+replace hugo.toml 'hardlinks = true' 'hardlinks = false'
+hugo
+! samefile content/p1/r.txt public/p1/r.txt
+grep '^r$' content/p1/r.txt
+grep '^r$' public/p1/r.txt
+
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
 enableRobotsTXT = true
@@ -45,3 +56,11 @@ static robots
 generated
 -- layouts/home.html --
 Home.
+-- content/p1/index.md --
+---
+title: p1
+---
+-- content/p1/r.txt --
+r
+-- layouts/page.html --
+{{ (.Resources.Get "r.txt").RelPermalink }}
