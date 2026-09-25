@@ -275,6 +275,23 @@ var commonTestScriptsParam = testscript.Params{
 				ts.Fatalf("failed to create symlink: %v", err)
 			}
 		},
+		// samefile checks that the two given files are the same file (e.g. hard links).
+		"samefile": func(ts *testscript.TestScript, neg bool, args []string) {
+			if len(args) != 2 {
+				ts.Fatalf("usage: samefile FILE1 FILE2")
+			}
+			fi1, err := os.Stat(ts.MkAbs(args[0]))
+			if err != nil {
+				ts.Fatalf("%v", err)
+			}
+			fi2, err := os.Stat(ts.MkAbs(args[1]))
+			if err != nil {
+				ts.Fatalf("%v", err)
+			}
+			if os.SameFile(fi1, fi2) == neg {
+				ts.Fatalf("samefile %s %s: expected %t", args[0], args[1], !neg)
+			}
+		},
 		// base64decode decodes a base64-encoded file into a binary file.
 		"base64decode": func(ts *testscript.TestScript, neg bool, args []string) {
 			if len(args) != 2 {

@@ -14,6 +14,7 @@
 package hugofs
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/gohugoio/hugo/config"
@@ -30,6 +31,31 @@ func TestIsOsFs(t *testing.T) {
 	c.Assert(IsOsFs(&afero.MemMapFs{}), qt.Equals, false)
 	c.Assert(IsOsFs(NewBasePathFs(&afero.MemMapFs{}, "/public")), qt.Equals, false)
 	c.Assert(IsOsFs(NewBasePathFs(Os, t.TempDir())), qt.Equals, true)
+}
+
+func TestRealFilename(t *testing.T) {
+	c := qt.New(t)
+	dir := t.TempDir()
+
+	assertReal := func(fs afero.Fs, name, expect string) {
+		c.Helper()
+		got, ok := RealFilename(fs, name)
+		c.Assert(ok, qt.IsTrue)
+		c.Assert(got, qt.Equals, expect)
+	}
+	assertNotReal := func(fs afero.Fs, name string) {
+		c.Helper()
+		_, ok := RealFilename(fs, name)
+		c.Assert(ok, qt.IsFalse)
+	}
+
+	assertReal(Os, "/a/b.txt", "/a/b.txt")
+	assertReal(NewBasePathFs(Os, dir), "a/b.txt", filepath.Join(dir, "a", "b.txt"))
+	assertReal(NewBasePathFs(NewBasePathFs(Os, dir), "public"), "b.txt", filepath.Join(dir, "public", "b.txt"))
+	assertReal(NewHashingFs(NewBasePathFs(Os, dir), nil), "b.txt", filepath.Join(dir, "b.txt"))
+	assertNotReal(NewBasePathFs(Os, dir), "../b.txt")
+	assertNotReal(&afero.MemMapFs{}, "/a/b.txt")
+	assertNotReal(NewBasePathFs(&afero.MemMapFs{}, "/public"), "b.txt")
 }
 
 func TestNewDefault(t *testing.T) {

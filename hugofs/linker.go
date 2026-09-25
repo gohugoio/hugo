@@ -1,0 +1,74 @@
+// Copyright 2026 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package hugofs
+
+import (
+	"errors"
+	iofs "io/fs"
+	"os"
+	"path/filepath"
+	"sync"
+
+	"github.com/spf13/afero"
+)
+
+// Linker creates hard links in the publish dir when possible.
+type Linker struct {
+	// Source devices where hard linking is not possible.
+	disabled sync.Map
+}
+
+// Link creates dst in dstFs as a hard link to the OS file src, replacing any existing dst.
+// It returns false if hard links are not possible and dst must be copied instead.
+func (l *Linker) Link(src string, dstFs afero.Fs, dst string) (bool, error) {
+	dstFilename, ok := RealFilename(dstFs, dst)
+	if !ok {
+		return false, nil
+	}
+	fi, err := os.Lstat(src)
+	if err != nil {
+		if errors.Is(err, iofs.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
+	// Symlinks must be resolved by copying.
+	if !fi.Mode().IsRegular() {
+		return false, nil
+	}
+	dev := deviceID(fi)
+	if _, found := l.disabled.Load(dev); found {
+		return false, nil
+	}
+	if err := dstFs.Remove(dst); err != nil && !errors.Is(err, iofs.ErrNotExist) {
+		return false, err
+	}
+	err = os.Link(src, dstFilename)
+	if errors.Is(err, iofs.ErrNotExist) {
+		if err = dstFs.MkdirAll(filepath.Dir(dst), 0o777); err == nil {
+			err = os.Link(src, dstFilename)
+		}
+	}
+	if err == nil {
+		return true, nil
+	}
+	if isLinkUnsupported(err) {
+		l.disabled.Store(dev, true)
+		return false, nil
+	}
+	if isLinkNotPossible(err) {
+		return false, nil
+	}
+	return false, err
+}

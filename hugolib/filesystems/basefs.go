@@ -76,6 +76,9 @@ type BaseFs struct {
 	// The filesystem used for static files.
 	PublishFsStatic afero.Fs
 
+	// Linker hard links files into PublishFs. Nil if hard links are disabled.
+	Linker *hugofs.Linker
+
 	// A read-only filesystem starting from the project workDir.
 	WorkDir afero.Fs
 
@@ -495,6 +498,7 @@ func NewBase(p *paths.Paths, logger loggers.Logger, options ...func(*BaseFs) err
 		WorkDir:         fs.WorkingDirReadOnly,
 		PublishFs:       publishFs,
 		PublishFsStatic: publishFsStatic,
+		Linker:          fs.Linker,
 		workingDir:      p.Cfg.BaseConfig().WorkingDir,
 		buildMu:         buildMu,
 	}

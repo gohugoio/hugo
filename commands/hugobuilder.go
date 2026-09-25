@@ -466,18 +466,14 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 
 	fs := &countingStatFs{Fs: sourceFs.Fs}
 
-	syncer := fsync.NewSyncer()
-	var clean config.CleanDestinationDir
+	var (
+		syncer *fsync.Syncer
+		clean  config.CleanDestinationDir
+	)
 	c.withConf(func(conf *commonConfig) {
-		syncer.NoTimes = conf.configs.Base.NoTimes
-		syncer.NoChmod = conf.configs.Base.NoChmod
-		syncer.ChmodFilter = chmodFilter
-
-		syncer.DestFs = conf.fs.PublishDirStatic
+		syncer = newStaticSyncer(conf, fs)
 		clean = conf.configs.Base.Build.CleanDestinationDir
 	})
-
-	syncer.SrcFs = fs
 
 	start := time.Now()
 
@@ -504,6 +500,25 @@ func (c *hugoBuilder) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint
 	numFiles := fs.statCounter / 2
 
 	return numFiles, nil
+}
+
+func newStaticSyncer(conf *commonConfig, srcFs afero.Fs) *fsync.Syncer {
+	syncer := fsync.NewSyncer()
+	syncer.NoTimes = conf.configs.Base.NoTimes
+	syncer.NoChmod = conf.configs.Base.NoChmod
+	syncer.ChmodFilter = chmodFilter
+	syncer.SrcFs = srcFs
+	syncer.DestFs = conf.fs.PublishDirStatic
+	if linker := conf.fs.Linker; linker != nil {
+		syncer.Link = func(dst, src string, sstat os.FileInfo) (bool, error) {
+			fim, ok := sstat.(hugofs.FileMetaInfo)
+			if !ok {
+				return false, nil
+			}
+			return linker.Link(fim.Meta().Filename, syncer.DestFs, dst)
+		}
+	}
+	return syncer
 }
 
 // removeStale removes entries in dstDir on dst that keep reports as false and
