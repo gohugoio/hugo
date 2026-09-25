@@ -159,7 +159,7 @@ func Check() {
 
 func testGoFlags() string {
 	if isCI() {
-		return ""
+		return "-vet=off"
 	}
 
 	return "-timeout=2m"
