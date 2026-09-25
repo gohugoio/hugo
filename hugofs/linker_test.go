@@ -45,31 +45,45 @@ func TestLinker(t *testing.T) {
 		c.Assert(os.SameFile(fa, fb), qt.Equals, same)
 	}
 
+	link := func(src string, dst string) bool {
+		c.Helper()
+		linked, err := l.Link(src, pubFs, dst)
+		c.Assert(err, qt.IsNil)
+		return linked
+	}
+
 	// Creates missing directories.
-	c.Assert(l.Link(src, pubFs, "a/b.txt"), qt.IsTrue)
+	c.Assert(link(src, "a/b.txt"), qt.IsTrue)
 	assertSameFile(src, filepath.Join(pubDir, "a", "b.txt"), true)
 
 	// Replaces existing files.
 	c.Assert(afero.WriteFile(pubFs, "c.txt", []byte("old"), 0o644), qt.IsNil)
-	c.Assert(l.Link(src, pubFs, "c.txt"), qt.IsTrue)
+	c.Assert(link(src, "c.txt"), qt.IsTrue)
 	assertSameFile(src, filepath.Join(pubDir, "c.txt"), true)
 
 	// Not an OS destination.
-	c.Assert(l.Link(src, NewBasePathFs(&afero.MemMapFs{}, "/public"), "d.txt"), qt.IsFalse)
+	linked, err := l.Link(src, NewBasePathFs(&afero.MemMapFs{}, "/public"), "d.txt")
+	c.Assert(err, qt.IsNil)
+	c.Assert(linked, qt.IsFalse)
 
 	// Read-only source, e.g. from the module cache.
 	ro := filepath.Join(dir, "ro.txt")
 	c.Assert(os.WriteFile(ro, []byte("ro"), 0o444), qt.IsNil)
-	c.Assert(l.Link(ro, pubFs, "ro.txt"), qt.IsTrue)
+	c.Assert(link(ro, "ro.txt"), qt.IsTrue)
 	assertSameFile(ro, filepath.Join(pubDir, "ro.txt"), true)
 
 	// Symlink source.
 	if runtime.GOOS != "windows" {
-		link := filepath.Join(dir, "link.txt")
-		c.Assert(os.Symlink(src, link), qt.IsNil)
-		c.Assert(l.Link(link, pubFs, "link.txt"), qt.IsFalse)
+		symlink := filepath.Join(dir, "link.txt")
+		c.Assert(os.Symlink(src, symlink), qt.IsNil)
+		c.Assert(link(symlink, "link.txt"), qt.IsFalse)
 	}
 
 	// Missing source.
-	c.Assert(l.Link(filepath.Join(dir, "missing.txt"), pubFs, "missing.txt"), qt.IsFalse)
+	c.Assert(link(filepath.Join(dir, "missing.txt"), "missing.txt"), qt.IsFalse)
+
+	// Destination is a non-empty directory.
+	c.Assert(pubFs.MkdirAll("dir/sub", 0o777), qt.IsNil)
+	_, err = l.Link(src, pubFs, "dir")
+	c.Assert(err, qt.IsNotNil)
 }

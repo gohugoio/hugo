@@ -30,3 +30,8 @@ func isLinkUnsupported(err error) bool {
 	)
 	return errors.Is(err, errorNotSameDevice) || errors.Is(err, errorInvalidFunction)
 }
+
+func isLinkNotPossible(err error) bool {
+	const errorTooManyLinks = syscall.Errno(1142)
+	return errors.Is(err, errorTooManyLinks)
+}

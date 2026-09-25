@@ -510,12 +510,12 @@ func newStaticSyncer(conf *commonConfig, srcFs afero.Fs) *fsync.Syncer {
 	syncer.SrcFs = srcFs
 	syncer.DestFs = conf.fs.PublishDirStatic
 	if linker := conf.fs.Linker; linker != nil {
-		syncer.Link = func(dst, src string, sstat os.FileInfo) error {
+		syncer.Link = func(dst, src string, sstat os.FileInfo) (bool, error) {
 			fim, ok := sstat.(hugofs.FileMetaInfo)
-			if !ok || !linker.Link(fim.Meta().Filename, syncer.DestFs, dst) {
-				return errors.New("hard link not possible")
+			if !ok {
+				return false, nil
 			}
-			return nil
+			return linker.Link(fim.Meta().Filename, syncer.DestFs, dst)
 		}
 	}
 	return syncer
