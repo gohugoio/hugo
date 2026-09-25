@@ -933,6 +933,11 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			}
 
 			pss[i] = h.Configs.ContentPathParser.Parse(cps.Component, p)
+			if pss[i].IsLeafBundle() || pss[i].IsBranchBundle() {
+				if h.pageTrees.leafBundleOwner(pss[i]) != nil {
+					paths.ModifyPathBundleTypeResource(pss[i])
+				}
+			}
 			if ev.added && !ev.isChangedDir && cps.Component == files.ComponentFolderContent {
 				addedContentPaths = append(addedContentPaths, pss[i])
 			}

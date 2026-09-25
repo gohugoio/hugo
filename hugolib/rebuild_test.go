@@ -125,6 +125,80 @@ func TestRebuildEditTextFileInLeafBundle(t *testing.T) {
 	b.AssertRenderCountContent(0)
 }
 
+// See issue 13961.
+func TestRebuildEditNestedContentInLeafBundle(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT", "404", "rss"]
+-- content/_index.md --
+---
+title: "Home"
+---
+-- content/a/index.md --
+---
+title: "A"
+---
+A.
+-- content/a/b/index.md --
+---
+title: "B"
+---
+B.
+-- content/a/b/c.md --
+---
+title: "C"
+---
+C.
+-- content/s/_index.md --
+---
+title: "S"
+---
+-- content/s/p/index.md --
+---
+title: "P"
+---
+P.
+-- layouts/home.html --
+Home.
+-- layouts/list.html --
+List: {{ .Title }}|
+-- layouts/page.html --
+Page: {{ .Title }}|{{ .Content }}|Resources: {{ range .Resources }}{{ .Name }}:{{ .Content }}{{ end }}|
+`
+
+	b := Test(t, files, TestOptRunning())
+	b.AssertFileContent("public/a/index.html", "Page: A", "index.md:<p>B.</p>", "c.md:<p>C.</p>")
+	b.AssertFileExists("public/a/b/index.html", false)
+	b.AssertFileExists("public/a/b/c/index.html", false)
+	b.AssertFileContent("public/s/p/index.html", "Page: P", "<p>P.</p>")
+
+	b.EditFileReplaceAll("content/a/b/index.md", "B.", "B edited.").Build()
+	b.AssertFileContent("public/a/index.html", "index.md:<p>B edited.</p>")
+	b.AssertFileExists("public/a/b/index.html", false)
+	b.AssertFileExists("public/a/b/c/index.html", false)
+
+	b.EditFileReplaceAll("content/a/b/c.md", "C.", "C edited.").Build()
+	b.AssertFileContent("public/a/index.html", "c.md:<p>C edited.</p>")
+	b.AssertFileExists("public/a/b/index.html", false)
+	b.AssertFileExists("public/a/b/c/index.html", false)
+
+	b.AddFiles("content/a/b/d/index.md", `---
+title: "D"
+---
+D.
+`).Build()
+	b.AssertFileContent("public/a/index.html", "index.md:<p>D.</p>")
+	b.AssertFileExists("public/a/b/d/index.html", false)
+
+	// A real leaf below a branch bundle must still rebuild as a page.
+	b.EditFileReplaceAll("content/s/p/index.md", "P.", "P edited.").Build()
+	b.AssertFileContent("public/s/p/index.html", "Page: P", "<p>P edited.</p>")
+}
+
 func TestRebuildAddingALeaffBundleIssue13925(t *testing.T) {
 	t.Parallel()
 
