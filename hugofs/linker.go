@@ -30,33 +30,45 @@ type Linker struct {
 }
 
 // Link creates dst in dstFs as a hard link to the OS file src, replacing any existing dst.
-// It returns false if the link could not be created and dst must be copied instead.
-func (l *Linker) Link(src string, dstFs afero.Fs, dst string) bool {
+// It returns false if hard links are not possible and dst must be copied instead.
+func (l *Linker) Link(src string, dstFs afero.Fs, dst string) (bool, error) {
 	dstFilename, ok := RealFilename(dstFs, dst)
 	if !ok {
-		return false
+		return false, nil
 	}
 	fi, err := os.Lstat(src)
+	if err != nil {
+		if errors.Is(err, iofs.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
 	// Symlinks must be resolved by copying.
-	if err != nil || !fi.Mode().IsRegular() {
-		return false
+	if !fi.Mode().IsRegular() {
+		return false, nil
 	}
 	dev := deviceID(fi)
 	if _, found := l.disabled.Load(dev); found {
-		return false
+		return false, nil
 	}
-	_ = dstFs.Remove(dst)
+	if err := dstFs.Remove(dst); err != nil && !errors.Is(err, iofs.ErrNotExist) {
+		return false, err
+	}
 	err = os.Link(src, dstFilename)
 	if errors.Is(err, iofs.ErrNotExist) {
-		if dstFs.MkdirAll(filepath.Dir(dst), 0o777) == nil {
+		if err = dstFs.MkdirAll(filepath.Dir(dst), 0o777); err == nil {
 			err = os.Link(src, dstFilename)
 		}
 	}
 	if err == nil {
-		return true
+		return true, nil
 	}
 	if isLinkUnsupported(err) {
 		l.disabled.Store(dev, true)
+		return false, nil
 	}
-	return false
+	if isLinkNotPossible(err) {
+		return false, nil
+	}
+	return false, err
 }

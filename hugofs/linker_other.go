@@ -24,3 +24,7 @@ func deviceID(fi os.FileInfo) uint64 {
 func isLinkUnsupported(err error) bool {
 	return true
 }
+
+func isLinkNotPossible(err error) bool {
+	return true
+}

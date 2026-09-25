@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"io"
 	"mime"
-	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -532,12 +531,20 @@ func (l *genericResource) Publish() error {
 		}
 
 		if linker := l.spec.BaseFs.Linker; linker != nil && l.sd.SourceFilename != "" {
-			targetFilenames = slices.DeleteFunc(targetFilenames, func(filename string) bool {
-				return linker.Link(l.sd.SourceFilename, l.spec.BaseFs.PublishFs, filename)
-			})
-			if len(targetFilenames) == 0 {
+			var toCopy []string
+			for _, filename := range targetFilenames {
+				var linked bool
+				if linked, err = linker.Link(l.sd.SourceFilename, l.spec.BaseFs.PublishFs, filename); err != nil {
+					return
+				}
+				if !linked {
+					toCopy = append(toCopy, filename)
+				}
+			}
+			if len(toCopy) == 0 {
 				return
 			}
+			targetFilenames = toCopy
 		}
 
 		var fr hugio.ReadSeekCloser

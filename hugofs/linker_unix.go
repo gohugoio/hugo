@@ -28,6 +28,13 @@ func deviceID(fi os.FileInfo) uint64 {
 	return 0
 }
 
+// isLinkUnsupported reports whether err means that the source device does not support hard links to the destination.
 func isLinkUnsupported(err error) bool {
 	return errors.Is(err, syscall.EXDEV) || errors.Is(err, syscall.ENOTSUP)
+}
+
+// isLinkNotPossible reports whether err means that this file cannot be linked, e.g. the link limit is reached
+// or fs.protected_hardlinks denies it.
+func isLinkNotPossible(err error) bool {
+	return errors.Is(err, syscall.EPERM) || errors.Is(err, syscall.EMLINK)
 }
