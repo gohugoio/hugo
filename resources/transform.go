@@ -80,6 +80,7 @@ func newResourceAdapter(spec *Spec, lazyPublish bool, target transformableResour
 		po = &publishOnce{}
 	}
 	return &resourceAdapter{
+		spec:                    spec,
 		resourceTransformations: &resourceTransformations{},
 		metaProvider:            target,
 		sourceTarget:            target,
@@ -187,6 +188,7 @@ type resourceAdapter struct {
 	commonResource
 	*resourceTransformations
 	*resourceAdapterInner
+	spec *Spec
 
 	// The original untransformed target. The inner target is replaced with the
 	// transformed resource once the transformation chain has run, so any new
@@ -335,7 +337,7 @@ func (r *resourceAdapter) Params() hmaps.Params {
 
 func (r *resourceAdapter) Permalink() string {
 	r.init(true, false)
-	return r.target.Permalink()
+	return r.spec.Cfg.BaseURL().WithPathNoTrailingSlash + paths.PathEscape(r.target.getResourcePaths().TargetPath())
 }
 
 func (r *resourceAdapter) Publish() error {
@@ -356,7 +358,7 @@ func (r *resourceAdapter) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 
 func (r *resourceAdapter) RelPermalink() string {
 	r.init(true, false)
-	return r.target.RelPermalink()
+	return r.spec.PathSpec.GetBasePath(false) + paths.PathEscape(r.target.getResourcePaths().TargetLink())
 }
 
 func (r *resourceAdapter) ResourceType() string {
@@ -479,7 +481,6 @@ func (r *resourceAdapter) transformationKey(trs []ResourceTransformation) string
 
 func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	key := r.TransformationKey()
-
 	var created bool
 	res, err := r.spec.ResourceCache.cacheResourceTransformation.GetOrCreate(key, func(string) (*resourceAdapterInner, error) {
 		created = true
@@ -525,6 +526,19 @@ func (r *resourceAdapter) getOrTransform(publish, setContent bool) error {
 	}
 
 	return nil
+}
+
+func (r *resourceAdapter) cloneWithSpec(spec *Spec) *resourceAdapter {
+	clone := *r
+	clone.spec = spec
+	clone.resourceAdapterInner = &resourceAdapterInner{
+		ctx:         r.ctx,
+		spec:        spec,
+		target:      r.target,
+		Staler:      r.Staler,
+		publishOnce: r.publishOnce,
+	}
+	return &clone
 }
 
 func (r *resourceAdapter) transform(key string, publish, setContent bool) (*resourceAdapterInner, error) {
